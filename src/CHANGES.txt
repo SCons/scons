@@ -104,6 +104,11 @@ RELEASE 0.97 - XXX
   - Enhance the tests to guarantee persistence of ListOption
     values in saved options files.
 
+  From Han-Wen Nienhuys:
+
+  - Optimize variable expansion by using the re.sub() method (when
+    possible).
+
   From Gary Oberbrunner:
 
   - Add an Environment.Dump() method to print the contents of a

@@ -190,7 +190,7 @@ env.subst('$foo.bar.3.0')
 
 test.run(status=2, stderr="""
 scons: \*\*\* Syntax error `invalid syntax( \(line 1\))?' trying to evaluate `\$foo\.bar\.3\.0'
-File "SConstruct", line 2, in \?
+File "[^"]+", line \d+, in \S+
 """)
 
 test.write('SConstruct', """\
@@ -200,7 +200,7 @@ env.subst_list('$foo.3.0.x')
 
 test.run(status=2, stderr="""
 scons: \*\*\* Syntax error `invalid syntax( \(line 1\))?' trying to evaluate `\$foo\.3\.0\.x'
-File "SConstruct", line 2, in \?
+File "[^"]+", line \d+, in \S+
 """)
 
 #Test syntax errors when trying to expand construction variables at build time:

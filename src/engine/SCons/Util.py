@@ -527,6 +527,7 @@ _regex_remove = [ _rm, None, _remove ]
 #       "$"                     [single dollar sign]
 #
 _separate_args = re.compile(r'(\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}|\s+|[^\s\$]+|\$)')
+special_exps = re.compile (r'(\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*})')
 
 # This regular expression is used to replace strings of multiple white
 # space characters in the string result from the scons_subst() function.
@@ -601,9 +602,9 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
                 else:
                     return s
             elif is_List(s):
-                r = []
-                for l in s:
-                    r.append(self.conv(self.substitute(l, lvars)))
+                def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
+                    return conv(substitute(l, lvars))
+                r = map(func, s)
                 return string.join(r)
             elif callable(s):
                 try:
@@ -629,14 +630,24 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
             separate tokens.
             """
             if is_String(args) and not isinstance(args, CmdStringHolder):
-                args = _separate_args.findall(args)
-                result = []
-                for a in args:
-                    result.append(self.conv(self.expand(a, lvars)))
                 try:
-                    result = string.join(result, '')
+                    def sub_match(match, conv=self.conv, expand=self.expand, lvars=lvars):
+                        return conv(expand(match.group(1), lvars))
+                    result = special_exps.sub(sub_match, args)
                 except TypeError:
-                    pass
+                    # If the internal conversion routine doesn't return
+                    # strings (it could be overridden to return Nodes,
+                    # for example), then the re module will throw this
+                    # exception.  Back off to a slower, general-purpose
+                    # algorithm that works for all data types.
+                    args = _separate_args.findall(args)
+                    result = []
+                    for a in args:
+                        result.append(self.conv(self.expand(a, lvars)))
+                    try:
+                        result = string.join(result, '')
+                    except TypeError:
+                        pass
                 return result
             else:
                 return self.expand(args, lvars)
@@ -903,39 +914,33 @@ def scons_subst_once(strSubst, env, key):
     We do this with some straightforward, brute-force code here...
     """
     matchlist = ['$' + key, '${' + key + '}']
+    val = env.get(key, '')
+    def sub_match(match, val=val, matchlist=matchlist):
+        a = match.group(1)
+        if a in matchlist:
+            a = val
+        if is_List(a):
+            return string.join(map(str, a))
+        else:
+            return str(a)
+
     if is_List(strSubst):
         result = []
         for arg in strSubst:
             if is_String(arg):
                 if arg in matchlist:
-                    arg = env[key]
+                    arg = val
                     if is_List(arg):
                         result.extend(arg)
                     else:
                         result.append(arg)
                 else:
-                    r = []
-                    for a in _separate_args.findall(arg):
-                        if a in matchlist:
-                            a = env[key]
-                        if is_List(a):
-                            r.append(string.join(map(str, a)))
-                        else:
-                            r.append(str(a))
-                    result.append(string.join(r, ''))
+                    result.append(special_exps.sub(sub_match, arg))
             else:
                 result.append(arg)
         return result
     elif is_String(strSubst):
-        result = []
-        for a in _separate_args.findall(strSubst):
-            if a in matchlist:
-                a = env[key]
-            if is_List(a):
-                result.append(string.join(map(str, a)))
-            else:
-                result.append(str(a))
-        return string.join(result, '')
+        return special_exps.sub(sub_match, strSubst)
     else:
         return strSubst
 
