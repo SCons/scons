@@ -30,6 +30,7 @@
 import distutils.util
 import os
 import os.path
+import socket
 import stat
 import string
 import sys
@@ -91,7 +92,7 @@ elif os.environ.has_key('USER'):
 if ARGUMENTS.has_key('build_system'):
     build_system = ARGUMENTS['build_system']
 else:
-    build_system = string.split(os.uname()[1], '.')[0]
+    build_system = string.split(socket.gethostname(), '.')[0]
 
 if ARGUMENTS.has_key('version'):
     revision = ARGUMENTS['version']
