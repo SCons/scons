@@ -42,15 +42,11 @@ class AliasTestCase(unittest.TestCase):
         """
         ans = SCons.Node.Alias.AliasNameSpace()
 
-        a = ans.Alias('a1')
-	assert a.name == 'a1', a.name
+        a1 = ans.Alias('a1')
+        assert a1.name == 'a1', a1.name
 
-        try:
-            ans.Alias('a1')
-        except SCons.Errors.UserError:
-            pass
-        else:
-            raise TestFailed, "did not catch expected UserError"
+        a2 = ans.Alias('a1')
+        assert a1 is a2, (a1, a2)
 
     def test_lookup(self):
         """Test the lookup() method

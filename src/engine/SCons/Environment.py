@@ -96,6 +96,7 @@ AliasBuilder = SCons.Builder.Builder(action = alias_builder,
                                      target_factory = SCons.Node.Alias.default_ans.Alias,
                                      source_factory = SCons.Node.FS.default_fs.Entry,
                                      multi = 1,
+                                     is_explicit = None,
                                      name='AliasBuilder')
 
 def our_deepcopy(x):
@@ -1036,29 +1037,56 @@ class Base:
             n.add_post_action(action)
         return nodes
 
-    def Alias(self, target, *source, **kw):
-        if not SCons.Util.is_List(target):
-            target = [target]
-        tlist = []
-        for t in target:
-            if not isinstance(t, SCons.Node.Alias.Alias):
-                t = self.arg2nodes(self.subst(t), self.ans.Alias)[0]
-            tlist.append(t)
-        try:
-            s = kw['source']
-        except KeyError:
-            try:
-                s = source[0]
-            except IndexError:
-                s = None
-        if s:
-            if not SCons.Util.is_List(s):
-                s = [s]
-            s = filter(None, s)
-            s = self.arg2nodes(s, self.fs.Entry)
+    def Alias(self, target, source=[], action=None, **kw):
+        tlist = self.arg2nodes(target, self.ans.Alias)
+        if not SCons.Util.is_List(source):
+            source = [source]
+        source = filter(None, source)
+
+        if not action:
+            if not source:
+                # There are no source files and no action, so just
+                # return a target list of classic Alias Nodes, without
+                # any builder.  The externally visible effect is that
+                # this will make the wrapping Script.BuildTask class
+                # say that there's "Nothing to be done" for this Alias,
+                # instead of that it's "up to date."
+                return tlist
+
+            # No action, but there are sources.  Re-call all the target
+            # builders to add the sources to each target.
+            result = []
             for t in tlist:
-                AliasBuilder(self, t, s)
-        return tlist
+                bld = t.get_builder(AliasBuilder)
+                result.extend(bld(self, t, source))
+            return result
+
+        action = SCons.Action.Action(action)
+        nkw = self.subst_kw(kw)
+        nkw['source_factory'] = self.fs.Entry
+        nkw['multi'] = 1
+        nkw['action'] = action
+        bld = apply(SCons.Builder.Builder, (), nkw)
+
+        # Apply the Builder separately to each target so that the Aliases
+        # stay separate.  If we did one "normal" Builder call with the
+        # whole target list, then all of the target Aliases would be
+        # associated under a single Executor.
+        result = []
+        for t in tlist:
+            # Calling the convert() method will cause a new Executor to be
+            # created from scratch, so we have to explicitly initialize
+            # it with the target's existing sources, plus our new ones,
+            # so nothing gets lost.
+            b = t.get_builder()
+            if b is None or b is AliasBuilder:
+                b = bld
+            else:
+                nkw['action'] = b.action + action
+                b = apply(SCons.Builder.Builder, (), nkw)
+            t.convert()
+            result.extend(b(self, t, t.sources + source))
+        return result
 
     def AlwaysBuild(self, *targets):
         tlist = []

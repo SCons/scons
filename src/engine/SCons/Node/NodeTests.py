@@ -390,6 +390,19 @@ class NodeTestCase(unittest.TestCase):
         n1.builder_set(Builder(is_explicit=None))
         assert not n1.has_explicit_builder()
 
+    def test_get_builder(self):
+        """Test the get_builder() method"""
+        n1 = SCons.Node.Node()
+        b = n1.get_builder()
+        assert b is None, b
+        b = n1.get_builder(777)
+        assert b == 777, b
+        n1.builder_set(888)
+        b = n1.get_builder()
+        assert b == 888, b
+        b = n1.get_builder(999)
+        assert b == 888, b
+
     def test_multiple_side_effect_has_builder(self):
         """Test the multiple_side_effect_has_builder() method
         """

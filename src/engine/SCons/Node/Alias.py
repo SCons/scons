@@ -39,11 +39,15 @@ import SCons.Node
 import SCons.Util
 
 class AliasNameSpace(UserDict.UserDict):
-    def Alias(self, name):
-        if self.has_key(name):
-            raise SCons.Errors.UserError
-        self[name] = SCons.Node.Alias.Alias(name)
-        return self[name]
+    def Alias(self, name, **kw):
+        if isinstance(name, SCons.Node.Alias.Alias):
+            return name
+        try:
+            a = self[name]
+        except KeyError:
+            a = apply(SCons.Node.Alias.Alias, (name,), kw)
+            self[name] = a
+        return a
 
     def lookup(self, name):
         try:
@@ -59,18 +63,11 @@ class Alias(SCons.Node.Node):
     def __str__(self):
         return self.name
 
-    def build(self):
-        """A "builder" for aliases."""
-        pass
-
+    really_build = SCons.Node.Node.build
     current = SCons.Node.Node.children_are_up_to_date
 
-    def sconsign(self):
-        """An Alias is not recorded in .sconsign files"""
-        pass
-
     def is_under(self, dir):
-        # Make Alias nodes get built regardless of 
+        # Make Alias nodes get built regardless of
         # what directory scons was run from. Alias nodes
         # are outside the filesystem:
         return 1
@@ -82,7 +79,25 @@ class Alias(SCons.Node.Node):
         for kid in self.children(None):
             contents = contents + kid.get_contents()
         return contents
-        
+
+    def sconsign(self):
+        """An Alias is not recorded in .sconsign files"""
+        pass
+
+    #
+    #
+    #
+
+    def build(self):
+        """A "builder" for aliases."""
+        pass
+
+    def convert(self):
+        try: del self.builder
+        except AttributeError: pass
+        self.reset_executor()
+        self.build = self.really_build
+
 default_ans = AliasNameSpace()
 
 SCons.Node.arg2nodes_lookups.append(default_ans.lookup)
