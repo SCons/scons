@@ -171,6 +171,22 @@ public class Example1 extends UnicastRemoteObject implements Hello {
         assert pkg_dir == os.path.join('com', 'sub', 'foo'), pkg_dir
         assert classes == ['Example1'], classes
 
+    def test_arrays(self):
+        """Test arrays of class instances"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+public class Test {
+    MyClass abc = new MyClass();
+    MyClass xyz = new MyClass();
+    MyClass _array[] = new MyClass[] {
+        abc,
+        xyz
+    }
+}
+""")
+        assert pkg_dir == None, pkg_dir
+        assert classes == ['Test'], classes
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     tclasses = [ parse_javaTestCase ]

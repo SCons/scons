@@ -10,6 +10,11 @@
 
 RELEASE 0.97 - XXX
 
+  From Anonymous:
+
+  - Fix Java parsing to avoid erroneously identifying a new array
+    of class instances as an anonymous inner class.
+
   From Chad Austin:
 
   - Allow Help() to be called multiple times, appending to the help
