@@ -28,6 +28,8 @@ RELEASE 0.14 - XXX
 
   - Portability fixes for a lot of tests.
 
+  - Add a Value Node class for dependencies on in-core Python values.
+
   From Allen Bierbaum:
 
   - Pass an Environment to the Options validator method, and

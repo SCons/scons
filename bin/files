@@ -6,6 +6,7 @@
 ./SCons/Job.py
 ./SCons/Node/Alias.py
 ./SCons/Node/FS.py
+./SCons/Node/Python.py
 ./SCons/Node/__init__.py
 ./SCons/Options.py
 ./SCons/Platform/__init__.py

@@ -37,6 +37,7 @@ import SCons.Environment
 import SCons.Errors
 import SCons.Node
 import SCons.Node.FS
+import SCons.Node.Python
 import SCons.Platform
 import SCons.SConf
 import SCons.Script
@@ -561,5 +562,6 @@ def BuildDefaultGlobals():
     globals['StaticObject']      = SCons.Defaults.StaticObject
     globals['TargetSignatures']  = TargetSignatures
     globals['Tool']              = SCons.Tool.Tool
+    globals['Value']             = SCons.Node.Python.Value
     globals['WhereIs']           = SCons.Util.WhereIs
     return globals

@@ -4064,6 +4064,27 @@ env = Environment(tools = [ Tool('msvc') ])
 .EE
 
 .TP
+.RI Value( value )
+Returns a Node object representing the specified Python value.  Value
+nodes can be used as dependencies of targets.  If the result of
+calling
+.BR str( value )
+changes between SCons runs, any targets depending on
+.BR Value( value )
+will be rebuilt.
+
+.ES
+def create(target, source, env):
+    f = open(str(target[0]), 'wb')
+    f.write('prefix=' + source[0].get_contents())
+    
+prefix = ARGUMENTS.get('prefix', '/usr/local')
+env = Environment()
+env['BUILDERS']['Config'] = Builder(action = create)
+env.Config(target = 'package-config', source = Value(prefix))
+.EE
+
+.TP
 .RI WhereIs( program ", [" path  ", [" pathext ]])
 
 Searches for the specified executable

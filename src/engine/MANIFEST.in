@@ -9,6 +9,7 @@ SCons/exitfuncs.py
 SCons/Node/__init__.py
 SCons/Node/Alias.py
 SCons/Node/FS.py
+SCons/Node/Python.py
 SCons/Optik/__init__.py
 SCons/Optik/errors.py
 SCons/Optik/option.py
