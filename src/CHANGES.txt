@@ -126,6 +126,11 @@ RELEASE 0.08 -
   - Change the name of Update() to Replace().  Keep Update() as a
     deprecated synonym, at least for now.
 
+  From Terrel Shumway:
+
+  - Use a $PYTHON construction variable, initialized to sys.executable,
+    when using Python to build parts of the SCons packages.
+
 
 
 RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500

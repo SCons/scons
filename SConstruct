@@ -275,6 +275,8 @@ env = Environment(
                    UNPACK_ZIP_DIR      = unpack_zip_dir,
 
                    BUILDERS            = { 'SCons_revision' : revbuilder },
+
+                   PYTHON              = sys.executable
                  )
 
 #
@@ -589,7 +591,7 @@ for p in [ scons ]:
         env.Command(dfiles, unpack_tar_gz_files, [
             "rm -rf %s" % os.path.join(unpack_tar_gz_dir, pkg_version, 'build'),
             "rm -rf $TEST_TAR_GZ_DIR",
-            "python %s install --prefix=$TEST_TAR_GZ_DIR" % \
+            "$PYTHON %s install --prefix=$TEST_TAR_GZ_DIR" % \
                 os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
         ])
 
@@ -629,7 +631,7 @@ for p in [ scons ]:
         env.Command(dfiles, unpack_zip_files, [
             "rm -rf %s" % os.path.join(unpack_zip_dir, pkg_version, 'build'),
             "rm -rf $TEST_ZIP_DIR",
-            "python %s install --prefix=$TEST_ZIP_DIR" % \
+            "$PYTHON %s install --prefix=$TEST_ZIP_DIR" % \
                 os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
         ])
 
@@ -674,7 +676,7 @@ for p in [ scons ]:
             b = env.SCons_revision(os.path.join(build, d), d)
             env.Depends(deb, b)
         env.Command(deb, build_src_files, [
-            "cd %s && fakeroot make -f debian/rules PYTHON=python BUILDDEB_OPTIONS=--destdir=../../build/dist binary" % build,
+            "cd %s && fakeroot make -f debian/rules PYTHON=$PYTHON BUILDDEB_OPTIONS=--destdir=../../build/dist binary" % build,
                     ])
 
         old = os.path.join('lib', 'scons', '')
@@ -703,12 +705,12 @@ for p in [ scons ]:
                                                    'bdist.' + platform,
                                                    'dumb'))
         for format in distutils_formats:
-            commands.append("python $SETUP_PY bdist_dumb -f %s" % format)
+            commands.append("$PYTHON $SETUP_PY bdist_dumb -f %s" % format)
 
-        commands.append("python $SETUP_PY sdist --formats=%s" %  \
+        commands.append("$PYTHON $SETUP_PY sdist --formats=%s" %  \
                             string.join(distutils_formats, ','))
 
-    commands.append("python $SETUP_PY bdist_wininst")
+    commands.append("$PYTHON $SETUP_PY bdist_wininst")
 
     env.Command(distutils_targets, build_src_files, commands)
 
@@ -834,11 +836,11 @@ if change:
                                            'scons',
                                            'build'),
                 "rm -rf $TEST_SRC_TAR_GZ_DIR",
-                "cd %s && python %s %s" % \
+                "cd %s && $PYTHON %s %s" % \
                     (os.path.join(unpack_tar_gz_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
-                "python %s install --prefix=$TEST_SRC_TAR_GZ_DIR" % \
+                "$PYTHON %s install --prefix=$TEST_SRC_TAR_GZ_DIR" % \
                     os.path.join(unpack_tar_gz_dir,
                                  psv,
                                  'build',
@@ -884,11 +886,11 @@ if change:
                                            'scons',
                                            'build'),
                 "rm -rf $TEST_SRC_ZIP_DIR",
-                "cd %s && python %s %s" % \
+                "cd %s && $PYTHON %s %s" % \
                     (os.path.join(unpack_zip_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
-                "python %s install --prefix=$TEST_SRC_ZIP_DIR" % \
+                "$PYTHON %s install --prefix=$TEST_SRC_ZIP_DIR" % \
                     os.path.join(unpack_zip_dir,
                                  psv,
                                  'build',
