@@ -139,6 +139,12 @@ class PathList(UserList.UserList):
         # suffix and basepath.
         return self.__class__([ UserList.UserList.__getitem__(self, item), ])
 
+def quote_spaces(arg):
+    if ' ' in arg or '\t' in arg:
+        return '"%s"' % arg
+    else:
+        return arg
+
 _cv = re.compile(r'\$([_a-zA-Z]\w*|{[^}]*})')
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 

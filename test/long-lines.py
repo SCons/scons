@@ -40,7 +40,7 @@ test.write('SConstruct', """
 linkflags = r'%s'
 while len(linkflags) <= 8100:
     linkflags = linkflags + r' %s'
-env = Environment(LINKFLAGS = linkflags)
+env = Environment(LINKFLAGS = '$LINKXXX', LINKXXX = linkflags)
 env.Program(target = 'foo', source = 'foo.c')
 """ % (linkflag, linkflag))
 

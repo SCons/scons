@@ -177,8 +177,16 @@ class UtilTestCase(unittest.TestCase):
         assert len(cmd_list) == 1, cmd_list
         assert cmd_list[0] == ['test', '3', '2', '4', 'test'], cmd_list
 
-        
-        
+    def test_quote_spaces(self):
+        """Testing the quote_spaces() method..."""
+	q = quote_spaces('x')
+	assert q == 'x', q
+
+	q = quote_spaces('x x')
+	assert q == '"x x"', q
+
+	q = quote_spaces('x\tx')
+	assert q == '"x\tx"', q
 
     def test_render_tree(self):
         class Node:

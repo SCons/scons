@@ -135,25 +135,21 @@ Object = SCons.Builder.Builder(name = 'Object',
                                src_builder = [CFile, CXXFile])
 
 def win32LinkGenerator(env, target, source, **kw):
-    args = []
-    for a in [env['LINKFLAGS'],
-              '/OUT:' + str(target[0]),
-              env['_LIBDIRFLAGS'],
-              env['_LIBFLAGS'],
-              map(lambda x: str(x), source)]:
-        if SCons.Util.is_List(a):
-            args.extend(a)
-        else:
-            args.append(a)
-    argstring = string.join(args, " ")
-    if len(argstring) <= 2048:
-        return env['LINK'] + " " + argstring
+    cmd = env.subst_list([ '$LINK', '$LINKFLAGS', '/OUT:' + str(target[0]) ])[0]
+    cmd.extend(['$('] + env.subst_list('$_LIBDIRFLAGS')[0] + ['$)'])
+    cmd.extend(env.subst_list('$_LIBFLAGS')[0])
+    cmd.extend(map(lambda x: str(x), source))
+    cmdlen = reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)
+    if cmdlen <= 2048:
+        return [cmd]
     else:
         import tempfile
         tmp = tempfile.mktemp()
-        open(tmp, 'w').write(argstring + "\n")
-        return [ env['LINK'] + " @" + tmp,
-                 "del " + tmp, ]
+	args = filter(lambda x: x != '$(' and x != '$)', cmd[1:])
+        args = map(SCons.Util.quote_spaces, args)
+        open(tmp, 'w').write(string.join(args, " ") + "\n")
+        return [ [cmd[0], '@' + tmp],
+                 ['del', tmp] ]
 
 kw = {
        'name'        : 'Program',
