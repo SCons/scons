@@ -126,6 +126,7 @@ class Environment:
     # Just use the underlying scons_subst*() utility methods.
     def subst(self, strSubst, raw=0, target=[], source=[], dict=None):
         return SCons.Util.scons_subst(strSubst, self, raw, target, source, dict)
+    subst_target_source = subst
     def subst_list(self, strSubst, raw=0, target=[], source=[], dict=None):
         return SCons.Util.scons_subst_list(strSubst, self, raw, target, source, dict)
     def __getitem__(self, item):
@@ -696,7 +697,18 @@ class CommandActionTestCase(unittest.TestCase):
                                            baz = CmdGen))
         assert c == "| | FFF BBB 1", c
 
-        # We've discusssed using the real target and source names in a
+        # Make sure that CommandActions use an Environment's
+        # subst_target_source() method for substitution.
+        class SpecialEnvironment(Environment):
+            def subst_target_source(self, strSubst, raw=0, target=[], source=[], dict=None):
+                return 'subst_target_source: ' + strSubst
+
+        c = a.get_contents(target=DummyNode('ttt'), source = DummyNode('sss'),
+                           env=SpecialEnvironment(foo = 'GGG', bar = 'CCC',
+                                                  baz = 'ZZZ'))
+        assert c == 'subst_target_source: | $( $foo | $bar $) | $baz 1', c
+
+        # We've discussed using the real target and source names in a
         # CommandAction's signature contents.  This would have have the
         # advantage of recompiling when a file's name changes (keeping
         # debug info current), but it would currently break repository

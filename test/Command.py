@@ -69,8 +69,7 @@ env = Environment()
 env.Command(target = 'f1.out', source = 'f1.in',
             action = buildIt)
 env.Command(target = 'f2.out', source = 'f2.in',
-            action = r'%s' + " build.py temp2 $SOURCES\\n" + r'%s' + " build.py $TARGET temp2")
-
+            action = r"%s build.py temp2 $SOURCES" + '\\n' + r"%s build.py $TARGET temp2")
 env.Command(target = 'f3.out', source = 'f3.in',
             action = [ [ r'%s', 'build.py', 'temp3', '$SOURCES' ],
                        [ r'%s', 'build.py', '$TARGET', 'temp3'] ])
@@ -78,8 +77,12 @@ Command(target = 'f4.out', source = 'sub', action = sub)
 env.Command(target = 'f5.out', source = 'f5.in', action = buildIt,
             XYZZY="XYZZY is set")
 Command(target = 'f6.out', source = 'f6.in',
-        action = r'%s' + " build.py f6.out f6.in")
-""" % (python, python, python, python, python))
+        action = r"%s build.py f6.out f6.in")
+env.Command(target = 'f7.out', source = 'f7.in',
+            action = r"%s build.py $TARGET $SOURCE")
+Command(target = 'f8.out', source = 'f8.in',
+        action = r"%s build.py $TARGET $SOURCE")
+""" % (python, python, python, python, python, python, python))
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
@@ -89,6 +92,8 @@ test.write(['sub', 'f4b'], "sub/f4b\n")
 test.write(['sub', 'f4c'], "sub/f4c\n")
 test.write('f5.in', "f5.in\n")
 test.write('f6.in', "f6.in\n")
+test.write('f7.in', "f7.in\n")
+test.write('f8.in', "f8.in\n")
 
 test.run(arguments = '.')
 
@@ -98,5 +103,7 @@ test.must_match('f3.out', "f3.in\n")
 test.must_match('f4.out', "sub/f4a\nsub/f4b\nsub/f4c\n")
 test.must_match('f5.out', "XYZZY is set\nf5.in\n")
 test.must_match('f6.out', "f6.in\n")
+test.must_match('f7.out', "f7.in\n")
+test.must_match('f8.out', "f8.in\n")
 
 test.pass_test()

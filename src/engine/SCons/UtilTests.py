@@ -429,7 +429,7 @@ class UtilTestCase(unittest.TestCase):
         else:
             raise AssertionError, "did not catch expected UserError"
 
-        # Test we handle overriding the internal conversion routines.
+        # Test how we handle overriding the internal conversion routines.
         def s(obj):
             return obj
 
@@ -450,6 +450,13 @@ class UtilTestCase(unittest.TestCase):
         #assert func is function_foo, func
         #func = scons_subst("$FUNCTION", env, mode=SUBST_SIG, call=None)
         #assert func is function_foo, func
+
+        # Test supplying an overriding gvars dictionary.
+        env = DummyEnv({'XXX' : 'xxx'})
+        result = scons_subst('$XXX', env)
+        assert result == 'xxx', result
+        result = scons_subst('$XXX', env, gvars={'XXX' : 'yyy'})
+        assert result == 'yyy', result
 
     def test_subst_list(self):
         """Testing the scons_subst_list() method..."""
@@ -796,6 +803,13 @@ class UtilTestCase(unittest.TestCase):
         assert node == [[n1]], node
         node = scons_subst_list("$NODE", env, mode=SUBST_SIG, conv=s)
         assert node == [[n1]], node
+
+        # Test supplying an overriding gvars dictionary.
+        env = DummyEnv({'XXX' : 'xxx'})
+        result = scons_subst_list('$XXX', env)
+        assert result == [['xxx']], result
+        result = scons_subst_list('$XXX', env, gvars={'XXX' : 'yyy'})
+        assert result == [['yyy']], result
 
     def test_subst_once(self):
         """Testing the scons_subst_once() method"""

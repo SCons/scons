@@ -341,7 +341,7 @@ class CommandAction(ActionBase):
             cmd = string.join(map(str, cmd))
         else:
             cmd = str(cmd)
-        return env.subst(cmd, SCons.Util.SUBST_SIG, target, source, dict)
+        return env.subst_target_source(cmd, SCons.Util.SUBST_SIG, target, source, dict)
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
