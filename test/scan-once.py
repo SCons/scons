@@ -287,6 +287,12 @@ env = env.Copy()    # Yes, clobber intentionally
 Mylib.AddCFlags(env, "-DGOOFY_DEMO")
 Mylib.AddIncludeDirs(env, ".")
 
+# Not part of SLF's original stuff: On Win32, it's import to use the
+# original test environment when we invoke SCons recursively.
+import os
+recurse_env = env.Copy()
+recurse_env["ENV"] = os.environ
+
 # Icky code to set up process environment for "make"
 # I really ought to drop this into Mylib....
 
@@ -336,9 +342,9 @@ cmd_justlib = "%s %s -C %s" % (sys.executable, sys.argv[0], Dir("."))
 env.Command(string.split(generated_hdrs),
             ["MAKE-HEADER.py"],
             cmd_generated)
-env.Command([lib_fullname] + lib_objs,
-            lib_srcs + string.split(generated_hdrs + " " + static_hdrs),
-            cmd_justlib) 
+recurse_env.Command([lib_fullname] + lib_objs,
+                    lib_srcs + string.split(generated_hdrs + " " + static_hdrs),
+                    cmd_justlib) 
 """)
 
 test.write(['SLF', 'src', 'lib_geng', 'MAKE-HEADER.py'], """\

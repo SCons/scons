@@ -275,7 +275,9 @@ def generate(env, platform):
     env['RC'] = 'rc'
     env['RCFLAGS'] = ''
     env['RCCOM'] = '$RC $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
-    env.CScan.add_skey('.rc')
+    CScan = env.get_scanner('.c')
+    if CScan:
+        CScan.add_skey('.rc')
     env['BUILDERS']['RES'] = res_builder
     
     include_path, lib_path, exe_path = get_msdev_paths()

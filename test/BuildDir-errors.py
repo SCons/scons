@@ -76,15 +76,18 @@ test.run(chdir = 'normal', arguments = ".")
 
 test.fail_test(test.read(['normal', 'build', 'file.out']) != "normal/src/file.in\n")
 
-# Verify the error when the BuildDir itself is read-only.
-dir = os.path.join('ro-dir', 'build')
-test.subdir(dir)
-os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
+# Verify the error when the BuildDir itself is read-only.  Don't bother
+# to test this on Win32, because the ACL (I think) still allows the
+# owner to create files in the directory even when it's read-only.
+if sys.platform != 'win32':
+    dir = os.path.join('ro-dir', 'build')
+    test.subdir(dir)
+    os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
 
-test.run(chdir = 'ro-dir',
-         arguments = ".",
-         status = 2,
-         stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.\n" % os.path.join('src', 'SConscript'))
+    test.run(chdir = 'ro-dir',
+             arguments = ".",
+             status = 2,
+             stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.\n" % os.path.join('src', 'SConscript'))
 
 # Verify the error when the SConscript file within the BuildDir is
 # read-only.  Note that we have to make the directory read-only too,
