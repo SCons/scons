@@ -261,23 +261,23 @@ class EnvironmentTestCase(unittest.TestCase):
         assert nodes[1].c == 1, nodes[1]
 
     def test_subst(self):
-	"""Test substituting construction variables within strings
-	
-	Check various combinations, including recursive expansion
-	of variables into other variables.
-	"""
-	env = Environment(AAA = 'a', BBB = 'b')
-	mystr = env.subst("$AAA ${AAA}A $BBBB $BBB")
-	assert mystr == "a aA b", str
+        """Test substituting construction variables within strings
+        
+        Check various combinations, including recursive expansion
+        of variables into other variables.
+        """
+        env = Environment(AAA = 'a', BBB = 'b')
+        mystr = env.subst("$AAA ${AAA}A $BBBB $BBB")
+        assert mystr == "a aA b", mystr
 
         # Changed the tests below to reflect a bug fix in
         # subst()
         env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
-	mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
-	assert mystr == "b bA bB b", str
-	env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
-	mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
-	assert mystr == "c cA cB c", str
+        mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
+        assert mystr == "b bA bB b", mystr
+        env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
+        mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
+        assert mystr == "c cA cB c", mystr
 
         env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
         lst = env.subst_list([ "$AAA", "B $CCC" ])
@@ -571,9 +571,12 @@ class EnvironmentTestCase(unittest.TestCase):
 
         env = Environment(CPPPATH = '', F77PATH = '', LIBPATH = '',
                           RDirs=RDirs)
-        assert len(env.subst_list('$_CPPINCFLAGS')[0]) == 0
-        assert len(env.subst_list('$_F77INCFLAGS')[0]) == 0
-        assert len(env.subst_list('$_LIBDIRFLAGS')[0]) == 0
+        l = env.subst_list('$_CPPINCFLAGS')
+        assert len(l[0]) == 0, l[0]
+        l = env.subst_list('$_F77INCFLAGS')
+        assert len(l[0]) == 0, l[0]
+        l = env.subst_list('$_LIBDIRFLAGS')
+        assert len(l[0]) == 0, l[0]
 
         SCons.Node.FS.default_fs.Repository('/rep1')
         SCons.Node.FS.default_fs.Repository('/rep2')
@@ -706,11 +709,16 @@ class EnvironmentTestCase(unittest.TestCase):
         "Test _concat()"
         e1 = Environment(PRE='pre', SUF='suf', STR='a b', LIST=['a', 'b'])
         s = e1.subst
-        assert s("${_concat('', '', '', __env__)}") == ''
-        assert s("${_concat('', [], '', __env__)}") == ''
-        assert s("${_concat(PRE, '', SUF, __env__)}") == ''
-        assert s("${_concat(PRE, STR, SUF, __env__)}") == 'prea bsuf'
-        assert s("${_concat(PRE, LIST, SUF, __env__)}") == 'preasuf prebsuf'
+        x = s("${_concat('', '', '', __env__)}")
+        assert x == '', x
+        x = s("${_concat('', [], '', __env__)}")
+        assert x == '', x
+        x = s("${_concat(PRE, '', SUF, __env__)}")
+        assert x == '', x
+        x = s("${_concat(PRE, STR, SUF, __env__)}")
+        assert x == 'prea bsuf', x
+        x = s("${_concat(PRE, LIST, SUF, __env__)}")
+        assert x == 'preasuf prebsuf', x
 
 
 
