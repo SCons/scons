@@ -33,7 +33,17 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-platforms = ['cygwin', 'irix', 'os2', 'posix', 'win32']
+platforms = [
+    'aix',
+    'cygwin',
+    'darwin',
+    'hpux',
+    'irix',
+    'os2',
+    'posix',
+    'sunos',
+    'win32'
+]
 
 for platform in platforms:
     test.write('SConstruct', """
