@@ -12,7 +12,7 @@ it goes here.
 """
 
 #
-# Copyright (c) 2001 Steven Knight
+# Copyright (c) 2001, 2002 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -517,7 +517,7 @@ def options_init():
 	print "SCons by Steven Knight et al.:"
 	print "\tscript version __VERSION__"
 	print "\tbuild engine version %s" % SCons.__version__
-	print "Copyright 2001 Steven Knight"
+	print "Copyright 2001, 2002 Steven Knight"
 	sys.exit(0)
 
     Option(func = option_v,

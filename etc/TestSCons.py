@@ -11,7 +11,7 @@ methods and attributes, as well as any overridden or additional methods
 or attributes defined in this subclass.
 """
 
-# Copyright 2001 Steven Knight
+# Copyright 2001, 2002 Steven Knight
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
