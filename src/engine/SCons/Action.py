@@ -8,6 +8,11 @@ The base class here is ActionBase.  The base class supplies just a few
 OO utility methods and some generic methods for displaying information
 about an Action in response to the various commands that control printing.
 
+A second-level base class is _ActionAction.  This extends ActionBase
+by providing the methods that can be used to show and perform an
+action.  True Action objects will subclass _ActionAction; Action
+factory class objects will subclass ActionBase.
+
 The heavy lifting is handled by subclasses for the different types of
 actions we might execute:
 
@@ -30,33 +35,32 @@ other modules:
         needs to be rebuilt because its action changed.
 
     genstring()
-        Returns a string representation of the Action *without* command
-        substitution, but allows a CommandGeneratorAction to generate
-        the right action based on the specified target, source and env.
-        This is used by the Signature subsystem (through the Executor)
-        to compare the actions used to build a target last time and
-        this time.
+        Returns a string representation of the Action *without*
+        command substitution, but allows a CommandGeneratorAction to
+        generate the right action based on the specified target,
+        source and env.  This is used by the Signature subsystem
+        (through the Executor) to obtain an (imprecise) representation
+        of the Action operation for informative purposes.
 
-    strfunction()
-        Returns a substituted string representation of the Action.
-        This is used by the ActionBase.show() command to display the
-        command/function that will be executed to generate the target(s).
 
 Subclasses also supply the following methods for internal use within
 this module:
 
     __str__()
-        Returns a string representation of the Action *without* command
-        substitution.  This is used by the __call__() methods to display
-        the pre-substitution command whenever the --debug=presub option
-        is used.
-
+        Returns a string approximation of the Action; no variable
+        substitution is performed.
+        
     execute()
         The internal method that really, truly, actually handles the
         execution of a command or Python function.  This is used so
         that the __call__() methods can take care of displaying any
         pre-substitution representations, and *then* execute an action
         without worrying about the specific Actions involved.
+
+    strfunction()
+        Returns a substituted string representation of the Action.
+        This is used by the _ActionAction.show() command to display the
+        command/function that will be executed to generate the target(s).
 
 There is a related independent ActionCaller class that looks like a
 regular Action, and which serves as a wrapper for arbitrary functions
@@ -187,8 +191,10 @@ def _do_create_action(act, *args, **kw):
         if len(commands) == 1:
             return apply(CommandAction, (commands[0],)+args, kw)
         else:
-            listCmdActions = map(lambda x: CommandAction(x), commands)
-            return apply(ListAction, (listCmdActions,)+args, kw)
+            listCmdActions = map(lambda x, args=args, kw=kw:
+                                 apply(CommandAction, (x,)+args, kw),
+                                 commands)
+            return ListAction(listCmdActions)
     return None
 
 def Action(act, *args, **kw):
@@ -201,11 +207,41 @@ def Action(act, *args, **kw):
         if len(acts) == 1:
             return acts[0]
         else:
-            return apply(ListAction, (acts,)+args, kw)
+            return ListAction(acts)
     else:
         return apply(_do_create_action, (act,)+args, kw)
 
 class ActionBase:
+    """Base class for all types of action objects that can be held by
+    other objects (Builders, Executors, etc.)  This provides the
+    common methods for manipulating and combining those actions."""
+    
+    def __cmp__(self, other):
+        return cmp(self.__dict__, other)
+
+    def genstring(self, target, source, env):
+        return str(self)
+
+    def __add__(self, other):
+        return _actionAppend(self, other)
+
+    def __radd__(self, other):
+        return _actionAppend(other, self)
+
+    def presub_lines(self, env):
+        # CommandGeneratorAction needs a real environment
+        # in order to return the proper string here, since
+        # it may call LazyCmdGenerator, which looks up a key
+        # in that env.  So we temporarily remember the env here,
+        # and CommandGeneratorAction will use this env
+        # when it calls its __generate method.
+        self.presub_env = env
+        lines = string.split(str(self), '\n')
+        self.presub_env = None      # don't need this any more
+        return lines
+
+
+class _ActionAction(ActionBase):
     """Base class for actions that create output objects."""
     def __init__(self, strfunction=_null, presub=_null, chdir=None, **kw):
         if not strfunction is _null:
@@ -214,9 +250,6 @@ class ActionBase:
             presub = print_actions_presub
         self.presub = presub
         self.chdir = chdir
-
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other)
 
     def print_cmd_line(self, s, target, source, env):
         sys.stdout.write(s + "\n")
@@ -244,9 +277,9 @@ class ActionBase:
                 if not SCons.Util.is_String(chdir):
                     chdir = str(target[0].dir)
         if presub:
-            t = string.join(map(str, target), 'and')
+            t = string.join(map(str, target), ' and ')
             l = string.join(self.presub_lines(env), '\n  ')
-            out = "Building %s with action(s):\n  %s\n" % (t, l)
+            out = "Building %s with action:\n  %s\n" % (t, l)
             sys.stdout.write(out)
         s = None
         if show and self.strfunction:
@@ -278,26 +311,6 @@ class ActionBase:
             print_func('os.chdir(%s)' % repr(save_cwd), target, source, env)
         return stat
 
-    def presub_lines(self, env):
-        # CommandGeneratorAction needs a real environment
-        # in order to return the proper string here, since
-        # it may call LazyCmdGenerator, which looks up a key
-        # in that env.  So we temporarily remember the env here,
-        # and CommandGeneratorAction will use this env
-        # when it calls its __generate method.
-        self.presub_env = env
-        lines = string.split(str(self), '\n')
-        self.presub_env = None      # don't need this any more
-        return lines
-
-    def genstring(self, target, source, env):
-        return str(self)
-
-    def __add__(self, other):
-        return _actionAppend(self, other)
-
-    def __radd__(self, other):
-        return _actionAppend(other, self)
 
 def _string_from_cmd_list(cmd_list):
     """Takes a list of command line arguments and returns a pretty
@@ -309,22 +322,34 @@ def _string_from_cmd_list(cmd_list):
         cl.append(arg)
     return string.join(cl)
 
-class CommandAction(ActionBase):
+class CommandAction(_ActionAction):
     """Class for command-execution actions."""
     def __init__(self, cmd, *args, **kw):
-        # Cmd list can actually be a list or a single item...basically
-        # anything that we could pass in as the first arg to
-        # Environment.subst_list().
+        # Cmd can actually be a list or a single item; if it's a
+        # single item it should be the command string to execute; if a
+        # list then it should be the words of the command string to
+        # execute.  Only a single command should be executed by this
+        # object; lists of commands should be handled by embedding
+        # these objects in a ListAction object (which the Action()
+        # factory above does).  cmd will be passed to
+        # Environment.subst_list() for substituting environment
+        # variables.
         if __debug__: logInstanceCreation(self)
-        apply(ActionBase.__init__, (self,)+args, kw)
+        apply(_ActionAction.__init__, (self,)+args, kw)
+        if SCons.Util.is_List(cmd):
+            if filter(SCons.Util.is_List, cmd):
+                raise TypeError, "CommandAction should be given only " \
+                      "a single command"
         self.cmd_list = cmd
 
     def __str__(self):
+        if SCons.Util.is_List(self.cmd_list):
+            return string.join(map(str, self.cmd_list), ' ')
         return str(self.cmd_list)
 
     def strfunction(self, target, source, env):
         cmd_list = env.subst_list(self.cmd_list, 0, target, source)
-        return string.join(map(_string_from_cmd_list, cmd_list), "\n")
+        return _string_from_cmd_list(cmd_list[0])
 
     def execute(self, target, source, env):
         """Execute a command action.
@@ -374,7 +399,8 @@ class CommandAction(ActionBase):
                     # reasonable for just about everything else:
                     ENV[key] = str(value)
 
-        cmd_list = env.subst_list(self.cmd_list, 0, target, source)
+        cmd_list = env.subst_list(self.cmd_list, 0, target,
+                                  map(rfile, source))
 
         # Use len() to filter out any "command" that's zero-length.
         for cmd_line in filter(len, cmd_list):
@@ -402,8 +428,8 @@ class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
     def __init__(self, generator, *args, **kw):
         if __debug__: logInstanceCreation(self)
-        apply(ActionBase.__init__, (self,)+args, kw)
         self.generator = generator
+        self.gen_kw = kw
 
     def __generate(self, target, source, env, for_signature):
         # ensure that target is a list, to make it easier to write
@@ -412,36 +438,27 @@ class CommandGeneratorAction(ActionBase):
             target = [target]
 
         ret = self.generator(target=target, source=source, env=env, for_signature=for_signature)
-        gen_cmd = Action(ret)
+        gen_cmd = apply(Action, (ret,), self.gen_kw)
         if not gen_cmd:
             raise SCons.Errors.UserError("Object returned from command generator: %s cannot be used to create an Action." % repr(ret))
         return gen_cmd
-
-    def strfunction(self, target, source, env):
-        if not SCons.Util.is_List(source):
-            source = [source]
-        rsources = map(rfile, source)
-        act = self.__generate(target, source, env, 0)
-        if act.strfunction:
-            return act.strfunction(target, rsources, env)
-        else:
-            return None
 
     def __str__(self):
         try:
             env = self.presub_env or {}
         except AttributeError:
             env = {}
-        act = self.__generate([], [], env, 0)
+        act = self.__generate([], [], env, 1)
         return str(act)
 
     def genstring(self, target, source, env):
-        return str(self.__generate(target, source, env, 0))
+        return self.__generate(target, source, env, 1).genstring(target, source, env)
 
-    def execute(self, target, source, env):
-        rsources = map(rfile, source)
+    def __call__(self, target, source, env, errfunc=None, presub=_null,
+                 show=_null, execute=_null, chdir=_null):
         act = self.__generate(target, source, env, 0)
-        return act.execute(target, source, env)
+        return act(target, source, env, errfunc, presub,
+                   show, execute, chdir)
 
     def get_contents(self, target, source, env, dict=None):
         """Return the signature contents of this action's command line.
@@ -461,13 +478,6 @@ class LazyCmdGenerator:
         if __debug__: logInstanceCreation(self)
         self.var = SCons.Util.to_String(var)
 
-    def strfunction(self, target, source, env):
-        try:
-            return env[self.var]
-        except KeyError:
-            # The variable reference substitutes to nothing.
-            return ''
-
     def __str__(self):
         return 'LazyCmdGenerator: %s'%str(self.var)
 
@@ -481,13 +491,13 @@ class LazyCmdGenerator:
     def __cmp__(self, other):
         return cmp(self.__dict__, other)
 
-class FunctionAction(ActionBase):
+class FunctionAction(_ActionAction):
     """Class for Python function actions."""
 
     def __init__(self, execfunction, *args, **kw):
         if __debug__: logInstanceCreation(self)
         self.execfunction = execfunction
-        apply(ActionBase.__init__, (self,)+args, kw)
+        apply(_ActionAction.__init__, (self,)+args, kw)
         self.varlist = kw.get('varlist', [])
 
     def function_name(self):
@@ -519,7 +529,7 @@ class FunctionAction(ActionBase):
         return "%s(%s, %s)" % (name, tstr, sstr)
 
     def __str__(self):
-        return "%s(env, target, source)" % self.function_name()
+        return "%s(target, source, env)" % self.function_name()
 
     def execute(self, target, source, env):
         rsources = map(rfile, source)
@@ -557,33 +567,21 @@ class FunctionAction(ActionBase):
 
 class ListAction(ActionBase):
     """Class for lists of other actions."""
-    def __init__(self, list, *args, **kw):
+    def __init__(self, list):
         if __debug__: logInstanceCreation(self)
-        apply(ActionBase.__init__, (self,)+args, kw)
-        self.list = map(lambda x: Action(x), list)
+        def list_of_actions(x):
+            if isinstance(x, ActionBase):
+                return x
+            return Action(x)
+        self.list = map(list_of_actions, list)
 
     def __str__(self):
-        s = []
-        for l in self.list:
-            s.append(str(l))
-        return string.join(s, "\n")
-
-    def strfunction(self, target, source, env):
-        s = []
-        for l in self.list:
-            if l.strfunction:
-                x = l.strfunction(target, source, env)
-                if not SCons.Util.is_List(x):
-                    x = [x]
-                s.extend(x)
-        return string.join(s, "\n")
-
-    def execute(self, target, source, env):
-        for l in self.list:
-            r = l.execute(target, source, env)
-            if r:
-                return r
-        return 0
+        return string.join(map(str, self.list), '\n')
+    
+    def presub_lines(self, env):
+        return SCons.Util.flatten(map(lambda a, env=env:
+                                      a.presub_lines(env),
+                                      self.list))
 
     def get_contents(self, target, source, env, dict=None):
         """Return the signature contents of this action list.
@@ -595,6 +593,15 @@ class ListAction(ActionBase):
                                       x.get_contents(t, s, e, d),
                                self.list),
                            "")
+
+    def __call__(self, target, source, env, errfunc=None, presub=_null,
+                 show=_null, execute=_null, chdir=_null):
+        for act in self.list:
+            stat = act(target, source, env, errfunc, presub,
+                       show, execute, chdir)
+            if stat:
+                return stat
+        return 0
 
 class ActionCaller:
     """A class for delaying calling an Action function with specific
@@ -655,4 +662,12 @@ class ActionFactory:
         self.strfunc = strfunc
     def __call__(self, *args, **kw):
         ac = ActionCaller(self, args, kw)
-        return Action(ac, strfunction=ac.strfunction)
+        action = Action(ac, strfunction=ac.strfunction)
+        # action will be a FunctionAction; if left to its own devices,
+        # a genstr or str of this action will just show
+        # "ActionCaller(target, source, env)".  Override that with the
+        # description from strfunc.  Note that the apply is evaluated
+        # right now; __str__ is set to a (lambda) function that just
+        # returns the stored result of the evaluation whenever called.
+        action.__str__ = lambda name=apply(self.strfunc, args, kw): name
+        return action

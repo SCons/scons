@@ -167,13 +167,25 @@ class Node:
             if not create:
                 raise
             import SCons.Executor
-            executor = SCons.Executor.Executor(self.builder.action,
+            act = self.builder.action
+            if self.pre_actions:
+                act = self.pre_actions + act
+            if self.post_actions:
+                act = act + self.post_actions
+            executor = SCons.Executor.Executor(act,
                                                self.builder.env,
                                                [self.builder.overrides],
                                                [self],
                                                self.sources)
             self.executor = executor
         return executor
+
+    def reset_executor(self):
+        "Remove cached executor; forces recompute when needed."
+        try:
+            delattr(self, 'executor')
+        except AttributeError:
+            pass
 
     def retrieve_from_cache(self):
         """Try to retrieve the node's content from a cache
@@ -565,7 +577,7 @@ class Node:
 
         if self.has_builder():
             executor = self.get_executor()
-            binfo.bact = executor.strfunction()
+            binfo.bact = str(executor)
             binfo.bactsig = calc.module.signature(executor)
             sigs.append(binfo.bactsig)
 
@@ -795,11 +807,15 @@ class Node:
         """Adds an Action performed on this Node only before
         building it."""
         self.pre_actions.append(act)
+        # executor must be recomputed to include new pre-actions
+        self.reset_executor()
 
     def add_post_action(self, act):
         """Adds and Action performed on this Node only after
         building it."""
         self.post_actions.append(act)
+        # executor must be recomputed to include new pre-actions
+        self.reset_executor()
 
     def render_include_tree(self):
         """

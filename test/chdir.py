@@ -250,6 +250,8 @@ os.chdir('sub')
 os.chdir(%(work2)s)
 os.chdir('sub')
 %(python)s %(cat_py)s .temp f2.in
+os.chdir(%(work2)s)
+os.chdir('sub')
 %(python)s %(cat_py)s f2.out .temp
 os.chdir(%(work2)s)
 """ % locals())

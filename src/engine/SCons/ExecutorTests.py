@@ -48,13 +48,9 @@ class MyAction:
         self.actions = actions
     def __call__(self, target, source, env, errfunc, **kw):
         for action in self.actions:
-            action(target, source, env, errfunc)
-    def strfunction(self, target, source, env):
-        return string.join(['STRFUNCTION'] + map(str, self.actions) + target + source)
+            apply(action, (target, source, env, errfunc), kw)
     def genstring(self, target, source, env):
         return string.join(['GENSTRING'] + map(str, self.actions) + target + source)
-    def get_raw_contents(self, target, source, env):
-        return string.join(['RAW'] + self.actions + target + source)
     def get_contents(self, target, source, env):
         return string.join(self.actions + target + source)
 
@@ -68,6 +64,15 @@ class MyNode:
     def __init__(self, pre, post):
         self.pre_actions = pre
         self.post_actions = post
+    def build(self, errfunc=None):
+        executor = SCons.Executor.Executor(MyAction(self.pre_actions +
+                                                    [self.builder.action] +
+                                                    self.post_actions),
+                                           self.builder.env,
+                                           [],
+                                           [self],
+                                           ['s1', 's2'])
+        apply(executor, (self, errfunc), {})
         
 
 class ExecutorTestCase(unittest.TestCase):
@@ -118,19 +123,6 @@ class ExecutorTestCase(unittest.TestCase):
         assert be['O'] == 'ob3', be['O']
         assert be['Y'] == 'yyy', be['Y']
 
-    def test_get_action_list(self):
-        """Test fetching and generating an action list"""
-        x = SCons.Executor.Executor('b', 'e', 'o', 't', 's')
-        al = x.get_action_list(MyNode([], []))
-        assert al == ['b'], al
-        al = x.get_action_list(MyNode(['PRE'], ['POST']))
-        assert al == ['PRE', 'b', 'POST'], al
-
-        a = MyAction()
-        x = SCons.Executor.Executor(a, None, {}, 't', 's')
-        al = x.get_action_list(MyNode(['pre'], ['post']))
-        assert al == ['pre', a, 'post'], al
-
     def test__call__(self):
         """Test calling an Executor"""
         result = []
@@ -145,9 +137,11 @@ class ExecutorTestCase(unittest.TestCase):
 
         env = MyEnvironment()
         a = MyAction([action1, action2])
-        x = SCons.Executor.Executor(a, env, [], ['t1', 't2'], ['s1', 's2'])
-
-        x(MyNode([pre], [post]), None)
+        b = MyBuilder(env, {})
+        b.action = a
+        n = MyNode([pre], [post])
+        n.builder = b
+        n.build()
         assert result == ['pre', 'action1', 'action2', 'post'], result
         del result[:]
 
@@ -157,7 +151,9 @@ class ExecutorTestCase(unittest.TestCase):
                 errfunc(1)
             return 1
 
-        x(MyNode([pre_err], [post]), None)
+        n = MyNode([pre_err], [post])
+        n.builder = b
+        n.build()
         assert result == ['pre_err', 'action1', 'action2', 'post'], result
         del result[:]
 
@@ -165,7 +161,7 @@ class ExecutorTestCase(unittest.TestCase):
             raise "errfunc %s" % stat
 
         try:
-            x(MyNode([pre_err], [post]), errfunc)
+            n.build(errfunc)
         except:
             assert sys.exc_type == "errfunc 1", sys.exc_type
         else:
@@ -204,14 +200,6 @@ class ExecutorTestCase(unittest.TestCase):
         c = str(x)
         assert c == 'GENSTRING action1 action2 t s', c
 
-    def test_strfunction(self):
-        """Test the strfunction() method"""
-        env = MyEnvironment(S='string')
-
-        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
-        s = x.strfunction()
-        assert s == 'STRFUNCTION action1 action2 t s', s
-
     def test_nullify(self):
         """Test the nullify() method"""
         env = MyEnvironment(S='string')
@@ -228,8 +216,6 @@ class ExecutorTestCase(unittest.TestCase):
         assert result == ['action1'], result
         s = str(x)
         assert s[:10] == 'GENSTRING ', s
-        s = x.strfunction()
-        assert s[:12] == 'STRFUNCTION ', s
 
         del result[:]
         x.nullify()
@@ -238,21 +224,6 @@ class ExecutorTestCase(unittest.TestCase):
         assert result == [], result
         s = str(x)
         assert s == '', s
-        s = x.strfunction()
-        assert s == None, s
-
-    def test_get_raw_contents(self):
-        """Test fetching the raw signatures contents"""
-        env = MyEnvironment(RC='raw contents')
-
-        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
-        x.raw_contents = 'raw raw raw'
-        rc = x.get_raw_contents()
-        assert rc == 'raw raw raw', rc
-
-        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
-        rc = x.get_raw_contents()
-        assert rc == 'RAW action1 action2 t s', rc
 
     def test_get_contents(self):
         """Test fetching the signatures contents"""
@@ -267,7 +238,7 @@ class ExecutorTestCase(unittest.TestCase):
         c = x.get_contents()
         assert c == 'action1 action2 t s', c
 
-    def test_get_timetstamp(self):
+    def test_get_timestamp(self):
         """Test fetching the "timestamp" """
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         ts = x.get_timestamp()

@@ -298,17 +298,64 @@ test.must_match(['work1', 'src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
 #
 test.write(['work1', 'src', 'SConscript'], """\
 Import("env")
+f3 = File('file3')
+env.Cat(f3, ['zzz', 'yyy', 'xxx'])
+env.AddPostAction(f3, r"%(python)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy")
+env.AddPreAction(f3, r"%(python)s %(cat_py)s ${TARGET}.alt $SOURCES")
+""" % {'python':python, 'cat_py':cat_py})
+
+test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
+scons: rebuilding `file3' because the build action changed:
+               old: %(python)s %(cat_py)s $TARGET $SOURCES
+               new: %(python)s %(cat_py)s ${TARGET}.alt $SOURCES
+                    %(python)s %(cat_py)s $TARGET $SOURCES
+                    %(python)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy
+%(python)s %(cat_py)s file3.alt zzz yyy xxx
+%(python)s %(cat_py)s file3 zzz yyy xxx
+%(python)s %(cat_py)s file3.yyy zzz yyy xxx yyy
+""" % {'python':python, 'cat_py':cat_py}))
+
+test.must_match(['work1', 'src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
+test.must_match(['work1', 'src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n")
+test.must_match(['work1', 'src', 'file3.yyy'], "zzz 2\nyyy 2\nxxx 1\nyyy 2\n")
+
+#
+test.write(['work1', 'src', 'SConscript'], """\
+Import("env")
+f3 = File('file3')
+env.Cat(f3, ['zzz', 'yyy', 'xxx'])
+env.AddPostAction(f3, r"%(python)s %(cat_py)s ${TARGET}.yyy $SOURCES xxx")
+env.AddPreAction(f3, r"%(python)s %(cat_py)s ${TARGET}.alt $SOURCES")
+""" % {'python':python, 'cat_py':cat_py})
+
+test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
+scons: rebuilding `file3' because the build action changed:
+               old: %(python)s %(cat_py)s ${TARGET}.alt $SOURCES
+                    %(python)s %(cat_py)s $TARGET $SOURCES
+                    %(python)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy
+               new: %(python)s %(cat_py)s ${TARGET}.alt $SOURCES
+                    %(python)s %(cat_py)s $TARGET $SOURCES
+                    %(python)s %(cat_py)s ${TARGET}.yyy $SOURCES xxx
+%(python)s %(cat_py)s file3.alt zzz yyy xxx
+%(python)s %(cat_py)s file3 zzz yyy xxx
+%(python)s %(cat_py)s file3.yyy zzz yyy xxx xxx
+""" % {'python':python, 'cat_py':cat_py}))
+
+test.must_match(['work1', 'src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
+test.must_match(['work1', 'src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n")
+test.must_match(['work1', 'src', 'file3.yyy'], "zzz 2\nyyy 2\nxxx 1\nxxx 1\n")
+
+#
+test.write(['work1', 'src', 'SConscript'], """\
+Import("env")
 env.Command('file4', 'file4.in', r"%s %s $TARGET $FILE4FLAG $SOURCES", FILE4FLAG="")
 """ % (python, cat_py))
 
 test.run(chdir='work1/src',arguments=args, stdout=test.wrap_stdout("""\
-scons: rebuilding `file4' because the build action changed:
-               old: %s %s file4 - file4.in
-               new: %s %s file4 file4.in
-%s %s file4 file4.in
-""" % (python, cat_py,
-       python, cat_py,
-       python, cat_py)))
+scons: rebuilding `file4' because the contents of the build action changed
+               action: %(python)s %(cat_py)s $TARGET $FILE4FLAG $SOURCES
+%(python)s %(cat_py)s file4 file4.in
+""" % {'python':python, 'cat_py':cat_py})),
 
 test.must_match(['work1', 'src', 'file4'], "file4.in 1\n")
 
@@ -491,13 +538,13 @@ test.run(chdir = 'work5',
          arguments = "--debug=explain mode=1 .",
          stdout = test.wrap_stdout("""\
 scons: rebuilding `f1.out' because the build action changed:
-               old: Copy("f1.out", "f1.in")
-               new: DifferentCopy(["f1.out"], ["f1.in"])
-                    AltCopyStage2(["f1.out"], ["f1.in"])
+               old: Copy("$TARGET", "$SOURCE")
+               new: DifferentCopy(target, source, env)
+                    AltCopyStage2(target, source, env)
 DifferentCopy(["f1.out"], ["f1.in"])
 AltCopyStage2(["f1.out"], ["f1.in"])
 scons: rebuilding `f2.out' because the contents of the build action changed
-               action: ChangingCopy(["f2.out"], ["f2.in"])
+               action: ChangingCopy(target, source, env)
 ChangingCopy(["f2.out"], ["f2.in"])
 """))
 

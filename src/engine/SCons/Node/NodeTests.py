@@ -39,7 +39,27 @@ built_source =  None
 cycle_detected = None
 built_order = 0
 
-class MyAction:
+def _actionAppend(a1, a2):
+    all = []
+    for curr_a in [a1, a2]:
+        if isinstance(curr_a, MyAction):
+            all.append(curr_a)
+        elif isinstance(curr_a, MyListAction):
+            all.extend(curr_a.list)
+        elif type(curr_a) == type([1,2]):
+            all.extend(curr_a)
+        else:
+            raise 'Cannot Combine Actions'
+    return MyListAction(all)
+
+class MyActionBase:
+    def __add__(self, other):
+        return _actionAppend(self, other)
+
+    def __radd__(self, other):
+        return _actionAppend(other, self)
+
+class MyAction(MyActionBase):
     def __init__(self):
         self.order = 0
 
@@ -53,10 +73,14 @@ class MyAction:
         self.order = built_order
         return 0
 
-    def get_actions(self):
-        return [self]
-
-class MyNonGlobalAction:
+class MyListAction(MyActionBase):
+    def __init__(self, list):
+        self.list = list
+    def __call__(self, target, source, env, errfunc):
+        for A in self.list:
+            A(target, source, env, errfunc)
+        
+class MyNonGlobalAction(MyActionBase):
     def __init__(self):
         self.order = 0
         self.built_it = None
@@ -73,9 +97,6 @@ class MyNonGlobalAction:
         built_order = built_order + 1
         self.order = built_order
         return 0
-
-    def get_actions(self):
-        return [self]
 
 class Environment:
     def __init__(self, **kw):
