@@ -199,7 +199,9 @@ class BuilderTestCase(unittest.TestCase):
         """Test calling a builder to establish source dependencies
         """
         env = Environment()
-        builder = SCons.Builder.Builder(action="foo", node_factory=MyNode)
+        builder = SCons.Builder.Builder(action="foo",
+                                        target_factory=MyNode,
+                                        source_factory=MyNode)
 
         n1 = MyNode("n1");
         n2 = MyNode("n2");
@@ -255,7 +257,8 @@ class BuilderTestCase(unittest.TestCase):
         assert flag, "UserError should be thrown if a source node can't create a target."
 
         builder = SCons.Builder.Builder(action="foo",
-                                        node_factory=MyNode,
+                                        target_factory=MyNode,
+                                        source_factory=MyNode,
                                         prefix='p-',
                                         suffix='.s')
         target = builder(env, source='n21')
@@ -325,18 +328,6 @@ class BuilderTestCase(unittest.TestCase):
         b3 = SCons.Builder.Builder(src_suffix = '.x')
         assert b1 != b3
         assert b2 != b3
-
-    def test_node_factory(self):
-        """Test a Builder that creates nodes of a specified class
-        """
-        class Foo:
-            pass
-        def FooFactory(target):
-            global Foo
-            return Foo(target)
-        builder = SCons.Builder.Builder(node_factory = FooFactory)
-        assert builder.target_factory is FooFactory
-        assert builder.source_factory is FooFactory
 
     def test_target_factory(self):
         """Test a Builder that creates target nodes of a specified class
@@ -843,7 +834,8 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment()
         builder = SCons.Builder.Builder(action='foo',
                                         emitter=emit,
-                                        node_factory=MyNode)
+                                        target_factory=MyNode,
+                                        source_factory=MyNode)
         tgt = builder(env, target='foo2', source='bar')
         assert str(tgt) == 'foo2', str(tgt)
         assert str(tgt.sources[0]) == 'bar', str(tgt.sources[0])
@@ -862,7 +854,8 @@ class BuilderTestCase(unittest.TestCase):
         env2=Environment(FOO=emit)
         builder2=SCons.Builder.Builder(action='foo',
                                        emitter="$FOO",
-                                       node_factory=MyNode)
+                                       target_factory=MyNode,
+                                       source_factory=MyNode)
 
         tgt = builder2(env2, target='foo5', source='bar')
         assert str(tgt) == 'foo5', str(tgt)
@@ -881,7 +874,8 @@ class BuilderTestCase(unittest.TestCase):
 
         builder2a=SCons.Builder.Builder(action='foo',
                                         emitter="$FOO",
-                                        node_factory=MyNode)
+                                        target_factory=MyNode,
+                                        source_factory=MyNode)
         assert builder2 == builder2a, repr(builder2.__dict__) + "\n" + repr(builder2a.__dict__)
 
         # Test that, if an emitter sets a builder on the passed-in
@@ -897,7 +891,8 @@ class BuilderTestCase(unittest.TestCase):
             
         builder3=SCons.Builder.Builder(action='foo',
                                        emitter=emit3,
-                                       node_factory=MyNode)
+                                       target_factory=MyNode,
+                                       source_factory=MyNode)
         tgt = builder3(env, target=node, source='bar')
         assert tgt is new_node, tgt
         assert tgt.builder is builder3, tgt.builder
@@ -916,7 +911,8 @@ class BuilderTestCase(unittest.TestCase):
         builder4 = SCons.Builder.Builder(action='foo',
                                          emitter={'.4a':emit4a,
                                                   '.4b':emit4b},
-                                         node_factory=MyNode)
+                                         target_factory=MyNode,
+                                         source_factory=MyNode)
         tgt = builder4(env, source='aaa.4a')
         assert str(tgt) == 'emit4a-aaa', str(tgt)
         tgt = builder4(env, source='bbb.4b')

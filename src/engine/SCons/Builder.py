@@ -387,9 +387,8 @@ class BuilderBase:
                         prefix = '',
                         suffix = '',
                         src_suffix = '',
-                        node_factory = SCons.Node.FS.default_fs.File,
-                        target_factory = None,
-                        source_factory = None,
+                        target_factory = SCons.Node.FS.default_fs.File,
+                        source_factory = SCons.Node.FS.default_fs.File,
                         scanner = None,
                         emitter = None,
                         multi = 0,
@@ -415,8 +414,8 @@ class BuilderBase:
 
         self.set_src_suffix(src_suffix)
 
-        self.target_factory = target_factory or node_factory
-        self.source_factory = source_factory or node_factory
+        self.target_factory = target_factory
+        self.source_factory = source_factory
         self.scanner = scanner
 
         self.emitter = emitter
@@ -627,14 +626,13 @@ class MultiStepBuilder(BuilderBase):
                         prefix = '',
                         suffix = '',
                         src_suffix = '',
-                        node_factory = SCons.Node.FS.default_fs.File,
-                        target_factory = None,
-                        source_factory = None,
+                        target_factory = SCons.Node.FS.default_fs.File,
+                        source_factory = SCons.Node.FS.default_fs.File,
                         scanner=None,
                         emitter=None):
         if __debug__: logInstanceCreation(self)
         BuilderBase.__init__(self, action, prefix, suffix, src_suffix,
-                             node_factory, target_factory, source_factory,
+                             target_factory, source_factory,
                              scanner, emitter)
         if not SCons.Util.is_List(src_builder):
             src_builder = [ src_builder ]
