@@ -171,7 +171,7 @@ env.Alias('A', 'B')
 """)
 
 test.run(arguments='A',
-         stderr="scons: \\*\\*\\* No Builder for target `D', needed by `C'.  Stop.\n",
+         stderr="scons: \\*\\*\\* Source `D' not found, needed by target `C'.  Stop.\n",
          status=2)
 
 test.pass_test()
