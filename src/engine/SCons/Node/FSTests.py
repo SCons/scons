@@ -307,6 +307,57 @@ class FSTestCase(unittest.TestCase):
         assert not f1.dir.exists()
         f1.build()
         assert f1.dir.exists()
+
+        # Test comparison of FS objects
+        fs1 = SCons.Node.FS.FS()
+        fs2 = SCons.Node.FS.FS()
+        os.chdir('..')
+        fs3 = SCons.Node.FS.FS()
+        assert fs1 == fs2
+        assert fs1 == fs3
+
+        # Test comparison of Entry objects
+        e1 = fs3.Entry('cmp/entry')
+        e2 = fs3.Entry('cmp/../cmp/entry')
+        e3 = fs3.Entry('entry')
+        assert e1 == e2
+        assert e1 != e3
+        assert e1 == os.path.normpath("cmp/entry"), e1
+        assert e1 != os.path.normpath("c/entry"), e1
+
+        # Test comparison of Dir objects
+        d1 = fs3.Dir('cmp/dir')
+        d2 = fs3.Dir('cmp/../cmp/dir')
+        d3 = fs3.Dir('dir')
+        assert d1 == d2
+        assert d1 != d3
+        assert d1 == os.path.normpath("cmp/dir"), d1
+        assert d1 != os.path.normpath("c/dir"), d1
+
+        # Test comparison of File objects
+        f1 = fs3.File('cmp/file')
+        f2 = fs3.File('cmp/../cmp/file')
+        f3 = fs3.File('file')
+        assert f1 == f2
+        assert f1 != f3
+        assert f1 == os.path.normpath("cmp/file"), f1
+        assert f1 != os.path.normpath("c/file"), f1
+
+        # Test comparison of different type objects
+        f1 = fs1.File('cmp/xxx')
+        d2 = fs2.Dir('cmp/xxx')
+        assert f1 != d2, "%s == %s" % (f1.__class__, d2.__class__)
+
+        # Test hashing FS nodes
+        f = fs1.File('hash/f')
+        d = fs1.Dir('hash/d')
+        e = fs1.Entry('hash/e')
+        val = {}
+        val[f] = 'f'
+        val[d] = 'd'
+        val[e] = 'e'
+        for k, v in val.items():
+             assert k == "hash/" + v
         
         #XXX test exists()
 

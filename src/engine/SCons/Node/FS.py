@@ -122,6 +122,9 @@ class FS:
         self.Top.path_ = os.path.join('.', '')
         self.cwd = self.Top
 
+    def __cmp__(self, other):
+	return cmp(self.__dict__, other.__dict__)
+
     def __doLookup(self, fsclass, name, directory=None):
         """This method differs from the File and Dir factory methods in
         one important way: the meaning of the directory parameter.
@@ -273,6 +276,18 @@ class Entry(SCons.Node.Node):
     def __str__(self):
 	"""A FS node's string representation is its path name."""
 	return self.path
+
+    def __cmp__(self, other):
+	if type(self) != types.StringType and type(other) != types.StringType:
+            try:
+                if self.__class__ != other.__class__:
+                    return 1
+            except:
+                return 1
+        return cmp(str(self), str(other))
+
+    def __hash__(self):
+	return hash(self.abspath_)
 
     def exists(self):
         return os.path.exists(self.abspath)
