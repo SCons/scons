@@ -374,7 +374,10 @@ class Environment:
         targets = SCons.Node.arg2nodes(target, self.fs.File)
 
         for side_effect in side_effects:
-            if side_effect.builder is not None:
+            # A builder of 1 means the node is supposed to appear
+	    # buildable without actually having a builder, so we allow
+	    # it to be a side effect as well.
+            if side_effect.builder is not None and side_effect.builder != 1:
                 raise UserError, "Multiple ways to build the same target were specified for: %s" % str(side_effect)
             side_effect.add_source(targets)
             side_effect.side_effect = 1

@@ -644,7 +644,7 @@ class Dir(Entry):
         else:
             return self.entries['..'].root()
 
-    def all_children(self, scanner):
+    def all_children(self, scan):
         #XXX --random:  randomize "dependencies?"
         keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
         kids = map(lambda x, s=self: s.entries[x], keys)
@@ -655,7 +655,7 @@ class Dir(Entry):
                return 1
             return 0
         kids.sort(c)
-        return kids
+        return kids + SCons.Node.Node.all_children(self, 0)
 
     def build(self):
         """A null "builder" for directories."""

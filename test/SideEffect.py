@@ -118,5 +118,39 @@ foo.in -> foo.out
 """
 assert test.read('log.txt') == expect
 
+test.write('SConstruct', 
+"""
+import os.path
+import os
+
+def copy(source, target):
+    print 'copy() < %s > %s' % (source, target)
+    open(target, "wb").write(open(source, "rb").read())
+
+def build(env, source, target):
+    copy(str(source[0]), str(target[0]))
+    if target[0].side_effects:
+        try: os.mkdir('log')
+        except: pass
+        copy(str(target[0]), os.path.join('log', str(target[0])))
+
+Build = Builder(action=build)
+env = Environment(BUILDERS={'Build':Build})
+env.Build('foo.out', 'foo.in')
+env.Build('bar.out', 'bar.in')
+env.Build('blat.out', 'blat.in')
+env.SideEffect(Dir('log'), ['foo.out', 'bar.out', 'blat.out'])
+""")
+
+test.run(arguments='foo.out')
+
+test.fail_test(not os.path.exists(test.workpath('foo.out')))
+test.fail_test(not os.path.exists(test.workpath('log/foo.out')))
+test.fail_test(os.path.exists(test.workpath('log/bar.out')))
+test.fail_test(os.path.exists(test.workpath('log/blat.out')))
+
+test.run(arguments='log')
+test.fail_test(not os.path.exists(test.workpath('log/bar.out')))
+test.fail_test(not os.path.exists(test.workpath('log/blat.out')))
 
 test.pass_test()
