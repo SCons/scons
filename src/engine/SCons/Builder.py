@@ -206,8 +206,7 @@ class BuilderBase:
     nodes (files) from input nodes (files).
     """
 
-    def __init__(self,  name = None,
-                        action = None,
+    def __init__(self,  action = None,
                         prefix = '',
                         suffix = '',
                         src_suffix = '',
@@ -219,7 +218,6 @@ class BuilderBase:
                         multi = 0,
                         env = None,
                         overrides = {}):
-        self.name = name
         self.action = SCons.Action.Action(action)
         self.multi = multi
         self.prefix = prefix
@@ -241,13 +239,10 @@ class BuilderBase:
     def get_name(self, env):
         """Attempts to get the name of the Builder.
 
-        If the Builder's name attribute is None, then we will look at
-        the BUILDERS variable of env, expecting it to be a dictionary
-        containing this Builder, and we will return the key of the
+        Look at the BUILDERS variable of env, expecting it to be a
+        dictionary containing this Builder, and return the key of the
         dictionary."""
 
-        if self.name:
-            return self.name
         try:
             index = env['BUILDERS'].values().index(self)
             return env['BUILDERS'].keys()[index]
@@ -377,7 +372,6 @@ class ListBuilder(SCons.Util.Proxy):
         self.env = env
         self.tlist = tlist
         self.multi = builder.multi
-        self.name = "ListBuilder(%s)"%builder.name
 
     def targets(self, node):
         """Return the list of targets for this builder instance.
@@ -388,12 +382,7 @@ class ListBuilder(SCons.Util.Proxy):
         return cmp(self.__dict__, other.__dict__)
 
     def get_name(self, env):
-        """Attempts to get the name of the Builder.
-
-        If the Builder's name attribute is None, then we will look at
-        the BUILDERS variable of env, expecting it to be a dictionary
-        containing this Builder, and we will return the key of the
-        dictionary."""
+        """Attempts to get the name of the Builder."""
 
         return "ListBuilder(%s)" % self.builder.get_name(env)
 
@@ -409,7 +398,6 @@ class MultiStepBuilder(BuilderBase):
     src_suffix.
     """
     def __init__(self,  src_builder,
-                        name = None,
                         action = None,
                         prefix = '',
                         suffix = '',
@@ -419,7 +407,7 @@ class MultiStepBuilder(BuilderBase):
                         source_factory = None,
                         scanner=None,
                         emitter=None):
-        BuilderBase.__init__(self, name, action, prefix, suffix, src_suffix,
+        BuilderBase.__init__(self, action, prefix, suffix, src_suffix,
                              node_factory, target_factory, source_factory,
                              scanner, emitter)
         if not SCons.Util.is_List(src_builder):

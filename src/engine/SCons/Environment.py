@@ -62,7 +62,7 @@ def installString(target, source, env):
 
 installAction = SCons.Action.Action(installFunc, installString)
 
-InstallBuilder = SCons.Builder.Builder(name='Install', action=installAction)
+InstallBuilder = SCons.Builder.Builder(action=installAction)
 
 def our_deepcopy(x):
    """deepcopy lists and dictionaries, and just copy the reference

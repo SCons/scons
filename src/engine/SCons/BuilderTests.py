@@ -148,7 +148,7 @@ class BuilderTestCase(unittest.TestCase):
                 self.sources.extend(source)
             def scanner_key(self):
                 return self.name
-        builder = SCons.Builder.Builder(name="builder", action="foo", node_factory=Node)
+        builder = SCons.Builder.Builder(action="foo", node_factory=Node)
 
         n1 = Node("n1");
         n2 = Node("n2");
@@ -190,12 +190,12 @@ class BuilderTestCase(unittest.TestCase):
 
         Verify that we can retrieve the supplied action attribute.
         """
-        builder = SCons.Builder.Builder(name="builder", action="foo")
+        builder = SCons.Builder.Builder(action="foo")
         assert builder.action.cmd_list == ["foo"]
 
         def func():
             pass
-        builder = SCons.Builder.Builder(name="builder", action=func)
+        builder = SCons.Builder.Builder(action=func)
         assert isinstance(builder.action, SCons.Action.FunctionAction)
         # Preserve the following so that the baseline test will fail.
         # Remove it in favor of the previous test at some convenient
@@ -208,16 +208,16 @@ class BuilderTestCase(unittest.TestCase):
         def generator():
             pass
 
-        builder = SCons.Builder.Builder(name="builder", generator=generator)
+        builder = SCons.Builder.Builder(generator=generator)
         assert builder.action.generator == generator
 
     def test_cmp(self):
         """Test simple comparisons of Builder objects
         """
-        b1 = SCons.Builder.Builder(name="b1", src_suffix = '.o')
-        b2 = SCons.Builder.Builder(name="b1", src_suffix = '.o')
+        b1 = SCons.Builder.Builder(src_suffix = '.o')
+        b2 = SCons.Builder.Builder(src_suffix = '.o')
         assert b1 == b2
-        b3 = SCons.Builder.Builder(name="b3", src_suffix = '.x')
+        b3 = SCons.Builder.Builder(src_suffix = '.x')
         assert b1 != b3
         assert b2 != b3
 
@@ -226,8 +226,7 @@ class BuilderTestCase(unittest.TestCase):
         """
         def func():
             pass
-        builder = SCons.Builder.Builder(name="builder",
-                                        action=SCons.Action.ListAction(["x",
+        builder = SCons.Builder.Builder(action=SCons.Action.ListAction(["x",
                                                                         func,
                                                                         "z"]))
         a = builder.get_actions()
@@ -240,15 +239,15 @@ class BuilderTestCase(unittest.TestCase):
         """Test returning the signature contents of a Builder
         """
 
-        b1 = SCons.Builder.Builder(name = "b1", action = "foo")
+        b1 = SCons.Builder.Builder(action = "foo")
         contents = b1.get_contents([],[],Environment())
         assert contents == "foo", contents
 
-        b2 = SCons.Builder.Builder(name = "b2", action = Func)
+        b2 = SCons.Builder.Builder(action = Func)
         contents = b2.get_contents([],[],Environment())
         assert contents == "\177\036\000\177\037\000d\000\000S", repr(contents)
 
-        b3 = SCons.Builder.Builder(name = "b3", action = SCons.Action.ListAction(["foo", Func, "bar"]))
+        b3 = SCons.Builder.Builder(action = SCons.Action.ListAction(["foo", Func, "bar"]))
         contents = b3.get_contents([],[],Environment())
         assert contents == "foo\177\036\000\177\037\000d\000\000Sbar", repr(contents)
 
@@ -260,7 +259,7 @@ class BuilderTestCase(unittest.TestCase):
         def FooFactory(target):
             global Foo
             return Foo(target)
-        builder = SCons.Builder.Builder(name = "builder", node_factory = FooFactory)
+        builder = SCons.Builder.Builder(node_factory = FooFactory)
         assert builder.target_factory is FooFactory
         assert builder.source_factory is FooFactory
 
@@ -272,7 +271,7 @@ class BuilderTestCase(unittest.TestCase):
         def FooFactory(target):
             global Foo
             return Foo(target)
-        builder = SCons.Builder.Builder(name = "builder", target_factory = FooFactory)
+        builder = SCons.Builder.Builder(target_factory = FooFactory)
         assert builder.target_factory is FooFactory
         assert not builder.source_factory is FooFactory
 
@@ -284,7 +283,7 @@ class BuilderTestCase(unittest.TestCase):
         def FooFactory(source):
             global Foo
             return Foo(source)
-        builder = SCons.Builder.Builder(name = "builder", source_factory = FooFactory)
+        builder = SCons.Builder.Builder(source_factory = FooFactory)
         assert not builder.target_factory is FooFactory
         assert builder.source_factory is FooFactory
 
@@ -293,9 +292,9 @@ class BuilderTestCase(unittest.TestCase):
 
         Make sure that there is no '.' separator appended.
         """
-        builder = SCons.Builder.Builder(name = "builder", prefix = 'lib.')
+        builder = SCons.Builder.Builder(prefix = 'lib.')
         assert builder.get_prefix(env) == 'lib.'
-        builder = SCons.Builder.Builder(name = "builder", prefix = 'lib')
+        builder = SCons.Builder.Builder(prefix = 'lib')
         assert builder.get_prefix(env) == 'lib'
         tgt = builder(env, target = 'tgt1', source = 'src1')
         assert tgt.path == 'libtgt1', \
@@ -315,7 +314,7 @@ class BuilderTestCase(unittest.TestCase):
         """
         env = Environment(XSUFFIX = '.x', YSUFFIX = '.y')
 
-        b1 = SCons.Builder.Builder(name = "builder", src_suffix = '.c')
+        b1 = SCons.Builder.Builder(src_suffix = '.c')
         assert b1.src_suffixes(env) == ['.c'], b1.src_suffixes(env)
 
         tgt = b1(env, target = 'tgt2', source = 'src2')
@@ -327,21 +326,18 @@ class BuilderTestCase(unittest.TestCase):
         assert tgt.sources[0].path == 'src3a src3b.c', \
                 "Unexpected tgt.sources[0] name: %s" % tgt.sources[0].path
 
-        b2 = SCons.Builder.Builder(name = "b2",
-                                   src_suffix = '.2',
-                                   src_builder = b1)
+        b2 = SCons.Builder.Builder(src_suffix = '.2', src_builder = b1)
         assert b2.src_suffixes(env) == ['.2', '.c'], b2.src_suffixes(env)
 
-        b3 = SCons.Builder.Builder(name = "b3",
-                                   action = {'.3a' : '', '.3b' : ''})
+        b3 = SCons.Builder.Builder(action = {'.3a' : '', '.3b' : ''})
         s = b3.src_suffixes(env)
         s.sort()
         assert s == ['.3a', '.3b'], s
 
-        b4 = SCons.Builder.Builder(name = "b4", src_suffix = '$XSUFFIX')
+        b4 = SCons.Builder.Builder(src_suffix = '$XSUFFIX')
         assert b4.src_suffixes(env) == ['.x'], b4.src_suffixes(env)
 
-        b5 = SCons.Builder.Builder(name = "b5", action = { '.y' : ''})
+        b5 = SCons.Builder.Builder(action = { '.y' : ''})
         assert b5.src_suffixes(env) == ['.y'], b5.src_suffixes(env)
 
     def test_suffix(self):
@@ -350,9 +346,9 @@ class BuilderTestCase(unittest.TestCase):
         Make sure that the '.' separator is appended to the
         beginning if it isn't already present.
         """
-        builder = SCons.Builder.Builder(name = "builder", suffix = '.o')
+        builder = SCons.Builder.Builder(suffix = '.o')
         assert builder.get_suffix(env) == '.o', builder.get_suffix(env)
-        builder = SCons.Builder.Builder(name = "builder", suffix = 'o')
+        builder = SCons.Builder.Builder(suffix = 'o')
         assert builder.get_suffix(env) == '.o', builder.get_suffix(env)
         tgt = builder(env, target = 'tgt3', source = 'src3')
         assert tgt.path == 'tgt3.o', \
@@ -374,7 +370,7 @@ class BuilderTestCase(unittest.TestCase):
                     open(t, 'w').write("function2\n")
             return 1
 
-        builder = SCons.Builder.Builder(action = function2, name = "function2")
+        builder = SCons.Builder.Builder(action = function2)
         tgts = builder(env, target = [outfile, outfile2], source = 'foo')
         for t in tgts:
             t.prepare()
@@ -398,7 +394,7 @@ class BuilderTestCase(unittest.TestCase):
                     open(t, 'w').write("function3\n")
             return 1
 
-        builder = SCons.Builder.Builder(action = function3, name = "function3")
+        builder = SCons.Builder.Builder(action = function3)
         tgts = builder(env, target = [sub1_out, sub2_out], source = 'foo')
         for t in tgts:
             t.prepare()
@@ -415,12 +411,10 @@ class BuilderTestCase(unittest.TestCase):
 
     def test_MultiStepBuilder(self):
         """Testing MultiStepBuilder class."""
-        builder1 = SCons.Builder.Builder(name = "builder1",
-                                         action='foo',
+        builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
                                          suffix='.foo')
-        builder2 = SCons.Builder.MultiStepBuilder(name = "builder2",
-                                                  action='bar',
+        builder2 = SCons.Builder.MultiStepBuilder(action='bar',
                                                   src_builder = builder1,
                                                   src_suffix = '.foo')
         tgt = builder2(env, target='baz', source=['test.bar', 'test2.foo', 'test3.txt'])
@@ -436,8 +430,7 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt.sources[0].sources[0]) == 'aaa.bar', \
                str(tgt.sources[0].sources[0])
 
-        builder3 = SCons.Builder.MultiStepBuilder(name = "builder3",
-                                                  action = 'foo',
+        builder3 = SCons.Builder.MultiStepBuilder(action = 'foo',
                                                   src_builder = 'xyzzy',
                                                   src_suffix = '.xyzzy')
         assert builder3.get_src_builders(Environment()) == []
@@ -447,8 +440,7 @@ class BuilderTestCase(unittest.TestCase):
         def func_action(target, source, env):
             return 0
         
-        builder = SCons.Builder.Builder(name = "builder",
-                                        action={ '.foo' : func_action,
+        builder = SCons.Builder.Builder(action={ '.foo' : func_action,
                                                  '.bar' : func_action })
         
         assert isinstance(builder, SCons.Builder.CompositeBuilder)
@@ -467,13 +459,11 @@ class BuilderTestCase(unittest.TestCase):
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
-        foo_bld = SCons.Builder.Builder(name = "foo_bld",
-                                        action = 'a-foo',
+        foo_bld = SCons.Builder.Builder(action = 'a-foo',
                                         src_suffix = '.ina',
                                         suffix = '.foo')
         assert isinstance(foo_bld, SCons.Builder.BuilderBase)
-        builder = SCons.Builder.Builder(name = "builder",
-                                        action = { '.foo' : 'foo',
+        builder = SCons.Builder.Builder(action = { '.foo' : 'foo',
                                                    '.bar' : 'bar' },
                                         src_builder = foo_bld)
         assert isinstance(builder, SCons.Builder.CompositeBuilder)
@@ -485,13 +475,11 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target='t2', source='t2a.foo t2b.ina')
         assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder), tgt.builder.__dict__
 
-        bar_bld = SCons.Builder.Builder(name = "bar_bld",
-                                        action = 'a-bar',
+        bar_bld = SCons.Builder.Builder(action = 'a-bar',
                                         src_suffix = '.inb',
                                         suffix = '.bar')
         assert isinstance(bar_bld, SCons.Builder.BuilderBase)
-        builder = SCons.Builder.Builder(name = "builder",
-                                        action = { '.foo' : 'foo'},
+        builder = SCons.Builder.Builder(action = { '.foo' : 'foo'},
                                         src_builder = [foo_bld, bar_bld])
         assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
@@ -534,16 +522,14 @@ class BuilderTestCase(unittest.TestCase):
         class TestScanner:
             pass
         scn = TestScanner()
-        builder = SCons.Builder.Builder(name = "builder", scanner=scn)
+        builder = SCons.Builder.Builder(scanner=scn)
         tgt = builder(env, target='foo2', source='bar')
         assert tgt.target_scanner == scn, tgt.target_scanner
 
-        builder1 = SCons.Builder.Builder(name = "builder1",
-                                         action='foo',
+        builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
                                          suffix='.foo')
-        builder2 = SCons.Builder.Builder(name = "builder2",
-                                         action='foo',
+        builder2 = SCons.Builder.Builder(action='foo',
                                          src_builder = builder1,
                                          scanner = scn)
         tgt = builder2(env, target='baz2', source='test.bar test2.foo test3.txt')
@@ -558,7 +544,7 @@ class BuilderTestCase(unittest.TestCase):
             def instance(self, env):
                  return self
         env_scanner = TestScanner()
-        builder = SCons.Builder.Builder(name = "builder", action='action')
+        builder = SCons.Builder.Builder(action='action')
         tgt = builder(env, target='foo.x', source='bar')
         src = tgt.sources[0]
         assert tgt.target_scanner != env_scanner, tgt.target_scanner
@@ -573,7 +559,7 @@ class BuilderTestCase(unittest.TestCase):
 
         env=Environment(CC='cc')
 
-        builder = SCons.Builder.Builder(name="builder", action=buildFunc)
+        builder = SCons.Builder.Builder(action=buildFunc)
         tgt = builder(env, target='foo', source='bar', foo=1, bar=2, CC='mycc')
         tgt.build()
         assert self.foo == 1, self.foo
@@ -590,7 +576,7 @@ class BuilderTestCase(unittest.TestCase):
                 source.append("baz")
             return ( target, source )
 
-        builder = SCons.Builder.Builder(name="builder", action='foo',
+        builder = SCons.Builder.Builder(action='foo',
                                         emitter=emit)
         tgt = builder(env, target='foo2', source='bar')
         assert str(tgt) == 'foo2', str(tgt)
@@ -608,7 +594,7 @@ class BuilderTestCase(unittest.TestCase):
         assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
 
         env2=Environment(FOO=emit)
-        builder2=SCons.Builder.Builder(name="builder2", action='foo',
+        builder2=SCons.Builder.Builder(action='foo',
                                        emitter="$FOO")
 
         tgt = builder2(env2, target='foo5', source='bar')
@@ -626,7 +612,7 @@ class BuilderTestCase(unittest.TestCase):
         assert 'baz' in map(str, tgt.sources), map(str, tgt.sources)
         assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
 
-        builder2a=SCons.Builder.Builder(name="builder2", action='foo',
+        builder2a=SCons.Builder.Builder(action='foo',
                                         emitter="$FOO")
         assert builder2 == builder2a, repr(builder2.__dict__) + "\n" + repr(builder2a.__dict__)
 
