@@ -35,6 +35,7 @@ import string
 import types
 import copy
 import sys
+import SCons.Sig
 
 from SCons.Errors import BuildError
 import SCons.Util
@@ -52,6 +53,9 @@ up_to_date = 3
 executed = 4
 failed = 5
 stack = 6 # nodes that are in the current Taskmaster execution stack
+
+# controls whether implicit depedencies are cached:
+implicit_cache = 0
 
 class Node:
     """The base Node class, for entities that we know how to
@@ -116,9 +120,9 @@ class Node:
         if self.source_scanner:
             self.found_includes = {}
             self.includes = None
-            
+
             def get_parents(node, parent): return node.get_parents()
-            def clear_cache(node, parent): 
+            def clear_cache(node, parent):
                 node.implicit = None
                 node.bsig = None
             w = Walker(self, get_parents, ignore_cycle, clear_cache)
@@ -170,17 +174,38 @@ class Node:
         # Don't bother scanning non-derived files, because we don't
         # care what their dependencies are.
         # Don't scan again, if we already have scanned.
-        if self.implicit is None:
-            if self.builder:
-                self.implicit = []
-                for child in self.children(scan=0):
-                    self._add_child(self.implicit, child.get_implicit_deps(self.env, child.source_scanner, self))
-            
-                # scan this node itself for implicit dependencies
-                self._add_child(self.implicit, self.get_implicit_deps(self.env, self.target_scanner, self))
-            else:
-                self.implicit = []
-    
+        if not self.implicit is None:
+            return
+        self.implicit = []
+        if not self.builder:
+            return
+
+        if implicit_cache:
+            implicit = self.get_stored_implicit()
+            if implicit is not None:
+                implicit = map(self.builder.source_factory, implicit)
+                self._add_child(self.implicit, implicit)
+                calc = SCons.Sig.default_calc
+                if calc.current(self, calc.bsig(self)):
+                    return
+                else:
+                    self.implicit = []
+
+        for child in self.children(scan=0):
+            self._add_child(self.implicit,
+                            child.get_implicit_deps(self.env,
+                                                    child.source_scanner,
+                                                    self))
+
+        # scan this node itself for implicit dependencies
+        self._add_child(self.implicit,
+                        self.get_implicit_deps(self.env,
+                                               self.target_scanner,
+                                               self))
+
+        if implicit_cache:
+            self.store_implicit()
+
     def scanner_key(self):
         return None
 
@@ -224,6 +249,15 @@ class Node:
 
     def get_timestamp(self):
         return 0
+
+    def store_implicit(self):
+        """Make the implicit deps permanent (that is, store them in the
+        .sconsign file or equivalent)."""
+        pass
+
+    def get_stored_implicit(self):
+        """Fetch the stored implicit dependencies"""
+        return None
 
     def set_precious(self, precious = 1):
         """Set the Node's precious value."""
@@ -276,7 +310,7 @@ class Node:
             return self.sources + self.depends
         else:
             return self.sources + self.depends + self.implicit
-    
+
     def get_parents(self):
         return self.parents.keys()
 
@@ -300,10 +334,10 @@ class Walker:
     The Walker object can be initialized with any node, and
     returns the next node on the descent with each next() call.
     'kids_func' is an optional function that will be called to
-    get the children of a node instead of calling 'children'. 
+    get the children of a node instead of calling 'children'.
     'cycle_func' is an optional function that will be called
     when a cycle is detected.
-    
+
     This class does not get caught in node cycles caused, for example,
     by C header file include loops.
     """

@@ -467,10 +467,8 @@ class Dir(Entry):
         """Return the .sconsign file info for this directory,
         creating it first if necessary."""
         if not self._sconsign:
-            #XXX Rework this to get rid of the hard-coding
             import SCons.Sig
-            import SCons.Sig.MD5
-            self._sconsign = SCons.Sig.SConsignFile(self, SCons.Sig.MD5)
+            self._sconsign = SCons.Sig.SConsignFile(self)
         return self._sconsign
 
 
@@ -534,10 +532,14 @@ class File(Entry):
                                 self.get_bsig(),
                                 old[2])
 
+    def store_implicit(self):
+        self.dir.sconsign().set_implicit(self.name, self.implicit)
+
     def get_prevsiginfo(self):
-        """Fetch the previous signature information from the
-        .sconsign entry."""
         return self.dir.sconsign().get(self.name)
+
+    def get_stored_implicit(self):
+        return self.dir.sconsign().get_implicit(self.name)
 
     def get_implicit_deps(self, env, scanner, target):
         if scanner:

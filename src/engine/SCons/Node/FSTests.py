@@ -36,10 +36,16 @@ import stat
 built_it = None
 
 class Builder:
+    def __init__(self, factory):
+        self.factory = factory
+
     def execute(self, **kw):
         global built_it
         built_it = 1
         return 0
+    
+    def source_factory(self, name):
+        return self.factory(name)
 
 scanner_count = 0
 
@@ -285,7 +291,7 @@ class FSTestCase(unittest.TestCase):
         built_it = None
         assert not built_it
         d1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
-        d1.builder_set(Builder())
+        d1.builder_set(Builder(fs.File))
         d1.env_set(Environment())
         d1.build()
         assert not built_it
@@ -293,7 +299,7 @@ class FSTestCase(unittest.TestCase):
         built_it = None
         assert not built_it
         f1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
-        f1.builder_set(Builder())
+        f1.builder_set(Builder(fs.File))
         f1.env_set(Environment())
         f1.build()
         assert built_it
@@ -381,6 +387,7 @@ class FSTestCase(unittest.TestCase):
         match(d12.path_, "subdir/d12/")
         e13 = fs.Entry("subdir/e13")
         match(e13.path, "subdir/subdir/e13")
+        fs.chdir(fs.Dir('..'))
 
         # Test scanning
         f1.target_scanner = Scanner()
@@ -391,7 +398,9 @@ class FSTestCase(unittest.TestCase):
         assert f1.implicit == []
         f1.implicit = None
         f1.scan()
-        assert f1.implicit[0].path_ == os.path.join("d1", "f1")
+        assert f1.implicit[0].path_ == os.path.join("d1", "f1"), f1.implicit[0].path_
+        f1.store_implicit()
+        assert f1.get_stored_implicit()[0] == os.path.join("d1", "f1")
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))

@@ -58,11 +58,11 @@ class DummyNode:
         self.oldtime = 0
         self.oldbsig = 0
         self.oldcsig = 0
-        
+
     def get_contents(self):
         # a file that doesn't exist has no contents:
         assert self.exists()
-        
+
         return self.file.contents
 
     def get_timestamp(self):
@@ -80,11 +80,11 @@ class DummyNode:
         except AttributeError:
             self.exists_cache = self.exists()
             return self.exists_cache
-        
+
     def children(self):
         return filter(lambda x, i=self.ignore: x not in i,
                       self.sources + self.depends)
-        
+
     def all_children(self):
         return self.sources + self.depends
 
@@ -113,7 +113,16 @@ class DummyNode:
 
     def get_prevsiginfo(self):
         return (self.oldtime, self.oldbsig, self.oldcsig)
-    
+
+    def get_stored_implicit(self):
+        return None
+
+    def store_csig(self):
+        pass
+
+    def store_bsig(self):
+        pass
+
     def builder_sig_adapter(self):
         class Adapter:
             def get_contents(self):
@@ -135,7 +144,7 @@ def create_files(test):
              (test.workpath('d1/test.c'), 'blah blah', 111, 0),#8
              (test.workpath('d1/test.o'), None, 0, 1),         #9
              (test.workpath('d1/test'), None, 0, 1)]           #10
-    
+
     files = map(lambda x: apply(DummyFile, x), args)
 
     return files
@@ -173,12 +182,12 @@ def clear(nodes):
         node.bsig = None
 
 class SigTestBase:
-    
+
     def runTest(self):
 
         test = TestCmd.TestCmd(workdir = '')
         test.subdir('d1')
-        
+
         self.files = create_files(test)
         self.test_initial()
         self.test_built()
@@ -186,9 +195,9 @@ class SigTestBase:
         self.test_modify_same_time()
         self.test_delete()
         self.test_cache()
-        
+
     def test_initial(self):
-        
+
         nodes = create_nodes(self.files)
         calc = SCons.Sig.Calculator(self.module)
 
@@ -209,7 +218,7 @@ class SigTestBase:
         calc = SCons.Sig.Calculator(self.module)
 
         write(calc, nodes)
-        
+
         for node in nodes:
             self.failUnless(current(calc, node),
                             "all of the nodes should be current")
@@ -242,7 +251,6 @@ class SigTestBase:
         self.failUnless(not current(calc, nodes[9]), "direct source modified")
         self.failUnless(not current(calc, nodes[10]), "indirect source modified")
 
-
     def test_modify_same_time(self):
 
         nodes = create_nodes(self.files)
@@ -264,9 +272,9 @@ class SigTestBase:
                             "all of the nodes should be current")
 
     def test_delete(self):
-        
+
         nodes = create_nodes(self.files)
-        
+
         calc = SCons.Sig.Calculator(self.module)
 
         write(calc, nodes)
@@ -292,13 +300,13 @@ class SigTestBase:
     def test_cache(self):
         """Test that signatures are cached properly."""
         nodes = create_nodes(self.files)
-        
+
         calc = SCons.Sig.Calculator(self.module)
         nodes[0].set_csig(1)
         nodes[1].set_bsig(1)
         assert calc.csig(nodes[0]) == 1, calc.csig(nodes[0])
         assert calc.bsig(nodes[1]) == 1, calc.bsig(nodes[1])
-        
+
 
 class MD5TestCase(unittest.TestCase, SigTestBase):
     """Test MD5 signatures"""
@@ -311,7 +319,7 @@ class TimeStampTestCase(unittest.TestCase, SigTestBase):
     module = SCons.Sig.TimeStamp
 
 class CalcTestCase(unittest.TestCase):
-    
+
     def runTest(self):
         class MySigModule:
             def collect(self, signatures):
@@ -348,6 +356,8 @@ class CalcTestCase(unittest.TestCase):
                 return self.csig
             def get_prevsiginfo(self):
                 return 0, self.bsig, self.csig
+            def get_stored_implicit(self):
+                return None
             def get_timestamp(self):
                 return 1
             def builder_sig_adapter(self):
@@ -443,11 +453,52 @@ class CalcTestCase(unittest.TestCase):
         assert not self.calc.current(nn, 30)
         assert self.calc.current(nn, 33)
 
+class SConsignEntryTestCase(unittest.TestCase):
+
+    def runTest(self):
+        class DummyModule:
+            def to_string(self, sig):
+                return str(sig)
+
+            def from_string(self, sig):
+                return int(sig)
+
+        m = DummyModule()
+        e = SCons.Sig.SConsignEntry(m)
+        assert e.timestamp == None
+        assert e.csig == None
+        assert e.bsig == None
+        assert e.get_implicit() == None
+        assert e.render(m) == "- - - -"
+
+        e = SCons.Sig.SConsignEntry(m, "- - - -")
+        assert e.timestamp == None
+        assert e.csig == None
+        assert e.bsig == None
+        assert e.get_implicit() == None
+        assert e.render(m) == "- - - -"
+
+        e = SCons.Sig.SConsignEntry(m, "- - - foo\0bar")
+        assert e.timestamp == None
+        assert e.csig == None
+        assert e.bsig == None
+        assert e.get_implicit() == ['foo', 'bar']
+        assert e.render(m) == "- - - foo\0bar"
+
+        e = SCons.Sig.SConsignEntry(m, "123 456 789 foo bletch\0bar")
+        assert e.timestamp == 123
+        assert e.bsig == 456
+        assert e.csig == 789
+        assert e.get_implicit() == ['foo bletch', 'bar']
+        assert e.render(m) == "123 456 789 foo bletch\0bar"
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(MD5TestCase())
     suite.addTest(TimeStampTestCase())
     suite.addTest(CalcTestCase())
+    suite.addTest(SConsignEntryTestCase())
     return suite
 
 if __name__ == "__main__":
@@ -455,4 +506,4 @@ if __name__ == "__main__":
     result = runner.run(suite())
     if not result.wasSuccessful():
         sys.exit(1)
-    
+

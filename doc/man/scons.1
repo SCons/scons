@@ -374,6 +374,14 @@ options
 are used, the directories are searched in the order specified.
 
 .TP
+--implicit-cache
+Cache implicit dependencies. This can cause 
+.B scons
+to miss changes in the implicit dependencies in cases where a new implicit
+dependency is added earlier in the implicit dependency search path
+(e.g. CPPPATH) than a current implicit dependency with the same name.
+
+.TP
 .RI -j " N" ", --jobs=" N
 Specifies the number of jobs (commands) to run simultaneously.
 If there is more than one 

@@ -163,7 +163,7 @@ max_drift = None
 
 def get_all_children(node): return node.all_children(None)
 
-def get_derived_children(node): 
+def get_derived_children(node):
     children = node.all_children(None)
     return filter(lambda x: x.builder, children)
 
@@ -224,7 +224,7 @@ opt_func = {}		# mapping of option strings to functions
 
 def options_init():
     """Initialize command-line options processing.
-    
+
     This is in a subroutine mainly so we can easily single-step over
     it in the debugger.
     """
@@ -471,6 +471,14 @@ def options_init():
 	short = 'I', long = ['include-dir'], arg = 'DIRECTORY',
 	help = "Search DIRECTORY for imported Python modules.")
 
+    def opt_implicit_cache(opt, arg):
+        import SCons.Node
+        SCons.Node.implicit_cache = 1
+
+    Option(func = opt_implicit_cache,
+        long = ['implicit-cache'],
+        help = "Cache implicit dependencies")
+
     def opt_j(opt, arg):
 	global num_jobs
 	try:
@@ -515,7 +523,7 @@ def options_init():
         global max_drift
         try:
             max_drift = int(arg)
-        except ValueError: 
+        except ValueError:
             raise UserError, "The argument for --max-drift must be an integer."
 
     Option(func = opt_max_drift,
@@ -727,7 +735,7 @@ def _main():
             os.chdir(script_dir)
         else:
             raise UserError, "No SConstruct file found."
-        
+
     SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
 
     if not scripts:
@@ -810,10 +818,11 @@ def _main():
     nodes = filter(lambda x: x is not None, map(Entry, targets))
 
     if not calc:
-        if max_drift is None:
-            calc = SCons.Sig.Calculator(SCons.Sig.MD5)
-        else:
-            calc = SCons.Sig.Calculator(SCons.Sig.MD5, max_drift)
+        if max_drift is not None:
+            SCons.Sig.default_calc = SCons.Sig.Calculator(SCons.Sig.MD5,
+                                                          max_drift)
+
+        calc = SCons.Sig.default_calc
 
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
 

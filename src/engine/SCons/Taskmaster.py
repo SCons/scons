@@ -125,7 +125,6 @@ class Task:
         state = SCons.Node.up_to_date
         for t in self.targets:
             bsig = self.tm.calc.bsig(t)
-            t.set_bsig(bsig)
             if not self.tm.calc.current(t, bsig):
                 state = SCons.Node.executing
         self.set_tstates(state)

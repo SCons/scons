@@ -29,7 +29,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('sub1', 'sub2')
+test.subdir('sub1', 'sub2', 'sub3')
 
 test.write('SConstruct', """
 def build1(target, source, env):
@@ -49,12 +49,14 @@ B2 = Builder(name = "B2", action = build2)
 env = Environment(BUILDERS = [B1, B2])
 env.B1(target = 'sub1/foo.out', source = 'foo.in')
 env.B2(target = 'sub2/foo.out', source = 'foo.in')
+env.B2(target = 'sub3/foo.out', source = 'foo.in')
 """)
 
 test.write('foo.in', "foo.in\n")
 
 sub1__sconsign = test.workpath('sub1', '.sconsign')
 sub2__sconsign = test.workpath('sub2', '.sconsign')
+sub3__sconsign = test.workpath('sub3', '.sconsign')
 
 test.write(sub1__sconsign, "")
 test.write(sub2__sconsign, "")

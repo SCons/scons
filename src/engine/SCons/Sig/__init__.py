@@ -43,19 +43,74 @@ def write():
     for sig_file in sig_files:
         sig_file.write()
 
+class SConsignEntry:
+    def __init__(self, module, entry=None):
+
+        self.timestamp = self.csig = self.bsig = self.implicit = None
+
+        if not entry is None:
+            arr = map(string.strip, string.split(entry, " ", 3))
+
+            try:
+                if arr[0] == '-': self.timestamp = None
+                else:             self.timestamp = int(arr[0])
+
+                if arr[1] == '-': self.bsig = None
+                else:             self.bsig = module.from_string(arr[1])
+
+                if arr[2] == '-': self.csig = None
+                else:             self.csig = module.from_string(arr[2])
+
+                if arr[3] == '-': self.implicit = None
+                else:             self.implicit = arr[3]
+            except IndexError:
+                pass
+
+    def render(self, module):
+        if self.timestamp is None: timestamp = '-'
+        else:                      timestamp = "%d"%self.timestamp
+
+        if self.bsig is None: bsig = '-'
+        else:                 bsig = module.to_string(self.bsig)
+
+        if self.csig is None: csig = '-'
+        else:                 csig = module.to_string(self.csig)
+
+        if self.implicit is None: implicit = '-'
+        else:                     implicit = self.implicit
+
+        return '%s %s %s %s' % (timestamp, bsig, csig, implicit)
+
+    def get_implicit(self):
+        if self.implicit is None:
+            return None
+        else:
+            return string.split(self.implicit, '\0')
+
+    def set_implicit(self, implicit):
+        if implicit is None:
+            self.implicit = None
+        else:
+            self.implicit = string.join(map(str, implicit), '\0')
+
+
 class SConsignFile:
     """
     Encapsulates reading and writing a .sconsign file.
     """
 
-    def __init__(self, dir, module):
+    def __init__(self, dir, module=None):
         """
         dir - the directory for the file
         module - the signature module being used
         """
 
         self.dir = dir
-        self.module = module
+
+        if module is None:
+            self.module = default_calc.module
+        else:
+            self.module = module
         self.sconsign = os.path.join(dir.path, '.sconsign')
         self.entries = {}
         self.dirty = None
@@ -66,8 +121,8 @@ class SConsignFile:
             pass
         else:
             for line in file.readlines():
-                filename, rest = map(string.strip, string.split(line, ":"))
-                self.entries[filename] = rest
+                filename, rest = map(string.strip, string.split(line, ":", 1))
+                self.entries[filename] = SConsignEntry(self.module, rest)
 
         global sig_files
         sig_files.append(self)
@@ -77,24 +132,13 @@ class SConsignFile:
         Get the .sconsign entry for a file
 
         filename - the filename whose signature will be returned
-        returns - (timestamp, bsig, csig)
+        returns - (timestamp, bsig, csig, implicit)
         """
-
         try:
-            arr = map(string.strip, string.split(self.entries[filename], " "))
+            entry = self.entries[filename]
+            return (entry.timestamp, entry.bsig, entry.csig)
         except KeyError:
             return (None, None, None)
-        try:
-            if arr[1] == '-': bsig = None
-            else:             bsig = self.module.from_string(arr[1])
-        except IndexError:
-            bsig = None
-        try:
-            if arr[2] == '-': csig = None
-            else:             csig = self.module.from_string(arr[2])
-        except IndexError:
-            csig = None
-        return (int(arr[0]), bsig, csig)
 
     def set(self, filename, timestamp, bsig = None, csig = None):
         """
@@ -106,12 +150,36 @@ class SConsignFile:
         bsig - the file's build signature
         csig - the file's content signature
         """
-        if bsig is None: bsig = '-'
-        else:            bsig = self.module.to_string(bsig)
-        if csig is None: csig = ''
-        else:            csig = ' ' + self.module.to_string(csig)
-        self.entries[filename] = "%d %s%s" % (timestamp, bsig, csig)
+
+        try:
+            entry = self.entries[filename]
+        except KeyError:
+            entry = SConsignEntry(self.module)
+            self.entries[filename] = entry
+
+        entry.timestamp = timestamp
+        entry.bsig = bsig
+        entry.csig = csig
+
         self.dirty = 1
+
+    def get_implicit(self, filename):
+        """Fetch the cached implicit dependencies for 'filename'"""
+        try:
+            entry = self.entries[filename]
+            return entry.get_implicit()
+        except KeyError:
+            return None
+
+    def set_implicit(self, filename, implicit):
+        """Cache the implicit dependencies for 'filename'."""
+        try:
+            entry = self.entries[filename]
+        except KeyError:
+            entry = SConsignEntry(self.module)
+            self.entries[filename] = entry
+
+        entry.set_implicit(implicit)
 
     def write(self):
         """
@@ -132,12 +200,15 @@ class SConsignFile:
                 file = open(temp, 'wt')
                 fname = temp
             except:
-                file = open(self.sconsign, 'wt')
-                fname = self.sconsign
+                try:
+                    file = open(self.sconsign, 'wt')
+                    fname = self.sconsign
+                except:
+                    return
             keys = self.entries.keys()
             keys.sort()
             for name in keys:
-                file.write("%s: %s\n" % (name, self.entries[name]))
+                file.write("%s: %s\n" % (name, self.entries[name].render(self.module)))
             file.close()
             if fname != self.sconsign:
                 try:
@@ -163,7 +234,7 @@ class Calculator:
     for the build engine.
     """
 
-    def __init__(self, module, max_drift=2*24*60*60):
+    def __init__(self, module=None, max_drift=2*24*60*60):
         """
         Initialize the calculator.
 
@@ -172,7 +243,11 @@ class Calculator:
           cache content signatures. A negative value means to never cache
           content signatures. (defaults to 2 days)
         """
-        self.module = module
+        if module is None:
+            import MD5
+            self.module = MD5
+        else:
+            self.module = module
         self.max_drift = max_drift
 
     def bsig(self, node):
@@ -198,6 +273,7 @@ class Calculator:
         sigs = map(self.get_signature, node.children())
         if node.builder:
             sigs.append(self.module.signature(node.builder_sig_adapter()))
+
         bsig = self.module.collect(filter(lambda x: not x is None, sigs))
 
         node.set_bsig(bsig)
@@ -294,3 +370,6 @@ class Calculator:
             return 1
 
         return self.module.current(newsig, oldbsig)
+
+
+default_calc = Calculator()
