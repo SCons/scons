@@ -17,6 +17,15 @@ Things to do to release a version of SCons:
 
 	START THE NEW BRANCH (need more info)
 
+		aenc -p {newbranch}
+		aedb
+		aecp Construct debian/changelog rpm/scons.spec
+		[optional] aecp HOWTO/change.txt debian/scons.postinst
+		aeb
+		aet -reg
+		aede
+		etc.
+
 
 
 	Read through the FAQ for any updates
@@ -27,6 +36,7 @@ Things to do to release a version of SCons:
 		announcement on the home page
 		new packages in the download page
 		checkin new scons-doc.tar.gz on the web site
+		update the CHANGES.txt file
 
 
 

@@ -41,7 +41,7 @@ sub cons::whereis {
     my $file = shift;
     foreach my $dir (split(/$Config{path_sep}/, $ENV{PATH})) {
 	$f = File::Spec->catfile($dir, $file);
-	return $f if -x $f;
+	return $f if -x $f && ! -d $f;
     }
     return undef
 }
@@ -85,7 +85,7 @@ $developer = $ARG{developer} || $ENV{USERNAME} || $ENV{LOGNAME} || $ENV{USER};
 
 $revision = $ARG{version};
 chomp($revision = `$aesub '\$version' 2>/dev/null`) if $aesub && ! $revision;
-$revision = '0.01' if ! $revision;
+$revision = '0.02' if ! $revision;
 
 $change = $ARG{change};
 chomp($change = `$aesub '\$change' 2>/dev/null`) if $aesub && ! $change;
