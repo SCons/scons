@@ -385,101 +385,11 @@ class CalcTestCase(unittest.TestCase):
 class SConsignEntryTestCase(unittest.TestCase):
 
     def runTest(self):
-        class DummyModule:
-            def to_string(self, sig):
-                return str(sig)
-
-            def from_string(self, sig):
-                return int(sig)
-
-        m = DummyModule()
-        e = SCons.Sig.SConsignEntry(m)
+        e = SCons.Sig.SConsignEntry()
         assert e.timestamp == None
         assert e.csig == None
         assert e.bsig == None
-        assert e.get_implicit() == None
-        assert e.render(m) == "- - - -"
-
-        e = SCons.Sig.SConsignEntry(m, "- - - -")
-        assert e.timestamp == None
-        assert e.csig == None
-        assert e.bsig == None
-        assert e.get_implicit() == None
-        assert e.render(m) == "- - - -"
-
-        # Check backward compatability with pre-0.07 format:
-        e = SCons.Sig.SConsignEntry(m, "- - - ")
-        assert e.timestamp == None
-        assert e.csig == None
-        assert e.bsig == None
-        assert e.get_implicit() == []
-        assert e.render(m) == "- - - \0\0\0\0"
-
-        # Check backward compatability with pre-0.07 format:
-        e = SCons.Sig.SConsignEntry(m, "- - -")
-        assert e.timestamp == None
-        assert e.csig == None
-        assert e.bsig == None
-        assert e.get_implicit() == None
-        assert e.render(m) == "- - - -"
-        
-        e = SCons.Sig.SConsignEntry(m, "- - - \0\0\0\0")
-        assert e.timestamp == None
-        assert e.csig == None
-        assert e.bsig == None
-        assert e.get_implicit() == []
-        assert e.render(m) == "- - - \0\0\0\0"
-
-        # Check backward compatability with pre-0.08 format:
-        e = SCons.Sig.SConsignEntry(m, "- - - foo\0bar")
-        assert e.timestamp == None
-        assert e.csig == None
-        assert e.bsig == None
-        assert e.get_implicit() == ['foo', 'bar']
-        assert e.render(m) == "- - - \0\0foo\0bar\0\0"
-
-        e = SCons.Sig.SConsignEntry(m, "- - - \0\0foo\0bar\0\0")
-        assert e.timestamp == None
-        assert e.csig == None
-        assert e.bsig == None
-        assert e.get_implicit() == ['foo', 'bar']
-        assert e.render(m) == "- - - \0\0foo\0bar\0\0"
-
-        e = SCons.Sig.SConsignEntry(m, "123 456 789 \0\0foo bletch\0bar\0\0")
-        assert e.timestamp == 123
-        assert e.bsig == 456
-        assert e.csig == 789
-        assert e.get_implicit() == ['foo bletch', 'bar']
-        assert e.render(m) == "123 456 789 \0\0foo bletch\0bar\0\0"
-
-        # Check backward compatability with pre-0.07 format:
-        e = SCons.Sig.SConsignEntry(m, "987 654 321")
-        assert e.timestamp == 987
-        assert e.bsig == 654
-        assert e.csig == 321
-        assert e.get_implicit() == None
-        assert e.render(m) == "987 654 321 -"
-
-        e.set_implicit(None)
-        assert e.get_implicit() == None, e.get_implicit()
-
-        e.set_implicit('')
-        assert e.get_implicit() == [], e.get_implicit()
-
-        e.set_implicit('foo')
-        assert e.get_implicit() == ['foo'], e.get_implicit()
-
-        e.set_implicit('foo bar')
-        assert e.get_implicit() == ['foo bar'], e.get_implicit()
-
-        e.set_implicit(['foo'])
-        assert e.get_implicit() == ['foo'], e.get_implicit()
-
-        e.set_implicit(['foo bar'])
-        assert e.get_implicit() == ['foo bar'], e.get_implicit()
-
-        e.set_implicit(['foo', 'bar'])
-        assert e.get_implicit() == ['foo', 'bar'], e.get_implicit()
+        assert e.implicit == None
 
 class SConsignFileTestCase(unittest.TestCase):
 

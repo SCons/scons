@@ -27,6 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import TestSCons
 import TestCmd
+import cPickle
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
@@ -59,8 +60,8 @@ sub1__sconsign = test.workpath('sub1', '.sconsign')
 sub2__sconsign = test.workpath('sub2', '.sconsign')
 sub3__sconsign = test.workpath('sub3', '.sconsign')
 
-test.write(sub1__sconsign, "")
-test.write(sub2__sconsign, "")
+cPickle.dump({}, open(sub1__sconsign, 'wb'), 1)
+cPickle.dump({}, open(sub2__sconsign, 'wb'), 1)
 
 os.chmod(sub1__sconsign, 0444)
 
@@ -89,14 +90,11 @@ SCons warning: Ignoring corrupt .sconsign file: sub1..sconsign
 
 stdout = test.wrap_stdout('foo.in->sub1.foo.out\n')
 
-test.write(sub1__sconsign, 'garbage')
-test.run(arguments = '.', stderr=stderr, stdout=stdout)
-
 test.write(sub1__sconsign, 'not:a:sconsign:file')
-test.run(arguments = '.', stderr=stderr, stdout=stdout)
+test.run(arguments = '.', stderr=stderr, stdout=stdout, status=2)
 
 test.write(sub1__sconsign, '\0\0\0\0\0\0\0\0\0\0\0\0\0\0')
-test.run(arguments = '.', stderr=stderr, stdout=stdout)
+test.run(arguments = '.', stderr=stderr, stdout=stdout, status=2)
 
 
 test.pass_test()

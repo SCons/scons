@@ -27,7 +27,16 @@ RELEASE 0.10 - XXX
 
   Please note the following important changes since release 0.09:
 
-    - XXX
+    - The .sconsign file format has been changed from ASCII to a pickled
+      Python data structure.  This improves performance and future
+      extensibility, but means that the first time you execute SCons
+      0.10 on an already-existing source tree, for every .sconsign
+      file in the tree it will report:
+
+      	SCons warning: Ignoring corrupt .sconsign file: xxx
+
+      These warnings are normal in this situation and can be safely
+      ignored.
 
   Please note the following important changes since release 0.08:
 

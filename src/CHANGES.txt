@@ -19,6 +19,9 @@ RELEASE 0.10 - XXX
   - Add SetJobs() and GetJobs() methods to allow configuration of the
     number of default jobs (still overridden by -j).
 
+  - Convert the .sconsign file format from ASCII to a pickled Python
+    data structure.
+
 
 
 RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600

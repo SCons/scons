@@ -125,8 +125,8 @@ class TestSCons(TestCmd.TestCmd):
 	if _failed(self, status):
             expect = ''
             if status != 0:
-                expect = " (expected %d)" % status
-            print "%s returned %d%s" % (self.program, _status(self), expect)
+                expect = " (expected %s)" % str(status)
+            print "%s returned %s%s" % (self.program, str(_status(self)), expect)
             print "STDOUT ============"
             print self.stdout()
 	    print "STDERR ============"

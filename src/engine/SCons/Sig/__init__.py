@@ -35,6 +35,7 @@ import string
 import SCons.Node
 import time
 import SCons.Warnings
+import cPickle
 
 try:
     import MD5
@@ -56,61 +57,21 @@ def write():
         sig_file.write()
 
 class SConsignEntry:
-    def __init__(self, module, entry=None):
 
-        self.timestamp = self.csig = self.bsig = self.implicit = None
+    """Objects of this type are pickled to the .sconsign file, so it
+    should only contain simple builtin Python datatypes and no methods.
 
-        if not entry is None:
-            arr = map(string.strip, string.split(entry, " ", 3))
+    This class is used to store cache information about nodes between
+    scons runs for efficiency, and to store the build signature for
+    nodes so that scons can determine if they are out of date. """
 
-            try:
-                if arr[0] == '-': self.timestamp = None
-                else:             self.timestamp = int(arr[0])
-
-                if arr[1] == '-': self.bsig = None
-                else:             self.bsig = module.from_string(arr[1])
-
-                if arr[2] == '-': self.csig = None
-                else:             self.csig = module.from_string(arr[2])
-
-                if len(arr) < 4:        self.implicit = None # pre-0.07 format
-                elif arr[3] == '':      self.implicit = '' # pre-0.08 format
-                elif arr[3] == '-':     self.implicit = None
-                else:                   self.implicit = string.replace(arr[3], '\0\0', '')
-            except IndexError:
-                pass
-
-    def render(self, module):
-        if self.timestamp is None: timestamp = '-'
-        else:                      timestamp = "%d"%self.timestamp
-
-        if self.bsig is None: bsig = '-'
-        else:                 bsig = module.to_string(self.bsig)
-
-        if self.csig is None: csig = '-'
-        else:                 csig = module.to_string(self.csig)
-
-        if self.implicit is None: implicit = '-'
-        else:                     implicit = '\0\0%s\0\0'%self.implicit
-
-        return '%s %s %s %s' % (timestamp, bsig, csig, implicit)
-
-    def get_implicit(self):
-        if self.implicit is None:
-            return None
-        elif self.implicit == '':
-            return []
-        else:
-            return string.split(self.implicit, '\0')
-
-    def set_implicit(self, implicit):
-        if implicit is None:
-            self.implicit = None
-        else:
-            if SCons.Util.is_String(implicit):
-                implicit = [implicit]
-            self.implicit = string.join(map(str, implicit), '\0')
-
+    # setup the default value for various attributes:
+    # (We make the class variables so the default values won't get pickled
+    # with the instances, which would waste a lot of space)
+    timestamp = None
+    bsig = None
+    csig = None
+    implicit = None
 
 class SConsignFile:
     """
@@ -131,22 +92,22 @@ class SConsignFile:
             self.module = module
         self.sconsign = os.path.join(dir.path, '.sconsign')
         self.entries = {}
-        self.dirty = None
+        self.dirty = 0
 
         try:
-            file = open(self.sconsign, 'rt')
+            file = open(self.sconsign, 'rb')
         except:
             pass
         else:
-            for line in file.readlines():
-                try:
-                    filename, rest = map(string.strip, string.split(line, ":", 1))
-                    self.entries[filename] = SConsignEntry(self.module, rest)
-                except ValueError:
-                    SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                                        "Ignoring corrupt .sconsign file: %s"%self.sconsign)
+            try:
+                self.entries = cPickle.load(file)
+                if type(self.entries) is not type({}):
                     self.entries = {}
-                    
+                    raise TypeError
+            except:
+                SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
+                                    "Ignoring corrupt .sconsign file: %s"%self.sconsign)
+
         global sig_files
         sig_files.append(self)
 
@@ -157,24 +118,25 @@ class SConsignFile:
         filename - the filename whose signature will be returned
         returns - (timestamp, bsig, csig)
         """
-        try:
-            entry = self.entries[filename]
-            return (entry.timestamp, entry.bsig, entry.csig)
-        except KeyError:
-            return (None, None, None)
-    
-    def create_entry(self, filename):
+        entry = self.get_entry(filename)
+        return (entry.timestamp, entry.bsig, entry.csig)
+
+    def get_entry(self, filename):
         """
         Create an entry for the filename and return it, or if one already exists,
         then return it.
         """
         try:
-            entry = self.entries[filename]
-        except KeyError:
-            entry = SConsignEntry(self.module)
-            self.entries[filename] = entry
-            
-        return entry
+            return self.entries[filename]
+        except:
+            return SConsignEntry()
+
+    def set_entry(self, filename, entry):
+        """
+        Set the entry.
+        """
+        self.entries[filename] = entry
+        self.dirty = 1
 
     def set_csig(self, filename, csig):
         """
@@ -184,9 +146,9 @@ class SConsignFile:
         csig - the file's content signature
         """
 
-        entry = self.create_entry(filename)
+        entry = self.get_entry(filename)
         entry.csig = csig
-        self.dirty = 1
+        self.set_entry(filename, entry)
 
     def set_bsig(self, filename, bsig):
         """
@@ -196,9 +158,9 @@ class SConsignFile:
         bsig - the file's built signature
         """
 
-        entry = self.create_entry(filename)
+        entry = self.get_entry(filename)
         entry.bsig = bsig
-        self.dirty = 1
+        self.set_entry(filename, entry)
 
     def set_timestamp(self, filename, timestamp):
         """
@@ -208,23 +170,23 @@ class SConsignFile:
         timestamp - the file's timestamp
         """
 
-        entry = self.create_entry(filename)
+        entry = self.get_entry(filename)
         entry.timestamp = timestamp
-        self.dirty = 1
+        self.set_entry(filename, entry)
 
     def get_implicit(self, filename):
         """Fetch the cached implicit dependencies for 'filename'"""
-        try:
-            entry = self.entries[filename]
-            return entry.get_implicit()
-        except KeyError:
-            return None
+        entry = self.get_entry(filename)
+        return entry.implicit
 
     def set_implicit(self, filename, implicit):
         """Cache the implicit dependencies for 'filename'."""
-        entry = self.create_entry(filename)
-        entry.set_implicit(implicit)
-        self.dirty = 1
+        entry = self.get_entry(filename)
+        if SCons.Util.is_String(implicit):
+            implicit = [implicit]
+        implicit = map(str, implicit)
+        entry.implicit = implicit
+        self.set_entry(filename, entry)
 
     def write(self):
         """
@@ -242,18 +204,15 @@ class SConsignFile:
         if self.dirty:
             temp = os.path.join(self.dir.path, '.scons%d' % os.getpid())
             try:
-                file = open(temp, 'wt')
+                file = open(temp, 'wb')
                 fname = temp
             except:
                 try:
-                    file = open(self.sconsign, 'wt')
+                    file = open(self.sconsign, 'wb')
                     fname = self.sconsign
                 except:
                     return
-            keys = self.entries.keys()
-            keys.sort()
-            for name in keys:
-                file.write("%s: %s\n" % (name, self.entries[name].render(self.module)))
+            cPickle.dump(self.entries, file, 1)
             file.close()
             if fname != self.sconsign:
                 try:
