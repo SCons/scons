@@ -37,6 +37,10 @@ RELEASE 0.09 -
 
   - Issue a warning when -c can't remove a target.
 
+ From Jeff Petkau:
+
+  - Fix interpretation of '#/../foo' on Win32 systems.
+
  From Anthony Roach:
 
  - Fixed use of command lines with spaces in their arguments,

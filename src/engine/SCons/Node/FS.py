@@ -239,13 +239,12 @@ class FS:
         self.__setTopLevelDir()
         if name[0] == '#':
             directory = self.Top
-            name = os.path.normpath(name[1:])
-            if name and (name[0] == os.sep or \
-                         name[0] == '/'):
+            name = name[1:]
+            if name and (name[0] == os.sep or name[0] == '/'):
                 # Correct such that '#/foo' is equivalent
                 # to '#foo'.
                 name = name[1:]
-            name=os.path.join('.', name)
+            name = os.path.join('.', os.path.normpath(name))
         elif not directory:
             directory = self._cwd
         return (os.path.normpath(name), directory)

@@ -269,6 +269,8 @@ class FSTestCase(unittest.TestCase):
             Dir_test('.',           './',          sub_dir,           sub)
             Dir_test('./.',         './',          sub_dir,           sub)
             Dir_test('foo/./bar',   'foo/bar/',    sub_dir_foo_bar,   'foo/')
+            Dir_test('#../foo',     sub_foo,       sub_foo,           sub)
+            Dir_test('#/../foo',    sub_foo,       sub_foo,           sub)
             Dir_test('#foo/bar',    'foo/bar/',    sub_dir_foo_bar,   'foo/')
             Dir_test('#/foo/bar',   'foo/bar/',    sub_dir_foo_bar,   'foo/')
             Dir_test('#',           './',          sub_dir,           sub)
