@@ -72,7 +72,7 @@ def checkLog( test, logfile, numUpToDate, numCache ):
         test.fail_test( len( re.findall( "\(cached\): Building \S+ failed in a previous run.", log ) ) != numCache )
     except:
         print "contents of log ", test.workpath(work_dir, logfile), "\n", log
-        raise 
+        raise
 
 
 try:
@@ -80,7 +80,7 @@ try:
     # 1.1 if checks are ok, the cache mechanism should work
 
     reset(match=2)
-    
+
     test.write([work_dir,  'SConstruct'], """
 env = Environment()
 import os
@@ -140,14 +140,14 @@ Checking for main() in C library no_c_library_SAFFDG... no
 
     test.run(chdir=work_dir, stdout = required_stdout)
     checkLog(test, 'config.log', 0, 0 )
-    
+
     test.run(chdir=work_dir, stdout = required_stdout)
     checkLog(test, 'config.log', 2, 2 )
 
 
     # 2.1 test that normal builds work together with Sconf
     reset()
-    
+
 
     test.write([work_dir,  'SConstruct'], """
 env = Environment()
@@ -178,14 +178,14 @@ Checking for C header file no_std_c_header.h... no
 """)
     test.run(chdir=work_dir,  stdout = required_stdout )
     checkLog( test, 'config.log', 0, 0 )
-    
+
     test.run(chdir=work_dir,  stdout = required_stdout )
     checkLog( test, 'config.log', 3, 1 )
 
 
     # 2.2 test that BuildDir builds work together with Sconf
     reset()
-    
+
 
     test.write([work_dir,  'SConstruct'], """
 env = Environment(LOGFILE='build/config.log')
@@ -218,10 +218,10 @@ Checking for C header file no_std_c_header.h... no
 """)
     test.run(chdir=work_dir,  stdout = required_stdout )
     checkLog( test, 'build/config.log', 0, 0 )
-    
+
     test.run(chdir=work_dir,  stdout = required_stdout )
     checkLog( test, 'build/config.log', 3, 1 )
-    
+
     # 2.3 test that Configure calls in SConscript files work
     #     even if BuildDir is set
     reset()
@@ -307,15 +307,15 @@ Executing Custom Test ... ok
 
     # 3.1 test custom tests
     reset()
-    
+
     compileOK = '#include <stdio.h>\\nint main() {printf("Hello");return 0;}'
-    compileFAIL = "syntax error" 
+    compileFAIL = "syntax error"
     linkOK = compileOK
     linkFAIL = "void myFunc(); int main() { myFunc(); }"
     runOK = compileOK
     runFAIL = "int main() { return 1; }"
-    test.write([work_dir, 'pyAct.py'], 'import sys\nprint sys.argv[1]\nsys.exit(int(sys.argv[1]))\n') 
-    test.write([work_dir, 'SConstruct'], """ 
+    test.write([work_dir, 'pyAct.py'], 'import sys\nprint sys.argv[1]\nsys.exit(int(sys.argv[1]))\n')
+    test.write([work_dir, 'SConstruct'], """
 def CheckCustom(test):
     test.Message( 'Executing MyTest ... ' )
     retCompileOK = test.TryCompile( '%s', '.c' )
@@ -374,7 +374,7 @@ env = conf.Finish()
     # 4.2 test that calling Configure from a builder results in a
     # readable Error
     reset(match=2)
-    
+
     test.write([work_dir, 'SConstruct'], """
 def ConfigureAction(target, source, env):
     env.Configure()
@@ -385,13 +385,33 @@ env.MyAction('target', [])
 """)
     test.run(chdir=work_dir, status=2,
              stderr="scons: *** Calling Configure from Builders is not supported.\n")
-    
+
+    # 4.3 test the calling Configure from multiple subsidiary
+    # SConscript files does *not* result in an error.
+
+    test.subdir([work_dir, 'dir1'], [work_dir, 'dir2'])
+    test.write([work_dir, 'SConstruct'], """
+env = Environment()
+SConscript(dirs=['dir1', 'dir2'], exports="env")
+""")
+    test.write([work_dir, 'dir1', 'SConscript'], """
+Import("env")
+conf = env.Configure()
+conf.Finish()
+""")
+    test.write([work_dir, 'dir2', 'SConscript'], """
+Import("env")
+conf = env.Configure()
+conf.Finish()
+""")
+    test.run(chdir=work_dir)
+
     test.pass_test()
-    
+
 finally:
     pass
     #os.system( 'find . -type f -exec ls -l {} \;' )
     #print "-------------config.log------------------"
     #print test.read( test.workpath('config.log' ))
-    #print "-------------build/config.log------------"    
+    #print "-------------build/config.log------------"
     #print test.read( test.workpath('build/config.log' ))

@@ -1,6 +1,6 @@
 """SCons.Script.SConscript
 
-This module defines the Python API provided to SConscript and SConstruct 
+This module defines the Python API provided to SConscript and SConstruct
 files.
 
 """
@@ -101,12 +101,12 @@ def get_calling_namespaces():
     into this module in the current callstack."""
     try: 1/0
     except ZeroDivisionError: frame = sys.exc_info()[2].tb_frame
-    
+
     while frame.f_globals.get("__name__") == __name__: frame = frame.f_back
 
     return frame.f_locals, frame.f_globals
 
-    
+
 def compute_exports(exports):
     """Compute a dictionary of exports given one of the parameters
     to the Export() function or the exports argument to SConscript()."""
@@ -127,13 +127,13 @@ def compute_exports(exports):
         raise SCons.Errors.UserError, "Export of non-existent variable '%s'"%x
 
     return retval
-    
+
 
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
     def __init__(self, exports, sconscript):
         self.globals = BuildDefaultGlobals()
-        self.retval = None 
+        self.retval = None
         self.prev_dir = SCons.Node.FS.default_fs.getcwd()
         self.exports = compute_exports(exports)  # exports from the calling SConscript
         # make sure the sconscript attr is a Node.
@@ -141,7 +141,7 @@ class Frame:
             self.sconscript = sconscript
         else:
             self.sconscript = SCons.Node.FS.default_fs.File(str(sconscript))
-        
+
 # the SConstruct/SConscript call stack:
 stack = []
 
@@ -155,15 +155,13 @@ def Return(*vars):
                 retval.append(stack[-1].globals[v])
     except KeyError, x:
         raise SCons.Errors.UserError, "Return of non-existent variable '%s'"%x
-        
+
     if len(retval) == 1:
         stack[-1].retval = retval[0]
     else:
         stack[-1].retval = tuple(retval)
 
 def _SConscript(fs, *files, **kw):
-    global sconscript_reading
-    sconscript_reading = 1
     top = fs.Top
     sd = fs.SConstruct_dir.rdir()
     exports = kw.get('exports', [])
@@ -174,6 +172,8 @@ def _SConscript(fs, *files, **kw):
         stack.append(Frame(exports,fn))
         old_sys_path = sys.path
         try:
+            global sconscript_reading
+            sconscript_reading = 1
             if fn == "-":
                 exec sys.stdin in stack[-1].globals
             else:
@@ -238,7 +238,7 @@ def _SConscript(fs, *files, **kw):
                 else:
                     SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning,
                              "Ignoring missing SConscript '%s'" % f.path)
-                
+
         finally:
             sconscript_reading = 0
             sys.path = old_sys_path
@@ -525,13 +525,13 @@ def GetJobs():
                         "\tuse GetOption('num_jobs') instead.")
 
     return GetOption('num_jobs')
- 
+
 def SetJobs(num):
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                         "The SetJobs() function has been deprecated;\n" +\
                         "\tuse SetOption('num_jobs', num) instead.")
     SetOption('num_jobs', num)
- 
+
 def ParseConfig(env, command, function=None):
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                         "The ParseConfig() function has been deprecated;\n" +\
@@ -664,7 +664,7 @@ for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
 
 def BuildDefaultGlobals():
     """
-    Create a dictionary containing all the default globals for 
+    Create a dictionary containing all the default globals for
     SConstruct and SConscript files.
     """
 
