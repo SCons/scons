@@ -6475,6 +6475,18 @@ The directory containing the source file linked to this file
 through BuildDir.  If this file isn't linked, it just returns the
 directory part of the filename.
 
+.IP rsrcpath
+The directory and file name to the source file linked to this file
+through BuildDir.  If the file does not exist locally but exists in
+a Repository, the path in the Repository is returned.
+If this file isn't linked, it just returns the
+directory and filename unchanged.
+
+.IP rsrcdir
+The Repository directory containing the source file linked to this file
+through BuildDir.  If this file isn't linked, it just returns the
+directory part of the filename.
+
 .LP
 For example, the specified target will
 expand as follows for the corresponding modifiers:
@@ -6492,6 +6504,11 @@ BuildDir('sub/dir','src')
 $SOURCE              => sub/dir/file.x
 ${SOURCE.srcpath}    => src/file.x
 ${SOURCE.srcdir}     => src
+
+Repository('/usr/repository')
+$SOURCE              => sub/dir/file.x
+${SOURCE.rsrcpath}   => /usr/repository/src/file.x
+${SOURCE.rsrcdir}    => /usr/repository/src
 .EE
 
 Lastly, a variable name

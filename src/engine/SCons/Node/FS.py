@@ -276,18 +276,29 @@ class EntryProxy(SCons.Util.Proxy):
         node via BuildDir(), or the directory of this node if not linked."""
         return EntryProxy(self.get().srcnode().dir)
 
+    def __get_rsrcnode(self):
+        return EntryProxy(self.get().srcnode().rfile())
+
+    def __get_rsrcdir(self):
+        """Returns the directory containing the source node linked to this
+        node via BuildDir(), or the directory of this node if not linked."""
+        return EntryProxy(self.get().srcnode().rfile().dir)
+
     def __get_dir(self):
         return EntryProxy(self.get().dir)
     
-    dictSpecialAttrs = { "base" : __get_base_path,
-                         "posix" : __get_posix_path,
-                         "srcpath" : __get_srcnode,
-                         "srcdir" : __get_srcdir,
-                         "dir" : __get_dir,
-                         "abspath" : __get_abspath,
+    dictSpecialAttrs = { "base"     : __get_base_path,
+                         "posix"    : __get_posix_path,
+                         "srcpath"  : __get_srcnode,
+                         "srcdir"   : __get_srcdir,
+                         "dir"      : __get_dir,
+                         "abspath"  : __get_abspath,
                          "filebase" : __get_filebase,
-                         "suffix" : __get_suffix,
-                         "file" : __get_file }
+                         "suffix"   : __get_suffix,
+                         "file"     : __get_file,
+                         "rsrcpath" : __get_rsrcnode,
+                         "rsrcdir"  : __get_rsrcdir,
+                       }
 
     def __getattr__(self, name):
         # This is how we implement the "special" attributes

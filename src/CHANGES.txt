@@ -163,6 +163,13 @@ RELEASE 0.95 - XXX
   - Always use the Builder overrides in substitutions, not just if
     there isn't a target-specific environment.
 
+  - Add new "rsrcpath" and "rsrcdir" and attributes to $TARGET/$SOURCE,
+    so Builder command lines can find things in Repository source
+    directories when using BuildDir.
+
+  - Fix the M4 Builder so that it chdirs to the Repository directory
+    when the input file is in the source directory of a BuildDir.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.
