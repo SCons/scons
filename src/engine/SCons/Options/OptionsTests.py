@@ -375,6 +375,7 @@ class OptionsTestCase(unittest.TestCase):
                                 'THIS_SHOULD_WORK' : 'baz' })
 
     def test_GenerateHelpText(self):
+        """Test generating the default format help text"""
         opts = SCons.Options.Options()
 
         opts.Add('ANSWER',
@@ -430,6 +431,56 @@ B: b - alpha test
 """
         text = opts.GenerateHelpText(env, sort=cmp)
         assert text == expectAlpha, text
+
+    def test_FormatOptionHelpText(self):
+        """Test generating custom format help text"""
+        opts = SCons.Options.Options()
+
+        def my_format(env, opt, help, default, actual):
+            return '%s %s %s %s\n' % (opt, default, actual, help)
+
+        opts.FormatOptionHelpText = my_format
+
+        opts.Add('ANSWER',
+                 'THE answer to THE question',
+                 "42",
+                 check,
+                 lambda x: int(x) + 12)
+
+        opts.Add('B',
+                 'b - alpha test',
+                 "42",
+                 check,
+                 lambda x: int(x) + 12)
+
+        opts.Add('A',
+                 'a - alpha test',
+                 "42",
+                 check,
+                 lambda x: int(x) + 12)
+
+        env = Environment()
+        opts.Update(env, {})
+
+        expect = """\
+ANSWER 42 54 THE answer to THE question
+B 42 54 b - alpha test
+A 42 54 a - alpha test
+"""
+
+        text = opts.GenerateHelpText(env)
+        assert text == expect, text
+
+        expectAlpha = """\
+A 42 54 a - alpha test
+ANSWER 42 54 THE answer to THE question
+B 42 54 b - alpha test
+"""
+        text = opts.GenerateHelpText(env, sort=cmp)
+        assert text == expectAlpha, text
+
+
+    
         
 if __name__ == "__main__":
     suite = unittest.makeSuite(OptionsTestCase, 'test_')

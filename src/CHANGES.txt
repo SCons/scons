@@ -225,6 +225,9 @@ RELEASE 0.97 - XXX
   - Enhanced the SCons setup.py script to install man pages on
     UNIX/Linux systems.
 
+  - Add support for an Options.FormatOptionHelpText() method that can
+    be overridden to customize the format of Options help text.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

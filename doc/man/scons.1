@@ -7723,6 +7723,18 @@ the Environment() function:
 env = Environment(options=opts)
 .EE
 
+.IP
+The text file(s) that were specified
+when the Options object was created
+are executed as Python scripts,
+and the values of (global) Python variables set in the file
+are added to the construction environment.
+Example:
+
+.ES
+CC = 'my_cc'
+.EE
+
 .TP
 .RI Save( filename ", " env )
 This saves the currently set options into a script file named  
@@ -7766,12 +7778,30 @@ Help(opts.GenerateHelpText(env))
 Help(opts.GenerateHelpText(env, sort=cmp))
 .EE
 
-The text based SConscript file is executed as a Python script, and the
-global variables are queried for customizable construction
-variables. Example:
+.TP
+.RI FormatOptionHelpText( env ", " opt ", " help ", " default ", " actual )
+This method returns a formatted string
+containing the printable help text
+for one option.
+It is normally not called directly,
+but is called by the
+.IR GenerateHelpText ()
+method to create the returned help text.
+It may be overridden with your own
+function that takes the arguments specified above
+and returns a string of help text formatted to your liking.
+Note that the
+.IR GenerateHelpText ()
+will not put any blank lines or extra
+characters in between the entries,
+so you must add those characters to the returned
+string if you want the entries separated.
 
 .ES
-CC = 'my_cc'
+def my_format(env, opt, help, default, actual):
+    fmt = "\n%s: default=%s actual=%s (%s)\n"
+    return fmt % (opt, default. actual, help)
+opts.FormatOptionHelpText = my_format
 .EE
 
 To make it more convenient to work with customizable Options,
