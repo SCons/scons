@@ -130,6 +130,14 @@ class UtilTestCase(unittest.TestCase):
             def is_literal(self):
                 return 1
 
+        class TestCallable:
+            def __init__(self, value):
+                self.value = value
+            def __call__(self):
+                pass
+            def __str__(self):
+                return self.value
+
         def function_foo(arg):
             pass
 
@@ -194,6 +202,9 @@ class UtilTestCase(unittest.TestCase):
             'RECURSE'   : 'foo $RECURSE bar',
             'RRR'       : 'foo $SSS bar',
             'SSS'       : '$RRR',
+
+            # Test callables that don't match the calling arguments.
+            'CALLABLE'  : TestCallable('callable-1'),
         }
 
         env = DummyEnv(loc)
@@ -307,6 +318,9 @@ class UtilTestCase(unittest.TestCase):
 
             # Bug reported by Christoph Wiedemann.
             cvt('$xxx/bin'),        '/bin',
+
+            # Tests callables that don't match our calling arguments.
+            '$CALLABLE',            'callable-1',
         ]
 
         kwargs = {'target' : target, 'source' : source}
@@ -474,6 +488,14 @@ class UtilTestCase(unittest.TestCase):
                 self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
                 self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
 
+        class TestCallable:
+            def __init__(self, value):
+                self.value = value
+            def __call__(self):
+                pass
+            def __str__(self):
+                return self.value
+
         target = [ MyNode("./foo/bar.exe"),
                    MyNode("/bar/baz with spaces.obj"),
                    MyNode("../foo/baz.obj") ]
@@ -529,6 +551,9 @@ class UtilTestCase(unittest.TestCase):
             'RECURSE'   : 'foo $RECURSE bar',
             'RRR'       : 'foo $SSS bar',
             'SSS'       : '$RRR',
+
+            # Test callable objects that don't match our calling arguments.
+            'CALLABLE'  : TestCallable('callable-2'),
         }
 
         env = DummyEnv(loc)
@@ -660,6 +685,9 @@ class UtilTestCase(unittest.TestCase):
             '<$AAA',                [['<', 'a']],
             '>$AAA',                [['>', 'a']],
             '|$AAA',                [['|', 'a']],
+
+            # Test callables that don't match our calling arguments.
+            '$CALLABLE',            [['callable-2']],
         ]
 
         kwargs = {'target' : target, 'source' : source}

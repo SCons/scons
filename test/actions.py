@@ -110,4 +110,24 @@ test.fail_test(test.read('foo.out') != "4\nfoo.in\n")
 
 test.up_to_date(arguments = '.')
 
+# Make sure we can expand actions in substitutions.
+test.write('SConstruct', """\
+def func(env, target, source):
+    pass
+env = Environment(S = Action('foo'),
+                  F = Action(func),
+                  L = Action(['arg1', 'arg2']))
+print env.subst('$S')
+print env.subst('$F')
+print env.subst('$L')
+""")
+
+test.run(arguments = '-Q .', stdout = """\
+foo
+func(env, target, source)
+arg1
+arg2
+scons: `.' is up to date.
+""")
+
 test.pass_test()
