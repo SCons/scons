@@ -67,53 +67,49 @@ def DefaultEnvironment(*args, **kw):
         _default_env._calc_module = SCons.Sig.default_module
     return _default_env
 
+# Emitters for setting the shared attribute on object files,
+# and an action for checking that all of the source files
+# going into a shared library are, in fact, shared.
+def StaticObjectEmitter(target, source, env):
+    for tgt in target:
+        tgt.attributes.shared = None
+    return (target, source)
+
+def SharedObjectEmitter(target, source, env):
+    for tgt in target:
+        tgt.attributes.shared = 1
+    return (target, source)
+
+def SharedFlagChecker(source, target, env):
+    same = env.subst('$STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME')
+    if same == '0' or same == '' or same == 'False':
+        for src in source:
+            try:
+                shared = src.attributes.shared
+            except AttributeError:
+                shared = None
+            if not shared:
+                raise SCons.Errors.UserError, "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0])
+
+SharedCheck = SCons.Action.Action(SharedFlagChecker, None)
+
+# Scanners and actions for common language(s).
 CScan = SCons.Scanner.C.CScan()
 
 FortranScan = SCons.Scanner.Fortran.FortranScan()
 
-class SharedFlagChecker:
-    """This is a callable class that is used as
-    a build action for all objects, libraries, and programs.
-    Its job is to run before the "real" action that builds the
-    file, to make sure we aren't trying to link shared objects
-    into a static library/program, or static objects into a
-    shared library."""
+CAction = SCons.Action.Action("$CCCOM")
+ShCAction = SCons.Action.Action("$SHCCCOM")
+CXXAction = SCons.Action.Action("$CXXCOM")
+ShCXXAction = SCons.Action.Action("$SHCXXCOM")
 
-    def __init__(self, shared, set_target_flag):
-        self.shared = shared
-        self.set_target_flag = set_target_flag
+F77Action = SCons.Action.Action("$F77COM")
+ShF77Action = SCons.Action.Action("$SHF77COM")
+F77PPAction = SCons.Action.Action("$F77PPCOM")
+ShF77PPAction = SCons.Action.Action("$SHF77PPCOM")
 
-    def __call__(self, source, target, env, **kw):
-        if kw.has_key('shared'):
-            raise SCons.Errors.UserError, "The shared= parameter to Library() or Object() no longer works.\nUse SharedObject() or SharedLibrary() instead."
-        if self.set_target_flag:
-            for tgt in target:
-                tgt.attributes.shared = self.shared
-
-        same = env.subst('$STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME')
-        if same == '0' or same == '' or same == 'False':
-            for src in source:
-                if hasattr(src.attributes, 'shared'):
-                    if self.shared and not src.attributes.shared:
-                        raise SCons.Errors.UserError, "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0])
-
-SharedCheck = SCons.Action.Action(SharedFlagChecker(1, 0), None)
-StaticCheck = SCons.Action.Action(SharedFlagChecker(0, 0), None)
-SharedCheckSet = SCons.Action.Action(SharedFlagChecker(1, 1), None)
-StaticCheckSet = SCons.Action.Action(SharedFlagChecker(0, 1), None)
-
-CAction = SCons.Action.Action([ StaticCheckSet, "$CCCOM" ])
-ShCAction = SCons.Action.Action([ SharedCheckSet, "$SHCCCOM" ])
-CXXAction = SCons.Action.Action([ StaticCheckSet, "$CXXCOM" ])
-ShCXXAction = SCons.Action.Action([ SharedCheckSet, "$SHCXXCOM" ])
-
-F77Action = SCons.Action.Action([ StaticCheckSet, "$F77COM" ])
-ShF77Action = SCons.Action.Action([ SharedCheckSet, "$SHF77COM" ])
-F77PPAction = SCons.Action.Action([ StaticCheckSet, "$F77PPCOM" ])
-ShF77PPAction = SCons.Action.Action([ SharedCheckSet, "$SHF77PPCOM" ])
-
-ASAction = SCons.Action.Action([ StaticCheckSet, "$ASCOM" ])
-ASPPAction = SCons.Action.Action([ StaticCheckSet, "$ASPPCOM" ])
+ASAction = SCons.Action.Action("$ASCOM")
+ASPPAction = SCons.Action.Action("$ASPPCOM")
 
 ProgScan = SCons.Scanner.Prog.ProgScan()
 

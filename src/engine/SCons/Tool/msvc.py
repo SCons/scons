@@ -354,10 +354,12 @@ def pch_emitter(target, source, env):
 
     return (target, source)
 
-def object_emitter(target, source, env):
+def object_emitter(target, source, env, parent_emitter):
     """Sets up the PDB and PCH dependencies for an object file."""
 
     validate_vars(env)
+
+    parent_emitter(target, source, env)
 
     if env.has_key('PDB') and env['PDB']:
         env.SideEffect(env['PDB'], target)
@@ -367,6 +369,14 @@ def object_emitter(target, source, env):
         env.Depends(target, env['PCH'])
 
     return (target, source)
+
+def static_object_emitter(target, source, env):
+    return object_emitter(target, source, env,
+                          SCons.Defaults.StaticObjectEmitter)
+
+def shared_object_emitter(target, source, env):
+    return object_emitter(target, source, env,
+                          SCons.Defaults.SharedObjectEmitter)
 
 pch_builder = SCons.Builder.Builder(action='$PCHCOM', suffix='.pch', emitter=pch_emitter)
 res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.res')
@@ -402,7 +412,8 @@ def generate(env):
     env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '/I'
     env['INCSUFFIX']  = ''
-    env['OBJEMITTER'] = object_emitter
+    env['OBJEMITTER'] = static_object_emitter
+    env['SHOBJEMITTER'] = shared_object_emitter
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'rc'
