@@ -90,6 +90,10 @@ if os.name == 'posix':
         'PROGSUFFIX' : '',
         'LIBPREFIX'  : 'lib',
         'LIBSUFFIX'  : '.a',
+        'LIBDIRPREFIX'          : '-L',
+        'LIBDIRSUFFIX'          : '',
+        'LIBLINKPREFIX'         : '-l',
+        'LIBLINKSUFFIX'         : '',
         'ENV'        : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
     }
 
@@ -116,6 +120,10 @@ elif os.name == 'nt':
         'PROGSUFFIX' : '.exe',
         'LIBPREFIX'  : '',
         'LIBSUFFIX'  : '.lib',
+        'LIBDIRPREFIX'          : '/L',
+        'LIBDIRSUFFIX'          : '',
+        'LIBLINKPREFIX'         : '',
+        'LIBLINKSUFFIX'         : '$LIBSUFFIX',
         'ENV'        : {
                         'PATH'    : r'C:\Python20;C:\WINNT\system32;C:\WINNT;C:\Program Files\Microsoft Visual Studio\VC98\Bin\;',
                         'PATHEXT' : '.COM;.EXE;.BAT;.CMD',

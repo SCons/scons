@@ -34,7 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import SCons.Node.FS
-from SCons.Util import PathList, scons_str2nodes, scons_subst
+from SCons.Util import PathList, scons_str2nodes, scons_subst, scons_subst_list
 import string
 import types
 from UserList import UserList
@@ -363,20 +363,20 @@ class CommandAction(ActionBase):
 
     def execute(self, **kw):
         dict = apply(self.subst_dict, (), kw)
-        cmd_str = scons_subst(self.command, dict, {})
-        for cmd in string.split(cmd_str, '\n'):
-            if print_actions:
-                self.show(cmd)
-            if execute_actions:
-                args = string.split(cmd)
-                try:
-                    ENV = kw['env']['ENV']
-                except:
-                    import SCons.Defaults
-                    ENV = SCons.Defaults.ConstructionEnvironment['ENV']
-                ret = spawn(args[0], args, ENV)
-                if ret:
-                    return ret
+        cmd_list = scons_subst_list(self.command, dict, {})
+        for cmd_line in cmd_list:
+            if len(cmd_line):
+                if print_actions:
+                    self.show(string.join(cmd_line))
+                if execute_actions:
+                    try:
+                        ENV = kw['env']['ENV']
+                    except:
+                        import SCons.Defaults
+                        ENV = SCons.Defaults.ConstructionEnvironment['ENV']
+                    ret = spawn(cmd_line[0], cmd_line, ENV)
+                    if ret:
+                        return ret
         return 0
 
     def get_contents(self, **kw):

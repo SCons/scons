@@ -71,9 +71,9 @@ class Node:
         """Actually build the node.   Return the status from the build."""
 	if not self.builder:
 	    return None
-	sources_str = string.join(map(lambda x: str(x), self.sources))
-	stat = self.builder.execute(env = self.env.Dictionary(),
-				    target = str(self), source = sources_str)
+        sources = map(lambda x: str(x), self.sources)
+        stat = self.builder.execute(env = self.env.Dictionary(),
+                                    target = str(self), source = sources)
 	if stat != 0:
 	    raise BuildError(node = self, stat = stat)
 	return stat

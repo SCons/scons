@@ -36,6 +36,7 @@ import string
 import re
 from UserList import UserList
 import SCons.Node.FS
+import cStringIO
 
 def scons_str2nodes(arg, node_factory=SCons.Node.FS.default_fs.File):
     """This function converts a string or list into a list of Node instances.
@@ -157,12 +158,58 @@ class PathList(UserList):
         # suffix and basepath.
         return self.__class__([ UserList.__getitem__(self, item), ])
 
+_cv = re.compile(r'\$([_a-zA-Z]\w*|{[^}]*})')
+_space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
+def scons_subst_list(strSubst, locals, globals):
+    """
+    This function is similar to scons_subst(), but with
+    one important difference.  Instead of returning a single
+    string, this function returns a list of lists.
+    The first (outer) list is a list of lines, where the
+    substituted stirng has been broken along newline characters.
+    The inner lists are lists of command line arguments, i.e.,
+    the argv array that should be passed to a spawn or exec
+    function.
 
-_tok = r'[_a-zA-Z]\w*'
-_cv = re.compile(r'\$(%s|{%s(\[[-0-9:]*\])?(\.\w+)?})' % (_tok, _tok))
+    One important thing this guy does is preserve environment
+    variables that are lists.  For instance, if you have
+    an environment variable that is a Python list (or UserList-
+    derived class) that contains path names with spaces in them,
+    then the entire path will be returned as a single argument.
+    This is the only way to know where the 'split' between arguments
+    is for executing a command line."""
 
-def scons_subst(string, locals, globals):
+    def repl(m, locals=locals, globals=globals):
+        key = m.group(1)
+        if key[:1] == '{' and key[-1:] == '}':
+            key = key[1:-1]
+	try:
+            e = eval(key, locals, globals)
+            if not e:
+                s = ''
+            elif type(e) is types.ListType or \
+                 isinstance(e, UserList):
+                s = string.join(map(str, e), '\0')
+            else:
+                s = _space_sep.sub('\0', str(e))
+	except NameError:
+	    s = ''
+	return s
+    n = 1
+
+    # Tokenize the original string...
+    strSubst = _space_sep.sub('\0', strSubst)
+    
+    # Now, do the substitution
+    while n != 0:
+        strSubst, n = _cv.subn(repl, strSubst)
+    # Now parse the whole list into tokens.
+    listLines = string.split(strSubst, '\n')
+    return map(lambda x: filter(lambda y: y, string.split(x, '\0')),
+               listLines)
+
+def scons_subst(strSubst, locals, globals):
     """Recursively interpolates dictionary variables into
     the specified string, returning the expanded result.
     Variables are specified by a $ prefix in the string and
@@ -172,21 +219,5 @@ def scons_subst(string, locals, globals):
     surrounded by curly braces to separate the name from
     trailing characters.
     """
-    def repl(m, locals=locals, globals=globals):
-        key = m.group(1)
-        if key[:1] == '{' and key[-1:] == '}':
-            key = key[1:-1]
-	try:
-            e = eval(key, locals, globals)
-            if e is None:
-                s = ''
-            else:
-                s = str(e)
-	except NameError:
-	    s = ''
-	return s
-    n = 1
-    while n != 0:
-        string, n = _cv.subn(repl, string)
-    return string
-
+    cmd_list = scons_subst_list(strSubst, locals, globals)
+    return string.join(map(string.join, cmd_list), '\n')

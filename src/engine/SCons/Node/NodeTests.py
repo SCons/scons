@@ -33,11 +33,15 @@ import SCons.Node
 
 
 built_it = None
+built_target =  None
+built_source =  None
 
 class Builder:
     def execute(self, **kw):
-	global built_it
+        global built_it, built_target, built_source
 	built_it = 1
+        built_target = kw['target']
+        built_source = kw['source']
         return 0
     def get_contents(self, env):
         return 7
@@ -70,18 +74,23 @@ class NodeTestCase(unittest.TestCase):
     def test_build(self):
 	"""Test building a node
 	"""
+        class MyNode(SCons.Node.Node):
+            def __str__(self):
+                return self.path
 	# Make sure it doesn't blow up if no builder is set.
-	node = SCons.Node.Node()
+        node = MyNode()
 	node.build()
 	assert built_it == None
 
-	node = SCons.Node.Node()
+        node = MyNode()
 	node.builder_set(Builder())
 	node.env_set(Environment())
-	node.path = "xxx"	# XXX FAKE SUBCLASS ATTRIBUTE
-	node.sources = "yyy"	# XXX FAKE SUBCLASS ATTRIBUTE
+        node.path = "xxx"
+        node.sources = ["yyy", "zzz"]
 	node.build()
 	assert built_it
+        assert built_target == "xxx", built_target
+        assert built_source == ["yyy", "zzz"], built_source
 
     def test_builder_set(self):
 	"""Test setting a Node's Builder

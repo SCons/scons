@@ -48,10 +48,10 @@ test = TestCmd.TestCmd(workdir = '')
 
 test.write('act.py', """import os, string, sys
 f = open(sys.argv[1], 'w')
-f.write("act.py: " + string.join(sys.argv[2:]) + "\\n")
+f.write("act.py: '" + string.join(sys.argv[2:], "' '") + "'\\n")
 try:
     if sys.argv[3]:
-        f.write("act.py: " + os.environ[sys.argv[3]] + "\\n")
+        f.write("act.py: '" + os.environ[sys.argv[3]] + "'\\n")
 except:
     pass
 f.close()
@@ -60,6 +60,8 @@ sys.exit(0)
 
 act_py = test.workpath('act.py')
 outfile = test.workpath('outfile')
+
+show_string = None
 
 class Environment:
             def subst(self, s):
@@ -127,7 +129,7 @@ class BuilderTestCase(unittest.TestCase):
 	r = builder.execute()
 	assert r == 0
 	c = test.read(outfile, 'r')
-	assert c == "act.py: xyzzy\n", c
+        assert c == "act.py: 'xyzzy'\n", c
 
 	cmd2 = r'%s %s %s $TARGET' % (python, act_py, outfile)
 
@@ -135,7 +137,7 @@ class BuilderTestCase(unittest.TestCase):
 	r = builder.execute(target = 'foo')
 	assert r == 0
 	c = test.read(outfile, 'r')
-	assert c == "act.py: foo\n", c
+        assert c == "act.py: 'foo'\n", c
 
 	cmd3 = r'%s %s %s ${TARGETS}' % (python, act_py, outfile)
 
@@ -143,7 +145,7 @@ class BuilderTestCase(unittest.TestCase):
 	r = builder.execute(target = ['aaa', 'bbb'])
 	assert r == 0
 	c = test.read(outfile, 'r')
-	assert c == "act.py: aaa bbb\n", c
+        assert c == "act.py: 'aaa' 'bbb'\n", c
 
 	cmd4 = r'%s %s %s $SOURCES' % (python, act_py, outfile)
 
@@ -151,7 +153,7 @@ class BuilderTestCase(unittest.TestCase):
 	r = builder.execute(source = ['one', 'two'])
 	assert r == 0
 	c = test.read(outfile, 'r')
-	assert c == "act.py: one two\n", c
+        assert c == "act.py: 'one' 'two'\n", c
 
 	cmd4 = r'%s %s %s ${SOURCES[:2]}' % (python, act_py, outfile)
 
@@ -159,7 +161,7 @@ class BuilderTestCase(unittest.TestCase):
 	r = builder.execute(source = ['three', 'four', 'five'])
 	assert r == 0
 	c = test.read(outfile, 'r')
-	assert c == "act.py: three four\n", c
+        assert c == "act.py: 'three' 'four'\n", c
 
 	cmd5 = r'%s %s %s $TARGET XYZZY' % (python, act_py, outfile)
 
@@ -167,7 +169,25 @@ class BuilderTestCase(unittest.TestCase):
 	r = builder.execute(target = 'out5', env = {'ENV' : {'XYZZY' : 'xyzzy'}})
 	assert r == 0
 	c = test.read(outfile, 'r')
-	assert c == "act.py: out5 XYZZY\nact.py: xyzzy\n", c
+        assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy'\n", c
+
+        cmd7 = '%s %s %s one\n\n%s %s %s two' % (python, act_py, outfile,
+                                                 python, act_py, outfile)
+        expect7 = '%s %s %s one\n%s %s %s two\n' % (python, act_py, outfile,
+                                                    python, act_py, outfile)
+
+        builder = SCons.Builder.Builder(action = cmd7)
+
+        global show_string
+        show_string = ""
+        def my_show(string):
+            global show_string
+            show_string = show_string + string + "\n"
+        builder.action.show = my_show
+
+        r = builder.execute()
+        assert r == 0
+        assert show_string == expect7, show_string
 
 	def function1(**kw):
 	    open(kw['out'], 'w').write("function1\n")
@@ -219,7 +239,7 @@ class BuilderTestCase(unittest.TestCase):
 	r = builder.execute(out = outfile)
 	assert r.__class__ == class2b
 	c = test.read(outfile, 'r')
-	assert c == "act.py: syzygy\nfunction2\nclass2a\nclass2b\n", c
+        assert c == "act.py: 'syzygy'\nfunction2\nclass2a\nclass2b\n", c
 
     def test_get_contents(self):
         """Test returning the signature contents of a Builder

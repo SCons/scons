@@ -30,7 +30,7 @@ import sys
 import unittest
 import SCons.Node
 import SCons.Node.FS
-from SCons.Util import scons_str2nodes, scons_subst, PathList
+from SCons.Util import scons_str2nodes, scons_subst, PathList, scons_subst_list
 
 
 class UtilTestCase(unittest.TestCase):
@@ -125,10 +125,41 @@ class UtilTestCase(unittest.TestCase):
         assert newcom == cvt("test foo")
 
         newcom = scons_subst("test $xxx", loc, {})
-        assert newcom == cvt("test "), newcom
+        assert newcom == cvt("test"), newcom
 
+    def test_subst_list(self):
+        """Testing the scons_subst_list() method..."""
+        loc = {}
+        loc['TARGETS'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
+                                                          "/bar/baz with spaces.obj",
+                                                          "../foo/baz.obj" ]))
+        loc['TARGET'] = loc['TARGETS'][0]
+        loc['SOURCES'] = PathList(map(os.path.normpath, [ "./foo/blah with spaces.cpp",
+                                                          "/bar/ack.cpp",
+                                                          "../foo/ack.c" ]))
+        loc['xxx'] = None
+        loc['NEWLINE'] = 'before\nafter'
 
+        if os.sep == '/':
+            def cvt(str):
+                return str
+        else:
+            def cvt(str):
+                return string.replace(str, '/', os.sep)
 
+        cmd_list = scons_subst_list("$TARGETS", loc, {})
+        assert cmd_list[0][1] == cvt("/bar/baz with spaces.obj"), cmd_list[0][1]
+
+        cmd_list = scons_subst_list("$SOURCES $NEWLINE $TARGETS", loc, {})
+        assert len(cmd_list) == 2, cmd_list
+        assert cmd_list[0][0] == cvt('foo/blah with spaces.cpp'), cmd_list[0][0]
+        assert cmd_list[1][2] == cvt("/bar/baz with spaces.obj"), cmd_list[1]
+
+        cmd_list = scons_subst_list("$SOURCES$NEWLINE", loc, {})
+        assert len(cmd_list) == 2, cmd_list
+        assert cmd_list[1][0] == 'after', cmd_list[1][0]
+        assert cmd_list[0][2] == cvt('../foo/ack.cbefore'), cmd_list[0][2]
+        
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
