@@ -28,7 +28,13 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('w1', 'w2')
+# During the development of 0.96, there was a --save-explain-info
+# option for a brief moment that would surpress storing extra
+# info in the .sconsign file(s).  At that time, this test used two
+# working subdirectories to test both with and without the saved info.
+# We eliminated the --save-explain-info option and the second working
+# subdirectory here, but didn't go back and change all the filenames.
+test.subdir('w1')
 
 SConstruct1_contents = """\
 def build(env, target, source):
@@ -46,7 +52,6 @@ env=Environment(BUILDERS={'B' : Builder(action=build)})
 env.B('foo.out', 'foo.mid')
 """
 
-# Test with the default of saving explanation info.
 test.write(['w1', 'SConstruct1'], SConstruct1_contents)
 test.write(['w1', 'SConstruct2'], SConstruct2_contents)
 test.write(['w1', 'foo.in'], "foo.in 1")
@@ -79,43 +84,6 @@ test.up_to_date(chdir='w1',
                 options="--max-drift=0 -f SConstruct1",
                 arguments="foo.mid")
 test.up_to_date(chdir='w1',
-                options="--max-drift=0 -f SConstruct2",
-                arguments="foo.out")
-
-# Now test when we're not saving explanation info.
-preamble = "SetOption('save_explain_info', 0)\n"
-test.write(['w2', 'SConstruct1'], preamble + SConstruct1_contents)
-test.write(['w2', 'SConstruct2'], preamble + SConstruct2_contents)
-test.write(['w2', 'foo.in'], "foo.in 1")
-
-test.run(chdir='w2',
-         arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
-test.run(chdir='w2',
-         arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
-
-test.up_to_date(chdir='w2',
-                options="--max-drift=0 -f SConstruct1",
-                arguments="foo.mid")
-test.up_to_date(chdir='w2',
-                options="--max-drift=0 -f SConstruct2",
-                arguments="foo.out")
-
-test.sleep()  # make sure foo.in rewrite has new mod-time
-test.write(['w2', 'foo.in'], "foo.in 2")
-
-test.run(chdir='w2',
-         arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
-test.run(chdir='w2',
-         arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
-
-test.up_to_date(chdir='w2',
-                options="--max-drift=0 -f SConstruct1",
-                arguments="foo.mid")
-test.up_to_date(chdir='w2',
                 options="--max-drift=0 -f SConstruct2",
                 arguments="foo.out")
 

@@ -416,19 +416,6 @@ class NodeTestCase(unittest.TestCase):
         assert hasattr(binfo, 'bimplicitsigs')
         assert binfo.bsig == 666, binfo.bsig
 
-        SCons.Node.Save_Explain_Info = 0
-
-        node = SCons.Node.Node()
-        binfo = node.gen_binfo(Calculator(777))
-        assert isinstance(binfo, SCons.Node.BuildInfo), binfo
-        assert not hasattr(binfo, 'bsources')
-        assert not hasattr(binfo, 'bsourcesigs')
-        assert not hasattr(binfo, 'bdepends')
-        assert not hasattr(binfo, 'bdependsigs')
-        assert not hasattr(binfo, 'bimplicit')
-        assert not hasattr(binfo, 'bimplicitsigs')
-        assert binfo.bsig == 777, binfo.bsig
-
     def test_explain(self):
         """Test explaining why a Node must be rebuilt
         """
