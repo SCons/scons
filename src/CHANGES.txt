@@ -43,8 +43,16 @@ RELEASE X.XX - XXX
   - Support arbitrary expansion of construction variables within
     file and directory arguments to Builder calls and Environment methods.
 
-  - Add Environment-method versions of AddPreAction(), AddPostAction(),
-    Default(), FindFile(), and Local().
+  - Add Environment-method versions of the following global function:
+    AddPreAction(), AddPostAction(), Clean(), Default(), FindFile()
+    and Local().
+
+  - Add the following global functions that correspond to the same-named
+    Environment methods:  AlwaysBuild(), Command(), Depends(), Ignore(),
+    Install(), InstallAs(), Precious(), SideEffect() and SourceCode().
+
+  - Rearrange the man page to show construction environment methods and
+    global functions in the same list, and to explain the difference.
 
   From Bram Moolenaar:
 

@@ -1051,6 +1051,32 @@ class EnvironmentTestCase(unittest.TestCase):
         assert t[4].path == 'bbb'
         assert t[4].always_build
 
+    def test_Clean(self):
+        """Test the Clean() method"""
+        env = Environment(FOO = 'fff', BAR = 'bbb')
+
+        CT = SCons.Environment.CleanTargets
+
+        foo = env.arg2nodes('foo')[0]
+        fff = env.arg2nodes('fff')[0]
+
+        t = env.Clean('foo', 'aaa')
+        l = map(str, CT[foo])
+        assert l == ['aaa'], l
+
+        t = env.Clean(foo, ['$BAR', 'ccc'])
+        l = map(str, CT[foo])
+        assert l == ['aaa', 'bbb', 'ccc'], l
+
+        eee = env.arg2nodes('eee')[0]
+
+        t = env.Clean('$FOO', 'ddd')
+        l = map(str, CT[fff])
+        assert l == ['ddd'], l
+        t = env.Clean(fff, [eee, 'fff'])
+        l = map(str, CT[fff])
+        assert l == ['ddd', 'eee', 'fff'], l
+
     def test_Command(self):
         """Test the Command() method."""
         env = Environment()

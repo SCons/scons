@@ -50,6 +50,9 @@ import SCons.Errors
 import SCons.Node
 import SCons.Node.FS
 import SCons.Platform
+import SCons.Sig
+import SCons.Sig.MD5
+import SCons.Sig.TimeStamp
 import SCons.Tool
 import SCons.Util
 import SCons.Warnings
@@ -60,6 +63,8 @@ class _Null:
 _null = _Null
 
 DefaultTargets = None
+CleanTargets = {}
+SigModule = None
 
 def installFunc(target, source, env):
     """Install a source file into a target using the function specified
@@ -602,6 +607,28 @@ class Environment:
         if len(tlist) == 1:
             tlist = tlist[0]
         return tlist
+
+    def Clean(self, target, files):
+        global CleanTargets
+
+        if not isinstance(target, SCons.Node.Node):
+            target = self.subst(target)
+            target = SCons.Node.FS.default_fs.Entry(target, create=1)
+    
+        if not SCons.Util.is_List(files):
+            files = [files]
+    
+        nodes = []
+        for f in files:
+            if isinstance(f, SCons.Node.Node):
+                nodes.append(f)
+            else:
+                nodes.extend(self.arg2nodes(f, self.fs.Entry))
+    
+        try:
+            CleanTargets[target].extend(nodes)
+        except KeyError:
+            CleanTargets[target] = nodes
 
     def Command(self, target, source, action):
         """Builds the supplied target files from the supplied

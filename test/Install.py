@@ -63,7 +63,7 @@ env3 = env1.Copy(INSTALL = my_install)
 t = env1.Cat(target='f1.out', source='f1.in')
 env1.Install(dir='export', source=t)
 t = env1.Cat(target='f2.out', source='f2.in')
-env1.Install(dir='export', source=t)
+Install(dir='export', source=t)
 
 t = env3.Cat(target='f3.out', source='f3.in')
 env3.Install(dir='export', source=t)

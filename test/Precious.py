@@ -56,7 +56,7 @@ Import("env")
 env.B(target = 'f5.out', source = 'f5.in')
 f6 = env.B(target = 'f6.out', source = 'f6.in')
 env.B(target = 'f7.out', source = 'f7.in')
-env.Precious(['f5.out', f6])
+Precious(['f5.out', f6])
 """)
 
 test.write('f1.in', "f1.in\n")

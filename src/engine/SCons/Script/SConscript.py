@@ -56,7 +56,6 @@ import traceback
 def do_nothing(text): pass
 HelpFunction = do_nothing
 
-clean_targets = {}
 arguments = {}
 launch_dir = os.path.abspath(os.curdir)
 
@@ -467,25 +466,6 @@ def SetJobs(num):
                         "\tuse SetOption('num_jobs', num) instead.")
     SetOption('num_jobs', num)
 
-def Clean(target, files):
-    if not isinstance(target, SCons.Node.Node):
-        target = SCons.Node.FS.default_fs.Entry(target, create=1)
-
-    if not SCons.Util.is_List(files):
-        files = [files]
-
-    nodes = []
-    for f in files:
-        if isinstance(f, SCons.Node.Node):
-            nodes.append(f)
-        else:
-            nodes.extend(SCons.Node.arg2nodes(f, SCons.Node.FS.default_fs.Entry))
-
-    try:
-        clean_targets[target].extend(nodes)
-    except KeyError:
-        clean_targets[target] = nodes
-
 def Exit(value=0):
     sys.exit(value)
 
@@ -522,7 +502,6 @@ def BuildDefaultGlobals():
     globals['BuildDir']          = BuildDir
     globals['Builder']           = SCons.Builder.Builder
     globals['CacheDir']          = SCons.Node.FS.default_fs.CacheDir
-    globals['Clean']             = Clean
     globals['Configure']         = SCons.SConf.SConf
     globals['CScan']             = SCons.Defaults.CScan
     globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
@@ -574,9 +553,19 @@ def BuildDefaultGlobals():
     EnvironmentMethods = [
         'AddPostAction',
         'AddPreAction',
+        'AlwaysBuild',
+        'Clean',
+        'Command',
         'Default',
+        'Depends',
         'FindFile',
+        'Ignore',
+        'Install',
+        'InstallAs',
         'Local',
+        'Precious',
+        'SideEffect',
+        'SourceCode',
     ]
 
     for name in EnvironmentMethods:

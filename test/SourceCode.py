@@ -35,7 +35,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('sub')
+test.subdir('sub', 'sub2')
 
 test.write('SConstruct', """\
 import os.path
@@ -62,11 +62,15 @@ env.Cat('ccc.out', 'sub/ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 env.SourceCode('$SUBDIR', Builder(action=sc_cat, env=env))
 SConscript('sub/SConscript', "env")
+
+SourceCode('sub2', Builder(action=sc_cat, env=env))
+env.Cat('ddd.out', 'sub2/ddd.in')
 """)
 
 test.write(['sub', 'sc-aaa.in'], "sub/sc-aaa.in\n")
 test.write(['sub', 'sc-bbb.in'], "sub/sc-bbb.in\n")
 test.write(['sub', 'sc-ccc.in'], "sub/sc-ccc.in\n")
+test.write(['sub2', 'sc-ddd.in'], "sub2/sc-ddd.in\n")
 
 test.write(['sub', 'sc-SConscript'], "'sub/sc-SConscript'\n")
 
@@ -82,14 +86,19 @@ cat("bbb.out", "%s")
 sc_cat("%s", [])
 cat("ccc.out", "%s")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+sc_cat("%s", [])
+cat("ddd.out", "%s")
 """ % (os.path.join('sub', 'aaa.in'),
        os.path.join('sub', 'aaa.in'),
        os.path.join('sub', 'bbb.in'),
        os.path.join('sub', 'bbb.in'),
        os.path.join('sub', 'ccc.in'),
-       os.path.join('sub', 'ccc.in'))))
+       os.path.join('sub', 'ccc.in'),
+       os.path.join('sub2', 'ddd.in'),
+       os.path.join('sub2', 'ddd.in'))))
 
 test.fail_test(test.read(['sub', 'SConscript']) != "'sub/sc-SConscript'\n")
 test.fail_test(test.read('all') != "sub/sc-aaa.in\nsub/sc-bbb.in\nsub/sc-ccc.in\n")
+test.fail_test(test.read('ddd.out') != "sub2/sc-ddd.in\n")
 
 test.pass_test()

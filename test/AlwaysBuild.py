@@ -41,7 +41,7 @@ def bfunc(target, source, env):
 B = Builder(action=bfunc)
 env = Environment(BUILDERS = { 'B' : B }, SUBDIR='sub')
 env.B('f1.out', source='f1.in')
-env.AlwaysBuild('f1.out')
+AlwaysBuild('f1.out')
 
 env.B(r'%s', source='f3.in')
 env.AlwaysBuild(r'%s')

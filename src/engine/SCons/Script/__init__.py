@@ -181,8 +181,8 @@ class CleanTask(SCons.Taskmaster.Task):
         if (self.targets[0].has_builder() or self.targets[0].side_effect) \
            and not os.path.isdir(str(self.targets[0])):
             display("Removed " + str(self.targets[0]))
-        if SCons.Script.SConscript.clean_targets.has_key(self.targets[0]):
-            files = SCons.Script.SConscript.clean_targets[self.targets[0]]
+        if SCons.Environment.CleanTargets.has_key(self.targets[0]):
+            files = SCons.Environment.CleanTargets[self.targets[0]]
             for f in files:
                 SCons.Util.fs_delete(str(f), 0)
 
@@ -196,8 +196,8 @@ class CleanTask(SCons.Taskmaster.Task):
                 else:
                     if removed:
                         display("Removed " + str(t))
-        if SCons.Script.SConscript.clean_targets.has_key(self.targets[0]):
-            files = SCons.Script.SConscript.clean_targets[self.targets[0]]
+        if SCons.Environment.CleanTargets.has_key(self.targets[0]):
+            files = SCons.Environment.CleanTargets[self.targets[0]]
             for f in files:
                 SCons.Util.fs_delete(str(f))
 

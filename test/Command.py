@@ -71,7 +71,7 @@ env.Command(target = 'f2.out', source = 'f2.in',
 env.Command(target = 'f3.out', source = 'f3.in',
             action = [ [ r'%s', 'build.py', 'temp3', '$SOURCES' ],
                        [ r'%s', 'build.py', '$TARGET', 'temp3'] ])
-env.Command(target = 'f4.out', source = 'sub', action = sub)
+Command(target = 'f4.out', source = 'sub', action = sub)
 """ % (python, python, python, python))
 
 test.write('f1.in', "f1.in\n")

@@ -59,7 +59,7 @@ SConscript('subdir/SConscript', "env")
 
 test.write(['subdir', 'SConscript'], """
 Import("env")
-env.Depends(target = 'f4.out', dependency = 'bar.dep')
+Depends(target = 'f4.out', dependency = 'bar.dep')
 env.Bar(target = 'f4.out', source = 'f4.in')
 """)
 

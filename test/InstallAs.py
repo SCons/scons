@@ -44,7 +44,7 @@ install_file3_out = test.workpath('install', 'file3.out')
 #
 test.write('SConstruct', r"""
 env = Environment(INSTALLDIR=r'%s', SUBDIR='subdir')
-env.InstallAs(r'%s', 'file1.in')
+InstallAs(r'%s', 'file1.in')
 env.InstallAs([r'%s', r'%s'], ['file2.in', r'%s'])
 """ % (install,
        install_file1_out,

@@ -1678,11 +1678,74 @@ be specified using the
 .B Depends 
 method of a construction environment (see below).
 
-.SS Other Construction Environment Methods
-Additional construction environment methods include:
+.SS Methods and Functions to Do Things
+In addition to Builder methods,
+.B scons
+provides a number of other construction environment methods
+and global functions to
+manipulate the build configuration.
 
+Usually, a construction environment method
+and global function with the same name both exist
+so that you don't have to remember whether
+to a specific bit of functionality
+must be called with or without a construction environment.
+In the following list,
+if you call something as a global function
+it looks like:
+.ES
+.RI Function( arguments )
+.EE
+and if you call something through a construction
+environment it looks like:
+.ES
+.RI env.Function( arguments )
+.EE
+If you can call the functionality in both ways,
+then both forms are listed.
+
+Except where otherwise noted,
+the same-named
+construction environment method
+and global function 
+provide the exact same functionality.
+The only difference is that,
+where appropriate,
+calling the functionality through a construction environment will
+substitute construction variables into
+any supplied strings.
+For example:
+.ES
+env = Environment(FOO = 'foo')
+Default('$FOO')
+env.Default('$FOO')
+.EE
+the first call to the global
+.B Default()
+function will actually add a target named
+.B $FOO
+to the list of default targets,
+while the second call to the
+.B env.Default()
+construction environment method
+will expand the value
+and add a target named
+.B foo
+to the list of default targets.
+For more on construction variable expansion,
+see the next section on
+construction variables.
+
+Construction environment methods
+and global functions supported by
+.B scons
+include:
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
 .RI AddPostAction( target ", " action )
+.TP
+.RI env.AddPostAction( target ", " action )
 Arranges for the specified
 .I action
 to be performed
@@ -1694,8 +1757,11 @@ an Action object, or anything that
 can be converted into an Action object
 (see below).
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
 .RI AddPreAction( target ", " action )
+.TP
+.RI env.AddPreAction( target ", " action )
 Arranges for the specified
 .I action
 to be performed
@@ -1707,8 +1773,11 @@ an Action object, or anything that
 can be converted into an Action object
 (see below).
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Alias( alias ", " targets )
+.RI Alias( alias )
+.TP
+.RI env.Alias( alias ", " targets )
 Creates a phony target that
 expands to one or more other targets.
 Returns the Node object representing the alias,
@@ -1716,17 +1785,20 @@ which exists outside of any file system.
 This Node object, or the alias name,
 may be used as a dependency of any other target,
 including another alias. Alias can be called multiple times for the same
-alias to add additional targets to the alias. There is also an Alias
-global function for creating or referencing an alias independently of
-any construction environment.
+alias to add additional targets to the alias.
 
 .ES
+Alias('install')
+
 env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
 env.Alias('install', ['/usr/local/man'])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI AlwaysBuild( target ", ...)"
+.TP
+.RI env.AlwaysBuild( target ", ...)"
 Marks each given
 .I target
 so that it is always assumed to be out of date,
@@ -1743,8 +1815,9 @@ be built if so specified.
 Multiple targets can be passed in to a single call to
 .BR AlwaysBuild ().
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Append( key = val ", [...])"
+.RI env.Append( key = val ", [...])"
 Appends the specified keyword arguments
 to the end of construction variables in the environment.
 If the Environment does not have
@@ -1763,8 +1836,9 @@ and the lists are added together.
 env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI AppendENVPath( name ", " newpath ", [" envname ", " sep ])
+.RI env.AppendENVPath( name ", " newpath ", [" envname ", " sep ])
 This appends new path elements to the given path in the
 specified external environment
 .RB ( ENV
@@ -1793,8 +1867,9 @@ before: /foo:/biz
 after: /biz:/foo/bar:/foo
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-BitKeeper()
+env.BitKeeper()
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -1808,8 +1883,212 @@ function.
 env.SourceCode('.', env.BitKeeper())
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI BuildDir( build_dir ", " src_dir ", [" duplicate ])
+This specifies a build directory
+.I build_dir
+in which to build all derived files
+that would normally be built under
+.IR src_dir .
+Multiple build directories can be set up for multiple build variants, for
+example. 
+.I src_dir
+must be underneath the SConstruct file's directory,
+and
+.I build_dir
+may not be underneath the
+.I src_dir .
+
+The default behavior is for
+.B scons
+to duplicate all of the files in the tree underneath
+.I src_dir
+into
+.IR build_dir ,
+and then build the derived files within the copied tree.
+(The duplication is performed by
+linking or copying,
+depending on the platform.)
+This guarantees correct builds
+regardless of whether intermediate source files
+are generated during the build,
+where preprocessors or other scanners search
+for included files,
+or whether individual compilers or other invoked tools
+are hard-coded to put derived files in the same directory as source files.
+
+This behavior of making a complete copy of the source tree
+may be disabled by setting
+.I duplicate
+to 0.
+This will cause
+.B scons
+to invoke Builders using the
+path names of source files in
+.I src_dir
+and the path names of derived files within
+.IR build_dir .
+This is always more efficient than
+.IR duplicate =1,
+and is usually safe for most builds.
+Specifying
+.IR duplicate =0,
+however,
+may cause build problems
+if source files are generated during the build,
+if any invoked tools are hard-coded to
+put derived files in the same directory as the source files.
+
+Note that specifying a
+.B BuildDir
+works most naturally
+with a subsidiary SConscript file
+in the source directory.
+However,
+you would then call the subsidiary SConscript file
+not in the source directory,
+but in the
+.I build_dir ,
+as if
+.B scons
+had made a virtual copy of the source tree
+regardless of the value of 
+.IR duplicate .
+This is how you tell
+.B scons
+which variant of a source tree to build.
+For example:
+
+.ES
+BuildDir('build-variant1', 'src')
+SConscript('build-variant1/SConscript')
+BuildDir('build-variant2', 'src')
+SConscript('build-variant2/SConscript')
+.EE
+
+.IP
+See also the
+.BR SConscript ()
+function, described below,
+for another way to 
+specify a build directory
+in conjunction with calling a subsidiary
+SConscript file.)
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI CacheDir( cache_dir )
+Specifies that
+.B scons
+will maintain a cache of derived files in
+.I cache_dir .
+The derived files in the cache will be shared
+among all the builds using the same
+.BR CacheDir ()
+call.
+
+When a
+.BR CacheDir ()
+is being used and
+.B scons
+finds a derived file that needs to be rebuilt,
+it will first look in the cache to see if a
+derived file has already been built
+from identical input files and an identical build action
+(as incorporated into the MD5 build signature).
+If so,
+.B scons
+will retrieve the file from the cache.
+If the derived file is not present in the cache,
+.B scons
+will rebuild it and
+then place a copy of the built file in the cache
+(identified by its MD5 build signature),
+so that it may be retrieved by other
+builds that need to build the same derived file
+from identical inputs.
+
+Use of a specified
+.BR CacheDir()
+may be disabled for any invocation
+by using the
+.B --cache-disable
+option.
+
+If the
+.B --cache-force
+option is used,
+.B scons
+will place a copy of
+.I all
+derived files in the cache,
+even if they already existed
+and were not built by this invocation.
+This is useful to populate a cache
+the first time
+.BR CacheDir ()
+is added to a build,
+or after using the
+.B --cache-disable
+option.
+
+When using
+.BR CacheDir (),
+.B scons
+will report,
+"Retrieved `file' from cache,"
+unless the
+.B --cache-show
+option is being used.
+When the
+.B --cache-show
+option is used,
+.B scons
+will print the action that
+.I would
+have been used to build the file,
+without any indication that
+the file was actually retrieved from the cache.
+This is useful to generate build logs
+that are equivalent regardless of whether
+a given derived file has been built in-place
+or retrieved from the cache.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI Clean( target ", " files_or_dirs )
+.TP 
+.RI env.Clean( target ", " files_or_dirs )
+This specifies a list of files or directories which should be removed
+whenever the target is specified with the
+.B -c
+command line option.
+Multiple calls to
+.BR Clean ()
+are legal,
+and create a new target or add files and directories to the
+clean list for the specified target.
+
+Multiple files or directories should be specified
+either as separate arguments to the
+.BR Clean ()
+method, or as a list.
+.BR Clean ()
+will also accept the return value of any of the construction environment
+Builder methods.
+Examples:
+
+.ES
+Clean('foo', ['bar', 'baz'])
+Clean('dist', env.Program('hello', 'hello.c'))
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Command( target ", " source ", " commands )
+.TP
+.RI env.Command( target ", " source ", " commands )
 Executes a specific action
 (or list of actions)
 to build a target file or files.
@@ -1840,8 +2119,9 @@ env.Command('baz.out', 'baz.in',
 	     rename ])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Copy([ key = val ", ...])"
+.RI env.Copy([ key = val ", ...])"
 Return a separate copy of a construction environment.
 If there are any keyword arguments specified,
 they are added to the returned copy,
@@ -1861,8 +2141,9 @@ def MyTool(env): env['FOO'] = 'bar'
 env4 = env.Copy(tools = ['msvc', MyTool])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI CVS( repository ", " module )
+.RI env.CVS( repository ", " module )
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -1900,8 +2181,11 @@ env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo'))
 env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo/bar'))
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
 .RI Default( targets )
+.TP
+.RI env.Default( targets )
 This specifies a list of default targets,
 which will be built by
 .B scons
@@ -1922,7 +2206,7 @@ builder methods.
 Examples:
 
 .ES
-env.Default('foo', 'bar', 'baz')
+Default('foo', 'bar', 'baz')
 env.Default(['a', 'b', 'c'])
 hello = env.Program('hello', 'hello.c')
 env.Default(hello)
@@ -1938,8 +2222,20 @@ Later calls to
 will add to the (now empty) default-target list
 like normal.
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI DefaultEnvironment([ args ])
+Creates and returns a default construction environment object.
+This construction environment is used internally by SCons
+in order to execute many of the global functions in this list,
+and to fetch source files transparently
+from source code management systems.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Depends( target ", " dependency )
+.TP
+.RI env.Depends( target ", " dependency )
 Specifies an explicit dependency;
 the target file(s) will be rebuilt
 whenever the dependency file(s) has changed.
@@ -1952,8 +2248,9 @@ for the file.
 env.Depends('foo', 'other-input-file-for-foo')
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Dictionary([ vars ])
+.RI env.Dictionary([ vars ])
 Returns a dictionary object
 containing copies of all of the
 construction variables in the environment.
@@ -1966,8 +2263,115 @@ dict = env.Dictionary()
 cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Dir( name ", [" directory ])
+This returns an object that represents a given directory 
+.IR name . 
+.I name
+can be a relative or absolute path. 
+.I directory
+is an optional directory that will be used as the parent directory. 
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI EnsurePythonVersion( major ", " minor )
+Ensure that the Python version is at least 
+.IR major . minor . 
+This function will
+print out an error message and exit SCons with a non-zero exit code if the
+actual Python version is not late enough.
+
+.ES
+EnsurePythonVersion(2,2)
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI EnsureSConsVersion( major ", " minor )
+Ensure that the SCons version is at least 
+.IR major . minor . 
+This function will
+print out an error message and exit SCons with a non-zero exit code if the
+actual SCons version is not late enough.
+
+.ES
+EnsureSConsVersion(0,9)
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Exit([ value ])
+This tells
+.B scons
+to exit immediately
+with the specified
+.IR value .
+A default exit value of
+.B 0
+(zero)
+is used if no value is specified.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Export( vars )
+This tells 
+.B scons
+to export a list of variables from the current
+SConscript file to all other SConscript files.
+The exported variables are kept in a global collection,
+so subsequent calls to
+.BR Export ()
+will over-write previous exports that have the same name. 
+Multiple variable names can be passed to
+.BR Export ()
+as separate arguments or as a list. A dictionary can be used to map
+variables to a different name when exported. Both local variables and
+global variables can be exported.
+Examples:
+
+.ES
+env = Environment()
+# Make env available for all SConscript files to Import().
+Export("env")
+
+package = 'my_name'
+# Make env and package available for all SConscript files:.
+Export("env", "package")
+
+# Make env and package available for all SConscript files:
+Export(["env", "package"])
+
+# Make env available using the name debug:.
+Export({"debug":env})
+.EE
+
+.IP
+Note that the
+.BR SConscript ()
+function supports an
+.I exports
+argument that makes it easier to to export a variable or
+set of variables to a single SConscript file.
+See the description of the
+.BR SConscript ()
+function, below.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI File( name ", [" directory ])
+This returns an object that represents a given file 
+.IR name . 
+.I name
+can be a relative or absolute path. 
+.I directory
+is an optional directory that will be used as the parent directory. 
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI FindFile( file ", " dirs )
+.TP
+.RI env.FindFile( file ", " dirs )
 Search for 
 .I file 
 in the path specified by 
@@ -1981,8 +2385,39 @@ derived files that have not yet been built.
 foo = env.FindFile('foo', ['dir1', 'dir2'])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.\".TP
+.\".RI GetBuildPath( XXX )
+.\"XXX
+.\"
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.\".TP
+.\".RI GetLaunchDir( XXX )
+.\"XXX
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI GetOption( name )
+This function provides a way to query a select subset of the scons command line
+options from a SConscript file. See 
+.IR SetOption () 
+for a description of the options available.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Help( text )
+This specifies help text to be printed if the 
+.B -h 
+argument is given to
+.BR scons .
+.B scons
+will exit after printing out the help text.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Ignore( target ", " dependency )
+.TP
+.RI env.Ignore( target ", " dependency )
 The specified dependency file(s)
 will be ignored when deciding if
 the target file(s) need to be rebuilt.
@@ -1992,8 +2427,39 @@ env.Ignore('foo', 'foo.c')
 env.Ignore('bar', ['bar1.h', 'bar2.h'])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI Import( vars )
+This tells 
+.B scons
+to import a list of variables into the current SConscript file. This
+will import variables that were exported with
+.BR Export ()
+or in the 
+.I exports
+argument to 
+.BR SConscript ().
+Variables exported by 
+.BR SConscript ()
+have precedence.
+Multiple variable names can be passed to 
+.BR Import ()
+as separate arguments or as a list. The variable "*" can be used
+to import all variables.
+Examples:
+
+.ES
+Import("env")
+Import("env", "variable")
+Import(["env", "variable"])
+Import("*")
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Install( dir ", " source )
+.TP
+.RI env.Install( dir ", " source )
 Installs one or more files in a destination directory.
 The file names remain the same.
 
@@ -2001,8 +2467,11 @@ The file names remain the same.
 env.Install(dir = '/usr/local/bin', source = ['foo', 'bar'])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI InstallAs( target ", " source )
+.TP
+.RI env.InstallAs( target ", " source )
 Installs one or more files as specific file names,
 allowing changing a file name as part of the
 installation.
@@ -2016,8 +2485,19 @@ env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
               source = ['libFOO.a', 'libBAR.a'])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Literal( string )
+The specified
+.I string
+will be preserved as-is
+and not have construction variables expanded.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Local( targets )
+.TP
+.RI env.Local( targets )
 The specified
 .I targets
 will have copies made in the local tree,
@@ -2025,8 +2505,38 @@ even if an already up-to-date copy
 exists in a repository.
 Returns a list of the target Node or Nodes.
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-Perforce()
+.RI ParseConfig( env ", " command ", [" function ])
+Calls the specified
+.I function
+to modify the specified environment
+.I env
+as specified by the output of
+.I command .
+The default
+.I function
+expects the output of a typical
+.I *-config command
+(for example,
+.BR gtk-config )
+and parses the returned
+.BR -L ,
+.BR -l ,
+.B -I
+and other options
+into the
+.BR LIBPATH ,
+.BR LIBS ,
+.B CPPPATH
+and
+.B CCFLAGS
+variables,
+respectively.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+env.Perforce()
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -2057,8 +2567,38 @@ USER,
 and
 USERNAME.
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Platform( string )
+Returns a callable object
+that can be used to initialize
+a construction environment using the
+platform keyword of the Environment() method.
+
+.ES
+env = Environment(platform = Platform('win32'))
+.EE
+.IP
+Note that the
+.B win32
+platform adds the
+.B SYSTEMROOT
+variable from the user's external environment
+to the construction environment's
+.B ENV
+dictionary.
+This is so that any executed commands
+that use sockets to connect with other systems
+(such as fetching source files from
+external CVS repository specifications like 
+.BR :pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons )
+will work on Win32 systems.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Precious( target ", ...)"
+.TP
+.RI env.Precious( target ", ...)"
 Marks each given
 .I target
 as precious so it is not deleted before it is rebuilt. Normally
@@ -2067,8 +2607,9 @@ deletes a target before building it.
 Multiple targets can be passed in to a single call to
 .BR Precious ().
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Prepend( key = val ", [...])"
+.RI env.Prepend( key = val ", [...])"
 Appends the specified keyword arguments
 to the beginning of construction variables in the environment.
 If the Environment does not have
@@ -2087,8 +2628,9 @@ and the lists are added together.
 env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI PrependENVPath( name ", " newpath ", [" envname ", " sep ])
+.RI env.PrependENVPath( name ", " newpath ", [" envname ", " sep ])
 This appends new path elements to the given path in the
 specified external environment
 .RB ( ENV
@@ -2117,8 +2659,9 @@ before: /biz:/foo
 after: /foo/bar:/foo:/biz
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-RCS()
+env.RCS()
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -2146,8 +2689,9 @@ directory as the source files,
 or if you need to explicitly specify RCS
 for a specific subdirectory.
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Replace( key = val ", [...])"
+.RI env.Replace( key = val ", [...])"
 Replaces construction variables in the Environment
 with the specified keyword arguments.
 
@@ -2155,8 +2699,71 @@ with the specified keyword arguments.
 env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
 .EE
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-SCCS()
+.RI Repository( directory )
+Specifies that
+.I directory
+is a repository to be searched for files.
+Multiple calls to
+.BR Repository ()
+are legal,
+and each one adds to the list of
+repositories that will be searched.
+
+To
+.BR scons ,
+a repository is a copy of the source tree,
+from the top-level directory on down,
+which may contain
+both source files and derived files
+that can be used to build targets in
+the local source tree.
+The canonical example would be an
+official source tree maintained by an integrator.
+If the repository contains derived files,
+then the derived files should have been built using
+.BR scons ,
+so that the repository contains the necessary
+signature information to allow
+.B scons
+to figure out when it is appropriate to
+use the repository copy of a derived file,
+instead of building one locally.
+
+Note that if an up-to-date derived file
+already exists in a repository,
+.B scons
+will
+.I not
+make a copy in the local directory tree.
+In order to guarantee that a local copy
+will be made,
+use the
+.B Local()
+method.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Return( vars )
+This tells
+.B scons
+what variable(s) to use as the return value(s) of the current SConscript
+file. These variables will be returned to the "calling" SConscript file
+as the return value(s) of 
+.BR SConscript ().
+Multiple variable names should be passed to 
+.BR Return ()
+as a list. Example:
+
+.ES
+Return("foo")
+Return(["foo", "bar"])
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+env.SCCS()
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -2184,8 +2791,217 @@ directory as the source files,
 or if you need to explicitly specify SCCS
 for a specific subdirectory.
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI SConscript( scripts ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
+.TP
+.RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " build_dir ", " src_dir ", " duplicate ])
+This tells
+.B scons
+to execute
+one or more subsidiary SConscript (configuration) files.
+There are two ways to call the
+.BR SConscript ()
+function.
+
+The first way you can call
+.BR SConscript ()
+is to explicitly specify one or more
+.I scripts
+as the first argument.
+A single script may be specified as a string;
+multiple scripts must be specified as a list
+(either explicitly or as created by
+a function like
+.BR Split ()).
+
+The second way you can call
+.BR SConscript ()
+is to specify a list of (sub)directory names
+as a
+.RI dirs= subdirs
+keyword argument.
+In this case,
+.B scons
+will, by default,
+execute a subsidiary configuration file named
+.B SConscript
+in each of the specified directories.
+You may specify a name other than
+.B SConscript
+by supplying an optional
+.RI name= script
+keyword argument.
+
+The optional 
+.I exports
+argument provides a list of variable names or a dictionary of
+named values to export to the
+.IR script(s) ". "
+These variables are locally exported only to the specified
+.IR script(s) ,
+and do not affect the
+global pool of variables used by
+the
+.BR Export ()
+function.
+'\"If multiple dirs are provided,
+'\"each script gets a fresh export.
+The subsidiary
+.I script(s)
+must use the
+.BR Import ()
+function to import the variables.
+
+The optional
+.I build_dir
+argument specifies that all of the target files
+(for example, object files and executables)
+that would normally be built in the subdirectory in which
+.I script
+resides should actually
+be built in
+.IR build_dir .
+
+The optional
+.I src_dir
+argument specifies that the
+source files from which
+the target files should be built
+can be found in
+.IR src_dir .
+
+By default,
+.B scons
+will link or copy (depending on the platform)
+all the source files into the build directory.
+This behavior may be disabled by
+setting the optional
+.I duplicate
+argument to 0
+(it is set to 1 by default),
+in which case
+.B scons
+will refer directly to
+the source files in their source directory
+when building target files.
+(Setting
+.IR duplicate =0
+is usually safe, and always more efficient
+than the default of
+.IR duplicate =1,
+but it may cause build problems in certain end-cases,
+such as compiling from source files that
+are generated by the build.)
+
+Any variables returned by 
+.I script 
+using 
+.BR Return ()
+will be returned by the call to
+.BR SConscript (). 
+
+Examples:
+
+.ES
+SConscript('subdir/SConscript')
+foo = SConscript('sub/SConscript', exports='env')
+SConscript('dir/SConscript', exports=['env', 'variable'])
+SConscript('src/SConscript', build_dir='build', duplicate=0)
+SConscript('bld/SConscript', src_dir='src', exports='env variable')
+SConscript(dirs=['sub1', 'sub2'])
+SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI SConscriptChdir( value )
+By default,
+.B scons
+changes its working directory
+to the directory in which each
+subsidiary SConscript file lives.
+This behavior may be disabled
+by specifying:
+
+.ES
+SConscriptChdir(0)
+.EE
+.IP
+in which case
+.B scons
+will stay in the top-level directory
+while reading all SConscript files.
+(This may be necessary when building from repositories,
+when all the directories in which SConscript files may be found
+don't necessarily exist locally.)
+
+You may enable and disable
+this ability by calling
+SConscriptChdir()
+multiple times:
+
+.ES
+SConscriptChdir(0)
+SConscript('foo/SConscript')	# will not chdir to foo
+SConscriptChdir(1)
+SConscript('bar/SConscript')	# will chdir to bar
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI SConsignFile([ file ])
+This tells
+.B scons
+to store all file signatures
+in the specified
+.IR file .
+If the
+.I file
+is omitted,
+.B .sconsign.dbm
+is used by default.
+If
+.I file
+is not an absolute path name,
+the file is placed in the same directory as the top-level
+.B SConstruct
+file.
+Examples:
+
+.ES
+# Stores signatures in ".sconsign.dbm"
+# in the top-level SConstruct directory.
+SConsignFile()
+
+# Stores signatures in the file "etc/scons-signatures"
+# relative to the top-level SConstruct directory.
+SConsignFile("etc/scons-signatures")
+
+# Stores signatures in the specified absolute file name.
+SConsignFile("/home/me/SCons/signatures")
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI SetOption( name ", " value )
+This function provides a way to set a select subset of the scons command
+line options from a SConscript file. The options supported are: clean which
+cooresponds to -c, --clean, and --remove; implicit_cache which corresponds
+to --implicit-cache; max_drift which corresponds to --max-drift; and
+num_jobs which corresponds to -j and --jobs. See the documentation for the
+corresponding command line object for information about each specific
+option. Example:
+
+.ES
+SetOption('max_drift', 1)
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI SideEffect( side_effect ", " target )
+.TP
+.RI env.SideEffect( side_effect ", " target )
 Declares
 .I side_effect
 as a side effect of building
@@ -2208,8 +3024,11 @@ Consequently, you only need to use this method
 for side-effect targets that are built as a result of
 multiple build commands.
 
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI SourceCode( entries ", " builder )
+.TP
+.RI env.SourceCode( entries ", " builder )
 Arrange for non-existent source files to
 be fetched from a source code management system
 using the specified
@@ -2280,6 +3099,7 @@ env.SourceCode('no_source.c', None)
 .EE
 '\"env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
 '\"
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 '\".TP
 '\".RI Subversion( repository ", " module )
 '\"A factory function that
@@ -2317,6 +3137,136 @@ env.SourceCode('no_source.c', None)
 '\"# from /usr/local/Subversion/foo/bar/src.c.
 '\"env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo/bar'))
 '\".EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI SourceSignatures( type )
+This function tells SCons what type of signature to use for source files:
+.B "MD5"
+or
+.BR "timestamp" .
+"MD5" means the signature of a source file
+is the MD5 checksum of its contents.
+"timestamp" means the signature of a source file
+is its timestamp (modification time).
+When using "timestamp" signatures,
+changes in the command line will not cause files to be rebuilt.
+"MD5" signatures take longer to compute,
+but are more accurate than "timestamp" signatures.
+The default is "MD5".
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Split( arg )
+Returns a list of file names or other objects.
+If arg is a string,
+it will be split on strings of white-space characters
+within the string,
+making it easier to write long lists of file names.
+If arg is already a list,
+the list will be returned untouched.
+If arg is any other type of object,
+it will be returned as a list
+containing just the object.
+
+.ES
+files = Split("f1.c f2.c f3.c")
+files = Split("""
+	f4.c
+	f5.c
+	f6.c
+""")
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI TargetSignatures( type )
+This function tells SCons what type of signatures to use
+for target files:
+.B "build"
+or
+.BR "content" .
+"build" means the signature of a target file
+is made by concatenating all of the
+signatures of all its source files.
+"content" means the signature of a target
+file is an MD5 checksum of its contents.
+"build" signatures are usually faster to compute,
+but "content" signatures can prevent unnecessary rebuilds
+when a target file is rebuilt to the exact same contents as last time.
+The default is "build".
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Tool( string )
+Returns a callable object
+that can be used to initialize
+a construction environment using the
+tools keyword of the Environment() method.
+
+.ES
+env = Environment(tools = [ Tool('msvc') ])
+.EE
+.IP
+The object may be called with a construction
+environment as an argument,
+in which case the object will be
+add the necessary variables
+to the construction environment
+and the name of the tool will be added to the
+.B $TOOLS
+construction variable.
+
+.ES
+env = Environment()
+t = Tool('msvc')
+t(env)  # adds 'msvc' to the TOOLS variable
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Value( value )
+Returns a Node object representing the specified Python value.  Value
+nodes can be used as dependencies of targets.  If the result of
+calling
+.BR str( value )
+changes between SCons runs, any targets depending on
+.BR Value( value )
+will be rebuilt.  When using timestamp source signatures, Value nodes'
+timestamps are equal to the system time when the node is created.
+
+.ES
+def create(target, source, env):
+    f = open(str(target[0]), 'wb')
+    f.write('prefix=' + source[0].get_contents())
+    
+prefix = ARGUMENTS.get('prefix', '/usr/local')
+env = Environment()
+env['BUILDERS']['Config'] = Builder(action = create)
+env.Config(target = 'package-config', source = Value(prefix))
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI WhereIs( program ", [" path  ", [" pathext ]])
+
+Searches for the specified executable
+.I program,
+returning the full path name to the program
+if it is found,
+and returning None if not.
+Searches the specified
+.I path,
+or the user's current PATH
+(os.environ['PATH'])
+by default.
+On Win32 systems, searches for executable
+programs with any of the file extensions
+listed in the specified
+.I pathext,
+or the user's current PATHEXT
+(os.environ['PATHEXT'])
+by default.
 
 .SS Construction Variables
 .\" XXX From Gary Ruben, 23 April 2002:
@@ -4254,908 +5204,6 @@ variables. Example:
 CC = 'my_cc'
 .EE
 
-.SS Other Functions
-
-.B scons
-also provides various additional functions,
-not associated with a construction environment,
-that SConscript files can use:
-
-.TP 
-.RI AddPostAction( target ", " action )
-Arranges for the specified
-.I action
-to be performed
-after the specified
-.I target
-has been built.
-The specified action(s) may be
-an Action object, or anything that
-can be converted into an Action object
-(see below).
-
-.TP 
-.RI AddPreAction( target ", " action )
-Arranges for the specified
-.I action
-to be performed
-before the specified
-.I target
-is built.
-The specified action(s) may be
-an Action object, or anything that
-can be converted into an Action object
-(see below).
-
-.TP
-.RI Alias( name )
-Creates or references an alias independent of the construction environment.
-
-.ES
-Alias('install')
-.EE
-
-.TP
-.RI BuildDir( build_dir ", " src_dir ", [" duplicate ])
-This specifies a build directory
-.I build_dir
-in which to build all derived files
-that would normally be built under
-.IR src_dir .
-Multiple build directories can be set up for multiple build variants, for
-example. 
-.I src_dir
-must be underneath the SConstruct file's directory,
-and
-.I build_dir
-may not be underneath the
-.I src_dir .
-
-The default behavior is for
-.B scons
-to duplicate all of the files in the tree underneath
-.I src_dir
-into
-.IR build_dir ,
-and then build the derived files within the copied tree.
-(The duplication is performed by
-linking or copying,
-depending on the platform.)
-This guarantees correct builds
-regardless of whether intermediate source files
-are generated during the build,
-where preprocessors or other scanners search
-for included files,
-or whether individual compilers or other invoked tools
-are hard-coded to put derived files in the same directory as source files.
-
-This behavior of making a complete copy of the source tree
-may be disabled by setting
-.I duplicate
-to 0.
-This will cause
-.B scons
-to invoke Builders using the
-path names of source files in
-.I src_dir
-and the path names of derived files within
-.IR build_dir .
-This is always more efficient than
-.IR duplicate =1,
-and is usually safe for most builds.
-Specifying
-.IR duplicate =0,
-however,
-may cause build problems
-if source files are generated during the build,
-if any invoked tools are hard-coded to
-put derived files in the same directory as the source files.
-
-Note that specifying a
-.B BuildDir
-works most naturally
-with a subsidiary SConscript file
-in the source directory.
-However,
-you would then call the subsidiary SConscript file
-not in the source directory,
-but in the
-.I build_dir ,
-as if
-.B scons
-had made a virtual copy of the source tree
-regardless of the value of 
-.IR duplicate .
-This is how you tell
-.B scons
-which variant of a source tree to build.
-For example:
-
-.ES
-BuildDir('build-variant1', 'src')
-SConscript('build-variant1/SConscript')
-BuildDir('build-variant2', 'src')
-SConscript('build-variant2/SConscript')
-.EE
-
-.IP
-See also the
-.BR SConscript ()
-function, described below,
-for another way to 
-specify a build directory
-in conjunction with calling a subsidiary
-SConscript file.)
-
-.TP 
-.RI CacheDir( cache_dir )
-Specifies that
-.B scons
-will maintain a cache of derived files in
-.I cache_dir .
-The derived files in the cache will be shared
-among all the builds using the same
-.BR CacheDir ()
-call.
-
-When a
-.BR CacheDir ()
-is being used and
-.B scons
-finds a derived file that needs to be rebuilt,
-it will first look in the cache to see if a
-derived file has already been built
-from identical input files and an identical build action
-(as incorporated into the MD5 build signature).
-If so,
-.B scons
-will retrieve the file from the cache.
-If the derived file is not present in the cache,
-.B scons
-will rebuild it and
-then place a copy of the built file in the cache
-(identified by its MD5 build signature),
-so that it may be retrieved by other
-builds that need to build the same derived file
-from identical inputs.
-
-Use of a specified
-.BR CacheDir()
-may be disabled for any invocation
-by using the
-.B --cache-disable
-option.
-
-If the
-.B --cache-force
-option is used,
-.B scons
-will place a copy of
-.I all
-derived files in the cache,
-even if they already existed
-and were not built by this invocation.
-This is useful to populate a cache
-the first time
-.BR CacheDir ()
-is added to a build,
-or after using the
-.B --cache-disable
-option.
-
-When using
-.BR CacheDir (),
-.B scons
-will report,
-"Retrieved `file' from cache,"
-unless the
-.B --cache-show
-option is being used.
-When the
-.B --cache-show
-option is used,
-.B scons
-will print the action that
-.I would
-have been used to build the file,
-without any indication that
-the file was actually retrieved from the cache.
-This is useful to generate build logs
-that are equivalent regardless of whether
-a given derived file has been built in-place
-or retrieved from the cache.
-
-.TP 
-.RI Clean( target ", " files_or_dirs )
-This specifies a list of files or directories which should be removed
-whenever the target is specified with the
-.B -c
-command line option.
-Multiple calls to
-.BR Clean ()
-are legal,
-and create a new target or add files and directories to the
-clean list for the specified target.
-
-Multiple files or directories should be specified
-either as separate arguments to the
-.BR Clean ()
-method, or as a list.
-.BR Clean ()
-will also accept the return value of any of the construction environment
-Builder methods.
-Examples:
-
-.ES
-Clean('foo', ['bar', 'baz'])
-Clean('dist', env.Program('hello', 'hello.c'))
-.EE
-
-.TP 
-.RI Default( targets )
-This specifies a list of default targets,
-which will be built by
-.B scons
-if no explicit targets are given on the command line.
-Multiple calls to
-.BR Default ()
-are legal,
-and add to the list of default targets.
-
-Multiple targets should be specified as
-separate arguments to the
-.BR Default ()
-method, or as a list.
-.BR Default ()
-will also accept the Node returned by any
-of a construction environment's
-builder methods.
-Examples:
-
-.ES
-Default('foo', 'bar', 'baz')
-Default(['a', 'b', 'c'])
-hello = env.Program('hello', 'hello.c')
-Default(hello)
-.EE
-.IP
-An argument to
-.BR Default ()
-of
-.B None
-will clear all default targets.
-Later calls to
-.BR Default ()
-will add to the (now empty) default-target list
-like normal.
-
-.TP
-.RI DefaultEnvironment([ args ])
-Creates and returns a default construction environment object.
-This construction environment is used internally by SCons
-in order to fetch source files transparently
-from source code management systems.
-
-.TP
-.RI Dir( name ", [" directory ])
-This returns an object that represents a given directory 
-.IR name . 
-.I name
-can be a relative or absolute path. 
-.I directory
-is an optional directory that will be used as the parent directory. 
-
-.TP
-.RI EnsurePythonVersion( major ", " minor )
-Ensure that the Python version is at least 
-.IR major . minor . 
-This function will
-print out an error message and exit SCons with a non-zero exit code if the
-actual Python version is not late enough.
-
-.ES
-EnsurePythonVersion(2,2)
-.EE
-
-.TP
-.RI EnsureSConsVersion( major ", " minor )
-Ensure that the SCons version is at least 
-.IR major . minor . 
-This function will
-print out an error message and exit SCons with a non-zero exit code if the
-actual SCons version is not late enough.
-
-.ES
-EnsureSConsVersion(0,9)
-.EE
-
-.TP
-.RI Exit([ value ])
-This tells
-.B scons
-to exit immediately
-with the specified
-.IR value .
-A default exit value of
-.B 0
-(zero)
-is used if no value is specified.
-
-.TP
-.RI Export( vars )
-This tells 
-.B scons
-to export a list of variables from the current
-SConscript file to all other SConscript files.
-The exported variables are kept in a global collection,
-so subsequent calls to
-.BR Export ()
-will over-write previous exports that have the same name. 
-Multiple variable names can be passed to
-.BR Export ()
-as separate arguments or as a list. A dictionary can be used to map
-variables to a different name when exported. Both local variables and
-global variables can be exported.
-Examples:
-
-.ES
-env = Environment()
-# Make env available for all SConscript files to Import().
-Export("env")
-
-package = 'my_name'
-# Make env and package available for all SConscript files:.
-Export("env", "package")
-
-# Make env and package available for all SConscript files:
-Export(["env", "package"])
-
-# Make env available using the name debug:.
-Export({"debug":env})
-.EE
-
-.IP
-Note that the
-.BR SConscript ()
-function supports an
-.I exports
-argument that makes it easier to to export a variable or
-set of variables to a single SConscript file.
-See the description of the
-.BR SConscript ()
-function, below.
-
-.TP 
-.RI File( name ", [" directory ])
-This returns an object that represents a given file 
-.IR name . 
-.I name
-can be a relative or absolute path. 
-.I directory
-is an optional directory that will be used as the parent directory. 
-
-.TP
-.RI FindFile( file ", " dirs )
-Search for 
-.I file 
-in the path specified by 
-.IR dirs .
-.I file
-may be a list of file names or a single file name. In addition to searching
-for files that exist in the filesytem, this function also searches for
-derived files that have not yet been built.
-
-.ES
-foo = FindFile('foo', ['dir1', 'dir2'])
-.EE
-.\"
-.\".TP
-.\".RI GetBuildPath( XXX )
-.\"XXX
-.\"
-.\".TP
-.\".RI GetLaunchDir( XXX )
-.\"XXX
-
-.TP
-.RI GetOption( name )
-This function provides a way to query a select subset of the scons command line
-options from a SConscript file. See 
-.IR SetOption () 
-for a description of the options available.
-
-.TP
-.RI Help( text )
-This specifies help text to be printed if the 
-.B -h 
-argument is given to
-.BR scons .
-.B scons
-will exit after printing out the help text.
-
-.TP 
-.RI Import( vars )
-This tells 
-.B scons
-to import a list of variables into the current SConscript file. This
-will import variables that were exported with
-.BR Export ()
-or in the 
-.I exports
-argument to 
-.BR SConscript ().
-Variables exported by 
-.BR SConscript ()
-have precedence.
-Multiple variable names can be passed to 
-.BR Import ()
-as separate arguments or as a list. The variable "*" can be used
-to import all variables.
-Examples:
-
-.ES
-Import("env")
-Import("env", "variable")
-Import(["env", "variable"])
-Import("*")
-.EE
-
-.TP
-.RI Literal( string )
-The specified
-.I string
-will be preserved as-is
-and not have construction variables expanded.
-
-.TP
-.RI Local( targets )
-The specified
-.I targets
-will have copies made in the local tree,
-even if an already up-to-date copy
-exists in a repository.
-Returns a list of the target Node or Nodes.
-
-.TP
-.RI ParseConfig( env ", " command ", [" function ])
-Calls the specified
-.I function
-to modify the specified environment
-.I env
-as specified by the output of
-.I command .
-The default
-.I function
-expects the output of a typical
-.I *-config command
-(for example,
-.BR gtk-config )
-and parses the returned
-.BR -L ,
-.BR -l ,
-.B -I
-and other options
-into the
-.BR LIBPATH ,
-.BR LIBS ,
-.B CPPPATH
-and
-.B CCFLAGS
-variables,
-respectively.
-
-.TP
-.RI Platform( string )
-Returns a callable object
-that can be used to initialize
-a construction environment using the
-platform keyword of the Environment() method.
-
-.ES
-env = Environment(platform = Platform('win32'))
-.EE
-.IP
-Note that the
-.B win32
-platform adds the
-.B SYSTEMROOT
-variable from the user's external environment
-to the construction environment's
-.B ENV
-dictionary.
-This is so that any executed commands
-that use sockets to connect with other systems
-(such as fetching source files from
-external CVS repository specifications like 
-.BR :pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons )
-will work on Win32 systems.
-
-.TP
-.RI Repository( directory )
-Specifies that
-.I directory
-is a repository to be searched for files.
-Multiple calls to
-.BR Repository ()
-are legal,
-and each one adds to the list of
-repositories that will be searched.
-
-To
-.BR scons ,
-a repository is a copy of the source tree,
-from the top-level directory on down,
-which may contain
-both source files and derived files
-that can be used to build targets in
-the local source tree.
-The canonical example would be an
-official source tree maintained by an integrator.
-If the repository contains derived files,
-then the derived files should have been built using
-.BR scons ,
-so that the repository contains the necessary
-signature information to allow
-.B scons
-to figure out when it is appropriate to
-use the repository copy of a derived file,
-instead of building one locally.
-
-Note that if an up-to-date derived file
-already exists in a repository,
-.B scons
-will
-.I not
-make a copy in the local directory tree.
-In order to guarantee that a local copy
-will be made,
-use the
-.B Local()
-method.
-
-.TP
-.RI Return( vars )
-This tells
-.B scons
-what variable(s) to use as the return value(s) of the current SConscript
-file. These variables will be returned to the "calling" SConscript file
-as the return value(s) of 
-.BR SConscript ().
-Multiple variable names should be passed to 
-.BR Return ()
-as a list. Example:
-
-.ES
-Return("foo")
-Return(["foo", "bar"])
-.EE
-
-.TP
-.RI SConsignFile([ file ])
-This tells
-.B scons
-to store all file signatures
-in the specified
-.IR file .
-If the
-.I file
-is omitted,
-.B .sconsign.dbm
-is used by default.
-If
-.I file
-is not an absolute path name,
-the file is placed in the same directory as the top-level
-.B SConstruct
-file.
-Examples:
-
-.ES
-# Stores signatures in ".sconsign.dbm"
-# in the top-level SConstruct directory.
-SConsignFile()
-
-# Stores signatures in the file "etc/scons-signatures"
-# relative to the top-level SConstruct directory.
-SConsignFile("etc/scons-signatures")
-
-# Stores signatures in the specified absolute file name.
-SConsignFile("/home/me/SCons/signatures")
-.EE
-
-.TP
-.RI SetOption( name ", " value )
-This function provides a way to set a select subset of the scons command
-line options from a SConscript file. The options supported are: clean which
-cooresponds to -c, --clean, and --remove; implicit_cache which corresponds
-to --implicit-cache; max_drift which corresponds to --max-drift; and
-num_jobs which corresponds to -j and --jobs. See the documentation for the
-corresponding command line object for information about each specific
-option. Example:
-
-.ES
-SetOption('max_drift', 1)
-.EE
-
-.TP
-.RI SConscript( scripts ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
-.TP
-.RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " build_dir ", " src_dir ", " duplicate ])
-This tells
-.B scons
-to execute
-one or more subsidiary SConscript (configuration) files.
-There are two ways to call the
-.BR SConscript ()
-function.
-
-The first way you can call
-.BR SConscript ()
-is to explicitly specify one or more
-.I scripts
-as the first argument.
-A single script may be specified as a string;
-multiple scripts must be specified as a list
-(either explicitly or as created by
-a function like
-.BR Split ()).
-
-The second way you can call
-.BR SConscript ()
-is to specify a list of (sub)directory names
-as a
-.RI dirs= subdirs
-keyword argument.
-In this case,
-.B scons
-will, by default,
-execute a subsidiary configuration file named
-.B SConscript
-in each of the specified directories.
-You may specify a name other than
-.B SConscript
-by supplying an optional
-.RI name= script
-keyword argument.
-
-The optional 
-.I exports
-argument provides a list of variable names or a dictionary of
-named values to export to the
-.IR script(s) ". "
-These variables are locally exported only to the specified
-.IR script(s) ,
-and do not affect the
-global pool of variables used by
-the
-.BR Export ()
-function.
-'\"If multiple dirs are provided,
-'\"each script gets a fresh export.
-The subsidiary
-.I script(s)
-must use the
-.BR Import ()
-function to import the variables.
-
-The optional
-.I build_dir
-argument specifies that all of the target files
-(for example, object files and executables)
-that would normally be built in the subdirectory in which
-.I script
-resides should actually
-be built in
-.IR build_dir .
-
-The optional
-.I src_dir
-argument specifies that the
-source files from which
-the target files should be built
-can be found in
-.IR src_dir .
-
-By default,
-.B scons
-will link or copy (depending on the platform)
-all the source files into the build directory.
-This behavior may be disabled by
-setting the optional
-.I duplicate
-argument to 0
-(it is set to 1 by default),
-in which case
-.B scons
-will refer directly to
-the source files in their source directory
-when building target files.
-(Setting
-.IR duplicate =0
-is usually safe, and always more efficient
-than the default of
-.IR duplicate =1,
-but it may cause build problems in certain end-cases,
-such as compiling from source files that
-are generated by the build.)
-
-Any variables returned by 
-.I script 
-using 
-.BR Return ()
-will be returned by the call to
-.BR SConscript (). 
-
-Examples:
-
-.ES
-SConscript('subdir/SConscript')
-foo = SConscript('sub/SConscript', exports='env')
-SConscript('dir/SConscript', exports=['env', 'variable'])
-SConscript('src/SConscript', build_dir='build', duplicate=0)
-SConscript('bld/SConscript', src_dir='src', exports='env variable')
-SConscript(dirs=['sub1', 'sub2'])
-SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
-.EE
-
-.TP
-.RI SConscriptChdir( value )
-By default,
-.B scons
-changes its working directory
-to the directory in which each
-subsidiary SConscript file lives.
-This behavior may be disabled
-by specifying:
-
-.ES
-SConscriptChdir(0)
-.EE
-.IP
-in which case
-.B scons
-will stay in the top-level directory
-while reading all SConscript files.
-(This may be necessary when building from repositories,
-when all the directories in which SConscript files may be found
-don't necessarily exist locally.)
-
-You may enable and disable
-this ability by calling
-SConscriptChdir()
-multiple times:
-
-.ES
-SConscriptChdir(0)
-SConscript('foo/SConscript')	# will not chdir to foo
-SConscriptChdir(1)
-SConscript('bar/SConscript')	# will chdir to bar
-.EE
-
-.TP
-.RI SourceSignatures( type )
-This function tells SCons what type of signature to use for source files:
-.B "MD5"
-or
-.BR "timestamp" .
-"MD5" means the signature of a source file
-is the MD5 checksum of its contents.
-"timestamp" means the signature of a source file
-is its timestamp (modification time).
-When using "timestamp" signatures,
-changes in the command line will not cause files to be rebuilt.
-"MD5" signatures take longer to compute,
-but are more accurate than "timestamp" signatures.
-The default is "MD5".
-
-.TP
-.RI Split( arg )
-Returns a list of file names or other objects.
-If arg is a string,
-it will be split on strings of white-space characters
-within the string,
-making it easier to write long lists of file names.
-If arg is already a list,
-the list will be returned untouched.
-If arg is any other type of object,
-it will be returned as a list
-containing just the object.
-
-.ES
-files = Split("f1.c f2.c f3.c")
-files = Split("""
-	f4.c
-	f5.c
-	f6.c
-""")
-.EE
-
-.TP
-.RI TargetSignatures( type )
-This function tells SCons what type of signatures to use
-for target files:
-.B "build"
-or
-.BR "content" .
-"build" means the signature of a target file
-is made by concatenating all of the
-signatures of all its source files.
-"content" means the signature of a target
-file is an MD5 checksum of its contents.
-"build" signatures are usually faster to compute,
-but "content" signatures can prevent unnecessary rebuilds
-when a target file is rebuilt to the exact same contents as last time.
-The default is "build".
-
-.TP
-.RI Tool( string )
-Returns a callable object
-that can be used to initialize
-a construction environment using the
-tools keyword of the Environment() method.
-
-.ES
-env = Environment(tools = [ Tool('msvc') ])
-.EE
-.IP
-The object may be called with a construction
-environment as an argument,
-in which case the object will be
-add the necessary variables
-to the construction environment
-and the name of the tool will be added to the
-.B $TOOLS
-construction variable.
-
-.ES
-env = Environment()
-t = Tool('msvc')
-t(env)  # adds 'msvc' to the TOOLS variable
-.EE
-
-.TP
-.RI Value( value )
-Returns a Node object representing the specified Python value.  Value
-nodes can be used as dependencies of targets.  If the result of
-calling
-.BR str( value )
-changes between SCons runs, any targets depending on
-.BR Value( value )
-will be rebuilt.  When using timestamp source signatures, Value nodes'
-timestamps are equal to the system time when the node is created.
-
-.ES
-def create(target, source, env):
-    f = open(str(target[0]), 'wb')
-    f.write('prefix=' + source[0].get_contents())
-    
-prefix = ARGUMENTS.get('prefix', '/usr/local')
-env = Environment()
-env['BUILDERS']['Config'] = Builder(action = create)
-env.Config(target = 'package-config', source = Value(prefix))
-.EE
-
-.TP
-.RI WhereIs( program ", [" path  ", [" pathext ]])
-
-Searches for the specified executable
-.I program,
-returning the full path name to the program
-if it is found,
-and returning None if not.
-Searches the specified
-.I path,
-or the user's current PATH
-(os.environ['PATH'])
-by default.
-On Win32 systems, searches for executable
-programs with any of the file extensions
-listed in the specified
-.I pathext,
-or the user's current PATHEXT
-(os.environ['PATHEXT'])
-by default.
-
 .SH EXTENDING SCONS
 .SS Builder Objects
 .B scons
@@ -6031,22 +6079,6 @@ over the MinGW tools.
 
 To help you get started using SCons,
 this section contains a brief overview of some common tasks.
-
-NOTE:  SCons does
-.I not
-build all of its targets by default,
-like other build tools do.
-The canonical way to invoke SCons
-is with a target of '.' (dot)
-to represent all targets in and below the current directory:
-
-.ES
-scons .
-.EE
-
-One or more default targets may be specified
-via the Default() method
-in the SConstruct file.
 
 .SS Basic Compilation From a Single Source File
 
