@@ -166,18 +166,38 @@ bar.Program(target = 'bar', source = 'bar.f')
 
     test.write('foo.f', r"""
       PROGRAM FOO
+      USE MOD_BAR
       PRINT *,'foo.f'
+      CALL P
       STOP
       END
+      MODULE MOD_BAR
+         IMPLICIT NONE
+         CONTAINS
+         SUBROUTINE P
+            PRINT *,'mod_bar'
+         END SUBROUTINE P
+      END MODULE MOD_BAR
 """)
 
     test.write('bar.f', r"""
       PROGRAM BAR
+      USE MOD_FOO
       PRINT *,'bar.f'
+      CALL P
       STOP
       END
 """)
 
+    test.write('foo_mod.f', r"""
+      MODULE MOD_FOO
+         IMPLICIT NONE
+         CONTAINS
+         SUBROUTINE P
+            PRINT *,'mod_foo'
+         END SUBROUTINE P
+      END MODULE MOD_FOO
+""")
 
     test.run(arguments = 'foo' + _exe, stderr = None)
 

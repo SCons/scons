@@ -1,6 +1,7 @@
-"""SCons.Tool.ifl
+"""SCons.Tool.ifort
 
-Tool-specific initialization for the Intel Fortran compiler.
+Tool-specific initialization for newer versions of the Intel Fortran Compiler
+for Linux. 
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -38,16 +39,24 @@ import SCons.Defaults
 import fortran
 
 def generate(env):
-    """Add Builders and construction variables for ifl to an Environment."""
+    """Add Builders and construction variables for ifort to an Environment."""
+    # ifort supports Fortran 90 and Fortran 95
+    # Additionally, ifort recognizes more file extensions.
+    SCons.Defaults.ObjSourceScan.add_scanner('.i', fortran.FortranScan)
     SCons.Defaults.ObjSourceScan.add_scanner('.i90', fortran.FortranScan)
-    fortran.FortranSuffixes.extend(['.i90'])
+    fortran.FortranSuffixes.extend(['.i', '.i90'])
     fortran.generate(env)
 
-    env['_FORTRAND']      = 'ifl'
-    env['FORTRANCOM']     = '$FORTRAN $FORTRANFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['FORTRANPPCOM']   = '$FORTRAN $FORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['SHFORTRANCOM']   = '$SHFORTRAN $SHFORTRANFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['SHFORTRANPPCOM'] = '$SHFORTRAN $SHFORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['_FORTRAND'] = 'ifort'
+
+    # If files are compiled into objects, the Intel Fortran Compiler must use
+    # ld to link shared libraries.
+    env['SHLINK'] = 'ld'
+
+    # Additionally, no symbols can be defined in an archive file; to use
+    # Intel Fortran to create shared libraries, all external symbols must
+    # be in shared libraries.
+    env['SHLINKFLAGS'] = '-shared -no_archive'
 
 def exists(env):
-    return env.Detect('ifl')
+    return env.Detect('ifort')
