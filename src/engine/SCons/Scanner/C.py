@@ -40,7 +40,7 @@ import SCons.Scanner
 import SCons.Util
 import SCons.Warnings
 
-include_re = re.compile('^[ \t]*#[ \t]*include[ \t]+(<|")([\\w./\\\\]+)(>|")', re.M)
+include_re = re.compile('^[ \t]*#[ \t]*include[ \t]+(<|")([^>"]+)(>|")', re.M)
 
 def CScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files

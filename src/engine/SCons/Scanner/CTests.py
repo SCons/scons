@@ -63,11 +63,11 @@ int main()
 test.write('f3.cpp',"""
 #include \t "f1.h"
    \t #include "f2.h"
-#   \t include "f3.h"
+#   \t include "f3-test.h"
 
 #include \t <d1/f1.h>
    \t #include <d1/f2.h>
-#   \t include <d1/f3.h>
+#   \t include <d1/f3-test.h>
 
 // #include "never.h"
 
@@ -84,9 +84,9 @@ int main()
 
 test.subdir('d1', ['d1', 'd2'])
 
-headers = ['f1.h','f2.h', 'f3.h', 'fi.h', 'fj.h', 'never.h',
-           'd1/f1.h', 'd1/f2.h', 'd1/f3.h', 'd1/fi.h', 'd1/fj.h',
-           'd1/d2/f1.h', 'd1/d2/f2.h', 'd1/d2/f3.h',
+headers = ['f1.h','f2.h', 'f3-test.h', 'fi.h', 'fj.h', 'never.h',
+           'd1/f1.h', 'd1/f2.h', 'd1/f3-test.h', 'd1/fi.h', 'd1/fj.h',
+           'd1/d2/f1.h', 'd1/d2/f2.h', 'd1/d2/f3-test.h',
            'd1/d2/f4.h', 'd1/d2/fi.h', 'd1/d2/fj.h']
 
 for h in headers:
@@ -96,7 +96,7 @@ test.write('f2.h',"""
 #include "fi.h"
 """)
 
-test.write('f3.h',"""
+test.write('f3-test.h',"""
 #include <fj.h>
 """)
 
@@ -145,9 +145,14 @@ class DummyEnvironment:
     def __delitem__(self,key):
         del self.Dictionary()[key]
 
+my_normpath = os.path.normpath
+if os.path.normcase('foo') == os.path.normcase('FOO'):
+    global my_normpath
+    my_normpath = os.path.normcase
+
 def deps_match(self, deps, headers):
-    scanned = map(os.path.normpath, map(str, deps))
-    expect = map(os.path.normpath, headers)
+    scanned = map(my_normpath, map(str, deps))
+    expect = map(my_normpath, headers)
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 def make_node(filename, fs=SCons.Node.FS.default_fs):
@@ -197,8 +202,8 @@ class CScannerTestCase5(unittest.TestCase):
         # scanned, essential for cooperation with BuildDir functionality.
         assert SCons.Node.FS.default_fs.File(test.workpath('f3.cpp')).created
         
-        headers =  ['d1/f1.h', 'd1/f2.h', 'd1/f3.h',
-                    'f1.h', 'f2.h', 'f3.h', 'fi.h', 'fj.h']
+        headers =  ['d1/f1.h', 'd1/f2.h', 'd1/f3-test.h',
+                    'f1.h', 'f2.h', 'f3-test.h', 'fi.h', 'fj.h']
         deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase6(unittest.TestCase):

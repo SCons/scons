@@ -44,6 +44,9 @@ RELEASE 0.08 -
   - Add a dependency Scanner for native Fortran "include" statements,
     using a new "F77PATH" construction variable.
 
+  - Fix C #include scanning to detect file names with characters like
+    '-' in them.
+
   From Jeff Petkau:
 
   - Fix --implicit-cache if the scanner returns an empty list.
