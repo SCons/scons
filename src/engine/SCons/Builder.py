@@ -559,23 +559,15 @@ class BuilderBase:
 
         return tlist, slist
 
-    def _execute(self, env, target=None, source=_null, overwarn={}, executor_kw={}):
-        if source is _null:
-            source = target
-            target = None
-
-        if(self.single_source and
-           SCons.Util.is_List(source) and
-           len(source) > 1 and
-           target is None):
+    def _execute(self, env, target, source, overwarn={}, executor_kw={}):
+        # We now assume that target and source are lists or None.
+        if self.single_source and len(source) > 1 and target is None:
             result = []
             if target is None: target = [None]*len(source)
-            for k in range(len(source)):
-                t = self._execute(env, target[k], source[k], overwarn)
-                if SCons.Util.is_List(t):
-                    result.extend(t)
-                else:
-                    result.append(t)
+            for tgt, src in zip(target, source):
+                if not tgt is None: tgt = [tgt]
+                if not src is None: src = [src]
+                result.extend(self._execute(env, tgt, src, overwarn))
             return result
         
         tlist, slist = self._create_nodes(env, overwarn, target, source)
@@ -588,7 +580,10 @@ class BuilderBase:
 
         return tlist
 
-    def __call__(self, env, target=None, source=_null, chdir=_null, **kw):
+    def __call__(self, env, target=None, source=None, chdir=_null, **kw):
+        # We now assume that target and source are lists or None.
+        # The caller (typically Environment.BuilderWrapper) is
+        # responsible for converting any scalar values to lists.
         if chdir is _null:
             ekw = self.executor_kw
         else:
@@ -709,11 +704,8 @@ class MultiStepBuilder(BuilderBase):
         self.sdict = {}
         self.cached_src_suffixes = {} # source suffixes keyed on id(env)
 
-    def _execute(self, env, target = None, source = _null, overwarn={}, executor_kw={}):
-        if source is _null:
-            source = target
-            target = None
-
+    def _execute(self, env, target, source, overwarn={}, executor_kw={}):
+        # We now assume that target and source are lists or None.
         slist = env.arg2nodes(source, self.source_factory)
         final_sources = []
 
@@ -736,7 +728,7 @@ class MultiStepBuilder(BuilderBase):
         for snode in slist:
             for srcsuf in src_suffixes:
                 if str(snode)[-len(srcsuf):] == srcsuf and sdict.has_key(srcsuf):
-                    tgt = sdict[srcsuf]._execute(env, None, snode, overwarn)
+                    tgt = sdict[srcsuf]._execute(env, None, [snode], overwarn)
                     # If the subsidiary Builder returned more than one target,
                     # then filter out any sources that this Builder isn't
                     # capable of building.

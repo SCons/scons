@@ -254,7 +254,7 @@ class BuilderTestCase(unittest.TestCase):
         n20 = MyNode_without_target_from_source('n20')
         flag = 0
         try:
-            target = builder(env, source=n20)
+            target = builder(env, None, source=n20)
         except SCons.Errors.UserError, e:
             flag = 1
         assert flag, "UserError should be thrown if a source node can't create a target."
@@ -264,7 +264,7 @@ class BuilderTestCase(unittest.TestCase):
                                         source_factory=MyNode,
                                         prefix='p-',
                                         suffix='.s')
-        target = builder(env, source='n21')[0]
+        target = builder(env, None, source='n21')[0]
         assert target.name == 'p-n21.s', target
 
         builder = SCons.Builder.Builder(misspelled_action="foo",
@@ -412,10 +412,10 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target = 'tgt2a tgt2b', source = 'src2')[0]
         assert tgt.path == 'libtgt2a tgt2b', \
                 "Target has unexpected name: %s" % tgt.path
-        tgt = builder(env, source = 'src3')[0]
+        tgt = builder(env, target = None, source = 'src3')[0]
         assert tgt.path == 'libsrc3', \
                 "Target has unexpected name: %s" % tgt.path
-        tgt = builder(env, source = 'lib/src4')[0]
+        tgt = builder(env, target = None, source = 'lib/src4')[0]
         assert tgt.path == os.path.join('lib', 'libsrc4'), \
                 "Target has unexpected name: %s" % tgt.path
         tgt = builder(env, target = 'lib/tgt5', source = 'lib/src5')[0]
@@ -439,17 +439,17 @@ class BuilderTestCase(unittest.TestCase):
                                                   '$FOO' : 'foo-',
                                                   '.zzz' : my_emit},
                                         action = '')
-        tgt = builder(my_env, source = 'f1')[0]
+        tgt = builder(my_env, target = None, source = 'f1')[0]
         assert tgt.path == 'default-f1', tgt.path
-        tgt = builder(my_env, source = 'f2.c')[0]
+        tgt = builder(my_env, target = None, source = 'f2.c')[0]
         assert tgt.path == 'default-f2', tgt.path
-        tgt = builder(my_env, source = 'f3.in')[0]
+        tgt = builder(my_env, target = None, source = 'f3.in')[0]
         assert tgt.path == 'out-f3', tgt.path
-        tgt = builder(my_env, source = 'f4.x')[0]
+        tgt = builder(my_env, target = None, source = 'f4.x')[0]
         assert tgt.path == 'y-f4', tgt.path
-        tgt = builder(my_env, source = 'f5.foo')[0]
+        tgt = builder(my_env, target = None, source = 'f5.foo')[0]
         assert tgt.path == 'foo-f5', tgt.path
-        tgt = builder(my_env, source = 'f6.zzz')[0]
+        tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
         assert tgt.path == 'emit-f6', tgt.path
 
     def test_src_suffix(self):
@@ -492,7 +492,7 @@ class BuilderTestCase(unittest.TestCase):
         b6 = SCons.Builder.Builder(action = '',
                                    src_suffix='_src.a',
                                    suffix='.b')
-        tgt = b6(env, source='foo_src.a')
+        tgt = b6(env, target=None, source='foo_src.a')
         assert str(tgt[0]) == 'foo.b', str(tgt[0])
 
         b7 = SCons.Builder.Builder(action = '',
@@ -501,16 +501,16 @@ class BuilderTestCase(unittest.TestCase):
         b8 = SCons.Builder.Builder(action = '',
                                    src_builder=b7,
                                    suffix='.c')
-        tgt = b8(env, source='foo_source.a')
+        tgt = b8(env, target=None, source='foo_source.a')
         assert str(tgt[0]) == 'foo_obj.c', str(tgt[0])
         src = SCons.Node.FS.default_fs.File('foo_source.a')
-        tgt = b8(env, source=src)
+        tgt = b8(env, target=None, source=src)
         assert str(tgt[0]) == 'foo_obj.c', str(tgt[0])
 
         b9 = SCons.Builder.Builder(action={'_src.a' : 'srcaction'},
                                    suffix='.c')
         b9.add_action('_altsrc.b', 'altaction')
-        tgt = b9(env, source='foo_altsrc.b')
+        tgt = b9(env, target=None, source='foo_altsrc.b')
         assert str(tgt[0]) == 'foo.c', str(tgt[0])
 
     def test_suffix(self):
@@ -530,7 +530,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target = 'tgt4a tgt4b', source = 'src4')[0]
         assert tgt.path == 'tgt4a tgt4b.o', \
                 "Target has unexpected name: %s" % tgt.path
-        tgt = builder(env, source = 'src5')[0]
+        tgt = builder(env, target = None, source = 'src5')[0]
         assert tgt.path == 'src5.o', \
                 "Target has unexpected name: %s" % tgt.path
 
@@ -551,17 +551,17 @@ class BuilderTestCase(unittest.TestCase):
                                                   '$BAR' : '.new',
                                                   '.zzz' : my_emit},
                                         action='')
-        tgt = builder(my_env, source = 'f1')[0]
+        tgt = builder(my_env, target = None, source = 'f1')[0]
         assert tgt.path == 'f1.default', tgt.path
-        tgt = builder(my_env, source = 'f2.c')[0]
+        tgt = builder(my_env, target = None, source = 'f2.c')[0]
         assert tgt.path == 'f2.default', tgt.path
-        tgt = builder(my_env, source = 'f3.in')[0]
+        tgt = builder(my_env, target = None, source = 'f3.in')[0]
         assert tgt.path == 'f3.out', tgt.path
-        tgt = builder(my_env, source = 'f4.x')[0]
+        tgt = builder(my_env, target = None, source = 'f4.x')[0]
         assert tgt.path == 'f4.y', tgt.path
-        tgt = builder(my_env, source = 'f5.bar')[0]
+        tgt = builder(my_env, target = None, source = 'f5.bar')[0]
         assert tgt.path == 'f5.new', tgt.path
-        tgt = builder(my_env, source = 'f6.zzz')[0]
+        tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
         assert tgt.path == 'f6.emit', tgt.path
 
     def test_single_source(self):
@@ -589,7 +589,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt.prepare()
         tgt.build()
         assert env['CNT'][0] == 2
-        tgts = builder(env, infiles[2:4])
+        tgts = builder(env, None, infiles[2:4])
         for t in tgts: t.prepare()
         tgts[0].build()
         tgts[1].build()
@@ -677,7 +677,7 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt.sources[1]) == 'test2.foo', str(tgt.sources[1])
         assert str(tgt.sources[2]) == 'test3.txt', str(tgt.sources[2])
 
-        tgt = builder2(env, 'aaa.bar')[0]
+        tgt = builder2(env, None, 'aaa.bar')[0]
         assert str(tgt) == 'aaa', str(tgt)
         assert str(tgt.sources[0]) == 'aaa.foo', str(tgt.sources[0])
         assert str(tgt.sources[0].sources[0]) == 'aaa.bar', \
@@ -1184,11 +1184,11 @@ class BuilderTestCase(unittest.TestCase):
                                                   '.4b':emit4b},
                                          target_factory=MyNode,
                                          source_factory=MyNode)
-        tgt = builder4(env, source='aaa.4a')[0]
+        tgt = builder4(env, None, source='aaa.4a')[0]
         assert str(tgt) == 'emit4a-aaa', str(tgt)
-        tgt = builder4(env, source='bbb.4b')[0]
+        tgt = builder4(env, None, source='bbb.4b')[0]
         assert str(tgt) == 'emit4b-bbb', str(tgt)
-        tgt = builder4(env, source='ccc.4c')[0]
+        tgt = builder4(env, None, source='ccc.4c')[0]
         assert str(tgt) == 'ccc', str(tgt)
 
         def emit4c(target, source, env):
@@ -1196,7 +1196,7 @@ class BuilderTestCase(unittest.TestCase):
             target = map(lambda x: 'emit4c-' + x[:-3], source)
             return (target, source)
         builder4.add_emitter('.4c', emit4c)
-        tgt = builder4(env, source='ccc.4c')[0]
+        tgt = builder4(env, None, source='ccc.4c')[0]
         assert str(tgt) == 'emit4c-ccc', str(tgt)
 
         # Test a list of emitter functions.
@@ -1241,43 +1241,43 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment()
         b = SCons.Builder.Builder(action='foo', suffix='.o')
 
-        tgt = b(env, 'aaa')[0]
+        tgt = b(env, None, 'aaa')[0]
         assert str(tgt) == 'aaa.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'aaa', map(str, tgt.sources)
 
-        tgt = b(env, 'bbb.c')[0]
+        tgt = b(env, None, 'bbb.c')[0]
         assert str(tgt) == 'bbb.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'bbb.c', map(str, tgt.sources)
 
-        tgt = b(env, 'ccc.x.c')[0]
+        tgt = b(env, None, 'ccc.x.c')[0]
         assert str(tgt) == 'ccc.x.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'ccc.x.c', map(str, tgt.sources)
 
-        tgt = b(env, ['d0.c', 'd1.c'])[0]
+        tgt = b(env, None, ['d0.c', 'd1.c'])[0]
         assert str(tgt) == 'd0.o', str(tgt)
         assert len(tgt.sources) == 2,  map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'd0.c', map(str, tgt.sources)
         assert str(tgt.sources[1]) == 'd1.c', map(str, tgt.sources)
 
-        tgt = b(env, source='eee')[0]
+        tgt = b(env, target = None, source='eee')[0]
         assert str(tgt) == 'eee.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'eee', map(str, tgt.sources)
 
-        tgt = b(env, source='fff.c')[0]
+        tgt = b(env, target = None, source='fff.c')[0]
         assert str(tgt) == 'fff.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'fff.c', map(str, tgt.sources)
 
-        tgt = b(env, source='ggg.x.c')[0]
+        tgt = b(env, target = None, source='ggg.x.c')[0]
         assert str(tgt) == 'ggg.x.o', str(tgt)
         assert len(tgt.sources) == 1, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'ggg.x.c', map(str, tgt.sources)
 
-        tgt = b(env, source=['h0.c', 'h1.c'])[0]
+        tgt = b(env, target = None, source=['h0.c', 'h1.c'])[0]
         assert str(tgt) == 'h0.o', str(tgt)
         assert len(tgt.sources) == 2,  map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'h0.c', map(str, tgt.sources)
@@ -1285,7 +1285,7 @@ class BuilderTestCase(unittest.TestCase):
 
         w = b(env, target='i0.w', source=['i0.x'])[0]
         y = b(env, target='i1.y', source=['i1.z'])[0]
-        tgt = b(env, source=[w, y])[0]
+        tgt = b(env, None, source=[w, y])[0]
         assert str(tgt) == 'i0.o', str(tgt)
         assert len(tgt.sources) == 2, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'i0.w', map(str, tgt.sources)
