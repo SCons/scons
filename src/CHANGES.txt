@@ -38,6 +38,8 @@ RELEASE 0.08 -
   - Removed support for the prefix, suffix and src_suffix arguments
     to Builder() to be callable functions.
 
+  - Fix handling file names with multiple dots.
+
   From Charles Crain and Steven Knight:
 
   - Add a "tools=" keyword argument to Environment instantiation,

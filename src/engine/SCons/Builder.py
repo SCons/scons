@@ -456,7 +456,7 @@ class MultiStepBuilder(BuilderBase):
                 src_bld = sdict[ext]
 
                 dictArgs = copy.copy(kw)
-                dictArgs['target'] = [path]
+                dictArgs['target'] = [ path + src_bld.get_suffix(env) ]
                 dictArgs['source'] = snode
                 dictArgs['env'] = env
                 tgt = apply(src_bld, (), dictArgs)

@@ -578,9 +578,9 @@ class BuilderTestCase(unittest.TestCase):
                                                   action='bar',
                                                   src_builder = builder1,
                                                   src_suffix = '.foo')
-        tgt = builder2(env, target='baz', source=['test.bar', 'test2.foo', 'test3.txt'])
-        assert str(tgt.sources[0]) == 'test.foo', str(tgt.sources[0])
-        assert str(tgt.sources[0].sources[0]) == 'test.bar', \
+        tgt = builder2(env, target='baz', source=['test.bleh.bar', 'test2.foo', 'test3.txt'])
+        assert str(tgt.sources[0]) == 'test.bleh.foo', str(tgt.sources[0])
+        assert str(tgt.sources[0].sources[0]) == 'test.bleh.bar', \
                str(tgt.sources[0].sources[0])
         assert str(tgt.sources[1]) == 'test2.foo', str(tgt.sources[1])
         assert str(tgt.sources[2]) == 'test3.txt', str(tgt.sources[2])
@@ -654,7 +654,7 @@ class BuilderTestCase(unittest.TestCase):
         assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
 
         flag = 0
-        tgt = builder(env, target='t5', source='test5a.foo test5b.inb')
+        tgt = builder(env, target='t5', source=[ 'test5a.foo',  'test5b.inb' ])
         try:
             tgt.build()
         except SCons.Errors.UserError:
@@ -662,7 +662,7 @@ class BuilderTestCase(unittest.TestCase):
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
         flag = 0
-        tgt = builder(env, target='t6', source='test6a.bar test6b.ina')
+        tgt = builder(env, target='t6', source=[ 'test6a.bar',  'test6b.ina' ])
         try:
             tgt.build()
         except SCons.Errors.UserError:
@@ -670,7 +670,7 @@ class BuilderTestCase(unittest.TestCase):
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
         flag = 0
-        tgt = builder(env, target='t4', source='test4a.ina test4b.inb')
+        tgt = builder(env, target='t4', source=[ 'test4a.ina',  'test4b.inb' ])
         try:
             tgt.build()
         except SCons.Errors.UserError:
