@@ -108,7 +108,7 @@ class install(_install):
         standalone_lib = self.standalone_lib
         version_lib = self.version_lib
 
-def get_scons_prefix(libdir):
+def get_scons_prefix(libdir, is_win32):
     """
     Return the right prefix for SCons library installation.  Find
     this by starting with the library installation directory
@@ -122,7 +122,7 @@ def get_scons_prefix(libdir):
         head, tail = os.path.split(head)
         if string.lower(tail)[:6] == "python":
             # Found the Python library directory...
-            if sys.platform == "win32":
+            if is_win32:
                 # ...on Win32 systems, "scons" goes in the directory:
                 #    C:\PythonXX => C:\PythonXX\scons
                 return os.path.join(drive + head, tail)
@@ -142,10 +142,12 @@ class install_lib(_install_lib):
 
     def finalize_options(self):
         _install_lib.finalize_options(self)
-        if not set_explicitly("lib", self.distribution.script_args):
+        args = self.distribution.script_args
+        if not set_explicitly("lib", args):
             # They didn't explicitly specify the installation
             # directory for libraries...
-            prefix = get_scons_prefix(self.install_dir)
+            is_win32 = sys.platform == "win32" or args[0] == 'bdist_wininst'
+            prefix = get_scons_prefix(self.install_dir, is_win32)
             standard_dir = os.path.join(self.install_dir, "SCons")
             version_dir = os.path.join(prefix, "scons-0.11")
             standalone_dir = os.path.join(prefix, "scons")
