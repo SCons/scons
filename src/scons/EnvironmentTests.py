@@ -24,8 +24,9 @@ class Builder:
 class EnvironmentTestCase(unittest.TestCase):
 
     def test_Builders(self):
-	"""Test the ability to execute simple builders through
-	different environment, one initialized with a single
+	"""Test Builder execution through different environments
+
+	One environment is initialized with a single
 	Builder object, one with a list of a single Builder
 	object, and one with a list of two Builder objects.
 	"""
@@ -57,7 +58,8 @@ class EnvironmentTestCase(unittest.TestCase):
 	pass	# XXX
 
     def test_Copy(self):
-	"""Test the ability to copy a construction Environment.
+	"""Test construction Environment copying
+
 	Update the copy independently afterwards and check that
 	the original remains intact (that is, no dangling
 	references point to objects in the copied environment).
@@ -79,8 +81,9 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env1 == env1copy
 
     def test_Dictionary(self):
-	"""Test the simple ability to retrieve known construction
-	variables from the Dictionary and check for well-known
+	"""Test retrieval of known construction variables
+
+	Fetch them from the Dictionary and check for well-known
 	defaults that get inserted.
 	"""
 	env = Environment(XXX = 'x', YYY = 'y')
@@ -89,9 +92,10 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env.Dictionary.has_key('BUILDERS')
 
     def test_Environment(self):
-	"""Test the simple ability to create construction
-	Environments.  Create two with identical arguments
-	and check that they compare the same.
+	"""Test construction Environments creation
+	
+	Create two with identical arguments and check that
+	they compare the same.
 	"""
 	env1 = Environment(XXX = 'x', YYY = 'y')
 	env2 = Environment(XXX = 'x', YYY = 'y')
@@ -107,8 +111,9 @@ class EnvironmentTestCase(unittest.TestCase):
 	pass	# XXX
 
     def test_Update(self):
-	"""Test the ability to update a construction Environment
-	with new construction variables after it was first created.
+	"""Test updating an Environment with new construction variables
+
+	After creation of the Environment, of course.
 	"""
 	env1 = Environment(AAA = 'a', BBB = 'b')
 	env1.Update(BBB = 'bbb', CCC = 'ccc')
@@ -116,9 +121,10 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env1 != env2
 
     def test_subst(self):
-	"""Test the ability to substitute construction variables
-	into a string.  Check various combinations, including
-	recursive expansion of variables into other variables.
+	"""Test substituting construction variables within strings
+	
+	Check various combinations, including recursive expansion
+	of variables into other variables.
 	"""
 	env = Environment(AAA = 'a', BBB = 'b')
 	str = env.subst("%AAA %{AAA}A %BBBB %BBB")

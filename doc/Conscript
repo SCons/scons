@@ -21,6 +21,7 @@ $doc_tar_gz = "#build/dist/scons-doc-$version.tar.gz";
 #
 $verfile = SourcePath("version.sgml");
 unlink($verfile);
+chmod(0664, $verfile);
 open(FILE, ">$verfile") || die "Cannot open '$verfile': $!";
 print FILE <<_EOF_;
 <!--

@@ -35,8 +35,9 @@ class MD5TestCase(unittest.TestCase):
 	pass	# XXX
 
     def test_current(self):
-	"""Test the ability to decide if an object is up-to-date
-	with different signature values.
+	"""Test deciding if an object is up-to-date
+
+	Simple comparison of different "signature" values.
 	"""
 	o111 = my_obj(value = '111')
 	assert not o111.current(scons.Sig.MD5.signature('110'))
@@ -50,8 +51,7 @@ class MD5TestCase(unittest.TestCase):
 	pass	# XXX
 
     def test_collect(self):
-	"""Test the ability to collect a sequence of object signatures
-	into a new signature value.
+	"""Test collecting a list of signatures into a new signature value
 	"""
 	o1 = my_obj(value = '111')
 	o2 = my_obj(value = '222')

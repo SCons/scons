@@ -19,7 +19,9 @@ class Builder:
 
 class FSTestCase(unittest.TestCase):
     def runTest(self):
-	"""This test case handles all of the file system node
+	"""Test FS (file system) Node operations
+	
+	This test case handles all of the file system node
 	tests in one environment, so we don't have to set up a
 	complicated directory structure for each test individually.
 	"""

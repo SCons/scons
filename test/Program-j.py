@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-__revision__ = "test/t0002.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "test/Program-j.py __REVISION__ __DATE__ __DEVELOPER__"
 
-from TestCmd import TestCmd
+import TestCmd
 
-test = TestCmd(program = 'scons.py',
-               workdir = '',
-               interpreter = 'python')
+test = TestCmd.TestCmd(program = 'scons.py',
+                       workdir = '',
+                       interpreter = 'python')
 
 test.write('SConstruct', """
 env = Environment()

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-__revision__ = "test/t0001.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "test/option-j.py __REVISION__ __DATE__ __DEVELOPER__"
 
-from TestCmd import TestCmd
+import TestCmd
 import string
 import sys
 
@@ -12,13 +12,13 @@ try:
 except ImportError:
     # if threads are not supported, then
     # there is nothing to test
-    test.pass_test()
+    TestCmd.no_result()
     sys.exit()
 
 
-test = TestCmd(program = 'scons.py',
-               workdir = '',
-               interpreter = 'python')
+test = TestCmd.TestCmd(program = 'scons.py',
+                       workdir = '',
+                       interpreter = 'python')
 
 test.write('build.py', r"""
 import time

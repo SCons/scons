@@ -1,3 +1,5 @@
-__revision__ = "${subst '^src/scons/' '' $filename} __REVISION__ __DATE__ __DEVELOPER__"
+#!/usr/bin/env python
 
-from TestCmd import TestCmd
+__revision__ = "$filename __REVISION__ __DATE__ __DEVELOPER__"
+
+import TestCmd

@@ -34,7 +34,7 @@
  * if the file is not in the change.  Look in aesub(5) for more information
  * about command substitutions.
  */
-build_command = "cons date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion}";
+build_command = "cons date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * The rules used in the User Guide all remove their targets before
@@ -244,6 +244,8 @@ diff_command =
  */
 test_command = "python runtest.py -v ${VERsion} ${File_Name}";
 
+new_test_filename = "test/CHANGETHIS.py";
+
 /*
  *
  */
@@ -255,10 +257,14 @@ file_template =
 	},
 	{
 		pattern = [ "src/scons/*Tests.py" ];
-		body = "${read_file ${source template/test.py abs}}";
+		body = "${read_file ${source template/Tests.py abs}}";
 	},
 	{
 		pattern = [ "src/scons/*.py" ];
 		body = "${read_file ${source template/file.py abs}}";
+	},
+	{
+		pattern = [ "test/*.py" ];
+		body = "${read_file ${source template/test.py abs}}";
 	},
 ];

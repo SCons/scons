@@ -21,6 +21,8 @@ $developer = $ARG{developer} || '???';
 
 chomp($revision = $ARG{version} || `aesub '\$version' 2>/dev/null` || '0.01');
 
+chomp($change = $ARG{change} || `aesub '\$change' 2>/dev/null`);
+
 @arr = split(/\./, $revision);
 @arr = ($arr[0], map {length($_) == 1 ? "0$_" : $_} @arr[1 .. $#arr]);
 $revision = join('.', @arr);
@@ -109,8 +111,8 @@ Build 'build/doc/Conscript';
 # that goes into the archive.
 #
 
-foreach (`aegis -list cf 2>/dev/null`) {
-    $seen{"$1\n"}++ if /^source\s+remove\s.*\s(\S+)$/;
+foreach (`aegis -list -unf -c $change cf 2>/dev/null`) {
+    $seen{"$1\n"}++ if /^(?:source|test) remove(?:\s.*)+\s(\S+)$/;
 }
 
 eval '@src_files = grep(! $seen{$_}++,

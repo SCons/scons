@@ -20,7 +20,7 @@ class Builder:
 class NodeTestCase(unittest.TestCase):
 
     def test_build(self):
-	"""Test the ability to build a node.
+	"""Test building a node
 	"""
 	node = Node()
 	node.builder_set(Builder())
@@ -30,6 +30,8 @@ class NodeTestCase(unittest.TestCase):
 	assert built_it
 
     def test_builder_set(self):
+	"""Test setting a Node's Builder
+	"""
 	node = Node()
 	b = Builder()
 	node.builder_set(b)

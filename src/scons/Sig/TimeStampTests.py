@@ -32,8 +32,9 @@ class TimeStampTestCase(unittest.TestCase):
 	pass	# XXX
 
     def test_current(self):
-	"""Test the ability to decide if an object is up-to-date
-	with different timestamp values.
+	"""Test deciding if an object is up-to-date
+
+	Simple comparison of different timestamp values.
 	"""
 	o1 = my_obj(value = 111)
 	assert scons.Sig.TimeStamp.current(o1, 110)
@@ -47,7 +48,7 @@ class TimeStampTestCase(unittest.TestCase):
 	pass	# XXX
 
     def test_collect(self):
-	"""Test the ability to collect a sequence of object timestamps
+	"""Test collecting a list of signatures into a new signature value
 	into a new timestamp value.
 	"""
 	o1 = my_obj(value = 111)

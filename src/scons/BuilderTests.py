@@ -30,14 +30,15 @@ outfile = test.workpath('outfile')
 class BuilderTestCase(unittest.TestCase):
 
     def test_action(self):
-	"""Test the simple ability to create a Builder
-	and retrieve the supplied action attribute.
+	"""Test Builder creation
+
+	Verify that we can retrieve the supplied action attribute.
 	"""
 	builder = Builder(action = "foo")
 	assert builder.action == "foo"
 
     def test_cmp(self):
-	"""Test simple comparisons of Builder objects.
+	"""Test simple comparisons of Builder objects
 	"""
 	b1 = Builder(input_suffix = '.o')
 	b2 = Builder(input_suffix = '.o')
@@ -47,9 +48,10 @@ class BuilderTestCase(unittest.TestCase):
 	assert b2 != b3
 
     def test_execute(self):
-	"""Test the ability to execute simple Builders, one
-	a string that executes an external command, and one an
-	internal function.
+	"""Test execution of simple Builder objects
+	
+	One Builder is a string that executes an external command,
+	and one is an internal Python function.
 	"""
 	cmd = "python %s %s xyzzy" % (act_py, outfile)
 	builder = Builder(action = cmd)
@@ -68,9 +70,10 @@ class BuilderTestCase(unittest.TestCase):
 	assert test.read(outfile) == "function\n"
 
     def test_insuffix(self):
-	"""Test the ability to create a Builder with a specified
-	input suffix, making sure that the '.' separator is
-	appended to the beginning if it isn't already present.
+	"""Test Builder creation with a specified input suffix
+	
+	Make sure that the '.' separator is appended to the
+	beginning if it isn't already present.
 	"""
 	builder = Builder(input_suffix = '.c')
 	assert builder.insuffix == '.c'
@@ -78,15 +81,13 @@ class BuilderTestCase(unittest.TestCase):
 	assert builder.insuffix == '.c'
 
     def test_name(self):
-	"""Test the ability to create a Builder with a specified
-	name.
+	"""Test Builder creation with a specified name
 	"""
 	builder = Builder(name = 'foo')
 	assert builder.name == 'foo'
 
     def test_node_class(self):
-	"""Test the ability to create a Builder that creates nodes
-	of the specified class.
+	"""Test a Builder that creates nodes of a specified class
 	"""
 	class Foo:
 		pass
@@ -94,9 +95,10 @@ class BuilderTestCase(unittest.TestCase):
 	assert builder.node_class is Foo
 
     def test_outsuffix(self):
-	"""Test the ability to create a Builder with a specified
-	output suffix, making sure that the '.' separator is
-	appended to the beginning if it isn't already present.
+	"""Test Builder creation with a specified output suffix
+
+	Make sure that the '.' separator is appended to the
+	beginning if it isn't already present.
 	"""
 	builder = Builder(input_suffix = '.o')
 	assert builder.insuffix == '.o'
