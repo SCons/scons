@@ -107,6 +107,8 @@ RELEASE 0.95 - XXX
     expansion of variables (e.g. CCFLAGS = "$CCFLAGS -g") without going
     into an infinite loop.
 
+  - Fix calling Configure() from more than one subsidiary SConscript file.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.
