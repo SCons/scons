@@ -529,37 +529,6 @@ SCons.Environment.Environment = SConsEnvironment
 def Options(files=None, args=Arguments):
     return SCons.Options.Options(files, args)
 
-def SetBuildSignatureType(type):
-    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                        "The SetBuildSignatureType() function has been deprecated;\n" +\
-                        "\tuse the TargetSignatures() function instead.")
-    SCons.Defaults.DefaultEnvironment().TargetSignatures(type)
-
-def SetContentSignatureType(type):
-    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                        "The SetContentSignatureType() function has been deprecated;\n" +\
-                        "\tuse the SourceSignatures() function instead.")
-    SCons.Defaults.DefaultEnvironment().SourceSignatures(type)
-
-def GetJobs():
-    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                        "The GetJobs() function has been deprecated;\n" +\
-                        "\tuse GetOption('num_jobs') instead.")
-
-    return GetOption('num_jobs')
-
-def SetJobs(num):
-    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                        "The SetJobs() function has been deprecated;\n" +\
-                        "\tuse SetOption('num_jobs', num) instead.")
-    SetOption('num_jobs', num)
-
-def ParseConfig(env, command, function=None):
-    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                        "The ParseConfig() function has been deprecated;\n" +\
-                        "\tuse the env.ParseConfig() method instead.")
-    return env.ParseConfig(command, function)
-
 #
 _DefaultEnvironmentProxy = None
 
@@ -710,13 +679,6 @@ def BuildDefaultGlobals():
     # Functions we might still convert to Environment methods.
     globals['CScan']             = SCons.Defaults.CScan
     globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
-
-    # Deprecated functions, leave these here for now.
-    globals['GetJobs']           = GetJobs
-    globals['ParseConfig']       = ParseConfig
-    globals['SetBuildSignatureType'] = SetBuildSignatureType
-    globals['SetContentSignatureType'] = SetContentSignatureType
-    globals['SetJobs']           = SetJobs
 
     globals.update(GlobalDict)
 

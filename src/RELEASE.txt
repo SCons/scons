@@ -42,6 +42,13 @@ RELEASE 0.97 - XXX
 
           env = Environment(MSVS_USE_MFC_DIRS = 1)
 
+    - The following deprecated global functions have been removed:
+      ParseConfig(), SetBuildSignatureType(), SetContentSignatureType(),
+      SetJobs() and GetJobs().
+
+    - The deprecated "validater" keyword to the Options.Add() method
+      has been removed.
+
   Please note the following important changes since release 0.95:
 
     - All Builder calls (both built-in like Program(), Library(),

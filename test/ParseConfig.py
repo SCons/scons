@@ -60,15 +60,6 @@ print map(lambda x: str(x), env['LIBS'])
 print env['CCFLAGS']
 """ % (TestSCons.python, test_config))
 
-test.write('SConstruct3', """
-env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
-ParseConfig(env, r"%s %s --libs --cflags")
-print env['CPPPATH']
-print env['LIBPATH']
-print map(lambda x: str(x), env['LIBS'])
-print env['CCFLAGS']
-""" % (TestSCons.python, test_config))
-
 good_stdout = test.wrap_stdout(read_str = """\
 ['/usr/include/fum', 'bar']
 ['/usr/fax', 'foo']
@@ -79,13 +70,5 @@ good_stdout = test.wrap_stdout(read_str = """\
 test.run(arguments = ".", stdout = good_stdout)
 
 test.run(arguments = "-f SConstruct2 .", stdout = good_stdout)
-
-test.run(arguments = "-f SConstruct3 .",
-         stdout = good_stdout,
-         stderr = """
-scons: warning: The ParseConfig() function has been deprecated;
-	use the env.ParseConfig() method instead.
-File "SConstruct3", line 3, in ?
-""")
 
 test.pass_test()

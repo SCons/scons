@@ -97,13 +97,6 @@ class Options:
            not SCons.Util.is_valid_construction_var(key):
             raise SCons.Errors.UserError, "Illegal Options.Add() key `%s'" % str(key)
 
-        if kw.has_key('validater'):
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                                "The 'validater' keyword of the Options.Add() method is deprecated\n" +\
-                                "and should be changed to 'validator'.")
-            if validator is None:
-                validator = kw['validater']
-
         self._do_add(key, help, default, validator, converter)
 
 
