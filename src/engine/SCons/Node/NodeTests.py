@@ -141,6 +141,8 @@ class Environment:
         self._dict.update(dict)
     def get_calculator(self):
         return SCons.Sig.default_calc
+    def get_factory(self, factory):
+        return factory or MyNode
     def get_scanner(self, scanner_key):
         return self._dict['SCANNERS'][0]
 

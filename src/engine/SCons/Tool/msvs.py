@@ -1049,8 +1049,8 @@ def projectEmitter(target, source, env):
     suff = env.subst('$MSVSPROJECTSUFFIX')
     target[0] = base + suff
 
-    dspfile = SCons.Node.FS.default_fs.File(target[0]).srcnode()
-    dswfile = SCons.Node.FS.default_fs.File(SCons.Util.splitext(str(dspfile))[0] + env.subst('$MSVSSOLUTIONSUFFIX'))
+    dspfile = env.File(target[0]).srcnode()
+    dswfile = env.File(SCons.Util.splitext(str(dspfile))[0] + env.subst('$MSVSSOLUTIONSUFFIX'))
 
     # XXX Need to find a way to abstract this; the build engine
     # shouldn't depend on anything in SCons.Script.
@@ -1060,7 +1060,7 @@ def projectEmitter(target, source, env):
     source[0].attributes.sconstruct = stack[0].sconscript
 
     bdswpath = SCons.Util.splitext(str(target[0]))[0] + env.subst('$MSVSSOLUTIONSUFFIX')
-    bdswfile = SCons.Node.FS.default_fs.File(bdswpath)
+    bdswfile = env.File(bdswpath)
 
     # only make these side effects if they're
     # not the same file.

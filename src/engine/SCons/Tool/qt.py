@@ -107,7 +107,6 @@ class _Automoc:
             debug = 0
         
         # some shortcuts used in the scanner
-        FS = SCons.Node.FS.default_fs
         splitext = SCons.Util.splitext
         objBuilder = getattr(env, self.objBuilderName)
   
@@ -147,9 +146,7 @@ class _Automoc:
                 # try to find the header file in the corresponding source
                 # directory
                 hname = splitext(cpp.name)[0] + h_ext
-                h = find_file(hname,
-                              (cpp.get_dir(),),
-                              FS.File)
+                h = find_file(hname, (cpp.get_dir(),), env.File)
                 if h:
                     if debug:
                         print "scons: qt: Scanning '%s' (header of '%s')" % (str(h), str(cpp))

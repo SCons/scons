@@ -82,7 +82,7 @@ def jarChdir(target, source, env, for_signature):
 JarAction = SCons.Action.Action('$JARCOM', '$JARCOMSTR')
 
 JarBuilder = SCons.Builder.Builder(action = JarAction,
-                                   source_factory = SCons.Node.FS.default_fs.Entry,
+                                   source_factory = SCons.Node.FS.Entry,
                                    suffix = '$JARSUFFIX')
 
 def generate(env):

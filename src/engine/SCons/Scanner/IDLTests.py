@@ -189,6 +189,7 @@ test.write([ 'repository', 'src', 'ddd.idl'], "\n")
 class DummyEnvironment:
     def __init__(self, listCppPath):
         self.path = listCppPath
+        self.fs = SCons.Node.FS.FS(test.workpath(''))
         
     def Dictionary(self, *args):
         if not args:
@@ -221,6 +222,15 @@ class DummyEnvironment:
     def get_calculator(self):
         return None
 
+    def get_factory(self, factory):
+        return factory or self.fs.File
+
+    def Dir(self, filename):
+        return self.fs.Dir(test.workpath(filename))
+
+    def File(self, filename):
+        return self.fs.File(test.workpath(filename))
+
 global my_normpath
 my_normpath = os.path.normpath
 
@@ -232,9 +242,6 @@ def deps_match(self, deps, headers):
     expect = map(my_normpath, headers)
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
-def make_node(filename, fs=SCons.Node.FS.default_fs):
-    return fs.File(test.workpath(filename))
-
 # define some tests:
 
 class IDLScannerTestCase1(unittest.TestCase):
@@ -242,36 +249,36 @@ class IDLScannerTestCase1(unittest.TestCase):
         env = DummyEnvironment([])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
-        deps = s(make_node('t1.idl'), env, path)
+        deps = s(env.File('t1.idl'), env, path)
         headers = ['f1.idl', 'f3.idl', 'f2.idl']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
 
 class IDLScannerTestCase2(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
-        deps = s(make_node('t1.idl'), env, path)
+        deps = s(env.File('t1.idl'), env, path)
         headers = ['f1.idl', 'f3.idl', 'd1/f2.idl']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
 
 class IDLScannerTestCase3(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
-        deps = s(make_node('t2.idl'), env, path)
+        deps = s(env.File('t2.idl'), env, path)
         headers = ['d1/f1.idl', 'f1.idl', 'd1/d2/f1.idl', 'f3.idl']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
 
 class IDLScannerTestCase4(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1"), test.workpath("d1/d2")])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
-        deps = s(make_node('t2.idl'), env, path)
+        deps = s(env.File('t2.idl'), env, path)
         headers =  ['d1/f1.idl', 'f1.idl', 'd1/d2/f1.idl', 'f3.idl']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         
 class IDLScannerTestCase5(unittest.TestCase):
     def runTest(self):
@@ -279,7 +286,7 @@ class IDLScannerTestCase5(unittest.TestCase):
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
 
-        n = make_node('t3.idl')
+        n = env.File('t3.idl')
         def my_rexists(s=n):
             s.rexists_called = 1
             return s.old_rexists()
@@ -295,7 +302,7 @@ class IDLScannerTestCase5(unittest.TestCase):
         headers =  ['d1/f1.idl', 'd1/f2.idl',
                     'f1.idl', 'f2.idl', 'f3-test.idl',
                     'd1/f1.idl', 'd1/f2.idl', 'd1/f3-test.idl']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
 
 class IDLScannerTestCase6(unittest.TestCase):
     def runTest(self):
@@ -304,25 +311,24 @@ class IDLScannerTestCase6(unittest.TestCase):
         s = SCons.Scanner.IDL.IDLScan()
         path1 = s.path(env1)
         path2 = s.path(env2)
-        deps1 = s(make_node('t1.idl'), env1, path1)
-        deps2 = s(make_node('t1.idl'), env2, path2)
+        deps1 = s(env1.File('t1.idl'), env1, path1)
+        deps2 = s(env2.File('t1.idl'), env2, path2)
         headers1 = ['f1.idl', 'f3.idl', 'd1/f2.idl']
         headers2 = ['f1.idl', 'f3.idl', 'd1/d2/f2.idl']
-        deps_match(self, deps1, map(test.workpath, headers1))
-        deps_match(self, deps2, map(test.workpath, headers2))
+        deps_match(self, deps1, headers1)
+        deps_match(self, deps2, headers2)
 
 class IDLScannerTestCase7(unittest.TestCase):
     def runTest(self):
-        fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment(["include"])
-        s = SCons.Scanner.IDL.IDLScan(fs = fs)
+        s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
-        deps1 = s(fs.File('t4.idl'), env, path)
-        fs.chdir(fs.Dir('subdir'))
-        dir = fs.getcwd()
-        fs.chdir(fs.Dir('..'))
+        deps1 = s(env.File('t4.idl'), env, path)
+        env.fs.chdir(env.Dir('subdir'))
+        dir = env.fs.getcwd()
+        env.fs.chdir(env.Dir(''))
         path = s.path(env, dir)
-        deps2 = s(fs.File('#t4.idl'), env, path)
+        deps2 = s(env.File('#t4.idl'), env, path)
         headers1 =  ['include/fa.idl', 'include/fb.idl']
         headers2 =  ['subdir/include/fa.idl', 'subdir/include/fb.idl']
         deps_match(self, deps1, headers1)
@@ -339,11 +345,10 @@ class IDLScannerTestCase8(unittest.TestCase):
         to.out = None
         SCons.Warnings._warningOut = to
         test.write('fa.idl','\n')
-        fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment([])
-        s = SCons.Scanner.IDL.IDLScan(fs=fs)
+        s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
-        deps = s(fs.File('t4.idl'), env, path)
+        deps = s(env.File('t4.idl'), env, path)
 
         # Did we catch the warning associated with not finding fb.idl?
         assert to.out
@@ -353,14 +358,13 @@ class IDLScannerTestCase8(unittest.TestCase):
 
 class IDLScannerTestCase9(unittest.TestCase):
     def runTest(self):
-        fs = SCons.Node.FS.FS(test.workpath(''))
-        fs.chdir(fs.Dir('include'))
         env = DummyEnvironment([])
-        s = SCons.Scanner.IDL.IDLScan(fs=fs)
+        env.fs.chdir(env.Dir('include'))
+        s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         test.write('include/t4.idl', test.read('t4.idl'))
-        deps = s(fs.File('#include/t4.idl'), env, path)
-        fs.chdir(fs.Dir('..'))
+        deps = s(env.File('#include/t4.idl'), env, path)
+        env.fs.chdir(env.Dir(''))
         deps_match(self, deps, [ 'include/fa.idl', 'include/fb.idl' ])
         test.unlink('include/t4.idl')
 
@@ -372,13 +376,15 @@ class IDLScannerTestCase10(unittest.TestCase):
 
         # Create a derived file in a directory that does not exist yet.
         # This was a bug at one time.
-        f1=fs.File('include2/jjj.idl')
-        f1.builder=1
         env = DummyEnvironment(['include', 'include2'])
-        s = SCons.Scanner.IDL.IDLScan(fs=fs)
+        env.fs = fs
+        f1 = fs.File('include2/jjj.idl')
+        f1.builder = 1
+        s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         deps = s(fs.File('src/fff.c'), env, path)
-        deps_match(self, deps, [ test.workpath('repository/include/iii.idl'), 'include2/jjj.idl' ])
+        deps_match(self, deps, [ test.workpath('repository/include/iii.idl'),
+                                 'include2/jjj.idl' ])
         os.chdir(test.workpath(''))
 
 class IDLScannerTestCase11(unittest.TestCase):
@@ -389,7 +395,8 @@ class IDLScannerTestCase11(unittest.TestCase):
         fs.BuildDir('build2', 'src', 0)
         fs.Repository(test.workpath('repository'))
         env = DummyEnvironment([])
-        s = SCons.Scanner.IDL.IDLScan(fs = fs)
+        env.fs = fs
+        s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         deps1 = s(fs.File('build1/aaa.c'), env, path)
         deps_match(self, deps1, [ 'build1/bbb.idl' ])
@@ -409,9 +416,9 @@ class IDLScannerTestCase12(unittest.TestCase):
         env = SubstEnvironment(["blah"])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
-        deps = s(make_node('t1.idl'), env, path)
+        deps = s(env.File('t1.idl'), env, path)
         headers = ['f1.idl', 'f3.idl', 'd1/f2.idl']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         
 
 def suite():

@@ -33,14 +33,14 @@ import SCons.Util
 # global, set by --debug=findlibs
 print_find_libs = None
 
-def ProgramScanner(fs = SCons.Node.FS.default_fs, **kw):
+def ProgramScanner(**kw):
     """Return a prototype Scanner instance for scanning executable
     files for static-lib dependencies"""
-    kw['path_function'] = SCons.Scanner.FindPathDirs('LIBPATH', fs)
+    kw['path_function'] = SCons.Scanner.FindPathDirs('LIBPATH')
     ps = apply(SCons.Scanner.Base, [scan, "ProgramScanner"], kw)
     return ps
 
-def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
+def scan(node, env, libpath = ()):
     """
     This scanner scans program files for static-library
     dependencies.  It will search the LIBPATH environment variable

@@ -5,9 +5,8 @@ File system nodes.
 These Nodes represent the canonical external objects that people think
 of when they think of building software: files and directories.
 
-This initializes a "default_fs" Node with an FS at the current directory
-for its own purposes, and for use by scripts or modules looking for the
-canonical default.
+This holds a "default_fs" variable that should be initialized with an FS
+that can be used by scripts or modules looking for the canonical default.
 
 """
 
@@ -759,20 +758,20 @@ class FS(LocalFS):
         The path argument must be a valid absolute path.
         """
         if __debug__: logInstanceCreation(self, 'Node.FS')
-        self.Top = None
-        if path == None:
-            self.pathTop = os.getcwd()
-        else:
-            self.pathTop = path
         self.Root = {}
         self.SConstruct_dir = None
         self.CachePath = None
         self.cache_force = None
         self.cache_show = None
 
-    def set_toplevel_dir(self, path):
-        assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
-        self.pathTop = path
+        if path is None:
+            self.pathTop = os.getcwd()
+        else:
+            self.pathTop = path
+
+        self.Top = self._doLookup(Dir, os.path.normpath(self.pathTop))
+        self.Top.path = '.'
+        self._cwd = self.Top
 
     def clear_cache(self):
         "__cache_reset__"
@@ -780,15 +779,8 @@ class FS(LocalFS):
     
     def set_SConstruct_dir(self, dir):
         self.SConstruct_dir = dir
-        
-    def __setTopLevelDir(self):
-        if not self.Top:
-            self.Top = self._doLookup(Dir, os.path.normpath(self.pathTop))
-            self.Top.path = '.'
-            self._cwd = self.Top
-        
+
     def getcwd(self):
-        self.__setTopLevelDir()
         return self._cwd
 
     def __checkClass(self, node, klass):
@@ -912,7 +904,6 @@ class FS(LocalFS):
         If directory is None, and name is a relative path,
         then the same applies.
         """
-        self.__setTopLevelDir()
         if name and name[0] == '#':
             directory = self.Top
             name = name[1:]
@@ -930,7 +921,6 @@ class FS(LocalFS):
         If change_os_dir is true, we will also change the "real" cwd
         to match.
         """
-        self.__setTopLevelDir()
         curr=self._cwd
         try:
             if not dir is None:
@@ -990,7 +980,6 @@ class FS(LocalFS):
         """Link the supplied build directory to the source directory
         for purposes of building files."""
         
-        self.__setTopLevelDir()
         if not isinstance(src_dir, SCons.Node.Node):
             src_dir = self.Dir(src_dir)
         if not isinstance(build_dir, SCons.Node.Node):
@@ -1010,7 +999,6 @@ class FS(LocalFS):
         for d in dirs:
             if not isinstance(d, SCons.Node.Node):
                 d = self.Dir(d)
-            self.__setTopLevelDir()
             self.Top.addRepository(d)
 
     def do_Rsearch(self, path, dir, func, clazz=_classEntry):
@@ -1149,7 +1137,6 @@ class FS(LocalFS):
         if targets:
             message = fmt % string.join(map(str, targets))
         return targets, message
-
 
 class Dir(Base):
     """A class for directories in a file system.
@@ -1914,7 +1901,7 @@ class File(Base):
         File, this is a TypeError..."""
         raise TypeError, "Tried to lookup File '%s' as a Dir." % self.path
 
-default_fs = FS()
+default_fs = None
 
 def find_file(filename, paths, verbose=None):
     """

@@ -972,7 +972,7 @@ class FSTestCase(_tempdirTestCase):
         # the reading of files in text mode.  This tests that
         # get_contents() returns the binary contents.
         test.write("binary_file", "Foo\x1aBar")
-        f1 = SCons.Node.FS.default_fs.File(test.workpath("binary_file"))
+        f1 = fs.File(test.workpath("binary_file"))
         assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
 
         def nonexistent(method, s):

@@ -59,7 +59,7 @@ def emit_java_headers(target, source, env):
                 classdir = s.attributes.java_classdir
             except AttributeError:
                 classdir = '.'
-    classdir = SCons.Node.FS.default_fs.Dir(classdir).rdir()
+    classdir = env.Dir(classdir).rdir()
     if str(classdir) == '.':
         c_ = None
     else:
@@ -111,8 +111,8 @@ JavaHAction = SCons.Action.Action('$JAVAHCOM', '$JAVAHCOMSTR')
 JavaHBuilder = SCons.Builder.Builder(action = JavaHAction,
                      emitter = emit_java_headers,
                      src_suffix = '$JAVACLASSSUFFIX',
-                     target_factory = SCons.Node.FS.default_fs.Entry,
-                     source_factory = SCons.Node.FS.default_fs.File)
+                     target_factory = SCons.Node.FS.Entry,
+                     source_factory = SCons.Node.FS.File)
 
 def generate(env):
     """Add Builders and construction variables for javah to an Environment."""

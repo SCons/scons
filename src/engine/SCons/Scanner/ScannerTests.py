@@ -30,10 +30,19 @@ import SCons.Sig
 
 import SCons.Scanner
 
+class DummyFS:
+    def __init__(self, search_result=[]):
+        self.search_result = search_result
+    def File(self, name):
+        return DummyNode(name)
+    def Rsearchall(self, nodes, must_exist=0, clazz=None, cwd=dir):
+        return self.search_result + nodes
+
 class DummyEnvironment(UserDict.UserDict):
     def __init__(self, dict=None, **kw):
         UserDict.UserDict.__init__(self, dict)
         self.data.update(kw)
+        self.fs = DummyFS()
     def subst(self, strSubst):
         if strSubst[0] == '$':
             return self.data[strSubst[1:]]
@@ -48,6 +57,8 @@ class DummyEnvironment(UserDict.UserDict):
         return map(self.subst, path)
     def get_calculator(self):
         return SCons.Sig.default_calc
+    def get_factory(self, factory):
+        return factory or self.fs.File
 
 class DummyNode:
     def __init__(self, name):
@@ -56,18 +67,15 @@ class DummyNode:
         return 1
     def __str__(self):
         return self.name
-    
+
 class FindPathDirsTestCase(unittest.TestCase):
     def test_FindPathDirs(self):
         """Test the FindPathDirs callable class"""
 
-        class FS:
-            def Rsearchall(self, nodes, must_exist=0, clazz=None, cwd=dir):
-                return ['xxx'] + nodes
-
         env = DummyEnvironment(LIBPATH = [ 'foo' ])
+        env.fs = DummyFS(['xxx'])
 
-        fpd = SCons.Scanner.FindPathDirs('LIBPATH', FS())
+        fpd = SCons.Scanner.FindPathDirs('LIBPATH')
         result = fpd(env, dir)
         assert str(result) == "('xxx', 'foo')", result
 
@@ -308,11 +316,12 @@ class SelectorTestCase(unittest.TestCase):
         s2 = SCons.Scanner.Base(s2func)
         selector = SCons.Scanner.Selector({'.x' : s1, '.y' : s2})
         nx = self.skey_node('.x')
-        selector(nx, None, [])
+        env = DummyEnvironment()
+        selector(nx, env, [])
         assert called == ['s1func', nx], called
         del called[:]
         ny = self.skey_node('.y')
-        selector(ny, None, [])
+        selector(ny, env, [])
         assert called == ['s2func', ny], called
 
     def test_select(self):

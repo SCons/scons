@@ -55,6 +55,9 @@ test = TestCmd.TestCmd(workdir = '')
 outfile = test.workpath('outfile')
 outfile2 = test.workpath('outfile2')
 
+infile = test.workpath('infile')
+test.write(infile, "infile\n")
+
 show_string = None
 
 scons_env = SCons.Environment.Environment()
@@ -72,6 +75,7 @@ class Environment:
         global env_arg2nodes_called
         env_arg2nodes_called = None
         self.scanner = None
+        self.fs = SCons.Node.FS.FS()
     def subst(self, s):
         if not SCons.Util.is_String(s):
             return s
@@ -102,6 +106,8 @@ class Environment:
                 a = factory(a)
             list.append(a)
         return list
+    def get_factory(self, factory):
+        return factory or self.fs.File
     def get_scanner(self, ext):
         return self.scanner
     def Dictionary(self):
@@ -552,7 +558,7 @@ class BuilderTestCase(unittest.TestCase):
                                    suffix='.c')
         tgt = b8(env, target=None, source='foo_source.a')
         assert str(tgt[0]) == 'foo_obj.c', str(tgt[0])
-        src = SCons.Node.FS.default_fs.File('foo_source.a')
+        src = env.fs.File('foo_source.a')
         tgt = b8(env, target=None, source=src)
         assert str(tgt[0]) == 'foo_obj.c', str(tgt[0])
 
@@ -674,7 +680,7 @@ class BuilderTestCase(unittest.TestCase):
         tgts = builder(env, source=[])
         assert tgts == [], tgts
 
-        tgts = builder(env, target = [outfile, outfile2], source = 'foo')
+        tgts = builder(env, target = [outfile, outfile2], source = infile)
         for t in tgts:
             t.prepare()
         try:
@@ -698,7 +704,7 @@ class BuilderTestCase(unittest.TestCase):
             return 1
 
         builder = SCons.Builder.Builder(action = function3)
-        tgts = builder(env, target = [sub1_out, sub2_out], source = 'foo')
+        tgts = builder(env, target = [sub1_out, sub2_out], source = infile)
         for t in tgts:
             t.prepare()
         try:

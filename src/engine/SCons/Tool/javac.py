@@ -99,8 +99,8 @@ JavaAction = SCons.Action.Action('$JAVACCOM', '$JAVACCOMSTR')
 
 JavaBuilder = SCons.Builder.Builder(action = JavaAction,
                     emitter = emit_java_classes,
-                    target_factory = SCons.Node.FS.default_fs.Dir,
-                    source_factory = SCons.Node.FS.default_fs.Dir)
+                    target_factory = SCons.Node.FS.Dir,
+                    source_factory = SCons.Node.FS.Dir)
 
 def generate(env):
     """Add Builders and construction variables for javac to an Environment."""

@@ -117,16 +117,16 @@ def compute_exports(exports):
 
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
-    def __init__(self, exports, sconscript):
+    def __init__(self, fs, exports, sconscript):
         self.globals = BuildDefaultGlobals()
         self.retval = None
-        self.prev_dir = SCons.Node.FS.default_fs.getcwd()
+        self.prev_dir = fs.getcwd()
         self.exports = compute_exports(exports)  # exports from the calling SConscript
         # make sure the sconscript attr is a Node.
         if isinstance(sconscript, SCons.Node.Node):
             self.sconscript = sconscript
         else:
-            self.sconscript = SCons.Node.FS.default_fs.File(str(sconscript))
+            self.sconscript = fs.File(str(sconscript))
 
 # the SConstruct/SConscript call stack:
 call_stack = []
@@ -158,7 +158,7 @@ def _SConscript(fs, *files, **kw):
     # evaluate each SConscript file
     results = []
     for fn in files:
-        call_stack.append(Frame(exports,fn))
+        call_stack.append(Frame(fs, exports, fn))
         old_sys_path = sys.path
         try:
             SCons.Script.sconscript_reading = 1

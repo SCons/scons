@@ -69,7 +69,7 @@ else:
 zipAction = SCons.Action.Action(zip, varlist=['ZIPCOMPRESSION'])
 
 ZipBuilder = SCons.Builder.Builder(action = SCons.Action.Action('$ZIPCOM', '$ZIPCOMSTR'),
-                                   source_factory = SCons.Node.FS.default_fs.Entry,
+                                   source_factory = SCons.Node.FS.Entry,
                                    source_scanner = SCons.Defaults.DirScanner,
                                    suffix = '$ZIPSUFFIX',
                                    multi = 1)
