@@ -159,6 +159,28 @@ class PathOptionTestCase(unittest.TestCase):
         except:
             raise "did not catch expected UserError"
 
+    def test_PathAccept(self):
+        """Test the PathAccept validator"""
+        opts = SCons.Options.Options()
+        opts.Add(SCons.Options.PathOption('test',
+                                          'test option help',
+                                          '/default/path',
+                                          SCons.Options.PathOption.PathAccept))
+
+        test = TestCmd.TestCmd(workdir='')
+        test.subdir('dir')
+        test.write('file', "file\n")
+
+        o = opts.options[0]
+
+        o.validator('X', test.workpath('file'), {})
+
+        d = test.workpath('d')
+        o.validator('X', d, {})
+
+        dne = test.workpath('does_not_exist')
+        o.validator('X', dne, {})
+
     def test_validator(self):
         """Test the PathOption validator argument"""
         opts = SCons.Options.Options()

@@ -1,29 +1,44 @@
-"""engine.SCons.Options.PathOption
+"""SCons.Options.PathOption
 
-This file defines an option type for SCons implementing 'package
-activation'.
+This file defines an option type for SCons implementing path settings.
 
-To be used whenever a 'package' may be enabled/disabled and the
-package path may be specified.
+To be used whenever a a user-specified path override should be allowed.
+
+Arguments to PathOption are:
+  option-name  = name of this option on the command line (e.g. "prefix")
+  option-help  = help string for option
+  option-dflt  = default value for this option
+  validator    = [optional] validator for option value.  Predefined
+                 validators are:
+
+                     PathAccept -- accepts any path setting; no validation
+                     PathIsDir  -- path must be an existing directory
+                     PathIsDirCreate -- path must be a dir; will create
+                     PathIsFile -- path must be a file
+                     PathExists -- path must exist (any type) [default]
+
+                 The validator is a function that is called and which
+                 should return True or False to indicate if the path
+                 is valid.  The arguments to the validator function
+                 are: (key, val, env).  The key is the name of the
+                 option, the val is the path specified for the option,
+                 and the env is the env to which the Otions have been
+                 added.
 
 Usage example:
 
   Examples:
-      x11=no   (disables X11 support)
-      x11=yes  (will search for the package installation dir)
-      x11=/usr/local/X11 (will check this path for existance)
-
-  To replace autoconf's --with-xxx=yyy 
+      prefix=/usr/local
 
   opts = Options()
 
   opts = Options()
   opts.Add(PathOption('qtdir',
                       'where the root of Qt is installed',
-                      qtdir))
+                      qtdir, PathIsDir))
   opts.Add(PathOption('qt_includes',
                       'where the Qt includes are installed',
-                      '$qtdir/includes'))
+                      '$qtdir/includes', PathIsDirCreate))
   opts.Add(PathOption('qt_libraries',
                       'where the Qt library is installed',
                       '$qtdir/lib'))
@@ -62,6 +77,10 @@ import SCons.Errors
 
 class _PathOptionClass:
 
+    def PathAccept(self, key, val, env):
+        """Accepts any path, no checking done."""
+        pass
+    
     def PathIsDir(self, key, val, env):
         """Validator to check if Path is a directory."""
         if not os.path.isdir(val):
@@ -102,8 +121,8 @@ class _PathOptionClass:
         are returned with the correct converter and validator appended. The
         result is usable for input to opts.Add() .
 
-        A 'package list' option may either be 'all', 'none' or a list of
-        package names (seperated by space).
+        The 'default' option specifies the default path to use if the
+        user does not specify an override with this option.
 
         validator is a validator, see this file for examples
         """

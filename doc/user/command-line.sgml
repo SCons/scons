@@ -1286,6 +1286,102 @@
         scons: `foo.o' is up to date.
       </screen>
 
+      <para>
+
+      By default, &PathOption; checks to make sure
+      that the specified path exists and generates an error if it
+      doesn't:
+
+      </para>
+
+      <screen>
+        % <userinput>scons -Q CONFIG=/does/not/exist foo.o</userinput>
+        
+        scons: *** Path for option CONFIG does not exist: /does/not/exist
+        File "SConstruct", line 6, in ?
+      </screen>
+
+      <para>
+
+      &PathOption; provides a number of methods
+      that you can use to change this behavior.
+      If you want to ensure that any specified paths are,
+      in fact, files and not directories,
+      use the &PathOption_PathIsFile; method:
+
+      </para>
+
+      <programlisting>
+           opts = Options('custom.py')
+           opts.Add(PathOption('CONFIG',
+                               'Path to configuration file',
+                               '/etc/my_config',
+                               PathOption.PathIsFile))
+           env = Environment(options = opts,
+                             CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+           env.Program('foo.c')
+      </programlisting>
+
+      <para>
+
+      Conversely, to ensure that any specified paths are
+      directories and not files,
+      use the &PathOption_PathIsDir; method:
+
+      </para>
+
+      <programlisting>
+           opts = Options('custom.py')
+           opts.Add(PathOption('DBDIR',
+                               'Path to database directory',
+                               '/var/my_dbdir',
+                               PathOption.PathIsDir))
+           env = Environment(options = opts,
+                             CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+           env.Program('foo.c')
+      </programlisting>
+
+      <para>
+
+      If you want to make sure that any specified paths
+      are directories,
+      and you would like the directory created
+      if it doesn't already exist,
+      use the &PathOption_PathIsDirCreate; method:
+
+      </para>
+
+      <programlisting>
+           opts = Options('custom.py')
+           opts.Add(PathOption('DBDIR',
+                               'Path to database directory',
+                               '/var/my_dbdir',
+                               PathOption.PathIsDirCreate))
+           env = Environment(options = opts,
+                             CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+           env.Program('foo.c')
+      </programlisting>
+
+      <para>
+
+      Lastly, if you don't care whether the path exists,
+      is a file, or a directory,
+      use the &PathOption_PathAccept; method
+      to accept any path that the user supplies:
+
+      </para>
+
+      <programlisting>
+           opts = Options('custom.py')
+           opts.Add(PathOption('OUTPUT',
+                               'Path to output file or directory',
+                               None,
+                               PathOption.PathAccept))
+           env = Environment(options = opts,
+                             CPPDEFINES={'OUTPUT' : '"$OUTPUT"'})
+           env.Program('foo.c')
+      </programlisting>
+
     </section>
 
     <section>

@@ -1324,6 +1324,128 @@
         <command>scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</command>
       </scons_output>
 
+      <para>
+
+      By default, &PathOption; checks to make sure
+      that the specified path exists and generates an error if it
+      doesn't:
+
+      </para>
+
+      <scons_output example="PathOption">
+        <command>scons -Q CONFIG=__ROOT__/does/not/exist foo.o</command>
+      </scons_output>
+
+      <para>
+
+      &PathOption; provides a number of methods
+      that you can use to change this behavior.
+      If you want to ensure that any specified paths are,
+      in fact, files and not directories,
+      use the &PathOption_PathIsFile; method:
+
+      </para>
+
+      <scons_example name="PathIsFile">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(PathOption('CONFIG',
+                               'Path to configuration file',
+                               '__ROOT__/etc/my_config',
+                               PathOption.PathIsFile))
+           env = Environment(options = opts,
+                             CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="__ROOT__/etc/my_config">
+        /opt/location
+        </file>
+      </scons_example>
+
+      <para>
+
+      Conversely, to ensure that any specified paths are
+      directories and not files,
+      use the &PathOption_PathIsDir; method:
+
+      </para>
+
+      <scons_example name="PathIsDir">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(PathOption('DBDIR',
+                               'Path to database directory',
+                               '__ROOT__/var/my_dbdir',
+                               PathOption.PathIsDir))
+           env = Environment(options = opts,
+                             CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="__ROOT__/var/my_dbdir">
+        /opt/location
+        </file>
+      </scons_example>
+
+      <para>
+
+      If you want to make sure that any specified paths
+      are directories,
+      and you would like the directory created
+      if it doesn't already exist,
+      use the &PathOption_PathIsDirCreate; method:
+
+      </para>
+
+      <scons_example name="PathIsDirCreate">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(PathOption('DBDIR',
+                               'Path to database directory',
+                               '__ROOT__/var/my_dbdir',
+                               PathOption.PathIsDirCreate))
+           env = Environment(options = opts,
+                             CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="__ROOT__/var/my_dbdir">
+        /opt/location
+        </file>
+      </scons_example>
+
+      <para>
+
+      Lastly, if you don't care whether the path exists,
+      is a file, or a directory,
+      use the &PathOption_PathAccept; method
+      to accept any path that the user supplies:
+
+      </para>
+
+      <scons_example name="PathAccept">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(PathOption('OUTPUT',
+                               'Path to output file or directory',
+                               None,
+                               PathOption.PathAccept))
+           env = Environment(options = opts,
+                             CPPDEFINES={'OUTPUT' : '"$OUTPUT"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+      </scons_example>
+
     </section>
 
     <section>

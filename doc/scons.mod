@@ -159,6 +159,11 @@
 <!ENTITY Options "<function>Options</function>">
 <!ENTITY PackageOption "<function>PackageOption</function>">
 <!ENTITY PathOption "<function>PathOption</function>">
+<!ENTITY PathOption_PathAccept "<function>PathOption.PathAccept</function>">
+<!ENTITY PathOption_PathExists "<function>PathOption.PathExists</function>">
+<!ENTITY PathOption_PathIsDir "<function>PathOption.PathIsDir</function>">
+<!ENTITY PathOption_PathIsDirCreate "<function>PathOption.PathIsDirCreate</function>">
+<!ENTITY PathOption_PathIsFile "<function>PathOption.PathIsFile</function>">
 <!ENTITY Precious "<function>Precious</function>">
 <!ENTITY Prepend "<function>Prepend</function>">
 <!ENTITY Replace "<function>Replace</function>">

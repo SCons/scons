@@ -357,6 +357,9 @@ RELEASE 0.97 - XXX
     which cleans up a lot of special-case code in various methods and
     caches additional values to speed up most configurations.
 
+  - Add a PathAccept validator to the list of new canned PathOption
+    validators.
+
   From Levi Stephen:
 
   - Allow $JARCHDIR to be expanded to other construction variables.
