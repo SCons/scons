@@ -30,7 +30,7 @@ import sys
 import TestSCons
 
 python = TestSCons.python
-lib_   = TestSCons.lib_
+lib_   = TestSCons.dll_
 _shlib = TestSCons._dll
 
 test = TestSCons.TestSCons()

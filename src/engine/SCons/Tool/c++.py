@@ -41,7 +41,7 @@ import SCons.Util
 compilers = ['CC', 'c++']
 
 CXXSuffixes = ['.cpp', '.cc', '.cxx', '.c++', '.C++']
-if os.path.normcase('.c') != os.path.normcase('.C'):
+if SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CXXSuffixes.append('.C')
 
 def iscplusplus(source):

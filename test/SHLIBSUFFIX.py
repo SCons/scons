@@ -28,7 +28,7 @@ import os
 import sys
 import TestSCons
 
-lib_ = TestSCons.lib_
+dll_ = TestSCons.dll_
 
 test = TestSCons.TestSCons()
 
@@ -47,6 +47,6 @@ foo(void)
 
 test.run(arguments = '.')
 
-test.fail_test(not os.path.exists(test.workpath(lib_ + 'foo.shlib')))
+test.fail_test(not os.path.exists(test.workpath(dll_ + 'foo.shlib')))
 
 test.pass_test()

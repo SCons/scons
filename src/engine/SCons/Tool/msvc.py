@@ -384,7 +384,7 @@ def generate(env):
     env['SHCCFLAGS']  = '$CCFLAGS'
     env['SHCCCOM']    = '$SHCC $SHCCFLAGS $CCCOMFLAGS'
     env['CXX']        = '$CC'
-    env['CXXFLAGS']   = '$CCFLAGS $( /TP $)'
+    env['CXXFLAGS']   = ['$CCFLAGS', '$(', '/TP', '$)']
     env['CXXCOM']     = '$CXX $CXXFLAGS $CCCOMFLAGS'
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = '$CXXFLAGS'

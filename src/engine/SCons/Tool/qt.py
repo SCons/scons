@@ -1,3 +1,4 @@
+
 """SCons.Tool.qt
 
 Tool-specific initialization for qt.
@@ -33,6 +34,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import os.path
 import re
 
@@ -40,7 +42,10 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-header_extensions = (".h", ".H", ".hxx", ".hpp", ".hh")
+header_extensions = [".h", ".hxx", ".hpp", ".hh"]
+
+if SCons.Util.case_sensitive_suffixes('.h', '.H'):
+    header_extensions.append('.H')
 
 class _Automoc:
     """

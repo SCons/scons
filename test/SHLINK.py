@@ -30,7 +30,7 @@ import sys
 import TestSCons
 
 python = TestSCons.python
-lib_   = TestSCons.lib_
+dll_   = TestSCons.dll_
 _shlib = TestSCons._dll
 
 test = TestSCons.TestSCons()
@@ -73,11 +73,11 @@ test()
 }
 """)
 
-test.run(arguments = lib_ + 'foo' + _shlib)
+test.run(arguments = dll_ + 'foo' + _shlib)
 
 test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
-test.run(arguments = lib_ + 'bar' + _shlib)
+test.run(arguments = dll_ + 'bar' + _shlib)
 
 test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 

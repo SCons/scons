@@ -330,7 +330,7 @@ def CheckCustom(test):
     resOK = resOK and retActOK and int(outputActOK)==0
     resFAIL = retCompileFAIL or retLinkFAIL or retRunFAIL or outputRunFAIL!=""
     resFAIL = resFAIL or retActFAIL or outputActFAIL!=""
-    test.Result( resOK and not resFAIL )
+    test.Result( int(resOK and not resFAIL) )
     return resOK and not resFAIL
 
 env = Environment()

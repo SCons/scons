@@ -33,6 +33,7 @@ import os
 import os.path
 import re
 import string
+import sys
 
 import SCons.Errors
 import SCons.Util
@@ -144,7 +145,7 @@ class ActionBase:
 
     def show(self, string):
         if print_actions:
-            print string
+            sys.stdout.write(string + '\n')
 
     def get_actions(self):
         return [self]
