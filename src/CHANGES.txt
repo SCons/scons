@@ -104,6 +104,9 @@ RELEASE 0.96 - XXX
   - Speed up turning file system Nodes into strings by caching the
     values after we're finished reading the SConscript files.
 
+  - Have ParseConfig() recognize and supporting adding the -Wa, -Wl,
+    and -Wp, flags to ASFLAGS, LINKFLAGS and CPPFLAGS, respectively.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.

@@ -1302,10 +1302,13 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_ParseConfig(self):
         """Test the ParseConfig() method"""
-        env = Environment(COMMAND='command',
+        env = Environment(ASFLAGS='assembler',
+                          COMMAND='command',
+                          CPPFLAGS=[''],
                           CPPPATH='string',
                           LIBPATH=['list'],
                           LIBS='',
+                          LINKFLAGS=[''],
                           CCFLAGS=[''])
         save_command = []
         orig_popen = os.popen
@@ -1314,16 +1317,20 @@ class EnvironmentTestCase(unittest.TestCase):
             class fake_file:
                 def read(self):
                     return "-I/usr/include/fum -Ibar -X\n" + \
-                           "-L/usr/fax -Lfoo -lxxx abc"
+                           "-L/usr/fax -Lfoo -lxxx " + \
+                           "-Wa,-as -Wl,-link -Wp,-cpp abc"
             return fake_file()
         try:
             os.popen = my_popen
             libs = env.ParseConfig("fake $COMMAND")
             assert save_command == ['fake command'], save_command
             assert libs == ['abc'], libs
+            assert env['ASFLAGS'] == ['assembler', '-Wa,-as'], env['ASFLAGS']
             assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar'], env['CPPPATH']
+            assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
             assert env['LIBPATH'] == ['list', '/usr/fax', 'foo'], env['LIBPATH']
             assert env['LIBS'] == ['xxx'], env['LIBS']
+            assert env['LINKFLAGS'] == ['', '-Wl,-link'], env['LINKFLAGS']
             assert env['CCFLAGS'] == ['', '-X'], env['CCFLAGS']
         finally:
             os.popen = orig_popen
