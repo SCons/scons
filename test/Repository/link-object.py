@@ -106,7 +106,7 @@ env.Program(target = 'foo', source = ['aaa.c', 'bbb.c', 'foo.c'])
 test.up_to_date(chdir = 'work', arguments = ".")
 
 #
-test.write(['work', 'bbb.c'], """
+test.write(['work', 'bbb.c'], r"""
 void
 bbb(void)
 {

@@ -433,7 +433,10 @@ if sys.platform == 'win32':
         if is_String(path):
             path = string.split(path, os.pathsep)
         if pathext is None:
-            pathext = os.environ['PATHEXT']
+            try:
+                pathext = os.environ['PATHEXT']
+            except KeyError:
+                pathext = '.COM;.EXE;.BAT;.CMD'
         if is_String(pathext):
             pathext = string.split(pathext, os.pathsep)
         for ext in pathext:

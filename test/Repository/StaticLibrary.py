@@ -115,7 +115,7 @@ test.fail_test(os.path.exists(repository_foo))
 
 test.up_to_date(chdir = 'work1', options = opts, arguments = ".")
 
-test.write(['work1', 'bbb.c'], """
+test.write(['work1', 'bbb.c'], r"""
 void
 bbb(void)
 {
@@ -161,7 +161,7 @@ test.writable('repository', 0)
 #
 test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 
-test.write(['work2', 'bbb.c'], """
+test.write(['work2', 'bbb.c'], r"""
 void
 bbb(void)
 {
