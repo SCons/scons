@@ -1354,6 +1354,29 @@ def exists(env):
         x = env2.get('FLAGS')
         assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
 
+        # Test that the environment stores the toolpath and
+        # re-uses it for copies.
+        test = TestCmd.TestCmd(workdir = '')
+
+        test.write('xxx.py', """\
+def exists(env):
+    1
+def generate(env):
+    env['XXX'] = 'one'
+""")
+
+        test.write('yyy.py', """\
+def exists(env):
+    1
+def generate(env):
+    env['YYY'] = 'two'
+""")
+
+        env = Environment(tools=['xxx'], toolpath=[test.workpath('')])
+        assert env['XXX'] == 'one', env['XXX']
+        env = env.Copy(tools=['yyy'])
+        assert env['YYY'] == 'two', env['YYY']
+
     def test_Detect(self):
         """Test Detect()ing tools"""
         test = TestCmd.TestCmd(workdir = '')
@@ -1842,6 +1865,29 @@ f5: \
 
         env.Tool('$LINK')
         assert env['LINK'] == '$SMARTLINK', env['LINK']
+
+        # Test that the environment stores the toolpath and
+        # re-uses it for later calls.
+        test = TestCmd.TestCmd(workdir = '')
+
+        test.write('xxx.py', """\
+def exists(env):
+    1
+def generate(env):
+    env['XXX'] = 'one'
+""")
+
+        test.write('yyy.py', """\
+def exists(env):
+    1
+def generate(env):
+    env['YYY'] = 'two'
+""")
+
+        env = Environment(tools=['xxx'], toolpath=[test.workpath('')])
+        assert env['XXX'] == 'one', env['XXX']
+        env.Tool('yyy')
+        assert env['YYY'] == 'two', env['YYY']
 
     def test_WhereIs(self):
         """Test the WhereIs() method"""

@@ -87,6 +87,10 @@ env0.Tool('SCCS', toolpath=['$TOOLPATH'])
 print "env0['SCCS'] =", env0.get('SCCS')
 print "env0['TOOL_SCCS1'] =", env0.get('TOOL_SCCS1')
 print "env0['TOOL_SCCS2'] =", env0.get('TOOL_SCCS2')
+
+base = Environment(tools=[], toolpath=['tools'])
+derived = base.Copy(tools=['bar'])
+print "derived['TOOL_BAR'] =", derived.get('TOOL_BAR')
 """)
 
 test.write('SCCS.py', r"""\
@@ -148,6 +152,7 @@ env9['TOOL_SCCS2'] = 1
 env0['SCCS'] = None
 env0['TOOL_SCCS1'] = None
 env0['TOOL_SCCS2'] = 1
+derived['TOOL_BAR'] = 1
 scons: done reading SConscript files.
 scons: Building targets ...
 scons: `.' is up to date.
