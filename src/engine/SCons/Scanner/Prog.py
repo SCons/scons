@@ -52,7 +52,9 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
         return []
     if SCons.Util.is_String(libs):
         libs = string.split(libs)
-    elif not SCons.Util.is_List(libs):
+    elif SCons.Util.is_List(libs):
+        libs = SCons.Util.flatten(libs)
+    else:
         libs = [libs]
 
     try:

@@ -190,15 +190,26 @@ class ProgScanTestCase8(unittest.TestCase):
         
         class DummyNode:
             pass
-        n = DummyNode()
+
+        n1 = DummyNode()
         env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
-                               LIBS=[n],
+                               LIBS=[n1],
                                LIBPREFIXES=['p1-', 'p2-'],
                                LIBSUFFIXES=['.1', '2'])
         s = SCons.Scanner.Prog.ProgScan(node_class = DummyNode)
         path = s.path(env)
         deps = s('dummy', env, path)
-        assert deps == [n], deps
+        assert deps == [n1], deps
+
+        n2 = DummyNode()
+        env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
+                               LIBS=[n1, [n2]],
+                               LIBPREFIXES=['p1-', 'p2-'],
+                               LIBSUFFIXES=['.1', '2'])
+        s = SCons.Scanner.Prog.ProgScan(node_class = DummyNode)
+        path = s.path(env)
+        deps = s('dummy', env, path)
+        assert deps == [n1, n2], deps
 
 def suite():
     suite = unittest.TestSuite()
