@@ -107,6 +107,9 @@ RELEASE 0.96 - XXX
   - Have ParseConfig() recognize and supporting adding the -Wa, -Wl,
     and -Wp, flags to ASFLAGS, LINKFLAGS and CPPFLAGS, respectively.
 
+  - Change the .sconsign format and the checks for whether a Node is
+    up-to-date to make dependency checks more efficient and correct.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.

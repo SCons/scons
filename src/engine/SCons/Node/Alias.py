@@ -63,20 +63,7 @@ class Alias(SCons.Node.Node):
         """A "builder" for aliases."""
         pass
 
-    def current(self, calc):
-        """If all of our children were up-to-date, then this
-        Alias was up-to-date, too."""
-        # Allow the children to calculate their signatures.
-        calc.bsig(self)
-        state = 0
-        for kid in self.children(None):
-            s = kid.get_state()
-            if s and (not state or s > state):
-                state = s
-        if state == 0 or state == SCons.Node.up_to_date:
-            return 1
-        else:
-            return 0
+    current = SCons.Node.Node.children_are_up_to_date
 
     def sconsign(self):
         """An Alias is not recorded in .sconsign files"""

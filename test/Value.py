@@ -33,6 +33,8 @@ import TestCmd
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
+# Run all of the tests with both types of source signature
+# to make sure there's no difference in behavior.
 for source_signature in ['MD5', 'timestamp']:
 
     print "Testing Value node with source signatures:", source_signature
@@ -76,8 +78,7 @@ env.B('f3.out', Value(C))
     test.fail_test(not os.path.exists(test.workpath('f3.out')))
     test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/usr/local')
 
-    if source_signature == 'MD5':
-        test.up_to_date(arguments='.')
+    test.up_to_date(arguments='.')
 
     test.run(arguments='prefix=/usr')
     out4 = """create("f1.out", "'/usr'")"""
@@ -95,8 +96,7 @@ env.B('f3.out', Value(C))
     test.fail_test(not os.path.exists(test.workpath('f3.out')))
     test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/usr')
 
-    if source_signature == 'MD5':
-        test.up_to_date('prefix=/usr', '.')
+    test.up_to_date('prefix=/usr', '.')
 
     test.unlink('f3.out')
 
@@ -104,14 +104,10 @@ env.B('f3.out', Value(C))
     out4 = """create("f1.out", "'/var'")"""
 
     test.fail_test(string.find(test.stdout(), out4) == -1)
-    if source_signature == 'MD5':
-        test.fail_test(string.find(test.stdout(), out5) != -1)
-    else:
-        test.fail_test(string.find(test.stdout(), out5) == -1)
+    test.fail_test(string.find(test.stdout(), out5) != -1)
     test.fail_test(re.search(out6, test.stdout()) == None)
 
-    if source_signature == 'MD5':
-        test.up_to_date('prefix=/var', '.')
+    test.up_to_date('prefix=/var', '.')
 
     test.fail_test(not os.path.exists(test.workpath('f1.out')))
     test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/var')

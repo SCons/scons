@@ -34,8 +34,8 @@ import os
 import os.path
 import time
 
-import SCons.Sig
 import SCons.Node
+import SCons.Sig
 import SCons.Warnings
 
 #XXX Get rid of the global array so this becomes re-entrant.
@@ -47,28 +47,6 @@ def write():
     global sig_files
     for sig_file in sig_files:
         sig_file.write()
-
-
-class Entry:
-
-    """Objects of this type are pickled to the .sconsign file, so it
-    should only contain simple builtin Python datatypes and no methods.
-
-    This class is used to store cache information about nodes between
-    scons runs for efficiency, and to store the build signature for
-    nodes so that scons can determine if they are out of date. """
-
-    # setup the default value for various attributes:
-    # (We make the class variables so the default values won't get pickled
-    # with the instances, which would waste a lot of space)
-    timestamp = None
-    bsig = None
-    csig = None
-    implicit = None
-    bkids = []
-    bkidsigs = []
-    bact = None
-    bactsig = None
 
 class Base:
     """
@@ -88,96 +66,25 @@ class Base:
         self.entries = {}
         self.dirty = 0
 
-    # A null .sconsign entry.  We define this here so that it will
-    # be easy to keep this in sync if/whenever we change the type of
-    # information returned by the get() method, below.
-    null_siginfo = (None, None, None)
-
-    def get(self, filename):
-        """
-        Get the .sconsign entry for a file
-
-        filename - the filename whose signature will be returned
-        returns - (timestamp, bsig, csig)
-        """
-        entry = self.get_entry(filename)
-        return (entry.timestamp, entry.bsig, entry.csig)
-
     def get_entry(self, filename):
         """
         Create an entry for the filename and return it, or if one already exists,
         then return it.
         """
-        try:
-            return self.entries[filename]
-        except (KeyError, AttributeError):
-            return Entry()
+        return self.entries[filename]
 
-    def set_entry(self, filename, entry):
+    def set_entry(self, filename, obj):
         """
         Set the entry.
         """
-        self.entries[filename] = entry
+        try:
+            entry = self.entries[filename]
+        except KeyError:
+            self.entries[filename] = obj
+        else:
+            for key, val in obj.__dict__.items():
+                entry.__dict__[key] = val
         self.dirty = 1
-
-    def set_csig(self, filename, csig):
-        """
-        Set the csig .sconsign entry for a file
-
-        filename - the filename whose signature will be set
-        csig - the file's content signature
-        """
-
-        entry = self.get_entry(filename)
-        entry.csig = csig
-        self.set_entry(filename, entry)
-
-    def set_binfo(self, filename, bsig, bkids, bkidsigs, bact, bactsig):
-        """
-        Set the build info .sconsign entry for a file
-
-        filename - the filename whose signature will be set
-        bsig - the file's built signature
-        """
-
-        entry = self.get_entry(filename)
-        entry.bsig = bsig
-        entry.bkids = bkids
-        entry.bkidsigs = bkidsigs
-        entry.bact = bact
-        entry.bactsig = bactsig
-        self.set_entry(filename, entry)
-
-    def set_timestamp(self, filename, timestamp):
-        """
-        Set the timestamp .sconsign entry for a file
-
-        filename - the filename whose signature will be set
-        timestamp - the file's timestamp
-        """
-
-        entry = self.get_entry(filename)
-        entry.timestamp = timestamp
-        self.set_entry(filename, entry)
-
-    def get_implicit(self, filename):
-        """Fetch the cached implicit dependencies for 'filename'"""
-        entry = self.get_entry(filename)
-        return entry.implicit
-
-    def set_implicit(self, filename, implicit):
-        """Cache the implicit dependencies for 'filename'."""
-        entry = self.get_entry(filename)
-        if not SCons.Util.is_List(implicit):
-            implicit = [implicit]
-        implicit = map(str, implicit)
-        entry.implicit = implicit
-        self.set_entry(filename, entry)
-
-    def get_binfo(self, filename):
-        """Fetch the cached implicit dependencies for 'filename'"""
-        entry = self.get_entry(filename)
-        return entry.bsig, entry.bkids, entry.bkidsigs, entry.bact, entry.bactsig
 
 class DB(Base):
     """

@@ -37,6 +37,11 @@ RELEASE 0.96 - XXX
           import anydbm
           SConsignFile('.sconsign_file_name', anydbm)
 
+    - The internal format of .sconsign files has been changed.
+      This may cause warnings about "ignoring corrupt .sconsign files"
+      and rebuilds when you use SCons 0.96 for the first time in a tre
+      that was previously gbuilt with SCons 0.95 or earlier.
+
     - The scan_check function that can be supplied to a custom Scanner now
       must take two arguments, the Node to be checked and a construction
       environment.  It previously only used the Node as an argument.

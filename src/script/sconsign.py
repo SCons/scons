@@ -170,43 +170,79 @@ def my_import(mname):
         fp, pathname, description = imp.find_module(mname)
     return imp.load_module(mname, fp, pathname, description)
 
-PF_bsig      = 0x1
-PF_csig      = 0x2
-PF_timestamp = 0x4
-PF_implicit  = 0x8
-PF_all       = PF_bsig | PF_csig | PF_timestamp | PF_implicit
+class Flagger:
+    default_value = 1
+    def __setitem__(self, item, value):
+        self.__dict__[item] = value
+        self.default_value = 0
+    def __getitem__(self, item):
+        return self.__dict__.get(item, self.default_value)
 
 Do_Call = None
 Print_Directories = []
 Print_Entries = []
-Print_Flags = 0
+Print_Flags = Flagger()
 Verbose = 0
 Readable = 0
 
-def field(name, pf, val):
-    if Print_Flags & pf:
-        if Verbose:
-            sep = "\n    " + name + ": "
-        else:
-            sep = " "
-        return sep + str(val)
+def default_mapper(entry, name):
+    try:
+        val = eval("entry."+name)
+    except:
+        val = None
+    return str(val)
+
+def map_timestamp(entry, name):
+    try:
+        timestamp = entry.timestamp
+    except AttributeError:
+        timestamp = None
+    if Readable and timestamp:
+        return "'" + time.ctime(timestamp) + "'"
     else:
-        return ""
+        return str(timestamp)
+
+def map_bkids(entry, name):
+    result = []
+    try:
+        for i in xrange(len(entry.bkids)):
+            result.append("%s: %s" % (entry.bkids[i], entry.bkidsigs[i]))
+    except AttributeError:
+        return None
+    if result == []:
+        return None
+    return string.join(result, "\n        ")
+
+map_field = {
+    'timestamp' : map_timestamp,
+    'bkids'     : map_bkids,
+}
+
+map_name = {
+    'implicit'  : 'bkids',
+}
 
 def printfield(name, entry):
-    if Readable and entry.timestamp:
-        ts = "'" + time.ctime(entry.timestamp) + "'"
-    else:
-        ts = entry.timestamp
-    timestamp = field("timestamp", PF_timestamp, ts)
-    bsig = field("bsig", PF_bsig, entry.bsig)
-    csig = field("csig", PF_csig, entry.csig)
-    print name + ":" + timestamp + bsig + csig
-    if Print_Flags & PF_implicit and entry.implicit:
+    def field(name, verbose=Verbose, entry=entry):
+        if not Print_Flags[name]:
+            return None
+        fieldname = map_name.get(name, name)
+        mapper = map_field.get(fieldname, default_mapper)
+        val = mapper(entry, name)
+        if verbose:
+            val = name + ": " + val
+        return val
+
+    fieldlist = ["timestamp", "bsig", "csig"]
+    outlist = [name+":"] + filter(None, map(field, fieldlist))
+    sep = Verbose and "\n    " or " "
+    print string.join(outlist, sep)
+
+    outlist = field("implicit", 0)
+    if outlist:
         if Verbose:
             print "    implicit:"
-        for i in entry.implicit:
-            print "        %s" % i
+        print "        " + outlist
 
 def printentries(entries):
     if Print_Entries:
@@ -316,11 +352,12 @@ opts, args = getopt.getopt(sys.argv[1:], "bcd:e:f:hirtv",
                              'format=', 'help', 'implicit',
                              'readable', 'timestamp', 'verbose'])
 
+
 for o, a in opts:
     if o in ('-b', '--bsig'):
-        Print_Flags = Print_Flags | PF_bsig
+        Print_Flags['bsig'] = 1
     elif o in ('-c', '--csig'):
-        Print_Flags = Print_Flags | PF_csig
+        Print_Flags['csig'] = 1
     elif o in ('-d', '--dir'):
         Print_Directories.append(a)
     elif o in ('-e', '--entry'):
@@ -343,16 +380,13 @@ for o, a in opts:
         print helpstr
         sys.exit(0)
     elif o in ('-i', '--implicit'):
-        Print_Flags = Print_Flags | PF_implicit
+        Print_Flags['implicit'] = 1
     elif o in ('-r', '--readable'):
         Readable = 1
     elif o in ('-t', '--timestamp'):
-        Print_Flags = Print_Flags | PF_timestamp
+        Print_Flags['timestamp'] = 1
     elif o in ('-v', '--verbose'):
         Verbose = 1
-
-if Print_Flags == 0:
-    Print_Flags = PF_all
 
 if Do_Call:
     for a in args:

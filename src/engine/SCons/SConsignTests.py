@@ -23,19 +23,14 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import unittest
-import TestCmd
 import SCons.SConsign
 import sys
+import TestCmd
+import unittest
 
-class SConsignEntryTestCase(unittest.TestCase):
-
-    def runTest(self):
-        e = SCons.SConsign.Entry()
-        assert e.timestamp == None
-        assert e.csig == None
-        assert e.bsig == None
-        assert e.implicit == None
+class BuildInfo:
+    def __init__(self, name):
+        self.name = name
 
 class BaseTestCase(unittest.TestCase):
 
@@ -50,27 +45,51 @@ class BaseTestCase(unittest.TestCase):
         class DummyNode:
             path = 'not_a_valid_path'
 
+        aaa = BuildInfo('aaa')
+        bbb = BuildInfo('bbb')
+        ccc = BuildInfo('ccc')
+        ccc.arg = 'ccc arg'
+
         f = SCons.SConsign.Base()
-        f.set_binfo('foo', 1, ['f1'], ['f2'], 'foo act', 'foo actsig')
-        assert f.get('foo') == (None, 1, None)
-        f.set_csig('foo', 2)
-        assert f.get('foo') == (None, 1, 2)
-        f.set_timestamp('foo', 3)
-        assert f.get('foo') == (3, 1, 2)
-        f.set_implicit('foo', ['bar'])
-        assert f.get('foo') == (3, 1, 2)
-        assert f.get_implicit('foo') == ['bar']
+        f.set_entry('aaa', aaa)
+        f.set_entry('bbb', bbb)
+
+        e = f.get_entry('aaa')
+        assert e == aaa, e
+        assert e.name == 'aaa', e.name
+
+        e = f.get_entry('bbb')
+        assert e == bbb, e
+        assert e.name == 'bbb', e.name
+        assert not hasattr(e, 'arg'), e
+
+        f.set_entry('bbb', ccc)
+        e = f.get_entry('bbb')
+        assert e.name == 'ccc', e.name
+        assert e.arg == 'ccc arg', e.arg
+
+        ddd = BuildInfo('ddd')
+        eee = BuildInfo('eee')
+        fff = BuildInfo('fff')
+        fff.arg = 'fff arg'
 
         f = SCons.SConsign.Base(DummyModule())
-        f.set_binfo('foo', 1, ['f1'], ['f2'], 'foo act', 'foo actsig')
-        assert f.get('foo') == (None, 1, None)
-        f.set_csig('foo', 2)
-        assert f.get('foo') == (None, 1, 2)
-        f.set_timestamp('foo', 3)
-        assert f.get('foo') == (3, 1, 2)
-        f.set_implicit('foo', ['bar'])
-        assert f.get('foo') == (3, 1, 2)
-        assert f.get_implicit('foo') == ['bar']
+        f.set_entry('ddd', ddd)
+        f.set_entry('eee', eee)
+
+        e = f.get_entry('ddd')
+        assert e == ddd, e
+        assert e.name == 'ddd', e.name
+
+        e = f.get_entry('eee')
+        assert e == eee, e
+        assert e.name == 'eee', e.name
+        assert not hasattr(e, 'arg'), e
+
+        f.set_entry('eee', fff)
+        e = f.get_entry('eee')
+        assert e.name == 'fff', e.name
+        assert e.arg == 'fff arg', e.arg
 
 class SConsignDBTestCase(unittest.TestCase):
 
@@ -82,24 +101,20 @@ class SConsignDBTestCase(unittest.TestCase):
         SCons.SConsign.database = {}
         try:
             d1 = SCons.SConsign.DB(DummyNode('dir1'))
-            d1.set_timestamp('foo', 1)
-            d1.set_binfo('foo', 2, ['f1'], ['f2'], 'foo act', 'foo actsig')
-            d1.set_csig('foo', 3)
-            d1.set_timestamp('bar', 4)
-            d1.set_binfo('bar', 5, ['b1'], ['b2'], 'bar act', 'bar actsig')
-            d1.set_csig('bar', 6)
-            assert d1.get('foo') == (1, 2, 3)
-            assert d1.get('bar') == (4, 5, 6)
+            d1.set_entry('aaa', BuildInfo('aaa name'))
+            d1.set_entry('bbb', BuildInfo('bbb name'))
+            aaa = d1.get_entry('aaa')
+            assert aaa.name == 'aaa name'
+            bbb = d1.get_entry('bbb')
+            assert bbb.name == 'bbb name'
 
             d2 = SCons.SConsign.DB(DummyNode('dir1'))
-            d2.set_timestamp('foo', 7)
-            d2.set_binfo('foo', 8, ['f3'], ['f4'], 'foo act', 'foo actsig')
-            d2.set_csig('foo', 9)
-            d2.set_timestamp('bar', 10)
-            d2.set_binfo('bar', 11, ['b3'], ['b4'], 'bar act', 'bar actsig')
-            d2.set_csig('bar', 12)
-            assert d2.get('foo') == (7, 8, 9)
-            assert d2.get('bar') == (10, 11, 12)
+            d2.set_entry('ccc', BuildInfo('ccc name'))
+            d2.set_entry('ddd', BuildInfo('ddd name'))
+            ccc = d2.get_entry('ccc')
+            assert ccc.name == 'ccc name'
+            ddd = d2.get_entry('ddd')
+            assert ddd.name == 'ddd name'
         finally:
             SCons.SConsign.database = save_database
 
@@ -116,16 +131,29 @@ class SConsignDirFileTestCase(unittest.TestCase):
         class DummyNode:
             path = 'not_a_valid_path'
 
+        foo = BuildInfo('foo')
+        bar = BuildInfo('bar')
+
         f = SCons.SConsign.DirFile(DummyNode(), DummyModule())
-        f.set_binfo('foo', 1, ['f1'], ['f2'], 'foo act', 'foo actsig')
-        assert f.get('foo') == (None, 1, None)
-        f.set_csig('foo', 2)
-        assert f.get('foo') == (None, 1, 2)
-        f.set_timestamp('foo', 3)
-        assert f.get('foo') == (3, 1, 2)
-        f.set_implicit('foo', ['bar'])
-        assert f.get('foo') == (3, 1, 2)
-        assert f.get_implicit('foo') == ['bar']
+        f.set_entry('foo', foo)
+        f.set_entry('bar', bar)
+
+        e = f.get_entry('foo')
+        assert e == foo, e
+        assert e.name == 'foo', e.name
+
+        e = f.get_entry('bar')
+        assert e == bar, e
+        assert e.name == 'bar', e.name
+        assert not hasattr(e, 'arg'), e
+
+        bbb = BuildInfo('bbb')
+        bbb.arg = 'bbb arg'
+        f.set_entry('bar', bbb)
+        e = f.get_entry('bar')
+        assert e.name == 'bbb', e.name
+        assert e.arg == 'bbb arg', e.arg
+
 
 class SConsignFileTestCase(unittest.TestCase):
 
@@ -165,7 +193,6 @@ class SConsignFileTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(SConsignEntryTestCase())
     suite.addTest(BaseTestCase())
     suite.addTest(SConsignDBTestCase())
     suite.addTest(SConsignDirFileTestCase())

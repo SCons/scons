@@ -42,6 +42,7 @@ import shutil
 import stat
 import string
 import sys
+import time
 import cStringIO
 
 import SCons.Action
@@ -453,6 +454,9 @@ class Base(SCons.Node.Node):
     def get_suffix(self):
         return SCons.Util.splitext(self.name)[1]
 
+    def rfile(self):
+        return self
+
     def __str__(self):
         """A Node.FS.Base object's string representation is its path
         name."""
@@ -467,6 +471,8 @@ class Base(SCons.Node.Node):
             if Save_Strings:
                 self._str_val = str_val
             return str_val
+
+    rstr = __str__
 
     def exists(self):
         try:
@@ -487,16 +493,6 @@ class Base(SCons.Node.Node):
         if self.dir and not isinstance(self.dir, ParentOfRoot):
             parents.append(self.dir)
         return parents
-
-    def current(self, calc):
-        """If the underlying path doesn't exist, we know the node is
-        not current without even checking the signature, so return 0.
-        Otherwise, return None to indicate that signature calculation
-        should proceed as normal to find out if the node is current."""
-        bsig = calc.bsig(self)
-        if not self.exists():
-            return 0
-        return calc.current(self, bsig)
 
     def is_under(self, dir):
         if self is dir:
@@ -1110,14 +1106,12 @@ class Dir(Base):
         self._morph()
 
     def _morph(self):
-        """Turn a file system node (either a freshly initialized
-        directory object or a separate Entry object) into a
-        proper directory object.
-        
-        Modify our paths to add the trailing slash that indicates
-        a directory.  Set up this directory's entries and hook it
-        into the file system tree.  Specify that directories (this
-        node) don't use signatures for currency calculation."""
+        """Turn a file system Node (either a freshly initialized directory
+        object or a separate Entry object) into a proper directory object.
+
+        Set up this directory's entries and hook it into the file
+        system tree.  Specify that directories (this Node) don't use
+        signatures for calculating whether they're current."""
 
         self.path_ = self.path + os.sep
         self.abspath_ = self.abspath + os.sep
@@ -1269,14 +1263,6 @@ class Dir(Base):
         """A directory does not get scanned."""
         return None
 
-    def set_binfo(self, bsig, bkids, bkidsigs, bact, bactsig):
-        """A directory has no signature."""
-        pass
-
-    def set_csig(self, csig):
-        """A directory has no signature."""
-        pass
-
     def get_contents(self):
         """Return aggregate contents of all our children."""
         contents = cStringIO.StringIO()
@@ -1345,6 +1331,14 @@ class Dir(Base):
                 stamp = kid.get_timestamp()
         return stamp
 
+class BuildInfo:
+    bsig = None
+    def __cmp__(self, other):
+        try:
+            return cmp(self.bsig, other.bsig)
+        except AttributeError:
+            return 1
+
 class File(Base):
     """A class for files in a file system.
     """
@@ -1404,26 +1398,14 @@ class File(Base):
         else:
             return 0
 
-    def store_csig(self):
-        self.dir.sconsign().set_csig(self.name, self.get_csig())
+    def store_info(self, obj):
+        self.dir.sconsign().set_entry(self.name, obj)
 
-    def store_binfo(self):
-        binfo = self.get_binfo()
-        apply(self.dir.sconsign().set_binfo, (self.name,) + binfo)
-
-    def get_stored_binfo(self):
-        return self.dir.sconsign().get_binfo(self.name)
-
-    def store_implicit(self):
-        self.dir.sconsign().set_implicit(self.name, self.implicit)
-
-    def store_timestamp(self):
-        self.dir.sconsign().set_timestamp(self.name, self.get_timestamp())
-
-    def get_prevsiginfo(self):
-        """Fetch the previous signature information from the
-        .sconsign entry."""
-        return self.dir.sconsign().get(self.name)
+    def get_stored_info(self):
+        try:
+            return self.dir.sconsign().get_entry(self.name)
+        except:
+            return BuildInfo()
 
     def get_stored_implicit(self):
         return self.dir.sconsign().get_implicit(self.name)
@@ -1641,25 +1623,83 @@ class File(Base):
                     pass
         return Base.exists(self)
 
+    def new_binfo(self):
+        return BuildInfo()
+
+    def del_cinfo(self):
+        try:
+            del self.binfo.csig
+        except AttributeError:
+            pass
+        try:
+            del self.binfo.timestamp
+        except AttributeError:
+            pass
+
+    def calc_csig(self, calc):
+        """
+        Generate a node's content signature, the digested signature
+        of its content.
+
+        node - the node
+        cache - alternate node to use for the signature cache
+        returns - the content signature
+        """
+
+        try:
+            return self.binfo.csig
+        except AttributeError:
+            pass
+        
+        if calc.max_drift >= 0:
+            old = self.get_stored_info()
+        else:
+            old = BuildInfo()
+
+        mtime = self.get_timestamp()
+
+        try:
+            if (old.timestamp and old.csig and old.timestamp == mtime):
+                # use the signature stored in the .sconsign file
+                csig = old.csig
+            else:
+                csig = calc.module.signature(self)
+        except AttributeError:
+            csig = calc.module.signature(self)
+
+        if calc.max_drift >= 0 and (time.time() - mtime) > calc.max_drift:
+            try:
+                self.binfo
+            except AttributeError:
+                self.binfo = self.new_binfo()
+            self.binfo.csig = csig
+            self.binfo.timestamp = mtime
+            self.store_info(self.binfo)
+
+        return csig
+
     def current(self, calc):
-        bsig = calc.bsig(self)
+        self.binfo = self.gen_binfo(calc)
+        if self.always_build:
+            return None
         if not self.exists():
             # The file doesn't exist locally...
             r = self.rfile()
             if r != self:
                 # ...but there is one in a Repository...
-                if calc.current(r, bsig):
+                old = r.get_stored_info()
+                if old == self.binfo:
                     # ...and it's even up-to-date...
                     if self._local:
                         # ...and they'd like a local copy.
                         LocalCopy(self, r, None)
-                        self.set_bsig(bsig)
-                        self.store_binfo()
+                        self.store_info(self.binfo)
                     return 1
             self._rfile = self
             return None
         else:
-            return calc.current(self, bsig)
+            old = self.get_stored_info()
+            return (old == self.binfo)
 
     def rfile(self):
         try:
@@ -1677,18 +1717,17 @@ class File(Base):
         return str(self.rfile())
 
     def cachepath(self):
-        if self.fs.CachePath:
-            bsig = self.get_bsig()
-            if bsig is None:
-                raise SCons.Errors.InternalError, "cachepath(%s) found a bsig of None" % self.path
-            # Add the path to the cache signature, because multiple
-            # targets built by the same action will all have the same
-            # build signature, and we have to differentiate them somehow.
-            cache_sig = SCons.Sig.MD5.collect([bsig, self.path])
-            subdir = string.upper(cache_sig[0])
-            dir = os.path.join(self.fs.CachePath, subdir)
-            return dir, os.path.join(dir, cache_sig)
-        return None, None
+        if not self.fs.CachePath:
+            return None, None
+        if self.binfo.bsig is None:
+            raise SCons.Errors.InternalError, "cachepath(%s) found a bsig of None" % self.path
+        # Add the path to the cache signature, because multiple
+        # targets built by the same action will all have the same
+        # build signature, and we have to differentiate them somehow.
+        cache_sig = SCons.Sig.MD5.collect([self.binfo.bsig, self.path])
+        subdir = string.upper(cache_sig[0])
+        dir = os.path.join(self.fs.CachePath, subdir)
+        return dir, os.path.join(dir, cache_sig)
 
     def target_from_source(self, prefix, suffix, splitext=SCons.Util.splitext):
         return self.dir.File(prefix + splitext(self.name)[0] + suffix)

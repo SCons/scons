@@ -188,8 +188,12 @@ test.run(arguments = 'foo' + _exe)
 
 test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
+test.up_to_date(arguments = 'foo' + _exe)
+
 test.run(arguments = 'bar' + _exe)
 
 test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+
+test.up_to_date(arguments = 'bar' + _exe)
 
 test.pass_test()
