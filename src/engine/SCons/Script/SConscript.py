@@ -495,7 +495,13 @@ class SConsEnvironment(SCons.Environment.Base):
             raise SCons.Errors.UserError, "Import of non-existent variable '%s'"%x
 
     def SConscript(self, *ls, **kw):
-        ls = map(lambda l, self=self: self.subst(l), ls)
+        def subst_element(x, subst=self.subst):
+            if SCons.Util.is_List(x):
+                x = map(subst, x)
+            else:
+                x = subst(x)
+            return x
+        ls = map(subst_element, ls)
         subst_kw = {}
         for key, val in kw.items():
             if SCons.Util.is_String(val):
