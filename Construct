@@ -79,7 +79,9 @@ Depends $env [@targets], 'build/MANIFEST';
 #
 $test_dir = "build/test";
 
-Command $env "$test_dir/$project-$version/$project/__init__.py", $tar_gz, qq(
+@test_files = map("$test_dir/$project-$version/$_", @files);
+
+Command $env [@test_files], $tar_gz, qq(
     rm -rf $test_dir/$project-$version
     tar zxf %< -C $test_dir
 );
