@@ -67,7 +67,7 @@ line 3
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.jar') != "test1.class\nline 3\n")
+test.must_match('test1.jar', "test1.class\nline 3\n")
 
 if os.path.normcase('.class') == os.path.normcase('.CLASS'):
 
@@ -85,7 +85,7 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test2.jar') != "test2.CLASS\nline 3\n")
+    test.must_match('test2.jar', "test2.CLASS\nline 3\n")
 
 test.write('myjar2.py', r"""
 import sys
@@ -116,11 +116,32 @@ test.write('foo.mf',
            blah
            """)
 test.run(arguments='classes.jar')
-test.fail_test(test.read('classes.jar') != 'cvfm classes.jar foo.mf -C testdir bar.class\n')
+test.must_match('classes.jar',
+                'cvfm classes.jar foo.mf -C testdir bar.class\n')
 
-if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
-    print "Could not find Java, skipping test(s)."
-    test.pass_test(1)
+if test.detect_tool('javac'):
+    where_javac = test.detect('JAVAC', 'javac')
+else:
+    import SCons.Environment
+    env = SCons.Environment.Environment()
+    where_javac = env.WhereIs('javac', os.environ['PATH'])
+    if not where_javac:
+        where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
+        if not where_javac:
+            print "Could not find Java javac, skipping test(s)."
+            test.pass_test(1)
+
+if test.detect_tool('jar'):
+    where_jar = test.detect('JAR', 'jar')
+else:
+    import SCons.Environment
+    env = SCons.Environment.Environment()
+    where_jar = env.WhereIs('jar', os.environ['PATH'])
+    if not where_jar:
+        where_jar = env.WhereIs('jar', '/usr/local/j2sdk1.3.1/bin')
+        if not where_jar:
+            print "Could not find Java jar, skipping test(s)."
+            test.pass_test(1)
 
 
 test.write("wrapper.py", """\
@@ -133,15 +154,15 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'jar'],
-                  JAVAC = '/usr/local/j2sdk1.3.1/bin/javac',
-                  JAR = '/usr/local/j2sdk1.3.1/bin/jar')
+                  JAVAC = '%(where_javac)s',
+                  JAR = '%(where_jar)s')
 jar = foo.Dictionary('JAR')
-bar = foo.Copy(JAR = r'%s wrapper.py ' + jar)
+bar = foo.Copy(JAR = r'%(python)s wrapper.py ' + jar)
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
 foo.Jar(target = 'foo', source = 'classes/com/sub/foo')
 bar.Jar(target = 'bar', source = 'classes/com/sub/bar')
-""" % python)
+""" % locals())
 
 test.subdir('com',
             ['com', 'sub'],
@@ -234,10 +255,11 @@ public class Example6
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin/jar cf bar.jar classes/com/sub/bar\n")
+test.must_match('wrapper.out',
+                "wrapper.py %(where_jar)s cf bar.jar classes/com/sub/bar\n" % locals())
 
-test.fail_test(not os.path.exists(test.workpath('foo.jar')))
-test.fail_test(not os.path.exists(test.workpath('bar.jar')))
+test.must_exist('foo.jar')
+test.must_exist('bar.jar')
 
 test.up_to_date(arguments = '.')
 

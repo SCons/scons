@@ -32,15 +32,39 @@ test = TestSCons.TestSCons()
 
 test.subdir('src')
 
+if test.detect_tool('javac'):
+    where_javac = test.detect('JAVAC', 'javac')
+else:
+    import SCons.Environment
+    env = SCons.Environment.Environment()
+    where_javac = env.WhereIs('javac', os.environ['PATH'])
+    if not where_javac:
+        where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
+        if not where_javac:
+            print "Could not find Java javac, skipping test(s)."
+            test.pass_test(1)
+
+if test.detect_tool('jar'):
+    where_jar = test.detect('JAR', 'jar')
+else:
+    import SCons.Environment
+    env = SCons.Environment.Environment()
+    where_jar = env.WhereIs('jar', os.environ['PATH'])
+    if not where_jar:
+        where_jar = env.WhereIs('jar', '/usr/local/j2sdk1.3.1/bin')
+        if not where_jar:
+            print "Could not find Java jar, skipping test(s)."
+            test.pass_test(1)
+
 test.write('SConstruct', """
 env = Environment(tools = ['javac', 'jar'],
-                  JAVAC = '/usr/local/j2sdk1.3.1/bin/javac',
-                  JAR = '/usr/local/j2sdk1.3.1/bin/jar',
+                  JAVAC = '%(where_javac)s',
+                  JAR = '%(where_jar)s',
                   JARFLAGS = 'cvf')
 env['JARFLAGS'] = 'cvf'
 class_files = env.Java(target = 'classes', source = 'src')
 env.Jar(target = 'test.jar', source = class_files)
-""")
+""" % locals())
 
 test.write(['src', 'Example1.java'], """\
 package src;
@@ -56,18 +80,15 @@ public class Example1
 }
 """)
 
-if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
-    print "Could not find Java, skipping test(s)."
-    test.pass_test(1)
-
 test.run(arguments = '.',
+         match=TestSCons.match_re_dotall,
          stdout = test.wrap_stdout("""\
-/usr/local/j2sdk1.3.1/bin/javac -d classes -sourcepath src src/Example1.java
-/usr/local/j2sdk1.3.1/bin/jar cvf test.jar classes/src/Example1.class
-added manifest
-adding: classes/src/Example1.class(in = 265) (out= 199)(deflated 24%)
-"""))
+%(where_javac)s -d classes -sourcepath src src/Example1\.java
+%(where_jar)s cvf test.jar classes/src/Example1\.class
+.*
+adding: classes/src/Example1\.class.*
+""" % locals()))
 
-test.fail_test(not os.path.exists(test.workpath('test.jar')))
+test.must_exist('test.jar')
 
 test.pass_test()

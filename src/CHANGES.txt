@@ -268,6 +268,8 @@ RELEASE 0.97 - XXX
     the source directory and trying to use entries from the build_dir
     as sources for other targets in the build-dir.
 
+  - Fix hard-coding of JDK path names in various Java tests.
+
   From Levi Stephen:
 
   - Allow $JARCHDIR to be expanded to other construction variables.

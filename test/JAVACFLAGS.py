@@ -30,18 +30,26 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
-    print "Could not find Java, skipping test(s)."
-    test.pass_test(1)
+if test.detect_tool('javac'):
+    where_javac = test.detect('JAVAC', 'javac')
+else:
+    import SCons.Environment
+    env = SCons.Environment.Environment()
+    where_javac = env.WhereIs('javac', os.environ['PATH'])
+    if not where_javac:
+        where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
+        if not where_javac:
+            print "Could not find Java javac, skipping test(s)."
+            test.pass_test(1)
 
 test.subdir('src')
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac'],
-                  JAVAC = '/usr/local/j2sdk1.3.1/bin/javac',
+                  JAVAC = '%(where_javac)s',
                   JAVACFLAGS = '-O')
 env.Java(target = 'classes', source = 'src')
-""")
+""" % locals())
 
 test.write(['src', 'Example1.java'], """\
 package src;
@@ -58,8 +66,8 @@ public class Example1
 """)
 
 test.run(arguments = '.',
-         stdout = test.wrap_stdout("/usr/local/j2sdk1.3.1/bin/javac -O -d classes -sourcepath src src/Example1.java\n"))
+         stdout = test.wrap_stdout("%(where_javac)s -O -d classes -sourcepath src src/Example1.java\n" % locals()))
 
-test.fail_test(not os.path.exists(test.workpath('classes', 'src', 'Example1.class')))
+test.must_exist(['classes', 'src', 'Example1.class'])
 
 test.pass_test()

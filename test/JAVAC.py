@@ -70,7 +70,7 @@ line 3
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.class') != "test1.java\nline 3\n")
+test.must_match('test1.class', "test1.java\nline 3\n")
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
@@ -88,12 +88,21 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test2.class') != "test2.JAVA\nline 3\n")
+    test.must_match('test2.class', "test2.JAVA\nline 3\n")
 
 
-if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
-    print "Could not find Java, skipping test(s)."
-    test.pass_test(1)
+if test.detect_tool('javac'):
+    where_javac = test.detect('JAVAC', 'javac')
+else:
+    import SCons.Environment
+    env = SCons.Environment.Environment()
+    where_javac = env.WhereIs('javac', os.environ['PATH'])
+    if not where_javac:
+        where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
+        if not where_javac:
+            print "Could not find Java, skipping test(s)."
+            test.pass_test(1)
+        
 
 
 test.write("wrapper.py", """\
@@ -106,13 +115,13 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac'],
-                  JAVAC = '/usr/local/j2sdk1.3.1/bin/javac')
+                  JAVAC = '%s')
 javac = foo.Dictionary('JAVAC')
 bar = foo.Copy(JAVAC = r'%s wrapper.py ' + javac)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar.Java(target = 'class2', source = 'com/sub/bar')
 foo.Java(target = 'class3', source = ['src1', 'src2'])
-""" % python)
+""" % (where_javac, python))
 
 test.subdir('com',
             ['com', 'sub'],
@@ -278,7 +287,7 @@ class Private {
 
 test.run(arguments = '.')
 
-test.must_match('wrapper.out', "wrapper.py /usr/local/j2sdk1.3.1/bin/javac -d class2 -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n")
+test.must_match('wrapper.out', "wrapper.py %s -d class2 -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n" % where_javac)
 
 test.must_exist(test.workpath('class1', 'com', 'sub', 'foo', 'Example1.class'))
 test.must_exist(test.workpath('class1', 'com', 'other', 'Example2.class'))
