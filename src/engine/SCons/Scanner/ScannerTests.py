@@ -111,12 +111,22 @@ class ScannerKeywordArgumentTestCase(ScannerTestBase, unittest.TestCase):
 	i = s.instance(env)
 	self.test(i, env, 'i4.cpp', ['i4.h', 'i4.hpp'], arg)
 
+class ScannerHashTestCase(ScannerTestBase, unittest.TestCase):
+    "Test the Scanner.Base class __hash__() method"
+    def runTest(self):
+        s = SCons.Scanner.Base(self.func, "Hash")
+        dict = {}
+        dict[s] = 777
+        self.failUnless(hash(dict.keys()[0]) == hash(None),
+                        "did not hash Scanner base class as expected")
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ScannerPositionalTestCase())
     suite.addTest(ScannerKeywordTestCase())
     suite.addTest(ScannerPositionalArgumentTestCase())
     suite.addTest(ScannerKeywordArgumentTestCase())
+    suite.addTest(ScannerHashTestCase())
     return suite
 
 if __name__ == "__main__":

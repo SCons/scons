@@ -116,6 +116,9 @@ class Base:
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
 
+    def __hash__(self):
+        return hash(None)
+
 class Recursive(Base):
     """
     The class for recursive dependency scanning.  This will
@@ -143,8 +146,9 @@ class Recursive(Base):
             else:
                 d = self.function(f, env)
             d = filter(lambda x, seen=seen: str(x) not in seen, d)
-            deps.extend(d)
-            s = map(str, d)
-	    seen.extend(s)
-            files.extend(s)
+            if d:
+                deps.extend(d)
+                s = map(str, d)
+                seen.extend(s)
+                files.extend(s)
         return deps

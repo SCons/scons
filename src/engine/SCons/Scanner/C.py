@@ -50,6 +50,7 @@ def CScan(fs = SCons.Node.FS.default_fs):
 class CScanner(SCons.Scanner.Recursive):
     def __init__(self, *args, **kw):
         apply(SCons.Scanner.Recursive.__init__, (self,) + args, kw)
+        self.hash = None
         self.pathscanners = {}
 
     def instance(self, env):
@@ -64,9 +65,13 @@ class CScanner(SCons.Scanner.Recursive):
             dirs = ()
         if not self.pathscanners.has_key(dirs):
             clone = copy.copy(self)
-	    clone.argument = [self.fs, dirs]	# XXX reaching into object
+            clone.hash = dirs
+            clone.argument = [self.fs, dirs]	# XXX reaching into object
             self.pathscanners[dirs] = clone
         return self.pathscanners[dirs]
+
+    def __hash__(self):
+        return hash(self.hash)
 
 def scan(filename, env, args = [SCons.Node.FS.default_fs, ()]):
     """

@@ -166,18 +166,28 @@ class CScannerTestCase6(unittest.TestCase):
     def runTest(self):
         env1 = DummyEnvironment([test.workpath("d1")])
         env2 = DummyEnvironment([test.workpath("d1/d2")])
+        env3 = DummyEnvironment([test.workpath("d1/../d1")])
         s = SCons.Scanner.C.CScan()
-	s1 = s.instance(env1)
-	s2 = s.instance(env2)
-	s3 = s.instance(env1)
-	assert not s1 is s2
-	assert s1 is s3
+        s1 = s.instance(env1)
+        s2 = s.instance(env2)
+        s3 = s.instance(env3)
+        assert not s1 is s2
+        assert s1 is s3
         deps1 = s1.scan(test.workpath('f1.cpp'), None)
         deps2 = s2.scan(test.workpath('f1.cpp'), None)
         headers1 =  ['f1.h', 'd1/f2.h']
         headers2 =  ['f1.h', 'd1/d2/f2.h']
         deps_match(self, deps1, headers1)
         deps_match(self, deps2, headers2)
+
+class CScannerTestCase7(unittest.TestCase):
+    def runTest(self):
+        s = SCons.Scanner.C.CScan()
+        s1 = s.instance(DummyEnvironment([test.workpath("d1")]))
+        s2 = s.instance(DummyEnvironment([test.workpath("d1/../d1")]))
+        dict = {}
+        dict[s1] = 777
+        assert dict[s2] == 777
 
 def suite():
     suite = unittest.TestSuite()
@@ -187,6 +197,7 @@ def suite():
     suite.addTest(CScannerTestCase4())
     suite.addTest(CScannerTestCase5())
     suite.addTest(CScannerTestCase6())
+    suite.addTest(CScannerTestCase7())
     return suite
 
 if __name__ == "__main__":
