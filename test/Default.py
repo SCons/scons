@@ -98,4 +98,32 @@ test.fail_test(test.read(test.workpath('four', 'foo.out')) != "four/foo.in\n")
 test.fail_test(test.read(test.workpath('four', 'bar.out')) != "four/bar.in\n")
 
 
+
+test.subdir('subdir')
+
+test.write('SConstruct', """
+B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = [B])
+env.B(target = 'xxx.out', source = 'xxx.in')
+SConscript('subdir/SConscript')
+""" % python)
+
+test.write('xxx.in', "xxx.in\n")
+
+test.write(['subdir', 'SConscript'], """
+B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = [B])
+env.B(target = 'xxx.out', source = 'xxx.in')
+Default('xxx.out')
+""" % python)
+
+test.write(['subdir', 'xxx.in'], "subdir/xxx.in\n")
+
+test.run()	# no arguments, use the Default
+
+test.fail_test(os.path.exists(test.workpath('xxx.out')))
+test.fail_test(test.read(test.workpath('subdir', 'xxx.out')) != "subdir/xxx.in\n")
+
+
+
 test.pass_test()

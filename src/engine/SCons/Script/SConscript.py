@@ -114,7 +114,7 @@ def Default(*targets):
             default_targets.append(t)
         else:
             for s in string.split(t):
-                default_targets.append(s)
+                default_targets.append(SCons.Node.FS.default_fs.File(s))
 
 def Help(text):
     if print_help:
