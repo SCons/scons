@@ -718,7 +718,9 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
                      env=self.env,
                      for_signature=(self.mode != SUBST_CMD))
                 self.substitute(s, lvars, within_list)
-            elif not s is None:
+            elif s is None:
+                self.this_word()
+            else:
                 self.append(s)
 
         def substitute(self, args, lvars, within_list):
@@ -758,7 +760,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
 
         def add_to_current_word(self, x):
             if not self.in_strip or self.mode != SUBST_SIG:
-                self[-1][-1] = self[-1][-1] + x
+                try:
+                    self[-1][-1] = self[-1][-1] + x
+                except IndexError:
+                    self.add_new_word(x)
         def add_new_word(self, x):
             if not self.in_strip or self.mode != SUBST_SIG:
                 try:
