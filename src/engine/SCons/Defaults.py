@@ -128,6 +128,14 @@ ShF77PPAction = SCons.Action.Action("$SHF77PPCOM")
 ASAction = SCons.Action.Action("$ASCOM")
 ASPPAction = SCons.Action.Action("$ASPPCOM")
 
+LinkAction = SCons.Action.Action("$LINKCOM")
+ShLinkAction = SCons.Action.Action("$SHLINKCOM")
+
+ArAction = SCons.Action.Action("$ARCOM")
+
+LexAction = SCons.Action.Action("$LEXCOM")
+YaccAction = SCons.Action.Action("$YACCCOM")
+
 ProgScan = SCons.Scanner.Prog.ProgScan()
 
 def DVI():

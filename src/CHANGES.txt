@@ -110,6 +110,11 @@ RELEASE 0.96 - XXX
   - Change the .sconsign format and the checks for whether a Node is
     up-to-date to make dependency checks more efficient and correct.
 
+  - Add wrapper Actions to SCons.Defaults for $ASCOM, $ASPPCOM, $LINKCOM,
+    $SHLINKCOM, $ARCOM, $LEXCOM and $YACCCOM.  This makes it possible
+    to replace the default print behavior with a custom strfunction()
+    for each of these.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
