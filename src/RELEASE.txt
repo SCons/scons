@@ -43,6 +43,19 @@ RELEASE 0.95 - XXX
       into the SCons internals and calling either of the SCons.Util
       functions directly.)
 
+    - The "overrides" keyword argument to calls to the Builder() function
+      used to create new Builder objects has been deprecated and will
+      be removed in a future release.  The items in an "overrides"
+      dictionary should now be specified as keyword arguments:
+
+          # Old way, "overrides" is a dictionary:
+          Builder(action = 'cp $TDIR/$TARGET $SDIR/$SOURCE',
+                  overrides = {'TDIR' : dir1, 'SDIR' : dir2})
+
+          # New way, items are specified as keyword arguments:
+          Builder(action = 'cp $TDIR/$TARGET $SDIR/$SOURCE',
+                  TDIR = dir1, SDIR = dir2)
+
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
   Because of this, SCons is of sufficient quality that you can use it
