@@ -37,10 +37,14 @@ class PharLapCommonTestCase(unittest.TestCase):
         env_dict = { 'FOO' : os.path.normpath('/foo/bar') + os.pathsep + \
                      os.path.normpath('/baz/blat'),
                      'BAR' : os.path.normpath('/foo/bar') + os.pathsep + \
-                     os.path.normpath('/baz/blat') }
+                     os.path.normpath('/baz/blat'),
+                     'BLAT' : [ os.path.normpath('/foo/bar'),
+                                os.path.normpath('/baz/blat') ] }
         addPathIfNotExists(env_dict, 'FOO', os.path.normpath('/foo/bar'))
         addPathIfNotExists(env_dict, 'BAR', os.path.normpath('/bar/foo'))
         addPathIfNotExists(env_dict, 'BAZ', os.path.normpath('/foo/baz'))
+        addPathIfNotExists(env_dict, 'BLAT', os.path.normpath('/baz/blat'))
+        addPathIfNotExists(env_dict, 'BLAT', os.path.normpath('/baz/foo'))
 
         assert env_dict['FOO'] == os.path.normpath('/foo/bar') + os.pathsep + \
                os.path.normpath('/baz/blat'), env_dict['FOO']
@@ -48,6 +52,9 @@ class PharLapCommonTestCase(unittest.TestCase):
                os.path.normpath('/foo/bar') + os.pathsep + \
                os.path.normpath('/baz/blat'), env_dict['BAR']
         assert env_dict['BAZ'] == os.path.normpath('/foo/baz'), env_dict['BAZ']
+        assert env_dict['BLAT'] == [ os.path.normpath('/baz/foo'),
+                                     os.path.normpath('/foo/bar'),
+                                     os.path.normpath('/baz/blat') ], env_dict['BLAT' ]
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(PharLapCommonTestCase, 'test_')

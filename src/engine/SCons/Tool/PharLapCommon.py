@@ -94,9 +94,17 @@ def addPathIfNotExists(env_dict, key, path, sep=os.pathsep):
     separated by tokens.  The 'path' will get added to the list if it
     is not already there."""
     try:
-        paths = string.split(env_dict[key], sep)
+        is_list = 1
+        paths = env_dict[key]
+        if not SCons.Util.is_List(env_dict[key]):
+            paths = string.split(paths, sep)
+            is_list = 0
         if not os.path.normcase(path) in map(os.path.normcase, paths):
-            env_dict[key] = string.join([ path ] + paths, sep)
+            paths = [ path ] + paths
+        if is_list:
+            env_dict[key] = paths
+        else:
+            env_dict[key] = string.join(paths, sep)
     except KeyError:
         env_dict[key] = path
 
