@@ -173,4 +173,67 @@ test.fail_test(not test.stderr() in ['', sw])
 
 test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c 2\n')
 
+# Make sure we don't add $LIBPREFIX to library names that
+# already have the prefix on them.
+blender_exe = test.workpath('blender' + _exe)
+
+test.subdir('src', ['src', 'component1'], ['src', 'component2'])
+
+test.write('SConstruct', """\
+SConscript(['src/SConscript'])
+
+libpath = (['lib'])
+libraries = (['libtest_component2',
+              'libtest_component1'])
+
+# To remove the dependency problem, you should rename blender to mlender.
+Program (source='', target='blender', LIBS=libraries, LIBPREFIX='lib', LIBPATH=libpath)
+""")
+
+test.write(['src', 'SConscript'], """\
+SConscript(['component1/SConscript',
+            'component2/SConscript'])
+""")
+
+test.write(['src', 'component1', 'SConscript'], """\
+source_files = ['message.c']
+Library (target='../../lib/libtest_component1', source=source_files)
+""")
+
+test.write(['src', 'component1', 'message.c'], """\
+#include <stdio.h>
+
+void DisplayMessage (void)
+{
+    printf ("src/component1/message.c\\n");
+}
+""")
+
+test.write(['src', 'component1', 'message.h'], """\
+void DisplayMessage (void);
+""")
+
+test.write(['src', 'component2', 'SConscript'], """\
+source_files = ['hello.c']
+include_paths = ['../component1']
+Library (target='../../lib/libtest_component2', source=source_files, CPPPATH=include_paths)
+""")
+
+test.write(['src', 'component2', 'hello.c'], """\
+#include <stdio.h>
+#include "message.h"
+
+int main (void)
+{
+    DisplayMessage();
+    printf ("src/component2/hello.c\\n");
+    exit (0);
+}
+""")
+
+test.run(arguments = '.')
+
+test.run(program=blender_exe,
+         stdout='src/component1/message.c\nsrc/component2/hello.c\n')
+
 test.pass_test()

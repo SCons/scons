@@ -313,31 +313,24 @@ class BuilderBase:
     def _create_nodes(self, env, overrides, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
-        def adjustixes(files, pre, suf, self=self):
+        def _adjustixes(files, pre, suf):
             if not files:
                 return []
-            ret = []
+            result = []
             if not SCons.Util.is_List(files):
                 files = [files]
 
             for f in files:
                 if SCons.Util.is_String(f):
-                    if pre:
-                        path, fn = os.path.split(os.path.normpath(f))
-                        if fn[:len(pre)] != pre:
-                            f = os.path.join(path, pre + fn)
-                    # Only append a suffix if the file does not have one.
-                    if suf and not self.splitext(f)[1]:
-                        if f[-len(suf):] != suf:
-                            f = f + suf
-                ret.append(f)
-            return ret
+                    f = SCons.Util.adjustixes(f, pre, suf)
+                result.append(f)
+            return result
 
         env = env.Override(overrides)
 
         src_suf = self.get_src_suffix(env)
 
-        source = adjustixes(source, None, src_suf)
+        source = _adjustixes(source, None, src_suf)
         slist = env.arg2nodes(source, self.source_factory)
 
         pre = self.get_prefix(env, slist)
@@ -350,7 +343,7 @@ class BuilderBase:
                 raise UserError("Do not know how to create a target from source `%s'" % slist[0])
             tlist = [ t_from_s(pre, suf, self.splitext) ]
         else:
-            target = adjustixes(target, pre, suf)
+            target = _adjustixes(target, pre, suf)
             tlist = env.arg2nodes(target, self.target_factory)
 
         if self.emitter:

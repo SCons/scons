@@ -982,3 +982,13 @@ if sys.platform == 'cygwin':
 else:
     def case_sensitive_suffixes(s1, s2):
         return (os.path.normcase(s1) != os.path.normcase(s2))
+
+def adjustixes(file, pre, suf):
+    if pre:
+        path, fn = os.path.split(os.path.normpath(file))
+        if fn[:len(pre)] != pre:
+            file = os.path.join(path, pre + fn)
+    # Only append a suffix if the file does not have one.
+    if suf and not splitext(file)[1] and file[-len(suf):] != suf:
+            file = file + suf
+    return file

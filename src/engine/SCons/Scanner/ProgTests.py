@@ -35,20 +35,21 @@ import SCons.Scanner.Prog
 
 test = TestCmd.TestCmd(workdir = '')
 
-test.subdir('d1', ['d1', 'd2'])
+test.subdir('d1', ['d1', 'd2'], 'dir', ['dir', 'sub'])
 
-libs = [ 'l1.lib', 'd1/l2.lib', 'd1/d2/l3.lib' ]
+libs = [ 'l1.lib', 'd1/l2.lib', 'd1/d2/l3.lib',
+         'dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']
 
 for h in libs:
-    test.write(h, " ")
+    test.write(h, "\n")
 
 # define some helpers:
 
 class DummyEnvironment:
     def __init__(self, **kw):
-        self._dict = kw
-        self._dict['LIBSUFFIXES'] = '.lib'
-        
+        self._dict = {'LIBSUFFIXES' : '.lib'}
+        self._dict.update(kw)
+
     def Dictionary(self, *args):
         if not args:
             return self._dict
@@ -150,12 +151,24 @@ class ProgScanTestCase5(unittest.TestCase):
         deps = s('dummy', env, path)
         assert deps_match(deps, [ 'd1/l2.lib' ]), map(str, deps)
 
+class ProgScanTestCase6(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
+                               LIBS=['foo', 'sub/libbar', 'xyz.other'],
+                               LIBPREFIXES=['lib'],
+                               LIBSUFFIXES=['.a'])
+        s = SCons.Scanner.Prog.ProgScan()
+        path = s.path(env)
+        deps = s('dummy', env, path)
+        assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), map(str, deps)
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ProgScanTestCase1())
     suite.addTest(ProgScanTestCase2())
     suite.addTest(ProgScanTestCase3())
     suite.addTest(ProgScanTestCase5())
+    suite.addTest(ProgScanTestCase6())
     if hasattr(types, 'UnicodeType'):
         code = """if 1:
             class ProgScanTestCase4(unittest.TestCase):
