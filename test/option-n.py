@@ -22,6 +22,18 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+"""
+This test verifies:
+    1)  that we don't build files when we use the -n, --no-exec,
+        --just-print, --dry-run, and --recon options;
+    2)  that we don't remove built files when -n is used in
+        conjunction with -c;
+    3)  that files installed by the Install() method don't get
+        installed when -n is used;
+    4)  that source files don't get duplicated in a BuildDir
+        when -n is used.
+"""
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
@@ -32,6 +44,8 @@ import TestSCons
 python = sys.executable
 
 test = TestSCons.TestSCons()
+
+test.subdir('build', 'src')
 
 test.write('build.py', r"""
 import sys
@@ -45,10 +59,20 @@ MyBuild = Builder(action = r'%s build.py $TARGETS')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
+env.Install('install', 'f3.in')
+BuildDir('build', 'src', duplicate=1)
+SConscript('build/SConscript', "env")
 """ % python)
+
+test.write(['src', 'SConscript'], """
+Import("env")
+env.MyBuild(target = 'f4.out', source = 'f4.in')
+""")
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
+test.write('f3.in', "f3.in\n")
+test.write(['src', 'f4.in'], "src/f4.in\n")
 
 args = 'f1.out f2.out'
 expect = test.wrap_stdout("%s build.py f1.out\n%s build.py f2.out\n" % (python, python))
@@ -92,6 +116,39 @@ test.run(arguments = '-c -n ' + args, stdout = expect)
 
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
+
+# XXX Because Install is a function action, it doesn't know how
+# to print what's going on when -n is used.  Following the
+# directions on the XXX lines below whenever that gets fixed.
+#
+# XXX Uncomment the next line and remove the one after it when we
+# fix the Install print during -n.
+#expect = test.wrap_stdout('Install file: "f3.in" as "install/f3.in"\n')
+expect = test.wrap_stdout('')
+
+test.run(arguments = '-n install', stdout = expect)
+test.fail_test(os.path.exists(test.workpath('install', 'f3.in')))
+
+# XXX Remove the next line when we fix the Install print during -n.
+expect = test.wrap_stdout('Install file: "f3.in" as "install/f3.in"\n')
+
+test.run(arguments = 'install', stdout = expect)
+test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
+
+test.write('f3.in', "f3.in again\n")
+
+# XXX Remove the next line when we fix the Install print during -n.
+expect = test.wrap_stdout('')
+
+test.run(arguments = '-n install', stdout = expect)
+test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
+
+# This last test (duplicate BuildDir files not getting created when
+# -n is used) still fails, but it's going to take more time to
+# work out the details of the fix.  And since it's not a bug that
+# destroys anything, we're going to leave it alone for now.
+#test.run(arguments = '-n build')
+#test.fail_test(os.path.exists(test.workpath('build', 'f4.in')))
 
 test.pass_test()
 

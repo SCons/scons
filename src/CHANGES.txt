@@ -70,6 +70,9 @@ RELEASE 0.09 -
     flavors) to help people who want to ship SCons as a stand-alone
     build tool in their software packages.
 
+  - Prevent SCons from unlinking files in certain situations when
+    the -n option is used.
+
  From Steven Knight and Anthony Roach:
 
   - Man page:  document the fact that Builder calls return Node objects.

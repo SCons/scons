@@ -46,6 +46,8 @@ import sys
 import SCons.Errors
 import SCons.Warnings
 
+execute_actions = 1
+
 try:
     import os
     _link = os.link
@@ -834,6 +836,8 @@ class File(Entry):
             if isinstance(p, ParentOfRoot):
                 raise SCons.Errors.StopError, parent.path
             parent = p
+        if not execute_actions:
+            return
         listDirs.reverse()
         for dirnode in listDirs:
             try:
@@ -861,7 +865,8 @@ class File(Entry):
 
         if self.exists():
             if self.builder and not self.precious:
-                os.unlink(self.path)
+                if execute_actions:
+                    os.unlink(self.path)
                 if hasattr(self, '_exists'):
                     delattr(self, '_exists')
         else:
@@ -909,7 +914,8 @@ class File(Entry):
                     if self._local:
                         # ...and they'd like a local copy.
                         print "Local copy of %s from %s" % (self.path, r.path)
-                        file_link(r.path, self.path)
+                        if execute_actions:
+                            file_link(r.path, self.path)
                         self.set_bsig(bsig)
                         self.store_bsig()
                     return 1

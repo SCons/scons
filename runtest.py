@@ -279,6 +279,8 @@ else:
 
     scons_lib_dir = ld or os.path.join(cwd, 'src', 'engine')
 
+    pythonpath_dir = scons_lib_dir
+
 if scons:
     # Let the version of SCons that the -x option pointed to find
     # its own modules.

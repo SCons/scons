@@ -641,6 +641,7 @@ def _main():
         _setup_warn(options.warn)
     if options.noexec:
         SCons.Action.execute_actions = None
+        SCons.Node.FS.execute_actions = None
         CleanTask.execute = CleanTask.show
     if options.no_progress or options.silent:
         global display
