@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import copy
 import sys
 import unittest
 
@@ -94,6 +95,16 @@ class ListOptionTestCase(unittest.TestCase):
             caught = 1
         assert caught, "did not catch expected ValueError"
 
+    def test_copy(self):
+        """Test copying a ListOption like an Environment would"""
+        opts = SCons.Options.Options()
+        opts.Add(SCons.Options.ListOption('test', 'test option help', 'all',
+                                          ['one', 'two', 'three']))
+
+        o = opts.options[0]
+
+        l = o.converter('all')
+        n = l.__class__(copy.copy(l))
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(ListOptionTestCase, 'test_')

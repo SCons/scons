@@ -231,9 +231,6 @@ class SpecialAttrWrapper:
 class CallableComposite(UserList.UserList):
     """A simple composite callable class that, when called, will invoke all
     of its contained callables with the same arguments."""
-    def __init__(self, seq = []):
-        UserList.UserList.__init__(self, seq)
-
     def __call__(self, *args, **kwargs):
         retvals = map(lambda x, args=args, kwargs=kwargs: apply(x,
                                                                 args,
@@ -253,9 +250,6 @@ class NodeList(UserList.UserList):
     >>> someList.strip()
     [ 'foo', 'bar' ]
     """
-    def __init__(self, seq = []):
-        UserList.UserList.__init__(self, seq)
-
     def __nonzero__(self):
         return len(self.data) != 0
 
