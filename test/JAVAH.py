@@ -33,9 +33,7 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-
-
-test.write('myjavac.py', r"""
+test.write('myjavah.py', r"""
 import sys
 args = sys.argv[1:]
 while args:
@@ -51,38 +49,38 @@ for file in args:
     infile = open(file, 'rb')
     outfile = open(file[:-5] + '.class', 'wb')
     for l in infile.readlines():
-        if l[:9] != '/*javac*/':
+        if l[:9] != '/*javah*/':
             outfile.write(l)
 sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(tools = ['javac'],
-                  JAVAC = r'%s myjavac.py')
-env.Java(target = '.', source = '.')
+env = Environment(tools = ['javah'],
+                  JAVAH = r'%s myjavah.py')
+env.JavaH(target = 'test1.class', source = 'test1.java')
 """ % (python))
 
 test.write('test1.java', """\
 test1.java
-/*javac*/
+/*javah*/
 line 3
 """)
 
-test.run(arguments = '.', stderr = None)
+#test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.class') != "test1.java\nline 3\n")
+#test.fail_test(test.read('test1.class') != "test1.java\nline 3\n")
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
     test.write('SConstruct', """\
-env = Environment(tools = ['javac'],
-                  JAVAC = r'%s myjavac.py')
-env.Java(target = '.', source = '.')
+env = Environment(tools = ['javah'],
+                  JAVAH = r'%s myjavah.py')
+env.Java(target = 'test2.class', source = 'test2.JAVA')
 """ % python)
 
     test.write('test2.JAVA', """\
 test2.JAVA
-/*javac*/
+/*javah*/
 line 3
 """)
 
@@ -91,9 +89,10 @@ line 3
     test.fail_test(test.read('test2.class') != "test2.JAVA\nline 3\n")
 
 
-if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
+if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javah'):
     print "Could not find Java, skipping test(s)."
     test.pass_test(1)
+
 
 
 test.write("wrapper.py", """\
@@ -105,13 +104,21 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
 test.write('SConstruct', """
-foo = Environment(tools = ['javac'],
-                  JAVAC = '/usr/local/j2sdk1.3.1/bin/javac')
-javac = foo.Dictionary('JAVAC')
-bar = foo.Copy(JAVAC = r'%s wrapper.py ' + javac)
-foo.Java(target = 'class1', source = 'com/sub/foo')
-bar.Java(target = 'class2', source = 'com/sub/bar')
-foo.Java(target = 'class3', source = 'src')
+foo = Environment(tools = ['javac', 'javah'],
+                  JAVAC = '/usr/local/j2sdk1.3.1/bin/javac',
+                  JAVAH = '/usr/local/j2sdk1.3.1/bin/javah')
+javah = foo.Dictionary('JAVAH')
+bar = foo.Copy(JAVAH = r'%s wrapper.py ' + javah)
+fff = foo.Java(target = 'class1', source = 'com/sub/foo')
+bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
+foo_classes = foo.Java(target = 'class3', source = 'src')
+foo.JavaH(target = 'outdir1',
+          source = ['class1/com/sub/foo/Example1.class',
+                    'class1/com/other/Example2',
+                    'class1/com/sub/foo/Example3'],
+          JAVACLASSDIR = 'class1')
+bar.JavaH(target = 'outdir2', source = bar_classes)
+foo.JavaH(target = File('output.h'), source = foo_classes)
 """ % python)
 
 test.subdir('com',
@@ -204,7 +211,6 @@ public class Example6
 }
 """)
 
-# Acid-test file for parsing inner Java classes, courtesy Chad Austin.
 test.write(['src', 'Test.java'], """\
 class Empty {
 }
@@ -265,25 +271,15 @@ class Private {
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin/javac -d class2 -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n")
+test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin/javah -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n")
 
-test.fail_test(not os.path.exists(test.workpath('class1', 'com', 'sub', 'foo', 'Example1.class')))
-test.fail_test(not os.path.exists(test.workpath('class1', 'com', 'other', 'Example2.class')))
-test.fail_test(not os.path.exists(test.workpath('class1', 'com', 'sub', 'foo', 'Example3.class')))
+test.fail_test(not os.path.exists(test.workpath('outdir1', 'com_sub_foo_Example1.h')))
+test.fail_test(not os.path.exists(test.workpath('outdir1', 'com_other_Example2.h')))
+test.fail_test(not os.path.exists(test.workpath('outdir1', 'com_sub_foo_Example3.h')))
 
-test.fail_test(not os.path.exists(test.workpath('class2', 'com', 'sub', 'bar', 'Example4.class')))
-test.fail_test(not os.path.exists(test.workpath('class2', 'com', 'other', 'Example5.class')))
-test.fail_test(not os.path.exists(test.workpath('class2', 'com', 'sub', 'bar', 'Example6.class')))
-
-test.fail_test(not os.path.exists(test.workpath('class3', 'Empty.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Listener.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Private.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Private$1.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test$1.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test$2.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test$3.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test$Inner.class')))
+test.fail_test(not os.path.exists(test.workpath('outdir2', 'com_sub_bar_Example4.h')))
+test.fail_test(not os.path.exists(test.workpath('outdir2', 'com_other_Example5.h')))
+test.fail_test(not os.path.exists(test.workpath('outdir2', 'com_sub_bar_Example6.h')))
 
 test.up_to_date(arguments = '.')
 

@@ -33,6 +33,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import os.path
 import re
 import string
@@ -225,55 +226,66 @@ else:
         """
         return os.path.split(file)
 
-def emit_java_files(target, source, env):
+def classname(path):
+    """Turn a string (path name) into a Java class name."""
+    return string.replace(os.path.normpath(path), os.sep, '.')
+
+def emit_java_classes(target, source, env):
     """Create and return lists of source java files
     and their corresponding target class files.
     """
-    env['_JAVACLASSDIR'] = target[0]
-    env['_JAVASRCDIR'] = source[0].rdir()
     java_suffix = env.get('JAVASUFFIX', '.java')
     class_suffix = env.get('JAVACLASSSUFFIX', '.class')
-    
+
     slist = []
     js = _my_normcase(java_suffix)
     def visit(arg, dirname, names, js=js, dirnode=source[0].rdir()):
         java_files = filter(lambda n, js=js:
-                            _my_normcase(n[-len(js):]) == js,
+                                   _my_normcase(n[-len(js):]) == js,
                             names)
         mydir = dirnode.Dir(dirname)
         java_paths = map(lambda f, d=mydir: d.File(f), java_files)
         arg.extend(java_paths)
     os.path.walk(source[0].rdir().get_abspath(), visit, slist)
-       
+
     tlist = []
     for file in slist:
         pkg_dir, classes = parse_java(file.get_abspath())
         if pkg_dir:
             for c in classes:
-                tlist.append(target[0].Dir(pkg_dir).File(c+class_suffix))
+                t = target[0].Dir(pkg_dir).File(c+class_suffix)
+                t.attributes.java_classdir = target[0]
+                t.attributes.java_classname = classname(pkg_dir + os.sep + c)
+                tlist.append(t)
         elif classes:
             for c in classes:
-                tlist.append(target[0].File(c+class_suffix))
+                t = target[0].File(c+class_suffix)
+                t.attributes.java_classdir = target[0]
+                t.attributes.java_classname = classname(c)
+                tlist.append(t)
         else:
             # This is an odd end case:  no package and no classes.
             # Just do our best based on the source file name.
-            tlist.append(target[0].File(str(file)[:-len(java_suffix)] + class_suffix))
-            
+            base = str(file)[:-len(java_suffix)]
+            t = target[0].File(base + class_suffix)
+            t.attributes.java_classdir = target[0]
+            t.attributes.java_classname = classname(base)
+            tlist.append(t)
+
     return tlist, slist
 
 JavaBuilder = SCons.Builder.Builder(action = '$JAVACCOM',
-                                    emitter = emit_java_files,
-                                    target_factory = SCons.Node.FS.default_fs.Dir,
-                                    source_factory = SCons.Node.FS.default_fs.Dir)
+                    emitter = emit_java_classes,
+                    target_factory = SCons.Node.FS.default_fs.Dir,
+                    source_factory = SCons.Node.FS.default_fs.Dir)
 
 def generate(env):
     """Add Builders and construction variables for javac to an Environment."""
-
     env['BUILDERS']['Java'] = JavaBuilder
 
     env['JAVAC']            = 'javac'
     env['JAVACFLAGS']       = ''
-    env['JAVACCOM']         = '$JAVAC $JAVACFLAGS -d $_JAVACLASSDIR -sourcepath $_JAVASRCDIR $SOURCES'
+    env['JAVACCOM']         = '$JAVAC $JAVACFLAGS -d ${TARGET.attributes.java_classdir} -sourcepath ${SOURCE.dir.rdir()} $SOURCES'
     env['JAVACLASSSUFFIX']  = '.class'
     env['JAVASUFFIX']       = '.java'
 

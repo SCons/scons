@@ -1329,6 +1329,45 @@ Example:
 env.Java(target = 'classes', source = 'src')
 .EE
 
+.IP JavaH
+Builds C header and source files for
+implementing Java native methods.
+The target can be either a directory
+in which the header files will be written,
+or a header file name which
+will contain all of the definitions.
+The source can be either the names of .class files,
+or the objects returned from the
+.B Java
+builder.
+
+If the construction variable
+.B JAVACLASSDIR
+is set, either in the environment
+or in the call to the
+.B JavaH
+builder itself,
+then the value of the variable
+will be stripped from the
+beginning of any .class file names.
+
+Examples:
+
+.ES
+# builds java_native.h
+classes = env.Java(target = 'classdir', source = 'src')
+env.JavaH(target = 'java_native.h', source = classes)
+
+# builds include/package_foo.h and include/package_bar.h
+env.JavaH(target = 'include',
+          source = ['package/foo.class', 'package/bar.class'])
+
+# builds export/foo.h and export/bar.h
+env.JavaH(target = 'export',
+          source = ['classes/foo.class', 'classes/bar.class'],
+          JAVACLASSDIR = 'classes')
+.EE
+
 .IP TypeLibrary
 Builds a Windows type library (.tlb) file from and input IDL file
 (.idl).  In addition, it will build the associated inteface stub and
@@ -2385,10 +2424,30 @@ are included on this command line.
 .IP JAVACFLAGS
 General options that are passed to the Java compiler.
 
+.IP JAVACLASSDIR
+The directory in which Java class files may be found.
+This is stripped from the beginning of any Java .class
+file names supplied to the
+.B JavaH
+builder.
+
 .IP JAVACLASSSUFFIX
 The suffix for Java class files;
 .B .class
 by default.
+
+.IP JAVAH
+The Java generator for C header and stub files.
+
+.IP JAVAHCOM
+The command line used to generate C header and stub files
+from Java classes.
+Any options specified in the $JAVAHFLAGS construction variable
+are included on this command line.
+
+.IP JAVAHFLAGS
+General options passed to the C header and stub file generator
+for Java classes.
 
 .IP JAVASUFFIX
 The suffix for Java files;

@@ -58,8 +58,9 @@ SCons/Tool/gnulink.py
 SCons/Tool/gs.py
 SCons/Tool/hpcc.py
 SCons/Tool/hplink.py
-SCons/Tool/javac.py
 SCons/Tool/jar.py
+SCons/Tool/javac.py
+SCons/Tool/javah.py
 SCons/Tool/icc.py
 SCons/Tool/ifl.py
 SCons/Tool/ilink.py

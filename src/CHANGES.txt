@@ -48,7 +48,7 @@ RELEASE 0.14 - XXX
   - Parse the source .java files for class names (including inner class
     names) to figure out the target .class files that will be created.
 
-  - Fix Java support with Repositories and SConscriptChdir(0).
+  - Make Java support work with Repositories and SConscriptChdir(0).
 
   - Pass Nodes, not strings, to Builder emitter functions.
 
@@ -57,7 +57,7 @@ RELEASE 0.14 - XXX
 
   From Steven Knight:
 
-  - Add support for Java (javac and jar).
+  - Add Java support (javac, javah and jar).
 
   - Propagate the external SYSTEMROOT environment variable into ENV on
     Win32 systems, so external commands that use sockets will work.
