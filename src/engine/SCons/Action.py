@@ -153,7 +153,7 @@ class CommandGenerator:
     def __radd__(self, other):
         return _actionAppend(other, self)
 
-def _do_create_action(act, strfunction=_null, varlist=[]):
+def _do_create_action(act, *args, **kw):
     """This is the actual "implementation" for the
     Action factory method, below.  This handles the
     fact that passing lists to Action() itself has
@@ -166,42 +166,42 @@ def _do_create_action(act, strfunction=_null, varlist=[]):
 
     if isinstance(act, ActionBase):
         return act
-    elif SCons.Util.is_List(act):
-        return CommandAction(act)
-    elif isinstance(act, CommandGenerator):
-        return CommandGeneratorAction(act.generator)
-    elif callable(act):
-        return FunctionAction(act, strfunction=strfunction, varlist=varlist)
-    elif SCons.Util.is_String(act):
+    if SCons.Util.is_List(act):
+        return apply(CommandAction, (act,)+args, kw)
+    if isinstance(act, CommandGenerator):
+        return apply(CommandGeneratorAction, (act.generator,)+args, kw)
+    if callable(act):
+        return apply(FunctionAction, (act,)+args, kw)
+    if SCons.Util.is_String(act):
         var=SCons.Util.get_environment_var(act)
         if var:
             # This looks like a string that is purely an Environment
             # variable reference, like "$FOO" or "${FOO}".  We do
             # something special here...we lazily evaluate the contents
-            # of that Environment variable, so a user could but something
+            # of that Environment variable, so a user could put something
             # like a function or a CommandGenerator in that variable
             # instead of a string.
-            return CommandGeneratorAction(LazyCmdGenerator(var))
-        listCmds = map(lambda x: CommandAction(x),
-                       string.split(str(act), '\n'))
-        if len(listCmds) == 1:
-            return listCmds[0]
+            lcg = LazyCmdGenerator(var)
+            return apply(CommandGeneratorAction, (lcg,)+args, kw)
+        commands = string.split(str(act), '\n')
+        if len(commands) == 1:
+            return apply(CommandAction, (commands[0],)+args, kw)
         else:
-            return ListAction(listCmds)
-    else:
-        return None
+            listCmdActions = map(lambda x: CommandAction(x), commands)
+            return apply(ListAction, (listCmdActions,)+args, kw)
+    return None
 
 def Action(act, strfunction=_null, varlist=[]):
     """A factory for action objects."""
     if SCons.Util.is_List(act):
         acts = map(lambda x, s=strfunction, v=varlist:
-                          _do_create_action(x, s, v),
+                          _do_create_action(x, strfunction=s, varlist=v),
                    act)
         acts = filter(lambda x: not x is None, acts)
         if len(acts) == 1:
             return acts[0]
         else:
-            return ListAction(acts)
+            return ListAction(acts, strfunction=strfunction, varlist=varlist)
     else:
         return _do_create_action(act, strfunction=strfunction, varlist=varlist)
 
@@ -255,12 +255,14 @@ def _string_from_cmd_list(cmd_list):
 
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
-    def __init__(self, cmd):
+    def __init__(self, cmd, strfunction=_null, varlist=[]):
         # Cmd list can actually be a list or a single item...basically
         # anything that we could pass in as the first arg to
         # Environment.subst_list().
         if __debug__: logInstanceCreation(self)
         self.cmd_list = cmd
+        if not strfunction is _null:
+            self.strfunction = strfunction
 
     def __str__(self):
         return str(self.cmd_list)
@@ -372,9 +374,11 @@ class CommandAction(ActionBase):
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
-    def __init__(self, generator):
+    def __init__(self, generator, strfunction=_null, varlist=[]):
         if __debug__: logInstanceCreation(self)
         self.generator = generator
+        if not strfunction is _null:
+            self.strfunction = strfunction
 
     def __generate(self, target, source, env, for_signature):
         # ensure that target is a list, to make it easier to write
@@ -539,9 +543,11 @@ class FunctionAction(ActionBase):
 
 class ListAction(ActionBase):
     """Class for lists of other actions."""
-    def __init__(self, list):
+    def __init__(self, list, strfunction=_null, varlist=[]):
         if __debug__: logInstanceCreation(self)
         self.list = map(lambda x: Action(x), list)
+        if not strfunction is _null:
+            self.strfunction = strfunction
 
     def get_actions(self):
         return self.list

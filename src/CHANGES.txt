@@ -98,6 +98,9 @@ RELEASE 0.96 - XXX
     or env.Execute() environment method, or may be used as a Builder
     action or in an env.Command() action list.
 
+  - Add support for the strfunction argument to all types of Actions:
+    CommandAction, ListAction, and CommandGeneratorAction.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
