@@ -257,8 +257,6 @@ def find_files(filenames, paths,
 
 
 
-# See the documentation for the __autogenerate() method
-# for an explanation of this variable...
 AUTO_GEN_VARS = ( ( '_LIBFLAGS',
                     'LIBS',
                     'LIBLINKPREFIX',
@@ -272,7 +270,7 @@ AUTO_GEN_VARS = ( ( '_LIBFLAGS',
                     'INCPREFIX',
                     'INCSUFFIX' ) )
 
-def autogenerate(dict):
+def autogenerate(dict, fs = SCons.Node.FS.default_fs, dir = None):
     """Autogenerate the "interpolated" environment variables.
     We read a static structure that tells us how.  AUTO_GEN_VARS
     is a tuple of tuples.  Each inner tuple has four elements,
@@ -290,15 +288,16 @@ def autogenerate(dict):
     concatenated."""
 
     for strVarAuto, strSrc, strPref, strSuff, in AUTO_GEN_VARS:
-        if dict.has_key(strSrc):
-            src_var = dict[strSrc]
-            if type(src_var) is types.ListType or \
-               isinstance(src_var, UserList):
-                src_var = map(str, src_var)
-            else:
-                src_var = [ str(src_var), ]
-        else:
-            src_var = []
+        if not dict.has_key(strSrc):
+            dict[strVarAuto] = ''
+            continue
+                
+        src = dict[strSrc]
+        if not type(src) is types.ListType and not isinstance(src, UserList):
+            src = [ src ]
+        src = map(lambda x, fs=fs, d=dir: \
+                  fs.Dir(str(x), directory = d).path,
+                  src)
 
         try:
             prefix = str(dict[strPref])
@@ -312,4 +311,4 @@ def autogenerate(dict):
 
         dict[strVarAuto] = map(lambda x, suff=suffix, pref=prefix: \
                                pref + os.path.normpath(str(x)) + suff,
-                               src_var)
+                               src)

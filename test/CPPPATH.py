@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import sys
 import TestSCons
 
@@ -33,70 +34,108 @@ else:
     _exe = ''
 
 prog = 'prog' + _exe
+subdir_prog = os.path.join('subdir', 'prog' + _exe)
+
+args = prog + ' ' + subdir_prog
 
 test = TestSCons.TestSCons()
 
-test.write('foo.c',
-"""#include "foo.h"
+test.subdir('include', 'subdir', ['subdir', 'include'])
+
+test.write('SConstruct', """
+env = Environment(CPPPATH = ['include'])
+obj = env.Object(target='prog', source='subdir/prog.c')
+env.Program(target='prog', source=obj)
+SConscript('subdir/SConscript')
+""")
+
+test.write(['subdir', 'SConscript'], """
+env.Program(target='prog', source='prog.c')
+""")
+
+test.write('include/foo.h',
+r"""
+#define	FOO_STRING "include/foo.h 1\n"
+#include <bar.h>
+""")
+
+test.write('include/bar.h',
+r"""
+#define BAR_STRING "include/bar.h 1\n"
+""")
+
+test.write('subdir/prog.c',
+r"""#include <foo.h>
 #include <stdio.h>
 
-int main(void)
+int
+main(int argc, char *argv[])
 {
+    argv[argc++] = "--";
+    printf("subdir/prog.c\n");
     printf(FOO_STRING);
     printf(BAR_STRING);
     return 0;
 }
 """)
 
-test.subdir('include')
-
-test.write('include/foo.h',
+test.write('subdir/include/foo.h',
 r"""
-#define	FOO_STRING "foo.h 1\n"
+#define	FOO_STRING "subdir/include/foo.h 1\n"
 #include "bar.h"
 """)
 
-test.write('include/bar.h',
+test.write('subdir/include/bar.h',
 r"""
-#define BAR_STRING "bar.h 1\n"
+#define BAR_STRING "subdir/include/bar.h 1\n"
 """)
 
-test.write('SConstruct', """
-env = Environment(CPPPATH = ['include'])
-env.Program(target='prog', source='foo.c')
-""")
 
-test.run(arguments = prog)
+
+test.run(arguments = args, stderr = None)
 
 test.run(program = test.workpath(prog),
-         stdout = "foo.h 1\nbar.h 1\n")
+         stdout = "subdir/prog.c\ninclude/foo.h 1\ninclude/bar.h 1\n")
 
-test.up_to_date(arguments = prog)
+test.run(program = test.workpath(subdir_prog),
+         stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
+
+test.up_to_date(arguments = args)
+
+
 
 test.unlink('include/foo.h')
 test.write('include/foo.h',
 r"""
-#define	FOO_STRING "foo.h 2\n"
+#define	FOO_STRING "include/foo.h 2\n"
 #include "bar.h"
 """)
 
-test.run(arguments = prog)
+test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
-         stdout = "foo.h 2\nbar.h 1\n")
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
 
-test.up_to_date(arguments = prog)
+test.run(program = test.workpath(subdir_prog),
+         stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
+
+test.up_to_date(arguments = args)
+
+
 
 test.unlink('include/bar.h')
 test.write('include/bar.h',
 r"""
-#define BAR_STRING "bar.h 2\n"
+#define BAR_STRING "include/bar.h 2\n"
 """)
 
 test.run(arguments = prog)
 
 test.run(program = test.workpath(prog),
-         stdout = "foo.h 2\nbar.h 2\n")
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 2\n")
+
+test.run(program = test.workpath(subdir_prog),
+         stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
 
 test.up_to_date(arguments = prog)
 

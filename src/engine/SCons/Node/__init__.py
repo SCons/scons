@@ -95,7 +95,11 @@ class Node:
                 self.node = node
             def get_contents(self):
                 env = self.node.env.Dictionary()
-                return self.node.builder.get_contents(env = env)
+                try:
+                    dir = self.node.cwd
+                except AttributeError:
+                    dir = None
+                return self.node.builder.get_contents(env = env, dir = dir)
         return Adapter(self)
 
     def scanner_set(self, scanner):

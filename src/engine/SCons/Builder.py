@@ -180,6 +180,7 @@ class BuilderBase:
                                 self.node_factory)
 
 	for t in tlist:
+            t.cwd = SCons.Node.FS.default_fs.cwd	# XXX
 	    t.builder_set(self)
 	    t.env_set(env)
 	    t.add_source(slist)
@@ -347,14 +348,26 @@ class ActionBase:
             dict.update(kw['env'])
             del kw['env']
 
+        try:
+            cwd = kw['dir']
+        except:
+            cwd = None
+        else:
+            del kw['dir']
+
         if kw.has_key('target'):
             t = kw['target']
             del kw['target']
-            if not type(t) is types.ListType:
+            if not type(t) is types.ListType and not isinstance(t, UserList):
                 t = [t]
+            try:
+                cwd = t[0].cwd
+            except AttributeError:
+                pass
             dict['TARGETS'] = PathList(map(os.path.normpath, map(str, t)))
-	    if dict['TARGETS']:
+            if dict['TARGETS']:
                 dict['TARGET'] = dict['TARGETS'][0]
+
         if kw.has_key('source'):
             s = kw['source']
             del kw['source']
@@ -365,7 +378,7 @@ class ActionBase:
         dict.update(kw)
 
         # Autogenerate necessary construction variables.
-        autogenerate(dict)
+        autogenerate(dict, dir = cwd)
 
         return dict
 

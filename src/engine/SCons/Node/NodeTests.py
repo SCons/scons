@@ -44,7 +44,7 @@ class Builder:
         built_target = kw['target']
         built_source = kw['source']
         return 0
-    def get_contents(self, env):
+    def get_contents(self, env, dir):
         return 7
 
 class FailBuilder:

@@ -191,13 +191,13 @@ class UtilTestCase(unittest.TestCase):
         dict = {'CPPPATH'   : [ 'foo', 'bar', 'baz' ],
                 'INCPREFIX' : 'foo',
                 'INCSUFFIX' : 'bar'}
-        autogenerate(dict)
+        autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
         assert len(dict['_INCFLAGS']) == 3, dict('_INCFLAGS')
-        assert dict['_INCFLAGS'][0] == 'foofoobar', \
+        assert dict['_INCFLAGS'][0] == 'foo/xx/foobar', \
                dict['_INCFLAGS'][0]
-        assert dict['_INCFLAGS'][1] == 'foobarbar', \
+        assert dict['_INCFLAGS'][1] == 'foo/xx/barbar', \
                dict['_INCFLAGS'][1]
-        assert dict['_INCFLAGS'][2] == 'foobazbar', \
+        assert dict['_INCFLAGS'][2] == 'foo/xx/bazbar', \
                dict['_INCFLAGS'][2]
         
         
