@@ -76,9 +76,10 @@ class Environment:
         pass
 
 class Action:
-    def __call__(self, targets, sources, env):
+    def __call__(self, targets, sources, env, errfunc, **kw):
         global built_it
-        built_it = 1
+        if kw.get('execute', 1):
+            built_it = 1
         return 0
     def show(self, string):
         pass

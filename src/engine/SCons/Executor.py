@@ -38,16 +38,16 @@ import SCons.Util
 class Executor:
     """A class for controlling instances of executing an action.
 
-    This largely exists to hold a single association of a builder,
-    environment, environment overrides, targets and sources for later
-    processing as needed.
+    This largely exists to hold a single association of an action,
+    environment, list of environment override dictionaries, targets
+    and sources for later processing as needed.
     """
 
-    def __init__(self, builder, env, overrides, targets, sources):
+    def __init__(self, action, env=None, overridelist=[], targets=[], sources=[]):
         if __debug__: logInstanceCreation(self)
-        self.builder = builder
+        self.action = action
         self.env = env
-        self.overrides = overrides
+        self.overridelist = overridelist
         self.targets = targets
         self.sources = sources[:]
 
@@ -58,32 +58,23 @@ class Executor:
         try:
             return self.build_env
         except AttributeError:
-            if self.env is None:
-                # There was no Environment specifically associated with
-                # this set of targets (which kind of implies that it
-                # is--or they are--source files, but who knows...).
-                # So use the environment associated with the Builder
-                # itself.
-                env = self.builder.env
-            else:
-                # The normal case:  use the Environment that was
-                # used to specify how these targets will be built.
-                env = self.env
-
             # Create the build environment instance with appropriate
             # overrides.  These get evaluated against the current
             # environment's construction variables so that users can
             # add to existing values by referencing the variable in
             # the expansion.
             overrides = {}
-            overrides.update(self.builder.overrides)
-            overrides.update(self.overrides)
+            for odict in self.overridelist:
+                overrides.update(odict)
             try:
                 generate_build_dict = self.targets[0].generate_build_dict
-            except AttributeError:
+            except (AttributeError, IndexError):
                 pass
             else:
                 overrides.update(generate_build_dict())
+
+            import SCons.Defaults
+            env = self.env or SCons.Defaults.DefaultEnvironment()
             self.build_env = env.Override(overrides)
 
             # Now update the build environment with the things that we
@@ -106,19 +97,22 @@ class Executor:
         try:
             al = self.action_list
         except AttributeError:
-            al = self.builder.action.get_actions()
+            al = self.action.get_actions()
             self.action_list = al
-        # XXX shouldn't reach into node attributes like this
-        return target.pre_actions + al + target.post_actions
+        try:
+            # XXX shouldn't reach into node attributes like this
+            return target.pre_actions + al + target.post_actions
+        except AttributeError:
+            return al
 
-    def __call__(self, target, func):
+    def __call__(self, target, errfunc, **kw):
         """Actually execute the action list."""
         action_list = self.get_action_list(target)
         if not action_list:
             return
         env = self.get_build_env()
         for action in action_list:
-            func(action, self.targets, self.sources, env)
+            apply(action, (self.targets, self.sources, env, errfunc), kw)
 
     def cleanup(self):
         try:
@@ -137,7 +131,7 @@ class Executor:
         try:
             return self.string
         except AttributeError:
-            action = self.builder.action
+            action = self.action
             self.string = action.genstring(self.targets,
                                            self.sources,
                                            self.get_build_env())
@@ -152,7 +146,7 @@ class Executor:
         try:
             return self.raw_contents
         except AttributeError:
-            action = self.builder.action
+            action = self.action
             self.raw_contents = action.get_raw_contents(self.targets,
                                                         self.sources,
                                                         self.get_build_env())
@@ -167,7 +161,7 @@ class Executor:
         try:
             return self.contents
         except AttributeError:
-            action = self.builder.action
+            action = self.action
             self.contents = action.get_contents(self.targets,
                                                 self.sources,
                                                 self.get_build_env())

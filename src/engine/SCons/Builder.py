@@ -324,9 +324,9 @@ def _init_nodes(builder, env, overrides, tlist, slist):
         else:
             executor.add_sources(slist)
     if executor is None:
-        executor = SCons.Executor.Executor(builder,
-                                           env,
-                                           overrides,
+        executor = SCons.Executor.Executor(builder.action,
+                                           env or builder.env,
+                                           [builder.overrides, overrides],
                                            tlist,
                                            slist)
 

@@ -43,7 +43,7 @@ class MyAction:
     def __init__(self):
         self.order = 0
 
-    def __call__(self, target, source, env):
+    def __call__(self, target, source, env, errfunc):
         global built_it, built_target, built_source, built_args, built_order
         built_it = 1
         built_target = target
@@ -63,7 +63,7 @@ class MyNonGlobalAction:
         self.built_target =  None
         self.built_source =  None
 
-    def __call__(self, target, source, env):
+    def __call__(self, target, source, env, errfunc):
         # Okay, so not ENTIRELY non-global...
         global built_order
         self.built_it = 1
@@ -165,6 +165,8 @@ class NodeTestCase(unittest.TestCase):
         # Make sure it doesn't blow up if no builder is set.
         node = MyNode("www")
         node.build()
+        assert built_it == None
+        node.build(extra_kw_argument = 1)
         assert built_it == None
 
         node = MyNode("xxx")

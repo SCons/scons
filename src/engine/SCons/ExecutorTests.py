@@ -44,7 +44,8 @@ class MyEnvironment:
         self._dict.update(dict)
 
 class MyAction:
-    actions = ['action1', 'action2']
+    def __init__(self, actions=['action1', 'action2']):
+        self.actions = actions
     def get_actions(self):
         return self.actions
     def genstring(self, target, source, env):
@@ -71,28 +72,25 @@ class ExecutorTestCase(unittest.TestCase):
     def test__init__(self):
         """Test creating an Executor"""
         source_list = ['s1', 's2']
-        x = SCons.Executor.Executor('b', 'e', 'o', 't', source_list)
-        assert x.builder == 'b', x.builder
+        x = SCons.Executor.Executor('a', 'e', ['o'], 't', source_list)
+        assert x.action == 'a', x.builder
         assert x.env == 'e', x.env
-        assert x.overrides == 'o', x.overrides
+        assert x.overridelist == ['o'], x.overridelist
         assert x.targets == 't', x.targets
         source_list.append('s3')
         assert x.sources == ['s1', 's2'], x.sources
 
     def test_get_build_env(self):
         """Test fetching and generating a build environment"""
-        x = SCons.Executor.Executor(MyBuilder('e', {}),
-                                    'e',
-                                    {},
-                                    't',
-                                    ['s1', 's2'])
+        x = SCons.Executor.Executor(MyAction(), 'e', [], 't', ['s1', 's2'])
         x.build_env = 'eee'
         be = x.get_build_env()
         assert be == 'eee', be
 
-        x = SCons.Executor.Executor(MyBuilder('e', {}),
-                                    MyEnvironment(X='xxx'),
-                                    {'O':'o2'},
+        env = MyEnvironment(X='xxx')
+        x = SCons.Executor.Executor(MyAction(),
+                                    env,
+                                    [{'O':'o2'}],
                                     't',
                                     ['s1', 's2'])
         be = x.get_build_env()
@@ -100,19 +98,13 @@ class ExecutorTestCase(unittest.TestCase):
         assert be['X'] == 'xxx', be['X']
 
         env = MyEnvironment(Y='yyy')
-        x = SCons.Executor.Executor(MyBuilder(env, {'O':'ob3'}),
-                                    None,
-                                    {'O':'oo3'},
-                                    't',
-                                    's')
+        overrides = [{'O':'ob3'}, {'O':'oo3'}]
+        x = SCons.Executor.Executor(MyAction(), env, overrides, 't', 's')
         be = x.get_build_env()
         assert be['O'] == 'oo3', be['O']
         assert be['Y'] == 'yyy', be['Y']
-        x = SCons.Executor.Executor(MyBuilder(env, {'O':'ob3'}),
-                                    None,
-                                    {},
-                                    't',
-                                    's')
+        overrides = [{'O':'ob3'}]
+        x = SCons.Executor.Executor(MyAction(), env, overrides, 't', 's')
         be = x.get_build_env()
         assert be['O'] == 'ob3', be['O']
         assert be['Y'] == 'yyy', be['Y']
@@ -126,23 +118,51 @@ class ExecutorTestCase(unittest.TestCase):
         al = x.get_action_list(MyNode(['PRE'], ['POST']))
         assert al == ['PRE', 'aaa', 'POST'], al
 
-        x = SCons.Executor.Executor(MyBuilder('e', 'o'), None, {}, 't', 's')
+        x = SCons.Executor.Executor(MyAction(), None, {}, 't', 's')
         al = x.get_action_list(MyNode(['pre'], ['post']))
         assert al == ['pre', 'action1', 'action2', 'post'], al
 
     def test__call__(self):
         """Test calling an Executor"""
-        actions = []
-        env = MyEnvironment(CALL='call')
-        b = MyBuilder(env, {})
-        x = SCons.Executor.Executor(b, None, {}, ['t1', 't2'], ['s1', 's2'])
-        def func(action, target, source, env, a=actions):
-            a.append(action)
-            assert target == ['t1', 't2'], target
-            assert source == ['s1', 's2'], source
-            assert env['CALL'] == 'call', env['CALL']
-        x(MyNode(['pre'], ['post']), func)
-        assert actions == ['pre', 'action1', 'action2', 'post'], actions
+        result = []
+        def pre(target, source, env, errfunc, result=result, **kw):
+            result.append('pre')
+        def action1(target, source, env, errfunc, result=result, **kw):
+            result.append('action1')
+        def action2(target, source, env, errfunc, result=result, **kw):
+            result.append('action2')
+        def post(target, source, env, errfunc, result=result, **kw):
+            result.append('post')
+
+        env = MyEnvironment()
+        a = MyAction([action1, action2])
+        x = SCons.Executor.Executor(a, env, [], ['t1', 't2'], ['s1', 's2'])
+
+        x(MyNode([pre], [post]), None)
+        assert result == ['pre', 'action1', 'action2', 'post'], result
+        del result[:]
+
+        def pre_err(target, source, env, errfunc, result=result, **kw):
+            result.append('pre_err')
+            if errfunc:
+                errfunc(1)
+            return 1
+
+        x(MyNode([pre_err], [post]), None)
+        assert result == ['pre_err', 'action1', 'action2', 'post'], result
+        del result[:]
+
+        def errfunc(stat):
+            raise "errfunc %s" % stat
+
+        try:
+            x(MyNode([pre_err], [post]), errfunc)
+        except:
+            assert sys.exc_type == "errfunc 1", sys.exc_type
+        else:
+            assert 0, "did not catch expected exception"
+        assert result == ['pre_err'], result
+        del result[:]
 
     def test_cleanup(self):
         """Test cleaning up an Executor"""
@@ -171,7 +191,7 @@ class ExecutorTestCase(unittest.TestCase):
         """Test the __str__() method"""
         env = MyEnvironment(S='string')
 
-        x = SCons.Executor.Executor(MyBuilder(env, {}), None, {}, ['t'], ['s'])
+        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         c = str(x)
         assert c == 'GENSTRING action1 action2 t s', c
 
@@ -179,12 +199,12 @@ class ExecutorTestCase(unittest.TestCase):
         """Test fetching the raw signatures contents"""
         env = MyEnvironment(RC='raw contents')
 
-        x = SCons.Executor.Executor(MyBuilder(env, {}), None, {}, ['t'], ['s'])
+        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         x.raw_contents = 'raw raw raw'
         rc = x.get_raw_contents()
         assert rc == 'raw raw raw', rc
 
-        x = SCons.Executor.Executor(MyBuilder(env, {}), None, {}, ['t'], ['s'])
+        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         rc = x.get_raw_contents()
         assert rc == 'RAW action1 action2 t s', rc
 
@@ -192,12 +212,12 @@ class ExecutorTestCase(unittest.TestCase):
         """Test fetching the signatures contents"""
         env = MyEnvironment(C='contents')
 
-        x = SCons.Executor.Executor(MyBuilder(env, {}), None, {}, ['t'], ['s'])
+        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         x.contents = 'contents'
         c = x.get_contents()
         assert c == 'contents', c
 
-        x = SCons.Executor.Executor(MyBuilder(env, {}), None, {}, ['t'], ['s'])
+        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         c = x.get_contents()
         assert c == 'action1 action2 t s', c
 
