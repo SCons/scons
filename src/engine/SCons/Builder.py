@@ -43,6 +43,13 @@ import SCons.Util
 
 def Builder(**kw):
     """A factory for builder objects."""
+    
+    if kw.has_key('generator'):
+        if kw.has_key('action'):
+            raise UserError, "You must not specify both an action and a generator."
+        kw['action'] = SCons.Action.CommandGenerator(kw['generator'])
+        del kw['generator']
+
     if kw.has_key('action') and SCons.Util.is_Dict(kw['action']):
         return apply(CompositeBuilder, (), kw)
     elif kw.has_key('src_builder'):

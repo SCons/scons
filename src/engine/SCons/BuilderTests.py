@@ -155,6 +155,15 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(name="builder", action="foo")
 	assert builder.action.command == "foo"
 
+    def test_generator(self):
+        """Test Builder creation given a generator function."""
+
+        def generator():
+            pass
+
+        builder = SCons.Builder.Builder(name="builder", generator=generator)
+        assert builder.action.generator == generator
+
     def test_cmp(self):
 	"""Test simple comparisons of Builder objects
 	"""

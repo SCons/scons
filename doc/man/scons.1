@@ -1170,6 +1170,31 @@ Specifies a builder to use when a source file name suffix does not match
 any of the suffixes of the builder. Using this argument produces a
 multi-stage builder.
 
+.IP generator
+A function that returns a list of command lines that will be executed to build
+the target(s) from the source(s). The command lines must be returned as
+lists, where the first element of the list is the executable, and the other
+elements in the list are the arguments that will be passed to the
+executable. The 
+.I generator
+and
+.I action
+arguments must not both be used for the same Builder. The generator function
+should take 3 arguments:
+.I source 
+- a list of source nodes, 
+.I target
+- a list of target nodes,
+.I env
+- the construction environment. Example:
+
+.ES
+def g(env, source, target):
+	return [["gcc", "-c", "-o"] + target + source] 
+
+b = Builder(name="Object", generator=g)
+.EE
+
 .SS Action Objects
 
 The Builder function will turn its

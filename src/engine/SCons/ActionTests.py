@@ -142,6 +142,41 @@ class CommandActionTestCase(unittest.TestCase):
         c = a.get_contents(foo = 'FFF', bar = 'BBB')
         assert c == "| FFF BBB |"
 
+class CommandGeneratorActionTestCase(unittest.TestCase):
+
+    def test_init(self):
+        """Test creation of a command generator Action
+        """
+        def f(target, source, env):
+            pass
+        a = SCons.Action.CommandGeneratorAction(f)
+        assert a.generator == f
+
+    def test_execute(self):
+        """Test executing a command generator Action
+        """
+
+        def f(dummy, self=self):
+            self.dummy = dummy
+            return [[""]]
+
+        a = SCons.Action.CommandGeneratorAction(f)
+        self.dummy = 0
+        a.execute(dummy=1)
+        assert self.dummy == 1
+        del self.dummy
+
+    def test_get_contents(self):
+        """Test fetching the contents of a command generator Action
+        """
+        def f(target, source, foo, bar):
+            return [["guux", foo, "$(", "ignore", "$)", bar]]
+
+        a = SCons.Action.CommandGeneratorAction(f)
+        c = a.get_contents(foo = 'FFF', bar = 'BBB')
+        assert c == [["guux", 'FFF', 'BBB']], c
+
+
 class FunctionActionTestCase(unittest.TestCase):
 
     def test_init(self):
@@ -209,6 +244,7 @@ if __name__ == "__main__":
     suite.addTest(ActionBaseTestCase("test_cmp"))
     suite.addTest(ActionBaseTestCase("test_subst_dict"))
     for tclass in [CommandActionTestCase,
+                   CommandGeneratorActionTestCase,
                    FunctionActionTestCase,
                    ListActionTestCase]:
         for func in ["test_init", "test_execute", "test_get_contents"]:
