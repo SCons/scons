@@ -1265,6 +1265,14 @@ class get_actionsTestCase(unittest.TestCase):
         a = dir.get_actions()
         assert a == [], a
 
+class SConstructTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test setting the SConstruct file"""
+
+        fs = SCons.Node.FS.FS()
+        fs.set_SConstruct('xxx')
+        assert fs.SConstruct.path == 'xxx'
+
 class CacheDirTestCase(unittest.TestCase):
     def runTest(self):
         """Test CacheDir functionality"""
@@ -1397,6 +1405,7 @@ if __name__ == "__main__":
     suite.addTest(has_builderTestCase())
     suite.addTest(prepareTestCase())
     suite.addTest(get_actionsTestCase())
+    suite.addTest(SConstructTestCase())
     suite.addTest(CacheDirTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

@@ -67,6 +67,14 @@ RELEASE 0.12 - XXX
 
   - Add an explicit Exit() function for terminating early.
 
+  - Change the documentation to correctly describe that the -f option
+    doesn't change to the directory in which the specified file lives.
+    
+  - Support changing directories locally with SConscript directory
+    path names relative to any SConstruct file specified with -f.
+    This allows you to build in another directory by simply changing
+    there and pointing at the SConstruct file in another directory.
+
   From Lachlan O'Dea:
 
   - Add SharedObject() support to the masm tool.

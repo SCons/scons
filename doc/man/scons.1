@@ -65,11 +65,7 @@ configuration from the first file found.
 An alternate file name may be
 specified via the 
 .B -f
-option. If the specified file is not
-in the local directory, 
-.B scons 
-will internally change its working
-directory (chdir) to the directory containing the file.
+option.
 
 The
 .I SConstruct
@@ -476,11 +472,6 @@ variables from the SConscript files.
 Use 
 .I file 
 as the initial SConscript file.
-If 
-.I file
-is in another directory,
-.B scons 
-will change to that directory before building targets.
 
 .TP 
 -h, --help

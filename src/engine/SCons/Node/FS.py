@@ -366,6 +366,7 @@ class FS:
             self.pathTop = path
         self.Root = {}
         self.Top = None
+        self.SConstruct = None
         self.CachePath = None
         self.cache_force = None
         self.cache_show = None
@@ -373,6 +374,9 @@ class FS:
     def set_toplevel_dir(self, path):
         assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
         self.pathTop = path
+
+    def set_SConstruct(self, path):
+        self.SConstruct = self.File(path)
         
     def __setTopLevelDir(self):
         if not self.Top:

@@ -742,6 +742,8 @@ def _main():
     if not scripts:
         raise SCons.Errors.UserError, "No SConstruct file found."
 
+    SCons.Node.FS.default_fs.set_SConstruct(scripts[0])
+
     class Unbuffered:
         def __init__(self, file):
             self.file = file

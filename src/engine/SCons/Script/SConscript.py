@@ -182,6 +182,10 @@ def GetSConscriptFilenames(ls, kw):
 def SConscript(*ls, **kw):
     files, exports = GetSConscriptFilenames(ls, kw)
 
+    default_fs = SCons.Node.FS.default_fs
+    top = default_fs.Top
+    sd = default_fs.SConstruct.rfile().dir
+
     # evaluate each SConscript file
     results = []
     for fn in files:
@@ -195,19 +199,20 @@ def SConscript(*ls, **kw):
                 if isinstance(fn, SCons.Node.Node):
                     f = fn
                 else:
-                    f = SCons.Node.FS.default_fs.File(str(fn))
+                    f = default_fs.File(str(fn))
                 _file_ = None
-                old_dir = SCons.Node.FS.default_fs.getcwd()
-                SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Dir('#'),
-                                               change_os_dir=1)
+                old_dir = default_fs.getcwd()
+
+                # Change directory to the top of the source
+                # tree to make sure the os's cwd and the cwd of
+                # SCons.Node.FS.default_fs match so we can open the
+                # SConscript.
+                default_fs.chdir(top, change_os_dir=1)
                 if f.rexists():
-                    # Change directory to top of source tree to make sure
-                    # the os's cwd and the cwd of SCons.Node.FS.default_fs
-                    # match so we can open the SConscript.
                     _file_ = open(f.rstr(), "r")
                 elif f.has_builder():
                     # The SConscript file apparently exists in a source
-                    # code management system.  Build it, but then remove
+                    # code management system.  Build it, but then clear
                     # the builder so that it doesn't get built *again*
                     # during the actual build phase.
                     f.build()
@@ -216,11 +221,22 @@ def SConscript(*ls, **kw):
                     if os.path.exists(s):
                         _file_ = open(s, "r")
                 if _file_:
-                    SCons.Node.FS.default_fs.chdir(f.dir,
-                                                   change_os_dir=sconscript_chdir)
-                    # prepend the SConscript directory to sys.path so
-                    # that Python modules in the SConscript directory can
-                    # be easily imported
+                    # Chdir to the SConscript directory.  Use a path
+                    # name relative to the SConstruct file so that if
+                    # we're using the -f option, we're essentially
+                    # creating a parallel SConscript directory structure
+                    # in our local directory tree.
+                    #
+                    # XXX This is broken for multiple-repository cases
+                    # where the SConstruct and SConscript files might be
+                    # in different Repositories.  For now, cross that
+                    # bridge when someone comes to it.
+                    ldir = default_fs.Dir(f.dir.get_path(sd))
+                    default_fs.chdir(ldir, change_os_dir=sconscript_chdir)
+
+                    # Append the SConscript directory to the beginning
+                    # of sys.path so Python modules in the SConscript
+                    # directory can be easily imported.
                     sys.path = [ f.dir.abspath ] + sys.path
 
                     # This is the magic line that actually reads up and
@@ -237,10 +253,9 @@ def SConscript(*ls, **kw):
         finally:
             sys.path = old_sys_path
             frame = stack.pop()
-            SCons.Node.FS.default_fs.chdir(frame.prev_dir)
+            default_fs.chdir(frame.prev_dir)
             if old_dir:
-                SCons.Node.FS.default_fs.chdir(old_dir,
-                                               change_os_dir=sconscript_chdir)
+                default_fs.chdir(old_dir, change_os_dir=sconscript_chdir)
 
             results.append(frame.retval)
 
