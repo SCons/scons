@@ -100,18 +100,20 @@ if build == 'aegis':
 
     version = aegis_to_version(version)
 
-    build_test = os.path.join(cwd, "build", "test")
-    scons_dir = os.path.join(build_test, "scons-" + version)
+    scons_dir = os.path.join(cwd, 'build', 'test', 'bin')
 
-    os.environ['PYTHONPATH'] = string.join([scons_dir,
-					    build_test],
-					   os.pathsep)
+    os.environ['PYTHONPATH'] = os.path.join(cwd,
+					    'build',
+					    'test',
+					    'lib',
+					    'python' + sys.version[0:3],
+					    'site-packages')
 
 else:
 
-    scons_dir = os.path.join(cwd, 'src')
+    scons_dir = os.path.join(cwd, 'src', 'script')
 
-    os.environ['PYTHONPATH'] = string.join([os.path.join(cwd, 'src'),
+    os.environ['PYTHONPATH'] = string.join([os.path.join(cwd, 'src', 'engine'),
 					    os.path.join(cwd, 'etc')],
 					   os.pathsep)
 

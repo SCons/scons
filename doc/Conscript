@@ -2,17 +2,12 @@
 # Conscript file for building SCons documentation.
 #
 
-Import qw(
-    date
-    env
-    revision
-    version
-);
+Import qw( env );
 
 #
 #
 #
-$doc_tar_gz = "#build/dist/scons-doc-$version.tar.gz";
+$doc_tar_gz = "#build/dist/scons-doc-${\$env->{VERSION}}.tar.gz";
 
 #
 # We'll only try to build text files (for some documents)
@@ -33,9 +28,9 @@ print FILE <<_EOF_;
 <!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
-<!ENTITY build_date "$date">
-<!ENTITY build_version "$version">
-<!ENTITY build_revision "$revision">
+<!ENTITY build_date "${\$env->{DATE}}">
+<!ENTITY build_version "${\$env->{VERSION}}">
+<!ENTITY build_revision "${\$env->{REVISION}}">
 _EOF_
 close(FILE);
 

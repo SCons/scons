@@ -4,8 +4,8 @@
 # of stuff to work on SCons.
 #
 
-Import qw( env test_dir );
+Import qw( env );
 
 @modules = qw(TestCmd.py TestSCons.py unittest.py);
 
-$env->Install("#$test_dir", @modules);
+$env->Install($env->{TEST_LIB_DIR}, @modules);

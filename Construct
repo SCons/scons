@@ -5,11 +5,6 @@
 #
 $project = 'scons';
 
-$env = new cons( ENV => {
-			  AEGIS_PROJECT => $ENV{AEGIS_PROJECT},
-			  PATH => $ENV{PATH},
-			} );
-
 Default qw( . );
 
 #
@@ -65,74 +60,140 @@ pop @arr if $#arr >= 2;
 map {s/^[CD]//, s/^0*(\d\d)$/$1/} @arr;
 $version = join('.', @arr);
 
-#
-# Use %(-%) around the date so date changes don't cause rebuilds.
-#
-$sed_cmd = "sed" .
-       " %( -e 's+__DATE__+$date+' %)" .
-       " -e 's+__DEVELOPER__+$developer+'" .
-       " -e 's+__REVISION__+$revision+'" .
-       " -e 's+__VERSION__+$version+'" .
-       " %< > %>";
+chomp($python_ver = `python -c 'import sys; print sys.version[0:3]'`);
 
-#
-# Run everything in the MANIFEST through the sed command we concocted.
-#
-chomp(@files = `cat src/MANIFEST`);
 
-foreach $file (@files) {
-    Command $env "build/$file", "src/$file", $sed_cmd;
-}
+use Cwd;
+$test_dir = File::Spec->catfile(cwd, "build", "test");
 
-#
-# Use the Python distutils to generate the packages.
-#
-$tar_gz = "build/dist/$project-$version.tar.gz";
-
-@setup_args = ('bdist sdist');
-
-@targets = (
-    "build/dist/$project-$version.linux-i686.tar.gz",
-    $tar_gz,
+%package_name = (
+    'script'	=> $project,
+    'engine'	=> "$project-pylib",
 );
 
-if ($rpm) {
-    push(@setup_args, 'bdist_rpm');
+$test_bin_dir = File::Spec->catfile($test_dir, "bin");
+$test_lib_dir = File::Spec->catfile($test_dir,
+				    "lib",
+				    "python${python_ver}",
+				    "site-packages"),
 
-    push(@targets,
-	"build/build/bdist.linux-i686/rpm/SOURCES/$project-$version.tar.gz",
-	"build/build/bdist.linux-i686/rpm/SPECS/$project.spec",
-	"build/dist/$project-$version-1.src.rpm",
-	"build/dist/$project-$version-1.noarch.rpm",
+%install_dir = (
+    'script'	=> $test_bin_dir,
+    'engine'	=> $test_lib_dir,
+);
+
+$env = new cons( ENV => {
+			  AEGIS_PROJECT => $ENV{AEGIS_PROJECT},
+			  PATH => $ENV{PATH},
+			},
+
+		 TEST_BIN_DIR	=> $test_bin_dir,
+		 TEST_LIB_DIR	=> $test_lib_dir,
+
+		 DATE		=> $date,
+		 DEVELOPER	=> $developer,
+		 REVISION	=> $revision,
+		 VERSION	=> $version,
+
+		 SED		=> 'sed',
+				   # Use %(-%) around the date so date
+				   # changes don't cause rebuilds.
+		 SEDFLAGS	=> " %( -e 's+__DATE__+%DATE+' %)" .
+				   " -e 's+__DEVELOPER__+%DEVELOPER+'" .
+				   " -e 's+__REVISION__+%REVISION+'" .
+				   " -e 's+__VERSION__+%VERSION+'",
+		 SEDCOM		=> "%SED %SEDFLAGS %< > %>",
+		);
+
+my @src_deps;
+
+for $dir ('script', 'engine') {
+
+    my $pkg = $package_name{$dir};
+    my $install = $install_dir{$dir};
+
+    my $build = "build/$dir";
+    my $src = "src/$dir";
+
+    my @files;
+    chomp(@files = `cat src/$dir/MANIFEST`);
+
+    #
+    # Run everything in the MANIFEST through the sed command we concocted.
+    #
+    my $file;
+    foreach $file (@files) {
+	$env->Command("$build/$file", "$src/$file", "%SEDCOM");
+    }
+
+    #
+    # Use the Python distutils to generate the packages.
+    #
+    my $tar_gz = "$build/dist/$pkg-$version.tar.gz";
+
+    push(@src_deps, $tar_gz);
+
+    my @setup_args = ('bdist sdist');
+
+    my @targets = (
+	"$build/dist/$pkg-$version.linux-i686.tar.gz",
+	$tar_gz,
     );
-};
 
+    if ($rpm) {
+	push(@setup_args, 'bdist_rpm');
 
-$env->Command([@targets],
-	      map("build/$_", @files),
-	      qq(rm -rf build/build build/dist/*
-		 cd build && python setup.py @setup_args)
+	# XXX "$build/build/bdist.linux-i686/rpm/SOURCES/$pkg-$version.tar.gz",
+	# XXX "$build/build/bdist.linux-i686/rpm/SPECS/$pkg.spec",
+	push(@targets,
+	    "$build/dist/$pkg-$version-1.src.rpm",
+	    "$build/dist/$pkg-$version-1.noarch.rpm",
+	);
+    };
+
+    $env->Command([@targets],
+	      map("$build/$_", @files),
+	      qq(rm -rf $build/build $build/dist/*
+		 cd $build && python setup.py @setup_args)
 	     );
 
-$env->Depends([@targets], 'build/MANIFEST');
+    $env->Depends([@targets], "$build/MANIFEST");
 
-#
-# Unpack the .tar.gz created by the distutils into build/test, and
-# add the TestCmd.py module.  The runtest.py script will set PYTHONPATH
-# so that the tests only look under build/test.  This makes sure that
-# our tests pass with what we really packaged, not because of something
-# hanging around in the development directory.
-#
-$test_dir = "build/test";
+    $env->Install("build/dist", @targets);
 
-@test_files = map("$test_dir/$project-$version/$_", @files);
+    #
+    # Unpack the .tar.gz created by the distutils into build/unpack.
+    #
+    my $unpack = "build/unpack";
 
-Command $env [@test_files], $tar_gz, qq(
-    rm -rf $test_dir/$project-$version
-    tar zxf %< -C $test_dir
-);
+    my @unpack_files = map("$unpack/$pkg-$version/$_", @files);
 
-Export qw( env test_dir );
+    Command $env [@unpack_files], $tar_gz, qq(
+	rm -rf $unpack/$pkg-$version
+	tar zxf %< -C $unpack
+    );
+
+    #
+    # Run setup.py in the unpacked subdirectory to "install" everything
+    # into our build/test subdirectory.  Auxiliary modules that we need
+    # (TestCmd.py, TestSCons.py, unittest.py) will be copied in by
+    # etc/Conscript.  The runtest.py script will set PYTHONPATH so that
+    # the tests only look under build/test.  This makes sure that our
+    # tests pass with what we really packaged, not because of something
+    # hanging around in the development directory.
+    #
+    my %seen;
+    map($seen{$_}++, "MANIFEST", "setup.py");
+    @test_files = map(File::Spec->catfile($install, $_),
+    			grep($_ =~ /\.py$/ && ! $seen{$_}++, @files));
+
+    Command $env [@test_files], @unpack_files, qq(
+	rm -rf $install
+	cd $unpack/$pkg-$version && python setup.py install --prefix=$test_dir
+    );
+}
+
+Export qw( env );
 
 Build "etc/Conscript";
 
@@ -141,8 +202,6 @@ Build "etc/Conscript";
 #
 if ($jw) {
     Link 'build/doc' => 'doc';
-
-    Export qw( date env revision version );
 
     Build 'build/doc/Conscript';
 }
@@ -172,11 +231,11 @@ if ($change) {
 	chomp(@src_files);
 
 	foreach $file (@src_files) {
-	    $env->Command("build/$project-src/$file", $file, $sed_cmd);
+	    $env->Command("build/$project-src/$file", $file, "%SEDCOM");
 	}
 
 	$env->Command("build/dist/$project-src-$version.tar.gz",
-    		      $tar_gz,
+    		      @src_deps,
 		      map("build/$project-src/$_", @src_files),
 		      qq(
 		rm -rf build/$project-src-$version

@@ -8,7 +8,7 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestCmd.match_exact)
 
 sconstruct = """
-from scons.exitfuncs import *
+from SCons.exitfuncs import *
 
 def x1():
     print "running x1"
