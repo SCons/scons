@@ -44,7 +44,7 @@ test.write('SConstruct', """
 env = Environment()
 env.Program(target = 'foo1', source = 'f1.c')
 env.Program(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
-env.Program(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
+Program(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 env.Program('foo4', 'f4.c')
 env.Program('foo5.c')
 """)

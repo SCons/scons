@@ -69,8 +69,17 @@ RELEASE X.XX - XXX
     Environment methods:  AlwaysBuild(), Command(), Depends(), Ignore(),
     Install(), InstallAs(), Precious(), SideEffect() and SourceCode().
 
+  - Add the following global functions that correspond to the default
+    Builder methods supported by SCons: CFile(), CXXFile(), DVI(), Jar(),
+    Java(), JavaH(), Library(), M4(), MSVSProject(), Object(), PCH(),
+    PDF(), PostScript(), Program(), RES(), RMIC(), SharedLibrary(),
+    SharedObject(), StaticLibrary(), StaticObject(), Tar(), TypeLibrary()
+    and Zip().
+
   - Rearrange the man page to show construction environment methods and
     global functions in the same list, and to explain the difference.
+
+  - Alphabetize the explanations of the builder methods in the man page.
 
   - Rename the Environment.Environment class to Enviroment.Base.
     Allow the wrapping interface to extend an Environment by using its own

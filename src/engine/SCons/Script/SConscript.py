@@ -513,6 +513,95 @@ def get_DefaultEnvironmentProxy():
         _DefaultEnvironmentProxy = EnvironmentProxy(default_env)
     return _DefaultEnvironmentProxy
 
+class DefaultEnvironmentCall:
+    """A class that implements "global function" calls of
+    Environment methods by fetching the specified method from the
+    DefaultEnvironment's class.  Note that this uses an intermediate
+    proxy class instead of calling the DefaultEnvironment method
+    directly so that the proxy can override the subst() method and
+    thereby prevent expansion of construction variables (since from
+    the user's point of view this was called as a global function,
+    with no associated construction environment)."""
+    def __init__(self, method_name):
+        self.method_name = method_name
+    def __call__(self, *args, **kw):
+        proxy = get_DefaultEnvironmentProxy()
+        method = getattr(proxy, self.method_name)
+        return apply(method, args, kw)
+
+# The list of global functions to add to the SConscript name space
+# that end up calling corresponding methods or Builders in the
+# DefaultEnvironment().
+GlobalDefaultEnvironmentFunctions = [
+    # Methods from the SConsEnvironment class, above.
+    'EnsurePythonVersion',
+    'EnsureSConsVersion',
+    'Exit',
+    'Export',
+    'GetLaunchDir',
+    'GetOption',
+    'Help',
+    'Import',
+    'SConscript',
+    'SetOption',
+
+    # Methods from the Environment.Base class.
+    'AddPostAction',
+    'AddPreAction',
+    'AlwaysBuild',
+    'BuildDir',
+    'CacheDir',
+    'Clean',
+    'Command',
+    'Default',
+    'Depends',
+    'Dir',
+    'File',
+    'FindFile',
+    'GetBuildPath',
+    'Ignore',
+    'Install',
+    'InstallAs',
+    'Local',
+    'Precious',
+    'Repository',
+    'SConsignFile',
+    'SideEffect',
+    'SourceCode',
+    'SourceSignatures',
+    'TargetSignatures',
+
+    # Supported builders.
+    'CFile',
+    'CXXFile',
+    'DVI',
+    'Jar',
+    'Java',
+    'JavaH',
+    'Library',
+    'M4',
+    'MSVSProject',
+    'Object',
+    'PCH',
+    'PDF',
+    'PostScript',
+    'Program',
+    'RES',
+    'RMIC',
+    'SharedLibrary',
+    'SharedObject',
+    'StaticLibrary',
+    'StaticObject',
+    'Tar',
+    'TypeLibrary',
+    'Zip',
+]
+
+GlobalFunctionDict = {}
+
+for name in GlobalDefaultEnvironmentFunctions:
+    GlobalFunctionDict[name] = DefaultEnvironmentCall(name)
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -542,69 +631,12 @@ def BuildDefaultGlobals():
     globals['Value']             = SCons.Node.Python.Value
     globals['WhereIs']           = SCons.Util.WhereIs
 
-    # Deprecated functions, leave this here for now.
+    # Deprecated functions, leave these here for now.
     globals['GetJobs']           = GetJobs
     globals['SetBuildSignatureType'] = SetBuildSignatureType
     globals['SetContentSignatureType'] = SetContentSignatureType
     globals['SetJobs']           = SetJobs
 
-    class DefaultEnvironmentCall:
-        """A class that implements "global function" calls of
-        Environment methods by fetching the specified method from the
-        DefaultEnvironment's class.  Note that this uses an intermediate
-        proxy class instead of calling the DefaultEnvironment method
-        directly so that the proxy can override the subst() method and
-        thereby prevent expansion of construction variables (since from
-        the user's point of view this was called as a global function,
-        with no associated construction environment)."""
-        def __init__(self, method_name):
-            self.method_name = method_name
-        def __call__(self, *args, **kw):
-            proxy = get_DefaultEnvironmentProxy()
-            method = getattr(proxy.__class__, self.method_name)
-            return apply(method, (proxy,) + args, kw)
-
-    EnvironmentMethods = [
-        'AddPostAction',
-        'AddPreAction',
-        'AlwaysBuild',
-        'BuildDir',
-        'CacheDir',
-        'Clean',
-        'Command',
-        'Default',
-        'Depends',
-        'Dir',
-        'File',
-        'FindFile',
-        'GetBuildPath',
-        'Ignore',
-        'Install',
-        'InstallAs',
-        'Local',
-        'Precious',
-        'Repository',
-        'SConsignFile',
-        'SideEffect',
-        'SourceCode',
-        'SourceSignatures',
-        'TargetSignatures',
-    ]
-
-    SConsEnvironmentMethods = [
-        'EnsurePythonVersion',
-        'EnsureSConsVersion',
-        'Exit',
-        'Export',
-        'GetLaunchDir',
-        'GetOption',
-        'Help',
-        'Import',
-        'SConscript',
-        'SetOption',
-    ]
-
-    for name in EnvironmentMethods + SConsEnvironmentMethods:
-        globals[name] = DefaultEnvironmentCall(name)
+    globals.update(GlobalFunctionDict)
 
     return globals

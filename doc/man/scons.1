@@ -984,16 +984,17 @@ into a list, separated on
 strings of white-space characters.
 (This is similar to the
 string.split() method
-from the standard Python library.)
+from the standard Python library,
+but it works even if the input isn't a string.)
 
 Like all Python arguments,
-the target and source arguments to a builder
+the target and source arguments to a builder method
 can be specified either with or without
 the "target" and "source" keywords.
 When the keywords are omitted,
 the target is first,
 followed by the source.
-The following are equivalent examples of calling the Program builder:
+The following are equivalent examples of calling the Program builder method:
 
 .ES
 env.Program('bar', ['bar.c', 'foo.c'])
@@ -1005,7 +1006,7 @@ env.Program('bar', source = string.split('bar.c foo.c'))
 
 When the target shares the same base name
 as the source and only the suffix varies,
-and if the builder has a suffix defined for the target file type,
+and if the builder method has a suffix defined for the target file type,
 then the target argument may be omitted completely,
 and
 .B scons
@@ -1028,7 +1029,8 @@ env.Program('bar.c')
 .EE
 
 It is possible to override or add construction variables when calling a
-builder by passing additional keyword arguments. These overridden or added
+builder method by passing additional keyword arguments.
+These overridden or added
 variables will only be in effect when building the target, so they will not
 affect other parts of the build. For example, if you want to add additional
 libraries for just one program:
@@ -1043,7 +1045,24 @@ or generate a shared library with a nonstandard suffix:
 env.SharedLibrary('word', 'word.cpp', SHLIBSUFFIX='.ocx')
 .EE
 
-All Builders return a Node or a list of Nodes,
+Although the builder methods defined by
+.B scons
+are, in fact,
+methods of a construction environment object,
+they may also be called without an explicit environment:
+
+.ES
+Program('hello', 'hello.c')
+SharedLibrary('word', 'word.cpp')
+.EE
+
+In this case,
+the methods are called internally using a default construction
+environment that consists of the tools and values that
+.B scons
+has determined are appropriate for the local system.
+
+All builder methods return a Node or a list of Nodes,
 representing the target or targets that will be built.
 A list of Nodes is returned if there is more than one target,
 and a single Node is returned if there is only one target.
@@ -1055,7 +1074,7 @@ build targets or sources.
 
 The returned Node(s)
 can be passed to other builder methods as source(s)
-or passed into to any SCons function or method
+or passed to any SCons function or method
 where a filename would normally be accepted.
 For example, if it were necessary
 to add a specific
@@ -1071,7 +1090,7 @@ Using a Node in this way
 makes for a more portable build
 by avoiding having to specify
 a platform-specific object suffix
-when calling the Program() builder.
+when calling the Program() builder method.
 
 The path name for a Node's file may be used
 by passing the Node to the Python-builtin
@@ -1084,124 +1103,213 @@ print "The path to bar_obj is:", str(bar_obj)
 .EE
 
 .B scons
-provides the following builders:
+provides the following builder methods:
 
-.IP StaticObject
-Builds a static object file
-from one or more C, C++, or Fortran source files.
-Source files must have one of the following extensions:
-
-.ES
-  .asm    assembly language file
-  .ASM    assembly language file
-  .c      C file
-  .C      WIN32:  C file
-          POSIX:  C++ file
-  .cc     C++ file
-  .cpp    C++ file
-  .cxx    C++ file
-  .cxx    C++ file
-  .c++    C++ file
-  .C++    C++ file
-  .f      Fortran file
-  .F      WIN32:  Fortran file
-          POSIX:  Fortran file + C pre-processor
-  .for    Fortran file
-  .FOR    Fortran file
-  .fpp    Fortran file + C pre-processor
-  .FPP    Fortran file + C pre-processor
-  .s      assembly language file
-  .S      WIN32:  assembly language file
-          POSIX:  assembly language file + C pre-processor
-  .spp    assembly language file + C pre-processor
-  .SPP    assembly language file + C pre-processor
-.EE
-.IP
-The target object file prefix
-(specified by the $OBJPREFIX construction variable; nothing by default)
-and suffix
-(specified by the $OBJSUFFIX construction variable;
-\.obj on Windows systems, .o on POSIX systems)
-are automatically added to the target if not already present.
-Examples:
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP CFile()
+.IP env.CFile()
+Builds a C source file given a lex (.l) or yacc (.y) input file.
+The suffix specified by the $CFILESUFFIX construction variable
+(.c by default)
+is automatically added to the target
+if it is not already present. Example:
 
 .ES
-env.StaticObject(target = 'aaa', source = 'aaa.c')
-env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
-env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
+# builds foo.c
+env.CFile(target = 'foo.c', source = 'foo.l')
+# builds bar.c
+env.CFile(target = 'bar', source = 'bar.y')
 .EE
-.IP SharedObject
-Builds an object file for
-inclusion in a shared library.
-Source files must have one of the same set of extensions
-specified above for the
-.B StaticObject
-builder. On some platforms building a shared object requires additional
-compiler options (e.g. -fPIC for gcc) in addition to those needed to build a
-normal (static) object, but on some platforms there is no difference between a
-shared object and a normal (static) one. When there is a difference, SCons
-will only allow shared objects to be linked into a shared library, and will
-use a different suffix for shared objects. On platforms where there is no
-difference, SCons will allow both normal (static)
-and shared objects to be linked into a
-shared library, and will use the same suffix for shared and normal
-(static) objects.
-The target object file prefix
-(specified by the $SHOBJPREFIX construction variable;
-by default, the same as $OBJPREFIX)
-and suffix
-(specified by the $SHOBJSUFFIX construction variable)
-are automatically added to the target if not already present. 
-Examples:
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP CXXFile()
+.IP env.CXXFile()
+Builds a C++ source file given a lex (.ll), yacc (.yy)
+or uic (.ui) input file.
+The suffix specified by the $CXXFILESUFFIX construction variable
+(.cc by default)
+is automatically added to the target
+if it is not already present. Example:
 
 .ES
-env.SharedObject(target = 'ddd', source = 'ddd.c')
-env.SharedObject(target = 'eee.o', source = 'eee.cpp')
-env.SharedObject(target = 'fff.obj', source = 'fff.for')
+# builds foo.cc
+env.CXXFile(target = 'foo.cc', source = 'foo.ll')
+# builds bar.cc
+env.CXXFile(target = 'bar', source = 'bar.yy')
 .EE
 
-.IP Object
-A synonym for the
-.B StaticObject
-builder.
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP DVI()
+.IP env.DVI()
+Builds a .dvi file from a .tex, .ltx or .latex input file.
+If the source file suffix is .tex,
+.B scons
+will examine the contents of the file;
+if the string
+.B \\documentclass
+or
+.B \\documentstyle
+is found, the file is assumed to be a LaTeX file and
+the target is built by invoking the $LATEXCOM command line;
+otherwise, the $TEXCOM command line is used.
+If the file is a LaTeX file,
+the
+.B DVI
+builder method will also examine the contents
+of the
+.B .aux file
+and invoke the $BIBTEX command line
+if the string
+.B bibdata
+is found,
+and will examine the contents
+.B .log
+file and re-run the $LATEXCOM command
+if the log file says it is necessary.
 
-.IP PCH
-Builds a Microsoft Visual C++ precompiled header. Calling this builder
-returns a list of two targets: the PCH as the first element, and the object
-file as the second element. Normally the object file is ignored. This builder is only
-provided when Microsoft Visual C++ is being used as the compiler. 
-The PCH builder is generally used in
-conjuction with the PCH construction variable to force object files to use
-the precompiled header:
+The suffix .dvi
+(hard-coded within TeX itself)
+is automatically added to the target
+if it is not already present. Examples:
 
 .ES
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
+# builds from aaa.tex
+env.DVI(target = 'aaa.dvi', source = 'aaa.tex')
+# builds bbb.dvi
+env.DVI(target = 'bbb', source = 'bbb.ltx')
+# builds from ccc.latex
+env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
 .EE
 
-.IP Program
-Builds an executable given one or more object files or C, C++
-or Fortran source files.
-If any C, C++ or Fortran source files are specified,
-then they will be automatically
-compiled to object files using the
-.B Object
-builder;
-see that builder's description for
-a list of legal source file suffixes
-and how they are interpreted.
-The target executable file prefix
-(specified by the $PROGPREFIX construction variable; nothing by default)
-and suffix
-(specified by the $PROGSUFFIX construction variable;
-by default, .exe on Windows systems, nothing on POSIX systems)
-are automatically added to the target if not already present.
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP Jar()
+.IP env.Jar()
+Builds a Java archive (.jar) file
+from a source tree of .class files.
+If the $JAVACHDIR value is set, the
+.B jar
+command will change to the specified directory using the
+.B \-C
+option.
+If the contents any of the source files begin with the string
+.BR Manifest-Version ,
+the file is assumed to be a manifest
+and is passed to the
+.B jar
+command with the
+.B m
+option set.
+
+.ES
+env.Jar(target = 'foo.jar', source = 'classes')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP Java()
+.IP env.Java()
+Builds one or more Java class files
+from a source tree of .java files.
+The class files will be placed underneath
+the specified target directory.
+SCons will parse each source .java file
+to find the classes
+(including inner classes)
+defined within that file,
+and from that figure out the
+target .class files that will be created.
+SCons will also search each Java file
+for the Java package name,
+which it assumes can be found on a line
+beginning with the string
+.B package
+in the first column;
+the resulting .class files
+will be placed in a directory reflecting
+the specified package name.
+For example,
+the file
+.I Foo.java
+defining a single public
+.I Foo
+class and
+containing a package name of
+.I sub.dir
+will generate a corresponding
+.IR sub/dir/Foo.class
+class file.
+
 Example:
 
 .ES
-env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
+env.Java(target = 'classes', source = 'src')
 .EE
 
-.IP MSVSProject
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP JavaH()
+.IP env.JavaH()
+Builds C header and source files for
+implementing Java native methods.
+The target can be either a directory
+in which the header files will be written,
+or a header file name which
+will contain all of the definitions.
+The source can be either the names of .class files,
+or the objects returned from the
+.B Java
+builder method.
+
+If the construction variable
+.B JAVACLASSDIR
+is set, either in the environment
+or in the call to the
+.B JavaH
+builder method itself,
+then the value of the variable
+will be stripped from the
+beginning of any .class file names.
+
+Examples:
+
+.ES
+# builds java_native.h
+classes = env.Java(target = 'classdir', source = 'src')
+env.JavaH(target = 'java_native.h', source = classes)
+
+# builds include/package_foo.h and include/package_bar.h
+env.JavaH(target = 'include',
+          source = ['package/foo.class', 'package/bar.class'])
+
+# builds export/foo.h and export/bar.h
+env.JavaH(target = 'export',
+          source = ['classes/foo.class', 'classes/bar.class'],
+          JAVACLASSDIR = 'classes')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP Library()
+.IP env.Library()
+A synonym for the
+.B StaticLibrary
+builder method.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP M4()
+.IP env.M4()
+Builds an output file from an M4 input file.
+This uses a default $M4FLAGS value of
+.BR -E ,
+which considers all warnings to be fatal
+and stops on the first warning
+when using the GNU version of m4.
+Example:
+
+.ES
+env.M4(target = 'foo.c', source = 'foo.c.m4')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP MSVSProject()
+.IP env.MSVSProject()
 Builds Microsoft Visual Studio project files.
 This builds a Visual Studio project file, based on the version of
 Visual Studio that is configured (either the latest installed version,
@@ -1274,9 +1382,94 @@ Example Usage:
                           variant = 'Release')
 .EE
 
-.IP RES
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP Object()
+.IP env.Object()
+A synonym for the
+.B StaticObject
+builder method.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP PCH()
+.IP env.PCH()
+Builds a Microsoft Visual C++ precompiled header.
+Calling this builder method
+returns a list of two targets: the PCH as the first element, and the object
+file as the second element. Normally the object file is ignored.
+This builder method is only
+provided when Microsoft Visual C++ is being used as the compiler. 
+The PCH builder method is generally used in
+conjuction with the PCH construction variable to force object files to use
+the precompiled header:
+
+.ES
+env['PCH'] = env.PCH('StdAfx.cpp')[0]
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP PDF()
+.IP env.PDF()
+Builds a .pdf file from a .dvi input file
+(or, by extension, a .tex, .ltx, or .latex input file).
+The suffix specified by the $PDFSUFFIX construction variable
+(.pdf by default)
+is added automatically to the target
+if it is not already present.  Example:
+
+.ES
+# builds from aaa.tex
+env.PDF(target = 'aaa.pdf', source = 'aaa.tex')
+# builds bbb.pdf from bbb.dvi
+env.PDF(target = 'bbb', source = 'bbb.dvi')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP PostScript()
+.IP env.PostScript()
+Builds a .ps file from a .dvi input file
+(or, by extension, a .tex, .ltx, or .latex input file).
+The suffix specified by the $PSSUFFIX construction variable
+(.ps by default)
+is added automatically to the target
+if it is not already present.  Example:
+
+.ES
+# builds from aaa.tex
+env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
+# builds bbb.ps from bbb.dvi
+env.PostScript(target = 'bbb', source = 'bbb.dvi')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP Program()
+.IP env.Program()
+Builds an executable given one or more object files or C, C++
+or Fortran source files.
+If any C, C++ or Fortran source files are specified,
+then they will be automatically
+compiled to object files using the
+.B Object
+builder method;
+see that builder method's description for
+a list of legal source file suffixes
+and how they are interpreted.
+The target executable file prefix
+(specified by the $PROGPREFIX construction variable; nothing by default)
+and suffix
+(specified by the $PROGSUFFIX construction variable;
+by default, .exe on Windows systems, nothing on POSIX systems)
+are automatically added to the target if not already present.
+Example:
+
+.ES
+env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP RES()
+.IP env.RES()
 Builds a Microsoft Visual C++ resource file.
-This builder is only provided
+This builder method is only provided
 when Microsoft Visual C++ or MinGW is being used as the compiler. The
 .I .res
 (or 
@@ -1288,7 +1481,137 @@ file is scanned for implicit dependencies as though it were a C file. Example:
 env.RES('resource.rc')
 .EE
 
-.IP StaticLibrary
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP RMIC()
+.IP env.RMIC()
+Builds stub and skeleton class files
+for remote objects
+from Java .class files.
+The target is a directory
+relative to which the stub
+and skeleton class files will be written.
+The source can be the names of .class files,
+or the objects return from the
+.B Java
+builder method.
+
+If the construction variable
+.B JAVACLASSDIR
+is set, either in the environment
+or in the call to the
+.B RMIC
+builder method itself,
+then the value of the variable
+will be stripped from the
+beginning of any .class file names.
+
+.ES
+classes = env.Java(target = 'classdir', source = 'src')
+env.RMIC(target = 'outdir1', source = classes)
+
+env.RMIC(target = 'outdir2',
+         source = ['package/foo.class', 'package/bar.class'])
+
+env.RMIC(target = 'outdir3',
+         source = ['classes/foo.class', 'classes/bar.class'],
+         JAVACLASSDIR = 'classes')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP SharedLibrary()
+.IP env.SharedLibrary()
+Builds a shared library
+(.so on a POSIX system, .dll on WIN32)
+given one or more object files
+or C, C++ or Fortran source files.
+If any source files are given,
+then they will be automatically
+compiled to object files.
+The static library prefix and suffix (if any)
+are automatically added to the target.
+The target library file prefix
+(specified by the $SHLIBPREFIX construction variable;
+by default, lib on POSIX systems, nothing on Windows systems)
+and suffix
+(specified by the $SHLIBSUFFIX construction variable;
+by default, .dll on Windows systems, .so on POSIX systems)
+are automatically added to the target if not already present.
+Example:
+
+.ES
+env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
+.EE
+.IP
+On WIN32 systems, the
+.B SharedLibrary
+builder method will always build an import (.lib) library
+in addition to the shared (.dll) library,
+adding a .lib library with the same basename
+if there is not already a .lib file explicitly
+listed in the targets.
+
+Any object files listed in the
+.B source
+must have been built for a shared library
+(that is, using the
+.B SharedObject
+builder method).
+.B scons
+will raise an error if there is any mismatch.
+.IP
+On WIN32 systems, specifying "register=1" will cause the dll to be
+registered after it is built using REGSVR32.  The command that is run
+("regsvr32" by default) is determined by $REGSVR construction
+variable, and the flags passed are determined by $REGSVRFLAGS.  By
+default, $REGSVRFLAGS includes "/s", to prevent dialogs from popping
+up and requiring user attention when it is run.  If you change
+$REGSVRFLAGS, be sure to include "/s".  For example,
+
+.ES
+env.SharedLibrary(target = 'bar',
+                  source = ['bar.cxx', 'foo.obj'],
+                  register=1)
+.EE
+
+.IP
+will register "bar.dll" as a COM object when it is done linking it.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP SharedObject()
+.IP env.SharedObject()
+Builds an object file for
+inclusion in a shared library.
+Source files must have one of the same set of extensions
+specified above for the
+.B StaticObject
+builder method.
+On some platforms building a shared object requires additional
+compiler options (e.g. -fPIC for gcc) in addition to those needed to build a
+normal (static) object, but on some platforms there is no difference between a
+shared object and a normal (static) one. When there is a difference, SCons
+will only allow shared objects to be linked into a shared library, and will
+use a different suffix for shared objects. On platforms where there is no
+difference, SCons will allow both normal (static)
+and shared objects to be linked into a
+shared library, and will use the same suffix for shared and normal
+(static) objects.
+The target object file prefix
+(specified by the $SHOBJPREFIX construction variable;
+by default, the same as $OBJPREFIX)
+and suffix
+(specified by the $SHOBJSUFFIX construction variable)
+are automatically added to the target if not already present. 
+Examples:
+
+.ES
+env.SharedObject(target = 'ddd', source = 'ddd.c')
+env.SharedObject(target = 'eee.o', source = 'eee.cpp')
+env.SharedObject(target = 'fff.obj', source = 'fff.for')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP StaticLibrary()
+.IP env.StaticLibrary()
 Builds a static library given one or more object files
 or C, C++ or Fortran source files.
 If any source files are given,
@@ -1315,337 +1638,66 @@ Any object files listed in the
 must have been built for a static library
 (that is, using the
 .B StaticObject
-builder).
+builder method).
 .B scons
 will raise an error if there is any mismatch.
 
-.IP SharedLibrary
-Builds a shared library
-(.so on a POSIX system, .dll on WIN32)
-given one or more object files
-or C, C++ or Fortran source files.
-If any source files are given,
-then they will be automatically
-compiled to object files.
-The static library prefix and suffix (if any)
-are automatically added to the target.
-The target library file prefix
-(specified by the $SHLIBPREFIX construction variable;
-by default, lib on POSIX systems, nothing on Windows systems)
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP StaticObject()
+.IP env.StaticObject()
+Builds a static object file
+from one or more C, C++, or Fortran source files.
+Source files must have one of the following extensions:
+
+.ES
+  .asm    assembly language file
+  .ASM    assembly language file
+  .c      C file
+  .C      WIN32:  C file
+          POSIX:  C++ file
+  .cc     C++ file
+  .cpp    C++ file
+  .cxx    C++ file
+  .cxx    C++ file
+  .c++    C++ file
+  .C++    C++ file
+  .f      Fortran file
+  .F      WIN32:  Fortran file
+          POSIX:  Fortran file + C pre-processor
+  .for    Fortran file
+  .FOR    Fortran file
+  .fpp    Fortran file + C pre-processor
+  .FPP    Fortran file + C pre-processor
+  .s      assembly language file
+  .S      WIN32:  assembly language file
+          POSIX:  assembly language file + C pre-processor
+  .spp    assembly language file + C pre-processor
+  .SPP    assembly language file + C pre-processor
+.EE
+.IP
+The target object file prefix
+(specified by the $OBJPREFIX construction variable; nothing by default)
 and suffix
-(specified by the $SHLIBSUFFIX construction variable;
-by default, .dll on Windows systems, .so on POSIX systems)
+(specified by the $OBJSUFFIX construction variable;
+\.obj on Windows systems, .o on POSIX systems)
 are automatically added to the target if not already present.
-Example:
-
-.ES
-env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
-.EE
-.IP
-On WIN32 systems, the
-.B SharedLibrary
-builder will always build an import (.lib) library
-in addition to the shared (.dll) library,
-adding a .lib library with the same basename
-if there is not already a .lib file explicitly
-listed in the targets.
-
-Any object files listed in the
-.B source
-must have been built for a shared library
-(that is, using the
-.B SharedObject
-builder).
-.B scons
-will raise an error if there is any mismatch.
-.IP
-On WIN32 systems, specifying "register=1" will cause the dll to be
-registered after it is built using REGSVR32.  The command that is run
-("regsvr32" by default) is determined by $REGSVR construction
-variable, and the flags passed are determined by $REGSVRFLAGS.  By
-default, $REGSVRFLAGS includes "/s", to prevent dialogs from popping
-up and requiring user attention when it is run.  If you change
-$REGSVRFLAGS, be sure to include "/s".  For example,
-
-.ES
-env.SharedLibrary(target = 'bar',
-                  source = ['bar.cxx', 'foo.obj'],
-                  register=1)
-.EE
-
-.IP
-will register "bar.dll" as a COM object when it is done linking it.
-
-.IP Library
-A synonym for the
-.B StaticLibrary
-builder.
-
-.IP CFile
-Builds a C source file given a lex (.l) or yacc (.y) input file.
-The suffix specified by the $CFILESUFFIX construction variable
-(.c by default)
-is automatically added to the target
-if it is not already present. Example:
-
-.ES
-# builds foo.c
-env.CFile(target = 'foo.c', source = 'foo.l')
-# builds bar.c
-env.CFile(target = 'bar', source = 'bar.y')
-.EE
-
-.IP CXXFile
-Builds a C++ source file given a lex (.ll), yacc (.yy)
-or uic (.ui) input file.
-The suffix specified by the $CXXFILESUFFIX construction variable
-(.cc by default)
-is automatically added to the target
-if it is not already present. Example:
-
-.ES
-# builds foo.cc
-env.CXXFile(target = 'foo.cc', source = 'foo.ll')
-# builds bar.cc
-env.CXXFile(target = 'bar', source = 'bar.yy')
-.EE
-
-.IP M4
-Builds an output file from an M4 input file.
-This uses a default $M4FLAGS value of
-.BR -E ,
-which considers all warnings to be fatal
-and stops on the first warning
-when using the GNU version of m4.
-Example:
-
-.ES
-env.M4(target = 'foo.c', source = 'foo.c.m4')
-.EE
-
-.IP Jar
-Builds a Java archive (.jar) file
-from a source tree of .class files.
-If the $JAVACHDIR value is set, the
-.B jar
-command will change to the specified directory using the
-.B \-C
-option.
-If the contents any of the source files begin with the string
-.BR Manifest-Version ,
-the file is assumed to be a manifest
-and is passed to the
-.B jar
-command with the
-.B m
-option set.
-
-.ES
-env.Jar(target = 'foo.jar', source = 'classes')
-.EE
-
-.IP Java
-Builds one or more Java class files
-from a source tree of .java files.
-The class files will be placed underneath
-the specified target directory.
-SCons will parse each source .java file
-to find the classes
-(including inner classes)
-defined within that file,
-and from that figure out the
-target .class files that will be created.
-SCons will also search each Java file
-for the Java package name,
-which it assumes can be found on a line
-beginning with the string
-.B package
-in the first column;
-the resulting .class files
-will be placed in a directory reflecting
-the specified package name.
-For example,
-the file
-.I Foo.java
-defining a single public
-.I Foo
-class and
-containing a package name of
-.I sub.dir
-will generate a corresponding
-.IR sub/dir/Foo.class
-class file.
-
-Example:
-
-.ES
-env.Java(target = 'classes', source = 'src')
-.EE
-
-.IP JavaH
-Builds C header and source files for
-implementing Java native methods.
-The target can be either a directory
-in which the header files will be written,
-or a header file name which
-will contain all of the definitions.
-The source can be either the names of .class files,
-or the objects returned from the
-.B Java
-builder.
-
-If the construction variable
-.B JAVACLASSDIR
-is set, either in the environment
-or in the call to the
-.B JavaH
-builder itself,
-then the value of the variable
-will be stripped from the
-beginning of any .class file names.
-
 Examples:
 
 .ES
-# builds java_native.h
-classes = env.Java(target = 'classdir', source = 'src')
-env.JavaH(target = 'java_native.h', source = classes)
-
-# builds include/package_foo.h and include/package_bar.h
-env.JavaH(target = 'include',
-          source = ['package/foo.class', 'package/bar.class'])
-
-# builds export/foo.h and export/bar.h
-env.JavaH(target = 'export',
-          source = ['classes/foo.class', 'classes/bar.class'],
-          JAVACLASSDIR = 'classes')
+env.StaticObject(target = 'aaa', source = 'aaa.c')
+env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
+env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
 .EE
 
-.IP RMIC
-Builds stub and skeleton class files
-for remote objects
-from Java .class files.
-The target is a directory
-relative to which the stub
-and skeleton class files will be written.
-The source can be the names of .class files,
-or the objects return from the
-.B Java
-builder.
-
-If the construction variable
-.B JAVACLASSDIR
-is set, either in the environment
-or in the call to the
-.B RMIC
-builder itself,
-then the value of the variable
-will be stripped from the
-beginning of any .class file names.
-
-.ES
-classes = env.Java(target = 'classdir', source = 'src')
-env.RMIC(target = 'outdir1', source = classes)
-
-env.RMIC(target = 'outdir2',
-         source = ['package/foo.class', 'package/bar.class'])
-
-env.RMIC(target = 'outdir3',
-         source = ['classes/foo.class', 'classes/bar.class'],
-         JAVACLASSDIR = 'classes')
-.EE
-
-.IP TypeLibrary
-Builds a Windows type library (.tlb) file from and input IDL file
-(.idl).  In addition, it will build the associated inteface stub and
-proxy source files.  It names them according to the base name of the .idl file.
-.IP
-For example,
-
-.ES
-env.TypeLibrary(source="foo.idl")
-.EE
-.IP
-Will create foo.tlb, foo.h, foo_i.c, foo_p.c, and foo_data.c.
-
-.IP DVI
-Builds a .dvi file from a .tex, .ltx or .latex input file.
-If the source file suffix is .tex,
-.B scons
-will examine the contents of the file;
-if the string
-.B \\documentclass
-or
-.B \\documentstyle
-is found, the file is assumed to be a LaTeX file and
-the target is built by invoking the $LATEXCOM command line;
-otherwise, the $TEXCOM command line is used.
-If the file is a LaTeX file,
-the
-.B DVI
-builder will also examine the contents
-of the
-.B .aux file
-and invoke the $BIBTEX command line
-if the string
-.B bibdata
-is found,
-and will examine the contents
-.B .log
-file and re-run the $LATEXCOM command
-if the log file says it is necessary.
-
-The suffix .dvi
-(hard-coded within TeX itself)
-is automatically added to the target
-if it is not already present. Examples:
-
-.ES
-# builds from aaa.tex
-env.DVI(target = 'aaa.dvi', source = 'aaa.tex')
-# builds bbb.dvi
-env.DVI(target = 'bbb', source = 'bbb.ltx')
-# builds from ccc.latex
-env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
-.EE
-
-.IP PDF
-Builds a .pdf file from a .dvi input file
-(or, by extension, a .tex, .ltx, or .latex input file).
-The suffix specified by the $PDFSUFFIX construction variable
-(.pdf by default)
-is added automatically to the target
-if it is not already present.  Example:
-
-.ES
-# builds from aaa.tex
-env.PDF(target = 'aaa.pdf', source = 'aaa.tex')
-# builds bbb.pdf from bbb.dvi
-env.PDF(target = 'bbb', source = 'bbb.dvi')
-.EE
-
-.IP PostScript
-Builds a .ps file from a .dvi input file
-(or, by extension, a .tex, .ltx, or .latex input file).
-The suffix specified by the $PSSUFFIX construction variable
-(.ps by default)
-is added automatically to the target
-if it is not already present.  Example:
-
-.ES
-# builds from aaa.tex
-env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
-# builds bbb.ps from bbb.dvi
-env.PostScript(target = 'bbb', source = 'bbb.dvi')
-.EE
-
-.IP Tar
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP Tar()
+.IP env.Tar()
 Builds a tar archive of the specified files
 and/or directories.
-Unlike most builders,
+Unlike most builder methods,
 the
 .B Tar
-builder may be called multiple times
+builder method may be called multiple times
 for a given target;
 each additional call
 adds to the list of entries
@@ -1669,13 +1721,30 @@ env = Environment(TARFLAGS = '-c -z',
 env.Tar('foo')
 .EE
 
-.IP Zip
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP TypeLibrary()
+.IP env.TypeLibrary()
+Builds a Windows type library (.tlb) file from and input IDL file
+(.idl).  In addition, it will build the associated inteface stub and
+proxy source files.  It names them according to the base name of the .idl file.
+.IP
+For example,
+
+.ES
+env.TypeLibrary(source="foo.idl")
+.EE
+.IP
+Will create foo.tlb, foo.h, foo_i.c, foo_p.c, and foo_data.c.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP Zip()
+.IP env.Zip()
 Builds a zip archive of the specified files
 and/or directories.
-Unlike most builders,
+Unlike most builder methods,
 the
 .B Zip
-builder may be called multiple times
+builder method may be called multiple times
 for a given target;
 each additional call
 adds to the list of entries
@@ -1709,8 +1778,8 @@ or
 files extensions
 for C preprocessor dependencies,
 so the dependencies do not need to be specified explicitly.
-In addition, all builder
-targets automatically depend on their sources.
+In addition, all
+targets of builder methods automatically depend on their sources.
 An explicit dependency can
 be specified using the 
 .B Depends 
@@ -2441,17 +2510,39 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI GetBuildPath( XXX )
+.RI GetBuildPath( file ", [" ... ])
 .TP
-.RI env.GetBuildPath( XXX )
-XXX
-.\"
+.RI env.GetBuildPath( file ", [" ... ])
+Returns the
+.B scons
+path name (or names) for the specified
+.I file
+(or files).
+The specified
+.I file
+or files
+may be
+.B scons
+Nodes or strings representing path names.
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.\".TP
-.\".RI GetLaunchDir( XXX )
-.\".TP
-.\".RI env.GetLaunchDir( XXX )
-.\"XXX
+.TP
+.RI GetLaunchDir()
+.TP
+.RI env.GetLaunchDir()
+Returns the absolute path name of the directory from which
+.B
+scons
+was initially invoked.
+This can be useful when using the
+.BR \-u ,
+.BR \-U
+or
+.BR \-D
+options, which internally
+change to the directory in which the
+.B SConstruct
+file is found.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP

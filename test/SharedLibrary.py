@@ -43,7 +43,7 @@ if sys.platform == 'win32':
     env.StaticLibrary(target = 'foo1-static', source = 'f1.c')
 else:
     env.StaticLibrary(target = 'foo1', source = 'f1.c')
-env.SharedLibrary(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
+SharedLibrary(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
 env.SharedLibrary(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 env2.Program(target = 'prog', source = 'prog.c')
 """)
