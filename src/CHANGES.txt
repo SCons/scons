@@ -40,6 +40,11 @@ RELEASE 0.96 - XXX
 
   - Allow the Java() Builder to take more than one source directory.
 
+  From Ralf W. Grosse-Kunstleve:
+
+  - Have SConsignFile() use, by default, a custom "dblite.py" that we can
+    control and guarantee to work on all Python versions (or nearly so).
+
   From Bob Halley:
 
   - Make the new *FLAGS variable type work with copied Environments.

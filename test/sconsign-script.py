@@ -267,7 +267,11 @@ test.run(chdir = 'work2', arguments = '--implicit-cache .')
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "work2/.sconsign.dbm",
+         arguments = "work2/.sconsign")
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe: None \S+ None
@@ -282,7 +286,7 @@ hello.obj: None \S+ None
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-v work2/.sconsign.dbm",
+         arguments = "-v work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe:
@@ -310,7 +314,7 @@ hello.obj:
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-b -v work2/.sconsign.dbm",
+         arguments = "-b -v work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe:
@@ -326,7 +330,7 @@ hello.obj:
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-c -v work2/.sconsign.dbm",
+         arguments = "-c -v work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe:
@@ -342,7 +346,7 @@ hello.obj:
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-e hello.obj work2/.sconsign.dbm",
+         arguments = "-e hello.obj work2/.sconsign",
          stdout = """\
 === sub1:
 hello.obj: None \S+ None
@@ -355,7 +359,7 @@ hello.obj: None \S+ None
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-e hello.obj -e hello.exe -e hello.obj work2/.sconsign.dbm",
+         arguments = "-e hello.obj -e hello.exe -e hello.obj work2/.sconsign",
          stdout = """\
 === sub1:
 hello.obj: None \S+ None
@@ -376,7 +380,7 @@ hello.obj: None \S+ None
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-i -v work2/.sconsign.dbm",
+         arguments = "-i -v work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe:
@@ -406,41 +410,93 @@ time.sleep(1)
 
 test.run(chdir = 'work2', arguments = '. --max-drift=1')
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-d sub1 -f dbm work2/my_sconsign")
-
-test.fail_test(not sort_match(test, test.stdout(), """\
+expect = """\
 === sub1:
 hello.exe: None \S+ None
 hello.obj: None \S+ None
 hello.c: \d+ None \d+
-"""))
+"""
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-r -d sub1 -f dbm work2/my_sconsign")
+         arguments = "-d sub1 -f dblite work2/my_sconsign")
 
-test.fail_test(not sort_match(test, test.stdout(), """\
+test.fail_test(not sort_match(test, test.stdout(), expect))
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "-d sub1 -f dblite work2/my_sconsign.dblite")
+
+test.fail_test(not sort_match(test, test.stdout(), expect))
+
+expect = """\
+=== sub1:
+hello.exe: None \S+ None
+hello.obj: None \S+ None
+hello.c: \d+ None \d+
+"""
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "-d sub1 -f dblite work2/my_sconsign")
+
+test.fail_test(not sort_match(test, test.stdout(), expect))
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "-d sub1 -f dblite work2/my_sconsign.dblite")
+
+test.fail_test(not sort_match(test, test.stdout(), expect))
+
+expect = """\
 === sub1:
 hello.exe: None \S+ None
 hello.obj: None \S+ None
 hello.c: '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' None \d+
-"""))
-
-##############################################################################
-
-test.write('bad_sconsign', "bad_sconsign\n")
+"""
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-f dbm no_sconsign",
+         arguments = "-r -d sub1 -f dblite work2/my_sconsign")
+
+test.fail_test(not sort_match(test, test.stdout(), expect))
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "-r -d sub1 -f dblite work2/my_sconsign.dblite")
+
+test.fail_test(not sort_match(test, test.stdout(), expect))
+
+##############################################################################
+
+test.write('bad1', "bad1\n")
+test.write('bad2.dblite', "bad2.dblite\n")
+test.write('bad3', "bad3\n")
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "-f dblite no_sconsign",
          stderr = "sconsign: \[Errno 2\] No such file or directory: 'no_sconsign'\n")
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-f dbm bad_sconsign",
-         stderr = "sconsign: ignoring invalid .sconsign.dbm file `bad_sconsign': db type could not be determined\n")
+         arguments = "-f dblite bad1",
+         stderr = "sconsign: \[Errno 2\] No such file or directory: 'bad1.dblite'\n")
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "-f dblite bad1.dblite",
+         stderr = "sconsign: \[Errno 2\] No such file or directory: 'bad1.dblite'\n")
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "-f dblite bad2",
+         stderr = "sconsign: ignoring invalid `dblite' file `bad2'\n")
+
+test.run(interpreter = TestSCons.python,
+         program = sconsign,
+         arguments = "-f dblite bad2.dblite",
+         stderr = "sconsign: ignoring invalid `dblite' file `bad2.dblite'\n")
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
@@ -449,8 +505,7 @@ test.run(interpreter = TestSCons.python,
 
 test.run(interpreter = TestSCons.python,
          program = sconsign,
-         arguments = "-f sconsign bad_sconsign",
-         stderr = "sconsign: ignoring invalid .sconsign file `bad_sconsign'\n")
-
+         arguments = "-f sconsign bad3",
+         stderr = "sconsign: ignoring invalid .sconsign file `bad3'\n")
 
 test.pass_test()

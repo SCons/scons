@@ -1153,7 +1153,7 @@ class Base:
         nkw = self.subst_kw(kw)
         return apply(SCons.Scanner.Base, nargs, nkw)
 
-    def SConsignFile(self, name=".sconsign.dbm", dbm_module=None):
+    def SConsignFile(self, name=".sconsign", dbm_module=None):
         name = self.subst(name)
         if not os.path.isabs(name):
             name = os.path.join(str(self.fs.SConstruct_dir), name)

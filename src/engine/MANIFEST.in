@@ -2,6 +2,7 @@ SCons/__init__.py
 SCons/Action.py
 SCons/Builder.py
 SCons/Conftest.py
+SCons/dblite.py
 SCons/Debug.py
 SCons/Defaults.py
 SCons/Environment.py
