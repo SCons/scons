@@ -10,6 +10,10 @@
 
 RELEASE 0.09 - 
 
+ From Steven Knight:
+
+ - Add Repository() functionality.
+
  From Anthony Roach:
 
  - Fixed use of command lines with spaces in their arguments,

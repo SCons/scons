@@ -99,3 +99,4 @@ class Alias(SCons.Node.Node):
 default_ans = AliasNameSpace()
 
 SCons.Node.arg2nodes_lookups.append(default_ans.lookup)
+SCons.Node.arg2Rnodes_lookups.append(default_ans.lookup)

@@ -465,7 +465,9 @@ class Walker:
 
 arg2nodes_lookups = []
 
-def arg2nodes(args, node_factory=None):
+arg2Rnodes_lookups = []
+
+def arg2nodes(args, node_factory=None, lookup_list=arg2nodes_lookups):
     """This function converts a string or list into a list of Node
     instances.  It accepts the following inputs:
         - A single string,
@@ -483,11 +485,13 @@ def arg2nodes(args, node_factory=None):
     for v in args:
         if SCons.Util.is_String(v):
             n = None
-            for l in arg2nodes_lookups:
+            for l in lookup_list:
                 n = l(v)
                 if not n is None:
                     break
             if not n is None:
+                if SCons.Util.is_String(n) and node_factory:
+                    n = node_factory(n)
                 nodes.append(n)
             elif node_factory:
                 nodes.append(node_factory(v))
@@ -500,3 +504,6 @@ def arg2nodes(args, node_factory=None):
             nodes.append(v)
 
     return nodes
+
+def arg2Rnodes(args, node_factory=None):
+    return arg2nodes(args, node_factory, arg2Rnodes_lookups)
