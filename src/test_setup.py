@@ -107,16 +107,16 @@ try:
 except KeyError:
     cwd = os.getcwd()
 
+test = MyTestSCons()
+
+test.subdir(test.root)
+
 tar_gz = os.path.join(cwd, 'build', 'dist', '%s.tar.gz' % scons_version)
 
 if not os.path.isfile(tar_gz):
     print "Did not find an SCons package `%s'." % tar_gz
     print "Cannot test package installation."
     test.no_result(1)
-
-test = MyTestSCons()
-
-test.subdir(test.root)
 
 # Unpack the .tar.gz file.  This should create the scons_version/
 # subdirectory from which we execute the setup.py script therein.

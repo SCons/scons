@@ -243,12 +243,15 @@ def Builder(**kw):
     if kw.has_key('generator'):
         if kw.has_key('action'):
             raise UserError, "You must not specify both an action and a generator."
-        kw['action'] = SCons.Action.CommandGenerator(kw['generator'])
+        kw['action'] = SCons.Action.CommandGeneratorAction(kw['generator'])
         del kw['generator']
-    elif kw.has_key('action') and SCons.Util.is_Dict(kw['action']):
-        composite = DictCmdGenerator(kw['action'])
-        kw['action'] = SCons.Action.CommandGenerator(composite)
-        kw['src_suffix'] = composite.src_suffixes()
+    elif kw.has_key('action'):
+        if SCons.Util.is_Dict(kw['action']):
+            composite = DictCmdGenerator(kw['action'])
+            kw['action'] = SCons.Action.CommandGeneratorAction(composite)
+            kw['src_suffix'] = composite.src_suffixes()
+        else:
+            kw['action'] = SCons.Action.Action(kw['action'])
 
     if kw.has_key('emitter'):
         emitter = kw['emitter']
@@ -397,7 +400,7 @@ class BuilderBase:
                         is_explicit = 1,
                         **overrides):
         if __debug__: logInstanceCreation(self, 'Builder.BuilderBase')
-        self.action = SCons.Action.Action(action)
+        self.action = action
         self.multi = multi
         if SCons.Util.is_Dict(prefix):
             prefix = CallableSelector(prefix)

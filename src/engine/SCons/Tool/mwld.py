@@ -98,4 +98,4 @@ def shlib_emitter(target, source, env):
     return target, source
 
 
-shlib_action = SCons.Action.CommandGenerator(shlib_generator)
+shlib_action = SCons.Action.Action(shlib_generator, generator=1)

@@ -68,11 +68,51 @@ for suffix in CSuffixes:
 for suffix in DSuffixes:
     SourceFileScanner.add_scanner(suffix, DScanner)
 
-class ToolSpec:
-    def __init__(self, name, **kw):
+class Tool:
+    def __init__(self, name, toolpath=[], **kw):
         self.name = name
+        self.toolpath = toolpath
         # remember these so we can merge them into the call
         self.init_kw = kw
+
+        module = self._tool_module()
+        self.generate = module.generate
+        self.exists = module.exists
+
+    def _tool_module(self):
+        oldpythonpath = sys.path
+        sys.path = self.toolpath + sys.path
+
+        try:
+            try:
+                file, path, desc = imp.find_module(self.name, self.toolpath)
+                try:
+                    return imp.load_module(self.name, file, path, desc)
+                finally:
+                    if file:
+                        file.close()
+            except ImportError, e:
+                pass
+        finally:
+            sys.path = oldpythonpath
+
+        full_name = 'SCons.Tool.' + self.name
+        try:
+            return sys.modules[full_name]
+        except KeyError:
+            try:
+                smpath = sys.modules['SCons.Tool'].__path__
+                file, path, desc = imp.find_module(self.name, smpath)
+                try:
+                    module = imp.load_module(full_name, file, path, desc)
+                    setattr(SCons.Tool, self.name, module)
+                    return module
+                finally:
+                    if file:
+                        file.close()
+            except ImportError, e:
+                m = "No tool named '%s': %s" % (self.name, e)
+                raise SCons.Errors.UserError, m
 
     def __call__(self, env, *args, **kw):
         if self.init_kw is not None:
@@ -89,46 +129,6 @@ class ToolSpec:
 
     def __str__(self):
         return self.name
-    
-def Tool(name, toolpath=[], **kw):
-    "Select a canned Tool specification, optionally searching in toolpath."
-
-    oldpythonpath = sys.path
-    sys.path = toolpath + sys.path
-
-    try:
-        try:
-            file, path, desc = imp.find_module(name, toolpath)
-            try:
-                module = imp.load_module(name, file, path, desc)
-                spec = apply(ToolSpec, (name,), kw)
-                spec.generate = module.generate
-                spec.exists = module.exists
-                return spec
-            finally:
-                if file:
-                    file.close()
-        except ImportError, e:
-            pass
-    finally:
-        sys.path = oldpythonpath
-
-    
-    full_name = 'SCons.Tool.' + name
-    if not sys.modules.has_key(full_name):
-        try:
-            file, path, desc = imp.find_module(name,
-                                        sys.modules['SCons.Tool'].__path__)
-            mod = imp.load_module(full_name, file, path, desc)
-            setattr(SCons.Tool, name, mod)
-        except ImportError, e:
-            raise SCons.Errors.UserError, "No tool named '%s': %s" % (name, e)
-        if file:
-            file.close()
-    spec = apply(ToolSpec, (name,), kw)
-    spec.generate = sys.modules[full_name].generate
-    spec.exists = sys.modules[full_name].exists
-    return spec
 
 def createProgBuilder(env):
     """This is a utility function that creates the Program

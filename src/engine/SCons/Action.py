@@ -143,20 +143,6 @@ def _actionAppend(act1, act2):
         else:
             return ListAction([ a1, a2 ])
 
-class CommandGenerator:
-    """
-    Wraps a command generator function so the Action() factory
-    function can tell a generator function from a function action.
-    """
-    def __init__(self, generator):
-        self.generator = generator
-
-    def __add__(self, other):
-        return _actionAppend(self, other)
-
-    def __radd__(self, other):
-        return _actionAppend(other, self)
-
 def _do_create_action(act, *args, **kw):
     """This is the actual "implementation" for the
     Action factory method, below.  This handles the
@@ -172,10 +158,17 @@ def _do_create_action(act, *args, **kw):
         return act
     if SCons.Util.is_List(act):
         return apply(CommandAction, (act,)+args, kw)
-    if isinstance(act, CommandGenerator):
-        return apply(CommandGeneratorAction, (act.generator,)+args, kw)
     if callable(act):
-        return apply(FunctionAction, (act,)+args, kw)
+        try:
+            gen = kw['generator']
+            del kw['generator']
+        except KeyError:
+            gen = 0
+        if gen:
+            action_type = CommandGeneratorAction
+        else:
+            action_type = FunctionAction
+        return apply(action_type, (act,)+args, kw)
     if SCons.Util.is_String(act):
         var=SCons.Util.get_environment_var(act)
         if var:
