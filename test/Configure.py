@@ -206,6 +206,8 @@ try:
     reset(RE)
 
     test.write([work_dir,  'SConstruct'], """
+if int(ARGUMENTS.get('target_signatures_content', 0)):
+    TargetSignatures('content')
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
@@ -248,11 +250,41 @@ if not (r1 and r2 and r3 and r4 and r5 and r6):
                        [[((".cpp", CR), (_obj, CR))]],
                       test, "config.log", ".sconf_temp", "SConstruct")
 
+    # same should be true for TargetSignatures('content')
+
+    test.run(chdir=work_dir, arguments='target_signatures_content=1 --config=force')
+    checkLogAndStdout(["Checking for main() in C library %s... " % lib,
+                       "Checking for main() in C library None... ",
+                       "Checking for main() in C library %s... " % lib,
+                       "Checking for main() in C library None... ",
+                       "Checking for C header file math.h... ",
+                       "Checking for C++ header file vector... "],
+                      ["yes"]*6,
+                      [[((".c", NCR), (_obj, NCR), (_exe, NCR))]]*4 +
+                        [[((".c", NCR), (_obj, NCR))]] +
+                        [[((".cpp", NCR), (_obj, NCR))]],
+                      test, "config.log", ".sconf_temp", "SConstruct")    
+
+    test.run(chdir=work_dir, arguments='target_signatures_content=1')
+    checkLogAndStdout(["Checking for main() in C library %s... " % lib,
+                       "Checking for main() in C library None... ",
+                       "Checking for main() in C library %s... " % lib,
+                       "Checking for main() in C library None... ",
+                       "Checking for C header file math.h... ",
+                       "Checking for C++ header file vector... "],
+                      ["yes"]*6,
+                      [[((".c", CR), (_obj, CR), (_exe, CR))]]*4 +
+                       [[((".c", CR), (_obj, CR))]] +
+                       [[((".cpp", CR), (_obj, CR))]],
+                      test, "config.log", ".sconf_temp", "SConstruct")    
+
     # 1.2 if checks are not ok, the cache mechanism should work as well
     #     (via explicit cache)
     reset(EXACT)              # match exactly, "()" is a regexp thing
 
     test.write([work_dir,  'SConstruct'], """
+if int(ARGUMENTS.get('target_signatures_content', 0)):
+    TargetSignatures('content')
 env = Environment()
 import os
 env.AppendENVPath('PATH', os.environ['PATH'])
@@ -281,6 +313,24 @@ if not (not r1 and not r2):
                        [((".c", CR), (_obj, CR), (_exe, CF))]],
                       test, "config.log", ".sconf_temp", "SConstruct")
 
+    # 1.3 same should be true for TargetSignatures('content')
+    test.run(chdir=work_dir, arguments='--config=force target_signatures_content=1')
+    checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
+                       "Checking for main() in C library no_c_library_SAFFDG... "],
+                      ["no"]*2,
+                      [[((".c", NCR), (_obj, NCF))],
+                       [((".c", NCR), (_obj, NCR), (_exe, NCF))]],
+                      test, "config.log", ".sconf_temp", "SConstruct")
+
+    test.run(chdir=work_dir, arguments='target_signatures_content=1')
+    checkLogAndStdout(["Checking for C header file no_std_c_header.h... ",
+                       "Checking for main() in C library no_c_library_SAFFDG... "],
+                      ["no"]*2,
+                      [[((".c", CR), (_obj, CF))],
+                       [((".c", CR), (_obj, CR), (_exe, CF))]],
+                      test, "config.log", ".sconf_temp", "SConstruct")
+
+    
 
     # 2.1 test that normal builds work together with Sconf
     reset(RE_DOTALL)
