@@ -266,48 +266,6 @@ rebuilt, if necessary, and then installed there. Note that C<cons build>
 might build files that C<cons export> doesn't build, and vice-versa.
 
 
-=head2 No ``special'' targets
-
-With Cons, make-style ``special'' targets are not required. The simplest
-analog with Cons is to use special F<export> directories, instead. Let's
-suppose, for example, that you have a whole series of unit tests that are
-associated with your code. The tests live in the source directory near the
-code. Normally, however, you don't want to build these tests. One solution
-is to provide all the build instructions for creating the tests, and then to
-install the tests into a separate part of the tree. If we install the tests
-in a top-level directory called F<tests>, then:
-
-  % cons tests
-
-will build all the tests.
-
-  % cons export
-
-will build the production version of the system (but not the tests), and:
-
-  % cons build
-
-should probably be avoided (since it will compile tests unnecessarily).
-
-If you want to build just a single test, then you could explicitly name the
-test (in either the F<tests> directory or the F<build> directory). You could
-also aggregate the tests into a convenient hierarchy within the tests
-directory. This hierarchy need not necessarily match the source hierarchy,
-in much the same manner that the include hierarchy probably doesn't match
-the source hierarchy (the include hierarchy is unlikely to be more than two
-levels deep, for C programs).
-
-If you want to build absolutely everything in the tree (subject to whatever
-options you select), you can use:
-
-  % cons .
-
-This is not particularly efficient, since it will redundantly walk all the
-trees, including the source tree. The source tree, of course, may have
-buildable objects in it-,-nothing stops you from doing this, even if you
-normally build in a separate build tree.
-
-
 =head1 Build Pruning
 
 In conjunction with target selection, B<build pruning> can be used to reduce
@@ -351,52 +309,56 @@ do an unconstrained build before committing the integration).
 
 -->
 
- <para>
+  <para>
 
-   X
+    XXX
 
- </para>
+  </para>
 
- <section>
- <title>Selective Builds</title>
+  <section>
+  <title>Selective Builds</title>
 
-   <para>
+    <para>
 
-   X
+    XXX
 
-   </para>
+    </para>
 
- </section>
+  </section>
 
- <section>
- <title>Build Pruning</title>
+  <!--
 
-   <para>
+  <section>
+  <title>Build Pruning</title>
 
-   X
+    <para>
 
-   </para>
+    XXX
 
- </section>
+    </para>
 
- <section>
- <title>Overriding Construction Variables</title>
+  </section>
 
-   <para>
+  -->
 
-   X
+  <section>
+  <title>Overriding Construction Variables</title>
 
-   </para>
+    <para>
 
- </section>
+    XXX
 
- <section>
- <title>The &SCONSFLAGS; Environment Variable</title>
+    </para>
 
-   <para>
+  </section>
 
-   X
+  <section>
+  <title>The &SCONSFLAGS; Environment Variable</title>
 
-   </para>
+    <para>
 
- </section>
+    XXX
+
+    </para>
+
+  </section>

@@ -452,18 +452,20 @@ environment undisturbed.
 
    <para>
 
-   So far, we've always created a &consenv; named
+   So far,
+   all of our examples have
+   created a single &consenv; named
    <literal>env</literal>.
    <literal>env</literal>, however,
    is simply a Python variable name,
-   and you can use any other variable name that we like.
+   and you can use any other variable name that you like.
    For example:
 
    </para>
 
    <programlisting>
       my_env = Environment(CC = 'gcc',
-                        CCFLAGS = '-O2')
+                           CCFLAGS = '-O2')
 
       my_env.Program('foo.c')
    </programlisting>
@@ -535,7 +537,7 @@ environment undisturbed.
    <literal>-O2</literal>
    and one with a &CCFLAGS; value of
    <literal>-g</literal>.
-   To work around this,
+   To avoid this problem,
    we must explicitly specify
    that each environment compile
    <filename>foo.c</filename>
@@ -566,7 +568,7 @@ environment undisturbed.
    This avoids having to specify explicitly
    the object file name in multiple places,
    and makes for a compact, readable
-   &SConstruct file.
+   &SConstruct; file.
    Our &SCons; output then looks like:
 
    </para>
@@ -586,8 +588,8 @@ environment undisturbed.
 
    <para>
 
-   Sometimes you want to more than one &consenv;
-   to use the same values for one or more variables.
+   Sometimes you want more than one &consenv;
+   to share the same values for one or more variables.
    Rather than always having to repeat all of the common
    variables when you create each &consenv;,
    you can use the &Copy; method

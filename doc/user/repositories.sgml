@@ -288,7 +288,7 @@ subdirectories under the repository tree.
     about the pathname of the repository?
     To solve this problem, &SCons; allows you
     to specify repository directories
-    on the command line using the <literal>-Y</literal>:
+    on the command line using the <literal>-Y</literal> option:
 
     </para>
 

@@ -1,0 +1,628 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  &SCons; provides the ability to build a lot of different
+  types of files right "out of the box."
+  So far, we've been using &SCons;' ability to build
+  programs, objects and libraries to
+  illustrate much of the underlying functionality of &SCons;
+  This section will describe all of the different
+  types of files that you can build with &SCons;,
+  and the built-in &Builder; objects used to build them.
+
+  </para>
+
+  <section>
+  <title>Programs:  the &Program; Builder</title>
+
+    <para>
+
+    As we've seen, the &Program; Builder
+    is used to build an executable program.
+    The &source; argument is one or more
+    source-code files or object files,
+    and the &target; argument is the
+    name of the executable program name to be created.
+    For example:
+
+    </para>
+
+    <programlisting>
+      env = Environment()
+      env.Program('prog', 'file1.o')
+    </programlisting>
+
+    <para>
+
+    Will create the &prog;
+    executable on a POSIX system,
+    the &prog_exe; executable on a Windows system.
+
+    </para>
+
+    <para>
+
+    The target file's prefix and suffix may be omitted,
+    and the values from the
+    $PROGPREFIX
+    and
+    $PROGSUFFIX
+    construction variables
+    will be appended appropriately.
+    For example:
+
+    </para>
+
+    <programlisting>
+      env = Environment(PROGPREFIX='my', PROGSUFFIX='.xxx')
+      env.Program('prog', ['file1.o', 'file2.o'])
+    </programlisting>
+
+    <para>
+
+    Will create a program named
+    <filename>myprog.xxx</filename>
+    regardless of the system on which it is run.
+
+    </para>
+
+    <para>
+
+    If you omit the &target;,
+    the base of the first input
+    file name specified
+    because the base of the target
+    program created.
+    For example:
+
+    </para>
+
+    <programlisting>
+      env = Environment()
+      env.Program(['hello.c', 'goodbye.c'])
+    </programlisting>
+
+    <para>
+
+    Will create the &hello;
+    executable on a POSIX system,
+    the &hello_exe; executable on a Windows system.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Object-File Builders</title>
+
+    <para>
+
+    &SCons; provides separate Builder objects
+    to create both static and shared object files.
+
+    </para>
+
+    <section>
+    <title>The &StaticObject; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>The &SharedObject; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>The &Object; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <para>
+
+      Creates a static object file.
+
+      </para>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Library Builders</title>
+
+    <para>
+
+    &SCons; provides separate Builder objects
+    to create both static and shared libraries.
+
+    </para>
+
+    <section>
+    <title>The &StaticLibrary; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>The &SharedLibrary; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>The &Library; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+      <para>
+
+      Creates a static library file.
+
+      </para>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Pre-Compiled Headers:  the &PCH; Builder</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Microsoft Visual C++ Resource Files: the &RES; Builder</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Source Files</title>
+
+    <para>
+
+    By default
+    &SCons; supports two Builder objects
+    that know how to build source files
+    from other input files.
+
+    </para>
+
+    <section>
+    <title>The &CFile; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>The &CXXFile; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Documents</title>
+
+    <para>
+
+    &SCons; provides a number of Builder objects
+    for creating different types of documents.
+
+    </para>
+
+    <section>
+    <title>The &DVI; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>The &PDF; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>The &PostScript; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Archives</title>
+
+    <para>
+
+    &SCons; provides Builder objects
+    for creating two different types of archive files.
+
+    </para>
+
+    <section>
+    <title>The &Tar; Builder</title>
+
+      <para>
+
+      The &Tar; Builder object uses the &tar;
+      utility to create archives of files
+      and/or directory trees:
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Tar('out1.tar', ['file1', 'file2'])
+        env.Tar('out2', 'directory')
+      </programlisting>
+
+      <literallayout>
+        % <userinput>scons .</userinput>
+        tar -c -f out1.tar file1 file2
+        tar -c -f out2.tar directory
+      </literallayout>
+
+      <para>
+
+      One common requirement when creating a &tar; archive
+      is to create a compressed archive using the
+      <option>-z</option> option.
+      This is easily handled by specifying
+      the value of the &TARFLAGS; variable
+      when you create the construction environment.
+      Note, however, that the <option>-c</option> used to
+      to instruct &tar; to create the archive
+      is part of the default value of &TARFLAGS;,
+      so you need to set it both options:
+
+      </para>
+
+      <programlisting>
+        env = Environment(TARFLAGS = '-c -z')
+        env.Tar('out.tar.gz', 'directory')
+      </programlisting>
+
+      <literallayout>
+        % <userinput>scons .</userinput>
+        tar -c -z -f out.tar.gz directory
+      </literallayout>
+
+      <para>
+
+      you may also wish to set the value of the
+      &TARSUFFIX; construction variable
+      to your desired suffix for compress &tar; archives,
+      so that &SCons; can append it to the target file name
+      without your having to specify it explicitly:
+
+      </para>
+
+      <programlisting>
+        env = Environment(TARFLAGS = '-c -z',
+                          TARSUFFIX = '.tgz')
+        env.Tar('out', 'directory')
+      </programlisting>
+
+      <literallayout>
+        % <userinput>scons .</userinput>
+        tar -c -z -f out.tgz directory
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>The &Zip; Builder</title>
+
+      <para>
+
+      The &Zip; Builder object creates archives of files
+      and/or directory trees in the ZIP file format.
+      Python versions 1.6 or later
+      contain an internal &zipfile; module
+      that &SCons; will use.
+      In this case, given the following
+      &SConstruct; file:
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Zip('out', ['file1', 'file2'])
+      </programlisting>
+
+      <para>
+
+      Your output will reflect the fact
+      that an internal Python function
+      is being used to create the output ZIP archive:
+
+      </para>
+
+      <literallayout>
+        % <userinput>scons .</userinput>
+        zip("out.zip", ["file1", "file2"])
+      </literallayout>
+
+      <para>
+
+      If you're using Python version 1.5.2 to run &SCons;,
+      then &SCons; will try to use an external
+      &zip; program as follows:
+
+      </para>
+
+      <literallayout>
+        % <userinput>scons .</userinput>
+        zip /home/my/project/zip.out file1 file2
+      </literallayout>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Java</title>
+
+    <para>
+
+    &SCons; provides Builder objects
+    for creating various types of Java output files.
+
+    </para>
+
+    <section>
+    <title>Building Class Files:  the &Java; Builder</title>
+
+      <para>
+
+      The &Java; builder takes one or more input
+      <filename>.java</filename> files
+      and turns them into one or more
+      <filename>.class</filename> files
+      Unlike most builders, however,
+      the &Java; builder takes
+      target and source <emphasis>directories</emphasis>,
+      not files, as input.
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Java(target = 'classes', source = 'src')
+      </programlisting>
+
+      <para>
+
+      The &Java; builder will then
+      search the specified source directory
+      tree for all <filename>.java</filename> files,
+      and pass any out-of-date
+
+      </para>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>The &Jar; Builder</title>
+
+      <para>
+
+      The &Jar; builder object XXX
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Java(target = 'classes', source = 'src')
+        env.Jar(target = '', source = 'classes')
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>Building C header and stub files:  the &JavaH; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+    <section>
+    <title>Building RMI stub and skeleton class files:  the &RMIC; Builder</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        XXX
+      </programlisting>
+
+      <literallayout>
+        XXX
+      </literallayout>
+
+    </section>
+
+  </section>

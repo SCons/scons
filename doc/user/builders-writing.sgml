@@ -97,20 +97,24 @@ This functionality could be invoked as in the following example:
 
   <para>
 
-    &SCons; provides many useful methods
-    for building common software products:
-    programs, libraries, documents.
-    Frequently, however, you want to be
-    able to build some other type of file
-    not supported directly by &SCons;
-    Fortunately, &SCons; makes it very easy
-    to define your own &Builder; objects
-    for any custom file types you want to build.
+  Although &SCons; provides many useful methods
+  for building common software products:
+  programs, libraries, documents.
+  you frequently want to be
+  able to build some other type of file
+  not supported directly by &SCons;
+  Fortunately, &SCons; makes it very easy
+  to define your own &Builder; objects
+  for any custom file types you want to build.
+  (In fact, the &SCons; interfaces for creating
+  &Builder; objects are flexible enough and easy enough to use
+  that all of the the &SCons; built-in &Builder; objects
+  are created the mechanisms described in this section.)
 
   </para>
 
   <section>
-  <title>Builders That Execute External Commands</title>
+  <title>Writing Builders That Execute External Commands</title>
 
     <para>
 
@@ -128,6 +132,14 @@ This functionality could be invoked as in the following example:
        bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
     </programlisting>
 
+    <para>
+
+    All the above line does is create a free-standing
+    &Builder; object.
+    The next section will show us how to actually use it.
+
+    </para>
+
   </section>
 
   <section>
@@ -135,17 +147,17 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    A &Builder; object by itself, though,
-    isn't useful until it's attached to a &consenv;
+    A &Builder; object isn't useful
+    until it's attached to a &consenv;
     so that we can call it to arrange
     for files to be built.
     This is done through the &BUILDERS;
     &consvar; in an environment.
     The &BUILDERS; variable is a Python dictionary
-    that maps the names by which you want to call various &Builder;
-    to the &Builder; objects themselves.
+    that maps the names by which you want to call
+    various &Builder; objects to the objects themselves.
     For example, if we want to call the
-    &Builder; we defined by the name
+    &Builder; we just defined by the name
     <function>Foo</function>,
     our &SConstruct; file might look like:
 
@@ -154,6 +166,16 @@ This functionality could be invoked as in the following example:
     <programlisting>
        bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
        env = Environment(BUILDERS = {'Foo' : bld})
+    </programlisting>
+
+    <para>
+
+    With the &Builder; so attached to our &consenv;
+    we can now actually call it like so:
+
+    </para>
+
+    <programlisting>
        env.Foo('file.foo', 'file.input')
     </programlisting>
 
@@ -310,6 +332,7 @@ This functionality could be invoked as in the following example:
     You can, instead, define a Python function
     that a &Builder; object can invoke
     to build your target file (or files).
+    Such a &buildfunc; definition looks like:
 
     </para>
 
@@ -321,8 +344,70 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    XXX explain the function
-    XXX define the arguments
+    The arguments of a &buildfunc; are:
+
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+      <term>target</term>
+
+      <listitem>
+      <para>
+
+      A list of Node objects representing
+      the target or targets to be
+      built by this builder function.
+      The file names of these target(s)
+      may be extracted using the Python &str; funcion.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>source</term>
+
+      <listitem>
+      <para>
+
+      A list of Node objects representing
+      the sources to be
+      used by this builder function to build the targets.
+      The file names of these source(s)
+      may be extracted using the Python &str; funcion.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>env</term>
+
+      <listitem>
+      <para>
+
+      The &consenv; used for building the target(s).
+      The builder function may use any of the
+      environment's construction variables
+      in any way to affect how it builds the targets.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <para>
+
+    The builder function must
+    return a <literal>0</literal> or <literal>None</literal> value
+    if the target(s) are built successfully.
+    The builder function
+    may raise an exception
+    or return any non-zero value
+    to indicate that the build is unsuccessful,
 
     </para>
 
@@ -367,17 +452,120 @@ This functionality could be invoked as in the following example:
   </section>
 
   <section>
-  <title>Builders That Generate Actions</title>
+  <title>Builders That Create Actions Using a &Generator;</title>
 
     <para>
 
-    X
+    &SCons; Builder objects can create an action "on the fly"
+    by using a function called a &generator;.
+    This provides a great deal of flexibility XXX
+    A &generator; looks like:
 
     </para>
 
     <programlisting>
-       def generate_actions(XXX):
+       def generate_actions(source, target, env, for_signature):
            return XXX
+    </programlisting>
+
+    <para>
+
+    The arguments of a &generator; are:
+
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+      <term>source</term>
+
+      <listitem>
+      <para>
+
+      A list of Node objects representing
+      the sources to be built
+      by the command or other action
+      generated by this function.
+      The file names of these source(s)
+      may be extracted using the Python &str; funcion.
+
+      </para>
+      </listitem>
+
+      </varlistentry>
+
+      <varlistentry>
+      <term>target</term>
+
+      <listitem>
+      <para>
+
+      A list of Node objects representing
+      the target or targets to be built
+      by the command or other action
+      generated by this function.
+      The file names of these target(s)
+      may be extracted using the Python &str; funcion.
+
+      </para>
+      </listitem>
+
+      </varlistentry>
+
+      <varlistentry>
+      <term>env</term>
+
+      <listitem>
+      <para>
+
+      The &consenv; used for building the target(s).
+      The generator may use any of the
+      environment's construction variables
+      in any way to determine what command
+      or other action to return.
+
+      </para>
+      </listitem>
+
+      </varlistentry>
+
+      <varlistentry>
+      <term>for_signature</term>
+
+      <listitem>
+      <para>
+
+      A flag that specifies whether the
+      generator is being called to contribute to a build signature,
+      as opposed to actually executing the command.
+
+      XXX
+
+      </para>
+      </listitem>
+
+      </varlistentry>
+
+    </variablelist>
+
+    <para>
+
+    The &generator; must return a
+    command string or other action that will be used to
+    build the specified target(s) from the specified source(s).
+
+    </para>
+
+    <para>
+
+    Once you've defined a &generator;,
+    you create a &Builder; to use it
+    by specifying the generator keyword argument
+    instead of <literal>action</literal>.
+
+    </para>
+
+    <programlisting>
        bld = Builder(generator = generate_actions,
                      suffix = '.foo',
                      src_suffix = '.input')
@@ -403,11 +591,12 @@ This functionality could be invoked as in the following example:
   </section>
 
   <section>
-  <title>Builders That Modify the Target List</title>
+  <title>Builders That Modify the Target or Source Lists Using an &Emitter;</title>
 
     <para>
 
-    X
+    &SCons; supports the ability for a Builder to modify the
+    lists of target(s) from the specified source(s).
 
     </para>
 
@@ -451,7 +640,7 @@ This functionality could be invoked as in the following example:
 
     <para>
 
-    X
+    XXX
 
     </para>
 

@@ -34,9 +34,11 @@
 
     <!ENTITY actions SYSTEM "actions.sgml">
     <!ENTITY alias SYSTEM "alias.sgml">
-    <!ENTITY builders SYSTEM "builders.sgml">
+    <!ENTITY ant SYSTEM "ant.sgml">
+    <!ENTITY builders-built-in SYSTEM "builders-built-in.sgml">
+    <!ENTITY builders-commands SYSTEM "builders-commands.sgml">
+    <!ENTITY builders-writing SYSTEM "builders-writing.sgml">
     <!ENTITY caching SYSTEM "caching.sgml">
-    <!ENTITY command SYSTEM "command.sgml">
     <!ENTITY cons SYSTEM "cons.sgml">
     <!ENTITY copyright SYSTEM "copyright.sgml">
     <!ENTITY default SYSTEM "default.sgml">
@@ -47,6 +49,7 @@
     <!ENTITY help SYSTEM "help.sgml">
     <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
     <!ENTITY install SYSTEM "install.sgml">
+    <!ENTITY libraries SYSTEM "libraries.sgml">
     <!ENTITY make SYSTEM "make.sgml">
     <!ENTITY precious SYSTEM "precious.sgml">
     <!ENTITY preface SYSTEM "preface.sgml">
@@ -102,6 +105,11 @@
     &environments;
   </chapter>
 
+  <chapter id="chap-libraries">
+    <title>Building and Linking with Libraries</title>
+    &libraries;
+  </chapter>
+
   <chapter id="chap-depends">
     <title>Dependencies</title>
     &depends;
@@ -142,14 +150,19 @@
     &variants;
   </chapter>
 
-  <chapter id="chap-builders">
-    <title>Writing Builders</title>
-    &builders;
+  <chapter id="chap-builders-built-in">
+    <title>Built-In Builders</title>
+    &builders-built-in;
   </chapter>
 
-  <chapter id="chap-command">
-    <title>Not Writing a Builder (for One-Time Builds)</title>
-    &command;
+  <chapter id="chap-builders-writing">
+    <title>Writing Your Own Builders</title>
+    &builders-writing;
+  </chapter>
+
+  <chapter id="chap-builders-commands">
+    <title>Not Writing a Builder:  The &Command; Builder</title>
+    &builders-commands;
   </chapter>
 
   <chapter id="chap-actions">
@@ -220,6 +233,11 @@
   <appendix id="app-cons">
     <title>Converting From Cons</title>
     &cons;
+  </appendix>
+
+  <appendix id="app-ant">
+    <title>Converting From Ant</title>
+    &ant;
   </appendix>
 
 </book>

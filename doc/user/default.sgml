@@ -87,7 +87,7 @@ default list.
    This &SConstruct; file knows how to build two programs,
    &hello; and &goodbye;,
    but only builds the
-   &hello program by default:
+   &hello; program by default:
 
    </para>
 

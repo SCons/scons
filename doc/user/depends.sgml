@@ -25,8 +25,6 @@
 
 <!--
 
-
-
 =head2 The C<Salt> method
 
 The C<Salt> method adds a constant value to the signature calculation
@@ -97,58 +95,282 @@ operating system on which the build is performed (as reported by C<uname
   </para>
 
   <section>
-  <title>MD5 Signatures</title>
+  <title>Source File Signatures</title>
 
     <para>
 
-    &SCons; keeps track of whether a file has changed
-    based on the file's contents,
-    not the modification time.
-    This means that you may be surprised by the
-    behavior of &SCons; if you are used to the
-    &Make; convention of forcing
-    a rebuild by updating the file's
-    modification time like so:
+    The other side of avoiding unnecessary rebuilds
+    is the fundamental build tool behavior
+    of <emphasis>rebuilding</emphasis>
+    things when a source file changes.
+    &SCons; keeps track of this through a
+    &signature; for each source file,
+    and allows you to configure
+    whether you want to use the source
+    file contents or the modification time (timestamp)
+    as the signature.
 
     </para>
 
-    <literallayout>
-       % <userinput>scons hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
-       % <userinput>touch hello.c</userinput>
-       % <userinput>scons hello</userinput>
-       scons: `hello' is up to date.
-       %
-    </literallayout>
+    <section>
+    <title>MD5 Signatures</title>
 
-    <para>
+      <para>
 
-    This avoids unnecessary rebuilds when,
-    for example, someone rewrites the
-    contents of a file without making a change.
-    But if the contents of the file really change,
-    then &SCons; detects the change
-    and rebuilds the program as required:
+      By default,
+      &SCons; keeps track of whether a source file has changed
+      based on the file's contents,
+      not the modification time.
+      This means that you may be surprised by the
+      default &SCons; behavior if you are used to the
+      &Make; convention of forcing
+      a rebuild by updating the file's modification time
+      (using the &touch; command, for example):
 
-    </para>
+      </para>
 
-    <literallayout>
-       % <userinput>scons hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
-       % <userinput>edit hello.c</userinput>
-           [CHANGE THE CONTENTS OF hello.c]
-       % <userinput>scons hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
-       %
-    </literallayout>
+      <literallayout>
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         cc -o hello hello.o
+         % <userinput>touch hello.c</userinput>
+         % <userinput>scons hello</userinput>
+         scons: `hello' is up to date.
+         %
+      </literallayout>
+
+      <para>
+
+      Even though the file's modification time has changed,
+      &SCons; realizes that the contents of the
+      &hello_c; file have <emphasis>not</emphasis> changed,
+      and therefore that the &hello; program
+      need not be rebuilt.
+      This avoids unnecessary rebuilds when,
+      for example, someone rewrites the
+      contents of a file without making a change.
+      But if the contents of the file really do change,
+      then &SCons; detects the change
+      and rebuilds the program as required:
+
+      </para>
+
+      <literallayout>
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         cc -o hello hello.o
+         % <userinput>edit hello.c</userinput>
+             [CHANGE THE CONTENTS OF hello.c]
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         cc -o hello hello.o
+         %
+      </literallayout>
+
+      <para>
+
+      Note that you can, if you wish,
+      specify this default behavior
+      (MD5 signatures) explicitly
+      using the &SourceSignatures; function as follows:
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Program('hello.c')
+        SourceSignatures('MD5')
+      </programlisting>
+
+    </section>
+
+    <section>
+    <title>Time Stamps</title>
+
+      <para>
+
+      If you prefer, you can
+      configure &SCons; to use the modification time
+      of source files,
+      not the file contents,
+      when deciding if something needs to be rebuilt.
+      To do this, call the &SourceSignatures;
+      function as follows:
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Program('hello.c')
+        SourceSignatures('timestamp')
+      </programlisting>
+
+      <para>
+
+      This makes &SCons; act like &Make;
+      when a file's modification time is updated
+      (using the &touch; command, for example):
+
+      </para>
+
+      <literallayout>
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         cc -o hello hello.o
+         % <userinput>touch hello.c</userinput>
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         cc -o hello hello.o
+         %
+      </literallayout>
+
+    </section>
 
   </section>
 
   <section>
-  <title>Implicit Dependencies</title>
+  <title>Target File Signatures</title>
+
+    <section>
+    <title>Build Signatures</title>
+
+      <para>
+
+      We've already seen how modifying a source file
+      will cause not only its direct target file to be rebuilt,
+      but also the target file(s)
+      that depend on that direct target file.
+      In our example,
+      changing the contents of &hello_c; cause
+      the &hello_o; file to be rebuilt,
+      which in turn causes the
+      &hello; program to be rebuilt:
+
+      </para>
+
+      <literallayout>
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         cc -o hello hello.o
+         % <userinput>edit hello.c</userinput>
+           [CHANGE THE CONTENTS OF hello.c]
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         cc -o hello hello.o
+         %
+      </literallayout>
+
+      <para>
+
+      What's not obvious, though,
+      is that &SCons; internally handles the signature of
+      the target file(s)
+      (&hello_o; in the above example)
+      differently from the signature of the source file
+      (&hello_c;).
+      By default,
+      &SCons; tracks whether a target file must be rebuilt
+      by using a &buildsignature;
+      that consists of the combined
+      signatures of all the files
+      that go into making the target file.
+      This is efficient because
+      the accumulated signatures
+      actually give &SCons; all of the
+      information it needs
+      to decide if the target file is out of date.
+
+      </para>
+
+      <para>
+
+      If you wish, you can
+      specify this default behavior
+      (build signatures) explicitly
+      using the &TargetSignatures; function:
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Program('hello.c')
+        TargetSignatures('build')
+      </programlisting>
+
+    </section>
+
+    <section>
+    <title>File Contents</title>
+
+      <para>
+
+      Sometimes, however,
+      a source file can be changed
+      in such a way that the
+      target file(s) built from it
+      will be rebuilt
+      exactly the same as the last time.
+      If so, then any target files
+      that depend on built-but-not-changed target
+      file actually need not be rebuilt.
+      You can have &SCons;
+      realize that a dependent target file
+      need not be rebuilt in this situation
+      using the &TargetSignatures; function as follows:
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        env.Program('hello.c')
+        TargetSignatures('content')
+      </programlisting>
+
+      <para>
+
+      So if, for example,
+      a user were to only change a comment in a C file,
+      then the rebuilt &hello_o; file
+      would be exactly the same as the one previously built
+      (assuming the compiler doesn't put any build-specific
+      information in the object file).
+      &SCons; would then realize that it would not
+      need to rebuild the &hello; program as follows:
+
+      </para>
+
+      <literallayout>
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         cc -o hello hello.o
+         % <userinput>edit hello.c</userinput>
+           [CHANGE A COMMENT IN hello.c]
+         % <userinput>scons hello</userinput>
+         cc -c hello.c -o hello.o
+         %
+      </literallayout>
+
+      <para>
+
+      In essence, &SCons; has
+      "short-circuited" any dependent builds
+      when it realizes that a target file
+      has been rebuilt to exactly the same file as the last build.
+      So configured,
+      &SCons; does take some extra processing time
+      to scan the contents of the target (&hello_o;) file,
+      but this may save time
+      if the rebuild that was avoided
+      would have been very time-consuming and expensive.
+
+      </para>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Implicit Dependencies:  The &CPPPATH; Construction Variable</title>
 
     <para>
 
@@ -188,7 +410,7 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <programlisting>
-       env = Environment(CPPPATH = '.')  XXX IS CPPPATH NECESSARY?
+       env = Environment(CPPPATH = '.')
        hello = env.Program('hello.c')
     </programlisting>
 
@@ -199,27 +421,37 @@ operating system on which the build is performed (as reported by C<uname
     (<literal>'.'</literal>)
     for any files included by C source files
     (<filename>.c</filename> or <filename>.h</filename> files).
-    With this assignment in the &SConstruct file:
+    With this assignment in the &SConstruct; file:
 
     </para>
 
     <literallayout>
        % <userinput>scons hello</userinput>
-       cc -c hello.c -o hello.o
+       cc -I. -c hello.c -o hello.o
        cc -o hello hello.o
        % <userinput>scons hello</userinput>
        scons: `hello' is up to date.
        % <userinput>edit hello.h</userinput>
            [CHANGE THE CONTENTS OF hello.h]
        % <userinput>scons hello</userinput>
-       cc -c hello.c -o hello.o
+       cc -I. -c hello.c -o hello.o
        cc -o hello hello.o
        %
     </literallayout>
 
     <para>
 
-    &SCons; knows that the &hello;
+    First, notice that &SCons;
+    added the <literal>-I.</literal> argument
+    from the &CPPPATH; variable
+    so that the compilation would find the
+    &hello_h; file in the local directory.
+
+    </para>
+
+    <para>
+
+    Second, realize that &SCons; knows that the &hello;
     program must be rebuilt
     because it scans the contents of
     the &hello_c; file
@@ -236,6 +468,49 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
+    <para>
+
+    Like the &LIBPATH; variable,
+    the &CPPPATH; variable
+    may be a list of directories,
+    or a string separated by
+    the system-specific path separate character
+    (':' on POSIX/Linux, ';' on Windows).
+    Either way, &SCons; creates the
+    right command-line options
+    so that the followin example:
+
+    </para>
+
+    <programlisting>
+       env = Environment(CPPPATH = ['include', '/home/project/inc'])
+       hello = env.Program('hello.c')
+    </programlisting>
+
+    <para>
+
+    Will look like this on POSIX or Linux:
+
+    </para>
+
+    <literallayout>
+       % <userinput>scons hello</userinput>
+       cc -Iinclude -I/home/project/inc -c hello.c -o hello.o
+       cc -o hello hello.o
+    </literallayout>
+
+    <para>
+
+    And like this on Windows:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons hello</userinput>
+      cl /Iinclude /I\home\project\inc /Fohello.obj hello.c
+      link /OUT:hello.exe hello.obj
+    </literallayout>
+
   </section>
 
   <section>
@@ -246,7 +521,7 @@ operating system on which the build is performed (as reported by C<uname
     Scanning each file for <literal>#include</literal> lines
     does take some extra processing time.
     When you're doing a full build of a large system,
-    the scanning time is a small percentage
+    the scanning time is usually a very small percentage
     of the overall time spent on the build.
     You're most likely to notice the scanning time,
     however, when you rebuild all or part of a large system:
@@ -406,32 +681,10 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    X
+    XXX
 
     </para>
 
   </section>
 
   -->
-
-  <section>
-  <title>Time Stamps</title>
-
-    <para>
-
-    X
-
-    </para>
-
-  </section>
-
-  <section>
-  <title>The &SourceSignature; Method</title>
-
-    <para>
-
-    X
-
-    </para>
-
-  </section>

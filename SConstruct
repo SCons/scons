@@ -865,7 +865,10 @@ if change:
     for f in pf + cf:
         u[f] = 1
     for f in df:
-        del u[f]
+        try:
+            del u[f]
+        except KeyError:
+            pass
     sfiles = filter(lambda x: x[-9:] != '.aeignore' and x[-9:] != '.sconsign',
                     u.keys())
 

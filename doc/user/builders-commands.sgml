@@ -23,41 +23,41 @@
 
 -->
 
-<!--
+  <!--
 
-=head2 The C<Command> method
+  =head2 The C<Command> method
 
 
-The C<Command> method is called as follows:
+  The C<Command> method is called as follows:
 
-  Command $env <target>, <inputs>, <build action>;
+    Command $env <target>, <inputs>, <build action>;
 
-The target is made dependent upon the list of input files specified, and the
-inputs must be built successfully or Cons will not attempt to build the
-target.
+  The target is made dependent upon the list of input files specified, and the
+  inputs must be built successfully or Cons will not attempt to build the
+  target.
 
-To specify a command with multiple targets, you can specify a reference to a
-list of targets. In Perl, a list reference can be created by enclosing a
-list in square brackets. Hence the following command:
+  To specify a command with multiple targets, you can specify a reference to a
+  list of targets. In Perl, a list reference can be created by enclosing a
+  list in square brackets. Hence the following command:
 
-  Command $env ['foo.h', 'foo.c'], 'foo.template', q(
-	gen %1
-  );
+    Command $env ['foo.h', 'foo.c'], 'foo.template', q(
+  	gen %1
+    );
 
-could be used in a case where the command C<gen> creates two files, both
-F<foo.h> and F<foo.c>.
+  could be used in a case where the command C<gen> creates two files, both
+  F<foo.h> and F<foo.c>.
 
--->
+  -->
 
   <para>
 
   Creating a &Builder; and attaching it to a &consenv;
   allows for a lot of flexibility when you
-  want to re-use the same actions
+  want to re-use actions
   to build multiple files of the same type.
   This can, however, be cumbersome
   if you only need to execute one specific command
-  to build a single file (or single group of files).
+  to build a single file (or group of files).
   For these situations, &SCons; supports a
   &Command; &Builder; that arranges
   for a specific action to be executed
@@ -90,7 +90,7 @@ F<foo.h> and F<foo.c>.
 
   <para>
 
-  Note that the action you
+  Note that the action you 
 
   </para>
 

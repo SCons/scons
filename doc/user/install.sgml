@@ -72,7 +72,7 @@
   should be installed.
   This is an area where the &Alias;
   function comes in handy,
-  allowing you, if you wish,
+  allowing you, for example,
   to create a pseudo-target named <literal>install</literal>
   that can expand to the specified destination directory:
 
@@ -104,7 +104,7 @@
     <para>
 
     You can install multiple files into a directory
-    simploy by calling the &Install; function multiple times:
+    simply by calling the &Install; function multiple times:
 
     </para>
 

@@ -43,7 +43,7 @@ requirements of a build.
 
  <para>
 
- Here's how to build the famous "Hello, World!" example using &SCons;.
+ Here's the famous "Hello, World!" program in C:
 
  </para>
 
@@ -57,7 +57,8 @@ requirements of a build.
 
  <para>
 
- Enter the following into a file name &SConstruct;:
+ And here's how to build it using &SCons;.
+ Enter the following into a file named &SConstruct;:
 
  </para>
 
@@ -144,7 +145,7 @@ requirements of a build.
 
    What may not be obvious, though, is that
    there's an important difference between
-   an &SConstruct; file and a &Makefile:
+   an &SConstruct; file and a &Makefile;:
    the &SConstruct; file is actually a Python script.
    If you're not already familiar with Python, don't worry;
    Python is very easy to learn,
@@ -193,9 +194,47 @@ requirements of a build.
    To do this, you need to put the
    source files in a Python list
    (enclosed in square brackets),
-   and slide that list over to to the right
+   like so:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      env.Program(['prog.c', 'file1.c', 'file2.'])
+   </programlisting>
+
+   <para>
+
+   A build of the above example would look like:
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      cc -c file1.c -o file1.o
+      cc -c file2.c -o file2.o
+      cc -c prog.c -o prog.o
+      cc -o prog prog.o file1.o file2.o
+   </literallayout>
+
+   <para>
+
+   Notice that &SCons;
+   deduces the output program name
+   from the first source file specified
+   in the list--that is,
+   because the first source file was &prog_c;,
+   &SCons; will name the resulting program &prog;
+   (or &prog_exe; on a Windows system).
+   If you want to specify a different program name,
+   then you slide the list of source files
+   over to the right
    to make room for the output program file name.
-   For example:
+   (&SCons; puts the output file name to the left
+   of the source file names
+   so that the order mimics that of an
+   assignment statement:  "program = source files".)
+   This makes our example:
 
    </para>
 
@@ -206,16 +245,7 @@ requirements of a build.
 
    <para>
 
-   (&SCons; puts the output file name to the left
-   of the source file names
-   so that the order mimics that of an
-   assignment statement:  "program = source files".)
-
-   </para>
-
-   <para>
-
-   A build of the above example would look:
+   On Linux, a build of this example would look like:
 
    </para>
 
@@ -227,11 +257,7 @@ requirements of a build.
       cc -o program main.o file1.o file2.o
    </literallayout>
 
-   <!--
-
-   XXX DO WE NEED WINDOWS EXAMPLE OUTPUT HERE?
-
-   </para>
+   <para>
 
    Or on Windows:
 
@@ -244,8 +270,6 @@ requirements of a build.
       cl /Fomain.obj main.c
       link /Foprogram.exe main.obj file1.obj file2.obj
    </literallayout>
-
-   -->
 
  </section>
 
@@ -260,8 +284,8 @@ requirements of a build.
    (either single quotes or double quotes).
    This can get cumbersome and difficult to read
    when the list of file names is long.
-   Fortunately, there are a number of things
-   we can do to make sure that
+   Fortunately, &SCons; and Python provide a number of ways
+   to make sure that
    the &SConstruct; file stays easy to read.
 
    </para>
@@ -363,7 +387,7 @@ requirements of a build.
 
    In order to compile multiple programs
    within the same &SConstruct; file,
-   simply call <function>env.Program</function>
+   simply call the <function>env.Program</function> method
    multiple times,
    once for each program you need to build:
 
@@ -390,6 +414,19 @@ requirements of a build.
       cc -o foo foo.o
    </literallayout>
 
+   <para>
+
+   Notice that &SCons; does not necessarily build the
+   programs in the same order in which you specify
+   them in the &SConstruct; file.
+   &SCons; does, however, recognize that
+   the individual object files must be built
+   before the resulting program can be built.
+   We'll discuss this in greater detail in
+   the "Dependencies" section, below.
+
+   </para>
+
  </section>
 
  <section>
@@ -397,16 +434,39 @@ requirements of a build.
 
    <para>
 
-   XXX
+   It's common to re-use code by sharing source files
+   between multiple programs.
+   One way to do this is to create a library
+   from the common source files,
+   which can then be linked into resulting programs.
+   (Creating libraries is discussed in
+   section XXX, below.)
+
+   </para>
+
+   <para>
+
+   A more straightforward, but perhaps less convenient,
+   way to share source files between multiple programs
+   is to simply include the common source files
+   when listing the source files for each program:
 
    </para>
 
    <programlisting>
-      common = ['common1.c', 'common2.c']
       env = Environment()
-      env.Program(['foo.c'] + common)
-      env.Program('bar', ['bar1.c', 'bar2.c'] + common)
+      env.Program(Split('foo.c common1.c common2.c'))
+      env.Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
    </programlisting>
+
+   <para>
+
+   &SCons; recognizes that the object files for
+   the &common1_c; and &common2_c; source files
+   each only need to be built once,
+   even though the files are listed multiple times:
+
+   </para>
 
    <literallayout>
       % <userinput>scons</userinput>
@@ -418,5 +478,34 @@ requirements of a build.
       cc -c foo.c -o foo.o
       cc -o foo foo.o common1.o common2.o
    </literallayout>
+
+   <para>
+
+   If two or more programs
+   share a lot of common source files,
+   repeating the common files in the list for each program
+   a maintenance problem if you need to change the
+   list of common files.
+   You can simplify this by creating a separate Python list
+   to hold the common file names,
+   and concatenating it with other lists
+   using the Python &+; operator:
+
+   </para>
+
+   <programlisting>
+      common = ['common1.c', 'common2.c']
+      foo_files = ['foo.c'] + common
+      bar_files = ['bar1.c', 'bar2.c'] + common
+      env = Environment()
+      env.Program('foo', foo_files)
+      env.Program('bar', bar_files)
+   </programlisting>
+
+   <para>
+
+   This is functionally equivalent to the previous example.
+
+   </para>
 
  </section>

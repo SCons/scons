@@ -23,63 +23,182 @@
 
 -->
 
- <para>
+  <para>
 
-   X
+  XXX
 
- </para>
+  </para>
 
- <section>
- <title>Why &SCons;?</title>
+  <section>
+  <title>Why &SCons;?</title>
 
-   <para>
+    <para>
 
-   X
+    XXX
 
-   </para>
+    </para>
 
- </section>
+  </section>
 
- <section>
- <title>History</title>
+  <section>
+  <title>&SCons; Principles</title>
 
-   <para>
+    <para>
 
-   X
+    By default, &SCons; guarantees a correct build
+    regardless of what end case you may have.
 
-   </para>
+    </para>
 
- </section>
+    <para>
 
- <section>
- <title>Conventions</title>
+    &SCons; makes it easy to speed up the build through
+    optimization options that trade off
+    guaranteed correctness for speed.
 
-   <para>
+    </para>
 
-   X
+    <para>
 
-   </para>
+    &SCons; tries to do as much for you out of the box as reasonable.
 
- </section>
+    </para>
 
- <section>
- <title>Acknowledgements</title>
+  </section>
 
-   <para>
+  <section>
+  <title>History</title>
 
-   X
+    <para>
 
-   </para>
+    &SCons; originated with a design
+    that was submitted to the Software Carpentry
+    design competition in 2000.
 
- </section>
+    </para>
 
- <section>
- <title>Contact</title>
+    <para>
 
-   <para>
+    &SCons; is the direct descendant
+    of a Perl utility called &Cons;.
+    &Cons; in turn based some of its ideas on &Jam;,
+    a build tool from Perforce Systems.
 
-   X
+    </para>
 
-   </para>
+  </section>
 
- </section>
+  <section>
+  <title>Conventions</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Acknowledgements</title>
+
+    <para>
+
+    &SCons; would not exist without a lot of help
+    from a lot of people,
+    many of whom may not even be aware
+    that they helped or served as inspiration.
+    So in no particular order,
+    and at the risk of leaving out someone:
+
+    </para>
+
+    <para>
+
+    First and foremost,
+    &SCons; owes a tremendous debt to Bob Sidebotham,
+    the original author of the classic Perl-based &Cons; tool
+    which Bob first released to the world back around 1996.
+    Bob's work on Cons classic provided the underlying architecture
+    and model of specifying a build configuration
+    using a real scripting language.
+    My real-world experience working on Cons
+    informed many of the design decisions in SCons,
+    including the improved parallel build support,
+    making Builder objects easily definable by users,
+    and separating the build engine from the wrapping interface.
+
+    </para>
+
+    <para>
+
+    Greg Wilson was instrumental in getting
+    &SCons; started as a real project
+    when he initiated the Software Carpentry design
+    competition in February 2000.
+    Without that nudge,
+    marrying the advantages of the Cons classic
+    architecture with the readability of Python
+    might have just stayed no more than a nice idea.
+
+    </para>
+
+    <para>
+
+    The entire &SCons; team have been
+    absolutely wonderful to work with,
+    and &SCons; would be nowhere near as useful a
+    tool without the energy, enthusiasm
+    and time people have contributed over the past few years.
+    The "core team"
+    of Chad Austin, Anthony Roach, Charles Crain, and Steve Leblanc
+    have been great about reviewing my (and other) changes
+    and catching problems before they get in the code base.
+    Technically,
+    Anthony's outstanding and innovative work on the tasking engine
+    has given &SCons; a vastly superior parallel build model,
+    and Charles has been the master of the crucial Node infrastructure.
+    &SCons; has received contributions
+    from many other people, of course:
+    Matt Balvin (extending long command-line support on Win32),
+    Michael Cook (avoiding losing signal bits from executed commands),
+    Derrick 'dman' Hudson (),
+    Alex Jacques (work on the Win32 scons.bat file),
+    Stephen Kennedy (performance enhancements),
+    Lachlan O'Dea (SharedObject() support for masm
+    and normalized paths for the WhereIs() function),
+    Jeff Petkau (fixes for CacheDir and other areas),
+    Zed Shaw (Append() and Replace() environment methods),
+    Terrel Shumway (build and test fixes, as well as the SCons Wiki),
+    sam th (dynamic checks for utilities)
+    and Moshe Zadke (Debian packaging).
+
+    </para>
+
+    <para>
+
+    Thanks to Peter Miller
+    for his splendid change management system, &Aegis;,
+    which has provided the &SCons; project
+    with a robust development methodology from day one,
+    and which showed me how you could
+    integrate incremental regression tests into
+    a practical development cycle
+    (years before eXtreme Programming arrived on the scene).
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Contact</title>
+
+    <para>
+
+    The best way to contact people involved with SCons,
+    including the author,
+    is through the SCons mailing lists.
+
+    </para>
+
+  </section>

@@ -110,228 +110,322 @@ program using the F<build/foo.c> path name.
 
 -->
 
- <para>
+  <para>
 
- It's often useful to keep any built files completely
- separate from the source files.
- This is usually done by creating one or more separate
- <emphasis>build directories</emphasis>
- that are used to hold the built objects files, libraries,
- and executable programs, etc.
- for a specific flavor of build.
- &SCons; provides two ways of doing this,
- one with a little more flexibility.
+  It's often useful to keep any built files completely
+  separate from the source files.
+  This is usually done by creating one or more separate
+  <emphasis>build directories</emphasis>
+  that are used to hold the built objects files, libraries,
+  and executable programs, etc.
+  for a specific flavor of build.
+  &SCons; provides two ways to do this,
+  one through the &SConscript; function that we've already seen,
+  and the second through a more flexible &BuildDir; function.
 
- </para>
+  </para>
 
- <section>
- <title>The &BuildDir; Function</title>
+  <section>
+  <title>Specifying a Build Directory as Part of an &SConscript; Call</title>
 
-   <para>
+    <para>
 
-   Use the &BuildDir; function to establish that target
-   files should be built in a separate directory
-   from the source files:
+    The most straightforward way to establish a build directory
+    uses the fact that the usual way to
+    set up a build hierarcy is to have an
+    &SConscript; file in the source subdirectory.
+    If you then pass a &build_dir; argument to the
+    &SConscript; function call:
 
-   </para>
+    </para>
 
-   <programlisting>
-     BuildDir('build', 'src')
-     env = Environment()
-     env.Program('build/hello.c')
-   </programlisting>
+    <programlisting>
+      SConscript('src/SConscript', build_dir='build')
+    </programlisting>
 
-   <para>
+    <para>
 
-   Note that XXX
+    &SCons; will then build all of the files in
+    the &build; subdirectory:
 
-   </para>
+    </para>
 
-   <literallayout>
-     % <userinput>ls src</userinput>
-     hello.c
-     % <userinput>scons</userinput>
-     cc -c build/hello.c -o build/hello.o
-     cc -o build/hello build/hello.o
-     % <userinput>ls -1 build</userinput>
-     hello
-     hello.c
-     hello.o
-   </literallayout>
+    <literallayout>
+      % <userinput>ls -1 src</userinput>
+      SConscript
+      hello.c
+      % <userinput>scons</userinput>
+      cc -c build/hello.c -o build/hello.o
+      cc -o build/hello build/hello.o
+      % <userinput>ls -1 build</userinput>
+      hello
+      hello.c
+      hello.o
+    </literallayout>
 
- </section>
+    <para>
 
- <section>
- <title>Avoiding Duplicate Source Files in the Build Directory</title>
+    But wait a minute--what's going on here?
+    &SCons; created the object file
+    <filename>build/hello.o</filename>
+    in the &build; subdirectory,
+    as expected.
+    But even though our &hello_c; file lives in the &src; subdirectory,
+    &SCons; has actually compiled a
+    <filename>build/hello.c</filename> file
+    to create the object file.
 
-   <para>
+    </para>
 
-   X
+    <para>
 
-   </para>
+    What's happened is that &SCons; has <emphasis>duplicated</emphasis>
+    the &hello_c; file from the &src; subdirectory
+    to the &build; subdirectory,
+    and built the program from there.
+    The next section explains why &SCons; does this.
 
-   <programlisting>
-     BuildDir('build', 'src', duplicate=0)
-     env = Environment()
-     env.Program('build/hello.c')
-   </programlisting>
+    </para>
 
-   <para>
+  </section>
 
-   X
+  <section>
+  <title>Why &SCons; Duplicates Source Files in a Build Directory</title>
 
-   </para>
+    <para>
 
-   <literallayout>
-     % <userinput>ls -1 src</userinput>
-     hello.c
-     % <userinput>scons</userinput>
-     cc -c src/hello.c -o build/hello.o
-     cc -o build/hello build/hello.o
-     % <userinput>ls -1 build</userinput>
-     hello
-     hello.o
-   </literallayout>
+    &SCons; duplicates source files in build directories
+    because it's the most straightforward way to guarantee a correct build
+     <emphasis>regardless of include-file directory paths</emphasis>,
+    and the &SCons; philosophy is to, by default,
+    guarantee a correct build in all cases.
+    Here is an example of an end case where duplicating
+    source files in a build directory
+    is necessary for a correct build:
 
-   <para>
+    </para>
 
-   X
+    <para>
 
-   </para>
+    XXX
 
- </section>
+    </para>
 
- <section>
- <title>Why &SCons; Duplicates Source Files by Default</title>
+    <programlisting>
+      env = Environmnet()
+    </programlisting>
 
-   <para>
+    <para>
 
-   X
+    XXX
 
-   </para>
+    </para>
 
-   <programlisting>
-     env = Environmnet()
-   </programlisting>
+    <literallayout>
+      % <userinput>scons</userinput>
+      cc -c build/hello.c -o build/hello.o
+      cc -o build/hello build/hello.o
+    </literallayout>
 
-   <para>
+  </section>
 
-   X
+  <section>
+  <title>Telling &SCons; to Not Duplicate Source Files in the Build Directory</title>
 
-   </para>
+    <para>
 
-   <literallayout>
-     % <userinput>scons</userinput>
-     cc -c build/hello.c -o build/hello.o
-     cc -o build/hello build/hello.o
-   </literallayout>
+    In most cases, however,
+    having &SCons; place its target files in a build subdirectory
+    <emphasis>without</emphasis>
+    duplicating the source files works just fine.
+    You can disable the default &SCons; behavior
+    by specifying <literal>duplicate=0</literal>
+    when you call the &SConscript; function:
 
- </section>
+    </para>
 
- <section>
- <title>Using &BuildDir; With an &SConscript; File</title>
+    <programlisting>
+      SConscript('src/SConscript', build_dir='build', duplicate=0)
+    </programlisting>
 
-   <para>
+    <para>
 
-   X
+    When this flag is specified,
+    &SCons; uses the build directory
+    like most people expect--that is,
+    the output files are placed in the build directory
+    while the source files stay in the source directory:
 
-   </para>
+    </para>
 
-   <programlisting>
-     env = Environment()
-     env.Program('hello.c')
-   </programlisting>
+    <literallayout>
+      % <userinput>ls -1 src</userinput>
+      SConscript
+      hello.c
+      % <userinput>scons</userinput>
+      cc -c src/hello.c -o build/hello.o
+      cc -o build/hello build/hello.o
+      % <userinput>ls -1 build</userinput>
+      hello
+      hello.o
+    </literallayout>
 
-   <para>
+  </section>
 
-   X
+  <section>
+  <title>The &BuildDir; Function</title>
 
-   </para>
+    <para>
 
-   <programlisting>
-     BuildDir('build', 'src')
-     SConscript('build/SConscript')
-   </programlisting>
+    Use the &BuildDir; function to establish that target
+    files should be built in a separate directory
+    from the source files:
 
-   <para>
+    </para>
 
-   X
+    <programlisting>
+      BuildDir('build', 'src')
+      env = Environment()
+      env.Program('build/hello.c')
+    </programlisting>
 
-   </para>
+    <para>
 
-   <literallayout>
-     % <userinput>ls -1 src</userinput>
-     SConscript
-     hello.c
-     % <userinput>scons</userinput>
-     cc -c build/hello.c -o build/hello.o
-     cc -o build/hello build/hello.o
-     % <userinput>ls -1 build</userinput>
-     hello
-     hello.c
-     hello.o
-   </literallayout>
+    Note that when you're not using
+    an &SConscript; file in the &src; subdirectory,
+    you must actually specify that
+    the program must be built from
+    the <filename>build/hello.c</filename>
+    file that &SCons; will duplicate in the
+    &build; subdirectory.
 
- </section>
+    </para>
 
- <section>
- <title>Specifying a Build Directory as Part of an &SConscript; Call</title>
+    <para>
 
-   <para>
+    XXX
 
-   X
+    </para>
 
-   </para>
+    <para>
 
-   <programlisting>
-     SConscript('src/SConscript', build_dir='build')
-   </programlisting>
+    When using the &BuildDir; function directly,
+    &SCons; still duplicates the source files
+    in the build directory by default:
 
-   <para>
+    </para>
 
-   X
+    <literallayout>
+      % <userinput>ls src</userinput>
+      hello.c
+      % <userinput>scons</userinput>
+      cc -c build/hello.c -o build/hello.o
+      cc -o build/hello build/hello.o
+      % <userinput>ls -1 build</userinput>
+      hello
+      hello.c
+      hello.o
+    </literallayout>
 
-   </para>
+    <para>
 
-   <literallayout>
-     % <userinput>ls -1 src</userinput>
-     SConscript
-     hello.c
-     % <userinput>scons</userinput>
-     cc -c build/hello.c -o build/hello.o
-     cc -o build/hello build/hello.o
-     % <userinput>ls -1 build</userinput>
-     hello
-     hello.c
-     hello.o
-   </literallayout>
+    You can specify the same <literal>duplicate=0</literal> argument
+    that you can specify for an &SConscript; call:
 
-   <para>
+    </para>
 
-   X
+    <programlisting>
+      BuildDir('build', 'src', duplicate=0)
+      env = Environment()
+      env.Program('build/hello.c')
+    </programlisting>
 
-   </para>
+    <para>
 
-   <programlisting>
-     SConscript('src/SConscript', build_dir='build', duplicate=0)
-   </programlisting>
+    In which case &SCons;
+    will disable duplication of the source files:
 
-   <para>
+    </para>
 
-   X
+    <literallayout>
+      % <userinput>ls src</userinput>
+      hello.c
+      % <userinput>scons</userinput>
+      cc -c src/hello.c -o build/hello.o
+      cc -o build/hello build/hello.o
+      % <userinput>ls -1 build</userinput>
+      hello
+      hello.o
+    </literallayout>
 
-   </para>
+  </section>
 
-   <literallayout>
-     % <userinput>ls -1 src</userinput>
-     SConscript
-     hello.c
-     % <userinput>scons</userinput>
-     cc -c src/hello.c -o build/hello.o
-     cc -o build/hello build/hello.o
-     % <userinput>ls -1 build</userinput>
-     hello
-     hello.o
-   </literallayout>
+  <section>
+  <title>Using &BuildDir; With an &SConscript; File</title>
 
- </section>
+    <para>
+
+    Even when using the &BuildDir; function,
+    it's much more natural to use it with
+    a subsidiary &SConscript; file.
+    For example, if the
+    <filename>src/SConscript</filename>
+    looks like this:
+
+    </para>
+
+    <programlisting>
+      env = Environment()
+      env.Program('hello.c')
+    </programlisting>
+
+    <para>
+
+    Then our &SConscript; file could look like:
+
+    </para>
+
+    <programlisting>
+      BuildDir('build', 'src')
+      SConscript('build/SConscript')
+    </programlisting>
+
+    <para>
+
+    Yielding the following output:
+
+    </para>
+
+    <literallayout>
+      % <userinput>ls -1 src</userinput>
+      SConscript
+      hello.c
+      % <userinput>scons</userinput>
+      cc -c build/hello.c -o build/hello.o
+      cc -o build/hello build/hello.o
+      % <userinput>ls -1 build</userinput>
+      hello
+      hello.c
+      hello.o
+    </literallayout>
+
+    <para>
+
+    Notice that this is completely equivalent
+    to the use of &SConscript; that we
+    learned about in the previous section.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Why You'd Want to Call &BuildDir; Instead of &SConscript;</title>
+
+    <para>
+    
+    XXX
+
+    </para>
+
+  </section>

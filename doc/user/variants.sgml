@@ -107,40 +107,89 @@ is pretty smart about rebuilding things when you change options.
 
 -->
 
- <para>
+  <para>
 
-   X
+  The &BuildDir; function now gives us everything
+  we need to show how easy it is to create
+  variant builds using &SCons;.
+  Suppose, for example, that we want to
+  build a program for both Windows and Linux platforms,
+  but that we want to build it in a shared directory
+  with separate side-by-side build directories
+  for the Windows and Linux versions of the program.
 
- </para>
+  </para>
 
- <section>
- <title>X</title>
+  <programlisting>
+    platform = ARGUMENT.get('OS', Platform())
 
-   <para>
+    include = "#export/$PLATFORM/include"
+    lib = "#export/$PLATFORM/lib"
+    bin = "#export/$PLATFORM/bin"
 
-   X
+    env = Environment(PLATFORM = platform,
+                      CPPPATH = [include],
+                      LIB = lib,
+                      LIBS = '-lworld')
 
-   </para>
+    Export('env')
 
-   <programlisting>
-     env = Environment(OS = ARGUMENT['os'])
-     SConscript('src/SConscript', build_dir='build/$OS')
-   </programlisting>
+    SConscript('src/SConscript', build_dir='build/$PLATFORM')
 
-   <para>
+    #
+    #BuildDir("#build/$PLATFORM", 'src')
+    #SConscript("build/$PLATFORM/hello/SConscript")
+    #SConscript("build/$PLATFORM/world/SConscript")
+  </programlisting>
 
-   X
+  <para>
 
-   </para>
+  This SConstruct file,
+  when run on a Linux system, yields:
 
-   <programlisting>
-     env = Environment(OS = )
-     for os in ['newell', 'post']:
-         SConscript('src/SConscript', build_dir='build/' + os)
-   </programlisting>
+  </para>
 
-   <literallayout>
-     % <userinput>scons</userinput>
-   </literallayout>
+  <literallayout>
+    $ <userinput>scons OS=linux</userinput>
+    Install build/linux/world/world.h as export/linux/include/world.h
+    cc -Iexport/linux/include -c build/linux/hello/hello.c -o build/linux/hello/hello.o
+    cc -Iexport/linux/include -c build/linux/world/world.c -o build/linux/world/world.o
+    ar r build/linux/world/libworld.a build/linux/world/world.o
+    ar: creating build/linux/world/libworld.a
+    ranlib build/linux/world/libworld.a
+    Install build/linux/world/libworld.a as export/linux/lib/libworld.a
+    cc -o build/linux/hello/hello build/linux/hello/hello.o -Lexport/linux/lib -lworld
+    Install build/linux/hello/hello as export/linux/bin/hello
+  </literallayout>
 
- </section>
+  <para>
+
+  The same SConstruct file on Windows would build:
+
+  </para>
+
+    <!--
+    cl /Fohello.obj hello.c
+    link /Fohello.exe hello.obj
+    -->
+  <literallayout>
+    C:\test\><userinput>scons OS=linux</userinput>
+    Install build\linux\world\world.h as export\linux\include\world.h
+    cl /Iexport\linux\include /Fobuild\linux\hello\hello.obj build\linux\hello\hello.c
+    cl /Iexport\linux\include /Fobuild\linux\world\world.obj build\linux\world\world.c
+    XXX
+    ar r build\linux\world\world.lib build\linux\world\world.obj
+    Install build\linux\world\world.lib as export\linux\lib\libworld.a
+    link /Fobuild\linux\hello\hello.exe build\linux\hello\hello.obj -Lexport\linux\lib world.lib
+    Install build\linux\hello\hello.exe as export\linux\bin\hello.exe
+  </literallayout>
+
+  <programlisting>
+    env = Environment(OS = )
+    for os in ['newell', 'post']:
+        SConscript('src/SConscript', build_dir='build/' + os)
+  </programlisting>
+
+  <literallayout>
+    % <userinput>scons</userinput>
+  </literallayout>

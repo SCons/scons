@@ -85,6 +85,8 @@
       cc -c hello.c -o hello.o
       cc -o hello hello.o
       % <userinput>scons -c</userinput>
+      Removed hello.o
+      Removed hello
       % <userinput>scons</userinput>
       Retrieved `hello.o' from cache
       Retrieved `hello' from cache

@@ -44,7 +44,7 @@
 
    <programlisting>
       env = Environment()
-      env.SourceCode('.', env.BitKeeper('XXX')
+      env.SourceCode('.', env.BitKeeper('XXX'))
       env.Program('hello.c')
    </programlisting>
 
@@ -66,7 +66,7 @@
 
    <programlisting>
       env = Environment()
-      env.SourceCode('.', env.CVS('XXX')
+      env.SourceCode('.', env.CVS('XXX'))
       env.Program('hello.c')
    </programlisting>
 
@@ -88,7 +88,7 @@
 
    <programlisting>
       env = Environment()
-      env.SourceCode('.', env.RCS()
+      env.SourceCode('.', env.RCS())
       env.Program('hello.c')
    </programlisting>
 
@@ -110,7 +110,7 @@
 
    <programlisting>
       env = Environment()
-      env.SourceCode('.', env.SCCS()
+      env.SourceCode('.', env.SCCS())
       env.Program('hello.c')
    </programlisting>
 
@@ -132,7 +132,7 @@
 
    <programlisting>
       env = Environment()
-      env.SourceCode('.', env.Subversion('XXX')
+      env.SourceCode('.', env.Subversion('XXX'))
       env.Program('hello.c')
    </programlisting>
 

@@ -14,14 +14,20 @@
 
 -->
 
+<!ENTITY Aegis "<application>Aegis</application>">
 <!ENTITY Autoconf "<application>Autoconf</application>">
 <!ENTITY Cons "<application>Cons</application>">
 <!ENTITY gcc "<application>gcc</application>">
+<!ENTITY Jam "<application>Jam</application>">
 <!ENTITY Make "<application>Make</application>">
 <!ENTITY Makepp "<application>Make++</application>">
+<!ENTITY ranlib "<application>ranlib</application>">
 <!ENTITY SCons "<application>SCons</application>">
 <!ENTITY scons "<application>scons</application>">
 <!ENTITY ScCons "<application>ScCons</application>">
+<!ENTITY tar "<application>tar</application>">
+<!ENTITY touch "<application>touch</application>">
+<!ENTITY zip "<application>zip</application>">
 
 
 <!--
@@ -57,10 +63,11 @@
 
 <!--
 
-  File names.
+  File and directory names.
 
 -->
 
+<!ENTITY build "<filename>build</filename>">
 <!ENTITY Makefile "<filename>Makefile</filename>">
 <!ENTITY Makefiles "<filename>Makefiles</filename>">
 <!ENTITY SConscript "<filename>SConscript</filename>">
@@ -68,6 +75,7 @@
 <!ENTITY Sconstruct "<filename>Sconstruct</filename>">
 <!ENTITY sconstruct "<filename>sconstruct</filename>">
 <!ENTITY sconsign "<filename>.sconsign</filename>">
+<!ENTITY src "<filename>src</filename>">
 
 
 
@@ -106,9 +114,16 @@
 <!ENTITY Repository "<function>Repository</function>">
 <!ENTITY RuleSet "<function>RuleSet</function>">
 <!ENTITY Salt "<function>Salt</function>">
+<!ENTITY SetBuildSignatureType "<function>SetBuildSignatureType</function>">
+<!ENTITY SetContentSignatureType "<function>SetContentSignatureType</function>">
 <!ENTITY SourceSignature "<function>SourceSignature</function>">
+<!ENTITY SourceSignatures "<function>SourceSignatures</function>">
 <!ENTITY Split "<function>Split</function>">
+<!ENTITY TargetSignatures "<function>TargetSignatures</function>">
 <!ENTITY Task "<function>Task</function>">
+
+<!ENTITY str "<function>str</function>">
+<!ENTITY zipfile "<function>zipfile</function>">
 
 <!-- Obsolete, but referenced in old documents.  -->
 <!ENTITY Cache "<function>Cache</function>">
@@ -125,6 +140,8 @@
 <!ENTITY BUILDERS "<varname>BUILDERS</varname>">
 <!ENTITY SCANNERMAP "<varname>SCANNERMAP</varname>">
 <!ENTITY SCANNERS "<varname>SCANNERS</varname>">
+<!ENTITY TARFLAGS "<varname>TARFLAGS</varname>">
+<!ENTITY TARSUFFIX "<varname>TARSUFFIX</varname>">
 
 
 
@@ -137,8 +154,21 @@
 <!ENTITY CC "<varname>CC</varname>">
 <!ENTITY CCFLAGS "<varname>CCFLAGS</varname>">
 <!ENTITY LIBPATH "<varname>LIBPATH</varname>">
+<!ENTITY LIBS "<varname>LIBS</varname>">
 <!ENTITY PYTHONPATH "<varname>PYTHONPATH</varname>">
 <!ENTITY SCONSFLAGS "<varname>SCONSFLAGS</varname>">
+
+
+
+<!--
+
+  Function and method arguments.
+
+-->
+
+<!ENTITY build_dir "<varname>build_dir</varname>">
+<!ENTITY source "<varname>source</varname>">
+<!ENTITY target "<varname>target</varname>">
 
 
 
@@ -151,6 +181,10 @@
 <!ENTITY BuildDir "<function>BuildDir</function>">
 <!ENTITY CFile "<function>CFile</function>">
 <!ENTITY CXXFile "<function>CXXFile</function>">
+<!ENTITY DVI "<function>DVI</function>">
+<!ENTITY Jar "<function>Jar</function>">
+<!ENTITY Java "<function>Java</function>">
+<!ENTITY JavaH "<function>JavaH</function>">
 <!ENTITY Library "<function>Library</function>">
 <!ENTITY Object "<function>Object</function>">
 <!ENTITY PCH "<function>PCH</function>">
@@ -158,10 +192,13 @@
 <!ENTITY PostScript "<function>PostScript</function>">
 <!ENTITY Program "<function>Program</function>">
 <!ENTITY RES "<function>RES</function>">
+<!ENTITY RMIC "<function>RMIC</function>">
 <!ENTITY SharedLibrary "<function>SharedLibrary</function>">
 <!ENTITY SharedObject "<function>SharedObject</function>">
 <!ENTITY StaticLibrary "<function>StaticLibrary</function>">
 <!ENTITY StaticObject "<function>StaticObject</function>">
+<!ENTITY Tar "<function>Tar</function>">
+<!ENTITY Zip "<function>Zip</function>">
 
 <!-- Obsolete, but referenced in old documents.  -->
 <!ENTITY MakeBuilder "<function>Make</function>">
@@ -174,6 +211,8 @@
   case-sensitive combinations for use in titles, in-line, etc.
 
 -->
+
+<!ENTITY buildfunc "<literal>builder function</literal>">
 
 <!ENTITY ConsEnv "<literal>Construction Environment</literal>">
 <!ENTITY ConsEnvs "<literal>Construction Environments</literal>">
@@ -193,14 +232,29 @@
 
 <!ENTITY Dictionary "<literal>Dictionary</literal>">
 
+<!ENTITY Emitter "<literal>Emitter</literal>">
+<!ENTITY emitter "<literal>emitter</literal>">
+<!ENTITY Generator "<literal>Generator</literal>">
+<!ENTITY generator "<literal>generator</literal>">
+
+<!ENTITY signature "<literal>signature</literal>">
+<!ENTITY buildsignature "<literal>build signature</literal>">
+
 <!--
 
   File and program names used in examples.
 
 -->
 
+<!ENTITY common1_c "<application>common1.c</application>">
+<!ENTITY common2_c "<application>common2.c</application>">
 <!ENTITY goodbye "<application>goodbye</application>">
 <!ENTITY hello "<application>hello</application>">
 <!ENTITY hello_c "<filename>hello.c</filename>">
+<!ENTITY hello_exe "<filename>hello.exe</filename>">
 <!ENTITY hello_h "<filename>hello.h</filename>">
+<!ENTITY hello_o "<filename>hello.o</filename>">
+<!ENTITY prog "<filename>prog</filename>">
+<!ENTITY prog_c "<filename>prog.c</filename>">
+<!ENTITY prog_exe "<filename>prog.exe</filename>">
 <!ENTITY stdio_h "<filename>stdio.h</filename>">
