@@ -240,6 +240,12 @@ RELEASE 0.97 - XXX
 
   - Improve SWIG tests for use on Mac OS X (Darwin).
 
+  From Georg Mischler:
+
+  - Remove the space after the -o option when invoking the Borland
+    BCC compiler; some versions apparently require that the file name
+    argument be concatenated with the option.
+
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption
