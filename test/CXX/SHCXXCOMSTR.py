@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+#
+# __COPYRIGHT__
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""
+Test that the $SHCXXCOMSTR construction variable allows you to customize
+the shared object C++ compilation output.
+"""
+
+import os
+import string
+import sys
+import TestSCons
+
+python = TestSCons.python
+_exe   = TestSCons._exe
+
+test = TestSCons.TestSCons()
+
+
+
+test.write('mycc.py', r"""
+import sys
+outfile = open(sys.argv[1], 'wb')
+infile = open(sys.argv[2], 'rb')
+for l in filter(lambda l: l[:6] != '/*cc*/', infile.readlines()):
+    outfile.write(l)
+sys.exit(0)
+""")
+
+if os.path.normcase('.c') == os.path.normcase('.C'):
+    alt_cc_suffix = '.CC'
+else:
+    alt_cc_suffix = '.cc'
+
+test.write('SConstruct', """
+env = Environment(SHCXXCOM = r'%(python)s mycc.py $TARGET $SOURCE',
+                  SHCXXCOMSTR = 'Building shared object $TARGET from $SOURCE',
+                  SHOBJSUFFIX='.obj')
+env.SharedObject(target = 'test1', source = 'test1.cc')
+env.SharedObject(target = 'test2', source = 'test2%(alt_cc_suffix)s')
+""" % locals())
+
+test.write('test1.cc', """\
+test1.cc
+/*cc*/
+""")
+
+test.write('test2'+alt_cc_suffix, """\
+test2.CC
+/*cc*/
+""")
+
+test.run(stdout = test.wrap_stdout("""\
+Building shared object test1.obj from test1.cc
+Building shared object test2.obj from test2%(alt_cc_suffix)s
+""" % locals()))
+
+test.must_match('test1.obj', "test1.cc\n")
+test.must_match('test2.obj', "test2.CC\n")
+
+
+
+test.pass_test()

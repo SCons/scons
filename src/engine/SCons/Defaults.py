@@ -122,9 +122,9 @@ del suffix
 # Actions for common languages.
 CAction = SCons.Action.Action("$CCCOM", "$CCCOMSTR")
 DAction = SCons.Action.Action("$DCOM")
-ShCAction = SCons.Action.Action("$SHCCCOM")
+ShCAction = SCons.Action.Action("$SHCCCOM", "$SHCCCOMSTR")
 CXXAction = SCons.Action.Action("$CXXCOM", "$CXXCOMSTR")
-ShCXXAction = SCons.Action.Action("$SHCXXCOM")
+ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR")
 
 ASAction = SCons.Action.Action("$ASCOM", "$ASCOMSTR")
 ASPPAction = SCons.Action.Action("$ASPPCOM")

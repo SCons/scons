@@ -132,7 +132,7 @@ RELEASE 0.97 - XXX
 
   - Support easier configurability of what's displayed by various default
     actions through new construction variables:  $ASCOMSTR, $CCCOMSTR,
-    $CXXCOMSTR.
+    $CXXCOMSTR, $SHCCCOMSTR and $SHCXXCOMSTR.
 
   From Wayne Lee:
 
