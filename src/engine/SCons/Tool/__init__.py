@@ -128,7 +128,7 @@ def createCFileBuilders(env):
 linkers = ['gnulink', 'mslink', 'ilink']
 c_compilers = ['gcc', 'msvc', 'icc']
 cxx_compilers = ['g++'] # only those that are seperate from the c compiler
-fortran_compilers = ['g77']
+fortran_compilers = ['g77', 'ifl']
 assemblers = ['gas', 'nasm', 'masm']
 other_tools = ['ar', 'dvipdf', 'dvips',
                'latex', 'lex', 'lib',

@@ -24,6 +24,8 @@ RELEASE 0.09 -
 
  - Don't remove source files specified on the command line!
 
+ - Suport the Intel Fortran Compiler (ifl.exe).
+
  From Anthony Roach:
 
  - Fixed use of command lines with spaces in their arguments,
