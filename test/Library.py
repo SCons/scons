@@ -34,7 +34,7 @@ env = Environment(LIBS = [ 'foo1', 'libfoo2' ],
 env.Library(target = 'foo1', source = 'f1.c')
 Library(target = 'libfoo2', source = Split('f2a.c f2b.c f2c.c'))
 libtgt=env.Library(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.cpp'])
-env.Program(target = 'prog', source = [ 'prog.c', libtgt ])
+env.Program(target = 'prog', source = [ 'prog.cpp', libtgt ])
 """)
 
 test.write('f1.c', r"""
@@ -94,7 +94,9 @@ f3c(void)
 }
 """)
 
-test.write('prog.c', r"""
+test.write('prog.cpp', r"""
+#include <stdio.h>
+extern "C" {
 void f1(void);
 void f2a(void);
 void f2b(void);
@@ -102,6 +104,7 @@ void f2c(void);
 void f3a(void);
 void f3b(void);
 void f3c(void);
+}
 int
 main(int argc, char *argv[])
 {
