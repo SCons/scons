@@ -48,6 +48,9 @@ class DependencyWarning(Warning):
 class DeprecatedWarning(Warning):
     pass
 
+class DuplicateEnvironmentWarning(Warning):
+    pass
+
 class MissingSConscriptWarning(Warning):
     pass
 

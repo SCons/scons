@@ -709,6 +709,7 @@ def _main(args, parser):
     SCons.Warnings._warningOut = _scons_internal_warning
     SCons.Warnings.enableWarningClass(SCons.Warnings.CorruptSConsignWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
+    SCons.Warnings.enableWarningClass(SCons.Warnings.DuplicateEnvironmentWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.MissingSConscriptWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.NoParallelSupportWarning)
 

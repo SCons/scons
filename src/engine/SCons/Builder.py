@@ -164,9 +164,19 @@ def _init_nodes(builder, env, overrides, tlist, slist):
             raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
         if t.has_builder():
             if t.env != env:
-                raise UserError, "Two different environments were specified for the same target: %s"%str(t)
+                t_contents = t.builder.action.get_contents(tlist, slist, t.env)
+                contents = t.builder.action.get_contents(tlist, slist, env)
+
+                if t_contents == contents:
+                    SCons.Warnings.warn(SCons.Warnings.DuplicateEnvironmentWarning,
+                                        "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s"%(str(t), t.builder.action.strfunction(tlist, slist, t.env)))
+
+                else:
+                    raise UserError, "Two environments with different actions were specified for the same target: %s"%str(t)
+
             elif t.overrides != overrides:
                 raise UserError, "Two different sets of overrides were specified for the same target: %s"%str(t)
+
             elif builder.scanner and t.target_scanner and builder.scanner != t.target_scanner:
                 raise UserError, "Two different scanners were specified for the same target: %s"%str(t)
 

@@ -52,6 +52,8 @@ test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 #File "SConstruct", line 2, in \?
 #""")
 
+
+
 test.write("SConstruct","""
 def build(target, source, env):
     pass
@@ -82,6 +84,8 @@ scons: warning: No dependency generated for file: not_there\.h \(included from: 
 File ".+", line \d+, in .+
 """)
 
+
+
 test.write("SConstruct", """\
 def build(target, source, env):
     pass
@@ -98,5 +102,42 @@ File ".+", line \d+, in .+
 """)
 
 test.run(arguments = '--warn=no-missing-sconscript .', stderr = "")
+
+
+
+test.write('SConstruct', """
+def build(env, target, source):
+    file = open(str(target[0]), 'wb')
+    for s in source:
+        file.write(open(str(s), 'rb').read())
+
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
+env2 = env.Copy(DIFFERENT_VARIABLE = 'true')
+env.B(target = 'file1.out', source = 'file1a.in')
+env2.B(target = 'file1.out', source = 'file1b.in')
+""")
+
+test.write('file1a.in', 'file1a.in\n')
+test.write('file1b.in', 'file1b.in\n')
+
+test.run(arguments='file1.out', 
+         stderr=r"""
+scons: warning: Two different environments were specified for target file1.out,
+	but they appear to have the same action: build\("file1.out", "file1b.in"\)
+File "SConstruct", line \d+, in .+
+""")
+
+test.fail_test(not test.read('file1.out') == 'file1a.in\nfile1b.in\n')
+
+test.run(arguments='--warn=duplicate-environment file1.out', 
+         stderr=r"""
+scons: warning: Two different environments were specified for target file1.out,
+	but they appear to have the same action: build\("file1.out", "file1b.in"\)
+File "SConstruct", line \d+, in .+
+""")
+
+test.run(arguments='--warn=no-duplicate-environment file1.out')
+
 
 test.pass_test()

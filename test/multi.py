@@ -24,11 +24,21 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Test various cases where a target is "built" by multiple builder calls.
+"""
+
 import TestSCons
 import os.path
 
 test = TestSCons.TestSCons()
 
+
+#
+# A builder with "multi" set can be called multiple times and
+# the source files are added to the list.
+#
+
 test.write('SConstruct', """
 def build(env, target, source):
     file = open(str(target[0]), 'wb')
@@ -37,17 +47,21 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=1)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'foo.out', source = 'foo.in')
-env.B(target = 'foo.out', source = 'bar.in')
+env.B(target = 'file1.out', source = 'file1a.in')
+env.B(target = 'file1.out', source = 'file1b.in')
 """)
 
-test.write('foo.in', 'foo.in\n')
-test.write('bar.in', 'bar.in\n')
+test.write('file1a.in', 'file1a.in\n')
+test.write('file1b.in', 'file1b.in\n')
 
-test.run(arguments='foo.out')
+test.run(arguments='file1.out')
 
-test.fail_test(not os.path.exists(test.workpath('foo.out')))
-test.fail_test(not test.read('foo.out') == 'foo.in\nbar.in\n')
+test.fail_test(not test.read('file1.out') == 'file1a.in\nfile1b.in\n')
+
+
+#
+# A builder with "multi" not set generates an error on the second call.
+#
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -57,16 +71,25 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=0)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'foo.out', source = 'foo.in')
-env.B(target = 'foo.out', source = 'bar.in')
+env.B(target = 'file2.out', source = 'file2a.in')
+env.B(target = 'file2.out', source = 'file2b.in')
 """)
 
-test.run(arguments='foo.out', 
+test.write('file2a.in', 'file2a.in\n')
+test.write('file2b.in', 'file2b.in\n')
+
+test.run(arguments='file2.out', 
          status=2, 
          stderr="""
-scons: *** Multiple ways to build the same target were specified for: foo.out
+scons: *** Multiple ways to build the same target were specified for: file2.out
 File "SConstruct", line 10, in ?
 """)
+
+
+#
+# The second call generates an error if the two calls have different
+# overrides.
+#
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -76,16 +99,24 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=1)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'foo.out', source = 'foo.in', foo=1)
-env.B(target = 'foo.out', source = 'bar.in', foo=2)
+env.B(target = 'file3.out', source = 'file3a.in', foo=1)
+env.B(target = 'file3.out', source = 'file3b.in', foo=2)
 """)
 
-test.run(arguments='foo.out', 
+test.write('file3a.in', 'file3a.in\n')
+test.write('file3b.in', 'file3b.in\n')
+
+test.run(arguments='file3.out', 
          status=2, 
          stderr="""
-scons: *** Two different sets of overrides were specified for the same target: foo.out
+scons: *** Two different sets of overrides were specified for the same target: file3.out
 File "SConstruct", line 10, in ?
 """)
+
+
+#
+# Everything works if the two calls have the same overrides.
+#
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -95,18 +126,83 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=1)
 env = Environment(BUILDERS = { 'B' : B })
-env2 = env.Copy(CCFLAGS='foo')
-env.B(target = 'foo.out', source = 'foo.in')
-env2.B(target = 'foo.out', source = 'bar.in')
+env.B(target = 'file4.out', source = 'file4a.in', foo=3)
+env.B(target = 'file4.out', source = 'file4b.in', foo=3)
 """)
 
-test.run(arguments='foo.out', 
-         status=2, 
+test.write('file4a.in', 'file4a.in\n')
+test.write('file4b.in', 'file4b.in\n')
+
+test.run(arguments='file4.out')
+
+test.fail_test(not test.read('file4.out') == 'file4a.in\nfile4b.in\n')
+
+
+#
+# Two different environments can be used for the same target, so long
+# as the actions have the same signature; a warning is generated.
+#
+
+test.write('SConstruct', """
+def build(env, target, source):
+    file = open(str(target[0]), 'wb')
+    for s in source:
+        file.write(open(str(s), 'rb').read())
+
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
+env2 = env.Copy(DIFFERENT_VARIABLE = 'true')
+env.B(target = 'file5.out', source = 'file5a.in')
+env2.B(target = 'file5.out', source = 'file5b.in')
+""")
+
+test.write('file5a.in', 'file5a.in\n')
+test.write('file5b.in', 'file5b.in\n')
+
+test.run(arguments='file5.out', 
          stderr="""
-scons: *** Two different environments were specified for the same target: foo.out
+scons: warning: Two different environments were specified for target file5.out,
+	but they appear to have the same action: build("file5.out", "file5b.in")
 File "SConstruct", line 11, in ?
 """)
 
+test.fail_test(not test.read('file5.out') == 'file5a.in\nfile5b.in\n')
+
+
+#
+# Environments with actions that have different signatures generate
+# an error.
+#
+
+test.write('SConstruct', """
+def build(env, target, source):
+    file = open(str(target[0]), 'wb')
+    for s in source:
+        file.write(open(str(s), 'rb').read())
+
+B = Builder(action=Action(build, varlist=['XXX']), multi=1)
+env = Environment(BUILDERS = { 'B' : B }, XXX = 'foo')
+env2 = env.Copy(XXX = 'var')
+env.B(target = 'file6.out', source = 'file6a.in')
+env2.B(target = 'file6.out', source = 'file6b.in')
+""")
+
+test.write('file6a.in', 'file6a.in\n')
+test.write('file6b.in', 'file6b.in\n')
+
+test.run(arguments='file6.out', 
+         status=2,
+         stderr="""
+scons: *** Two environments with different actions were specified for the same target: file6.out
+File "SConstruct", line 11, in ?
+""")
+
+
+#
+# A builder without "multi" set can still be called multiple times
+# if the calls are the same.
+#
+
 test.write('SConstruct', """
 def build(env, target, source):
     file = open(str(target[0]), 'wb')
@@ -115,12 +211,21 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=0)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'foo.out', source = 'foo.in')
-env.B(target = 'foo.out', source = 'foo.in')
+env.B(target = 'file7.out', source = 'file7.in')
+env.B(target = 'file7.out', source = 'file7.in')
 """)
 
-test.run(arguments='foo.out')
-test.fail_test(not test.read('foo.out') == 'foo.in\n')
+test.write('file7.in', 'file7.in\n')
+
+test.run(arguments='file7.out')
+
+test.fail_test(not test.read('file7.out') == 'file7.in\n')
+
+
+#
+# Trying to call a target with two different "multi" builders
+# generates an error.
+#
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -134,16 +239,25 @@ def build2(env, target, source):
 B = Builder(action=build, multi=1)
 C = Builder(action=build2, multi=1)
 env = Environment(BUILDERS = { 'B' : B, 'C' : C })
-env.B(target = 'foo.out', source = 'foo.in')
-env.C(target = 'foo.out', source = 'bar.in')
+env.B(target = 'file8.out', source = 'file8.in')
+env.C(target = 'file8.out', source = 'file8.in')
 """)
 
-test.run(arguments='foo.out', 
+test.write('file8a.in', 'file8a.in\n')
+test.write('file8b.in', 'file8b.in\n')
+
+test.run(arguments='file8.out', 
          status=2, 
          stderr="""
-scons: *** Two different builders (B and C) were specified for the same target: foo.out
+scons: *** Two different builders (B and C) were specified for the same target: file8.out
 File "SConstruct", line 14, in ?
 """)
+
+
+#
+# A "multi" builder can be called multiple times with the same target list
+# if everything is identical.
+#
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -154,15 +268,25 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=1)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = ['foo.out', 'bar.out'], source = 'foo.in')
-env.B(target = ['foo.out', 'bar.out'], source = 'bar.in')
+env.B(target = ['file9a.out', 'file9b.out'], source = 'file9a.in')
+env.B(target = ['file9a.out', 'file9b.out'], source = 'file9b.in')
 """)
 
-test.run(arguments='bar.out')
-test.fail_test(not os.path.exists(test.workpath('bar.out')))
-test.fail_test(not test.read('bar.out') == 'foo.in\nbar.in\n')
-test.fail_test(not os.path.exists(test.workpath('foo.out')))
-test.fail_test(not test.read('foo.out') == 'foo.in\nbar.in\n')
+test.write('file9a.in', 'file9a.in\n')
+test.write('file9b.in', 'file9b.in\n')
+
+test.run(arguments='file9b.out')
+
+test.fail_test(not test.read('file9a.out') == 'file9a.in\nfile9b.in\n')
+test.fail_test(not test.read('file9b.out') == 'file9a.in\nfile9b.in\n')
+
+
+#
+# A "multi" builder can NOT be called multiple times with target lists
+# that have different orders.  This is intentional; the order of the
+# targets matter to the builder because the build command can contain
+# things like ${TARGET[0]}.
+#
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -173,22 +297,27 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=1)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = ['foo.out', 'bar.out'], source = 'foo.in')
-env.B(target = ['bar.out', 'foo.out'], source = 'bar.in')
+env.B(target = ['file10a.out', 'file10b.out'], source = 'file10.in')
+env.B(target = ['file10b.out', 'file10a.out'], source = 'file10.in')
 """)
 
-# This is intentional. The order of the targets matter to the
-# builder because the build command can contain things like ${TARGET[0]}:
-test.run(arguments='foo.out', 
+test.write('file10.in', 'file10.in\n')
+
+test.run(arguments='file10.out', 
          status=2, 
          stderr="""
-scons: *** Two different target sets have a target in common: bar.out
+scons: *** Two different target sets have a target in common: file10b.out
 File "SConstruct", line 11, in ?
 """)
 
-# XXX It would be nice if the following two tests could be made to 
-# work by executing the action once for each unique set of
-# targets. This would make it simple to deal with PDB files on Windows like so:
+
+#
+# A target file can't be in two different target lists.
+#
+
+# XXX It would be nice if the following two tests could be made to work
+# by executing the action once for each unique set of targets. This
+# would make it simple to deal with PDB files on Windows like so:
 #
 #     env.Object(['foo.obj', 'vc60.pdb'], 'foo.c')
 #     env.Object(['bar.obj', 'vc60.pdb'], 'bar.c')
@@ -202,16 +331,24 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=1)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = ['foo.out', 'bar.out'], source = 'foo.in')
-env.B(target = ['bar.out', 'blat.out'], source = 'bar.in')
+env.B(target = ['file11a.out', 'file11b.out'], source = 'file11a.in')
+env.B(target = ['file11b.out', 'file11c.out'], source = 'file11b.in')
 """)
 
-test.run(arguments='foo.out', 
+test.write('file11a.in', 'file11a.in\n')
+test.write('file11b.in', 'file11b.in\n')
+
+test.run(arguments='file11.out', 
          status=2, 
          stderr="""
-scons: *** Two different target sets have a target in common: bar.out
+scons: *** Two different target sets have a target in common: file11b.out
 File "SConstruct", line 11, in ?
 """)
+
+
+#
+# A target file can't be a lone target and in a list.
+#
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -222,17 +359,19 @@ def build(env, target, source):
 
 B = Builder(action=build, multi=1)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = ['foo.out', 'bar.out'], source = 'foo.in')
-env.B(target = 'foo.out', source = 'bar.in')
+env.B(target = ['file12a.out', 'file12b.out'], source = 'file12a.in')
+env.B(target = 'file12a.out', source = 'file12b.in')
 """)
 
-test.run(arguments='foo.out', 
+test.write('file12a.in', 'file12a.in\n')
+test.write('file12b.in', 'file12b.in\n')
+
+test.run(arguments='file12.out', 
          status=2, 
          stderr="""
-scons: *** Two different builders (ListBuilder(B) and B) were specified for the same target: foo.out
+scons: *** Two different builders (ListBuilder(B) and B) were specified for the same target: file12a.out
 File "SConstruct", line 11, in ?
 """)
-
 
 
 
