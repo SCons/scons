@@ -60,6 +60,7 @@ SCons/Tool/hpcc.py
 SCons/Tool/hplink.py
 SCons/Tool/jar.py
 SCons/Tool/javac.py
+SCons/Tool/JavaCommon.py
 SCons/Tool/javah.py
 SCons/Tool/icc.py
 SCons/Tool/ifl.py

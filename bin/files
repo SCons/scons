@@ -52,6 +52,7 @@
 ./SCons/Tool/ilink.py
 ./SCons/Tool/jar.py
 ./SCons/Tool/javac.py
+./SCons/Tool/JavaCommon.py
 ./SCons/Tool/javah.py
 ./SCons/Tool/latex.py
 ./SCons/Tool/lex.py
