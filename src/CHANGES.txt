@@ -72,6 +72,11 @@ RELEASE 0.96 - XXX
 
   - Fix a bug introduced in building shared libraries under MinGW.
 
+  From sam th:
+
+  - Allow SConf.CheckLib() to search a list of libraries, like the
+    Autoconf AC_SEARCH_LIBS macro.
+
 
 
 RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600

@@ -5614,7 +5614,11 @@ appends the library to the LIBS construction environment variable.
 may also be None (the default),
 in which case 
 .I symbol 
-is checked with the current LIBS variable.
+is checked with the current LIBS variable,
+or a list of library names,
+in which case each library in the list
+will be checked for
+.IR symbol .
 The default
 .I symbol
 is "main",
@@ -5643,7 +5647,7 @@ In contrast to the
 call, this call provides a more sophisticated way to check against libraries.
 Again, 
 .I library
-specifies the library to check. 
+specifies the library or a list of libraries to check. 
 .I header
 specifies a header to check for.
 .I header
