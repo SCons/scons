@@ -1316,8 +1316,8 @@ class Dir(Base):
         """Return the .sconsign file info for this directory,
         creating it first if necessary."""
         if not self._sconsign:
-            import SCons.Sig
-            self._sconsign = SCons.Sig.SConsignForDirectory(self)
+            import SCons.SConsign
+            self._sconsign = SCons.SConsign.ForDirectory(self)
         return self._sconsign
 
     def srcnode(self):

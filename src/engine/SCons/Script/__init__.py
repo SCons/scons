@@ -1114,7 +1114,7 @@ def _main(args, parser):
         else:
             progress_display("scons: " + closing_message)
         if not options.noexec:
-            SCons.Sig.write()
+            SCons.SConsign.write()
 
     if not memory_stats is None:
         memory_stats.append(SCons.Debug.memory())

@@ -49,7 +49,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import copy
 
 from SCons.Debug import logInstanceCreation
-import SCons.Sig
+import SCons.SConsign
 import SCons.Util
 
 # Node states
@@ -565,7 +565,7 @@ class Node:
     def get_prevsiginfo(self):
         """Fetch the previous signature information from the
         .sconsign entry."""
-        return SCons.Sig._SConsign.null_siginfo
+        return SCons.SConsign.Base.null_siginfo
 
     def get_timestamp(self):
         return 0

@@ -53,6 +53,7 @@ import SCons.Node.Alias
 import SCons.Node.FS
 import SCons.Node.Python
 import SCons.Platform
+import SCons.SConsign
 import SCons.Sig
 import SCons.Sig.MD5
 import SCons.Sig.TimeStamp
@@ -1164,7 +1165,7 @@ class Base:
         name = self.subst(name)
         if not os.path.isabs(name):
             name = os.path.join(str(self.fs.SConstruct_dir), name)
-        SCons.Sig.SConsignFile(name, dbm_module)
+        SCons.SConsign.File(name, dbm_module)
 
     def SideEffect(self, side_effect, target):
         """Tell scons that side_effects are built as side 

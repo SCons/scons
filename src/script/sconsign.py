@@ -146,7 +146,7 @@ import imp
 import string
 import whichdb
 
-import SCons.Sig
+import SCons.SConsign
 
 def my_whichdb(filename):
     try:
@@ -286,7 +286,7 @@ def Do_SConsignDir(name):
         sys.stderr.write("sconsign: %s\n" % (e))
         return
     try:
-        sconsign = SCons.Sig.SConsignDir(fp)
+        sconsign = SCons.SConsign.Dir(fp)
     except:
         sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s'\n" % name)
         return
