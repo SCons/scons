@@ -1084,10 +1084,6 @@ class FS(LocalFS):
             else:
                 if not must_exist or node.exists():
                     result.append(node)
-                if isinstance(node, Dir):
-                    result.extend(filter(select, node.getRepositories()))
-                if node:
-                    dir = node.get_dir()
             fname = '.'
             while dir:
                 for rep in dir.getRepositories():
