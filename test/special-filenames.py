@@ -55,7 +55,7 @@ if os.name == 'nt':
 
 test.write("cat.py", """\
 import sys
-open(sys.argv[1], 'w').write(open(sys.argv[2], 'r').read())
+open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
 """)
 
 for fn in file_names:

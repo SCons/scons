@@ -175,7 +175,7 @@ elif os.name == 'nt':
             return 127
         else:
             try:
-                args = [cmd_interp, '/C', quote(string.join(args)) ]
+                args = [cmd_interp, '/C', escape_cmd(string.join(args)) ]
                 ret = os.spawnve(os.P_WAIT, cmd_interp, args, env)
             except OSError, e:
                 ret = exitvalmap[e[0]]

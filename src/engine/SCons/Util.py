@@ -204,7 +204,7 @@ def quote_spaces(arg):
     if ' ' in arg or '\t' in arg:
         return '"%s"' % arg
     else:
-        return arg
+        return str(arg)
 
 # Several functions below deal with Environment variable
 # substitution.  Part of this process involves inserting
@@ -290,13 +290,21 @@ class CmdStringHolder:
         in the string before passing it to the command interpreter."""
         self.data = cmd
         
-        # Populate flatdata (the ting returned by str()) with the
+        # Populate flatdata (the thing returned by str()) with the
         # non-escaped string
         self.escape(lambda x: x, lambda x: x)
 
     def __str__(self):
         """Return the string in its current state."""
         return self.flatdata
+
+    def __len__(self):
+        """Return the length of the string in its current state."""
+        return len(self.flatdata)
+
+    def __getitem__(self, index):
+        """Return the index'th element of the string in its current state."""
+        return self.flatdata[index]
 
     def escape(self, escape_func, quote_func=quote_spaces):
         """Escape the string with the supplied function.  The

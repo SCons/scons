@@ -39,8 +39,8 @@ print "-L/usr/fax -Lfoo -lxxx abc"
 """)
 
 test.write('SConstruct', """
-env = Environment()
-static_libs = ParseConfig(env, ["%s", "%s", "--libs --cflags"])
+env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
+static_libs = ParseConfig(env, [r"%s", r"%s", "--libs --cflags"])
 print env['CPPPATH']
 print env['LIBPATH']
 print env['LIBS']
@@ -49,8 +49,8 @@ print static_libs
 """ % (sys.executable, test_config))
 
 test.write('SConstruct2', """
-env = Environment()
-static_libs = ParseConfig(env, "%s %s --libs --cflags")
+env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
+static_libs = ParseConfig(env, r"%s %s --libs --cflags")
 print env['CPPPATH']
 print env['LIBPATH']
 print env['LIBS']

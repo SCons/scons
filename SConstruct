@@ -725,7 +725,8 @@ for p in [ scons ]:
     # And, lastly, install the appropriate packages in the
     # appropriate subdirectory.
     #
-    env.Install(os.path.join('build', 'dist'), install_targets)
+    b_d_files = env.Install(os.path.join('build', 'dist'), install_targets)
+    Local(b_d_files)
 
 #
 #
@@ -778,6 +779,8 @@ if change:
 
         src_tar_gz = os.path.join('build', 'dist', '%s.tar.gz' % psv)
         src_zip = os.path.join('build', 'dist', '%s.zip' % psv)
+
+        Local(src_tar_gz, src_zip)
 
         for file in sfiles:
             env.SCons_revision(os.path.join(b_ps, file), file)

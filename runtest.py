@@ -312,7 +312,7 @@ if len(tests) != 1:
             sys.stdout.write("\nFailed the following test:\n")
         else:
             sys.stdout.write("\nFailed the following %d tests:\n" % len(fail))
-        paths = map(lambda x: x.path, no_result)
+        paths = map(lambda x: x.path, fail)
         sys.stdout.write("\t" + string.join(paths, "\n\t") + "\n")
     if no_result:
         if len(no_result) == 1:
