@@ -173,8 +173,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.04.D010 2004/01/27 00:11:44 knight"
-__version__ = "0.04"
+__revision__ = "TestCmd.py 0.6.D001 2004/03/20 17:39:42 knight"
+__version__ = "0.6"
 
 import os
 import os.path
@@ -189,6 +189,10 @@ import time
 import traceback
 import types
 import UserList
+
+__all__ = [ 'fail_test', 'no_result', 'pass_test',
+            'match_exact', 'match_re', 'match_re_dotall',
+            'python_executable', 'TestCmd' ]
 
 def is_List(e):
     return type(e) is types.ListType \

@@ -145,19 +145,17 @@ test.write('test5.C++', r"""This is a .C++ file.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _exe) != "This is a .cc file.\n")
+test.must_match('test1' + _exe, "This is a .cc file.\n")
 
-test.fail_test(test.read('test2' + _exe) != "This is a .cpp file.\n")
+test.must_match('test2' + _exe, "This is a .cpp file.\n")
 
-test.fail_test(test.read('test3' + _exe) != "This is a .cxx file.\n")
+test.must_match('test3' + _exe, "This is a .cxx file.\n")
 
-test.fail_test(test.read('test4' + _exe) != "This is a .c++ file.\n")
+test.must_match('test4' + _exe, "This is a .c++ file.\n")
 
-test.fail_test(test.read('test5' + _exe) != "This is a .C++ file.\n")
+test.must_match('test5' + _exe, "This is a .C++ file.\n")
 
-# Cygwin's os.path.normcase pretends it's on a case-sensitive filesystem.
-_is_cygwin = sys.platform == "cygwin"
-if os.path.normcase('.c') != os.path.normcase('.C') and not _is_cygwin:
+if TestSCons.case_sensitive_suffixes('.c', '.C'):
 
     test.write('SConstruct', """
 env = Environment(LINK = r'%s mylink.py',
@@ -174,7 +172,7 @@ env.Program(target = 'test6', source = 'test6.C')
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test6' + _exe) != "This is a .C file.\n")
+    test.must_match('test6' + _exe, "This is a .C file.\n")
 
 
 
@@ -222,10 +220,10 @@ main(int argc, char *argv[])
 
 test.run(arguments = 'foo' + _exe)
 
-test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+test.must_not_exist(test.workpath('wrapper.out'))
 
 test.run(arguments = 'bar' + _exe)
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+test.must_match('wrapper.out', "wrapper.py\n")
 
 test.pass_test()

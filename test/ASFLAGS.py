@@ -170,18 +170,16 @@ test.write('test6.SPP', r"""This is a .SPP file.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _exe) != "%s\nThis is a .s file.\n" % o)
+if TestSCons.case_sensitive_suffixes('.s', '.S'):
+    o_css = o_c
+else:
+    o_css = o
 
-test.fail_test(test.read('test2' + _exe) != "%s\nThis is a .S file.\n" % o_c)
-
-test.fail_test(test.read('test3' + _exe) != "%s\nThis is a .asm file.\n" % o)
-
-test.fail_test(test.read('test4' + _exe) != "%s\nThis is a .ASM file.\n" % o)
-
-test.fail_test(test.read('test5' + _exe) != "%s\nThis is a .spp file.\n" % o_c)
-
-test.fail_test(test.read('test6' + _exe) != "%s\nThis is a .SPP file.\n" % o_c)
-
-
+test.must_match('test1' + _exe, "%s\nThis is a .s file.\n" % o)
+test.must_match('test2' + _exe, "%s\nThis is a .S file.\n" % o_css)
+test.must_match('test3' + _exe, "%s\nThis is a .asm file.\n" % o)
+test.must_match('test4' + _exe, "%s\nThis is a .ASM file.\n" % o)
+test.must_match('test5' + _exe, "%s\nThis is a .spp file.\n" % o_c)
+test.must_match('test6' + _exe, "%s\nThis is a .SPP file.\n" % o_c)
 
 test.pass_test()

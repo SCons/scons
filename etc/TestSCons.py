@@ -6,9 +6,10 @@ A TestSCons environment object is created via the usual invocation:
 
     test = TestSCons()
 
-TestScons is a subclass of TestCmd, and hence has available all of its
-methods and attributes, as well as any overridden or additional methods
-or attributes defined in this subclass.
+TestScons is a subclass of TestCommon, which is in turn is a subclass
+of TestCmd), and hence has available all of the methods and attributes
+from those classes, as well as any overridden or additional methods or
+attributes defined in this subclass.
 """
 
 # Copyright 2001, 2002, 2003 Steven Knight
@@ -20,9 +21,9 @@ import os.path
 import string
 import sys
 
-import TestCmd
+from TestCommon import *
 
-python = TestCmd.python_executable
+python = python_executable
 
 
 def gccFortranLibs():
@@ -46,72 +47,27 @@ def gccFortranLibs():
     return libs
 
 
+if sys.platform == 'cygwin':
+    # On Cygwin, os.path.normcase() lies, so just report back the
+    # fact that the underlying Win32 OS is case-insensitive.
+    def case_sensitive_suffixes(s1, s2):
+        return 0
+else:
+    def case_sensitive_suffixes(s1, s2):
+        return (os.path.normcase(s1) != os.path.normcase(s2))
+
+
 if sys.platform == 'win32':
-    _exe   = '.exe'
-    _obj   = '.obj'
-    _shobj = '.obj'
-    lib_   = ''
-    _lib   = '.lib'
-    dll_   = ''
-    _dll   = '.dll'
     fortran_lib = gccFortranLibs()
 elif sys.platform == 'cygwin':
-    _exe   = '.exe'
-    _obj   = '.o'
-    _shobj = '.os'
-    lib_   = 'lib'
-    _lib   = '.a'
-    dll_   = ''
-    _dll   = '.dll'
     fortran_lib = gccFortranLibs()
 elif string.find(sys.platform, 'irix') != -1:
-    _exe   = ''
-    _obj   = '.o'
-    _shobj = '.o'
-    lib_   = 'lib'
-    _lib   = '.a'
-    dll_   = 'lib'
-    _dll   = '.so'
     fortran_lib = ['ftn']
 else:
-    _exe   = ''
-    _obj   = '.o'
-    _shobj = '.os'
-    lib_   = 'lib'
-    _lib   = '.a'
-    dll_   = 'lib'
-    _dll   = '.so'
     fortran_lib = gccFortranLibs()
 
 
-class TestFailed(Exception):
-    def __init__(self, args=None):
-        self.args = args
-
-class TestNoResult(Exception):
-    def __init__(self, args=None):
-        self.args = args
-
-if os.name == 'posix':
-    def _failed(self, status = 0):
-        if self.status is None or status is None:
-            return None
-        if os.WIFSIGNALED(self.status):
-            return None
-        return _status(self) != status
-    def _status(self):
-        if os.WIFEXITED(self.status):
-            return os.WEXITSTATUS(self.status)
-        else:
-            return None
-elif os.name == 'nt':
-    def _failed(self, status = 0):
-        return not (self.status is None or status is None) and \
-               self.status != status
-    def _status(self):
-        return self.status
-
-class TestSCons(TestCmd.TestCmd):
+class TestSCons(TestCommon):
     """Class for testing SCons.
 
     This provides a common place for initializing SCons tests,
@@ -128,7 +84,7 @@ class TestSCons(TestCmd.TestCmd):
 		program = 'scons' if it exists,
 			  else 'scons.py'
 		interpreter = 'python'
-		match = TestCmd.match_exact
+		match = match_exact
 		workdir = ''
 
         The workdir value means that, by default, a temporary workspace
@@ -147,73 +103,10 @@ class TestSCons(TestCmd.TestCmd):
 	if not kw.has_key('interpreter') and not os.environ.get('SCONS_EXEC'):
 	    kw['interpreter'] = python
 	if not kw.has_key('match'):
-	    kw['match'] = TestCmd.match_exact
+	    kw['match'] = match_exact
 	if not kw.has_key('workdir'):
 	    kw['workdir'] = ''
-	apply(TestCmd.TestCmd.__init__, [self], kw)
-	os.chdir(self.workdir)
-
-    def run(self, options = None, arguments = None,
-                  stdout = None, stderr = '', status = 0, **kw):
-	"""Runs SCons.
-
-        This is the same as the base TestCmd.run() method, with
-        the addition of:
-
-		stdout	The expected standard output from
-			the command.  A value of None means
-			don't test standard output.
-
-		stderr	The expected error output from
-			the command.  A value of None means
-			don't test error output.
-
-                status  The expected exit status from the 
-                        command.  A value of None means don't
-                        test exit status.
-
-        By default, this does not test standard output (stdout = None),
-        and expects that error output is empty (stderr = "").
-	"""
-        if options:
-            arguments = options + " " + arguments
-        kw['arguments'] = arguments
-	try:
-	    apply(TestCmd.TestCmd.run, [self], kw)
-	except:
-	    print "STDOUT ============"
-	    print self.stdout()
-	    print "STDERR ============"
-	    print self.stderr()
-	    raise
-	if _failed(self, status):
-            expect = ''
-            if status != 0:
-                expect = " (expected %s)" % str(status)
-            print "%s returned %s%s" % (self.program, str(_status(self)), expect)
-            print "STDOUT ============"
-            print self.stdout()
-	    print "STDERR ============"
-	    print self.stderr()
-	    raise TestFailed
-	if not stdout is None and not self.match(self.stdout(), stdout):
-                print "Expected STDOUT =========="
-                print stdout
-                print "Actual STDOUT ============"
-                print self.stdout()
-                stderr = self.stderr()
-                if stderr:
-                    print "STDERR ==================="
-                    print stderr
-                raise TestFailed
-	if not stderr is None and not self.match(self.stderr(), stderr):
-            print "STDOUT ==================="
-            print self.stdout()
-	    print "Expected STDERR =========="
-	    print stderr
-	    print "Actual STDERR ============"
-	    print self.stderr()
-	    raise TestFailed
+	apply(TestCommon.__init__, [self], kw)
 
     def detect(self, var, prog=None):
         """
@@ -294,6 +187,6 @@ class TestSCons(TestCmd.TestCmd):
         kw['stdout'] = string.replace(kw['stdout'],'\n','\\n')
         kw['stdout'] = string.replace(kw['stdout'],'.','\\.')
         old_match_func = self.match_func
-        self.match_func = TestCmd.match_re_dotall
+        self.match_func = match_re_dotall
         apply(self.run, [], kw)
         self.match_func = old_match_func
