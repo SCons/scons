@@ -485,7 +485,11 @@ class Base(SCons.Node.Node):
         return self.dir
 
     def get_suffix(self):
-        return SCons.Util.splitext(self.name)[1]
+        try:
+            return self.ext
+        except AttributeError:
+            self.ext = SCons.Util.splitext(self.name)[1]
+            return self.ext
 
     def rfile(self):
         return self

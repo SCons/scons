@@ -399,10 +399,18 @@ class ClassicTestCase(unittest.TestCase):
         env = DummyEnvironment()
         s = MyScanner("t", ['.suf'], 'MYPATH', '^my_inc (\S+)')
 
+        # This set of tests is intended to test the scanning operation
+        # of the Classic scanner.
+
+        # Note that caching has been added for not just the includes
+        # but the entire scan call.  The caching is based on the
+        # arguments, so we will fiddle with the path parameter to
+        # defeat this caching for the purposes of these tests.
+
         # If the node doesn't exist, scanning turns up nothing.
         n1 = MyNode("n1")
         n1._exists = None
-        ret = s.scan(n1, env)
+        ret = s.function(n1, env)
         assert ret == [], ret
 
         # Verify that it finds includes from the contents.
@@ -410,22 +418,27 @@ class ClassicTestCase(unittest.TestCase):
         n._exists = 1
         n._dir = MyNode("n._dir")
         n._contents = 'my_inc abc\n'
-        ret = s.scan(n, env)
+        ret = s.function(n, env, ('foo',))
         assert ret == ['abc'], ret
 
         # Verify that it uses the cached include info.
         n._contents = 'my_inc def\n'
-        ret = s.scan(n, env)
+        ret = s.function(n, env, ('foo2',))
         assert ret == ['abc'], ret
 
         # Verify that if we wipe the cache, it uses the new contents.
         n.includes = None
-        ret = s.scan(n, env)
+        ret = s.function(n, env, ('foo3',))
         assert ret == ['def'], ret
+
+        # Verify that overall scan results are cached even if individual
+        # results are de-cached
+        ret = s.function(n, env, ('foo2',))
+        assert ret == ['abc'], ret
 
         # Verify that it sorts what it finds.
         n.includes = ['xyz', 'uvw']
-        ret = s.scan(n, env)
+        ret = s.function(n, env, ('foo4',))
         assert ret == ['uvw', 'xyz'], ret
 
         # Verify that we use the rfile() node.
@@ -434,8 +447,10 @@ class ClassicTestCase(unittest.TestCase):
         nr._dir = MyNode("nr._dir")
         nr.includes = ['jkl', 'mno']
         n._rfile = nr
-        ret = s.scan(n, env)
+        ret = s.function(n, env, ('foo5',))
         assert ret == ['jkl', 'mno'], ret
+
+        
 
 class ClassicCPPTestCase(unittest.TestCase):
     def test_find_include(self):

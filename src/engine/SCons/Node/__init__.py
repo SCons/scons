@@ -148,8 +148,17 @@ class Node:
 
     def get_build_env(self):
         """Fetch the appropriate Environment to build this node."""
-        executor = self.get_executor()
-        return executor.get_build_env()
+        try:
+            build_env = self._build_env
+        except AttributeError:
+            # This gets called a lot, so cache it. A node gets created
+            # in the context of a specific environment and it doesn't
+            # get "moved" to a different environment, so caching this
+            # value is safe.
+            executor = self.get_executor()
+            build_env = executor.get_build_env()
+            self._build_env = build_env
+        return self._build_env
 
     def set_executor(self, executor):
         """Set the action executor for this node."""
@@ -295,6 +304,7 @@ class Node:
 
     def builder_set(self, builder):
         self.builder = builder
+        self._src_scanners = {}  # cached scanners are based on the builder
 
     def has_builder(self):
         """Return whether this Node has a builder or not.
@@ -421,23 +431,57 @@ class Node:
             self.implicit_factory_cache[path] = n
             return n
 
-    def get_source_scanner(self, node):
+    def get_source_scanner(self, node, build_env):
         """Fetch the source scanner for the specified node
 
         NOTE:  "self" is the target being built, "node" is
         the source file for which we want to fetch the scanner.
+
+        build_env is the build environment (it's self.get_build_env(),
+                  but the caller always knows this so it can give it
+                  to us).
+
+        Implies self.has_builder() is true; again, expect to only be
+        called from locations where this is already verified.
+
+        This function may be called very often; it attempts to cache
+        the scanner found to improve performance.
         """
+        # Called from scan() for each child (node) of this node
+        # (self).  The scan() may be called multiple times, so this
+        # gets called a multiple of those times; caching results is
+        # good.  Index results based on the id of the child; can
+        # ignore build_env parameter for the index because it's passed
+        # as an optimization of an already-determined value, not as a
+        # changing parameter.
+
+        key = str(id(node)) + '|' + str(id(build_env))
+        try:
+            return self._src_scanners[key]
+        except AttributeError:
+            self._src_scanners = {}
+        except KeyError:
+            pass
+
         if not self.has_builder():
-            return None  # if not buildable, can't have sources...
+            self._src_scanners[key] = None
+            return None
+        
         try:
             scanner = self.builder.source_scanner
             if scanner:
+                self._src_scanners[key] = scanner
                 return scanner
         except AttributeError:
             pass
 
-        # No scanner specified by builder, try env['SCANNERS']
-        return self.get_build_env().get_scanner(node.scanner_key())
+        # Not cached, so go look up a scanner from env['SCANNERS']
+        # based on the node's scanner key (usually the file
+        # extension).
+        
+        scanner = build_env.get_scanner(node.scanner_key())
+        self._src_scanners[key] = scanner
+        return scanner
 
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""
@@ -473,7 +517,7 @@ class Node:
                     self.del_binfo()
 
         for child in self.children(scan=0):
-            scanner = self.get_source_scanner(child)
+            scanner = self.get_source_scanner(child, build_env)
             if scanner:
                 deps = child.get_implicit_deps(build_env, scanner, self)
                 self._add_child(self.implicit, self.implicit_dict, deps)
@@ -833,7 +877,7 @@ class Node:
         if self.is_derived() and self.env:
             env = self.get_build_env()
             for s in self.sources:
-                scanner = self.get_source_scanner(s)
+                scanner = self.get_source_scanner(s, env)
                 def f(node, env=env, scanner=scanner, target=self):
                     return node.get_found_includes(env, scanner, target)
                 return SCons.Util.render_tree(s, f, 1)

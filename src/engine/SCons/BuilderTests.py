@@ -948,9 +948,9 @@ class BuilderTestCase(unittest.TestCase):
         src = tgt.sources[0]
         assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
         assert tgt.builder.source_scanner is None, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y) is None, tgt.get_source_scanner(bar_y)
+        assert tgt.get_source_scanner(bar_y, env1) is None, tgt.get_source_scanner(bar_y, env1)
         assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
+        assert src.get_source_scanner(bar_y, env1) is None, src.get_source_scanner(bar_y, env1)
 
         # An Environment that has suffix-specified SCANNERS should
         # provide a source scanner to the target.
@@ -974,10 +974,10 @@ class BuilderTestCase(unittest.TestCase):
         src = tgt.sources[0]
         assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
         assert not tgt.builder.source_scanner, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'EnvTestScanner', tgt.get_source_scanner(bar_y)
+        assert tgt.get_source_scanner(bar_y, env3), tgt.get_source_scanner(bar_y, env3)
+        assert str(tgt.get_source_scanner(bar_y, env3)) == 'EnvTestScanner', tgt.get_source_scanner(bar_y, env3)
         assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
+        assert src.get_source_scanner(bar_y, env3) is None, src.get_source_scanner(bar_y, env3)
 
         # Can't simply specify the scanner as a builder argument; it's
         # global to all invocations of this builder.
@@ -985,10 +985,10 @@ class BuilderTestCase(unittest.TestCase):
         src = tgt.sources[0]
         assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
         assert not tgt.builder.source_scanner, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'EnvTestScanner', tgt.get_source_scanner(bar_y)
+        assert tgt.get_source_scanner(bar_y, env3), tgt.get_source_scanner(bar_y, env3)
+        assert str(tgt.get_source_scanner(bar_y, env3)) == 'EnvTestScanner', tgt.get_source_scanner(bar_y, env3)
         assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
+        assert src.get_source_scanner(bar_y, env3) is None, src.get_source_scanner(bar_y, env3)
 
         # Now use a builder that actually has scanners and ensure that
         # the target is set accordingly (using the specified scanner
@@ -1002,11 +1002,11 @@ class BuilderTestCase(unittest.TestCase):
         assert tgt.builder.source_scanner, tgt.builder.source_scanner
         assert tgt.builder.source_scanner == scanner, tgt.builder.source_scanner
         assert str(tgt.builder.source_scanner) == 'TestScanner', str(tgt.builder.source_scanner)
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert tgt.get_source_scanner(bar_y) == scanner, tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'TestScanner', tgt.get_source_scanner(bar_y)
+        assert tgt.get_source_scanner(bar_y, env3), tgt.get_source_scanner(bar_y, env3)
+        assert tgt.get_source_scanner(bar_y, env3) == scanner, tgt.get_source_scanner(bar_y, env3)
+        assert str(tgt.get_source_scanner(bar_y, env3)) == 'TestScanner', tgt.get_source_scanner(bar_y, env3)
         assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
+        assert src.get_source_scanner(bar_y, env3) is None, src.get_source_scanner(bar_y, env3)
 
 
 
