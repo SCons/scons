@@ -66,6 +66,7 @@ class MyNode:
         self.implicit = []
         self.pre_actions = pre
         self.post_actions = post
+        self.missing_val = None
     def __str__(self):
         return self.name
     def build(self, errfunc=None):
@@ -81,6 +82,10 @@ class MyNode:
         return ['dep-' + str(self)]
     def add_to_implicit(self, deps):
         self.implicit.extend(deps)
+    def missing(self):
+        return self.missing_val
+    def calc_signature(self, calc):
+        return 'cs-'+calc+'-'+self.name
 
 class MyScanner:
     def path(self, env, cwd, target, source):
@@ -287,13 +292,34 @@ class ExecutorTestCase(unittest.TestCase):
 
     def test_scan(self):
         """Test scanning the sources for implicit dependencies"""
-        env = MyEnvironment(S='string', SCANNERVAL='scn')
+        env = MyEnvironment(S='string')
         targets = [MyNode('t')]
         sources = [MyNode('s1'), MyNode('s2')]
         x = SCons.Executor.Executor('b', env, [{}], targets, sources)
         scanner = MyScanner()
         deps = x.scan(scanner)
         assert targets[0].implicit == ['dep-s1', 'dep-s2'], targets[0].implicit
+
+    def test_get_missing_sources(self):
+        """Test the ability to check if any sources are missing"""
+        env = MyEnvironment()
+        targets = [MyNode('t')]
+        sources = [MyNode('s1'), MyNode('s2')]
+        x = SCons.Executor.Executor('b', env, [{}], targets, sources)
+        sources[0].missing_val = 1
+        missing = x.get_missing_sources()
+        assert missing == [sources[0]], missing
+
+    def test_get_source_binfo(self):
+        """Test fetching the build signature info for the sources"""
+        env = MyEnvironment()
+        targets = [MyNode('t')]
+        sources = [MyNode('s1'), MyNode('s2')]
+        x = SCons.Executor.Executor('b', env, [{}], targets, sources)
+        b = x.get_source_binfo('C')
+        assert b == [(sources[0], 'cs-C-s1', 's1'),
+                     (sources[1], 'cs-C-s2', 's2')], b
+
 
 
 if __name__ == "__main__":

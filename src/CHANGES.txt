@@ -184,6 +184,9 @@ RELEASE 0.97 - XXX
   - Change --debug=memory output to line up the numbers and to better
     match (more or less) the headers on the --debug=count columns.
 
+  - Speed things up when there are lists of targets and/or sources by
+    getting rid of some N^2 walks of the lists involved.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
