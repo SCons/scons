@@ -84,8 +84,8 @@ class _ListOption(UserList.UserList):
             return 'all'
         else:
             return string.join(self, ',')
-    #def __repr__(self):
-    #  todo: implement this
+    def __repr__(self):
+        return self.__str__()
     
 def _converter(val, allowedElems):
     """

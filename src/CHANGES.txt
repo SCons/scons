@@ -40,6 +40,11 @@ RELEASE 0.97 - XXX
     interrupting builds by writing to a temporary file and renaming,
     not writing the file directly.
 
+  From Elliot Murphy:
+
+  - Enhance the tests to guarantee persistence of ListOption
+    values in saved options files.
+
   From Gary Oberbrunner:
 
   - Add an Environment.Dump() method to print the contents of a
