@@ -864,6 +864,23 @@ class BuilderTestCase(unittest.TestCase):
         assert tgt.target_scanner == tscan, tgt.target_scanner
         assert tgt.source_scanner == tscan, tgt.source_scanner
 
+    def test_actual_scanner(self):
+        """Test usage of actual Scanner objects."""
+
+        import SCons.Scanner
+
+        def func(self):
+            pass
+        
+        scanner = SCons.Scanner.Scanner(func, name='fooscan')
+
+        b1 = SCons.Builder.Builder(action='bld', target_scanner=scanner)
+        b2 = SCons.Builder.Builder(action='bld', target_scanner=scanner)
+        b3 = SCons.Builder.Builder(action='bld')
+
+        assert b1 == b2
+        assert b1 != b3
+        
     def test_src_scanner(slf):
         """Testing ability to set a source file scanner through a builder."""
         class TestScanner:

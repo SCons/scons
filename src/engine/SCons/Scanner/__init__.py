@@ -217,7 +217,11 @@ class Base:
         return nodes
 
     def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
+        try:
+            return cmp(self.__dict__, other.__dict__)
+        except AttributeError:
+            # other probably doesn't have a __dict__
+            return cmp(self.__dict__, other)
 
     def __hash__(self):
         return id(self)
