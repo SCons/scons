@@ -669,6 +669,12 @@ class Entry(Base):
             self.clear()
             return File.calc_signature(self, calc)
 
+    def must_be_a_Dir(self):
+        """Called to make sure a Node is a Dir.  Since we're an
+        Entry, we can morph into one."""
+        self.__class__ = Dir
+        self._morph()
+
 # This is for later so we can differentiate between Entry the class and Entry
 # the method of the FS class.
 _classEntry = Entry
@@ -781,16 +787,14 @@ class FS(LocalFS):
         return self._cwd
 
     def __checkClass(self, node, klass):
-        if klass == Entry:
+        if isinstance(node, klass) or klass == Entry:
             return node
         if node.__class__ == Entry:
             node.__class__ = klass
             node._morph()
             return node
-        if not isinstance(node, klass):
-            raise TypeError, "Tried to lookup %s '%s' as a %s." % \
-                  (node.__class__.__name__, node.path, klass.__name__)
-        return node
+        raise TypeError, "Tried to lookup %s '%s' as a %s." % \
+              (node.__class__.__name__, node.path, klass.__name__)
         
     def __doLookup(self, fsclass, name, directory = None, create = 1):
         """This method differs from the File and Dir factory methods in
@@ -835,8 +839,7 @@ class FS(LocalFS):
         for path_name in path_comp[:-1]:
             path_norm = _my_normcase(path_name)
             try:
-                directory = self.__checkClass(directory.entries[path_norm],
-                                              Dir)
+                d = directory.entries[path_norm]
             except KeyError:
                 if not create:
                     raise SCons.Errors.UserError
@@ -852,9 +855,13 @@ class FS(LocalFS):
                 directory.entries[path_norm] = dir_temp
                 directory.add_wkid(dir_temp)
                 directory = dir_temp
-        file_name = _my_normcase(path_comp[-1])
+            else:
+                d.must_be_a_Dir()
+                directory = d
+
+        entry_norm = _my_normcase(path_comp[-1])
         try:
-            ret = self.__checkClass(directory.entries[file_name], fsclass)
+            e = directory.entries[entry_norm]
         except KeyError:
             if not create:
                 raise SCons.Errors.UserError
@@ -871,10 +878,12 @@ class FS(LocalFS):
                     raise TypeError, \
                           "File %s found where directory expected." % path
             
-            ret = fsclass(path_comp[-1], directory, self)
-            directory.entries[file_name] = ret
-            directory.add_wkid(ret)
-        return ret
+            result = fsclass(path_comp[-1], directory, self)
+            directory.entries[entry_norm] = result 
+            directory.add_wkid(result)
+        else:
+            result = self.__checkClass(e, fsclass)
+        return result 
 
     def __transformPath(self, name, directory):
         """Take care of setting up the correct top-level directory,
@@ -1338,6 +1347,11 @@ class Dir(Base):
 
     def entry_path(self, name):
         return self.path + os.sep + name
+
+    def must_be_a_Dir(self):
+        """Called to make sure a Node is a Dir.  Since we're already
+        one, this is a no-op for us."""
+        pass
 
 class RootDir(Dir):
     """A class for the root directory of a file system.
@@ -1809,6 +1823,10 @@ class File(Base):
     def target_from_source(self, prefix, suffix, splitext=SCons.Util.splitext):
         return self.dir.File(prefix + splitext(self.name)[0] + suffix)
 
+    def must_be_a_Dir(self):
+        """Called to make sure a Node is a Dir.  Since we're already a
+        File, this is a TypeError..."""
+        raise TypeError, "Tried to lookup File '%s' as a Dir." % self.path
 
 default_fs = FS()
 

@@ -155,6 +155,8 @@ RELEASE 0.96 - XXX
   - Add a Flatten() function to make it easier to deal with the Builders
     all returning lists of targets, not individual targets.
 
+  - Performance optimizations in Node.FS.__doLookup().
+
   From Chris Murray:
 
   - Add a .win32 attribute to force file names to expand with
