@@ -51,6 +51,7 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(LEX = r'%s mylex.py', tools=['default', 'lex'])
 env.Program(target = 'aaa', source = 'aaa.l')
+env.Program(target = 'bbb', source = 'bbb.lex')
 """ % python)
 
 test.write('aaa.l', r"""
@@ -64,9 +65,21 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = 'aaa' + _exe, stderr = None)
+test.write('bbb.lex', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("LEX\n");
+	printf("bbb.lex\n");
+	exit (0);
+}
+""")
+
+test.run(arguments = '.', stderr = None)
 
 test.run(program = test.workpath('aaa' + _exe), stdout = "mylex.py\naaa.l\n")
+test.run(program = test.workpath('bbb' + _exe), stdout = "mylex.py\nbbb.lex\n")
 
 
 

@@ -42,6 +42,7 @@ def generate(env):
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
 
     c_file.add_action('.l', SCons.Defaults.LexAction)
+    c_file.add_action('.lex', SCons.Defaults.LexAction)
     cxx_file.add_action('.ll', SCons.Defaults.LexAction)
 
     env['LEX']      = env.Detect('flex') or 'lex'

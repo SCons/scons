@@ -25,6 +25,10 @@ RELEASE 0.97 - XXX
   - Add a set of canned PathOption validators:  PathExists (the default),
     PathIsFile, PathIsDir and PathIsDirCreate.
 
+  From Matthew Doar:
+
+  - Add support for .lex and .yacc file suffixes for Lex and Yacc files.
+
   From Eric Frias:
 
   - Huge performance improvement:  wrap the tuples representing an

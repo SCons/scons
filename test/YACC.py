@@ -66,6 +66,7 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(YACC = r'%s myyacc.py', tools=['default', 'yacc'])
 env.Program(target = 'aaa', source = 'aaa.y')
+env.Program(target = 'bbb', source = 'bbb.yacc')
 """ % python)
 
 test.write('aaa.y', r"""
@@ -79,9 +80,21 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = 'aaa' + _exe, stderr = None)
+test.write('bbb.yacc', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("YACC\n");
+	printf("bbb.yacc\n");
+	exit (0);
+}
+""")
+
+test.run(arguments = '.', stderr = None)
 
 test.run(program = test.workpath('aaa' + _exe), stdout = "myyacc.py\naaa.y\n")
+test.run(program = test.workpath('bbb' + _exe), stdout = "myyacc.py\nbbb.yacc\n")
 
 
 
