@@ -30,11 +30,11 @@ import SCons.Node.FS
 import SCons.Scanner
 import SCons.Util
 
-def ProgScan(fs = SCons.Node.FS.default_fs):
+def ProgScan(fs = SCons.Node.FS.default_fs, **kw):
     """Return a prototype Scanner instance for scanning executable
     files for static-lib dependencies"""
-    pf = SCons.Scanner.FindPathDirs('LIBPATH', fs)
-    ps = SCons.Scanner.Base(scan, "ProgScan", path_function = pf)
+    kw['path_function'] = SCons.Scanner.FindPathDirs('LIBPATH', fs)
+    ps = apply(SCons.Scanner.Base, [scan, "ProgScan"], kw)
     return ps
 
 def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
@@ -69,18 +69,24 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
     except KeyError:
         suffix = [ '' ]
 
-    find_file = SCons.Node.FS.find_file
-    adjustixes = SCons.Util.adjustixes
-    result = []
+    pairs = []
     for suf in map(env.subst, suffix):
         for pref in map(env.subst, prefix):
-            for lib in libs:
-                if SCons.Util.is_String(lib):
-                    lib = env.subst(lib)
-                    lib = adjustixes(lib, pref, suf)
-                    lib = find_file(lib, libpath, fs.File)
-                    if lib:
-                        result.append(lib)
-                else:
-                    result.append(lib)
+            pairs.append((pref, suf))
+
+    result = []
+
+    find_file = SCons.Node.FS.find_file
+    adjustixes = SCons.Util.adjustixes
+    for lib in libs:
+        if SCons.Util.is_String(lib):
+            lib = env.subst(lib)
+            for pref, suf in pairs:
+                l = adjustixes(lib, pref, suf)
+                l = find_file(l, libpath, fs.File)
+                if l:
+                    result.append(l)
+        else:
+            result.append(lib)
+
     return result

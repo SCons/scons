@@ -185,6 +185,21 @@ class ProgScanTestCase7(unittest.TestCase):
         deps = s('dummy', env, path)
         assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), map(str, deps)
 
+class ProgScanTestCase8(unittest.TestCase):
+    def runTest(self):
+        
+        class DummyNode:
+            pass
+        n = DummyNode()
+        env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
+                               LIBS=[n],
+                               LIBPREFIXES=['p1-', 'p2-'],
+                               LIBSUFFIXES=['.1', '2'])
+        s = SCons.Scanner.Prog.ProgScan(node_class = DummyNode)
+        path = s.path(env)
+        deps = s('dummy', env, path)
+        assert deps == [n], deps
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ProgScanTestCase1())
@@ -193,6 +208,7 @@ def suite():
     suite.addTest(ProgScanTestCase5())
     suite.addTest(ProgScanTestCase6())
     suite.addTest(ProgScanTestCase7())
+    suite.addTest(ProgScanTestCase8())
     if hasattr(types, 'UnicodeType'):
         code = """if 1:
             class ProgScanTestCase4(unittest.TestCase):
