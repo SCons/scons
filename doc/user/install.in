@@ -62,8 +62,8 @@
   </para>
 
   <scons_output example="ex1">
-     <command>scons -Q</command>
-     <command>scons -Q __ROOT__/usr/bin</command>
+     <scons_output_command>scons -Q</scons_output_command>
+     <scons_output_command>scons -Q __ROOT__/usr/bin</scons_output_command>
   </scons_output>
 
   <para>
@@ -101,8 +101,8 @@
   </para>
 
   <scons_output example="ex2">
-     <command>scons -Q</command>
-     <command>scons -Q install</command>
+     <scons_output_command>scons -Q</scons_output_command>
+     <scons_output_command>scons -Q install</scons_output_command>
   </scons_output>
 
   <section>
@@ -155,7 +155,7 @@
     </para>
 
     <scons_output example="ex3">
-       <command>scons -Q install</command>
+       <scons_output_command>scons -Q install</scons_output_command>
     </scons_output>
 
   </section>
@@ -194,7 +194,7 @@
     </para>
 
     <scons_output example="ex4">
-       <command>scons -Q install</command>
+       <scons_output_command>scons -Q install</scons_output_command>
     </scons_output>
 
   </section>
@@ -241,7 +241,7 @@
     </para>
 
     <scons_output example="ex5">
-       <command>scons -Q install</command>
+       <scons_output_command>scons -Q install</scons_output_command>
     </scons_output>
 
   </section>

@@ -63,7 +63,7 @@
   for a specific action to be executed
   to build a specific file or files.
   This looks a lot like the other builders
-  (like &Program;, &Object;, etc.),
+  (like &b-link-Program;, &b-link-Object;, etc.),
   but takes as an additional argument
   the command to be executed to build the file:
 
@@ -76,14 +76,14 @@
 
   <screen>
     % <userinput>scons -Q</userinput>
-    sed 's/x/y/' < foo.in > foo.out
+    sed 's/x/y/' &lt; foo.in &gt; foo.out
   </screen>
 
   <para>
 
   This is often more convenient than
   creating a &Builder; object
-  and adding it to the &BUILDERS; variable
+  and adding it to the &cv-link-BUILDERS; variable
   of a &consenv;
 
   </para>

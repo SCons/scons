@@ -71,6 +71,77 @@
 
    <para>
 
+   The &SConscript; files may contain
+   multiple calls to the &Help; function,
+   in which case the specified text(s)
+   will be concatenated when displayed.
+   This allows you to split up the
+   help text across multiple &SConscript; files.
+   In this situation, the order in
+   which the &SConscript; files are called
+   will determine the order in which the &Help; functions are called,
+   which will determine the order in which
+   the various bits of text will get concatenated.
+
+   </para>
+
+   <para>
+
+   Another use would be to make the help text conditional
+   on some variable.
+   For example, suppose you only want to display
+   a line about building a Windows-only
+   version of a program when actually
+   run on Windows.
+   The following &SConstruct; file:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+
+      Help("\nType: 'scons program' to build the production program.\n")
+
+      if env['PLATFORM'] == 'win32':
+          Help("\nType: 'scons windebug' to build the Windows debug version.\n")
+   </programlisting>
+
+   <para>
+
+   Will display the completely help text on Windows:
+
+   </para>
+
+   <screen>
+      C:\><userinput>scons -h</userinput>
+      scons: Reading SConscript files ...
+      scons: done reading SConscript files.
+      
+      Type: 'scons program' to build the production program.
+      
+      Type: 'scons windebug' to build the Windows debug version.
+      
+      Use scons -H for help about command-line options.
+   </screen>
+
+   <para>
+
+   But only show the relevant option on a Linux or UNIX system:
+
+   </para>
+
+   <screen>
+      % <userinput>scons -h</userinput>
+      scons: Reading SConscript files ...
+      scons: done reading SConscript files.
+      
+      Type: 'scons program' to build the production program.
+      
+      Use scons -H for help about command-line options.
+   </screen>
+
+   <para>
+
    If there is no &Help; text in the &SConstruct; or
    &SConscript; files,
    &SCons; will revert to displaying its

@@ -1,0 +1,20 @@
+<!-- __COPYRIGHT__ -->
+<tool name="mwcc">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="MWCW_VERSION">
+<summary>
+The version number of the MetroWerks CodeWarrior C compiler
+to be used.
+</summary>
+</cvar>
+
+<cvar name="MWCW_VERSIONS">
+<summary>
+A list of installed versions of the MetroWerks CodeWarrior C compiler
+on this system.
+</summary>
+</cvar>

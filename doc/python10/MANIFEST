@@ -12,4 +12,5 @@ main.sgml
 node.fig
 process.sgml
 scanner.fig
+scons.mod
 sig.fig

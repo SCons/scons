@@ -1,0 +1,122 @@
+<!-- __COPYRIGHT__ -->
+<tool name="rpcgen">
+<summary>
+XXX
+</summary>
+</tool>
+
+<builder name="RPCGenClient">
+<summary>
+Generates an RPC client stub (<filename>_clnt.c</filename>) file
+from a specified RPC (<filename>.x</filename>) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+
+<example>
+# Builds src/rpcif_clnt.c
+env.RPCGenClient('src/rpcif.x')
+</example>
+</summary>
+</builder>
+
+<builder name="RPCGenHeader">
+<summary>
+Generates an RPC header (<filename>.h</filename>) file
+from a specified RPC (<filename>.x</filename>) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+
+<example>
+# Builds src/rpcif.h
+env.RPCGenHeader('src/rpcif.x')
+</example>
+</summary>
+</builder>
+
+<builder name="RPCGenService">
+<summary>
+Generates an RPC server-skeleton (<filename>_svc.c</filename>) file
+from a specified RPC (<filename>.x</filename>) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+
+<example>
+# Builds src/rpcif_svc.c
+env.RPCGenClient('src/rpcif.x')
+</example>
+</summary>
+</builder>
+
+<builder name="RPCGenXDR">
+<summary>
+Generates an RPC XDR routine (<filename>_xdr.c</filename>) file
+from a specified RPC (<filename>.x</filename>) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+
+<example>
+# Builds src/rpcif_xdr.c
+env.RPCGenClient('src/rpcif.x')
+</example>
+</summary>
+</builder>
+
+<cvar name="RPCGEN">
+<summary>
+The RPC protocol compiler.
+</summary>
+</cvar>
+
+<cvar name="RPCGENCLIENTFLAGS">
+<summary>
+Options passed to the RPC protocol compiler
+when generating client side stubs.
+These are in addition to any flags specified in the
+&cv-RPCGENFLAGS;
+construction variable.
+</summary>
+</cvar>
+
+<cvar name="RPCGENFLAGS">
+<summary>
+General options passed to the RPC protocol compiler.
+</summary>
+</cvar>
+
+<cvar name="RPCGENHEADERFLAGS">
+<summary>
+Options passed to the RPC protocol compiler
+when generating a header file.
+These are in addition to any flags specified in the
+&cv-RPCGENFLAGS;
+construction variable.
+</summary>
+</cvar>
+
+<cvar name="RPCGENSERVICEFLAGS">
+<summary>
+Options passed to the RPC protocol compiler
+when generating server side stubs.
+These are in addition to any flags specified in the
+&cv-RPCGENFLAGS;
+construction variable.
+</summary>
+</cvar>
+
+<cvar name="RPCGENXDRFLAGS">
+<summary>
+Options passed to the RPC protocol compiler
+when generating XDR routines.
+These are in addition to any flags specified in the
+&cv-RPCGENFLAGS;
+construction variable.
+</summary>
+</cvar>

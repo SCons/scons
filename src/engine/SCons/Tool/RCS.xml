@@ -1,0 +1,46 @@
+<!-- __COPYRIGHT__ -->
+<tool name="RCS">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="RCS">
+<summary>
+The RCS executable.
+Note that this variable is not actually used
+for the command to fetch source files from RCS;
+see the
+&cv-RCS_CO;
+construction variable, below.
+</summary>
+</cvar>
+
+<cvar name="RCS_CO">
+<summary>
+The RCS "checkout" executable,
+used to fetch source files from RCS.
+</summary>
+</cvar>
+
+<cvar name="RCS_COCOM">
+<summary>
+The command line used to
+fetch (checkout) source files from RCS.
+</summary>
+</cvar>
+
+<cvar name="RCS_COCOMSTR">
+<summary>
+The string displayed when fetching
+a source file from RCS.
+If this is not set, then &cv-RCS_COCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="RCS_COFLAGS">
+<summary>
+Options that are passed to the &cv-RCS_CO; command.
+</summary>
+</cvar>

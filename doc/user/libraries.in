@@ -37,8 +37,8 @@
 
     <para>
 
-    You build your own libraries by specifying &Library;
-    instead of &Program;:
+    You build your own libraries by specifying &b-link-Library;
+    instead of &b-link-Program;:
 
     </para>
 
@@ -67,7 +67,7 @@
     </para>
 
     <scons_output example="ex1" os="posix">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -78,7 +78,7 @@
     </para>
 
     <scons_output example="ex1" os="win32">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -94,14 +94,14 @@
     </para>
 
     <section>
-    <title>Building Static Libraries Explicitly:  the &StaticLibrary; Builder</title>
+    <title>Building Static Libraries Explicitly:  the &b-StaticLibrary; Builder</title>
 
       <para>
 
-      The &Library; function builds a traditional static library.
+      The &b-link-Library; function builds a traditional static library.
       If you want to be explicit about the type of library being built,
-      you can use the synonym &StaticLibrary; function
-      instead of &Library:
+      you can use the synonym &b-link-StaticLibrary; function
+      instead of &b-Library:
 
       </para>
 
@@ -114,20 +114,20 @@
       <para>
 
       There is no functional difference between the
-      &StaticLibrary; and &Library; functions.
+      &b-link-StaticLibrary; and &b-Library; functions.
 
       </para>
 
     </section>
 
     <section>
-    <title>Building Shared (DLL) Libraries:  the &SharedLibrary; Builder</title>
+    <title>Building Shared (DLL) Libraries:  the &b-SharedLibrary; Builder</title>
 
       <para>
 
       If you want to build a shared library (on POSIX systems)
       or a DLL file (on Windows systems),
-      you use the &SharedLibrary; function:
+      you use the &b-link-SharedLibrary; function:
 
       </para>
 
@@ -153,7 +153,7 @@
       </para>
 
       <scons_output example="SharedLibrary" os="posix">
-        <command>scons -Q</command>
+        <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -163,7 +163,7 @@
       </para>
 
       <scons_output example="SharedLibrary" os="win32">
-        <command>scons -Q</command>
+        <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
       <para>
@@ -188,10 +188,10 @@
     Usually, you build a library
     because you want to link it with one or more programs.
     You link libraries with a program by specifying
-    the libraries in the &LIBS; construction variable,
+    the libraries in the &cv-link-LIBS; construction variable,
     and by specifying the directory in which
     the library will be found in the 
-    &LIBPATH; construction variable:
+    &cv-link-LIBPATH; construction variable:
 
     </para>
 
@@ -231,7 +231,7 @@
     </para>
 
     <scons_output example="ex2" os="posix">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -242,7 +242,7 @@
     </para>
 
     <scons_output example="ex2" os="win32">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -288,7 +288,7 @@
   </section>
 
   <section>
-  <title>Finding Libraries:  the &LIBPATH; Construction Variable</title>
+  <title>Finding Libraries:  the &cv-LIBPATH; Construction Variable</title>
 
     <para>
 
@@ -296,8 +296,8 @@
     certain system-defined directories for libraries.
     &SCons; knows how to look for libraries
     in directories that you specify with the
-    &LIBPATH; construction variable.
-    &LIBPATH; consists of a list of
+    &cv-link-LIBPATH; construction variable.
+    &cv-LIBPATH; consists of a list of
     directory names, like so:
 
     </para>
@@ -356,7 +356,7 @@
     </para>
 
     <scons_output example="ex3" os="posix">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -367,7 +367,7 @@
     </para>
 
     <scons_output example="ex3" os="win32">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>

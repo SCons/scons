@@ -32,10 +32,20 @@
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
 
+    <!ENTITY % builders-mod SYSTEM "builders.mod">
+    %builders-mod;
+
+    <!ENTITY % tools-mod SYSTEM "tools.mod">
+    %tools-mod;
+
+    <!ENTITY % variables-mod SYSTEM "variables.mod">
+    %variables-mod;
+
     <!ENTITY actions SYSTEM "actions.sgml">
     <!ENTITY alias SYSTEM "alias.sgml">
     <!ENTITY ant SYSTEM "ant.sgml">
     <!ENTITY build-install SYSTEM "build-install.sgml">
+    <!ENTITY builders SYSTEM "builders.sgml">
     <!ENTITY builders-built-in SYSTEM "builders-built-in.sgml">
     <!ENTITY builders-commands SYSTEM "builders-commands.sgml">
     <!ENTITY builders-writing SYSTEM "builders-writing.sgml">
@@ -48,6 +58,7 @@
     <!ENTITY environments SYSTEM "environments.sgml">
     <!ENTITY errors SYSTEM "errors.sgml">
     <!ENTITY example SYSTEM "example.sgml">
+    <!ENTITY factories SYSTEM "factories.sgml">
     <!ENTITY help SYSTEM "help.sgml">
     <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
     <!ENTITY java SYSTEM "java.sgml">
@@ -56,8 +67,10 @@
     <!ENTITY libraries SYSTEM "libraries.sgml">
     <!ENTITY make SYSTEM "make.sgml">
     <!ENTITY nodes SYSTEM "nodes.sgml">
+    <!ENTITY parseconfig SYSTEM "parseconfig.sgml">
     <!ENTITY precious SYSTEM "precious.sgml">
     <!ENTITY preface SYSTEM "preface.sgml">
+    <!ENTITY python SYSTEM "python.sgml">
     <!ENTITY repositories SYSTEM "repositories.sgml">
     <!ENTITY run SYSTEM "run.sgml">
     <!ENTITY scanners SYSTEM "scanners.sgml">
@@ -66,8 +79,14 @@
     <!ENTITY simple SYSTEM "simple.sgml">
     <!ENTITY sourcecode SYSTEM "sourcecode.sgml">
     <!ENTITY tasks SYSTEM "tasks.sgml">
+    <!ENTITY tools SYSTEM "tools.sgml">
     <!ENTITY troubleshoot SYSTEM "troubleshoot.sgml">
+    <!ENTITY variables SYSTEM "variables.sgml">
     <!ENTITY variants SYSTEM "variants.sgml">
+
+    <!ENTITY builders-gen SYSTEM "builders.gen">
+    <!ENTITY tools-gen SYSTEM "tools.gen">
+    <!ENTITY variables-gen SYSTEM "variables.gen">
 
 ]>
 
@@ -137,6 +156,15 @@
     &environments;
   </chapter>
 
+  <!--
+
+  <chapter id="chap-parseconfig">
+    <title>Finding Installed Library Information:  the &ParseConfig; Function</title>
+    &parseconfig;
+  </chapter>
+
+  -->
+
   <chapter id="chap-ENV">
     <title>Controlling the External Environment Used to Execute Build Commands</title>
     &ENV_file;
@@ -155,6 +183,11 @@
   <chapter id="chap-install">
     <title>Installing Files in Other Directories:  the &Install; Builder</title>
     &install;
+  </chapter>
+
+  <chapter id="chap-factories">
+    <title>Platform-Independent File System Manipulation</title>
+    &factories;
   </chapter>
 
   <chapter id="chap-precious">
@@ -273,12 +306,32 @@
   Tools()
   -->
 
+  <appendix id="app-variables">
+    <title>Construction Variables</title>
+    &variables;
+  </appendix>
+
+  <appendix id="app-builders">
+    <title>Builders</title>
+    &builders;
+  </appendix>
+
+  <appendix id="app-tools">
+    <title>Tools</title>
+    &tools;
+  </appendix>
+
   <appendix id="app-tasks">
     <title>Handling Common Tasks</title>
     &tasks;
   </appendix>
 
   <!--
+
+  <appendix id="app-python">
+    <title>Python Overview</title>
+    &example;
+  </appendix>
 
   <appendix id="app-example">
     <title>Complex &SCons; Example</title>

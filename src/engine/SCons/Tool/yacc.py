@@ -39,6 +39,8 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
+YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
+
 def _yaccEmitter(target, source, env, ysuf, hsuf):
     # If -d is specified on the command line, yacc will emit a .h
     # or .hpp file as well as a .c or .cpp file, depending on whether
@@ -60,9 +62,9 @@ def generate(env):
     """Add Builders and construction variables for yacc to an Environment."""
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
     
-    c_file.add_action('.y', SCons.Defaults.YaccAction)
-    c_file.add_action('.yacc', SCons.Defaults.YaccAction)
-    cxx_file.add_action('.yy', SCons.Defaults.YaccAction)
+    c_file.add_action('.y', YaccAction)
+    c_file.add_action('.yacc', YaccAction)
+    cxx_file.add_action('.yy', YaccAction)
     c_file.add_emitter('.y', yEmitter)
     c_file.add_emitter('.yacc', yEmitter)
     cxx_file.add_emitter('.yy', yyEmitter)

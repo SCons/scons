@@ -37,6 +37,7 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
+
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createStaticLibBuilder(env)

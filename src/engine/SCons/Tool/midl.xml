@@ -1,0 +1,29 @@
+<!-- __COPYRIGHT__ -->
+<tool name="midl">
+<summary>
+XXX
+</summary>
+</tool>
+
+<builder name="TypeLibrary">
+<summary>
+Builds a Windows type library (<filename>.tlb</filename>)
+file from an input IDL file (<filename>.idl</filename>).
+In addition, it will build the associated inteface stub and
+proxy source files,
+naming them according to the base name of the <filename>.idl</filename> file.
+For example,
+
+<example>
+env.TypeLibrary(source="foo.idl")
+</example>
+
+Will create <filename>foo.tlb</filename>,
+<filename>foo.h</filename>,
+<filename>foo_i.c</filename>,
+<filename>foo_p.c</filename>
+and
+<filename>foo_data.c</filename>
+files.
+</summary>
+</builder>

@@ -1,0 +1,36 @@
+<!-- __COPYRIGHT__ -->
+<tool name="latex">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="LATEX">
+<summary>
+The LaTeX structured formatter and typesetter.
+</summary>
+</cvar>
+
+<cvar name="LATEXCOM">
+<summary>
+The command line used to call the LaTeX structured formatter and typesetter.
+</summary>
+</cvar>
+
+<cvar name="LATEXCOMSTR">
+<summary>
+The string displayed when calling
+the LaTeX structured formatter and typesetter.
+If this is not set, then &cv-LATEXCOM; (the command line) is displayed.
+
+<example>
+env = Environment(LATEXCOMSTR = "Building $TARGET from LaTeX input $SOURCES")
+</example>
+</summary>
+</cvar>
+
+<cvar name="LATEXFLAGS">
+<summary>
+General options passed to the LaTeX structured formatter and typesetter.
+</summary>
+</cvar>

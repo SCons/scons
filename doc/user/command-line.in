@@ -78,9 +78,9 @@
     </scons_example>
 
     <scons_output example="SCONSFLAGS">
-      <command>scons</command>
-      <command>export SCONSFLAGS="-Q"</command>
-      <command environment="SCONSFLAGS=-Q">scons</command>
+      <scons_output_command>scons</scons_output_command>
+      <scons_output_command>export SCONSFLAGS="-Q"</scons_output_command>
+      <scons_output_command environment="SCONSFLAGS=-Q">scons</scons_output_command>
     </scons_output>
 
     <para>
@@ -147,8 +147,8 @@
     </para>
 
     <scons_output example="COMMAND_LINE_TARGETS">
-      <command>scons -Q</command>
-      <command>scons -Q bar</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q bar</scons_output_command>
     </scons_output>
 
     <para>
@@ -209,9 +209,9 @@
     </para>
 
     <scons_output example="Default1">
-       <command>scons -Q</command>
-       <command>scons -Q</command>
-       <command>scons -Q goodbye</command>
+       <scons_output_command>scons -Q</scons_output_command>
+       <scons_output_command>scons -Q</scons_output_command>
+       <scons_output_command>scons -Q goodbye</scons_output_command>
     </scons_output>
 
     <para>
@@ -226,7 +226,7 @@
     </para>
 
     <scons_output example="Default1">
-       <command>scons -Q .</command>
+       <scons_output_command>scons -Q .</scons_output_command>
     </scons_output>
 
     <para>
@@ -285,8 +285,8 @@
     </para>
 
     <scons_output example="Default2">
-       <command>scons -Q</command>
-       <command>scons -Q .</command>
+       <scons_output_command>scons -Q</scons_output_command>
+       <scons_output_command>scons -Q .</scons_output_command>
     </scons_output>
 
     <para>
@@ -327,9 +327,9 @@
     </para>
 
     <scons_output example="Default3">
-       <command>scons -Q</command>
-       <command>scons -Q</command>
-       <command>scons -Q .</command>
+       <scons_output_command>scons -Q</scons_output_command>
+       <scons_output_command>scons -Q</scons_output_command>
+       <scons_output_command>scons -Q .</scons_output_command>
     </scons_output>
 
     <para>
@@ -363,8 +363,8 @@
     </para>
 
     <scons_output example="Default4">
-       <command>scons -Q</command>
-       <command>scons -Q .</command>
+       <scons_output_command>scons -Q</scons_output_command>
+       <scons_output_command>scons -Q .</scons_output_command>
     </scons_output>
 
     <section>
@@ -408,7 +408,7 @@
       </para>
 
       <scons_output example="DEFAULT_TARGETS_1">
-         <command>scons</command>
+         <scons_output_command>scons</scons_output_command>
       </scons_output>
 
       <para>
@@ -444,7 +444,7 @@
       </para>
 
       <scons_output example="DEFAULT_TARGETS_2">
-         <command>scons</command>
+         <scons_output_command>scons</scons_output_command>
       </scons_output>
 
       <para>
@@ -537,9 +537,9 @@
     </para>
 
     <scons_output example="BUILD_TARGETS_1">
-      <command>scons -Q</command>
-      <command>scons -Q prog2</command>
-      <command>scons -Q -c .</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q prog2</scons_output_command>
+      <scons_output_command>scons -Q -c .</scons_output_command>
     </scons_output>
 
   </section>
@@ -587,7 +587,7 @@
 
     <para>
 
-    The following code sets the &CCFLAGS; construction
+    The following code sets the &cv-link-CCFLAGS; construction
     variable in response to the <varname>debug</varname>
     flag being set in the &ARGUMENTS; dictionary:
 
@@ -616,10 +616,10 @@
     </para>
 
     <scons_output example="ARGUMENTS">
-       <command>scons -Q debug=0</command>
-       <command>scons -Q debug=0</command>
-       <command>scons -Q debug=1</command>
-       <command>scons -Q debug=1</command>
+       <scons_output_command>scons -Q debug=0</scons_output_command>
+       <scons_output_command>scons -Q debug=0</scons_output_command>
+       <scons_output_command>scons -Q debug=1</scons_output_command>
+       <scons_output_command>scons -Q debug=1</scons_output_command>
     </scons_output>
 
     <para>
@@ -668,7 +668,7 @@
     to pass the value to the C compiler.
     Here's how you might do that by setting
     the appropriate value in a dictionary for the
-    &CPPDEFINES; construction variable:
+    &cv-link-CPPDEFINES; construction variable:
 
     </para>
 
@@ -718,7 +718,7 @@
     </para>
 
     <scons_output example="Options1">
-      <command>scons -Q RELEASE=1</command>
+      <scons_output_command>scons -Q RELEASE=1</scons_output_command>
     </scons_output>
 
   </section>
@@ -763,7 +763,7 @@
     </para>
 
     <scons_output example="Options_Help">
-      <command>scons -Q -h</command>
+      <scons_output_command>scons -Q -h</scons_output_command>
     </scons_output>
 
     <para>
@@ -835,7 +835,7 @@
     </para>
 
     <scons_output example="Options_custom_py_1">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -872,7 +872,7 @@
     </para>
 
     <scons_output example="Options_custom_py_2">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -940,11 +940,11 @@
       </para>
 
       <scons_output example="BoolOption">
-        <command>scons -Q RELEASE=yes foo.o</command>
+        <scons_output_command>scons -Q RELEASE=yes foo.o</scons_output_command>
       </scons_output>
 
       <scons_output example="BoolOption">
-        <command>scons -Q RELEASE=t foo.o</command>
+        <scons_output_command>scons -Q RELEASE=t foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -969,11 +969,11 @@
       </para>
 
       <scons_output example="BoolOption">
-        <command>scons -Q RELEASE=no foo.o</command>
+        <scons_output_command>scons -Q RELEASE=no foo.o</scons_output_command>
       </scons_output>
 
       <scons_output example="BoolOption">
-        <command>scons -Q RELEASE=f foo.o</command>
+        <scons_output_command>scons -Q RELEASE=f foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -996,7 +996,7 @@
       </para>
 
       <scons_output example="BoolOption">
-        <command>scons -Q RELEASE=bad_value foo.o</command>
+        <scons_output_command>scons -Q RELEASE=bad_value foo.o</scons_output_command>
       </scons_output>
 
     </section>
@@ -1043,9 +1043,9 @@
       </para>
 
       <scons_output example="EnumOption">
-        <command>scons -Q COLOR=red foo.o</command>
-        <command>scons -Q COLOR=blue foo.o</command>
-        <command>scons -Q COLOR=green foo.o</command>
+        <scons_output_command>scons -Q COLOR=red foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=blue foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=green foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1058,7 +1058,7 @@
       </para>
 
       <scons_output example="EnumOption">
-        <command>scons -Q COLOR=magenta foo.o</command>
+        <scons_output_command>scons -Q COLOR=magenta foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1101,7 +1101,7 @@
       </para>
 
       <scons_output example="EnumOption_map">
-        <command>scons -Q COLOR=navy foo.o</command>
+        <scons_output_command>scons -Q COLOR=navy foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1115,9 +1115,9 @@
       </para>
 
       <scons_output example="EnumOption">
-        <command>scons -Q COLOR=Red foo.o</command>
-        <command>scons -Q COLOR=BLUE foo.o</command>
-        <command>scons -Q COLOR=nAvY foo.o</command>
+        <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1153,10 +1153,10 @@
       </para>
 
       <scons_output example="EnumOption_ic1">
-        <command>scons -Q COLOR=Red foo.o</command>
-        <command>scons -Q COLOR=BLUE foo.o</command>
-        <command>scons -Q COLOR=nAvY foo.o</command>
-        <command>scons -Q COLOR=green foo.o</command>
+        <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=green foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1198,9 +1198,9 @@
       </para>
 
       <scons_output example="EnumOption_ic2">
-        <command>scons -Q COLOR=Red foo.o</command>
-        <command>scons -Q COLOR=nAvY foo.o</command>
-        <command>scons -Q COLOR=GREEN foo.o</command>
+        <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLOR=GREEN foo.o</scons_output_command>
       </scons_output>
 
     </section>
@@ -1243,8 +1243,8 @@
       </para>
 
       <scons_output example="ListOption">
-        <command>scons -Q COLORS=red,blue foo.o</command>
-        <command>scons -Q COLORS=blue,green,red foo.o</command>
+        <scons_output_command>scons -Q COLORS=red,blue foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLORS=blue,green,red foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1258,8 +1258,8 @@
       </para>
 
       <scons_output example="ListOption">
-        <command>scons -Q COLORS=all foo.o</command>
-        <command>scons -Q COLORS=none foo.o</command>
+        <scons_output_command>scons -Q COLORS=all foo.o</scons_output_command>
+        <scons_output_command>scons -Q COLORS=none foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1270,7 +1270,7 @@
       </para>
 
       <scons_output example="ListOption">
-        <command>scons -Q COLORS=magenta foo.o</command>
+        <scons_output_command>scons -Q COLORS=magenta foo.o</scons_output_command>
       </scons_output>
 
     </section>
@@ -1320,8 +1320,8 @@
       </para>
 
       <scons_output example="PathOption">
-        <command>scons -Q foo.o</command>
-        <command>scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</command>
+        <scons_output_command>scons -Q foo.o</scons_output_command>
+        <scons_output_command>scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1333,7 +1333,7 @@
       </para>
 
       <scons_output example="PathOption">
-        <command>scons -Q CONFIG=__ROOT__/does/not/exist foo.o</command>
+        <scons_output_command>scons -Q CONFIG=__ROOT__/does/not/exist foo.o</scons_output_command>
       </scons_output>
 
       <para>
@@ -1500,10 +1500,10 @@
       </para>
 
       <scons_output example="PackageOption">
-        <command>scons -Q foo.o</command>
-        <command>scons -Q PACKAGE=__ROOT__/usr/local/location foo.o</command>
-        <command>scons -Q PACKAGE=yes foo.o</command>
-        <command>scons -Q PACKAGE=no foo.o</command>
+        <scons_output_command>scons -Q foo.o</scons_output_command>
+        <scons_output_command>scons -Q PACKAGE=__ROOT__/usr/local/location foo.o</scons_output_command>
+        <scons_output_command>scons -Q PACKAGE=yes foo.o</scons_output_command>
+        <scons_output_command>scons -Q PACKAGE=no foo.o</scons_output_command>
       </scons_output>
 
     </section>

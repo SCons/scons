@@ -1,0 +1,118 @@
+<!-- __COPYRIGHT__ -->
+<cvar name="ESCAPE">
+<summary>
+A function that will be called to escape shell special characters in
+command lines. The function should take one argument: the command line
+string to escape; and should return the escaped command line.
+</summary>
+</cvar>
+
+<cvar name="LIBPREFIX">
+<summary>
+The prefix used for (static) library file names.
+A default value is set for each platform
+(posix, win32, os2, etc.),
+but the value is overridden by individual tools
+(ar, mslib, sgiar, sunar, tlib, etc.)
+to reflect the names of the libraries they create.
+</summary>
+</cvar>
+
+<cvar name="LIBPREFIXES">
+<summary>
+An array of legal prefixes for library file names.
+</summary>
+</cvar>
+
+<cvar name="LIBSUFFIX">
+<summary>
+The suffix used for (static) library file names.
+A default value is set for each platform
+(posix, win32, os2, etc.),
+but the value is overridden by individual tools
+(ar, mslib, sgiar, sunar, tlib, etc.)
+to reflect the names of the libraries they create.
+</summary>
+</cvar>
+
+<cvar name="LIBSUFFIXES">
+<summary>
+An array of legal suffixes for library file names.
+</summary>
+</cvar>
+
+<cvar name="OBJPREFIX">
+<summary>
+The prefix used for (static) object file names.
+</summary>
+</cvar>
+
+<cvar name="OBJSUFFIX">
+<summary>
+The suffix used for (static) object file names.
+</summary>
+</cvar>
+
+<cvar name="PLATFORM">
+<summary>
+The name of the platform used to create the Environment.  If no platform is
+specified when the Environment is created,
+&scons;
+autodetects the platform.
+
+<example>
+env = Environment(tools = [])
+if env['PLATFORM'] == 'cygwin':
+    Tool('mingw')(env)
+else:
+    Tool('msvc')(env)
+</example>
+</summary>
+</cvar>
+
+<cvar name="PROGPREFIX">
+<summary>
+The prefix used for executable file names.
+</summary>
+</cvar>
+
+<cvar name="PROGSUFFIX">
+<summary>
+The suffix used for executable file names.
+</summary>
+</cvar>
+
+<cvar name="SHELL">
+<summary>
+A string naming the shell program that will be passed to the 
+&cv-SPAWN;
+function. 
+See the 
+&cv-SPAWN;
+construction variable for more information.
+</summary>
+</cvar>
+
+<cvar name="SHLIBPREFIX">
+<summary>
+The prefix used for shared library file names.
+</summary>
+</cvar>
+
+<cvar name="SHLIBSUFFIX">
+<summary>
+The suffix used for shared library file names.
+</summary>
+</cvar>
+
+<cvar name="SHOBJPREFIX">
+<summary>
+The prefix used for shared object file names.
+</summary>
+</cvar>
+
+<cvar name="SHOBJSUFFIX">
+<summary>
+The suffix used for shared object file names.
+</summary>
+</cvar>

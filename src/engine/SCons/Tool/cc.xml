@@ -1,0 +1,111 @@
+<!-- __COPYRIGHT__ -->
+<tool name="cc">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="CC">
+<summary>
+The C compiler.
+</summary>
+</cvar>
+
+<cvar name="CCCOM">
+<summary>
+The command line used to compile a C source file to a (static) object file.
+Any options specified in the &cv-CCFLAGS; and &cv-CPPFLAGS; construction variables
+are included on this command line.
+</summary>
+</cvar>
+
+<cvar name="CCCOMSTR">
+<summary>
+The string displayed when a C source file
+is compiled to a (static) object file.
+If this is not set, then &cv-CCCOM; (the command line) is displayed.
+
+<example>
+env = Environment(CCCOMSTR = "Compiling static object $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="CCFLAGS">
+<summary>
+General options that are passed to the C compiler.
+</summary>
+</cvar>
+
+<cvar name="CPPFLAGS">
+<summary>
+User-specified C preprocessor options.
+These will be included in any command that uses the C preprocessor,
+including not just compilation of C and C++ source files
+via the &cv-CCCOM;, &cv-SHCCCOM;, &cv-CXXCOM; and &cv-SHCXXCOM; command lines,
+but also the &cv-FORTRANPPCOM;, &cv-SHFORTRANPPCOM;,
+&cv-F77PPCOM; and &cv-SHF77PPCOM; command lines
+used to compile a Fortran source file,
+and the &cv-ASPPCOM; command line
+used to assemble an assembly language source file,
+after first running each file through the C preprocessor.
+Note that this variable does
+<emphasis>not</emphasis>
+contain
+<option>-I</option>
+(or similar) include search path options
+that scons generates automatically from &cv-CPPPATH;.
+See &cv-link-_CPPINCFLAGS;, below,
+for the variable that expands to those options.
+</summary>
+</cvar>
+
+<cvar name="CPPSUFFIXES">
+<summary>
+The list of suffixes of files that will be scanned
+for C preprocessor implicit dependencies
+(#include lines).
+The default list is:
+
+<example>
+[".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+ ".h", ".H", ".hxx", ".hpp", ".hh",
+ ".F", ".fpp", ".FPP",
+ ".S", ".spp", ".SPP"]
+</example>
+</summary>
+</cvar>
+
+<cvar name="SHCC">
+<summary>
+The C compiler used for generating shared-library objects.
+</summary>
+</cvar>
+
+<cvar name="SHCCCOM">
+<summary>
+The command line used to compile a C source file
+to a shared-library object file.
+Any options specified in the &cv-SHCCFLAGS; and &cv-CPPFLAGS; construction variables
+are included on this command line.
+</summary>
+</cvar>
+
+<cvar name="SHCCCOMSTR">
+<summary>
+The string displayed when a C source file
+is compiled to a shared object file.
+If this is not set, then &cv-SHCCCOM; (the command line) is displayed.
+
+<example>
+env = Environment(SHCCCOMSTR = "Compiling shared object $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="SHCCFLAGS">
+<summary>
+Options that are passed to the C compiler
+to generate shared-library objects.
+</summary>
+</cvar>

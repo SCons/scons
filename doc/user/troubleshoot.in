@@ -77,9 +77,9 @@
     </para>
 
     <scons_output example="explain1" os="posix">
-      <command>scons -Q</command>
-      <command>scons -Q</command>
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -100,7 +100,7 @@
     </para>
 
     <scons_output example="explain1" os="posix">
-      <command>scons -Q --debug=explain</command>
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
     <para>
@@ -145,9 +145,9 @@
     </scons_example>
 
     <scons_output example="explain2" os="posix">
-      <command>scons -Q</command>
-      <command output="    [CHANGE THE CONTENTS OF file2.c]">edit file2.c</command>
-      <command>scons -Q --debug=explain</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF file2.c]">edit file2.c</scons_output_command>
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
     </scons_output>
 
     <para>
@@ -188,9 +188,121 @@
     </scons_example>
 
     <scons_output example="explain3" os="posix">
-      <command>scons -Q</command>
-      <command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</command>
-      <command>scons -Q --debug=explain</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+      <scons_output_command>scons -Q --debug=explain</scons_output_command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>What's in That Construction Environment?  the &Dump; Method</title>
+
+    <para>
+
+    When you create a construction environment,
+    &SCons; populates it
+    with construction variables that are set up
+    for various compilers, linkers and utilities
+    that it finds on your system.
+    Although this is usually helpful and what you want,
+    it might be frustrating if &SCons;
+    doesn't set certain variables that you
+    expect to be sit.
+    In situations like this,
+    it's sometimes helpful to use the
+    construction environment &Dump; method
+    to print all or some of
+    the construction variables.
+    Note that the &Dump; method
+    <emphasis>returns</emphasis>
+    the representation of the variables
+    in the environment
+    for you to print (or otherwise manipulate):
+
+    </para>
+
+    <scons_example name="Dump">
+      <file name="SConstruct" print="1">
+         env = Environment()
+         print env.Dump()
+      </file>
+    </scons_example>
+
+    <para>
+
+    On a POSIX system with gcc installed,
+    this might generate:
+
+    </para>
+
+    <scons_output example="Dump" os="posix" tools="gcc">
+      <scons_output_command>scons</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    On a Windows system with Visual C++
+    the output might look like:
+
+    </para>
+
+    <scons_output example="Dump" os="win32" tools="msvc">
+      <scons_output_command>scons</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    The construction environments in these examples have
+    actually been restricted to just gcc and Visual C++,
+    respectively.
+    In a real-life situation,
+    the construction environments will
+    likely contain a great many more variables.
+
+    </para>
+
+    <para>
+
+    To make it easier to see just what you're
+    interested in,
+    the &Dump; method allows you to
+    specify a specific constrcution variable
+    that you want to disply.
+    For example,
+    it's not unusual to want to verify
+    the external environment used to execute build commands,
+    to make sure that the PATH and other
+    environment variables are set up the way they should be.
+    You can do this as follows:
+
+    </para>
+
+    <scons_example name="Dump_ENV">
+      <file name="SConstruct" print="1">
+         env = Environment()
+         print env.Dump('ENV')
+      </file>
+    </scons_example>
+
+    <para>
+
+    Which might display the following when executed on a POSIX system:
+
+    </para>
+
+    <scons_output example="Dump_ENV" os="posix">
+      <scons_output_command>scons</scons_output_command>
+    </scons_output>
+
+    <para>
+
+    And the following when executed on a Windows system:
+
+    </para>
+
+    <scons_output example="Dump_ENV" os="win32">
+      <scons_output_command>scons</scons_output_command>
     </scons_output>
 
   </section>

@@ -1,0 +1,427 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  &SCons; provides a number of platform-independent functions,
+  called <literal>factories</literal>,
+  that perform common file system manipulations
+  like copying, moving or deleting files and directories,
+  or making directories.
+  These functions are <literal>factories</literal>
+  because they don't perform the action
+  at the time they're called,
+  they each return an &Action; object
+  that can be executed at the appropriate time.
+
+  </para>
+
+  <section>
+  <title>Copying Files or Directories:  The &Copy; Factory</title>
+
+    <para>
+
+    Suppose you want to arrange to make a copy of a file,
+    and the &Install; builder isn't appropriate
+    because it may make a hard link on POSIX systems.
+    One way would be to use the &Copy; action factory
+    in conjunction with the &Command; builder:
+
+    </para>
+
+    <programlisting>
+        Command("file.out", "file.in", Copy("$TARGET", "$SOURCE"))
+    </programlisting>
+
+    <para>
+
+    Notice that the action returned by the &Copy; factory
+    will expand the &cv-TARGET; and &cv-SOURCE; strings
+    at the time &file_out; is built,
+    and that the order of the arguments
+    is the same as that of a builder itself--that is,
+    target first, followed by source:
+
+    </para>
+
+    <screen>
+       % <userinput>scons -Q</userinput>
+       Copy("file.out", "file.in")
+    </screen>
+
+    <para>
+
+    You can, of course, name a file explicitly
+    instead of using &cv-TARGET; or &cv-SOURCE;:
+
+    </para>
+
+    <programlisting>
+      Command("file.out", [], Copy("$TARGET", "file.in"))
+    </programlisting>
+
+    <para>
+
+    Which executes as:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Copy("file.out", "file.in")
+    </screen>
+
+    <para>
+
+    The usefulness of the &Copy; factory
+    becomes more apparent when
+    you use it in a list of actions
+    passed to the &Command; builder.
+    For example, suppose you needed to run a
+    file through a utility that only modifies files in-place,
+    and can't "pipe" input to output.
+    One solution is to copy the source file
+    to a temporary file name,
+    run the utility,
+    and then copy the modified temporary file to the target,
+    which the &Copy; factory makes extremely easy:
+
+    </para>
+
+    <programlisting>
+      Command("file.out", "file.in",
+              [
+                Copy("tempfile", "$SOURCE"),
+                "modify tempfile",
+                Copy("$TARGET", "tempfile"),
+              ])
+    </programlisting>
+
+    <para>
+
+    The output then looks like:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Copy("tempfile", "file.in")
+      modify tempfile
+      Copy("file.out", "tempfile")
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Deleting Files or Directories:  The &Delete; Factory</title>
+
+    <para>
+
+    If you need to delete a file,
+    then the &Delete; factory
+    can be used in much the same way as
+    the &Copy; factory.
+    For example, if we want to make sure that
+    the temporary file
+    in our last example doesn't exist before
+    we copy to it,
+    we could add &Delete; to the beginning
+    of the command list:
+
+    </para>
+
+    <programlisting>
+      Command("file.out", "file.in",
+              [
+                Delete("tempfile"),
+                Copy("tempfile", "$SOURCE"),
+                "modify tempfile",
+                Copy("$TARGET", "tempfile"),
+              ])
+    </programlisting>
+
+    <para>
+
+    When then executes as follows:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Delete("tempfile")
+      Copy("tempfile", "file.in")
+      modify tempfile
+      Copy("file.out", "tempfile")
+    </screen>
+
+    <para>
+
+    Of course, like all of these &Action; factories,
+    the &Delete; factory also expands
+    &cv-TARGET; and &cv-SOURCE; variables appropriately.
+    For example:
+
+    </para>
+
+    <programlisting>
+      Command("file.out", "file.in",
+              [
+                Delete("$TARGET"),
+                Copy("$TARGET", "$SOURCE")
+              ])
+    </programlisting>
+
+    <para>
+
+    Executes as:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Delete("file.out")
+      Copy("file.out", "file.in")
+    </screen>
+
+    <para>
+
+    (Note, however, that you typically don't need to
+    call the &Delete; factory explicitly in this way;
+    by default, &SCons; deletes its target(s)
+    for you before executing any action.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Moving (Renaming) Files or Directories:  The &Move; Factory</title>
+
+    <para>
+
+    The &Move; factory
+    allows you to rename a file or directory.
+    For example, if we don't want to copy the temporary file,
+    we could:
+
+    </para>
+
+    <programlisting>
+      Command("file.out", "file.in",
+              [
+                Copy("tempfile", "$SOURCE"),
+                "modify tempfile",
+                Move("$TARGET", "tempfile"),
+              ])
+    </programlisting>
+
+    <para>
+
+    Which would execute as:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Copy("tempfile", "file.in")
+      modify tempfile
+      Move("file.out", "tempfile")
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Updating the Modification Time of a File:  The &Touch; Factory</title>
+
+    <para>
+
+    If you just need to update the
+    recorded modification time for a file,
+    use the &Touch; factory:
+
+    </para>
+
+    <programlisting>
+      Command("file.out", "file.in",
+              [
+                Copy("tempfile", "$SOURCE"),
+                "modify tempfile",
+                Move("$TARGET", "tempfile"),
+              ])
+    </programlisting>
+
+    <para>
+
+    Which executes as:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Copy("tempfile", "file.in")
+      modify tempfile
+      Move("file.out", "tempfile")
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Creating a Directory:  The &Mkdir; Factory</title>
+
+    <para>
+
+    If you need to create a directory,
+    use the &Mkdir; factory.
+    For example, if we need to process
+    a file in a temporary directory
+    in which the processing tool
+    will create other files that we don't care about, 
+    you could:
+
+    </para>
+
+    <programlisting>
+      Command("file.out", "file.in",
+              [
+                Delete("tempdir"),
+                Mkdir("tempdir"),
+                Copy("tempdir/${SOURCE.file}", "$SOURCE"),
+                "process tempdir",
+                Move("$TARGET", "tempdir/output_file"),
+                Delete("tempdir"),
+              ])
+    </programlisting>
+
+    <para>
+
+    Which executes as:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Delete("tempdir")
+      Mkdir("tempdir")
+      Copy("tempdir/file.in", "file.in")
+      process tempdir
+      Move("file.out", "tempdir/output_file")
+      scons: *** [file.out] No such file or directory
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Changing File or Directory Permissions:  The &Chmod; Factory</title>
+
+    <para>
+
+    To change permissions on a file or directory,
+    use the &Chmod; factory.
+    The permission argument uses POSIX-style
+    permission bits and should typically
+    be expressed as an octal,
+    not decimal, number:
+
+    </para>
+
+    <programlisting>
+      Command("file.out", "file.in",
+              [
+                Copy("$TARGET", "$SOURCE"),
+                Chmod("$TARGET", 0755),
+              ])
+    </programlisting>
+
+    <para>
+
+    Which executes:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      Copy("file.out", "file.in")
+      Chmod("file.out", 0755)
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Executing an action immediately:  the &Execute; Function</title>
+
+    <para>
+
+    We've been showing you how to use &Action; factories
+    in the &Command; function.
+    You can also execute an &Action; returned by a factory
+    (or actually, any &Action;)
+    at the time the &SConscript; file is read
+    by wrapping it up in the &Execute; function.
+    For example, if we need to make sure that
+    a directory exists before we build any targets,
+
+
+    </para>
+
+    <programlisting>
+      Execute(Mkdir('/tmp/my_temp_directory'))
+    </programlisting>
+
+    <para>
+
+    Notice that this will
+    create the directory while
+    the &SConscript; file is being read:
+
+    </para>
+
+    <screen>
+      % <userinput>scons</userinput>
+      scons: Reading SConscript files ...
+      Mkdir("/tmp/my_temp_directory")
+      scons: done reading SConscript files.
+      scons: Building targets ...
+      scons: `.' is up to date.
+      scons: done building targets.
+    </screen>
+
+    <para>
+
+    If you're familiar with Python,
+    you may wonder why you would want to use this
+    instead of just calling the native Python
+    <function>os.mkdir()</function> function.
+    The advantage here is that the &Mkdir;
+    action will behave appropriately if the user
+    specifies the &SCons; <option>-n</option> or
+    <option>-q</option> options--that is,
+    it will print the action but not actually
+    make the directory when <option>-n</option> is specified,
+    or make the directory but not print the action
+    when <option>-q</option> is specified.
+
+    </para>
+
+  </section>

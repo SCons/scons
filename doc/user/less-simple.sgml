@@ -40,7 +40,7 @@
 
     <para>
 
-    You've seen that when you call the &Program; builder method,
+    You've seen that when you call the &b-link-Program; builder method,
     it builds the resulting program with the same
     base name as the source file.
     That is, the following call to build an
@@ -209,7 +209,7 @@
     </para>
 
     <programlisting>
-       Program('hello', ['file1.c', 'file2'])
+       Program('hello', ['file1.c', 'file2.c'])
     </programlisting>
 
     <para>
@@ -340,13 +340,13 @@
     <para>
 
     Putting the call to the &Split; function
-    inside the <function>Program</function> call
+    inside the &b-Program; call
     can also be a little unwieldy.
     A more readable alternative is to
     assign the output from the &Split; call
     to a variable name,
     and then use the variable when calling the
-    <function>Program</function> function:
+    &b-Program; function:
 
     </para>
 
@@ -440,7 +440,7 @@
 
     In order to compile multiple programs
     within the same &SConstruct; file,
-    simply call the <function>Program</function> method
+    simply call the &Program; method
     multiple times,
     once for each program you need to build:
 

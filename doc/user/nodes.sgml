@@ -52,7 +52,7 @@
 
     For example, suppose that we want to build
     the two object files that make up a program with different options.
-    This would mean calling the &Object;
+    This would mean calling the &b-link-Object;
     builder once for each object file,
     specifying the desired options:
 
@@ -67,7 +67,7 @@
 
     One way to combine these object files
     into the resulting program
-    would be to call the &Program;
+    would be to call the &b-link-Program;
     builder with the names of the object files
     listed as sources:
 
@@ -94,9 +94,9 @@
     <para>
 
     A better solution is to assign the lists of targets
-    returned by the calls to the &Object; builder to variables,
+    returned by the calls to the &b-Object; builder to variables,
     which we can then concatenate in our
-    call to the &Program; builder:
+    call to the &b-Program; builder:
 
     </para>
 
@@ -351,7 +351,7 @@
     </para>
 
     <scons_output example="print" os="posix">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>

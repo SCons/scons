@@ -1,0 +1,69 @@
+<!-- __COPYRIGHT__ -->
+<tool name="as">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="AS">
+<summary>
+The assembler.
+</summary>
+</cvar>
+
+<cvar name="ASCOM">
+<summary>
+The command line used to generate an object file
+from an assembly-language source file.
+</summary>
+</cvar>
+
+<cvar name="ASCOMSTR">
+<summary>
+The string displayed when an object file
+is generated from an assembly-language source file.
+If this is not set, then &cv-ASCOM; (the command line) is displayed.
+
+<example>
+env = Environment(ASCOMSTR = "Assembling $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="ASFLAGS">
+<summary>
+General options passed to the assembler.
+</summary>
+</cvar>
+
+<cvar name="ASPPCOM">
+<summary>
+The command line used to assemble an assembly-language
+source file into an object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-ASFLAGS; and &cv-CPPFLAGS; construction variables
+are included on this command line.
+</summary>
+</cvar>
+
+<cvar name="ASPPCOMSTR">
+<summary>
+The string displayed when an object file
+is generated from an assembly-language source file
+after first running the file through the C preprocessor.
+If this is not set, then &cv-ASPPCOM; (the command line) is displayed.
+
+<example>
+env = Environment(ASPPCOMSTR = "Assembling $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="ASPPFLAGS">
+<summary>
+General options when an assembling an assembly-language
+source file into an object file
+after first running the file through the C preprocessor.
+The default is to use the value of &cv-ASFLAGS;.
+</summary>
+</cvar>

@@ -1,0 +1,14 @@
+<!-- __COPYRIGHT__ -->
+<tool name="intelc">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="INTEL_C_COMPILER_VERSION">
+<summary>
+Set by the "intelc" Tool
+to the major version number of the Intel C compiler
+selected for use.
+</summary>
+</cvar>

@@ -78,6 +78,12 @@
 
     </para>
 
+    <!--
+    Robert P.J. Day has suggested using "python -V",
+    but that's not supported in 1.5.2, so we're going
+    to leave this as is for now.
+    -->
+
     <screen>
        $ <userinput>python</userinput>
        Python 2.2.2 (#1, Feb 24 2003, 19:13:11)
@@ -156,6 +162,7 @@
 
       &SCons; comes in RPM (Red Hat Package Manager) format,
       pre-built and ready to install on Red Hat Linux,
+      Fedora Core,
       or any other Linux distribution that uses RPM.
       Your distribution may
       already have an &SCons; RPM built specifically for it;
@@ -406,36 +413,6 @@
 
     </para>
 
-    <section>
-    <title>Building and Installing &SCons; Without Administrative Privileges</title>
-
-      <para>
-
-      If you don't have the right privileges to install &SCons;
-      in a system location,
-      you can install it in a location of your choosing
-      by specifying the <literal>--prefix=</literal> option:
-
-      </para>
-
-      <screen>
-        # <userinput>python setup.py install --prefix=$HOME</userinput>
-      </screen>
-
-      <para>
-
-      This would install &SCons; in appropriate locations
-      relative to the user's <literal>$HOME</literal> directory,
-      the <application>scons</application> script in
-      <filename>$HOME/bin</filename>
-      and the build engine in 
-      <filename>$HOME/lib/scons</filename>.
-      You may, of course, specify any other location you prefer.
-
-      </para>
-
-    </section>
-
     <!--
 
     <section>
@@ -487,11 +464,6 @@
       or
       <filename>C:\Python2.2\scons-__VERSION__</filename>
       directory, for example.
-      You can also specify <option>--prefix=</option>,
-      in which case <filename>setup.py</filename>
-      will install the build engine
-      in a version-specific directory
-      relative to the specified prefix.
 
       </para>
 
@@ -507,6 +479,82 @@
       in version-specific directories.
       You can override that assumption in the future
       by explicitly specifying the <option>--standalone-lib</option> option.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Installing &SCons; in Other Locations</title>
+
+      <para>
+
+      You can install &SCons; in locations other than
+      the default by specifying the <option>--prefix=</option> option:
+
+      </para>
+
+      <screen>
+        # <userinput>python setup.py install --prefix=/opt/scons</userinput>
+      </screen>
+
+      <para>
+
+      This would
+      install the <application>scons</application> script in
+      <filename>/opt/scons/bin</filename>
+      and the build engine in 
+      <filename>/opt/scons/lib/scons</filename>,
+
+      </para>
+
+      <para>
+
+      Note that you can specify both the <option>--prefix=</option>
+      and the <option>--version-lib</option> options
+      at the same type,
+      in which case <filename>setup.py</filename>
+      will install the build engine
+      in a version-specific directory
+      relative to the specified prefix.
+      Adding <option>--version-lib</option> to the
+      above example would install the build engine in
+      <filename>/opt/scons/lib/scons-__VERSION__</filename>.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Building and Installing &SCons; Without Administrative Privileges</title>
+
+      <para>
+
+      If you don't have the right privileges to install &SCons;
+      in a system location,
+      simply use the <literal>--prefix=</literal> option
+      to install it in a location of your choosing.
+      For example,
+      to install &SCons; in appropriate locations
+      relative to the user's <literal>$HOME</literal> directory,
+      the <application>scons</application> script in
+      <filename>$HOME/bin</filename>
+      and the build engine in 
+      <filename>$HOME/lib/scons</filename>,
+      simply type:
+
+      </para>
+
+      <screen>
+        $ <userinput>python setup.py install --prefix=$HOME</userinput>
+      </screen>
+
+      <para>
+
+      You may, of course, specify any other location you prefer,
+      and may use the <option>--version-lib</option> option
+      if you would like to install version-specific directories
+      relative to the specified prefix.
 
       </para>
 

@@ -1,0 +1,67 @@
+<!-- __COPYRIGHT__ -->
+<cvar name="PRINT_CMD_LINE_FUNC">
+<summary>
+A Python function used to print the command lines as they are executed
+(assuming command printing is not disabled by the
+<option>-q</option>
+or
+<option>-s</option>
+options or their equivalents).
+The function should take four arguments:
+<varname>s</varname>,
+the command being executed (a string),
+<varname>target</varname>,
+the target being built (file node, list, or string name(s)),
+<varname>source</varname>,
+the source(s) used (file node, list, or string name(s)), and
+<varname>env</varname>,
+the environment being used.
+
+The function must do the printing itself.  The default implementation,
+used if this variable is not set or is None, is:
+<example>
+def print_cmd_line(s, target, source, env):
+  sys.stdout.write(s + "\n")
+</example>
+
+Here's an example of a more interesting function:
+
+<example>
+def print_cmd_line(s, target, source, env):
+   sys.stdout.write("Building %s -> %s...\n" %
+    (' and '.join([str(x) for x in source]),
+     ' and '.join([str(x) for x in target])))
+env=Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
+env.Program('foo', 'foo.c')
+</example>
+
+This just prints "Building <varname>targetname</varname> from <varname>sourcename</varname>..." instead
+of the actual commands.
+Such a function could also log the actual commands to a log file,
+for example.
+</summary>
+</cvar>
+
+<cvar name="SPAWN">
+<summary>
+A command interpreter function that will be called to execute command line
+strings. The function must expect the following arguments:
+
+<example>
+def spawn(shell, escape, cmd, args, env):
+</example>
+
+<varname>sh</varname>
+is a string naming the shell program to use.
+<varname>escape</varname>
+is a function that can be called to escape shell special characters in
+the command line. 
+<varname>cmd</varname>
+is the path to the command to be executed.
+<varname>args</varname>
+is the arguments to the command.
+<varname>env</varname>
+is a dictionary of the environment variables
+in which the command should be executed.
+</summary>
+</cvar>

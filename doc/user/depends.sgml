@@ -375,7 +375,7 @@ operating system on which the build is performed (as reported by C<uname
   </section>
 
   <section>
-  <title>Implicit Dependencies:  The &CPPPATH; Construction Variable</title>
+  <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>
 
     <para>
 
@@ -422,7 +422,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    The &CPPPATH; value
+    The &cv-CPPPATH; value
     tells &SCons; to look in the current directory
     (<literal>'.'</literal>)
     for any files included by C source files
@@ -448,7 +448,7 @@ operating system on which the build is performed (as reported by C<uname
 
     First, notice that &SCons;
     added the <literal>-I.</literal> argument
-    from the &CPPPATH; variable
+    from the &cv-CPPPATH; variable
     so that the compilation would find the
     &hello_h; file in the local directory.
 
@@ -475,8 +475,8 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    Like the &LIBPATH; variable,
-    the &CPPPATH; variable
+    Like the &cv-LIBPATH; variable,
+    the &cv-CPPPATH; variable
     may be a list of directories,
     or a string separated by
     the system-specific path separate character
@@ -711,10 +711,10 @@ operating system on which the build is performed (as reported by C<uname
 
     <!--
     <scons_output example="ignore">
-      <command>scons -Q hello</command>
-      <command>scons -Q hello</command>
-      <command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</command>
-      <command>scons -Q hello</command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
       XXX THIS EXAMPLE SHOULD BE UP-TO-DATE! XXX
     </scons_output>
     -->

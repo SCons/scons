@@ -67,6 +67,28 @@
 
     <para>
 
+    &SCons; provides a number of basic checks,
+    as well as a mechanism for adding your own custom checks.
+
+    </para>
+
+    <para>
+
+    Note that &SCons; uses its own dependency
+    mechanism to determine when a check
+    needs to be run--that is,
+    &SCons; does not run the checks
+    every time it is invoked,
+    but caches the values returned by previous checks
+    and uses the cached values unless something has changed.
+    This saves a tremendous amount
+    of developer time while working on
+    cross-platform build issues.
+
+    </para>
+
+    <para>
+
     The next sections describe
     the basic checks that &SCons; supports,
     as well as how to add your own custom checks.
@@ -229,14 +251,14 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     env = Environment()
     conf = Configure(env)
     if not conf.CheckType('off_t', '#include &amp;lt;sys/types.h&amp;gt;\n'):
         print 'Did not find off_t typedef, assuming int'
         conf.env.Append(CCFLAGS = '-Doff_t=int')
     env = conf.Finish()
-    </programlisting>
+    </sconstruct>
 
   </section>
 
@@ -259,7 +281,7 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     mylib_test_source_file = """
     #include &amp;lt;mylib.h&amp;gt;
     int main(int argc, char **argv)
@@ -274,7 +296,7 @@
         result = context.TryLink(mylib_test_source_file, '.c')
         context.Result(result)
         return result
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -336,7 +358,7 @@
 
     </para>
 
-    <programlisting>
+    <sconstruct>
     mylib_test_source_file = """
     #include &amp;lt;mylib.h&amp;gt;
     int main(int argc, char **argv)
@@ -361,7 +383,7 @@
 
     # We would then add actual calls like Program() to build
     # something using the "env" construction environment.
-    </programlisting>
+    </sconstruct>
 
     <para>
 
@@ -393,6 +415,57 @@
         .
         .
         .
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Not Configuring When Cleaning Targets</title>
+
+    <para>
+
+    Using multi-platform configuration
+    as described in the previous sections
+    will run the configuration commands
+    even when invoking
+    <userinput>scons -c</userinput>
+    to clean targets:
+
+    </para>
+
+    <screen>
+    % <userinput>scons -Q -c</userinput>
+    Checking for MyLibrary... ok
+    Removed foo.o
+    Removed foo
+    </screen>
+
+    <para>
+
+    Although running the platform checks
+    when removing targets doesn't hurt anything,
+    it's usually unnecessary.
+    You can avoid this by using the
+    &GetOption(); method to
+    check whether the <option>-c</option> (clean)
+    option has been invoked on the command line:
+
+    </para>
+
+    <sconstruct>
+    env = Environment()
+    if not env.GetOption('clean'):
+        conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+        if not conf.CheckMyLibrary():
+            print 'MyLibrary is not installed!'
+            Exit(1)
+        env = conf.Finish()
+    </sconstruct>
+
+    <screen>
+    % <userinput>scons -Q -c</userinput>
+    Removed foo.o
+    Removed foo
     </screen>
 
   </section>

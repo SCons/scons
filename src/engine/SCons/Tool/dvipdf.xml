@@ -1,0 +1,38 @@
+<!-- __COPYRIGHT__ -->
+<tool name="dvipdf">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="DVIPDF">
+<summary>
+The TeX DVI file to PDF file converter.
+</summary>
+</cvar>
+
+<cvar name="DVIPDFFLAGS">
+<summary>
+General options passed to the TeX DVI file to PDF file converter.
+</summary>
+</cvar>
+
+<cvar name="DVIPDFCOM">
+<summary>
+The command line used to convert TeX DVI files into a PDF file.
+</summary>
+</cvar>
+
+<cvar name="DVIPDFCOMSTR">
+<summary>
+The string displayed when a TeX DVI file
+is converted into a PDF file.
+If this is not set, then &cv-DVIPDFCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="PDFCOM">
+<summary>
+A deprecated synonym for &cv-DVIPDFCOM;.
+</summary>
+</cvar>

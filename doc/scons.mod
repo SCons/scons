@@ -130,6 +130,7 @@
 <!ENTITY BoolOption "<function>BoolOption</function>">
 <!ENTITY Build "<function>Build</function>">
 <!ENTITY CacheDir "<function>CacheDir</function>">
+<!ENTITY Chmod "<function>Chmod</function>">
 <!ENTITY Clean "<function>Clean</function>">
 <!ENTITY Clone "<function>Clone</function>">
 <!ENTITY Command "<function>Command</function>">
@@ -137,15 +138,19 @@
 <!ENTITY Copy "<function>Copy</function>">
 <!ENTITY Default "<function>Default</function>">
 <!ENTITY DefaultRules "<function>DefaultRules</function>">
+<!ENTITY Delete "<function>Delete</function>">
 <!ENTITY Depends "<function>Depends</function>">
 <!ENTITY Dir "<function>Dir</function>">
+<!ENTITY Dump "<function>Dump</function>">
 <!ENTITY Entry "<function>Entry</function>">
 <!ENTITY EnumOption "<function>EnumOption</function>">
 <!ENTITY Environment "<function>Environment</function>">
+<!ENTITY Execute "<function>Execute</function>">
 <!ENTITY Export "<function>Export</function>">
 <!ENTITY File "<function>File</function>">
 <!ENTITY Finish "<function>Finish</function>">
 <!ENTITY GenerateHelpText "<function>GenerateHelpText</function>">
+<!ENTITY GetOption "<function>GetOption</function>">
 <!ENTITY Help "<function>Help</function>">
 <!ENTITY Ignore "<function>Ignore</function>">
 <!ENTITY Import "<function>Import</function>">
@@ -154,10 +159,13 @@
 <!ENTITY Link "<function>Link</function>">
 <!ENTITY ListOption "<function>ListOption</function>">
 <!ENTITY Local "<function>Local</function>">
+<!ENTITY Mkdir "<function>Mkdir</function>">
 <!ENTITY Module "<function>Module</function>">
+<!ENTITY Move "<function>Move</function>">
 <!ENTITY Objects "<function>Objects</function>">
 <!ENTITY Options "<function>Options</function>">
 <!ENTITY PackageOption "<function>PackageOption</function>">
+<!ENTITY ParseConfig "<function>ParseConfig</function>">
 <!ENTITY PathOption "<function>PathOption</function>">
 <!ENTITY PathOption_PathAccept "<function>PathOption.PathAccept</function>">
 <!ENTITY PathOption_PathExists "<function>PathOption.PathExists</function>">
@@ -178,6 +186,7 @@
 <!ENTITY Split "<function>Split</function>">
 <!ENTITY TargetSignatures "<function>TargetSignatures</function>">
 <!ENTITY Task "<function>Task</function>">
+<!ENTITY Touch "<function>Touch</function>">
 
 <!-- Environment methods -->
 <!ENTITY subst "<function>subst</function>">
@@ -197,6 +206,7 @@
 <!ENTITY TryCompile "<function>TryCompile</function>">
 <!ENTITY TryLink "<function>TryLink</function>">
 <!ENTITY TryRun "<function>TryRun</function>">
+
 
 <!-- Python functions -->
 <!ENTITY str "<function>str</function>">
@@ -227,29 +237,12 @@
 -->
 
 <!ENTITY BUILDERMAP "<varname>BUILDERMAP</varname>">
-<!ENTITY BUILDERS "<varname>BUILDERS</varname>">
-<!ENTITY CC "<varname>CC</varname>">
-<!ENTITY CCFLAGS "<varname>CCFLAGS</varname>">
-<!ENTITY CCCOM "<varname>CCCOM</varname>">
 <!ENTITY COLOR "<varname>COLOR</varname>">
 <!ENTITY COLORS "<varname>COLORS</varname>">
 <!ENTITY CONFIG "<varname>CONFIG</varname>">
-<!ENTITY CPPDEFINES "<varname>CPPDEFINES</varname>">
-<!ENTITY ENV "<varname>ENV</varname>">
-<!ENTITY JAVACLASSDIR "<varname>JAVACLASSDIR</varname>">
-<!ENTITY LIBDIRPREFIX "<varname>LIBDIRPREFIX</varname>">
-<!ENTITY LIBDIRSUFFIX "<varname>LIBDIRSUFFIX</varname>">
-<!ENTITY LIBLINKPREFIX "<varname>LIBLINKPREFIX</varname>">
-<!ENTITY LIBLINKSUFFIX "<varname>LIBLINKSUFFIX</varname>">
-<!ENTITY LIBPATH "<varname>LIBPATH</varname>">
-<!ENTITY LIBS "<varname>LIBS</varname>">
-<!ENTITY LINK "<varname>LINK</varname>">
-<!ENTITY LINKCOM "<varname>LINKCOM</varname>">
-<!ENTITY LINKFLAGS "<varname>LINKFLAGS</varname>">
 <!ENTITY RELEASE "<varname>RELEASE</varname>">
 <!ENTITY RELEASE_BUILD "<varname>RELEASE_BUILD</varname>">
 <!ENTITY SCANNERMAP "<varname>SCANNERMAP</varname>">
-<!ENTITY SCANNERS "<varname>SCANNERS</varname>">
 <!ENTITY TARFLAGS "<varname>TARFLAGS</varname>">
 <!ENTITY TARSUFFIX "<varname>TARSUFFIX</varname>">
 
@@ -361,6 +354,9 @@
 
 <!ENTITY Emitter "<literal>Emitter</literal>">
 <!ENTITY emitter "<literal>emitter</literal>">
+
+<!ENTITY factory "<literal>factory</literal>">
+
 <!ENTITY Generator "<literal>Generator</literal>">
 <!ENTITY generator "<literal>generator</literal>">
 

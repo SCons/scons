@@ -1,0 +1,45 @@
+<!-- __COPYRIGHT__ -->
+<cvar name="RPATH">
+<summary>
+A list of paths to search for shared libraries when running programs.
+Currently only used in the GNU linker (gnulink) and IRIX linker (sgilink).
+Ignored on platforms and toolchains that don't support it.
+Note that the paths added to RPATH
+are not transformed by
+&scons;
+in any way:  if you want an absolute
+path, you must make it absolute yourself.
+</summary>
+</cvar>
+
+<cvar name="_RPATH">
+<summary>
+An automatically-generated construction variable
+containing the rpath flags to be used when linking
+a program with shared libraries.
+The value of &cv-_RPATH; is created
+by appending &cv-RPATHPREFIX; and &cv-RPATHSUFFIX;
+to the beginning and end
+of each directory in &cv-RPATH;.
+</summary>
+</cvar>
+
+<cvar name="RPATHPREFIX">
+<summary>
+The prefix used to specify a directory to be searched for
+shared libraries when running programs.
+This will be appended to the beginning of each directory
+in the &cv-RPATH; construction variable
+when the &cv-_RPATH; variable is automatically generated.
+</summary>
+</cvar>
+
+<cvar name="RPATHSUFFIX">
+<summary>
+The suffix used to specify a directory to be searched for
+shared libraries when running programs.
+This will be appended to the end of each directory
+in the &cv-RPATH; construction variable
+when the &cv-_RPATH; variable is automatically generated.
+</summary>
+</cvar>

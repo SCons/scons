@@ -1,0 +1,112 @@
+<!-- __COPYRIGHT__ -->
+<tool name="msvc">
+<summary>
+XXX
+</summary>
+</tool>
+
+<builder name="PCH">
+<summary>
+Builds a Microsoft Visual C++ precompiled header.
+Calling this builder method
+returns a list of two targets: the PCH as the first element, and the object
+file as the second element. Normally the object file is ignored.
+This builder method is only
+provided when Microsoft Visual C++ is being used as the compiler. 
+The PCH builder method is generally used in
+conjuction with the PCH construction variable to force object files to use
+the precompiled header:
+
+<example>
+env['PCH'] = env.PCH('StdAfx.cpp')[0]
+</example>
+</summary>
+</builder>
+
+<builder name="RES">
+<summary>
+Builds a Microsoft Visual C++ resource file.
+This builder method is only provided
+when Microsoft Visual C++ or MinGW is being used as the compiler. The
+<filename>.res</filename>
+(or 
+<filename>.o</filename>
+for MinGW) suffix is added to the target name if no other suffix is given.
+The source
+file is scanned for implicit dependencies as though it were a C file. Example:
+
+<example>
+env.RES('resource.rc')
+</example>
+</summary>
+</builder>
+
+<cvar name="PCH">
+<summary>
+The Microsoft Visual C++ precompiled header that will be used when compiling
+object files. This variable is ignored by tools other than Microsoft Visual C++.
+When this variable is
+defined SCons will add options to the compiler command line to
+cause it to use the precompiled header, and will also set up the
+dependencies for the PCH file. Example: 
+
+<example>
+env['PCH'] = 'StdAfx.pch'
+</example>
+</summary>
+</cvar>
+
+<cvar name="PCHCOM">
+<summary>
+The command line used by the
+&b-PCH;
+builder to generated a precompiled header.
+</summary>
+</cvar>
+
+<cvar name="PCHCOMSTR">
+<summary>
+The string displayed when generating a precompiled header.
+If this is not set, then &cv-PCHCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="PCHSTOP">
+<summary>
+This variable specifies how much of a source file is precompiled. This
+variable is ignored by tools other than Microsoft Visual C++, or when
+the PCH variable is not being used. When this variable is define it
+must be a string that is the name of the header that
+is included at the end of the precompiled portion of the source files, or
+the empty string if the "#pragma hrdstop" construct is being used:
+
+<example>
+env['PCHSTOP'] = 'StdAfx.h'
+</example>
+</summary>
+</cvar>
+
+<cvar name="RC">
+<summary>
+The resource compiler used by the RES builder.
+</summary>
+</cvar>
+
+<cvar name="RCCOM">
+<summary>
+The command line used by the RES builder.
+</summary>
+</cvar>
+
+<cvar name="RCCOMSTR">
+<summary>
+The string displayed when invoking the resource compiler.
+If this is not set, then &cv-RCCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="RCFLAGS">
+<summary>
+The flags passed to the resource compiler by the RES builder.
+</summary>
+</cvar>

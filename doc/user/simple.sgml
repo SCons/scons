@@ -72,7 +72,7 @@
    and the input file from
    which you want it built
    (the <filename>hello.c</filename> file).
-   &Program; is a &builder_method;,
+   &b-link-Program; is a <firstterm>builder_method</firstterm>,
    a Python call that tells &SCons; that you want to build an
    executable program.
 
@@ -154,10 +154,10 @@
 
    <para>
 
-   The &Program; builder method is only one of
+   The &b-link-Program; builder method is only one of
    many builder methods that &SCons; provides
    to build different types of files.
-   Another is the &Object; builder method,
+   Another is the &b-link-Object; builder method,
    which tells &SCons; to build an object file
    from the specified source file:
 
@@ -207,8 +207,8 @@
    <para>
 
    &SCons; also makes building with Java extremely easy.
-   Unlike the &Program; and &Object; builder methods,
-   however, the &Java; builder method
+   Unlike the &b-link-Program; and &b-link-Object; builder methods,
+   however, the &b-link-Java; builder method
    requires that you specify
    the name of a destination directory in which
    you want the class files placed,
@@ -401,7 +401,7 @@
      which to do things.
      </para>
      </footnote>
-     In other words, when you call the &Program; builder
+     In other words, when you call the &b-link-Program; builder
      (or any other builder method),
      you're not telling &SCons; to build
      the program at the instant the builder method is called.
@@ -419,7 +419,7 @@
      <para>
 
      &SCons; reflects this distinction between
-     <emphasis>calling a builder method like</emphasis> &Program;>
+     <emphasis>calling a builder method like</emphasis> &b-Program;>
      and <emphasis>actually building the program</emphasis>
      by printing the status messages that indicate
      when it's "just reading" the &SConstruct; file,
@@ -438,7 +438,7 @@
      Python has a <literal>print</literal> statement that
      prints a string of characters to the screen.
      If we put <literal>print</literal> statements around
-     our calls to the &Program; builder method:
+     our calls to the &b-Program; builder method:
 
      </para>
 

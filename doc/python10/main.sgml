@@ -26,7 +26,7 @@
 <!doctype article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
 [
 
-    <!ENTITY % scons SYSTEM "../scons.mod">
+    <!ENTITY % scons SYSTEM "scons.mod">
     %scons;
 
     <!ENTITY abstract SYSTEM "abstract.sgml">

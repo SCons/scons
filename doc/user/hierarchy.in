@@ -340,7 +340,7 @@ make no difference to the build.
     </para>
 
     <scons_output example="ex1">
-       <command>scons -Q</command>
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -411,7 +411,7 @@ make no difference to the build.
     </para>
 
     <scons_output example="ex2">
-       <command>scons -Q</command>
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -462,7 +462,7 @@ make no difference to the build.
     </para>
 
     <scons_output example="ex3">
-       <command>scons -Q</command>
+       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -767,7 +767,7 @@ make no difference to the build.
       </para>
 
       <scons_output example="Return">
-        <command>scons -Q</command>
+        <scons_output_command>scons -Q</scons_output_command>
       </scons_output>
 
     </section>

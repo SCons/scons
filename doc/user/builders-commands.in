@@ -63,7 +63,7 @@
   for a specific action to be executed
   to build a specific file or files.
   This looks a lot like the other builders
-  (like &Program;, &Object;, etc.),
+  (like &b-link-Program;, &b-link-Object;, etc.),
   but takes as an additional argument
   the command to be executed to build the file:
 
@@ -80,14 +80,14 @@
   </scons_example>
 
   <scons_output example="ex1">
-    <command>scons -Q</command>
+    <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
   <para>
 
   This is often more convenient than
   creating a &Builder; object
-  and adding it to the &BUILDERS; variable
+  and adding it to the &cv-link-BUILDERS; variable
   of a &consenv;
 
   </para>
@@ -112,5 +112,5 @@
   </scons_example>
 
   <scons_output example="ex2">
-    <command>scons -Q</command>
+    <scons_output_command>scons -Q</scons_output_command>
   </scons_output>

@@ -23,7 +23,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/sconsoutput.py 0.D003 2003/09/22 22:17:34 software"
+__revision__ = "/home/scons/sconsoutput/branch.0/baseline/src/sconsoutput.py 0.4.D001 2004/11/27 18:44:37 knight"
 
 #
 # sconsoutput.py -   an SGML preprocessor for capturing SCons output
@@ -76,14 +76,14 @@ __revision__ = "src/sconsoutput.py 0.D003 2003/09/22 22:17:34 software"
 # SCons output is generated from the following sort of tag:
 #
 #       <scons_output example="ex1" os="posix">
-#         <command>scons -Q foo</command>
-#         <command>scons -Q foo</command>
+#         <scons_output_command>scons -Q foo</scons_output_command>
+#         <scons_output_command>scons -Q foo</scons_output_command>
 #       </scons_output>
 #
-# You tell it which example to use with the "example" attribute, and
-# then give it a list of <command> tags to execute.  You can also supply
-# an "os" tag, which specifies the type of operating system this example
-# is intended to show; if you omit this, default value is "posix".
+# You tell it which example to use with the "example" attribute, and then
+# give it a list of <scons_output_command> tags to execute.  You can also
+# supply an "os" tag, which specifies the type of operating system this
+# example is intended to show; if you omit this, default value is "posix".
 #
 # The generated SGML will show the command line (with the appropriate
 # command-line prompt for the operating system), execute the command in
@@ -194,7 +194,7 @@ import SCons.Action
 import SCons.Defaults
 import SCons.Node.FS
 
-platform = '%s'
+platform = '%(osname)s'
 
 Sep = {
     'posix' : '/',
@@ -263,6 +263,10 @@ class ToolSurrogate:
             env[v] = SCons.Action.Action(self.func,
                                          strfunction=strfunction,
                                          varlist=self.varlist)
+    def __repr__(self):
+        # This is for the benefit of printing the 'TOOLS'
+        # variable through env.Dump().
+        return repr(self.tool)
 
 def Null(target, source, env):
     pass
@@ -365,7 +369,12 @@ ToolList = {
                 ],
 }
 
-tools = map(lambda t: apply(ToolSurrogate, t), ToolList[platform])
+toollist = ToolList[platform]
+filter_tools = string.split('%(tools)s')
+if filter_tools:
+    toollist = filter(lambda x, ft=filter_tools: x[0] in ft, toollist)
+
+toollist = map(lambda t: apply(ToolSurrogate, t), toollist)
 
 def surrogate_spawn(sh, escape, cmd, args, env):
     pass
@@ -375,7 +384,7 @@ def surrogate_pspawn(sh, escape, cmd, args, env, stdout, stderr):
 
 SCons.Defaults.ConstructionEnvironment.update({
     'PLATFORM' : platform,
-    'TOOLS'    : tools,
+    'TOOLS'    : toollist,
     'SPAWN'    : surrogate_spawn,
     'PSPAWN'   : surrogate_pspawn,
 })
@@ -384,7 +393,7 @@ SConscript('SConstruct')
 """
 
 # "Commands" that we will execute in our examples.
-def command_scons(args, c, test, osname):
+def command_scons(args, c, test, dict):
     save_vals = {}
     delete_keys = []
     try:
@@ -403,7 +412,7 @@ def command_scons(args, c, test, osname):
              program = scons_py,
              arguments = '-f - ' + string.join(args),
              chdir = test.workpath('WORK'),
-             stdin = Stdin % osname)
+             stdin = Stdin % dict)
     os.environ.update(save_vals)
     for key in delete_keys:
         del(os.environ[key])
@@ -417,7 +426,7 @@ def command_scons(args, c, test, osname):
     #    sys.stderr.write(err)
     return lines
 
-def command_touch(args, c, test, osname):
+def command_touch(args, c, test, dict):
     time.sleep(1)
     for file in args:
         if not os.path.isabs(file):
@@ -427,7 +436,7 @@ def command_touch(args, c, test, osname):
         os.utime(file, None)
     return []
 
-def command_edit(args, c, test, osname):
+def command_edit(args, c, test, dict):
     try:
         add_string = c.edit[:]
     except AttributeError:
@@ -441,7 +450,7 @@ def command_edit(args, c, test, osname):
         open(file, 'wb').write(contents + add_string)
     return []
 
-def command_ls(args, c, test, osname):
+def command_ls(args, c, test, dict):
     def ls(a):
         files = os.listdir(a)
         files = filter(lambda x: x[0] != '.', files)
@@ -462,12 +471,12 @@ CommandDict = {
     'ls'    : command_ls,
 }
 
-def ExecuteCommand(args, c, t, osname):
+def ExecuteCommand(args, c, t, dict):
     try:
         func = CommandDict[args[0]]
     except KeyError:
-        func = lambda args, c, t, osname: []
-    return func(args[1:], c, t, osname)
+        func = lambda args, c, t, dict: []
+    return func(args[1:], c, t, dict)
 
 class MySGML(sgmllib.SGMLParser):
     """A subclass of the standard Python 2.2 sgmllib SGML parser.
@@ -647,6 +656,7 @@ class MySGML(sgmllib.SGMLParser):
         o = Output()
         o.preserve = None
         o.os = 'posix'
+        o.tools = ''
         o.e = e
         # Locally-set.
         for name, value in attrs:
@@ -706,11 +716,16 @@ class MySGML(sgmllib.SGMLParser):
 
             e = string.replace(c.data, '__ROOT__', t.workpath('ROOT'))
             args = string.split(e)
-            lines = ExecuteCommand(args, c, t, o.os)
+            lines = ExecuteCommand(args, c, t, {'osname':o.os, 'tools':o.tools})
+            content = None
             if c.output:
-                sys.stdout.write(p + c.output + '\n')
+                content = c.output
             elif lines:
-                sys.stdout.write(p + string.join(lines, '\n' + p) + '\n')
+                content = string.join(lines, '\n' + p)
+            if content:
+                content = string.replace(content, '<', '&lt;')
+                content = string.replace(content, '>', '&gt;')
+                sys.stdout.write(p + content + '\n')
 
         if o.data[0] == '\n':
             o.data = o.data[1:]
@@ -718,11 +733,11 @@ class MySGML(sgmllib.SGMLParser):
         delattr(self, 'o')
         self.afunclist = self.afunclist[:-1]
 
-    def start_command(self, attrs):
+    def start_scons_output_command(self, attrs):
         try:
             o = self.o
         except AttributeError:
-            self.error("<command> tag outside of <scons_output>")
+            self.error("<scons_output_command> tag outside of <scons_output>")
         try:
             o.prefix
         except AttributeError:
@@ -734,7 +749,7 @@ class MySGML(sgmllib.SGMLParser):
         o.commandlist.append(c)
         self.afunclist.append(c.afunc)
 
-    def end_command(self):
+    def end_scons_output_command(self):
         self.o.data = ""
         self.afunclist = self.afunclist[:-1]
 

@@ -1,0 +1,32 @@
+<!-- __COPYRIGHT__ -->
+<tool name="Subversion">
+<summary>
+XXX
+</summary>
+</tool>
+
+<!--
+<cvar name="SVN">
+<summary>
+The Subversion executable (usually named
+<command>svn</command>).
+</summary>
+</cvar>
+-->
+
+<!--
+<cvar name="SVNCOM">
+<summary>
+The command line used to
+fetch source files from a Subversion repository.
+</summary>
+</cvar>
+-->
+
+<!--
+<cvar name="SVNFLAGS">
+<summary>
+General options that are passed to Subversion.
+</summary>
+</cvar>
+-->

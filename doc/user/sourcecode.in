@@ -54,7 +54,7 @@
    </scons_example>
 
    <scons_output example="ex_bitkeeper">
-     <command>scons -Q</command>
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -77,7 +77,7 @@
    </scons_example>
 
    <scons_output example="ex_cvs">
-     <command>scons -Q</command>
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -103,7 +103,7 @@
    </scons_example>
 
    <scons_output example="ex_rcs">
-     <command>scons -Q</command>
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -129,7 +129,7 @@
    </scons_example>
 
    <scons_output example="ex_sccs">
-     <command>scons -Q</command>
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>
@@ -154,7 +154,7 @@
    </scons_example>
 
    <scons_output example="ex_subversion">
-     <command>scons -Q</command>
+     <scons_output_command>scons -Q</scons_output_command>
    </scons_output>
 
  </section>

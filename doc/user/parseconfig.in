@@ -1,0 +1,81 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+ <para>
+
+ Configuring the right options to build programs to work with the
+ libraries--especially shared libraries--installed on a POSIX system
+ can be very complicated.
+ Various utilies with names that end in <filename>config</filename>
+ can return command-line options for the
+ GNU Compiler Collection
+
+ </para>
+
+ <para>
+
+ &SCons; construction environments have a &ParseConfig; method
+ that executes a utility and configures
+ the appropriate construction variables
+ in the environment
+ based on the command-line options
+ returned by the specified command.
+
+ </para>
+
+ </para>
+
+ <scons_example name="ParseConfig1">
+   <file name="SConstruct" printme="1">
+    env = Environment()
+    env.ParseConfig("pkg-config")
+   </file>
+   <file name="f1.c">
+   int f1() { }
+   </file>
+   <file name="f2.c">
+   int f2() { }
+   </file>
+   <file name="f3.c">
+   int f3() { }
+   </file>
+ </scons_example>
+
+ <para>
+
+ &SCons; will execute the specified command string
+ and XXX
+
+ </para>
+
+ <scons_output example="ParseConfig1">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+
+ <para>
+
+ XXX
+
+ </para>

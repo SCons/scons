@@ -1,0 +1,75 @@
+<!-- __COPYRIGHT__ -->
+<tool name="tar">
+<summary>
+XXX
+</summary>
+</tool>
+
+<builder name="Tar">
+<summary>
+Builds a tar archive of the specified files
+and/or directories.
+Unlike most builder methods,
+the
+&b-Tar;
+builder method may be called multiple times
+for a given target;
+each additional call
+adds to the list of entries
+that will be built into the archive.
+
+<example>
+env.Tar('src.tar', 'src')
+
+# Create the stuff.tar file.
+env.Tar('stuff', ['subdir1', 'subdir2'])
+# Also add "another" to the stuff.tar file.
+env.Tar('stuff', 'another')
+
+# Set TARFLAGS to create a gzip-filtered archive.
+env = Environment(TARFLAGS = '-c -z')
+env.Tar('foo.tar.gz', 'foo')
+
+# Also set the suffix to .tgz.
+env = Environment(TARFLAGS = '-c -z',
+                  TARSUFFIX = '.tgz')
+env.Tar('foo')
+</example>
+</summary>
+</builder>
+
+<cvar name="TAR">
+<summary>
+The tar archiver.
+</summary>
+</cvar>
+
+<cvar name="TARCOM">
+<summary>
+The command line used to call the tar archiver.
+</summary>
+</cvar>
+
+<cvar name="TARCOMSTR">
+<summary>
+The string displayed when archiving files
+using the tar archiver.
+If this is not set, then &cv-TARCOM; (the command line) is displayed.
+
+<example>
+env = Environment(TARCOMSTR = "Archiving $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="TARFLAGS">
+<summary>
+General options passed to the tar archiver.
+</summary>
+</cvar>
+
+<cvar name="TARSUFFIX">
+<summary>
+The suffix used for tar file names.
+</summary>
+</cvar>
