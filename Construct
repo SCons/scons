@@ -347,8 +347,6 @@ for $p ($scons) {
 
     push(@src_deps, $archive);
 
-    my @setup_args = ('bdist', 'sdist');
-
     my @build_targets = (
 	"$build/dist/$pkg-$version.$platform.$archsuffix",
 	$archive,
@@ -359,7 +357,9 @@ for $p ($scons) {
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
     # to the directory in which setup.py exists.
-    my $commands = qq(python $build/setup.py @setup_args
+    my @bdist_dirs = ("$build/build/lib", "$build/build/scripts");
+    my $commands = qq(rm -rf @bdist_dirs && python $build/setup.py bdist
+		      python $build/setup.py sdist
                       python $build/setup.py bdist_wininst);
 
     if ($rpm) {
