@@ -158,15 +158,19 @@ test.run(arguments = "--debug=time .")
 expected_total_time = time.time() - start_time - overhead
 line = string.split(test.stdout(), '\n')
 
-expected_command_time = num(r'Command execution time: (\d+\.\d+) seconds', line[1])
-expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', line[3])
-expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', line[5])
-expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', line[6])
+cmdline = filter(lambda x: x[:23] == "Command execution time:", line)
 
-total_time = num(r'Total build time: (\d+\.\d+) seconds', line[7])
-sconscript_time = num(r'Total SConscript file execution time: (\d+\.\d+) seconds', line[8])
-scons_time = num(r'Total SCons execution time: (\d+\.\d+) seconds', line[9])
-command_time = num(r'Total command execution time: (\d+\.\d+) seconds', line[10])
+expected_command_time = num(r'Command execution time: (\d+\.\d+) seconds', cmdline[0])
+expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', cmdline[1])
+expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', cmdline[2])
+expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', cmdline[3])
+
+totalline = filter(lambda x: x[:6] == "Total ", line)
+
+total_time = num(r'Total build time: (\d+\.\d+) seconds', totalline[0])
+sconscript_time = num(r'Total SConscript file execution time: (\d+\.\d+) seconds', totalline[1])
+scons_time = num(r'Total SCons execution time: (\d+\.\d+) seconds', totalline[2])
+command_time = num(r'Total command execution time: (\d+\.\d+) seconds', totalline[3])
 
 def check(expected, actual, tolerance):
     return abs((expected-actual)/actual) <= tolerance

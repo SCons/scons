@@ -56,10 +56,9 @@ def updrive(path):
     """
     drive, rest = os.path.splitdrive(path)
     if drive:
-	return os.path.join(string.upper(drive),rest)
-    else:
-	return path
-	
+        path = string.upper(drive) + rest
+    return path
+
 class PathList(UserList.UserList):
     """This class emulates the behavior of a list, but also implements
     the special "path dissection" attributes we can use to find

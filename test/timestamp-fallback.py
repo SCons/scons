@@ -24,13 +24,23 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
+import imp
 import os
-import string
-import sys
+import os.path
+
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+try:
+    file, name, desc = imp.find_module('md5')
+except ImportError:
+    pass
+else:
+    if desc[2] == imp.C_BUILTIN:
+	print "The 'md5' module is built in to this version of Python."
+	print "Cannot test falling back to timestamps."
+        test.no_result(1);
 
 test.write('md5.py', r"""
 raise ImportError
