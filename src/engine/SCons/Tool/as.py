@@ -61,7 +61,8 @@ def generate(env):
     env['AS']        = env.Detect(assemblers) or 'as'
     env['ASFLAGS']   = SCons.Util.CLVar('')
     env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
-    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['ASPPFLAGS'] = '$ASFLAGS'
+    env['ASPPCOM']   = '$CC $ASPPFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 
 def exists(env):
     return env.Detect(assemblers)
