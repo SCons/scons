@@ -116,11 +116,15 @@ class SConsignFile:
         Write the .sconsign file to disk.
         """
         if self.dirty:
-            file = open(self.sconsign, 'wt')
-            keys = self.entries.keys()
-            keys.sort()
-            for name in keys:
-                file.write("%s: %s\n" % (name, self.entries[name]))
+            try:
+                file = open(self.sconsign, 'wt')
+            except:
+                pass
+            else:
+                keys = self.entries.keys()
+                keys.sort()
+                for name in keys:
+                    file.write("%s: %s\n" % (name, self.entries[name]))
 
 
 class Calculator:
