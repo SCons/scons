@@ -1,0 +1,49 @@
+Welcome to the SCons development tree.  Here's a brief guide (not
+guaranteed to be up-to-date) to what you'll find herein:
+
+admin/
+	Documentation of SCons administrative procedures.  Maybe
+	other administrative stuff in the future.
+
+build/
+        This doesn't exist if you're looking at a vanilla source tree.
+        This is generated as part of our build process, and it's where,
+        believe it or not, we *build* everything.
+
+Construct
+        The "Makefile" for the SCons distribution.  Yes, we're using
+        Cons to build its improved stepchild.  (Of course, this will
+        change to an SConstruct file as soon as we have SCons to the
+        point where it can handle the functionality we need...)
+
+config
+        The Aegis configuration, governing much of how we use Aegis to
+        build, test, control source, etc.
+
+etc/
+        A subdirectory for miscellaneous things that we need.  Right
+        now, it has copies of Python modules that we use for testing,
+        and which we don't want to force people to have to install on
+        their own just to help out with SCons development.
+
+runtest.py
+runtest.sh
+        Scripts for running our tests.  The Python version is used
+        by Aegis for running tests against a copy of the source as
+        extracted from an archive.  The shell version runs tests against
+        the local src/ tree, so you don't have to do a build before
+        testing your changes.  (Hmm, that should probably just be an
+        option to runtest.py...)
+
+src/
+	Where the actual source code is kept, of course.
+
+template/
+        Template files, used by Aegis to give you a head start when you
+        aenf or aent a new file.  I haven't been keeping these up to
+	date...
+
+test/
+        End-to-end tests of the SCons utility itself.  These are
+        separate from the individual module unit tests, which live
+        side-by-side with the modules under src/.

@@ -1,0 +1,56 @@
+Handling a change set:
+
+    --	Start the change:
+
+    		aedb {cnum}	[if it's initiated locally]
+		aedist -r	[if it's a remote submission]
+
+    --	Normal development cycle:
+
+    		aeb
+		aet
+		aet -bl
+		aet -reg	[optional]
+		aed
+		aede
+
+    --	As the reviewer:
+ 
+		aerpass {cnum}
+
+    --	As the integrator:
+
+		aeib {cnum}
+		aeb
+		aet
+		aet -bl
+		aet -reg
+		aed
+		aeipass
+
+    --	Distribute the change to scons-aedist:
+
+		aedist -s -p scons.0.1 {cnum} > scons.0.1.C{cnum}.ae
+		pine -attach scons.0.1C{cnum}.ae scons-aedist@lists.sourceforge.net
+			Subject: scons.0.1 - {SUMMARY}
+			Body:  aegis -l -p scons.0.1 -c {cnum} cd
+
+		rm scons.0.1.C{cnum}.ae
+
+	[This will eventually be automated.]
+
+    --	Update the aedist baseline on the web site:
+
+		aedist -s -bl -p scons.0.1 > scons.0.1.ae
+		scp scons.0.1.ae stevenknight@scons.sourceforge.net:/home/groups/s/sc/scons/htdocs/scons.0.1.ae
+		rm scons.0.1.ae
+
+	[This will eventually be automated.]
+
+    --	Distribute the change to CVS:
+
+		export CVS_RSH=ssh
+    		ae2cvs -n -aegis -p scons.0.1 -c {cnum} -u ~/SCons/scons
+    		ae2cvs -x -aegis -p scons.0.1 -c {cnum} -u ~/SCons/scons
+
+	[This may eventually be automated.]
