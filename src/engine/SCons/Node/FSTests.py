@@ -1368,6 +1368,29 @@ class find_fileTestCase(unittest.TestCase):
         assert os.path.normpath('./bar/baz') in file_names, file_names
         assert os.path.normpath('./pseudo') in file_names, file_names
 
+        import StringIO
+        save_sys_stdout = sys.stdout
+
+        try:
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            SCons.Node.FS.find_file('foo', paths, fs.File, verbose="xyz")
+            expect = "  xyz: looking for 'foo' in '.' ...\n" + \
+                     "  xyz: ... FOUND 'foo' in '.'\n"
+            c = sio.getvalue()
+            assert c == expect, c
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            SCons.Node.FS.find_file('baz', paths, fs.File, verbose=1)
+            expect = "  find_file: looking for 'baz' in '.' ...\n" + \
+                     "  find_file: looking for 'baz' in 'bar' ...\n" + \
+                     "  find_file: ... FOUND 'baz' in 'bar'\n"
+            c = sio.getvalue()
+            assert c == expect, c
+        finally:
+            sys.stdout = save_sys_stdout
+
 class StringDirTestCase(unittest.TestCase):
     def runTest(self):
         """Test using a string as the second argument of
