@@ -150,12 +150,13 @@ class BuildTask(SCons.Taskmaster.Task):
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def show(self):
-        if self.targets[0].has_builder() or self.targets[0].side_effect:
+        if (self.targets[0].has_builder() or self.targets[0].side_effect) \
+           and not os.path.isdir(str(self.targets[0])):
             display("Removed " + str(self.targets[0]))
         if SCons.Script.SConscript.clean_targets.has_key(str(self.targets[0])):
             files = SCons.Script.SConscript.clean_targets[str(self.targets[0])]
             for f in files:
-                SCons.Utils.fs_delete(str(f), 0)
+                SCons.Util.fs_delete(str(f), 0)
 
     def remove(self):
         if self.targets[0].has_builder() or self.targets[0].side_effect:

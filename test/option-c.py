@@ -187,6 +187,16 @@ test.run(arguments = '-c subd', stdout=expect)
 test.fail_test(os.path.exists(test.workpath('foox.in')))
 
 expect = test.wrap_stdout("""Removed foo1.out
+Removed foo2.xxx
+Removed foo2.out
+Removed foo3.out
+Removed %s
+Removed %s
+Removed directory subd
+""" % (os.path.join('subd','foon.in'), os.path.join('subd', 'SConscript')))
+test.run(arguments = '-c -n .', stdout=expect)
+
+expect = test.wrap_stdout("""Removed foo1.out
 Removed foo2.out
 Removed foo3.out
 Removed %s

@@ -42,6 +42,11 @@ RELEASE 0.11 - XXX
   - Fix adding a prefix to a file when the target isn't specified.
     (Bug reported by Esa Ilari Vuokko.)
 
+  From Steve Leblanc:
+
+  - Fix the output of -c -n when directories are involved, so it
+    matches -c.
+
   From Anthony Roach:
 
   - Use a different static object suffix (.os) when using gcc so shared
