@@ -10,6 +10,14 @@
 
 RELEASE 0.97 - XXX
 
+  From Craig Bachelor:
+
+  - Handle white space in the executable Python path name within in MSVS
+    project files by quoting the path.
+
+  - Correct the format of a GUID string in a solution (.dsw) file so
+    MSVS can correctly "build enable" a project.
+
   From Steven Knight:
 
   - Add a must_exist flag to Delete() to let the user control whether

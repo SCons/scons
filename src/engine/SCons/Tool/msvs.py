@@ -74,7 +74,7 @@ def _generateGUID(slnfile, name):
     change with each invocation."""
     solution = _hexdigest(md5.new(str(slnfile)+str(name)).digest()).upper()
     # convert most of the signature to GUID form (discard the rest)
-    solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:28] + "}"
+    solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:20] + "-" + solution[20:32] + "}"
     return solution
 
 # This is how we re-invoke SCons from inside MSVS Project files.
@@ -256,9 +256,9 @@ class _GenerateV6DSP(_DSPGenerator):
                 self.file.write('# PROP %sOutput_Dir "%s"\n'
                                 '# PROP %sIntermediate_Dir "%s"\n' % (base,outdir,base,outdir))
                 (d,c) = os.path.split(str(self.conspath))
-                cmd = '%s -c "%s" -C %s -f %s %s' % (python_executable,
-                                                     exec_script_main,
-                                                     d, c, buildtarget)
+                cmd = '"%s" -c "%s" -C %s -f %s %s' % (python_executable,
+                                                       exec_script_main,
+                                                       d, c, buildtarget)
                 self.file.write('# PROP %sCmd_Line "%s"\n' 
                                 '# PROP %sRebuild_Opt "-c && %s"\n'
                                 '# PROP %sTarget_File "%s"\n'
@@ -414,11 +414,11 @@ class _GenerateV7DSP(_DSPGenerator):
             buildtarget = self.configs[kind].buildtarget
 
             (d,c) = os.path.split(str(self.conspath))
-            cmd = '%s -c &quot;%s&quot; -C %s -f %s %s' % (python_executable,
+            cmd = '&quot;%s&quot; -c &quot;%s&quot; -C %s -f %s %s' % (python_executable,
                                                    exec_script_main_xml,
                                                    d, c, buildtarget)
 
-            cleancmd = '%s -c &quot;%s&quot; -C %s -f %s -c %s' % (python_executable,
+            cleancmd = '&quot;%s&quot; -c &quot;%s&quot; -C %s -f %s -c %s' % (python_executable,
                                                          exec_script_main_xml,
                                                          d, c, buildtarget)
 
