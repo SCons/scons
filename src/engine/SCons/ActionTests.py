@@ -1583,6 +1583,27 @@ class ActionCompareTestCase(unittest.TestCase):
         name = bar.get_name(env)
         assert name == 'BAR', name
 
+    def test_3_dict_names(self):
+        """Test Action/Suffix dicts with get_name.
+
+        Verifies that Action/Suffix dictionaries work correctly,
+        especially two builders that can generate the same suffix,
+        where one of the builders has a suffix dictionary with a None
+        key."""
+        
+        foo = SCons.Builder.Builder(action = '$FOO', suffix = '.foo')
+        bar = SCons.Builder.Builder(action = {}, suffix={None:'.bar'})
+        bar.add_action('.cow', "$MOO")
+        dog = SCons.Builder.Builder(suffix = '.bar')
+        
+        env = Environment( BUILDERS = {'FOO' : foo,
+                                       'BAR' : bar,
+                                       'DOG' : dog} )
+        
+        assert foo.get_name(env) == 'FOO'
+        assert bar.get_name(env) == 'BAR'
+        assert dog.get_name(env) == 'DOG'
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

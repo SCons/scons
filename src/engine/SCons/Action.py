@@ -216,7 +216,7 @@ class ActionBase:
             self.presub = presub
 
     def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
+        return cmp(self.__dict__, other)
 
     def print_cmd_line(self, s, target, source, env):
         sys.stdout.write(s + "\n")
