@@ -5500,6 +5500,15 @@ General options passed to the lexical analyzer generator.
 The command line used to call the lexical analyzer generator
 to generate a source file.
 
+.IP LEXCOMSTR
+The string displayed when generating a source file
+using the lexical analyzer generator.
+If this is not set, then $LEXCOM (the command line) is displayed.
+
+.ES
+env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")
+.EE
+
 .IP _LIBDIRFLAGS
 An automatically-generated construction variable
 containing the linker command-line options
@@ -6621,6 +6630,15 @@ The parser generator.
 .IP YACCCOM
 The command line used to call the parser generator
 to generate a source file.
+
+.IP YACCCOMSTR
+The string displayed when generating a source file
+using the parser generator.
+If this is not set, then $YACCCOM (the command line) is displayed.
+
+.ES
+env = Environment(YACCCOMSTR = "Yacc'ing $TARGET from $SOURCES")
+.EE
 
 .IP YACCFLAGS
 General options passed to the parser generator.

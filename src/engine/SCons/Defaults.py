@@ -134,8 +134,8 @@ ShLinkAction = SCons.Action.Action("$SHLINKCOM", "$SHLINKCOMSTR")
 
 ArAction = SCons.Action.Action("$ARCOM")
 
-LexAction = SCons.Action.Action("$LEXCOM")
-YaccAction = SCons.Action.Action("$YACCCOM")
+LexAction = SCons.Action.Action("$LEXCOM", "$LEXCOMSTR")
+YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 
 ProgScan = SCons.Scanner.Prog.ProgScan()
 
