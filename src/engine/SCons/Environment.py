@@ -749,6 +749,9 @@ class Base:
                     dict['LINKFLAGS'].append(arg)
                 elif arg[:4] == '-Wp,':
                     dict['CPPFLAGS'].append(arg)
+                elif arg == '-pthread':
+                    dict['CCFLAGS'].append(arg)
+                    dict['LINKFLAGS'].append(arg)
                 else:
                     dict['CCFLAGS'].append(arg)
             apply(env.Append, (), dict)
