@@ -14,11 +14,11 @@ Things to do to release a new version of SCons:
 			   cd scons-{version}
 			   python setup.py install
 			   cd scons-src-{version}
-			   python runtest.py -a -x C:\Python15\scons.bat
+			   python runtest.py -a -X -x C:\Python20\scons.bat
 
 			3) scons-{verson}.win32.exe
 			   cd scons-src-{version}
-			   python runtest.py -a -x C:\Python15\scons.bat
+			   python runtest.py -a -X -x C:\Python20\scons.bat
 
 	Read through the README and src/README.txt files for any updates
 

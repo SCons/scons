@@ -18,6 +18,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import string
+import sys
+
 import TestCmd
 
 class TestFailed(Exception):
@@ -73,12 +75,14 @@ class TestSCons(TestCmd.TestCmd):
 	is not necessary.
 	"""
 	if not kw.has_key('program'):
-	    if os.path.exists('scons'):
-		kw['program'] = 'scons'
-	    else:
-		kw['program'] = 'scons.py'
-	if not kw.has_key('interpreter'):
-	    kw['interpreter'] = 'python'
+            kw['program'] = os.environ.get('SCONS')
+            if not kw['program']:
+                if os.path.exists('scons'):
+                    kw['program'] = 'scons'
+                else:
+                    kw['program'] = 'scons.py'
+	if not kw.has_key('interpreter') and not os.environ.get('SCONS_EXEC'):
+	    kw['interpreter'] = sys.executable
 	if not kw.has_key('match'):
 	    kw['match'] = TestCmd.match_exact
 	if not kw.has_key('workdir'):

@@ -23,11 +23,16 @@
 #			debugger (pdb.py) so you don't have to
 #			muck with PYTHONPATH yourself.
 #
+#	-p package	Test against the specified package.
+#
 #	-q		Quiet.  By default, runtest.py prints the
 #			command line it will execute before
 #			executing it.  This suppresses that print.
 #
-#	-p package	Test against the specified package.
+#	-X		The scons "script" is an executable; don't
+#			feed it to Python.
+#
+#       -x scons        The scons script to use for tests.
 #
 # (Note:  There used to be a -v option that specified the SCons
 # version to be tested, when we were installing in a version-specific
@@ -48,20 +53,24 @@ debug = ''
 tests = []
 printcmd = 1
 package = None
+scons = None
+scons_exec = None
 
 if sys.platform == 'win32':
     lib_dir = os.path.join(sys.exec_prefix, "lib")
 else:
     lib_dir = os.path.join(sys.exec_prefix, "lib", "python" + sys.version[0:3])
 
-opts, tests = getopt.getopt(sys.argv[1:], "adqp:",
-			    ['all', 'debug', 'quiet', 'package='])
+opts, tests = getopt.getopt(sys.argv[1:], "adqp:Xx:",
+			    ['all', 'debug', 'exec=', 'quiet', 'package='])
 
 for o, a in opts:
     if o == '-a' or o == '--all': all = 1
     elif o == '-d' or o == '--debug': debug = os.path.join(lib_dir, "pdb.py")
     elif o == '-q' or o == '--quiet': printcmd = 0
     elif o == '-p' or o == '--package': package = a
+    elif o == '-X': scons_exec = 1
+    elif o == '-x' or o == '--exec': scons = a
 
 cwd = os.getcwd()
 
@@ -122,6 +131,12 @@ os.environ['PYTHONPATH'] = lib_dir + \
                            os.path.join(cwd, 'build', 'etc') + \
                            os.pathsep + \
                            os.path.join(cwd, 'etc')
+
+if scons:
+    os.environ['SCONS'] = scons
+
+if scons_exec:
+    os.environ['SCONS_EXEC'] = '1'
 
 os.chdir(scons_dir)
 

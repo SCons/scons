@@ -78,6 +78,11 @@ RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
   - Fix for relative CPPPATH directories in subsidiary SConscript files
     (broken in 0.06).
 
+  From Alex Jacques:
+
+  - Create a better scons.bat file from a py2bat.py script on the Python
+    mailing list two years ago (modeled after pl2bat.pl).
+
   From Steven Knight:
 
   - Fix so that -c -n does *not* remove the targets!
@@ -95,6 +100,10 @@ RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
 
   - Support building a PDF file directly from a TeX or LaTeX file
     using pdftex or pdflatex.
+
+  - Add a -x option to runtest.py to specify the script being tested.
+    A -X option indicates it's an executable, not a script to feed
+    to the Python interpreter.
 
   From Steve Leblanc:
 
