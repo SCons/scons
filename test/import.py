@@ -57,6 +57,7 @@ tools = [
     'cc',
     'CVS',
     'default',
+    'dmd',
     'dvipdf',
     'dvips',
     'f77',

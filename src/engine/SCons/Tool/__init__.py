@@ -323,6 +323,7 @@ def tool_list(platform, env):
         ar = FindTool(ars, env) or ars[0]
 
     other_tools = FindAllTools(['BitKeeper', 'CVS',
+                                'dmd',
                                 'dvipdf', 'dvips', 'gs',
                                 'jar', 'javac', 'javah',
                                 'latex', 'lex', 'm4', 'midl', 'msvs',

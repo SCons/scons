@@ -73,6 +73,10 @@ RELEASE 0.95 - XXX
   - Preserve the ability to call BuildDir() multiple times with the
     same target and source directory arguments.
 
+  From Andy Friesen:
+
+  - Add support for the Digital Mars "D" programming language.
+
   From Scott Lystig Fritchie:
 
   - Fix the ability to use a custom _concat() function in the
