@@ -31,6 +31,12 @@ RELEASE 0.08 -
 
   - Set a "multi" on Aliases so multiple calls will append to an Alias.
 
+  - Fix emitter functions' use of path names when using BuildDir or
+    in subdirectories.
+
+  - Fix --implicit-cache causing redundant rebuilds when the header
+    file list changed.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to

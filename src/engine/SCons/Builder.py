@@ -258,32 +258,27 @@ class BuilderBase:
 
         pre = self.get_prefix(env, args)
         suf = self.get_suffix(env, args)
-        tlist = SCons.Node.arg2nodes(adjustixes(target,
-                                                pre, suf),
-                                     self.target_factory)
         src_suf = self.get_src_suffix(env, args)
-        slist = SCons.Node.arg2nodes(adjustixes(source,
-                                                None,
-                                                src_suf),
-                                     self.source_factory)
         if self.emitter:
+            # pass the targets and sources to the emitter as strings
+            # rather than nodes since str(node) doesn't work 
+            # properly from any directory other than the top directory,
+            # and emitters are called "in" the SConscript directory:
+            tlist = adjustixes(target, pre, suf)
+            slist = adjustixes(source, None, src_suf)
+
             emit_args = { 'target' : tlist,
                           'source' : slist,
                           'env' : env }
             emit_args.update(args)
             target, source = apply(self.emitter, (), emit_args)
 
-            # Have to run it through again in case the
-            # function returns non-Node targets/sources.
-            tlist = SCons.Node.arg2nodes(adjustixes(target,
-                                                    pre, suf),
-                                         self.target_factory)
-            slist = SCons.Node.arg2nodes(adjustixes(source,
-                                                    None,
-                                                    src_suf),
-                                         self.source_factory)
-            
-	return tlist, slist
+        tlist = SCons.Node.arg2nodes(adjustixes(target, pre, suf),
+                                     self.target_factory)
+        slist = SCons.Node.arg2nodes(adjustixes(source, None, src_suf),
+                                     self.source_factory)
+
+        return tlist, slist
 
     def __call__(self, env, target = None, source = None, **kw):
         tlist, slist = self._create_nodes(env, kw, target, source)

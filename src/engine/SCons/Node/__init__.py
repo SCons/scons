@@ -198,7 +198,11 @@ class Node:
                 if calc.current(self, calc.bsig(self)):
                     return
                 else:
+                    # one of this node's sources has changed, so 
+                    # we need to recalculate the implicit deps,
+                    # and the bsig:
                     self.implicit = []
+                    self.bsig = None
 
         for child in self.children(scan=0):
             self._add_child(self.implicit,

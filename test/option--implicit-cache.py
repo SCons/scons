@@ -72,6 +72,11 @@ r"""
 #define BAR_STRING "include/bar.h 1\n"
 """)
 
+test.write(['include', 'baz.h'],
+r"""
+#define BAZ_STRING "include/baz.h 1\n"
+""")
+
 test.write(['subdir', 'prog.c'],
 r"""
 #include <foo.h>
@@ -133,6 +138,50 @@ test.run(program = test.workpath(variant_prog),
          stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
 
 test.up_to_date(arguments = args)
+
+# Make sure that changing the order of includes causes rebuilds and
+# doesn't produce redundant rebuilds:
+test.write(['include', 'foo.h'],
+r"""
+#define	FOO_STRING "include/foo.h 2\n"
+#include "bar.h"
+#include "baz.h"
+""")
+
+test.run(arguments = "--implicit-cache " + args)
+
+test.run(program = test.workpath(prog),
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
+
+test.run(program = test.workpath(subdir_prog),
+         stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
+
+test.run(program = test.workpath(variant_prog),
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
+
+test.up_to_date(arguments = args)
+
+test.write(['include', 'foo.h'],
+r"""
+#define	FOO_STRING "include/foo.h 2\n"
+#include "baz.h"
+#include "bar.h"
+""")
+
+test.run(arguments = "--implicit-cache " + args)
+
+test.run(program = test.workpath(prog),
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
+
+test.run(program = test.workpath(subdir_prog),
+         stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
+
+test.run(program = test.workpath(variant_prog),
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
+
+test.up_to_date(arguments = args)
+
+
 
 # Add inc2/foo.h that should shadow include/foo.h, but
 # because of implicit dependency caching, scons doesn't
