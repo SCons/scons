@@ -299,6 +299,13 @@ class CommandGeneratorAction(ActionBase):
             raise SCons.Errors.UserError("Object returned from command generator: %s cannot be used to create an Action." % repr(ret))
         return gen_cmd
 
+    def strfunction(self, target, source, env):
+        if not SCons.Util.is_List(source):
+            source = [source]
+        rsources = map(rfile, source)
+        act = self.__generate(target, source, env, 0)
+        return act.strfunction(target, rsources, env)
+
     def __call__(self, target, source, env):
         if not SCons.Util.is_List(source):
             source = [source]
@@ -322,10 +329,17 @@ class LazyCmdGenerator:
     def __init__(self, var):
         self.var = SCons.Util.to_String(var)
 
-    def __call__(self, target, source, env, for_signature):
-        if env.has_key(self.var):
+    def strfunction(self, target, source, env):
+        try:
             return env[self.var]
-        else:
+        except KeyError:
+            # The variable reference substitutes to nothing.
+            return ''
+
+    def __call__(self, target, source, env, for_signature):
+        try:
+            return env[self.var]
+        except KeyError:
             # The variable reference substitutes to nothing.
             return ''
 
@@ -393,6 +407,16 @@ class ListAction(ActionBase):
 
     def get_actions(self):
         return self.list
+
+    def strfunction(self, target, source, env):
+        s = []
+        for l in self.list:
+            if l.strfunction:
+                x = l.strfunction(target, source, env)
+                if not SCons.Util.is_List(x):
+                    x = [x]
+                s.extend(x)
+        return string.join(s, "\n")
 
     def __call__(self, target, source, env):
         for l in self.list:

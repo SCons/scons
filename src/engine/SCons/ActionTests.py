@@ -764,6 +764,19 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         a = SCons.Action.CommandGeneratorAction(f)
         assert a.generator == f
 
+    def test_strfunction(self):
+        """Test the command generator Action string function
+        """
+        def f(target, source, env, for_signature, self=self):
+            dummy = env['dummy']
+            self.dummy = dummy
+            return "$FOO"
+        a = SCons.Action.CommandGeneratorAction(f)
+        self.dummy = 0
+        s = a.strfunction([], [], env=Environment(FOO='xyzzy', dummy=1))
+        assert self.dummy == 1, self.dummy
+        assert s == ['xyzzy'], s
+
     def test_execute(self):
         """Test executing a command generator Action
         """
@@ -980,6 +993,17 @@ class ListActionTestCase(unittest.TestCase):
         g = l[1].get_actions()
         assert g == [l[1]], g
 
+    def test_strfunction(self):
+        """Test the string function for a list of subsidiary Actions
+        """
+        def f(target,source,env):
+            pass
+        def g(target,source,env):
+            pass
+        a = SCons.Action.ListAction([f, g, "XXX", f])
+        s = a.strfunction([], [], Environment())
+        assert s == "f([], [])\ng([], [])\nXXX\nf([], [])", s
+
     def test_execute(self):
         """Test executing a list of subsidiary Actions
         """
@@ -1040,6 +1064,15 @@ class LazyActionTestCase(unittest.TestCase):
         a10 = SCons.Action.Action('${FOO}')
         assert isinstance(a9, SCons.Action.CommandGeneratorAction), a10
         assert a10.generator.var == 'FOO', a10.generator.var
+
+    def test_strfunction(self):
+        """Test the lazy-evaluation Action string function
+        """
+        def f(target, source, env):
+            pass
+        a = SCons.Action.Action('$BAR')
+        s = a.strfunction([], [], env=Environment(BAR=f, s=self))
+        assert s == "f([], [])", s
 
     def test_execute(self):
         """Test executing a lazy-evaluation Action

@@ -35,12 +35,14 @@ import shutil
 import TestSCons
 
 python = TestSCons.python
+_exe = TestSCons._exe
+_obj = TestSCons._obj
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache', 'src')
+test.subdir('cache', 'src1', 'src2')
 
-test.write(['src', 'build.py'], r"""
+test.write(['src1', 'build.py'], r"""
 import sys
 open('cat.out', 'ab').write(sys.argv[1] + "\n")
 file = open(sys.argv[1], 'wb')
@@ -49,7 +51,7 @@ for src in sys.argv[2:]:
 file.close()
 """)
 
-test.write(['src', 'SConstruct'], """
+test.write(['src1', 'SConstruct'], """
 def cat(env, source, target):
     target = str(target[0])
     open('cat.out', 'ab').write(target + "\\n")
@@ -67,41 +69,41 @@ env.Internal('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 CacheDir(r'%s')
 """ % (python, test.workpath('cache')))
 
-test.write(['src', 'aaa.in'], "aaa.in\n")
-test.write(['src', 'bbb.in'], "bbb.in\n")
-test.write(['src', 'ccc.in'], "ccc.in\n")
+test.write(['src1', 'aaa.in'], "aaa.in\n")
+test.write(['src1', 'bbb.in'], "bbb.in\n")
+test.write(['src1', 'ccc.in'], "ccc.in\n")
 
 # Verify that a normal build works correctly, and clean up.
 # This should populate the cache with our derived files.
-test.run(chdir = 'src', arguments = '.')
+test.run(chdir = 'src1', arguments = '.')
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
+test.fail_test(test.read(['src1', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
 
-test.fail_test(test.read(['src', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
+test.fail_test(test.read(['src1', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
 
-test.up_to_date(chdir = 'src', arguments = '.')
+test.up_to_date(chdir = 'src1', arguments = '.')
 
-test.run(chdir = 'src', arguments = '-c .')
-test.unlink(['src', 'cat.out'])
+test.run(chdir = 'src1', arguments = '-c .')
+test.unlink(['src1', 'cat.out'])
 
 # Verify that we now retrieve the derived files from cache,
 # not rebuild them.  Then clean up.
-test.run(chdir = 'src', arguments = '.', stdout = test.wrap_stdout("""\
+test.run(chdir = 'src1', arguments = '.', stdout = test.wrap_stdout("""\
 Retrieved `aaa.out' from cache
 Retrieved `bbb.out' from cache
 Retrieved `ccc.out' from cache
 Retrieved `all' from cache
 """))
 
-test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
+test.fail_test(os.path.exists(test.workpath('src1', 'cat.out')))
 
-test.up_to_date(chdir = 'src', arguments = '.')
+test.up_to_date(chdir = 'src1', arguments = '.')
 
-test.run(chdir = 'src', arguments = '-c .')
+test.run(chdir = 'src1', arguments = '-c .')
 
 # Verify that using --cache-show reports the files as being rebuilt,
 # even though we actually fetch them from the cache.  Then clean up.
-test.run(chdir = 'src',
+test.run(chdir = 'src1',
          arguments = '--cache-show .',
          stdout = test.wrap_stdout("""\
 %s build.py aaa.out aaa.in
@@ -110,16 +112,16 @@ cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
 """ % (python, python)))
 
-test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
+test.fail_test(os.path.exists(test.workpath('src1', 'cat.out')))
 
-test.up_to_date(chdir = 'src', arguments = '.')
+test.up_to_date(chdir = 'src1', arguments = '.')
 
-test.run(chdir = 'src', arguments = '-c .')
+test.run(chdir = 'src1', arguments = '-c .')
 
 # Verify that using --cache-show -n reports the files as being rebuilt,
 # even though we don't actually fetch them from the cache.  No need to
 # clean up.
-test.run(chdir = 'src',
+test.run(chdir = 'src1',
          arguments = '--cache-show -n .',
          stdout = test.wrap_stdout("""\
 %s build.py aaa.out aaa.in
@@ -128,21 +130,61 @@ cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
 """ % (python, python)))
 
-test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
+test.fail_test(os.path.exists(test.workpath('src1', 'cat.out')))
 
-test.fail_test(os.path.exists(test.workpath('src', 'aaa.out')))
-test.fail_test(os.path.exists(test.workpath('src', 'bbb.out')))
-test.fail_test(os.path.exists(test.workpath('src', 'ccc.out')))
-test.fail_test(os.path.exists(test.workpath('src', 'all')))
+test.fail_test(os.path.exists(test.workpath('src1', 'aaa.out')))
+test.fail_test(os.path.exists(test.workpath('src1', 'bbb.out')))
+test.fail_test(os.path.exists(test.workpath('src1', 'ccc.out')))
+test.fail_test(os.path.exists(test.workpath('src1', 'all')))
 
 # Verify that using --cache-show -s doesn't report anything, even though
 # we do fetch the files from the cache.  No need to clean up.
-test.run(chdir = 'src',
+test.run(chdir = 'src1',
          arguments = '--cache-show -s .',
          stdout = "")
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
+test.fail_test(test.read(['src1', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
+test.fail_test(os.path.exists(test.workpath('src1', 'cat.out')))
+
+#
+hello_exe = 'hello' + _exe
+hello_obj = 'hello' + _obj
+src2_hello = test.workpath('src2', hello_exe)
+
+test.write(['src2', 'SConstruct'], """
+env = Environment()
+env.Program('hello.c')
+CacheDir(r'%s')
+""" % (test.workpath('cache')))
+
+test.write(['src2', 'hello.c'], r"""\
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("src2/hello.c\n");
+	exit (0);
+}
+""")
+
+# Normal build.
+test.run(chdir = 'src2', arguments = '.')
+
+test.run(program = src2_hello, stdout = "src2/hello.c\n")
+
+test.up_to_date(chdir = 'src2', arguments = '.')
+
+test.run(chdir = 'src2', arguments = '-c .')
+
+# Verify that using --cache-show doesn't blow up.
+# Don't bother checking the output, since we verified the correct
+# behavior above.  We just want to make sure the canonical Program()
+# invocation works with --cache-show.
+test.run(chdir = 'src2', arguments = '--cache-show .')
+
+test.run(program = src2_hello, stdout = "src2/hello.c\n")
+
+test.up_to_date(chdir = 'src2', arguments = '.')
 
 # All done.
 test.pass_test()

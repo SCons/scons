@@ -1246,11 +1246,12 @@ class File(Entry):
             if self.fs.cache_show:
                 if CacheRetrieveSilent(self, None, None) == 0:
                     def do_print(action, targets, sources, env, self=self):
-                        al = action.strfunction(targets, self.sources, env)
-                        if not SCons.Util.is_List(al):
-                            al = [al]
-                        for a in al:
-                            action.show(a)
+                        if action.strfunction:
+                            al = action.strfunction(targets, self.sources, env)
+                            if not SCons.Util.is_List(al):
+                                al = [al]
+                            for a in al:
+                                action.show(a)
                     self._for_each_action(do_print)
                     return
             elif CacheRetrieve(self, None, None) == 0:

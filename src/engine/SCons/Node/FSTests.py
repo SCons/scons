@@ -86,11 +86,11 @@ class Action:
         return [self]
 
 class Builder:
-    def __init__(self, factory):
+    def __init__(self, factory, action=Action()):
         self.factory = factory
         self.env = Environment()
         self.overrides = {}
-        self.action = Action()
+        self.action = action
 
     def get_actions(self):
         return [self]
@@ -1498,6 +1498,32 @@ class CacheDirTestCase(unittest.TestCase):
             os.mkdir = save_mkdir
             SCons.Warnings.warningAsException(old_warn_exceptions)
             SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
+
+        # Verify that we don't blow up if there's no strfunction()
+        # for an action.
+        act = Action()
+        act.strfunction = None
+        f8 = fs.File("cd.f8")
+        f8.builder_set(Builder(fs.File, action=act))
+        f8.env_set(Environment())
+        try:
+            SCons.Node.FS.CacheRetrieveSilent = retrieve_succeed
+            self.retrieved = []
+            built_it = None
+
+            f8.build()
+            assert self.retrieved == [f8], self.retrieved
+            assert built_it is None, built_it
+
+            SCons.Node.FS.CacheRetrieveSilent = retrieve_fail
+            self.retrieved = []
+            built_it = None
+
+            f8.build()
+            assert self.retrieved == [f8], self.retrieved
+            assert built_it, built_it
+        finally:
+            SCons.Node.FS.CacheRetrieveSilent = save_CacheRetrieveSilent
 
 class clearTestCase(unittest.TestCase):
     def runTest(self):

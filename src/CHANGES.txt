@@ -46,6 +46,10 @@ RELEASE 0.XX - XXX
   - Cache the computed list of Node children minus those being Ignored
     so it's only calculated once.
 
+  - Fix use of the --cache-show option when building a Program()
+    (or using any other arbitrary action) by making sure all Action
+    instances have strfunction() methods.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building
