@@ -140,11 +140,15 @@ newline: '\n';
 
     test.run(arguments = 'foo' + _exe, stderr = None)
 
+    test.up_to_date(arguments = 'foo' + _exe)
+
     test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
     test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "foo.y\n")
 
     test.run(arguments = 'bar' + _exe)
+
+    test.up_to_date(arguments = 'bar' + _exe)
 
     test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 

@@ -80,9 +80,11 @@ class SharedCmdGenerator:
 
 def yaccEmitter(target, source, env, **kw):
     # Yacc can be configured to emit a .h file as well
-    # as a .c file.  Append that as a target.
-    if len(source) and os.path.splitext(SCons.Util.to_String(source[0]))[1] in \
-       [ '.y', '.yy']:
+    # as a .c file, if -d is specified on the command line.
+    if len(source) and \
+       os.path.splitext(SCons.Util.to_String(source[0]))[1] in \
+       [ '.y', '.yy'] and \
+       '-d' in string.split(env.subst("$YACCFLAGS")):
         target.append(os.path.splitext(SCons.Util.to_String(target[0]))[0] + \
                       '.h')
     return (target, source)
@@ -191,21 +193,13 @@ def win32LinkGenerator(env, target, source, **kw):
     args.extend(map(SCons.Util.to_String, source))
     return win32TempFileMunge(env, args)
 
-kw = {
-       'name'        : 'Program',
-       'prefix'      : '$PROGPREFIX',
-       'suffix'      : '$PROGSUFFIX',
-       'src_suffix'  : '$OBJSUFFIX',
-       'src_builder' : Object,
-       'scanner'     : SCons.Scanner.Prog.ProgScan()
-}
-
-if sys.platform == 'win32':
-    kw['generator'] = win32LinkGenerator
-else:
-    kw['action'] = '$LINKCOM'
-
-Program = apply(SCons.Builder.Builder, (), kw)
+Program = SCons.Builder.Builder(name='Program',
+                                action='$LINKCOM',
+                                prefix='$PROGPREFIX',
+                                suffix='$PROGSUFFIX',
+                                src_suffix='$OBJSUFFIX',
+                                src_builder=Object,
+                                scanner = SCons.Scanner.Prog.ProgScan())
 
 class LibAffixGenerator:
     def __init__(self, static, shared):
