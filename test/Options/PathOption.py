@@ -119,6 +119,39 @@ non_existing_file = test.workpath('non_existing_file')
 test.write('SConstruct', """\
 opts = Options(args=ARGUMENTS)
 opts.AddOptions(
+    PathOption('X', 'X variable', r'%s', validator=PathOption.PathAccept),
+    )
+
+env = Environment(options=opts)
+
+print env['X']
+
+Default(env.Alias('dummy', None))
+""" % default_subdir)
+
+test.run()
+check([default_subdir])
+
+test.run(arguments='"X=%s"' % existing_file)
+check([existing_file])
+
+test.run(arguments='"X=%s"' % non_existing_file)
+check([non_existing_file])
+
+test.run(arguments='"X=%s"' % existing_subdir)
+check([existing_subdir])
+
+test.run(arguments='"X=%s"' % non_existing_subdir)
+check([non_existing_subdir])
+
+test.must_not_exist(non_existing_file)
+test.must_not_exist(non_existing_subdir)
+
+
+
+test.write('SConstruct', """\
+opts = Options(args=ARGUMENTS)
+opts.AddOptions(
     PathOption('X', 'X variable', r'%s', validator=PathOption.PathIsFile),
     )
 
