@@ -393,21 +393,23 @@ for $p ($scons) {
         push(@install_targets, @targets);
     };
 
+    @build_src_files = map("$build/$_", @src_files);
+
     if ($dh_builddeb && $fakeroot) {
         # Debian builds directly into build/dist, so we don't
         # need to add the .debs to the install_targets.
         my $deb = "build/dist/${pkg}_$version-1_all.deb";
-        push(@build_targets, $deb);
-        $env->Depends($deb, @{$p->{'debian_deps'}});
-        $commands .= qq(
+	$env->Command($deb, @build_src_files, qq(
+		rm -f %>
                 fakeroot make -f debian/rules VERSION=%VERSION DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-$pkg
-                env DH_COMPAT=$DH_COMPAT dh_clean);
+                env DH_COMPAT=$DH_COMPAT dh_clean));
+        $env->Depends($deb, @{$p->{'debian_deps'}});
     }
 
     #
     # Now set up creation and installation of the packages.
     #
-    $env->Command([@build_targets], map("$build/$_", @src_files), $commands);
+    $env->Command([@build_targets], @build_src_files, $commands);
 
     $env->Install("build/dist", @install_targets);
 
