@@ -99,6 +99,7 @@ tools = [
     'suncc',
     'sunlink',
     'Subversion',
+    'swig',
     'tar',
     'tex',
     'yacc',

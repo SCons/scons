@@ -95,6 +95,7 @@ SCons/Tool/sunar.py
 SCons/Tool/suncc.py
 SCons/Tool/sunlink.py
 SCons/Tool/Subversion.py
+SCons/Tool/swig.py
 SCons/Tool/tar.py
 SCons/Tool/tex.py
 SCons/Tool/yacc.py

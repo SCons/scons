@@ -370,17 +370,26 @@ class BuilderTestCase(unittest.TestCase):
         my_env['FOO'] = 'abracadabra'
         assert builder.get_prefix(my_env) == "gen_prefix() says abracadabra"
 
-        builder = SCons.Builder.Builder(prefix = {None  : 'default-',
-                                                  '.in' : 'out-',
-                                                  '.x'  : 'y-'})
-        tgt = builder(env, source = 'f1')
+        def my_emit(env, sources):
+            return env.subst('$EMIT')
+        my_env = Environment(FOO = '.foo', EMIT = 'emit-')
+        builder = SCons.Builder.Builder(prefix = {None   : 'default-',
+                                                  '.in'  : 'out-',
+                                                  '.x'   : 'y-',
+                                                  '$FOO' : 'foo-',
+                                                  '.zzz' : my_emit})
+        tgt = builder(my_env, source = 'f1')
         assert tgt.path == 'default-f1', tgt.path
-        tgt = builder(env, source = 'f2.c')
+        tgt = builder(my_env, source = 'f2.c')
         assert tgt.path == 'default-f2', tgt.path
-        tgt = builder(env, source = 'f3.in')
+        tgt = builder(my_env, source = 'f3.in')
         assert tgt.path == 'out-f3', tgt.path
-        tgt = builder(env, source = 'f4.x')
+        tgt = builder(my_env, source = 'f4.x')
         assert tgt.path == 'y-f4', tgt.path
+        tgt = builder(my_env, source = 'f5.foo')
+        assert tgt.path == 'foo-f5', tgt.path
+        tgt = builder(my_env, source = 'f6.zzz')
+        assert tgt.path == 'emit-f6', tgt.path
 
     def test_src_suffix(self):
         """Test Builder creation with a specified source file suffix
@@ -444,17 +453,26 @@ class BuilderTestCase(unittest.TestCase):
         my_env['BAR'] = 'presto chango'
         assert builder.get_suffix(my_env) == "gen_suffix() says presto chango"
 
-        builder = SCons.Builder.Builder(suffix = {None  : '.default',
-                                                  '.in' : '.out',
-                                                  '.x'  : '.y'})
-        tgt = builder(env, source = 'f1')
+        def my_emit(env, sources):
+            return env.subst('$EMIT')
+        my_env = Environment(BAR = '.bar', EMIT = '.emit')
+        builder = SCons.Builder.Builder(suffix = {None   : '.default',
+                                                  '.in'  : '.out',
+                                                  '.x'   : '.y',
+                                                  '$BAR' : '.new',
+                                                  '.zzz' : my_emit})
+        tgt = builder(my_env, source = 'f1')
         assert tgt.path == 'f1.default', tgt.path
-        tgt = builder(env, source = 'f2.c')
+        tgt = builder(my_env, source = 'f2.c')
         assert tgt.path == 'f2.default', tgt.path
-        tgt = builder(env, source = 'f3.in')
+        tgt = builder(my_env, source = 'f3.in')
         assert tgt.path == 'f3.out', tgt.path
-        tgt = builder(env, source = 'f4.x')
+        tgt = builder(my_env, source = 'f4.x')
         assert tgt.path == 'f4.y', tgt.path
+        tgt = builder(my_env, source = 'f5.bar')
+        assert tgt.path == 'f5.new', tgt.path
+        tgt = builder(my_env, source = 'f6.zzz')
+        assert tgt.path == 'f6.emit', tgt.path
 
     def test_ListBuilder(self):
         """Testing ListBuilder class."""
@@ -513,6 +531,7 @@ class BuilderTestCase(unittest.TestCase):
         builder2 = SCons.Builder.MultiStepBuilder(action='bar',
                                                   src_builder = builder1,
                                                   src_suffix = '.foo')
+
         tgt = builder2(env, target='baz', source=['test.bar', 'test2.foo', 'test3.txt'])
         assert str(tgt.sources[0]) == 'test.foo', str(tgt.sources[0])
         assert str(tgt.sources[0].sources[0]) == 'test.bar', \
@@ -530,6 +549,25 @@ class BuilderTestCase(unittest.TestCase):
                                                   src_builder = 'xyzzy',
                                                   src_suffix = '.xyzzy')
         assert builder3.get_src_builders(Environment()) == []
+
+        builder4 = SCons.Builder.Builder(action='bld4',
+                                         src_suffix='.i',
+                                         suffix='_wrap.c')
+        builder5 = SCons.Builder.MultiStepBuilder(action='bld5',
+                                                  src_builder=builder4,
+                                                  suffix='.obj',
+                                                  src_suffix='.c')
+        builder6 = SCons.Builder.MultiStepBuilder(action='bld6',
+                                                  src_builder=builder5,
+                                                  suffix='.exe',
+                                                  src_suffix='.obj')
+        tgt = builder6(env, 'test', 'test.i')
+        assert str(tgt) == 'test.exe', str(tgt)
+        assert str(tgt.sources[0]) == 'test_wrap.obj', str(tgt.sources[0])
+        assert str(tgt.sources[0].sources[0]) == 'test_wrap.c', \
+               str(tgt.sources[0].sources[0])
+        assert str(tgt.sources[0].sources[0].sources[0]) == 'test.i', \
+               str(tgt.sources[0].sources[0].sources[0])
         
     def test_CompositeBuilder(self):
         """Testing CompositeBuilder class."""

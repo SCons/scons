@@ -92,6 +92,8 @@ RELEASE 0.XX - XXX
     source Node, not by trying to create the right string to pass to
     arg2nodes().
 
+  - Add support for SWIG.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

@@ -194,7 +194,7 @@ def createCFileBuilders(env):
     except KeyError:
         c_file = SCons.Builder.Builder(action = {},
                                        emitter = {},
-                                       suffix = '$CFILESUFFIX')
+                                       suffix = {None:'$CFILESUFFIX'})
         env['BUILDERS']['CFile'] = c_file
         env['CFILESUFFIX'] = '.c'
 
@@ -203,7 +203,7 @@ def createCFileBuilders(env):
     except KeyError:
         cxx_file = SCons.Builder.Builder(action = {},
                                          emitter = {},
-                                         suffix = '$CXXFILESUFFIX')
+                                         suffix = {None:'$CXXFILESUFFIX'})
         env['BUILDERS']['CXXFile'] = cxx_file
         env['CXXFILESUFFIX'] = '.cc'
 
@@ -310,6 +310,7 @@ def tool_list(platform, env):
                                 'pdflatex', 'pdftex', 'Perforce',
                                 'RCS', 'rmic', 'SCCS',
                                 # 'Subversion',
+                                'swig',
                                 'tar', 'tex', 'yacc', 'zip'],
                                env)
 

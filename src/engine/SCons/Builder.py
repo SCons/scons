@@ -122,8 +122,9 @@ class Selector(UserDict.UserDict):
             # emitter_dict before giving up.
             s_dict = {}
             for (k,v) in self.items():
-                s_k = env.subst(k)
-                s_dict[s_k] = v
+                if not k is None:
+                    s_k = env.subst(k)
+                    s_dict[s_k] = v
             try:
                 return s_dict[ext]
             except KeyError:
@@ -131,6 +132,15 @@ class Selector(UserDict.UserDict):
                     return self[None]
                 except KeyError:
                     return None
+
+class CallableSelector(Selector):
+    """A callable dictionary that wills, in turn, call the value it
+    finds if it can."""
+    def __call__(self, env, source):
+        value = Selector.__call__(self, env, source)
+        if callable(value):
+            value = value(env, source)
+        return value
 
 class DictEmitter(Selector):
     """A callable dictionary that maps file suffixes to emitters.
@@ -198,7 +208,7 @@ def _init_nodes(builder, env, overrides, tlist, slist):
                 raise UserError, "Two different environments were specified for the same target: %s"%str(t)
             elif t.overrides != overrides:
                 raise UserError, "Two different sets of overrides were specified for the same target: %s"%str(t)
-            elif builder.scanner and builder.scanner != t.target_scanner:
+            elif builder.scanner and t.target_scanner and builder.scanner != t.target_scanner:
                 raise UserError, "Two different scanners were specified for the same target: %s"%str(t)
 
             if builder.multi:
@@ -293,10 +303,10 @@ class BuilderBase:
         self.action = SCons.Action.Action(action)
         self.multi = multi
         if SCons.Util.is_Dict(prefix):
-            prefix = Selector(prefix)
+            prefix = CallableSelector(prefix)
         self.prefix = prefix
         if SCons.Util.is_Dict(suffix):
-            suffix = Selector(suffix)
+            suffix = CallableSelector(suffix)
         self.suffix = suffix
         self.env = env
         self.overrides = overrides
@@ -419,7 +429,7 @@ class BuilderBase:
         return tlist
 
     def adjust_suffix(self, suff):
-        if suff and not suff[0] in [ '.', '$' ]:
+        if suff and not suff[0] in [ '.', '_', '$' ]:
             return '.' + suff
         return suff
 
@@ -553,10 +563,9 @@ class MultiStepBuilder(BuilderBase):
         src_suffixes = self.src_suffixes(env)
 
         for snode in slist:
-            path, ext = self.splitext(snode.get_abspath())
+            base, ext = self.splitext(str(snode))
             if sdict.has_key(ext):
-                src_bld = sdict[ext]
-                tgt = apply(src_bld, (env, path, snode), kw)
+                tgt = apply(sdict[ext], (env, None, snode), kw)
                 # Only supply the builder with sources it is capable
                 # of building.
                 if SCons.Util.is_List(tgt):
