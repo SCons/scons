@@ -201,6 +201,11 @@ class DummyEnvironment:
     def subst(self, arg):
         return arg
 
+    def subst_path(self, path):
+        if type(path) != type([]):
+            path = [path]
+        return map(self.subst, path)
+
     def has_key(self, key):
         return self.Dictionary().has_key(key)
 
