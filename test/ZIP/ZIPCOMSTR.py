@@ -1,13 +1,4 @@
-"""SCons.Tool.tar
-
-Tool-specific initialization for tar.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -33,33 +24,44 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Action
-import SCons.Builder
-import SCons.Node.FS
-import SCons.Util
+"""
+Test that the $ZIPCOMSTR construction variable allows you to customize
+the displayed string when zip is called.
+"""
 
-tars = ['tar', 'gtar']
+import TestSCons
 
-TarAction = SCons.Action.Action('$TARCOM', '$TARCOMSTR')
+python = TestSCons.python
 
-TarBuilder = SCons.Builder.Builder(action = TarAction,
-                                   source_factory = SCons.Node.FS.default_fs.Entry,
-				   suffix = '$TARSUFFIX',
-                                   multi = 1)
+test = TestSCons.TestSCons()
 
 
-def generate(env):
-    """Add Builders and construction variables for tar to an Environment."""
-    try:
-        bld = env['BUILDERS']['Tar']
-    except KeyError:
-        bld = TarBuilder
-        env['BUILDERS']['Tar'] = bld
 
-    env['TAR']        = env.Detect(tars) or 'gtar'
-    env['TARFLAGS']   = SCons.Util.CLVar('-c')
-    env['TARCOM']     = '$TAR $TARFLAGS -f $TARGET $SOURCES'
-    env['TARSUFFIX']  = '.tar'
+test.write('myzip.py', """
+import sys
+outfile = open(sys.argv[1], 'wb')
+for f in sys.argv[2:]:
+    infile = open(f, 'rb')
+    for l in filter(lambda l: l != '/*zip*/\\n', infile.readlines()):
+        outfile.write(l)
+sys.exit(0)
+""")
 
-def exists(env):
-    return env.Detect(tars)
+test.write('SConstruct', """
+env = Environment(tools=['zip'],
+                  ZIPCOM = r'%s myzip.py $TARGET $SOURCES',
+                  ZIPCOMSTR = 'Zipping $TARGET from $SOURCE')
+env.Zip('aaa.zip', 'aaa.in')
+""" % python)
+
+test.write('aaa.in', "aaa.in\n/*zip*/\n")
+
+test.run(stdout = test.wrap_stdout("""\
+Zipping aaa.zip from aaa.in
+"""))
+
+test.must_match('aaa.zip', "aaa.in\n")
+
+
+
+test.pass_test()
