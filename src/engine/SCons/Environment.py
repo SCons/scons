@@ -1179,3 +1179,33 @@ class Base:
 # class to SCons.Environment.Environment.
 
 Environment = Base
+
+# An entry point for returning a proxy subclass instance that overrides
+# the subst*() methods so they don't actually perform construction
+# variable substitution.  This is specifically intended to be the shim
+# layer in between global function calls (which don't want construction
+# variable substitution) and the DefaultEnvironment() (which would
+# substitute variables if left to its own devices)."""
+#
+# We have to wrap this in a function that allows us to delay definition of
+# the class until it's necessary, so that when it subclasses Environment
+# it will pick up whatever Environment subclass the wrapper interface
+# might have assigned to SCons.Environment.Environment.
+
+def NoSubstitutionProxy(subject):
+    class _NoSubstitutionProxy(Environment):
+        def __init__(self, subject):
+            self.__dict__['__subject'] = subject
+        def __getattr__(self, name):
+            return getattr(self.__dict__['__subject'], name)
+        def __setattr__(self, name, value):
+            return setattr(self.__dict__['__subject'], name, value)
+        def subst(self, string, *args, **kwargs):
+            return string
+        def subst_kw(self, kw, *args, **kwargs):
+            return kw
+        def subst_list(self, string, *args, **kwargs):
+            if not SCons.Util.is_List(string):
+                string = [[string]]
+            return string
+    return _NoSubstitutionProxy(subject)

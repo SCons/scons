@@ -77,7 +77,9 @@ env.Command(target = 'f3.out', source = 'f3.in',
 Command(target = 'f4.out', source = 'sub', action = sub)
 env.Command(target = 'f5.out', source = 'f5.in', action = buildIt,
             XYZZY="XYZZY is set")
-""" % (python, python, python, python))
+Command(target = 'f6.out', source = 'f6.in',
+        action = r'%s' + " build.py f6.out f6.in")
+""" % (python, python, python, python, python))
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
@@ -86,13 +88,15 @@ test.write(['sub', 'f4a'], "sub/f4a\n")
 test.write(['sub', 'f4b'], "sub/f4b\n")
 test.write(['sub', 'f4c'], "sub/f4c\n")
 test.write('f5.in', "f5.in\n")
+test.write('f6.in', "f6.in\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1.in\n")
-test.fail_test(test.read('f2.out') != "f2.in\n")
-test.fail_test(test.read('f3.out') != "f3.in\n")
-test.fail_test(test.read('f4.out') != "sub/f4a\nsub/f4b\nsub/f4c\n")
-test.fail_test(test.read('f5.out') != "XYZZY is set\nf5.in\n")
+test.must_match('f1.out', "f1.in\n")
+test.must_match('f2.out', "f2.in\n")
+test.must_match('f3.out', "f3.in\n")
+test.must_match('f4.out', "sub/f4a\nsub/f4b\nsub/f4c\n")
+test.must_match('f5.out', "XYZZY is set\nf5.in\n")
+test.must_match('f6.out', "f6.in\n")
 
 test.pass_test()

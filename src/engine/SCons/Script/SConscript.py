@@ -550,30 +550,8 @@ _DefaultEnvironmentProxy = None
 def get_DefaultEnvironmentProxy():
     global _DefaultEnvironmentProxy
     if not _DefaultEnvironmentProxy:
-        class EnvironmentProxy(SCons.Environment.Environment):
-            """A proxy subclass for an environment instance that overrides
-            the subst() and subst_list() methods so they don't actually
-            actually perform construction variable substitution.  This is
-            specifically intended to be the shim layer in between global
-            function calls (which don't want want construction variable
-            substitution) and the DefaultEnvironment() (which would
-            substitute variables if left to its own devices)."""
-            def __init__(self, subject):
-                self.__dict__['__subject'] = subject
-            def __getattr__(self, name):
-                return getattr(self.__dict__['__subject'], name)
-            def __setattr__(self, name, value):
-                return setattr(self.__dict__['__subject'], name, value)
-            def subst(self, string, raw=0, target=None, source=None):
-                return string
-            def subst_kw(self, kw, raw=0, target=None, source=None):
-                return kw
-            def subst_list(self, string, raw=0, target=None, source=None):
-                if not SCons.Util.is_List(string):
-                    string = [[string]]
-                return string
         default_env = SCons.Defaults.DefaultEnvironment()
-        _DefaultEnvironmentProxy = EnvironmentProxy(default_env)
+        _DefaultEnvironmentProxy = SCons.Environment.NoSubstitutionProxy(default_env)
     return _DefaultEnvironmentProxy
 
 class DefaultEnvironmentCall:

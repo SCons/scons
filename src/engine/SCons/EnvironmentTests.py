@@ -2352,7 +2352,100 @@ class EnvironmentTestCase(unittest.TestCase):
         assert f == 'foo', f
 
 
+
+class NoSubstitutionProxyTestCase(unittest.TestCase):
+
+    def test___init__(self):
+        """Test NoSubstitutionProxy initialization"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        assert env['XXX'] == 'x', env['XXX']
+        assert env['YYY'] == 'y', env['YYY']
+
+        proxy = NoSubstitutionProxy(env)
+        assert proxy['XXX'] == 'x', proxy['XXX']
+        assert proxy['YYY'] == 'y', proxy['YYY']
+
+    def test_attributes(self):
+        """Test getting and setting NoSubstitutionProxy attributes"""
+        env = Environment()
+        setattr(env, 'env_attr', 'value1')
+
+        proxy = NoSubstitutionProxy(env)
+        setattr(proxy, 'proxy_attr', 'value2')
+
+        x = getattr(env, 'env_attr')
+        assert x == 'value1', x
+        x = getattr(proxy, 'env_attr')
+        assert x == 'value1', x
+
+        x = getattr(env, 'proxy_attr')
+        assert x == 'value2', x
+        x = getattr(proxy, 'proxy_attr')
+        assert x == 'value2', x
+
+    def test_subst(self):
+        """Test the NoSubstitutionProxy.subst() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        assert env['XXX'] == 'x', env['XXX']
+        assert env['YYY'] == 'y', env['YYY']
+
+        proxy = NoSubstitutionProxy(env)
+        assert proxy['XXX'] == 'x', proxy['XXX']
+        assert proxy['YYY'] == 'y', proxy['YYY']
+
+        x = env.subst('$XXX')
+        assert x == 'x', x
+        x = proxy.subst('$XXX')
+        assert x == '$XXX', x
+
+        x = proxy.subst('$YYY', raw=7, target=None, source=None,
+                        dict=None, conv=None,
+                        extra_meaningless_keyword_argument=None)
+        assert x == '$YYY', x
+
+    def test_subst_kw(self):
+        """Test the NoSubstitutionProxy.subst_kw() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        assert env['XXX'] == 'x', env['XXX']
+        assert env['YYY'] == 'y', env['YYY']
+
+        proxy = NoSubstitutionProxy(env)
+        assert proxy['XXX'] == 'x', proxy['XXX']
+        assert proxy['YYY'] == 'y', proxy['YYY']
+
+        x = env.subst_kw({'$XXX':'$YYY'})
+        assert x == {'x':'y'}, x
+        x = proxy.subst_kw({'$XXX':'$YYY'})
+        assert x == {'$XXX':'$YYY'}, x
+
+    def test_subst_list(self):
+        """Test the NoSubstitutionProxy.subst_list() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        assert env['XXX'] == 'x', env['XXX']
+        assert env['YYY'] == 'y', env['YYY']
+
+        proxy = NoSubstitutionProxy(env)
+        assert proxy['XXX'] == 'x', proxy['XXX']
+        assert proxy['YYY'] == 'y', proxy['YYY']
+
+        x = env.subst_list('$XXX')
+        assert x == [['x']], x
+        x = proxy.subst_list('$XXX')
+        assert x == [['$XXX']], x
+
+        x = proxy.subst_list('$YYY', raw=7, target=None, source=None,
+                             dict=None, conv=None,
+                             extra_meaningless_keyword_argument=None)
+        assert x == [['$YYY']], x
+
+
+
 if __name__ == "__main__":
-    suite = unittest.makeSuite(EnvironmentTestCase, 'test_')
+    suite = unittest.TestSuite()
+    tclasses = [ EnvironmentTestCase,
+                 NoSubstitutionProxyTestCase ]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)
