@@ -4303,22 +4303,24 @@ env.Program(target = 'foo', source = 'foo.c')
 
 .ES
 env = Environment()
-env.StaticLibrary(target = 'foo', source = 'l1.c l2.c')
+env.StaticLibrary(target = 'foo', source = Split('l1.c l2.c'))
+env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
 .EE
 
 .SS Building a Shared Library
 
 .ES
 env = Environment()
-env.SharedLibrary(target = 'foo', source = 'l3.c l4.c')
+env.SharedLibrary(target = 'foo', source = ['l5.c', 'l6.c'])
+env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
 .EE
 
 .SS Linking a Local Library Into a Program
 
 .ES
 env = Environment(LIBS = 'mylib', LIBPATH = ['.'])
-env.Library(target = 'mylib', source = 'l1.c l2.c')
-env.Program(target = 'prog', source = 'p1.c p2.c')
+env.Library(target = 'mylib', source = Split('l1.c l2.c'))
+env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
 .EE
 
 .SS Defining Your Own Builder Object
