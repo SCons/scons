@@ -164,7 +164,7 @@ class Executor:
 
     def nullify(self):
         self.__call__ = self.do_nothing
-        self.string = None
+        self.string = ''
         self._strfunc = None
 
     def get_raw_contents(self):
