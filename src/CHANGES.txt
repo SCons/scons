@@ -54,6 +54,14 @@ RELEASE 0.12 - XXX
   - Don't silently swallow exceptions thrown by Scanners (or other
     exceptions while finding a node's dependent children).
 
+  - Push files to CacheDir() before calling the superclass built()
+    method (which may clear the build signature as part of clearing
+    cached implicit dependencies, if the file has a source scanner).
+    (Bug reported by Jeff Petkau.)
+
+  - Raise an internal error if we attempt to push a file to CacheDir()
+    with a build signature of None.
+
   From Lachlan O'Dea:
 
   - Add SharedObject() support to the masm tool.

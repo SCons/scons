@@ -1336,7 +1336,6 @@ class CacheDirTestCase(unittest.TestCase):
             SCons.Node.FS.CacheRetrieveSilent = save_CacheRetrieveSilent
 
         save_CachePush = SCons.Node.FS.CachePush
-        self.pushed = []
         def push(target, source, env, self=self):
             self.pushed.append(target)
             return 0
@@ -1344,6 +1343,8 @@ class CacheDirTestCase(unittest.TestCase):
 
         try:
             test = TestCmd(workdir='')
+
+            self.pushed = []
 
             cd_f3 = test.workpath("cd.f3")
             f3 = fs.File(cd_f3)
@@ -1374,6 +1375,16 @@ class CacheDirTestCase(unittest.TestCase):
         dirname = os.path.join('cache', 'A')
         filename = os.path.join(dirname, 'a_fake_bsig')
         assert cp == (dirname, filename), cp
+
+        f6 = fs.File("cd.f6")
+        f5.set_bsig(None)
+        exc_caught = 0
+        try:
+            cp = f5.cachepath()
+        except SCons.Errors.InternalError:
+            exc_caught = 1
+        assert exc_caught
+
 
 
 if __name__ == "__main__":

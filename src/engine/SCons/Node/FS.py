@@ -1037,9 +1037,13 @@ class File(Entry):
         SCons.Node.Node.build(self)
 
     def built(self):
-        SCons.Node.Node.built(self)
+        """Called just after this node is sucessfully built."""
+        # Push this file out to cache before the superclass Node.built()
+        # method has a chance to clear the build signature, which it
+        # will do if this file has a source scanner.
         if self.fs.CachePath and os.path.exists(self.path):
             CachePush(self, None, None)
+        SCons.Node.Node.built(self)
         self.found_includes = {}
         if hasattr(self, '_exists'):
             delattr(self, '_exists')
@@ -1160,7 +1164,10 @@ class File(Entry):
 
     def cachepath(self):
         if self.fs.CachePath:
-            bsig = str(self.get_bsig())
+            bsig = self.get_bsig()
+            if bsig is None:
+                raise SCons.Errors.InternalError, "cachepath(%s) found a bsig of None" % self.path
+            bsig = str(bsig)
             subdir = string.upper(bsig[0])
             dir = os.path.join(self.fs.CachePath, subdir)
             return dir, os.path.join(dir, bsig)
