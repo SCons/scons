@@ -43,6 +43,31 @@ class _Null:
 # used as an actual argument value.
 _null = _Null
 
+class FindPathDirs:
+    """A class to bind a specific *PATH variable name and the fs object
+    to a function that will return all of the *path directories."""
+    def __init__(self, variable, fs):
+        self.variable = variable
+        self.fs = fs
+    def __call__(self, env, dir, argument=None):
+        try:
+            path = env[self.variable]
+        except KeyError:
+            return ()
+
+        if not SCons.Util.is_List(path):
+            path = [path]
+        r = []
+        for p in path:
+            if SCons.Util.is_String(p):
+                p = env.subst(p)
+            r.append(p)
+
+        return tuple(self.fs.Rsearchall(r,
+                                        must_exist = 0,
+                                        clazz = SCons.Node.FS.Dir,
+                                        cwd = dir))
+
 class Base:
     """
     The base class for dependency scanners.  This implements
@@ -200,20 +225,11 @@ class Classic(Current):
         self.cre = re.compile(regex, re.M)
         self.fs = fs
 
-        def _path(env, dir, pv=path_variable, fs=fs):
-            try:
-                path = env[pv]
-            except KeyError:
-                return ()
-            return tuple(fs.Rsearchall(SCons.Util.mapPaths(path, dir, env),
-                                       clazz = SCons.Node.FS.Dir,
-                                       must_exist = 0))
-
         def _scan(node, env, path, self=self, fs=fs):
             return self.scan(node, env, path)
 
         kw['function'] = _scan
-        kw['path_function'] = _path
+        kw['path_function'] = FindPathDirs(path_variable, fs)
         kw['recursive'] = 1
         kw['skeys'] = suffixes
 

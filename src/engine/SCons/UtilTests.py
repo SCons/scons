@@ -1132,31 +1132,6 @@ class UtilTestCase(unittest.TestCase):
         cmd_list = SCons.Util.escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
 
-    def test_mapPaths(self):
-        """Test the mapPaths function"""
-        class MyFileNode:
-            def __init__(self, path):
-                self.path = path
-            def __str__(self):
-                return self.path
-
-        dir=MyFileNode('foo')
-        file=MyFileNode('bar/file')
-
-        class DummyEnv:
-            def subst(self, arg):
-                return 'bar'
-
-        res = mapPaths([ file, 'baz', 'blat/boo', '#test' ], dir)
-        assert res[0] == file, res[0]
-        assert res[1] == os.path.join('foo', 'baz'), res[1]
-        assert res[2] == os.path.join('foo', 'blat/boo'), res[2]
-        assert res[3] == '#test', res[3]
-
-        env=DummyEnv()
-        res=mapPaths('bleh', dir, env)
-        assert res[0] == os.path.normpath('foo/bar'), res[1]
-
     def test_display(self):
         old_stdout = sys.stdout
         sys.stdout = OutBuffer()
