@@ -398,8 +398,8 @@ class FSTestCase(unittest.TestCase):
         f2 = fs.File("f2")
         f2.scan(scn1)
         f2.scan(scn2)
-        assert f2.implicit[scn1][0].path_ == 'subdir/f2', f2.implicit[scn1][0].path_
-        assert f2.implicit[scn2][0].path_ == 'subdir/f2', f2.implicit[scn2][0].path_
+        match(f2.implicit[scn1][0].path_, 'subdir/f2')
+        match(f2.implicit[scn2][0].path_, 'subdir/f2')
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))

@@ -33,7 +33,7 @@ test.subdir('sub1', 'sub2')
 
 test.write('SConstruct', """
 def build1(target, source, env):
-    open(str(target), 'wb').write(open(str(source[0]), 'rb').read())
+    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
     return None
 
 def build2(target, source, env):
