@@ -1,12 +1,3 @@
-"""SCons.Platform.posix
-
-Platform-specific initialization for POSIX (Linux, UNIX, etc.) systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
 #
 # Copyright (c) 2001, 2002 Steven Knight
 #
@@ -32,21 +23,38 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-def tool_list():
-    return ['ar', 'dvipdf', 'dvips', 'g++', 'g77', 'gcc', 'latex', 'lex',
-            'pdflatex', 'pdftex', 'tex', 'yacc', 'gnulink' ]
+import sys
+import unittest
 
-def generate(env):
-    if not env.has_key('ENV'):
-        env['ENV']        = {}
-    env['ENV']['PATH']    = '/usr/local/bin:/bin:/usr/bin'
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.o'
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = ''
-    env['LIBPREFIX']      = 'lib'
-    env['LIBSUFFIX']      = '.a'
-    env['SHLIBPREFIX']    = '$LIBPREFIX'
-    env['SHLIBSUFFIX']    = '.so'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+import SCons.Errors
+import SCons.Tool
+
+class ToolTestCase(unittest.TestCase):
+    def test_Tool(self):
+        """Test the Tool() function"""
+        t = SCons.Tool.Tool('g++')
+        env= { 'BUILDERS' : {}, 'ENV' : {} }
+        t(env, 'foo')
+        assert env['CXX'] == 'c++', env['CXX']
+        assert env['CXXFLAGS'] == '$CCFLAGS', env['CXXFLAGS']
+        assert env['INCPREFIX'] == '-I', env['INCPREFIX']
+
+        try:
+            SCons.Tool.Tool()
+        except TypeError:
+            pass
+        else:
+            raise
+
+        try:
+            p = SCons.Tool.Tool('_does_not_exist_')
+        except SCons.Errors.UserError:
+            pass
+        else:
+            raise
+
+
+if __name__ == "__main__":
+    suite = unittest.makeSuite(ToolTestCase, 'test_')
+    if not unittest.TextTestRunner().run(suite).wasSuccessful():
+        sys.exit(1)

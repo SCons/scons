@@ -47,6 +47,8 @@ import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
 from UserDict import UserDict
+import SCons.Platform
+import SCons.Tool
 
 def installFunc(env, target, source):
     try:
@@ -117,12 +119,19 @@ class Environment:
     Environment.
     """
 
-    def __init__(self, platform=SCons.Platform.Platform(), **kw):
+    def __init__(self,
+                 platform=SCons.Platform.Platform(),
+                 tools=SCons.Platform.DefaultToolList(),
+                 **kw):
         self.fs = SCons.Node.FS.default_fs
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
         if SCons.Util.is_String(platform):
             platform = SCons.Platform.Platform(platform)
         platform(self)
+        for tool in tools:
+            if SCons.Util.is_String(tool):
+                tool = SCons.Tool.Tool(tool)
+            tool(self, platform)
         apply(self.Replace, (), kw)
 
         #
@@ -231,14 +240,7 @@ class Environment:
                 for name, builder in bd.items():
                     setattr(self, name, BuilderWrapper(self, builder))
             else:
-                SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                                    "The use of the BUILDERS Environment variable as a list or Builder instance is deprecated.  BUILDERS should be a dictionary of name->Builder instead.")
-                
-                if not SCons.Util.is_List(self._dict['BUILDERS']):
-                    self._dict['BUILDERS'] = [self._dict['BUILDERS']]
-                for b in self._dict['BUILDERS']:
-                    setattr(self, b.name, BuilderWrapper(self, b))
-
+                raise UserError, "The use of the BUILDERS Environment variable as a list or Builder instance is deprecated.  BUILDERS should be a dictionary of name->Builder instead."
         for s in self._dict['SCANNERS']:
             setattr(self, s.name, s)
         
@@ -391,6 +393,14 @@ class Environment:
         for interp in self.autogen_vars:
             interp.instance(dir, fs).generate(dict, self._dict)
         return dict
+
+    def get_builder(self, name):
+        """Fetch the builder with the specified name from the environment.
+        """
+        try:
+            return self._dict['BUILDERS'][name]
+        except KeyError:
+            return None
 
 class VarInterpolator:
     def __init__(self, dest, src, prefix, suffix):

@@ -78,8 +78,9 @@ arguments = {
                           "SCons.Node",
                           "SCons.Platform",
                           "SCons.Scanner",
+                          "SCons.Script",
                           "SCons.Sig",
-                          "SCons.Script"],
+                          "SCons.Tool"],
     'package_dir'      : {'' : 'engine'},
     'scripts'          : ["script/scons"],
     'cmdclass'         : {'install_lib' : my_install_lib}

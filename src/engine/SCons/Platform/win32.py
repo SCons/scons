@@ -32,6 +32,10 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+def tool_list():
+    return ['dvipdf', 'latex', 'dvips', 'g77', 'lex', 'lib', 'msvc',
+            'pdflatex', 'pdftex', 'tex', 'yacc', 'mslink' ]
+
 def generate(env):
     if not env.has_key('ENV'):
         env['ENV']        = {}

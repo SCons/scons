@@ -1,10 +1,11 @@
-"""SCons.Platform.posix
+"""SCons.Tool.g++
 
-Platform-specific initialization for POSIX (Linux, UNIX, etc.) systems.
+Tool-specific initialization for g++.
 
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
+
 """
 
 #
@@ -32,21 +33,30 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-def tool_list():
-    return ['ar', 'dvipdf', 'dvips', 'g++', 'g77', 'gcc', 'latex', 'lex',
-            'pdflatex', 'pdftex', 'tex', 'yacc', 'gnulink' ]
+import os.path
 
-def generate(env):
-    if not env.has_key('ENV'):
-        env['ENV']        = {}
-    env['ENV']['PATH']    = '/usr/local/bin:/bin:/usr/bin'
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.o'
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = ''
-    env['LIBPREFIX']      = 'lib'
-    env['LIBSUFFIX']      = '.a'
-    env['SHLIBPREFIX']    = '$LIBPREFIX'
-    env['SHLIBSUFFIX']    = '.so'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+import SCons.Defaults
+import SCons.Tool
+
+CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
+if os.path.normcase('.c') != os.path.normcase('.C'):
+    CXXSuffixes.append('.C')
+
+def generate(env, platform):
+    """Add Builders and construction variables for g++ to an Environment."""
+    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+
+    for suffix in CXXSuffixes:
+        static_obj.add_action(suffix, SCons.Defaults.CXXAction)
+        shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
+
+    env['CXX']        = 'c++'
+    env['CXXFLAGS']   = '$CCFLAGS'
+    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCXX']      = '$CXX'
+    env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
+    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['INCPREFIX']  = '-I'
+    env['INCSUFFIX']  = ''
+
+    env['CXXFILESUFFIX'] = '.cc'

@@ -1,6 +1,20 @@
 """SCons.Builder
 
-XXX
+Builder object subsystem.
+
+A Builder object is a callable that encapsulates information about how
+to execute actions to create a Node (file) from other Nodes (files), and
+how to create those dependencies for tracking.
+
+The main entry point here is the Builder() factory method.  This
+provides a procedural interface that creates the right underlying
+Builder object based on the keyword arguments supplied and the types of
+the arguments.
+
+The goal is for this external interface to be simple enough that the
+vast majority of users can create new Builders as necessary to support
+building new types of files in their configurations, without having to
+dive any deeper into this subsystem.
 
 """
 
@@ -55,6 +69,11 @@ class DictCmdGenerator:
     def src_suffixes(self):
         return self.action_dict.keys()
 
+    def add_action(self, suffix, action):
+        """Add a suffix-action pair to the mapping.
+        """
+        self.action_dict[suffix] = action
+
     def __call__(self, source, target, env, **kw):
         ext = None
         for src in map(str, source):
@@ -71,9 +90,12 @@ class DictCmdGenerator:
             return self.action_dict[ext]
         except KeyError:
             raise UserError("Don't know how to build a file with suffix %s." % ext)
+    def __cmp__(self, other):
+        return cmp(self.action_dict, other.action_dict)
 
 def Builder(**kw):
     """A factory for builder objects."""
+    composite = None
     if kw.has_key('name'):
         SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                             "The use of the 'name' parameter to Builder() is deprecated.")
@@ -83,9 +105,9 @@ def Builder(**kw):
         kw['action'] = SCons.Action.CommandGenerator(kw['generator'])
         del kw['generator']
     elif kw.has_key('action') and SCons.Util.is_Dict(kw['action']):
-        action_dict = kw['action']
-        kw['action'] = SCons.Action.CommandGenerator(DictCmdGenerator(action_dict))
-        kw['src_suffix'] = action_dict.keys()
+        composite = DictCmdGenerator(kw['action'])
+        kw['action'] = SCons.Action.CommandGenerator(composite)
+        kw['src_suffix'] = composite.src_suffixes()
 
     if kw.has_key('emitter') and \
        SCons.Util.is_String(kw['emitter']):
@@ -99,9 +121,14 @@ def Builder(**kw):
         kw['emitter'] = EmitterProxy(var)
         
     if kw.has_key('src_builder'):
-        return apply(MultiStepBuilder, (), kw)
+        ret = apply(MultiStepBuilder, (), kw)
     else:
-        return apply(BuilderBase, (), kw)
+        ret = apply(BuilderBase, (), kw)
+
+    if composite:
+        ret = CompositeBuilder(ret, composite)
+
+    return ret
 
 def _init_nodes(builder, env, args, tlist, slist):
     """Initialize lists of target and source nodes with all of
@@ -139,25 +166,7 @@ def _init_nodes(builder, env, args, tlist, slist):
         t.add_source(slist)
         if builder.scanner:
             t.target_scanner = builder.scanner
-        
-class _callable_adaptor:
-    """When crteating a Builder, you can pass a string OR
-    a callable in for prefix, suffix, or src_suffix.
-    src_suffix even takes a list!
-
-    If a string or list is passed, we use this class to
-    adapt it to a callable."""
-    def __init__(self, static):
-        self.static = static
-
-    def __call__(self, **kw):
-        return self.static
-
-    def __cmp__(self, other):
-        if isinstance(other, _callable_adaptor):
-            return cmp(self.static, other.static)
-        return -1
-
+            
 def _adjust_suffix(suff):
     if suff and not suff[0] in [ '.', '$' ]:
         return '.' + suff
@@ -176,7 +185,7 @@ class EmitterProxy:
     def __call__(self, target, source, env, **kw):
         emitter = self.var
 
-        # Recursively substitue the variable.
+        # Recursively substitute the variable.
         # We can't use env.subst() because it deals only
         # in strings.  Maybe we should change that?
         while SCons.Util.is_String(emitter) and \
@@ -189,6 +198,9 @@ class EmitterProxy:
                  'env':env }
         args.update(kw)
         return apply(emitter, (), args)
+
+    def __cmp__(self, other):
+        return cmp(self.var, other.var)
 
 class BuilderBase:
     """Base class for Builders, objects that create output
@@ -212,10 +224,7 @@ class BuilderBase:
         self.prefix = prefix
         self.suffix = suffix
 
-        if SCons.Util.is_String(src_suffix):
-            self.src_suffix = [ src_suffix ]
-        else:
-            self.src_suffix = src_suffix
+        self.set_src_suffix(src_suffix)
 
         self.target_factory = target_factory or node_factory
         self.source_factory = source_factory or node_factory
@@ -264,9 +273,9 @@ class BuilderBase:
 		ret.append(f)
 	    return ret
 
-        pre = self.get_prefix(env, args)
-        suf = self.get_suffix(env, args)
-        src_suf = self.get_src_suffix(env, args)
+        pre = self.get_prefix(env)
+        suf = self.get_suffix(env)
+        src_suf = self.get_src_suffix(env)
         if self.emitter:
             # pass the targets and sources to the emitter as strings
             # rather than nodes since str(node) doesn't work 
@@ -299,7 +308,6 @@ class BuilderBase:
 
         return tlist
 
-
     def execute(self, **kw):
         """Execute a builder's action to create an output object.
         """
@@ -316,21 +324,28 @@ class BuilderBase:
         """
         return apply(self.action.get_contents, (), kw)
 
-    def src_suffixes(self, env, args):
+    def src_suffixes(self, env):
         return map(lambda x, e=env: e.subst(_adjust_suffix(x)),
                    self.src_suffix)
 
-    def get_src_suffix(self, env, args):
-        """Get the first src_suffix in the list of src_suffixes."""
-        if not self.src_suffix:
-            return ''
-        else:
-            return self.src_suffix[0]
+    def set_src_suffix(self, src_suffix):
+        if not src_suffix:
+            src_suffix = []
+        elif not SCons.Util.is_List(src_suffix):
+            src_suffix = [ src_suffix ]
+        self.src_suffix = src_suffix
 
-    def get_suffix(self, env, args):
+    def get_src_suffix(self, env):
+        """Get the first src_suffix in the list of src_suffixes."""
+        ret = self.src_suffixes(env)
+        if not ret:
+            return ''
+        return ret[0]
+
+    def get_suffix(self, env):
         return env.subst(_adjust_suffix(self.suffix))
 
-    def get_prefix(self, env, args):
+    def get_prefix(self, env):
         return env.subst(self.prefix)
 
     def targets(self, node):
@@ -340,20 +355,19 @@ class BuilderBase:
         """
         return [ node ]
 
-class ListBuilder:
-    """This is technically not a Builder object, but a wrapper
-    around another Builder object.  This is designed to look
-    like a Builder object, though, for purposes of building an
-    array of targets from a single Action execution.
+class ListBuilder(SCons.Util.Proxy):
+    """A Proxy to support building an array of targets (for example,
+    foo.o and foo.h from foo.y) from a single Action execution.
     """
 
     def __init__(self, builder, env, tlist):
+        SCons.Util.Proxy.__init__(self, builder)
         self.builder = builder
+        self.scanner = builder.scanner
+        self.env = env
         self.tlist = tlist
-        self.name = "ListBuilder(%s)"%builder.get_name(env)
-
-    def get_name(self, env):
-        return self.name
+        self.multi = builder.multi
+        self.name = "ListBuilder(%s)"%builder.name
 
     def execute(self, **kw):
         if hasattr(self, 'status'):
@@ -375,10 +389,17 @@ class ListBuilder:
         return self.tlist
 
     def __cmp__(self, other):
-	return cmp(self.__dict__, other.__dict__)
+        return cmp(self.__dict__, other.__dict__)
 
-    def __getattr__(self, name):
-	return getattr(self.builder, name)
+    def get_name(self, env):
+        """Attempts to get the name of the Builder.
+
+        If the Builder's name attribute is None, then we will look at
+        the BUILDERS variable of env, expecting it to be a dictionary
+        containing this Builder, and we will return the key of the
+        dictionary."""
+
+        return "ListBuilder(%s)" % self.builder.get_name(env)
 
 class MultiStepBuilder(BuilderBase):
     """This is a builder subclass that can build targets in
@@ -421,7 +442,12 @@ class MultiStepBuilder(BuilderBase):
             sdict = {}
             self.sdict[r] = sdict
             for bld in self.src_builder:
-                for suf in bld.src_suffixes(env, kw):
+                if SCons.Util.is_String(bld):
+                    try:
+                        bld = env['BUILDERS'][bld]
+                    except KeyError:
+                        continue
+                for suf in bld.src_suffixes(env):
                     sdict[suf] = bld
                     
         for snode in slist:
@@ -440,7 +466,7 @@ class MultiStepBuilder(BuilderBase):
                 # Only supply the builder with sources it is capable
                 # of building.
                 tgt = filter(lambda x,
-                             suf=self.src_suffixes(env, kw):
+                             suf=self.src_suffixes(env):
                              os.path.splitext(SCons.Util.to_String(x))[1] in \
                              suf, tgt)
                 final_sources.extend(tgt)
@@ -452,9 +478,48 @@ class MultiStepBuilder(BuilderBase):
         return apply(BuilderBase.__call__,
                      (self, env), dictKwArgs)
 
-    def src_suffixes(self, env, args):
-        return BuilderBase.src_suffixes(self, env, args) + \
-               reduce(lambda x, y: x + y,
-                      map(lambda b, e=env, args=args: b.src_suffixes(e, args),
-                          self.src_builder),
-                      [])
+    def get_src_builders(self, env):
+        """Return all the src_builders for this Builder.
+
+        This is essentially a recursive descent of the src_builder "tree."
+        """
+        ret = []
+        for bld in self.src_builder:
+            if SCons.Util.is_String(bld):
+                # All Environments should have a BUILDERS
+                # variable, so no need to check for it.
+                try:
+                    bld = env['BUILDERS'][bld]
+                except KeyError:
+                    continue
+            ret.append(bld)
+        return ret
+
+    def src_suffixes(self, env):
+        """Return a list of the src_suffix attributes for all
+        src_builders of this Builder.
+        """
+        suffixes = BuilderBase.src_suffixes(self, env)
+        for builder in self.get_src_builders(env):
+            suffixes.extend(builder.src_suffixes(env))
+        return suffixes
+
+class CompositeBuilder(SCons.Util.Proxy):
+    """A Builder Proxy whose main purpose is to always have
+    a DictCmdGenerator as its action, and to provide access
+    to the DictCmdGenerator's add_action() method.
+    """
+
+    def __init__(self, builder, cmdgen):
+        SCons.Util.Proxy.__init__(self, builder)
+
+        # cmdgen should always be an instance of DictCmdGenerator.
+        self.cmdgen = cmdgen
+        self.builder = builder
+
+    def add_action(self, suffix, action):
+        self.cmdgen.add_action(suffix, action)
+        self.set_src_suffix(self.cmdgen.src_suffixes())
+        
+    def __cmp__(self, other):
+        return cmp(self.__dict__, other.__dict__)

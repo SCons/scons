@@ -686,6 +686,69 @@ def my_platform(env):
 env = Environment(platform = my_platform)
 .EE
 
+Additionally, a specific set of tools
+with which to initialize the environment
+may specified as an optional keyword argument:
+
+.ES
+env = Environment(tools = ['msvc', 'lex'])
+.EE
+
+The elements of the tools list may also
+be functions or callable objects,
+in which case the Environment() method
+will call the specified elements
+to update the new construction environment:
+
+.ES
+def my_tool(env):
+    env['XYZZY'] = 'xyzzy'
+
+env = Environment(tools = [my_tool])
+.EE
+
+SCons supports the following tool specifications
+out of the box on 
+.B cygwin
+and
+.B posix
+platforms:
+
+.ES
+ar
+dvipdf
+dvips
+g++
+g77
+gcc
+gnulink
+latex
+lex
+pdflatex
+pdftex
+tex
+yacc
+.EE
+
+and supports the following tool specifications out of the box on
+.B win32
+platforms:
+
+.ES
+dvipdf
+dvips
+g77
+latex
+lex
+lib
+mslink
+msvc
+pdflatex
+pdftex
+tex
+yacc
+.EE
+
 .SS Builder Methods
 
 Build rules are specified by calling a construction
@@ -1767,7 +1830,7 @@ foo = SConscript('subdir/SConscript', "env")
 
 .TP
 .RI SConscriptChdir( value )
-When a non-negative
+When a non-zero
 .I value
 is specified,
 this instructs
@@ -1840,6 +1903,17 @@ by the next release of SCons by hand,
 or by using the Split() function provided here,
 or by using a similar function such as the
 string.split() function in the Python library.
+
+.TP
+.RI Tool( string )
+Returns a callable object
+that can be used to initialize
+a construction environment using the
+tools keyword of the Environment() method.
+
+.ES
+env = Environment(tools = [ Tool('msvc') ])
+.EE
 
 .TP
 .RI WhereIs( program ", [" path  ", [" pathext ]])

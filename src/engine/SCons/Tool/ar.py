@@ -1,10 +1,11 @@
-"""SCons.Platform.posix
+"""SCons.Tool.ar
 
-Platform-specific initialization for POSIX (Linux, UNIX, etc.) systems.
+Tool-specific initialization for ar (library archive).
 
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
+
 """
 
 #
@@ -32,21 +33,27 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-def tool_list():
-    return ['ar', 'dvipdf', 'dvips', 'g++', 'g77', 'gcc', 'latex', 'lex',
-            'pdflatex', 'pdftex', 'tex', 'yacc', 'gnulink' ]
+import SCons.Defaults
+import SCons.Util
 
-def generate(env):
-    if not env.has_key('ENV'):
-        env['ENV']        = {}
-    env['ENV']['PATH']    = '/usr/local/bin:/bin:/usr/bin'
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.o'
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = ''
-    env['LIBPREFIX']      = 'lib'
-    env['LIBSUFFIX']      = '.a'
-    env['SHLIBPREFIX']    = '$LIBPREFIX'
-    env['SHLIBSUFFIX']    = '.so'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+def generate(env, platform):
+    """Add Builders and construction variables for ar to an Environment."""
+    bld = SCons.Defaults.StaticLibrary
+    env['BUILDERS']['Library'] = bld
+    env['BUILDERS']['StaticLibrary'] = bld
+    
+    arcom = '$AR $ARFLAGS $TARGET $SOURCES'
+    ranlib = 'ranlib'
+    if SCons.Util.WhereIs(ranlib):
+        arcom = arcom + '\n$RANLIB $RANLIBFLAGS $TARGET'
+
+    env['AR']          = 'ar'
+    env['ARFLAGS']     = 'r'
+    env['RANLIB']      = ranlib
+    env['RANLIBFLAGS'] = ''
+    env['ARCOM']       = arcom
+    env['SHLINK']      = '$LINK'
+    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
+    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+
+

@@ -99,6 +99,7 @@ class BuildTask(SCons.Taskmaster.Task):
                 # We aren't being called out of a user frame, so
                 # don't try to walk the stack, just print the error.
                 sys.stderr.write("\nSCons error: %s\n" % e)
+                raise
 	    except:
 		sys.stderr.write("scons: *** %s\n" % sys.exc_value)
 		raise
@@ -982,6 +983,8 @@ def _main():
         SCons.Sig.write()
 
 def main():
+    global exit_status
+    
     try:
 	_main()
     except SystemExit:

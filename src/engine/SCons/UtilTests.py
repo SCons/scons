@@ -361,6 +361,32 @@ class UtilTestCase(unittest.TestCase):
         assert get_environment_var("$BAR ") == None, get_environment_var("$BAR ")
         assert get_environment_var("FOO$BAR") == None, get_environment_var("FOO$BAR")
 
+    def test_Proxy(self):
+        """Test generic Proxy class."""
+        class Subject:
+            def foo(self):
+                return 1
+            def bar(self):
+                return 2
+
+        s=Subject()
+        s.baz = 3
+
+        class ProxyTest(Proxy):
+            def bar(self):
+                return 4
+
+        p=ProxyTest(s)
+
+        assert p.foo() == 1, p.foo()
+        assert p.bar() == 4, p.bar()
+        assert p.baz == 3, p.baz
+
+        p.baz = 5
+        s.baz = 6
+
+        assert p.baz == 5, p.baz
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

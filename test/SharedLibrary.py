@@ -48,7 +48,7 @@ Default(env.SharedLibrary(target = 'foo', source = obj))
 
 test.write('SConstructFoo2', """
 env=Environment()
-obj = env.SharedObject('foo', 'foo.c')
+obj = env.SharedObject('bar', 'foo.c')
 Default(env.Library(target = 'foo', source = obj))
 """)
 
@@ -193,7 +193,7 @@ SCons error: Source file: foo\..* is static and is not compatible with shared ta
 )
 
 test.run(arguments = '-f SConstructFoo2', status=2, stderr='''
-SCons error: Source file: foo\..* is shared and is not compatible with static target: .*
+SCons error: Source file: bar\..* is shared and is not compatible with static target: .*
 '''
 )
 

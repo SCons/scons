@@ -76,6 +76,8 @@ class Environment:
         for k, v in kw.items():
             self.d[k] = v
     def subst(self, s):
+        if not SCons.Util.is_String(s):
+            return s
         try:
             if s[0] == '$':
                 return self.d.get(s[1:], '')
@@ -446,9 +448,9 @@ class BuilderTestCase(unittest.TestCase):
         Make sure that there is no '.' separator appended.
         """
         builder = SCons.Builder.Builder(name = "builder", prefix = 'lib.')
-        assert builder.get_prefix(env,{}) == 'lib.'
+        assert builder.get_prefix(env) == 'lib.'
         builder = SCons.Builder.Builder(name = "builder", prefix = 'lib')
-        assert builder.get_prefix(env,{}) == 'lib'
+        assert builder.get_prefix(env) == 'lib'
         tgt = builder(env, target = 'tgt1', source = 'src1')
         assert tgt.path == 'libtgt1', \
                 "Target has unexpected name: %s" % tgt.path
@@ -465,7 +467,7 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment(XSUFFIX = '.x', YSUFFIX = '.y')
 
         b1 = SCons.Builder.Builder(name = "builder", src_suffix = '.c')
-        assert b1.src_suffixes(env,{}) == ['.c'], b1.src_suffixes(env,{})
+        assert b1.src_suffixes(env) == ['.c'], b1.src_suffixes(env)
 
         tgt = b1(env, target = 'tgt2', source = 'src2')
         assert tgt.sources[0].path == 'src2.c', \
@@ -479,19 +481,19 @@ class BuilderTestCase(unittest.TestCase):
         b2 = SCons.Builder.Builder(name = "b2",
                                    src_suffix = '.2',
                                    src_builder = b1)
-        assert b2.src_suffixes(env,{}) == ['.2', '.c'], b2.src_suffixes(env,{})
+        assert b2.src_suffixes(env) == ['.2', '.c'], b2.src_suffixes(env)
 
         b3 = SCons.Builder.Builder(name = "b3",
                                    action = {'.3a' : '', '.3b' : ''})
-        s = b3.src_suffixes(env,{})
+        s = b3.src_suffixes(env)
         s.sort()
         assert s == ['.3a', '.3b'], s
 
         b4 = SCons.Builder.Builder(name = "b4", src_suffix = '$XSUFFIX')
-        assert b4.src_suffixes(env,{}) == ['.x'], b4.src_suffixes(env,{})
+        assert b4.src_suffixes(env) == ['.x'], b4.src_suffixes(env)
 
-        b5 = SCons.Builder.Builder(name = "b5", action = {'$YSUFFIX' : ''})
-        assert b5.src_suffixes(env,{}) == ['.y'], b5.src_suffixes(env,{})
+        b5 = SCons.Builder.Builder(name = "b5", action = { '.y' : ''})
+        assert b5.src_suffixes(env) == ['.y'], b5.src_suffixes(env)
 
     def test_suffix(self):
         """Test Builder creation with a specified target suffix
@@ -500,9 +502,9 @@ class BuilderTestCase(unittest.TestCase):
         beginning if it isn't already present.
         """
         builder = SCons.Builder.Builder(name = "builder", suffix = '.o')
-        assert builder.get_suffix(env,{}) == '.o', builder.get_suffix(env,{})
+        assert builder.get_suffix(env) == '.o', builder.get_suffix(env)
         builder = SCons.Builder.Builder(name = "builder", suffix = 'o')
-        assert builder.get_suffix(env,{}) == '.o', builder.get_suffix(env,{})
+        assert builder.get_suffix(env) == '.o', builder.get_suffix(env)
         tgt = builder(env, target = 'tgt3', source = 'src3')
         assert tgt.path == 'tgt3.o', \
                 "Target has unexpected name: %s" % tgt.path
@@ -582,6 +584,12 @@ class BuilderTestCase(unittest.TestCase):
                str(tgt.sources[0].sources[0])
         assert str(tgt.sources[1]) == 'test2.foo', str(tgt.sources[1])
         assert str(tgt.sources[2]) == 'test3.txt', str(tgt.sources[2])
+
+        builder3 = SCons.Builder.MultiStepBuilder(name = "builder3",
+                                                  action = 'foo',
+                                                  src_builder = 'xyzzy',
+                                                  src_suffix = '.xyzzy')
+        assert builder3.get_src_builders(Environment()) == []
         
     def test_CompositeBuilder(self):
         """Testing CompositeBuilder class."""
@@ -592,13 +600,16 @@ class BuilderTestCase(unittest.TestCase):
                                         action={ '.foo' : func_action,
                                                  '.bar' : func_action })
         
-        assert isinstance(builder, SCons.Builder.BuilderBase)
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
         tgt = builder(env, target='test1', source='test1.foo')
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
-        assert isinstance(tgt.builder.action.generator, SCons.Builder.DictCmdGenerator)
+        assert tgt.builder.action is builder.action
+        tgt = builder(env, target='test2', source='test1.bar')
+        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
+        assert tgt.builder.action is builder.action
         flag = 0
-        tgt = builder(env, target='test2', source=['test2.bar', 'test1.foo'])
+        tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])
         try:
             tgt.build()
         except SCons.Errors.UserError:
@@ -614,7 +625,7 @@ class BuilderTestCase(unittest.TestCase):
                                         action = { '.foo' : 'foo',
                                                    '.bar' : 'bar' },
                                         src_builder = foo_bld)
-        assert isinstance(builder, SCons.Builder.MultiStepBuilder)
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
 
         tgt = builder(env, target='t1', source='t1a.ina t1b.ina')
@@ -629,11 +640,12 @@ class BuilderTestCase(unittest.TestCase):
                                         suffix = '.bar')
         assert isinstance(bar_bld, SCons.Builder.BuilderBase)
         builder = SCons.Builder.Builder(name = "builder",
-                                        action = { '.foo' : 'foo',
-                                                   '.bar' : 'bar' },
+                                        action = { '.foo' : 'foo'},
                                         src_builder = [foo_bld, bar_bld])
-        assert isinstance(builder, SCons.Builder.MultiStepBuilder)
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
+
+        builder.add_action('.bar', 'bar')
 
         tgt = builder(env, target='t3-foo', source='t3a.foo t3b.ina')
         assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
@@ -758,6 +770,10 @@ class BuilderTestCase(unittest.TestCase):
         assert len(tgt.sources) == 2, len(tgt.sources)
         assert 'baz' in map(str, tgt.sources), map(str, tgt.sources)
         assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
+
+        builder2a=SCons.Builder.Builder(name="builder2", action='foo',
+                                        emitter="$FOO")
+        assert builder2 == builder2a, repr(builder2.__dict__) + "\n" + repr(builder2a.__dict__)
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')

@@ -1,10 +1,11 @@
-"""SCons.Platform.posix
+"""SCons.Tool.gcc
 
-Platform-specific initialization for POSIX (Linux, UNIX, etc.) systems.
+Tool-specific initialization for gcc.
 
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
+
 """
 
 #
@@ -32,21 +33,31 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-def tool_list():
-    return ['ar', 'dvipdf', 'dvips', 'g++', 'g77', 'gcc', 'latex', 'lex',
-            'pdflatex', 'pdftex', 'tex', 'yacc', 'gnulink' ]
+import os.path
 
-def generate(env):
-    if not env.has_key('ENV'):
-        env['ENV']        = {}
-    env['ENV']['PATH']    = '/usr/local/bin:/bin:/usr/bin'
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.o'
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = ''
-    env['LIBPREFIX']      = 'lib'
-    env['LIBSUFFIX']      = '.a'
-    env['SHLIBPREFIX']    = '$LIBPREFIX'
-    env['SHLIBSUFFIX']    = '.so'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+import SCons.Tool
+import SCons.Defaults
+
+CSuffixes = ['.c']
+if os.path.normcase('.c') == os.path.normcase('.C'):
+    CSuffixes.append('.C')
+
+def generate(env, platform):
+    """Add Builders and construction variables for gcc to an Environment."""
+    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+
+    for suffix in CSuffixes:
+        static_obj.add_action(suffix, SCons.Defaults.CAction)
+        shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
+
+    env['CC']        = 'gcc'
+    env['CCFLAGS']   = ''
+    env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCC']      = '$CC'
+    env['SHCCFLAGS'] = '$CCFLAGS -fPIC'
+    env['SHCCCOM']   = '$SHCC $SHCCFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+
+    env['INCPREFIX']  = '-I'
+    env['INCSUFFIX']  = ''
+
+    env['CFILESUFFIX'] = '.c'

@@ -38,6 +38,12 @@ RELEASE 0.08 -
   - Removed support for the prefix, suffix and src_suffix arguments
     to Builder() to be callable functions.
 
+  From Charles Crain and Steven Knight:
+
+  - Add a "tools=" keyword argument to Environment instantiation,
+    and a separate Tools() method, for more flexible specification
+    of tool-specific environment changes.
+
   From Steven Knight:
 
   - Add a "platform=" keyword argument to Environment instantiation,

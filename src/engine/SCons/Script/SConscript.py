@@ -37,6 +37,7 @@ import SCons.Errors
 import SCons.Node
 import SCons.Node.FS
 import SCons.Platform
+import SCons.Tool
 import SCons.Util
 
 import os
@@ -273,5 +274,6 @@ def BuildDefaultGlobals():
     globals['SConscriptChdir']   = SConscriptChdir
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
     globals['Split']             = SCons.Util.Split
+    globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
     return globals

@@ -336,6 +336,15 @@ else:
     def is_String(e):
         return type(e) is types.StringType or isinstance(e, UserString)
 
+class Proxy:
+    """A simple generic Proxy class, forwarding all calls to
+    subject.  Inherit from this class to create a Proxy."""
+    def __init__(self, subject):
+        self.__subject = subject
+        
+    def __getattr__(self, name):
+        return getattr(self.__subject, name)
+
 # attempt to load the windows registry module:
 can_read_reg = 0
 try:

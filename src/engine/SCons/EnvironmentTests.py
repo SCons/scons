@@ -30,6 +30,27 @@ import unittest
 from SCons.Environment import *
 import SCons.Warnings
 
+def diff_env(env1, env2):
+    s1 = "env1 = {\n"
+    s2 = "env2 = {\n"
+    d = {}
+    for k in env1._dict.keys() + env2._dict.keys():
+	d[k] = None
+    keys = d.keys()
+    keys.sort()
+    for k in keys:
+        if env1.has_key(k):
+           if env2.has_key(k):
+               if env1[k] != env2[k]:
+                   s1 = s1 + "    " + repr(k) + " : " + repr(env1[k]) + "\n"
+                   s2 = s2 + "    " + repr(k) + " : " + repr(env2[k]) + "\n"
+           else:
+               s1 = s1 + "    " + repr(k) + " : " + repr(env1[k]) + "\n"
+        elif env2.has_key(k):
+           s2 = s2 + "    " + repr(k) + " : " + repr(env2[k]) + "\n"
+    s1 = s1 + "}\n"
+    s2 = s2 + "}\n"
+    return s1 + s2
 
 built_it = {}
 
@@ -74,23 +95,13 @@ class EnvironmentTestCase(unittest.TestCase):
 	"""
 	global built_it
 
-	b1 = Builder(name = 'builder1')
-	b2 = Builder(name = 'builder2')
-
-        # BUILDERS as a list or instance, now deprecated...
-	built_it = {}
-	env1 = Environment(BUILDERS = b1)
-	env1.builder1.execute(target = 'out1')
-	assert built_it['out1']
-
-	built_it = {}
-	env2 = Environment(BUILDERS = [b1])
-	env1.builder1.execute(target = 'out1')
-	assert built_it['out1']
+	b1 = Builder()
+	b2 = Builder()
 
 	built_it = {}
         env3 = Environment()
-        env3.Replace(BUILDERS = [b1, b2])
+        env3.Replace(BUILDERS = { 'builder1' : b1,
+                                  'builder2' : b2 })
 	env3.builder1.execute(target = 'out1')
 	env3.builder2.execute(target = 'out2')
 	env3.builder1.execute(target = 'out3')
@@ -119,29 +130,6 @@ class EnvironmentTestCase(unittest.TestCase):
         env6.bar.execute(target='out2')
         assert built_it['out1']
         assert built_it['out2']
-
-        # Now test deprecated warning for BUILDERS as a list
-        # or instance.
-
-        SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
-        SCons.Warnings.warningAsException(1)
-        try:
-            try:
-                env=Environment(BUILDERS=b1)
-            except SCons.Warnings.DeprecatedWarning:
-                pass
-            else:
-                assert 0
-
-            try:
-                env=Environment(BUILDERS=[b1, b2])
-            except SCons.Warnings.DeprecatedWarning:
-                pass
-            else:
-                assert 0
-        finally:
-            SCons.Warnings.suppressWarningClass(SCons.Warnings.DeprecatedWarning)
-            SCons.Warnings.warningAsException(0)
 
     def test_Scanners(self):
         """Test Scanner execution through different environments
@@ -261,7 +249,7 @@ class EnvironmentTestCase(unittest.TestCase):
 	"""
 	env1 = Environment(XXX = 'x', YYY = 'y')
 	env2 = Environment(XXX = 'x', YYY = 'y')
-	assert env1 == env2
+	assert env1 == env2, diff_env(env1, env2)
 
     def test_Install(self):
 	"""Test Install and InstallAs methods"""
@@ -292,7 +280,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env1 = Environment(AAA = 'a', BBB = 'b')
         env1.Replace(BBB = 'bbb', CCC = 'ccc')
         env2 = Environment(AAA = 'a', BBB = 'bbb', CCC = 'ccc')
-        assert env1 == env2
+        assert env1 == env2, diff_env(env1, env2)
 
     def test_Append(self):
         """Test appending to construction variables in an Environment
@@ -312,7 +300,7 @@ class EnvironmentTestCase(unittest.TestCase):
                            GGG = ['g', 'G'], HHH = UL(['h', 'H']),
                            III = UL(['i']), JJJ = UL(['j', 'J']),
                            KKK = UL(['k', 'K']), LLL = UL(['l', 'L']))
-        assert env1 == env2, env1._dict
+        assert env1 == env2, diff_env(env1, env2)
 
         env3 = Environment(X = {'x' : 7})
         try:
@@ -479,7 +467,15 @@ class EnvironmentTestCase(unittest.TestCase):
         env = Environment(platform = p)
         assert env['XYZZY'] == 777, env
 
-
+    def test_tools(self):
+        """Test specifying a tool callable when instantiating."""
+        def t1(env, platform):
+            env['TOOL1'] = 111
+        def t2(env, platform):
+            env['TOOL2'] = 222
+        env = Environment(tools = [t1, t2])
+        assert env['TOOL1'] == 111, env['TOOL1']
+        assert env['TOOL2'] == 222, env
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')

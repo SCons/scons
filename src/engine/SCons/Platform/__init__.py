@@ -61,15 +61,8 @@ def platform_default():
         return 'posix'
     return None
 
-class PlatformSpec:
-    def __init__(self, name):
-        self.name = name
-
-    def __str__(self):
-        return self.name
-    
-def Platform(name = platform_default()):
-    """Select a canned Platform specification.
+def platform_module(name = platform_default()):
+    """Return the imported module for the platform.
 
     This looks for a module name that matches the specified argument.
     If the name is unspecified, we fetch the appropriate default for
@@ -85,6 +78,25 @@ def Platform(name = platform_default()):
             raise SCons.Errors.UserError, "No platform named '%s'" % name
         if file:
             file.close()
+    return sys.modules[full_name]
+
+def DefaultToolList(name = platform_default()):
+    """Select a default tool list for the specified platform.
+    """
+    module = platform_module(name)
+    return module.tool_list()
+
+class PlatformSpec:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+    
+def Platform(name = platform_default()):
+    """Select a canned Platform specification.
+    """
+    module = platform_module(name)
     spec = PlatformSpec(name)
-    spec.__call__ = sys.modules[full_name].generate
+    spec.__call__ = module.generate
     return spec
