@@ -46,6 +46,11 @@ RELEASE 0.97 - XXX
   - Add a set of canned PathOption validators:  PathExists (the default),
     PathIsFile, PathIsDir and PathIsDirCreate.
 
+  Charles Crain
+
+  - Fix the PharLap linkloc.py module to use target+source arguments
+    when calling env.subst().
+
   From Matthew Doar:
 
   - Add support for .lex and .yacc file suffixes for Lex and Yacc files.

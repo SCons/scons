@@ -69,7 +69,7 @@ class LinklocGenerator:
         if for_signature:
             # Expand the contents of any linker command files recursively
             subs = 1
-            strsub = env.subst(self.cmdline)
+            strsub = env.subst(self.cmdline, target=target, source=source)
             while subs:
                 strsub, subs = _re_linker_command.subn(repl_linker_command, strsub)
             return strsub
