@@ -55,6 +55,7 @@ import traceback
 #                         'lib',
 #                         'scons-%d' % SCons.__version__)] + sys.path[1:]
 
+import SCons.Debug
 import SCons.Defaults
 import SCons.Environment
 import SCons.Errors
@@ -72,7 +73,6 @@ import SCons.Warnings
 display = SCons.Util.display
 progress_display = SCons.Util.DisplayEngine()
 
-#
 # Task control.
 #
 class BuildTask(SCons.Taskmaster.Task):
@@ -223,10 +223,13 @@ class QuestionTask(SCons.Taskmaster.Task):
 # Global variables
 
 keep_going_on_error = 0
-print_tree = 0
+print_count = 0
 print_dtree = 0
-print_time = 0
 print_includes = 0
+print_objects = 0
+print_time = 0
+print_tree = 0
+memory_stats = None
 ignore_errors = 0
 sconscript_time = 0
 command_time = 0
@@ -385,22 +388,31 @@ def _SConstruct_exists(dirname=''):
     return None
 
 def _set_globals(options):
-    global repositories, keep_going_on_error, print_tree, print_dtree
-    global print_time, ignore_errors, print_includes
+    global repositories, keep_going_on_error, ignore_errors
+    global print_count, print_dtree, print_includes
+    global print_objects, print_time, print_tree
+    global memory_outf, memory_stats
 
     if options.repository:
         repositories.extend(options.repository)
     keep_going_on_error = options.keep_going
     try:
         if options.debug:
-            if options.debug == "tree":
-                print_tree = 1
+            if options.debug == "count":
+                print_count = 1
             elif options.debug == "dtree":
                 print_dtree = 1
-            elif options.debug == "time":
-                print_time = 1
             elif options.debug == "includes":
                 print_includes = 1
+            elif options.debug == "memory":
+                memory_stats = []
+                memory_outf = sys.stdout
+            elif options.debug == "objects":
+                print_objects = 1
+            elif options.debug == "time":
+                print_time = 1
+            elif options.debug == "tree":
+                print_tree = 1
     except AttributeError:
         pass
     ignore_errors = options.ignore_errors
@@ -480,7 +492,7 @@ class OptParser(OptionParser):
                              "build all Default() targets.")
 
         def opt_debug(option, opt, value, parser):
-            if value in ["pdb","tree", "dtree", "time", "includes"]:
+            if value in ["count", "dtree", "includes", "memory", "objects", "pdb", "time", "tree"]:
                 setattr(parser.values, 'debug', value)
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
@@ -488,7 +500,7 @@ class OptParser(OptionParser):
                         callback=opt_debug, nargs=1, dest="debug",
                         metavar="TYPE",
                         help="Print various types of debugging information: "
-                             "pdb, tree, dtree, time, or includes.")
+                             "count, dtree, includes, memory, objects, pdb, time, tree.")
 
         self.add_option('-f', '--file', '--makefile', '--sconstruct',
                         action="append", nargs=1,
@@ -825,6 +837,8 @@ def _main(args, parser):
     for rep in repositories:
         fs.Repository(rep)
 
+    if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
+
     progress_display("scons: Reading SConscript files ...")
     try:
         start_time = time.time()
@@ -849,6 +863,8 @@ def _main(args, parser):
         print "Use scons -H for help about command-line options."
         sys.exit(0)
     progress_display("scons: done reading SConscript files.")
+
+    if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
 
     fs.chdir(fs.Top)
 
@@ -982,6 +998,8 @@ def _main(args, parser):
               "\tignoring -j or num_jobs option.\n"
         SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
 
+    if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
+
     try:
         jobs.run()
     finally:
@@ -991,6 +1009,24 @@ def _main(args, parser):
             progress_display("scons: " + closing_message)
         if not options.noexec:
             SCons.Sig.write()
+
+    if not memory_stats is None:
+        memory_stats.append(SCons.Debug.memory())
+        when = [
+            'before SConscript files',
+            'after SConscript files',
+            'before building',
+            'after building',
+        ]
+        for i in xrange(len(when)):
+            memory_outf.write('Memory %s:  %d\n' % (when[i], memory_stats[i]))
+
+    if print_count:
+        SCons.Debug.countLoggedInstances('*')
+
+    if print_objects:
+        SCons.Debug.listLoggedInstances('*')
+        #SCons.Debug.dumpLoggedInstances('*')
 
 def _exec_main():
     all_args = sys.argv[1:]

@@ -457,6 +457,39 @@ Debug the build process.
 specifies what type of debugging:
 
 .TP
+--debug=count
+Print a count of how many objects are created
+of the various classes used internally by SCons.
+This only works when run under Python 2.1 or later.
+
+.TP
+--debug=dtree
+Print the dependency tree
+after each top-level target is built. This prints out only derived files.
+
+.TP
+--debug=includes
+Print the include tree after each top-level target is built. 
+This is generally used to find out what files are included by the sources
+of a given derived file:
+
+.ES
+$ scons --debug=includes foo.o
+.EE
+
+.TP
+--debug=memory
+Prints how much memory SCons uses
+before and after reading the SConscript files
+and before and after building.
+
+.TP
+--debug=objects
+Prints a list of the various objects
+of the various classes used internally by SCons.
+This only works when run under Python 2.1 or later.
+
+.TP
 --debug=pdb
 Re-run SCons under the control of the
 .RI pdb
@@ -468,18 +501,6 @@ but all other arguments will be passed in-order
 to the SCons invocation run by the debugger.
 
 .TP
---debug=tree
-Print the dependency tree
-after each top-level target is built. This prints out the complete
-dependency tree including implicit dependencies and ignored
-dependencies.
-
-.TP
---debug=dtree
-Print the dependency tree
-after each top-level target is built. This prints out only derived files.
-
-.TP
 --debug=time
 Prints various time profiling information: the time spent
 executing each build command, the total build time, the total time spent
@@ -487,14 +508,11 @@ executing build commands, the total time spent executing SConstruct and
 SConscript files, and the total time spent executing SCons itself.
 
 .TP
---debug=includes
-Print the include tree after each top-level target is built. 
-This is generally used to find out what files are included by the sources
-of a given derived file:
-
-.ES
-$ scons --debug=includes foo.o
-.EE
+--debug=tree
+Print the dependency tree
+after each top-level target is built. This prints out the complete
+dependency tree including implicit dependencies and ignored
+dependencies.
 
 .\" .TP
 .\" -e, --environment-overrides

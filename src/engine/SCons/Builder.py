@@ -47,6 +47,7 @@ import os.path
 import UserDict
 
 import SCons.Action
+from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 import SCons.Executor
 import SCons.Node.FS
@@ -269,6 +270,7 @@ class BuilderBase:
                         multi = 0,
                         env = None,
                         overrides = {}):
+        if __debug__: logInstanceCreation(self, 'BuilderBase')
         self.action = SCons.Action.Action(action)
         self.multi = multi
         if SCons.Util.is_Dict(prefix):
@@ -357,7 +359,7 @@ class BuilderBase:
                 if not t.is_derived():
                     t.builder = self
                     new_targets.append(t)
-        
+
             target, source = self.emitter(target=tlist, source=slist, env=env)
 
             # Now delete the temporary builders that we attached to any
@@ -450,6 +452,7 @@ class ListBuilder(SCons.Util.Proxy):
     """
 
     def __init__(self, builder, env, tlist):
+        if __debug__: logInstanceCreation(self)
         SCons.Util.Proxy.__init__(self, builder)
         self.builder = builder
         self.scanner = builder.scanner
@@ -491,6 +494,7 @@ class MultiStepBuilder(BuilderBase):
                         source_factory = None,
                         scanner=None,
                         emitter=None):
+        if __debug__: logInstanceCreation(self)
         BuilderBase.__init__(self, action, prefix, suffix, src_suffix,
                              node_factory, target_factory, source_factory,
                              scanner, emitter)
@@ -581,6 +585,7 @@ class CompositeBuilder(SCons.Util.Proxy):
     """
 
     def __init__(self, builder, cmdgen):
+        if __debug__: logInstanceCreation(self)
         SCons.Util.Proxy.__init__(self, builder)
 
         # cmdgen should always be an instance of DictCmdGenerator.
@@ -590,6 +595,6 @@ class CompositeBuilder(SCons.Util.Proxy):
     def add_action(self, suffix, action):
         self.cmdgen.add_action(suffix, action)
         self.set_src_suffix(self.cmdgen.src_suffixes())
-        
+
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
