@@ -516,9 +516,6 @@ def main():
 
     sys.path = include_dirs + sys.path
 
-    # initialize node factory
-    SCons.Node.FS.init()
-
     while Scripts:
         file, Scripts = Scripts[0], Scripts[1:]
 	if file == "-":
@@ -538,7 +535,7 @@ def main():
 	sys.exit(0)
 
     taskmaster = Taskmaster(map(
-    			lambda x: SCons.Node.FS.lookup(SCons.Node.FS.File, x),
+    			lambda x: SCons.Node.FS.default_fs.File(x),
 			targets))
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)

@@ -23,12 +23,12 @@ class Builder:
 			action = None,
 			input_suffix = None,
 			output_suffix = None,
-			node_class = SCons.Node.FS.File):
+			node_factory = SCons.Node.FS.default_fs.File):
 	self.name = name
 	self.action = Action(action)
 	self.insuffix = input_suffix
 	self.outsuffix = output_suffix
-	self.node_class = node_class
+	self.node_factory = node_factory
 	if not self.insuffix is None and self.insuffix[0] != '.':
 	    self.insuffix = '.' + self.insuffix
 	if not self.outsuffix is None and self.outsuffix[0] != '.':
@@ -38,7 +38,7 @@ class Builder:
 	return cmp(self.__dict__, other.__dict__)
 
     def __call__(self, env, target = None, source = None):
-	node = SCons.Node.FS.lookup(self.node_class, target)
+	node = self.node_factory(target)
 	node.builder_set(self)
 	node.env_set(self)
 	node.sources = source	# XXX REACHING INTO ANOTHER OBJECT

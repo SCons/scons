@@ -86,13 +86,15 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(name = 'foo')
 	assert builder.name == 'foo'
 
-    def test_node_class(self):
+    def test_node_factory(self):
 	"""Test a Builder that creates nodes of a specified class
 	"""
 	class Foo:
-		pass
-	builder = SCons.Builder.Builder(node_class = Foo)
-	assert builder.node_class is Foo
+	    pass
+	def FooFactory(target):
+	    return Foo(target)
+	builder = SCons.Builder.Builder(node_factory = FooFactory)
+	assert builder.node_factory is FooFactory
 
     def test_outsuffix(self):
 	"""Test Builder creation with a specified output suffix
