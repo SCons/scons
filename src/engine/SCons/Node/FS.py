@@ -1073,9 +1073,8 @@ class File(Entry):
         return self.fs.Rsearchall(pathlist, clazz=Dir, must_exist=0,
                                   cwd=self.cwd)
     
-    def generate_build_env(self):
-        env = SCons.Node.Node.generate_build_env(self)
-        
+    def generate_build_env(self, env):
+        """Generate an appropriate Environment to build this File."""
         return env.Override({'Dir' : self.Dir,
                              'File' : self.File,
                              'RDirs' : self.RDirs})

@@ -282,7 +282,7 @@ class Calculator:
         
         sigs = map(lambda n, c=self: n.calc_signature(c), children)
         if node.has_builder():
-            sigs.append(self.module.signature(node.builder_sig_adapter()))
+            sigs.append(self.module.signature(node.get_executor()))
 
         bsig = self.module.collect(filter(lambda x: not x is None, sigs))
 

@@ -46,28 +46,6 @@ except NameError :
     True = 1 ; False = 0
 
 
-class Builder:
-    def __init__(self, factory):
-        self.factory = factory
-
-    def get_actions(self):
-        class Action:
-            def __call__(self, targets, sources, env):
-                global built_it
-                built_it = 1
-                return 0
-            def show(self, string):
-                pass
-            def strfunction(self, targets, sources, env):
-                return ""
-        return [Action()]
-
-    def targets(self, t):
-        return [t]
-    
-    def source_factory(self, name):
-        return self.factory(name)
-
 scanner_count = 0
 
 class Scanner:
@@ -94,6 +72,34 @@ class Environment:
         return self.scanner
     def Override(self, overrides):
         return self
+
+class Action:
+    def __call__(self, targets, sources, env):
+        global built_it
+        built_it = 1
+        return 0
+    def show(self, string):
+        pass
+    def strfunction(self, targets, sources, env):
+        return ""
+    def get_actions(self):
+        return [self]
+
+class Builder:
+    def __init__(self, factory):
+        self.factory = factory
+        self.env = Environment()
+        self.overrides = {}
+        self.action = Action()
+
+    def get_actions(self):
+        return [self]
+
+    def targets(self, t):
+        return [t]
+    
+    def source_factory(self, name):
+        return self.factory(name)
 
 class BuildDirTestCase(unittest.TestCase):
     def runTest(self):
@@ -916,7 +922,7 @@ class FSTestCase(unittest.TestCase):
         test.write("remove_me", "\n")
         assert os.path.exists(test.workpath("remove_me"))
         f1 = fs.File(test.workpath("remove_me"))
-        f1.builder = 1
+        f1.builder = Builder(fs.File)
         f1.env_set(Environment())
         f1.prepare()
         assert not os.path.exists(test.workpath("remove_me"))

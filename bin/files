@@ -3,6 +3,7 @@
 ./SCons/Defaults.py
 ./SCons/Environment.py
 ./SCons/Errors.py
+./SCons/Executor.py
 ./SCons/Job.py
 ./SCons/Node/Alias.py
 ./SCons/Node/FS.py

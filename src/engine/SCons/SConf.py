@@ -166,7 +166,6 @@ class SConf:
             except:
                 pass
 
-
             for n in nodes:
                 state = n.get_state()
                 if (state != SCons.Node.executed and
@@ -193,6 +192,7 @@ class SConf:
         #target = self.confdir.File("conftest_" + str(_ac_build_counter))
         f = "conftest_" + str(_ac_build_counter)
         target = os.path.join(str(self.confdir), f)
+        self.env['SCONF_TEXT'] = text
         if text != None:
             source = self.confdir.File(f + extension)
             sourceNode = self.env.SConfSourceBuilder(target=source,
@@ -200,7 +200,6 @@ class SConf:
             nodesToBeBuilt.append(sourceNode)
         else:
             source = None
-        self.env['SCONF_TEXT'] = text
 
         node = builder(target = target, source = source)
         nodesToBeBuilt.append(node)
@@ -301,7 +300,7 @@ class SConf:
         # We record errors in the cache. Only non-exisiting targets may
         # have recorded errors
         needs_rebuild = target[0].exists()
-        buildSig = target[0].builder.get_contents(target, source, env)
+        buildSig = target[0].builder.action.get_contents(target, source, env)
         for node in source:
             if node.get_state() != SCons.Node.up_to_date:
                 # if any of the sources has changed, we cannot use our cache

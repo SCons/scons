@@ -49,6 +49,7 @@ import os.path
 from SCons.Errors import InternalError, UserError
 
 import SCons.Action
+import SCons.Executor
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
@@ -135,12 +136,8 @@ def _init_nodes(builder, env, overrides, tlist, slist):
     the proper Builder information.
     """
 
-    for s in slist:
-        src_key = s.scanner_key()        # the file suffix
-        scanner = env.get_scanner(src_key)
-        if scanner:
-            s.source_scanner = scanner
-
+    # First, figure out if there are any errors in the way the targets
+    # were specified.
     for t in tlist:
         if t.side_effect:
             raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
@@ -161,13 +158,42 @@ def _init_nodes(builder, env, overrides, tlist, slist):
             elif t.sources != slist:
                 raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
 
+    # The targets are fine, so find or make the appropriate Executor to
+    # build this particular list of targets from this particular list of
+    # sources.
+    executor = None
+    if builder.multi:
+        try:
+            executor = tlist[0].get_executor(create = 0)
+        except AttributeError:
+            pass
+        else:
+            executor.add_sources(slist)
+    if executor is None:
+        executor = SCons.Executor.Executor(builder,
+                                           tlist[0].generate_build_env(env),
+                                           overrides,
+                                           tlist,
+                                           slist)
+
+    # Now set up the relevant information in the target Nodes themselves.
+    for t in tlist:
         t.overrides = overrides
         t.cwd = SCons.Node.FS.default_fs.getcwd()
         t.builder_set(builder)
         t.env_set(env)
         t.add_source(slist)
+        t.set_executor(executor)
         if builder.scanner:
             t.target_scanner = builder.scanner
+
+    # Last, add scanners from the Environment to the source Nodes.
+    for s in slist:
+        src_key = s.scanner_key()        # the file suffix
+        scanner = env.get_scanner(src_key)
+        if scanner:
+            s.source_scanner = scanner
+
 
 def _adjust_suffix(suff):
     if suff and not suff[0] in [ '.', '$' ]:
@@ -335,20 +361,6 @@ class BuilderBase:
             _init_nodes(ListBuilder(self, env, tlist), env, overrides, tlist, slist)
 
         return tlist
-
-    def get_actions(self):
-        return self.action.get_actions()
-
-    def get_raw_contents(self, target, source, env):
-        """Fetch the "contents" of the builder's action.
-        """
-        return self.action.get_raw_contents(target, source, env)
-
-    def get_contents(self, target, source, env):
-        """Fetch the "contents" of the builder's action
-        (for signature calculation).
-        """
-        return self.action.get_contents(target, source, env)
 
     def src_suffixes(self, env):
         return map(lambda x, e=env: e.subst(_adjust_suffix(x)),

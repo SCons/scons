@@ -53,6 +53,9 @@ class MyAction:
         self.order = built_order
         return 0
 
+    def get_actions(self):
+        return [self]
+
 class MyNonGlobalAction:
     def __init__(self):
         self.order = 0
@@ -71,11 +74,24 @@ class MyNonGlobalAction:
         self.order = built_order
         return 0
 
+    def get_actions(self):
+        return [self]
+
+class Environment:
+    def Dictionary(self, *args):
+        return {}
+    def Override(self, overrides):
+        return overrides
+
 class Builder:
+    def __init__(self):
+        self.env = Environment()
+        self.overrides = {}
+        self.action = MyAction()
     def targets(self, t):
         return [t]
     def get_actions(self):
-        return [MyAction()]
+        return [self.action]
     def get_contents(self, target, source, env):
         return 7
 
@@ -86,6 +102,7 @@ class NoneBuilder(Builder):
 
 class ListBuilder(Builder):
     def __init__(self, *nodes):
+        Builder.__init__(self)
         self.nodes = nodes
     def execute(self, target, source, env):
         if hasattr(self, 'status'):
@@ -106,12 +123,6 @@ class ExceptBuilder:
 class ExceptBuilder2:
     def execute(self, target, source, env):
         raise "foo"
-
-class Environment:
-    def Dictionary(self, *args):
-        return {}
-    def Override(self, overrides):
-        return overrides
 
 class Scanner:
     called = None
@@ -154,7 +165,7 @@ class NodeTestCase(unittest.TestCase):
         node.sources = ["yyy", "zzz"]
         node.build()
         assert built_it
-        assert built_target[0] == node, built_target[0]
+        assert built_target == [node], built_target
         assert built_source == ["yyy", "zzz"], built_source
 
         built_it = None
@@ -163,10 +174,10 @@ class NodeTestCase(unittest.TestCase):
         node.env_set(Environment())
         node.path = "qqq"
         node.sources = ["rrr", "sss"]
-        node.overrides = { "foo" : 1, "bar" : 2 }
+        node.builder.overrides = { "foo" : 1, "bar" : 2 }
         node.build()
         assert built_it
-        assert built_target[0] == node, built_target[0]
+        assert built_target == [node], built_target
         assert built_source == ["rrr", "sss"], built_source
         assert built_args["foo"] == 1, built_args
         assert built_args["bar"] == 2, built_args
@@ -184,6 +195,17 @@ class NodeTestCase(unittest.TestCase):
         fff.sources = ["hhh", "iii"]
         ggg.sources = ["hhh", "iii"]
         # [Charles C. 1/7/2002] Uhhh, why are there no asserts here?
+        # [SK, 15 May 2003] I dunno, let's add some...
+        built_it = None
+        fff.build()
+        assert built_it
+        assert built_target == [fff], built_target
+        assert built_source == ["hhh", "iii"], built_source
+        built_it = None
+        ggg.build()
+        assert built_it
+        assert built_target == [ggg], built_target
+        assert built_source == ["hhh", "iii"], built_source
 
         built_it = None
         jjj = MyNode("jjj")
@@ -284,31 +306,6 @@ class NodeTestCase(unittest.TestCase):
         t, m = n.alter_targets()
         assert t == [], t
         assert m == None, m
-
-    def test_builder_sig_adapter(self):
-        """Test the node's adapter for builder signatures
-        """
-        node = SCons.Node.Node()
-        node.builder_set(Builder())
-        node.env_set(Environment())
-        c = node.builder_sig_adapter().get_contents()
-        assert c == 7, c
-
-        class ListBuilder:
-            def __init__(self, targets):
-                self.tgt = targets
-            def targets(self, t):
-                return self.tgt
-            def get_contents(self, target, source, env):
-                assert target == self.tgt
-                return 8
-
-        node1 = SCons.Node.Node()
-        node2 = SCons.Node.Node()
-        node.builder_set(ListBuilder([node1, node2]))
-        node.env_set(Environment())
-        c = node.builder_sig_adapter().get_contents()
-        assert c == 8, c
 
     def test_current(self):
         """Test the default current() method
@@ -605,7 +602,7 @@ class NodeTestCase(unittest.TestCase):
         """Test Scanner functionality
         """
         node = MyNode("nnn")
-        node.builder = 1
+        node.builder = Builder()
         node.env_set(Environment())
         s = Scanner()
 

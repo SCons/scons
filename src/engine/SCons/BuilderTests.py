@@ -39,8 +39,8 @@ import TestCmd
 
 import SCons.Action
 import SCons.Builder
-import SCons.Errors
 import SCons.Environment
+import SCons.Errors
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
@@ -82,6 +82,8 @@ class Environment:
         return {}
     def autogenerate(self, dir=''):
         return {}
+    def __setitem__(self, item, var):
+        self.d[item] = var
     def __getitem__(self, item):
         return self.d[item]
     def has_key(self, item):
@@ -127,6 +129,14 @@ class MyNode:
         return self.name
     def is_derived(self):
         return self.has_builder()
+    def generate_build_env(self, env):
+        return env
+    def get_build_env(self):
+        return self.executor.get_build_env()
+    def set_executor(self, executor):
+        self.executor = executor
+    def get_executor(self, create=1):
+        return self.executor
 
 class BuilderTestCase(unittest.TestCase):
 
@@ -162,9 +172,10 @@ class BuilderTestCase(unittest.TestCase):
         n1 = MyNode("n1");
         n2 = MyNode("n2");
         builder(env, target = n1, source = n2)
-        assert n1.env == env
-        assert n1.builder == builder
-        assert n1.sources == [n2]
+        assert n1.env == env, n1.env
+        assert n1.builder == builder, n1.builder
+        assert n1.sources == [n2], n1.sources
+        assert n1.executor, "no executor found"
         assert not hasattr(n2, 'env')
 
         target = builder(env, target = 'n3', source = 'n4')
@@ -178,6 +189,14 @@ class BuilderTestCase(unittest.TestCase):
         target = builder(env, target = ['n8 n9'], source = 'n10 n11')
         assert target.name == 'n8 n9'
         assert target.sources[0].name == 'n10 n11'
+
+        # A test to be uncommented when we freeze the environment
+        # as part of calling the builder.
+        #env1 = Environment(VAR='foo')
+        #target = builder(env1, target = 'n12', source = 'n13')
+        #env1['VAR'] = 'bar'
+        #be = target.get_build_env()
+        #assert be['VAR'] == 'foo', be['VAR']
 
         if not hasattr(types, 'UnicodeType'):
             uni = str
@@ -229,52 +248,6 @@ class BuilderTestCase(unittest.TestCase):
         b3 = SCons.Builder.Builder(src_suffix = '.x')
         assert b1 != b3
         assert b2 != b3
-
-    def test_get_actions(self):
-        """Test fetching the Builder's Action list
-        """
-        def func():
-            pass
-        builder = SCons.Builder.Builder(action=SCons.Action.ListAction(["x",
-                                                                        func,
-                                                                        "z"]))
-        a = builder.get_actions()
-        assert len(a) == 3, a
-        assert isinstance(a[0], SCons.Action.CommandAction), a[0]
-        assert isinstance(a[1], SCons.Action.FunctionAction), a[1]
-        assert isinstance(a[2], SCons.Action.CommandAction), a[2]
-
-    def test_get_contents(self):
-        """Test returning the signature contents of a Builder
-        """
-
-        class DummyNode:
-            def __init__(self, name):
-                self.name = name
-            def __str__(self):
-                return self.name
-            def rfile(self):
-                return self
-            def get_subst_proxy(self):
-                return self
-
-        target = map(DummyNode, map(lambda x: "__t%d__" % x, range(1, 7)))
-        source = map(DummyNode, map(lambda x: "__s%d__" % x, range(1, 7)))
-        b1 = SCons.Builder.Builder(action = "foo ${TARGETS[5]}")
-        contents = b1.get_contents(target,source,Environment())
-        assert contents == "foo __t6__", contents
-
-        b1 = SCons.Builder.Builder(action = "bar ${SOURCES[3:5]}")
-        contents = b1.get_contents(target,source,Environment())
-        assert contents == "bar __s4__ __s5__", contents
-
-        b2 = SCons.Builder.Builder(action = Func)
-        contents = b2.get_contents(target,source,Environment())
-        assert contents == "\177\036\000\177\037\000d\000\000S", repr(contents)
-
-        b3 = SCons.Builder.Builder(action = SCons.Action.ListAction(["foo", Func, "bar"]))
-        contents = b3.get_contents(target,source,Environment())
-        assert contents == "foo\177\036\000\177\037\000d\000\000Sbar", repr(contents)
 
     def test_node_factory(self):
         """Test a Builder that creates nodes of a specified class

@@ -4,6 +4,7 @@ SCons/Builder.py
 SCons/Defaults.py
 SCons/Environment.py
 SCons/Errors.py
+SCons/Executor.py
 SCons/Job.py
 SCons/exitfuncs.py
 SCons/Node/__init__.py

@@ -80,8 +80,11 @@ RELEASE 0.14 - XXX
   - Interpolate the null string if an out-of-range subscript is used
     for a construction variable.
 
-  - Fix the internal Link function so that it creates properly links or
-    copies of files in subsidiary BuildDir directories.
+  - Fix the internal Link function so that it properly links or copies
+    files in subsidiary BuildDir directories.
+
+  - Refactor the internal representation of a single execution instance
+    of an action to eliminate redundant signature calculations.
 
   From Damyan Pepper:
 

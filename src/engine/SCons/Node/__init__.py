@@ -122,21 +122,36 @@ class Node:
         # what line in what file created the node, for example).
         Annotate(self)
 
-    def generate_build_env(self):
+    def generate_build_env(self, env):
         """Generate the appropriate Environment to build this node."""
-        if self.env is None:
-            # The node itself doesn't have an associated Environment
-            # (which kind of implies it's a source code file, but who
-            # knows...).  Regardless of why, use the environment (if
-            # any) associated with the Builder itself.
-            env = self.builder.env
-            overrides = self.builder.overrides
-        else:
-            # The normal case: use the Environment used to specify how
-            # this Node is to be built.
-            env = self.env
-            overrides = self.overrides
-        return env.Override(overrides)
+        return env
+
+    def get_build_env(self):
+        """Fetch the appropriate Environment to build this node."""
+        executor = self.get_executor()
+        return executor.get_build_env()
+
+    def set_executor(self, executor):
+        """Set the action executor for this node."""
+        self.executor = executor
+
+    def get_executor(self, create=1):
+        """Fetch the action executor for this node.  Create one if
+        there isn't already one, and requested to do so."""
+        try:
+            executor = self.executor
+        except AttributeError:
+            if not create:
+                raise
+            import SCons.Builder
+            env = self.generate_build_env(self.builder.env)
+            executor = SCons.Executor.Executor(self.builder,
+                                               env,
+                                               self.builder.overrides,
+                                               [self],
+                                               self.sources)
+            self.executor = executor
+        return executor
 
     def _for_each_action(self, func):
         """Call a function for each action required to build a node.
@@ -147,15 +162,8 @@ class Node:
         to do different things."""
         if not self.has_builder():
             return
-        action_list = self.pre_actions + \
-                      self.builder.get_actions() + \
-                      self.post_actions
-        if not action_list:
-            return
-        targets = self.builder.targets(self)
-        env = self.generate_build_env()
-        for action in action_list:
-            func(action, targets, self.sources, env)
+        executor = self.get_executor()
+        executor(self, func)
 
     def build(self):
         """Actually build the node.
@@ -249,24 +257,6 @@ class Node:
         """
         return [], None
 
-    def builder_sig_adapter(self):
-        """Create an adapter for calculating a builder's signature.
-
-        The underlying signature class will call get_contents()
-        to fetch the signature of a builder, but the actual
-        content of that signature depends on the node and the
-        environment (for construction variable substitution),
-        so this adapter provides the right glue between the two.
-        """
-        class Adapter:
-            def __init__(self, node):
-                self.node = node
-            def get_contents(self):
-                return self.node.builder.get_contents(self.node.builder.targets(self.node), self.node.sources, self.node.generate_build_env())
-            def get_timestamp(self):
-                return None
-        return Adapter(self)
-
     def get_found_includes(self, env, scanner, target):
         """Return the scanned include lines (implicit dependencies)
         found in this node.
@@ -351,7 +341,7 @@ class Node:
                     self.implicit = []
                     self.del_bsig()
 
-        build_env = self.generate_build_env()
+        build_env = self.get_build_env()
 
         for child in self.children(scan=0):
             self._add_child(self.implicit,
@@ -589,7 +579,7 @@ class Node:
         user, of the include tree for the sources of this node.
         """
         if self.has_builder() and self.env:
-            env = self.generate_build_env()
+            env = self.get_build_env()
             for s in self.sources:
                 def f(node, env=env, scanner=s.source_scanner, target=self):
                     return node.get_found_includes(env, scanner, target)

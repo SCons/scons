@@ -138,7 +138,7 @@ class DummyNode:
     def store_timestamp(self):
         pass
 
-    def builder_sig_adapter(self):
+    def get_executor(self):
         class Adapter:
             def get_contents(self):
                 return 111
