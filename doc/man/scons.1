@@ -179,8 +179,17 @@ may be specified on the command line:
 scons debug=1 .
 .EE
 
-These variables can be used in the configuration file(s) to modify
-the build in any way.
+These variables are available in SConscript files
+through the ARGUMENTS dictionary,
+and can be used in the configuration file(s) to modify
+the build in any way:
+
+.ES
+if ARGUMENTS.get('debug', 0):
+    env = Environment(CCFLAGS = '-g')
+else:
+    env = Environment()
+.EE
 
 .\" .B scons
 .\" can maintain a cache of target (derived) files that can
