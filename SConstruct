@@ -145,27 +145,23 @@ ENV = { 'PATH' : os.environ['PATH'] }
 if os.environ.has_key('AEGIS_PROJECT'):
     ENV['AEGIS_PROJECT'] = os.environ['AEGIS_PROJECT']
 
-test1_dir = os.path.join(os.getcwd(), "build", "test1")
-test2_dir = os.path.join(os.getcwd(), "build", "test2")
-
 lib_project = os.path.join("lib", project)
 
-# Originally, we were going to package the build engine in a
-# private SCons library that contained the version number, so
-# we could easily have multiple side-by-side versions of SCons
-# installed.  Keep this around in case we ever want to go back
-# to that scheme.  Note that this also requires changes to
-# runtest.py and src/setup.py.
-#lib_project = os.path.join("lib", project + '-' + version)
-
-test1_lib_dir = os.path.join(test1_dir, lib_project)
-
-test2_lib_dir = os.path.join(test2_dir,
-                             "lib",
-                             "python" + python_ver,
-                             "site-packages")
-
 unpack_dir = os.path.join(os.getcwd(), "build", "unpack")
+
+test_arch_dir = os.path.join(os.getcwd(),
+                             "build",
+                             "test-%s" % string.replace(archsuffix, '.', '-'))
+
+test_src_arch_dir = os.path.join(os.getcwd(),
+                                 "build",
+                                 "test-src-%s" % string.replace(archsuffix,
+                                                                '.',
+                                                                '-'))
+
+test_rpm_dir = os.path.join(os.getcwd(), "build", "test-rpm")
+
+test_deb_dir = os.path.join(os.getcwd(), "build", "test-deb")
 
 def SCons_revision(target, source, env):
     """Interpolate specific values from the environment into a file.
@@ -194,9 +190,6 @@ revbuilder = Builder(name = 'SCons_revision', action = SCons_revision)
 
 env = Environment(
                    ENV           = ENV,
-
-                   TEST1_LIB_DIR = test1_lib_dir,
-                   TEST2_LIB_DIR = test2_lib_dir,
  
                    DATE          = date,
                    DEVELOPER     = developer,
@@ -227,7 +220,6 @@ python_scons = {
         'pkg'           : 'python-' + project,
         'src_subdir'    : 'engine',
         'inst_subdir'   : os.path.join('lib', 'python1.5', 'site-packages'),
-        'prefix'        : test2_dir,
 
         'debian_deps'   : [
                             'debian/rules',
@@ -261,7 +253,6 @@ python_scons = {
 #        'pkg'          : 'python2-' + project,
 #        'src_subdir'   : 'engine',
 #        'inst_subdir'  : os.path.join('lib', 'python2.1', 'site-packages'),
-#        'prefix'       : test2_dir,
 #
 #        'debian_deps'  : [
 #                           'debian/rules',
@@ -288,7 +279,6 @@ scons_script = {
         'pkg'           : project + '-script',
         'src_subdir'    : 'script',
         'inst_subdir'   : 'bin',
-        'prefix'        : test2_dir,
 
         'debian_deps'   : [
                             'debian/rules',
@@ -314,8 +304,6 @@ scons_script = {
 
 scons = {
         'pkg'           : project,
-        #'inst_subdir'   : None,
-        'prefix'        : test1_dir,
 
         'debian_deps'   : [ 
                             'debian/rules',
@@ -365,11 +353,6 @@ for p in [ scons ]:
         src = os.path.join(src, p['src_subdir'])
 
     build = os.path.join('build', pkg)
-
-    prefix = p['prefix']
-    install = prefix
-    if p.has_key('inst_subdir'):
-        install = os.path.join(install, p['inst_subdir'])
 
     #
     # Read up the list of source files from our MANIFEST.in.
@@ -495,6 +478,12 @@ for p in [ scons ]:
 
         install_targets.extend(targets)
 
+        dfiles = map(lambda x, d=test_rpm_dir: os.path.join(d, 'usr', x),
+                     dst_files)
+        env.Command(dfiles,
+                    rpm,
+                    "rpm2cpio $SOURCES | (cd %s && cpio -id)" % test_rpm_dir)
+
     build_src_files = map(lambda x, b=build: os.path.join(b, x), src_files)
 
     if dh_builddeb and fakeroot:
@@ -507,6 +496,11 @@ for p in [ scons ]:
                     ])
         env.Depends(deb, p['debian_deps'])
 
+        dfiles = map(lambda x, d=test_deb_dir: os.path.join(d, 'usr', x),
+                     dst_files)
+        env.Command(dfiles,
+                    deb,
+                    "dpkg --fsys-tarfile $SOURCES | (cd %s && tar -xf -)" % test_deb_dir)
 
     #
     # Now set up creation and installation of the packages.
@@ -515,11 +509,14 @@ for p in [ scons ]:
     env.Install(os.path.join('build', 'dist'), install_targets)
 
     #
-    # Unpack the archive created by the distutils into build/unpack.
+    # Unpack the archive created by the distutils into
+    # build/unpack/scons-{version}.
     #
-    d = os.path.join(unpack_dir, pkg_version)
-    unpack_files = map(lambda x, d=d: os.path.join(d, x), src_files)
+    unpack_files = map(lambda x, u=unpack_dir, pv=pkg_version:
+                              os.path.join(u, pv, x),
+                       src_files)
 
+    #
     # We'd like to replace the last three lines with the following:
     #
     #	tar zxf %< -C $unpack_dir
@@ -535,40 +532,35 @@ for p in [ scons ]:
 
     #
     # Run setup.py in the unpacked subdirectory to "install" everything
-    # into our build/test subdirectory.  Auxiliary modules that we need
-    # (TestCmd.py, TestSCons.py, unittest.py) will be copied in by
-    # etc/Conscript.  The runtest.py script will set PYTHONPATH so that
-    # the tests only look under build/test.  This makes sure that our
-    # tests pass with what we really packaged, not because of something
-    # hanging around in the development directory.
+    # into our build/test subdirectory.  The runtest.py script will set
+    # PYTHONPATH so that the tests only look under build/test-{package},
+    # and under etc (for the testing modules TestCmd.py, TestSCons.py,
+    # and unittest.py).  This makes sure that our tests pass with what
+    # we really packaged, not because of something hanging around in
+    # the development directory.
     #
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
     # to the directory in which setup.py exists.
-    dst_files = map(lambda x, i=install: os.path.join(i, x), dst_files)
-    env.Command(dst_files, unpack_files, [
-        "rm -rf %s" % install,
+    dfiles = map(lambda x, d=test_arch_dir: os.path.join(d, x), dst_files)
+    env.Command(dfiles, unpack_files, [
+        "rm -rf %s" % os.path.join(unpack_dir, pkg_version, 'build'),
+        "rm -rf %s" % test_arch_dir,
         "python %s install --prefix=%s" % (os.path.join(unpack_dir,
                                                         pkg_version,
                                                         'setup.py'),
-                                           prefix
+                                           test_arch_dir
                                           ),
     ])
-
-#
-# Arrange for supporting packages to be installed in the test directories.
-#
-Export('env', 'whereis')
-
-SConscript('etc/SConscript')
 
 #
 # Documentation.
 #
 BuildDir('build/doc', 'doc')
 
-SConscript('build/doc/SConscript');
+Export('env', 'whereis')
 
+SConscript('build/doc/SConscript');
 
 #
 # If we're running in the actual Aegis project, pack up a complete
@@ -582,7 +574,10 @@ if change:
     for line in map(lambda x: x[:-1], os.popen(cmd, "r").readlines()):
         a = string.split(line)
         if a[1] == "remove":
-            df.append(a[3])
+            if a[3][0] == '(':
+                df.append(a[4])
+            else:
+                df.append(a[3])
 
     cmd = "aegis -list -terse pf 2>/dev/null"
     pf = map(lambda x: x[:-1], os.popen(cmd, "r").readlines())
@@ -604,6 +599,8 @@ if change:
         b_ps = os.path.join('build', ps)
         b_psv = os.path.join('build', psv)
 
+        src_archive = os.path.join('build', 'dist', '%s.tar.gz' % psv)
+
         for file in sfiles:
             env.SCons_revision(os.path.join(b_ps, file), file)
 
@@ -615,7 +612,64 @@ if change:
             "find %s -name .sconsign -exec rm {} \\;" % b_psv,
             "tar czh -f $TARGET -C build %s" % psv,
         ]
-        env.Command(os.path.join('build',
-                                 'dist',
-                                 '%s-src-%s.tar.gz' % (project, version)),
-                    src_deps + b_ps_files, cmds)
+
+        env.Command(src_archive, src_deps + b_ps_files, cmds)
+
+        #
+        # Unpack the archive created by the distutils into
+        # build/unpack/scons-{version}.
+        #
+        unpack_files = map(lambda x, u=unpack_dir, psv=psv:
+                                  os.path.join(u, psv, x),
+                           sfiles)
+
+        #
+        # We'd like to replace the last three lines with the following:
+        #
+        #	tar zxf %< -C $unpack_dir
+        #
+        # but that gives heartburn to Cygwin's tar, so work around it
+        # with separate zcat-tar-rm commands.
+        env.Command(unpack_files, src_archive, [
+            "rm -rf %s" % os.path.join(unpack_dir, psv),
+            "zcat $SOURCES > .temp",
+            "tar xf .temp -C %s" % unpack_dir,
+            "rm -f .temp",
+        ])
+
+        #
+        # Run setup.py in the unpacked subdirectory to "install" everything
+        # into our build/test subdirectory.  The runtest.py script will set
+        # PYTHONPATH so that the tests only look under build/test-{package},
+        # and under etc (for the testing modules TestCmd.py, TestSCons.py,
+        # and unittest.py).  This makes sure that our tests pass with what
+        # we really packaged, not because of something hanging around in
+        # the development directory.
+        #
+        # We can get away with calling setup.py using a directory path
+        # like this because we put a preamble in it that will chdir()
+        # to the directory in which setup.py exists.
+        dfiles = map(lambda x, d=test_src_arch_dir: os.path.join(d, x),
+                        dst_files)
+        ENV = env.Dictionary('ENV')
+        ENV['SCONS_LIB_DIR'] = os.path.join(unpack_dir, psv, 'src', 'engine')
+        ENV['USERNAME'] = developer
+        env.Copy(ENV = ENV).Command(dfiles, unpack_files, [
+            "rm -rf %s" % os.path.join(unpack_dir,
+                                       psv,
+                                       'build',
+                                       'scons',
+                                       'build'),
+            "rm -rf %s" % test_src_arch_dir,
+            "cd %s && python %s %s" % \
+                (os.path.join(unpack_dir, psv),
+                 os.path.join('src', 'script', 'scons.py'),
+                 os.path.join('build', 'scons')),
+            "python %s install --prefix=%s" % (os.path.join(unpack_dir,
+                                                            psv,
+                                                            'build',
+                                                            'scons',
+                                                            'setup.py'),
+                                               test_src_arch_dir
+                                              ),
+        ])

@@ -16,18 +16,8 @@
 #
 # Options:
 #
-#	-1		Use the test configuration in build/test1
-#			(installed from the scons package)
-#
-#	-2		Use the test configuration in build/test2
-#			(installed from the python-scons and scons-script
-#			packages)
-#
 #	-a		Run all tests; does a virtual 'find' for
 #			all SCons tests under the current directory.
-#
-#	-b system	Assume you're in the specified built system.
-#			'aegis' is the only one currently defined.
 #
 #	-d		Debug.  Runs the script under the Python
 #			debugger (pdb.py) so you don't have to
@@ -37,8 +27,13 @@
 #			command line it will execute before
 #			executing it.  This suppresses that print.
 #
-#	-v		Version.  Specifies the version number to
-#			be used for Aegis interaction.
+#	-p package	Test against the specified package.
+#
+# (Note:  There used to be a -v option that specified the SCons
+# version to be tested, when we were installing in a version-specific
+# library directory.  If we ever resurrect that as the default, then
+# you can find the appropriate code in the 0.04 version of this script,
+# rather than reinventing that wheel.)
 #
 
 import getopt
@@ -49,29 +44,24 @@ import string
 import sys
 
 all = 0
-build = None
 debug = ''
 tests = []
 printcmd = 1
-version = None
-testver = 1
+package = None
 
 if sys.platform == 'win32':
     lib_dir = os.path.join(sys.exec_prefix, "lib")
 else:
     lib_dir = os.path.join(sys.exec_prefix, "lib", "python" + sys.version[0:3])
 
-opts, tests = getopt.getopt(sys.argv[1:], "12ab:dqv:",
+opts, tests = getopt.getopt(sys.argv[1:], "adqp:",
 			    ['all','build=','debug','quiet','version='])
 
 for o, a in opts:
-    if o == '-1': testver = 1
-    elif o == '-2': testver = 2
-    elif o == '-a' or o == '--all': all = 1
-    elif o == '-b' or o == '--build': build = a
+    if o == '-a' or o == '--all': all = 1
     elif o == '-d' or o == '--debug': debug = os.path.join(lib_dir, "pdb.py")
     elif o == '-q' or o == '--quiet': printcmd = 0
-    elif o == '-v' or o == '--version': version = a
+    elif o == '-p' or o == '--package': package = a
 
 cwd = os.getcwd()
 
@@ -81,60 +71,43 @@ elif all:
     def find_Test_py(arg, dirname, names):
 	global tests
         n = filter(lambda n: n[-8:] == "Tests.py", names)
-	n = map(lambda x,d=dirname: os.path.join(d, x), n)
-	tests = tests + n
+        tests.extend(map(lambda x,d=dirname: os.path.join(d, x), n))
     os.path.walk('src', find_Test_py, 0)
 
     def find_py(arg, dirname, names):
 	global tests
         n = filter(lambda n: n[-3:] == ".py", names)
-	n = map(lambda x,d=dirname: os.path.join(d, x), n)
-	tests = tests + n
+        tests.extend(map(lambda x,d=dirname: os.path.join(d, x), n))
     os.path.walk('test', find_py, 0)
 
-if build == 'aegis':
-    if not version:
-	version = os.popen("aesub '$version'").read()[:-1]
+    tests.sort()
 
-    match = re.compile(r'^[CD]0*')
+if package:
 
-    def aegis_to_version(aever):
-	arr = string.split(aever, '.')
-	end = max(len(arr) - 1, 2)
-	arr = map(lambda e: match.sub('', e), arr[:end])
-	def rep(e):
-	    if len(e) == 1:
-		e = '0' + e
-	    return e
-	arr[1:] = map(rep, arr[1:])
-	return string.join(arr, '.')
+    dir = {
+        'deb'        : 'usr',
+        'rpm'        : 'usr',
+        'src-tar-gz' : '',
+        'tar-gz'     : '',
+    }
 
-    version = aegis_to_version(version)
+    if not dir.has_key(package):
+        sys.stderr.write("Unknown package '%s'\n" % package)
+        sys.exit(2)
 
-    scons_dir = os.path.join(cwd, 'build', 'test' + str(testver), 'bin')
+    test_dir = os.path.join(cwd, 'build', 'test-%s' % package)
 
-    if testver == 1:
-        test_dir = os.path.join('test1', 'lib', 'scons')
-        # Our original packaging scheme placed the build engine
-        # in a private library directory that contained the SCons
-        # version number in the directory name.  Here's how this
-        # was supported here.  See the Construct file for details
-        # on other files that would need to be changed to support
-        # this as well.
-        #test_dir = os.path.join('test1', 'lib', 'scons-' + str(version))
-    elif testver == 2:
-        test_dir = os.path.join('test2', 'lib', 'python' + sys.version[0:3],
-                                'site-packages')
+    scons_dir = os.path.join(test_dir, dir[package], 'bin')
 
-    os.environ['PYTHONPATH'] = os.path.join(cwd, 'build', test_dir)
+    lib_dir = os.path.join(test_dir, dir[package], 'lib', 'scons')
 
 else:
 
     scons_dir = os.path.join(cwd, 'src', 'script')
 
-    os.environ['PYTHONPATH'] = string.join([os.path.join(cwd, 'src', 'engine'),
-					    os.path.join(cwd, 'etc')],
-					   os.pathsep)
+    lib_dir = os.path.join(cwd, 'src', 'engine')
+
+os.environ['PYTHONPATH'] = lib_dir + os.pathsep + os.path.join(cwd, 'etc')
 
 os.chdir(scons_dir)
 

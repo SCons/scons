@@ -117,10 +117,8 @@ unsuccessful tests.
 The above invocations all test directly the files underneath the src/
 subdirectory, and do not require that a build be performed first.  The
 runtest.py script supports supports additional options to run tests
-against unpacked packages in the build/test*/ subdirectories.  This is
-in the process of being reworked for the next release, however, so for
-now, see the comments in the runtest.py script itself if you want to run
-tests against a package.
+against unpacked packages in the build/test-*/ subdirectories.  See
+the "TESTING PACKAGES" section below.
 
 
 BUILDING PACKAGES
@@ -160,6 +158,25 @@ mailing list.
 
 Note that in addition to creating the above packages, the default build
 will also unpack one or more of the packages for testing.
+
+
+TESTING PACKAGES
+================
+
+A full build will unpack and/or install any .deb, .rpm., .src.tar.gz,
+and .tar.gz packages into separate build/test-*/ subdirectories.  (Of
+course, if a package was not built on your system, it should not try to
+install it.)  The runtest.py script supports a -p option that will run
+the specified tests (individually or collectively via the -a option)
+against the unpacked build/test-/* subdirectory:
+
+        $ python runtest.py -p tar-gz
+
+        $ python runtest.py -p src-tar-gz
+
+        $ python runtest.py -p rpm
+
+        $ python runtest.py -p deb
 
 
 CONTENTS OF THIS PACKAGE
