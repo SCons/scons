@@ -50,9 +50,9 @@ class MyAction:
         for action in self.actions:
             action(target, source, env, errfunc)
     def strfunction(self, target, source, env):
-        return string.join(['STRFUNCTION'] + self.actions + target + source)
+        return string.join(['STRFUNCTION'] + map(str, self.actions) + target + source)
     def genstring(self, target, source, env):
-        return string.join(['GENSTRING'] + self.actions + target + source)
+        return string.join(['GENSTRING'] + map(str, self.actions) + target + source)
     def get_raw_contents(self, target, source, env):
         return string.join(['RAW'] + self.actions + target + source)
     def get_contents(self, target, source, env):
@@ -211,6 +211,35 @@ class ExecutorTestCase(unittest.TestCase):
         x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         s = x.strfunction()
         assert s == 'STRFUNCTION action1 action2 t s', s
+
+    def test_nullify(self):
+        """Test the nullify() method"""
+        env = MyEnvironment(S='string')
+
+        result = []
+        def action1(target, source, env, errfunc, result=result, **kw):
+            result.append('action1')
+
+        env = MyEnvironment()
+        a = MyAction([action1])
+        x = SCons.Executor.Executor(a, env, [], ['t1', 't2'], ['s1', 's2'])
+
+        x(MyNode([], []), None)
+        assert result == ['action1'], result
+        s = str(x)
+        assert s[:10] == 'GENSTRING ', s
+        s = x.strfunction()
+        assert s[:12] == 'STRFUNCTION ', s
+
+        del result[:]
+        x.nullify()
+
+        x(MyNode([], []), None)
+        assert result == [], result
+        s = str(x)
+        assert s == None, s
+        s = x.strfunction()
+        assert s == None, s
 
     def test_get_raw_contents(self):
         """Test fetching the raw signatures contents"""

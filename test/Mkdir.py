@@ -34,7 +34,9 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.subdir('work1', 'work2')
+
+test.write(['work1', 'SConstruct'], """
 Execute(Mkdir('d1'))
 def cat(env, source, target):
     target = str(target[0])
@@ -58,9 +60,9 @@ env.Command(Dir('hello'), None, [Mkdir('$TARGET')])
 env.Command('hello/world', None, [Touch('$TARGET')])
 """)
 
-test.write('f2.in', "f2.in\n")
-test.write('f5.in', "f5.in\n")
-test.write('f6.in', "f6.in\n")
+test.write(['work1', 'f2.in'], "f2.in\n")
+test.write(['work1', 'f5.in'], "f5.in\n")
+test.write(['work1', 'f6.in'], "f6.in\n")
 
 expect = test.wrap_stdout(read_str = 'Mkdir("d1")\n',
                           build_str = """\
@@ -74,34 +76,66 @@ Mkdir("f6.out-Mkdir")
 Mkdir("hello")
 Touch("%s")
 """ % (os.path.join('hello', 'world')))
-test.run(options = '-n', arguments = '.', stdout = expect)
+test.run(chdir = 'work1', options = '-n', arguments = '.', stdout = expect)
 
-test.must_not_exist('d1')
-test.must_not_exist('f2.out')
-test.must_not_exist('d3')
-test.must_not_exist('d4')
-test.must_not_exist('f5.out')
-test.must_not_exist('f6.out')
-test.must_not_exist('Mkdir-f6.in')
-test.must_not_exist('f6.out-Mkdir')
+test.must_not_exist(['work1', 'd1'])
+test.must_not_exist(['work1', 'f2.out'])
+test.must_not_exist(['work1', 'd3'])
+test.must_not_exist(['work1', 'd4'])
+test.must_not_exist(['work1', 'f5.out'])
+test.must_not_exist(['work1', 'f6.out'])
+test.must_not_exist(['work1', 'Mkdir-f6.in'])
+test.must_not_exist(['work1', 'f6.out-Mkdir'])
 
-test.run()
+test.run(chdir = 'work1')
 
-test.must_exist('d1')
-test.must_match('f2.out', "f2.in\n")
-test.must_exist('d3')
-test.must_exist('d4')
-test.must_match('f5.out', "f5.in\n")
-test.must_exist('f6.out')
-test.must_exist('Mkdir-f6.in')
-test.must_exist('f6.out-Mkdir')
-test.must_exist('hello')
-test.must_exist('hello/world')
+test.must_exist(['work1', 'd1'])
+test.must_match(['work1', 'f2.out'], "f2.in\n")
+test.must_exist(['work1', 'd3'])
+test.must_exist(['work1', 'd4'])
+test.must_match(['work1', 'f5.out'], "f5.in\n")
+test.must_exist(['work1', 'f6.out'])
+test.must_exist(['work1', 'Mkdir-f6.in'])
+test.must_exist(['work1', 'f6.out-Mkdir'])
+test.must_exist(['work1', 'hello'])
+test.must_exist(['work1', 'hello/world'])
 
-test.write(['d1', 'file'], "d1/file\n")
-test.write(['d3', 'file'], "d3/file\n")
-test.write(['Mkdir-f6.in', 'file'], "Mkdir-f6.in/file\n")
-test.write(['f6.out-Mkdir', 'file'], "f6.out-Mkdir/file\n")
-test.write(['hello', 'file'], "hello/file\n")
+test.write(['work1', 'd1', 'file'], "d1/file\n")
+test.write(['work1', 'd3', 'file'], "d3/file\n")
+test.write(['work1', 'Mkdir-f6.in', 'file'], "Mkdir-f6.in/file\n")
+test.write(['work1', 'f6.out-Mkdir', 'file'], "f6.out-Mkdir/file\n")
+test.write(['work1', 'hello', 'file'], "hello/file\n")
+
+
+
+
+test.write(['work2', 'SConstruct'], """\
+import os
+def catdir(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    outfp = open(target, "wb")
+    for src in source:
+        l = os.listdir(src)
+        l.sort()
+        for f in l:
+            f = os.path.join(src, f)
+            if os.path.isfile(f):
+                outfp.write(open(f, "rb").read())
+    outfp.close()
+CatDir = Builder(action = catdir)
+env = Environment(BUILDERS = {'CatDir' : CatDir})
+env.Command(Dir('hello'), None, [Mkdir('$TARGET')])
+env.Command('hello/file1.out', 'file1.in', [Copy('$TARGET', '$SOURCE')])
+env.Command('hello/file2.out', 'file2.in', [Copy('$TARGET', '$SOURCE')])
+env.CatDir('output', Dir('hello'))
+""")
+
+test.write(['work2', 'file1.in'], "work2/file1.in\n")
+test.write(['work2', 'file2.in'], "work2/file2.in\n")
+
+test.run(chdir = 'work2', arguments = 'hello/file2.out output')
+
+test.must_match(['work2', 'output'], "work2/file1.in\nwork2/file2.in\n")
 
 test.pass_test()

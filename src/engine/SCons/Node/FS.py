@@ -1111,21 +1111,6 @@ class FS(LocalFS):
             message = "building associated BuildDir targets: %s" % string.join(map(str, targets))
         return targets, message
 
-class DummyExecutor:
-    """Dummy executor class returned by Dir nodes to bamboozle SCons
-    into thinking we are an actual derived node, where our sources are
-    our directory entries."""
-    def cleanup(self):
-        pass
-    def get_raw_contents(self):
-        return ''
-    def get_contents(self):
-        return ''
-    def get_timestamp(self):
-        return 0
-    def get_build_env(self):
-        return None
-
 class Dir(Base):
     """A class for directories in a file system.
     """
@@ -1507,7 +1492,7 @@ class File(Base):
 
         return includes
 
-    def _createDir(self, update=None):
+    def _createDir(self):
         # ensure that the directories for this node are
         # created.
 
@@ -1529,11 +1514,7 @@ class File(Base):
                 # directory.  The dirnode.build() method will suppress
                 # the build if it's the default builder.
                 SCons.Node.Node.build(dirnode)
-                if update:
-                    # Mark this directory as built so we don't try to build
-                    # it again if it has an explicit user-defined Builder.
-                    dirnode.set_state(SCons.Node.executed)
-                    dirnode.built()
+                dirnode.get_executor().nullify()
                 # The build() action may or may not have actually
                 # created the directory, depending on whether the -n
                 # option was used or not.  Delete the _exists and
@@ -1672,7 +1653,7 @@ class File(Base):
                         pass
             else:
                 try:
-                    self._createDir(update=1)
+                    self._createDir()
                 except SCons.Errors.StopError, drive:
                     desc = "No drive `%s' for target `%s'." % (drive, self)
                     raise SCons.Errors.StopError, desc
