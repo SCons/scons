@@ -110,7 +110,29 @@ class DictCmdGenerator:
     def __cmp__(self, other):
         return cmp(self.action_dict, other.action_dict)
 
-class DictEmitter(UserDict.UserDict):
+class Selector(UserDict.UserDict):
+    """A callable dictionary that maps file suffixes to dictionary
+    values."""
+    def __call__(self, env, source):
+        ext = SCons.Util.splitext(str(source[0]))[1]
+        try:
+            return self[ext]
+        except KeyError:
+            # Try to perform Environment substitution on the keys of
+            # emitter_dict before giving up.
+            s_dict = {}
+            for (k,v) in self.items():
+                s_k = env.subst(k)
+                s_dict[s_k] = v
+            try:
+                return s_dict[ext]
+            except KeyError:
+                try:
+                    return self[None]
+                except KeyError:
+                    return None
+
+class DictEmitter(Selector):
     """A callable dictionary that maps file suffixes to emitters.
     When called, it finds the right emitter in its dictionary for the
     suffix of the first source file, and calls that emitter to get the
@@ -119,23 +141,9 @@ class DictEmitter(UserDict.UserDict):
     returned.
     """
     def __call__(self, target, source, env):
-        ext = SCons.Util.splitext(str(source[0]))[1]
-        if ext:
-            try:
-                emitter = self[ext]
-            except KeyError:
-                # Before raising the user error, try to perform Environment
-                # substitution on the keys of emitter_dict.
-                s_dict = {}
-                for (k,v) in self.items():
-                    s_k = env.subst(k)
-                    s_dict[s_k] = v
-                try:
-                    emitter = s_dict[ext]
-                except KeyError:
-                    emitter = None
-            if emitter:
-                target, source = emitter(target, source, env)
+        emitter = Selector.__call__(self, env, source)
+        if emitter:
+            target, source = emitter(target, source, env)
         return (target, source)
 
 def Builder(**kw):
@@ -284,7 +292,11 @@ class BuilderBase:
                         overrides = {}):
         self.action = SCons.Action.Action(action)
         self.multi = multi
+        if SCons.Util.is_Dict(prefix):
+            prefix = Selector(prefix)
         self.prefix = prefix
+        if SCons.Util.is_Dict(suffix):
+            suffix = Selector(suffix)
         self.suffix = suffix
         self.env = env
         self.overrides = overrides
@@ -344,12 +356,13 @@ class BuilderBase:
 
         env = env.Override(overrides)
 
-        pre = self.get_prefix(env)
-        suf = self.get_suffix(env)
         src_suf = self.get_src_suffix(env)
 
         source = adjustixes(source, None, src_suf)
         slist = SCons.Node.arg2nodes(source, self.source_factory)
+
+        pre = self.get_prefix(env, slist)
+        suf = self.get_suffix(env, slist)
 
         if target is None:
             try:
@@ -410,16 +423,16 @@ class BuilderBase:
             return '.' + suff
         return suff
 
-    def get_prefix(self, env):
+    def get_prefix(self, env, sources=[]):
         prefix = self.prefix
         if callable(prefix):
-            prefix = prefix(env)
+            prefix = prefix(env, sources)
         return env.subst(prefix)
 
-    def get_suffix(self, env):
+    def get_suffix(self, env, sources=[]):
         suffix = self.suffix
         if callable(suffix):
-            suffix = suffix(env)
+            suffix = suffix(env, sources)
         else:
             suffix = self.adjust_suffix(suffix)
         return env.subst(suffix)

@@ -79,7 +79,8 @@ RELEASE 0.XX - XXX
     of the suffixes we use as C++ files.
 
   - Allow the "prefix" and "suffix" attributes of a Builder to be
-    callable objects that return generated strings.
+    callable objects that return generated strings, or dictionaries
+    that map a source file suffix to the right prefix/suffix.
 
   - Support a MAXLINELINELENGTH construction variable on Win32 systems
     to control when a temporary file is used for long command lines.

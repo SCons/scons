@@ -362,13 +362,25 @@ class BuilderTestCase(unittest.TestCase):
         assert tgt.path == os.path.join('lib', 'libtgt5'), \
                 "Target has unexpected name: %s" % tgt.path
 
-        def gen_prefix(env):
+        def gen_prefix(env, sources):
             return "gen_prefix() says " + env['FOO']
         my_env = Environment(FOO = 'xyzzy')
         builder = SCons.Builder.Builder(prefix = gen_prefix)
         assert builder.get_prefix(my_env) == "gen_prefix() says xyzzy"
         my_env['FOO'] = 'abracadabra'
         assert builder.get_prefix(my_env) == "gen_prefix() says abracadabra"
+
+        builder = SCons.Builder.Builder(prefix = {None  : 'default-',
+                                                  '.in' : 'out-',
+                                                  '.x'  : 'y-'})
+        tgt = builder(env, source = 'f1')
+        assert tgt.path == 'default-f1', tgt.path
+        tgt = builder(env, source = 'f2.c')
+        assert tgt.path == 'default-f2', tgt.path
+        tgt = builder(env, source = 'f3.in')
+        assert tgt.path == 'out-f3', tgt.path
+        tgt = builder(env, source = 'f4.x')
+        assert tgt.path == 'y-f4', tgt.path
 
     def test_src_suffix(self):
         """Test Builder creation with a specified source file suffix
@@ -424,13 +436,25 @@ class BuilderTestCase(unittest.TestCase):
         assert tgt.path == 'src5.o', \
                 "Target has unexpected name: %s" % tgt.path
 
-        def gen_suffix(env):
+        def gen_suffix(env, sources):
             return "gen_suffix() says " + env['BAR']
         my_env = Environment(BAR = 'hocus pocus')
         builder = SCons.Builder.Builder(suffix = gen_suffix)
         assert builder.get_suffix(my_env) == "gen_suffix() says hocus pocus", builder.get_suffix(my_env)
         my_env['BAR'] = 'presto chango'
         assert builder.get_suffix(my_env) == "gen_suffix() says presto chango"
+
+        builder = SCons.Builder.Builder(suffix = {None  : '.default',
+                                                  '.in' : '.out',
+                                                  '.x'  : '.y'})
+        tgt = builder(env, source = 'f1')
+        assert tgt.path == 'f1.default', tgt.path
+        tgt = builder(env, source = 'f2.c')
+        assert tgt.path == 'f2.default', tgt.path
+        tgt = builder(env, source = 'f3.in')
+        assert tgt.path == 'f3.out', tgt.path
+        tgt = builder(env, source = 'f4.x')
+        assert tgt.path == 'f4.y', tgt.path
 
     def test_ListBuilder(self):
         """Testing ListBuilder class."""
