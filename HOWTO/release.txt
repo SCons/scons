@@ -1,3 +1,5 @@
+__COPYRIGHT__
+
 This document covers how to prepare major releases of SCons--that is,
 releases numbered with X.Y format, such as 0.93, 1.0, etc.
 
@@ -90,6 +92,9 @@ Things to do to release a new X.Y version of SCons:
 
                 aecp rpm/scons.spec.in
                 vi rpm/scons.spec.in
+
+                aecp src/copyrightTests.py
+                vi src/copyrightTests.py
 
                 aecp src/setupTests.py
                 vi src/setupTests.py

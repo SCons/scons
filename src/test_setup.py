@@ -26,6 +26,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test how the setup.py script installs SCons (specifically, its libraries).
+
+Note that this is an installation test, not a functional test, so the
+name of this script doesn't end in *Tests.py.
 """
 
 import os

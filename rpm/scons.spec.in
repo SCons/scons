@@ -7,7 +7,7 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 Source0: %{name}-%{version}.tar.gz
-#Copyright: Steven Knight
+#Copyright: The SCons Foundation
 License: MIT, freely distributable
 Group: Development/Tools
 BuildRoot: %{_tmppath}/%{name}-buildroot

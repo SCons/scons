@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 #
+# __COPYRIGHT__
+#
 # runtest.py - wrapper script for running SCons tests
 #
 # This script mainly exists to set PYTHONPATH to the right list of
@@ -296,14 +298,25 @@ if args:
             for g in glob.glob(a):
                 tests.append(Test(g))
 elif all:
+    # Find all of the SCons functional tests in the local directory
+    # tree.  This is anything under the 'src' subdirectory that ends
+    # with 'Tests.py', or any Python script (*.py) under the 'test'
+    # subdirectory.
+    #
+    # Note that there are some tests under 'src' that *begin* with
+    # 'test_', but they're packaging and installation tests, not
+    # functional tests, so we don't execute them by default.  (They can
+    # still be executed by hand, though, and are routinely executed
+    # by the Aegis packaging build to make sure that we're building
+    # things correctly.)
     tdict = {}
 
-    def find_Test_py(arg, dirname, names, tdict=tdict):
+    def find_Tests_py(arg, dirname, names, tdict=tdict):
         for n in filter(lambda n: n[-8:] == "Tests.py", names):
             t = os.path.join(dirname, n)
             if not tdict.has_key(t):
                 tdict[t] = Test(t)
-    os.path.walk('src', find_Test_py, 0)
+    os.path.walk('src', find_Tests_py, 0)
 
     def find_py(arg, dirname, names, tdict=tdict):
         for n in filter(lambda n: n[-3:] == ".py", names):
