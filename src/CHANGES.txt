@@ -65,6 +65,9 @@ RELEASE 0.05 -
 
   - Add preliminary support for Unicode strings.
 
+  - Efficiency:  don't scan dependencies more than once during the
+    walk of a tree.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.

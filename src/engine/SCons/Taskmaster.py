@@ -166,6 +166,10 @@ class Taskmaster:
     def __init__(self, targets=[], tasker=Task, calc=Calc()):
         
         def out_of_date(node):
+            if node.get_state():
+                # The state is set, so someone has already been here
+                # (finished or currently executing).  Find another one.
+                return []
             # Scan the file before fetching its children().
             node.scan()
             return filter(lambda x: x.get_state() != SCons.Node.up_to_date,

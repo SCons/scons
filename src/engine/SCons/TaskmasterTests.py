@@ -32,6 +32,7 @@ import SCons.Errors
 
 built = None
 executed = None
+scan_called = 0
 
 class Node:
     def __init__(self, name, kids = [], scans = []):
@@ -58,6 +59,8 @@ class Node:
 	return self.kids
 
     def scan(self):
+	global scan_called
+	scan_called = scan_called + 1
         self.kids = self.kids + self.scans
         for scan in self.scans:
             scan.parents.append(self)
@@ -240,6 +243,36 @@ class TaskmasterTestCase(unittest.TestCase):
         assert t.get_target() == n3
         t.executed()
         assert tm.next_task() == None
+
+	n1 = Node("n1")
+	n2 = Node("n2")
+	n3 = Node("n3", [n1, n2])
+	n4 = Node("n4", [n3])
+	n5 = Node("n5", [n3])
+	global scan_called
+	scan_called = 0
+	tm = SCons.Taskmaster.Taskmaster([n4])
+	t = tm.next_task()
+        assert t.get_target() == n1
+	t.executed()
+	t = tm.next_task()
+        assert t.get_target() == n2
+	t.executed()
+	t = tm.next_task()
+        assert t.get_target() == n3
+	t.executed()
+	t = tm.next_task()
+        assert t.get_target() == n4
+	t.executed()
+	assert tm.next_task() == None
+	assert scan_called == 4, scan_called
+
+	tm = SCons.Taskmaster.Taskmaster([n5])
+	t = tm.next_task()
+        assert t.get_target() == n5, t.get_target()
+	t.executed()
+	assert tm.next_task() == None
+	assert scan_called == 5, scan_called
     
     def test_cycle_detection(self):
         n1 = Node("n1")
