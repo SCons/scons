@@ -597,54 +597,53 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                     s0, s1 = s[:2]
                 except (IndexError, ValueError):
                     return s
-                if s0 == '$':
-                    if s1 == '$':
-                        return '$'
-                    elif s1 in '()':
-                        return s
-                    else:
-                        key = s[1:]
-                        if key[0] == '{' or string.find(key, '.') >= 0:
-                            if key[0] == '{':
-                                key = key[1:-1]
-                            try:
-                                s = eval(key, self.gvars, lvars)
-                            except AttributeError, e:
-                                raise SCons.Errors.UserError, \
-                                      "Error trying to evaluate `%s': %s" % (s, e)
-                            except (IndexError, NameError, TypeError):
-                                return ''
-                            except SyntaxError,e:
-                                if self.target:
-                                    raise SCons.Errors.BuildError, (self.target[0], "Syntax error `%s' trying to evaluate `%s'" % (e,s))
-                                else:
-                                    raise SCons.Errors.UserError, "Syntax error `%s' trying to evaluate `%s'" % (e,s)
-                        else:
-                            if lvars.has_key(key):
-                                s = lvars[key]
-                            elif self.gvars.has_key(key):
-                                s = self.gvars[key]
-                            else:
-                                return ''
-
-                        # Before re-expanding the result, handle
-                        # recursive expansion by copying the local
-                        # variable dictionary and overwriting a null
-                        # string for the value of the variable name
-                        # we just expanded.
-                        #
-                        # This could potentially be optimized by only
-                        # copying lvars when s contains more expansions,
-                        # but lvars is usually supposed to be pretty
-                        # small, and deeply nested variable expansions
-                        # are probably more the exception than the norm,
-                        # so it should be tolerable for now.
-                        lv = lvars.copy()
-                        var = string.split(key, '.')[0]
-                        lv[var] = ''
-                        return self.substitute(s, lv)
-                else:
+                if s0 != '$':
                     return s
+                if s1 == '$':
+                    return '$'
+                elif s1 in '()':
+                    return s
+                else:
+                    key = s[1:]
+                    if key[0] == '{' or string.find(key, '.') >= 0:
+                        if key[0] == '{':
+                            key = key[1:-1]
+                        try:
+                            s = eval(key, self.gvars, lvars)
+                        except AttributeError, e:
+                            raise SCons.Errors.UserError, \
+                                  "Error trying to evaluate `%s': %s" % (s, e)
+                        except (IndexError, NameError, TypeError):
+                            return ''
+                        except SyntaxError,e:
+                            if self.target:
+                                raise SCons.Errors.BuildError, (self.target[0], "Syntax error `%s' trying to evaluate `%s'" % (e,s))
+                            else:
+                                raise SCons.Errors.UserError, "Syntax error `%s' trying to evaluate `%s'" % (e,s)
+                    else:
+                        if lvars.has_key(key):
+                            s = lvars[key]
+                        elif self.gvars.has_key(key):
+                            s = self.gvars[key]
+                        else:
+                            return ''
+    
+                    # Before re-expanding the result, handle
+                    # recursive expansion by copying the local
+                    # variable dictionary and overwriting a null
+                    # string for the value of the variable name
+                    # we just expanded.
+                    #
+                    # This could potentially be optimized by only
+                    # copying lvars when s contains more expansions,
+                    # but lvars is usually supposed to be pretty
+                    # small, and deeply nested variable expansions
+                    # are probably more the exception than the norm,
+                    # so it should be tolerable for now.
+                    lv = lvars.copy()
+                    var = string.split(key, '.')[0]
+                    lv[var] = ''
+                    return self.substitute(s, lv)
             elif is_List(s):
                 def func(l, conv=self.conv, substitute=self.substitute, lvars=lvars):
                     return conv(substitute(l, lvars))
@@ -743,6 +742,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
 
     return result
 
+#Subst_List_Strings = {}
+
 def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
@@ -751,6 +752,12 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     substitutions within strings, so see that function instead
     if that's what you're looking for.
     """
+#    try:
+#        Subst_List_Strings[strSubst] = Subst_List_Strings[strSubst] + 1
+#    except KeyError:
+#        Subst_List_Strings[strSubst] = 1
+#    import SCons.Debug
+#    SCons.Debug.caller(1)
     class ListSubber(UserList.UserList):
         """A class to construct the results of a scons_subst_list() call.
 
@@ -800,15 +807,18 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                 except (IndexError, ValueError):
                     self.append(s)
                     return
-                if s0 == '$':
-                    if s1 == '$':
-                        self.append('$')
-                    elif s1 == '(':
-                        self.open_strip('$(')
-                    elif s1 == ')':
-                        self.close_strip('$)')
-                    else:
-                        key = s[1:]
+                if s0 != '$':
+                    self.append(s)
+                    return
+                if s1 == '$':
+                    self.append('$')
+                elif s1 == '(':
+                    self.open_strip('$(')
+                elif s1 == ')':
+                    self.close_strip('$)')
+                else:
+                    key = s[1:]
+                    if key[0] == '{' or string.find(key, '.') >= 0:
                         if key[0] == '{':
                             key = key[1:-1]
                         try:
@@ -823,19 +833,24 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                                 raise SCons.Errors.BuildError, (self.target[0], "Syntax error `%s' trying to evaluate `%s'" % (e,s))
                             else:
                                 raise SCons.Errors.UserError, "Syntax error `%s' trying to evaluate `%s'" % (e,s)
+                    else:
+                        if lvars.has_key(key):
+                            s = lvars[key]
+                        elif self.gvars.has_key(key):
+                            s = self.gvars[key]
                         else:
-                            # Before re-expanding the result, handle
-                            # recursive expansion by copying the local
-                            # variable dictionary and overwriting a null
-                            # string for the value of the variable name
-                            # we just expanded.
-                            lv = lvars.copy()
-                            var = string.split(key, '.')[0]
-                            lv[var] = ''
-                            self.substitute(s, lv, 0)
-                            self.this_word()
-                else:
-                    self.append(s)
+                            return
+
+                    # Before re-expanding the result, handle
+                    # recursive expansion by copying the local
+                    # variable dictionary and overwriting a null
+                    # string for the value of the variable name
+                    # we just expanded.
+                    lv = lvars.copy()
+                    var = string.split(key, '.')[0]
+                    lv[var] = ''
+                    self.substitute(s, lv, 0)
+                    self.this_word()
             elif is_List(s):
                 for a in s:
                     self.substitute(a, lvars, 1)
