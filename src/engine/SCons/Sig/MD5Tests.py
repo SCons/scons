@@ -3,7 +3,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import unittest
 
-import SCons.Sig.MD5
+from SCons.Sig.MD5 import current, collect, signature, to_string, from_string
+
 
 
 
@@ -14,61 +15,48 @@ class my_obj:
 
     def __init__(self, value = ""):
 	self.value = value
-	self.sig = None
-
-    def signature(self):
-	if not self.sig:
-	    self.sig = SCons.Sig.MD5.signature(self.value)
+        
+    def get_signature(self):
+        if not hasattr(self, "sig"):
+	    self.sig = signature(self)
 	return self.sig
 
-    def current(self, sig):
-	return SCons.Sig.MD5.current(self, sig)
+    def get_contents(self):
+	return self.value
 
 
 
 class MD5TestCase(unittest.TestCase):
-
-    def test__init(self):
-	pass	# XXX
-
-    def test__end(self):
-	pass	# XXX
 
     def test_current(self):
 	"""Test deciding if an object is up-to-date
 
 	Simple comparison of different "signature" values.
 	"""
-	o111 = my_obj(value = '111')
-	assert not o111.current(SCons.Sig.MD5.signature('110'))
-	assert     o111.current(SCons.Sig.MD5.signature('111'))
-	assert not o111.current(SCons.Sig.MD5.signature('112'))
-
-    def test_set(self):
-	pass	# XXX
-
-    def test_invalidate(self):
-	pass	# XXX
+	obj = my_obj('111')
+	assert not current(obj, signature(my_obj('110')))
+	assert     current(obj, signature(my_obj('111')))
+	assert not current(obj, signature(my_obj('112')))
 
     def test_collect(self):
 	"""Test collecting a list of signatures into a new signature value
 	"""
-	o1 = my_obj(value = '111')
-	o2 = my_obj(value = '222')
-	o3 = my_obj(value = '333')
-	assert '698d51a19d8a121ce581499d7b701668' == SCons.Sig.MD5.collect(o1)
-	assert '8980c988edc2c78cc43ccb718c06efd5' == SCons.Sig.MD5.collect(o1, o2)
-	assert '53fd88c84ff8a285eb6e0a687e55b8c7' == SCons.Sig.MD5.collect(o1, o2, o3)
+        s = map(signature, map(my_obj, ('111', '222', '333')))
+        
+        assert '698d51a19d8a121ce581499d7b701668' == collect(s[0:1])
+        assert '8980c988edc2c78cc43ccb718c06efd5' == collect(s[0:2])
+	assert '53fd88c84ff8a285eb6e0a687e55b8c7' == collect(s)
 
     def test_signature(self):
-	pass	# XXX
+        """Test generating a signature"""
+	o1 = my_obj(value = '111')
+        assert '698d51a19d8a121ce581499d7b701668' == signature(o1)
 
-    def test_cmdsig(self):
-	pass	# XXX
+    def test_to_string(self):
+        assert '698d51a19d8a121ce581499d7b701668' == to_string('698d51a19d8a121ce581499d7b701668')
 
-    def test_srcsig(self):
-	pass	# XXX
-
+    def test_from_string(self):
+        assert '698d51a19d8a121ce581499d7b701668' == from_string('698d51a19d8a121ce581499d7b701668')
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(MD5TestCase, 'test_')

@@ -10,7 +10,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import md5
 import string
 
-
+def current(obj, sig):
+    """Return whether a given object is up-to-date with the
+    specified signature.
+    """
+    return obj.get_signature() == sig
 
 def hexdigest(s):
     """Return a signature as a string of hex characters.
@@ -25,46 +29,28 @@ def hexdigest(s):
 	r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
     return r
 
-
-
-def _init():
-    pass	# XXX
-
-def _end():
-    pass	# XXX
-
-def current(obj, sig):
-    """Return whether a given object is up-to-date with the
-    specified signature.
+def collect(signatures):
     """
-    return obj.signature() == sig
+    Collect a list of signatures into an aggregate signature.
 
-def set():
-    pass	# XXX
-
-def invalidate():
-    pass	# XXX
-
-def collect(*objects):
-    """Collect signatures from a list of objects, returning the
-    aggregate signature of the list.
+    signatures - a list of signatures
+    returns - the aggregate signature
     """
-    if len(objects) == 1:
-	sig = objects[0].signature()
+    if len(signatures) == 1:
+	return signatures[0]
     else:
-	contents = string.join(map(lambda o: o.signature(), objects), ', ')
-	sig = signature(contents)
-#    if debug:
-#	pass
-    return sig
+        contents = string.join(signatures, ', ')
+	return hexdigest(md5.new(contents).digest())
 
-def signature(contents):
-    """Generate a signature for a byte string.
+def signature(obj):
+    """Generate a signature for an object
     """
-    return hexdigest(md5.new(contents).digest())
+    return hexdigest(md5.new(obj.get_contents()).digest())
 
-def cmdsig():
-    pass	# XXX
+def to_string(signature):
+    """Convert a signature to a string"""
+    return signature
 
-def srcsig():
-    pass	# XXX
+def from_string(string):
+    """Convert a string to a signature"""
+    return string

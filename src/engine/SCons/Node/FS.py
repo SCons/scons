@@ -257,6 +257,14 @@ class File(Node):
     def root(self):
         return self.parent.root()
 
+    def get_contents(self):
+        return open(self.path, "r").read()
+
+    def get_timestamp(self):
+        return os.path.getmtime(self.path)
+
+    def exists(self):
+        return os.path.exists(self.path)
 
 
 default_fs = FS()

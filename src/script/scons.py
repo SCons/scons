@@ -14,6 +14,8 @@ import traceback
 import SCons.Node.FS
 import SCons.Job
 from SCons.Errors import *
+import SCons.Sig
+import SCons.Sig.MD5
 
 #
 # Modules and classes that we don't use directly in this script, but
@@ -545,13 +547,17 @@ def main():
     if not targets:
 	targets = default_targets
 
-    taskmaster = Taskmaster(map(
-    			lambda x: SCons.Node.FS.default_fs.File(x),
-			targets))
+    calc = SCons.Sig.Calculator(SCons.Sig.MD5)
+    nodes = map(lambda x: SCons.Node.FS.default_fs.File(x), targets)
+    nodes = filter(lambda x, calc=calc: not calc.current(x), nodes)
+    
+    taskmaster = Taskmaster(nodes)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     jobs.start()
     jobs.wait()
+
+    calc.write(nodes)
 
 if __name__ == "__main__":
     try:

@@ -10,6 +10,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import SCons.Node.FS
+import string
 import types
 
 
@@ -41,7 +42,21 @@ class Builder:
 	node = self.node_factory(target)
 	node.builder_set(self)
 	node.env_set(self)
-	node.sources = source	# XXX REACHING INTO ANOTHER OBJECT
+
+        # XXX REACHING INTO ANOTHER OBJECT (this is only temporary):
+        assert type(source) is type("")
+        node.sources = source
+        node.derived = 1
+        sources = string.split(source, " ")
+        sources = filter(lambda x: x, sources)
+        source_nodes = []
+        for source in sources:
+            source_node = self.node_factory(source)
+            source_node.derived = 0
+            source_node.source_nodes = []
+            source_nodes.append(source_node)
+        node.source_nodes = source_nodes
+        
 	return node
 
     def execute(self, **kw):

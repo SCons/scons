@@ -3,6 +3,8 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import os.path
+import time
 
 #XXX Future:  be able to interpolate
 
@@ -120,5 +122,13 @@ test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
 #XXXtest.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c X\nf3c.c\n")
 
 #XXXtest.up_to_date(arguments = '.')
+
+# make sure the programs don't get rebuilt, because nothing changed:
+oldtime1 = os.path.getmtime(test.workpath('foo1'))
+oldtime2 = os.path.getmtime(test.workpath('foo2'))
+time.sleep(1) # introduce a small delay, to make the test valid
+test.run(arguments = 'foo1 foo2')
+test.fail_test(not (oldtime1 == os.path.getmtime(test.workpath('foo1'))))
+test.fail_test(not (oldtime2 == os.path.getmtime(test.workpath('foo2'))))
 
 test.pass_test()

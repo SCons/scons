@@ -3,7 +3,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import unittest
 
-import SCons.Sig.TimeStamp
+from SCons.Sig.TimeStamp import current, collect, signature, to_string, from_string
 
 
 
@@ -12,24 +12,17 @@ class my_obj:
     requirements of the TimeStamp class.
     """
 
-    def __init__(self, value = ""):
+    def __init__(self, value = 0):
 	self.value = value
 
-    def signature(self):
+    def get_signature(self):
 	return self.value
 
+    def get_timestamp(self):
+        return self.value
 
 
 class TimeStampTestCase(unittest.TestCase):
-
-    def test__init(self):
-	pass	# XXX
-
-    def test__init(self):
-	pass	# XXX
-
-    def test__end(self):
-	pass	# XXX
 
     def test_current(self):
 	"""Test deciding if an object is up-to-date
@@ -37,35 +30,29 @@ class TimeStampTestCase(unittest.TestCase):
 	Simple comparison of different timestamp values.
 	"""
 	o1 = my_obj(value = 111)
-	assert SCons.Sig.TimeStamp.current(o1, 110)
-	assert SCons.Sig.TimeStamp.current(o1, 111)
-	assert not SCons.Sig.TimeStamp.current(o1, 112)
-
-    def test_set(self):
-	pass	# XXX
-
-    def test_invalidate(self):
-	pass	# XXX
+	assert current(o1, 110)
+	assert current(o1, 111)
+	assert not current(o1, 112)
 
     def test_collect(self):
 	"""Test collecting a list of signatures into a new signature value
 	into a new timestamp value.
 	"""
-	o1 = my_obj(value = 111)
-	o2 = my_obj(value = 222)
-	o3 = my_obj(value = 333)
-	assert 111 == SCons.Sig.TimeStamp.collect(o1)
-	assert 222 == SCons.Sig.TimeStamp.collect(o1, o2)
-	assert 333 == SCons.Sig.TimeStamp.collect(o1, o2, o3)
+        
+	assert 111 == collect((111,))
+	assert 222 == collect((111, 222))
+	assert 333 == collect((333, 222, 111))
 
     def test_signature(self):
-	pass	# XXX
+        """Test generating a signature"""
+        o1 = my_obj(value = 111)
+        assert 111 == signature(o1)
 
-    def test_cmdsig(self):
-	pass	# XXX
+    def test_to_string(self):
+        assert '111' == to_string(111)
 
-    def test_srcsig(self):
-	pass	# XXX
+    def test_from_string(self):
+        assert 111 == from_string('111')
 
 
 if __name__ == "__main__":

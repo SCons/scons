@@ -20,3 +20,13 @@ class Node:
 
     def env_set(self, env):
 	self.env = env
+
+    def has_signature(self):
+        return hasattr(self, "signature")
+
+    def set_signature(self, signature):
+        self.signature = signature
+
+    def get_signature(self):
+        return self.signature
+
