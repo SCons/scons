@@ -52,8 +52,8 @@ class SConfTestCase(unittest.TestCase):
     def _resetSConfState(self):
         # Ok, this is tricky, and i do not know, if everything is sane.
         # We try to reset scons' state (including all global variables)
-        import SCons.Sig
-        SCons.Sig.write() # simulate normal scons-finish
+        import SCons.SConsign
+        SCons.SConsign.write() # simulate normal scons-finish
         for n in sys.modules.keys():
             if string.split(n, '.')[0] == 'SCons':
                 m = sys.modules[n]

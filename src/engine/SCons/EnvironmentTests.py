@@ -2214,7 +2214,7 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_SConsignFile(self):
         """Test the SConsignFile() method"""
-        import SCons.Sig
+        import SCons.SConsign
 
         class MyFS:
             SConstruct_dir = os.sep + 'dir'
@@ -2230,8 +2230,8 @@ class EnvironmentTestCase(unittest.TestCase):
                 fnames.append(name)
                 dbms.append(dbm_module)
 
-            save_Sig_SConsignFile = SCons.Sig.SConsignFile
-            SCons.Sig.SConsignFile = capture
+            save_SConsign_File = SCons.SConsign.File
+            SCons.SConsign.File = capture
 
             env.SConsignFile('foo')
             assert fnames[0] == os.path.join(os.sep, 'dir', 'foo'), fnames
@@ -2257,7 +2257,7 @@ class EnvironmentTestCase(unittest.TestCase):
             assert fnames[5] == os.path.join(os.sep, 'dir', '.sconsign'), fnames
             assert dbms[5] == None, dbms
         finally:
-            SCons.Sig.SConsignFile = save_Sig_SConsignFile
+            SCons.SConsign.File = save_SConsign_File
 
     def test_SideEffect(self):
         """Test the SideEffect() method"""
