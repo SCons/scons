@@ -83,6 +83,9 @@ RELEASE 0.XX - XXX
   - Support a MAXLINELINELENGTH construction variable on Win32 systems
     to control when a temporary file is used for long command lines.
 
+  - Make how we build .rpm packages not depend on the installation
+    locations from the distutils being used.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

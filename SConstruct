@@ -699,6 +699,7 @@ for p in [ scons ]:
         rpm_spec_env.Command(specfile, specfile_in, rpm_spec_action)
 
         env.InstallAs(sourcefile, tar_gz)
+        Local(sourcefile)
 
         targets = [ noarch_rpm, src_rpm ]
         cmd = "$RPMBUILD --define '_topdir $(%s$)' -ba $SOURCES" % topdir
