@@ -88,8 +88,8 @@ class Node:
 
     def generate_build_args(self):
         dict = copy.copy(self.env.Dictionary())
-        if hasattr(self, 'dir'):
-            auto = self.env.autogenerate(dir = self.dir)
+        if hasattr(self, 'cwd'):
+            auto = self.env.autogenerate(dir = self.cwd)
         else:
             auto = self.env.autogenerate()
         dict.update(auto)

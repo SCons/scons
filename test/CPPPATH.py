@@ -45,7 +45,7 @@ test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
 test.write('SConstruct', """
 env = Environment(CPPPATH = ['include'])
-obj = env.Object(target='prog', source='subdir/prog.c')
+obj = env.Object(target='foobar/prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
@@ -164,7 +164,7 @@ test.up_to_date(arguments = args)
 # Change CPPPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
 env = Environment(CPPPATH = 'inc2 include')
-obj = env.Object(target='prog', source='subdir/prog.c')
+obj = env.Object(target='foobar/prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
