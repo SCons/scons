@@ -232,6 +232,9 @@ RELEASE 0.97 - XXX
   - Fix the private Conftest._Have() function so it doesn't change
     non-alphanumeric characters to underscores.
 
+  - Supply a better error message when a construction variable expansion
+    has an unknown attribute.
+
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft

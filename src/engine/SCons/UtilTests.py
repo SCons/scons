@@ -450,6 +450,17 @@ class UtilTestCase(unittest.TestCase):
                              gvars=gvars)
         assert newcom == "test foo baz s t", newcom
 
+        # Test that we handle attribute errors during expansion as expected.
+        try:
+            class Foo:
+                pass
+            scons_subst('${foo.bar}', env, gvars={'foo':Foo()})
+        except SCons.Errors.UserError, e:
+            expect = "Error substituting `foo.bar': unknown attribute `bar'"
+            assert str(e) == expect, e
+        else:
+            raise AssertionError, "did not catch expected UserError"
+
         # Test that we handle syntax errors during expansion as expected.
         try:
             scons_subst('$foo.bar.3.0', env)
@@ -852,6 +863,17 @@ class UtilTestCase(unittest.TestCase):
                 failed = failed + 1
             del subst_list_cases[:4]
         assert failed == 0, "%d subst() mode cases failed" % failed
+
+        # Test that we handle attribute errors during expansion as expected.
+        try:
+            class Foo:
+                pass
+            scons_subst_list('${foo.bar}', env, gvars={'foo':Foo()})
+        except SCons.Errors.UserError, e:
+            expect = "Error substituting `foo.bar': unknown attribute `bar'"
+            assert str(e) == expect, e
+        else:
+            raise AssertionError, "did not catch expected UserError"
 
         # Test that we handle syntax errors during expansion as expected.
         try:
