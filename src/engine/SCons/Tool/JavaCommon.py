@@ -45,10 +45,11 @@ if java_parsing:
     # A regular expression that will find, in a java file:  newlines;
     # any alphanumeric token (keyword, class name, specifier); open or
     # close brackets; a single-line comment "//"; the multi-line comment
-    # begin and end tokens /* and */; single or double quotes; and
-    # single or double quotes preceeded by a backslash.
+    # begin and end tokens /* and */; single or double quotes;
+    # single or double quotes preceeded by a backslash; array
+    # declarations "[]".
     _reToken = re.compile(r'(\n|//|\\[\'"]|[\'"\{\}]|[A-Za-z_][\w\.]*|' +
-                          r'/\*|\*/)')
+                          r'/\*|\*/|\[\])')
 
     class OuterState:
         """The initial state for parsing a Java file for classes,
