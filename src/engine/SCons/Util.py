@@ -47,8 +47,19 @@ except ImportError:
     class UserString:
         pass
 
-
-
+def updrive(path):
+    """
+    Make the drive letter (if any) upper case.
+    This is useful because Windows is inconsitent on the case
+    of the drive letter, which can cause inconsistencies when
+    calculating command signatures.
+    """
+    drive, rest = os.path.splitdrive(path)
+    if drive:
+	return os.path.join(string.upper(drive),rest)
+    else:
+	return path
+	
 class PathList(UserList.UserList):
     """This class emulates the behavior of a list, but also implements
     the special "path dissection" attributes we can use to find
@@ -118,7 +129,7 @@ class PathList(UserList.UserList):
 
     def __getAbsPath(self):
         """Return the absolute path"""
-        return map(os.path.abspath, self.data)
+	return map(lambda x: updrive(os.path.abspath(x)), self.data)
 
     dictSpecialAttrs = { "file" : __getFileName,
                          "base" : __getBasePath,

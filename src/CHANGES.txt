@@ -40,6 +40,9 @@ RELEASE 0.08 -
   - Fix --implicit-cache when a file has no implicit dependencies and
     its source is generated.
 
+  - Make the drive letters on Windows always be the same case, so that
+    changes in the case of drive letters don't cause a rebuild.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to
