@@ -497,7 +497,12 @@ class FunctionAction(ActionBase):
 
     def execute(self, target, source, env):
         rsources = map(rfile, source)
-        return self.execfunction(target=target, source=rsources, env=env)
+        try:
+            result = self.execfunction(target=target, source=rsources, env=env)
+        except EnvironmentError, e:
+            # If an IOError/OSError happens, raise a BuildError.
+            raise SCons.Errors.BuildError(node=target, errstr=e.strerror)
+        return result
 
     def get_contents(self, target, source, env, dict=None):
         """Return the signature contents of this callable action.
