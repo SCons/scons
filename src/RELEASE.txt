@@ -27,10 +27,6 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
 
   Please note the following important changes since release 0.93:
 
-  - The '-LANG:std' option has been removed from the default $CXXFLAGS
-    and $LINKFLAGS variables on SGI systems.  SGI users who need that flag
-    for C++ compilation will need to explicitly add it to those variables.
-
   Please note the following important changes since release 0.92:
 
   - Construction variables are now expanded anywhere within a
