@@ -160,7 +160,9 @@ class BuilderBase:
     def __cmp__(self, other):
 	return cmp(self.__dict__, other.__dict__)
 
-    def __call__(self, env, target = None, source = None):
+    def _create_nodes(self, env, target = None, source = None):
+        """Create and return lists of target and source nodes.
+        """
 	def adjustixes(files, pre, suf):
 	    ret = []
             if type(files) is types.StringType or isinstance(files, UserString):
@@ -183,10 +185,16 @@ class BuilderBase:
                                            env.subst(self.suffix)),
                                 self.node_factory)
 
-	slist = scons_str2nodes(adjustixes(source, None,
+        slist = scons_str2nodes(adjustixes(source,
+                                           None,
                                            env.subst(self.src_suffix)),
                                 self.node_factory)
+        return tlist, slist
 
+    def _init_nodes(self, env, tlist, slist):
+        """Initialize lists of target and source nodes with all of
+        the proper Builder information.
+        """
 	for t in tlist:
             t.cwd = SCons.Node.FS.default_fs.getcwd()	# XXX
 	    t.builder_set(self)
@@ -200,6 +208,11 @@ class BuilderBase:
             scanner = env.get_scanner(os.path.splitext(s.name)[1])
             if scanner:
                 s.scanner_set(scanner.instance(env))
+
+    def __call__(self, env, target = None, source = None):
+	tlist, slist = self._create_nodes(env, target, source)
+
+	self._init_nodes(env, tlist, slist)
 
 	if len(tlist) == 1:
 	    tlist = tlist[0]

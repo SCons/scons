@@ -27,6 +27,9 @@ RELEASE 0.03 -
     factory wrapper to the __init__() method, and allow a Builder to
     have both an action and a src_builder (or array of them).
 
+  - Refactor BuilderBase.__call__() to separate Node creation/lookup
+    from initialization of the Node's builder information.
+
   From Anthony Roach:
 
   - Add a "duplicate" keyword argument to BuildDir() that can be set
