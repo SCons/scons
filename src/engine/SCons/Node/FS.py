@@ -182,7 +182,7 @@ class Entry(SCons.Node.Node):
 
     def __str__(self):
         """A FS node's string representation is its path name."""
-        if self.duplicate or self.builder:
+        if self.duplicate or self.has_builder():
             return self.path
         return self.srcnode().path
 
@@ -513,7 +513,7 @@ class FS:
 			# This is usually the case with BuildDir().
 			# We only want to find pre-existing files.
                         if rnode.exists() and \
-                           (isinstance(rnode, Dir) or not rnode.builder):
+                           (isinstance(rnode, Dir) or not rnode.has_builder()):
                             return rnode
                     except TypeError:
                         pass # Wrong type of node.
@@ -558,7 +558,7 @@ class FS:
                             # want it to show up in the build tree.  This is usually the
                             # case with BuildDir().    We only want to find pre-existing files.
                             if (not must_exist or rnode.exists()) and \
-                               (not rnode.builder or isinstance(rnode, Dir)):
+                               (not rnode.has_builder() or isinstance(rnode, Dir)):
                                 ret.append(rnode)
                         except TypeError:
                             pass # Wrong type of node.
@@ -819,7 +819,7 @@ class File(Entry):
         in the .sconsign file.
         """
 
-        if self.builder:
+        if self.has_builder():
             if SCons.Sig.build_signature:
                 if not hasattr(self, 'bsig'):
                     self.set_bsig(calc.bsig(self.rfile()))
@@ -904,14 +904,14 @@ class File(Entry):
         """Prepare for this file to be created."""
 
         def missing(node):
-            return not node.builder and not node.linked and not node.rexists()
+            return not node.has_builder() and not node.linked and not node.rexists()
         missing_sources = filter(missing, self.children())
         if missing_sources:
             desc = "No Builder for target `%s', needed by `%s'." % (missing_sources[0], self)
             raise SCons.Errors.StopError, desc
 
         if self.exists():
-            if self.builder and not self.precious:
+            if self.has_builder() and not self.precious:
                 Unlink(self, None, None)
                 if hasattr(self, '_exists'):
                     delattr(self, '_exists')
@@ -931,7 +931,7 @@ class File(Entry):
 
     def exists(self):
         # Duplicate from source path if we are set up to do this.
-        if self.duplicate and not self.builder and not self.linked:
+        if self.duplicate and not self.has_builder() and not self.linked:
             src=self.srcnode().rfile()
             if src.exists() and src.abspath != self.abspath:
                 self._createDir()
@@ -1008,7 +1008,7 @@ def find_file(filename, paths, node_factory = default_fs.File):
         try:
             node = node_factory(filename, dir)
             # Return true of the node exists or is a derived node.
-            if node.builder or \
+            if node.has_builder() or \
                (isinstance(node, SCons.Node.FS.Entry) and node.exists()):
                 retval = node
                 break

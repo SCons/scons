@@ -75,9 +75,9 @@ class BuildTask(SCons.Taskmaster.Task):
     def execute(self):
         target = self.targets[0]
         if target.get_state() == SCons.Node.up_to_date:
-            if self.top and target.builder:
+            if self.top and target.has_builder():
                 display('scons: "%s" is up to date.' % str(target))
-        elif target.builder and not hasattr(target.builder, 'status'):
+        elif target.has_builder() and not hasattr(target.builder, 'status'):
             if print_time:
                 start_time = time.time()
             SCons.Taskmaster.Task.execute(self)
@@ -100,7 +100,7 @@ class BuildTask(SCons.Taskmaster.Task):
             
     def executed(self):
         t = self.targets[0]
-        if self.top and not t.builder and not t.side_effect:
+        if self.top and not t.has_builder() and not t.side_effect:
             if not t.exists():
                 sys.stderr.write("scons: *** Do not know how to make target `%s'." % t)
                 if not keep_going_on_error:
@@ -145,7 +145,7 @@ class BuildTask(SCons.Taskmaster.Task):
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def show(self):
-        if self.targets[0].builder or self.targets[0].side_effect:
+        if self.targets[0].has_builder() or self.targets[0].side_effect:
             display("Removed " + str(self.targets[0]))
         if SCons.Script.SConscript.clean_targets.has_key(str(self.targets[0])):
             files = SCons.Script.SConscript.clean_targets[str(self.targets[0])]
@@ -153,7 +153,7 @@ class CleanTask(SCons.Taskmaster.Task):
                 SCons.Utils.fs_delete(str(f), 0)
 
     def remove(self):
-        if self.targets[0].builder or self.targets[0].side_effect:
+        if self.targets[0].has_builder() or self.targets[0].side_effect:
             for t in self.targets:
                 try:
                     removed = t.remove()
@@ -217,7 +217,7 @@ def get_all_children(node): return node.all_children(None)
 
 def get_derived_children(node):
     children = node.all_children(None)
-    return filter(lambda x: x.builder, children)
+    return filter(lambda x: x.has_builder(), children)
 
 def _scons_syntax_error(e):
     """Handle syntax errors. Print out a message and show where the error

@@ -57,6 +57,9 @@ class Node:
         global built_text
         built_text = self.name + " built"
 
+    def has_builder(self):
+        return not self.builder is None
+
     def built(self):
         global built_text
         built_text = built_text + " really"

@@ -31,6 +31,9 @@ RELEASE 0.10 - XXX
   - Fix SCons not exiting with the appropriate status on build errors
     (and probably in other situations).
 
+  - Significant performance improvement from using a more efficient
+    check, throughout the code, for whether a Node has a Builder.
+
   From Steve Leblanc:
 
   - Add a Clean() method to support removing user-specified targets

@@ -263,7 +263,7 @@ class Calculator:
         what's wanted.
         """
         sigs = map(lambda n, c=self: n.calc_signature(c), node.children())
-        if node.builder:
+        if node.has_builder():
             sigs.append(self.module.signature(node.builder_sig_adapter()))
 
         bsig = self.module.collect(filter(lambda x: not x is None, sigs))
@@ -320,7 +320,7 @@ class Calculator:
         """
         oldtime, oldbsig, oldcsig = node.get_prevsiginfo()
 
-        if not node.builder and node.get_timestamp() == oldtime:
+        if not node.has_builder() and node.get_timestamp() == oldtime:
             return 1
 
         return self.module.current(newsig, oldbsig)

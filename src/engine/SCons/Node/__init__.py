@@ -114,7 +114,7 @@ class Node:
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
         """
-        if not self.builder:
+        if not self.has_builder():
             return None
         action_list = self.builder.get_actions()
         if not action_list:
@@ -160,6 +160,19 @@ class Node:
     def builder_set(self, builder):
         self.builder = builder
 
+    def has_builder(self):
+        """Return whether this Node has a builder or not.
+
+        In Boolean tests, this turns out to be a *lot* more efficient
+        than simply examining the builder attribute directly ("if
+        node.builder: ..."). When the builder attribute is examined
+        directly, it ends up calling __getattr__ for both the __len__
+        and __nonzero__ attributes on instances of our Builder Proxy
+        class(es), generating a bazillion extra calls and slowing
+        things down immensely.
+        """
+        return not self.builder is None
+
     def builder_sig_adapter(self):
         """Create an adapter for calculating a builder's signature.
 
@@ -190,7 +203,7 @@ class Node:
         if not self.implicit is None:
             return
         self.implicit = []
-        if not self.builder:
+        if not self.has_builder():
             return
 
         if implicit_cache and not implicit_deps_changed:
@@ -243,7 +256,7 @@ class Node:
         in the .sconsign file.
         """
 
-        if self.builder:
+        if self.has_builder():
             if SCons.Sig.build_signature:
                 if not hasattr(self, 'bsig'):
                     self.set_bsig(calc.bsig(self))

@@ -360,9 +360,9 @@ class Environment:
 
         for side_effect in side_effects:
             # A builder of 1 means the node is supposed to appear
-	    # buildable without actually having a builder, so we allow
-	    # it to be a side effect as well.
-            if side_effect.builder is not None and side_effect.builder != 1:
+            # buildable without actually having a builder, so we allow
+            # it to be a side effect as well.
+            if side_effect.has_builder() and side_effect.builder != 1:
                 raise SCons.Errors.UserError, "Multiple ways to build the same target were specified for: %s" % str(side_effect)
             side_effect.add_source(targets)
             side_effect.side_effect = 1

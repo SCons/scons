@@ -59,6 +59,9 @@ class DummyNode:
         self.oldbsig = 0
         self.oldcsig = 0
 
+    def has_builder(self):
+        return self.builder
+
     def get_contents(self):
         # a file that doesn't exist has no contents:
         assert self.exists()
@@ -97,7 +100,7 @@ class DummyNode:
         return None
 
     def calc_signature(self, calc):
-        if self.builder:
+        if self.has_builder():
             return calc.bsig(self)
         else:
             return calc.csig(self)
@@ -212,7 +215,7 @@ class SigTestBase:
 
         for node in nodes:
             self.failUnless(not current(calc, node),
-                            "none of the nodes should be current")
+                            "node %s should not be current" % node.path)
 
         # simulate a build:
         self.files[1].modify('built', 222)
@@ -230,7 +233,7 @@ class SigTestBase:
 
         for node in nodes:
             self.failUnless(current(calc, node),
-                            "all of the nodes should be current")
+                            "node %s should be current" % node.path)
 
     def test_modify(self):
 
@@ -278,7 +281,7 @@ class SigTestBase:
 
         for node in nodes:
             self.failUnless(current(calc, node),
-                            "all of the nodes should be current")
+                            "node %s should be current" % node.path)
 
 
 class MD5TestCase(unittest.TestCase, SigTestBase):
@@ -311,6 +314,8 @@ class CalcTestCase(unittest.TestCase):
                 self.ignore = []
                 self.builder = None
                 self.use_signature = 1
+            def has_builder(self):
+                return not self.builder is None
             def children(self):
                 return filter(lambda x, i=self.ignore: x not in i, self.kids)
             def all_children(self):

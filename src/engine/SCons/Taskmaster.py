@@ -213,7 +213,7 @@ class Taskmaster:
             # Add non-derived files that have not been built
             # to the candidates list:
             def derived(node):
-                return (node.builder or node.side_effect) and node.get_state() == None
+                return (node.has_builder() or node.side_effect) and node.get_state() == None
             derived = filter(derived, children)
             if derived:
                 derived.reverse()
