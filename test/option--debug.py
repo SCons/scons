@@ -27,6 +27,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 import sys
 import string
+import re
+import time
 
 test = TestSCons.TestSCons()
 
@@ -124,6 +126,54 @@ test.fail_test(string.find(test.stdout(), tree) != 0)
 test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
 test.fail_test(string.find(test.stdout(), "(Pdb)") == -1)
 test.fail_test(string.find(test.stdout(), "scons") == -1)
+
+test.write('foo.c', r"""
+#include "foo.h"
+
+int main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("f1.c\n");
+	exit (0);
+}
+""")
+
+test.write('bar.c', """
+#include "bar.h"
+
+""")
+
+############################
+# test --debug=time
+
+def num(match, line):
+    return float(re.match(match, line).group(1))
+
+start_time = time.time()
+test.run(program=sys.executable, arguments='-c pass')
+overhead = time.time() - start_time 
+
+start_time = time.time()
+test.run(arguments = "--debug=time .")
+expected_total_time = time.time() - start_time - overhead
+line = string.split(test.stdout(), '\n')
+
+expected_command_time = num(r'Command execution time: (\d+\.\d+) seconds', line[1])
+expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', line[3])
+expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', line[5])
+expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', line[6])
+
+total_time = num(r'Total build time: (\d+\.\d+) seconds', line[7])
+sconscript_time = num(r'Total SConscript file execution time: (\d+\.\d+) seconds', line[8])
+scons_time = num(r'Total SCons execution time: (\d+\.\d+) seconds', line[9])
+command_time = num(r'Total command execution time: (\d+\.\d+) seconds', line[10])
+
+def check(expected, actual, tolerance):
+    return abs((expected-actual)/actual) <= tolerance
+
+assert check(expected_command_time, command_time, 0.01)
+assert check(total_time, sconscript_time+scons_time+command_time, 0.01) 
+assert check(total_time, expected_total_time, 0.1)
 
 test.pass_test()
 

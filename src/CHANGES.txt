@@ -52,6 +52,8 @@ RELEASE 0.08 -
   - Fix .sconsign signature storage so that output files of one build
     can be safely used as input files to another build.
 
+  - Added a --debug=time option to print SCons execution times.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to

@@ -341,6 +341,13 @@ Print the dependency tree
 after each top-level target is built. This prints out only derived files.
 
 .TP
+.RI --debug=time
+Prints various time profiling information: the time spent
+executing each build command, the total build time, the total time spent
+executing build commands, the total time spent executing SConstruct and
+SConscript files, and the total time spent executing SCons itself.
+
+.TP
 -e, --environment-overrides
 Variables from the execution environment override construction
 variables from the configuration files.

@@ -36,6 +36,9 @@ it goes here.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import time
+start_time = time.time()
+
 import getopt
 import os
 import os.path
@@ -74,7 +77,15 @@ class BuildTask(SCons.Taskmaster.Task):
         else:
             try:
                 self.targets[0].prepare()
+                if print_time:
+                    start_time = time.time()
                 self.targets[0].build()
+                if print_time:
+                    finish_time = time.time()
+                    global command_time
+                    command_time = command_time+finish_time-start_time
+                    print "Command execution time: %f seconds"%(finish_time-start_time)
+   
             except BuildError, e:
                 sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
                 if e.errstr == 'Exception':
@@ -155,11 +166,15 @@ keep_going_on_error = 0
 help_option = None
 print_tree = 0
 print_dtree = 0
+print_time = 0
+sconscript_time = 0
+command_time = 0
 climb_up = 0
 target_top = None
 exit_status = 0 # exit status, assume success by default
 profiling = 0
 max_drift = None
+
 
 # utility functions
 
@@ -436,6 +451,7 @@ def options_init():
     def opt_debug(opt, arg):
         global print_tree
         global print_dtree
+        global print_time
         if arg == "pdb":
             args = [ sys.executable, "pdb.py" ] + \
                      filter(lambda x: x != "--debug=pdb", sys.argv)
@@ -452,6 +468,8 @@ def options_init():
             print_tree = 1
         elif arg == "dtree":
             print_dtree = 1
+        elif arg == "time":
+            print_time = 1
         else:
             sys.stderr.write("Warning:  %s is not a valid debug type\n"
                              % arg)
@@ -804,8 +822,11 @@ def _main():
 
     sys.path = include_dirs + sys.path
 
+    start_time = time.time()
     for script in scripts:
         SCons.Script.SConscript.SConscript(script)
+    global sconscript_time
+    sconscript_time = time.time() - start_time
 
     SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
@@ -888,5 +909,13 @@ def main():
         _scons_user_error(e)
     except:
         _scons_other_errors()
+
+    if print_time:
+        total_time = time.time()-start_time
+        scons_time = total_time-sconscript_time-command_time
+        print "Total build time: %f seconds"%total_time
+        print "Total SConscript file execution time: %f seconds"%sconscript_time
+        print "Total SCons execution time: %f seconds"%scons_time
+        print "Total command execution time: %f seconds"%command_time
 
     sys.exit(exit_status)
