@@ -332,7 +332,7 @@ def _scons_internal_warning(e):
     *current call stack* rather than sys.exc_info() to get our stack trace.
     This is used by the warnings framework to print warnings."""
     filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_stack())
-    sys.stderr.write("\nscons: warning: %s\n" % e)
+    sys.stderr.write("\nscons: warning: %s\n" % e[0])
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
 
 def _scons_internal_error():

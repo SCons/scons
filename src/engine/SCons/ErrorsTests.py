@@ -42,14 +42,14 @@ class ErrorsTestCase(unittest.TestCase):
         try:
             raise SCons.Errors.InternalError, "test internal error"
         except SCons.Errors.InternalError, e:
-            assert e.args == "test internal error"
+            assert e.args == ("test internal error",)
 
     def test_UserError(self):
 	"""Test the UserError exception."""
         try:
             raise SCons.Errors.UserError, "test user error"
         except SCons.Errors.UserError, e:
-            assert e.args == "test user error"
+            assert e.args == ("test user error",)
 
     def test_ExplicitExit(self):
 	"""Test the ExplicitExit exception."""
@@ -63,7 +63,7 @@ class ErrorsTestCase(unittest.TestCase):
         try:
             raise SCons.Errors.ConfigureDryRunError, "FileName"
         except SCons.Errors.UserError, e:
-            assert e.args == "Cannot update configure test (FileName) within a dry-run."
+            assert e.args == ("Cannot update configure test (FileName) within a dry-run.",)
 
     def test_TaskmasterException(self):
         """Test the TaskmasterException."""

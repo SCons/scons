@@ -36,25 +36,22 @@ class BuildError(Exception):
     def __init__(self, node=None, errstr="Unknown error", *args):
         self.node = node
         self.errstr = errstr
-        self.args = args
+        apply(Exception.__init__, (self,) + args)
 
 class InternalError(Exception):
-    def __init__(self, args=None):
-        self.args = args
+    pass
 
 class UserError(Exception):
-    def __init__(self, args=None):
-        self.args = args
+    pass
 
 class StopError(Exception):
-    def __init__(self, args=None):
-        self.args = args
+    pass
 
 class ExplicitExit(Exception):
     def __init__(self, node=None, status=None, *args):
         self.node = node
         self.status = status
-        self.args = args
+        apply(Exception.__init__, (self,) + args)
 
 class ConfigureDryRunError(UserError):
     """Raised when a file needs to be updated during a Configure process,
@@ -67,4 +64,4 @@ class TaskmasterException(Exception):
         self.type = type
         self.value = value
         self.traceback = traceback
-        self.args = args
+        apply(Exception.__init__, (self,) + args)
