@@ -44,6 +44,9 @@ class DeprecatedWarning(Warning):
 class DependencyWarning(Warning):
     pass
 
+class CorruptSConsignWarning(Warning):
+    pass
+
 _warningAsException = 0
 
 # The below is a list of 2-tuples.  The first element is a class object.

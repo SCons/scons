@@ -26,8 +26,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import TestSCons
+import TestCmd
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.subdir('sub1', 'sub2', 'sub3')
 
@@ -69,5 +70,34 @@ test.fail_test(test.read(sub1__sconsign) == "")
 test.fail_test(test.read(sub2__sconsign) == "")
 
 os.chmod(sub1__sconsign, 0666)
+
+test.write('SConstruct', """
+def build1(target, source, env):
+    print '%s->%s'%(str(source[0]), str(target[0]))
+    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
+    return None
+
+B1 = Builder(action = build1)
+env = Environment(BUILDERS = { 'B1' : B1})
+env.B1(target = 'sub1/foo.out', source = 'foo.in')
+""")
+
+stderr = '''
+SCons warning: Ignoring corrupt .sconsign file: sub1..sconsign
+.*
+'''
+
+stdout = '''foo.in->sub1.foo.out
+'''
+
+test.write(sub1__sconsign, 'garbage')
+test.run(arguments = '.', stderr=stderr, stdout=stdout)
+
+test.write(sub1__sconsign, 'not:a:sconsign:file')
+test.run(arguments = '.', stderr=stderr, stdout=stdout)
+
+test.write(sub1__sconsign, '\0\0\0\0\0\0\0\0\0\0\0\0\0\0')
+test.run(arguments = '.', stderr=stderr, stdout=stdout)
+
 
 test.pass_test()

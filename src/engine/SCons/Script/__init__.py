@@ -865,6 +865,7 @@ def _main():
     # Enable deprecated warnings by default.
     SCons.Warnings._warningOut = _scons_internal_warning
     SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
+    SCons.Warnings.enableWarningClass(SCons.Warnings.CorruptSConsignWarning)
 
     try:
 	cmd_opts, t = getopt.getopt(string.split(os.environ['SCONSFLAGS']),

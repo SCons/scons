@@ -34,6 +34,7 @@ import os.path
 import string
 import SCons.Node
 import time
+import SCons.Warnings
 
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
@@ -131,9 +132,14 @@ class SConsignFile:
             pass
         else:
             for line in file.readlines():
-                filename, rest = map(string.strip, string.split(line, ":", 1))
-                self.entries[filename] = SConsignEntry(self.module, rest)
-
+                try:
+                    filename, rest = map(string.strip, string.split(line, ":", 1))
+                    self.entries[filename] = SConsignEntry(self.module, rest)
+                except ValueError:
+                    SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
+                                        "Ignoring corrupt .sconsign file: %s"%self.sconsign)
+                    self.entries = {}
+                    
         global sig_files
         sig_files.append(self)
 

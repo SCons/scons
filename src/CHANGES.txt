@@ -20,6 +20,8 @@ RELEASE 0.09 -
 
  - Make -U be case insensitive on Win32 systems.
 
+ - Issue a warning and continue when finding a corrupt .sconsign file.
+
 
 
 RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
