@@ -692,8 +692,21 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
     if gvars is None:
         gvars = env.Dictionary()
 
+    # We're (most likely) going to eval() things.  If Python doesn't
+    # find a __builtin__ value in the global dictionary used for eval(),
+    # it copies the current __builtin__ values for you.  Avoid this by
+    # setting it explicitly and then deleting, so we don't pollute the
+    # construction environment Dictionary(ies) that are typically used
+    # for expansion.
+    gvars['__builtin__'] = __builtin__
+
     ss = StringSubber(env, mode, target, source, conv, gvars)
     result = ss.substitute(strSubst, dict)
+
+    try:
+        del gvars['__builtin__']
+    except KeyError:
+        pass
 
     if is_String(result):
         # Remove $(-$) pairs and any stuff in between,
@@ -929,8 +942,21 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
     if gvars is None:
         gvars = env.Dictionary()
 
+    # We're (most likely) going to eval() things.  If Python doesn't
+    # find a __builtin__ value in the global dictionary used for eval(),
+    # it copies the current __builtin__ values for you.  Avoid this by
+    # setting it explicitly and then deleting, so we don't pollute the
+    # construction environment Dictionary(ies) that are typically used
+    # for expansion.
+    gvars['__builtins__'] = __builtins__
+
     ls = ListSubber(env, mode, target, source, conv, gvars)
     ls.substitute(strSubst, dict, 0)
+
+    try:
+        del gvars['__builtins__']
+    except KeyError:
+        pass
 
     return ls.data
 

@@ -154,6 +154,9 @@ RELEASE 0.97 - XXX
     will not be added to the construction environment unless it's set
     explicitly by the user or from an Options file.
 
+  - Avoid copying __builtin__ values into a construction environment's
+    dictionary when evaluating construction variables.
+
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
