@@ -1006,3 +1006,32 @@ else:
         return path
 
 display = DisplayEngine()
+
+class Selector(UserDict.UserDict):
+    """A callable dictionary that maps file suffixes to dictionary
+    values."""
+    def __call__(self, env, source):
+        ext = splitext(str(source[0]))[1]
+        try:
+            return self[ext]
+        except KeyError:
+            # Try to perform Environment substitution on the keys of
+            # emitter_dict before giving up.
+            s_dict = {}
+            for (k,v) in self.items():
+                if not k is None:
+                    s_k = env.subst(k)
+                    if s_dict.has_key(s_k):
+                        # We only raise an error when variables point
+                        # to the same suffix.  If one suffix is literal
+                        # and a variable suffix contains this literal,
+                        # the literal wins and we don't raise an error.
+                        raise KeyError, (s_dict[s_k][0], k, s_k)
+                    s_dict[s_k] = (k,v)
+            try:
+                return s_dict[ext][1]
+            except KeyError:
+                try:
+                    return self[None]
+                except KeyError:
+                    return None

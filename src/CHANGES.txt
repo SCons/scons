@@ -14,6 +14,10 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX XXXXX
 
   - Fix Tool import problems with the Intel and PharLap linkers.
 
+  From Steven Knight
+
+  - Refactor the DictCmdGenerator class to be a Selector subclass.
+
   From Gerard Patel
 
   - When the yacc -d flag is used, take the .h file base name from the

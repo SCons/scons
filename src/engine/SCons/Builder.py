@@ -59,23 +59,20 @@ class _Null:
 
 _null = _Null
 
-class DictCmdGenerator:
+class DictCmdGenerator(SCons.Util.Selector):
     """This is a callable class that can be used as a
     command generator function.  It holds on to a dictionary
     mapping file suffixes to Actions.  It uses that dictionary
     to return the proper action based on the file suffix of
     the source file."""
-    
-    def __init__(self, action_dict):
-        self.action_dict = action_dict
 
     def src_suffixes(self):
-        return self.action_dict.keys()
+        return self.keys()
 
     def add_action(self, suffix, action):
         """Add a suffix-action pair to the mapping.
         """
-        self.action_dict[suffix] = action
+        self[suffix] = action
 
     def __call__(self, target, source, env, for_signature):
         ext = None
@@ -87,62 +84,25 @@ class DictCmdGenerator:
 
         if not ext:
             raise UserError("While building `%s': Cannot deduce file extension from source files: %s" % (repr(map(str, target)), repr(map(str, source))))
+
         try:
-            return self.action_dict[ext]
-        except KeyError:
-            # Before raising the user error, try to perform Environment
-            # substitution on the keys of action_dict.
-            s_dict = {}
-            for (k,v) in self.action_dict.items():
-                s_k = env.subst(k)
-                if s_dict.has_key(s_k):
-                    # XXX Note that we do only raise errors, when variables
-                    # point to the same suffix. If one suffix is a
-                    # literal and a variable suffix contains this literal
-                    # we don't raise an error (cause the literal 'wins')
-                    raise UserError("Ambiguous suffixes after environment substitution: %s == %s == %s" % (s_dict[s_k][0], k, s_k))
-                s_dict[s_k] = (k,v)
-            try:
-                return s_dict[ext][1]
-            except KeyError:
-                raise UserError("While building `%s': Don't know how to build a file with suffix %s." % (repr(map(str, target)), repr(ext)))
+            ret = SCons.Util.Selector.__call__(self, env, source)
+        except KeyError, e:
+            raise UserError("Ambiguous suffixes after environment substitution: %s == %s == %s" % (e[0], e[1], e[2]))
+        if ret is None:
+            raise UserError("While building `%s': Don't know how to build a file with suffix `%s'." % (repr(map(str, target)), ext))
+        return ret
 
-    def __cmp__(self, other):
-        return cmp(self.action_dict, other.action_dict)
-
-class Selector(UserDict.UserDict):
-    """A callable dictionary that maps file suffixes to dictionary
-    values."""
-    def __call__(self, env, source):
-        ext = SCons.Util.splitext(str(source[0]))[1]
-        try:
-            return self[ext]
-        except KeyError:
-            # Try to perform Environment substitution on the keys of
-            # emitter_dict before giving up.
-            s_dict = {}
-            for (k,v) in self.items():
-                if not k is None:
-                    s_k = env.subst(k)
-                    s_dict[s_k] = v
-            try:
-                return s_dict[ext]
-            except KeyError:
-                try:
-                    return self[None]
-                except KeyError:
-                    return None
-
-class CallableSelector(Selector):
-    """A callable dictionary that wills, in turn, call the value it
+class CallableSelector(SCons.Util.Selector):
+    """A callable dictionary that will, in turn, call the value it
     finds if it can."""
     def __call__(self, env, source):
-        value = Selector.__call__(self, env, source)
+        value = SCons.Util.Selector.__call__(self, env, source)
         if callable(value):
             value = value(env, source)
         return value
 
-class DictEmitter(Selector):
+class DictEmitter(SCons.Util.Selector):
     """A callable dictionary that maps file suffixes to emitters.
     When called, it finds the right emitter in its dictionary for the
     suffix of the first source file, and calls that emitter to get the
@@ -151,7 +111,7 @@ class DictEmitter(Selector):
     returned.
     """
     def __call__(self, target, source, env):
-        emitter = Selector.__call__(self, env, source)
+        emitter = SCons.Util.Selector.__call__(self, env, source)
         if emitter:
             target, source = emitter(target, source, env)
         return (target, source)
@@ -188,7 +148,7 @@ def Builder(**kw):
     else:
         ret = apply(BuilderBase, (), kw)
 
-    if composite:
+    if not composite is None:
         ret = CompositeBuilder(ret, composite)
 
     return ret

@@ -700,7 +700,7 @@ class BuilderTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
-        match = str(e) == "While building `['t8']': Don't know how to build a file with suffix '.unknown'."
+        match = str(e) == "While building `['t8']': Don't know how to build a file with suffix `.unknown'."
         assert match, e
 
     def test_build_scanner(self):

@@ -863,6 +863,48 @@ class UtilTestCase(unittest.TestCase):
         assert nl[0:2].child.bar == [ 't1child', 't2child' ], \
                nl[0:2].child.bar
 
+    def test_Selector(self):
+        """Test the Selector class"""
+
+        s = Selector({'a' : 'AAA', 'b' : 'BBB'})
+        assert s['a'] == 'AAA', s['a']
+        assert s['b'] == 'BBB', s['b']
+        exc_caught = None
+        try:
+            x = s['c']
+        except KeyError:
+            exc_caught = 1
+        assert exc_caught, "should have caught a KeyError"
+        s['c'] = 'CCC'
+        assert s['c'] == 'CCC', s['c']
+
+        class DummyEnv(UserDict.UserDict):
+            def subst(self, key):
+                if key[0] == '$':
+                    return self[key[1:]]
+                return key
+
+        env = DummyEnv()
+
+        s = Selector({'.d' : 'DDD', '.e' : 'EEE'})
+        ret = s(env, ['foo.d'])
+        assert ret == 'DDD', ret
+        ret = s(env, ['bar.e'])
+        assert ret == 'EEE', ret
+        ret = s(env, ['bar.x'])
+        assert ret == None, ret
+        s[None] = 'XXX'
+        ret = s(env, ['bar.x'])
+        assert ret == 'XXX', ret
+
+        env = DummyEnv({'FSUFF' : '.f', 'GSUFF' : '.g'})
+
+        s = Selector({'$FSUFF' : 'FFF', '$GSUFF' : 'GGG'})
+        ret = s(env, ['foo.f'])
+        assert ret == 'FFF', ret
+        ret = s(env, ['bar.g'])
+        assert ret == 'GGG', ret
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
