@@ -275,13 +275,10 @@ class EnvironmentTestCase(unittest.TestCase):
         env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
         mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
         assert mystr == "b bA bB b", mystr
+
         env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
         mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
         assert mystr == "c cA cB c", mystr
-
-        env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
-        lst = env.subst_list([ "$AAA", "B $CCC" ])
-        assert lst == [ [ "a", "b" ], [ "c", "B a", "b" ], [ "c" ] ], lst
 
         class DummyNode:
             def __init__(self, name):
@@ -293,6 +290,19 @@ class EnvironmentTestCase(unittest.TestCase):
             def get_subst_proxy(self):
                 return self
 
+        t1 = DummyNode('t1')
+        t2 = DummyNode('t2')
+        s1 = DummyNode('s1')
+        s2 = DummyNode('s2')
+
+        env = Environment(AAA = 'aaa')
+        s = env.subst('$AAA $TARGET $SOURCES', target=[t1, t2], source=[s1, s2])
+        assert s == "aaa t1 s1 s2", s
+        s = env.subst('$AAA $TARGETS $SOURCE', target=[t1, t2], source=[s1, s2])
+        assert s == "aaa t1 t2 s1", s
+        s = env.subst('$AAA $TARGETS $SOURCE', target=[t1, t2], source=[s1, s2], dict={})
+        assert s == "aaa", s
+
         # Test callables in the Environment
         def foo(target, source, env, for_signature):
             assert str(target) == 't', target
@@ -300,13 +310,11 @@ class EnvironmentTestCase(unittest.TestCase):
             return env["FOO"]
 
         env = Environment(BAR=foo, FOO='baz')
+        t = DummyNode('t')
+        s = DummyNode('s')
 
-        subst = env.subst('test $BAR', target=DummyNode('t'), source=DummyNode('s'))
+        subst = env.subst('test $BAR', target=t, source=s)
         assert subst == 'test baz', subst
-
-        lst = env.subst_list('test $BAR', target=DummyNode('t'), source=DummyNode('s'))
-        assert lst[0][0] == 'test', lst[0][0]
-        assert lst[0][1] == 'baz', lst[0][1]
 
         # Test not calling callables in the Environment
         if 0:
@@ -324,12 +332,6 @@ class EnvironmentTestCase(unittest.TestCase):
             subst = env.subst('$FOO', call=None)
             assert subst is bar, subst
 
-            subst = env.subst_list('$BAR', call=None)
-            assert subst is bar, subst
-
-            subst = env.subst_list('$FOO', call=None)
-            assert subst is bar, subst
-
     def test_subst_kw(self):
 	"""Test substituting construction variables within dictionaries"""
 	env = Environment(AAA = 'a', BBB = 'b')
@@ -337,6 +339,79 @@ class EnvironmentTestCase(unittest.TestCase):
         assert len(kw) == 2, kw
         assert kw['a'] == 'aaa', kw['a']
         assert kw['bbb'] == 'b', kw['bbb']
+
+    def test_subst_list(self):
+        """Test substituting construction variables in command lists
+        """
+        env = Environment(AAA = 'a', BBB = 'b')
+        l = env.subst_list("$AAA ${AAA}A $BBBB $BBB")
+        assert l == [["a", "aA", "b"]], l
+
+        # Changed the tests below to reflect a bug fix in
+        # subst()
+        env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
+        l = env.subst_list("$AAA ${AAA}A ${AAA}B $BBB")
+        assert l == [["b", "bA", "bB", "b"]], l
+
+        env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
+        l = env.subst_list("$AAA ${AAA}A ${AAA}B $BBB")
+        assert l == [["c", "cA", "cB", "c"]], mystr
+
+        env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
+        lst = env.subst_list([ "$AAA", "B $CCC" ])
+        assert lst == [[ "a", "b"], ["c", "B a", "b"], ["c"]], lst
+
+        class DummyNode:
+            def __init__(self, name):
+                self.name = name
+            def __str__(self):
+                return self.name
+            def rfile(self):
+                return self
+            def get_subst_proxy(self):
+                return self
+
+        t1 = DummyNode('t1')
+        t2 = DummyNode('t2')
+        s1 = DummyNode('s1')
+        s2 = DummyNode('s2')
+
+        env = Environment(AAA = 'aaa')
+        s = env.subst_list('$AAA $TARGET $SOURCES', target=[t1, t2], source=[s1, s2])
+        assert s == [["aaa", "t1", "s1", "s2"]], s
+        s = env.subst_list('$AAA $TARGETS $SOURCE', target=[t1, t2], source=[s1, s2])
+        assert s == [["aaa", "t1", "t2", "s1"]], s
+        s = env.subst_list('$AAA $TARGETS $SOURCE', target=[t1, t2], source=[s1, s2], dict={})
+        assert s == [["aaa"]], s
+
+        # Test callables in the Environment
+        def foo(target, source, env, for_signature):
+            assert str(target) == 't', target
+            assert str(source) == 's', source
+            return env["FOO"]
+
+        env = Environment(BAR=foo, FOO='baz')
+        t = DummyNode('t')
+        s = DummyNode('s')
+
+        lst = env.subst_list('test $BAR', target=t, source=s)
+        assert lst == [['test', 'baz']], lst
+
+        # Test not calling callables in the Environment
+        if 0:
+            # This will take some serious surgery to subst() and
+            # subst_list(), so just leave these tests out until we can
+            # do that.
+            def bar(arg):
+                pass
+
+            env = Environment(BAR=bar, FOO='$BAR')
+
+            subst = env.subst_list('$BAR', call=None)
+            assert subst is bar, subst
+
+            subst = env.subst_list('$FOO', call=None)
+            assert subst is bar, subst
 
     def test_Builder_calls(self):
         """Test Builder calls through different environments

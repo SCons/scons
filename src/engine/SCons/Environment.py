@@ -363,7 +363,7 @@ class Base:
                     return scanner
         return None
 
-    def subst(self, string, raw=0, target=None, source=None):
+    def subst(self, string, raw=0, target=None, source=None, dict=None):
 	"""Recursively interpolates construction variables from the
 	Environment into the specified string, returning the expanded
 	result.  Construction variables are specified by a $ prefix
@@ -373,33 +373,21 @@ class Base:
 	may be surrounded by curly braces to separate the name from
 	trailing characters.
 	"""
-        if raw:
-            mode = SCons.Util.SUBST_RAW
-        else:
-            mode = SCons.Util.SUBST_CMD
-        return SCons.Util.scons_subst(string, self, mode, target, source)
-    
-    def subst_kw(self, kw, raw=0, target=None, source=None):
-        if raw:
-            mode = SCons.Util.SUBST_RAW
-        else:
-            mode = SCons.Util.SUBST_CMD
+        return SCons.Util.scons_subst(string, self, raw, target, source, dict)
+
+    def subst_kw(self, kw, raw=0, target=None, source=None, dict=None):
         nkw = {}
         for k, v in kw.items():
-            k = SCons.Util.scons_subst(k, self, mode, target, source)
+            k = self.subst(k, raw, target, source, dict)
             if SCons.Util.is_String(v):
-                v = SCons.Util.scons_subst(v, self, mode, target, source)
+                v = self.subst(v, raw, target, source, dict)
             nkw[k] = v
         return nkw
-    
-    def subst_list(self, string, raw=0, target=None, source=None):
+
+    def subst_list(self, string, raw=0, target=None, source=None, dict=None):
         """Calls through to SCons.Util.scons_subst_list().  See
         the documentation for that function."""
-        if raw:
-            mode = SCons.Util.SUBST_RAW
-        else:
-            mode = SCons.Util.SUBST_CMD
-        return SCons.Util.scons_subst_list(string, self, mode, target, source)
+        return SCons.Util.scons_subst_list(string, self, raw, target, source, dict)
 
     def use_build_signature(self):
         try:
