@@ -27,6 +27,10 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
 
   - Fix how the man page un-indents after examples in some browsers.
 
+  From Vincent Risi:
+
+  - Fix the C and C++ tool specifications for AIX.
+
 
 
 RELEASE 0.93 - Thu, 23 Oct 2003 07:26:55 -0500

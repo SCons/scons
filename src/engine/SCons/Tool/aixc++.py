@@ -34,8 +34,8 @@ def generate(env):
     suite to an Environment."""
     path, _cxx, _shcxx, version = get_xlc(env)
     if path:
-        _cxx = os.path.join(path, cxx)
-        _shcxx = os.path.join(path, shcxx)
+        _cxx = os.path.join(path, _cxx)
+        _shcxx = os.path.join(path, _shcxx)
 
     cplusplus.generate(env)
 
