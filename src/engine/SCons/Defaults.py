@@ -49,6 +49,7 @@ import SCons.Node.Alias
 import SCons.Node.FS
 import SCons.Platform
 import SCons.Scanner.C
+import SCons.Scanner.Fortran
 import SCons.Scanner.Prog
 import SCons.Util
 
@@ -306,6 +307,8 @@ PostScript = SCons.Builder.Builder(action = '$PSCOM',
 
 CScan = SCons.Scanner.C.CScan()
 
+FortranScan = SCons.Scanner.Fortran.FortranScan()
+
 def alias_builder(env, target, source):
     pass
 
@@ -416,26 +419,26 @@ def make_win32_env_from_paths(include, lib, path):
     return {
         'CC'         : 'cl',
         'CCFLAGS'    : '/nologo',
-        'CCCOM'      : '$CC $CCFLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'CCCOM'      : '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET',
         'SHCC'      : '$CC',
         'SHCCFLAGS' : '$CCFLAGS',
-        'SHCCCOM'    : '$SHCC $SHCCFLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'SHCCCOM'    : '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET',
         'CFILESUFFIX' : '.c',
         'CXX'        : '$CC',
         'CXXFLAGS'   : '$CCFLAGS',
-        'CXXCOM'     : '$CXX $CXXFLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'CXXCOM'     : '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET',
         'SHCXX'      : '$CXX',
         'SHCXXFLAGS' : '$CXXFLAGS',
-        'SHCXXCOM'   : '$SHCXX $SHCXXFLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'SHCXXCOM'   : '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET',
         'CXXFILESUFFIX' : '.cc',
         'F77'        : 'g77',
         'F77FLAGS'   : '',
-        'F77COM'     : '$F77 $F77FLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
-        'F77PPCOM'   : '$F77 $F77FLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'F77COM'     : '$F77 $F77FLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET',
+        'F77PPCOM'   : '$F77 $F77FLAGS $CPPFLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET',
         'SHF77'      : '$F77',
         'SHF77FLAGS' : '$F77FLAGS',
-        'SHF77COM'   : '$SHF77 $SHF77FLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
-        'SHF77PPCOM' : '$SHF77 $SHF77FLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'SHF77COM'   : '$SHF77 $SHF77FLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET',
+        'SHF77PPCOM' : '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET',
         'LINK'       : 'link',
         'LINKFLAGS'  : '/nologo',
         'LINKCOM'    : SCons.Action.CommandGenerator(win32LinkGenerator),
@@ -482,7 +485,7 @@ def make_win32_env_from_paths(include, lib, path):
                          'PDF'            : PDF,
                          'PostScript'     : PostScript,
                          'Program'        : Program },
-        'SCANNERS'   : [CScan],
+        'SCANNERS'   : [CScan, FortranScan],
         'LIBDIRPREFIX'          : '/LIBPATH:',
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '',
@@ -522,29 +525,29 @@ if os.name == 'posix':
     ConstructionEnvironment = {
         'CC'         : 'cc',
         'CCFLAGS'    : '',
-        'CCCOM'      : '$CC $CCFLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'CCCOM'      : '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES',
         'SHCC'       : '$CC',
         'SHCCFLAGS'  : '$CCFLAGS -fPIC',
-        'SHCCCOM'    : '$SHCC $SHCCFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHCCCOM'    : '$SHCC $SHCCFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES',
         'CFILESUFFIX' : '.c',
         'CXX'        : 'c++',
         'CXXFLAGS'   : '$CCFLAGS',
-        'CXXCOM'     : '$CXX $CXXFLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'CXXCOM'     : '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES',
         'CXXFILESUFFIX' : '.cc',
         'SHCXX'      : '$CXX',
         'SHCXXFLAGS' : '$CXXFLAGS -fPIC',
-        'SHCXXCOM'   : '$SHCXX $SHCXXFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHCXXCOM'   : '$SHCXX $SHCXXFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES',
         'F77'        : 'g77',
         'F77FLAGS'   : '',
-        'F77COM'     : '$F77 $F77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
-        'F77PPCOM'   : '$F77 $F77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'F77COM'     : '$F77 $F77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES',
+        'F77PPCOM'   : '$F77 $F77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES',
         'SHF77FLAGS' : '$F77FLAGS -fPIC',
-        'SHF77COM'   : '$F77 $SHF77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
-        'SHF77PPCOM' : '$F77 $SHF77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77COM'   : '$F77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77PPCOM' : '$F77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES',
         'SHF77'      : '$F77',
         'SHF77FLAGS' : '$F77FLAGS -fPIC',
-        'SHF77COM'   : '$SHF77 $SHF77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
-        'SHF77PPCOM' : '$SHF77 $SHF77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77COM'   : '$SHF77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77PPCOM' : '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES',
         'LINK'       : '$CXX',
         'LINKFLAGS'  : '',
         'LINKCOM'    : '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS',
@@ -591,7 +594,7 @@ if os.name == 'posix':
                          'PDF'            : PDF,
                          'PostScript'     : PostScript,
                          'Program'        : Program },
-        'SCANNERS'   : [CScan],
+        'SCANNERS'   : [CScan, FortranScan],
         'LIBDIRPREFIX'          : '-L',
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '-l',

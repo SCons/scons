@@ -47,6 +47,17 @@ foo42 = test.workpath('build', 'var4', 'foo2' + _exe)
 foo51 = test.workpath('build', 'var5', 'foo1' + _exe)
 foo52 = test.workpath('build', 'var5', 'foo2' + _exe)
 
+bar11 = test.workpath('build', 'var1', 'bar1' + _exe)
+bar12 = test.workpath('build', 'var1', 'bar2' + _exe)
+bar21 = test.workpath('build', 'var2', 'bar1' + _exe)
+bar22 = test.workpath('build', 'var2', 'bar2' + _exe)
+bar31 = test.workpath('build', 'var3', 'bar1' + _exe)
+bar32 = test.workpath('build', 'var3', 'bar2' + _exe)
+bar41 = test.workpath('build', 'var4', 'bar1' + _exe)
+bar42 = test.workpath('build', 'var4', 'bar2' + _exe)
+bar51 = test.workpath('build', 'var5', 'bar1' + _exe)
+bar52 = test.workpath('build', 'var5', 'bar2' + _exe)
+
 test.write('SConstruct', """
 src = Dir('src')
 var2 = Dir('build/var2')
@@ -61,20 +72,20 @@ BuildDir(var3, src, duplicate=0)
 BuildDir(var4, src, duplicate=0)
 BuildDir(var5, src, duplicate=0)
 
-env = Environment(CPPPATH='#src')
+env = Environment(CPPPATH='#src', F77PATH='#src')
 SConscript('build/var1/SConscript', "env")
 SConscript('build/var2/SConscript', "env")
 
-env = Environment(CPPPATH=src)
+env = Environment(CPPPATH=src, F77PATH=src)
 SConscript('build/var3/SConscript', "env")
 SConscript(File('SConscript', var4), "env")
 
-env = Environment(CPPPATH='.')
+env = Environment(CPPPATH='.', F77PATH='.')
 SConscript('build/var5/SConscript', "env")
 """) 
 
 test.subdir('src')
-test.write('src/SConscript', """
+test.write(['src', 'SConscript'], """
 import os
 import os.path
 
@@ -91,6 +102,10 @@ Import("env")
 env.Command(target='f2.c', source='f2.in', action=buildIt)
 env.Program(target='foo2', source='f2.c')
 env.Program(target='foo1', source='f1.c')
+
+env.Command(target='b2.f', source='b2.in', action=buildIt)
+env.Copy(LIBS = 'g2c').Program(target='bar2', source='b2.f')
+env.Copy(LIBS = 'g2c').Program(target='bar1', source='b1.f')
 """)
 
 test.write('src/f1.c', r"""
@@ -125,6 +140,28 @@ test.write('src/f2.h', r"""
 #define F2_STR "f2.c\n"
 """)
 
+test.write(['src', 'b1.f'], r"""
+      PROGRAM FOO
+      INCLUDE 'b1.for'
+      STOP
+      END
+""")
+
+test.write(['src', 'b2.in'], r"""
+      PROGRAM FOO
+      INCLUDE 'b2.for'
+      STOP
+      END
+""")
+
+test.write(['src', 'b1.for'], r"""
+      PRINT *, 'b1.for'
+""")
+
+test.write(['src', 'b2.for'], r"""
+      PRINT *, 'b2.for'
+""")
+
 test.run(arguments = '.')
 
 test.run(program = foo11, stdout = "f1.c\n")
@@ -138,17 +175,34 @@ test.run(program = foo42, stdout = "f2.c\n")
 test.run(program = foo51, stdout = "f1.c\n")
 test.run(program = foo52, stdout = "f2.c\n")
 
+test.run(program = bar11, stdout = " b1.for\n")
+test.run(program = bar12, stdout = " b2.for\n")
+test.run(program = bar21, stdout = " b1.for\n")
+test.run(program = bar22, stdout = " b2.for\n")
+test.run(program = bar31, stdout = " b1.for\n")
+test.run(program = bar32, stdout = " b2.for\n")
+test.run(program = bar41, stdout = " b1.for\n")
+test.run(program = bar42, stdout = " b2.for\n")
+test.run(program = bar51, stdout = " b1.for\n")
+test.run(program = bar52, stdout = " b2.for\n")
+
 # Make sure we didn't duplicate the source files in build/var3.
 test.fail_test(os.path.exists(test.workpath('build', 'var3', 'f1.c')))
 test.fail_test(os.path.exists(test.workpath('build', 'var3', 'f2.in')))
+test.fail_test(os.path.exists(test.workpath('build', 'var3', 'b1.f')))
+test.fail_test(os.path.exists(test.workpath('build', 'var3', 'b2.in')))
 
 # Make sure we didn't duplicate the source files in build/var4.
 test.fail_test(os.path.exists(test.workpath('build', 'var4', 'f1.c')))
 test.fail_test(os.path.exists(test.workpath('build', 'var4', 'f2.in')))
+test.fail_test(os.path.exists(test.workpath('build', 'var4', 'b1.f')))
+test.fail_test(os.path.exists(test.workpath('build', 'var4', 'b2.in')))
 
 # Make sure we didn't duplicate the source files in build/var5.
 test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f1.c')))
 test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f2.in')))
+test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b1.f')))
+test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b2.in')))
 
 
 test.pass_test()

@@ -78,6 +78,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Platform/__init__.pyc
 /usr/lib/scons/SCons/Scanner/C.py
 /usr/lib/scons/SCons/Scanner/C.pyc
+/usr/lib/scons/SCons/Scanner/Fortran.py
+/usr/lib/scons/SCons/Scanner/Fortran.pyc
 /usr/lib/scons/SCons/Scanner/Prog.py
 /usr/lib/scons/SCons/Scanner/Prog.pyc
 /usr/lib/scons/SCons/Scanner/__init__.py

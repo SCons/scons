@@ -1278,6 +1278,31 @@ The command line used to compile a Fortran source file to an object file.
 .IP F77FLAGS
 General options that are passed to the Fortran compiler.
 
+.IP F77PATH
+The list of directories that the Fortran compiler will search for include
+directories. The Fortran implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in F77FLAGS because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in F77PATH will be looked-up relative to the SConscript
+directory when they are used in a command. To force 
+.B scons
+to look-up a directory relative to the root of the source tree use #:
+
+.ES
+env = Environment(F77PATH='#/include')
+.EE
+
+.IP
+The directory look-up can also be forced using the 
+.BR Dir ()
+function:
+
+.ES
+include = Dir('include')
+env = Environment(F77PATH=include)
+.EE
+
 .IP F77PPCOM 
 The command line used to compile a Fortran source file to an object file
 after first running the file through the C preprocessor.

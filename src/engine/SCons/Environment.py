@@ -148,8 +148,12 @@ class Environment:
                                            'LIBPATH',
                                            'LIBDIRPREFIX',
                                            'LIBDIRSUFFIX' ),
-                              DirVarInterp('_INCFLAGS',
+                              DirVarInterp('_CPPINCFLAGS',
                                            'CPPPATH',
+                                           'INCPREFIX',
+                                           'INCSUFFIX'),
+                              DirVarInterp('_F77INCFLAGS',
+                                           'F77PATH',
                                            'INCPREFIX',
                                            'INCSUFFIX') )
 
@@ -391,16 +395,23 @@ class Environment:
 class VarInterpolator:
     def __init__(self, dest, src, prefix, suffix):
         self.dest = dest
+        if not SCons.Util.is_List(src):
+            src = [ src ]
         self.src = src
         self.prefix = prefix
         self.suffix = suffix
 
     def prepareSrc(self, dict):
-        src = dict[self.src]
-	if SCons.Util.is_String(src):
-	    src = string.split(src)
-        elif not SCons.Util.is_List(src):
-            src = [ src ]
+        src = []
+        for s in self.src:
+            if dict.has_key(s):
+                cv = dict[s]
+                if SCons.Util.is_String(cv):
+                    src.extend(string.split(cv))
+                elif SCons.Util.is_List(cv):
+                    src.extend(cv)
+                else:
+                    src.append(cv)
 
         def prepare(x, dict=dict):
             if isinstance(x, SCons.Node.Node):
@@ -411,10 +422,6 @@ class VarInterpolator:
         return map(prepare, src)
 
     def generate(self, ddict, sdict):
-        if not sdict.has_key(self.src):
-            ddict[self.dest] = ''
-            return
-
         src = filter(lambda x: not x is None, self.prepareSrc(sdict))
 
         if not src:

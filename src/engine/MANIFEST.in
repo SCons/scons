@@ -15,6 +15,7 @@ SCons/Platform/posix.py
 SCons/Platform/win32.py
 SCons/Scanner/__init__.py
 SCons/Scanner/C.py
+SCons/Scanner/Fortran.py
 SCons/Scanner/Prog.py
 SCons/Script/SConscript.py
 SCons/Script/__init__.py
