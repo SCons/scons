@@ -157,14 +157,17 @@ def whereis(file):
 
 aegis = whereis('aegis')
 
+sp = []
+
 if aegis:
-    sp = os.popen("aesub '$sp' 2>/dev/null", "r").read()[:-1]
-    sp = string.split(sp, os.pathsep)
+    paths = os.popen("aesub '$sp' 2>/dev/null", "r").read()[:-1]
+    sp.extend(string.split(paths, os.pathsep))
     spe = os.popen("aesub '$spe' 2>/dev/null", "r").read()[:-1]
     spe = string.split(spe, os.pathsep)
 else:
-    sp = [cwd]
     spe = []
+
+sp.append(cwd)
 
 class Test:
     def __init__(self, path, spe=None):
