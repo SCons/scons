@@ -126,6 +126,10 @@ class BuildTask(SCons.Taskmaster.Task):
         if print_tree and self.top:
             print
             SCons.Util.print_tree(self.targets[0], get_all_children)
+        if print_stree and self.top:
+            print
+            SCons.Util.print_tree(self.targets[0], get_all_children,
+                                  showtags=2)
         if print_dtree and self.top:
             print
             SCons.Util.print_tree(self.targets[0], get_derived_children)
@@ -245,6 +249,7 @@ print_explanations = 0
 print_includes = 0
 print_objects = 0
 print_stacktrace = 0
+print_stree = 0
 print_time = 0
 print_tree = 0
 memory_stats = None
@@ -405,7 +410,7 @@ def _set_globals(options):
     global repositories, keep_going_on_error, ignore_errors
     global print_count, print_dtree
     global print_explanations, print_includes
-    global print_objects, print_stacktrace
+    global print_objects, print_stacktrace, print_stree
     global print_time, print_tree
     global memory_outf, memory_stats
 
@@ -433,6 +438,8 @@ def _set_globals(options):
                 SCons.Action.print_actions_presub = 1
             elif options.debug == "stacktrace":
                 print_stacktrace = 1
+            elif options.debug == "stree":
+                print_stree = 1
             elif options.debug == "time":
                 print_time = 1
             elif options.debug == "tree":
@@ -530,7 +537,7 @@ class OptParser(OptionParser):
 
         debug_options = ["count", "dtree", "explain", "findlibs",
                          "includes", "memory", "objects",
-                         "pdb", "presub", "stacktrace",
+                         "pdb", "presub", "stacktrace", "stree",
                          "time", "tree"]
 
         def opt_debug(option, opt, value, parser, debug_options=debug_options):

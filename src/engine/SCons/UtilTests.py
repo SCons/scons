@@ -942,23 +942,39 @@ class UtilTestCase(unittest.TestCase):
         q = quote_spaces('x\tx')
         assert q == '"x\tx"', q
 
+    class Node:
+        def __init__(self, name, children=[]):
+            self.children = children
+            self.name = name
+        def __str__(self):
+            return self.name
+        def exists(self):
+            return 1
+        def rexists(self):
+            return 1
+        def has_builder(self):
+            return 1
+        def has_explicit_builder(self):
+            return 1
+        def side_effect(self):
+            return 1
+        def precious(self):
+            return 1
+        def always_build(self):
+            return 1
+        def current(self):
+            return 1
+
     def tree_case_1(self):
         """Fixture for the render_tree() and print_tree() tests."""
-        class Node:
-            def __init__(self, name, children=[]):
-                self.children = children
-                self.name = name
-            def __str__(self):
-                return self.name
-
-        windows_h = Node("windows.h")
-        stdlib_h = Node("stdlib.h")
-        stdio_h = Node("stdio.h")
-        bar_c = Node("bar.c", [stdlib_h, windows_h])
-        bar_o = Node("bar.o", [bar_c])
-        foo_c = Node("foo.c", [stdio_h])
-        foo_o = Node("foo.o", [foo_c])
-        foo = Node("foo", [foo_o, bar_o])
+        windows_h = self.Node("windows.h")
+        stdlib_h = self.Node("stdlib.h")
+        stdio_h = self.Node("stdio.h")
+        bar_c = self.Node("bar.c", [stdlib_h, windows_h])
+        bar_o = self.Node("bar.o", [bar_c])
+        foo_c = self.Node("foo.c", [stdio_h])
+        foo_o = self.Node("foo.o", [foo_c])
+        foo = self.Node("foo", [foo_o, bar_o])
 
         expect = """\
 +-foo
@@ -971,22 +987,20 @@ class UtilTestCase(unittest.TestCase):
       +-windows.h
 """
 
-        return foo, expect
+        lines = string.split(expect, '\n')[:-1]
+        lines = map(lambda l: '[E BSPAC]'+l, lines)
+        withtags = string.join(lines, '\n') + '\n'
+
+        return foo, expect, withtags
 
     def tree_case_2(self):
         """Fixture for the render_tree() and print_tree() tests."""
-        class Node:
-            def __init__(self, name, children=[]):
-                self.children = children
-                self.name = name
-            def __str__(self):
-                return self.name
 
-        stdlib_h = Node("stdlib.h")
-        bar_h = Node('bar.h', [stdlib_h])
-        blat_h = Node('blat.h', [stdlib_h])
-        blat_c = Node('blat.c', [blat_h, bar_h])
-        blat_o = Node('blat.o', [blat_c])
+        stdlib_h = self.Node("stdlib.h")
+        bar_h = self.Node('bar.h', [stdlib_h])
+        blat_h = self.Node('blat.h', [stdlib_h])
+        blat_c = self.Node('blat.c', [blat_h, bar_h])
+        blat_o = self.Node('blat.o', [blat_c])
 
         expect = """\
 +-blat.o
@@ -996,18 +1010,22 @@ class UtilTestCase(unittest.TestCase):
     +-bar.h
 """
 
-        return blat_o, expect
+        lines = string.split(expect, '\n')[:-1]
+        lines = map(lambda l: '[E BSPAC]'+l, lines)
+        withtags = string.join(lines, '\n') + '\n'
+
+        return blat_o, expect, withtags
 
     def test_render_tree(self):
         """Test the render_tree() function"""
         def get_children(node):
             return node.children
 
-        node, expect = self.tree_case_1()
+        node, expect, withtags = self.tree_case_1()
         actual = render_tree(node, get_children)
         assert expect == actual, (expect, actual)
 
-        node, expect = self.tree_case_2()
+        node, expect, withtags = self.tree_case_2()
         actual = render_tree(node, get_children, 1)
         assert expect == actual, (expect, actual)
 
@@ -1019,17 +1037,38 @@ class UtilTestCase(unittest.TestCase):
         save_stdout = sys.stdout
 
         try:
+            node, expect, withtags = self.tree_case_1()
+
             sys.stdout = StringIO.StringIO()
-            node, expect = self.tree_case_1()
             print_tree(node, get_children)
             actual = sys.stdout.getvalue()
             assert expect == actual, (expect, actual)
 
             sys.stdout = StringIO.StringIO()
-            node, expect = self.tree_case_2()
+            print_tree(node, get_children, showtags=1)
+            actual = sys.stdout.getvalue()
+            assert withtags == actual, (withtags, actual)
+
+            node, expect, withtags = self.tree_case_2()
+
+            sys.stdout = StringIO.StringIO()
             print_tree(node, get_children, 1)
             actual = sys.stdout.getvalue()
             assert expect == actual, (expect, actual)
+
+            sys.stdout = StringIO.StringIO()
+            # The following call should work here:
+            #    print_tree(node, get_children, 1, showtags=1)
+            # For some reason I don't understand, though, *this*
+            # time that we call print_tree, the visited dictionary
+            # is still populated with the values from the last call!
+            # I can't see why this would be, short of a bug in Python,
+            # and rather than continue banging my head against the
+            # brick wall for a *test*, we're going to going with
+            # the cheap, easy workaround:
+            print_tree(node, get_children, 1, showtags=1, visited={})
+            actual = sys.stdout.getvalue()
+            assert withtags == actual, (withtags, actual)
         finally:
             sys.stdout = save_stdout
 

@@ -1052,7 +1052,9 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
 
     return retval
 
-def print_tree(root, child_func, prune=0, margin=[0], visited={}):
+IDX = lambda N: N and 1 or 0
+
+def print_tree(root, child_func, prune=0, showtags=0, margin=[0], visited={}):
     """
     Print a tree of nodes.  This is like render_tree, except it prints
     lines directly instead of creating a string representation in memory,
@@ -1061,6 +1063,7 @@ def print_tree(root, child_func, prune=0, margin=[0], visited={}):
     root - the root node of the tree
     child_func - the function called to get the children of a node
     prune - don't visit the same node twice
+    showtags - print status information to the left of each node line
     margin - the format of the left margin to use for children of root.
        1 results in a pipe, and 0 results in no pipe.
     visited - a dictionary of visited nodes in the current branch if not prune,
@@ -1072,23 +1075,51 @@ def print_tree(root, child_func, prune=0, margin=[0], visited={}):
     if visited.has_key(rname):
         return
 
+    if showtags:
+
+        if showtags == 2:
+            print ' E       = exists'
+            print '  R      = exists in repository only'
+            print '   b     = implicit builder'
+            print '   B     = explicit builder'
+            print '    S    = side effect'
+            print '     P   = precious'
+            print '      A  = always build'
+            print '       C = current'
+            print ''
+
+        tags = ['[']
+        tags.append(' E'[IDX(root.exists())])
+        tags.append(' R'[IDX(root.rexists() and not root.exists())])
+        tags.append(' BbB'[[0,1][IDX(root.has_explicit_builder())] +
+                           [0,2][IDX(root.has_builder())]])
+        tags.append(' S'[IDX(root.side_effect)])
+        tags.append(' P'[IDX(root.precious)])
+        tags.append(' A'[IDX(root.always_build)])
+        tags.append(' C'[IDX(root.current())])
+        tags.append(']')
+
+    else:
+        tags = []
+
     def MMM(m):
         return ["  ","| "][m]
-    print string.join(map(MMM, margin[:-1]), '') + "+-" + rname
+    margins = map(MMM, margin[:-1])
+
+    print string.join(tags + margins + ['+-', rname], '')
 
     if prune:
         visited[rname] = 1
-        
+
     children = child_func(root)
     if children:
         margin.append(1)
-        map(lambda C, cf=child_func, p=prune, m=margin, v=visited:
-                   print_tree(C, cf, p, m, v),
+        map(lambda C, cf=child_func, p=prune, i=IDX(showtags), m=margin, v=visited:
+                   print_tree(C, cf, p, i, m, v),
             children[:-1])
         margin[-1] = 0
-        print_tree(children[-1], child_func, prune, margin, visited)
+        print_tree(children[-1], child_func, prune, IDX(showtags), margin, visited)
         margin.pop()
-                  
 
 def is_Dict(e):
     return type(e) is types.DictType or isinstance(e, UserDict)
