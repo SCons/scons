@@ -20,10 +20,14 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.14 - Wed, 21 May 2003 05:16:32 -0500
+RELEASE 0.15 - XXX
 
-  This is the fourteenth alpha release of SCons.  Please consult the
+  This is the fifteenth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.14:
+
+  -
 
   Please note the following important changes since release 0.13:
 
@@ -64,15 +68,6 @@ RELEASE 0.14 - Wed, 21 May 2003 05:16:32 -0500
     re-order statements in your SConscript files to make sure
     construction variables are set before calling the Builders that will
     use them.
-
-  Please note the following important changes since release 0.11:
-
-  - The default behavior of SCons is now to change to the directory in
-    which an SConscript file resides while reading the SConscript file.
-    To disable this and restore the previous behavior of staying in the
-    top-level directory, specify the following in your SConstruct file:
-
-        SConscriptChdir(0)
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
