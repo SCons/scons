@@ -1,8 +1,15 @@
 scons (0.07-1) unstable; urgency=low
 
-  * Seventh Release.
+  * Folding uploaded Debian build into SCons source
 
- -- Steven Knight <knight@baldmt.com>  Thu, 28 Mar 2002 01:24:29 -0600
+ -- Steven Knight <knight@baldmt.com>  Tue, 23 Apr 2002 07:04:54 -0500
+
+
+scons (0.05-1) unstable; urgency=low
+
+  * First upload (closes: #140128)
+
+ -- Moshe Zadka <moshez@debian.org>  Wed, 27 Mar 2002 10:40:42 +0200
 
 
 scons (0.06-1) unstable; urgency=low

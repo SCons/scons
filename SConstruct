@@ -71,13 +71,6 @@ rpm = whereis('rpm')
 unzip = whereis('unzip')
 zip = whereis('zip')
 
-# My installation on Red Hat doesn't like any debhelper version
-# beyond 2, so let's use 2 as the default on any non-Debian build.
-if os.path.isfile('/etc/debian_version'):
-    dh_compat = 3
-else:
-    dh_compat = 2
-
 #
 # Now grab the information that we "build" into the files (using sed).
 #
@@ -252,7 +245,7 @@ env = Environment(
                    DEVELOPER           = developer,
                    REVISION            = revision,
                    VERSION             = version,
-                   DH_COMPAT           = dh_compat,
+                   DH_COMPAT           = 2,
 
                    TAR_HFLAG           = tar_hflag,
 
@@ -298,12 +291,14 @@ python_scons = {
         'inst_subdir'   : os.path.join('lib', 'python1.5', 'site-packages'),
 
         'debian_deps'   : [
-                            'debian/rules',
-                            'debian/control',
                             'debian/changelog',
+                            'debian/control',
                             'debian/copyright',
-                            'debian/python-scons.postinst',
-                            'debian/python-scons.prerm',
+                            'debian/dirs',
+                            'debian/docs',
+                            'debian/postinst',
+                            'debian/prerm',
+                            'debian/rules',
                           ],
 
         'files'         : [ 'LICENSE.txt',
@@ -331,12 +326,14 @@ python_scons = {
 #        'inst_subdir'  : os.path.join('lib', 'python2.1', 'site-packages'),
 #
 #        'debian_deps'  : [
-#                           'debian/rules',
-#                           'debian/control',
-#                           'debian/changelog',
-#                           'debian/copyright',
-#                           'debian/python2-scons.postinst',
-#                           'debian/python2-scons.prerm',
+#                            'debian/changelog',
+#                            'debian/control',
+#                            'debian/copyright',
+#                            'debian/dirs',
+#                            'debian/docs',
+#                            'debian/postinst',
+#                            'debian/prerm',
+#                            'debian/rules',
 #                          ],
 #
 #        'files'        : [
@@ -357,12 +354,14 @@ scons_script = {
         'inst_subdir'   : 'bin',
 
         'debian_deps'   : [
-                            'debian/rules',
-                            'debian/control',
                             'debian/changelog',
+                            'debian/control',
                             'debian/copyright',
-                            'debian/python-scons.postinst',
-                            'debian/python-scons.prerm',
+                            'debian/dirs',
+                            'debian/docs',
+                            'debian/postinst',
+                            'debian/prerm',
+                            'debian/rules',
                           ],
 
         'files'         : [
@@ -382,12 +381,14 @@ scons = {
         'pkg'           : project,
 
         'debian_deps'   : [ 
-                            'debian/rules',
-                            'debian/control',
                             'debian/changelog',
+                            'debian/control',
                             'debian/copyright',
-                            'debian/scons.postinst',
-                            'debian/scons.prerm',
+                            'debian/dirs',
+                            'debian/docs',
+                            'debian/postinst',
+                            'debian/prerm',
+                            'debian/rules',
                           ],
 
         'files'         : [ 
@@ -661,14 +662,21 @@ for p in [ scons ]:
         # Our Debian packaging builds directly into build/dist,
         # so we don't need to add the .debs to install_targets.
         deb = os.path.join('build', 'dist', "%s_%s-1_all.deb" % (pkg, version))
+        for d in p['debian_deps']:
+            b = env.SCons_revision(os.path.join(build, d), d)
+            env.Depends(deb, b)
         env.Command(deb, build_src_files, [
-            "fakeroot make -f debian/rules VERSION=$VERSION DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-$PKG",
-            "env DH_COMPAT=$DH_COMPAT dh_clean"
+            "cd %s && fakeroot make -f debian/rules PYTHON=python BUILDDEB_OPTIONS=--destdir=../../build/dist binary" % build,
                     ])
-        env.Depends(deb, p['debian_deps'])
 
-        dfiles = map(lambda x, d=test_deb_dir: os.path.join(d, 'usr', x),
-                     dst_files)
+        old = os.path.join('lib', 'scons', '')
+        new = os.path.join('lib', 'python2.1', 'site-packages', '')
+        def xxx(s, old=old, new=new):
+            if s[:len(old)] == old:
+                s = new + s[len(old):]
+            return os.path.join('usr', s)
+        dfiles = map(lambda x, t=test_deb_dir: os.path.join(t, x),
+                     map(xxx, dst_files))
         env.Command(dfiles,
                     deb,
                     "dpkg --fsys-tarfile $SOURCES | (cd $TEST_DEB_DIR && tar -xf -)")

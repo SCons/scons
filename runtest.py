@@ -93,6 +93,10 @@ if package:
         'zip'        : '',
     }
 
+    lib = {
+        'deb'        : os.path.join('python2.1', 'site-packages')
+    }
+
     if not dir.has_key(package):
         sys.stderr.write("Unknown package '%s'\n" % package)
         sys.exit(2)
@@ -104,7 +108,8 @@ if package:
         lib_dir = os.path.join(test_dir, dir[package])
     else:
         scons_dir = os.path.join(test_dir, dir[package], 'bin')
-        lib_dir = os.path.join(test_dir, dir[package], 'lib', 'scons')
+        l = lib.get(package, 'scons')
+        lib_dir = os.path.join(test_dir, dir[package], 'lib', l)
 
 else:
 

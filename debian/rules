@@ -1,113 +1,105 @@
 #!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
 
-#
-# This file is more complex than it needs to be to just build binary packages,
-# because it satisfies the relevant Debian policies. See ../README for more
-# information.
-#
+########
+# Overridable variables added to support building test .deb files
+# as part of routine SCons builds.  --SK
+BUILDDEB_OPTIONS=
+PYTHON=/usr/bin/python2.1
+#######
 
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
-# We expect this to be provided by the calling build script:
-export DH_COMPAT
-# Here's the previous/"normal" Debian value (?), but it breaks on a
-# converted Red Hat debhelper installation:
-#export DH_COMPAT=3
+export DH_COMPAT=2
 
-# This has to be exported to make some magic below work.
-export DH_OPTIONS
-
-ifeq ($(ENVOKED_BY_CONSTRUCT),1)
-BUILDDEB_OPTIONS=--destdir=build/dist
-endif
-
-build: build-stamp
-build-stamp:
-ifneq ($(ENVOKED_BY_CONSTRUCT),1)
+configure: configure-stamp
+configure-stamp:
 	dh_testdir
-	cons
+	# Add here commands to configure the package.
+	
+
+	touch configure-stamp
+
+build: configure-stamp build-stamp
+build-stamp:
+	dh_testdir
+	$(PYTHON) setup.py build
 	touch build-stamp
-endif
 
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp configure-stamp install-common-stamp
-	rm -rf build
-	find -name .construct -exec rm "{}" ";"
+	rm -f build-stamp configure-stamp
+	rm -rf build/
 	dh_clean
 
-install-common: install-common-stamp
-install-common-stamp: DH_OPTIONS=
-install-common-stamp:
+install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	touch install-common-stamp
 
-install-scons: build install-common
-	python build/scons/setup.py install \
---install-scripts=`pwd`/debian/scons/usr/bin \
---install-purelib=`pwd`/debian/scons/usr/lib/scons --no-compile
-# Here's how we'd install the build engine in a version-specific directory.
-#--install-purelib=`pwd`/debian/scons/usr/lib/scons-$VERSION --no-compile
+	# Add here commands to install the package into debian/scons.
+	@########
+	@# The SCons project uses Aegis for development, which requires
+	@# that targets be removed explicitly before they're created.
+	@# (They could be symlinks to checked-in read-only copies in the
+	@# repository.)  We also can't assume that the proper directories
+	@# already exist on our non-Debian test build systems.  Hence,
+	@# we do a lot of mkdir -p and rm -f here...  --SK
+	@########
+	mkdir -p debian/scons/usr/lib/python2.1/site-packages/
+	rm -rf debian/scons/usr/lib/python2.1/site-packages/SCons
+	cp -r build/lib/SCons debian/scons/usr/lib/python2.1/site-packages/
 
-install-python-scons: build install-common
-	python build/python-scons/setup.py install \
---install-purelib=`pwd`/debian/python-scons/usr/lib/python1.5/site-packages --no-compile
+	mkdir -p debian/scons/usr/bin/
+	rm -f debian/scons/usr/bin/scons
+ifeq ($(PYTHON),python)
+	cp build/scripts/scons debian/scons/usr/bin/scons
+else
+	sed '1s|.*|#!/usr/bin/python2.1|' build/scripts/scons > debian/scons/usr/bin/scons
+endif
+	chmod +x debian/scons/usr/bin/scons
 
-install-python2-scons: build install-common
-	python build/python2-scons/setup.py install \
---install-purelib=`pwd`/debian/python2-scons/usr/lib/python2.0/site-packages --no-compile
+	mkdir -p debian/scons/usr/share/man/man1/
+	rm -f debian/scons/usr/share/man/man1/scons.1
+	cp scons.1 debian/scons/usr/share/man/man1/
 
-install-scons-script: build install-common
-	python build/scons-script/setup.py install \
---install-scripts=`pwd`/debian/scons/usr/bin --no-compile
+	mkdir -p debian/scons/usr/share/doc/scons
+	rm -f debian/scons/usr/share/doc/scons/changelog
+	rm -f debian/scons/usr/share/doc/scons/README.txt
+	rm -f debian/scons/usr/share/doc/scons/*.gz
+	rm -f debian/scons/usr/share/doc/scons/copyright
 
+	cp README.txt debian/scons/usr/share/doc/scons/
 
-# This single target is used to build all the packages, all at once, or
-# one at a time. So keep in mind: any options passed to commands here will
-# affect _all_ packages. Anything you want to only affect one package
-# should be put in another target, such as the install target.
-binary-common:
+	gzip -9 debian/scons/usr/share/doc/scons/*
+
+	cp debian/changelog debian/scons/usr/share/doc/scons/changelog
+
+	cp debian/copyright debian/scons/usr/share/doc/scons/
+
+# Build architecture-independent files here.
+binary-indep: build install
 	dh_testdir
 	dh_testroot
-	dh_installdocs
-	dh_installexamples
-	dh_installmanpages
+	#dh_installdocs
 	dh_installchangelogs 
+	dh_link
+	dh_strip
 	dh_compress
 	dh_fixperms
 	dh_installdeb
+	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
-	dh_builddeb $(BUILDDEB_OPTIONS)
+	DH_COMPAT=$(DH_COMPAT) dh_builddeb $(BUILDDEB_OPTIONS)
 
-# Build architecture independant packages using the common target.
-binary-indep: build install
-	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules DH_OPTIONS=-i binary-common
-
-# Build architecture dependant packages using the common target.
+# Build architecture-dependent files here.
 binary-arch: build install
 
-# Any other binary targets build just one binary package at a time.
-binary-scons: build install-scons
-	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-pscons
-
-binary-python-scons: build install-python-scons
-	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-ppython-scons
-
-binary-python2-scons: build install-python2-scons
-	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-ppython2-scons
-
-binary-scons-script: build install-scons-script
-	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-pscons-script
-
 binary: binary-indep binary-arch
-
-.PHONY: build clean binary-indep binary-arch binary install binary-scons binary-python-scons binary-python2-scons binary-scons-script install-scons install-python-scons install-python2-scons install-scons-script
-
-
+.PHONY: build clean binary-indep binary-arch binary install configure

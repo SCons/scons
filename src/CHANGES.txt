@@ -122,6 +122,10 @@ RELEASE 0.07 -
   - Fixed use of sys.path so Python modules can be imported from
     the SConscript directory.
 
+  From Moshe Zadka:
+  
+  - Changes for official Debian packaging.
+
 
 
 RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600
