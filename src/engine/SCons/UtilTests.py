@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import string
+import StringIO
 import sys
 import types
 import unittest
@@ -941,16 +942,14 @@ class UtilTestCase(unittest.TestCase):
         q = quote_spaces('x\tx')
         assert q == '"x\tx"', q
 
-    def test_render_tree(self):
+    def tree_case_1(self):
+        """Fixture for the render_tree() and print_tree() tests."""
         class Node:
             def __init__(self, name, children=[]):
                 self.children = children
                 self.name = name
             def __str__(self):
                 return self.name
-
-        def get_children(node):
-            return node.children
 
         windows_h = Node("windows.h")
         stdlib_h = Node("stdlib.h")
@@ -972,9 +971,18 @@ class UtilTestCase(unittest.TestCase):
       +-windows.h
 """
 
-        actual = render_tree(foo, get_children)
-        assert expect == actual, (expect, actual)
+        return foo, expect
 
+    def tree_case_2(self):
+        """Fixture for the render_tree() and print_tree() tests."""
+        class Node:
+            def __init__(self, name, children=[]):
+                self.children = children
+                self.name = name
+            def __str__(self):
+                return self.name
+
+        stdlib_h = Node("stdlib.h")
         bar_h = Node('bar.h', [stdlib_h])
         blat_h = Node('blat.h', [stdlib_h])
         blat_c = Node('blat.c', [blat_h, bar_h])
@@ -988,8 +996,42 @@ class UtilTestCase(unittest.TestCase):
     +-bar.h
 """
 
-        actual = render_tree(blat_o, get_children, 1)
+        return blat_o, expect
+
+    def test_render_tree(self):
+        """Test the render_tree() function"""
+        def get_children(node):
+            return node.children
+
+        node, expect = self.tree_case_1()
+        actual = render_tree(node, get_children)
         assert expect == actual, (expect, actual)
+
+        node, expect = self.tree_case_2()
+        actual = render_tree(node, get_children, 1)
+        assert expect == actual, (expect, actual)
+
+    def test_print_tree(self):
+        """Test the print_tree() function"""
+        def get_children(node):
+            return node.children
+
+        save_stdout = sys.stdout
+
+        try:
+            sys.stdout = StringIO.StringIO()
+            node, expect = self.tree_case_1()
+            print_tree(node, get_children)
+            actual = sys.stdout.getvalue()
+            assert expect == actual, (expect, actual)
+
+            sys.stdout = StringIO.StringIO()
+            node, expect = self.tree_case_2()
+            print_tree(node, get_children, 1)
+            actual = sys.stdout.getvalue()
+            assert expect == actual, (expect, actual)
+        finally:
+            sys.stdout = save_stdout
 
     def test_is_Dict(self):
         assert is_Dict({})
@@ -1585,8 +1627,6 @@ class UtilTestCase(unittest.TestCase):
 
     def test_LogicalLines(self):
         """Test the LogicalLines class"""
-        import StringIO
-
         fobj = StringIO.StringIO(r"""
 foo \
 bar \

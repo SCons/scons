@@ -273,6 +273,8 @@ RELEASE 0.97 - XXX
   - Handle Python stack traces consistently (stop at the SConscript stack
     frame, by default) even if the Python source code isn't available.
 
+  - Improve the performance of the --debug={tree,dtree} options.
+
   From Levi Stephen:
 
   - Allow $JARCHDIR to be expanded to other construction variables.
