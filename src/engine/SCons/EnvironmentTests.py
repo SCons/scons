@@ -220,7 +220,8 @@ class EnvironmentTestCase(unittest.TestCase):
         tgt = env.Install('export', [ 'build/foo1', 'build/foo2' ])
         paths = map(str, tgt)
         paths.sort()
-        assert paths == [ 'export/foo1', 'export/foo2' ], paths
+        expect = map(os.path.normpath, [ 'export/foo1', 'export/foo2' ])
+        assert paths == expect, paths
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
 

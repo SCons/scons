@@ -192,6 +192,7 @@ class FS:
             dir.path_ = drive + dir.path_
             dir.abspath = drive + dir.abspath
             dir.abspath_ = drive + dir.abspath_
+            dir.srcpath = dir.path
             return self.Root.setdefault(drive, dir)
         if head:
             # Recursively look up our parent directories.

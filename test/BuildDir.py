@@ -93,11 +93,11 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('src/f1.h', """
+test.write('src/f1.h', r"""
 #define F1_STR "f1.c\n"
 """)
 
-test.write('src/f2.h', """
+test.write('src/f2.h', r"""
 #define F2_STR "f2.c\n"
 """)
 

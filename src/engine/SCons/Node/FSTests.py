@@ -68,8 +68,8 @@ class BuildDirTestCase(unittest.TestCase):
         f1 = fs.File('build/test1')
         fs.BuildDir('build', 'src')
         f2 = fs.File('build/test2')
-        assert f1.srcpath == 'src/test1', f1.srcpath
-        assert f2.srcpath == 'src/test2', f2.srcpath
+        assert f1.srcpath == os.path.normpath('src/test1'), f1.srcpath
+        assert f2.srcpath == os.path.normpath('src/test2'), f2.srcpath
 
         fs = SCons.Node.FS.FS()
         f1 = fs.File('build/test1')
@@ -83,8 +83,8 @@ class BuildDirTestCase(unittest.TestCase):
         fs.BuildDir('build/var2', 'src')
         f1 = fs.File('build/var1/test1')
         f2 = fs.File('build/var2/test1')
-        assert f1.srcpath == 'src/test1', f1.srcpath
-        assert f2.srcpath == 'src/test1', f2.srcpath
+        assert f1.srcpath == os.path.normpath('src/test1'), f1.srcpath
+        assert f2.srcpath == os.path.normpath('src/test1'), f2.srcpath
 
         # Test to see if file_link() works...
         test=TestCmd(workdir='')

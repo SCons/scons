@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import os.path
+import string
 import TestCmd
 import TestSCons
 
@@ -44,7 +44,7 @@ test.write('SConstruct1', r"""
 bld = Builder(name = 'bld', action = '%s $SOURCES $TARGET')
 env = Environment(BUILDERS = [bld])
 env.bld(target = 'f1', source = 'f1.in')
-""" % os.path.normpath(no_such_file))
+""" % string.replace(no_such_file, '\\', '\\\\'))
 
 test.run(arguments='-f SConstruct1 .',
 	 stdout = "%s f1.in f1\n" % no_such_file,
@@ -56,7 +56,7 @@ test.write('SConstruct2', r"""
 bld = Builder(name = 'bld', action = '%s $SOURCES $TARGET')
 env = Environment(BUILDERS = [bld])
 env.bld(target = 'f2', source = 'f2.in')
-""" % os.path.normpath(not_executable))
+""" % string.replace(not_executable, '\\', '\\\\'))
 
 if os.name == 'nt':
     expect = """scons: %s: No such file or directory
@@ -75,7 +75,7 @@ test.write('SConstruct3', r"""
 bld = Builder(name = 'bld', action = '%s $SOURCES $TARGET')
 env = Environment(BUILDERS = [bld])
 env.bld(target = 'f3', source = 'f3.in')
-""" % os.path.normpath(test.workdir))
+""" % string.replace(test.workdir, '\\', '\\\\'))
 
 test.run(arguments='-f SConstruct3 .',
 	 stdout = "%s f3.in f3\n" % test.workdir,

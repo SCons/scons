@@ -47,7 +47,7 @@ t=env.Program(target='foo2', source='f2.c')
 env.Install(dir='export', source=t)
 """)
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 #include <stdio.h>
 
 int main(void)
@@ -57,7 +57,7 @@ int main(void)
 }
 """)
 
-test.write('f2.c', """
+test.write('f2.c', r"""
 #include <stdio.h>
 
 int main(void)
@@ -76,7 +76,7 @@ test.run(program = foo2, stdout = "f2.c\n")
 oldtime1 = os.path.getmtime(foo1)
 oldtime2 = os.path.getmtime(foo2)
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 #include <stdio.h>
 
 int main(void)
