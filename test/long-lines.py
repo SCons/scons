@@ -48,7 +48,7 @@ while len(linkflags) <= 8100:
 env = Environment(LINKFLAGS = '$LINKXXX', LINKXXX = linkflags)
 env.Program(target = 'foo', source = 'foo.c')
 # Library(shared=1) uses $LINKFLAGS by default.
-env.Library(target = 'bar', source = 'foo.c', shared=1, no_import_lib=1)
+env.Library(target = 'bar', source = 'bar.c', shared=1, no_import_lib=1)
 """ % (linkflag, linkflag))
 
 test.write('foo.c', r"""
@@ -60,6 +60,17 @@ main(int argc, char *argv[])
 	exit (0);
 }
 """)
+
+test.write('bar.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("foo.c\n");
+	exit (0);
+}
+""")
+
 
 test.run(arguments = '.')
 

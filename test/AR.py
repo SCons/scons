@@ -53,8 +53,10 @@ bar = Environment(LIBS = ['bar'], LIBPATH = ['.'], AR = r'%s wrapper.py ' + ar)
 foo.Library(target = 'foo', source = 'foo.c')
 bar.Library(target = 'bar', source = 'bar.c')
 
-foo.Program(target = 'f', source = 'main.c')
-bar.Program(target = 'b', source = 'main.c')
+obj = foo.Object('main', 'main.c')
+
+foo.Program(target = 'f', source = obj)
+bar.Program(target = 'b', source = obj)
 """ % python)
 
 test.write('foo.c', r"""

@@ -45,7 +45,7 @@ file.close()
 
 test.write('SConstruct', """
 import SCons.Defaults
-B = Builder(name='B', action='%s build.py $TARGET $SOURCES')
+B = Builder(name='B', action='%s build.py $TARGET $SOURCES', multi=1)
 env = Environment(BUILDERS = [B, SCons.Defaults.Alias])
 Default(env.B(target = 'sub1/foo.out', source = 'sub1/foo.in'))
 Export('env')

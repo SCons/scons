@@ -99,18 +99,37 @@ def Builder(**kw):
     else:
         return apply(BuilderBase, (), kw)
 
-def _init_nodes(builder, env, tlist, slist):
+def _init_nodes(builder, env, args, tlist, slist):
     """Initialize lists of target and source nodes with all of
     the proper Builder information.
     """
+
     for s in slist:
         src_key = s.scanner_key()        # the file suffix
         scanner = env.get_scanner(src_key)
         if scanner:
             s.source_scanner = scanner
-            
+
     for t in tlist:
-        t.cwd = SCons.Node.FS.default_fs.getcwd()       # XXX
+        if t.builder is not None:
+            if t.env != env: 
+                raise UserError, "Two different environments were specified for the same target: %s"%str(t)
+            elif t.build_args != args:
+                raise UserError, "Two different sets of build arguments were specified for the same target: %s"%str(t)
+            elif builder.scanner and builder.scanner != t.target_scanner:
+                raise UserError, "Two different scanners were specified for the same target: %s"%str(t)
+
+            if builder.multi:
+                if t.builder != builder:
+                    if isinstance(t.builder, ListBuilder) and isinstance(builder, ListBuilder) and t.builder.builder == builder.builder:
+                        raise UserError, "Two different target sets have a target in common: %s"%str(t)
+                    else:
+                        raise UserError, "Two different builders (%s and %s) were specified for the same target: %s"%(t.builder.name, builder.name, str(t))
+            elif t.sources != slist:
+                raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
+
+        t.build_args = args
+        t.cwd = SCons.Node.FS.default_fs.getcwd()
         t.builder_set(builder)
         t.env_set(env)
         t.add_source(slist)
@@ -181,11 +200,13 @@ class BuilderBase:
                         target_factory = None,
                         source_factory = None,
                         scanner = None,
-                        emitter = None):
+                        emitter = None,
+                        multi = 0):
         if name is None:
             raise UserError, "You must specify a name for the builder."
         self.name = name
         self.action = SCons.Action.Action(action)
+        self.multi = multi
 
         if callable(prefix):
             self.prefix = prefix
@@ -262,18 +283,16 @@ class BuilderBase:
                                                     src_suf),
                                          self.source_factory)
             
-        for t in tlist:
-            t.build_args = args
-        return tlist, slist
+	return tlist, slist
 
     def __call__(self, env, target = None, source = None, **kw):
         tlist, slist = self._create_nodes(env, kw, target, source)
 
         if len(tlist) == 1:
-            _init_nodes(self, env, tlist, slist)
+            _init_nodes(self, env, kw, tlist, slist)
             tlist = tlist[0]
         else:
-            _init_nodes(ListBuilder(self, env, tlist), env, tlist, slist)
+            _init_nodes(ListBuilder(self, env, tlist), env, kw, tlist, slist)
 
         return tlist
 
@@ -330,7 +349,9 @@ class ListBuilder:
         self.builder = builder
         self.scanner = builder.scanner
         self.env = env
-        self.tlist = tlist
+	self.tlist = tlist
+        self.multi = builder.multi
+        self.name = "ListBuilder(%s)"%builder.name
 
     def execute(self, **kw):
         if hasattr(self, 'status'):
@@ -359,6 +380,9 @@ class ListBuilder:
         """Return the list of targets for this builder instance.
         """
         return self.tlist
+
+    def __cmp__(self, other):
+	return cmp(self.__dict__, other.__dict__)
 
 class MultiStepBuilder(BuilderBase):
     """This is a builder subclass that can build targets in

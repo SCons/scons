@@ -51,6 +51,8 @@ SConscript('sub1/SConscript', "env")
 SConscript('sub2/SConscript', "env")
 env.Alias('foo', ['f2.out', 'sub1'])
 env.Alias('bar', ['sub2', 'f3.out'])
+env.Alias('blat', ['sub2', 'f3.out'])
+env.Alias('blat', ['f2.out', 'sub1'])
 env.Depends('f1.out', 'bar')
 """ % python)
 
@@ -106,5 +108,13 @@ test.fail_test(not os.path.exists(test.workpath('sub2', 'f8.out')))
 test.fail_test(not os.path.exists(test.workpath('sub2', 'f9.out')))
 
 test.up_to_date(arguments = 'f1.out')
+
+os.unlink(test.workpath('f2.out'))
+os.unlink(test.workpath('f3.out'))
+
+test.run(arguments = 'blat')
+
+test.fail_test(not os.path.exists(test.workpath('f2.out')))
+test.fail_test(not os.path.exists(test.workpath('f3.out')))
 
 test.pass_test()

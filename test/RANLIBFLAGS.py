@@ -64,8 +64,10 @@ bar = Environment(LIBS = ['bar'], LIBPATH = ['.'], RANLIB = '',
 foo.Library(target = 'foo', source = 'foo.c')
 bar.Library(target = 'bar', source = 'bar.c')
 
-foo.Program(target = 'f', source = 'main.c')
-bar.Program(target = 'b', source = 'main.c')
+main = foo.Object('main', 'main.c')
+
+foo.Program(target = 'f', source = main)
+bar.Program(target = 'b', source = main)
 """ % python)
 
 test.write('foo.c', r"""

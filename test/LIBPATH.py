@@ -44,13 +44,17 @@ prog2 = test.workpath('prog2') + _exe
 test.write('SConstruct', """
 env1 = Environment(LIBS = [ 'foo1' ],
                   LIBPATH = [ './lib1' ])
-env1.Program(target = 'prog', source = 'prog.c')
-env1.Library(target = './lib1/foo1', source = 'f1.c')
+
+prog = env1.Object('prog', 'prog.c')
+f1 = env1.Object('f1', 'f1.c')
+
+env1.Program(target = 'prog', source = prog)
+env1.Library(target = './lib1/foo1', source = f1)
 
 env2 = Environment(LIBS = 'foo2',
                    LIBPATH = '.')
-env2.Program(target = 'prog2', source = 'prog.c')
-env2.Library(target = 'foo2', source = 'f1.c')
+env2.Program(target = 'prog2', source = prog)
+env2.Library(target = 'foo2', source = f1)
 """)
 
 test.write('f1.c', r"""
@@ -106,13 +110,17 @@ test.run(program = prog2,
 test.write('SConstruct', """
 env1 = Environment(LIBS = [ 'foo1' ],
                   LIBPATH = [ './lib1', './lib2' ])
-env1.Program(target = 'prog', source = 'prog.c')
-env1.Library(target = './lib1/foo1', source = 'f1.c')
+
+prog = env1.Object('prog', 'prog.c')
+f1 = env1.Object('f1', 'f1.c')
+
+env1.Program(target = 'prog', source = prog)
+env1.Library(target = './lib1/foo1', source = f1)
 
 env2 = Environment(LIBS = 'foo2',
                    LIBPATH = '. ./lib2')
-env2.Program(target = 'prog2', source = 'prog.c')
-env2.Library(target = 'foo2', source = 'f1.c')
+env2.Program(target = 'prog2', source = prog)
+env2.Library(target = 'foo2', source = f1)
 """)
 
 test.up_to_date(arguments = '.', stderr=None)

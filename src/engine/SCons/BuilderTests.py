@@ -38,6 +38,7 @@ import unittest
 import TestCmd
 import SCons.Builder
 import SCons.Errors
+import SCons.Node.FS
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
@@ -680,7 +681,7 @@ class BuilderTestCase(unittest.TestCase):
             pass
         scn = TestScanner()
         builder = SCons.Builder.Builder(name = "builder", scanner=scn)
-        tgt = builder(env, target='foo', source='bar')
+        tgt = builder(env, target='foo2', source='bar')
         assert tgt.target_scanner == scn, tgt.target_scanner
 
         builder1 = SCons.Builder.Builder(name = "builder1",
@@ -691,7 +692,7 @@ class BuilderTestCase(unittest.TestCase):
                                          action='foo',
                                          src_builder = builder1,
                                          scanner = scn)
-        tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
+        tgt = builder2(env, target='baz2', source='test.bar test2.foo test3.txt')
         assert tgt.target_scanner == scn, tgt.target_scanner
 
     def test_src_scanner(slf):
@@ -725,45 +726,45 @@ class BuilderTestCase(unittest.TestCase):
         """Test emitter functions."""
         def emit(target, source, env, foo=0, bar=0):
             if foo:
-                target.append("bar")
+                target.append("bar%d"%foo)
             if bar:
-                source.append("foo")
+                source.append("baz")
             return ( target, source )
 
         builder = SCons.Builder.Builder(name="builder", action='foo',
                                         emitter=emit)
-        tgt = builder(env, target='foo', source='bar')
-        assert str(tgt) == 'foo', str(tgt)
+        tgt = builder(env, target='foo2', source='bar')
+        assert str(tgt) == 'foo2', str(tgt)
         assert str(tgt.sources[0]) == 'bar', str(tgt.sources[0])
 
-        tgt = builder(env, target='foo', source='bar', foo=1)
+        tgt = builder(env, target='foo3', source='bar', foo=1)
         assert len(tgt) == 2, len(tgt)
-        assert 'foo' in map(str, tgt), map(str, tgt)
-        assert 'bar' in map(str, tgt), map(str, tgt)
+        assert 'foo3' in map(str, tgt), map(str, tgt)
+        assert 'bar1' in map(str, tgt), map(str, tgt)
 
-        tgt = builder(env, target='foo', source='bar', bar=1)
-        assert str(tgt) == 'foo', str(tgt)
+        tgt = builder(env, target='foo4', source='bar', bar=1)
+        assert str(tgt) == 'foo4', str(tgt)
         assert len(tgt.sources) == 2, len(tgt.sources)
-        assert 'foo' in map(str, tgt.sources), map(str, tgt.sources)
+        assert 'baz' in map(str, tgt.sources), map(str, tgt.sources)
         assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
 
         env2=Environment(FOO=emit)
         builder2=SCons.Builder.Builder(name="builder2", action='foo',
                                        emitter="$FOO")
 
-        tgt = builder2(env2, target='foo', source='bar')
-        assert str(tgt) == 'foo', str(tgt)
+        tgt = builder2(env2, target='foo5', source='bar')
+        assert str(tgt) == 'foo5', str(tgt)
         assert str(tgt.sources[0]) == 'bar', str(tgt.sources[0])
 
-        tgt = builder2(env2, target='foo', source='bar', foo=1)
+        tgt = builder2(env2, target='foo6', source='bar', foo=2)
         assert len(tgt) == 2, len(tgt)
-        assert 'foo' in map(str, tgt), map(str, tgt)
-        assert 'bar' in map(str, tgt), map(str, tgt)
+        assert 'foo6' in map(str, tgt), map(str, tgt)
+        assert 'bar2' in map(str, tgt), map(str, tgt)
 
-        tgt = builder2(env2, target='foo', source='bar', bar=1)
-        assert str(tgt) == 'foo', str(tgt)
+        tgt = builder2(env2, target='foo7', source='bar', bar=1)
+        assert str(tgt) == 'foo7', str(tgt)
         assert len(tgt.sources) == 2, len(tgt.sources)
-        assert 'foo' in map(str, tgt.sources), map(str, tgt.sources)
+        assert 'baz' in map(str, tgt.sources), map(str, tgt.sources)
         assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
 
 if __name__ == "__main__":

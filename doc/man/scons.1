@@ -988,10 +988,12 @@ Returns the Node object representing the alias,
 which exists outside of any file system.
 This Node object, or the alias name,
 may be used as a dependency of any other target,
-including another alias.
+including another alias. Alias can be called multiple times for the same
+alias to add additional targets to the alias.
 
 .ES
 env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
+env.Alias('install', ['/usr/local/man'])
 .EE
 
 .TP
@@ -1762,6 +1764,15 @@ a Python function;
 an Action object
 (see the next section);
 or a list of any of the above.
+
+.IP multi
+Specifies whether this builder is allowed to be called multiple times for
+the same target file(s). The default is 0, which means the builder
+can not be called multiple times for the same target file(s). Calling a
+builder multiple times for the same target simply adds additional source
+files to the target; it is not allowed to change the environment associated
+with the target, specify addition build arguments, or associate a different
+builder with the target. 
 
 .IP prefix 
 The prefix that will be prepended to the target file name.

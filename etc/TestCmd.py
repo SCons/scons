@@ -186,6 +186,16 @@ def match_re(lines = None, res = None):
 	    return
     return 1
 
+def match_re_dotall(lines = None, res = None):
+    """
+    """
+    if not type(lines) is type(""):
+        lines = join(lines, "\n")
+    if not type(res) is type(""):
+        res = join(res, "\n")
+    if re.compile("^" + res + "$", re.DOTALL).match(lines):
+        return 1
+
 class TestCmd:
     """Class TestCmd
     """

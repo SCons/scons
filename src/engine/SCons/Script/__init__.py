@@ -179,13 +179,36 @@ def _scons_syntax_error(e):
         sys.stderr.write(line+'\n')
     sys.exit(2)
 
-def _scons_user_error(e):
-    """Handle user errors. Print out a message and a description of the
-    error, along with the line number and routine where it occured.
+def find_deepest_user_frame(tb):
     """
-    etype, value, tb = sys.exc_info()
+    Find the deepest stack frame that is not part of SCons.
+    """
+    
+    stack = [tb]
     while tb.tb_next is not None:
         tb = tb.tb_next
+        stack.append(tb)
+
+    stack.reverse()
+
+    # find the deepest traceback frame that is not part
+    # of SCons:
+    for frame in stack:
+        filename = frame.tb_frame.f_code.co_filename
+        if string.find(filename, os.sep+'SCons'+os.sep) == -1:
+            tb = frame
+            break
+        
+    return tb
+
+def _scons_user_error(e):
+    """Handle user errors. Print out a message and a description of the
+    error, along with the line number and routine where it occured. 
+    The file and line number will be the deepest stack frame that is
+    not part of SCons itself.
+    """
+    etype, value, tb = sys.exc_info()
+    tb = find_deepest_user_frame(tb)
     lineno = traceback.tb_lineno(tb)
     filename = tb.tb_frame.f_code.co_filename
     routine = tb.tb_frame.f_code.co_name
@@ -196,10 +219,11 @@ def _scons_user_error(e):
 def _scons_user_warning(e):
     """Handle user warnings. Print out a message and a description of
     the warning, along with the line number and routine where it occured.
+    The file and line number will be the deepest stack frame that is
+    not part of SCons itself.
     """
     etype, value, tb = sys.exc_info()
-    while tb.tb_next is not None:
-        tb = tb.tb_next
+    tb = find_deepest_user_frame(tb)
     lineno = traceback.tb_lineno(tb)
     filename = tb.tb_frame.f_code.co_filename
     routine = tb.tb_frame.f_code.co_name

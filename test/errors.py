@@ -28,7 +28,7 @@ import TestCmd
 import TestSCons
 import string
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
 test.write('foo.in', 'foo')
 test.write('exit.in', 'exit')
@@ -52,11 +52,8 @@ env.exit('exit.out', 'exit.in')
 stderr = """scons: \*\*\* \[exit.out\] Exception
 Traceback \((most recent call|innermost) last\):
   File ".+", line \d+, in .+
-    .+
   File ".+", line \d+, in .+
-    .+
   File ".+", line \d+, in .+
-    .+
   File ".+", line \d+, in .+
     .+
 .+
@@ -109,11 +106,8 @@ test.run(arguments='-f SConstruct3',
 	 stdout = "other errors\n",
 	 stderr = r"""Traceback \((most recent call|innermost) last\):
   File ".+", line \d+, in .+
-    .+
   File ".+", line \d+, in .+
-    .+
   File ".+", line \d+, in .+
-    .+
   File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
 InternalError: error inside

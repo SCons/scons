@@ -29,7 +29,7 @@ import sys
 import TestSCons
 import TestCmd
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
 test.write('SConstruct', """
 def func(source = None, target = None, env = None):
@@ -44,11 +44,8 @@ test.write('foo.in', "foo.in\n")
 test.run(arguments = "foo.out", stderr = """scons: \*\*\* \[foo.out\] Exception
 Traceback \((most recent call|innermost) last\):
   File ".+", line \d+, in .+
-    .+
   File ".+", line \d+, in .+
-    .+
   File ".+", line \d+, in .+
-    .+
   File "SConstruct", line 3, in func
     raise "func exception"
 func exception

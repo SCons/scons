@@ -318,7 +318,8 @@ def alias_builder(env, target, source):
 Alias = SCons.Builder.Builder(name = 'Alias',
                               action = alias_builder,
                               target_factory = SCons.Node.Alias.default_ans.Alias,
-                              source_factory = SCons.Node.FS.default_fs.Entry)
+                              source_factory = SCons.Node.FS.default_fs.Entry,
+                              multi = 1)
 
 def get_devstudio_versions ():
     """

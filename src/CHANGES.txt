@@ -10,6 +10,13 @@
 
 RELEASE 0.08 - 
 
+  From Anthony Roach:
+
+  - Add a "multi" keyword argument to Builder creation that specifies
+    it's okay to call the builder multiple times for a target.
+
+  - Set a "multi" on Aliases so multiple calls will append to an Alias.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to
