@@ -677,7 +677,7 @@ class SConscriptSettableOptions:
         self.settable[name] = value
     
 
-def _main(args):
+def _main(args, parser):
     targets = []
 
     # Enable deprecated warnings by default.
@@ -971,9 +971,9 @@ def _exec_main():
     options, args = parser.parse_args(all_args)
     if options.debug == "pdb":
         import pdb
-        pdb.Pdb().runcall(_main, args)
+        pdb.Pdb().runcall(_main, args, parser)
     else:
-        _main(args)
+        _main(args, parser)
 
 def main():
     global exit_status
