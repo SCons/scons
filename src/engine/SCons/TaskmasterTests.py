@@ -31,40 +31,93 @@ import SCons.Taskmaster
 
 
 built = None
+executed = None
 
 class Node:
     def __init__(self, name, kids = []):
         self.name = name
-	self.kids = kids
+        self.kids = kids
+        self.builder = Node.build
+        self.signature = None
         self.state = None
         self.parents = []
-        
+
         for kid in kids:
             kid.parents.append(self)
-            
+
     def build(self):
         global built
         built = self.name + " built"
 
     def children(self):
 	return self.kids
-
+  
     def get_parents(self):
         return self.parents
-    
+
     def get_state(self):
         return self.state
 
     def set_state(self, state):
         self.state = state
 
+    def set_signature(self, sig):
+        self.signature = sig
+  
     def children_are_executed(self):
         return reduce(lambda x,y: ((y.get_state() == SCons.Node.executed
                                    or y.get_state() == SCons.Node.up_to_date)
                                    and x),
                       self.children(),
                       1)
+
+
+
+#class Task(unittest.TestCase):
+#    def test_execute(self):
+#        pass
+#
+#    def test_get_target(self):
+#        pass
+#
+#    def test_set_sig(self):
+#        pass
+#
+#    def test_set_state(self):
+#        pass
+#
+#    def test_up_to_date(self):
+#        pass
+#
+#    def test_executed(self):
+#        pass
+#
+#    def test_failed(self):
+#        pass
+#
+#    def test_fail_stop(self):
+#        pass
+#
+#    def test_fail_continue(self):
+#        pass
+
     
+
+class Task:
+    def __init__(self, target):
+        self.target = target
+
+    def get_target(self):
+        return self.target
+
+    def up_to_date(self):
+        pass
+
+    def executed(self):
+        pass
+
+    def failed(self):
+        pass
 
 
 class TaskmasterTestCase(unittest.TestCase):
@@ -73,17 +126,16 @@ class TaskmasterTestCase(unittest.TestCase):
 	"""Test fetching the next task
 	"""
 	global built
-
-        n1 = Node("n1")
-        tm = SCons.Taskmaster.Taskmaster([n1,n1])
+        
+	n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster([n1, n1])
         t = tm.next_task()
-        tm.executed(t)
+        t.executed()
         t = tm.next_task()
         assert t == None
 
-        
-	n1 = Node("n1")
-	n2 = Node("n2")
+        n1 = Node("n1")
+        n2 = Node("n2")
         n3 = Node("n3", [n1, n2])
         
 	tm = SCons.Taskmaster.Taskmaster([n3])
@@ -91,41 +143,42 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         t.execute()
         assert built == "n1 built"
-        tm.executed(t)
+        t.executed()
 
         t = tm.next_task()
         t.execute()
         assert built == "n2 built"
-        tm.executed(t)
+        t.executed()
 
         t = tm.next_task()
         t.execute()
         assert built == "n3 built"
-        tm.executed(t)
+        t.executed()
 
         assert tm.next_task() == None
-
-	def current(node):
-	    return 1
 
 	built = "up to date: "
 
         global top_node
         top_node = n3
-	class MyTM(SCons.Taskmaster.Taskmaster):
-	    def up_to_date(self, node, top):
-                if node == top_node:
-                    assert top
+        class MyTask(SCons.Taskmaster.Task):
+            def up_to_date(self):
+                if self.target == top_node:
+                    assert self.top
                 global built
-                built = built + " " + node.name
+                built = built + " " + self.target.name
+                SCons.Taskmaster.Task.up_to_date(self)
 
+        class MyCalc(SCons.Taskmaster.Calc):
+            def current(self, node, sig):
+                return 1
 
         n1.set_state(None)
         n2.set_state(None)
         n3.set_state(None)
-	tm = MyTM(targets = [n3], current = current)
+        tm = SCons.Taskmaster.Taskmaster(targets = [n3],
+                                         tasker = MyTask, calc = MyCalc())
 	assert tm.next_task() == None
-        print built
 	assert built == "up to date:  n1 n2 n3"
 
 
@@ -149,18 +202,18 @@ class TaskmasterTestCase(unittest.TestCase):
         t4 = tm.next_task()
         assert t4.get_target() == n4
         assert tm.is_blocked()
-        tm.executed(t4)
+        t4.executed()
         assert tm.is_blocked()
         
-        tm.executed(t1)
+        t1.executed()
         assert tm.is_blocked()
-        tm.executed(t2)
+        t2.executed()
         assert not tm.is_blocked()
         t3 = tm.next_task()
         assert t3.get_target() == n3
         assert tm.is_blocked()
 
-        tm.executed(t3)
+        t3.executed()
         assert not tm.is_blocked()
         t5 = tm.next_task()
         assert t5.get_target() == n5
@@ -173,7 +226,7 @@ class TaskmasterTestCase(unittest.TestCase):
         n4.set_state(SCons.Node.executed)
         tm = SCons.Taskmaster.Taskmaster([n4])
         assert tm.next_task() == None
-
+        
     def test_is_blocked(self):
         """Test whether a task is blocked
 
@@ -188,78 +241,50 @@ class TaskmasterTestCase(unittest.TestCase):
 	tm = MyTM()
 	assert tm.is_blocked() == 1
 
-    def test_executed(self):
-        """Test the executed() method
+    def test_stop(self):
+        """Test the stop() method
 
-	Both default and overridden in a subclass.
-	"""
-	tm = SCons.Taskmaster.Taskmaster()
-        foo = Node('foo')
-	tm.executed(SCons.Taskmaster.Task(foo))
+        Both default and overridden in a subclass.
+        """
+        global built
 
-	class MyTM(SCons.Taskmaster.Taskmaster):
-	    def executed(self, task):
-	        return 'x' + task
-	tm = MyTM()
-	assert tm.executed('foo') == 'xfoo'
-
-    def test_ignore_errors(self):
         n1 = Node("n1")
         n2 = Node("n2")
-        n3 = Node("n3", [n1])
+        n3 = Node("n3", [n1, n2])
         
-        tm = SCons.Taskmaster.Taskmaster([n3, n2],
-                                         SCons.Taskmaster.Task,
-                                         SCons.Taskmaster.current,
-                                         1)
+        tm = SCons.Taskmaster.Taskmaster([n3])
+        t = tm.next_task()
+        t.execute()
+        assert built == "n1 built"
+        t.executed()
 
-        t = tm.next_task()
-        assert t.get_target() == n1
-        tm.failed(t)
-        t = tm.next_task()
-        assert t.get_target() == n3
-        tm.failed(t)
-        t = tm.next_task()
-        assert t.get_target() == n2
-        
+        tm.stop()
+        assert tm.next_task() is None
 
-    def test_keep_going(self):
+        class MyTM(SCons.Taskmaster.Taskmaster):
+            def stop(self):
+                global built
+                built = "MyTM.stop()"
+                SCons.Taskmaster.Taskmaster.stop(self)
+
         n1 = Node("n1")
         n2 = Node("n2")
-        n3 = Node("n3", [n1])
-        
-        tm = SCons.Taskmaster.Taskmaster([n3, n2],
-                                         SCons.Taskmaster.Task,
-                                         SCons.Taskmaster.current,
-                                         0,
-                                         1)
+        n3 = Node("n3", [n1, n2])
 
-        tm.failed(tm.next_task())
-        t = tm.next_task()
-        assert t.get_target() == n2
-        tm.executed(t)
-        assert not tm.is_blocked()
-        t = tm.next_task()
-        assert t == None
+        built = None
+        tm = MyTM([n3])
+        tm.next_task().execute()
+        assert built == "n1 built"
 
+        tm.stop()
+        assert built == "MyTM.stop()"
+        assert tm.next_task() is None
 
-    def test_failed(self):
-        """Test the failed() method
-
-	Both default and overridden in a subclass.
-	"""
-        foo = Node('foo')
-        bar = Node('bar')
-        tm = SCons.Taskmaster.Taskmaster([foo,bar])
-        tm.failed(tm.next_task())
-        assert tm.next_task() == None
-        
-	class MyTM(SCons.Taskmaster.Taskmaster):
-	    def failed(self, task):
-	        return 'y' + task
-	tm = MyTM()
-	assert tm.failed('foo') == 'yfoo'
-
+    #def test_add_pending(self):
+    #    passs
+    #
+    #def test_remove_pending(self):
+    #    passs
 
 
 

@@ -78,14 +78,13 @@ test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(os.path.exists(test.workpath('foo2.out')))
 test.fail_test(os.path.exists(test.workpath('foo3.out')))
 
-test.run(arguments = 'foo1.out foo2.out foo3.out')
+test.run(arguments = '.')
 
 test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
-#XXXtest.run(arguments = '-c .',
-test.run(arguments = '-c foo1.out foo2.out foo3.out',
+test.run(arguments = '-c .',
          stdout = "Removed foo1.out\nRemoved foo2.out\nRemoved foo3.out\n")
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))

@@ -66,9 +66,20 @@ class BuildTask(SCons.Taskmaster.Task):
         except BuildError, e:
             sys.stderr.write("scons: *** [%s] Error %d\n" % (e.node, e.stat))
             raise
+
+    def up_to_date(self):
+        if self.top:
+            print 'scons: "%s" is up to date.' % str(self.target)
+        SCons.Taskmaster.Task.up_to_date(self)
         
-    def set_state(self, state):
-        return self.target.set_state(state)
+    def failed(self):
+        global ignore_errors
+        if ignore_errors:
+            SCons.Taskmaster.Task.executed(self)
+        elif keep_going_on_error:
+            SCons.Taskmaster.Task.fail_continue(self)
+        else:
+            SCons.Taskmaster.Task.fail_stop(self)
 
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
@@ -76,19 +87,6 @@ class CleanTask(SCons.Taskmaster.Task):
         if self.target.builder:
 	    os.unlink(self.target.path)
 	    print "Removed " + self.target.path
-
-class ScriptTaskmaster(SCons.Taskmaster.Taskmaster):
-    """Controlling logic for tasks.
-    
-    This is the stock Taskmaster from the build engine, except
-    that we override the up_to_date() method to provide our
-    script-specific up-to-date message for command-line targets,
-    and failed to provide the ignore-errors feature.
-    """
-    def up_to_date(self, node, top):
-        if top:
-            print 'scons: "%s" is up to date.' % node
-        SCons.Taskmaster.Taskmaster.up_to_date(self, node)
 
 
 # Global variables
@@ -100,6 +98,7 @@ num_jobs = 1
 scripts = []
 task_class = BuildTask	# default action is to build targets
 current_func = None
+calc = None
 ignore_errors = 0
 keep_going_on_error = 0
 
@@ -310,9 +309,18 @@ def options_init():
 	help = "Ignored for compatibility.")
 
     def opt_c(opt, arg):
-	global task_class, current_func
-	task_class = CleanTask
-	current_func = SCons.Taskmaster.current
+        global task_class, calc
+        task_class = CleanTask
+        class CleanCalculator:
+            def get_signature(self, node):
+                return None
+            def set_signature(self, node, sig):
+                pass
+            def current(self, node, sig):
+                return 0
+            def write(self):
+                pass
+        calc = CleanCalculator()
 
     Option(func = opt_c,
 	short = 'c', long = ['clean', 'remove'],
@@ -540,7 +548,7 @@ def UsageString():
 
 
 def main():
-    global scripts, help_option, num_jobs, task_class, current_func
+    global scripts, help_option, num_jobs, task_class, calc
 
     targets = []
 
@@ -629,24 +637,18 @@ def main():
     if not targets:
 	targets = default_targets
 
-    nodes = map(lambda x: SCons.Node.FS.default_fs.File(x), targets)
+    nodes = map(lambda x: SCons.Node.FS.default_fs.Entry(x), targets)
 
-    calc = SCons.Sig.Calculator(SCons.Sig.MD5)
+    if not calc:
+        calc = SCons.Sig.Calculator(SCons.Sig.MD5)
 
-    if not current_func:
-        current_func = calc.current
-
-    taskmaster = ScriptTaskmaster(nodes,
-                                  task_class,
-                                  current_func,
-                                  ignore_errors,
-                                  keep_going_on_error)
+    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     jobs.start()
     jobs.wait()
 
-    calc.write(nodes)
+    SCons.Sig.write()
 
 if __name__ == "__main__":
     try:

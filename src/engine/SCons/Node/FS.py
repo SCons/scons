@@ -35,7 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-from SCons.Node import Node
+import SCons.Node
 from UserDict import UserDict
 import sys
 
@@ -119,6 +119,7 @@ class FS:
         self.Root = PathDict()
         self.Top = self.__doLookup(Dir, path)
         self.Top.path = '.'
+        self.Top.path_ = './'
 
     def __doLookup(self, fsclass, name, directory=None):
         """This method differs from the File and Dir factory methods in
@@ -228,7 +229,7 @@ class FS:
 
 
 
-class Entry(Node):
+class Entry(SCons.Node.Node):
     """A generic class for file system entries.  This class if for
     when we don't know yet whether the entry being looked up is a file
     or a directory.  Instances of this class can morph into either
@@ -241,8 +242,9 @@ class Entry(Node):
 	our relative and absolute paths, identify our parent
 	directory, and indicate that this node should use
 	signatures."""
-        Node.__init__(self)
+        SCons.Node.Node.__init__(self)
 
+        self.name = name
         if directory:
             self.abspath = os.path.join(directory.abspath, name)
             if str(directory.path) == '.':
@@ -251,12 +253,17 @@ class Entry(Node):
                 self.path = os.path.join(directory.path, name)
         else:
             self.abspath = self.path = name
-	self.parent = directory
+        self.path_ = self.path
+        self.abspath_ = self.abspath
+        self.dir = directory
 	self.use_signature = 1
 
     def __str__(self):
 	"""A FS node's string representation is its path name."""
 	return self.path
+
+    def set_signature(self, sig):
+        SCons.Node.Node.set_signature(self, sig)
 
     def exists(self):
         return os.path.exists(self.path)
@@ -299,17 +306,18 @@ class Dir(Entry):
 	into the file system tree.  Specify that directories (this
 	node) don't use signatures for currency calculation."""
 
-        self.path = os.path.join(self.path, '')
-        self.abspath = os.path.join(self.abspath, '')
+        self.path_ = os.path.join(self.path, '')
+        self.abspath_ = os.path.join(self.abspath, '')
 
         self.entries = PathDict()
         self.entries['.'] = self
-	if hasattr(self, 'parent'):
-            self.entries['..'] = self.parent
-	    delattr(self, 'parent')
+        if hasattr(self, 'dir'):
+            self.entries['..'] = self.dir
 	else:
 	    self.entries['..'] = None
         self.use_signature = None
+        self.builder = 1
+        self._sconsign = None
 
     def up(self):
         return self.entries['..']
@@ -321,15 +329,42 @@ class Dir(Entry):
             return self.entries['..'].root()
 
     def children(self):
-	return map(lambda x, s=self: s.entries[x],
+	#XXX --random:  randomize "dependencies?"
+	kids = map(lambda x, s=self: s.entries[x],
 		   filter(lambda k: k != '.' and k != '..',
 			  self.entries.keys()))
+	kids.sort()
+	return kids
+
+    def build(self):
+        """A null "builder" for directories."""
+        pass
+
+    def set_signature(self, sig):
+        """A directory has no signature."""
+        pass
 
     def current(self):
-        """Always return that a directory node is out-of-date so
-        that it will always be "built" by trying to build all of
-        its directory entries."""
-        return 0
+        """If all of our children were up-to-date, then this
+        directory was up-to-date, too."""
+        state = 0
+        for kid in self.children():
+            s = kid.get_state()
+            if s and (not state or s > state):
+                state = s
+        import SCons.Node
+        if state == SCons.Node.up_to_date:
+            return 1
+        else:
+            return 0
+
+    def sconsign(self):
+        if not self._sconsign:
+            #XXX Rework this to get rid of the hard-coding
+            import SCons.Sig
+            import SCons.Sig.MD5
+            self._sconsign = SCons.Sig.SConsignFile(self.path, SCons.Sig.MD5)
+        return self._sconsign
 
 
 # XXX TODO?
@@ -362,13 +397,25 @@ class File(Entry):
         pass
 
     def root(self):
-        return self.parent.root()
+        return self.dir.root()
 
     def get_contents(self):
         return open(self.path, "r").read()
 
     def get_timestamp(self):
-        return os.path.getmtime(self.path)
+        if self.exists():
+            return os.path.getmtime(self.path)
+        else:
+            return 0
+
+    def set_signature(self, sig):
+        Entry.set_signature(self, sig)
+        #XXX Rework this to get rid of the hard-coding
+        import SCons.Sig.MD5
+        self.dir.sconsign().set(self.name, self.get_timestamp(), sig, SCons.Sig.MD5)
+
+    def get_oldentry(self):
+        return self.dir.sconsign().get(self.name)
 
 
 default_fs = FS()

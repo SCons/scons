@@ -36,12 +36,18 @@ import string
 import types
 import copy
 
-# Node states:
-executing = 1
-executed = 2
+# Node states
+#
+# These are in "priority" order, so that the maximum value for any
+# child/dependency of a node represents the state of that node if
+# it has no builder of its own.  The canonical example is a file
+# system directory, which is only up to date if all of its children
+# were up to date.
+pending = 1
+executing = 2
 up_to_date = 3
-failed = 4
-pending = 5
+executed = 4
+failed = 5
 
 class Node:
     """The base Node class, for entities that we know how to

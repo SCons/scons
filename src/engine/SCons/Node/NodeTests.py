@@ -90,6 +90,8 @@ class NodeTestCase(unittest.TestCase):
 	assert node.builder == b
 
     def test_current(self):
+        """Test the default current() method
+        """
         node = SCons.Node.Node()
         assert node.current() is None
 
@@ -226,6 +228,10 @@ class NodeTestCase(unittest.TestCase):
         assert node.get_state() == None
         node.set_state(SCons.Node.executing)
         assert node.get_state() == SCons.Node.executing
+        assert SCons.Node.pending < SCons.Node.executing
+        assert SCons.Node.executing < SCons.Node.up_to_date
+        assert SCons.Node.up_to_date < SCons.Node.executed
+        assert SCons.Node.executed < SCons.Node.failed
 
     def test_walker(self):
 	"""Test walking a Node tree.

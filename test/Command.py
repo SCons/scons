@@ -57,8 +57,7 @@ test.write('f2.in', "f2.in\n")
 
 test.write('f3.in', "f3.in\n")
 
-#XXXtest.run(arguments = '.')
-test.run(arguments = 'f1.out f2.out f3.out')
+test.run(arguments = '.')
 
 test.fail_test(test.read('f1.out') != "f1.in\n")
 test.fail_test(test.read('f2.out') != "f2.in\n")

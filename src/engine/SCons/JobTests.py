@@ -75,14 +75,38 @@ class Task:
         self.taskmaster.end_list.append(self.i)
         self.taskmaster.guard.release()
 
+    def executed(self):
+        self.taskmaster.num_executed = self.taskmaster.num_executed + 1
+
+        self.taskmaster.test_case.failUnless(self.was_executed,
+                                  "the task wasn't really executed")
+        self.taskmaster.test_case.failUnless(self.__class__ is Task,
+                                  "the task wasn't really a Task instance")
+
+    def failed(self):
+        self.taskmaster.num_failed = self.taskmaster.num_failed + 1
+        self.taskmaster.stop = 1
+
 class ExceptionTask:
     """A dummy task class for testing purposes."""
 
     def __init__(self, i, taskmaster):
-        pass
+        self.taskmaster = taskmaster
         
     def execute(self):
         raise "exception"
+
+    def executed(self):
+        self.taskmaster.num_executed = self.taskmaster.num_executed + 1
+
+        self.taskmaster.test_case.failUnless(self.was_executed,
+                                  "the task wasn't really executed")
+        self.taskmaster.test_case.failUnless(self.__class__ is Task,
+                                  "the task wasn't really a Task instance")
+
+    def failed(self):
+        self.taskmaster.num_failed = self.taskmaster.num_failed + 1
+        self.taskmaster.stop = 1
 
 class Taskmaster:
     """A dummy taskmaster class for testing the job classes."""
@@ -123,18 +147,6 @@ class Taskmaster:
 
     def all_tasks_are_iterated(self):
         return self.num_iterated == self.num_tasks
-
-    def executed(self, task):
-        self.num_executed = self.num_executed + 1
-
-        self.test_case.failUnless(task.was_executed,
-                                  "the task wasn't really executed")
-        self.test_case.failUnless(task.__class__ is Task,
-                                  "the task wasn't really a Task instance")
-
-    def failed(self, task):
-        self.num_failed = self.num_failed + 1
-        self.stop = 1
     
     def is_blocked(self):
         # simulate blocking tasks
@@ -241,13 +253,3 @@ if __name__ == "__main__":
         sys.exit(2)
     elif not result.wasSuccessful():
         sys.exit(1)
-
-            
-
-        
-    
-    
-    
-    
-
-

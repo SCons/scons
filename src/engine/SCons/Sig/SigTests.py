@@ -52,6 +52,8 @@ class DummyNode:
         self.builder = file.builder
 	self.depends = []
         self.use_signature = 1
+        self.oldtime = 0
+        self.oldsig = 0
         
     def get_contents(self):
         # a file that doesn't exist has no contents:
@@ -84,6 +86,9 @@ class DummyNode:
 
     def get_signature(self):
         return self.sig
+
+    def get_oldentry(self):
+        return (self.oldtime, self.oldsig)
 
 
 def create_files(test):
@@ -119,6 +124,15 @@ def create_nodes(files):
     nodes[10].sources = [nodes[9]]
 
     return nodes
+
+def current(calc, node):
+    s = calc.get_signature(node)
+    return calc.current(node, s)
+
+def write(calc, nodes):
+    for node in nodes:
+        node.oldtime = node.file.timestamp
+        node.oldsig = calc.get_signature(node)
         
 
 class SigTestBase:
@@ -140,30 +154,32 @@ class SigTestBase:
         calc = SCons.Sig.Calculator(self.module)
 
         for node in nodes:
-            self.failUnless(not calc.current(node), "none of the nodes should be current")
+            self.failUnless(not current(calc, node), "none of the nodes should be current")
 
         # simulate a build:
         self.files[1].modify('built', 222)
         self.files[7].modify('built', 222)
         self.files[9].modify('built', 222)
         self.files[10].modify('built', 222)
-        
-        calc.write(nodes)
 
     def test_built(self):
 
         nodes = create_nodes(self.files)
 
         calc = SCons.Sig.Calculator(self.module)
+
+        write(calc, nodes)
         
         for node in nodes:
-            self.failUnless(calc.current(node), "all of the nodes should be current")
-
-        calc.write(nodes)
+            self.failUnless(current(calc, node), "all of the nodes should be current")
 
     def test_modify(self):
 
         nodes = create_nodes(self.files)
+
+        calc = SCons.Sig.Calculator(self.module)
+
+        write(calc, nodes)
 
         #simulate a modification of some files
         self.files[0].modify('blah blah blah', 333)
@@ -171,47 +187,43 @@ class SigTestBase:
         self.files[6].modify('blah blah blah', 333)
         self.files[8].modify('blah blah blah', 333)
 
-        calc = SCons.Sig.Calculator(self.module)
-
-        self.failUnless(not calc.current(nodes[0]), "modified directly")
-        self.failUnless(not calc.current(nodes[1]), "direct source modified")
-        self.failUnless(calc.current(nodes[2]))
-        self.failUnless(not calc.current(nodes[3]), "modified directly")
-        self.failUnless(calc.current(nodes[4]))
-        self.failUnless(calc.current(nodes[5]))
-        self.failUnless(not calc.current(nodes[6]), "modified directly")
-        self.failUnless(not calc.current(nodes[7]), "indirect source modified")
-        self.failUnless(not calc.current(nodes[8]), "modified directory")
-        self.failUnless(not calc.current(nodes[9]), "direct source modified")
-        self.failUnless(not calc.current(nodes[10]), "indirect source modified")
-
-        calc.write(nodes)
+        self.failUnless(not current(calc, nodes[0]), "modified directly")
+        self.failUnless(not current(calc, nodes[1]), "direct source modified")
+        self.failUnless(current(calc, nodes[2]))
+        self.failUnless(not current(calc, nodes[3]), "modified directly")
+        self.failUnless(current(calc, nodes[4]))
+        self.failUnless(current(calc, nodes[5]))
+        self.failUnless(not current(calc, nodes[6]), "modified directly")
+        self.failUnless(not current(calc, nodes[7]), "indirect source modified")
+        self.failUnless(not current(calc, nodes[8]), "modified directory")
+        self.failUnless(not current(calc, nodes[9]), "direct source modified")
+        self.failUnless(not current(calc, nodes[10]), "indirect source modified")
 
     def test_delete(self):
         
         nodes = create_nodes(self.files)
+        
+        calc = SCons.Sig.Calculator(self.module)
+
+        write(calc, nodes)
 
         #simulate the deletion of some files
         self.files[1].modify(None, 0)
         self.files[7].modify(None, 0)
         self.files[9].modify(None, 0)
-        
-        calc = SCons.Sig.Calculator(self.module)
 
-        self.failUnless(calc.current(nodes[0]))
-        self.failUnless(not calc.current(nodes[1]), "deleted")
-        self.failUnless(calc.current(nodes[2]))
-        self.failUnless(calc.current(nodes[3]))
-        self.failUnless(calc.current(nodes[4]))
-        self.failUnless(calc.current(nodes[5]))
-        self.failUnless(calc.current(nodes[6]))
-        self.failUnless(not calc.current(nodes[7]), "deleted")
-        self.failUnless(calc.current(nodes[8]))
-        self.failUnless(not calc.current(nodes[9]), "deleted")
-        self.failUnless(calc.current(nodes[10]),
+        self.failUnless(current(calc, nodes[0]))
+        self.failUnless(not current(calc, nodes[1]), "deleted")
+        self.failUnless(current(calc, nodes[2]))
+        self.failUnless(current(calc, nodes[3]))
+        self.failUnless(current(calc, nodes[4]))
+        self.failUnless(current(calc, nodes[5]))
+        self.failUnless(current(calc, nodes[6]))
+        self.failUnless(not current(calc, nodes[7]), "deleted")
+        self.failUnless(current(calc, nodes[8]))
+        self.failUnless(not current(calc, nodes[9]), "deleted")
+        self.failUnless(current(calc, nodes[10]),
                         "current even though it's source was deleted") 
-
-        calc.write(nodes)
 
 class MD5TestCase(unittest.TestCase, SigTestBase):
     """Test MD5 signatures"""

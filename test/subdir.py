@@ -24,56 +24,42 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import TestSCons
+import os.path
 
 test = TestSCons.TestSCons()
 
-test.subdir('bin1', 'bin2')
+test.subdir('subdir')
 
-bin1 = test.workpath('bin1')
-bin2 = test.workpath('bin2')
-bin1_build_py = test.workpath('bin1', 'build.py')
-bin2_build_py = test.workpath('bin2', 'build.py')
+test.write('build.py', r"""
+import sys
+contents = open(sys.argv[2], 'r').read()
+file = open(sys.argv[1], 'w')
+file.write(contents)
+file.close()
+""")
 
 test.write('SConstruct', """
-import os
-bin1_path = r'%s' + os.pathsep + os.environ['PATH']
-bin2_path = r'%s' + os.pathsep + os.environ['PATH']
-Bld = Builder(name = 'Bld', action = "build.py $target $sources")
-bin1 = Environment(ENV = {'PATH' : bin1_path}, BUILDERS = [Bld])
-bin2 = Environment(ENV = {'PATH' : bin2_path}, BUILDERS = [Bld])
-bin1.Bld(target = 'bin1.out', source = 'input')
-bin2.Bld(target = 'bin2.out', source = 'input')
-""" % (bin1, bin2))
-
-test.write(bin1_build_py,
-"""#!/usr/bin/env python
-import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write("bin1/build.py\\n")
-file.write(contents)
-file.close()
+B = Builder(name = "B", action = "python build.py $targets $sources")
+env = Environment(BUILDERS = [B])
+env.B(target = 'subdir/f1.out', source = 'subdir/f1.in')
+env.B(target = 'subdir/f2.out', source = 'subdir/f2.in')
+env.B(target = 'subdir/f3.out', source = 'subdir/f3.in')
+env.B(target = 'subdir/f4.out', source = 'subdir/f4.in')
 """)
-os.chmod(bin1_build_py, 0755)
 
-test.write(bin2_build_py,
-"""#!/usr/bin/env python
-import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write("bin2/build.py\\n")
-file.write(contents)
-file.close()
-""")
-os.chmod(bin2_build_py, 0755)
+test.write('subdir/f1.in', "f1.in\n")
+test.write('subdir/f2.in', "f2.in\n")
+test.write('subdir/f3.in', "f3.in\n")
+test.write('subdir/f4.in', "f4.in\n")
 
-test.write('input', "input file\n")
+test.run(arguments = 'subdir')
 
-test.run(arguments = '.')
+test.fail_test(test.read('subdir/f1.out') != "f1.in\n")
+test.fail_test(test.read('subdir/f2.out') != "f2.in\n")
+test.fail_test(test.read('subdir/f3.out') != "f3.in\n")
+test.fail_test(test.read('subdir/f4.out') != "f4.in\n")
 
-test.fail_test(test.read('bin1.out') != "bin1/build.py\ninput file\n")
-test.fail_test(test.read('bin2.out') != "bin2/build.py\ninput file\n")
+test.up_to_date(arguments = 'subdir')
 
 test.pass_test()

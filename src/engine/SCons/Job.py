@@ -111,9 +111,9 @@ class Serial:
             except:
                 # Let the failed() callback function arrange for the
                 # build to stop if that's appropriate.
-                self.taskmaster.failed(task)
+                task.failed()
             else:
-                self.taskmaster.executed(task)
+                task.executed()
 
     def stop(self):
         """Serial jobs are always finished when start() returns, so there
@@ -246,9 +246,9 @@ class Parallel:
                     # Let the failed() callback function arrange for
                     # calling self.jobs.stop() to to stop the build
                     # if that's appropriate.
-                    self.taskmaster.failed(task)
+                    task.failed()
                 else:
-                    self.taskmaster.executed(task)
+                    task.executed()
 
                 # signal the cv whether the task failed or not,
                 # or otherwise the other Jobs might

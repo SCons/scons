@@ -36,7 +36,7 @@ test.write('SConstruct', """
 env = Environment()
 env.Program(target = 'foo1', source = 'f1.c')
 env.Program(target = 'foo2', source = 'f2a.c f2b.c f2c.c')
-#XXXenv.Program(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
+env.Program(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 """)
 
 test.write('f1.c', """
@@ -109,15 +109,13 @@ main(int argc, char *argv[])
 }
 """)
 
-#XXXtest.run(arguments = '.')
-test.run(arguments = 'foo1 foo2')
+test.run(arguments = '.')
 
 test.run(program = test.workpath('foo1'), stdout = "f1.c\n")
 test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
-#XXXtest.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c\nf3c.c\n")
+test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c\nf3c.c\n")
 
-#XXXtest.up_to_date(arguments = '.')
-test.up_to_date(arguments = 'foo1 foo2')
+test.up_to_date(arguments = '.')
 
 test.write('f1.c', """
 int
@@ -137,22 +135,22 @@ f3b(void)
 }
 """)
 
-#XXXtest.run(arguments = '.')
-test.run(arguments = 'foo1 foo2')
+test.run(arguments = '.')
 
 test.run(program = test.workpath('foo1'), stdout = "f1.c X\n")
 test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
-#XXXtest.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c X\nf3c.c\n")
+test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c X\nf3c.c\n")
 
-#XXXtest.up_to_date(arguments = '.')
-test.up_to_date(arguments = 'foo1 foo2')
+test.up_to_date(arguments = '.')
 
 # make sure the programs don't get rebuilt, because nothing changed:
 oldtime1 = os.path.getmtime(test.workpath('foo1'))
 oldtime2 = os.path.getmtime(test.workpath('foo2'))
-time.sleep(1) # introduce a small delay, to make the test valid
-test.run(arguments = 'foo1 foo2')
+oldtime3 = os.path.getmtime(test.workpath('foo3'))
+time.sleep(2) # introduce a small delay, to make the test valid
+test.run(arguments = '.')
 test.fail_test(not (oldtime1 == os.path.getmtime(test.workpath('foo1'))))
 test.fail_test(not (oldtime2 == os.path.getmtime(test.workpath('foo2'))))
+test.fail_test(not (oldtime3 == os.path.getmtime(test.workpath('foo3'))))
 
 test.pass_test()

@@ -38,25 +38,68 @@ import SCons.Node
 
 class Task:
     """Default SCons build engine task."""
-    def __init__(self,target):
+    def __init__(self, tm, target, top):
+        self.tm = tm
         self.target = target
+        self.sig = None
+        self.top = top
 
     def execute(self):
         self.target.build()
 
-    def set_state(self, state):
-        return self.target.set_state(state)
-
     def get_target(self):
         return self.target
-        
-def current(node):
-    """Default SCons build engine is-it-current function.
 
-    This returns "always out of date," so every node is always
-    built/visited.
-    """
-    return None
+    def set_sig(self, sig):
+        self.sig = sig
+
+    def set_state(self, state):
+        self.target.set_state(state)
+
+    def up_to_date(self):
+        self.set_state(SCons.Node.up_to_date)
+
+    def executed(self):
+        self.set_state(SCons.Node.executed)
+        self.tm.add_pending(self.target)
+        self.target.set_signature(self.sig)
+
+    def failed(self):
+        self.fail_stop()
+
+    def fail_stop(self):
+        self.set_state(SCons.Node.failed)
+        self.tm.stop()
+
+    def fail_continue(self):
+        def get_parents(node): return node.get_parents()
+        walker = SCons.Node.Walker(self.target, get_parents)
+        while 1:
+            node = walker.next()
+            if node == None: break
+            self.tm.remove_pending(node)
+            node.set_state(SCons.Node.failed)
+        
+
+
+class Calc:
+    def get_signature(self, node):
+        """
+        """
+        return None
+
+    def set_signature(self, node):
+        """
+        """
+        pass
+
+    def current(self, node, sig):
+        """Default SCons build engine is-it-current function.
+    
+        This returns "always out of date," so every node is always
+        built/visited.
+        """
+        return 0
 
 
 
@@ -64,92 +107,85 @@ class Taskmaster:
     """A generic Taskmaster for handling a bunch of targets.
 
     Classes that override methods of this class should call
-    the base class method, so this class can do it's thing.    
+    the base class method, so this class can do its thing.    
     """
 
-    def __init__(self,
-                 targets=[],
-                 tasker=Task,
-                 current=current,
-                 ignore_errors=0,
-                 keep_going_on_error=0):
+    def __init__(self, targets=[], tasker=Task, calc=Calc()):
         self.walkers = map(SCons.Node.Walker, targets)
         self.tasker = tasker
-        self.current = current
+        self.calc = calc
         self.targets = targets
         self.ready = []
         self.pending = 0
-        self.ignore_errors = ignore_errors
-        self.keep_going_on_error = keep_going_on_error
 
         self._find_next_ready_node()
-        
+
     def next_task(self):
         if self.ready:
-            n = self.ready.pop()
-            n.set_state(SCons.Node.executing)
+            task = self.ready.pop()
+            task.set_state(SCons.Node.executing)
             if not self.ready:
                 self._find_next_ready_node()
-
-            return self.tasker(n)
+            return task
         else:
             return None
-        
+
     def _find_next_ready_node(self):
         """Find the next node that is ready to be built"""
         while self.walkers:
             n = self.walkers[0].next()
             if n == None:
                 self.walkers.pop(0)
-            elif n.get_state() == SCons.Node.up_to_date:
-                self.up_to_date(n, self.walkers[0].is_done())
-            elif n.get_state() == None:
-                if not n.children_are_executed():
-                    n.set_state(SCons.Node.pending)
-                    self.pending = self.pending + 1
-                elif self.current(n):
-                    n.set_state(SCons.Node.up_to_date)
-                    self.up_to_date(n, self.walkers[0].is_done())
-                else:
-                    self.ready.append(n)
-                    return
-        
+                continue
+            if n.get_state():
+                # The state is set, so someone has already been here
+                # (finished or currently executing).  Find another one.
+                continue
+            if not n.builder:
+                # It's a source file, we don't need to build it,
+                # but mark it as "up to date" so targets won't
+                # wait for it.
+                n.set_state(SCons.Node.up_to_date)
+                continue
+            task = self.tasker(self, n, self.walkers[0].is_done())
+            if not n.children_are_executed():
+                n.set_state(SCons.Node.pending)
+                n.task = task
+                self.pending = self.pending + 1
+                continue
+            sig = self.calc.get_signature(n)
+            task.set_sig(sig)
+            if self.calc.current(n, sig):
+                task.up_to_date()
+            else:
+                self.ready.append(task)
+                return None
+ 
     def is_blocked(self):
         return not self.ready and self.pending
 
-    def up_to_date(self, node):
-        pass
+    def stop(self):
+        self.walkers = []
+        self.pending = 0
+        self.ready = []
 
-    def executed(self, task):
-        task.set_state(SCons.Node.executed)
-
+    def add_pending(self, node):
         # add all the pending parents that are now executable to the 'ready'
         # queue:
-        n = task.get_target()
         ready = filter(lambda x: (x.get_state() == SCons.Node.pending
                                   and x.children_are_executed()),
-                       n.get_parents())
-        self.ready.extend(ready)
-        self.pending = self.pending - len(ready)
-        
-    def failed(self, task):
-        if self.ignore_errors:
-            self.executed(task)
-        else:
-            if self.keep_going_on_error:
-                # mark all the depants of this node as failed:
-                def get_parents(node): return node.get_parents()
-                walker = SCons.Node.Walker(task.get_target(), get_parents)
-                while 1:
-                    node = walker.next()
-                    if node == None: break
-                    if node.get_state() == SCons.Node.pending:
-                        self.pending = self.pending - 1
-                    node.set_state(SCons.Node.failed)
+                       node.get_parents())
+        for n in ready:
+            task = n.task
+            delattr(n, "task")
+            sig = self.calc.get_signature(n)
+            task.set_sig(sig)
+            if self.calc.current(n, sig):
+                task.up_to_date()
             else:
-                # terminate the build:
-                self.walkers = []
-                self.pending = 0
-                self.ready = []
+                self.ready.append(task)
+        self.pending = self.pending - len(ready)
 
-            task.set_state(SCons.Node.failed)
+    def remove_pending(self, node):
+        if node.get_state() == SCons.Node.pending:
+            self.pending = self.pending - 1
