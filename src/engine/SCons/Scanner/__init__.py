@@ -244,7 +244,7 @@ class Selector(Base):
     scanner_key() (suffix) for a specific Node.
     """
     def __init__(self, dict, *args, **kw):
-        Base.__init__(self, (None,)+args, kw)
+        apply(Base.__init__, (self, None,)+args, kw)
         self.dict = dict
 
     def __call__(self, node, env, path = ()):
