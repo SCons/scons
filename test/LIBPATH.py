@@ -25,14 +25,30 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import sys
+import os.path
+import time
 
+if sys.platform == 'win32':
+    _exe = '.exe'
+else:
+    _exe = ''
+    
 test = TestSCons.TestSCons()
+
+prog1 = test.workpath('prog') + _exe
+prog2 = test.workpath('prog2') + _exe
 
 test.write('SConstruct', """
 env = Environment(LIBS = [ 'foo1' ],
                   LIBPATH = [ './libs' ])
 env.Program(target = 'prog', source = 'prog.c')
 env.Library(target = './libs/foo1', source = 'f1.c')
+
+env2 = Environment(LIBS = 'foo2',
+                   LIBPATH = '.')
+env2.Program(target = 'prog2', source = 'prog.c')
+env2.Library(target = 'foo2', source = 'f1.c')
 """)
 
 test.write('f1.c', r"""
@@ -57,8 +73,32 @@ main(int argc, char *argv[])
 
 test.run(arguments = '.')
 
-test.run(program = test.workpath('prog'),
+test.run(program = prog1,
          stdout = "f1.c\nprog.c\n")
+test.run(program = prog2,
+         stdout = "f1.c\nprog.c\n")
+
+oldtime1 = os.path.getmtime(prog1)
+oldtime2 = os.path.getmtime(prog2)
+time.sleep(2)
+test.run(arguments = '.')
+
+test.fail_test(oldtime1 != os.path.getmtime(prog1))
+test.fail_test(oldtime2 != os.path.getmtime(prog2))
+
+test.write('f1.c', r"""
+void
+f1(void)
+{
+	printf("f1.cnew\n");
+}
+""")
+
+test.run(arguments = '.')
+test.run(program = prog1,
+         stdout = "f1.cnew\nprog.c\n")
+test.run(program = prog2,
+         stdout = "f1.cnew\nprog.c\n")
 
 test.up_to_date(arguments = '.')
 

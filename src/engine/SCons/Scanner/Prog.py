@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Scanner
 import SCons.Node.FS
 import SCons.Util
+import string
 
 def ProgScan():
     """Return a prototype Scanner instance for scanning executable
@@ -42,13 +43,15 @@ def scan(node, env, node_factory):
 
     fs = SCons.Node.FS.default_fs
     try:
-        paths = map(lambda x, dir=fs.Dir: dir(x),
-                    env.Dictionary("LIBPATH"))
+        paths = SCons.Util.scons_str2nodes(env.Dictionary("LIBPATH"),
+                                           fs.Dir)
     except KeyError:
         paths = []
 
     try:
         libs = env.Dictionary("LIBS")
+        if SCons.Util.is_String(libs):
+            libs = string.split(libs)
     except KeyError:
         libs = []
 

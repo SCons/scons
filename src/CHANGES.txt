@@ -15,6 +15,10 @@ RELEASE 0.04 -
   - Significant performance improvements in the Node.FS and
     Scanner subsystems.
 
+  - Fix signatures of binary files on Win32 systems.
+
+  - Allow LIBS and LIBPATH to be strings, not just arrays.
+
   From Steven Knight:
 
   - Fix using a directory as a Default(), and allow Default() to

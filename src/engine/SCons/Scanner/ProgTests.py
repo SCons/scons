@@ -80,10 +80,20 @@ class ProgScanTestCase2(unittest.TestCase):
         deps = s.scan('dummy', env)
         assert deps_match(deps, ['l1.lib', 'd1/l2.lib', 'd1/d2/l3.lib' ]), map(str, deps)
 
+class ProgScanTestCase3(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(LIBPATH=test.workpath("d1/d2") + ' ' +\
+                               test.workpath("d1"),
+                               LIBS='l2 l3')
+        s = SCons.Scanner.Prog.ProgScan()
+        deps = s.scan('dummy', env)
+        assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ProgScanTestCase1())
     suite.addTest(ProgScanTestCase2())
+    suite.addTest(ProgScanTestCase3())
     return suite
 
 if __name__ == "__main__":
