@@ -81,8 +81,8 @@ RELEASE 0.09 -
   - Add an Options() object for friendlier accomodation of command-
     line arguments.
 
-  - Add support for Microsoft VC++ precompiled header (.pch)
-    and debugger (.pdb) files.
+  - Add support for Microsoft VC++ precompiled header (.pch) files,
+    debugger (.pdb) files, and resource (.rc) files.
 
   - Don't compute the $_CPPINCFLAGS, $_F77INCFLAGS, $_LIBFLAGS and
     $_LIBDIRFLAGS variables each time a command is executed, define

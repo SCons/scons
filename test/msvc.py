@@ -44,7 +44,7 @@ env=Environment()
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = 'StdAfx.h'
-env.Program('test', 'test.cpp')
+env.Program('test', ['test.cpp', env.RES('test.rc')], LIBS=['user32'])
 
 env.Object('fast', 'foo.cpp')
 env.Object('slow', 'foo.cpp', PCH=0)
@@ -52,12 +52,30 @@ env.Object('slow', 'foo.cpp', PCH=0)
 
 test.write('test.cpp', '''
 #include "StdAfx.h"
+#include "resource.h"
 
 int main(void) 
 { 
-    return 1;
+    char test[1024];
+    LoadString(GetModuleHandle(NULL), IDS_TEST, test, sizeof(test));
+    printf("%d %s\\n", IDS_TEST, test);
+    return 0;
 }
 ''')
+
+test.write('test.rc', '''
+#include "resource.h"
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TEST "test 1"
+END
+''')
+
+test.write('resource.h', '''
+#define IDS_TEST 2001
+''')
+
 
 test.write('foo.cpp', '''
 #include "StdAfx.h"
@@ -65,6 +83,7 @@ test.write('foo.cpp', '''
 
 test.write('StdAfx.h', '''
 #include <windows.h>
+#include <stdio.h>
 ''')
 
 test.write('StdAfx.cpp', '''
@@ -73,13 +92,36 @@ test.write('StdAfx.cpp', '''
 
 test.run(arguments='test.exe')
 
+test.fail_test(not os.path.exists(test.workpath('test.exe')))
+test.fail_test(not os.path.exists(test.workpath('test.res')))
 test.fail_test(not os.path.exists(test.workpath('test.pdb')))
 test.fail_test(not os.path.exists(test.workpath('StdAfx.pch')))
 test.fail_test(not os.path.exists(test.workpath('StdAfx.obj')))
 
+test.run(program=test.workpath('test.exe'), stdout='2001 test 1\n')
+
+test.write('resource.h', '''
+#define IDS_TEST 2002
+''')
+test.run(arguments='test.exe')
+test.run(program=test.workpath('test.exe'), stdout='2002 test 1\n')
+
+test.write('test.rc', '''
+#include "resource.h"
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TEST "test 2"
+END
+''')
+test.run(arguments='test.exe')
+test.run(program=test.workpath('test.exe'), stdout='2002 test 2\n')
+
 test.run(arguments='-c .')
 
+test.fail_test(os.path.exists(test.workpath('test.exe')))
 test.fail_test(os.path.exists(test.workpath('test.pdb')))
+test.fail_test(os.path.exists(test.workpath('test.res')))
 test.fail_test(os.path.exists(test.workpath('StdAfx.pch')))
 test.fail_test(os.path.exists(test.workpath('StdAfx.obj')))
 

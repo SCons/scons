@@ -127,6 +127,10 @@ class Base:
     def __hash__(self):
         return hash(None)
 
+    def add_skey(self, skey):
+        """Add a skey to the list of skeys"""
+        self.skeys.append(skey)
+
 class RExists(Base):
     """
     Scan a node only if it exists (locally or in a Repository).

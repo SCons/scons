@@ -238,6 +238,7 @@ def object_emitter(target, source, env):
     return (target, source)
 
 pch_builder = SCons.Builder.Builder(action='$PCHCOM', suffix='.pch', emitter=pch_emitter)
+res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.res')
 
 def generate(env, platform):
     """Add Builders and construction variables for MSVC++ to an Environment."""
@@ -270,6 +271,12 @@ def generate(env, platform):
     env['INCSUFFIX']  = ''
     env['OBJEMITTER'] = object_emitter
 
+    env['RC'] = 'rc'
+    env['RCFLAGS'] = ''
+    env['RCCOM'] = '$RC $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
+    env.CScan.add_skey('.rc')
+    env['BUILDERS']['RES'] = res_builder
+    
     include_path, lib_path, exe_path = get_msdev_paths()
     env['ENV']['INCLUDE'] = include_path
     env['ENV']['PATH']    = exe_path
