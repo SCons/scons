@@ -27,14 +27,14 @@
 
 <book>
   <bookinfo>
-    <title>SCons Design version &build_version;</title>
+    <title>SCons Design version &buildversion;</title>
 
     <author>
       <firstname>Steven</firstname>
       <surname>Knight</surname>
     </author>
 
-    <edition>Revision &build_revision; (&build_date;)</edition>
+    <edition>Revision &buildrevision; (&builddate;)</edition>
 
     <pubdate>2001</pubdate>
 
@@ -47,7 +47,7 @@
       &copyright;
     </legalnotice>
 
-    <releaseinfo>version &build_version;</releaseinfo>
+    <releaseinfo>version &buildversion;</releaseinfo>
 
   </bookinfo>
 

@@ -28,9 +28,9 @@ print FILE <<_EOF_;
 <!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
-<!ENTITY build_date "${\$env->{DATE}}">
-<!ENTITY build_version "${\$env->{VERSION}}">
-<!ENTITY build_revision "${\$env->{REVISION}}">
+<!ENTITY builddate "${\$env->{DATE}}">
+<!ENTITY buildversion "${\$env->{VERSION}}">
+<!ENTITY buildrevision "${\$env->{REVISION}}">
 _EOF_
 close(FILE);
 
@@ -103,23 +103,24 @@ foreach $doc (keys %doc_dirs) {
     $env->QuickScan(\&scansgml, $main);
 
     $env->Command($html, $main,
-	[qq(rm -f %>:d/*.html),
-	 qq(jw -b html -o %>:d %<),
-	]);
+	qq(rm -f %>:d/*.html
+	   jw -b html -o %>:d %<
+	   mv -v %>:d/index.html %> || true
+	));
 
     $env->Command($ps, $main,
-	[qq(rm -f %>:d/$out),
-	 qq(jw -b ps -o %>:d %<),
-	 qq(mv %>:d/main.ps %>),
-	 qq(rm -f %>:d/$out),
-	]);
+	qq(rm -f %>:d/$out
+	   jw -b ps -o %>:d %<
+	   mv %>:d/main.ps %>
+	   rm -f %>:d/$out
+	));
 
     $env->Command($pdf, $main,
-	[qq(rm -f %>:d/$out),
-	 qq(jw -b pdf -o %>:d %<),
-	 qq(mv %>:d/main.pdf %>),
-	 qq(rm -f %>:d/$out),
-	]);
+	qq(rm -f %>:d/$out
+	   jw -b pdf -o %>:d %<
+	   mv %>:d/main.pdf %>
+	   rm -f %>:d/$out
+	));
 
     if ($doc_dirs{$doc}->{'text'} && $lynx) {
 	$env->Command($text, $html, qq(lynx -dump %<:a > %>));
