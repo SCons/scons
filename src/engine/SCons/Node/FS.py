@@ -130,11 +130,27 @@ CacheRetrieveSilent = SCons.Action.Action(CacheRetrieveFunc, None)
 def CachePushFunc(target, source, env):
     t = target[0]
     cachedir, cachefile = t.cachepath()
+    if os.path.exists(cachefile):
+        # Don't bother copying it if it's already there.
+        return
+
     if not os.path.isdir(cachedir):
         os.mkdir(cachedir)
-    shutil.copy2(t.path, cachefile)
-    st = os.stat(t.path)
-    os.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+
+    tempfile = cachefile+'.tmp'
+    try:
+        shutil.copy2(t.path, tempfile)
+        os.rename(tempfile, cachefile)
+        st = os.stat(t.path)
+        os.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    except OSError:
+        # It's possible someone else tried writing the file at the same
+        # time we did.  Print a warning but don't stop the build, since
+        # it doesn't affect the correctness of the build.
+        SCons.Warnings.warn(SCons.Warnings.CacheWriteErrorWarning,
+                            "Unable to copy %s to cache. Cache file is %s"
+                                % (str(target), cachefile))
+        return
 
 CachePush = SCons.Action.Action(CachePushFunc, None)
 

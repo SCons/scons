@@ -29,11 +29,13 @@ import string
 import sys
 import time
 import unittest
-import SCons.Node.FS
 from TestCmd import TestCmd
-import SCons.Errors
 import shutil
 import stat
+
+import SCons.Errors
+import SCons.Node.FS
+import SCons.Warnings
 
 built_it = None
 
@@ -1276,6 +1278,8 @@ class SConstructTestCase(unittest.TestCase):
 class CacheDirTestCase(unittest.TestCase):
     def runTest(self):
         """Test CacheDir functionality"""
+        test = TestCmd(workdir='')
+
         global built_it
 
         fs = SCons.Node.FS.FS()
@@ -1350,8 +1354,6 @@ class CacheDirTestCase(unittest.TestCase):
         SCons.Node.FS.CachePush = push
 
         try:
-            test = TestCmd(workdir='')
-
             self.pushed = []
 
             cd_f3 = test.workpath("cd.f3")
@@ -1377,6 +1379,8 @@ class CacheDirTestCase(unittest.TestCase):
         finally:
             SCons.Node.FS.CachePush = save_CachePush
 
+        # Verify how the cachepath() method determines the name
+        # of the file in cache.
         f5 = fs.File("cd.f5")
         f5.set_bsig('a_fake_bsig')
         cp = f5.cachepath()
@@ -1384,14 +1388,45 @@ class CacheDirTestCase(unittest.TestCase):
         filename = os.path.join(dirname, 'a_fake_bsig')
         assert cp == (dirname, filename), cp
 
+        # Verify that no bsig raises an InternalERror
         f6 = fs.File("cd.f6")
-        f5.set_bsig(None)
+        f6.set_bsig(None)
         exc_caught = 0
         try:
-            cp = f5.cachepath()
+            cp = f6.cachepath()
         except SCons.Errors.InternalError:
             exc_caught = 1
         assert exc_caught
+
+        # Verify that we raise a warning if we can't copy a file to cache.
+        save_copy2 = shutil.copy2
+        def copy2(src, dst):
+            raise OSError
+        shutil.copy2 = copy2
+        save_mkdir = os.mkdir
+        def mkdir(dir):
+            pass
+        os.mkdir = mkdir
+        old_warn_exceptions = SCons.Warnings.warningAsException(1)
+        SCons.Warnings.enableWarningClass(SCons.Warnings.CacheWriteErrorWarning)
+
+        try:
+            cd_f7 = test.workpath("cd.f7")
+            test.write(cd_f7, "cd.f7\n")
+            f7 = fs.File(cd_f7)
+            f7.set_bsig('f7_bsig')
+
+            warn_caught = 0
+            try:
+                f7.built()
+            except SCons.Warnings.CacheWriteErrorWarning:
+                warn_caught = 1
+            assert warn_caught
+        finally:
+            shutil.copy2 = save_copy2
+            os.mkdir = save_mkdir
+            SCons.Warnings.warningAsException(old_warn_exceptions)
+            SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
 
 
 
