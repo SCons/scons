@@ -566,5 +566,10 @@ class File(Entry):
         Entry.build(self)
         self.exists_flag = self.exists()
 
+    def remove(self):
+        """Remove this file."""
+        if self.exists():
+            os.unlink(self.path)
+
 default_fs = FS()
 

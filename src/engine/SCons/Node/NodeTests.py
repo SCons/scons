@@ -206,6 +206,15 @@ class NodeTestCase(unittest.TestCase):
         node.set_csig('zzz')
         assert node.get_csig() == 'zzz'
 
+    def test_set_precious(self):
+        """Test setting a Node's precious value
+        """
+        node = SCons.Node.Node()
+        node.set_precious()
+        assert node.precious
+        node.set_precious(7)
+        assert node.precious == 7
+
     def test_add_dependency(self):
 	"""Test adding dependencies to a Node's list.
 	"""

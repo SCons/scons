@@ -438,6 +438,12 @@ class FSTestCase(unittest.TestCase):
         nonexistent(fs.Dir, 'nonexistent')
         nonexistent(fs.Dir, 'nonexistent/foo')
 
+        test.write("remove_me", "\n")
+        assert os.path.exists(test.workpath("remove_me"))
+        f1 = fs.File(test.workpath("remove_me"))
+        f1.remove()
+        assert not os.path.exists(test.workpath("remove_me"))
+
         #XXX test current() for directories
 
         #XXX test sconsign() for directories

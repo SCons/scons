@@ -233,9 +233,6 @@ class EnvironmentTestCase(unittest.TestCase):
         assert paths == expect, paths
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
-            
-    def test_InstallAs(self):
-	pass	# XXX
 
     def test_Update(self):
 	"""Test updating an Environment with new construction variables
@@ -268,6 +265,23 @@ class EnvironmentTestCase(unittest.TestCase):
         i = t.ignore[0]
         assert i.__class__.__name__ == 'File'
         assert i.path == 'dep.py'
+
+    def test_Precious(self):
+        """Test the Precious() method."""
+        env = Environment()
+        t = env.Precious('a', 'b', ['c', 'd'])
+        assert t[0].__class__.__name__ == 'File'
+        assert t[0].path == 'a'
+        assert t[0].precious
+        assert t[1].__class__.__name__ == 'File'
+        assert t[1].path == 'b'
+        assert t[1].precious
+        assert t[2].__class__.__name__ == 'File'
+        assert t[2].path == 'c'
+        assert t[2].precious
+        assert t[3].__class__.__name__ == 'File'
+        assert t[3].path == 'd'
+        assert t[3].precious
 
     def test_Command(self):
         """Test the Command() method."""

@@ -70,11 +70,14 @@ class Node:
         self.bsig = None
         self.csig = None
         self.use_signature = 1
+        self.precious = None
 
     def build(self):
         """Actually build the node.   Return the status from the build."""
 	if not self.builder:
 	    return None
+        if not self.precious:
+            self.remove()
         try:
             stat = self.builder.execute(env = self.env.Dictionary(),
                                         target = self, source = self.sources)
@@ -163,6 +166,14 @@ class Node:
     def set_csig(self, csig):
         """Set the signature of the node's content."""
         self.csig = csig
+
+    def set_precious(self, precious = 1):
+        """Set the Node's precious value."""
+        self.precious = precious
+
+    def remove(self):
+        """Remove this Node's external object:  no-op by default."""
+        pass
 
     def add_dependency(self, depend):
 	"""Adds dependencies. The depend argument must be a list."""

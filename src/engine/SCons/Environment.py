@@ -66,9 +66,6 @@ def installFunc(env, target, source):
 InstallBuilder = SCons.Builder.Builder(name='Install',
                                        action=installFunc)
 
-def InstallAs():
-    pass	# XXX
-
 def our_deepcopy(x):
    """deepcopy lists and dictionaries, and just copy the reference 
    for everything else.""" 
@@ -180,6 +177,18 @@ class Environment:
         dlist = SCons.Util.scons_str2nodes(dependency)
         for t in tlist:
             t.add_ignore(dlist)
+
+        if len(tlist) == 1:
+            tlist = tlist[0]
+        return tlist
+
+    def Precious(self, *targets):
+        tlist = []
+        for t in targets:
+            tlist.extend(SCons.Util.scons_str2nodes(t))
+
+        for t in tlist:
+            t.set_precious()
 
         if len(tlist) == 1:
             tlist = tlist[0]

@@ -54,6 +54,9 @@ RELEASE 0.04 -
   - Provide an error message when a nonexistent target is specified
     on the command line.
 
+  - Remove targets before building them, and add an Environment
+    Precious() method to override that.
+
   From Steve Leblanc:
 
   - Add var=value command-line arguments.
