@@ -10,6 +10,10 @@
 
 RELEASE 0.11 - XXX
 
+  From Chad Austin:
+
+  - Add support for IRIX and the SGI MIPSPro tool chain.
+
   From Charles Crain:
 
   - Added new AddPreAction() and AddPostAction() functions that support

@@ -1,6 +1,6 @@
-"""SCons.Tool.gas
+"""SCons.Tool.sgicc
 
-Tool-specific initialization for as, the Gnu assembler.
+Tool-specific initialization for MIPSPro CC and cc.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -35,33 +35,43 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
-import SCons.Defaults
 import SCons.Tool
+import SCons.Defaults
 import SCons.Util
 
-assemblers = ['as', 'gas']
-
-ASSuffixes = ['.s', '.asm', '.ASM']
-ASPPSuffixes = ['.spp', '.SPP']
-if os.path.normcase('.s') == os.path.normcase('.S'):
-    ASSuffixes.extend(['.S'])
-else:
-    ASPPSuffixes.extend(['.S'])
+CSuffixes = ['.c']
+CXXSuffixes = ['.C', '.cpp', '.cc', '.cxx']
 
 def generate(env, platform):
-    """Add Builders and construction variables for as to an Environment."""
+    """Add Builders and construction variables for gcc to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    for suffix in ASSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.ASAction)
+    for suffix in CSuffixes:
+        static_obj.add_action(suffix, SCons.Defaults.CAction)
+        shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
+    for suffix in CXXSuffixes:
+        static_obj.add_action(suffix, SCons.Defaults.CXXAction)
+        shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
+        
+    env['CC']        = 'cc'
+    env['CCFLAGS']   = ''
+    env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCC']      = '$CC'
+    env['SHCCFLAGS'] = '$CCFLAGS'
+    env['SHCCCOM']   = '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 
-    for suffix in ASPPSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
+    env['CXX']        = 'CC'
+    env['CXXFLAGS']   = ['$CCFLAGS', '-LANG:std']
+    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCXX']      = '$CXX'
+    env['SHCXXFLAGS'] = '$CXXFLAGS'
+    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 
-    env['AS']        = env.Detect(assemblers) or 'as'
-    env['ASFLAGS']   = ''
-    env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
-    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['INCPREFIX']  = '-I'
+    env['INCSUFFIX']  = ''
+    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
+
+    env['CFILESUFFIX'] = '.c'
 
 def exists(env):
-    return env.Detect(assemblers)
+    return env.Detect('CC')

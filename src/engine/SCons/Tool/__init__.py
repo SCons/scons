@@ -157,6 +157,13 @@ def tool_list(platform, env):
         assemblers = ['nasm', 'masm', 'gas']
         fortran_compilers = ['ifl', 'g77']
         ars = ['ar', 'mslib']
+    elif str(platform) == 'irix':
+        "prefer MIPSPro on IRIX"
+        linkers = ['sgilink', 'gnulink']
+        c_compilers = ['sgicc', 'gcc']
+        assemblers = ['sgias', 'gas']
+        fortran_compilers = ['sgif77', 'g77']
+        ars = ['ar']
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']
@@ -184,7 +191,8 @@ def tool_list(platform, env):
         ar = FindTool(ars, env) or ars[0]
 
         # Don't use g++ if the C compiler has built-in C++ support:
-        if c_compiler and (c_compiler == 'msvc' or c_compiler == 'icc'):
+        if c_compiler and (c_compiler == 'msvc' or c_compiler == 'icc' or
+                           c_compiler == 'sgicc'):
             cxx_compiler = None
         else:
             cxx_compiler = FindTool(['g++'], env)

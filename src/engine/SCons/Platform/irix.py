@@ -1,11 +1,10 @@
-"""SCons.Tool.gas
+"""SCons.Platform.irix
 
-Tool-specific initialization for as, the Gnu assembler.
+Platform-specific initialization for SGI IRIX systems.
 
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
+There normally shouldn't be any need to import this module directly.  It
+will usually be imported through the generic SCons.Platform.Platform()
 selection method.
-
 """
 
 #
@@ -33,35 +32,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
+import posix
 
-import SCons.Defaults
-import SCons.Tool
-import SCons.Util
-
-assemblers = ['as', 'gas']
-
-ASSuffixes = ['.s', '.asm', '.ASM']
-ASPPSuffixes = ['.spp', '.SPP']
-if os.path.normcase('.s') == os.path.normcase('.S'):
-    ASSuffixes.extend(['.S'])
-else:
-    ASPPSuffixes.extend(['.S'])
-
-def generate(env, platform):
-    """Add Builders and construction variables for as to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-
-    for suffix in ASSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.ASAction)
-
-    for suffix in ASPPSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
-
-    env['AS']        = env.Detect(assemblers) or 'as'
-    env['ASFLAGS']   = ''
-    env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
-    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
-
-def exists(env):
-    return env.Detect(assemblers)
+def generate(env):
+    posix.generate(env)

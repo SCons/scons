@@ -60,6 +60,14 @@ class PlatformTestCase(unittest.TestCase):
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
 
+        p = SCons.Platform.Platform('irix')
+        assert str(p) == 'irix', p
+        env = Environment()
+        p(env)
+        assert env['PROGSUFFIX'] == '', env
+        assert env['LIBSUFFIX'] == '.a', env
+        assert env['SHELL'] == 'sh', env
+
         p = SCons.Platform.Platform('win32')
         assert str(p) == 'win32', p
         env = Environment()

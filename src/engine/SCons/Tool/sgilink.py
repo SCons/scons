@@ -1,6 +1,6 @@
-"""SCons.Tool.gas
+"""SCons.Tool.sgilink
 
-Tool-specific initialization for as, the Gnu assembler.
+Tool-specific initialization for the SGI MIPSPro linker.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -33,35 +33,28 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-
 import SCons.Defaults
-import SCons.Tool
 import SCons.Util
 
-assemblers = ['as', 'gas']
-
-ASSuffixes = ['.s', '.asm', '.ASM']
-ASPPSuffixes = ['.spp', '.SPP']
-if os.path.normcase('.s') == os.path.normcase('.S'):
-    ASSuffixes.extend(['.S'])
-else:
-    ASPPSuffixes.extend(['.S'])
+linkers = ['CC', 'cc']
 
 def generate(env, platform):
-    """Add Builders and construction variables for as to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-
-    for suffix in ASSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.ASAction)
-
-    for suffix in ASPPSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
-
-    env['AS']        = env.Detect(assemblers) or 'as'
-    env['ASFLAGS']   = ''
-    env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
-    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    """Add Builders and construction variables for MIPSPro to an Environment."""
+    env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
+    env['BUILDERS']['Program'] = SCons.Defaults.Program
+    
+    env['SHLINK']      = '$LINK'
+    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
+    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['SHLIBEMITTER']= None
+    env['LINK']        = env.Detect(linkers) or 'cc'
+    env['LINKFLAGS']   = '-LANG:std'
+    env['LINKCOM']     = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['LIBDIRPREFIX']='-L'
+    env['LIBDIRSUFFIX']=''
+    env['_LIBFLAGS']='${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, locals(), globals(), LIBPREFIX, LIBSUFFIX)}'
+    env['LIBLINKPREFIX']='-l'
+    env['LIBLINKSUFFIX']=''
 
 def exists(env):
-    return env.Detect(assemblers)
+    return env.Detect(linkers)

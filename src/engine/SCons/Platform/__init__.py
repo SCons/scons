@@ -46,6 +46,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import imp
 import os
+import string
 import sys
 
 import SCons.Errors
@@ -63,7 +64,10 @@ def platform_default():
     if osname == 'posix':
         if sys.platform == 'cygwin':
             return 'cygwin'
-        return 'posix'
+        elif string.find(sys.platform, 'irix') != -1:
+            return 'irix'
+        else:
+            return 'posix'
     elif os.name == 'os2':
         return 'os2'
     else:

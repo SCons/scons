@@ -1,6 +1,6 @@
-"""SCons.Tool.gas
+"""SCons.Tool.sgias
 
-Tool-specific initialization for as, the Gnu assembler.
+Tool-specific initialization for as, the SGI assembler.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -39,14 +39,10 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-assemblers = ['as', 'gas']
+assemblers = ['as']
 
 ASSuffixes = ['.s', '.asm', '.ASM']
 ASPPSuffixes = ['.spp', '.SPP']
-if os.path.normcase('.s') == os.path.normcase('.S'):
-    ASSuffixes.extend(['.S'])
-else:
-    ASPPSuffixes.extend(['.S'])
 
 def generate(env, platform):
     """Add Builders and construction variables for as to an Environment."""

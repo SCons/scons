@@ -10,6 +10,7 @@
 ./SCons/Options.py
 ./SCons/Platform/__init__.py
 ./SCons/Platform/cygwin.py
+./SCons/Platform/irix.py
 ./SCons/Platform/os2.py
 ./SCons/Platform/posix.py
 ./SCons/Platform/win32.py
@@ -46,6 +47,10 @@
 ./SCons/Tool/nasm.py
 ./SCons/Tool/pdflatex.py
 ./SCons/Tool/pdftex.py
+./SCons/Tool/sgias.py
+./SCons/Tool/sgicc.py
+./SCons/Tool/sgif77.py
+./SCons/Tool/sgilink.py
 ./SCons/Tool/tar.py
 ./SCons/Tool/tex.py
 ./SCons/Tool/yacc.py
