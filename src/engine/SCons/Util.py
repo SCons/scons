@@ -506,15 +506,18 @@ def is_Dict(e):
 def is_List(e):
     return type(e) is types.ListType or isinstance(e, UserList.UserList)
 
-def to_String(s):
-    """Better than str() because it will preserve a unicode
-    object without converting it to ASCII."""
-    if hasattr(types, 'UnicodeType') and \
-       (type(s) is types.UnicodeType or \
-        (isinstance(s, UserString) and type(s.data) is types.UnicodeType)):
-        return unicode(s)
-    else:
-        return str(s)
+if hasattr(types, 'UnicodeType'):
+    def to_String(s):
+        if isinstance(s, UserString):
+            t = type(s.data)
+        else:
+            t = type(s)
+        if t is types.UnicodeType:
+            return unicode(s)
+        else:
+            return str(s)
+else:
+    to_String = str
 
 def argmunge(arg):
     return Split(arg)

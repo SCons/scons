@@ -23,6 +23,8 @@ RELEASE 0.12 - XXX
     from source code systems.  Add factory methods that create Builders
     to support BitKeeper, CVS, RCS, SCCS and Subversion.
 
+  - Make the internal to_String() function more efficient.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600
