@@ -54,6 +54,8 @@ RELEASE 0.09 -
   - Add separate $SHOBJPREFIX and $SHOBJSUFFIX construction variables
     (by default, the same as $OBJPREFIX and $OBJSUFFIX).
 
+  - Add a Make-like message when asked to build a source file.
+
  From Steven Knight and Anthony Roach:
 
   - Man page:  document the fact that Builder calls return Node objects.

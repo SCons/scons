@@ -105,6 +105,8 @@ class BuildTask(SCons.Taskmaster.Task):
 
     def executed(self):
         SCons.Taskmaster.Task.executed(self)
+        if not self.targets[0].builder and self.top:
+            print "scons: Nothing to be done for `%s'." % str(self.targets[0])
         # print the tree here instead of in execute() because
         # this method is serialized, but execute isn't:
         if print_tree and self.top:
