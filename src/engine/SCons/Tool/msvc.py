@@ -454,9 +454,7 @@ def generate(env):
     try:
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)
 
-        # By default, add the MFC directories, because this is what
-        # we've been doing for a long time.  We may change this.
-        use_mfc_dirs = env.get('MSVS_USE_MFC_DIRS', 1)
+        use_mfc_dirs = env.get('MSVS_USE_MFC_DIRS', 0)
         if env.get('MSVS_IGNORE_IDE_PATHS', 0):
             _get_paths = get_msvc_default_paths
         else:
