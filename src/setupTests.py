@@ -71,9 +71,8 @@ root = test.workpath('root')
 prefix = test.workpath('prefix')
 
 lib_dir = os.path.join(root + sys.prefix, 'lib')
-v = string.split(string.split(sys.version)[0], '.')
 standard_lib = os.path.join(lib_dir,
-                            'python%s.%s' % (v[0], v[1]),
+                            'python%s' % sys.version[:3],
                             'site-packages/')
 standalone_lib = os.path.join(lib_dir, 'scons')
 version_lib = os.path.join(lib_dir, scons_version)

@@ -260,7 +260,15 @@ class Base:
             options.Update(self)
 
     def __cmp__(self, other):
-	return cmp(self._dict, other._dict)
+        # Since an Environment now has an '__env__' construction variable
+        # that refers to itself, delete that variable to avoid infinite
+        # loops when comparing the underlying dictionaries in some Python
+        # versions (*cough* 1.5.2 *cough*)...
+        sdict = self._dict.copy()
+        del sdict['__env__']
+        odict = other._dict.copy()
+        del odict['__env__']
+        return cmp(sdict, odict)
 
     def __getitem__(self, key):
         return self._dict[key]
