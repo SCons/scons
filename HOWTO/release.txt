@@ -1,8 +1,8 @@
 Things to do to release a version of SCons:
 
-	Prepare RELEASE notes
-
 	Prepare CHANGES text
+
+	Prepare RELEASE notes
 
 	Read through the README.txt file for any updates
 
@@ -11,14 +11,17 @@ Things to do to release a version of SCons:
 		test on Linux
 
 		test on Windows NT
+
 			1) tar zxf scons-src-{version}.tar.gz
 			   cd scons-src-{version}
 			   python runtest.py -a
+
 			2) tar zxf scons-{version}.tar.gz
 			   cd scons-{version}
 			   python setup.py install
 			   cd scons-src-{version}
 			   python runtest.py -a -x C:\Python15\scons.bat
+
 			3) scons-{verson}.win32.exe
 			   cd scons-src-{version}
 			   python runtest.py -a -x C:\Python15\scons.bat
@@ -29,38 +32,54 @@ Things to do to release a version of SCons:
 
 	START THE NEW BRANCH (need more info)
 
+		aenbr -p {newbranch}
+
 		aenc -p {newbranch}
-		aedb
+
+		aedb 100
+
+		aecd
+
+		# Change the hard-coded package version numbers
+		# in the following files.
 		aecp Construct debian/changelog rpm/scons.spec
+		vi Construct debian/changelog rpm/scons.spec
+
+		# Optionally, do the same in the following:
 		[optional] aecp HOWTO/change.txt debian/scons.postinst
+		[optional] vi HOWTO/change.txt debian/scons.postinst
+
 		aeb
+
 		aet -reg
+
+		aed
+
 		aede
+
 		etc.
 
 
 
 	Read through the FAQ for any updates
 
-	Update the web site:
-
-		new version number (template)
-		announcement on the home page
-		new packages in the download page
-		checkin new scons-doc.tar.gz on the web site
-		update the CHANGES.txt file
-
-
-
-	Upload the packages to the web site (download page)
-
-	Test downloading from the web site
-
 
 
 	Upload the packages to the SourceForge project page
 
 	Test downloading from the SourceForge project page
+
+
+
+	Update the web site:
+
+		new version number (template)
+		announcement on the home page
+		check packages on the download page
+		checkin new scons-doc.tar.gz on the web site
+		update the CHANGES.txt file
+
+	Test downloading from the web site download page
 
 
 
@@ -73,12 +92,15 @@ Things to do to release a version of SCons:
 		scons-announce@lists.sourceforge.net
 		scons-users@lists.sourceforge.net
 		scons-devel@lists.sourceforge.net
+
 		python-list@python.org
+
 		python-announce@python.org
-		cons-discuss@gnu.org
+
+		[optional] cons-discuss@gnu.org
 
 		linux-announce@news.ornl.gov?
 
 	Notify freshmeat.net
 	
-	Notifty www.cmtoday.com/contribute.html
+	Notify www.cmtoday.com/contribute.html
