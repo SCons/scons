@@ -3709,9 +3709,9 @@ env.Config(target = 'package-config', source = Value(prefix))
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI WhereIs( program ", [" path  ", [" pathext ]])
+.RI WhereIs( program ", [" path  ", " pathext ", " reject ])
 .TP
-.RI env.WhereIs( program ", [" path  ", [" pathext ]])
+.RI env.WhereIs( program ", [" path  ", " pathext ", " reject ])
 
 Searches for the specified executable
 .I program,
@@ -3734,6 +3734,11 @@ the calling environment's PATHEXT
 or the user's current PATHEXT
 (os.environ['PATHEXT'])
 by default.
+Will not select any
+path name or names
+in the specified
+.I reject
+list, if any.
 
 .SS SConscript Variables
 In addition to the global functions and methods,

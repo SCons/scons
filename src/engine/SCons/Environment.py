@@ -833,7 +833,7 @@ class Base:
         tool = self.subst(tool)
         return SCons.Tool.Tool(tool, map(self.subst, toolpath))(self)
 
-    def WhereIs(self, prog, path=None, pathext=None):
+    def WhereIs(self, prog, path=None, pathext=None, reject=[]):
         """Find prog in the path.  
         """
         if path is None:
@@ -850,7 +850,7 @@ class Base:
                 pass
         elif SCons.Util.is_String(pathext):
             pathext = self.subst(pathext)
-        path = SCons.Util.WhereIs(prog, path, pathext)
+        path = SCons.Util.WhereIs(prog, path, pathext, reject)
         if path: return path
         return None
 

@@ -1590,6 +1590,11 @@ class EnvironmentTestCase(unittest.TestCase):
         wi = env.WhereIs('xxx.exe', string.join(pathdirs_1243, os.pathsep))
         assert wi == test.workpath(sub4_xxx_exe), wi
 
+        wi = env.WhereIs('xxx.exe', reject = sub3_xxx_exe)
+        assert wi == test.workpath(sub4_xxx_exe), wi
+        wi = env.WhereIs('xxx.exe', pathdirs_1243, reject = sub3_xxx_exe)
+        assert wi == test.workpath(sub4_xxx_exe), wi
+
         path = string.join(pathdirs_1243, os.pathsep)
         env = Environment(ENV = {'PATH' : path})
         wi = env.WhereIs('xxx.exe')
