@@ -507,6 +507,18 @@ class OptParser(OptionParser):
                         help="Print various types of debugging information: "
                              "%s." % string.join(debug_options, ", "))
 
+        def opt_duplicate(option, opt, value, parser):
+            if not value in SCons.Node.FS.Valid_Duplicates:
+                raise OptionValueError("`%s' is not a valid duplication style." % value)
+            setattr(parser.values, 'duplicate', value)
+            # Set the duplicate style right away so it can affect linking
+            # of SConscript files.
+            SCons.Node.FS.set_duplicate(value)
+        self.add_option('--duplicate', action="callback", type="string",
+                        callback=opt_duplicate, nargs=1, dest="duplicate",
+                        help="Set the preferred duplication methods. Must be one of "
+                        + string.join(SCons.Node.FS.Valid_Duplicates, ", "))
+
         self.add_option('-f', '--file', '--makefile', '--sconstruct',
                         action="append", nargs=1,
                         help="Read FILE as the top-level SConstruct file.")
@@ -613,17 +625,6 @@ class OptParser(OptionParser):
                         #      "LOAD-AVERAGE."
                         # type="int",
                         help=SUPPRESS_HELP)
-        def opt_duplicate(option, opt, value, parser):
-            if not value in SCons.Node.FS.Valid_Duplicates:
-                raise OptionValueError("`%s' is not a valid duplication style." % value)
-            setattr(parser.values, 'duplicate', value)
-            # Set the duplicate stye right away so it can affect linking
-            # of SConscript files.
-            SCons.Node.FS.set_duplicate(value)
-        self.add_option('--duplicate', action="callback", type="string",
-                        callback=opt_duplicate, nargs=1, dest="duplicate",
-                        help="Set the preferred duplication methods. Must be one of "
-                        + string.join(SCons.Node.FS.Valid_Duplicates, ", "))
         self.add_option('--list-derived', action="callback",
                         callback=opt_not_yet,
                         # help="Don't build; list files that would be built."
