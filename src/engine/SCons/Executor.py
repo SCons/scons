@@ -64,12 +64,13 @@ class Executor:
                 # So use the environment associated with the Builder
                 # itself.
                 env = self.builder.env
-                overrides = self.builder.overrides
             else:
                 # The normal case:  use the Environment that was
                 # used to specify how these targets will be built.
                 env = self.env
-                overrides = self.overrides
+            overrides = {}
+            overrides.update(self.builder.overrides)
+            overrides.update(self.overrides)
             self.build_env = env.Override(overrides)
             return self.build_env
 

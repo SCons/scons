@@ -6170,18 +6170,21 @@ used for normal builds of normal target files,
 which use the environment that was
 used to call the Builder for the target file.)
 
-.IP overrides
-A dictionary of construction variables
-that will be set in the executing
-construction environment when this
-Builder is invoked.
+Any additional keyword arguments supplied
+when a Builder object is created
+(that is, when the Builder() function is called)
+will be set in the executing construction
+environment when the Builder object is called.
 The canonical example here would be
 to set a construction variable to 
 the repository of a source code system.
 
 Any additional keyword arguments supplied
-when a Builder object is called
-will be associated with the target
+when a Builder
+.I object
+is called
+will only be associated with the target
+created by that particular Builder call
 (and any other files built as a
 result of the call).
 

@@ -36,17 +36,29 @@ python = TestSCons.python
 test.write('SConstruct', """
 env = Environment(LIBS=['a'])
 def build(target, source, env):
-    assert env['CC'] == 'mycc'
-    assert env['LIBS'] == ['a','b']
-builder = Builder(action=build)
+    print "env['CC'] =", env['CC']
+    print "env['LIBS'] =", env['LIBS']
+builder = Builder(action=build, CC='buildcc', LIBS='buildlibs')
 env['BUILDERS']['Build'] = builder
 
-Default(env.Build('foo', 'bar', CC='mycc', LIBS = env['LIBS']+['b']))
+foo = env.Build('foo.out', 'foo.in', CC='mycc', LIBS = env['LIBS']+['b'])
+bar = env.Build('bar.out', 'bar.in')
+Default([foo, bar])
 """)
 
-test.write('bar', "bar\n")
+test.write('foo.in', "foo.in\n")
+test.write('bar.in', "bar.in\n")
 
-test.run()
+test.run(arguments = "-Q", stdout = """\
+build("foo.out", "foo.in")
+env['CC'] = mycc
+env['LIBS'] = ['a', 'b']
+build("bar.out", "bar.in")
+env['CC'] = buildcc
+env['LIBS'] = buildlibs
+""")
+
+
 
 test.write('SConstruct', """
 env = Environment()
@@ -75,5 +87,3 @@ assert test.read('hello.not_exe') == 'this is not a program!'
 test.up_to_date(arguments='hello.not_exe')
 
 test.pass_test()
-
-

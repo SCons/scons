@@ -154,6 +154,13 @@ RELEASE 0.95 - XXX
     --debug=count and --debug=objects only print anything when run
     under Python 2.1 or later.
 
+  - Deprecate the "overrides" keyword argument to Builder() creation
+    in favor of using keyword argument values directly (like we do
+    for builder execution and the like).
+
+  - Always use the Builder overrides in substitutions, not just if
+    there isn't a target-specific environment.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.

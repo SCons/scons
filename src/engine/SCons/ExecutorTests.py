@@ -75,24 +75,38 @@ class ExecutorTestCase(unittest.TestCase):
 
     def test_get_build_env(self):
         """Test fetching and generating a build environment"""
-        x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
+        x = SCons.Executor.Executor(MyBuilder('e', {}),
+                                    'e',
+                                    {},
+                                    't',
+                                    ['s1', 's2'])
         x.build_env = 'eee'
         be = x.get_build_env()
         assert be == 'eee', be
 
-        x = SCons.Executor.Executor('b',
+        x = SCons.Executor.Executor(MyBuilder('e', {}),
                                     MyEnvironment(X='xxx'),
-                                    {'O':'ooo'},
+                                    {'O':'o2'},
                                     't',
                                     ['s1', 's2'])
         be = x.get_build_env()
-        assert be == {'O':'ooo', 'X':'xxx'}, be
+        assert be == {'O':'o2', 'X':'xxx'}, be
 
         env = MyEnvironment(Y='yyy')
-        over = {'O':'ooo'}
-        x = SCons.Executor.Executor(MyBuilder(env, over), None, {}, 't', 's')
+        x = SCons.Executor.Executor(MyBuilder(env, {'O':'ob3'}),
+                                    None,
+                                    {'O':'oo3'},
+                                    't',
+                                    's')
         be = x.get_build_env()
-        assert be == {'O':'ooo', 'Y':'yyy'}, be
+        assert be == {'O':'oo3', 'Y':'yyy'}, be
+        x = SCons.Executor.Executor(MyBuilder(env, {'O':'ob3'}),
+                                    None,
+                                    {},
+                                    't',
+                                    's')
+        be = x.get_build_env()
+        assert be == {'O':'ob3', 'Y':'yyy'}, be
 
     def test_get_action_list(self):
         """Test fetching and generating an action list"""

@@ -48,8 +48,8 @@ def generate(env):
             module = os.path.join(module, '')
         return SCons.Builder.Builder(action = '$SVNCOM',
                                      env = env,
-                                     overrides = {'SVNREPOSITORY':repos,
-                                                  'SVNMODULE':module})
+                                     SVNREPOSITORY = repos,
+                                     SVNMODULE = module)
 
     setattr(env, 'Subversion', SubversionFactory)
 

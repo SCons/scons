@@ -160,6 +160,15 @@ class MyNode(MyNode_without_target_from_source):
 
 class BuilderTestCase(unittest.TestCase):
 
+    def test__init__(self):
+        """Test simple Builder creation
+        """
+        builder = SCons.Builder.Builder(action="foo")
+        assert not builder is None, builder
+        builder = SCons.Builder.Builder(action="foo", OVERRIDE='x')
+        x = builder.overrides['OVERRIDE']
+        assert x == 'x', x
+
     def test__nonzero__(self):
         """Test a builder raising an exception when __nonzero__ is called
         """

@@ -269,7 +269,7 @@ class BuilderBase:
                         emitter = None,
                         multi = 0,
                         env = None,
-                        overrides = {}):
+                        **overrides):
         if __debug__: logInstanceCreation(self, 'BuilderBase')
         self.action = SCons.Action.Action(action)
         self.multi = multi
@@ -280,6 +280,12 @@ class BuilderBase:
             suffix = CallableSelector(suffix)
         self.suffix = suffix
         self.env = env
+        if overrides.has_key('overrides'):
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                "The \"overrides\" keyword to Builder() creation has been deprecated;\n" +\
+                "\tspecify the items as keyword arguments to the Builder() call instead.")
+            overrides.update(overrides['overrides'])
+            del overrides['overrides']
         self.overrides = overrides
 
         self.set_src_suffix(src_suffix)

@@ -51,8 +51,8 @@ def generate(env):
            env['CVSCOM']   = '$CVS $CVSFLAGS co $CVSCOFLAGS -d ${TARGET.dir} $CVSMODULE${TARGET.posix}'
         return SCons.Builder.Builder(action = '$CVSCOM',
                                      env = env,
-                                     overrides = {'CVSREPOSITORY':repos,
-                                                  'CVSMODULE':module})
+                                     CVSREPOSITORY = repos,
+                                     CVSMODULE = module)
 
     setattr(env, 'CVS', CVSFactory)
 
