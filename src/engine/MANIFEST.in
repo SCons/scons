@@ -27,6 +27,7 @@ SCons/Options/PathOption.py
 SCons/Platform/__init__.py
 SCons/Platform/aix.py
 SCons/Platform/cygwin.py
+SCons/Platform/darwin.py
 SCons/Platform/hpux.py
 SCons/Platform/irix.py
 SCons/Platform/os2.py
