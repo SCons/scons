@@ -6288,8 +6288,25 @@ opts.AddOptions(
 .SH EXTENDING SCONS
 .SS Builder Objects
 .B scons
-can be extended by adding new builders to a construction
-environment using the 
+can be extended to build different types of targets
+by adding new Builder objects
+to a construction environment.
+.IR "In general" ,
+you should only need to add a new Builder object
+when you want to build a new type of file or other external target.
+If you just want to invoke a different compiler or other tool
+to build a Program, Object, Library, or any other
+type of output file for which
+.B scons
+already has an existing Builder,
+it is generally much easier to
+use those existing Builders
+in a construction environment
+that sets the appropriate construction variables
+(CC, LINK, etc.).
+
+Builder objects are created
+using the 
 .B Builder 
 function.
 The
@@ -6391,12 +6408,58 @@ lines in source files.
 (See the section "Scanner Objects," below,
 for information about creating Scanner objects.)
 
+.IP target_factory
+A factory function that the Builder will use
+to turn any targets specified as strings into SCons Nodes.
+By default,
+SCons assumes that all targets are files.
+Other useful target_factory
+values include
+.BR Dir ,
+for when a Builder creates a directory target,
+and
+.BR Entry ,
+for when a Builder can create either a file
+or directory target.
+
+Example:
+
+.ES
+MakeDirectoryBuilder = Builder(action=my_mkdir, target_factory=Dir)
+env = Environment()
+env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
+env.MakeDirectory('new_directory')
+.EE
+
+.IP source_factory
+A factory function that the Builder will use
+to turn any sources specified as strings into SCons Nodes.
+By default,
+SCons assumes that all source are files.
+Other useful source_factory
+values include
+.BR Dir ,
+for when a Builder uses a directory as a source,
+and
+.BR Entry ,
+for when a Builder can use files
+or directories (or both) as sources.
+
+Example:
+
+.ES
+CollectBuilder = Builder(action=my_mkdir, source_factory=Entry)
+env = Environment()
+env.Append(BUILDERS = {'Collect':CollectBuilder})
+env.Collect('archive', ['directory_name', 'file_name'])
+.EE
+
 .IP emitter
 A function or list of functions to manipulate the target and source
 lists before dependencies are established
 and the target(s) are actually built.
 .B emitter
-can also be string containing a construction variable to expand
+can also be a string containing a construction variable to expand
 to an emitter function or list of functions,
 or a dictionary mapping source file suffixes
 to emitter functions.
@@ -6453,6 +6516,12 @@ b = Builder("my_build < $TARGET > $SOURCE",
             emitter = {'.suf1' : e_suf1,
                        '.suf2' : e_suf2})
 .EE
+.IP
+The 
+.I generator
+and
+.I action
+arguments must not both be used for the same Builder.
 
 .IP multi
 Specifies whether this builder is allowed to be called multiple times for
@@ -6508,12 +6577,29 @@ any of the suffixes of the builder. Using this argument produces a
 multi-stage builder.
 
 .RE
+.IP
 The 
 .I generator
 and
 .I action
 arguments must not both be used for the same Builder.
 
+.IP env
+A construction environment that can be used
+to fetch source code using this Builder.
+(Note that this environment is
+.I not
+used for normal builds of normal target files,
+which use the environment that was
+used to call the Builder for the target file.)
+
+.ES
+b = Builder(action="build < $SOURCE > $TARGET")
+env = Environment(BUILDERS = {'MyBuild' : b})
+env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
+.EE
+
+.RE
 Any additional keyword arguments supplied
 when a Builder object is created
 (that is, when the Builder() function is called)
@@ -6531,12 +6617,6 @@ will only be associated with the target
 created by that particular Builder call
 (and any other files built as a
 result of the call).
-
-.ES
-b = Builder(action="build < $SOURCE > $TARGET")
-env = Environment(BUILDERS = {'MyBuild' : b})
-env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
-.EE
 
 These extra keyword arguments are passed to the
 following functions:

@@ -392,11 +392,27 @@ class ActionBaseTestCase(unittest.TestCase):
             result = a("out", "in", env)
             assert result == 0, result
             s = sio.getvalue()
+            assert s == 'execfunc("out", "in")\n', s
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            result = a("out", "in", env, presub=1)
+            assert result == 0, result
+            s = sio.getvalue()
+            assert s == 'Building out with action(s):\n  execfunc(env, target, source)\nexecfunc("out", "in")\n', s
+
+            a2 = SCons.Action.Action(execfunc)
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            result = a2("out", "in", env)
+            assert result == 0, result
+            s = sio.getvalue()
             assert s == 'Building out with action(s):\n  execfunc(env, target, source)\nexecfunc("out", "in")\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
-            result = a("out", "in", env, presub=0)
+            result = a2("out", "in", env, presub=0)
             assert result == 0, result
             s = sio.getvalue()
             assert s == 'execfunc("out", "in")\n', s
@@ -428,36 +444,36 @@ class ActionBaseTestCase(unittest.TestCase):
             SCons.Action.print_actions_presub = save_print_actions_presub
             SCons.Action.execute_actions = save_execute_actions
 
-    def test_presub(self):
-        """Test the presub() method
+    def test_presub_lines(self):
+        """Test the presub_lines() method
         """
         env = Environment()
         a = SCons.Action.Action("x")
-        s = a.presub(env)
+        s = a.presub_lines(env)
         assert s == ['x'], s
 
         a = SCons.Action.Action(["y", "z"])
-        s = a.presub(env)
+        s = a.presub_lines(env)
         assert s == ['y', 'z'], s
 
         def func():
             pass
         a = SCons.Action.Action(func)
-        s = a.presub(env)
+        s = a.presub_lines(env)
         assert s == ["func(env, target, source)"], s
 
         def gen(target, source, env, for_signature):
             return 'generat' + env.get('GEN', 'or')
         a = SCons.Action.Action(SCons.Action.CommandGenerator(gen))
-        s = a.presub(env)
+        s = a.presub_lines(env)
         assert s == ["generator"], s
-        s = a.presub(Environment(GEN = 'ed'))
+        s = a.presub_lines(Environment(GEN = 'ed'))
         assert s == ["generated"], s
 
         a = SCons.Action.Action("$ACT")
-        s = a.presub(env)
+        s = a.presub_lines(env)
         assert s == [''], s
-        s = a.presub(Environment(ACT = 'expanded action'))
+        s = a.presub_lines(Environment(ACT = 'expanded action'))
         assert s == ['expanded action'], s
 
     def test_get_actions(self):

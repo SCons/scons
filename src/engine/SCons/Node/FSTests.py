@@ -281,7 +281,32 @@ class BuildDirTestCase(unittest.TestCase):
                f8.rfile().path
 
         # Verify the Mkdir and Link actions are called
+        d9 = fs.Dir('build/var2/new_dir')
         f9 = fs.File('build/var2/new_dir/test9.out')
+
+        class MkdirAction(Action):
+            def __init__(self, dir_made):
+                self.dir_made = dir_made
+            def __call__(self, target, source, env, errfunc):
+                self.dir_made.extend(target)
+
+        save_Link = SCons.Node.FS.Link
+        link_made = []
+        def link_func(target, source, env, link_made=link_made):
+            link_made.append(target)
+        SCons.Node.FS.Link = link_func
+
+        try:
+            dir_made = []
+            d9.builder = Builder(fs.Dir, action=MkdirAction(dir_made))
+            f9.exists()
+            expect = os.path.join('build', 'var2', 'new_dir')
+            assert dir_made[0].path == expect, dir_made[0].path
+            expect = os.path.join('build', 'var2', 'new_dir', 'test9.out')
+            assert link_made[0].path == expect, link_made[0].path
+            assert f9.linked
+        finally:
+            SCons.Node.FS.Link = save_Link
 
         # Test for an interesting pathological case...we have a source
         # file in a build path, but not in a source path.  This can
@@ -311,29 +336,6 @@ class BuildDirTestCase(unittest.TestCase):
         var1_new_dir = os.path.normpath('build/var1/new_dir')
         var2_new_dir = os.path.normpath('build/var2/new_dir')
         assert bdt == [var1_new_dir, var2_new_dir], bdt
-
-        save_Mkdir = SCons.Node.FS.Mkdir
-        dir_made = []
-        def mkdir_func(target, source, env, dir_made=dir_made):
-            dir_made.append(target)
-        SCons.Node.FS.Mkdir = mkdir_func
-
-        save_Link = SCons.Node.FS.Link
-        link_made = []
-        def link_func(target, source, env, link_made=link_made):
-            link_made.append(target)
-        SCons.Node.FS.Link = link_func
-
-        try:
-            f9.exists()
-            expect = os.path.join('build', 'var2', 'new_dir')
-            assert dir_made[0].path == expect, dir_made[0].path
-            expect = os.path.join('build', 'var2', 'new_dir', 'test9.out')
-            assert link_made[0].path == expect, link_made[0].path
-            assert f9.linked
-        finally:
-            SCons.Node.FS.Mkdir = save_Mkdir
-            SCons.Node.FS.Link = save_Link
 
         # Test that an IOError trying to Link a src file
         # into a BuildDir ends up throwing a StopError.
@@ -754,7 +756,7 @@ class FSTestCase(unittest.TestCase):
         d1.builder_set(Builder(fs.File))
         d1.env_set(Environment())
         d1.build()
-        assert not built_it
+        assert built_it
 
         built_it = None
         assert not built_it
@@ -1497,22 +1499,24 @@ class prepareTestCase(unittest.TestCase):
             exc_caught = 1
         assert exc_caught, "Should have caught a StopError."
 
-        save_Mkdir = SCons.Node.FS.Mkdir
-        dir_made = []
-        def mkdir_func(target, source, env, dir_made=dir_made):
-            dir_made.append(target)
-        SCons.Node.FS.Mkdir = mkdir_func
+        class MkdirAction(Action):
+            def __init__(self, dir_made):
+                self.dir_made = dir_made
+            def __call__(self, target, source, env, errfunc):
+                self.dir_made.extend(target)
 
-        file = fs.File(os.path.join("new_dir", "xyz"))
-        try:
-            file.set_state(SCons.Node.up_to_date)
-            file.prepare()
-            assert dir_made == [], dir_made
-            file.set_state(0)
-            file.prepare()
-            assert dir_made[0].path == "new_dir", dir_made[0].path
-        finally:
-            SCons.Node.FS.Mkdir = save_Mkdir
+        dir_made = []
+        new_dir = fs.Dir("new_dir")
+        new_dir.builder = Builder(fs.Dir, action=MkdirAction(dir_made))
+        xyz = fs.File(os.path.join("new_dir", "xyz"))
+
+        xyz.set_state(SCons.Node.up_to_date)
+        xyz.prepare()
+        assert dir_made == [], dir_made
+        xyz.set_state(0)
+        xyz.prepare()
+        print "dir_made[0] =", dir_made[0]
+        assert dir_made[0].path == "new_dir", dir_made[0]
 
         dir = fs.Dir("dir")
         dir.prepare()
