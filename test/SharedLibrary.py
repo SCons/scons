@@ -31,7 +31,7 @@ import sys
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match=TestCmd.match_re)
+test = TestSCons.TestSCons(match=TestCmd.match_re_dotall)
 
 test.write('SConstruct', """
 import sys
@@ -191,7 +191,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments = '.', stderr=TestSCons.noisy_ar)
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
@@ -213,7 +213,7 @@ scons: \*\*\* Source file: foo\..* is static and is not compatible with shared t
 scons: \*\*\* Source file: foo\..* is static and is not compatible with shared target: .*
 ''')
 
-test.run(arguments = '-f SConstructFoo2')
+test.run(arguments = '-f SConstructFoo2', stderr=TestSCons.noisy_ar)
 
 if sys.platform == 'win32':
     # Make sure we don't insert a .def source file (when

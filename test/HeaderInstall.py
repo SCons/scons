@@ -31,7 +31,7 @@ import os.path
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
 
 test.subdir('work1', ['work1', 'dist'])
 
@@ -64,7 +64,7 @@ test.write(['work1', 'dist', 'h3.h'], """\
 int foo = 3;
 """)
 
-test.run(chdir = 'work1', arguments = ".")
+test.run(chdir = 'work1', arguments = ".", stderr=TestSCons.noisy_ar)
 
 test.up_to_date(chdir = 'work1', arguments = ".")
 

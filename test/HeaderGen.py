@@ -25,12 +25,13 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that dependencies in generated header files get re-scanned correctly.
+Test that dependencies in generated header files get re-scanned correctly
+and that generated header files don't cause circular dependencies.
 """
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
 
 test.write('SConstruct', """\
 def writeFile(target, contents):
@@ -50,8 +51,34 @@ env.Command('gen.cpp', [],
             lambda env,target,source: writeFile(target, '#include "gen.h"\\n'))
 """)
 
-test.run()
+test.run(stderr=TestSCons.noisy_ar)
 
 test.up_to_date(arguments = '.')
+
+test.write('SConstruct', """\
+env = Environment()
+
+def gen_a_h(target, source, env):
+    t = open(str(target[0]), 'wb')
+    s = open(str(source[0]), 'rb')
+    s.readline()
+    t.write(s.readline()[:-1] + ';\\n')
+
+MakeHeader = Builder(action = gen_a_h)
+env_no_scan = env.Copy(SCANNERS=[], BUILDERS={'MakeHeader' : MakeHeader})
+env_no_scan.MakeHeader('a.h', 'a.c')
+
+env.StaticObject('a.c')
+""")
+
+test.write('a.c', """\
+#include "a.h"
+void a(void)
+{
+        ;
+}
+""")
+
+test.run()
 
 test.pass_test()

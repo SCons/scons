@@ -32,7 +32,7 @@ import TestSCons
 python = TestSCons.python
 _exe   = TestSCons._exe
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
 
 ranlib = test.detect('RANLIB', 'ranlib')
 
@@ -86,11 +86,11 @@ main(int argc, char *argv[])
 """)
 
 
-test.run(arguments = 'f' + _exe)
+test.run(arguments = 'f' + _exe, stderr=TestSCons.noisy_ar)
 
 test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
-test.run(arguments = 'b' + _exe)
+test.run(arguments = 'b' + _exe, stderr=TestSCons.noisy_ar)
 
 test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 
