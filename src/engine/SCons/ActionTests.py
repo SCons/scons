@@ -411,21 +411,21 @@ class ActionBaseTestCase(unittest.TestCase):
             assert s == 'execfunc(["out"], ["in"])\n', s
 
             a.chdir = 'xyz'
-            expect = 'os.chdir(\'%s\')\nexecfunc(["out"], ["in"])\nos.chdir(\'%s\')\n'
+            expect = 'os.chdir(%s)\nexecfunc(["out"], ["in"])\nos.chdir(%s)\n'
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env)
             assert result == 7, result
             s = sio.getvalue()
-            assert s == expect % ('xyz', test.workpath()), s
+            assert s == expect % (repr('xyz'), repr(test.workpath())), s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, chdir='sub')
             assert result == 7, result
             s = sio.getvalue()
-            assert s == expect % ('sub', test.workpath()), s
+            assert s == expect % (repr('sub'), repr(test.workpath())), s
 
             a.chdir = None
 

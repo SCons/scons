@@ -82,14 +82,6 @@ class Environment:
         except IndexError:
             pass
         return self.d.get(s, s)
-    def subst_target_source(self, string, raw=0, target=None,
-                            source=None, dict=None, conv=None):
-        return SCons.Util.scons_subst(string, self, raw, target,
-                                      source, dict, conv)
-    def subst_list(self, string, raw=0, target=None,
-                   source=None, dict=None, conv=None):
-        return SCons.Util.scons_subst_list(string, self, raw, target,
-                                           source, dict, conv)
     def arg2nodes(self, args, factory):
         global env_arg2nodes_called
         env_arg2nodes_called = 1
@@ -120,7 +112,6 @@ class Environment:
     def Override(self, overrides):
         env = apply(Environment, (), self.d)
         env.d.update(overrides)
-        env.scanner = self.scanner
         return env
     def _update(self, dict):
         self.d.update(dict)
@@ -134,8 +125,6 @@ class Environment:
         d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
         d['SOURCE'] = d['SOURCES'][0]
         return d
-    def __cmp__(self, other):
-        return cmp(self.scanner, other.scanner) or cmp(self.d, other.d)
 
 class MyNode_without_target_from_source:
     def __init__(self, name):
@@ -143,6 +132,8 @@ class MyNode_without_target_from_source:
         self.sources = []
         self.builder = None
         self.side_effect = 0
+        self.source_scanner = None
+        self.backup_source_scanner = None
     def __str__(self):
         return self.name
     def builder_set(self, builder):
@@ -859,8 +850,8 @@ class BuilderTestCase(unittest.TestCase):
                                         source_scanner=sscan,
                                         action='')
         tgt = builder(env, target='foo2', source='bar')[0]
-        assert tgt.builder.target_scanner == tscan, tgt.builder.target_scanner
-        assert tgt.builder.source_scanner == sscan, tgt.builder.source_scanner
+        assert tgt.target_scanner == tscan, tgt.target_scanner
+        assert tgt.source_scanner == sscan, tgt.source_scanner
 
         builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
@@ -870,8 +861,8 @@ class BuilderTestCase(unittest.TestCase):
                                          target_scanner = tscan,
                                          source_scanner = tscan)
         tgt = builder2(env, target='baz2', source='test.bar test2.foo test3.txt')[0]
-        assert tgt.builder.target_scanner == tscan, tgt.builder.target_scanner
-        assert tgt.builder.source_scanner == tscan, tgt.builder.source_scanner
+        assert tgt.target_scanner == tscan, tgt.target_scanner
+        assert tgt.source_scanner == tscan, tgt.source_scanner
 
     def test_actual_scanner(self):
         """Test usage of actual Scanner objects."""
@@ -897,82 +888,28 @@ class BuilderTestCase(unittest.TestCase):
                  return 'TestScannerkey'
             def instance(self, env):
                  return self
-            name = 'TestScanner'
-            def __str__(self):
-                return self.name
 
         scanner = TestScanner()
         builder = SCons.Builder.Builder(action='action')
 
         # With no scanner specified, source_scanner and
         # backup_source_scanner are None.
-        bar_y = MyNode('bar.y')
         env1 = Environment()
         tgt = builder(env1, target='foo1.x', source='bar.y')[0]
         src = tgt.sources[0]
-        assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
-        assert tgt.builder.source_scanner is None, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y) is None, tgt.get_source_scanner(bar_y)
-        assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
+        assert tgt.target_scanner != scanner, tgt.target_scanner
+        assert src.source_scanner is None, src.source_scanner
+        assert src.backup_source_scanner is None, src.backup_source_scanner
 
-        # An Environment that has suffix-specified SCANNERS should
-        # provide a source scanner to the target.
-        class EnvTestScanner:
-            def key(self, env):
-                 return '.y'
-            def instance(self, env):
-                 return self
-            name = 'EnvTestScanner'
-            def __str__(self):
-                return self.name
-            def select(self, scanner):
-                return self
-            def path(self, env, dir=None):
-                return ()
-            def __call__(self, node, env, path):
-                return []
-        env3 = Environment(SCANNERS = [EnvTestScanner()])
-        env3.scanner = EnvTestScanner() # test env's version of SCANNERS
-        tgt = builder(env3, target='foo2.x', source='bar.y')[0]
+        # Later use of the same source file with an environment that
+        # has a scanner must still set the scanner.
+        env2 = Environment()
+        env2.scanner = scanner
+        tgt = builder(env2, target='foo2.x', source='bar.y')[0]
         src = tgt.sources[0]
-        assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
-        assert not tgt.builder.source_scanner, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'EnvTestScanner', tgt.get_source_scanner(bar_y)
-        assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
-
-        # Can't simply specify the scanner as a builder argument; it's
-        # global to all invocations of this builder.
-        tgt = builder(env3, target='foo3.x', source='bar.y', source_scanner = scanner)[0]
-        src = tgt.sources[0]
-        assert tgt.builder.target_scanner != scanner, tgt.builder.target_scanner
-        assert not tgt.builder.source_scanner, tgt.builder.source_scanner
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'EnvTestScanner', tgt.get_source_scanner(bar_y)
-        assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
-
-        # Now use a builder that actually has scanners and ensure that
-        # the target is set accordingly (using the specified scanner
-        # instead of the Environment's scanner)
-        builder = SCons.Builder.Builder(action='action',
-                                        source_scanner=scanner,
-                                        target_scanner=scanner)
-        tgt = builder(env3, target='foo4.x', source='bar.y')[0]
-        src = tgt.sources[0]
-        assert tgt.builder.target_scanner == scanner, tgt.builder.target_scanner
-        assert tgt.builder.source_scanner, tgt.builder.source_scanner
-        assert tgt.builder.source_scanner == scanner, tgt.builder.source_scanner
-        assert str(tgt.builder.source_scanner) == 'TestScanner', str(tgt.builder.source_scanner)
-        assert tgt.get_source_scanner(bar_y), tgt.get_source_scanner(bar_y)
-        assert tgt.get_source_scanner(bar_y) == scanner, tgt.get_source_scanner(bar_y)
-        assert str(tgt.get_source_scanner(bar_y)) == 'TestScanner', tgt.get_source_scanner(bar_y)
-        assert not src.has_builder(), src.has_builder()
-        assert src.get_source_scanner(bar_y) is None, src.get_source_scanner(bar_y)
-
-
+        assert tgt.target_scanner != scanner, tgt.target_scanner
+        assert src.source_scanner is None, src.source_scanner
+        assert src.backup_source_scanner == scanner, src.backup_source_scanner
 
     def test_Builder_API(self):
         """Test Builder interface.

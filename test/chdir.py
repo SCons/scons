@@ -91,8 +91,9 @@ other9_f19_in = test.workpath('other9', 'f19.in')
 
 test.write(cat_py, """\
 import sys
-ofp = open(sys.argv[1], 'w')
-for ifp in map(open, sys.argv[2:]):
+ofp = open(sys.argv[1], 'wb')
+for f in sys.argv[2:]:
+    ifp = open(f, 'rb')
     ofp.write(ifp.read())
 ofp.close
 """)
@@ -223,7 +224,7 @@ test.must_match(['work1', 'sub23', 'f23.out'], "work1/sub23/f23.in\n")
 test.subdir('work2',
             ['work2', 'sub'])
 
-work2 = test.workpath('work2')
+work2 = repr(test.workpath('work2'))
 work2_sub_f1_out = test.workpath('work2', 'sub', 'f1.out')
 work2_sub_f2_out = test.workpath('work2', 'sub', 'f2.out')
 
@@ -246,11 +247,11 @@ test.write(['work2', 'sub', 'f2.in'], "work2/sub/f2.in")
 expect = test.wrap_stdout("""\
 os.chdir('sub')
 %(python)s %(cat_py)s f1.out f1.in
-os.chdir('%(work2)s')
+os.chdir(%(work2)s)
 os.chdir('sub')
 %(python)s %(cat_py)s .temp f2.in
 %(python)s %(cat_py)s f2.out .temp
-os.chdir('%(work2)s')
+os.chdir(%(work2)s)
 """ % locals())
 
 test.run(chdir='work2', arguments='-n .', stdout=expect)

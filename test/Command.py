@@ -65,7 +65,7 @@ def sub(env, target, source):
     t.close()
     return 0
 
-env = Environment(COPY_THROUGH_TEMP = "cp $SOURCE .tmp\\ncp .tmp $TARGET",
+env = Environment(COPY_THROUGH_TEMP = "%(python)s build.py .tmp $SOURCE\\n%(python)s build.py $TARGET .tmp",
                   EXPAND = "$COPY_THROUGH_TEMP")
 env.Command(target = 'f1.out', source = 'f1.in',
             action = buildIt)

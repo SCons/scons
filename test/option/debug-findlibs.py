@@ -36,8 +36,9 @@ test.subdir('sub1', 'sub2')
 
 test.write('cat.py', """\
 import sys
-ofp = open(sys.argv[1], "w")
-for ifp in map(open, sys.argv[2:]):
+ofp = open(sys.argv[1], 'wb')
+for f in sys.argv[2:]:
+    ifp = open(f, 'rb')
     ofp.write(ifp.read())
 ofp.close()
 """)
