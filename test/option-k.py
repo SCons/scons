@@ -58,16 +58,16 @@ test.write('aaa.in', "aaa.in\n")
 test.write('bbb.in', "bbb.in\n")
 
 test.run(arguments = 'aaa.out bbb.out',
-         stderr =
-         'scons: *** [aaa.1] Error 1\n')
+         stderr = 'scons: *** [aaa.1] Error 1\n',
+         status = 2)
 
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
 test.fail_test(os.path.exists(test.workpath('aaa.out')))
 test.fail_test(os.path.exists(test.workpath('bbb.out')))
 
 test.run(arguments = '-k aaa.out bbb.out',
-         stderr =
-         'scons: *** [aaa.1] Error 1\n')
+         stderr = 'scons: *** [aaa.1] Error 1\n',
+         status = 2)
 
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
 test.fail_test(os.path.exists(test.workpath('aaa.out')))
@@ -76,8 +76,8 @@ test.fail_test(test.read('bbb.out') != "succeed.py: bbb.out\n")
 test.unlink("bbb.out")
 
 test.run(arguments = '--keep-going aaa.out bbb.out',
-         stderr =
-         'scons: *** [aaa.1] Error 1\n')
+         stderr = 'scons: *** [aaa.1] Error 1\n',
+         status = 2)
 
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
 test.fail_test(os.path.exists(test.workpath('aaa.out')))

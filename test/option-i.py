@@ -59,7 +59,8 @@ test.write('aaa.in', "aaa.in\n")
 test.write('bbb.in', "bbb.in\n")
 
 test.run(arguments = 'aaa.1 aaa.out bbb.1 bbb.out',
-         stderr = 'scons: *** [aaa.1] Error 1\n')
+         stderr = 'scons: *** [aaa.1] Error 1\n',
+         status = 2)
 
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
 test.fail_test(os.path.exists(test.workpath('aaa.out')))

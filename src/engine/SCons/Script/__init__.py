@@ -90,13 +90,15 @@ class BuildTask(SCons.Taskmaster.Task):
             print SCons.Util.render_tree(self.targets[0], get_children)
 
     def failed(self):
-        global ignore_errors
+        global exit_status
         if ignore_errors:
             SCons.Taskmaster.Task.executed(self)
         elif keep_going_on_error:
             SCons.Taskmaster.Task.fail_continue(self)
+            exit_status = 2
         else:
             SCons.Taskmaster.Task.fail_stop(self)
+            exit_status = 2
 
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
@@ -123,6 +125,7 @@ ignore_errors = 0
 keep_going_on_error = 0
 help_option = None
 print_tree = 0
+exit_status = 0 # exit status, assume success by default
 
 # utility functions
 
@@ -710,4 +713,4 @@ def main():
     except:
         _scons_other_errors()
 
-
+    sys.exit(exit_status)

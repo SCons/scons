@@ -48,7 +48,8 @@ env.bld(target = 'f1', source = 'f1.in')
 
 test.run(arguments='-f SConstruct1 .',
 	 stdout = "%s f1.in f1\n" % no_such_file,
-         stderr = None)
+         stderr = None,
+         status = 2)
 
 bad_command = "Bad command or file name\n"
 
@@ -84,7 +85,8 @@ env.bld(target = 'f2', source = 'f2.in')
 
 test.run(arguments='-f SConstruct2 .',
 	 stdout = "%s f2.in f2\n" % not_executable,
-	 stderr = None)
+         stderr = None,
+         status = 2)
 
 test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
 if os.name == 'nt':
@@ -107,7 +109,8 @@ env.bld(target = 'f3', source = 'f3.in')
 
 test.run(arguments='-f SConstruct3 .',
 	 stdout = "%s f3.in f3\n" % test.workdir,
-	 stderr = None)
+         stderr = None,
+         status = 2)
 
 test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
 if os.name == 'nt':

@@ -52,5 +52,6 @@ Traceback \((most recent call|innermost) last\):
   File "SConstruct", line 3, in func
     raise "func exception"
 func exception
-""")
+""", status = 2)
+
 test.pass_test()

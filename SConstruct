@@ -47,12 +47,13 @@ Default('.')
 def whereis(file):
     for dir in string.split(os.environ['PATH'], os.pathsep):
         f = os.path.join(dir, file)
-	try:
-	    st = os.stat(f)
-	except:
-            continue
-        if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
-            return f
+        if os.path.isfile(f):
+            try:
+                st = os.stat(f)
+            except:
+                continue
+            if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                return f
     return None
 
 #
@@ -356,7 +357,6 @@ for p in [ scons ]:
     # README.txt, or setup.py.  Make a copy of the list for the
     # destination files.
     #
-    global src_files
     src_files = map(lambda x: x[:-1],
                     open(os.path.join(src, 'MANIFEST.in')).readlines())
     dst_files = map(lambda x: os.path.join(install, x), src_files)
