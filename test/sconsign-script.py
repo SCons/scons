@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# Copyright (c) 2001, 2002, 2003 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "/home/scons/scons/branch.0/baseline/test/sconsign.py 0.90.D001 2003/06/25 15:32:24 knight"
 
 import os.path
 import string

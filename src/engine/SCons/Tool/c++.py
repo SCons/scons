@@ -68,10 +68,10 @@ def generate(env):
         
     env['CXX']        = 'c++'
     env['CXXFLAGS']   = '$CCFLAGS'
-    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = '$CXXFLAGS'
-    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 
     env['CPPDEFPREFIX']  = '-D'
     env['CPPDEFSUFFIX']  = ''

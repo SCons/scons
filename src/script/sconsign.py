@@ -80,7 +80,6 @@ if sys.platform == 'win32':
     # sys.prefix is (likely) C:\Python*;
     # check only C:\Python*.
     prefs.append(sys.prefix)
-    prefs.append(os.path.join(sys.prefix, 'Lib', 'site-packages'))
 else:
     # On other (POSIX) platforms, things are more complicated due to
     # the variety of path names and library locations.  Try to be smart
@@ -122,13 +121,7 @@ else:
         # check only /foo/lib/scons*.
         prefs.append(sys.prefix)
 
-    temp = map(lambda x: os.path.join(x, 'lib'), prefs)
-    temp.extend(map(lambda x: os.path.join(x,
-                                           'lib',
-                                           'python' + sys.version[:3],
-                                           'site-packages'),
-                           prefs))
-    prefs = temp
+    prefs = map(lambda x: os.path.join(x, 'lib'), prefs)
 
 # Look first for 'scons-__version__' in all of our preference libs,
 # then for 'scons'.

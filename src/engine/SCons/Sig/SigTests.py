@@ -490,41 +490,6 @@ class SConsignDirFileTestCase(unittest.TestCase):
         assert f.get('foo') == (3, 1, 2)
         assert f.get_implicit('foo') == ['bar']
 
-class SConsignFileTestCase(unittest.TestCase):
-
-    def runTest(self):
-        test = TestCmd.TestCmd(workdir = '')
-        file = test.workpath('sconsign_file')
-
-        assert SCons.Sig.SConsign_db is None, SCons.Sig.SConsign_db
-
-        SCons.Sig.SConsignFile(file)
-
-        assert not SCons.Sig.SConsign_db is None, SCons.Sig.SConsign_db
-
-        class Fake_DBM:
-            def open(self, name, mode):
-                self.name = name
-                self.mode = mode
-                return self
-
-        fake_dbm = Fake_DBM()
-
-        SCons.Sig.SConsignFile(file, fake_dbm)
-
-        assert not SCons.Sig.SConsign_db is None, SCons.Sig.SConsign_db
-        assert not hasattr(fake_dbm, 'name'), fake_dbm
-        assert not hasattr(fake_dbm, 'mode'), fake_dbm
-
-        SCons.Sig.SConsign_db = None
-
-        SCons.Sig.SConsignFile(file, fake_dbm)
-
-        assert not SCons.Sig.SConsign_db is None, SCons.Sig.SConsign_db
-        assert fake_dbm.name == file, fake_dbm.name
-        assert fake_dbm.mode == "c", fake_dbm.mode
-
-
 
 def suite():
     suite = unittest.TestSuite()
@@ -535,7 +500,6 @@ def suite():
     suite.addTest(_SConsignTestCase())
     suite.addTest(SConsignDBTestCase())
     suite.addTest(SConsignDirFileTestCase())
-    suite.addTest(SConsignFileTestCase())
     return suite
 
 if __name__ == "__main__":

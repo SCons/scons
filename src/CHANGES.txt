@@ -8,6 +8,14 @@
 
 
 
+RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
+
+  From Steven Knight:
+
+  - Fix use of CPPDEFINES with C++ source files.
+
+
+
 RELEASE 0.93 - Thu, 23 Oct 2003 07:26:55 -0500
 
   From J.T. Conklin:
