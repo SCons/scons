@@ -73,6 +73,7 @@ package = None
 scons = None
 scons_exec = None
 output = None
+testlistfile = None
 version = ''
 
 if os.name == 'java':
@@ -94,6 +95,7 @@ Usage: runtest.py [OPTIONS] [TEST ...]
 Options:
   -a, --all                   Run all tests.
   -d, --debug                 Run test scripts under the Python debugger.
+  -f FILE, --file FILE        Run tests in specified FILE.
   -h, --help                  Print this message and exit.
   -o FILE, --output FILE      Print test results to FILE (Aegis format).
   -P Python                   Use the specified Python interpreter.
@@ -113,8 +115,8 @@ Options:
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "adho:P:p:qv:Xx:",
-                            ['all', 'debug', 'help', 'output=',
+opts, args = getopt.getopt(sys.argv[1:], "adf:ho:P:p:qv:Xx:",
+                            ['all', 'debug', 'file=', 'help', 'output=',
                              'package=', 'python=', 'quiet',
                              'version=', 'exec='])
 
@@ -123,6 +125,10 @@ for o, a in opts:
         all = 1
     elif o == '-d' or o == '--debug':
         debug = os.path.join(lib_dir, "pdb.py")
+    elif o == '-f' or o == '--file':
+        if not os.path.isabs(a):
+            a = os.path.join(cwd, a)
+        testlistfile = a
     elif o == '-h' or o == '--help':
         print helpstr
         sys.exit(0)
@@ -234,6 +240,8 @@ elif all:
     keys = tdict.keys()
     keys.sort()
     tests = map(tdict.get, keys)
+elif testlistfile:
+    tests = map(Test, map(lambda x: x[:-1], open(testlistfile, 'r').readlines()))
 else:
     sys.stderr.write("""\
 runtest.py:  No tests were specified on the command line.
