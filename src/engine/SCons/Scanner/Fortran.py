@@ -94,42 +94,26 @@ class F90Scanner(SCons.Scanner.Classic):
             mods_and_includes = SCons.Util.unique(includes+modules)
             node.includes = mods_and_includes
 
+        # This is a hand-coded DSU (decorate-sort-undecorate, or
+        # Schwartzian transform) pattern.  The sort key is the raw name
+        # of the file as specifed on the USE or INCLUDE line, which lets
+        # us keep the sort order constant regardless of whether the file
+        # is actually found in a Repository or locally.
         nodes = []
         source_dir = node.get_dir()
         for dep in mods_and_includes:
             n, i = self.find_include(dep, source_dir, path)
 
-            if not n is None:
-                nodes.append(n)
-            else:
+            if n is None:
                 SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
                                     "No dependency generated for file: %s (referenced by: %s) -- file not found" % (i, node))
+            else:
+                sortkey = self.sort_key(dep)
+                nodes.append((sortkey, n))
 
-        #  Sort the list of dependencies
-
-        # Schwartzian transform from the Python FAQ Wizard
-        def st(List, Metric):
-            def pairing(element, M = Metric):
-                return (M(element), element)
-            def stripit(pair):
-                return pair[1]
-            paired = map(pairing, List)
-            paired.sort()
-            return map(stripit, paired)
-
-        def normalize(node):
-            # We don't want the order of includes to be
-            # modified by case changes on case insensitive OSes, so
-            # normalize the case of the filename here:
-            # (see test/win32pathmadness.py for a test of this)
-            return SCons.Node.FS._my_normcase(str(node))
-
-        # Apply a Schwartzian transform to return the list of
-        # dependencies, sorted according to their normalized names
-        transformed = st(nodes, normalize)
-#        print "ClassicF90: " + str(node) + " => " + str(map(lambda x: str(x),list(transformed)))
-        return transformed
-
+        nodes.sort()
+        nodes = map(lambda pair: pair[1], nodes)
+        return nodes
 
 def FortranScan(path_variable="FORTRANPATH", fs=SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files

@@ -227,7 +227,7 @@ class CScannerTestCase2(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         path = s.path(env)
         deps = s(make_node('f1.cpp'), env, path)
-        headers = ['d1/f2.h', 'f1.h']
+        headers = ['f1.h', 'd1/f2.h']
         deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase3(unittest.TestCase):
@@ -236,7 +236,7 @@ class CScannerTestCase3(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         path = s.path(env)
         deps = s(make_node('f2.cpp'), env, path)
-        headers = ['d1/d2/f1.h', 'd1/f1.h', 'f1.h']
+        headers = ['d1/f1.h', 'f1.h', 'd1/d2/f1.h']
         deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase4(unittest.TestCase):
@@ -245,7 +245,7 @@ class CScannerTestCase4(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         path = s.path(env)
         deps = s(make_node('f2.cpp'), env, path)
-        headers =  ['d1/d2/f1.h', 'd1/d2/f4.h', 'd1/f1.h', 'f1.h']
+        headers =  ['d1/f1.h', 'f1.h', 'd1/d2/f1.h', 'd1/d2/f4.h']
         deps_match(self, deps, map(test.workpath, headers))
         
 class CScannerTestCase5(unittest.TestCase):
@@ -267,8 +267,8 @@ class CScannerTestCase5(unittest.TestCase):
         # scanned, essential for cooperation with BuildDir functionality.
         assert n.rexists_called
         
-        headers =  ['d1/f1.h', 'd1/f2.h', 'd1/f3-test.h',
-                    'f1.h', 'f2.h', 'f3-test.h']
+        headers =  ['f1.h', 'f2.h', 'f3-test.h',
+                    'd1/f1.h', 'd1/f2.h', 'd1/f3-test.h']
         deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase6(unittest.TestCase):
@@ -280,8 +280,8 @@ class CScannerTestCase6(unittest.TestCase):
         path2 = s.path(env2)
         deps1 = s(make_node('f1.cpp'), env1, path1)
         deps2 = s(make_node('f1.cpp'), env2, path2)
-        headers1 =  ['d1/f2.h', 'f1.h']
-        headers2 =  ['d1/d2/f2.h', 'f1.h']
+        headers1 =  ['f1.h', 'd1/f2.h']
+        headers2 =  ['f1.h', 'd1/d2/f2.h']
         deps_match(self, deps1, map(test.workpath, headers1))
         deps_match(self, deps2, map(test.workpath, headers2))
 
@@ -384,7 +384,7 @@ class CScannerTestCase13(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         path = s.path(env)
         deps = s(make_node('f1.cpp'), env, path)
-        headers = ['d1/f2.h', 'f1.h']
+        headers = ['f1.h', 'd1/f2.h']
         deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase14(unittest.TestCase):

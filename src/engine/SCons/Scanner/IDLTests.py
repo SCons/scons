@@ -243,7 +243,7 @@ class IDLScannerTestCase1(unittest.TestCase):
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         deps = s(make_node('t1.idl'), env, path)
-        headers = ['f1.idl', 'f2.idl', 'f3.idl']
+        headers = ['f1.idl', 'f3.idl', 'f2.idl']
         deps_match(self, deps, map(test.workpath, headers))
 
 class IDLScannerTestCase2(unittest.TestCase):
@@ -252,7 +252,7 @@ class IDLScannerTestCase2(unittest.TestCase):
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         deps = s(make_node('t1.idl'), env, path)
-        headers = ['d1/f2.idl', 'f1.idl', 'f3.idl']
+        headers = ['f1.idl', 'f3.idl', 'd1/f2.idl']
         deps_match(self, deps, map(test.workpath, headers))
 
 class IDLScannerTestCase3(unittest.TestCase):
@@ -261,7 +261,7 @@ class IDLScannerTestCase3(unittest.TestCase):
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         deps = s(make_node('t2.idl'), env, path)
-        headers = ['d1/d2/f1.idl', 'd1/f1.idl', 'f1.idl', 'f3.idl']
+        headers = ['d1/f1.idl', 'f1.idl', 'd1/d2/f1.idl', 'f3.idl']
         deps_match(self, deps, map(test.workpath, headers))
 
 class IDLScannerTestCase4(unittest.TestCase):
@@ -270,7 +270,7 @@ class IDLScannerTestCase4(unittest.TestCase):
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         deps = s(make_node('t2.idl'), env, path)
-        headers =  ['d1/d2/f1.idl', 'd1/f1.idl', 'f1.idl', 'f3.idl']
+        headers =  ['d1/f1.idl', 'f1.idl', 'd1/d2/f1.idl', 'f3.idl']
         deps_match(self, deps, map(test.workpath, headers))
         
 class IDLScannerTestCase5(unittest.TestCase):
@@ -292,8 +292,9 @@ class IDLScannerTestCase5(unittest.TestCase):
         # scanned, essential for cooperation with BuildDir functionality.
         assert n.rexists_called
         
-        headers =  ['d1/f1.idl', 'd1/f1.idl', 'd1/f2.idl', 'd1/f2.idl', 'd1/f3-test.idl',
-                    'f1.idl', 'f2.idl', 'f3-test.idl']
+        headers =  ['d1/f1.idl', 'd1/f2.idl',
+                    'f1.idl', 'f2.idl', 'f3-test.idl',
+                    'd1/f1.idl', 'd1/f2.idl', 'd1/f3-test.idl']
         deps_match(self, deps, map(test.workpath, headers))
 
 class IDLScannerTestCase6(unittest.TestCase):
@@ -305,8 +306,8 @@ class IDLScannerTestCase6(unittest.TestCase):
         path2 = s.path(env2)
         deps1 = s(make_node('t1.idl'), env1, path1)
         deps2 = s(make_node('t1.idl'), env2, path2)
-        headers1 =  ['d1/f2.idl', 'f1.idl', 'f3.idl']
-        headers2 =  ['d1/d2/f2.idl', 'f1.idl', 'f3.idl']
+        headers1 = ['f1.idl', 'f3.idl', 'd1/f2.idl']
+        headers2 = ['f1.idl', 'f3.idl', 'd1/d2/f2.idl']
         deps_match(self, deps1, map(test.workpath, headers1))
         deps_match(self, deps2, map(test.workpath, headers2))
 
@@ -409,7 +410,7 @@ class IDLScannerTestCase12(unittest.TestCase):
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
         deps = s(make_node('t1.idl'), env, path)
-        headers = ['d1/f2.idl', 'f1.idl', 'f3.idl']
+        headers = ['f1.idl', 'f3.idl', 'd1/f2.idl']
         deps_match(self, deps, map(test.workpath, headers))
         
 

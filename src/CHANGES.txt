@@ -155,6 +155,10 @@ RELEASE 0.97 - XXX
   - Make --debug={tree,dtree,stree} print something even when there's
     a build failure.
 
+  - Fix how Scanners sort the found dependencies so that it doesn't
+    matter whether the dependency file is in a Repository or not.
+    This may cause recompilations upon upgrade to this version.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

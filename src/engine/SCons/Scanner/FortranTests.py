@@ -311,7 +311,7 @@ class FortranScannerTestCase5(unittest.TestCase):
         path = s.path(env)
         fs = SCons.Node.FS.FS(original)
         deps = s(make_node('fff2.f', fs), env, path)
-        headers = ['d1/d2/f2.f', 'd1/f2.f', 'd1/f2.f']
+        headers = ['d1/f2.f', 'd1/d2/f2.f', 'd1/f2.f']
         deps_match(self, deps, map(test.workpath, headers))
 
 class FortranScannerTestCase6(unittest.TestCase):
@@ -322,7 +322,7 @@ class FortranScannerTestCase6(unittest.TestCase):
         path = s.path(env)
         fs = SCons.Node.FS.FS(original)
         deps = s(make_node('fff2.f', fs), env, path)
-        headers =  ['d1/d2/f2.f', 'd1/f2.f', 'f2.f']
+        headers =  ['d1/f2.f', 'd1/d2/f2.f', 'f2.f']
         deps_match(self, deps, map(test.workpath, headers))
         test.unlink('f2.f')
 
@@ -333,7 +333,7 @@ class FortranScannerTestCase7(unittest.TestCase):
         path = s.path(env)
         fs = SCons.Node.FS.FS(original)
         deps = s(make_node('fff2.f', fs), env, path)
-        headers =  ['d1/d2/f2.f', 'd1/d2/f2.f', 'd1/f2.f']
+        headers =  ['d1/f2.f', 'd1/d2/f2.f', 'd1/d2/f2.f']
         deps_match(self, deps, map(test.workpath, headers))
 
 class FortranScannerTestCase8(unittest.TestCase):
@@ -344,7 +344,7 @@ class FortranScannerTestCase8(unittest.TestCase):
         path = s.path(env)
         fs = SCons.Node.FS.FS(original)
         deps = s(make_node('fff2.f', fs), env, path)
-        headers =  ['d1/d2/f2.f', 'd1/f2.f', 'f2.f']
+        headers =  ['d1/f2.f', 'd1/d2/f2.f', 'f2.f']
         deps_match(self, deps, map(test.workpath, headers))
         test.unlink('f2.f')
 
