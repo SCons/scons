@@ -189,10 +189,11 @@ def generate(env, version=None, abi=None, topdir=None, verbose=1):
             for p in paths:
                 try:
                     path=get_intel_registry_value(p[1], version, abi)
+                except SCons.Errors.InternalError:
+                    env.PrependENVPath(p[0], os.path.join(topdir, p[2]))
+                else:
                     env.PrependENVPath(p[0], ';'.split(path))
                     # print "ICL %s: %s, final=%s"%(p[0], path, str(env['ENV'][p[0]]))
-                except:
-                    env.PrependENVPath(p[0], os.path.join(topdir, p[2]))
 
     if is_win32:
         env['CC']        = 'icl'

@@ -836,7 +836,11 @@ class Base:
                 continue
             try:
                 target, depends = string.split(line, ':', 1)
-            except:
+            except (AttributeError, TypeError, ValueError):
+                # Python 1.5.2 throws TypeError if line isn't a string,
+                # Python 2.x throws AttributeError because it tries
+                # to call line.splite().  Either can throw ValueError
+                # if the line doesn't split into two or more elements.
                 pass
             else:
                 self.Depends(string.split(target), string.split(depends))

@@ -1452,6 +1452,9 @@ class File(Base):
     def get_stored_info(self):
         try:
             stored = self.dir.sconsign().get_entry(self.name)
+        except (KeyError, OSError):
+            return BuildInfo()
+        else:
             if isinstance(stored, BuildInfo):
                 return stored
             # The stored build information isn't a BuildInfo object.
@@ -1463,8 +1466,6 @@ class File(Base):
             for key, val in stored.__dict__.items():
                 setattr(binfo, key, val)
             return binfo
-        except:
-            return BuildInfo()
 
     def get_stored_implicit(self):
         binfo = self.get_stored_info()
@@ -1744,7 +1745,7 @@ class File(Base):
 
         try:
             mtime = self.get_timestamp()
-        except:
+        except OSError:
             mtime = 0
             raise SCons.Errors.UserError, "no such %s" % self
 
