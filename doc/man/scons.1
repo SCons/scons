@@ -537,6 +537,13 @@ $ scons --debug=includes foo.o
 .EE
 
 .TP
+--debug=memoizer
+Prints a summary of hits and misses in the Memoizer,
+the internal SCons subsystem for caching
+various values in memory instead of
+recomputing them each time they're needed.
+
+.TP
 --debug=memory
 Prints how much memory SCons uses
 before and after reading the SConscript files

@@ -246,6 +246,7 @@ print_dtree = 0
 print_explanations = 0
 print_includes = 0
 print_objects = 0
+print_memoizer = 0
 print_stacktrace = 0
 print_stree = 0
 print_time = 0
@@ -407,7 +408,7 @@ def _SConstruct_exists(dirname=''):
 def _set_globals(options):
     global repositories, keep_going_on_error, ignore_errors
     global print_count, print_dtree
-    global print_explanations, print_includes
+    global print_explanations, print_includes, print_memoizer
     global print_objects, print_stacktrace, print_stree
     global print_time, print_tree
     global memory_outf, memory_stats
@@ -416,34 +417,40 @@ def _set_globals(options):
         repositories.extend(options.repository)
     keep_going_on_error = options.keep_going
     try:
-        if options.debug:
-            if options.debug == "count":
-                print_count = 1
-            elif options.debug == "dtree":
-                print_dtree = 1
-            elif options.debug == "explain":
-                print_explanations = 1
-            elif options.debug == "findlibs":
-                SCons.Scanner.Prog.print_find_libs = "findlibs"
-            elif options.debug == "includes":
-                print_includes = 1
-            elif options.debug == "memory":
-                memory_stats = []
-                memory_outf = sys.stdout
-            elif options.debug == "objects":
-                print_objects = 1
-            elif options.debug == "presub":
-                SCons.Action.print_actions_presub = 1
-            elif options.debug == "stacktrace":
-                print_stacktrace = 1
-            elif options.debug == "stree":
-                print_stree = 1
-            elif options.debug == "time":
-                print_time = 1
-            elif options.debug == "tree":
-                print_tree = 1
+        debug_values = options.debug
+        if debug_values is None:
+            debug_values = []
     except AttributeError:
         pass
+    else:
+        if "count" in debug_values:
+            print_count = 1
+        if "dtree" in debug_values:
+            print_dtree = 1
+        if "explain" in debug_values:
+            print_explanations = 1
+        if "findlibs" in debug_values:
+            SCons.Scanner.Prog.print_find_libs = "findlibs"
+        if "includes" in debug_values:
+            print_includes = 1
+        if "memoizer" in debug_values:
+            SCons.Memoize.EnableCounting()
+            print_memoizer = 1
+        if "memory" in debug_values:
+            memory_stats = []
+            memory_outf = sys.stdout
+        if "objects" in debug_values:
+            print_objects = 1
+        if "presub" in debug_values:
+            SCons.Action.print_actions_presub = 1
+        if "stacktrace" in debug_values:
+            print_stacktrace = 1
+        if "stree" in debug_values:
+            print_stree = 1
+        if "time" in debug_values:
+            print_time = 1
+        if "tree" in debug_values:
+            print_tree = 1
     ignore_errors = options.ignore_errors
 
 def _create_path(plist):
@@ -534,13 +541,18 @@ class OptParser(OptionParser):
                              "build all Default() targets.")
 
         debug_options = ["count", "dtree", "explain", "findlibs",
-                         "includes", "memory", "objects",
+                         "includes", "memoizer", "memory", "objects",
                          "pdb", "presub", "stacktrace", "stree",
                          "time", "tree"]
 
         def opt_debug(option, opt, value, parser, debug_options=debug_options):
             if value in debug_options:
-                parser.values.debug = value
+                try:
+                    if parser.values.debug is None:
+                        parser.values.debug = []
+                except AttributeError:
+                    parser.values.debug = []
+                parser.values.debug.append(value)
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
         self.add_option('--debug', action="callback", type="string",
@@ -1093,6 +1105,10 @@ def _main(args, parser):
         SCons.Debug.listLoggedInstances('*')
         #SCons.Debug.dumpLoggedInstances('*')
 
+    if print_memoizer:
+        print "Memoizer (memory cache) hits and misses:"
+        SCons.Memoize.Dump()
+
 def _exec_main():
     all_args = sys.argv[1:]
     try:
@@ -1103,7 +1119,7 @@ def _exec_main():
     parser = OptParser()
     global options
     options, args = parser.parse_args(all_args)
-    if options.debug == "pdb":
+    if type(options.debug) == type([]) and "pdb" in options.debug:
         import pdb
         pdb.Pdb().runcall(_main, args, parser)
     else:
