@@ -66,6 +66,12 @@ def cat(env, source, target):
 
 env = Environment(BUILDERS={'Build':Builder(action=cat)},
                   SCANNERS=[Scanner(fake_scan, skeys = ['.in'])])
+
+# Do some Node test operations to ensure no side-effects cause failures
+File('file.in').exists()
+File('file.in').is_derived()
+File('file.in').is_pseudo_derived()
+
 env.Build('file.out', 'file.in')
 """)
 
@@ -87,7 +93,7 @@ if sys.platform != 'win32':
     test.run(chdir = 'ro-dir',
              arguments = ".",
              status = 2,
-             stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.\n" % os.path.join('src', 'SConscript'))
+             stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.\n" % os.path.join('src', 'SConscript'))
 
 # Verify the error when the SConscript file within the BuildDir is
 # read-only.  Note that we have to make the directory read-only too,
@@ -104,7 +110,7 @@ os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
 test.run(chdir = 'ro-SConscript',
          arguments = ".",
          status = 2,
-         stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.\n" % os.path.join('src', 'SConscript'))
+         stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.\n" % os.path.join('src', 'SConscript'))
 
 os.chmod('ro-SConscript', os.stat('ro-SConscript')[stat.ST_MODE] | stat.S_IWUSR)
 f.close()
@@ -112,7 +118,7 @@ f.close()
 test.run(chdir = 'ro-SConscript',
          arguments = ".",
          status = 2,
-         stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.\n" % os.path.join('src', 'SConscript'))
+         stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.\n" % os.path.join('src', 'SConscript'))
 
 # Verify the error when the source file within the BuildDir is
 # read-only.  Note that we have to make the directory read-only too,
@@ -140,7 +146,7 @@ test.run(chdir = 'ro-src',
          arguments = "-k .",
          status = 2,
          stderr = """\
-scons: *** Cannot duplicate `%s' in `build': Permission denied.
+scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
 """ % (os.path.join('src', 'file.in')))
 
 f.close()

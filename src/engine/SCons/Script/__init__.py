@@ -912,9 +912,9 @@ def _main(args, parser):
         # couldn't be copied in to the BuildDir.  Since we're just
         # reading SConscript files and haven't started building
         # things yet, stop regardless of whether they used -i or -k
-        # or anything else, but don't say "Stop." on the message.
+        # or anything else.
         global exit_status
-        sys.stderr.write("scons: *** %s\n" % e)
+        sys.stderr.write("scons: *** %s  Stop.\n" % e)
         exit_status = 2
         sys.exit(exit_status)
     global sconscript_time

@@ -1675,7 +1675,7 @@ class File(Base):
                 try:
                     Link(self, src, None)
                 except SCons.Errors.BuildError, e:
-                    desc = "Cannot duplicate `%s' in `%s': %s." % (src, self.dir, e.errstr)
+                    desc = "Cannot duplicate `%s' in `%s': %s." % (src.path, self.dir.path, e.errstr)
                     raise SCons.Errors.StopError, desc
                 self.linked = 1
                 # The Link() action may or may not have actually

@@ -123,6 +123,9 @@ RELEASE 0.97 - XXX
     function, use its strfunction() method (if any) to display the
     action.
 
+  - Fix handling when BuildDir() exists but is unwriteable.  Add
+    "Stop." to those error messages for consistency.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
