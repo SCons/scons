@@ -152,3 +152,26 @@ def func_shorten(func_tuple):
             f = f[i:]
             break
     return (f,)+func_tuple[1:]
+
+
+
+TraceFP = {}
+TraceDefault = '/dev/tty'
+
+def Trace(msg, file=None, mode='a'):
+    """Write a trace a message to a file.  Whenever a file is specified,
+    it becomes the default for the next call to Trace()."""
+    global TraceDefault
+    if file is None:
+        file = TraceDefault
+    else:
+        TraceDefault = file
+    try:
+        fp = TraceFP[file]
+    except KeyError:
+        try:
+            fp = TraceFP[file] = open(file, mode)
+        except TypeError:
+            # Assume we were passed an open file pointer.
+            fp = file
+    fp.write(msg)

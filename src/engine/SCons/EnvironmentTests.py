@@ -2589,8 +2589,6 @@ f5: \
         assert s.side_effect
         assert foo.side_effects == [s]
         assert bar.side_effects == [s]
-        assert s.depends_on([bar])
-        assert s.depends_on([foo])
 
         fff = env.Object('fff.obj', 'fff.cpp')[0]
         bbb = env.Object('bbb.obj', 'bbb.cpp')[0]
@@ -2600,8 +2598,6 @@ f5: \
         assert s.side_effect
         assert fff.side_effects == [s], fff.side_effects
         assert bbb.side_effects == [s], bbb.side_effects
-        assert s.depends_on([bbb])
-        assert s.depends_on([fff])
 
         ggg = env.Object('ggg.obj', 'ggg.cpp')[0]
         ccc = env.Object('ccc.obj', 'ccc.cpp')[0]
@@ -2611,8 +2607,6 @@ f5: \
         assert s.side_effect
         assert ggg.side_effects == [s], ggg.side_effects
         assert ccc.side_effects == [s], ccc.side_effects
-        assert s.depends_on([ccc])
-        assert s.depends_on([ggg])
 
     def test_SourceCode(self):
         """Test the SourceCode() method."""

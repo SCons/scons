@@ -402,14 +402,6 @@ class NodeTestCase(unittest.TestCase):
         n = SCons.Node.Node()
         n.visited()
 
-    def test_depends_on(self):
-        """Test the depends_on() method
-        """
-        parent = SCons.Node.Node()
-        child = SCons.Node.Node()
-        parent.add_dependency([child])
-        assert parent.depends_on([child])
-
     def test_builder_set(self):
         """Test setting a Node's Builder
         """
@@ -1011,7 +1003,7 @@ class NodeTestCase(unittest.TestCase):
         """Test setting and getting the state of a node
         """
         node = SCons.Node.Node()
-        assert node.get_state() == None
+        assert node.get_state() == SCons.Node.no_state
         node.set_state(SCons.Node.executing)
         assert node.get_state() == SCons.Node.executing
         assert SCons.Node.pending < SCons.Node.executing

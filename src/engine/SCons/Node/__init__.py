@@ -62,12 +62,23 @@ import SCons.Util
 # it has no builder of its own.  The canonical example is a file
 # system directory, which is only up to date if all of its children
 # were up to date.
+no_state = 0
 pending = 1
 executing = 2
 up_to_date = 3
 executed = 4
 failed = 5
 stack = 6 # nodes that are in the current Taskmaster execution stack
+
+StateString = {
+    0 : "0",
+    1 : "pending",
+    2 : "executing",
+    3 : "up_to_date",
+    4 : "executed",
+    5 : "failed",
+    6 : "stack",
+}
 
 # controls whether implicit dependencies are cached:
 implicit_cache = 0
@@ -124,7 +135,7 @@ class Node:
         self.wkids = None       # Kids yet to walk, when it's an array
 
         self.env = None
-        self.state = None
+        self.state = no_state
         self.precious = None
         self.always_build = None
         self.found_includes = {}
@@ -290,10 +301,6 @@ class Node:
         """Called just after this node has been visited
         without requiring a build.."""
         pass
-
-    def depends_on(self, nodes):
-        """Does this node depend on any of 'nodes'? __cacheable__"""
-        return reduce(lambda D,N,C=self.children(): D or (N in C), nodes, 0)
 
     def builder_set(self, builder):
         "__cache_reset__"

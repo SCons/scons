@@ -425,7 +425,7 @@ class _SConsTaskTest(unittest.TestCase):
         # mislabelling of results).
 
         for N in testnodes:
-            self.failUnless(N.get_state() in [None, N.expect_to_be],
+            self.failUnless(N.get_state() in [SCons.Node.no_state, N.expect_to_be],
                             "node ran but got unexpected result")
 
         self.failUnless(filter(lambda N: N.get_state(), testnodes),

@@ -248,7 +248,7 @@ class SConfBuildTask(SCons.Taskmaster.Task):
             c_bi = isinstance(bi, SConfBuildInfo)
             if c_bi:
                 if cache_mode == CACHE:
-                    t.state = SCons.Node.up_to_date
+                    t.set_state(SCons.Node.up_to_date)
                 else:
                     new_bsig = t.calc_signature(sconf_global.calc)
                     if t.env.use_build_signature():

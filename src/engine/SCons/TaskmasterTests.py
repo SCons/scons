@@ -51,7 +51,7 @@ class Node:
         self.builder = Builder()
         self.bsig = None
         self.csig = None
-        self.state = None
+        self.state = SCons.Node.no_state
         self.prepared = None
         self.waiting_parents = []
         self.side_effect = 0
@@ -157,7 +157,6 @@ class Node:
     def postprocess(self):
         self.postprocessed = 1
 
-
 class OtherError(Exception):
     pass
 
@@ -220,11 +219,11 @@ class TaskmasterTestCase(unittest.TestCase):
                 else:
                     self.targets[0].build()
 
-        n1.set_state(None)
+        n1.set_state(SCons.Node.no_state)
         n1._current_val = 1
-        n2.set_state(None)
+        n2.set_state(SCons.Node.no_state)
         n2._current_val = 1
-        n3.set_state(None)
+        n3.set_state(SCons.Node.no_state)
         n3._current_val = 1
         tm = SCons.Taskmaster.Taskmaster(targets = [n3], tasker = MyTask)
 
