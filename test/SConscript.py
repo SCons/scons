@@ -28,8 +28,14 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.write('foo.py', """
+foo = 4""")
+
 test.write('SConstruct', """
 import os
+import foo
+
+assert foo.foo == 4
 
 print "SConstruct", os.getcwd()
 SConscript('SConscript')

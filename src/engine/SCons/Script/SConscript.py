@@ -39,6 +39,7 @@ import SCons.Node.FS
 import SCons.Util
 
 import os
+import os.path
 import string
 import sys
 
@@ -105,8 +106,8 @@ def SConscript(script, exports=[]):
 
     # push:
     stack.append(Frame(exports))
-
     old_dir = None
+    old_sys_path = sys.path
     try:
         # call:
         if script == "-":
@@ -120,11 +121,18 @@ def SConscript(script, exports=[]):
                 if sconscript_chdir:
                     old_dir = os.getcwd()
                     os.chdir(str(script.dir))
+
+                # prepend the SConscript directory to sys.path so
+                # that Python modules in the SConscript directory can
+                # be easily imported.
+                sys.path = [os.path.abspath(str(script.dir))] + sys.path
+
                 exec file in stack[-1].globals
             else:
                 sys.stderr.write("Ignoring missing SConscript '%s'\n" % script.path)
     finally:
         # pop:
+        sys.path = old_sys_path
         frame = stack.pop()
         SCons.Node.FS.default_fs.chdir(frame.prev_dir)
         if old_dir:
