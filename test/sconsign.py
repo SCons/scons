@@ -90,10 +90,10 @@ scons: warning: Ignoring corrupt .sconsign file: sub1..sconsign
 stdout = test.wrap_stdout('build1\("sub1/foo.out", "foo.in"\)\n')
 
 test.write(sub1__sconsign, 'not:a:sconsign:file')
-test.run(arguments = '.', stderr=stderr, stdout=stdout, status=2)
+test.run(arguments = '.', stderr=stderr, stdout=stdout)
 
 test.write(sub1__sconsign, '\0\0\0\0\0\0\0\0\0\0\0\0\0\0')
-test.run(arguments = '.', stderr=stderr, stdout=stdout, status=2)
+test.run(arguments = '.', stderr=stderr, stdout=stdout)
 
 
 test.pass_test()

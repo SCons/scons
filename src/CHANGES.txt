@@ -28,6 +28,9 @@ RELEASE 0.10 - XXX
   - Don't create duplicate source files in a BuildDir when the -n
     option is used.
 
+  - Fix SCons not exiting with the appropriate status on build errors
+    (and probably in other situations).
+
   From Steve Leblanc:
 
   - Add a Clean() method to support removing user-specified targets

@@ -88,6 +88,7 @@ class BuildTask(SCons.Taskmaster.Task):
                 print "Command execution time: %f seconds"%(finish_time-start_time)
 
     def do_failed(self):
+        global exit_status
         if ignore_errors:
             SCons.Taskmaster.Task.executed(self)
         elif keep_going_on_error:

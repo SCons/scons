@@ -34,7 +34,7 @@ if os.name == 'posix':
     def _failed(self, status = 0):
         if self.status is None:
             return None
-        if os.WIFSIGNALED(status):
+        if os.WIFSIGNALED(self.status):
             return None
         return _status(self) != status
     def _status(self):
