@@ -2987,6 +2987,7 @@ This function takes two arguments,
 an array of targets to be created by the function action,
 and an array of sources used to create the target(s):
 
+.ES
 def build_it(target, source, env):
     # build the target from the source
     return 0
@@ -2994,7 +2995,40 @@ def build_it(target, source, env):
 def string_it(target, source):
     return "building '%s' from '%s'" % (target[0], source[0])
 
+# Use a positional argument.
 a = Action(build_it, string_it)
+
+# Alternatively, use a keyword argument.
+a = Action(build_it, strfunction=string_it)
+.EE
+
+The third, also optional argument
+is a list of construction variables
+whose values will be included
+in the signature of the Action
+when deciding whether a target should
+be rebuilt because the action changed.
+This is necessary whenever you want a target to
+be rebuilt by an action when a specific
+construction variable changes,
+because the underlying Python code for a function
+will not change when the value of the construction variable does.
+
+.ES
+def build_it(target, source, env):
+    # build the target from the 'XXX' construction variable
+    open(target[0], 'w').write(env['XXX'])
+    return 0
+
+def string_it(target, source):
+    return "building '%s' from '%s'" % (target[0], source[0])
+
+# Use positional arguments.
+a = Action(build_it, string_it, ['XXX'])
+
+# Alternatively, use a keyword argument.
+a = Action(build_it, varlist=['XXX'])
+.EE
 .PP
 If the action argument is not one of the above,
 None is returned.

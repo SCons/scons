@@ -37,7 +37,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.10'
+default_version = '0.11'
 
 Default('.')
 
@@ -224,10 +224,6 @@ def SCons_revision(target, source, env):
     """
     t = str(target[0])
     s = source[0].rstr()
-    # Note:  We don't use $VERSION from the environment so that
-    # this routine will change when the version number changes
-    # and things will get rebuilt properly.
-    global version
     inf = open(s, 'rb')
     outf = open(t, 'wb')
     for line in inf.readlines():
@@ -240,13 +236,13 @@ def SCons_revision(target, source, env):
         line = string.replace(line, '__DEVELOPER' + '__', env['DEVELOPER'])
         line = string.replace(line, '__FILE'      + '__', s)
         line = string.replace(line, '__REVISION'  + '__', env['REVISION'])
-        line = string.replace(line, '__VERSION'   + '__',  version)
+        line = string.replace(line, '__VERSION'   + '__', env['VERSION'])
         outf.write(line)
     inf.close()
     outf.close()
     os.chmod(t, os.stat(s)[0])
 
-revbuilder = Builder(action = SCons_revision)
+revbuilder = Builder(action = Action(SCons_revision, varlist=['VERSION']))
 
 env = Environment(
                    ENV                 = ENV,

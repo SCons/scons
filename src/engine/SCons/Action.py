@@ -72,7 +72,7 @@ class CommandGenerator:
     def __init__(self, generator):
         self.generator = generator
 
-def _do_create_action(act, strfunction=_null):
+def _do_create_action(act, strfunction=_null, varlist=[]):
     """This is the actual "implementation" for the
     Action factory method, below.  This handles the
     fact that passing lists to Action() itself has
@@ -90,7 +90,7 @@ def _do_create_action(act, strfunction=_null):
     elif isinstance(act, CommandGenerator):
         return CommandGeneratorAction(act.generator)
     elif callable(act):
-        return FunctionAction(act, strfunction=strfunction)
+        return FunctionAction(act, strfunction=strfunction, varlist=varlist)
     elif SCons.Util.is_String(act):
         var=SCons.Util.get_environment_var(act)
         if var:
@@ -110,17 +110,19 @@ def _do_create_action(act, strfunction=_null):
     else:
         return None
 
-def Action(act, strfunction=_null):
+def Action(act, strfunction=_null, varlist=[]):
     """A factory for action objects."""
     if SCons.Util.is_List(act):
-        acts = map(lambda x, s=strfunction: _do_create_action(x, s), act)
+        acts = map(lambda x, s=strfunction, v=varlist:
+                          _do_create_action(x, s, v),
+                   act)
         acts = filter(lambda x: not x is None, acts)
         if len(acts) == 1:
             return acts[0]
         else:
             return ListAction(acts)
     else:
-        return _do_create_action(act, strfunction=strfunction)
+        return _do_create_action(act, strfunction=strfunction, varlist=varlist)
 
 class ActionBase:
     """Base class for actions that create output objects."""
@@ -316,7 +318,7 @@ class LazyCmdGenerator:
 class FunctionAction(ActionBase):
     """Class for Python function actions."""
 
-    def __init__(self, execfunction, strfunction=_null):
+    def __init__(self, execfunction, strfunction=_null, varlist=[]):
         self.execfunction = execfunction
         if strfunction is _null:
             def strfunction(target, source, execfunction=execfunction):
@@ -339,6 +341,7 @@ class FunctionAction(ActionBase):
                     sstr = str(map(lambda x, q=quote: q(x), source))
                 return "%s(%s, %s)" % (name, tstr, sstr)
         self.strfunction = strfunction
+        self.varlist = varlist
 
     def __call__(self, target, source, env):
         r = 0
@@ -361,15 +364,14 @@ class FunctionAction(ActionBase):
         By providing direct access to the code object of the
         function, Python makes this extremely easy.  Hooray!
         """
-        #XXX DOES NOT ACCOUNT FOR CHANGES IN ENVIRONMENT VARIABLES
-        #THE FUNCTION MAY USE
         try:
             # "self.execfunction" is a function.
             code = self.execfunction.func_code.co_code
         except:
             # "self.execfunction" is a callable object.
             code = self.execfunction.__call__.im_func.func_code.co_code
-        return str(code)
+        return str(code) + string.join(map(lambda v, e=env: str(e[v]),
+                                       self.varlist))
 
 class ListAction(ActionBase):
     """Class for lists of other actions."""

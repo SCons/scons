@@ -8,6 +8,15 @@
 
 
 
+RELEASE 0.11 - XXX
+
+  From Steven Knight:
+
+  - Allow Python function Actions to specify a list of construction
+    variables that should be included in the Action's signature.
+
+
+
 RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
   From Derrick 'dman' Hudson:
