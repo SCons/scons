@@ -313,11 +313,16 @@ os.environ['SCONS_CWD'] = cwd
 
 os.environ['SCONS_VERSION'] = version
 
+old_pythonpath = os.environ.get('PYTHONPATH')
 os.environ['PYTHONPATH'] = pythonpath_dir + \
                            os.pathsep + \
                            os.path.join(cwd, 'build', 'etc') + \
                            os.pathsep + \
                            os.path.join(cwd, 'etc')
+if old_pythonpath:
+    os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + \
+                               os.pathsep + \
+                               old_pythonpath
 
 os.chdir(scons_script_dir)
 

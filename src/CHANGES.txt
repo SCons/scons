@@ -21,6 +21,9 @@ RELEASE 0.14 - XXX
 
   - Remove the "platform" argument from tool specifications.
 
+  - Propogate PYTHONPATH when running the regression tests so distutils
+    can be found in non-standard locations.
+
   From Allen Bierbaum:
 
   - Pass an Environment to the Options validator method, and
