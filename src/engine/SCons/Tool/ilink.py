@@ -1,10 +1,11 @@
-"""SCons.Platform.os2
+"""SCons.Tool.ilink
 
-Platform-specific initialization for OS/2 systems.
+Tool-specific initialization for the OS/2 ilink linker.
 
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
+
 """
 
 #
@@ -32,26 +33,16 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
+import SCons.Defaults
 
-def tool_list():
-    list = ['dvipdf', 'dvips', 'g77',
-            'icc', 'ilink', 'latex', 'lex',
-            'pdflatex', 'pdftex', 'tex', 'yacc']
-    if SCons.Util.WhereIs('nasm'):
-        list.append('nasm')
-    return list
-
-def generate(env):
-    if not env.has_key('ENV'):
-        env['ENV']        = {}
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.obj'
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = '.exe'
-    env['LIBPREFIX']      = ''
-    env['LIBSUFFIX']      = '.lib'
-    env['SHLIBPREFIX']    = ''
-    env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+def generate(env, platform):
+    """Add Builders and construction variables for ilink to an Environment."""
+    env['BUILDERS']['Program'] = SCons.Defaults.Program
+    
+    env['LINK']        = 'ilink'
+    env['LINKFLAGS']   = ''
+    env['LINKCOM']     = '$LINK $LINKFLAGS /O:$TARGET $SOURCES $( $_LIBDIRFLAGS $) $_LIBFLAGS'
+    env['LIBDIRPREFIX']='/LIBPATH:'
+    env['LIBDIRSUFFIX']=''
+    env['LIBLINKPREFIX']=''
+    env['LIBLINKSUFFIX']='$LIBSUFFIX'

@@ -438,6 +438,27 @@ if sys.platform == 'win32':
                     return fext
         return None
 
+elif os.name == 'os2':
+
+    def WhereIs(file, path=None, pathext=None):
+        if path is None:
+            path = os.environ['PATH']
+        if is_String(path):
+            path = string.split(path, os.pathsep)
+        if pathext is None:
+            pathext = ['.exe', '.cmd']
+        for ext in pathext:
+            if string.lower(ext) == string.lower(file[-len(ext):]):
+                pathext = ['']
+                break
+        for dir in path:
+            f = os.path.join(dir, file)
+            for ext in pathext:
+                fext = f + ext
+                if os.path.isfile(fext):
+                    return fext
+        return None
+
 else:
 
     def WhereIs(file, path=None, pathext=None):

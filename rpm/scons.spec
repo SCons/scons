@@ -116,6 +116,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Tool/gcc.pyc
 /usr/lib/scons/SCons/Tool/gnulink.py
 /usr/lib/scons/SCons/Tool/gnulink.pyc
+/usr/lib/scons/SCons/Tool/icc.py
+/usr/lib/scons/SCons/Tool/icc.pyc
+/usr/lib/scons/SCons/Tool/ilink.py
+/usr/lib/scons/SCons/Tool/ilink.pyc
 /usr/lib/scons/SCons/Tool/latex.py
 /usr/lib/scons/SCons/Tool/latex.pyc
 /usr/lib/scons/SCons/Tool/lex.py

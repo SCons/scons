@@ -84,7 +84,8 @@ RELEASE 0.08 -
 
   - Add a tar archive builder.
 
-  - Add preliminary support for OS/2.
+  - Add preliminary support for the OS/2 Platform, including the icc
+    and ilink Tools.
 
   From Jeff Petkau:
 
