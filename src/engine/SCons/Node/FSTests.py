@@ -1522,7 +1522,6 @@ class prepareTestCase(unittest.TestCase):
         assert dir_made == [], dir_made
         xyz.set_state(0)
         xyz.prepare()
-        print "dir_made[0] =", dir_made[0]
         assert dir_made[0].path == "new_dir", dir_made[0]
 
         dir = fs.Dir("dir")
@@ -1836,6 +1835,13 @@ class SpecialAttrTestCase(unittest.TestCase):
             for_sig = f.posix.for_signature()
             assert for_sig == 'baz.blat_posix', for_sig
 
+        s = str(f.win32)
+        assert s == 'foo\\bar\\baz.blat', repr(s)
+        assert f.win32.is_literal(), f.win32
+        if f.win32 != f:
+            for_sig = f.win32.for_signature()
+            assert for_sig == 'baz.blat_win32', for_sig
+
         # And now, combinations!!!
         s = str(f.srcpath.base)
         assert s == os.path.normpath('foo/bar/baz'), s
@@ -1843,6 +1849,8 @@ class SpecialAttrTestCase(unittest.TestCase):
         assert s == str(f.srcdir), s
         s = str(f.srcpath.posix)
         assert s == 'foo/bar/baz.blat', s
+        s = str(f.srcpath.win32)
+        assert s == 'foo\\bar\\baz.blat', s
 
         # Test what happens with BuildDir()
         fs.BuildDir('foo', 'baz')

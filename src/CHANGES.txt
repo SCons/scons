@@ -139,6 +139,14 @@ RELEASE 0.96 - XXX
     arguments when creating Builder objects.  Enhance Dir Nodes so that
     they can be created with user-specified Builder objects.
 
+  From Chris Murray:
+
+  - Add a .win32 attribute to force file names to expand with
+    Windows backslash path separators.
+
+  - Fix escaping file names on command lines when the expansion is
+    concatenated with another string.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
