@@ -24,6 +24,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify various combinations of arguments to Default() work properly.
+"""
+
 import os
 import sys
 import TestSCons
@@ -32,7 +36,13 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-test.subdir('one', 'two', 'three', 'four', 'five')
+for dir in ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']:
+
+    test.subdir(dir)
+
+    test.write(os.path.join(dir, 'foo.in'), dir + "/foo.in\n");
+
+    test.write(os.path.join(dir, 'bar.in'), dir + "/bar.in\n");
 
 test.write('build.py', r"""
 import sys
@@ -42,6 +52,7 @@ file.write(contents)
 file.close()
 """)
 
+#
 test.write(['one', 'SConstruct'], """
 B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
@@ -85,13 +96,6 @@ Default(env.B(target = 'bar.out', source = 'bar.in'))
 
 for dir in ['one', 'two', 'three', 'four', 'five']:
 
-    foo_in = os.path.join(dir, 'foo.in')
-    bar_in = os.path.join(dir, 'bar.in')
-
-    test.write(foo_in, dir + "/foo.in\n");
-
-    test.write(bar_in, dir + "/bar.in\n");
-
     test.run(chdir = dir)	# no arguments, use the Default
 
 test.fail_test(test.read(test.workpath('one', 'foo.out')) != "one/foo.in\n")
@@ -109,6 +113,45 @@ test.fail_test(test.read(test.workpath('four', 'foo bar')) != "four/foo.in\n")
 
 test.fail_test(test.read(test.workpath('five', 'foo.out')) != "five/foo.in\n")
 test.fail_test(test.read(test.workpath('five', 'bar.out')) != "five/bar.in\n")
+
+
+
+# Test how a None Default() argument works to disable/reset default targets.
+test.write(['six', 'SConstruct'], """\
+B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
+foo = env.B(target = 'foo.out', source = 'foo.in')
+bar = env.B(target = 'bar.out', source = 'bar.in')
+Default(None)
+""" % python)
+
+test.run(chdir = 'six', status = 2, stderr =
+"scons: *** No targets specified and no Default() targets found.  Stop.\n")
+
+test.write(['seven', 'SConstruct'], """\
+B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
+foo = env.B(target = 'foo.out', source = 'foo.in')
+bar = env.B(target = 'bar.out', source = 'bar.in')
+Default(foo, bar, None)
+""" % python)
+
+test.run(chdir = 'seven', status = 2, stderr =
+"scons: *** No targets specified and no Default() targets found.  Stop.\n")
+
+test.write(['eight', 'SConstruct'], """\
+B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
+foo = env.B(target = 'foo.out', source = 'foo.in')
+bar = env.B(target = 'bar.out', source = 'bar.in')
+Default(foo, None, bar)
+""" % python)
+
+test.run(chdir = 'eight')       # no arguments, use the Default
+
+test.fail_test(os.path.exists(test.workpath('eight', 'foo.out')))
+test.fail_test(test.read(test.workpath('eight', 'bar.out')) != "eight/bar.in\n")
+
 
 
 

@@ -811,6 +811,8 @@ def _main():
 
     if not targets:
         targets = SCons.Script.SConscript.default_targets
+        if targets is None:
+            targets = [SCons.Node.FS.default_fs.Dir('.')]
 
     if not targets:
         sys.stderr.write("scons: *** No targets specified and no Default() targets found.  Stop.\n")

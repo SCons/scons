@@ -135,36 +135,61 @@ ability to define new scanners for unknown input file types.
 .B scons
 is normally executed in a top-level directory containing a
 .I SConstruct
-file, specifying the target or targets to be built as
-command-line arguments.  The command
+file, optionally specifying
+as command-line arguments
+the target file or files to be built.
+
+By default, the command
+
+.ES
+scons
+.EE
+
+will build all target files in or below the current directory.
+Explicit default targets
+(to be built when no targets are specified on the command line)
+may be defined the SConscript file(s)
+using the
+.B Default()
+function, described below.
+
+Even when
+.B Default()
+targets are specified in the SConscript file(s),
+all target files in or below the current directory
+may be built by explicitly specifying
+the current directory (.)
+as a command-line target:
 
 .ES
 scons .
 .EE
 
-will build all target files in or below the current directory 
-.RI ( . ")."
+Building all target files,
+including any files outside of the current directory,
+may be specified by supplying a command-line target
+of the root directory (on POSIX systems):
 
 .ES
 scons /
 .EE
 
-will build all target files in or below the root directory (i.e.,
-all files).  Specific targets may be supplied:
+or the path name(s) of the volume(s) in which all the targets
+should be built (on Windows systems):
+
+.ES
+scons C:\ D:\
+.EE
+
+To build only specific targets,
+supply them as command-line arguments:
 
 .ES
 scons foo bar
 .EE
 
-Targets may be omitted from the command line,
-in which case the targets specified
-in the SConscript file(s) as
-.B Default
-targets will be built:
-
-.ES
-scons
-.EE
+in which case only the specified targets will be built
+(along with any derived files on which they depend).
 
 Specifying "cleanup" targets in SConscript files is not
 necessary.  The 
@@ -2511,17 +2536,29 @@ and add to the list of default targets.
 Multiple targets should be specified as
 separate arguments to the
 .BR Default ()
-method or as a list.
+method, or as a list.
 .BR Default ()
-will also accept the return value of any of the construction environment
+will also accept the Node returned by any
+of a construction environment's
 builder methods.
 Examples:
 
 .ES
 Default('foo', 'bar', 'baz')
 Default(['a', 'b', 'c'])
-Default(env.Program('hello', 'hello.c'))
+hello = env.Program('hello', 'hello.c')
+Default(hello)
 .EE
+
+An argument to
+.BR Default ()
+of
+.B None
+will clear all default targets.
+Later calls to
+.BR Default ()
+will add to the (now empty) default-target list
+like normal.
 
 .TP
 .RI Dir( name ", [" directory ])

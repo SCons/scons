@@ -24,6 +24,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify that we use a default target of the current directory when there
+are no command-line arguments (and, implicitly, no Default() in the
+SConstruct).
+"""
+
 import os.path
 
 import TestSCons
@@ -47,13 +53,9 @@ env.Build('aaa.out', 'aaa.in')
 test.write('aaa.in', "aaa.in\n")
 
 #
-test.run(arguments = '.')
+test.run()
 
 test.fail_test(test.read('aaa.out') != "aaa.in\n")
-
-#
-test.run(status = 2, stderr =
-"scons: *** No targets specified and no Default() targets found.  Stop.\n")
 
 #
 test.pass_test()

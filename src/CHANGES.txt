@@ -60,6 +60,10 @@ RELEASE 0.11 - XXX
     between builds, with related options --cache-disable, --cache-force,
     and --cache-show.
 
+  - Change the default behavior when no targets are specified to build
+    everything in the current directory and below (like Make).  This
+    can be disabled by specifying Default(None) in an SConscript.
+
   From Steve Leblanc:
 
   - Fix the output of -c -n when directories are involved, so it

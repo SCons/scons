@@ -72,6 +72,12 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
     If you have defined a strfunction() for a Python function Action,
     you will need to add a third "env" argument to your function call.
 
+  - The default behavior when no targets are specified has been changed
+    to be like Make: everything in the current directory and below will
+    be built.  This can be disabled by specifying "Default(None)" in an
+    SConscript, in which case there will be no default targets and
+    SCons will print an appropriate error message.
+
   Please note the following important changes since release 0.09:
 
     - The Scanner interface has been changed to make it easier to

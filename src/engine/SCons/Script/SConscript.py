@@ -51,7 +51,7 @@ import sys
 def do_nothing(text): pass
 HelpFunction = do_nothing
 
-default_targets = []
+default_targets = None
 clean_targets = {}
 arguments = {}
 launch_dir = os.path.abspath(os.curdir)
@@ -204,8 +204,13 @@ def SConscript(*ls, **kw):
         return tuple(results)
     
 def Default(*targets):
+    global default_targets
+    if default_targets is None:
+        default_targets = []
     for t in targets:
-        if isinstance(t, SCons.Node.Node):
+        if t is None:
+            default_targets = []
+        elif isinstance(t, SCons.Node.Node):
             default_targets.append(t)
         else:
             default_targets.extend(SCons.Node.arg2nodes(t,
