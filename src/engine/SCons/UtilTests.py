@@ -167,8 +167,8 @@ class UtilTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS(test.workpath(""))
         node_derived = fs.File(test.workpath('./bar/baz'))
         node_derived.builder_set(1) # Any non-zero value.
-        nodes = find_files(['foo', 'baz'],
-                           map(test.workpath, ['./', './bar' ]), fs.File)
+        paths = map(lambda x, fs=fs: fs.Dir(x), ['./', './bar'])
+        nodes = find_files(['foo', 'baz'], paths, fs.File)
         file_names = map(str, nodes)
         file_names = map(os.path.normpath, file_names)
         assert os.path.normpath('./foo') in file_names, file_names

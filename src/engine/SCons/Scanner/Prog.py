@@ -40,8 +40,10 @@ def scan(filename, env, node_factory):
     files it finds as dependencies.
     """
 
+    fs = SCons.Node.FS.default_fs
     try:
-        paths = env.Dictionary("LIBPATH")
+        paths = map(lambda x, dir=fs.Dir: dir(x),
+                    env.Dictionary("LIBPATH"))
     except KeyError:
         paths = []
 

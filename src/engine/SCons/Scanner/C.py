@@ -66,8 +66,10 @@ def scan(filename, env, node_factory):
     dependencies.
     """
 
+    fs = SCons.Node.FS.default_fs
     try:
-        paths = env.Dictionary("CPPPATH")
+        paths = map(lambda x, dir=fs.Dir: dir(x),
+                    env.Dictionary("CPPPATH"))
     except KeyError:
         paths = []
 
@@ -79,11 +81,15 @@ def scan(filename, env, node_factory):
         angle_includes = angle_re.findall(contents)
         quote_includes = quote_re.findall(contents)
 
-        source_dir = os.path.dirname(filename)
+        dir = os.path.dirname(filename)
+        if dir:
+            source_dir = [fs.Dir(dir)]
+        else:
+            source_dir = []
         
-        return (SCons.Util.find_files(angle_includes, paths + [source_dir],
+        return (SCons.Util.find_files(angle_includes, paths + source_dir,
                                       node_factory)
-                + SCons.Util.find_files(quote_includes, [source_dir] + paths,
+                + SCons.Util.find_files(quote_includes, source_dir + paths,
                                         node_factory))
     except OSError:
         return []

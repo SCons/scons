@@ -228,22 +228,21 @@ def find_files(filenames, paths,
     find_files([str], [str]) -> [nodes]
 
     filenames - a list of filenames to find
-    paths - a list of paths to search in
+    paths - a list of directory path *nodes* to search in
 
     returns - the nodes created from the found files.
 
     Finds nodes corresponding to either derived files or files
     that exist already.
 
-    Only the first fullname found is returned for each filename, and any
-    file that aren't found are ignored.
+    Only the first file found is returned for each filename,
+    and any files that aren't found are ignored.
     """
     nodes = []
     for filename in filenames:
-        for path in paths:
-            fullname = os.path.join(path, filename)
+        for dir in paths:
             try:
-                node = node_factory(fullname)
+                node = node_factory(filename, dir)
                 # Return true of the node exists or is a derived node.
                 if node.builder or \
                    (isinstance(node, SCons.Node.FS.Entry) and node.exists()):
