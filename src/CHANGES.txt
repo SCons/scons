@@ -165,8 +165,9 @@ RELEASE 0.97 - XXX
   - Use the source_scanner from the target Node, not the source node
     itself.
 
-  - Enforce internally that Scanners are only passed Nodes.  Fix how a
-    Scanner.Selector called its base class initialization.
+  - Internal Scanners fixes:  Make sure Scanners are only passed Nodes.
+    Fix how a Scanner.Selector called its base class initialization.
+    Make comparisons of Scanner objects more robust.
 
   From Christoph Wiedemann:
 

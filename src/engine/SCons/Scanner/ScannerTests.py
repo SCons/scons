@@ -172,6 +172,11 @@ class BaseTestCase(unittest.TestCase):
         env.VARIABLE = "i4"
         self.test(s, env, DummyNode('i4.cpp'), ['i4.h', 'i4.hpp'], arg)
 
+    def test___cmp__(self):
+        """Test the Scanner.Base class __cmp__() method"""
+        s = SCons.Scanner.Base(self.func, "Cmp")
+        assert cmp(s, None)
+
     def test_hash(self):
         """Test the Scanner.Base class __hash__() method"""
         s = SCons.Scanner.Base(self.func, "Hash")
