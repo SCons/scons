@@ -88,7 +88,7 @@ test.write('foo.c', "foo.c posix\n")
 
 test.run(arguments = '. platform=posix', stdout = test.wrap_stdout("""\
 cc -c -o foo.obj foo.c
-c++ -o foo.exe foo.obj
+cc -o foo.exe foo.obj
 """))
 
 test.write('foo.c', "foo.c win32\n")

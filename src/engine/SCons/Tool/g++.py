@@ -34,37 +34,55 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import string
+import re
 
-import cc
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-compilers = ['g++', 'c++']
+cplusplus = __import__('c++', globals(), locals(), [])
+
+compilers = ['g++']
 
 def generate(env):
     """Add Builders and construction variables for g++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    for suffix in cc.CXXSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.CXXAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
+    cplusplus.generate(env)
 
-    env['CXX']        = env.Detect(compilers) or 'g++'
-    env['CXXFLAGS']   = '$CCFLAGS'
-    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
-    env['SHCXX']      = '$CXX'
+    env['CXX']        = env.Detect(compilers)
+
+    # platform specific settings
     if env['PLATFORM'] == 'cygwin':
         env['SHCXXFLAGS'] = '$CXXFLAGS'
-    else:
+    elif env['PLATFORM'] == 'aix':
+        # Original line from Christian Engel added -DPIC:
+        #env['SHCXXFLAGS'] = '$CXXFLAGS -DPIC -mminimal-toc'
+        env['SHCXXFLAGS'] = '$CXXFLAGS -mminimal-toc'
+        env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
+        env['SHOBJSUFFIX'] = '$OBJSUFFIX'
+    elif env['PLATFORM'] == 'hpux':
+        # Original line from Christian Engel added -DPIC:
+        #env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC -DPIC'
         env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
-    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
-    env['CPPDEFPREFIX']  = '-D'
-    env['CPPDEFSUFFIX']  = ''
-    env['INCPREFIX']  = '-I'
-    env['INCSUFFIX']  = ''
+        env['SHOBJSUFFIX'] = '.pic.o'
+    elif env['PLATFORM'] == 'sunos':
+        # Original line from Christian Engel added -DPIC:
+        #env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC -DPIC'
+        env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
+        env['SHOBJSUFFIX'] = '.pic.o'
+    else:
+        # Original line from Christian Engel added -DPIC:
+        #env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC -DPIC'
+        env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
+    # determine compiler version
+    if env['CXX']:
+        line = os.popen(env['CXX'] + ' --version').readline()
+        match = re.search(r'[0-9]+(\.[0-9]+)+', line)
+        if match:
+            env['CXXVERSION'] = match.group(0)
 
-    env['CXXFILESUFFIX'] = '.cc'
 
 def exists(env):
     return env.Detect(compilers)

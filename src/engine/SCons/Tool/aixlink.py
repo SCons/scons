@@ -32,10 +32,20 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+import os.path
+
+import aixcc
 import link
 
-plinkers = ['xlC', 'xlc']
-rlinkers = ['xlC_r', 'xlc_r']
+cplusplus = __import__('c++', globals(), locals(), [])
+
+def smart_linkflags(source, target, env, for_signature):
+    if cplusplus.iscplusplus(source):
+        build_dir = env.subst('$BUILDDIR')
+        if build_dir:
+            return '-qtempinc=' + os.path.join(build_dir, 'tempinc')
+    return ''
 
 def generate(env):
     """
@@ -44,10 +54,15 @@ def generate(env):
     """
     link.generate(env)
 
-    env['SHLINK']      = env.Detect(rlinkers) or 'cc'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -qmkshrobj'
-    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-    env['LINK']        = env.Detect(plinkers) or 'cc'
+    env['SMARTLINKFLAGS'] = smart_linkflags
+    env['LINKFLAGS']      = '$SMARTLINKFLAGS'
+    env['SHLINKFLAGS']    = '$LINKFLAGS -qmkshrobj -qsuppress=1501-218'
+    env['SHLIBSUFFIX']    = '.a'
 
 def exists(env):
-    return env.Detect(linkers)
+    path, _cc, _shcc, version = aixcc.get_xlc(env)
+    if path and _cc:
+        xlc = os.path.join(path, _cc)
+        if os.path.exists(xlc):
+            return xlc
+    return None

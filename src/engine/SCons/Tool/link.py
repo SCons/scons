@@ -37,7 +37,12 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-linkers = ['c++', 'cc']
+cplusplus = __import__('c++', globals(), locals(), [])
+
+def smart_link(source, target, env, for_signature):
+    if cplusplus.iscplusplus(source):
+        return '$CXX'
+    return '$CC'
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
@@ -48,7 +53,8 @@ def generate(env):
     env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['SHLIBEMITTER']= None
-    env['LINK']        = env.Detect(linkers) or 'c++'
+    env['SMARTLINK']   = smart_link
+    env['LINK']        = "$SMARTLINK"
     env['LINKFLAGS']   = ''
     env['LINKCOM']     = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBDIRPREFIX']='-L'
@@ -57,5 +63,13 @@ def generate(env):
     env['LIBLINKPREFIX']='-l'
     env['LIBLINKSUFFIX']=''
 
+    if env['PLATFORM'] == 'hpux':
+        env['SHLIBSUFFIX'] = '.sl'
+    elif env['PLATFORM'] == 'aix':
+        env['SHLIBSUFFIX'] = '.a'
+
+
 def exists(env):
-    return env.Detect(linkers)
+    # This module isn't really a Tool on its own, it's common logic for
+    # other linkers.
+    return None

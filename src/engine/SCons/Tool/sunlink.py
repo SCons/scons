@@ -32,16 +32,25 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+import os.path
+
 import link
 
-linkers = ['CC', 'cc']
+ccLinker = None
+
+# search for the acc compiler and linker front end
+for dir in os.listdir('/opt'):
+    linker = '/opt/' + dir + '/bin/CC'
+    if os.path.exists(linker):
+        ccLinker = linker
+        break
 
 def generate(env):
     """Add Builders and construction variables for Forte to an Environment."""
     link.generate(env)
     
     env['SHLINKFLAGS'] = '$LINKFLAGS -G'
-    env['LINK']        = env.Detect(linkers) or 'cc'
 
 def exists(env):
-    return env.Detect(linkers)
+    return ccLinker

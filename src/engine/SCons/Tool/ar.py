@@ -50,9 +50,6 @@ def generate(env):
     env['RANLIB']      = ranlib
     env['RANLIBFLAGS'] = ''
     env['ARCOM']       = arcom
-    env['SHLINK']      = '$LINK'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
-    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
 def exists(env):
     return env.Detect('ar')

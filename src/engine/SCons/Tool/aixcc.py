@@ -1,6 +1,6 @@
 """SCons.Tool.aixcc
 
-Tool-specific initialization for IBM Visual Age C++ and C compilers.
+Tool-specific initialization for IBM xlc / Visual Age C compiler.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -32,19 +32,37 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
+
+import SCons.Platform.aix
+
 import cc
 
+packages = ['vac.C', 'ibmcxx.cmp']
+
+def get_xlc(env):
+    xlc = env.get('CC', 'xlc')
+    xlc_r = env.get('SHCC', 'xlc_r')
+    return SCons.Platform.aix.get_xlc(env, xlc, xlc_r, packages)
+
 def generate(env):
-    """
-    Add Builders and construction variables for Visual Age C and C++ compilers
-    to an Environment.
-    """
+    """Add Builders and construction variables for xlc / Visual Age
+    suite to an Environment."""
+    path, _cc, _shcc, version = get_xlc(env)
+    if path:
+        _cc = os.path.join(path, cc)
+        _shcc = os.path.join(path, shcc)
+
     cc.generate(env)
 
-    env['CC'] = 'xlc'
-    env['SHCC'] = 'xlc_r'
-    env['CXX'] = 'xlC'
-    env['SHCXX'] = 'xlC_r'
+    env['CC'] = _cc
+    env['SHCC'] = _shcc
+    env['CCVERSION'] = version
 
 def exists(env):
-    return env.Detect('xlC')
+    path, _cc, _shcc, version = get_xlc(env)
+    if path and _cc:
+        xlc = os.path.join(path, _cc)
+        if os.path.exists(xlc):
+            return xlc
+    return None

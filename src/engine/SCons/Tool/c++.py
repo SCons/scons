@@ -1,6 +1,6 @@
-"""SCons.Tool.cc
+"""SCons.Tool.c++
 
-Tool-specific initialization for generic Posix C compilers.
+Tool-specific initialization for generic Posix C++ compilers.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -8,7 +8,7 @@ selection method.
 """
 
 #
-# __COPYRIGHT__
+# Copyright (c) 2001, 2002, 2003 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,7 +30,7 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = ""
 
 import os.path
 
@@ -38,35 +38,50 @@ import SCons.Tool
 import SCons.Defaults
 import SCons.Util
 
-CSuffixes = ['.c']
-if os.path.normcase('.c') == os.path.normcase('.C'):
-    CSuffixes.append('.C')
+compilers = ['CC', 'c++']
+
+CXXSuffixes = ['.cpp', '.cc', '.cxx', '.c++', '.C++']
+if os.path.normcase('.c') != os.path.normcase('.C'):
+    CXXSuffixes.append('.C')
+
+def iscplusplus(source):
+    if not source:
+        # Source might be None for unusual cases like SConf.
+        return 0
+    for s in source:
+        if s.sources:
+            ext = os.path.splitext(str(s.sources[0]))[1]
+            if ext in CXXSuffixes:
+                return 1
+    return 0
 
 def generate(env):
     """
-    Add Builders and construction variables for C compilers to an Environment.
+    Add Builders and construction variables for Visual Age C++ compilers
+    to an Environment.
     """
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    for suffix in CSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.CAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
+    for suffix in CXXSuffixes:
+        static_obj.add_action(suffix, SCons.Defaults.CXXAction)
+        shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
         
-    env['CC']        = 'cc'
-    env['CCFLAGS']   = ''
-    env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
-    env['SHCC']      = '$CC'
-    env['SHCCFLAGS'] = '$CCFLAGS'
-    env['SHCCCOM']   = '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['CXX']        = 'c++'
+    env['CXXFLAGS']   = '$CCFLAGS'
+    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCXX']      = '$CXX'
+    env['SHCXXFLAGS'] = '$CXXFLAGS'
+    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 
     env['CPPDEFPREFIX']  = '-D'
     env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '-I'
     env['INCSUFFIX']  = ''
     env['SHOBJSUFFIX'] = '.os'
+    env['OBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
 
-    env['CFILESUFFIX'] = '.c'
+    env['CXXFILESUFFIX'] = '.cc'
 
 def exists(env):
-    return env.Detect('cc')
+    return env.Detect(compilers)

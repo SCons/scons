@@ -32,20 +32,43 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
+
+import SCons.Platform.aix
+
 import f77
 
-pcompilers = ['xlf77']
-rcompilers = ['xlf77_r']
+# It would be good to look for the AIX F77 package the same way we're now
+# looking for the C and C++ packages.  This should be as easy as supplying
+# the correct package names in the following list and uncommenting the
+# SCons.Platform.aix_get_xlc() call the in the function below.
+packages = []
+
+def get_xlf77(env):
+    xlf77 = env.get('F77', 'xlf77')
+    xlf77_r = env.get('SHF77', 'xlf77_r')
+    #return SCons.Platform.aix.get_xlc(env, xlf77, xlf77_r, packages)
+    return (None, xlf77, xlf77_r, None)
 
 def generate(env):
     """
     Add Builders and construction variables for the Visual Age FORTRAN
     compiler to an Environment.
     """
+    path, _f77, _shf77, version = get_xlf77(env)
+    if path:
+        _f77 = os.path.join(path, _f77)
+        _shf77 = os.path.join(path, _shf77)
+
     f77.generate(env)
 
-    env['F77'] = env.Detect(pcompilers) or 'f77'
-    env['SHF77'] = env.Detect(rcompilers) or 'f77'
+    env['F77'] = _f77
+    env['SHF77'] = _shf77
 
 def exists(env):
-    return env.Detect(pcompilers)
+    path, _f77, _shf77, version = get_xlf77(env)
+    if path and _f77:
+        xlf77 = os.path.join(path, _f77)
+        if os.path.exists(xlf77):
+            return xlf77
+    return None

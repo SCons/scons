@@ -39,12 +39,14 @@ SCons/Sig/TimeStamp.py
 SCons/Taskmaster.py
 SCons/Tool/__init__.py
 SCons/Tool/386asm.py
+SCons/Tool/aixc++.py
 SCons/Tool/aixcc.py
 SCons/Tool/aixf77.py
 SCons/Tool/aixlink.py
 SCons/Tool/ar.py
 SCons/Tool/as.py
 SCons/Tool/BitKeeper.py
+SCons/Tool/c++.py
 SCons/Tool/cc.py
 SCons/Tool/CVS.py
 SCons/Tool/default.py
@@ -57,6 +59,7 @@ SCons/Tool/gas.py
 SCons/Tool/gcc.py
 SCons/Tool/gnulink.py
 SCons/Tool/gs.py
+SCons/Tool/hpc++.py
 SCons/Tool/hpcc.py
 SCons/Tool/hplink.py
 SCons/Tool/jar.py
@@ -92,6 +95,7 @@ SCons/Tool/sgiar.py
 SCons/Tool/sgicc.py
 SCons/Tool/sgilink.py
 SCons/Tool/sunar.py
+SCons/Tool/sunc++.py
 SCons/Tool/suncc.py
 SCons/Tool/sunlink.py
 SCons/Tool/Subversion.py

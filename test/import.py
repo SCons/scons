@@ -44,25 +44,28 @@ x = SCons.Platform.%s.generate
     test.run()
 
 tools = [
-    # Can't import '386asm' directly due to initial '3' syntax error...
+    # Can't import '386asm' everywhere due to Windows registry dependency.
+    'aixc++',
     'aixcc',
     'aixf77',
     'aixlink',
     'ar',
     'as',
     'BitKeeper',
+    'c++',
     'cc',
     'CVS',
     'default',
     'dvipdf',
     'dvips',
     'f77',
-    # Can't import 'g++' directly due to '+' syntax error...
+    'g++',
     'g77',
     'gas',
     'gcc',
     'gnulink',
     'gs',
+    'hpc++',
     'hpcc',
     'hplink',
     'icc',
@@ -75,7 +78,7 @@ tools = [
     'latex',
     'lex',
     'link',
-    # Can't import 'linkloc' everywhere due to Windows registry dependency...
+    # Can't import 'linkloc' everywhere due to Windows registry dependency.
     'm4',
     'masm',
     'midl',
@@ -88,17 +91,18 @@ tools = [
     'pdflatex',
     'pdftex',
     'Perforce',
-    'RCS',
     'qt',
+    'RCS',
     'rmic',
     'SCCS',
     'sgiar',
     'sgicc',
     'sgilink',
+    'Subversion',
     'sunar',
+    'sunc++',
     'suncc',
     'sunlink',
-    'Subversion',
     'swig',
     'tar',
     'tex',
@@ -106,12 +110,27 @@ tools = [
     'zip',
 ]
 
-for tool in tools:
-    test.write('SConstruct', """
+# An SConstruct for importing Tool names that have illegal characters
+# for Python variable names.
+indirect_import = """\
+env = Environment(tools = ['%s'])
+SCons = __import__('SCons.Tool.%s', globals(), locals(), [])
+m = getattr(SCons.Tool, '%s')
+x = m.generate
+"""
+
+# An SConstruct for importing Tool names "normally."
+direct_import = """\
 env = Environment(tools = ['%s'])
 import SCons.Tool.%s
 x = SCons.Tool.%s.generate
-""" % (tool, tool, tool))
+"""
+
+for tool in tools:
+    if tool[0] in '0123456789' or '+' in tool:
+        test.write('SConstruct', indirect_import % (tool, tool, tool))
+    else:
+        test.write('SConstruct', direct_import % (tool, tool, tool))
     test.run()
 
 test.pass_test()

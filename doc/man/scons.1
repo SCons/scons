@@ -893,24 +893,36 @@ be redetected.
 SCons supports the following tool specifications out of the box:
 .ES
 386asm
+aixc++
+aixcc
+aixf77
+aixlink
 ar
+as
+c++
+cc
 dvipdf
 dvips
+f77
 g++
 g77
+gas
+gcc
+gnulink
 gs
+hpc++
+hpcc
+hplink
 icc
 icl
 ifl
 ilink
-gas
-gcc
-gnulink
 jar
 javac
 javah
 latex
 lex
+link
 linkloc
 m4
 masm
@@ -929,6 +941,7 @@ sgiar
 sgicc
 sgilink
 sunar
+sunc++
 suncc
 sunlink
 swig
@@ -2332,6 +2345,11 @@ SCons also treats
 (upper case) files
 as C files.
 
+.IP CCVERSION
+The version number of the C compiler.
+This may or may not be set,
+depending on the specific C compiler being used.
+
 .IP _concat
 A function used to produce variables like $_CPPINCFLAGS. It takes five
 arguments: a prefix to concatenate onto each element, a list of
@@ -2553,6 +2571,11 @@ are included on this command line.
 
 .IP CXXFLAGS 
 General options that are passed to the C++ compiler.
+
+.IP CXXVERSION
+The version number of the C++ compiler.
+This may or may not be set,
+depending on the specific C++ compiler being used.
 
 .IP Dir
 A function that converts a file name into a Dir instance relative to the

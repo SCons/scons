@@ -32,15 +32,30 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+import os.path
+
 import link
 
-linkers = ['aCC', 'cc']
+ccLinker = None
+
+# search for the acc compiler and linker front end
+for dir in os.listdir('/opt'):
+    linker = '/opt/' + dir + '/bin/aCC'
+    if os.path.exists(linker):
+        ccLinker = linker
+        break
 
 def generate(env):
-    "Add Builders and construction variables for HP linker to an Environment."
+    """
+    Add Builders and construction variables for Visual Age linker to
+    an Environment.
+    """
     link.generate(env)
     
+    env['LINKFLAGS']   = '-Wl,+s -Wl,+vnocompatwarnings'
     env['SHLINKFLAGS'] = '$LINKFLAGS -b'
+    env['SHLIBSUFFIX'] = '.sl'
 
 def exists(env):
-    return env.Detect(linkers)
+    return ccLinker

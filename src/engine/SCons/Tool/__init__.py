@@ -65,8 +65,8 @@ def Tool(name):
                                         sys.modules['SCons.Tool'].__path__)
             mod = imp.load_module(full_name, file, path, desc)
             setattr(SCons.Tool, name, mod)
-        except ImportError:
-            raise SCons.Errors.UserError, "No tool named '%s'" % name
+        except ImportError, e:
+            raise SCons.Errors.UserError, "No tool named '%s': %s" % (name, e)
         if file:
             file.close()
     spec = ToolSpec(name)
@@ -231,49 +231,56 @@ def tool_list(platform, env):
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
         linkers = ['mslink', 'gnulink', 'ilink', 'linkloc' ]
-        c_compilers = ['msvc', 'mingw', 'gcc', 'icl', 'icc' ]
+        c_compilers = ['msvc', 'mingw', 'gcc', 'icl', 'icc', 'cc' ]
+        cxx_compilers = ['msvc', 'icc', 'g++', 'c++']
         assemblers = ['masm', 'nasm', 'gas', '386asm' ]
         fortran_compilers = ['g77', 'ifl']
         ars = ['mslib', 'ar']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', 'mslink']
-        c_compilers = ['icc', 'gcc', 'msvc']
+        c_compilers = ['icc', 'gcc', 'msvc', 'cc']
+        cxx_compilers = ['icc', 'g++', 'msvc', 'c++']
         assemblers = ['nasm', 'masm', 'gas']
         fortran_compilers = ['ifl', 'g77']
         ars = ['ar', 'mslib']
     elif str(platform) == 'irix':
         "prefer MIPSPro on IRIX"
         linkers = ['sgilink', 'gnulink']
-        c_compilers = ['sgicc', 'gcc']
+        c_compilers = ['sgicc', 'gcc', 'cc']
+        cxx_compilers = ['sgicc', 'g++', 'c++']
         assemblers = ['as', 'gas']
         fortran_compilers = ['f77', 'g77']
         ars = ['sgiar']
     elif str(platform) == 'sunos':
         "prefer Forte tools on SunOS"
         linkers = ['sunlink', 'gnulink']
-        c_compilers = ['suncc', 'gcc']
+        c_compilers = ['suncc', 'gcc', 'cc']
+        cxx_compilers = ['sunc++', 'g++', 'c++']
         assemblers = ['as', 'gas']
         fortran_compilers = ['f77', 'g77']
         ars = ['sunar']
     elif str(platform) == 'hpux':
         "prefer aCC tools on HP-UX"
         linkers = ['hplink', 'gnulink']
-        c_compilers = ['hpcc', 'gcc']
+        c_compilers = ['hpcc', 'gcc', 'cc']
+        cxx_compilers = ['hpc++', 'g++', 'c++']
         assemblers = ['as', 'gas']
         fortran_compilers = ['f77', 'g77']
         ars = ['ar']
     elif str(platform) == 'aix':
         "prefer AIX Visual Age tools on AIX"
         linkers = ['aixlink', 'gnulink']
-        c_compilers = ['aixcc', 'gcc']
+        c_compilers = ['aixcc', 'gcc', 'cc']
+        cxx_compilers = ['aixc++', 'g++', 'c++']
         assemblers = ['as', 'gas']
         fortran_compilers = ['aixf77', 'g77']
         ars = ['ar']
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']
-        c_compilers = ['gcc', 'msvc', 'icc']
+        c_compilers = ['gcc', 'msvc', 'icc', 'cc']
+        cxx_compilers = ['g++', 'msvc', 'icc', 'c++']
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['g77', 'ifl']
         ars = ['ar', 'mslib']
@@ -284,25 +291,23 @@ def tool_list(platform, env):
     #     moved into the tool files themselves.
     if c_compiler and c_compiler == 'mingw':
         # MinGW contains a linker, C compiler, C++ compiler, 
-        # Fortran compiler, archiver and assember:
+        # Fortran compiler, archiver and assembler:
+        cxx_compiler = None
         linker = None
         assembler = None
         fortran_compiler = None
         ar = None
-        cxx_compiler = None
     else:
+        # Don't use g++ if the C compiler has built-in C++ support:
+        if c_compiler in ('msvc', 'icc', 'sgicc'):
+            cxx_compiler = None
+        else:
+            cxx_compiler = FindTool(cxx_compilers, env) or cxx_compilers[0]
         linker = FindTool(linkers, env) or linkers[0]
         assembler = FindTool(assemblers, env) or assemblers[0]
         fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
         ar = FindTool(ars, env) or ars[0]
 
-        # Don't use g++ if the C compiler has built-in C++ support:
-        if c_compiler and (c_compiler == 'msvc' or c_compiler == 'icc' or
-                           c_compiler == 'sgicc'):
-            cxx_compiler = None
-        else:
-            cxx_compiler = FindTool(['g++'], env)
-        
     other_tools = FindAllTools(['BitKeeper', 'CVS',
                                 'dvipdf', 'dvips', 'gs',
                                 'jar', 'javac', 'javah',

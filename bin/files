@@ -31,11 +31,13 @@
 ./SCons/Sig/__init__.py
 ./SCons/Taskmaster.py
 ./SCons/Tool/__init__.py
+./SCons/Tool/aixc++.py
 ./SCons/Tool/aixcc.py
 ./SCons/Tool/aixf77.py
 ./SCons/Tool/aixlink.py
 ./SCons/Tool/ar.py
 ./SCons/Tool/as.py
+./SCons/Tool/c++.py
 ./SCons/Tool/cc.py
 ./SCons/Tool/default.py
 ./SCons/Tool/dvipdf.py
@@ -46,6 +48,7 @@
 ./SCons/Tool/gas.py
 ./SCons/Tool/gcc.py
 ./SCons/Tool/gnulink.py
+./SCons/Tool/hpc++.py
 ./SCons/Tool/hpcc.py
 ./SCons/Tool/hplink.py
 ./SCons/Tool/icc.py
@@ -76,6 +79,7 @@
 ./SCons/Tool/sgicc.py
 ./SCons/Tool/sgilink.py
 ./SCons/Tool/sunar.py
+./SCons/Tool/sunc++.py
 ./SCons/Tool/suncc.py
 ./SCons/Tool/sunlink.py
 ./SCons/Tool/swig.py
