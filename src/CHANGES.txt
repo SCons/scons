@@ -30,6 +30,10 @@ RELEASE 0.97 - XXX
     SetBuildSignatureType(), SetContentSignatureType(), SetJobs() and
     GetJobs() global functions (deprecated in 0.14).
 
+  - Fix problems with corrupting the .sconsign.dblite file when
+    interrupting builds by writing to a temporary file and renaming,
+    not writing the file directly.
+
   From Gary Oberbrunner:
 
   - Add an Environment.Dump() method to print the contents of a
