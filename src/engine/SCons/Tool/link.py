@@ -70,6 +70,17 @@ def generate(env):
     elif env['PLATFORM'] == 'aix':
         env['SHLIBSUFFIX'] = '.a'
 
+    # For most platforms, a loadable module is the same as a shared
+    # library.  Platforms which are different can override these, but
+    # setting them the same means that LoadableModule works everywhere.
+    SCons.Tool.createLoadableModuleBuilder(env)
+    env['LDMODULE'] = '$SHLINK'
+    env['LDMODULEPREFIX'] = '$SHLIBPREFIX' 
+    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX' 
+    env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
+    env['LDMODULECOM'] = '$SHLINKCOM'
+
+
 
 def exists(env):
     # This module isn't really a Tool on its own, it's common logic for

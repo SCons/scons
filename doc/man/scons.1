@@ -1582,6 +1582,16 @@ A synonym for the
 builder method.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP LoadableModule()
+.IP env.LoadableModule()
+On most systems,
+this is the same as
+.BR SharedLibrary ().
+On Mac OS X (Darwin) platforms,
+this creates a loadable module bundle.
+
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .IP M4()
 .IP env.M4()
 Builds an output file from an M4 input file.
@@ -5472,6 +5482,12 @@ The default list is:
 A function that converts a file name into a File instance relative to the
 target being built. 
 
+.IP FRAMEWORKSFLAGS
+On Mac OS X,
+frameworks options to be addad at
+the end of a command
+line building a loadable module.
+
 .IP GS
 The Ghostscript program used to convert PostScript to PDF files.
 
@@ -5653,6 +5669,35 @@ env = Environment(LATEXCOMSTR = "Building $TARGET from LaTeX input $SOURCES")
 
 .IP LATEXFLAGS
 General options passed to the LaTeX structured formatter and typesetter.
+
+.IP LDMODULE
+The linker for building loadable modules.
+By default, this is the same as $SHLINK.
+
+.IP LDMODULECOM
+The command line for building loadable modules.
+On Mac OS X, this uses the $LDMODULE,
+$LDMODULEFLAGS and $FRAMEWORKSFLAGS variables.
+On other systems, this is the same as $SHLINK.
+
+.IP LDMODULECOMSTR
+The string displayed when building loadable modules.
+If this is not set, then $LDMODULECOM (the command line) is displayed.
+
+.IP LDMODULEFLAGS
+General user options passed to the linker for building loadable modules.
+
+.IP LDMODULEPREFIX
+The prefix used for loadable module file names.
+On Mac OS X, this is null;
+on other systems, this is
+the same $SHLIBPREFIX.
+
+.IP LDMODULESUFFIX
+The suffix used for loadable module file names.
+On Mac OS X, this is null;
+on other systems, this is
+the same $SHLIBSUFFIX.
 
 .IP LEX
 The lexical analyzer generator.
