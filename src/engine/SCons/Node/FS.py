@@ -833,15 +833,19 @@ class Dir(Entry):
     def __resetDuplicate(self, node):
         if node != self:
             node.duplicate = node.get_dir().duplicate
-        
+
+    def Entry(self, name):
+        """Create an entry node named 'name' relative to this directory."""
+        return self.fs.Entry(name, self)
+
     def Dir(self, name):
         """Create a directory node named 'name' relative to this directory."""
         return self.fs.Dir(name, self)
 
     def File(self, name):
-        """Create  file node named 'name' relatove to this directory."""
+        """Create a file node named 'name' relative to this directory."""
         return self.fs.File(name, self)
-                
+
     def link(self, srcdir, duplicate):
         """Set this directory as the build directory for the
         supplied source directory."""
@@ -976,6 +980,10 @@ class File(Entry):
         Entry.__init__(self, name, directory, fs)
         self._morph()
 
+    def Entry(self, name):
+        """Create an entry node named 'name' relative to
+        the SConscript directory of this file."""
+        return self.fs.Entry(name, self.cwd)
 
     def Dir(self, name):
         """Create a directory node named 'name' relative to

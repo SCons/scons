@@ -72,6 +72,8 @@ RELEASE 0.14 - XXX
     to {Target,Source}Signatures().  Deprecate the old names but support
     them for backwards compatibility.
 
+  - Add internal SCons.Node.FS.{Dir,File}.Entry() methods.
+
   From Damyan Pepper:
 
   - Quote the "Entering directory" message like Make.

@@ -509,50 +509,76 @@ class FSTestCase(unittest.TestCase):
 
         fs = SCons.Node.FS.FS()
 
+        e1 = fs.Entry('e1')
+        assert isinstance(e1, SCons.Node.FS.Entry)
+
         d1 = fs.Dir('d1')
+        assert isinstance(d1, SCons.Node.FS.Dir)
         assert d1.cwd is d1, d1
 
         f1 = fs.File('f1', directory = d1)
+        assert isinstance(f1, SCons.Node.FS.File)
 
         d1_f1 = os.path.join('d1', 'f1')
         assert f1.path == d1_f1, "f1.path %s != %s" % (f1.path, d1_f1)
         assert str(f1) == d1_f1, "str(f1) %s != %s" % (str(f1), d1_f1)
 
         x1 = d1.File('x1')
+        assert isinstance(x1, SCons.Node.FS.File)
         assert str(x1) == os.path.join('d1', 'x1')
 
         x2 = d1.Dir('x2')
+        assert isinstance(x2, SCons.Node.FS.Dir)
         assert str(x2) == os.path.join('d1', 'x2')
+
+        x3 = d1.Entry('x3')
+        assert isinstance(x3, SCons.Node.FS.Entry)
+        assert str(x3) == os.path.join('d1', 'x3')
 
         assert d1.File(x1) == x1
         assert d1.Dir(x2) == x2
+        assert d1.Entry(x3) == x3
 
         x1.cwd = d1
 
-        x3 = x1.File('x3')
-        assert str(x3) == os.path.join('d1', 'x3')
-
-        x4 = x1.Dir('x4')
+        x4 = x1.File('x4')
         assert str(x4) == os.path.join('d1', 'x4')
 
-        assert x1.File(x3) == x3
-        assert x1.Dir(x4) == x4
+        x5 = x1.Dir('x5')
+        assert str(x5) == os.path.join('d1', 'x5')
 
+        x6 = x1.Entry('x6')
+        assert str(x6) == os.path.join('d1', 'x6')
+        x7 = x1.Entry('x7')
+        assert str(x7) == os.path.join('d1', 'x7')
+
+        assert x1.File(x4) == x4
+        assert x1.Dir(x5) == x5
+        assert x1.Entry(x6) == x6
+        assert x1.Entry(x7) == x7
+
+        assert x1.Entry(x5) == x5
         try:
-            x1.File(x4)
+            x1.File(x5)
         except TypeError:
             pass
         else:
             assert 0
 
+        assert x1.Entry(x4) == x4
         try:
-            x1.Dir(x3)
+            x1.Dir(x4)
         except TypeError:
             pass
         else:
             assert 0
 
-        
+        x6 = x1.File(x6)
+        assert isinstance(x6, SCons.Node.FS.File)
+
+        x7 = x1.Dir(x7)
+        assert isinstance(x7, SCons.Node.FS.Dir)
+
         seps = [os.sep]
         if os.sep != '/':
             seps = seps + ['/']
