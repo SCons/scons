@@ -820,7 +820,7 @@ class File(Entry):
     def scanner_key(self):
         return os.path.splitext(self.name)[1]
 
-    def __createDir(self):
+    def _createDir(self):
         # ensure that the directories for this node are
         # created.
 
@@ -830,7 +830,10 @@ class File(Entry):
             if parent.exists():
                 break
             listDirs.append(parent)
-            parent = parent.up()
+            p = parent.up()
+            if isinstance(p, ParentOfRoot):
+                raise SCons.Errors.StopError, parent.path
+            parent = p
         listDirs.reverse()
         for dirnode in listDirs:
             try:
@@ -862,7 +865,11 @@ class File(Entry):
                 if hasattr(self, '_exists'):
                     delattr(self, '_exists')
         else:
-            self.__createDir()
+            try:
+                self._createDir()
+            except SCons.Errors.StopError, drive:
+                desc = "No drive `%s' for target `%s'." % (drive, self)
+                raise SCons.Errors.StopError, desc
 
     def remove(self):
         """Remove this file."""
@@ -880,7 +887,7 @@ class File(Entry):
                     os.unlink(self.abspath)
                 except OSError:
                     pass
-                self.__createDir()
+                self._createDir()
                 file_link(src.abspath, self.abspath)
                 self.created = 1
 

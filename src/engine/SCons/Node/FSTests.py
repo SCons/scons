@@ -31,7 +31,7 @@ import time
 import unittest
 import SCons.Node.FS
 from TestCmd import TestCmd
-from SCons.Errors import UserError
+import SCons.Errors
 import stat
 
 built_it = None
@@ -255,7 +255,7 @@ class BuildDirTestCase(unittest.TestCase):
         try:
             fs = SCons.Node.FS.FS()
             fs.BuildDir('build', '/test/foo')
-        except UserError:
+        except SCons.Errors.UserError:
             exc_caught = 1
         assert exc_caught, "Should have caught a UserError."
 
@@ -263,7 +263,7 @@ class BuildDirTestCase(unittest.TestCase):
         try:
             fs = SCons.Node.FS.FS()
             fs.BuildDir('build', 'build/src')
-        except UserError:
+        except SCons.Errors.UserError:
             exc_caught = 1
         assert exc_caught, "Should have caught a UserError."
 
@@ -604,7 +604,7 @@ class FSTestCase(unittest.TestCase):
         def nonexistent(method, s):
             try:
                 x = method(s, create = 0)
-            except UserError:
+            except SCons.Errors.UserError:
                 pass
             else:
                 raise TestFailed, "did not catch expected UserError"
@@ -923,7 +923,27 @@ class StringDirTestCase(unittest.TestCase):
         f = fs.File('file', 'sub')
         assert str(f) == os.path.join('sub', 'file')
         assert not f.exists()
-        
+
+class prepareTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test the prepare() method"""
+
+        class MyFile(SCons.Node.FS.File):
+            def _createDir(self):
+                raise SCons.Errors.StopError
+            def exists(self):
+                return None
+
+        fs = SCons.Node.FS.FS()
+        file = MyFile('foo', fs.Dir('.'), fs)
+
+        exc_caught = 0
+        try:
+            file.prepare()
+        except SCons.Errors.StopError:
+            exc_caught = 1
+        assert exc_caught, "Should have caught a StopError."
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -932,5 +952,6 @@ if __name__ == "__main__":
     suite.addTest(RepositoryTestCase())
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())
+    suite.addTest(prepareTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
