@@ -316,6 +316,9 @@ etc/
         and which we don't want to force people to have to install on
         their own just to help out with SCons development.
 
+gentoo/
+        Stuff to generate files for Gentoo Linux.
+
 HOWTO/
         Documentation of SCons administrative procedures (making a
         change, releasing a new version).  Maybe other administrative

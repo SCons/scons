@@ -241,6 +241,7 @@ def SCons_revision(target, source, env):
         line = string.replace(line, '__FILE'      + '__', str(source[0]))
         line = string.replace(line, '__REVISION'  + '__', env['REVISION'])
         line = string.replace(line, '__VERSION'   + '__', env['VERSION'])
+        line = string.replace(line, '__NULL'      + '__', '')
         outf.write(line)
     inf.close()
     outf.close()
@@ -732,6 +733,37 @@ for p in [ scons ]:
         env.Command(dfiles,
                     deb,
                     "dpkg --fsys-tarfile $SOURCES | (cd $TEST_DEB_DIR && tar -xf -)")
+
+
+    #
+    # Generate portage files for submission to Gentoo Linux.
+    #
+    gentoo = os.path.join('build', 'gentoo')
+    ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % version)
+    digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % version)
+    env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
+    def Digestify(target, source, env):
+        import md5
+	def hexdigest(s):
+	    """Return a signature as a string of hex characters.
+	    """
+	    # NOTE:  This routine is a method in the Python 2.0 interface
+	    # of the native md5 module, but we want SCons to operate all
+	    # the way back to at least Python 1.5.2, which doesn't have it.
+	    h = string.hexdigits
+	    r = ''
+	    for c in s:
+	        i = ord(c)
+	        r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
+	    return r
+        src = source[0].rfile()
+        contents = open(str(src)).read()
+        sig = hexdigest(md5.new(contents).digest())
+        bytes = os.stat(str(src))[6]
+        open(str(target[0]), 'w').write("MD5 %s %s %d\n" % (sig,
+                                                            src.name,
+                                                            bytes))
+    env.Command(digest, tar_gz, Digestify)
 
     #
     # Use the Python distutils to generate the appropriate packages.
