@@ -30,14 +30,7 @@ import sys
 import TestSCons
 
 python = TestSCons.python
-
-if sys.platform == 'win32':
-    _obj = '.obj'
-else:
-    if string.find(sys.platform, 'irix') > -1:
-        _obj = '.o'
-    else:
-        _obj = '.os'
+_obj   = TestSCons._shobj
 
 test = TestSCons.TestSCons()
 

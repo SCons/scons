@@ -31,13 +31,12 @@ import sys
 import TestSCons
 
 python = TestSCons.python
+_exe   = TestSCons._exe
 
 if sys.platform == 'win32':
-    _exe = '.exe'
     compiler = 'msvc'
     linker = 'mslink'
 else:
-    _exe = ''
     compiler = 'gcc'
     linker = 'gnulink'
 

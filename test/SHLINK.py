@@ -30,14 +30,9 @@ import sys
 import TestSCons
 
 python = TestSCons.python
+lib_   = TestSCons.lib_
+_shlib = TestSCons._dll
 
-if sys.platform == 'win32':
-    lib_ = ''
-    _shlib='.dll'
-else:
-    lib_ = 'lib'
-    _shlib='.so'
-    
 test = TestSCons.TestSCons()
 
 test.write("wrapper.py",

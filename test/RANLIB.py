@@ -32,10 +32,7 @@ import TestSCons
 
 python = TestSCons.python
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
+_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 

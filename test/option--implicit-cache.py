@@ -29,12 +29,8 @@ import sys
 import TestSCons
 import string
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-    _obj = '.obj'
-else:
-    _exe = ''
-    _obj = '.o'
+_exe = TestSCons._exe
+_obj = TestSCons._obj
 
 prog = 'prog' + _exe
 subdir_prog = os.path.join('subdir', 'prog' + _exe)

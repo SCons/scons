@@ -412,11 +412,24 @@ class CommandActionTestCase(unittest.TestCase):
         assert c == "act.py: 'three' 'four'\n", c
 
         cmd5 = r'%s %s %s $TARGET XYZZY' % (python, act_py, outfile)
+        
+        act = SCons.Action.CommandAction(cmd5)
+        env5 = Environment()
+        if scons_env.has_key('ENV'):
+            env5['ENV'] = scons_env['ENV']
+            PATH = scons_env['ENV'].get('PATH', '')
+        else:
+            env5['ENV'] = {}
+            PATH = ''
+        
+        env5['ENV']['XYZZY'] = 'xyzzy'
+        r = act(target = 'out5', source = [], env = env5)
 
         act = SCons.Action.CommandAction(cmd5)
         r = act(target = 'out5',
                         source = [],
-                        env = env.Copy(ENV = {'XYZZY' : 'xyzzy'}))
+                        env = env.Copy(ENV = {'XYZZY' : 'xyzzy',
+                                              'PATH' : PATH}))
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy'\n", c
@@ -460,6 +473,9 @@ class CommandActionTestCase(unittest.TestCase):
             # as "file not found" errors
             expect_nonexistent = 1
             expect_nonexecutable = 1
+        elif sys.platform == 'cygwin':
+            expect_nonexistent = 127
+            expect_nonexecutable = 127
         else:
             expect_nonexistent = 127
             expect_nonexecutable = 126

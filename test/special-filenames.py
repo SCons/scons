@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-file_names = [ 
+attempt_file_names = [ 
     'File with spaces',
     'File"with"double"quotes',
     "File'with'single'quotes",
@@ -49,17 +49,20 @@ file_names = [
     "Combination '\"\n\\;<>?|*\t&"
     ]
 
-if os.name == 'nt':
-    # Windows only supports spaces.
-    file_names = file_names[0:1]
-
 test.write("cat.py", """\
 import sys
 open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
 """)
 
-for fn in file_names:
-    test.write(fn + '.in', fn + '\n')
+file_names = []
+for fn in attempt_file_names:
+    try:
+        test.write(fn + '.in', fn + '\n')
+        file_names.append(fn)
+    except IOError:
+        # if the Python interpreter can't handle it, don't bother
+        # testing to see if SCons can
+        pass
 
 def buildFileStr(fn):
     return "env.Build(source=r\"\"\"%s.in\"\"\", target=r\"\"\"%s.out\"\"\")" % ( fn, fn )

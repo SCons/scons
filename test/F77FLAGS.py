@@ -32,11 +32,9 @@ import TestSCons
 python = TestSCons.python
 
 test = TestSCons.TestSCons()
-
+_exe = TestSCons._exe
 
 if sys.platform == 'win32':
-
-    _exe = '.exe'
 
     test.write('mylink.py', r"""
 import string
@@ -57,8 +55,6 @@ sys.exit(0)
 """)
 
 else:
-
-    _exe = ''
 
     test.write('mylink.py', r"""
 import getopt

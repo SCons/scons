@@ -24,9 +24,33 @@ import TestCmd
 
 python = TestCmd.python_executable
 
-if string.find(sys.platform, 'irix') != -1:
+if sys.platform == 'win32':
+    _exe   = '.exe'
+    _obj   = '.obj'
+    _shobj = '.obj'
+    _dll   = '.dll'
+    lib_   = ''
+    fortran_lib = 'g2c'
+elif sys.platform == 'cygwin':
+    _exe   = '.exe'
+    _obj   = '.o'
+    _shobj = '.os'
+    _dll   = '.dll'
+    lib_   = ''
+    fortran_lib = 'g2c'
+elif string.find(sys.platform, 'irix') != -1:
+    _exe   = ''
+    _obj   = '.o'
+    _shobj = '.o'
+    _dll   = '.so'
+    lib_   = 'lib'
     fortran_lib = 'ftn'
 else:
+    _exe   = ''
+    _obj   = '.o'
+    _shobj = '.os'
+    _dll   = '.so'
+    lib_   = 'lib'
     fortran_lib = 'g2c'
 
 class TestFailed(Exception):

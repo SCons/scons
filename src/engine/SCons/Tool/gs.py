@@ -41,7 +41,7 @@ platform = SCons.Platform.platform_default()
 
 if platform == 'os2':
     gs = 'gsos2'
-elif platform == 'cygwin' or platform == 'win32':
+elif platform == 'win32':
     gs = 'gswin32c'
 else:
     gs = 'gs'

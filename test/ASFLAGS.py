@@ -32,11 +32,10 @@ import TestSCons
 python = TestSCons.python
 
 test = TestSCons.TestSCons()
+_exe = TestSCons._exe
 
 
 if sys.platform == 'win32':
-
-    _exe = '.exe'
 
     o = ' -x'
 
@@ -88,8 +87,6 @@ sys.exit(0)
 """)
 
 else:
-
-    _exe = ''
 
     o = ' -x'
 

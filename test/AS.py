@@ -30,11 +30,7 @@ import sys
 import TestSCons
 
 python = TestSCons.python
-
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
+_exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
@@ -67,11 +63,14 @@ inf = None
 while args:
     a = args[0]
     args = args[1:]
-    if a[0] != '/':
+    if not a[0] in "/-":
         if not inf:
             inf = a
         continue
     if a[:3] == '/Fo': out = a[3:]
+    if a == '-o':
+        out = args[0]
+        args = args[1:]
 infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():

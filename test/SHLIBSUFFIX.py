@@ -28,10 +28,7 @@ import os
 import sys
 import TestSCons
 
-if sys.platform == 'win32':
-    lib_ = ''
-else:
-    lib_ = 'lib'
+lib_ = TestSCons.lib_
 
 test = TestSCons.TestSCons()
 

@@ -27,10 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import TestSCons
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
+_exe = TestSCons._exe
 
 f1 = 'f1' + _exe
 f2 = 'f2' + _exe

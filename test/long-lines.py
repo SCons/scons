@@ -32,13 +32,20 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform in ['win32', 'cygwin']:
+if sys.platform == 'win32':
     lib_static_lib = 'static.lib'
     lib_shared_dll ='shared.dll'
     arflag_init = '/LIBPATH:' + test.workpath()
     arflag = ' /LIBPATH:' + test.workpath()
     linkflag_init = '/LIBPATH:' + test.workpath()
     linkflag = ' /LIBPATH:' + test.workpath()
+elif sys.platform == 'cygwin':
+    lib_static_lib = 'libstatic.a'
+    lib_shared_dll ='shared.dll'
+    arflag_init = 'r'
+    arflag = 'o'
+    linkflag_init = '-L' + test.workpath()
+    linkflag = ' -L' + test.workpath()
 else:
     lib_shared_dll = 'libshared.so'
     lib_static_lib = 'libstatic.a'

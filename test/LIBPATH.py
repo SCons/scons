@@ -29,14 +29,9 @@ import sys
 import os.path
 import time
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-    _dll = '.dll'
-    lib_ = ''
-else:
-    _exe = ''
-    _dll = '.so'
-    lib_ = 'lib'
+_exe = TestSCons._exe
+_dll = TestSCons._dll
+lib_ = TestSCons.lib_
     
 test = TestSCons.TestSCons()
 

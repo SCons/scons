@@ -54,6 +54,28 @@ def diff_env(env1, env2):
     s2 = s2 + "}\n"
     return s1 + s2
 
+def diff_dict(d1, d2):
+    s1 = "d1 = {\n"
+    s2 = "d2 = {\n"
+    d = {}
+    for k in d1.keys() + d2.keys():
+	d[k] = None
+    keys = d.keys()
+    keys.sort()
+    for k in keys:
+        if d1.has_key(k):
+           if d2.has_key(k):
+               if d1[k] != d2[k]:
+                   s1 = s1 + "    " + repr(k) + " : " + repr(d1[k]) + "\n"
+                   s2 = s2 + "    " + repr(k) + " : " + repr(d2[k]) + "\n"
+           else:
+               s1 = s1 + "    " + repr(k) + " : " + repr(d1[k]) + "\n"
+        elif env2.has_key(k):
+           s2 = s2 + "    " + repr(k) + " : " + repr(d2[k]) + "\n"
+    s1 = s1 + "}\n"
+    s2 = s2 + "}\n"
+    return s1 + s2
+
 called_it = {}
 built_it = {}
 
@@ -372,6 +394,11 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_Append(self):
         """Test appending to construction variables in an Environment
         """
+
+        b1 = Environment()['BUILDERS']
+        b2 = Environment()['BUILDERS']
+        assert b1 == b2, diff_dict(b1, b2)
+        
         import UserList
         UL = UserList.UserList
         env1 = Environment(AAA = 'a', BBB = 'b', CCC = 'c', DDD = 'd',

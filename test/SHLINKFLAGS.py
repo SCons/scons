@@ -30,13 +30,8 @@ import sys
 import TestSCons
 
 python = TestSCons.python
-
-if sys.platform == 'win32':
-    lib_ = ''
-    _shlib = '.dll'
-else:
-    lib_ = 'lib'
-    _shlib = '.so'
+lib_   = TestSCons.lib_
+_shlib = TestSCons._dll
 
 test = TestSCons.TestSCons()
 

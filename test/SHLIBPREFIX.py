@@ -28,10 +28,7 @@ import os
 import sys
 import TestSCons
 
-if sys.platform == 'win32':
-    _lib = '.dll'
-else:
-    _lib = '.so'
+_lib = TestSCons._dll
 
 test = TestSCons.TestSCons()
 
