@@ -27,7 +27,7 @@ import sys
 import unittest
 
 import SCons.Taskmaster
-
+import SCons.Errors
 
 
 built = None
@@ -74,7 +74,8 @@ class Node:
                                    and x),
                       self.children(),
                       1)
-
+    def __str__(self):
+        return self.name
 
 
 class TaskmasterTestCase(unittest.TestCase):
@@ -210,7 +211,21 @@ class TaskmasterTestCase(unittest.TestCase):
         assert not tm.is_blocked()
         t = tm.next_task()
         assert tm. next_task() == None
-        
+    
+    def test_cycle_detection(self):
+        n1 = Node("n1")
+        n2 = Node("n2", [n1])
+        n3 = Node("n3", [n2])
+        n1.kids = [n3]
+        n3.parents.append(n1)
+
+        try:
+            tm = SCons.Taskmaster.Taskmaster([n3])
+            t = tm.next_task()
+        except SCons.Errors.UserError, e:
+            assert str(e) == "Dependency cycle: n3 -> n1 -> n2 -> n3"
+        else:
+            assert 0
         
     def test_is_blocked(self):
         """Test whether a task is blocked

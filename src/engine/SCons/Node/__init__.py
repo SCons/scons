@@ -176,6 +176,7 @@ class Node:
                       1)
 
 def get_children(node): return node.children()
+def ignore_cycle(node, stack): pass
 
 class Wrapper:
     def __init__(self, node, kids_func):
@@ -184,6 +185,9 @@ class Wrapper:
 
         # XXX randomize kids here, if requested
 
+    def __str__(self):
+        return str(self.node)
+
 class Walker:
     """An iterator for walking a Node tree.
 
@@ -191,13 +195,16 @@ class Walker:
     The Walker object can be initialized with any node, and
     returns the next node on the descent with each next() call.
     'kids_func' is an optional function that will be called to
-    get the children of a node instead of calling 'children'.
+    get the children of a node instead of calling 'children'. 
+    'cycle_func' is an optional function that will be called
+    when a cycle is detected.
     
     This class does not get caught in node cycles caused, for example,
     by C header file include loops.
     """
-    def __init__(self, node, kids_func=get_children):
+    def __init__(self, node, kids_func=get_children, cycle_func=ignore_cycle):
         self.kids_func = kids_func
+        self.cycle_func = cycle_func
         self.stack = [Wrapper(node, self.kids_func)]
         self.history = {} # used to efficiently detect and avoid cycles
         self.history[node] = None
@@ -212,7 +219,9 @@ class Walker:
 	while self.stack:
 	    if self.stack[-1].kids:
                 node = self.stack[-1].kids.pop(0)
-                if not self.history.has_key(node):
+                if self.history.has_key(node):
+                    self.cycle_func(node, self.stack)
+                else:
                     self.stack.append(Wrapper(node, self.kids_func))
                     self.history[node] = None
             else:

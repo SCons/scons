@@ -35,6 +35,7 @@ import SCons.Node
 built_it = None
 built_target =  None
 built_source =  None
+cycle_detected = None
 
 class Builder:
     def execute(self, **kw):
@@ -305,6 +306,28 @@ class NodeTestCase(unittest.TestCase):
         assert nw.history.has_key(n1)
 	assert nw.next().name ==  "n1"
 	assert nw.next() == None
+
+        n8 = MyNode("n8")
+        n8.add_dependency([n3])
+        n7.add_dependency([n8])
+
+        def cycle(node, stack):
+            global cycle_detected
+            cycle_detected = 1
+
+        global cycle_detected
+
+        nw = SCons.Node.Walker(n3, cycle_func = cycle)
+        n = nw.next()
+        assert n.name == "n6", n.name
+        n = nw.next()
+        assert n.name == "n8", n.name
+        assert cycle_detected
+        cycle_detected = None
+        n = nw.next()
+        assert n.name == "n7", n.name
+        n = nw.next()
+        assert nw.next() == None
 
     def test_children_are_executed(self):
         n1 = SCons.Node.Node()

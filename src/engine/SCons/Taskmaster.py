@@ -33,8 +33,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import SCons.Node
-
-
+import string
+import SCons.Errors
+import copy
 
 class Task:
     """Default SCons build engine task.
@@ -140,10 +141,20 @@ class Taskmaster:
     """
 
     def __init__(self, targets=[], tasker=Task, calc=Calc()):
+        
         def out_of_date(node):
             return filter(lambda x: x.get_state() != SCons.Node.up_to_date,
                           node.children())
-        self.walkers = map(lambda x, f=out_of_date: SCons.Node.Walker(x, f),
+
+        def cycle_error(node, stack):
+            if node.builder:
+                nodes = stack + [node]
+                nodes.reverse()
+                desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
+                raise SCons.Errors.UserError, desc
+
+        #XXX In Python 2.2 we can get rid of f1 and f2:
+        self.walkers = map(lambda x, f1=out_of_date, f2=cycle_error: SCons.Node.Walker(x, f1, f2),
                            targets)
         self.tasker = tasker
         self.calc = calc
