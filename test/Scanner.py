@@ -33,20 +33,18 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-try:
-    input = open(sys.argv[1], 'r')
-except IndexError:
-    input = sys.stdin
+input = open(sys.argv[1], 'rb')
+output = open(sys.argv[2], 'wb')
 
-def process(fp):
-    for line in fp.readlines():
+def process(infp, outfp):
+    for line in infp.readlines():
         if line[:8] == 'include ':
             file = line[8:-1]
-	    process(open(file, 'r'))
+            process(open(file, 'rb'), outfp)
         else:
-            sys.stdout.write(line)
+            outfp.write(line)
 
-process(input)
+process(input, output)
 
 sys.exit(0)
 """)
@@ -75,10 +73,10 @@ kscan = Scanner(name = 'kfile',
 scanners = Environment().Dictionary('SCANNERS')
 env = Environment(SCANNERS = scanners + [kscan])
 
-env.Command('foo', 'foo.k', '%s build.py < $SOURCES > $TARGET')
+env.Command('foo', 'foo.k', '%s build.py $SOURCES $TARGET')
 
 bar_in = File('bar.in')
-env.Command('bar', bar_in, '%s build.py $SOURCES > $TARGET')
+env.Command('bar', bar_in, '%s build.py $SOURCES  $TARGET')
 bar_in.scanner_set(kscan)
 """ % (python, python))
 

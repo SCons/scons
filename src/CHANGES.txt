@@ -48,6 +48,8 @@ RELEASE 0.05 -
   - Create all of the directories for a list of targets before trying
     to build any of the targets.
 
+  - WIN32 portability fixes in tests.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.

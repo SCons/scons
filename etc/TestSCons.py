@@ -97,7 +97,7 @@ class TestSCons(TestCmd.TestCmd):
 	    print "STDERR ============"
 	    print self.stderr()
 	    raise
-	if self.status>>8 != status:
+	if not self.status is None and self.status>>8 != status:
 	    print "%s returned %d" % (self.program, self.status >> 8)
 	    print "STDERR ============"
 	    print self.stderr()
