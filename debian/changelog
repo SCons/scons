@@ -1,3 +1,10 @@
+scons (0.03-1) unstable; urgency=low
+
+  * Third Release.
+
+ -- Steven Knight <knight@baldmt.com>  Sun, 23 Dec 2001 19:53:05 -0600
+
+
 scons (0.02-1) unstable; urgency=low
 
   * Second Release.
