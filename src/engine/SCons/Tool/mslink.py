@@ -124,7 +124,7 @@ def RegServerFunc(target, source, env):
         return ret
     return 0
 
-regServerAction = SCons.Action.Action("$REGSVRCOM")
+regServerAction = SCons.Action.Action("$REGSVRCOM", "$REGSVRCOMSTR")
 regServerCheck = SCons.Action.Action(RegServerFunc, None)
 shlibLinkAction = SCons.Action.Action('${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $_SHLINK_SOURCES")}')
 compositeLinkAction = shlibLinkAction + regServerCheck

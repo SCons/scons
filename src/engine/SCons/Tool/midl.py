@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Action
+import SCons.Builder
 import SCons.Defaults
 import SCons.Scanner.IDL
 import SCons.Util
@@ -53,7 +55,9 @@ def midl_emitter(target, source, env):
 
 idl_scanner = SCons.Scanner.IDL.IDLScan()
 
-midl_builder = SCons.Builder.Builder(action='$MIDLCOM',
+midl_action = SCons.Action.Action('$MIDLCOM', '$MIDLCOMSTR')
+
+midl_builder = SCons.Builder.Builder(action = midl_action,
                                      src_suffix = '.idl',
                                      suffix='.tlb',
                                      emitter = midl_emitter,
@@ -73,5 +77,3 @@ def exists(env):
         return 1
     else:
         return env.Detect('midl')
-
-

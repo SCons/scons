@@ -6068,6 +6068,15 @@ dependencies for the PCH file. Example:
 env['PCH'] = 'StdAfx.pch'
 .EE
 
+.IP PCHCOM
+The command line used by the
+.B PCH
+builder to generated a precompiled header.
+
+.IP PCHCOMSTR
+The string displayed when generating a precompiled header.
+If this is not set, then $PCHCOM (the command line) is displayed.
+
 .IP PCHSTOP
 This variable specifies how much of a source file is precompiled. This
 variable is ignored by tools other than Microsoft Visual C++, or when
@@ -6267,8 +6276,16 @@ cpp file.
 .IP QT_MOCFROMCXXCOM
 Command to generate a moc file from a cpp file.
 
+.IP QT_MOCFROMCXXCOMSTR
+The string displayed when generating a moc file from a cpp file.
+If this is not set, then $QT_MOCFROMCXXCOM (the command line) is displayed.
+
 .IP QT_MOCFROMHCOM
 Command to generate a moc file from a header.
+
+.IP QT_MOCFROMHCOMSTR
+The string displayed when generating a moc file from a cpp file.
+If this is not set, then $QT_MOCFROMHCOM (the command line) is displayed.
 
 .IP QT_MOCFROMHFLAGS
 Default value is ''. These flags are passed to moc, when moccing a header
@@ -6284,8 +6301,12 @@ a header.
 .IP QT_UIC
 Default value is '$QT_BINPATH/uic'.
 
-.IP QT_UICDECLCOM
+.IP QT_UICCOM
 Command to generate header files from .ui files.
+
+.IP QT_UICCOMSTR
+The string displayed when generating header files from .ui files.
+If this is not set, then $QT_UICCOM (the command line) is displayed.
 
 .IP QT_UICDECLFLAGS
 Default value is ''. These flags are passed to uic, when creating a a h
@@ -6296,9 +6317,6 @@ Default value is ''. Prefix for uic generated header files.
 
 .IP QT_UICDECLSUFFIX
 Default value is '.h'. Suffix for uic generated header files.
-
-.IP QT_UICIMPLCOM
-Command to generate cxx files from .ui files.
 
 .IP QT_UICIMPLFLAGS
 Default value is ''. These flags are passed to uic, when creating a cxx
@@ -6325,6 +6343,10 @@ The resource compiler used by the RES builder.
 
 .IP RCCOM
 The command line used by the RES builder.
+
+.IP RCCOMSTR
+The string displayed when invoking the resource compiler.
+If this is not set, then $RCCOM (the command line) is displayed.
 
 .IP RCFLAGS
 The flags passed to the resource compiler by the RES builder.
@@ -6353,6 +6375,21 @@ If this is not set, then $RCS_COCOM
 
 .IP RCS_COFLAGS
 Options that are passed to the $RCS_CO command.
+
+.IP REGSVR
+The program used to register DLLs on Windows systems.
+
+.IP REGSVRCOM
+The command line used to register a newly-built DLL file
+on Windows systems.
+Invoked when the "register=1"
+keyword argument is passed to the
+.B SharedLibrary
+Builder.
+
+.IP REGSVRCOMSTR
+The string displayed when registering a newly-built DLL file.
+If this is not set, then $REGSVRCOM (the command line) is displayed.
 
 .IP RDirs
 A function that converts a file name into a list of Dir instances by
