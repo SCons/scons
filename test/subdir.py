@@ -27,6 +27,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 import os.path
 
+python = TestSCons.python
+
 test = TestSCons.TestSCons()
 
 test.subdir('subdir')
@@ -40,13 +42,13 @@ file.close()
 """)
 
 test.write('SConstruct', """
-B = Builder(action = "python build.py $TARGETS $SOURCES")
+B = Builder(action = "%s build.py $TARGETS $SOURCES")
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'subdir/f1.out', source = 'subdir/f1.in')
 env.B(target = 'subdir/f2.out', source = 'subdir/f2.in')
 env.B(target = 'subdir/f3.out', source = 'subdir/f3.in')
 env.B(target = 'subdir/f4.out', source = 'subdir/f4.in')
-""")
+""" % python)
 
 test.write(['subdir', 'f1.in'], "f1.in\n")
 test.write(['subdir', 'f2.in'], "f2.in\n")

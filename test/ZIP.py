@@ -42,7 +42,9 @@ import os.path
 import sys
 def process(outfile, name):
     if os.path.isdir(name):
-        for entry in os.listdir(name):
+        list = os.listdir(name)
+        list.sort()
+        for entry in list:
 	    process(outfile, os.path.join(name, entry))
     else:
         outfile.write(open(name, 'rb').read())

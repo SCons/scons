@@ -26,6 +26,8 @@ RELEASE 0.14 - XXX
 
   - Using MSVC long command-line linking when running Cygwin.
 
+  - Portability fixes for a lot of tests.
+
   From Allen Bierbaum:
 
   - Pass an Environment to the Options validator method, and

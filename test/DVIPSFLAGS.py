@@ -135,9 +135,11 @@ os.system(cmd)
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(DVIPSFLAGS = '-N')
+import os
+ENV = {'PATH' : os.environ['PATH']}
+foo = Environment(ENV = ENV, DVIPSFLAGS = '-N')
 dvips = foo.Dictionary('DVIPS')
-bar = Environment(DVIPS = r'%s wrapper.py ' + dvips)
+bar = Environment(ENV = ENV,DVIPS = r'%s wrapper.py ' + dvips)
 foo.PostScript(target = 'foo.ps', source = 'foo.tex')
 bar.PostScript(target = 'bar1', source = 'bar1.tex')
 bar.PostScript(target = 'bar2', source = 'bar2.ltx')

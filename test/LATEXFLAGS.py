@@ -88,9 +88,11 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LATEXFLAGS = '--output-comment Commentary')
+import os
+ENV = { 'PATH' : os.environ['PATH'] }
+foo = Environment(ENV = ENV, LATEXFLAGS = '--output-comment Commentary')
 latex = foo.Dictionary('LATEX')
-bar = Environment(LATEX = r'%s wrapper.py ' + latex)
+bar = Environment(ENV = ENV, LATEX = r'%s wrapper.py ' + latex)
 foo.DVI(target = 'foo.dvi', source = 'foo.ltx')
 bar.DVI(target = 'bar', source = 'bar.latex')
 """ % python)

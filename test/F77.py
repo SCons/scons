@@ -92,6 +92,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%s mylink.py',
+                  LINKFLAGS = [],
                   F77 = r'%s myg77.py')
 env.Program(target = 'test1', source = 'test1.f')
 env.Program(target = 'test2', source = 'test2.for')
@@ -148,6 +149,7 @@ test.fail_test(test.read('test6' + _exe) != "This is a .FPP file.\n")
 
 
 g77 = test.where_is('g77')
+FTN_LIB = TestSCons.fortran_lib
 
 if g77:
 
@@ -160,12 +162,12 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = 'g2c')
+foo = Environment(LIBS = r'%s')
 f77 = foo.Dictionary('F77')
 bar = foo.Copy(F77 = r'%s wrapper.py ' + f77)
 foo.Program(target = 'foo', source = 'foo.f')
 bar.Program(target = 'bar', source = 'bar.f')
-""" % python)
+""" % (FTN_LIB, python))
 
     test.write('foo.f', r"""
       PROGRAM FOO

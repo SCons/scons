@@ -193,11 +193,13 @@ test.run(arguments = '.')
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
+if string.find(sys.platform, 'irix') != -1:
+    os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
 
-if sys.platform == 'win32':
+if sys.platform == 'win32' or string.find(sys.platform, 'irix') != -1:
     test.run(arguments = '-f SConstructFoo')
 else:
     test.run(arguments = '-f SConstructFoo', status=2, stderr='''

@@ -75,6 +75,7 @@ int
 test()
 {
     f1();
+    return 0;
 }
 """)
 
@@ -148,10 +149,14 @@ test.run(program = prog1,
 
 test.up_to_date(arguments = '.')
 
+# We need at least one file for some implementations of the Library
+# builder, notably the SGI one.
+test.write('empty.c', '')
+
 # Check that a null-string LIBPATH doesn't blow up.
 test.write('SConstruct', """
 env = Environment(LIBPATH = '')
-env.Library('foo', source = '')
+env.Library('foo', source = 'empty.c')
 """)
 
 test.run(arguments = '.')

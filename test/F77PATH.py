@@ -33,6 +33,8 @@ if sys.platform == 'win32':
 else:
     _exe = ''
 
+FTN_LIB = TestSCons.fortran_lib
+
 prog = 'prog' + _exe
 subdir_prog = os.path.join('subdir', 'prog' + _exe)
 variant_prog = os.path.join('variant', 'prog' + _exe)
@@ -47,16 +49,16 @@ if not test.where_is('g77'):
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
 test.write('SConstruct', """
-env = Environment(F77PATH = ['$FOO'], LIBS = 'g2c', FOO='include')
+env = Environment(F77PATH = ['$FOO'], LIBS = r'%s', FOO='include')
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(F77PATH=[include], LIBS = 'g2c')
+env = Environment(F77PATH=[include], LIBS = r'%s')
 SConscript('variant/SConscript', "env")
-""")
+""" % (FTN_LIB, FTN_LIB))
 
 test.write(['subdir', 'SConscript'],
 """
@@ -159,16 +161,16 @@ test.up_to_date(arguments = args)
 
 # Change F77PATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
-env = Environment(F77PATH = Split('inc2 include'), LIBS = 'g2c')
+env = Environment(F77PATH = Split('inc2 include'), LIBS = r'%s')
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(F77PATH=['inc2', include], LIBS = 'g2c')
+env = Environment(F77PATH=['inc2', include], LIBS = r'%s')
 SConscript('variant/SConscript', "env")
-""")
+""" % (FTN_LIB, FTN_LIB))
 
 test.up_to_date(arguments = args)
 
@@ -194,9 +196,11 @@ test.up_to_date(arguments = args)
 
 # Check that a null-string F77PATH doesn't blow up.
 test.write('SConstruct', """
-env = Environment(F77PATH = '', LIBS = 'g2c')
-env.Library('foo', source = '')
-""")
+env = Environment(F77PATH = '', LIBS = r'%s')
+env.Library('foo', source = 'empty.f')
+""" % FTN_LIB)
+
+test.write('empty.f', '')
 
 test.run(arguments = '.')
 

@@ -27,6 +27,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import TestSCons
 
+python = TestSCons.python
+
 test = TestSCons.TestSCons()
 
 test.write('cat.py', r"""
@@ -42,12 +44,12 @@ sys.exit(0)
 test.write('SConstruct', r"""
 env = Environment()
 env.Command(target='foo1', source='bar1',
-            action='python cat.py $SOURCES > $TARGET')
+            action= '%s cat.py $SOURCES > $TARGET')
 env.Command(target='foo2', source='bar2',
-            action='python cat.py < $SOURCES > $TARGET')
+            action= '%s cat.py < $SOURCES > $TARGET')
 env.Command(target='foo3', source='bar3',
-            action='python cat.py $SOURCES | python cat.py > $TARGET')
-""")
+            action='%s cat.py $SOURCES | %s cat.py > $TARGET')
+""" % (python, python, python, python))
 
 test.write('bar1', 'bar1\r\n')
 test.write('bar2', 'bar2\r\n')

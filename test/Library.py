@@ -86,6 +86,7 @@ f3b(void)
 """)
 
 test.write('f3c.c', r"""
+void
 f3c(void)
 {
 	printf("f3c.c\n");

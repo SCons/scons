@@ -34,7 +34,10 @@ python = TestSCons.python
 if sys.platform == 'win32':
     _obj = '.obj'
 else:
-    _obj = '.os'
+    if string.find(sys.platform, 'irix') > -1:
+        _obj = '.o'
+    else:
+        _obj = '.os'
 
 test = TestSCons.TestSCons()
 
@@ -111,6 +114,7 @@ test.fail_test(test.read('test6' + _obj) != " -x -c\nThis is a .FPP file.\n")
 
 
 g77 = test.where_is('g77')
+FTN_LIB = TestSCons.fortran_lib
 
 if g77:
 
@@ -123,12 +127,12 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = 'g2c')
+foo = Environment(LIBS = r'%s')
 shf77 = foo.Dictionary('SHF77')
 bar = foo.Copy(SHF77 = r'%s wrapper.py ' + shf77, SHF77FLAGS = '-Ix')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')
 bar.SharedLibrary(target = 'bar/bar', source = 'bar.f')
-""" % python)
+""" % (FTN_LIB, python))
 
     test.write('foo.f', r"""
       PROGRAM FOO

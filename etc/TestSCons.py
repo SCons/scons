@@ -24,6 +24,11 @@ import TestCmd
 
 python = TestCmd.python_executable
 
+if string.find(sys.platform, 'irix') != -1:
+    fortran_lib = 'ftn'
+else:
+    fortran_lib = 'g2c'
+
 class TestFailed(Exception):
     def __init__(self, args=None):
         self.args = args

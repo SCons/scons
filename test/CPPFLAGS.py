@@ -38,7 +38,10 @@ if sys.platform == 'win32':
 else:
     _exe = ''
     _obj = '.o'
-    _shobj = '.os'
+    if string.find(sys.platform, 'irix') > -1:
+        _shobj = '.o'
+    else:
+        _shobj = '.os'
 
 test = TestSCons.TestSCons()
 

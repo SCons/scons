@@ -102,6 +102,9 @@ SConscript('../build/var6/SConscript', "env")
 
 if string.find(sys.platform, 'irix') != -1:
     fortran_runtime = 'ftn'
+
+    # f77 does NOT work on cruncher
+    test.no_result()
 else:
     fortran_runtime = 'g2c'
 

@@ -83,6 +83,8 @@ test.no_result(os.path.exists(test.workpath('work1', 'sub', 'eee.in')))
 test.no_result(os.path.exists(test.workpath('work1', 'sub', 'fff.in')))
 
 test.write(['work1', 'SConstruct'], """
+import os
+ENV = {'PATH' : os.environ['PATH']}
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -90,7 +92,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)},
+env = Environment(ENV=ENV,
+                  BUILDERS={'Cat':Builder(action=cat)},
                   RCS_COFLAGS='-q')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
@@ -169,6 +172,8 @@ test.no_result(os.path.exists(test.workpath('work2', 'sub', 'bbb.in')))
 test.no_result(os.path.exists(test.workpath('work2', 'sub', 'ccc.in')))
 
 test.write(['work2', 'SConstruct'], """
+import os
+ENV = { 'PATH' : os.environ['PATH'] }
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -177,7 +182,7 @@ def cat(env, source, target):
         f.write(open(src, "rb").read())
     f.close()
 _default_env['RCS_COFLAGS'] = '-l'
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(ENV=ENV, BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')

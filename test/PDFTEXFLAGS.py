@@ -81,9 +81,11 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(PDFTEXFLAGS = '--output-comment Commentary')
+import os
+ENV = { 'PATH' : os.environ['PATH'] }
+foo = Environment(ENV = ENV, PDFTEXFLAGS = '--output-comment Commentary')
 pdftex = foo.Dictionary('PDFTEX')
-bar = Environment(PDFTEX = r'%s wrapper.py ' + pdftex)
+bar = Environment(ENV = ENV, PDFTEX = r'%s wrapper.py ' + pdftex)
 foo.PDF(target = 'foo.pdf', source = 'foo.tex')
 bar.PDF(target = 'bar', source = 'bar.tex')
 """ % python)

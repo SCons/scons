@@ -92,7 +92,9 @@ os.system(cmd)
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """\
-foo = Environment()
+import os
+ENV = { 'PATH' : os.environ['PATH'] }
+foo = Environment(ENV = ENV)
 foo.Append(GSFLAGS = ' -q')
 foo.PDF(target = 'foo.pdf', source = 'foo.ps')
 """)

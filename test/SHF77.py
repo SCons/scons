@@ -34,7 +34,10 @@ python = TestSCons.python
 if sys.platform == 'win32':
     _obj = '.obj'
 else:
-    _obj = '.os'
+    if string.find(sys.platform, 'irix') > -1:
+        _obj = '.o'
+    else:
+        _obj = '.os'
 
 test = TestSCons.TestSCons()
 
