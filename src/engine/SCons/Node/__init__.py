@@ -205,7 +205,7 @@ class Node:
 
     def built(self):
         """Called just after this node is sucessfully built."""
-        self.store_bsig()
+        self.store_binfo()
 
         # Clear out the implicit dependency caches:
         # XXX this really should somehow be made more general and put
@@ -217,7 +217,7 @@ class Node:
             def get_parents(node, parent): return node.get_parents()
             def clear_cache(node, parent):
                 node.implicit = None
-                node.del_bsig()
+                node.del_binfo()
             w = Walker(self, get_parents, ignore_cycle, clear_cache)
             while w.next(): pass
 
@@ -241,7 +241,7 @@ class Node:
         builds).
         """
         self.set_state(None)
-        self.del_bsig()
+        self.del_binfo()
         self.del_csig()
         try:
             delattr(self, '_calculated_sig')
@@ -402,7 +402,7 @@ class Node:
                     self.implicit = []
                     self.implicit_dict = {}
                     self._children_reset()
-                    self.del_bsig()
+                    self.del_binfo()
 
         build_env = self.get_build_env()
 
@@ -495,22 +495,47 @@ class Node:
         """Set the node's build signature (based on the signatures
         of its dependency files and build information)."""
         self.bsig = bsig
+
+    def get_binfo(self):
+        """Get the node's build signature (based on the signatures
+        of its dependency files and build information)."""
+        result = []
+        for attr in ['bsig', 'bkids', 'bkidsigs', 'bact', 'bactsig']:
+            try:
+                r = getattr(self, attr)
+            except AttributeError:
+                r = None
+            result.append(r)
+        return tuple(result)
+
+    def set_binfo(self, bsig, bkids, bkidsigs, bact, bactsig):
+        """Set the node's build signature (based on the signatures
+        of its dependency files and build information)."""
+        self.bsig = bsig
+        self.bkids = bkids
+        self.bkidsigs = bkidsigs
+        self.bact = bact
+        self.bactsig = bactsig
         try:
             delattr(self, '_tempbsig')
         except AttributeError:
             pass
 
-    def store_bsig(self):
+    def store_binfo(self):
         """Make the build signature permanent (that is, store it in the
         .sconsign file or equivalent)."""
         pass
 
-    def del_bsig(self):
+    def get_stored_binfo(self):
+        return (None, None, None, None, None)
+
+    def del_binfo(self):
         """Delete the bsig from this node."""
-        try:
-            delattr(self, 'bsig')
-        except AttributeError:
-            pass
+        for attr in ['bsig', 'bkids', 'bkidsigs', 'bact', 'bactsig']:
+            try:
+                delattr(self, attr)
+            except AttributeError:
+                pass
 
     def get_csig(self):
         """Get the signature of the node's content."""

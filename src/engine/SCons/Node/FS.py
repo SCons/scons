@@ -1225,13 +1225,13 @@ class Dir(Base):
         """A directory does not get scanned."""
         return None
 
-    def set_bsig(self, bsig):
+    def set_binfo(self, bsig, bkids, bkidsigs, bact, bactsig):
         """A directory has no signature."""
-        bsig = None
+        pass
 
     def set_csig(self, csig):
         """A directory has no signature."""
-        csig = None
+        pass
 
     def get_contents(self):
         """Return aggregate contents of all our children."""
@@ -1363,8 +1363,12 @@ class File(Base):
     def store_csig(self):
         self.dir.sconsign().set_csig(self.name, self.get_csig())
 
-    def store_bsig(self):
-        self.dir.sconsign().set_bsig(self.name, self.get_bsig())
+    def store_binfo(self):
+        binfo = self.get_binfo()
+        apply(self.dir.sconsign().set_binfo, (self.name,) + binfo)
+
+    def get_stored_binfo(self):
+        return self.dir.sconsign().get_binfo(self.name)
 
     def store_implicit(self):
         self.dir.sconsign().set_implicit(self.name, self.implicit)
@@ -1613,7 +1617,7 @@ class File(Base):
                         # ...and they'd like a local copy.
                         LocalCopy(self, r, None)
                         self.set_bsig(bsig)
-                        self.store_bsig()
+                        self.store_binfo()
                     return 1
             self._rfile = self
             return None
