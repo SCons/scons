@@ -46,6 +46,9 @@ RELEASE 0.95 - XXX
   - Make sure side-effect nodes are prepare()d before building their
     corresponding target.
 
+  - Preserve the ability to call BuildDir() multiple times with the
+    same target and source directory arguments.
+
   From Scott Lystig Fritchie:
 
   - Fix the ability to use a custom _concat() function in the
