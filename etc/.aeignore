@@ -1,0 +1,4 @@
+*,D
+*.pyc
+.*.swp
+.consign
