@@ -1402,7 +1402,7 @@ class Base(SubstitutionEnvironment):
         """
         return SCons.Node.Python.Value(value)
 
-class OverrideEnvironment(SubstitutionEnvironment):
+class OverrideEnvironment(Base):
     """A proxy that overrides variables in a wrapped construction
     environment by returning values from an overrides dictionary in
     preference to values from the underlying subject environment.
@@ -1464,6 +1464,11 @@ class OverrideEnvironment(SubstitutionEnvironment):
             return 1
         except KeyError:
             return self.__dict__['__subject'].has_key(key)
+    def Dictionary(self):
+        """Emulates the items() method of dictionaries."""
+        d = self.__dict__['__subject'].Dictionary().copy()
+        d.update(self.__dict__['overrides'])
+        return d
     def items(self):
         """Emulates the items() method of dictionaries."""
         return self.Dictionary().items()

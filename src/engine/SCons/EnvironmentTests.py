@@ -2833,11 +2833,19 @@ f5: \
 
 class OverrideEnvironmentTestCase(unittest.TestCase):
 
+    def setUp(self):
+        env = Environment()
+        env._dict = {'XXX' : 'x', 'YYY' : 'y'}
+        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
+        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
+        self.envs = [ env, env2, env3 ]
+
+    def checkpath(self, node, expect):
+        return str(node) == os.path.normpath(expect)
+
     def test___init__(self):
         """Test OverrideEnvironment initialization"""
-        env = Environment(XXX = 'x', YYY = 'y')
-        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
-        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3'})
+        env, env2, env3 = self.envs
         assert env['XXX'] == 'x', env['XXX']
         assert env2['XXX'] == 'x2', env2['XXX']
         assert env3['XXX'] == 'x3', env3['XXX']
@@ -2847,9 +2855,7 @@ class OverrideEnvironmentTestCase(unittest.TestCase):
 
     def test_get(self):
         """Test the OverrideEnvironment get() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
-        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
-        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
+        env, env2, env3 = self.envs
         assert env.get('XXX') == 'x', env.get('XXX')
         assert env2.get('XXX') == 'x2', env2.get('XXX')
         assert env3.get('XXX') == 'x3', env3.get('XXX')
@@ -2862,9 +2868,7 @@ class OverrideEnvironmentTestCase(unittest.TestCase):
 
     def test_has_key(self):
         """Test the OverrideEnvironment has_key() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
-        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
-        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
+        env, env2, env3 = self.envs
         assert env.has_key('XXX'), env.has_key('XXX')
         assert env2.has_key('XXX'), env2.has_key('XXX')
         assert env3.has_key('XXX'), env3.has_key('XXX')
@@ -2876,46 +2880,51 @@ class OverrideEnvironmentTestCase(unittest.TestCase):
         assert env3.has_key('ZZZ'), env3.has_key('ZZZ')
 
     def test_items(self):
+        """Test the OverrideEnvironment Dictionary() method"""
+        env, env2, env3 = self.envs
+        items = env.Dictionary()
+        assert items == {'XXX' : 'x', 'YYY' : 'y'}, items
+        items = env2.Dictionary()
+        assert items == {'XXX' : 'x2', 'YYY' : 'y'}, items
+        items = env3.Dictionary()
+        assert items == {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'}, items
+
+    def test_items(self):
         """Test the OverrideEnvironment items() method"""
-        env = Environment(WWW = 'w', XXX = 'x', YYY = 'y')
-        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
-        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
+        env, env2, env3 = self.envs
         items = env.items()
-        assert items == {'WWW' : 'w', 'XXX' : 'x', 'YYY' : 'y'}, items
+        items.sort()
+        assert items == [('XXX', 'x'), ('YYY', 'y')], items
         items = env2.items()
-        assert items == {'WWW' : 'w', 'XXX' : 'x2', 'YYY' : 'y'}, items
+        items.sort()
+        assert items == [('XXX', 'x2'), ('YYY', 'y')], items
         items = env3.items()
-        assert items == {'WWW' : 'w', 'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'}, items
+        items.sort()
+        assert items == [('XXX', 'x3'), ('YYY', 'y3'), ('ZZZ', 'z3')], items
 
     def test_gvars(self):
         """Test the OverrideEnvironment gvars() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
-        env2 = OverrideEnvironment(env, {'xxx' : 'x2'})
-        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3'})
+        env, env2, env3 = self.envs
         gvars = env.gvars()
         assert gvars == {'XXX' : 'x', 'YYY' : 'y'}, gvars
         gvars = env2.gvars()
-        assert gvars == {'XXX' : 'x2', 'YYY' : 'y'}, gvars
+        assert gvars == {'XXX' : 'x', 'YYY' : 'y'}, gvars
         gvars = env3.gvars()
-        assert gvars == {'XXX' : 'x3', 'YYY' : 'y3'}, gvars
+        assert gvars == {'XXX' : 'x', 'YYY' : 'y'}, gvars
 
     def test_lvars(self):
         """Test the OverrideEnvironment lvars() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
-        env2 = OverrideEnvironment(env, {'xxx' : 'x2'})
-        env3 = OverrideEnvironment(env2, {'xxx' : 'x3', 'YYY' : 'y3'})
+        env, env2, env3 = self.envs
         lvars = env.lvars()
         assert lvars == {}, lvars
         lvars = env2.lvars()
-        assert lvars == {'XXX' : 'x2', 'YYY' : 'y'}, lvars
+        assert lvars == {'XXX' : 'x2'}, lvars
         lvars = env3.lvars()
-        assert lvars == {'XXX' : 'x3', 'YYY' : 'y3'}, lvars
+        assert lvars == {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'}, lvars
 
     def test_Replace(self):
         """Test the OverrideEnvironment Replace() method"""
-        env = Environment(XXX = 'x', YYY = 'y')
-        env2 = OverrideEnvironment(env, {'xxx' : 'x2'})
-        env3 = OverrideEnvironment(env2, {'xxx' : 'x3', 'YYY' : 'y3'})
+        env, env2, env3 = self.envs
         assert env['XXX'] == 'x', env['XXX']
         assert env2['XXX'] == 'x2', env2['XXX']
         assert env3['XXX'] == 'x3', env3['XXX']
@@ -2932,6 +2941,102 @@ class OverrideEnvironmentTestCase(unittest.TestCase):
         assert env2['YYY'] == 'y4', env2['YYY']
         assert env3['YYY'] == 'y3', env3['YYY']
 
+    # Tests a number of Base methods through an OverrideEnvironment to
+    # make sure they handle overridden constructionv variables properly.
+    #
+    # The following Base methods also call self.subst(), and so could
+    # theoretically be subject to problems with evaluating overridden
+    # variables, but they're never really called that way in the rest
+    # of our code, so we won't worry about them (at least for now):
+    #
+    # ParseConfig()
+    # ParseDepends()
+    # Platform()
+    # Tool()
+    #
+    # Action()
+    # Alias()
+    # Builder()
+    # CacheDir()
+    # Configure()
+    # Environment()
+    # FindFile()
+    # Scanner()
+    # SourceSignatures()
+    # TargetSignatures()
+
+    # It's unlikely Copy() will ever be called this way, so let the
+    # other methods test that handling overridden values works.
+    #def test_Copy(self):
+    #    """Test the OverrideEnvironment Copy() method"""
+    #    pass
+
+    def test_FindIxes(self):
+        """Test the OverrideEnvironment FindIxes() method"""
+        env, env2, env3 = self.envs
+        x = env.FindIxes(['xaaay'], 'XXX', 'YYY')
+        assert x == 'xaaay', x
+        x = env2.FindIxes(['x2aaay'], 'XXX', 'YYY')
+        assert x == 'x2aaay', x
+        x = env3.FindIxes(['x3aaay3'], 'XXX', 'YYY')
+        assert x == 'x3aaay3', x
+
+    def test_ReplaceIxes(self):
+        """Test the OverrideEnvironment ReplaceIxes() method"""
+        env, env2, env3 = self.envs
+        x = env.ReplaceIxes('xaaay', 'XXX', 'YYY', 'YYY', 'XXX')
+        assert x == 'yaaax', x
+        x = env2.ReplaceIxes('x2aaay', 'XXX', 'YYY', 'YYY', 'XXX')
+        assert x == 'yaaax2', x
+        x = env3.ReplaceIxes('x3aaay3', 'XXX', 'YYY', 'YYY', 'XXX')
+        assert x == 'y3aaax3', x
+
+    # It's unlikely WhereIs() will ever be called this way, so let the
+    # other methods test that handling overridden values works.
+    #def test_WhereIs(self):
+    #    """Test the OverrideEnvironment WhereIs() method"""
+    #    pass
+
+    def test_Dir(self):
+        """Test the OverrideEnvironment Dir() method"""
+        env, env2, env3 = self.envs
+        x = env.Dir('ddir/$XXX')
+        assert self.checkpath(x, 'ddir/x'), str(x)
+        x = env2.Dir('ddir/$XXX')
+        assert self.checkpath(x, 'ddir/x2'), str(x)
+        x = env3.Dir('ddir/$XXX')
+        assert self.checkpath(x, 'ddir/x3'), str(x)
+
+    def test_Entry(self):
+        """Test the OverrideEnvironment Entry() method"""
+        env, env2, env3 = self.envs
+        x = env.Entry('edir/$XXX')
+        assert self.checkpath(x, 'edir/x'), str(x)
+        x = env2.Entry('edir/$XXX')
+        assert self.checkpath(x, 'edir/x2'), str(x)
+        x = env3.Entry('edir/$XXX')
+        assert self.checkpath(x, 'edir/x3'), str(x)
+
+    def test_File(self):
+        """Test the OverrideEnvironment File() method"""
+        env, env2, env3 = self.envs
+        x = env.File('fdir/$XXX')
+        assert self.checkpath(x, 'fdir/x'), str(x)
+        x = env2.File('fdir/$XXX')
+        assert self.checkpath(x, 'fdir/x2'), str(x)
+        x = env3.File('fdir/$XXX')
+        assert self.checkpath(x, 'fdir/x3'), str(x)
+
+    def test_Split(self):
+        """Test the OverrideEnvironment Split() method"""
+        env, env2, env3 = self.envs
+        env['AAA'] = '$XXX $YYY $ZZZ'
+        x = env.Split('$AAA')
+        assert x == ['x', 'y'], x
+        x = env2.Split('$AAA')
+        assert x == ['x2', 'y'], x
+        x = env3.Split('$AAA')
+        assert x == ['x3', 'y3', 'z3'], x
 
 
 
@@ -3041,6 +3146,7 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     tclasses = [ SubstitutionTestCase,
                  BaseTestCase,
+                 OverrideEnvironmentTestCase,
                  NoSubstitutionProxyTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
