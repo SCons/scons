@@ -384,4 +384,14 @@ test.run(arguments = ".",
          stdout = test.wrap_stdout(read_str = "SConstruct\nsub/SConscript\nx = xxx\n",
                                    build_str = "scons: `.' is up to date.\n"))
 
+test.write("SConstruct", """\
+def builder(target, source, env):
+    import SCons.Script.SConscript
+    assert SCons.Script.SConscript.sconscript_reading == 0
+env = Environment(BUILDERS={'builder':Builder(action=builder)})
+env.builder('test',[])
+import SCons.Script.SConscript
+assert SCons.Script.SConscript.sconscript_reading == 1
+""")
+
 test.pass_test()

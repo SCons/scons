@@ -168,6 +168,13 @@ RELEASE X.XX - XXX
 
   - Fix a bug in detection of Qt installed on the local system.
 
+  - Support returning Python 2.3 BooleanType values from Configure checks.
+
+  - Provide an error message if someone mistakenly tries to call a
+    Configure check from within a Builder function.
+
+  - Support calling a Builder when a Configure context is still open.
+
 
 
 RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500

@@ -67,6 +67,9 @@ global_exports = {}
 # chdir flag
 sconscript_chdir = 1
 
+# will be set to 1, if we are reading a SConscript
+sconscript_reading = 0
+
 def _scons_add_args(alist):
     global arguments
     for arg in alist:
@@ -139,6 +142,8 @@ def Return(*vars):
         stack[-1].retval = tuple(retval)
 
 def _SConscript(fs, *files, **kw):
+    global sconscript_reading
+    sconscript_reading = 1
     top = fs.Top
     sd = fs.SConstruct_dir.rdir()
     exports = kw.get('exports', [])
@@ -215,6 +220,7 @@ def _SConscript(fs, *files, **kw):
                                      f.path)
                 
         finally:
+            sconscript_reading = 0
             sys.path = old_sys_path
             frame = stack.pop()
             try:
