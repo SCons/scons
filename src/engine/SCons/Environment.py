@@ -122,20 +122,40 @@ class Environment:
     def __init__(self,
                  platform=SCons.Platform.Platform(),
                  tools=None,
+                 options=None,
                  **kw):
         self.fs = SCons.Node.FS.default_fs
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
+
         if SCons.Util.is_String(platform):
             platform = SCons.Platform.Platform(platform)
         platform(self)
+
+        # Apply the passed-in variables before calling the tools,
+        # because they may use some of them:
+        apply(self.Replace, (), kw)
+        
+        # Update the environment with the customizable options
+        # before calling the tools, since they may use some of the options: 
+        if options:
+            options.Update(self)
+
         if tools is None:
             tools = ['default']
-        apply(self.Replace, (), kw)
         for tool in tools:
             if SCons.Util.is_String(tool):
                 tool = SCons.Tool.Tool(tool)
             tool(self, platform)
+
+        # Reapply the passed in variables after calling the tools,
+        # since they should overide anything set by the tools:
         apply(self.Replace, (), kw)
+
+        # Update the environment with the customizable options
+        # after calling the tools, since they should override anything
+        # set by the tools:
+        if options:
+            options.Update(self)
 
         #
         # self.autogen_vars is a tuple of tuples.  Each inner tuple

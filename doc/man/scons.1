@@ -1940,6 +1940,83 @@ method:
 env2 = env.Copy(CC="cl.exe")
 .EE
 
+.SS Costruction Variable Options
+
+Often when building software, various options need to be specified at build
+time that are not known when the SConstruct/SConscript files are
+written. For example, libraries needed for the build may be in non-standard
+locations, or site-specific compiler options may need to be passed to the
+compiler. 
+.B scons
+provides a mechanism for overridding construction variables from the
+command line or a text based configuration file through an Options
+object. To create an Options object, call the Options() function:
+
+.TP
+.RI Options([ file ])
+This creates an Options object that will read construction variables from
+the filename based in the 
+.I file
+argument. If no filename is given, then no file will be read. Example:
+
+.ES
+opts = Options('custom.py')
+.EE
+
+Options objects have the following methods:
+
+.TP
+.RI Add( key ", [" help ", " default ", " validater ", " converter ])
+This adds a customizable construction variable to the Options object. 
+.I key
+is the name of the variable. 
+.I help 
+is the help text for the variable.
+.I default 
+is the default value of the variable.
+.I validater
+is called to validate the value of the variable, and should take two
+arguments: key and value.
+.I converter
+is called to convert the value before putting it in the environment, and
+should take a single argument: value. Example:
+
+.ES
+opts.Add('CC', 'The C compiler')
+.EE
+
+.TP
+.RI Update( env )
+This updates a construction environment
+.I env
+with the customized construction variables. Normally this method is not
+called directly, but is called indirectly by passing the Options object to
+the Environment() function:
+
+.ES
+env = Environment(options=opts)
+.EE
+
+.TP
+.RI GenerateHelpText( env )
+This generates help text documenting the customizable construction
+variables suitable to passing in to the Help() function. 
+.I env
+is the construction environment that will be used to get the actual values
+of customizable variables. Example:
+
+.ES
+Help(opts.GenerateHelpText(env))
+.EE
+
+The text based configuration file is executed as a Python script, and the
+global variables are queried for customizable construction
+variables. Example:
+
+.ES
+CC = 'my_cc'
+.EE
+
 .SS Other Functions
 
 .B scons
@@ -3047,6 +3124,41 @@ allows SCons to append the appropriate library
 prefix and suffix for the current platform
 (for example, 'liba.a' on POSIX systems,
 'a.lib' on Windows).
+
+.SS Customizing contruction variables from the command line.
+
+The following would allow the C compiler to be specified on the command
+line or in the file custom.py. 
+
+.ES
+opts = Options('custom.py')
+opts.Add('CC', 'The C compiler.')
+env = Environment(options=opts)
+Help(opts.GenerateHelpText(env))
+.EE
+
+The user could specify the C compiler on the command line:
+
+.ES
+scons "CC=my_cc"
+.EE
+
+or in the custom.py file:
+
+.ES
+CC = 'my_cc'
+.EE
+
+or get documentation on the options:
+
+.ES
+> scons -h
+
+CC: The C compiler.
+    default: None
+    actual: cc
+
+.EE
 
 .SH ENVIRONMENT
 

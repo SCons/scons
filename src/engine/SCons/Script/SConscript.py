@@ -40,6 +40,7 @@ import SCons.Platform
 import SCons.Tool
 import SCons.Util
 import SCons.Sig
+import SCons.Options
 
 import os
 import os.path
@@ -264,6 +265,10 @@ def SetBuildSignatureType(type):
     else:
         raise SCons.Errors.UserError, "Unknown build signature type '%s'"%type
 
+class Options(SCons.Options.Options):
+    def Update(self, env):
+        return SCons.Options.Options.Update(self, env, arguments)
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -306,4 +311,5 @@ def BuildDefaultGlobals():
     globals['Split']             = SCons.Util.Split
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
+    globals['Options']           = Options
     return globals

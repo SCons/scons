@@ -69,6 +69,9 @@ RELEASE 0.09 -
 
   - Fix use of -j with multiple targets.
 
+  - Add an Options() object for friendlier accomodation of command-
+    line arguments.
+
   From sam th:
 
   - Dynamically check for the existence of utilities with which to

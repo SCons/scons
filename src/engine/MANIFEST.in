@@ -9,6 +9,7 @@ SCons/exitfuncs.py
 SCons/Node/__init__.py
 SCons/Node/Alias.py
 SCons/Node/FS.py
+SCons/Options.py
 SCons/Platform/__init__.py
 SCons/Platform/cygwin.py
 SCons/Platform/os2.py
