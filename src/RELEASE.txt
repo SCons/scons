@@ -20,10 +20,16 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.93 - Thu, 23 Oct 2003 07:26:55 -0500
+RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
 
-  This is the fourth beta release of SCons.  Please consult the
+  This is the fifth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.93:
+
+  - The '-LANG:std' option has been removed from the default $CXXFLAGS
+    and $LINKFLAGS variables on SGI systems.  SGI users who need that flag
+    for C++ compilation will need to explicitly add it to those variables.
 
   Please note the following important changes since release 0.92:
 
@@ -40,11 +46,6 @@ RELEASE 0.93 - Thu, 23 Oct 2003 07:26:55 -0500
   - The ParseConfig() global function has now been deprecated in favor
     of using the env.ParseConfig() method.  The global function will be
     removed in some future release of SCons.
-
-  Please note the following important changes since release 0.91:
-
-  - The Debian package available from the SCons web site now
-    uses Python version 2.2.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.

@@ -19,6 +19,11 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
 
   - Fix subclassing the Environment and Scanner classes.
 
+  From Steve Leblanc:
+
+  - SGI fixes:  Fix C++ compilation, add a separate Tool/sgic++.py module,
+    remove '-LANG:std' from the default SGI $CXXFLAGS and $LINKFLAGS.
+
   From Gary Oberbrunner:
 
   - Fix how the man page un-indents after examples in some browsers.

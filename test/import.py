@@ -96,6 +96,7 @@ tools = [
     'rmic',
     'SCCS',
     'sgiar',
+    'sgic++',
     'sgicc',
     'sgilink',
     'Subversion',

@@ -1,6 +1,6 @@
 """SCons.Tool.sgilink
 
-Tool-specific initialization for the SGI MIPSPro linker.
+Tool-specific initialization for the SGI MIPSPro linker on SGI.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -41,8 +41,8 @@ def generate(env):
     """Add Builders and construction variables for MIPSPro to an Environment."""
     link.generate(env)
     
-    env['LINK']        = env.Detect(linkers) or 'cc'
-    env['LINKFLAGS']   = '-LANG:std'
+    env['LINK'] = env.Detect(linkers) or 'cc'
+    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
 
 def exists(env):
     return env.Detect(linkers)
