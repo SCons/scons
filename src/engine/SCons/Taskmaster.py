@@ -45,7 +45,8 @@ class Task:
         self.top = top
 
     def execute(self):
-        self.target.build()
+        if not self.target.get_state() == SCons.Node.up_to_date:
+            self.target.build()
 
     def get_target(self):
         return self.target
@@ -56,13 +57,11 @@ class Task:
     def set_state(self, state):
         self.target.set_state(state)
 
-    def up_to_date(self):
-        self.set_state(SCons.Node.up_to_date)
-
     def executed(self):
-        self.set_state(SCons.Node.executed)
-        self.tm.add_pending(self.target)
-        self.target.set_signature(self.sig)
+        if self.target.get_state() == SCons.Node.executing:
+            self.set_state(SCons.Node.executed)
+            self.tm.add_pending(self.target)
+            self.target.set_signature(self.sig)
 
     def failed(self):
         self.fail_stop()
@@ -114,16 +113,15 @@ class Taskmaster:
         self.walkers = map(SCons.Node.Walker, targets)
         self.tasker = tasker
         self.calc = calc
-        self.targets = targets
         self.ready = []
         self.pending = 0
-
+        
         self._find_next_ready_node()
 
     def next_task(self):
         if self.ready:
             task = self.ready.pop()
-            task.set_state(SCons.Node.executing)
+            
             if not self.ready:
                 self._find_next_ready_node()
             return task
@@ -146,6 +144,10 @@ class Taskmaster:
                 # but mark it as "up to date" so targets won't
                 # wait for it.
                 n.set_state(SCons.Node.up_to_date)
+                # set the signature for non-derived files
+                # here so they don't get recalculated over
+                # and over again:
+                n.set_signature(self.calc.get_signature(n))
                 continue
             task = self.tasker(self, n, self.walkers[0].is_done())
             if not n.children_are_executed():
@@ -156,11 +158,13 @@ class Taskmaster:
             sig = self.calc.get_signature(n)
             task.set_sig(sig)
             if self.calc.current(n, sig):
-                task.up_to_date()
+                task.set_state(SCons.Node.up_to_date)
             else:
-                self.ready.append(task)
-                return None
- 
+                task.set_state(SCons.Node.executing)
+
+            self.ready.append(task)
+            return
+            
     def is_blocked(self):
         return not self.ready and self.pending
 
@@ -181,9 +185,10 @@ class Taskmaster:
             sig = self.calc.get_signature(n)
             task.set_sig(sig)
             if self.calc.current(n, sig):
-                task.up_to_date()
+                task.set_state(SCons.Node.up_to_date)
             else:
-                self.ready.append(task)
+                task.set_state(SCons.Node.executing)
+            self.ready.append(task)
         self.pending = self.pending - len(ready)
 
     def remove_pending(self, node):

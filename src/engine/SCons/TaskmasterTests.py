@@ -103,21 +103,6 @@ class Node:
 
     
 
-class Task:
-    def __init__(self, target):
-        self.target = target
-
-    def get_target(self):
-        return self.target
-
-    def up_to_date(self):
-        pass
-
-    def executed(self):
-        pass
-
-    def failed(self):
-        pass
 
 
 class TaskmasterTestCase(unittest.TestCase):
@@ -157,29 +142,47 @@ class TaskmasterTestCase(unittest.TestCase):
 
         assert tm.next_task() == None
 
-	built = "up to date: "
-
         global top_node
         top_node = n3
-        class MyTask(SCons.Taskmaster.Task):
-            def up_to_date(self):
-                if self.target == top_node:
-                    assert self.top
-                global built
-                built = built + " " + self.target.name
-                SCons.Taskmaster.Task.up_to_date(self)
 
         class MyCalc(SCons.Taskmaster.Calc):
             def current(self, node, sig):
                 return 1
+
+        class MyTask(SCons.Taskmaster.Task):
+            def execute(self):
+                global built
+                if self.target.get_state() == SCons.Node.up_to_date:
+                    if self.top:
+                        built = self.target.name + " up-to-date top"
+                    else:
+                        built = self.target.name + " up-to-date"
+                else:
+                    self.target.build()
 
         n1.set_state(None)
         n2.set_state(None)
         n3.set_state(None)
         tm = SCons.Taskmaster.Taskmaster(targets = [n3],
                                          tasker = MyTask, calc = MyCalc())
+
+        t = tm.next_task()
+        t.execute()
+        print built
+        assert built == "n1 up-to-date"
+        t.executed()
+
+        t = tm.next_task()
+        t.execute()
+        assert built == "n2 up-to-date"
+        t.executed()
+
+        t = tm.next_task()
+        t.execute()
+        assert built == "n3 up-to-date top"
+        t.executed()
+
 	assert tm.next_task() == None
-	assert built == "up to date:  n1 n2 n3"
 
 
         n1 = Node("n1")
@@ -226,6 +229,17 @@ class TaskmasterTestCase(unittest.TestCase):
         n4.set_state(SCons.Node.executed)
         tm = SCons.Taskmaster.Taskmaster([n4])
         assert tm.next_task() == None
+
+        n1 = Node("n1")
+        n2 = Node("n2", [n1])
+        tm = SCons.Taskmaster.Taskmaster([n2,n2])
+        t = tm.next_task()
+        assert tm.is_blocked()
+        t.executed()
+        assert not tm.is_blocked()
+        t = tm.next_task()
+        assert tm. next_task() == None
+        
         
     def test_is_blocked(self):
         """Test whether a task is blocked

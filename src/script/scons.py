@@ -61,17 +61,16 @@ from SCons.Defaults import *
 class BuildTask(SCons.Taskmaster.Task):
     """An SCons build task."""
     def execute(self):
-        try:
-            self.target.build()
-        except BuildError, e:
-            sys.stderr.write("scons: *** [%s] Error %d\n" % (e.node, e.stat))
-            raise
+        if self.target.get_state() == SCons.Node.up_to_date:
+            if self.top:
+                print 'scons: "%s" is up to date.' % str(self.target)
+        else:
+            try:
+                self.target.build()
+            except BuildError, e:
+                sys.stderr.write("scons: *** [%s] Error %d\n" % (e.node, e.stat))
+                raise
 
-    def up_to_date(self):
-        if self.top:
-            print 'scons: "%s" is up to date.' % str(self.target)
-        SCons.Taskmaster.Task.up_to_date(self)
-        
     def failed(self):
         global ignore_errors
         if ignore_errors:
