@@ -862,7 +862,7 @@ class Base(SubstitutionEnvironment):
         command = self.subst(command)
         return function(self, os.popen(command).read())
 
-    def ParseDepends(self, filename, must_exist=None):
+    def ParseDepends(self, filename, must_exist=None, only_one=0):
         """
         Parse a mkdep-style file for explicit dependencies.  This is
         completely abusable, and should be unnecessary in the "normal"
@@ -872,25 +872,33 @@ class Base(SubstitutionEnvironment):
         that can write a .d file, but for which writing a scanner would
         be too complicated.
         """
+        filename = self.subst(filename)
         try:
             fp = open(filename, 'r')
         except IOError:
             if must_exist:
                 raise
             return
-        for line in SCons.Util.LogicalLines(fp).readlines():
-            if line[0] == '#':
-                continue
+        lines = SCons.Util.LogicalLines(fp).readlines()
+        lines = filter(lambda l: l[0] != '#', lines)
+        tdlist = []
+        for line in lines:
             try:
                 target, depends = string.split(line, ':', 1)
             except (AttributeError, TypeError, ValueError):
                 # Python 1.5.2 throws TypeError if line isn't a string,
                 # Python 2.x throws AttributeError because it tries
-                # to call line.splite().  Either can throw ValueError
+                # to call line.split().  Either can throw ValueError
                 # if the line doesn't split into two or more elements.
                 pass
             else:
-                self.Depends(string.split(target), string.split(depends))
+                tdlist.append((string.split(target), string.split(depends)))
+        if only_one:
+            targets = reduce(lambda x, y: x+y, map(lambda p: p[0], tdlist))
+            if len(targets) > 1:
+                raise SCons.Errors.UserError, "More than one dependency target found in `%s':  %s" % (filename, targets)
+        for target, depends in tdlist:
+            self.Depends(target, depends)
 
     def Platform(self, platform):
         platform = self.subst(platform)

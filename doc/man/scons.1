@@ -3318,7 +3318,7 @@ construction variable.
 .TP
 .RI ParseDepends( filename ", [" must_exist ])
 .TP
-.RI env.ParseDepends( filename ", [" must_exist ])
+.RI env.ParseDepends( filename ", [" must_exist " " only_one ])
 Parses the contents of the specified
 .I filename
 as a list of dependencies in the style of
@@ -3326,6 +3326,7 @@ as a list of dependencies in the style of
 or
 .BR mkdep ,
 and explicitly establishes all of the listed dependencies.
+
 By default,
 it is not an error
 if the specified
@@ -3339,13 +3340,34 @@ scons
 throw an exception and
 generate an error if the file does not exist,
 or is otherwise inaccessible.
+
+The optional
+.I only_one
+argument may be set to a non-zero
+value to have
+scons
+thrown an exception and
+generate an error
+if the file contains dependency
+information for more than one target.
+This can provide a small sanity check
+for files intended to be generated
+by, for example, the
+.B gcc -M
+flag,
+which should typically only
+write dependency information for
+one output file into a corresponding
+.B .d
+file.
+
 The
 .I filename
 and all of the files listed therein
 will be interpreted relative to
 the directory of the
 .I SConscript
-file which called the
+file which calls the
 .B ParseDepends
 function.
 
