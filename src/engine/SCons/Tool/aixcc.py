@@ -50,8 +50,8 @@ def generate(env):
     suite to an Environment."""
     path, _cc, _shcc, version = get_xlc(env)
     if path:
-        _cc = os.path.join(path, cc)
-        _shcc = os.path.join(path, shcc)
+        _cc = os.path.join(path, _cc)
+        _shcc = os.path.join(path, _shcc)
 
     cc.generate(env)
 
