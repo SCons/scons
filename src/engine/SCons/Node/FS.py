@@ -781,6 +781,13 @@ class File(Entry):
         else:
             self.__createDir()
 
+    def remove(self):
+        """Remove this file."""
+        if os.path.exists(self.path):
+            os.unlink(self.path)
+            return 1
+        return None
+
     def current(self, calc):
         bsig = calc.bsig(self)
         if not self.exists():

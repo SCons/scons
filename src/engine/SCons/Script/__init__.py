@@ -130,26 +130,18 @@ class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def show(self):
         if self.targets[0].builder or self.targets[0].side_effect:
-            print "Removed " + self.targets[0].path
+            print "Removed " + str(self.targets[0])
 
     def remove(self):
         if self.targets[0].builder or self.targets[0].side_effect:
-            try:
-                os.unlink(self.targets[0].path)
-            except OSError:
-                pass
-            else:
-                print "Removed " + self.targets[0].path
-            try:
-                for t in self.targets[1:]:
-                    try:
-                        os.unlink(t.path)
-                    except OSError:
-                        pass
-                    else:
-                        print "Removed " + t.path
-            except IndexError:
-                pass
+            for t in self.targets:
+                try:
+                    removed = t.remove()
+                except OSError, e:
+                    print "scons: Could not remove '%s':" % str(t), e.strerror
+                else:
+                    if removed:
+                        print "Removed " + str(t)
 
     execute = remove
 

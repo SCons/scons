@@ -583,6 +583,35 @@ class FSTestCase(unittest.TestCase):
 
         # XXX test current()
 
+        d = fs.Dir('dir')
+        r = d.remove()
+        assert r is None, r
+
+        f = fs.File('does_not_exist')
+        r = f.remove()
+        assert r == None, r
+
+        test.write('exists', "exists\n")
+        f = fs.File('exists')
+        r = f.remove()
+        assert r, r
+
+        test.write('can_not_remove', "can_not_remove\n")
+        test.writable(test.workpath('.'), 0)
+        fp = open(test.workpath('can_not_remove'))
+
+        f = fs.File('can_not_remove')
+        exc_caught = 0 
+        try:
+            r = f.remove()
+        except OSError:
+            exc_caught = 1
+
+        fp.close()
+
+        assert exc_caught, "Should have caught an OSError, r = " + str(r)
+
+
 class RepositoryTestCase(unittest.TestCase):
     def runTest(self):
         """Test FS (file system) Repository operations

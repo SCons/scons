@@ -121,5 +121,14 @@ test.fail_test(test.read(test.workpath('foo2.xxx')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
+test.writable('.', 0)
+f = open(test.workpath('foo1.out'))
+
+test.run(arguments = '-c foo1.out',
+         stdout = "scons: Could not remove 'foo1.out': Permission denied\n")
+
+test.fail_test(not os.path.exists(test.workpath('foo1.out')))
+
+f.close()
+
 test.pass_test()
- 

@@ -35,6 +35,8 @@ RELEASE 0.09 -
   - Fix an exception thrown when a Default() directory was specified
     when using the -U option.
 
+  - Issue a warning when -c can't remove a target.
+
  From Anthony Roach:
 
  - Fixed use of command lines with spaces in their arguments,

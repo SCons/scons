@@ -339,6 +339,10 @@ class Node:
         """Prepare for this Node to be created:  no-op by default."""
         pass
 
+    def remove(self):
+        """Remove this Node:  no-op by default."""
+        return None
+
     def add_dependency(self, depend):
         """Adds dependencies. The depend argument must be a list."""
         self._add_child(self.depends, depend)
