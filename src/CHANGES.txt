@@ -14,6 +14,8 @@ RELEASE 0.15 - XXX
 
   - Fix the _concat() documentation, and add a test for it.
 
+  - Portability fixes for non-GNU versions of lex and yacc.
+
   From Matt Balvin:
 
   - Fix handling of library prefixes when the subdirectory matches

@@ -77,7 +77,7 @@ version_lib = '%s/usr/lib/%s' % (root, scons_version)
 def installed(lib):
     return 'Installed SCons library modules into %s' % lib
 
-os.system("tar zxf %s" % tar_gz)
+os.system("gunzip -c %s | tar xf -" % tar_gz)
 
 # Verify that a virgin installation installs the standalone library.
 test.run(chdir = scons_version,

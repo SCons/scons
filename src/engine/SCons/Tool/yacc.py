@@ -42,9 +42,9 @@ def generate(env):
     c_file.add_action('.y', '$YACCCOM')
     cxx_file.add_action('.yy', '$YACCCOM')
 
-    env['YACC']      = 'yacc'
+    env['YACC']      = env.Detect('bison') or 'yacc'
     env['YACCFLAGS'] = ''
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
 
 def exists(env):
-    return env.Detect('yacc')
+    return env.Detect(['bison', 'yacc'])

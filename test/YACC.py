@@ -118,6 +118,7 @@ yyerror(s)
 char *s;
 {
     fprintf(stderr, "%%s\n", s);
+    return 0;
 }
 
 yylex()

@@ -43,9 +43,9 @@ def generate(env):
     c_file.add_action('.l', '$LEXCOM')
     cxx_file.add_action('.ll', '$LEXCOM')
 
-    env['LEX']      = 'lex'
+    env['LEX']      = env.Detect('flex') or 'lex'
     env['LEXFLAGS'] = ''
     env['LEXCOM']   = '$LEX $LEXFLAGS -t $SOURCES > $TARGET'
     
 def exists(env):
-    return env.Detect('lex')
+    return env.Detect(['flex', 'lex'])
