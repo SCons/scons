@@ -118,6 +118,8 @@ class Serial:
             else:
                 task.executed()
 
+            task.postprocess()
+
 
 # Trap import failure so that everything in the Job module but the
 # Parallel class (and its dependent classes) will work if the interpreter
@@ -251,3 +253,5 @@ else:
                         task.executed()
                     else:
                         task.failed()
+
+                    task.postprocess()

@@ -181,6 +181,13 @@ class Task:
                     side_effect.set_state(state)
             t.set_state(state)
 
+    def postprocess(self):
+        """Post process a task after it's been executed."""
+        for t in self.targets:
+            t.postprocess()
+
+
+
 def order(dependencies):
     """Re-order a list of dependencies (if we need to)."""
     return dependencies

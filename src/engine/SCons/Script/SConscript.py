@@ -270,12 +270,18 @@ def SConscript_exception(file=sys.stderr):
     up to where we exec the SConscript."""
     stack = traceback.extract_tb(sys.exc_traceback)
     last_text = ""
+    found = 0
     i = 0
     for frame in stack:
         if is_our_exec_statement(last_text):
+            found = 1
             break
         i = i + 1
         last_text = frame[3]
+    if not found:
+        # We did not find our exec statement, so this was actually a bug
+        # in SCons itself.  Show the whole stack.
+        i = 0
     type = str(sys.exc_type)
     if type[:11] == "exceptions.":
         type = type[11:]

@@ -1694,6 +1694,7 @@ class CacheDirTestCase(unittest.TestCase):
 
 class clearTestCase(unittest.TestCase):
     def runTest(self):
+        """Test clearing FS nodes of cached data."""
         fs = SCons.Node.FS.FS()
 
         e = fs.Entry('e')
@@ -1716,6 +1717,20 @@ class clearTestCase(unittest.TestCase):
         f.clear()
         assert not hasattr(f, '_exists')
         assert not hasattr(f, '_rexists')
+
+class postprocessTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test calling the postprocess() method."""
+        fs = SCons.Node.FS.FS()
+
+        e = fs.Entry('e')
+        e.postprocess()
+
+        d = fs.Dir('d')
+        d.postprocess()
+
+        f = fs.File('f')
+        f.postprocess()
 
 class SpecialAttrTestCase(unittest.TestCase):
     def runTest(self):
@@ -1869,6 +1884,7 @@ if __name__ == "__main__":
     suite.addTest(SConstruct_dirTestCase())
     suite.addTest(CacheDirTestCase())
     suite.addTest(clearTestCase())
+    suite.addTest(postprocessTestCase())
     suite.addTest(SpecialAttrTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

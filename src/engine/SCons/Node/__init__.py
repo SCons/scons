@@ -135,9 +135,10 @@ class Node:
         # what line in what file created the node, for example).
         Annotate(self)
 
-    def generate_build_env(self, env):
-        """Generate the appropriate Environment to build this node."""
-        return env
+    def generate_build_dict(self):
+        """Return an appropriate dictionary of values for building
+        this Node."""
+        return {}
 
     def get_build_env(self):
         """Fetch the appropriate Environment to build this node."""
@@ -157,10 +158,9 @@ class Node:
             if not create:
                 raise
             import SCons.Executor
-            env = self.generate_build_env(self.builder.env)
             executor = SCons.Executor.Executor(self.builder,
-                                               env,
-                                               self.builder.overrides,
+                                               self.builder.env,
+                                               {},
                                                [self],
                                                self.sources)
             self.executor = executor
@@ -196,10 +196,10 @@ class Node:
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
         """
-        def do_action(action, targets, sources, env, self=self):
+        def do_action(action, targets, sources, env, s=self):
             stat = action(targets, sources, env)
             if stat:
-                raise SCons.Errors.BuildError(node = self,
+                raise SCons.Errors.BuildError(node = s,
                                               errstr = "Error %d" % stat)
         self._for_each_action(do_action)
 
@@ -224,6 +224,16 @@ class Node:
         # clear out the content signature, since the contents of this
         # node were presumably just changed:
         self.del_csig()
+
+    def postprocess(self):
+        """Clean up anything we don't need to hang onto after we've
+        been built."""
+        try:
+            executor = self.get_executor(create=None)
+        except AttributeError:
+            pass
+        else:
+            executor.cleanup()
 
     def clear(self):
         """Completely clear a Node of all its cached state (so that it

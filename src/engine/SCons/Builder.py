@@ -203,7 +203,7 @@ def _init_nodes(builder, env, overrides, tlist, slist):
             executor.add_sources(slist)
     if executor is None:
         executor = SCons.Executor.Executor(builder,
-                                           tlist[0].generate_build_env(env),
+                                           env,
                                            overrides,
                                            tlist,
                                            slist)

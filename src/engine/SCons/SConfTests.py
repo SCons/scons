@@ -176,6 +176,8 @@ class SConfTestCase(unittest.TestCase):
                         return [], None
                     def depends_on(self, nodes):
                         return None
+                    def postprocess(self):
+                        pass
                 return [MyNode('n1'), MyNode('n2')]
         self.scons_env.Append(BUILDERS = {'SConfActionBuilder' : MyBuilder()})
         sconf.TryBuild(self.scons_env.SConfActionBuilder)

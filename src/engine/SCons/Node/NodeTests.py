@@ -925,6 +925,17 @@ class NodeTestCase(unittest.TestCase):
         siginfo = n.get_prevsiginfo()
         assert siginfo == (None, None, None), siginfo
 
+    def test_generate_build_dict(self):
+        """Test the base Node generate_build_dict() method"""
+        n = SCons.Node.Node()
+        dict = n.generate_build_dict()
+        assert dict == {}, dict
+
+    def test_postprocess(self):
+        """Test calling the base Node postprocess() method"""
+        n = SCons.Node.Node()
+        n.postprocess()
+
 
 
 if __name__ == "__main__":
