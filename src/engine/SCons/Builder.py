@@ -467,7 +467,15 @@ class BuilderBase:
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
 
-    def splitext(self, path):
+    def splitext(self, path, env=None):
+        if not env:
+            env = self.env
+        if env:
+            matchsuf = filter(lambda S,path=path: path[-len(S):] == S,
+                              self.src_suffixes(env))
+            if matchsuf:
+                suf = max(map(None, map(len, matchsuf), matchsuf))[1]
+                return [path[:-len(suf)], path[-len(suf):]]
         return SCons.Util.splitext(path)
 
     def _create_nodes(self, env, overwarn, target = None, source = None):
@@ -503,7 +511,8 @@ class BuilderBase:
                 t_from_s = slist[0].target_from_source
             except AttributeError:
                 raise UserError("Do not know how to create a target from source `%s'" % slist[0])
-            tlist = [ t_from_s(pre, suf, self.splitext) ]
+            splitext = lambda S,self=self,env=env: self.splitext(S,env)
+            tlist = [ t_from_s(pre, suf, splitext) ]
         else:
             target = _adjustixes(target, pre, suf)
             tlist = env.arg2nodes(target, self.target_factory)
@@ -708,27 +717,22 @@ class MultiStepBuilder(BuilderBase):
         src_suffixes = self.src_suffixes(env)
 
         for snode in slist:
-            try:
-                get_suffix = snode.get_suffix
-            except AttributeError:
-                ext = self.splitext(str(snode))
-            else:
-                ext = get_suffix()
-            try:
-                subsidiary_builder = sdict[ext]
-            except KeyError:
+            for srcsuf in src_suffixes:
+                if str(snode)[-len(srcsuf):] == srcsuf and sdict.has_key(srcsuf):
+                    tgt = sdict[srcsuf]._execute(env, None, snode, overwarn)
+                    # If the subsidiary Builder returned more than one target,
+                    # then filter out any sources that this Builder isn't
+                    # capable of building.
+                    if len(tgt) > 1:
+                        tgt = filter(lambda x, self=self, suf=src_suffixes, e=env:
+                                     self.splitext(SCons.Util.to_String(x),e)[1] in suf,
+                                     tgt)
+                    final_sources.extend(tgt)
+                    snode = None
+                    break
+            if snode:
                 final_sources.append(snode)
-            else:
-                tgt = subsidiary_builder._execute(env, None, snode, overwarn)
-                # If the subsidiary Builder returned more than one target,
-                # then filter out any sources that this Builder isn't
-                # capable of building.
-                if len(tgt) > 1:
-                    tgt = filter(lambda x, self=self, suf=src_suffixes:
-                                 self.splitext(SCons.Util.to_String(x))[1] in suf,
-                                 tgt)
-                final_sources.extend(tgt)
-
+                
         return BuilderBase._execute(self, env, target, final_sources, overwarn)
 
     def get_src_builders(self, env):
