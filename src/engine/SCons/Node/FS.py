@@ -83,6 +83,15 @@ else:
     def _my_normcase(x):
         return string.upper(x)
 
+
+def exists_path(path):
+    """Return a path if it's already a Node or it exists in the
+    real filesystem."""
+    if os.path.exists(path):
+        return path
+    return None
+
+
 class FS:
     def __init__(self, path = None):
         """Initialize the Node.FS subsystem.
@@ -302,13 +311,39 @@ class FS:
         for d in dirs:
             self.Repositories.append(self.Dir(d))
 
-    def Rsearch(self, path, func = os.path.exists):
-        """Search for something in a repository."""
-        for dir in self.Repositories:
-            t = os.path.join(dir.path, path)
-            if func(t):
-                return t
+    def Rsearch(self, path, func = exists_path):
+        """Search for something in a repository.  Returns the first
+        one found in the list, or None if there isn't one."""
+        if isinstance(path, SCons.Node.Node):
+            return path
+        else:
+            n = func(path)
+            if n:
+                return n
+            for dir in self.Repositories:
+                n = func(os.path.join(dir.path, path))
+                if n:
+                    return n
         return None
+
+    def Rsearchall(self, pathlist, func = exists_path):
+        """Search for a list of somethings in the repository list."""
+        ret = []
+        if SCons.Util.is_String(pathlist):
+            pathlist = string.split(pathlist, os.pathsep)
+        for path in pathlist:
+            if isinstance(path, SCons.Node.Node):
+                ret.append(path)
+            else:
+                n = func(path)
+                if n:
+                    ret.append(n)
+                if not os.path.isabs(path):
+                    for dir in self.Repositories:
+                        n = func(os.path.join(dir.path, path))
+                        if n:
+                            ret.append(n)
+        return ret
 
 
 class Entry(SCons.Node.Node):
@@ -350,7 +385,6 @@ class Entry(SCons.Node.Node):
         self.__doSrcpath(self.duplicate)
         self.srcpath_ = self.srcpath
         self.cwd = None # will hold the SConscript directory for target nodes
-        self._rfile = None
 
     def get_dir(self):
         return self.dir
@@ -437,7 +471,6 @@ class Dir(Entry):
     def __init__(self, name, directory):
         Entry.__init__(self, name, directory)
         self._morph()
-        self._rfile = None
 
     def _morph(self):
         """Turn a file system node (either a freshly initialized
@@ -557,7 +590,6 @@ class Dir(Entry):
 # XXX TODO?
 # rfile
 # precious
-# no_rfile
 # rpath
 # rsrcpath
 # source_exists
@@ -671,12 +703,16 @@ class File(Entry):
             self.__createDir()
 
     def rfile(self):
-        if not self._rfile:
+        if not hasattr(self, '_rfile'):
             self._rfile = self
             if not os.path.isabs(self.path) and not os.path.isfile(self.path):
-                t = self.fs.Rsearch(self.path, os.path.isfile)
-                if t:
-                    self._rfile = self.fs.File(t)
+		def file_node(path, fs = self.fs):
+		    if os.path.isfile(path):
+		        return fs.File(path)
+		    return None
+                n = self.fs.Rsearch(self.path, file_node)
+                if n:
+                    self._rfile = n
         return self._rfile
 
     def rstr(self):

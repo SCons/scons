@@ -453,7 +453,7 @@ class EnvironmentTestCase(unittest.TestCase):
         assert dict['_LIBFLAGS'][2] == 'foobazbar', \
                dict['_LIBFLAGS'][2]
 
-        blat = SCons.Node.FS.default_fs.File('blat')
+        blat = SCons.Node.FS.default_fs.Dir('blat')
 
         env = Environment(CPPPATH = [ 'foo', '$FOO/bar', blat ],
                           INCPREFIX = 'foo ',
@@ -507,7 +507,6 @@ class EnvironmentTestCase(unittest.TestCase):
         assert len(dict['_F77INCFLAGS']) == 0, dict['_F77INCFLAGS']
         assert len(dict['_LIBDIRFLAGS']) == 0, dict['_LIBDIRFLAGS']
 
-        blat = SCons.Node.FS.default_fs.File('blat')
         SCons.Node.FS.default_fs.Repository('/rep1')
         SCons.Node.FS.default_fs.Repository('/rep2')
         env = Environment(CPPPATH = [ 'foo', '/a/b', '$FOO/bar', blat],

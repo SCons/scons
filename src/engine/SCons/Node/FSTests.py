@@ -544,7 +544,10 @@ class RepositoryTestCase(unittest.TestCase):
 
         assert len(fs.Repositories) == 4, fs.Repositories
         r = map(lambda x, np=os.path.normpath: np(str(x)), fs.Repositories)
-        assert r == ['foo', 'foo/bar', 'bar/foo', 'bar'], r
+        assert r == ['foo',
+                     os.path.join('foo', 'bar'),
+                     os.path.join('bar', 'foo'),
+                     'bar'], r
 
         test = TestCmd(workdir = '')
         test.subdir('rep1', 'rep2', 'rep3', 'work')
@@ -558,26 +561,68 @@ class RepositoryTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS()
         fs.Repository(rep1, rep2, rep3)
 
-        wf = fs.File(os.path.join('f1'))
-        assert wf.rfile() is wf
+        f1 = fs.File(os.path.join('f1'))
+        assert f1.rfile() is f1
 
         test.write([rep1, 'f2'], "")
 
-        wf = fs.File('f2')
-        assert not wf.rfile() is wf, wf.rfile()
-        assert str(wf.rfile()) == os.path.join(rep1, 'f2'), str(wf.rfile())
+        f2 = fs.File('f2')
+        assert not f2.rfile() is f2, f2.rfile()
+        assert str(f2.rfile()) == os.path.join(rep1, 'f2'), str(f2.rfile())
 
         test.subdir([rep2, 'f3'])
         test.write([rep3, 'f3'], "")
 
-        wf = fs.File('f3')
-        assert not wf.rfile() is wf, wf.rfile()
-        assert wf.rstr() == os.path.join(rep3, 'f3'), wf.rstr()
+        f3 = fs.File('f3')
+        assert not f3.rfile() is f3, f3.rfile()
+        assert f3.rstr() == os.path.join(rep3, 'f3'), f3.rstr()
+
+        assert fs.Rsearch('f1') is None
+        assert fs.Rsearch('f2')
+        assert fs.Rsearch(f3) is f3
 
         assert not fs.Rsearch('f1', os.path.exists)
         assert fs.Rsearch('f2', os.path.exists)
         assert fs.Rsearch('f3', os.path.exists)
 
+        list = fs.Rsearchall([fs.Dir('d1')])
+        assert len(list) == 1, list
+        assert list[0].path == 'd1', list[0].path
+
+        list = fs.Rsearchall('d2')
+        assert list == [], list
+
+        test.subdir(['work', 'd2'])
+        list = fs.Rsearchall('d2')
+        assert list == ['d2'], list
+
+        test.subdir(['rep2', 'd2'])
+        list = fs.Rsearchall('d2')
+        assert list == ['d2', test.workpath('rep2', 'd2')], list
+
+        test.subdir(['rep1', 'd2'])
+        list = fs.Rsearchall('d2')
+        assert list == ['d2',
+                         test.workpath('rep1', 'd2'),
+                         test.workpath('rep2', 'd2')], list
+
+        list = fs.Rsearchall(['d3', 'd4'])
+        assert list == [], list
+
+        test.subdir(['work', 'd3'])
+        list = fs.Rsearchall(['d3', 'd4'])
+        assert list == ['d3'], list
+
+        test.subdir(['rep3', 'd4'])
+        list = fs.Rsearchall(['d3', 'd4'])
+        assert list == ['d3', test.workpath('rep3', 'd4')], list
+
+        list = fs.Rsearchall(string.join(['d3', 'd4'], os.pathsep))
+        assert list == ['d3', test.workpath('rep3', 'd4')], list
+
+        work_d4 = fs.File(os.path.join('work', 'd4'))
+        list = fs.Rsearchall(['d3', work_d4])
+        assert list == ['d3', work_d4], list
 
 class find_fileTestCase(unittest.TestCase):
     def runTest(self):
