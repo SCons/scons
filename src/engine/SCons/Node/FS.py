@@ -1089,6 +1089,8 @@ class DummyExecutor:
         return ''
     def get_timestamp(self):
         return 0
+    def get_build_env(self):
+        return None
 
 class Dir(Base):
     """A class for directories in a file system.
@@ -1210,34 +1212,25 @@ class Dir(Base):
         else:
             return self.entries['..'].root()
 
-    def children(self, scan=1):
-        return filter(lambda x, i=self.ignore: x not in i,
-                             self.all_children(scan))
-
-    def all_children(self, scan=1):
-        # Before we traverse our children, make sure we have created Nodes
-        # for any files that this directory contains.  We need to do this
-        # so any change in a file in this directory will cause it to
-        # be out of date.
-        if not self.searched:
-            try:
-                for filename in self.fs.listdir(self.abspath):
-                    if filename != '.sconsign':
-                        self.Entry(filename)
-            except OSError:
-                # Directory does not exist.  No big deal
-                pass
-            self.searched = 1
+    def scan(self):
+        if not self.implicit is None:
+            return
+        self.implicit = []
+        self.implicit_dict = {}
+        self._children_reset()
+        try:
+            for filename in self.fs.listdir(self.abspath):
+                if filename != '.sconsign':
+                    self.Entry(filename)
+        except OSError:
+            # Directory does not exist.  No big deal
+            pass
         keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
         kids = map(lambda x, s=self: s.entries[x], keys)
         def c(one, two):
-            if one.abspath < two.abspath:
-               return -1
-            if one.abspath > two.abspath:
-               return 1
-            return 0
+            return cmp(one.abspath, two.abspath)
         kids.sort(c)
-        return kids + SCons.Node.Node.all_children(self, 0)
+        self._add_child(self.implicit, self.implicit_dict, kids)
 
     def get_actions(self):
         """A null "builder" for directories."""
@@ -1259,7 +1252,7 @@ class Dir(Base):
     def get_contents(self):
         """Return aggregate contents of all our children."""
         contents = cStringIO.StringIO()
-        for kid in self.children(None):
+        for kid in self.children():
             contents.write(kid.get_contents())
         return contents.getvalue()
     
@@ -1270,7 +1263,7 @@ class Dir(Base):
         """If all of our children were up-to-date, then this
         directory was up-to-date, too."""
         state = 0
-        for kid in self.children(None):
+        for kid in self.children():
             s = kid.get_state()
             if s and (not state or s > state):
                 state = s
@@ -1319,7 +1312,7 @@ class Dir(Base):
     def get_timestamp(self):
         """Return the latest timestamp from among our children"""
         stamp = 0
-        for kid in self.children(None):
+        for kid in self.children():
             if kid.get_timestamp() > stamp:
                 stamp = kid.get_timestamp()
         return stamp

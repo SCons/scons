@@ -524,12 +524,30 @@ class Node:
 
         binfo = self.new_binfo()
 
-        children = self.children()
+        self.scan()
 
-        sigs = map(lambda n, c=calc: n.calc_signature(c), children)
+        sources = self.filter_ignore(self.sources)
+        depends = self.filter_ignore(self.depends)
+        if self.implicit is None:
+            implicit = []
+        else:
+            implicit = self.filter_ignore(self.implicit)
 
-        binfo.bkids = map(str, children)
-        binfo.bkidsigs = sigs[:]
+        def calc_signature(node, calc=calc):
+            return node.calc_signature(calc)
+        sourcesigs = map(calc_signature, sources)
+        dependsigs = map(calc_signature, depends)
+        implicitsigs = map(calc_signature, implicit)
+
+        binfo.bsources = map(str, sources)
+        binfo.bdepends = map(str, depends)
+        binfo.bimplicit = map(str, implicit)
+
+        binfo.bsourcesigs = sourcesigs
+        binfo.bdependsigs = dependsigs
+        binfo.bimplicitsigs = implicitsigs
+
+        sigs = sourcesigs + dependsigs + implicitsigs
 
         if self.has_builder():
             executor = self.get_executor()
@@ -672,6 +690,14 @@ class Node:
         except AttributeError:
             pass
 
+    def filter_ignore(self, nodelist):
+        ignore = self.ignore
+        result = []
+        for node in nodelist:
+            if node not in ignore:
+                result.append(node)
+        return result
+
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those
         that are ignored by this node."""
@@ -680,10 +706,9 @@ class Node:
         try:
             return self._children
         except AttributeError:
-            c = filter(lambda x, i=self.ignore: x not in i,
-                              self.all_children(scan=0))
-            self._children = c
-            return c
+            c = self.all_children(scan=0)
+            self._children = self.filter_ignore(c)
+            return self._children
 
     def all_children(self, scan=1):
         """Return a list of all the node's direct children."""
@@ -830,26 +855,35 @@ class Node:
         if old is None:
             return None
 
-        def dictify(kids, sigs):
-            result = {}
+        def dictify(result, kids, sigs):
             for k, s in zip(kids, sigs):
                 result[k] = s
-            return result
 
         try:
-            osig = dictify(old.bkids, old.bkidsigs)
+            old_bkids = old.bsources + old.bdepends + old.bimplicit
         except AttributeError:
             return "Cannot explain why `%s' is being rebuilt: No previous build information found\n" % self
 
+        osig = {}
+        dictify(osig, old.bsources, old.bsourcesigs)
+        dictify(osig, old.bdepends, old.bdependsigs)
+        dictify(osig, old.bimplicit, old.bimplicitsigs)
 
-        newkids = map(str, self.binfo.bkids)
-        nsig = dictify(newkids, self.binfo.bkidsigs)
+        new_bsources = map(str, self.binfo.bsources)
+        new_bdepends = map(str, self.binfo.bdepends)
+        new_bimplicit = map(str, self.binfo.bimplicit)
 
+        nsig = {}
+        dictify(nsig, new_bsources, self.binfo.bsourcesigs)
+        dictify(nsig, new_bdepends, self.binfo.bdependsigs)
+        dictify(nsig, new_bimplicit, self.binfo.bimplicitsigs)
+
+        new_bkids = new_bsources + new_bdepends + new_bimplicit
         lines = map(lambda x: "`%s' is no longer a dependency\n" % x,
-                    filter(lambda x, nk=newkids: not x in nk, old.bkids))
+                    filter(lambda x, nk=new_bkids: not x in nk, old_bkids))
 
-        for k in newkids:
-            if not k in old.bkids:
+        for k in new_bkids:
+            if not k in old_bkids:
                 lines.append("`%s' is a new dependency\n" % k)
             elif osig[k] != nsig[k]:
                 lines.append("`%s' changed\n" % k)
@@ -863,8 +897,8 @@ class Node:
 
         if len(lines) == 0:
             lines.append("the dependency order changed:\n" +
-                         "%sold: %s\n" % (' '*15, old.bkids) +
-                         "%snew: %s\n" % (' '*15, newkids))
+                         "%sold: %s\n" % (' '*15, old_bkids) +
+                         "%snew: %s\n" % (' '*15, new_bkids))
 
         preamble = "rebuilding `%s' because" % self
         if len(lines) == 1:
