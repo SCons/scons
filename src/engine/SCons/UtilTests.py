@@ -167,7 +167,7 @@ class UtilTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS(test.workpath(""))
         node_derived = fs.File(test.workpath('./bar/baz'))
         node_derived.builder_set(1) # Any non-zero value.
-        paths = map(lambda x, fs=fs: fs.Dir(x), ['./', './bar'])
+        paths = map(lambda x, fs=fs: fs.Dir(x), ['.', './bar'])
         nodes = find_files(['foo', 'baz'], paths, fs.File)
         file_names = map(str, nodes)
         file_names = map(os.path.normpath, file_names)
@@ -193,11 +193,11 @@ class UtilTestCase(unittest.TestCase):
                 'INCSUFFIX' : 'bar'}
         autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
         assert len(dict['_INCFLAGS']) == 3, dict('_INCFLAGS')
-        assert dict['_INCFLAGS'][0] == 'foo/xx/foobar', \
+        assert dict['_INCFLAGS'][0] == os.path.normpath('foo/xx/foobar'), \
                dict['_INCFLAGS'][0]
-        assert dict['_INCFLAGS'][1] == 'foo/xx/barbar', \
+        assert dict['_INCFLAGS'][1] == os.path.normpath('foo/xx/barbar'), \
                dict['_INCFLAGS'][1]
-        assert dict['_INCFLAGS'][2] == 'foo/xx/bazbar', \
+        assert dict['_INCFLAGS'][2] == os.path.normpath('foo/xx/bazbar'), \
                dict['_INCFLAGS'][2]
         
         

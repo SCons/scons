@@ -30,6 +30,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 def Func():
     pass
 
+import os.path
 import sys
 import unittest
 
@@ -281,13 +282,13 @@ class BuilderTestCase(unittest.TestCase):
               'LIBLINKSUFFIX' : '',
               'LIBPATH'       : ['lib'],
               'LIBDIRPREFIX'  : '-L',
-              'LIBDIRSUFFIX'  : '/',
+              'LIBDIRSUFFIX'  : 'X',
               'CPPPATH'       : ['c', 'p'],
               'INCPREFIX'     : '-I',
               'INCSUFFIX'     : ''}
 
         contents = apply(b4.get_contents, (), kw)
-        assert contents == "-ll1 -ll2 -Llib/ -Ic -Ip", contents
+        assert contents == "-ll1 -ll2 -LlibX -Ic -Ip", contents
 
         # SCons.Node.FS has been imported by our import of
         # SCons.Node.Builder.  It's kind of bogus that we don't
@@ -296,7 +297,8 @@ class BuilderTestCase(unittest.TestCase):
         # to the other module via a direct import.
         kw['dir'] = SCons.Node.FS.default_fs.Dir('d')
         contents = apply(b4.get_contents, (), kw)
-        assert contents == "-ld/l1 -ld/l2 -Ld/lib/ -Id/c -Id/p", contents
+        expect = os.path.normpath("-ld/l1 -ld/l2 -Ld/libX -Id/c -Id/p")
+        assert contents == expect, contents + " != " + expect
 
     def test_name(self):
 	"""Test Builder creation with a specified name
