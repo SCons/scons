@@ -60,20 +60,25 @@ test.write(['work1', 'subdir', 'f4.in'], "work1/subdir/f4.in\n")
 
 test.run(chdir = 'work1')
 
-test.fail_test(not os.path.exists(test.workpath('work1', '.sconsign.dbm')))
-test.fail_test(os.path.exists(test.workpath('work1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'subdir', '.sconsign')))
+def any_dbm_file(prefix):
+    return os.path.exists(prefix) \
+           or os.path.exists(prefix + '.dat') \
+           or os.path.exists(prefix + '.dir')
 
-test.fail_test(test.read(['work1', 'f1.out']) != "work1/f1.in\n")
-test.fail_test(test.read(['work1', 'f2.out']) != "work1/f2.in\n")
-test.fail_test(test.read(['work1', 'subdir', 'f3.out']) != "work1/subdir/f3.in\n")
-test.fail_test(test.read(['work1', 'subdir', 'f4.out']) != "work1/subdir/f4.in\n")
+test.fail_test(not any_dbm_file(test.workpath('work1', '.sconsign.dbm')))
+test.must_not_exist(test.workpath('work1', '.sconsign'))
+test.must_not_exist(test.workpath('work1', 'subdir', '.sconsign'))
+  
+test.must_match(['work1', 'f1.out'], "work1/f1.in\n")
+test.must_match(['work1', 'f2.out'], "work1/f2.in\n")
+test.must_match(['work1', 'subdir', 'f3.out'], "work1/subdir/f3.in\n")
+test.must_match(['work1', 'subdir', 'f4.out'], "work1/subdir/f4.in\n")
 
 test.up_to_date(chdir = 'work1', arguments = '.')
 
-test.fail_test(not os.path.exists(test.workpath('work1', '.sconsign.dbm')))
-test.fail_test(os.path.exists(test.workpath('work1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'subdir', '.sconsign')))
+test.fail_test(not any_dbm_file(test.workpath('work1', '.sconsign.dbm')))
+test.must_not_exist(test.workpath('work1', '.sconsign'))
+test.must_not_exist(test.workpath('work1', 'subdir', '.sconsign'))
 
 #
 test.write(['work2', 'SConstruct'], """
@@ -94,21 +99,21 @@ test.write(['work2', 'subdir', 'f8.in'], "work2/subdir/f8.in\n")
 
 test.run(chdir = 'work2')
 
-test.fail_test(not os.path.exists(test.workpath('work2', 'my_sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', '.sconsign.dbm')))
-test.fail_test(os.path.exists(test.workpath('work2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'subdir', '.sconsign')))
+test.fail_test(not any_dbm_file(test.workpath('work2', 'my_sconsign')))
+test.fail_test(any_dbm_file(test.workpath('work2', '.sconsign.dbm')))
+test.must_not_exist(test.workpath('work2', '.sconsign'))
+test.must_not_exist(test.workpath('work2', 'subdir', '.sconsign'))
 
-test.fail_test(test.read(['work2', 'f5.out']) != "work2/f5.in\n")
-test.fail_test(test.read(['work2', 'f6.out']) != "work2/f6.in\n")
-test.fail_test(test.read(['work2', 'subdir', 'f7.out']) != "work2/subdir/f7.in\n")
-test.fail_test(test.read(['work2', 'subdir', 'f8.out']) != "work2/subdir/f8.in\n")
+test.must_match(['work2', 'f5.out'], "work2/f5.in\n")
+test.must_match(['work2', 'f6.out'], "work2/f6.in\n")
+test.must_match(['work2', 'subdir', 'f7.out'], "work2/subdir/f7.in\n")
+test.must_match(['work2', 'subdir', 'f8.out'], "work2/subdir/f8.in\n")
 
 test.up_to_date(chdir = 'work2', arguments = '.')
 
-test.fail_test(not os.path.exists(test.workpath('work2', 'my_sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', '.sconsign.dbm')))
-test.fail_test(os.path.exists(test.workpath('work2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'subdir', '.sconsign')))
+test.fail_test(not any_dbm_file(test.workpath('work2', 'my_sconsign')))
+test.fail_test(any_dbm_file(test.workpath('work2', '.sconsign.dbm')))
+test.must_not_exist(test.workpath('work2', '.sconsign'))
+test.must_not_exist(test.workpath('work2', 'subdir', '.sconsign'))
 
 test.pass_test()

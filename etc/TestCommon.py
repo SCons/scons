@@ -46,13 +46,13 @@ provided by the TestCommon class:
 The TestCommon module also provides the following variables
 
     TestCommon.python_executable
-    TestCommon._exe
-    TestCommon._obj
-    TestCommon._shobj
-    TestCommon.lib_
-    TestCommon._lib
-    TestCommon.dll_
-    TestCommon._dll
+    TestCommon.exe_suffix
+    TestCommon.obj_suffix
+    TestCommon.shobj_suffix
+    TestCommon.lib_prefix
+    TestCommon.lib_suffix
+    TestCommon.dll_prefix
+    TestCommon.dll_suffix
 
 """
 
@@ -73,7 +73,7 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.6.D001 2004/03/20 17:39:42 knight"
+__revision__ = "TestCommon.py 0.6.D002 2004/03/29 06:21:41 knight"
 __version__ = "0.6"
 
 import os
@@ -87,41 +87,48 @@ from TestCmd import *
 from TestCmd import __all__
 
 __all__.extend([ 'TestCommon',
-                 '_exe', '_obj', '_shobj', 'lib_', '_lib', 'dll_', '_dll', ])
+                 'exe_suffix',
+                 'obj_suffix',
+                 'shobj_suffix',
+                 'lib_prefix',
+                 'lib_suffix',
+                 'dll_prefix',
+                 'dll_suffix',
+               ])
 
 # Variables that describe the prefixes and suffixes on this system.
 if sys.platform == 'win32':
-    _exe   = '.exe'
-    _obj   = '.obj'
-    _shobj = '.obj'
-    lib_   = ''
-    _lib   = '.lib'
-    dll_   = ''
-    _dll   = '.dll'
+    exe_suffix   = '.exe'
+    obj_suffix   = '.obj'
+    shobj_suffix = '.obj'
+    lib_prefix   = ''
+    lib_suffix   = '.lib'
+    dll_prefix   = ''
+    dll_suffix   = '.dll'
 elif sys.platform == 'cygwin':
-    _exe   = '.exe'
-    _obj   = '.o'
-    _shobj = '.os'
-    lib_   = 'lib'
-    _lib   = '.a'
-    dll_   = ''
-    _dll   = '.dll'
+    exe_suffix   = '.exe'
+    obj_suffix   = '.o'
+    shobj_suffix = '.os'
+    lib_prefix   = 'lib'
+    lib_suffix   = '.a'
+    dll_prefix   = ''
+    dll_suffix   = '.dll'
 elif string.find(sys.platform, 'irix') != -1:
-    _exe   = ''
-    _obj   = '.o'
-    _shobj = '.o'
-    lib_   = 'lib'
-    _lib   = '.a'
-    dll_   = 'lib'
-    _dll   = '.so'
+    exe_suffix   = ''
+    obj_suffix   = '.o'
+    shobj_suffix = '.o'
+    lib_prefix   = 'lib'
+    lib_suffix   = '.a'
+    dll_prefix   = 'lib'
+    dll_suffix   = '.so'
 else:
-    _exe   = ''
-    _obj   = '.o'
-    _shobj = '.os'
-    lib_   = 'lib'
-    _lib   = '.a'
-    dll_   = 'lib'
-    _dll   = '.so'
+    exe_suffix   = ''
+    obj_suffix   = '.o'
+    shobj_suffix = '.os'
+    lib_prefix   = 'lib'
+    lib_suffix   = '.a'
+    dll_prefix   = 'lib'
+    dll_suffix   = '.so'
 
 def is_List(e):
     return type(e) is types.ListType \

@@ -50,7 +50,7 @@
  *
  * Look in aesub(5) for more information about command substitutions.
  */
-build_command = "python ${Source bootstrap.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+build_command = "python1.5 ${Source bootstrap.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * SCons removes its targets before constructing them, which qualifies it
@@ -258,9 +258,9 @@ diff_command =
  * is set appropriately during a baseline test.  So we just use the
  * proper aesub variable to comment out the expanded $spe.
  */
-test_command = "python ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -q ${File_Name}";
+test_command = "python1.5 ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -q ${File_Name}";
 
-batch_test_command = "python ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -o ${Output} ${File_Names} ${COMment $spe}";
+batch_test_command = "python1.5 ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -o ${Output} ${File_Names} ${COMment $spe}";
 
 new_test_filename = "test/CHANGETHIS.py";
 
