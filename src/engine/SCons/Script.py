@@ -58,6 +58,7 @@ from SCons.Errors import *
 import SCons.Sig
 import SCons.Sig.MD5
 from SCons.Taskmaster import Taskmaster
+import SCons.Util
 
 #
 # Modules and classes that we don't use directly in this script, but
@@ -181,6 +182,14 @@ def Help(text):
 
 def BuildDir(build_dir, src_dir):
     SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir)
+
+def GetBuildPath(files):
+    nodes = SCons.Util.scons_str2nodes(files,
+                                       SCons.Node.FS.default_fs.Entry)
+    ret = map(str, nodes)
+    if len(ret) == 1:
+        return ret[0]
+    return ret
 
 def Export(**kw):
     # A convenient shorthand to pass exports to the SConscript function.
@@ -361,6 +370,7 @@ def options_init():
     def opt_C(opt, arg):
 	try:
 	    os.chdir(arg)
+            SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
 	except:
 	    sys.stderr.write("Could not change directory to 'arg'\n")
 

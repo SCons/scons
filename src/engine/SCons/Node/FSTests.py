@@ -372,7 +372,7 @@ class FSTestCase(unittest.TestCase):
         os.chdir('..')
         fs3 = SCons.Node.FS.FS()
         assert fs1 == fs2
-        assert fs1 == fs3
+        assert fs1 != fs3
 
         # Test comparison of Entry objects
         e1 = fs3.Entry('cmp/entry')

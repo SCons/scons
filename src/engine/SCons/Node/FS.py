@@ -127,15 +127,32 @@ class FS:
         The path argument must be a valid absolute path.
         """
         if path == None:
-            path = os.getcwd()
+            self.pathTop = os.getcwd()
+        else:
+            self.pathTop = path
         self.Root = PathDict()
-        self.Top = self.__doLookup(Dir, path)
-        self.Top.path = '.'
-        self.Top.srcpath = '.'
-        self.Top.path_ = os.path.join('.', '')
-        self.cwd = self.Top
+        self.Top = None
+
+    def set_toplevel_dir(self, path):
+        assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
+        self.pathTop = path
+        
+    def __setTopLevelDir(self):
+        if not self.Top:
+            self.Top = self.__doLookup(Dir, self.pathTop)
+            self.Top.path = '.'
+            self.Top.srcpath = '.'
+            self.Top.path_ = os.path.join('.', '')
+            self.cwd = self.Top
+        
+    def __hash__(self):
+        self.__setTopLevelDir()
+        return hash(self.Top)
 
     def __cmp__(self, other):
+        self.__setTopLevelDir()
+        if isinstance(other, FS):
+            other.__setTopLevelDir()
 	return cmp(self.__dict__, other.__dict__)
 
     def __doLookup(self, fsclass, name, directory=None):
@@ -206,6 +223,7 @@ class FS:
         If directory is None, and name is a relative path,
         then the same applies.
         """
+        self.__setTopLevelDir()
         if name[0] == '#':
             directory = self.Top
             name = os.path.join(os.path.normpath('./'), name[1:])
@@ -216,6 +234,7 @@ class FS:
     def chdir(self, dir):
         """Change the current working directory for lookups.
         """
+        self.__setTopLevelDir()
         if not dir is None:
             self.cwd = dir
 
@@ -258,6 +277,7 @@ class FS:
     def BuildDir(self, build_dir, src_dir):
         """Link the supplied build directory to the source directory
         for purposes of building files."""
+        self.__setTopLevelDir()
         dirSrc = self.Dir(src_dir)
         dirBuild = self.Dir(build_dir)
         if not dirSrc.is_under(self.Top) or not dirBuild.is_under(self.Top):

@@ -25,14 +25,54 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
+import sys
+
+if sys.platform == 'win32':
+    _exe = '.exe'
+else:
+    _exe = ''
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is implemented.
+foo_exe = test.workpath('subdir/foo' + _exe)
 
 test.write('SConstruct', """
+SConscript('subdir/SConscript')
+""")
+
+test.subdir('subdir')
+
+test.write('subdir/foo.c', r"""
+void do_it();
+
+int main(void)
+{
+   do_it();
+   return 0;
+}
+""")
+
+test.write('subdir/bar.c', r"""
+#include <stdio.h>
+
+void do_it()
+{
+   printf("bar.c\n");
+}
+""")
+
+test.write('subdir/SConscript', r"""
+env = Environment(LIBS=['bar'], LIBPATH = [ '#subdir' ])
+env.Library(target='bar', source='bar.c')
+env.Program(target='foo', source='foo.c')
 """)
 
 test.run(arguments = '.')
 
+test.run(program=foo_exe, stdout='bar.c\n')
+
 test.pass_test()
+
+
+
+

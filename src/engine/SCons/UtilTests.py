@@ -179,7 +179,7 @@ class UtilTestCase(unittest.TestCase):
         dict = {'LIBS'          : [ 'foo', 'bar', 'baz' ],
                 'LIBLINKPREFIX' : 'foo',
                 'LIBLINKSUFFIX' : 'bar'}
-        autogenerate(dict)
+        autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
         assert len(dict['_LIBFLAGS']) == 3, dict('_LIBFLAGS')
         assert dict['_LIBFLAGS'][0] == 'foofoobar', \
                dict['_LIBFLAGS'][0]

@@ -43,27 +43,27 @@ print "SConstruct", os.getcwd()
 
 test.write(['sub', 'SConstruct'], """
 import os
-print "sub/SConstruct", os.getcwd()
+print GetBuildPath('..')
 """)
 
 test.write(['sub', 'dir', 'SConstruct'], """
 import os
-print "sub/dir/SConstruct", os.getcwd()
+print GetBuildPath('..')
 """)
 
 test.run(arguments = '-C sub',
-	 stdout = "sub/SConstruct %s\n" % wpath_sub)
+	 stdout = "%s\n" % wpath)
 
 test.run(arguments = '-C sub -C dir',
-	 stdout = "sub/dir/SConstruct %s\n" % wpath_sub_dir)
+	 stdout = "%s\n" % wpath_sub)
 
 test.run(stdout = "SConstruct %s\n" % wpath)
 
 test.run(arguments = '--directory=sub/dir',
-	 stdout = "sub/dir/SConstruct %s\n" % wpath_sub_dir)
+	 stdout = "%s\n" % wpath_sub)
 
 test.run(arguments = '-C %s -C %s' % (wpath_sub_dir, wpath_sub),
-	 stdout = "sub/SConstruct %s\n" % wpath_sub)
+	 stdout = "%s\n" % wpath)
 
 test.pass_test()
  

@@ -36,7 +36,7 @@ import string
 import re
 from UserList import UserList
 import SCons.Node.FS
-import cStringIO
+import copy
 
 def scons_str2nodes(arg, node_factory=SCons.Node.FS.default_fs.File):
     """This function converts a string or list into a list of Node instances.
@@ -255,20 +255,77 @@ def find_files(filenames, paths,
 
     return nodes
 
+class VarInterpolator:
+    def __init__(self, dest, src, prefix, suffix):
+        self.dest = dest
+        self.src = src
+        self.prefix = prefix
+        self.suffix = suffix
 
+    def prepareSrc(self, dict):
+        src = dict[self.src]
+        if not type(src) is types.ListType and not isinstance(src, UserList):
+            src = [ src ]
+        return src
 
-AUTO_GEN_VARS = ( ( '_LIBFLAGS',
-                    'LIBS',
-                    'LIBLINKPREFIX',
-                    'LIBLINKSUFFIX' ),
-                  ( '_LIBDIRFLAGS',
-                    'LIBPATH',
-                    'LIBDIRPREFIX',
-                    'LIBDIRSUFFIX' ),
-                  ( '_INCFLAGS',
-                    'CPPPATH',
-                    'INCPREFIX',
-                    'INCSUFFIX' ) )
+    def generate(self, dict):
+        if not dict.has_key(self.src):
+            dict[self.dest] = ''
+            return
+        src = self.prepareSrc(dict)
+
+        try:
+            prefix = str(dict[self.prefix])
+        except KeyError:
+            prefix=''
+
+        try:
+            suffix = str(dict[self.suffix])
+        except KeyError:
+            suffix =''
+
+        dict[self.dest] = map(lambda x, suff=suffix, pref=prefix: \
+                              pref + os.path.normpath(str(x)) + suff,
+                              src)
+
+    def instance(self, dir, fs):
+        return self
+
+class DirVarInterp(VarInterpolator):
+    def __init__(self, dest, src, prefix, suffix):
+        VarInterpolator.__init__(self, dest, src, prefix, suffix)
+        self.fs = None
+        self.Dir = None
+        self.dictInstCache = {}
+        
+    def prepareSrc(self, dict):
+        src = VarInterpolator.prepareSrc(self, dict)
+        return map(lambda x, fs=self.fs, d=self.dir: \
+                   fs.Dir(str(x), directory = d).path,
+                   src)
+
+    def instance(self, dir, fs):
+        try:
+            ret = self.dictInstCache[(dir, fs)]
+        except KeyError:
+            ret = copy.copy(self)
+            ret.fs = fs
+            ret.dir = dir
+            self.dictInstCache[(dir, fs)] = ret
+        return ret
+
+AUTO_GEN_VARS = ( VarInterpolator('_LIBFLAGS',
+                                  'LIBS',
+                                  'LIBLINKPREFIX',
+                                  'LIBLINKSUFFIX'),
+                  DirVarInterp('_LIBDIRFLAGS',
+                               'LIBPATH',
+                               'LIBDIRPREFIX',
+                               'LIBDIRSUFFIX' ),
+                  DirVarInterp('_INCFLAGS',
+                               'CPPPATH',
+                               'INCPREFIX',
+                               'INCSUFFIX') )
 
 def autogenerate(dict, fs = SCons.Node.FS.default_fs, dir = None):
     """Autogenerate the "interpolated" environment variables.
@@ -287,28 +344,6 @@ def autogenerate(dict, fs = SCons.Node.FS.default_fs, dir = None):
     is a string, with the prefix and suffix
     concatenated."""
 
-    for strVarAuto, strSrc, strPref, strSuff, in AUTO_GEN_VARS:
-        if not dict.has_key(strSrc):
-            dict[strVarAuto] = ''
-            continue
-                
-        src = dict[strSrc]
-        if not type(src) is types.ListType and not isinstance(src, UserList):
-            src = [ src ]
-        src = map(lambda x, fs=fs, d=dir: \
-                  fs.Dir(str(x), directory = d).path,
-                  src)
+    for interp in AUTO_GEN_VARS:
+        interp.instance(dir, fs).generate(dict)
 
-        try:
-            prefix = str(dict[strPref])
-        except KeyError:
-            prefix=''
-
-        try:
-            suffix = str(dict[strSuff])
-        except KeyError:
-            suffix =''
-
-        dict[strVarAuto] = map(lambda x, suff=suffix, pref=prefix: \
-                               pref + os.path.normpath(str(x)) + suff,
-                               src)

@@ -297,7 +297,7 @@ class BuilderTestCase(unittest.TestCase):
         # to the other module via a direct import.
         kw['dir'] = SCons.Node.FS.default_fs.Dir('d')
         contents = apply(b4.get_contents, (), kw)
-        expect = os.path.normpath("-ld/l1 -ld/l2 -Ld/libX -Id/c -Id/p")
+        expect = os.path.normpath("-ll1 -ll2 -Ld/libX -Id/c -Id/p")
         assert contents == expect, contents + " != " + expect
 
     def test_name(self):

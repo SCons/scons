@@ -13,19 +13,31 @@ RELEASE 0.02 -
   - Fixed the version comment in the scons.bat (the UNIX geek used
     # instead of @rem).
 
-  - Added support for the Install method (courtesy Charles Crain).
-
-  - Added support for the BuildDir method (courtesy Charles Crain).
-
-  - Added the Export method (courtesy Charles Crain).
-
-  - Documented CXXFLAGS, CXXCOM, and CPPPATH (courtesy Anthony Roach).
-
-  - Fixed SCONS_LIB_DIR to work as documented (courtesy Anthony Roach).
-
-  - Made Default() accept Nodes as arguments (courtesy Anthony Roach).
-
   - Fix to setup.py so it doesn't require a sys.argv[1] argument.
+
+  From Charles Crain:
+
+  - Added support for the Install method.
+
+  - Added support for the BuildDir method.
+
+  - Added the Export method.
+
+  - Fix the -C option by delaying setting the top of the FS tree.
+
+  - Avoid putting the directory path on the libraries in the LIBS
+    construction variable.
+
+  - Added a GetBuildPath() method to return the full path to the
+    Node for a specified string.
+
+  From Anthony Roach:
+
+  - Documented CXXFLAGS, CXXCOM, and CPPPATH.
+
+  - Fixed SCONS_LIB_DIR to work as documented.
+
+  - Made Default() accept Nodes as arguments.
 
 
 
