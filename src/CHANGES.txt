@@ -115,6 +115,10 @@ RELEASE 0.96 - XXX
     to replace the default print behavior with a custom strfunction()
     for each of these.
 
+  - When a Node has been built, don't walk the whole tree back to delete
+    the parents's implicit dependencies, let returning up the normal
+    Taskmaster descent take care of it for us.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.

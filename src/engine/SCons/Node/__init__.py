@@ -214,13 +214,9 @@ class Node:
         if self.source_scanner:
             self.found_includes = {}
             self.includes = None
-
-            def get_parents(node, parent): return node.get_parents()
-            def clear_cache(node, parent):
-                node.implicit = None
-                node.del_binfo()
-            w = Walker(self, get_parents, ignore_cycle, clear_cache)
-            while w.next(): pass
+            for parent in self.get_parents():
+                parent.implicit = None
+                parent.del_binfo()
 
         # The content just changed, delete any cached info
         # so it will get recalculated.
