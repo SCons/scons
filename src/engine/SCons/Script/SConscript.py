@@ -40,7 +40,7 @@ import string
 import sys
 
 default_targets = []
-help_option = None
+print_help = 0
 
 # global exports set by Export():
 global_exports = {}
@@ -117,8 +117,7 @@ def Default(*targets):
                 default_targets.append(s)
 
 def Help(text):
-    global help_option
-    if help_option == 'h':
+    if print_help:
         print text
         print "Use scons -H for help about command-line options."
         sys.exit(0)

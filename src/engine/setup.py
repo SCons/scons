@@ -64,4 +64,5 @@ software.""",
       packages = ["SCons",
 		  "SCons.Node",
 		  "SCons.Scanner",
-		  "SCons.Sig"])
+		  "SCons.Sig",
+		  "SCons.Script"])

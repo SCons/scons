@@ -23,6 +23,6 @@
 
 __revision__ = "src/engine/SCons/SConscriptTests.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.SConscript
+import SCons.Script.SConscript
 
 # all of the SConscript.py tests are in test/SConscript.py 

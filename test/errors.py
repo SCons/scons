@@ -68,12 +68,12 @@ raise InternalError, 'error inside'
 test.run(arguments='-f SConstruct3',
 	 stdout = "other errors\n",
 	 stderr = r"""Traceback \((most recent call|innermost) last\):
-  File ".*Script.py", line \d+, in main
-    _main\(\)
-  File ".*Script.py", line \d+, in _main
-    SCons.SConscript.SConscript\(script\)
-  File ".*SConscript.py", line \d+, in SConscript
-    exec file in stack\[-1\].globals
+  File ".+", line \d+, in .+
+    .+
+  File ".+", line \d+, in .+
+    .+
+  File ".+", line \d+, in .+
+    .+
   File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
 InternalError: error inside

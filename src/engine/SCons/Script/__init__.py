@@ -59,7 +59,7 @@ import SCons.Sig
 import SCons.Sig.MD5
 from SCons.Taskmaster import Taskmaster
 import SCons.Builder
-import SCons.SConscript
+import SCons.Script.SConscript
 
 
 #
@@ -105,7 +105,7 @@ current_func = None
 calc = None
 ignore_errors = 0
 keep_going_on_error = 0
-
+help_option = None
 
 # utility functions
 
@@ -357,14 +357,17 @@ def options_init():
 	help = "Read FILE as the top-level SConstruct file.")
 
     def opt_help(opt, arg):
-        SCons.SConscript.help_option = 'h'
+	global help_option
+        help_option = 'h'
+	SCons.Script.SConscript.print_help = 1
 
     Option(func = opt_help,
 	short = 'h', long = ['help'],
 	help = "Print defined help message, or this one.")
 
     def opt_help_options(opt, arg):
-        SCons.SConscript.help_option = 'H'
+	global help_option
+        help_option = 'H'
 
     Option(func = opt_help_options,
 	short = 'H', long = ['help-options'],
@@ -574,12 +577,12 @@ def _main():
                 scripts.append(file)
                 break
 
-    if SCons.SConscript.help_option == 'H':
+    if help_option == 'H':
 	print UsageString()
 	sys.exit(0)
 
     if not scripts:
-        if SCons.SConscript.help_option == 'h':
+        if help_option == 'h':
             # There's no SConstruct, but they specified -h.
             # Give them the options usage now, before we fail
             # trying to read a non-existent SConstruct file.
@@ -591,18 +594,18 @@ def _main():
     sys.path = include_dirs + sys.path
 
     for script in scripts:
-        SCons.SConscript.SConscript(script)
+        SCons.Script.SConscript.SConscript(script)
 
     SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
-    if SCons.SConscript.help_option == 'h':
+    if help_option == 'h':
 	# They specified -h, but there was no Help() inside the
 	# SConscript files.  Give them the options usage.
 	print UsageString()
 	sys.exit(0)
 
     if not targets:
-        targets = SCons.SConscript.default_targets
+        targets = SCons.Script.SConscript.default_targets
 	
     def Entry(x):
 	if isinstance(x, SCons.Node.Node):

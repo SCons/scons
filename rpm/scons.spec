@@ -70,8 +70,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Scanner/Prog.pyc
 /usr/lib/scons/SCons/Scanner/__init__.py
 /usr/lib/scons/SCons/Scanner/__init__.pyc
-/usr/lib/scons/SCons/Script.py
-/usr/lib/scons/SCons/Script.pyc
+/usr/lib/scons/SCons/Script/__init__.py
+/usr/lib/scons/SCons/Script/__init__.pyc
+/usr/lib/scons/SCons/Script/SConscript.py
+/usr/lib/scons/SCons/Script/SConscript.pyc
 /usr/lib/scons/SCons/Sig/MD5.py
 /usr/lib/scons/SCons/Sig/MD5.pyc
 /usr/lib/scons/SCons/Sig/TimeStamp.py

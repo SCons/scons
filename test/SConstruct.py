@@ -30,9 +30,9 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.run(stdout = "",
-	stderr = """
+	stderr = r"""
 SCons error: No SConstruct file found.
-File "\S+Script.py", line \d+, in _main
+File "\S+", line \d+, in \S+
 """)
 
 test.match_func = TestCmd.match_exact
