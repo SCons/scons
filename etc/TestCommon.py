@@ -32,11 +32,15 @@ TestCommon object; see the TestCmd documentation for details.
 Here is an overview of the methods and keyword arguments that are
 provided by the TestCommon class:
 
+    test.must_be_writable('file1', ['file2', ...])
+
     test.must_contain('file', 'required text\n')
 
     test.must_exist('file1', ['file2', ...])
 
     test.must_match('file', "expected contents\n")
+
+    test.must_not_be_writable('file1', ['file2', ...])
 
     test.must_not_exist('file1', ['file2', ...])
 
@@ -76,11 +80,12 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.12.D001 2004/10/21 14:00:53 knight"
-__version__ = "0.12"
+__revision__ = "TestCommon.py 0.13.D001 2004/11/20 08:30:40 knight"
+__version__ = "0.13"
 
 import os
 import os.path
+import stat
 import string
 import sys
 import types
@@ -145,6 +150,20 @@ def is_List(e):
     return type(e) is types.ListType \
         or isinstance(e, UserList.UserList)
 
+def is_writable(f):
+    mode = os.stat(f)[stat.ST_MODE]
+    return mode & stat.S_IWUSR
+
+def separate_files(flist):
+    existing = []
+    missing = []
+    for f in flist:
+        if os.path.exists(f):
+            existing.append(f)
+        else:
+            missing.append(f)
+    return existing, missing
+
 class TestFailed(Exception):
     def __init__(self, args=None):
         self.args = args
@@ -192,6 +211,22 @@ class TestCommon(TestCmd):
         """
         apply(TestCmd.__init__, [self], kw)
         os.chdir(self.workdir)
+
+    def must_be_writable(self, *files):
+        """Ensures that the specified file(s) exist and are writable.
+        An individual file can be specified as a list of directory names,
+        in which case the pathname will be constructed by concatenating
+        them.  Exits FAILED if any of the files does not exist or is
+        not writable.
+        """
+        files = map(lambda x: is_List(x) and apply(os.path.join, x) or x, files)
+        existing, missing = separate_files(files)
+        unwritable = filter(lambda x, iw=is_writable: not iw(x), existing)
+        if missing:
+            print "Missing files: `%s'" % string.join(missing, "', `")
+        if unwritable:
+            print "Unwritable files: `%s'" % string.join(unwritable, "', `")
+        self.fail_test(missing + unwritable)
 
     def must_contain(self, file, required, mode = 'rb'):
         """Ensures that the specified file contains the required text.
@@ -246,6 +281,23 @@ class TestCommon(TestCmd):
         if existing:
             print "Unexpected files exist: `%s'" % string.join(existing, "', `")
             self.fail_test(existing)
+
+
+    def must_not_be_writable(self, *files):
+        """Ensures that the specified file(s) exist and are not writable.
+        An individual file can be specified as a list of directory names,
+        in which case the pathname will be constructed by concatenating
+        them.  Exits FAILED if any of the files does not exist or is
+        writable.
+        """
+        files = map(lambda x: is_List(x) and apply(os.path.join, x) or x, files)
+        existing, missing = separate_files(files)
+        writable = filter(is_writable, existing)
+        if missing:
+            print "Missing files: `%s'" % string.join(missing, "', `")
+        if writable:
+            print "Writable files: `%s'" % string.join(writable, "', `")
+        self.fail_test(missing + writable)
 
     def run(self, options = None, arguments = None,
                   stdout = None, stderr = '', status = 0, **kw):

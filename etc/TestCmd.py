@@ -158,7 +158,7 @@ version.
     TestCmd.where_is('foo', 'PATH1;PATH2', '.suffix3;.suffix4')
 """
 
-# Copyright 2000, 2001, 2002, 2003 Steven Knight
+# Copyright 2000, 2001, 2002, 2003, 2004 Steven Knight
 # This module is free software, and you may redistribute it and/or modify
 # it under the same terms as Python itself, so long as this copyright message
 # and disclaimer are retained in their original form.
@@ -175,8 +175,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.12.D001 2004/10/21 14:00:53 knight"
-__version__ = "0.12"
+__revision__ = "TestCmd.py 0.13.D002 2004/11/20 08:34:16 knight"
+__version__ = "0.13"
 
 import os
 import os.path

@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
+import SCons.Action
 import SCons.Builder
 import SCons.Util
 
@@ -45,7 +46,8 @@ def generate(env):
 
     def BitKeeperFactory(env=env):
         """ """
-        return SCons.Builder.Builder(action = "$BITKEEPERCOM", env = env)
+        act = SCons.Action.Action("$BITKEEPERCOM", "$BITKEEPERCOMSTR")
+        return SCons.Builder.Builder(action = act, env = env)
 
     #setattr(env, 'BitKeeper', BitKeeperFactory)
     env.BitKeeper = BitKeeperFactory
