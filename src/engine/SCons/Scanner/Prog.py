@@ -78,14 +78,16 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
         suffix = [ '' ]
 
     find_file = SCons.Node.FS.find_file
-    ret = []
+    adjustixes = SCons.Util.adjustixes
+    result = []
     for suf in map(env.subst, suffix):
         for pref in map(env.subst, prefix):
             for lib in libs:
                 if SCons.Util.is_String(lib):
-                    f = find_file(pref + lib + suf, libpath, fs.File)
-                    if f:
-                        ret.append(f)
+                    lib = adjustixes(lib, pref, suf)
+                    lib = find_file(lib, libpath, fs.File)
+                    if lib:
+                        result.append(lib)
                 else:
-                    ret.append(lib)
-    return ret
+                    result.append(lib)
+    return result

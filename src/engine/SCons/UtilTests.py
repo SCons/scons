@@ -1044,6 +1044,21 @@ class UtilTestCase(unittest.TestCase):
         ret = s(env, ['bar.g'])
         assert ret == 'GGG', ret
 
+    def test_adjustixes(self):
+        """Test the adjustixes() function"""
+        r = adjustixes('file', 'pre-', '-suf')
+        assert r == 'pre-file-suf', r
+        r = adjustixes('pre-file', 'pre-', '-suf')
+        assert r == 'pre-file-suf', r
+        r = adjustixes('file-suf', 'pre-', '-suf')
+        assert r == 'pre-file-suf', r
+        r = adjustixes('pre-file-suf', 'pre-', '-suf')
+        assert r == 'pre-file-suf', r
+        r = adjustixes('pre-file.xxx', 'pre-', '-suf')
+        assert r == 'pre-file.xxx', r
+        r = adjustixes('dir/file', 'pre-', '-suf')
+        assert r == 'dir/pre-file-suf', r
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
