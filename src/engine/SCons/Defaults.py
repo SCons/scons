@@ -37,6 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import os
+import SCons.Action
 import SCons.Builder
 import SCons.Scanner.C
 import SCons.Scanner.Prog
@@ -49,14 +50,16 @@ CFile = SCons.Builder.Builder(name = 'CFile',
                                        },
                               suffix = '.c')
 
+CPlusPlusAction = SCons.Action.Action('$CXXCOM')
+
 Object = SCons.Builder.Builder(name = 'Object',
                                action = { '.c'   : '$CCCOM',
-                                          '.C'   : '$CXXCOM',
-                                          '.cc'  : '$CXXCOM',
-                                          '.cpp' : '$CXXCOM',
-                                          '.cxx' : '$CXXCOM',
-                                          '.c++' : '$CXXCOM',
-                                          '.C++' : '$CXXCOM',
+                                          '.C'   : CPlusPlusAction,
+                                          '.cc'  : CPlusPlusAction,
+                                          '.cpp' : CPlusPlusAction,
+                                          '.cxx' : CPlusPlusAction,
+                                          '.c++' : CPlusPlusAction,
+                                          '.C++' : CPlusPlusAction,
                                         },
                                prefix = '$OBJPREFIX',
                                suffix = '$OBJSUFFIX',
