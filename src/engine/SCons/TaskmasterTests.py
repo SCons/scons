@@ -51,6 +51,9 @@ class Node:
         global built
         built = self.name + " built"
 
+    def prepare(self):
+        pass
+
     def children(self):
 	return self.kids
 

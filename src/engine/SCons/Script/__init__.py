@@ -73,6 +73,7 @@ class BuildTask(SCons.Taskmaster.Task):
                 print 'scons: "%s" is up to date.' % str(self.targets[0])
         else:
             try:
+                self.targets[0].prepare()
                 self.targets[0].build()
             except BuildError, e:
                 sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))

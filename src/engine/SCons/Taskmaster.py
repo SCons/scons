@@ -61,6 +61,7 @@ class Task:
 
     def execute(self):
         if self.targets[0].get_state() != SCons.Node.up_to_date:
+            self.targets[0].prepare()
             self.targets[0].build()
 
     def get_target(self):

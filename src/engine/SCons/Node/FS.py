@@ -562,14 +562,16 @@ class File(Entry):
                 pass
 
     def build(self):
-        self.__createDir()
         Entry.build(self)
         self.exists_flag = self.exists()
 
-    def remove(self):
-        """Remove this file."""
+    def prepare(self):
+        """Prepare for this file to be created."""
         if self.exists():
-            os.unlink(self.path)
+            if not self.precious:
+                os.unlink(self.path)
+        else:
+            self.__createDir()
 
 default_fs = FS()
 

@@ -397,6 +397,7 @@ class FSTestCase(unittest.TestCase):
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))
         assert not f1.dir.exists()
+        f1.prepare()
         f1.build()
         assert f1.dir.exists()
 
@@ -448,7 +449,7 @@ class FSTestCase(unittest.TestCase):
         test.write("remove_me", "\n")
         assert os.path.exists(test.workpath("remove_me"))
         f1 = fs.File(test.workpath("remove_me"))
-        f1.remove()
+        f1.prepare()
         assert not os.path.exists(test.workpath("remove_me"))
 
         #XXX test current() for directories

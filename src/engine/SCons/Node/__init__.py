@@ -82,8 +82,6 @@ class Node:
             # there will already be an associated status.
             stat = self.builder.status
         except AttributeError:
-            if not self.precious:
-                self.remove()
             try:
                 stat = self.builder.execute(env = self.env.Dictionary(),
                                             target = self,
@@ -185,8 +183,8 @@ class Node:
         """Set the Node's precious value."""
         self.precious = precious
 
-    def remove(self):
-        """Remove this Node's external object:  no-op by default."""
+    def prepare(self):
+        """Prepare for this Node to be created:  no-op by default."""
         pass
 
     def add_dependency(self, depend):

@@ -25,6 +25,9 @@ RELEASE 0.05 -
   - More performance optimizations:  cache #include lines from files,
     eliminate unnecessary calls.
 
+  - If a prefix or suffix contains white space, treat the resulting
+    concatenation as separate arguments.
+
   - Fix irregularities in the way we fetch DevStudio information from
     the Windows registry, and in our registry error handling.
 
@@ -41,6 +44,9 @@ RELEASE 0.05 -
 
   - Make writing .sconsign files more robust by first trying to write
     to a temp file that we rename.
+
+  - Create all of the directories for a list of targets before trying
+    to build any of the targets.
 
   From Anthony Roach:
 

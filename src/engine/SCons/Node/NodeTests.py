@@ -59,7 +59,7 @@ class ListBuilder(Builder):
         if hasattr(self, 'status'):
             return self.status
         for n in self.nodes:
-            n.remove()
+            n.prepare()
         kw['target'] = self.nodes[0]
         self.status = apply(Builder.execute, (self,), kw)
 
@@ -130,11 +130,11 @@ class NodeTestCase(unittest.TestCase):
         class MyNode(SCons.Node.Node):
             def __init__(self, **kw):
                 apply(SCons.Node.Node.__init__, (self,), kw)
-                self.remove_count = 0
+                self.prepare_count = 0
             def __str__(self):
                 return self.path
-            def remove(self):
-                self.remove_count= self.remove_count+ 1
+            def prepare(self):
+                self.prepare_count = self.prepare_count+ 1
 	# Make sure it doesn't blow up if no builder is set.
         node = MyNode()
 	node.build()
@@ -180,20 +180,20 @@ class NodeTestCase(unittest.TestCase):
         fff.build()
         assert built_it
         ggg.build()
-        assert ggg.remove_count== 1, ggg.remove_count
+        assert ggg.prepare_count== 1, ggg.prepare_count
         assert type(built_target) == type(MyNode()), type(built_target)
         assert str(built_target) == "fff", str(built_target)
         assert built_source == ["hhh", "iii"], built_source
 
         delattr(lb, 'status')
-        fff.remove_count = 0
-        ggg.remove_count = 0
+        fff.prepare_count = 0
+        ggg.prepare_count = 0
 
         built_it = None
         ggg.build()
         #assert built_it
         fff.build()
-        assert fff.remove_count== 1, fff.remove_count
+        assert fff.prepare_count== 1, fff.prepare_count
         assert type(built_target) == type(MyNode()), type(built_target)
         assert str(built_target) == "fff", str(built_target)
         assert built_source == ["hhh", "iii"], built_source

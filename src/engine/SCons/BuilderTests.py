@@ -61,7 +61,7 @@ sys.exit(0)
 
 act_py = test.workpath('act.py')
 outfile = test.workpath('outfile')
-outfile2 = test.workpath('outfile')
+outfile2 = test.workpath('outfile2')
 
 show_string = None
 instanced = None
@@ -259,7 +259,10 @@ class BuilderTestCase(unittest.TestCase):
 	    return 1
 
 	builder = MyBuilder(action = function1, name = "function1")
-        r = builder.execute(target = [outfile, outfile2])
+        try:
+            r = builder.execute(target = [outfile, outfile2])
+        except SCons.Errors.BuildError:
+            pass
         assert r == 1
         assert count == 1
         c = test.read(outfile, 'r')
@@ -462,19 +465,24 @@ class BuilderTestCase(unittest.TestCase):
         """Testing ListBuilder class."""
         global count
         count = 0
-        def function2(**kw):
+        def function2(tlist = [outfile, outfile2], **kw):
             global count
             count = count + 1
             if not type(kw['target']) is type([]):
                 kw['target'] = [ kw['target'] ]
             for t in kw['target']:
                 open(t, 'w').write("function2\n")
+            for t in tlist:
+                if not t in kw['target']:
+                    open(t, 'w').write("function2\n")
             return 1
 
         builder = SCons.Builder.Builder(action = function2, name = "function2")
         tgts = builder(env, target = [outfile, outfile2], source = 'foo')
-        r = tgts[0].builder.execute(target = tgts[0])
-        assert r == 1, r
+	try:
+            r = tgts[0].builder.execute(target = tgts)
+	except SCons.Errors.BuildError:
+            pass
         c = test.read(outfile, 'r')
         assert c == "function2\n", c
         c = test.read(outfile2, 'r')
@@ -482,6 +490,36 @@ class BuilderTestCase(unittest.TestCase):
         r = tgts[1].builder.execute(target = tgts[1])
         assert r == 1, r
         assert count == 1, count
+
+        sub1_out = test.workpath('sub1', 'out')
+        sub2_out = test.workpath('sub2', 'out')
+
+        count = 0
+        def function3(tlist = [sub1_out, sub2_out], **kw):
+            global count
+            count = count + 1
+            if not type(kw['target']) is type([]):
+                kw['target'] = [ kw['target'] ]
+            for t in kw['target']:
+                open(t, 'w').write("function3\n")
+            for t in tlist:
+                if not t in kw['target']:
+                    open(t, 'w').write("function3\n")
+            return 1
+
+        builder = SCons.Builder.Builder(action = function3, name = "function3")
+        tgts = builder(env, target = [sub1_out, sub2_out], source = 'foo')
+        try:
+            r = tgts[0].builder.execute(target = tgts)
+        except:
+            pass
+        assert r == 1, r
+        c = test.read(sub1_out, 'r')
+        assert c == "function3\n", c
+        c = test.read(sub2_out, 'r')
+        assert c == "function3\n", c
+        assert os.path.exists(test.workpath('sub1'))
+        assert os.path.exists(test.workpath('sub2'))
 
     def test_MultiStepBuilder(self):
         """Testing MultiStepBuilder class."""

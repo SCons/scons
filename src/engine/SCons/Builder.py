@@ -190,8 +190,9 @@ class ListBuilder:
         if hasattr(self, 'status'):
             return self.status
         for t in self.tlist:
-            # unlink all targets before building any
-            t.remove()
+            # unlink all targets and make all directories
+            # before building anything
+            t.prepare()
         kw['target'] = self.tlist[0]
         self.status = apply(self.builder.execute, (), kw)
         for t in self.tlist:
