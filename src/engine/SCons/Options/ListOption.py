@@ -59,7 +59,7 @@ import UserList
 
 
 class _ListOption(UserList.UserList):
-    def __init__(self, allowedElems, initlist):
+    def __init__(self, initlist=[], allowedElems=[]):
         UserList.UserList.__init__(self, filter(None, initlist))
         self.allowedElems = allowedElems[:]
         self.allowedElems.sort()
@@ -103,7 +103,7 @@ def _converter(val, allowedElems):
         if notAllowed:
             raise ValueError("Invalid value(s) for option: %s" %
                              string.join(notAllowed, ','))
-    return _ListOption(allowedElems, val)
+    return _ListOption(val, allowedElems)
 
 
 ## def _validator(key, val, env):
