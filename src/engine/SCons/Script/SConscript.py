@@ -91,7 +91,6 @@ def compute_exports(exports):
     """Compute a dictionary of exports given one of the parameters
     to the Export() function or the exports argument to SConscript()."""
 
-    exports = SCons.Util.Split(exports)
     loc, glob = get_calling_namespaces()
 
     retval = {}
@@ -142,81 +141,10 @@ def Return(*vars):
     else:
         stack[-1].retval = tuple(retval)
 
-# This function is responsible for converting the parameters passed to
-# SConscript() calls into a list of files and export variables.  If the
-# parameters are invalid, throws SCons.Errors.UserError. Returns a tuple
-# (l, e) where l is a list of SConscript filenames and e is a list of
-# exports.
-
-def GetSConscriptFilenames(ls, kw):
-    exports = []
-
-    if len(ls) == 0:
-        try:
-            dirs = kw["dirs"]
-        except KeyError:
-            raise SCons.Errors.UserError, \
-                  "Invalid SConscript usage - no parameters"
-
-        if not SCons.Util.is_List(dirs):
-            dirs = [ dirs ]
-        dirs = map(str, dirs)
-
-        name = kw.get('name', 'SConscript')
-
-        files = map(lambda n, name = name: os.path.join(n, name), dirs)
-
-    elif len(ls) == 1:
-
-        files = ls[0]
-
-    elif len(ls) == 2:
-
-        files   = ls[0]
-        exports = SCons.Util.Split(ls[1])
-
-    else:
-
-        raise SCons.Errors.UserError, \
-              "Invalid SConscript() usage - too many arguments"
-
-    if not SCons.Util.is_List(files):
-        files = [ files ]
-
-    if kw.get('exports'):
-        exports.extend(SCons.Util.Split(kw['exports']))
-
-    build_dir = kw.get('build_dir')
-    if build_dir:
-        if len(files) != 1:
-            raise SCons.Errors.UserError, \
-                "Invalid SConscript() usage - can only specify one SConscript with a build_dir"
-        duplicate = kw.get('duplicate', 1)
-        src_dir = kw.get('src_dir')
-        if not src_dir:
-            src_dir, fname = os.path.split(str(files[0]))
-        else:
-            if not isinstance(src_dir, SCons.Node.Node):
-                src_dir = SCons.Node.FS.default_fs.Dir(src_dir)
-            fn = files[0]
-            if not isinstance(fn, SCons.Node.Node):
-                fn = SCons.Node.FS.default_fs.File(fn)
-            if fn.is_under(src_dir):
-                # Get path relative to the source directory.
-                fname = fn.get_path(src_dir)
-            else:
-                # Fast way to only get the terminal path component of a Node.
-                fname = fn.get_path(fn.dir)
-        SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)
-        files = [os.path.join(str(build_dir), fname)]
-
-    return (files, exports)
-
-def _SConscript(fs, *ls, **kw):
-    files, exports = GetSConscriptFilenames(ls, kw)
-
+def _SConscript(fs, *files, **kw):
     top = fs.Top
     sd = fs.SConstruct_dir.rdir()
+    exports = kw.get('exports', [])
 
     # evaluate each SConscript file
     results = []
@@ -377,6 +305,76 @@ class SConsEnvironment(SCons.Environment.Base):
         else:
             return 1
 
+    def _get_SConscript_filenames(self, ls, kw):
+        """
+        Convert the parameters passed to # SConscript() calls into a list
+        of files and export variables.  If the parameters are invalid,
+        throws SCons.Errors.UserError. Returns a tuple (l, e) where l
+        is a list of SConscript filenames and e is a list of exports.
+        """
+        exports = []
+
+        if len(ls) == 0:
+            try:
+                dirs = kw["dirs"]
+            except KeyError:
+                raise SCons.Errors.UserError, \
+                      "Invalid SConscript usage - no parameters"
+
+            if not SCons.Util.is_List(dirs):
+                dirs = [ dirs ]
+            dirs = map(str, dirs)
+
+            name = kw.get('name', 'SConscript')
+
+            files = map(lambda n, name = name: os.path.join(n, name), dirs)
+
+        elif len(ls) == 1:
+
+            files = ls[0]
+
+        elif len(ls) == 2:
+
+            files   = ls[0]
+            exports = SCons.Util.Split(ls[1])
+
+        else:
+
+            raise SCons.Errors.UserError, \
+                  "Invalid SConscript() usage - too many arguments"
+
+        if not SCons.Util.is_List(files):
+            files = [ files ]
+
+        if kw.get('exports'):
+            exports.extend(SCons.Util.Split(kw['exports']))
+
+        build_dir = kw.get('build_dir')
+        if build_dir:
+            if len(files) != 1:
+                raise SCons.Errors.UserError, \
+                    "Invalid SConscript() usage - can only specify one SConscript with a build_dir"
+            duplicate = kw.get('duplicate', 1)
+            src_dir = kw.get('src_dir')
+            if not src_dir:
+                src_dir, fname = os.path.split(str(files[0]))
+            else:
+                if not isinstance(src_dir, SCons.Node.Node):
+                    src_dir = SCons.Node.FS.default_fs.Dir(src_dir)
+                fn = files[0]
+                if not isinstance(fn, SCons.Node.Node):
+                    fn = SCons.Node.FS.default_fs.File(fn)
+                if fn.is_under(src_dir):
+                    # Get path relative to the source directory.
+                    fname = fn.get_path(src_dir)
+                else:
+                    # Fast way to only get the terminal path component of a Node.
+                    fname = fn.get_path(fn.dir)
+            SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)
+            files = [os.path.join(str(build_dir), fname)]
+
+        return (files, exports)
+
     #
     # Public functions of an SConsEnvironment.  These get
     # entry points in the global name space so they can be called
@@ -401,7 +399,7 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def Export(self, *vars):
         for var in vars:
-            global_exports.update(compute_exports(var))
+            global_exports.update(compute_exports(SCons.Util.Split(var)))
 
     def GetLaunchDir(self):
         global launch_dir
@@ -438,7 +436,10 @@ class SConsEnvironment(SCons.Environment.Base):
             if SCons.Util.is_String(val):
                 val = self.subst(val)
             subst_kw[key] = val
-        return apply(_SConscript, [self.fs,] + ls, subst_kw)
+
+        files, exports = self._get_SConscript_filenames(ls, subst_kw)
+
+        return apply(_SConscript, [self.fs,] + files, {'exports' : exports})
 
     def SetOption(self, name, value):
         name = self.subst(name)
