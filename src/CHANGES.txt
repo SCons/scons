@@ -238,6 +238,10 @@ RELEASE 0.97 - XXX
     Command() and Scanner test coverage.  Improved test infrastructure
     for -c output.
 
+  From Levi Stephen:
+
+  - Allow $JARCHDIR to be expanded to other construction variables.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

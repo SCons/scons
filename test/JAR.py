@@ -103,7 +103,8 @@ env = Environment(tools = ['jar'],
                   JARFLAGS='cvf')
 env.Jar(target = 'classes.jar', source = [ 'testdir/bar.class',
                                            'foo.mf' ],
-        JARCHDIR='testdir')
+        TESTDIR='testdir',
+        JARCHDIR='$TESTDIR')
 """ % (python))
 
 test.subdir('testdir')
