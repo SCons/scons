@@ -1281,7 +1281,7 @@ env.Jar(target = 'foo.jar', source = 'classes')
 .IP Java()
 .IP env.Java()
 Builds one or more Java class files
-from a source tree of .java files.
+from one or more source trees of .java files.
 The class files will be placed underneath
 the specified target directory.
 SCons will parse each source .java file
@@ -1315,6 +1315,7 @@ Example:
 
 .ES
 env.Java(target = 'classes', source = 'src')
+env.Java(target = 'classes', source = ['src1', 'src2'])
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
