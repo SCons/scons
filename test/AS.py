@@ -308,7 +308,7 @@ os.system(string.join(sys.argv[1:], " "))
 import os
 ccc = Environment(tools = ['msvc', 'mslink', 'masm'],
                   ASFLAGS = '/nologo /coff')
-ccc['ENV']['PATH'] = os.environ['PATH']
+ccc['ENV']['PATH'] = ccc['ENV']['PATH'] + os.pathsep + os.environ['PATH']
 ddd = ccc.Copy(AS = r'%s wrapper.py ' + ccc['AS'])
 ccc.Program(target = 'ccc', source = ['ccc.asm', 'ccc_main.c'])
 ddd.Program(target = 'ddd', source = ['ddd.asm', 'ddd_main.c'])

@@ -54,6 +54,16 @@ def is_writable(file):
 # Test explicit checkouts from local RCS files.
 test.subdir('work1', ['work1', 'sub'])
 
+sub_RCS = os.path.join('sub', 'RCS')
+sub_SConscript = os.path.join('sub', 'SConscript')
+sub_all = os.path.join('sub', 'all')
+sub_ddd_in = os.path.join('sub', 'ddd.in')
+sub_ddd_out = os.path.join('sub', 'ddd.out')
+sub_eee_in = os.path.join('sub', 'eee.in')
+sub_eee_out = os.path.join('sub', 'eee.out')
+sub_fff_in = os.path.join('sub', 'fff.in')
+sub_fff_out = os.path.join('sub', 'fff.out')
+
 for file in ['aaa.in', 'bbb.in', 'ccc.in']:
     test.write(['work1', file], "work1/%s\n" % file)
     args = "-f -t%s %s" % (file, file)
@@ -86,7 +96,11 @@ test.no_result(os.path.exists(test.workpath('work1', 'sub', 'fff.in')))
 
 test.write(['work1', 'SConstruct'], """
 import os
-ENV = {'PATH' : os.environ['PATH']}
+for key in ['LOGNAME', 'USERNAME', 'USER']:
+    logname = os.environ.get(key)
+    if logname: break
+ENV = {'PATH' : os.environ['PATH'],
+       'LOGNAME' : logname}
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -97,6 +111,7 @@ def cat(env, source, target):
 env = Environment(ENV=ENV,
                   BUILDERS={'Cat':Builder(action=cat)},
                   RCS_COFLAGS='-q')
+DefaultEnvironment()['ENV'] = ENV
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -112,8 +127,8 @@ test.write(['work1', 'sub', 'eee.in'], "checked-out work1/sub/eee.in\n")
 test.run(chdir = 'work1',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-co -q sub/SConscript
-""",
+co -q %(sub_SConscript)s
+""" % locals(),
                                    build_str = """\
 co -q aaa.in
 cat(["aaa.out"], ["aaa.in"])
@@ -121,17 +136,24 @@ cat(["bbb.out"], ["bbb.in"])
 co -q ccc.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-co -q sub/ddd.in
-cat(["sub/ddd.out"], ["sub/ddd.in"])
-cat(["sub/eee.out"], ["sub/eee.in"])
-co -q sub/fff.in
-cat(["sub/fff.out"], ["sub/fff.in"])
-cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-"""))
+co -q %(sub_ddd_in)s
+cat(["%(sub_ddd_out)s"], ["%(sub_ddd_in)s"])
+cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
+co -q %(sub_fff_in)s
+cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
+cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
+""" % locals()))
 
-test.must_match(['work1', 'all'], "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
+# Checking things back out of RCS apparently messes with the line
+# endings, so read the result files in non-binary mode.
 
-test.must_match(['work1', 'sub', 'all'], "work1/sub/ddd.in\nchecked-out work1/sub/eee.in\nwork1/sub/fff.in\n")
+test.must_match(['work1', 'all'],
+                "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n",
+                mode='r')
+
+test.must_match(['work1', 'sub', 'all'],
+                "work1/sub/ddd.in\nchecked-out work1/sub/eee.in\nwork1/sub/fff.in\n",
+                mode='r')
 
 test.fail_test(is_writable(test.workpath('work1', 'sub', 'SConscript')))
 test.fail_test(is_writable(test.workpath('work1', 'aaa.in')))
@@ -177,7 +199,11 @@ test.no_result(os.path.exists(test.workpath('work2', 'sub', 'ccc.in')))
 
 test.write(['work2', 'SConstruct'], """
 import os
-ENV = { 'PATH' : os.environ['PATH'] }
+for key in ['LOGNAME', 'USERNAME', 'USER']:
+    logname = os.environ.get(key)
+    if logname: break
+ENV = {'PATH' : os.environ['PATH'],
+       'LOGNAME' : logname}
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -185,6 +211,7 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
+DefaultEnvironment()['ENV'] = ENV
 DefaultEnvironment()['RCS_COFLAGS'] = '-l'
 env = Environment(ENV=ENV, BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
@@ -201,8 +228,8 @@ test.write(['work2', 'sub', 'eee.in'], "checked-out work2/sub/eee.in\n")
 test.run(chdir = 'work2',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-co -l sub/SConscript
-""",
+co -l %(sub_SConscript)s
+""" % locals(),
                                    build_str = """\
 co -l aaa.in
 cat(["aaa.out"], ["aaa.in"])
@@ -210,15 +237,15 @@ cat(["bbb.out"], ["bbb.in"])
 co -l ccc.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-co -l sub/ddd.in
-cat(["sub/ddd.out"], ["sub/ddd.in"])
-cat(["sub/eee.out"], ["sub/eee.in"])
-co -l sub/fff.in
-cat(["sub/fff.out"], ["sub/fff.in"])
-cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-"""),
+co -l %(sub_ddd_in)s
+cat(["%(sub_ddd_out)s"], ["%(sub_ddd_in)s"])
+cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
+co -l %(sub_fff_in)s
+cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
+cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
+""" % locals()),
          stderr = """\
-sub/RCS/SConscript,v  -->  sub/SConscript
+%(sub_RCS)s/SConscript,v  -->  %(sub_SConscript)s
 revision 1.1 (locked)
 done
 RCS/aaa.in,v  -->  aaa.in
@@ -227,17 +254,24 @@ done
 RCS/ccc.in,v  -->  ccc.in
 revision 1.1 (locked)
 done
-sub/RCS/ddd.in,v  -->  sub/ddd.in
+%(sub_RCS)s/ddd.in,v  -->  %(sub_ddd_in)s
 revision 1.1 (locked)
 done
-sub/RCS/fff.in,v  -->  sub/fff.in
+%(sub_RCS)s/fff.in,v  -->  %(sub_fff_in)s
 revision 1.1 (locked)
 done
-""")
+""" % locals())
 
-test.must_match(['work2', 'all'], "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n")
+# Checking things back out of RCS apparently messes with the line
+# endings, so read the result files in non-binary mode.
 
-test.must_match(['work2', 'sub', 'all'], "work2/sub/ddd.in\nchecked-out work2/sub/eee.in\nwork2/sub/fff.in\n")
+test.must_match(['work2', 'all'],
+                "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n",
+                mode='r')
+
+test.must_match(['work2', 'sub', 'all'],
+                "work2/sub/ddd.in\nchecked-out work2/sub/eee.in\nwork2/sub/fff.in\n",
+                mode='r')
 
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'SConscript')))
 test.fail_test(not is_writable(test.workpath('work2', 'aaa.in')))
