@@ -142,7 +142,7 @@ python_ver = sys.version[0:3]
 platform = distutils.util.get_platform()
 
 ENV = { 'PATH' : os.environ['PATH'] }
-for key in ['AEGIS_PROJECT', 'PYTHONPATH']:
+for key in ['AEGIS_PROJECT', 'LOGNAME', 'PYTHONPATH']:
     if os.environ.has_key(key):
         ENV[key] = os.environ[key]
 
@@ -343,7 +343,7 @@ python_scons = {
 #python2_scons = {
 #        'pkg'          : 'python2-' + project,
 #        'src_subdir'   : 'engine',
-#        'inst_subdir'  : os.path.join('lib', 'python2.1', 'site-packages'),
+#        'inst_subdir'  : os.path.join('lib', 'python2.2', 'site-packages'),
 #
 #        'debian_deps'  : [
 #                            'debian/changelog',
@@ -729,7 +729,7 @@ for p in [ scons ]:
                     ])
 
         old = os.path.join('lib', 'scons', '')
-        new = os.path.join('lib', 'python2.1', 'site-packages', '')
+        new = os.path.join('lib', 'python2.2', 'site-packages', '')
         def xxx(s, old=old, new=new):
             if s[:len(old)] == old:
                 s = new + s[len(old):]

@@ -20,10 +20,15 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.92 - Tue Aug 19 19:05:23 CDT 2003
+RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
 
   This is the third beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.91:
+
+  - The Debian package available from the SCons web site now
+    uses Python version 2.2.
 
   Please note the following important changes since release 0.90:
 

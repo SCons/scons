@@ -6,7 +6,7 @@
 # Overridable variables added to support building test .deb files
 # as part of routine SCons builds.  --SK
 BUILDDEB_OPTIONS=
-PYTHON=/usr/bin/python2.1
+PYTHON=/usr/bin/python2.2
 #######
 
 # Uncomment this to turn on verbose mode.
@@ -51,9 +51,9 @@ install: build
 	@# already exist on our non-Debian test build systems.  Hence,
 	@# we do a lot of mkdir -p and rm -f here...  --SK
 	@########
-	mkdir -p debian/scons/usr/lib/python2.1/site-packages/
-	rm -rf debian/scons/usr/lib/python2.1/site-packages/SCons
-	cp -r build/lib/SCons debian/scons/usr/lib/python2.1/site-packages/
+	mkdir -p debian/scons/usr/lib/python2.2/site-packages/
+	rm -rf debian/scons/usr/lib/python2.2/site-packages/SCons
+	cp -r build/lib/SCons debian/scons/usr/lib/python2.2/site-packages/
 
 	mkdir -p debian/scons/usr/bin/
 	rm -f debian/scons/usr/bin/scons
@@ -62,8 +62,8 @@ ifeq ($(PYTHON),python)
 	cp build/scripts/scons debian/scons/usr/bin/scons
 	cp build/scripts/sconsign debian/scons/usr/bin/sconsign
 else
-	sed '1s|.*|#!/usr/bin/python2.1|' build/scripts/scons > debian/scons/usr/bin/scons
-	sed '1s|.*|#!/usr/bin/python2.1|' build/scripts/sconsign > debian/scons/usr/bin/sconsign
+	sed '1s|.*|#!/usr/bin/python2.2|' build/scripts/scons > debian/scons/usr/bin/scons
+	sed '1s|.*|#!/usr/bin/python2.2|' build/scripts/sconsign > debian/scons/usr/bin/sconsign
 endif
 	chmod +x debian/scons/usr/bin/scons
 	chmod +x debian/scons/usr/bin/sconsign
@@ -77,10 +77,12 @@ endif
 	mkdir -p debian/scons/usr/share/doc/scons
 	rm -f debian/scons/usr/share/doc/scons/changelog
 	rm -f debian/scons/usr/share/doc/scons/README.txt
+	rm -f debian/scons/usr/share/doc/scons/CHANGES.txt
 	rm -f debian/scons/usr/share/doc/scons/*.gz
 	rm -f debian/scons/usr/share/doc/scons/copyright
 
 	cp README.txt debian/scons/usr/share/doc/scons/
+	cp CHANGES.txt debian/scons/usr/share/doc/scons/
 
 	gzip -9 debian/scons/usr/share/doc/scons/*
 

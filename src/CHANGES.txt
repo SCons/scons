@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.92 - Tue Aug 19 19:05:23 CDT 2003
+RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
 
   From Charles Crain and Gary Oberbrunner:
 
@@ -20,6 +20,9 @@ RELEASE 0.92 - Tue Aug 19 19:05:23 CDT 2003
 
   - Allow the DefaultEnvironment() function to take arguments and pass
     them to instantiation of the default construction environment.
+
+  - Update the Debian package so it uses Python 2.2 and more closely
+    resembles the currently official Debian packaging info.
 
   From Gerard Patel
 

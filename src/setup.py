@@ -39,6 +39,7 @@ try:
     import distutils.command.install
     import distutils.command.install_lib
     import distutils.command.install_scripts
+    import distutils.command.build_scripts
 except ImportError:
     sys.stderr.write("""Could not import distutils.
 
@@ -52,6 +53,7 @@ your system, or on how to install SCons from a different package.
 _install = distutils.command.install.install
 _install_lib = distutils.command.install_lib.install_lib
 _install_scripts = distutils.command.install_scripts.install_scripts
+_build_scripts = distutils.command.build_scripts.build_scripts
 
 standard_lib = 0
 standalone_lib = 0
@@ -181,8 +183,14 @@ class install_lib(_install_lib):
 class install_scripts(_install_scripts):
     def finalize_options(self):
         _install_scripts.finalize_options(self)
+        self.build_dir = os.path.join('build', 'scripts')
         global installed_scripts_dir
         installed_scripts_dir = self.install_dir
+
+class build_scripts(_build_scripts):
+    def finalize_options(self):
+        _build_scripts.finalize_options(self)
+        self.build_dir = os.path.join('build', 'scripts')
 
 arguments = {
     'name'             : "scons",
@@ -199,7 +207,8 @@ arguments = {
     'scripts'          : ['script/scons', 'script/sconsign'],
     'cmdclass'         : {'install'         : install,
                           'install_lib'     : install_lib,
-                          'install_scripts' : install_scripts}
+                          'install_scripts' : install_scripts,
+                          'build_scripts'   : build_scripts}
 }
 
 try:

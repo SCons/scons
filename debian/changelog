@@ -2,7 +2,7 @@ scons (0.92-1) unstable; urgency=low
 
   * Third beta release.
 
- -- Steven Knight <knight@baldmt.com>  Tue Aug 19 19:05:23 CDT 2003
+ -- Steven Knight <knight@baldmt.com>  Wed, 20 Aug 2003 03:45:28 -0500
 
 
 scons (0.91-1) unstable; urgency=low
@@ -63,17 +63,40 @@ scons (0.09-1) unstable; urgency=low
 
 scons (0.08-1) unstable; urgency=low
 
-  * Second post-official-Debian build cycle
+  *  New upstream release (Closes: #158373)
 
- -- Steven Knight <knight@baldmt.com>  Mon, 15 Jul 2002 12:08:51 -0500
+ -- Moshe Zadka <moshez@debian.org>  Mon, 21 Oct 2002 16:52:11 +0200
 
+scons (0.07-3) unstable; urgency=low
+
+  * Removing /usr/doc links
+  * Python 2.1 -> Python 2.2 
+
+ -- Moshe Zadka <moshez@debian.org>  Tue, 27 Aug 2002 18:48:02 +0300
+
+scons (0.07-2) unstable; urgency=low
+
+  * Ugh, who would put distutils.core in python-dev? Changing build
+    dependancies (Closes: #146601)
+  * While we're at it, update Standards-Version
+
+ -- Moshe Zadka <moshez@debian.org>  Sat, 11 May 2002 08:25:07 +0300
 
 scons (0.07-1) unstable; urgency=low
 
-  * Folding uploaded Debian build into SCons source
+  * New upstream version
+  * Packaging properly, instead of as debian native
+  * Modifying copyright to include upstream location (Closes: #144491) 
+  * Fixing my e-mail address (Closes: #144490)
+    * Thanks for looking after my packages, tbm ;-)
 
- -- Steven Knight <knight@baldmt.com>  Thu,  2 May 2002 13:37:16 -0500
+ -- Moshe Zadka <moshez@debian.org>  Sat,  4 May 2002 13:05:53 +0300
 
+scons (0.06-1) unstable; urgency=low
+
+  * New upstream version 
+
+ -- Moshe Zadka <moshez@debian.org>  Mon, 15 Apr 2002 19:22:09 +0300
 
 scons (0.05-1) unstable; urgency=low
 
