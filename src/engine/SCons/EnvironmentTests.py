@@ -1463,11 +1463,19 @@ def exists(env):
 
     def test_ParseDepends(self):
         """Test the ParseDepends() method"""
-        env = Environment()
-
         test = TestCmd.TestCmd(workdir = '')
 
-        test.write('mkdep', """
+        test.write('single', """
+#file: dependency
+
+f0: \
+   d1 \
+   d2 \
+   d3 \
+
+""")
+
+        test.write('multiple', """
 f1: foo
 f2 f3: bar
 f4: abc def
@@ -1478,6 +1486,8 @@ f5: \
    mno \
 """)
 
+        env = Environment(SINGLE = test.workpath('single'))
+
         tlist = []
         dlist = []
         def my_depends(target, dependency, tlist=tlist, dlist=dlist):
@@ -1486,12 +1496,39 @@ f5: \
 
         env.Depends = my_depends
 
-        env.ParseDepends(test.workpath('mkdep'))
+        env.ParseDepends(test.workpath('does_not_exist'))
 
+        exc_caught = None
+        try:
+            env.ParseDepends(test.workpath('does_not_exist'), must_exist=1)
+        except IOError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected IOError"
+
+        del tlist[:]
+        del dlist[:]
+
+        env.ParseDepends('$SINGLE', only_one=1)
+        t = map(str, tlist)
+        d = map(str, dlist)
+        assert t == ['f0'], t
+        assert d == ['d1', 'd2', 'd3'], d
+
+        del tlist[:]
+        del dlist[:]
+
+        env.ParseDepends(test.workpath('multiple'))
         t = map(str, tlist)
         d = map(str, dlist)
         assert t == ['f1', 'f2', 'f3', 'f4', 'f5'], t
         assert d == ['foo', 'bar', 'abc', 'def', 'ghi', 'jkl', 'mno'], d
+
+        exc_caught = None
+        try:
+            env.ParseDepends(test.workpath('multiple'), only_one=1)
+        except SCons.Errors.UserError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
 
     def test_Platform(self):
         """Test the Platform() method"""
