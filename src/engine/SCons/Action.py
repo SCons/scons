@@ -163,6 +163,10 @@ def SetCommandHandler(func):
     global spawn
     spawn = func
 
+def GetCommandHandler():
+    global spawn
+    return spawn
+
 class CommandGenerator:
     """
     Wrappes a command generator function so the Action() factory
@@ -264,8 +268,8 @@ class CommandAction(ActionBase):
         self.command = string
 
     def execute(self, **kw):
-        import SCons.Util
         dict = apply(self.subst_dict, (), kw)
+        import SCons.Util
         cmd_list = SCons.Util.scons_subst_list(self.command, dict, {}, _rm)
         for cmd_line in cmd_list:
             if len(cmd_line):
@@ -324,10 +328,23 @@ class CommandGeneratorAction(ActionBase):
         if kw.has_key("target") and not SCons.Util.is_List(kw["target"]):
             kw["target"] = [kw["target"]]
 
-        cmd_list = apply(self.generator, (), kw)
+        gen_list = apply(self.generator, (), kw)
+        gen_list = map(lambda x: map(str, x), gen_list)
 
-        cmd_list = map(lambda x: map(str, x), cmd_list)
-        for cmd_line in cmd_list:
+        # Do environment variable substitution on returned command list
+        dict = apply(self.subst_dict, (), kw)
+        cmd_list = [ ]
+        for gen_line in gen_list:
+            cmd_list.append([])
+            curr_line = cmd_list[-1]
+            for gen_arg in gen_line:
+                arg_list = SCons.Util.scons_subst_list(gen_arg, dict, {})
+                curr_line.extend(arg_list[0])
+                if(len(arg_list) > 1):
+                    cmd_list.extend(arg_list[1:])
+                    curr_line = cmd_list[-1]
+        
+        for cmd_line in filter(lambda x: x, cmd_list):
             if print_actions:
                 self.show(cmd_line)
             if execute_actions:

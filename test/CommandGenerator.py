@@ -45,11 +45,12 @@ test.write('SConstruct', """
 def g(source, target, env):
     import sys
     python = sys.executable
-    return [[python, "build.py", ".temp"] + source,
-            [python, "build.py"] + target + [".temp"]]
+    return [[python, "build.py", "$TEMPFILE"] + source,
+            [python, "build.py"] + target + ["$TEMPFILE"]]
 
 b = Builder(name = 'b', generator=g)
-env = Environment(BUILDERS = [b])
+env = Environment(BUILDERS = [b],
+                  TEMPFILE=".temp")
 env.b(target = 'foo1.out', source = 'foo1.in')
 env.b(target = 'foo2.out', source = 'foo2.in')
 env.b(target = 'foo3.out', source = 'foo3.in')

@@ -156,14 +156,26 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         """Test executing a command generator Action
         """
 
-        def f(dummy, self=self):
+        def f(dummy, env, self=self):
             self.dummy = dummy
-            return [[""]]
+            return [["$FOO"]]
+        def ch(cmd, args, env, self=self):
+            self.cmd.append(cmd)
+            self.args.append(args)
 
         a = SCons.Action.CommandGeneratorAction(f)
         self.dummy = 0
-        a.execute(dummy=1)
+        old_hdl = SCons.Action.GetCommandHandler()
+        self.cmd = []
+        self.args = []
+        try:
+            SCons.Action.SetCommandHandler(ch)
+            a.execute(dummy=1, env={ 'FOO' : 'foo baz\nbar ack' })
+        finally:
+            SCons.Action.SetCommandHandler(old_hdl)
         assert self.dummy == 1
+        assert self.cmd == [ 'foo', 'bar'], self.cmd
+        assert self.args == [ [ 'foo', 'baz' ], [ 'bar', 'ack' ] ], self.args
         del self.dummy
 
     def test_get_contents(self):

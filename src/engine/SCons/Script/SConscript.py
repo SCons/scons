@@ -189,4 +189,5 @@ def BuildDefaultGlobals():
     globals['Scanner']           = SCons.Scanner.Base
     globals['SConscript']        = SConscript
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
+    globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
     return globals
