@@ -117,19 +117,19 @@ class Calculator:
         self.module = module
 
     
-    def collect(self, node, signatures):
+    def collect(self, node):
         """
-        Collect the signatures of the node's sources.
+        Collect the signatures of a node's sources.
 
         node - the node whose sources will be collected
-        signatures - the dictionary that the signatures will be
-        gathered into.
+
+        This no longer handles the recursive descent of the
+        node's children's signatures.  We expect that they're
+        already built and updated by someone else, if that's
+        what's wanted.
         """
-        for source_node in node.children():
-            if not signatures.has_key(source_node):
-                signature = self.get_signature(source_node)
-                signatures[source_node] = signature
-                self.collect(source_node, signatures)
+        sigs = map(lambda n,s=self: s.get_signature(n), node.children())
+        return self.module.collect(filter(lambda x: not x is None, sigs))
 
     def get_signature(self, node):
         """
@@ -150,10 +150,7 @@ class Calculator:
         elif node.has_signature():
             sig = node.get_signature()
         elif node.builder:
-            signatures = {}
-            self.collect(node, signatures)
-            signatures = filter(lambda x: not x is None, signatures.values())
-            sig = self.module.collect(signatures)
+            sig = self.collect(node)
         else:
             if not node.exists():
                 return None

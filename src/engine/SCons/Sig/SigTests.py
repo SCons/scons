@@ -154,7 +154,8 @@ class SigTestBase:
         calc = SCons.Sig.Calculator(self.module)
 
         for node in nodes:
-            self.failUnless(not current(calc, node), "none of the nodes should be current")
+            self.failUnless(not current(calc, node),
+                            "none of the nodes should be current")
 
         # simulate a build:
         self.files[1].modify('built', 222)
@@ -171,7 +172,8 @@ class SigTestBase:
         write(calc, nodes)
         
         for node in nodes:
-            self.failUnless(current(calc, node), "all of the nodes should be current")
+            self.failUnless(current(calc, node),
+                            "all of the nodes should be current")
 
     def test_modify(self):
 
@@ -194,7 +196,7 @@ class SigTestBase:
         self.failUnless(current(calc, nodes[4]))
         self.failUnless(current(calc, nodes[5]))
         self.failUnless(not current(calc, nodes[6]), "modified directly")
-        self.failUnless(not current(calc, nodes[7]), "indirect source modified")
+        self.failUnless(current(calc, nodes[7]), "indirect source modified")
         self.failUnless(not current(calc, nodes[8]), "modified directory")
         self.failUnless(not current(calc, nodes[9]), "direct source modified")
         self.failUnless(not current(calc, nodes[10]), "indirect source modified")
@@ -223,7 +225,7 @@ class SigTestBase:
         self.failUnless(current(calc, nodes[8]))
         self.failUnless(not current(calc, nodes[9]), "deleted")
         self.failUnless(current(calc, nodes[10]),
-                        "current even though it's source was deleted") 
+                        "current even though its source was deleted") 
 
 class MD5TestCase(unittest.TestCase, SigTestBase):
     """Test MD5 signatures"""
@@ -235,10 +237,114 @@ class TimeStampTestCase(unittest.TestCase, SigTestBase):
 
     module = SCons.Sig.TimeStamp
 
+class CalcTestCase(unittest.TestCase):
+    
+    def runTest(self):
+        class MySigModule:
+            def collect(self, signatures):
+                return reduce(lambda x, y: x + y, signatures)
+            def current(self, newsig, oldsig):
+                return newsig == oldsig
+            def signature(self, node):
+                return node.get_signature()
+
+        class MyNode:
+            def __init__(self, name, sig):
+                self.name = name
+                self.sig = sig
+                self.kids = []
+                self.builder = None
+                self.use_signature = 1
+            def children(self):
+                return self.kids
+            def has_signature(self):
+                return self.sig != None
+            def get_signature(self):
+                return self.sig
+            def get_oldentry(self):
+                return 0, self.sig
+            def get_timestamp(self):
+                return 1
+
+        self.module = MySigModule()
+        self.nodeclass = MyNode
+        self.test_Calc___init__()
+        self.test_Calc_collect()
+        self.test_Calc_get_signature()
+        self.test_Calc_current()
+
+    def test_Calc___init__(self):
+        self.calc = SCons.Sig.Calculator(self.module)
+        assert self.calc.module == self.module
+
+    def test_Calc_collect(self):
+        n1 = self.nodeclass('n1', 11)
+        n2 = self.nodeclass('n2', 22)
+        n3 = self.nodeclass('n3', 33)
+        n1.builder = 1
+        n1.kids = [n2, n3]
+
+        assert self.calc.collect(n1) == 55
+
+    def test_Calc_get_signature(self):
+        class NE(self.nodeclass):
+            def exists(self):
+                return 0
+            def has_signature(self):
+                return None
+        class NN(self.nodeclass):
+            def exists(self):
+                return 1
+            def has_signature(self):
+                return None
+
+        n1 = self.nodeclass('n1', 11)
+        n1.use_signature = 0
+        assert self.calc.get_signature(n1) is None
+
+        n2 = self.nodeclass('n2', 22)
+        assert self.calc.get_signature(n2) == 22
+
+        n3 = self.nodeclass('n3', 33)
+        n4 = self.nodeclass('n4', None)
+        n4.builder = 1
+        n4.kids = [n2, n3]
+        assert self.calc.get_signature(n4) == 55
+
+        n5 = NE('n5', 55)
+        assert self.calc.get_signature(n5) is None
+
+        n6 = NN('n6', 66)
+        assert self.calc.get_signature(n6) == 66
+
+    def test_Calc_current(self):
+        class N0(self.nodeclass):
+            def current(self):
+                return 0
+        class N1(self.nodeclass):
+            def current(self):
+                return 1
+        class NN(self.nodeclass):
+            def current(self):
+                return None
+
+        n0 = N0('n0', 11)
+        assert not self.calc.current(n0, 10)
+        assert not self.calc.current(n0, 11)
+
+        n1 = N1('n1', 22)
+        assert self.calc.current(n1, 20)
+        assert self.calc.current(n1, 22)
+
+        nn = NN('nn', 33)
+        assert not self.calc.current(nn, 30)
+        assert self.calc.current(nn, 33)
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(MD5TestCase())
     suite.addTest(TimeStampTestCase())
+    suite.addTest(CalcTestCase())
     return suite
 
 if __name__ == "__main__":

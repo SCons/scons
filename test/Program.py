@@ -143,12 +143,80 @@ test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c X\nf3c.c\n")
 
 test.up_to_date(arguments = '.')
 
-# make sure the programs don't get rebuilt, because nothing changed:
+# make sure the programs didn't get rebuilt, because nothing changed:
 oldtime1 = os.path.getmtime(test.workpath('foo1'))
 oldtime2 = os.path.getmtime(test.workpath('foo2'))
 oldtime3 = os.path.getmtime(test.workpath('foo3'))
+
 time.sleep(2) # introduce a small delay, to make the test valid
-test.run(arguments = '.')
+
+test.run(arguments = 'foo1 foo2 foo3')
+
+test.fail_test(not (oldtime1 == os.path.getmtime(test.workpath('foo1'))))
+test.fail_test(not (oldtime2 == os.path.getmtime(test.workpath('foo2'))))
+test.fail_test(not (oldtime3 == os.path.getmtime(test.workpath('foo3'))))
+
+test.write('f1.c', """
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("f1.c Y\n");
+	exit (0);
+}
+""")
+
+test.write('f3b.c', """
+void
+f3b(void)
+{
+	printf("f3b.c Y\n");
+}
+""")
+
+test.run(arguments = 'foo1 foo2 foo3')
+
+test.run(program = test.workpath('foo1'), stdout = "f1.c Y\n")
+test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
+test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c Y\nf3c.c\n")
+
+test.up_to_date(arguments = 'foo1 foo2 foo3')
+
+test.write('f1.c', """
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("f1.c Z\n");
+	exit (0);
+}
+""")
+
+test.write('f3b.c', """
+void
+f3b(void)
+{
+	printf("f3b.c Z\n");
+}
+""")
+
+test.run(arguments = 'foo1 foo2 foo3')
+
+test.run(program = test.workpath('foo1'), stdout = "f1.c Z\n")
+test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
+test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c Z\nf3c.c\n")
+
+test.up_to_date(arguments = 'foo1 foo2 foo3')
+
+# make sure the programs didn't get rebuilt, because nothing changed:
+oldtime1 = os.path.getmtime(test.workpath('foo1'))
+oldtime2 = os.path.getmtime(test.workpath('foo2'))
+oldtime3 = os.path.getmtime(test.workpath('foo3'))
+
+time.sleep(2) # introduce a small delay, to make the test valid
+
+test.run(arguments = 'foo1 foo2 foo3')
+
 test.fail_test(not (oldtime1 == os.path.getmtime(test.workpath('foo1'))))
 test.fail_test(not (oldtime2 == os.path.getmtime(test.workpath('foo2'))))
 test.fail_test(not (oldtime3 == os.path.getmtime(test.workpath('foo3'))))
