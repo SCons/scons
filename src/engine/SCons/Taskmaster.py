@@ -36,6 +36,40 @@ import traceback
 import SCons.Node
 import SCons.Errors
 
+# A subsystem for recording stats about how different Nodes are handled by
+# the main Taskmaster loop.  There's no external control here (no need for
+# a --debug= option); enabled it by changing the value of CollectStats.
+
+CollectStats = None
+
+class Stats:
+    def __init__(self):
+        self.considered  = 0
+        self.already_handled  = 0
+        self.problem  = 0
+        self.child_failed  = 0
+        self.not_started  = 0
+        self.not_built  = 0
+        self.side_effects  = 0
+        self.build  = 0
+
+StatsNodes = []
+
+fmt = "%(considered)5d" \
+      " %(already_handled)5d" \
+      " %(problem)5d" \
+      " %(child_failed)5d" \
+      " %(not_started)5d" \
+      " %(not_built)5d" \
+      " %(side_effects)5d" \
+      " %(build)5d" \
+      " "
+
+def dump_stats():
+    StatsNodes.sort(lambda a, b: cmp(a.name, b.name))
+    for n in StatsNodes:
+        print (fmt % n.stats.__dict__) + str(n)
+
 class Task:
     """Default SCons build engine task.
 
@@ -280,8 +314,18 @@ class Taskmaster:
             node = self.candidates.pop()
             state = node.get_state()
 
+            if CollectStats:
+                if not hasattr(node, 'stats'):
+                    node.stats = Stats()
+                    StatsNodes.append(node)
+                S = node.stats
+                S.considered = S.considered + 1
+            else:
+                S = None
+
             # Skip this node if it has already been handled:
             if not state in [ SCons.Node.no_state, SCons.Node.stack ]:
+                if S: S.already_handled = S.already_handled + 1
                 continue
 
             # Mark this node as being on the execution stack:
@@ -306,6 +350,7 @@ class Taskmaster:
                 # raise the exception when the Task is "executed."
                 self.ready_exc = sys.exc_info()
                 self.ready = node
+                if S: S.problem = S.problem + 1
                 break
 
             # Skip this node if any of its children have failed.  This
@@ -314,6 +359,7 @@ class Taskmaster:
             # by a *previous* descent of an earlier top-level target.
             if filter(lambda I: I[0] == SCons.Node.failed, childinfo):
                 node.set_state(SCons.Node.failed)
+                if S: S.child_failed = S.child_failed + 1
                 continue
 
             # Detect dependency cycles:
@@ -360,6 +406,7 @@ class Taskmaster:
                 self.candidates.append(node)
                 not_started.reverse()
                 self.candidates.extend(self.order(not_started))
+                if S: S.not_started = S.not_started + 1
                 continue
 
             not_built = filter(lambda I: I[0] <= SCons.Node.executing, derived_children)
@@ -376,6 +423,7 @@ class Taskmaster:
                 # put back on the candidates list when appropriate.
                 self.pending.append(node)
                 node.set_state(SCons.Node.pending)
+                if S: S.not_built = S.built + 1
                 continue
 
             # Skip this node if it has side-effects that are
@@ -386,11 +434,13 @@ class Taskmaster:
                       0):
                 self.pending.append(node)
                 node.set_state(SCons.Node.pending)
+                if S: S.side_effects = S.side_effects + 1
                 continue
 
             # The default when we've gotten through all of the checks above:
             # this node is ready to be built.
             self.ready = node
+            if S: S.build = S.build + 1
             break
 
     def next_task(self):
