@@ -46,6 +46,14 @@ except ImportError:
 
 default_max_drift = 2*24*60*60
 
+class SConsignEntry:
+    """The old SConsignEntry format.
+    We keep this around to handle conversions from old .sconsign files."""
+    timestamp = None
+    bsig = None
+    csig = None
+    implicit = None
+
 class Calculator:
     """
     Encapsulates signature calculations and .sconsign file generating
