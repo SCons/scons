@@ -94,7 +94,7 @@ a == 1
 """)
 
 test.run(status = 2, stderr = """\
-NameError: a:
+NameError: [^\n]*
   File "SConstruct", line 1:
     a == 1
 """)

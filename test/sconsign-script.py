@@ -30,6 +30,23 @@ import string
 import TestCmd
 import TestSCons
 
+# Check for the sconsign script before we instantiate TestSCons(),
+# because that will change directory on us.
+if os.path.exists('sconsign.py'):
+    sconsign = 'sconsign.py'
+elif os.path.exists('sconsign'):
+    sconsign = 'sconsign'
+else:
+    print "Can find neither 'sconsign.py' nor 'sconsign' scripts."
+    test.no_result(1)
+
+def sort_match(test, lines, expect):
+    lines = string.split(lines, '\n')
+    lines.sort()
+    expect = string.split(expect, '\n')
+    expect.sort()
+    return test.match_re(lines, expect)
+
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.subdir('sub1', 'sub2')
@@ -74,7 +91,7 @@ test.write(['sub2', 'inc2.h'], r"""\
 test.run(arguments = '--implicit-cache .')
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "sub1/.sconsign",
          stdout = """\
 hello.exe: None \S+ None
@@ -82,7 +99,7 @@ hello.obj: None \S+ None
 """)
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "-v sub1/.sconsign",
          stdout = """\
 hello.exe:
@@ -96,7 +113,7 @@ hello.obj:
 """)
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "-b -v sub1/.sconsign",
          stdout = """\
 hello.exe:
@@ -106,7 +123,7 @@ hello.obj:
 """)
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "-c -v sub1/.sconsign",
          stdout = """\
 hello.exe:
@@ -116,14 +133,14 @@ hello.obj:
 """)
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "-e hello.obj sub1/.sconsign",
          stdout = """\
 hello.obj: None \S+ None
 """)
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "-e hello.obj -e hello.exe -e hello.obj sub1/.sconsign",
          stdout = """\
 hello.obj: None \S+ None
@@ -132,7 +149,7 @@ hello.obj: None \S+ None
 """)
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "sub2/.sconsign",
          stdout = """\
 hello.exe: None \S+ None
@@ -143,7 +160,7 @@ hello.obj: None \S+ None
        string.replace(os.path.join('sub2', 'inc2.h'), '\\', '\\\\')))
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "-i -v sub2/.sconsign",
          stdout = """\
 hello.exe:
@@ -155,7 +172,7 @@ hello.obj:
        string.replace(os.path.join('sub2', 'inc2.h'), '\\', '\\\\')))
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
+         program = sconsign,
          arguments = "-e hello.obj sub2/.sconsign sub1/.sconsign",
          stdout = """\
 hello.obj: None \S+ None
@@ -182,21 +199,23 @@ time.sleep(1)
 test.run(arguments = '. --max-drift=1')
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
-         arguments = "sub1/.sconsign",
-         stdout = """\
+         program = sconsign,
+         arguments = "sub1/.sconsign")
+
+test.fail_test(not sort_match(test, test.stdout(), """\
 hello.exe: None \S+ None
 hello.c: \d+ None \d+
 hello.obj: None \S+ None
-""")
+"""))
 
 test.run(interpreter = TestSCons.python,
-         program = "sconsign",
-         arguments = "-r sub1/.sconsign",
-         stdout = """\
+         program = sconsign,
+         arguments = "-r sub1/.sconsign")
+
+test.fail_test(not sort_match(test, test.stdout(), """\
 hello.exe: None \S+ None
-hello.c: '\S+ \S+ \d+ \d\d:\d\d:\d\d \d\d\d\d' None \d+
+hello.c: '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' None \d+
 hello.obj: None \S+ None
-""")
+"""))
 
 test.pass_test()

@@ -63,13 +63,13 @@ except:
     pass
 f.close()
 if os.environ.has_key( 'ACTPY_PIPE' ):
-    if os.environ.has_key( 'PIPE_STDOUT_MSG' ):
-         stdout_msg = os.environ['PIPE_STDOUT_MSG']
+    if os.environ.has_key( 'PIPE_STDOUT_FILE' ):
+         stdout_msg = open(os.environ['PIPE_STDOUT_FILE'], 'r').read()
     else:
          stdout_msg = "act.py: stdout: executed act.py\\n"
     sys.stdout.write( stdout_msg )
-    if os.environ.has_key( 'PIPE_STDERR_MSG' ):
-         stderr_msg = os.environ['PIPE_STDERR_MSG']
+    if os.environ.has_key( 'PIPE_STDERR_FILE' ):
+         stderr_msg = open(os.environ['PIPE_STDERR_FILE'], 'r').read()
     else:
          stderr_msg = "act.py: stderr: executed act.py\\n"
     sys.stderr.write( stderr_msg ) 
@@ -537,28 +537,32 @@ class CommandActionTestCase(unittest.TestCase):
         self.env['PSTDOUT'].close()
         pipe_out = test.read( pipe_file )
 
-        if sys.platform == 'win32':
-            cr = '\r'
-        else:
-            cr = ''
-        act_out = "act.py: stdout: executed act.py\n"
-        act_err = "act.py: stderr: executed act.py\n"
+        act_out = "act.py: stdout: executed act.py"
+        act_err = "act.py: stderr: executed act.py"
 
         # Since we are now using select(), stdout and stderr can be
         # intermixed, so count the lines separately.
-        outlines = re.findall(act_out + cr, pipe_out)
-        errlines = re.findall(act_err + cr, pipe_out)
+        outlines = re.findall(act_out, pipe_out)
+        errlines = re.findall(act_err, pipe_out)
         assert len(outlines) == 8, outlines
         assert len(errlines) == 8, errlines
 
         # test redirection operators
         def test_redirect(self, redir, stdout_msg, stderr_msg):
             cmd = r'%s %s %s xyzzy %s' % (python, act_py, outfile, redir)
+            # Write the output and error messages to files because Win32
+            # can't handle strings that are too big in its external
+            # environment (os.spawnve() returns EINVAL, "Invalid
+            # argument").
+            stdout_file = test.workpath('stdout_msg')
+            stderr_file = test.workpath('stderr_msg')
+            open(stdout_file, 'w').write(stdout_msg)
+            open(stderr_file, 'w').write(stderr_msg)
             pipe = open( pipe_file, "w" )
             act = SCons.Action.CommandAction(cmd)
             env = Environment( ENV = {'ACTPY_PIPE' : '1',
-                                      'PIPE_STDOUT_MSG' : stdout_msg,
-                                      'PIPE_STDERR_MSG' : stderr_msg},
+                                      'PIPE_STDOUT_FILE' : stdout_file,
+                                      'PIPE_STDERR_FILE' : stderr_file},
                                PIPE_BUILD = 1,
                                PSTDOUT = pipe, PSTDERR = pipe )
             r = act([], [], env)

@@ -127,10 +127,10 @@ QT_UIC = '%s %s' % (python, test.workpath('qt','bin','myuic.py'))
 
 def createSConstruct(test,place,overrides):
     test.write(place, """
-env = Environment(QTDIR='%s',
-                  QT_LIB='%s',
-                  QT_MOC = '%s',
-                  QT_UIC = '%s',
+env = Environment(QTDIR = r'%s',
+                  QT_LIB = r'%s',
+                  QT_MOC = r'%s',
+                  QT_UIC = r'%s',
                   %s
                   tools=['default','qt'])
 if ARGUMENTS.get('build_dir', 0):
