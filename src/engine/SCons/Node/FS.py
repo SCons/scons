@@ -792,6 +792,8 @@ class FS:
             raise SCons.Errors.UserError, "Source directory must be under top of build tree."
         if src_dir.is_under(build_dir):
             raise SCons.Errors.UserError, "Source directory cannot be under build directory."
+        if build_dir.srcdir:
+            raise SCons.Errors.UserError, "'%s' already has a source directory: '%s'."%(build_dir, build_dir.srcdir)
         build_dir.link(src_dir, duplicate)
 
     def Repository(self, *dirs):
