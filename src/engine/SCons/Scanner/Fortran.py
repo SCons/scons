@@ -79,7 +79,7 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
     if not hasattr(target, 'f77path'):
         def Dir(x, dir=target.cwd, fs=fs): return fs.Dir(x,dir)
         try:
-            target.f77path = tuple(SCons.Node.arg2nodes(env['F77PATH'],Dir))
+            target.f77path = tuple(fs.Rsearchall(env['F77PATH'], Dir))
         except KeyError:
             target.f77path = ()
 
@@ -90,7 +90,7 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
     try:
         nodes = node.found_includes[f77path]
     except KeyError:
-        if node.exists():
+        if node.rexists():
 
             # cache the includes list in node so we only scan it once:
             if node.includes != None:

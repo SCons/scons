@@ -307,12 +307,12 @@ class FS:
         build_dir.link(src_dir, duplicate)
 
     def Repository(self, *dirs):
-        """Specify repository directories to search."""
+        """Specify Repository directories to search."""
         for d in dirs:
             self.Repositories.append(self.Dir(d))
 
     def Rsearch(self, path, func = exists_path):
-        """Search for something in a repository.  Returns the first
+        """Search for something in a Repository.  Returns the first
         one found in the list, or None if there isn't one."""
         if isinstance(path, SCons.Node.Node):
             return path
@@ -327,10 +327,12 @@ class FS:
         return None
 
     def Rsearchall(self, pathlist, func = exists_path):
-        """Search for a list of somethings in the repository list."""
+        """Search for a list of somethings in the Repository list."""
         ret = []
         if SCons.Util.is_String(pathlist):
             pathlist = string.split(pathlist, os.pathsep)
+        if not SCons.Util.is_List(pathlist):
+            pathlist = [pathlist]
         for path in pathlist:
             if isinstance(path, SCons.Node.Node):
                 ret.append(path)
@@ -339,6 +341,8 @@ class FS:
                 if n:
                     ret.append(n)
                 if not os.path.isabs(path):
+                    if path[0] == '#':
+                        path = path[1:]
                     for dir in self.Repositories:
                         n = func(os.path.join(dir.path, path))
                         if n:
@@ -422,7 +426,7 @@ class Entry(SCons.Node.Node):
         raise AttributeError
 
     def exists(self):
-        return os.path.exists(self.rstr())
+        return os.path.exists(self.path)
 
     def cached_exists(self):
         try:
@@ -430,6 +434,9 @@ class Entry(SCons.Node.Node):
         except AttributeError:
             self.exists_flag = self.exists()
             return self.exists_flag
+
+    def rexists(self):
+        return os.path.exists(self.rstr())
 
     def get_parents(self):
         parents = SCons.Node.Node.get_parents(self)
@@ -457,7 +464,6 @@ class Entry(SCons.Node.Node):
 
 # XXX TODO?
 # Annotate with the creator
-# is_under
 # rel_path
 # srcpath / srcdir
 # link / is_linked
@@ -588,12 +594,14 @@ class Dir(Entry):
         # source path exists, we only care about the path.
         return os.path.exists(self.path)
 
+    def rexists(self):
+        # Again, directories are special...we don't care if their
+        # source path exists, we only care about the path.
+        return os.path.exists(self.rstr())
+
 
 
 # XXX TODO?
-# rfile
-# precious
-# rpath
 # rsrcpath
 # source_exists
 # derived_exists
@@ -604,9 +612,7 @@ class Dir(Entry):
 # addsuffix
 # accessible
 # ignore
-# build
 # bind
-# is_under
 # relpath
 
 class File(Entry):
@@ -624,15 +630,43 @@ class File(Entry):
         return self.dir.root()
 
     def get_contents(self):
-        if not self.exists():
+        if not self.rexists():
             return ''
         return open(self.rstr(), "rb").read()
 
     def get_timestamp(self):
-        if self.exists():
+        if self.rexists():
             return os.path.getmtime(self.rstr())
         else:
             return 0
+
+    def calc_signature(self, calc):
+        """
+        Select and calculate the appropriate build signature for a File.
+
+        self - the File node
+        calc - the signature calculation module
+        returns - the signature
+
+        This method does not store the signature in the node or
+        in the .sconsign file.
+        """
+
+        if self.builder:
+            if SCons.Sig.build_signature:
+                if not hasattr(self, 'bsig'):
+                    self.set_bsig(calc.bsig(self.rfile()))
+                return self.get_bsig()
+            else:
+                if not hasattr(self, 'csig'):
+                    self.set_csig(calc.csig(self.rfile()))
+                return self.get_csig()
+        elif not self.rexists():
+            return None
+        else:
+            if not hasattr(self, 'csig'):
+                self.set_csig(calc.csig(self.rfile()))
+            return self.get_csig()
 
     def store_csig(self):
         self.dir.sconsign().set_csig(self.name, self.get_csig())
@@ -671,6 +705,17 @@ class File(Entry):
                 file_link(self.srcpath, self.path)
         return Entry.exists(self)
 
+    def rexists(self):
+        if self.duplicate and not self.created:
+            self.created = 1
+            if self.srcpath != self.path and \
+               os.path.exists(self.srcpath):
+                if os.path.exists(self.path):
+                    os.unlink(self.path)
+                self.__createDir()
+                file_link(self.srcpath, self.path)
+        return Entry.rexists(self)
+
     def scanner_key(self):
         return os.path.splitext(self.name)[1]
 
@@ -704,6 +749,22 @@ class File(Entry):
                 os.unlink(self.path)
         else:
             self.__createDir()
+
+    def current(self, calc):
+        bsig = calc.bsig(self)
+        if not self.exists():
+            # The file doesn't exist locally...
+            r = self.rfile()
+            if r != self:
+                # ...but there is one in a Repository...
+                if calc.current(r, bsig):
+                    # ...and it's even up-to-date.
+                    # XXX Future: copy locally if requested
+                    return 1
+            self._rfile = self
+            return None
+        else:
+            return calc.current(self, bsig)
 
     def rfile(self):
         if not hasattr(self, '_rfile'):

@@ -27,6 +27,7 @@ import os
 import os.path
 import string
 import sys
+import time
 import unittest
 import SCons.Node.FS
 from TestCmd import TestCmd
@@ -501,7 +502,18 @@ class FSTestCase(unittest.TestCase):
         assert c == "", c
         assert e.__class__ == SCons.Node.FS.Dir
 
-        #XXX test get_timestamp()
+        test.write("tstamp", "tstamp\n")
+        # Okay, *this* manipulation accomodates Windows FAT file systems
+        # that only have two-second granularity on their timestamps.
+        # We round down the current time to the nearest even integer
+        # value, subtract two to make sure the timestamp is not "now,"
+        # and then convert it back to a float.
+        tstamp = float(int(time.time() / 2) * 2) - 2
+        os.utime(test.workpath("tstamp"), (tstamp - 2.0, tstamp))
+        f = fs.File("tstamp")
+        t = f.get_timestamp()
+        assert t == tstamp, "expected %f, got %f" % (tstamp, t)
+        test.unlink("tstamp")
 
         #XXX test get_prevsiginfo()
 
@@ -529,6 +541,10 @@ class FSTestCase(unittest.TestCase):
         except TypeError:
             exc_caught = 1
         assert exc_caught, "Should have caught a TypeError"
+
+        # XXX test calc_signature()
+
+        # XXX test current()
 
 class RepositoryTestCase(unittest.TestCase):
     def runTest(self):
@@ -585,11 +601,18 @@ class RepositoryTestCase(unittest.TestCase):
         assert fs.Rsearch('f2', os.path.exists)
         assert fs.Rsearch('f3', os.path.exists)
 
+        list = fs.Rsearchall(fs.Dir('d1'))
+        assert len(list) == 1, list
+        assert list[0].path == 'd1', list[0].path
+
         list = fs.Rsearchall([fs.Dir('d1')])
         assert len(list) == 1, list
         assert list[0].path == 'd1', list[0].path
 
         list = fs.Rsearchall('d2')
+        assert list == [], list
+
+        list = fs.Rsearchall('#d2')
         assert list == [], list
 
         test.subdir(['work', 'd2'])
@@ -623,6 +646,40 @@ class RepositoryTestCase(unittest.TestCase):
         work_d4 = fs.File(os.path.join('work', 'd4'))
         list = fs.Rsearchall(['d3', work_d4])
         assert list == ['d3', work_d4], list
+        
+        f1 = fs.File(test.workpath("work", "i_do_not_exist"))
+        assert not f1.rexists()
+        
+        test.write(["rep2", "i_exist"], "\n")
+        f1 = fs.File(test.workpath("work", "i_exist"))
+        assert f1.rexists()
+        
+        test.write(["work", "i_exist_too"], "\n")
+        f1 = fs.File(test.workpath("work", "i_exist_too"))
+        assert f1.rexists()
+
+        test.write(["rep2", "tstamp"], "tstamp\n")
+        # Okay, *this* manipulation accomodates Windows FAT file systems
+        # that only have two-second granularity on their timestamps.
+        # We round down the current time to the nearest even integer
+        # value, subtract two to make sure the timestamp is not "now,"
+        # and then convert it back to a float.
+        tstamp = float(int(time.time() / 2) * 2) - 2
+        os.utime(test.workpath("rep2", "tstamp"), (tstamp - 2.0, tstamp))
+        f = fs.File("tstamp")
+        t = f.get_timestamp()
+        assert t == tstamp, "expected %f, got %f" % (tstamp, t)
+        test.unlink(["rep2", "tstamp"])
+
+        # Make sure get_contents() returns the binary contents.
+        test.write(["rep3", "contents"], "Con\x1aTents\n")
+        c = fs.File("contents").get_contents()
+        assert c == "Con\x1aTents\n", "got '%s'" % c
+        test.unlink(["rep3", "contents"])
+
+        # XXX test calc_signature()
+
+        # XXX test current()
 
 class find_fileTestCase(unittest.TestCase):
     def runTest(self):

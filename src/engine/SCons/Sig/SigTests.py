@@ -81,6 +81,9 @@ class DummyNode:
             self.exists_cache = self.exists()
             return self.exists_cache
 
+    def rexists(self):
+        return not self.file.contents is None
+
     def children(self):
         return filter(lambda x, i=self.ignore: x not in i,
                       self.sources + self.depends)

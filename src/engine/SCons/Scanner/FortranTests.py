@@ -92,6 +92,19 @@ test.write('fff4.f',"""
 test.write('include/f4.f', "\n")
 test.write('subdir/include/f4.f', "\n")
 
+
+test.subdir('repository', ['repository', 'include'])
+test.subdir('work', ['work', 'src'])
+
+test.write(['repository', 'include', 'iii.f'], "\n")
+
+test.write(['work', 'src', 'fff.f'], """
+      PROGRAM FOO
+      INCLUDE 'iii.f'
+      STOP
+      END
+""")
+
 # define some helpers:
 
 class DummyTarget:
@@ -278,6 +291,17 @@ class FortranScannerTestCase12(unittest.TestCase):
         deps_match(self, deps, ['include/f4.f'])
         test.unlink('include/fff4.f')
 
+class FortranScannerTestCase13(unittest.TestCase):
+    def runTest(self):
+        os.chdir(test.workpath('work'))
+        fs = SCons.Node.FS.FS(test.workpath('work'))
+        fs.Repository(test.workpath('repository'))
+        s = SCons.Scanner.Fortran.FortranScan(fs=fs)
+        env = DummyEnvironment(['include'])
+        deps = s.scan(fs.File('src/fff.f'), env, DummyTarget())
+        deps_match(self, deps, [test.workpath('repository/include/iii.f')])
+        os.chdir(test.workpath(''))
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(FortranScannerTestCase1())
@@ -292,6 +316,7 @@ def suite():
     suite.addTest(FortranScannerTestCase10())
     suite.addTest(FortranScannerTestCase11())
     suite.addTest(FortranScannerTestCase12())
+    suite.addTest(FortranScannerTestCase13())
     return suite
 
 if __name__ == "__main__":

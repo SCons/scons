@@ -395,6 +395,9 @@ class Node:
     def current(self):
         return None
 
+    def rfile(self):
+        return self
+
     def rstr(self):
         return str(self)
 

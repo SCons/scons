@@ -113,10 +113,25 @@ int main()
 }
 """)
 
-test.write('include/fa.h', "\n")
-test.write('include/fb.h', "\n")
-test.write('subdir/include/fa.h', "\n")
-test.write('subdir/include/fb.h', "\n")
+test.write(['include', 'fa.h'], "\n")
+test.write(['include', 'fb.h'], "\n")
+test.write(['subdir', 'include', 'fa.h'], "\n")
+test.write(['subdir', 'include', 'fb.h'], "\n")
+
+
+test.subdir('repository', ['repository', 'include'])
+test.subdir('work', ['work', 'src'])
+
+test.write(['repository', 'include', 'iii.h'], "\n")
+
+test.write(['work', 'src', 'fff.c'], """
+#include <iii.h>
+
+int main()
+{
+    return 0;
+}
+""")
 
 # define some helpers:
 
@@ -267,6 +282,17 @@ class CScannerTestCase10(unittest.TestCase):
         deps_match(self, deps, [ 'include/fa.h', 'include/fb.h' ])
         test.unlink('include/fa.cpp')
 
+class CScannerTestCase11(unittest.TestCase):
+    def runTest(self):
+        os.chdir(test.workpath('work'))
+        fs = SCons.Node.FS.FS(test.workpath('work'))
+        fs.Repository(test.workpath('repository'))
+        s = SCons.Scanner.C.CScan(fs=fs)
+        env = DummyEnvironment(['include'])
+        deps = s.scan(fs.File('src/fff.c'), env, DummyTarget())
+        deps_match(self, deps, [test.workpath('repository/include/iii.h')])
+        os.chdir(test.workpath(''))
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(CScannerTestCase1())
@@ -278,6 +304,7 @@ def suite():
     suite.addTest(CScannerTestCase8())
     suite.addTest(CScannerTestCase9())
     suite.addTest(CScannerTestCase10())
+    suite.addTest(CScannerTestCase11())
     return suite
 
 if __name__ == "__main__":

@@ -117,13 +117,15 @@ class ActionBaseTestCase(unittest.TestCase):
         class N:
             def __init__(self, name):
                 self.name = name
+            def __str__(self):
+                return self.name
             def rstr(self):
                 return 'rstr-' + self.name
 
         d = a.subst_dict(target = [N('t3'), 't4'], source = ['s3', N('s4')])
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
-        assert TARGETS == ['rstr-t3', 't4'], d['TARGETS']
+        assert TARGETS == ['t3', 't4'], d['TARGETS']
         SOURCES = map(lambda x: str(x), d['SOURCES'])
         SOURCES.sort()
         assert SOURCES == ['rstr-s4', 's3'], d['SOURCES']

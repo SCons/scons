@@ -81,14 +81,14 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
     if not hasattr(target, 'cpppath'):
         def Dir(x, dir=target.cwd, fs=fs): return fs.Dir(x,dir)
         try:
-            target.cpppath = tuple(SCons.Node.arg2nodes(env['CPPPATH'],Dir))
+            target.cpppath = tuple(fs.Rsearchall(env['CPPPATH'], Dir))
         except KeyError:
             target.cpppath = ()
 
     cpppath = target.cpppath
 
     if not node.found_includes.has_key(cpppath):
-        if node.exists():
+        if node.rexists():
 
             # cache the includes list in node so we only scan it once:
             if node.includes != None:

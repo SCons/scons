@@ -271,12 +271,6 @@ class ActionBase:
         else:
             del kw['dir']
 
-        def rstr(x):
-            try:
-                return x.rstr()
-            except AttributeError:
-                return str(x)
-
         if kw.has_key('target'):
             t = kw['target']
             del kw['target']
@@ -286,11 +280,16 @@ class ActionBase:
                 cwd = t[0].cwd
             except (IndexError, AttributeError):
                 pass
-            dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(rstr, t)))
+            dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(str, t)))
             if dict['TARGETS']:
                 dict['TARGET'] = dict['TARGETS'][0]
 
         if kw.has_key('source'):
+            def rstr(x):
+                try:
+                    return x.rstr()
+                except AttributeError:
+                    return str(x)
             s = kw['source']
             del kw['source']
             if not SCons.Util.is_List(s):
