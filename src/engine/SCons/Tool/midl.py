@@ -41,8 +41,8 @@ import SCons.Util
 
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""
-    base, ext = SCons.Util.splitext(str(source[0]))
-    tlb = base + '.tlb'
+    base, ext = SCons.Util.splitext(str(target[0]))
+    tlb = target[0]
     incl = base + '.h'
     interface = base + '_i.c'
     proxy = base + '_p.c'

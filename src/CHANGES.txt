@@ -141,6 +141,9 @@ RELEASE 0.95 - XXX
 
   - Don't choke if a construction variable is a non-string value.
 
+  - Build Type Libraries in the target directory, not the source
+    directory.
+
 
 
 RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600

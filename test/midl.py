@@ -43,12 +43,14 @@ test.write('SConstruct',"""
 import os.path
 import os
 
-build = '#build'
 env = Environment(CCFLAGS = ' -nologo ', CPPPATH='${TARGET.dir}')
-Export('env','build')
+Export('env')
 
-BuildDir(build, 'src')
-SConscript(os.path.join(build,'SConscript'))
+BuildDir('build', 'src')
+SConscript(os.path.join('build','SConscript'))
+
+BuildDir('build2', 'src', duplicate=0)
+SConscript(os.path.join('build2','SConscript'))
 """)
 
 test.subdir('src','build')
@@ -56,7 +58,7 @@ test.subdir('src','build')
 test.write('src/SConscript',"""
 import os.path
 
-Import('env','build')
+Import('env')
 
 local = env.Copy(WIN32_INSERT_DEF = 1)
 
@@ -406,5 +408,37 @@ test.fail_test(os.path.exists(test.workpath(os.path.join('build','bar.res'))))
 test.fail_test(os.path.exists(test.workpath(os.path.join('build','bar.dll'))))
 test.fail_test(os.path.exists(test.workpath(os.path.join('build','bar.lib'))))
 test.fail_test(os.path.exists(test.workpath(os.path.join('build','bar.exp'))))
+
+test.run(arguments=os.path.join('build2','bar.dll'))
+
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','BarPCH.pch'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','BarPCH.obj'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar.tlb'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar.h'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar_i.c'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar_p.c'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar_data.c'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','BarObject.obj'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar.obj'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar.res'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar.dll'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar.lib'))))
+test.fail_test(not os.path.exists(test.workpath(os.path.join('build2','bar.exp'))))
+
+test.run(arguments='-c .')
+
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','BarPCH.pch'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','BarPCH.obj'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar.tlb'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar.h'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar_i.c'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar_p.c'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar_data.c'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','BarObject.obj'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar.obj'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar.res'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar.dll'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar.lib'))))
+test.fail_test(os.path.exists(test.workpath(os.path.join('build2','bar.exp'))))
 
 test.pass_test()
