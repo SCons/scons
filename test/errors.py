@@ -2,11 +2,11 @@
 
 __revision__ = "test/t0003.py __REVISION__ __DATE__ __DEVELOPER__"
 
-from TestCmd import TestCmd
+import TestCmd
 
-test = TestCmd(program = 'scons.py',
-               workdir = '',
-               interpreter = 'python')
+test = TestCmd.TestCmd(program = 'scons.py',
+			workdir = '',
+			interpreter = 'python')
 
 test.write('SConstruct1', """
 a ! int(2.0)
@@ -34,7 +34,12 @@ File "SConstruct2", line 2, in ?
 
 
 import os
+import string
 sconspath = os.path.join(os.getcwd(), 'scons.py')
+
+# Since we're using regular expression matches below, escape any
+# backslashes that ended up in the path name.  (Hello, Windows!)
+sconspath = string.replace(sconspath, '\\', '\\\\')
 
 test.write('SConstruct3', """
 raise InternalError, 'error inside'

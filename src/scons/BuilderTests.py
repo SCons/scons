@@ -56,7 +56,7 @@ class BuilderTestCase(unittest.TestCase):
 	cmd = "python %s %s xyzzy" % (act_py, outfile)
 	builder = Builder(action = cmd)
 	builder.execute()
-	assert test.read(outfile) == "act.py: xyzzy\n"
+	assert test.read(outfile, 'r') == "act.py: xyzzy\n"
 
 	def function(kw):
 	    import os, string, sys
@@ -67,7 +67,7 @@ class BuilderTestCase(unittest.TestCase):
 
 	builder = Builder(action = function)
 	builder.execute(out = outfile)
-	assert test.read(outfile) == "function\n"
+	assert test.read(outfile, 'r') == "function\n"
 
     def test_insuffix(self):
 	"""Test Builder creation with a specified input suffix

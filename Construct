@@ -13,15 +13,49 @@ $env = new cons( ENV => {
 Default qw( . );
 
 #
-# Grab the information that we "build" into the files (using sed).
+# An internal "whereis" routine to figure out if we have a
+# given program available.
 #
-chomp($date = $ARG{date} || `date '+%Y/%m/%d %H:%M:%S'`);
+use Config;
+sub whereis {
+    my $file = shift;
+    foreach my $dir (split(/$Config{path_sep}/, $ENV{PATH})) {
+	$f = File::Spec->catfile($dir, $file);
+	return $f if -x $f;
+    }
+    return undef
+}
 
-$developer = $ARG{developer} || '???';
+#
+# We let the presence or absence of various utilities determine
+# whether or not we bother to build certain pieces of things.
+# This will allow people to still do SCons work even if they
+# don't have Aegis or RPM installed, for example.
+#
+$aegis = whereis('aegis');
+$aesub = whereis('aesub');
+$rpm = whereis('rpm');
+$jw = whereis('jw');
 
-chomp($revision = $ARG{version} || `aesub '\$version' 2>/dev/null` || '0.01');
+#
+# Now grab the information that we "build" into the files (using sed).
+#
+chomp($date = $ARG{date});
+if (! $date) {
+    ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+    $year += 1900;
+    $date = sprintf("%4d/%02d/%02d %02d:%02d:%02d",
+		    $year, $mon, $mday, $hour, $min, $sec);
+}
 
-chomp($change = $ARG{change} || `aesub '\$change' 2>/dev/null`);
+$developer = $ARG{developer} || $ENV{USERNAME} || $ENV{LOGNAME} || $ENV{USER};
+
+$revision = $ARG{version};
+chomp($revision = `$aesub '\$version' 2>/dev/null`) if $aesub && ! $revision;
+$revision = '0.01' if ! $revision;
+
+$change = $ARG{change};
+chomp($change = `$aesub '\$change' 2>/dev/null`) if $aesub && ! $change;
 
 @arr = split(/\./, $revision);
 @arr = ($arr[0], map {length($_) == 1 ? "0$_" : $_} @arr[1 .. $#arr]);
@@ -31,7 +65,7 @@ map {s/^[CD]//, s/^0*(\d\d)$/$1/} @arr;
 $version = join('.', @arr);
 
 #
-# We use %(-%) around the date so date changes don't cause rebuilds.
+# Use %(-%) around the date so date changes don't cause rebuilds.
 #
 $sed_cmd = "sed" .
        " %( -e 's+__DATE__+$date+' %)" .
@@ -54,23 +88,32 @@ foreach $file (@files) {
 #
 $tar_gz = "build/dist/$project-$version.tar.gz";
 
+@setup_args = ('bdist sdist');
+
 @targets = (
-    "build/build/bdist.linux-i686/rpm/SOURCES/$project-$version.tar.gz",
-    "build/build/bdist.linux-i686/rpm/SPECS/$project.spec",
-    $tar_gz,
-    "build/dist/$project-$version-1.src.rpm",
     "build/dist/$project-$version.linux-i686.tar.gz",
-    "build/dist/$project-$version-1.noarch.rpm",
+    $tar_gz,
 );
 
-@build_files = map("build/$_", @files);
+if ($rpm) {
+    push(@setup_args, 'bdist_rpm');
 
-Command $env [@targets], @build_files, qq(
-    rm -rf build/build build/dist/*
-    cd build && python setup.py bdist bdist_rpm
-);
+    push(@targets,
+	"build/build/bdist.linux-i686/rpm/SOURCES/$project-$version.tar.gz",
+	"build/build/bdist.linux-i686/rpm/SPECS/$project.spec",
+	"build/dist/$project-$version-1.src.rpm",
+	"build/dist/$project-$version-1.noarch.rpm",
+    );
+};
 
-Depends $env [@targets], 'build/MANIFEST';
+
+$env->Command([@targets],
+	      map("build/$_", @files),
+	      qq(rm -rf build/build build/dist/*
+		 cd build && python setup.py @setup_args)
+	     );
+
+$env->Depends([@targets], 'build/MANIFEST');
 
 #
 # Unpack the .tar.gz created by the distutils into build/test, and
@@ -95,11 +138,13 @@ Build "etc/Conscript";
 #
 # Documentation.
 #
-Link 'build/doc' => 'doc';
+if ($jw) {
+    Link 'build/doc' => 'doc';
 
-Export qw( date env revision version );
+    Export qw( date env revision version );
 
-Build 'build/doc/Conscript';
+    Build 'build/doc/Conscript';
+}
 
 #
 # If we're running in the actual Aegis project, pack up a complete
@@ -111,29 +156,32 @@ Build 'build/doc/Conscript';
 # that goes into the archive.
 #
 
-foreach (`aegis -list -unf -c $change cf 2>/dev/null`) {
-    $seen{"$1\n"}++ if /^(?:source|test) remove(?:\s.*)+\s(\S+)$/;
-}
+if ($change) {
+    foreach (`aegis -list -unf -c $change cf 2>/dev/null`) {
+	$seen{"$1\n"}++ if /^(?:source|test) remove(?:\s.*)+\s(\S+)$/;
+    }
 
-eval '@src_files = grep(! $seen{$_}++,
+    eval '@src_files = grep(! $seen{$_}++,
 		    `aegis -list -terse pf 2>/dev/null`,
 		    `aegis -list -terse cf 2>/dev/null`)';
 
-@src_files = grep($_ !~ /(\.aeignore|\.consign)$/, @src_files);
+    @src_files = grep($_ !~ /(\.aeignore|\.consign)$/, @src_files);
 
-if (@src_files) {
-    chomp(@src_files);
+    if (@src_files) {
+	chomp(@src_files);
 
-    foreach $file (@src_files) {
-	Command $env "build/$project-src/$file", $file, $sed_cmd;
+	foreach $file (@src_files) {
+	    $env->Command("build/$project-src/$file", $file, $sed_cmd);
+	}
+
+	$env->Command("build/dist/$project-src-$version.tar.gz",
+    		      $tar_gz,
+		      map("build/$project-src/$_", @src_files),
+		      qq(
+		rm -rf build/$project-src-$version
+		cp -r build/$project-src build/$project-src-$version
+		find build/$project-src-$version -name .consign -exec rm {} \\;
+		cd build && tar zcf dist/%>:f $project-src-$version
+	));
     }
-
-    Command $env "build/dist/$project-src-$version.tar.gz",
-    		$tar_gz,
-		map("build/$project-src/$_", @src_files), qq(
-	rm -rf build/$project-src-$version
-	cp -r build/$project-src build/$project-src-$version
-	find build/$project-src-$version -name .consign -exec rm {} \\;
-	cd build && tar zcf dist/%>:f $project-src-$version
-    );
 }
