@@ -36,6 +36,7 @@ import string
 from Errors import UserError
 
 import SCons.Action
+import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 
@@ -132,15 +133,15 @@ class BuilderBase:
 		ret.append(f)
 	    return ret
 
-        tlist = SCons.Util.scons_str2nodes(adjustixes(target,
-                                                      env.subst(self.prefix),
-                                                      env.subst(self.suffix)),
-                                           self.node_factory)
+        tlist = SCons.Node.arg2nodes(adjustixes(target,
+                                                env.subst(self.prefix),
+                                                env.subst(self.suffix)),
+                                     self.node_factory)
 
-        slist = SCons.Util.scons_str2nodes(adjustixes(source,
-                                                      None,
-                                                      env.subst(self.src_suffix)),
-                                           self.node_factory)
+        slist = SCons.Node.arg2nodes(adjustixes(source,
+                                                None,
+                                                env.subst(self.src_suffix)),
+                                     self.node_factory)
         return tlist, slist
 
     def __call__(self, env, target = None, source = None):
@@ -248,7 +249,7 @@ class MultiStepBuilder(BuilderBase):
         self.src_builder = src_builder
 
     def __call__(self, env, target = None, source = None):
-        slist = SCons.Util.scons_str2nodes(source, self.node_factory)
+        slist = SCons.Node.arg2nodes(source, self.node_factory)
         final_sources = []
         src_suffix = env.subst(self.src_suffix)
         sdict = {}

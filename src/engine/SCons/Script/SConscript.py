@@ -123,7 +123,7 @@ def Default(*targets):
         if isinstance(t, SCons.Node.Node):
             default_targets.append(t)
         else:
-            default_targets.extend(SCons.Util.scons_str2nodes(t,
+            default_targets.extend(SCons.Node.arg2nodes(t,
                                          SCons.Node.FS.default_fs.Entry))
 
 def Help(text):
@@ -136,8 +136,7 @@ def BuildDir(build_dir, src_dir, duplicate=1):
     SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)
 
 def GetBuildPath(files):
-    nodes = SCons.Util.scons_str2nodes(files,
-                                       SCons.Node.FS.default_fs.Entry)
+    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
     ret = map(str, nodes)
     if len(ret) == 1:
         return ret[0]

@@ -31,11 +31,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 
-from SCons.Errors import BuildError
 import string
 import types
 import copy
 import sys
+
+from SCons.Errors import BuildError
+import SCons.Util
 
 # Node states
 #
@@ -318,3 +320,36 @@ class Walker:
 
     def is_done(self):
         return not self.stack
+
+
+def arg2nodes(arg, node_factory=None):
+    """This function converts a string or list into a list of Node instances.
+    It follows the rules outlined in the SCons design document by accepting
+    any of the following inputs:
+        - A single string containing names separated by spaces. These will be
+          split apart at the spaces.
+        - A single Node instance,
+        - A list containingg either strings or Node instances. Any strings
+          in the list are not split at spaces.
+    In all cases, the function returns a list of Node instances."""
+
+    narg = arg
+    if SCons.Util.is_String(arg):
+        narg = string.split(arg)
+    elif not SCons.Util.is_List(arg):
+        narg = [arg]
+
+    nodes = []
+    for v in narg:
+        if SCons.Util.is_String(v):
+            if node_factory:
+                nodes.append(node_factory(v))
+        # Do we enforce the following restriction?  Maybe, but it
+        # would also restrict what we can do to allow people to
+        # use the engine with alternate Node implementations...
+        #elif not issubclass(v.__class__, Node):
+        #    raise TypeError
+        else:
+            nodes.append(v)
+
+    return nodes

@@ -36,57 +36,6 @@ from SCons.Util import *
 import TestCmd
 
 class UtilTestCase(unittest.TestCase):
-    def test_str2nodes(self):
-	"""Test the str2nodes function."""
-	nodes = scons_str2nodes("Util.py UtilTests.py")
-        assert len(nodes) == 2, nodes
-	assert isinstance(nodes[0], SCons.Node.FS.File)
-	assert isinstance(nodes[1], SCons.Node.FS.File)
-	assert nodes[0].path == "Util.py"
-	assert nodes[1].path == "UtilTests.py"
-
-        if hasattr(types, 'UnicodeType'):
-            code = """if 1:
-                nodes = scons_str2nodes(u"Util.py UtilTests.py")
-                assert len(nodes) == 2, nodes
-                assert isinstance(nodes[0], SCons.Node.FS.File)
-                assert isinstance(nodes[1], SCons.Node.FS.File)
-                assert nodes[0].path == u"Util.py"
-                assert nodes[1].path == u"UtilTests.py"
-                \n"""
-            exec code
-
-	nodes = scons_str2nodes("Util.py UtilTests.py", SCons.Node.FS.FS().File)
-        assert len(nodes) == 2, nodes
-	assert isinstance(nodes[0], SCons.Node.FS.File)
-	assert isinstance(nodes[1], SCons.Node.FS.File)
-	assert nodes[0].path == "Util.py"
-	assert nodes[1].path == "UtilTests.py"
-
-	nodes = scons_str2nodes(["Util.py", "UtilTests.py"])
-        assert len(nodes) == 2, nodes
-	assert isinstance(nodes[0], SCons.Node.FS.File)
-	assert isinstance(nodes[1], SCons.Node.FS.File)
-	assert nodes[0].path == "Util.py"
-	assert nodes[1].path == "UtilTests.py"
-
-	n1 = SCons.Node.FS.default_fs.File("Util.py")
-	nodes = scons_str2nodes([n1, "UtilTests.py"])
-        assert len(nodes) == 2, nodes
-	assert isinstance(nodes[0], SCons.Node.FS.File)
-	assert isinstance(nodes[1], SCons.Node.FS.File)
-	assert nodes[0].path == "Util.py"
-	assert nodes[1].path == "UtilTests.py"
-
-	class SConsNode(SCons.Node.Node):
-	    pass
-	node = scons_str2nodes(SConsNode())
-
-	class OtherNode:
-	    pass
-	node = scons_str2nodes(OtherNode())
-
-
     def test_subst(self):
 	"""Test the subst function."""
 	loc = {}

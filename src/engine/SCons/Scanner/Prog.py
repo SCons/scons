@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import copy
 import string
 
+import SCons.Node
 import SCons.Node.FS
 import SCons.Scanner
 import SCons.Util
@@ -65,8 +66,8 @@ class ProgScanner(SCons.Scanner.Base):
             libs = string.split(libs)
 
         try:
-            dirs = tuple(SCons.Util.scons_str2nodes(env.Dictionary('LIBPATH'),
-                                                    self.fs.Dir))
+            dirs = tuple(SCons.Node.arg2nodes(env.Dictionary('LIBPATH'),
+                                              self.fs.Dir))
         except:
             dirs = ()
 

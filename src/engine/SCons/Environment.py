@@ -30,10 +30,11 @@ XXX
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
-import os
 import copy
+import os
 import os.path
 import re
+import shutil
 import string
 import sys
 import types
@@ -41,6 +42,7 @@ import types
 import SCons.Builder
 import SCons.Defaults
 from SCons.Errors import UserError
+import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 
@@ -91,8 +93,8 @@ class Environment:
     """
 
     def __init__(self, **kw):
-	import SCons.Defaults
-	self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
+        self.fs = SCons.Node.FS.default_fs
+        self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
         apply(self.Update, (), kw)
 
         #
@@ -187,8 +189,8 @@ class Environment:
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""
-	tlist = SCons.Util.scons_str2nodes(target)
-	dlist = SCons.Util.scons_str2nodes(dependency)
+        tlist = SCons.Node.arg2nodes(target, self.fs.File)
+        dlist = SCons.Node.arg2nodes(dependency, self.fs.File)
 	for t in tlist:
 	    t.add_dependency(dlist)
 
@@ -198,8 +200,8 @@ class Environment:
 
     def Ignore(self, target, dependency):
         """Ignore a dependency."""
-        tlist = SCons.Util.scons_str2nodes(target)
-        dlist = SCons.Util.scons_str2nodes(dependency)
+        tlist = SCons.Node.arg2nodes(target, self.fs.File)
+        dlist = SCons.Node.arg2nodes(dependency, self.fs.File)
         for t in tlist:
             t.add_ignore(dlist)
 
@@ -210,7 +212,7 @@ class Environment:
     def Precious(self, *targets):
         tlist = []
         for t in targets:
-            tlist.extend(SCons.Util.scons_str2nodes(t))
+            tlist.extend(SCons.Node.arg2nodes(t, self.fs.File))
 
         for t in tlist:
             t.set_precious()
@@ -246,9 +248,8 @@ class Environment:
 
     def Install(self, dir, source):
         """Install specified files in the given directory."""
-        sources = SCons.Util.scons_str2nodes(source)
-        dnodes = SCons.Util.scons_str2nodes(dir,
-                                            SCons.Node.FS.default_fs.Dir)
+        sources = SCons.Node.arg2nodes(source, self.fs.File)
+        dnodes = SCons.Node.arg2nodes(dir, self.fs.Dir)
         tgt = []
         for dnode in dnodes:
             for src in sources:
@@ -260,8 +261,8 @@ class Environment:
 
     def InstallAs(self, target, source):
         """Install sources as targets."""
-        sources = SCons.Util.scons_str2nodes(source)
-        targets = SCons.Util.scons_str2nodes(target)
+        sources = SCons.Node.arg2nodes(source, self.fs.File)
+        targets = SCons.Node.arg2nodes(target, self.fs.File)
         ret = []
         for src, tgt in map(lambda x, y: (x, y), sources, targets):
             ret.append(InstallBuilder(self, tgt, src))

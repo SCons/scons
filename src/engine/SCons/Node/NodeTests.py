@@ -25,6 +25,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
+import types
 import unittest
 
 import SCons.Errors
@@ -682,6 +683,64 @@ class NodeTestCase(unittest.TestCase):
         tn.scan(ds)
         assert tn.scanned[ds]
         assert len(tn.implicit[ds]) == 2, tn.implicit
+
+    def test_arg2nodes(self):
+        """Test the arg2nodes function."""
+        dict = {}
+        class X(SCons.Node.Node):
+            pass
+        def Factory(name, directory = None, create = 1, dict=dict, X=X):
+            if not dict.has_key(name):
+                dict[name] = X()
+                dict[name].name = name
+            return dict[name]
+
+        nodes = SCons.Node.arg2nodes("Util.py UtilTests.py", Factory)
+        assert len(nodes) == 2, nodes
+        assert isinstance(nodes[0], X)
+        assert isinstance(nodes[1], X)
+        assert nodes[0].name == "Util.py"
+        assert nodes[1].name == "UtilTests.py"
+
+        if hasattr(types, 'UnicodeType'):
+            code = """if 1:
+                nodes = SCons.Node.arg2nodes(u"Util.py UtilTests.py", Factory)
+                assert len(nodes) == 2, nodes
+                assert isinstance(nodes[0], X)
+                assert isinstance(nodes[1], X)
+                assert nodes[0].name == u"Util.py"
+                assert nodes[1].name == u"UtilTests.py"
+                \n"""
+            exec code
+
+        nodes = SCons.Node.arg2nodes(["Util.py", "UtilTests.py"], Factory)
+        assert len(nodes) == 2, nodes
+        assert isinstance(nodes[0], X)
+        assert isinstance(nodes[1], X)
+        assert nodes[0].name == "Util.py"
+        assert nodes[1].name == "UtilTests.py"
+
+        n1 = Factory("Util.py")
+        nodes = SCons.Node.arg2nodes([n1, "UtilTests.py"], Factory)
+        assert len(nodes) == 2, nodes
+        assert isinstance(nodes[0], X)
+        assert isinstance(nodes[1], X)
+        assert nodes[0].name == "Util.py"
+        assert nodes[1].name == "UtilTests.py"
+
+        class SConsNode(SCons.Node.Node):
+            pass
+        nodes = SCons.Node.arg2nodes(SConsNode())
+        assert len(nodes) == 1, nodes
+        assert isinstance(nodes[0], SConsNode), node
+
+        class OtherNode:
+            pass
+        nodes = SCons.Node.arg2nodes(OtherNode())
+        assert len(nodes) == 1, nodes
+        assert isinstance(nodes[0], OtherNode), node
+
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(NodeTestCase, 'test_')
