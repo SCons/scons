@@ -101,44 +101,95 @@ def Return(*vars):
     else:
         stack[-1].retval = tuple(retval)
 
-def SConscript(script, exports=[]):
-    retval = ()
+# This function is responsible for converting the parameters passed to
+# SConscript() calls into a list of files and export variables.  If
+# the parameters are invalid, throws SCons.Errors.UserError. Returns a
+# tuple (l, e) where l is a list of filenames and e is a list of
+# exports.
 
-    # push:
-    stack.append(Frame(exports))
-    old_dir = None
-    old_sys_path = sys.path
-    try:
-        # call:
-        if script == "-":
-            exec sys.stdin in stack[-1].globals
-        else:
-            if not isinstance(script, SCons.Node.Node):
-                script = SCons.Node.FS.default_fs.File(script)
-            if script.exists():
-                file = open(str(script), "r")
-                SCons.Node.FS.default_fs.chdir(script.dir)
-                if sconscript_chdir:
-                    old_dir = os.getcwd()
-                    os.chdir(str(script.dir))
+def GetSConscriptFilenames(ls, kw):
+    files = []
+    exports = []
 
-                # prepend the SConscript directory to sys.path so
-                # that Python modules in the SConscript directory can
-                # be easily imported.
-                sys.path = [os.path.abspath(str(script.dir))] + sys.path
+    if len(ls) == 0:
+        try:
+            dirs = map(str, SCons.Util.argmunge(kw["dirs"]))
+        except KeyError:
+            raise SCons.Errors.UserError, \
+                  "Invalid SConscript usage - no parameters"
 
-                exec file in stack[-1].globals
+        name = kw.get('name', 'SConscript')
+
+        if kw.get('exports'):
+            exports = SCons.Util.argmunge(kw['exports'])
+
+        files = map(lambda n, name = name: os.path.join(n, name), dirs)
+
+    elif len(ls) == 1:
+
+        files = SCons.Util.argmunge(ls[0])
+        if kw.get('exports'):
+            exports = SCons.Util.argmunge(kw['exports'])
+
+    elif len(ls) == 2:
+
+        files   = SCons.Util.argmunge(ls[0])
+        exports = SCons.Util.argmunge(ls[1])
+
+        if kw.get('exports'):
+            exports.extend(SCons.Util.argmunge(kw.get('exports')))
+
+    else:
+        raise SCons.Errors.UserError, \
+              "Invalid SConscript() usage - too many arguments"
+
+    return (files, exports)
+
+def SConscript(*ls, **kw):
+    files, exports = GetSConscriptFilenames(ls, kw)
+
+    # evaluate each SConscript file
+    results = []
+    for fn in files:
+        stack.append(Frame(exports))
+        old_dir = None
+        old_sys_path = sys.path
+        try:
+            if fn == "-":
+                exec sys.stdin in stack[-1].globals
             else:
-                sys.stderr.write("Ignoring missing SConscript '%s'\n" % script.path)
-    finally:
-        # pop:
-        sys.path = old_sys_path
-        frame = stack.pop()
-        SCons.Node.FS.default_fs.chdir(frame.prev_dir)
-        if old_dir:
-            os.chdir(old_dir)
-    
-    return frame.retval
+                f = SCons.Node.FS.default_fs.File(str(fn))
+                if f.exists():
+                    file = open(str(f), "r")
+                    SCons.Node.FS.default_fs.chdir(f.dir)
+                    if sconscript_chdir:
+                        old_dir = os.getcwd()
+                        os.chdir(str(f.dir))
+
+                    # prepend the SConscript directory to sys.path so
+                    # that Python modules in the SConscript directory can
+                    # be easily imported
+                    sys.path = [os.path.abspath(str(f.dir))] + sys.path
+
+                    exec file in stack[-1].globals
+                else:
+                    sys.stderr.write("Ignoring missing SConscript '%s'\n" %
+                                     f.path)
+                
+        finally:
+            sys.path = old_sys_path
+            frame = stack.pop()
+            SCons.Node.FS.default_fs.chdir(frame.prev_dir)
+            if old_dir:
+                os.chdir(old_dir)
+
+            results.append(frame.retval)
+
+    # if we only have one script, don't return a tuple
+    if len(results) == 1:
+        return results[0]
+    else:
+        return tuple(results)
     
 def Default(*targets):
     for t in targets:

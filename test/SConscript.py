@@ -77,6 +77,8 @@ x7 = "SConstruct x7"
 x8 = "SConstruct x8"
 x9 = SConscript('SConscript6', UserList.UserList(["x7", "x8"]))
 assert x9 == "SConscript6 x9"
+
+SConscript('SConscript7')
 """)
 
 test.write('SConscript', """
@@ -168,6 +170,41 @@ assert x8 == "SConstruct x8"
 x9 = "SConscript6 x9"
 Return("x9")
 """)
+
+test.write('SConscript7', """
+result1 = ((1, 3), -4)
+result2 = ((2, 3), -4)
+assert result1 == SConscript('foo/SConscript bar/SConscript')
+assert result1 == SConscript(['foo/SConscript', 'bar/SConscript'])
+assert result1 == SConscript([File('foo/SConscript'), File('bar/SConscript')])
+assert result1 == SConscript(dirs = 'foo bar')
+assert result1 == SConscript(dirs = ['foo', 'bar'])
+assert result2 == SConscript(dirs = 'foo bar', name = 'subscript')
+assert result2 == SConscript(dirs = ['foo', 'bar'], name = 'subscript')
+assert result1 == SConscript(dirs = ['foo', Dir('bar')])
+assert result2 == SConscript(dirs = [Dir('foo'), 'bar'], name = 'subscript')
+
+x1 = 3
+x2 = 2
+assert (3, 2) == SConscript(dirs = 'baz', exports = "x1 x2")
+assert (3, 2) == SConscript('baz/SConscript', 'x1', exports = 'x2')
+assert (3, 2) == SConscript('baz/SConscript', exports = 'x1 x2')
+""")
+
+fooscript = "x = %d; y = 3; Return('x y')"
+barscript = "x = -4; Return('x')"
+
+test.subdir('foo', 'bar', 'baz')
+test.write(['foo', 'SConscript'], fooscript % 1)
+test.write(['foo', 'subscript'],  fooscript % 2)
+test.write(['bar', 'SConscript'], barscript)
+test.write(['bar', 'subscript'],  barscript)
+test.write(['baz', 'SConscript'], """
+Import("x1 x2")
+result = (x1, x2)
+Return("result")
+""")
+
 
 wpath = test.workpath()
 
