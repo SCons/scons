@@ -74,8 +74,74 @@ def Tool(name):
     spec.exists = sys.modules[full_name].exists
     return spec
 
+def createProgBuilder(env):
+    """This is a utility function that creates the Program
+    Builder in an Environment if it is not there already.
+
+    If it is already there, we return the existing one.
+    """
+
+    try:
+        program = env['BUILDERS']['Program']
+    except KeyError:
+        program = SCons.Builder.Builder(action=[ SCons.Defaults.StaticCheck,
+                                                 '$LINKCOM' ],
+                                emitter='$PROGEMITTER',
+                                prefix='$PROGPREFIX',
+                                suffix='$PROGSUFFIX',
+                                src_suffix='$OBJSUFFIX',
+                                src_builder='Object',
+                                scanner = SCons.Defaults.ProgScan)
+        env['BUILDERS']['Program'] = program
+
+    return program
+
+def createStaticLibBuilder(env):
+    """This is a utility function that creates the StaticLibrary
+    Builder in an Environment if it is not there already.
+
+    If it is already there, we return the existing one.
+    """
+
+    try:
+        static_lib = env['BUILDERS']['StaticLibrary']
+    except KeyError:
+        static_lib = SCons.Builder.Builder(action=[ SCons.Defaults.StaticCheck,
+                                                    "$ARCOM" ],
+                                           emitter = '$LIBEMITTER',
+                                           prefix = '$LIBPREFIX',
+                                           suffix = '$LIBSUFFIX',
+                                           src_suffix = '$OBJSUFFIX',
+                                           src_builder = 'StaticObject')
+        env['BUILDERS']['StaticLibrary'] = static_lib
+        env['BUILDERS']['Library'] = static_lib
+
+    return static_lib
+
+def createSharedLibBuilder(env):
+    """This is a utility function that creates the SharedLibrary
+    Builder in an Environment if it is not there already.
+
+    If it is already there, we return the existing one.
+    """
+
+    try:
+        shared_lib = env['BUILDERS']['SharedLibrary']
+    except KeyError:
+        shared_lib = SCons.Builder.Builder(action=[ SCons.Defaults.SharedCheck,
+                                                    "$SHLINKCOM" ],
+                                           emitter = "$SHLIBEMITTER",
+                                           prefix = '$SHLIBPREFIX',
+                                           suffix = '$SHLIBSUFFIX',
+                                           scanner = SCons.Defaults.ProgScan,
+                                           src_suffix = '$SHOBJSUFFIX',
+                                           src_builder = 'SharedObject')
+        env['BUILDERS']['SharedLibrary'] = shared_lib
+
+    return shared_lib
+
 def createObjBuilders(env):
-    """This is a utility function that creates the Object
+    """This is a utility function that creates the StaticObject
     and SharedObject Builders in an Environment if they
     are not there already.
 
@@ -88,16 +154,24 @@ def createObjBuilders(env):
     """
 
     try:
-        static_obj = env['BUILDERS']['Object']
+        static_obj = env['BUILDERS']['StaticObject']
     except KeyError:
-        static_obj = SCons.Defaults.StaticObject()
-        env['BUILDERS']['Object'] = static_obj
+        static_obj = SCons.Builder.Builder(action = {},
+                                           emitter="$OBJEMITTER",
+                                           prefix = '$OBJPREFIX',
+                                           suffix = '$OBJSUFFIX',
+                                           src_builder = ['CFile', 'CXXFile'])
         env['BUILDERS']['StaticObject'] = static_obj
+        env['BUILDERS']['Object'] = static_obj
 
     try:
         shared_obj = env['BUILDERS']['SharedObject']
     except KeyError:
-        shared_obj = SCons.Defaults.SharedObject()
+        shared_obj = SCons.Builder.Builder(action = {},
+                                           prefix = '$SHOBJPREFIX',
+                                           suffix = '$SHOBJSUFFIX',
+                                           emitter="$OBJEMITTER",
+                                           src_builder = ['CFile', 'CXXFile'])
         env['BUILDERS']['SharedObject'] = shared_obj
 
     return (static_obj, shared_obj)
@@ -118,14 +192,18 @@ def createCFileBuilders(env):
     try:
         c_file = env['BUILDERS']['CFile']
     except KeyError:
-        c_file = SCons.Defaults.CFile()
+        c_file = SCons.Builder.Builder(action = {},
+                                       emitter = {},
+                                       suffix = '$CFILESUFFIX')
         env['BUILDERS']['CFile'] = c_file
         env['CFILESUFFIX'] = '.c'
 
     try:
         cxx_file = env['BUILDERS']['CXXFile']
     except KeyError:
-        cxx_file = SCons.Defaults.CXXFile()
+        cxx_file = SCons.Builder.Builder(action = {},
+                                         emitter = {},
+                                         suffix = '$CXXFILESUFFIX')
         env['BUILDERS']['CXXFile'] = cxx_file
         env['CXXFILESUFFIX'] = '.cc'
 

@@ -40,6 +40,7 @@ import SCons.Action
 import SCons.Defaults
 import SCons.Errors
 import SCons.Util
+import SCons.Tool
 import SCons.Tool.msvs
 import SCons.Tool.msvc
 import SCons.Platform.win32
@@ -132,8 +133,8 @@ compositeLinkAction = shlibLinkAction + regServerCheck
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
-    env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
-    env['BUILDERS']['Program'] = SCons.Defaults.Program
+    SCons.Tool.createSharedLibBuilder(env)
+    SCons.Tool.createProgBuilder(env)
     
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = '$LINKFLAGS /dll'

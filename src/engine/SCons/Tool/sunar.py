@@ -35,12 +35,11 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
+import SCons.Tool
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
-    bld = SCons.Defaults.StaticLibrary
-    env['BUILDERS']['Library'] = bld
-    env['BUILDERS']['StaticLibrary'] = bld
+    SCons.Tool.createStaticLibBuilder(env)
     
     if env.Detect('CC'):
         env['AR']          = 'CC'

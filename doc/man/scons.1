@@ -4791,14 +4791,19 @@ any of the suffixes of the builder. Using this argument produces a
 multi-stage builder.
 
 .IP emitter
-A function that is passed the target, source, and environment,
-and which returns a tuple containing two lists,
-the list of targets to be built by this builder,
-and the list of sources for this builder.
-This allows the target and source lists to
-be manipulated before the target(s) are actually built.
+A function to manipulate the target and source
+lists before dependencies are established
+and the target(s) are actually built.
+.B emitter
+can also be string containing a construction variable to expand
+to an emitter function,
+or a dictionary mapping source file suffixes
+to emitter functions.
+(Only the suffix of the first source file
+is used to select the actual emitter function
+from an emitter dictionary.)
 
-The emitter function
+An emitter function
 takes three arguments:
 .I source 
 - a list of source nodes, 
@@ -4806,6 +4811,9 @@ takes three arguments:
 - a list of target nodes,
 .I env
 - the construction environment.
+An emitter must return a tuple containing two lists,
+the list of targets to be built by this builder,
+and the list of sources for this builder.
 
 Example:
 
@@ -4813,7 +4821,24 @@ Example:
 def e(target, source, env):
     return (target + ['foo.foo'], source + ['foo.src'])
 
-b = Builder(emitter=e)
+# Simple association of an emitter function with a Builder.
+b = Builder("my_build < $TARGET > $SOURCE",
+            emitter = e)
+
+# Calling an emitter through a construction variable.
+env = Environment(MY_EMITTER = e)
+b = Builder("my_build < $TARGET > $SOURCE",
+            emitter = '$MY_EMITTER')
+
+# Associating multiple emitters with different file
+# suffixes using a dictionary.
+def e_suf1(target, source, env):
+    return (target + ['another_target_file'], source)
+def e_suf2(target, source, env):
+    return (target, source + ['another_source_file'])
+b = Builder("my_build < $TARGET > $SOURCE",
+            emitter = {'.suf1' : e_suf1,
+                       '.suf2' : e_suf2})
 .EE
 
 .IP generator

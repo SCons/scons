@@ -33,7 +33,27 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
+import string
+
 import SCons.Tool
+import SCons.Util
+
+def _yaccEmitter(target, source, env, ysuf, hsuf):
+    # If -d is specified on the command line, yacc will emit a .h
+    # or .hpp file as well as a .c or .cpp file, depending on whether
+    # the input file is a .y or .yy, respectively.
+    if len(source) and '-d' in string.split(env.subst("$YACCFLAGS")):
+        base, ext = os.path.splitext(SCons.Util.to_String(source[0]))
+        if ext == ysuf:
+            target.append(base + hsuf)
+    return (target, source)
+
+def yEmitter(target, source, env):
+    return _yaccEmitter(target, source, env, '.y', '.h')
+
+def yyEmitter(target, source, env):
+    return _yaccEmitter(target, source, env, '.yy', '.hpp')
 
 def generate(env):
     """Add Builders and construction variables for yacc to an Environment."""
@@ -41,6 +61,8 @@ def generate(env):
     
     c_file.add_action('.y', '$YACCCOM')
     cxx_file.add_action('.yy', '$YACCCOM')
+    c_file.add_emitter('.y', yEmitter)
+    cxx_file.add_emitter('.yy', yyEmitter)
 
     env['YACC']      = env.Detect('bison') or 'yacc'
     env['YACCFLAGS'] = ''

@@ -78,34 +78,6 @@ CScan = SCons.Scanner.C.CScan()
 
 FortranScan = SCons.Scanner.Fortran.FortranScan()
 
-def yaccEmitter(target, source, env, **kw):
-    # If -d is specified on the command line, yacc will emit a .h
-    # or .hpp file as well as a .c or .cpp file, depending on whether
-    # the input file is a .y or .yy, respectively.
-    if len(source) and '-d' in string.split(env.subst("$YACCFLAGS")):
-        suff = os.path.splitext(SCons.Util.to_String(source[0]))[1]
-        h = None
-        if suff == '.y':
-            h = '.h'
-        elif suff == '.yy':
-            h = '.hpp'
-        if h:
-            base = os.path.splitext(SCons.Util.to_String(target[0]))[0]
-            target.append(base + h)
-    return (target, source)
-
-def CFile():
-    """Common function to generate a C file Builder."""
-    return SCons.Builder.Builder(action = {},
-                                 emitter = yaccEmitter,
-                                 suffix = '$CFILESUFFIX')
-
-def CXXFile():
-    """Common function to generate a C++ file Builder."""
-    return SCons.Builder.Builder(action = {},
-                                 emitter = yaccEmitter,
-                                 suffix = '$CXXFILESUFFIX')
-
 class SharedFlagChecker:
     """This is a callable class that is used as
     a build action for all objects, libraries, and programs.
@@ -150,39 +122,7 @@ ShF77PPAction = SCons.Action.Action([ SharedCheckSet, "$SHF77PPCOM" ])
 ASAction = SCons.Action.Action([ StaticCheckSet, "$ASCOM" ])
 ASPPAction = SCons.Action.Action([ StaticCheckSet, "$ASPPCOM" ])
 
-
-def StaticObject():
-    """A function for generating the static object Builder."""
-    return SCons.Builder.Builder(action = {},
-                                 emitter="$OBJEMITTER",
-                                 prefix = '$OBJPREFIX',
-                                 suffix = '$OBJSUFFIX',
-                                 src_builder = ['CFile', 'CXXFile'])
-
-def SharedObject():
-    """A function for generating the shared object Builder."""
-    return SCons.Builder.Builder(action = {},
-                                 prefix = '$SHOBJPREFIX',
-                                 suffix = '$SHOBJSUFFIX',
-                                 emitter="$OBJEMITTER",
-                                 src_builder = ['CFile', 'CXXFile'])
-
 ProgScan = SCons.Scanner.Prog.ProgScan()
-
-StaticLibrary = SCons.Builder.Builder(action=[ StaticCheck, "$ARCOM" ],
-                                      emitter='$LIBEMITTER',
-                                      prefix = '$LIBPREFIX',
-                                      suffix = '$LIBSUFFIX',
-                                      src_suffix = '$OBJSUFFIX',
-                                      src_builder = 'Object')
-
-SharedLibrary = SCons.Builder.Builder(action=[ SharedCheck, "$SHLINKCOM" ],
-                                      emitter="$SHLIBEMITTER",
-                                      prefix = '$SHLIBPREFIX',
-                                      suffix = '$SHLIBSUFFIX',
-                                      scanner = ProgScan,
-                                      src_suffix = '$SHOBJSUFFIX',
-                                      src_builder = 'SharedObject')
 
 def DVI():
     """Common function to generate a DVI file Builder."""
@@ -198,14 +138,6 @@ def PDF():
     return SCons.Builder.Builder(action = { },
                                  prefix = '$PDFPREFIX',
                                  suffix = '$PDFSUFFIX')
-
-Program = SCons.Builder.Builder(action=[ StaticCheck, '$LINKCOM' ],
-                                emitter='$PROGEMITTER',
-                                prefix='$PROGPREFIX',
-                                suffix='$PROGSUFFIX',
-                                src_suffix='$OBJSUFFIX',
-                                src_builder='Object',
-                                scanner = ProgScan)
 
 def copyFunc(dest, source, env):
     """Install a source file into a destination by copying it (and its
@@ -297,11 +229,7 @@ class NullCmdGenerator:
         return self.cmd
 
 ConstructionEnvironment = {
-    'BUILDERS'   : { 'SharedLibrary'  : SharedLibrary,
-                     'Library'        : StaticLibrary,
-                     'StaticLibrary'  : StaticLibrary,
-                     'Alias'          : Alias,
-                     'Program'        : Program },
+    'BUILDERS'   : { 'Alias' : Alias },
     'SCANNERS'   : [CScan, FortranScan],
     'PDFPREFIX'  : '',
     'PDFSUFFIX'  : '.pdf',

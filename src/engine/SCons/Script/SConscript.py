@@ -565,14 +565,11 @@ def BuildDefaultGlobals():
     globals['GetOption']         = GetOption    
     globals['Help']              = Help
     globals['Import']            = Import
-    globals['Library']           = SCons.Defaults.StaticLibrary
     globals['Literal']           = SCons.Util.Literal
     globals['Local']             = Local
-    globals['Object']            = SCons.Defaults.StaticObject
     globals['Options']           = Options
     globals['ParseConfig']       = SCons.Util.ParseConfig
     globals['Platform']          = SCons.Platform.Platform
-    globals['Program']           = SCons.Defaults.Program
     globals['Repository']        = SCons.Node.FS.default_fs.Repository
     globals['Return']            = Return
     globals['SConscript']        = SConscript
@@ -583,12 +580,8 @@ def BuildDefaultGlobals():
     globals['SetContentSignatureType'] = SetContentSignatureType
     globals['SetJobs']           = SetJobs
     globals['SetOption']         = SetOption
-    globals['SharedLibrary']     = SCons.Defaults.SharedLibrary
-    globals['SharedObject']      = SCons.Defaults.SharedObject
     globals['SourceSignatures']  = SourceSignatures
     globals['Split']             = SCons.Util.Split
-    globals['StaticLibrary']     = SCons.Defaults.StaticLibrary
-    globals['StaticObject']      = SCons.Defaults.StaticObject
     globals['TargetSignatures']  = TargetSignatures
     globals['Tool']              = SCons.Tool.Tool
     globals['Value']             = SCons.Node.Python.Value

@@ -191,19 +191,16 @@ def generate(env):
 
     # We use the emitters of Program / StaticLibrary / SharedLibrary
     # to produce almost all builders except .cpp from .ui
-    try:
-        static = env.StaticObject
-    except AttributeError:
-        static = SCons.Defaults.StaticObject
-    try:
-        shared = env.SharedObject
-    except AttributeError:
-        shared = SCons.Defaults.SharedObject
-    env['PROGEMITTER'] = _Automoc(static,
+    # First, make sure the Environment has Object builders.
+    SCons.Tool.createObjBuilders(env)
+    # We can't refer to the builders directly, we have to fetch them
+    # as Environment attributes because that sets them up to be called
+    # correctly later by our emitter.
+    env['PROGEMITTER'] = _Automoc(env.StaticObject,
                                   uicDeclBld,mocFromHBld,mocFromCppBld)
-    env['SHLIBEMITTER'] = _Automoc(shared,
+    env['SHLIBEMITTER'] = _Automoc(env.SharedObject,
                                    uicDeclBld,mocFromHBld,mocFromCppBld)
-    env['LIBEMITTER'] = _Automoc(static,
+    env['LIBEMITTER'] = _Automoc(env.StaticObject,
                                  uicDeclBld,mocFromHBld,mocFromCppBld)
     # Of course, we need to link against the qt libraries
     env.Append(CPPPATH=os.path.join('$QTDIR', 'include'))

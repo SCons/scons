@@ -34,13 +34,13 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
+import SCons.Tool
 import SCons.Tool.msvs
 import SCons.Tool.msvc
 
 def generate(env):
     """Add Builders and construction variables for lib to an Environment."""
-    env['BUILDERS']['Library'] = SCons.Defaults.StaticLibrary
-    env['BUILDERS']['StaticLibrary'] = SCons.Defaults.StaticLibrary
+    SCons.Tool.createStaticLibBuilder(env)
 
     try:
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)

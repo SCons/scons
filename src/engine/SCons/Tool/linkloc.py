@@ -41,6 +41,7 @@ import re
 import SCons.Action
 import SCons.Defaults
 import SCons.Errors
+import SCons.Tool
 import SCons.Util
 
 from SCons.Tool.msvc import get_msdev_paths
@@ -78,8 +79,8 @@ class LinklocGenerator:
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
-    env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
-    env['BUILDERS']['Program'] = SCons.Defaults.Program
+    SCons.Tool.createSharedLibBuilder(env)
+    SCons.Tool.createProgBuilder(env)
 
     env['SUBST_CMD_FILE'] = LinklocGenerator
     env['SHLINK']      = '$LINK'

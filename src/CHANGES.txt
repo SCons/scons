@@ -61,6 +61,13 @@ RELEASE 0.XX - XXX
   - Correct the spelling of the "validater" option to "validator."
     Add a DeprecatedWarning when the old spelling is used.
 
+  - Allow a Builder's emitter to be a dictionary that maps source file
+    suffixes to emitter functions, using the suffix of the first file
+    in the source list to pick the right one.
+
+  - Refactor the creation of the Program, *Object and *Library Builders
+    so that they're moved out of SCons.Defaults and created on demand.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

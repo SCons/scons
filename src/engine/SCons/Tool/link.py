@@ -34,14 +34,15 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
+import SCons.Tool
 import SCons.Util
 
 linkers = ['c++', 'cc']
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
-    env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
-    env['BUILDERS']['Program'] = SCons.Defaults.Program
+    SCons.Tool.createSharedLibBuilder(env)
+    SCons.Tool.createProgBuilder(env)
     
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = '$LINKFLAGS -shared'

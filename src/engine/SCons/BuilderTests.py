@@ -702,6 +702,35 @@ class BuilderTestCase(unittest.TestCase):
         assert tgt.builder is builder3, tgt.builder
         assert node.builder is new_builder, node.builder
 
+        # Test use of a dictionary mapping file suffixes to
+        # emitter functions
+        def emit4a(target, source, env):
+            source = map(str, source)
+            target = map(lambda x: 'emit4a-' + x[:-3], source)
+            return (target, source)
+        def emit4b(target, source, env):
+            source = map(str, source)
+            target = map(lambda x: 'emit4b-' + x[:-3], source)
+            return (target, source)
+        builder4 = SCons.Builder.Builder(action='foo',
+                                         emitter={'.4a':emit4a,
+                                                  '.4b':emit4b},
+                                         node_factory=MyNode)
+        tgt = builder4(env, source='aaa.4a')
+        assert str(tgt) == 'emit4a-aaa', str(tgt)
+        tgt = builder4(env, source='bbb.4b')
+        assert str(tgt) == 'emit4b-bbb', str(tgt)
+        tgt = builder4(env, source='ccc.4c')
+        assert str(tgt) == 'ccc', str(tgt)
+
+        def emit4c(target, source, env):
+            source = map(str, source)
+            target = map(lambda x: 'emit4c-' + x[:-3], source)
+            return (target, source)
+        builder4.add_emitter('.4c', emit4c)
+        tgt = builder4(env, source='ccc.4c')
+        assert str(tgt) == 'emit4c-ccc', str(tgt)
+
     def test_no_target(self):
         """Test deducing the target from the source."""
 

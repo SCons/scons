@@ -43,12 +43,11 @@ dive any deeper into this subsystem.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-
-
 import os.path
-from SCons.Errors import InternalError, UserError
+import UserDict
 
 import SCons.Action
+from SCons.Errors import InternalError, UserError
 import SCons.Executor
 import SCons.Node
 import SCons.Node.FS
@@ -111,6 +110,34 @@ class DictCmdGenerator:
     def __cmp__(self, other):
         return cmp(self.action_dict, other.action_dict)
 
+class DictEmitter(UserDict.UserDict):
+    """A callable dictionary that maps file suffixes to emitters.
+    When called, it finds the right emitter in its dictionary for the
+    suffix of the first source file, and calls that emitter to get the
+    right lists of targets and sources to return.  If there's no emitter
+    for the suffix in its dictionary, the original target and source are
+    returned.
+    """
+    def __call__(self, target, source, env):
+        ext = SCons.Util.splitext(str(source[0]))[1]
+        if ext:
+            try:
+                emitter = self[ext]
+            except KeyError:
+                # Before raising the user error, try to perform Environment
+                # substitution on the keys of emitter_dict.
+                s_dict = {}
+                for (k,v) in self.items():
+                    s_k = env.subst(k)
+                    s_dict[s_k] = v
+                try:
+                    emitter = s_dict[ext]
+                except KeyError:
+                    emitter = None
+            if emitter:
+                target, source = emitter(target, source, env)
+        return (target, source)
+
 def Builder(**kw):
     """A factory for builder objects."""
     composite = None
@@ -124,16 +151,19 @@ def Builder(**kw):
         kw['action'] = SCons.Action.CommandGenerator(composite)
         kw['src_suffix'] = composite.src_suffixes()
 
-    if kw.has_key('emitter') and \
-       SCons.Util.is_String(kw['emitter']):
-        # This allows users to pass in an Environment
-        # variable reference (like "$FOO") as an emitter.
-        # We will look in that Environment variable for
-        # a callable to use as the actual emitter.
-        var = SCons.Util.get_environment_var(kw['emitter'])
-        if not var:
-            raise UserError, "Supplied emitter '%s' does not appear to refer to an Environment variable" % kw['emitter']
-        kw['emitter'] = EmitterProxy(var)
+    if kw.has_key('emitter'):
+        emitter = kw['emitter']
+        if SCons.Util.is_String(emitter):
+            # This allows users to pass in an Environment
+            # variable reference (like "$FOO") as an emitter.
+            # We will look in that Environment variable for
+            # a callable to use as the actual emitter.
+            var = SCons.Util.get_environment_var(emitter)
+            if not var:
+                raise UserError, "Supplied emitter '%s' does not appear to refer to an Environment variable" % emitter
+            kw['emitter'] = EmitterProxy(var)
+        elif SCons.Util.is_Dict(emitter):
+            kw['emitter'] = DictEmitter(emitter)
 
     if kw.has_key('src_builder'):
         ret = apply(MultiStepBuilder, (), kw)
@@ -410,6 +440,16 @@ class BuilderBase:
         For most normal builders, this is just the supplied node.
         """
         return [ node ]
+
+    def add_emitter(self, suffix, emitter):
+        """Add a suffix-emitter mapping to this Builder.
+
+        This assumes that emitter has been initialized with an
+        appropriate dictionary type, and will throw a TypeError if
+        not, so the caller is responsible for knowing that this is an
+        appropriate method to call for the Builder in question.
+        """
+        self.emitter[suffix] = emitter
 
 class ListBuilder(SCons.Util.Proxy):
     """A Proxy to support building an array of targets (for example,

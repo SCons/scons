@@ -34,10 +34,11 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
+import SCons.Tool
 
 def generate(env):
     """Add Builders and construction variables for ilink to an Environment."""
-    env['BUILDERS']['Program'] = SCons.Defaults.Program
+    SCons.Tool.createProgBuilder(env)
     
     env['LINK']        = 'ilink'
     env['LINKFLAGS']   = ''
