@@ -242,6 +242,9 @@ RELEASE 0.97 - XXX
   - Additional significant internal cleanups in the Configure() subsystem
     and its tests.
 
+  - Have the Qt Builder make uic-generated files dependent on the .ui.h
+    file, if one exists.
+
 
 
 RELEASE 0.96.1 - XXX
