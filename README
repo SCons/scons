@@ -40,6 +40,11 @@ runtest.py
 	it with an option that requires that you've done a build
 	(aeb) before running tests.
 
+SConstruct
+        The new "Makefile" for the SCons distribution, as soon as we
+        have SCons to the point where it can build itself.  THIS IS
+	NOT READY YET.
+
 src/
 	Where the actual source code is kept, of course.
 

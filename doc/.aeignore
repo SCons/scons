@@ -1,4 +1,5 @@
 *,D
 .*.swp
 .consign
+.sconsign
 version.sgml
