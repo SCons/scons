@@ -121,10 +121,6 @@ LinkAction = SCons.Action.Action("$LINKCOM", "$LINKCOMSTR")
 ShLinkAction = SCons.Action.Action("$SHLINKCOM", "$SHLINKCOMSTR")
 
 LdModuleLinkAction = SCons.Action.Action("$LDMODULECOM", "$LDMODULECOMSTR")
-ArAction = SCons.Action.Action("$ARCOM", "$ARCOMSTR")
-
-LexAction = SCons.Action.Action("$LEXCOM", "$LEXCOMSTR")
-YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 
 def DVI():
     """Common function to generate a DVI file Builder."""

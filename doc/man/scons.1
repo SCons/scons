@@ -31,7 +31,7 @@
 .fi
 .RE
 ..
-.TH SCONS 1 "October 2004"
+.TH SCONS 1 "January 2005"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -1010,7 +1010,7 @@ have two functions: generate(env, **kw) and exists(env).
 The
 .B generate()
 function
-modifies the passed in environment
+modifies the passed-in environment
 to set up variables so that the tool
 can be executed;
 it may use any keyword arguments
@@ -1293,7 +1293,7 @@ to add a specific
 flag when compiling one specific object file:
 
 .ES
-bar_obj_list = env.StaticObject('bar.c', CCFLAGS='-DBAR')
+bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 env.Program(source = ['foo.c', bar_obj_list, 'main.c'])
 .EE
 
@@ -1340,7 +1340,7 @@ by passing the Node to the Python-builtin
 function:
 
 .ES
-bar_obj_list = env.StaticObject('bar.c', CCFLAGS='-DBAR')
+bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 print "The path to bar_obj is:", str(bar_obj_list[0])
 .EE
 
@@ -4998,6 +4998,10 @@ env = Environment(CXXCOMSTR = "Compiling static object $TARGET")
 
 .IP CXXFLAGS 
 General options that are passed to the C++ compiler.
+By default, this includes the value of $CCFLAGS,
+so that setting $CCFLAGS affects both C and C++ compilation.
+If you want to add C++-specific flags,
+you must set or override the value of $CXXFLAGS.
 
 .IP CXXVERSION
 The version number of the C++ compiler.
@@ -5582,7 +5586,7 @@ target being built.
 
 .IP FRAMEWORKSFLAGS
 On Mac OS X,
-frameworks options to be addad at
+frameworks options to be added at
 the end of a command
 line building a loadable module.
 
@@ -5789,13 +5793,13 @@ General user options passed to the linker for building loadable modules.
 The prefix used for loadable module file names.
 On Mac OS X, this is null;
 on other systems, this is
-the same $SHLIBPREFIX.
+the same as $SHLIBPREFIX.
 
 .IP LDMODULESUFFIX
 The suffix used for loadable module file names.
 On Mac OS X, this is null;
 on other systems, this is
-the same $SHLIBSUFFIX.
+the same as $SHLIBSUFFIX.
 
 .IP LEX
 The lexical analyzer generator.
@@ -5844,7 +5848,7 @@ for specifying libraries to be linked with the resulting target.
 The value of $_LIBFLAGS is created
 by appending $LIBLINKPREFIX and $LIBLINKSUFFIX
 to the beginning and end
-of each directory in $LIBS.
+of each filename in $LIBS.
 
 .IP LIBLINKPREFIX
 The prefix used to specify a library to link on the linker command line.
@@ -5930,7 +5934,7 @@ appending the values of the
 $LIBLINKPREFIX and $LIBLINKSUFFIX
 construction variables
 to the beginning and end
-of each directory in $LIBS.
+of each filename in $LIBS.
 Any command lines you define that need
 the LIBS library list should
 include $_LIBFLAGS:
@@ -5938,6 +5942,26 @@ include $_LIBFLAGS:
 .ES
 env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
 .EE
+
+.IP
+If you add a
+File
+object to the
+LIBS
+list, the name of that file will be added to
+$_LIBFLAGS,
+and thus the link line, as is, without
+$LIBLINKPREFIX
+or
+$LIBLINKSUFFIX.
+For example:
+.ES
+env.Append(LIBS=File('/tmp/mylib.so'))
+.EE
+
+.IP
+In all cases, scons will add dependencies from the executable program to
+all the libraries in this list.
 
 .IP LIBSUFFIX 
 The suffix used for (static) library file names.
@@ -7933,7 +7957,7 @@ which verifies that the specified path is an existing directory;
 and
 .BR PathOption.PathIsDirCreate ,
 which verifies that the specified path is a directory,
-and will create the specified directory if the path exist.
+and will create the specified directory if the path does not exist.
 You may supply your own
 .I validator
 function,
@@ -8218,6 +8242,15 @@ env = Environment()
 env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
 env.MakeDirectory('new_directory', [])
 .EE
+
+Note that the call to the MakeDirectory Builder
+needs to specify an empty source list
+to make the string represent the builder's target;
+without that, it would assume the argument is the source,
+and would try to deduce the target name from it,
+which in the absence of an automatically-added prefix or suffix
+would lead to a matching target and source name
+and a circular dependency.
 
 .IP source_factory
 A factory function that the Builder will use
@@ -9006,7 +9039,7 @@ ${TARGET.filebase}   => file
 ${TARGET.suffix}     => .x
 ${TARGET.abspath}    => /top/dir/sub/dir/file.x
 
-BuildDir('sub/dir','src')
+SConscript('src/SConscript', build_dir='sub/dir')
 $SOURCE              => sub/dir/file.x
 ${SOURCE.srcpath}    => src/file.x
 ${SOURCE.srcdir}     => src
@@ -9620,36 +9653,32 @@ subdirectory/SConscript:
 
 .SS Building Multiple Variants From the Same Source
 
-Use the BuildDir() method to establish
+Use the build_dir keyword argument to
+the SConscript function to establish
 one or more separate build directories for
-a given source directory,
-then use the SConscript() method
-to specify the SConscript files
-in the build directories:
+a given source directory:
 
 .ES
 SConstruct:
 
-    ccflags = '-DFOO'
-    Export("ccflags")
-    BuildDir('foo', 'src')
-    SConscript('foo/SConscript')
+    cppdefines = ['FOO']
+    Export("cppdefines")
+    SConscript('src/SConscript', build_dir='foo')
 
-    ccflags = '-DBAR'
-    Export("ccflags")
-    BuildDir('bar', 'src')
-    SConscript('bar/SConscript')
+    cppdefines = ['BAR']
+    Export("cppdefines")
+    SConscript('src/SConscript', build_dir='bar')
 
 src/SConscript:
 
-    Import("ccflags")
-    env = Environment(CCFLAGS = ccflags)
+    Import("cppdefines")
+    env = Environment(CPPDEFINES = cppdefines)
     env.Program(target = 'src', source = 'src.c')
 .EE
 
 Note the use of the Export() method
-to set the "ccflags" variable to a different
-value for each variant build.
+to set the "cppdefines" variable to a different
+value each time we call the SConscript function.
 
 .SS Hierarchical Build of Two Libraries Linked With a Program
 

@@ -228,7 +228,8 @@
 
   One word of warning as you read through this Guide:
   Like too much Open Source software out there,
-  the &SCons; documentation lags the available features.
+  the &SCons; documentation isn't always
+  kept up-to-date with the available features.
   In other words,
   there's a lot that &SCons; can do that
   isn't yet covered in this User's Guide.

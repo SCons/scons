@@ -1,0 +1,9 @@
+<!-- __COPYRIGHT__ -->
+<cvar name="MAXLINELENGTH">
+<summary>
+The maximum number of characters allowed on an external command line.
+On Win32 systems,
+link lines longer than this many characters
+are linked via a temporary file name.
+</summary>
+</cvar>

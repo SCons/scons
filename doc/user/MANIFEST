@@ -1,6 +1,7 @@
 actions.sgml
 alias.sgml
 ant.sgml
+builders.sgml
 builders-built-in.sgml
 builders-commands.sgml
 builders-writing.sgml
@@ -15,6 +16,7 @@ ENV.sgml
 environments.sgml
 errors.sgml
 example.sgml
+factories.sgml
 help.sgml
 hierarchy.sgml
 install.sgml
@@ -24,8 +26,10 @@ less-simple.sgml
 main.sgml
 make.sgml
 nodes.sgml
+parseconfig.sgml
 precious.sgml
 preface.sgml
+python.sgml
 repositories.sgml
 run.sgml
 scanners.sgml
@@ -34,8 +38,10 @@ separate.sgml
 simple.sgml
 sourcecode.sgml
 tasks.sgml
+tools.sgml
 troubleshoot.sgml
 variants.sgml
+variables.sgml
 SCons-win32-install-1.jpg
 SCons-win32-install-2.jpg
 SCons-win32-install-3.jpg

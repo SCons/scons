@@ -228,7 +228,7 @@ over the file scanning rather than being called for each input line:
 
       A list of directories that form the search path for included files
       for this scanner.
-      This is how &SCons; handles the &CPPPATH; and &LIBPATH;
+      This is how &SCons; handles the &cv-link-CPPPATH; and &cv-link-LIBPATH;
       variables.
 
       </para>
@@ -257,7 +257,7 @@ over the file scanning rather than being called for each input line:
     which typically takes an <literal>skeys</literal> argument
     to associate the type of file suffix with this scanner.
     The Scanner object must then be associated with the
-    &SCANNERS; construction variable of a construction environment,
+    &cv-link-SCANNERS; construction variable of a construction environment,
     typically by using the &Append; method:
 
     </para>
@@ -306,10 +306,10 @@ over the file scanning rather than being called for each input line:
     </para>
 
     <scons_output example="scan">
-      <command>scons -Q</command>
-      <command output="    [CHANGE THE CONTENTS OF other_file]">edit other_file</command>
-      <command>scons -Q</command>
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF other_file]">edit other_file</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     -->

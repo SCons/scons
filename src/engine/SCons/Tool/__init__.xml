@@ -1,0 +1,324 @@
+<!-- __COPYRIGHT__ -->
+<builder name="CFile">
+<summary>
+Builds a C source file given a lex (<filename>.l</filename>)
+or yacc (<filename>.y</filename>) input file.
+The suffix specified by the &cv-CFILESUFFIX; construction variable
+(<filename>.c</filename> by default)
+is automatically added to the target
+if it is not already present. Example:
+
+<example>
+# builds foo.c
+env.CFile(target = 'foo.c', source = 'foo.l')
+# builds bar.c
+env.CFile(target = 'bar', source = 'bar.y')
+</example>
+</summary>
+</builder>
+
+<builder name="CXXFile">
+<summary>
+Builds a C++ source file given a lex (<filename>.ll</filename>)
+or yacc (<filename>.yy</filename>)
+input file.
+The suffix specified by the &cv-CXXFILESUFFIX; construction variable
+(<filename>.cc</filename> by default)
+is automatically added to the target
+if it is not already present. Example:
+
+<example>
+# builds foo.cc
+env.CXXFile(target = 'foo.cc', source = 'foo.ll')
+# builds bar.cc
+env.CXXFile(target = 'bar', source = 'bar.yy')
+</example>
+</summary>
+</builder>
+
+<builder name="Library">
+<summary>
+A synonym for the
+&b-StaticLibrary;
+builder method.
+</summary>
+</builder>
+
+<builder name="Object">
+<summary>
+A synonym for the
+&b-StaticObject;
+builder method.
+</summary>
+</builder>
+
+<builder name="Program">
+<summary>
+Builds an executable given one or more object files
+or C, C++, D, or Fortran source files.
+If any C, C++, D or Fortran source files are specified,
+then they will be automatically
+compiled to object files using the
+&b-Object;
+builder method;
+see that builder method's description for
+a list of legal source file suffixes
+and how they are interpreted.
+The target executable file prefix
+(specified by the &cv-PROGPREFIX; construction variable; nothing by default)
+and suffix
+(specified by the &cv-PROGSUFFIX; construction variable;
+by default, <filename>.exe</filename> on Windows systems,
+nothing on POSIX systems)
+are automatically added to the target if not already present.
+Example:
+
+<example>
+env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
+</example>
+</summary>
+</builder>
+
+<builder name="SharedLibrary">
+<summary>
+Builds a shared library
+(<filename>.so</filename> on a POSIX system,
+<filename>.dll</filename> on WIN32)
+given one or more object files
+or C, C++, D or Fortran source files.
+If any source files are given,
+then they will be automatically
+compiled to object files.
+The static library prefix and suffix (if any)
+are automatically added to the target.
+The target library file prefix
+(specified by the &cv-SHLIBPREFIX; construction variable;
+by default, <filename>lib</filename> on POSIX systems,
+nothing on Windows systems)
+and suffix
+(specified by the &cv-SHLIBSUFFIX; construction variable;
+by default, <filename>.dll</filename> on Windows systems,
+<filename>.so</filename> on POSIX systems)
+are automatically added to the target if not already present.
+Example:
+
+<example>
+env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
+</example>
+
+On WIN32 systems, the
+&b-SharedLibrary;
+builder method will always build an import
+(<filename>.lib</filename>) library
+in addition to the shared (<filename>.dll</filename>) library,
+adding a <filename>.lib</filename> library with the same basename
+if there is not already a <filename>.lib</filename> file explicitly
+listed in the targets.
+
+Any object files listed in the
+<literal>source</literal>
+must have been built for a shared library
+(that is, using the
+&b-SharedObject;
+builder method).
+&scons;
+will raise an error if there is any mismatch.
+
+On WIN32 systems, specifying
+<literal>register=1</literal>
+will cause the <filename>.dll</filename> to be
+registered after it is built using REGSVR32.
+The command that is run
+("regsvr32" by default) is determined by &cv-REGSVR; construction
+variable, and the flags passed are determined by &cv-REGSVRFLAGS;.  By
+default, &cv-REGSVRFLAGS; includes the <option>/s</option> option,
+to prevent dialogs from popping
+up and requiring user attention when it is run.  If you change
+&cv-REGSVRFLAGS;, be sure to include the <option>/s</option> option.
+For example,
+
+<example>
+env.SharedLibrary(target = 'bar',
+                  source = ['bar.cxx', 'foo.obj'],
+                  register=1)
+</example>
+
+will register <filename>bar.dll</filename> as a COM object
+when it is done linking it.
+</summary>
+</builder>
+
+<builder name="SharedObject">
+<summary>
+Builds an object file for
+inclusion in a shared library.
+Source files must have one of the same set of extensions
+specified above for the
+&b-StaticObject;
+builder method.
+On some platforms building a shared object requires additional
+compiler option
+(e.g. <option>-fPIC</option> for gcc)
+in addition to those needed to build a
+normal (static) object, but on some platforms there is no difference between a
+shared object and a normal (static) one. When there is a difference, SCons
+will only allow shared objects to be linked into a shared library, and will
+use a different suffix for shared objects. On platforms where there is no
+difference, SCons will allow both normal (static)
+and shared objects to be linked into a
+shared library, and will use the same suffix for shared and normal
+(static) objects.
+The target object file prefix
+(specified by the &cv-SHOBJPREFIX; construction variable;
+by default, the same as &cv-OBJPREFIX;)
+and suffix
+(specified by the &cv-SHOBJSUFFIX; construction variable)
+are automatically added to the target if not already present. 
+Examples:
+
+<example>
+env.SharedObject(target = 'ddd', source = 'ddd.c')
+env.SharedObject(target = 'eee.o', source = 'eee.cpp')
+env.SharedObject(target = 'fff.obj', source = 'fff.for')
+</example>
+</summary>
+</builder>
+
+<builder name="StaticLibrary">
+<summary>
+Builds a static library given one or more object files
+or C, C++, D or Fortran source files.
+If any source files are given,
+then they will be automatically
+compiled to object files.
+The static library prefix and suffix (if any)
+are automatically added to the target.
+The target library file prefix
+(specified by the &cv-LIBPREFIX; construction variable;
+by default, <filename>lib</filename> on POSIX systems,
+nothing on Windows systems)
+and suffix
+(specified by the &cv-LIBSUFFIX; construction variable;
+by default, <filename>.lib</filename> on Windows systems,
+<filename>.a</filename> on POSIX systems)
+are automatically added to the target if not already present.
+Example:
+
+<example>
+env.StaticLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
+</example>
+
+Any object files listed in the
+<literal>source</literal>
+must have been built for a static library
+(that is, using the
+&b-StaticObject;
+builder method).
+&scons;
+will raise an error if there is any mismatch.
+</summary>
+</builder>
+
+<builder name="StaticObject">
+<summary>
+Builds a static object file
+from one or more C, C++, D, or Fortran source files.
+Source files must have one of the following extensions:
+
+<example>
+  .asm    assembly language file
+  .ASM    assembly language file
+  .c      C file
+  .C      WIN32:  C file
+          POSIX:  C++ file
+  .cc     C++ file
+  .cpp    C++ file
+  .cxx    C++ file
+  .cxx    C++ file
+  .c++    C++ file
+  .C++    C++ file
+  .d      D file
+  .f      Fortran file
+  .F      WIN32:  Fortran file
+          POSIX:  Fortran file + C pre-processor
+  .for    Fortran file
+  .FOR    Fortran file
+  .fpp    Fortran file + C pre-processor
+  .FPP    Fortran file + C pre-processor
+  .s      assembly language file
+  .S      WIN32:  assembly language file
+          POSIX:  assembly language file + C pre-processor
+  .spp    assembly language file + C pre-processor
+  .SPP    assembly language file + C pre-processor
+</example>
+
+The target object file prefix
+(specified by the &cv-OBJPREFIX; construction variable; nothing by default)
+and suffix
+(specified by the &cv-OBJSUFFIX; construction variable;
+<filename>.obj</filename> on Windows systems,
+<filename>.o</filename> on POSIX systems)
+are automatically added to the target if not already present.
+Examples:
+
+<example>
+env.StaticObject(target = 'aaa', source = 'aaa.c')
+env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
+env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
+</example>
+</summary>
+</builder>
+
+<cvar name="CCVERSION">
+<summary>
+The version number of the C compiler.
+This may or may not be set,
+depending on the specific C compiler being used.
+</summary>
+</cvar>
+
+<cvar name="CFILESUFFIX">
+<summary>
+The suffix for C source files.
+This is used by the internal CFile builder
+when generating C files from Lex (.l) or YACC (.y) input files.
+The default suffix, of course, is
+<filename>.c</filename>
+(lower case).
+On case-insensitive systems (like Win32),
+SCons also treats
+<filename>.C</filename>
+(upper case) files
+as C files.
+</summary>
+</cvar>
+
+<cvar name="CXXVERSION">
+<summary>
+The version number of the C++ compiler.
+This may or may not be set,
+depending on the specific C++ compiler being used.
+</summary>
+</cvar>
+
+<cvar name="CXXFILESUFFIX">
+<summary>
+The suffix for C++ source files.
+This is used by the internal CXXFile builder
+when generating C++ files from Lex (.ll) or YACC (.yy) input files.
+The default suffix is
+<filename>.cc</filename>.
+SCons also treats files with the suffixes
+<filename>.cpp</filename>,
+<filename>.cxx</filename>,
+<filename>.c++</filename>,
+and
+<filename>.C++</filename>
+as C++ files.
+On case-sensitive systems (Linux, UNIX, and other POSIX-alikes),
+SCons also treats
+<filename>.C</filename>
+(upper case) files
+as C++ files.
+</summary>
+</cvar>

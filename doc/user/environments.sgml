@@ -463,7 +463,8 @@ environment undisturbed.
    and further specifies that the <literal>-O2</literal>
    (optimization level two)
    flag should be used when compiling the object file.
-   In other words, the explicit initializations of &CC; and &CCFLAGS;
+   In other words, the explicit initializations of
+   &cv-link-CC; and &cv-link-CCFLAGS;
    override the default values in the newly-created
    construction environment.
    So a run from this example would look like:
@@ -515,7 +516,7 @@ environment undisturbed.
    We can even use multiple construction environments to build
    multiple versions of a single program.
    If you do this by simply trying to use the
-   &Program; builder with both environments, though,
+   &b-link-Program; builder with both environments, though,
    like this:
 
    </para>
@@ -544,12 +545,12 @@ environment undisturbed.
 
    <para>
 
-   This is because the two &Program; calls have
+   This is because the two &b-Program; calls have
    each implicitly told &SCons; to generate an object file named
    <filename>foo.o</filename>,
-   one with a &CCFLAGS; value of
+   one with a &cv-link-CCFLAGS; value of
    <literal>-O2</literal>
-   and one with a &CCFLAGS; value of
+   and one with a &cv-link-CCFLAGS; value of
    <literal>-g</literal>.
    &SCons; can't just decide that one of them
    should take precedence over the other,
@@ -559,7 +560,7 @@ environment undisturbed.
    that each environment compile
    <filename>foo.c</filename>
    to a separately-named object file
-   using the &Object; call, like so:
+   using the &b-link-Object; builder, like so:
 
    </para>
 
@@ -576,12 +577,12 @@ environment undisturbed.
 
    <para>
 
-   Notice that each call to the &Object; builder
+   Notice that each call to the &b-Object; builder
    returns a value,
    an internal &SCons; object that
    represents the object file that will be built.
    We then use that object
-   as input to the &Program; builder.
+   as input to the &b-Program; builder.
    This avoids having to specify explicitly
    the object file name in multiple places,
    and makes for a compact, readable
@@ -623,10 +624,10 @@ environment undisturbed.
    to create three versions of a program,
    one optimized, one debug, and one with neither.
    We could do this by creating a "base" construction environment
-   that sets &CC; to &gcc;,
+   that sets &cv-link-CC; to &gcc;,
    and then creating two copies,
-   one which sets &CCFLAGS; for optimization
-   and the other which sets &CCFLAGS; for debugging:
+   one which sets &cv-link-CCFLAGS; for optimization
+   and the other which sets &cv-CCFLAGS; for debugging:
 
    </para>
 
@@ -682,7 +683,7 @@ environment undisturbed.
 
    This example &SConstruct; file doesn't build anything,
    but because it's actually a Python script,
-   it will print the value of &CC; for us:
+   it will print the value of &cv-link-CC; for us:
 
    </para>
 
@@ -772,7 +773,7 @@ environment undisturbed.
    the example from the previous
    section that used
    <literal>env['CC']</literal>
-   to fetch the value of &CC;
+   to fetch the value of &cv-link-CC;
    could also be written as:
 
    </para>
@@ -791,7 +792,7 @@ environment undisturbed.
    re-expanded until
    there are no expansions left in the string.
    So a simple fetch of a value like
-   <varname>$CCCOM</varname>:
+   &cv-link-CCCOM;:
 
    </para>
 
@@ -802,7 +803,7 @@ environment undisturbed.
 
    <para>
 
-   Will print the unexpanded value of &CCCOM;,
+   Will print the unexpanded value of &cv-CCCOM;,
    showing us the construction
    variables that still need to be expanded:
 
@@ -845,7 +846,7 @@ environment undisturbed.
    (Note that because we're not expanding this
    in the context of building something
    there are no target or source files
-   for <varname>$TARGET</varname> and <varname>$SOURCES</varname> to expand.
+   for &cv-link-TARGET; and &cv-link-SOURCES; to expand.
 
    </para>
 
@@ -975,7 +976,7 @@ environment undisturbed.
 
      Because the replacement occurs while
      the &SConscript; files are being read,
-     the <literal>$CCFLAGS</literal>
+     the &cv-link-CCFLAGS;
      variable has already been set to
      <literal>-DDEFINE2</literal>
      by the time the &foo_o; target is built,

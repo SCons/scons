@@ -568,7 +568,7 @@
 
     <para>
 
-    The following code sets the &CCFLAGS; construction
+    The following code sets the &cv-link-CCFLAGS; construction
     variable in response to the <varname>debug</varname>
     flag being set in the &ARGUMENTS; dictionary:
 
@@ -650,7 +650,7 @@
     to pass the value to the C compiler.
     Here's how you might do that by setting
     the appropriate value in a dictionary for the
-    &CPPDEFINES; construction variable:
+    &cv-link-CPPDEFINES; construction variable:
 
     </para>
 

@@ -1,0 +1,48 @@
+<!-- __COPYRIGHT__ -->
+<tool name="m4">
+<summary>
+XXX
+</summary>
+</tool>
+
+<builder name="M4">
+<summary>
+Builds an output file from an M4 input file.
+This uses a default &cv-M4FLAGS; value of
+<option>-E</option>,
+which considers all warnings to be fatal
+and stops on the first warning
+when using the GNU version of m4.
+Example:
+
+<example>
+env.M4(target = 'foo.c', source = 'foo.c.m4')
+</example>
+</summary>
+</builder>
+
+<cvar name="M4">
+<summary>
+The M4 macro preprocessor.
+</summary>
+</cvar>
+
+<cvar name="M4COM">
+<summary>
+The command line used to pass files through the M4 macro preprocessor.
+</summary>
+</cvar>
+
+<cvar name="M4COMSTR">
+<summary>
+The string displayed when
+a file is passed through the M4 macro preprocessor.
+If this is not set, then &cv-M4COM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="M4FLAGS">
+<summary>
+General options passed to the M4 macro preprocessor.
+</summary>
+</cvar>

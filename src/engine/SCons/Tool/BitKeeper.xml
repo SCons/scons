@@ -1,0 +1,43 @@
+<!-- __COPYRIGHT__ -->
+<tool name="BitKeeper">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="BITKEEPER">
+<summary>
+The BitKeeper executable.
+</summary>
+</cvar>
+
+<cvar name="BITKEEPERCOM">
+<summary>
+The command line for
+fetching source files using BitKEeper.
+</summary>
+</cvar>
+
+<cvar name="BITKEEPERCOMSTR">
+<summary>
+The string displayed when fetching
+a source file using BitKeeper.
+If this is not set, then &cv-BITKEEPERCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="BITKEEPERGET">
+<summary>
+The command (&cv-BITKEEPER;) and subcommand
+for fetching source files using BitKeeper.
+</summary>
+</cvar>
+
+<cvar name="BITKEEPERGETFLAGS">
+<summary>
+Options that are passed to the BitKeeper
+<command>get</command>
+subcommand.
+</summary>
+</cvar>

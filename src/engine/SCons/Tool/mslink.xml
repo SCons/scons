@@ -1,0 +1,105 @@
+<!-- __COPYRIGHT__ -->
+<tool name="mslink">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="no_import_lib">
+<summary>
+When set to non-zero,
+suppresses creation of a corresponding Win32 static import lib by the
+<literal>SharedLibrary</literal>
+builder when used with
+MinGW, Microsoft Visual Studio or Metrowerks.
+This also suppresses creation
+of an export (.exp) file
+when using Microsoft Visual Studio.
+</summary>
+</cvar>
+
+<cvar name="PDB">
+<summary>
+The Microsoft Visual C++ PDB file that will store debugging information for
+object files, shared libraries, and programs. This variable is ignored by
+tools other than Microsoft Visual C++.
+When this variable is
+defined SCons will add options to the compiler and linker command line to
+cause them to generate external debugging information, and will also set up the
+dependencies for the PDB file. Example:
+
+<example>
+env['PDB'] = 'hello.pdb'
+</example>
+</summary>
+</cvar>
+
+<cvar name="REGSVR">
+<summary>
+The program used on WIN32 systems
+to register a newly-built DLL library
+whenever the &b-SharedLibrary; builder
+is passed a keyword argument of <literal>register=1</literal>.
+</summary>
+</cvar>
+
+<cvar name="REGSVRCOM">
+<summary>
+The command line used on WIN32 systems
+to register a newly-built DLL library
+whenever the &b-SharedLibrary; builder
+is passed a keyword argument of <literal>register=1</literal>.
+</summary>
+</cvar>
+
+<cvar name="REGSVRCOMSTR">
+<summary>
+The string displayed when registering a newly-built DLL file.
+If this is not set, then &cv-REGSVRCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="REGSVRFLAGS">
+<summary>
+Flags passed to the DLL registration program
+on WIN32 systems when a newly-built DLL library is registered.
+By default,
+this includes the <option>/s</option>
+that prevents dialog boxes from popping up
+and requiring user attention.
+</summary>
+</cvar>
+
+<cvar name="WIN32_INSERT_DEF">
+<summary>
+When this is set to true,
+a library build of a WIN32 shared library (.dll file)
+will also build a corresponding .def file at the same time,
+if a .def file is not already listed as a build target.
+The default is 0 (do not build a .def file).
+</summary>
+</cvar>
+
+<cvar name="WIN32DEFPREFIX">
+<summary>
+The prefix used for WIN32 .def file names.
+</summary>
+</cvar>
+
+<cvar name="WIN32DEFSUFFIX">
+<summary>
+The suffix used for WIN32 .def file names.
+</summary>
+</cvar>
+
+<cvar name="WIN32EXPPREFIX">
+<summary>
+XXX The prefix used for WIN32 .def file names.
+</summary>
+</cvar>
+
+<cvar name="WIN32EXPSUFFIX">
+<summary>
+XXX The suffix used for WIN32 .def file names.
+</summary>
+</cvar>

@@ -151,9 +151,9 @@ This functionality could be invoked as in the following example:
     until it's attached to a &consenv;
     so that we can call it to arrange
     for files to be built.
-    This is done through the &BUILDERS;
+    This is done through the &cv-link-BUILDERS;
     &consvar; in an environment.
-    The &BUILDERS; variable is a Python dictionary
+    The &cv-BUILDERS; variable is a Python dictionary
     that maps the names by which you want to call
     various &Builder; objects to the objects themselves.
     For example, if we want to call the
@@ -202,17 +202,17 @@ This functionality could be invoked as in the following example:
     </para>
 
     <scons_output example="ex1">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
 
-    Note, however, that the default &BUILDERS;
+    Note, however, that the default &cv-BUILDERS;
     variable in a &consenv;
     comes with a default set of &Builder; objects
     already defined:
-    &Program;, &Library;, etc.
-    And when we explicitly set the &BUILDERS; variable
+    &b-link-Program;, &b-link-Library;, etc.
+    And when we explicitly set the &cv-BUILDERS; variable
     when we create the &consenv;,
     the default &Builder;s are no longer part of
     the environment:
@@ -235,14 +235,14 @@ This functionality could be invoked as in the following example:
     </scons_example>
 
     <scons_output example="ex2">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
 
     To be able use both our own defined &Builder; objects
     and the default &Builder; objects in the same &consenv;,
-    you can either add to the &BUILDERS; variable
+    you can either add to the &cv-BUILDERS; variable
     using the &Append; function:
 
     </para>
@@ -279,7 +279,7 @@ This functionality could be invoked as in the following example:
     <para>
 
     Or you can explicitly set the appropriately-named
-    key in the &BUILDERS; dictionary:
+    key in the &cv-BUILDERS; dictionary:
 
     </para>
 
@@ -296,12 +296,12 @@ This functionality could be invoked as in the following example:
     Either way, the same &consenv;
     can then use both the newly-defined
     <function>Foo</function> &Builder;
-    and the default &Program; &Builder;:
+    and the default &b-link-Program; &Builder;:
 
     </para>
 
     <scons_output example="ex3">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -358,7 +358,7 @@ This functionality could be invoked as in the following example:
     </sconstruct>
 
     <scons_output example="ex4">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -499,7 +499,7 @@ This functionality could be invoked as in the following example:
     </para>
 
     <scons_output example="ex5">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -651,7 +651,7 @@ This functionality could be invoked as in the following example:
     </sconstruct>
 
     <scons_output example="ex6">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -716,7 +716,7 @@ This functionality could be invoked as in the following example:
     </sconstruct>
 
     <scons_output example="ex7">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <programlisting>
@@ -761,7 +761,7 @@ This functionality could be invoked as in the following example:
     </scons_example>
 
     <scons_output example="ex8">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>

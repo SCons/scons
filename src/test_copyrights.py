@@ -93,6 +93,7 @@ src_remove_list = [
         'gentoo',
         'config',
         'MANIFEST.in',
+        'MANIFEST-xml.in',
 ]
 
 # XXX Remove '*-stamp' when we get rid of those.

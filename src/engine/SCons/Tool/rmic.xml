@@ -1,0 +1,79 @@
+<!-- __COPYRIGHT__ -->
+<tool name="rmic">
+<summary>
+XXX
+</summary>
+</tool>
+
+<builder name="RMIC">
+<summary>
+Builds stub and skeleton class files
+for remote objects
+from Java <filename>.class</filename> files.
+The target is a directory
+relative to which the stub
+and skeleton class files will be written.
+The source can be the names of <filename>.class</filename> files,
+or the objects return from the
+&b-Java;
+builder method.
+
+If the construction variable
+&cv-JAVACLASSDIR;
+is set, either in the environment
+or in the call to the
+&b-RMIC;
+builder method itself,
+then the value of the variable
+will be stripped from the
+beginning of any <filename>.class </filename>
+file names.
+
+<example>
+classes = env.Java(target = 'classdir', source = 'src')
+env.RMIC(target = 'outdir1', source = classes)
+
+env.RMIC(target = 'outdir2',
+         source = ['package/foo.class', 'package/bar.class'])
+
+env.RMIC(target = 'outdir3',
+         source = ['classes/foo.class', 'classes/bar.class'],
+         JAVACLASSDIR = 'classes')
+</example>
+</summary>
+</builder>
+
+<cvar name="RMIC">
+<summary>
+The Java RMI stub compiler.
+</summary>
+</cvar>
+
+<cvar name="RMICCOM">
+<summary>
+The command line used to compile stub
+and skeleton class files
+from Java classes that contain RMI implementations.
+Any options specified in the &cv-RMICFLAGS; construction variable
+are included on this command line.
+</summary>
+</cvar>
+
+<cvar name="RMICCOMSTR">
+<summary>
+The string displayed when compiling
+stub and skeleton class files
+from Java classes that contain RMI implementations.
+If this is not set, then &cv-RMICCOM; (the command line) is displayed.
+
+<example>
+env = Environment(RMICCOMSTR = "Generating stub/skeleton class files $TARGETS from $SOURCES")
+</example>
+</summary>
+</cvar>
+
+<cvar name="RMICFLAGS">
+<summary>
+General options passed to the Java RMI stub compiler.
+</summary>
+</cvar>

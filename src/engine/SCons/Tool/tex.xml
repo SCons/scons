@@ -1,0 +1,70 @@
+<!-- __COPYRIGHT__ -->
+<tool name="tex">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="BIBTEX">
+<summary>
+The bibliography generator for the TeX formatter and typesetter and the
+LaTeX structured formatter and typesetter.
+</summary>
+</cvar>
+
+<cvar name="BIBTEXCOM">
+<summary>
+The command line used to call the bibliography generator for the
+TeX formatter and typesetter and the LaTeX structured formatter and
+typesetter.
+</summary>
+</cvar>
+
+<cvar name="BIBTEXCOMSTR">
+<summary>
+The string displayed when generating a bibliography
+for TeX or LaTeX.
+If this is not set, then &cv-BIBTEXCOM; (the command line) is displayed.
+
+<example>
+env = Environment(BIBTEXCOMSTR = "Generating bibliography $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="BIBTEXFLAGS">
+<summary>
+General options passed to the bibliography generator for the TeX formatter
+and typesetter and the LaTeX structured formatter and typesetter.
+</summary>
+</cvar>
+
+<cvar name="TEX">
+<summary>
+The TeX formatter and typesetter.
+</summary>
+</cvar>
+
+<cvar name="TEXCOM">
+<summary>
+The command line used to call the TeX formatter and typesetter.
+</summary>
+</cvar>
+
+<cvar name="TEXCOMSTR">
+<summary>
+The string displayed when calling
+the TeX formatter and typesetter.
+If this is not set, then &cv-TEXCOM; (the command line) is displayed.
+
+<example>
+env = Environment(TEXCOMSTR = "Building $TARGET from TeX input $SOURCES")
+</example>
+</summary>
+</cvar>
+
+<cvar name="TEXFLAGS">
+<summary>
+General options passed to the TeX formatter and typesetter.
+</summary>
+</cvar>

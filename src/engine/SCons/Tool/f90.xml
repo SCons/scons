@@ -1,0 +1,196 @@
+<!-- __COPYRIGHT__ -->
+<tool name="f90">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="F90">
+<summary>
+The Fortran 90 compiler.
+You should normally set the &cv-FORTRAN; variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set &cv-F90; if you need to use a specific compiler
+or compiler version for Fortran 90 files.
+</summary>
+</cvar>
+
+<cvar name="F90COM">
+<summary>
+The command line used to compile a Fortran 90 source file to an object file.
+You only need to set &cv-F90COM; if you need to use a specific
+command line for Fortran 90 files.
+You should normally set the &cv-FORTRANCOM; variable,
+which specifies the default command line
+for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="F90COMSTR">
+<summary>
+The string displayed when a Fortran 90 source file
+is compiled to an object file.
+If this is not set, then &cv-F90COM; or &cv-FORTRANCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="F90FLAGS">
+<summary>
+General user-specified options that are passed to the Fortran 90 compiler.
+Note that this variable does
+<emphasis>not</emphasis>
+contain
+<option>-I</option>
+(or similar) include search path options
+that scons generates automatically from &cv-F90PATH;.
+See
+&cv-_F90INCFLAGS;
+below,
+for the variable that expands to those options.
+You only need to set &cv-F90FLAGS; if you need to define specific
+user options for Fortran 90 files.
+You should normally set the &cv-FORTRANFLAGS; variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="_F90INCFLAGS">
+<summary>
+An automatically-generated construction variable
+containing the Fortran 90 compiler command-line options
+for specifying directories to be searched for include files.
+The value of &cv-_F90INCFLAGS; is created
+by appending &cv-INCPREFIX; and &cv-INCSUFFIX;
+to the beginning and end
+of each directory in &cv-F90PATH;.
+</summary>
+</cvar>
+
+<cvar name="F90PATH">
+<summary>
+The list of directories that the Fortran 90 compiler will search for include
+directories. The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in &cv-F90FLAGS; because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in &cv-F90PATH; will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+&scons;
+to look-up a directory relative to the root of the source tree use #:
+You only need to set &cv-F90PATH; if you need to define a specific
+include path for Fortran 90 files.
+You should normally set the &cv-FORTRANPATH; variable,
+which specifies the include path
+for the default Fortran compiler
+for all Fortran versions.
+
+<example>
+env = Environment(F90PATH='#/include')
+</example>
+
+The directory look-up can also be forced using the
+&Dir;()
+function:
+
+<example>
+include = Dir('include')
+env = Environment(F90PATH=include)
+</example>
+
+The directory list will be added to command lines
+through the automatically-generated
+&cv-_F90INCFLAGS;
+construction variable,
+which is constructed by
+appending the values of the
+&cv-INCPREFIX; and &cv-INCSUFFIX;
+construction variables
+to the beginning and end
+of each directory in &cv-F90PATH;.
+Any command lines you define that need
+the F90PATH directory list should
+include &cv-_F90INCFLAGS;:
+
+<example>
+env = Environment(F90COM="my_compiler $_F90INCFLAGS -c -o $TARGET $SOURCE")
+</example>
+</summary>
+</cvar>
+
+<cvar name="F90PPCOM">
+<summary>
+The command line used to compile a Fortran 90 source file to an object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-F90FLAGS; and &cv-CPPFLAGS; construction variables
+are included on this command line.
+You only need to set &cv-F90PPCOM; if you need to use a specific
+C-preprocessor command line for Fortran 90 files.
+You should normally set the &cv-FORTRANPPCOM; variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="SHF90">
+<summary>
+The Fortran 90 compiler used for generating shared-library objects.
+You should normally set the &cv-SHFORTRAN; variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set &cv-SHF90; if you need to use a specific compiler
+or compiler version for Fortran 90 files.
+</summary>
+</cvar>
+
+<cvar name="SHF90COM">
+<summary>
+The command line used to compile a Fortran 90 source file
+to a shared-library object file.
+You only need to set &cv-SHF90COM; if you need to use a specific
+command line for Fortran 90 files.
+You should normally set the &cv-SHFORTRANCOM; variable,
+which specifies the default command line
+for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="SHF90COMSTR">
+<summary>
+The string displayed when a Fortran 90 source file
+is compiled to a shared-library object file.
+If this is not set, then &cv-SHF90COM; or &cv-SHFORTRANCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="SHF90FLAGS">
+<summary>
+Options that are passed to the Fortran 90 compiler
+to generated shared-library objects.
+You only need to set &cv-SHF90FLAGS; if you need to define specific
+user options for Fortran 90 files.
+You should normally set the &cv-SHFORTRANFLAGS; variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</summary>
+</cvar>
+
+<cvar name="SHF90PPCOM">
+<summary>
+The command line used to compile a Fortran 90 source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-SHF90FLAGS; and &cv-CPPFLAGS; construction variables
+are included on this command line.
+You only need to set &cv-SHF90PPCOM; if you need to use a specific
+C-preprocessor command line for Fortran 90 files.
+You should normally set the &cv-SHFORTRANPPCOM; variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</summary>
+</cvar>

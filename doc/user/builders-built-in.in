@@ -44,7 +44,7 @@
 
     <para>
 
-    As we've seen, the &Program; Builder
+    As we've seen, the &b-link-Program; Builder
     is used to build an executable program.
     The &source; argument is one or more
     source-code files or object files,
@@ -70,9 +70,9 @@
 
     The target file's prefix and suffix may be omitted,
     and the values from the
-    $PROGPREFIX
+    &cv-link-PROGPREFIX;
     and
-    $PROGSUFFIX
+    &cv-link-PROGSUFFIX;
     construction variables
     will be appended appropriately.
     For example:
@@ -119,9 +119,9 @@
 
     Two construction variables control what libraries
     will be linked with the resulting program.
-    The &LIBS; variable is a list of the names of
+    The &cv-link-LIBS; variable is a list of the names of
     libraries that will be linked into any programs,
-    and the &LIBPATH; variables is a list of
+    and the &cv-link-LIBPATH; variables is a list of
     directories that will be searched for
     the specified libraries.
     &SCons; will construct the right command-line
@@ -151,7 +151,7 @@
     </para>
 
     <scons_output example="libs" os="posix">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -161,14 +161,14 @@
     </para>
 
     <scons_output example="libs" os="win32">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
 
-    The &LIBS; construction variable
+    The &cv-LIBS; construction variable
     is turned into command line options
-    by appending the &LIBLINKPREFIX; and &LIBLINKSUFFIX;
+    by appending the &cv-link-LIBLINKPREFIX; and &cv-link-LIBLINKSUFFIX;
     construction variables to the beginning and end,
     respectively, of each specified library.
 
@@ -176,9 +176,9 @@
 
     <para>
 
-    The &LIBPATH; construction variable
+    The &cv-LIBPATH; construction variable
     is turned into command line options
-    by appending the &LIBDIRPREFIX; and &LIBDIRSUFFIX;
+    by appending the &cv-link-LIBDIRPREFIX; and &cv-link-LIBDIRSUFFIX;
     construction variables to the beginning and end,
     respectively, of each specified library.
 
@@ -187,9 +187,9 @@
     <para>
 
     Other relevant construction variables
-    include those used by the &Object;
+    include those used by the &b-link-Object;
     builders to affect how the
-    source files specified as input to the &Program;
+    source files specified as input to the &t-Program;
     builders are turned into object files;
     see the next section.
 
@@ -198,10 +198,10 @@
     <para>
 
     The command line used to control how a program is linked
-    is specified by the &LINKCOM; construction variable.
+    is specified by the &cv-link-LINKCOM; construction variable.
     By default, it uses the
-    &LINK; construction variable
-    and the &LINKFLAGS; construction variable.
+    &cv-link-LINK; construction variable
+    and the &cv-link-LINKFLAGS; construction variable.
 
     </para>
 
@@ -224,7 +224,7 @@
 
       <para>
 
-      The &StaticObject; Builder
+      The &b-link-StaticObject; Builder
       is used to build an object file
       suitable for static linking into a program,
       or for inclusion in a static library.
@@ -251,9 +251,9 @@
 
       The target file's prefix and suffix may be omitted,
       and the values from the
-      $OBJPREFIX
+      &cv-link-OBJPREFIX;
       and
-      $OBJSUFFIX
+      &cv-link-OBJSUFFIX;
       construction variables
       will be appended appropriately.
       For example:
@@ -303,7 +303,7 @@
 
       <para>
 
-      The &SharedObject; Builder
+      The &b-link-SharedObject; Builder
       is used to build an object file
       suitable for shared linking into a program,
       or for inclusion in a shared library.
@@ -330,9 +330,9 @@
 
       The target file's prefix and suffix may be omitted,
       and the values from the
-      $SHOBJPREFIX
+      &cv-link-SHOBJPREFIX;
       and
-      $SHOBJSUFFIX
+      &cv-link-SHOBJSUFFIX;
       construction variables
       will be appended appropriately.
       For example:
@@ -382,7 +382,7 @@
 
       <para>
 
-      The &Object; Builder is a synonym for &StaticObject;
+      The &b-link-Object; Builder is a synonym for &b-link-StaticObject;
       and is completely equivalent.
 
       </para>
@@ -406,7 +406,7 @@
 
       <para>
 
-      The &StaticLibrary; Builder
+      The &b-link-StaticLibrary; Builder
       is used to create a library
       suitable for static linking into a program.
       The &source; argument is one or more
@@ -425,9 +425,9 @@
 
       The target file's prefix and suffix may be omitted,
       and the values from the
-      $LIBPREFIX
+      &cv-link-LIBPREFIX;
       and
-      $LIBSUFFIX
+      &cv-link-LIBSUFFIX;
       construction variables
       will be appended appropriately.
       For example:
@@ -480,7 +480,7 @@
 
       <para>
 
-      The &SharedLibrary; Builder
+      The &b-link-SharedLibrary; Builder
       is used to create a shared library
       suitable for linking with a program.
       The &source; argument is one or more
@@ -499,9 +499,9 @@
 
       The target file's prefix and suffix may be omitted,
       and the values from the
-      $SHLIBPREFIX
+      &cv-link-SHLIBPREFIX;
       and
-      $SHLIBSUFFIX
+      &cv-link-SHLIBSUFFIX;
       construction variables
       will be appended appropriately.
       For example:
@@ -554,7 +554,7 @@
 
       <para>
 
-      The &Library; Builder is a synonym for &StaticLibrary;
+      The &b-link-Library; Builder is a synonym for &b-link-StaticLibrary;
       and is completely equivalent.
 
       </para>
@@ -715,7 +715,7 @@
 
       <para>
 
-      The &Tar; Builder object uses the &tar;
+      The &b-link-Tar; Builder object uses the &tar;
       utility to create archives of files
       and/or directory trees:
 
@@ -739,7 +739,7 @@
       </scons_example>
 
       <scons_output example="ex1" os="posix">
-        <command>scons -Q .</command>
+        <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -748,11 +748,11 @@
       is to create a compressed archive using the
       <option>-z</option> option.
       This is easily handled by specifying
-      the value of the &TARFLAGS; variable
+      the value of the &cv-link-TARFLAGS; variable
       when you create the construction environment.
       Note, however, that the <option>-c</option> used to
       to instruct &tar; to create the archive
-      is part of the default value of &TARFLAGS;,
+      is part of the default value of &cv-TARFLAGS;,
       so you need to set it both options:
 
       </para>
@@ -768,13 +768,13 @@
       </scons_example>
 
       <scons_output example="ex2" os="posix">
-        <command>scons -Q .</command>
+        <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
 
       you may also wish to set the value of the
-      &TARSUFFIX; construction variable
+      &cv-link-TARSUFFIX; construction variable
       to your desired suffix for compress &tar; archives,
       so that &SCons; can append it to the target file name
       without your having to specify it explicitly:
@@ -793,7 +793,7 @@
       </scons_example>
 
       <scons_output example="ex3" os="posix">
-        <command>scons -Q .</command>
+        <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
     </section>
@@ -803,7 +803,7 @@
 
       <para>
 
-      The &Zip; Builder object creates archives of files
+      The &b-link-Zip; Builder object creates archives of files
       and/or directory trees in the ZIP file format.
       Python versions 1.6 or later
       contain an internal &zipfile; module
@@ -835,7 +835,7 @@
       </para>
 
       <scons_output example="ex4" os="posix">
-        <command>scons -Q .</command>
+        <scons_output_command>scons -Q .</scons_output_command>
       </scons_output>
 
       <para>
@@ -870,7 +870,7 @@
 
       <para>
 
-      The &Java; builder takes one or more input
+      The &b-link-Java; builder takes one or more input
       <filename>.java</filename> files
       and turns them into one or more
       <filename>.class</filename> files

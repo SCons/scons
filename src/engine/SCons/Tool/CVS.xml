@@ -1,0 +1,51 @@
+<!-- __COPYRIGHT__ -->
+<tool name="CVS">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="CVS">
+<summary>
+The CVS executable.
+</summary>
+</cvar>
+
+<cvar name="CVSCOFLAGS">
+<summary>
+Options that are passed to the CVS checkout subcommand.
+</summary>
+</cvar>
+
+<cvar name="CVSCOM">
+<summary>
+The command line used to
+fetch source files from a CVS repository.
+</summary>
+</cvar>
+
+<cvar name="CVSCOMSTR">
+<summary>
+The string displayed when fetching
+a source file from a CVS repository.
+If this is not set, then &cv-CVSCOM;
+(the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="CVSFLAGS">
+<summary>
+General options that are passed to CVS.
+By default, this is set to
+<literal>-d $CVSREPOSITORY</literal>
+to specify from where the files must be fetched.
+</summary>
+</cvar>
+
+<cvar name="CVSREPOSITORY">
+<summary>
+The path to the CVS repository.
+This is referenced in the default
+&cv-CVSFLAGS; value.
+</summary>
+</cvar>

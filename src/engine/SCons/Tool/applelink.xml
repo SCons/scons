@@ -1,0 +1,11 @@
+<!-- __COPYRIGHT__ -->
+<cvar name="FRAMEWORKSFLAGS">
+<summary>
+On Mac OS X,
+frameworks options to be added at
+the end of a command
+line building a loadable module.
+</summary>
+</cvar>
+
+

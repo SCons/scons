@@ -33,17 +33,19 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Defaults
+import SCons.Action
 import SCons.Tool
 import SCons.Util
+
+LexAction = SCons.Action.Action("$LEXCOM", "$LEXCOMSTR")
 
 def generate(env):
     """Add Builders and construction variables for lex to an Environment."""
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
 
-    c_file.add_action('.l', SCons.Defaults.LexAction)
-    c_file.add_action('.lex', SCons.Defaults.LexAction)
-    cxx_file.add_action('.ll', SCons.Defaults.LexAction)
+    c_file.add_action('.l', LexAction)
+    c_file.add_action('.lex', LexAction)
+    cxx_file.add_action('.ll', LexAction)
 
     env['LEX']      = env.Detect('flex') or 'lex'
     env['LEXFLAGS'] = SCons.Util.CLVar('')

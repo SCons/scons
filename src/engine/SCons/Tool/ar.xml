@@ -1,0 +1,48 @@
+<!-- __COPYRIGHT__ -->
+<tool name="ar">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="AR">
+<summary>
+The static library archiver.
+</summary>
+</cvar>
+
+<cvar name="ARCOM">
+<summary>
+The command line used to generate a static library from object files.
+</summary>
+</cvar>
+
+<cvar name="ARCOMSTR">
+<summary>
+The string displayed when an object file
+is generated from an assembly-language source file.
+If this is not set, then &cv-ARCOM; (the command line) is displayed.
+
+<example>
+env = Environment(ARCOMSTR = "Archiving $TARGET")
+</example>
+</summary>
+</cvar>
+
+<cvar name="ARFLAGS">
+<summary>
+General options passed to the static library archiver.
+</summary>
+</cvar>
+
+<cvar name="RANLIB">
+<summary>
+The archive indexer.
+</summary>
+</cvar>
+
+<cvar name="RANLIBFLAGS">
+<summary>
+General options passed to the archive indexer.
+</summary>
+</cvar>

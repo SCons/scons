@@ -67,8 +67,8 @@ operating system on which the build is performed (as reported by C<uname
   </scons_example>
 
   <scons_output example="ex1" os="posix">
-     <command>scons -Q</command>
-     <command>scons -Q</command>
+     <scons_output_command>scons -Q</scons_output_command>
+     <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
   <para>
@@ -83,8 +83,8 @@ operating system on which the build is performed (as reported by C<uname
   </para>
 
   <scons_output example="ex1" os="posix">
-     <command>scons -Q hello</command>
-     <command>scons -Q hello</command>
+     <scons_output_command>scons -Q hello</scons_output_command>
+     <scons_output_command>scons -Q hello</scons_output_command>
   </scons_output>
 
   <para>
@@ -132,9 +132,9 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex1" os="posix">
-         <command>scons -Q hello</command>
-         <command>touch hello.c</command>
-         <command>scons -Q hello</command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>touch hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -154,9 +154,9 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex1" os="posix">
-         <command>scons -Q hello</command>
-         <command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</command>
-         <command>scons -Q hello</command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -209,9 +209,9 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex2" os="posix">
-         <command>scons -Q hello</command>
-         <command>touch hello.c</command>
-         <command>scons -Q hello</command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command>touch hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
     </section>
@@ -252,9 +252,9 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex1" os="posix">
-         <command>scons -Q hello</command>
-         <command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</command>
-         <command>scons -Q hello</command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -339,9 +339,9 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex3" os="posix">
-         <command>scons -Q hello</command>
-         <command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line">edit hello.c</command>
-         <command>scons -Q hello</command>
+         <scons_output_command>scons -Q hello</scons_output_command>
+         <scons_output_command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line">edit hello.c</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -364,7 +364,7 @@ operating system on which the build is performed (as reported by C<uname
   </section>
 
   <section>
-  <title>Implicit Dependencies:  The &CPPPATH; Construction Variable</title>
+  <title>Implicit Dependencies:  The &cv-CPPPATH; Construction Variable</title>
 
     <para>
 
@@ -415,7 +415,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    The &CPPPATH; value
+    The &cv-CPPPATH; value
     tells &SCons; to look in the current directory
     (<literal>'.'</literal>)
     for any files included by C source files
@@ -425,17 +425,17 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <scons_output example="ex4" os="posix">
-       <command>scons -Q hello</command>
-       <command>scons -Q hello</command>
-       <command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</command>
-       <command>scons -Q hello</command>
+       <scons_output_command>scons -Q hello</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
+       <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
 
     First, notice that &SCons;
     added the <literal>-I.</literal> argument
-    from the &CPPPATH; variable
+    from the &cv-CPPPATH; variable
     so that the compilation would find the
     &hello_h; file in the local directory.
 
@@ -462,8 +462,8 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    Like the &LIBPATH; variable,
-    the &CPPPATH; variable
+    Like the &cv-LIBPATH; variable,
+    the &cv-CPPPATH; variable
     may be a list of directories,
     or a string separated by
     the system-specific path separate character
@@ -490,7 +490,7 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <scons_output example="ex5" os="posix">
-       <command>scons -Q hello</command>
+       <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -500,7 +500,7 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <scons_output example="ex5" os="win32">
-       <command>scons -Q hello.exe</command>
+       <scons_output_command>scons -Q hello.exe</scons_output_command>
     </scons_output>
 
   </section>
@@ -554,8 +554,8 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <scons_output example="ex1">
-       <command>scons -Q --implicit-cache hello</command>
-       <command>scons -Q hello</command>
+       <scons_output_command>scons -Q --implicit-cache hello</scons_output_command>
+       <scons_output_command>scons -Q hello</scons_output_command>
     </scons_output>
 
     <para>
@@ -610,8 +610,8 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex1">
-         <command>scons -Q --implicit-deps-changed hello</command>
-         <command>scons -Q hello</command>
+         <scons_output_command>scons -Q --implicit-deps-changed hello</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -645,8 +645,8 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex1">
-         <command>scons -Q --implicit-deps-unchanged hello</command>
-         <command>scons -Q hello</command>
+         <scons_output_command>scons -Q --implicit-deps-unchanged hello</scons_output_command>
+         <scons_output_command>scons -Q hello</scons_output_command>
       </scons_output>
 
       <para>
@@ -699,10 +699,10 @@ operating system on which the build is performed (as reported by C<uname
 
     <!--
     <scons_output example="ignore">
-      <command>scons -Q hello</command>
-      <command>scons -Q hello</command>
-      <command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</command>
-      <command>scons -Q hello</command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
+      <scons_output_command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</scons_output_command>
+      <scons_output_command>scons -Q hello</scons_output_command>
       XXX THIS EXAMPLE SHOULD BE UP-TO-DATE! XXX
     </scons_output>
     -->

@@ -79,7 +79,7 @@ which the C<AfterBuild> method is called.
  </para>
 
  <scons_output example="ex1">
-    <command>scons -Q</command>
+    <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
 
  <para>

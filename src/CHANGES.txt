@@ -15,6 +15,8 @@ RELEASE 0.97 - XXX
   - Fix Java parsing to avoid erroneously identifying a new array
     of class instances as an anonymous inner class.
 
+  - Fix a typo in the man page description of PathIsDirCreate.
+
   From Chad Austin:
 
   - Allow Help() to be called multiple times, appending to the help
@@ -207,6 +209,14 @@ RELEASE 0.97 - XXX
     a source_scanner keyword argument to Command() that can be set to
     DirScanner to get this behavior.
 
+  - Documentation changes:  Explain that $CXXFLAGS contains $CCFLAGS
+    by default.  Fix a bad target_factory example in the man page.
+    Add appendices to the User's Guide to cover the available Tools,
+    Builders and construction variables.  Comment out the build of
+    the old Python 10 paper, which doesn't build on all systems and
+    is old enough at this point that it probably isn't worth the
+    effort to make it do so.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
@@ -293,6 +303,9 @@ RELEASE 0.97 - XXX
 
   - Supply a better error message when a construction variable expansion
     has an unknown attribute.
+
+  - Documentation changes:  Update the man page to describe use of
+    filenames or Nodes in $LIBS.
 
   From Chris Pawling:
 
@@ -418,6 +431,11 @@ RELEASE 0.97 - XXX
 
   - Add a PathAccept validator to the list of new canned PathOption
     validators.
+
+  From Jeff Squyres:
+
+  - Documentation changes:  Use $CPPDEFINES instead of $CCFLAGS in man
+    page examples.
 
   From Levi Stephen:
 

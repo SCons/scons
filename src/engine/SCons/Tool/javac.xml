@@ -1,0 +1,109 @@
+<!-- __COPYRIGHT__ -->
+<tool name="javac">
+<summary>
+XXX
+</summary>
+</tool>
+
+<builder name="Java">
+<summary>
+Builds one or more Java class files
+from one or more source trees of <filename>.java</filename> files.
+The class files will be placed underneath
+the specified target directory.
+SCons will parse each source <filename>.java</filename> file
+to find the classes
+(including inner classes)
+defined within that file,
+and from that figure out the
+target <filename>.class</filename> files that will be created.
+SCons will also search each Java file
+for the Java package name,
+which it assumes can be found on a line
+beginning with the string
+<literal>package</literal>
+in the first column;
+the resulting <filename>.class</filename> files
+will be placed in a directory reflecting
+the specified package name.
+For example,
+the file
+<filename>Foo.java</filename>
+defining a single public
+<classname>Foo</classname>
+class and
+containing a package name of
+<classname>sub.dir</classname>
+will generate a corresponding
+<filename>sub/dir/Foo.class</filename>
+class file.
+
+Example:
+
+<example>
+env.Java(target = 'classes', source = 'src')
+env.Java(target = 'classes', source = ['src1', 'src2'])
+</example>
+</summary>
+</builder>
+
+<cvar name="JAVAC">
+<summary>
+The Java compiler.
+</summary>
+</cvar>
+
+<cvar name="JAVACCOM">
+<summary>
+The command line used to compile a directory tree containing
+Java source files to
+corresponding Java class files.
+Any options specified in the &cv-JAVACFLAGS; construction variable
+are included on this command line.
+</summary>
+</cvar>
+
+<cvar name="JAVACCOMSTR">
+<summary>
+The string displayed when compiling
+a directory tree of Java source files to
+corresponding Java class files.
+If this is not set, then &cv-JAVACCOM; (the command line) is displayed.
+
+<example>
+env = Environment(JAVACCOMSTR = "Compiling class files $TARGETS from $SOURCES")
+</example>
+</summary>
+</cvar>
+
+<cvar name="JAVACFLAGS">
+<summary>
+General options that are passed to the Java compiler.
+</summary>
+</cvar>
+
+<cvar name="JAVACLASSDIR">
+<summary>
+The directory in which Java class files may be found.
+This is stripped from the beginning of any Java .class
+file names supplied to the
+<literal>JavaH</literal>
+builder.
+</summary>
+</cvar>
+
+<cvar name="JAVACLASSSUFFIX">
+<summary>
+The suffix for Java class files;
+<filename>.class</filename>
+by default.
+</summary>
+</cvar>
+
+<cvar name="JAVASUFFIX">
+<summary>
+The suffix for Java files;
+<filename>.java</filename>
+by default.
+</summary>
+</cvar>

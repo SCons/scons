@@ -26,10 +26,24 @@
 <!doctype book PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
 [
 
+    <!--
+    We haven't updated the design document in ages.
+    Rather than fool people into thinking that it's
+    actually up-to-date and reflects the current design,
+    hard-code the version from back when we last updated it.
     <!ENTITY % version SYSTEM "../version.sgml">
     %version;
+    -->
+    <!ENTITY builddate "2001/12/13 20:55:46">
+    <!ENTITY buildversion "0.91">
+    <!ENTITY buildrevision "0.01.D177">
 
+    <!--
+    Also freeze the scons.mod DTD extensions
+    to what they were way back when.
     <!ENTITY % scons SYSTEM "../scons.mod">
+    -->
+    <!ENTITY % scons SYSTEM "scons.mod">
     %scons;
 
     <!ENTITY acks SYSTEM "acks.sgml">

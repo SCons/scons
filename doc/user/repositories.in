@@ -240,7 +240,7 @@ subdirectories under the repository tree.
     </para>
 
     <scons_output example="ex1">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -264,7 +264,7 @@ subdirectories under the repository tree.
     </scons_example>
 
     <scons_output example="ex2">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
       gcc -c /usr/repository1/hello.c -o hello.o
       gcc -o hello hello.o
     </scons_output>
@@ -289,7 +289,7 @@ subdirectories under the repository tree.
     </scons_example>
 
     <scons_output example="ex3">
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -376,8 +376,8 @@ subdirectories under the repository tree.
     </scons_example>
 
     <scons_output example="ex4">
-      <command>cd /usr/repository1</command>
-      <command>scons -Q</command>
+      <scons_output_command>cd /usr/repository1</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>
@@ -402,9 +402,9 @@ subdirectories under the repository tree.
 
     <!--
     <scons_output example="ex4">
-      <command>cd $HOME/build</command>
-      <command>edit hello.c</command>
-      <command>scons -Q -Y __ROOT__/usr/repository1</command>
+      <scons_output_command>cd $HOME/build</scons_output_command>
+      <scons_output_command>edit hello.c</scons_output_command>
+      <scons_output_command>scons -Q -Y __ROOT__/usr/repository1</scons_output_command>
     </scons_output>
     -->
     <screen>

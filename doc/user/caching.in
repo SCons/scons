@@ -93,9 +93,9 @@
     </para>
 
     <scons_output example="ex1">
-      <command>scons -Q</command>
-      <command>scons -Q -c</command>
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
   </section>
@@ -129,9 +129,9 @@
     </para>
 
     <scons_output example="ex1">
-      <command>scons -Q</command>
-      <command>scons -Q -c</command>
-      <command>scons -Q --cache-show</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q --cache-show</scons_output_command>
     </scons_output>
 
     <para>
@@ -176,11 +176,11 @@
     </para>
 
     <scons_output example="ex1">
-      <command>scons -Q</command>
-      <command>scons -Q -c</command>
-      <command>scons -Q</command>
-      <command>scons -Q -c</command>
-      <command>scons -Q --cache-disable</command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q --cache-disable</scons_output_command>
     </scons_output>
 
   </section>
@@ -217,12 +217,12 @@
     </para>
 
     <scons_output example="ex1">
-      <command>scons -Q --cache-disable</command>
-      <command>scons -Q -c</command>
-      <command>scons -Q --cache-disable</command>
-      <command>scons -Q --cache-force</command>
-      <command>scons -Q -c</command>
-      <command>scons -Q</command>
+      <scons_output_command>scons -Q --cache-disable</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q --cache-disable</scons_output_command>
+      <scons_output_command>scons -Q --cache-force</scons_output_command>
+      <scons_output_command>scons -Q -c</scons_output_command>
+      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
 
     <para>

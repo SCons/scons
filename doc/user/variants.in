@@ -49,7 +49,8 @@ is pretty smart about rebuilding things when you change options.
 
   <para>
 
-  The &BuildDir; function now gives us everything
+  The &build_dir; keyword argument of
+  the &SConscript; function provides everything
   we need to show how easy it is to create
   variant builds using &SCons;.
   Suppose, for example, that we want to
@@ -79,11 +80,6 @@ is pretty smart about rebuilding things when you change options.
     Export('env')
 
     env.SConscript('src/SConscript', build_dir='build/$PLATFORM')
-
-    #
-    #BuildDir("#build/$PLATFORM", 'src')
-    #SConscript("build/$PLATFORM/hello/SConscript")
-    #SConscript("build/$PLATFORM/world/SConscript")
     </file>
     <directory name="src"></directory>
     <directory name="src/hello"></directory>
@@ -125,7 +121,7 @@ is pretty smart about rebuilding things when you change options.
   </para>
 
   <scons_output example="ex_variants" os="posix">
-    <command>scons -Q OS=linux</command>
+    <scons_output_command>scons -Q OS=linux</scons_output_command>
   </scons_output>
 
   <para>
@@ -135,7 +131,7 @@ is pretty smart about rebuilding things when you change options.
   </para>
 
   <scons_output example="ex_variants" os="win32">
-    <command>scons -Q OS=windows</command>
+    <scons_output_command>scons -Q OS=windows</scons_output_command>
   </scons_output>
 
   <!--
@@ -149,7 +145,7 @@ is pretty smart about rebuilding things when you change options.
   </scons_example>
 
   <scons_output example="ex_var2">
-    <command>scons -Q</command>
+    <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
   -->

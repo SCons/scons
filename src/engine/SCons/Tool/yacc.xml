@@ -1,0 +1,42 @@
+<!-- __COPYRIGHT__ -->
+<tool name="yacc">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="YACC">
+<summary>
+The parser generator.
+</summary>
+</cvar>
+
+<cvar name="YACCCOM">
+<summary>
+The command line used to call the parser generator
+to generate a source file.
+</summary>
+</cvar>
+
+<cvar name="YACCCOMSTR">
+<summary>
+The string displayed when generating a source file
+using the parser generator.
+If this is not set, then &cv-YACCCOM; (the command line) is displayed.
+
+<example>
+env = Environment(YACCCOMSTR = "Yacc'ing $TARGET from $SOURCES")
+</example>
+</summary>
+</cvar>
+
+<cvar name="YACCFLAGS">
+<summary>
+General options passed to the parser generator.
+If &cv-YACCFLAGS; contains a <option>-d</option> option,
+SCons assumes that the call will also create a .h file
+(if the yacc source file ends in a .y suffix)
+or a .hpp file
+(if the yacc source file ends in a .yy suffix)
+</summary>
+</cvar>

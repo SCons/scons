@@ -161,8 +161,8 @@ def createStaticLibBuilder(env):
     try:
         static_lib = env['BUILDERS']['StaticLibrary']
     except KeyError:
-        import SCons.Defaults
-        static_lib = SCons.Builder.Builder(action = SCons.Defaults.ArAction,
+        ar_action = SCons.Action.Action("$ARCOM", "$ARCOMSTR")
+        static_lib = SCons.Builder.Builder(action = ar_action,
                                            emitter = '$LIBEMITTER',
                                            prefix = '$LIBPREFIX',
                                            suffix = '$LIBSUFFIX',

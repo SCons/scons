@@ -1,0 +1,34 @@
+<!-- __COPYRIGHT__ -->
+<tool name="gs">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="GS">
+<summary>
+The Ghostscript program used to convert PostScript to PDF files.
+</summary>
+</cvar>
+
+<cvar name="GSCOM">
+<summary>
+The Ghostscript command line used to convert PostScript to PDF files.
+</summary>
+</cvar>
+
+<cvar name="GSCOMSTR">
+<summary>
+The string displayed when
+Ghostscript is used to convert
+a PostScript file to a PDF file.
+If this is not set, then &cv-GSCOM; (the command line) is displayed.
+</summary>
+</cvar>
+
+<cvar name="GSFLAGS">
+<summary>
+General options passed to the Ghostscript program
+when converting PostScript to PDF files.
+</summary>
+</cvar>

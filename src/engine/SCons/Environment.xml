@@ -1,0 +1,157 @@
+<!-- __COPYRIGHT__ -->
+<cvar name="BUILDERS">
+<summary>
+A dictionary mapping the names of the builders
+available through this environment
+to underlying Builder objects.
+Builders named
+Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, and Program
+are available by default.
+If you initialize this variable when an
+Environment is created:
+
+<example>
+env = Environment(BUILDERS = {'NewBuilder' : foo})
+</example>
+
+the default Builders will no longer be available.
+To use a new Builder object in addition to the default Builders,
+add your new Builder object like this:
+
+<example>
+env = Environment()
+env.Append(BUILDERS = {'NewBuilder' : foo})
+</example>
+
+or this:
+
+<example>
+env = Environment()
+env['BUILDERS]['NewBuilder'] = foo
+</example>
+</summary>
+</cvar>
+
+<cvar name="Dir">
+<summary>
+A function that converts a file name into a Dir instance relative to the
+target being built. 
+</summary>
+</cvar>
+
+<cvar name="ENV">
+<summary>
+A dictionary of environment variables
+to use when invoking commands. When
+&cv-ENV; is used in a command all list
+values will be joined using the path separator and any other non-string
+values will simply be coerced to a string.
+Note that, by default,
+&scons;
+does
+<emphasis>not</emphasis>
+propagate the environment in force when you
+execute
+&scons;
+to the commands used to build target files.
+This is so that builds will be guaranteed
+repeatable regardless of the environment
+variables set at the time
+&scons;
+is invoked.
+
+If you want to propagate your
+environment variables
+to the commands executed
+to build target files,
+you must do so explicitly:
+
+<example>
+import os
+env = Environment(ENV = os.environ)
+</example>
+
+Note that you can choose only to propagate
+certain environment variables.
+A common example is
+the system
+<envar>PATH</envar>
+environment variable,
+so that
+&scons;
+uses the same utilities
+as the invoking shell (or other process):
+
+<example>
+import os
+env = Environment(ENV = {'PATH' : os.environ['PATH']})
+</example>
+</summary>
+</cvar>
+
+<cvar name="File">
+<summary>
+A function that converts a file name into a File instance relative to the
+target being built. 
+</summary>
+</cvar>
+
+<cvar name="RDirs">
+<summary>
+A function that converts a file name into a list of Dir instances by
+searching the repositories. 
+</summary>
+</cvar>
+
+<cvar name="SCANNERS">
+<summary>
+A list of the available implicit dependency scanners.
+New file scanners may be added by
+appending to this list,
+although the more flexible approach
+is to associate scanners
+with a specific Builder.
+See the sections "Builder Objects"
+and "Scanner Objects,"
+below, for more information.
+</summary>
+</cvar>
+
+<cvar name="SOURCE">
+<summary>
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+</summary>
+</cvar>
+
+<cvar name="SOURCES">
+<summary>
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+</summary>
+</cvar>
+
+<cvar name="TARGET">
+<summary>
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+</summary>
+</cvar>
+
+<cvar name="TARGETS">
+<summary>
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+</summary>
+</cvar>
+
+<cvar name="TOOLS">
+<summary>
+A list of the names of the Tool specifications
+that are part of this construction environment.
+</summary>
+</cvar>

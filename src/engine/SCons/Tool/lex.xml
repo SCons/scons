@@ -1,0 +1,37 @@
+<!-- __COPYRIGHT__ -->
+<tool name="lex">
+<summary>
+XXX
+</summary>
+</tool>
+
+<cvar name="LEX">
+<summary>
+The lexical analyzer generator.
+</summary>
+</cvar>
+
+<cvar name="LEXCOM">
+<summary>
+The command line used to call the lexical analyzer generator
+to generate a source file.
+</summary>
+</cvar>
+
+<cvar name="LEXCOMSTR">
+<summary>
+The string displayed when generating a source file
+using the lexical analyzer generator.
+If this is not set, then &cv-LEXCOM; (the command line) is displayed.
+
+<example>
+env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")
+</example>
+</summary>
+</cvar>
+
+<cvar name="LEXFLAGS">
+<summary>
+General options passed to the lexical analyzer generator.
+</summary>
+</cvar>
