@@ -23,15 +23,6 @@
 
 -->
 
- <para>
-
-   X
-
- </para>
-
- <section>
- <title>Providing build-specific help instructions</title>
-
    <para>
 
    It's often very useful to be able to give
@@ -84,5 +75,3 @@
    the <literal>-H</literal> option is used.
 
    </para>
-
- </section>

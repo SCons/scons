@@ -183,6 +183,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             if tidy:
                 cmds.append("tidy -m -q $TARGET || true")
             env.Command(htmlindex, main, cmds)
+            Local(htmlindex)
 
             cmds = [
                 "rm -f ${TARGET.dir}/main.html",
@@ -192,6 +193,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             if tidy:
                 cmds.append("tidy -m -q $TARGET || true")
             env.Command(html, main, cmds)
+            Local(html)
 
             env.Ignore([html, htmlindex], "version.sgml")
 
@@ -214,6 +216,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 "mv ${TARGET.dir}/main.ps $TARGET",
                 "rm -f ${TARGET.dir}/%s" % out,
             ])
+            Local(ps)
 
             env.Ignore(ps, "version.sgml")
 
@@ -235,6 +238,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 "mv ${TARGET.dir}/main.pdf $TARGET",
                 "rm -f ${TARGET.dir}/out",
             ])
+            Local(pdf)
 
             env.Ignore(pdf, "version.sgml")
 

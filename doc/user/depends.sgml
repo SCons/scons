@@ -61,10 +61,10 @@ operating system on which the build is performed (as reported by C<uname
  </para>
 
  <literallayout>
-    % <userinput>scons .</userinput>
+    % <userinput>scons</userinput>
     cc -c hello.c -o hello.o
     cc -o hello hello.o
-    % <userinput>scons .</userinput>
+    % <userinput>scons</userinput>
     %
  </literallayout>
 
@@ -89,9 +89,9 @@ operating system on which the build is performed (as reported by C<uname
 
  <para>
 
- (&SCons; only reports "...is up to date"
+ Note that &SCons; only reports "...is up to date"
  for target files named explicitly on the command line,
- to avoid cluttering the output.)
+ to avoid cluttering the output.
 
  </para>
 
@@ -172,13 +172,10 @@ included by included files will also be scanned.
 
    <para>
 
-   X
+   Now suppose that our "Hello, World!" program
+   actually looks like this:
 
    </para>
-
-   <programlisting>
-      #define string    "world"
-   </programlisting>
 
    <programlisting>
       #include "hello.h" 
@@ -189,10 +186,43 @@ included by included files will also be scanned.
       }
    </programlisting>
 
+   <para>
+
+   That is, the first line
+   includes a &hello_h;
+   that looks like this:
+
+   </para>
+
+   <programlisting>
+      #define string    "world"
+   </programlisting>
+
+   <para>
+
+   In this case, we want &SCons; to recognize that,
+   if the contents of the &hello_h; file change,
+   the &hello; program must be recompiled.
+   To do this, we need to modify the
+   &SConstruct; file like so:
+
+   </para>
+
    <programlisting>
       env = Environment(CPPPATH = '.')  XXX IS CPPPATH NECESSARY?
       hello = env.Program('hello.c')
    </programlisting>
+
+   <para>
+
+   The &CPPPATH; assignment in the &Environment; call
+   tells &SCons; to look in the current directory
+   (<literal>'.'</literal>)
+   for any files included by C source files
+   (<filename>.c</filename> or <filename>.h</filename> files).
+   With this assignment in the &SConstruct file:
+
+   </para>
 
    <literallayout>
       % <userinput>scons hello</userinput>
@@ -210,20 +240,20 @@ included by included files will also be scanned.
 
    <para>
 
-      &SCons; knows that the &hello;
-      program must be rebuilt
-      because it scans the contents of
-      the &hello_c;
-      for the #include lines that indicate
-      another file is being included in the compilation.
-      &SCons; records these as
-      <emphasis>implicit dependencies</emphasis>
-      of the target file,
-      Consequently,
-      when the &hello_h; file changes,
-      &SCons; realizes that the &hello_c; file includes it,
-      and rebuilds the resulting &hello; program
-      that depends on both the &hello_c; and &hello_h; files.
+   &SCons; knows that the &hello;
+   program must be rebuilt
+   because it scans the contents of
+   the &hello_c; file
+   for the <literal>#include</literal> lines that indicate
+   another file is being included in the compilation.
+   &SCons; records these as
+   <emphasis>implicit dependencies</emphasis>
+   of the target file,
+   Consequently,
+   when the &hello_h; file changes,
+   &SCons; realizes that the &hello_c; file includes it,
+   and rebuilds the resulting &hello; program
+   that depends on both the &hello_c; and &hello_h; files.
 
    </para>
 

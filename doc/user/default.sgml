@@ -60,19 +60,153 @@ default list.
 
 -->
 
- <para>
-
-   X
-
- </para>
-
- <section>
- <title>The &Default; Method</title>
-
    <para>
 
-   X
+   As mentioned previously,
+   &SCons; will build every target
+   in or below the current directory
+   by default--that is, when you don't
+   explicitly specify one or more targets
+   on the command line.
+   Sometimes, however, you may want
+   to explicitly specify that only
+   certain programs should be built by default,
+   which you do using the &Default; function:
 
    </para>
 
- </section>
+   <programlisting>
+      env = Environment()
+      hello = env.Program('hello.c')
+      env.Program('goodbye.c')
+      Default(hello)
+   </programlisting>
+
+   <para>
+
+   This &SConstruct; file builds two programs,
+   &hello; and &goodbye;,
+   but only builds the
+   &hello program by default:
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      % <userinput>scons</userinput>
+      % <userinput>scons goodbye</userinput>
+      cc -c goodbye.c -o goodbye.o
+      cc -o goodbye goodbye.o
+      %
+   </literallayout>
+
+   <para>
+
+   Note that, even when you use the &Default;
+   function in your &SConstruct; file,
+   you can still explicitly specify the current directory
+   (<literal>.</literal>) on the command line
+   to tell &SCons; to build
+   everything in (or below) the current directory:
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons .</userinput>
+      cc -c goodbye.c -o goodbye.o
+      cc -o goodbye goodbye.o
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      %
+   </literallayout>
+
+   <para>
+
+   You can also call the &Default;
+   function more than once,
+   in which case each call
+   adds to the list of targets to be built by default:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      prog1 = env.Program('prog1.c')
+      Default(prog1)
+      prog2 = env.Program('prog2.c')
+      prog3 = env.Program('prog3.c')
+      Default(prog3)
+   </programlisting>
+
+   <para>
+
+   Or you can specify more than one target
+   in a single call to the &Default; function:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      prog1 = env.Program('prog1.c')
+      prog2 = env.Program('prog2.c')
+      prog3 = env.Program('prog3.c')
+      Default(prog1, prog3)
+   </programlisting>
+
+   <para>
+
+   Either of these last two examples
+   will build only the
+   <application>prog1</application>
+   and
+   <application>prog3</application>
+   programs:
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      cc -c prog1.c -o prog1.o
+      cc -o prog1 prog1.o
+      cc -c prog3.c -o prog3.o
+      cc -o prog3 prog3.o
+      % <userinput>scons .</userinput>
+      cc -c prog2.c -o prog2.o
+      cc -o prog2 prog2.o
+      %
+   </literallayout>
+
+   <para>
+
+   Lastly, if for some reason you don't want
+   any targets built by default,
+   you can use the Python <literal>None</literal>
+   variable:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      prog1 = env.Program('prog1.c')
+      prog2 = env.Program('prog2.c')
+      Default(None)
+   </programlisting>
+
+   <para>
+
+   Which would produce build output like:
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      scons: *** No targets specified and no Default() targets found.  Stop.
+      % <userinput>scons .</userinput>
+      cc -c prog1.c -o prog1.o
+      cc -o prog1 prog1.o
+      cc -c prog2.c -o prog2.o
+      cc -o prog2 prog2.o
+      %
+   </literallayout>

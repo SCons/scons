@@ -44,7 +44,6 @@ requirements of a build.
  <para>
 
  Here's how to build the famous "Hello, World!" example using &SCons;.
- Enter the following into a file name &SConstruct;:
 
  </para>
 
@@ -55,6 +54,12 @@ requirements of a build.
         printf("Hello, world!\n");
     }
  </programlisting>
+
+ <para>
+
+ Enter the following into a file name &SConstruct;:
+
+ </para>
 
  <programlisting>
     env = Environment()
@@ -70,7 +75,7 @@ requirements of a build.
  </para>
 
  <literallayout>
-    % <userinput>scons .</userinput>
+    % <userinput>scons</userinput>
     cc -c hello.c -o hello.o
     cc -o hello hello.o
  </literallayout>
@@ -83,32 +88,42 @@ requirements of a build.
  </para>
 
  <literallayout>
-    C:\><userinput>scons .</userinput>
+    C:\><userinput>scons</userinput>
     cl /Fohello.obj hello.c
     link /Fohello.exe hello.obj
  </literallayout>
 
  <para>
 
- First, notice that you need to supply a '.' on the command line.
- This tells &SCons; to build everything in the current directory
- or its subdirectories.
- We'll tell you later how to avoid having to use the '.'
+ First, notice that you only need
+ to specify the name of the source file,
+ and that &SCons; deduces the names of
+ the object and executable files
+ correctly from the source file.
 
  </para>
 
  <para>
 
- Next, notice that the same input &SConstruct; file
- without any special input,
- generates the right output file names on both systems:
+ Second, notice that the same input &SConstruct; file
+ without any changes,
+ generates the correct output file names on both systems:
  <filename>hello.o</filename> and <filename>hello</filename>
  on POSIX systems,
  <filename>hello.obj</filename> and <filename>hello.exe</filename>
  on Windows systems.
- (We won't provide side-by-side examples of POSIX
- and Windows runs for all future examples;
- just know that XXX.)
+ This is a simple example of how easy it is to
+ use &SCons; to write portable software builds.
+
+ </para>
+
+ <para>
+
+ (Note that we won't provide duplicate side-by-side
+ POSIX and Windows output for the 
+ rest of the examples in this guide;
+ just keep in mind that, unless otherwise specified,
+ any of the examples should work equally well on both types of systems.)
 
  </para>
 
@@ -132,19 +147,17 @@ requirements of a build.
    an &SConstruct; file and a &Makefile:
    the &SConstruct; file is actually a Python script.
    If you're not already familiar with Python, don't worry;
-   you don't really need to know Python to be able to use
-   &SCons; effectively.
-   But you'll see that being able to use the power of a
-   real scripting language
-   can greatly simplify the solutions
-   to complex requirements of real-world builds.
+   Python is extremely easy to learn,
+   and this User's Guide will introduce you step-by-step
+   to the relatively small amount of Python you'll
+   neede to know to be able to use &SCons; effectively.
 
    </para>
 
    <para>
 
-   For now, one ramification of using Python as the
-   scripting language means that you can put comments
+   One aspect of using Python as the
+   scripting language is that you can put comments
    in your &SConstruct; file using Python's commenting convention;
    that is, everything between a '#' and the end of the line
    will be ignored:
@@ -157,6 +170,16 @@ requirements of a build.
       env.Program('hello.c')
    </programlisting>
 
+   <para>
+
+   You'll see throughout the remainder of this Guide
+   that being able to use the power of a
+   real scripting language
+   can greatly simplify the solutions
+   to complex requirements of real-world builds.
+
+   </para>
+
  </section>
 
  <section>
@@ -164,7 +187,15 @@ requirements of a build.
 
    <para>
 
-   If you want
+   It's more common, of course,
+   that you'll need to build a program from
+   not just one, but many input source files.
+   To do this, you need to put the
+   source files in a Python list
+   (enclosed in square brackets),
+   and slide that list over to to the right
+   to make room for the output program file name.
+   For example:
 
    </para>
 
@@ -173,18 +204,155 @@ requirements of a build.
       env.Program('program', ['main.c', 'file1.c', 'file2.'])
    </programlisting>
 
-   <programlisting>
-      env = Environment()
-      env.Program('program', Split('main.c file1.c file2.'))
-   </programlisting>
+   <para>
+
+   (&SCons; puts the output file name to the left
+   of the source file names
+   so that the order mimics that of an
+   assignment statement:  "program = source files".)
+
+   </para>
+
+   <para>
+
+   A build of the above example would look:
+
+   </para>
 
    <literallayout>
-      % <userinput>scons .</userinput>
+      % <userinput>scons</userinput>
       cc -c file1.c -o file1.o
       cc -c file2.c -o file2.o
       cc -c main.c -o main.o
       cc -o program main.o file1.o file2.o
    </literallayout>
+
+   <!--
+
+   XXX DO WE NEED WINDOWS EXAMPLE OUTPUT HERE?
+
+   </para>
+
+   Or on Windows:
+
+   </para>
+
+   <literallayout>
+      C:\><userinput>scons</userinput>
+      cl /Fofile1.obj file1.c
+      cl /Fofile2.obj file2.c
+      cl /Fomain.obj main.c
+      link /Foprogram.exe main.obj file1.obj file2.obj
+   </literallayout>
+
+   -->
+
+ </section>
+
+ <section>
+ <title>Keeping &SConstruct; Files Easy to Read</title>
+
+   <para>
+
+   One minor drawback to the use of a Python list
+   for source files is that 
+   each file name must be enclosed in quotes
+   (either single quotes or double quotes).
+   This can get cumbersome and difficult to read
+   when the list of file names is long.
+   Fortunately, there are a number of things
+   we can do to make sure that
+   the &SConstruct; file stays easy to read.
+
+   </para>
+
+   <para>
+
+   To make long lists of file names
+   easier to deal with, &SCons; provides a
+   &Split; function
+   that takes a quoted list of file names,
+   with the names separated by spaces or other white-space characters,
+   and turns it into a list of separate file names.
+   Using the &Split; function turns the
+   previous example into:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      env.Program('program', Split('main.c file1.c file2.'))
+   </programlisting>
+
+   <para>
+
+   Putting the call to the &Split; function
+   inside the <function>env.Program</function> call
+   can also be a little unwieldy.
+   A more readable alternative is to
+   assign the output from the &Split; call
+   to a variable name,
+   and then use the variable when calling the
+   <function>env.Program</function> function:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      list = Split('main.c file1.c file2.')
+      env.Program('program', list)
+   </programlisting>
+
+   <para>
+
+   Lastly, the &Split; function
+   doesn't care how much white space separates
+   the file names in the quoted string.
+   This allows you to create lists of file
+   names that span multiple lines,
+   which often makes for easier editing:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      list = Split('main.c
+                    file1.c
+                    file2.c')
+      env.Program('program', list)
+   </programlisting>
+
+ </section>
+
+ <section>
+ <title>Keyword Arguments</title>
+
+   <para>
+
+   &SCons; also allows you to identify
+   the output file and input source files
+   by Python keyword arguments.
+   The output file is known as the
+   <emphasis>target</emphasis>,
+   and the source file(s) are known (logically enough) as the
+   <emphasis>source</emphasis>.
+   The Python syntax for this is:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      list = Split('main.c file1.c file2.')
+      env.Program(target = 'program', source = list)
+   </programlisting>
+
+   <para>
+
+   Whether or not you choose to use keyword arguments
+   to identify the target and source files
+   is purely a personal choice.
+
+   </para>
 
  </section>
 
@@ -193,7 +361,11 @@ requirements of a build.
 
    <para>
 
-   If you want
+   In order to compile multiple programs
+   within the same &SConstruct; file,
+   simply call <function>env.Program</function>
+   multiple times,
+   once for each program you need to build:
 
    </para>
 
@@ -203,8 +375,14 @@ requirements of a build.
       env.Program('bar', ['bar1.c', 'bar2.c'])
    </programlisting>
 
+   <para>
+
+   &SCons; would then build the programs as follows:
+
+   </para>
+
    <literallayout>
-      % <userinput>scons .</userinput>
+      % <userinput>scons</userinput>
       cc -c bar1.c -o bar1.o
       cc -c bar2.c -o bar2.o
       cc -o bar bar1.o bar2.o
@@ -215,11 +393,11 @@ requirements of a build.
  </section>
 
  <section>
- <title>Sharing Files Between Multiple Programs</title>
+ <title>Sharing Source Files Between Multiple Programs</title>
 
    <para>
 
-   If you want
+   XXX
 
    </para>
 
@@ -231,7 +409,7 @@ requirements of a build.
    </programlisting>
 
    <literallayout>
-      % <userinput>scons .</userinput>
+      % <userinput>scons</userinput>
       cc -c bar1.c -o bar1.o
       cc -c bar2.c -o bar2.o
       cc -c common1.c -o common1.o

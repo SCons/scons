@@ -103,6 +103,7 @@
 <!ENTITY RuleSet "<function>RuleSet</function>">
 <!ENTITY Salt "<function>Salt</function>">
 <!ENTITY SourceSignature "<function>SourceSignature</function>">
+<!ENTITY Split "<function>Split</function>">
 <!ENTITY Task "<function>Task</function>">
 
 
@@ -169,6 +170,8 @@
 <!ENTITY consvar "<literal>construction variable</literal>">
 <!ENTITY consvars "<literal>construction variables</literal>">
 
+<!ENTITY CPPPATH "<literal>CPPPATH</literal>">
+
 <!ENTITY Dictionary "<literal>Dictionary</literal>">
 
 <!--
@@ -177,6 +180,7 @@
 
 -->
 
+<!ENTITY goodbye "<application>goodbye</application>">
 <!ENTITY hello "<application>hello</application>">
 <!ENTITY hello_c "<filename>hello.c</filename>">
 <!ENTITY hello_h "<filename>hello.h</filename>">
