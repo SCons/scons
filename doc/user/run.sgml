@@ -316,6 +316,28 @@ do an unconstrained build before committing the integration).
   </para>
 
   <section>
+  <title>Command-Line Options</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Getting at Command-Line Arguments</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
   <title>Selective Builds</title>
 
     <para>
@@ -357,7 +379,36 @@ do an unconstrained build before committing the integration).
 
     <para>
 
-    XXX
+    Users may find themselves supplying
+    the same command-line options every time
+    they run &SCons;.
+    For example, a user might find that it saves time
+    to always specify a value of <literal>-j 2</literal>
+    to run the builds in parallel.
+
+    </para>
+
+    
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      scons: Reading SConscript files ...
+          ...
+      scons: done reading SConscript files.
+      scons: Building targets ...
+      scons: `.' is up to date.
+      scons: done building targets.
+      % <userinput>export SCONSFLAGS="-Q"</userinput>
+      % <userinput>scons</userinput>
+      scons: Reading SConscript files ...
+          ...
+      scons: done reading SConscript files.
+      scons: Building targets ...
+      scons: `.' is up to date.
+      scons: done building targets.
+    </literallayout>
+
+    <para>
 
     </para>
 

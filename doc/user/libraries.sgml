@@ -42,8 +42,7 @@
     </para>
 
     <programlisting>
-      env = Environment()
-      env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+      Library('foo', ['f1.c', 'f2.c', 'f3.c'])
     </programlisting>
 
     <para>
@@ -51,15 +50,15 @@
     &SCons; uses the appropriate library prefix and suffix for your system.
     So on POSIX or Linux systems,
     the above example would build as follows
-    (although &ranlib may not be called on all systems):
+    (although &ranlib; may not be called on all systems):
 
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      cc -c f1.c -o f1.o
-      cc -c f2.c -o f2.o
-      cc -c f3.c -o f3.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o f1.o f1.c
+      cc -c -o f2.o f2.c
+      cc -c -o f3.o f3.c
       ar r libfoo.a f1.o f2.o f3.o
       ranlib libfoo.a
     </literallayout>
@@ -72,10 +71,10 @@
     </para>
 
     <literallayout>
-      C:\><userinput>scons</userinput>
-      cl /Fof1.obj f1.c
-      cl /Fof2.obj f2.c
-      cl /Fof3.obj f3.c
+      C:\><userinput>scons -Q</userinput>
+      cl /nologo /c f1.c /Fof1.obj
+      cl /nologo /c f2.c /Fof2.obj
+      cl /nologo /c f3.c /Fof3.obj
       lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
     </literallayout>
 
@@ -105,13 +104,13 @@
     and by specifying the directory in which
     the library will be found in the 
     &LIBPATH; construction variable:
+      env = Environment(LIBS = 'foo', LIBPATH = '.')
 
     </para>
 
     <programlisting>
-      env = Environment(LIBS = 'foo', LIBPATH = '.')
-      env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-      env.Program('prog.c')
+      Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+      Program('prog.c', LIBS='foo', LIBPATH='.')
     </programlisting>
 
     <para>
@@ -131,14 +130,14 @@
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      cc -c f1.c -o f1.o
-      cc -c f2.c -o f2.o
-      cc -c f3.c -o f3.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o f1.o f1.c
+      cc -c -o f2.o f2.c
+      cc -c -o f3.o f3.c
       ar r libfoo.a f1.o f2.o f3.o
       ranlib libfoo.a
-      cc -c prog.c -o prog.o
-      cc -o prog -L. -lfoo prog.o
+      cc -c -o prog.o prog.c
+      cc -o prog prog.o -L. -lfoo
     </literallayout>
 
     <para>
@@ -149,13 +148,13 @@
     </para>
 
     <literallayout>
-      C:\><userinput>scons</userinput>
-      cl /Fof1.obj f1.c
-      cl /Fof2.obj f2.c
-      cl /Fof3.obj f3.c
+      C:\><userinput>scons -Q</userinput>
+      cl /nologo /c f1.c /Fof1.obj
+      cl /nologo /c f2.c /Fof2.obj
+      cl /nologo /c f3.c /Fof3.obj
       lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
-      cl /Foprog.obj prog.c
-      link /OUT:prog.exe /LIBPATH:. foo.lib prog.obj
+      cl /nologo /c prog.c /Foprog.obj
+      link /nologo /OUT:prog.exe /LIBPATH:. foo.lib prog.obj
     </literallayout>
 
     <para>
@@ -184,9 +183,8 @@
     </para>
 
     <programlisting>
-      env = Environment(LIBS = 'm',
+      Program('prog.c', LIBS = 'm',
                         LIBPATH = ['/usr/lib', '/usr/local/lib'])
-      env.Program('prog.c')
     </programlisting>
 
     <para>
@@ -225,9 +223,9 @@
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      cc -c prog.c -o prog.o
-      cc -o prog -L/usr/lib -L/usr/local/lib -lm prog.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o prog.o prog.c
+      cc -o prog prog.o -L/usr/lib -L/usr/local/lib -lm
     </literallayout>
 
     <para>
@@ -238,9 +236,9 @@
     </para>
 
     <literallayout>
-      C:\><userinput>scons</userinput>
-      cl /Foprog.obj prog.c
-      link /nologo /OUT:program.exe /LIBPATH:\usr\lib;\usr\local\lib m.lib prog.obj
+      C:\><userinput>scons -Q</userinput>
+      cl /nologo /c prog.c /Foprog.obj
+      link /nologo /OUT:prog.exe /LIBPATH:\usr\lib /LIBPATH:\usr\local\lib m.lib prog.obj
     </literallayout>
 
     <para>

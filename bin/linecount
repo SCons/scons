@@ -55,8 +55,17 @@ nbsl = filter(lambda x: x != '', slines)
 nctl = filter(lambda x: x[0] != '#', nbtl)
 ncsl = filter(lambda x: x[0] != '#', nbsl)
 
+def ratio(over, under):
+    return "%.2f" % (float(len(over)) / float(len(under)))
+
+rfiles = ratio(tests, sources)
+rlines = ratio(tlines, slines)
+rnonblank = ratio(nbtl, nbsl)
+rnoncomment = ratio(nctl, ncsl)
+
 fmt = "%-8s  %12s  %12s  %12s  %12s"
 
 print fmt % ('', 'files', 'lines', 'non-blank', 'non-comment')
 print fmt % ('tests:', len(tests), len(tlines), len(nbtl), len(nctl))
 print fmt % ('sources:', len(sources), len(slines), len(nbsl), len(ncsl))
+print fmt % ('ratio:', rfiles, rlines, rnonblank, rnoncomment)

@@ -50,7 +50,7 @@
   </para>
 
   <scons_output example="ex1" os="posix">
-     <command>scons install</command>
+     <command>scons -Q install</command>
   </scons_output>
 
   <para>
@@ -95,8 +95,8 @@
   </para>
 
   <scons_output example="ex2" os="posix">
-     <command>scons install-bin</command>
-     <command>scons install-lib</command>
-     <command>scons -c __ROOT__/</command>
-     <command>scons install</command>
+     <command>scons -Q install-bin</command>
+     <command>scons -Q install-lib</command>
+     <command>scons -Q -c __ROOT__/</command>
+     <command>scons -Q install</command>
   </scons_output>

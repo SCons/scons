@@ -45,7 +45,9 @@
   </para>
 
   <literallayout>
-     % <userinput>scons install</userinput>
+     % <userinput>scons -Q install</userinput>
+     cc -c -o hello.o hello.c
+     cc -o hello hello.o
      Install file: "hello" as "/usr/bin/hello"
   </literallayout>
 
@@ -64,8 +66,8 @@
 
   <programlisting>
      env = Environment()
-     p = env.Program('hello.c')
-     l = env.Library('hello.c')
+     p = env.Program('foo.c')
+     l = env.Library('bar.c')
      env.Install('/usr/bin', p)
      env.Install('/usr/lib', l)
      ib = env.Alias('install-bin', '/usr/bin')
@@ -83,12 +85,28 @@
   </para>
 
   <literallayout>
-     % <userinput>scons install-bin</userinput>
-     Install file: "hello" as "/usr/bin/hello"
-     % <userinput>scons install-lib</userinput>
-     Install file: "libhello.a" as "/usr/lib/libhello.a"
-     % <userinput>scons -c /</userinput>
-     % <userinput>scons install</userinput>
-     Install file: "hello" as "/usr/bin/hello"
-     Install file: "libhello.a" as "/usr/lib/libhello.a"
+     % <userinput>scons -Q install-bin</userinput>
+     cc -c -o foo.o foo.c
+     cc -o foo foo.o
+     Install file: "foo" as "/usr/bin/foo"
+     % <userinput>scons -Q install-lib</userinput>
+     cc -c -o bar.o bar.c
+     ar r libbar.a bar.o
+     ranlib libbar.a
+     Install file: "libbar.a" as "/usr/lib/libbar.a"
+     % <userinput>scons -Q -c /</userinput>
+     Removed foo.o
+     Removed foo
+     Removed /usr/bin/foo
+     Removed bar.o
+     Removed libbar.a
+     Removed /usr/lib/libbar.a
+     % <userinput>scons -Q install</userinput>
+     cc -c -o foo.o foo.c
+     cc -o foo foo.o
+     Install file: "foo" as "/usr/bin/foo"
+     cc -c -o bar.o bar.c
+     ar r libbar.a bar.o
+     ranlib libbar.a
+     Install file: "libbar.a" as "/usr/lib/libbar.a"
   </literallayout>

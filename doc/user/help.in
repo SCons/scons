@@ -28,14 +28,14 @@
    It's often very useful to be able to give
    users some help that describes the
    specific targets, build options, etc.,
-   that can be used for the build.
+   that can be used for your build.
    &SCons; provides the &Help; function
    to allow you to specify this help text:
 
    </para>
 
    <scons_example name="ex1">
-      <file name="SConstruct">
+      <file name="SConstruct" printme="1">
       Help("""
       Type: 'scons program' to build the production program,
             'scons debug' to build the debug version.

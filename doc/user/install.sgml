@@ -57,10 +57,10 @@
   </para>
 
   <literallayout>
-     % <userinput>scons</userinput>
-     cc -c hello.c -o hello.o
+     % <userinput>scons -Q</userinput>
+     cc -c -o hello.o hello.c
      cc -o hello hello.o
-     % <userinput>scons /usr/bin</userinput>
+     % <userinput>scons -Q /usr/bin</userinput>
      Install file: "hello" as "/usr/bin/hello"
   </literallayout>
 
@@ -94,7 +94,10 @@
   </para>
 
   <literallayout>
-     % <userinput>scons install</userinput>
+     % <userinput>scons -Q</userinput>
+     cc -c -o hello.o hello.c
+     cc -o hello hello.o
+     % <userinput>scons -Q install</userinput>
      Install file: "hello" as "/usr/bin/hello"
   </literallayout>
 
@@ -113,7 +116,7 @@
        hello = env.Program('hello.c')
        goodbye = env.Program('goodbye.c')
        env.Install('/usr/bin', hello)
-       env.Install('/usr/bin', goodbye])
+       env.Install('/usr/bin', goodbye)
        env.Alias('install', '/usr/bin')
     </programlisting>
 
@@ -140,12 +143,12 @@
     </para>
 
     <literallayout>
-       % <userinput>scons install</userinput>
-       cc -c goodbye.c -o goodbye.o
+       % <userinput>scons -Q install</userinput>
+       cc -c -o goodbye.o goodbye.c
        cc -o goodbye goodbye.o
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
        Install file: "goodbye" as "/usr/bin/goodbye"
+       cc -c -o hello.o hello.c
+       cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello"
     </literallayout>
 
@@ -180,8 +183,8 @@
     </para>
 
     <literallayout>
-       % <userinput>scons install</userinput>
-       cc -c hello.c -o hello.o
+       % <userinput>scons -Q install</userinput>
+       cc -c -o hello.o hello.c
        cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello-new"
     </literallayout>
@@ -207,8 +210,9 @@
        hello = env.Program('hello.c')
        goodbye = env.Program('goodbye.c')
        env.InstallAs(['/usr/bin/hello-new',
-                      '/usr/bin/goodbye-new',
+                      '/usr/bin/goodbye-new'],
                      [hello, goodbye])
+       env.Alias('install', '/usr/bin')
     </programlisting>
 
     <para>
@@ -221,12 +225,12 @@
     </para>
 
     <literallayout>
-       % <userinput>scons install</userinput>
-       cc -c goodbye.c -o goodbye.o
+       % <userinput>scons -Q install</userinput>
+       cc -c -o goodbye.o goodbye.c
        cc -o goodbye goodbye.o
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
        Install file: "goodbye" as "/usr/bin/goodbye-new"
+       cc -c -o hello.o hello.c
+       cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello-new"
     </literallayout>
 

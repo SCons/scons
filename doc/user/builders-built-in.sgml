@@ -33,6 +33,9 @@
   This section will describe all of the different
   types of files that you can build with &SCons;,
   and the built-in &Builder; objects used to build them.
+  By default, all of the  &Builder; objects in this section
+  can be built either with or without an explicit
+  construction environment.
 
   </para>
 
@@ -52,8 +55,7 @@
     </para>
 
     <programlisting>
-      env = Environment()
-      env.Program('prog', 'file1.o')
+      Program('prog', 'file1.o')
     </programlisting>
 
     <para>
@@ -95,15 +97,14 @@
     If you omit the &target;,
     the base of the first input
     file name specified
-    because the base of the target
+    becomes the base of the target
     program created.
     For example:
 
     </para>
 
     <programlisting>
-      env = Environment()
-      env.Program(['hello.c', 'goodbye.c'])
+      Program(['hello.c', 'goodbye.c'])
     </programlisting>
 
     <para>
@@ -111,6 +112,94 @@
     Will create the &hello;
     executable on a POSIX system,
     the &hello_exe; executable on a Windows system.
+
+    </para>
+
+    <para>
+
+    Two construction variables control what libraries
+    will be linked with the resulting program.
+    The &LIBS; variable is a list of the names of
+    libraries that will be linked into any programs,
+    and the &LIBPATH; variables is a list of
+    directories that will be searched for
+    the specified libraries.
+    &SCons; will construct the right command-line
+    options for the running system.
+    For example:
+
+    </para>
+
+    <programlisting>
+      env = Environment(LIBS = ['foo1', 'foo2'],
+                        LIBPATH = ['/usr/dir1', 'dir2'])
+      env.Program(['hello.c', 'goodbye.c'])
+    </programlisting>
+
+    <para>
+
+    Will execute as follows on a POSIX system:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons -Q</userinput>
+      cc -c -o goodbye.o goodbye.c
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o goodbye.o -L/usr/dir1 -Ldir2 -lfoo1 -lfoo2
+    </literallayout>
+
+    <para>
+
+    And execute as follows on a Windows system:
+
+    </para>
+
+    <literallayout>
+      C:\><userinput>scons -Q</userinput>
+      cl /nologo /c goodbye.c /Fogoodbye.obj
+      cl /nologo /c hello.c /Fohello.obj
+      link /nologo /OUT:hello.exe /LIBPATH:\usr\dir1 /LIBPATH:dir2 foo1.lib foo2.lib hello.obj goodbye.obj
+    </literallayout>
+
+    <para>
+
+    The &LIBS; construction variable
+    is turned into command line options
+    by appending the &LIBLINKPREFIX; and &LIBLINKSUFFIX;
+    construction variables to the beginning and end,
+    respectively, of each specified library.
+
+    </para>
+
+    <para>
+
+    The &LIBPATH; construction variable
+    is turned into command line options
+    by appending the &LIBDIRPREFIX; and &LIBDIRSUFFIX;
+    construction variables to the beginning and end,
+    respectively, of each specified library.
+
+    </para>
+
+    <para>
+
+    Other relevant construction variables
+    include those used by the &Object;
+    builders to affect how the
+    source files specified as input to the &Program;
+    builders are turned into object files;
+    see the next section.
+
+    </para>
+
+    <para>
+
+    The command line used to control how a program is linked
+    is specified by the &LINKCOM; construction variable.
+    By default, it uses the
+    &LINK; construction variable
+    and the &LINKFLAGS; construction variable.
 
     </para>
 
@@ -122,7 +211,9 @@
     <para>
 
     &SCons; provides separate Builder objects
-    to create both static and shared object files.
+    to create static and shared object files.
+    The distinction becomes especially important when 
+    archiving object files into different types of libraries.
 
     </para>
 
@@ -131,17 +222,77 @@
 
       <para>
 
-      XXX
+      The &StaticObject; Builder
+      is used to build an object file
+      suitable for static linking into a program,
+      or for inclusion in a static library.
+      The &source; argument is a single source-code file,
+      and the &target; argument is the
+      name of the static object file to be created.
+      For example:
 
       </para>
 
       <programlisting>
-        XXX
+        StaticObject('file', 'file.c')
       </programlisting>
 
+      <para>
+
+      Will create the &file_o;
+      object file on a POSIX system,
+      the &file_obj; executable on a Windows system.
+
+      </para>
+
+      <para>
+
+      The target file's prefix and suffix may be omitted,
+      and the values from the
+      $OBJPREFIX
+      and
+      $OBJSUFFIX
+      construction variables
+      will be appended appropriately.
+      For example:
+
+      </para>
+
+      <programlisting>
+        env = Environment(OBJPREFIX='my', OBJSUFFIX='.xxx')
+        env.StaticObject('file', 'file.c')
+      </programlisting>
+
+      <para>
+
+      Will create an object file named
+      <filename>myfile.xxx</filename>
+      regardless of the system on which it is run.
+
+      </para>
+
+      <para>
+
+      If you omit the &target;,
+      the base of the first input
+      file name specified
+      beomces the base of the name
+      of the static object file to be created.
+      For example:
+
+      </para>
+
       <literallayout>
-        XXX
+        StaticObject('file.c')
       </literallayout>
+
+      <para>
+
+      Will create the &file_o;
+      executable on a POSIX system,
+      the &file_obj; executable on a Windows system.
+
+      </para>
 
     </section>
 
@@ -150,17 +301,77 @@
 
       <para>
 
-      XXX
+      The &SharedObject; Builder
+      is used to build an object file
+      suitable for shared linking into a program,
+      or for inclusion in a shared library.
+      The &source; argument is a single source-code file,
+      and the &target; argument is the
+      name of the shared object file to be created.
+      For example:
 
       </para>
 
       <programlisting>
-        XXX
+        SharedObject('file', 'file.c')
       </programlisting>
 
+      <para>
+
+      Will create the &file_o;
+      object file on a POSIX system,
+      the &file_obj; executable on a Windows system.
+
+      </para>
+
+      <para>
+
+      The target file's prefix and suffix may be omitted,
+      and the values from the
+      $SHOBJPREFIX
+      and
+      $SHOBJSUFFIX
+      construction variables
+      will be appended appropriately.
+      For example:
+
+      </para>
+
+      <programlisting>
+        env = Environment(SHOBJPREFIX='my', SHOBJSUFFIX='.xxx')
+        env.SharedObject('file', 'file.c')
+      </programlisting>
+
+      <para>
+
+      Will create an object file named
+      <filename>myfile.xxx</filename>
+      regardless of the system on which it is run.
+
+      </para>
+
+      <para>
+
+      If you omit the &target;,
+      the base of the first input
+      file name specified
+      becomes the base of the name
+      of the shared object file to be created.
+      For example:
+
+      </para>
+
       <literallayout>
-        XXX
+        SharedObject('file.c')
       </literallayout>
+
+      <para>
+
+      Will create the &file_o;
+      executable on a POSIX system,
+      the &file_obj; executable on a Windows system.
+
+      </para>
 
     </section>
 
@@ -169,17 +380,8 @@
 
       <para>
 
-      XXX
-
-      </para>
-
-      <programlisting>
-        XXX
-      </programlisting>
-
-      <para>
-
-      Creates a static object file.
+      The &Object; Builder is a synonym for &StaticObject;
+      and is completely equivalent.
 
       </para>
 
@@ -193,7 +395,7 @@
     <para>
 
     &SCons; provides separate Builder objects
-    to create both static and shared libraries.
+    to create static and shared libraries.
 
     </para>
 
@@ -202,17 +404,72 @@
 
       <para>
 
-      XXX
+      The &StaticLibrary; Builder
+      is used to create a library
+      suitable for static linking into a program.
+      The &source; argument is one or more
+      source-code files or object files,
+      and the &target; argument is the
+      name of the static library to be created.
+      For example:
 
       </para>
 
       <programlisting>
-        XXX
+        StaticLibrary('foo', ['file1.c', 'file2.c'])
       </programlisting>
 
+      <para>
+
+      The target file's prefix and suffix may be omitted,
+      and the values from the
+      $LIBPREFIX
+      and
+      $LIBSUFFIX
+      construction variables
+      will be appended appropriately.
+      For example:
+
+      </para>
+
+      <programlisting>
+        env = Environment(LIBPREFIX='my', LIBSUFFIX='.xxx')
+        env.StaticLibrary('lib', ['file1.o', 'file2.o'])
+      </programlisting>
+
+      <para>
+
+      Will create an object file named
+      <filename>mylib.xxx</filename>
+      regardless of the system on which it is run.
+
+      </para>
+
+      <programlisting>
+        StaticLibrary('foo', ['file1.c', 'file2.c'])
+      </programlisting>
+
+      <para>
+
+      If you omit the &target;,
+      the base of the first input
+      file name specified
+      becomes the base of the name of the static object file to be created.
+      For example:
+
+      </para>
+
       <literallayout>
-        XXX
+        StaticLibrary(['file.c', 'another.c'])
       </literallayout>
+
+      <para>
+
+      Will create the &libfile_a;
+      library on a POSIX system,
+      the &file_lib; library on a Windows system.
+
+      </para>
 
     </section>
 
@@ -221,7 +478,70 @@
 
       <para>
 
-      XXX
+      The &SharedLibrary; Builder
+      is used to create a shared library
+      suitable for linking with a program.
+      The &source; argument is one or more
+      source-code files or object files,
+      and the &target; argument is the
+      name of the shared library to be created.
+      For example:
+
+      </para>
+
+      <programlisting>
+        SharedLibrary('foo', ['file1.c', 'file2.c'])
+      </programlisting>
+
+      <para>
+
+      The target file's prefix and suffix may be omitted,
+      and the values from the
+      $SHLIBPREFIX
+      and
+      $SHLIBSUFFIX
+      construction variables
+      will be appended appropriately.
+      For example:
+
+      </para>
+
+      <programlisting>
+        env = Environment(SHLIBPREFIX='my', SHLIBSUFFIX='.xxx')
+        env.SharedLibrary('shared', ['file1.o', 'file2.o'])
+      </programlisting>
+
+      <para>
+
+      Will create an object file named
+      <filename>myshared.xxx</filename>
+      regardless of the system on which it is run.
+
+      </para>
+
+      <programlisting>
+        SharedLibrary('foo', ['file1.c', 'file2.c'])
+      </programlisting>
+
+      <para>
+
+      If you omit the &target;,
+      the base of the first input
+      file name specified
+      becomes the base of the name of the shared library to be created.
+      For example:
+
+      </para>
+
+      <literallayout>
+        SharedLibrary(['file.c', 'another.c'])
+      </literallayout>
+
+      <para>
+
+      Will create the &libfile_so;
+      library on a POSIX system,
+      the &file_dll; library on a Windows system.
 
       </para>
 
@@ -232,21 +552,8 @@
 
       <para>
 
-      XXX
-
-      </para>
-
-      <programlisting>
-        XXX
-      </programlisting>
-
-      <literallayout>
-        XXX
-      </literallayout>
-
-      <para>
-
-      Creates a static library file.
+      The &Library; Builder is a synonym for &StaticLibrary;
+      and is completely equivalent.
 
       </para>
 
@@ -285,6 +592,8 @@
     &SCons; supports two Builder objects
     that know how to build source files
     from other input files.
+    These are typically invoked "internally"
+    to turn files that need preprocessing into other source files.
 
     </para>
 
@@ -417,7 +726,7 @@
       </programlisting>
 
       <literallayout>
-        % <userinput>scons .</userinput>
+        % <userinput>scons -Q .</userinput>
         tar -c -f out1.tar file1 file2
         tar -c -f out2.tar directory
       </literallayout>
@@ -443,7 +752,7 @@
       </programlisting>
 
       <literallayout>
-        % <userinput>scons .</userinput>
+        % <userinput>scons -Q .</userinput>
         tar -c -z -f out.tar.gz directory
       </literallayout>
 
@@ -464,7 +773,7 @@
       </programlisting>
 
       <literallayout>
-        % <userinput>scons .</userinput>
+        % <userinput>scons -Q .</userinput>
         tar -c -z -f out.tgz directory
       </literallayout>
 
@@ -499,7 +808,7 @@
       </para>
 
       <literallayout>
-        % <userinput>scons .</userinput>
+        % <userinput>scons -Q .</userinput>
         zip("out.zip", ["file1", "file2"])
       </literallayout>
 
@@ -512,7 +821,7 @@
       </para>
 
       <literallayout>
-        % <userinput>scons .</userinput>
+        % <userinput>scons -Q .</userinput>
         zip /home/my/project/zip.out file1 file2
       </literallayout>
 

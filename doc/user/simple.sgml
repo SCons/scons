@@ -45,8 +45,7 @@
  </para>
 
  <programlisting>
-    env = Environment()
-    env.Program('hello.c')
+    Program('hello.c')
  </programlisting>
 
  <para>
@@ -59,8 +58,12 @@
 
  <literallayout>
     % <userinput>scons</userinput>
-    cc -c hello.c -o hello.o
+    scons: Reading SConscript files ...
+    scons: done reading SConscript files.
+    scons: Building targets ...
+    cc -c -o hello.o hello.c
     cc -o hello hello.o
+    scons: done building targets.
  </literallayout>
 
  <para>
@@ -72,8 +75,12 @@
 
  <literallayout>
     C:\><userinput>scons</userinput>
-    cl /Fohello.obj hello.c
-    link /Fohello.exe hello.obj
+    scons: Reading SConscript files ...
+    scons: done reading SConscript files.
+    scons: Building targets ...
+    cl /nologo /c hello.c /Fohello.obj
+    link /nologo /OUT:hello.exe hello.obj
+    scons: done building targets.
  </literallayout>
 
  <para>
@@ -147,9 +154,8 @@
    </para>
 
    <programlisting>
-      env = Environment()    # Create an environment.
       # Arrange to build the "hello" program.
-      env.Program('hello.c')
+      Program('hello.c')    # "hello.c" is the source file.
    </programlisting>
 
    <para>
@@ -159,6 +165,67 @@
    real scripting language
    can greatly simplify the solutions
    to complex requirements of real-world builds.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Making the Output Less Verbose</title>
+
+   <para>
+
+   You've already seen how &SCons; prints
+   some messages about what it's doing,
+   surrounding the actual commands used to build the software:
+
+   </para>
+
+   <literallayout>
+      C:\><userinput>scons</userinput>
+      scons: Reading SConscript files ...
+      scons: done reading SConscript files.
+      scons: Building targets ...
+      cl /nologo /c hello.c /Fohello.obj
+      link /nologo /OUT:hello.exe hello.obj
+      scons: done building targets.
+   </literallayout>
+
+   <para>
+
+   These messages emphasize the
+   order in which &SCons; does its work:
+   the configuration files
+   (generically referred to as &SConscript; files)
+   are read and executed first,
+   and only then are the target files built.
+   Among other benefits, these messages help to distinguish between
+   errors that occur while the configuration files are read,
+   and errors that occur while targets are being built.
+
+   </para>
+
+   <para>
+
+   The drawback, of course, is that these messages clutter the output.
+   Fortunately, they're easily disabled by using
+   the &Q; option when invoking &SCons;:
+
+   </para>
+
+   <literallayout>
+      C:\><userinput>scons -Q</userinput>
+      cl /nologo /c hello.c /Fohello.obj
+      link /nologo /OUT:hello.exe hello.obj
+   </literallayout>
+
+   <para>
+
+   Because we want this User's Guide to focus
+   on what &SCons; is actually doing,
+   we're going use the &Q; option
+   to remove these messages from the
+   output of all the remaining examples in this Guide.
 
    </para>
 
@@ -182,8 +249,7 @@
    </para>
 
    <programlisting>
-      env = Environment()
-      env.Program(['prog.c', 'file1.c', 'file2.'])
+      Program(['prog.c', 'file1.c', 'file2.c'])
    </programlisting>
 
    <para>
@@ -193,10 +259,10 @@
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c file1.c -o file1.o
-      cc -c file2.c -o file2.o
-      cc -c prog.c -o prog.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o file1.o file1.c
+      cc -c -o file2.o file2.c
+      cc -c -o prog.o prog.c
       cc -o prog prog.o file1.o file2.o
    </literallayout>
 
@@ -222,8 +288,7 @@
    </para>
 
    <programlisting>
-      env = Environment()
-      env.Program('program', ['main.c', 'file1.c', 'file2.'])
+      Program('program', ['main.c', 'file1.c', 'file2.c'])
    </programlisting>
 
    <para>
@@ -233,10 +298,10 @@
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c file1.c -o file1.o
-      cc -c file2.c -o file2.o
-      cc -c main.c -o main.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o file1.o file1.c
+      cc -c -o file2.o file2.c
+      cc -c -o main.o main.c
       cc -o program main.o file1.o file2.o
    </literallayout>
 
@@ -247,11 +312,11 @@
    </para>
 
    <literallayout>
-      C:\><userinput>scons</userinput>
-      cl /Fofile1.obj file1.c
-      cl /Fofile2.obj file2.c
-      cl /Fomain.obj main.c
-      link /Foprogram.exe main.obj file1.obj file2.obj
+      C:\><userinput>scons -Q</userinput>
+      cl /nologo /c file1.c /Fofile1.obj
+      cl /nologo /c file2.c /Fofile2.obj
+      cl /nologo /c main.c /Fomain.obj
+      link /nologo /OUT:program.exe main.obj file1.obj file2.obj
    </literallayout>
 
  </section>
@@ -287,27 +352,42 @@
    </para>
 
    <programlisting>
-      env = Environment()
-      env.Program('program', Split('main.c file1.c file2.'))
+      Program('program', Split('main.c file1.c file2.'))
    </programlisting>
 
    <para>
 
+   (If you're already familiar with Python,
+   you'll have realized that this is similar to the
+   <function>split()</function> method
+   in the Python standard <function>string</function> module.
+   Unlike the <function>string.split()</function> method,
+   however, the &Split; function
+   does not require a string as input
+   and will wrap up a single non-string object in a list,
+   or return its argument untouched if it's already a list.
+   This comes in handy as a way to make sure
+   arbitrary values can be passed to &SCons; functions
+   without having to check the type of the variable by hand.)
+
+   </para>
+
+   <para>
+
    Putting the call to the &Split; function
-   inside the <function>env.Program</function> call
+   inside the <function>Program</function> call
    can also be a little unwieldy.
    A more readable alternative is to
    assign the output from the &Split; call
    to a variable name,
    and then use the variable when calling the
-   <function>env.Program</function> function:
+   <function>Program</function> function:
 
    </para>
 
    <programlisting>
-      env = Environment()
       list = Split('main.c file1.c file2.')
-      env.Program('program', list)
+      Program('program', list)
    </programlisting>
 
    <para>
@@ -322,11 +402,10 @@
    </para>
 
    <programlisting>
-      env = Environment()
       list = Split('main.c
                     file1.c
                     file2.c')
-      env.Program('program', list)
+      Program('program', list)
    </programlisting>
 
  </section>
@@ -348,17 +427,31 @@
    </para>
 
    <programlisting>
-      env = Environment()
       list = Split('main.c file1.c file2.')
-      env.Program(target = 'program', source = list)
+      Program(target = 'program', source = list)
+   </programlisting>
+
+   <para>
+
+   Because the keywords explicitly identify
+   what each argument is,
+   you can actually reverse the order if you prefer:
+
+   </para>
+
+   <programlisting>
+      list = Split('main.c file1.c file2.')
+      Program(source = list, target = 'program')
    </programlisting>
 
    <para>
 
    Whether or not you choose to use keyword arguments
-   to identify the target and source files
-   is purely a personal choice;
-   &SCons; functions the same either way.
+   to identify the target and source files,
+   and the order in which you specify them
+   when using keywords,
+   are purely personal choices;
+   &SCons; functions the same regardless.
 
    </para>
 
@@ -371,16 +464,15 @@
 
    In order to compile multiple programs
    within the same &SConstruct; file,
-   simply call the <function>env.Program</function> method
+   simply call the <function>Program</function> method
    multiple times,
    once for each program you need to build:
 
    </para>
 
    <programlisting>
-      env = Environment()
-      env.Program('foo.c')
-      env.Program('bar', ['bar1.c', 'bar2.c'])
+      Program('foo.c')
+      Program('bar', ['bar1.c', 'bar2.c'])
    </programlisting>
 
    <para>
@@ -390,11 +482,11 @@
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c bar1.c -o bar1.o
-      cc -c bar2.c -o bar2.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o bar1.o bar1.c
+      cc -c -o bar2.o bar2.c
       cc -o bar bar1.o bar2.o
-      cc -c foo.c -o foo.o
+      cc -c -o foo.o foo.c
       cc -o foo foo.o
    </literallayout>
 
@@ -438,9 +530,8 @@
    </para>
 
    <programlisting>
-      env = Environment()
-      env.Program(Split('foo.c common1.c common2.c'))
-      env.Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
+      Program(Split('foo.c common1.c common2.c'))
+      Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
    </programlisting>
 
    <para>
@@ -448,18 +539,19 @@
    &SCons; recognizes that the object files for
    the &common1_c; and &common2_c; source files
    each only need to be built once,
-   even though the files are listed multiple times:
+   even though the resulting object files are
+   each linked in to both of the resulting executable programs:
 
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c bar1.c -o bar1.o
-      cc -c bar2.c -o bar2.o
-      cc -c common1.c -o common1.o
-      cc -c common2.c -o common2.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o bar1.o bar1.c
+      cc -c -o bar2.o bar2.c
+      cc -c -o common1.o common1.c
+      cc -c -o common2.o common2.c
       cc -o bar bar1.o bar2.o common1.o common2.o
-      cc -c foo.c -o foo.o
+      cc -c -o foo.o foo.c
       cc -o foo foo.o common1.o common2.o
    </literallayout>
 
@@ -481,9 +573,8 @@
       common = ['common1.c', 'common2.c']
       foo_files = ['foo.c'] + common
       bar_files = ['bar1.c', 'bar2.c'] + common
-      env = Environment()
-      env.Program('foo', foo_files)
-      env.Program('bar', bar_files)
+      Program('foo', foo_files)
+      Program('bar', bar_files)
    </programlisting>
 
    <para>

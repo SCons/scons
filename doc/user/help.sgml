@@ -28,7 +28,7 @@
    It's often very useful to be able to give
    users some help that describes the
    specific targets, build options, etc.,
-   that can be used for the build.
+   that can be used for your build.
    &SCons; provides the &Help; function
    to allow you to specify this help text:
 
@@ -60,8 +60,13 @@
 
    <literallayout>
       % <userinput>scons -h</userinput>
+      scons: Reading SConscript files ...
+      scons: done reading SConscript files.
+      
       Type: 'scons program' to build the production program,
             'scons debug' to build the debug version.
+      
+      Use scons -H for help about command-line options.
    </literallayout>
 
    <para>

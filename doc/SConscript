@@ -174,6 +174,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             orig_env.Install(build, s)
         else:
             orig_env.SCons_revision(os.path.join(build, s), s)
+        Local(os.path.join(build, s))
 
     #
     # For each document, build the document itself in HTML, Postscript,
@@ -190,6 +191,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             else:
                 orig_env.SCons_revision(os.path.join(build, doc, s),
                                         os.path.join(doc, s))
+            Local(os.path.join(build, doc, s))
 
         main = os.path.join(build, doc, 'main.sgml')
         out = 'main.out'

@@ -316,6 +316,28 @@ do an unconstrained build before committing the integration).
   </para>
 
   <section>
+  <title>Command-Line Options</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Getting at Command-Line Arguments</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  <section>
   <title>Selective Builds</title>
 
     <para>
@@ -357,7 +379,37 @@ do an unconstrained build before committing the integration).
 
     <para>
 
-    XXX
+    Users may find themselves supplying
+    the same command-line options every time
+    they run &SCons;.
+    For example, a user might find that it saves time
+    to always specify a value of <literal>-j 2</literal>
+    to run the builds in parallel.
+
+    </para>
+
+    <scons_example name="SCONSFLAGS">
+      <file name="SConstruct">
+      def b(target, source, env):
+          pass
+      def s(target, source, env):
+          return "    ..."
+      a = Action(b, strfunction = s)
+      env = Environment(BUILDERS = {'A' : a})
+      env.A('foo.out', 'foo.in')
+      </file>
+      <file name="foo.in">
+      foo.in
+      </file>
+    </scons_example>
+
+    <scons_output example="SCONSFLAGS">
+      <command>scons</command>
+      <command>export SCONSFLAGS="-Q"</command>
+      <command>scons</command>
+    </scons_output>
+
+    <para>
 
     </para>
 

@@ -92,14 +92,14 @@ default list.
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c hello.c -o hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      % <userinput>scons</userinput>
-      % <userinput>scons goodbye</userinput>
-      cc -c goodbye.c -o goodbye.o
+      % <userinput>scons -Q</userinput>
+      scons: `hello' is up to date.
+      % <userinput>scons -Q goodbye</userinput>
+      cc -c -o goodbye.o goodbye.c
       cc -o goodbye goodbye.o
-      %
    </literallayout>
 
    <para>
@@ -114,12 +114,11 @@ default list.
    </para>
 
    <literallayout>
-      % <userinput>scons .</userinput>
-      cc -c goodbye.c -o goodbye.o
+      % <userinput>scons -Q .</userinput>
+      cc -c -o goodbye.o goodbye.c
       cc -o goodbye goodbye.o
-      cc -c hello.c -o hello.o
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      %
    </literallayout>
 
    <para>
@@ -167,15 +166,14 @@ default list.
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c prog1.c -o prog1.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o prog1.o prog1.c
       cc -o prog1 prog1.o
-      cc -c prog3.c -o prog3.o
+      cc -c -o prog3.o prog3.c
       cc -o prog3 prog3.o
-      % <userinput>scons .</userinput>
-      cc -c prog2.c -o prog2.o
+      % <userinput>scons -Q .</userinput>
+      cc -c -o prog2.o prog2.c
       cc -o prog2 prog2.o
-      %
    </literallayout>
 
    <para>
@@ -201,12 +199,11 @@ default list.
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       scons: *** No targets specified and no Default() targets found.  Stop.
-      % <userinput>scons .</userinput>
-      cc -c prog1.c -o prog1.o
+      % <userinput>scons -Q .</userinput>
+      cc -c -o prog1.o prog1.c
       cc -o prog1 prog1.o
-      cc -c prog2.c -o prog2.o
+      cc -c -o prog2.o prog2.c
       cc -o prog2 prog2.o
-      %
    </literallayout>
