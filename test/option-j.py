@@ -183,21 +183,21 @@ test.fail_test(start2 < finish1)
 
 # Test that a failed build with -j works properly.
 
-test.write('copy.py', r"""\
+test.write('mycopy.py', r"""\
 import sys
 import time
 time.sleep(1)
-open(sys.argv[1], 'w').write(open(sys.argv[2], 'r').read())
+open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
 """)
 
-test.write('fail.py', r"""\
+test.write('myfail.py', r"""\
 import sys
 sys.exit(1)
 """)
 
 test.write('SConstruct', """
-MyCopy = Builder(action = r'%s copy.py $TARGET $SOURCE')
-Fail = Builder(action = r'%s fail.py $TARGETS $SOURCE')
+MyCopy = Builder(action = r'%s mycopy.py $TARGET $SOURCE')
+Fail = Builder(action = r'%s myfail.py $TARGETS $SOURCE')
 env = Environment(BUILDERS = { 'MyCopy' : MyCopy, 'Fail' : Fail })
 env.Fail(target = 'f3', source = 'f3.in')
 env.MyCopy(target = 'f4', source = 'f4.in')
