@@ -81,6 +81,8 @@ class Task:
 
         for t in self.targets:
             t.prepare()
+            for s in t.side_effects:
+                s.prepare()
 
     def execute(self):
         """Called to execute the task.

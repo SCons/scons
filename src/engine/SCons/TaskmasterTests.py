@@ -627,6 +627,28 @@ class TaskmasterTestCase(unittest.TestCase):
         assert str(e) == "exception value", e
         assert built_text is None, built_text
 
+        # Regression test, make sure we prepare not only
+        # all targets, but their side effects as well.
+        n6 = Node("n6")
+        n7 = Node("n7")
+        n8 = Node("n8")
+        n9 = Node("n9")
+        n10 = Node("n10")
+
+        n6.side_effects = [ n8 ]
+        n7.side_effects = [ n9, n10 ]
+        
+        tm = SCons.Taskmaster.Taskmaster([n6, n7])
+        t = tm.next_task()
+        # More bogus reaching in and setting the targets.
+        t.targets = [n6, n7]
+        t.prepare()
+        assert n6.prepared
+        assert n7.prepared
+        assert n8.prepared
+        assert n9.prepared
+        assert n10.prepared
+
     def test_execute(self):
         """Test executing a task
 
