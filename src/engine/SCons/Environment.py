@@ -264,12 +264,14 @@ class SubstitutionEnvironment:
         return cmp(sdict, odict)
 
     def __delitem__(self, key):
+        "__cache_reset__"
         del self._dict[key]
 
     def __getitem__(self, key):
         return self._dict[key]
 
     def __setitem__(self, key, value):
+        "__cache_reset__"
         if key in reserved_construction_var_names:
             SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
                                 "Ignoring attempt to set reserved variable `%s'" % key)
@@ -599,6 +601,7 @@ class Base(SubstitutionEnvironment):
     def _update(self, dict):
         """Update an environment's values directly, bypassing the normal
         checks that occur when users try to set items.
+        __cache_reset__
         """
         self._dict.update(dict)
 
@@ -743,7 +746,7 @@ class Base(SubstitutionEnvironment):
         return clone
 
     def Detect(self, progs):
-        """Return the first available program in progs.
+        """Return the first available program in progs.  __cacheable__
         """
         if not SCons.Util.is_List(progs):
             progs = [ progs ]
@@ -1011,7 +1014,7 @@ class Base(SubstitutionEnvironment):
         except KeyError:
             pass
         kw = copy_non_reserved_keywords(kw)
-        self._dict.update(our_deepcopy(kw))
+        self._update(our_deepcopy(kw))
         self.scanner_map_delete(kw)
 
     def ReplaceIxes(self, path, old_prefix, old_suffix, new_prefix, new_suffix):
@@ -1052,7 +1055,7 @@ class Base(SubstitutionEnvironment):
         tool(self)
 
     def WhereIs(self, prog, path=None, pathext=None, reject=[]):
-        """Find prog in the path.  
+        """Find prog in the path.  __cacheable__
         """
         if path is None:
             try:

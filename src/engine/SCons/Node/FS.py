@@ -630,11 +630,11 @@ class Entry(Base):
         if self.fs.isfile(self.abspath):
             self.__class__ = File
             self._morph()
-            return File.get_contents(self)
+            return self.get_contents()
         if self.fs.isdir(self.abspath):
             self.__class__ = Dir
             self._morph()
-            return Dir.get_contents(self)
+            return self.get_contents()
         if self.fs.islink(self.abspath):
             return ''             # avoid errors for dangling symlinks
         raise AttributeError
@@ -679,6 +679,9 @@ _classEntry = Entry
 
 
 class LocalFS:
+
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    
     # This class implements an abstraction layer for operations involving
     # a local file system.  Essentially, this wraps any function in
     # the os, os.path or shutil modules that we use to actually go do
@@ -736,6 +739,14 @@ class LocalFS:
             return 0                    # no symlinks
         exists_or_islink = exists
 
+if not SCons.Memoize.has_metaclass:
+    _FSBase = LocalFS
+    class LocalFS(SCons.Memoize.Memoizer, _FSBase):
+        def __init__(self, *args, **kw):
+            apply(_FSBase.__init__, (self,)+args, kw)
+            SCons.Memoize.Memoizer.__init__(self)
+
+
 #class RemoteFS:
 #    # Skeleton for the obvious methods we might need from the
 #    # abstraction layer for a remote filesystem.
@@ -746,6 +757,7 @@ class LocalFS:
 
 
 class FS(LocalFS):
+
     def __init__(self, path = None):
         """Initialize the Node.FS subsystem.
 
@@ -771,6 +783,10 @@ class FS(LocalFS):
         assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
         self.pathTop = path
 
+    def clear_cache(self):
+        "__cache_reset__"
+        pass
+    
     def set_SConstruct_dir(self, dir):
         self.SConstruct_dir = dir
         
@@ -800,7 +816,8 @@ class FS(LocalFS):
         In this method, if directory is None or not supplied, the supplied
         name is expected to be an absolute path.  If you try to look up a
         relative path with directory=None, then an AssertionError will be
-        raised."""
+        raised.
+        __cacheable__"""
 
         if not name:
             # This is a stupid hack to compensate for the fact
@@ -996,7 +1013,9 @@ class FS(LocalFS):
 
     def Rsearch(self, path, clazz=_classEntry, cwd=None):
         """Search for something in a Repository.  Returns the first
-        one found in the list, or None if there isn't one."""
+        one found in the list, or None if there isn't one.
+        __cacheable__
+        """
         if isinstance(path, SCons.Node.Node):
             return path
         else:
@@ -1036,7 +1055,9 @@ class FS(LocalFS):
         return None
 
     def Rsearchall(self, pathlist, must_exist=1, clazz=_classEntry, cwd=None):
-        """Search for a list of somethings in the Repository list."""
+        """Search for a list of somethings in the Repository list.
+        __cacheable__
+        """
         ret = []
         if SCons.Util.is_String(pathlist):
             pathlist = string.split(pathlist, os.pathsep)
@@ -1091,6 +1112,7 @@ class FS(LocalFS):
 
         Climb the directory tree, and look up path names
         relative to any linked build directories we find.
+        __cacheable__
         """
         targets = []
         message = None
@@ -1108,6 +1130,7 @@ class FS(LocalFS):
         if targets:
             message = fmt % string.join(map(str, targets))
         return targets, message
+
 
 class Dir(Base):
     """A class for directories in a file system.
@@ -1415,6 +1438,7 @@ class File(Base):
         self.dir.sconsign().set_entry(self.name, entry)
 
     def get_stored_info(self):
+        "__cacheable__"
         try:
             stored = self.dir.sconsign().get_entry(self.name)
         except (KeyError, OSError):
@@ -1543,6 +1567,7 @@ class File(Base):
         # will do if this file has a source scanner.
         if self.fs.CachePath and self.fs.exists(self.path):
             CachePush(self, [], None)
+        self.fs.clear_cache()
         SCons.Node.Node.built(self)
 
     def visited(self):
@@ -1594,6 +1619,7 @@ class File(Base):
         return self.fs.build_dir_target_climb(self, self.dir, [self.name])
 
     def is_pseudo_derived(self):
+        "__cacheable__"
         return self.has_src_builder()
 
     def _rmv_existing(self):
@@ -1712,6 +1738,9 @@ class File(Base):
 
     def current(self, calc=None):
         self.binfo = self.gen_binfo(calc)
+        return self._cur2()
+    def _cur2(self):
+        "__cacheable__"
         if self.always_build:
             return None
         if not self.exists():
