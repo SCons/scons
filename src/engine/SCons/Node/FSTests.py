@@ -1212,20 +1212,25 @@ class DirTestCase(_tempdirTestCase):
         self.fs.BuildDir(bld, src, duplicate=0)
         self.fs.BuildDir(sub2, src, duplicate=0)
 
-        s = map(str, src.srcdir_list())
-        assert s == [], s
+        def check(result, expect):
+            result = map(str, result)
+            expect = map(os.path.normpath, expect)
+            assert result == expect, result
 
-        s = map(str, bld.srcdir_list())
-        assert s == ['src'], s
+        s = src.srcdir_list()
+        check(s, [])
 
-        s = map(str, sub1.srcdir_list())
-        assert s == ['src/sub'], s
+        s = bld.srcdir_list()
+        check(s, ['src'])
 
-        s = map(str, sub2.srcdir_list())
-        assert s == ['src', 'src/sub/sub'], s
+        s = sub1.srcdir_list()
+        check(s, ['src/sub'])
 
-        s = map(str, sub3.srcdir_list())
-        assert s == ['src/sub', 'src/sub/sub/sub'], s
+        s = sub2.srcdir_list()
+        check(s, ['src', 'src/sub/sub'])
+
+        s = sub3.srcdir_list()
+        check(s, ['src/sub', 'src/sub/sub/sub'])
 
         self.fs.BuildDir('src/b1/b2', 'src')
         b1 = src.Dir('b1')
@@ -1234,20 +1239,20 @@ class DirTestCase(_tempdirTestCase):
         b1_b2_b1_b2 = b1_b2_b1.Dir('b2')
         b1_b2_b1_b2_sub = b1_b2_b1_b2.Dir('sub')
 
-        s = map(str, b1.srcdir_list())
-        assert s == [], s
+        s = b1.srcdir_list()
+        check(s, [])
 
-        s = map(str, b1_b2.srcdir_list())
-        assert s == ['src'], s
+        s = b1_b2.srcdir_list()
+        check(s, ['src'])
 
-        s = map(str, b1_b2_b1.srcdir_list())
-        assert s == ['src/b1'], s
+        s = b1_b2_b1.srcdir_list()
+        check(s, ['src/b1'])
 
-        s = map(str, b1_b2_b1_b2.srcdir_list())
-        assert s == [], s
+        s = b1_b2_b1_b2.srcdir_list()
+        check(s, [])
 
-        s = map(str, b1_b2_b1_b2_sub.srcdir_list())
-        assert s == [], s
+        s = b1_b2_b1_b2_sub.srcdir_list()
+        check(s, [])
 
     def test_srcdir_duplicate(self):
         """Test the Dir.srcdir_duplicate() method
@@ -1266,7 +1271,7 @@ class DirTestCase(_tempdirTestCase):
         assert not os.path.exists(test.workpath('bld0', 'does_not_exist'))
 
         n = bld0.srcdir_duplicate('exists', SCons.Node.FS.File)
-        assert str(n) == 'src0/exists', str(n)
+        assert str(n) == os.path.normpath('src0/exists'), str(n)
         assert not os.path.exists(test.workpath('bld0', 'exists'))
 
         test.subdir('src1')
@@ -1281,7 +1286,7 @@ class DirTestCase(_tempdirTestCase):
         assert not os.path.exists(test.workpath('bld1', 'does_not_exist'))
 
         n = bld1.srcdir_duplicate('exists', SCons.Node.FS.File)
-        assert str(n) == 'bld1/exists', str(n)
+        assert str(n) == os.path.normpath('bld1/exists'), str(n)
         assert os.path.exists(test.workpath('bld1', 'exists'))
 
     def test_srcdir_find_file(self):
@@ -1306,45 +1311,42 @@ class DirTestCase(_tempdirTestCase):
         exists = src0.File('exists-f')
         exists.exists = return_true
 
+        def check(result, expect):
+	    result = map(str, result)
+            expect = map(os.path.normpath, expect)
+            assert result == expect, result
+
         # First check from the source directory.
         n = src0.srcdir_find_file('does_not_exist')
         assert n == (None, None), n
 
         n = src0.srcdir_find_file('derived-f')
-        n = map(str, n)
-        assert n == ['src0/derived-f', 'src0'], n
+        check(n, ['src0/derived-f', 'src0'])
 
         n = src0.srcdir_find_file('pseudo-f')
-        n = map(str, n)
-        assert n == ['src0/pseudo-f', 'src0'], n
+        check(n, ['src0/pseudo-f', 'src0'])
 
         n = src0.srcdir_find_file('exists-f')
-        n = map(str, n)
-        assert n == ['src0/exists-f', 'src0'], n
+        check(n, ['src0/exists-f', 'src0'])
 
         n = src0.srcdir_find_file('on-disk-f1')
-        n = map(str, n)
-        assert n == ['src0/on-disk-f1', 'src0'], n
+        check(n, ['src0/on-disk-f1', 'src0'])
 
         # Now check from the build directory.
         n = bld0.srcdir_find_file('does_not_exist')
         assert n == (None, None), n
 
         n = bld0.srcdir_find_file('derived-f')
-        n = map(str, n)
-        assert n == ['src0/derived-f', 'bld0'], n
+        check(n, ['src0/derived-f', 'bld0'])
 
         n = bld0.srcdir_find_file('pseudo-f')
-        n = map(str, n)
-        assert n == ['src0/pseudo-f', 'bld0'], n
+        check(n, ['src0/pseudo-f', 'bld0'])
 
         n = bld0.srcdir_find_file('exists-f')
-        n = map(str, n)
-        assert n == ['src0/exists-f', 'bld0'], n
+        check(n, ['src0/exists-f', 'bld0'])
 
         n = bld0.srcdir_find_file('on-disk-f2')
-        n = map(str, n)
-        assert n == ['src0/on-disk-f2', 'bld0'], n
+        check(n, ['src0/on-disk-f2', 'bld0'])
 
 
         test.subdir('src1')
@@ -1367,40 +1369,32 @@ class DirTestCase(_tempdirTestCase):
         assert n == (None, None), n
 
         n = src1.srcdir_find_file('derived-f')
-        n = map(str, n)
-        assert n == ['src1/derived-f', 'src1'], n
+        check(n, ['src1/derived-f', 'src1'])
 
         n = src1.srcdir_find_file('pseudo-f')
-        n = map(str, n)
-        assert n == ['src1/pseudo-f', 'src1'], n
+        check(n, ['src1/pseudo-f', 'src1'])
 
         n = src1.srcdir_find_file('exists-f')
-        n = map(str, n)
-        assert n == ['src1/exists-f', 'src1'], n
+        check(n, ['src1/exists-f', 'src1'])
 
         n = src1.srcdir_find_file('on-disk-f1')
-        n = map(str, n)
-        assert n == ['src1/on-disk-f1', 'src1'], n
+        check(n, ['src1/on-disk-f1', 'src1'])
 
         # Now check from the build directory.
         n = bld1.srcdir_find_file('does_not_exist')
         assert n == (None, None), n
 
         n = bld1.srcdir_find_file('derived-f')
-        n = map(str, n)
-        assert n == ['bld1/derived-f', 'src1'], n
+        check(n, ['bld1/derived-f', 'src1'])
 
         n = bld1.srcdir_find_file('pseudo-f')
-        n = map(str, n)
-        assert n == ['bld1/pseudo-f', 'src1'], n
+        check(n, ['bld1/pseudo-f', 'src1'])
 
         n = bld1.srcdir_find_file('exists-f')
-        n = map(str, n)
-        assert n == ['bld1/exists-f', 'src1'], n
+        check(n, ['bld1/exists-f', 'src1'])
 
         n = bld1.srcdir_find_file('on-disk-f2')
-        n = map(str, n)
-        assert n == ['bld1/on-disk-f2', 'bld1'], n
+        check(n, ['bld1/on-disk-f2', 'bld1'])
 
 class EntryTestCase(unittest.TestCase):
     def runTest(self):
