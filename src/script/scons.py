@@ -519,7 +519,7 @@ def main():
 	# It's all right if there's no SCONSFLAGS environment variable.
 	pass
     except getopt_err, x:
-	_scons_user_warning("SCONSFLAGS " + x)
+	_scons_user_warning("SCONSFLAGS " + str(x))
     else:
 	for opt, arg in cmd_opts:
 	    opt_func[opt](opt, arg)

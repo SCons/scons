@@ -49,8 +49,12 @@ class Node:
 
     def add_dependency(self, depend):
 	"""Adds dependencies. The depends argument must be a list."""
+        if type(depend) is not type([]):
+            raise TypeError("depend must be a list")
 	self.depends.extend(depend)
 
     def add_source(self, source):
 	"""Adds sources. The source argument must be a list."""
+        if type(source) is not type([]):
+            raise TypeError("source must be a list")
 	self.sources.extend(source)
