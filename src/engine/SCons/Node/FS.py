@@ -773,7 +773,7 @@ class File(Entry):
     def prepare(self):
         """Prepare for this file to be created."""
         if self.exists():
-            if not self.precious:
+            if self.builder and not self.precious:
                 os.unlink(self.path)
                 if hasattr(self, '_exists'):
                     delattr(self, '_exists')

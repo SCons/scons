@@ -493,9 +493,16 @@ class FSTestCase(unittest.TestCase):
         nonexistent(fs.Dir, 'nonexistent')
         nonexistent(fs.Dir, 'nonexistent/foo')
 
+        test.write("preserve_me", "\n")
+        assert os.path.exists(test.workpath("preserve_me"))
+        f1 = fs.File(test.workpath("preserve_me"))
+        f1.prepare()
+        assert os.path.exists(test.workpath("preserve_me"))
+
         test.write("remove_me", "\n")
         assert os.path.exists(test.workpath("remove_me"))
         f1 = fs.File(test.workpath("remove_me"))
+        f1.builder = 1
         f1.prepare()
         assert not os.path.exists(test.workpath("remove_me"))
 

@@ -22,6 +22,8 @@ RELEASE 0.09 -
  - Fix auto-deduction of target names so that deduced targets end
    up in the same subdirectory as the source.
 
+ - Don't remove source files specified on the command line!
+
  From Anthony Roach:
 
  - Fixed use of command lines with spaces in their arguments,
