@@ -49,6 +49,7 @@ groff = whereis('groff')
 lynx = whereis('lynx')
 man2html = whereis('man2html')
 jw = whereis('jw')
+tidy = whereis('tidy')
 
 tar_deps = []
 tar_list = ""
@@ -176,17 +177,23 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             File(main).scanner_set(s)
 
         if docs[doc].get('html'):
-            env.Command(htmlindex, main, [
+            cmds = [
                 "rm -f ${TARGET.dir}/*.html",
                 "jw -b html -o ${TARGET.dir} $SOURCES",
                 "mv -v ${TARGET.dir}/index.html $TARGET || true",
-            ])
+            ]
+            if tidy:
+                cmds.append("tidy -m -q $TARGET || true")
+            env.Command(htmlindex, main, cmds)
 
-            env.Command(html, main, [
+            cmds = [
                 "rm -f ${TARGET.dir}/main.html",
                 "jw -u -b html -o ${TARGET.dir} $SOURCES",
                 "mv -v ${TARGET.dir}/main.html $TARGET || true",
-            ])
+            ]
+            if tidy:
+                cmds.append("tidy -m -q $TARGET || true")
+            env.Command(html, main, cmds)
 
             env.Ignore([html, htmlindex], "version.sgml")
 
@@ -261,7 +268,10 @@ if groff:
 if man2html:
     html = os.path.join('HTML' , 'scons-man.html')
 
-    env.Command(html, scons_1, "man2html $SOURCES > $TARGET")
+    cmds = [ "man2html $SOURCES > $TARGET" ]
+    if tidy:
+        cmds.append("tidy -m -q $TARGET || true")
+    env.Command(html, scons_1, cmds)
 
     tar_deps.append(html)
     tar_list = tar_list + " " + html
