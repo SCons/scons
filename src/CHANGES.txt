@@ -57,6 +57,12 @@ RELEASE 0.04 -
   - Remove targets before building them, and add an Environment
     Precious() method to override that.
 
+  - Eliminate redundant calls to the same builder when the target is a
+    list of targets:  Add a ListBuilder class that wraps Builders to
+    handle lists atomically.  Extend the Task class to support building
+    and updating multiple targets in a single Task.  Simplify the
+    interface between Task and Taskmaster.
+
   From Steve Leblanc:
 
   - Add var=value command-line arguments.

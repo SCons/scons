@@ -61,10 +61,12 @@ sys.exit(0)
 
 act_py = test.workpath('act.py')
 outfile = test.workpath('outfile')
+outfile2 = test.workpath('outfile')
 
 show_string = None
 instanced = None
 env_scanner = None
+count = 0
 
 class Environment:
     def subst(self, s):
@@ -245,14 +247,24 @@ class BuilderTestCase(unittest.TestCase):
         assert r == 0
         assert show_string == expect7, show_string
 
+        global count
+        count = 0
 	def function1(**kw):
-	    open(kw['target'], 'w').write("function1\n")
+            global count
+            count = count + 1
+            if not type(kw['target']) is type([]):
+                kw['target'] = [ kw['target'] ]
+            for t in kw['target']:
+	        open(t, 'w').write("function1\n")
 	    return 1
 
 	builder = MyBuilder(action = function1, name = "function1")
-	r = builder.execute(target = outfile)
-	assert r == 1
-	c = test.read(outfile, 'r')
+        r = builder.execute(target = [outfile, outfile2])
+        assert r == 1
+        assert count == 1
+        c = test.read(outfile, 'r')
+	assert c == "function1\n", c
+        c = test.read(outfile2, 'r')
 	assert c == "function1\n", c
 
 	class class1a:
@@ -445,6 +457,31 @@ class BuilderTestCase(unittest.TestCase):
         tgts = builder(env, target = 'tgt4a tgt4b', source = 'src4')
         assert tgts[1].path == 'tgt4b.o', \
                 "Target has unexpected name: %s" % tgts[1].path
+
+    def test_ListBuilder(self):
+        """Testing ListBuilder class."""
+        global count
+        count = 0
+        def function2(**kw):
+            global count
+            count = count + 1
+            if not type(kw['target']) is type([]):
+                kw['target'] = [ kw['target'] ]
+            for t in kw['target']:
+                open(t, 'w').write("function2\n")
+            return 1
+
+        builder = SCons.Builder.Builder(action = function2, name = "function2")
+        tgts = builder(env, target = [outfile, outfile2], source = 'foo')
+        r = tgts[0].builder.execute(target = tgts[0])
+        assert r == 1, r
+        c = test.read(outfile, 'r')
+        assert c == "function2\n", c
+        c = test.read(outfile2, 'r')
+        assert c == "function2\n", c
+        r = tgts[1].builder.execute(target = tgts[1])
+        assert r == 1, r
+        assert count == 1, count
 
     def test_MultiStepBuilder(self):
         """Testing MultiStepBuilder class."""

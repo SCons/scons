@@ -52,6 +52,26 @@ def Builder(**kw):
 
 
 
+def _init_nodes(builder, env, tlist, slist):
+    """Initialize lists of target and source nodes with all of
+    the proper Builder information.
+    """
+    for t in tlist:
+        t.cwd = SCons.Node.FS.default_fs.getcwd()	# XXX
+        t.builder_set(builder)
+        t.env_set(env)
+        t.add_source(slist)
+        if builder.scanner:
+            t.scanner_set(builder.scanner.instance(env))
+
+    for s in slist:
+        s.env_set(env, 1)
+        scanner = env.get_scanner(os.path.splitext(s.name)[1])
+        if scanner:
+            s.scanner_set(scanner.instance(env))
+
+
+
 class BuilderBase:
     """Base class for Builders, objects that create output
     nodes (files) from input nodes (files).
@@ -113,32 +133,17 @@ class BuilderBase:
                                            self.node_factory)
         return tlist, slist
 
-    def _init_nodes(self, env, tlist, slist):
-        """Initialize lists of target and source nodes with all of
-        the proper Builder information.
-        """
-	for t in tlist:
-            t.cwd = SCons.Node.FS.default_fs.getcwd()	# XXX
-	    t.builder_set(self)
-	    t.env_set(env)
-	    t.add_source(slist)
-            if self.scanner:
-                t.scanner_set(self.scanner.instance(env))
-
-	for s in slist:
-	    s.env_set(env, 1)
-            scanner = env.get_scanner(os.path.splitext(s.name)[1])
-            if scanner:
-                s.scanner_set(scanner.instance(env))
-
-	if len(tlist) == 1:
-	    tlist = tlist[0]
-	return tlist
-
     def __call__(self, env, target = None, source = None):
         tlist, slist = self._create_nodes(env, target, source)
 
-        return self._init_nodes(env, tlist, slist)
+        if len(tlist) == 1:
+            _init_nodes(self, env, tlist, slist)
+            tlist = tlist[0]
+        else:
+            _init_nodes(ListBuilder(self, env, tlist), env, tlist, slist)
+
+        return tlist
+
 
     def execute(self, **kw):
 	"""Execute a builder's action to create an output object.
@@ -160,6 +165,53 @@ class BuilderBase:
         if self.src_suffix != '':
             return [self.src_suffix]
         return []
+
+    def targets(self, node):
+        """Return the list of targets for this builder instance.
+
+        For most normal builders, this is just the supplied node.
+        """
+        return [ node ]
+
+class ListBuilder:
+    """This is technically not a Builder object, but a wrapper
+    around another Builder object.  This is designed to look
+    like a Builder object, though, for purposes of building an
+    array of targets from a single Action execution.
+    """
+
+    def __init__(self, builder, env, tlist):
+        self.builder = builder
+        self.scanner = builder.scanner
+        self.env = env
+        self.tlist = tlist
+
+    def execute(self, **kw):
+        if hasattr(self, 'status'):
+            return self.status
+        for t in self.tlist:
+            # unlink all targets before building any
+            t.remove()
+        kw['target'] = self.tlist[0]
+        self.status = apply(self.builder.execute, (), kw)
+        for t in self.tlist:
+            if not t is kw['target']:
+                t.build()
+        return self.status
+
+    def get_raw_contents(self, **kw):
+        return apply(self.builder.get_raw_contents, (), kw)
+
+    def get_contents(self, **kw):
+        return apply(self.builder.get_contents, (), kw)
+
+    def src_suffixes(self):
+        return self.builder.src_suffixes()
+
+    def targets(self, node):
+        """Return the list of targets for this builder instance.
+        """
+        return self.tlist
 
 class MultiStepBuilder(BuilderBase):
     """This is a builder subclass that can build targets in

@@ -132,13 +132,13 @@ class TaskmasterTestCase(unittest.TestCase):
         class MyTask(SCons.Taskmaster.Task):
             def execute(self):
                 global built
-                if self.target.get_state() == SCons.Node.up_to_date:
+                if self.targets[0].get_state() == SCons.Node.up_to_date:
                     if self.top:
-                        built = self.target.name + " up-to-date top"
+                        built = self.targets[0].name + " up-to-date top"
                     else:
-                        built = self.target.name + " up-to-date"
+                        built = self.targets[0].name + " up-to-date"
                 else:
-                    self.target.build()
+                    self.targets[0].build()
 
         n1.set_state(None)
         n2.set_state(None)
@@ -303,11 +303,24 @@ class TaskmasterTestCase(unittest.TestCase):
         assert built == "MyTM.stop()"
         assert tm.next_task() is None
 
-    #def test_add_pending(self):
-    #    pass
-    #
-    #def test_remove_pending(self):
-    #    pass
+    def test_add_ready(self):
+        """Test adding a task to the ready queue"""
+        class MyTask:
+            def __init__(self, tm, tlist, top):
+                pass
+            def make_ready(self):
+                pass
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster([n1], tasker = MyTask)
+        task = MyTask(tm, [], 0)
+        tm.add_ready(task)
+        assert tm.ready == [ task ], tm.ready
+
+    def test_pending_to_ready(self):
+        pass
+    
+    def test_pending_remove(self):
+        pass
 
 
 
