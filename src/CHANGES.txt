@@ -23,6 +23,8 @@ RELEASE 0.02 -
 
   - Fixed SCONS_LIB_DIR to work as documented (courtesy Anthony Roach).
 
+  - Made Default() accept Nodes as arguments (courtesy Anthony Roach).
+
 
 
 RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001

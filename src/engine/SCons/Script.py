@@ -166,8 +166,11 @@ def SConscript(sconscript, export={}):
 
 def Default(*targets):
     for t in targets:
-	for s in string.split(t):
-	    default_targets.append(s)
+	if isinstance(t, SCons.Node.Node):
+	    default_targets.append(t)
+	else:
+	    for s in string.split(t):
+		default_targets.append(s)
 
 def Help(text):
     global help_option
@@ -648,8 +651,14 @@ def _main():
 
     if not targets:
 	targets = default_targets
-
-    nodes = map(lambda x: SCons.Node.FS.default_fs.Entry(x), targets)
+	
+    def Entry(x):
+	if isinstance(x, SCons.Node.Node):
+	    return x
+	else:
+	    return SCons.Node.FS.default_fs.Entry(x)
+	
+    nodes = map(Entry, targets)
 
     if not calc:
         calc = SCons.Sig.Calculator(SCons.Sig.MD5)

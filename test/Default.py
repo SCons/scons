@@ -32,7 +32,7 @@ python = sys.executable
 
 test = TestSCons.TestSCons()
 
-test.subdir('one', 'two', 'three')
+test.subdir('one', 'two', 'three', 'four')
 
 test.write('build.py', r"""
 import sys
@@ -66,7 +66,15 @@ env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out bar.out')
 """ % python)
 
-for dir in ['one', 'two', 'three']:
+test.write(['four', 'SConstruct'], """
+B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = [B])
+Default(env.B(target = 'foo.out', source = 'foo.in'))
+Default(env.B(target = 'bar.out', source = 'bar.in'))
+""" % python)
+
+
+for dir in ['one', 'two', 'three', 'four']:
 
     foo_in = os.path.join(dir, 'foo.in')
     bar_in = os.path.join(dir, 'bar.in')
@@ -85,5 +93,9 @@ test.fail_test(test.read(test.workpath('two', 'bar.out')) != "two/bar.in\n")
 
 test.fail_test(test.read(test.workpath('three', 'foo.out')) != "three/foo.in\n")
 test.fail_test(test.read(test.workpath('three', 'bar.out')) != "three/bar.in\n")
+
+test.fail_test(test.read(test.workpath('four', 'foo.out')) != "four/foo.in\n")
+test.fail_test(test.read(test.workpath('four', 'bar.out')) != "four/bar.in\n")
+
 
 test.pass_test()
