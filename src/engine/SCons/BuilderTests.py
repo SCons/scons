@@ -641,15 +641,10 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt.sources[0]) == 'ccc.x.c', map(str, tgt.sources)
 
         tgt = b(env, ['d0.c', 'd1.c'])
-        assert len(tgt) == 2, map(str, tgt)
-        assert str(tgt[0]) == 'd0.o', map(str, tgt)
-        assert str(tgt[1]) == 'd1.o', map(str, tgt)
-        assert len(tgt[0].sources) == 2,  map(str, tgt[0].sources)
-        assert str(tgt[0].sources[0]) == 'd0.c', map(str, tgt[0].sources)
-        assert str(tgt[0].sources[1]) == 'd1.c', map(str, tgt[0].sources)
-        assert len(tgt[1].sources) == 2,  map(str, tgt[1].sources)
-        assert str(tgt[1].sources[0]) == 'd0.c', map(str, tgt[1].sources)
-        assert str(tgt[1].sources[1]) == 'd1.c', map(str, tgt[1].sources)
+        assert str(tgt) == 'd0.o', str(tgt)
+        assert len(tgt.sources) == 2,  map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'd0.c', map(str, tgt.sources)
+        assert str(tgt.sources[1]) == 'd1.c', map(str, tgt.sources)
 
         tgt = b(env, source='eee')
         assert str(tgt) == 'eee.o', str(tgt)
@@ -667,28 +662,18 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt.sources[0]) == 'ggg.x.c', map(str, tgt.sources)
 
         tgt = b(env, source=['h0.c', 'h1.c'])
-        assert len(tgt) == 2, map(str, tgt)
-        assert str(tgt[0]) == 'h0.o', map(str, tgt)
-        assert str(tgt[1]) == 'h1.o', map(str, tgt)
-        assert len(tgt[0].sources) == 2,  map(str, tgt[0].sources)
-        assert str(tgt[0].sources[0]) == 'h0.c', map(str, tgt[0].sources)
-        assert str(tgt[0].sources[1]) == 'h1.c', map(str, tgt[0].sources)
-        assert len(tgt[1].sources) == 2,  map(str, tgt[1].sources)
-        assert str(tgt[1].sources[0]) == 'h0.c', map(str, tgt[1].sources)
-        assert str(tgt[1].sources[1]) == 'h1.c', map(str, tgt[1].sources)
+        assert str(tgt) == 'h0.o', str(tgt)
+        assert len(tgt.sources) == 2,  map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'h0.c', map(str, tgt.sources)
+        assert str(tgt.sources[1]) == 'h1.c', map(str, tgt.sources)
 
         w = b(env, target='i0.w', source=['i0.x'])
         y = b(env, target='i1.y', source=['i1.z'])
         tgt = b(env, source=[w, y])
-        assert len(tgt) == 2, map(str, tgt)
-        assert str(tgt[0]) == 'i0.o'
-        assert str(tgt[1]) == 'i1.o'
-        assert len(tgt[0].sources) == 2, map(str, tgt[0].sources)
-        assert str(tgt[0].sources[0]) == 'i0.w', map(str, tgt[0].sources)
-        assert str(tgt[0].sources[1]) == 'i1.y', map(str, tgt[0].sources)
-        assert len(tgt[1].sources) == 2, map(str, tgt[1].sources)
-        assert str(tgt[1].sources[0]) == 'i0.w', map(str, tgt[1].sources)
-        assert str(tgt[1].sources[1]) == 'i1.y', map(str, tgt[1].sources)
+        assert str(tgt) == 'i0.o', str(tgt)
+        assert len(tgt.sources) == 2, map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'i0.w', map(str, tgt.sources)
+        assert str(tgt.sources[1]) == 'i1.y', map(str, tgt.sources)
 
 
 if __name__ == "__main__":

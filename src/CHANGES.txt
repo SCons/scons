@@ -37,6 +37,13 @@ RELEASE 0.10 - XXX
   - Fix specifying only the source file to MultiStepBuilders such as
     the Program Builder.  (Bug reported by Dean Bair.)
 
+  - Fix an exception when building from a file with the same basename as
+    the subdirectory in which it lives.  (Bug reported by Gerard Patel.)
+
+  - Fix automatic deduction of a target file name when there are
+    multiple source files specified; the target is now deduced from just
+    the first source file in the list.
+
   From Steve Leblanc:
 
   - Add a Clean() method to support removing user-specified targets
