@@ -37,6 +37,7 @@ target = env.Command('foo.out',
                      'foo.in',
                      r'%s build.py $SOURCE $TARGET ${File(BAR)} ${Dir(BLAT)}')
 
+target = target[0]
 assert target == Dir('.').File('foo.out')
 assert Dir('.') == Dir('.').Dir('.')
 assert target == target.File('foo.out')

@@ -56,10 +56,10 @@ test.write('bar.in', 'bar.in')
 
 test.run(arguments="bar.out foo.out",
          stdout=test.wrap_stdout("""\
-copy2("bar.mid", "bar.in")
-copy1("bar.out", "bar.mid")
-copy2("foo.mid", "foo.in")
-copy1("foo.out", "foo.mid")
+copy2(["bar.mid"], ["bar.in"])
+copy1(["bar.out"], ["bar.mid"])
+copy2(["foo.mid"], ["foo.in"])
+copy1(["foo.out"], ["foo.mid"])
 """))
 
 test.up_to_date(arguments='bar.out foo.out')
@@ -90,9 +90,9 @@ TargetSignatures('content')
 
 test.run(arguments="bar.out foo.out",
          stdout=test.wrap_stdout("""\
-copy2("bar.mid", "bar.in")
-copy1("bar.out", "bar.mid")
-copy2("foo.mid", "foo.in")
+copy2(["bar.mid"], ["bar.in"])
+copy1(["bar.out"], ["bar.mid"])
+copy2(["foo.mid"], ["foo.in"])
 scons: `foo.out' is up to date.
 """))
 
@@ -122,8 +122,8 @@ TargetSignatures('build')
 
 test.run(arguments="bar.out foo.out",
          stdout=test.wrap_stdout("""\
-copy1("bar.out", "bar.mid")
-copy1("foo.out", "foo.mid")
+copy1(["bar.out"], ["bar.mid"])
+copy1(["foo.out"], ["foo.mid"])
 """))
 
 test.write('SConstruct', """
@@ -151,10 +151,10 @@ TargetSignatures('build')
 
 test.run(arguments='bar.out foo.out',
          stdout=test.wrap_stdout("""\
-copy2("bar.mid", "bar.in")
+copy2(["bar.mid"], ["bar.in"])
 scons: `bar.out' is up to date.
-copy2("foo.mid", "foo.in")
-copy1("foo.out", "foo.mid")
+copy2(["foo.mid"], ["foo.in"])
+copy1(["foo.out"], ["foo.mid"])
 """))
 
 

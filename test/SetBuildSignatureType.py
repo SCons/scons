@@ -57,8 +57,8 @@ test.write('foo.in', 'foo.in')
 
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
-copy2("foo.out", "foo.in")
-copy1("foo.out.out", "foo.out")
+copy2(["foo.out"], ["foo.in"])
+copy1(["foo.out.out"], ["foo.out"])
 """),
          stderr=warning%16)
 
@@ -87,7 +87,7 @@ SetBuildSignatureType('content')
 
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
-copy2("foo.out", "foo.in")
+copy2(["foo.out"], ["foo.in"])
 scons: `foo.out.out' is up to date.
 """),
          stderr=warning%17)
@@ -113,7 +113,7 @@ SetBuildSignatureType('build')
 
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
-copy1("foo.out.out", "foo.out")
+copy1(["foo.out.out"], ["foo.out"])
 """),
          stderr=warning%17)
 
@@ -137,8 +137,8 @@ SetBuildSignatureType('build')
 
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
-copy2("foo.out", "foo.in")
-copy1("foo.out.out", "foo.out")
+copy2(["foo.out"], ["foo.in"])
+copy1(["foo.out.out"], ["foo.out"])
 """),
          stderr=warning%16)
 

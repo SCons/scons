@@ -56,7 +56,7 @@ test.write('file1b.in', 'file1b.in\n')
 
 test.run(arguments='file1.out')
 
-test.fail_test(not test.read('file1.out') == 'file1a.in\nfile1b.in\n')
+test.must_match('file1.out', "file1a.in\nfile1b.in\n")
 
 
 #
@@ -135,7 +135,7 @@ test.write('file4b.in', 'file4b.in\n')
 
 test.run(arguments='file4.out')
 
-test.fail_test(not test.read('file4.out') == 'file4a.in\nfile4b.in\n')
+test.must_match('file4.out', "file4a.in\nfile4b.in\n")
 
 
 #
@@ -162,11 +162,11 @@ test.write('file5b.in', 'file5b.in\n')
 test.run(arguments='file5.out', 
          stderr="""
 scons: warning: Two different environments were specified for target file5.out,
-	but they appear to have the same action: build("file5.out", "file5b.in")
+	but they appear to have the same action: build(["file5.out"], ["file5b.in"])
 File "SConstruct", line 11, in ?
 """)
 
-test.fail_test(not test.read('file5.out') == 'file5a.in\nfile5b.in\n')
+test.must_match('file5.out', "file5a.in\nfile5b.in\n")
 
 
 #
@@ -219,7 +219,7 @@ test.write('file7.in', 'file7.in\n')
 
 test.run(arguments='file7.out')
 
-test.fail_test(not test.read('file7.out') == 'file7.in\n')
+test.must_match('file7.out', "file7.in\n")
 
 
 #
@@ -277,8 +277,8 @@ test.write('file9b.in', 'file9b.in\n')
 
 test.run(arguments='file9b.out')
 
-test.fail_test(not test.read('file9a.out') == 'file9a.in\nfile9b.in\n')
-test.fail_test(not test.read('file9b.out') == 'file9a.in\nfile9b.in\n')
+test.must_match('file9a.out', "file9a.in\nfile9b.in\n")
+test.must_match('file9b.out', "file9a.in\nfile9b.in\n")
 
 
 #

@@ -1733,31 +1733,31 @@ class EnvironmentTestCase(unittest.TestCase):
         """Test the Alias() method"""
         env = Environment(FOO='kkk', BAR='lll', EA='export_alias')
 
-        tgt = env.Alias('new_alias')
+        tgt = env.Alias('new_alias')[0]
         assert str(tgt) == 'new_alias', tgt
         assert tgt.sources == [], tgt.sources
 
-        tgt = env.Alias('None_alias', None)
+        tgt = env.Alias('None_alias', None)[0]
         assert str(tgt) == 'None_alias', tgt
         assert tgt.sources == [], tgt.sources
 
-        tgt = env.Alias('empty_list', [])
+        tgt = env.Alias('empty_list', [])[0]
         assert str(tgt) == 'empty_list', tgt
         assert tgt.sources == [], tgt.sources
 
-        tgt = env.Alias('export_alias', [ 'asrc1', '$FOO' ])
+        tgt = env.Alias('export_alias', [ 'asrc1', '$FOO' ])[0]
         assert str(tgt) == 'export_alias', tgt
         assert len(tgt.sources) == 2, map(str, tgt.sources)
         assert str(tgt.sources[0]) == 'asrc1', map(str, tgt.sources)
         assert str(tgt.sources[1]) == 'kkk', map(str, tgt.sources)
 
-        n = env.Alias(tgt, source = ['$BAR', 'asrc4'])
+        n = env.Alias(tgt, source = ['$BAR', 'asrc4'])[0]
         assert n is tgt, n
         assert len(tgt.sources) == 4, map(str, tgt.sources)
         assert str(tgt.sources[2]) == 'lll', map(str, tgt.sources)
         assert str(tgt.sources[3]) == 'asrc4', map(str, tgt.sources)
 
-        n = env.Alias('$EA', 'asrc5')
+        n = env.Alias('$EA', 'asrc5')[0]
         assert n is tgt, n
         assert len(tgt.sources) == 5, map(str, tgt.sources)
         assert str(tgt.sources[4]) == 'asrc5', map(str, tgt.sources)
@@ -1880,7 +1880,7 @@ class EnvironmentTestCase(unittest.TestCase):
         """Test the Command() method."""
         env = Environment()
         t = env.Command(target='foo.out', source=['foo1.in', 'foo2.in'],
-                        action='buildfoo $target $source')
+                        action='buildfoo $target $source')[0]
         assert not t.builder is None
         assert t.builder.action.__class__.__name__ == 'CommandAction'
         assert t.builder.action.cmd_list == 'buildfoo $target $source'
@@ -1889,7 +1889,7 @@ class EnvironmentTestCase(unittest.TestCase):
 
         sub = SCons.Node.FS.default_fs.Dir('sub')
         t = env.Command(target='bar.out', source='sub',
-                        action='buildbar $target $source')
+                        action='buildbar $target $source')[0]
         assert 'sub' in map(lambda x: x.path, t.sources)
 
         def testFunc(env, target, source):
@@ -1897,7 +1897,7 @@ class EnvironmentTestCase(unittest.TestCase):
             assert 'foo1.in' in map(str, source) and 'foo2.in' in map(str, source), map(str, source)
             return 0
         t = env.Command(target='foo.out', source=['foo1.in','foo2.in'],
-                        action=testFunc)
+                        action=testFunc)[0]
         assert not t.builder is None
         assert t.builder.action.__class__.__name__ == 'FunctionAction'
         t.build()
@@ -1910,7 +1910,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env = Environment(TEST2 = test2)
         t = env.Command(target='baz.out', source='baz.in',
                         action='${TEST2(XYZ)}',
-                        XYZ='magic word')
+                        XYZ='magic word')[0]
         assert not t.builder is None
         t.build()
         assert x[0] == 'magic word', x
@@ -1951,7 +1951,8 @@ class EnvironmentTestCase(unittest.TestCase):
         env.Dir('dir2')
         env.File('xxx.py')
         env.File('yyy.py')
-        t = env.Depends(target='EnvironmentTest.py', dependency='Environment.py')
+        t = env.Depends(target='EnvironmentTest.py',
+                        dependency='Environment.py')[0]
         assert t.__class__.__name__ == 'Entry', t.__class__.__name__
         assert t.path == 'EnvironmentTest.py'
         assert len(t.depends) == 1
@@ -1959,7 +1960,7 @@ class EnvironmentTestCase(unittest.TestCase):
         assert d.__class__.__name__ == 'Entry', d.__class__.__name__
         assert d.path == 'Environment.py'
 
-        t = env.Depends(target='${FOO}.py', dependency='${BAR}.py')
+        t = env.Depends(target='${FOO}.py', dependency='${BAR}.py')[0]
         assert t.__class__.__name__ == 'File', t.__class__.__name__
         assert t.path == 'xxx.py'
         assert len(t.depends) == 1
@@ -1967,7 +1968,7 @@ class EnvironmentTestCase(unittest.TestCase):
         assert d.__class__.__name__ == 'File', d.__class__.__name__
         assert d.path == 'yyy.py'
 
-        t = env.Depends(target='dir1', dependency='dir2')
+        t = env.Depends(target='dir1', dependency='dir2')[0]
         assert t.__class__.__name__ == 'Dir', t.__class__.__name__
         assert t.path == 'dir1'
         assert len(t.depends) == 1
@@ -2061,7 +2062,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env.File('yyyzzz')
         env.File('zzzyyy')
 
-        t = env.Ignore(target='targ.py', dependency='dep.py')
+        t = env.Ignore(target='targ.py', dependency='dep.py')[0]
         assert t.__class__.__name__ == 'Entry', t.__class__.__name__
         assert t.path == 'targ.py'
         assert len(t.ignore) == 1
@@ -2069,7 +2070,7 @@ class EnvironmentTestCase(unittest.TestCase):
         assert i.__class__.__name__ == 'Entry', i.__class__.__name__
         assert i.path == 'dep.py'
 
-        t = env.Ignore(target='$FOO$BAR', dependency='$BAR$FOO')
+        t = env.Ignore(target='$FOO$BAR', dependency='$BAR$FOO')[0]
         assert t.__class__.__name__ == 'File', t.__class__.__name__
         assert t.path == 'yyyzzz'
         assert len(t.ignore) == 1
@@ -2077,7 +2078,7 @@ class EnvironmentTestCase(unittest.TestCase):
         assert i.__class__.__name__ == 'File', i.__class__.__name__
         assert i.path == 'zzzyyy'
 
-        t = env.Ignore(target='dir1', dependency='dir2')
+        t = env.Ignore(target='dir1', dependency='dir2')[0]
         assert t.__class__.__name__ == 'Dir', t.__class__.__name__
         assert t.path == 'dir1'
         assert len(t.ignore) == 1
@@ -2146,7 +2147,7 @@ class EnvironmentTestCase(unittest.TestCase):
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
 
-        tgt = env.InstallAs(target='${FOO}.t', source='${BAR}.s')
+        tgt = env.InstallAs(target='${FOO}.t', source='${BAR}.s')[0]
         assert tgt.path == 'iii.t'
         assert tgt.sources[0].path == 'jjj.s'
         assert tgt.builder == InstallBuilder
@@ -2282,9 +2283,9 @@ class EnvironmentTestCase(unittest.TestCase):
         env.File('mylll.pdb')
         env.Dir('mymmm.pdb')
 
-        foo = env.Object('foo.obj', 'foo.cpp')
-        bar = env.Object('bar.obj', 'bar.cpp')
-        s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])
+        foo = env.Object('foo.obj', 'foo.cpp')[0]
+        bar = env.Object('bar.obj', 'bar.cpp')[0]
+        s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])[0]
         assert s.__class__.__name__ == 'Entry', s.__class__.__name__
         assert s.path == 'mylib.pdb'
         assert s.side_effect
@@ -2293,9 +2294,9 @@ class EnvironmentTestCase(unittest.TestCase):
         assert s.depends_on([bar])
         assert s.depends_on([foo])
 
-        fff = env.Object('fff.obj', 'fff.cpp')
-        bbb = env.Object('bbb.obj', 'bbb.cpp')
-        s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])
+        fff = env.Object('fff.obj', 'fff.cpp')[0]
+        bbb = env.Object('bbb.obj', 'bbb.cpp')[0]
+        s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])[0]
         assert s.__class__.__name__ == 'File', s.__class__.__name__
         assert s.path == 'mylll.pdb'
         assert s.side_effect
@@ -2304,9 +2305,9 @@ class EnvironmentTestCase(unittest.TestCase):
         assert s.depends_on([bbb])
         assert s.depends_on([fff])
 
-        ggg = env.Object('ggg.obj', 'ggg.cpp')
-        ccc = env.Object('ccc.obj', 'ccc.cpp')
-        s = env.SideEffect('mymmm.pdb', ['ggg.obj', 'ccc.obj'])
+        ggg = env.Object('ggg.obj', 'ggg.cpp')[0]
+        ccc = env.Object('ccc.obj', 'ccc.cpp')[0]
+        s = env.SideEffect('mymmm.pdb', ['ggg.obj', 'ccc.obj'])[0]
         assert s.__class__.__name__ == 'Dir', s.__class__.__name__
         assert s.path == 'mymmm.pdb'
         assert s.side_effect
@@ -2318,18 +2319,18 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_SourceCode(self):
         """Test the SourceCode() method."""
         env = Environment(FOO='mmm', BAR='nnn')
-        e = env.SourceCode('foo', None)
+        e = env.SourceCode('foo', None)[0]
         assert e.path == 'foo'
         s = e.src_builder()
         assert s is None, s
 
         b = Builder()
-        e = env.SourceCode(e, b)
+        e = env.SourceCode(e, b)[0]
         assert e.path == 'foo'
         s = e.src_builder()
         assert s is b, s
 
-        e = env.SourceCode('$BAR$FOO', None)
+        e = env.SourceCode('$BAR$FOO', None)[0]
         assert e.path == 'nnnmmm'
         s = e.src_builder()
         assert s is None, s

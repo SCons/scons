@@ -87,7 +87,7 @@ scons: warning: Ignoring corrupt .sconsign file: sub1.\.sconsign
 .*
 '''
 
-stdout = test.wrap_stdout('build1\("sub1.foo\.out", "foo\.in"\)\n')
+stdout = test.wrap_stdout('build1\(\["sub1.foo\.out"\], \["foo\.in"\]\)\n')
 
 test.write(sub1__sconsign, 'not:a:sconsign:file')
 test.run(arguments = '.', stderr=stderr, stdout=stdout)

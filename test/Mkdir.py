@@ -59,11 +59,11 @@ test.write('f6.in', "f6.in\n")
 
 expect = test.wrap_stdout(read_str = 'Mkdir("d1")\n',
                           build_str = """\
-cat("f2.out", "f2.in")
+cat(["f2.out"], ["f2.in"])
 Mkdir("d3")
 Mkdir("d4")
-cat("f5.out", "f5.in")
-cat("f6.out", "f6.in")
+cat(["f5.out"], ["f5.in"])
+cat(["f6.out"], ["f6.in"])
 Mkdir("Mkdir-f6.in")
 Mkdir("f6.out-Mkdir")
 """)

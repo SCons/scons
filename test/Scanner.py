@@ -92,7 +92,7 @@ env2.Append(SCANNERS = [k2scan])
 env2.Command('junk', 'junk.k2', r'%s build.py $SOURCES $TARGET')
 
 bar = env.Command('bar', 'bar.in', r'%s build.py $SOURCES  $TARGET')
-bar.source_scanner = kscan
+bar[0].source_scanner = kscan
 """ % (python, python, python))
 
 test.write('foo.k', 

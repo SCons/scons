@@ -69,8 +69,8 @@ test.write(['src', 'ccc.in'], "ccc.in\n")
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(test.read(['src', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -86,7 +86,7 @@ Retrieved `ccc.out' from cache
 Retrieved `all' from cache
 """))
 
-test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
+test.must_not_exist(test.workpath('src', 'cat.out'))
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -101,17 +101,17 @@ Retrieved `ccc.out' from cache
 Retrieved `all' from cache
 """))
 
-test.fail_test(os.path.exists(test.workpath('src', 'aaa.out')))
-test.fail_test(os.path.exists(test.workpath('src', 'bbb.out')))
-test.fail_test(os.path.exists(test.workpath('src', 'ccc.out')))
-test.fail_test(os.path.exists(test.workpath('src', 'all')))
+test.must_not_exist(test.workpath('src', 'aaa.out'))
+test.must_not_exist(test.workpath('src', 'bbb.out'))
+test.must_not_exist(test.workpath('src', 'ccc.out'))
+test.must_not_exist(test.workpath('src', 'all'))
 
 # Verify that rebuilding with -s retrieves everything from the cache
 # even though it doesn't report anything.
 test.run(chdir = 'src', arguments = '-s .', stdout = "")
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_not_exist(test.workpath('src', 'cat.out'))
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -123,13 +123,13 @@ test.write(['src', 'bbb.in'], "bbb.in 2\n")
 
 test.run(chdir = 'src', arguments = '.', stdout = test.wrap_stdout("""\
 Retrieved `aaa.out' from cache
-cat("bbb.out", "bbb.in")
+cat(["bbb.out"], ["bbb.in"])
 Retrieved `ccc.out' from cache
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in 2\nccc.in\n")
-test.fail_test(test.read(['src', 'cat.out']) != "bbb.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in 2\nccc.in\n")
+test.must_match(['src', 'cat.out'], "bbb.out\nall\n")
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -162,8 +162,8 @@ SConscript('build/SConscript')
 # This should populate the cache with our derived files.
 test.run()
 
-test.fail_test(test.read(['build', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(test.read('cat.out') != "%s\n%s\n%s\n%s\n" % (build_aaa_out, build_bbb_out, build_ccc_out, build_all))
+test.must_match(['build', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match('cat.out', "%s\n%s\n%s\n%s\n" % (build_aaa_out, build_bbb_out, build_ccc_out, build_all))
 
 test.up_to_date(arguments = '.')
 
@@ -179,7 +179,7 @@ Retrieved `%s' from cache
 Retrieved `%s' from cache
 """ % (build_aaa_out, build_bbb_out, build_ccc_out, build_all)))
 
-test.fail_test(os.path.exists(test.workpath('cat.out')))
+test.must_not_exist(test.workpath('cat.out'))
 
 test.up_to_date(arguments = '.')
 
@@ -194,17 +194,17 @@ Retrieved `%s' from cache
 Retrieved `%s' from cache
 """ % (build_aaa_out, build_bbb_out, build_ccc_out, build_all)))
 
-test.fail_test(os.path.exists(test.workpath('build', 'aaa.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'bbb.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'ccc.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'all')))
+test.must_not_exist(test.workpath('build', 'aaa.out'))
+test.must_not_exist(test.workpath('build', 'bbb.out'))
+test.must_not_exist(test.workpath('build', 'ccc.out'))
+test.must_not_exist(test.workpath('build', 'all'))
 
 # Verify that rebuilding with -s retrieves everything from the cache
 # even though it doesn't report anything.
 test.run(arguments = '-s .', stdout = "")
 
-test.fail_test(test.read(['build', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(os.path.exists(test.workpath('cat.out')))
+test.must_match(['build', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_not_exist(test.workpath('cat.out'))
 
 test.up_to_date(arguments = '.')
 
@@ -216,16 +216,16 @@ test.write(['src', 'bbb.in'], "bbb.in 2\n")
 
 test.run(stdout = test.wrap_stdout("""\
 Retrieved `%s' from cache
-cat("%s", "%s")
+cat(["%s"], ["%s"])
 Retrieved `%s' from cache
-cat("%s", ["%s", "%s", "%s"])
+cat(["%s"], ["%s", "%s", "%s"])
 """ % (build_aaa_out,
        build_bbb_out, os.path.join('src', 'bbb.in'),
        build_ccc_out,
        build_all, build_aaa_out, build_bbb_out, build_ccc_out)))
 
-test.fail_test(test.read(['build', 'all']) != "aaa.in\nbbb.in 2\nccc.in\n")
-test.fail_test(test.read('cat.out') != "%s\n%s\n" % (build_bbb_out, build_all))
+test.must_match(['build', 'all'], "aaa.in\nbbb.in 2\nccc.in\n")
+test.must_match('cat.out', "%s\n%s\n" % (build_bbb_out, build_all))
 
 test.up_to_date(arguments = '.')
 
@@ -270,7 +270,7 @@ test.write(['subdir', 'file.ma'], "subdir/file.ma\n")
 
 test.run(chdir = 'subdir')
 
-test.fail_test(os.path.exists(test.workpath('cache3', 'N', 'None')))
+test.must_not_exist(test.workpath('cache3', 'N', 'None'))
 
 #############################################################################
 # Test that multiple target files get retrieved from cache correctly.
@@ -290,18 +290,18 @@ test.write(['multiple', 'input'], "multiple/input\n")
 
 test.run(chdir = 'multiple')
 
-test.fail_test(not os.path.exists(test.workpath('multiple', 'foo')))
-test.fail_test(not os.path.exists(test.workpath('multiple', 'bar')))
+test.must_exist(test.workpath('multiple', 'foo'))
+test.must_exist(test.workpath('multiple', 'bar'))
 
 test.run(chdir = 'multiple', arguments = '-c')
 
-test.fail_test(os.path.exists(test.workpath('multiple', 'foo')))
-test.fail_test(os.path.exists(test.workpath('multiple', 'bar')))
+test.must_not_exist(test.workpath('multiple', 'foo'))
+test.must_not_exist(test.workpath('multiple', 'bar'))
 
 test.run(chdir = 'multiple')
 
-test.fail_test(not os.path.exists(test.workpath('multiple', 'foo')))
-test.fail_test(not os.path.exists(test.workpath('multiple', 'bar')))
+test.must_exist(test.workpath('multiple', 'foo'))
+test.must_exist(test.workpath('multiple', 'bar'))
 
 # All done.
 test.pass_test()

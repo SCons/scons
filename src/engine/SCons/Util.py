@@ -953,6 +953,19 @@ else:
     def is_String(e):
         return type(e) is types.StringType or isinstance(e, UserString)
 
+def is_Scalar(e):
+    return is_String(e) or not is_List(e)
+
+def flatten(sequence, scalarp=is_Scalar, result=None):
+    if result is None:
+        result = []
+    for item in sequence:
+        if scalarp(item):
+            result.append(item)
+        else:
+            flatten(item, scalarp, result)
+    return result
+
 class Proxy:
     """A simple generic Proxy class, forwarding all calls to
     subject.  So, for the benefit of the python newbie, what does

@@ -268,7 +268,7 @@ class SConf:
             source = self.confdir.File(f + extension)
             sourceNode = self.env.SConfSourceBuilder(target=source,
                                                      source=None)
-            nodesToBeBuilt.append(sourceNode)
+            nodesToBeBuilt.extend(sourceNode)
         else:
             source = None
 
@@ -335,7 +335,7 @@ class SConf:
             pname = str(prog)
             output = SConfFS.File(pname+'.out')
             node = self.env.Command(output, prog, [ [ pname, ">", "${TARGET}"] ])
-            ok = self.BuildNodes([node])
+            ok = self.BuildNodes(node)
             if ok:
                 outputStr = output.get_contents()
                 return( 1, outputStr)

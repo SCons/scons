@@ -118,13 +118,13 @@ test.write(['subdir', 'foo.in'], "subdir/foo.in\n")
 
 test.run(status = 27,
          stdout = test.wrap_stdout("""\
-exit_builder("%s", "%s")
+exit_builder(["%s"], ["%s"])
 """ % (subdir_foo_out, subdir_foo_in), error=1),
          stderr = """\
 scons: *** [%s] Explicit exit, status 27
 """ % (subdir_foo_out))
 
-test.fail_test(test.read(['subdir', 'foo.out']) != "subdir/foo.in\n")
+test.must_match(['subdir', 'foo.out'], "subdir/foo.in\n")
 
 test.write('SConstruct', """\
 def exit_scanner(node, env, target):

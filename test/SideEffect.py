@@ -60,8 +60,8 @@ test.write('blat.in', 'blat.in\n')
 test.write('baz.in', 'baz.in\n')
 
 test.run(arguments = 'foo.out bar.out', stdout=test.wrap_stdout("""\
-build("foo.out", "foo.in")
-build("bar.out", "bar.in")
+build(["foo.out"], ["foo.in"])
+build(["bar.out"], ["bar.in"])
 """))
 
 expect = """\
@@ -73,8 +73,8 @@ assert test.read('log.txt') == expect
 test.write('bar.in', 'bar.in 2 \n')
 
 test.run(arguments = 'log.txt', stdout=test.wrap_stdout("""\
-build("bar.out", "bar.in")
-build("blat.out", "blat.in")
+build(["bar.out"], ["bar.in"])
+build(["blat.out"], ["blat.in"])
 """))
 
 expect = """\
@@ -88,10 +88,10 @@ assert test.read('log.txt') == expect
 test.write('foo.in', 'foo.in 2 \n')
 
 test.run(arguments = ".", stdout=test.wrap_stdout("""\
-build("foo.out", "foo.in")
-build("log.out", "log.txt")
-build("%s", "baz.in")
-build("%s", "%s")
+build(["foo.out"], ["foo.in"])
+build(["log.out"], ["log.txt"])
+build(["%s"], ["baz.in"])
+build(["%s"], ["%s"])
 """ % (os.path.join('subdir', 'baz.out'),
        os.path.join('subdir', 'out.out'),
        os.path.join('subdir', 'out.txt'))))
@@ -107,18 +107,18 @@ assert test.read('log.txt') == expect
 
 test.run(arguments = "-c .")
 
-test.fail_test(os.path.exists(test.workpath('foo.out')))
-test.fail_test(os.path.exists(test.workpath('bar.out')))
-test.fail_test(os.path.exists(test.workpath('blat.out')))
-test.fail_test(os.path.exists(test.workpath('log.txt')))
+test.must_not_exist(test.workpath('foo.out'))
+test.must_not_exist(test.workpath('bar.out'))
+test.must_not_exist(test.workpath('blat.out'))
+test.must_not_exist(test.workpath('log.txt'))
 
 build_lines =  [
-    'build("bar.out", "bar.in")', 
-    'build("blat.out", "blat.in")', 
-    'build("foo.out", "foo.in")', 
-    'build("log.out", "log.txt")', 
-    'build("%s", "baz.in")' % os.path.join('subdir', 'baz.out'),
-    'build("%s", "%s")' % (os.path.join('subdir', 'out.out'),
+    'build(["bar.out"], ["bar.in"])', 
+    'build(["blat.out"], ["blat.in"])', 
+    'build(["foo.out"], ["foo.in"])', 
+    'build(["log.out"], ["log.txt"])', 
+    'build(["%s"], ["baz.in"])' % os.path.join('subdir', 'baz.out'),
+    'build(["%s"], ["%s"])' % (os.path.join('subdir', 'out.out'),
                            os.path.join('subdir', 'out.txt')),
 ]
 test.run(arguments = "-j 4 .")
@@ -160,14 +160,14 @@ env.SideEffect(Dir('log'), ['foo.out', 'bar.out', 'blat.out'])
 
 test.run(arguments='foo.out')
 
-test.fail_test(not os.path.exists(test.workpath('foo.out')))
-test.fail_test(not os.path.exists(test.workpath('log/foo.out')))
-test.fail_test(os.path.exists(test.workpath('log', 'bar.out')))
-test.fail_test(os.path.exists(test.workpath('log', 'blat.out')))
+test.must_exist(test.workpath('foo.out'))
+test.must_exist(test.workpath('log/foo.out'))
+test.must_not_exist(test.workpath('log', 'bar.out'))
+test.must_not_exist(test.workpath('log', 'blat.out'))
 
 test.run(arguments='log')
-test.fail_test(not os.path.exists(test.workpath('log', 'bar.out')))
-test.fail_test(not os.path.exists(test.workpath('log', 'blat.out')))
+test.must_exist(test.workpath('log', 'bar.out'))
+test.must_exist(test.workpath('log', 'blat.out'))
 
 test.write('SConstruct', 
 """

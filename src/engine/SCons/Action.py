@@ -358,6 +358,7 @@ class CommandAction(ActionBase):
                         # it is a path list, because that's a pretty
                         # common list like value to stick in an environment
                         # variable:
+                        value = SCons.Util.flatten(value)
                         ENV[key] = string.join(map(str, value), os.pathsep)
                     elif not SCons.Util.is_String(value):
                         # If it isn't a string or a list, then
@@ -494,13 +495,13 @@ class FunctionAction(ActionBase):
                 return "unknown_python_function"
 
     def strfunction(self, target, source, env):
-        def quote(s):
-            return '"' + str(s) + '"'
-        def array(a, q=quote):
-            return '[' + string.join(map(lambda x, q=q: q(x), a), ", ") + ']'
+        def array(a):
+            def quote(s):
+                return '"' + str(s) + '"'
+            return '[' + string.join(map(quote, a), ", ") + ']'
         name = self.function_name()
-        tstr = len(target) == 1 and quote(target[0]) or array(target)
-        sstr = len(source) == 1 and quote(source[0]) or array(source)
+        tstr = array(target)
+        sstr = array(source)
         return "%s(%s, %s)" % (name, tstr, sstr)
 
     def __str__(self):

@@ -1163,10 +1163,8 @@ environment that consists of the tools and values that
 .B scons
 has determined are appropriate for the local system.
 
-All builder methods return a Node or a list of Nodes,
-representing the target or targets that will be built.
-A list of Nodes is returned if there is more than one target,
-and a single Node is returned if there is only one target.
+All builder methods return a list of Nodes
+that represent the target or targets that will be built.
 A
 .I Node
 is an internal SCons object
@@ -1183,8 +1181,8 @@ to add a specific
 flag when compiling one specific object file:
 
 .ES
-bar_obj = env.StaticObject('bar.c', CCFLAGS='-DBAR')
-env.Program(source = ['foo.c', bar_obj, 'main.c'])
+bar_obj_list = env.StaticObject('bar.c', CCFLAGS='-DBAR')
+env.Program(source = ['foo.c', bar_obj_list, 'main.c'])
 .EE
 
 Using a Node in this way
@@ -1193,15 +1191,27 @@ by avoiding having to specify
 a platform-specific object suffix
 when calling the Program() builder method.
 
+(Note that Builder calls will "flatten" the lists
+the source and target file list,
+so it's all right to have the bar_obj list
+return by the StaticObject() call
+in the middle of the source file list.)
+
 The path name for a Node's file may be used
 by passing the Node to the Python-builtin
 .B str()
 function:
 
 .ES
-bar_obj = env.StaticObject('bar.c', CCFLAGS='-DBAR')
-print "The path to bar_obj is:", str(bar_obj)
+bar_obj_list = env.StaticObject('bar.c', CCFLAGS='-DBAR')
+print "The path to bar_obj is:", str(bar_obj_list[0])
 .EE
+
+Note again that because the Builder call returns a list,
+we have to access the first element in the list
+.B (bar_obj_list[0])
+to get at the Node that actually represents
+the object file.
 
 .B scons
 provides the following builder methods:

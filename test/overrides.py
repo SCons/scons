@@ -54,11 +54,11 @@ test.write('foo.in', "foo.in\n")
 test.write('bar.in', "bar.in\n")
 
 test.run(arguments = "-Q", stdout = """\
-build("foo.out", "foo.in")
+build(["foo.out"], ["foo.in"])
 env['CC'] = mycc
 env['CCFLAGS'] = -DFOO -DBAR
 env['LIBS'] = ['a', 'b']
-build("bar.out", "bar.in")
+build(["bar.out"], ["bar.in"])
 env['CC'] = buildcc
 env['CCFLAGS'] = -DFOO
 env['LIBS'] = buildlibs

@@ -338,7 +338,9 @@ class Base:
         if not args:
             return []
 
-        if not SCons.Util.is_List(args):
+        if SCons.Util.is_List(args):
+            args = SCons.Util.flatten(args)
+        else:
             args = [args]
 
         nodes = []
@@ -354,10 +356,16 @@ class Base:
                         n = self.subst(n, raw=1)
                         if node_factory:
                             n = node_factory(n)
-                    nodes.append(n)
+                    try:
+                        nodes.extend(n)
+                    except TypeError:
+                        nodes.append(n)
                 elif node_factory:
-                    v = self.subst(v, raw=1)
-                    nodes.append(node_factory(v))
+                    v = node_factory(self.subst(v, raw=1))
+                    try:
+                        nodes.extend(v)
+                    except TypeError:
+                        nodes.append(v)
             else:
                 nodes.append(v)
     
@@ -964,20 +972,14 @@ class Base:
             s = self.arg2nodes(s, self.fs.Entry)
             for t in tlist:
                 AliasBuilder(self, t, s)
-        if len(tlist) == 1:
-            tlist = tlist[0]
         return tlist
 
     def AlwaysBuild(self, *targets):
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.File))
-
         for t in tlist:
             t.set_always_build()
-
-        if len(tlist) == 1:
-            tlist = tlist[0]
         return tlist
 
     def BuildDir(self, build_dir, src_dir, duplicate=1):
@@ -1042,9 +1044,6 @@ class Base:
         dlist = self.arg2nodes(dependency, self.fs.Entry)
         for t in tlist:
             t.add_dependency(dlist)
-
-        if len(tlist) == 1:
-            tlist = tlist[0]
         return tlist
 
     def Dir(self, name, *args, **kw):
@@ -1072,10 +1071,11 @@ class Base:
         return SCons.Node.FS.find_file(file, nodes, self.fs.File)
 
     def GetBuildPath(self, files):
-        ret = map(str, self.arg2nodes(files, self.fs.Entry))
-        if len(ret) == 1:
-            return ret[0]
-        return ret
+        result = map(str, self.arg2nodes(files, self.fs.Entry))
+        if SCons.Util.is_List(files):
+            return result
+        else:
+            return result[0]
 
     def Ignore(self, target, dependency):
         """Ignore a dependency."""
@@ -1083,9 +1083,6 @@ class Base:
         dlist = self.arg2nodes(dependency, self.fs.Entry)
         for t in tlist:
             t.add_ignore(dlist)
-
-        if len(tlist) == 1:
-            tlist = tlist[0]
         return tlist
 
     def Install(self, dir, source):
@@ -1105,21 +1102,17 @@ class Base:
         for dnode in dnodes:
             for src in sources:
                 target = self.fs.File(src.name, dnode)
-                tgt.append(InstallBuilder(self, target, src))
-        if len(tgt) == 1:
-            tgt = tgt[0]
+                tgt.extend(InstallBuilder(self, target, src))
         return tgt
 
     def InstallAs(self, target, source):
         """Install sources as targets."""
         sources = self.arg2nodes(source, self.fs.File)
         targets = self.arg2nodes(target, self.fs.File)
-        ret = []
+        result = []
         for src, tgt in map(lambda x, y: (x, y), sources, targets):
-            ret.append(InstallBuilder(self, tgt, src))
-        if len(ret) == 1:
-            ret = ret[0]
-        return ret
+            result.extend(InstallBuilder(self, tgt, src))
+        return result
 
     def Literal(self, string):
         return SCons.Util.Literal(string)
@@ -1140,12 +1133,8 @@ class Base:
         tlist = []
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
-
         for t in tlist:
             t.set_precious()
-
-        if len(tlist) == 1:
-            tlist = tlist[0]
         return tlist
 
     def Repository(self, *dirs, **kw):
@@ -1181,18 +1170,13 @@ class Base:
             self.Precious(side_effect)
             for target in targets:
                 target.side_effects.append(side_effect)
-        if len(side_effects) == 1:
-            return side_effects[0]
-        else:
-            return side_effects
+        return side_effects
 
     def SourceCode(self, entry, builder):
         """Arrange for a source code builder for (part of) a tree."""
         entries = self.arg2nodes(entry, self.fs.Entry)
         for entry in entries:
             entry.set_src_builder(builder)
-        if len(entries) == 1:
-            return entries[0]
         return entries
 
     def SourceSignatures(self, type):

@@ -547,13 +547,11 @@ class BuilderBase:
 
         if len(tlist) == 1:
             builder = self
-            result = tlist[0]
         else:
             builder = ListBuilder(self, env, tlist)
-            result = tlist
         _init_nodes(builder, env, overwarn.data, tlist, slist)
 
-        return result
+        return tlist
 
     def __call__(self, env, target = None, source = _null, **kw):
         return self._execute(env, target, source, OverrideWarner(kw))
@@ -711,16 +709,14 @@ class MultiStepBuilder(BuilderBase):
                 final_sources.append(snode)
             else:
                 tgt = subsidiary_builder._execute(env, None, snode, overwarn)
-                # Only supply the builder with sources it is capable
-                # of building.
-                if SCons.Util.is_List(tgt):
+                # If the subsidiary Builder returned more than one target,
+                # then filter out any sources that this Builder isn't
+                # capable of building.
+                if len(tgt) > 1:
                     tgt = filter(lambda x, self=self, suf=src_suffixes:
                                  self.splitext(SCons.Util.to_String(x))[1] in suf,
                                  tgt)
-                if not SCons.Util.is_List(tgt):
-                    final_sources.append(tgt)
-                else:
-                    final_sources.extend(tgt)
+                final_sources.extend(tgt)
 
         return BuilderBase._execute(self, env, target, final_sources, overwarn)
 

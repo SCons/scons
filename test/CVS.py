@@ -127,17 +127,17 @@ cvs -Q -d %s co foo/sub/SConscript
 """ % (cvsroot),
                                    build_str = """\
 cvs -Q -d %s co foo/aaa.in
-cat("aaa.out", "%s")
-cat("bbb.out", "%s")
+cat(["aaa.out"], ["%s"])
+cat(["bbb.out"], ["%s"])
 cvs -Q -d %s co foo/ccc.in
-cat("ccc.out", "%s")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["%s"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 cvs -Q -d %s co foo/sub/ddd.in
-cat("%s", "%s")
-cat("%s", "%s")
+cat(["%s"], ["%s"])
+cat(["%s"], ["%s"])
 cvs -Q -d %s co foo/sub/fff.in
-cat("%s", "%s")
-cat("%s", ["%s", "%s", "%s"])
+cat(["%s"], ["%s"])
+cat(["%s"], ["%s", "%s", "%s"])
 """ % (cvsroot,
        foo_aaa_in,
        foo_bbb_in,
@@ -198,20 +198,20 @@ U sub/SConscript
                                    build_str = """\
 cvs -q -d %s co -d . foo/aaa.in
 U ./aaa.in
-cat("aaa.out", "aaa.in")
-cat("bbb.out", "bbb.in")
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
 cvs -q -d %s co -d . foo/ccc.in
 U ./ccc.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 cvs -q -d %s co -d sub foo/sub/ddd.in
 U sub/ddd.in
-cat("%s", "%s")
-cat("%s", "%s")
+cat(["%s"], ["%s"])
+cat(["%s"], ["%s"])
 cvs -q -d %s co -d sub foo/sub/fff.in
 U sub/fff.in
-cat("%s", "%s")
-cat("%s", ["%s", "%s", "%s"])
+cat(["%s"], ["%s"])
+cat(["%s"], ["%s", "%s", "%s"])
 """ % (cvsroot,
        cvsroot,
        cvsroot,
@@ -267,14 +267,14 @@ test.run(chdir = 'work3',
          stdout = test.wrap_stdout(build_str = """\
 cvs -q -d %s co -d . foo/aaa.in
 U ./aaa.in
-cat("aaa.out", "aaa.in")
+cat(["aaa.out"], ["aaa.in"])
 cvs -q -d %s co -d . foo/bbb.in
 U ./bbb.in
-cat("bbb.out", "bbb.in")
+cat(["bbb.out"], ["bbb.in"])
 cvs -q -d %s co -d . foo/ccc.in
 U ./ccc.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """ % (cvsroot,
        cvsroot,
        cvsroot)))
@@ -301,7 +301,7 @@ env.Install('install', 'scons/SConstruct')
 
 test.run(chdir = 'work4', arguments = '.')
 
-test.fail_test(not os.path.exists(test.workpath('work4', 'install', 'SConstruct')))
+test.must_exist(test.workpath('work4', 'install', 'SConstruct'))
 
 
 test.pass_test()

@@ -56,9 +56,9 @@ test.run(arguments = 'f1.out f3.out')
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
          stdout = test.wrap_stdout("""\
 scons: `f1.out' is up to date.
-build("f2.out", "f2.in")
+build(["f2.out"], ["f2.in"])
 scons: `f3.out' is up to date.
-build("f4.out", "f4.in")
+build(["f4.out"], ["f4.in"])
 """))
 
 os.utime(test.workpath('f1.in'), 
@@ -70,9 +70,9 @@ os.utime(test.workpath('f3.in'),
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
          stdout = test.wrap_stdout("""\
-build("f1.out", "f1.in")
+build(["f1.out"], ["f1.in"])
 scons: `f2.out' is up to date.
-build("f3.out", "f3.in")
+build(["f3.out"], ["f3.in"])
 scons: `f4.out' is up to date.
 """))
 
@@ -99,9 +99,9 @@ test.run(arguments = 'f1.out f3.out')
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
          stdout = test.wrap_stdout("""\
 scons: `f1.out' is up to date.
-build("f2.out", "f2.in")
+build(["f2.out"], ["f2.in"])
 scons: `f3.out' is up to date.
-build("f4.out", "f4.in")
+build(["f4.out"], ["f4.in"])
 """))
 
 os.utime(test.workpath('f1.in'), 
@@ -151,9 +151,9 @@ test.run(arguments = 'f5.out f7.out')
 test.run(arguments = 'f5.out f6.out f7.out f8.out',
          stdout = test.wrap_stdout("""\
 scons: `f5.out' is up to date.
-build("f6.out", "f6.in")
+build(["f6.out"], ["f6.in"])
 scons: `f7.out' is up to date.
-build("f8.out", "f8.in")
+build(["f8.out"], ["f8.in"])
 """))
 
 os.utime(test.workpath('f5.in'), 
@@ -165,7 +165,7 @@ os.utime(test.workpath('f7.in'),
 
 test.run(arguments = 'f5.out f6.out f7.out f8.out',
          stdout = test.wrap_stdout("""\
-build("f5.out", "f5.in")
+build(["f5.out"], ["f5.in"])
 scons: `f6.out' is up to date.
 scons: `f7.out' is up to date.
 scons: `f8.out' is up to date.
@@ -186,10 +186,9 @@ env.B(target = 'switch.out', source = 'switch.in')
 
 test.write('switch.in', "switch.in\n")
 
-test.run(arguments = 'switch.out',
-         stdout = test.wrap_stdout("""\
-build("switch.out", "switch.in")
-"""))
+switch_out_switch_in = test.wrap_stdout('build(["switch.out"], ["switch.in"])\n')
+
+test.run(arguments = 'switch.out', stdout = switch_out_switch_in)
 
 test.up_to_date(arguments = 'switch.out')
 
@@ -203,10 +202,7 @@ env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'switch.out', source = 'switch.in')
 """)
 
-test.run(arguments = 'switch.out',
-         stdout = test.wrap_stdout("""\
-build("switch.out", "switch.in")
-"""))
+test.run(arguments = 'switch.out', stdout = switch_out_switch_in)
 
 test.up_to_date(arguments = 'switch.out')
 
@@ -220,19 +216,13 @@ env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'switch.out', source = 'switch.in')
 """)
 
-test.run(arguments = 'switch.out',
-         stdout = test.wrap_stdout("""\
-build("switch.out", "switch.in")
-"""))
+test.run(arguments = 'switch.out', stdout = switch_out_switch_in)
 
 test.up_to_date(arguments = 'switch.out')
 
 test.write('switch.in', "switch.in 2\n")
 
-test.run(arguments = 'switch.out',
-         stdout = test.wrap_stdout("""\
-build("switch.out", "switch.in")
-"""))
+test.run(arguments = 'switch.out', stdout = switch_out_switch_in)
 
 
 # Test both implicit_cache and timestamp signatures at the same time:
@@ -249,40 +239,29 @@ env.B(target = 'both.out', source = 'both.in')
 
 test.write('both.in', "both.in 1\n")
 
-test.run(arguments = 'both.out',
-         stdout = test.wrap_stdout("""\
-build("both.out", "both.in")
-"""))
+both_out_both_in = test.wrap_stdout('build(["both.out"], ["both.in"])\n')
+
+test.run(arguments = 'both.out', stdout = both_out_both_in)
 
 time.sleep(2)
 
 test.write('both.in', "both.in 2\n")
 
-test.run(arguments = 'both.out',
-         stdout = test.wrap_stdout("""\
-build("both.out", "both.in")
-"""))
+test.run(arguments = 'both.out', stdout = both_out_both_in)
 
 time.sleep(2)
 
 test.write('both.in', "both.in 3\n")
 
-test.run(arguments = 'both.out',
-         stdout = test.wrap_stdout("""\
-build("both.out", "both.in")
-"""))
+test.run(arguments = 'both.out', stdout = both_out_both_in)
 
 time.sleep(2)
 
 test.write('both.in', "both.in 4\n")
 
-test.run(arguments = 'both.out',
-         stdout = test.wrap_stdout("""\
-build("both.out", "both.in")
-"""))
+test.run(arguments = 'both.out', stdout = both_out_both_in)
 
 time.sleep(2)
-
 
 test.up_to_date(arguments = 'both.out')
 
