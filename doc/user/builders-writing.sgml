@@ -129,7 +129,7 @@ This functionality could be invoked as in the following example:
     </para>
 
     <programlisting>
-       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
     </programlisting>
 
     <para>
@@ -163,8 +163,10 @@ This functionality could be invoked as in the following example:
 
     </para>
 
+    
+
     <programlisting>
-       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
        env = Environment(BUILDERS = {'Foo' : bld})
     </programlisting>
 
@@ -186,7 +188,7 @@ This functionality could be invoked as in the following example:
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       foobuild < file.input > file.foo
     </literallayout>
 
@@ -205,26 +207,15 @@ This functionality could be invoked as in the following example:
     </para>
 
     <programlisting>
-       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
        env = Environment(BUILDERS = {'Foo' : bld})
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
     </programlisting>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      scons: Reading SConscript files ...
-      other errors
-      Traceback (most recent call last):
-        File "/usr/lib/scons/SCons/Script/__init__.py", line 901, in main
-          _main()
-        File "/usr/lib/scons/SCons/Script/__init__.py", line 762, in _main
-          SCons.Script.SConscript.SConscript(script)
-        File "/usr/lib/scons/SCons/Script/SConscript.py", line 207, in SConscript
-          exec _file_ in stack[-1].globals
-        File "SConstruct", line 4, in ?
-          env.Program('hello.c')
-      scons: Environment instance has no attribute 'Program'
+      % <userinput>scons -Q</userinput>
+      AttributeError: SConsEnvironment instance has no attribute 'Program':
     </literallayout>
 
     <para>
@@ -236,9 +227,11 @@ This functionality could be invoked as in the following example:
 
     </para>
 
+    
+
     <programlisting>
        env = Environment()
-       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
        env.Append(BUILDERS = {'Foo' : bld})
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
@@ -253,7 +246,7 @@ This functionality could be invoked as in the following example:
 
     <programlisting>
        env = Environment()
-       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
        env['BUILDERS']['Foo'] = bld
        env.Foo('file.foo', 'file.input')
        env.Program('hello.c')
@@ -269,9 +262,9 @@ This functionality could be invoked as in the following example:
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       foobuild < file.input > file.foo
-      cc -c hello.c -o hello.o
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
     </literallayout>
 
@@ -297,8 +290,10 @@ This functionality could be invoked as in the following example:
 
     </para>
 
+    
+
     <programlisting>
-       bld = Builder(action = 'foobuild < $TARGET > $SOURCE',
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET',
                      suffix = '.foo',
                      src_suffix = '.input')
        env = Environment(BUILDERS = {'Foo' : bld})
@@ -307,7 +302,7 @@ This functionality could be invoked as in the following example:
     </programlisting>
 
     <literallayout>
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       foobuild < file1.input > file1.foo
       foobuild < file2.input > file2.foo
     </literallayout>
@@ -338,7 +333,7 @@ This functionality could be invoked as in the following example:
 
     <programlisting>
        def build_function(target, source, env):
-           # XXX
+           # Code to build "target" from "source"
            return None
     </programlisting>
 
@@ -426,7 +421,7 @@ This functionality could be invoked as in the following example:
 
     <programlisting>
        def build_function(target, source, env):
-           # XXX
+           # Code to build "target" from "source"
            return None
        bld = Builder(action = build_function,
                      suffix = '.foo',
@@ -445,7 +440,7 @@ This functionality could be invoked as in the following example:
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       build_function("file.foo", "file.input")
     </literallayout>
 
@@ -458,14 +453,16 @@ This functionality could be invoked as in the following example:
 
     &SCons; Builder objects can create an action "on the fly"
     by using a function called a &generator;.
-    This provides a great deal of flexibility XXX
+    This provides a great deal of flexibility to
+    construct just the right list of commands
+    to build your target.
     A &generator; looks like:
 
     </para>
 
     <programlisting>
        def generate_actions(source, target, env, for_signature):
-           return XXX
+           return 'foobuild < %s > %s' % (target[0], source[0])
     </programlisting>
 
     <para>
@@ -539,7 +536,7 @@ This functionality could be invoked as in the following example:
       generator is being called to contribute to a build signature,
       as opposed to actually executing the command.
 
-      XXX
+      <!-- XXX NEED MORE HERE -->
 
       </para>
       </listitem>
@@ -565,7 +562,11 @@ This functionality could be invoked as in the following example:
 
     </para>
 
+    
+
     <programlisting>
+       def generate_actions(source, target, env, for_signature):
+           return 'foobuild < %s > %s' % (source[0], target[0])
        bld = Builder(generator = generate_actions,
                      suffix = '.foo',
                      src_suffix = '.input')
@@ -574,8 +575,8 @@ This functionality could be invoked as in the following example:
     </programlisting>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      XXX
+      % <userinput>scons -Q</userinput>
+      foobuild < file.input > file.foo
     </literallayout>
 
     <para>
@@ -600,10 +601,14 @@ This functionality could be invoked as in the following example:
 
     </para>
 
+    
+
     <programlisting>
-       def modify_targets(XXX):
-           return XXX
-       bld = Builder(action = 'XXX',
+       def modify_targets(target, source, env):
+           target.append('new_target')
+           source.append('new_source')
+           return target, source
+       bld = Builder(action = 'foobuild $TARGETS - $SOURCES',
                      suffix = '.foo',
                      src_suffix = '.input',
                      emitter = modify_targets)
@@ -612,8 +617,8 @@ This functionality could be invoked as in the following example:
     </programlisting>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      XXX
+      % <userinput>scons -Q</userinput>
+      foobuild file.foo new_target - file.input new_source
     </literallayout>
 
     <programlisting>
@@ -621,10 +626,10 @@ This functionality could be invoked as in the following example:
                      suffix = '.foo',
                      src_suffix = '.input',
                      emitter = 'MY_EMITTER')
-       def modify1(XXX):
-           return XXX
-       def modify2(XXX):
-           return XXX
+       def modify1(target, source, env):
+           return target, source
+       def modify2(target, source, env):
+           return target, source
        env1 = Environment(BUILDERS = {'Foo' : bld},
                           MY_EMITTER = modify1)
        env2 = Environment(BUILDERS = {'Foo' : bld},
@@ -635,6 +640,8 @@ This functionality could be invoked as in the following example:
 
   </section>
 
+  <!--
+
   <section>
   <title>Builders That Use Other Builders</title>
 
@@ -644,15 +651,21 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <programlisting>
+    <scons_example name="ex8">
+       <file name="SConstruct" printme="1">
        env = Environment()
-       env.SourceCode('.', env.BitKeeper('XXX')
+       #env.SourceCode('.', env.BitKeeper('XXX'))
        env.Program('hello.c')
-    </programlisting>
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+    </scons_example>
 
-    <literallayout>
-      % <userinput>scons</userinput>
-      XXX
-    </literallayout>
+    <scons_output example="ex8">
+      <command>scons -Q</command>
+    </scons_output>
 
   </section>
+
+  -->

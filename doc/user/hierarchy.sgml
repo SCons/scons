@@ -290,10 +290,11 @@ make no difference to the build.
 
     </para>
 
+    
     <programlisting>
       env = Environment()
       env.Program('prog1', ['main.c', 'foo1.c', 'foo2.c'])
-    </programlisting>
+      </programlisting>
 
     <para>
 
@@ -301,10 +302,11 @@ make no difference to the build.
 
     </para>
 
+    
     <programlisting>
       env = Environment()
       env.Program('prog2', ['main.c', 'bar1.c', 'bar2.c'])
-    </programlisting>
+      </programlisting>
 
     <para>
 
@@ -314,14 +316,14 @@ make no difference to the build.
     </para>
 
     <literallayout>
-       % <userinput>scons</userinput>
-       cc -c prog1/foo1.c -o prog1/foo1.o
-       cc -c prog1/foo2.c -o prog1/foo2.o
-       cc -c prog1/main.c -o prog1/main.o
+       % <userinput>scons -Q</userinput>
+       cc -c -o prog1/foo1.o prog1/foo1.c
+       cc -c -o prog1/foo2.o prog1/foo2.c
+       cc -c -o prog1/main.o prog1/main.c
        cc -o prog1/prog1 prog1/main.o prog1/foo1.o prog1/foo2.o
-       cc -c prog2/bar1.c -o prog2/bar1.o
-       cc -c prog2/bar2.c -o prog2/bar2.o
-       cc -c prog2/main.c -o prog2/main.o
+       cc -c -o prog2/bar1.o prog2/bar1.c
+       cc -c -o prog2/bar2.o prog2/bar2.c
+       cc -c -o prog2/main.o prog2/main.c
        cc -o prog2/prog2 prog2/main.o prog2/bar1.o prog2/bar2.o
     </literallayout>
 
@@ -333,8 +335,11 @@ make no difference to the build.
     in multiple directories, like main.c in the above example.
 
     Second, unlike standard recursive use of &Make;,
-    &SCons; stays in the top-level directory and
-    issues commands
+    &SCons; stays in the top-level directory
+    (where the &SConstruct; file lives)
+    and issues commands that use the path names
+    from the top-level directory to the
+    target and source files within the hierarchy.
 
     </para>
 
@@ -357,13 +362,12 @@ make no difference to the build.
     by appending a &hash; (hash mark)
     to the beginning of the path name:
 
-
     </para>
 
-    <literallayout>
+    <programlisting>
        env = Environment()
        env.Program('prog', ['main.c', '#lib/foo1.c', 'foo2.c'])
-    </literallayout>
+    </programlisting>
 
     <para>
 
@@ -377,11 +381,11 @@ make no difference to the build.
     </para>
 
     <literallayout>
-       % <userinput>scons</userinput>
-       cc -c lib/foo1.c -o lib/foo1.o
-       cc -c src/prog/foo2.c -o src/prog/foo2.o
-       cc -c src/prog/main.c -o src/prog/main.o
-       cc -o src/prog/prog prog/main.o lib/foo1.o prog/foo2.o
+       % <userinput>scons -Q</userinput>
+       cc -c -o lib/foo1.o lib/foo1.c
+       cc -c -o src/prog/foo2.o src/prog/foo2.c
+       cc -c -o src/prog/main.o src/prog/main.c
+       cc -o src/prog/prog src/prog/main.o lib/foo1.o src/prog/foo2.o
     </literallayout>
 
     <para>
@@ -406,10 +410,10 @@ make no difference to the build.
 
     </para>
 
-    <literallayout>
+    <programlisting>
        env = Environment()
        env.Program('prog', ['main.c', '/usr/joe/lib/foo1.c', 'foo2.c'])
-    </literallayout>
+    </programlisting>
 
     <para>
 
@@ -418,11 +422,11 @@ make no difference to the build.
     </para>
 
     <literallayout>
-       % <userinput>scons</userinput>
-       cc -c /usr/joe/lib/foo1.c -o /usr/joe/lib/foo1.o
-       cc -c src/prog/foo2.c -o src/prog/foo2.o
-       cc -c src/prog/main.c -o src/prog/main.o
-       cc -o src/prog/prog prog/main.o /usr/joe/lib/foo1.o prog/foo2.o
+       % <userinput>scons -Q</userinput>
+       cc -c -o src/prog/foo2.o src/prog/foo2.c
+       cc -c -o src/prog/main.o src/prog/main.c
+       cc -c -o /usr/joe/lib/foo1.o /usr/joe/lib/foo1.c
+       cc -o src/prog/prog src/prog/main.o /usr/joe/lib/foo1.o src/prog/foo2.o
     </literallayout>
 
     <para>
@@ -474,7 +478,7 @@ make no difference to the build.
 
       There are two ways to export a variable,
       such as a construction environment,
-      from one &SConscript; file,
+      from an &SConscript; file,
       so that it may be used by other &SConscript; files.
       First, you can call the &Export;
       function with a list of variables,
@@ -493,7 +497,7 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      You may export more than one variable name at a time:
 
       </para>
 
@@ -505,7 +509,9 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      Because white space is not legal in Python variable names,
+      the &Export; function will even automatically split
+      a string into separate names for you:
 
       </para>
 
@@ -516,7 +522,7 @@ make no difference to the build.
       <para>
 
       Second, you can specify a list of
-      variables to exported as a second argument
+      variables to export as a second argument
       to the &SConscript; function call:
 
       </para>
@@ -565,7 +571,10 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      Once a variable has been exported from a calling
+      &SConscript; file,
+      it may be used in other &SConscript; files
+      by calling the &Import; function:
 
       </para>
 
@@ -576,7 +585,18 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      The &Import; call makes the <literal>env</literal> construction
+      environment available to the &SConscript; file,
+      after which the variable can be used to build
+      programs, libraries, etc.
+
+      </para>
+
+      <para>
+
+      Like the &Export; function,
+      the &Import; function can be used
+      with multiple variable names:
 
       </para>
 
@@ -588,7 +608,9 @@ make no difference to the build.
 
       <para>
 
-      Which is exactly equivalent to:
+      And the &Import; function will similarly
+      split a string along white-space
+      into separate variable names:
 
       </para>
 
@@ -600,7 +622,24 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      Lastly, as a special case,
+      you may import all of the variables that
+      have been exported by supplying an asterisk
+      to the &Import; function:
+
+      </para>
+
+      <programlisting>
+        Import('*')
+        env = env.Copy(DEBUG = debug)
+        env.Program('prog', ['prog.c'])
+      </programlisting>
+
+      <para>
+
+      If you're dealing with a lot of &SConscript; files,
+      this can be a lot simpler than keeping
+      arbitrary lists of imported variables in each file.
 
       </para>
 
@@ -611,34 +650,77 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      Sometimes, you would like to be able to
+      use information from a subsidiary
+      &SConscript; file in some way.
+      For example,
+      suppose that you want to create one
+      library from source files
+      scattered throughout a number
+      of subsidiary &SConscript; files.
+      You can do this by using the &Return;
+      function to return values
+      from the subsidiary &SConscript; files
+      to the calling file.
+
+      </para>
+
+      <para>
+
+      If, for example, we have two subdirectories
+      &foo; and &bar;
+      that should each contribute a source
+      file to a Library,
+      what we'd like to be able to do is
+      collect the object files
+      from the subsidiary &SConscript; calls
+      like this:
 
       </para>
 
       <programlisting>
-        obj = env.Object('foo.c')
-        Return('obj')
+          env = Environment()
+          Export('env')
+          objs = []
+          for subdir in ['foo', 'bar']:
+              o = SConscript('%s/SConscript' % subdir)
+              objs.append(o)
+          env.Library('prog', objs)
       </programlisting>
 
       <para>
 
-      XXX
+      We can do this by using the &Return;
+      function in the
+      <literal>foo/SConscript</literal> file like this:
 
       </para>
 
+      
       <programlisting>
-        objs = []
-        for subdir in ['foo', 'bar']:
-            o = SConscript('%s/SConscript' % subdir)
-            objs.append(o)
-        env.Library('prog', objs)
-      </programlisting>
+          Import('env')
+          obj = env.Object('foo.c')
+          Return('obj')
+        </programlisting>
 
       <para>
 
-      XXX
+      (The corresponding
+      <literal>bar/SConscript</literal>
+      file should be pretty obvious.)
+      Then when we run &SCons;,
+      the object files from the subsidiary subdirectories
+      are all correctly archived in the desired library:
 
       </para>
+
+      <literallayout>
+        % <userinput>scons -Q</userinput>
+        cc -c -o bar/bar.o bar/bar.c
+        cc -c -o foo/foo.o foo/foo.c
+        ar r libprog.a foo/foo.o bar/bar.o
+        ranlib libprog.a
+      </literallayout>
 
     </section>
 

@@ -100,11 +100,6 @@
     &simple;
   </chapter>
 
-  <chapter id="chap-environments">
-    <title>Construction Environments</title>
-    &environments;
-  </chapter>
-
   <chapter id="chap-libraries">
     <title>Building and Linking with Libraries</title>
     &libraries;
@@ -113,6 +108,11 @@
   <chapter id="chap-depends">
     <title>Dependencies</title>
     &depends;
+  </chapter>
+
+  <chapter id="chap-environments">
+    <title>Construction Environments</title>
+    &environments;
   </chapter>
 
   <chapter id="chap-default">
@@ -150,10 +150,14 @@
     &variants;
   </chapter>
 
+  <!--
+
   <chapter id="chap-builders-built-in">
     <title>Built-In Builders</title>
     &builders-built-in;
   </chapter>
+
+  -->
 
   <chapter id="chap-builders-writing">
     <title>Writing Your Own Builders</title>
@@ -165,10 +169,14 @@
     &builders-commands;
   </chapter>
 
+  <!--
+
   <chapter id="chap-actions">
     <title>SCons Actions</title>
     &actions;
   </chapter>
+
+  -->
 
   <chapter id="chap-scanners">
     <title>Writing Scanners</title>
@@ -180,10 +188,14 @@
     &repositories;
   </chapter>
 
+  <!--
+
   <chapter id="chap-sourcecode">
     <title>Fetching Files From Source Code Management Systems</title>
     &sourcecode;
   </chapter>
+
+  -->
 
   <chapter id="chap-caching">
     <title>Caching Built Files</title>
@@ -195,6 +207,8 @@
     &alias;
   </chapter>
 
+  <!--
+
   <chapter id="chap-run">
     <title>How to Run &SCons;</title>
     &run;
@@ -204,6 +218,8 @@
     <title>Troubleshooting</title>
     &troubleshoot;
   </chapter>
+
+  -->
 
   <!--
   AddPostAction()
@@ -219,6 +235,8 @@
   Platform()
   Tools()
   -->
+
+  <!--
 
   <appendix id="app-example">
     <title>Complex &SCons; Example</title>
@@ -239,5 +257,7 @@
     <title>Converting From Ant</title>
     &ant;
   </appendix>
+
+  -->
 
 </book>

@@ -219,7 +219,7 @@ subdirectories under the repository tree.
     and next under the <filename>/usr/repository2</filename> tree.
     &SCons; expects that any files it searches
     for will be found in the same position
-    relative to the top-level directory XXX
+    relative to the top-level directory.
     In the above example, if the &hello_c; file is not
     found in the local build tree,
     &SCons; will search first for
@@ -240,7 +240,7 @@ subdirectories under the repository tree.
     </para>
 
     <scons_output example="ex1">
-      <command>scons</command>
+      <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -264,7 +264,7 @@ subdirectories under the repository tree.
     </scons_example>
 
     <scons_output example="ex2">
-      <command>scons</command>
+      <command>scons -Q</command>
       gcc -c /usr/repository1/hello.c -o hello.o
       gcc -o hello hello.o
     </scons_output>
@@ -289,7 +289,7 @@ subdirectories under the repository tree.
     </scons_example>
 
     <scons_output example="ex3">
-      <command>scons</command>
+      <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -316,7 +316,7 @@ subdirectories under the repository tree.
     </para>
 
     <literallayout>
-      % <userinput>scons -Y /usr/repository1 -Y /usr/repository2</userinput>
+      % <userinput>scons -Q -Y /usr/repository1 -Y /usr/repository2</userinput>
     </literallayout>
 
     <para>
@@ -361,20 +361,24 @@ subdirectories under the repository tree.
     <scons_example name="ex4">
       <file name="SConstruct">
        env = Environment()
-       env.Program('hello.c')
+       env.Program(['hello.c', 'file1.c', 'file2.c'])
        Repository('/usr/repository1', '/usr/repository2')
       </file>
       <file name="hello.c">
       int main() { printf("Hello, world!\n"); }
       </file>
+      <file name="file1.c">
+      int f1() { printf("file1\n"); }
+      </file>
+      <file name="file2.c">
+      int f2() { printf("file2.c\n"); }
+      </file>
     </scons_example>
 
-    <literallayout>
-      % <userinput>cd /usr/repository1</userinput>
-      % <userinput>scons</userinput>
-      gcc -c hello.c -o hello.o
-      gcc -o hello hello.o
-    </literallayout>
+    <scons_output example="ex4">
+      <command>cd /usr/repository1</command>
+      <command>scons -Q</command>
+    </scons_output>
 
     <para>
     
@@ -396,20 +400,26 @@ subdirectories under the repository tree.
 
     </para>
 
+    <!--
+    <scons_output example="ex4">
+      <command>cd $HOME/build</command>
+      <command>edit hello.c</command>
+      <command>scons -Q -Y __ROOT__/usr/repository1</command>
+    </scons_output>
+    -->
     <literallayout>
       % <userinput>cd $HOME/build</userinput>
       % <userinput>edit hello.c</userinput>
-      % <userinput>scons -Y /usr/repository1</userinput>
-      gcc -c hello.c -o hello.o
-      gcc -o hello hello.o
-      XXXXXXX
+      % <userinput>scons -Q -Y /usr/repository1</userinput>
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o /usr/repository1/file1.o /usr/repository1/file2.o
     </literallayout>
 
     <para>
 
     Notice that &SCons; realizes that it does not need to
-    rebuild a local XXX.o file,
-    but instead uses the already-compiled XXX.o file
+    rebuild local copies file1.o and file2.o files,
+    but instead uses the already-compiled files
     from the repository.
 
     </para>
@@ -431,7 +441,7 @@ subdirectories under the repository tree.
     <literallayout>
       % <userinput>mkdir $HOME/build2</userinput>
       % <userinput>cd $HOME/build2</userinput>
-      % <userinput>scons -Y /usr/all/repository hello</userinput>
+      % <userinput>scons -Q -Y /usr/all/repository hello</userinput>
       scons: `hello' is up-to-date.
     </literallayout>
 
@@ -460,7 +470,7 @@ subdirectories under the repository tree.
 
     </para>
 
-    <scons_example name="ex1">
+    <scons_example name="ex5">
       <file name="SConstruct" printme="1">
        env = Environment()
        hello = env.Program('hello.c')
@@ -484,7 +494,6 @@ subdirectories under the repository tree.
       % scons -Y /usr/all/repository hello
       Local copy of hello from /usr/all/repository/hello
       scons: `hello' is up-to-date.
-      XXXXXX DO WE REALLY REPORT up-to-date, TOO?
     </literallayout>
 
     <para>
@@ -492,7 +501,6 @@ subdirectories under the repository tree.
     (Notice that, because the act of making the local copy
     is not considered a "build" of the &hello; file,
     &SCons; still reports that it is up-to-date.)
-    XXXXXX DO WE REALLY REPORT up-to-date, TOO?
 
     </para>
 

@@ -57,12 +57,14 @@ operating system on which the build is performed (as reported by C<uname
 
   </para>
 
+  
+
   <literallayout>
-     % <userinput>scons</userinput>
-     cc -c hello.c -o hello.o
+     % <userinput>scons -Q</userinput>
+     cc -c -o hello.o hello.c
      cc -o hello hello.o
-     % <userinput>scons</userinput>
-     %
+     % <userinput>scons -Q</userinput>
+     scons: `.' is up to date.
   </literallayout>
 
   <para>
@@ -77,12 +79,11 @@ operating system on which the build is performed (as reported by C<uname
   </para>
 
   <literallayout>
-     % <userinput>scons hello</userinput>
-     cc -c hello.c -o hello.o
+     % <userinput>scons -Q hello</userinput>
+     cc -c -o hello.o hello.c
      cc -o hello hello.o
-     % <userinput>scons hello</userinput>
+     % <userinput>scons -Q hello</userinput>
      scons: `hello' is up to date.
-     %
   </literallayout>
 
   <para>
@@ -130,13 +131,12 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <literallayout>
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
          cc -o hello hello.o
          % <userinput>touch hello.c</userinput>
-         % <userinput>scons hello</userinput>
+         % <userinput>scons -Q hello</userinput>
          scons: `hello' is up to date.
-         %
       </literallayout>
 
       <para>
@@ -156,15 +156,14 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <literallayout>
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
          cc -o hello hello.o
          % <userinput>edit hello.c</userinput>
              [CHANGE THE CONTENTS OF hello.c]
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
          cc -o hello hello.o
-         %
       </literallayout>
 
       <para>
@@ -177,8 +176,7 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <programlisting>
-        env = Environment()
-        env.Program('hello.c')
+        Program('hello.c')
         SourceSignatures('MD5')
       </programlisting>
 
@@ -200,8 +198,7 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <programlisting>
-        env = Environment()
-        env.Program('hello.c')
+        Program('hello.c')
         SourceSignatures('timestamp')
       </programlisting>
 
@@ -214,14 +211,13 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <literallayout>
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
          cc -o hello hello.o
          % <userinput>touch hello.c</userinput>
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
          cc -o hello hello.o
-         %
       </literallayout>
 
     </section>
@@ -238,8 +234,8 @@ operating system on which the build is performed (as reported by C<uname
     target file is up to date or must be rebuilt.
     When a target file depends on another target file,
     &SCons; allows you to separately configure
-    how the signatures of an "intermediate" target file
-    is used when deciding if a dependent target file
+    how the signatures of "intermediate" target files
+    are used when deciding if a dependent target file
     must be rebuilt.
 
     </para>
@@ -262,15 +258,14 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <literallayout>
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
          cc -o hello hello.o
          % <userinput>edit hello.c</userinput>
-           [CHANGE THE CONTENTS OF hello.c]
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
+             [CHANGE THE CONTENTS OF hello.c]
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
          cc -o hello hello.o
-         %
       </literallayout>
 
       <para>
@@ -305,8 +300,7 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <programlisting>
-        env = Environment()
-        env.Program('hello.c')
+        Program('hello.c')
         TargetSignatures('build')
       </programlisting>
 
@@ -325,16 +319,15 @@ operating system on which the build is performed (as reported by C<uname
       If so, then any other target files
       that depend on such a built-but-not-changed target
       file actually need not be rebuilt.
-      You can have &SCons;
-      realize that a dependent target file
-      need not be rebuilt in this situation
+      You can make &SCons;
+      realize that it does not need to rebuild
+      a dependent target file in this situation
       using the &TargetSignatures; function as follows:
 
       </para>
 
       <programlisting>
-        env = Environment()
-        env.Program('hello.c')
+        Program('hello.c')
         TargetSignatures('content')
       </programlisting>
 
@@ -352,14 +345,14 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <literallayout>
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
          cc -o hello hello.o
          % <userinput>edit hello.c</userinput>
            [CHANGE A COMMENT IN hello.c]
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
-         %
+         % <userinput>scons -Q hello</userinput>
+         cc -c -o hello.o hello.c
+         scons: `hello' is up to date.
       </literallayout>
 
       <para>
@@ -407,9 +400,10 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
+    
     <programlisting>
        #define string    "world"
-    </programlisting>
+      </programlisting>
 
     <para>
 
@@ -421,14 +415,14 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
+    
     <programlisting>
-       env = Environment(CPPPATH = '.')
-       hello = env.Program('hello.c')
-    </programlisting>
+       Program('hello.c', CPPPATH = '.')
+      </programlisting>
 
     <para>
 
-    The &CPPPATH; assignment in the &Environment; call
+    The &CPPPATH; value
     tells &SCons; to look in the current directory
     (<literal>'.'</literal>)
     for any files included by C source files
@@ -438,17 +432,16 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <literallayout>
-       % <userinput>scons hello</userinput>
-       cc -I. -c hello.c -o hello.o
+       % <userinput>scons -Q hello</userinput>
+       cc -I. -c -o hello.o hello.c
        cc -o hello hello.o
-       % <userinput>scons hello</userinput>
+       % <userinput>scons -Q hello</userinput>
        scons: `hello' is up to date.
        % <userinput>edit hello.h</userinput>
            [CHANGE THE CONTENTS OF hello.h]
-       % <userinput>scons hello</userinput>
-       cc -I. -c hello.c -o hello.o
+       % <userinput>scons -Q hello</userinput>
+       cc -I. -c -o hello.o hello.c
        cc -o hello hello.o
-       %
     </literallayout>
 
     <para>
@@ -490,13 +483,12 @@ operating system on which the build is performed (as reported by C<uname
     (':' on POSIX/Linux, ';' on Windows).
     Either way, &SCons; creates the
     right command-line options
-    so that the followin example:
+    so that the following example:
 
     </para>
 
     <programlisting>
-       env = Environment(CPPPATH = ['include', '/home/project/inc'])
-       hello = env.Program('hello.c')
+       Program('hello.c', CPPPATH = ['include', '/home/project/inc'])
     </programlisting>
 
     <para>
@@ -506,8 +498,8 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <literallayout>
-       % <userinput>scons hello</userinput>
-       cc -Iinclude -I/home/project/inc -c hello.c -o hello.o
+       % <userinput>scons -Q hello</userinput>
+       cc -Iinclude -I/home/project/inc -c -o hello.o hello.c
        cc -o hello hello.o
     </literallayout>
 
@@ -518,9 +510,9 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <literallayout>
-      % <userinput>scons hello</userinput>
-      cl /Iinclude /I\home\project\inc /Fohello.obj hello.c
-      link /OUT:hello.exe hello.obj
+       C:\><userinput>scons -Q hello.exe</userinput>
+       cl /nologo /Iinclude /I\home\project\inc /c hello.c /Fohello.obj
+       link /nologo /OUT:hello.exe hello.obj
     </literallayout>
 
   </section>
@@ -568,29 +560,40 @@ operating system on which the build is performed (as reported by C<uname
     the implicit dependencies
     that its scanners find,
     for use by later builds.
-    You do this either by specifying the
+    You can do this by specifying the
     &implicit-cache; option on the command line:
 
     </para>
 
     <literallayout>
-       % <userinput>scons --implicit-cache hello</userinput>
-       cc -c hello.c -o hello.o
+       % <userinput>scons -Q --implicit-cache hello</userinput>
+       cc -c -o hello.o hello.c
        cc -o hello hello.o
-       % <userinput>scons hello</userinput>
+       % <userinput>scons -Q hello</userinput>
        scons: `hello' is up to date.
     </literallayout>
 
     <para>
 
-    Or by setting the &implicit_cache; option
+    If you don't want to specify &implicit-cache;
+    on the command line each time,
+    you can make it the default behavior for your build
+    by setting the &implicit_cache; option
     in an &SConscript; file:
 
     </para>
 
-    <literallayout>
+    <programlisting>
        SetOption('implicit_cache', 1)
-    </literallayout>
+    </programlisting>
+
+    <!--
+
+    <para>
+    
+    XXX
+
+    </para>
 
     <para>
 
@@ -599,18 +602,40 @@ operating system on which the build is performed (as reported by C<uname
     
     </para>
 
-    <para>
-    
-    XXX
-
-    </para>
+    -->
 
     <section>
     <title>The &implicit-deps-changed; Option</title>
 
       <para>
 
-      XXX
+      When using cached implicit dependencies,
+      sometimes you want to "start fresh"
+      and have &SCons; re-scan the files
+      for which it previously cached the dependencies.
+      For example,
+      if you have recently installed a new version of
+      external code that you use for compilation,
+      the external header files will have changed
+      and the previously-cached implicit dependencies
+      will be out of date.
+      You can update them by
+      running &SCons; with the &implicit-deps-changed; option:
+
+      </para>
+
+      <literallayout>
+         % <userinput>scons -Q --implicit-deps-changed hello</userinput>
+         cc -c -o hello.o hello.c
+         cc -o hello hello.o
+         % <userinput>scons -Q hello</userinput>
+         scons: `hello' is up to date.
+      </literallayout>
+
+      <para>
+
+      In this case, &SCons; will re-scan all of the implicit dependencies
+      and cache updated copies of the information.
 
       </para>
 
@@ -621,7 +646,41 @@ operating system on which the build is performed (as reported by C<uname
 
       <para>
 
-      XXX
+      By default when caching dependencies,
+      &SCons; notices when a file has been modified
+      and re-scans the file for any updated
+      implicit dependency information.
+      Sometimes, however, you may want
+      to force &SCons; to use the cached implicit dependencies, 
+      even if the source files changed.
+      This can speed up a build for example,
+      when you have changed your source files
+      but know that you haven't changed
+      any <literal>#include</literal> lines.
+      In this case,
+      you can use the &implicit-deps-unchanged; option:
+
+      </para>
+
+      <literallayout>
+         % <userinput>scons -Q --implicit-deps-unchanged hello</userinput>
+         cc -c -o hello.o hello.c
+         cc -o hello hello.o
+         % <userinput>scons -Q hello</userinput>
+         scons: `hello' is up to date.
+      </literallayout>
+
+      <para>
+
+      In this case,
+      &SCons; will assume that the cached implicit
+      dependencies are correct and
+      will not bother to re-scan changed files.
+      For typical builds after small,
+      incremental changes to source files,
+      the savings may not be very big,
+      but sometimes every bit of
+      improved performance counts.
 
       </para>
 
@@ -644,23 +703,32 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <programlisting>
-       env = Environment()
-       hello = env.Program('hello.c')
-       env.Ignore(hello, 'hello.h')
+      hello = Program('hello.c')
+      Ignore(hello, 'hello.h')
     </programlisting>
 
     <!-- XXX mention that you can use arrays for target and source? -->
 
+    <!--
+    <scons_output example="ignore">
+      <command>scons -Q hello</command>
+      <command>scons -Q hello</command>
+      <command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</command>
+      <command>scons -Q hello</command>
+      XXX THIS EXAMPLE SHOULD BE UP-TO-DATE! XXX
+    </scons_output>
+    -->
+
     <literallayout>
-       % <userinput>scons hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
-       % <userinput>scons hello</userinput>
-       scons: `hello' is up to date.
-       % <userinput>edit hello.h</userinput>
-           [CHANGE THE CONTENTS OF hello.h]
-       % <userinput>scons hello</userinput>
-       scons: `hello' is up to date.
+      % <userinput>scons -Q hello</userinput>
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o
+      % <userinput>scons -Q hello</userinput>
+      scons: `hello' is up to date.
+      % <userinput>edit hello.h</userinput>
+        [CHANGE THE CONTENTS OF hello.h]
+      % <userinput>scons -Q hello</userinput>
+      scons: `hello' is up to date.
     </literallayout>
 
     <para>
@@ -699,7 +767,7 @@ operating system on which the build is performed (as reported by C<uname
 
     On the other hand,
     sometimes a file depends on another file
-    that has no &SCons; scanner will detect.
+    that is not detected by an &SCons; scanner.
     For this situation,
     &SCons; allows you to specific explicitly that one file
     depends on another file,
@@ -717,14 +785,14 @@ operating system on which the build is performed (as reported by C<uname
     <!-- XXX mention that you can use arrays for target and source? -->
 
     <literallayout>
-       % <userinput>scons hello</userinput>
+       % <userinput>scons -Q hello</userinput>
        cc -c hello.c -o hello.o
        cc -o hello hello.o
-       % <userinput>scons hello</userinput>
+       % <userinput>scons -Q hello</userinput>
        scons: `hello' is up to date.
        % <userinput>edit other_file</userinput>
            [CHANGE THE CONTENTS OF other_file]
-       % <userinput>scons hello</userinput>
+       % <userinput>scons -Q hello</userinput>
        cc -c hello.c -o hello.o
        cc -o hello hello.o
     </literallayout>

@@ -50,8 +50,8 @@ Python until Python version 1.6, so if your system is running Python
 1.5.2, you may not have distutils installed.  If you are running
 Python version 1.6 or later, you should be fine.
 
-NOTE TO RED HAT USERS:  All Red Hat Linux versions up to 7.3 still ship
-Python 1.5.2 as the default, so you probably do *not* have distutils
+NOTE TO RED HAT USERS:  Red Hat shipped Python 1.5.2 as the default all
+the way up to Red Hat Linux 7.3, so you probably do *not* have distutils
 installed, unless you have already done so manually or are running Red
 Hat 8.0 or later.
 

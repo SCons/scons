@@ -29,7 +29,7 @@
 
  <para>
 
-   X
+   XXX
 
  </para>
 
@@ -38,20 +38,23 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
    <scons_example name="ex_bitkeeper">
       <file name="SConstruct" printme="1">
       env = Environment()
-      env.SourceCode('.', env.BitKeeper('XXX'))
+      env.SourceCode('.', env.BitKeeper())
       env.Program('hello.c')
+      </file>
+      <file name="s.hello.c">
+      s.hello.c
       </file>
    </scons_example>
 
    <scons_output example="ex_bitkeeper">
-     <userinput>scons</userinput>
+     <command>scons -Q</command>
    </scons_output>
 
  </section>
@@ -61,20 +64,20 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
    <scons_example name="ex_cvs">
       <file name="SConstruct" printme="1">
       env = Environment()
-      env.SourceCode('.', env.CVS('XXX'))
+      env.SourceCode('.', env.CVS('/usr/local/CVS'))
       env.Program('hello.c')
       </file>
    </scons_example>
 
    <scons_output example="ex_cvs">
-     <userinput>scons</userinput>
+     <command>scons -Q</command>
    </scons_output>
 
  </section>
@@ -84,7 +87,7 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
@@ -94,10 +97,13 @@
       env.SourceCode('.', env.RCS())
       env.Program('hello.c')
       </file>
+      <file name="hello.c,v">
+      hello.c,v
+      </file>
    </scons_example>
 
    <scons_output example="ex_rcs">
-     <userinput>scons</userinput>
+     <command>scons -Q</command>
    </scons_output>
 
  </section>
@@ -107,7 +113,7 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
@@ -117,10 +123,13 @@
       env.SourceCode('.', env.SCCS())
       env.Program('hello.c')
       </file>
+      <file name="s.hello.c">
+      s.hello.c
+      </file>
    </scons_example>
 
    <scons_output example="ex_sccs">
-     <userinput>scons</userinput>
+     <command>scons -Q</command>
    </scons_output>
 
  </section>
@@ -132,7 +141,7 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
@@ -145,7 +154,7 @@
    </scons_example>
 
    <scons_output example="ex_subversion">
-     <userinput>scons</userinput>
+     <command>scons -Q</command>
    </scons_output>
 
  </section>

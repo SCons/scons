@@ -52,7 +52,7 @@ except KeyError:
 #    version = os.environ['SCONS_VERSION']
 #except KeyError:
 #    version = '__VERSION__'
-version = '0.92'
+version = '0.93'
 
 scons_version = 'scons-%s' % version
 

@@ -214,7 +214,7 @@ subdirectories under the repository tree.
     and next under the <filename>/usr/repository2</filename> tree.
     &SCons; expects that any files it searches
     for will be found in the same position
-    relative to the top-level directory XXX
+    relative to the top-level directory.
     In the above example, if the &hello_c; file is not
     found in the local build tree,
     &SCons; will search first for
@@ -235,9 +235,9 @@ subdirectories under the repository tree.
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      gcc -c hello.c -o hello.o
-      gcc -o hello hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o
     </literallayout>
 
     <para>
@@ -249,8 +249,12 @@ subdirectories under the repository tree.
 
     </para>
 
+    
+
     <literallayout>
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o
       gcc -c /usr/repository1/hello.c -o hello.o
       gcc -o hello hello.o
     </literallayout>
@@ -263,10 +267,12 @@ subdirectories under the repository tree.
 
     </para>
 
+    
+
     <literallayout>
-      % <userinput>scons</userinput>
-      gcc -c /usr/repository2/hello.c -o hello.o
-      gcc -o hello hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o
     </literallayout>
 
     <para>
@@ -293,7 +299,7 @@ subdirectories under the repository tree.
     </para>
 
     <literallayout>
-      % <userinput>scons -Y /usr/repository1 -Y /usr/repository2</userinput>
+      % <userinput>scons -Q -Y /usr/repository1 -Y /usr/repository2</userinput>
     </literallayout>
 
     <para>
@@ -335,11 +341,15 @@ subdirectories under the repository tree.
 
     </para>
 
+    
+
     <literallayout>
       % <userinput>cd /usr/repository1</userinput>
-      % <userinput>scons</userinput>
-      gcc -c hello.c -o hello.o
-      gcc -o hello hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o file1.o file1.c
+      cc -c -o file2.o file2.c
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o file1.o file2.o
     </literallayout>
 
     <para>
@@ -362,20 +372,26 @@ subdirectories under the repository tree.
 
     </para>
 
+    <!--
+    <scons_output example="ex4">
+      <command>cd $HOME/build</command>
+      <command>edit hello.c</command>
+      <command>scons -Q -Y __ROOT__/usr/repository1</command>
+    </scons_output>
+    -->
     <literallayout>
       % <userinput>cd $HOME/build</userinput>
       % <userinput>edit hello.c</userinput>
-      % <userinput>scons -Y /usr/repository1</userinput>
-      gcc -c hello.c -o hello.o
-      gcc -o hello hello.o
-      XXXXXXX
+      % <userinput>scons -Q -Y /usr/repository1</userinput>
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o /usr/repository1/file1.o /usr/repository1/file2.o
     </literallayout>
 
     <para>
 
     Notice that &SCons; realizes that it does not need to
-    rebuild a local XXX.o file,
-    but instead uses the already-compiled XXX.o file
+    rebuild local copies file1.o and file2.o files,
+    but instead uses the already-compiled files
     from the repository.
 
     </para>
@@ -397,7 +413,7 @@ subdirectories under the repository tree.
     <literallayout>
       % <userinput>mkdir $HOME/build2</userinput>
       % <userinput>cd $HOME/build2</userinput>
-      % <userinput>scons -Y /usr/all/repository hello</userinput>
+      % <userinput>scons -Q -Y /usr/all/repository hello</userinput>
       scons: `hello' is up-to-date.
     </literallayout>
 
@@ -445,7 +461,6 @@ subdirectories under the repository tree.
       % scons -Y /usr/all/repository hello
       Local copy of hello from /usr/all/repository/hello
       scons: `hello' is up-to-date.
-      XXXXXX DO WE REALLY REPORT up-to-date, TOO?
     </literallayout>
 
     <para>
@@ -453,7 +468,6 @@ subdirectories under the repository tree.
     (Notice that, because the act of making the local copy
     is not considered a "build" of the &hello; file,
     &SCons; still reports that it is up-to-date.)
-    XXXXXX DO WE REALLY REPORT up-to-date, TOO?
 
     </para>
 

@@ -27,66 +27,6 @@
 
 =head1 Variant builds
 
-
-=head2 Hello, World! for baNaNa and peAcH OS's
-
-Variant builds require just another simple extension. Let's take as an
-example a requirement to allow builds for both the baNaNa and peAcH
-operating systems. In this case, we are using a distributed file system,
-such as NFS to access the particular system, and only one or the other of
-the systems has to be compiled for any given invocation of C<cons>. Here's
-one way we could set up the F<Construct> file for our B<Hello, World!>
-application:
-
-  # Construct file for Hello, World!
-
-  die qq(OS must be specified) unless $OS = $ARG{OS};
-  die qq(OS must be "peach" or "banana")
-	if $OS ne "peach" && $OS ne "banana";
-
-  # Where to put all our shared products.
-  $EXPORT = "#export/$OS";
-
-  Export qw( CONS INCLUDE LIB BIN );
-
-  # Standard directories for sharing products.
-  $INCLUDE = "$EXPORT/include";
-  $LIB = "$EXPORT/lib";
-  $BIN = "$EXPORT/bin";
-
-  # A standard construction environment.
-  $CONS = new cons (
-	CPPPATH => $INCLUDE,	# Include path for C Compilations
-	LIBPATH => $LIB,	# Library path for linking programs
-	LIBS => '-lworld',	# List of standard libraries
-  );
-
-  # $BUILD is where we will derive everything.
-  $BUILD = "#build/$OS";
-
-  # Tell cons where the source files for $BUILD are.
-  Link $BUILD => 'src';
-
-  Build (
-	"$BUILD/hello/Conscript",
-	"$BUILD/world/Conscript",
-  );
-
-Now if we login to a peAcH system, we can build our B<Hello, World!>
-application for that platform:
-
-  % cons export OS=peach
-  Install build/peach/world/world.h as export/peach/include/world.h
-  cc -Iexport/peach/include -c build/peach/hello/hello.c -o build/peach/hello/hello.o
-  cc -Iexport/peach/include -c build/peach/world/world.c -o build/peach/world/world.o
-  ar r build/peach/world/libworld.a build/peach/world/world.o
-  ar: creating build/peach/world/libworld.a
-  ranlib build/peach/world/libworld.a
-  Install build/peach/world/libworld.a as export/peach/lib/libworld.a
-  cc -o build/peach/hello/hello build/peach/hello/hello.o -Lexport/peach/lib -lworld
-  Install build/peach/hello/hello as export/peach/bin/hello
-
-
 =head2 Variations on a theme
 
 Other variations of this model are possible. For example, you might decide
@@ -121,20 +61,23 @@ is pretty smart about rebuilding things when you change options.
   </para>
 
   <programlisting>
-    platform = ARGUMENT.get('OS', Platform())
+    platform = ARGUMENTS.get('OS', Platform())
 
     include = "#export/$PLATFORM/include"
     lib = "#export/$PLATFORM/lib"
     bin = "#export/$PLATFORM/bin"
 
     env = Environment(PLATFORM = platform,
+                      BINDIR = bin,
+                      INCDIR = include,
+                      LIBDIR = lib,
                       CPPPATH = [include],
-                      LIB = lib,
-                      LIBS = '-lworld')
+                      LIBPATH = [lib],
+                      LIBS = 'world')
 
     Export('env')
 
-    SConscript('src/SConscript', build_dir='build/$PLATFORM')
+    env.SConscript('src/SConscript', build_dir='build/$PLATFORM')
 
     #
     #BuildDir("#build/$PLATFORM", 'src')
@@ -150,16 +93,15 @@ is pretty smart about rebuilding things when you change options.
   </para>
 
   <literallayout>
-    $ <userinput>scons OS=linux</userinput>
-    Install build/linux/world/world.h as export/linux/include/world.h
-    cc -Iexport/linux/include -c build/linux/hello/hello.c -o build/linux/hello/hello.o
-    cc -Iexport/linux/include -c build/linux/world/world.c -o build/linux/world/world.o
+    % <userinput>scons -Q OS=linux</userinput>
+    Install file: "build/linux/world/world.h" as "export/linux/include/world.h"
+    cc -Iexport/linux/include -c -o build/linux/hello/hello.o build/linux/hello/hello.c
+    cc -Iexport/linux/include -c -o build/linux/world/world.o build/linux/world/world.c
     ar r build/linux/world/libworld.a build/linux/world/world.o
-    ar: creating build/linux/world/libworld.a
     ranlib build/linux/world/libworld.a
-    Install build/linux/world/libworld.a as export/linux/lib/libworld.a
+    Install file: "build/linux/world/libworld.a" as "export/linux/lib/libworld.a"
     cc -o build/linux/hello/hello build/linux/hello/hello.o -Lexport/linux/lib -lworld
-    Install build/linux/hello/hello as export/linux/bin/hello
+    Install file: "build/linux/hello/hello" as "export/linux/bin/hello"
   </literallayout>
 
   <para>
@@ -168,28 +110,29 @@ is pretty smart about rebuilding things when you change options.
 
   </para>
 
-    <!--
-    cl /Fohello.obj hello.c
-    link /Fohello.exe hello.obj
-    -->
   <literallayout>
-    C:\test\><userinput>scons OS=linux</userinput>
-    Install build\linux\world\world.h as export\linux\include\world.h
-    cl /Iexport\linux\include /Fobuild\linux\hello\hello.obj build\linux\hello\hello.c
-    cl /Iexport\linux\include /Fobuild\linux\world\world.obj build\linux\world\world.c
-    XXX
-    ar r build\linux\world\world.lib build\linux\world\world.obj
-    Install build\linux\world\world.lib as export\linux\lib\libworld.a
-    link /Fobuild\linux\hello\hello.exe build\linux\hello\hello.obj -Lexport\linux\lib world.lib
-    Install build\linux\hello\hello.exe as export\linux\bin\hello.exe
+    C:\><userinput>scons -Q OS=windows</userinput>
+    Install file: "build/windows/world/world.h" as "export/windows/include/world.h"
+    cl /nologo /Iexport\windows\include /c build\windows\hello\hello.c /Fobuild\windows\hello\hello.obj
+    cl /nologo /Iexport\windows\include /c build\windows\world\world.c /Fobuild\windows\world\world.obj
+    lib /nologo /OUT:build\windows\world\world.lib build\windows\world\world.obj
+    Install file: "build/windows/world/world.lib" as "export/windows/lib/world.lib"
+    link /nologo /OUT:build\windows\hello\hello.exe /LIBPATH:export\windows\lib world.lib build\windows\hello\hello.obj
+    Install file: "build/windows/hello/hello.exe" as "export/windows/bin/hello.exe"
   </literallayout>
 
-  <programlisting>
-    env = Environment(OS = )
+  <!--
+
+  <scons_example name="ex_var2">
+    <file name="SConstruct" printme="1">
+    env = Environment(OS = ARGUMENTS.get('OS'))
     for os in ['newell', 'post']:
         SConscript('src/SConscript', build_dir='build/' + os)
-  </programlisting>
+    </file>
+  </scons_example>
 
-  <literallayout>
-    % <userinput>scons</userinput>
-  </literallayout>
+  <scons_output example="ex_var2">
+    <command>scons -Q</command>
+  </scons_output>
+
+  -->

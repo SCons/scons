@@ -121,19 +121,211 @@ over the file scanning rather than being called for each input line:
 
 -->
 
- <para>
+  <para>
 
-   XXX
+    &SCons; has built-in scanners that know how to look in
+    C, Fortran and IDL source files for information about
+    other files that targets built from those files depend on--for example,
+    in the case of files that use the C preprocessor,
+    the <filename>.h</filename> files that are specified
+    using <literal>#include</literal> lines in the source.
+    You can use the same mechanisms that &SCons; uses to create
+    its built-in scanners to write scanners of your own for file types
+    that &SCons; does not know how to scan "out of the box."
 
- </para>
+  </para>
 
- <section>
- <title>XXX</title>
+  <section>
+  <title>A Simple Scanner Example</title>
 
-   <para>
+    <para>
 
-   XXX
+      Suppose, for example, that we want to create a simple scanner
+      for <filename>.foo</filename> files.
+      A <filename>.foo</filename> file contains some text that
+      will be processed,
+      and can include other files on lines that begin
+      with <literal>include</literal>
+      followed by a file name:
 
-   </para>
+    </para>
 
- </section>
+    <programlisting>
+      include filename.foo
+    </programlisting>
+
+    <para>
+
+      Scanning a file will be handled by a Python function
+      that you must supply.
+      Here is a function that will use the Python
+      <filename>re</filename> module
+      to scan for the <literal>include</literal> lines in our example:
+
+    </para>
+
+    <programlisting>
+      import re
+      
+      include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
+      
+      def kfile_scan(node, env, path, arg):
+          contents = node.get_contents()
+          return include_re.findall(contents)
+    </programlisting>
+
+    <para>
+
+      The scanner function must
+      accept the four specified arguments
+      and return a list of implicit dependencies.
+      Presumably, these would be dependencies found
+      from examining the contents of the file,
+      although the function can perform any
+      manipulation at all to generate the list of
+      dependencies.
+
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+      <term>node</term>
+
+      <listitem>
+      <para>
+
+      An &SCons; node object representing the file being scanned.
+      The path name to the file can be
+      used by converting the node to a string
+      using the <literal>str()</literal> function,
+      or an internal &SCons; <literal>get_contents()</literal>
+      object method can be used to fetch the contents.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>env</term>
+
+      <listitem>
+      <para>
+
+      The construction environment in effect for this scan.
+      The scanner function may choose to use construction
+      variables from this environment to affect its behavior.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>path</term>
+
+      <listitem>
+      <para>
+
+      A list of directories that form the search path for included files
+      for this scanner.
+      This is how &SCons; handles the &CPPPATH; and &LIBPATH;
+      variables.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>arg</term>
+
+      <listitem>
+      <para>
+
+      An optional argument that you can choose to
+      have passed to this scanner function by
+      various scanner instances.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <para>
+
+    A Scanner object is created using the &Scanner; function,
+    which typically takes an <literal>skeys</literal> argument
+    to associate the type of file suffix with this scanner.
+    The Scanner object must then be associated with the
+    &SCANNERS; construction variable of a construction environment,
+    typically by using the &Append; method:
+
+    </para>
+
+    <programlisting>
+       kscan = Scanner(function = kfile_scan,
+                       skeys = ['.k'])
+       env.Append(SCANNERS = kscan)
+    </programlisting>
+
+    <para>
+
+    When we put it all together, it looks like:
+
+    </para>
+
+    <scons_example name="scan">
+      <file name="SConstruct" printme="1">
+        import re
+
+        include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
+
+        def kfile_scan(node, env, path):
+            contents = node.get_contents()
+            includes = include_re.findall(contents)
+            return includes
+
+        kscan = Scanner(function = kfile_scan,
+                        skeys = ['.k'])
+
+        env = Environment(ENV = {'PATH' : '__ROOT__/usr/local/bin'})
+        env.Append(SCANNERS = kscan)
+
+        env.Command('foo', 'foo.k', 'kprocess < $SOURCES > $TARGET')
+      </file>
+      <file name="foo.k">
+      include other_file
+      </file>
+      <file name="other_file">
+      other_file
+      </file>
+      <directory name="__ROOT__/usr"></directory>
+      <directory name="__ROOT__/usr/local"></directory>
+      <directory name="__ROOT__/usr/local/bin"></directory>
+      <file name="__ROOT_/usr/local/bin/kprocess" chmod="755">
+      cat
+      </file>
+    </scons_example>
+
+    <!--
+
+    <para>
+
+      Now if we run &scons;
+      and then re-run it after changing the contents of
+      <filename>other_file</filename>,
+      the <filename>foo</filename>
+      target file will be automatically rebuilt:
+
+    </para>
+
+    <scons_output example="scan">
+      <command>scons -Q</command>
+      <command output="    [CHANGE THE CONTENTS OF other_file]">edit other_file</command>
+      <command>scons -Q</command>
+      <command>scons -Q</command>
+    </scons_output>
+
+    -->
+
+  </section>
