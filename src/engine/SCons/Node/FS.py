@@ -136,6 +136,18 @@ class FS:
 	relative path with directory=None, then an AssertionError will be
 	raised."""
 
+        if not name:
+            # This is a stupid hack to compensate for the fact
+            # that the POSIX and Win32 versions of os.path.normpath()
+            # behave differently.  In particular, in POSIX:
+            #   os.path.normpath('./') == '.'
+            # in Win32
+            #   os.path.normpath('./') == ''
+            #   os.path.normpath('.\\') == ''
+            #
+            # This is a definite bug in the Python library, but we have
+            # to live with it.
+            name = '.'
         path_comp = string.split(name, os.sep)
         drive, path_first = os.path.splitdrive(path_comp[0])
         if not path_first:

@@ -270,6 +270,13 @@ class FSTestCase(unittest.TestCase):
                             os.path.join('ddd', 'f2'),
                             os.path.join('ddd', 'f3')]
 
+        # Test for a bug in 0.04 that did not like looking up
+        # dirs with a trailing slash on Win32.
+        d=fs.Dir('./')
+        assert d.path_ == '.' + os.sep, d.abspath_
+        d=fs.Dir('foo/')
+        assert d.path_ == 'foo' + os.sep, d.path_
+
         # Test for sub-classing of node building.
         global built_it
 
