@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+#
+# Count statistics about SCons test and source files.  This must be run
+# against a fully-populated tree (for example, one that's been freshly
+# checked out).
+#
+# A test file is anything under the src/ directory that ends in
+# 'Tests.py', or anything under the test/ directory that ends in '.py'.
+#
+# A source file is anything under the src/engine/ or src/script/
+# directories that ends in '.py' but does NOT end in 'Tests.py'.  (We
+# should probably ignore the stuff in src/engine/SCons/Optik, since it
+# doesn't originate with SCons, but what the hell.)
+#
+# We report the number of tests and sources, the total number of lines
+# in each category, the number of non-blank lines, and the number of
+# non-comment lines.  The last figure (non-comment) lines is the most
+# interesting one for most purposes.
+#
+
+import os.path
+import string
+
+tests = []
+sources = []
+
+def t(arg, dirname, names):
+    names = filter(lambda n: n[-8:] == 'Tests.py', names)
+    arg.extend(map(lambda n, d=dirname: os.path.join(d, n), names))
+os.path.walk('src', t, tests)
+
+def p(arg, dirname, names):
+    names = filter(lambda n: n[-3:] == '.py', names)
+    arg.extend(map(lambda n, d=dirname: os.path.join(d, n), names))
+os.path.walk('test', p, tests)
+
+def s(arg, dirname, names):
+    names = filter(lambda n: n[-3:] == '.py' and n[-8:] != 'Tests.py', names)
+    arg.extend(map(lambda n, d=dirname: os.path.join(d, n), names))
+os.path.walk('src/engine', s, sources)
+os.path.walk('src/script', s, sources)
+
+def gather(files):
+    lines = []
+    for file in files:
+        lines.extend(open(file).readlines())
+    return lines
+
+tlines = map(string.lstrip, gather(tests))
+slines = map(string.lstrip, gather(sources))
+
+nbtl = filter(lambda x: x != '', tlines)
+nbsl = filter(lambda x: x != '', slines)
+
+nctl = filter(lambda x: x[0] != '#', nbtl)
+ncsl = filter(lambda x: x[0] != '#', nbsl)
+
+fmt = "%-8s  %12s  %12s  %12s  %12s"
+
+print fmt % ('', 'files', 'lines', 'non-blank', 'non-comment')
+print fmt % ('tests:', len(tests), len(tlines), len(nbtl), len(nctl))
+print fmt % ('sources:', len(sources), len(slines), len(nbsl), len(ncsl))
