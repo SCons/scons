@@ -68,6 +68,9 @@ class DummyEnv:
     def __getitem__(self, key):
         return self.dict[key]
 
+    def get(self, key, default):
+        return self.dict.get(key, default)
+
     def sig_dict(self):
         dict = self.dict.copy()
         dict["TARGETS"] = 'tsig'
