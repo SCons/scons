@@ -663,6 +663,24 @@ class Base:
 	    dlist = dlist[0]
 	return dlist
 
+    def Dump(self, key = None):
+        """
+        Using the standard Python pretty printer, dump the contents of the
+        scons build environment to stdout.
+
+        If the key passed in is anything other than None, then that will
+        be used as an index into the build environment dictionary and
+        whatever is found there will be fed into the pretty printer. Note
+        that this key is case sensitive.
+        """
+        import pprint
+        pp = pprint.PrettyPrinter(indent=2)
+        if key:
+            dict = self.Dictionary(key)
+        else:
+            dict = self.Dictionary()
+        return pp.pformat(dict)
+
     def FindIxes(self, paths, prefix, suffix):
         """
         Search a list of paths for something that matches the prefix and suffix.
