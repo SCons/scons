@@ -323,6 +323,9 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target = 'tgt2a tgt2b', source = 'src2')
         assert tgt.path == 'libtgt2a tgt2b', \
                 "Target has unexpected name: %s" % tgt.path
+        tgt = builder(env, source = 'src3')
+        assert tgt.path == 'libsrc3', \
+                "Target has unexpected name: %s" % tgt.path
 
     def test_src_suffix(self):
         """Test Builder creation with a specified source file suffix
@@ -376,6 +379,9 @@ class BuilderTestCase(unittest.TestCase):
                 "Target has unexpected name: %s" % tgt.path
         tgt = builder(env, target = 'tgt4a tgt4b', source = 'src4')
         assert tgt.path == 'tgt4a tgt4b.o', \
+                "Target has unexpected name: %s" % tgt.path
+        tgt = builder(env, source = 'src5')
+        assert tgt.path == 'src5.o', \
                 "Target has unexpected name: %s" % tgt.path
 
     def test_ListBuilder(self):

@@ -289,7 +289,7 @@ class BuilderBase:
             s = source[0]
             if isinstance(s, SCons.Node.Node):
                 s = os.path.split(str(s))[1]
-            target = [ os.path.splitext(s)[0] + suf ]
+            target = [ pre + os.path.splitext(s)[0] + suf ]
         else:
             target = adjustixes(target, pre, suf)
 

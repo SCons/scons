@@ -39,6 +39,9 @@ RELEASE 0.11 - XXX
     the previous Builder attributes from the construction Environment.
     (Bug reported by Bj=F6rn Bylander.)
 
+  - Fix adding a prefix to a file when the target isn't specified.
+    (Bug reported by Esa Ilari Vuokko.)
+
   From Anthony Roach:
 
   - Use a different static object suffix (.os) when using gcc so shared
