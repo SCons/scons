@@ -62,6 +62,26 @@ sys.exit(0)
     test.write('SConstruct', """
 import sys
 env = Environment()
+EnsurePythonVersion(0,0)
+env.EnsureSConsVersion(1,0)
+sys.exit(0)
+""")
+
+    test.run(status=2)
+
+    test.write('SConstruct', """
+import sys
+env = Environment()
+EnsurePythonVersion(0,0)
+env.EnsureSConsVersion(2,0)
+sys.exit(0)
+""")
+
+    test.run(status=2)
+
+    test.write('SConstruct', """
+import sys
+env = Environment()
 env.EnsurePythonVersion(0,0)
 EnsureSConsVersion(2000,0)
 sys.exit(0)
