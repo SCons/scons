@@ -87,11 +87,7 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
 
     cpppath = target.cpppath
 
-    nodes = []
-
-    try:
-        nodes = node.found_includes[cpppath]
-    except KeyError:
+    if not node.found_includes.has_key(cpppath):
         if node.exists():
 
             # cache the includes list in node so we only scan it once:
@@ -101,8 +97,8 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
                 includes = include_re.findall(node.get_contents())
                 node.includes = includes
 
+            nodes = []
             source_dir = node.get_dir()
-            
             for include in includes:
                 if include[0] == '"':
                     n = SCons.Node.FS.find_file(include[1],
@@ -118,21 +114,24 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
                 else:
                     SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
                                         "No dependency generated for file: %s (included from: %s) -- file not found" % (include[1], node))
-        node.found_includes[cpppath] = nodes
 
-    # Schwartzian transform from the Python FAQ Wizard
-    def st(List, Metric):
-        def pairing(element, M = Metric):
-            return (M(element), element)
-        def stripit(pair):
-            return pair[1]
-        paired = map(pairing, List)
-        paired.sort()
-        return map(stripit, paired)
+            # Schwartzian transform from the Python FAQ Wizard
+            def st(List, Metric):
+                def pairing(element, M = Metric):
+                    return (M(element), element)
+                def stripit(pair):
+                    return pair[1]
+                paired = map(pairing, List)
+                paired.sort()
+                return map(stripit, paired)
+    
+            def normalize(node):
+                return str(node)
 
-    def normalize(node):
-        return str(node)
+            node.found_includes[cpppath] = st(nodes, normalize)
 
-    return st(nodes, normalize)
+        else:
 
+            node.found_includes[cpppath] = []
 
+    return node.found_includes[cpppath]
