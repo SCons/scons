@@ -113,6 +113,11 @@ RELEASE 0.97 - XXX
     for another target, to avoid trying to build it again when it comes
     up in the target list.
 
+  From Wayne Lee:
+
+  - Avoid "maximum recursion limit" errors when removing $(-$) pairs
+    from long command lines.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and

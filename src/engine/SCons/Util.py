@@ -509,7 +509,7 @@ SUBST_RAW = 1
 SUBST_SIG = 2
 
 _rm = re.compile(r'\$[()]')
-_remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
+_remove = re.compile(r'\$\([^\$]*(\$[^\)][^\$]*)*\$\)')
 
 # Indexed by the SUBST_* constants above.
 _regex_remove = [ _rm, None, _remove ]
