@@ -311,7 +311,7 @@ def _init_nodes(builder, env, overrides, tlist, slist):
                 elif isinstance(t.builder, ListBuilder) ^ isinstance(builder, ListBuilder):
                     raise UserError, "Cannot build same target `%s' as singular and list"%str(t)
             elif t.sources != slist:
-                raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
+                raise UserError, "Multiple ways to build the same target were specified for: %s  (from %s and from %s)" % (str(t), map(str,t.sources), map(str,slist))
 
     if builder.single_source:
         if len(slist) > 1:

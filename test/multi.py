@@ -81,7 +81,7 @@ test.write('file2b.in', 'file2b.in\n')
 test.run(arguments='file2.out', 
          status=2, 
          stderr="""
-scons: *** Multiple ways to build the same target were specified for: file2.out
+scons: *** Multiple ways to build the same target were specified for: file2.out  (from ['file2a.in'] and from ['file2b.in'])
 File "SConstruct", line 10, in ?
 """)
 
