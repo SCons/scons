@@ -64,7 +64,7 @@ env.B(target = 'foo.out', source = 'bar.in')
 test.run(arguments='foo.out', 
          status=2, 
          stderr="""
-SCons error: Multiple ways to build the same target were specified for: foo.out
+scons: *** Multiple ways to build the same target were specified for: foo.out
 File "SConstruct", line 10, in ?
 """)
 
@@ -83,7 +83,7 @@ env.B(target = 'foo.out', source = 'bar.in', foo=2)
 test.run(arguments='foo.out', 
          status=2, 
          stderr="""
-SCons error: Two different sets of overrides were specified for the same target: foo.out
+scons: *** Two different sets of overrides were specified for the same target: foo.out
 File "SConstruct", line 10, in ?
 """)
 
@@ -103,7 +103,7 @@ env2.B(target = 'foo.out', source = 'bar.in')
 test.run(arguments='foo.out', 
          status=2, 
          stderr="""
-SCons error: Two different environments were specified for the same target: foo.out
+scons: *** Two different environments were specified for the same target: foo.out
 File "SConstruct", line 11, in ?
 """)
 
@@ -141,7 +141,7 @@ env.C(target = 'foo.out', source = 'bar.in')
 test.run(arguments='foo.out', 
          status=2, 
          stderr="""
-SCons error: Two different builders (B and C) were specified for the same target: foo.out
+scons: *** Two different builders (B and C) were specified for the same target: foo.out
 File "SConstruct", line 14, in ?
 """)
 
@@ -182,7 +182,7 @@ env.B(target = ['bar.out', 'foo.out'], source = 'bar.in')
 test.run(arguments='foo.out', 
          status=2, 
          stderr="""
-SCons error: Two different target sets have a target in common: bar.out
+scons: *** Two different target sets have a target in common: bar.out
 File "SConstruct", line 11, in ?
 """)
 
@@ -209,7 +209,7 @@ env.B(target = ['bar.out', 'blat.out'], source = 'bar.in')
 test.run(arguments='foo.out', 
          status=2, 
          stderr="""
-SCons error: Two different target sets have a target in common: bar.out
+scons: *** Two different target sets have a target in common: bar.out
 File "SConstruct", line 11, in ?
 """)
 
@@ -229,7 +229,7 @@ env.B(target = 'foo.out', source = 'bar.in')
 test.run(arguments='foo.out', 
          status=2, 
          stderr="""
-SCons error: Two different builders (ListBuilder(B) and B) were specified for the same target: foo.out
+scons: *** Two different builders (ListBuilder(B) and B) were specified for the same target: foo.out
 File "SConstruct", line 11, in ?
 """)
 

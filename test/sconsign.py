@@ -84,7 +84,7 @@ env.B1(target = 'sub1/foo.out', source = 'foo.in')
 """)
 
 stderr = '''
-SCons warning: Ignoring corrupt .sconsign file: sub1..sconsign
+scons: warning: Ignoring corrupt .sconsign file: sub1..sconsign
 .*
 '''
 

@@ -111,7 +111,7 @@ class BuildTask(SCons.Taskmaster.Task):
         elif sys.exc_type == UserError:
             # We aren't being called out of a user frame, so
             # don't try to walk the stack, just print the error.
-            sys.stderr.write("\nSCons error: %s\n" % e)
+            sys.stderr.write("\nscons: *** %s\n" % e)
         elif sys.exc_type == StopError:
             s = str(e)
             if not keep_going_on_error:
@@ -239,7 +239,7 @@ def _scons_user_error(e):
     """
     etype, value, tb = sys.exc_info()
     filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_tb(tb))
-    sys.stderr.write("\nSCons error: %s\n" % value)
+    sys.stderr.write("\nscons: *** %s\n" % value)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
     sys.exit(2)
 
@@ -251,7 +251,7 @@ def _scons_user_warning(e):
     """
     etype, value, tb = sys.exc_info()
     filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_tb(tb))
-    sys.stderr.write("\nSCons warning: %s\n" % e)
+    sys.stderr.write("\nscons: warning: %s\n" % e)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
 
 def _scons_internal_warning(e):
@@ -259,7 +259,7 @@ def _scons_internal_warning(e):
     *current call stack* rather than sys.exc_info() to get our stack trace.
     This is used by the warnings framework to print warnings."""
     filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_stack())
-    sys.stderr.write("\nSCons warning: %s\n" % e)
+    sys.stderr.write("\nscons: warning: %s\n" % e)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
 
 def _scons_other_errors():

@@ -33,7 +33,7 @@ test.run(arguments = ".",
          status = 2,
          stdout = "",
          stderr = r"""
-SCons error: No SConstruct file found.
+scons: \*\*\* No SConstruct file found.
 File "\S+", line \d+, in \S+
 """)
 

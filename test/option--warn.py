@@ -37,7 +37,7 @@ b=Builder(name='b', action='foo')
 """)
 
 test.run(arguments='.', stderr=r"""
-SCons warning: The use of the 'name' parameter to Builder\(\) is deprecated\.
+scons: warning: The use of the 'name' parameter to Builder\(\) is deprecated\.
 File "SConstruct", line 2, in \?
 """)
 
@@ -46,7 +46,7 @@ test.run(arguments='--warn=no-deprecated .', stderr='')
 test.run(arguments='--warn=no-all .', stderr='')
 
 test.run(arguments='--warn=no-all --warn=deprecated .', stderr=r"""
-SCons warning: The use of the 'name' parameter to Builder\(\) is deprecated\.
+scons: warning: The use of the 'name' parameter to Builder\(\) is deprecated\.
 File "SConstruct", line 2, in \?
 """)
 
@@ -64,19 +64,19 @@ test.write("foo.c","""
 """)
 
 test.run(arguments='--warn=dependency .', stderr=r"""
-SCons warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
+scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
 File ".+", line \d+, in .+
 """)
 
 test.run(arguments='--warn=all .', stderr=r"""
-SCons warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
+scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
 File ".+", line \d+, in .+
 """)
 
 test.run(arguments='--warn=all --warn=no-dependency .', stderr="")
 
 test.run(arguments='--warn=no-dependency --warn=all .', stderr=r"""
-SCons warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
+scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
 File ".+", line \d+, in .+
 """)
 

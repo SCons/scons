@@ -38,6 +38,10 @@ RELEASE 0.10 - XXX
       These warnings are normal in this situation and can be safely
       ignored.
 
+    - The format of all error and warning messages has been made
+      consistent.  All error messages now begin with "scons: ***"
+      and all warning messages now begin with "scons: warning:".
+
   Please note the following important changes since release 0.08:
 
     - The SetCommandHandler() function has been superceded

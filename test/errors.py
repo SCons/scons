@@ -95,7 +95,7 @@ raise SCons.Errors.UserError, 'Depends() require both sources and targets.'
 test.run(arguments='-f SConstruct2',
 	 stdout = "scons: Reading SConscript files ...\n",
 	 stderr = """
-SCons error: Depends\(\) require both sources and targets.
+scons: \*\*\* Depends\(\) require both sources and targets.
 File "SConstruct2", line 4, in \?
 """, status=2)
 

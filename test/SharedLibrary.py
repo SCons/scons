@@ -192,12 +192,12 @@ test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
 
 test.run(arguments = '-f SConstructFoo', status=2, stderr='''
-SCons error: Source file: foo\..* is static and is not compatible with shared target: .*
+scons: \*\*\* Source file: foo\..* is static and is not compatible with shared target: .*
 '''
 )
 
 test.run(arguments = '-f SConstructFoo2', status=2, stderr='''
-SCons error: Source file: bar\..* is shared and is not compatible with static target: .*
+scons: \*\*\* Source file: bar\..* is shared and is not compatible with static target: .*
 '''
 )
 
