@@ -332,6 +332,26 @@ class EnvironmentTestCase(unittest.TestCase):
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
 
+    def test_ReservedVariables(self):
+        """Test generation of warnings when reserved variable names
+        are set in an environment."""
+
+        SCons.Warnings.enableWarningClass(SCons.Warnings.ReservedVariableWarning)
+        old = SCons.Warnings.warningAsException(1)
+
+        try:
+            env4 = Environment()
+            for kw in ['TARGET', 'TARGETS', 'SOURCE', 'SOURCES']:
+                exc_caught = None
+                try:
+                    env4[kw] = 'xyzzy'
+                except SCons.Warnings.ReservedVariableWarning:
+                    exc_caught = 1
+                assert exc_caught, "Did not catch ReservedVariableWarning for `%s'" % kw
+                assert not env4.has_key(kw), "`%s' variable was incorrectly set" % kw
+        finally:
+            SCons.Warnings.warningAsException(old)
+
     def test_Replace(self):
         """Test replacing construction variables in an Environment
 

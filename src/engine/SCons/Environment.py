@@ -315,7 +315,13 @@ class Environment:
 	return dlist
 
     def __setitem__(self, key, value):
-        if key == 'BUILDERS':
+        if key == 'TARGET' or \
+           key == 'TARGETS' or \
+           key == 'SOURCE' or \
+           key == 'SOURCES':
+            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
+                                "Ignoring attempt to set reserved variable `%s'" % key)
+        elif key == 'BUILDERS':
             try:
                 bd = self._dict[key]
                 for k in bd.keys():

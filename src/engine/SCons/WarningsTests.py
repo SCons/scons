@@ -57,16 +57,23 @@ class WarningsTestCase(unittest.TestCase):
         SCons.Warnings._warningAsException = 0
 
         SCons.Warnings.enableWarningClass(SCons.Warnings.Warning)
-        SCons.Warnings.warningAsException()
+        old = SCons.Warnings.warningAsException()
+        assert old == 0, old
+        exc_caught = 0
         try:
             SCons.Warnings.warn(SCons.Warnings.Warning, "Foo")
         except:
-            pass
-        else:
-            assert 0
+            exc_caught = 1
+        assert exc_caught == 1
 
-        SCons.Warnings.warningAsException(0)
-        SCons.Warnings.warn(SCons.Warnings.Warning, "Foo")
+        old = SCons.Warnings.warningAsException(old)
+        assert old == 1, old
+        exc_caught = 0
+        try:
+            SCons.Warnings.warn(SCons.Warnings.Warning, "Foo")
+        except:
+            exc_caught = 1
+        assert exc_caught == 0
 
     def test_Disable(self):
         """Test disabling/enabling warnings."""

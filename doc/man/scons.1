@@ -2460,6 +2460,16 @@ The prefix used for shared object file names.
 .IP SHOBJSUFFIX 
 The suffix used for shared object file names.
 
+.IP SOURCE
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+
+.IP SOURCES
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+
 .IP SPAWN
 A command interpreter function that will be called to execute command line
 strings. The function must expect 4 arguments:
@@ -2500,6 +2510,16 @@ The command line used to call the tar archiver.
 
 .IP TARFLAGS
 General options passed to the tar archiver.
+
+.IP TARGET
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
+
+.IP TARGETS
+A reserved variable name
+that may not be set or used in a construction environment.
+(See "Variable Substitution," below.)
 
 .IP TARSUFFIX 
 The suffix used for tar file names.
@@ -3675,6 +3695,9 @@ first source if multiple sources are being built.
 
 .IP SOURCES
 The file names of the sources of the build command.
+
+(Note that the above variables are reserved
+and may not be set in a construction environment.)
 
 .LP 
 For example, given the construction variable CC='cc', targets=['foo'], and

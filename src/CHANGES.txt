@@ -28,6 +28,9 @@ RELEASE 0.12 - XXX
   - Make the error message the same as other build errors when there's a
     problem unlinking a target file in preparation for it being built.
 
+  - Make TARGET, TARGETS, SOURCE and SOURCES reserved variable names and
+    warn if the user tries to set them in a construction environment.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600

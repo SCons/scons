@@ -43,6 +43,9 @@ class DependencyWarning(Warning):
 class CorruptSConsignWarning(Warning):
     pass
 
+class ReservedVariableWarning(Warning):
+    pass
+
 _warningAsException = 0
 
 # The below is a list of 2-tuples.  The first element is a class object.
@@ -62,8 +65,11 @@ def enableWarningClass(clazz):
     _enabled.insert(0, (clazz, 1))
 
 def warningAsException(flag=1):
+    """Turn warnings into exceptions.  Returns the old value of the flag."""
     global _warningAsException
+    old = _warningAsException
     _warningAsException = flag
+    return old
 
 def warn(clazz, *args):
     global _enabled, _warningAsException, _warningOut
