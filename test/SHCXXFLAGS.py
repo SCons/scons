@@ -68,8 +68,8 @@ EXPORTS
 """)
 
 test.write('bar.def', r"""
-LIBRARY        "foo"
-DESCRIPTION    "Foo Shared Library"
+LIBRARY        "bar"
+DESCRIPTION    "Bar Shared Library"
 
 EXPORTS
    doIt
