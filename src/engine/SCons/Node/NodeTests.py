@@ -801,7 +801,7 @@ class NodeTestCase(unittest.TestCase):
         """
         target = SCons.Node.Node()
         source = SCons.Node.Node()
-        s = target.get_source_scanner(source)
+        s = target.get_source_scanner(source, None)
         assert s is None, s
 
         ts1 = Scanner()
@@ -820,19 +820,19 @@ class NodeTestCase(unittest.TestCase):
         builder = Builder2(ts1)
             
         targets = builder([source])
-        s = targets[0].get_source_scanner(source)
+        s = targets[0].get_source_scanner(source, None)
         assert s is ts1, s
 
         target.builder_set(Builder2(ts1))
         target.builder.source_scanner = ts2
-        s = target.get_source_scanner(source)
+        s = target.get_source_scanner(source, None)
         assert s is ts2, s
 
         builder = Builder1(env=Environment(SCANNERS = [ts3]))
 
         targets = builder([source])
         
-        s = targets[0].get_source_scanner(source)
+        s = targets[0].get_source_scanner(source, builder.env)
         assert s is ts3, s
 
 

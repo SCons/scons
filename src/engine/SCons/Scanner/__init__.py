@@ -296,8 +296,24 @@ class Classic(Current):
 
         self.cre = re.compile(regex, re.M)
         self.fs = fs
+        self._cached = {}
 
-        kw['function'] = self.scan
+        def _scan(node, env, path=(), self=self):
+            node = node.rfile()
+
+            if not node.exists():
+                return []
+
+            key = str(id(node)) + '|' + string.join(map(str, path), ':')
+            try:
+                return self._cached[key]
+            except KeyError:
+                pass
+
+            self._cached[key] = scan_result = self.scan(node, path)
+            return scan_result
+
+        kw['function'] = _scan
         kw['path_function'] = FindPathDirs(path_variable, fs)
         kw['recursive'] = 1
         kw['skeys'] = suffixes
@@ -314,11 +330,7 @@ class Classic(Current):
     def sort_key(self, include):
         return SCons.Node.FS._my_normcase(include)
 
-    def scan(self, node, env, path=()):
-        node = node.rfile()
-
-        if not node.exists():
-            return []
+    def scan(self, node, path=()):
 
         # cache the includes list in node so we only scan it once:
         if node.includes != None:
