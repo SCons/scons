@@ -42,8 +42,8 @@ def generate(env):
     """Add Builders and construction variables for ifort to an Environment."""
     # ifort supports Fortran 90 and Fortran 95
     # Additionally, ifort recognizes more file extensions.
-    SCons.Defaults.ObjSourceScan.add_scanner('.i', fortran.FortranScan)
-    SCons.Defaults.ObjSourceScan.add_scanner('.i90', fortran.FortranScan)
+    SCons.Tool.SourceFileScanner.add_scanner('.i', fortran.FortranScan)
+    SCons.Tool.SourceFileScanner.add_scanner('.i90', fortran.FortranScan)
     fortran.FortranSuffixes.extend(['.i', '.i90'])
     fortran.generate(env)
 

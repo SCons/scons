@@ -42,7 +42,30 @@ import imp
 import sys
 
 import SCons.Errors
-import SCons.Defaults
+import SCons.Scanner
+import SCons.Scanner.C
+import SCons.Scanner.D
+import SCons.Scanner.Prog
+
+CScanner = SCons.Scanner.C.CScanner()
+DScanner = SCons.Scanner.D.DScanner()
+ProgramScanner = SCons.Scanner.Prog.ProgramScanner()
+SourceFileScanner = SCons.Scanner.Scanner({}, name='SourceFileScanner')
+
+CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+             ".h", ".H", ".hxx", ".hpp", ".hh",
+             ".F", ".fpp", ".FPP",
+             ".S", ".spp", ".SPP"]
+
+DSuffixes = ['.d']
+
+IDLSuffixes = [".idl", ".IDL"]
+
+for suffix in CSuffixes:
+    SourceFileScanner.add_scanner(suffix, CScanner)
+
+for suffix in DSuffixes:
+    SourceFileScanner.add_scanner(suffix, DScanner)
 
 class ToolSpec:
     def __init__(self, name, **kw):
@@ -116,13 +139,14 @@ def createProgBuilder(env):
     try:
         program = env['BUILDERS']['Program']
     except KeyError:
+        import SCons.Defaults
         program = SCons.Builder.Builder(action = SCons.Defaults.LinkAction,
                                         emitter = '$PROGEMITTER',
                                         prefix = '$PROGPREFIX',
                                         suffix = '$PROGSUFFIX',
                                         src_suffix = '$OBJSUFFIX',
                                         src_builder = 'Object',
-                                        target_scanner = SCons.Defaults.ProgScan)
+                                        target_scanner = ProgramScanner)
         env['BUILDERS']['Program'] = program
 
     return program
@@ -137,6 +161,7 @@ def createStaticLibBuilder(env):
     try:
         static_lib = env['BUILDERS']['StaticLibrary']
     except KeyError:
+        import SCons.Defaults
         static_lib = SCons.Builder.Builder(action = SCons.Defaults.ArAction,
                                            emitter = '$LIBEMITTER',
                                            prefix = '$LIBPREFIX',
@@ -158,13 +183,14 @@ def createSharedLibBuilder(env):
     try:
         shared_lib = env['BUILDERS']['SharedLibrary']
     except KeyError:
+        import SCons.Defaults
         action_list = [ SCons.Defaults.SharedCheck,
                         SCons.Defaults.ShLinkAction ]
         shared_lib = SCons.Builder.Builder(action = action_list,
                                            emitter = "$SHLIBEMITTER",
                                            prefix = '$SHLIBPREFIX',
                                            suffix = '$SHLIBSUFFIX',
-                                           target_scanner = SCons.Defaults.ProgScan,
+                                           target_scanner = ProgramScanner,
                                            src_suffix = '$SHOBJSUFFIX',
                                            src_builder = 'SharedObject')
         env['BUILDERS']['SharedLibrary'] = shared_lib
@@ -181,13 +207,14 @@ def createLoadableModuleBuilder(env):
     try:
         ld_module = env['BUILDERS']['LoadableModule']
     except KeyError:
+        import SCons.Defaults
         action_list = [ SCons.Defaults.SharedCheck,
                         SCons.Defaults.LdModuleLinkAction ]
         ld_module = SCons.Builder.Builder(action = action_list,
                                           emitter = "$SHLIBEMITTER",
                                           prefix = '$LDMODULEPREFIX',
                                           suffix = '$LDMODULESUFFIX',
-                                          target_scanner = SCons.Defaults.ProgScan,
+                                          target_scanner = ProgramScanner,
                                           src_suffix = '$SHOBJSUFFIX',
                                           src_builder = 'SharedObject')
         env['BUILDERS']['LoadableModule'] = ld_module
@@ -207,6 +234,7 @@ def createObjBuilders(env):
     The return is a 2-tuple of (StaticObject, SharedObject)
     """
 
+
     try:
         static_obj = env['BUILDERS']['StaticObject']
     except KeyError:
@@ -215,7 +243,8 @@ def createObjBuilders(env):
                                            prefix = '$OBJPREFIX',
                                            suffix = '$OBJSUFFIX',
                                            src_builder = ['CFile', 'CXXFile'],
-                                           source_scanner = SCons.Defaults.ObjSourceScan, single_source=1)
+                                           source_scanner = SourceFileScanner,
+                                           single_source = 1)
         env['BUILDERS']['StaticObject'] = static_obj
         env['BUILDERS']['Object'] = static_obj
 
@@ -227,7 +256,8 @@ def createObjBuilders(env):
                                            prefix = '$SHOBJPREFIX',
                                            suffix = '$SHOBJSUFFIX',
                                            src_builder = ['CFile', 'CXXFile'],
-                                           source_scanner = SCons.Defaults.ObjSourceScan, single_source=1)
+                                           source_scanner = SourceFileScanner,
+                                           single_source = 1)
         env['BUILDERS']['SharedObject'] = shared_obj
 
     return (static_obj, shared_obj)

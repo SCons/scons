@@ -105,6 +105,12 @@ Mkdir                   = SCons.Defaults.Mkdir
 Move                    = SCons.Defaults.Move
 Touch                   = SCons.Defaults.Touch
 
+# Pre-made, public scanners.
+CScanner                = SCons.Tool.CScanner
+DScanner                = SCons.Tool.DScanner
+ProgramScanner          = SCons.Tool.ProgramScanner
+SourceFileScanner       = SCons.Tool.SourceFileScanner
+
 # Functions we might still convert to Environment methods.
 CScan                   = SCons.Defaults.CScan
 DefaultEnvironment      = SCons.Defaults.DefaultEnvironment

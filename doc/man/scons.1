@@ -1999,6 +1999,13 @@ env.SharedObject(target = 'eee.o', source = 'eee.cpp')
 env.SharedObject(target = 'fff.obj', source = 'fff.for')
 .EE
 
+Note that the source files will be scanned
+according to the suffix mappings in
+.B SourceFileScanner
+object.
+See the section "Scanner Objects,"
+below, for a more information.
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .IP StaticLibrary()
 .IP env.StaticLibrary()
@@ -2079,6 +2086,13 @@ env.StaticObject(target = 'aaa', source = 'aaa.c')
 env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
 env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
 .EE
+
+Note that the source files will be scanned
+according to the suffix mappings in
+.B SourceFileScanner
+object.
+See the section "Scanner Objects,"
+below, for a more information.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .IP Tar()
@@ -2169,9 +2183,21 @@ env.Zip('stuff', ['subdir1', 'subdir2'])
 env.Zip('stuff', 'another')
 .EE
 
+All
+targets of builder methods automatically depend on their sources.
+An explicit dependency can
+be specified using the 
+.B Depends 
+method of a construction environment (see below).
+
+In addition,
 .B scons
 automatically scans
-C source files, C++ source files,
+source files for various programming languages,
+so the dependencies do not need to be specified explicitly.
+By default, SCons can
+C source files,
+C++ source files,
 Fortran source files with
 .B .F
 (POSIX systems only),
@@ -2186,14 +2212,26 @@ and assembly language files with
 or
 .B .SPP
 files extensions
-for C preprocessor dependencies,
-so the dependencies do not need to be specified explicitly.
-In addition, all
-targets of builder methods automatically depend on their sources.
-An explicit dependency can
-be specified using the 
-.B Depends 
-method of a construction environment (see below).
+for C preprocessor dependencies.
+SCons also has default support
+for scanning D source files,
+You can also write your own Scanners
+to add support for additional source file types.
+These can be added to the default
+Scanner object used by
+the
+.BR Object ()
+.BR StaticObject ()
+and
+.BR SharedObject ()
+Builders by adding them
+to the
+.B SourceFileScanner
+object as follows:
+
+See the section "Scanner Objects,"
+below, for a more information about
+defining your own Scanner objects.
 
 .SS Methods and Functions to Do Things
 In addition to Builder methods,
@@ -9184,6 +9222,41 @@ only invoke the scanner on the file being scanned,
 and not (for example) also on the files
 specified by the #include lines
 in the file being scanned.
+
+Note that
+.B scons
+has a global
+.B SourceFileScanner
+object that is used by
+the
+.BR Object (),
+.BR SharedObject (),
+and 
+.BR StaticObject ()
+builders to decide
+which scanner should be used
+for different file extensions.
+You can using the
+.BR SourceFileScanner.add_scanner ()
+method to add your own Scanner object
+to the
+.B scons
+infrastructure
+that builds target programs or
+libraries from a list of
+source files of different types:
+
+.ES
+def xyz_scan(node, env, path):
+    contents = node.get_contents()
+    # Scan the contents and return the included files.
+
+XYZScanner = Scanner(xyz_scan)
+
+SourceFileScanner.add_scanner('.xyx', XYZScanner)
+
+env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
+.EE
 
 .SH SYSTEM-SPECIFIC BEHAVIOR
 SCons and its configuration files are very portable,

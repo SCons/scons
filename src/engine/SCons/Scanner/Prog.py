@@ -33,11 +33,11 @@ import SCons.Util
 # global, set by --debug=findlibs
 print_find_libs = None
 
-def ProgScan(fs = SCons.Node.FS.default_fs, **kw):
+def ProgramScanner(fs = SCons.Node.FS.default_fs, **kw):
     """Return a prototype Scanner instance for scanning executable
     files for static-lib dependencies"""
     kw['path_function'] = SCons.Scanner.FindPathDirs('LIBPATH', fs)
-    ps = apply(SCons.Scanner.Base, [scan, "ProgScan"], kw)
+    ps = apply(SCons.Scanner.Base, [scan, "ProgramScanner"], kw)
     return ps
 
 def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
