@@ -36,15 +36,43 @@ Things to do to release a version of SCons:
 		Can probably keep a lot of the existing text, read
 		it through to make sure it's okay and edit appropriately.
 
+	Prepare debian/changelog
+
+		date -R the latest release
 
 
-	END THE BRANCH (need more info)
 
-	START THE NEW BRANCH (need more info)
+	END THE BRANCH
 
-		aenbr -p {newbranch}
+		ae_p scons.0
 
-		aenc -p {newbranch}
+		aede scons {2}
+
+		aerpass {2}
+
+		aeib {2}
+
+		aeb
+
+		aet
+
+		aet -reg
+
+		aed
+
+		aeipass
+
+	START THE NEW BRANCH
+
+		aenbr -p scons.0 {3}
+
+		aenc -p {scons.0.3}
+
+                        Call it something like, "Initialize the new
+                        branch."  Cause = internal_enhancement.  Exempt
+                        it from all tests (*_exempt = true).
+
+		ae_p scons.0.3
 
 		aedb 100
 
@@ -53,10 +81,12 @@ Things to do to release a version of SCons:
 		# Change the hard-coded package version numbers
 		# in the following files.
 		aecp Construct debian/changelog rpm/scons.spec
+
 		vi Construct debian/changelog rpm/scons.spec
 
 		# Optionally, do the same in the following:
 		[optional] aecp HOWTO/change.txt debian/scons.postinst
+
 		[optional] vi HOWTO/change.txt debian/scons.postinst
 
 		aeb
@@ -75,19 +105,60 @@ Things to do to release a version of SCons:
 
 
 
-	Upload the packages to the SourceForge project page
+	Upload the packages to the SourceForge incoming FTP:
+
+		ftp upload.sourceforge.net
+		anonymous
+		<your email>
+		cd incoming
+		bin
+		put scons-0.02-1.noarch.rpm
+		put scons-0.02-1.src.rpm
+		put scons-0.02.tar.gz
+		put scons-0.01.win32.exe
+		put scons-src-0.01.tar.gz
+		put scons_0.01-1_all.deb
+
+	Create the new release at the SourceForge project page:
+
+		Cut-and-paste or upload the RELEASE.txt file.
+
+		Cut-and-paste or upload the CHANGES.txt file.
+
+		(If you cut-and-paste, check the "Preserve my
+		pre-formatted text." box!)
+
+		Check the SCons files you uploaded
+
+		Click "Submit/Refresh"
+
+		Edit the files
+
+			scons-0.02-1.noarch.rpm		Any	.rpm
+			scons-0.02-1.src.rpm		Any	Source .rpm
+			scons-0.02.tar.gz		Any	.gz
+			scons-0.01.win32.exe		i386	Other
+			scons-src-0.01.tar.gz		Any	Source .gz
+			scons_0.01-1_all.deb		Any	.deb
+
+		(This has to be done one at a time.)
 
 	Test downloading from the SourceForge project page
+
+                You'll need to wait a good bit; they update this on, at
+                best, half-hour cycles.
 
 
 
 	Update the web site:
 
-		new version number (template)
-		announcement on the home page
-		check packages on the download page
-		checkin new scons-doc.tar.gz on the web site
-		update the CHANGES.txt file
+		template:  new version number
+
+		src/index.in:  announcement on the home page
+
+		src/scons-doc.tar.gz:  update
+
+		src/CHANGES.txt:  update
 
 	Test downloading from the web site download page
 
@@ -95,9 +166,9 @@ Things to do to release a version of SCons:
 
 	Add news item to the SourceForge project page
 
-	Prepare an announcement
-	
-	Announce to the following mailing lists:
+
+
+	Announce to the following mailing lists (template below):
 
 		scons-announce@lists.sourceforge.net
 		scons-users@lists.sourceforge.net
@@ -109,8 +180,68 @@ Things to do to release a version of SCons:
 
 		[optional] cons-discuss@gnu.org
 
-		linux-announce@news.ornl.gov?
+		linux-announce@news.ornl.gov
+
+	Notify www.cmtoday.com/contribute.html
+
+                [This guy wants an announcement no more frequently than
+                once a month, so save it for a future release if it's
+                been too soon since the previous one.]
 
 	Notify freshmeat.net
-	
-	Notify www.cmtoday.com/contribute.html
+
+
+
+
+=======================
+
+Template release announcement:
+
+
+
+I'm pleased to announce that version 0.XXX of SCons has been released
+and is available for download from the SCons web site:
+
+        http://www.scons.org/
+
+Or through the download link at the SCons project page at SourceForge:
+
+        http://sourceforge.net/projects/scons/
+
+RPM and Debian packages and a Win32 installer are all available, in
+addition to the traditional .tar.gz files.
+
+SCons is a software construction tool (build tool, make tool) written
+in Python.  Its design is based on the design which won the Software
+Carpentry build tool competition in August 2000 (in turn derived from
+the Perl-based Cons build tool).
+
+Distinctive features of SCons include:
+
+  - configuration files are Python scripts, allowing the full use of a
+    real scripting language to solve build problems
+  - a modular architecture allows the SCons Build Engine to be
+    embedded in other Python software
+  - a global view of all dependencies; no multiple passes to get
+    everything built
+  - the ability to scan files for implicit dependencies (#include files);
+  - improved parallel build (-j) support
+  - use of MD5 signatures to decide if a file has changed
+  - easily extensible through user-defined Builder and Scanner objects
+
+An scons-users mailing list has been created for those interested in
+getting started using SCons.  You can subscribe at:
+
+        http://lists.sourceforge.net/lists/listinfo/scons-users
+
+Alternatively, we invite you to subscribe to the low-volume
+scons-announce mailing list to receive notification when new versions of
+SCons become available:
+
+        http://lists.sourceforge.net/lists/listinfo/scons-announce
+
+Special thanks to XXX for his/her/their contributions to this release.
+
+On behalf of the SCons team,
+
+	--SK
