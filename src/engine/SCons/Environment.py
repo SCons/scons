@@ -314,10 +314,7 @@ class Environment:
 	return dlist
 
     def __setitem__(self, key, value):
-        if key == 'TARGET' or \
-           key == 'TARGETS' or \
-           key == 'SOURCE' or \
-           key == 'SOURCES':
+        if key in ['TARGET', 'TARGETS', 'SOURCE', 'SOURCES']:
             SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
                                 "Ignoring attempt to set reserved variable `%s'" % key)
         elif key == 'BUILDERS':
@@ -329,6 +326,8 @@ class Environment:
                 self._dict[key] = BuilderDict(kwbd, self)
             self._dict[key].update(value)
         else:
+            if not SCons.Util.is_valid_construction_var(key):
+                raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
             self._dict[key] = value
 
     def __getitem__(self, key):

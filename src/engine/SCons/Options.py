@@ -67,6 +67,9 @@ class Options:
                     putting it in the environment.
         """
 
+        if not SCons.Util.is_valid_construction_var(key):
+            raise SCons.Errors.UserError, "Illegal Options.Add() key `%s'" % key
+
         class Option:
             pass
 

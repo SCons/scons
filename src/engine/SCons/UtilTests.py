@@ -571,6 +571,37 @@ class UtilTestCase(unittest.TestCase):
             wi = WhereIs('xxx', path = forward_slash, pathext = '.EXE')
             assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
 
+    def test_is_valid_construction_var(self):
+        """Testing is_valid_construction_var()"""
+        r = is_valid_construction_var("_a")
+        assert not r is None, r
+        r = is_valid_construction_var("z_")
+        assert not r is None, r
+        r = is_valid_construction_var("X_")
+        assert not r is None, r
+        r = is_valid_construction_var("2a")
+        assert r is None, r
+        r = is_valid_construction_var("a2_")
+        assert not r is None, r
+        r = is_valid_construction_var("/")
+        assert r is None, r
+        r = is_valid_construction_var("_/")
+        assert r is None, r
+        r = is_valid_construction_var("a/")
+        assert r is None, r
+        r = is_valid_construction_var(".b")
+        assert r is None, r
+        r = is_valid_construction_var("_.b")
+        assert r is None, r
+        r = is_valid_construction_var("b1._")
+        assert r is None, r
+        r = is_valid_construction_var("-b")
+        assert r is None, r
+        r = is_valid_construction_var("_-b")
+        assert r is None, r
+        r = is_valid_construction_var("b1-_")
+        assert r is None, r
+
     def test_get_env_var(self):
         """Testing get_environment_var()."""
         assert get_environment_var("$FOO") == "FOO", get_environment_var("$FOO")

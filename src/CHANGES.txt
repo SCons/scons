@@ -12,6 +12,9 @@ RELEASE 0.15 - XXX
 
   From Steven Knight:
 
+  - SCons now enforces (with an error) that construction variables
+    must have the same form as valid Python identifiers.
+
 
 
 RELEASE 0.14 - Wed, 21 May 2003 05:16:32 -0500

@@ -79,6 +79,17 @@ class OptionsTestCase(unittest.TestCase):
         assert o.default == "42"
         o.validater(o.key, o.converter(o.default), {})
 
+        def test_it(var, opts=opts):
+            exc_caught = None
+            try:
+                opts.Add(var)
+            except SCons.Errors.UserError:
+                exc_caught = 1
+            assert exc_caught, "did not catch UserError for '%s'" % var
+        test_it('foo/bar')
+        test_it('foo-bar')
+        test_it('foo.bar')
+
     def test_Update(self):
 
         test = TestSCons.TestSCons()

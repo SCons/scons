@@ -374,6 +374,22 @@ class EnvironmentTestCase(unittest.TestCase):
         finally:
             SCons.Warnings.warningAsException(old)
 
+    def test_IllegalVariables(self):
+        """Test that use of illegal variables raises an exception"""
+        env = Environment()
+        def test_it(var, env=env):
+            exc_caught = None
+            try:
+                env[var] = 1
+            except SCons.Errors.UserError:
+                exc_caught = 1
+            assert exc_caught, "did not catch UserError for '%s'" % var
+        env['aaa'] = 1
+        assert env['aaa'] == 1, env['aaa']
+        test_it('foo/bar')
+        test_it('foo.bar')
+        test_it('foo-bar')
+
     def test_Replace(self):
         """Test replacing construction variables in an Environment
 

@@ -31,7 +31,7 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "April 2003"
+.TH SCONS 1 "May 2003"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -2013,12 +2013,18 @@ env.SourceCode('no_source.c', None)
 .\"        env["CCCOM"] = "$CC $CFLAGS -o $TARGET $SOURCES
 .\"    Default:
 .\"        (I dunno what this is ;-)
-A construction environment has an associated dictionary of construction
-variables that are used by built-in or user-supplied build rules. A number
-of useful construction variables are automatically defined by scons for
-each supported platform, and additional construction variables can be defined
-by the user. The following is a list of the automatically defined construction
-variables:
+A construction environment has an associated dictionary of
+.I construction variables
+that are used by built-in or user-supplied build rules.
+Construction variables must follow the same rules for
+Python identifiers:
+the initial character must be an underscore or letter,
+followed by any number of underscores, letters, or digits.
+
+A number of useful construction variables are automatically defined by
+scons for each supported platform, and additional construction variables
+can be defined by the user. The following is a list of the automatically
+defined construction variables:
 
 .IP AR
 The static library archiver.
