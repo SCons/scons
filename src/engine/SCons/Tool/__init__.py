@@ -140,10 +140,14 @@ def FindAllTools(tools, env):
     return filter (ToolExists, tools)
              
 def tool_list(platform, env):
+
+    # XXX this logic about what tool to prefer on which platform
+    #     should be moved into either the platform files or
+    #     the tool files themselves.
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
         linkers = ['mslink', 'gnulink', 'ilink']
-        c_compilers = ['msvc', 'gcc', 'icc']
+        c_compilers = ['msvc', 'mingw', 'gcc', 'icc']
         assemblers = ['masm', 'nasm', 'gas']
         fortran_compilers = ['g77', 'ifl']
         ars = ['mslib', 'ar']
@@ -162,17 +166,29 @@ def tool_list(platform, env):
         fortran_compilers = ['g77', 'ifl']
         ars = ['ar', 'mslib']
 
-    linker = FindTool(linkers, env) or linkers[0]
     c_compiler = FindTool(c_compilers, env) or c_compilers[0]
-    assembler = FindTool(assemblers, env) or assemblers[0]
-    fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
-    ar = FindTool(ars, env) or ars[0]
-
-    # Don't use g++ if the C compiler has built-in C++ support:
-    if c_compiler and (c_compiler == 'msvc' or c_compiler == 'icc'):
+ 
+    # XXX this logic about what tool provides what should somehow be
+    #     moved into the tool files themselves.
+    if c_compiler and c_compiler == 'mingw':
+        # MinGW contains a linker, C compiler, C++ compiler, 
+        # Fortran compiler, archiver and assember:
+        linker = None
+        assembler = None
+        fortran_compiler = None
+        ar = None
         cxx_compiler = None
     else:
-        cxx_compiler = FindTool(['g++'], env)
+        linker = FindTool(linkers, env) or linkers[0]
+        assembler = FindTool(assemblers, env) or assemblers[0]
+        fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
+        ar = FindTool(ars, env) or ars[0]
+
+        # Don't use g++ if the C compiler has built-in C++ support:
+        if c_compiler and (c_compiler == 'msvc' or c_compiler == 'icc'):
+            cxx_compiler = None
+        else:
+            cxx_compiler = FindTool(['g++'], env)
         
     other_tools = FindAllTools(['dvipdf', 'dvips',
                                 'latex', 'lex',

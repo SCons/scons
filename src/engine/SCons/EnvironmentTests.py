@@ -696,6 +696,50 @@ class EnvironmentTestCase(unittest.TestCase):
         x = env.get('bbb', 'XXX')
         assert x == 'XXX', x
 
+    def test_FindIxes(self):
+        "Test FindIxes()"
+        env = Environment(LIBPREFIX='lib', 
+                          LIBSUFFIX='.a',
+                          SHLIBPREFIX='lib', 
+                          SHLIBSUFFIX='.so',
+                          PREFIX='pre',
+                          SUFFIX='post')
+
+        paths = [os.path.join('dir', 'libfoo.a'),
+                 os.path.join('dir', 'libfoo.so')]
+
+        assert paths[0] == env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
+        assert paths[1] == env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
+        assert None == env.FindIxes(paths, 'PREFIX', 'POST')
+
+        paths = ['libfoo.a', 'prefoopost']
+
+        assert paths[0] == env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
+        assert None == env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
+        assert paths[1] == env.FindIxes(paths, 'PREFIX', 'SUFFIX')
+
+    def test_ReplaceIxes(self):
+        "Test ReplaceIxes()"
+        env = Environment(LIBPREFIX='lib', 
+                          LIBSUFFIX='.a',
+                          SHLIBPREFIX='lib', 
+                          SHLIBSUFFIX='.so',
+                          PREFIX='pre',
+                          SUFFIX='post')
+        
+        assert 'libfoo.a' == env.ReplaceIxes('libfoo.so', 
+                                             'SHLIBPREFIX', 'SHLIBSUFFIX',
+                                             'LIBPREFIX', 'LIBSUFFIX')
+        
+        assert os.path.join('dir', 'libfoo.a') == env.ReplaceIxes(os.path.join('dir', 'libfoo.so'),
+                                                                   'SHLIBPREFIX', 'SHLIBSUFFIX',
+                                                                   'LIBPREFIX', 'LIBSUFFIX')
+
+        assert 'libfoo.a' == env.ReplaceIxes('prefoopost', 
+                                             'PREFIX', 'SUFFIX',
+                                             'LIBPREFIX', 'LIBSUFFIX')
+
+        
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

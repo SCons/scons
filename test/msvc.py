@@ -215,7 +215,7 @@ env.Program('test', 'test.cpp')
 """)
 
 test.run(status=2, stderr='''
-SCons error: The PCHSTOP construction must be defined if PCH is defined.
+scons: \*\*\* The PCHSTOP construction must be defined if PCH is defined.
 File "SConstruct", line 5, in \?
 ''')
 
@@ -228,7 +228,7 @@ env.Program('test', 'test.cpp')
 """)
 
 test.run(status=2, stderr='''
-SCons error: The PCHSTOP construction variable must be a string: .+
+scons: \*\*\* The PCHSTOP construction variable must be a string: .+
 File "SConstruct", line 6, in \?
 ''')
 

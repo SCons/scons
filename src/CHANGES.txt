@@ -66,6 +66,8 @@ RELEASE 0.10 - XXX
     all start with "scons: warning:").  Caught more cases with the "Do
     not know how to build" error message.
 
+  - Added support for the MinGW tool chain.
+
 
 
 RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600

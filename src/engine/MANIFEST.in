@@ -45,6 +45,7 @@ SCons/Tool/ilink.py
 SCons/Tool/latex.py
 SCons/Tool/lex.py
 SCons/Tool/masm.py
+SCons/Tool/mingw.py
 SCons/Tool/mslib.py
 SCons/Tool/mslink.py
 SCons/Tool/msvc.py

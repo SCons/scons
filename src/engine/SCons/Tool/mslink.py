@@ -57,27 +57,24 @@ def win32LinkGenerator(env, target, source, for_signature):
 
 def win32LibGenerator(target, source, env, for_signature):
     listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
-    no_import_lib = env.get('no_import_lib', 0)
 
     if env.has_key('PDB') and env['PDB']:
         listCmd.extend(['/PDB:%s'%target[0].File(env['PDB']), '/DEBUG'])
 
-    for tgt in target:
-        ext = os.path.splitext(str(tgt))[1]
-        if ext == env.subst("$LIBSUFFIX"):
-            # Put it on the command line as an import library.
-            if no_import_lib:
-                raise SCons.Errors.UserError, "%s: You cannot specify a .lib file as a target of a shared library build if no_import_library is nonzero." % tgt
-            listCmd.append("${WIN32IMPLIBPREFIX}%s" % tgt)
-        else:
-            listCmd.append("${WIN32DLLPREFIX}%s" % tgt)
+    dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
+    if dll: listCmd.append("/out:%s"%dll)
 
+    implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
+    if implib: listCmd.append("/implib:%s"%implib)
+    
     listCmd.extend([ '$_LIBDIRFLAGS', '$_LIBFLAGS' ])
+
+    deffile = env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX")
+    
     for src in source:
-        ext = os.path.splitext(str(src))[1]
-        if ext == env.subst("$WIN32DEFSUFFIX"):
+        if src == deffile:
             # Treat this source as a .def file.
-            listCmd.append("${WIN32DEFPREFIX}%s" % src)
+            listCmd.append("/def:%s" % src)
         else:
             # Just treat it as a generic source file.
             listCmd.append(str(src))
@@ -87,37 +84,31 @@ def win32LibGenerator(target, source, env, for_signature):
 def win32LibEmitter(target, source, env):
     msvc.validate_vars(env)
     
-    dll = None
+    dll = env.FindIxes(target, "SHLIBPREFIX", "SHLIBSUFFIX")
     no_import_lib = env.get('no_import_lib', 0)
     
-    for tgt in target:
-        ext = os.path.splitext(str(tgt))[1]
-        if ext == env.subst("$SHLIBSUFFIX"):
-            dll = tgt
-            break
     if not dll:
         raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX")
 
-    if env.has_key("WIN32_INSERT_DEF") and \
-       env["WIN32_INSERT_DEF"] and \
-       not '.def' in map(lambda x: os.path.splitext(str(x))[1],
-                         source):
+    if env.get("WIN32_INSERT_DEF", 0) and \
+       not env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX"):
 
         # append a def file to the list of sources
-        source.append("%s%s" % (os.path.splitext(str(dll))[0],
-                                env.subst("$WIN32DEFSUFFIX")))
+        source.append(env.ReplaceIxes(dll, 
+                                      "SHLIBPREFIX", "SHLIBSUFFIX",
+                                      "WIN32DEFPREFIX", "WIN32DEFSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
         env.SideEffect(env['PDB'], target)
         env.Precious(env['PDB'])
 
     if not no_import_lib and \
-       not env.subst("$LIBSUFFIX") in \
-       map(lambda x: os.path.splitext(str(x))[1], target):
+       not env.FindIxes(target, "LIBPREFIX", "LIBSUFFIX"):
         # Append an import library to the list of targets.
-        target.append("%s%s%s" % (env.subst("$LIBPREFIX"),
-                                  os.path.splitext(str(dll))[0],
-                                  env.subst("$LIBSUFFIX")))
+        target.append(env.ReplaceIxes(dll, 
+                                      "SHLIBPREFIX", "SHLIBSUFFIX",
+                                      "LIBPREFIX", "LIBSUFFIX"))
+
     return (target, source)
 
 def prog_emitter(target, source, env):
@@ -150,10 +141,8 @@ def generate(env, platform):
     env['LIBLINKPREFIX']=''
     env['LIBLINKSUFFIX']='$LIBSUFFIX'
 
-    env['WIN32DEFPREFIX']        = '/def:'
+    env['WIN32DEFPREFIX']        = ''
     env['WIN32DEFSUFFIX']        = '.def'
-    env['WIN32DLLPREFIX']        = '/out:'
-    env['WIN32IMPLIBPREFIX']     = '/implib:'
     env['WIN32_INSERT_DEF']      = 0
 
     include_path, lib_path, exe_path = get_msdev_paths()

@@ -777,6 +777,7 @@ gnulink
 latex
 lex
 masm
+mingw
 mslib
 mslink
 msvc
@@ -788,9 +789,11 @@ tex
 yacc
 .EE
 
-On posix and cygwin platforms the GNU tools (e.g. gcc) are preferred by SCons, 
-on win32 the Microsoft tools (e.g. msvc) are preferred by SCons, and in OS/2 the IBM
-tools (e.g. icc) are preferred by SCons.
+On posix and cygwin platforms
+the GNU tools (e.g. gcc) are preferred by SCons,
+on win32 the Microsoft tools (e.g. msvc)
+followed by MinGW are preferred by SCons,
+and in OS/2 the IBM tools (e.g. icc) are preferred by SCons.
 
 .SS Builder Methods
 
@@ -1022,10 +1025,13 @@ env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
 .EE
 
 .IP RES
-Builds a Microsoft Visual C++ resource file. This builder is only
-provided when Microsoft Visual C++ is being used as the compiler. The
+Builds a Microsoft Visual C++ resource file.
+This builder is only provided
+when Microsoft Visual C++ or MinGW is being used as the compiler. The
 .I .res
-suffix is added to the target name if no other suffix is given. The source
+(or 
+.I .o 
+for MinGW) suffix is added to the target name if no other suffix is given. The source
 file is scanned for implicit dependencies as though it were a C file. Example:
 
 .ES
@@ -2123,16 +2129,10 @@ if a .def file is not already listed as a build target.
 The default is 0 (do not build a .def file).
 
 .IP WIN32DEFPREFIX
-The prefix used to build WIN32 .def files.
+The prefix used for WIN32 .def file names.
 
 .IP WIN32DEFSUFFIX
 The suffix used for WIN32 .def file names.
-
-.IP WIN32DLLPREFIX
-The prefix used to build WIN32 shared libraries (.dll files).
-
-.IP WIN32IMPLIBPREFIX
-The prefix used to build WIN32 import libraries.
 
 .IP YACC
 The parser generator.
@@ -3351,6 +3351,24 @@ from the Cygwin command line,
 or by creating a wrapper shell
 script named
 .B scons .
+
+.SS MinGW
+
+The MinGW bin directory must be in your PATH environment variable or the
+PATH variable under the ENV construction variable for SCons
+to detect and use the MinGW tools. When running under the native Windows
+Python interpreter, SCons will prefer the MinGW tools over the Cygwin
+tools, if they are both installed, regardless of the order of the bin
+directories in the PATH variable. If you have both MSVC and MinGW
+installed and you want to use MinGW instead of MSVC,
+then you must explictly tell SCons to use MinGW by passing 
+
+.ES
+tools=['mingw']
+.EE
+
+to the Environment() function, because SCons will prefer the MSVC tools
+over the MinGW tools.
 
 .SH EXAMPLES
 

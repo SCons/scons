@@ -421,6 +421,16 @@ class Environment:
     def Detect(self, progs):
         """Return the first available program in progs.
         """
+        if not SCons.Util.is_List(progs):
+            progs = [ progs ]
+        for prog in progs:
+            path = self.WhereIs(prog)
+            if path: return prog
+        return None
+
+    def WhereIs(self, prog):
+        """Find prog in the path.  
+        """
         path = None
         pathext = None
         if self.has_key('ENV'):
@@ -428,11 +438,8 @@ class Environment:
                 path = self['ENV']['PATH']
             if self['ENV'].has_key('PATHEXT'):
                 pathext = self['ENV']['PATHEXT']
-        if not SCons.Util.is_List(progs):
-            progs = [ progs ]
-        for prog in progs:
-            path = SCons.Util.WhereIs(prog, path, pathext)
-            if path: return prog
+        path = SCons.Util.WhereIs(prog, path, pathext)
+        if path: return path
         return None
 
     def Override(self, overrides):
@@ -464,4 +471,45 @@ class Environment:
     def items(self):
         "Emulates the items() method of dictionaries."""
         return self._dict.items()
+
+    def FindIxes(self, paths, prefix, suffix):
+        """
+        Search a list of paths for something that matches the prefix and suffix.
+
+        paths - the list of paths or nodes.
+        prefix - construction variable for the prefix.
+        suffix - construction variable for the suffix.
+        """
+
+        suffix = self.subst('$%s'%suffix)
+        prefix = self.subst('$%s'%prefix)
+
+        for path in paths:
+            dir,name = os.path.split(str(path))
+            if name[:len(prefix)] == prefix and name[-len(suffix):] == suffix: 
+                return path
+
+    def ReplaceIxes(self, path, old_prefix, old_suffix, new_prefix, new_suffix):
+        """
+        Replace old_prefix with new_prefix and old_suffix with new_suffix.
+
+        env - Environment used to interpolate variables.
+        path - the path that will be modified.
+        old_prefix - construction variable for the old prefix.
+        old_suffix - construction variable for the old suffix.
+        new_prefix - construction variable for the new prefix.
+        new_suffix - construction variable for the new suffix.
+        """
+        old_prefix = self.subst('$%s'%old_prefix)
+        old_suffix = self.subst('$%s'%old_suffix)
+
+        new_prefix = self.subst('$%s'%new_prefix)
+        new_suffix = self.subst('$%s'%new_suffix)
+
+        dir,name = os.path.split(str(path))
+        if name[:len(old_prefix)] == old_prefix:
+            name = name[len(old_prefix):]
+        if name[-len(old_suffix):] == old_suffix:
+            name = name[:-len(old_suffix)]
+        return os.path.join(dir, new_prefix+name+new_suffix)
     
