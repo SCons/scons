@@ -323,6 +323,8 @@ if ($dh_builddeb && $fakeroot){
 		 "debian/python2-scons.postinst",
 		 "debian/python2-scons.prerm"
 		);
+	
+    
     
     chomp(@engine_files = `cat src/engine/MANIFEST`);
     chomp(@script_files = `cat src/script/MANIFEST`);
@@ -333,7 +335,7 @@ if ($dh_builddeb && $fakeroot){
 		  map("build/script/$_", @script_files),
 		  qq(rm -rf build/engine/build build/engine/dist
 		     rm -rf build/script/build build/script/dist
-		     fakeroot debian/rules ENVOKED_BY_CONSTRUCT=1 binary
+		     fakeroot make -f debian/rules ENVOKED_BY_CONSTRUCT=1 binary
 		     env DH_COMPAT=3 dh_clean
     ));
 }
