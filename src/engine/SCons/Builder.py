@@ -290,9 +290,10 @@ class BuilderBase:
 
             for f in files:
                 if SCons.Util.is_String(f):
-                    if pre and f[:len(pre)] != pre:
+                    if pre:
                         path, fn = os.path.split(os.path.normpath(f))
-                        f = os.path.join(path, pre + fn)
+                        if fn[:len(pre)] != pre:
+                            f = os.path.join(path, pre + fn)
                     # Only append a suffix if the file does not have one.
                     if suf and not SCons.Util.splitext(f)[1]:
                         if f[-len(suf):] != suf:
