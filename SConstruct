@@ -227,24 +227,20 @@ def SCons_revision(target, source, env):
     """
     t = str(target[0])
     s = source[0].rstr()
-    inf = open(s, 'rb')
-    outf = open(t, 'wb')
-    for line in inf.readlines():
-        # Note:  We construct the __*__ substitution strings here
-        # so that they don't get replaced when this file gets
-        # copied into the tree for packaging.
-        line = string.replace(line, '__BUILD'     + '__', env['BUILD'])
-        line = string.replace(line, '__BUILDSYS'  + '__', env['BUILDSYS'])
-        line = string.replace(line, '__COPYRIGHT' + '__', env['COPYRIGHT'])
-        line = string.replace(line, '__DATE'      + '__', env['DATE'])
-        line = string.replace(line, '__DEVELOPER' + '__', env['DEVELOPER'])
-        line = string.replace(line, '__FILE'      + '__', str(source[0]))
-        line = string.replace(line, '__REVISION'  + '__', env['REVISION'])
-        line = string.replace(line, '__VERSION'   + '__', env['VERSION'])
-        line = string.replace(line, '__NULL'      + '__', '')
-        outf.write(line)
-    inf.close()
-    outf.close()
+    contents = open(s, 'rb').read()
+    # Note:  We construct the __*__ substitution strings here
+    # so that they don't get replaced when this file gets
+    # copied into the tree for packaging.
+    contents = string.replace(contents, '__BUILD'     + '__', env['BUILD'])
+    contents = string.replace(contents, '__BUILDSYS'  + '__', env['BUILDSYS'])
+    contents = string.replace(contents, '__COPYRIGHT' + '__', env['COPYRIGHT'])
+    contents = string.replace(contents, '__DATE'      + '__', env['DATE'])
+    contents = string.replace(contents, '__DEVELOPER' + '__', env['DEVELOPER'])
+    contents = string.replace(contents, '__FILE'      + '__', str(source[0]))
+    contents = string.replace(contents, '__REVISION'  + '__', env['REVISION'])
+    contents = string.replace(contents, '__VERSION'   + '__', env['VERSION'])
+    contents = string.replace(contents, '__NULL'      + '__', '')
+    open(t, 'wb').write(contents)
     os.chmod(t, os.stat(s)[0])
 
 revbuilder = Builder(action = Action(SCons_revision,
