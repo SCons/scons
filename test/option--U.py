@@ -164,4 +164,35 @@ test.run(arguments = '-U', status=2, stderr="""\
 scons: *** Do not know how to make target `not_a_target.in'.  Stop.
 """)
 
+# Make sure explicit targets beginning with ../ get built.
+test.subdir('sub6', ['sub6', 'dir'])
+
+test.write(['sub6', 'SConstruct'], """\
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
+env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env.Cat('foo.out', 'foo.in')
+SConscript('dir/SConscript', "env")
+""")
+
+test.write(['sub6', 'foo.in'], "foo.in\n")
+
+test.write(['sub6', 'dir', 'SConscript'], """\
+Import("env")
+bar = env.Cat('bar.out', 'bar.in')
+Default(bar)
+""")
+
+test.write(['sub6', 'dir', 'bar.in'], "bar.in\n")
+
+test.run(chdir = 'sub6/dir', arguments = '-U ../foo.out')
+
+test.fail_test(not os.path.exists(test.workpath('sub6', 'foo.out')))
+test.fail_test(os.path.exists(test.workpath('sub6', 'dir', 'bar.out')))
+
 test.pass_test()

@@ -858,32 +858,48 @@ def _main():
     # that are SConscript settable:
     SCons.Node.implicit_cache = ssoptions.get('implicit_cache')
 
-    if target_top:
-        target_top = SCons.Node.FS.default_fs.Dir(target_top)
-        
-        if options.climb_up == 2 and not targets:
-            # -D with default targets
+    lookup_top = None
+    if targets:
+        # They specified targets on the command line, so if they
+        # used -u, -U or -D, we have to look up targets relative
+        # to the top, but we build whatever they specified.
+        if target_top:
+            lookup_top = SCons.Node.FS.default_fs.Dir(target_top)
             target_top = None
-        elif options.climb_up == 3 and not targets:
-            # -U with default targets
-            default_targets = SCons.Script.SConscript.default_targets
-            def check_dir(x, target_top=target_top):
-                if hasattr(x, 'cwd') and not x.cwd is None:
-                    cwd = x.cwd.srcnode()
-                    return cwd == target_top
+    else:
+        # There are no targets specified on the command line,
+        # so if they used -u, -U or -D, we may have to restrict
+        # what actually gets built.
+        if target_top:
+            if options.climb_up == 1:
+                # -u, local directory and below
+                target_top = SCons.Node.FS.default_fs.Dir(target_top)
+                lookup_top = target_top
+            elif options.climb_up == 2:
+                # -D, all Default() targets
+                target_top = None
+                lookup_top = None
+            elif options.climb_up == 3:
+                # -U, local SConscript Default() targets
+                target_top = SCons.Node.FS.default_fs.Dir(target_top)
+                def check_dir(x, target_top=target_top):
+                    if hasattr(x, 'cwd') and not x.cwd is None:
+                        cwd = x.cwd.srcnode()
+                        return cwd == target_top
+                    else:
+                        # x doesn't have a cwd, so it's either not a target,
+                        # or not a file, so go ahead and keep it as a default
+                        # target and let the engine sort it out:
+                        return 1                
+                default_targets = SCons.Script.SConscript.default_targets
+                if default_targets is None:
+                    default_targets = []
                 else:
-                    # x doesn't have a cwd, so it's either not a target,
-                    # or not a file, so go ahead and keep it as a default
-                    # target and let the engine sort it out:
-                    return 1                
-            if default_targets is None:
-                default_targets = []
-            else:
-                default_targets = filter(check_dir, default_targets)
-            SCons.Script.SConscript.default_targets = default_targets
-            target_top = None
+                    default_targets = filter(check_dir, default_targets)
+                SCons.Script.SConscript.default_targets = default_targets
+                target_top = None
+                lookup_top = None
 
-    if not targets:
         targets = SCons.Script.SConscript.default_targets
         if targets is None:
             targets = [SCons.Node.FS.default_fs.Dir('.')]
@@ -892,18 +908,18 @@ def _main():
         sys.stderr.write("scons: *** No targets specified and no Default() targets found.  Stop.\n")
         sys.exit(2)
 
-    def Entry(x, top = target_top):
+    def Entry(x, ltop=lookup_top, ttop=target_top):
         if isinstance(x, SCons.Node.Node):
             node = x
         else:
             node = SCons.Node.Alias.default_ans.lookup(x)
             if node is None:
                 node = SCons.Node.FS.default_fs.Entry(x,
-                                                      directory = top,
+                                                      directory = ltop,
                                                       create = 1)
-        if top and not node.is_under(top):
-            if isinstance(node, SCons.Node.FS.Dir) and top.is_under(node):
-                node = top
+        if ttop and not node.is_under(ttop):
+            if isinstance(node, SCons.Node.FS.Dir) and ttop.is_under(node):
+                node = ttop
             else:
                 node = None
         return node
