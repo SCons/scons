@@ -20,10 +20,14 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.12 - Thu, 27 Mar 2003 23:52:09 -0600
+RELEASE 0.13 - XXX
 
-  This is the twelfth alpha release of SCons.  Please consult the
+  This is the thirteenth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.12:
+
+  - XXX
 
   Please note the following important changes since release 0.11:
 
@@ -33,59 +37,6 @@ RELEASE 0.12 - Thu, 27 Mar 2003 23:52:09 -0600
     top-level directory, specify the following in your SConstruct file:
 
         SConscriptChdir(0)
-
-  Please note the following important changes since release 0.10:
-
-    - The default suffix for shared object files when using gcc has
-      now been changed to '.os'.  This is to make library builds more
-      convenient by allowing both static (compiled without -fPIC) and
-      shared object files (compiled with -fPIC) to exist side-by-side.
-      If you want to preserve the old behavior of using .o files for
-      shared objects, you must now explicitly reset the SHOBJSUFFIX
-      value in your construction environment as follows:
-
-        env = Environment(SHOBJSUFFIX = '.o')
-
-  - The default behavior when no targets are specified has been changed
-    to be like Make: everything in the current directory and below will
-    be built.  This can be disabled by specifying "Default(None)" in an
-    SConscript, in which case there will be no default targets and
-    SCons will print an appropriate error message.
-
-  - Setting the BUILDERS construction variable now properly clears
-    the previous Builder attributes from the construction Environment.
-    Before, you could initialize BUILDERS like so:
-
-        env = Environment(BUILDERS = {'NewBuilder' : foo})
-
-    And still use the canned default Builders like env.Program(),
-    env.Object(), env.StaticLibrary(), etc.  No more.  Beginning with
-    SCons 0.10, an initialization like that above will create an
-    Environment with only the env.NewBuilder() Builder.
-
-    So now, if you want to use a new builder in addition to the default
-    builders, you should explicitly append your new builder to the
-    existing ones using techniques like the following:
-
-        env.Append(BUILDERS = {'NewBuilder' : foo})
-
-        env['BUILDERS']['newbuilder'] = foo
-
-  - An "env" argument has been added to the calls to all functions that
-    return a string for a Python function Action.  This makes the string
-    function and build function calls take the same arguments:
-
-        def build_it(target, source, env):
-            # build the target from the source
-            return 0
-
-        def string_it(target, source, env):
-            return "building '%s' from '%s'" % (target[0], source[0])
-
-        a = Action(build_it, string_it)
-
-    If you have defined a strfunction() for a Python function Action,
-    you will need to add a third "env" argument to your function call.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.

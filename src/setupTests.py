@@ -47,10 +47,11 @@ try:
 except KeyError:
     cwd = os.getcwd()
 
-try:
-    version = os.environ['SCONS_VERSION']
-except KeyError:
-    version = '0.12'
+#try:
+#    version = os.environ['SCONS_VERSION']
+#except KeyError:
+#    version = '__VERSION__'
+version = '0.13'
 
 scons_version = 'scons-%s' % version
 
