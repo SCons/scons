@@ -123,9 +123,11 @@ else:
         prefs.append(sys.prefix)
 
     temp = map(lambda x: os.path.join(x, 'lib'), prefs)
-    temp.extend(map(lambda x: os.path.join(x, 'lib', 'python%d.%d' % (sys.version_info[0],
-                                                                      sys.version_info[1]),
-                                           'site-packages'), prefs))
+    temp.extend(map(lambda x: os.path.join(x,
+                                           'lib',
+                                           'python' + sys.version[:3],
+                                           'site-packages'),
+                           prefs))
     prefs = temp
 
 # Look first for 'scons-__version__' in all of our preference libs,
