@@ -143,7 +143,7 @@ def LinkFunc(target, source, env):
     src = source[0].abspath
     dest = target[0].abspath
     dir, file = os.path.split(dest)
-    if dir and not os.path.isdir(dir):
+    if dir and not target[0].fs.isdir(dir):
         os.makedirs(dir)
     if not Link_Funcs:
         # Set a default order of link functions.
@@ -672,6 +672,7 @@ class Entry(Base):
         Entry, we can morph into one."""
         self.__class__ = Dir
         self._morph()
+        return self
 
 # This is for later so we can differentiate between Entry the class and Entry
 # the method of the FS class.
@@ -792,7 +793,7 @@ class FS(LocalFS):
         
     def __setTopLevelDir(self):
         if not self.Top:
-            self.Top = self.__doLookup(Dir, os.path.normpath(self.pathTop))
+            self.Top = self._doLookup(Dir, os.path.normpath(self.pathTop))
             self.Top.path = '.'
             self._cwd = self.Top
         
@@ -810,7 +811,7 @@ class FS(LocalFS):
         raise TypeError, "Tried to lookup %s '%s' as a %s." % \
               (node.__class__.__name__, node.path, klass.__name__)
         
-    def __doLookup(self, fsclass, name, directory = None, create = 1):
+    def _doLookup(self, fsclass, name, directory = None, create = 1):
         """This method differs from the File and Dir factory methods in
         one important way: the meaning of the directory parameter.
         In this method, if directory is None or not supplied, the supplied
@@ -871,8 +872,7 @@ class FS(LocalFS):
                 directory.add_wkid(dir_temp)
                 directory = dir_temp
             else:
-                d.must_be_a_Dir()
-                directory = d
+                directory = d.must_be_a_Dir()
 
         entry_norm = _my_normcase(path_comp[-1])
         try:
@@ -956,7 +956,7 @@ class FS(LocalFS):
             if directory and not isinstance(directory, Dir):
                 directory = self.Dir(directory)
             name, directory = self.__transformPath(name, directory)
-            return self.__doLookup(klass, name, directory, create)
+            return self._doLookup(klass, name, directory, create)
     
     def File(self, name, directory = None, create = 1):
         """Lookup or create a File node with the specified name.  If
@@ -1020,7 +1020,7 @@ class FS(LocalFS):
             return path
         else:
             name, d = self.__transformPath(path, cwd)
-            n = self.__doLookup(clazz, name, d)
+            n = self._doLookup(clazz, name, d)
             if n.exists():
                 return n
             if isinstance(n, Dir):
@@ -1036,7 +1036,7 @@ class FS(LocalFS):
             while d:
                 for rep in d.getRepositories():
                     try:
-                        rnode = self.__doLookup(clazz, name, rep)
+                        rnode = self._doLookup(clazz, name, rep)
                         # Only find the node if it exists and it is not
 			# a derived file.  If for some reason, we are
 			# explicitly building a file IN a Repository, we
@@ -1068,7 +1068,7 @@ class FS(LocalFS):
                 ret.append(path)
             else:
                 name, d = self.__transformPath(path, cwd)
-                n = self.__doLookup(clazz, name, d)
+                n = self._doLookup(clazz, name, d)
                 if not must_exist or n.exists():
                     ret.append(n)
                 if isinstance(n, Dir):
@@ -1084,7 +1084,7 @@ class FS(LocalFS):
                 while d:
                     for rep in d.getRepositories():
                         try:
-                            rnode = self.__doLookup(clazz, name, rep)
+                            rnode = self._doLookup(clazz, name, rep)
                             # Only find the node if it exists (or
                             # must_exist is zero) and it is not a
                             # derived file.  If for some reason, we
@@ -1281,6 +1281,9 @@ class Dir(Base):
     def prepare(self):
         pass
 
+    def do_duplicate(self, src):
+        pass
+
     def current(self, calc=None):
         """If all of our children were up-to-date, then this
         directory was up-to-date, too."""
@@ -1338,7 +1341,19 @@ class Dir(Base):
     def must_be_a_Dir(self):
         """Called to make sure a Node is a Dir.  Since we're already
         one, this is a no-op for us."""
-        pass
+        return self
+
+    def entry_exists_on_disk(self, name):
+        """__cacheable__"""
+        return self.fs.exists(self.entry_abspath(name))
+
+    def rcs_on_disk(self, name):
+        rcspath = 'RCS' + os.sep + name+',v'
+        return self.entry_exists_on_disk(rcspath)
+
+    def sccs_on_disk(self, name):
+        sccspath = 'SCCS' + os.sep + 's.'+name
+        return self.entry_exists_on_disk(sccspath)
 
 class RootDir(Dir):
     """A class for the root directory of a file system.
@@ -1570,19 +1585,12 @@ class File(Base):
             else:
                 scb = self.dir.src_builder()
                 if scb is _null:
-                    scb = None
-                    dir = self.dir.path
-                    sccspath = os.path.join('SCCS', 's.' + self.name)
-                    if dir != '.':
-                        sccspath = os.path.join(dir, sccspath)
-                    if self.fs.exists(sccspath):
+                    if self.dir.sccs_on_disk(self.name):
                         scb = get_DefaultSCCSBuilder()
+                    elif self.dir.rcs_on_disk(self.name):
+                        scb = get_DefaultRCSBuilder()
                     else:
-                        rcspath = os.path.join('RCS', self.name + ',v')
-                        if dir != '.':
-                            rcspath = os.path.join(dir, rcspath)
-                        if os.path.exists(rcspath):
-                            scb = get_DefaultRCSBuilder()
+                        scb = None
                 if scb is not None:
                     self.builder_set(scb)
             self.sbuilder = scb
@@ -1625,6 +1633,24 @@ class File(Base):
             return 1
         return None
 
+    def do_duplicate(self, src):
+        self._createDir()
+        try:
+            Unlink(self, None, None)
+        except SCons.Errors.BuildError:
+            pass
+        try:
+            Link(self, src, None)
+        except SCons.Errors.BuildError, e:
+            desc = "Cannot duplicate `%s' in `%s': %s." % (src.path, self.dir.path, e.errstr)
+            raise SCons.Errors.StopError, desc
+        self.linked = 1
+        # The Link() action may or may not have actually
+        # created the file, depending on whether the -n
+        # option was used or not.  Delete the _exists and
+        # _rexists attributes so they can be reevaluated.
+        self.clear()
+
     def exists(self):
         "__cacheable__"
         # Duplicate from source path if we are set up to do this.
@@ -1634,22 +1660,7 @@ class File(Base):
                 return Base.exists(self)
             src = src.rfile()
             if src.abspath != self.abspath and src.exists():
-                self._createDir()
-                try:
-                    Unlink(self, None, None)
-                except SCons.Errors.BuildError:
-                    pass
-                try:
-                    Link(self, src, None)
-                except SCons.Errors.BuildError, e:
-                    desc = "Cannot duplicate `%s' in `%s': %s." % (src.path, self.dir.path, e.errstr)
-                    raise SCons.Errors.StopError, desc
-                self.linked = 1
-                # The Link() action may or may not have actually
-                # created the file, depending on whether the -n
-                # option was used or not.  Delete the _exists and
-                # _rexists attributes so they can be reevaluated.
-                self.clear()
+                self.do_duplicate(src)
         return Base.exists(self)
 
     def new_binfo(self):
@@ -1791,16 +1802,22 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
     Only the first file found is returned, and none is returned
     if no file is found.
     """
-    if verbose and not SCons.Util.is_String(verbose):
-        verbose = "find_file"
+    if verbose:
+        if not SCons.Util.is_String(verbose):
+            verbose = "find_file"
+        if not callable(verbose):
+            verbose = '  %s: ' % verbose
+            verbose = lambda s, v=verbose: sys.stdout.write(v + s)
+    else:
+        verbose = lambda x: x
+
     retval = None
 
     if callable(paths):
         paths = paths()
 
     for dir in paths:
-        if verbose:
-            sys.stdout.write("  %s: looking for '%s' in '%s' ...\n" % (verbose, filename, dir))
+        verbose("looking for '%s' in '%s' ...\n" % (filename, dir))
         try:
             node = node_factory(filename, dir)
             # Return true if the node exists or is a derived node.
@@ -1808,8 +1825,7 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
                node.is_pseudo_derived() or \
                (isinstance(node, SCons.Node.FS.Base) and node.exists()):
                 retval = node
-                if verbose:
-                    sys.stdout.write("  %s: ... FOUND '%s' in '%s'\n" % (verbose, filename, dir))
+                verbose("... FOUND '%s' in '%s'\n" % (filename, dir))
                 break
         except TypeError:
             # If we find a directory instead of a file, we don't care
