@@ -3,8 +3,8 @@ __revision__ = "BuilderTests.py __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import unittest
 
-from scons.Builder import Builder
-from TestCmd import TestCmd
+import TestCmd
+from scons.Builder import Builder, CommandAction, FunctionAction
 
 
 # Initial setup of the common environment for all tests,
@@ -14,7 +14,7 @@ from TestCmd import TestCmd
 # We don't do this as a setUp() method because it's
 # unnecessary to create a separate directory and script
 # for each test, they can just use the one.
-test = TestCmd(workdir = '')
+test = TestCmd.TestCmd(workdir = '')
 
 test.write('act.py', """import os, string, sys
 f = open(sys.argv[1], 'w')
@@ -35,7 +35,7 @@ class BuilderTestCase(unittest.TestCase):
 	Verify that we can retrieve the supplied action attribute.
 	"""
 	builder = Builder(action = "foo")
-	assert builder.action == "foo"
+	assert builder.action.command == "foo"
 
     def test_cmp(self):
 	"""Test simple comparisons of Builder objects
