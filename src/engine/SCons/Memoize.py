@@ -352,6 +352,128 @@ def Memoizer_cache_get_one(func, cdict, self, arg):
 
     return rval
 
+#
+# Caching stuff is tricky, because the tradeoffs involved are often so
+# non-obvious, so we're going to support an alternate set of functions
+# that also count the hits and misses, to try to get a concrete idea of
+# which Memoizations seem to pay off.
+#
+# Because different configurations can have such radically different
+# performance tradeoffs, interpreting the hit/miss results will likely be
+# more of an art than a science.  In other words, don't assume that just
+# because you see no hits in one configuration that it's not worthwhile
+# Memoizing that method.
+#
+# Note that these are essentially cut-and-paste copies of the above
+# Memozer_cache_get*() implementations, with the addition of the
+# counting logic.  If the above implementations change, the
+# corresponding change should probably be made down below as well,
+# just to try to keep things in sync.
+#
+
+class CounterEntry:
+    def __init__(self):
+        self.hit = 0
+        self.miss = 0
+
+import UserDict
+class Counter(UserDict.UserDict):
+    def __call__(self, klass, code):
+        k = (klass.__name__, id(code))
+        try:
+            return self[k]
+        except KeyError:
+            c = self[k] = CounterEntry()
+            return c
+
+CacheCount = Counter()
+CacheCountSelf = Counter()
+CacheCountOne = Counter()
+
+Code_to_Name = {}
+
+def Dump():
+    items = CacheCount.items() + CacheCountSelf.items() + CacheCountOne.items()
+    def keyify(t):
+        return Code_to_Name[(t[0], t[1])]
+    items = map(lambda t, k=keyify: (k(t[0]), t[1]), items)
+    items.sort()
+    for k, v in items:
+        print "    %7d hits %7d misses   %s()" % (v.hit, v.miss, k)
+
+def Count_cache_get(func, cdict, args, kw):
+    """Called instead of name to see if this method call's return
+    value has been cached.  If it has, just return the cached
+    value; if not, call the actual method and cache the return."""
+
+    obj = args[0]
+
+    ckey = obj._MeMoIZeR_Key + ':' + _MeMoIZeR_gen_key(args, kw)
+
+    c = CacheCount(obj.__class__, func)
+    rval = cdict.get(ckey, "_MeMoIZeR")
+    if rval is "_MeMoIZeR":
+        rval = cdict[ckey] = apply(func, args, kw)
+        c.miss = c.miss + 1
+    else:
+        c.hit = c.hit + 1
+
+    return rval
+
+def Count_cache_get_self(func, cdict, self):
+    """Called instead of func(self) to see if this method call's
+    return value has been cached.  If it has, just return the cached
+    value; if not, call the actual method and cache the return.
+    Optimized version of Memoizer_cache_get for methods that take the
+    object instance as the only argument."""
+
+    ckey = self._MeMoIZeR_Key
+
+    c = CacheCountSelf(self.__class__, func)
+    rval = cdict.get(ckey, "_MeMoIZeR")
+    if rval is "_MeMoIZeR":
+        rval = cdict[ckey] = func(self)
+        c.miss = c.miss + 1
+    else:
+        c.hit = c.hit + 1
+
+    return rval
+
+def Count_cache_get_one(func, cdict, self, arg):
+    """Called instead of func(self, arg) to see if this method call's
+    return value has been cached.  If it has, just return the cached
+    value; if not, call the actual method and cache the return.
+    Optimized version of Memoizer_cache_get for methods that take the
+    object instance and one other argument only."""
+
+    ckey = self._MeMoIZeR_Key + ':' + \
+           (getattr(arg, "_MeMoIZeR_Key", None) or repr(arg))
+
+    c = CacheCountOne(self.__class__, func)
+    rval = cdict.get(ckey, "_MeMoIZeR")
+    if rval is "_MeMoIZeR":
+        rval = cdict[ckey] = func(self, arg)
+        c.miss = c.miss + 1
+    else:
+        c.hit = c.hit + 1
+
+    return rval
+
+MCG_dict = {
+    'MCG'  : Memoizer_cache_get,
+    'MCGS' : Memoizer_cache_get_self,
+    'MCGO' : Memoizer_cache_get_one,
+}
+
+def EnableCounting():
+    global MCG_dict
+    MCG_dict = {
+        'MCG'  : Count_cache_get,
+        'MCGS' : Count_cache_get_self,
+        'MCGO' : Count_cache_get_one,
+    }
+
+
 
 class _Memoizer_Simple:
 
@@ -438,7 +560,7 @@ def Analyze_Class(klass):
         modelklass = _Memoizer_Simple
         lcldict = {}
 
-    klass.__dict__.update(memoize_classdict(modelklass, lcldict, D, R))
+    klass.__dict__.update(memoize_classdict(klass, modelklass, lcldict, D, R))
 
     return klass
 
@@ -458,39 +580,38 @@ def whoami(memoizer_funcname, real_funcname):
     return '...'+os.sep+'SCons'+os.sep+'Memoizer-'+ \
            memoizer_funcname+'-lambda<'+real_funcname+'>'
 
-def memoize_classdict(modelklass, new_klassdict, cacheable, resetting):
+def memoize_classdict(klass, modelklass, new_klassdict, cacheable, resetting):
     new_klassdict.update(modelklass.__dict__)
     new_klassdict['_MeMoIZeR_converted'] = 1
 
     for name,code in cacheable.items():
+        Code_to_Name[(klass.__name__, id(code))] = klass.__name__ + '.' + name
+        eval_dict = {
+            'methcode' : code,
+            'methcached' : {},
+        }
+        eval_dict.update(MCG_dict)
         if code.func_code.co_argcount == 1 and \
                not code.func_code.co_flags & 0xC:
-            newmethod = eval(
+            compiled = \
                 compile("\n"*1 +
                         "lambda self: MCGS(methcode, methcached, self)",
                         whoami('cache_get_self', name),
-                        "eval"),
-                {'methcode':code, 'methcached':{},
-                 'MCGS':Memoizer_cache_get_self},
-                {})
+                        "eval")
         elif code.func_code.co_argcount == 2 and \
                not code.func_code.co_flags & 0xC:
-            newmethod = eval(
+            compiled = \
                 compile("\n"*2 +
                 "lambda self, arg: MCGO(methcode, methcached, self, arg)",
                         whoami('cache_get_one', name),
-                        "eval"),
-                {'methcode':code, 'methcached':{},
-                 'MCGO':Memoizer_cache_get_one},
-                {})
+                        "eval")
         else:
-            newmethod = eval(
+            compiled = \
                 compile("\n"*3 +
                 "lambda *args, **kw: MCG(methcode, methcached, args, kw)",
                         whoami('cache_get', name),
-                        "eval"),
-                {'methcode':code, 'methcached':{},
-                 'MCG':Memoizer_cache_get}, {})
+                        "eval")
+        newmethod = eval(compiled, eval_dict, {})
         new_klassdict[name] = newmethod
 
     for name,code in resetting.items():
@@ -662,7 +783,7 @@ else:
                 cls_dict['_MeMoIZeR_cmp'] = C
             else:
                 modelklass = _Memoizer_Simple
-            klassdict = memoize_classdict(modelklass, cls_dict, D, R)
+            klassdict = memoize_classdict(cls, modelklass, cls_dict, D, R)
 
             init = klassdict.get('__init__', None)
             if not init:
