@@ -43,7 +43,7 @@ def generate(env):
     fortran.FortranSuffixes.extend(['.i90'])
     fortran.generate(env)
 
-    env['_FORTRAND']      = 'ifl'
+    env['FORTRAN']        = 'ifl'
     env['FORTRANCOM']     = '$FORTRAN $FORTRANFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
     env['FORTRANPPCOM']   = '$FORTRAN $FORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
     env['SHFORTRANCOM']   = '$SHFORTRAN $SHFORTRANFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'

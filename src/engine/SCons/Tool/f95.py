@@ -41,12 +41,6 @@ import fortran
 compilers = ['f95']
 
 #
-F95Action = SCons.Action.Action("$F95COM")
-ShF95Action = SCons.Action.Action("$SHF95COM")
-F95PPAction = SCons.Action.Action("$F95PPCOM")
-ShF95PPAction = SCons.Action.Action("$SHF95PPCOM")
-
-#
 F95Suffixes = ['.f95']
 F95PPSuffixes = []
 if SCons.Util.case_sensitive_suffixes('.f95', '.F95'):
@@ -61,10 +55,24 @@ for suffix in F95Suffixes + F95PPSuffixes:
     SCons.Defaults.ObjSourceScan.add_scanner(suffix, F95Scan)
 
 #
-F95Generator = fortran.VariableListGenerator('F95', 'FORTRAN', '_FORTRAND')
-F95FlagsGenerator = fortran.VariableListGenerator('F95FLAGS', 'FORTRANFLAGS')
-ShF95Generator = fortran.VariableListGenerator('SHF95', 'SHFORTRAN', 'F95', 'FORTRAN', '_FORTRAND')
-ShF95FlagsGenerator = fortran.VariableListGenerator('SHF95FLAGS', 'SHFORTRANFLAGS')
+fVLG = fortran.VariableListGenerator
+
+F95Generator = fVLG('F95', 'FORTRAN', '_FORTRAND')
+F95FlagsGenerator = fVLG('F95FLAGS', 'FORTRANFLAGS')
+F95CommandGenerator = fVLG('F95COM', 'FORTRANCOM', '_F95COMD')
+F95PPCommandGenerator = fVLG('F95PPCOM', 'FORTRANPPCOM', '_F95PPCOMD')
+ShF95Generator = fVLG('SHF95', 'SHFORTRAN', 'F95', 'FORTRAN', '_FORTRAND')
+ShF95FlagsGenerator = fVLG('SHF95FLAGS', 'SHFORTRANFLAGS')
+ShF95CommandGenerator = fVLG('SHF95COM', 'SHFORTRANCOM', '_SHF95COMD')
+ShF95PPCommandGenerator = fVLG('SHF95PPCOM', 'SHFORTRANPPCOM', '_SHF95PPCOMD')
+
+del fVLG
+
+#
+F95Action = SCons.Action.Action('$_F95COMG ')
+F95PPAction = SCons.Action.Action('$_F95PPCOMG ')
+ShF95Action = SCons.Action.Action('$_SHF95COMG ')
+ShF95PPAction = SCons.Action.Action('$_SHF95PPCOMG ')
 
 def add_to_env(env):
     """Add Builders and construction variables for f95 to an Environment."""
@@ -75,32 +83,37 @@ def add_to_env(env):
     for suffix in F95Suffixes:
         static_obj.add_action(suffix, F95Action)
         shared_obj.add_action(suffix, ShF95Action)
-        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
-        shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
+        static_obj.add_emitter(suffix, fortran.FortranEmitter)
+        shared_obj.add_emitter(suffix, fortran.ShFortranEmitter)
 
     for suffix in F95PPSuffixes:
         static_obj.add_action(suffix, F95PPAction)
         shared_obj.add_action(suffix, ShF95PPAction)
-        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
-        shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
+        static_obj.add_emitter(suffix, fortran.FortranEmitter)
+        shared_obj.add_emitter(suffix, fortran.ShFortranEmitter)
 
-    env['_F95G']      = F95Generator
-    env['_F95FLAGSG'] = F95FlagsGenerator
-    env['F95COM']     = '$_F95G $_F95FLAGSG $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
-    env['F95PPCOM']   = '$_F95G $_F95FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_F95G']        = F95Generator
+    env['_F95FLAGSG']   = F95FlagsGenerator
+    env['_F95COMG']     = F95CommandGenerator
+    env['_F95PPCOMG']   = F95PPCommandGenerator
 
     env['_SHF95G']      = ShF95Generator
     env['_SHF95FLAGSG'] = ShF95FlagsGenerator
-    env['SHF95COM']   = '$_SHF95G $_SHF95FLAGSG $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
-    env['SHF95PPCOM'] = '$_SHF95G $_SHF95FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_SHF95COMG']   = ShF95CommandGenerator
+    env['_SHF95PPCOMG'] = ShF95PPCommandGenerator
 
     env['_F95INCFLAGS'] = '$( ${_concat(INCPREFIX, F95PATH, INCSUFFIX, __env__, RDirs)} $)'
+
+    env['_F95COMD']     = '$_F95G $_F95FLAGSG $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_F95PPCOMD']   = '$_F95G $_F95FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_SHF95COMD']   = '$_SHF95G $_SHF95FLAGSG $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_SHF95PPCOMD'] = '$_SHF95G $_SHF95FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
 
 def generate(env):
     fortran.add_to_env(env)
     add_to_env(env)
 
-    env['_FORTRAND'] = env.Detect(compilers) or 'f95'
+    env['_FORTRAND']        = env.Detect(compilers) or 'f95'
 
 def exists(env):
     return env.Detect(compilers)
