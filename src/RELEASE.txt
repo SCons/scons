@@ -34,6 +34,13 @@ RELEASE 0.14 - XXX
     have been deprecated.  The new names are TargetSignatures() and
     SourceSignatures().
 
+  - The Export() function and the exported variables argument of
+    SConscript() now search for variables using the same rules as
+    Python: local first, then global.  If you are calling Export() or
+    SConscript() from a module imported directly into an SConscript
+    file, you may need to modify the module to make the previously
+    global variables available to your Export() or SConscript() call.
+
   Please note the following important changes since release 0.11:
 
   - The default behavior of SCons is now to change to the directory in

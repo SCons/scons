@@ -160,7 +160,7 @@ Mylib.AddLibDirs(env, "/via/Mylib.AddLibPath")
 env.Append(LIBPATH = [e["EXPORT_LIB"]])
 env.Append(LIBPATH = [e["REF_LIB"]])
 
-Mylib.Subdirs("src")
+Mylib.Subdirs(env, "src")
 """ % test.workpath('SLF'))
 
 test.write(['SLF', 'Mylib.py'], """\
@@ -170,7 +170,7 @@ import re
 import SCons.Environment
 import SCons.Script.SConscript
 
-def Subdirs(dirlist):
+def Subdirs(env, dirlist):
     for file in _subconf_list(dirlist):
         SCons.Script.SConscript.SConscript(file, "env")
 
@@ -262,8 +262,8 @@ Import("env")
 
 #env = env.Copy()    # Yes, clobber intentionally
 #Make environment changes, such as: Mylib.AddCFlags(env, "-g -D_TEST")
-#Mylib.Subdirs("lib_a lib_b lib_mergej prog_x")
-Mylib.Subdirs("lib_geng")
+#Mylib.Subdirs(env, "lib_a lib_b lib_mergej prog_x")
+Mylib.Subdirs(env, "lib_geng")
 
 env = env.Copy()    # Yes, clobber intentionally
 # --- End SConscript boilerplate ---
@@ -279,7 +279,7 @@ Import("env")
 
 #env = env.Copy()    # Yes, clobber intentionally
 #Make environment changes, such as: Mylib.AddCFlags(env, "-g -D_TEST")
-#Mylib.Subdirs("foo_dir")
+#Mylib.Subdirs(env, "foo_dir")
 
 env = env.Copy()    # Yes, clobber intentionally
 # --- End SConscript boilerplate ---
