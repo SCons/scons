@@ -160,9 +160,8 @@ def spawn(sh, escape, cmd, args, env):
             sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
         return ret
 
-# Windows does not allow special characters in file names
-# anyway, so no need for an escape function, we will just quote
-# the arg.
+# Windows does not allow special characters in file names anyway, so
+# no need for a complex escape function, we will just quote the arg.
 escape = lambda x: '"' + x + '"'
 
 # Get the windows system directory name
@@ -233,10 +232,30 @@ def generate(env):
                 cmd_interp = os.path.join(val, 'command.com')
             except:
                 pass
+
+    # For the special case of not having access to the registry, we
+    # use a temporary path and pathext to attempt to find the command
+    # interpreter.  If we fail, we try to find the interpreter through
+    # the env's PATH.  The problem with that is that it might not
+    # contain an ENV and a PATH.
+    if not cmd_interp:
+        systemroot = r'C:\Windows'
+        if os.environ.has_key('SYSTEMROOT'):
+            systemroot = os.environ['SYSTEMROOT']
+        tmp_path = systemroot + os.pathsep + \
+                   os.path.join(systemroot,'System32')
+        tmp_pathext = '.com;.exe;.bat;.cmd'
+        if os.environ.has_key('PATHEXT'):
+            tmp_pathext = os.environ['PATHEXT'] 
+        cmd_interp = SCons.Util.WhereIs('cmd', tmp_path, tmp_pathext)
+        if not cmd_interp:
+            cmd_interp = SCons.Util.WhereIs('command', tmp_path, tmp_pathext)
+
     if not cmd_interp:
         cmd_interp = env.Detect('cmd')
         if not cmd_interp:
             cmd_interp = env.Detect('command')
+
     
     if not env.has_key('ENV'):
         env['ENV']        = {}
