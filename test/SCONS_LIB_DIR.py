@@ -1,6 +1,4 @@
-#! /usr/bin/env python
-#
-# SCons - a Software Constructor
+#!/usr/bin/env python
 #
 # Copyright (c) 2001 Steven Knight
 #
@@ -24,32 +22,29 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "test/SCONS_LIB_DIR.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
-import os.path
+import TestSCons
 import os
+import string
 
-# Strip the script directory from sys.path() so on case-insensitive
-# (WIN32) systems Python doesn't think that the "scons" script is the
-# "SCons" package.  Replace it with our own library directories
-# (version-specific first, in case they installed by hand there,
-# followed by generic) so we pick up the right version of the build
-# engine modules if they're in either directory.
+test = TestSCons.TestSCons()
 
-libs = []
+test.subdir('SCons')
+test.write(['SCons','Script.py'], """
+def main ():
+    print "SCons.Script"
+""")
 
-if os.environ.has_key("SCONS_LIB_DIR"):
-    libs.append(os.environ["SCONS_LIB_DIR"])
+test.write(['SCons','__init__.py'], """
+""")
 
-if sys.platform == 'win32':
-    libs.extend([ os.path.join(sys.prefix, 'SCons-__VERSION__'),
-                  os.path.join(sys.prefix, 'SCons') ])
-else:
-    libs.extend([ os.path.join(sys.prefix, 'lib', 'scons-__VERSION__'),
-                  os.path.join(sys.prefix, 'lib', 'scons') ])
 
-sys.path = libs + sys.path[1:]
+expect = "SCons.Script\n"
 
-import SCons.Script
-SCons.Script.main()
+os.environ['SCONS_LIB_DIR'] = test.workpath()
+
+test.run(stdout = expect)
+
+test.pass_test()
+
