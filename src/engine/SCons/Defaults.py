@@ -184,12 +184,12 @@ Program = SCons.Builder.Builder(action=[ StaticCheck, '$LINKCOM' ],
                                 scanner = ProgScan)
 
 def _concat(prefix, list, suffix, locals, globals, f=lambda x: x):
-    """Creates a new list from 'list' by first interpolating each element
-    in the list using 'locals' and 'globals' and then calling f on the list, and
-    finally concatinating 'prefix' and 'suffix' onto each element of the
-    list. A trailing space on 'prefix' or leading space on 'suffix' will
-    cause them to be put into seperate list elements rather than being
-    concatinated."""
+    """Creates a new list from 'list' by first interpolating each
+    element in the list using 'locals' and 'globals' and then calling f
+    on the list, and finally concatenating 'prefix' and 'suffix' onto
+    each element of the list. A trailing space on 'prefix' or leading
+    space on 'suffix' will cause them to be put into seperate list
+    elements rather than being concatenated."""
 
     if not list:
         return list
@@ -202,17 +202,17 @@ def _concat(prefix, list, suffix, locals, globals, f=lambda x: x):
             return SCons.Util.scons_subst(x, locals, globals)
         else:
             return x
-        
+
     list = map(subst, list)
 
     list = f(list)
 
     ret = []
-    
+
     # ensure that prefix and suffix are strings
     prefix = str(prefix)
     suffix = str(suffix)
-    
+
     for x in list:
         x = str(x)
 
@@ -226,14 +226,30 @@ def _concat(prefix, list, suffix, locals, globals, f=lambda x: x):
             ret.append(suffix[1:])
         else:
             ret[-1] = ret[-1]+suffix
-        
+
     return ret
+
+def _stripixes(prefix, list, suffix, locals, globals, stripprefix, stripsuffix, c=_concat):
+    """This is a wrapper around _concat() that checks for the existence
+    of prefixes or suffixes on list elements and strips them where it
+    finds them.  This is used by tools (like the GNU linker) that need
+    to turn something like 'libfoo.a' into '-lfoo'."""
+    def f(list, sp=stripprefix, ss=stripsuffix):
+        ret = []
+        for l in list:
+            if l[:len(sp)] == sp:
+                l = l[len(sp):]
+            if l[-len(ss):] == ss:
+                l = l[:-len(ss)]
+            ret.append(l)
+        return ret
+    return c(prefix, list, suffix, locals, globals, f)
 
 ConstructionEnvironment = {
     'BUILDERS'   : { 'SharedLibrary'  : SharedLibrary,
                      'Library'        : StaticLibrary,
                      'StaticLibrary'  : StaticLibrary,
-                     'Alias'          : Alias,    
+                     'Alias'          : Alias,
                      'Program'        : Program },
     'SCANNERS'   : [CScan, FortranScan],
     'PDFPREFIX'  : '',
@@ -242,6 +258,7 @@ ConstructionEnvironment = {
     'PSSUFFIX'   : '.ps',
     'ENV'        : {},
     '_concat'     : _concat,
+    '_stripixes'  : _stripixes,
     '_LIBFLAGS'    : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, locals(), globals())}',
     '_LIBDIRFLAGS' : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, locals(), globals(), RDirs)} $)',
     '_CPPINCFLAGS' : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, locals(), globals(), RDirs)} $)',

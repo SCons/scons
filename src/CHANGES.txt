@@ -20,6 +20,9 @@ RELEASE 0.11 - XXX
   - Allow Python function Actions to specify a list of construction
     variables that should be included in the Action's signature.
 
+  - Allow libraries in the LIBS variable to explicitly include the prefix
+    and suffix, even when using the GNU linker.
+
   From Anthony Roach:
 
   - Use a different static object suffix (.os) when using gcc so shared
