@@ -489,7 +489,9 @@ class DirVarInterp(VarInterpolator):
 
     def prepareSrc(self, dict):
         src = VarInterpolator.prepareSrc(self, dict)
-        def path_dirs(path, fs = self.fs, dir = self.dir):
+        def path_dirs(rep, path, fs=self.fs, dir=self.dir):
+            if rep:
+                path = os.path.join(rep, path)
             return fs.Dir(path, directory = dir)
         return self.fs.Rsearchall(src, path_dirs)
 

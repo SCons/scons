@@ -77,7 +77,10 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
     # node.includes - the result of include_re.findall()
 
     if not hasattr(target, 'f77path'):
-        def Dir(x, dir=target.cwd, fs=fs): return fs.Dir(x,dir)
+        def Dir(rep, path, dir=target.cwd, fs=fs):
+            if rep:
+                path = os.path.join(rep, path)
+            return fs.Dir(path, dir)
         try:
             target.f77path = tuple(fs.Rsearchall(env['F77PATH'], Dir))
         except KeyError:

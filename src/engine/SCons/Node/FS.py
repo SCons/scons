@@ -84,9 +84,11 @@ else:
         return string.upper(x)
 
 
-def exists_path(path):
+def exists_path(rep, path):
     """Return a path if it's already a Node or it exists in the
     real filesystem."""
+    if rep:
+        path = os.path.join(rep, path)
     if os.path.exists(path):
         return path
     return None
@@ -317,11 +319,11 @@ class FS:
         if isinstance(path, SCons.Node.Node):
             return path
         else:
-            n = func(path)
+            n = func(None, path)
             if n:
                 return n
             for dir in self.Repositories:
-                n = func(os.path.join(dir.path, path))
+                n = func(dir.path, path)
                 if n:
                     return n
         return None
@@ -337,14 +339,14 @@ class FS:
             if isinstance(path, SCons.Node.Node):
                 ret.append(path)
             else:
-                n = func(path)
+                n = func(None, path)
                 if n:
                     ret.append(n)
                 if not os.path.isabs(path):
                     if path[0] == '#':
                         path = path[1:]
                     for dir in self.Repositories:
-                        n = func(os.path.join(dir.path, path))
+                        n = func(dir.path, path)
                         if n:
                             ret.append(n)
         return ret
@@ -778,7 +780,9 @@ class File(Entry):
         if not hasattr(self, '_rfile'):
             self._rfile = self
             if not os.path.isabs(self.path) and not os.path.isfile(self.path):
-                def file_node(path, fs = self.fs):
+                def file_node(dir, path, fs=self.fs):
+                    if dir:
+                        path = os.path.join(dir, path)
                     if os.path.isfile(path):
                         return fs.File(path)
                     return None

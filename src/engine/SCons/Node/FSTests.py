@@ -597,9 +597,14 @@ class RepositoryTestCase(unittest.TestCase):
         assert fs.Rsearch('f2')
         assert fs.Rsearch(f3) is f3
 
-        assert not fs.Rsearch('f1', os.path.exists)
-        assert fs.Rsearch('f2', os.path.exists)
-        assert fs.Rsearch('f3', os.path.exists)
+        def my_exists(rep, path):
+            if rep:
+                path = os.path.join(rep, path)
+            return os.path.exists(path)
+
+        assert not fs.Rsearch('f1', my_exists)
+        assert fs.Rsearch('f2', my_exists)
+        assert fs.Rsearch('f3', my_exists)
 
         list = fs.Rsearchall(fs.Dir('d1'))
         assert len(list) == 1, list
