@@ -73,7 +73,7 @@ def copy1(env, source, target):
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
 def copy2(env, source, target):
-    # added this line
+    x = 2 # added this line
     return copy1(env, source, target)
 
 env['BUILDERS']['Copy1'] = Builder(action=copy1)
@@ -99,7 +99,7 @@ def copy1(env, source, target):
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
 def copy2(env, source, target):
-    # added this line
+    x = 2 # added this line
     return copy1(env, source, target)
 
 env['BUILDERS']['Copy1'] = Builder(action=copy1)

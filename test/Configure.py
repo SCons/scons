@@ -84,7 +84,7 @@ try:
     test.write([work_dir,  'SConstruct'], """
 env = Environment()
 import os
-env['ENV']['PATH'] = os.environ['PATH']
+env.AppendENVPath('PATH', os.environ['PATH'])
 conf = Configure(env)
 r1 = conf.CheckLibWithHeader( '%s', 'math.h', 'c' )
 r2 = conf.CheckLibWithHeader( None, 'math.h', 'c' )
@@ -121,7 +121,7 @@ Checking for C++ header file vector... yes
     test.write([work_dir,  'SConstruct'], """
 env = Environment()
 import os
-env['ENV']['PATH'] = os.environ['PATH']
+env.AppendENVPath('PATH', os.environ['PATH'])
 conf = env.Configure()
 r1 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
 r2 = conf.CheckLib( 'no_c_library_SAFFDG' )   # leads to link error
@@ -152,7 +152,7 @@ Checking for main() in C library no_c_library_SAFFDG... no
     test.write([work_dir,  'SConstruct'], """
 env = Environment()
 import os
-env['ENV']['PATH'] = os.environ['PATH']
+env.AppendENVPath('PATH', os.environ['PATH'])
 conf = Configure(env)
 r1 = conf.CheckCHeader( 'math.h' )
 r2 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
@@ -190,7 +190,7 @@ Checking for C header file no_std_c_header.h... no
     test.write([work_dir,  'SConstruct'], """
 env = Environment(LOGFILE='build/config.log')
 import os
-env['ENV']['PATH'] = os.environ['PATH']
+env.AppendENVPath('PATH', os.environ['PATH'])
 BuildDir( 'build', '.' )
 conf = env.Configure(conf_dir='build/config.tests', log_file='$LOGFILE')
 r1 = conf.CheckCHeader( 'math.h' )
@@ -253,7 +253,7 @@ def CustomTest(context):
 env = Environment(FOO='fff')
 env.Append( CPPPATH='local' )
 import os
-env['ENV']['PATH'] = os.environ['PATH']
+env.AppendENVPath('PATH', os.environ['PATH'])
 conf = Configure( env, custom_tests = {'CustomTest' : CustomTest,
                                        '$FOO' : CustomTest} )
 if hasattr(conf, 'fff'):
@@ -335,7 +335,7 @@ def CheckCustom(test):
 
 env = Environment()
 import os
-env['ENV']['PATH'] = os.environ['PATH']
+env.AppendENVPath('PATH', os.environ['PATH'])
 conf = Configure( env, custom_tests={'CheckCustom' : CheckCustom} )
 conf.CheckCustom()
 env = conf.Finish()
