@@ -472,9 +472,9 @@ for p in [ scons ]:
         env.InstallAs(sourcefile, archive)
 
         targets = [ rpm, src_rpm ]
-        cmd = "rpm --define '_topdir %s' -ba $SOURCES" % topdir
+        cmd = "rpm --define '_topdir $(%s$)' -ba $SOURCES" % topdir
         if not os.path.isdir(BUILDdir):
-            cmd = "mkdir -p " + BUILDdir + "; " + cmd
+            cmd = "$( mkdir -p " + BUILDdir + "; $)" + cmd
         env.Command(targets, specfile, cmd)
         env.Depends(targets, sourcefile)
 
