@@ -1447,7 +1447,7 @@ class File(Base):
         # in one build (SConstruct file) is a source in a different build.
         # See test/chained-build.py for the use case.
         entry = self.get_stored_info()
-        if not SCons.Node.Save_Explain_Info:
+        if not SCons.Node.Save_Explain_Info and not SCons.Node.implicit_cache:
             # If we're not saving explanation info, wipe out any that
             # might be in the already-stored entry.
             #
@@ -1489,7 +1489,11 @@ class File(Base):
             return BuildInfo()
 
     def get_stored_implicit(self):
-        return self.dir.sconsign().get_implicit(self.name)
+        binfo = self.get_stored_info()
+        try:
+            return binfo.bimplicit
+        except AttributeError:
+            return None
 
     def get_found_includes(self, env, scanner, target):
         """Return the included implicit dependencies in this file.
@@ -1769,7 +1773,7 @@ class File(Base):
 
         return csig
 
-    def current(self, calc=None):
+    def current(self, calc=None, scan=1):
         self.binfo = self.gen_binfo(calc)
         if self.always_build:
             return None
