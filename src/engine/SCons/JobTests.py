@@ -28,6 +28,7 @@ import random
 import math
 import SCons.Job
 import sys
+import time
 
 # a large number
 num_sines = 10000
@@ -75,6 +76,7 @@ class Task:
         # do something that will take some random amount of time:
         for i in range(random.randrange(0, num_sines, 1)):
             x = math.sin(i)
+        time.sleep(0.01)
 
         self.was_executed = 1
 
@@ -169,6 +171,10 @@ class Taskmaster:
         return self.num_iterated == self.num_tasks
 
     def is_blocked(self):
+        if self.stop or self.all_tasks_are_executed():
+            return False
+        if self.all_tasks_are_iterated():
+            return True
         # simulate blocking tasks
         return self.num_iterated - self.num_executed >= max(num_jobs/2, 2)
 

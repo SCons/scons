@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import string
 
 import TestSCons
 
@@ -111,16 +112,19 @@ test.fail_test(os.path.exists(test.workpath('bar.out')))
 test.fail_test(os.path.exists(test.workpath('blat.out')))
 test.fail_test(os.path.exists(test.workpath('log.txt')))
 
-test.run(arguments = "-j 4 .", stdout=test.wrap_stdout("""\
-build("bar.out", "bar.in")
-build("blat.out", "blat.in")
-build("foo.out", "foo.in")
-build("log.out", "log.txt")
-build("%s", "baz.in")
-build("%s", "%s")
-""" % (os.path.join('subdir', 'baz.out'),
-       os.path.join('subdir', 'out.out'),
-       os.path.join('subdir', 'out.txt'))))
+build_lines =  [
+    'build("bar.out", "bar.in")', 
+    'build("blat.out", "blat.in")', 
+    'build("foo.out", "foo.in")', 
+    'build("log.out", "log.txt")', 
+    'build("%s", "baz.in")' % os.path.join('subdir', 'baz.out'),
+    'build("%s", "%s")' % (os.path.join('subdir', 'out.out'),
+                           os.path.join('subdir', 'out.txt')),
+]
+test.run(arguments = "-j 4 .")
+output = test.stdout()
+for line in build_lines:
+    test.fail_test(string.find(output, line) == -1)
 
 expect = """\
 bar.in -> bar.out

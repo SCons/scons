@@ -258,6 +258,8 @@ class TaskmasterTestCase(unittest.TestCase):
         assert not tm.is_blocked()
         t5 = tm.next_task()
         assert t5.get_target() == n5, t5.get_target()
+        assert tm.is_blocked()  # still executing t5
+        t5.executed()
         assert not tm.is_blocked()
 
         assert tm.next_task() == None
@@ -355,9 +357,10 @@ class TaskmasterTestCase(unittest.TestCase):
         t.executed()
         t = tm.next_task()
         assert t.get_target() == n5
-        assert not tm.is_blocked()
+        assert tm.is_blocked()  # still executing n5
         assert not tm.next_task()
         t.executed()
+        assert not tm.is_blocked()
 
         n1 = Node("n1")
         n2 = Node("n2")
@@ -464,10 +467,32 @@ class TaskmasterTestCase(unittest.TestCase):
         assert not tm.is_blocked()
 
         class MyTM(SCons.Taskmaster.Taskmaster):
-            def is_blocked(self):
-                return 1
+            def _find_next_ready_node(self):
+                self.ready = 1
         tm = MyTM()
-        assert tm.is_blocked() == 1
+        assert not tm.is_blocked()
+
+        class MyTM(SCons.Taskmaster.Taskmaster):
+            def _find_next_ready_node(self):
+                self.ready = None
+                self.pending = []
+                self.executing = []
+        tm = MyTM()
+        assert not tm.is_blocked()
+
+        class MyTM(SCons.Taskmaster.Taskmaster):
+            def _find_next_ready_node(self):
+                self.ready = None
+                self.pending = [1]
+        tm = MyTM()
+        assert tm.is_blocked()
+
+        class MyTM(SCons.Taskmaster.Taskmaster):
+            def _find_next_ready_node(self):
+                self.ready = None
+                self.executing = [1]
+        tm = MyTM()
+        assert tm.is_blocked()
 
     def test_stop(self):
         """Test the stop() method

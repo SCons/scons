@@ -17,6 +17,10 @@ RELEASE X.XX - XXX
 
   - Scan .S, .spp and .SPP files for C preprocessor dependencies.
 
+  - Refactor the Job.Parallel() class to use a thread pool without a
+    condition variable.  This improves parallel build performance and
+    handles keyboard interrupts properly when -j is used.
+
   From Charles Crain:
 
   - Add support for a JARCHDIR variable to control changing to a

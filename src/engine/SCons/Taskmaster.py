@@ -358,7 +358,7 @@ class Taskmaster:
     def is_blocked(self):
         self._find_next_ready_node()
 
-        return not self.ready and self.pending
+        return not self.ready and (self.pending or self.executing)
 
     def stop(self):
         """Stop the current build completely."""
