@@ -102,12 +102,12 @@ class SharedFlagChecker:
             for tgt in target:
                 tgt.attributes.shared = self.shared
 
-        for src in source:
-            if hasattr(src.attributes, 'shared'):
-                if self.shared and not src.attributes.shared:
-                    raise SCons.Errors.UserError, "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0])
-                elif not self.shared and src.attributes.shared:
-                    raise SCons.Errors.UserError, "Source file: %s is shared and is not compatible with static target: %s" % (src, target[0])
+        same = env.subst('$STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME')
+        if same == '0' or same == '' or same == 'False':
+            for src in source:
+                if hasattr(src.attributes, 'shared'):
+                    if self.shared and not src.attributes.shared:
+                        raise SCons.Errors.UserError, "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0])
 
 SharedCheck = SCons.Action.Action(SharedFlagChecker(1, 0), None)
 StaticCheck = SCons.Action.Action(SharedFlagChecker(0, 0), None)

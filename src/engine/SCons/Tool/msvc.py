@@ -270,6 +270,7 @@ def generate(env, platform):
     env['INCPREFIX']  = '/I'
     env['INCSUFFIX']  = ''
     env['OBJEMITTER'] = object_emitter
+    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'rc'
     env['RCFLAGS'] = ''

@@ -34,7 +34,7 @@ python = TestSCons.python
 if sys.platform == 'win32':
     _obj = '.obj'
 else:
-    _obj = '.o'
+    _obj = '.os'
 
 test = TestSCons.TestSCons()
 

@@ -59,9 +59,10 @@ def generate(env, platform):
     env['SHCC']      = '$CC'
     env['SHCCFLAGS'] = '$CCFLAGS -fPIC'
     env['SHCCCOM']   = '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
-
+    env['SHOBJSUFFIX'] = '.os'
     env['INCPREFIX']  = '-I'
     env['INCSUFFIX']  = ''
+    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
 
     env['CFILESUFFIX'] = '.c'
 

@@ -34,10 +34,15 @@ import TestSCons
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
 test.write('SConstruct', """
+import sys
 env=Environment(WIN32_INSERT_DEF=1)
 env2 = Environment(LIBS = [ 'foo1', 'foo2', 'foo3' ],
                    LIBPATH = [ '.' ])
 env.SharedLibrary(target = 'foo1', source = 'f1.c')
+if sys.platform == 'win32':
+    env.StaticLibrary(target = 'foo1-static', source = 'f1.c')
+else:
+    env.StaticLibrary(target = 'foo1', source = 'f1.c')
 env.SharedLibrary(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
 env.SharedLibrary(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 env2.Program(target = 'prog', source = 'prog.c')
@@ -191,15 +196,14 @@ if os.name == 'posix':
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
 
-test.run(arguments = '-f SConstructFoo', status=2, stderr='''
+if sys.platform == 'win32':
+    test.run(arguments = '-f SConstructFoo')
+else:
+    test.run(arguments = '-f SConstructFoo', status=2, stderr='''
 scons: \*\*\* Source file: foo\..* is static and is not compatible with shared target: .*
-'''
-)
+''')
 
-test.run(arguments = '-f SConstructFoo2', status=2, stderr='''
-scons: \*\*\* Source file: bar\..* is shared and is not compatible with static target: .*
-'''
-)
+test.run(arguments = '-f SConstructFoo2')
 
 if sys.platform == 'win32':
     # Make sure we don't insert a .def source file (when

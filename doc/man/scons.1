@@ -988,19 +988,26 @@ env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
 .EE
 .IP SharedObject
 Builds an object file for
-inclusion in a shared library
-(that is, built with the '-fPIC' option when using gcc).
+inclusion in a shared library.
 Source files must have one of the same set of extensions
 specified above for the
 .B StaticObject
-builder.
-The target shared object file prefix
+builder. On some platforms building a shared object requires additional
+compiler options (e.g. -fPIC for gcc) in addition to those needed to build a
+normal (static) object, but on some platforms there is no difference between a
+shared object and a normal (static) one. When there is a difference, SCons
+will only allow shared objects to be linked into a shared library, and will
+use a different suffix for shared objects. On platforms where there is no
+difference, SCons will allow both normal (static)
+and shared objects to be linked into a
+shared library, and will use the same suffix for shared and normal
+(static) objects.
+The target object file prefix
 (specified by the $SHOBJPREFIX construction variable;
 by default, the same as $OBJPREFIX)
 and suffix
-(specified by the $SHOBJSUFFIX construction variable;
-by default, the same as $OBJSUFFIX)
-are automatically added to the target if not already present.
+(specified by the $SHOBJSUFFIX construction variable)
+are automatically added to the target if not already present. 
 Examples:
 
 .ES

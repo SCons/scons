@@ -128,6 +128,8 @@ def generate(env, platform):
     env['AS'] = 'as'
     env['WIN32DEFPREFIX']        = ''
     env['WIN32DEFSUFFIX']        = '.def'
+    env['SHOBJSUFFIX'] = '.o'
+    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'windres'
     env['RCFLAGS'] = ''

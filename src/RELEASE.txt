@@ -25,6 +25,18 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
   This is the tenth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
+  Please note the following important changes since release 0.10:
+
+    - The default suffix for shared object files when using gcc has now
+      been changed to '.os'.  This makes library builds more convenient
+      by allowing both static (compiled without -fPIC) and shared object
+      files (compiled with -fPIC) to exist side-by-side.  If you want to
+      preserve the old behavior of using .o files for shared objects,
+      you must now explicitly reset the SHOBJSUFFIX value in your
+      construction environment as follows:
+
+        env = Environment(SHOBJSUFFIX = '.o')
+
   Please note the following important changes since release 0.09:
 
     - The Scanner interface has been changed to make it easier to
@@ -66,41 +78,6 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
     - SCons now prints a description of Python functions that are
       invoked to build a target.
-
-  Please note the following important changes since release 0.08:
-
-    - The SetCommandHandler() function has been superceded
-      by the SPAWN, SHELL and ESCAPE construction variables.
-
-    - SCons now exits with an error message if any source files or
-      implicit dependency files for a target do not exist and have
-      no Builder.  SCons used to ignore these files, so builds that
-      formally succeeded despite the absence of a scanned file will now
-      fail unless the -k (keep going on error) flag is used.
-
-    - The specification of the name for the 'lib' tool (the Microsoft
-      library archiver) has now been changed to 'mslib'.  If you
-      previously used the Tool() method to fetch the 'lib' tool
-      explicitly, you will need to change the name in the call to
-      'mslib':
-
-          env = Environment(tools = [ Tool('mslib') ])
-
-    - In order to make it clear what SCons is doing when, SCons now
-      prints explicit messages:
-      
-                scons: Reading SConscript files ...
-                scons: done reading SConscript files.
-                scons: Building targets ...
-                scons: done building targets.
-
-      These message might interfere with scripts that examine SCons
-      output.  These messages may be suppressed with the new -Q option.
-
-    - User defined build arguments passed into builder calls are no
-      longer given to emitters, generators, and function actions as
-      keyword arguments, but are instead passed as construction 
-      variables.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.

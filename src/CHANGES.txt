@@ -15,6 +15,14 @@ RELEASE 0.11 - XXX
   - Allow Python function Actions to specify a list of construction
     variables that should be included in the Action's signature.
 
+  From Anthony Roach:
+
+  - Use a different static object suffix (.os) when using gcc so shared
+    and static objects can exist side-by-side in the same directory.
+
+  - Allow the same object files on Win32 to be linked into either
+    shared or static libraries.
+
 
 
 RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
