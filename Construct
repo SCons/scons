@@ -1,0 +1,112 @@
+#
+# Construct file to build scons during development.
+# (Kind of ironic that we're using the classic Perl Cons
+# to build its Python child...)
+#
+$project = 'scons';
+
+$env = new cons( ENV => {
+			  AEGIS_PROJECT => $ENV{AEGIS_PROJECT},
+			  PATH => $ENV{PATH},
+			} );
+
+Default qw( . );
+
+#
+# Grab the information that we "build" into the files (using sed).
+#
+chomp($date = $ARG{date} || `date '+%Y/%m/%d %H:%M:%S'`);
+
+$developer = $ARG{developer} || '???';
+
+chomp($revision = $ARG{version} || `aesub '\$version' 2>/dev/null` || '0.01');
+
+@arr = split(/\./, $revision);
+@arr = ($arr[0], map {length($_) == 1 ? "0$_" : $_} @arr[1 .. $#arr]);
+$revision = join('.', @arr);
+pop @arr if $#arr >= 2;
+map {s/^[CD]//, s/^0*(\d\d)$/$1/} @arr;
+$version = join('.', @arr);
+
+#
+# We use %(-%) around the date so date changes don't cause rebuilds.
+#
+$sed_cmd = "sed" .
+       " %( -e 's+__DATE__+$date+' %)" .
+       " -e 's+__DEVELOPER__+$developer+'" .
+       " -e 's+__REVISION__+$revision+'" .
+       " -e 's+__VERSION__+$version+'" .
+       " %< > %>";
+
+#
+# Run everything in the MANIFEST through the sed command we concocted.
+#
+chomp(@files = `cat src/MANIFEST`);
+
+foreach $file (@files) {
+    Command $env "build/$file", "src/$file", $sed_cmd;
+}
+
+#
+# Use the Python distutils to generate the packages.
+#
+$tar_gz = "build/dist/$project-$version.tar.gz";
+
+@targets = (
+    "build/build/bdist.linux-i686/rpm/SOURCES/$project-$version.tar.gz",
+    "build/build/bdist.linux-i686/rpm/SPECS/$project.spec",
+    $tar_gz,
+    "build/dist/$project-$version-1.src.rpm",
+    "build/dist/$project-$version.linux-i686.tar.gz",
+    "build/dist/$project-$version-1.noarch.rpm",
+);
+
+@build_files = map("build/$_", @files);
+
+Command $env [@targets], @build_files, qq(
+    rm -rf build/build build/dist/*
+    cd build && python setup.py bdist bdist_rpm
+);
+
+Depends $env [@targets], 'build/MANIFEST';
+
+#
+# Unpack the .tar.gz created by the distutils into build/test, and
+# add the TestCmd.py module.  The runtest.py script will set PYTHONPATH
+# so that the tests only look under build/test.  This makes sure that
+# our tests pass with what we really packaged, not because of something
+# hanging around in the development directory.
+#
+$test_dir = "build/test";
+
+Command $env "$test_dir/$project-$version/$project/__init__.py", $tar_gz, qq(
+    rm -rf $test_dir/$project-$version
+    tar zxf %< -C $test_dir
+);
+
+Install $env $test_dir, "TestCmd.py";
+
+#
+# If we're running in the actual Aegis project, pack up a complete
+# source .tar.gz from the project files and files in the change,
+# so we can share it with helpful developers who don't use Aegis.
+#
+eval '@src_files = grep($_ !~ /\.(aeignore|consign)$/ && ! $seen{$_}++,
+		    `aegis -list -terse pf 2>/dev/null`,
+		    `aegis -list -terse cf 2>/dev/null`)';
+if (@src_files) {
+    chomp(@src_files);
+
+    foreach $file (@src_files) {
+	Command $env "build/$project-src/$file", $file, $sed_cmd;
+    }
+
+    Command $env "build/dist/$project-src-$version.tar.gz",
+    		$tar_gz,
+		map("build/$project-src/$_", @src_files), qq(
+	rm -rf build/$project-src-$version
+	cp -r build/$project-src build/$project-src-$version
+	find build/$project-src-$version -name .consign -exec rm {} \\;
+	cd build && tar zcf dist/%>:f $project-src-$version
+    );
+}
