@@ -170,32 +170,55 @@ available at:
 REPORTING BUGS
 ==============
 
-You can report bugs either by following the "Tracker - Bugs" link
-on the SCons project page:
+Please report bugs by following the "Tracker - Bugs" link on the SCons
+project page and filling out the form:
 
         http://sourceforge.net/projects/scons/
 
-or by sending mail to the SCons developers mailing list:
+You can also send mail to the SCons developers mailing list:
 
         scons-devel@lists.sourceforge.net
+
+But please make sure that you also submit a bug report to the project
+page bug tracker, because bug reports in email can sometimes get lost
+in the general flood of messages.
 
 
 MAILING LISTS
 =============
 
-A mailing list for users of SCons is available.  You may send
+PLEASE NOTE:  We are in the process of planning to move our mailing list
+administration on 14 March 2004.  Details are available at our mailing
+lists page:
+
+        http://www.scons.org/lists.html
+
+An active mailing list for users of SCons is available.  You may send
 questions or comments to the list at:
 
-        scons-users@lists.sourceforge.net
+        users@scons.tigris.org                  (after 14 March 2004)
 
-You may subscribe to the mailing list at:
+        scons-users@lists.sourceforge.net       (prior to 14 March 2004)
 
-        http://lists.sourceforge.net/lists/listinfo/scons-users
+After 14 March 2004, please check our mailing lists web page in case
+the actual date of the move has changed.
+
+You may subscribe to the (new) mailing list by sending email to:
+
+        users-subscribe@scons.tigris.org
+
+To subscribe to the old (sourceforge.net) mailing list prior to the move,
+please consult the directions at our mailing lists page (address above).
 
 There is also a low-volume mailing list available for announcements
-about SCons.  Subscribe at:
+about SCons.  Subscribe by sending email to:
 
-        http://lists.sourceforge.net/lists/listinfo/scons-announce
+        announce-subscribe@scons.tigris.org
+
+There are other mailing lists available for SCons developers, for
+notification of SCons code changes, and for notification of updated
+bug reports and project documents.  Please see our mailing lists page
+for details.
 
 
 DONATIONS
