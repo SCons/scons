@@ -374,7 +374,7 @@ def generate(env):
 
     env['CCPDBFLAGS'] = '${(PDB and "/Zi /Fd%s"%File(PDB)) or ""}'
     env['CCPCHFLAGS'] = '${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'
-    env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS'
+    env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'
     env['CCFLAGS']    = '/nologo'
     env['CCCOM']      = '$CC $CCFLAGS $CCCOMFLAGS' 
@@ -387,6 +387,8 @@ def generate(env):
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = '$CXXFLAGS'
     env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CCCOMFLAGS'
+    env['CPPDEFPREFIX']  = '/D'
+    env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '/I'
     env['INCSUFFIX']  = ''
     env['OBJEMITTER'] = object_emitter
@@ -394,7 +396,7 @@ def generate(env):
 
     env['RC'] = 'rc'
     env['RCFLAGS'] = ''
-    env['RCCOM'] = '$RC $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
+    env['RCCOM'] = '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
     CScan = env.get_scanner('.c')
     if CScan:
         CScan.add_skey('.rc')
@@ -419,7 +421,7 @@ def generate(env):
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
 
-    env['PCHCOM'] = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo${TARGETS[1]} /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS'
+    env['PCHCOM'] = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo${TARGETS[1]} /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS'
     env['BUILDERS']['PCH'] = pch_builder
 
 def exists(env):

@@ -2304,12 +2304,98 @@ called to transform the list before concatenation.
 env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
 .EE
 
+.IP CPPDEFINES
+A platform independent specification of C preprocessor definitions.
+The definitions will be added to command lines
+through the automatically-generated
+$_CPPDEFFLAGS construction variable (see below),
+which is constructed according to
+the type of value of $CPPDEFINES:
+
+.IP
+If $CPPDEFINES is a string,
+the values of the
+$CPPDEFPREFIX and $CPPDEFSUFFIX
+construction variables
+will be added to the beginning and end.
+
+.ES
+# Will add -Dxyz to POSIX compiler command lines,
+# and /Dxyz to Microsoft Visual C++ command lines.
+env = Environment(CPPDEFINES='xyz')
+.EE
+
+.IP
+If $CPPDEFINES is a list,
+the values of the
+$CPPDEFPREFIX and $CPPDEFSUFFIX
+construction variables
+will be appended to the beginning and end
+of each element in the list.
+If any element is a list or tuple,
+then the first item is the name being
+defined and the second item is its value:
+
+.ES
+# Will add -DB=2 -DA to POSIX compiler command lines,
+# and /DB=2 /DA to Microsoft Visual C++ command lines.
+env = Environment(CPPDEFINES=[('B', 2), 'A'])
+.EE
+
+.IP
+If $CPPDEFINES is a dictionary,
+the values of the
+$CPPDEFPREFIX and $CPPDEFSUFFIX
+construction variables
+will be appended to the beginning and end
+of each item from the dictionary.
+The key of each dictionary item
+is a name being defined
+to the dictionary item's corresponding value;
+if the value is
+.BR None ,
+then the name is defined without an explicit value.
+Note that the resulting flags are sorted by keyword
+to ensure that the order of the options on the
+command line is consistent each time
+.B scons
+ is run.
+
+.ES
+# Will add -DA -DB=2 to POSIX compiler command lines,
+# and /DA /DB=2 to Microsoft Visual C++ command lines.
+env = Environment(CPPDEFINES={'B':2, 'A':None})
+.EE
+
+.IP _CPPDEFFLAGS
+An automatically-generated construction variable
+containing the C preprocessor command-line options
+to define values.
+The value of $_CPPDEFFLAGS is created
+by appending $CPPDEFPREFIX and $CPPDEFSUFFIX
+to the beginning and end
+of each directory in $CPPDEFINES.
+
+.IP CPPDEFPREFIX
+The prefix used to specify preprocessor definitions
+on the C compiler command line.
+This will be appended to the beginning of each definition
+in the $CPPDEFINES construction variable
+when the $_CPPDEFFLAGS variable is automatically generated.
+
+.IP CPPDEFSUFFIX
+The suffix used to specify preprocessor definitions
+on the C compiler command line.
+This will be appended to the end of each definition
+in the $CPPDEFINES construction variable
+when the $_CPPDEFFLAGS variable is automatically generated.
+
 .IP CPPFLAGS
 User-specified C preprocessor options.
 These will be included in any command that uses the C preprocessor,
 including not just compilation of C and C++ source files
 via the $CCCOM, $SHCCCOM, $CXXCOM and $SHCXXCOM command lines,
-but also the $F77PPCOM command line
+but also the $F77PPCOM and $SHF77PPCOM command lines
 used to compile a Fortran source file,
 and the $ASPPCOM command line
 used to assemble an assembly language source file,

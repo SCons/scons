@@ -41,6 +41,7 @@ import os.path
 import shutil
 import stat
 import string
+import types
 
 import SCons.Action
 import SCons.Builder
@@ -210,6 +211,37 @@ def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=_concat):
         return ret
     return c(prefix, list, suffix, env, f)
 
+def _defines(prefix, defs, suffix, env, c=_concat):
+    """A wrapper around _concat that turns a list or string
+    into a list of C preprocessor command-line definitions.
+    """
+    if SCons.Util.is_List(defs):
+        l = []
+        for d in defs:
+            if SCons.Util.is_List(d) or type(d) is types.TupleType:
+                l.append(str(d[0]) + '=' + str(d[1]))
+            else:
+                l.append(str(d))
+    elif SCons.Util.is_Dict(defs):
+        # The items in a dictionary are stored in random order, but
+        # if the order of the command-line options changes from
+        # invocation to invocation, then the signature of the command
+        # line will change and we'll get random unnecessary rebuilds.
+        # Consequently, we have to sort the keys to ensure a
+        # consistent order...
+        l = []
+        keys = defs.keys()
+        keys.sort()
+        for k in keys:
+            v = defs[k]
+            if v is None:
+                l.append(str(k))
+            else:
+                l.append(str(k) + '=' + str(v))
+    else:
+        l = [str(defs)]
+    return c(prefix, l, suffix, env)
+    
 class NullCmdGenerator:
     """This is a callable class that can be used in place of other
     command generators if you don't want them to do anything.
@@ -238,10 +270,12 @@ ConstructionEnvironment = {
     'ENV'        : {},
     'INSTALL'    : copyFunc,
     '_concat'     : _concat,
+    '_defines'    : _defines,
     '_stripixes'  : _stripixes,
     '_LIBFLAGS'    : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
     '_LIBDIRFLAGS' : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs)} $)',
     '_CPPINCFLAGS' : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
     '_F77INCFLAGS' : '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs)} $)',
+    '_CPPDEFFLAGS' : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
     'TEMPFILE'     : NullCmdGenerator
     }

@@ -97,6 +97,10 @@ RELEASE 0.XX - XXX
   - When the -debug=pdb option is specified, use pdb.Pdb().runcall() to
     call pdb directly, don't call Python recursively.
 
+  From Ben Scott:
+
+  - Add support for a platform-independent CPPDEFINES variable.
+
   From Christoph Wiedemann:
 
   - Have the g++ Tool actually use g++ in preference to c++.

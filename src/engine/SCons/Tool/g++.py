@@ -52,13 +52,15 @@ def generate(env):
 
     env['CXX']        = env.Detect(compilers) or 'g++'
     env['CXXFLAGS']   = '$CCFLAGS'
-    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCXX']      = '$CXX'
     if env['PLATFORM'] == 'cygwin':
         env['SHCXXFLAGS'] = '$CXXFLAGS'
     else:
         env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
-    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['CPPDEFPREFIX']  = '-D'
+    env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '-I'
     env['INCSUFFIX']  = ''
 

@@ -63,11 +63,11 @@ def generate(env):
     env['F77']        = env.Detect(compilers) or 'f77'
     env['F77FLAGS']   = ''
     env['F77COM']     = '$F77 $F77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['F77PPCOM']   = '$F77 $F77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
+    env['F77PPCOM']   = '$F77 $F77FLAGS $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['SHF77']      = '$F77'
     env['SHF77FLAGS'] = '$F77FLAGS'
     env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
+    env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
 
 def exists(env):
     return env.Detect(compilers)

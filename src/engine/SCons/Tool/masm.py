@@ -60,7 +60,7 @@ def generate(env):
     env['AS']        = 'ml'
     env['ASFLAGS']   = '/nologo'
     env['ASCOM']     = '$AS $ASFLAGS /c /Fo$TARGET $SOURCES'
-    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS /c /Fo$TARGET $SOURCES'
+    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c /Fo$TARGET $SOURCES'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
 def exists(env):

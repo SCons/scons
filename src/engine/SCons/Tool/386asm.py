@@ -44,7 +44,7 @@ def generate(env):
     env['AS']        = '386asm'
     env['ASFLAGS']   = ''
     env['ASCOM']     = '$AS $ASFLAGS $SOURCES -o $TARGET'
-    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $SOURCES -o $TARGET'
+    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $SOURCES -o $TARGET'
 
     addPharLapPaths(env)
 

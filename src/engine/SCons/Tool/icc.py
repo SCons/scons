@@ -40,9 +40,12 @@ def generate(env):
     cc.generate(env)
 
     env['CC']         = 'icc'
-    env['CCCOM']      = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['CCCOM']      = '$CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['CPPDEFPREFIX']  = '/D'
+    env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '/I'
+    env['INCSUFFIX']  = ''
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
 
