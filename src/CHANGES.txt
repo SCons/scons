@@ -183,6 +183,9 @@ RELEASE 0.96 - XXX
     file basename.  This supports version numbers as part of shared
     library names, for example.
 
+  - Avoid problems when there are null entries (None or '') in tool
+    lists or CPPPATH.
+
   From Simon Perkins:
 
   - Fix a bug introduced in building shared libraries under MinGW.

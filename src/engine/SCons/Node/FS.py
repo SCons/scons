@@ -1035,7 +1035,7 @@ class FS(LocalFS):
             pathlist = string.split(pathlist, os.pathsep)
         if not SCons.Util.is_List(pathlist):
             pathlist = [pathlist]
-        for path in pathlist:
+        for path in filter(None, pathlist):
             if isinstance(path, SCons.Node.Node):
                 ret.append(path)
             else:

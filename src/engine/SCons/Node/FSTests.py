@@ -1292,6 +1292,15 @@ class RepositoryTestCase(unittest.TestCase):
         list = map(str, fs.Rsearchall(['d3', work_d4]))
         assert list == ['d3', str(work_d4)], list
 
+        list = fs.Rsearchall('')
+        assert list == [], list
+
+        list = fs.Rsearchall([None])
+        assert list == [], list
+
+        list = fs.Rsearchall([''])
+        assert list == [], list
+
         fs.BuildDir('build', '.')
 
         f = fs.File(test.workpath("work", "i_do_not_exist"))
