@@ -619,9 +619,6 @@ def is_Dict(e):
 def is_List(e):
     return type(e) is types.ListType or isinstance(e, UserList.UserList)
 
-def argmunge(arg):
-    return Split(arg)
-
 def Split(arg):
     """This function converts a string or list into a list of strings
     or Nodes.  This makes things easier for users by allowing files to

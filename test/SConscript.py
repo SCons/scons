@@ -28,10 +28,10 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('foo.py', """
-foo = 4""")
+test.write('foo.py', "foo = 4\n")
 
-test.write('SConstruct', """
+
+test.write('SConstruct', """\
 import os
 import foo
 
@@ -45,7 +45,6 @@ x2 = "SConstruct x2"
 x3,x4 = SConscript('SConscript1', "x1 x2")
 assert x3 == "SConscript1 x3"
 assert x4 == "SConscript1 x4"
-
 
 (x3,x4) = SConscript('SConscript2', ["x1","x2"])
 assert x3 == "SConscript2 x3"
@@ -81,8 +80,8 @@ assert x9 == "SConscript6 x9"
 SConscript('SConscript7')
 """)
 
-test.write('SConscript', """
 
+test.write('SConscript', """\
 # os should not be automajically imported:
 assert not globals().has_key("os")
 
@@ -101,7 +100,7 @@ Return("x3 x4")
 """)
 
 
-test.write('SConscript2', """
+test.write('SConscript2', """\
 Import("x1","x2")
 assert x1 == "SConstruct x1"
 assert x2 == "SConstruct x2"
@@ -110,7 +109,8 @@ x4 = "SConscript2 x4"
 Return("x3","x4")
 """)
 
-test.write('SConscript3', """
+
+test.write('SConscript3', """\
 Import("x1 x2")
 assert x1 == "SConstruct x1"
 assert x2 == "SConstruct x2"
@@ -123,11 +123,10 @@ assert x5 == "SConscript31 x5"
 assert x6 == "SConscript31 x6"
 
 Export("x1 x2")
-
-
 """)
 
-test.write('SConscript31', """
+
+test.write('SConscript31', """\
 Import("x1 x2")
 assert x1 == "SConscript3 x1"
 assert x2 == "SConstruct x2"
@@ -138,7 +137,7 @@ Return("x5")
 """)
 
 
-test.write('SConscript4', """
+test.write('SConscript4', """\
 Import("x1", "x2")
 assert x1 == "SConstruct x1"
 assert x2 == "SConstruct x2"
@@ -147,14 +146,15 @@ x2 = "SConscript4 x2"
 Export("x1", "x2")
 """)
 
+
 test.subdir('subdir')
-test.write(['subdir', 'SConscript'], """
+test.write(['subdir', 'SConscript'], """\
 foo = 'subdir/SConscript foo'
 Return('foo')
 """)
 
 
-test.write('SConscript5', """
+test.write('SConscript5', """\
 B = Builder(action = 'B')
 def scan():
     pass
@@ -163,7 +163,7 @@ A = Action("A")
 """)
 
 
-test.write('SConscript6', """
+test.write('SConscript6', """\
 Import("x7 x8")
 assert x7 == "SConstruct x7"
 assert x8 == "SConstruct x8"
@@ -171,18 +171,21 @@ x9 = "SConscript6 x9"
 Return("x9")
 """)
 
-test.write('SConscript7', """
+
+test.write('SConscript7', """\
 result1 = ((1, 3), -4)
 result2 = ((2, 3), -4)
-assert result1 == SConscript('foo/SConscript bar/SConscript')
+assert result1 == SConscript(Split('foo/SConscript bar/SConscript'))
 assert result1 == SConscript(['foo/SConscript', 'bar/SConscript'])
 assert result1 == SConscript([File('foo/SConscript'), File('bar/SConscript')])
-assert result1 == SConscript(dirs = 'foo bar')
+assert result1 == SConscript(dirs = Split('foo bar'))
 assert result1 == SConscript(dirs = ['foo', 'bar'])
-assert result2 == SConscript(dirs = 'foo bar', name = 'subscript')
+assert result2 == SConscript(dirs = Split('foo bar'), name = 'subscript')
 assert result2 == SConscript(dirs = ['foo', 'bar'], name = 'subscript')
 assert result1 == SConscript(dirs = ['foo', Dir('bar')])
 assert result2 == SConscript(dirs = [Dir('foo'), 'bar'], name = 'subscript')
+assert 5 == SConscript('w s/SConscript')
+assert (-4, 5) == SConscript(['bar/SConscript', 'w s/SConscript'])
 
 x1 = 3
 x2 = 2
@@ -191,19 +194,20 @@ assert (3, 2) == SConscript('baz/SConscript', 'x1', exports = 'x2')
 assert (3, 2) == SConscript('baz/SConscript', exports = 'x1 x2')
 """)
 
-fooscript = "x = %d; y = 3; Return('x y')"
-barscript = "x = -4; Return('x')"
+fooscript = "x = %d; y = 3; Return('x y')\n"
+barscript = "x = -4; Return('x')\n"
 
-test.subdir('foo', 'bar', 'baz')
+test.subdir('foo', 'bar', 'baz', 'w s')
 test.write(['foo', 'SConscript'], fooscript % 1)
 test.write(['foo', 'subscript'],  fooscript % 2)
 test.write(['bar', 'SConscript'], barscript)
 test.write(['bar', 'subscript'],  barscript)
-test.write(['baz', 'SConscript'], """
+test.write(['baz', 'SConscript'], """\
 Import("x1 x2")
 result = (x1, x2)
 Return("result")
 """)
+test.write(['w s', 'SConscript'], "x = 5; Return('x')\n")
 
 
 wpath = test.workpath()
@@ -344,5 +348,19 @@ assert y == 'zoom'
 """)
 
 test.run(arguments = ".")
+
+# Test white space
+test.subdir('white space')
+test.write("SConstruct", """\
+SConscript('white space/SConscript')
+""")
+
+test.write(['white space', 'SConscript'], """\
+print "`white space/SConscript'"
+""")
+
+test.run(arguments = ".",
+         stdout = test.wrap_stdout(read_str = "`white space/SConscript'\n",
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.pass_test()

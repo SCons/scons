@@ -4491,20 +4491,53 @@ SetOption('max_drift', 1)
 .EE
 
 .TP
-.RI SConscript( script ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
+.RI SConscript( scripts ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
+.TP
+.RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " build_dir ", " src_dir ", " duplicate ])
 This tells
 .B scons
 to execute
-.I script
-as a SConscript (configuration) file.
+one or more subsidiary SConscript (configuration) files.
+There are two ways to call the
+.BR SConscript ()
+function.
+
+The first way you can call
+.BR SConscript ()
+is to explicitly specify one or more
+.I scripts
+as the first argument.
+A single script may be specified as a string;
+multiple scripts must be specified as a list
+(either explicitly or as created by
+a function like
+.BR Split ()).
+
+The second way you can call
+.BR SConscript ()
+is to specify a list of (sub)directory names
+as a
+.RI dirs= subdirs
+keyword argument.
+In this case,
+.B scons
+will, by default,
+execute a subsidiary configuration file named
+.B SConscript
+in each of the specified directories.
+You may specify a name other than
+.B SConscript
+by supplying an optional
+.RI name= script
+keyword argument.
 
 The optional 
 .I exports
 argument provides a list of variable names or a dictionary of
-named values to export to
-.IR script ". "
+named values to export to the
+.IR script(s) ". "
 These variables are locally exported only to the specified
-.IR script ,
+.IR script(s) ,
 and do not affect the
 global pool of variables used by
 the
@@ -4513,8 +4546,8 @@ function.
 '\"If multiple dirs are provided,
 '\"each script gets a fresh export.
 The subsidiary
-.I script
-file must use the
+.I script(s)
+must use the
 .BR Import ()
 function to import the variables.
 
@@ -4527,6 +4560,7 @@ that would normally be built in the subdirectory in which
 resides should actually
 be built in
 .IR build_dir .
+
 The optional
 .I src_dir
 argument specifies that the
@@ -4534,6 +4568,7 @@ source files from which
 the target files should be built
 can be found in
 .IR src_dir .
+
 By default,
 .B scons
 will link or copy (depending on the platform)
@@ -4571,7 +4606,9 @@ SConscript('subdir/SConscript')
 foo = SConscript('sub/SConscript', exports='env')
 SConscript('dir/SConscript', exports=['env', 'variable'])
 SConscript('src/SConscript', build_dir='build', duplicate=0)
-SConscript('bld/SConscript', src_dir='src', exports='env')
+SConscript('bld/SConscript', src_dir='src', exports='env variable')
+SConscript(dirs=['sub1', 'sub2'])
+SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
 .EE
 
 .TP

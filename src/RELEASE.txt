@@ -7,7 +7,7 @@
                             Release Notes
 
 
-This is an alpha release of SCons, a tool for building software (and
+This is an beta release of SCons, a tool for building software (and
 other files).  SCons is implemented in Python, and its "configuration
 files" are actually Python scripts, allowing you to use the full power
 of a real scripting language to solve build problems.  You do not,
@@ -32,19 +32,32 @@ RELEASE 0.XX - XXX
     spelling still works but has been deprecated and generates a
     warning.
 
+  - The SConscript() function no longer splits its first argument on
+    white space into a list of SConscript file names.  You must now
+    explicitly enclose the file names in a list:
+
+        SConscript(['sub1/SConscript', 'sub2/SConscript'])
+
+    Or use the Split() function (or something similar) to create a list:
+
+        SConscript(Split('sub1/SConscript sub2/SConscript'))
+
+    This makes the SConscript() function's handling of file names
+    consistent with the rest of SCons.
+
   Please note the following important changes since release 0.14:
 
   - SCons now tries to verify that Microsoft Visual Studio (including
-    Visual C++) is actually installed before using it, by checking that
-    the program directory exists.  If SCons cannot find your copy of
-    Visual Studio, it is probably because it installed itself itself in
-    a default directory that we have not seen before.  If this is the
+    Visual C++) is actually installed before using it, by checking
+    that the program directory exists.  If SCons cannot find your copy
+    of Visual Studio, it is probably because it installed itself in a
+    default directory that we have not seen before.  If this is the
     case, please let us know so that we can update future versions.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
   Because of this, SCons is of sufficient quality that you can use it
-  for real work.  The "alpha" status of the release reflects that we
+  for real work.  The "beta" status of the release reflects that we
   still may change interfaces in future releases, which may require
   modifications to your SConscript files.  We strive to hold these
   changes to a minimum.
@@ -143,12 +156,12 @@ RELEASE 0.XX - XXX
       an infinite loop.
 
     - When using SourceSignatures('timestamp'), changes to Python
-      Value() do not cause rebuilds.
+      Value() Nodes do not cause rebuilds.
 
     - No support yet for the following planned command-line options:
 
          -d -e -l --list-actions --list-derived --list-where
-         -o --override -p -r -R --random -w --write-filenames
+         -o --override -p -r -R -w --write-filenames
          -W --warn-undefined-variables
 
 
@@ -164,6 +177,7 @@ With plenty of help from the SCons Development team:
         Chad Austin
         Charles Crain
         Steve Leblanc
+        Gary Oberbrunner
         Anthony Roach
         Greg Spencer
         Christoph Wiedemann

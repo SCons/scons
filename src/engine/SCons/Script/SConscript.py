@@ -91,7 +91,8 @@ def get_calling_namespaces():
 def compute_exports(exports):
     """Compute a dictionary of exports given one of the parameters
     to the Export() function or the exports argument to SConscript()."""
-    exports = SCons.Util.argmunge(exports)
+
+    exports = SCons.Util.Split(exports)
     loc, glob = get_calling_namespaces()
 
     retval = {}
@@ -149,40 +150,42 @@ def Return(*vars):
 # exports.
 
 def GetSConscriptFilenames(ls, kw):
-    files = []
     exports = []
 
     if len(ls) == 0:
         try:
-            dirs = map(str, SCons.Util.argmunge(kw["dirs"]))
+            dirs = kw["dirs"]
         except KeyError:
             raise SCons.Errors.UserError, \
                   "Invalid SConscript usage - no parameters"
 
-        name = kw.get('name', 'SConscript')
+        if not SCons.Util.is_List(dirs):
+            dirs = [ dirs ]
+        dirs = map(str, dirs)
 
-        if kw.get('exports'):
-            exports = SCons.Util.argmunge(kw['exports'])
+        name = kw.get('name', 'SConscript')
 
         files = map(lambda n, name = name: os.path.join(n, name), dirs)
 
     elif len(ls) == 1:
 
-        files = SCons.Util.argmunge(ls[0])
-        if kw.get('exports'):
-            exports = SCons.Util.argmunge(kw['exports'])
+        files = ls[0]
 
     elif len(ls) == 2:
 
-        files   = SCons.Util.argmunge(ls[0])
-        exports = SCons.Util.argmunge(ls[1])
-
-        if kw.get('exports'):
-            exports.extend(SCons.Util.argmunge(kw['exports']))
+        files   = ls[0]
+        exports = SCons.Util.Split(ls[1])
 
     else:
+
         raise SCons.Errors.UserError, \
               "Invalid SConscript() usage - too many arguments"
+
+    if not SCons.Util.is_List(files):
+        files = [ files ]
+
+    if kw.get('exports'):
+        exports.extend(SCons.Util.Split(kw['exports']))
 
     build_dir = kw.get('build_dir')
     if build_dir:
@@ -398,7 +401,7 @@ def Export(*vars):
 def Import(*vars):
     try:
         for var in vars:
-            var = SCons.Util.argmunge(var)
+            var = SCons.Util.Split(var)
             for v in var:
                 if v == '*':
                     stack[-1].globals.update(global_exports)
