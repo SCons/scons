@@ -756,7 +756,7 @@ class FS(LocalFS):
 
         The path argument must be a valid absolute path.
         """
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Node.FS')
         self.Top = None
         if path == None:
             self.pathTop = os.getcwd()

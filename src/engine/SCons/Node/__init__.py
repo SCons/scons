@@ -99,7 +99,7 @@ class Node:
         pass
 
     def __init__(self):
-        if __debug__: logInstanceCreation(self, 'Node')
+        if __debug__: logInstanceCreation(self, 'Node.Node')
         # Note that we no longer explicitly initialize a self.builder
         # attribute to None here.  That's because the self.builder
         # attribute may be created on-the-fly later by a subclass (the

@@ -47,7 +47,7 @@ class Executor:
 
     def __init__(self, action, env=None, overridelist=[{}],
                  targets=[], sources=[], builder_kw={}):
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Executor.Executor')
         if not action:
             raise SCons.Errors.UserError, "Executor must have an action."
         self.action = action
@@ -204,6 +204,8 @@ class Null:
     disassociate Builders from Nodes entirely, so we're not
     going to worry about unit tests for this--at least for now.
     """
+    def __init__(self):
+        if __debug__: logInstanceCreation(self, 'Executor.Null')
     def get_build_env(self):
         class NullEnvironment:
             def get_scanner(self, key):

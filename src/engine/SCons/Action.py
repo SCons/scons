@@ -343,7 +343,7 @@ class CommandAction(_ActionAction):
         # factory above does).  cmd will be passed to
         # Environment.subst_list() for substituting environment
         # variables.
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Action.CommandAction')
         apply(_ActionAction.__init__, (self,)+args, kw)
         if SCons.Util.is_List(cmd):
             if filter(SCons.Util.is_List, cmd):
@@ -441,7 +441,7 @@ class CommandAction(_ActionAction):
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
     def __init__(self, generator, *args, **kw):
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Action.CommandGeneratorAction')
         self.generator = generator
         self.gen_kw = kw
 
@@ -506,7 +506,7 @@ class LazyAction(CommandGeneratorAction, CommandAction):
     __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self, var, *args, **kw):
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Action.LazyAction')
         apply(CommandAction.__init__, (self, '$'+var)+args, kw)
         self.var = SCons.Util.to_String(var)
         self.gen_kw = kw
@@ -550,7 +550,7 @@ class FunctionAction(_ActionAction):
     """Class for Python function actions."""
 
     def __init__(self, execfunction, *args, **kw):
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Action.FunctionAction')
         self.execfunction = execfunction
         apply(_ActionAction.__init__, (self,)+args, kw)
         self.varlist = kw.get('varlist', [])
@@ -626,7 +626,7 @@ class FunctionAction(_ActionAction):
 class ListAction(ActionBase):
     """Class for lists of other actions."""
     def __init__(self, list):
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Action.ListAction')
         def list_of_actions(x):
             if isinstance(x, ActionBase):
                 return x
