@@ -205,13 +205,13 @@ class Node:
 
         for child in self.children(scan=0):
             self._add_child(self.implicit,
-                            child.get_implicit_deps(self.env,
+                            child.get_implicit_deps(self.generate_build_env(),
                                                     child.source_scanner,
                                                     self))
 
         # scan this node itself for implicit dependencies
         self._add_child(self.implicit,
-                        self.get_implicit_deps(self.env,
+                        self.get_implicit_deps(self.generate_build_env(),
                                                self.target_scanner,
                                                self))
 

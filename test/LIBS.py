@@ -124,6 +124,31 @@ test.run(arguments = '.')
 
 test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
+#
+test.write('SConstruct', """
+env = Environment()
+env.Program(target='foo', source='foo.c', LIBS=['bar', 'baz'], LIBPATH = '.')
+SConscript('sub1/SConscript', 'env')
+SConscript('sub2/SConscript', 'env')
+""")
+
+test.run(arguments = '.')
+
+test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+
+test.write(['sub1', 'baz.c'], r"""
+#include <stdio.h>
+
+void baz()
+{
+   printf("sub1/baz.c 2\n");
+}
+""")
+
+test.run(arguments = '.')
+
+test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c 2\n')
+
 test.pass_test()
 
 

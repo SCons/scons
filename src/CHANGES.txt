@@ -88,6 +88,8 @@ RELEASE 0.09 -
     function to the Environment that allows people to define their
     own similar variables.
 
+  - Fix dependency scans when $LIBS is overridden.
+
   From sam th:
 
   - Dynamically check for the existence of utilities with which to
