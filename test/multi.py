@@ -31,9 +31,9 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 def build(env, target, source):
-    file = open(str(target[0]), "wt")
+    file = open(str(target[0]), 'wb')
     for s in source:
-        file.write(open(str(s), 'rt').read())
+        file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=1)
 env = Environment(BUILDERS = [B])
@@ -51,9 +51,9 @@ test.fail_test(not test.read('foo.out') == 'foo.in\nbar.in\n')
 
 test.write('SConstruct', """
 def build(env, target, source):
-    file = open(str(target[0]), "wt")
+    file = open(str(target[0]), 'wb')
     for s in source:
-        file.write(open(str(s), 'rt').read())
+        file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=0)
 env = Environment(BUILDERS = [B])
@@ -70,9 +70,9 @@ File "SConstruct", line 10, in ?
 
 test.write('SConstruct', """
 def build(env, target, source):
-    file = open(str(target[0]), "wt")
+    file = open(str(target[0]), 'wb')
     for s in source:
-        file.write(open(str(s), 'rt').read())
+        file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=1)
 env = Environment(BUILDERS = [B])
@@ -89,9 +89,9 @@ File "SConstruct", line 10, in ?
 
 test.write('SConstruct', """
 def build(env, target, source):
-    file = open(str(target[0]), "wt")
+    file = open(str(target[0]), 'wb')
     for s in source:
-        file.write(open(str(s), 'rt').read())
+        file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=1)
 env = Environment(BUILDERS = [B])
@@ -109,9 +109,9 @@ File "SConstruct", line 11, in ?
 
 test.write('SConstruct', """
 def build(env, target, source):
-    file = open(str(target[0]), "wt")
+    file = open(str(target[0]), 'wb')
     for s in source:
-        file.write(open(str(s), 'rt').read())
+        file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=0)
 env = Environment(BUILDERS = [B])
@@ -124,9 +124,9 @@ test.fail_test(not test.read('foo.out') == 'foo.in\n')
 
 test.write('SConstruct', """
 def build(env, target, source):
-    file = open(str(target[0]), "wt")
+    file = open(str(target[0]), 'wb')
     for s in source:
-        file.write(open(str(s), 'rt').read())
+        file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=1)
 C = Builder(name='C', action=build, multi=1)
@@ -145,9 +145,9 @@ File "SConstruct", line 11, in ?
 test.write('SConstruct', """
 def build(env, target, source):
     for t in target:
-        file = open(str(t), "wt")
+        file = open(str(t), 'wb')
         for s in source:
-            file.write(open(str(s), 'rt').read())
+            file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=1)
 env = Environment(BUILDERS = [B])
@@ -164,9 +164,9 @@ test.fail_test(not test.read('foo.out') == 'foo.in\nbar.in\n')
 test.write('SConstruct', """
 def build(env, target, source):
     for t in target:
-        file = open(str(target[0]), "wt")
+        file = open(str(target[0]), 'wb')
         for s in source:
-            file.write(open(str(s), 'rt').read())
+            file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=1)
 env = Environment(BUILDERS = [B])
@@ -193,9 +193,9 @@ File "SConstruct", line 11, in ?
 test.write('SConstruct', """
 def build(env, target, source):
     for t in target:
-        file = open(str(target[0]), "wt")
+        file = open(str(target[0]), 'wb')
         for s in source:
-            file.write(open(str(s), 'rt').read())
+            file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=1)
 env = Environment(BUILDERS = [B])
@@ -213,9 +213,9 @@ File "SConstruct", line 11, in ?
 test.write('SConstruct', """
 def build(env, target, source):
     for t in target:
-        file = open(str(target[0]), "wt")
+        file = open(str(target[0]), 'wb')
         for s in source:
-            file.write(open(str(s), 'rt').read())
+            file.write(open(str(s), 'rb').read())
 
 B = Builder(name='B', action=build, multi=1)
 env = Environment(BUILDERS = [B])
