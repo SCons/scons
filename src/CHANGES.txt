@@ -45,6 +45,11 @@ RELEASE 0.96 - XXX
   - Have SConsignFile() use, by default, a custom "dblite.py" that we can
     control and guarantee to work on all Python versions (or nearly so).
 
+  From Jonathan Gurley:
+
+  - Add support for the newer "ifort" versions of the Intel Fortran
+    Compiler for Linux.
+
   From Bob Halley:
 
   - Make the new *FLAGS variable type work with copied Environments.

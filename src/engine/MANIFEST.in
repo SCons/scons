@@ -85,6 +85,7 @@ SCons/Tool/javah.py
 SCons/Tool/icc.py
 SCons/Tool/icl.py
 SCons/Tool/ifl.py
+SCons/Tool/ifort.py
 SCons/Tool/ilink.py
 SCons/Tool/ilink32.py
 SCons/Tool/latex.py
