@@ -32,11 +32,13 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', "")
 
 test.run(arguments = 'foo',
-         stderr = "scons: *** Do not know how to make target `foo'.  Stop.\n")
+         stderr = "scons: *** Do not know how to make target `foo'.  Stop.\n",
+         status = 2)
 
 test.run(arguments = '-k foo/bar foo',
          stderr = """scons: *** Do not know how to make target `foo/bar'.
 scons: *** Do not know how to make target `foo'.
-""")
+""",
+         status = 2)
 
 test.pass_test()

@@ -34,9 +34,17 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 test.write('SConstruct', "")
 
 test.run(arguments = '-Z',
-	 stderr = '\nSCons error: option -Z not recognized\nFile "\S+", line \d+, in short_has_arg\n')
+         stderr = """
+SCons error: option -Z not recognized
+File "\S+", line \d+, in short_has_arg
+""",
+         status = 2)
 
 test.run(arguments = '--ZizzerZazzerZuzz',
-	 stderr = '\nSCons error: option --ZizzerZazzerZuzz not recognized\nFile "\S+", line \d+, in long_has_args\n')
+         stderr = """
+SCons error: option --ZizzerZazzerZuzz not recognized
+File "\S+", line \d+, in long_has_args
+""",
+         status = 2)
 
 test.pass_test()

@@ -1031,8 +1031,9 @@ def main():
     
     try:
 	_main()
-    except SystemExit:
-        pass
+    except SystemExit, s:
+        if s:
+            exit_status = s
     except KeyboardInterrupt:
         print "Build interrupted."
         sys.exit(2)
