@@ -186,7 +186,11 @@ def generate(env):
     env['LDMODULEPREFIX'] = '$SHLIBPREFIX' 
     env['LDMODULESUFFIX'] = '$SHLIBSUFFIX' 
     env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
-    env['LDMODULECOM'] = '$SHLINKCOM'
+    # We can't use '$SHLINKCOM' here because that will stringify the
+    # action list on expansion, and will then try to execute expanded
+    # strings, with the upshot that it would try to execute RegServerFunc
+    # as a command.
+    env['LDMODULECOM'] = compositeLinkAction
 
 def exists(env):
     if SCons.Tool.msvs.is_msvs_installed():
