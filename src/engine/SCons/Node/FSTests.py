@@ -716,7 +716,7 @@ class FSTestCase(unittest.TestCase):
                 dir = fs.Dir(drive)
                 assert str(dir) == drive + os.sep, str(dir)
 
-            # Test Dir.children()
+            # Test Dir.scan()
             dir = fs.Dir('ddd')
             fs.File(string.join(['ddd', 'f1'], sep))
             fs.File(string.join(['ddd', 'f2'], sep))
@@ -724,18 +724,19 @@ class FSTestCase(unittest.TestCase):
             fs.Dir(string.join(['ddd', 'd1'], sep))
             fs.Dir(string.join(['ddd', 'd1', 'f4'], sep))
             fs.Dir(string.join(['ddd', 'd1', 'f5'], sep))
+            dir.scan()
             kids = map(lambda x: x.path, dir.children(None))
             kids.sort()
             assert kids == [os.path.join('ddd', 'd1'),
                             os.path.join('ddd', 'f1'),
                             os.path.join('ddd', 'f2'),
-                            os.path.join('ddd', 'f3')]
+                            os.path.join('ddd', 'f3')], kids
             kids = map(lambda x: x.path_, dir.children(None))
             kids.sort()
             assert kids == [os.path.join('ddd', 'd1', ''),
                             os.path.join('ddd', 'f1'),
                             os.path.join('ddd', 'f2'),
-                            os.path.join('ddd', 'f3')]
+                            os.path.join('ddd', 'f3')], kids
 
         # Test for a bug in 0.04 that did not like looking up
         # dirs with a trailing slash on Win32.

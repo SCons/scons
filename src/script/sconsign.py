@@ -203,12 +203,14 @@ def map_timestamp(entry, name):
         return str(timestamp)
 
 def map_bkids(entry, name):
-    result = []
     try:
-        for i in xrange(len(entry.bkids)):
-            result.append("%s: %s" % (entry.bkids[i], entry.bkidsigs[i]))
+        bkids = entry.bsources + entry.bdepends + entry.bimplicit
+        bkidsigs = entry.bsourcesigs + entry.bdependsigs + entry.bimplicitsigs
     except AttributeError:
         return None
+    result = []
+    for i in xrange(len(bkids)):
+        result.append("%s: %s" % (bkids[i], bkidsigs[i]))
     if result == []:
         return None
     return string.join(result, "\n        ")

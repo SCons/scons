@@ -399,6 +399,12 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
         binfo = node.gen_binfo(Calculator(666))
         assert isinstance(binfo, SCons.Node.BuildInfo), binfo
+        assert hasattr(binfo, 'bsources')
+        assert hasattr(binfo, 'bsourcesigs')
+        assert hasattr(binfo, 'bdepends')
+        assert hasattr(binfo, 'bdependsigs')
+        assert hasattr(binfo, 'bimplicit')
+        assert hasattr(binfo, 'bimplicitsigs')
         assert binfo.bsig == 666, binfo.bsig
 
     def test_explain(self):
