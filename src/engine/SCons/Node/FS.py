@@ -168,7 +168,7 @@ def get_DefaultSCCSBuilder():
         import SCons.Builder
         import SCons.Defaults
         DefaultSCCSBuilder = SCons.Builder.Builder(action = '$SCCSCOM',
-                                                   env = SCons.Defaults._default_env)
+                                                   env = SCons.Defaults.DefaultEnvironment())
     return DefaultSCCSBuilder
 
 def get_DefaultRCSBuilder():
@@ -177,7 +177,7 @@ def get_DefaultRCSBuilder():
         import SCons.Builder
         import SCons.Defaults
         DefaultRCSBuilder = SCons.Builder.Builder(action = '$RCS_COCOM',
-                                                  env = SCons.Defaults._default_env)
+                                                  env = SCons.Defaults.DefaultEnvironment())
     return DefaultRCSBuilder
 
 #

@@ -181,7 +181,7 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-_default_env['RCS_COFLAGS'] = '-l'
+DefaultEnvironment()['RCS_COFLAGS'] = '-l'
 env = Environment(ENV=ENV, BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')

@@ -17,6 +17,9 @@ RELEASE 0.XX - XXX
   - Give a Value Nodes a timestamp of the system time when they're
     created, so they'll work when using timestamp-based signatures.
 
+  - Add a DefaultEnvironment() function that only creates a default
+    environment on-demand (for fetching source files, e.g.).
+
   From Steven Knight:
 
   - Tighten up the scons -H help output.

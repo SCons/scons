@@ -513,7 +513,6 @@ def BuildDefaultGlobals():
     """
 
     globals = {}
-    globals['_default_env']      = SCons.Defaults._default_env
     globals['Action']            = SCons.Action.Action
     globals['AddPostAction']     = AddPostAction
     globals['AddPreAction']      = AddPreAction
@@ -526,6 +525,7 @@ def BuildDefaultGlobals():
     globals['Configure']         = SCons.SConf.SConf
     globals['CScan']             = SCons.Defaults.CScan
     globals['Default']           = Default
+    globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
     globals['Dir']               = SCons.Node.FS.default_fs.Dir
     globals['EnsurePythonVersion'] = EnsurePythonVersion
     globals['EnsureSConsVersion'] = EnsureSConsVersion

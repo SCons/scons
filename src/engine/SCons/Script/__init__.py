@@ -750,10 +750,6 @@ def _main(args, parser):
 
     SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
 
-    # Now that the top-level directory has been set,
-    # we can initialize the default Environment.
-    SCons.Defaults._default_env = SCons.Environment.Environment()
-
     scripts = []
     if options.file:
         scripts.extend(options.file)

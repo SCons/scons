@@ -4076,6 +4076,13 @@ will add to the (now empty) default-target list
 like normal.
 
 .TP
+.RI DefaultEnvironment()
+Creates and returns a default construction environment object.
+This construction environment is used internally by SCons
+in order to fetch source files transparently
+from source code management systems.
+
+.TP
 .RI Dir( name ", [" directory ])
 This returns an object that represents a given directory 
 .IR name . 

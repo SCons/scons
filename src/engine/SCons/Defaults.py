@@ -44,6 +44,7 @@ import string
 
 import SCons.Action
 import SCons.Builder
+import SCons.Environment
 import SCons.Node.Alias
 import SCons.Node.FS
 import SCons.Scanner.C
@@ -55,6 +56,15 @@ import SCons.Scanner.Prog
 # initialized later, after the top-level directory is set by the calling
 # interface.
 _default_env = None
+
+# Lazily instantiate the default environment so the overhead of creating
+# it doesn't apply when it's not needed.
+def DefaultEnvironment():
+    global _default_env
+    if not _default_env:
+        _default_env = SCons.Environment.Environment()
+    return _default_env
+
 
 def alias_builder(env, target, source):
     pass

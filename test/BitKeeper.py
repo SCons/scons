@@ -298,7 +298,7 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-_default_env['SCCS'] = r'%s'
+DefaultEnvironment()['SCCS'] = r'%s'
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
