@@ -61,6 +61,10 @@ RELEASE 0.14 - XXX
     to {Target,Source}Signatures().  Deprecate the old names but support
     them for backwards compatibility.
 
+  From Damyan Pepper:
+
+  - Quote the "Entering directory" message like Make.
+
   From Stefan Reichor:
 
   - Add support for using Ghostscript to convert Postscript to PDF files.

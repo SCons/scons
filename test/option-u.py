@@ -123,7 +123,7 @@ f4b_in = os.path.join('build', 'dir', 'f4b.in')
 f4b_out = os.path.join('build', 'dir', 'f4b.out')
 test.run(chdir = 'sub4',
          arguments = '-u',
-         stdout = "scons: Entering directory %s\n" % test.workpath() + \
+         stdout = "scons: Entering directory `%s'\n" % test.workpath() + \
                   test.wrap_stdout("""\
 scons: building associated BuildDir targets: build
 cat("%s", "%s")
