@@ -80,8 +80,6 @@ class ExceptBuilder2:
 class Environment:
     def Dictionary(self, *args):
         return {}
-    def autogenerate(self, **kw):
-        return {}
     def Override(selv, overrides):
         return overrides
 

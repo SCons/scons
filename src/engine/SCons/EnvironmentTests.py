@@ -484,116 +484,136 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_autogenerate(dict):
         """Test autogenerating variables in a dictionary."""
+
+        def Dir(name):
+            dir = SCons.Node.FS.default_fs.Dir('/xx')
+            return SCons.Node.FS.default_fs.Dir(name, dir)
+
+        def File(name):
+            dir = SCons.Node.FS.default_fs.Dir('/xx')
+            return SCons.Node.FS.default_fs.File(name, dir)
+
+        def RDirs(pathlist, Dir=Dir):
+            def path_dirs(rep, path, Dir=Dir):
+                if rep:
+                    path = os.path.join(rep, path)
+                return Dir(path)
+
+            return SCons.Node.FS.default_fs.Rsearchall(pathlist, path_dirs)
+        
         env = Environment(LIBS = [ 'foo', 'bar', 'baz' ],
                           LIBLINKPREFIX = 'foo',
-                          LIBLINKSUFFIX = 'bar')
-        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_LIBFLAGS']) == 3, dict['_LIBFLAGS']
-        assert dict['_LIBFLAGS'][0] == 'foofoobar', \
-               dict['_LIBFLAGS'][0]
-        assert dict['_LIBFLAGS'][1] == 'foobarbar', \
-               dict['_LIBFLAGS'][1]
-        assert dict['_LIBFLAGS'][2] == 'foobazbar', \
-               dict['_LIBFLAGS'][2]
+                          LIBLINKSUFFIX = 'bar',
+                          Dir=Dir, File=File, RDirs=RDirs)
+        flags = env.subst_list('$_LIBFLAGS', 1)[0]
+        assert len(flags) == 3, flags
+        assert flags[0] == 'foofoobar', \
+               flags[0]
+        assert flags[1] == 'foobarbar', \
+               flags[1]
+        assert flags[2] == 'foobazbar', \
+               flags[2]
 
         blat = SCons.Node.FS.default_fs.Dir('blat')
 
         env = Environment(CPPPATH = [ 'foo', '$FOO/bar', blat ],
                           INCPREFIX = 'foo ',
                           INCSUFFIX = 'bar',
-                          FOO = 'baz')
-        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_CPPINCFLAGS']) == 8, dict['_CPPINCFLAGS']
-        assert dict['_CPPINCFLAGS'][0] == '$(', \
-               dict['_CPPINCFLAGS'][0]
-        assert dict['_CPPINCFLAGS'][1] == os.path.normpath('foo'), \
-               dict['_CPPINCFLAGS'][1]
-        assert dict['_CPPINCFLAGS'][2] == os.path.normpath('/xx/foobar'), \
-               dict['_CPPINCFLAGS'][2]
-        assert dict['_CPPINCFLAGS'][3] == os.path.normpath('foo'), \
-               dict['_CPPINCFLAGS'][3]
-        assert dict['_CPPINCFLAGS'][4] == os.path.normpath('/xx/baz/barbar'), \
-               dict['_CPPINCFLAGS'][4]
-        assert dict['_CPPINCFLAGS'][5] == os.path.normpath('foo'), \
-               dict['_CPPINCFLAGS'][5]
-        assert dict['_CPPINCFLAGS'][6] == os.path.normpath('blatbar'), \
-               dict['_CPPINCFLAGS'][6]
-        assert dict['_CPPINCFLAGS'][7] == '$)', \
-               dict['_CPPINCFLAGS'][7]
+                          FOO = 'baz',
+                          Dir=Dir, File=File, RDirs=RDirs)
+        flags = env.subst_list('$_CPPINCFLAGS', 1)[0]
+        assert len(flags) == 8, flags
+        assert flags[0] == '$(', \
+               flags[0]
+        assert flags[1] == os.path.normpath('foo'), \
+               flags[1]
+        assert flags[2] == os.path.normpath('/xx/foobar'), \
+               flags[2]
+        assert flags[3] == os.path.normpath('foo'), \
+               flags[3]
+        assert flags[4] == os.path.normpath('/xx/baz/barbar'), \
+               flags[4]
+        assert flags[5] == os.path.normpath('foo'), \
+               flags[5]
+        assert flags[6] == os.path.normpath('blatbar'), \
+               flags[6]
+        assert flags[7] == '$)', \
+               flags[7]
 
         env = Environment(F77PATH = [ 'foo', '$FOO/bar', blat ],
                           INCPREFIX = 'foo ',
                           INCSUFFIX = 'bar',
-                          FOO = 'baz')
-        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_F77INCFLAGS']) == 8, dict['_F77INCFLAGS']
-        assert dict['_F77INCFLAGS'][0] == '$(', \
-               dict['_F77INCFLAGS'][0]
-        assert dict['_F77INCFLAGS'][1] == os.path.normpath('foo'), \
-               dict['_F77INCFLAGS'][1]
-        assert dict['_F77INCFLAGS'][2] == os.path.normpath('/xx/foobar'), \
-               dict['_F77INCFLAGS'][2]
-        assert dict['_F77INCFLAGS'][3] == os.path.normpath('foo'), \
-               dict['_F77INCFLAGS'][3]
-        assert dict['_F77INCFLAGS'][4] == os.path.normpath('/xx/baz/barbar'), \
-               dict['_F77INCFLAGS'][4]
-        assert dict['_F77INCFLAGS'][5] == os.path.normpath('foo'), \
-               dict['_F77INCFLAGS'][5]
-        assert dict['_F77INCFLAGS'][6] == os.path.normpath('blatbar'), \
-               dict['_F77INCFLAGS'][6]
-        assert dict['_F77INCFLAGS'][7] == '$)', \
-               dict['_F77INCFLAGS'][7]
+                          FOO = 'baz',
+                          Dir=Dir, File=File, RDirs=RDirs)
+        flags = env.subst_list('$_F77INCFLAGS', 1)[0]
+        assert len(flags) == 8, flags
+        assert flags[0] == '$(', \
+               flags[0]
+        assert flags[1] == os.path.normpath('foo'), \
+               flags[1]
+        assert flags[2] == os.path.normpath('/xx/foobar'), \
+               flags[2]
+        assert flags[3] == os.path.normpath('foo'), \
+               flags[3]
+        assert flags[4] == os.path.normpath('/xx/baz/barbar'), \
+               flags[4]
+        assert flags[5] == os.path.normpath('foo'), \
+               flags[5]
+        assert flags[6] == os.path.normpath('blatbar'), \
+               flags[6]
+        assert flags[7] == '$)', \
+               flags[7]
 
-        env = Environment(CPPPATH = '', F77PATH = '', LIBPATH = '')
-        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/yy'))
-        assert len(dict['_CPPINCFLAGS']) == 0, dict['_CPPINCFLAGS']
-        assert len(dict['_F77INCFLAGS']) == 0, dict['_F77INCFLAGS']
-        assert len(dict['_LIBDIRFLAGS']) == 0, dict['_LIBDIRFLAGS']
+        env = Environment(CPPPATH = '', F77PATH = '', LIBPATH = '',
+                          Dir=Dir, File=File, RDirs=RDirs)
+        assert len(env.subst_list('$_CPPINCFLAGS')[0]) == 0
+        assert len(env.subst_list('$_F77INCFLAGS')[0]) == 0
+        assert len(env.subst_list('$_LIBDIRFLAGS')[0]) == 0
 
         SCons.Node.FS.default_fs.Repository('/rep1')
         SCons.Node.FS.default_fs.Repository('/rep2')
         env = Environment(CPPPATH = [ 'foo', '/a/b', '$FOO/bar', blat],
                           INCPREFIX = '-I ',
                           INCSUFFIX = 'XXX',
-                          FOO = 'baz')
-        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_CPPINCFLAGS']) == 18, dict['_CPPINCFLAGS']
-        assert dict['_CPPINCFLAGS'][0] == '$(', \
-               dict['_CPPINCFLAGS'][0]
-        assert dict['_CPPINCFLAGS'][1] == '-I', \
-               dict['_CPPINCFLAGS'][1]
-        assert dict['_CPPINCFLAGS'][2] == os.path.normpath('/xx/fooXXX'), \
-               dict['_CPPINCFLAGS'][2]
-        assert dict['_CPPINCFLAGS'][3] == '-I', \
-               dict['_CPPINCFLAGS'][3]
-        assert dict['_CPPINCFLAGS'][4] == os.path.normpath('/rep1/fooXXX'), \
-               dict['_CPPINCFLAGS'][4]
-        assert dict['_CPPINCFLAGS'][5] == '-I', \
-               dict['_CPPINCFLAGS'][5]
-        assert dict['_CPPINCFLAGS'][6] == os.path.normpath('/rep2/fooXXX'), \
-               dict['_CPPINCFLAGS'][6]
-        assert dict['_CPPINCFLAGS'][7] == '-I', \
-               dict['_CPPINCFLAGS'][7]
-        assert dict['_CPPINCFLAGS'][8] == os.path.normpath('/a/bXXX'), \
-               dict['_CPPINCFLAGS'][8]
-        assert dict['_CPPINCFLAGS'][9] == '-I', \
-               dict['_CPPINCFLAGS'][9]
-        assert dict['_CPPINCFLAGS'][10] == os.path.normpath('/xx/baz/barXXX'), \
-               dict['_CPPINCFLAGS'][10]
-        assert dict['_CPPINCFLAGS'][11] == '-I', \
-               dict['_CPPINCFLAGS'][11]
-        assert dict['_CPPINCFLAGS'][12] == os.path.normpath('/rep1/baz/barXXX'), \
-               dict['_CPPINCFLAGS'][12]
-        assert dict['_CPPINCFLAGS'][13] == '-I', \
-               dict['_CPPINCFLAGS'][13]
-        assert dict['_CPPINCFLAGS'][14] == os.path.normpath('/rep2/baz/barXXX'), \
-               dict['_CPPINCFLAGS'][14]
-        assert dict['_CPPINCFLAGS'][15] == '-I', \
-               dict['_CPPINCFLAGS'][15]
-        assert dict['_CPPINCFLAGS'][16] == os.path.normpath('blatXXX'), \
-               dict['_CPPINCFLAGS'][16]
-        assert dict['_CPPINCFLAGS'][17] == '$)', \
-               dict['_CPPINCFLAGS'][17]
+                          FOO = 'baz',
+                          Dir=Dir, File=File, RDirs=RDirs)
+        flags = env.subst_list('$_CPPINCFLAGS', 1)[0]
+        assert flags[0] == '$(', \
+               flags[0]
+        assert flags[1] == '-I', \
+               flags[1]
+        assert flags[2] == os.path.normpath('/xx/fooXXX'), \
+               flags[2]
+        assert flags[3] == '-I', \
+               flags[3]
+        assert flags[4] == os.path.normpath('/rep1/fooXXX'), \
+               flags[4]
+        assert flags[5] == '-I', \
+               flags[5]
+        assert flags[6] == os.path.normpath('/rep2/fooXXX'), \
+               flags[6]
+        assert flags[7] == '-I', \
+               flags[7]
+        assert flags[8] == os.path.normpath('/a/bXXX'), \
+               flags[8]
+        assert flags[9] == '-I', \
+               flags[9]
+        assert flags[10] == os.path.normpath('/xx/baz/barXXX'), \
+               flags[10]
+        assert flags[11] == '-I', \
+               flags[11]
+        assert flags[12] == os.path.normpath('/rep1/baz/barXXX'), \
+               flags[12]
+        assert flags[13] == '-I', \
+               flags[13]
+        assert flags[14] == os.path.normpath('/rep2/baz/barXXX'), \
+               flags[14]
+        assert flags[15] == '-I', \
+               flags[15]
+        assert flags[16] == os.path.normpath('blatXXX'), \
+               flags[16]
+        assert flags[17] == '$)', \
+               flags[17]
 
     def test_Detect(self):
         """Test Detect()ing tools"""

@@ -71,7 +71,7 @@ def win32LinkGenerator(env, target, source, for_signature):
              '$(', '$_LIBDIRFLAGS', '$)', '$_LIBFLAGS' ]
     
     if env.has_key('PDB') and env['PDB']:
-        args.extend(['/PDB:%s'%env['PDB'], '/DEBUG'])
+        args.extend(['/PDB:%s'%target[0].File(env['PDB']), '/DEBUG'])
 
     args.extend(map(SCons.Util.to_String, source))
     return win32TempFileMunge(env, args, for_signature)
@@ -81,7 +81,7 @@ def win32LibGenerator(target, source, env, for_signature):
     no_import_lib = env.get('no_import_lib', 0)
 
     if env.has_key('PDB') and env['PDB']:
-        listCmd.extend(['/PDB:%s'%env['PDB'], '/DEBUG'])
+        listCmd.extend(['/PDB:%s'%target[0].File(env['PDB']), '/DEBUG'])
 
     for tgt in target:
         ext = os.path.splitext(str(tgt))[1]

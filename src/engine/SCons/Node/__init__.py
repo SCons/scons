@@ -93,15 +93,7 @@ class Node:
         self.side_effects = [] # the side effects of building this target
 
     def generate_build_env(self):
-        if hasattr(self, 'cwd'):
-            auto = self.env.autogenerate(dir = self.cwd)
-        else:
-            auto = self.env.autogenerate()
-
-        dict = {}
-        dict.update(auto)
-        dict.update(self.overrides)
-        return self.env.Override(dict)
+        return self.env.Override(self.overrides)
 
     def build(self):
         """Actually build the node.   Return the status from the build."""

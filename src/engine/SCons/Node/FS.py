@@ -170,7 +170,7 @@ class FS:
             except KeyError:
                 if not create:
                     raise UserError
-                dir = Dir(drive, ParentOfRoot())
+                dir = Dir(drive, ParentOfRoot(), self)
                 dir.path = dir.path + os.sep
                 dir.abspath = dir.abspath + os.sep
                 dir.srcpath = dir.srcpath + os.sep
@@ -197,7 +197,7 @@ class FS:
                     raise TypeError, \
                           "File %s found where directory expected." % path
 
-                dir_temp = Dir(path_name, directory)
+                dir_temp = Dir(path_name, directory, self)
                 directory.entries[path_norm] = dir_temp
                 directory.add_wkid(dir_temp)
                 directory = dir_temp
@@ -220,8 +220,7 @@ class FS:
                     raise TypeError, \
                           "File %s found where directory expected." % path
             
-            ret = fsclass(path_comp[-1], directory)
-            ret.fs = self
+            ret = fsclass(path_comp[-1], directory, self)
             directory.entries[file_name] = ret
             directory.add_wkid(ret)
         return ret
@@ -256,15 +255,22 @@ class FS:
         if not dir is None:
             self._cwd = dir
 
-    def Entry(self, name, directory = None, create = 1):
+    def Entry(self, name, directory = None, create = 1, klass=None):
         """Lookup or create a generic Entry node with the specified name.
         If the name is a relative path (begins with ./, ../, or a file
         name), then it is looked up relative to the supplied directory
         node, or to the top level directory of the FS (supplied at
         construction time) if no directory is supplied.
         """
-        name, directory = self.__transformPath(name, directory)
-        return self.__doLookup(Entry, name, directory, create)
+
+        if not klass:
+            klass = Entry
+
+        if isinstance(name, Entry):
+            return self.__checkClass(name, klass)
+        else:
+            name, directory = self.__transformPath(name, directory)
+            return self.__doLookup(klass, name, directory, create)
     
     def File(self, name, directory = None, create = 1):
         """Lookup or create a File node with the specified name.  If
@@ -276,9 +282,9 @@ class FS:
         This method will raise TypeError if a directory is found at the
         specified path.
         """
-        name, directory = self.__transformPath(name, directory)
-        return self.__doLookup(File, name, directory, create)
 
+        return self.Entry(name, directory, create, File)
+    
     def Dir(self, name, directory = None, create = 1):
         """Lookup or create a Dir node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
@@ -289,9 +295,9 @@ class FS:
         This method will raise TypeError if a normal file is found at the
         specified path.
         """
-        name, directory = self.__transformPath(name, directory)
-        return self.__doLookup(Dir, name, directory, create)
 
+        return self.Entry(name, directory, create, Dir)
+    
     def BuildDir(self, build_dir, src_dir, duplicate=1):
         """Link the supplied build directory to the source directory
         for purposes of building files."""
@@ -363,7 +369,7 @@ class Entry(SCons.Node.Node):
     Python's built-in object identity comparison.
     """
 
-    def __init__(self, name, directory):
+    def __init__(self, name, directory, fs):
         """Initialize a generic file system Entry.
         
         Call the superclass initialization, take care of setting up
@@ -390,7 +396,8 @@ class Entry(SCons.Node.Node):
         self.srcpath_ = self.srcpath
         self.cwd = None # will hold the SConscript directory for target nodes
         self._local = None
-
+        self.fs = fs # The filesystem that this entry is part of
+ 
     def get_dir(self):
         return self.dir
 
@@ -474,8 +481,8 @@ class Dir(Entry):
     """A class for directories in a file system.
     """
 
-    def __init__(self, name, directory):
-        Entry.__init__(self, name, directory)
+    def __init__(self, name, directory, fs):
+        Entry.__init__(self, name, directory, fs)
         self._morph()
 
     def _morph(self):
@@ -498,6 +505,14 @@ class Dir(Entry):
         self.cwd = self
         self.builder = 1
         self._sconsign = None
+
+    def Dir(self, name):
+        """Create a directory node named 'name' relative to this directory."""
+        return self.fs.Dir(name, self)
+
+    def File(self, name):
+        """Create  file node named 'name' relatove to this directory."""
+        return self.fs.File(name, self)
 
     def __doReparent(self, duplicate):
         for ent in self.entries.values():
@@ -616,9 +631,36 @@ class Dir(Entry):
 class File(Entry):
     """A class for files in a file system.
     """
-    def __init__(self, name, directory = None):
-        Entry.__init__(self, name, directory)
+    def __init__(self, name, directory, fs):
+        Entry.__init__(self, name, directory, fs)
         self._morph()
+
+
+    def Dir(self, name):
+        """Create a directory node named 'name' relative to
+        the SConscript directory of this file."""
+        return self.fs.Dir(name, self.cwd)
+
+    def File(self, name):
+        """Create a file node named 'name' relative to
+        the SConscript directory of this file."""
+        return self.fs.File(name, self.cwd)
+
+    def RDirs(self, pathlist):
+        """Search for a list of directories in the Repository list."""
+        def path_dirs(rep, path, Dir=self.Dir):
+            if rep:
+                path = os.path.join(rep, path)
+            return Dir(path)
+
+        return self.fs.Rsearchall(pathlist, path_dirs)
+    
+    def generate_build_env(self):
+        env = SCons.Node.Node.generate_build_env(self)
+        
+        return env.Override({'Dir' : self.Dir,
+                             'File' : self.File,
+                             'RDirs' : self.RDirs})
         
     def _morph(self):
         """Turn a file system node into a File object."""

@@ -82,6 +82,12 @@ RELEASE 0.09 -
   - Add support for Microsoft VC++ precompiled header (.pch)
     and debugger (.pdb) files.
 
+  - Don't compute the $_CPPINCFLAGS, $_F77INCFLAGS, $_LIBFLAGS and
+    $_LIBDIRFLAGS variables each time a command is executed, define
+    them so they're computed only as needed.  Add a new _concat
+    function to the Environment that allows people to define their
+    own similar variables.
+
   From sam th:
 
   - Dynamically check for the existence of utilities with which to

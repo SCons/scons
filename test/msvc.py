@@ -126,8 +126,9 @@ SConscript('build/SConscript')
 
 test.write('src/SConscript',"""
 env=Environment()
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
-env['PDB'] = File('#out/test.pdb')
+env.PCH('StdAfx.cpp')
+env['PCH'] = 'StdAfx.pch'
+env['PDB'] = '#out/test.pdb'
 env['PCHSTOP'] = 'StdAfx.h'
 env.Program('#out/test.exe', 'test.cpp')
 """)
@@ -163,32 +164,6 @@ test.fail_test(os.path.exists(test.workpath('build/StdAfx.obj')))
 
 #####
 # Test error reporting
-
-test.write('SConstruct',"""
-env=Environment()
-env['PCH'] = env.PCH('StdAfx.cpp')
-env['PDB'] = File('test.pdb')
-env['PCHSTOP'] = 'StdAfx.h'
-env.Program('test', 'test.cpp')
-""")
-
-test.run(status=2, stderr=r'''
-SCons error: The PCH construction variable must be a File instance: .+
-File "SConstruct", line 6, in \?
-''')
-
-test.write('SConstruct',"""
-env=Environment()
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
-env['PDB'] = 'test.pdb'
-env['PCHSTOP'] = 'StdAfx.h'
-env.Program('test', 'test.cpp')
-""")
-
-test.run(status=2, stderr='''
-SCons error: The PDB construction variable must be a File instance: test.pdb
-File "SConstruct", line 6, in \?
-''')
 
 test.write('SConstruct',"""
 env=Environment()

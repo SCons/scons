@@ -214,6 +214,41 @@ class FSTestCase(unittest.TestCase):
         assert f1.path == d1_f1, "f1.path %s != %s" % (f1.path, d1_f1)
         assert str(f1) == d1_f1, "str(f1) %s != %s" % (str(f1), d1_f1)
 
+        x1 = d1.File('x1')
+        assert str(x1) == os.path.join('d1', 'x1')
+
+        x2 = d1.Dir('x2')
+        assert str(x2) == os.path.join('d1', 'x2')
+
+        assert d1.File(x1) == x1
+        assert d1.Dir(x2) == x2
+
+        x1.cwd = d1
+
+        x3 = x1.File('x3')
+        assert str(x3) == os.path.join('d1', 'x3')
+
+        x4 = x1.Dir('x4')
+        assert str(x4) == os.path.join('d1', 'x4')
+
+        assert x1.File(x3) == x3
+        assert x1.Dir(x4) == x4
+
+        try:
+            x1.File(x4)
+        except TypeError:
+            pass
+        else:
+            assert 0
+
+        try:
+            x1.Dir(x3)
+        except TypeError:
+            pass
+        else:
+            assert 0
+
+        
         seps = [os.sep]
         if os.sep != '/':
             seps = seps + ['/']

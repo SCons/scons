@@ -102,8 +102,8 @@ test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
 #
 test.write('SConstruct', """
-env = Environment(LIBS='baz bar', LIBPATH = '.')
-env.Program(target='foo', source='foo.c')
+env = Environment()
+env.Program(target='foo', source='foo.c', LIBS=['baz', 'bar'], LIBPATH = '.')
 SConscript('sub1/SConscript', 'env')
 SConscript('sub2/SConscript', 'env')
 """)
@@ -125,3 +125,6 @@ test.run(arguments = '.')
 test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
 test.pass_test()
+
+
+

@@ -191,13 +191,7 @@ def get_msdev_paths(version=None):
 
 def validate_vars(env):
     """Validate the PDB, PCH, and PCHSTOP construction variables."""
-    if env.has_key('PDB') and env['PDB']:
-        if not isinstance(env['PDB'], SCons.Node.FS.File):
-            raise SCons.Errors.UserError, "The PDB construction variable must be a File instance: %s"%env['PDB']
-
     if env.has_key('PCH') and env['PCH']:
-        if not isinstance(env['PCH'], SCons.Node.FS.File):
-            raise SCons.Errors.UserError, "The PCH construction variable must be a File instance: %s"%env['PCH']
         if not env.has_key('PCHSTOP'):
             raise SCons.Errors.UserError, "The PCHSTOP construction must be defined if PCH is defined."
         if not SCons.Util.is_String(env['PCHSTOP']):
@@ -257,8 +251,8 @@ def generate(env, platform):
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
 
-    env['CCPDBFLAGS'] = '${(PDB and "/Zi /Fd%s"%PDB) or ""}'
-    env['CCPCHFLAGS'] = '${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",PCH)) or ""}'
+    env['CCPDBFLAGS'] = '${(PDB and "/Zi /Fd%s"%File(PDB)) or ""}'
+    env['CCPCHFLAGS'] = '${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'
     env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'
     env['CCFLAGS']    = '/nologo'

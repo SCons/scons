@@ -185,6 +185,52 @@ Program = SCons.Builder.Builder(action=[ StaticCheck, '$LINKCOM' ],
                                 src_builder='Object',
                                 scanner = ProgScan)
 
+def _concat(prefix, list, suffix, locals, globals, f=lambda x: x):
+    """Creates a new list from 'list' by first interpolating each element
+    in the list using 'locals' and 'globals' and then calling f on the list, and
+    finally concatinating 'prefix' and 'suffix' onto each element of the
+    list. A trailing space on 'prefix' or leading space on 'suffix' will
+    cause them to be put into seperate list elements rather than being
+    concatinated."""
+
+    if not list:
+        return list
+
+    if not SCons.Util.is_List(list):
+        list = [list]
+
+    def subst(x, locals=locals, globals=globals):
+        if SCons.Util.is_String(x):
+            return SCons.Util.scons_subst(x, locals, globals)
+        else:
+            return x
+        
+    list = map(subst, list)
+
+    list = f(list)
+
+    ret = []
+    
+    # ensure that prefix and suffix are strings
+    prefix = str(prefix)
+    suffix = str(suffix)
+    
+    for x in list:
+        x = str(x)
+
+        if prefix and prefix[-1] == ' ':
+            ret.append(prefix[:-1])
+            ret.append(x)
+        else:
+            ret.append(prefix+x)
+
+        if suffix and suffix[0] == ' ':
+            ret.append(suffix[1:])
+        else:
+            ret[-1] = ret[-1]+suffix
+        
+    return ret
+
 ConstructionEnvironment = {
     'BUILDERS'   : { 'SharedLibrary'  : SharedLibrary,
                      'Library'        : StaticLibrary,
@@ -197,4 +243,9 @@ ConstructionEnvironment = {
     'PSPREFIX'   : '',
     'PSSUFFIX'   : '.ps',
     'ENV'        : {},
+    '_concat'     : _concat,
+    '_LIBFLAGS'    : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, locals(), globals())}',
+    '_LIBDIRFLAGS' : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, locals(), globals(), RDirs)} $)',
+    '_CPPINCFLAGS' : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, locals(), globals(), RDirs)} $)',
+    '_F77INCFLAGS' : '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, locals(), globals(), RDirs)} $)'
     }

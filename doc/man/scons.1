@@ -1,5 +1,3 @@
-.\" 1. Builder's __call__ method can now take arbitrary keyword arguments.
-.\" These args are saved with the target node of the build, then passed along
 .\" Copyright (c) 2001, 2002 Steven Knight
 .\"
 .\" Permission is hereby granted, free of charge, to any person obtaining
@@ -1407,6 +1405,19 @@ SCons also treats
 (upper case) files
 as C files.
 
+.IP _concat
+A function used to produce variables like $_CPPINCFLAGS. It takes six
+arguments: a prefix to concatenate onto each element, a list of elements, a
+suffix to concatenate onto each element, a dictionary of global variables
+for variable interpolation, a list of local variables for variable
+interpolation, and an optional function that will be called to transform the list
+before concatenation.
+
+.ES
+env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, locals(), globals(), RDirs)} $)',
+.EE
+
+
 .IP CPPFLAGS
 C preprocessor options.
 These will be included in any command that uses the C preprocessor,
@@ -1500,6 +1511,10 @@ are included on this command line.
 
 .IP CXXFLAGS 
 General options that are passed to the C++ compiler.
+
+.IP Dir
+A function that converts a file name into a Dir instance relative to the
+target being built. 
 
 .IP DVIPDF
 The TeX DVI file to PDF file converter.
@@ -1626,6 +1641,10 @@ The command line used to compile a Fortran source file to an object file
 after first running the file through the C preprocessor.
 Any options specified in the $F77FLAGS and $CPPFLAGS construction variables
 are included on this command line.
+
+.IP File
+A function that converts a file name into a File instance relative to the
+target being built. 
 
 .IP INCPREFIX
 The prefix used to specify an include directory on the C compiler command
@@ -1806,11 +1825,10 @@ object files. This variable is ignored by tools other than Microsoft Visual C++.
 When this variable is
 defined SCons will add options to the compiler command line to
 cause it to use the precompiled header, and will also set up the
-dependencies for the PCH file. This variable must reference a File instance created either
-with File() or returned by the PCH builder:
+dependencies for the PCH file. Example: 
 
 .ES
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
+env['PCH'] = 'StdAfx.pch'
 .EE
 
 .IP PCHSTOP
@@ -1822,7 +1840,7 @@ is included at the end of the precompiled portion of the source files, or
 the empty string if the "#pragma hrdstop" construct is being used:
 
 .ES
-env['PCHSTOP'] = File('StdAfx.h')
+env['PCHSTOP'] = 'StdAfx.h'
 .EE
 
 
@@ -1834,11 +1852,10 @@ tools other than Microsoft Visual C++.
 When this variable is
 defined SCons will add options to the compiler and linker command line to
 cause them to generate external debugging information, and will also set up the
-dependencies for the PDB file. This variable must reference
-a File instance created with File():
+dependencies for the PDB file. Example:
 
 .ES
-env['PDB'] = File('hello.pdb')
+env['PDB'] = 'hello.pdb'
 .EE
 
 .IP PDFCOM
@@ -1870,6 +1887,10 @@ The archive indexer.
 
 .IP RANLIBFLAGS
 General options passed to the archive indexer.
+
+.IP RDirs
+A function that converts a file name into a list of Dir instances by
+searching the repositories. 
 
 .IP SCANNERS
 A list of the available implicit dependency scanners. [CScan] by default.
@@ -3296,7 +3317,7 @@ Bar.cpp:
 SConstruct:
 .ES
 env=Environment()
-env['PCHSTOP'] = File('StdAfx.h')
+env['PCHSTOP'] = StdAfx.h
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 .EE
@@ -3316,7 +3337,7 @@ variable.
 SConstruct:
 .ES
 env=Environment()
-env['PDB'] = File('MyApp.pdb')
+env['PDB'] = 'MyApp.pdb'
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 .EE
 
