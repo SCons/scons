@@ -487,7 +487,7 @@ class File(Entry):
     def get_contents(self):
         if not self.exists():
             return ''
-        return open(str(self), "r").read()
+        return open(str(self), "rb").read()
 
     def get_timestamp(self):
         if self.exists():

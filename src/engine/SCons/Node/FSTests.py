@@ -414,6 +414,13 @@ class FSTestCase(unittest.TestCase):
         f1.build()
         assert not f1.cached_exists()
 
+        # For some reason, in Win32, the \x1a character terminates
+        # the reading of files in text mode.  This tests that
+        # get_contents() returns the binary contents.
+        test.write("binary_file", "Foo\x1aBar")
+        f1 = SCons.Node.FS.default_fs.File(test.workpath("binary_file"))
+        assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
+
         #XXX test current() for directories
 
         #XXX test sconsign() for directories
