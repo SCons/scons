@@ -61,7 +61,7 @@ def generate(env, platform):
     env['AS']        = env.Detect(assemblers) or 'as'
     env['ASFLAGS']   = ''
     env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
-    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS -o $TARGET $SOURCES'
+    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 
 def exists(env):
     return env.Detect(assemblers)
