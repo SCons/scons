@@ -10,10 +10,8 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--warn-undefined-variables')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --warn-undefined-variables option is not yet implemented\n")
+test.run(arguments = '--warn-undefined-variables',
+	stderr = "Warning:  the --warn-undefined-variables option is not yet implemented\n")
 
 test.pass_test()
  

@@ -22,8 +22,6 @@ main(int argc, char *argv[])
 
 test.run(arguments = 'foo')
 
-test.run(program = test.workpath('foo'))
-
-test.fail_test(test.stdout() != "foo.c\n")
+test.run(program = test.workpath('foo'), stdout = "foo.c\n")
 
 test.pass_test()

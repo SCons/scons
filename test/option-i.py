@@ -10,15 +10,11 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-i')
+test.run(arguments = '-i',
+	 stderr = "Warning:  the -i option is not yet implemented\n")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the -i option is not yet implemented\n")
-
-test.run(arguments = '--ignore-errors')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --ignore-errors option is not yet implemented\n")
+test.run(arguments = '--ignore-errors',
+	 stderr = "Warning:  the --ignore-errors option is not yet implemented\n")
 
 test.pass_test()
  

@@ -10,10 +10,8 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-m')
-
-test.fail_test(test.stderr() !=
-		"Warning:  ignoring -m option\n")
+test.run(arguments = '-m',
+	 stderr = "Warning:  ignoring -m option\n")
 
 test.pass_test()
  

@@ -54,17 +54,12 @@ main(int argc, char *argv[])
 
 test.run(arguments = '-j 3 f1 f2 f3 f4')
 
-test.run(program = test.workpath('f1'))
-test.fail_test(test.stdout() != "f1.c\n")
+test.run(program = test.workpath('f1'), stdout = "f1.c\n")
 
-test.run(program = test.workpath('f2'))
-test.fail_test(test.stdout() != "f2.c\n")
+test.run(program = test.workpath('f2'), stdout = "f2.c\n")
 
-test.run(program = test.workpath('f3'))
-test.fail_test(test.stdout() != "f3.c\n")
+test.run(program = test.workpath('f3'), stdout = "f3.c\n")
 
-test.run(program = test.workpath('f4'))
-test.fail_test(test.stdout() != "f4.c\n")
-
+test.run(program = test.workpath('f4'), stdout = "f4.c\n")
 
 test.pass_test()

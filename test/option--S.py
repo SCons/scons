@@ -10,20 +10,12 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-S')
+test.run(arguments = '-S', stderr = "Warning:  ignoring -S option\n")
 
-test.fail_test(test.stderr() !=
-		"Warning:  ignoring -S option\n")
+test.run(arguments = '--no-keep-going',
+	 stderr = "Warning:  ignoring --no-keep-going option\n")
 
-test.run(arguments = '--no-keep-going')
-
-test.fail_test(test.stderr() !=
-		"Warning:  ignoring --no-keep-going option\n")
-
-test.run(arguments = '--stop')
-
-test.fail_test(test.stderr() !=
-		"Warning:  ignoring --stop option\n")
+test.run(arguments = '--stop', stderr = "Warning:  ignoring --stop option\n")
 
 test.pass_test()
  

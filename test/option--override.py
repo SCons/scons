@@ -10,10 +10,8 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--override=foo')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --override option is not yet implemented\n")
+test.run(arguments = '--override=foo',
+	 stderr = "Warning:  the --override option is not yet implemented\n")
 
 test.pass_test()
  

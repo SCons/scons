@@ -2,9 +2,10 @@
 
 __revision__ = "test/exitfns.py __REVISION__ __DATE__ __DEVELOPER__"
 
+import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestCmd.match_exact)
 
 sconstruct = """
 from scons.exitfuncs import *
@@ -33,9 +34,7 @@ running x3('no kwd args', kwd=None)
 
 test.write('SConstruct', sconstruct)
 
-test.run(arguments='-f SConstruct')
-
-test.fail_test(test.stdout() != expected_output)
+test.run(arguments='-f SConstruct', stdout = expected_output)
 
 test.write('SConstruct', """import sys
 def f():
@@ -44,8 +43,6 @@ def f():
 sys.exitfunc = f
 """ + sconstruct)
 
-test.run(arguments='-f SConstruct')
-
-test.fail_test(test.stdout() != expected_output)
+test.run(arguments='-f SConstruct', stdout = expected_output)
 
 test.pass_test()

@@ -10,15 +10,11 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--cache-force')
+test.run(arguments = '--cache-force',
+	 stderr = "Warning:  the --cache-force option is not yet implemented\n")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the --cache-force option is not yet implemented\n")
-
-test.run(arguments = '--cache-populate')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --cache-populate option is not yet implemented\n")
+test.run(arguments = '--cache-populate',
+	 stderr = "Warning:  the --cache-populate option is not yet implemented\n")
 
 test.pass_test()
  

@@ -23,47 +23,38 @@ print "subdir/BuildThis", os.getcwd()
 
 wpath = test.workpath()
 
-test.run(arguments = '-f SConscript')
-test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '-f SConscript',
+	 stdout = "SConscript %s\n" % wpath)
 
-test.run(arguments = '-f ' + subdir_BuildThis)
-test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '-f ' + subdir_BuildThis,
+	 stdout = "subdir/BuildThis %s\n" % wpath)
 
-test.run(arguments = '--file=SConscript')
-test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--file=SConscript',
+	 stdout = "SConscript %s\n" % wpath)
 
-test.run(arguments = '--file=' + subdir_BuildThis)
-test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--file=' + subdir_BuildThis,
+	 stdout = "subdir/BuildThis %s\n" % wpath)
 
-test.run(arguments = '--makefile=SConscript')
-test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--makefile=SConscript',
+	 stdout = "SConscript %s\n" % wpath)
 
-test.run(arguments = '--makefile=' + subdir_BuildThis)
-test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--makefile=' + subdir_BuildThis,
+	 stdout = "subdir/BuildThis %s\n" % wpath)
 
-test.run(arguments = '--sconstruct=SConscript')
-test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--sconstruct=SConscript',
+	 stdout = "SConscript %s\n" % wpath)
 
-test.run(arguments = '--sconstruct=' + subdir_BuildThis)
-test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--sconstruct=' + subdir_BuildThis,
+	 stdout = "subdir/BuildThis %s\n" % wpath)
 
 test.run(arguments = '-f -', stdin = """
 import os
 print "STDIN " + os.getcwd()
-""")
-test.fail_test(test.stdout() != ("STDIN %s\n" % wpath))
-test.fail_test(test.stderr() != "")
+""",
+	 stdout = "STDIN %s\n" % wpath)
 
-test.run(arguments = '-f no_such_file')
-test.fail_test(test.stdout() != "")
-test.fail_test(test.stderr() != "Ignoring missing script 'no_such_file'\n")
+test.run(arguments = '-f no_such_file',
+	 stdout = "",
+	 stderr = "Ignoring missing script 'no_such_file'\n")
 
 test.pass_test()

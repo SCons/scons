@@ -10,15 +10,11 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-w')
+test.run(arguments = '-w',
+	 stderr = "Warning:  the -w option is not yet implemented\n")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the -w option is not yet implemented\n")
-
-test.run(arguments = '--print-directory')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --print-directory option is not yet implemented\n")
+test.run(arguments = '--print-directory',
+	 stderr = "Warning:  the --print-directory option is not yet implemented\n")
 
 test.pass_test()
  

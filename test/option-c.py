@@ -10,20 +10,14 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-c')
+test.run(arguments = '-c',
+	 stderr = "Warning:  the -c option is not yet implemented\n")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the -c option is not yet implemented\n")
+test.run(arguments = '--clean',
+	 stderr = "Warning:  the --clean option is not yet implemented\n")
 
-test.run(arguments = '--clean')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --clean option is not yet implemented\n")
-
-test.run(arguments = '--remove')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --remove option is not yet implemented\n")
+test.run(arguments = '--remove',
+	 stderr = "Warning:  the --remove option is not yet implemented\n")
 
 test.pass_test()
  

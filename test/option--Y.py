@@ -10,15 +10,11 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-Y foo')
+test.run(arguments = '-Y foo',
+	 stderr = "Warning:  the -Y option is not yet implemented\n")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the -Y option is not yet implemented\n")
-
-test.run(arguments = '--repository=foo')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --repository option is not yet implemented\n")
+test.run(arguments = '--repository=foo',
+	 stderr = "Warning:  the --repository option is not yet implemented\n")
 
 test.pass_test()
  

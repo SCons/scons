@@ -26,10 +26,7 @@ env.MyBuild(target = '-f2.out', source = 'f2.in')
 
 expect = "python build.py -f1.out\npython build.py -f2.out\n"
 
-test.run(arguments = '-- -f1.out -f2.out')
-
-test.fail_test(test.stdout() != expect)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '-- -f1.out -f2.out', stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('-f1.out')))
 test.fail_test(not os.path.exists(test.workpath('-f2.out')))
 

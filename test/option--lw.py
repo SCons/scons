@@ -10,10 +10,8 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--list-where')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --list-where option is not yet implemented\n")
+test.run(arguments = '--list-where',
+	 stderr = "Warning:  the --list-where option is not yet implemented\n")
 
 test.pass_test()
  

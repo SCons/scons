@@ -10,10 +10,8 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-u')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the -u option is not yet implemented\n")
+test.run(arguments = '-u',
+	 stderr = "Warning:  the -u option is not yet implemented\n")
 
 test.pass_test()
  

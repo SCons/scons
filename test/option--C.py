@@ -29,30 +29,19 @@ import os
 print "sub/dir/SConstruct", os.getcwd()
 """)
 
-test.run(arguments = '-C sub')
+test.run(arguments = '-C sub',
+	 stdout = "sub/SConstruct %s\n" % wpath_sub)
 
-test.fail_test(test.stdout() != "sub/SConstruct %s\n" % wpath_sub)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '-C sub -C dir',
+	 stdout = "sub/dir/SConstruct %s\n" % wpath_sub_dir)
 
-test.run(arguments = '-C sub -C dir')
+test.run(stdout = "SConstruct %s\n" % wpath)
 
-test.fail_test(test.stdout() != "sub/dir/SConstruct %s\n" % wpath_sub_dir)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--directory=sub/dir',
+	 stdout = "sub/dir/SConstruct %s\n" % wpath_sub_dir)
 
-test.run(chdir = '.')
-
-test.fail_test(test.stdout() != "SConstruct %s\n" % wpath)
-test.fail_test(test.stderr() != "")
-
-test.run(arguments = '--directory=sub/dir')
-
-test.fail_test(test.stdout() != "sub/dir/SConstruct %s\n" % wpath_sub_dir)
-test.fail_test(test.stderr() != "")
-
-test.run(arguments = '-C %s -C %s' % (wpath_sub_dir, wpath_sub))
-
-test.fail_test(test.stdout() != "sub/SConstruct %s\n" % wpath_sub)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '-C %s -C %s' % (wpath_sub_dir, wpath_sub),
+	 stdout = "sub/SConstruct %s\n" % wpath_sub)
 
 test.pass_test()
  

@@ -20,7 +20,6 @@ print "SConscript " + os.getcwd()
 
 wpath = test.workpath()
 
-test.run(chdir = '.')
-test.fail_test(test.stdout() != ("SConstruct %s\nSConscript %s\n" % (wpath, wpath)))
+test.run(stdout = "SConstruct %s\nSConscript %s\n" % (wpath, wpath))
 
 test.pass_test()

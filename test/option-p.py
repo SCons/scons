@@ -10,10 +10,8 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-p')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the -p option is not yet implemented\n")
+test.run(arguments = '-p',
+	 stderr = "Warning:  the -p option is not yet implemented\n")
 
 test.pass_test()
  

@@ -10,19 +10,13 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-v')
-
 expect = r"""SCons version \S+, by Steven Knight et al.
 Copyright 2001 Steven Knight
 """
 
-test.fail_test(not test.match_re(test.stdout(), expect))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '-v', stdout = expect)
 
-test.run(arguments = '--version')
-
-test.fail_test(not test.match_re(test.stdout(), expect))
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--version', stdout = expect)
 
 test.pass_test()
  

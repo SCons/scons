@@ -27,48 +27,30 @@ env.MyBuild(target = 'f2.out', source = 'f2.in')
 args = 'f1.out f2.out'
 expect = "python build.py f1.out\npython build.py f2.out\n"
 
-test.run(arguments = args)
-
-test.fail_test(test.stdout() != expect)
-test.fail_test(test.stderr() != "")
+test.run(arguments = args, stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
 os.unlink(test.workpath('f1.out'))
 os.unlink(test.workpath('f2.out'))
 
-test.run(arguments = '-n ' + args)
-
-test.fail_test(test.stdout() != expect)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '-n ' + args, stdout = expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = '--no-exec ' + args)
-
-test.fail_test(test.stdout() != expect)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--no-exec ' + args, stdout = expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = '--just-print ' + args)
-
-test.fail_test(test.stdout() != expect)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--just-print ' + args, stdout = expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = '--dry-run ' + args)
-
-test.fail_test(test.stdout() != expect)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--dry-run ' + args, stdout = expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(arguments = '--recon ' + args)
-
-test.fail_test(test.stdout() != expect)
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--recon ' + args, stdout = expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 

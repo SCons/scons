@@ -10,15 +10,11 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--cache-disable')
+test.run(arguments = '--cache-disable',
+	 stderr = "Warning:  the --cache-disable option is not yet implemented\n")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the --cache-disable option is not yet implemented\n")
-
-test.run(arguments = '--no-cache')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --no-cache option is not yet implemented\n")
+test.run(arguments = '--no-cache',
+	 stderr = "Warning:  the --no-cache option is not yet implemented\n")
 
 test.pass_test()
  

@@ -10,15 +10,11 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-q')
+test.run(arguments = '-q',
+	 stderr = "Warning:  the -q option is not yet implemented\n")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the -q option is not yet implemented\n")
-
-test.run(arguments = '--question')
-
-test.fail_test(test.stderr() !=
-		"Warning:  the --question option is not yet implemented\n")
+test.run(arguments = '--question',
+	 stderr = "Warning:  the --question option is not yet implemented\n")
 
 test.pass_test()
  

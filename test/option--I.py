@@ -29,15 +29,10 @@ import bar
 print bar.variable
 """)
 
-test.run(arguments = '-I sub1 -I sub2')
+test.run(arguments = '-I sub1 -I sub2', stdout = "sub1/foo\nsub2/bar\n")
 
-test.fail_test(test.stdout() != "sub1/foo\nsub2/bar\n")
-test.fail_test(test.stderr() != "")
-
-test.run(arguments = '--include-dir=sub2 --include-dir=sub1')
-
-test.fail_test(test.stdout() != "sub2/foo\nsub2/bar\n")
-test.fail_test(test.stderr() != "")
+test.run(arguments = '--include-dir=sub2 --include-dir=sub1',
+	 stdout = "sub2/foo\nsub2/bar\n")
 
 test.pass_test()
  

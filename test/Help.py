@@ -12,9 +12,8 @@ test.write('SConstruct', r"""
 Help("Help text\ngoes here.\n")
 """)
 
-test.run(arguments = '-h')
+expect = "Help text\ngoes here.\n\nUse scons -H for help about command-line options.\n"
 
-test.fail_test(test.stdout() != "Help text\ngoes here.\n\nUse scons -H for help about command-line options.\n")
-test.fail_test(test.stderr() != "")
+test.run(arguments = '-h', stdout = expect)
 
 test.pass_test()
