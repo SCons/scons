@@ -20,6 +20,9 @@ RELEASE 0.95 - XXX
   - Accomodate the fact that Cygwin's os.path.normcase() lies about
     the underlying system being case-sensitive.
 
+  - Fix an incorrect _concat() call in the $RCINCFLAGS definition for
+    the mingw Tool.
+
   From David M. Cooke:
 
   - Make the Fortran scanner case-insensitive for the INCLUDE string.
