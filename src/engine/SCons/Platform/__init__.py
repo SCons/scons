@@ -88,7 +88,8 @@ def platform_module(name = platform_default()):
             try:
                 file, path, desc = imp.find_module(name,
                                         sys.modules['SCons.Platform'].__path__)
-                imp.load_module(full_name, file, path, desc)
+                mod = imp.load_module(full_name, file, path, desc)
+                setattr(SCons.Platform, name, mod)
             except ImportError:
                 raise SCons.Errors.UserError, "No platform named '%s'" % name
             if file:

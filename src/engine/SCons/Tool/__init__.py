@@ -59,7 +59,8 @@ def Tool(name, platform = None):
         try:
             file, path, desc = imp.find_module(name,
                                         sys.modules['SCons.Tool'].__path__)
-            imp.load_module(full_name, file, path, desc)
+            mod = imp.load_module(full_name, file, path, desc)
+            setattr(SCons.Tool, name, mod)
         except ImportError:
             raise SCons.Errors.UserError, "No tool named '%s'" % name
         if file:

@@ -74,6 +74,9 @@ RELEASE 0.11 - XXX
     --standalone-lib, and --version-lib options for easier user
     control of where the libraries get installed.
 
+  - Fix the ability to directly import and use Platform and Tool modules
+    that have been implicitly imported into an Environment().
+
   From Steve Leblanc:
 
   - Fix the output of -c -n when directories are involved, so it

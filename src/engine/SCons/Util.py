@@ -621,7 +621,9 @@ except ImportError:
         RegError = win32api.error
 
     except ImportError:
-        pass
+        class _NoError(Exception):
+            pass
+        RegError = _NoError
 
 if can_read_reg:
     HKEY_CLASSES_ROOT = hkey_mod.HKEY_CLASSES_ROOT
