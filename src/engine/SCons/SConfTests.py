@@ -475,6 +475,8 @@ int main() {
             # CheckFunc()
             r = sconf.CheckFunc('strcpy')
             assert r, "did not find strcpy"
+            r = sconf.CheckFunc('strcpy', '/* header */ char strcpy();')
+            assert r, "did not find strcpy"
             r = sconf.CheckFunc('hopefullynofunction')
             assert not r, "unexpectedly found hopefullynofunction"
 

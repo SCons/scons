@@ -768,8 +768,8 @@ class CheckContext:
     #### End of stuff used by Conftest.py.
 
 
-def CheckFunc(context, function_name, language = None):
-    res = SCons.Conftest.CheckFunc(context, function_name, language = language)
+def CheckFunc(context, function_name, header = None, language = None):
+    res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language)
     context.did_show_result = 1
     return not res
 
