@@ -253,14 +253,30 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_Append(self):
         """Test appending to construction variables in an Environment
         """
-        env1 = Environment(AAA = 'a', BBB = 'b', CCC = 'c',
-                           DDD = ['d'], EEE = ['e'], FFF = ['f'])
-        env1.Append(BBB = 'B', CCC = ['C'], EEE = 'E', FFF = ['F'],
-                    GGG = 'g', HHH = ['h'])
-        env2 = Environment(AAA = 'a', BBB = 'bB', CCC = ['c', 'C'],
-                           DDD = ['d'], EEE = ['e', 'E'], FFF = ['f', 'F'],
-                           GGG = 'g', HHH = ['h'])
-        assert env1 == env2
+        import UserList
+        UL = UserList.UserList
+        env1 = Environment(AAA = 'a', BBB = 'b', CCC = 'c', DDD = 'd',
+                           EEE = ['e'], FFF = ['f'], GGG = ['g'], HHH = ['h'],
+                           III = UL(['i']), JJJ = UL(['j']),
+                           KKK = UL(['k']), LLL = UL(['l']))
+        env1.Append(BBB = 'B', CCC = ['C'], DDD = UL(['D']),
+                    FFF = 'F', GGG = ['G'], HHH = UL(['H']),
+                    JJJ = 'J', KKK = ['K'], LLL = UL(['L']))
+        env2 = Environment(AAA = 'a', BBB = 'bB',
+                           CCC = ['c', 'C'], DDD = UL(['d', 'D']),
+                           EEE = ['e'], FFF = ['f', 'F'],
+                           GGG = ['g', 'G'], HHH = UL(['h', 'H']),
+                           III = UL(['i']), JJJ = UL(['j', 'J']),
+                           KKK = UL(['k', 'K']), LLL = UL(['l', 'L']))
+        assert env1 == env2, env1._dict
+
+        env3 = Environment(X = {'x' : 7})
+        try:
+            env3.Append(X = {'x' : 8})
+        except TypeError:
+            pass
+        except:
+            raise
 
     def test_Depends(self):
 	"""Test the explicit Depends method."""

@@ -201,16 +201,14 @@ class Environment:
         for key in kw.keys():
             if not self._dict.has_key(key):
                 self._dict[key] = kw[key]
-            elif type(self._dict[key]) is type(kw[key]):
-                self._dict[key] = self._dict[key] + kw[key]
+            elif SCons.Util.is_List(self._dict[key]) and not \
+                 SCons.Util.is_List(kw[key]):
+                self._dict[key] = self._dict[key] + [ kw[key] ]
+            elif SCons.Util.is_List(kw[key]) and not \
+                 SCons.Util.is_List(self._dict[key]):
+                self._dict[key] = [ self._dict[key] ] + kw[key]
             else:
-                l1 = self._dict[key]
-                if not SCons.Util.is_List(l1):
-                    l1 = [l1]
-                l2 = kw[key]
-                if not SCons.Util.is_List(l2):
-                    l2 = [l2]
-                self._dict[key] = l1 + l2
+                self._dict[key] = self._dict[key] + kw[key]
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""
