@@ -187,12 +187,19 @@ class Executor:
         """
         return filter(lambda s: s.missing(), self.sources)
 
-    def get_source_binfo(self, calc):
+    def get_source_binfo(self, calc, ignore=[]):
         """
+        Return three lists, one of the source files, one of their
+        calculated signatures, and one of their strings (path names).
         __cacheable__
         """
+        sourcelist = self.sources
+        if ignore:
+            sourcelist = filter(lambda s, i=ignore: not s in i, sourcelist)
         calc_signature = lambda node, calc=calc: node.calc_signature(calc)
-        return map(lambda s, c=calc_signature: (s, c(s), str(s)), self.sources)
+        return (sourcelist,
+                map(calc_signature, sourcelist),
+                map(str,  sourcelist))
 
 
 
@@ -219,8 +226,8 @@ class Null:
         pass
     def get_missing_sources(self):
         return []
-    def get_source_binfo(self, calc):
-        return []
+    def get_source_binfo(self, calc, ignore=[]):
+        return ([], [], [])
 
 
 
