@@ -22,6 +22,16 @@ RELEASE 0.XX - XXX
 
   - Documentation fixes:  typo in the man page.
 
+  From Gary Oberbrunner:
+
+  - Report the target being built in error messages when building
+    multiple sources from different extensions, or when the target file
+    extension can't be deduced, or when we don't have an action for a
+    file suffix.
+
+  - Provide helpful error messages when the arguments to env.Install()
+    are incorrect.
+
 
 
 RELEASE 0.90 - Wed, 25 Jun 2003 14:24:52 -0500

@@ -459,9 +459,11 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])
         try:
             tgt.build()
-        except SCons.Errors.UserError:
+        except SCons.Errors.UserError, e:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        match = str(e) == "While building `['test3']' from `test1.foo': Cannot build multiple sources with different extensions: .bar, .foo"
+        assert match, e
 
         foo_bld = SCons.Builder.Builder(action = 'a-foo',
                                         src_suffix = '.ina',
@@ -497,28 +499,54 @@ class BuilderTestCase(unittest.TestCase):
         assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
 
         flag = 0
-        tgt = builder(env, target='t5', source='test5a.foo test5b.inb')
+        tgt = builder(env, target='t5', source=['test5a.foo', 'test5b.inb'])
         try:
             tgt.build()
-        except SCons.Errors.UserError:
+        except SCons.Errors.UserError, e:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        match = str(e) == "While building `['t5']' from `test5b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
+        assert match, e
 
         flag = 0
-        tgt = builder(env, target='t6', source='test6a.bar test6b.ina')
+        tgt = builder(env, target='t6', source=['test6a.bar', 'test6b.ina'])
         try:
             tgt.build()
-        except SCons.Errors.UserError:
+        except SCons.Errors.UserError, e:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        match = str(e) == "While building `['t6']' from `test6b.foo': Cannot build multiple sources with different extensions: .bar, .foo"
+        assert match, e
 
         flag = 0
-        tgt = builder(env, target='t4', source='test4a.ina test4b.inb')
+        tgt = builder(env, target='t4', source=['test4a.ina', 'test4b.inb'])
         try:
             tgt.build()
-        except SCons.Errors.UserError:
+        except SCons.Errors.UserError, e:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        match = str(e) == "While building `['t4']' from `test4b.bar': Cannot build multiple sources with different extensions: .foo, .bar"
+        assert match, e
+
+        flag = 0
+        tgt = builder(env, target='t7', source=['test7'])
+        try:
+            tgt.build()
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        match = str(e) == "While building `['t7']': Cannot deduce file extension from source files: ['test7']"
+        assert match, e
+
+        flag = 0
+        tgt = builder(env, target='t8', source=['test8.unknown'])
+        try:
+            tgt.build()
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+        match = str(e) == "While building `['t8']': Don't know how to build a file with suffix '.unknown'."
+        assert match, e
 
     def test_build_scanner(self):
         """Testing ability to set a target scanner through a builder."""

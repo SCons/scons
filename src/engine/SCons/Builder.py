@@ -83,17 +83,17 @@ class DictCmdGenerator:
         for src in map(str, source):
             my_ext = SCons.Util.splitext(src)[1]
             if ext and my_ext != ext:
-                raise UserError("Cannot build multiple sources with different extensions: %s, %s" % (ext, my_ext))
+                raise UserError("While building `%s' from `%s': Cannot build multiple sources with different extensions: %s, %s" % (repr(map(str, target)), src, ext, my_ext))
             ext = my_ext
 
-        if ext is None:
-            raise UserError("Cannot deduce file extension from source files: %s" % repr(map(str, source)))
+        if not ext:
+            raise UserError("While building `%s': Cannot deduce file extension from source files: %s" % (repr(map(str, target)), repr(map(str, source))))
         try:
             # XXX Do we need to perform Environment substitution
             # on the keys of action_dict before looking it up?
             return self.action_dict[ext]
         except KeyError:
-            raise UserError("Don't know how to build a file with suffix %s." % ext)
+            raise UserError("While building `%s': Don't know how to build a file with suffix %s." % (repr(map(str, target)), repr(ext)))
     def __cmp__(self, other):
         return cmp(self.action_dict, other.action_dict)
 

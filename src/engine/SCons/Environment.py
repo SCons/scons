@@ -406,8 +406,17 @@ class Environment:
 
     def Install(self, dir, source):
         """Install specified files in the given directory."""
-        sources = SCons.Node.arg2nodes(source, self.fs.File)
-        dnodes = SCons.Node.arg2nodes(dir, self.fs.Dir)
+        try:
+            dnodes = SCons.Node.arg2nodes(dir, self.fs.Dir)
+        except TypeError:
+            raise SCons.Errors.UserError, "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(dir)
+        try:
+            sources = SCons.Node.arg2nodes(source, self.fs.File)
+        except TypeError:
+            if SCons.Util.is_List(source):
+                raise SCons.Errors.UserError, "Source `%s' of Install() contains one or more non-files.  Install() source must be one or more files." % repr(map(str, source))
+            else:
+                raise SCons.Errors.UserError, "Source `%s' of Install() is not a file.  Install() source must be one or more files." % str(source)
         tgt = []
         for dnode in dnodes:
             for src in sources:
