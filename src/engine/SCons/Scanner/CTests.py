@@ -98,6 +98,24 @@ test.write('f3.h',"""
 #include <fj.h>
 """)
 
+
+test.subdir('include', 'subdir', ['subdir', 'include'])
+
+test.write('fa.cpp',"""
+#include \"fa.h\"
+#include <fb.h>
+
+int main()
+{
+   return 0;
+}
+""")
+
+test.write('include/fa.h', "\n")
+test.write('include/fb.h', "\n")
+test.write('subdir/include/fa.h', "\n")
+test.write('subdir/include/fb.h', "\n")
+
 # define some helpers:
 
 class DummyEnvironment:
@@ -113,11 +131,11 @@ class DummyEnvironment:
             raise KeyError, "Dummy environment only has CPPPATH attribute."
 
 def deps_match(self, deps, headers):
-    deps = map(os.path.normpath, map(str, deps))
-    headers = map(os.path.normpath, map(test.workpath, headers))
-    deps.sort()
-    headers.sort()
-    self.failUnless(deps == headers, "expect %s != scanned %s" % (headers, deps))
+    scanned = map(os.path.normpath, map(str, deps))
+    expect = map(os.path.normpath, headers)
+    scanned.sort()
+    expect.sort()
+    self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 # define some tests:
 
@@ -127,7 +145,7 @@ class CScannerTestCase1(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         deps = s.instance(env).scan(test.workpath('f1.cpp'), env)
 	headers = ['f1.h', 'f2.h', 'fi.h']
-        deps_match(self, deps, headers)
+        deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase2(unittest.TestCase):
     def runTest(self):
@@ -135,7 +153,7 @@ class CScannerTestCase2(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         deps = s.instance(env).scan(test.workpath('f1.cpp'), env)
         headers = ['f1.h', 'd1/f2.h']
-        deps_match(self, deps, headers)
+        deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase3(unittest.TestCase):
     def runTest(self):
@@ -143,7 +161,7 @@ class CScannerTestCase3(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         deps = s.instance(env).scan(test.workpath('f2.cpp'), env)
         headers = ['f1.h', 'd1/f1.h', 'd1/d2/f1.h']
-        deps_match(self, deps, headers)
+        deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase4(unittest.TestCase):
     def runTest(self):
@@ -151,7 +169,7 @@ class CScannerTestCase4(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         deps = s.instance(env).scan(test.workpath('f2.cpp'), env)
         headers =  ['f1.h', 'd1/f1.h', 'd1/d2/f1.h', 'd1/d2/f4.h']
-        deps_match(self, deps, headers)
+        deps_match(self, deps, map(test.workpath, headers))
         
 class CScannerTestCase5(unittest.TestCase):
     def runTest(self):
@@ -160,7 +178,7 @@ class CScannerTestCase5(unittest.TestCase):
         deps = s.instance(env).scan(test.workpath('f3.cpp'), env)
         headers =  ['f1.h', 'f2.h', 'f3.h', 'fi.h', 'fj.h',
                     'd1/f1.h', 'd1/f2.h', 'd1/f3.h']
-        deps_match(self, deps, headers)
+        deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase6(unittest.TestCase):
     def runTest(self):
@@ -177,8 +195,8 @@ class CScannerTestCase6(unittest.TestCase):
         deps2 = s2.scan(test.workpath('f1.cpp'), None)
         headers1 =  ['f1.h', 'd1/f2.h']
         headers2 =  ['f1.h', 'd1/d2/f2.h']
-        deps_match(self, deps1, headers1)
-        deps_match(self, deps2, headers2)
+        deps_match(self, deps1, map(test.workpath, headers1))
+        deps_match(self, deps2, map(test.workpath, headers2))
 
 class CScannerTestCase7(unittest.TestCase):
     def runTest(self):
@@ -188,6 +206,19 @@ class CScannerTestCase7(unittest.TestCase):
         dict = {}
         dict[s1] = 777
         assert dict[s2] == 777
+        
+class CScannerTestCase8(unittest.TestCase):
+    def runTest(self):
+        fs = SCons.Node.FS.FS(test.workpath(''))
+        env = DummyEnvironment(["include"])
+        s = SCons.Scanner.C.CScan(fs = fs)
+        deps1 = s.instance(env).scan(test.workpath('fa.cpp'), None)
+        fs.chdir(fs.Dir('subdir'))
+        deps2 = s.instance(env).scan(test.workpath('fa.cpp'), None)
+        headers1 =  ['include/fa.h', 'include/fb.h']
+        headers2 =  ['subdir/include/fa.h', 'subdir/include/fb.h']
+        deps_match(self, deps1, headers1)
+        deps_match(self, deps2, headers2)
 
 def suite():
     suite = unittest.TestSuite()
@@ -198,6 +229,7 @@ def suite():
     suite.addTest(CScannerTestCase5())
     suite.addTest(CScannerTestCase6())
     suite.addTest(CScannerTestCase7())
+    suite.addTest(CScannerTestCase8())
     return suite
 
 if __name__ == "__main__":
