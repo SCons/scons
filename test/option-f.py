@@ -31,4 +31,22 @@ test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
 test.run(chdir = '.', arguments = '-f ' + subdir_BuildThis)
 test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
 
+test.run(chdir = '.', arguments = '--file=SConscript')
+test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
+
+test.run(chdir = '.', arguments = '--file=' + subdir_BuildThis)
+test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
+
+test.run(chdir = '.', arguments = '--makefile=SConscript')
+test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
+
+test.run(chdir = '.', arguments = '--makefile=' + subdir_BuildThis)
+test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
+
+test.run(chdir = '.', arguments = '--sconstruct=SConscript')
+test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
+
+test.run(chdir = '.', arguments = '--sconstruct=' + subdir_BuildThis)
+test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
+
 test.pass_test()
