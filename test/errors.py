@@ -189,7 +189,7 @@ env.subst('$foo.bar.3.0')
 """)
 
 test.run(status=2, stderr="""
-scons: \*\*\* Syntax error trying to evaluate `\$foo\.bar\.3\.0'
+scons: \*\*\* Syntax error `invalid syntax( \(line 1\))?' trying to evaluate `\$foo\.bar\.3\.0'
 File "SConstruct", line 2, in \?
 """)
 
@@ -199,9 +199,20 @@ env.subst_list('$foo.3.0.x')
 """)
 
 test.run(status=2, stderr="""
-scons: \*\*\* Syntax error trying to evaluate `\$foo\.3\.0\.x'
+scons: \*\*\* Syntax error `invalid syntax( \(line 1\))?' trying to evaluate `\$foo\.3\.0\.x'
 File "SConstruct", line 2, in \?
 """)
+
+#Test syntax errors when trying to expand construction variables at build time:
+test.write('SConstruct', """\
+env = Environment()
+env.Command('foo.bar', [], '$foo.bar.3.0')
+""")
+
+test.run(status=2, stderr=r"""scons: \*\*\* \[foo\.bar\] Syntax error `invalid syntax( \(line 1\))?' trying to evaluate `\$foo\.bar\.3\.0'
+""")
+
+
 
 
 

@@ -181,9 +181,9 @@ class BuildTask(SCons.Taskmaster.Task):
                 s = s + '  Stop.'
             sys.stderr.write("scons: *** %s\n" % s)
 
-        if tb:
-            sys.stderr.write("scons: internal stack trace:\n")
-            traceback.print_tb(tb, file=sys.stderr)
+            if tb:
+                sys.stderr.write("scons: internal stack trace:\n")
+                traceback.print_tb(tb, file=sys.stderr)
 
         self.do_failed(status)
 
