@@ -274,7 +274,7 @@ def Builder(**kw):
 
     return ret
 
-def _init_nodes(builder, env, overrides, tlist, slist):
+def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
     """Initialize lists of target and source nodes with all of
     the proper Builder information.
     """
@@ -335,7 +335,8 @@ def _init_nodes(builder, env, overrides, tlist, slist):
                                            env or builder.env,
                                            [builder.overrides, overrides],
                                            tlist,
-                                           slist)
+                                           slist,
+                                           executor_kw)
 
     # Now set up the relevant information in the target Nodes themselves.
     for t in tlist:
@@ -410,6 +411,7 @@ class BuilderBase:
                         env = None,
                         single_source = 0,
                         name = None,
+                        chdir = _null,
                         **overrides):
         if __debug__: logInstanceCreation(self, 'BuilderBase')
         self.action = SCons.Action.Action(action)
@@ -443,6 +445,9 @@ class BuilderBase:
         # that don't get attached to construction environments.
         if name:
             self.name = name
+        self.executor_kw = {}
+        if not chdir is _null:
+            self.executor_kw['chdir'] = chdir
 
     def __nonzero__(self):
         raise InternalError, "Do not test for the Node.builder attribute directly; use Node.has_builder() instead"
@@ -547,7 +552,7 @@ class BuilderBase:
 
         return tlist, slist
 
-    def _execute(self, env, target = None, source = _null, overwarn={}):
+    def _execute(self, env, target=None, source=_null, overwarn={}, executor_kw={}):
         if source is _null:
             source = target
             target = None
@@ -572,12 +577,17 @@ class BuilderBase:
             builder = self
         else:
             builder = ListBuilder(self, env, tlist)
-        _init_nodes(builder, env, overwarn.data, tlist, slist)
+        _init_nodes(builder, env, overwarn.data, executor_kw, tlist, slist)
 
         return tlist
 
-    def __call__(self, env, target = None, source = _null, **kw):
-        return self._execute(env, target, source, OverrideWarner(kw))
+    def __call__(self, env, target=None, source=_null, chdir=_null, **kw):
+        if chdir is _null:
+            ekw = self.executor_kw
+        else:
+            ekw = self.executor_kw.copy()
+            ekw['chdir'] = chdir
+        return self._execute(env, target, source, OverrideWarner(kw), ekw)
 
     def adjust_suffix(self, suff):
         if suff and not suff[0] in [ '.', '_', '$' ]:
@@ -692,7 +702,7 @@ class MultiStepBuilder(BuilderBase):
         self.sdict = {}
         self.cached_src_suffixes = {} # source suffixes keyed on id(env)
 
-    def _execute(self, env, target = None, source = _null, overwarn={}):
+    def _execute(self, env, target = None, source = _null, overwarn={}, executor_kw={}):
         if source is _null:
             source = target
             target = None

@@ -324,7 +324,10 @@ class ActionBaseTestCase(unittest.TestCase):
         """Test creation of ActionBase objects
         """
 
-        def func():
+        def func1():
+            pass
+
+        def func2():
             pass
 
         a = SCons.Action.ActionBase()
@@ -334,11 +337,19 @@ class ActionBaseTestCase(unittest.TestCase):
         assert not hasattr(a, 'strfunction')
         assert not hasattr(a, 'kwarg')
 
-        a = SCons.Action.ActionBase(func)
-        assert a.strfunction is func, a.strfunction
+        a = SCons.Action.ActionBase(strfunction=func1)
+        assert a.strfunction is func1, a.strfunction
 
-        a = SCons.Action.ActionBase(strfunction=func)
-        assert a.strfunction is func, a.strfunction
+        a = SCons.Action.ActionBase(presub=func1)
+        assert a.presub is func1, a.presub
+
+        a = SCons.Action.ActionBase(chdir=1)
+        assert a.chdir is 1, a.chdir
+
+        a = SCons.Action.ActionBase(func1, func2, 'x')
+        assert a.strfunction is func1, a.strfunction
+        assert a.presub is func2, a.presub
+        assert a.chdir is 'x', a.chdir
 
     def test___cmp__(self):
         """Test Action comparison
@@ -379,6 +390,10 @@ class ActionBaseTestCase(unittest.TestCase):
         save_execute_actions = SCons.Action.execute_actions
         #SCons.Action.print_actions = 0
 
+        test = TestCmd.TestCmd(workdir = '')
+        test.subdir('sub', 'xyz')
+        os.chdir(test.workpath())
+
         try:
             env = Environment()
 
@@ -394,6 +409,25 @@ class ActionBaseTestCase(unittest.TestCase):
             assert result == 7, result
             s = sio.getvalue()
             assert s == 'execfunc(["out"], ["in"])\n', s
+
+            a.chdir = 'xyz'
+            expect = 'os.chdir(\'%s\')\nexecfunc(["out"], ["in"])\nos.chdir(\'%s\')\n'
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            result = a("out", "in", env)
+            assert result == 7, result
+            s = sio.getvalue()
+            assert s == expect % ('xyz', test.workpath()), s
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            result = a("out", "in", env, chdir='sub')
+            assert result == 7, result
+            s = sio.getvalue()
+            assert s == expect % ('sub', test.workpath()), s
+
+            a.chdir = None
 
             SCons.Action.execute_actions = 0
 
@@ -502,13 +536,6 @@ class ActionBaseTestCase(unittest.TestCase):
         assert s == [''], s
         s = a.presub_lines(Environment(ACT = 'expanded action'))
         assert s == ['expanded action'], s
-
-    def test_get_actions(self):
-        """Test the get_actions() method
-        """
-        a = SCons.Action.Action("x")
-        l = a.get_actions()
-        assert l == [a], l
 
     def test_add(self):
         """Test adding Actions to stuff."""
@@ -1335,19 +1362,6 @@ class ListActionTestCase(unittest.TestCase):
         assert isinstance(a.list[1], SCons.Action.FunctionAction)
         assert isinstance(a.list[2], SCons.Action.ListAction)
         assert a.list[2].list[0].cmd_list == 'y'
-
-    def test_get_actions(self):
-        """Test the get_actions() method for ListActions
-        """
-        a = SCons.Action.ListAction(["x", "y"])
-        l = a.get_actions()
-        assert len(l) == 2, l
-        assert isinstance(l[0], SCons.Action.CommandAction), l[0]
-        g = l[0].get_actions()
-        assert g == [l[0]], g
-        assert isinstance(l[1], SCons.Action.CommandAction), l[1]
-        g = l[1].get_actions()
-        assert g == [l[1]], g
 
     def test___str__(self):
         """Test the __str__() method for a list of subsidiary Actions

@@ -43,15 +43,17 @@ class Executor:
     and sources for later processing as needed.
     """
 
-    def __init__(self, action, env=None, overridelist=[], targets=[], sources=[]):
+    def __init__(self, action, env=None, overridelist=[],
+                 targets=[], sources=[], builder_kw={}):
         if __debug__: logInstanceCreation(self)
+        if not action:
+            raise SCons.Errors.UserError, "Executor must have an action."
         self.action = action
         self.env = env
         self.overridelist = overridelist
         self.targets = targets
         self.sources = sources[:]
-        if not action:
-            raise SCons.Errors.UserError, "Executor must have an action."
+        self.builder_kw = builder_kw
 
     def get_build_env(self):
         """Fetch or create the appropriate build Environment
@@ -96,11 +98,7 @@ class Executor:
         involved, so only one target's pre- and post-actions will win,
         anyway.  This is probably a bug we should fix...
         """
-        try:
-            al = self.action_list
-        except AttributeError:
-            al = self.action.get_actions()
-            self.action_list = al
+        al = [self.action]
         try:
             # XXX shouldn't reach into node attributes like this
             return target.pre_actions + al + target.post_actions
@@ -113,6 +111,8 @@ class Executor:
         if not action_list:
             return
         env = self.get_build_env()
+        kw = kw.copy()
+        kw.update(self.builder_kw)
         for action in action_list:
             apply(action, (self.targets, self.sources, env, errfunc), kw)
 

@@ -72,6 +72,10 @@ RELEASE 0.97 - XXX
   - Add a ParseDepends() function that will parse up a list of explicit
     dependencies from a "make depend" style file.
 
+  - Support the ability to change directory when executing an Action
+    through "chdir" keyword arguments to Action and Builder creation
+    and calls.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
