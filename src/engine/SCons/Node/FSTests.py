@@ -137,7 +137,6 @@ class BuildDirTestCase(unittest.TestCase):
         fs.BuildDir('../var2', 'src')
         f1 = fs.File('../var1/test1')
         f2 = fs.File('../var2/test1')
-        assert hasattr(f1, 'overrides')
         assert f1.srcnode().path == os.path.normpath('src/test1'), f1.srcnode().path
         assert f2.srcnode().path == os.path.normpath('src/test1'), f2.srcnode().path
 

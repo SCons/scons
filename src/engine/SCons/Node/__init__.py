@@ -126,7 +126,6 @@ class Node:
         self.always_build = None
         self.found_includes = {}
         self.includes = None
-        self.overrides = {}     # construction variable overrides for building this node
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
         self.side_effect = 0 # true iff this node is a side effect
         self.side_effects = [] # the side effects of building this target
