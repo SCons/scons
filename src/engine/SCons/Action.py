@@ -307,77 +307,54 @@ class CommandAction(ActionBase):
         handle lists of commands, even though that's not how we use it
         externally.
         """
-        import SCons.Util
+        from SCons.Util import is_String, is_List, flatten, escape_list
+
+        try:
+            shell = env['SHELL']
+        except KeyError:
+            raise SCons.Errors.UserError('Missing SHELL construction variable.')
+
+        try:
+            spawn = env['SPAWN']
+        except KeyError:
+            raise SCons.Errors.UserError('Missing SPAWN construction variable.')
 
         escape = env.get('ESCAPE', lambda x: x)
 
-        if env.has_key('SHELL'):
-            shell = env['SHELL']
-        else:
-            raise SCons.Errors.UserError('Missing SHELL construction variable.')
+        try:
+            ENV = env['ENV']
+        except KeyError:
+            global default_ENV
+            if not default_ENV:
+                import SCons.Environment
+                default_ENV = SCons.Environment.Environment()['ENV']
+            ENV = default_ENV
 
-        # for SConf support (by now): check, if we want to pipe the command
-        # output to somewhere else
-        if env.has_key('PIPE_BUILD'):
-            pipe_build = 1
-            if env.has_key('PSPAWN'):
-                pspawn = env['PSPAWN']
-            else:
-                raise SCons.Errors.UserError('Missing PSPAWN construction variable.')
-            if env.has_key('PSTDOUT'):
-                pstdout = env['PSTDOUT']
-            else:
-                raise SCons.Errors.UserError('Missing PSTDOUT construction variable.')
-            if env.has_key('PSTDERR'):
-                pstderr = env['PSTDERR']
-            else:
-                raise SCons.Errors.UserError('Missing PSTDOUT construction variable.')
-        else:
-            pipe_build = 0
-            if env.has_key('SPAWN'):
-                spawn = env['SPAWN']
-            else:
-                raise SCons.Errors.UserError('Missing SPAWN construction variable.')
+        # Ensure that the ENV values are all strings:
+        for key, value in ENV.items():
+            if not is_String(value):
+                if is_List(value):
+                    # If the value is a list, then we assume it is a
+                    # path list, because that's a pretty common list-like
+                    # value to stick in an environment variable:
+                    value = flatten(value)
+                    ENV[key] = string.join(map(str, value), os.pathsep)
+                else:
+                    # If it isn't a string or a list, then we just coerce
+                    # it to a string, which is the proper way to handle
+                    # Dir and File instances and will produce something
+                    # reasonable for just about everything else:
+                    ENV[key] = str(value)
 
         cmd_list = env.subst_list(self.cmd_list, 0, target, source)
-        for cmd_line in cmd_list:
-            if len(cmd_line):
-                try:
-                    ENV = env['ENV']
-                except KeyError:
-                    global default_ENV
-                    if not default_ENV:
-                        import SCons.Environment
-                        default_ENV = SCons.Environment.Environment()['ENV']
-                    ENV = default_ENV
 
-                # ensure that the ENV values are all strings:
-                for key, value in ENV.items():
-                    if SCons.Util.is_List(value):
-                        # If the value is a list, then we assume
-                        # it is a path list, because that's a pretty
-                        # common list like value to stick in an environment
-                        # variable:
-                        value = SCons.Util.flatten(value)
-                        ENV[key] = string.join(map(str, value), os.pathsep)
-                    elif not SCons.Util.is_String(value):
-                        # If it isn't a string or a list, then
-                        # we just coerce it to a string, which
-                        # is proper way to handle Dir and File instances
-                        # and will produce something reasonable for
-                        # just about everything else:
-                        ENV[key] = str(value)
-
-                # Escape the command line for the command
-                # interpreter we are using
-                cmd_line = SCons.Util.escape_list(cmd_line, escape)
-                if pipe_build:
-                    ret = pspawn( shell, escape, cmd_line[0], cmd_line,
-                                  ENV, pstdout, pstderr )
-                else:
-                    ret = spawn(shell, escape, cmd_line[0], cmd_line, ENV)
-                if ret:
-                    return ret
+        # Use len() to filter out any "command" that's zero-length.
+        for cmd_line in filter(len, cmd_list):
+            # Escape the command line for the interpreter we are using.
+            cmd_line = escape_list(cmd_line, escape)
+            result = spawn(shell, escape, cmd_line[0], cmd_line, ENV)
+            if result:
+                return result
         return 0
 
     def get_contents(self, target, source, env, dict=None):
