@@ -39,7 +39,7 @@ else:
 
 test = TestSCons.TestSCons()
 
-ranlib = test.where_is('ranlib')
+ranlib = test.detect('RANLIB', 'ranlib')
 
 test.no_result(not ranlib)
 

@@ -73,10 +73,10 @@ kscan = Scanner(name = 'kfile',
 scanners = Environment().Dictionary('SCANNERS')
 env = Environment(SCANNERS = scanners + [kscan])
 
-env.Command('foo', 'foo.k', '%s build.py $SOURCES $TARGET')
+env.Command('foo', 'foo.k', r'%s build.py $SOURCES $TARGET')
 
 bar_in = File('bar.in')
-env.Command('bar', bar_in, '%s build.py $SOURCES  $TARGET')
+env.Command('bar', bar_in, r'%s build.py $SOURCES  $TARGET')
 bar_in.source_scanner = kscan
 """ % (python, python))
 

@@ -58,7 +58,6 @@ class UtilTestCase(unittest.TestCase):
             def cvt(str):
                 return string.replace(str, '/', os.sep)
 
-
         newcom = scons_subst("test $TARGETS $SOURCES", loc, {})
         assert newcom == cvt("test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp /bar/ack.cpp ../foo/ack.c")
 
@@ -90,15 +89,15 @@ class UtilTestCase(unittest.TestCase):
         assert newcom == cvt("test foo")
 
         newcom = scons_subst("test ${TARGET.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/bar.exe"%os.getcwd()), newcom
+        assert newcom == cvt("test %s/foo/bar.exe"%SCons.Util.updrive(os.getcwd())), newcom
 
         newcom = scons_subst("test ${SOURCES.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/blah.cpp %s %s/foo/ack.c"%(os.getcwd(),
-                                                                     os.path.abspath(os.path.normpath("/bar/ack.cpp")),
-                                                                     os.path.normpath(os.getcwd()+"/.."))), newcom
+        assert newcom == cvt("test %s/foo/blah.cpp %s %s/foo/ack.c"%(SCons.Util.updrive(os.getcwd()),
+                                                                     SCons.Util.updrive(os.path.abspath(os.path.normpath("/bar/ack.cpp"))),
+                                                                     SCons.Util.updrive(os.path.normpath(os.getcwd()+"/..")))), newcom
 
         newcom = scons_subst("test ${SOURCE.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/blah.cpp"%os.getcwd()), newcom
+        assert newcom == cvt("test %s/foo/blah.cpp"%SCons.Util.updrive(os.getcwd())), newcom
 
         newcom = scons_subst("test $xxx", loc, {})
         assert newcom == cvt("test"), newcom

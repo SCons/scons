@@ -82,8 +82,7 @@ test.run(arguments = 'bbb.tar', stderr = None)
 test.fail_test(test.read('bbb.tar') != "sub1/file5\nsub1/file6\nfile4\n")
 
 
-
-tar = test.where_is('tar')
+tar = test.detect('TAR', 'tar')
 
 if tar:
 
@@ -95,9 +94,9 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(tools = ['tar'])
+foo = Environment()
 tar = foo.Dictionary('TAR')
-bar = Environment(tools = ['tar'], TAR = r'%s wrapper.py ' + tar)
+bar = Environment(TAR = r'%s wrapper.py ' + tar)
 foo.Tar(target = 'foo.tar', source = ['file10', 'file11'])
 foo.Tar(target = 'foo.tar', source = 'file12')
 bar.Tar(target = 'bar.tar', source = ['file13', 'file14'])

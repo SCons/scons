@@ -167,8 +167,7 @@ test.fail_test(test.read('test5' + _exe) != "This is a .spp file.\n")
 test.fail_test(test.read('test6' + _exe) != "This is a .SPP file.\n")
 
 
-
-as = test.where_is('as')
+as = test.detect('AS', 'as')
 
 if as:
 

@@ -151,6 +151,20 @@ class TestSCons(TestCmd.TestCmd):
 	    print self.stderr()
 	    raise TestFailed
 
+    def detect(self, var, prog):
+        """
+        Detect a program named 'prog' by first checking  the construction 
+        variable named 'var' and finally searching the path. If either method
+        fails to detect the program, then false is returned, otherwise 
+        the programs full path is returned.
+        """
+
+        import SCons.Environment
+        try:
+            return SCons.Environment.Environment()[var] == prog and self.where_is(prog)
+        except KeyError:
+            return None
+
     def wrap_stdout(self, build_str = "", read_str = ""):
         """Wraps standard output string(s) in the normal
         "Reading ... done" and "Building ... done" strings
