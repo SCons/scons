@@ -93,10 +93,11 @@ class Environment:
         self._dict.update(dict)
 
 class Builder:
-    def __init__(self):
+    def __init__(self, is_explicit=1):
         self.env = Environment()
         self.overrides = {}
         self.action = MyAction()
+        self.is_explicit = is_explicit
     def targets(self, t):
         return [t]
     def get_actions(self):
@@ -313,6 +314,16 @@ class NodeTestCase(unittest.TestCase):
         assert n1.has_builder() == 0
         n1.builder_set(Builder())
         assert n1.has_builder() == 1
+
+    def test_has_explicit_builder(self):
+        """Test the has_explicit_builder() method
+        """
+        n1 = SCons.Node.Node()
+        assert not n1.has_explicit_builder()
+        n1.builder_set(Builder(is_explicit=1))
+        assert n1.has_explicit_builder()
+        n1.builder_set(Builder(is_explicit=None))
+        assert not n1.has_explicit_builder()
 
     def test_multiple_side_effect_has_builder(self):
         """Test the multiple_side_effect_has_builder() method

@@ -194,6 +194,7 @@ def get_MkdirBuilder():
         MkdirBuilder = SCons.Builder.Builder(action = Mkdir,
                                              env = None,
                                              explain = None,
+                                             is_explicit = None,
                                              name = "MkdirBuilder")
     return MkdirBuilder
 

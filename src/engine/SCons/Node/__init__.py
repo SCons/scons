@@ -307,6 +307,15 @@ class Node:
             b = self.builder
         return not b is None
 
+    def has_explicit_builder(self):
+        """Return whether this Node has an explicit builder
+
+        This allows an internal Builder created by SCons to be marked
+        non-explicit, so that it can be overridden by an explicit
+        builder that the user supplies (the canonical example being
+        directories)."""
+        return self.has_builder() and self.builder.is_explicit
+
     multiple_side_effect_has_builder = has_builder
 
     def is_derived(self):

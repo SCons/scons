@@ -97,6 +97,9 @@ RELEASE 0.97 - XXX
   - Packaging build fix:  Rebuild the files that are use to report the
     --version of SCons whenever the development version number changes.
 
+  - Fix the ability to specify a target_factory of Dir() to a Builder,
+    which the default create-a-directory Builder was interfering with.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and

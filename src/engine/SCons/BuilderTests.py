@@ -140,6 +140,8 @@ class MyNode_without_target_from_source:
         self.builder = builder
     def has_builder(self):
         return not self.builder is None
+    def has_explicit_builder(self):
+        return not self.builder is None and self.builder.is_explicit
     def env_set(self, env, safe=0):
         self.env = env
     def add_source(self, source):
