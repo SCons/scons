@@ -422,6 +422,12 @@ class TaskmasterTestCase(unittest.TestCase):
         assert t.get_target() == n7
         t.executed()
 
+        n1 = Node("n1")
+        n2 = Node("n2", [n1])
+        n1.set_state(SCons.Node.failed)
+        tm = SCons.Taskmaster.Taskmaster([n2])
+        assert tm.next_task() is None
+
 
     def test_make_ready_out_of_date(self):
         """Test the Task.make_ready() method's list of out-of-date Nodes

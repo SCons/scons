@@ -40,6 +40,15 @@ RELEASE 0.97 - XXX
     interrupting builds by writing to a temporary file and renaming,
     not writing the file directly.
 
+  - Fix a 0.96 regression where when running with -k, targets built from
+    walking dependencies later on the command line would not realize
+    that a dependency had failed an earlier build attempt, and would
+    try to rebuild the dependent targets.
+
+  - Change the final messages when using -k and errors occur from
+    "{building,cleaning} terminated because of errors" to "done
+    {building,cleaning} targets (errors occurred during {build,clean})."
+
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption

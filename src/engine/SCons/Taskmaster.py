@@ -282,6 +282,16 @@ class Taskmaster:
                 self.ready = node
                 break
 
+            # Skip this node if any of its children have failed.  This
+            # catches the case where we're descending a top-level target
+            # and one of our children failed while trying to be built
+            # by a *previous* descent of an earlier top-level target.
+            def failed(node): return node.get_state() == SCons.Node.failed
+            if filter(failed, children):
+                node.set_state(SCons.Node.failed)
+                self.candidates.pop()
+                continue
+
             # Detect dependency cycles:
             def in_stack(node): return node.get_state() == SCons.Node.stack
             cycle = filter(in_stack, children)

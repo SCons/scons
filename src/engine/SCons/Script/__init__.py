@@ -1008,7 +1008,10 @@ def _main(args, parser):
     task_class = BuildTask	# default action is to build targets
     opening_message = "Building targets ..."
     closing_message = "done building targets."
-    failure_message = "building terminated because of errors."
+    if keep_going_on_error:
+        failure_message = "done building targets (errors occurred during build)."
+    else:
+        failure_message = "building terminated because of errors."
     if options.question:
         task_class = QuestionTask
     try:
@@ -1016,7 +1019,10 @@ def _main(args, parser):
             task_class = CleanTask
             opening_message = "Cleaning targets ..."
             closing_message = "done cleaning targets."
-            failure_message = "cleaning terminated because of errors."
+            if keep_going_on_error:
+                closing_message = "done cleaning targets (errors occurred during clean)."
+            else:
+                failure_message = "cleaning terminated because of errors."
     except AttributeError:
         pass
 
