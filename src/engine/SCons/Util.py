@@ -514,20 +514,30 @@ _remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
 # Indexed by the SUBST_* constants above.
 _regex_remove = [ _rm, None, _remove ]
 
-# This regular expression splits a string into the following types of
-# arguments for use by the scons_subst() and scons_subst_list() functions:
+# Regular expressions for splitting strings and handling substitutions,
+# for use by the scons_subst() and scons_subst_list() functions:
+#
+# The first expression compiled matches all of the $-introduced tokens
+# that we need to process in some way, and is used for substitutions.
+# The expressions it matches are:
 #
 #       "$$"
 #       "$("
 #       "$)"
 #       "$variable"             [must begin with alphabetic or underscore]
 #       "${any stuff}"
+#
+# The second expression compiled is used for splitting strings into tokens
+# to be processed, and it matches all of the tokens listed above, plus
+# the following that affect how arguments do or don't get joined together:
+#
 #       "   "                   [white space]
 #       "non-white-space"       [without any dollar signs]
 #       "$"                     [single dollar sign]
 #
-_separate_args = re.compile(r'(\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}|\s+|[^\s\$]+|\$)')
-special_exps = re.compile (r'(\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*})')
+_dollar_exps_str = r'\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}'
+_dollar_exps = re.compile(r'(%s)' % _dollar_exps_str)
+_separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % _dollar_exps_str)
 
 # This regular expression is used to replace strings of multiple white
 # space characters in the string result from the scons_subst() function.
@@ -541,6 +551,9 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
     handles separating command lines into lists of arguments, so see
     that function if that's what you're looking for.
     """
+    if type(strSubst) == types.StringType and string.find(strSubst, '$') < 0:
+        return strSubst
+
     class StringSubber:
         """A class to construct the results of a scons_subst() call.
 
@@ -555,6 +568,15 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
             self.source = source
             self.conv = conv
             self.gvars = gvars
+
+        def expand_var_once(self, var, lvars):
+            try:
+                return lvars[var]
+            except KeyError:
+                try:
+                    return self.gvars[var]
+                except KeyError:
+                    return ''
 
         def expand(self, s, lvars):
             """Expand a single "token" as necessary, returning an
@@ -578,27 +600,37 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
                         return s
                     else:
                         key = s[1:]
-                        if key[0] == '{':
-                            key = key[1:-1]
-                        try:
-                            s = eval(key, self.gvars, lvars)
-                        except (IndexError, NameError, TypeError):
-                            return ''
-                        except SyntaxError,e:
-                            if self.target:
-                                raise SCons.Errors.BuildError, (self.target[0], "Syntax error `%s' trying to evaluate `%s'" % (e,s))
-                            else:
-                                raise SCons.Errors.UserError, "Syntax error `%s' trying to evaluate `%s'" % (e,s)
+                        if key[0] == '{' or string.find(key, '.') >= 0:
+                            if key[0] == '{':
+                                key = key[1:-1]
+                            try:
+                                s = eval(key, self.gvars, lvars)
+                            except (IndexError, NameError, TypeError):
+                                return ''
+                            except SyntaxError,e:
+                                if self.target:
+                                    raise SCons.Errors.BuildError, (self.target[0], "Syntax error `%s' trying to evaluate `%s'" % (e,s))
+                                else:
+                                    raise SCons.Errors.UserError, "Syntax error `%s' trying to evaluate `%s'" % (e,s)
                         else:
-                            # Before re-expanding the result, handle
-                            # recursive expansion by copying the local
-                            # variable dictionary and overwriting a null
-                            # string for the value of the variable name
-                            # we just expanded.
-                            lv = lvars.copy()
-                            var = string.split(key, '.')[0]
-                            lv[var] = ''
-                            return self.substitute(s, lv)
+                            s = self.expand_var_once(key, lvars)
+
+                        # Before re-expanding the result, handle
+                        # recursive expansion by copying the local
+                        # variable dictionary and overwriting a null
+                        # string for the value of the variable name
+                        # we just expanded.
+                        #
+                        # This could potentially be optimized by only
+                        # copying lvars when s contains more expansions,
+                        # but lvars is usually supposed to be pretty
+                        # small, and deeply nested variable expansions
+                        # are probably more the exception than the norm,
+                        # so it should be tolerable for now.
+                        lv = lvars.copy()
+                        var = string.split(key, '.')[0]
+                        lv[var] = ''
+                        return self.substitute(s, lv)
                 else:
                     return s
             elif is_List(s):
@@ -633,7 +665,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
                 try:
                     def sub_match(match, conv=self.conv, expand=self.expand, lvars=lvars):
                         return conv(expand(match.group(1), lvars))
-                    result = special_exps.sub(sub_match, args)
+                    result = _dollar_exps.sub(sub_match, args)
                 except TypeError:
                     # If the internal conversion routine doesn't return
                     # strings (it could be overridden to return Nodes,
@@ -913,6 +945,9 @@ def scons_subst_once(strSubst, env, key):
 
     We do this with some straightforward, brute-force code here...
     """
+    if type(strSubst) == types.StringType and string.find(strSubst, '$') < 0:
+        return strSubst
+
     matchlist = ['$' + key, '${' + key + '}']
     val = env.get(key, '')
     def sub_match(match, val=val, matchlist=matchlist):
@@ -935,12 +970,12 @@ def scons_subst_once(strSubst, env, key):
                     else:
                         result.append(arg)
                 else:
-                    result.append(special_exps.sub(sub_match, arg))
+                    result.append(_dollar_exps.sub(sub_match, arg))
             else:
                 result.append(arg)
         return result
     elif is_String(strSubst):
-        return special_exps.sub(sub_match, strSubst)
+        return _dollar_exps.sub(sub_match, strSubst)
     else:
         return strSubst
 
