@@ -24,9 +24,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-import TestCmd
 import os
+import string
+import sys
+
+import TestCmd
+import TestSCons
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
@@ -184,6 +187,7 @@ test.run(arguments = '.')
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
+
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
 
@@ -196,5 +200,59 @@ test.run(arguments = '-f SConstructFoo2', status=2, stderr='''
 SCons error: Source file: bar\..* is shared and is not compatible with static target: .*
 '''
 )
+
+if sys.platform == 'win32':
+    # Make sure we don't insert a .def source file (when
+    # WIN32_INSERT_DEF is set) and a .lib target file if
+    # they're specified explicitly.
+
+    test.write('SConstructBar', '''
+env = Environment(WIN32_INSERT_DEF=1)
+env2 = Environment(LIBS = [ 'foo4' ],
+                   LIBPATH = [ '.' ])
+env.SharedLibrary(target = ['foo4', 'foo4.lib'], source = ['f4.c', 'foo4.def'])
+env2.Program(target = 'progbar', source = 'progbar.c')
+''')
+
+    test.write('f4.c', r"""
+#include <stdio.h>
+
+f4(void)
+{
+        printf("f4.c\n");
+        fflush(stdout);
+}
+""")
+
+    test.write("foo4.def", r"""
+LIBRARY        "foo4"
+DESCRIPTION    "Foo4 Shared Library"
+
+EXPORTS
+   f4
+""")
+
+    test.write('progbar.c', r"""
+void f4(void);
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = "--";
+        f4();
+        printf("progbar.c\n");
+        return 0;
+}
+""")
+
+    test.run(arguments = '-f SConstructBar .')
+
+    # Make sure there is (at most) one mention each of the
+    # appropriate .def and .lib files per line.
+    for line in string.split(test.stdout(), '\n'):
+        test.fail_test(string.count(line, 'foo4.def') > 1)
+        test.fail_test(string.count(line, 'foo4.lib') > 1)
+
+    test.run(program = test.workpath('progbar'),
+             stdout = "f4.c\nprogbar.c\n")
 
 test.pass_test()

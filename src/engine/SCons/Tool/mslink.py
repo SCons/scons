@@ -118,10 +118,10 @@ def win32LibEmitter(target, source, env):
             break
     if not dll:
         raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX")
-        
+
     if env.has_key("WIN32_INSERT_DEF") and \
        env["WIN32_INSERT_DEF"] and \
-       not '.def' in map(lambda x: os.path.split(str(x))[1],
+       not '.def' in map(lambda x: os.path.splitext(str(x))[1],
                          source):
 
         # append a def file to the list of sources
@@ -131,10 +131,10 @@ def win32LibEmitter(target, source, env):
     if env.has_key('PDB') and env['PDB']:
         env.SideEffect(env['PDB'], target)
         env.Precious(env['PDB'])
-    
+
     if not no_import_lib and \
        not env.subst("$LIBSUFFIX") in \
-       map(lambda x: os.path.split(str(x))[1], target):
+       map(lambda x: os.path.splitext(str(x))[1], target):
         # Append an import library to the list of targets.
         target.append("%s%s%s" % (env.subst("$LIBPREFIX"),
                                   os.path.splitext(str(dll))[0],
