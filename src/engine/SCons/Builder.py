@@ -286,7 +286,7 @@ def _init_nodes(builder, env, overrides, tlist, slist):
         if t.side_effect:
             raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
         if t.has_builder():
-            if t.env != env:
+            if not t.env is env:
                 t_contents = t.builder.action.get_contents(tlist, slist, t.env)
                 contents = t.builder.action.get_contents(tlist, slist, env)
 

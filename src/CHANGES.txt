@@ -79,6 +79,10 @@ RELEASE 0.96 - XXX
     of suffixes to be scanned by a given type of scanner, allowing these
     suffix lists to be easily added to or overridden.
 
+  - Speed up Node creation when calling a Builder by comparing whether two
+    Environments are the same object, not if their underlying dictionaries
+    are equivalent.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
