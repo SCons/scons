@@ -30,9 +30,12 @@ or uses a nonexistent source file.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+foo_bar = os.path.join('foo', 'bar')
 
 test.write('SConstruct', """
 env = Environment()
@@ -47,8 +50,7 @@ test.run(arguments = 'foo',
          status = 2)
 
 test.run(arguments = '-k foo/bar foo',
-         stderr = """scons: *** Do not know how to make target `foo/bar'.
-""",
+         stderr = "scons: *** Do not know how to make target `%s'.\n" % foo_bar,
          status = 2)
 
 test.run(arguments = "aaa.out",
