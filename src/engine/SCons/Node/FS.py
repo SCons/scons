@@ -227,10 +227,12 @@ class FS:
         if name[0] == '#':
             directory = self.Top
             name = os.path.normpath(name[1:])
-            if name[0] == os.sep:
+            if name and (name[0] == os.sep or \
+                         name[0] == '/'):
                 # Correct such that '#/foo' is equivalent
                 # to '#foo'.
                 name = name[1:]
+            name=os.path.join('.', name)
         elif not directory:
             directory = self._cwd
         return (os.path.normpath(name), directory)
