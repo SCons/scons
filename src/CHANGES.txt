@@ -183,6 +183,9 @@ RELEASE 0.97 - XXX
     Make comparisons of Scanner objects more robust.  Add a name to
     an internal default ObjSourceScanner.
 
+  - Add a deprecated warning for use of the old "scanner" keyword argument
+    to Builder creation.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
