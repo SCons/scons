@@ -73,12 +73,17 @@ class MD5TestCase(unittest.TestCase):
     def test_signature(self):
         """Test generating a signature"""
 	o1 = my_obj(value = '111')
-        assert '698d51a19d8a121ce581499d7b701668' == signature(o1)
+        s = signature(o1)
+        assert '698d51a19d8a121ce581499d7b701668' == s, s
+
+        o2 = my_obj(value = 222)
+        s = signature(o2)
+        assert 'bcbe3365e6ac95ea2c0343a2395834dd' == s, s
 
         try:
             signature('string')
         except AttributeError, e:
-            assert str(e) == "unable to fetch contents of 'string'"
+            assert str(e) == "unable to fetch contents of 'string': 'string' object has no attribute 'get_contents'", e
         else:
             raise AttributeError, "unexpected get_contents() attribute"
 

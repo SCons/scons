@@ -150,9 +150,13 @@ class Calculator:
         already built and updated by someone else, if that's
         what's wanted.
         """
+        if not node.use_signature:
+            return None
         #XXX If configured, use the content signatures from the
         #XXX .sconsign file if the timestamps match.
         sigs = map(lambda n,s=self: s.get_signature(n), node.children())
+        if node.builder:
+            sigs.append(self.module.signature(node.builder_sig_adapter()))
         return self.module.collect(filter(lambda x: not x is None, sigs))
 
     def csig(self, node):
@@ -163,6 +167,8 @@ class Calculator:
         node - the node
         returns - the content signature
         """
+        if not node.use_signature:
+            return None
         #XXX If configured, use the content signatures from the
         #XXX .sconsign file if the timestamps match.
         return self.module.signature(node)

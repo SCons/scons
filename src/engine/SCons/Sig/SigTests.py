@@ -87,8 +87,22 @@ class DummyNode:
     def get_bsig(self):
         return self.bsig
 
+    def set_csig(self, csig):
+        self.csig = csig
+
+    def get_csig(self):
+        return self.bsig
+
     def get_prevsiginfo(self):
         return (self.oldtime, self.oldbsig, self.oldcsig)
+
+    def builder_sig_adapter(self):
+        class Adapter:
+            def get_contents(self):
+                return 111
+            def get_timestamp(self):
+                return 222
+        return Adapter()
 
 
 def create_files(test):
@@ -269,6 +283,13 @@ class CalcTestCase(unittest.TestCase):
                 return 0, self.bsig, self.csig
             def get_timestamp(self):
                 return 1
+            def builder_sig_adapter(self):
+                class MyAdapter:
+                    def get_csig(self):
+                        return 333
+                    def get_timestamp(self):
+                        return 444
+                return MyAdapter()
 
         self.module = MySigModule()
         self.nodeclass = MyNode
@@ -318,7 +339,7 @@ class CalcTestCase(unittest.TestCase):
         n4 = self.nodeclass('n4', None, None)
         n4.builder = 1
         n4.kids = [n2, n3]
-        assert self.calc.get_signature(n4) == 57
+        assert self.calc.get_signature(n4) == 390
 
         n5 = NE('n5', 55, 56)
         assert self.calc.get_signature(n5) is None

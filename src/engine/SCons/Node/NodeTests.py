@@ -39,6 +39,8 @@ class Builder:
 	global built_it
 	built_it = 1
         return 0
+    def get_contents(self, env):
+        return 7
 
 class FailBuilder:
     def execute(self, **kw):
@@ -88,6 +90,15 @@ class NodeTestCase(unittest.TestCase):
 	b = Builder()
 	node.builder_set(b)
 	assert node.builder == b
+
+    def test_builder_sig_adapter(self):
+        """Test the node's adapter for builder signatures
+        """
+        node = SCons.Node.Node()
+        node.builder_set(Builder())
+        node.env_set(Environment())
+        c = node.builder_sig_adapter().get_contents()
+        assert c == 7, c
 
     def test_current(self):
         """Test the default current() method

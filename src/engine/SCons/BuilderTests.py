@@ -161,7 +161,7 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
 	assert c == "act.py: out5 XYZZY\nact.py: xyzzy\n", c
 
-	def function1(kw):
+	def function1(**kw):
 	    open(kw['out'], 'w').write("function1\n")
 	    return 1
 
@@ -172,7 +172,7 @@ class BuilderTestCase(unittest.TestCase):
 	assert c == "function1\n", c
 
 	class class1a:
-	    def __init__(self, kw):
+	    def __init__(self, **kw):
 		open(kw['out'], 'w').write("class1a\n")
 
 	builder = SCons.Builder.Builder(action = class1a)
@@ -182,7 +182,7 @@ class BuilderTestCase(unittest.TestCase):
 	assert c == "class1a\n", c
 
 	class class1b:
-	    def __call__(self, kw):
+	    def __call__(self, **kw):
 		open(kw['out'], 'w').write("class1b\n")
 		return 2
 
@@ -194,17 +194,17 @@ class BuilderTestCase(unittest.TestCase):
 
 	cmd2 = r'%s %s %s syzygy' % (python, act_py, outfile)
 
-	def function2(kw):
+	def function2(**kw):
 	    open(kw['out'], 'a').write("function2\n")
 	    return 0
 
 	class class2a:
-	    def __call__(self, kw):
+	    def __call__(self, **kw):
 		open(kw['out'], 'a').write("class2a\n")
 		return 0
 
 	class class2b:
-	    def __init__(self, kw):
+	    def __init__(self, **kw):
 		open(kw['out'], 'a').write("class2b\n")
 
 	builder = SCons.Builder.Builder(action = [cmd2, function2, class2a(), class2b])
@@ -212,6 +212,25 @@ class BuilderTestCase(unittest.TestCase):
 	assert r.__class__ == class2b
 	c = test.read(outfile, 'r')
 	assert c == "act.py: syzygy\nfunction2\nclass2a\nclass2b\n", c
+
+    def test_get_contents(self):
+        """Test returning the signature contents of a Builder
+        """
+
+        b1 = SCons.Builder.Builder(action = "foo")
+        contents = b1.get_contents()
+        assert contents == "foo", contents
+
+        def func():
+            pass
+
+        b2 = SCons.Builder.Builder(action = func)
+        contents = b2.get_contents()
+        assert contents == "\177\340\0\177\341\0d\0\0S", contents
+
+        b3 = SCons.Builder.Builder(action = ["foo", func, "bar"])
+        contents = b3.get_contents()
+        assert contents == "foo\177\340\0\177\341\0d\0\0Sbar", contents
 
     def test_name(self):
 	"""Test Builder creation with a specified name

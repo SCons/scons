@@ -79,6 +79,23 @@ class Node:
     def builder_set(self, builder):
 	self.builder = builder
 
+    def builder_sig_adapter(self):
+        """Create an adapter for calculating a builder's signature.
+
+        The underlying signature class will call get_contents()
+        to fetch the signature of a builder, but the actual
+        content of that signature depends on the node and the
+        environment (for construction variable substitution),
+        so this adapter provides the right glue between the two.
+        """
+        class Adapter:
+            def __init__(self, node):
+                self.node = node
+            def get_contents(self):
+                env = self.node.env.Dictionary()
+                return self.node.builder.get_contents(env = env)
+        return Adapter(self)
+
     def env_set(self, env):
 	self.env = env
 

@@ -53,9 +53,22 @@ main(int argc, char *argv[])
 """)
 
 
-test.run(arguments = 'foo bar')
+test.run(arguments = '.')
 
 test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
+test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+
+test.write('SConstruct', """
+bar = Environment(CCFLAGS = '-DBAR')
+bar.Object(target = 'foo.o', source = 'prog.c')
+bar.Object(target = 'bar.o', source = 'prog.c')
+bar.Program(target = 'foo', source = 'foo.o')
+bar.Program(target = 'bar', source = 'bar.o')
+""")
+
+test.run(arguments = '.')
+
+test.run(program = test.workpath('foo'), stdout = "prog.c:  BAR\n")
 test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
 
 test.pass_test()

@@ -188,6 +188,12 @@ class BuilderBase:
 	"""
 	return apply(self.action.execute, (), kw)
 
+    def get_contents(self, **kw):
+        """Fetch the "contents" of the builder's action
+        (for signature calculation).
+        """
+        return apply(self.action.get_contents, (), kw)
+
 class MultiStepBuilder(BuilderBase):
     """This is a builder subclass that can build targets in
     multiple steps.  The src_builder parameter to the constructor
@@ -301,47 +307,85 @@ class ActionBase:
     def show(self, string):
 	print string
 
+    def subst_dict(self, **kw):
+        """Create a dictionary for substitution of construction
+        variables.
+
+        This translates the following special arguments:
+
+            env    - the construction environment itself,
+                     the values of which (CC, CCFLAGS, etc.)
+                     are copied straight into the dictionary
+
+            target - the target (object or array of objects),
+                     used to generate the TARGET and TARGETS
+                     construction variables
+
+            source - the source (object or array of objects),
+                     used to generate the SOURCES construction
+                     variable
+
+        Any other keyword arguments are copied into the
+        dictionary."""
+
+        dict = {}
+        if kw.has_key('env'):
+            dict.update(kw['env'])
+            del kw['env']
+
+        if kw.has_key('target'):
+            t = kw['target']
+            del kw['target']
+            if type(t) is type(""):
+                t = [t]
+            dict['TARGETS'] = PathList(map(os.path.normpath, t))
+            dict['TARGET'] = dict['TARGETS'][0]
+        if kw.has_key('source'):
+            s = kw['source']
+            del kw['source']
+            if type(s) is type(""):
+                s = [s]
+            dict['SOURCES'] = PathList(map(os.path.normpath, s))
+
+        dict.update(kw)
+
+        return dict
+
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
     def __init__(self, string):
-	self.command = string
+        self.command = string
 
     def execute(self, **kw):
-	loc = {}
-	if kw.has_key('target'):
-	    t = kw['target']
-	    if type(t) is type(""):
-	        t = [t]
-	    loc['TARGETS'] = PathList(map(os.path.normpath, t))
-	    loc['TARGET'] = loc['TARGETS'][0]
-	if kw.has_key('source'):
-	    s = kw['source']
-	    if type(s) is type(""):
-	        s = [s]
-            loc['SOURCES'] = PathList(map(os.path.normpath, s))
-
-	glob = {}
-	if kw.has_key('env'):
-	    glob = kw['env']
-
-	cmd_str = scons_subst(self.command, loc, glob)
+        dict = apply(self.subst_dict, (), kw)
+        cmd_str = scons_subst(self.command, dict, {})
         for cmd in string.split(cmd_str, '\n'):
             if print_actions:
                 self.show(cmd)
             if execute_actions:
                 args = string.split(cmd)
                 try:
-                    ENV = glob['ENV']
+                    ENV = kw['env']['ENV']
                 except:
                     import SCons.Defaults
                     ENV = SCons.Defaults.ConstructionEnvironment['ENV']
                 ret = spawn(args[0], args, ENV)
                 if ret:
-                    #XXX This doesn't account for ignoring errors (-i)
                     return ret
         return 0
 
+    def get_contents(self, **kw):
+        """Return the signature contents of this action's command line.
 
+        For signature purposes, it doesn't matter what targets or
+        sources we use, so long as we use the same ones every time
+        so the signature stays the same.  We supply an array of two
+        of each to allow for distinction between TARGET and TARGETS.
+        """
+        kw['target'] = ['__t1__', '__t2__']
+        kw['source'] = ['__s1__', '__s2__']
+        dict = apply(self.subst_dict, (), kw)
+        return scons_subst(self.command, dict, {})
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""
@@ -352,7 +396,24 @@ class FunctionAction(ActionBase):
 	# if print_actions:
 	# XXX:  WHAT SHOULD WE PRINT HERE?
 	if execute_actions:
-	    return self.function(kw)
+            dict = apply(self.subst_dict, (), kw)
+            return apply(self.function, (), dict)
+
+    def get_contents(self, **kw):
+        """Return the signature contents of this callable action.
+
+        By providing direct access to the code object of the
+        function, Python makes this extremely easy.  Hooray!
+        """
+        #XXX DOES NOT ACCOUNT FOR CHANGES IN ENVIRONMENT VARIABLES
+        #THE FUNCTION MAY USE
+        try:
+            # "self.function" is a function.
+            code = self.function.func_code.co_code
+        except:
+            # "self.function" is a callable object.
+            code = self.function.__call__.im_func.func_code.co_code
+        return str(code)
 
 class ListAction(ActionBase):
     """Class for lists of other actions."""
@@ -365,3 +426,11 @@ class ListAction(ActionBase):
 	    if r != 0:
 		return r
 	return 0
+
+    def get_contents(self, **kw):
+        """Return the signature contents of this action list.
+
+        Simple concatenation of the signatures of the elements.
+        """
+
+        return reduce(lambda x, y: x + str(y.get_contents()), self.list, "")
