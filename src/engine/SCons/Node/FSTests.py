@@ -6,16 +6,21 @@ import unittest
 
 import SCons.Node.FS
 
+
+
 built_it = None
 
 class Builder:
     def execute(self, **kw):
         global built_it
         built_it = 1
+        return 0
 
 class Environment:
     def Dictionary(self, *args):
 	pass
+
+
 
 class FSTestCase(unittest.TestCase):
     def runTest(self):

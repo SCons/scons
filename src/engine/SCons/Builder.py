@@ -55,7 +55,7 @@ class Builder:
     def execute(self, **kw):
 	"""Execute a builder's action to create an output object.
 	"""
-	apply(self.action.execute, (), kw)
+	return apply(self.action.execute, (), kw)
 
 
 
@@ -99,6 +99,7 @@ class CommandAction(ActionBase):
 	cmd = self.command % kw
 	if print_actions:
 	    self.show(cmd)
+	ret = 0
 	if execute_actions:
 	    pid = os.fork()
 	    if not pid:
@@ -112,7 +113,10 @@ class CommandAction(ActionBase):
 		os.execvpe(args[0], args, ENV)
 	    else:
 		# Parent process.
-		os.waitpid(pid, 0)
+		pid, stat = os.waitpid(pid, 0)
+		ret = stat >> 8
+	return ret
+
 
 
 class FunctionAction(ActionBase):
@@ -124,7 +128,7 @@ class FunctionAction(ActionBase):
 	# if print_actions:
 	# XXX:  WHAT SHOULD WE PRINT HERE?
 	if execute_actions:
-	    self.function(kw)
+	    return self.function(kw)
 
 class ListAction(ActionBase):
     """Class for lists of other actions."""
@@ -133,4 +137,7 @@ class ListAction(ActionBase):
 
     def execute(self, **kw):
 	for l in self.list:
-	    apply(l.execute, (), kw)
+	    r = apply(l.execute, (), kw)
+	    if r != 0:
+		return r
+	return 0

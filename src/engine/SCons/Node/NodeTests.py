@@ -4,6 +4,7 @@ import os
 import sys
 import unittest
 
+import SCons.Errors
 import SCons.Node
 
 
@@ -14,6 +15,11 @@ class Builder:
     def execute(self, **kw):
 	global built_it
 	built_it = 1
+        return 0
+
+class FailBuilder:
+    def execute(self, **kw):
+        return 1
 
 class Environment:
     def Dictionary(self, *args):
@@ -22,6 +28,19 @@ class Environment:
 
 
 class NodeTestCase(unittest.TestCase):
+
+    def test_BuildException(self):
+	"""Test throwing an exception on build failure.
+	"""
+	node = SCons.Node.Node()
+	node.builder_set(FailBuilder())
+	node.env_set(Environment())
+	try:
+	    node.build()
+	except SCons.Errors.BuildError:
+	    pass
+	else:
+	    raise TestFailed, "did not catch expected BuildError"
 
     def test_build(self):
 	"""Test building a node

@@ -6,6 +6,14 @@ import SCons.Errors
 
 
 class ErrorsTestCase(unittest.TestCase):
+    def test_BuildError(self):
+        """Test the BuildError exception."""
+        try:
+            raise SCons.Errors.BuildError(node = "n", stat = 7)
+        except SCons.Errors.BuildError, e:
+            assert e.node == "n"
+            assert e.stat == 7
+
     def test_InternalError(self):
 	"""Test the InternalError exception."""
         try:

@@ -8,6 +8,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 
+from SCons.Errors import BuildError
 import string
 
 
@@ -25,8 +26,11 @@ class Node:
 
     def build(self):
 	sources_str = string.join(map(lambda x: str(x), self.sources))
-	self.builder.execute(ENV = self.env.Dictionary('ENV'),
-			     target = str(self), source = sources_str)
+	stat = self.builder.execute(ENV = self.env.Dictionary('ENV'),
+				    target = str(self), source = sources_str)
+	if stat != 0:
+	    raise BuildError(node = self, stat = stat)
+	return stat
 
     def builder_set(self, builder):
 	self.builder = builder

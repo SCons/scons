@@ -32,7 +32,11 @@ class Task:
         self.target = target
 
     def execute(self):
-        self.target.build()
+        try:
+            self.target.build()
+        except BuildError, e:
+            sys.stderr.write("scons: *** [%s] Error %d\n" % (e.node, e.stat))
+            raise
 
 
 
@@ -62,7 +66,7 @@ class Taskmaster:
         pass
 
     def failed(self, task):
-        pass
+        self.num_iterated = len(self.targets)
 
 
 # Global variables

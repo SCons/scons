@@ -13,6 +13,7 @@ contents = open(sys.argv[2], 'r').read()
 file = open(sys.argv[1], 'w')
 file.write(contents)
 file.close()
+sys.exit(0)
 """)
 
 test.write('SConstruct', """

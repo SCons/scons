@@ -77,23 +77,34 @@ class BuilderTestCase(unittest.TestCase):
 	"""Test execution of simple Builder objects
 	
 	One Builder is a string that executes an external command,
-	and one is an internal Python function.
+	one is an internal Python function, one is a list
+	containing one of each.
 	"""
-	cmd = "python %s %s xyzzy" % (act_py, outfile)
-	builder = SCons.Builder.Builder(action = cmd)
-	builder.execute()
+	cmd1 = "python %s %s xyzzy" % (act_py, outfile)
+	builder = SCons.Builder.Builder(action = cmd1)
+	r = builder.execute()
+	assert r == 0
 	assert test.read(outfile, 'r') == "act.py: xyzzy\n"
 
-	def function(kw):
-	    import os, string, sys
+	def function1(kw):
 	    f = open(kw['out'], 'w')
-	    f.write("function\n")
+	    f.write("function1\n")
 	    f.close()
-	    return not None
+	    return 1
 
-	builder = SCons.Builder.Builder(action = function)
-	builder.execute(out = outfile)
-	assert test.read(outfile, 'r') == "function\n"
+	builder = SCons.Builder.Builder(action = function1)
+	r = builder.execute(out = outfile)
+	assert r == 1
+	assert test.read(outfile, 'r') == "function1\n"
+
+	cmd2 = "python %s %s syzygy" % (act_py, outfile)
+	def function2(kw):
+	    open(kw['out'], 'a').write("function2\n")
+	    return 2
+	builder = SCons.Builder.Builder(action = [cmd2, function2])
+	r = builder.execute(out = outfile)
+	assert r == 2
+	assert test.read(outfile, 'r') == "act.py: syzygy\nfunction2\n"
 
     def test_insuffix(self):
 	"""Test Builder creation with a specified input suffix
