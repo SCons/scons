@@ -45,7 +45,7 @@ import types
 import SCons.Builder
 import SCons.Node.FS
 import SCons.Platform.win32
-import SCons.Script.SConscript
+import SCons.Script
 import SCons.Util
 import SCons.Warnings
 
@@ -1052,10 +1052,12 @@ def projectEmitter(target, source, env):
     dspfile = SCons.Node.FS.default_fs.File(target[0]).srcnode()
     dswfile = SCons.Node.FS.default_fs.File(SCons.Util.splitext(str(dspfile))[0] + env.subst('$MSVSSOLUTIONSUFFIX'))
 
+    # XXX Need to find a way to abstract this; the build engine
+    # shouldn't depend on anything in SCons.Script.
+    stack = SCons.Script.call_stack
     if not source:
-        source = [SCons.Script.SConscript.stack[-1].sconscript.srcnode()]
-
-    source[0].attributes.sconstruct = SCons.Script.SConscript.stack[0].sconscript
+        source = [stack[-1].sconscript.srcnode()]
+    source[0].attributes.sconstruct = stack[0].sconscript
 
     bdswpath = SCons.Util.splitext(str(target[0]))[0] + env.subst('$MSVSSOLUTIONSUFFIX')
     bdswfile = SCons.Node.FS.default_fs.File(bdswpath)

@@ -1257,6 +1257,15 @@ environment that consists of the tools and values that
 .B scons
 has determined are appropriate for the local system.
 
+Builder methods that can be called without an explicit
+environment may be called from custom Python modules that you
+import into an SConscript file by adding the following
+to the Python module:
+
+.ES
+from SCons.Script import *
+.EE
+
 All builder methods return a list of Nodes
 that represent the target or targets that will be built.
 A
@@ -2202,6 +2211,14 @@ environment it looks like:
 .EE
 If you can call the functionality in both ways,
 then both forms are listed.
+
+Global functions may be called from custom Python modules that you
+import into an SConscript file by adding the following
+to the Python module:
+
+.ES
+from SCons.Script import *
+.EE
 
 Except where otherwise noted,
 the same-named
@@ -4280,6 +4297,13 @@ In addition to the global functions and methods,
 supports a number of Python variables
 that can be used in SConscript files
 to affect how you want the build to be performed.
+These variables may be accessed from custom Python modules that you
+import into an SConscript file by adding the following
+to the Python module:
+
+.ES
+from SCons.Script import *
+.EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP

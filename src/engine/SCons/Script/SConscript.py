@@ -42,7 +42,7 @@ import SCons.Node.FS
 import SCons.Options
 import SCons.Platform
 import SCons.SConf
-import SCons.Script
+import SCons.Script.Main
 import SCons.Tool
 import SCons.Util
 
@@ -57,30 +57,7 @@ import UserList
 
 launch_dir = os.path.abspath(os.curdir)
 
-help_text = None
-
-def HelpFunction(text):
-    global help_text
-    if help_text is None:
-        help_text = text
-    else:
-        help_text = help_text + text
-
-Arguments = {}
-ArgList = []
-CommandLineTargets = []
-DefaultCalled = None
-DefaultTargets = []
-GlobalDict = {}
-
-class TargetList(UserList.UserList):
-    def _do_nothing(self, *args, **kw):
-        pass
-    def _add_Default(self, list):
-        self.extend(list)
-    def _clear(self):
-        del self[:]
-BuildTargets = TargetList()
+GlobalDict = None
 
 # global exports set by Export():
 global_exports = {}
@@ -88,29 +65,21 @@ global_exports = {}
 # chdir flag
 sconscript_chdir = 1
 
-# will be set to 1, if we are reading a SConscript
-sconscript_reading = 0
-
-def _scons_add_args(alist):
-    for arg in alist:
-        a, b = string.split(arg, '=', 1)
-        Arguments[a] = b
-        ArgList.append((a, b))
-
-def _scons_add_targets(tlist):
-    if tlist:
-        CommandLineTargets.extend(tlist)
-        BuildTargets.extend(tlist)
-        BuildTargets._add_Default = BuildTargets._do_nothing
-        BuildTargets._clear = BuildTargets._do_nothing
-
 def get_calling_namespaces():
     """Return the locals and globals for the function that called
-    into this module in the current callstack."""
+    into this module in the current call stack."""
     try: 1/0
     except ZeroDivisionError: frame = sys.exc_info()[2].tb_frame
 
-    while frame.f_globals.get("__name__") == __name__: frame = frame.f_back
+    # Find the first frame that *isn't* from this file.  This means
+    # that we expect all of the SCons frames that implement an Export()
+    # or SConscript() call to be in this file, so that we can identify
+    # the first non-Script.SConscript frame as the user's local calling
+    # environment, and the locals and globals dictionaries from that
+    # frame as the calling namespaces.  See the comment below preceding
+    # the DefaultEnvironmentCall block for even more explanation.
+    while frame.f_globals.get("__name__") == __name__:
+        frame = frame.f_back
 
     return frame.f_locals, frame.f_globals
 
@@ -136,7 +105,6 @@ def compute_exports(exports):
 
     return retval
 
-
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
     def __init__(self, exports, sconscript):
@@ -151,7 +119,7 @@ class Frame:
             self.sconscript = SCons.Node.FS.default_fs.File(str(sconscript))
 
 # the SConstruct/SConscript call stack:
-stack = []
+call_stack = []
 
 # For documentation on the methods in this file, see the scons man-page
 
@@ -160,14 +128,14 @@ def Return(*vars):
     try:
         for var in vars:
             for v in string.split(var):
-                retval.append(stack[-1].globals[v])
+                retval.append(call_stack[-1].globals[v])
     except KeyError, x:
         raise SCons.Errors.UserError, "Return of non-existent variable '%s'"%x
 
     if len(retval) == 1:
-        stack[-1].retval = retval[0]
+        call_stack[-1].retval = retval[0]
     else:
-        stack[-1].retval = tuple(retval)
+        call_stack[-1].retval = tuple(retval)
 
 
 stack_bottom = '% Stack boTTom %' # hard to define a variable w/this name :)
@@ -180,13 +148,12 @@ def _SConscript(fs, *files, **kw):
     # evaluate each SConscript file
     results = []
     for fn in files:
-        stack.append(Frame(exports,fn))
+        call_stack.append(Frame(exports,fn))
         old_sys_path = sys.path
         try:
-            global sconscript_reading
-            sconscript_reading = 1
+            SCons.Script.sconscript_reading = 1
             if fn == "-":
-                exec sys.stdin in stack[-1].globals
+                exec sys.stdin in call_stack[-1].globals
             else:
                 if isinstance(fn, SCons.Node.Node):
                     f = fn
@@ -246,16 +213,16 @@ def _SConscript(fs, *files, **kw):
                     # exceptions that occur when processing this
                     # SConscript can base the printed frames at this
                     # level and not show SCons internals as well.
-                    stack[-1].globals.update({stack_bottom:1})
-                    exec _file_ in stack[-1].globals
+                    call_stack[-1].globals.update({stack_bottom:1})
+                    exec _file_ in call_stack[-1].globals
                 else:
                     SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning,
                              "Ignoring missing SConscript '%s'" % f.path)
 
         finally:
-            sconscript_reading = 0
+            SCons.Script.sconscript_reading = 0
             sys.path = old_sys_path
-            frame = stack.pop()
+            frame = call_stack.pop()
             try:
                 fs.chdir(frame.prev_dir, change_os_dir=sconscript_chdir)
             except OSError:
@@ -414,30 +381,13 @@ class SConsEnvironment(SCons.Environment.Base):
     #
 
     def Configure(self, *args, **kw):
-        if not SCons.Script.SConscript.sconscript_reading:
+        if not SCons.Script.sconscript_reading:
             raise SCons.Errors.UserError, "Calling Configure from Builders is not supported."
         kw['_depth'] = kw.get('_depth', 0) + 1
         return apply(SCons.Environment.Base.Configure, (self,)+args, kw)
 
     def Default(self, *targets):
-        global DefaultCalled
-        global DefaultTargets
-        DefaultCalled = 1
-        for t in targets:
-            if t is None:
-                # Delete the elements from the list in-place, don't
-                # reassign an empty list to DefaultTargets, so that the
-                # DEFAULT_TARGETS variable will still point to the
-                # same object we point to.
-                del DefaultTargets[:]
-                BuildTargets._clear()
-            elif isinstance(t, SCons.Node.Node):
-                DefaultTargets.append(t)
-                BuildTargets._add_Default([t])
-            else:
-                nodes = self.arg2nodes(t, self.fs.Entry)
-                DefaultTargets.extend(nodes)
-                BuildTargets._add_Default(nodes)
+        SCons.Script._Set_Default_Targets(self, targets)
 
     def EnsureSConsVersion(self, major, minor):
         """Exit abnormally if the SCons version is not late enough."""
@@ -470,25 +420,28 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def GetOption(self, name):
         name = self.subst(name)
-        return SCons.Script.ssoptions.get(name)
+        return SCons.Script.Main.ssoptions.get(name)
 
     def Help(self, text):
         text = self.subst(text, raw=1)
-        HelpFunction(text)
+        SCons.Script.HelpFunction(text)
 
     def Import(self, *vars):
         try:
+            frame = call_stack[-1]
+            globals = frame.globals
+            exports = frame.exports
             for var in vars:
                 var = self.Split(var)
                 for v in var:
                     if v == '*':
-                        stack[-1].globals.update(global_exports)
-                        stack[-1].globals.update(stack[-1].exports)
+                        globals.update(global_exports)
+                        globals.update(exports)
                     else:
-                        if stack[-1].exports.has_key(v):
-                            stack[-1].globals[v] = stack[-1].exports[v]
+                        if exports.has_key(v):
+                            globals[v] = exports[v]
                         else:
-                            stack[-1].globals[v] = global_exports[v]
+                            globals[v] = global_exports[v]
         except KeyError,x:
             raise SCons.Errors.UserError, "Import of non-existent variable '%s'"%x
 
@@ -523,23 +476,34 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def SetOption(self, name, value):
         name = self.subst(name)
-        SCons.Script.ssoptions.set(name, value)
+        SCons.Script.Main.ssoptions.set(name, value)
 
 #
 #
 #
 SCons.Environment.Environment = SConsEnvironment
 
-def Options(files=None, args=Arguments):
-    return SCons.Options.Options(files, args)
-
 def Configure(*args, **kw):
-    if not SCons.Script.SConscript.sconscript_reading:
+    if not SCons.Script.sconscript_reading:
         raise SCons.Errors.UserError, "Calling Configure from Builders is not supported."
     kw['_depth'] = 1
     return apply(SCons.SConf.SConf, args, kw)
 
+# It's very important that the DefaultEnvironmentCall() class stay in this
+# file, with the get_calling_namespaces() function, the compute_exports()
+# function, the Frame class and the SConsEnvironment.Export() method.
+# These things make up the calling stack leading up to the actual global
+# Export() or SConscript() call that the user issued.  We want to allow
+# users to export local variables that they define, like so:
 #
+#       def func():
+#           x = 1
+#           Export('x')
+#
+# To support this, the get_calling_namespaces() function assumes that
+# the *first* stack frame that's not from this file is the local frame
+# for the Export() or SConscript() call.
+
 _DefaultEnvironmentProxy = None
 
 def get_DefaultEnvironmentProxy():
@@ -565,86 +529,6 @@ class DefaultEnvironmentCall:
         method = getattr(proxy, self.method_name)
         return apply(method, args, kw)
 
-# The list of global functions to add to the SConscript name space
-# that end up calling corresponding methods or Builders in the
-# DefaultEnvironment().
-GlobalDefaultEnvironmentFunctions = [
-    # Methods from the SConsEnvironment class, above.
-    'Default',
-    'EnsurePythonVersion',
-    'EnsureSConsVersion',
-    'Exit',
-    'Export',
-    'GetLaunchDir',
-    'GetOption',
-    'Help',
-    'Import',
-    'SConscript',
-    'SConscriptChdir',
-    'SetOption',
-
-    # Methods from the Environment.Base class.
-    'AddPostAction',
-    'AddPreAction',
-    'Alias',
-    'AlwaysBuild',
-    'BuildDir',
-    'CacheDir',
-    'Clean',
-    'Command',
-    'Depends',
-    'Dir',
-    'Execute',
-    'File',
-    'FindFile',
-    'Flatten',
-    'GetBuildPath',
-    'Ignore',
-    'Install',
-    'InstallAs',
-    'Literal',
-    'Local',
-    'ParseDepends',
-    'Precious',
-    'Repository',
-    'SConsignFile',
-    'SideEffect',
-    'SourceCode',
-    'SourceSignatures',
-    'Split',
-    'TargetSignatures',
-    'Value',
-]
-
-GlobalDefaultBuilders = [
-    # Supported builders.
-    'CFile',
-    'CXXFile',
-    'DVI',
-    'Jar',
-    'Java',
-    'JavaH',
-    'Library',
-    'M4',
-    'MSVSProject',
-    'Object',
-    'PCH',
-    'PDF',
-    'PostScript',
-    'Program',
-    'RES',
-    'RMIC',
-    'SharedLibrary',
-    'SharedObject',
-    'StaticLibrary',
-    'StaticObject',
-    'Tar',
-    'TypeLibrary',
-    'Zip',
-]
-
-for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
-    GlobalDict[name] = DefaultEnvironmentCall(name)
 
 def BuildDefaultGlobals():
     """
@@ -652,45 +536,15 @@ def BuildDefaultGlobals():
     SConstruct and SConscript files.
     """
 
-    globals = {
-        # Global functions that don't get executed through the
-        # default Environment.
-        'Action'                : SCons.Action.Action,
-        'BoolOption'            : SCons.Options.BoolOption,
-        'Builder'               : SCons.Builder.Builder,
-        'Configure'             : Configure,
-        'EnumOption'            : SCons.Options.EnumOption,
-        'Environment'           : SCons.Environment.Environment,
-        'ListOption'            : SCons.Options.ListOption,
-        'Options'               : Options,
-        'PackageOption'         : SCons.Options.PackageOption,
-        'PathOption'            : SCons.Options.PathOption,
-        'Platform'              : SCons.Platform.Platform,
-        'Return'                : Return,
-        'Scanner'               : SCons.Scanner.Base,
-        'Tool'                  : SCons.Tool.Tool,
-        'WhereIs'               : SCons.Util.WhereIs,
+    global GlobalDict
+    if GlobalDict is None:
+        GlobalDict = {}
 
-        # Action factories.
-        'Chmod'                 : SCons.Defaults.Chmod,
-        'Copy'                  : SCons.Defaults.Copy,
-        'Delete'                : SCons.Defaults.Delete,
-        'Mkdir'                 : SCons.Defaults.Mkdir,
-        'Move'                  : SCons.Defaults.Move,
-        'Touch'                 : SCons.Defaults.Touch,
+        import SCons.Script
+        d = SCons.Script.__dict__
+        def not_a_module(m, d=d, mtype=type(SCons.Script)):
+             return type(d[m]) != mtype
+        for m in filter(not_a_module, dir(SCons.Script)):
+             GlobalDict[m] = d[m]
 
-        # Other variables we provide.
-        'ARGUMENTS'             : Arguments,
-        'ARGLIST'               : ArgList,
-        'BUILD_TARGETS'         : BuildTargets,
-        'COMMAND_LINE_TARGETS'  : CommandLineTargets,
-        'DEFAULT_TARGETS'       : DefaultTargets,
-    }
-
-    # Functions we might still convert to Environment methods.
-    globals['CScan']             = SCons.Defaults.CScan
-    globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
-
-    globals.update(GlobalDict)
-
-    return globals
+    return GlobalDict.copy()

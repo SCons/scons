@@ -178,6 +178,16 @@ def generate(env):
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         pass
 
+    # For most platforms, a loadable module is the same as a shared
+    # library.  Platforms which are different can override these, but
+    # setting them the same means that LoadableModule works everywhere.
+    SCons.Tool.createLoadableModuleBuilder(env)
+    env['LDMODULE'] = '$SHLINK'
+    env['LDMODULEPREFIX'] = '$SHLIBPREFIX' 
+    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX' 
+    env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
+    env['LDMODULECOM'] = '$SHLINKCOM'
+
 def exists(env):
     if SCons.Tool.msvs.is_msvs_installed():
         # there's at least one version of MSVS installed.

@@ -170,6 +170,10 @@ RELEASE 0.97 - XXX
     duplicate entries from multiple calls.  Add a "unique" keyword
     argument to allow the old behavior to be specified.
 
+  - Allow the library modules imported by an SConscript file to get at
+    all of the normally-available global functions and variables by saying
+    "from SCons.Script import *".
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

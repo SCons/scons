@@ -43,6 +43,7 @@ SCons/Scanner/IDL.py
 SCons/Scanner/Prog.py
 SCons/SConf.py
 SCons/SConsign.py
+SCons/Script/Main.py
 SCons/Script/SConscript.py
 SCons/Script/__init__.py
 SCons/Sig/__init__.py

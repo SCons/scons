@@ -152,7 +152,7 @@ def exists_test(node):
     node.is_derived()
     node.is_pseudo_derived()
     import SCons.Script
-    if SCons.Script.options.noexec:
+    if SCons.Script.Main.options.noexec:
         if (before,via_node,after) != (False,False,False):
             import sys
             sys.stderr.write('BuildDir exits() populated during dryrun!\n')
