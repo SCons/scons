@@ -738,10 +738,7 @@ if change:
     for line in map(lambda x: x[:-1], os.popen(cmd, "r").readlines()):
         a = string.split(line)
         if a[1] == "remove":
-            if a[3][0] == '(':
-                df.append(a[4])
-            else:
-                df.append(a[3])
+            df.append(a[-1])
 
     cmd = "aegis -list -terse pf 2>/dev/null"
     pf = map(lambda x: x[:-1], os.popen(cmd, "r").readlines())
