@@ -24,13 +24,15 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-import sys
-import re
-import os.path
 import os
-import TestCmd
+import os.path
+import re
+import string
+import sys
 import time
+
+import TestCmd
+import TestSCons
 
 expected_dspfile = '''\
 # Microsoft Developer Studio Project File - Name="Test" - Package Owner=<4>
@@ -66,8 +68,8 @@ CFG=Test - Win32 Release
 # PROP BASE Use_Debug_Libraries 0
 # PROP BASE Output_Dir "<WORKPATH>"
 # PROP BASE Intermediate_Dir "<WORKPATH>"
-# PROP BASE Cmd_Line "<PYTHON> <SCONS> -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-# PROP BASE Rebuild_Opt "-c && <PYTHON> <SCONS> -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
+# PROP BASE Cmd_Line "<PYTHON> -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
+# PROP BASE Rebuild_Opt "-c && <PYTHON> -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
 # PROP BASE Target_File "<WORKPATH>\Test.exe"
 # PROP BASE Bsc_Name ""
 # PROP BASE Target_Dir ""
@@ -75,8 +77,8 @@ CFG=Test - Win32 Release
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "<WORKPATH>"
 # PROP Intermediate_Dir "<WORKPATH>"
-# PROP Cmd_Line "<PYTHON> <SCONS> -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-# PROP Rebuild_Opt "-c && <PYTHON> <SCONS> -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
+# PROP Cmd_Line "<PYTHON> -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
+# PROP Rebuild_Opt "-c && <PYTHON> -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
 # PROP Target_File "<WORKPATH>\Test.exe"
 # PROP Bsc_Name ""
 # PROP Target_Dir ""
@@ -214,10 +216,10 @@ expected_vcprojfile = '''\
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="<PYTHON> <SCONS> -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe
+				BuildCommandLine="<PYTHON> -c "<SCONS_SCRIPT_MAIN_XML>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe
 "
-				CleanCommandLine="<PYTHON> <SCONS> -C <WORKPATH> -f SConstruct -c <WORKPATH>\Test.exe"
-				RebuildCommandLine="<PYTHON> <SCONS> -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe
+				CleanCommandLine="<PYTHON> -c "<SCONS_SCRIPT_MAIN_XML>" -C <WORKPATH> -f SConstruct -c <WORKPATH>\Test.exe"
+				RebuildCommandLine="<PYTHON> -c "<SCONS_SCRIPT_MAIN_XML>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe
 "
 				Output="<WORKPATH>\Test.exe"/>
 		</Configuration>
@@ -272,6 +274,16 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 if sys.platform != 'win32':
     test.pass_test()
 
+exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-0.94'), join(sys.prefix, 'scons-0.94'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
+
+def substitute(input, workpath=test.workpath(), python=sys.executable):
+    result = string.replace(input, r'<WORKPATH>', workpath)
+    result = string.replace(result, r'<PYTHON>', python)
+    result = string.replace(result, r'<SCONS_SCRIPT_MAIN>', exec_script_main)
+    result = string.replace(result, r'<SCONS_SCRIPT_MAIN_XML>', exec_script_main_xml)
+    return result
+
 ####
 # Determine which environments are installed on the test machine.
 test.write('SConstruct','''
@@ -312,25 +324,15 @@ env.MSVSProject(target = 'Test.dsp',
     test.run(arguments="Test.dsp")
 
     test.fail_test(not os.path.exists(test.workpath('Test.dsp')))
-    test.fail_test(not os.path.exists(test.workpath('Test.dsw')))
-
-    # check to see that we got what we expected:
-    expected_dspfile = expected_dspfile.replace(r'<WORKPATH>',test.workpath())
-    expected_dspfile = expected_dspfile.replace(r'<PYTHON>',sys.executable)
-    expected_dspfile = expected_dspfile.replace(r'<SCONS>',os.path.join(os.environ['SCONS_SCRIPT_DIR'],'scons.py'))
-    expected_dswfile = expected_dswfile.replace(r'<WORKPATH>',test.workpath())
-
-    f = open(test.workpath('Test.dsp'))
-    dsp = f.read()
-    f.close()
-
+    dsp = test.read('Test.dsp', 'r')
+    expect = substitute(expected_dspfile)
     # don't compare the pickled data
-    assert dsp[:len(expected_dspfile)] == expected_dspfile
+    assert dsp[:len(expect)] == expect
 
-    f = open(test.workpath('Test.dsw'))
-    dsw = f.read()
-    f.close()
-    assert dsw == expected_dswfile
+    test.fail_test(not os.path.exists(test.workpath('Test.dsw')))
+    dsw = test.read('Test.dsw', 'r')
+    expect = substitute(expected_dswfile)
+    assert dsw == expect
 
     test.run(arguments='-c .')
 
@@ -374,23 +376,16 @@ env.MSVSProject(target = 'Test.vcproj',
     test.run(arguments="Test.vcproj")
 
     test.fail_test(not os.path.exists(test.workpath('Test.vcproj')))
-    test.fail_test(not os.path.exists(test.workpath('Test.sln')))
-
-    f = open(test.workpath('Test.vcproj'))
-    vcproj = f.read()
-    f.close()
-    expected_vcprojfile = expected_vcprojfile.replace(r'<WORKPATH>',test.workpath())
-    expected_vcprojfile = expected_vcprojfile.replace(r'<PYTHON>',sys.executable)
-    expected_vcprojfile = expected_vcprojfile.replace(r'<SCONS>',os.path.join(os.environ['SCONS_SCRIPT_DIR'],'scons.py'))
-
+    test.read('Test.vcproj', 'r')
+    expect = substitute(expected_vcprojfile)
     # don't compare the pickled data
-    assert vcproj[:len(expected_vcprojfile)] == expected_vcprojfile
+    assert vcproj[:len(expect)] == expect
 
-    f = open(test.workpath('Test.sln'))
-    sln = f.read()
-    f.close()
-
-    assert sln[:len(expected_slnfile)] == expected_slnfile
+    test.fail_test(not os.path.exists(test.workpath('Test.sln')))
+    sln = test.read('Test.sln', 'r')
+    expect = substitute(expected_slnfile)
+    # don't compare the pickled data
+    assert sln[:len(expect)] == expect
 
     test.run(arguments='-c .')
 
@@ -407,9 +402,18 @@ env.MSVSProject(target = 'Test.vcproj',
     test.fail_test(os.path.exists(test.workpath('Test.vcproj')))
     test.fail_test(os.path.exists(test.workpath('Test.sln')))
 
+    # Test that running SCons with $PYTHON_ROOT in the environment
+    # changes the .vcproj output as expected.
+    os.environ['PYTHON_ROOT'] = 'xyzzy'
+
+    test.run(arguments='Test.vcproj')
+
+    python = os.path.join('$(PYTHON_ROOT)', os.path.split(sys.executable)[1])
+
+    test.fail_test(not os.path.exists(test.workpath('Test.vcproj')))
+    test.read('Test.vcproj', 'r')
+    expect = substitute(expected_vcprojfile, python=python)
+    # don't compare the pickled data
+    assert vcproj[:len(expect)] == expect
+
 test.pass_test()
-
-
-
-
-
