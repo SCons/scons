@@ -999,15 +999,11 @@ class FS(LocalFS):
             self.__setTopLevelDir()
             self.Top.addRepository(d)
 
-    def do_Rsearch(self, path, func, clazz=_classEntry, cwd=None, verbose=lambda x: x):
+    def do_Rsearch(self, path, dir, func, clazz=_classEntry):
         """Search for something in a Repository.  Returns the first
         one found in the list, or None if there isn't one.
         __cacheable__
         """
-        if isinstance(path, SCons.Node.Node):
-            return path
-
-        path, dir = self.__transformPath(path, cwd)
         d, name = os.path.split(path)
         norm_name = _my_normcase(name)
         if d:
@@ -1021,8 +1017,7 @@ class FS(LocalFS):
             if node:
                 dir = node.get_dir()
         if node:
-            verbose("... FOUND '%s' in '%s'\n" % (name, dir))
-            return node
+            return node, dir
         fname = '.'
         while dir:
             for rep in dir.getRepositories():
@@ -1034,19 +1029,21 @@ class FS(LocalFS):
                 else:
                     node = func(node)
                 if node:
-                    verbose("... FOUND '%s' in '%s'\n" % (name, dir))
-                    return node
+                    return node, dir
             fname = dir.name + os.sep + fname
             dir = dir.get_dir()
-        return None
+        return None, None
 
     def Rsearch(self, path, clazz=_classEntry, cwd=None):
+        if isinstance(path, SCons.Node.Node):
+            return path
         def func(node):
             if node.exists() and \
                (isinstance(node, Dir) or not node.is_derived()):
                    return node
             return None
-        return self.do_Rsearch(path, func, clazz, cwd)
+        path, dir = self.__transformPath(path, cwd)
+        return self.do_Rsearch(path, dir, func, clazz)[0]
 
     def Rsearchall(self, pathlist, must_exist=1, clazz=_classEntry, cwd=None):
         """Search for a list of somethings in the Repository list.
@@ -1848,7 +1845,7 @@ class File(Base):
 
 default_fs = FS()
 
-def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
+def find_file(filename, paths, verbose=None):
     """
     find_file(str, [Dir()]) -> [nodes]
 
@@ -1874,36 +1871,35 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
     else:
         verbose = lambda x: x
 
-    filedir, filename = os.path.split(filename)
-    if filedir:
-        lookup_dir = lambda d, fd=filedir: d.Dir(fd)
-    else:
-        lookup_dir = lambda d: d
-
     if callable(paths):
         paths = paths()
 
     # Give Entries a chance to morph into Dirs.
     paths = map(lambda p: p.must_be_a_Dir(), paths)
 
-    for pathdir in paths:
-        verbose("looking for '%s' in '%s' ...\n" % (filename, pathdir))
+    filedir, filename = os.path.split(filename)
+    if filedir:
+        def filedir_lookup(p, fd=filedir):
+            try:
+                return p.Dir(fd)
+            except TypeError:
+                # We tried to look up a Dir, but it seems there's already
+                # a File (or something else) there.  No big.
+                return None
+        paths = filter(None, map(filedir_lookup, paths))
 
-        try: dir = lookup_dir(pathdir)
-        except TypeError: dir = None
-        if not dir:
-            # We tried to look up a directory, but it seems there's
-            # already a file node (or something else) there.  No big.
-            continue
+    def func(node):
+        if isinstance(node, SCons.Node.FS.File) and \
+           (node.is_derived() or node.is_pseudo_derived() or node.exists()):
+                return node
+        return None
 
-        def func(node):
-            if isinstance(node, SCons.Node.FS.File) and \
-               (node.is_derived() or node.is_pseudo_derived() or node.exists()):
-                    return node
-            return None
+    for dir in paths:
+        verbose("looking for '%s' in '%s' ...\n" % (filename, dir))
 
-        node = default_fs.do_Rsearch(filename, func, File, dir, verbose)
+        node, d = default_fs.do_Rsearch(filename, dir, func, File)
         if node:
+            verbose("... FOUND '%s' in '%s'\n" % (filename, d))
             return node
 
         dirname = '.'
@@ -1915,15 +1911,16 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
                     # build_dir is probably under src_dir, in which case
                     # we are reflecting.
                     break
-                node = dir.fs.do_Rsearch(filename, func, File, d, verbose)
+                node, d = dir.fs.do_Rsearch(filename, d, func, File)
                 if node:
+                    verbose("... FOUND '%s' in '%s'\n" % (filename, d))
                     return File(filename, dir.Dir(dirname), dir.fs)
             dirname = dir.name + os.sep + dirname
             dir = dir.get_dir()
 
     return None
 
-def find_files(filenames, paths, node_factory = default_fs.File):
+def find_files(filenames, paths):
     """
     find_files([str], [Dir()]) -> [nodes]
 
@@ -1938,7 +1935,5 @@ def find_files(filenames, paths, node_factory = default_fs.File):
     Only the first file found is returned for each filename,
     and any files that aren't found are ignored.
     """
-    nodes = map(lambda x, paths=paths, node_factory=node_factory:
-                       find_file(x, paths, node_factory),
-                filenames)
-    return filter(lambda x: x != None, nodes)
+    nodes = map(lambda x, paths=paths: find_file(x, paths), filenames)
+    return filter(None, nodes)

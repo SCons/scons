@@ -390,7 +390,7 @@ class ClassicTestCase(unittest.TestCase):
         env = DummyEnvironment()
         s = SCons.Scanner.Classic("t", ['.suf'], 'MYPATH', '^my_inc (\S+)')
 
-        def _find_file(filename, paths, factory):
+        def _find_file(filename, paths):
             return paths[0]+'/'+filename
 
         save = SCons.Node.FS.find_file
@@ -491,7 +491,7 @@ class ClassicCPPTestCase(unittest.TestCase):
         env = DummyEnvironment()
         s = SCons.Scanner.ClassicCPP("Test", [], None, "")
 
-        def _find_file(filename, paths, factory):
+        def _find_file(filename, paths):
             if callable(paths):
                 paths = paths()
             return paths[0]+'/'+filename
