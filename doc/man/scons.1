@@ -7331,9 +7331,31 @@ takes three arguments:
 
 .IP prefix 
 The prefix that will be prepended to the target file name.
-This may be a simple string,  or a callable object that takes
-two arguments, a construction environment and a list of sources,
-and returns a prefix.
+This may be specified as a:
+
+.RS 10
+.HP 6
+* 
+.IR string ,
+
+.HP 6
+* 
+.I callable object
+- a function or other callable that takes
+two arguments (a construction environment and a list of sources)
+and returns a prefix,
+
+.HP 6
+* 
+.I dictionary
+- specifies a mapping from a specific source suffix (of the first 
+source specified) to a corresponding target prefix.  Both the source
+suffix and target prefix specifications may use environment variable
+substitution, and the target prefix (the 'value' entries in the
+dictionary) may also be a callable object.  The default target prefix
+may be indicated by a dictionary entry with a key value of None.
+.RE
+.P
 
 .ES
 b = Builder("build_it < $SOURCE > $TARGET"
@@ -7341,35 +7363,41 @@ b = Builder("build_it < $SOURCE > $TARGET"
 
 def gen_prefix(env, sources):
     return "file-" + env['PLATFORM'] + '-'
-b = Builder("build_it < $SOURCE > $TARGET"
+b = Builder("build_it < $SOURCE > $TARGET",
             prefix = gen_prefix)
+
+b = Builder("build_it < $SOURCE > $TARGET",
+            suffix = { None: "file-",
+                       "$SRC_SFX_A": gen_prefix })
 .EE
 
 .IP suffix
 The suffix that will be appended to the target file name.
-This may be a simple string, or a callable object that takes
-two arguments, a construction environment and a list of sources,
-and returns a suffix.
+This may be specified in the same manner as the prefix above.
 If the suffix is a string, then
 .B scons
-will append a '.' to the beginning of the
-suffix if it's not already there.
-The string returned by callable object
-is untouched and must append its own '.'
-to the beginning if one is desired.
+will append a '.' to the beginning of the suffix if it's not already
+there.  The string returned by callable object (or obtained from the
+dictionary) is untouched and must append its own '.'  to the beginning
+if one is desired.
 
 .ES
 b = Builder("build_it < $SOURCE > $TARGET"
-            suffix = "file-"
+            suffix = "-file")
 
 def gen_suffix(env, sources):
     return "." + env['PLATFORM'] + "-file"
-b = Builder("build_it < $SOURCE > $TARGET"
+b = Builder("build_it < $SOURCE > $TARGET",
             suffix = gen_suffix)
+
+b = Builder("build_it < $SOURCE > $TARGET",
+            suffix = { None: ".sfx1",
+                       "$SRC_SFX_A": gen_suffix })
 .EE
 
 .IP src_suffix
-The expected source file name suffix.
+The expected source file name suffix.  This may be a string or a list
+of strings.
 
 .IP target_scanner
 A Scanner object that
