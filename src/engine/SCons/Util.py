@@ -551,7 +551,7 @@ _separate_args = re.compile(r'(%s|\s+|[^\s\$]+|\$)' % _dollar_exps_str)
 # space characters in the string result from the scons_subst() function.
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=None, conv=None, gvars=None):
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None):
     """Expand a string containing construction variable substitutions.
 
     This is the work-horse function for substitutions in file names
@@ -693,12 +693,22 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
             else:
                 return self.expand(args, lvars)
 
-    if dict is None:
-        dict = subst_dict(target, source)
     if conv is None:
         conv = _strconv[mode]
-    if gvars is None:
-        gvars = env.Dictionary()
+
+    # Doing this every time is a bit of a waste, since the Executor
+    # has typically already populated the OverrideEnvironment with
+    # $TARGET/$SOURCE variables.  We're keeping this (for now), though,
+    # because it supports existing behavior that allows us to call
+    # an Action directly with an arbitrary target+source pair, which
+    # we use in Tool/tex.py to handle calling $BIBTEX when necessary.
+    # If we dropped that behavior (or found another way to cover it),
+    # we could get rid of this call completely and just rely on the
+    # Executor setting the variables.
+    d = subst_dict(target, source)
+    if d:
+        lvars = lvars.copy()
+        lvars.update(d)
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtin__ value in the global dictionary used for eval(),
@@ -709,7 +719,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
     gvars['__builtin__'] = __builtin__
 
     ss = StringSubber(env, mode, target, source, conv, gvars)
-    result = ss.substitute(strSubst, dict)
+    result = ss.substitute(strSubst, lvars)
 
     try:
         del gvars['__builtin__']
@@ -729,7 +739,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=None, conv=None, gvars=None):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
@@ -943,12 +953,22 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
             self.add_strip(x)
             self.in_strip = None
 
-    if dict is None:
-        dict = subst_dict(target, source)
     if conv is None:
         conv = _strconv[mode]
-    if gvars is None:
-        gvars = env.Dictionary()
+
+    # Doing this every time is a bit of a waste, since the Executor
+    # has typically already populated the OverrideEnvironment with
+    # $TARGET/$SOURCE variables.  We're keeping this (for now), though,
+    # because it supports existing behavior that allows us to call
+    # an Action directly with an arbitrary target+source pair, which
+    # we use in Tool/tex.py to handle calling $BIBTEX when necessary.
+    # If we dropped that behavior (or found another way to cover it),
+    # we could get rid of this call completely and just rely on the
+    # Executor setting the variables.
+    d = subst_dict(target, source)
+    if d:
+        lvars = lvars.copy()
+        lvars.update(d)
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtin__ value in the global dictionary used for eval(),
@@ -959,7 +979,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
     gvars['__builtins__'] = __builtins__
 
     ls = ListSubber(env, mode, target, source, conv, gvars)
-    ls.substitute(strSubst, dict, 0)
+    ls.substitute(strSubst, lvars, 0)
 
     try:
         del gvars['__builtins__']
