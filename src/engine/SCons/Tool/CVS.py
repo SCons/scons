@@ -48,7 +48,7 @@ def generate(env):
            # Don't use os.path.join() because the name we fetch might
            # be across a network and must use POSIX slashes as separators.
            module = module + '/'
-           env['CVSCOM']   = '$CVS $CVSFLAGS co $CVSCOFLAGS -p $CVSMODULE${TARGET.posix} > $TARGET'
+           env['CVSCOM']   = '$CVS $CVSFLAGS co $CVSCOFLAGS -d ${TARGET.dir} $CVSMODULE${TARGET.posix}'
         return SCons.Builder.Builder(action = '$CVSCOM',
                                      env = env,
                                      overrides = {'CVSREPOSITORY':repos,

@@ -22,6 +22,10 @@ RELEASE 0.XX - XXX
 
   - Documentation fixes:  typo in the man page.
 
+  - Use "cvs co -d" instead of "cvs co -p >" when checking out something
+    from CVS with a specified module name.  This avoids zero-length
+    files when there is a checkout error.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

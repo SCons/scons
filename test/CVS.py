@@ -192,27 +192,32 @@ test.write(['work2', 'sub', 'eee.in'], "work2/sub/eee.in\n")
 test.run(chdir = 'work2',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-cvs -q -d %s co -p foo/sub/SConscript > %s
-""" % (cvsroot, sub_SConscript),
+cvs -q -d %s co -d sub foo/sub/SConscript
+U sub/SConscript
+""" % (cvsroot),
                                    build_str = """\
-cvs -q -d %s co -p foo/aaa.in > aaa.in
+cvs -q -d %s co -d . foo/aaa.in
+U ./aaa.in
 cat("aaa.out", "aaa.in")
 cat("bbb.out", "bbb.in")
-cvs -q -d %s co -p foo/ccc.in > ccc.in
+cvs -q -d %s co -d . foo/ccc.in
+U ./ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-cvs -q -d %s co -p foo/sub/ddd.in > %s
+cvs -q -d %s co -d sub foo/sub/ddd.in
+U sub/ddd.in
 cat("%s", "%s")
 cat("%s", "%s")
-cvs -q -d %s co -p foo/sub/fff.in > %s
+cvs -q -d %s co -d sub foo/sub/fff.in
+U sub/fff.in
 cat("%s", "%s")
 cat("%s", ["%s", "%s", "%s"])
 """ % (cvsroot,
        cvsroot,
-       cvsroot, sub_ddd_in,
+       cvsroot,
        sub_ddd_out, sub_ddd_in,
        sub_eee_out, sub_eee_in,
-       cvsroot, sub_fff_in,
+       cvsroot,
        sub_fff_out, sub_fff_in,
        sub_all, sub_ddd_out, sub_eee_out, sub_fff_out)))
 
