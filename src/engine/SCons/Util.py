@@ -980,7 +980,7 @@ if can_read_reg:
 
 if sys.platform == 'win32':
 
-    def WhereIs(file, path=None, pathext=None):
+    def WhereIs(file, path=None, pathext=None, reject=[]):
         if path is None:
             path = os.environ['PATH']
         if is_String(path):
@@ -996,17 +996,23 @@ if sys.platform == 'win32':
             if string.lower(ext) == string.lower(file[-len(ext):]):
                 pathext = ['']
                 break
+        if not is_List(reject):
+            reject = [reject]
         for dir in path:
             f = os.path.join(dir, file)
             for ext in pathext:
                 fext = f + ext
                 if os.path.isfile(fext):
-                    return os.path.normpath(fext)
+                    try:
+                        reject.index(fext)
+                    except ValueError:
+                        return os.path.normpath(fext)
+                    continue
         return None
 
 elif os.name == 'os2':
 
-    def WhereIs(file, path=None, pathext=None):
+    def WhereIs(file, path=None, pathext=None, reject=[]):
         if path is None:
             path = os.environ['PATH']
         if is_String(path):
@@ -1017,21 +1023,29 @@ elif os.name == 'os2':
             if string.lower(ext) == string.lower(file[-len(ext):]):
                 pathext = ['']
                 break
+        if not is_List(reject):
+            reject = [reject]
         for dir in path:
             f = os.path.join(dir, file)
             for ext in pathext:
                 fext = f + ext
                 if os.path.isfile(fext):
-                    return os.path.normpath(fext)
+                    try:
+                        reject.index(fext)
+                    except ValueError:
+                        return os.path.normpath(fext)
+                    continue
         return None
 
 else:
 
-    def WhereIs(file, path=None, pathext=None):
+    def WhereIs(file, path=None, pathext=None, reject=[]):
         if path is None:
             path = os.environ['PATH']
         if is_String(path):
             path = string.split(path, os.pathsep)
+        if not is_List(reject):
+            reject = [reject]
         for dir in path:
             f = os.path.join(dir, file)
             if os.path.isfile(f):
@@ -1040,7 +1054,11 @@ else:
                 except OSError:
                     continue
                 if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
-                    return os.path.normpath(f)
+                    try:
+                        reject.index(f)
+                    except ValueError:
+                        return os.path.normpath(f)
+                    continue
         return None
 
 def PrependPath(oldpath, newpath, sep = os.pathsep):

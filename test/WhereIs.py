@@ -73,11 +73,14 @@ print WhereIs('xxx.exe', %s)
 print env.WhereIs('xxx.exe', %s)
 print WhereIs('xxx.exe', %s)
 print WhereIs('xxx.exe', %s)
+print WhereIs('xxx.exe', %s, reject=%s)
 """ % (subdir_SConscript,
        repr(string.join(pathdirs_1234, os.pathsep)),
        repr(string.join(pathdirs_1243, os.pathsep)),
        repr(pathdirs_1234),
        repr(pathdirs_1243),
+       repr(pathdirs_1243),
+       repr(sub4_xxx_exe)
       ))
 
 test.write(subdir_SConscript, """
@@ -105,6 +108,7 @@ expect = [ test.workpath(sub3_xxx_exe),
            test.workpath(sub4_xxx_exe),
            test.workpath(sub3_xxx_exe),
            test.workpath(sub4_xxx_exe),
+           test.workpath(sub3_xxx_exe),
 	 ]
 
 test.run(arguments = ".",
@@ -123,6 +127,7 @@ expect = [ test.workpath(sub4_xxx_exe),
            test.workpath(sub4_xxx_exe),
            test.workpath(sub3_xxx_exe),
            test.workpath(sub4_xxx_exe),
+           test.workpath(sub3_xxx_exe),
 	 ]
 
 test.run(arguments = ".",

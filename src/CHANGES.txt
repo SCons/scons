@@ -77,6 +77,9 @@ RELEASE 0.96 - XXX
   - Allow SConf.CheckLib() to search a list of libraries, like the
     Autoconf AC_SEARCH_LIBS macro.
 
+  - Allow the env.WhereIs() method to take a "reject" argument to
+    let it weed out specific path names.
+
 
 
 RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
