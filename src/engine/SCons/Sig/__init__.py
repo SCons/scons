@@ -61,8 +61,9 @@ class SConsignEntry:
                 if arr[2] == '-': self.csig = None
                 else:             self.csig = module.from_string(arr[2])
 
-                if arr[3] == '-': self.implicit = None
-                else:             self.implicit = arr[3]
+                if len(arr) < 4:    self.implicit = ''
+                elif arr[3] == '-': self.implicit = None
+                else:               self.implicit = arr[3]
             except IndexError:
                 pass
 
@@ -82,8 +83,10 @@ class SConsignEntry:
         return '%s %s %s %s' % (timestamp, bsig, csig, implicit)
 
     def get_implicit(self):
-        if not self.implicit:
+        if self.implicit is None:
             return None
+        elif self.implicit == '':
+            return []
         else:
             return string.split(self.implicit, '\0')
 

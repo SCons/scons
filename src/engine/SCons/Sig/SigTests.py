@@ -495,6 +495,13 @@ class SConsignEntryTestCase(unittest.TestCase):
         assert e.get_implicit() == ['foo bletch', 'bar']
         assert e.render(m) == "123 456 789 foo bletch\0bar"
 
+        e = SCons.Sig.SConsignEntry(m, "987 654 321")
+        assert e.timestamp == 987
+        assert e.bsig == 654
+        assert e.csig == 321
+        assert e.get_implicit() == []
+        assert e.render(m) == "987 654 321 "	# note trailing space
+
 class SConsignFileTestCase(unittest.TestCase):
 
     def runTest(self):

@@ -54,6 +54,10 @@ RELEASE 0.08 -
 
   - Added a --debug=time option to print SCons execution times.
 
+  From Jeff Petkau:
+
+  - Fix --implicit-cache if the scanner returns an empty list.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to
