@@ -395,13 +395,14 @@ class CommandGeneratorAction(ActionBase):
     def __init__(self, generator):
         self.generator = generator
 
-    def __generate(self, kw):
+    def __generate(self, kw, for_signature):
         import SCons.Util
 
         # Wrap the environment dictionary in an EnvDictProxy
         # object to make variable interpolation easier for the
         # client.
         args = copy.copy(kw)
+        args['for_signature'] = for_signature
         if args.has_key("env") and not isinstance(args["env"], EnvDictProxy):
             args["env"] = EnvDictProxy(args["env"])
 
@@ -417,7 +418,7 @@ class CommandGeneratorAction(ActionBase):
         return gen_cmd
 
     def execute(self, **kw):
-        return apply(self.__generate(kw).execute, (), kw)
+        return apply(self.__generate(kw, 0).execute, (), kw)
 
     def get_contents(self, **kw):
         """Return the signature contents of this action's command line.
@@ -425,7 +426,7 @@ class CommandGeneratorAction(ActionBase):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        return apply(self.__generate(kw).get_contents, (), kw)
+        return apply(self.__generate(kw, 1).get_contents, (), kw)
 
 class LazyCmdGenerator:
     """This is a simple callable class that acts as a command generator.

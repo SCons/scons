@@ -64,7 +64,7 @@ class SharedCmdGenerator:
         self.action_static = static
         self.action_shared = shared
         
-    def __call__(self, target, source, env, shared=0):
+    def __call__(self, target, source, env, shared=0, for_signature=0):
         for src in source:
             try:
                 if src.attributes.shared != shared:
@@ -165,15 +165,15 @@ Object = SCons.Builder.Builder(name = 'Object',
                                src_suffix = static_obj.src_suffixes(),
                                src_builder = [CFile, CXXFile])
 
-def win32TempFileMunge(env, cmd_list):
+def win32TempFileMunge(env, cmd_list, for_signature):
     """Given a list of command line arguments, see if it is too
     long to pass to the win32 command line interpreter.  If so,
     create a temp file, then pass "@tempfile" as the sole argument
     to the supplied command (which is the first element of cmd_list).
     Otherwise, just return [cmd_list]."""
     cmd = env.subst_list(cmd_list)[0]
-    cmdlen = reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)
-    if cmdlen <= 2048:
+    if for_signature or \
+       (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= 2048:
         return [cmd_list]
     else:
         import tempfile
@@ -187,11 +187,11 @@ def win32TempFileMunge(env, cmd_list):
         return [ [cmd[0], '@' + tmp],
                  ['del', tmp] ]
     
-def win32LinkGenerator(env, target, source, **kw):
+def win32LinkGenerator(env, target, source, for_signature, **kw):
     args = [ '$LINK', '$LINKFLAGS', '/OUT:%s' % target[0],
              '$(', '$_LIBDIRFLAGS', '$)', '$_LIBFLAGS' ]
     args.extend(map(SCons.Util.to_String, source))
-    return win32TempFileMunge(env, args)
+    return win32TempFileMunge(env, args, for_signature)
 
 Program = SCons.Builder.Builder(name='Program',
                                 action='$LINKCOM',
@@ -211,7 +211,7 @@ class LibAffixGenerator:
             return self.shared_affix
         return self.static_affix
 
-def win32LibGenerator(target, source, env, shared=1):
+def win32LibGenerator(target, source, env, for_signature, shared=1):
     listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
 
     for tgt in target:
@@ -231,7 +231,7 @@ def win32LibGenerator(target, source, env, shared=1):
         else:
             # Just treat it as a generic source file.
             listCmd.append(str(src))
-    return win32TempFileMunge(env, listCmd)
+    return win32TempFileMunge(env, listCmd, for_signature)
 
 def win32LibEmitter(target, source, env, shared=0):
     if shared:

@@ -42,7 +42,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-def g(source, target, env):
+def g(source, target, for_signature, env):
     import sys
     python = sys.executable
     return [[python, "build.py", "$TEMPFILE"] + source,

@@ -176,7 +176,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         """Test executing a command generator Action
         """
 
-        def f(dummy, env, self=self):
+        def f(dummy, env, for_signature, self=self):
             self.dummy = dummy
             assert env.subst("$FOO $( bar $) baz") == 'foo baz\nbar ack bar baz', env.subst("$FOO $( bar $) baz")
             assert env.subst("$FOO $( bar $) baz", raw=1) == 'foo baz\nbar ack $( bar $) baz', env.subst("$FOO $( bar $) baz", raw=1)
@@ -194,7 +194,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             assert env.subst_list([ '$foo', '$(', 'bar', '$)' ],
                                   raw=1) == [[ 'bar', '$(', 'bar', '$)' ]], env.subst_list([ '$foo', '$(', 'bar', '$)' ], raw=1)
             self.dummy=dummy
-        def f2(dummy, env, f=func_action):
+        def f2(dummy, env, for_signature, f=func_action):
             return f
         def ch(cmd, args, env, self=self):
             self.cmd.append(cmd)
@@ -223,7 +223,8 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
     def test_get_contents(self):
         """Test fetching the contents of a command generator Action
         """
-        def f(target, source, foo, bar):
+        def f(target, source, foo, bar, for_signature):
+            assert for_signature, for_signature
             return [["guux", foo, "$(", "ignore", "$)", bar]]
 
         a = SCons.Action.CommandGeneratorAction(f)
