@@ -61,6 +61,12 @@ RELEASE 0.95 - XXX
   - Make the message about ignoring a missing SConscript file into a
     suppressable Warning, not a hard-coded sys.stderr.write().
 
+  - If a builder can be called multiple times for a target (because
+    the sources and overrides are identical, or it's a builder with the
+    "multi" flag set), allow the builder to be called through multiple
+    environments so long as the builders have the same signature for
+    the environments in questions (that is, they're the same action).
+
   From Steven Knight:
 
   - Fix EnsureSConsVersion() so it checks against the SCons version,
