@@ -343,7 +343,7 @@ createSConstruct(test, ['work5', 'SConstruct'])
 test.write( ['work5', 'SConscript'], """
 Import("env")
 env = env.Copy(tools=['qt'])
-env.Program('main', 'main.cpp', CXXFLAGS=['-g'], LIBS=[])
+env.Program('main', 'main.cpp', CPPDEFINES=['FOO'], LIBS=[])
 """)
 
 test.write(['work5', 'main.cpp'], r"""
@@ -356,7 +356,9 @@ test.write(['qt', 'include', 'foo5.h'], """\
 void
 foo5(void)
 {
+#ifdef  FOO
     printf("qt/include/foo5.h\\n");
+#endif
 }
 """)
 
@@ -376,7 +378,7 @@ env = orig.Copy(QTDIR = r'%s',
                 QT_MOC = r'%s',
                 QT_UIC = r'%s',
                 tools=['qt'])
-env.Program('main', 'main.cpp', CXXFLAGS=['-g'], LIBS=[])
+env.Program('main', 'main.cpp', CPPDEFINES=['FOO'], LIBS=[])
 """ % (QT, QT_LIB, QT_MOC, QT_UIC))
 
 test.write(['work6', 'main.cpp'], r"""
@@ -389,7 +391,9 @@ test.write(['qt', 'include', 'foo6.h'], """\
 void
 foo6(void)
 {
+#ifdef  FOO
     printf("qt/include/foo6.h\\n");
+#endif
 }
 """)
 
