@@ -1756,7 +1756,7 @@ f5: \
 
         a = env.Action('$FOO')
         assert a, a
-        assert a.__class__ is SCons.Action.CommandGeneratorAction, a
+        assert a.__class__ is SCons.Action.LazyAction, a
 
         a = env.Action(['$FOO', 'foo'])
         assert a, a
