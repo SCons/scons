@@ -114,7 +114,7 @@ class Task:
         """
         nodes = {}
         for t in self.targets:
-            def get_parents(node): return node.get_parents()
+            def get_parents(node, parent): return node.get_parents()
             walker = SCons.Node.Walker(t, get_parents)
             while 1:
                 n = walker.next()
@@ -165,7 +165,7 @@ class Taskmaster:
 
     def __init__(self, targets=[], tasker=Task, calc=Calc()):
         
-        def out_of_date(node):
+        def out_of_date(node, parent):
             if node.get_state():
                 # The state is set, so someone has already been here
                 # (finished or currently executing).  Find another one.
@@ -182,8 +182,39 @@ class Taskmaster:
                 desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
                 raise SCons.Errors.UserError, desc
 
-        #XXX In Python 2.2 we can get rid of f1 and f2:
-        self.walkers = map(lambda x, f1=out_of_date, f2=cycle_error: SCons.Node.Walker(x, f1, f2),
+        def eval_node(node, parent, self=self):
+            if node.get_state():
+                # The state is set, so someone has already been here
+                # (finished or currently executing).  Find another one.
+                return
+            if not node.builder:
+                # It's a source file, we don't need to build it,
+                # but mark it as "up to date" so targets won't
+                # wait for it.
+                node.set_state(SCons.Node.up_to_date)
+                # set the signature for non-derived files
+                # here so they don't get recalculated over
+                # and over again:
+                node.set_csig(self.calc.csig(node))
+                return
+            try:
+                tlist = node.builder.targets(node)
+            except AttributeError:
+                tlist = [ node ]
+            task = self.tasker(self, tlist, self.walkers[0].is_done())
+            if not tlist[0].children_are_executed():
+                for t in tlist:
+                    t.set_state(SCons.Node.pending)
+                    t.task = task
+                self.pending = self.pending + 1
+                return
+            task.make_ready()
+
+        #XXX In Python 2.2 we can get rid of f1, f2 and f3:
+        self.walkers = map(lambda x, f1=out_of_date,
+                                     f2=cycle_error,
+                                     f3=eval_node:
+                                  SCons.Node.Walker(x, f1, f2, f3),
                            targets)
         self.tasker = tasker
         self.calc = calc
@@ -209,33 +240,8 @@ class Taskmaster:
             if n == None:
                 self.walkers.pop(0)
                 continue
-            if n.get_state():
-                # The state is set, so someone has already been here
-                # (finished or currently executing).  Find another one.
-                continue
-            if not n.builder:
-                # It's a source file, we don't need to build it,
-                # but mark it as "up to date" so targets won't
-                # wait for it.
-                n.set_state(SCons.Node.up_to_date)
-                # set the signature for non-derived files
-                # here so they don't get recalculated over
-                # and over again:
-                n.set_csig(self.calc.csig(n))
-                continue
-            try:
-                tlist = n.builder.targets(n)
-            except AttributeError:
-                tlist = [ n ]
-            task = self.tasker(self, tlist, self.walkers[0].is_done())
-            if not tlist[0].children_are_executed():
-                for t in tlist:
-                    t.set_state(SCons.Node.pending)
-                    t.task = task
-                self.pending = self.pending + 1
-                continue
-            task.make_ready()
-            return
+            if self.ready:
+                return
             
     def is_blocked(self):
         return not self.ready and self.pending

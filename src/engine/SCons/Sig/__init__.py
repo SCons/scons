@@ -204,7 +204,7 @@ class Calculator:
         # derived files, because calling get_signature() on the
         # derived nodes will in turn call bsig() again and do that
         # for us.  Hence:
-        def walk_non_derived(n, myself=node):
+        def walk_non_derived(n, parent, myself=node):
             if not n.builder or n is myself:
                 return filter(lambda x, i=myself.ignore: x not in i,
                               n.all_children())

@@ -253,8 +253,9 @@ class Node:
                       self.children(),
                       1)
 
-def get_children(node): return node.children()
+def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass
+def do_nothing(node, parent): pass
 
 class Walker:
     """An iterator for walking a Node tree.
@@ -270,10 +271,13 @@ class Walker:
     This class does not get caught in node cycles caused, for example,
     by C header file include loops.
     """
-    def __init__(self, node, kids_func=get_children, cycle_func=ignore_cycle):
+    def __init__(self, node, kids_func=get_children,
+                             cycle_func=ignore_cycle,
+                             eval_func=do_nothing):
         self.kids_func = kids_func
         self.cycle_func = cycle_func
-        node.wkids = copy.copy(kids_func(node))
+        self.eval_func = eval_func
+        node.wkids = copy.copy(kids_func(node, None))
         self.stack = [node]
         self.history = {} # used to efficiently detect and avoid cycles
         self.history[node] = None
@@ -293,12 +297,18 @@ class Walker:
                 if self.history.has_key(node):
                     self.cycle_func(node, self.stack)
                 else:
-                    node.wkids = copy.copy(self.kids_func(node))
+                    node.wkids = copy.copy(self.kids_func(node, self.stack[-1]))
                     self.stack.append(node)
                     self.history[node] = None
             else:
                 node = self.stack.pop()
                 del self.history[node]
+                if node:
+                    if self.stack:
+                        parent = self.stack[-1]
+                    else:
+                        parent = None
+                    self.eval_func(node, parent)
                 return node
 
     def is_done(self):
