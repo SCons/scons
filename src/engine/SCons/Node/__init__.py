@@ -286,7 +286,7 @@ class Node:
         pass
 
     def depends_on(self, nodes):
-        """Does this node depend on any of 'nodes'?"""
+        """Does this node depend on any of 'nodes'? __cacheable__"""
         return reduce(lambda D,N,C=self.children(): D or (N in C), nodes, 0)
 
     def builder_set(self, builder):
@@ -342,6 +342,7 @@ class Node:
         signatures when they are used as source files to other derived files. For
         example: source with source builders are not derived in this sense,
         and hence should not return true.
+        __cacheable__
         """
         return self.has_builder() or self.side_effect
 
@@ -564,6 +565,7 @@ class Node:
         node's children's signatures.  We expect that they're
         already built and updated by someone else, if that's
         what's wanted.
+        __cacheable__
         """
 
         if calc is None:

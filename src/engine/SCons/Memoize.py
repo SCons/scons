@@ -89,6 +89,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 #TBD: for pickling, should probably revert object to unclassed state...
 
 import copy
+import os
 import string
 import sys
 
@@ -448,6 +449,15 @@ def Analyze_Class(klass):
 # for traceback or profile output, which generate things like 'File
 # "<string>", line X'.  X will be the number of \n's plus 1.
 
+# Also use the following routine to specify the "filename" portion so
+# that it provides useful information.  In addition, make sure it
+# contains 'os.sep + "SCons" + os.sep' for the
+# SCons.Script.find_deepest_user_frame operation.
+
+def whoami(memoizer_funcname, real_funcname):
+    return '...'+os.sep+'SCons'+os.sep+'Memoizer-'+ \
+           memoizer_funcname+'-lambda<'+real_funcname+'>'
+
 def memoize_classdict(modelklass, new_klassdict, cacheable, resetting):
     new_klassdict.update(modelklass.__dict__)
     new_klassdict['_MeMoIZeR_converted'] = 1
@@ -457,35 +467,39 @@ def memoize_classdict(modelklass, new_klassdict, cacheable, resetting):
                not code.func_code.co_flags & 0xC:
             newmethod = eval(
                 compile("\n"*1 +
-                "lambda self: Memoizer_cache_get_self(methcode, methcached, self)",
-                        "Memoizer_cache_get_self_lambda",
+                        "lambda self: MCGS(methcode, methcached, self)",
+                        whoami('cache_get_self', name),
                         "eval"),
                 {'methcode':code, 'methcached':{},
-                 'Memoizer_cache_get_self':Memoizer_cache_get_self},
+                 'MCGS':Memoizer_cache_get_self},
                 {})
         elif code.func_code.co_argcount == 2 and \
                not code.func_code.co_flags & 0xC:
             newmethod = eval(
                 compile("\n"*2 +
-                "lambda self, arg: Memoizer_cache_get_one(methcode, methcached, self, arg)",
-                        "Memoizer_cache_get_one_lambda",
+                "lambda self, arg: MCGO(methcode, methcached, self, arg)",
+                        whoami('cache_get_one', name),
                         "eval"),
                 {'methcode':code, 'methcached':{},
-                 'Memoizer_cache_get_one':Memoizer_cache_get_one},
+                 'MCGO':Memoizer_cache_get_one},
                 {})
         else:
             newmethod = eval(
                 compile("\n"*3 +
-                "lambda *args, **kw: Memoizer_cache_get(methcode, methcached, args, kw)",
-                        "Memoizer_cache_get_lambda",
+                "lambda *args, **kw: MCG(methcode, methcached, args, kw)",
+                        whoami('cache_get', name),
                         "eval"),
                 {'methcode':code, 'methcached':{},
-                 'Memoizer_cache_get':Memoizer_cache_get}, {})
+                 'MCG':Memoizer_cache_get}, {})
         new_klassdict[name] = newmethod
 
     for name,code in resetting.items():
-        newmethod = eval("lambda obj_self, *args, **kw: (obj_self._MeMoIZeR_reset(), apply(rmethcode, (obj_self,)+args, kw))[1]",
-                         {'rmethcode':code}, {})
+        newmethod = eval(
+            compile(
+            "lambda obj_self, *args, **kw: (obj_self._MeMoIZeR_reset(), apply(rmethcode, (obj_self,)+args, kw))[1]",
+            whoami('cache_reset', name),
+            'eval'),
+            {'rmethcode':code}, {})
         new_klassdict[name] = newmethod
 
     return new_klassdict
@@ -667,7 +681,8 @@ else:
             newinitcode = compile(
                 "\n"*(init.func_code.co_firstlineno-1) +
                 "lambda self, args, kw: _MeMoIZeR_init(real_init, self, args, kw)",
-                init.func_code.co_filename, 'eval')
+                whoami('init', init.func_code.co_filename),
+                'eval')
             newinit = eval(newinitcode,
                            {'real_init':init,
                             '_MeMoIZeR_init':_MeMoIZeR_init},

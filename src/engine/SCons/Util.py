@@ -667,7 +667,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
             """Substitute expansions in an argument or list of arguments.
 
             This serves as a wrapper for splitting up a string into
-            separate tokens.
+            separate tokens.  __cacheable__
             """
             if is_String(args) and not isinstance(args, CmdStringHolder):
                 try:
@@ -1274,95 +1274,103 @@ if can_read_reg:
 
 if sys.platform == 'win32':
 
-    def WhereIs(file, path=None, pathext=None, reject=[]):
-        if path is None:
-            try:
-                path = os.environ['PATH']
-            except KeyError:
-                return None
-        if is_String(path):
-            path = string.split(path, os.pathsep)
-        if pathext is None:
-            try:
-                pathext = os.environ['PATHEXT']
-            except KeyError:
-                pathext = '.COM;.EXE;.BAT;.CMD'
-        if is_String(pathext):
-            pathext = string.split(pathext, os.pathsep)
-        for ext in pathext:
-            if string.lower(ext) == string.lower(file[-len(ext):]):
-                pathext = ['']
-                break
-        if not is_List(reject):
-            reject = [reject]
-        for dir in path:
-            f = os.path.join(dir, file)
+    class _WhereIs:
+        def __call__(self, file, path=None, pathext=None, reject=[]):
+            "__cacheable__"
+            if path is None:
+                try:
+                    path = os.environ['PATH']
+                except KeyError:
+                    return None
+            if is_String(path):
+                path = string.split(path, os.pathsep)
+            if pathext is None:
+                try:
+                    pathext = os.environ['PATHEXT']
+                except KeyError:
+                    pathext = '.COM;.EXE;.BAT;.CMD'
+            if is_String(pathext):
+                pathext = string.split(pathext, os.pathsep)
             for ext in pathext:
-                fext = f + ext
-                if os.path.isfile(fext):
-                    try:
-                        reject.index(fext)
-                    except ValueError:
-                        return os.path.normpath(fext)
-                    continue
-        return None
+                if string.lower(ext) == string.lower(file[-len(ext):]):
+                    pathext = ['']
+                    break
+            if not is_List(reject):
+                reject = [reject]
+            for dir in path:
+                f = os.path.join(dir, file)
+                for ext in pathext:
+                    fext = f + ext
+                    if os.path.isfile(fext):
+                        try:
+                            reject.index(fext)
+                        except ValueError:
+                            return os.path.normpath(fext)
+                        continue
+            return None
 
 elif os.name == 'os2':
 
-    def WhereIs(file, path=None, pathext=None, reject=[]):
-        if path is None:
-            try:
-                path = os.environ['PATH']
-            except KeyError:
-                return None
-        if is_String(path):
-            path = string.split(path, os.pathsep)
-        if pathext is None:
-            pathext = ['.exe', '.cmd']
-        for ext in pathext:
-            if string.lower(ext) == string.lower(file[-len(ext):]):
-                pathext = ['']
-                break
-        if not is_List(reject):
-            reject = [reject]
-        for dir in path:
-            f = os.path.join(dir, file)
+    class _WhereIs:
+        def __call__(self, file, path=None, pathext=None, reject=[]):
+            "__cacheable__"
+            if path is None:
+                try:
+                    path = os.environ['PATH']
+                except KeyError:
+                    return None
+            if is_String(path):
+                path = string.split(path, os.pathsep)
+            if pathext is None:
+                pathext = ['.exe', '.cmd']
             for ext in pathext:
-                fext = f + ext
-                if os.path.isfile(fext):
-                    try:
-                        reject.index(fext)
-                    except ValueError:
-                        return os.path.normpath(fext)
-                    continue
-        return None
+                if string.lower(ext) == string.lower(file[-len(ext):]):
+                    pathext = ['']
+                    break
+            if not is_List(reject):
+                reject = [reject]
+            for dir in path:
+                f = os.path.join(dir, file)
+                for ext in pathext:
+                    fext = f + ext
+                    if os.path.isfile(fext):
+                        try:
+                            reject.index(fext)
+                        except ValueError:
+                            return os.path.normpath(fext)
+                        continue
+            return None
 
 else:
 
-    def WhereIs(file, path=None, pathext=None, reject=[]):
-        if path is None:
-            try:
-                path = os.environ['PATH']
-            except KeyError:
-                return None
-        if is_String(path):
-            path = string.split(path, os.pathsep)
-        if not is_List(reject):
-            reject = [reject]
-        for d in path:
-            f = os.path.join(d, file)
-            if os.path.isfile(f):
+    class _WhereIs:
+        def __call__(self, file, path=None, pathext=None, reject=[]):
+            "__cacheable__"
+            if path is None:
                 try:
-                    st = os.stat(f)
-                except OSError:
-                    continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                    path = os.environ['PATH']
+                except KeyError:
+                    return None
+            if is_String(path):
+                path = string.split(path, os.pathsep)
+            if not is_List(reject):
+                reject = [reject]
+            for d in path:
+                f = os.path.join(d, file)
+                if os.path.isfile(f):
                     try:
-                        reject.index(f)
-                    except ValueError:
-                        return os.path.normpath(f)
-                    continue
-        return None
+                        st = os.stat(f)
+                    except OSError:
+                        continue
+                    if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                        try:
+                            reject.index(f)
+                        except ValueError:
+                            return os.path.normpath(f)
+                        continue
+            return None
+
+WhereIs = _WhereIs()
 
 def PrependPath(oldpath, newpath, sep = os.pathsep):
     """This prepends newpath elements to the given oldpath.  Will only

@@ -201,10 +201,7 @@ class Task:
 
         This is the default behavior for building only what's necessary.
         """
-        self.out_of_date = []
-        for t in self.targets:
-            if not t.current():
-                self.out_of_date.append(t)
+        self.out_of_date = filter(lambda T: not T.current(), self.targets)
         if self.out_of_date:
             self.mark_targets_and_side_effects(SCons.Node.executing)
         else:

@@ -347,8 +347,8 @@ RELEASE 0.97 - XXX
   - Use the correct scanner if the same source file is used for targets in
     two different environments with the same path but different scanners.
 
-  - Collect logic for caching values in memory in a Memoizer class.
-    This cleans up a lot of special-case code in various methods and
+  - Collect logic for caching values in memory in a Memoizer class,
+    which cleans up a lot of special-case code in various methods and
     caches additional values to speed up most configurations.
 
   From Levi Stephen:
