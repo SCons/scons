@@ -562,21 +562,16 @@ class File(Entry):
             return 0
 
     def store_csig(self):
-        old = self.get_prevsiginfo()
-        self.dir.sconsign().set(self.name,
-                                self.get_timestamp(),
-                                old[1],
-                                self.get_csig())
+        self.dir.sconsign().set_csig(self.name, self.get_csig())
 
     def store_bsig(self):
-        old = self.get_prevsiginfo()
-        self.dir.sconsign().set(self.name,
-                                self.get_timestamp(),
-                                self.get_bsig(),
-                                old[2])
+        self.dir.sconsign().set_bsig(self.name, self.get_bsig())
 
     def store_implicit(self):
         self.dir.sconsign().set_implicit(self.name, self.implicit)
+
+    def store_timestamp(self):
+        self.dir.sconsign().set_timestamp(self.name, self.get_timestamp())
 
     def get_prevsiginfo(self):
         return self.dir.sconsign().get(self.name)

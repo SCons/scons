@@ -276,11 +276,23 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
         node.store_bsig()
 
-    def test_store_sigs(self):
+    def test_store_csig(self):
         """Test calling the method to store a content signature
         """
         node = SCons.Node.Node()
         node.store_csig()
+
+    def test_get_timestamp(self):
+        """Test calling the method to fetch a Node's timestamp
+        """
+        node = SCons.Node.Node()
+        assert node.get_timestamp() == 0
+
+    def test_store_timestamp(self):
+        """Test calling the method to store a timestamp
+        """
+        node = SCons.Node.Node()
+        node.store_timestamp()
 
     def test_set_precious(self):
         """Test setting a Node's precious value

@@ -132,35 +132,61 @@ class SConsignFile:
         Get the .sconsign entry for a file
 
         filename - the filename whose signature will be returned
-        returns - (timestamp, bsig, csig, implicit)
+        returns - (timestamp, bsig, csig)
         """
         try:
             entry = self.entries[filename]
             return (entry.timestamp, entry.bsig, entry.csig)
         except KeyError:
             return (None, None, None)
-
-    def set(self, filename, timestamp, bsig = None, csig = None):
+    
+    def create_entry(self, filename):
         """
-        Set the .sconsign entry for a file
-
-        filename - the filename whose signature will be set
-        timestamp - the timestamp
-        module - the signature module being used
-        bsig - the file's build signature
-        csig - the file's content signature
+        Create an entry for the filename and return it, or if one already exists,
+        then return it.
         """
-
         try:
             entry = self.entries[filename]
         except KeyError:
             entry = SConsignEntry(self.module)
             self.entries[filename] = entry
+            
+        return entry
 
-        entry.timestamp = timestamp
-        entry.bsig = bsig
+    def set_csig(self, filename, csig):
+        """
+        Set the csig .sconsign entry for a file
+
+        filename - the filename whose signature will be set
+        csig - the file's content signature
+        """
+
+        entry = self.create_entry(filename)
         entry.csig = csig
+        self.dirty = 1
 
+    def set_bsig(self, filename, bsig):
+        """
+        Set the csig .sconsign entry for a file
+
+        filename - the filename whose signature will be set
+        bsig - the file's built signature
+        """
+
+        entry = self.create_entry(filename)
+        entry.bsig = bsig
+        self.dirty = 1
+
+    def set_timestamp(self, filename, timestamp):
+        """
+        Set the csig .sconsign entry for a file
+
+        filename - the filename whose signature will be set
+        timestamp - the file's timestamp
+        """
+
+        entry = self.create_entry(filename)
+        entry.timestamp = timestamp
         self.dirty = 1
 
     def get_implicit(self, filename):
@@ -173,13 +199,9 @@ class SConsignFile:
 
     def set_implicit(self, filename, implicit):
         """Cache the implicit dependencies for 'filename'."""
-        try:
-            entry = self.entries[filename]
-        except KeyError:
-            entry = SConsignEntry(self.module)
-            self.entries[filename] = entry
-
+        entry = self.create_entry(filename)
         entry.set_implicit(implicit)
+        self.dirty = 1
 
     def write(self):
         """
@@ -325,6 +347,7 @@ class Calculator:
 
             if self.max_drift >= 0 and (time.time() - mtime) > self.max_drift:
                 node.store_csig()
+                node.store_timestamp()
 
         return csig
 

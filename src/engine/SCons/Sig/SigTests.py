@@ -122,6 +122,9 @@ class DummyNode:
 
     def store_bsig(self):
         pass
+    
+    def store_timestamp(self):
+        pass
 
     def builder_sig_adapter(self):
         class Adapter:
@@ -492,6 +495,30 @@ class SConsignEntryTestCase(unittest.TestCase):
         assert e.get_implicit() == ['foo bletch', 'bar']
         assert e.render(m) == "123 456 789 foo bletch\0bar"
 
+class SConsignFileTestCase(unittest.TestCase):
+
+    def runTest(self):
+        class DummyModule:
+            def to_string(self, sig):
+                return str(sig)
+
+            def from_string(self, sig):
+                return int(sig)
+            
+        class DummyNode:
+            path = 'not_a_valid_path'
+
+        f = SCons.Sig.SConsignFile(DummyNode(), DummyModule())
+        f.set_bsig('foo', 1)
+        assert f.get('foo') == (None, 1, None)
+        f.set_csig('foo', 2)
+        assert f.get('foo') == (None, 1, 2)
+        f.set_timestamp('foo', 3)
+        assert f.get('foo') == (3, 1, 2)
+        f.set_implicit('foo', ['bar'])
+        assert f.get('foo') == (3, 1, 2)
+        assert f.get_implicit('foo') == ['bar']
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -499,6 +526,7 @@ def suite():
     suite.addTest(TimeStampTestCase())
     suite.addTest(CalcTestCase())
     suite.addTest(SConsignEntryTestCase())
+    suite.addTest(SConsignFileTestCase())
     return suite
 
 if __name__ == "__main__":

@@ -49,6 +49,9 @@ RELEASE 0.08 -
   - Fix interrupt handling to guarantee that a single interrupt will
     halt SCons both when using -j and not.
 
+  - Fix .sconsign signature storage so that output files of one build
+    can be safely used as input files to another build.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to

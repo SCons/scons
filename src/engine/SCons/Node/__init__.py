@@ -267,6 +267,11 @@ class Node:
     def get_timestamp(self):
         return 0
 
+    def store_timestamp(self):
+        """Make the timestamp permanent (that is, store it in the
+        .sconsign file or equivalent)."""
+        pass
+
     def store_implicit(self):
         """Make the implicit deps permanent (that is, store them in the
         .sconsign file or equivalent)."""
