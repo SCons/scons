@@ -56,11 +56,13 @@ def sc_cat(env, source, target):
     cat(env, source, target)
 
 env = Environment(BUILDERS={'Cat':Builder(action=cat)}, SUBDIR='sub')
+env.SourceCode('$SUBDIR', Builder(action=sc_cat, env=env))
 env.Cat('aaa.out', 'sub/aaa.in')
-env.Cat('bbb.out', 'sub/bbb.in')
+bbb_in = File('sub/bbb.in')
+bbb_in.is_pseudo_derived()
+env.Cat('bbb.out', bbb_in)
 env.Cat('ccc.out', 'sub/ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
-env.SourceCode('$SUBDIR', Builder(action=sc_cat, env=env))
 SConscript('sub/SConscript', "env")
 
 SourceCode('sub2', Builder(action=sc_cat, env=env))
