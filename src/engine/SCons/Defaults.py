@@ -93,14 +93,16 @@ class SharedFlagChecker:
     into a static library/program, or static objects into a
     shared library."""
 
-    def __init__(self, shared):
+    def __init__(self, shared, set_target_flag):
         self.shared = shared
+        self.set_target_flag = set_target_flag
 
     def __call__(self, source, target, env, **kw):
         if kw.has_key('shared'):
             raise SCons.Errors.UserError, "The shared= parameter to Library() or Object() no longer works.\nUse SharedObject() or SharedLibrary() instead."
-        for tgt in target:
-            tgt.attributes.shared = self.shared
+        if self.set_target_flag:
+            for tgt in target:
+                tgt.attributes.shared = self.shared
 
         for src in source:
             if hasattr(src.attributes, 'shared'):
@@ -109,21 +111,23 @@ class SharedFlagChecker:
                 elif not self.shared and src.attributes.shared:
                     raise SCons.Errors.UserError, "Source file: %s is shared and is not compatible with static target: %s" % (src, target[0])
 
-SharedCheck = SharedFlagChecker(1)
-StaticCheck = SharedFlagChecker(0)
+SharedCheck = SCons.Action.Action(SharedFlagChecker(1, 0))
+StaticCheck = SCons.Action.Action(SharedFlagChecker(0, 0))
+SharedCheckSet = SCons.Action.Action(SharedFlagChecker(1, 1))
+StaticCheckSet = SCons.Action.Action(SharedFlagChecker(0, 1))
 
-CAction = SCons.Action.Action([ StaticCheck, "$CCCOM" ])
-ShCAction = SCons.Action.Action([ SharedCheck, "$SHCCCOM" ])
-CXXAction = SCons.Action.Action([ StaticCheck, "$CXXCOM" ])
-ShCXXAction = SCons.Action.Action([ SharedCheck, "$SHCXXCOM" ])
+CAction = SCons.Action.Action([ StaticCheckSet, "$CCCOM" ])
+ShCAction = SCons.Action.Action([ SharedCheckSet, "$SHCCCOM" ])
+CXXAction = SCons.Action.Action([ StaticCheckSet, "$CXXCOM" ])
+ShCXXAction = SCons.Action.Action([ SharedCheckSet, "$SHCXXCOM" ])
 
-F77Action = SCons.Action.Action([ StaticCheck, "$F77COM" ])
-ShF77Action = SCons.Action.Action([ SharedCheck, "$SHF77COM" ])
-F77PPAction = SCons.Action.Action([ StaticCheck, "$F77PPCOM" ])
-ShF77PPAction = SCons.Action.Action([ SharedCheck, "$SHF77PPCOM" ])
+F77Action = SCons.Action.Action([ StaticCheckSet, "$F77COM" ])
+ShF77Action = SCons.Action.Action([ SharedCheckSet, "$SHF77COM" ])
+F77PPAction = SCons.Action.Action([ StaticCheckSet, "$F77PPCOM" ])
+ShF77PPAction = SCons.Action.Action([ SharedCheckSet, "$SHF77PPCOM" ])
 
-ASAction = SCons.Action.Action([ StaticCheck, "$ASCOM" ])
-ASPPAction = SCons.Action.Action([ StaticCheck, "$ASPPCOM" ])
+ASAction = SCons.Action.Action([ StaticCheckSet, "$ASCOM" ])
+ASPPAction = SCons.Action.Action([ StaticCheckSet, "$ASPPCOM" ])
 
 
 def StaticObject():

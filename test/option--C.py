@@ -27,8 +27,22 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestSCons
 import string
 import sys
+import os.path
+import types
 
-test = TestSCons.TestSCons()
+def match_normcase(lines, matches):
+    if not type(lines) is types.ListType:
+        lines = string.split(lines, "\n")
+    if not type(matches) is types.ListType:
+        matches = string.split(matches, "\n")
+    if len(lines) != len(matches):
+        return
+    for i in range(len(lines)):
+        if os.path.normcase(lines[i]) != os.path.normcase(matches[i]):
+            return
+    return 1
+
+test = TestSCons.TestSCons(match=match_normcase)
 
 wpath = test.workpath()
 wpath_sub = test.workpath('sub')
