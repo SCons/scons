@@ -1141,12 +1141,8 @@ class Base:
         source files using the supplied action.  Action may
         be any type that the Builder constructor will accept
         for an action."""
-        builder_kw = {
-            'action' : action,
-            'source_factory' : self.fs.Entry,
-        }
-        builder_kw.update(kw)
-        bld = apply(SCons.Builder.Builder, (), builder_kw)
+        bld = SCons.Builder.Builder(action = action,
+                                    source_factory = self.fs.Entry)
         return apply(bld, (self, target, source), kw)
 
     def Depends(self, target, dependency):
