@@ -30,6 +30,7 @@ customizable variables to an SCons build.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import string
 
 import SCons.Errors
 import SCons.Util
@@ -223,11 +224,17 @@ class Options:
         else:
             options = self.options
 
-        for option in options:
-            help_text = help_text + '\n%s: %s\n    default: %s\n'%(option.key, option.help, option.default)
-            if env.has_key(option.key):
-                help_text = help_text + '    actual: %s\n'%env.subst('${%s}'%option.key)
+        def format(opt, self=self, env=env):
+            if env.has_key(opt.key):
+                actual = env.subst('${%s}' % opt.key)
             else:
-                help_text = help_text + '    actual: None\n'
+                actual = None
+            return self.FormatOptionHelpText(env, opt.key, opt.help, opt.default, actual)
+        lines = filter(None, map(format, options))
 
-        return help_text
+        return string.join(lines, '')
+
+    format = '\n%s: %s\n    default: %s\n    actual: %s\n'
+
+    def FormatOptionHelpText(self, env, key, help, default, actual):
+        return self.format % (key, help, default, actual)
