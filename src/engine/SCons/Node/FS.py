@@ -164,9 +164,9 @@ class FS:
         drive, path_first = os.path.splitdrive(path_comp[0])
         if not path_first:
             # Absolute path
-            drive_path = _my_normcase(drive)
+            drive = _my_normcase(drive)
             try:
-                directory = self.Root[drive_path]
+                directory = self.Root[drive]
             except KeyError:
                 if not create:
                     raise UserError
@@ -174,7 +174,7 @@ class FS:
                 dir.path = dir.path + os.sep
                 dir.abspath = dir.abspath + os.sep
                 dir.srcpath = dir.srcpath + os.sep
-                self.Root[drive_path] = dir
+                self.Root[drive] = dir
                 directory = dir
             path_comp = path_comp[1:]
         else:
