@@ -259,6 +259,18 @@ class NodeTestCase(unittest.TestCase):
         assert node.implicit[3] == [two, three]
         assert node.implicit[4] == [three, four, one]
 
+    def test_scan(self):
+        """Test Scanner functionality"""
+        class DummyScanner:
+            pass
+        ds=DummyScanner()
+        node = SCons.Node.Node()
+        assert node.scanners == [], node.scanners
+        node.scanner_set(ds)
+        assert node.scanners == [ ds ], node.scanners
+        node.scan()
+        assert node.scanned[ds] == 1, node.scanned
+
     def test_children(self):
 	"""Test fetching the "children" of a Node.
 	"""

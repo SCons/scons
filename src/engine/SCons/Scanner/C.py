@@ -106,10 +106,9 @@ def scan(filename, env, args = [SCons.Node.FS.default_fs, ()]):
 
         dir = os.path.dirname(filename)
         if dir:
-            source_dir = (fs.Dir(dir),)
+            source_dir = (fs.Dir(dir, fs.Top),)
         else:
-            source_dir = ()
-        
+            source_dir = ( fs.Top, )
         return (SCons.Util.find_files(angle_includes, cpppath + source_dir,
                                       fs.File)
                 + SCons.Util.find_files(quote_includes, source_dir + cpppath,

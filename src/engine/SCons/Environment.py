@@ -37,6 +37,7 @@ import re
 import types
 import SCons.Util
 import SCons.Builder
+import SCons.Defaults
 from SCons.Errors import UserError
 from UserList import UserList
 
@@ -49,19 +50,18 @@ def Install():
 def InstallAs():
     pass	# XXX
 
-
-
-def _deepcopy_atomic(x, memo):
-	return x
-copy._deepcopy_dispatch[types.ModuleType] = _deepcopy_atomic
-copy._deepcopy_dispatch[types.ClassType] = _deepcopy_atomic
-copy._deepcopy_dispatch[types.FunctionType] = _deepcopy_atomic
-copy._deepcopy_dispatch[types.MethodType] = _deepcopy_atomic
-copy._deepcopy_dispatch[types.TracebackType] = _deepcopy_atomic
-copy._deepcopy_dispatch[types.FrameType] = _deepcopy_atomic
-copy._deepcopy_dispatch[types.FileType] = _deepcopy_atomic
-
-
+def our_deepcopy(x):
+   """deepcopy lists and dictionaries, and just copy the reference 
+   for everything else.""" 
+   if type(x) is type({}):
+       copy = {}
+       for key in x.keys():
+           copy[key] = our_deepcopy(x[key])
+   elif type(x) is type([]):
+       copy = map(our_deepcopy, x)
+   else:
+       copy = x
+   return copy
 
 class Environment:
     """Base class for construction Environments.  These are
@@ -75,12 +75,12 @@ class Environment:
 
     def __init__(self, **kw):
 	import SCons.Defaults
-	self._dict = copy.deepcopy(SCons.Defaults.ConstructionEnvironment)
+	self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
 	if kw.has_key('BUILDERS') and type(kw['BUILDERS']) != type([]):
 	        kw['BUILDERS'] = [kw['BUILDERS']]
         if kw.has_key('SCANNERS') and type(kw['SCANNERS']) != type([]):
                 kw['SCANNERS'] = [kw['SCANNERS']]
-	self._dict.update(copy.deepcopy(kw))
+	self._dict.update(our_deepcopy(kw))
 
 	class BuilderWrapper:
 	    """Wrapper class that allows an environment to
@@ -124,7 +124,8 @@ class Environment:
 	(like a function).  There are no references to any mutable
 	objects in the original Environment.
 	"""
-	clone = copy.deepcopy(self)
+        clone = copy.copy(self)
+        clone._dict = our_deepcopy(self._dict)
 	apply(clone.Update, (), kw)
 	return clone
 
@@ -135,7 +136,7 @@ class Environment:
 	"""Update an existing construction Environment with new
 	construction variables and/or values.
 	"""
-	self._dict.update(copy.deepcopy(kw))
+	self._dict.update(our_deepcopy(kw))
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""

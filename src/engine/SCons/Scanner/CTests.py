@@ -206,7 +206,7 @@ class CScannerTestCase7(unittest.TestCase):
         dict = {}
         dict[s1] = 777
         assert dict[s2] == 777
-        
+
 class CScannerTestCase8(unittest.TestCase):
     def runTest(self):
         fs = SCons.Node.FS.FS(test.workpath(''))
@@ -220,6 +220,27 @@ class CScannerTestCase8(unittest.TestCase):
         deps_match(self, deps1, headers1)
         deps_match(self, deps2, headers2)
 
+class CScannerTestCase9(unittest.TestCase):
+    def runTest(self):
+        fs = SCons.Node.FS.FS(test.workpath(''))
+        s = SCons.Scanner.C.CScan(fs=fs)
+        env = DummyEnvironment([])
+        test.write('fa.h','\n')
+        deps = s.instance(env).scan('fa.cpp', None)
+        deps_match(self, deps, [ 'fa.h' ])
+        test.unlink('fa.h')
+
+class CScannerTestCase10(unittest.TestCase):
+    def runTest(self):
+        fs = SCons.Node.FS.FS(test.workpath(''))
+        fs.chdir(fs.Dir('include'))
+        s = SCons.Scanner.C.CScan(fs=fs)
+        env = DummyEnvironment([])
+        test.write('include/fa.cpp', test.read('fa.cpp'))
+        deps = s.instance(env).scan('include/fa.cpp', None)
+        deps_match(self, deps, [ 'include/fa.h', 'include/fb.h' ])
+        test.unlink('include/fa.cpp')
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(CScannerTestCase1())
@@ -230,6 +251,8 @@ def suite():
     suite.addTest(CScannerTestCase6())
     suite.addTest(CScannerTestCase7())
     suite.addTest(CScannerTestCase8())
+    suite.addTest(CScannerTestCase9())
+    suite.addTest(CScannerTestCase10())
     return suite
 
 if __name__ == "__main__":

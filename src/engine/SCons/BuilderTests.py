@@ -400,7 +400,7 @@ class BuilderTestCase(unittest.TestCase):
         scn = TestScanner()
         builder=SCons.Builder.Builder(scanner=scn)
         tgt = builder(env, target='foo', source='bar')
-        assert tgt.scanner == scn, tgt.scanner
+        assert scn in tgt.scanners, tgt.scanners
         assert instanced
 
         instanced = None
@@ -411,7 +411,7 @@ class BuilderTestCase(unittest.TestCase):
                                          src_builder = builder1,
                                          scanner = scn)
         tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
-        assert tgt.scanner == scn, tgt.scanner
+        assert scn in tgt.scanners, tgt.scanners
         assert instanced
 
     def test_src_scanner(slf):
@@ -425,8 +425,8 @@ class BuilderTestCase(unittest.TestCase):
         env_scanner = TestScanner()
         builder = SCons.Builder.Builder(action='action')
         tgt = builder(env, target='foo', source='bar')
-        assert not tgt.scanner == env_scanner
-        assert tgt.sources[0].scanner == env_scanner
+        assert not tgt.scanners == [ env_scanner ]
+        assert tgt.sources[0].scanners == [ env_scanner ]
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')

@@ -159,6 +159,21 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env3.Dictionary('ZZZ') == 'z3'
 	assert env1 == env1copy
 
+        # Ensure that lists and dictionaries are
+        # deep copied, but not instances.
+        class TestA:
+            pass
+        env1 = Environment(XXX=TestA(), YYY = [ 1, 2, 3 ],
+                           ZZZ = { 1:2, 3:4 })
+        env2=env1.Copy()
+        env2.Dictionary('YYY').append(4)
+        env2.Dictionary('ZZZ')[5] = 6
+        assert env1.Dictionary('XXX') is env2.Dictionary('XXX')
+        assert 4 in env2.Dictionary('YYY')
+        assert not 4 in env1.Dictionary('YYY')
+        assert env2.Dictionary('ZZZ').has_key(5)
+        assert not env1.Dictionary('ZZZ').has_key(5)
+
     def test_Dictionary(self):
 	"""Test retrieval of known construction variables
 

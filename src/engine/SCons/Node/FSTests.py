@@ -301,15 +301,16 @@ class FSTestCase(unittest.TestCase):
         match(e13.path, "subdir/subdir/e13")
 
         # Test scanning
-        f1.scanner = Scanner()
+        scn = Scanner()
+        f1.scanners = [ scn ]
         f1.scan()
-        assert f1.implicit[f1.scanner][0].path_ == os.path.join("d1", "f1")
-        del f1.implicit[f1.scanner]
+        assert f1.implicit[scn][0].path_ == os.path.join("d1", "f1")
+        del f1.implicit[scn]
         f1.scan()
         assert len(f1.implicit) == 0, f1.implicit
-        del f1.scanned[f1.scanner]
+        del f1.scanned[scn]
         f1.scan()
-        assert f1.implicit[f1.scanner][0].path_ == os.path.join("d1", "f1")
+        assert f1.implicit[scn][0].path_ == os.path.join("d1", "f1")
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))

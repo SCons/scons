@@ -60,7 +60,7 @@ class Node:
         self.implicit = {}	# implicit (scanned) dependencies
         self.parents = []
 	self.builder = None
-        self.scanner = None
+        self.scanners = []
         self.scanned = {}
 	self.env = None
         self.state = None
@@ -103,10 +103,12 @@ class Node:
         return Adapter(self)
 
     def scanner_set(self, scanner):
-        self.scanner = scanner
+        if not scanner in self.scanners:
+            self.scanners.append(scanner)
 
     def scan(self):
-        self.scanned[self.scanner] = 1
+        for scn in self.scanners:
+            self.scanned[scn] = 1
 
     def env_set(self, env, safe=0):
         if safe and self.env:

@@ -236,7 +236,7 @@ class MultiStepBuilder(BuilderBase):
         final_sources = []
         src_suffix = env.subst(self.src_suffix)
         for snode in slist:
-            path, ext = os.path.splitext(snode.path)
+            path, ext = os.path.splitext(snode.abspath)
             if not src_suffix or ext != src_suffix:
                 tgt = self.src_builder(env, target = [ path ],
                                      source=snode)
