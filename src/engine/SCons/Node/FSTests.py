@@ -104,6 +104,17 @@ class Builder:
     def source_factory(self, name):
         return self.factory(name)
 
+class _tempdirTestCase(unittest.TestCase):
+    def setUp(self):
+        self.save_cwd = os.getcwd()
+        self.test = TestCmd(workdir='')
+        # FS doesn't like the cwd to be something other than its root.
+        os.chdir(self.test.workpath(""))
+        self.fs = SCons.Node.FS.FS()
+
+    def tearDown(self):
+        os.chdir(self.save_cwd)
+
 class BuildDirTestCase(unittest.TestCase):
     def runTest(self):
         """Test build dir functionality"""
@@ -1173,6 +1184,224 @@ class FSTestCase(unittest.TestCase):
         t = z.target_from_source('pre-', '-suf', lambda x: x[:-1])
         assert str(t) == 'pre-z-suf', str(t)
 
+class DirTestCase(_tempdirTestCase):
+
+    def test_entry_exists_on_disk(self):
+        """Test the Dir.entry_exists_on_disk() method
+        """
+        test = self.test
+
+        does_not_exist = self.fs.Dir('does_not_exist')
+        assert not does_not_exist.entry_exists_on_disk('foo')
+
+        test.subdir('d')
+        test.write(['d', 'exists'], "d/exists\n")
+
+        d = self.fs.Dir('d')
+        assert d.entry_exists_on_disk('exists')
+        assert not d.entry_exists_on_disk('does_not_exist')
+
+    def test_srcdir_list(self):
+        """Test the Dir.srcdir_list() method
+        """
+        src = self.fs.Dir('src')
+        bld = self.fs.Dir('bld')
+        sub1 = bld.Dir('sub')
+        sub2 = sub1.Dir('sub')
+        sub3 = sub2.Dir('sub')
+        self.fs.BuildDir(bld, src, duplicate=0)
+        self.fs.BuildDir(sub2, src, duplicate=0)
+
+        s = map(str, src.srcdir_list())
+        assert s == [], s
+
+        s = map(str, bld.srcdir_list())
+        assert s == ['src'], s
+
+        s = map(str, sub1.srcdir_list())
+        assert s == ['src/sub'], s
+
+        s = map(str, sub2.srcdir_list())
+        assert s == ['src', 'src/sub/sub'], s
+
+        s = map(str, sub3.srcdir_list())
+        assert s == ['src/sub', 'src/sub/sub/sub'], s
+
+        self.fs.BuildDir('src/b1/b2', 'src')
+        b1 = src.Dir('b1')
+        b1_b2 = b1.Dir('b2')
+        b1_b2_b1 = b1_b2.Dir('b1')
+        b1_b2_b1_b2 = b1_b2_b1.Dir('b2')
+        b1_b2_b1_b2_sub = b1_b2_b1_b2.Dir('sub')
+
+        s = map(str, b1.srcdir_list())
+        assert s == [], s
+
+        s = map(str, b1_b2.srcdir_list())
+        assert s == ['src'], s
+
+        s = map(str, b1_b2_b1.srcdir_list())
+        assert s == ['src/b1'], s
+
+        s = map(str, b1_b2_b1_b2.srcdir_list())
+        assert s == [], s
+
+        s = map(str, b1_b2_b1_b2_sub.srcdir_list())
+        assert s == [], s
+
+    def test_srcdir_duplicate(self):
+        """Test the Dir.srcdir_duplicate() method
+        """
+        test = self.test
+
+        test.subdir('src0')
+        test.write(['src0', 'exists'], "src0/exists\n")
+
+        bld0 = self.fs.Dir('bld0')
+        src0 = self.fs.Dir('src0')
+        self.fs.BuildDir(bld0, src0, duplicate=0)
+
+        n = bld0.srcdir_duplicate('does_not_exist', SCons.Node.FS.File)
+        assert n is None, n
+        assert not os.path.exists(test.workpath('bld0', 'does_not_exist'))
+
+        n = bld0.srcdir_duplicate('exists', SCons.Node.FS.File)
+        assert str(n) == 'src0/exists', str(n)
+        assert not os.path.exists(test.workpath('bld0', 'exists'))
+
+        test.subdir('src1')
+        test.write(['src1', 'exists'], "src0/exists\n")
+
+        bld1 = self.fs.Dir('bld1')
+        src1 = self.fs.Dir('src1')
+        self.fs.BuildDir(bld1, src1, duplicate=1)
+
+        n = bld1.srcdir_duplicate('does_not_exist', SCons.Node.FS.File)
+        assert n is None, n
+        assert not os.path.exists(test.workpath('bld1', 'does_not_exist'))
+
+        n = bld1.srcdir_duplicate('exists', SCons.Node.FS.File)
+        assert str(n) == 'bld1/exists', str(n)
+        assert os.path.exists(test.workpath('bld1', 'exists'))
+
+    def test_srcdir_find_file(self):
+        """Test the Dir.srcdir_find_file() method
+        """
+        test = self.test
+
+        return_true = lambda: 1
+
+        test.subdir('src0')
+        test.write(['src0', 'on-disk-f1'], "src0/on-disk-f1\n")
+        test.write(['src0', 'on-disk-f2'], "src0/on-disk-f2\n")
+
+        bld0 = self.fs.Dir('bld0')
+        src0 = self.fs.Dir('src0')
+        self.fs.BuildDir(bld0, src0, duplicate=0)
+
+        derived = src0.File('derived-f')
+        derived.is_derived = return_true
+        pseudo = src0.File('pseudo-f')
+        pseudo.is_pseudo_derived = return_true
+        exists = src0.File('exists-f')
+        exists.exists = return_true
+
+        # First check from the source directory.
+        n = src0.srcdir_find_file('does_not_exist')
+        assert n == (None, None), n
+
+        n = src0.srcdir_find_file('derived-f')
+        n = map(str, n)
+        assert n == ['src0/derived-f', 'src0'], n
+
+        n = src0.srcdir_find_file('pseudo-f')
+        n = map(str, n)
+        assert n == ['src0/pseudo-f', 'src0'], n
+
+        n = src0.srcdir_find_file('exists-f')
+        n = map(str, n)
+        assert n == ['src0/exists-f', 'src0'], n
+
+        n = src0.srcdir_find_file('on-disk-f1')
+        n = map(str, n)
+        assert n == ['src0/on-disk-f1', 'src0'], n
+
+        # Now check from the build directory.
+        n = bld0.srcdir_find_file('does_not_exist')
+        assert n == (None, None), n
+
+        n = bld0.srcdir_find_file('derived-f')
+        n = map(str, n)
+        assert n == ['src0/derived-f', 'bld0'], n
+
+        n = bld0.srcdir_find_file('pseudo-f')
+        n = map(str, n)
+        assert n == ['src0/pseudo-f', 'bld0'], n
+
+        n = bld0.srcdir_find_file('exists-f')
+        n = map(str, n)
+        assert n == ['src0/exists-f', 'bld0'], n
+
+        n = bld0.srcdir_find_file('on-disk-f2')
+        n = map(str, n)
+        assert n == ['src0/on-disk-f2', 'bld0'], n
+
+
+        test.subdir('src1')
+        test.write(['src1', 'on-disk-f1'], "src1/on-disk-f1\n")
+        test.write(['src1', 'on-disk-f2'], "src1/on-disk-f2\n")
+
+        bld1 = self.fs.Dir('bld1')
+        src1 = self.fs.Dir('src1')
+        self.fs.BuildDir(bld1, src1, duplicate=1)
+
+        derived = src1.File('derived-f')
+        derived.is_derived = return_true
+        pseudo = src1.File('pseudo-f')
+        pseudo.is_pseudo_derived = return_true
+        exists = src1.File('exists-f')
+        exists.exists = return_true
+
+        # First check from the source directory.
+        n = src1.srcdir_find_file('does_not_exist')
+        assert n == (None, None), n
+
+        n = src1.srcdir_find_file('derived-f')
+        n = map(str, n)
+        assert n == ['src1/derived-f', 'src1'], n
+
+        n = src1.srcdir_find_file('pseudo-f')
+        n = map(str, n)
+        assert n == ['src1/pseudo-f', 'src1'], n
+
+        n = src1.srcdir_find_file('exists-f')
+        n = map(str, n)
+        assert n == ['src1/exists-f', 'src1'], n
+
+        n = src1.srcdir_find_file('on-disk-f1')
+        n = map(str, n)
+        assert n == ['src1/on-disk-f1', 'src1'], n
+
+        # Now check from the build directory.
+        n = bld1.srcdir_find_file('does_not_exist')
+        assert n == (None, None), n
+
+        n = bld1.srcdir_find_file('derived-f')
+        n = map(str, n)
+        assert n == ['bld1/derived-f', 'src1'], n
+
+        n = bld1.srcdir_find_file('pseudo-f')
+        n = map(str, n)
+        assert n == ['bld1/pseudo-f', 'src1'], n
+
+        n = bld1.srcdir_find_file('exists-f')
+        n = map(str, n)
+        assert n == ['bld1/exists-f', 'src1'], n
+
+        n = bld1.srcdir_find_file('on-disk-f2')
+        n = map(str, n)
+        assert n == ['bld1/on-disk-f2', 'bld1'], n
+
 class EntryTestCase(unittest.TestCase):
     def runTest(self):
         """Test methods specific to the Entry sub-class.
@@ -2156,5 +2385,11 @@ if __name__ == "__main__":
     suite.addTest(postprocessTestCase())
     suite.addTest(SpecialAttrTestCase())
     suite.addTest(SaveStringsTestCase())
+    tclasses = [
+        DirTestCase,
+    ]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

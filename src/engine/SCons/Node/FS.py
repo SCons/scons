@@ -1410,23 +1410,58 @@ class Dir(Base):
         sccspath = 'SCCS' + os.sep + 's.'+name
         return self.entry_exists_on_disk(sccspath)
 
-    def srcdir_duplicate(self, name, clazz):
-        dname = '.'
+    def srcdir_list(self):
+        """__cacheable__"""
+        result = []
+
+        dirname = '.'
         dir = self
         while dir:
             if dir.srcdir:
-                srcdir = dir.srcdir.Dir(dname)
-                if srcdir.entry_exists_on_disk(name):
-                    srcnode = self.fs._doLookup(clazz, name, srcdir)
-                    if self.duplicate:
-                        node = self.fs._doLookup(clazz, name, self)
-                        node.do_duplicate(srcnode)
-                        return node
-                    else:
-                        return srcnode
-            dname = dir.name + os.sep + dname
+                d = dir.srcdir.Dir(dirname)
+                if d.is_under(dir):
+                    # Shouldn't source from something in the build path:
+                    # build_dir is probably under src_dir, in which case
+                    # we are reflecting.
+                    break
+                result.append(d)
+            dirname = dir.name + os.sep + dirname
             dir = dir.get_dir()
+
+        return result
+
+    def srcdir_duplicate(self, name, clazz):
+        for dir in self.srcdir_list():
+            if dir.entry_exists_on_disk(name):
+                srcnode = self.fs._doLookup(clazz, name, dir)
+                if self.duplicate:
+                    node = self.fs._doLookup(clazz, name, self)
+                    node.do_duplicate(srcnode)
+                    return node
+                else:
+                    return srcnode
         return None
+
+    def srcdir_find_file(self, filename):
+        """__cacheable__"""
+        fs = self.fs
+        do_Rsearch = fs.do_Rsearch
+
+        def func(node):
+            if isinstance(node, SCons.Node.FS.File) and \
+               (node.is_derived() or node.is_pseudo_derived() or node.exists()):
+                    return node
+            return None
+
+        node, d = do_Rsearch(filename, self, func, File)
+        if node:
+            return node, d
+
+        for dir in self.srcdir_list():
+            node, d = do_Rsearch(filename, dir, func, File)
+            if node:
+                return File(filename, self, fs), d
+        return None, None
 
     def node_on_disk(self, name, clazz):
         if self.entry_exists_on_disk(name) or \
@@ -1888,36 +1923,12 @@ def find_file(filename, paths, verbose=None):
                 return None
         paths = filter(None, map(filedir_lookup, paths))
 
-    def func(node):
-        if isinstance(node, SCons.Node.FS.File) and \
-           (node.is_derived() or node.is_pseudo_derived() or node.exists()):
-                return node
-        return None
-
     for dir in paths:
         verbose("looking for '%s' in '%s' ...\n" % (filename, dir))
-
-        node, d = default_fs.do_Rsearch(filename, dir, func, File)
+        node, d = dir.srcdir_find_file(filename)
         if node:
             verbose("... FOUND '%s' in '%s'\n" % (filename, d))
             return node
-
-        dirname = '.'
-        while dir:
-            if dir.srcdir:
-                d = dir.srcdir.Dir(dirname)
-                if d.is_under(dir):
-                    # Shouldn't source from something in the build path:
-                    # build_dir is probably under src_dir, in which case
-                    # we are reflecting.
-                    break
-                node, d = dir.fs.do_Rsearch(filename, d, func, File)
-                if node:
-                    verbose("... FOUND '%s' in '%s'\n" % (filename, d))
-                    return File(filename, dir.Dir(dirname), dir.fs)
-            dirname = dir.name + os.sep + dirname
-            dir = dir.get_dir()
-
     return None
 
 def find_files(filenames, paths):
