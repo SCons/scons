@@ -36,7 +36,7 @@ variant_prog = os.path.join('variant', 'prog' + _exe)
 
 args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
@@ -203,6 +203,8 @@ env.Library('foo', source = 'empty.c')
 test.write('empty.c', """
 """)
 
-test.run(arguments = '.', stderr=TestSCons.noisy_ar)
+test.run(arguments = '.',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.pass_test()

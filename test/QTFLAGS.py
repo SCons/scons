@@ -34,7 +34,7 @@ import os.path
 python = TestSCons.python
 _exe = TestSCons._exe
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 test.subdir( 'qt', ['qt', 'bin'], ['qt', 'include'], ['qt', 'lib'] )
 
@@ -117,7 +117,8 @@ env.StaticLibrary( 'myqt', 'my_qobject.cpp' )
 """)
 
 test.run(chdir=test.workpath('qt','lib'), arguments = '.',
-         stderr=TestSCons.noisy_ar)
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 QT = test.workpath('qt')
 QT_LIB = 'myqt'

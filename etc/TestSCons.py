@@ -188,6 +188,7 @@ class TestSCons(TestCommon):
                 arguments = options + " " + arguments
         kw['arguments'] = arguments
         kw['stdout'] = self.wrap_stdout(read_str = read_str, build_str = s)
+        kw['match'] = self.match_exact
         apply(self.run, [], kw)
 
     def not_up_to_date(self, options = None, arguments = None, **kw):
@@ -204,10 +205,8 @@ class TestSCons(TestCommon):
         kw['stdout'] = self.wrap_stdout(build_str="("+s+"[^\n]*\n)*")
         kw['stdout'] = string.replace(kw['stdout'],'\n','\\n')
         kw['stdout'] = string.replace(kw['stdout'],'.','\\.')
-        old_match_func = self.match_func
-        self.match_func = match_re_dotall
+        kw['match'] = self.match_re_dotall
         apply(self.run, [], kw)
-        self.match_func = old_match_func
 
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One

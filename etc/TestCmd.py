@@ -175,8 +175,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.7.D001 2004/07/08 10:02:13 knight"
-__version__ = "0.7"
+__revision__ = "TestCmd.py 0.8.D001 2004/07/15 06:24:14 knight"
+__version__ = "0.8"
 
 import os
 import os.path
@@ -496,7 +496,7 @@ class TestCmd:
         """
         if not self._dirlist:
             return
-        os.chdir(self._cwd)            
+        os.chdir(self._cwd)
         self.workdir = None
         if condition is None:
             condition = self.condition
@@ -510,7 +510,7 @@ class TestCmd:
                 self.writable(dir, 1)
                 shutil.rmtree(dir, ignore_errors = 1)
             self._dirlist = []
-                
+
         try:
             global _Cleanup
             _Cleanup.remove(self)
@@ -789,10 +789,10 @@ class TestCmd:
     def where_is(self, file, path=None, pathext=None):
         """Find an executable file.
         """
-	if is_List(file):
-	    file = apply(os.path.join, tuple(file))
-	if not os.path.isabs(file):
-	    file = where_is(file, path, pathext)
+        if is_List(file):
+            file = apply(os.path.join, tuple(file))
+        if not os.path.isabs(file):
+            file = where_is(file, path, pathext)
         return file
 
     def workdir_set(self, path):

@@ -31,7 +31,7 @@ import sys
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match=TestCmd.match_re_dotall)
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 import sys
@@ -191,7 +191,9 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.', stderr=TestSCons.noisy_ar)
+test.run(arguments = '.',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
@@ -206,14 +208,18 @@ if sys.platform == 'win32' or string.find(sys.platform, 'irix') != -1:
 else:
     test.run(arguments = '-f SConstructFoo', status=2, stderr='''\
 scons: \*\*\* Source file: foo\..* is static and is not compatible with shared target: .*
-''')
+''',
+    match=TestSCons.match_re_dotall)
     # Run it again to make sure that we still get the error
     # even though the static objects already exist.
     test.run(arguments = '-f SConstructFoo', status=2, stderr='''\
 scons: \*\*\* Source file: foo\..* is static and is not compatible with shared target: .*
-''')
+''',
+    match=TestSCons.match_re_dotall)
 
-test.run(arguments = '-f SConstructFoo2', stderr=TestSCons.noisy_ar)
+test.run(arguments = '-f SConstructFoo2',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 if sys.platform == 'win32':
     # Make sure we don't insert a .def source file (when

@@ -33,7 +33,7 @@ if sys.platform == 'win32':
 else:
     _lib = '.a'
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(LIBPREFIX = 'xxx-',
@@ -62,7 +62,9 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.', stderr=TestSCons.noisy_ar)
+test.run(arguments = '.',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.fail_test(not os.path.exists(test.workpath('xxx-foo' + _lib)))
 

@@ -30,7 +30,7 @@ import string
 import sys
 import TestSCons
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 if sys.platform == 'win32':
     lib_static_lib = 'static.lib'
@@ -103,7 +103,9 @@ main(int argc, char *argv[])
 """)
 
 
-test.run(arguments = '.', stderr=TestSCons.noisy_ar)
+test.run(arguments = '.',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.up_to_date(arguments = '.')
 
