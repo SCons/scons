@@ -727,7 +727,6 @@ class Dir(Entry):
             return self.entries['..'].root()
 
     def all_children(self, scan):
-        #XXX --random:  randomize "dependencies?"
         keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
         kids = map(lambda x, s=self: s.entries[x], keys)
         def c(one, two):

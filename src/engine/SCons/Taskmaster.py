@@ -159,6 +159,10 @@ class Task:
                     side_effect.set_state(state)
             t.set_state(state)
 
+def order(dependencies):
+    """Re-order a list of dependencies (if we need to)."""
+    return dependencies
+
 class Calc:
     def bsig(self, node):
         """
@@ -180,7 +184,7 @@ class Taskmaster:
     the base class method, so this class can do its thing.
     """
 
-    def __init__(self, targets=[], tasker=Task, calc=Calc()):
+    def __init__(self, targets=[], tasker=Task, calc=Calc(), order=order):
         self.targets = targets # top level targets
         self.candidates = targets[:] # nodes that might be ready to be executed
         self.candidates.reverse()
@@ -189,6 +193,7 @@ class Taskmaster:
         self.tasker = tasker
         self.ready = None # the next task that is ready to be executed
         self.calc = calc
+        self.order = order
 
     def _find_next_ready_node(self):
         """Find the next node that is ready to be built"""
@@ -200,12 +205,12 @@ class Taskmaster:
             node = self.candidates[-1]
             state = node.get_state()
 
-            # Skip nodes that have already been executed:
+            # Skip this node if it has already been executed:
             if state != None and state != SCons.Node.stack:
                 self.candidates.pop()
                 continue
 
-            # keep track of which nodes are in the execution stack:
+            # Mark this node as being on the execution stack:
             node.set_state(SCons.Node.stack)
 
             try:
@@ -221,7 +226,7 @@ class Taskmaster:
                 self.ready = node
                 break
 
-            # detect dependency cycles:
+            # Detect dependency cycles:
             def in_stack(node): return node.get_state() == SCons.Node.stack
             cycle = filter(in_stack, children)
             if cycle:
@@ -230,17 +235,18 @@ class Taskmaster:
                 desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
                 raise SCons.Errors.UserError, desc
 
-            # Add non-derived files that have not been built
+            # Add derived files that have not been built
             # to the candidates list:
             def derived(node):
                 return (node.has_builder() or node.side_effect) and node.get_state() == None
             derived = filter(derived, children)
             if derived:
                 derived.reverse()
-                self.candidates.extend(derived)
+                self.candidates.extend(self.order(derived))
                 continue
 
-            # Skip nodes whose side-effects are currently being built:
+            # Skip this node if it has side-effects that are
+            # currently being built:
             cont = 0
             for side_effect in node.side_effects:
                 if side_effect.get_state() == SCons.Node.executing:
@@ -251,14 +257,16 @@ class Taskmaster:
                     break
             if cont: continue
 
-            # Skip nodes that are pending on a currently executing node:
+            # Skip this node if it is pending on a currently
+            # executing node:
             if node.depends_on(self.executing) or node.depends_on(self.pending):
                 self.pending.append(node)
                 node.set_state(SCons.Node.pending)
                 self.candidates.pop()
                 continue
 
-            # The default when we've gotten through all of the checks above.
+            # The default when we've gotten through all of the checks above:
+            # this node is ready to be built.
             self.candidates.pop()
             self.ready = node
             break

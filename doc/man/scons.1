@@ -246,6 +246,24 @@ scons -j 4
 
 builds four targets in parallel, for example.
 
+.B scons
+can maintain a cache of target (derived) files that can
+be shared between multiple builds.  When caching is enabled in a
+SConscript file, any target files built by 
+.B scons
+will be copied
+to the cache.  If an up-to-date target file is found in the cache, it
+will be retrieved from the cache instead of being rebuilt locally.
+Caching behavior may be disabled and controlled in other ways by the
+.BR --cache-force , 
+.BR --cache-disable ,
+and
+.B --cache-show
+command-line options.  The
+.B --random
+option is useful to prevent multiple builds
+from trying to update the cache simultaneously.
+
 Values of variables to be passed to the SConscript file(s)
 may be specified on the command line:
 
@@ -264,24 +282,6 @@ if ARGUMENTS.get('debug', 0):
 else:
     env = Environment()
 .EE
-
-.\" .B scons
-.\" can maintain a cache of target (derived) files that can
-.\" be shared between multiple builds.  When caching is enabled in a
-.\" SConscript file, any target files built by 
-.\" .B scons
-.\" will be copied
-.\" to the cache.  If an up-to-date target file is found in the cache, it
-.\" will be retrieved from the cache instead of being rebuilt locally.
-.\" Caching behavior may be disabled and controlled in other ways by the
-.\" .BR --cache-force , 
-.\" .BR --cache-disable ,
-.\" and
-.\" .B --cache-show
-.\" command-line options.  The
-.\" .B --random
-.\" option is useful whenever multiple builds may be
-.\" trying to update the cache simultaneously.
 
 .B scons
 requires Python version 1.5.2 or later.
@@ -633,13 +633,13 @@ to rebuild target files are still printed.
 .\" -r, -R, --no-builtin-rules, --no-builtin-variables
 .\" Clear the default construction variables.  Construction
 .\" environments that are created will be completely empty.
-.\"
-.\" .TP
-.\" --random
-.\" Build dependencies in a random order.  This is useful when
-.\" building multiple trees simultaneously with caching enabled as a
-.\" way to prevent multiple builds from simultaneously trying to build
-.\" or retrieve the same target files.
+
+.TP
+--random
+Build dependencies in a random order.  This is useful when
+building multiple trees simultaneously with caching enabled,
+to prevent multiple builds from simultaneously trying to build
+or retrieve the same target files.
 
 .TP
 -s, --silent, --quiet

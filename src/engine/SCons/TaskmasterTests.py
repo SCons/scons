@@ -352,6 +352,29 @@ class TaskmasterTestCase(unittest.TestCase):
         assert not tm.next_task()
         t.executed()
 
+        n1 = Node("n1")
+        n2 = Node("n2")
+        n3 = Node("n3")
+        n4 = Node("n4", [n1,n2,n3])
+        def reverse(dependencies):
+            dependencies.reverse()
+            return dependencies
+        tm = SCons.Taskmaster.Taskmaster([n4], order=reverse)
+        t = tm.next_task()
+        assert t.get_target() == n3, t.get_target()
+        t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n2, t.get_target()
+        t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n1, t.get_target()
+        t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n4, t.get_target()
+        t.executed()
+
+
+
     def test_make_ready_exception(self):
         """Test handling exceptions from Task.make_ready()
         """

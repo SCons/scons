@@ -41,6 +41,7 @@ start_time = time.time()
 
 import os
 import os.path
+import random
 import string
 import sys
 import traceback
@@ -544,6 +545,9 @@ class OptParser(OptionParser):
                         default=0,
                         help="Don't print SCons progress messages.")
 
+        self.add_option('--random', dest="random", action="store_true",
+                        default=0, help="Build dependencies in random order.")
+
         self.add_option('-s', '--silent', '--quiet', action="store_true",
                         default=0, help="Don't print commands.")
 
@@ -606,10 +610,6 @@ class OptParser(OptionParser):
                         '--no-builtin-variables', action="callback",
                         callback=opt_not_yet,
                         # help="Clear default environments and variables."
-                        help=SUPPRESS_HELP)
-        self.add_option('--random', action="callback",
-                        callback=opt_not_yet,
-                        # help="Build dependencies in random order."
                         help=SUPPRESS_HELP)
         self.add_option('-w', '--print-directory', action="callback",
                         callback=opt_not_yet,
@@ -868,8 +868,23 @@ def _main():
 
         calc = SCons.Sig.default_calc
 
+    if options.random:
+        def order(dependencies):
+            """Randomize the dependencies."""
+            # This is cribbed from the implementation of
+            # random.shuffle() in Python 2.X.
+            d = dependencies
+            for i in xrange(len(d)-1, 0, -1):
+                j = int(random.random() * (i+1))
+                d[i], d[j] = d[j], d[i]
+            return d
+    else:
+        def order(dependencies):
+            """Leave the order of dependencies alone."""
+            return dependencies
+
     display("scons: Building targets ...")
-    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
+    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc, order)
 
     jobs = SCons.Job.Jobs(get_num_jobs(options), taskmaster)
 

@@ -24,16 +24,52 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify that we build correctly using the --random option.
+"""
+
+import os.path
+
 import TestSCons
-import string
-import sys
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+test.write('SConstruct', """
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
+env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env.Cat('aaa.out', 'aaa.in')
+env.Cat('bbb.out', 'bbb.in')
+env.Cat('ccc.out', 'ccc.in')
+env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
+""")
 
-test.run(arguments = '--random .',
-	 stderr = "Warning:  the --random option is not yet implemented\n")
+test.write('aaa.in', "aaa.in\n")
+test.write('bbb.in', "bbb.in\n")
+test.write('ccc.in', "ccc.in\n")
+
+test.run(arguments = '--random .')
+
+test.fail_test(test.read('all') != "aaa.in\nbbb.in\nccc.in\n")
+
+test.run(arguments = '-q --random .')
+
+test.run(arguments = '-c --random .')
+
+test.fail_test(os.path.exists(test.workpath('aaa.out')))
+test.fail_test(os.path.exists(test.workpath('bbb.out')))
+test.fail_test(os.path.exists(test.workpath('ccc.out')))
+test.fail_test(os.path.exists(test.workpath('all')))
+
+test.run(arguments = '-q --random .', status = 1)
+
+test.run(arguments = '--random .')
+
+test.fail_test(test.read('all') != "aaa.in\nbbb.in\nccc.in\n")
 
 test.pass_test()
- 
