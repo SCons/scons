@@ -429,17 +429,14 @@ class Entry(SCons.Node.Node):
         raise AttributeError
 
     def exists(self):
-        return os.path.exists(str(self))
-
-    def cached_exists(self):
-        try:
-            return self.exists_flag
-        except AttributeError:
-            self.exists_flag = self.exists()
-            return self.exists_flag
+        if not hasattr(self, '_exists'):
+            self._exists = os.path.exists(str(self))
+        return self._exists
 
     def rexists(self):
-        return os.path.exists(self.rstr())
+        if not hasattr(self, '_rexists'):
+            self._rexists = os.path.exists(self.rstr())
+        return self._rexists
 
     def get_parents(self):
         parents = SCons.Node.Node.get_parents(self)
@@ -596,12 +593,16 @@ class Dir(Entry):
     def exists(self):
         # Again, directories are special...we don't care if their
         # source path exists, we only care about the path.
-        return os.path.exists(self.path)
+        if not hasattr(self, '_exists'):
+            self._exists = os.path.exists(self.path)
+        return self._exists
 
     def rexists(self):
         # Again, directories are special...we don't care if their
         # source path exists, we only care about the path.
-        return os.path.exists(self.rstr())
+        if not hasattr(self, '_rexists'):
+            self._rexists = os.path.exists(self.rstr())
+        return self._rexists
 
 
 
@@ -692,46 +693,53 @@ class File(Entry):
             return []
 
     def exists(self):
-        if self.duplicate and not self.created:
-            self.created = 1
-            if self.srcpath != self.path and \
-               os.path.exists(self.srcpath):
-                if os.path.exists(self.path):
-                    os.unlink(self.path)
-                self.__createDir()
-                file_link(self.srcpath, self.path)
-        return Entry.exists(self)
-
-    def rexists(self):
-        if self.path != self.srcpath:
-            if os.path.exists(self.srcpath):
-                if self.duplicate and not self.created:
-                    self.created = 1
+        if not hasattr(self, '_exists'):
+            if self.duplicate and not self.created:
+                self.created = 1
+                if self.srcpath != self.path and \
+                   os.path.exists(self.srcpath):
                     if os.path.exists(self.path):
                         os.unlink(self.path)
                     self.__createDir()
                     file_link(self.srcpath, self.path)
-                return 1
-            for rep in self.fs.Repositories:
-                if not os.path.isabs(self.path):
-                    f = os.path.join(rep.path, self.path)
-                    if os.path.exists(f):
-                        return 1
-                f = os.path.join(rep.path, self.srcpath)
-                if os.path.exists(f):
+            self._exists = os.path.exists(str(self))
+        return self._exists
+
+    def rexists(self):
+        if not hasattr(self, '_rexists'):
+            if self.path != self.srcpath:
+                if os.path.exists(self.srcpath):
                     if self.duplicate and not self.created:
                         self.created = 1
                         if os.path.exists(self.path):
                             os.unlink(self.path)
                         self.__createDir()
-                        file_link(f, self.path)
-                    else:
-                        self.srcpath = f
-                        self.srcpath_ = f + os.sep
-                    return 1
-            return None
-        else:
-            return Entry.rexists(self)
+                        file_link(self.srcpath, self.path)
+                    self._rexists = 1
+                    return self._rexists
+                for rep in self.fs.Repositories:
+                    if not os.path.isabs(self.path):
+                        f = os.path.join(rep.path, self.path)
+                        if os.path.exists(f):
+                            self._rexists = 1
+                            return self._rexists
+                    f = os.path.join(rep.path, self.srcpath)
+                    if os.path.exists(f):
+                        if self.duplicate and not self.created:
+                            self.created = 1
+                            if os.path.exists(self.path):
+                                os.unlink(self.path)
+                            self.__createDir()
+                            file_link(f, self.path)
+                        else:
+                            self.srcpath = f
+                            self.srcpath_ = f + os.sep
+                        self._rexists = 1
+                        return self._rexists
+                self._rexists = None
+            else:
+                self._rexists = Entry.rexists(self)
+        return self._rexists
 
     def scanner_key(self):
         return os.path.splitext(self.name)[1]
@@ -743,7 +751,7 @@ class File(Entry):
         listDirs = []
         parent=self.dir
         while parent:
-            if parent.cached_exists():
+            if parent.exists():
                 break
             listDirs.append(parent)
             parent = parent.up()
@@ -751,19 +759,24 @@ class File(Entry):
         for dirnode in listDirs:
             try:
                 os.mkdir(dirnode.abspath)
-                dirnode.exists_flag = 1
+                dirnode._exists = 1
             except OSError:
                 pass
 
-    def build(self):
-        Entry.build(self)
-        self.exists_flag = self.exists()
+    def built(self):
+        SCons.Node.Node.built(self)
+        if hasattr(self, '_exists'):
+            delattr(self, '_exists')
+        if hasattr(self, '_rexists'):
+            delattr(self, '_rexists')
 
     def prepare(self):
         """Prepare for this file to be created."""
         if self.exists():
             if not self.precious:
                 os.unlink(self.path)
+                if hasattr(self, '_exists'):
+                    delattr(self, '_exists')
         else:
             self.__createDir()
 
@@ -831,7 +844,7 @@ def find_file(filename, paths, node_factory = default_fs.File):
             node = node_factory(filename, dir)
             # Return true of the node exists or is a derived node.
             if node.builder or \
-               (isinstance(node, SCons.Node.FS.Entry) and node.cached_exists()):
+               (isinstance(node, SCons.Node.FS.Entry) and node.exists()):
                 retval = node
                 break
         except TypeError:

@@ -133,11 +133,19 @@ class BuildDirTestCase(unittest.TestCase):
         test.subdir('src')
         test.write(['src', 'test'], "src/test\n")
         test.write(['src', 'test'], "src/test.out\n")
-        assert f1.exists()
+
+        assert not f1.exists()
         assert not f1out.exists()
         assert not f2.exists()
         assert not f2out.exists()
 
+        f1.built()
+        f2.built()
+
+        assert f1.exists()
+        assert not f1out.exists()
+        assert not f2.exists()
+        assert not f2out.exists()
 
         d1 = fs.Dir('build/var1')
         d2 = fs.Dir('build/var2')
@@ -453,13 +461,13 @@ class FSTestCase(unittest.TestCase):
         f1 = fs.File(test.workpath("do_i_exist"))
         assert not f1.exists()
         test.write("do_i_exist","\n")
-        assert f1.exists()
-        assert f1.cached_exists()
-        test.unlink("do_i_exist")
         assert not f1.exists()
-        assert f1.cached_exists()
-        f1.build()
-        assert not f1.cached_exists()
+        f1.built()
+        assert f1.exists()
+        test.unlink("do_i_exist")
+        assert f1.exists()
+        f1.built()
+        assert not f1.exists()
 
         # For some reason, in Win32, the \x1a character terminates
         # the reading of files in text mode.  This tests that
