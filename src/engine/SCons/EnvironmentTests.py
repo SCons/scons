@@ -75,9 +75,9 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env1 == env1copy
 
 	env3 = env1.Copy(XXX = 'x3', ZZZ = 'z3')
-	assert env3.Dictionary['XXX'] == 'x3'
-	assert env3.Dictionary['YYY'] == 'y'
-	assert env3.Dictionary['ZZZ'] == 'z3'
+	assert env3.Dictionary('XXX') == 'x3'
+	assert env3.Dictionary('YYY') == 'y'
+	assert env3.Dictionary('ZZZ') == 'z3'
 	assert env1 == env1copy
 
     def test_Dictionary(self):
@@ -86,10 +86,14 @@ class EnvironmentTestCase(unittest.TestCase):
 	Fetch them from the Dictionary and check for well-known
 	defaults that get inserted.
 	"""
-	env = Environment(XXX = 'x', YYY = 'y')
-	assert env.Dictionary['XXX'] == 'x'
-	assert env.Dictionary['YYY'] == 'y'
-	assert env.Dictionary.has_key('BUILDERS')
+	env = Environment(XXX = 'x', YYY = 'y', ZZZ = 'z')
+	assert env.Dictionary('XXX') == 'x'
+	assert env.Dictionary('YYY') == 'y'
+	assert env.Dictionary('XXX', 'ZZZ') == ['x', 'z']
+	xxx, zzz = env.Dictionary('XXX', 'ZZZ')
+	assert xxx == 'x'
+	assert zzz == 'z'
+	assert env.Dictionary().has_key('BUILDERS')
 
     def test_Environment(self):
 	"""Test construction Environments creation

@@ -152,15 +152,6 @@
 	dict = env.Dictionary()
 	</programlisting>
 
-<REMARK>
-In the current source code, I implemented this as a dictionary attribute
-named <literal>Dictionary</literal>.  While reasonably Pythonic, this
-is ultimately Not Good.  We don't want people using a reference to the
-dictionary to change construction variables out from under an existing
-environment.  We should use an internal <literal>_dict</literal>
-attribute and control access to it through a method, as specified above.
-</REMARK>
-
   <para>
 
    If any arguments are supplied, then just the corresponding value(s)

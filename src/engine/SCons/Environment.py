@@ -53,7 +53,7 @@ class Environment:
     """
 
     def __init__(self, **kw):
-	self.Dictionary = {}
+	self._dict = {}
 	if kw.has_key('BUILDERS'):
 	    builders = kw['BUILDERS']
 	    if not type(builders) is types.ListType:
@@ -61,7 +61,7 @@ class Environment:
 	else:
 	    import SCons.Defaults
 	    kw['BUILDERS'] = SCons.Defaults.Builders[:]
-	self.Dictionary.update(copy.deepcopy(kw))
+	self._dict.update(copy.deepcopy(kw))
 
 	class BuilderWrapper:
 	    """Wrapper class that allows an environment to
@@ -83,7 +83,7 @@ class Environment:
 
 
     def __cmp__(self, other):
-	return cmp(self.Dictionary, other.Dictionary)
+	return cmp(self._dict, other._dict)
 
     def Builders(self):
 	pass	# XXX
@@ -107,7 +107,7 @@ class Environment:
 	"""Update an existing construction Environment with new
 	construction variables and/or values.
 	"""
-	self.Dictionary.update(copy.deepcopy(kw))
+	self._dict.update(copy.deepcopy(kw))
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""
@@ -119,6 +119,14 @@ class Environment:
 	if len(tlist) == 1:
 	    tlist = tlist[0]
 	return tlist
+
+    def Dictionary(self, *args):
+	if not args:
+	    return self._dict
+	dlist = map(lambda x, s=self: s._dict[x], args)
+	if len(dlist) == 1:
+	    dlist = dlist[0]
+	return dlist
 
     def subst(self, string):
 	"""Recursively interpolates construction variables from the
@@ -134,7 +142,7 @@ class Environment:
 	    key = m.group(1)
 	    if key[:1] == '{' and key[-1:] == '}':
 		key = key[1:-1]
-	    if _self.Dictionary.has_key(key): return _self.Dictionary[key]
+	    if _self._dict.has_key(key): return _self._dict[key]
 	    else: return ''
 	n = 1
 	while n != 0:
