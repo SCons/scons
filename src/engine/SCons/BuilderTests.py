@@ -91,7 +91,8 @@ class BuilderTestCase(unittest.TestCase):
 		self.env = env
 	    def add_source(self, source):
 		self.sources.extend(source)
-	builder = SCons.Builder.Builder(action = "foo")
+        builder = SCons.Builder.Builder(action = "foo", node_factory = Node)
+
 	n1 = Node("n1");
 	n2 = Node("n2");
 	builder(env, target = n1, source = n2)
@@ -99,6 +100,21 @@ class BuilderTestCase(unittest.TestCase):
 	assert n1.builder == builder
 	assert n1.sources == [n2]
         assert n2.env == env
+
+        target = builder(env, target = 'n3', source = 'n4')
+        assert target.name == 'n3'
+        assert target.sources[0].name == 'n4'
+
+        targets = builder(env, target = 'n4 n5', source = ['n6 n7'])
+        assert targets[0].name == 'n4'
+        assert targets[0].sources[0].name == 'n6 n7'
+        assert targets[1].name == 'n5'
+        assert targets[1].sources[0].name == 'n6 n7'
+
+        target = builder(env, target = ['n8 n9'], source = 'n10 n11')
+        assert target.name == 'n8 n9'
+        assert target.sources[0].name == 'n10'
+        assert target.sources[1].name == 'n11'
 
     def test_action(self):
 	"""Test Builder creation
@@ -360,6 +376,11 @@ class BuilderTestCase(unittest.TestCase):
 	tgt = builder(env, target = 'tgt1', source = 'src1')
 	assert tgt.path == 'libtgt1', \
 	        "Target has unexpected name: %s" % tgt.path
+        tgts = builder(env, target = 'tgt2a tgt2b', source = 'src2')
+        assert tgts[0].path == 'libtgt2a', \
+                "Target has unexpected name: %s" % tgts[0].path
+        assert tgts[1].path == 'libtgt2b', \
+                "Target has unexpected name: %s" % tgts[1].path
 
     def test_src_suffix(self):
 	"""Test Builder creation with a specified source file suffix
@@ -374,6 +395,11 @@ class BuilderTestCase(unittest.TestCase):
 	tgt = builder(env, target = 'tgt2', source = 'src2')
 	assert tgt.sources[0].path == 'src2.c', \
 	        "Source has unexpected name: %s" % tgt.sources[0].path
+        tgt = builder(env, target = 'tgt3', source = 'src3a src3b')
+        assert tgt.sources[0].path == 'src3a.c', \
+                "Sources[0] has unexpected name: %s" % tgt.sources[0].path
+        assert tgt.sources[1].path == 'src3b.c', \
+                "Sources[1] has unexpected name: %s" % tgt.sources[1].path
 
     def test_suffix(self):
 	"""Test Builder creation with a specified target suffix
@@ -388,6 +414,12 @@ class BuilderTestCase(unittest.TestCase):
 	tgt = builder(env, target = 'tgt3', source = 'src3')
 	assert tgt.path == 'tgt3.o', \
 	        "Target has unexpected name: %s" % tgt[0].path
+        tgts = builder(env, target = 'tgt4a tgt4b', source = 'src4')
+        assert tgts[0].path == 'tgt4a.o', \
+                "Target has unexpected name: %s" % tgts[0].path
+        tgts = builder(env, target = 'tgt4a tgt4b', source = 'src4')
+        assert tgts[1].path == 'tgt4b.o', \
+                "Target has unexpected name: %s" % tgts[1].path
 
     def test_MultiStepBuilder(self):
         """Testing MultiStepBuilder class."""

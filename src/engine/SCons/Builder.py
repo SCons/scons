@@ -172,6 +172,8 @@ class BuilderBase:
     def __call__(self, env, target = None, source = None):
 	def adjustixes(files, pre, suf):
 	    ret = []
+            if type(files) is types.StringType or isinstance(files, UserString):
+                files = string.split(files)
 	    if not type(files) is type([]):
 	        files = [files]
 	    for f in files:
