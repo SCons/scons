@@ -244,7 +244,21 @@ class OptionsTestCase(unittest.TestCase):
         env = Environment()
         opts.Update(env, {})
         assert not env.has_key('ANSWER')
-        
+
+        # Test that a default value of None is all right.
+        test = TestSCons.TestSCons()
+        file = test.workpath('custom.py')
+        opts = SCons.Options.Options(file)
+
+        opts.Add('ANSWER',
+                 "This is the answer",
+                 None,
+                 check)
+
+        env = Environment()
+        opts.Update(env, {})
+        assert not env.has_key('ANSWER')
+
     def test_args(self):
         """Test updating an Environment with arguments overridden"""
 

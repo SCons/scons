@@ -7104,7 +7104,13 @@ is the name of the variable.
 .I help 
 is the help text for the variable.
 .I default 
-is the default value of the variable.
+is the default value of the variable;
+if the default value is
+.B None
+and there is no explicit value specified,
+the construction variable will
+.I not
+be added to the construction environment.
 .I validator
 is called to validate the value of the variable, and should take three
 arguments: key, value, and environment

@@ -150,6 +150,10 @@ RELEASE 0.97 - XXX
   - Allow Tool specifications to be passed a dictionary of keyword
     arguments.
 
+  - Support an Options default value of None, in which case the variable
+    will not be added to the construction environment unless it's set
+    explicitly by the user or from an Options file.
+
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
