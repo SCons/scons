@@ -468,11 +468,7 @@ class File(Entry):
     def scan(self):
         if not self.scanned and self.env:
             if self.scanner:
-                scanner = self.scanner
-            else:
-                scanner = self.env.get_scanner(os.path.splitext(self.name)[1])
-            if scanner:
-                self.add_dependency(scanner.scan(self.path_, self.env))
+                self.add_dependency(self.scanner.scan(self.path, self.env))
             self.scanned = 1
 
     def __createDir(self):

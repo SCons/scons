@@ -38,9 +38,17 @@ class Builder:
         built_it = 1
         return 0
 
+scanner_count = 0
+
 class Scanner:
+    def __init__(self):
+        global scanner_count
+        scanner_count = scanner_count + 1
+        self.hash = scanner_count
     def scan(self, filename, env):
         return [SCons.Node.FS.default_fs.File(filename)]
+    def __hash__(self):
+        return self.hash
 
 class Environment:
     def __init__(self):
@@ -296,11 +304,15 @@ class FSTestCase(unittest.TestCase):
         f1.scanner = Scanner()
         f1.scan()
         assert f1.depends[0].path_ == os.path.join("d1", "f1")
-        f1.scanner = None
-        f1.depends = []
-        f1.scanned = 0
+	f1.scanner = None
+	f1.scanned = None
         f1.scan()
         assert f1.depends[0].path_ == os.path.join("d1", "f1")
+	f1.scanner = None
+	f1.scanned = None
+	f1.depends = []
+        f1.scan()
+        assert not f1.depends
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))

@@ -62,10 +62,13 @@ outfile = test.workpath('outfile')
 
 show_string = None
 instanced = None
+env_scanner = None
 
 class Environment:
-            def subst(self, s):
-                return s
+    def subst(self, s):
+        return s
+    def get_scanner(self, ext):
+        return env_scanner
 env = Environment()
 
 class BuilderTestCase(unittest.TestCase):
@@ -387,6 +390,20 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
         assert tgt.scanner == scn, tgt.scanner
         assert instanced
+
+    def test_src_scanner(slf):
+        """Testing ability to set a source file scanner through a builder."""
+        global env_scanner
+        class TestScanner:
+            def key(self, env):
+                 return 'TestScannerkey'
+            def instance(self, env):
+                 return self
+        env_scanner = TestScanner()
+        builder = SCons.Builder.Builder(action='action')
+        tgt = builder(env, target='foo', source='bar')
+        assert not tgt.scanner == env_scanner
+        assert tgt.sources[0].scanner == env_scanner
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')

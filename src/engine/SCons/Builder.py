@@ -188,6 +188,9 @@ class BuilderBase:
 
 	for s in slist:
 	    s.env_set(env, 1)
+            scanner = env.get_scanner(os.path.splitext(s.name)[1])
+            if scanner:
+                s.scanner_set(scanner.instance(env))
 
 	if len(tlist) == 1:
 	    tlist = tlist[0]
