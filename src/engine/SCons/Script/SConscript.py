@@ -179,6 +179,7 @@ def BuildDefaultGlobals():
     globals['Export']            = Export
     globals['File']              = SCons.Node.FS.default_fs.File
     globals['GetBuildPath']      = GetBuildPath
+    globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
     globals['Help']              = Help
     globals['Import']            = Import
     globals['Library']           = SCons.Defaults.Library
@@ -188,5 +189,5 @@ def BuildDefaultGlobals():
     globals['Scanner']           = SCons.Scanner.Base
     globals['SConscript']        = SConscript
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
-    globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
+    globals['WhereIs']           = SCons.Util.WhereIs
     return globals

@@ -1230,6 +1230,27 @@ is that arguments to the command.
 is a dictionary of the environment variables
 in which the command should be executed.
 
+.TP
+.RI WhereIs( program ", [" path  ", [" pathext ]])
+
+Searches for the specified executable
+.I program,
+returning the full path name to the program
+if it is found,
+and returning None if not.
+Searches the specified
+.I path,
+or the user's current PATH
+(os.environ['PATH'])
+by default.
+On Win32 systems, searches for executable
+programs with any of the file extensions
+listed in the specified
+.I pathext,
+or the user's current PATHEXT
+(os.environ['PATHEXT'])
+by default.
+
 .SH EXTENDING SCONS
 .SS Builder Objects
 .B scons

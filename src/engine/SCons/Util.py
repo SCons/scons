@@ -31,9 +31,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import copy
+import os
 import os.path
 import re
+import stat
 import string
+import sys
 import types
 import UserDict
 import UserList
@@ -279,3 +282,45 @@ if can_read_reg:
     HKEY_LOCAL_MACHINE = hkey_mod.HKEY_LOCAL_MACHINE
     HKEY_CURRENT_USER = hkey_mod.HKEY_CURRENT_USER
     HKEY_USERS = hkey_mod.HKEY_USERS
+
+
+if sys.platform == 'win32':
+
+    def WhereIs(file, path=None, pathext=None):
+        if path is None:
+            path = os.environ['PATH']
+        if is_String(path):
+            path = string.split(path, os.pathsep)
+        if pathext is None:
+            pathext = os.environ['PATHEXT']
+        if is_String(pathext):
+            pathext = string.split(pathext, os.pathsep)
+        for ext in pathext:
+            if string.lower(ext) == string.lower(file[-len(ext):]):
+                pathext = ['']
+                break
+        for dir in path:
+            f = os.path.join(dir, file)
+            for ext in pathext:
+                fext = f + ext
+                if os.path.isfile(fext):
+                    return fext
+        return None
+
+else:
+
+    def WhereIs(file, path=None, pathext=None):
+        if path is None:
+            path = os.environ['PATH']
+        if is_String(path):
+            path = string.split(path, os.pathsep)
+        for dir in path:
+            f = os.path.join(dir, file)
+            if os.path.isfile(f):
+                try:
+                    st = os.stat(f)
+                except:
+                    continue
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                    return f
+        return None

@@ -57,6 +57,8 @@ RELEASE 0.06 -
 
   - Add support for Aliases (phony targets).
 
+  - Add a WhereIs() method for searching for path names to executables.
+
   From Steve Leblanc:
 
   - Add support for the -U option.

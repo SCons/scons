@@ -221,6 +221,67 @@ class UtilTestCase(unittest.TestCase):
         assert not is_String({})
         assert not is_String([])
 
+    def test_WhereIs(self):
+        test = TestCmd.TestCmd(workdir = '')
+
+        sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
+        sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
+        sub3_xxx_exe = test.workpath('sub3', 'xxx.exe')
+        sub4_xxx_exe = test.workpath('sub4', 'xxx.exe')
+
+        test.subdir('subdir', 'sub1', 'sub2', 'sub3', 'sub4')
+
+        if sys.platform != 'win32':
+            test.write(sub1_xxx_exe, "\n")
+
+        os.mkdir(sub2_xxx_exe)
+
+        test.write(sub3_xxx_exe, "\n")
+        os.chmod(sub3_xxx_exe, 0777)
+
+        test.write(sub4_xxx_exe, "\n")
+        os.chmod(sub4_xxx_exe, 0777)
+
+        env_path = os.environ['PATH']
+
+        pathdirs_1234 = [ test.workpath('sub1'),
+                          test.workpath('sub2'),
+                          test.workpath('sub3'),
+                          test.workpath('sub4'),
+                        ] + string.split(env_path, os.pathsep)
+
+        pathdirs_1243 = [ test.workpath('sub1'),
+                          test.workpath('sub2'),
+                          test.workpath('sub4'),
+                          test.workpath('sub3'),
+                        ] + string.split(env_path, os.pathsep)
+
+        os.environ['PATH'] = string.join(pathdirs_1234, os.pathsep)
+        wi = WhereIs('xxx.exe')
+        assert wi == test.workpath(sub3_xxx_exe), wi
+        wi = WhereIs('xxx.exe', pathdirs_1243)
+        assert wi == test.workpath(sub4_xxx_exe), wi
+        wi = WhereIs('xxx.exe', string.join(pathdirs_1243, os.pathsep))
+        assert wi == test.workpath(sub4_xxx_exe), wi
+
+        os.environ['PATH'] = string.join(pathdirs_1243, os.pathsep)
+        wi = WhereIs('xxx.exe')
+        assert wi == test.workpath(sub4_xxx_exe), wi
+        wi = WhereIs('xxx.exe', pathdirs_1234)
+        assert wi == test.workpath(sub3_xxx_exe), wi
+        wi = WhereIs('xxx.exe', string.join(pathdirs_1234, os.pathsep))
+        assert wi == test.workpath(sub3_xxx_exe), wi
+
+	if sys.platform == 'win32':
+	    wi = WhereIs('xxx', pathext = '')
+	    assert wi is None, wi
+
+	    wi = WhereIs('xxx', pathext = '.exe')
+	    assert wi == test.workpath(sub4_xxx_exe), wi
+
+	    wi = WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
+	    assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

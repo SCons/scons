@@ -52,20 +52,6 @@ import SCons.Util
 
 
 
-def whereis(file):
-    for dir in string.split(os.environ['PATH'], os.pathsep):
-        f = os.path.join(dir, file)
-        if os.path.isfile(f):
-            try:
-                st = os.stat(f)
-            except:
-                continue
-            if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
-                return f
-    return None
-
-
-
 CFile = SCons.Builder.Builder(name = 'CFile',
                               action = { '.l'    : '$LEXCOM',
                                          '.y'    : '$YACCCOM',
@@ -295,7 +281,7 @@ if os.name == 'posix':
 
     arcom = '$AR $ARFLAGS $TARGET $SOURCES'
     ranlib = 'ranlib'
-    if whereis(ranlib):
+    if SCons.Util.WhereIs(ranlib):
         arcom = arcom + '\n$RANLIB $RANLIBFLAGS $TARGET'
 
     ConstructionEnvironment = {
