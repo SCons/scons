@@ -138,6 +138,7 @@ class UtilTestCase(unittest.TestCase):
 
             'AAA'       : 'a',
             'BBB'       : 'b',
+            'CCC'       : 'c',
 
             # $XXX$HHH should expand to GGGIII, not BADNEWS.
             'XXX'       : '$FFF',
@@ -166,6 +167,11 @@ class UtilTestCase(unittest.TestCase):
             'L'         : ['x', 'y'],
             'CS'        : cs,
             'CL'        : cl,
+
+            # Test function calls within ${}.
+            'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
+            'FUNC1'     : lambda x: x,
+            'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
 
             # Test recursion.
             #'RECURSE'   : 'foo $RECURSE bar',
@@ -262,17 +268,25 @@ class UtilTestCase(unittest.TestCase):
             #cl,                     'cl',
             '$CS',                  'cs',
             '$CL',                  'cl',
+
+            # Test function calls within ${}.
+            '$FUNCCALL',            'a xc b',
         ]
 
         kwargs = {'target' : target, 'source' : source}
 
+        failed = 0
         while cases:
             input, expect = cases[:2]
             expect = cvt(expect)
+            #print "    " + input
             result = apply(scons_subst, (input, env), kwargs)
-            assert result == expect, \
-                   "input %s => %s did not match %s" % (repr(input), result, expect)
+            if result != expect:
+                if failed == 0: print
+                print "    input %s => %s did not match %s" % (repr(input), repr(result), repr(expect))
+                failed = failed + 1
             del cases[:2]
+        assert failed == 0, "%d subst() cases failed" % failed
 
         # Tests of the various SUBST_* modes of substitution.
         subst_cases = [
@@ -297,28 +311,36 @@ class UtilTestCase(unittest.TestCase):
                 "a aA b",
 
             #"$RECURSE",
-            #   "foo  bar"
-            #   "foo bar"
-            #   "foo bar"
+            #   "foo  bar",
+            #   "foo bar",
+            #   "foo bar",
 
             #"$RRR",
-            #   "foo  bar"
-            #   "foo bar"
-            #   "foo bar"
+            #   "foo  bar",
+            #   "foo bar",
+            #   "foo bar",
         ]
 
+        failed = 0
         while subst_cases:
             input, eraw, ecmd, esig = subst_cases[:4]
             result = scons_subst(input, env, mode=SUBST_RAW)
-            assert result == eraw, \
-                   "input %s => RAW %s did not match %s" % (repr(input), result, eraw)
+            if result != eraw:
+                if failed == 0: print
+                print "    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw))
+                failed = failed + 1
             result = scons_subst(input, env, mode=SUBST_CMD)
-            assert result == ecmd, \
-                   "input %s => CMD %s did not match %s" % (repr(input), result, ecmd)
+            if result != ecmd:
+                if failed == 0: print
+                print "    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd))
+                failed = failed + 1
             result = scons_subst(input, env, mode=SUBST_SIG)
-            assert result == esig, \
-                   "input %s => SIG %s did not match %s" % (repr(input), result, esig)
+            if result != esig:
+                if failed == 0: print
+                print "    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig))
+                failed = failed + 1
             del subst_cases[:4]
+        assert failed == 0, "%d subst() mode cases failed" % failed
 
         # Test interpolating a callable.
         newcom = scons_subst("test $CMDGEN1 $SOURCES $TARGETS",
@@ -347,6 +369,10 @@ class UtilTestCase(unittest.TestCase):
             'xxx'       : None,
             'NEWLINE'   : 'before\nafter',
 
+            'AAA'       : 'a',
+            'BBB'       : 'b',
+            'CCC'       : 'c',
+
             'DO'        : DummyNode('do something'),
             'FOO'       : DummyNode('foo.in'),
             'BAR'       : DummyNode('bar with spaces.out'),
@@ -374,6 +400,11 @@ class UtilTestCase(unittest.TestCase):
             'L'         : ['x', 'y'],
             'CS'        : cs,
             'CL'        : cl,
+
+            # Test function calls within ${}.
+            'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
+            'FUNC1'     : lambda x: x,
+            'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
         }
 
         env = DummyEnv(loc)
@@ -413,7 +444,6 @@ class UtilTestCase(unittest.TestCase):
                 ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.cbefore"],
                 ["after", "foo/bar.exe", "/bar/baz with spaces.obj", "../foo/baz.obj", "This is a test"],
             ],
-
 
             # Test against a former bug in scons_subst_list().
             "$XXX$HHH",
@@ -459,35 +489,48 @@ class UtilTestCase(unittest.TestCase):
             ['$CS'],                [['cs']],
             '$CL',                  [['cl']],
             ['$CL'],                [['cl']],
+
+            # Test 
+            '$FUNCCALL',            [['a', 'xc', 'b']],
         ]
 
         kwargs = {'target' : target, 'source' : source}
 
+        failed = 0
         while cases:
             input, expect = cases[:2]
             expect = map(lambda l: map(cvt, l), expect)
             result = apply(scons_subst_list, (input, env), kwargs)
-            assert result == expect, \
-                   "input %s => %s did not match %s" % (repr(input), result, repr(expect))
+            if result != expect:
+                if failed == 0: print
+                print "    input %s => %s did not match %s" % (repr(input), result, repr(expect))
+                failed = failed + 1
             del cases[:2]
+        assert failed == 0, "%d subst_list() cases failed" % failed
 
         # Test interpolating a callable.
+        _t = DummyNode('t')
+        _s = DummyNode('s')
         cmd_list = scons_subst_list("testing $CMDGEN1 $TARGETS $SOURCES",
-                                    env,
-                                    target=DummyNode('t'),
-                                    source=DummyNode('s'))
+                                    env, target=_t, source=_s)
         assert cmd_list == [['testing', 'foo', 'bar with spaces.out', 't', 's']], cmd_list
 
         # Test escape functionality.
         def escape_func(foo):
             return '**' + foo + '**'
-        cmd_list = scons_subst_list("$LITERALS", env)
-        assert cmd_list == [['foo\nwith\nnewlines',
-                            'bar\nwith\nnewlines']], cmd_list
+        cmd_list = scons_subst_list("abc $LITERALS xyz", env)
+        assert cmd_list == [['abc',
+                             'foo\nwith\nnewlines',
+                             'bar\nwith\nnewlines',
+                             'xyz']], cmd_list
         cmd_list[0][0].escape(escape_func)
-        assert cmd_list[0][0] == '**foo\nwith\nnewlines**', cmd_list[0][0]
+        assert cmd_list[0][0] == 'abc', c
         cmd_list[0][1].escape(escape_func)
-        assert cmd_list[0][1] == '**bar\nwith\nnewlines**', cmd_list[0][0]
+        assert cmd_list[0][1] == '**foo\nwith\nnewlines**', c
+        cmd_list[0][2].escape(escape_func)
+        assert cmd_list[0][2] == '**bar\nwith\nnewlines**', c
+        cmd_list[0][3].escape(escape_func)
+        assert cmd_list[0][3] == 'xyz', c
 
     def test_splitext(self):
         assert splitext('foo') == ('foo','')
@@ -759,41 +802,34 @@ class UtilTestCase(unittest.TestCase):
 
     def test_Literal(self):
         """Test the Literal() function."""
-        cmd_list = [ '$FOO', Literal('$BAR') ]
-        cmd_list = scons_subst_list(cmd_list,
-                                    DummyEnv({ 'FOO' : 'BAZ',
-                                               'BAR' : 'BLAT' }))
+        input_list = [ '$FOO', Literal('$BAR') ]
+        dummy_env = DummyEnv({ 'FOO' : 'BAZ', 'BAR' : 'BLAT' })
+
         def escape_func(cmd):
             return '**' + cmd + '**'
 
+        cmd_list = scons_subst_list(input_list, dummy_env)
         map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
         cmd_list = map(str, cmd_list[0])
-        assert cmd_list[0] == 'BAZ', cmd_list[0]
-        assert cmd_list[1] == '**$BAR**', cmd_list[1]
+        assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
     def test_SpecialAttrWrapper(self):
         """Test the SpecialAttrWrapper() function."""
         input_list = [ '$FOO', SpecialAttrWrapper('$BAR', 'BLEH') ]
+        dummy_env = DummyEnv({ 'FOO' : 'BAZ', 'BAR' : 'BLAT' })
 
         def escape_func(cmd):
             return '**' + cmd + '**'
 
-        cmd_list = scons_subst_list(input_list,
-                                    DummyEnv({ 'FOO' : 'BAZ',
-                                               'BAR' : 'BLAT' }))
+        cmd_list = scons_subst_list(input_list, dummy_env)
         map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
         cmd_list = map(str, cmd_list[0])
-        assert cmd_list[0] == 'BAZ', cmd_list[0]
-        assert cmd_list[1] == '**$BAR**', cmd_list[1]
+        assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
-        cmd_list = scons_subst_list(input_list,
-                                    DummyEnv({ 'FOO' : 'BAZ',
-                                               'BAR' : 'BLAT' }),
-                                    mode=SUBST_SIG)
+        cmd_list = scons_subst_list(input_list, dummy_env, mode=SUBST_SIG)
         map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
         cmd_list = map(str, cmd_list[0])
-        assert cmd_list[0] == 'BAZ', cmd_list[0]
-        assert cmd_list[1] == '**BLEH**', cmd_list[1]
+        assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
 
     def test_mapPaths(self):
         """Test the mapPaths function"""
