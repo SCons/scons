@@ -137,4 +137,4 @@ foreach $doc (keys %doc_dirs) {
 #
 $env->Command($doc_tar_gz,
 	      @tar_deps,
-	      qq(cd build/doc && tar zcvf ../dist/%>:f @tar_list));
+	      qq(cd build/doc && tar zchvf ../dist/%>:f @tar_list));
