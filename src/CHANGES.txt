@@ -50,6 +50,11 @@ RELEASE 0.09 -
   - Add separate $SHOBJPREFIX and $SHOBJSUFFIX construction variables
     (by default, the same as $OBJPREFIX and $OBJSUFFIX).
 
+ From Steve LeBlanc:
+
+  - Refactor option processing to use our own version of Greg Ward's
+    Optik module, modified to run under Python 1.5.2.
+
  From Jeff Petkau:
 
   - Fix interpretation of '#/../foo' on Win32 systems.

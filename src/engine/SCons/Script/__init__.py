@@ -39,7 +39,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import time
 start_time = time.time()
 
-import getopt
 import os
 import os.path
 import string
@@ -65,6 +64,7 @@ from SCons.Taskmaster import Taskmaster
 import SCons.Builder
 import SCons.Script.SConscript
 import SCons.Warnings
+from SCons.Optik import OptionParser, SUPPRESS_HELP, OptionValueError
 
 
 #
@@ -99,9 +99,9 @@ class BuildTask(SCons.Taskmaster.Task):
                 # don't try to walk the stack, just print the error.
                 sys.stderr.write("\nSCons error: %s\n" % e)
                 raise
-	    except:
-		sys.stderr.write("scons: *** %s\n" % sys.exc_value)
-		raise
+            except:
+                sys.stderr.write("scons: *** %s\n" % sys.exc_value)
+                raise
 
     def executed(self):
         SCons.Taskmaster.Task.executed(self)
@@ -110,9 +110,9 @@ class BuildTask(SCons.Taskmaster.Task):
         if print_tree and self.top:
             print
             print SCons.Util.render_tree(self.targets[0], get_all_children)
-	if print_dtree and self.top:
-	    print
-	    print SCons.Util.render_tree(self.targets[0], get_derived_children)
+        if print_dtree and self.top:
+            print
+            print SCons.Util.render_tree(self.targets[0], get_derived_children)
 
     def failed(self):
         global exit_status
@@ -157,29 +157,18 @@ class QuestionTask(SCons.Taskmaster.Task):
 
 # Global variables
 
-include_dirs = []
-num_jobs = 1
-scripts = []
-task_class = BuildTask	# default action is to build targets
-current_func = None
-calc = None
-ignore_errors = 0
 keep_going_on_error = 0
-help_option = None
 print_tree = 0
 print_dtree = 0
 print_time = 0
+ignore_errors = 0
 sconscript_time = 0
 command_time = 0
-climb_up = 0
-target_top = None
 exit_status = 0 # exit status, assume success by default
 profiling = 0
-max_drift = None
 repositories = []
 sig_module = None
 
-#
 def print_it(text):
     print text
 
@@ -264,583 +253,55 @@ def _scons_other_errors():
     traceback.print_exc()
     sys.exit(2)
 
+def _varargs(option, parser):
+    value = None
+    if parser.rargs:
+        arg = parser.rargs[0]
+        if arg[0] != "-":
+            value = arg
+            del parser.rargs[0]
+    return value
 
-#
-# After options are initialized, the following variables are
-# filled in:
-#
-option_list = []	# list of Option objects
-short_opts = ""		# string of short (single-character) options
-long_opts = []		# array of long (--) options
-opt_func = {}		# mapping of option strings to functions
+def _setup_warn(arg):
+    """The --warn option.  An argument to this option
+    should be of the form <warning-class> or no-<warning-class>.
+    The warning class is munged in order to get an actual class
+    name from the SCons.Warnings module to enable or disable.
+    The supplied <warning-class> is split on hyphens, each element
+    is captialized, then smushed back together.  Then the string
+    "SCons.Warnings." is added to the front and "Warning" is added
+    to the back to get the fully qualified class name.
 
-def options_init():
-    """Initialize command-line options processing.
+    For example, --warn=deprecated will enable the
+    SCons.Warnings.DeprecatedWarning class.
 
-    This is in a subroutine mainly so we can easily single-step over
-    it in the debugger.
-    """
+    --warn=no-dependency will disable the
+    SCons.Warnings.DependencyWarning class.
 
-    class Option:
-	"""Class for command-line option information.
+    As a special case, --warn=all and --warn=no-all
+    will enable or disable (respectively) the base
+    class of all warnings, which is SCons.Warning.Warning."""
 
-	This exists to provide a central location for everything
-	describing a command-line option, so that we can change
-	options without having to update the code to handle the
-	option in one place, the -H help message in another place,
-	etc.  There are no methods here, only attributes.
+    elems = string.split(string.lower(arg), '-')
+    enable = 1
+    if elems[0] == 'no':
+        enable = 0
+        del elems[0]
 
-	You can initialize an Option with the following:
-
-	func	The function that will be called when this
-		option is processed on the command line.
-		Calling sequence is:
-
-			func(opt, arg)
-
-		If there is no func, then this Option probably
-		stores an optstring to be printed.
-
-	helpline
-		The string to be printed in -H output.  If no
-		helpline is specified but a help string is
-		specified (the usual case), a helpline will be
-		constructed automatically from the short, long,
-		arg, and help attributes.  (In practice, then,
-		setting helpline without setting func allows you
-		to print arbitrary lines of text in the -H
-		output.)
-
-	short	The string for short, single-hyphen
-		command-line options.
-		Do not include the hyphen:
-
-			'a' for -a, 'xy' for -x and -y, etc.
-
-	long	An array of strings for long, double-hyphen
-		command-line options.  Do not include
-		the initial hyphens:
-
-			['my-option', 'verbose']
-
-	arg	If this option takes an argument, this string
-		specifies how you want it to appear in the
-		-H output ('DIRECTORY', 'FILE', etc.).
-
-	help	The help string that will be printed for
-		this option in the -H output.  Must be
-		49 characters or fewer.
-
-		May be an array of strings, which will be
-		printed on successive lines.  The first string
-		must be 49 characters or fewer.  The remaining
-		strings will be indented two spaces and must
-		be 47 characters or fewer.
-
-	future	If non-zero, this indicates that this feature
-		will be supported in a future release, not
-		the currently planned one.  SCons will
-		recognize the option, but it won't show up
-		in the -H output.
-
-	The following attribute is derived from the supplied attributes:
-
-	optstring
-		A string, with hyphens, describing the flags
-		for this option, as constructed from the
-		specified short, long and arg attributes.
-
-	All Option objects are stored in the global option_list list,
-	in the order in which they're created.  This is the list
-	that's used to generate -H output, so the order in which the
-	objects are created is the order in which they're printed.
-
-	The upshot is that specifying a command-line option and having
-	everything work correctly is a matter of defining a function to
-	process its command-line argument (set the right flag, update
-	the right value), and then creating an appropriate Option object
-	at the correct point in the code below.
-	"""
-
-	def __init__(self, func = None, helpline = None,
-		 short = None, long = None, arg = None,
-		 help = None, future = None):
-	    self.func = func
-	    self.short = short
-	    self.long = long
-	    self.arg = arg
-	    if not SCons.Util.is_List(help):
-	        help = [help]
-	    self.help = help
-	    opts = []
-	    if self.short:
-		for c in self.short:
-		    if arg:
-			c = c + " " + arg
-		    opts = opts + ['-' + c]
-	    if self.long:
-		l = self.long
-		if arg:
-		    l = map(lambda x,a=arg: x + "=" + a, self.long)
-		opts = opts + map(lambda x: '--' + x, l)
-	    self.optstring = string.join(opts, ', ')
-	    if helpline:
-		self.helpline = helpline
-	    elif help and not future:
-		if len(self.optstring) <= 26:
-		    sep = " " * (28 - len(self.optstring))
-		else:
-		    sep = self.helpstring = "\n" + " " * 30
-		self.helpline = "  " + self.optstring + sep + \
-		                string.join(self.help, "\n" + " " * 32)
-	    else:
-		self.helpline = None
-	    global option_list
-	    option_list.append(self)
-
-    # Generic routine for to-be-written options, used by multiple
-    # options below.
-
-    def opt_not_yet(opt, arg):
-        sys.stderr.write("Warning:  the %s option is not yet implemented\n"
-			  % opt)
-
-    # In the following instantiations, the help string should be no
-    # longer than 49 characters.  Use the following as a guide:
-    #	help = "1234567890123456789012345678901234567890123456789"
-
-    def opt_ignore(opt, arg):
-	sys.stderr.write("Warning:  ignoring %s option\n" % opt)
-
-    Option(func = opt_ignore,
-	short = 'bmSt', long = ['no-keep-going', 'stop', 'touch'],
-	help = "Ignored for compatibility.")
-
-    def opt_c(opt, arg):
-        global task_class, calc
-        task_class = CleanTask
-        class CleanCalculator:
-            def bsig(self, node):
-                return None
-            def csig(self, node):
-                return None
-            def current(self, node, sig):
-                return 0
-            def write(self):
-                pass
-        calc = CleanCalculator()
-
-    Option(func = opt_c,
-	short = 'c', long = ['clean', 'remove'],
-	help = "Remove specified targets and dependencies.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['cache-disable', 'no-cache'],
-	help = "Do not retrieve built targets from Cache.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['cache-force', 'cache-populate'],
-	help = "Copy already-built targets into the Cache.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['cache-show'],
-	help = "Print what would have built Cached targets.")
-
-    def opt_C(opt, arg):
-	try:
-	    os.chdir(arg)
-	except:
-	    sys.stderr.write("Could not change directory to 'arg'\n")
-
-    Option(func = opt_C,
-	short = 'C', long = ['directory'], arg = 'DIRECTORY',
-	help = "Change to DIRECTORY before doing anything.")
-
-    Option(func = opt_not_yet,
-	short = 'd',
-	help = "Print file dependency information.")
-
-    def opt_D(opt, arg):
-        global climb_up
-        climb_up = 2
-
-    Option(func = opt_D,
-        short = 'D',
-        help = ["Search up directory tree for SConstruct,",
-                "build all Default() targets."])
-
-    def opt_debug(opt, arg):
-        global print_tree
-        global print_dtree
-        global print_time
-        if arg == "pdb":
-            args = [ sys.executable, "pdb.py" ] + \
-                     filter(lambda x: x != "--debug=pdb", sys.argv)
-            if sys.platform == 'win32':
-                args[1] = os.path.join(sys.prefix, "lib", "pdb.py")
-                sys.exit(os.spawnve(os.P_WAIT, args[0], args, os.environ))
-            else:
-                args[1] = os.path.join(sys.prefix,
-                                       "lib",
-                                       "python" + sys.version[0:3],
-				       "pdb.py")
-                os.execvpe(args[0], args, os.environ)
-        elif arg == "tree":
-            print_tree = 1
-        elif arg == "dtree":
-            print_dtree = 1
-        elif arg == "time":
-            print_time = 1
+    if len(elems) == 1 and elems[0] == 'all':
+        class_name = "Warning"
+    else:
+        class_name = string.join(map(string.capitalize, elems), '') + \
+                     "Warning"
+    try:
+        clazz = getattr(SCons.Warnings, class_name)
+    except AttributeError:
+        sys.stderr.write("No warning type: '%s'\n" % arg)
+    else:
+        if enable:
+            SCons.Warnings.enableWarningClass(clazz)
         else:
-            sys.stderr.write("Warning:  %s is not a valid debug type\n"
-                             % arg)
-
-    Option(func = opt_debug,
-           long = ['debug'], arg='TYPE',
-           help = "Print various types of debugging information.")
-
-    Option(func = opt_not_yet, future = 1,
-	short = 'e', long = ['environment-overrides'],
-	help = "Environment variables override makefiles.")
-
-    def opt_f(opt, arg):
-	global scripts
-        scripts.append(arg)
-
-    Option(func = opt_f,
-	short = 'f', long = ['file', 'makefile', 'sconstruct'], arg = 'FILE',
-	help = "Read FILE as the top-level SConstruct file.")
-
-    def opt_help(opt, arg):
-        global help_option
-        help_option = 'h'
-        def raisePrintHelp(text):
-            raise PrintHelp, text
-        SCons.Script.SConscript.HelpFunction = raisePrintHelp
-
-    Option(func = opt_help,
-	short = 'h', long = ['help'],
-	help = "Print defined help message, or this one.")
-
-    def opt_help_options(opt, arg):
-	global help_option
-        help_option = 'H'
-
-    Option(func = opt_help_options,
-	short = 'H', long = ['help-options'],
-	help = "Print this message and exit.")
-
-    def opt_i(opt, arg):
-        global ignore_errors
-        ignore_errors = 1
-
-    Option(func = opt_i,
-	short = 'i', long = ['ignore-errors'],
-	help = "Ignore errors from build actions.")
-
-    def opt_I(opt, arg):
-	global include_dirs
-	include_dirs = include_dirs + [arg]
-
-    Option(func = opt_I,
-	short = 'I', long = ['include-dir'], arg = 'DIRECTORY',
-	help = "Search DIRECTORY for imported Python modules.")
-
-    def opt_implicit_cache(opt, arg):
-        import SCons.Node
-        SCons.Node.implicit_cache = 1
-
-    Option(func = opt_implicit_cache,
-        long = ['implicit-cache'],
-        help = "Cache implicit (scanned) dependencies.")
-
-    def opt_implicit_deps_changed(opt, arg):
-        import SCons.Node
-        SCons.Node.implicit_cache = 1
-        SCons.Node.implicit_deps_changed = 1
-
-    Option(func = opt_implicit_deps_changed,
-        long = ['implicit-deps-changed'],
-        help = "Ignore the cached implicit dependencies.")
-
-    def opt_implicit_deps_unchanged(opt, arg):
-        import SCons.Node
-        SCons.Node.implicit_cache = 1
-        SCons.Node.implicit_deps_unchanged = 1
-
-    Option(func = opt_implicit_deps_unchanged,
-        long = ['implicit-deps-unchanged'],
-        help = "Ignore changes in implicit dependencies.")
-
-    def opt_j(opt, arg):
-	global num_jobs
-	try:
-            num_jobs = int(arg)
-	except:
-            print UsageString()
-            sys.exit(1)
-
-	if num_jobs <= 0:
-            print UsageString()
-            sys.exit(1)
-
-    Option(func = opt_j,
-	short = 'j', long = ['jobs'], arg = 'N',
-	help = "Allow N jobs at once.")
-
-    def opt_k(opt, arg):
-        global keep_going_on_error
-        keep_going_on_error = 1
-
-    Option(func = opt_k,
-	short = 'k', long = ['keep-going'],
-	help = "Keep going when a target can't be made.")
-
-    Option(func = opt_not_yet, future = 1,
-	short = 'l', long = ['load-average', 'max-load'], arg = 'N',
-	help = "Don't start multiple jobs unless load is below N.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['list-derived'],
-	help = "Don't build; list files that would be built.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['list-actions'],
-	help = "Don't build; list files and build actions.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['list-where'],
-	help = "Don't build; list files and where defined.")
-
-    def opt_max_drift(opt, arg):
-        global max_drift
-        try:
-            max_drift = int(arg)
-        except ValueError:
-            raise UserError, "The argument for --max-drift must be an integer."
-
-    Option(func = opt_max_drift,
-        long = ['max-drift'],
-        arg = 'SECONDS',
-        help = "Set the maximum system clock drift to be SECONDS.")
-
-    def opt_n(opt, arg):
-	SCons.Action.execute_actions = None
-	CleanTask.execute = CleanTask.show
-
-    Option(func = opt_n,
-	short = 'n', long = ['no-exec', 'just-print', 'dry-run', 'recon'],
-	help = "Don't build; just print commands.")
-
-    Option(func = opt_not_yet, future = 1,
-	short = 'o', long = ['old-file', 'assume-old'], arg = 'FILE',
-	help = "Consider FILE to be old; don't rebuild it.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['override'], arg = 'FILE',
-	help = "Override variables as specified in FILE.")
-
-    Option(func = opt_not_yet, future = 1,
-	short = 'p',
-	help = "Print internal environments/objects.")
-
-    def opt_profile(opt, arg):
-        global profiling
-        if not profiling:
-            profiling = 1
-            import profile
-            profile.run('SCons.Script.main()', arg)
-            sys.exit(exit_status)
-
-    Option(func = opt_profile,
-	long = ['profile'], arg = 'FILE',
-	help = "Profile SCons and put results in FILE.")
-
-    def opt_Q(opt, arg):
-	global display
-	def dont_print_it(text):
-	    pass
-	display = dont_print_it
-
-    Option(func = opt_Q,
-	short = 'Q',
-	help = "Don't print SCons progress messages.")
-
-    def opt_q(opt, arg):
-        global task_class
-        task_class = QuestionTask
-
-    Option(func = opt_q,
-	short = 'q', long = ['question'],
-	help = "Don't build; exit status says if up to date.")
-
-    Option(func = opt_not_yet, future = 1,
-	short = 'rR', long = ['no-builtin-rules', 'no-builtin-variables'],
-	help = "Clear default environments and variables.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['random'],
-	help = "Build dependencies in random order.")
-
-    def opt_s(opt, arg):
-	global display
-	def dont_print_it(text):
-	    pass
-	display = dont_print_it
-	SCons.Action.print_actions = None
-
-    Option(func = opt_s,
-	short = 's', long = ['silent', 'quiet'],
-	help = "Don't print commands.")
-
-    def opt_u(opt, arg):
-        global climb_up
-        climb_up = 1
-
-    Option(func = opt_u,
-	short = 'u', long = ['up', 'search-up'],
-        help = ["Search up directory tree for SConstruct,",
-                "build targets at or below current directory."])
-
-    def opt_U(opt, arg):
-        global climb_up
-        climb_up = 3
-
-    Option(func = opt_U,
-        short = 'U',
-        help = ["Search up directory tree for SConstruct,",
-                "build Default() targets from local SConscript."])
-
-    def option_v(opt, arg):
-        import __main__
-        import SCons
-	print "SCons by Steven Knight et al.:"
-	try:
-	    print "\tscript: v%s.%s, %s, by %s on %s" % (__main__.__version__,
-							 __main__.__build__,
-							 __main__.__date__,
-							 __main__.__developer__,
-							 __main__.__buildsys__)
-	except:
-	    # On win32 there is no scons.py, so there is no __main__.__version__,
-	    # hence there is no script version.
-	    pass 
-	print "\tengine: v%s.%s, %s, by %s on %s" % (SCons.__version__,
-                                                    SCons.__build__,
-                                                    SCons.__date__,
-                                                    SCons.__developer__,
-                                                    SCons.__buildsys__)
-	print "Copyright 2001, 2002 Steven Knight"
-	sys.exit(0)
-
-    Option(func = option_v,
-	short = 'v', long = ['version'],
-	help = "Print the SCons version number and exit.")
-
-    Option(func = opt_not_yet, future = 1,
-	short = 'w', long = ['print-directory'],
-	help = "Print the current directory.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['no-print-directory'],
-	help = "Turn off -w, even if it was turned on implicitly.")
-
-    Option(func = opt_not_yet, future = 1,
-	long = ['write-filenames'], arg = 'FILE',
-	help = "Write all filenames examined into FILE.")
-
-    Option(func = opt_not_yet, future = 1,
-	short = 'W', long = ['what-if', 'new-file', 'assume-new'], arg = 'FILE',
-	help = "Consider FILE to be changed.")
-
-    def opt_warn(opt, arg):
-        """The --warn option.  An argument to this option
-        should be of the form <warning-class> or no-<warning-class>.
-        The warning class is munged in order to get an actual class
-        name from the SCons.Warnings module to enable or disable.
-        The supplied <warning-class> is split on hyphens, each element
-        is captialized, then smushed back together.  Then the string
-        "SCons.Warnings." is added to the front and "Warning" is added
-        to the back to get the fully qualified class name.
-
-        For example, --warn=deprecated will enable the
-        SCons.Warnings.DeprecatedWarning class.
-
-        --warn=no-dependency will disable the
-        SCons.Warnings.DependencyWarning class.
-
-        As a special case, --warn=all and --warn=no-all
-        will enable or disable (respectively) the base
-        class of all warnings, which is SCons.Warning.Warning."""
-        
-        elems = string.split(string.lower(arg), '-')
-        enable = 1
-        if elems[0] == 'no':
-            enable = 0
-            del elems[0]
-
-        if len(elems) == 1 and elems[0] == 'all':
-            class_name = "Warning"
-        else:
-            class_name = string.join(map(string.capitalize, elems), '') + \
-                         "Warning"
-        try:
-            clazz = getattr(SCons.Warnings, class_name)
-        except AttributeError:
-            sys.stderr.write("No warning type: '%s'\n" % arg)
-        else:
-            if enable:
-                SCons.Warnings.enableWarningClass(clazz)
-            else:
-                SCons.Warnings.suppressWarningClass(clazz)
-
-    Option(func = opt_warn,
-           long = [ 'warn', 'warning' ], arg='WARNING-SPEC',
-           help = "Enable or disable warnings.")
-
-
-    # We want to preserve the --warn-undefined-variables option for
-    # compatibility with GNU Make.  Unfortunately, this conflicts with
-    # the --warn=type option that we're using for our own warning
-    # control.  The getopt module reports "--warn not a unique prefix"
-    # when both are defined.  We may be able to support both in the
-    # future with a more robust getopt solution.
-    #
-    #Option(func = opt_not_yet, future = 1,
-    #    long = ['warn-undefined-variables'],
-    #    help = "Warn when an undefined variable is referenced.")
-
-    def opt_Y(opt, arg):
-        global repositories
-        repositories.append(arg)
-
-    Option(func = opt_Y,
-	short = 'Y', long = ['repository'], arg = 'REPOSITORY',
-	help = "Search REPOSITORY for source and target files.")
-
-    global short_opts
-    global long_opts
-    global opt_func
-    for o in option_list:
-	if o.short:
-	    if o.func:
-		for c in o.short:
-		    opt_func['-' + c] = o.func
-	    short_opts = short_opts + o.short
-	    if o.arg:
-		short_opts = short_opts + ":"
-	if o.long:
-	    if o.func:
-		for l in o.long:
-		    opt_func['--' + l] = o.func
-	    if o.arg:
-		long_opts = long_opts + map(lambda a: a + "=", o.long)
-	    else:
-		long_opts = long_opts + o.long
-
-options_init()
-
-
+            SCons.Warnings.suppressWarningClass(clazz)
 
 def _SConstruct_exists(dirname=''):
     """This function checks that an SConstruct file exists in a directory.
@@ -858,60 +319,343 @@ def _SConstruct_exists(dirname=''):
                     return sfile
     return None
 
+def _set_globals(options):
+    global repositories, keep_going_on_error, print_tree, print_dtree
+    global print_time, ignore_errors
 
-def UsageString():
-    help_opts = filter(lambda x: x.helpline, option_list)
-    s = "Usage: scons [OPTION] [TARGET] ...\n" + "Options:\n" + \
-	string.join(map(lambda x: x.helpline, help_opts), "\n") + "\n"
-    return s
+    if options.repository:
+        repositories.extend(options.repository)
+    keep_going_on_error = options.keep_going
+    try:
+        if options.debug:
+            if options.debug == "tree":
+                print_tree = 1
+            elif options.debug == "dtree":
+                print_dtree = 1
+            elif options.debug == "time":
+                print_time = 1
+    except AttributeError:
+        pass
+    ignore_errors = options.ignore_errors
 
+def _create_path(plist):
+    path = '.'
+    for d in plist:
+        if os.path.isabs(d):
+            path = d
+        else:
+            path = path + '/' + d
+    return path
+
+
+class OptParser(OptionParser):
+    def __init__(self):
+        import __main__
+        import SCons
+        parts = ["SCons by Steven Knight et al.:\n"]
+        try:
+            parts.append("\tscript: v%s.%s, %s, by %s on %s\n" % (__main__.__version__,
+                                                                  __main__.__build__,
+                                                                  __main__.__date__,
+                                                                  __main__.__developer__,
+                                                                  __main__.__buildsys__))
+        except:
+            # On win32 there is no scons.py, so there is no __main__.__version__,
+            # hence there is no script version.
+            pass 
+        parts.append("\tengine: v%s.%s, %s, by %s on %s\n" % (SCons.__version__,
+                                                              SCons.__build__,
+                                                              SCons.__date__,
+                                                              SCons.__developer__,
+                                                              SCons.__buildsys__))
+        parts.append("Copyright 2001, 2002 Steven Knight")
+        OptionParser.__init__(self, version=string.join(parts, ''),
+                              usage="usage: scons [OPTION] [TARGET] ...")
+
+        # options ignored for compatibility
+        def opt_ignore(option, opt, value, parser):
+            sys.stderr.write("Warning:  ignoring %s option\n" % opt)
+        self.add_option("-b", "-m", "-S", "-t", "--no-keep-going", "--stop",
+                        "--touch", action="callback", callback=opt_ignore,
+                        help="Ignored for compatibility.")
+
+        def opt_c(option, opt, value, parser):
+            setattr(parser.values, 'clean', 1)
+        self.add_option('-c', '--clean', '--remove', action="callback",
+                        callback=opt_c,
+                        help="Remove specified targets and dependencies.")
+
+        self.add_option('-C', '--directory', type="string", action = "append",
+                        help="Change to DIRECTORY before doing anything.")
+
+        def opt_not_yet(option, opt, value, parser):
+            sys.stderr.write("Warning:  the %s option is not yet implemented\n" % opt)
+            sys.exit(0)
+        self.add_option('-d', action="callback",
+                        callback=opt_not_yet,
+                        help = "Print file dependency information.")
+        
+        self.add_option('-D', action="store_const", const=2, dest="climb_up",
+                        help="Search up directory tree for SConstruct, "
+                             "build all Default() targets.")
+
+        def opt_debug(option, opt, value, parser):
+            if value == "pdb":
+                args = [ sys.executable, "pdb.py" ] + \
+                       filter(lambda x: x != "--debug=pdb", sys.argv)
+                if sys.platform == 'win32':
+                    args[1] = os.path.join(sys.prefix, "lib", "pdb.py")
+                    sys.exit(os.spawnve(os.P_WAIT, args[0], args, os.environ))
+                else:
+                    args[1] = os.path.join(sys.prefix,
+                                           "lib",
+                                           "python" + sys.version[0:3],
+                                           "pdb.py")
+                os.execvpe(args[0], args, os.environ)
+            elif value in ["tree", "dtree", "time"]:
+                setattr(parser.values, 'debug', value)
+            else:
+                raise OptionValueError("Warning:  %s is not a valid debug type" % value)
+        self.add_option('--debug', action="callback", type="string",
+                        callback=opt_debug, nargs=1, dest="debug",
+                        help="Print various types of debugging information.")
+
+        self.add_option('-f', '--file', '--makefile', '--sconstruct',
+                        action="append", nargs=1,
+                        help="Read FILE as the top-level SConstruct file.")
+
+        self.add_option('-h', '--help', action="store_true", default=0,
+                        dest="help_msg",
+                        help="Print defined help message, or this one.")
+
+        self.add_option("-H", "--help-options",
+                        action="help",
+                        help="Print this message and exit.")
+
+        self.add_option('-i', '--ignore-errors', action="store_true",
+                        default=0, dest='ignore_errors',
+                        help="Ignore errors from build actions.")
+
+        self.add_option('-I', '--include-dir', action="append",
+                        dest='include_dir', metavar="DIRECTORY",
+                        help="Search DIRECTORY for imported Python modules.")
+
+        self.add_option('--implicit-cache', action="store_true", default=0,
+                        dest='implicit_cache',
+                        help="Cache implicit dependencies")
+
+        self.add_option('--implicit-deps-changed', action="store_true",
+                        default=0, dest='implicit_deps_changed',
+                        help="Ignore the cached implicit deps.")
+        self.add_option('--implicit-deps-unchanged', action="store_true",
+                        default=0, dest='implicit_deps_unchanged',
+                        help="Ignore changes in implicit deps.")
+
+        def opt_j(option, opt, value, parser):
+            value = int(value)
+            setattr(parser.values, 'num_jobs', value)
+        self.add_option('-j', '--jobs', action="callback", type="int",
+                        callback=opt_j, metavar="N",
+                        help="Allow N jobs at once.")
+
+        self.add_option('-k', '--keep-going', action="store_true", default=0,
+                        dest='keep_going',
+                        help="Keep going when a target can't be made.")
+
+        self.add_option('--max-drift', type="int", action="store",
+                        dest='max_drift',
+                        help="Set the maximum system clock drift to be"
+                             " MAX_DRIFT seconds.")
+
+        self.add_option('-n', '--no-exec', '--just-print', '--dry-run',
+                        '--recon', action="store_true", dest='noexec',
+                        default=0, help="Don't build; just print commands.")
+
+        def opt_profile(option, opt, value, parser):
+            global profiling
+            if not profiling:
+                profiling = 1
+                import profile
+                profile.run('SCons.Script.main()', value)
+                sys.exit(exit_status)
+        self.add_option('--profile', nargs=1, action="callback",
+                        callback=opt_profile, type="string", dest="profile",
+                        help="Profile SCons and put results in PROFILE.")
+
+        self.add_option('-q', '--question', action="store_true", default=0,
+                        help="Don't build; exit status says if up to date.")
+
+        self.add_option('-Q', dest='no_progress', action="store_true",
+                        default=0,
+                        help="Don't print SCons progress messages.")
+
+        self.add_option('-s', '--silent', '--quiet', action="store_true",
+                        default=0, help="Don't print commands.")
+
+        self.add_option('-u', '--up', '--search-up', action="store_const",
+                        dest="climb_up", default=0, const=1,
+                        help="Search up directory tree for SConstruct, "
+                             "build targets at or below current directory.")
+        self.add_option('-U', action="store_const", dest="climb_up",
+                        default=0, const=3,
+                        help="Search up directory tree for SConstruct, "
+                             "build Default() targets from local SConscript.")
+
+        self.add_option("-v", "--version",
+                        action="version",
+                        help="Print the SCons version number and exit.")
+
+        self.add_option('--warn', '--warning', nargs=1, action="store",
+                        metavar="WARNING-SPEC",
+                        help="Enable or disable warnings.")
+
+        self.add_option('-Y', '--repository', nargs=1, action="append",
+                        help="Search REPOSITORY for source and target files.")
+
+        self.add_option('--cache-disable', '--no-cache', action="callback",
+                        callback=opt_not_yet,
+                        # help = "Do not retrieve built targets from Cache."
+                        help=SUPPRESS_HELP)
+        self.add_option('--cache-force', '--cache-populate', action="callback",
+                        callback=opt_not_yet,
+                        # help = "Copy already-built targets into the Cache."
+                        help=SUPPRESS_HELP)
+        self.add_option('--cache-show', action="callback",
+                        callback=opt_not_yet,
+                        # help = "Print what would have built Cached targets.",
+                        help=SUPPRESS_HELP)
+        self.add_option('-e', '--environment-overrides', action="callback",
+                        callback=opt_not_yet,
+                        # help="Environment variables override makefiles."
+                        help=SUPPRESS_HELP)
+        self.add_option('-l', '--load-average', '--max-load', action="callback",
+                        callback=opt_not_yet, type="int", dest="load_average",
+                        # action="store",
+                        # help="Don't start multiple jobs unless load is below "
+                        #      "LOAD-AVERAGE."
+                        # type="int",
+                        help=SUPPRESS_HELP)
+        self.add_option('--list-derived', action="callback",
+                        callback=opt_not_yet,
+                        # help="Don't build; list files that would be built."
+                        help=SUPPRESS_HELP)
+        self.add_option('--list-actions', action="callback",
+                        callback=opt_not_yet,
+                        # help="Don't build; list files and build actions."
+                        help=SUPPRESS_HELP)
+        self.add_option('--list-where', action="callback",
+                        callback=opt_not_yet,
+                        # help="Don't build; list files and where defined."
+                        help=SUPPRESS_HELP)
+        self.add_option('-o', '--old-file', '--assume-old', action="callback",
+                        callback=opt_not_yet, type="string", dest="old_file",
+                        # help = "Consider FILE to be old; don't rebuild it."
+                        help=SUPPRESS_HELP)
+        self.add_option('--override', action="callback", dest="override",
+                        callback=opt_not_yet, type="string",
+                        # help="Override variables as specified in FILE."
+                        help=SUPPRESS_HELP)
+        self.add_option('-p', action="callback",
+                        callback=opt_not_yet,
+                        # help="Print internal environments/objects."
+                        help=SUPPRESS_HELP)
+        self.add_option('-r', '-R', '--no-builtin-rules',
+                        '--no-builtin-variables', action="callback",
+                        callback=opt_not_yet,
+                        # help="Clear default environments and variables."
+                        help=SUPPRESS_HELP)
+        self.add_option('--random', action="callback",
+                        callback=opt_not_yet,
+                        # help="Build dependencies in random order."
+                        help=SUPPRESS_HELP)
+        self.add_option('-w', '--print-directory', action="callback",
+                        callback=opt_not_yet,
+                        # help="Print the current directory."
+                        help=SUPPRESS_HELP)
+        self.add_option('--no-print-directory', action="callback",
+                        callback=opt_not_yet,
+                        # help="Turn off -w, even if it was turned on implicitly."
+                        help=SUPPRESS_HELP)
+        self.add_option('--write-filenames', action="callback",
+                        callback=opt_not_yet, type="string", dest="write_filenames",
+                        # help="Write all filenames examined into FILE."
+                        help=SUPPRESS_HELP)
+        self.add_option('-W', '--what-if', '--new-file', '--assume-new',
+                        dest="new_file",
+                        action="callback", callback=opt_not_yet, type="string",
+                        # help="Consider FILE to be changed."
+                        help=SUPPRESS_HELP)
+        self.add_option('--warn-undefined-variables', action="callback",
+                        callback=opt_not_yet,
+                        # help="Warn when an undefined variable is referenced."
+                        help=SUPPRESS_HELP)
+
+    def parse_args(self, args=None, values=None):
+        opt, arglist = OptionParser.parse_args(self, args, values)
+        if opt.implicit_deps_changed or opt.implicit_deps_unchanged:
+            opt.implicit_cache = 1
+        if not hasattr(opt, "num_jobs"):
+            setattr(opt, "num_jobs", 1)
+        return opt, arglist
 
 
 def _main():
-    global scripts, num_jobs, task_class, calc, target_top
+    import SCons.Node
 
     targets = []
-
-    # It looks like 2.0 changed the name of the exception class
-    # raised by getopt.
-    try:
-	getopt_err = getopt.GetoptError
-    except:
-	getopt_err = getopt.error
 
     # Enable deprecated warnings by default.
     SCons.Warnings._warningOut = _scons_internal_warning
     SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.CorruptSConsignWarning)
 
+    all_args = sys.argv[1:]
     try:
-	cmd_opts, t = getopt.getopt(string.split(os.environ['SCONSFLAGS']),
-					  short_opts, long_opts)
+        all_args = string.split(os.environ['SCONSFLAGS']) + all_args
     except KeyError:
-	# It's all right if there's no SCONSFLAGS environment variable.
-	pass
-    except getopt_err, x:
-	_scons_user_warning("SCONSFLAGS " + str(x))
-    else:
-	for opt, arg in cmd_opts:
-	    opt_func[opt](opt, arg)
+            # it's OK if there's no SCONSFLAGS
+            pass
+    parser = OptParser()
+    options, args = parser.parse_args(all_args)
 
-    try:
-        cmd_opts, args = getopt.getopt(sys.argv[1:], short_opts, long_opts)
-    except getopt_err, x:
-	_scons_user_error(x)
-    else:
-	for opt, arg in cmd_opts:
-	    opt_func[opt](opt, arg)
-        xmit_args = []
-        for a in args:
-            if '=' in a:
-                xmit_args.append(a)
-            else:
-                targets.append(a)
-        SCons.Script.SConscript._scons_add_args(xmit_args)
+    if options.help_msg:
+        def raisePrintHelp(text):
+            raise PrintHelp, text
+        SCons.Script.SConscript.HelpFunction = raisePrintHelp
 
-    if climb_up:
+    _set_globals(options)
+    SCons.Node.implicit_cache = options.implicit_cache
+    SCons.Node.implicit_deps_changed = options.implicit_deps_changed
+    SCons.Node.implicit_deps_unchanged = options.implicit_deps_unchanged
+    if options.warn:
+        _setup_warn(options.warn)
+    if options.noexec:
+        SCons.Action.execute_actions = None
+        CleanTask.execute = CleanTask.show
+    if options.no_progress or options.silent:
+        global display
+        def dont_print_it(text):
+            pass
+        display = dont_print_it
+    if options.silent:
+        SCons.Action.print_actions = None
+    if options.directory:
+        cdir = _create_path(options.directory)
+        try:
+            os.chdir(cdir)
+        except:
+            sys.stderr.write("Could not change directory to %s\n" % cdir)
+
+    xmit_args = []
+    for a in args:
+        if '=' in a:
+            xmit_args.append(a)
+        else:
+            targets.append(a)
+    SCons.Script.SConscript._scons_add_args(xmit_args)
+
+    target_top = None
+    if options.climb_up:
         target_top = '.'  # directory to prepend to targets
         script_dir = os.getcwd()  # location of script
         while script_dir and not _SConstruct_exists(script_dir):
@@ -928,24 +672,25 @@ def _main():
 
     SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
 
+    scripts = []
+    if options.file:
+        scripts.extend(options.file)
     if not scripts:
         sfile = _SConstruct_exists()
         if sfile:
             scripts.append(sfile)
 
-    if help_option == 'H':
-	print UsageString()
-	sys.exit(0)
-
-    if not scripts:
-        if help_option == 'h':
+    if options.help_msg:
+        if not scripts:
             # There's no SConstruct, but they specified -h.
             # Give them the options usage now, before we fail
             # trying to read a non-existent SConstruct file.
-	    print UsageString()
-	    sys.exit(0)
-	else:
-	    raise UserError, "No SConstruct file found."
+            parser.print_help()
+            sys.exit(0)
+        SCons.Script.SConscript.print_help = 1
+
+    if not scripts:
+        raise UserError, "No SConstruct file found."
 
     class Unbuffered:
         def __init__(self, file):
@@ -958,7 +703,8 @@ def _main():
 
     sys.stdout = Unbuffered(sys.stdout)
 
-    sys.path = include_dirs + sys.path
+    if options.include_dir:
+        sys.path = options.include_dir + sys.path
 
     global repositories
     for rep in repositories:
@@ -976,27 +722,26 @@ def _main():
         print text
         print "Use scons -H for help about command-line options."
         sys.exit(0)
-
     display("scons: done reading SConscript files.")
 
     SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
-    if help_option == 'h':
-	# They specified -h, but there was no Help() inside the
-	# SConscript files.  Give them the options usage.
-	print UsageString()
-	sys.exit(0)
+    if options.help_msg:
+        # They specified -h, but there was no Help() inside the
+        # SConscript files.  Give them the options usage.
+        parser.print_help(sys.stdout)
+        sys.exit(0)
 
     if target_top:
         target_top = SCons.Node.FS.default_fs.Dir(target_top)
         
-        if climb_up == 2 and not targets:
+        if options.climb_up == 2 and not targets:
             # -D with default targets
             target_top = None
-        elif climb_up == 3 and not targets:
+        elif options.climb_up == 3 and not targets:
             # -U with default targets
             default_targets = SCons.Script.SConscript.default_targets
-            def check_dir(x):
+            def check_dir(x, target_top=target_top):
                 cwd = x.cwd.srcnode()
                 return cwd == target_top
             default_targets = filter(check_dir, default_targets)
@@ -1038,22 +783,42 @@ def _main():
 
     nodes = filter(lambda x: x is not None, map(Entry, targets))
 
+    calc = None
+    task_class = BuildTask	# default action is to build targets
+    if options.question:
+        task_class = QuestionTask
+    try:
+        if options.clean:
+            task_class = CleanTask
+            class CleanCalculator:
+                def bsig(self, node):
+                    return None
+                def csig(self, node):
+                    return None
+                def current(self, node, sig):
+                    return 0
+                def write(self):
+                    pass
+            calc = CleanCalculator()
+    except AttributeError:
+        pass
+
     if not calc:
-        if max_drift is not None:
-            if sig_module is not None:
+        if options.max_drift is not None:
+	    if sig_module is not None:
                 SCons.Sig.default_calc = SCons.Sig.Calculator(module=sig_module,
-                                                              max_drift=max_drift)
-            else:
-                SCons.Sig.default_calc = SCons.Sig.Calculator(max_drift=max_drift)
+                                                              max_drift=options.max_drift)
+	    else:
+                SCons.Sig.default_calc = SCons.Sig.Calculator(max_drift=options.max_drift)
         elif sig_module is not None:
             SCons.Sig.default_calc = SCons.Sig.Calculator(module=sig_module)
-            
+
         calc = SCons.Sig.default_calc
 
     display("scons: Building targets ...")
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
 
-    jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+    jobs = SCons.Job.Jobs(options.num_jobs, taskmaster)
 
     try:
         jobs.run()

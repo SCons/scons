@@ -49,9 +49,9 @@ stats.strip_dirs().print_stats()
 s = sys.stdout.getvalue()
 
 test.fail_test(string.find(s, '__init__.py') == -1)
-test.fail_test(string.find(s, 'option_v') == -1)
+test.fail_test(string.find(s, 'print_version') == -1)
 test.fail_test(string.find(s, 'SCons.Script.main()') == -1)
-test.fail_test(string.find(s, 'getopt.py') == -1)
+test.fail_test(string.find(s, 'option_parser.py') == -1)
 
 
 scons_prof = test.workpath('scons2.prof')
@@ -70,9 +70,9 @@ stats.strip_dirs().print_stats()
 s = sys.stdout.getvalue()
 
 test.fail_test(string.find(s, '__init__.py') == -1)
-test.fail_test(string.find(s, 'option_v') == -1)
+test.fail_test(string.find(s, 'print_version') == -1)
 test.fail_test(string.find(s, 'SCons.Script.main()') == -1)
-test.fail_test(string.find(s, 'getopt.py') == -1)
+test.fail_test(string.find(s, 'option_parser.py') == -1)
  
 
 test.pass_test()

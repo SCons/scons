@@ -68,6 +68,14 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Node/FS.pyc
 /usr/lib/scons/SCons/Node/__init__.py
 /usr/lib/scons/SCons/Node/__init__.pyc
+/usr/lib/scons/SCons/Optik/__init__.py
+/usr/lib/scons/SCons/Optik/__init__.pyc
+/usr/lib/scons/SCons/Optik/errors.py
+/usr/lib/scons/SCons/Optik/errors.pyc
+/usr/lib/scons/SCons/Optik/option.py
+/usr/lib/scons/SCons/Optik/option.pyc
+/usr/lib/scons/SCons/Optik/option_parser.py
+/usr/lib/scons/SCons/Optik/option_parser.pyc
 /usr/lib/scons/SCons/Options.py
 /usr/lib/scons/SCons/Options.pyc
 /usr/lib/scons/SCons/Platform/cygwin.py

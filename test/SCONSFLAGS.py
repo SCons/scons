@@ -29,7 +29,7 @@ import TestSCons
 import os
 import string
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons()
 
 wpath = test.workpath()
 
@@ -59,11 +59,10 @@ test.fail_test(string.find(test.stdout(), '-H, --help-options') == -1)
 
 os.environ['SCONSFLAGS'] = '-Z'
 
-test.run(arguments = "-H", stderr = r"""
-SCons warning: SCONSFLAGS option -Z not recognized
-File "[^"]*", line \d+, in \S+
-""")
+test.run(arguments = "-H", status = 2,
+         stderr = r"""usage: scons [OPTION] [TARGET] ...
 
-test.fail_test(string.find(test.stdout(), '-H, --help-options') == -1)
+SCons error: no such option: -Z
+""")
 
 test.pass_test()

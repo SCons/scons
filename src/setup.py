@@ -76,6 +76,7 @@ arguments = {
     'version'          : "__VERSION__",
     'packages'         : ["SCons",
                           "SCons.Node",
+                          "SCons.Optik",
                           "SCons.Platform",
                           "SCons.Scanner",
                           "SCons.Script",

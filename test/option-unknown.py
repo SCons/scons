@@ -29,21 +29,21 @@ import TestSCons
 import string
 import sys
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
 test.run(arguments = '-Z',
-         stderr = """
-SCons error: option -Z not recognized
-File "\S+", line \d+, in short_has_arg
+         stderr = """usage: scons [OPTION] [TARGET] ...
+
+SCons error: no such option: -Z
 """,
          status = 2)
 
 test.run(arguments = '--ZizzerZazzerZuzz',
-         stderr = """
-SCons error: option --ZizzerZazzerZuzz not recognized
-File "\S+", line \d+, in long_has_args
+         stderr = """usage: scons [OPTION] [TARGET] ...
+
+SCons error: no such option: --ZizzerZazzerZuzz
 """,
          status = 2)
 
