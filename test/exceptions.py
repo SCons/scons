@@ -43,9 +43,10 @@ test.write('foo.in', "foo.in\n")
 
 test.run(arguments = "foo.out", stderr = """scons: \*\*\* \[foo.out\] Exception
 Traceback \((most recent call|innermost) last\):
-  File ".+", line \d+, in .+
-  File ".+", line \d+, in .+
-  File ".+", line \d+, in .+
+  File ".+", line \d+, in \S+
+    [^\n]+
+  File ".+", line \d+, in \S+
+    [^\n]+
   File "SConstruct", line 3, in func
     raise "func exception"
 func exception

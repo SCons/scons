@@ -60,11 +60,14 @@ class Task:
         self.top = top
         self.node = node
 
-
     def prepare(self):
-        """Called just before the task is executed."""
+        """Called just before the task is executed.
+
+        This unlinks all targets and makes all directories before
+        building anything."""
         if self.targets[0].get_state() != SCons.Node.up_to_date:
-            self.targets[0].prepare()
+            for t in self.targets:
+                t.prepare()
 
     def execute(self):
         """Called to execute the task.

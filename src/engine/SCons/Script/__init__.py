@@ -73,14 +73,34 @@ from SCons.Optik import OptionParser, SUPPRESS_HELP, OptionValueError
 class BuildTask(SCons.Taskmaster.Task):
     """An SCons build task."""
     def execute(self):
-        t = self.targets[0]
-        if t.get_state() == SCons.Node.up_to_date:
-            if self.top and t.builder:
-                display('scons: "%s" is up to date.' % str(self.targets[0]))
-        else:
+        target = self.targets[0]
+        if target.get_state() == SCons.Node.up_to_date:
+            if self.top and target.builder:
+                display('scons: "%s" is up to date.' % str(target))
+        elif target.builder and not hasattr(target.builder, 'status'):
+            action_list = target.get_actions()
+            if not action_list:
+                return
+            env = target.generate_build_env()
             if print_time:
                 start_time = time.time()
-            self.targets[0].build()
+            try:
+                for action in action_list:
+                    stat = action.execute(self.targets, target.sources, env)
+                    if stat:
+                        raise BuildError(node = target,
+                                         errstr = "Error %d" % stat)
+            except KeyboardInterrupt:
+                raise
+            except UserError:
+                raise
+            except BuildError:
+                raise
+            except:
+                raise BuildError(target, "Exception",
+                                 sys.exc_type,
+                                 sys.exc_value,
+                                 sys.exc_traceback)
             if print_time:
                 finish_time = time.time()
                 global command_time

@@ -406,6 +406,18 @@ class BuilderTestCase(unittest.TestCase):
         r = builder.execute([],[],Environment(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
+    def test_get_actions(self):
+        """Test fetching the Builder's Action list
+
+        Verify that we call the underlying Action's method
+        """
+        builder = SCons.Builder.Builder(name="builder", action=SCons.Action.ListAction(["x", "y", "z"]))
+        a = builder.get_actions()
+        assert len(a) == 3, a
+        assert isinstance(a[0], SCons.Action.CommandAction), a[0]
+        assert isinstance(a[1], SCons.Action.CommandAction), a[1]
+        assert isinstance(a[2], SCons.Action.CommandAction), a[2]
+
     def test_get_contents(self):
         """Test returning the signature contents of a Builder
         """

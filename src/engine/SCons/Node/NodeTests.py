@@ -46,6 +46,8 @@ class Builder:
         built_source = source
         built_args = env
         return 0
+    def get_actions(self):
+        return 'xyzzy'
     def get_contents(self, target, source, env):
         return 7
 
@@ -241,6 +243,14 @@ class NodeTestCase(unittest.TestCase):
         e = Environment()
         node.env_set(e)
         assert node.env == e
+
+    def test_get_actions(self):
+        """Test fetching a Node's action list
+        """
+        node = SCons.Node.Node()
+        node.builder_set(Builder())
+        a = node.get_actions()
+        assert a == 'xyzzy', a
 
     def test_set_bsig(self):
         """Test setting a Node's signature

@@ -129,6 +129,9 @@ class ActionBase:
     def show(self, string):
         print string
 
+    def get_actions(self):
+        return [self]
+
     def subst_dict(self, target, source, env):
         """Create a dictionary for substitution of construction
         variables.
@@ -191,6 +194,14 @@ class CommandAction(ActionBase):
         self.cmd_list = cmd
 
     def execute(self, target, source, env):
+        """Execute a command action.
+
+        This will handle lists of commands as well as individual commands,
+        because construction variable substitution may turn a single
+        "command" into a list.  This means that this class can actually
+        handle lists of commands, even though that's not how we use it
+        externally.
+        """
         escape = env.get('ESCAPE', lambda x: x)
 
         import SCons.Errors
@@ -206,7 +217,6 @@ class CommandAction(ActionBase):
             raise SCons.Errors.UserError('Missing SPAWN construction variable.')
 
         dict = self.subst_dict(target, source, env)
-        import SCons.Util
         cmd_list = SCons.Util.scons_subst_list(self.cmd_list, dict, {}, _rm)
         for cmd_line in cmd_list:
             if len(cmd_line):
@@ -341,6 +351,9 @@ class ListAction(ActionBase):
     """Class for lists of other actions."""
     def __init__(self, list):
         self.list = map(lambda x: Action(x), list)
+
+    def get_actions(self):
+        return self.list
 
     def execute(self, target, source, env):
         for l in self.list:

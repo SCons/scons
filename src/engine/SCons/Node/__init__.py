@@ -110,6 +110,10 @@ class Node:
     def generate_build_env(self):
         return self.env.Override(self.overrides)
 
+    def get_actions(self):
+        """Fetch the action list to build."""
+        return self.builder.get_actions()
+
     def build(self):
         """Actually build the node.   Return the status from the build."""
         # This method is called from multiple threads in a parallel build,

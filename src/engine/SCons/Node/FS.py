@@ -659,6 +659,10 @@ class Dir(Entry):
         kids.sort(c)
         return kids + SCons.Node.Node.all_children(self, 0)
 
+    def get_actions(self):
+        """A null "builder" for directories."""
+        return []
+
     def build(self):
         """A null "builder" for directories."""
         pass

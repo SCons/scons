@@ -45,6 +45,7 @@ class Node:
         self.bsig = None
         self.csig = None
         self.state = None
+        self.prepared = None
         self.parents = []
         self.side_effect = 0
         self.side_effects = []
@@ -61,7 +62,7 @@ class Node:
         built_text = built_text + " really"
 
     def prepare(self):
-        pass
+        self.prepared = 1
 
     def children(self):
         if not self.scanned:
@@ -409,6 +410,25 @@ class TaskmasterTestCase(unittest.TestCase):
 
     def test_executed(self):
         pass
+
+    def test_prepare(self):
+        """Test preparation of multiple Nodes for a task
+
+        """
+        n1 = Node("n1")
+        n2 = Node("n2")
+        tm = SCons.Taskmaster.Taskmaster([n1, n2])
+        t = tm.next_task()
+        # This next line is moderately bogus.  We're just reaching
+        # in and setting the targets for this task to an array.  The
+        # "right" way to do this would be to have the next_task() call
+        # set it up by having something that approximates a real Builder
+        # return this list--but that's more work than is probably
+        # warranted right now.
+        t.targets = [n1, n2]
+        t.prepare()
+        assert n1.prepared
+        assert n2.prepared
 
 
 

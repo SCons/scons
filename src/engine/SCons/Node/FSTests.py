@@ -944,6 +944,15 @@ class prepareTestCase(unittest.TestCase):
             exc_caught = 1
         assert exc_caught, "Should have caught a StopError."
 
+class get_actionsTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test the Dir's get_action() method"""
+
+        fs = SCons.Node.FS.FS()
+        dir = fs.Dir('.')
+        a = dir.get_actions()
+        assert a == [], a
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -953,5 +962,6 @@ if __name__ == "__main__":
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())
     suite.addTest(prepareTestCase())
+    suite.addTest(get_actionsTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

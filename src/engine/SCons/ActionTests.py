@@ -46,7 +46,7 @@ def Environment(dict):
 
 class ActionTestCase(unittest.TestCase):
 
-    def runTest(self):
+    def test_factory(self):
         """Test the Action factory
         """
         def foo():
@@ -56,6 +56,7 @@ class ActionTestCase(unittest.TestCase):
 
         a2 = SCons.Action.Action("string")
         assert isinstance(a2, SCons.Action.CommandAction), a2
+        assert a2.cmd_list == ["string"], a2.cmd_list
 
         if hasattr(types, 'UnicodeType'):
             exec "a3 = SCons.Action.Action(u'string')"
@@ -64,8 +65,11 @@ class ActionTestCase(unittest.TestCase):
         a4 = SCons.Action.Action(["x", "y", "z", [ "a", "b", "c"]])
         assert isinstance(a4, SCons.Action.ListAction), a4
         assert isinstance(a4.list[0], SCons.Action.CommandAction), a4.list[0]
+        assert a4.list[0].cmd_list == ["x"], a4.list[0].cmd_list
         assert isinstance(a4.list[1], SCons.Action.CommandAction), a4.list[1]
+        assert a4.list[1].cmd_list == ["y"], a4.list[1].cmd_list
         assert isinstance(a4.list[2], SCons.Action.CommandAction), a4.list[2]
+        assert a4.list[2].cmd_list == ["z"], a4.list[2].cmd_list
         assert isinstance(a4.list[3], SCons.Action.CommandAction), a4.list[3]
         assert a4.list[3].cmd_list == [ "a", "b", "c" ], a4.list[3].cmd_list
 
@@ -83,6 +87,15 @@ class ActionTestCase(unittest.TestCase):
         assert isinstance(a8, SCons.Action.CommandAction), a8
         assert a8.cmd_list == [ "a8" ], a8.cmd_list
 
+        a9 = SCons.Action.Action("x\ny\nz")
+        assert isinstance(a9, SCons.Action.ListAction), a9
+        assert isinstance(a9.list[0], SCons.Action.CommandAction), a9.list[0]
+        assert a9.list[0].cmd_list == ["x"], a9.list[0].cmd_list
+        assert isinstance(a9.list[1], SCons.Action.CommandAction), a9.list[1]
+        assert a9.list[1].cmd_list == ["y"], a9.list[1].cmd_list
+        assert isinstance(a9.list[2], SCons.Action.CommandAction), a9.list[2]
+        assert a9.list[2].cmd_list == ["z"], a9.list[2].cmd_list
+
 class ActionBaseTestCase(unittest.TestCase):
 
     def test_cmp(self):
@@ -94,6 +107,13 @@ class ActionBaseTestCase(unittest.TestCase):
         a3 = SCons.Action.Action("y")
         assert a1 != a3
         assert a2 != a3
+
+    def test_get_actions(self):
+        """Test the get_actions() method
+        """
+        a = SCons.Action.Action("x")
+        l = a.get_actions()
+        assert l == [a], l
 
     def test_subst_dict(self):
         """Test substituting dictionary values in an Action
@@ -109,7 +129,6 @@ class ActionBaseTestCase(unittest.TestCase):
         assert str(d['TARGET']) == 't', d['TARGET']
         assert str(d['SOURCES']) == 's', d['SOURCES']
         assert str(d['SOURCE']) == 's', d['SOURCE']
-
 
         d = a.subst_dict(target = ['t1', 't2'], source = ['s1', 's2'], env=Environment({}))
         TARGETS = map(lambda x: str(x), d['TARGETS'])
@@ -198,9 +217,9 @@ class CommandActionTestCase(unittest.TestCase):
         """
         a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
                                         "$)", "|"])
-        c = a.get_contents(target=[], source=[],
-                           foo = 'FFF', bar = 'BBB')
-        assert c == "| $( FFF | BBB $) |"
+        c = a.get_raw_contents(target=[], source=[],
+                               env=Environment({'foo':'FFF', 'bar':'BBB'}))
+        assert c == "| $( FFF | BBB $) |", c
 
     def test_get_contents(self):
         """Test fetching the contents of a command Action
@@ -348,6 +367,19 @@ class ListActionTestCase(unittest.TestCase):
         assert isinstance(a.list[2], SCons.Action.ListAction)
         assert a.list[2].list[0].cmd_list == [ 'y' ]
 
+    def test_get_actions(self):
+        """Test the get_actions() method for ListActions
+        """
+        a = SCons.Action.ListAction(["x", "y"])
+        l = a.get_actions()
+        assert len(l) == 2, l
+        assert isinstance(l[0], SCons.Action.CommandAction), l[0]
+        g = l[0].get_actions()
+        assert g == [l[0]], g
+        assert isinstance(l[1], SCons.Action.CommandAction), l[1]
+        g = l[1].get_actions()
+        assert g == [l[1]], g
+
     def test_execute(self):
         """Test executing a list of subsidiary Actions
         """
@@ -390,7 +422,7 @@ class LazyActionTestCase(unittest.TestCase):
         assert a10.generator.var == 'FOO', a10.generator.var
 
     def test_execute(self):
-        """Test executing a lazy-evalueation Action
+        """Test executing a lazy-evaluation Action
         """
         def f(target, source, env):
             s = env['s']
@@ -411,15 +443,15 @@ class LazyActionTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    suite.addTest(ActionTestCase())
-    suite.addTest(ActionBaseTestCase("test_cmp"))
-    suite.addTest(ActionBaseTestCase("test_subst_dict"))
-    for tclass in [CommandActionTestCase,
-                   CommandGeneratorActionTestCase,
-                   FunctionActionTestCase,
-                   ListActionTestCase,
-                   LazyActionTestCase]:
-        for func in ["test_init", "test_execute", "test_get_contents"]:
-            suite.addTest(tclass(func))
+    tclasses = [ ActionTestCase,
+                 ActionBaseTestCase,
+                 CommandActionTestCase,
+                 CommandGeneratorActionTestCase,
+                 FunctionActionTestCase,
+                 ListActionTestCase,
+                 LazyActionTestCase]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

@@ -317,6 +317,9 @@ class BuilderBase:
 
         return tlist
 
+    def get_actions(self):
+        return self.action.get_actions()
+
     def execute(self, target, source, env):
         """Execute a builder's action to create an output object.
         """

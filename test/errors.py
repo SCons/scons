@@ -54,12 +54,13 @@ env.exit('exit.out', 'exit.in')
 
 stderr = """scons: \*\*\* \[exit.out\] Exception
 Traceback \((most recent call|innermost) last\):
-  File ".+", line \d+, in .+
-  File ".+", line \d+, in .+
-  File ".+", line \d+, in .+
-  File ".+", line \d+, in .+
-    .+
-.+
+  File ".+", line \d+, in \S+
+    [^\n]+
+  File ".+", line \d+, in \S+
+    [^\n]+
+  File ".+", line \d+, in \S+
+    [^\n]+
+\S.+
 """
 
 test.run(arguments='foo.out exit.out', stderr=stderr, status=2)

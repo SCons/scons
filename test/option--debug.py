@@ -163,7 +163,6 @@ cmdline = filter(lambda x: x[:23] == "Command execution time:", line)
 expected_command_time = num(r'Command execution time: (\d+\.\d+) seconds', cmdline[0])
 expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', cmdline[1])
 expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', cmdline[2])
-expected_command_time = expected_command_time + num(r'Command execution time: (\d+\.\d+) seconds', cmdline[3])
 
 totalline = filter(lambda x: x[:6] == "Total ", line)
 
