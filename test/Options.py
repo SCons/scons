@@ -308,4 +308,12 @@ UNSPECIFIED: An option with no value
 Use scons -H for help about command-line options.
 """%cc)
 
+test.write('SConstruct', """
+import SCons.Options
+env1 = Environment(options = Options())
+env2 = Environment(options = SCons.Options.Options())
+""")
+
+test.run()
+
 test.pass_test()

@@ -3393,14 +3393,30 @@ command line or a text-based SConscript file through an Options
 object. To create an Options object, call the Options() function:
 
 .TP
-.RI Options([ files ])
+.RI Options([ files "], [" args ])
 This creates an Options object that will read construction variables from
-the file or list of filenames given in the  
+the file or list of filenames specified in
+.IR files .
+If no files are specified,
+or the
 .I files
-argument. If no files are given, then no files will be read. Example:
+argument is
+.BR None ,
+then no files will be read.
+The optional argument
+.I args
+is a dictionary of
+values that will override anything read from the specified files;
+it is primarily intended to be passed the
+.B ARGUMENTS
+dictionary that holds variables
+specified on the command line.
+Example:
 
 .ES
 opts = Options('custom.py')
+opts = Options('overrides.py', ARGUMENTS)
+opts = Options(None, {FOO:'expansion', BAR:7})
 .EE
 
 Options objects have the following methods:
@@ -3426,7 +3442,7 @@ opts.Add('CC', 'The C compiler')
 .EE
 
 .TP
-.RI Update( env )
+.RI Update( env ", [" args ])
 This updates a construction environment
 .I env
 with the customized construction variables. Normally this method is not

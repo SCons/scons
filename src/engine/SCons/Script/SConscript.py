@@ -423,8 +423,8 @@ def SourceSignatures(type):
 
 
 class Options(SCons.Options.Options):
-    def Update(self, env):
-        return SCons.Options.Options.Update(self, env, arguments)
+    def __init__(self, files=None, args=arguments):
+        SCons.Options.Options.__init__(self, files, args)
 
 def CheckVersion(major,minor,version_string):
     """Return 0 if 'major' and 'minor' are greater than the version

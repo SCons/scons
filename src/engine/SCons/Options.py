@@ -39,7 +39,7 @@ class Options:
     Holds all the options, updates the environment with the variables,
     and renders the help text.
     """
-    def __init__(self, files=None):
+    def __init__(self, files=None, args={}):
         """
         files - [optional] List of option configuration files to load
             (backward compatibility) If a single string is passed it is 
@@ -47,6 +47,7 @@ class Options:
         """
 
         self.options = []
+        self.args = args
         self.files = None
         if SCons.Util.is_String(files):
            self.files = [ files ]
@@ -83,12 +84,11 @@ class Options:
 
         self.options.append(option)
 
-    def Update(self, env, args):
+    def Update(self, env, args=None):
         """
         Update an environment with the option variables.
 
         env - the environment to update.
-        args - the dictionary to get the command line arguments from.
         """
 
         values = {}
@@ -105,12 +105,15 @@ class Options:
                  execfile(filename, values)
 
         # finally set the values specified on the command line
+        if args is None:
+            args = self.args
         values.update(args)
         
-        # Update the should save state
-        # This will mark options that have either been set on command line
-        # or in a loaded option file
-        # KeyError occurs when an option has default of None and has not been set
+        # Update should save state.
+        # This will mark options that have either been set on
+        # the command line or in a loaded option file.
+        # KeyError occurs when an option has default of None
+        # and has not been set.
         for option in self.options:
             try:
                 if values[option.key] != option.default:
@@ -177,7 +180,8 @@ class Options:
         """
         Generate the help text for the options.
 
-        env - an environment that is used to get the current values of the options.
+        env - an environment that is used to get the current values
+              of the options.
         """
 
         help_text = ""
@@ -196,4 +200,3 @@ class Options:
                 help_text = help_text + '    actual: None\n'
 
         return help_text
-

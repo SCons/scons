@@ -43,8 +43,8 @@ class Environment:
         return self.dict.has_key(key)
 
 
-def check(key,value, env):
-    assert value == 6 * 9,key
+def check(key, value, env):
+    assert value == 6 * 9, "key %s = %s" % (key, value)
     
 # Check saved option file by executing and comparing against
 # the expected dictionary
@@ -56,6 +56,7 @@ def checkSave(file, expected):
 
 class OptionsTestCase(unittest.TestCase):
     def test_Add(self):
+        """Test adding to an Options object"""
         opts = SCons.Options.Options()
 
         opts.Add('VAR')
@@ -91,7 +92,9 @@ class OptionsTestCase(unittest.TestCase):
         test_it('foo.bar')
 
     def test_Update(self):
+        """Test updating an Environment"""
 
+        # Test that a default value is validated correctly.
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         opts = SCons.Options.Options(file)
@@ -103,9 +106,15 @@ class OptionsTestCase(unittest.TestCase):
                  lambda x: int(x) + 12)
 
         env = Environment()
+        opts.Update(env)
+        assert env['ANSWER'] == 54
+
+        env = Environment()
         opts.Update(env, {})
         assert env['ANSWER'] == 54
 
+        # Test that a bad value from the file is used and
+        # validation fails correctly.
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=54')
@@ -118,11 +127,22 @@ class OptionsTestCase(unittest.TestCase):
                  lambda x: int(x) + 12)
 
         env = Environment()
+        exc_caught = None
+        try:
+            opts.Update(env)
+        except AssertionError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected assertion"
+
+        env = Environment()
+        exc_caught = None
         try:
             opts.Update(env, {})
         except AssertionError:
-            pass
+            exc_caught = 1
+        assert exc_caught, "did not catch expected assertion"
 
+        # Test that a good value from the file is used and validated.
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=42')
@@ -130,18 +150,85 @@ class OptionsTestCase(unittest.TestCase):
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
-                 "54",
+                 "10",
                  check,
                  lambda x: int(x) + 12)
+
+        env = Environment()
+        opts.Update(env)
+        assert env['ANSWER'] == 54
 
         env = Environment()
         opts.Update(env, {})
         assert env['ANSWER'] == 54
 
+        # Test that a bad value from an args dictionary passed to
+        # Update() is used and validation fails correctly.
+        test = TestSCons.TestSCons()
+        file = test.workpath('custom.py')
+        test.write('custom.py', 'ANSWER=10')
+        opts = SCons.Options.Options(file)
+        
+        opts.Add('ANSWER',
+                 'THE answer to THE question',
+                 "12",
+                 check,
+                 lambda x: int(x) + 12)
+
+        env = Environment()
+        exc_caught = None
+        try:
+            opts.Update(env, {'ANSWER':'54'})
+        except AssertionError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected assertion"
+
+        # Test that a good value from an args dictionary
+        # passed to Update() is used and validated.
+        test = TestSCons.TestSCons()
+        file = test.workpath('custom.py')
+        test.write('custom.py', 'ANSWER=10')
+        opts = SCons.Options.Options(file)
+        
+        opts.Add('ANSWER',
+                 'THE answer to THE question',
+                 "12",
+                 check,
+                 lambda x: int(x) + 12)
+
+        env = Environment()
+        opts.Update(env, {'ANSWER':'42'})
+        assert env['ANSWER'] == 54
+
+    def test_args(self):
+        """Test updating an Environment with arguments overridden"""
+
+        # Test that a bad (command-line) argument is used
+        # and the validation fails correctly.
+        test = TestSCons.TestSCons()
+        file = test.workpath('custom.py')
+        test.write('custom.py', 'ANSWER=42')
+        opts = SCons.Options.Options(file, {'ANSWER':54})
+        
+        opts.Add('ANSWER',
+                 'THE answer to THE question',
+                 "42",
+                 check,
+                 lambda x: int(x) + 12)
+
+        env = Environment()
+        exc_caught = None
+        try:
+            opts.Update(env)
+        except AssertionError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected assertion"
+
+        # Test that a good (command-line) argument is used and validated.
         test = TestSCons.TestSCons()
         file = test.workpath('custom.py')
         test.write('custom.py', 'ANSWER=54')
-        opts = SCons.Options.Options(file)
+        opts = SCons.Options.Options(file, {'ANSWER':42})
         
         opts.Add('ANSWER',
                  'THE answer to THE question',
@@ -150,11 +237,28 @@ class OptionsTestCase(unittest.TestCase):
                  lambda x: int(x) + 12)
 
         env = Environment()
-        opts.Update(env, {'ANSWER':'42'})
+        opts.Update(env)
         assert env['ANSWER'] == 54
 
+        # Test that a (command-line) argument is overridden by a dictionary
+        # supplied to Update() and the dictionary value is validated correctly.
+        test = TestSCons.TestSCons()
+        file = test.workpath('custom.py')
+        test.write('custom.py', 'ANSWER=54')
+        opts = SCons.Options.Options(file, {'ANSWER':54})
+        
+        opts.Add('ANSWER',
+                 'THE answer to THE question',
+                 "54",
+                 check,
+                 lambda x: int(x) + 12)
+
+        env = Environment()
+        opts.Update(env, {'ANSWER':42})
+        assert env['ANSWER'] == 54
 
     def test_Save(self):
+        """Testing saving Options"""
 
         test = TestSCons.TestSCons()
         cache_file = test.workpath('cached.options')

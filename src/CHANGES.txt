@@ -31,6 +31,9 @@ RELEASE 0.15 - XXX
   - Eliminate a dependency on the distutils.fancy_getopt module by
     copying and pasting its wrap_text() function directly.
 
+  - Make the Script.Options() subclass match the underlying base class
+    implementation.
+
   From Steve Leblanc:
 
   - Don't update the .sconsign files when run with -n.
