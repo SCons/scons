@@ -721,23 +721,32 @@ class MultiStepBuilder(BuilderBase):
 
         src_suffixes = self.src_suffixes(env)
 
+        def match_src_suffix(node, src_suffixes=src_suffixes):
+            # This reaches directly into the Node.name attribute (instead
+            # of using an accessor function) for performance reasons.
+            return filter(lambda s, n=node.name:
+                                 n[-len(s):] == s,
+                          src_suffixes)
+
         for snode in slist:
-            for srcsuf in src_suffixes:
-                if str(snode)[-len(srcsuf):] == srcsuf and sdict.has_key(srcsuf):
-                    tgt = sdict[srcsuf]._execute(env, None, [snode], overwarn)
-                    # If the subsidiary Builder returned more than one target,
-                    # then filter out any sources that this Builder isn't
-                    # capable of building.
-                    if len(tgt) > 1:
-                        tgt = filter(lambda x, self=self, suf=src_suffixes, e=env:
-                                     self.splitext(SCons.Util.to_String(x),e)[1] in suf,
-                                     tgt)
-                    final_sources.extend(tgt)
-                    snode = None
-                    break
-            if snode:
+            name = snode.name
+            match = match_src_suffix(snode)
+            if match:
+                try:
+                    bld = sdict[match[0]]
+                except KeyError:
+                    final_sources.append(snode)
+                else:
+                    tlist = bld._execute(env, None, [snode], overwarn)
+                    # If the subsidiary Builder returned more than one
+                    # target, then filter out any sources that this
+                    # Builder isn't capable of building.
+                    if len(tlist) > 1:
+                        tlist = filter(match_src_suffix, tlist)
+                    final_sources.extend(tlist)
+            else:
                 final_sources.append(snode)
-                
+
         return BuilderBase._execute(self, env, target, final_sources, overwarn)
 
     def get_src_builders(self, env):
