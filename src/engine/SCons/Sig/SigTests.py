@@ -58,6 +58,7 @@ class DummyNode:
         self.oldtime = 0
         self.oldbsig = 0
         self.oldcsig = 0
+        self.always_build = 0
 
     def has_builder(self):
         return self.builder
@@ -380,12 +381,15 @@ class CalcTestCase(unittest.TestCase):
 
     def test_Calc_current(self):
         class NN(self.nodeclass):
+            always_build = 0
             def current(self):
                 return None
 
         nn = NN('nn', 33, 34)
         assert not self.calc.current(nn, 30)
         assert self.calc.current(nn, 33)
+        nn.always_build = 1
+        assert not self.calc.current(nn, 33)
 
 class SConsignEntryTestCase(unittest.TestCase):
 

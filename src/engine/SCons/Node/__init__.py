@@ -107,6 +107,7 @@ class Node:
         self.env = None
         self.state = None
         self.precious = None
+        self.always_build = None
         self.found_includes = {}
         self.includes = None
         self.overrides = {}     # construction variable overrides for building this node
@@ -520,6 +521,10 @@ class Node:
     def set_precious(self, precious = 1):
         """Set the Node's precious value."""
         self.precious = precious
+
+    def set_always_build(self, always_build = 1):
+        """Set the Node's always_build value."""
+        self.always_build = always_build
 
     def exists(self):
         """Does this node exists?"""

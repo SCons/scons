@@ -344,6 +344,10 @@ class Calculator:
         returns - 1 if the file is current with the specified signature,
         0 if it isn't
         """
+
+        if node.always_build:
+            return 0
+        
         oldtime, oldbsig, oldcsig = node.get_prevsiginfo()
 
         if not node.has_builder() and node.get_timestamp() == oldtime:

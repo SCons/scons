@@ -381,6 +381,15 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
         node.store_timestamp()
 
+    def test_set_always_build(self):
+        """Test setting a Node's always_build value
+        """
+        node = SCons.Node.Node()
+        node.set_always_build()
+        assert node.always_build
+        node.set_always_build(3)
+        assert node.always_build == 3
+
     def test_set_precious(self):
         """Test setting a Node's precious value
         """

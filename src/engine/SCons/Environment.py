@@ -338,6 +338,18 @@ class Environment:
             tlist = tlist[0]
         return tlist
 
+    def AlwaysBuild(self, *targets):
+        tlist = []
+        for t in targets:
+            tlist.extend(SCons.Node.arg2nodes(t, self.fs.File))
+
+        for t in tlist:
+            t.set_always_build()
+
+        if len(tlist) == 1:
+            tlist = tlist[0]
+        return tlist
+
     def Precious(self, *targets):
         tlist = []
         for t in targets:
