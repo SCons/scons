@@ -49,10 +49,6 @@ def InstallAs():
 
 
 
-_cv = re.compile(r'%([_a-zA-Z]\w*|{[_a-zA-Z]\w*})')
-
-
-
 def _deepcopy_atomic(x, memo):
 	return x
 copy._deepcopy_dispatch[types.ModuleType] = _deepcopy_atomic
@@ -173,20 +169,11 @@ class Environment:
     def subst(self, string):
 	"""Recursively interpolates construction variables from the
 	Environment into the specified string, returning the expanded
-	result.  Construction variables are specified by a % prefix
+	result.  Construction variables are specified by a $ prefix
 	in the string and begin with an initial underscore or
 	alphabetic character followed by any number of underscores
 	or alphanumeric characters.  The construction variable names
 	may be surrounded by curly braces to separate the name from
 	trailing characters.
 	"""
-	def repl(m, _self=self):
-	    key = m.group(1)
-	    if key[:1] == '{' and key[-1:] == '}':
-		key = key[1:-1]
-	    if _self._dict.has_key(key): return _self._dict[key]
-	    else: return ''
-	n = 1
-	while n != 0:
-	    string, n = _cv.subn(repl, string)
-	return string
+	return SCons.Util.scons_subst(string, self._dict, {})

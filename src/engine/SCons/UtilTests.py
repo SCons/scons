@@ -28,7 +28,7 @@ import os.path
 import unittest
 import SCons.Node
 import SCons.Node.FS
-from SCons.Util import scons_str2nodes, scons_varrepl, PathList
+from SCons.Util import scons_str2nodes, scons_subst, PathList
 
 
 class UtilTestCase(unittest.TestCase):
@@ -72,43 +72,45 @@ class UtilTestCase(unittest.TestCase):
 	node = scons_str2nodes(OtherNode())
 
 
-    def test_varrepl(self):
-	"""Test the varrepl function."""
-        targets = PathList(map(os.path.normpath, [ "./foo/bar.exe",
-                                                   "/bar/baz.obj",
-                                                   "../foo/baz.obj" ]))
-        sources = PathList(map(os.path.normpath, [ "./foo/blah.cpp",
-                                                   "/bar/ack.cpp",
-                                                   "../foo/ack.c" ]))
+    def test_subst(self):
+	"""Test the subst function."""
+	loc = {}
+        loc['targets'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
+                                                          "/bar/baz.obj",
+                                                          "../foo/baz.obj" ]))
+	loc['target'] = loc['targets'][0]
+        loc['sources'] = PathList(map(os.path.normpath, [ "./foo/blah.cpp",
+                                                          "/bar/ack.cpp",
+                                                          "../foo/ack.c" ]))
 
-        newcom = scons_varrepl("test $targets $sources", targets, sources)
+        newcom = scons_subst("test $targets $sources", loc, {})
 	assert newcom == "test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp /bar/ack.cpp ../foo/ack.c"
 
-        newcom = scons_varrepl("test $targets[:] $sources[0]", targets, sources)
+        newcom = scons_subst("test ${targets[:]} ${sources[0]}", loc, {})
 	assert newcom == "test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp"
 
-        newcom = scons_varrepl("test ${targets[1:]}v", targets, sources)
+        newcom = scons_subst("test ${targets[1:]}v", loc, {})
 	assert newcom == "test /bar/baz.obj ../foo/baz.objv"
 
-        newcom = scons_varrepl("test $target", targets, sources)
+        newcom = scons_subst("test $target", loc, {})
 	assert newcom == "test foo/bar.exe"
 
-        newcom = scons_varrepl("test $target$source[0]", targets, sources)
-	assert newcom == "test foo/bar.exe$source[0]"
+        newcom = scons_subst("test $target$source[0]", loc, {})
+	assert newcom == "test foo/bar.exe[0]"
 
-        newcom = scons_varrepl("test ${target.file}", targets, sources)
+        newcom = scons_subst("test ${target.file}", loc, {})
 	assert newcom == "test bar.exe"
 
-        newcom = scons_varrepl("test ${target.filebase}", targets, sources)
+        newcom = scons_subst("test ${target.filebase}", loc, {})
 	assert newcom == "test bar"
 
-        newcom = scons_varrepl("test ${target.suffix}", targets, sources)
+        newcom = scons_subst("test ${target.suffix}", loc, {})
 	assert newcom == "test .exe"
 
-        newcom = scons_varrepl("test ${target.base}", targets, sources)
+        newcom = scons_subst("test ${target.base}", loc, {})
 	assert newcom == "test foo/bar"
 
-        newcom = scons_varrepl("test ${target.dir}", targets, sources)
+        newcom = scons_subst("test ${target.dir}", loc, {})
 	assert newcom == "test foo"
 
 

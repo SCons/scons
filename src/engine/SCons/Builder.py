@@ -33,7 +33,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import SCons.Node.FS
-from SCons.Util import PathList, scons_str2nodes, scons_varrepl
+from SCons.Util import PathList, scons_str2nodes, scons_subst
 import string
 import types
 
@@ -210,21 +210,25 @@ class CommandAction(ActionBase):
 	self.command = string
 
     def execute(self, **kw):
-        try:
-            t = kw['target']
-            if type(t) is types.StringType:
-                t = [t]
-            tgt = PathList(map(os.path.normpath, t))
-        except:
-            tgt = PathList()
-        try:
-            s = kw['source']
-            if type(s) is types.StringType:
-                s = [s]
-            src = PathList(map(os.path.normpath, s))
-        except:
-            src = PathList()
-        cmd = scons_varrepl(self.command, tgt, src)
+	loc = {}
+	if kw.has_key('target'):
+	    t = kw['target']
+	    if type(t) is type(""):
+	        t = [t]
+	    loc['targets'] = PathList(map(os.path.normpath, t))
+	    loc['target'] = loc['targets'][0]
+	if kw.has_key('source'):
+	    s = kw['source']
+	    if type(s) is type(""):
+	        s = [s]
+            loc['sources'] = PathList(map(os.path.normpath, s))
+
+	try:
+	    glob = self.env.Dictionary()
+	except:
+	    glob = {}
+
+	cmd = scons_subst(self.command, loc, glob)
 	if print_actions:
 	    self.show(cmd)
 	ret = 0

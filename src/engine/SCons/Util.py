@@ -158,32 +158,31 @@ class PathList(UserList):
         return self.__class__([ UserList.__getitem__(self, item), ])
 
 
-__tcv = re.compile(r'\$(\{?targets?(\[[0-9:]+\])?(\.[a-z]+)?\}?)')
-__scv = re.compile(r'\$(\{?sources(\[[0-9:]+\])?(\.[a-z]+)?\}?)')
-def scons_varrepl(command, targets, sources):
-    """This routine handles variable interpolation for the $targets and
-    $sources variables in the 'command' argument. The targets and sources
-    given in the other arguements must be lists containing 'Node's."""
 
-    def repl(m, targets=targets, sources=sources):
-	globals = {}
+_tok = r'[_a-zA-Z]\w*'
+_cv = re.compile(r'\$(%s|{%s(\[[-0-9:]*\])?(\.\w+)?})' % (_tok, _tok))
+
+def scons_subst(string, locals, globals):
+    """Recursively interpolates dictionary variables into
+    the specified string, returning the expanded result.
+    Variables are specified by a $ prefix in the string and
+    begin with an initial underscore or alphabetic character
+    followed by any number of underscores or alphanumeric
+    characters.  The construction variable names may be
+    surrounded by curly braces to separate the name from
+    trailing characters.
+    """
+    def repl(m, locals=locals, globals=globals):
         key = m.group(1)
-        if key[0] == '{':
-            if key[-1] == '}':
-                key = key[1:-1]
-            else:
-                raise SyntaxError, "Bad regular expression"
-
-        if key[:6] == 'target':
-	    globals['targets'] = targets
-	    globals['target'] = targets[0]
-	if key[:7] == 'sources':
-	    globals['sources'] = sources
-	if globals:
-            return str(eval(key, globals ))
-
-    command = __tcv.sub(repl, command)
-    command = __scv.sub(repl, command)
-    return command
-
+        if key[:1] == '{' and key[-1:] == '}':
+            key = key[1:-1]
+	try:
+	    s = str(eval(key, locals, globals))
+	except NameError:
+	    s = ''
+	return s
+    n = 1
+    while n != 0:
+        string, n = _cv.subn(repl, string)
+    return string
 

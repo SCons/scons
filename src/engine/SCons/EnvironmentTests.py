@@ -172,10 +172,10 @@ class EnvironmentTestCase(unittest.TestCase):
         """Test the Command() method."""
         env = Environment()
         t = env.Command(target='foo.out', source=['foo1.in', 'foo2.in'],
-                        action='buildfoo %(target)s %(source)s')
+                        action='buildfoo $target $source')
         assert t.derived
         assert t.builder.action.__class__.__name__ == 'CommandAction'
-        assert t.builder.action.command == 'buildfoo %(target)s %(source)s'
+        assert t.builder.action.command == 'buildfoo $target $source'
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
@@ -192,13 +192,13 @@ class EnvironmentTestCase(unittest.TestCase):
 	of variables into other variables.
 	"""
 	env = Environment(AAA = 'a', BBB = 'b')
-	str = env.subst("%AAA %{AAA}A %BBBB %BBB")
+	str = env.subst("$AAA ${AAA}A $BBBB $BBB")
 	assert str == "a aA  b", str
-	env = Environment(AAA = '%BBB', BBB = 'b', BBBA = 'foo')
-	str = env.subst("%AAA %{AAA}A %{AAA}B %BBB")
+	env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
+	str = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
 	assert str == "b foo  b", str
-	env = Environment(AAA = '%BBB', BBB = '%CCC', CCC = 'c')
-	str = env.subst("%AAA %{AAA}A %{AAA}B %BBB")
+	env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
+	str = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
 	assert str == "c   c", str
 
 
