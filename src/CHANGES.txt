@@ -10,20 +10,10 @@
 
 RELEASE 0.15 - XXX
 
-  From Chad Austin:
-
-  - Fix the _concat() documentation, and add a test for it.
-
-  - Portability fixes for non-GNU versions of lex and yacc.
-
   From Matt Balvin:
 
   - Fix handling of library prefixes when the subdirectory matches
     the prefix.
-
-  From Timothee Bessett:
-
-  - Add an M4 Builder.
 
   From Charles Crain:
 
@@ -36,50 +26,18 @@ RELEASE 0.15 - XXX
     must have the same form as valid Python identifiers.
 
   - Fix man page bugs: remove duplicate AddPostAction() description;
-    document no_import_lib; mention that CPPFLAGS does not contain
-    $_CPPINCFLAGS; mention that F77FLAGS does not contain $_F77INCFLAGS;
-    mention that LINKFLAGS and SHLINKFLAGS contains neither $_LIBFLAGS
-    nor $_LIBDIRFLAGS.
+    document no_import_lib.
 
   - Eliminate a dependency on the distutils.fancy_getopt module by
     copying and pasting its wrap_text() function directly.
-
-  - Make the Script.Options() subclass match the underlying base class
-    implementation.
 
   From Steve Leblanc:
 
   - Don't update the .sconsign files when run with -n.
 
-  From Gary Oberbrunner:
-
-  - Add support for the Intel C Compiler (icl.exe).
-
-  From Anthony Roach
-
-  - Fix Import('*').
-
-  From David Snopek
-
-  - Fix use of SConf in paths with white space in them.
-
-  - Add CheckFunc and CheckType functionality to SConf.
-
-  - Fix use of SConf with Builders that return a list of nodes.
-
   From David Snopek and Christoph Wiedemann
 
   - Fix use of the SConf subsystem with SConscriptChdir().
-
-  From Greg Spencer
-
-  - Check for the existence of MS Visual Studio on disk before using it,
-    to avoid getting fooled by leftover junk in the registry.
-
-  - Add support for MSVC++ .NET.
-
-  - Add support for MS Visual Studio project files (DSP, DSW,
-    SLN and VCPROJ files).
 
 
 
