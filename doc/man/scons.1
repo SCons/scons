@@ -3287,9 +3287,9 @@ SConscript('bar/SConscript')	# will chdir to bar
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI SConsignFile([ file ])
+.RI SConsignFile([ file , dbm_module ])
 .TP
-.RI env.SConsignFile([ file ])
+.RI env.SConsignFile([ file , dbm_module ])
 This tells
 .B scons
 to store all file signatures
@@ -3306,6 +3306,23 @@ is not an absolute path name,
 the file is placed in the same directory as the top-level
 .B SConstruct
 file.
+
+The optional
+.I dbm_module
+argument can be used to specify
+which Python database module
+The default is to use
+.B dumbdbm
+if the specified
+.I file
+does not already exist,
+and to use
+.B anydbm
+to auto-detect the database format
+if the
+.I file
+already exists.
+
 Examples:
 
 .ES
