@@ -57,6 +57,8 @@ __all__ = ('ListOption',)
 import string
 import UserList
 
+import SCons.Util
+
 
 class _ListOption(UserList.UserList):
     def __init__(self, initlist=[], allowedElems=[]):
@@ -123,6 +125,8 @@ def ListOption(key, help, default, names):
     package names (separated by space).
     """
     names_str = 'allowed names: %s' % string.join(names, ' ')
+    if SCons.Util.is_List(default):
+        default = string.join(default, ',')
     help = string.join(
         (help, '(all|none|comma-separated list of names)', names_str),
         '\n    ')

@@ -44,6 +44,14 @@ class ListOptionTestCase(unittest.TestCase):
         assert o.validator is None, o.validator
         assert not o.converter is None, o.converter
 
+        opts = SCons.Options.Options()
+        opts.Add(SCons.Options.ListOption('test2', 'test2 help',
+                                          ['one', 'three'],
+                                          ['one', 'two', 'three']))
+
+        o = opts.options[0]
+        assert o.default == 'one,three'
+
     def test_converter(self):
         """Test the ListOption converter"""
         opts = SCons.Options.Options()
