@@ -125,7 +125,8 @@ RELEASE 0.95 - XXX
 
   - Refactor construction variable expansion to support recursive
     expansion of variables (e.g. CCFLAGS = "$CCFLAGS -g") without going
-    into an infinite loop.
+    into an infinite loop.  Support this in all construction variable
+    overrides, as well as when copying Environments.
 
   - Fix calling Configure() from more than one subsidiary SConscript file.
 

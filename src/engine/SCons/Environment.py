@@ -505,7 +505,10 @@ class Base:
         apply_tools(clone, tools, toolpath)
 
         # Apply passed-in variables after the new tools.
-        apply(clone.Replace, (), kw)
+        new = {}
+        for key, value in kw.items():
+            new[key] = SCons.Util.scons_subst_once(value, self, key)
+        apply(clone.Replace, (), new)
         return clone
 
     def Detect(self, progs):
@@ -561,7 +564,10 @@ class Base:
             env = copy.copy(self)
             env._dict = copy.copy(self._dict)
             env['__env__'] = env
-            env._dict.update(overrides)
+            new = {}
+            for key, value in overrides.items():
+                new[key] = SCons.Util.scons_subst_once(value, self, key)
+            env._dict.update(new)
             return env
         else:
             return self

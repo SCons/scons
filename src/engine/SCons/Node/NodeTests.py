@@ -78,10 +78,19 @@ class MyNonGlobalAction:
         return [self]
 
 class Environment:
+    def __init__(self, **kw):
+        self._dict = {}
+        self._dict.update(kw)
+    def __getitem__(self, key):
+        return self._dict[key]
     def Dictionary(self, *args):
         return {}
     def Override(self, overrides):
-        return overrides
+        d = self._dict.copy()
+        d.update(overrides)
+        return apply(Environment, (), d)
+    def _update(self, dict):
+        self._dict.update(dict)
 
 class Builder:
     def __init__(self):

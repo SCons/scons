@@ -1019,6 +1019,16 @@ class EnvironmentTestCase(unittest.TestCase):
         assert env3.get('BAR') is 2
         assert env3.get('BAZ') is 3
 
+        # Ensure that recursive variable substitution when copying
+        # environments works properly.
+        env1 = Environment(CCFLAGS = '-DFOO', XYZ = '-DXYZ')
+        env2 = env1.Copy(CCFLAGS = '$CCFLAGS -DBAR',
+                         XYZ = ['-DABC', 'x $XYZ y', '-DDEF'])
+        x = env2.get('CCFLAGS')
+        assert x == '-DFOO -DBAR', x
+        x = env2.get('XYZ')
+        assert x == ['-DABC', 'x -DXYZ y', '-DDEF'], x
+
     def test_Detect(self):
         """Test Detect()ing tools"""
         test = TestCmd.TestCmd(workdir = '')
@@ -1122,16 +1132,28 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_Override(self):
         "Test overriding construction variables"
-        env = Environment(ONE=1, TWO=2)
-        assert env['ONE'] == 1
-        assert env['TWO'] == 2
-        env2 = env.Override({'TWO':'10'})
-        assert env2['ONE'] == 1
-        assert env2['TWO'] == '10'
-        assert env['TWO'] == 2
+        env = Environment(ONE=1, TWO=2, THREE=3, FOUR=4)
+        assert env['ONE'] == 1, env['ONE']
+        assert env['TWO'] == 2, env['TWO']
+        assert env['THREE'] == 3, env['THREE']
+        assert env['FOUR'] == 4, env['FOUR']
+
+        env2 = env.Override({'TWO'   : '10',
+                             'THREE' :'x $THREE y',
+                             'FOUR'  : ['x', '$FOUR', 'y']})
+        assert env2['ONE'] == 1, env2['ONE']
+        assert env2['TWO'] == '10', env2['TWO']
+        assert env2['THREE'] == 'x 3 y', env2['THREE']
+        assert env2['FOUR'] == ['x', 4, 'y'], env2['FOUR']
+
+        assert env['ONE'] == 1, env['ONE']
+        assert env['TWO'] == 2, env['TWO']
+        assert env['THREE'] == 3, env['THREE']
+        assert env['FOUR'] == 4, env['FOUR']
+
         env2.Replace(ONE = "won")
-        assert env2['ONE'] == "won"
-        assert env['ONE'] == 1
+        assert env2['ONE'] == "won", env2['ONE']
+        assert env['ONE'] == 1, env['ONE']
 
         assert env['__env__'] is env, env['__env__']
         assert env2['__env__'] is env2, env2['__env__']

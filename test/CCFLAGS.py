@@ -45,6 +45,8 @@ foo.Object(target = 'foo%s', source = 'prog.c')
 bar.Object(target = 'bar%s', source = 'prog.c')
 foo.Program(target = 'foo', source = 'foo%s')
 bar.Program(target = 'bar', source = 'bar%s')
+foo.Program(target = 'prog', source = 'prog.c',
+            CCFLAGS = '$CCFLAGS -DBAR $BAZ', BAZ = '-DBAZ')
 """ % (fooflags, barflags, _obj, _obj, _obj, _obj))
 
 test.write('prog.c', r"""
@@ -58,6 +60,9 @@ main(int argc, char *argv[])
 #ifdef BAR
 	printf("prog.c:  BAR\n");
 #endif
+#ifdef BAZ
+	printf("prog.c:  BAZ\n");
+#endif
 	exit (0);
 }
 """)
@@ -67,6 +72,11 @@ test.run(arguments = '.')
 
 test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
 test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+test.run(program = test.workpath('prog'), stdout = """\
+prog.c:  FOO
+prog.c:  BAR
+prog.c:  BAZ
+""")
 
 test.write('SConstruct', """
 bar = Environment(CCFLAGS = '%s')

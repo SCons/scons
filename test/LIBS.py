@@ -121,8 +121,8 @@ test.run(program=foo4_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
 #
 test.write('SConstruct', """
-env = Environment()
-env.Program(target='foo1', source='foo1.c', LIBS=['baz', 'bar'], LIBPATH = '.')
+env = Environment(LIBS=['baz'])
+env.Program(target='foo1', source='foo1.c', LIBS=['$LIBS', 'bar'], LIBPATH = '.')
 SConscript('sub1/SConscript', 'env')
 SConscript('sub2/SConscript', 'env')
 """)
@@ -187,7 +187,18 @@ libraries = (['libtest_component2',
               'libtest_component1'])
 
 # To remove the dependency problem, you should rename blender to mlender.
-Program (source='', target='blender', LIBS=libraries, LIBPREFIX='lib', LIBPATH=libpath)
+Program (source='main.c', target='blender', LIBS=libraries, LIBPREFIX='lib', LIBPATH=libpath, CPPPATH=['src/component2'])
+""")
+
+test.write('main.c', """\
+#include <stdio.h>
+#include "message2.h"
+
+int main (void)
+{
+    DisplayMessage2();
+    exit (0);
+}
 """)
 
 test.write(['src', 'SConscript'], """\
@@ -196,38 +207,41 @@ SConscript(['component1/SConscript',
 """)
 
 test.write(['src', 'component1', 'SConscript'], """\
-source_files = ['message.c']
-Library (target='../../lib/libtest_component1', source=source_files)
+source_files = ['message1.c']
+Library (target='../../lib/libtest_component1', source=source_files, LINKFLAGS='')
 """)
 
-test.write(['src', 'component1', 'message.c'], """\
+test.write(['src', 'component1', 'message1.c'], """\
 #include <stdio.h>
 
-void DisplayMessage (void)
+void DisplayMessage1 (void)
 {
     printf ("src/component1/message.c\\n");
 }
 """)
 
-test.write(['src', 'component1', 'message.h'], """\
-void DisplayMessage (void);
+test.write(['src', 'component1', 'message1.h'], """\
+void DisplayMessage1 (void);
 """)
 
 test.write(['src', 'component2', 'SConscript'], """\
-source_files = ['hello.c']
+source_files = ['message2.c']
 include_paths = ['../component1']
 Library (target='../../lib/libtest_component2', source=source_files, CPPPATH=include_paths)
 """)
 
-test.write(['src', 'component2', 'hello.c'], """\
-#include <stdio.h>
-#include "message.h"
+test.write(['src', 'component2', 'message2.h'], """\
+void DisplayMessage2 (void);
+""")
 
-int main (void)
+test.write(['src', 'component2', 'message2.c'], """\
+#include <stdio.h>
+#include "message1.h"
+
+int DisplayMessage2 (void)
 {
-    DisplayMessage();
+    DisplayMessage1();
     printf ("src/component2/hello.c\\n");
-    exit (0);
 }
 """)
 

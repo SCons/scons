@@ -63,6 +63,9 @@ class DummyEnv:
             return self.dict
         return self.dict[key]
 
+    def __getitem__(self, key):
+        return self.dict[key]
+
     def sig_dict(self):
         dict = self.dict.copy()
         dict["TARGETS"] = 'tsig'
@@ -289,6 +292,9 @@ class UtilTestCase(unittest.TestCase):
             '$S',                   'x y',
             '$LS',                  'x y',
             '$L',                   'x y',
+            '$S z',                 'x y z',
+            '$LS z',                'x y z',
+            '$L z',                 'x y z',
             #cs,                     'cs',
             #cl,                     'cl',
             '$CS',                  'cs',
@@ -590,11 +596,20 @@ class UtilTestCase(unittest.TestCase):
             #'$R',                   [[]],
             #['$R'],                 [[]],
             '$S',                   [['x', 'y']],
+            '$S z',                 [['x', 'y', 'z']],
             ['$S'],                 [['x', 'y']],
+            ['$S z'],               [['x', 'y z']],     # XXX - IS THIS BEST?
+            ['$S', 'z'],            [['x', 'y', 'z']],
             '$LS',                  [['x y']],
+            '$LS z',                [['x y', 'z']],
             ['$LS'],                [['x y']],
+            ['$LS z'],              [['x y z']],
+            ['$LS', 'z'],           [['x y', 'z']],
             '$L',                   [['x', 'y']],
+            '$L z',                 [['x', 'y', 'z']],
             ['$L'],                 [['x', 'y']],
+            ['$L z'],               [['x', 'y z']],     # XXX - IS THIS BEST?
+            ['$L', 'z'],            [['x', 'y', 'z']],
             cs,                     [['cs']],
             [cs],                   [['cs']],
             cl,                     [['cl']],
@@ -755,6 +770,71 @@ class UtilTestCase(unittest.TestCase):
             assert str(e) == "Syntax error trying to evaluate `$foo.bar.3.0'", e
         else:
             raise AssertionError, "did not catch expected SyntaxError"
+
+    def test_subst_once(self):
+        """Testing the scons_subst_once() method"""
+
+        loc = {
+            'CCFLAGS'           : '-DFOO',
+            'ONE'               : 1,
+            'RECURSE'           : 'r $RECURSE r',
+            'LIST'              : ['a', 'b', 'c'],
+        }
+
+        env = DummyEnv(loc)
+
+        cases = [
+            '$CCFLAGS -DBAR',
+            'OTHER_KEY',
+            '$CCFLAGS -DBAR',
+
+            '$CCFLAGS -DBAR',
+            'CCFLAGS',
+            '-DFOO -DBAR',
+
+            'x $ONE y',
+            'ONE',
+            'x 1 y',
+
+            'x $RECURSE y',
+            'RECURSE',
+            'x r $RECURSE r y',
+
+            '$LIST',
+            'LIST',
+            'a b c',
+
+            ['$LIST'],
+            'LIST',
+            ['a', 'b', 'c'],
+
+            ['x', '$LIST', 'y'],
+            'LIST',
+            ['x', 'a', 'b', 'c', 'y'],
+
+            ['x', 'x $LIST y', 'y'],
+            'LIST',
+            ['x', 'x a b c y', 'y'],
+
+            ['x', 'x $CCFLAGS y', 'y'],
+            'LIST',
+            ['x', 'x $CCFLAGS y', 'y'],
+
+            ['x', 'x $RECURSE y', 'y'],
+            'LIST',
+            ['x', 'x $RECURSE y', 'y'],
+        ]
+
+        failed = 0
+        while cases:
+            input, key, expect = cases[:3]
+            result = scons_subst_once(input, env, key)
+            if result != expect:
+                if failed == 0: print
+                print "    input %s (%s) => %s did not match %s" % (repr(input), repr(key), repr(result), repr(expect))
+                failed = failed + 1
+            del cases[:3]
+        assert failed == 0, "%d subst() cases failed" % failed
 
     def test_splitext(self):
         assert splitext('foo') == ('foo','')

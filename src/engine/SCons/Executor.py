@@ -69,6 +69,12 @@ class Executor:
                 # The normal case:  use the Environment that was
                 # used to specify how these targets will be built.
                 env = self.env
+
+            # Create the build environment instance with appropriate
+            # overrides.  These get evaluated against the current
+            # environment's construction variables so that users can
+            # add to existing values by referencing the variable in
+            # the expansion.
             overrides = {}
             overrides.update(self.builder.overrides)
             overrides.update(self.overrides)
@@ -78,8 +84,13 @@ class Executor:
                 pass
             else:
                 overrides.update(generate_build_dict())
-            overrides.update(SCons.Util.subst_dict(self.targets, self.sources))
             self.build_env = env.Override(overrides)
+
+            # Now update the build environment with the things that we
+            # don't want expanded against the current construction
+            # variables.
+            self.build_env._update(SCons.Util.subst_dict(self.targets,
+                                                         self.sources))
             return self.build_env
 
     def get_action_list(self, target):

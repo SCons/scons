@@ -34,14 +34,18 @@ test = TestSCons.TestSCons()
 python = TestSCons.python
 
 test.write('SConstruct', """
-env = Environment(LIBS=['a'])
+env = Environment(CCFLAGS='-DFOO', LIBS=['a'])
 def build(target, source, env):
     print "env['CC'] =", env['CC']
+    print "env['CCFLAGS'] =", env['CCFLAGS']
     print "env['LIBS'] =", env['LIBS']
 builder = Builder(action=build, CC='buildcc', LIBS='buildlibs')
 env['BUILDERS']['Build'] = builder
 
-foo = env.Build('foo.out', 'foo.in', CC='mycc', LIBS = env['LIBS']+['b'])
+foo = env.Build('foo.out', 'foo.in',
+                CC='mycc',
+                CCFLAGS='$CCFLAGS -DBAR',
+                LIBS = env['LIBS']+['b'])
 bar = env.Build('bar.out', 'bar.in')
 Default([foo, bar])
 """)
@@ -52,9 +56,11 @@ test.write('bar.in', "bar.in\n")
 test.run(arguments = "-Q", stdout = """\
 build("foo.out", "foo.in")
 env['CC'] = mycc
+env['CCFLAGS'] = -DFOO -DBAR
 env['LIBS'] = ['a', 'b']
 build("bar.out", "bar.in")
 env['CC'] = buildcc
+env['CCFLAGS'] = -DFOO
 env['LIBS'] = buildlibs
 """)
 
