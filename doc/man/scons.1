@@ -4431,6 +4431,15 @@ The static library archiver.
 .IP ARCOM
 The command line used to generate a static library from object files.
 
+.IP ARCOMSTR
+The string displayed when an object file
+is generated from an assembly-language source file.
+If this is not set, then $ARCOM (the command line) is displayed.
+
+.ES
+env = Environment(ARCOMSTR = "Archiving $TARGET")
+.EE
+
 .IP ARFLAGS
 General options passed to the static library archiver.
 
@@ -4459,6 +4468,22 @@ source file into an object file
 after first running the file through the C preprocessor.
 Any options specified in the $ASFLAGS and $CPPFLAGS construction variables
 are included on this command line.
+
+.IP ASPPCOMSTR
+The string displayed when an object file
+is generated from an assembly-language source file
+after first running the file through the C preprocessor.
+If this is not set, then $ASPPCOM (the command line) is displayed.
+
+.ES
+env = Environment(ASPPCOMSTR = "Assembling $TARGET")
+.EE
+
+.IP ASPPFLAGS
+General options when an assembling an assembly-language
+source file into an object file
+after first running the file through the C preprocessor.
+The default is to use the value of $ASFLAGS.
 
 .IP BIBTEX
 The bibliography generator for the TeX formatter and typesetter and the
