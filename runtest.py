@@ -55,7 +55,7 @@ else:
     lib_dir = os.path.join(sys.exec_prefix, "lib", "python" + sys.version[0:3])
 
 opts, tests = getopt.getopt(sys.argv[1:], "adqp:",
-			    ['all','build=','debug','quiet','version='])
+			    ['all', 'debug', 'quiet', 'package='])
 
 for o, a in opts:
     if o == '-a' or o == '--all': all = 1
@@ -107,7 +107,9 @@ else:
 
     lib_dir = os.path.join(cwd, 'src', 'engine')
 
-os.environ['PYTHONPATH'] = lib_dir + os.pathsep + os.path.join(cwd, 'etc')
+os.environ['PYTHONPATH'] = lib_dir + \
+                           os.pathsep + \
+                           os.path.join(cwd, 'build', 'etc')
 
 os.chdir(scons_dir)
 

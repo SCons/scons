@@ -554,13 +554,20 @@ for p in [ scons ]:
     ])
 
 #
+#
+#
+Export('env')
+
+SConscript('etc/SConscript')
+
+#
 # Documentation.
 #
 BuildDir('build/doc', 'doc')
 
 Export('env', 'whereis')
 
-SConscript('build/doc/SConscript');
+SConscript('build/doc/SConscript')
 
 #
 # If we're running in the actual Aegis project, pack up a complete
