@@ -321,7 +321,7 @@ int main() {
             return (res1, res2)
 
         def TypeChecks(sconf):
-            res1 = sconf.CheckType('u_int', '#include <sys/types.h>\n')
+            res1 = sconf.CheckType('off_t', '#include <sys/types.h>\n')
             res2 = sconf.CheckType('hopefullynotypedef_not')
             return (res1, res2)
 

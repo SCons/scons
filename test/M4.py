@@ -61,7 +61,7 @@ line 3
 
 test.run()
 
-test.fail_test(test.read(test.workpath('aaa.x')) != "line 1\nmym4.py\nline 3\n")
+test.fail_test(test.read(test.workpath('aaa.x'), 'r') != "line 1\nmym4.py\nline 3\n")
 
 
 

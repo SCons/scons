@@ -35,33 +35,9 @@ Things to do to release a new version of SCons:
 			   cd scons-src-{version}
 			   python runtest.py -a -x C:\temporary_directory\scons.py
 
+                Checkin any changes necessary to make everything work
 
-	Read through the README and src/README.txt files for any updates
-
-	Prepare src/CHANGES.txt
-
-		date -R the latest release
-
-		should be current if this has been updated as each
-		change went in.
-
-	Prepare src/RELEASE.txt
-
-		date -R the latest release
-
-		Read through to make sure it's okay and edit appropriately.
-
-		Can probably keep most of the existing text
-
-		Add any new known problems
-
-	Prepare debian/changelog
-
-		date -R the latest release
-
-
-
-	END THE BRANCH
+	END THE CURRENT DEVELOPMENT BRANCH
 
 		ae_p scons.0
 
@@ -81,6 +57,97 @@ Things to do to release a new version of SCons:
 
 		aeipass
 
+	START THE NEW BRANCH FOR RELEASE
+
+		aenbr -p scons.0 {90}
+
+		aenc -p scons.0.{90}
+
+                        Call it something like,
+                        "Initialize the new branch for release."
+                        Cause = internal_enhancement.
+                        Exempt it from all tests (*_exempt = true).
+
+		ae_p scons.0.{90}
+
+		aedb 100
+
+		aecd
+
+		# Change the hard-coded package version numbers
+		# in the following files.
+		aecp README
+		vi README
+
+                aecp SConstruct
+                vi SConstruct
+
+                aecp debian/changelog
+                vi debian/changelog
+
+                aecp rpm/scons.spec.in
+                vi rpm/scons.spec.in
+
+                aecp src/setupTests.py
+                vi src/setupTests.py
+
+		# Optionally, do the same in the following:
+		[optional] aecp HOWTO/change.txt
+		[optional] vi HOWTO/change.txt
+
+		[optional] aecp HOWTO/release.txt
+		[optional] vi HOWTO/release.txt
+
+		# Prep the following files to track the changes
+		# made during the next development cycle
+		aecp src/CHANGES.txt src/RELEASE.txt
+		vi src/CHANGES.txt src/RELEASE.txt
+
+                # Read through and update the README files if necessary
+		[optional] aecp README
+		[optional] vi README
+
+		[optional] aecp src/README.txt
+		[optional] vi src/README.txt
+
+                # Prepare src/CHANGES.txt
+		aecp src/CHANGES.txt
+		vi src/CHANGES.txt
+
+		        date -R the latest release
+
+		        should be current if this has been updated
+                        as each change went in.
+
+	        # Prepare src/RELEASE.txt
+                aecp src/RELEASE.txt
+                vi src/RELEASE.txt
+
+		        date -R the latest release
+
+		        Read through and edit appropriately.
+
+		        Can probably keep most of the existing text
+
+		        Add any new known problems
+
+	        # Prepare debian/changelog
+                aecp debian/changelog
+                vi debian/changelog
+
+		        date -R the latest release
+
+                # Now build and prepare the release itself.
+                aeb
+
+		aet -reg
+
+		aed
+
+		aede
+
+		etc.
+
 
 
 	Read through the FAQ for any updates
@@ -94,16 +161,16 @@ Things to do to release a new version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.15-1.noarch.rpm
-		put scons-0.15-1.src.rpm
-		put scons-0.15.tar.gz
-		put scons-0.15.win32.exe
-		put scons-0.15.zip
-		put scons-local-0.15.tar.gz
-		put scons-local-0.15.zip
-		put scons-src-0.15.tar.gz
-		put scons-src-0.15.zip
-		put scons_0.15-1_all.deb
+		put scons-0.90-1.noarch.rpm
+		put scons-0.90-1.src.rpm
+		put scons-0.90.tar.gz
+		put scons-0.90.win32.exe
+		put scons-0.90.zip
+		put scons-local-0.90.tar.gz
+		put scons-local-0.90.zip
+		put scons-src-0.90.tar.gz
+		put scons-src-0.90.zip
+		put scons_0.90-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
@@ -115,7 +182,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.15
+		New release name:  0.90
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -132,12 +199,12 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-0.15-1.noarch.rpm		Any	.rpm
-			scons-0.15-1.src.rpm		Any	Source .rpm
-			scons-0.15.tar.gz		Any	.gz
-			scons-0.15.win32.exe		i386	.exe (32-bit Windows)
-			scons-0.15.zip			Any	.zip
-			scons_0.15-1_all.deb		Any	.deb
+			scons-0.90-1.noarch.rpm		Any	.rpm
+			scons-0.90-1.src.rpm		Any	Source .rpm
+			scons-0.90.tar.gz		Any	.gz
+			scons-0.90.win32.exe		i386	.exe (32-bit Windows)
+			scons-0.90.zip			Any	.zip
+			scons_0.90-1_all.deb		Any	.deb
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -154,7 +221,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.15
+		New release name:  0.90
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -171,8 +238,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-local-0.15.tar.gz		Any	.gz
-			scons-local-0.15.zip   		Any	.zip
+			scons-local-0.90.tar.gz		Any	.gz
+			scons-local-0.90.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -189,7 +256,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.15
+		New release name:  0.90
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -206,8 +273,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-src-0.15.tar.gz		Any	.gz
-			scons-src-0.15.zip   		Any	.zip
+			scons-src-0.90.tar.gz		Any	.gz
+			scons-src-0.90.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -270,7 +337,7 @@ Things to do to release a new version of SCons:
 
 
 
-	In the Bugs Tracker, add a Group for the new release (0.15)
+	In the Bugs Tracker, add a Group for the new release (0.90)
 
 
 
@@ -358,56 +425,11 @@ Things to do to release a new version of SCons:
 
 
 
-	START THE NEW BRANCH
-
-		aenbr -p scons.0 {16}
-
-		aenc -p scons.0.{16}
-
-                        Call it something like, "Initialize the new
-                        branch."  Cause = internal_enhancement.  Exempt
-                        it from all tests (*_exempt = true).
-
-		ae_p scons.0.{16}
-
-		aedb 100
-
-		aecd
-
-		# Change the hard-coded package version numbers
-		# in the following files.
-		aecp README SConstruct debian/changelog rpm/scons.spec.in src/setupTests.py
-		vi README SConstruct debian/changelog rpm/scons.spec.in src/setupTests.py
-
-		# Optionally, do the same in the following:
-		[optional] aecp HOWTO/change.txt
-		[optional] aecp HOWTO/release.txt
-
-		[optional] vi HOWTO/change.txt
-		[optional] vi HOWTO/release.txt
-
-		# Prep the following files to track the changes
-		# made during the next development cycle
-		aecp src/CHANGES.txt src/RELEASE.txt
-		vi src/CHANGES.txt src/RELEASE.txt
-
-		aeb
-
-		aet -reg
-
-		aed
-
-		aede
-
-		etc.
-
-
-
 
 =======================
 Template describe-the-release section:
 
-IMPORTANT:  Release 0.15 contains the following interface changes:
+IMPORTANT:  Release 0.90 contains the following interface changes:
   - XXX
 
   See the release notes for more information about these changes.
@@ -431,7 +453,7 @@ Template scons-devel announcement:
 
 SConspirators--
 
-SCons alpha release 0.15 is now available for download.
+SCons alpha release 0.90 is now available for download.
 
 XXX Template describe-the-release section goes here XXX
 
@@ -442,7 +464,7 @@ release.
 =======================
 Template scons-users + scons-announce announcement:
 
-Version 0.15 of SCons has been released and is available for download
+Version 0.90 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/
@@ -475,7 +497,7 @@ SCons is a software construction tool (build tool, or make tool) written
 in Python.  It is based on the design which won the Software Carpentry
 build tool competition in August 2000.
 
-Version 0.15 of SCons has been released and is available for download
+Version 0.90 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/
