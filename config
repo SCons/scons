@@ -23,20 +23,20 @@
  *
  * Look in aesub(5) for more information about command substitutions.
  */
-build_command = "SCONS_LIB_DIR=${BaseLine}/build/scons-src/src/engine python ${Source src/script/scons.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+build_command = "SCONS_LIB_DIR=src/engine python ${Source src/script/scons.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * SCons removes its targets before constructing them, which qualifies it
  * for the following entry in the config file.  The files must be removed
  * first, otherwise the baseline would cease to be self-consistent.
- *
-link_integration_directory = true;
  */
+link_integration_directory = true;
 
 /*
-integrate_begin_command =
-	"";
-*/
+ * This is set temporarily to allow us to build using the SCons
+ * currently checked in to the src directory.
+ */
+create_symlinks_before_build = true;
 
 /*
  *	aegis - project change supervisor
@@ -213,7 +213,7 @@ diff_command =
 
 /*
  * We use a runtest.pl script to execute tests.  This takes care of
- * massaging environment variables and the like to test agains the
+ * massaging environment variables and the like to test against the
  * unpacked package in the current directory.
  *
  * Note that we must include $spe in the batch_test_command line (so
