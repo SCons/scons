@@ -614,6 +614,8 @@ Turn off -w, even if it was turned on implicitly.
 .\" repositories are searched in the order specified.
 
 .SH CONFIGURATION FILE REFERENCE
+.\" .SS Python Basics
+.\" XXX Adding this in the future would be a help.
 .SS Construction Environments
 A construction environment is the basic means by which the configuration
 files communicate build information to 
@@ -646,7 +648,25 @@ provides the following builders:
 .IP Object
 Builds an object file from one or more C, C++, or Fortran source files.
 Source files must have one of the following extensions:
-.c, .C, .cc, .cpp, .cxx, .c++, .C++, .f, .F, .for, .FOR, .fpp, .FPP. 
+.ES
+  .c      C file
+  .C      WIN32:  C file
+          POSIX:  C++ file
+  .cc     C++ file
+  .cpp    C++ file
+  .cxx    C++ file
+  .cxx    C++ file
+  .c++    C++ file
+  .C++    C++ file
+  .f      Fortran file
+  .F      WIN32:  Fortran file
+          POSIX:  Fortran file + C pre-processor
+  .for    Fortran file
+  .FOR    Fortran file
+  .fpp    Fortran file + C pre-processor
+  .FPP    Fortran file + C pre-processor
+.EE
+.IP
 The target object file prefix and suffix (if any) are automatically
 added. Examples:
 
@@ -668,9 +688,17 @@ env.Object(target = 'ddd.obj', source = 'ddd.c', shared = 1)
 .EE
 
 .IP Program
-Builds an executable given one or more object files or C/C++ source
-files. If any C/C++ source files are given, then they will be automatically
-compiled to object files. The executable prefix and suffix (if any) are
+Builds an executable given one or more object files or C, C++
+or Fortran source files.
+If any C, C++ or Fortran source files are specified,
+then they will be automatically
+compiled to object files using the
+.B Object
+builder;
+see that builder's description for
+a list of legal source file suffixes
+and how they are interpreted.
+The executable prefix and suffix (if any) are
 automatically added to the target. Example:
 
 .ES
@@ -730,8 +758,10 @@ is automatically added to the target
 if it is not already present. Example:
 
 .ES
-env.CFile(target = 'foo.c', source = 'foo.l') # builds foo.c
-env.CFile(target = 'bar', source = 'bar.y')   # builds bar.c
+# builds foo.c
+env.CFile(target = 'foo.c', source = 'foo.l')
+# builds bar.c
+env.CFile(target = 'bar', source = 'bar.y')
 .EE
 
 .IP CXXFile
@@ -742,8 +772,10 @@ is automatically added to the target
 if it is not already present. Example:
 
 .ES
-env.CXXFile(target = 'foo.cc', source = 'foo.ll') # builds foo.cc
-env.CXXFile(target = 'bar', source = 'bar.yy')   # builds bar.cc
+# builds foo.cc
+env.CXXFile(target = 'foo.cc', source = 'foo.ll')
+# builds bar.cc
+env.CXXFile(target = 'bar', source = 'bar.yy')
 .EE
 
 .IP DVI
@@ -754,9 +786,12 @@ is automatically added to the target
 if it is not already present. Example:
 
 .ES
-env.DVI(target = 'aaa.dvi', source = 'aaa.tex')   # builds from aaa.tex
-env.DVI(target = 'bbb', source = 'bbb.ltx')       # builds bbb.dvi
-env.DVI(target = 'ccc.dvi', source = 'ccc.latex') # builds from ccc.latex
+# builds from aaa.tex
+env.DVI(target = 'aaa.dvi', source = 'aaa.tex')
+# builds bbb.dvi
+env.DVI(target = 'bbb', source = 'bbb.ltx')
+# builds from ccc.latex
+env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
 .EE
 
 .IP PDF
@@ -768,8 +803,10 @@ is added automatically to the target
 if it is not already present.  Example:
 
 .ES
-env.PDF(target = 'aaa.pdf', source = 'aaa.tex')   # builds from aaa.tex
-env.PDF(target = 'bbb', source = 'bbb.dvi')       # builds bbb.dvi
+# builds from aaa.tex
+env.PDF(target = 'aaa.pdf', source = 'aaa.tex')
+# builds bbb.dvi
+env.PDF(target = 'bbb', source = 'bbb.dvi')
 .EE
 
 .IP PostScript
@@ -781,13 +818,22 @@ is added automatically to the target
 if it is not already present.  Example:
 
 .ES
-env.PostScript(target = 'aaa.ps', source = 'aaa.tex')   # builds from aaa.tex
-env.PostScript(target = 'bbb', source = 'bbb.dvi')      # builds bbb.dvi
+# builds from aaa.tex
+env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
+# builds bbb.dvi
+env.PostScript(target = 'bbb', source = 'bbb.dvi')
 .EE
 .LP
 .B scons
 automatically scans
-C, C++ and Fortran source files with .F, .fpp, or .FOR file extensions
+C source files, C++ source files, and
+Fortran source files with
+.B .F
+(POSIX systems only),
+.B .fpp,
+or
+.B .FPP
+file extensions
 for C preprocessor dependencies,
 so the dependencies do not need to be specified explicitly.
 In addition, all builder
@@ -801,19 +847,34 @@ Additional Environment methods include:
 
 .TP
 .RI Command( target ", " source ", " commands )
-Executes a specific command
-(or list of commands)
+Executes a specific action
+(or list of actions)
 to build a target file or files.
 This is more convenient
 than defining a separate Builder object
 for a single special-case build.
 
+Note that an action can be an external command,
+specified as a string,
+or a callable Python object;
+see "Action Objects," below.
+Examples:
+
 .ES
 env.Command('foo.out', 'foo.in',
             "$FOO_BUILD < $SOURCES > $TARGET")
+
 env.Command('bar.out', 'bar.in',
             ["rm -f $TARGET",
              "$BAR_BUILD < $SOURCES > $TARGET"])
+
+def rename(env, target, source):
+    import os
+    os.rename('.tmp', str(target[0]))
+
+env.Command('baz.out', 'baz.in',
+            ["$BAZ_BUILD < $SOURCES > .tmp",
+	     rename ])
 .EE
 
 .TP
@@ -926,7 +987,22 @@ env.Update(CCFLAGS = '-g', FOO = 'foo.xxx')
 .EE
 
 .SS Construction Variables
-
+.\" XXX From Gary Ruben, 23 April 2002:
+.\" I think it would be good to have an example with each construction
+.\" variable description in the documentation.
+.\" eg.
+.\" CC     The C compiler
+.\"    Example: env["CC"] = "c68x"
+.\"    Default: env["CC"] = "cc"
+.\" 
+.\" CCCOM  The command line ...
+.\"    Example:
+.\"        To generate the compiler line c68x -ps -qq -mr -o $TARGET $SOURCES
+.\"        env["CC"] = "c68x"
+.\"        env["CFLAGS"] = "-ps -qq -mr"
+.\"        env["CCCOM"] = "$CC $CFLAGS -o $TARGET $SOURCES
+.\"    Default:
+.\"        (I dunno what this is ;-)
 A construction environment has an associated dictionary of construction
 variables that are used by built-in or user-supplied build rules. A number
 of useful construction variables are automatically defined by scons for
@@ -961,7 +1037,13 @@ The suffix for C source files.
 This is used by the internal CFile builder
 when generating C files from Lex (.l) or YACC (.y) input files.
 The default suffix, of course, is
-.IR .c .
+.I .c
+(lower case).
+On case-insensitive systems (like Win32),
+SCons also treats
+.I .C
+(upper case) files
+as C files.
 
 .IP CPPFLAGS
 C preprocessor options.
@@ -1005,6 +1087,18 @@ This is used by the internal CXXFile builder
 when generating C++ files from Lex (.ll) or YACC (.yy) input files.
 The default suffix is
 .IR .cc .
+SCons also treats files with the suffixes
+.IR .cpp ,
+.IR .cxx ,
+.IR .c++ ,
+and
+.I .C++
+as C++ files.
+On case-sensitive systems (Linux, UNIX, and other POSIX-alikes),
+SCons also treats
+.I .C
+(upper case) files
+as C++ files.
 
 .IP CXXCOM
 The command line used to compile a C++ source file to an object file.
@@ -1711,6 +1805,16 @@ a command-line Action is returned.
 Action('$CC -c -o $TARGET $SOURCES')
 .EE
 
+.\" XXX From Gary Ruben, 23 April 2002:
+.\" What would be useful is a discussion of how you execute command
+.\" shell commands ie. what is the process used to spawn the shell, pass
+.\" environment variables to it etc., whether there is one shell per
+.\" environment or one per command etc.  It might help to look at the Gnu
+.\" make documentation to see what they think is important to discuss about
+.\" a build system. I'm sure you can do a better job of organising the
+.\" documentation than they have :-)
+
+
 .IP List
 If the argument is a list,
 then a list of Action objects is returned.
@@ -1981,6 +2085,112 @@ The
 .B arg
 argument is the argument supplied
 when the scanner was created, if any.
+
+.SH SYSTEM-SPECIFIC BEHAVIOR
+SCons and its configuration files are very portable,
+due largely to its implementation in Python.
+There are, however, a few portability
+issues waiting to trap the unwary.
+.SS .C file suffix
+SCons handles the upper-case
+.B .C
+file suffix differently,
+depending on the capabilities of
+the underlying system.
+On a case-sensitive system
+such as Linux or UNIX,
+SCons treats a file with a 
+.B .C
+suffix as a C++ source file.
+On a case-insensitive system
+such as Windows,
+SCons treats a file with a 
+.B .C
+suffix as a C source file.
+.SS .F file suffix
+SCons handles the upper-case
+.B .F
+file suffix differently,
+depending on the capabilities of
+the underlying system.
+On a case-sensitive system
+such as Linux or UNIX,
+SCons treats a file with a 
+.B .F
+suffix as a Fortran source file
+that is to be first run through
+the standard C preprocessor.
+On a case-insensitive system
+such as Windows,
+SCons treats a file with a 
+.B .F
+suffix as a Fortran source file that should
+.I not
+be run through the C preprocessor.
+.SS WIN32:  Cygwin Tools and Cygwin Python vs. Windows Pythons
+Cygwin supplies a set of tools and utilities
+that let users work on a
+Windows system using a more POSIX-like environment.
+The Cygwin tools, including Cygwin Python,
+do this, in part,
+by sharing an ability to interpret UNIX-like path names.
+For example, the Cygwin tools
+will internally translate a Cygwin path name
+like /cygdrive/c/mydir
+to an equivalent Windows pathname
+of C:/mydir (equivalent to C:\\mydir).
+
+Versions of Python
+that are built for native Windows execution,
+such as the python.org and ActiveState versions,
+do not have the Cygwin path name semantics.
+This means that using a native Windows version of Python
+to build compiled programs using Cygwin tools
+(such as gcc, bison, and flex)
+may yield unpredictable results.
+"Mixing and matching" in this way
+can be made to work,
+but it requires careful attention to the use of path names
+in your SConscript files.
+
+In practice, users can sidestep
+the issue by adopting the following rules:
+When using gcc,
+use the Cygwin-supplied Python interpreter
+to run SCons;
+when using Microsoft Visual C/C++
+(or some other Windows compiler)
+use the python.org or ActiveState version of Python
+to run SCons.
+.SS WIN32:  scons.bat file
+On WIN32 systems,
+SCons is executed via a wrapper
+.B scons.bat
+file.
+This has (at least) two ramifications:
+
+First, Windows command-line users
+that want to use variable assignment
+on the command line
+may have to put double quotes
+around the assignments:
+
+.ES
+scons "FOO=BAR" "BAZ=BLEH"
+.EE
+
+Second, the Cygwin shell does not
+recognize this file as being the same
+as an
+.B scons
+command issued at the command-line prompt.
+You can work around this either by
+executing
+.B scons.bat
+from the Cygwin command line,
+or by creating a wrapper shell
+script named
+.B scons .
 
 .SH EXAMPLES
 

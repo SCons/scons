@@ -55,7 +55,7 @@ system, populate the build/scons/ directory by running:
 
         $ scons build/scons
 
-If you don't have SCons version 0.06 or later already installed on your
+If you don't have SCons version 0.07 or later already installed on your
 system, you can use SCons itself to populate the build/scons/ directory
 with a little more work:
 
@@ -116,21 +116,21 @@ unsuccessful tests.
 
 The above invocations all test directly the files underneath the src/
 subdirectory, and do not require that a build be performed first.  The
-runtest.py script supports supports additional options to run tests
-against unpacked packages in the build/test-*/ subdirectories.  See
-the "TESTING PACKAGES" section below.
+runtest.py script supports additional options to run tests against
+unpacked packages in the build/test-*/ subdirectories.  See the "TESTING
+PACKAGES" section below.
 
 
 BUILDING PACKAGES
 =================
 
-We now use SCons (version 0.06 or later) to build its own packages.
+We now use SCons (version 0.07 or later) to build its own packages.
 If you already have an appropriate version of SCons installed on your
 system, you can build everything by simply running it:
 
         $ scons
 
-If you don't have SCons version 0.06 or later already installed on your
+If you don't have SCons version 0.07 or later already installed on your
 system, you can build this version of SCons with itself with a little
 more work:
 
@@ -203,11 +203,6 @@ build/
         tree.  This is generated as part of our build process, and it's
         where, believe it or not, we *build* everything.
 
-Construct
-        The old Cons-based "Makefile" for the SCons distribution.  This
-        is obsolete as of version 0.04, but it's being left around for a
-        little while, just in case...
-
 config
         The Aegis configuration, governing much of how we use Aegis to
         build, test, control source, etc.
@@ -252,7 +247,12 @@ runtest.py
         (aeb) before running tests.
 
 SConstruct
-        The "Makefile" for the SCons distribution.
+        The "Makefile" for the SCons distribution.  (It has been
+        pointed out that it's hard to find the SCons API in here, and
+        it looks a lot more like a straight Python script than a build
+        configuration file, but that's mainly because all of the magick
+        we have to do to deal with a variety of packaging formats
+        requires a lot of straight Python manipulation.)
 
 src/
         Where the actual source code is kept, of course.

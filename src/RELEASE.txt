@@ -20,19 +20,39 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.07 - 
+RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
 
   This is the seventh alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.06:
 
-    - The functionality of the -U option has changed.  XXX
+    - The functionality of the -U option has changed.  It now works
+      exactly like the -u option (searches up the directory tree for an
+      SConstruct file) but, when no targets are specified on the command
+      line, it will build all targets that are defined in any SConscript
+      files in the current directory.
+
+      The previous functionality of this option is now available in the
+      -D option:  when no targets are specified on the command line,
+      SCons will build *all* Default() targets, not just those at or
+      below the current directory,
+
+    - The default Fortran compilation command on Windows systems now
+      uses Windows conventions (/Fo) instead of UNIX conventions (-o).
+
+    - The $SOURCE construction variable is now a synonym for
+      ${SOURCES[0]}.  This will affect you if you previously set $SOURCE
+      explicitly in a construction environment.
+
+    - Scanner functions now take three or four arguments.  The target
+      Node is now passed in as the third argument; the fourth argument
+      is an optional SCons.Node.FS.FS object.  You will need to update
+      the interfaces of any local Scanner functions you have defined.
 
   Please note the following important changes since release 0.05:
 
-    - Scanner functions now take four arguments.
-
+    - Python functions as Builder actions now take Node objects, not
       strings, as arguments.  The string representation of a Node
       object is the file name, so you should change your function
       actions to use the str() built-in function to fetch the file
@@ -50,14 +70,14 @@ RELEASE 0.07 -
   Nevertheless, because this is an alpha release, heed the following
   disclaimers:
 
-    - Do not be surprised if there are bugs.  Please report any bugs
-      or other problems that you find to our bug tracker at our
-      SourceForge project page:
+    - There may, of course, be bugs.  Please report any bugs or other
+      problems that you find to our bug tracker at our SourceForge
+      project page:
 
       http://sourceforge.net/tracker/?func=add&group_id=30337&atid=398971
 
-      We have a reliable bug-fixing methodology already in place and
-      have been responding to problems relatively quickly.
+      We have a reliable bug-fixing methodology already in place and aim
+      to respond to problems relatively quickly.
 
     - It is possible that interfaces will change in future releases.  We
       will strive to hold this to a minimum, but you may need to modify
@@ -65,17 +85,19 @@ RELEASE 0.07 -
       to change an interface.
 
     - Documentation is spottier than we'd like.  You may need to dive
-      into the source code to figure out how to do something.  We will
-      be addressing this in upcoming releases, but would be more than
-      glad to have your assistance in correcting this problem... :-)
+      into the source code to figure out how to do something.  Asking
+      questions on the scons-users mailing list is also welcome.  We
+      will be addressing the documentation in upcoming releases, but
+      would be more than glad to have your assistance in correcting this
+      problem... :-)
 
       In particular, the "SCons Design" documentation on the SCons web
       site is currently out of date, as we made significant changes to
       portions of the interface as we figured out what worked and what
       didn't during implementation.L
 
-    - There may be performance issues.  This release has still more
-      performance improvements.  If you still find the performance
+    - There may be performance issues.  Improving SCons performance
+      is an ongoing priority.  If you still find the performance
       unacceptable, we would very much like to hear from you and learn
       more about your configuration so we can optimize the right things.
 
@@ -97,20 +119,20 @@ RELEASE 0.07 -
       use if you you want to fix your version of Python to support
       parallel builds in SCons.
 
-    - Even on officialy Python release 2.2., values greater than 1 for
-      the -j option on Windows seemingly hang SCons.  This problem is
-      being investigated.
-
-    - Extremely long command lines (thousands of characters) can
-      reportedly crash Python.  This problem is being investigated.
-
     - Again, the "SCons Design" documentation on the SCons web
       site is currently out of date.  Take what you read there with a
       grain of salt.
 
-    - There is a hard-coding that prevents using file timestamps instead
-      of MD5 signatures to determine if a file is up-to-date.  (There
-      also isn't yet a mechanism to configure that.)
+    - There is not yet a mechanism to configure using file timestamps
+      instead of MD5 signatures to determine if a file is up-to-date.
+
+    - Executing the -u option from a source directory that has an
+      associated BuildDir() does not build the targets in the BuildDir().
+
+    - On Windows systems using MSVC/C++, long link lines are handled
+      by writing the arguments to a temporary file.  Because the
+      temporary file name may change from invocation to invocation,
+      long link lines may be rebuilt more often than necessary.
 
     - No support yet for the following future features:
 
