@@ -62,11 +62,11 @@ oldtime = os.path.getmtime(test.workpath('f1'))
 
 expect = test.wrap_stdout(read_str = 'Touch("f1")\n',
                           build_str = """\
-cat("f2.out", "f2.in")
+cat(["f2.out"], ["f2.in"])
 Touch("f3")
 Touch("f4")
-cat("f5.out", "f5.in")
-cat("f6.out", "f6.in")
+cat(["f5.out"], ["f5.in"])
+cat(["f6.out"], ["f6.in"])
 Touch("Touch-f6.in")
 Touch("f6.out-Touch")
 """)

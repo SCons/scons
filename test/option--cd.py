@@ -63,8 +63,8 @@ test.write(['src', 'ccc.in'], "ccc.in\n")
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(test.read(['src', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -80,8 +80,8 @@ Retrieved `ccc.out' from cache
 Retrieved `all' from cache
 """))
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_not_exist(test.workpath('src', 'cat.out'))
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -92,14 +92,14 @@ test.run(chdir = 'src', arguments = '-c .')
 test.run(chdir = 'src',
          arguments = '--cache-disable .',
          stdout = test.wrap_stdout("""\
-cat("aaa.out", "aaa.in")
-cat("bbb.out", "bbb.in")
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(test.read(['src', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
@@ -111,14 +111,14 @@ test.unlink(['src', 'cat.out'])
 test.run(chdir = 'src',
          arguments = '--no-cache .',
          stdout = test.wrap_stdout("""\
-cat("aaa.out", "aaa.in")
-cat("bbb.out", "bbb.in")
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(test.read(['src', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
 
 test.up_to_date(chdir = 'src', arguments = '.')
 

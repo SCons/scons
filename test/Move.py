@@ -59,11 +59,11 @@ test.write('f6.in-Move', "f6.in-Move\n")
 
 expect = test.wrap_stdout(read_str = 'Move("f1.out", "f1.in")\n',
                           build_str = """\
-cat("f2.out", "f2.in")
+cat(["f2.out"], ["f2.in"])
 Move("f3.out", "f3.in")
 Move("f4.out", "f4.in")
-cat("f5.out", "f5.in")
-cat("f6.out", "f6.in")
+cat(["f5.out"], ["f5.in"])
+cat(["f6.out"], ["f6.in"])
 Move("Move-f6.out", "f6.in-Move")
 """)
 test.run(options = '-n', arguments = '.', stdout = expect)

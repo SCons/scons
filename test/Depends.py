@@ -78,13 +78,12 @@ test.write(['subdir', 'bar.dep'], "subdir/bar.dep 1\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 1\n")
-test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 1\n")
-test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\nsubdir/bar.dep 1\n")
-test.fail_test(test.read(['subdir', 'f4.out']) !=
-               "subdir/f4.in\nsubdir/bar.dep 1\n")
-test.fail_test(test.read('f5.out') != "f5.in\nsubdir/foo.dep 1\n")
-test.fail_test(test.read(['sub2', 'f6.out']) != "f6.in\nsubdir/bar.dep 1\n")
+test.must_match('f1.out', "f1.in\nsubdir/foo.dep 1\n")
+test.must_match('f2.out', "f2.in\nsubdir/foo.dep 1\n")
+test.must_match(['subdir', 'f3.out'], "f3.in\nsubdir/bar.dep 1\n")
+test.must_match(['subdir', 'f4.out'], "subdir/f4.in\nsubdir/bar.dep 1\n")
+test.must_match('f5.out', "f5.in\nsubdir/foo.dep 1\n")
+test.must_match(['sub2', 'f6.out'], "f6.in\nsubdir/bar.dep 1\n")
 
 #
 test.write(['subdir', 'foo.dep'], "subdir/foo.dep 2\n")
@@ -93,52 +92,48 @@ test.write('f6.in', "f6.in 2\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 2\n")
-test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 2\n")
-test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\nsubdir/bar.dep 2\n")
-test.fail_test(test.read(['subdir', 'f4.out']) !=
-               "subdir/f4.in\nsubdir/bar.dep 2\n")
-test.fail_test(test.read('f5.out') != "f5.in\nsubdir/foo.dep 2\n")
-test.fail_test(test.read(['sub2', 'f6.out']) != "f6.in 2\nsubdir/bar.dep 2\n")
+test.must_match('f1.out', "f1.in\nsubdir/foo.dep 2\n")
+test.must_match('f2.out', "f2.in\nsubdir/foo.dep 2\n")
+test.must_match(['subdir', 'f3.out'], "f3.in\nsubdir/bar.dep 2\n")
+test.must_match(['subdir', 'f4.out'], "subdir/f4.in\nsubdir/bar.dep 2\n")
+test.must_match('f5.out', "f5.in\nsubdir/foo.dep 2\n")
+test.must_match(['sub2', 'f6.out'], "f6.in 2\nsubdir/bar.dep 2\n")
 
 #
 test.write(['subdir', 'foo.dep'], "subdir/foo.dep 3\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 3\n")
-test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 3\n")
-test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\nsubdir/bar.dep 2\n")
-test.fail_test(test.read(['subdir', 'f4.out']) !=
-               "subdir/f4.in\nsubdir/bar.dep 2\n")
-test.fail_test(test.read('f5.out') != "f5.in\nsubdir/foo.dep 2\n")
-test.fail_test(test.read(['sub2', 'f6.out']) != "f6.in 2\nsubdir/bar.dep 2\n")
+test.must_match('f1.out', "f1.in\nsubdir/foo.dep 3\n")
+test.must_match('f2.out', "f2.in\nsubdir/foo.dep 3\n")
+test.must_match(['subdir', 'f3.out'], "f3.in\nsubdir/bar.dep 2\n")
+test.must_match(['subdir', 'f4.out'], "subdir/f4.in\nsubdir/bar.dep 2\n")
+test.must_match('f5.out', "f5.in\nsubdir/foo.dep 2\n")
+test.must_match(['sub2', 'f6.out'], "f6.in 2\nsubdir/bar.dep 2\n")
 
 #
 test.write(['subdir', 'bar.dep'], "subdir/bar.dep 3\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 3\n")
-test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 3\n")
-test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\nsubdir/bar.dep 3\n")
-test.fail_test(test.read(['subdir', 'f4.out']) !=
-               "subdir/f4.in\nsubdir/bar.dep 3\n")
-test.fail_test(test.read('f5.out') != "f5.in\nsubdir/foo.dep 2\n")
-test.fail_test(test.read(['sub2', 'f6.out']) != "f6.in 2\nsubdir/bar.dep 2\n")
+test.must_match('f1.out', "f1.in\nsubdir/foo.dep 3\n")
+test.must_match('f2.out', "f2.in\nsubdir/foo.dep 3\n")
+test.must_match(['subdir', 'f3.out'], "f3.in\nsubdir/bar.dep 3\n")
+test.must_match(['subdir', 'f4.out'], "subdir/f4.in\nsubdir/bar.dep 3\n")
+test.must_match('f5.out', "f5.in\nsubdir/foo.dep 2\n")
+test.must_match(['sub2', 'f6.out'], "f6.in 2\nsubdir/bar.dep 2\n")
 
 #
 test.write('f6.in', "f6.in 3\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 3\n")
-test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 3\n")
-test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\nsubdir/bar.dep 3\n")
-test.fail_test(test.read(['subdir', 'f4.out']) !=
-               "subdir/f4.in\nsubdir/bar.dep 3\n")
-test.fail_test(test.read('f5.out') != "f5.in\nsubdir/foo.dep 3\n")
-test.fail_test(test.read(['sub2', 'f6.out']) != "f6.in 3\nsubdir/bar.dep 3\n")
+test.must_match('f1.out', "f1.in\nsubdir/foo.dep 3\n")
+test.must_match('f2.out', "f2.in\nsubdir/foo.dep 3\n")
+test.must_match(['subdir', 'f3.out'], "f3.in\nsubdir/bar.dep 3\n")
+test.must_match(['subdir', 'f4.out'], "subdir/f4.in\nsubdir/bar.dep 3\n")
+test.must_match('f5.out', "f5.in\nsubdir/foo.dep 3\n")
+test.must_match(['sub2', 'f6.out'], "f6.in 3\nsubdir/bar.dep 3\n")
 
 #
 test.write('SConstruct', """\
@@ -148,10 +143,6 @@ file2 = File('file2')
 env.Depends(file1, [[file2, 'file3']])
 """)
 
-test.run(status = 2, stderr = """
-scons: *** attempted to add a non-Node dependency to file1:
-\t['file2', 'file3'] is a <type 'list'>, not a Node
-File "SConstruct", line 4, in ?
-""")
+test.up_to_date(arguments = '.')
 
 test.pass_test()

@@ -374,7 +374,7 @@ class ActionBaseTestCase(unittest.TestCase):
             result = a("out", "in", env)
             assert result == 7, result
             s = sio.getvalue()
-            assert s == 'execfunc("out", "in")\n', s
+            assert s == 'execfunc(["out"], ["in"])\n', s
 
             SCons.Action.execute_actions = 0
 
@@ -383,7 +383,7 @@ class ActionBaseTestCase(unittest.TestCase):
             result = a("out", "in", env)
             assert result == 0, result
             s = sio.getvalue()
-            assert s == 'execfunc("out", "in")\n', s
+            assert s == 'execfunc(["out"], ["in"])\n', s
 
             SCons.Action.print_actions_presub = 1
 
@@ -392,14 +392,14 @@ class ActionBaseTestCase(unittest.TestCase):
             result = a("out", "in", env)
             assert result == 0, result
             s = sio.getvalue()
-            assert s == 'execfunc("out", "in")\n', s
+            assert s == 'execfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a("out", "in", env, presub=1)
             assert result == 0, result
             s = sio.getvalue()
-            assert s == 'Building out with action(s):\n  execfunc(env, target, source)\nexecfunc("out", "in")\n', s
+            assert s == 'Building out with action(s):\n  execfunc(env, target, source)\nexecfunc(["out"], ["in"])\n', s
 
             a2 = SCons.Action.Action(execfunc)
 
@@ -408,14 +408,14 @@ class ActionBaseTestCase(unittest.TestCase):
             result = a2("out", "in", env)
             assert result == 0, result
             s = sio.getvalue()
-            assert s == 'Building out with action(s):\n  execfunc(env, target, source)\nexecfunc("out", "in")\n', s
+            assert s == 'Building out with action(s):\n  execfunc(env, target, source)\nexecfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio
             result = a2("out", "in", env, presub=0)
             assert result == 0, result
             s = sio.getvalue()
-            assert s == 'execfunc("out", "in")\n', s
+            assert s == 'execfunc(["out"], ["in"])\n', s
 
             sio = StringIO.StringIO()
             sys.stdout = sio

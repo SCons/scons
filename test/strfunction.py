@@ -121,14 +121,14 @@ test.run(arguments = '.', stdout=test.wrap_stdout("""\
 Building cmdstr.out from cmdstr.in
 %s cat.py dict1.cmd dict1.out
 Building dict2.out from dict2.cmdstr
-func("dict3.out", "dict3.func")
+func(["dict3.out"], ["dict3.func"])
 Building dict4.out from dict4.funcstr
 %s cat.py dict5.lazy dict5.out
 Building dict6.out from dict6.lazystr
 %s cat.py dict7.list .temp
 %s cat.py .temp dict7.out
 Building dict8.out from dict8.liststr
-func("func.out", "func.in")
+func(["func.out"], ["func.in"])
 Building funcstr.out from funcstr.in
 %s cat.py lazy.in lazy.out
 Building lazystr.out from lazystr.in

@@ -84,12 +84,12 @@ os.chmod(test.workpath('f7.out-Chmod'), 0444)
 
 expect = test.wrap_stdout(read_str = 'Chmod("f1", 0666)\nChmod("d2", 0777)\n',
                           build_str = """\
-cat("bar.out", "bar.in")
+cat(["bar.out"], ["bar.in"])
 Chmod("f3", 0666)
 Chmod("d4", 0777)
 Chmod("f5", 0666)
-cat("f6.out", "f6.in")
-cat("f7.out", "f7.in")
+cat(["f6.out"], ["f6.in"])
+cat(["f7.out"], ["f7.in"])
 Chmod("Chmod-f7.in", 0666)
 Chmod("f7.out-Chmod", 0666)
 """)

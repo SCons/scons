@@ -323,13 +323,13 @@ __PYTHON__ cat.py file06.in temp
 __PYTHON__ cat.py temp file06.out
 Building file07.out with action(s):
   cat(env, target, source)
-cat("file07.out", "file07.in")
+cat(["file07.out"], ["file07.in"])
 Building file08.out with action(s):
   cat(env, target, source)
-cat("file08.out", "file08.in")
+cat(["file08.out"], ["file08.in"])
 Building file09.out with action(s):
   cat(env, target, source)
-cat("file09.out", "file09.in")
+cat(["file09.out"], ["file09.in"])
 Building file11.out with action(s):
   $PYTHON cat.py $SOURCES $TARGET
 __PYTHON__ cat.py file11.in file11.out
@@ -358,10 +358,10 @@ __PYTHON__ cat.py file16.in temp
 __PYTHON__ cat.py temp file16.out
 Building file17.out with action(s):
   cat(env, target, source)
-cat("file17.out", "file17.in")
+cat(["file17.out"], ["file17.in"])
 Building file18.out with action(s):
   cat(env, target, source)
-cat("file18.out", "file18.in")
+cat(["file18.out"], ["file18.in"])
 """
 expect = string.replace(expect, '__PYTHON__', TestSCons.python)
 test.run(arguments = "--debug=presub .", stdout=test.wrap_stdout(expect))

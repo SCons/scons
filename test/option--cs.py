@@ -77,9 +77,9 @@ test.write(['src1', 'ccc.in'], "ccc.in\n")
 # This should populate the cache with our derived files.
 test.run(chdir = 'src1', arguments = '.')
 
-test.fail_test(test.read(['src1', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
+test.must_match(['src1', 'all'], "aaa.in\nbbb.in\nccc.in\n")
 
-test.fail_test(test.read(['src1', 'cat.out']) != "aaa.out\nbbb.out\nccc.out\nall\n")
+test.must_match(['src1', 'cat.out'], "aaa.out\nbbb.out\nccc.out\nall\n")
 
 test.up_to_date(chdir = 'src1', arguments = '.')
 
@@ -95,7 +95,7 @@ Retrieved `ccc.out' from cache
 Retrieved `all' from cache
 """))
 
-test.fail_test(os.path.exists(test.workpath('src1', 'cat.out')))
+test.must_not_exist(test.workpath('src1', 'cat.out'))
 
 test.up_to_date(chdir = 'src1', arguments = '.')
 
@@ -108,11 +108,11 @@ test.run(chdir = 'src1',
          stdout = test.wrap_stdout("""\
 %s build.py aaa.out aaa.in
 %s build.py bbb.out bbb.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """ % (python, python)))
 
-test.fail_test(os.path.exists(test.workpath('src1', 'cat.out')))
+test.must_not_exist(test.workpath('src1', 'cat.out'))
 
 test.up_to_date(chdir = 'src1', arguments = '.')
 
@@ -126,16 +126,16 @@ test.run(chdir = 'src1',
          stdout = test.wrap_stdout("""\
 %s build.py aaa.out aaa.in
 %s build.py bbb.out bbb.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 """ % (python, python)))
 
-test.fail_test(os.path.exists(test.workpath('src1', 'cat.out')))
+test.must_not_exist(test.workpath('src1', 'cat.out'))
 
-test.fail_test(os.path.exists(test.workpath('src1', 'aaa.out')))
-test.fail_test(os.path.exists(test.workpath('src1', 'bbb.out')))
-test.fail_test(os.path.exists(test.workpath('src1', 'ccc.out')))
-test.fail_test(os.path.exists(test.workpath('src1', 'all')))
+test.must_not_exist(test.workpath('src1', 'aaa.out'))
+test.must_not_exist(test.workpath('src1', 'bbb.out'))
+test.must_not_exist(test.workpath('src1', 'ccc.out'))
+test.must_not_exist(test.workpath('src1', 'all'))
 
 # Verify that using --cache-show -s doesn't report anything, even though
 # we do fetch the files from the cache.  No need to clean up.
@@ -143,8 +143,8 @@ test.run(chdir = 'src1',
          arguments = '--cache-show -s .',
          stdout = "")
 
-test.fail_test(test.read(['src1', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
-test.fail_test(os.path.exists(test.workpath('src1', 'cat.out')))
+test.must_match(['src1', 'all'], "aaa.in\nbbb.in\nccc.in\n")
+test.must_not_exist(test.workpath('src1', 'cat.out'))
 
 #
 hello_exe = 'hello' + _exe

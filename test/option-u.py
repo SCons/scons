@@ -84,37 +84,37 @@ test.write(['sub4', 'dir', 'f4b.in'], "sub4/dir/f4b.in")
 # Verify that we only build the specified local argument.
 test.run(chdir = 'sub1', arguments = '-u f1a.out')
 
-test.fail_test(test.read(['sub1', 'f1a.out']) != "sub1/f1a.in")
-test.fail_test(os.path.exists(test.workpath('sub1', 'sub1/f1b.out')))
-test.fail_test(os.path.exists(test.workpath('sub2', 'f2a.out')))
-test.fail_test(os.path.exists(test.workpath('sub2', 'dir', 'f2b.out')))
-test.fail_test(os.path.exists(test.workpath('sub3', 'f3.out')))
-test.fail_test(os.path.exists(test.workpath('sub4', 'f4a.out')))
-test.fail_test(os.path.exists(test.workpath('sub4', 'dir', 'f4b.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'f4a.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'dir', 'f4b.out')))
+test.must_match(['sub1', 'f1a.out'], "sub1/f1a.in")
+test.must_not_exist(test.workpath('sub1', 'sub1/f1b.out'))
+test.must_not_exist(test.workpath('sub2', 'f2a.out'))
+test.must_not_exist(test.workpath('sub2', 'dir', 'f2b.out'))
+test.must_not_exist(test.workpath('sub3', 'f3.out'))
+test.must_not_exist(test.workpath('sub4', 'f4a.out'))
+test.must_not_exist(test.workpath('sub4', 'dir', 'f4b.out'))
+test.must_not_exist(test.workpath('build', 'f4a.out'))
+test.must_not_exist(test.workpath('build', 'dir', 'f4b.out'))
 
 # Verify that we build everything at or below our current directory.
 test.run(chdir = 'sub2', arguments = '-u')
 
-test.fail_test(os.path.exists(test.workpath('sub1', 'sub1/f1b.out')))
-test.fail_test(test.read(['sub2', 'f2a.out']) != "sub2/f2a.in")
-test.fail_test(test.read(['sub2', 'dir', 'f2b.out']) != "sub2/dir/f2b.in")
-test.fail_test(os.path.exists(test.workpath('sub3', 'f3.out')))
-test.fail_test(os.path.exists(test.workpath('sub4', 'f4a.out')))
-test.fail_test(os.path.exists(test.workpath('sub4', 'dir', 'f4b.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'f4a.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'dir', 'f4b.out')))
+test.must_not_exist(test.workpath('sub1', 'sub1/f1b.out'))
+test.must_match(['sub2', 'f2a.out'], "sub2/f2a.in")
+test.must_match(['sub2', 'dir', 'f2b.out'], "sub2/dir/f2b.in")
+test.must_not_exist(test.workpath('sub3', 'f3.out'))
+test.must_not_exist(test.workpath('sub4', 'f4a.out'))
+test.must_not_exist(test.workpath('sub4', 'dir', 'f4b.out'))
+test.must_not_exist(test.workpath('build', 'f4a.out'))
+test.must_not_exist(test.workpath('build', 'dir', 'f4b.out'))
 
 # Verify that we build a specified alias, regardless of where.
 test.run(chdir = 'sub2', arguments = '-u my_alias')
 
-test.fail_test(os.path.exists(test.workpath('sub1', 'sub1/f1b.out')))
-test.fail_test(test.read(['sub3', 'f3.out']) != "sub3/f3.in")
-test.fail_test(os.path.exists(test.workpath('sub4', 'f4a.out')))
-test.fail_test(os.path.exists(test.workpath('sub4', 'dir', 'f4b.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'f4a.out')))
-test.fail_test(os.path.exists(test.workpath('build', 'dir', 'f4b.out')))
+test.must_not_exist(test.workpath('sub1', 'sub1/f1b.out'))
+test.must_match(['sub3', 'f3.out'], "sub3/f3.in")
+test.must_not_exist(test.workpath('sub4', 'f4a.out'))
+test.must_not_exist(test.workpath('sub4', 'dir', 'f4b.out'))
+test.must_not_exist(test.workpath('build', 'f4a.out'))
+test.must_not_exist(test.workpath('build', 'dir', 'f4b.out'))
 
 # Verify that we build things in a linked BuildDir.
 f4a_in = os.path.join('build', 'f4a.in')
@@ -126,15 +126,15 @@ test.run(chdir = 'sub4',
          stdout = "scons: Entering directory `%s'\n" % test.workpath() + \
                   test.wrap_stdout("""\
 scons: building associated BuildDir targets: build
-cat("%s", "%s")
-cat("%s", "%s")
+cat(["%s"], ["%s"])
+cat(["%s"], ["%s"])
 """ % (f4b_out, f4b_in, f4a_out, f4a_in)))
 
-test.fail_test(os.path.exists(test.workpath('sub1', 'sub1/f1b.out')))
-test.fail_test(os.path.exists(test.workpath('sub4', 'f4a.out')))
-test.fail_test(os.path.exists(test.workpath('sub4', 'dir', 'f4b.out')))
-test.fail_test(test.read(['build', 'f4a.out']) != "sub4/f4a.in")
-test.fail_test(test.read(['build', 'dir', 'f4b.out']) != "sub4/dir/f4b.in")
+test.must_not_exist(test.workpath('sub1', 'sub1/f1b.out'))
+test.must_not_exist(test.workpath('sub4', 'f4a.out'))
+test.must_not_exist(test.workpath('sub4', 'dir', 'f4b.out'))
+test.must_match(['build', 'f4a.out'], "sub4/f4a.in")
+test.must_match(['build', 'dir', 'f4b.out'], "sub4/dir/f4b.in")
 
 # Make sure explicit targets beginning with ../ get built.
 test.subdir('sub6', ['sub6', 'dir'])
@@ -167,9 +167,9 @@ test.write(['sub6', 'dir', 'f4.in'], "f4.in\n")
 
 test.run(chdir = 'sub6/dir', arguments = '-u ../f2.out')
 
-test.fail_test(os.path.exists(test.workpath('sub6', 'f1.out')))
-test.fail_test(not os.path.exists(test.workpath('sub6', 'f2.out')))
-test.fail_test(os.path.exists(test.workpath('sub6', 'dir', 'f3.out')))
-test.fail_test(os.path.exists(test.workpath('sub6', 'dir', 'f4.out')))
+test.must_not_exist(test.workpath('sub6', 'f1.out'))
+test.must_exist(test.workpath('sub6', 'f2.out'))
+test.must_not_exist(test.workpath('sub6', 'dir', 'f3.out'))
+test.must_not_exist(test.workpath('sub6', 'dir', 'f4.out'))
 
 test.pass_test()

@@ -53,10 +53,10 @@ test.write(['w1', 'foo.in'], "foo.in 1")
 
 test.run(chdir='w1',
          arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
+         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
 test.run(chdir='w1',
          arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
+         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
 
 test.up_to_date(chdir='w1',
                 options="--max-drift=0 -f SConstruct1",
@@ -70,10 +70,10 @@ test.write(['w1', 'foo.in'], "foo.in 2")
 
 test.run(chdir='w1',
          arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
+         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
 test.run(chdir='w1',
          arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
+         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
 
 test.up_to_date(chdir='w1',
                 options="--max-drift=0 -f SConstruct1",
@@ -90,10 +90,10 @@ test.write(['w2', 'foo.in'], "foo.in 1")
 
 test.run(chdir='w2',
          arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
+         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
 test.run(chdir='w2',
          arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
+         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
 
 test.up_to_date(chdir='w2',
                 options="--max-drift=0 -f SConstruct1",
@@ -107,10 +107,10 @@ test.write(['w2', 'foo.in'], "foo.in 2")
 
 test.run(chdir='w2',
          arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
+         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
 test.run(chdir='w2',
          arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
+         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
 
 test.up_to_date(chdir='w2',
                 options="--max-drift=0 -f SConstruct1",

@@ -123,17 +123,17 @@ bk get -e sub/SConscript
 """,
                                        build_str = """\
 bk get -e aaa.in
-cat("aaa.out", "aaa.in")
-cat("bbb.out", "bbb.in")
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
 bk get -e ccc.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 bk get -e sub/ddd.in
-cat("sub/ddd.out", "sub/ddd.in")
-cat("sub/eee.out", "sub/eee.in")
+cat(["sub/ddd.out"], ["sub/ddd.in"])
+cat(["sub/eee.out"], ["sub/eee.in"])
 bk get -e sub/fff.in
-cat("sub/fff.out", "sub/fff.in")
-cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
+cat(["sub/fff.out"], ["sub/fff.in"])
+cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 """),
              stderr = """\
 sub/SConscript 1.1 -> 1.2: 5 lines
@@ -143,7 +143,7 @@ sub/ddd.in 1.1 -> 1.2: 1 lines
 sub/fff.in 1.1 -> 1.2: 1 lines
 """)
 
-    test.fail_test(test.read(['work1', 'all']) != "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
+    test.must_match(['work1', 'all'], "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
 
     test.fail_test(not is_writable(test.workpath('work1', 'sub', 'SConscript')))
     test.fail_test(not is_writable(test.workpath('work1', 'aaa.in')))
@@ -224,22 +224,22 @@ bk co -q sub/SConscript
 """,
                                        build_str = """\
 bk co -q aaa.in
-cat("aaa.out", "aaa.in")
-cat("bbb.out", "bbb.in")
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
 bk co -q ccc.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 bk co -q sub/ddd.in
-cat("sub/ddd.out", "sub/ddd.in")
-cat("sub/eee.out", "sub/eee.in")
+cat(["sub/ddd.out"], ["sub/ddd.in"])
+cat(["sub/eee.out"], ["sub/eee.in"])
 bk co -q sub/fff.in
-cat("sub/fff.out", "sub/fff.in")
-cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
+cat(["sub/fff.out"], ["sub/fff.in"])
+cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 """))
 
-    test.fail_test(test.read(['work2', 'all']) != "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n")
+    test.must_match(['work2', 'all'], "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n")
 
-    test.fail_test(test.read(['work2', 'sub', 'all']) != "work2/sub/ddd.in\nchecked-out work2/sub/eee.in\nwork2/sub/fff.in\n")
+    test.must_match(['work2', 'sub', 'all'], "work2/sub/ddd.in\nchecked-out work2/sub/eee.in\nwork2/sub/fff.in\n")
 
     test.fail_test(is_writable(test.workpath('work2', 'sub', 'SConscript')))
     test.fail_test(is_writable(test.workpath('work2', 'aaa.in')))
@@ -319,17 +319,17 @@ test.run(chdir = 'work3',
 """ % bk,
                                    build_str = """\
 %s get aaa.in
-cat("aaa.out", "aaa.in")
-cat("bbb.out", "bbb.in")
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
 %s get ccc.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 %s get sub/ddd.in
-cat("sub/ddd.out", "sub/ddd.in")
-cat("sub/eee.out", "sub/eee.in")
+cat(["sub/ddd.out"], ["sub/ddd.in"])
+cat(["sub/eee.out"], ["sub/eee.in"])
 %s get sub/fff.in
-cat("sub/fff.out", "sub/fff.in")
-cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
+cat(["sub/fff.out"], ["sub/fff.in"])
+cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 """ % (bk, bk, bk, bk)),
          stderr = """\
 sub/SConscript 1.1: 5 lines
@@ -339,9 +339,9 @@ sub/ddd.in 1.1: 1 lines
 sub/fff.in 1.1: 1 lines
 """)
 
-test.fail_test(test.read(['work3', 'all']) != "import/aaa.in\nwork3/bbb.in\nimport/ccc.in\n")
+test.must_match(['work3', 'all'], "import/aaa.in\nwork3/bbb.in\nimport/ccc.in\n")
 
-test.fail_test(test.read(['work3', 'sub', 'all']) != "import/sub/ddd.in\nwork3/sub/eee.in\nimport/sub/fff.in\n")
+test.must_match(['work3', 'sub', 'all'], "import/sub/ddd.in\nwork3/sub/eee.in\nimport/sub/fff.in\n")
 
 test.fail_test(is_writable(test.workpath('work3', 'sub', 'SConscript')))
 test.fail_test(is_writable(test.workpath('work3', 'aaa.in')))

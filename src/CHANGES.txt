@@ -148,6 +148,10 @@ RELEASE 0.96 - XXX
   - Don't blow up with stack trace when the external $PATH environment
     variable isn't set.
 
+  - Make Builder calls return lists all the time, even if there's only
+    one target.  This keeps things consistent and easier to program to
+    across platforms.
+
   From Chris Murray:
 
   - Add a .win32 attribute to force file names to expand with

@@ -74,11 +74,9 @@ test.write(['subdir', 'f3b.in'], "subdir/f3b.in\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1a.in\nf1b.in\n")
-test.fail_test(test.read(['subdir', 'f2.out']) !=
-               "subdir/f2a.in\nsubdir/f2b.in\n")
-test.fail_test(test.read(['subdir', 'f3.out']) !=
-               "subdir/f3a.in\nsubdir/f3b.in\n")
+test.must_match('f1.out', "f1a.in\nf1b.in\n")
+test.must_match(['subdir', 'f2.out'], "subdir/f2a.in\nsubdir/f2b.in\n")
+test.must_match(['subdir', 'f3.out'], "subdir/f3a.in\nsubdir/f3b.in\n")
 
 test.up_to_date(arguments = '.')
 
@@ -88,11 +86,9 @@ test.write(['subdir', 'f3b.in'], "subdir/f3b.in 2\n")
 
 test.up_to_date(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1a.in\nf1b.in\n")
-test.fail_test(test.read(['subdir', 'f2.out']) !=
-               "subdir/f2a.in\nsubdir/f2b.in\n")
-test.fail_test(test.read(['subdir', 'f3.out']) !=
-               "subdir/f3a.in\nsubdir/f3b.in\n")
+test.must_match('f1.out', "f1a.in\nf1b.in\n")
+test.must_match(['subdir', 'f2.out'], "subdir/f2a.in\nsubdir/f2b.in\n")
+test.must_match(['subdir', 'f3.out'], "subdir/f3a.in\nsubdir/f3b.in\n")
 
 test.write('f1a.in', "f1a.in 2\n")
 test.write(['subdir', 'f2b.in'], "subdir/f2b.in 2\n")
@@ -100,11 +96,9 @@ test.write(['subdir', 'f3a.in'], "subdir/f3a.in 2\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1a.in 2\nf1b.in 2\n")
-test.fail_test(test.read(['subdir', 'f2.out']) !=
-               "subdir/f2a.in 2\nsubdir/f2b.in 2\n")
-test.fail_test(test.read(['subdir', 'f3.out']) !=
-               "subdir/f3a.in 2\nsubdir/f3b.in 2\n")
+test.must_match('f1.out', "f1a.in 2\nf1b.in 2\n")
+test.must_match(['subdir', 'f2.out'], "subdir/f2a.in 2\nsubdir/f2b.in 2\n")
+test.must_match(['subdir', 'f3.out'], "subdir/f3a.in 2\nsubdir/f3b.in 2\n")
 
 test.up_to_date(arguments = '.')
 
@@ -116,10 +110,6 @@ file2 = File('file2')
 env.Ignore(file1, [[file2, 'file3']])
 """)
 
-test.run(status = 2, stderr = """
-scons: *** attempted to ignore a non-Node dependency of file1:
-\t['file2', 'file3'] is a <type 'list'>, not a Node
-File "SConstruct", line 4, in ?
-""")
+test.up_to_date(arguments = '.')
 
 test.pass_test()

@@ -63,45 +63,39 @@ env.B('f3.out', Value(C))
     test.run(arguments='-c')
     test.run()
 
-    out1 = """create("f1.out", "'/usr/local'")"""
-    out2 = """create("f2.out", "10")"""
-    out3 = """create\\("f3.out", "<.*.Custom instance at """
+    out1 = """create(["f1.out"], ["'/usr/local'"])"""
+    out2 = """create(["f2.out"], ["10"])"""
+    out3 = """create\\(\\["f3.out"\\], \\["<.*.Custom instance at """
     #" <- unconfuses emacs syntax highlighting
     test.fail_test(string.find(test.stdout(), out1) == -1)
     test.fail_test(string.find(test.stdout(), out2) == -1)
     test.fail_test(re.search(out3, test.stdout()) == None)
 
-    test.fail_test(not os.path.exists(test.workpath('f1.out')))
-    test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/usr/local')
-    test.fail_test(not os.path.exists(test.workpath('f2.out')))
-    test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '10')
-    test.fail_test(not os.path.exists(test.workpath('f3.out')))
-    test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/usr/local')
+    test.must_match('f1.out', "/usr/local")
+    test.must_match('f2.out', "10")
+    test.must_match('f3.out', "C=/usr/local")
 
     test.up_to_date(arguments='.')
 
     test.run(arguments='prefix=/usr')
-    out4 = """create("f1.out", "'/usr'")"""
-    out5 = """create("f2.out", "4")"""
-    out6 = """create\\("f3.out", "<.*.Custom instance at """
+    out4 = """create(["f1.out"], ["'/usr'"])"""
+    out5 = """create(["f2.out"], ["4"])"""
+    out6 = """create\\(\\["f3.out"\\], \\["<.*.Custom instance at """
     #" <- unconfuses emacs syntax highlighting
     test.fail_test(string.find(test.stdout(), out4) == -1)
     test.fail_test(string.find(test.stdout(), out5) == -1)
     test.fail_test(re.search(out6, test.stdout()) == None)
 
-    test.fail_test(not os.path.exists(test.workpath('f1.out')))
-    test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/usr')
-    test.fail_test(not os.path.exists(test.workpath('f2.out')))
-    test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '4')
-    test.fail_test(not os.path.exists(test.workpath('f3.out')))
-    test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/usr')
+    test.must_match('f1.out', "/usr")
+    test.must_match('f2.out', "4")
+    test.must_match('f3.out', "C=/usr")
 
     test.up_to_date('prefix=/usr', '.')
 
     test.unlink('f3.out')
 
     test.run(arguments='prefix=/var')
-    out4 = """create("f1.out", "'/var'")"""
+    out4 = """create(["f1.out"], ["'/var'"])"""
 
     test.fail_test(string.find(test.stdout(), out4) == -1)
     test.fail_test(string.find(test.stdout(), out5) != -1)
@@ -109,11 +103,8 @@ env.B('f3.out', Value(C))
 
     test.up_to_date('prefix=/var', '.')
 
-    test.fail_test(not os.path.exists(test.workpath('f1.out')))
-    test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/var')
-    test.fail_test(not os.path.exists(test.workpath('f2.out')))
-    test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '4')
-    test.fail_test(not os.path.exists(test.workpath('f3.out')))
-    test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/var')
+    test.must_match('f1.out', "/var")
+    test.must_match('f2.out', "4")
+    test.must_match('f3.out', "C=/var")
 
 test.pass_test()

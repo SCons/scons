@@ -76,18 +76,18 @@ test.write(['sub', 'sc-SConscript'], "'sub/sc-SConscript'\n")
 
 test.run(arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-sc_cat("%s", [])
+sc_cat(["%s"], [])
 """ % (os.path.join('sub', 'SConscript')),
                                    build_str = """\
-sc_cat("%s", [])
-cat("aaa.out", "%s")
-sc_cat("%s", [])
-cat("bbb.out", "%s")
-sc_cat("%s", [])
-cat("ccc.out", "%s")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-sc_cat("%s", [])
-cat("ddd.out", "%s")
+sc_cat(["%s"], [])
+cat(["aaa.out"], ["%s"])
+sc_cat(["%s"], [])
+cat(["bbb.out"], ["%s"])
+sc_cat(["%s"], [])
+cat(["ccc.out"], ["%s"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
+sc_cat(["%s"], [])
+cat(["ddd.out"], ["%s"])
 """ % (os.path.join('sub', 'aaa.in'),
        os.path.join('sub', 'aaa.in'),
        os.path.join('sub', 'bbb.in'),
@@ -97,8 +97,8 @@ cat("ddd.out", "%s")
        os.path.join('sub2', 'ddd.in'),
        os.path.join('sub2', 'ddd.in'))))
 
-test.fail_test(test.read(['sub', 'SConscript']) != "'sub/sc-SConscript'\n")
-test.fail_test(test.read('all') != "sub/sc-aaa.in\nsub/sc-bbb.in\nsub/sc-ccc.in\n")
-test.fail_test(test.read('ddd.out') != "sub2/sc-ddd.in\n")
+test.must_match(['sub', 'SConscript'], "'sub/sc-SConscript'\n")
+test.must_match('all', "sub/sc-aaa.in\nsub/sc-bbb.in\nsub/sc-ccc.in\n")
+test.must_match('ddd.out', "sub2/sc-ddd.in\n")
 
 test.pass_test()

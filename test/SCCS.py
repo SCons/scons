@@ -104,17 +104,17 @@ sccs get -e sub/SConscript
 """,
                                    build_str = """\
 sccs get -e aaa.in
-cat("aaa.out", "aaa.in")
-cat("bbb.out", "bbb.in")
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
 sccs get -e ccc.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 sccs get -e sub/ddd.in
-cat("sub/ddd.out", "sub/ddd.in")
-cat("sub/eee.out", "sub/eee.in")
+cat(["sub/ddd.out"], ["sub/ddd.in"])
+cat(["sub/eee.out"], ["sub/eee.in"])
 sccs get -e sub/fff.in
-cat("sub/fff.out", "sub/fff.in")
-cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
+cat(["sub/fff.out"], ["sub/fff.in"])
+cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 """),
          stderr = """\
 sub/SConscript 1.1 -> 1.2: 5 lines
@@ -124,7 +124,7 @@ sub/ddd.in 1.1 -> 1.2: 1 lines
 sub/fff.in 1.1 -> 1.2: 1 lines
 """)
 
-test.fail_test(test.read(['work1', 'all']) != "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
+test.must_match(['work1', 'all'], "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
 
 test.fail_test(not is_writable(test.workpath('work1', 'sub', 'SConscript')))
 test.fail_test(not is_writable(test.workpath('work1', 'aaa.in')))
@@ -191,17 +191,17 @@ sccs get sub/SConscript
 """,
                                    build_str = """\
 sccs get aaa.in
-cat("aaa.out", "aaa.in")
-cat("bbb.out", "bbb.in")
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
 sccs get ccc.in
-cat("ccc.out", "ccc.in")
-cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
 sccs get sub/ddd.in
-cat("sub/ddd.out", "sub/ddd.in")
-cat("sub/eee.out", "sub/eee.in")
+cat(["sub/ddd.out"], ["sub/ddd.in"])
+cat(["sub/eee.out"], ["sub/eee.in"])
 sccs get sub/fff.in
-cat("sub/fff.out", "sub/fff.in")
-cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
+cat(["sub/fff.out"], ["sub/fff.in"])
+cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 """),
          stderr = """\
 sub/SConscript 1.1: 5 lines
@@ -211,7 +211,7 @@ sub/ddd.in 1.1: 1 lines
 sub/fff.in 1.1: 1 lines
 """)
 
-test.fail_test(test.read(['work2', 'all']) != "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n")
+test.must_match(['work2', 'all'], "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n")
 
 test.fail_test(is_writable(test.workpath('work2', 'sub', 'SConscript')))
 test.fail_test(is_writable(test.workpath('work2', 'aaa.in')))

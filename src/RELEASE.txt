@@ -27,6 +27,33 @@ RELEASE 0.96 - XXX
 
   Please note the following important changes since release 0.95:
 
+    - All Builder calls (both built-in like Program(), Library(),
+      etc. and customer Builders) now always return a list of target
+      Nodes.   If the Builder only builds one target, the Builder
+      call will now return a list containing that target Node, not
+      the target Node itself as it used to do.
+
+      This change should be invisibile to most normal uses of the
+      return values from Builder calls.  It will cause an error if the
+      SConscript file was performing some direct manipulation of the
+      returned Node value.  For example, an attempt to print the name
+      of a target returned by the Object() Builder:
+
+            target = Object('foo.c')
+            # OLD WAY
+            print target
+
+      Will now need to access the first element in the list returned by
+      the Object() call:
+
+            target = Object('foo.c')
+            # NEW AY
+            print target[0]
+
+      This change was introduced to make the data type returned by Builder
+      calls consistent (always a list), regardless of platform or number
+      of returned targets.
+
     - The SConsignFile() function now uses an internally-supplied
       SCons.dblite module as the default DB scheme for the .sconsign file.
       If you are using the SConsignFile() function without an explicitly
@@ -58,7 +85,7 @@ RELEASE 0.96 - XXX
           FortranScan.add_skey('.x') => env.Append(FORTRANSUFFIXES = ['.x'])
 
     - The internal "node_factory" keyword argument has been removed;
-      the seperate and more flexible "target_factory" and "source_factory"
+      the separate and more flexible "target_factory" and "source_factory"
       keywords should be used instead.
 
     - SCons now treats file "extensions" that contain all digits (for

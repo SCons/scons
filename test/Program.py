@@ -44,7 +44,9 @@ test.write('SConstruct', """
 env = Environment()
 env.Program(target = 'foo1', source = 'f1.c')
 env.Program(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
-Program(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
+f3a = File('f3a.c')
+f3b = File('f3b.c')
+Program(target = 'foo3', source = [f3a, [f3b, 'f3c.c']])
 env.Program('foo4', 'f4.c')
 env.Program('foo5.c')
 """)
@@ -326,20 +328,5 @@ test.fail_test(not (oldtime2 == os.path.getmtime(foo2)))
 test.fail_test(not (oldtime3 == os.path.getmtime(foo3)))
 test.fail_test(not (oldtime4 == os.path.getmtime(foo4)))
 test.fail_test(not (oldtime5 == os.path.getmtime(foo5)))
-
-# 
-test.write('SConstruct', """\
-file1 = File('file1.c')
-file2 = File('file2.c')
-Program('foo', [file1, [file2, 'file3.c']])
-""")
-
-foo_exe = 'foo'+_exe
-
-test.run(status = 2, stderr = """
-scons: *** attempted to add a non-Node as source of %s:
-\t['file2.c', 'file3.c'] is a <type 'list'>, not a Node
-File "SConstruct", line 3, in ?
-""" % foo_exe)
 
 test.pass_test()
