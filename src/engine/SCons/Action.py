@@ -37,6 +37,11 @@ other modules:
         to compare the actions used to build a target last time and
         this time.
 
+    strfunction()
+        Returns a substituted string representation of the Action.
+        This is used by the ActionBase.show() command to display the
+        command/function that will be executed to generate the target(s).
+
 Subclasses also supply the following methods for internal use within
 this module:
 
@@ -45,11 +50,6 @@ this module:
         substitution.  This is used by the __call__() methods to display
         the pre-substitution command whenever the --debug=presub option
         is used.
-
-    strfunction()
-        Returns a substituted string representation of the Action.
-        This is used by the ActionBase.show() command to display the
-        command/function that will be executed to generate the target(s).
 
     execute()
         The internal method that really, truly, actually handles the

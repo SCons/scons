@@ -53,6 +53,10 @@ RELEASE 0.97 - XXX
     (already supported by Conftest.py) to specify text at the top of
     the compiled test file.
 
+  - Fix the --debug=explain output when a Python function action changed
+    so it prints a meaningful string, not the binary representation of
+    the function contents.
+
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption

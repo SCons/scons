@@ -48,6 +48,8 @@ class MyAction:
         self.actions = actions
     def get_actions(self):
         return self.actions
+    def strfunction(self, target, source, env):
+        return string.join(['STRFUNCTION'] + self.actions + target + source)
     def genstring(self, target, source, env):
         return string.join(['GENSTRING'] + self.actions + target + source)
     def get_raw_contents(self, target, source, env):
@@ -194,6 +196,14 @@ class ExecutorTestCase(unittest.TestCase):
         x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         c = str(x)
         assert c == 'GENSTRING action1 action2 t s', c
+
+    def test_strfunction(self):
+        """Test the strfunction() method"""
+        env = MyEnvironment(S='string')
+
+        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
+        s = x.strfunction()
+        assert s == 'STRFUNCTION action1 action2 t s', s
 
     def test_get_raw_contents(self):
         """Test fetching the raw signatures contents"""

@@ -38,7 +38,8 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 test.subdir('work1', ['work1', 'src'], ['work1', 'src', 'subdir'],
-            'work4', ['work4', 'src'], ['work4', 'src', 'subdir'])
+            'work4', ['work4', 'src'], ['work4', 'src', 'subdir'],
+            'work5')
 
 subdir_file6 = os.path.join('subdir', 'file6')
 subdir_file6_in = os.path.join('subdir', 'file6.in')
@@ -441,5 +442,60 @@ bbb.k 2
 ccc 1
 file5.k 1 line 4
 """)
+
+
+
+test.write(['work5', 'SConstruct'], """\
+import shutil
+
+env = Environment()
+mode = int(ARGUMENTS.get('mode'))
+if mode:
+    def DifferentCopy(target, source, env):
+        tgt = str(target[0])
+        src = str(source[0])
+        shutil.copy(src, tgt)
+    MyCopy = Builder(action = DifferentCopy)
+
+    def ChangingCopy(target, source, env):
+        tgt = str(target[0])
+        src = str(source[0])
+        shutil.copy(src, tgt)
+    ChangingCopy = Builder(action = ChangingCopy)
+else:
+    MyCopy = Builder(action = Copy('$TARGET', '$SOURCE'))
+    def ChangingCopy(target, source, env):
+        tgt = str(target[0].abspath)
+        src = str(source[0].abspath)
+        shutil.copy(src, tgt)
+    ChangingCopy = Builder(action = ChangingCopy)
+
+env['BUILDERS']['MyCopy'] = MyCopy
+env['BUILDERS']['ChangingCopy'] = ChangingCopy
+
+env.MyCopy('f1.out', 'f1.in')
+env.ChangingCopy('f2.out', 'f2.in')
+""")
+
+test.write(['work5', 'f1.in'], "work5/f1.in\n")
+test.write(['work5', 'f2.in'], "work5/f2.in\n")
+
+test.run(chdir = 'work5', arguments = "mode=0 .")
+
+test.must_match(['work5', 'f1.out'], "work5/f1.in\n")
+test.must_match(['work5', 'f2.out'], "work5/f2.in\n")
+
+test.run(chdir = 'work5',
+         arguments = "--debug=explain mode=1 .",
+         stdout = test.wrap_stdout("""\
+scons: rebuilding `f1.out' because the build action changed:
+               old: Copy("f1.out", "f1.in")
+               new: DifferentCopy(["f1.out"], ["f1.in"])
+DifferentCopy(["f1.out"], ["f1.in"])
+scons: rebuilding `f2.out' because the contents of the build action changed
+ChangingCopy(["f2.out"], ["f2.in"])
+"""))
+
+
 
 test.pass_test()

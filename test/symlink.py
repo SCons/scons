@@ -59,7 +59,7 @@ expect = "scons: *** [%s] Error 1\n" % foo_obj
 test.fail_test(string.find(test.stderr(), expect) == -1)
 
 test.write('SConstruct', """
-Command('file.out', 'file.in', Copy())
+Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 """)
 
 test.symlink('nonexistent', 'file.in')
