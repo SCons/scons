@@ -809,9 +809,10 @@ class FS(LocalFS):
         __cacheable__"""
 
         if not name:
-            # This is a stupid hack to compensate for the fact
-            # that the POSIX and Win32 versions of os.path.normpath()
-            # behave differently.  In particular, in POSIX:
+            # This is a stupid hack to compensate for the fact that
+            # the POSIX and Win32 versions of os.path.normpath() behave
+            # differently in older versions of Python.  In particular,
+            # in POSIX:
             #   os.path.normpath('./') == '.'
             # in Win32
             #   os.path.normpath('./') == ''
@@ -820,11 +821,18 @@ class FS(LocalFS):
             # This is a definite bug in the Python library, but we have
             # to live with it.
             name = '.'
-        path_comp = string.split(name, os.sep)
-        drive, path_first = os.path.splitdrive(path_comp[0])
-        if not path_first:
+        path_orig = string.split(name, os.sep)
+        path_norm = string.split(_my_normcase(name), os.sep)
+
+        first_orig = path_orig.pop(0)   # strip first element
+        first_norm = path_norm.pop(0)   # strip first element
+
+        drive, path_first = os.path.splitdrive(first_orig)
+        if path_first:
+            path_orig = [ path_first, ] + path_orig
+            path_norm = [ _my_normcase(path_first), ] + path_norm
+        else:
             # Absolute path
-            drive = _my_normcase(drive)
             try:
                 directory = self.Root[drive]
             except KeyError:
@@ -832,46 +840,50 @@ class FS(LocalFS):
                     raise SCons.Errors.UserError
                 directory = RootDir(drive, ParentOfRoot(), self)
                 self.Root[drive] = directory
-            path_comp = path_comp[1:]
-        else:
-            path_comp = [ path_first, ] + path_comp[1:]
 
-        if not path_comp:
-            path_comp = ['']
+        if not path_orig:
+            return directory
+
+        last_orig = path_orig.pop()     # strip last element
+        last_norm = path_norm.pop()     # strip last element
             
         # Lookup the directory
-        for path_name in path_comp[:-1]:
-            path_norm = _my_normcase(path_name)
+        for orig, norm in map(None, path_orig, path_norm):
             try:
-                d = directory.entries[path_norm]
+                directory = directory.entries[norm]
             except KeyError:
                 if not create:
                     raise SCons.Errors.UserError
 
                 # look at the actual filesystem and make sure there isn't
                 # a file already there
-                path = directory.entry_path(path_name)
+                path = directory.entry_path(orig)
                 if self.isfile(path):
                     raise TypeError, \
                           "File %s found where directory expected." % path
 
-                dir_temp = Dir(path_name, directory, self)
-                directory.entries[path_norm] = dir_temp
-                directory.add_wkid(dir_temp)
-                directory = dir_temp
-            else:
-                directory = d.must_be_a_Dir()
+                d = Dir(orig, directory, self)
+                directory.entries[norm] = d
+                directory.add_wkid(d)
+                directory = d
+            except AttributeError:
+                # We tried to look up the entry in either an Entry or
+                # a File.  Give whatever it is a chance to do what's
+                # appropriate: morph into a Dir or raise an exception.
+                directory.must_be_a_Dir()
+                directory = directory.entries[norm]
 
-        entry_norm = _my_normcase(path_comp[-1])
+        directory.must_be_a_Dir()
+
         try:
-            e = directory.entries[entry_norm]
+            e = directory.entries[last_norm]
         except KeyError:
             if not create:
                 raise SCons.Errors.UserError
 
             # make sure we don't create File nodes when there is actually
             # a directory at that path on the disk, and vice versa
-            path = directory.entry_path(path_comp[-1])
+            path = directory.entry_path(last_orig)
             if fsclass == File:
                 if self.isdir(path):
                     raise TypeError, \
@@ -881,8 +893,8 @@ class FS(LocalFS):
                     raise TypeError, \
                           "File %s found where directory expected." % path
             
-            result = fsclass(path_comp[-1], directory, self)
-            directory.entries[entry_norm] = result 
+            result = fsclass(last_orig, directory, self)
+            directory.entries[last_norm] = result 
             directory.add_wkid(result)
         else:
             result = self.__checkClass(e, fsclass)
