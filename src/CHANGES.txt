@@ -8,6 +8,15 @@
 
 
 
+RELEASE 0.05 - 
+
+  From Charles Crain:
+
+  - Allow a library to specified as a command-line source file, not just
+    in the LIBS construction variable.
+
+
+
 RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
 
   From Charles Crain:

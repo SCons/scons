@@ -235,6 +235,9 @@ class MultiStepBuilder(BuilderBase):
         BuilderBase.__init__(self, name, action, prefix, suffix, src_suffix,
                              node_factory, scanner)
         self.src_builder = src_builder
+        self.dictSrcSuffix = {}
+        for suff in self.src_builder.src_suffixes():
+            self.dictSrcSuffix[suff] = None
 
     def __call__(self, env, target = None, source = None):
         slist = SCons.Util.scons_str2nodes(source, self.node_factory)
@@ -242,7 +245,7 @@ class MultiStepBuilder(BuilderBase):
         src_suffix = env.subst(self.src_suffix)
         for snode in slist:
             path, ext = os.path.splitext(snode.abspath)
-            if not src_suffix or ext != src_suffix:
+            if self.dictSrcSuffix.has_key(ext):
                 tgt = self.src_builder(env, target = [ path ],
                                      source=snode)
                 if not SCons.Util.is_List(tgt):

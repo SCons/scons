@@ -113,6 +113,8 @@ class TestSCons(TestCmd.TestCmd):
 	    print stderr
 	    print "Actual STDERR ============"
 	    print self.stderr()
+            print "STDOUT ==================="
+            print self.stdout()
 	    raise TestFailed
 
     def up_to_date(self, arguments = None, **kw):

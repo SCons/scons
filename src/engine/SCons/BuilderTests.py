@@ -490,16 +490,16 @@ class BuilderTestCase(unittest.TestCase):
                                          src_suffix='.bar',
                                          suffix='.foo')
         builder2 = SCons.Builder.MultiStepBuilder(name = "builder2",
-                                                  action='foo',
-                                                  src_builder = builder1)
+                                                  action='bar',
+                                                  src_builder = builder1,
+                                                  src_suffix = '.foo')
         tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
-        flag = 0
-        for snode in tgt.sources:
-            if snode.path == 'test.foo':
-                flag = 1
-                assert snode.sources[0].path == 'test.bar'
-        assert flag
-
+        assert str(tgt.sources[0]) == 'test.foo', str(tgt.sources[0])
+        assert str(tgt.sources[0].sources[0]) == 'test.bar', \
+               str(tgt.sources[0].sources[0])
+        assert str(tgt.sources[1]) == 'test2.foo', str(tgt.sources[1])
+        assert str(tgt.sources[2]) == 'test3.txt', str(tgt.sources[2])
+        
     def test_CompositeBuilder(self):
         """Testing CompositeBuilder class."""
         builder = SCons.Builder.Builder(name = "builder",
