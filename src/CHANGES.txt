@@ -132,6 +132,9 @@ RELEASE 0.97 - XXX
   - Fix handling when BuildDir() exists but is unwriteable.  Add
     "Stop." to those error messages for consistency.
 
+  - Catch incidents of bad builder creation (without an action) and
+    supply meaningful error messages.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

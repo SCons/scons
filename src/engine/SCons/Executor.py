@@ -50,6 +50,8 @@ class Executor:
         self.overridelist = overridelist
         self.targets = targets
         self.sources = sources[:]
+        if not action:
+            raise SCons.Errors.UserError, "Executor must have an action."
 
     def get_build_env(self):
         """Fetch or create the appropriate build Environment

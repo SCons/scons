@@ -329,6 +329,8 @@ def _init_nodes(builder, env, overrides, tlist, slist):
         else:
             executor.add_sources(slist)
     if executor is None:
+        if not builder.action:
+            raise UserError, "Builder %s must have an action to build %s."%(builder.get_name(env or builder.env), map(str,tlist))
         executor = SCons.Executor.Executor(builder.action,
                                            env or builder.env,
                                            [builder.overrides, overrides],
