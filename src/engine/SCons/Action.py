@@ -462,9 +462,15 @@ class FunctionAction(ActionBase):
             if kw.has_key('target') and not \
                SCons.Util.is_List(kw['target']):
                 kw['target'] = [ kw['target'] ]
-            if kw.has_key('source') and not \
-               SCons.Util.is_List(kw['source']):
-                kw['source'] = [ kw['source'] ]
+            if kw.has_key('source'):
+                def rfile(n):
+                    try:
+                        return n.rfile()
+                    except AttributeError:
+                        return n
+                if not SCons.Util.is_List(kw['source']):
+                    kw['source'] = [ kw['source'] ]
+                kw['source'] = map(rfile, kw['source'])
             if kw.has_key("env") and not isinstance(kw["env"], EnvDictProxy):
                 kw["env"] = EnvDictProxy(kw["env"])
             return apply(self.function, (), kw)

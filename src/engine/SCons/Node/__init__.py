@@ -465,8 +465,6 @@ class Walker:
 
 arg2nodes_lookups = []
 
-arg2Rnodes_lookups = []
-
 def arg2nodes(args, node_factory=None, lookup_list=arg2nodes_lookups):
     """This function converts a string or list into a list of Node
     instances.  It accepts the following inputs:
@@ -504,6 +502,3 @@ def arg2nodes(args, node_factory=None, lookup_list=arg2nodes_lookups):
             nodes.append(v)
 
     return nodes
-
-def arg2Rnodes(args, node_factory=None):
-    return arg2nodes(args, node_factory, arg2Rnodes_lookups)

@@ -334,7 +334,7 @@ class Environment:
 
     def Install(self, dir, source):
         """Install specified files in the given directory."""
-        sources = SCons.Node.arg2Rnodes(source, self.fs.File)
+        sources = SCons.Node.arg2nodes(source, self.fs.File)
         dnodes = SCons.Node.arg2nodes(dir, self.fs.Dir)
         tgt = []
         for dnode in dnodes:
@@ -347,7 +347,7 @@ class Environment:
 
     def InstallAs(self, target, source):
         """Install sources as targets."""
-        sources = SCons.Node.arg2Rnodes(source, self.fs.File)
+        sources = SCons.Node.arg2nodes(source, self.fs.File)
         targets = SCons.Node.arg2nodes(target, self.fs.File)
         ret = []
         for src, tgt in map(lambda x, y: (x, y), sources, targets):

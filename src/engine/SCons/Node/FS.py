@@ -109,7 +109,6 @@ class FS:
         self.Root = {}
         self.Top = None
         self.Repositories = []
-        SCons.Node.arg2Rnodes_lookups.append(self.Rsearch)
 
     def set_toplevel_dir(self, path):
         assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
