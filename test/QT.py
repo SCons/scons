@@ -73,8 +73,9 @@ sys.exit(0)
 """ )
 
 test.write(['qt', 'bin', 'myuic.py'], """
-import sys
 import os.path
+import re
+import sys
 import string
 output_arg = 0
 impl_arg = 0
@@ -98,10 +99,11 @@ for arg in sys.argv[1:]:
         sourceFile = arg
 if impl:
     output.write( '#include "' + impl + '"\\n' )
-    if string.find(source.read(), '// ui.h') != -1:
-        output.write(
-           '#include "' +
-           os.path.basename(os.path.splitext(sourceFile)[0]) + '.ui.h"\\n')
+    includes = re.findall('<include.*?>(.*?)</include>', source.read())
+    for incFile in includes:
+        # this is valid for ui.h files, at least
+        if os.path.exists(incFile):
+            output.write('#include "' + incFile + '"\\n')
 else:
     output.write( '#include "my_qobject.h"\\n' + source.read() + " Q_OBJECT \\n" )
 output.close()
@@ -271,21 +273,22 @@ test.not_up_to_date(chdir='work2', options = '-n', arguments = moc)
 test.not_up_to_date(chdir='work2', options = '-n', arguments = cpp)
 test.not_up_to_date(chdir='work2', options = '-n', arguments = h)
 test.run(chdir='work2', arguments = aaa_dll)
-test.write(['work2', 'aaa.ui.h'], r"""
-/* test dependency to .ui.h */
-""")
 test.write(['work2', 'aaa.ui'], r"""
 void aaa(void)
-// ui.h
+//<include>aaa.ui.h</include>
+""")
+test.run(chdir='work2', arguments = aaa_dll) # test that non-existant ui.h files are ignored (as uic does)
+test.write(['work2', 'aaa.ui.h'], r"""
+/* test dependency to .ui.h */
 """)
 test.run(chdir='work2', arguments = aaa_dll)
 test.write(['work2', 'aaa.ui.h'], r"""
 /* changed */
 """)
 test.not_up_to_date(chdir='work2', options = '-n', arguments = obj)
-test.up_to_date(chdir='work2', options = '-n', arguments = cpp)
-test.up_to_date(chdir='work2', options = '-n', arguments = h)
-test.up_to_date(chdir='work2', options = '-n', arguments = moc)
+test.not_up_to_date(chdir='work2', options = '-n', arguments = cpp)
+test.not_up_to_date(chdir='work2', options = '-n', arguments = h)
+test.not_up_to_date(chdir='work2', options = '-n', arguments = moc)
 # clean up
 test.run(chdir='work2', arguments = '-c ' + aaa_dll)
 
@@ -298,6 +301,9 @@ test.fail_test(not os.path.exists(test.workpath('work2','build',moc)) or
                os.path.exists(test.workpath('work2', moc)) or
                os.path.exists(test.workpath('work2', cpp)) or
                os.path.exists(test.workpath('work2', h)))
+cppContents = test.read(test.workpath('work2', 'build', cpp))
+test.fail_test(string.find(cppContents, '#include "aaa.ui.h"') == -1)
+
 test.run(chdir='work2',
          arguments = "build_dir=1 chdir=1 " +
                      test.workpath('work2', 'build', aaa_dll) )
@@ -318,7 +324,6 @@ test.must_exist(['work2','build_dup0',moc],
 test.must_not_exist(['work2', moc],
                     ['work2', cpp],
                     ['work2', h])
-
 
 ##############################################################################
 # 3. create a moc file from a cpp file
@@ -522,16 +527,16 @@ env = Environment(tools=['default','qt'],
                   CXXFILESUFFIX=".cpp")
 
 conf = env.Configure()
-if not conf.CheckLib(env.subst("$QT_LIB")):
+if not conf.CheckLib(env.subst("$QT_LIB"), autoadd=0):
     conf.env['QT_LIB'] = 'qt-mt'
-    if not conf.CheckLib(env.subst("$QT_LIB")):
+    if not conf.CheckLib(env.subst("$QT_LIB"), autoadd=0):
          Exit(0)
 env = conf.Finish()
-
-env.Program('test_realqt', ['mocFromCpp.cpp',
-                            'mocFromH.cpp',
-                            'anUiFile.ui',
-                            'main.cpp'])
+BuildDir('bld', '.')
+env.Program('bld/test_realqt', ['bld/mocFromCpp.cpp',
+                                'bld/mocFromH.cpp',
+                                'bld/anUiFile.ui',
+                                'bld/main.cpp'])
 """)
 
     test.write( ['work7', 'mocFromCpp.h'],"""
@@ -588,29 +593,56 @@ void mocFromH() {
         <string>MyWidget</string>
     </property>
 </widget>
+<includes>
+    <include location="local" impldecl="in implementation">anUiFile.ui.h</include>
+</includes>
+<slots>
+    <slot>testSlot()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
 """)
+    test.write( ['work7', 'anUiFile.ui.h'], r"""
+#include <stdio.h>
+#if QT_VERSION >= 0x030100
+void MyWidget::testSlot()
+{
+    printf("Hello World\n");
+}
+#endif
+""")
 
-    test.write( ['work7', 'main.cpp'], """
+    test.write( ['work7', 'main.cpp'], r"""
+#include <qapp.h>
 #include "mocFromCpp.h"
 #include "mocFromH.h"
 #include "anUiFile.h"
-int main() {
+#include <stdio.h>
+    
+int main(int argc, char **argv) {
+  QApplication app(argc, argv);
   mocFromCpp();
   mocFromH();
-  MyWidget mywidget();
+  MyWidget mywidget;
+#if QT_VERSION >= 0x030100
+  mywidget.testSlot();
+#else
+  printf("Hello World\n");
+#endif
+  return 0;
 }
 """)
 
-    test.run(chdir='work7', arguments="test_realqt" + _exe)
+    test.run(chdir='work7', arguments="bld/test_realqt" + _exe)
+    test.run(program=test.workpath("work7", "bld", "test_realqt"),
+             stdout="Hello World\n")
 
     QTDIR=os.environ['QTDIR']
     del os.environ['QTDIR']
     PATH=os.environ['PATH']
     os.environ['PATH']='.'
 
-    test.run(chdir='work7', stderr=None, arguments="-c test_realqt" + _exe)
+    test.run(chdir='work7', stderr=None, arguments="-c bld/test_realqt" + _exe)
     test.fail_test(not test.match_re_dotall(test.stderr(), r""".*
 scons: warning: Could not detect qt, using empty QTDIR
 """ + TestSCons.file_expr))
@@ -618,7 +650,7 @@ scons: warning: Could not detect qt, using empty QTDIR
     os.environ['PATH'] = PATH
 
     test.run(chdir='work7', stderr=None,
-             arguments="PATH=%s%sbin test_realqt%s"%(QTDIR,os.sep,_exe))
+             arguments="PATH=%s%sbin bld%stest_realqt%s"%(QTDIR,os.sep,os.sep,_exe))
     test.fail_test(not test.match_re(test.stderr(), (r"""
 scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
 """ + TestSCons.file_expr) % re.escape(QTDIR)))
