@@ -78,13 +78,13 @@ opts = "-Y " + test.workpath('repository')
 test.write(['repository', 'SConstruct'], r"""
 OS = ARGUMENTS.get('OS', '')
 build1_os = "#build1/" + OS
-default_ccflags = Environment()['CCFLAGS']
+default = Environment()
 ccflags = {
     ''    : '',
     'foo' : '-DFOO',
     'bar' : '-DBAR',
 }
-env1 = Environment(CCFLAGS = default_ccflags + ' ' + ccflags[OS],
+env1 = Environment(CCFLAGS = default.subst('$CCFLAGS %s' % ccflags[OS]),
                    CPPPATH = build1_os)
 BuildDir(build1_os, 'src1')
 SConscript(build1_os + '/SConscript', "env1")
@@ -101,8 +101,8 @@ env1.Program('xxx', ['aaa.c', 'bbb.c', 'main.c'])
 test.write(['repository', 'build2', 'foo', 'SConscript'], r"""
 BuildDir('src2', '#src2')
 
-default_ccflags = Environment()['CCFLAGS']
-env2 = Environment(CCFLAGS = default_ccflags + ' -DFOO',
+default = Environment()
+env2 = Environment(CCFLAGS = default.subst('$CCFLAGS -DFOO'),
                    CPPPATH = ['#src2/xxx', '#src2/include'])
 
 SConscript('src2/xxx/SConscript', "env2")
@@ -111,8 +111,8 @@ SConscript('src2/xxx/SConscript', "env2")
 test.write(['repository', 'build2', 'bar', 'SConscript'], r"""
 BuildDir('src2', '#src2')
 
-default_ccflags = Environment()['CCFLAGS']
-env2 = Environment(CCFLAGS = default_ccflags + ' -DBAR',
+default = Environment()
+env2 = Environment(CCFLAGS = default.subst('$CCFLAGS -DBAR'),
                    CPPPATH = ['#src2/xxx', '#src2/include'])
 
 SConscript('src2/xxx/SConscript', "env2")
