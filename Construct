@@ -234,7 +234,7 @@ for $dir ('script', 'engine') {
     # hanging around in the development directory.
     #
     my %seen;
-    map($seen{$_}++, "MANIFEST", "setup.py");
+    map($seen{$_}++, "LICENSE.txt", "MANIFEST", "setup.py");
     @test_files = map(File::Spec->catfile($install, $_),
     			grep(!$seen{$_}++ &&
 			     ($_ =~ /\.py$/ || $src_file{$_}), @files));
