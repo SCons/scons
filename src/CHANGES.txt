@@ -178,6 +178,12 @@ RELEASE 0.97 - XXX
 
   - Allow more than one --debug= option to be set at a time.
 
+  - Change --debug=count to report object counts before and after
+    reading SConscript files and before and after building targets.
+
+  - Change --debug=memory output to line up the numbers and to better
+    match (more or less) the headers on the --debug=count columns.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

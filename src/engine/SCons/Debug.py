@@ -60,6 +60,10 @@ def string_to_classes(s):
     else:
         return string.split(s)
 
+def fetchLoggedInstances(classes="*"):
+    classnames = string_to_classes(classes)
+    return map(lambda cn: (cn, len(tracked_classes[cn])), classnames)
+  
 def countLoggedInstances(classes, file=sys.stdout):
     for classname in string_to_classes(classes):
         file.write("%s: %d\n" % (classname, len(tracked_classes[classname])))
