@@ -51,10 +51,6 @@ sig_files = []
 
 SConsign_db = None
 
-# 1 means use build signature for derived source files
-# 0 means use content signature for derived source files
-build_signature = 1
-
 def write():
     global sig_files
     for sig_file in sig_files:

@@ -233,7 +233,6 @@ command_time = 0
 exit_status = 0 # exit status, assume success by default
 profiling = 0
 repositories = []
-sig_module = SCons.Sig.default_module
 num_jobs = 1 # this is modifed by SConscript.SetJobs()
 
 # Exceptions for this module
@@ -942,10 +941,7 @@ def _main(args, parser):
     except AttributeError:
         pass
 
-    if not calc:
-        SCons.Sig.default_calc = SCons.Sig.Calculator(module=sig_module,
-                                                      max_drift=ssoptions.get('max_drift'))
-        calc = SCons.Sig.default_calc
+    SCons.Environment.CalculatorArgs['max_drift'] = ssoptions.get('max_drift')
 
     if options.random:
         def order(dependencies):

@@ -40,21 +40,29 @@ def copy2(env, source, target):
 env['BUILDERS']['Copy1'] = Builder(action=copy1)
 env['BUILDERS']['Copy2'] = Builder(action=copy2)
 
-env.Copy2('foo.out', 'foo.in')
-env.Copy1('foo.out.out', 'foo.out')
+env.Copy2('foo.mid', 'foo.in')
+env.Copy1('foo.out', 'foo.mid')
+
+env2 = env.Copy()
+env2.TargetSignatures('build')
+env2.Copy2('bar.mid', 'bar.in')
+env2.Copy1('bar.out', 'bar.mid')
 
 TargetSignatures('content')
 """)
 
 test.write('foo.in', 'foo.in')
+test.write('bar.in', 'bar.in')
 
-test.run(arguments='foo.out.out',
+test.run(arguments="bar.out foo.out",
          stdout=test.wrap_stdout("""\
-copy2("foo.out", "foo.in")
-copy1("foo.out.out", "foo.out")
+copy2("bar.mid", "bar.in")
+copy1("bar.out", "bar.mid")
+copy2("foo.mid", "foo.in")
+copy1("foo.out", "foo.mid")
 """))
 
-test.up_to_date(arguments='foo.out.out')
+test.up_to_date(arguments='bar.out foo.out')
 
 test.write('SConstruct', """
 env = Environment()
@@ -69,16 +77,23 @@ def copy2(env, source, target):
 env['BUILDERS']['Copy1'] = Builder(action=copy1)
 env['BUILDERS']['Copy2'] = Builder(action=copy2)
 
-env.Copy2('foo.out', 'foo.in')
-env.Copy1('foo.out.out', 'foo.out')
+env.Copy2('foo.mid', 'foo.in')
+env.Copy1('foo.out', 'foo.mid')
+
+env2 = env.Copy()
+env2.TargetSignatures('build')
+env2.Copy2('bar.mid', 'bar.in')
+env2.Copy1('bar.out', 'bar.mid')
 
 TargetSignatures('content')
 """)
 
-test.run(arguments='foo.out.out',
+test.run(arguments="bar.out foo.out",
          stdout=test.wrap_stdout("""\
-copy2("foo.out", "foo.in")
-scons: `foo.out.out' is up to date.
+copy2("bar.mid", "bar.in")
+copy1("bar.out", "bar.mid")
+copy2("foo.mid", "foo.in")
+scons: `foo.out' is up to date.
 """))
 
 test.write('SConstruct', """
@@ -94,15 +109,21 @@ def copy2(env, source, target):
 env['BUILDERS']['Copy1'] = Builder(action=copy1)
 env['BUILDERS']['Copy2'] = Builder(action=copy2)
 
-env.Copy2('foo.out', 'foo.in')
-env.Copy1('foo.out.out', 'foo.out')
+env.Copy2('foo.mid', 'foo.in')
+env.Copy1('foo.out', 'foo.mid')
+
+env2 = env.Copy()
+env2.TargetSignatures('content')
+env2.Copy2('bar.mid', 'bar.in')
+env2.Copy1('bar.out', 'bar.mid')
 
 TargetSignatures('build')
 """)
 
-test.run(arguments='foo.out.out',
+test.run(arguments="bar.out foo.out",
          stdout=test.wrap_stdout("""\
-copy1("foo.out.out", "foo.out")
+copy1("bar.out", "bar.mid")
+copy1("foo.out", "foo.mid")
 """))
 
 test.write('SConstruct', """
@@ -117,16 +138,23 @@ def copy2(env, source, target):
 env['BUILDERS']['Copy1'] = Builder(action=copy1)
 env['BUILDERS']['Copy2'] = Builder(action=copy2)
 
-env.Copy2('foo.out', 'foo.in')
-env.Copy1('foo.out.out', 'foo.out')
+env.Copy2('foo.mid', 'foo.in')
+env.Copy1('foo.out', 'foo.mid')
+
+env2 = env.Copy()
+env2.TargetSignatures('content')
+env2.Copy2('bar.mid', 'bar.in')
+env2.Copy1('bar.out', 'bar.mid')
 
 TargetSignatures('build')
 """)
 
-test.run(arguments='foo.out.out',
+test.run(arguments='bar.out foo.out',
          stdout=test.wrap_stdout("""\
-copy2("foo.out", "foo.in")
-copy1("foo.out.out", "foo.out")
+copy2("bar.mid", "bar.in")
+scons: `bar.out' is up to date.
+copy2("foo.mid", "foo.in")
+copy1("foo.out", "foo.mid")
 """))
 
 

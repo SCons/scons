@@ -125,20 +125,51 @@ env.B(target = 'f4.out', source = 'f4.in')
 
 test.up_to_date(arguments = 'f1.out f2.out f3.out f4.out')
 
-test.pass_test()
-
 test.write('SConstruct', """
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
 B = Builder(action = build)
 env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'f1.out', source = 'f1.in')
-env.B(target = 'f2.out', source = 'f2.in')
-env.B(target = 'f3.out', source = 'f3.in')
-env.B(target = 'f4.out', source = 'f4.in')
+env2 = env.Copy()
+env2.SourceSignatures('MD5')
+env.B(target = 'f5.out', source = 'f5.in')
+env.B(target = 'f6.out', source = 'f6.in')
+env2.B(target = 'f7.out', source = 'f7.in')
+env2.B(target = 'f8.out', source = 'f8.in')
 
 SourceSignatures('timestamp')
 """)
 
-test.run(arguments = 'f1.out f2.out f3.out f4.out',
-         stdout = test.wrap_stdout(''))
+test.write('f5.in', "f5.in\n")
+test.write('f6.in', "f6.in\n")
+test.write('f7.in', "f7.in\n")
+test.write('f8.in', "f8.in\n")
+
+test.run(arguments = 'f5.out f7.out')
+
+test.run(arguments = 'f5.out f6.out f7.out f8.out',
+         stdout = test.wrap_stdout("""\
+scons: `f5.out' is up to date.
+build("f6.out", "f6.in")
+scons: `f7.out' is up to date.
+build("f8.out", "f8.in")
+"""))
+
+os.utime(test.workpath('f5.in'), 
+         (os.path.getatime(test.workpath('f5.in')),
+          os.path.getmtime(test.workpath('f5.in'))+10))
+os.utime(test.workpath('f7.in'), 
+         (os.path.getatime(test.workpath('f7.in')),
+          os.path.getmtime(test.workpath('f7.in'))+10))
+
+test.run(arguments = 'f5.out f6.out f7.out f8.out',
+         stdout = test.wrap_stdout("""\
+build("f5.out", "f5.in")
+scons: `f6.out' is up to date.
+scons: `f7.out' is up to date.
+scons: `f8.out' is up to date.
+"""))
+
+test.up_to_date(arguments = 'f5.out f6.out f7.out f8.out')
+
+test.pass_test()

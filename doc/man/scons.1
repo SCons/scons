@@ -3141,10 +3141,21 @@ env.SourceCode('no_source.c', None)
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI SourceSignatures( type )
+.TP
+.RI env.SourceSignatures( type )
 This function tells SCons what type of signature to use for source files:
 .B "MD5"
 or
 .BR "timestamp" .
+If the environment method is used,
+the specified type of source signature
+is only used when deciding whether targets
+built with that environment are up-to-date or must be rebuilt.
+If the global function is used,
+the specified type of source signature becomes the default
+used for all decisions
+about whether targets are up-to-date.
+
 "MD5" means the signature of a source file
 is the MD5 checksum of its contents.
 "timestamp" means the signature of a source file
@@ -3181,11 +3192,22 @@ files = Split("""
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI TargetSignatures( type )
+.TP
+.RI env.TargetSignatures( type )
 This function tells SCons what type of signatures to use
 for target files:
 .B "build"
 or
 .BR "content" .
+If the environment method is used,
+the specified type of signature is only used
+for targets built with that environment.
+If the global function is used,
+the specified type of signature becomes the default
+used for all target files that
+don't have an explicit target signature type
+specified for their environments.
+
 "build" means the signature of a target file
 is made by concatenating all of the
 signatures of all its source files.
@@ -3193,7 +3215,8 @@ signatures of all its source files.
 file is an MD5 checksum of its contents.
 "build" signatures are usually faster to compute,
 but "content" signatures can prevent unnecessary rebuilds
-when a target file is rebuilt to the exact same contents as last time.
+when a target file is rebuilt to the exact same contents
+as the previous build.
 The default is "build".
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -64,7 +64,12 @@ _null = _Null
 
 DefaultTargets = None
 CleanTargets = {}
-SigModule = None
+CalculatorArgs = {}
+
+# Pull UserError into the global name space for the benefit of
+# Environment().SourceSignatures(), which has some import statements
+# which seem to mess up its ability to reference SCons directly.
+UserError = SCons.Errors.UserError
 
 def installFunc(target, source, env):
     """Install a source file into a target using the function specified
@@ -312,6 +317,21 @@ class Environment:
     
         return nodes
 
+    def get_calculator(self):
+        try:
+            return self._calculator
+        except AttributeError:
+            try:
+                module = self._calc_module
+                c = apply(SCons.Sig.Calculator, (module,), CalculatorArgs)
+            except AttributeError:
+                # Note that we're calling get_calculator() here, so the
+                # DefaultEnvironment() must have a _calc_module attribute
+                # to avoid infinite recursion.
+                c = SCons.Defaults.DefaultEnvironment().get_calculator()
+            self._calculator = c
+            return c
+
     def get_builder(self, name):
         """Fetch the builder with the specified name from the environment.
         """
@@ -357,6 +377,14 @@ class Environment:
             mode = SCons.Util.SUBST_CMD
         return SCons.Util.scons_subst_list(string, self, mode,
                                            target, source)
+
+    def use_build_signature(self):
+        try:
+            return self._build_signature
+        except AttributeError:
+            b = SCons.Defaults.DefaultEnvironment()._build_signature
+            self._build_signature = b
+            return b
 
     #######################################################################
     # Public methods for manipulating an Environment.  These begin with
@@ -765,3 +793,23 @@ class Environment:
         if len(entries) == 1:
             return entries[0]
         return entries
+
+    def SourceSignatures(self, type):
+        type = self.subst(type)
+        if type == 'MD5':
+            import SCons.Sig.MD5
+            self._calc_module = SCons.Sig.MD5
+        elif type == 'timestamp':
+            import SCons.Sig.TimeStamp
+            self._calc_module = SCons.Sig.TimeStamp
+        else:
+            raise UserError, "Unknown source signature type '%s'"%type
+
+    def TargetSignatures(self, type):
+        type = self.subst(type)
+        if type == 'build':
+            self._build_signature = 1
+        elif type == 'content':
+            self._build_signature = 0
+        else:
+            raise SCons.Errors.UserError, "Unknown target signature type '%s'"%type

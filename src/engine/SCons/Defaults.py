@@ -51,6 +51,7 @@ import SCons.Node.FS
 import SCons.Scanner.C
 import SCons.Scanner.Fortran
 import SCons.Scanner.Prog
+import SCons.Sig
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -64,6 +65,8 @@ def DefaultEnvironment(*args, **kw):
     global _default_env
     if not _default_env:
         _default_env = apply(SCons.Environment.Environment, args, kw)
+        _default_env._build_signature = 1
+        _default_env._calc_module = SCons.Sig.default_module
     return _default_env
 
 

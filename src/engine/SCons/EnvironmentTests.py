@@ -1310,6 +1310,54 @@ class EnvironmentTestCase(unittest.TestCase):
         s = e.src_builder()
         assert s is None, s
 
+    def test_SourceSignatures(type):
+        """Test the SourceSignatures() method"""
+        env = Environment(M = 'MD5', T = 'timestamp')
+
+        exc_caught = None
+        try:
+            env.SourceSignatures('invalid_type')
+        except SCons.Errors.UserError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
+        assert not hasattr(env, '_calc_module')
+
+        env.SourceSignatures('MD5')
+        m = env._calc_module
+
+        env.SourceSignatures('$M')
+        assert env._calc_module is m
+
+        env.SourceSignatures('timestamp')
+        t = env._calc_module
+
+        env.SourceSignatures('$T')
+        assert env._calc_module is t
+
+    def test_TargetSignatures(type):
+        """Test the TargetSignatures() method"""
+        env = Environment(B = 'build', C = 'content')
+
+        exc_caught = None
+        try:
+            env.TargetSignatures('invalid_type')
+        except SCons.Errors.UserError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
+        assert not hasattr(env, '_build_signature')
+
+        env.TargetSignatures('build')
+        assert env._build_signature == 1, env._build_signature
+
+        env.TargetSignatures('content')
+        assert env._build_signature == 0, env._build_signature
+
+        env.TargetSignatures('$B')
+        assert env._build_signature == 1, env._build_signature
+
+        env.TargetSignatures('$C')
+        assert env._build_signature == 0, env._build_signature
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')

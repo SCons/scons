@@ -408,6 +408,10 @@ class Node:
             return
         self.env = env
 
+    def calculator(self):
+        env = self.env or SCons.Defaults.DefaultEnvironment()
+        return env.get_calculator()
+
     def calc_signature(self, calc):
         """
         Select and calculate the appropriate build signature for a node.
@@ -420,7 +424,8 @@ class Node:
             return self._calculated_sig
         except AttributeError:
             if self.is_derived():
-                if SCons.Sig.build_signature:
+                env = self.env or SCons.Defaults.DefaultEnvironment()
+                if env.use_build_signature():
                     sig = self.rfile().calc_bsig(calc, self)
                 else:
                     sig = self.rfile().calc_csig(calc, self)

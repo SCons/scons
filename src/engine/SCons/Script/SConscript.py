@@ -394,33 +394,13 @@ def SetBuildSignatureType(type):
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                         "The SetBuildSignatureType() function has been deprecated;\n" +\
                         "\tuse the TargetSignatures() function instead.")
-    TargetSignatures(type)
-
-def TargetSignatures(type):
-    import SCons.Sig
-    if type == 'build':
-        SCons.Sig.build_signature = 1
-    elif type == 'content':
-        SCons.Sig.build_signature = 0
-    else:
-        raise SCons.Errors.UserError, "Unknown build signature type '%s'"%type
+    SCons.Defaults.DefaultEnvironment().TargetSignatures(type)
 
 def SetContentSignatureType(type):
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                         "The SetContentSignatureType() function has been deprecated;\n" +\
                         "\tuse the SourceSignatures() function instead.")
-    SourceSignatures(type)
-
-def SourceSignatures(type):
-    if type == 'MD5':
-        import SCons.Sig.MD5
-        SCons.Script.sig_module = SCons.Sig.MD5
-    elif type == 'timestamp':
-        import SCons.Sig.TimeStamp
-        SCons.Script.sig_module = SCons.Sig.TimeStamp
-    else:
-        raise SCons.Errors.UserError, "Unknown content signature type '%s'"%type
-
+    SCons.Defaults.DefaultEnvironment().SourceSignatures(type)
 
 class Options(SCons.Options.Options):
     def __init__(self, files=None, args=arguments):
@@ -534,9 +514,7 @@ def BuildDefaultGlobals():
     globals['SetContentSignatureType'] = SetContentSignatureType
     globals['SetJobs']           = SetJobs
     globals['SetOption']         = SetOption
-    globals['SourceSignatures']  = SourceSignatures
     globals['Split']             = SCons.Util.Split
-    globals['TargetSignatures']  = TargetSignatures
     globals['Tool']              = SCons.Tool.Tool
     globals['Value']             = SCons.Node.Python.Value
     globals['WhereIs']           = SCons.Util.WhereIs
@@ -566,6 +544,8 @@ def BuildDefaultGlobals():
         'Precious',
         'SideEffect',
         'SourceCode',
+        'SourceSignatures',
+        'TargetSignatures',
     ]
 
     for name in EnvironmentMethods:

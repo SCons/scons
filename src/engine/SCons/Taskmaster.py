@@ -161,8 +161,10 @@ class Task:
     def make_ready(self):
         """Make a task ready for execution."""
         state = SCons.Node.up_to_date
+        calc = self.tm.calc
         for t in self.targets:
-            if not t.current(self.tm.calc):
+            c = calc or t.calculator()
+            if not t.current(c):
                 state = SCons.Node.executing
         for t in self.targets:
             if state == SCons.Node.executing:

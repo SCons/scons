@@ -44,8 +44,8 @@ RELEASE X.XX - XXX
     file and directory arguments to Builder calls and Environment methods.
 
   - Add Environment-method versions of the following global function:
-    AddPreAction(), AddPostAction(), Clean(), Default(), FindFile()
-    and Local().
+    AddPreAction(), AddPostAction(), Clean(), Default(), FindFile(),
+    Local(), SourceSignatures(), TargetSignatures().
 
   - Add the following global functions that correspond to the same-named
     Environment methods:  AlwaysBuild(), Command(), Depends(), Ignore(),
