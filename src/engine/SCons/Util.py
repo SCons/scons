@@ -582,15 +582,6 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
             self.conv = conv
             self.gvars = gvars
 
-        def expand_var_once(self, var, lvars):
-            try:
-                return lvars[var]
-            except KeyError:
-                try:
-                    return self.gvars[var]
-                except KeyError:
-                    return ''
-
         def expand(self, s, lvars):
             """Expand a single "token" as necessary, returning an
             appropriate string containing the expansion.
@@ -629,7 +620,12 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                                 else:
                                     raise SCons.Errors.UserError, "Syntax error `%s' trying to evaluate `%s'" % (e,s)
                         else:
-                            s = self.expand_var_once(key, lvars)
+                            if lvars.has_key(key):
+                                s = lvars[key]
+                            elif self.gvars.has_key(key):
+                                s = self.gvars[key]
+                            else:
+                                return ''
 
                         # Before re-expanding the result, handle
                         # recursive expansion by copying the local

@@ -1892,6 +1892,7 @@ def find_file(filename, paths, verbose=None):
 
     Only the first file found is returned, and none is returned
     if no file is found.
+    __cacheable__
     """
     if verbose:
         if not SCons.Util.is_String(verbose):
