@@ -67,12 +67,12 @@ class Value(SCons.Node.Node):
         timestamp, we get to ignore the calculator and just use the
         value contents."""
         try:
-            self.binfo
+            binfo = self.binfo
         except:
-            self.binfo = self.new_binfo()
+            binfo = self.binfo = self.new_binfo()
         try:
-            return self.binfo.csig
+            return binfo.csig
         except AttributeError:
-            self.binfo.csig = self.get_contents()
-            self.store_info(self.binfo)
-            return self.binfo.csig
+            binfo.csig = self.get_contents()
+            self.store_info(binfo)
+            return binfo.csig

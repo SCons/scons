@@ -10,20 +10,15 @@ selection method.
 __revision__ = ""
 
 import os.path
-import string
 
 cplusplus = __import__('c++', globals(), locals(), [])
 
 # use the package installer tool lslpp to figure out where cppc and what
 # version of it is installed
 def get_cppc(env):
-    cppcPath = None
+    cppcPath = env.get('CXX', None)
     cppcVersion = None
 
-    try:
-        cppc = env['CXX']
-    except KeyError:
-        cppc = 'cppc'
     for package in ['SPROcpl']:
         cmd = "pkginfo -l " + package + " 2>/dev/null | grep '^ *VERSION:'"
         line = os.popen(cmd).readline()

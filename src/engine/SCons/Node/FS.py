@@ -1243,7 +1243,7 @@ class Dir(Base):
         """A null "builder" for directories."""
         return []
 
-    def build(self):
+    def build(self, **kw):
         """A null "builder" for directories."""
         pass
 
@@ -1673,12 +1673,12 @@ class File(Base):
 
         if calc.max_drift >= 0 and (time.time() - mtime) > calc.max_drift:
             try:
-                self.binfo
+                binfo = self.binfo
             except AttributeError:
-                self.binfo = self.new_binfo()
-            self.binfo.csig = csig
-            self.binfo.timestamp = mtime
-            self.store_info(self.binfo)
+                binfo = self.binfo = self.new_binfo()
+            binfo.csig = csig
+            binfo.timestamp = mtime
+            self.store_info(binfo)
 
         return csig
 

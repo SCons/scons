@@ -549,15 +549,15 @@ class Node:
 
     def calc_csig(self, calc):
         try:
-            self.binfo
-        except:
-            self.binfo = self.new_binfo()
-        try:
-            return self.binfo.csig
+            binfo = self.binfo
         except AttributeError:
-            self.binfo.csig = calc.module.signature(self)
-            self.store_info(self.binfo)
-            return self.binfo.csig
+            binfo = self.binfo = self.new_binfo()
+        try:
+            return binfo.csig
+        except AttributeError:
+            binfo.csig = calc.module.signature(self)
+            self.store_info(binfo)
+            return binfo.csig
 
     def store_info(self, obj):
         """Make the build signature permanent (that is, store it in the
@@ -930,6 +930,7 @@ class Walker:
                         parent = None
                     self.eval_func(node, parent)
                 return node
+        return None
 
     def is_done(self):
         return not self.stack

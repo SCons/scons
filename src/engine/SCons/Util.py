@@ -1052,8 +1052,8 @@ else:
             path = string.split(path, os.pathsep)
         if not is_List(reject):
             reject = [reject]
-        for dir in path:
-            f = os.path.join(dir, file)
+        for d in path:
+            f = os.path.join(d, file)
             if os.path.isfile(f):
                 try:
                     st = os.stat(f)
@@ -1085,11 +1085,11 @@ def PrependPath(oldpath, newpath, sep = os.pathsep):
     orig = oldpath
     is_list = 1
     paths = orig
-    if not SCons.Util.is_List(orig):
+    if not is_List(orig):
         paths = string.split(paths, sep)
         is_list = 0
 
-    if SCons.Util.is_List(newpath):
+    if is_List(newpath):
         newpaths = newpath
     else:
         newpaths = string.split(newpath, sep)
@@ -1128,11 +1128,11 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
     orig = oldpath
     is_list = 1
     paths = orig
-    if not SCons.Util.is_List(orig):
+    if not is_List(orig):
         paths = string.split(paths, sep)
         is_list = 0
 
-    if SCons.Util.is_List(newpath):
+    if is_List(newpath):
         newpaths = newpath
     else:
         newpaths = string.split(newpath, sep)
@@ -1159,8 +1159,8 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
 
 def dir_index(directory):
     files = []
-    for file in os.listdir(directory):
-        fullname = os.path.join(directory, file)
+    for f in os.listdir(directory):
+        fullname = os.path.join(directory, f)
         files.append(fullname)
 
     # os.listdir() isn't guaranteed to return files in any specific order,
@@ -1265,12 +1265,12 @@ else:
     def case_sensitive_suffixes(s1, s2):
         return (os.path.normcase(s1) != os.path.normcase(s2))
 
-def adjustixes(file, pre, suf):
+def adjustixes(fname, pre, suf):
     if pre:
-        path, fn = os.path.split(os.path.normpath(file))
+        path, fn = os.path.split(os.path.normpath(fname))
         if fn[:len(pre)] != pre:
-            file = os.path.join(path, pre + fn)
+            fname = os.path.join(path, pre + fn)
     # Only append a suffix if the file does not have one.
-    if suf and not splitext(file)[1] and file[-len(suf):] != suf:
-            file = file + suf
-    return file
+    if suf and not splitext(fname)[1] and fname[-len(suf):] != suf:
+            fname = fname + suf
+    return fname

@@ -34,7 +34,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import re
 import string
 
 import SCons.Builder
@@ -79,7 +78,6 @@ def emit_rmic_classes(target, source, env):
         s.attributes.java_classname = classname
         slist.append(s)
 
-    File = SCons.Node.FS.default_fs.File
     tlist = []
     for s in source:
         for suff in ['_Skel', '_Stub']:

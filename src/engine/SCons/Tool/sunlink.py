@@ -48,8 +48,8 @@ try:
 except OSError:
     dirs = []
 
-for dir in dirs:
-    linker = '/opt/' + dir + '/bin/CC'
+for d in dirs:
+    linker = '/opt/' + d + '/bin/CC'
     if os.path.exists(linker):
         ccLinker = linker
         break

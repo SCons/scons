@@ -55,7 +55,8 @@ def generate(env):
         return SCons.Builder.Builder(action = '$P4COM',
                                      env = env)
 
-    setattr(env, 'Perforce', PerforceFactory)
+    #setattr(env, 'Perforce', PerforceFactory)
+    env.Perforce = PerforceFactory
 
     env['P4']      = 'p4'
     env['P4FLAGS'] = SCons.Util.CLVar('')

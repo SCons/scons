@@ -33,8 +33,6 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util

@@ -47,7 +47,8 @@ def generate(env):
         """ """
         return SCons.Builder.Builder(action = "$BITKEEPERCOM", env = env)
 
-    setattr(env, 'BitKeeper', BitKeeperFactory)
+    #setattr(env, 'BitKeeper', BitKeeperFactory)
+    env.BitKeeper = BitKeeperFactory
 
     env['BITKEEPER']         = 'bk'
     env['BITKEEPERGET']      = '$BITKEEPER get'

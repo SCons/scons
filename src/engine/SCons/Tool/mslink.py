@@ -48,6 +48,7 @@ def pdbGenerator(env, target, source, for_signature):
     if target and env.has_key('PDB') and env['PDB']:
         return ['/PDB:%s'%target[0].File(env['PDB']).get_string(for_signature),
                 '/DEBUG']
+    return None
 
 def win32ShlinkTargets(target, source, env, for_signature):
     listCmd = []

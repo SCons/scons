@@ -33,9 +33,6 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import glob
-import os.path
-
 import SCons.Builder
 import SCons.Util
 
@@ -79,7 +76,7 @@ def jarChdir(target, source, env, for_signature):
     '-C <dir>' to Jar."""
     if env.has_key('JARCHDIR'):
         return [ '-C', '$JARCHDIR' ]
-    return ''
+    return []
         
 JarBuilder = SCons.Builder.Builder(action = '$JARCOM',
                                    source_factory = SCons.Node.FS.default_fs.Entry,
@@ -88,7 +85,7 @@ JarBuilder = SCons.Builder.Builder(action = '$JARCOM',
 def generate(env):
     """Add Builders and construction variables for jar to an Environment."""
     try:
-        bld = env['BUILDERS']['Jar']
+        env['BUILDERS']['Jar']
     except KeyError:
         env['BUILDERS']['Jar'] = JarBuilder
 

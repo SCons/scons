@@ -407,7 +407,6 @@ class _GenerateV7DSP(_DSPGenerator):
 
         self.file.write('	<Configurations>\n')
 
-        first = 1
         confkeys = self.configs.keys()
         confkeys.sort()
         for kind in confkeys:
@@ -799,7 +798,7 @@ def get_visualstudio_versions():
             # entries are MSDN entries, not MSVS ('7.1',
             # notably), and we want to skip those too.
             try:
-                tst = SCons.Util.RegOpenKeyEx(HLM, K + '\\' + p + '\\Setup')
+                SCons.Util.RegOpenKeyEx(HLM, K + '\\' + p + '\\Setup')
             except SCons.Util.RegError:
                 continue
 
@@ -1082,7 +1081,7 @@ def generate(env):
     """Add Builders and construction variables for Microsoft Visual
     Studio project files to an Environment."""
     try:
-        bld = env['BUILDERS']['MSVSProject']
+        env['BUILDERS']['MSVSProject']
     except KeyError:
         env['BUILDERS']['MSVSProject'] = projectBuilder
 

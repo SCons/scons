@@ -43,10 +43,7 @@ def get_xlc(env, xlc, xlc_r, packages):
     xlcPath = None
     xlcVersion = None
 
-    try:
-        xlc = env['CC']
-    except KeyError:
-        xlc = 'xlc'
+    xlc = env.get('CC', 'xlc')
     for package in packages:
         cmd = "lslpp -fc " + package + " 2>/dev/null | egrep '" + xlc + "([^-_a-zA-Z0-9].*)?$'"
         line = os.popen(cmd).readline()
