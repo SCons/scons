@@ -39,6 +39,7 @@ import string
 
 import SCons.Builder
 import SCons.Node.FS
+import SCons.Tool.javac
 
 def emit_java_headers(target, source, env):
     """Create and return lists of Java stub header files that will
@@ -71,8 +72,9 @@ def emit_java_headers(target, source, env):
             classname = str(src)
             if c_ and classname[:len(c_)] == c_:
                 classname = classname[len(c_):]
-            if class_suffix and classname[:-len(class_suffix)] == class_suffix:
-                classname = classname[-len(class_suffix):]
+            if class_suffix and classname[-len(class_suffix):] == class_suffix:
+                classname = classname[:-len(class_suffix)]
+            classname = SCons.Tool.javac.classname(classname)
         s = src.rfile()
         s.attributes.java_classdir = classdir
         s.attributes.java_classname = classname

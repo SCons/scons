@@ -114,7 +114,7 @@ foo = Environment(tools = ['javac', 'javah'],
                   JAVAH = '/usr/local/j2sdk1.3.1/bin/javah')
 javah = foo.Dictionary('JAVAH')
 bar = foo.Copy(JAVAH = r'%s wrapper.py ' + javah)
-fff = foo.Java(target = 'class1', source = 'com/sub/foo')
+foo.Java(target = 'class1', source = 'com/sub/foo')
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 foo_classes = foo.Java(target = 'class3', source = 'src')
 foo.JavaH(target = 'outdir1',
@@ -124,6 +124,10 @@ foo.JavaH(target = 'outdir1',
           JAVACLASSDIR = 'class1')
 bar.JavaH(target = 'outdir2', source = bar_classes)
 foo.JavaH(target = File('output.h'), source = foo_classes)
+foo.Install('class4/com/sub/foo', 'class1/com/sub/foo/Example1.class')
+foo.JavaH(target = 'outdir4',
+          source = ['class4/com/sub/foo/Example1.class'],
+          JAVACLASSDIR = 'class4')
 """ % python)
 
 test.subdir('com',
