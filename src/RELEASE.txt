@@ -67,6 +67,38 @@ RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
 	    open(str(target), 'w').write(open(str(source), 'r').read())
             return 0
 
+  Please not the following UPCOMING very important change:
+
+    - As of the next SCons release (0.08), Builder objects will no longer
+      automatically split target and source file strings on white space.
+      SCons will interpret the string arguments for the target or source
+      files as the complete name of the file, even if the name contains
+      white space.
+
+      Consequently, any builder calls that you have defined which supply
+      multiple file names in a single string, such as:
+
+          env.Program(target = 'foo', source = 'f1.c f2.c')
+
+      These calls will need to be changed by next release.  You may
+      either split up the string into an array of individual file name
+      strings by hand:
+
+          env.Program(target = 'foo', source = ['f1.c', 'f2.c'])
+
+      Or you may use the newly-provided Split() function to turn a
+      string of white-space separated file names into an array:
+
+          env.Program(target = 'foo', source = Split('f1.c f2.c'))
+
+      The Split() function preserves the functionality that the builder
+      objects currently invoke internally: if the argument is a string,
+      it will be split on white space; if the argument is already a list,
+      the list will be returned.
+
+      (You may, of course, also use the string.split() function from
+      the standard Python library to convert your strings.)
+
   Owing to an extensive test suite, the SCons team believes that this
   release is of sufficient quality that you can use it for real work,
   despite the "alpha" label.

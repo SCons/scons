@@ -218,6 +218,9 @@ class BuilderBase:
         """
         def adjustixes(files, pre, suf):
             ret = []
+            # FOR RELEASE 0.08:
+            #if not SCons.Util.is_List(files):
+            #    files = [files]
             files = SCons.Util.argmunge(files)
 
             for f in files:

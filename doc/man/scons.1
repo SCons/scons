@@ -33,7 +33,7 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "April 2002"
+.TH SCONS 1 "May 2002"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -630,16 +630,33 @@ env = Environment()
 
 Build rules are specified by calling builder methods on a construction
 environment. The arguments to the builder methods are target (a list of
-target files) and source (a list of source files). If a string is given
+target files) and source (a list of source files).
+If a string is given
 for target or source, then 
 .B scons 
-interprets it as a space delimited list
-of files. The following are examples of calling a builder:
+.I currently
+interprets it as a space-delimited list of files.
+NOTE:  Splitting a string into a list of files this
+way will be
+.I removed
+as of the next version of SCons.
+If you currently use space-delimited file lists,
+you must change them by next release.
+See the discussion of the Split() function
+for more information.
+
+The following are examples of calling a builder:
 
 .ES
+# The recommended ways to call a builder
+# with multiple source input files:
+env.Program('bar', ['bar.c', 'foo.c'])
+env.Program('bar', Split('bar.c foo.c'))
+
+# Space-delimited lists.
+# The following will NOT work in version 0.08 of SCons!
 env.Program(target = 'bar', source = 'bar.c foo.c')
 env.Program('bar', 'bar.c foo.c')
-env.Program('bar', ['bar.c', 'foo.c'])
 .EE
 
 .B scons
@@ -1465,9 +1482,15 @@ is usually safe, and is always more efficient than
 .RI Default( targets )
 This specifies a list of default targets. Default targets will be built by
 .B scons
-if no explicit targets are given on the command line. Multiple targets can
-be specified either as a space delimited string of target file names or as
-separate arguments.
+if no explicit targets are given on the command line.
+Multiple targets should be specified as
+separate arguments to the
+.BR Default ()
+method.
+In this version of SCons (0.07),
+.BR Default ()
+will also accept a space-delimited string of target file names;
+this functionality will be removed in the next version of SCons (0.08).
 Target names with white space may be be enclosed in an
 array to prevent the string from being split into
 separate file names.
@@ -1497,12 +1520,13 @@ to export a list of variables from the current
 configuration file to all other configuration files. The exported variables
 are kept in a global collection, so subsequent exports
 will over-write previous exports that have the same name. 
-Multiple variable names can be passed to
+Multiple variable names should be passed to
 .BR Export ()
-in a space delimited string or as seperate arguments. Example:
+as separate arguments. Examples:
 
 .ES
 Export("env")
+Export("env", "variable")
 .EE
 
 .TP 
@@ -1536,12 +1560,15 @@ argument to
 .BR SConscript ().
 Variables exported by 
 .BR SConscript ()
-have precedence. Multiple variable names can be passed to 
+have precedence.
+Multiple variable names should be passed to 
 .BR Import ()
-in a space delimited string or as seperate arguments. Example:
+as separate arguments.
+Examples:
 
 .ES
 Import("env")
+Import("env", "variable")
 .EE
 
 .TP
@@ -1552,12 +1579,13 @@ what variable(s) to use as the return value(s) of the current configuration
 file. These variables will be returned to the "calling" configuration file
 as the return value(s) of 
 .BR SConscript ().
-Multiple variable names can be passed to 
+Multiple variable names should be passed to 
 .BR Return ()
-in a space delimited string or as seperate arguments. Example:
+as a list. Example:
 
 .ES
 Return("foo")
+Return(["foo", "bar"])
 .EE
 
 .TP
@@ -1569,8 +1597,7 @@ to execute
 as a configuration file. The optional 
 .I exports
 argument provides a list of variable names to export to
-.IR script ". " exports
-can also be a space delimited string of variables names. 
+.IR script ". "
 .I script
 must use the
 .BR Import ()
@@ -1629,6 +1656,39 @@ is that arguments to the command.
 .I env
 is a dictionary of the environment variables
 in which the command should be executed.
+
+.TP
+.RI Split( arg )
+Returns a list of file names or other objects.
+If arg is a string,
+it will be split on strings of white-space characters
+within the string,
+making it easier to write long lists of file names.
+If arg is already a list,
+the list will be returned untouched.
+If arg is any other type of object,
+it will be returned as a list
+containing just the object.
+
+.ES
+files = Split("f1.c f2.c f3.c")
+files = Split("""
+	f4.c
+	f5.c
+	f6.c
+""")
+.EE
+.IP
+NOTE:  Currently, all builders perform this white-space split
+automatically on their target and source file arguments.
+As of the next version of SCons,
+Builder objects will no longer perform this split.
+If you use white-space separated strings of file names,
+you will need to convert them to lists
+by the next release of SCons by hand,
+or by using the Split() function provided here,
+or by using a similar function such as the
+string.split() function in the Python library.
 
 .TP
 .RI WhereIs( program ", [" path  ", [" pathext ]])

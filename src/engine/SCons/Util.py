@@ -297,12 +297,16 @@ def to_String(s):
         return str(s)
 
 def argmunge(arg):
-    """This function converts a string or list into a list of strings or Nodes.
-    It follows the rules outlined in the SCons design document by accepting
-    any of the following inputs:
+    return Split(arg)
+
+def Split(arg):
+    """This function converts a string or list into a list of strings
+    or Nodes.  This makes things easier for users by allowing files to
+    be specified as a white-space separated list to be split.
+    The input rules are:
         - A single string containing names separated by spaces. These will be
           split apart at the spaces.
-        - A single None instance
+        - A single Node instance
         - A list containing either strings or Node instances. Any strings
           in the list are not split at spaces.
     In all cases, the function returns a list of Nodes and strings."""

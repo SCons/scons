@@ -398,6 +398,9 @@ arg2nodes_lookups = []
 
 
 def arg2nodes(arg, node_factory=None):
+    # FOR RELEASE 0.08:
+    #"""This function converts a string or list into a list of Node
+    #instances."""
     """This function converts a string or list into a list of Node instances.
     It follows the rules outlined in the SCons design document by accepting
     any of the following inputs:
@@ -408,6 +411,9 @@ def arg2nodes(arg, node_factory=None):
           in the list are not split at spaces.
     In all cases, the function returns a list of Node instances."""
 
+    # FOR RELEASE 0.08:
+    #if not SCons.Util.is_List(arg):
+    #    arg = [arg]
     narg = SCons.Util.argmunge(arg)
 
     nodes = []

@@ -263,5 +263,6 @@ def BuildDefaultGlobals():
     globals['SConscript']        = SConscript
     globals['SConscriptChdir']   = SConscriptChdir
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
+    globals['Split']             = SCons.Util.Split
     globals['WhereIs']           = SCons.Util.WhereIs
     return globals

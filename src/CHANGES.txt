@@ -109,6 +109,10 @@ RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
     A -X option indicates it's an executable, not a script to feed
     to the Python interpreter.
 
+  - Add a Split() function (identical to SCons.Util.argmunge()) for use
+    in the next release, when Builders will no longer automatically split
+    strings on white space.
+
   From Steve Leblanc:
 
   - Add the SConscriptChdir() method.
