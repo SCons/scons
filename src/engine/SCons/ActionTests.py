@@ -1521,6 +1521,35 @@ class ActionFactoryTestCase(unittest.TestCase):
         assert strfunc_args == [3, 6, 9], strfunc_args
 
 
+class ActionCompareTestCase(unittest.TestCase):
+
+    def test_1_solo_name(self):
+        """Test Lazy Cmd Generator Action get_name alone.
+
+        Basically ensures we can locate the builder, comparing it to
+        itself along the way."""
+        bar = SCons.Builder.Builder(action = {})
+        env = Environment( BUILDERS = {'BAR' : bar} )
+        name = bar.get_name(env)
+        assert name == 'BAR', name
+
+    def test_2_multi_name(self):
+        """Test LazyCmdGenerator Action get_name multi builders.
+
+        Ensure that we can compare builders (and thereby actions) to
+        each other safely."""
+        foo = SCons.Builder.Builder(action = '$FOO', suffix = '.foo')
+        bar = SCons.Builder.Builder(action = {})
+        assert foo != bar
+        assert foo.action != bar.action
+        env = Environment( BUILDERS = {'FOO' : foo,
+                                       'BAR' : bar} )
+        name = foo.get_name(env)
+        assert name == 'FOO', name
+        name = bar.get_name(env)
+        assert name == 'BAR', name
+
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     tclasses = [ ActionTestCase,
@@ -1531,7 +1560,8 @@ if __name__ == "__main__":
                  ListActionTestCase,
                  LazyActionTestCase,
                  ActionCallerTestCase,
-                 ActionFactoryTestCase ]
+                 ActionFactoryTestCase,
+                 ActionCompareTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(map(tclass, names))

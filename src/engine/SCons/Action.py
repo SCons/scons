@@ -474,7 +474,7 @@ class LazyCmdGenerator:
             return ''
 
     def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
+        return cmp(self.__dict__, other)
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""
