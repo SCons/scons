@@ -290,7 +290,13 @@ class EntryProxy(SCons.Util.Proxy):
         try:
             return self.dictSpecialAttrs[name](self)
         except KeyError:
-            return SCons.Util.Proxy.__getattr__(self, name)
+            try:
+                attr = SCons.Util.Proxy.__getattr__(self, name)
+            except AttributeError:
+                entry = self.get()
+                classname = string.split(str(entry.__class__), '.')[-1]
+                raise AttributeError, "%s instance '%s' has no attribute '%s'" % (classname, entry.name, name)
+            return attr
 
 class Base(SCons.Node.Node):
     """A generic class for file system entries.  This class is for

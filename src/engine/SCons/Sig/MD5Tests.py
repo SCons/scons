@@ -88,6 +88,19 @@ class MD5TestCase(unittest.TestCase):
         else:
             raise AttributeError, "unexpected get_contents() attribute"
 
+        # Make sure we don't eat AttributeErrors raised internally
+        # by the get_contents() method (or anything it calls).
+        caught = None
+        try:
+            class xxx:
+                def get_contents(self):
+                    raise AttributeError, "internal AttributeError"
+            signature(xxx())
+        except AttributeError, e:
+            assert str(e) == "internal AttributeError", e
+            caught = 1
+        assert caught, "did not catch expected AttributeError"
+
     def test_to_string(self):
         assert '698d51a19d8a121ce581499d7b701668' == to_string('698d51a19d8a121ce581499d7b701668')
 
