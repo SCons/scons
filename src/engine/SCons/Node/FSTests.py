@@ -73,6 +73,9 @@ class Environment:
 class BuildDirTestCase(unittest.TestCase):
     def runTest(self):
         """Test build dir functionality"""
+        test=TestCmd(workdir='')
+        os.chdir(test.workdir)
+
         fs = SCons.Node.FS.FS()
         f1 = fs.File('build/test1')
         fs.BuildDir('build', 'src')
@@ -106,16 +109,35 @@ class BuildDirTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS()
         fs.BuildDir('build/var1', 'src', duplicate=0)
         fs.BuildDir('build/var2', 'src')
-        f1 = fs.File('build/var1/test1')
-        f1out = fs.File('build/var1/test1.out')
+        f1 = fs.File('build/var1/test')
+        f1out = fs.File('build/var1/test.out')
         f1out.builder = 1
-        f2 = fs.File('build/var2/test1')
-        assert f1.srcpath == os.path.normpath('src/test1'), f1.srcpath
-        assert f1out.srcpath == os.path.normpath('src/test1.out'), f1out.srcpath
-        assert str(f1) == os.path.normpath('src/test1'), str(f1)
-        assert str(f1out) == os.path.normpath('build/var1/test1.out'), str(f1out)
-        assert f2.srcpath == os.path.normpath('src/test1'), str(f2)
-        assert str(f2) == os.path.normpath('build/var2/test1'), str(f2)
+        f2 = fs.File('build/var2/test')
+        f2out = fs.File('build/var2/test.out')
+        f2out.builder = 1
+
+        assert f1.srcpath == os.path.normpath('src/test'), f1.srcpath
+        assert f1out.srcpath == os.path.normpath('src/test.out'), f1out.srcpath
+        assert str(f1) == os.path.normpath('src/test'), str(f1)
+        assert str(f1out) == os.path.normpath('build/var1/test.out'), str(f1out)
+        assert f2.srcpath == os.path.normpath('src/test'), f2.srcpath
+        assert f2out.srcpath == os.path.normpath('src/test.out'), f2out.srcpath
+        assert str(f2) == os.path.normpath('build/var2/test'), str(f2)
+        assert str(f2out) == os.path.normpath('build/var2/test.out'), str(f2out)
+
+        assert not f1.exists()
+        assert not f1out.exists()
+        assert not f2.exists()
+        assert not f2out.exists()
+
+        test.subdir('src')
+        test.write(['src', 'test'], "src/test\n")
+        test.write(['src', 'test'], "src/test.out\n")
+        assert f1.exists()
+        assert not f1out.exists()
+        assert not f2.exists()
+        assert not f2out.exists()
+
 
         d1 = fs.Dir('build/var1')
         d2 = fs.Dir('build/var2')
@@ -124,7 +146,6 @@ class BuildDirTestCase(unittest.TestCase):
         assert str(d2) == os.path.normpath('build/var2'), str(d2)
 
         # Test to see if file_link() works...
-        test=TestCmd(workdir='')
         test.subdir('src','build')
         test.write('src/foo', 'foo\n')
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
@@ -447,9 +468,9 @@ class FSTestCase(unittest.TestCase):
         f1 = SCons.Node.FS.default_fs.File(test.workpath("binary_file"))
         assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
 
-        def nonexistent(method, str):
+        def nonexistent(method, s):
             try:
-                x = method(str, create = 0)
+                x = method(s, create = 0)
             except UserError:
                 pass
             else:

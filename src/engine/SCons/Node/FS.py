@@ -429,7 +429,7 @@ class Entry(SCons.Node.Node):
         raise AttributeError
 
     def exists(self):
-        return os.path.exists(self.path)
+        return os.path.exists(str(self))
 
     def cached_exists(self):
         try:
