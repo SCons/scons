@@ -1,0 +1,148 @@
+#!/usr/bin/env python
+#
+# sfsum.py:  A script for parsing XML data exported from
+#            SourceForge projects.
+#
+# Right now, this is hard-coded to generate a summary of open bugs.
+#
+# XML data for SourceForge project is available for download by project
+# administrators.  Because it's intended for backup purposes, you have
+# to slurp the whole set of data, including info about all of the closed
+# items, the feature requests, etc., so it can get big.
+#
+# You can do this by hand (if you're an administrator) with a URL like
+# this (where 30337 is the group_id for SCons):
+#
+#       http://sourceforge.net/export/xml_export.php?group_id=30337
+#
+# They also have a Perl script, called xml_export, available as part
+# of a set of utilities called "adocman" which automate dealing with
+# SourceForge document management from the command line.  "adocman"
+# is available at:
+#
+#       https://sourceforge.net/projects/sitedocs/
+#
+
+import xml.sax
+import xml.sax.saxutils
+import string
+import sys
+
+SFName = {
+    'Unassigned'        	: 'nobody',
+    'Chad Austin'       	: 'aegis',
+    'Charle Crain'      	: 'diewarzau',
+    'Steven Knight'     	: 'stevenknight',
+    'Steve Leblanc'     	: 'stevenleblanc',
+    'Jeff Petkau'       	: 'jpet',
+    'Anthony Roach'     	: 'anthonyroach',
+    'Steven Shaw'       	: 'steven_shaw',
+    'Terrel Shumway'    	: 'terrelshumway',
+    'Greg Spencer'              : 'greg_spencer',
+    'Christoph Wiedemann'       : 'wiedeman',
+}
+
+class Artifact:
+    """Just a place to hold attributes that we find in the XML."""
+    pass
+
+Artifacts = {}
+
+def nws(text):
+    """Normalize white space.  This will become important if/when
+    we enhance this to search for arbitrary fields."""
+    return string.join(string.split(text), ' ')
+
+class ClassifyArtifacts(xml.sax.saxutils.DefaultHandler):
+    """
+    Simple SAX subclass to classify the artifacts in SourceForge
+    XML output.
+
+    This reads up the fields in an XML description and turns the field
+    descriptions into attributes of an Artificat object, on the fly.
+    Artifacts are of the following types:
+
+        Bugs
+        Feature Requests
+        Patches
+        Support Requests
+
+    We could, if we choose to, add additional types in the future
+    by creating additional trackers.
+
+    This class loses some info right now because we don't pay attention
+    to the <messages> tag in the output, which contains a list of items
+    that have <field> tags in them.  Right now, these just overwrite
+    each other in the Arifact object we create.
+
+    We also don't pay attention to any attributes of a <field> tag other
+    than the "name" attribute.  We'll need to extend this class if we
+    ever want to pay attention to those attributes.
+    """
+    def __init__(self):
+        self.artifact = None
+
+    def startElement(self, name, attrs):
+        self.text = ""
+        if name == 'artifact':
+            self.artifact = Artifact()
+        elif not self.artifact is None and name == 'field':
+            self.fname = attrs.get('name', None)
+
+    def characters(self, ch):
+        if not self.artifact is None:
+            self.text = self.text + ch
+
+    def endElement(self, name):
+        global Artifacts
+        if name == 'artifact':
+            type = self.artifact.artifact_type
+            try:
+                list = Artifacts[type]
+            except KeyError:
+                Artifacts[type] = list = []
+            list.append(self.artifact)
+            self.artifact = None
+        elif not self.artifact is None and name == 'field':
+            setattr(self.artifact, self.fname, self.text)
+
+if __name__ == '__main__':
+    # Create a parser.
+    parser = xml.sax.make_parser()
+    # Tell the parser we are not interested in XML namespaces.
+    parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+
+    # Instantiate our handler and tell the parser to use it.
+    parser.setContentHandler(ClassifyArtifacts())
+
+    # Parse the input.
+    parser.parse(sys.argv[1])
+
+    # Hard-coded search for 'Open' bugs.  This should be easily
+    # generalized once we figure out other things for this script to do.
+    bugs = filter(lambda x: x.status == 'Open', Artifacts['Bugs'])
+
+    print Artifacts.keys()
+
+    print "%d open bugs" % len(bugs)
+
+    # Sort them into a separate list for each assignee.
+    Assigned = {}
+    for bug in bugs:
+        a = bug.assigned_to
+        try:
+            list = Assigned[a]
+        except KeyError:
+            Assigned[a] = list = []
+        list.append(bug)
+
+    for a in SFName.keys():
+        try:
+            b = Assigned[SFName[a]]
+        except KeyError:
+            pass
+        else:
+            print "    %s" % a
+            b.sort(lambda x, y: cmp(x.artifact_id, y.artifact_id))
+            for bug in b:
+                print "        %-6s  %s" % (bug.artifact_id, bug.summary)
