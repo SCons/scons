@@ -93,7 +93,8 @@ test.write('include/f4.f', "\n")
 test.write('subdir/include/f4.f', "\n")
 
 
-test.subdir('repository', ['repository', 'include'])
+test.subdir('repository', ['repository', 'include'],
+            [ 'repository', 'src' ])
 test.subdir('work', ['work', 'src'])
 
 test.write(['repository', 'include', 'iii.f'], "\n")
@@ -104,6 +105,24 @@ test.write(['work', 'src', 'fff.f'], """
       STOP
       END
 """)
+
+test.write([ 'work', 'src', 'aaa.f'], """
+      PROGRAM FOO
+      INCLUDE 'bbb.f'
+      STOP
+      END
+""")
+
+test.write([ 'work', 'src', 'bbb.f'], "\n")
+
+test.write([ 'repository', 'src', 'ccc.f'], """
+      PROGRAM FOO
+      INCLUDE 'ddd.f'
+      STOP
+      END
+""")
+
+test.write([ 'repository', 'src', 'ddd.f'], "\n")
 
 # define some helpers:
 
@@ -310,6 +329,25 @@ class FortranScannerTestCase13(unittest.TestCase):
         deps_match(self, deps, [test.workpath('repository/include/iii.f')])
         os.chdir(test.workpath(''))
 
+class FortranScannerTestCase14(unittest.TestCase):
+    def runTest(self):
+        os.chdir(test.workpath('work'))
+        fs = SCons.Node.FS.FS(test.workpath('work'))
+        fs.BuildDir('build1', 'src', 1)
+        fs.BuildDir('build2', 'src', 0)
+        fs.Repository(test.workpath('repository'))
+        env = DummyEnvironment([])
+        s = SCons.Scanner.Fortran.FortranScan(fs = fs)
+        deps1 = s.scan(fs.File('build1/aaa.f'), env, DummyTarget())
+        deps_match(self, deps1, [ 'build1/bbb.f' ])
+        deps2 = s.scan(fs.File('build2/aaa.f'), env, DummyTarget())
+        deps_match(self, deps2, [ 'src/bbb.f' ])
+        deps3 = s.scan(fs.File('build1/ccc.f'), env, DummyTarget())
+        deps_match(self, deps3, [ 'build1/ddd.f' ])
+        deps4 = s.scan(fs.File('build2/ccc.f'), env, DummyTarget())
+        deps_match(self, deps4, [ test.workpath('repository/src/ddd.f') ])
+        os.chdir(test.workpath(''))
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(FortranScannerTestCase1())
@@ -325,6 +363,7 @@ def suite():
     suite.addTest(FortranScannerTestCase11())
     suite.addTest(FortranScannerTestCase12())
     suite.addTest(FortranScannerTestCase13())
+    suite.addTest(FortranScannerTestCase14())
     return suite
 
 if __name__ == "__main__":

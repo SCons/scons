@@ -119,7 +119,8 @@ test.write(['subdir', 'include', 'fa.h'], "\n")
 test.write(['subdir', 'include', 'fb.h'], "\n")
 
 
-test.subdir('repository', ['repository', 'include'])
+test.subdir('repository', ['repository', 'include'],
+            ['repository', 'src' ])
 test.subdir('work', ['work', 'src'])
 
 test.write(['repository', 'include', 'iii.h'], "\n")
@@ -132,6 +133,28 @@ int main()
     return 0;
 }
 """)
+
+test.write([ 'work', 'src', 'aaa.c'], """
+#include "bbb.h"
+
+int main()
+{
+   return 0;
+}
+""")
+
+test.write([ 'work', 'src', 'bbb.h'], "\n")
+
+test.write([ 'repository', 'src', 'ccc.c'], """
+#include "ddd.h"
+
+int main()
+{
+   return 0;
+}
+""")
+
+test.write([ 'repository', 'src', 'ddd.h'], "\n")
 
 # define some helpers:
 
@@ -160,6 +183,7 @@ class DummyEnvironment:
     def __delitem__(self,key):
         del self.Dictionary()[key]
 
+global my_normpath
 my_normpath = os.path.normpath
 if os.path.normcase('foo') == os.path.normcase('FOO'):
     global my_normpath
@@ -301,6 +325,26 @@ class CScannerTestCase11(unittest.TestCase):
         deps_match(self, deps, [test.workpath('repository/include/iii.h')])
         os.chdir(test.workpath(''))
 
+class CScannerTestCase12(unittest.TestCase):
+    def runTest(self):
+        os.chdir(test.workpath('work'))
+        fs = SCons.Node.FS.FS(test.workpath('work'))
+        fs.BuildDir('build1', 'src', 1)
+        fs.BuildDir('build2', 'src', 0)
+        fs.Repository(test.workpath('repository'))
+        env = DummyEnvironment([])
+        s = SCons.Scanner.C.CScan(fs = fs)
+        deps1 = s.scan(fs.File('build1/aaa.c'), env, DummyTarget())
+        deps_match(self, deps1, [ 'build1/bbb.h' ])
+        deps2 = s.scan(fs.File('build2/aaa.c'), env, DummyTarget())
+        deps_match(self, deps2, [ 'src/bbb.h' ])
+        deps3 = s.scan(fs.File('build1/ccc.c'), env, DummyTarget())
+        deps_match(self, deps3, [ 'build1/ddd.h' ])
+        deps4 = s.scan(fs.File('build2/ccc.c'), env, DummyTarget())
+        deps_match(self, deps4, [ test.workpath('repository/src/ddd.h') ])
+        os.chdir(test.workpath(''))
+        
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(CScannerTestCase1())
@@ -313,6 +357,7 @@ def suite():
     suite.addTest(CScannerTestCase9())
     suite.addTest(CScannerTestCase10())
     suite.addTest(CScannerTestCase11())
+    suite.addTest(CScannerTestCase12())
     return suite
 
 if __name__ == "__main__":

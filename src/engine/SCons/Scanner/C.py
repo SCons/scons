@@ -86,8 +86,9 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
 
     cpppath = target.cpppath
 
+    node = node.rfile()
     if not node.found_includes.has_key(cpppath):
-        if node.rexists():
+        if node.exists():
 
             # cache the includes list in node so we only scan it once:
             if node.includes != None:

@@ -86,6 +86,7 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
 
     nodes = []
 
+    node = node.rfile()
     try:
         nodes = node.found_includes[f77path]
     except KeyError:
