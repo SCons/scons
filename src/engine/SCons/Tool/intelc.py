@@ -34,7 +34,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys, os.path, glob, string, re
+import math, sys, os.path, glob, string, re
 
 is_win32 = sys.platform == 'win32'
 is_linux = sys.platform == 'linux2'
@@ -56,9 +56,40 @@ class MissingDirError(IntelCError):     # dir not found
 class NoRegistryModuleError(IntelCError): # can't read registry at all
     pass
 
-def fltcmp(a, b):
-    """Compare strings as floats"""
-    return cmp(float(b), float(a))
+def linux_ver_normalize(vstr):
+    """Normalize a Linux compiler version number.
+    Intel changed from "80" to "9.0" in 2005, so we assume if the number
+    is greater than 60 it's an old-style number and otherwise new-style.
+    Always returns an old-style float like 80 or 90 for compatibility with Windows.
+    Shades of Y2K!"""
+    f = float(vstr)
+    if is_win32:
+        return f
+    else:
+        if f < 60: return f * 10.0
+        else: return f
+
+def vercmp(a, b):
+    """Compare strings as floats,
+    but Intel changed Linux naming convention at 9.0"""
+    return cmp(linux_ver_normalize(b), linux_ver_normalize(a))
+
+def get_version_from_list(v, vlist):
+    """See if we can match v (string) in vlist (list of strings)
+    Linux has to match in a fuzzy way."""
+    if is_win32:
+        # Simple case, just find it in the list
+        if v in vlist: return v
+        else: return None
+    else:
+        # Fuzzy match: normalize version number first, but still return
+        # original non-normalized form.
+        fuzz = 0.001
+        for vi in vlist:
+            if math.fabs(linux_ver_normalize(vi) - linux_ver_normalize(v)) < fuzz:
+                return vi
+        # Not found
+        return None
 
 def get_intel_registry_value(valuename, version=None, abi=None):
     """
@@ -83,7 +114,7 @@ def get_intel_registry_value(valuename, version=None, abi=None):
 
 
 def get_all_compiler_versions():
-    """Returns a sorted list of strings, like "70" or "80"
+    """Returns a sorted list of strings, like "70" or "80" or "9.0"
     with most recent compiler version first.
     """
     versions=[]
@@ -122,10 +153,13 @@ def get_all_compiler_versions():
             # no more subkeys
             pass
     elif is_linux:
-        # Typical dir here is /opt/intel_cc_80.
         for d in glob.glob('/opt/intel_cc_*'):
+            # Typical dir here is /opt/intel_cc_80.
             versions.append(re.search(r'cc_(.*)$', d).group(1))
-    versions.sort(fltcmp)
+        for d in glob.glob('/opt/intel/cc/*'):
+            # Typical dir here is /opt/intel/cc/9.0.
+            versions.append(re.search(r'([0-9.]+)$', d).group(1))
+    versions.sort(vercmp)
     return versions
 
 def get_intel_compiler_top(version, abi):
@@ -145,8 +179,13 @@ def get_intel_compiler_top(version, abi):
             raise MissingDirError, \
                   "Can't find Intel compiler in %s"%(top)
     elif is_linux:
-        top = '/opt/intel_cc_%s'%version
-        if not os.path.exists(os.path.join(top, "bin", "icc")):
+        # first dir is new (>=9.0) style, second is old (8.0) style.
+        dirs=('/opt/intel/cc/%s', '/opt/intel_cc_%s')
+        top=None
+        for d in dirs:
+            top = d%version
+            if os.path.exists(os.path.join(top, "bin", "icc")): break
+        if not top:
             raise MissingDirError, \
                   "Can't find version %s Intel compiler in %s"%(version,top)
     return top
@@ -178,7 +217,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         if vlist:
             version = vlist[0]
     else:
-        if version not in vlist:
+        if not get_version_from_list(version, vlist):
             raise SCons.Errors.UserError, \
                   "Invalid Intel compiler version %s: "%version + \
                   "installed versions are %s"%(', '.join(vlist))
@@ -196,7 +235,8 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
     if topdir:
 
         if verbose:
-            print "Intel C compiler: using version %s, abi %s, in '%s'"%(version,abi,topdir)
+            print "Intel C compiler: using version '%s' (%g), abi %s, in '%s'"%\
+                  (version, linux_ver_normalize(version),abi,topdir)
 
         env['INTEL_C_COMPILER_TOP'] = topdir
         if is_linux:
@@ -235,9 +275,10 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         env['LINK']      = '$CC'
     # This is not the exact (detailed) compiler version,
     # just the major version as determined above or specified
-    # by the user.
+    # by the user.  It is a float like 80 or 90, in normalized form for Linux
+    # (i.e. even for Linux 9.0 compiler, still returns 90 rather than 9.0)
     if version:
-        env['INTEL_C_COMPILER_VERSION']=float(version)
+        env['INTEL_C_COMPILER_VERSION']=linux_ver_normalize(version)
 
     if is_win32:
         # Look for license file dir

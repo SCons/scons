@@ -324,6 +324,8 @@ RELEASE 0.97 - XXX
   - Documentation changes:  Update the man page to describe use of
     filenames or Nodes in $LIBS.
 
+  - Add support for Intel C++ version 9.0.
+
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
