@@ -85,6 +85,9 @@ RELEASE 0.96 - XXX
     are otherwise silently (and confusingly) turned into construction
     variable overrides.
 
+  - Try to find the ICL license file path name in the external environment
+    and the registry before resorting to the hard-coded path name.
+
   From Simon Perkins:
 
   - Fix a bug introduced in building shared libraries under MinGW.

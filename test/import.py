@@ -115,6 +115,13 @@ tools = [
     'zip',
 ]
 
+error_output = {
+    'icl' : """
+scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
+File "SConstruct", line 1, in ?
+"""
+}
+
 # An SConstruct for importing Tool names that have illegal characters
 # for Python variable names.
 indirect_import = """\
@@ -136,6 +143,11 @@ for tool in tools:
         test.write('SConstruct', indirect_import % (tool, tool, tool))
     else:
         test.write('SConstruct', direct_import % (tool, tool, tool))
-    test.run()
+    test.run(stderr=None)
+    stderr = test.stderr()
+    if stderr != '' and stderr != error_output.get(tool, ''):
+        print "Failed importing '%s', stderr:" % tool
+        print stderr
+        test.fail_test(1)
 
 test.pass_test()
