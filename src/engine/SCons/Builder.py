@@ -283,27 +283,27 @@ class BuilderBase:
         pre = self.get_prefix(env)
         suf = self.get_suffix(env)
         src_suf = self.get_src_suffix(env)
+
+        source = adjustixes(source, None, src_suf)
+        if target is None:
+            target = map(lambda x, s=suf: os.path.splitext(x)[0] + s,
+                         source)
+        else:
+            target = adjustixes(target, pre, suf)
+
         if self.emitter:
             # pass the targets and sources to the emitter as strings
             # rather than nodes since str(node) doesn't work 
             # properly from any directory other than the top directory,
             # and emitters are called "in" the SConscript directory:
-            tlist = adjustixes(target, pre, suf)
-            slist = adjustixes(source, None, src_suf)
-
-            emit_args = { 'target' : tlist,
-                          'source' : slist,
+            emit_args = { 'target' : target,
+                          'source' : source,
                           'env' : env }
             emit_args.update(args)
             target, source = apply(self.emitter, (), emit_args)
 
-        slist = SCons.Node.arg2nodes(adjustixes(source, None, src_suf),
-                                     self.source_factory)
-        if target is None:
-            target = map(lambda x, s=suf: os.path.splitext(str(x))[0] + s,
-                         slist)
-        tlist = SCons.Node.arg2nodes(adjustixes(target, pre, suf),
-                                     self.target_factory)
+        slist = SCons.Node.arg2nodes(source, self.source_factory)
+        tlist = SCons.Node.arg2nodes(target, self.target_factory)
 
         return tlist, slist
 
