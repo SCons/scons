@@ -68,16 +68,17 @@ test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
 import os
-import SCons.Util
-def func(**kw):
-    cmd = SCons.Util.scons_subst(r'%s build.py $TARGET 3 $SOURCES', kw, {})
+import string
+def func(env, target, source):
+    cmd = r'%s build.py %%s 3 %%s' %% (target, string.join(source, ' '))
+    print cmd
     return os.system(cmd)
 B = Builder(name = 'B', action = func)
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo.out', source = 'foo.in')
 """ % python)
 
-test.run(arguments = '.')
+test.run(arguments = '.', stderr = None)
 
 test.fail_test(test.read('foo.out') != "3\nfoo.in\n")
 
@@ -85,16 +86,15 @@ test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
 import os
-import SCons.Util
 class bld:
     def __init__(self):
-        self.cmd = r'%s build.py $TARGET 4 $SOURCES'
-    def __call__(self, **kw):
-        cmd = SCons.Util.scons_subst(self.cmd, kw, {})
+        self.cmd = r'%s build.py %%s 4 %%s'
+    def __call__(self, env, target, source):
+        cmd = self.get_contents(env, target, source)
+	print cmd
         return os.system(cmd)
-    def get_contents(self, **kw):
-        cmd = SCons.Util.scons_subst(self.cmd, kw, {})
-        return cmd
+    def get_contents(self, env, target, source):
+        return self.cmd %% (target, string.join(source, ' '))
 B = Builder(name = 'B', action = bld())
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo.out', source = 'foo.in')

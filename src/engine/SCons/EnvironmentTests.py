@@ -234,11 +234,17 @@ class EnvironmentTestCase(unittest.TestCase):
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
-        def testFunc(ENV, target, source):
+        def testFunc(env, target, source):
             assert target == 'foo.out'
-            assert source == 'foo1.in foo2.in' or source == 'foo2.in foo1.in'
-        env.Command(target='foo.out', source=['foo1.in','foo2.in'],
-                    action=testFunc)
+            assert 'foo1.in' in source and 'foo2.in' in source, source
+            return 0
+        t = env.Command(target='foo.out', source=['foo1.in','foo2.in'],
+                        action=testFunc)
+        assert t.builder
+        assert t.builder.action.__class__.__name__ == 'FunctionAction'
+        t.build()
+        assert 'foo1.in' in map(lambda x: x.path, t.sources)
+        assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
     def test_subst(self):
 	"""Test substituting construction variables within strings

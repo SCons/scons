@@ -40,16 +40,22 @@ file.close()
 """)
 
 test.write('SConstruct', """
+def buildIt(env, target, source):
+    contents = open(source[0], 'rb').read()
+    file = open(target, 'wb')
+    file.write(contents)
+    file.close()
+    return 0
+
 env = Environment()
 env.Command(target = 'f1.out', source = 'f1.in',
-            action = r'%s build.py $TARGET $SOURCES')
+            action = buildIt)
 env.Command(target = 'f2.out', source = 'f2.in',
             action = r'%s' + " build.py temp2 $SOURCES\\n" + r'%s' + " build.py $TARGET temp2")
 env.Command(target = 'f3.out', source = 'f3.in',
             action = [r'%s build.py temp3 $SOURCES',
                       r'%s build.py $TARGET temp3'])
-# Eventually, add ability to do execute Python code.
-""" % (python, python, python, python, python))
+""" % (python, python, python, python))
 
 test.write('f1.in', "f1.in\n")
 

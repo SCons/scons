@@ -190,11 +190,11 @@ class BuilderTestCase(unittest.TestCase):
         assert show_string == expect7, show_string
 
 	def function1(**kw):
-	    open(kw['out'], 'w').write("function1\n")
+	    open(kw['target'], 'w').write("function1\n")
 	    return 1
 
 	builder = SCons.Builder.Builder(action = function1)
-	r = builder.execute(out = outfile)
+	r = builder.execute(target = outfile)
 	assert r == 1
 	c = test.read(outfile, 'r')
 	assert c == "function1\n", c

@@ -350,7 +350,8 @@ class ActionBase:
             if type(t) is type(""):
                 t = [t]
             dict['TARGETS'] = PathList(map(os.path.normpath, t))
-            dict['TARGET'] = dict['TARGETS'][0]
+	    if dict['TARGETS']:
+                dict['TARGET'] = dict['TARGETS'][0]
         if kw.has_key('source'):
             s = kw['source']
             del kw['source']
@@ -407,8 +408,7 @@ class FunctionAction(ActionBase):
 	# if print_actions:
 	# XXX:  WHAT SHOULD WE PRINT HERE?
 	if execute_actions:
-            dict = apply(self.subst_dict, (), kw)
-            return apply(self.function, (), dict)
+            return apply(self.function, (), kw)
 
     def get_contents(self, **kw):
         """Return the signature contents of this callable action.
