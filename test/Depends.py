@@ -43,9 +43,9 @@ file.close()
 
 test.write('SConstruct', """
 Foo = Builder(name = "Foo",
-              action = "%s build.py $target $sources subdir/foo.dep")
+              action = "%s build.py $TARGET $SOURCES subdir/foo.dep")
 Bar = Builder(name = "Bar",
-              action = "%s build.py $target $sources subdir/bar.dep")
+              action = "%s build.py $TARGET $SOURCES subdir/bar.dep")
 env = Environment(BUILDERS = [Foo, Bar])
 env.Depends(target = ['f1.out', 'f2.out'], dependency = 'subdir/foo.dep')
 env.Depends(target = 'f3.out', dependency = 'subdir/bar.dep')

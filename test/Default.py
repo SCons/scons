@@ -43,7 +43,7 @@ file.close()
 """)
 
 test.write(['one', 'SConstruct'], """
-B = Builder(name = 'B', action = r'%s ../build.py $target $sources')
+B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
@@ -51,7 +51,7 @@ Default('foo.out')
 """ % python)
 
 test.write(['two', 'SConstruct'], """
-B = Builder(name = 'B', action = r'%s ../build.py $target $sources')
+B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
@@ -59,7 +59,7 @@ Default('foo.out', 'bar.out')
 """ % python)
 
 test.write(['three', 'SConstruct'], """
-B = Builder(name = 'B', action = r'%s ../build.py $target $sources')
+B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')

@@ -312,13 +312,13 @@ class CommandAction(ActionBase):
 	    t = kw['target']
 	    if type(t) is type(""):
 	        t = [t]
-	    loc['targets'] = PathList(map(os.path.normpath, t))
-	    loc['target'] = loc['targets'][0]
+	    loc['TARGETS'] = PathList(map(os.path.normpath, t))
+	    loc['TARGET'] = loc['TARGETS'][0]
 	if kw.has_key('source'):
 	    s = kw['source']
 	    if type(s) is type(""):
 	        s = [s]
-            loc['sources'] = PathList(map(os.path.normpath, s))
+            loc['SOURCES'] = PathList(map(os.path.normpath, s))
 
 	glob = {}
 	if kw.has_key('env'):

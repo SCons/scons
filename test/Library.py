@@ -31,7 +31,7 @@ test = TestSCons.TestSCons()
 #XXX Need to switch TestBld to Program() when LIBS variable is working.
 test.write('SConstruct', """
 TestBld = Builder(name='TestBld',
-                  action='cc -o $target $sources -L./ -lfoo1 -lfoo2 -lfoo3')
+                  action='cc -o $TARGET $SOURCES -L./ -lfoo1 -lfoo2 -lfoo3')
 env = Environment(BUILDERS=[ TestBld, Library ])
 env.Library(target = 'foo1', source = 'f1.c')
 env.Library(target = 'foo2', source = 'f2a.c f2b.c f2c.c')

@@ -46,8 +46,8 @@ sys.exit(1)
 """)
 
 test.write('SConstruct', """
-Succeed = Builder(name = "Succeed", action = r'%s succeed.py $targets')
-Fail = Builder(name = "Fail", action = r'%s fail.py $targets')
+Succeed = Builder(name = "Succeed", action = r'%s succeed.py $TARGETS')
+Fail = Builder(name = "Fail", action = r'%s fail.py $TARGETS')
 env = Environment(BUILDERS = [Succeed, Fail])
 env.Fail(target = 'aaa.1', source = 'aaa.in')
 env.Succeed(target = 'aaa.out', source = 'aaa.1')

@@ -77,11 +77,11 @@ class UtilTestCase(unittest.TestCase):
     def test_subst(self):
 	"""Test the subst function."""
 	loc = {}
-        loc['targets'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
+        loc['TARGETS'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
                                                           "/bar/baz.obj",
                                                           "../foo/baz.obj" ]))
-	loc['target'] = loc['targets'][0]
-        loc['sources'] = PathList(map(os.path.normpath, [ "./foo/blah.cpp",
+        loc['TARGET'] = loc['TARGETS'][0]
+        loc['SOURCES'] = PathList(map(os.path.normpath, [ "./foo/blah.cpp",
                                                           "/bar/ack.cpp",
                                                           "../foo/ack.c" ]))
         loc['xxx'] = None
@@ -94,34 +94,34 @@ class UtilTestCase(unittest.TestCase):
                 return string.replace(str, '/', os.sep)
 
 
-        newcom = scons_subst("test $targets $sources", loc, {})
+        newcom = scons_subst("test $TARGETS $SOURCES", loc, {})
         assert newcom == cvt("test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp /bar/ack.cpp ../foo/ack.c")
 
-        newcom = scons_subst("test ${targets[:]} ${sources[0]}", loc, {})
+        newcom = scons_subst("test ${TARGETS[:]} ${SOURCES[0]}", loc, {})
         assert newcom == cvt("test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp")
 
-        newcom = scons_subst("test ${targets[1:]}v", loc, {})
+        newcom = scons_subst("test ${TARGETS[1:]}v", loc, {})
         assert newcom == cvt("test /bar/baz.obj ../foo/baz.objv")
 
-        newcom = scons_subst("test $target", loc, {})
+        newcom = scons_subst("test $TARGET", loc, {})
         assert newcom == cvt("test foo/bar.exe")
 
-        newcom = scons_subst("test $target$source[0]", loc, {})
+        newcom = scons_subst("test $TARGET$SOURCE[0]", loc, {})
         assert newcom == cvt("test foo/bar.exe[0]")
 
-        newcom = scons_subst("test ${target.file}", loc, {})
+        newcom = scons_subst("test ${TARGET.file}", loc, {})
         assert newcom == cvt("test bar.exe")
 
-        newcom = scons_subst("test ${target.filebase}", loc, {})
+        newcom = scons_subst("test ${TARGET.filebase}", loc, {})
         assert newcom == cvt("test bar")
 
-        newcom = scons_subst("test ${target.suffix}", loc, {})
+        newcom = scons_subst("test ${TARGET.suffix}", loc, {})
         assert newcom == cvt("test .exe")
 
-        newcom = scons_subst("test ${target.base}", loc, {})
+        newcom = scons_subst("test ${TARGET.base}", loc, {})
         assert newcom == cvt("test foo/bar")
 
-        newcom = scons_subst("test ${target.dir}", loc, {})
+        newcom = scons_subst("test ${TARGET.dir}", loc, {})
         assert newcom == cvt("test foo")
 
         newcom = scons_subst("test $xxx", loc, {})

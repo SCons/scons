@@ -42,12 +42,12 @@ file.close()
 test.write('SConstruct', """
 env = Environment()
 env.Command(target = 'f1.out', source = 'f1.in',
-            action = r'%s build.py $target $sources')
+            action = r'%s build.py $TARGET $SOURCES')
 env.Command(target = 'f2.out', source = 'f2.in',
-            action = r'%s' + " build.py temp2 $sources\\n" + r'%s' + " build.py $target temp2")
+            action = r'%s' + " build.py temp2 $SOURCES\\n" + r'%s' + " build.py $TARGET temp2")
 env.Command(target = 'f3.out', source = 'f3.in',
-            action = [r'%s build.py temp3 $sources',
-                      r'%s build.py $target temp3'])
+            action = [r'%s build.py temp3 $SOURCES',
+                      r'%s build.py $TARGET temp3'])
 # Eventually, add ability to do execute Python code.
 """ % (python, python, python, python, python))
 

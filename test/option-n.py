@@ -42,7 +42,7 @@ file.close()
 
 test.write('SConstruct', """
 MyBuild = Builder(name = "MyBuild",
-                  action = r'%s build.py $targets')
+                  action = r'%s build.py $TARGETS')
 env = Environment(BUILDERS = [MyBuild])
 env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
