@@ -151,6 +151,9 @@ RELEASE 0.97 - XXX
   - Don't retrieve files from a CacheDir, but report what would happen,
     when the -n option is used.
 
+  - Use the source_scanner from the target Node, not the source node
+    itself.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

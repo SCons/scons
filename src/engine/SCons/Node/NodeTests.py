@@ -709,8 +709,8 @@ class NodeTestCase(unittest.TestCase):
         s = target.get_source_scanner(source)
         assert s is ts1, s
 
-        source.builder = Builder()
-        source.builder.source_scanner = ts2
+        target.builder = Builder()
+        target.builder.source_scanner = ts2
         s = target.get_source_scanner(source)
         assert s is ts2, s
 

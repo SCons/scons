@@ -376,7 +376,7 @@ class Node:
         """
         Turn a cache implicit dependency path into a node.
         This is called so many times that doing caching
-        here is a significant perforamnce boost.
+        here is a significant performance boost.
         """
         try:
             return self.implicit_factory_cache[path]
@@ -394,7 +394,7 @@ class Node:
         if self.source_scanner:
             return self.source_scanner
         try:
-            scanner = node.builder.source_scanner
+            scanner = self.builder.source_scanner
             if scanner:
                 return scanner
         except AttributeError:
@@ -789,7 +789,7 @@ class Node:
         if self.is_derived() and self.env:
             env = self.get_build_env()
             for s in self.sources:
-                scanner = s.get_source_scanner(self)
+                scanner = self.get_source_scanner(s)
                 def f(node, env=env, scanner=scanner, target=self):
                     return node.get_found_includes(env, scanner, target)
                 return SCons.Util.render_tree(s, f, 1)
@@ -827,7 +827,7 @@ class Node:
         generator is being called to generate a signature for the
         command line, which determines if we should rebuild or not.
 
-        Such command generators shoud use this method in preference
+        Such command generators should use this method in preference
         to str(Node) when converting a Node to a string, passing
         in the for_signature parameter, such that we will call
         Node.for_signature() or str(Node) properly, depending on whether
