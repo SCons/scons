@@ -6,6 +6,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import getopt
+import os
 import os.path
 import string
 import sys
@@ -64,10 +65,10 @@ class Taskmaster:
 # Global variables
 
 default_targets = []
-local_help = None
-num_jobs = 1
-Scripts = []
 include_dirs = []
+help_option = None
+num_jobs = 1
+scripts = []
 
 # utility functions
 
@@ -93,6 +94,19 @@ def _scons_user_error(e):
     sys.stderr.write("\nSCons error: %s\n" % value)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
 
+def _scons_user_warning(e):
+    """Handle user warnings. Print out a message and a description of
+    the warning, along with the line number and routine where it occured.
+    """
+    etype, value, tb = sys.exc_info()
+    while tb.tb_next is not None:
+        tb = tb.tb_next
+    lineno = traceback.tb_lineno(tb)
+    filename = tb.tb_frame.f_code.co_filename
+    routine = tb.tb_frame.f_code.co_name
+    sys.stderr.write("\nSCons warning: %s\n" % e)
+    sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
+
 def _scons_other_errors():
     """Handle all errors but user errors. Print out a message telling
     the user what to do in this case and print a normal trace.
@@ -103,8 +117,8 @@ def _scons_other_errors():
 
 
 def Conscript(filename):
-    global Scripts
-    Scripts.append(filename)
+    global scripts
+    scripts.append(filename)
 
 def Default(*targets):
     for t in targets:
@@ -112,8 +126,8 @@ def Default(*targets):
 	    default_targets.append(s)
 
 def Help(text):
-    global local_help
-    if local_help:
+    global help_option
+    if help_option == 'h':
 	print text
 	print "Use scons -H for help about command-line options."
 	sys.exit(0)
@@ -301,24 +315,24 @@ def options_init():
 	help = "Environment variables override makefiles.")
 
     def opt_f(opt, arg):
-	global Scripts
-	Scripts.append(arg)
+	global scripts
+	scripts.append(arg)
 
     Option(func = opt_f,
 	short = 'f', long = ['file', 'makefile', 'sconstruct'], arg = 'FILE',
 	help = "Read FILE as the top-level SConstruct file.")
 
     def opt_help(opt, arg):
-	global local_help
-	local_help = 1
+	global help_option
+	help_option = 'h'
 
     Option(func = opt_help,
 	short = 'h', long = ['help'],
 	help = "Print defined help message, or this one.")
 
     def opt_help_options(opt, arg):
-	PrintUsage()
-	sys.exit(0)
+	global help_option
+	help_option = 'H'
 
     Option(func = opt_help_options,
 	short = 'H', long = ['help-options'],
@@ -341,11 +355,11 @@ def options_init():
 	try:
             num_jobs = int(arg)
 	except:
-            PrintUsage()
+            print UsageString()
             sys.exit(1)
 
 	if num_jobs <= 0:
-            PrintUsage()
+            print UsageString()
             sys.exit(1)
 
     Option(func = opt_j,
@@ -471,40 +485,57 @@ options_init()
 
 
 
-def PrintUsage():
-    print "Usage: scons [OPTION] [TARGET] ..."
-    print "Options:"
-    for o in option_list:
-	if o.helpline:
-	    print o.helpline
+def UsageString():
+    help_opts = filter(lambda x: x.helpline, option_list)
+    s = "Usage: scons [OPTION] [TARGET] ...\n" + "Options:\n" + \
+	string.join(map(lambda x: x.helpline, help_opts), "\n") + "\n"
+    return s
 
 
 
 def main():
-    global Scripts, local_help, num_jobs
+    global scripts, help_option, num_jobs
+
+    # It looks like 2.0 changed the name of the exception class
+    # raised by getopt.
+    try:
+	getopt_err = getopt.GetoptError
+    except:
+	getopt_err = getopt.error
 
     try:
-	cmd_opts, targets = getopt.getopt(sys.argv[1:], short_opts, long_opts)
-#   except getopt.GetoptError, x:
-    except:
-        #print x
-        PrintUsage()
-        sys.exit(1)
+	cmd_opts, t = getopt.getopt(string.split(os.environ['SCONSFLAGS']),
+					  short_opts, long_opts)
+    except KeyError:
+	# It's all right if there's no SCONSFLAGS environment variable.
+	pass
+    except getopt_err, x:
+	_scons_user_warning("SCONSFLAGS " + x)
+    else:
+	for opt, arg in cmd_opts:
+	    opt_func[opt](opt, arg)
+
+    cmd_opts, targets = getopt.getopt(sys.argv[1:], short_opts, long_opts)
 
     for opt, arg in cmd_opts:
 	opt_func[opt](opt, arg)
 
-    if not Scripts:
+    if not scripts:
         for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
             if os.path.isfile(file):
-                Scripts.append(file)
+                scripts.append(file)
                 break
 
-    if not Scripts:
-	if local_help:
-	    # There's no SConstruct, but they specified -h.  Give them
-	    # the options usage before we try to read it and fail.
-	    PrintUsage()
+    if help_option == 'H':
+	print UsageString()
+	sys.exit(0)
+
+    if not scripts:
+	if help_option == 'h':
+	    # There's no SConstruct, but they specified either -h or
+	    # -H.  Give them the options usage now, before we fail
+	    # trying to read a non-existent SConstruct file.
+	    print UsageString()
 	    sys.exit(0)
 	else:
 	    raise UserError, "No SConstruct file found."
@@ -526,8 +557,8 @@ def main():
 
     sys.path = include_dirs + sys.path
 
-    while Scripts:
-        file, Scripts = Scripts[0], Scripts[1:]
+    while scripts:
+        file, scripts = scripts[0], scripts[1:]
 	if file == "-":
 	    exec sys.stdin in globals()
 	else:
@@ -538,10 +569,10 @@ def main():
 	    else:
 		exec f in globals()
 
-    if local_help:
+    if help_option == 'h':
 	# They specified -h, but there was no Help() inside the
 	# SConscript files.  Give them the options usage.
-	PrintUsage()
+	print UsageString()
 	sys.exit(0)
 
     if not targets:

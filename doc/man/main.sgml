@@ -15,6 +15,7 @@
 
     <!ENTITY desc SYSTEM "desc.sgml">
     <!ENTITY options SYSTEM "options.sgml">
+    <!ENTITY variables SYSTEM "variables.sgml">
 ]>
 
 <refentry id="scons">
@@ -79,6 +80,11 @@
   <refsect1>
     <title>Options</title>
     &options;
+  </refsect1>
+
+  <refsect1>
+    <title>Environment Variables</title>
+    &variables;
   </refsect1>
 
   <refsect1>

@@ -1,0 +1,35 @@
+<!--
+
+  Copyright 2001 Steven Knight
+
+-- >
+
+<para>
+
+  &scons; supports the following environment variables to affect
+  its behavior:
+
+</para>
+
+<variablelist>
+
+  <varlistentry>
+    <term>
+      &SCONSFLAGS;
+    </term>
+    <listitem>
+      <para>
+
+        &SCons; reads and interprets command-line options from this
+        environment variable before interpreting the options actually
+        supplied on the command line.  Where there's a conflict, options
+        from the command line overrule options from the &SCONSFLAGS;
+        environment variable.  Unknown options and other errors in the
+        &SCONSFLAGS; variable are ignored with a warning, but do not
+        halt &SCons;.
+
+      </para>
+    </listitem>
+  </varlistentry>
+
+</variablelist>
