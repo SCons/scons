@@ -77,14 +77,16 @@ def _parse_msvc7_overrides(version):
         found = 0
         while line:
             line.strip()
-            if found == 1:
-                (key, val) = line.split('=',1)
-                key = key.replace(' Dirs','')
-                dirs[key.upper()] = val
             if line.find(r'[VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories]') >= 0:
                 found = 1
-            if line == '':
+            elif line == '' or line[:1] == '[':
                 found = 0
+            elif found == 1:
+                kv = line.split('=', 1)
+                if len(kv) == 2:
+                    (key, val) = kv
+                key = key.replace(' Dirs','')
+                dirs[key.upper()] = val
             line = f.readline()
         f.close()
     else:

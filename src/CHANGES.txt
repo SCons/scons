@@ -31,6 +31,8 @@ RELEASE 0.95 - XXX
   - Work around Cygwin Python's silly fiction that it's using a
     case-sensitive file system.
 
+  - More robust handling of data in VCComponents.dat.
+
   From Kerim Borchaev:
 
   - Fix a typo in a msvc.py's registry lookup:  "VCComponents.dat", not
