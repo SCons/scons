@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -58,7 +58,7 @@
 
    </para>
 
-   <literallayout>
+   <screen>
       % <userinput>scons -h</userinput>
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
@@ -67,7 +67,7 @@
             'scons debug' to build the debug version.
       
       Use scons -H for help about command-line options.
-   </literallayout>
+   </screen>
 
    <para>
 

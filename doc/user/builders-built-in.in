@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -284,9 +284,9 @@
 
       </para>
 
-      <literallayout>
+      <programlisting>
         StaticObject('file.c')
-      </literallayout>
+      </programlisting>
 
       <para>
 
@@ -363,9 +363,9 @@
 
       </para>
 
-      <literallayout>
+      <programlisting>
         SharedObject('file.c')
-      </literallayout>
+      </programlisting>
 
       <para>
 
@@ -461,9 +461,9 @@
 
       </para>
 
-      <literallayout>
+      <programlisting>
         StaticLibrary(['file.c', 'another.c'])
-      </literallayout>
+      </programlisting>
 
       <para>
 
@@ -535,9 +535,9 @@
 
       </para>
 
-      <literallayout>
+      <programlisting>
         SharedLibrary(['file.c', 'another.c'])
-      </literallayout>
+      </programlisting>
 
       <para>
 
@@ -612,9 +612,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -631,9 +631,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -662,9 +662,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -692,9 +692,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -846,10 +846,10 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q .</userinput>
         zip /home/my/project/zip.out file1 file2
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -895,9 +895,9 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -916,9 +916,9 @@
         env.Jar(target = '', source = 'classes')
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -935,9 +935,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -954,9 +954,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 

@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -92,7 +92,7 @@ is pretty smart about rebuilding things when you change options.
 
   </para>
 
-  <literallayout>
+  <screen>
     % <userinput>scons -Q OS=linux</userinput>
     Install file: "build/linux/world/world.h" as "export/linux/include/world.h"
     cc -Iexport/linux/include -c -o build/linux/hello/hello.o build/linux/hello/hello.c
@@ -102,7 +102,7 @@ is pretty smart about rebuilding things when you change options.
     Install file: "build/linux/world/libworld.a" as "export/linux/lib/libworld.a"
     cc -o build/linux/hello/hello build/linux/hello/hello.o -Lexport/linux/lib -lworld
     Install file: "build/linux/hello/hello" as "export/linux/bin/hello"
-  </literallayout>
+  </screen>
 
   <para>
 
@@ -110,7 +110,7 @@ is pretty smart about rebuilding things when you change options.
 
   </para>
 
-  <literallayout>
+  <screen>
     C:\><userinput>scons -Q OS=windows</userinput>
     Install file: "build/windows/world/world.h" as "export/windows/include/world.h"
     cl /nologo /Iexport\windows\include /c build\windows\hello\hello.c /Fobuild\windows\hello\hello.obj
@@ -119,7 +119,7 @@ is pretty smart about rebuilding things when you change options.
     Install file: "build/windows/world/world.lib" as "export/windows/lib/world.lib"
     link /nologo /OUT:build\windows\hello\hello.exe /LIBPATH:export\windows\lib world.lib build\windows\hello\hello.obj
     Install file: "build/windows/hello/hello.exe" as "export/windows/bin/hello.exe"
-  </literallayout>
+  </screen>
 
   <!--
 

@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -55,14 +55,14 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       cc -c -o f1.o f1.c
       cc -c -o f2.o f2.c
       cc -c -o f3.o f3.c
       ar r libfoo.a f1.o f2.o f3.o
       ranlib libfoo.a
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -71,13 +71,13 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       C:\><userinput>scons -Q</userinput>
       cl /nologo /c f1.c /Fof1.obj
       cl /nologo /c f2.c /Fof2.obj
       cl /nologo /c f3.c /Fof3.obj
       lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -92,7 +92,7 @@
     </para>
 
     <section>
-    <title>Building Static Libraries Explicitly</title>
+    <title>Building Static Libraries Explicitly:  the &StaticLibrary; Builder</title>
 
       <para>
 
@@ -117,7 +117,7 @@
     </section>
 
     <section>
-    <title>Building Shared (DLL) Libraries</title>
+    <title>Building Shared (DLL) Libraries:  the &SharedLibrary; Builder</title>
 
       <para>
 
@@ -137,13 +137,13 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q</userinput>
         cc -c -o f1.os f1.c
         cc -c -o f2.os f2.c
         cc -c -o f3.os f3.c
         cc -shared -o libfoo.so f1.os f2.os f3.os
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -151,13 +151,13 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         C:\><userinput>scons -Q</userinput>
         cl /nologo /c f1.c /Fof1.obj
         cl /nologo /c f2.c /Fof2.obj
         cl /nologo /c f3.c /Fof3.obj
         link /nologo /dll /out:foo.dll /implib:foo.lib f1.obj f2.obj f3.obj
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -190,7 +190,7 @@
 
     <programlisting>
       Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-      Program('prog.c', LIBS='foo', LIBPATH='.')
+      Program('prog.c', LIBS=['foo', 'bar'], LIBPATH='.')
     </programlisting>
 
     <para>
@@ -209,7 +209,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       cc -c -o f1.o f1.c
       cc -c -o f2.o f2.c
@@ -217,8 +217,8 @@
       ar r libfoo.a f1.o f2.o f3.o
       ranlib libfoo.a
       cc -c -o prog.o prog.c
-      cc -o prog prog.o -L. -lfoo
-    </literallayout>
+      cc -o prog prog.o -L. -lfoo -lbar
+    </screen>
 
     <para>
 
@@ -227,21 +227,53 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       C:\><userinput>scons -Q</userinput>
       cl /nologo /c f1.c /Fof1.obj
       cl /nologo /c f2.c /Fof2.obj
       cl /nologo /c f3.c /Fof3.obj
       lib /nologo /OUT:foo.lib f1.obj f2.obj f3.obj
       cl /nologo /c prog.c /Foprog.obj
-      link /nologo /OUT:prog.exe /LIBPATH:. foo.lib prog.obj
-    </literallayout>
+      link /nologo /OUT:prog.exe /LIBPATH:. foo.lib bar.lib prog.obj
+    </screen>
 
     <para>
 
     As usual, notice that &SCons; has taken care
     of constructing the correct command lines
     to link with the specified library on each system.
+
+    </para>
+
+    <para>
+
+    Note also that,
+    if you only have a single library to link with,
+    you can specify the library name in single string,
+    instead of a Python list,
+    so that:
+
+    </para>
+
+    <programlisting>
+      Program('prog.c', LIBS='foo', LIBPATH='.')
+    </programlisting>
+
+    <para>
+
+    is equivalent to:
+
+    </para>
+
+    <programlisting>
+      Program('prog.c', LIBS=['foo'], LIBPATH='.')
+    </programlisting>
+
+    <para>
+
+    This is similar to the way that &SCons;
+    handles either a string or a list to
+    specify a single source file.
 
     </para>
 
@@ -288,8 +320,16 @@
     </para>
 
     <programlisting>
-      LIBPATH = 'C:\lib;D:\lib'
+      LIBPATH = 'C:\\lib;D:\\lib'
     </programlisting>
+
+    <para>
+
+    (Note that Python requires that the backslash
+    separators in a Windows path name
+    be escaped within strings.)
+
+    </para>
 
     <para>
 
@@ -302,11 +342,11 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       cc -c -o prog.o prog.c
       cc -o prog prog.o -L/usr/lib -L/usr/local/lib -lm
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -315,11 +355,11 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       C:\><userinput>scons -Q</userinput>
       cl /nologo /c prog.c /Foprog.obj
       link /nologo /OUT:prog.exe /LIBPATH:\usr\lib /LIBPATH:\usr\local\lib m.lib prog.obj
-    </literallayout>
+    </screen>
 
     <para>
 

@@ -1,0 +1,359 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  Internally, &SCons; represents all of the files
+  and directories it knows about as &Nodes;.
+  These internal objects
+  (not object <emphasis>files</emphasis>)
+  can be used in a variety of ways
+  to make your &SConscript;
+  files portable and easy to read.
+
+  </para>
+
+  <section>
+  <title>Builder Methods Return Lists of Target Nodes</title>
+
+    <para>
+
+    All builder methods return a list of
+    &Node; objects that identify the
+    target file or files that will be built.
+    These returned &Nodes; can be passed
+    as source files to other builder methods,
+
+    </para>
+
+    <para>
+
+    For example, suppose that we want to build
+    the two object files that make up a program with different options.
+    This would mean calling the &Object;
+    builder once for each object file,
+    specifying the desired options:
+
+    </para>
+
+    <programlisting>
+    Object('hello.c', CCFLAGS='-DHELLO')
+    Object('goodbye.c', CCFLAGS='-DGOODBYE')
+    </programlisting>
+
+    <para>
+
+    One way to combine these object files
+    into the resulting program
+    would be to call the &Program;
+    builder with the names of the object files
+    listed as sources:
+
+    </para>
+
+    <programlisting>
+    Object('hello.c', CCFLAGS='-DHELLO')
+    Object('goodbye.c', CCFLAGS='-DGOODBYE')
+    Program(['hello.o', 'goodbye.o'])
+    </programlisting>
+
+    <para>
+
+    The problem with listing the names as strings
+    is that our &SConstruct; file is no longer portable
+    across operating systems.
+    It won't, for example, work on Windows
+    because the object files there would be
+    named &hello_obj; and &goodbye_obj;,
+    not &hello_o; and &goodbye_o;.
+
+    </para>
+
+    <para>
+
+    A better solution is to assign the lists of targets
+    returned by the calls to the &Object; builder to variables,
+    which we can then concatenate in our
+    call to the &Program; builder:
+
+    </para>
+
+    <programlisting>
+      hello_list = Object('hello.c', CCFLAGS='-DHELLO')
+      goodbye_list = Object('goodbye.c', CCFLAGS='-DGOODBYE')
+      Program(hello_list + goodbye_list)
+    </programlisting>
+
+    <para>
+
+    This makes our &SConstruct; file portable again,
+    the build output on Linux looking like:
+
+    </para>
+
+    <screen>
+       % <userinput>scons -Q</userinput>
+       cc -DGOODBYE -c -o goodbye.o goodbye.c
+       cc -DHELLO -c -o hello.o hello.c
+       cc -o hello hello.o goodbye.o
+    </screen>
+
+    <para>
+
+    And on Windows:
+
+    </para>
+
+    <screen>
+       C:\><userinput>scons -Q</userinput>
+       cl -DGOODBYE /c goodbye.c /Fogoodbye.obj
+       cl -DHELLO /c hello.c /Fohello.obj
+       link /nologo /OUT:hello.exe hello.obj goodbye.obj
+    </screen>
+
+    <para>
+
+    We'll see examples of using the list of nodes
+    returned by builder methods throughout
+    the rest of this guide.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Explicitly Creating File and Directory Nodes</title>
+
+    <para>
+
+    It's worth mentioning here that
+    &SCons; maintains a clear distinction
+    between Nodes that represent files
+    and Nodes that represent directories.
+    &SCons; supports &File; and &Dir;
+    functions that, repectively,
+    return a file or directory Node:
+
+    </para>
+
+    <programlisting>
+      hello_c = File('hello.c')
+      Program(hello_c)
+
+      classes = Dir('classes')
+      Java(classes, 'src')
+    </programlisting>
+
+    <para>
+
+    Normally, you don't need to call
+    &File; or &Dir; directly,
+    because calling a builder method automatically
+    treats strings as the names of files or directories,
+    and translates them into
+    the Node objects for you.
+    The &File; and &Dir; functions can come in handy
+    in situations where you need to explicitly
+    instruct &SCons; about the type of Node being
+    passed to a builder or other function,
+    or unambiguously refer to a specific
+    file in a directory tree.
+    <!--
+    (For an example of when you might
+    need to use &File; or &Dir; to
+    prevent ambiguous interpretation of a string
+    naming a file or directory, see
+    <xref linkend="chap-hierarchy">.)
+    -->
+
+    </para>
+
+    <para>
+
+    There are also times when you may need to
+    refer to an entry in a file system
+    without knowing in advance
+    whether it's a file or a directory.
+    For those situations,
+    &SCons; also supports an &Entry; function,
+    which returns a Node
+    that can represent either a file or a directory.
+
+    </para>
+
+    <programlisting>
+    xyzzy = Entry('xyzzy')
+    </programlisting>
+
+    <para>
+
+    The returned <literal>xyzzy</literal> Node
+    will be turned into a file or directory Node
+    the first time it is used by a builder method
+    or other function that
+    requires one vs. the other.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Printing &Node; File Names</title>
+
+    <para>
+
+    One of the most common things you can do
+    with a Node is use it to print the
+    file name that the node represents.
+    For example, the following &SConstruct; file:
+
+    </para>
+
+    <programlisting>
+      hello_c = File('hello.c')
+      Program(hello_c)
+
+      classes = Dir('classes')
+      Java(classes, 'src')
+
+      object_list = Object('hello.c')
+      program_list = Program(object_list)
+      print "The object file is:", object_list[0]
+      print "The program file is:", program_list[0]
+    </programlisting>
+
+    <para>
+
+    Would print the following file names on a POSIX system:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      The object file is: hello.o
+      The program file is: hello
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o
+    </screen>
+
+    <para>
+
+    And the following file names on a Windows system:
+
+    </para>
+
+    <screen>
+      C:\><userinput>scons -Q</userinput>
+      The object file is: hello.obj
+      The program file is: hello.exe
+      cl /nologo /c hello.c /Fohello.obj
+      link /nologo /OUT:hello.exe hello.obj
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Using a &Node;'s File Name as a String</title>
+
+    <para>
+
+    Printing a &Node;'s name
+    as described in the previous section
+    works because the string representation of a &Node;
+    is the name of the file.
+    If you want to do something other than
+    print the name of the file,
+    you can fetch it by using the builtin Python
+    &str; function.
+    For example, if you want to use the Python
+    <function>os.path.exists</function>
+    to figure out whether a file
+    exists while the &SConstruct; file
+    is being read and executed,
+    you can fetch the string as follows:
+
+    </para>
+
+    <programlisting>
+      import os.path
+      program_list = Program('hello.c')
+      program_name = str(program_list[0])
+      if not os.path.exists(program_name)
+          print program_name, "does not exist!"
+    </programlisting>
+
+    <para>
+
+    Which executes as follows on a POSIX system:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      The object file is: hello.o
+      The program file is: hello
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o
+    </screen>
+
+  </section>
+
+  <!--
+
+  <section>
+  <title>Fetching the Contents of a &Node;</title>
+
+    <para>
+
+    XXX Describe using read() and readlines()
+    when we add that as a public interface.
+
+    </para>
+
+    <scons_example name="exists">
+      <file name="SConstruct" printme="1">
+      hello_c = File('hello.c')
+      contents = hello_c.read()
+      print "contents are:"
+      print contents
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Which executes as follows on a POSIX system:
+
+    </para>
+
+    <scons_output example="print" os="posix">
+      <command>scons -Q</command>
+    </scons_output>
+
+  </section>
+
+  -->

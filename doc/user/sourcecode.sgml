@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -48,13 +48,13 @@
       env.Program('hello.c')
    </programlisting>
 
-   <literallayout>
+   <screen>
      % <userinput>scons -Q</userinput>
      bk get -
      bk get hello.c
      cc -c -o hello.o hello.c
      cc -o hello hello.o
-   </literallayout>
+   </screen>
 
  </section>
 
@@ -73,13 +73,13 @@
       env.Program('hello.c')
    </programlisting>
 
-   <literallayout>
+   <screen>
      % <userinput>scons -Q</userinput>
      cvs -d /usr/local/CVS co -
      cvs -d /usr/local/CVS co hello.c
      cc -c -o hello.o hello.c
      cc -o hello hello.o
-   </literallayout>
+   </screen>
 
  </section>
 
@@ -98,13 +98,13 @@
       env.Program('hello.c')
    </programlisting>
 
-   <literallayout>
+   <screen>
      % <userinput>scons -Q</userinput>
      co -
      co hello.c
      cc -c -o hello.o hello.c
      cc -o hello hello.o
-   </literallayout>
+   </screen>
 
  </section>
 
@@ -123,13 +123,13 @@
       env.Program('hello.c')
    </programlisting>
 
-   <literallayout>
+   <screen>
      % <userinput>scons -Q</userinput>
      sccs get -
      sccs get hello.c
      cc -c -o hello.o hello.c
      cc -o hello hello.o
-   </literallayout>
+   </screen>
 
  </section>
 

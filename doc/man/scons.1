@@ -945,10 +945,11 @@ env = Environment(tools = ['msvc', 'lex'])
 Non-built-in tools may be specified using the toolpath argument:
 
 .ES
-env = Environment(tools = ['foo'], toolpath = ['tools'])
+env = Environment(tools = ['default', 'foo'], toolpath = ['tools'])
 .EE
 
-This looks for a tool specification in tools/foo.py.  foo.py should
+This looks for a tool specification in tools/foo.py (as well as
+using the ordinary default tools for the platform).  foo.py should
 have two functions: generate(env) and exists(env).  generate()
 modifies the passed in environment and exists() should return a true
 value if the tool is available.  Tools in the toolpath are used before
@@ -2618,12 +2619,23 @@ cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 .RI Dir( name ", [" directory ])
 .TP
 .RI env.Dir( name ", [" directory ])
-This returns an object that represents a given directory 
+This returns a Directory Node,
+an object that represents the specified directory
 .IR name . 
 .I name
 can be a relative or absolute path. 
 .I directory
 is an optional directory that will be used as the parent directory. 
+If no
+.I directory
+is specified, the current script's directory is used as the parent.
+
+Directory Nodes can be used anywhere you
+would supply a string as a directory name
+to a Builder method or function.
+Directory Nodes have attributes and methods
+that are useful in many situations;
+see "File and Directory Nodes," below.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -2753,12 +2765,21 @@ function, below.
 .RI File( name ", [" directory ])
 .TP 
 .RI env.File( name ", [" directory ])
-This returns an object that represents a given file 
+This returns a
+File Node,
+an object that represents the specified file
 .IR name . 
 .I name
 can be a relative or absolute path. 
 .I directory
 is an optional directory that will be used as the parent directory. 
+
+File Nodes can be used anywhere you
+would supply a string as a file name
+to a Builder method or function.
+File Nodes have attributes and methods
+that are useful in many situations;
+see "File and Directory Nodes," below.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -3390,6 +3411,9 @@ that would normally be built in the subdirectory in which
 resides should actually
 be built in
 .IR build_dir .
+.I build_dir
+is interpreted relative to the directory
+of the calling SConscript file.
 
 The optional
 .I src_dir
@@ -3398,6 +3422,9 @@ source files from which
 the target files should be built
 can be found in
 .IR src_dir .
+.I src_dir
+is interpreted relative to the directory
+of the calling SConscript file.
 
 By default,
 .B scons
@@ -5377,15 +5404,15 @@ setting
 .B MSVS_USE_MFC_DIRS
 to a non-zero value
 adds the
-.BR ATL\\include
+.B "ATL\\\\include"
 and
-.BR MFC\\include
+.B "MFC\\\\include"
 directories to
 the default
 .B INCLUDE
 external environment variable,
 and adds the
-.B MFC\\lib
+.B "MFC\\\\lib"
 directory to
 the default
 .B LIB
@@ -5395,12 +5422,12 @@ setting
 .B MSVS_USE_MFC_DIRS
 to a non-zero value
 adds the
-.BR atlmfc\\include
+.B "atlmfc\\\\include"
 directory to the default
 .B INCLUDE
 external environment variable,
 and adds the
-.BR atlmfc\\lib
+.B "atlmfc\\\\lib"
 directory to the default
 .B LIB
 external environment variable.
@@ -6329,7 +6356,7 @@ Returns 1 on success and 0 on failure.
 .TP
 .RI Configure.CheckFunc( self ", " function_name ", [" language ])
 Checks if the specified
-C or C+++ function is available.
+C or C++ function is available.
 .I function_name
 is the name of the function to check for.
 The optional
@@ -6869,7 +6896,7 @@ arbitrary string
 that is being enabled).
 The option will also support the values
 .BR no ,
-.BR flase ,
+.BR false ,
 .BR off
 or
 .BR disable
@@ -6914,6 +6941,66 @@ opts.AddOptions(
 )
 .EE
 
+.SS File and Directory Nodes
+
+The
+.IR File ()
+and
+.IR Dir ()
+functions return
+.I File
+and
+.I Dir
+Nodes, respectively.
+python objects, respectively.
+Those objects have several user-visible attributes
+and methods that are often useful:
+
+.IP path
+The build path
+of the given
+file or directory.
+This path is relative to the top-level directory
+(where the
+.B SConstruct
+file is found).
+The build path is the same as the source path if
+.I build_dir
+is not being used.
+
+.IP abspath
+The absolute build path of the given file or directory.
+
+.IP srcnode()
+The
+.IR srcnode ()
+method
+returns another
+.I File
+or
+.I Dir
+object representing the
+.I source
+path of the given
+.I File
+or
+.IR Dir .
+The 
+
+.ES
+# Get the current build dir's path, relative to top.
+Dir('.').path
+# Current dir's absolute path
+Dir('.').abspath
+# Next line is always '.', because it is the top dir's path relative to itself.
+Dir('#.').path
+File('foo.c').srcnode().path   # source path of the given source file.
+
+# Builders also return File objects:
+foo = env.Program('foo.c')
+print "foo will be built in %s"%foo.path
+.EE
+
 .SH EXTENDING SCONS
 .SS Builder Objects
 .B scons
@@ -6935,7 +7022,7 @@ that sets the appropriate construction variables
 (CC, LINK, etc.).
 
 Builder objects are created
-using the 
+using the
 .B Builder 
 function.
 The
@@ -8366,7 +8453,7 @@ libB/SConscript:
 Main/SConscript:
 
     Import('env')
-    e = env.Copy(LIBS = ['a', ','b'])
+    e = env.Copy(LIBS = ['a', 'b'])
     e.Program('foo', Split('m1.c m2.c m3.c'))
 .EE
 

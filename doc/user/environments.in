@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -410,7 +410,34 @@ environment undisturbed.
 
  <para>
 
-   A &consenv; is created by the &Environment; method.
+   A &consenv; is created by the &Environment; method:
+
+ </para>
+
+  <sconstruct>
+    env = Environment()
+  </sconstruct>
+
+ <para>
+
+   By default, &SCons; intializes every
+   new construction environment
+   with a set of &consvars;
+   based on the tools that it finds on your system,
+   plus the default set of builder methods
+   necessary for using those tools.
+   The construction variables
+   are initialized with values describing
+   the C compiler,
+   the Fortran compiler,
+   the linker,
+   etc.,
+   as well as the command lines to invoke them.
+
+ </para>
+
+ <para>
+
    When you initialize a construction environment
    you can set the values of the
    environment's &consvars;
@@ -433,12 +460,17 @@ environment undisturbed.
 
  <para>
    
-   This example, rather than using the default,
-   explicitly specifies use of the
+   The construction environment in this example
+   is still initialized with the same default
+   construction variable values,
+   except that the user has explicitly specified use of the
    GNU C compiler &gcc;,
    and further specifies that the <literal>-O2</literal>
    (optimization level two)
    flag should be used when compiling the object file.
+   In other words, the explicit initializations of &CC; and &CCFLAGS;
+   override the default values in the newly-created
+   construction environment.
    So a run from this example would look like:
 
  </para>
@@ -539,9 +571,6 @@ environment undisturbed.
    using the &Object; call, like so:
 
    </para>
-
-   <programlisting>
-   </programlisting>
 
    <scons_example name="ex4">
      <file name="SConstruct" printme="1">
@@ -675,8 +704,7 @@ environment undisturbed.
    <para>
 
    A construction environment, however,
-   is actually a Python object with
-   associated methods, etc.
+   is actually an object with associated methods, etc.
    If you want to have direct access to only the
    dictionary of construction variables,
    you can fetch this using the &Dictionary; method:
@@ -714,6 +742,116 @@ environment undisturbed.
       <command>scons -Q</command>
    </scons_output>
 
+   <para>
+
+   If you want to loop through and print the values of
+   all of the construction variables in a construction environment,
+   the Python code to do that in sorted order might look something like:
+
+   </para>
+
+   <sconstruct>
+      env = Environment()
+      dict = env.Dictionary()
+      keys = dict.keys()
+      keys.sort()
+      for key in keys:
+          print "construction variable = '%s', value = '%s'" % (key, dict[key])
+   </sconstruct>
+
+ </section>
+
+ <section>
+ <title>Expanding Values From a &ConsEnv;</title>
+
+   <para>
+
+   Another way to get information from
+   a construction environment.
+   is to use the &subst; method
+   on a string containing $-expansions
+   of construction variable names.
+   As a simple example,
+   the example from the previous
+   section that used
+   <literal>env['CC']</literal>
+   to fetch the value of &CC;
+   could also be written as:
+
+   </para>
+
+   <sconstruct>
+     env = Environment()
+     print "CC is:", env.subst('$CC')
+   </sconstruct>
+
+   <para>
+
+   The real advantage of using
+   &subst; to expand strings is
+   that construction variables
+   in the result get
+   re-expanded until
+   there are no expansions left in the string.
+   So a simple fetch of a value like
+   <varname>$CCCOM</varname>:
+
+   </para>
+
+   <sconstruct>
+     env = Environment(CCFLAGS = '-DFOO')
+     print "CCCOM is:", env['CCCOM']
+   </sconstruct>
+
+   <para>
+
+   Will print the unexpanded value of &CCCOM;,
+   showing us the construction
+   variables that still need to be expanded:
+
+   </para>
+
+   <screen>
+     % <userinput>scons -Q</userinput>
+     CCCOM is: $CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
+     scons: `.' is up to date.
+   </screen>
+
+   <para>
+
+   Calling the &subst; method on <varname>$CCOM</varname>,
+   however:
+
+   </para>
+
+   <sconstruct>
+     env = Environment(CCFLAGS = '-DFOO')
+     print "CCCOM is:", env.subst('$CCCOM')
+   </sconstruct>
+
+   <para>
+
+   Will recursively expand all of
+   the $-prefixed construction variables,
+   showing us the final output:
+
+   </para>
+
+   <screen>
+     % <userinput>scons -Q</userinput>
+     CCCOM is: gcc -DFOO -c -o
+     scons: `.' is up to date.
+   </screen>
+
+   <para>
+
+   (Note that because we're not expanding this
+   in the context of building something
+   there are no target or source files
+   for <varname>$TARGET</varname> and <varname>$SOURCES</varname> to expand.
+
+   </para>
+
  </section>
 
  <section>
@@ -736,11 +874,82 @@ environment undisturbed.
 
      </para>
 
-     <scons_example name="ex7">
+     <scons_example name="Replace1">
        <file name="SConstruct" printme="1">
         env = Environment(CCFLAGS = '-DDEFINE1')
-        env.Program('foo.c')
         env.Replace(CCFLAGS = '-DDEFINE2')
+        env.Program('foo.c')
+       </file>
+       <file name="foo.c">
+       int main() { }
+       </file>
+     </scons_example>
+
+     <para>
+
+     The replacing value
+     (<literal>-DDEFINE2</literal> in the above example)
+     completely replaces the value in the
+     construction environment:
+
+     </para>
+
+     <scons_output example="Replace1">
+        <command>scons -Q</command>
+     </scons_output>
+
+     <para>
+
+     You can safely call &Replace;
+     for construction variables that
+     don't exist in the construction environment:
+
+     </para>
+
+     <scons_example name="Replace-nonexistent">
+       <file name="SConstruct" printme="1">
+        env = Environment()
+        env.Replace(NEW_VARIABLE = 'xyzzy')
+        print "NEW_VARIABLE =", env['NEW_VARIABLE']
+       </file>
+     </scons_example>
+
+     <para>
+
+     In this case,
+     the construction variable simply
+     gets added to the construction environment:
+
+     </para>
+
+     <scons_output example="Replace-nonexistent">
+        <command>scons -Q</command>
+     </scons_output>
+
+     <para>
+
+     Because the variables
+     aren't expanded until the construction environment
+     is actually used to build the targets,
+     and because &SCons; function and method calls
+     are order-independent,
+     the last replacement "wins"
+     and is used to build all targets,
+     regardless of the order in which
+     the calls to Replace() are
+     interspersed with calls to
+     builder methods:
+
+     </para>
+
+     <scons_example name="Replace2">
+       <file name="SConstruct" printme="1">
+        env = Environment(CCFLAGS = '-DDEFINE1')
+        print "CCFLAGS =", env['CCFLAGS']
+        env.Program('foo.c')
+
+        env.Replace(CCFLAGS = '-DDEFINE2')
+        print "CCFLAGS =", env['CCFLAGS']
         env.Program('bar.c')
        </file>
        <file name="foo.c">
@@ -753,13 +962,32 @@ environment undisturbed.
 
      <para>
 
-     The replaced value completely overwrites
+     The timing of when the replacement
+     actually occurs relative
+     to when the targets get built
+     becomes apparent
+     if we run &scons; without the <literal>-Q</literal>
+     option:
 
      </para>
 
-     <scons_output example="ex7">
-        <command>scons -Q</command>
+     <scons_output example="Replace2">
+        <command>scons</command>
      </scons_output>
+
+     <para>
+
+     Because the replacement occurs while
+     the &SConscript; files are being read,
+     the <literal>$CCFLAGS</literal>
+     variable has already been set to
+     <literal>-DDEFINE2</literal>
+     by the time the &foo_o; target is built,
+     even though the call to the &Replace;
+     method does not occur until later in
+     the &SConscript; file.
+
+     </para>
 
    </section>
 
@@ -785,7 +1013,39 @@ environment undisturbed.
        </file>
      </scons_example>
 
+     <para>
+
+     &SCons; then supplies both the <literal>-DMY_VALUE</literal> and
+     <literal>-DLAST</literal> flags when compiling the object file:
+
+     </para>
+
      <scons_output example="ex8">
+        <command>scons -Q</command>
+     </scons_output>
+
+     <para>
+
+     If the construction variable doesn't already exist,
+     the &Append; method will create it:
+
+     </para>
+
+     <scons_example name="Append-nonexistent">
+       <file name="SConstruct" printme="1">
+        env = Environment()
+        env.Append(NEW_VARIABLE = 'added')
+        print "NEW_VARIABLE =", env['NEW_VARIABLE']
+       </file>
+     </scons_example>
+
+     <para>
+
+     Which yields:
+
+     </para>
+
+     <scons_output example="Append-nonexistent">
         <command>scons -Q</command>
      </scons_output>
 
@@ -813,7 +1073,39 @@ environment undisturbed.
        </file>
      </scons_example>
 
+     <para>
+
+     &SCons; then supplies both the <literal>-DFIRST</literal> and
+     <literal>-DMY_VALUE</literal> flags when compiling the object file:
+
+     </para>
+
      <scons_output example="ex9">
+        <command>scons -Q</command>
+     </scons_output>
+
+     <para>
+
+     If the construction variable doesn't already exist,
+     the &Prepend; method will create it:
+
+     </para>
+
+     <scons_example name="Prepend-nonexistent">
+       <file name="SConstruct" printme="1">
+        env = Environment()
+        env.Prepend(NEW_VARIABLE = 'added')
+        print "NEW_VARIABLE =", env['NEW_VARIABLE']
+       </file>
+     </scons_example>
+
+     <para>
+
+     Which yields:
+
+     </para>
+
+     <scons_output example="Prepend-nonexistent">
         <command>scons -Q</command>
      </scons_output>
 

@@ -4,6 +4,7 @@ ant.sgml
 builders-built-in.sgml
 builders-commands.sgml
 builders-writing.sgml
+build-install.sgml
 caching.sgml
 command-line.sgml
 cons.pl
@@ -17,14 +18,18 @@ example.sgml
 help.sgml
 hierarchy.sgml
 install.sgml
+java.sgml
 libraries.sgml
+less-simple.sgml
 main.sgml
 make.sgml
+nodes.sgml
 precious.sgml
 preface.sgml
 repositories.sgml
 run.sgml
 scanners.sgml
+sconf.sgml
 separate.sgml
 simple.sgml
 sourcecode.sgml

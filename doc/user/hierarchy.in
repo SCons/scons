@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -418,7 +418,7 @@ make no difference to the build.
 
     (Notice that the <literal>lib/foo1.o</literal> object file
     is built in the same directory as its source file.
-    See section XXX, below,
+    See <xref linkend="chap-separate">, below,
     for information about 
     how to build the object file in a different subdirectory.)
 
@@ -470,7 +470,7 @@ make no difference to the build.
     (As was the case with top-relative path names,
     notice that the <literal>/usr/joe/lib/foo1.o</literal> object file
     is built in the same directory as its source file.
-    See section XXX, below,
+    See <xref linkend="chap-separate">, below,
     for information about 
     how to build the object file in a different subdirectory.)
 

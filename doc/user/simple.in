@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -25,90 +25,225 @@
 
  <para>
 
- Here's the famous "Hello, World!" program in C:
+ In this chapter,
+ you will see several examples of
+ very simple build configurations using &SCons;,
+ which will demonstrate how easy
+ it is to use &SCons; to
+ build programs from several different programming languages
+ on different types of systems.
 
  </para>
 
- <programlisting>
-    int
-    main()
-    {
-        printf("Hello, world!\n");
-    }
- </programlisting>
+ <section>
+ <title>Building Simple C / C++ Programs</title>
 
- <para>
+   <para>
 
- And here's how to build it using &SCons;.
- Enter the following into a file named &SConstruct;:
+   Here's the famous "Hello, World!" program in C:
 
- </para>
+   </para>
 
- <scons_example name="ex1">
-    <file name="SConstruct" printme="1">
-    Program('hello.c')
-    </file>
-    <file name="hello.c">
-    int main() { printf("Hello, world!\n"); }
-    </file>
- </scons_example>
+   <programlisting>
+      int
+      main()
+      {
+          printf("Hello, world!\n");
+      }
+   </programlisting>
 
- <para>
+   <para>
 
- That's it.  Now run the &scons; command to build the program.
- On a POSIX-compliant system like Linux or UNIX,
- you'll see something like:
+   And here's how to build it using &SCons;.
+   Enter the following into a file named &SConstruct;:
 
- </para>
+   </para>
 
- <scons_output example="ex1" os="posix">
-    <command>scons</command>
- </scons_output>
+   <scons_example name="ex1">
+      <file name="SConstruct" printme="1">
+      Program('hello.c')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+   </scons_example>
 
- <para>
+   <para>
 
- On a Windows system with the Microsoft Visual C++ compiler,
- you'll see something like:
+   This minimal configuration file gives
+   &SCons; two pieces of information:
+   what you want to build
+   (an executable program),
+   and the input file from
+   which you want it built
+   (the <filename>hello.c</filename> file).
+   &Program; is a &builder_method;,
+   a Python call that tells &SCons; that you want to build an
+   executable program.
 
- </para>
+   </para>
 
- <scons_output example="ex1" os="win32">
-    <command>scons</command>
- </scons_output>
+   <para>
 
- <para>
+   That's it.  Now run the &scons; command to build the program.
+   On a POSIX-compliant system like Linux or UNIX,
+   you'll see something like:
 
- First, notice that you only need
- to specify the name of the source file,
- and that &SCons; deduces the names of
- the object and executable files
- correctly from the base of the source file name.
+   </para>
 
- </para>
+   <scons_output example="ex1" os="posix">
+      <command>scons</command>
+   </scons_output>
 
- <para>
+   <para>
 
- Second, notice that the same input &SConstruct; file,
- without any changes,
- generates the correct output file names on both systems:
- <filename>hello.o</filename> and <filename>hello</filename>
- on POSIX systems,
- <filename>hello.obj</filename> and <filename>hello.exe</filename>
- on Windows systems.
- This is a simple example of how &SCons;
- makes it extremely easy to
- write portable software builds.
+   On a Windows system with the Microsoft Visual C++ compiler,
+   you'll see something like:
 
- </para>
+   </para>
 
- <para>
+   <scons_output example="ex1" os="win32">
+      <command>scons</command>
+   </scons_output>
 
- (Note that we won't provide duplicate side-by-side
- POSIX and Windows output for all of the examples in this guide;
- just keep in mind that, unless otherwise specified,
- any of the examples should work equally well on both types of systems.)
+   <para>
 
- </para>
+   First, notice that you only need
+   to specify the name of the source file,
+   and that &SCons; correctly deduces the names of
+   the object and executable files to be built
+   from the base of the source file name.
+
+   </para>
+
+   <para>
+
+   Second, notice that the same input &SConstruct; file,
+   without any changes,
+   generates the correct output file names on both systems:
+   <filename>hello.o</filename> and <filename>hello</filename>
+   on POSIX systems,
+   <filename>hello.obj</filename> and <filename>hello.exe</filename>
+   on Windows systems.
+   This is a simple example of how &SCons;
+   makes it extremely easy to
+   write portable software builds.
+
+   </para>
+
+   <para>
+
+   (Note that we won't provide duplicate side-by-side
+   POSIX and Windows output for all of the examples in this guide;
+   just keep in mind that, unless otherwise specified,
+   any of the examples should work equally well on both types of systems.)
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Building Object Files</title>
+
+   <para>
+
+   The &Program; builder method is only one of
+   many builder methods that &SCons; provides
+   to build different types of files.
+   Another is the &Object; builder method,
+   which tells &SCons; to build an object file
+   from the specified source file:
+
+   </para>
+
+   <scons_example name="Object">
+      <file name="SConstruct" printme="1">
+      Object('hello.c')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+   </scons_example>
+
+   <para>
+
+   Now when you run the &scons; command to build the program,
+   it will build just the &hello_o; object file on a POSIX system:
+
+   </para>
+
+   <scons_output example="Object" os="posix">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   And just the &hello_obj; object file
+   on a Windows system (with the Microsoft Visual C++ compiler):
+
+   </para>
+
+   <scons_output example="Object" os="win32">
+      <command>scons</command>
+   </scons_output>
+
+ </section>
+
+ <section>
+ <title>Simple Java Builds</title>
+
+   <para>
+
+   &SCons; also makes building with Java extremely easy.
+   Unlike the &Program; and &Object; builder methods,
+   however, the &Java; builder method
+   requires that you specify
+   the name of a destination directory in which
+   you want the class files placed,
+   followed by the source directory
+   in which the <filename>.java</filename> files live:
+
+   </para>
+
+   <scons_example name="java">
+     <file name="SConstruct" printme="1">
+     Java('classes', 'src')
+     </file>
+     <file name="src/hello.java">
+     public class Example1
+     {
+       public static void main(String[] args)
+       {
+         System.out.println("Hello Java world!\n");
+       }
+     }
+     </file>
+   </scons_example>
+
+   <para>
+
+   If the <filename>src</filename> directory
+   contains a single <filename>hello.java</filename> file,
+   then the output from running the &scons; command
+   would look something like this
+   (on a POSIX system):
+
+   </para>
+
+   <scons_output example="java" os="posix">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   We'll cover Java builds in more detail,
+   including building Java archive (<filename>.jar</filename>)
+   and other types of file,
+   in <xref linkend="chap-java">.
+
+   </para>
+
+ </section>
 
  <section>
  <title>Cleaning Up After a Build</title>
@@ -175,48 +310,161 @@
 
    </para>
 
-   <para>
+   <section>
+   <title>&SConstruct; Files Are Python Scripts</title>
 
-   There is, however, an important difference between
-   an &SConstruct; file and a &Makefile;:
-   the &SConstruct; file is actually a Python script.
-   If you're not already familiar with Python, don't worry.
-   This User's Guide will introduce you step-by-step
-   to the relatively small amount of Python you'll
-   need to know to be able to use &SCons; effectively.
-   And Python is very easy to learn.
+     <para>
 
-   </para>
+     There is, however, an important difference between
+     an &SConstruct; file and a &Makefile;:
+     the &SConstruct; file is actually a Python script.
+     If you're not already familiar with Python, don't worry.
+     This User's Guide will introduce you step-by-step
+     to the relatively small amount of Python you'll
+     need to know to be able to use &SCons; effectively.
+     And Python is very easy to learn.
 
-   <para>
+     </para>
 
-   One aspect of using Python as the
-   scripting language is that you can put comments
-   in your &SConstruct; file using Python's commenting convention;
-   that is, everything between a '#' and the end of the line
-   will be ignored:
+     <para>
 
-   </para>
+     One aspect of using Python as the
+     scripting language is that you can put comments
+     in your &SConstruct; file using Python's commenting convention;
+     that is, everything between a '#' and the end of the line
+     will be ignored:
 
-   <programlisting>
-      # Arrange to build the "hello" program.
-      Program('hello.c')    # "hello.c" is the source file.
-   </programlisting>
+     </para>
 
-   <para>
+     <programlisting>
+        # Arrange to build the "hello" program.
+        Program('hello.c')    # "hello.c" is the source file.
+     </programlisting>
 
-   You'll see throughout the remainder of this Guide
-   that being able to use the power of a
-   real scripting language
-   can greatly simplify the solutions
-   to complex requirements of real-world builds.
+     <para>
 
-   </para>
+     You'll see throughout the remainder of this Guide
+     that being able to use the power of a
+     real scripting language
+     can greatly simplify the solutions
+     to complex requirements of real-world builds.
+
+     </para>
+
+   </section>
+
+   <section>
+   <title>&SCons; Functions Are Order-Independent</title>
+
+     <para>
+
+     One important way in which the &SConstruct;
+     file is not exactly like a normal Python script,
+     and is more like a &Makefile,
+     is that the order in which
+     the &SCons; functions are called in
+     the &SConstruct; file
+     does <emphasis>not</emphasis>
+     affect the order in which &SCons;
+     actually builds the programs and object files
+     you want it to build.<footnote>
+     <para>In programming parlance,
+     the &SConstruct; file is
+     <emphasis>declarative</emphasis>,
+     meaning you tell &SCons; what you want done
+     and let it figure out the order in which to do it,
+     rather than strictly <emphasis>imperative</emphasis>,
+     where you specify explicitly the order in
+     which to do things.
+     </para>
+     </footnote>
+     In other words, when you call the &Program; builder
+     (or any other builder method),
+     you're not telling &SCons; to build
+     the program at the instant the builder method is called.
+     Instead, you're telling &SCons; to build the program
+     that you want, for example,
+     a program built from a file named &hello_c;,
+     and it's up to &SCons; to build that program
+     (and any other files) whenever it's necessary.
+     (We'll learn more about how
+     &SCons; decides when building or rebuilding a file
+     is necessary in <xref linkend="chap-depends">, below.)
+ 
+     </para>
+ 
+     <para>
+
+     &SCons; reflects this distinction between
+     <emphasis>calling a builder method like</emphasis> &Program;>
+     and <emphasis>actually building the program</emphasis>
+     by printing the status messages that indicate
+     when it's "just reading" the &SConstruct; file,
+     and when it's actually building the target files.
+     This is to make it clear when &SCons; is
+     executing the Python statements that make up the &SConstruct; file,
+     and when &SCons; is actually executing the
+     commands or other actions to
+     build the necessary files.
+
+     </para>
+
+     <para>
+
+     Let's clarify this with an example.
+     Python has a <literal>print</literal> statement that
+     prints a string of characters to the screen.
+     If we put <literal>print</literal> statements around
+     our calls to the &Program; builder method:
+
+     </para>
+
+     <scons_example name="declarative">
+       <file name="SConstruct" printme="1">
+       print "Calling Program('hello.c')"
+       Program('hello.c')
+       print "Calling Program('goodbye.c')"
+       Program('goodbye.c')
+       print "Finished calling Program()"
+       </file>
+       <file name="hello.c">
+       int main() { printf("Hello, world!\n"); }
+       </file>
+       <file name="goodbye.c">
+       int main() { printf("Goodbye, world!\n"); }
+       </file>
+     </scons_example>
+
+     <para>
+
+     Then when we execute &SCons;,
+     we see the output from the <literal>print</literal>
+     statements in between the messages about
+     reading the &SConscript; files,
+     indicating that that is when the
+     Python statements are being executed:
+
+     </para>
+
+     <scons_output example="declarative" os="posix">
+       <command>scons</command>
+     </scons_output>
+
+     <para>
+
+     Notice also that &SCons; built the &goodbye; program first,
+     even though the "reading &SConscript" output
+     shows that we called <literal>Program('hello.c')</literal>
+     first in the &SConstruct; file.
+
+     </para>
+
+   </section>
 
  </section>
 
  <section>
- <title>Making the Output Less Verbose</title>
+ <title>Making the &SCons; Output Less Verbose</title>
 
    <para>
 
@@ -234,7 +482,7 @@
 
    These messages emphasize the
    order in which &SCons; does its work:
-   the configuration files
+   all of the configuration files
    (generically referred to as &SConscript; files)
    are read and executed first,
    and only then are the target files built.
@@ -246,7 +494,7 @@
 
    <para>
 
-   The drawback, of course, is that these messages clutter the output.
+   One drawback, of course, is that these messages clutter the output.
    Fortunately, they're easily disabled by using
    the &Q; option when invoking &SCons;:
 
@@ -263,386 +511,6 @@
    we're going use the &Q; option
    to remove these messages from the
    output of all the remaining examples in this Guide.
-
-   </para>
-
- </section>
-
- <section>
- <title>Compiling Multiple Source Files</title>
-
-   <para>
-
-   You've just seen how to configure &SCons;
-   to compile a program from a single source file.
-   It's more common, of course,
-   that you'll need to build a program from
-   many input source files, not just one.
-   To do this, you need to put the
-   source files in a Python list
-   (enclosed in square brackets),
-   like so:
-
-   </para>
-
-   <scons_example name="ex2">
-      <file name="SConstruct" printme="1">
-      Program(['prog.c', 'file1.c', 'file2.c'])
-      </file>
-      <file name="prog.c">
-      int main() { printf("prog.c\n"); }
-      </file>
-      <file name="file1.c">
-      void file1() { printf("file1.c\n"); }
-      </file>
-      <file name="file2.c">
-      void file2() { printf("file2.c\n"); }
-      </file>
-   </scons_example>
-
-   <para>
-
-   A build of the above example would look like:
-
-   </para>
-
-   <scons_output example="ex2">
-      <command>scons -Q</command>
-   </scons_output>
-
-   <para>
-
-   Notice that &SCons;
-   deduces the output program name
-   from the first source file specified
-   in the list--that is,
-   because the first source file was &prog_c;,
-   &SCons; will name the resulting program &prog;
-   (or &prog_exe; on a Windows system).
-   If you want to specify a different program name,
-   then you slide the list of source files
-   over to the right
-   to make room for the output program file name.
-   (&SCons; puts the output file name to the left
-   of the source file names
-   so that the order mimics that of an
-   assignment statement:  "program = source files".)
-   This makes our example:
-
-   </para>
-
-   <scons_example name="ex3">
-      <file name="SConstruct" printme="1">
-      Program('program', ['main.c', 'file1.c', 'file2.c'])
-      </file>
-      <file name="main.c">
-      int main() { printf("prog.c\n"); }
-      </file>
-      <file name="file1.c">
-      void file1() { printf("file1.c\n"); }
-      </file>
-      <file name="file2.c">
-      void file2() { printf("file2.c\n"); }
-      </file>
-   </scons_example>
-
-   <para>
-
-   On Linux, a build of this example would look like:
-
-   </para>
-
-   <scons_output example="ex3" os="posix">
-      <command>scons -Q</command>
-   </scons_output>
-
-   <para>
-
-   Or on Windows:
-
-   </para>
-
-   <scons_output example="ex3" os="win32">
-      <command>scons -Q</command>
-   </scons_output>
-
- </section>
-
- <section>
- <title>Keeping &SConstruct; Files Easy to Read</title>
-
-   <para>
-
-   One drawback to the use of a Python list
-   for source files is that 
-   each file name must be enclosed in quotes
-   (either single quotes or double quotes).
-   This can get cumbersome and difficult to read
-   when the list of file names is long.
-   Fortunately, &SCons; and Python provide a number of ways
-   to make sure that
-   the &SConstruct; file stays easy to read.
-
-   </para>
-
-   <para>
-
-   To make long lists of file names
-   easier to deal with, &SCons; provides a
-   &Split; function
-   that takes a quoted list of file names,
-   with the names separated by spaces or other white-space characters,
-   and turns it into a list of separate file names.
-   Using the &Split; function turns the
-   previous example into:
-
-   </para>
-
-   <programlisting>
-      Program('program', Split('main.c file1.c file2.c'))
-   </programlisting>
-
-   <para>
-
-   (If you're already familiar with Python,
-   you'll have realized that this is similar to the
-   <function>split()</function> method
-   in the Python standard <function>string</function> module.
-   Unlike the <function>string.split()</function> method,
-   however, the &Split; function
-   does not require a string as input
-   and will wrap up a single non-string object in a list,
-   or return its argument untouched if it's already a list.
-   This comes in handy as a way to make sure
-   arbitrary values can be passed to &SCons; functions
-   without having to check the type of the variable by hand.)
-
-   </para>
-
-   <para>
-
-   Putting the call to the &Split; function
-   inside the <function>Program</function> call
-   can also be a little unwieldy.
-   A more readable alternative is to
-   assign the output from the &Split; call
-   to a variable name,
-   and then use the variable when calling the
-   <function>Program</function> function:
-
-   </para>
-
-   <programlisting>
-      list = Split('main.c file1.c file2.c')
-      Program('program', list)
-   </programlisting>
-
-   <para>
-
-   Lastly, the &Split; function
-   doesn't care how much white space separates
-   the file names in the quoted string.
-   This allows you to create lists of file
-   names that span multiple lines,
-   which often makes for easier editing:
-
-   </para>
-
-   <programlisting>
-      list = Split('main.c
-                    file1.c
-                    file2.c')
-      Program('program', list)
-   </programlisting>
-
- </section>
-
- <section>
- <title>Keyword Arguments</title>
-
-   <para>
-
-   &SCons; also allows you to identify
-   the output file and input source files
-   using Python keyword arguments.
-   The output file is known as the
-   <emphasis>target</emphasis>,
-   and the source file(s) are known (logically enough) as the
-   <emphasis>source</emphasis>.
-   The Python syntax for this is:
-
-   </para>
-
-   <programlisting>
-      list = Split('main.c file1.c file2.c')
-      Program(target = 'program', source = list)
-   </programlisting>
-
-   <para>
-
-   Because the keywords explicitly identify
-   what each argument is,
-   you can actually reverse the order if you prefer:
-
-   </para>
-
-   <programlisting>
-      list = Split('main.c file1.c file2.c')
-      Program(source = list, target = 'program')
-   </programlisting>
-
-   <para>
-
-   Whether or not you choose to use keyword arguments
-   to identify the target and source files,
-   and the order in which you specify them
-   when using keywords,
-   are purely personal choices;
-   &SCons; functions the same regardless.
-
-   </para>
-
- </section>
-
- <section>
- <title>Compiling Multiple Programs</title>
-
-   <para>
-
-   In order to compile multiple programs
-   within the same &SConstruct; file,
-   simply call the <function>Program</function> method
-   multiple times,
-   once for each program you need to build:
-
-   </para>
-
-   <scons_example name="ex4">
-      <file name="SConstruct" printme="1">
-      Program('foo.c')
-      Program('bar', ['bar1.c', 'bar2.c'])
-      </file>
-      <file name="foo.c">
-      int main() { printf("foo.c\n"); }
-      </file>
-      <file name="bar1.c">
-      int main() { printf("bar1.c\n"); }
-      </file>
-      <file name="bar2.c">
-      void bar2() { printf("bar2.c\n"); }
-      </file>
-   </scons_example>
-
-   <para>
-
-   &SCons; would then build the programs as follows:
-
-   </para>
-
-   <scons_output example="ex4">
-      <command>scons -Q</command>
-   </scons_output>
-
-   <para>
-
-   Notice that &SCons; does not necessarily build the
-   programs in the same order in which you specify
-   them in the &SConstruct; file.
-   &SCons; does, however, recognize that
-   the individual object files must be built
-   before the resulting program can be built.
-   We'll discuss this in greater detail in
-   the "Dependencies" section, below.
-
-   </para>
-
- </section>
-
- <section>
- <title>Sharing Source Files Between Multiple Programs</title>
-
-   <para>
-
-   It's common to re-use code by sharing source files
-   between multiple programs.
-   One way to do this is to create a library
-   from the common source files,
-   which can then be linked into resulting programs.
-   (Creating libraries is discussed in
-   section XXX, below.)
-
-   </para>
-
-   <para>
-
-   A more straightforward, but perhaps less convenient,
-   way to share source files between multiple programs
-   is simply to include the common files
-   in the lists of source files for each program:
-
-   </para>
-
-   <scons_example name="ex5">
-      <file name="SConstruct" printme="1">
-      Program(Split('foo.c common1.c common2.c'))
-      Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
-      </file>
-      <file name="foo.c">
-      int main() { printf("foo.c\n"); }
-      </file>
-      <file name="bar1.c">
-      int main() { printf("bar1.c\n"); }
-      </file>
-      <file name="bar2.c">
-      int bar2() { printf("bar2.c\n"); }
-      </file>
-      <file name="common1.c">
-      void common1() { printf("common1.c\n"); }
-      </file>
-      <file name="common2.c">
-      void common22() { printf("common2.c\n"); }
-      </file>
-   </scons_example>
-
-   <para>
-
-   &SCons; recognizes that the object files for
-   the &common1_c; and &common2_c; source files
-   each only need to be built once,
-   even though the resulting object files are
-   each linked in to both of the resulting executable programs:
-
-   </para>
-
-   <scons_output example="ex5">
-      <command>scons -Q</command>
-   </scons_output>
-
-   <para>
-
-   If two or more programs
-   share a lot of common source files,
-   repeating the common files in the list for each program
-   can be a maintenance problem when you need to change the
-   list of common files.
-   You can simplify this by creating a separate Python list
-   to hold the common file names,
-   and concatenating it with other lists
-   using the Python &plus; operator:
-
-   </para>
-
-   <programlisting>
-      common = ['common1.c', 'common2.c']
-      foo_files = ['foo.c'] + common
-      bar_files = ['bar1.c', 'bar2.c'] + common
-      Program('foo', foo_files)
-      Program('bar', bar_files)
-   </programlisting>
-
-   <para>
-
-   This is functionally equivalent to the previous example.
 
    </para>
 

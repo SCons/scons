@@ -1,0 +1,386 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  &SCons; has integrated support for multi-platform build configuration
+  similar to that offered by GNU &Autoconf;,
+  such as
+  figuring out what libraries or header files
+  are available on the local system.
+  This section describes how to use
+  this &SCons; feature.
+
+  </para>
+
+  <note>
+  <para>
+  This chapter is still under development,
+  so not everything is explained as well as it should be.
+  See the &SCons; man page for additional information.
+  </para>
+  </note>
+
+  <section>
+  <title>&Configure_Contexts;</title>
+
+    <para>
+
+    The basic framework for multi-platform build configuration
+    in &SCons; is to attach a &configure_context; to a
+    construction environment by calling the &Configure; function,
+    perform a number of checks for
+    libraries, functions, header files, etc.,
+    and to then call the configure context's &Finish; method
+    to finish off the configuration:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env)
+    # Checks for libraries, header files, etc. go here!
+    env = conf.Finish()
+    </programlisting>
+
+    <para>
+
+    The next sections describe
+    the basic checks that &SCons; supports,
+    as well as how to add your own custom checks.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Checking for the Existence of Header Files</title>
+
+    <para>
+
+    Testing the existence of a header file
+    requires knowing what language the header file is.
+    A configure context has a &CheckCHeader; method
+    that checks for the existence of a C header file:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env)
+    if not conf.CheckCHeader('math.h'):
+        print 'Math.h must be installed!'
+        Exit(1)
+    if conf.CheckCHeader('foo.h'):
+        conf.env.Append('-DHAS_FOO_H')
+    env = conf.Finish()
+    </programlisting>
+
+    <para>
+
+    Note that you can choose to terminate
+    the build if a given header file doesn't exist,
+    or you can modify the contstruction environment
+    based on the existence of a header file.
+
+    </para>
+
+    <para>
+
+    If you need to check for the existence
+    a C++ header file,
+    use the &CheckCXXHeader; method:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env)
+    if not conf.CheckCXXHeader('vector.h'):
+        print 'vector.h must be installed!'
+        Exit(1)
+    env = conf.Finish()
+    </programlisting>
+
+  </section>
+
+  <section>
+  <title>Checking for the Availability of a Function</title>
+
+    <para>
+
+    Check for the availability of a specific function
+    using the &CheckFunc; method:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env)
+    if not conf.CheckFunc('strcpy'):
+        print 'Did not find strcpy(), using local version'
+        conf.env.Append('-Dstrcpy=my_local_strcpy')
+    env = conf.Finish()
+    </programlisting>
+
+  </section>
+
+  <section>
+  <title>Checking for the Availability of a Library</title>
+
+    <para>
+
+    Check for the availability of a library
+    using the &CheckLibrary; method.
+    You only specify the basename of the library,
+    you don't need to add a <literal>lib</literal>
+    prefix or a <literal>.a</literal> or <literal>.lib</literal> suffix:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env)
+    if not conf.CheckLib('m'):
+        print 'Did not find libm.a or m.lib, exiting!'
+        Exit(1)
+    env = conf.Finish()
+    </programlisting>
+
+    <para>
+
+    If the library requires the inclusion of
+    a header file to compile successfully,
+    add that as a second argument:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env)
+    if not conf.CheckLibWithHeader('m', 'math.h'):
+        print 'Did not find libm.a or m.lib, exiting!'
+        Exit(1)
+    env = conf.Finish()
+    </programlisting>
+
+  </section>
+
+  <section>
+  <title>Checking for the Availability of a &typedef;</title>
+
+    <para>
+
+    Check for the availability of a &typedef;
+    by using the &CheckType; method:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env)
+    if not conf.CheckType('off_t'):
+        print 'Did not find off_t typedef, assuming int'
+        conf.env.Append(CCFLAGS = '-Doff_t=int')
+    env = conf.Finish()
+    </programlisting>
+
+    <para>
+
+    You can also add a string that will be
+    placed at the beginning of the test file
+    that will be used to check for the &typedef;.
+    This provide a way to specify
+    files that must be included to find the &typedef;:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env)
+    if not conf.CheckType('off_t', '#include &lt;sys/types.h&gt;\n'):
+        print 'Did not find off_t typedef, assuming int'
+        conf.env.Append(CCFLAGS = '-Doff_t=int')
+    env = conf.Finish()
+    </programlisting>
+
+  </section>
+
+  <section>
+  <title>Adding Your Own Custom Checks</title>
+
+    <para>
+
+    A custom check is a Python function
+    that checks for a certain condition to exist
+    on the running system,
+    usually using methods that &SCons;
+    supplies to take care of the details
+    of checking whether a compilation succeeds,
+    a link succeeds,
+    a program is runnable,
+    etc.
+    A simple custom check for the existence of
+    a specific library might look as follows:
+
+    </para>
+
+    <programlisting>
+    mylib_test_source_file = """
+    #include &lt;mylib.h&gt;
+    int main(int argc, char **argv)
+    {
+        MyLibrary mylib(argc, argv);
+        return 0;
+    }
+    """
+
+    def CheckMyLibrary(context):
+        context.Message('Checking for MyLibrary...')
+        result = context.TryLink(mylib_test_source_file, '.c')
+        context.Result(result)
+        return result
+    </programlisting>
+
+    <para>
+
+    The &Message; and &Result; methods
+    should typically begin and end a custom check to
+    let the user know what's going on:
+    the &Message; call prints the
+    specified message (with no trailing newline)
+    and the &Result; call prints
+    <literal>ok</literal> if the check succeeds and
+    <literal>failed</literal> if it doesn't.
+    The &TryLink; method
+    actually tests for whether the
+    specified program text
+    will successfully link.
+
+    </para>
+
+    <para>
+
+    (Note that a custom check can modify
+    its check based on any arguments you
+    choose to pass it,
+    or by using or modifying the configure context environment
+    in the <literal>context.env</literal> attribute.)
+
+    </para>
+
+    <para>
+
+    This custom check function is
+    then attached to the &configure_context;
+    by passing a dictionary
+    to the &Configure; call
+    that maps a name of the check
+    to the underlying function:
+
+    </para>
+
+    <programlisting>
+    env = Environment()
+    conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+    </programlisting>
+
+    <para>
+
+    You'll typically want to make
+    the check and the function name the same,
+    as we've done here,
+    to avoid potential confusion.
+
+    </para>
+
+    <para>
+
+    We can then put these pieces together
+    and actually call the <literal>CheckMyLibrary</literal> check
+    as follows:
+
+    </para>
+
+    <programlisting>
+    mylib_test_source_file = """
+    #include &lt;mylib.h&gt;
+    int main(int argc, char **argv)
+    {
+        MyLibrary mylib(argc, argv);
+        return 0;
+    }
+    """
+
+    def CheckMyLibrary(context):
+        context.Message('Checking for MyLibrary... ')
+        result = context.TryLink(mylib_test_source_file, '.c')
+        context.Result(result)
+        return result
+
+    env = Environment()
+    conf = Configure(env, custom_tests = {'CheckMyLibrary' : CheckMyLibrary})
+    if not conf.CheckMyLibrary():
+        print 'MyLibrary is not installed!'
+        Exit(1)
+    env = conf.Finish()
+
+    # We would then add actual calls like Program() to build
+    # something using the "env" construction environment.
+    </programlisting>
+
+    <para>
+
+    If MyLibrary is not installed on the system,
+    the output will look like:
+
+    </para>
+
+    <screen>
+    % <userinput>scons</userinput>
+    scons: Reading SConscript file ...
+    Checking for MyLibrary... failed
+    MyLibrary is not installed!
+    </screen>
+
+    <para>
+
+    If MyLibrary is installed,
+    the output will look like:
+
+    </para>
+
+    <screen>
+    % <userinput>scons</userinput>
+    scons: Reading SConscript file ...
+    Checking for MyLibrary... failed
+    scons: done reading SConscript
+    scons: Building targets ...
+        .
+        .
+        .
+    </screen>
+
+  </section>

@@ -74,16 +74,28 @@ remove_list = [
         'Optik',
         'dblite.py',
         'Conftest.py',
+        'MANIFEST',
         'os_spawnv_fix.diff',
         'setup.cfg',
 ]
 
+src_remove_list = [
+        'bin',
+                'cons.pl',
+                'design',
+                'python10',
+                'reference',
+        'etc',
+        'gentoo',
+        'config',
+        'MANIFEST.in',
+]
+
 # XXX Remove '*-stamp' when we get rid of those.
-scons = Collect(remove_list + ['MANIFEST', 'build-stamp', 'configure-stamp'])
+scons = Collect(remove_list + ['build-stamp', 'configure-stamp'])
 # XXX Remove '.sconsign' when we start using SConsignFile() for SCons builds.
 local = Collect(remove_list + ['.sconsign'])
-# XXX Remove 'doc' when we take care of those Copyright statements.
-src = Collect(remove_list + ['bin', 'doc', 'etc', 'gentoo', 'config', 'MANIFEST.in'])
+src = Collect(remove_list + src_remove_list)
 
 build_scons = os.path.join(cwd, 'build', 'scons')
 build_local = os.path.join(cwd, 'build', 'scons-local')

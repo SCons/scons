@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -56,13 +56,13 @@
 
   </para>
 
-  <literallayout>
+  <screen>
      % <userinput>scons -Q</userinput>
      cc -c -o hello.o hello.c
      cc -o hello hello.o
      % <userinput>scons -Q /usr/bin</userinput>
      Install file: "hello" as "/usr/bin/hello"
-  </literallayout>
+  </screen>
 
   <para>
 
@@ -93,13 +93,13 @@
 
   </para>
 
-  <literallayout>
+  <screen>
      % <userinput>scons -Q</userinput>
      cc -c -o hello.o hello.c
      cc -o hello hello.o
      % <userinput>scons -Q install</userinput>
      Install file: "hello" as "/usr/bin/hello"
-  </literallayout>
+  </screen>
 
   <section>
   <title>Installing Multiple Files in a Directory</title>
@@ -142,7 +142,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q install</userinput>
        cc -c -o goodbye.o goodbye.c
        cc -o goodbye goodbye.o
@@ -150,7 +150,7 @@
        cc -c -o hello.o hello.c
        cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello"
-    </literallayout>
+    </screen>
 
   </section>
 
@@ -182,12 +182,12 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q install</userinput>
        cc -c -o hello.o hello.c
        cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello-new"
-    </literallayout>
+    </screen>
 
   </section>
 
@@ -224,7 +224,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q install</userinput>
        cc -c -o goodbye.o goodbye.c
        cc -o goodbye goodbye.o
@@ -232,6 +232,6 @@
        cc -c -o hello.o hello.c
        cc -o hello hello.o
        Install file: "hello" as "/usr/bin/hello-new"
-    </literallayout>
+    </screen>
 
   </section>

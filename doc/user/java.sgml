@@ -1,0 +1,354 @@
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  So far, we've been using examples of
+  building C and C++ programs
+  to demonstrate the features of &SCons;.
+  &SCons; also supports building Java programs,
+  but Java builds are handled slightly differently,
+  which reflects the ways in which
+  the Java compiler and tools
+  build programs differently than
+  other languages' tool chains.
+
+  </para>
+
+  <section>
+  <title>Building Java Class Files:  the &Java; Builder</title>
+
+    <para>
+
+    The basic activity when programming in Java,
+    of course, is to take one or more <filename>.java</filename> files
+    containing Java source code
+    and to call the Java compiler
+    to turn them into one or more
+    <filename>.class</filename> files.
+    In &SCons;, you do this
+    by giving the &Java; Builder
+    a target directory in which
+    to put the <filename>.class</filename> files,
+    and a source directory that contains
+    the <filename>.java</filename> files:
+
+    </para>
+
+    <programlisting>
+      Java('classes', 'src')
+    </programlisting>
+
+    <para>
+
+    If the <filename>src</filename> directory contains
+    three <filename>.java</filename> source files,
+    then running &SCons; might look like this:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
+    </screen>
+
+    <para>
+
+    &SCons; will actually search the <filename>src</filename>
+    directory tree for all of the <filename>.java</filename> files.
+    The Java compiler will then create the
+    necessary class files in the <filename>classes</filename> subdirectory,
+    based on the class names found in the <filename>.java</filename> files.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>How &SCons; Handles Java Dependencies</title>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
+      % <userinput>scons -Q classes</userinput>
+      scons: `classes' is up to date.
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Building Java Archive (<filename>.jar</filename>) Files:  the &Jar; Builder</title>
+
+    <para>
+
+    After building the class files,
+    it's common to collect them into
+    a Java archive (<filename>.jar</filename>) file,
+    which you do by calling the &Jar; Builder method.
+    If you want to just collect all of the
+    class files within a subdirectory,
+    you can just specify that subdirectory
+    as the &Jar; source:
+
+    </para>
+
+    <programlisting>
+      Java(target = 'classes', source = 'src')
+      Jar(target = 'test.jar', source = 'classes')
+    </programlisting>
+
+    <para>
+
+    &SCons; will then pass that directory
+    to the &jar; command,
+    which will collect all of the underlying
+    <filename>.class</filename> files:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
+      jar cf test.jar classes
+    </screen>
+
+    <para>
+
+    If you want to keep all of the
+    <filename>.class</filename> files
+    for multiple programs in one location,
+    and only archive some of them in
+    each <filename>.jar</filename> file,
+    you can pass the &Jar; builder a
+    list of files as its source.
+    It's extremely simple to create multiple
+    <filename>.jar</filename> files this way,
+    using the lists of target class files created
+    by calls to the &Java; builder
+    as sources to the various &Jar; calls:
+
+    </para>
+
+    <programlisting>
+      prog1_class_files = Java(target = 'classes', source = 'prog1')
+      prog2_class_files = Java(target = 'classes', source = 'prog2')
+      Jar(target = 'prog1.jar', source = prog1_class_files)
+      Jar(target = 'prog2.jar', source = prog2_class_files)
+    </programlisting>
+
+    <para>
+
+    This will then create
+    <filename>prog1.jar</filename>
+    and <filename>prog2.jar</filename>
+    next to the subdirectories
+    that contain their <filename>.java</filename> files:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath prog1 prog1/Example1.java prog1/Example2.java
+      javac -d classes -sourcepath prog2 prog2/Example3.java prog2/Example4.java
+      jar cf prog1.jar classes/Example1.class classes/Example2.class
+      jar cf prog2.jar classes/Example3.class classes/Example4.class
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Building C Header and Stub Files:  the &JavaH; Builder</title>
+
+    <para>
+
+    You can generate C header and source files
+    for implementing native methods,
+    by using the &JavaH; Builder.
+    There are several ways of using the &JavaH; Builder.
+    One typical invocation might look like:
+
+    </para>
+
+    <programlisting>
+      classes = Java(target = 'classes', source = 'src/pkg/sub')
+      JavaH(target = 'native', source = classes)
+    </programlisting>
+
+    <para>
+
+    The source is a list of class files generated by the
+    call to the &Java; Builder,
+    and the target is the output directory in
+    which we want the C header files placed.
+    The target
+    gets converted into the <option>-d</option>
+    when &SCons; runs &javah;:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath src/pkg/sub src/pkg/sub/Example1.java src/pkg/sub/Example2.java src/pkg/sub/Example3.java
+      javah -d native -classpath classes pkg.sub.Example1 pkg.sub.Example2 pkg.sub.Example3
+    </screen>
+
+    <para>
+
+    In this case,
+    the call to &javah;
+    will generate the header files
+    <filename>native/pkg_sub_Example1.h</filename>,
+    <filename>native/pkg_sub_Example2.h</filename>
+    and
+    <filename>native/pkg_sub_Example3.h</filename>.
+    Notice that &SCons; remembered that the class
+    files were generated with a target directory of
+    <filename>classes</filename>,
+    and that it then specified that target directory
+    as the <option>-classpath</option> option
+    to the call to &javah;.
+
+    </para>
+
+    <para>
+
+    Although it's more convenient to use
+    the list of class files returned by
+    the &Java; Builder
+    as the source of a call to the &JavaH; Builder,
+    you <emphasis>can</emphasis>
+    specify the list of class files
+    by hand, if you prefer.
+    If you do,
+    you need to set the
+    &JAVACLASSDIR; construction variable
+    when calling &JavaH;:
+
+    </para>
+
+    <programlisting>
+      Java(target = 'classes', source = 'src/pkg/sub')
+      class_file_list = ['classes/pkg/sub/Example1.class',
+                         'classes/pkg/sub/Example2.class',
+                         'classes/pkg/sub/Example3.class']
+      JavaH(target = 'native', source = class_file_list, JAVACLASSDIR = 'classes')
+    </programlisting>
+
+    <para>
+
+    The &JAVACLASSDIR; value then
+    gets converted into the <option>-classpath</option>
+    when &SCons; runs &javah;:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath src/pkg/sub src/pkg/sub/Example1.java src/pkg/sub/Example2.java src/pkg/sub/Example3.java
+      javah -d native -classpath classes pkg.sub.Example1 pkg.sub.Example2 pkg.sub.Example3
+    </screen>
+
+    <para>
+
+    Lastly, if you don't want a separate header file
+    generated for each source file,
+    you can specify an explicit File Node
+    as the target of the &JavaH; Builder:
+
+    </para>
+
+    <programlisting>
+      classes = Java(target = 'classes', source = 'src/pkg/sub')
+      JavaH(target = File('native.h'), source = classes)
+    </programlisting>
+
+    <para>
+
+    Because &SCons; assumes by default
+    that the target of the &JavaH; builder is a directory,
+    you need to use the &File; function
+    to make sure that &SCons; doesn't
+    create a directory named <filename>native.h</filename>.
+    When a file is used, though,
+    &SCons; correctly converts the file name
+    into the &javah; <option>-o</option> option:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath src/pkg/sub src/pkg/sub/Example1.java src/pkg/sub/Example2.java src/pkg/sub/Example3.java
+      javah -o native.h -classpath classes pkg.sub.Example1 pkg.sub.Example2 pkg.sub.Example3
+    </screen>
+
+  </section>
+
+  <section>
+  <title>Building RMI Stub and Skeleton Class Files:  the &RMIC; Builder</title>
+
+    <para>
+
+    You can generate Remote Method Invocation stubs
+    by using the &RMIC; Builder.
+    The source is a list of directories,
+    typically returned by a call to the &Java; Builder,
+    and the target is an output directory
+    where the <filename>_Stub.class</filename>
+    and <filename>_Skel.class</filename> files will
+    be placed:
+
+    </para>
+
+    <programlisting>
+      classes = Java(target = 'classes', source = 'src/pkg/sub')
+      RMIC(target = 'outdir', source = classes)
+    </programlisting>
+
+    <para>
+
+    As it did with the &JavaH; Builder,
+    &SCons; remembers the class directory
+    and passes it as the <option>-classpath</option> option
+    to &rmic;:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath src/pkg/sub src/pkg/sub/Example1.java src/pkg/sub/Example2.java
+      rmic -d outdir -classpath classes pkg.sub.Example1 pkg.sub.Example2
+    </screen>
+
+    <para>
+
+    This example would generate the files
+    <filename>outdir/pkg/sub/Example1_Skel.class</filename>,
+    <filename>outdir/pkg/sub/Example1_Stub.class</filename>,
+    <filename>outdir/pkg/sub/Example2_Skel.class</filename> and
+    <filename>outdir/pkg/sub/Example2_Stub.class</filename>.
+
+    </para>
+
+  </section>

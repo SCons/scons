@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -23,19 +23,165 @@
 
 -->
 
- <para>
+  <para>
 
-   XXX
+  The experience of configuring any
+  software build tool to build a large code base
+  usually, at some point,
+  involves trying to figure out why
+  the tool is behaving a certain way,
+  and how to get it to behave the way you want.
+  &SCons; is no different.
 
- </para>
+  </para>
 
- <section>
- <title>XXX</title>
+  <section>
+  <title>Why is That Target Being Rebuilt?  the &debug-explain; Option</title>
 
-   <para>
+    <para>
 
-   XXX
+    Let's take a simple example of
+    a misconfigured build
+    that causes a target to be rebuilt
+    every time &SCons; is run:
 
-   </para>
+    </para>
 
- </section>
+    <programlisting>
+      # Intentionally misspell the output file name in the
+      # command used to create the file:
+      Command('file.out', 'file.in', 'cp $SOURCE file.oout')
+    </programlisting>
+
+    <para>
+
+    (Note to Windows users:  The POSIX &cp; command
+    copies the first file named on the command line
+    to the second file.
+    In our example, it copies the &file_in; file
+    to the &file_out; file.)
+
+    </para>
+
+    <para>
+
+    Now if we run &SCons; multiple on this example,
+    we see that it re-runs the &cp;
+    command every time:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cp file.in file.oout
+      % <userinput>scons -Q</userinput>
+      cp file.in file.oout
+      % <userinput>scons -Q</userinput>
+      cp file.in file.oout
+    </screen>
+
+    <para>
+
+    In this example,
+    the underlying cause is obvious:
+    we've intentionally misspelled the output file name
+    in the &cp; command,
+    so the command doesn't actually
+    build the &file_out; file that we've told &SCons; to expect.
+    But if the problem weren't obvious,
+    it would be helpful
+    to specify the &debug-explain; option
+    on the command line
+    to have &SCons; tell us very specifically
+    why it's decided to rebuild the target:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q --debug=explain</userinput>
+      scons: building `file.out' because it doesn't exist
+      cp file.in file.oout
+    </screen>
+
+    <para>
+
+    If this had been a more complicated example
+    involving a lot of build output,
+    having &SCons; tell us that
+    it's trying to rebuild the target file
+    because it doesn't exist
+    would be an important clue
+    that something was wrong with
+    the command that we invoked to build it.
+
+    </para>
+
+    <para>
+
+    The &debug-explain; option also comes in handy
+    to help figure out what input file changed.
+    Given a simple configuration that builds
+    a program from three source files,
+    changing one of the source files
+    and rebuilding with the &debug-explain;
+    option shows very specifically
+    why &SCons; rebuilds the files that it does:
+
+    </para>
+
+    
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -c -o file1.o file1.c
+      cc -c -o file2.o file2.c
+      cc -c -o file3.o file3.c
+      cc -o prog file1.o file2.o file3.o
+      % <userinput>edit file2.c</userinput>
+          [CHANGE THE CONTENTS OF file2.c]
+      % <userinput>scons -Q --debug=explain</userinput>
+      scons: rebuilding `file2.o' because `file2.c' changed
+      cc -c -o file2.o file2.c
+      scons: rebuilding `prog' because `file2.o' changed
+      cc -o prog file1.o file2.o file3.o
+    </screen>
+
+    <para>
+
+    This becomes even more helpful
+    in identifying when a file is rebuilt
+    due to a change in an implicit dependency,
+    such as an incuded <filename>.h</filename> file.
+    If the <filename>file1.c</filename>
+    and <filename>file3.c</filename> files
+    in our example
+    both included a &hello_h; file,
+    then changing that included file
+    and re-running &SCons; with the &debug-explain; option
+    will pinpoint that it's the change to the included file
+    that starts the chain of rebuilds:
+
+    </para>
+
+    
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      cc -I. -c -o file1.o file1.c
+      cc -I. -c -o file2.o file2.c
+      cc -I. -c -o file3.o file3.c
+      cc -o prog file1.o file2.o file3.o
+      % <userinput>edit hello.h</userinput>
+          [CHANGE THE CONTENTS OF hello.h]
+      % <userinput>scons -Q --debug=explain</userinput>
+      scons: rebuilding `file1.o' because `hello.h' changed
+      cc -I. -c -o file1.o file1.c
+      scons: rebuilding `file3.o' because `hello.h' changed
+      cc -I. -c -o file3.o file3.c
+      scons: rebuilding `prog' because:
+                 `file1.o' changed
+                 `file3.o' changed
+      cc -o prog file1.o file2.o file3.o
+    </screen>
+
+  </section>

@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -142,12 +142,12 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       cc -c -o goodbye.o goodbye.c
       cc -c -o hello.o hello.c
       cc -o hello hello.o goodbye.o -L/usr/dir1 -Ldir2 -lfoo1 -lfoo2
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -155,12 +155,12 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       C:\><userinput>scons -Q</userinput>
       cl /nologo /c goodbye.c /Fogoodbye.obj
       cl /nologo /c hello.c /Fohello.obj
       link /nologo /OUT:hello.exe /LIBPATH:\usr\dir1 /LIBPATH:dir2 foo1.lib foo2.lib hello.obj goodbye.obj
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -282,9 +282,9 @@
 
       </para>
 
-      <literallayout>
+      <programlisting>
         StaticObject('file.c')
-      </literallayout>
+      </programlisting>
 
       <para>
 
@@ -361,9 +361,9 @@
 
       </para>
 
-      <literallayout>
+      <programlisting>
         SharedObject('file.c')
-      </literallayout>
+      </programlisting>
 
       <para>
 
@@ -459,9 +459,9 @@
 
       </para>
 
-      <literallayout>
+      <programlisting>
         StaticLibrary(['file.c', 'another.c'])
-      </literallayout>
+      </programlisting>
 
       <para>
 
@@ -533,9 +533,9 @@
 
       </para>
 
-      <literallayout>
+      <programlisting>
         SharedLibrary(['file.c', 'another.c'])
-      </literallayout>
+      </programlisting>
 
       <para>
 
@@ -610,9 +610,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -629,9 +629,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -660,9 +660,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -690,9 +690,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -725,11 +725,11 @@
         env.Tar('out2', 'directory')
       </programlisting>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q .</userinput>
         tar -c -f out1.tar file1 file2
         tar -c -f out2.tar directory
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -751,10 +751,10 @@
         env.Tar('out.tar.gz', 'directory')
       </programlisting>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q .</userinput>
         tar -c -z -f out.tar.gz directory
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -772,10 +772,10 @@
         env.Tar('out', 'directory')
       </programlisting>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q .</userinput>
         tar -c -z -f out.tgz directory
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -807,10 +807,10 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q .</userinput>
-        zip("out.zip", ["file1", "file2"])
-      </literallayout>
+        zip(["out.zip"], ["file1", "file2"])
+      </screen>
 
       <para>
 
@@ -820,10 +820,10 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q .</userinput>
         zip /home/my/project/zip.out file1 file2
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -869,9 +869,9 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -890,9 +890,9 @@
         env.Jar(target = '', source = 'classes')
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -909,9 +909,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -928,9 +928,9 @@
         XXX
       </programlisting>
 
-      <literallayout>
+      <screen>
         XXX
-      </literallayout>
+      </screen>
 
     </section>
 
