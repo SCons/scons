@@ -64,6 +64,7 @@ SCons/Tool/javac.py
 SCons/Tool/JavaCommon.py
 SCons/Tool/javah.py
 SCons/Tool/icc.py
+SCons/Tool/icl.py
 SCons/Tool/ifl.py
 SCons/Tool/ilink.py
 SCons/Tool/latex.py

@@ -66,6 +66,7 @@ tools = [
     'hpcc',
     'hplink',
     'icc',
+    'icl',
     'ifl',
     'ilink',
     'jar',

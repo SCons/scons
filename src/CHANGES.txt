@@ -51,6 +51,10 @@ RELEASE 0.15 - XXX
 
   - Don't update the .sconsign files when run with -n.
 
+  From Gary Oberbrunner:
+
+  - Add support for the Intel C Compiler (icl.exe).
+
   From Anthony Roach
 
   - Fix Import('*').
