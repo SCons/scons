@@ -867,12 +867,20 @@ or generate a shared library with a nonstandard suffix:
 env.SharedLibrary('word', 'word.cpp', SHLIBSUFFIX='.ocx')
 .EE
 
-All builders return an object
-representing the target that will be created.
-This object may be used as a source for
-another build,
-or in any other context in
-which a file name would otherwise be specified.
+All Builders return a Node or a list of Nodes,
+representing the target or targets that will be built.
+A list of Nodes is returned if there is more than one target, and a
+single Node is returned if there is only one target.
+A
+.I Node
+is an internal SCons object
+which represents
+build targets or sources.
+
+The returned Node(s)
+can be passed to other builder methods as source(s)
+or passed into to any SCons function or method
+where a filename would normally be accepted.
 For example, if it were necessary
 to add a specific
 .B -D
@@ -883,7 +891,7 @@ bar_obj = env.StaticObject('bar.c', CCFLAGS='-DBAR')
 env.Program(source = ['foo.c', bar_obj, 'main.c'])
 .EE
 
-Using an object in this way
+Using a Node in this way
 makes for a more portable build
 by avoiding having to specify
 a platform-specific object suffix
@@ -2248,21 +2256,16 @@ and add to the list of default targets.
 Multiple targets should be specified as
 separate arguments to the
 .BR Default ()
-method.
-In this version of SCons (0.07),
-.BR Default ()
-will also accept a space-delimited string of target file names;
-this functionality will be removed in the next version of SCons (0.08).
-Target names with white space may be be enclosed in an
-array to prevent the string from being split into
-separate file names.
+method or as a list.
 .BR Default ()
 will also accept the return value of any of the construction environment
 builder methods.
-Example:
+Examples:
 
 .ES
-Default('foo', 'bar', 'baz', ['file with whitespace'])
+Default('foo', 'bar', 'baz')
+Default(['a', 'b', 'c'])
+Default(env.Program('hello', 'hello.c'))
 .EE
 
 .TP
