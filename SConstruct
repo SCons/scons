@@ -286,6 +286,8 @@ env = Environment(
                    PYTHON              = sys.executable
                  )
 
+Version_values = [Value(version), Value(build_id)]
+
 #
 # Define SCons packages.
 #
@@ -327,6 +329,10 @@ python_scons = {
 
         'filemap'       : {
                             'LICENSE.txt' : '../LICENSE.txt'
+                          },
+
+        'explicit_deps' : {
+                            'SCons/Script/__init__.py' : Version_values,
                           },
 }
 
@@ -394,7 +400,12 @@ scons_script = {
                             'LICENSE.txt' : '../LICENSE.txt',
                             'scons'       : 'scons.py',
                             'sconsign'    : 'sconsign.py',
-                           }
+                           },
+
+        'explicit_deps' : {
+                            'scons'       : Version_values,
+                            'sconsign'    : Version_values,
+                          },
 }
 
 scons = {
@@ -516,11 +527,13 @@ for p in [ scons ]:
                     rpm_files.append(r + 'c')
             files = map(lambda x, i=isubdir: os.path.join(i, x), files)
             dst_files.extend(files)
-            for k in sp['filemap'].keys():
-                f = sp['filemap'][k]
+            for k, f in sp['filemap'].items():
                 if f:
-                    k = os.path.join(sp['src_subdir'], k)
-                    p['filemap'][k] = os.path.join(sp['src_subdir'], f)
+                    k = os.path.join(ssubdir, k)
+                    p['filemap'][k] = os.path.join(ssubdir, f)
+            for f, deps in sp['explicit_deps'].items():
+                f = os.path.join(build, ssubdir, f)
+                env.Depends(f, deps)
 
     #
     # Now that we have the "normal" source files, add those files
