@@ -135,15 +135,17 @@ RELEASE 0.97 - XXX
   - Fix expansion of env.Command() overrides within target and
     source file names.
 
-  - Support easier customization of what's displayed by various
-    default actions by adding lots of new construction variables:
-    $ARCOMSTR, $ASCOMSTR, $ASPPCOMSTR, $BIBTEXCOMSTR, $BITKEEPERCOMSTR,
-    $CCCOMSTR, $CVSCOMSTR, $CXXCOMSTR, $F77COMSTR, $F90COMSTR, $F95COMSTR,
-    $FORTRANCOMSTR, $JARCOMSTR, $JAVACCOMSTR, $JAVAHCOMSTR, $LATEXCOMSTR,
-    $LEXCOMSTR, $LINKCOMSTR, $PDFLATEXCOMSTR, $PDFTEXCOMSTR, $RCSCOMSTR,
-    $RMICCOMSTR, $SCCSCOMSTR, $SHCCCOMSTR, $SHCXXCOMSTR, $SHF77COMSTR,
-    $SHF90COMSTR, $SHF95COMSTR, $SHFORTRANCOMSTR, $SHLINKCOMSTR,
-    $TARCOMSTR, $TEXCOMSTR, $YACCCOMSTR and $ZIPCOMSTR.
+  - Support easier customization of what's displayed by various default
+    actions by adding lots of new construction variables: $ARCOMSTR,
+    $ASCOMSTR, $ASPPCOMSTR, $BIBTEXCOMSTR, $BITKEEPERCOMSTR, $CCCOMSTR,
+    $CVSCOMSTR, $CXXCOMSTR, $DCOMSTR, $DVIPDFCOMSTR, $F77COMSTR,
+    $F90COMSTR, $F95COMSTR, $FORTRANCOMSTR, $GSCOMSTR, $JARCOMSTR,
+    $JAVACCOMSTR, $JAVAHCOMSTR, $LATEXCOMSTR, $LEXCOMSTR, $LINKCOMSTR,
+    $M4COMSTR, $P4COMSTR, $PDFLATEXCOMSTR, $PDFTEXCOMSTR, $PSCOMSTR,
+    $RCSCOMSTR, $RMICCOMSTR, $SCCSCOMSTR, $SHCCCOMSTR, $SHCXXCOMSTR,
+    $SHF77COMSTR, $SHF90COMSTR, $SHF95COMSTR, $SHFORTRANCOMSTR,
+    $SHLINKCOMSTR, $SWIGCOMSTR, $TARCOMSTR, $TEXCOMSTR, $YACCCOMSTR
+    and $ZIPCOMSTR.
 
   - Add an optional "map" keyword argument to ListOption() that takes a
     dictionary to map user-specified values to legal values from the list

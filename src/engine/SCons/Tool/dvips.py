@@ -34,10 +34,13 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
+import SCons.Builder
 import SCons.Defaults
 import SCons.Util
 
-PostScript = SCons.Builder.Builder(action = '$PSCOM',
+PSAction = SCons.Action.Action('$PSCOM', '$PSCOMSTR')
+
+PostScript = SCons.Builder.Builder(action = PSAction,
                                    prefix = '$PSPREFIX',
                                    suffix = '$PSSUFFIX',
                                    src_suffix = '.dvi',

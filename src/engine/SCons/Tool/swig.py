@@ -33,9 +33,12 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Action
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
+
+SwigAction = SCons.Action.Action('$SWIGCOM', '$SWIGCOMSTR')
 
 def swigSuffixEmitter(env, source):
     if '-c++' in SCons.Util.CLVar(env.subst("$SWIGFLAGS")):
@@ -50,8 +53,8 @@ def generate(env):
     c_file.suffix['.i'] = swigSuffixEmitter
     cxx_file.suffix['.i'] = swigSuffixEmitter
 
-    c_file.add_action('.i', '$SWIGCOM')
-    cxx_file.add_action('.i', '$SWIGCOM')
+    c_file.add_action('.i', SwigAction)
+    cxx_file.add_action('.i', SwigAction)
 
     env['SWIG']              = 'swig'
     env['SWIGFLAGS']         = SCons.Util.CLVar('')

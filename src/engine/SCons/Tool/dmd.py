@@ -58,10 +58,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import string
 
-import SCons.Tool
-import SCons.Scanner.D
+import SCons.Action
 import SCons.Builder
 import SCons.Defaults
+import SCons.Scanner.D
+import SCons.Tool
 
 # Adapted from c++.py
 def isD(source):
@@ -85,8 +86,10 @@ def generate(env):
 
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    static_obj.add_action('.d', '$DCOM')
-    shared_obj.add_action('.d', '$DCOM')
+    DAction = SCons.Action.Action('$DCOM', '$DCOMSTR')
+
+    static_obj.add_action('.d', DAction)
+    shared_obj.add_action('.d', DAction)
     static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
     shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
 
@@ -152,6 +155,10 @@ def generate(env):
             def _smartLink(source, target, env, for_signature,
                            defaultLinker=linkcom):
                 if isD(source):
+                    # XXX I'm not sure how to add a $DLINKCOMSTR variable
+                    # so that it works with this _smartLink() logic,
+                    # and I don't have a D compiler/linker to try it out,
+                    # so we'll leave it alone for now.
                     return '$DLINKCOM'
                 else:
                     return defaultLinker
@@ -164,6 +171,10 @@ def generate(env):
             def _smartLib(source, target, env, for_signature,
                          defaultLib=arcom):
                 if isD(source):
+                    # XXX I'm not sure how to add a $DLIBCOMSTR variable
+                    # so that it works with this _smartLib() logic, and
+                    # I don't have a D compiler/archiver to try it out,
+                    # so we'll leave it alone for now.
                     return '$DLIBCOM'
                 else:
                     return defaultLib

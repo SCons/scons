@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 
+import SCons.Action
 import SCons.Builder
 import SCons.Node.FS
 import SCons.Util
@@ -42,9 +43,13 @@ import SCons.Util
 # This function should maybe be moved to SCons.Util?
 from SCons.Tool.PharLapCommon import addPathIfNotExists
 
+
+
 # Variables that we want to import from the base OS environment.
 _import_env = [ 'P4PORT', 'P4CLIENT', 'P4USER', 'USER', 'USERNAME', 'P4PASSWD',
                 'P4CHARSET', 'P4LANGUAGE', 'SYSTEMROOT' ]
+
+PerforceAction = SCons.Action.Action('$P4COM', '$P4COMSTR')
 
 def generate(env):
     """Add a Builder factory function and construction variables for
@@ -52,8 +57,7 @@ def generate(env):
 
     def PerforceFactory(env=env):
         """ """
-        return SCons.Builder.Builder(action = '$P4COM',
-                                     env = env)
+        return SCons.Builder.Builder(action = PerforceAction, env = env)
 
     #setattr(env, 'Perforce', PerforceFactory)
     env.Perforce = PerforceFactory
