@@ -112,6 +112,7 @@ class Serial:
             except KeyboardInterrupt:
                 raise
             except:
+                task.exception_set()
                 # Let the failed() callback function arrange for the
                 # build to stop if that's appropriate.
                 task.failed()
@@ -152,6 +153,7 @@ else:
                     # be explicit here for test/interrupts.py
                     ok = False
                 except:
+                    task.exception_set()
                     ok = 0
                 else:
                     ok = 1

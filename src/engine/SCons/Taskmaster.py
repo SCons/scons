@@ -102,17 +102,19 @@ class Task:
         except KeyboardInterrupt:
             raise
         except SystemExit:
-            raise SCons.Errors.ExplicitExit(self.targets[0], sys.exc_value.code)
+            exc_value = sys.exc_info()[1]
+            raise SCons.Errors.ExplicitExit(self.targets[0], exc_value.code)
         except SCons.Errors.UserError:
             raise
         except SCons.Errors.BuildError:
             raise
         except:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
             raise SCons.Errors.BuildError(self.targets[0],
                                           "Exception",
-                                          sys.exc_type,
-                                          sys.exc_value,
-                                          sys.exc_traceback)
+                                          exc_type,
+                                          exc_value,
+                                          exc_traceback)
 
     def get_target(self):
         """Fetch the target being built or updated by this task.
@@ -206,6 +208,15 @@ class Task:
         for t in self.targets:
             t.postprocess()
 
+    def exc_info(self):
+        return self.tm.exception
+
+    def exc_clear(self):
+        self.tm.exception_clear()
+
+    def exception_set(self):
+        self.tm.exception_set()
+
 
 
 def order(dependencies):
@@ -229,7 +240,7 @@ class Taskmaster:
         self.tasker = tasker
         self.ready = None # the next task that is ready to be executed
         self.order = order
-        self.exception_set(None, None)
+        self.exception_clear()
         self.message = None
 
     def _find_next_ready_node(self):
@@ -253,8 +264,9 @@ class Taskmaster:
             try:
                 children = node.children()
             except SystemExit:
-                e = SCons.Errors.ExplicitExit(node, sys.exc_value.code)
-                self.exception_set(SCons.Errors.ExplicitExit, e)
+                exc_value = sys.exc_info()[1]
+                e = SCons.Errors.ExplicitExit(node, exc_value.code)
+                self.exception_set((SCons.Errors.ExplicitExit, e))
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -265,10 +277,7 @@ class Taskmaster:
                 # children (like a child couldn't be linked in to a
                 # BuildDir, or a Scanner threw something).  Arrange to
                 # raise the exception when the Task is "executed."
-                x = SCons.Errors.TaskmasterException(sys.exc_type,
-                                                     sys.exc_value,
-                                                     sys.exc_traceback)
-                self.exception_set(x)
+                self.exception_set()
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -294,10 +303,7 @@ class Taskmaster:
                 # the kids are derived (like a child couldn't be linked
                 # from a repository).  Arrange to raise the exception
                 # when the Task is "executed."
-                x = SCons.Errors.TaskmasterException(sys.exc_type,
-                                                     sys.exc_value,
-                                                     sys.exc_traceback)
-                self.exception_set(x)
+                self.exception_set()
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -381,10 +387,7 @@ class Taskmaster:
             # a child couldn't be linked in to a BuildDir when deciding
             # whether this node is current).  Arrange to raise the
             # exception when the Task is "executed."
-            x = SCons.Errors.TaskmasterException(sys.exc_type,
-                                                 sys.exc_value,
-                                                 sys.exc_traceback)
-            self.exception_set(x)
+            self.exception_set()
         self.ready = None
 
         return task
@@ -429,23 +432,21 @@ class Taskmaster:
         self.candidates.extend(self.pending)
         self.pending = []
 
-    def exception_set(self, type, value=None):
-        """Record an exception type and value to raise later, at an
-        appropriate time."""
-        self.exc_type = type
-        self.exc_value = value
-        self.exc_traceback = traceback
+    def exception_set(self, exception=None):
+        if exception is None:
+            exception = sys.exc_info()
+        self.exception = exception
+        self.exception_raise = self._exception_raise
 
-    def exception_raise(self):
-        """Raise any pending exception that was recorded while
+    def exception_clear(self):
+        self.exception = (None, None, None)
+        self.exception_raise = self._no_exception_to_raise
+
+    def _no_exception_to_raise(self):
+        pass
+
+    def _exception_raise(self):
+        """Raise a pending exception that was recorded while
         getting a Task ready for execution."""
-        if self.exc_type:
-            try:
-                try:
-                    raise self.exc_type, self.exc_value
-                except TypeError:
-                    # exc_type was probably an instance,
-                    # so raise it by itself.
-                    raise self.exc_type
-            finally:
-                self.exception_set(None, None)
+        exc_type, exc_value = self.exception[:2]
+        raise exc_type, exc_value

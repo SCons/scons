@@ -189,13 +189,16 @@ class SConf:
                 if (target.get_state() != SCons.Node.up_to_date and
                     target.has_builder() and
                     not hasattr(target.builder, 'status')):
-                    
+
                     raise SCons.Errors.ConfigureDryRunError(target)
                 
             def failed(self):
-                if sys.exc_type == SCons.Errors.ConfigureDryRunError:
-                    raise
-                SConfBuildTask.failed(self)
+                exc_type, exc_value = self.exc_info()[:2]
+                if exc_type == SCons.Errors.ConfigureDryRunError:
+                    raise exc_type, exc_value
+                # Should be SConfBuildTask.failed(), really,
+                # but that causes name errors in Python 1.5.2.
+                SCons.Script.BuildTask.failed(self)
 
         if self.logstream != None:
             # override stdout / stderr to write in log file

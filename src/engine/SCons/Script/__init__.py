@@ -153,18 +153,12 @@ class BuildTask(SCons.Taskmaster.Task):
         # is to display the various types of Errors and Exceptions
         # appropriately.
         status = 2
-        e = sys.exc_value
-        t = sys.exc_type
+        t, e = self.exc_info()[:2]
         tb = None
-        if t is SCons.Errors.TaskmasterException:
-            # The Taskmaster received an Error or Exception while trying
-            # to process or build the Nodes and dependencies, which it
-            # wrapped up for us in the object recorded as the value of
-            # the Exception, so process the wrapped info instead of the
-            # TaskmasterException itself.
-            t = e.type
-            tb = e.traceback
-            e = e.value
+        if t is None:
+            # The Taskmaster didn't record an exception for this Task;
+            # see if the sys module has one.
+            t, e = sys.exc_info()[:2]
 
         if t == SCons.Errors.BuildError:
             sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
@@ -186,6 +180,8 @@ class BuildTask(SCons.Taskmaster.Task):
                 traceback.print_tb(tb, file=sys.stderr)
 
         self.do_failed(status)
+
+        self.exc_clear()
 
     def make_ready(self):
         """Make a task ready for execution"""
