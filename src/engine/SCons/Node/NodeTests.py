@@ -1155,7 +1155,7 @@ class NodeListTestCase(unittest.TestCase):
             assert s == "['n3', 'n2', 'n1']", s
 
         r = repr(nl)
-        r = re.sub('at (0x)?[0-9a-z]+', 'at 0x', repr(nl))
+        r = re.sub('at (0x)?[0-9A-Fa-f]+', 'at 0x', repr(nl))
         l = string.join(["<__main__.MyNode instance at 0x>"]*3, ", ")
         assert r == '[%s]' % l, r
 

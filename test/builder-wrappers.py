@@ -37,9 +37,9 @@ test.write('SConstruct', """
 import os.path
 import string
 def cat(target, source, env):
-    fp = open(str(target[0]), 'w')
+    fp = open(str(target[0]), 'wb')
     for s in map(str, source):
-        fp.write(open(s).read())
+        fp.write(open(s, 'rb').read())
 Cat = Builder(action=cat)
 def Wrapper(env, target, source):
     if not target:

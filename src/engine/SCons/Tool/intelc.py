@@ -80,8 +80,11 @@ def get_all_compiler_versions():
     versions=[]
     if is_win32:
         keyname = 'Software\\Intel\\Compilers\\C++'
-        k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
-                                    keyname)
+        try:
+            k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+                                        keyname)
+        except WindowsError:
+            return []
         i = 0
         versions = []
         try:
@@ -158,7 +161,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=1):
     if abi is None:
         abi = "ia32"                    # or ia64, I believe
 
-    if topdir is None:
+    if topdir is None and version:
         try:
             topdir = get_intel_compiler_top(version, abi)
         except (SCons.Util.RegError, SCons.Errors.InternalError):

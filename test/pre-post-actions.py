@@ -56,7 +56,7 @@ def before(env, target, source):
 
 def after(env, target, source):
     t = str(target[0])
-    a = "after_" + os.path.splitext(t)[0]
+    a = "after_" + t
     fin = open(t, "rb")
     fout = open(a, "wb")
     fout.write(fin.read())
@@ -111,7 +111,7 @@ test.run(program=after_bar_exe, stdout="bar.c\n")
 
 test.write(['work2', 'SConstruct'], """\
 def b(target, source, env):
-    open(str(target[0]), 'w').write(env['X'] + '\\n')
+    open(str(target[0]), 'wb').write(env['X'] + '\\n')
 env1 = Environment(X='111')
 env2 = Environment(X='222')
 B = Builder(action = b, env = env1, multi=1)
