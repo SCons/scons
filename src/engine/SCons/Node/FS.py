@@ -225,23 +225,31 @@ else:
         return string.upper(x)
 
 class EntryProxy(SCons.Util.Proxy):
-    def __init__(self, entry):
-        SCons.Util.Proxy.__init__(self, entry)
-        self.abspath = SCons.Util.SpecialAttrWrapper(entry.abspath,
-                                                     entry.name + "_abspath")
-        filebase, suffix = os.path.splitext(entry.name)
-        self.filebase = SCons.Util.SpecialAttrWrapper(filebase,
-                                                      entry.name + "_filebase")
-        self.suffix = SCons.Util.SpecialAttrWrapper(suffix,
-                                                    entry.name + "_suffix")
-        self.file = SCons.Util.SpecialAttrWrapper(entry.name,
-                                                  entry.name + "_file")
+    def __get_abspath(self):
+        entry = self.get()
+        return SCons.Util.SpecialAttrWrapper(entry.get_abspath(),
+                                             entry.name + "_abspath")
+
+    def __get_filebase(self):
+        name = self.get().name
+        return SCons.Util.SpecialAttrWrapper(os.path.splitext(name)[0],
+                                             name + "_filebase")
+
+    def __get_suffix(self):
+        entry.name = self.get().name
+        return SCons.Util.SpecialAttrWrapper(os.path.splitext(name)[1],
+                                             name + "_suffix")
+
+    def __get_file(self):
+        entry.name = self.get().name
+        return SCons.Util.SpecialAttrWrapper(name, name + "_file")
 
     def __get_base_path(self):
         """Return the file's directory and file name, with the
         suffix stripped."""
-        return SCons.Util.SpecialAttrWrapper(os.path.splitext(self.get().get_path())[0],
-                                             self.get().name + "_base")
+        entry = self.get()
+        return SCons.Util.SpecialAttrWrapper(os.path.splitext(entry.get_path())[0],
+                                             entry.name + "_base")
 
     def __get_posix_path(self):
         """Return the path with / as the path separator, regardless
@@ -249,9 +257,10 @@ class EntryProxy(SCons.Util.Proxy):
         if os.sep == '/':
             return self
         else:
-            return SCons.Util.SpecialAttrWrapper(string.replace(self.get().get_path(),
+            entry = self.get()
+            return SCons.Util.SpecialAttrWrapper(string.replace(entry.get_path(),
                                                                 os.sep, '/'),
-                                                 self.get().name + "_posix")
+                                                 entry.name + "_posix")
 
     def __get_srcnode(self):
         return EntryProxy(self.get().srcnode())
@@ -263,12 +272,16 @@ class EntryProxy(SCons.Util.Proxy):
 
     def __get_dir(self):
         return EntryProxy(self.get().dir)
-
+    
     dictSpecialAttrs = { "base" : __get_base_path,
                          "posix" : __get_posix_path,
                          "srcpath" : __get_srcnode,
                          "srcdir" : __get_srcdir,
-                         "dir" : __get_dir }
+                         "dir" : __get_dir,
+                         "abspath" : __get_abspath,
+                         "filebase" : __get_filebase,
+                         "suffix" : __get_suffix,
+                         "file" : __get_file }
 
     def __getattr__(self, name):
         # This is how we implement the "special" attributes
@@ -277,7 +290,6 @@ class EntryProxy(SCons.Util.Proxy):
             return self.dictSpecialAttrs[name](self)
         except KeyError:
             return SCons.Util.Proxy.__getattr__(self, name)
-        
 
 class Entry(SCons.Node.Node):
     """A generic class for file system entries.  This class is for
