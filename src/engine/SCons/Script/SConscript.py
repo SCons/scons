@@ -317,19 +317,24 @@ def SetJobs(num):
         raise SCons.Errors.UserError, "A positive integer is required: %s"%repr(num)
     
 def Clean(target, files):
-    target = str(target)
+    if not isinstance(target, SCons.Node.Node):
+        target = SCons.Node.FS.default_fs.Entry(target, create=1)
+
     if not SCons.Util.is_List(files):
         files = [files]
+
     nodes = []
     for f in files:
         if isinstance(f, SCons.Node.Node):
             nodes.append(f)
         else:
             nodes.extend(SCons.Node.arg2nodes(f, SCons.Node.FS.default_fs.Entry))
-    if clean_targets.has_key(target):
-        clean_targets[target].extend(nodes)
+
+    s = str(target)
+    if clean_targets.has_key(s):
+        clean_targets[s].extend(nodes)
     else:
-        clean_targets[target] = nodes
+        clean_targets[s] = nodes
 
 def BuildDefaultGlobals():
     """
