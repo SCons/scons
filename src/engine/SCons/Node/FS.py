@@ -924,6 +924,7 @@ class Dir(Base):
         self.abspath_ = self.abspath + os.sep
         self.repositories = []
         self.srcdir = None
+        self.source_scanner = None
         
         self.entries = {}
         self.entries['.'] = self

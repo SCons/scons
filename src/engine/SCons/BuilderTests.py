@@ -752,10 +752,10 @@ class BuilderTestCase(unittest.TestCase):
         env_scanner = TestScanner()
         env = Environment()
         builder = SCons.Builder.Builder(action='action')
-        tgt = builder(env, target='foo.x', source='bar')
+        tgt = builder(env, target='foo.x', source='bar.y')
         src = tgt.sources[0]
         assert tgt.target_scanner != env_scanner, tgt.target_scanner
-        assert src.source_scanner == env_scanner
+        assert src.source_scanner == env_scanner, src.source_scanner
 
     def test_Builder_Args(self):
         """Testing passing extra args to a builder."""

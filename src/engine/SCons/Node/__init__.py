@@ -111,8 +111,12 @@ class Node:
         self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
         self.parents = {}
         self.wkids = None       # Kids yet to walk, when it's an array
-        self.source_scanner = None      # implicit scanner from scanner map
         self.target_scanner = None      # explicit scanner from this node's Builder
+
+        # If/when this attribute exists, it's an implicit scanner from
+        # the scanner map for an environment.  The attribute is created
+        # when we select the scanner, a value of None means there is none.
+        #self.source_scanner = None
 
         self.env = None
         self.state = None
@@ -197,16 +201,21 @@ class Node:
         # Clear out the implicit dependency caches:
         # XXX this really should somehow be made more general and put
         #     under the control of the scanners.
-        if self.source_scanner:
-            self.found_includes = {}
-            self.includes = None
+        try:
+            scanner = self.source_scanner
+        except AttributeError:
+            pass
+        else:
+            if scanner:
+                self.found_includes = {}
+                self.includes = None
 
-            def get_parents(node, parent): return node.get_parents()
-            def clear_cache(node, parent):
-                node.implicit = None
-                node.del_bsig()
-            w = Walker(self, get_parents, ignore_cycle, clear_cache)
-            while w.next(): pass
+                def get_parents(node, parent): return node.get_parents()
+                def clear_cache(node, parent):
+                    node.implicit = None
+                    node.del_bsig()
+                w = Walker(self, get_parents, ignore_cycle, clear_cache)
+                while w.next(): pass
 
         # clear out the content signature, since the contents of this
         # node were presumably just changed:
@@ -384,11 +393,17 @@ class Node:
         build_env = self.get_build_env()
 
         for child in self.children(scan=0):
-            self._add_child(self.implicit,
-                            self.implicit_dict,
-                            child.get_implicit_deps(build_env,
-                                                    child.source_scanner,
-                                                    self))
+            try:
+                scanner = child.source_scanner
+            except AttributeError:
+                pass
+            else:
+                if scanner:
+                    self._add_child(self.implicit,
+                                    self.implicit_dict,
+                                    child.get_implicit_deps(build_env,
+                                                            scanner,
+                                                            self))
 
         # scan this node itself for implicit dependencies
         self._add_child(self.implicit,

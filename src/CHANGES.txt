@@ -30,6 +30,11 @@ RELEASE X.XX - XXX
     can be used to avoid cluttering each directory with an individual
     .sconsign file.
 
+  From John Johnson:
+
+  - Fix (re-)scanning of dependencies in generated or installed
+    header files.
+
   From Steven Knight:
 
   - The -Q option suppressed too many messages; fix it so that it only
