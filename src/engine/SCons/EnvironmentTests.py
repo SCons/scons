@@ -88,7 +88,7 @@ class EnvironmentTestCase(unittest.TestCase):
 
 	built_it = {}
         env3 = Environment()
-        env3.Update(BUILDERS = [b1, b2])
+        env3.Replace(BUILDERS = [b1, b2])
 	env3.builder1.execute(target = 'out1')
 	env3.builder2.execute(target = 'out2')
 	env3.builder1.execute(target = 'out3')
@@ -124,7 +124,7 @@ class EnvironmentTestCase(unittest.TestCase):
 
 	scanned_it = {}
         env3 = Environment()
-        env3.Update(SCANNERS = [s1, s2])
+        env3.Replace(SCANNERS = [s1, s2])
 	env3.scanner1.scan(filename = 'out1')
 	env3.scanner2.scan(filename = 'out2')
 	env3.scanner1.scan(filename = 'out3')
@@ -152,7 +152,7 @@ class EnvironmentTestCase(unittest.TestCase):
 	env1 = Environment(XXX = 'x', YYY = 'y')
 	env2 = env1.Copy()
 	env1copy = env1.Copy()
-	env2.Update(YYY = 'yyy')
+	env2.Replace(YYY = 'yyy')
 	assert env1 != env2
 	assert env1 == env1copy
 
@@ -240,15 +240,27 @@ class EnvironmentTestCase(unittest.TestCase):
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
 
-    def test_Update(self):
-	"""Test updating an Environment with new construction variables
+    def test_Replace(self):
+        """Test replacing construction variables in an Environment
 
-	After creation of the Environment, of course.
-	"""
-	env1 = Environment(AAA = 'a', BBB = 'b')
-	env1.Update(BBB = 'bbb', CCC = 'ccc')
-	env2 = Environment(AAA = 'a', BBB = 'bbb', CCC = 'c')
-	assert env1 != env2
+        After creation of the Environment, of course.
+        """
+        env1 = Environment(AAA = 'a', BBB = 'b')
+        env1.Replace(BBB = 'bbb', CCC = 'ccc')
+        env2 = Environment(AAA = 'a', BBB = 'bbb', CCC = 'ccc')
+        assert env1 == env2
+
+    def test_Append(self):
+        """Test appending to construction variables in an Environment
+        """
+        env1 = Environment(AAA = 'a', BBB = 'b', CCC = 'c',
+                           DDD = ['d'], EEE = ['e'], FFF = ['f'])
+        env1.Append(BBB = 'B', CCC = ['C'], EEE = 'E', FFF = ['F'],
+                    GGG = 'g', HHH = ['h'])
+        env2 = Environment(AAA = 'a', BBB = 'bB', CCC = ['c', 'C'],
+                           DDD = ['d'], EEE = ['e', 'E'], FFF = ['f', 'F'],
+                           GGG = 'g', HHH = ['h'])
+        assert env1 == env2
 
     def test_Depends(self):
 	"""Test the explicit Depends method."""

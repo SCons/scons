@@ -995,12 +995,32 @@ env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
 .EE
 
 .TP
-.RI Update( key = val ", [...])"
-Updates the contents of an environment
+.RI Replace( key = val ", [...])"
+Replaces construction variables in the Environment
 with the specified keyword arguments.
+(Note:  "Update()" is a deprecated synonym for this method.)
 
 .ES
-env.Update(CCFLAGS = '-g', FOO = 'foo.xxx')
+env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
+.EE
+
+.TP
+.RI Append( key = val ", [...])"
+Appends the specified keyword arguments
+to the construction variables in the environment.
+If the Environment does not have
+the specified construction variable,
+it is simply added to the environment.
+If the values of the construction variable
+and the keyword argument are the same type,
+then the two values will be simply added together.
+Otherwise, the construction variable
+and the value of the keyword argument
+are both coerced to lists,
+and the lists are added together.
+
+.ES
+env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 .EE
 
 .SS Construction Variables

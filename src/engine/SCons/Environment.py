@@ -95,7 +95,7 @@ class Environment:
     def __init__(self, **kw):
         self.fs = SCons.Node.FS.default_fs
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
-        apply(self.Update, (), kw)
+        apply(self.Replace, (), kw)
 
         #
         # self.autogen_vars is a tuple of tuples.  Each inner tuple
@@ -141,17 +141,22 @@ class Environment:
 	"""
         clone = copy.copy(self)
         clone._dict = our_deepcopy(self._dict)
-	apply(clone.Update, (), kw)
+        apply(clone.Replace, (), kw)
 	return clone
 
     def Scanners(self):
 	pass	# XXX
 
     def	Update(self, **kw):
-	"""Update an existing construction Environment with new
-	construction variables and/or values.
-	"""
-	self._dict.update(our_deepcopy(kw))
+        """A deprecated synonym for Replace().
+        """
+        apply(self.Replace, (), kw)
+
+    def Replace(self, **kw):
+        """Replace existing construction variables in an Environment
+        with new construction variables and/or values.
+        """
+        self._dict.update(our_deepcopy(kw))
         if self._dict.has_key('BUILDERS') and \
            not SCons.Util.is_List(self._dict['BUILDERS']):
             self._dict['BUILDERS'] = [self._dict['BUILDERS']]
@@ -187,6 +192,25 @@ class Environment:
 
         for s in self._dict['SCANNERS']:
             setattr(self, s.name, s)
+
+    def Append(self, **kw):
+        """Append values to existing construction variables
+        in an Environment.
+        """
+        kw = our_deepcopy(kw)
+        for key in kw.keys():
+            if not self._dict.has_key(key):
+                self._dict[key] = kw[key]
+            elif type(self._dict[key]) is type(kw[key]):
+                self._dict[key] = self._dict[key] + kw[key]
+            else:
+                l1 = self._dict[key]
+                if not SCons.Util.is_List(l1):
+                    l1 = [l1]
+                l2 = kw[key]
+                if not SCons.Util.is_List(l2):
+                    l2 = [l2]
+                self._dict[key] = l1 + l2
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""
