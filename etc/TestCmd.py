@@ -610,6 +610,11 @@ class TestCmd:
 	    cwd = os.getcwd()
 	    os.chdir(path)
 	    self.workdir = os.getcwd()
+            # Uppercase the drive letter since the case of drive
+            # letters is pretty much random on win32:
+            drive,rest = os.path.splitdrive(self.workdir)
+            if drive:
+                self.workdir = string.upper(drive) + rest
 	    os.chdir(cwd)
 	else:
 	    self.workdir = None
