@@ -56,7 +56,6 @@ import traceback
 def do_nothing(text): pass
 HelpFunction = do_nothing
 
-default_targets = None
 clean_targets = {}
 arguments = {}
 launch_dir = os.path.abspath(os.curdir)
@@ -356,27 +355,6 @@ def annotate(node):
 # leave this disabled until we find a more efficient mechanism.
 #SCons.Node.Annotate = annotate
 
-def Default(*targets):
-    global default_targets
-    if default_targets is None:
-        default_targets = []
-    for t in targets:
-        if t is None:
-            default_targets = []
-        elif isinstance(t, SCons.Node.Node):
-            default_targets.append(t)
-        else:
-            default_targets.extend(SCons.Node.arg2nodes(t,
-                                         SCons.Node.FS.default_fs.Entry))
-
-def Local(*targets):
-    for targ in targets:
-        if isinstance(targ, SCons.Node.Node):
-            targ.set_local()
-        else:
-            for t in SCons.Node.arg2nodes(targ, SCons.Node.FS.default_fs.Entry):
-               t.set_local()
-
 def Help(text):
     HelpFunction(text)
 
@@ -389,10 +367,6 @@ def GetBuildPath(files):
     if len(ret) == 1:
         return ret[0]
     return ret
-
-def FindFile(file, dirs):
-    nodes = SCons.Node.arg2nodes(dirs, SCons.Node.FS.default_fs.Dir)
-    return SCons.Node.FS.find_file(file, nodes)
 
 def Export(*vars):
     for var in vars:
@@ -512,16 +486,6 @@ def Clean(target, files):
     except KeyError:
         clean_targets[target] = nodes
 
-def AddPreAction(files, action):
-    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
-    for n in nodes:
-        n.add_pre_action(SCons.Action.Action(action))
-
-def AddPostAction(files, action):
-    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
-    for n in nodes:
-        n.add_post_action(SCons.Action.Action(action))
-
 def Exit(value=0):
     sys.exit(value)
 
@@ -553,8 +517,6 @@ def BuildDefaultGlobals():
 
     globals = {}
     globals['Action']            = SCons.Action.Action
-    globals['AddPostAction']     = AddPostAction
-    globals['AddPreAction']      = AddPreAction
     globals['Alias']             = Alias
     globals['ARGUMENTS']         = arguments
     globals['BuildDir']          = BuildDir
@@ -563,7 +525,6 @@ def BuildDefaultGlobals():
     globals['Clean']             = Clean
     globals['Configure']         = SCons.SConf.SConf
     globals['CScan']             = SCons.Defaults.CScan
-    globals['Default']           = Default
     globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
     globals['Dir']               = SCons.Node.FS.default_fs.Dir
     globals['EnsurePythonVersion'] = EnsurePythonVersion
@@ -572,7 +533,6 @@ def BuildDefaultGlobals():
     globals['Exit']              = Exit
     globals['Export']            = Export
     globals['File']              = SCons.Node.FS.default_fs.File
-    globals['FindFile']          = FindFile
     globals['GetBuildPath']      = GetBuildPath
     globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
     globals['GetJobs']           = GetJobs
@@ -581,7 +541,6 @@ def BuildDefaultGlobals():
     globals['Help']              = Help
     globals['Import']            = Import
     globals['Literal']           = SCons.Util.Literal
-    globals['Local']             = Local
     globals['Options']           = Options
     globals['ParseConfig']       = SCons.Util.ParseConfig
     globals['Platform']          = SCons.Platform.Platform
@@ -602,4 +561,25 @@ def BuildDefaultGlobals():
     globals['Tool']              = SCons.Tool.Tool
     globals['Value']             = SCons.Node.Python.Value
     globals['WhereIs']           = SCons.Util.WhereIs
+
+    class DefaultEnvironmentCall:
+        """ """
+        def __init__(self, method_name):
+            self.method_name = method_name
+        def __call__(self, *args, **kw):
+            method = getattr(SCons.Defaults.DefaultEnvironment(),
+                             self.method_name)
+            return apply(method, args, kw)
+
+    EnvironmentMethods = [
+        'AddPostAction',
+        'AddPreAction',
+        'Default',
+        'FindFile',
+        'Local',
+    ]
+
+    for name in EnvironmentMethods:
+        globals[name] = DefaultEnvironmentCall(name)
+
     return globals

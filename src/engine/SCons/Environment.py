@@ -577,6 +577,20 @@ class Environment:
     # same-named global functions.
     #######################################################################
 
+    def AddPreAction(self, files, action):
+        nodes = self.arg2nodes(files, self.fs.Entry)
+        action = SCons.Action.Action(action)
+        for n in nodes:
+            n.add_pre_action(action)
+        return nodes
+    
+    def AddPostAction(self, files, action):
+        nodes = self.arg2nodes(files, self.fs.Entry)
+        action = SCons.Action.Action(action)
+        for n in nodes:
+            n.add_post_action(action)
+        return nodes
+
     def AlwaysBuild(self, *targets):
         tlist = []
         for t in targets:
@@ -598,6 +612,18 @@ class Environment:
                                     source_factory=SCons.Node.FS.default_fs.Entry)
         return bld(self, target, source)
 
+    def Default(self, *targets):
+        global DefaultTargets
+        if DefaultTargets is None:
+            DefaultTargets = []
+        for t in targets:
+            if t is None:
+                DefaultTargets = []
+            elif isinstance(t, SCons.Node.Node):
+                DefaultTargets.append(t)
+            else:
+                DefaultTargets.extend(self.arg2nodes(t, self.fs.Entry))
+
     def Depends(self, target, dependency):
         """Explicity specify that 'target's depend on 'dependency'."""
         tlist = self.arg2nodes(target, self.fs.File)
@@ -608,6 +634,11 @@ class Environment:
         if len(tlist) == 1:
             tlist = tlist[0]
         return tlist
+
+    def FindFile(self, file, dirs):
+        file = self.subst(file)
+        nodes = self.arg2nodes(dirs, self.fs.Dir)
+        return SCons.Node.FS.find_file(file, nodes, self.fs.File)
 
     def Ignore(self, target, dependency):
         """Ignore a dependency."""
@@ -651,6 +682,18 @@ class Environment:
             ret.append(InstallBuilder(self, tgt, src))
         if len(ret) == 1:
             ret = ret[0]
+        return ret
+
+    def Local(self, *targets):
+        ret = []
+        for targ in targets:
+            if isinstance(targ, SCons.Node.Node):
+                targ.set_local()
+                ret.append(targ)
+            else:
+                for t in self.arg2nodes(targ, self.fs.Entry):
+                   t.set_local()
+                   ret.append(t)
         return ret
 
     def Precious(self, *targets):

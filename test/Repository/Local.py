@@ -52,7 +52,7 @@ def copy(env, source, target):
     open(target, "wb").write(open(source, "rb").read())
 
 Build = Builder(action=copy)
-env = Environment(BUILDERS={'Build':Build})
+env = Environment(BUILDERS={'Build':Build}, BBB='bbb')
 env.Build('aaa.mid', 'aaa.in')
 env.Build('aaa.out', 'aaa.mid')
 Local('aaa.out')
@@ -70,7 +70,7 @@ def bbb_copy(env, source, target):
 
 Import("env")
 env.Build('bbb.1', 'bbb.0')
-Local('bbb.1')
+env.Local('${BBB}.1')
 env.Command('bbb.2', 'bbb.x', bbb_copy)
 env.Depends('bbb.2', 'bbb.1')
 """)

@@ -957,6 +957,18 @@ class EnvironmentTestCase(unittest.TestCase):
         assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
         assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
 
+    def test_PrependENVPath(self):
+        """Test prepending to an ENV path."""
+        env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        # have to include the pathsep here so that the test will work on UNIX too.
+        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';') 
+        env1.PrependENVPath('PATH',r'C:\dir\num\three',sep = ';')
+        env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV',sep = ';')
+        env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
+        assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
+        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+
     def test_Replace(self):
         """Test replacing construction variables in an Environment
 
@@ -996,6 +1008,28 @@ class EnvironmentTestCase(unittest.TestCase):
                                              'LIBPREFIX', 'LIBSUFFIX')
 
 
+
+    def test_AddPostAction(self):
+        """Test the AddPostAction() method"""
+        env = Environment(FOO='fff', BAR='bbb')
+
+        n = env.AddPostAction('$FOO', lambda x: x)
+        assert str(n[0]) == 'fff', n[0]
+
+        n = env.AddPostAction(['ggg', '$BAR'], lambda x: x)
+        assert str(n[0]) == 'ggg', n[0]
+        assert str(n[1]) == 'bbb', n[1]
+
+    def test_AddPreAction(self):
+        """Test the AddPreAction() method"""
+        env = Environment(FOO='fff', BAR='bbb')
+
+        n = env.AddPreAction('$FOO', lambda x: x)
+        assert str(n[0]) == 'fff', n[0]
+
+        n = env.AddPreAction(['ggg', '$BAR'], lambda x: x)
+        assert str(n[0]) == 'ggg', n[0]
+        assert str(n[1]) == 'bbb', n[1]
 
     def test_AlwaysBuild(self):
         """Test the AlwaysBuild() method"""
@@ -1045,6 +1079,25 @@ class EnvironmentTestCase(unittest.TestCase):
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
+    def test_Default(self):
+        """Test the Default() method"""
+        env = Environment(FOO = 'fff', BAR = 'bbb')
+
+        t = env.Default(None)
+        assert SCons.Environment.DefaultTargets == []
+
+        t = env.Default('xyz')
+        d = map(str, SCons.Environment.DefaultTargets)
+        assert d == ['xyz'], d
+
+        t = env.Default('$FOO')
+        d = map(str, SCons.Environment.DefaultTargets)
+        assert d == ['xyz', 'fff'], d
+
+        t = env.Default(None, '$BAR', 'another_file')
+        d = map(str, SCons.Environment.DefaultTargets)
+        assert d == ['bbb', 'another_file'], d
+
     def test_Depends(self):
 	"""Test the explicit Depends method."""
 	env = Environment(FOO = 'xxx', BAR='yyy')
@@ -1063,6 +1116,15 @@ class EnvironmentTestCase(unittest.TestCase):
 	d = t.depends[0]
 	assert d.__class__.__name__ == 'File'
 	assert d.path == 'yyy.py'
+
+    def test_FindFile(self):
+        """Test the FindFile() method"""
+        env = Environment(FOO = 'fff', BAR = 'bbb')
+
+        r = env.FindFile('foo', ['no_such_directory'])
+        assert r is None, r
+
+        # XXX
 
     def test_Ignore(self):
         """Test the explicit Ignore method."""
@@ -1083,7 +1145,7 @@ class EnvironmentTestCase(unittest.TestCase):
         assert i.path == 'zzzyyy'
 
     def test_Install(self):
-	"""Test Install and InstallAs methods"""
+	"""Test the Install method"""
         env = Environment(FOO='iii', BAR='jjj')
 
         tgt = env.Install('export', [ 'build/foo1', 'build/foo2' ])
@@ -1129,6 +1191,10 @@ class EnvironmentTestCase(unittest.TestCase):
         match = str(e) == "Target `export/foo1' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?"
         assert match, e
 
+    def test_InstallAs(self):
+	"""Test the InstallAs method"""
+        env = Environment(FOO='iii', BAR='jjj')
+
         tgt = env.InstallAs(target=string.split('foo1 foo2'),
                             source=string.split('bar1 bar2'))
         assert len(tgt) == 2, len(tgt)
@@ -1143,6 +1209,17 @@ class EnvironmentTestCase(unittest.TestCase):
         assert tgt.path == 'iii.t'
         assert tgt.sources[0].path == 'jjj.s'
         assert tgt.builder == InstallBuilder
+
+    def test_Local(self):
+        """Test the Local() method."""
+        env = Environment(FOO='lll')
+
+        l = env.Local(env.fs.File('fff'))
+        assert str(l[0]) == 'fff', l[0]
+
+        l = env.Local('ggg', '$FOO')
+        assert str(l[0]) == 'ggg', l[0]
+        assert str(l[1]) == 'lll', l[1]
 
     def test_Precious(self):
         """Test the Precious() method."""
@@ -1207,7 +1284,7 @@ class EnvironmentTestCase(unittest.TestCase):
         s = e.src_builder()
         assert s is None, s
 
-        
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

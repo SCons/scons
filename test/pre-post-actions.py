@@ -36,32 +36,22 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.write('foo.c', r"""
-#include <stdio.h>
-
-int main(void)
-{
-    printf("Foo\n");
-    return 0;
-}
-""")
-
 test.write('SConstruct', """
 import os.path
 
-env=Environment()
+env = Environment(XXX='bar%s')
 
 def before(env, target, source):
     f=open(str(target[0]), "wb")
     f.write("Foo\\n")
     f.close()
-    f=open("before.txt", "wb")
-    f.write("Bar\\n")
+    f=open("before.txt", "ab")
+    f.write(str(target[0]) + "\\n")
     f.close()
 
 def after(env, target, source):
     fin = open(str(target[0]), "rb")
-    fout = open("after%s", "wb")
+    fout = open("after_" + str(target[0]), "wb")
     fout.write(fin.read())
     fout.close()
     fin.close()
@@ -69,12 +59,46 @@ def after(env, target, source):
 foo = env.Program(source='foo.c', target='foo')
 AddPreAction(foo, before)
 AddPostAction('foo%s', after)
+
+bar = env.Program(source='bar.c', target='bar')
+env.AddPreAction('$XXX', before)
+env.AddPostAction('$XXX', after)
 """ % (_exe, _exe))
 
-after_exe = test.workpath('after' + _exe)
+test.write('foo.c', r"""
+#include <stdio.h>
+
+int main(void)
+{
+    printf("foo.c\n");
+    return 0;
+}
+""")
+
+test.write('bar.c', r"""
+#include <stdio.h>
+
+int main(void)
+{
+    printf("bar.c\n");
+    return 0;
+}
+""")
+
 
 test.run(arguments='.')
-test.fail_test(open('before.txt', 'rb').read() != "Bar\n")
-os.chmod(after_exe, os.stat(after_exe)[stat.ST_MODE] | stat.S_IXUSR)
-test.run(program=test.workpath(after_exe), stdout="Foo\n")
+
+test.run(program=test.workpath('foo'+ _exe), stdout="foo.c\n")
+test.run(program=test.workpath('bar'+ _exe), stdout="bar.c\n")
+
+test.fail_test(test.read('before.txt', 'rb') != "bar%s\nfoo%s\n" % (_exe, _exe))
+
+after_foo_exe = test.workpath('after_foo' + _exe)
+os.chmod(after_foo_exe, os.stat(after_foo_exe)[stat.ST_MODE] | stat.S_IXUSR)
+test.run(program=test.workpath(after_foo_exe), stdout="foo.c\n")
+
+after_bar_exe = test.workpath('after_bar' + _exe)
+os.chmod(after_bar_exe, os.stat(after_bar_exe)[stat.ST_MODE] | stat.S_IXUSR)
+test.run(program=test.workpath(after_bar_exe), stdout="bar.c\n")
+
 test.pass_test()

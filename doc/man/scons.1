@@ -891,6 +891,7 @@ variable after the Environment is constructed will not cause the tools to
 be redetected.
 
 SCons supports the following tool specifications out of the box:
+
 .ES
 386asm
 aixc++
@@ -1089,6 +1090,7 @@ provides the following builders:
 Builds a static object file
 from one or more C, C++, or Fortran source files.
 Source files must have one of the following extensions:
+
 .ES
   .asm    assembly language file
   .ASM    assembly language file
@@ -1424,6 +1426,7 @@ env.M4(target = 'foo.c', source = 'foo.c.m4')
 .IP Jar
 Builds a Java archive (.jar) file
 from a source tree of .class files.
+
 .ES
 env.Jar(target = 'foo.jar', source = 'classes')
 .EE
@@ -1678,6 +1681,32 @@ method of a construction environment (see below).
 .SS Other Construction Environment Methods
 Additional construction environment methods include:
 
+.TP 
+.RI AddPostAction( target ", " action )
+Arranges for the specified
+.I action
+to be performed
+after the specified
+.I target
+has been built.
+The specified action(s) may be
+an Action object, or anything that
+can be converted into an Action object
+(see below).
+
+.TP 
+.RI AddPreAction( target ", " action )
+Arranges for the specified
+.I action
+to be performed
+before the specified
+.I target
+is built.
+The specified action(s) may be
+an Action object, or anything that
+can be converted into an Action object
+(see below).
+
 .TP
 .RI Alias( alias ", " targets )
 Creates a phony target that
@@ -1697,6 +1726,24 @@ env.Alias('install', ['/usr/local/man'])
 .EE
 
 .TP
+.RI AlwaysBuild( target ", ...)"
+Marks each given
+.I target
+so that it is always assumed to be out of date,
+and will always be rebuilt if needed.
+Note, however, that
+.BR AlwaysBuild ()
+does not add its target(s) to the default target list,
+so the targets will only be built
+if they are specified on the command line,
+or are a dependent of a target specified on the command line--but
+they will
+.I always
+be built if so specified.
+Multiple targets can be passed in to a single call to
+.BR AlwaysBuild ().
+
+.TP
 .RI Append( key = val ", [...])"
 Appends the specified keyword arguments
 to the end of construction variables in the environment.
@@ -1714,36 +1761,6 @@ and the lists are added together.
 
 .ES
 env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
-.EE
-
-.TP
-.RI PrependENVPath( name ", " newpath ", [" envname ", " sep ])
-This appends new path elements to the given path in the
-specified external environment
-.RB ( ENV
-by default).
-This will only add
-any particular path once (leaving the first one it encounters and
-ignoring the rest, to preserve path order),
-and to help assure this,
-will normalize all paths (using
-.B os.path.normpath
-and
-.BR os.path.normcase ).
-This can also handle the
-case where the given old path variable is a list instead of a
-string, in which case a list will be returned instead of a string.
-Example:
-
-.ES
-print 'before:',env['ENV']['INCLUDE']
-include_path = '/foo/bar:/foo'
-env.PrependENVPath('INCLUDE', include_path)
-print 'after:',env['ENV']['INCLUDE']
-
-yields:
-before: /biz:/foo
-after: /foo/bar:/foo:/biz
 .EE
 
 .TP
@@ -1786,6 +1803,7 @@ The returned Builder
 is intended to be passed to the
 .B SourceCode
 function.
+
 .ES
 env.SourceCode('.', env.BitKeeper())
 .EE
@@ -1834,7 +1852,7 @@ for the keywords.
 env2 = env.Copy()
 env3 = env.Copy(CCFLAGS = '-g')
 .EE
-
+.IP
 Additionally, a list of tools may be specified, as in the Environment
 constructor:
 
@@ -1842,7 +1860,6 @@ constructor:
 def MyTool(env): env['FOO'] = 'bar'
 env4 = env.Copy(tools = ['msvc', MyTool])
 .EE
-
 
 .TP
 .RI CVS( repository ", " module )
@@ -1883,6 +1900,44 @@ env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo'))
 env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo/bar'))
 .EE
 
+.TP 
+.RI Default( targets )
+This specifies a list of default targets,
+which will be built by
+.B scons
+if no explicit targets are given on the command line.
+Multiple calls to
+.BR Default ()
+are legal,
+and add to the list of default targets.
+
+Multiple targets should be specified as
+separate arguments to the
+.BR Default ()
+method, or as a list.
+.BR Default ()
+will also accept the Node returned by any
+of a construction environment's
+builder methods.
+Examples:
+
+.ES
+env.Default('foo', 'bar', 'baz')
+env.Default(['a', 'b', 'c'])
+hello = env.Program('hello', 'hello.c')
+env.Default(hello)
+.EE
+.IP
+An argument to
+.BR Default ()
+of
+.B None
+will clear all default targets.
+Later calls to
+.BR Default ()
+will add to the (now empty) default-target list
+like normal.
+
 .TP
 .RI Depends( target ", " dependency )
 Specifies an explicit dependency;
@@ -1909,6 +1964,21 @@ variables are returned in the dictionary.
 .ES
 dict = env.Dictionary()
 cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
+.EE
+
+.TP
+.RI FindFile( file ", " dirs )
+Search for 
+.I file 
+in the path specified by 
+.IR dirs .
+.I file
+may be a list of file names or a single file name. In addition to searching
+for files that exist in the filesytem, this function also searches for
+derived files that have not yet been built.
+
+.ES
+foo = env.FindFile('foo', ['dir1', 'dir2'])
 .EE
 
 .TP
@@ -1947,6 +2017,15 @@ env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
 .EE
 
 .TP
+.RI Local( targets )
+The specified
+.I targets
+will have copies made in the local tree,
+even if an already up-to-date copy
+exists in a repository.
+Returns a list of the target Node or Nodes.
+
+.TP
 Perforce()
 A factory function that
 returns a Builder object
@@ -1956,6 +2035,7 @@ The returned Builder
 is intended to be passed to the
 .B SourceCode
 function:
+
 .ES
 env.SourceCode('.', env.Perforce())
 .EE
@@ -1976,24 +2056,6 @@ SYSTEMROOT,
 USER,
 and
 USERNAME.
-
-.TP
-.RI AlwaysBuild( target ", ...)"
-Marks each given
-.I target
-so that it is always assumed to be out of date,
-and will always be rebuilt if needed.
-Note, however, that
-.BR AlwaysBuild ()
-does not add its target(s) to the default target list,
-so the targets will only be built
-if they are specified on the command line,
-or are a dependent of a target specified on the command line--but
-they will
-.I always
-be built if so specified.
-Multiple targets can be passed in to a single call to
-.BR AlwaysBuild ().
 
 .TP
 .RI Precious( target ", ...)"
@@ -2026,6 +2088,36 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 .EE
 
 .TP
+.RI PrependENVPath( name ", " newpath ", [" envname ", " sep ])
+This appends new path elements to the given path in the
+specified external environment
+.RB ( ENV
+by default).
+This will only add
+any particular path once (leaving the first one it encounters and
+ignoring the rest, to preserve path order),
+and to help assure this,
+will normalize all paths (using
+.B os.path.normpath
+and
+.BR os.path.normcase ).
+This can also handle the
+case where the given old path variable is a list instead of a
+string, in which case a list will be returned instead of a string.
+Example:
+
+.ES
+print 'before:',env['ENV']['INCLUDE']
+include_path = '/foo/bar:/foo'
+env.PrependENVPath('INCLUDE', include_path)
+print 'after:',env['ENV']['INCLUDE']
+
+yields:
+before: /biz:/foo
+after: /foo/bar:/foo:/biz
+.EE
+
+.TP
 RCS()
 A factory function that
 returns a Builder object
@@ -2035,6 +2127,7 @@ The returned Builder
 is intended to be passed to the
 .B SourceCode
 function:
+
 .ES
 env.SourceCode('.', env.RCS())
 .EE
@@ -2072,6 +2165,7 @@ The returned Builder
 is intended to be passed to the
 .B SourceCode
 function:
+
 .ES
 env.SourceCode('.', env.SCCS())
 .EE
@@ -2157,6 +2251,7 @@ source code management files on disk.
 You can avoid these extra searches
 and speed up your build a little
 by disabling these searches as follows:
+
 .ES
 env.SourceCode('.', None)
 .EE
@@ -2175,6 +2270,7 @@ functions that return appropriate
 Builders for various popular
 source code management systems.
 Canonical examples of invocation include:
+
 .ES
 env.SourceCode('.', env.BitKeeper('/usr/local/BKsources'))
 env.SourceCode('src', env.CVS('/usr/local/CVSROOT'))
@@ -2303,6 +2399,7 @@ Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, and Program
 are available by default.
 If you initialize this variable when an
 Environment is created:
+
 .ES
 env = Environment(BUILDERS = {'NewBuilder' : foo})
 .EE
@@ -2310,12 +2407,14 @@ env = Environment(BUILDERS = {'NewBuilder' : foo})
 the default Builders will no longer be available.
 To use a new Builder object in addition to the default Builders,
 add your new Builder object like this:
+
 .ES
 env = Environment()
 env.Append(BUILDERS = {'NewBuilder' : foo})
 .EE
 .IP
 or this:
+
 .ES
 env = Environment()
 env['BUILDERS]['NewBuilder'] = foo
@@ -3235,6 +3334,7 @@ In addition, the construction environment
 variables CPPPATH, LIBPATH, LIBS, PROGEMITTER, SHLIBEMITTER and LIBEMITTER
 are modified. Because the build-performance is affected when using this tool,
 you have to explicitly specify it at Environment creation:
+
 .ES
 Environment(tools=['default','qt']).
 .EE
@@ -4614,6 +4714,7 @@ The specified
 will have copies made in the local tree,
 even if an already up-to-date copy
 exists in a repository.
+Returns a list of the target Node or Nodes.
 
 .TP
 .RI ParseConfig( env ", " command ", [" function ])
@@ -4906,6 +5007,7 @@ to the directory in which each
 subsidiary SConscript file lives.
 This behavior may be disabled
 by specifying:
+
 .ES
 SConscriptChdir(0)
 .EE
@@ -5322,6 +5424,7 @@ the command line.
 This allows white space to be enclosed
 in an argument by defining
 a command in a list within a list:
+
 .ES
 Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
 .EE
@@ -5347,6 +5450,7 @@ more than one target file or source file.
 The actual target and source file name(s) may
 be retrieved from their Node objects
 via the built-in Python str() function:
+
 .ES
 target_file_name = str(target)
 source_file_names = map(lambda x: str(x), source)
