@@ -37,11 +37,12 @@ for k in keys:
 foo.close()
 """)
 
-test.run(arguments='a=1 bz=3 xx=sd .')
+test.run(arguments='a=1 bz=3 xx=sd zzz=foo=bar .')
 
 test.fail_test(test.read('foo.out') != """a = 1
 bz = 3
 xx = sd
+zzz = foo=bar
 """)
 
 test.pass_test()
