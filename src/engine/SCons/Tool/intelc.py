@@ -34,7 +34,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys, os.path, glob, re
+import sys, os.path, glob, string, re
 
 is_win32 = sys.platform == 'win32'
 is_linux = sys.platform == 'linux2'
