@@ -37,7 +37,7 @@ import time
 
 project = 'scons'
 
-#Default('.')       # XXX Uncomment this when we're really ready
+Default('.')
 
 #
 # An internal "whereis" routine to figure out if we have a
@@ -76,17 +76,15 @@ else:
     dh_compat = 2
 
 #
-ARG = {}        # XXX Remove this when we support command-line arguments
-#
 # Now grab the information that we "build" into the files (using sed).
 #
 try:
-    date = ARG['date']
+    date = ARGUMENTS['date']
 except:
     date = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(time.time()))
     
-if ARG.has_key('developer'):
-    developer = ARG['developer']
+if ARGUMENTS.has_key('developer'):
+    developer = ARGUMENTS['developer']
 elif os.environ.has_key('USERNAME'):
     developer = os.environ['USERNAME']
 elif os.environ.has_key('LOGNAME'):
@@ -95,7 +93,7 @@ elif os.environ.has_key('USER'):
     developer = os.environ['USER']
 
 try:
-    revision = ARG['version']
+    revision = ARGUMENTS['version']
 except:
     if aesub:
         revision = os.popen(aesub + " \\$version", "r").read()[:-1]
@@ -127,7 +125,7 @@ revision = string.join(arr, '.')
 version = '0.04'
 
 try:
-    change = ARG['change']
+    change = ARGUMENTS['change']
 except:
     if aesub:
         change = os.popen(aesub + " \\$change", "r").read()[:-1]
@@ -142,6 +140,10 @@ if platform == "win32":
     archsuffix = "zip"
 else:
     archsuffix = "tar.gz"
+
+ENV = { 'PATH' : os.environ['PATH'] }
+if os.environ.has_key('AEGIS_PROJECT'):
+    ENV['AEGIS_PROJECT'] = os.environ['AEGIS_PROJECT']
 
 test1_dir = os.path.join(os.getcwd(), "build", "test1")
 test2_dir = os.path.join(os.getcwd(), "build", "test2")
@@ -166,10 +168,8 @@ test2_lib_dir = os.path.join(test2_dir,
 unpack_dir = os.path.join(os.getcwd(), "build", "unpack")
 
 env = Environment(
-                   ENV           = {
-                                     'AEGIS_PROJECT' : os.environ['AEGIS_PROJECT'],
-                                     'PATH'          : os.environ['PATH'],
-                                   },
+                   ENV           = ENV,
+
                    TEST1_LIB_DIR = test1_lib_dir,
                    TEST2_LIB_DIR = test2_lib_dir,
  
@@ -210,8 +210,11 @@ python_scons = {
         'inst_subdir'   : os.path.join('lib', 'python1.5', 'site-packages'),
         'prefix'        : test2_dir,
 
-        'debian_deps'   : [ 'debian/rules debian/control',
-                            'debian/changelog debian/copyright',
+        'debian_deps'   : [
+                            'debian/rules',
+                            'debian/control',
+                            'debian/changelog',
+                            'debian/copyright',
                             'debian/python-scons.postinst',
                             'debian/python-scons.prerm',
                           ],
@@ -241,8 +244,11 @@ python_scons = {
 #        'inst_subdir'  : os.path.join('lib', 'python2.1', 'site-packages'),
 #        'prefix'       : test2_dir,
 #
-#        'debian_deps'  : [ 'debian/rules debian/control',
-#                           'debian/changelog debian/copyright',
+#        'debian_deps'  : [
+#                           'debian/rules',
+#                           'debian/control',
+#                           'debian/changelog',
+#                           'debian/copyright',
 #                           'debian/python2-scons.postinst',
 #                           'debian/python2-scons.prerm',
 #                          ],
@@ -265,8 +271,11 @@ scons_script = {
         'inst_subdir'   : 'bin',
         'prefix'        : test2_dir,
 
-        'debian_deps'   : [ 'debian/rules debian/control',
-                            'debian/changelog debian/copyright',
+        'debian_deps'   : [
+                            'debian/rules',
+                            'debian/control',
+                            'debian/changelog',
+                            'debian/copyright',
                             'debian/python-scons.postinst',
                             'debian/python-scons.prerm',
                           ],
@@ -290,8 +299,10 @@ scons = {
         'prefix'        : test1_dir,
 
         'debian_deps'   : [ 
-                            'debian/rules debian/control',
-                            'debian/changelog debian/copyright',
+                            'debian/rules',
+                            'debian/control',
+                            'debian/changelog',
+                            'debian/copyright',
                             'debian/scons.postinst',
                             'debian/scons.prerm',
                           ],
@@ -321,6 +332,7 @@ scons = {
 }
 
 src_deps = []
+src_files = []
 
 for p in [ scons ]:
     #
@@ -329,19 +341,15 @@ for p in [ scons ]:
     pkg = p['pkg']
 
     src = 'src'
-    try:
+    if p.has_key('src_subdir'):
         src = os.path.join(src, p['src_subdir'])
-    except KeyError:
-        pass
 
     build = os.path.join('build', pkg)
 
     prefix = p['prefix']
     install = prefix
-    try:
+    if p.has_key('inst_subdir'):
         install = os.path.join(install, p['inst_subdir'])
-    except KeyError:
-        pass
 
     #
     # Read up the list of source files from our MANIFEST.in.
@@ -349,6 +357,7 @@ for p in [ scons ]:
     # README.txt, or setup.py.  Make a copy of the list for the
     # destination files.
     #
+    global src_files
     src_files = map(lambda x: x[:-1],
                     open(os.path.join(src, 'MANIFEST.in')).readlines())
     dst_files = map(lambda x: os.path.join(install, x), src_files)
@@ -390,23 +399,25 @@ for p in [ scons ]:
     # concocted to expand __FILE__, __VERSION__, etc.
     #
     for b in src_files:
-        try:
-            s = p['filemap'][b]
-        except KeyError:
-            pass
+	s = p['filemap'].get(b, b)
         env.Command(os.path.join(build, b),
                     os.path.join(src, s),
                     "$SEDCOM")
 
     #
     # NOW, finally, we can create the MANIFEST, which we do
-    # by having Perl spit out the contents of the @src_files
+    # by having Python spit out the contents of the src_files
     # array we've carefully created.  After we've added
     # MANIFEST itself to the array, of course.
     #
     src_files.append("MANIFEST")
-    def copy(src, dest):
-        open(dest, 'wb').write(open(src, 'rb').read())
+    def copy(target, source, **kw):
+        global src_files
+	src_files.sort()
+        f = open(target, 'wb')
+        for file in src_files:
+            f.write(file + "\n")
+        f.close()
         return 0
     env.Command(os.path.join(build, 'MANIFEST'),
                 os.path.join(src, 'MANIFEST.in'),
@@ -426,7 +437,7 @@ for p in [ scons ]:
         archive,
         os.path.join(build, 'dist', "%s-%s.win32.exe" % (pkg, version)),
     ]
-    install_targets = build_targets
+    install_targets = build_targets[:]
 
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
@@ -462,8 +473,8 @@ for p in [ scons ]:
         env.InstallAs(sourcefile, archive)
 
         targets = [ rpm, src_rpm ]
-        cmd = "rpm --define '_topdir %s' -ba $TARGET" % topdir
-        if os.path.isdir(BUILDdir):
+        cmd = "rpm --define '_topdir %s' -ba $SOURCES" % topdir
+        if not os.path.isdir(BUILDdir):
             cmd = "mkdir -p " + BUILDdir + "; " + cmd
         env.Command(targets, specfile, cmd)
         env.Depends(targets, sourcefile)
@@ -475,7 +486,7 @@ for p in [ scons ]:
     if dh_builddeb and fakeroot:
         # Debian builds directly into build/dist, so we don't
         # need to add the .debs to the install_targets.
-        deb = os.path.join('build', 'dist', "%s_%s-1.all.deb" % (pkg, version))
+        deb = os.path.join('build', 'dist', "%s_%s-1_all.deb" % (pkg, version))
         env.Command(deb, build_src_files, [
             "fakeroot make -f debian/rules VERSION=$VERSION DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-%s" % pkg,
             "env DH_COMPAT=$DH_COMPAT dh_clean"
@@ -571,20 +582,20 @@ if change:
         u[f] = 1
     for f in df:
         del u[f]
-    src_files = filter(lambda x: x[-9:] != '.aeignore' and x[-7:] != '.consign',
+    sfiles = filter(lambda x: x[-9:] != '.aeignore' and x[-7:] != '.consign',
                        u.keys())
 
-    if src_files:
+    if sfiles:
         ps = "%s-src" % project
         psv = "%s-src-%s" % (project, version)
         b_ps = os.path.join('build', ps)
         b_psv = os.path.join('build', psv)
 
-        for file in src_files:
+        for file in sfiles:
             env.Command(os.path.join(b_ps, file), file,
-                        [ "$SEDCOM", "chmod --reference=$SOURCE $TARGET" ])
+                        [ "$SEDCOM", "chmod --reference=$SOURCES $TARGET" ])
 
-        b_ps_files = map(lambda x, d=b_ps: os.path.join(d, x), src_files)
+        b_ps_files = map(lambda x, d=b_ps: os.path.join(d, x), sfiles)
         cmds = [
             "rm -rf %s" % b_psv,
             "cp -rp %s %s" % (b_ps, b_psv),

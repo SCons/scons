@@ -93,7 +93,10 @@ if jw:
     #
     date, ver, rev = env.Dictionary('DATE', 'VERSION', 'REVISION')
     verfile = str(File("version.sgml"))
-    os.unlink(verfile)
+    try:
+        os.unlink(verfile)
+    except:
+        pass
     open(verfile, "w").write("""<!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
@@ -175,7 +178,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         if docs[doc].get('html'):
             env.Command(htmlindex, main, [
                 "rm -f ${TARGET.dir}/*.html",
-                "jw -b html -o {$TARGET.dir} $SOURCES",
+                "jw -b html -o ${TARGET.dir} $SOURCES",
                 "mv -v ${TARGET.dir}/index.html $TARGET || true",
             ])
 
