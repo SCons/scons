@@ -52,7 +52,7 @@ test.write('f2.cpp',"""
 #include \"d1/f1.h\"
 #include <d2/f1.h>
 #include \"f1.h\"
-#include <f4.h>
+#import <f4.h>
 
 int main()
 {
