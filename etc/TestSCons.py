@@ -94,7 +94,7 @@ class TestSCons(TestCmd.TestCmd):
 	    print "STDERR ============"
 	    print self.stderr()
 	    raise TestFailed
-	if stdout and not self.match(self.stdout(), stdout):
+	if not stdout is None and not self.match(self.stdout(), stdout):
 	    print "Expected STDOUT =========="
 	    print stdout
 	    print "Actual STDOUT ============"
@@ -104,7 +104,7 @@ class TestSCons(TestCmd.TestCmd):
 		print "STDERR ==================="
 		print stderr
 	    raise TestFailed
-	if stderr and not self.match(self.stderr(), stderr):
+	if not stderr is None and not self.match(self.stderr(), stderr):
 	    print "Expected STDERR =========="
 	    print stderr
 	    print "Actual STDERR ============"

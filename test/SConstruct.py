@@ -6,6 +6,12 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.run(stdout = "",
+	stderr = """
+SCons error: No SConstruct file found.
+File "\S+scons(\.py)?", line \d+, in main
+""")
+
 wpath = test.workpath()
 
 test.write('sconstruct', """

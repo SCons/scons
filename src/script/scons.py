@@ -82,7 +82,6 @@ def _scons_user_error(e):
     """Handle user errors. Print out a message and a description of the
     error, along with the line number and routine where it occured.
     """
-    print 'user error'
     etype, value, tb = sys.exc_info()
     while tb.tb_next is not None:
         tb = tb.tb_next
@@ -499,11 +498,14 @@ def main():
                 Scripts.append(file)
                 break
 
-    if local_help and not Scripts:
-	# They specified -h, but there's no SConstruct.  Give them
-	# the options usage before we try to read it and fail.
-	PrintUsage()
-	sys.exit(0)
+    if not Scripts:
+	if local_help:
+	    # There's no SConstruct, but they specified -h.  Give them
+	    # the options usage before we try to read it and fail.
+	    PrintUsage()
+	    sys.exit(0)
+	else:
+	    raise UserError, "No SConstruct file found."
 
     # XXX The commented-out code here adds any "scons" subdirs in anything
     # along sys.path to sys.path.  This was an attempt at setting up things
