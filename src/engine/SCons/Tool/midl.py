@@ -39,7 +39,7 @@ import os.path
 
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""
-    base, ext = os.path.splitext(source[0])
+    base, ext = os.path.splitext(str(source[0]))
     tlb = base + '.tlb'
     incl = base + '.h'
     interface = base + '_i.c'

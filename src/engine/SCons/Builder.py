@@ -289,15 +289,33 @@ class BuilderBase:
         else:
             target = adjustixes(target, pre, suf)
 
-        if self.emitter:
-            # pass the targets and sources to the emitter as strings
-            # rather than nodes since str(node) doesn't work
-            # properly from any directory other than the top directory,
-            # and emitters are called "in" the SConscript directory:
-            target, source = self.emitter(target=target, source=source, env=env)
-
         slist = SCons.Node.arg2nodes(source, self.source_factory)
         tlist = SCons.Node.arg2nodes(target, self.target_factory)
+
+        if self.emitter:
+            # The emitter is going to do str(node), but because we're
+            # being called *from* a builder invocation, the new targets
+            # don't yet have a builder set on them and will look like
+            # source files.  Fool the emitter's str() calls by setting
+            # up a temporary builder on the new targets.
+            new_targets = []
+            for t in tlist:
+                if not t.is_derived():
+                    t.builder = self
+                    new_targets.append(t)
+        
+            target, source = self.emitter(target=tlist, source=slist, env=env)
+
+            # Now delete the temporary builders that we attached to the
+            # new targets, so that _init_nodes() doesn't do weird stuff
+            # to them because it thinks they already have builders.
+            for t in new_targets:
+                t.builder = None
+
+            # Have to call arg2nodes yet again, since it is legal for
+            # emitters to spit out strings as well as Node instances.
+            slist = SCons.Node.arg2nodes(source, self.source_factory)
+            tlist = SCons.Node.arg2nodes(target, self.target_factory)
 
         return tlist, slist
 

@@ -40,8 +40,6 @@ import TestCmd
 import SCons.Action
 import SCons.Builder
 import SCons.Errors
-import SCons.Node.FS
-import SCons.Warnings
 import SCons.Environment
 
 # Initial setup of the common environment for all tests,
@@ -109,6 +107,27 @@ class Environment:
     
 env = Environment()
 
+class MyNode:
+    def __init__(self, name):
+        self.name = name
+        self.sources = []
+        self.builder = None
+        self.side_effect = 0
+    def __str__(self):
+        return self.name
+    def builder_set(self, builder):
+        self.builder = builder
+    def has_builder(self):
+        return not self.builder is None
+    def env_set(self, env, safe=0):
+        self.env = env
+    def add_source(self, source):
+        self.sources.extend(source)
+    def scanner_key(self):
+        return self.name
+    def is_derived(self):
+        return self.has_builder()
+
 class BuilderTestCase(unittest.TestCase):
 
     def test__nonzero__(self):
@@ -138,28 +157,10 @@ class BuilderTestCase(unittest.TestCase):
     def test__call__(self):
         """Test calling a builder to establish source dependencies
         """
-        class Node:
-            def __init__(self, name):
-                self.name = name
-                self.sources = []
-                self.builder = None
-                self.side_effect = 0
-            def __str__(self):
-                return self.name
-            def builder_set(self, builder):
-                self.builder = builder
-            def has_builder(self):
-                return not self.builder is None
-            def env_set(self, env, safe=0):
-                self.env = env
-            def add_source(self, source):
-                self.sources.extend(source)
-            def scanner_key(self):
-                return self.name
-        builder = SCons.Builder.Builder(action="foo", node_factory=Node)
+        builder = SCons.Builder.Builder(action="foo", node_factory=MyNode)
 
-        n1 = Node("n1");
-        n2 = Node("n2");
+        n1 = MyNode("n1");
+        n2 = MyNode("n2");
         builder(env, target = n1, source = n2)
         assert n1.env == env
         assert n1.builder == builder
@@ -582,6 +583,11 @@ class BuilderTestCase(unittest.TestCase):
         def emit(target, source, env):
             foo = env.get('foo', 0)
             bar = env.get('bar', 0)
+            for t in target:
+                assert isinstance(t, MyNode)
+                assert t.has_builder()
+            for s in source:
+                assert isinstance(s, MyNode)
             if foo:
                 target.append("bar%d"%foo)
             if bar:
@@ -589,7 +595,8 @@ class BuilderTestCase(unittest.TestCase):
             return ( target, source )
 
         builder = SCons.Builder.Builder(action='foo',
-                                        emitter=emit)
+                                        emitter=emit,
+                                        node_factory=MyNode)
         tgt = builder(env, target='foo2', source='bar')
         assert str(tgt) == 'foo2', str(tgt)
         assert str(tgt.sources[0]) == 'bar', str(tgt.sources[0])
@@ -607,7 +614,8 @@ class BuilderTestCase(unittest.TestCase):
 
         env2=Environment(FOO=emit)
         builder2=SCons.Builder.Builder(action='foo',
-                                       emitter="$FOO")
+                                       emitter="$FOO",
+                                       node_factory=MyNode)
 
         tgt = builder2(env2, target='foo5', source='bar')
         assert str(tgt) == 'foo5', str(tgt)
@@ -625,7 +633,8 @@ class BuilderTestCase(unittest.TestCase):
         assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
 
         builder2a=SCons.Builder.Builder(action='foo',
-                                        emitter="$FOO")
+                                        emitter="$FOO",
+                                        node_factory=MyNode)
         assert builder2 == builder2a, repr(builder2.__dict__) + "\n" + repr(builder2a.__dict__)
 
     def test_no_target(self):

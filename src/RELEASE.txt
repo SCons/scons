@@ -30,6 +30,10 @@ RELEASE 0.14 - XXX
   - Tool specifications no longer take a "platform" argument.
     XXX
 
+  - Emitter functions in Builders are now passed Node objects, not
+    strings, for all targets and sources.  Your emitter may need to
+    use the str() function to examine the names of specified files.
+
   - The SetBuildSignatureType() and SetContentSignatureType() functions
     have been deprecated.  The new names are TargetSignatures() and
     SourceSignatures().

@@ -38,6 +38,7 @@ import re
 import string
 
 import SCons.Builder
+from SCons.Node.FS import _my_normcase
 
 java_parsing = 1
 
@@ -232,42 +233,41 @@ def generate(env):
         and their corresponding target class files.
         """
         env['_JAVACLASSDIR'] = target[0]
-        env['_JAVASRCDIR'] = source[0]
+        env['_JAVASRCDIR'] = source[0].rdir()
         java_suffix = env.get('JAVASUFFIX', '.java')
         class_suffix = env.get('JAVACLASSSUFFIX', '.class')
 
         slist = []
-        def visit(arg, dirname, names, js=java_suffix):
-            java_files = filter(lambda n, js=js: n[-len(js):] == js, names)
-            java_paths = map(lambda f, d=dirname:
-                                    os.path.join(d, f),
-                             java_files)
+        js = _my_normcase(java_suffix)
+        def visit(arg, dirname, names, js=js, dirnode=source[0].rdir()):
+            java_files = filter(lambda n, js=js:
+                                       _my_normcase(n[-len(js):]) == js,
+                                names)
+            mydir = dirnode.Dir(dirname)
+            java_paths = map(lambda f, d=mydir: d.File(f), java_files)
             arg.extend(java_paths)
-        os.path.walk(source[0], visit, slist)
-
+        os.path.walk(source[0].rdir().abspath, visit, slist)
+       
         tlist = []
         for file in slist:
-            pkg_dir, classes = parse_java(file)
+            pkg_dir, classes = parse_java(file.abspath)
             if pkg_dir:
                 for c in classes:
-                    tlist.append(os.path.join(target[0],
-                                              pkg_dir,
-                                              c + class_suffix))
+                    tlist.append(target[0].Dir(pkg_dir).File(c+class_suffix))
             elif classes:
                 for c in classes:
-                    tlist.append(os.path.join(target[0], c + class_suffix))
+                    tlist.append(target[0].File(c+class_suffix))
             else:
                 # This is an odd end case:  no package and no classes.
                 # Just do our best based on the source file name.
-                tlist.append(os.path.join(target[0],
-                                          file[:-len(java_suffix)] + class_suffix))
+                tlist.append(target[0].File(str(file)[:-len(java_suffix)] + class_suffix))
 
         return tlist, slist
 
     JavaBuilder = SCons.Builder.Builder(action = '$JAVACCOM',
                         emitter = emit_java_files,
-                        target_factory = SCons.Node.FS.default_fs.File,
-                        source_factory = SCons.Node.FS.default_fs.File)
+                        target_factory = SCons.Node.FS.default_fs.Dir,
+                        source_factory = SCons.Node.FS.default_fs.Dir)
 
     env['BUILDERS']['Java'] = JavaBuilder
 

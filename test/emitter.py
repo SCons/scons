@@ -30,6 +30,8 @@ import os.path
 
 test = TestSCons.TestSCons()
 
+test.subdir('src')
+
 test.write('SConstruct',"""
 BuildDir('var1', 'src', duplicate=0)
 BuildDir('var2', 'src', duplicate=1)
@@ -37,10 +39,6 @@ SConscript('src/SConscript')
 SConscript('var1/SConscript')
 SConscript('var2/SConscript')
 """)
-
-test.subdir('src')
-
-test.write('src/f.in', 'f.in')
 
 test.write('src/SConscript',"""
 def build(target, source, env):
@@ -55,7 +53,11 @@ b = Builder(action=build, emitter=emitter)
 
 env=Environment(BUILDERS={ 'foo': b })
 env.foo('f.out', 'f.in')
+env.foo(File('g.out'), 'g.in')
 """)
+
+test.write(['src', 'f.in'], 'f.in')
+test.write(['src', 'g.in'], 'g.in')
 
 test.run(arguments='.')
 
@@ -65,5 +67,12 @@ test.fail_test(not os.path.exists(test.workpath('var1', 'f.out')))
 test.fail_test(not os.path.exists(test.workpath('var1', 'f.out.foo')))
 test.fail_test(not os.path.exists(test.workpath('var2', 'f.out')))
 test.fail_test(not os.path.exists(test.workpath('var2', 'f.out.foo')))
+
+test.fail_test(not os.path.exists(test.workpath('src', 'g.out')))
+test.fail_test(not os.path.exists(test.workpath('src', 'g.out.foo')))
+test.fail_test(not os.path.exists(test.workpath('var1', 'g.out')))
+test.fail_test(not os.path.exists(test.workpath('var1', 'g.out.foo')))
+test.fail_test(not os.path.exists(test.workpath('var2', 'g.out')))
+test.fail_test(not os.path.exists(test.workpath('var2', 'g.out.foo')))
 
 test.pass_test()
