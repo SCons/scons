@@ -159,6 +159,10 @@ RELEASE 0.97 - XXX
     matter whether the dependency file is in a Repository or not.
     This may cause recompilations upon upgrade to this version.
 
+  - Make AlwaysBuild() work with Alias and Python value Nodes (making
+    it much simpler to support aliases like "clean" that just invoke
+    an arbitrary action).
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
