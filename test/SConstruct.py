@@ -32,7 +32,7 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 test.run(stdout = "",
 	stderr = """
 SCons error: No SConstruct file found.
-File "\S+scons(\.py)?", line \d+, in main
+File "\S+Script.py", line \d+, in _main
 """)
 
 test.match_func = TestCmd.match_exact

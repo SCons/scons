@@ -64,9 +64,9 @@ raise InternalError, 'error inside'
 test.run(arguments='-f SConstruct3',
 	 stdout = "other errors\n",
 	 stderr = r"""Traceback \((most recent call|innermost) last\):
-  File ".*scons(\.py)?", line \d+, in \?
-    main\(\)
-  File ".*scons(\.py)?", line \d+, in main
+  File ".*Script.py", line \d+, in main
+    _main\(\)
+  File ".*Script.py", line \d+, in _main
     exec file in globals\(\)
   File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
