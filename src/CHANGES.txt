@@ -33,6 +33,9 @@ RELEASE 0.95 - XXX
 
   - More robust handling of data in VCComponents.dat.
 
+  - If the "env" command is available, spawn commands with the more
+    general "env -" instead of "env -i".
+
   From Kerim Borchaev:
 
   - Fix a typo in a msvc.py's registry lookup:  "VCComponents.dat", not
