@@ -471,12 +471,15 @@ class EnvironmentTestCase(unittest.TestCase):
 	env = Environment(AAA = 'a', BBB = 'b')
 	str = env.subst("$AAA ${AAA}A $BBBB $BBB")
 	assert str == "a aA b", str
-	env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
+
+        # Changed the tests below to reflect a bug fix in
+        # subst()
+        env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
 	str = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
-	assert str == "b foo b", str
+	assert str == "b bA bB b", str
 	env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
 	str = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
-	assert str == "c c", str
+	assert str == "c cA cB c", str
 
         env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
         lst = env.subst_list([ "$AAA", "B $CCC" ])

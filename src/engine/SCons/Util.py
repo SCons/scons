@@ -76,6 +76,20 @@ def updrive(path):
         path = string.upper(drive) + rest
     return path
 
+class Literal:
+    """A wrapper for a string.  If you use this object wrapped
+    around a string, then it will be interpreted as literal.
+    When passed to the command interpreter, all special
+    characters will be escaped."""
+    def __init__(self, lstr):
+        self.lstr = lstr
+
+    def __str__(self):
+        return self.lstr
+
+    def is_literal(self):
+        return 1
+
 class PathList(UserList.UserList):
     """This class emulates the behavior of a list, but also implements
     the special "path dissection" attributes we can use to find
@@ -153,6 +167,9 @@ class PathList(UserList.UserList):
                          "dir" : __getDir,
                          "suffix" : __getSuffix,
                          "abspath" : __getAbsPath}
+
+    def is_literal(self):
+        return 1
     
     def __str__(self):
         return string.join(self.data)
@@ -189,8 +206,118 @@ def quote_spaces(arg):
     else:
         return arg
 
+# Several functions below deal with Environment variable
+# substitution.  Part of this process involves inserting
+# a bunch of special escape sequences into the string
+# so that when we are all done, we know things like
+# where to split command line args, what strings to
+# interpret literally, etc.  A dictionary of these
+# sequences follows:
+#
+# \0\1          signifies a division between arguments in
+#               a command line.
+#
+# \0\2          signifies a division between multiple distinct
+#               commands
+#
+# \0\3          This string should be interpreted literally.
+#               This code occurring anywhere in the string means
+#               the whole string should have all special characters
+#               escaped.
+#
+# \0\4          A literal dollar sign '$'
+#
+# \0\5          Placed before and after interpolated variables
+#               so that we do not accidentally smush to variables
+#               together during the recursive interpolation process.
+
 _cv = re.compile(r'\$([_a-zA-Z]\w*|{[^}]*})')
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
+_newline = re.compile(r'[\r\n]+')
+
+def _convertArg(x):
+    """This function converts an individual argument.  If the
+    argument is to be interpreted literally, with all special
+    characters escaped, then we insert a special code in front
+    of it, so that the command interpreter will know this."""
+    literal = 0
+
+    try:
+        if x.is_literal():
+            literal = 1
+    except AttributeError:
+        pass
+    
+    if not literal:
+        # escape newlines as '\0\2', '\0\1' denotes an argument split
+        # Also escape double-dollar signs to mean the literal dollar sign.
+        return string.replace(_newline.sub('\0\2', to_String(x)), '$$', '\0\4')
+    else:
+        # Interpret non-string args as literals.
+        # The special \0\3 code will tell us to encase this string
+        # in a Literal instance when we are all done
+        # Also escape out any $ signs because we don't want
+        # to continue interpolating a literal.
+        return '\0\3' + string.replace(str(x), '$', '\0\4')
+
+def _convert(x):
+    """This function is used to convert construction variable
+    values or the value of strSubst to a string for interpolation.
+    This function follows the rules outlined in the documentaion
+    for scons_subst_list()"""
+    if x is None:
+        return ''
+    elif is_String(x):
+        # escape newlines as '\0\2', '\0\1' denotes an argument split
+        return _convertArg(_space_sep.sub('\0\1', x))
+    elif is_List(x):
+        # '\0\1' denotes an argument split
+        return string.join(map(_convertArg, x), '\0\1')
+    else:
+        return _convertArg(x)
+
+class CmdStringHolder:
+    """This is a special class used to hold strings generated
+    by scons_subst_list().  It defines a special method escape().
+    When passed a function with an escape algorithm for a
+    particular platform, it will return the contained string
+    with the proper escape sequences inserted."""
+
+    def __init__(self, cmd):
+        """This constructor receives a string.  The string
+        can contain the escape sequence \0\3.
+        If it does, then we will escape all special characters
+        in the string before passing it to the command interpreter."""
+        self.data = cmd
+        
+        # Populate flatdata (the ting returned by str()) with the
+        # non-escaped string
+        self.escape(lambda x: x, lambda x: x)
+
+    def __str__(self):
+        """Return the string in its current state."""
+        return self.flatdata
+
+    def escape(self, escape_func, quote_func=quote_spaces):
+        """Escape the string with the supplied function.  The
+        function is expected to take an arbitrary string, then
+        return it with all special characters escaped and ready
+        for passing to the command interpreter.
+
+        After calling this function, the next call to str() will
+        return the escaped string.
+        """
+
+        if string.find(self.data, '\0\3') >= 0:
+            self.flatdata = escape_func(string.replace(self.data, '\0\3', ''))
+        elif ' ' in self.data or '\t' in self.data:
+            self.flatdata = quote_func(self.data)
+        else:
+            self.flatdata = self.data
+
+    def __cmp__(self, rhs):
+        return cmp(self.flatdata, str(rhs))
+        
 
 def scons_subst_list(strSubst, globals, locals, remove=None):
     """
@@ -231,18 +358,21 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
         else:
             return to_String(x)
 
-    def repl(m, globals=globals, locals=locals, convert=convert):
+    def repl(m, globals=globals, locals=locals):
         key = m.group(1)
         if key[0] == '{':
             key = key[1:-1]
         try:
             e = eval(key, globals, locals)
-            return convert(e)
+            # The \0\5 escape code keeps us from smushing two or more
+            # variables together during recusrive substitution, i.e.
+            # foo=$bar bar=baz barbaz=blat => $foo$bar->blat (bad)
+            return "\0\5" + _convert(e) + "\0\5"
         except NameError:
-            return ''
+            return '\0\5'
 
     # Convert the argument to a string:
-    strSubst = convert(strSubst)
+    strSubst = _convert(strSubst)
 
     # Do the interpolation:
     n = 1
@@ -250,14 +380,17 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
         strSubst, n = _cv.subn(repl, strSubst)
         
     # Convert the interpolated string to a list of lines:
-    listLines = string.split(strSubst, '\n')
+    listLines = string.split(strSubst, '\0\2')
 
     # Remove the patterns that match the remove argument: 
     if remove:
         listLines = map(lambda x,re=remove: re.sub('', x), listLines)
 
+    # Process escaped $'s and remove placeholder \0\5's
+    listLines = map(lambda x: string.replace(string.replace(x, '\0\4', '$'), '\0\5', ''), listLines)
+
     # Finally split each line up into a list of arguments:
-    return map(lambda x: filter(lambda y: y, string.split(x, '\0')),
+    return map(lambda x: map(CmdStringHolder, filter(lambda y:y, string.split(x, '\0\1'))),
                listLines)
 
 def scons_subst(strSubst, globals, locals, remove=None):
@@ -287,16 +420,23 @@ def scons_subst(strSubst, globals, locals, remove=None):
                 s = to_String(e)
         except NameError:
             s = ''
-        return s
+        # Insert placeholders to avoid accidentally smushing
+        # separate variables together.
+        return "\0\5" + s + "\0\5"
 
     # Now, do the substitution
     n = 1
     while n != 0:
+        # escape double dollar signs
+        strSubst = string.replace(strSubst, '$$', '\0\4')
         strSubst,n = _cv.subn(repl, strSubst)
     # and then remove remove
     if remove:
         strSubst = remove.sub('', strSubst)
-    
+
+    # Un-escape the string
+    strSubst = string.replace(string.replace(strSubst, '\0\4', '$'),
+                              '\0\5', '')
     # strip out redundant white-space
     return string.strip(_space_sep.sub(' ', strSubst))
 

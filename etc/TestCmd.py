@@ -74,6 +74,26 @@ else:
 
 tempfile.template = 'testcmd.'
 
+if os.name == 'posix':
+
+    def escape_cmd(arg):
+        "escape shell special characters"
+        slash = '\\'
+        special = '"$'
+
+        arg = string.replace(arg, slash, slash+slash)
+        for c in special:
+            arg = string.replace(arg, c, slash+c)
+
+        return '"' + arg + '"'
+
+else:
+
+    # Windows does not allow special characters in file names
+    # anyway, so no need for an escape function, we will just quote
+    # the arg.
+    escape_cmd = lambda x: '"' + x + '"'
+
 _Cleanup = []
 
 def _clean():
@@ -454,7 +474,7 @@ class TestCmd:
 	if program:
 	    if not os.path.isabs(program):
 		program = os.path.join(self._cwd, program)
-	    cmd = program
+	    cmd = escape_cmd(program)
 	    if interpreter:
 		cmd = interpreter + " " + cmd
 	else:

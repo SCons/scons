@@ -682,7 +682,11 @@ class NodeTestCase(unittest.TestCase):
         assert not hasattr(nodes[1], 'b'), nodes[1]
         assert not hasattr(nodes[1], 'bbbb'), nodes[0]
         assert nodes[1].c == 1, nodes[1]
-
+        
+    def test_literal(self):
+        """Test the is_literal() function."""
+        n=SCons.Node.Node()
+        assert n.is_literal()
 
 
 if __name__ == "__main__":

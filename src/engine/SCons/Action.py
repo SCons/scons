@@ -50,12 +50,6 @@ exitvalmap = {
 
 default_ENV = None
 
-def quote(x):
-    if ' ' in x or '\t' in x:
-        return '"'+x+'"'
-    else:
-        return x
-
 def rfile(n):
     try:
         return n.rfile()
@@ -64,16 +58,16 @@ def rfile(n):
 
 if os.name == 'posix':
 
-    def escape(arg):
+    def defaultEscape(arg):
         "escape shell special characters"
         slash = '\\'
-        special = '"\'`&;><| \t#()*?$~!'
+        special = '"$'
 
         arg = string.replace(arg, slash, slash+slash)
         for c in special:
             arg = string.replace(arg, c, slash+c)
 
-        return arg
+        return '"' + arg + '"'
 
     # If the env command exists, then we can use os.system()
     # to spawn commands, otherwise we fall back on os.fork()/os.exec().
@@ -84,11 +78,11 @@ if os.name == 'posix':
             if env:
                 s = 'env -i '
                 for key in env.keys():
-                    s = s + '%s=%s '%(key, escape(env[key]))
+                    s = s + '%s=%s '%(key, defaultEscape(env[key]))
                 s = s + 'sh -c '
-                s = s + escape(string.join(map(quote, args)))
+                s = s + defaultEscape(string.join(args))
             else:
-                s = string.join(map(quote, args))
+                s = string.join(args)
 
             return os.system(s) >> 8
     else:
@@ -97,7 +91,7 @@ if os.name == 'posix':
             if not pid:
                 # Child process.
                 exitval = 127
-                args = ['sh', '-c', string.join(map(quote, args))]
+                args = ['sh', '-c', string.join(args)]
                 try:
                     os.execvpe('sh', args, env)
                 except OSError, e:
@@ -181,12 +175,17 @@ elif os.name == 'nt':
             return 127
         else:
             try:
-                args = [cmd_interp, '/C', quote(string.join(map(quote, args)))]
+                args = [cmd_interp, '/C', quote(string.join(args)) ]
                 ret = os.spawnve(os.P_WAIT, cmd_interp, args, env)
             except OSError, e:
                 ret = exitvalmap[e[0]]
                 sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
             return ret
+
+    # Windows does not allow special characters in file names
+    # anyway, so no need for an escape function, we will just quote
+    # the arg.
+    defaultEscape = lambda x: '"' + x + '"'
 else:
     def defaultSpawn(cmd, args, env):
         sys.stderr.write("scons: Unknown os '%s', cannot spawn command interpreter.\n" % os.name)
@@ -194,14 +193,31 @@ else:
         return 127
 
 spawn = defaultSpawn
+escape_cmd = defaultEscape
 
-def SetCommandHandler(func):
-    global spawn
+def SetCommandHandler(func, escape = lambda x: x):
+    """Sets the command handler and escape function for the
+    system.  All command actions are passed through
+    the command handler, which should be a function that accepts
+    3 arguments: a string command, a list of arguments (the first
+    of which is the command itself), and a dictionary representing
+    the execution environment.  The function should then pass
+    the string to a suitable command interpreter.
+
+    The escape function should take a string and return the same
+    string with all special characters escaped such that the command
+    interpreter will interpret the string literally."""
+    global spawn, escape_cmd
     spawn = func
-
+    escape_cmd = escape
+    
 def GetCommandHandler():
     global spawn
     return spawn
+
+def GetEscapeHandler():
+    global escape_cmd
+    return escape_cmd
 
 class CommandGenerator:
     """
@@ -316,7 +332,7 @@ def _string_from_cmd_list(cmd_list):
     """Takes a list of command line arguments and returns a pretty
     representation for printing."""
     cl = []
-    for arg in cmd_list:
+    for arg in map(str, cmd_list):
         if ' ' in arg or '\t' in arg:
             arg = '"' + arg + '"'
         cl.append(arg)
@@ -328,9 +344,7 @@ _remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
     def __init__(self, cmd):
-        import SCons.Util
-
-        self.cmd_list = map(SCons.Util.to_String, cmd)
+        self.cmd_list = cmd
 
     def execute(self, target, source, env):
         dict = self.subst_dict(target, source, env)
@@ -349,6 +363,10 @@ class CommandAction(ActionBase):
                             import SCons.Environment
                             default_ENV = SCons.Environment.Environment()['ENV']
                         ENV = default_ENV
+                    # Escape the command line for the command
+                    # interpreter we are using
+                    map(lambda x: x.escape(escape_cmd), cmd_line)
+                    cmd_line = map(str, cmd_line)
                     ret = spawn(cmd_line[0], cmd_line, ENV)
                     if ret:
                         return ret
@@ -376,7 +394,7 @@ class CommandAction(ActionBase):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        return SCons.Util.scons_subst(string.join(self.cmd_list),
+        return SCons.Util.scons_subst(string.join(map(str, self.cmd_list)),
                                       self._sig_dict(target, source, env), {}, _remove)
 
 class CommandGeneratorAction(ActionBase):

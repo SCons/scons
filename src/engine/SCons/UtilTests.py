@@ -128,6 +128,20 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("test $a $b $c $d test", glob, loc)
         assert newcom == "test 3 2 4 test", newcom
 
+        # Test against a former bug in scons_subst_list()
+        glob = { "FOO" : "$BAR",
+                 "BAR" : "BAZ",
+                 "BLAT" : "XYX",
+                 "BARXYX" : "BADNEWS" }
+        newcom = scons_subst("$FOO$BLAT", glob, {})
+        assert newcom == "BAZXYX", newcom
+
+        # Test for double-dollar-sign behavior
+        glob = { "FOO" : "BAR",
+                 "BAZ" : "BLAT" }
+        newcom = scons_subst("$$FOO$BAZ", glob, {})
+        assert newcom == "$FOOBLAT", newcom
+
     def test_splitext(self):
         assert splitext('foo') == ('foo','')
         assert splitext('foo.bar') == ('foo','.bar')
@@ -141,6 +155,8 @@ class UtilTestCase(unittest.TestCase):
                 self.name = name
             def __str__(self):
                 return self.name
+            def is_literal(self):
+                return 1
         
         loc = {}
         loc['TARGETS'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
@@ -185,19 +201,13 @@ class UtilTestCase(unittest.TestCase):
         assert cmd_list[0][1] == '--in=foo.in', cmd_list[0][1]
         assert cmd_list[0][2] == '--out=bar with spaces.out', cmd_list[0][2]
 
-        # XXX: The newline in crazy really should be interpreted as
-        #      part of the file name, and not as delimiting a new command
-        #      line
-        #      In other words the following test fragment is illustrating
-        #      a bug in variable interpolation.
+        # This test is now fixed, and works like it should.
         cmd_list = scons_subst_list("$DO --in=$CRAZY --out=$BAR", loc, {})
-        assert len(cmd_list) == 2, cmd_list
-        assert len(cmd_list[0]) == 2, cmd_list
-        assert len(cmd_list[1]) == 2, cmd_list
+        assert len(cmd_list) == 1, map(str, cmd_list[0])
+        assert len(cmd_list[0]) == 3, cmd_list
         assert cmd_list[0][0] == 'do something', cmd_list[0][0]
-        assert cmd_list[0][1] == '--in=crazy', cmd_list[0][1]
-        assert cmd_list[1][0] == 'file.in', cmd_list[1][0]
-        assert cmd_list[1][1] == '--out=bar with spaces.out', cmd_list[1][1]
+        assert cmd_list[0][1] == '--in=crazy\nfile.in', cmd_list[0][1]
+        assert cmd_list[0][2] == '--out=bar with spaces.out', cmd_list[0][2]
         
         # Test inputting a list to scons_subst_list()
         cmd_list = scons_subst_list([ "$SOURCES$NEWLINE", "$TARGETS",
@@ -212,7 +222,36 @@ class UtilTestCase(unittest.TestCase):
         loc = {'a' : 3, 'c' : 4 }
         cmd_list = scons_subst_list("test $a $b $c $d test", glob, loc)
         assert len(cmd_list) == 1, cmd_list
-        assert cmd_list[0] == ['test', '3', '2', '4', 'test'], cmd_list
+        assert map(str, cmd_list[0]) == ['test', '3', '2', '4', 'test'], map(str, cmd_list[0])
+
+        # Test against a former bug in scons_subst_list()
+        glob = { "FOO" : "$BAR",
+                 "BAR" : "BAZ",
+                 "BLAT" : "XYX",
+                 "BARXYX" : "BADNEWS" }
+        cmd_list = scons_subst_list("$FOO$BLAT", glob, {})
+        assert cmd_list[0][0] == "BAZXYX", cmd_list[0][0]
+
+        # Test for double-dollar-sign behavior
+        glob = { "FOO" : "BAR",
+                 "BAZ" : "BLAT" }
+        cmd_list = scons_subst_list("$$FOO$BAZ", glob, {})
+        assert cmd_list[0][0] == "$FOOBLAT", cmd_list[0][0]
+
+        # Now test escape functionality
+        def escape_func(foo):
+            return '**' + foo + '**'
+        def quote_func(foo):
+            return foo
+        glob = { "FOO" : PathList([ 'foo\nwith\nnewlines',
+                                    'bar\nwith\nnewlines' ]) }
+        cmd_list = scons_subst_list("$FOO", glob, {})
+        assert cmd_list[0][0] == 'foo\nwith\nnewlines', cmd_list[0][0]
+        cmd_list[0][0].escape(escape_func)
+        assert cmd_list[0][0] == '**foo\nwith\nnewlines**', cmd_list[0][0]
+        assert cmd_list[0][1] == 'bar\nwith\nnewlines', cmd_list[0][0]
+        cmd_list[0][1].escape(escape_func)
+        assert cmd_list[0][1] == '**bar\nwith\nnewlines**', cmd_list[0][0]
 
     def test_quote_spaces(self):
         """Testing the quote_spaces() method..."""
@@ -423,6 +462,20 @@ class UtilTestCase(unittest.TestCase):
         s.baz = 6
 
         assert p.baz == 5, p.baz
+
+    def test_Literal(self):
+        """Test the Literal() function."""
+        cmd_list = [ '$FOO', Literal('$BAR') ]
+        cmd_list = scons_subst_list(cmd_list,
+                                    { 'FOO' : 'BAZ',
+                                      'BAR' : 'BLAT' }, {})
+        def escape_func(cmd):
+            return '**' + cmd + '**'
+
+        map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
+        cmd_list = map(str, cmd_list[0])
+        assert cmd_list[0] == 'BAZ', cmd_list[0]
+        assert cmd_list[1] == '**$BAR**', cmd_list[1]
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')

@@ -394,6 +394,11 @@ class Node:
     def rstr(self):
         return str(self)
 
+    def is_literal(self):
+        """Always pass the string representation of a Node to
+        the command interpreter literally."""
+        return 1
+
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass
 def do_nothing(node, parent): pass

@@ -158,13 +158,30 @@ class CommandActionTestCase(unittest.TestCase):
                 self.executed = 0
         t=Test()
         def func(cmd, args, env, test=t):
-            test.executed = 1
+            test.executed = args
             return 0
+        def escape_func(cmd):
+            return '**' + cmd + '**'
+
+        class LiteralStr:
+            def __init__(self, x):
+                self.data = x
+            def __str__(self):
+                return self.data
+            def is_literal(self):
+                return 1
+            
         SCons.Action.SetCommandHandler(func)
         assert SCons.Action.spawn is func
         a = SCons.Action.CommandAction(["xyzzy"])
         a.execute([],[],Environment({}))
-        assert t.executed == 1
+        assert t.executed == [ 'xyzzy' ]
+
+        SCons.Action.SetCommandHandler(func,escape_func)
+        assert SCons.Action.GetEscapeHandler() == escape_func
+        a = SCons.Action.CommandAction([ LiteralStr("xyzzy") ])
+        a.execute([],[],Environment({ }))
+        assert t.executed == [ '**xyzzy**' ], t.executed
 
     def test_get_raw_contents(self):
         """Test fetching the contents of a command Action

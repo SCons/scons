@@ -329,6 +329,7 @@ def BuildDefaultGlobals():
     globals['Help']              = Help
     globals['Import']            = Import
     globals['Library']           = SCons.Defaults.StaticLibrary
+    globals['Literal']           = SCons.Util.Literal
     globals['Local']             = Local
     globals['Object']            = SCons.Defaults.StaticObject
     globals['Options']           = Options
