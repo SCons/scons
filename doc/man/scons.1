@@ -1299,6 +1299,21 @@ env = Environment(CPPPATH = ['include1', 'include2'])
 env.Program(target = 'foo', source = 'foo.c')
 .EE
 
+.SS Building a Library
+
+.ES
+env = Environment()
+env.Library(target = 'mylib', source = 'l1.c l2.c')
+.EE
+
+.SS Linking a Local Library Into a Program
+
+.ES
+env = Environment(LIBS = 'mylib', LIBPATH = ['.'])
+env.Library(target = 'mylib', source = 'l1.c l2.c')
+env.Program(target = 'prog', source = 'p1.c p2.c')
+.EE
+
 .SS Defining Your Own Builder Object
 
 You
