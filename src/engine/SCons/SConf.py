@@ -155,6 +155,17 @@ class SConf:
                 already_done.append( n )
             self._setCache(n.children())
 
+            # Calling children() has set up the implicit cache (and
+            # other state), but we're not really building things yet,
+            # so generated files won't have been generated.  Clear the
+            # state so we will, in fact, build everything that's necessary
+            # when we do the build.
+            #
+            # XXX - it would be good to find a better way to do this,
+            # maybe by doing something with the actions in the actual
+            # Taskmaster...?
+            n.clear()
+
     def BuildNodes(self, nodes):
         """
         Tries to build the given nodes immediately. Returns 1 on success,

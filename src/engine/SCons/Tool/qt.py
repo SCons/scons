@@ -116,7 +116,7 @@ class _Automoc:
                     out_sources.append(moc_o)
                     objBuilder(moc_o, moc_cpp)
                 self.mocFromHBld(env, moc_cpp, h)
-                moc_cpp.target_scanner = SCons.Defaults.CScan
+                #moc_cpp.target_scanner = SCons.Defaults.CScan
             if cpp and q_object_search.search(cpp.get_contents()):
                 # cpp file with Q_OBJECT macro found -> add moc
                 # (to be included in cpp)
@@ -126,7 +126,7 @@ class _Automoc:
                     env['QT_MOCNAMEGENERATOR'](base, src_ext, env)))
                 self.mocFromCppBld(env, moc, cpp)
                 env.Ignore(moc, moc)
-                moc.source_scanner = SCons.Defaults.CScan
+                #moc.source_scanner = SCons.Defaults.CScan
 
         os.chdir(old_os_cwd)
         FS.chdir(old_fs_cwd)

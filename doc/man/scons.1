@@ -2197,9 +2197,9 @@ SConscript file.)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
-.RI Builder( action ", [" multi ", " prefix ", " suffix ", " src_suffix ", " src_builder ", " emitter ])
+.RI Builder( action ", [" arguments ])
 .TP 
-.RI env.Builder( action ", [" multi ", " prefix ", " suffix ", " src_suffix ", " src_builder ", " emitter ])
+.RI env.Builder( action ", [" arguments ])
 Creates a Builder object for
 the specified
 .IR action .
@@ -5173,6 +5173,14 @@ path, you must make it absolute yourself.
 
 .IP SCANNERS
 A list of the available implicit dependency scanners.
+New file scanners may be added by
+appending to this list,
+although the more flexible approach
+is to associate scanners
+with a specific Builder.
+See the sections "Builder Objects"
+and "Scanner Objects,"
+below, for more information.
 
 .IP SCCS
 The SCCS executable.
@@ -6257,15 +6265,6 @@ takes three arguments:
 .I env
 - the construction environment.
 
-.IP multi
-Specifies whether this builder is allowed to be called multiple times for
-the same target file(s). The default is 0, which means the builder
-can not be called multiple times for the same target file(s). Calling a
-builder multiple times for the same target simply adds additional source
-files to the target; it is not allowed to change the environment associated
-with the target, specify addition environment overrides, or associate a different
-builder with the target. 
-
 .IP prefix 
 The prefix that will be prepended to the target file name.
 This may be a simple string,  or a callable object that takes
@@ -6308,10 +6307,33 @@ b = Builder("build_it < $SOURCE > $TARGET"
 .IP src_suffix
 The expected source file name suffix.
 
-.IP src_builder
-Specifies a builder to use when a source file name suffix does not match
-any of the suffixes of the builder. Using this argument produces a
-multi-stage builder.
+.IP target_scanner
+A Scanner object that
+will be invoked to find
+implicit dependencies for this target file.
+This keyword argument should be used
+for Scanner objects that find
+implicit dependencies
+based only on the target file
+and the construction environment,
+.I not 
+for implicit
+(See the section "Scanner Objects," below,
+for information about creating Scanner objects.)
+
+.IP source_scanner
+A Scanner object that
+will be invoked to
+find implicit dependences in
+any source files
+used to build this target file.
+This is where you would
+specify a scanner to
+find things like
+.B #include
+lines in source files.
+(See the section "Scanner Objects," below,
+for information about creating Scanner objects.)
 
 .IP emitter
 A function or list of functions to manipulate the target and source
@@ -6376,6 +6398,24 @@ b = Builder("my_build < $TARGET > $SOURCE",
                        '.suf2' : e_suf2})
 .EE
 
+.IP multi
+Specifies whether this builder is allowed to be called multiple times for
+the same target file(s). The default is 0, which means the builder
+can not be called multiple times for the same target file(s). Calling a
+builder multiple times for the same target simply adds additional source
+files to the target; it is not allowed to change the environment associated
+with the target, specify addition environment overrides, or associate a different
+builder with the target. 
+
+.IP env
+A construction environment that can be used
+to fetch source code using this Builder.
+(Note that this environment is
+.I not
+used for normal builds of normal target files,
+which use the environment that was
+used to call the Builder for the target file.)
+
 .IP generator
 A function that returns a list of actions that will be executed to build
 the target(s) from the source(s).
@@ -6406,20 +6446,17 @@ def g(source, target, env, for_signature):
 b = Builder(generator=g)
 .EE
 
+.IP src_builder
+Specifies a builder to use when a source file name suffix does not match
+any of the suffixes of the builder. Using this argument produces a
+multi-stage builder.
+
+.RE
 The 
 .I generator
 and
 .I action
 arguments must not both be used for the same Builder.
-
-.IP env
-A construction environment that can be used
-to fetch source code using this Builder.
-(Note that this environment is
-.I not
-used for normal builds of normal target files,
-which use the environment that was
-used to call the Builder for the target file.)
 
 Any additional keyword arguments supplied
 when a Builder object is created

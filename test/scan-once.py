@@ -110,38 +110,6 @@ builders["StaticLibMerge"] = BStaticLibMerge
 env = Environment(BUILDERS = builders)
 e = env.Dictionary()	# Slightly easier to type
 
-Scanned = {}
-
-def write_out(file, dict):
-    keys = dict.keys()
-    keys.sort()
-    f = open(file, 'wb')
-    for k in keys:
-        file = os.path.split(k)[1]
-        f.write(file + ": " + str(dict[k]) + "\\n")
-    f.close()
-
-import SCons.Scanner.C
-c_scanner = SCons.Scanner.C.CScan()
-def MyCScan(node, env, target):
-    deps = c_scanner(node, env, target)
-
-    global Scanned
-    n = str(node)
-    try:
-        Scanned[n] = Scanned[n] + 1
-    except KeyError:
-        Scanned[n] = 1
-    write_out('MyCScan.out', Scanned)
-
-    return deps
-S_MyCScan = SCons.Scanner.Current(skeys = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
-                             ".h", ".H", ".hxx", ".hpp", ".h++", ".hh"],
-                    function = MyCScan,
-                    recursive = 1)
-# QQQ Yes, this is manner of fixing the SCANNERS list is fragile.
-env["SCANNERS"] = [S_MyCScan] + env["SCANNERS"][1:]
-
 global_env = env
 e["GlobalEnv"] = global_env
 
@@ -167,7 +135,6 @@ test.write(['SLF', 'Mylib.py'], """\
 import os
 import string
 import re
-import SCons.Environment
 
 def Subdirs(env, dirlist):
     for file in _subconf_list(dirlist):
@@ -376,10 +343,40 @@ for h in ['libg_gx.h', 'libg_gy.h', 'libg_gz.h']:
 """)
 
 test.write(['SLF', 'src', 'lib_geng', 'SConstruct'], """\
+import os
+
+Scanned = {}
+
+def write_out(file, dict):
+    keys = dict.keys()
+    keys.sort()
+    f = open(file, 'wb')
+    for k in keys:
+        file = os.path.split(k)[1]
+        f.write(file + ": " + str(dict[k]) + "\\n")
+    f.close()
+
+orig_function = CScan.function
+
+def MyCScan(node, env, target, orig_function=orig_function):
+    deps = orig_function(node, env, target)
+
+    global Scanned
+    n = str(node)
+    try:
+        Scanned[n] = Scanned[n] + 1
+    except KeyError:
+        Scanned[n] = 1
+    write_out(r'%s', Scanned)
+
+    return deps
+
+CScan.function = MyCScan
+
 env = Environment(CPPPATH = ".")
 l = env.StaticLibrary("g", Split("libg_1.c libg_2.c libg_3.c"))
 Default(l)
-""")
+""" % test.workpath('MyCScan.out'))
 
 # These were the original shell script and Makefile from SLF's original
 # bug report.  We're not using them--in order to make this script as

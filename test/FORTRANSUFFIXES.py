@@ -25,43 +25,135 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that we can add filesuffixes to $FORTRANSUFFIXES.
+Test the ability to scan additional filesuffixes added to $FORTRANSUFFIXES.
 """
 
 import TestSCons
 
+python = TestSCons.python
+
 test = TestSCons.TestSCons()
 
+test.write('myfc.py', r"""
+import string
+import sys
+def do_file(outf, inf):
+    for line in open(inf, 'rb').readlines():
+        if line[:15] == "      INCLUDE '":
+            do_file(outf, line[15:-2])
+        else:
+            outf.write(line)
+outf = open(sys.argv[1], 'wb')
+for f in sys.argv[2:]:
+    do_file(outf, f)
+sys.exit(0)
+""")
+
 test.write('SConstruct', """
-env = Environment()
+env = Environment(F77PATH = ['.'],
+                  F77 = r'%s myfc.py',
+                  F77FLAGS = [],
+                  F77COM = '$F77 $TARGET $SOURCES',
+                  OBJSUFFIX = '.o')
 env.Append(FORTRANSUFFIXES = ['.x'])
-env.InstallAs('foo_f', 'foo.f')
-env.InstallAs('foo_x', 'foo.x')
+env.Object(target = 'test1', source = 'test1.f')
+env.InstallAs('test1_f', 'test1.f')
+env.InstallAs('test1_h', 'test1.h')
+env.InstallAs('test1_x', 'test1.x')
+""" % (python,))
+
+test.write('test1.f', """\
+      test1.f 1
+      INCLUDE 'test1.h'
+      INCLUDE 'test1.x'
 """)
 
-test.write('foo.f', """\
-INCLUDE 'foo.h'
+test.write('test1.h', """\
+      test1.h 1
+      INCLUDE 'foo.h'
 """)
 
-test.write('foo.x', """\
-INCLUDE 'foo.h'
+test.write('test1.x', """\
+      test1.x 1
+      INCLUDE 'foo.h'
 """)
 
-test.write('foo.h', "foo.h 1\n")
+test.write('foo.h', """\
+      foo.h 1
+""")
 
 test.run(arguments='.', stdout=test.wrap_stdout("""\
-Install file: "foo.f" as "foo_f"
-Install file: "foo.x" as "foo_x"
-"""))
+%s myfc.py test1.o test1.f
+Install file: "test1.f" as "test1_f"
+Install file: "test1.h" as "test1_h"
+Install file: "test1.x" as "test1_x"
+""" % (python,)))
+
+test.must_match('test1.o', """\
+      test1.f 1
+      test1.h 1
+      foo.h 1
+      test1.x 1
+      foo.h 1
+""")
 
 test.up_to_date(arguments='.')
 
-test.write('foo.h', "foo.h 2\n")
+test.write('foo.h', """\
+      foo.h 2
+""")
 
 test.run(arguments='.', stdout=test.wrap_stdout("""\
-Install file: "foo.f" as "foo_f"
-Install file: "foo.x" as "foo_x"
-"""))
+%s myfc.py test1.o test1.f
+""" % (python,)))
+
+test.must_match('test1.o', """\
+      test1.f 1
+      test1.h 1
+      foo.h 2
+      test1.x 1
+      foo.h 2
+""")
+
+test.up_to_date(arguments='.')
+
+test.write('test1.x', """\
+      test1.x 2
+      INCLUDE 'foo.h'
+""")
+
+test.run(arguments='.', stdout=test.wrap_stdout("""\
+%s myfc.py test1.o test1.f
+Install file: "test1.x" as "test1_x"
+""" % (python,)))
+
+test.must_match('test1.o', """\
+      test1.f 1
+      test1.h 1
+      foo.h 2
+      test1.x 2
+      foo.h 2
+""")
+
+test.up_to_date(arguments='.')
+
+test.write('test1.h', """\
+      test1.h 2
+      INCLUDE 'foo.h'
+""")
+
+test.run(arguments='.', stdout=test.wrap_stdout("""\
+%s myfc.py test1.o test1.f
+Install file: "test1.h" as "test1_h"
+""" % (python,)))
+
+test.must_match('test1.o', """\
+      test1.f 1
+      test1.h 2
+      foo.h 2
+      test1.x 2
+      foo.h 2
+""")
 
 test.up_to_date(arguments='.')
 

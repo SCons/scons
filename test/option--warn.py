@@ -54,12 +54,15 @@ test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
 
 
-test.write("SConstruct","""
+test.write("SConstruct", """\
+import SCons.Defaults
+
 def build(target, source, env):
     pass
 
 env=Environment()
-env['BUILDERS']['test'] = Builder(action=build)
+env['BUILDERS']['test'] = Builder(action=build,
+                                  source_scanner=SCons.Defaults.ObjSourceScan)
 env.test(target='foo', source='foo.c')
 """)
 

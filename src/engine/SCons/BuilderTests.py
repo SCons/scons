@@ -133,6 +133,7 @@ class MyNode_without_target_from_source:
         self.builder = None
         self.side_effect = 0
         self.source_scanner = None
+        self.backup_source_scanner = None
     def __str__(self):
         return self.name
     def builder_set(self, builder):
@@ -753,25 +754,30 @@ class BuilderTestCase(unittest.TestCase):
         match = str(e) == "While building `['t8']': Don't know how to build a file with suffix `.unknown'."
         assert match, e
 
-    def test_build_scanner(self):
-        """Testing ability to set a target scanner through a builder."""
+    def test_target_scanner(self):
+        """Testing ability to set target and source scanners through a builder."""
         global instanced
         class TestScanner:
             pass
-        scn = TestScanner()
+        tscan = TestScanner()
+        sscan = TestScanner()
         env = Environment()
-        builder = SCons.Builder.Builder(scanner=scn)
+        builder = SCons.Builder.Builder(target_scanner=tscan,
+                                        source_scanner=sscan)
         tgt = builder(env, target='foo2', source='bar')
-        assert tgt.target_scanner == scn, tgt.target_scanner
+        assert tgt.target_scanner == tscan, tgt.target_scanner
+        assert tgt.source_scanner == sscan, tgt.source_scanner
 
         builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
                                          suffix='.foo')
         builder2 = SCons.Builder.Builder(action='foo',
                                          src_builder = builder1,
-                                         scanner = scn)
+                                         target_scanner = tscan,
+                                         source_scanner = tscan)
         tgt = builder2(env, target='baz2', source='test.bar test2.foo test3.txt')
-        assert tgt.target_scanner == scn, tgt.target_scanner
+        assert tgt.target_scanner == tscan, tgt.target_scanner
+        assert tgt.source_scanner == tscan, tgt.source_scanner
 
     def test_src_scanner(slf):
         """Testing ability to set a source file scanner through a builder."""
@@ -784,12 +790,14 @@ class BuilderTestCase(unittest.TestCase):
         scanner = TestScanner()
         builder = SCons.Builder.Builder(action='action')
 
-        # With no scanner specified, source_scanner is None.
+        # With no scanner specified, source_scanner and
+        # backup_source_scanner are None.
         env1 = Environment()
         tgt = builder(env1, target='foo1.x', source='bar.y')
         src = tgt.sources[0]
         assert tgt.target_scanner != scanner, tgt.target_scanner
         assert src.source_scanner is None, src.source_scanner
+        assert src.backup_source_scanner is None, src.backup_source_scanner
 
         # Later use of the same source file with an environment that
         # has a scanner must still set the scanner.
@@ -798,7 +806,8 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env2, target='foo2.x', source='bar.y')
         src = tgt.sources[0]
         assert tgt.target_scanner != scanner, tgt.target_scanner
-        assert src.source_scanner == scanner, src.source_scanner
+        assert src.source_scanner is None, src.source_scanner
+        assert src.backup_source_scanner == scanner, src.backup_source_scanner
 
     def test_Builder_Args(self):
         """Testing passing extra args to a builder."""

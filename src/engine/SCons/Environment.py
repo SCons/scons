@@ -395,6 +395,7 @@ class Base:
             try:
                 scanners = self._dict['SCANNERS']
             except KeyError:
+                self.scanner_map = {}
                 return None
             else:
                 self.scanner_map = sm = {}
@@ -402,6 +403,8 @@ class Base:
                 # claim they can scan the same suffix, earlier scanners
                 # in the list will overwrite later scanners, so that
                 # the result looks like a "first match" to the user.
+                if not SCons.Util.is_List(scanners):
+                    scanners = [scanners]
                 scanners.reverse()
                 for scanner in scanners:
                     for k in scanner.get_skeys(self):
@@ -1159,7 +1162,7 @@ class Base:
                 arg = self.subst(arg)
             nargs.append(arg)
         nkw = self.subst_kw(kw)
-        return apply(SCons.Scanner.Base, nargs, nkw)
+        return apply(SCons.Scanner.Scanner, nargs, nkw)
 
     def SConsignFile(self, name=".sconsign", dbm_module=None):
         name = self.subst(name)

@@ -65,6 +65,17 @@ class FindPathDirsTestCase(unittest.TestCase):
 
 class ScannerTestCase(unittest.TestCase):
 
+    def test_creation(self):
+        """Test creation of Scanner objects through the Scanner() function"""
+        def func(self):
+            pass
+        s = SCons.Scanner.Scanner(func)
+        assert isinstance(s, SCons.Scanner.Base), s
+        s = SCons.Scanner.Scanner({})
+        assert isinstance(s, SCons.Scanner.Selector), s
+
+class BaseTestCase(unittest.TestCase):
+
     def func(self, filename, env, target, *args):
         self.filename = filename
         self.env = env
@@ -191,6 +202,66 @@ class ScannerTestCase(unittest.TestCase):
         sk = s.get_skeys(env)
         self.failUnless(sk == ['.3', '.4'],
                         "sk was %s, not ['.3', '.4']")
+
+    def test_select(self):
+        """Test the Scanner.Base select() method"""
+        scanner = SCons.Scanner.Base(function = self.func)
+        s = scanner.select('.x')
+        assert s is scanner, s
+
+class SelectorTestCase(unittest.TestCase):
+    class skey:
+        def __init__(self, key):
+            self.key = key
+        def scanner_key(self):
+            return self.key
+
+    def test___init__(self):
+        """Test creation of Scanner.Selector object"""
+        s = SCons.Scanner.Selector({})
+        assert isinstance(s, SCons.Scanner.Selector), s
+        assert s.dict == {}, s.dict
+
+    def test___call__(self):
+        """Test calling Scanner.Selector objects"""
+        called = []
+        def s1func(node, env, path, called=called):
+            called.append('s1func')
+            called.append(node)
+            return []
+        def s2func(node, env, path, called=called):
+            called.append('s2func')
+            called.append(node)
+            return []
+        s1 = SCons.Scanner.Base(s1func)
+        s2 = SCons.Scanner.Base(s2func)
+        selector = SCons.Scanner.Selector({'.x' : s1, '.y' : s2})
+        nx = self.skey('.x')
+        selector(nx, None, [])
+        assert called == ['s1func', nx], called
+        del called[:]
+        ny = self.skey('.y')
+        selector(ny, None, [])
+        assert called == ['s2func', ny], called
+
+    def test_select(self):
+        """Test the Scanner.Selector select() method"""
+        selector = SCons.Scanner.Selector({'.x' : 1, '.y' : 2})
+        s = selector.select(self.skey('.x'))
+        assert s == 1, s
+        s = selector.select(self.skey('.y'))
+        assert s == 2, s
+        s = selector.select(self.skey('.z'))
+        assert s is None, s
+
+    def test_add_scanner(self):
+        """Test the Scanner.Selector add_scanner() method"""
+        selector = SCons.Scanner.Selector({'.x' : 1, '.y' : 2})
+        s = selector.select(self.skey('.z'))
+        assert s is None, s
+        selector.add_scanner('.z', 3)
+        s = selector.select(self.skey('.z'))
+        assert s == 3, s
 
 class CurrentTestCase(unittest.TestCase):
     def test_class(self):
@@ -355,6 +426,8 @@ def suite():
     tclasses = [
                  FindPathDirsTestCase,
                  ScannerTestCase,
+                 BaseTestCase,
+                 SelectorTestCase,
                  CurrentTestCase,
                  ClassicTestCase,
                  ClassicCPPTestCase,

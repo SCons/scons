@@ -488,12 +488,6 @@ class Base(SCons.Node.Node):
             self._rexists = self.rfile().exists()
             return self._rexists
 
-    def get_parents(self):
-        parents = SCons.Node.Node.get_parents(self)
-        if self.dir and not isinstance(self.dir, ParentOfRoot):
-            parents.append(self.dir)
-        return parents
-
     def is_under(self, dir):
         if self is dir:
             return 1
@@ -1117,8 +1111,7 @@ class Dir(Base):
         self.abspath_ = self.abspath + os.sep
         self.repositories = []
         self.srcdir = None
-        self.source_scanner = None
-        
+
         self.entries = {}
         self.entries['.'] = self
         self.entries['..'] = self.dir

@@ -168,6 +168,9 @@ class DummyEnvironment:
             path = [path]
         return map(self.subst, path)
 
+    def get_calculator(self):
+        return None
+
 def deps_match(self, deps, headers):
     scanned = map(os.path.normpath, map(str, deps))
     expect = map(os.path.normpath, headers)

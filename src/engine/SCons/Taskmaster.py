@@ -158,12 +158,10 @@ class Task:
         their dependent parent nodes.
         """
         for t in self.targets:
-            def get_parents(node, parent): return node.get_parents()
-            def set_state(node, parent): node.set_state(SCons.Node.failed)
-            walker = SCons.Node.Walker(t, get_parents, eval_func=set_state)
-            n = walker.next()
-            while n:
-                n = walker.next()
+            # Set failure state on all of the parents that were dependent
+            # on this failed build.
+            def set_state(node): node.set_state(SCons.Node.failed)
+            t.call_for_all_waiting_parents(set_state)
 
         self.tm.executed(self.node)
 
@@ -340,6 +338,12 @@ class Taskmaster:
             def unbuilt_nodes(node): return node.get_state() == None
             not_built = filter(unbuilt_nodes, derived)
             if not_built:
+                # We're waiting on one more derived files that have not
+                # yet been built.  Add this node to the waiting_parents
+                # list of each of those derived files.
+                def add_to_waiting_parents(child, parent=node):
+                    child.add_to_waiting_parents(parent)
+                map(add_to_waiting_parents, not_built)
                 not_built.reverse()
                 self.candidates.extend(self.order(not_built))
                 continue
