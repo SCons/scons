@@ -86,6 +86,8 @@ test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
 import os
+assert not globals().has_key('string')
+import string
 class bld:
     def __init__(self):
         self.cmd = r'%s build.py %%s 4 %%s'

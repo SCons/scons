@@ -46,10 +46,11 @@ test.write('SConstruct', """
 env = Environment(CPPPATH = ['include'])
 obj = env.Object(target='prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
-SConscript('subdir/SConscript', Export(env=env))
+SConscript('subdir/SConscript', "env")
 """)
 
 test.write(['subdir', 'SConscript'], """
+Import("env")
 env.Program(target='prog', source='prog.c')
 """)
 

@@ -58,15 +58,8 @@ from SCons.Errors import *
 import SCons.Sig
 import SCons.Sig.MD5
 from SCons.Taskmaster import Taskmaster
-import SCons.Util
-
-#
-# Modules and classes that we don't use directly in this script, but
-# which we want available for use in SConstruct and SConscript files.
-#
-from SCons.Environment import Environment
-from SCons.Builder import Builder
-from SCons.Defaults import *
+import SCons.Builder
+import SCons.SConscript
 
 
 #
@@ -104,9 +97,7 @@ class CleanTask(SCons.Taskmaster.Task):
 
 # Global variables
 
-default_targets = []
 include_dirs = []
-help_option = None
 num_jobs = 1
 scripts = []
 task_class = BuildTask	# default action is to build targets
@@ -114,6 +105,7 @@ current_func = None
 calc = None
 ignore_errors = 0
 keep_going_on_error = 0
+
 
 # utility functions
 
@@ -160,40 +152,6 @@ def _scons_other_errors():
     traceback.print_exc()
 
 
-
-def SConscript(sconscript, export={}):
-    global scripts
-    scripts.append( (SCons.Node.FS.default_fs.File(sconscript), export) )
-
-def Default(*targets):
-    for t in targets:
-	if isinstance(t, SCons.Node.Node):
-	    default_targets.append(t)
-	else:
-	    for s in string.split(t):
-		default_targets.append(s)
-
-def Help(text):
-    global help_option
-    if help_option == 'h':
-	print text
-	print "Use scons -H for help about command-line options."
-	sys.exit(0)
-
-def BuildDir(build_dir, src_dir):
-    SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir)
-
-def GetBuildPath(files):
-    nodes = SCons.Util.scons_str2nodes(files,
-                                       SCons.Node.FS.default_fs.Entry)
-    ret = map(str, nodes)
-    if len(ret) == 1:
-        return ret[0]
-    return ret
-
-def Export(**kw):
-    # A convenient shorthand to pass exports to the SConscript function.
-    return kw
 
 #
 # After options are initialized, the following variables are
@@ -392,26 +350,21 @@ def options_init():
 
     def opt_f(opt, arg):
 	global scripts
-	if arg == '-':
-            scripts.append( ( arg, {} ) )
-	else:
-            scripts.append( (SCons.Node.FS.default_fs.File(arg), {}) )
+        scripts.append(arg)
 
     Option(func = opt_f,
 	short = 'f', long = ['file', 'makefile', 'sconstruct'], arg = 'FILE',
 	help = "Read FILE as the top-level SConstruct file.")
 
     def opt_help(opt, arg):
-	global help_option
-	help_option = 'h'
+        SCons.SConscript.help_option = 'h'
 
     Option(func = opt_help,
 	short = 'h', long = ['help'],
 	help = "Print defined help message, or this one.")
 
     def opt_help_options(opt, arg):
-	global help_option
-	help_option = 'H'
+        SCons.SConscript.help_option = 'H'
 
     Option(func = opt_help_options,
 	short = 'H', long = ['help-options'],
@@ -584,7 +537,7 @@ def UsageString():
 
 
 def _main():
-    global scripts, help_option, num_jobs, task_class, calc
+    global scripts, num_jobs, task_class, calc
 
     targets = []
 
@@ -618,18 +571,18 @@ def _main():
     if not scripts:
         for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
             if os.path.isfile(file):
-                scripts.append( (SCons.Node.FS.default_fs.File(file), {}) )
+                scripts.append(file)
                 break
 
-    if help_option == 'H':
+    if SCons.SConscript.help_option == 'H':
 	print UsageString()
 	sys.exit(0)
 
     if not scripts:
-	if help_option == 'h':
-	    # There's no SConstruct, but they specified either -h or
-	    # -H.  Give them the options usage now, before we fail
-	    # trying to read a non-existent SConstruct file.
+        if SCons.SConscript.help_option == 'h':
+            # There's no SConstruct, but they specified -h.
+            # Give them the options usage now, before we fail
+            # trying to read a non-existent SConstruct file.
 	    print UsageString()
 	    sys.exit(0)
 	else:
@@ -637,30 +590,19 @@ def _main():
 
     sys.path = include_dirs + sys.path
 
-    while scripts:
-        f, exports = scripts.pop(0)
-        script_env = copy.copy(globals())
-        script_env.update(exports)
-        if f == "-":
-            exec sys.stdin in script_env
-	else:
-            if f.exists():
-                file = open(str(f), "r")
-                SCons.Node.FS.default_fs.chdir(f.dir)
-                exec file in script_env
-            else:
-                sys.stderr.write("Ignoring missing SConscript '%s'\n" % f.path)
+    for script in scripts:
+        SCons.SConscript.SConscript(script)
 
     SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
-    if help_option == 'h':
+    if SCons.SConscript.help_option == 'h':
 	# They specified -h, but there was no Help() inside the
 	# SConscript files.  Give them the options usage.
 	print UsageString()
 	sys.exit(0)
 
     if not targets:
-	targets = default_targets
+        targets = SCons.SConscript.default_targets
 	
     def Entry(x):
 	if isinstance(x, SCons.Node.Node):

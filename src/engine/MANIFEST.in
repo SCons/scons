@@ -10,6 +10,7 @@ SCons/Node/FS.py
 SCons/Scanner/__init__.py
 SCons/Scanner/C.py
 SCons/Scanner/Prog.py
+SCons/SConscript.py
 SCons/Script.py
 SCons/Sig/__init__.py
 SCons/Sig/MD5.py

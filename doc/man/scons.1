@@ -680,6 +680,126 @@ method:
 env2 = env.Copy(CC="cl.exe")
 .RE
 
+.B scons
+also provides various function not associated with a construction
+environment that configuration files can use to affect the build:
+
+.TP
+.RI SConscript( script ", [" exports ])
+This tells
+.B scons
+to execute 
+.I script
+as a configuration file. The optional 
+.I exports
+argument provides a list of variable names to export to
+.IR script ". " exports
+can also be a space delimited string of variables names. 
+.I script
+must use the
+.BR Import ()
+function to import the variables. Any variables returned by 
+.I script 
+using 
+.BR Return ()
+will be returned by the call to
+.BR SConscript (). 
+Example:
+
+.RS
+foo = SConscript('subdir/SConscript', "env")
+.RE
+
+.TP
+.RI Export( vars )
+This tells 
+.B scons
+to export a list of variables from the current
+configuration file to all other configuration files. The exported variables
+are kept in a global collection, so subsequent exports
+will over-write previous exports that have the same name. 
+Multiple variable names can be passed to
+.BR Export ()
+in a space delimited string or as seperate arguments. Example:
+
+.RS
+Export("env")
+.RE
+
+.TP 
+.RI Import( vars )
+This tells 
+.B scons
+to import a list of variables into the current configuration file. This
+will import variables that were exported with
+.BR Export ()
+or in the 
+.I exports
+argument to 
+.BR SConscript ().
+Variables exported by 
+.BR SConscript ()
+have precedence. Multiple variable names can be passed to 
+.BR Import ()
+in a space delimited string or as seperate arguments. Example:
+
+.RS
+Import("env")
+.RE
+
+.TP
+.RI Return( vars )
+This tells
+.B scons
+what variable(s) to use as the return value(s) of the current configuration
+file. These variables will be returned to the "calling" configuration file
+as the return value(s) of 
+.BR SConscript ().
+Multiple variable names can be passed to 
+.BR Return ()
+in a space delimited string or as seperate arguments. Example:
+
+.RS
+Return("foo")
+.RE
+
+.TP 
+.RI Default( targets )
+This specifies a list of default targets. Default targets will be built by
+.B scons
+if no explicit targets are given on the comamnd line. Multiple targets can
+be specified either as a space delimited string of target file names or as
+seperate arguments.
+.BR Default ()
+will also accept the return value of any of the ccnstruction environment
+builder methods.
+
+.TP
+.RI Help( text )
+This specifies help text to be printed if the 
+.B -h 
+argument is given to
+.BR scons .
+This function can be called multiple times to print multiple help messages.
+
+.TP
+.RI BuildDir( build_dir ", " src_dir )
+This specifies a build directory to use for all derived files.  
+.I build_dir
+specifies the build directory to be used for all derived files that would
+normally be built under
+.IR src_dir .
+Multiple build directories can be set up for multiple build variants, for
+example. 
+.B scons
+will link or copy (depending on the platform) all the source files into the
+build directory, so the build commands will not be modifed if 
+.BR BuildDir ()
+is used.
+
+
+
+
 .SH EXTENDING
 .B scons
 can be extended by adding new builders to a construction
@@ -767,6 +887,9 @@ Design Document,
 .B scons
 source code.
 
-.SH AUTHOR
-Steven Knight <knight@baldmt.com>, et. al.
+.SH AUTHORS
+Steven Knight <knight@baldmt.com>
+.RS
+.RE
+Anthony Roach <aroach@electriceyeball.com>
 

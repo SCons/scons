@@ -47,17 +47,21 @@ SyntaxError: invalid syntax
 
 
 test.write('SConstruct2', """
-raise UserError, 'Depends() require both sources and targets.'
+assert not globals().has_key("UserError")
+import SCons.Errors
+raise SCons.Errors.UserError, 'Depends() require both sources and targets.'
 """)
 
 test.run(arguments='-f SConstruct2',
 	 stdout = "",
 	 stderr = """
 SCons error: Depends\(\) require both sources and targets.
-File "SConstruct2", line 2, in \?
+File "SConstruct2", line 4, in \?
 """)
 
 test.write('SConstruct3', """
+assert not globals().has_key("InternalError")
+from SCons.Errors import InternalError
 raise InternalError, 'error inside'
 """)
 
@@ -67,7 +71,9 @@ test.run(arguments='-f SConstruct3',
   File ".*Script.py", line \d+, in main
     _main\(\)
   File ".*Script.py", line \d+, in _main
-    exec file in script_env
+    SCons.SConscript.SConscript\(script\)
+  File ".*SConscript.py", line \d+, in SConscript
+    exec file in stack\[-1\].globals
   File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
 InternalError: error inside
