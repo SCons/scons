@@ -244,8 +244,10 @@ $scons = {
                                 debian/scons.postinst
                                 debian/scons.prerm) ],
 
-        'files'		=> [ qw(LICENSE.txt README.txt os_spawnv_fix.diff
-				scons.1 script/scons.bat setup.cfg setup.py) ],
+        'files'		=> [ qw(CHANGES.txt LICENSE.txt
+				README.txt RELEASE.txt
+				os_spawnv_fix.diff scons.1
+				script/scons.bat setup.cfg setup.py) ],
         'filemap'		=> {
                                 'scons.1'	=> '../doc/man/scons.1',
                         },

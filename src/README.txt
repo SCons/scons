@@ -13,6 +13,10 @@ files" are actually Python scripts, allowing you to use the full power
 of a real scripting language to solve build problems.  You do not,
 however, need to know Python to use SCons effectively.
 
+See the RELEASE.txt file for notes about this specific release,
+including known problems.  See the CHANGES.txt file for a list of
+changes since the previous release.
+
 
 LATEST VERSION
 ==============
@@ -43,7 +47,13 @@ You should have system installation privileges (that is, "root" or
 DOCUMENTATION
 =============
 
-Documentation for SCons is available at:
+See the RELEASE.txt file for notes about this specific release,
+including known problems.  See the CHANGES.txt file for a list of
+changes since the previous release.
+
+The scons.1 man page is included in this package.
+
+Additional documentation for SCons is available at:
 
         http://www.scons.org/doc.html
 

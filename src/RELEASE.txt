@@ -1,0 +1,96 @@
+# Copyright (c) 2001 Steven Knight
+# __FILE__ __REVISION__ __DATE__ __DEVELOPER__
+
+
+                 SCons - a software construction tool
+
+                            Release Notes
+
+
+This is an alpha release of SCons, a tool for building software (and
+other files).  SCons is implemented in Python, and its "configuration
+files" are actually Python scripts, allowing you to use the full power
+of a real scripting language to solve build problems.  You do not,
+however, need to know Python to use SCons effectively.
+
+So that everyone using SCons can help each other learn how to use it
+more effectively, please sign up for the scons-users mailing list at:
+
+    http://lists.sourceforge.net/lists/listinfo/scons-users
+
+
+
+RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001
+
+  This is the initial alpha release of SCons.  This release contains a
+  lot of functionality, and owing to an extensive test suite, the SCons
+  team believes that this release is of sufficient quality that you can
+  use it for real work.
+
+  Nevertheless, because this is an alpha release, heed the following
+  disclaimers:
+
+    - Expect bugs.  Please report any bugs or other problems that you
+      find to our bug tracker at our SourceForge project page:
+
+      http://sourceforge.net/tracker/?func=add&group_id=30337&atid=398971
+
+      We have a reliable bug-fixing methodology already in place and
+      expect to respond to problems relatively quickly.
+
+    - It is possible that interfaces will change in future releases.  We
+      will strive to hold this to a minimum, but you may need to modify
+      your SConscript files in the future if there is a compelling reason
+      to change an interface.
+
+    - Documentation is spottier than we'd like.  You may need to dive
+      into the source code to figure out how to do something.  We will
+      be addressing this in upcoming releases, but would be more than
+      glad to have your assistance in correcting this problem... :-)
+
+      In particular, the "SCons Design" documentation on the SCons web
+      site is currently out of date, as we made significant changes to
+      portions of the interface as we figured out what worked and what
+      didn't during implementation.L
+
+  KNOWN PROBLEMS IN THIS RELEASE:
+
+    - Support for parallel builds (-j) does not work on WIN32 systems
+      prior to *official* Python release 2.2 (not 2.2 pre-releases).
+
+      Prior to Python 2.2, there is a bug in Python's Win32
+      implementation such that when a thread spawns an external command,
+      it blocks all threads from running.  This breaks the SCons
+      multithreading architecture used to support -j builds.
+
+      We have included a patch file, os_spawnv_fix.diff, that you can
+      use if you you want to fix your version of Python to support
+      parallel builds in SCons.
+
+    - Again, the "SCons Design" documentation on the SCons web
+      site is currently out of date.  Take what you read there with a
+      grain of salt.
+
+    - There is a hard-coding that prevents using file timestamps instead
+      of MD5 signatures to determine if a file is up-to-date.  (There
+      also isn't yet a mechanism to configure that.)
+
+    - No support yet for the following future features:
+
+        - Separate build directories (BuildDir(), a.k.a. "Link" in
+	  Cons classic)
+
+        - Repository search paths (-Y)
+
+	- Configurable signature calculation
+
+	- No support for caching built files.
+
+	- No support yet for the following command-line options:
+
+             -d -e -l --list-actions --list-derived --list-where
+	     -o -p -q -r -R --random -u -w --write-filenames -W
+	     --warn-undefined-variables
+
+  Thank you for your interest, and please let us know how we can help
+  improve SCons for your needs.

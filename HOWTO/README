@@ -5,3 +5,6 @@ change.txt
         How changes are integrated, including generating and
         distributing aedist change sets, and updating the CVS repository
         on SourceForge.
+
+release.txt
+	Steps to go through when releasing a new version of SCons.

@@ -1,0 +1,36 @@
+# Copyright (c) 2001 Steven Knight
+# __FILE__ __REVISION__ __DATE__ __DEVELOPER__
+
+
+                 SCons - a software construction tool
+
+                            Change Log
+
+
+
+RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001
+
+A brief overview of important functionality available in release 0.01:
+
+  - C and C++ compilation on POSIX and Windows NT.
+
+  - Automatic scanning of C/C++ source files for #include dependencies.
+
+  - Support for building libraries; setting construction variables
+    allows creation of shared libraries.
+
+  - Library and C preprocessor search paths.
+
+  - File changes detected using MD5 signatures.
+
+  - User-definable Builder objects for building files.
+
+  - User-definable Scanner objects for scanning for dependencies.
+
+  - Parallel build (-j) support.
+
+  - Dependency cycles detected.
+
+  - Linux packages available in RPM and Debian format.
+
+  - Windows installer available.

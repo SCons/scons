@@ -1,0 +1,62 @@
+Things to do to release a version of SCons:
+
+	Prepare RELEASE notes
+
+	Prepare CHANGES text
+
+	Read through the README.txt file for any updates
+
+	Build candidate packages
+
+		test on Linux
+		test on Windows NT
+
+
+
+	END THE BRANCH (need more info)
+
+	START THE NEW BRANCH (need more info)
+
+
+
+	Read through the FAQ for any updates
+
+	Update the web site:
+
+		new version number (template)
+		announcement on the home page
+		new packages in the download page
+		checkin new scons-doc.tar.gz on the web site
+
+
+
+	Upload the packages to the web site (download page)
+
+	Test downloading from the web site
+
+
+
+	Upload the packages to the SourceForge project page
+
+	Test downloading from the SourceForge project page
+
+
+
+	Add news item to the SourceForge project page
+
+	Prepare an announcement
+	
+	Announce to the following mailing lists:
+
+		scons-announce@lists.sourceforge.net
+		scons-users@lists.sourceforge.net
+		scons-devel@lists.sourceforge.net
+		python-list@python.org
+		python-announce@python.org
+		cons-discuss@gnu.org
+
+		linux-announce@news.ornl.gov?
+
+	Notify freshmeat.net
+	
+	Notifty www.cmtoday.com/contribute.html
