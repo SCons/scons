@@ -301,15 +301,17 @@ class SConsignDirFile(SConsignDir):
 
 SConsignForDirectory = SConsignDirFile
 
-def SConsignFile(name):
+def SConsignFile(name, dbm_module=None):
     """
     Arrange for all signatures to be stored in a global .sconsign.dbm
     file.
     """
     global SConsign_db
     if SConsign_db is None:
-        import anydbm
-        SConsign_db = anydbm.open(name, "c")
+        if dbm_module is None:
+            import anydbm
+            dbm_module = anydbm
+        SConsign_db = dbm_module.open(name, "c")
 
     global SConsignForDirectory
     SConsignForDirectory = SConsignDB

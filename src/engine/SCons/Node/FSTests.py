@@ -985,6 +985,27 @@ class FSTestCase(unittest.TestCase):
         finally:
             test.unlink("tstamp")
 
+        test.subdir('tdir1')
+        d = fs.Dir('tdir1')
+        t = d.get_timestamp()
+        assert t == 0, "expected 0, got %s" % str(t)
+
+        test.subdir('tdir2')
+        d = fs.Dir('tdir2')
+        f1 = test.workpath('tdir2', 'file1')
+        f2 = test.workpath('tdir2', 'file2')
+        test.write(f1, 'file1\n')
+        test.write(f2, 'file2\n')
+        fs.File(f1)
+        fs.File(f2)
+        current_time = float(int(time.time() / 2) * 2)
+        t1 = current_time - 4.0
+        t2 = current_time - 2.0
+        os.utime(f1, (t1 - 2.0, t1))
+        os.utime(f2, (t2 - 2.0, t2))
+        t = d.get_timestamp()
+        assert t == t2, "expected %f, got %f" % (t2, t)
+
         #XXX test get_prevsiginfo()
 
         skey = fs.Entry('eee.x').scanner_key()

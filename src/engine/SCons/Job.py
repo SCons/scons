@@ -136,9 +136,9 @@ class Worker(threading.Thread):
             try:
                 task.execute()
             except:
-                ok = False
+                ok = 0
             else:
-                ok = True
+                ok = 1
 
             self.resultsQueue.put((task, ok))
 
@@ -147,8 +147,8 @@ class ThreadPool:
 
     def __init__(self, num):
         """Create the request and reply queues, and 'num' worker threads."""
-        self.requestQueue = Queue.Queue()
-        self.resultsQueue = Queue.Queue()
+        self.requestQueue = Queue.Queue(0)
+        self.resultsQueue = Queue.Queue(0)
 
         # Create worker threads
         for i in range(num):
@@ -165,7 +165,7 @@ class ThreadPool:
     def get_nowait(self):
         """Remove and result a result tuple from the results queue 
         without blocking."""
-        return self.get(False)
+        return self.get(0)
 
 class Parallel:
     """This class is used to execute tasks in parallel, and is somewhat 

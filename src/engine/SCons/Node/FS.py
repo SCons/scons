@@ -912,7 +912,7 @@ class DummyExecutor:
     def get_contents(self):
         return ''
     def get_timestamp(self):
-        return None
+        return 0
 
 class Dir(Base):
     """A class for directories in a file system.
@@ -1148,7 +1148,7 @@ class Dir(Base):
 
     def get_timestamp(self):
         """Return the latest timestamp from among our children"""
-        stamp = None
+        stamp = 0
         for kid in self.children(None):
             if kid.get_timestamp() > stamp:
                 stamp = kid.get_timestamp()

@@ -427,10 +427,14 @@ class Base:
                 self._dict[key] = kw[key]
             elif SCons.Util.is_List(self._dict[key]) and not \
                  SCons.Util.is_List(kw[key]):
-                self._dict[key] = self._dict[key] + [ kw[key] ]
+                if not kw[key] is None and kw[key] != '':
+                    self._dict[key] = self._dict[key] + [ kw[key] ]
             elif SCons.Util.is_List(kw[key]) and not \
                  SCons.Util.is_List(self._dict[key]):
-                self._dict[key] = [ self._dict[key] ] + kw[key]
+                if self._dict[key] is None or self._dict[key] == '':
+                    self._dict[key] = kw[key]
+                else:
+                    self._dict[key] = [ self._dict[key] ] + kw[key]
             elif SCons.Util.is_Dict(self._dict[key]) and \
                  SCons.Util.is_Dict(kw[key]):
                 self._dict[key].update(kw[key])
@@ -549,18 +553,13 @@ class Base:
 
         # the default parse function
         def parse_conf(env, output):
-            env_dict = env.Dictionary()
+            dict = {
+                'CPPPATH' : [],
+                'LIBPATH' : [],
+                'LIBS'    : [],
+                'CCFLAGS' : [],
+            }
             static_libs = []
-    
-            # setup all the dictionary options
-            if not env_dict.has_key('CPPPATH'):
-                env_dict['CPPPATH'] = []
-            if not env_dict.has_key('LIBPATH'):
-                env_dict['LIBPATH'] = []
-            if not env_dict.has_key('LIBS'):
-                env_dict['LIBS'] = []
-            if not env_dict.has_key('CCFLAGS') or env_dict['CCFLAGS'] == "":
-                env_dict['CCFLAGS'] = []
     
             params = string.split(output)
             for arg in params:
@@ -568,15 +567,16 @@ class Base:
                 opt = arg[1:2]
                 if switch == '-':
                     if opt == 'L':
-                        env_dict['LIBPATH'].append(arg[2:])
+                        dict['LIBPATH'].append(arg[2:])
                     elif opt == 'l':
-                        env_dict['LIBS'].append(arg[2:])
+                        dict['LIBS'].append(arg[2:])
                     elif opt == 'I':
-                        env_dict['CPPPATH'].append(arg[2:])
+                        dict['CPPPATH'].append(arg[2:])
                     else:
-                        env_dict['CCFLAGS'].append(arg)
+                        dict['CCFLAGS'].append(arg)
                 else:
                     static_libs.append(arg)
+            apply(env.Append, (), dict)
             return static_libs
     
         if function is None:
@@ -940,11 +940,11 @@ class Base:
         nkw = self.subst_kw(kw)
         return apply(SCons.Scanner.Base, nargs, nkw)
 
-    def SConsignFile(self, name=".sconsign.dbm"):
+    def SConsignFile(self, name=".sconsign.dbm", dbm_module=None):
         name = self.subst(name)
         if not os.path.isabs(name):
             name = os.path.join(str(self.fs.SConstruct_dir), name)
-        SCons.Sig.SConsignFile(name)
+        SCons.Sig.SConsignFile(name, dbm_module)
 
     def SideEffect(self, side_effect, target):
         """Tell scons that side_effects are built as side 

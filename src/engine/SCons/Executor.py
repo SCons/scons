@@ -138,4 +138,4 @@ class Executor:
         course (only files do), but this is the interface used by the
         timestamp module.
         """
-        return None
+        return 0

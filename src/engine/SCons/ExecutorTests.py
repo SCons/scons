@@ -160,7 +160,7 @@ class ExecutorTestCase(unittest.TestCase):
         """Test fetching the "timestamp" """
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         ts = x.get_timestamp()
-        assert ts is None, ts
+        assert ts == 0, ts
 
 
 if __name__ == "__main__":
