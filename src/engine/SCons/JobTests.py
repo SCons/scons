@@ -172,8 +172,7 @@ class ParallelTestCase(unittest.TestCase):
 
         taskmaster = Taskmaster(num_tasks, self, Task)
         jobs = SCons.Job.Jobs(num_jobs, taskmaster)
-        jobs.start()
-        jobs.wait()
+        jobs.run()
 
         self.failUnless(not taskmaster.tasks_were_serial(),
                         "the tasks were not executed in parallel")
@@ -190,8 +189,7 @@ class SerialTestCase(unittest.TestCase):
 
         taskmaster = Taskmaster(num_tasks, self, Task)
         jobs = SCons.Job.Jobs(1, taskmaster)
-        jobs.start()
-        jobs.wait()
+        jobs.run()
 
         self.failUnless(taskmaster.tasks_were_serial(),
                         "the tasks were not executed in series")
@@ -208,8 +206,7 @@ class SerialExceptionTestCase(unittest.TestCase):
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
         jobs = SCons.Job.Jobs(1, taskmaster)
-        jobs.start()
-        jobs.wait()
+        jobs.run()
 
         self.failIf(taskmaster.num_executed,
                     "a task was executed")
@@ -224,8 +221,7 @@ class ParallelExceptionTestCase(unittest.TestCase):
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
         jobs = SCons.Job.Jobs(num_jobs, taskmaster)
-        jobs.start()
-        jobs.wait()
+        jobs.run()
 
         self.failIf(taskmaster.num_executed,
                     "a task was executed")

@@ -570,7 +570,7 @@ class NodeTestCase(unittest.TestCase):
                 assert nodes[0].name == u"Util.py"
                 assert nodes[1].name == u"UtilTests.py"
                 \n"""
-            exec code
+            exec code in globals(), locals()
 
         nodes = SCons.Node.arg2nodes(["Util.py", "UtilTests.py"], Factory)
         assert len(nodes) == 2, nodes

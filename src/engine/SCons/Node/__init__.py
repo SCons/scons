@@ -114,6 +114,8 @@ class Node:
             try:
                 stat = apply(self.builder.execute, (),
                              self.generate_build_args())
+            except KeyboardInterrupt:
+                raise
             except:
                 raise BuildError(self, "Exception",
                                  sys.exc_type,

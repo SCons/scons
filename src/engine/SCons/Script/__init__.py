@@ -870,8 +870,7 @@ def _main():
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
 
     try:
-        jobs.start()
-        jobs.wait()
+        jobs.run()
     finally:
         SCons.Sig.write()
 
@@ -882,7 +881,7 @@ def main():
         pass
     except KeyboardInterrupt:
         print "Build interrupted."
-        sys.exit(1)
+        sys.exit(2)
     except SyntaxError, e:
         _scons_syntax_error(e)
     except UserError, e:

@@ -46,6 +46,9 @@ RELEASE 0.08 -
   - Fall back to importing the SCons.TimeStamp module if the SCons.MD5
     module can't be imported.
 
+  - Fix interrupt handling to guarantee that a single interrupt will
+    halt SCons both when using -j and not.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to

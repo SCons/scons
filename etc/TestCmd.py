@@ -510,7 +510,10 @@ class TestCmd:
 	elif run < 0:
 	    run = len(self._stderr) + run
 	run = run - 1
-	return self._stderr[run]
+	if run >= len(self._stderr) or run < 0:
+	    return ''
+	else:
+	    return self._stderr[run]
 
     def stdout(self, run = None):
 	"""Returns the standard output from the specified run number.
@@ -524,7 +527,10 @@ class TestCmd:
 	elif run < 0:
 	    run = len(self._stdout) + run
 	run = run - 1
-	return self._stdout[run]
+	if run >= len(self._stdout) or run < 0:
+	    return ''
+	else:
+	    return self._stdout[run]
 
     def subdir(self, *subdirs):
 	"""Create new subdirectories under the temporary working
