@@ -856,6 +856,8 @@ ilink
 gas
 gcc
 gnulink
+jar
+javac
 latex
 lex
 linkloc
@@ -954,9 +956,9 @@ env.Program('bar.c')
 .EE
 
 It is possible to override or add construction variables when calling a
-builder by passing additional keyword arguments. These overriden or added
+builder by passing additional keyword arguments. These overridden or added
 variables will only be in effect when building the target, so they will not
-effect other parts of the build. For example, if you want to add additional
+affect other parts of the build. For example, if you want to add additional
 libraries for just one program:
 
 .ES
@@ -1242,6 +1244,21 @@ if it is not already present. Example:
 env.CXXFile(target = 'foo.cc', source = 'foo.ll')
 # builds bar.cc
 env.CXXFile(target = 'bar', source = 'bar.yy')
+.EE
+
+.IP Jar
+Builds a Java archive (.jar) file
+from a source tree of .class files.
+.ES
+env.Jar(target = 'foo.jar', source = 'classes')
+.EE
+
+.IP Java
+Builds one or more Java class files
+from a source tree of .java files.
+
+.ES
+env.Java(target = 'classes', source = 'src')
 .EE
 
 .IP DVI
@@ -2239,6 +2256,48 @@ is the path name of the source file.
 is the construction environment
 (a dictionary of construction values)
 in force for this file installation.
+
+.IP JAR
+The Java archive tool.
+
+.IP JARCOM
+The command line used to call the Java archive tool.
+
+.IP JARFLAGS
+General options passed to the Java archive tool.
+By default this is set to
+.B cf
+to create the necessary
+.I jar
+file.
+
+.IP JARSUFFIX
+The suffix for Java archives:
+.B .jar
+by default.
+
+.IP JAVAC
+The Java compiler.
+
+.IP JAVACCOM
+The command line used to compile a directory tree containing
+Java source files to
+corresponding Java class files.
+Any options specified in the $JAVACFLAGS construction variable
+are included on this command line.
+
+.IP JAVACFLAGS
+General options that are passed to the Java compiler.
+
+.IP JAVACLASSSUFFIX
+The suffix for Java class files;
+.B .class
+by default.
+
+.IP JAVASUFFIX
+The suffix for Java files;
+.B .java
+by default.
 
 .IP LATEX
 The LaTeX structured formatter and typesetter.
