@@ -39,42 +39,42 @@ built_source =  None
 cycle_detected = None
 
 class Builder:
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         global built_it, built_target, built_source, built_args
         built_it = 1
-        built_target = kw['target']
-        built_source = kw['source']
-        built_args = kw
+        built_target = target
+        built_source = source
+        built_args = env
         return 0
-    def get_contents(self, env, target, source):
+    def get_contents(self, target, source, env):
         return 7
 
 class NoneBuilder(Builder):
-    def execute(self, **kw):
-        apply(Builder.execute, (self,), kw)
+    def execute(self, target, source, env):
+        Builder.execute(self, target, source, env)
         return None
 
 class ListBuilder(Builder):
     def __init__(self, *nodes):
         self.nodes = nodes
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         if hasattr(self, 'status'):
             return self.status
         for n in self.nodes:
             n.prepare()
-        kw['target'] = self.nodes[0]
-        self.status = apply(Builder.execute, (self,), kw)
+        target = self.nodes[0]
+        self.status = Builder.execute(self, target, source, env)
 
 class FailBuilder:
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         return 1
 
 class ExceptBuilder:
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         raise SCons.Errors.BuildError
 
 class ExceptBuilder2:
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         raise "foo"
 
 class Environment:
@@ -82,6 +82,8 @@ class Environment:
         return {}
     def autogenerate(self, **kw):
         return {}
+    def Override(selv, overrides):
+        return overrides
 
 
 
@@ -161,7 +163,7 @@ class NodeTestCase(unittest.TestCase):
         node.env_set(Environment())
         node.path = "qqq"
         node.sources = ["rrr", "sss"]
-        node.build_args = { "foo" : 1, "bar" : 2 }
+        node.overrides = { "foo" : 1, "bar" : 2 }
         node.build()
         assert built_it
         assert type(built_target) == type(MyNode()), type(built_target)

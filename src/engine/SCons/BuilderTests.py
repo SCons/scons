@@ -94,6 +94,16 @@ class Environment:
         return self.d[item]
     def has_key(self, item):
         return self.d.has_key(item)
+    def keys(self):
+        return self.d.keys()
+    def get(self, key, value):
+        return self.d.get(key, value)
+    def Override(self, overrides):
+        env = apply(Environment, (), self.d)
+        env.d.update(overrides)
+        return env
+    def items(self):
+        return self.d.items()
     
 env = Environment()
 
@@ -222,7 +232,7 @@ class BuilderTestCase(unittest.TestCase):
         cmd1 = r'%s %s %s xyzzy' % (python, act_py, outfile)
 
         builder = MyBuilder(action = cmd1, name = "cmd1")
-        r = builder.execute()
+        r = builder.execute([],[],Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'xyzzy'\n", c
@@ -230,7 +240,7 @@ class BuilderTestCase(unittest.TestCase):
         cmd2 = r'%s %s %s $TARGET' % (python, act_py, outfile)
 
         builder = MyBuilder(action = cmd2, name = "cmd2")
-        r = builder.execute(target = 'foo')
+        r = builder.execute('foo', [], Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'foo'\n", c
@@ -238,7 +248,7 @@ class BuilderTestCase(unittest.TestCase):
         cmd3 = r'%s %s %s ${TARGETS}' % (python, act_py, outfile)
 
         builder = MyBuilder(action = cmd3, name = "cmd3")
-        r = builder.execute(target = ['aaa', 'bbb'])
+        r = builder.execute(['aaa', 'bbb'], [], Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'aaa' 'bbb'\n", c
@@ -246,7 +256,7 @@ class BuilderTestCase(unittest.TestCase):
         cmd4 = r'%s %s %s $SOURCES' % (python, act_py, outfile)
 
         builder = MyBuilder(action = cmd4, name = "cmd4")
-        r = builder.execute(source = ['one', 'two'])
+        r = builder.execute([], ['one', 'two'], Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'one' 'two'\n", c
@@ -254,7 +264,7 @@ class BuilderTestCase(unittest.TestCase):
         cmd4 = r'%s %s %s ${SOURCES[:2]}' % (python, act_py, outfile)
 
         builder = MyBuilder(action = cmd4, name = "cmd4")
-        r = builder.execute(source = ['three', 'four', 'five'])
+        r = builder.execute([], source = ['three', 'four', 'five'], env=Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'three' 'four'\n", c
@@ -262,7 +272,7 @@ class BuilderTestCase(unittest.TestCase):
         cmd5 = r'%s %s %s $TARGET XYZZY' % (python, act_py, outfile)
 
         builder = MyBuilder(action = cmd5, name = "cmd5")
-        r = builder.execute(target = 'out5', env = {'ENV' : {'XYZZY' : 'xyzzy'}})
+        r = builder.execute(target = 'out5', source = [], env = Environment(ENV={'XYZZY' : 'xyzzy'}))
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy'\n", c
@@ -277,7 +287,8 @@ class BuilderTestCase(unittest.TestCase):
 
         builder = MyBuilder(action = cmd6, name = "cmd6")
         r = builder.execute(target = [Obj('111'), Obj('222')],
-                            source = [Obj('333'), Obj('444'), Obj('555')])
+                            source = [Obj('333'), Obj('444'), Obj('555')],
+                            env = Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: '222' '111' '333' '444'\n", c
@@ -297,24 +308,22 @@ class BuilderTestCase(unittest.TestCase):
         for action in builder.action.list:
             action.show = my_show
 
-        r = builder.execute()
+        r = builder.execute([],[],Environment())
         assert r == 0
         assert show_string == expect7, show_string
 
         global count
         count = 0
-        def function1(**kw):
+        def function1(target, source, env):
             global count
             count = count + 1
-            if not type(kw['target']) is type([]):
-                kw['target'] = [ kw['target'] ]
-            for t in kw['target']:
+            for t in target:
                 open(t, 'w').write("function1\n")
             return 1
 
         builder = MyBuilder(action = function1, name = "function1")
         try:
-            r = builder.execute(target = [outfile, outfile2])
+            r = builder.execute(target = [outfile, outfile2], source=[], env=Environment())
         except SCons.Errors.BuildError:
             pass
         assert r == 1
@@ -325,43 +334,43 @@ class BuilderTestCase(unittest.TestCase):
         assert c == "function1\n", c
 
         class class1a:
-            def __init__(self, **kw):
-                open(kw['out'], 'w').write("class1a\n")
+            def __init__(self, target, source, env):
+                open(env['out'], 'w').write("class1a\n")
 
         builder = MyBuilder(action = class1a, name = "class1a")
-        r = builder.execute(out = outfile)
+        r = builder.execute([],[],Environment(out = outfile))
         assert r.__class__ == class1a
         c = test.read(outfile, 'r')
         assert c == "class1a\n", c
 
         class class1b:
-            def __call__(self, **kw):
-                open(kw['out'], 'w').write("class1b\n")
+            def __call__(self, target, source, env):
+                open(env['out'], 'w').write("class1b\n")
                 return 2
 
         builder = MyBuilder(action = class1b(), name = "class1b")
-        r = builder.execute(out = outfile)
+        r = builder.execute([],[],Environment(out = outfile))
         assert r == 2
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
 
         cmd2 = r'%s %s %s syzygy' % (python, act_py, outfile)
 
-        def function2(**kw):
-            open(kw['out'], 'a').write("function2\n")
+        def function2(target, source, env):
+            open(env['out'], 'a').write("function2\n")
             return 0
 
         class class2a:
-            def __call__(self, **kw):
-                open(kw['out'], 'a').write("class2a\n")
+            def __call__(self, target, source, env):
+                open(env['out'], 'a').write("class2a\n")
                 return 0
 
         class class2b:
-            def __init__(self, **kw):
-                open(kw['out'], 'a').write("class2b\n")
+            def __init__(self, target, source, env):
+                open(env['out'], 'a').write("class2b\n")
 
         builder = MyBuilder(action = SCons.Action.ListAction([cmd2, function2, class2a(), class2b]), name = "clist")
-        r = builder.execute(out = outfile)
+        r = builder.execute([],[],Environment(out = outfile))
         assert r.__class__ == class2b
         c = test.read(outfile, 'r')
         assert c == "act.py: 'syzygy'\nfunction2\nclass2a\nclass2b\n", c
@@ -377,18 +386,18 @@ class BuilderTestCase(unittest.TestCase):
 
         # Test that a nonexistent command returns 127
         builder = MyBuilder(action = python + "_XyZzY_", name="badcmd")
-        r = builder.execute(out = outfile)
+        r = builder.execute([],[],Environment(out = outfile))
         assert r == expect_nonexistent, "r == %d" % r
 
         # Test that trying to execute a directory returns 126
         dir, tail = os.path.split(python)
         builder = MyBuilder(action = dir, name = "dir")
-        r = builder.execute(out = outfile)
+        r = builder.execute([],[],Environment(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
         # Test that trying to execute a non-executable file returns 126
         builder = MyBuilder(action = outfile, name = "badfile")
-        r = builder.execute(out = outfile)
+        r = builder.execute([],[],Environment(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
     def test_get_contents(self):
@@ -396,15 +405,15 @@ class BuilderTestCase(unittest.TestCase):
         """
 
         b1 = SCons.Builder.Builder(name = "b1", action = "foo")
-        contents = b1.get_contents()
+        contents = b1.get_contents([],[],Environment())
         assert contents == "foo", contents
 
         b2 = SCons.Builder.Builder(name = "b2", action = Func)
-        contents = b2.get_contents()
+        contents = b2.get_contents([],[],Environment())
         assert contents == "\177\036\000\177\037\000d\000\000S", repr(contents)
 
         b3 = SCons.Builder.Builder(name = "b3", action = SCons.Action.ListAction(["foo", Func, "bar"]))
-        contents = b3.get_contents()
+        contents = b3.get_contents([],[],Environment())
         assert contents == "foo\177\036\000\177\037\000d\000\000Sbar", repr(contents)
 
     def test_node_factory(self):
@@ -517,27 +526,27 @@ class BuilderTestCase(unittest.TestCase):
         """Testing ListBuilder class."""
         global count
         count = 0
-        def function2(tlist = [outfile, outfile2], **kw):
+        def function2(target, source, env, tlist = [outfile, outfile2], **kw):
             global count
             count = count + 1
-            for t in kw['target']:
+            for t in target:
                 open(str(t), 'w').write("function2\n")
             for t in tlist:
-                if not t in map(str, kw['target']):
+                if not t in map(str, target):
                     open(t, 'w').write("function2\n")
             return 1
 
         builder = SCons.Builder.Builder(action = function2, name = "function2")
         tgts = builder(env, target = [outfile, outfile2], source = 'foo')
         try:
-            r = tgts[0].builder.execute(target = tgts)
+            r = tgts[0].builder.execute(tgts, 'foo', env)
         except SCons.Errors.BuildError:
             pass
         c = test.read(outfile, 'r')
         assert c == "function2\n", c
         c = test.read(outfile2, 'r')
         assert c == "function2\n", c
-        r = tgts[1].builder.execute(target = tgts[1])
+        r = tgts[1].builder.execute(tgts[1], 'foo', env)
         assert r == 1, r
         assert count == 1, count
 
@@ -545,20 +554,20 @@ class BuilderTestCase(unittest.TestCase):
         sub2_out = test.workpath('sub2', 'out')
 
         count = 0
-        def function3(tlist = [sub1_out, sub2_out], **kw):
+        def function3(target, source, env, tlist = [sub1_out, sub2_out]):
             global count
             count = count + 1
-            for t in kw['target']:
+            for t in target:
                 open(str(t), 'w').write("function3\n")
             for t in tlist:
-                if not t in map(str, kw['target']):
+                if not t in map(str, target):
                     open(t, 'w').write("function3\n")
             return 1
 
         builder = SCons.Builder.Builder(action = function3, name = "function3")
         tgts = builder(env, target = [sub1_out, sub2_out], source = 'foo')
         try:
-            r = tgts[0].builder.execute(target = tgts)
+            r = tgts[0].builder.execute(tgts, 'foo', env)
         except:
             pass
         assert r == 1, r
@@ -717,19 +726,24 @@ class BuilderTestCase(unittest.TestCase):
 
     def test_Builder_Args(self):
         """Testing passing extra agrs to a builder."""
-        def buildFunc(target, source, env, foo, bar, s=self):
-            s.foo=foo
-            s.bar=bar
+        def buildFunc(target, source, env, s=self):
+            s.foo=env['foo']
+            s.bar=env['bar']
+            assert env['CC'] == 'mycc'
+
+        env=Environment(CC='cc')
 
         builder = SCons.Builder.Builder(name="builder", action=buildFunc)
-        tgt = builder(env, target='foo', source='bar', foo=1, bar=2)
+        tgt = builder(env, target='foo', source='bar', foo=1, bar=2, CC='mycc')
         tgt.build()
         assert self.foo == 1, self.foo
         assert self.bar == 2, self.bar
 
     def test_emitter(self):
         """Test emitter functions."""
-        def emit(target, source, env, foo=0, bar=0):
+        def emit(target, source, env):
+            foo = env.get('foo', 0)
+            bar = env.get('bar', 0)
             if foo:
                 target.append("bar%d"%foo)
             if bar:

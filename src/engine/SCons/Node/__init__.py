@@ -87,24 +87,21 @@ class Node:
         self.precious = None
         self.found_includes = {}
         self.includes = None
-        self.build_args = {}
+        self.overrides = {}     # construction variable overrides for building this node
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
         self.side_effect = 0 # true iff this node is a side effect
         self.side_effects = [] # the side effects of building this target
 
-    def generate_build_args(self):
-        dict = copy.copy(self.env.Dictionary())
+    def generate_build_env(self):
         if hasattr(self, 'cwd'):
             auto = self.env.autogenerate(dir = self.cwd)
         else:
             auto = self.env.autogenerate()
-        dict.update(auto)
 
-        dictArgs = { 'env' : dict,
-                     'target' : self,
-                     'source' : self.sources }
-        dictArgs.update(self.build_args)
-        return dictArgs
+        dict = {}
+        dict.update(auto)
+        dict.update(self.overrides)
+        return self.env.Override(dict)
 
     def build(self):
         """Actually build the node.   Return the status from the build."""
@@ -118,8 +115,7 @@ class Node:
             stat = self.builder.status
         except AttributeError:
             try:
-                stat = apply(self.builder.execute, (),
-                             self.generate_build_args())
+                stat = self.builder.execute(self, self.sources, self.generate_build_env())
             except KeyboardInterrupt:
                 raise
             except UserError:
@@ -180,8 +176,7 @@ class Node:
             def __init__(self, node):
                 self.node = node
             def get_contents(self):
-                return apply(self.node.builder.get_contents, (),
-                             self.node.generate_build_args())
+                return self.node.builder.get_contents(self.node, self.node.sources, self.node.generate_build_env())
             def get_timestamp(self):
                 return None
         return Adapter(self)
@@ -210,7 +205,7 @@ class Node:
                 if implicit_deps_unchanged or calc.current(self, calc.bsig(self)):
                     return
                 else:
-                    # one of this node's sources has changed, so 
+                    # one of this node's sources has changed, so
                     # we need to recalculate the implicit deps,
                     # and the bsig:
                     self.implicit = []

@@ -37,6 +37,11 @@ import unittest
 import SCons.Action
 import TestCmd
 
+import UserDict
+
+import SCons.Environment
+Environment = SCons.Environment.EnvProxy
+
 class ActionTestCase(unittest.TestCase):
 
     def runTest(self):
@@ -93,18 +98,18 @@ class ActionBaseTestCase(unittest.TestCase):
         """
         a = SCons.Action.Action("x")
 
-        d = a.subst_dict(env = {'a' : 'A', 'b' : 'B'})
+        d = a.subst_dict([],[],Environment({'a' : 'A', 'b' : 'B'}))
         assert d['a'] == 'A', d
         assert d['b'] == 'B', d
 
-        d = a.subst_dict(target = 't', source = 's')
+        d = a.subst_dict(target = 't', source = 's',env=Environment({}))
         assert str(d['TARGETS']) == 't', d['TARGETS']
         assert str(d['TARGET']) == 't', d['TARGET']
         assert str(d['SOURCES']) == 's', d['SOURCES']
         assert str(d['SOURCE']) == 's', d['SOURCE']
 
 
-        d = a.subst_dict(target = ['t1', 't2'], source = ['s1', 's2'])
+        d = a.subst_dict(target = ['t1', 't2'], source = ['s1', 's2'], env=Environment({}))
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
         assert TARGETS == ['t1', 't2'], d['TARGETS']
@@ -122,7 +127,7 @@ class ActionBaseTestCase(unittest.TestCase):
             def rstr(self):
                 return 'rstr-' + self.name
 
-        d = a.subst_dict(target = [N('t3'), 't4'], source = ['s3', N('s4')])
+        d = a.subst_dict(target = [N('t3'), 't4'], source = ['s3', N('s4')], env=Environment({}))
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
         assert TARGETS == ['t3', 't4'], d['TARGETS']
@@ -157,7 +162,7 @@ class CommandActionTestCase(unittest.TestCase):
         SCons.Action.SetCommandHandler(func)
         assert SCons.Action.spawn is func
         a = SCons.Action.CommandAction(["xyzzy"])
-        a.execute()
+        a.execute([],[],Environment({}))
         assert t.executed == 1
 
     def test_get_raw_contents(self):
@@ -175,7 +180,7 @@ class CommandActionTestCase(unittest.TestCase):
         a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
                                         "$)", "|"])
         c = a.get_contents(target=[], source=[],
-                           foo = 'FFF', bar = 'BBB')
+                           env=Environment({'foo':'FFF', 'bar':'BBB'}))
         assert c == "| |", c
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
@@ -192,7 +197,8 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         """Test executing a command generator Action
         """
 
-        def f(dummy, env, for_signature, self=self):
+        def f(target, source, env, for_signature, self=self):
+            dummy = env['dummy']
             self.dummy = dummy
             assert env.subst("$FOO $( bar $) baz") == 'foo baz\nbar ack bar baz', env.subst("$FOO $( bar $) baz")
             assert env.subst("$FOO $( bar $) baz", raw=1) == 'foo baz\nbar ack $( bar $) baz', env.subst("$FOO $( bar $) baz", raw=1)
@@ -202,7 +208,8 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
                                   raw=1) == [ [ 'foo', 'baz' ],
                                               [ 'bar', 'ack', '$(', 'bar', '$)', 'baz' ] ], env.subst_list("$FOO $( bar $) baz", raw=1)
             return "$FOO"
-        def func_action(env, dummy, self=self):
+        def func_action(target, source,env, self=self):
+            dummy=env['dummy']
             assert env.subst('$foo $( bar $)') == 'bar bar', env.subst('$foo $( bar $)')
             assert env.subst('$foo $( bar $)',
                              raw=1) == 'bar $( bar $)', env.subst('$foo $( bar $)', raw=1)
@@ -210,7 +217,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             assert env.subst_list([ '$foo', '$(', 'bar', '$)' ],
                                   raw=1) == [[ 'bar', '$(', 'bar', '$)' ]], env.subst_list([ '$foo', '$(', 'bar', '$)' ], raw=1)
             self.dummy=dummy
-        def f2(dummy, env, for_signature, f=func_action):
+        def f2(target, source, env, for_signature, f=func_action):
             return f
         def ch(cmd, args, env, self=self):
             self.cmd.append(cmd)
@@ -223,7 +230,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         self.args = []
         try:
             SCons.Action.SetCommandHandler(ch)
-            a.execute(dummy=1, env={ 'FOO' : 'foo baz\nbar ack' })
+            a.execute([],[],env=Environment({ 'FOO' : 'foo baz\nbar ack' , 'dummy':1}))
         finally:
             SCons.Action.SetCommandHandler(old_hdl)
         assert self.dummy == 1
@@ -232,20 +239,22 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         b=SCons.Action.CommandGeneratorAction(f2)
         self.dummy = 0
-        b.execute(dummy=2, env={ 'foo' : 'bar' })
+        b.execute(target=[], source=[], env=Environment({ 'foo' : 'bar','dummy':2 }))
         assert self.dummy==2, self.dummy
         del self.dummy
 
     def test_get_contents(self):
         """Test fetching the contents of a command generator Action
         """
-        def f(target, source, foo, bar, for_signature):
+        def f(target, source, env, for_signature):
+            foo = env['foo']
+            bar = env['bar']
             assert for_signature, for_signature
             return [["guux", foo, "$(", "ignore", "$)", bar]]
 
         a = SCons.Action.CommandGeneratorAction(f)
         c = a.get_contents(target=[], source=[],
-                           foo = 'FFF', bar = 'BBB')
+                           env=Environment({'foo':'FFF', 'bar' : 'BBB'}))
         assert c == "guux FFF BBB", c
 
 
@@ -263,7 +272,8 @@ class FunctionActionTestCase(unittest.TestCase):
         """Test executing a function Action
         """
         self.inc = 0
-        def f(s, target, source, env):
+        def f(target, source, env):
+            s = env['s']
             s.inc = s.inc + 1
             s.target = target
             s.source=source
@@ -272,7 +282,7 @@ class FunctionActionTestCase(unittest.TestCase):
                    env.subst_list("foo$BAR")
             return 0
         a = SCons.Action.FunctionAction(f)
-        a.execute(s = self, target=1, source=2, env={'BAR':'foo bar'})
+        a.execute(target=1, source=2, env=Environment({'BAR':'foo bar','s':self}))
         assert self.inc == 1, self.inc
         assert self.source == [2], self.source
         assert self.target == [1], self.target
@@ -281,7 +291,7 @@ class FunctionActionTestCase(unittest.TestCase):
         """Test fetching the contents of a function Action
         """
         a = SCons.Action.FunctionAction(Func)
-        c = a.get_contents(target=[], source=[])
+        c = a.get_contents(target=[], source=[], env=Environment({}))
         assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
 
 class ListActionTestCase(unittest.TestCase):
@@ -301,23 +311,25 @@ class ListActionTestCase(unittest.TestCase):
         """Test executing a list of subsidiary Actions
         """
         self.inc = 0
-        def f(s):
+        def f(target,source,env):
+            s = env['s']
             s.inc = s.inc + 1
         a = SCons.Action.ListAction([f, f, f])
-        a.execute(s = self)
+        a.execute([],[],Environment({'s':self}))
         assert self.inc == 3, self.inc
 
     def test_get_contents(self):
         """Test fetching the contents of a list of subsidiary Actions
         """
         self.foo=0
-        def gen(target, source, s, for_signature):
+        def gen(target, source, env, for_signature):
+            s = env['s']
             s.foo=1
             return "y"
         a = SCons.Action.ListAction(["x",
                                      SCons.Action.CommandGenerator(gen),
                                      "z"])
-        c = a.get_contents(target=[], source=[], s=self)
+        c = a.get_contents(target=[], source=[], env=Environment({'s':self}))
         assert self.foo==1, self.foo
         assert c == "xyz", c
 
@@ -339,11 +351,12 @@ class LazyActionTestCase(unittest.TestCase):
     def test_execute(self):
         """Test executing a lazy-evalueation Action
         """
-        def f(s, env):
+        def f(target, source, env):
+            s = env['s']
             s.test=1
             return 0
         a = SCons.Action.Action('$BAR')
-        a.execute(s = self, env={'BAR':f})
+        a.execute([],[], env=Environment({'BAR':f,'s':self}))
         assert self.test == 1, self.test
 
     def test_get_contents(self):
@@ -351,7 +364,7 @@ class LazyActionTestCase(unittest.TestCase):
         """
         a = SCons.Action.Action("${FOO}")
         c = a.get_contents(target=[], source=[],
-                           env={'FOO':[["This", "is", "$(", "a", "$)", "test"]]})
+                           env=Environment({'FOO':[["This", "is", "$(", "a", "$)", "test"]]}))
         assert c == "This is test", c
 
 

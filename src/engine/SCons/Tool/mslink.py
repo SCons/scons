@@ -65,14 +65,15 @@ def win32TempFileMunge(env, cmd_list, for_signature):
         return [ [cmd[0], '@' + tmp],
                  ['del', tmp] ]
     
-def win32LinkGenerator(env, target, source, for_signature, **kw):
+def win32LinkGenerator(env, target, source, for_signature):
     args = [ '$LINK', '$LINKFLAGS', '/OUT:%s' % target[0],
              '$(', '$_LIBDIRFLAGS', '$)', '$_LIBFLAGS' ]
     args.extend(map(SCons.Util.to_String, source))
     return win32TempFileMunge(env, args, for_signature)
 
-def win32LibGenerator(target, source, env, for_signature, no_import_lib=0):
+def win32LibGenerator(target, source, env, for_signature):
     listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
+    no_import_lib = env.get('no_import_lib', 0)
 
     for tgt in target:
         ext = os.path.splitext(str(tgt))[1]
@@ -95,8 +96,10 @@ def win32LibGenerator(target, source, env, for_signature, no_import_lib=0):
             listCmd.append(str(src))
     return win32TempFileMunge(env, listCmd, for_signature)
 
-def win32LibEmitter(target, source, env, no_import_lib=0):
+def win32LibEmitter(target, source, env):
     dll = None
+    no_import_lib = env.get('no_import_lib', 0)
+    
     for tgt in target:
         ext = os.path.splitext(str(tgt))[1]
         if ext == env.subst("$SHLIBSUFFIX"):

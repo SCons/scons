@@ -79,7 +79,7 @@ class DictCmdGenerator:
         """
         self.action_dict[suffix] = action
 
-    def __call__(self, source, target, env, **kw):
+    def __call__(self, target, source, env, for_signature):
         ext = None
         for src in map(str, source):
             my_ext = SCons.Util.splitext(src)[1]
@@ -124,7 +124,7 @@ def Builder(**kw):
         if not var:
             raise UserError, "Supplied emitter '%s' does not appear to refer to an Environment variable" % kw['emitter']
         kw['emitter'] = EmitterProxy(var)
-        
+
     if kw.has_key('src_builder'):
         ret = apply(MultiStepBuilder, (), kw)
     else:
@@ -135,7 +135,7 @@ def Builder(**kw):
 
     return ret
 
-def _init_nodes(builder, env, args, tlist, slist):
+def _init_nodes(builder, env, overrides, tlist, slist):
     """Initialize lists of target and source nodes with all of
     the proper Builder information.
     """
@@ -150,10 +150,10 @@ def _init_nodes(builder, env, args, tlist, slist):
         if t.side_effect:
             raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
         if t.builder is not None:
-            if t.env != env: 
+            if t.env != env:
                 raise UserError, "Two different environments were specified for the same target: %s"%str(t)
-            elif t.build_args != args:
-                raise UserError, "Two different sets of build arguments were specified for the same target: %s"%str(t)
+            elif t.overrides != overrides:
+                raise UserError, "Two different sets of overrides were specified for the same target: %s"%str(t)
             elif builder.scanner and builder.scanner != t.target_scanner:
                 raise UserError, "Two different scanners were specified for the same target: %s"%str(t)
 
@@ -166,14 +166,14 @@ def _init_nodes(builder, env, args, tlist, slist):
             elif t.sources != slist:
                 raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
 
-        t.build_args = args
+        t.overrides = overrides
         t.cwd = SCons.Node.FS.default_fs.getcwd()
         t.builder_set(builder)
         t.env_set(env)
         t.add_source(slist)
         if builder.scanner:
             t.target_scanner = builder.scanner
-            
+
 def _adjust_suffix(suff):
     if suff and not suff[0] in [ '.', '$' ]:
         return '.' + suff
@@ -189,7 +189,7 @@ class EmitterProxy:
     def __init__(self, var):
         self.var = SCons.Util.to_String(var)
 
-    def __call__(self, target, source, env, **kw):
+    def __call__(self, target, source, env):
         emitter = self.var
 
         # Recursively substitute the variable.
@@ -200,11 +200,8 @@ class EmitterProxy:
             emitter = env[emitter]
         if not callable(emitter):
             return (target, source)
-        args = { 'target':target,
-                 'source':source,
-                 'env':env }
-        args.update(kw)
-        return apply(emitter, (), args)
+
+        return emitter(target, source, env)
 
     def __cmp__(self, other):
         return cmp(self.var, other.var)
@@ -258,7 +255,7 @@ class BuilderBase:
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
 
-    def _create_nodes(self, env, args, target = None, source = None):
+    def _create_nodes(self, env, overrides, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
         def adjustixes(files, pre, suf):
@@ -280,6 +277,8 @@ class BuilderBase:
                 ret.append(f)
             return ret
 
+        env = env.Override(overrides)
+
         pre = self.get_prefix(env)
         suf = self.get_suffix(env)
         src_suf = self.get_src_suffix(env)
@@ -294,49 +293,45 @@ class BuilderBase:
 
         if self.emitter:
             # pass the targets and sources to the emitter as strings
-            # rather than nodes since str(node) doesn't work 
+            # rather than nodes since str(node) doesn't work
             # properly from any directory other than the top directory,
             # and emitters are called "in" the SConscript directory:
-            emit_args = { 'target' : target,
-                          'source' : source,
-                          'env' : env }
-            emit_args.update(args)
-            target, source = apply(self.emitter, (), emit_args)
+            target, source = self.emitter(target=target, source=source, env=env)
 
         slist = SCons.Node.arg2nodes(source, self.source_factory)
         tlist = SCons.Node.arg2nodes(target, self.target_factory)
 
         return tlist, slist
 
-    def __call__(self, env, target = None, source = _null, **kw):
+    def __call__(self, env, target = None, source = _null, **overrides):
         if source is _null:
             source = target
             target = None
-        tlist, slist = self._create_nodes(env, kw, target, source)
+        tlist, slist = self._create_nodes(env, overrides, target, source)
 
         if len(tlist) == 1:
-            _init_nodes(self, env, kw, tlist, slist)
+            _init_nodes(self, env, overrides, tlist, slist)
             tlist = tlist[0]
         else:
-            _init_nodes(ListBuilder(self, env, tlist), env, kw, tlist, slist)
+            _init_nodes(ListBuilder(self, env, tlist), env, overrides, tlist, slist)
 
         return tlist
 
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         """Execute a builder's action to create an output object.
         """
-        return apply(self.action.execute, (), kw)
+        return self.action.execute(target, source, env)
 
-    def get_raw_contents(self, **kw):
+    def get_raw_contents(self, target, source, env):
         """Fetch the "contents" of the builder's action.
         """
-        return apply(self.action.get_raw_contents, (), kw)
+        return self.action.get_raw_contents(target, source, env)
 
-    def get_contents(self, **kw):
+    def get_contents(self, target, source, env):
         """Fetch the "contents" of the builder's action
         (for signature calculation).
         """
-        return apply(self.action.get_contents, (), kw)
+        return self.action.get_contents(target, source, env)
 
     def src_suffixes(self, env):
         return map(lambda x, e=env: e.subst(_adjust_suffix(x)),
@@ -383,17 +378,17 @@ class ListBuilder(SCons.Util.Proxy):
         self.multi = builder.multi
         self.name = "ListBuilder(%s)"%builder.name
 
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         if hasattr(self, 'status'):
             return self.status
         for t in self.tlist:
             # unlink all targets and make all directories
             # before building anything
             t.prepare()
-        kw['target'] = self.tlist
-        self.status = apply(self.builder.execute, (), kw)
+        target = self.tlist
+        self.status = self.builder.execute(target, source, env)
         for t in self.tlist:
-            if not t is kw['target']:
+            if not t is target:
                 t.build()
         return self.status
 
@@ -443,7 +438,7 @@ class MultiStepBuilder(BuilderBase):
         if not SCons.Util.is_List(src_builder):
             src_builder = [ src_builder ]
         self.src_builder = src_builder
-        self.sdict = {} 
+        self.sdict = {}
         self.cached_src_suffixes = {} # source suffixes keyed on id(env)
 
     def __call__(self, env, target = None, source = None, **kw):
@@ -463,8 +458,9 @@ class MultiStepBuilder(BuilderBase):
                         continue
                 for suf in bld.src_suffixes(env):
                     sdict[suf] = bld
-                    
+
         src_suffixes = self.src_suffixes(env)
+
         for snode in slist:
             path, ext = SCons.Util.splitext(snode.abspath)
             if sdict.has_key(ext):

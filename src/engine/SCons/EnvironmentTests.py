@@ -94,6 +94,14 @@ class Scanner:
 
 class EnvironmentTestCase(unittest.TestCase):
 
+    def test_Override(self):
+        env = Environment(ONE=1, TWO=2)
+        assert env['ONE'] == 1
+        assert env['TWO'] == 2
+        env2 = env.Override({'TWO':'10'})
+        assert env2['ONE'] == 1
+        assert env2['TWO'] == '10'
+        
     def test_Builder_calls(self):
         """Test Builder calls through different environments
         """

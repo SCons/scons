@@ -83,7 +83,7 @@ env.B(target = 'foo.out', source = 'bar.in', foo=2)
 test.run(arguments='foo.out', 
          status=2, 
          stderr="""
-SCons error: Two different sets of build arguments were specified for the same target: foo.out
+SCons error: Two different sets of overrides were specified for the same target: foo.out
 File "SConstruct", line 10, in ?
 """)
 

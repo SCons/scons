@@ -263,7 +263,7 @@ class ActionBase:
     def show(self, string):
         print string
 
-    def subst_dict(self, **kw):
+    def subst_dict(self, target, source, env):
         """Create a dictionary for substitution of construction
         variables.
 
@@ -278,52 +278,31 @@ class ActionBase:
                      construction variables
 
             source - the source (object or array of objects),
-                     used to generate the SOURCES and SOURCE 
+                     used to generate the SOURCES and SOURCE
                      construction variables
-
-        Any other keyword arguments are copied into the
-        dictionary."""
+        """
 
         dict = {}
-        if kw.has_key('env'):
-            dict.update(kw['env'])
-            del kw['env']
 
-        try:
-            cwd = kw['dir']
-        except KeyError:
-            cwd = None
-        else:
-            del kw['dir']
+        for k,v in env.items(): dict[k] = v
 
-        if kw.has_key('target'):
-            t = kw['target']
-            del kw['target']
-            if not SCons.Util.is_List(t):
-                t = [t]
+        if not SCons.Util.is_List(target):
+            target = [target]
+
+        dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(str, target)))
+        if dict['TARGETS']:
+            dict['TARGET'] = dict['TARGETS'][0]
+
+        def rstr(x):
             try:
-                cwd = t[0].cwd
-            except (IndexError, AttributeError):
-                pass
-            dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(str, t)))
-            if dict['TARGETS']:
-                dict['TARGET'] = dict['TARGETS'][0]
-
-        if kw.has_key('source'):
-            def rstr(x):
-                try:
-                    return x.rstr()
-                except AttributeError:
-                    return str(x)
-            s = kw['source']
-            del kw['source']
-            if not SCons.Util.is_List(s):
-                s = [s]
-            dict['SOURCES'] = SCons.Util.PathList(map(os.path.normpath, map(rstr, s)))
-            if dict['SOURCES']:
-                dict['SOURCE'] = dict['SOURCES'][0]
-
-        dict.update(kw)
+                return x.rstr()
+            except AttributeError:
+                return str(x)
+        if not SCons.Util.is_List(source):
+            source = [source]
+        dict['SOURCES'] = SCons.Util.PathList(map(os.path.normpath, map(rstr, source)))
+        if dict['SOURCES']:
+            dict['SOURCE'] = dict['SOURCES'][0]
 
         return dict
 
@@ -340,44 +319,15 @@ def _string_from_cmd_list(cmd_list):
 _rm = re.compile(r'\$[()]')
 _remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
 
-class EnvDictProxy(UserDict.UserDict):
-    """This is a dictionary-like class that contains the
-    Environment dictionary we pass to FunctionActions
-    and CommandGeneratorActions.
-
-    In addition to providing
-    normal dictionary-like access to the variables in the
-    Environment, it also exposes the functions subst()
-    and subst_list(), allowing users to easily do variable
-    interpolation when writing their FunctionActions
-    and CommandGeneratorActions."""
-
-    def __init__(self, env):
-        UserDict.UserDict.__init__(self, env)
-
-    def subst(self, string, raw=0):
-        if raw:
-            regex_remove = None
-        else:
-            regex_remove = _rm
-        return SCons.Util.scons_subst(string, self.data, {}, regex_remove)
-
-    def subst_list(self, string, raw=0):
-        if raw:
-            regex_remove = None
-        else:
-            regex_remove = _rm
-        return SCons.Util.scons_subst_list(string, self.data, {}, regex_remove)
-
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
     def __init__(self, cmd):
         import SCons.Util
-        
+
         self.cmd_list = map(SCons.Util.to_String, cmd)
 
-    def execute(self, **kw):
-        dict = apply(self.subst_dict, (), kw)
+    def execute(self, target, source, env):
+        dict = self.subst_dict(target, source, env)
         import SCons.Util
         cmd_list = SCons.Util.scons_subst_list(self.cmd_list, dict, {}, _rm)
         for cmd_line in cmd_list:
@@ -386,7 +336,7 @@ class CommandAction(ActionBase):
                     self.show(_string_from_cmd_list(cmd_line))
                 if execute_actions:
                     try:
-                        ENV = kw['env']['ENV']
+                        ENV = dict['ENV']
                     except KeyError:
                         global default_ENV
                         if not default_ENV:
@@ -398,7 +348,7 @@ class CommandAction(ActionBase):
                         return ret
         return 0
 
-    def _sig_dict(self, kw):
+    def _sig_dict(self, target, source, env):
         """Supply a dictionary for use in computing signatures.
 
         For signature purposes, it doesn't matter what targets or
@@ -406,62 +356,52 @@ class CommandAction(ActionBase):
         so the signature stays the same.  We supply an array of two
         of each to allow for distinction between TARGET and TARGETS.
         """
-        kw['target'] = ['__t1__', '__t2__']
-        kw['source'] = ['__s1__', '__s2__']
-        return apply(self.subst_dict, (), kw)
+        return self.subst_dict(['__t1__', '__t2__'], ['__s1__', '__s2__'], env)
 
-    def get_raw_contents(self, **kw):
+    def get_raw_contents(self, target, source, env):
         """Return the complete contents of this action's command line.
         """
         return SCons.Util.scons_subst(string.join(self.cmd_list),
-                                      self._sig_dict(kw), {})
+                                      self._sig_dict(target, source, env), {})
 
-    def get_contents(self, **kw):
+    def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
 
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
         return SCons.Util.scons_subst(string.join(self.cmd_list),
-                                      self._sig_dict(kw), {}, _remove)
+                                      self._sig_dict(target, source, env), {}, _remove)
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
     def __init__(self, generator):
         self.generator = generator
 
-    def __generate(self, kw, for_signature):
+    def __generate(self, target, source, env, for_signature):
         import SCons.Util
-
-        # Wrap the environment dictionary in an EnvDictProxy
-        # object to make variable interpolation easier for the
-        # client.
-        args = copy.copy(kw)
-        args['for_signature'] = for_signature
-        if args.has_key("env") and not isinstance(args["env"], EnvDictProxy):
-            args["env"] = EnvDictProxy(args["env"])
 
         # ensure that target is a list, to make it easier to write
         # generator functions:
-        if args.has_key("target") and not SCons.Util.is_List(args["target"]):
-            args["target"] = [args["target"]]
+        if not SCons.Util.is_List(target):
+            target = [target]
 
-        ret = apply(self.generator, (), args)
+        ret = self.generator(target=target, source=source, env=env, for_signature=for_signature)
         gen_cmd = Action(ret)
         if not gen_cmd:
             raise SCons.Errors.UserError("Object returned from command generator: %s cannot be used to create an Action." % repr(ret))
         return gen_cmd
 
-    def execute(self, **kw):
-        return apply(self.__generate(kw, 0).execute, (), kw)
+    def execute(self, target, source, env):
+        return self.__generate(target, source, env, 0).execute(target, source, env)
 
-    def get_contents(self, **kw):
+    def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
 
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        return apply(self.__generate(kw, 1).get_contents, (), kw)
+        return self.__generate(target, source, env, 1).get_contents(target, source, env)
 
 class LazyCmdGenerator:
     """This is a simple callable class that acts as a command generator.
@@ -471,7 +411,7 @@ class LazyCmdGenerator:
     def __init__(self, var):
         self.var = SCons.Util.to_String(var)
 
-    def __call__(self, env, **kw):
+    def __call__(self, target, source, env, for_signature):
         if env.has_key(self.var):
             return env[self.var]
         else:
@@ -483,27 +423,25 @@ class FunctionAction(ActionBase):
     def __init__(self, function):
         self.function = function
 
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         # if print_actions:
         # XXX:  WHAT SHOULD WE PRINT HERE?
         if execute_actions:
-            if kw.has_key('target') and not \
-               SCons.Util.is_List(kw['target']):
-                kw['target'] = [ kw['target'] ]
-            if kw.has_key('source'):
-                def rfile(n):
-                    try:
-                        return n.rfile()
-                    except AttributeError:
-                        return n
-                if not SCons.Util.is_List(kw['source']):
-                    kw['source'] = [ kw['source'] ]
-                kw['source'] = map(rfile, kw['source'])
-            if kw.has_key("env") and not isinstance(kw["env"], EnvDictProxy):
-                kw["env"] = EnvDictProxy(kw["env"])
-            return apply(self.function, (), kw)
+            if not SCons.Util.is_List(target):
+                target = [target]
 
-    def get_contents(self, **kw):
+            def rfile(n):
+                try:
+                    return n.rfile()
+                except AttributeError:
+                    return n
+            if not SCons.Util.is_List(source):
+                source = [source]
+            source = map(rfile, source)
+
+            return self.function(target=target, source=source, env=env)
+
+    def get_contents(self, target, source, env):
         """Return the signature contents of this callable action.
 
         By providing direct access to the code object of the
@@ -524,17 +462,21 @@ class ListAction(ActionBase):
     def __init__(self, list):
         self.list = map(lambda x: Action(x), list)
 
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         for l in self.list:
-            r = apply(l.execute, (), kw)
+            r = l.execute(target, source, env)
             if r:
                 return r
         return 0
 
-    def get_contents(self, **kw):
+    def get_contents(self, target, source, env):
         """Return the signature contents of this action list.
 
         Simple concatenation of the signatures of the elements.
         """
 
-        return reduce(lambda x, y, kw=kw: x + str(apply(y.get_contents, (), kw)), self.list, "")
+        ret = ""
+        for a in self.list:
+            ret = ret + a.get_contents(target, source, env)
+        return ret
+

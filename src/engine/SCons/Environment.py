@@ -50,12 +50,12 @@ from UserDict import UserDict
 import SCons.Platform
 import SCons.Tool
 
-def installFunc(env, target, source):
+def installFunc(target, source, env):
     try:
         map(lambda t: os.unlink(str(t)), target)
     except OSError:
         pass
-    
+
     try:
         SCons.Node.FS.file_link(str(source[0]), str(target[0]))
         print 'Install file: "%s" as "%s"' % \
@@ -74,8 +74,8 @@ InstallBuilder = SCons.Builder.Builder(name='Install',
                                        action=installFunc)
 
 def our_deepcopy(x):
-   """deepcopy lists and dictionaries, and just copy the reference 
-   for everything else.""" 
+   """deepcopy lists and dictionaries, and just copy the reference
+   for everything else."""
    if SCons.Util.is_Dict(x):
        copy = {}
        for key in x.keys():
@@ -108,6 +108,44 @@ class BuilderDict(UserDict):
     def __delitem__(self, item):
         UserDict.__delitem__(self, item)
         self.env.Replace()
+
+_rm = re.compile(r'\$[()]')
+
+class EnvProxy(UserDict):
+    """This is a dictionary-like class that is returned
+    by Environment.Override().
+
+    In addition to providing
+    normal dictionary-like access to the variables in the
+    Environment, it also exposes the functions subst()
+    and subst_list(), allowing users to easily do variable
+    interpolation when writing their FunctionActions
+    and CommandGeneratorActions."""
+
+    def __init__(self, env):
+        UserDict.__init__(self, env)
+
+    def subst(self, string, raw=0):
+        if raw:
+            regex_remove = None
+        else:
+            regex_remove = _rm
+        return SCons.Util.scons_subst(string, self.data, {}, regex_remove)
+
+    def subst_list(self, string, raw=0):
+        if raw:
+            regex_remove = None
+        else:
+            regex_remove = _rm
+        return SCons.Util.scons_subst_list(string, self.data, {}, regex_remove)
+
+    def Override(self, overrides):
+        if overrides:
+            proxy = EnvProxy(self)
+            proxy.update(overrides)
+            return proxy
+        else:
+            return self
 
 class Environment:
     """Base class for construction Environments.  These are
@@ -477,6 +515,26 @@ class Environment:
             path = SCons.Util.WhereIs(prog, path, pathext)
             if path: return prog
         return None
+
+    def Override(self, overrides):
+        """
+        Produce a modified psuedo-environment whose variables
+        are overriden by the overrides dictionaries.
+
+        overrides - a dictionaru that will override
+        the variables of this environment.
+        """
+
+        if overrides:
+            proxy = EnvProxy(self._dict)
+            proxy.update(overrides)
+            return proxy
+        else:
+            return self
+
+    def get(self, key, default):
+        "Emulates the get() method of dictionaries."""
+        return self._dict.get(key, default)
 
 class VarInterpolator:
     def __init__(self, dest, src, prefix, suffix):

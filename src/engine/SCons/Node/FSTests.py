@@ -40,7 +40,7 @@ class Builder:
     def __init__(self, factory):
         self.factory = factory
 
-    def execute(self, **kw):
+    def execute(self, target, source, env):
         global built_it
         built_it = 1
         return 0
@@ -69,6 +69,8 @@ class Environment:
         return {}
     def get_scanner(self, skey):
         return self.scanner
+    def Override(self, overrides):
+        return self
 
 class BuildDirTestCase(unittest.TestCase):
     def runTest(self):
@@ -103,6 +105,7 @@ class BuildDirTestCase(unittest.TestCase):
         fs.BuildDir('../var2', 'src')
         f1 = fs.File('../var1/test1')
         f2 = fs.File('../var2/test1')
+        assert hasattr(f1, 'overrides')
         assert f1.srcpath == os.path.normpath('src/test1'), f1.srcpath
         assert f2.srcpath == os.path.normpath('src/test1'), f2.srcpath
 
