@@ -601,8 +601,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target='test2', source=['test2.bar', 'test1.foo'])
         try:
             tgt.build()
-        except SCons.Errors.BuildError, e:
-            assert e.args[0] == SCons.Errors.UserError
+        except SCons.Errors.UserError:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
@@ -646,8 +645,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target='t5', source='test5a.foo test5b.inb')
         try:
             tgt.build()
-        except SCons.Errors.BuildError, e:
-            assert e.args[0] == SCons.Errors.UserError
+        except SCons.Errors.UserError:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
@@ -655,8 +653,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target='t6', source='test6a.bar test6b.ina')
         try:
             tgt.build()
-        except SCons.Errors.BuildError, e:
-            assert e.args[0] == SCons.Errors.UserError
+        except SCons.Errors.UserError:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
@@ -664,8 +661,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target='t4', source='test4a.ina test4b.inb')
         try:
             tgt.build()
-        except SCons.Errors.BuildError, e:
-            assert e.args[0] == SCons.Errors.UserError
+        except SCons.Errors.UserError:
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 

@@ -93,6 +93,10 @@ class BuildTask(SCons.Taskmaster.Task):
                     traceback.print_exception(e.args[0], e.args[1],
                                               e.args[2])
                 raise
+            except UserError, e:
+                # We aren't being called out of a user frame, so
+                # don't try to walk the stack, just print the error.
+                sys.stderr.write("\nSCons error: %s\n" % e)
 	    except:
 		sys.stderr.write("scons: *** %s\n" % sys.exc_value)
 		raise

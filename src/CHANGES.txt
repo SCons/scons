@@ -26,6 +26,18 @@ RELEASE 0.08 -
     and the Builder name= keyword argument, generate warnings
     about use of deprecated features.
 
+  - Removed the "shared" keyword argument from the Object and
+    Library builders.
+    
+  - Added separated StaticObject, SharedObject, StaticLibrary and
+    SharedLibrary builders.  Made Object and Library synonyms for
+    StaticObject and StaticLibrary, respectively.
+
+  - Add LIBS and LIBPATH dependencies for shared libraries.
+
+  - Removed support for the prefix, suffix and src_suffix arguments
+    to Builder() to be callable functions.
+
   From Steven Knight:
 
   - Add a "platform=" keyword argument to Environment instantiation,

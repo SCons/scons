@@ -37,7 +37,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(SHLIBSUFFIX = '.shlib')
-env.Library (target = 'foo', source = 'foo.c', shared = 1)
+env.SharedLibrary(target = 'foo', source = 'foo.c')
 """)
 
 test.write('foo.c', r"""

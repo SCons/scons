@@ -259,8 +259,12 @@ def BuildDefaultGlobals():
     globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
     globals['Help']              = Help
     globals['Import']            = Import
-    globals['Library']           = SCons.Defaults.Library
-    globals['Object']            = SCons.Defaults.Object
+    globals['Library']           = SCons.Defaults.StaticLibrary
+    globals['Object']            = SCons.Defaults.StaticObject
+    globals['StaticLibrary']     = SCons.Defaults.StaticLibrary
+    globals['StaticObject']      = SCons.Defaults.StaticObject
+    globals['SharedLibrary']     = SCons.Defaults.SharedLibrary
+    globals['SharedObject']      = SCons.Defaults.SharedObject
     globals['Platform']          = SCons.Platform.Platform
     globals['Program']           = SCons.Defaults.Program
     globals['Return']            = Return

@@ -491,7 +491,7 @@ class ListAction(ActionBase):
     def execute(self, **kw):
         for l in self.list:
             r = apply(l.execute, (), kw)
-            if r != 0:
+            if r:
                 return r
         return 0
 
@@ -501,4 +501,4 @@ class ListAction(ActionBase):
         Simple concatenation of the signatures of the elements.
         """
 
-        return reduce(lambda x, y: x + str(y.get_contents()), self.list, "")
+        return reduce(lambda x, y, kw=kw: x + str(apply(y.get_contents, (), kw)), self.list, "")

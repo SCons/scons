@@ -34,16 +34,22 @@ test.write('SConstruct', """
 env=Environment(WIN32_INSERT_DEF=1)
 env2 = Environment(LIBS = [ 'foo1', 'foo2', 'foo3' ],
                    LIBPATH = [ '.' ])
-env.Library(target = 'foo1', source = 'f1.c', shared=1)
-env.Library(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'), shared=1)
-env.Library(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'], shared=1)
+env.SharedLibrary(target = 'foo1', source = 'f1.c')
+env.SharedLibrary(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
+env.SharedLibrary(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 env2.Program(target = 'prog', source = 'prog.c')
 """)
 
 test.write('SConstructFoo', """
 env=Environment()
-obj = env.Object('foo', 'foo.c', shared=0)
-Default(env.Library(target = 'foo', source = obj, shared=1))
+obj = env.Object('foo', 'foo.c')
+Default(env.SharedLibrary(target = 'foo', source = obj))
+""")
+
+test.write('SConstructFoo2', """
+env=Environment()
+obj = env.SharedObject('foo', 'foo.c')
+Default(env.Library(target = 'foo', source = obj))
 """)
 
 test.write('foo.c', r"""
@@ -182,8 +188,12 @@ test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
 
 test.run(arguments = '-f SConstructFoo', status=2, stderr='''
-SCons error: Source file: foo\..* must be built with shared=1 in order to be compatible with target: .*
-File ".*", line .*, in .*
+SCons error: Source file: foo\..* is static and is not compatible with shared target: .*
+'''
+)
+
+test.run(arguments = '-f SConstructFoo2', status=2, stderr='''
+SCons error: Source file: foo\..* is shared and is not compatible with static target: .*
 '''
 )
 

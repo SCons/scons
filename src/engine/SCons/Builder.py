@@ -209,24 +209,14 @@ class BuilderBase:
         self.name = name
         self.action = SCons.Action.Action(action)
         self.multi = multi
+        self.prefix = prefix
+        self.suffix = suffix
 
-        if callable(prefix):
-            self.prefix = prefix
+        if SCons.Util.is_String(src_suffix):
+            self.src_suffix = [ src_suffix ]
         else:
-            self.prefix = _callable_adaptor(str(prefix))
-
-        if callable(suffix):
-            self.suffix = suffix
-        else:
-            self.suffix = _callable_adaptor(str(suffix))
-
-        if callable(src_suffix):
             self.src_suffix = src_suffix
-        elif SCons.Util.is_String(src_suffix):
-            self.src_suffix = _callable_adaptor([ str(src_suffix) ])
-        else:
-            self.src_suffix = _callable_adaptor(src_suffix)
-            
+
         self.target_factory = target_factory or node_factory
         self.source_factory = source_factory or node_factory
         self.scanner = scanner
@@ -328,21 +318,20 @@ class BuilderBase:
 
     def src_suffixes(self, env, args):
         return map(lambda x, e=env: e.subst(_adjust_suffix(x)),
-                   apply(self.src_suffix, (), args))
+                   self.src_suffix)
 
     def get_src_suffix(self, env, args):
         """Get the first src_suffix in the list of src_suffixes."""
-        ret = self.src_suffixes(env, args)
-        if not ret:
+        if not self.src_suffix:
             return ''
         else:
-            return ret[0]
+            return self.src_suffix[0]
 
     def get_suffix(self, env, args):
-        return env.subst(_adjust_suffix(apply(self.suffix, (), args)))
+        return env.subst(_adjust_suffix(self.suffix))
 
     def get_prefix(self, env, args):
-        return env.subst(apply(self.prefix, (), args))
+        return env.subst(self.prefix)
 
     def targets(self, node):
         """Return the list of targets for this builder instance.

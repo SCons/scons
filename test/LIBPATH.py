@@ -31,29 +31,32 @@ import time
 
 if sys.platform == 'win32':
     _exe = '.exe'
+    _dll = '.dll'
+    lib_ = ''
 else:
     _exe = ''
+    _dll = '.so'
+    lib_ = 'lib'
     
 test = TestSCons.TestSCons()
 
 test.subdir('lib1', 'lib2')
 
 prog1 = test.workpath('prog') + _exe
-prog2 = test.workpath('prog2') + _exe
+prog2 = test.workpath(lib_ + 'shlib') + _dll
 
 test.write('SConstruct', """
 env1 = Environment(LIBS = [ 'foo1' ],
                   LIBPATH = [ './lib1' ])
 
-prog = env1.Object('prog', 'prog.c')
 f1 = env1.Object('f1', 'f1.c')
 
-env1.Program(target = 'prog', source = prog)
+env1.Program(target = 'prog', source = 'prog.c')
 env1.Library(target = './lib1/foo1', source = f1)
 
 env2 = Environment(LIBS = 'foo2',
                    LIBPATH = '.')
-env2.Program(target = 'prog2', source = prog)
+env2.SharedLibrary(target = 'shlib', source = 'shlib.c')
 env2.Library(target = 'foo2', source = f1)
 """)
 
@@ -62,6 +65,15 @@ void
 f1(void)
 {
 	printf("f1.c\n");
+}
+""")
+
+test.write('shlib.c', r"""
+void f1(void);
+int
+test()
+{
+    f1();
 }
 """)
 
@@ -80,8 +92,6 @@ main(int argc, char *argv[])
 test.run(arguments = '.')
 
 test.run(program = prog1,
-         stdout = "f1.c\nprog.c\n")
-test.run(program = prog2,
          stdout = "f1.c\nprog.c\n")
 
 oldtime1 = os.path.getmtime(prog1)
@@ -103,23 +113,21 @@ f1(void)
 test.run(arguments = '.')
 test.run(program = prog1,
          stdout = "f1.c 1\nprog.c\n")
-test.run(program = prog2,
-         stdout = "f1.c 1\nprog.c\n")
+test.fail_test(oldtime2 == os.path.getmtime(prog2))
 #test.up_to_date(arguments = '.')
 # Change LIBPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
 env1 = Environment(LIBS = [ 'foo1' ],
                   LIBPATH = [ './lib1', './lib2' ])
 
-prog = env1.Object('prog', 'prog.c')
 f1 = env1.Object('f1', 'f1.c')
 
-env1.Program(target = 'prog', source = prog)
+env1.Program(target = 'prog', source = 'prog.c')
 env1.Library(target = './lib1/foo1', source = f1)
 
 env2 = Environment(LIBS = 'foo2',
                    LIBPATH = Split('. ./lib2'))
-env2.Program(target = 'prog2', source = prog)
+env2.SharedLibrary(target = 'shlib', source = 'shlib.c')
 env2.Library(target = 'foo2', source = f1)
 """)
 
@@ -135,8 +143,6 @@ f1(void)
 
 test.run(arguments = '.')
 test.run(program = prog1,
-         stdout = "f1.c 2\nprog.c\n")
-test.run(program = prog2,
          stdout = "f1.c 2\nprog.c\n")
 
 test.up_to_date(arguments = '.')

@@ -47,8 +47,8 @@ while len(linkflags) <= 8100:
     linkflags = linkflags + r' %s'
 env = Environment(LINKFLAGS = '$LINKXXX', LINKXXX = linkflags)
 env.Program(target = 'foo', source = 'foo.c')
-# Library(shared=1) uses $LINKFLAGS by default.
-env.Library(target = 'bar', source = 'bar.c', shared=1, no_import_lib=1)
+# SharedLibrary() uses $LINKFLAGS by default.
+env.SharedLibrary(target = 'bar', source = 'bar.c', no_import_lib=1)
 """ % (linkflag, linkflag))
 
 test.write('foo.c', r"""

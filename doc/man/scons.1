@@ -723,8 +723,9 @@ env.Program('bar', 'bar.c foo.c')
 .B scons
 provides the following builders:
 
-.IP Object
-Builds an object file from one or more C, C++, or Fortran source files.
+.IP StaticObject
+Builds a static object file
+from one or more C, C++, or Fortran source files.
 Source files must have one of the following extensions:
 .ES
   .c      C file
@@ -749,21 +750,31 @@ The target object file prefix and suffix (if any) are automatically
 added. Examples:
 
 .ES
-env.Object(target = 'aaa', source = 'aaa.c')
-env.Object(target = 'bbb.o', source = 'bbb.c++')
-env.Object(target = 'ccc.obj', source = 'ccc.f')
+env.StaticObject(target = 'aaa', source = 'aaa.c')
+env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
+env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
 .EE
-.IP
-The
-.B Object
-builder accepts an optional "shared" keyword that, when non-zero,
-specifies that the object file should be built for
+.IP SharedObject
+Builds an object file for
 inclusion in a shared library
-(that is, built with the '-fPIC' option when using gcc):
+(that is, built with the '-fPIC' option when using gcc).
+Source files must have one of the same set of extensions
+specified above for the
+.B StaticObject
+builder.
+The target object file prefix and suffix (if any) are automatically
+added. Examples:
 
 .ES
-env.Object(target = 'ddd.obj', source = 'ddd.c', shared = 1)
+env.SharedObject(target = 'ddd', source = 'ddd.c')
+env.SharedObject(target = 'eee.o', source = 'eee.cpp')
+env.SharedObject(target = 'fff.obj', source = 'fff.for')
 .EE
+
+.IP Object
+A synonym for the
+.B StaticObject
+builder.
 
 .IP Program
 Builds an executable given one or more object files or C, C++
@@ -783,32 +794,47 @@ automatically added to the target. Example:
 env.Program(target = 'foo', source = 'foo.o bar.c baz.f')
 .EE
 
-.IP Library
-Builds a static or shared library given one or more object files
+.IP StaticLibrary
+Builds a static library given one or more object files
 or C, C++ or Fortran source files.
 If any source files are given,
 then they will be automatically
-compiled to object files. The library prefix and suffix (if any) are
-automatically added to the target. Example:
+compiled to object files.
+The library prefix and suffix (if any)
+are automatically added to the target.
+Example:
 
 .ES
-env.Library(target = 'bar', source = 'bar.c foo.o')
+env.StaticLibrary(target = 'bar', source = 'bar.c foo.o')
 .EE
-.IP
-By default,
-.B Library
-builds a static library.
-A shared library (.so on a POSIX system, .dll on WIN32)
-may be specified by setting the
-.B shared
-keyword argument to non-zero:
+
+Any object files listed in the
+.B source
+must have been built for a static library
+(that is, using the
+.B StaticObject
+builder).
+.B scons
+will raise an error if there is any mismatch.
+
+.IP SharedLibrary
+Builds a shared library
+(.so on a POSIX system, .dll on WIN32)
+given one or more object files
+or C, C++ or Fortran source files.
+If any source files are given,
+then they will be automatically
+compiled to object files.
+The library prefix and suffix (if any)
+are automatically added to the target.
+Example:
 
 .ES
-env.Library(target = 'bar', source = 'bar.c foo.o', shared = 1)
+env.SharedLibrary(target = 'bar', source = 'bar.c foo.o')
 .EE
 .IP
 On WIN32 systems, the
-.B Library
+.B SharedLibrary
 builder will always build an import (.lib) library
 in addition to the shared (.dll) library,
 adding a .lib library with the same basename
@@ -817,16 +843,17 @@ listed in the targets.
 
 Any object files listed in the
 .B source
-list for a shared library
 must have been built for a shared library
-(that is, using a non-zero
-.B shared
-keyword argument).
-Conversely, object files built into a static library must
-.I not
-have been built for a shared library.
+(that is, using the
+.B SharedObject
+builder).
 .B scons
 will raise an error if there is any mismatch.
+
+.IP Library
+A synonym for the
+.B StaticLibrary
+builder.
 
 .IP CFile
 Builds a C source file given a lex (.l) or yacc (.y) input file.
@@ -1878,27 +1905,12 @@ builder with the target.
 
 .IP prefix 
 The prefix that will be prepended to the target file name.
-The value may also be a function call
-that returns the prefix.
-The function will be passed the environment
-and any extra keyword arguments
-supplied when the Builder is called.
 
 .IP suffix
 The suffix that will be appended to the target file name.
-The value may also be a function call
-that returns the suffix.
-The function will be passed the environment
-and any extra keyword arguments
-supplied when the Builder is called.
 
 .IP src_suffix
 The expected source file name suffix.
-The value may also be a function call
-that returns the source file name suffix.
-The function will be passed the environment
-and any extra keyword arguments
-supplied when the Builder is called.
 
 .IP src_builder
 Specifies a builder to use when a source file name suffix does not match
@@ -1971,9 +1983,9 @@ env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
 
 These extra keyword arguments are passed to the
 following functions:
-command generator functions, funcion Actions,
-emitter functions,
-and functions that generate prefix, suffix or src_suffix.
+command generator functions,
+function Actions,
+and emitter functions.
 
 .SS Action Objects
 

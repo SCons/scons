@@ -54,8 +54,8 @@ shlink = foo.Dictionary('SHLINK')
 shlinkflags = foo.Dictionary('SHLINKFLAGS')
 bar = Environment(SHLINK = '',
                   SHLINKFLAGS = r'%s wrapper.py ' + shlink + ' ' + shlinkflags)
-foo.Library(target = 'foo', source = 'foo.c', shared = 1)
-bar.Library(target = 'bar', source = 'bar.c', shared = 1)
+foo.SharedLibrary(target = 'foo', source = 'foo.c')
+bar.SharedLibrary(target = 'bar', source = 'bar.c')
 """ % python)
 
 test.write('foo.c', r"""

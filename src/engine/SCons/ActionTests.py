@@ -287,7 +287,6 @@ class ListActionTestCase(unittest.TestCase):
         self.inc = 0
         def f(s):
             s.inc = s.inc + 1
-            return 0
         a = SCons.Action.ListAction([f, f, f])
         a.execute(s = self)
         assert self.inc == 3, self.inc
@@ -295,8 +294,15 @@ class ListActionTestCase(unittest.TestCase):
     def test_get_contents(self):
         """Test fetching the contents of a list of subsidiary Actions
         """
-        a = SCons.Action.ListAction(["x", "y", "z"])
-        c = a.get_contents(target=[], source=[])
+        self.foo=0
+        def gen(target, source, s, for_signature):
+            s.foo=1
+            return "y"
+        a = SCons.Action.ListAction(["x",
+                                     SCons.Action.CommandGenerator(gen),
+                                     "z"])
+        c = a.get_contents(target=[], source=[], s=self)
+        assert self.foo==1, self.foo
         assert c == "xyz", c
 
 class LazyActionTestCase(unittest.TestCase):

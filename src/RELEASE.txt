@@ -56,6 +56,16 @@ RELEASE 0.08 -
       (You may, of course, also use the string.split() function from
       the standard Python library to convert your strings.)
 
+   -  The Object and Library builders no longer use the "shared"
+      keyword argument to specify if the target object or library is a
+      shared library.  Instead, separate StaticObject, SharedObject,
+      StaticLibrary and SharedLibrary builders exist to explicitly build
+      the appropriate target.  The Object and Library buidlers are now
+      synonyms for StaticObject and StaticLibrary, respecitvely.
+
+    - The prefix, suffix, and src_suffix keyword arguments to the
+      Builder() function may no longer be callable functions.
+
   Please note the following important changes since release 0.06:
 
     - The functionality of the -U option has changed.  It now works

@@ -31,11 +31,6 @@ import TestSCons
 
 python = sys.executable
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
-
 test = TestSCons.TestSCons()
 
 test.write("wrapper.py",
@@ -50,8 +45,8 @@ test.write('SConstruct', """
 foo = Environment()
 shcc = foo.Dictionary('SHCC')
 bar = Environment(SHCC = r'%s wrapper.py ' + shcc)
-foo.Program(target = 'foo', source = 'foo.c', shared = 1)
-bar.Program(target = 'bar', source = 'bar.c', shared = 1)
+foo.SharedObject(target = 'foo/foo', source = 'foo.c')
+bar.SharedObject(target = 'bar/bar', source = 'bar.c')
 """ % python)
 
 test.write('foo.c', r"""
@@ -75,11 +70,11 @@ main(int argc, char *argv[])
 """)
 
 
-test.run(arguments = 'foo' + _exe)
+test.run(arguments = 'foo')
 
 test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
-test.run(arguments = 'bar' + _exe)
+test.run(arguments = 'bar')
 
 test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 

@@ -37,7 +37,7 @@ import copy
 import sys
 import SCons.Sig
 
-from SCons.Errors import BuildError
+from SCons.Errors import BuildError, UserError
 import SCons.Util
 
 # Node states
@@ -115,6 +115,8 @@ class Node:
                 stat = apply(self.builder.execute, (),
                              self.generate_build_args())
             except KeyboardInterrupt:
+                raise
+            except UserError:
                 raise
             except:
                 raise BuildError(self, "Exception",

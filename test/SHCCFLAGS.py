@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 import TestSCons
+import os
 
 if sys.platform == 'win32':
     _obj = '.obj'
@@ -35,50 +36,92 @@ else:
     _obj = '.o'
     fooflags = '-DFOO'
     barflags = '-DBAR'
+    
+if os.name == 'posix':
+    os.environ['LD_LIBRARY_PATH'] = '.'
 
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-foo = Environment(SHCCFLAGS = '%s')
-bar = Environment(SHCCFLAGS = '%s')
-foo.Object(target = 'foo%s', source = 'prog.c', shared = 1)
-bar.Object(target = 'bar%s', source = 'prog.c', shared = 1)
-foo.Program(target = 'foo', source = 'foo%s', shared = 1)
-bar.Program(target = 'bar', source = 'bar%s', shared = 1)
+foo = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
+bar = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
+foo.SharedObject(target = 'foo%s', source = 'prog.c')
+bar.SharedObject(target = 'bar%s', source = 'prog.c')
+foo.SharedLibrary(target = 'foo', source = 'foo%s')
+bar.SharedLibrary(target = 'bar', source = 'bar%s')
+
+fooMain = foo.Copy(LIBS='foo', LIBPATH='.')
+foo_obj = fooMain.Object(target='foomain', source='main.c')
+fooMain.Program(target='fooprog', source=foo_obj)
+
+barMain = bar.Copy(LIBS='bar', LIBPATH='.')
+bar_obj = barMain.Object(target='barmain', source='main.c')
+barMain.Program(target='barprog', source=bar_obj)
 """ % (fooflags, barflags, _obj, _obj, _obj, _obj))
 
+test.write('foo.def', r"""
+LIBRARY        "foo"
+DESCRIPTION    "Foo Shared Library"
+
+EXPORTS
+   doIt
+""")
+
+test.write('bar.def', r"""
+LIBRARY        "foo"
+DESCRIPTION    "Foo Shared Library"
+
+EXPORTS
+   doIt
+""")
+
 test.write('prog.c', r"""
-int
-main(int argc, char *argv[])
+void
+doIt()
 {
-	argv[argc++] = "--";
 #ifdef FOO
 	printf("prog.c:  FOO\n");
 #endif
 #ifdef BAR
 	printf("prog.c:  BAR\n");
 #endif
-	exit (0);
 }
 """)
 
+test.write('main.c', r"""
+
+void doIt();
+
+int
+main(int argc, char* argv[])
+{
+    doIt();
+    return 0;
+}
+""")
 
 test.run(arguments = '.')
 
-test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+test.run(program = test.workpath('fooprog'), stdout = "prog.c:  FOO\n")
+test.run(program = test.workpath('barprog'), stdout = "prog.c:  BAR\n")
 
 test.write('SConstruct', """
-bar = Environment(SHCCFLAGS = '%s')
-bar.Object(target = 'foo%s', source = 'prog.c', shared = 1)
-bar.Object(target = 'bar%s', source = 'prog.c', shared = 1)
-bar.Program(target = 'foo', source = 'foo%s', shared = 1)
-bar.Program(target = 'bar', source = 'bar%s', shared = 1)
+bar = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
+bar.SharedObject(target = 'foo%s', source = 'prog.c')
+bar.SharedObject(target = 'bar%s', source = 'prog.c')
+bar.SharedLibrary(target = 'foo', source = 'foo%s')
+bar.SharedLibrary(target = 'bar', source = 'bar%s')
+
+barMain = bar.Copy(LIBS='bar', LIBPATH='.')
+foo_obj = barMain.Object(target='foomain', source='main.c')
+bar_obj = barMain.Object(target='barmain', source='main.c')
+barMain.Program(target='barprog', source=foo_obj)
+barMain.Program(target='fooprog', source=bar_obj)
 """ % (barflags, _obj, _obj, _obj, _obj))
 
 test.run(arguments = '.')
 
-test.run(program = test.workpath('foo'), stdout = "prog.c:  BAR\n")
-test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
+test.run(program = test.workpath('fooprog'), stdout = "prog.c:  BAR\n")
+test.run(program = test.workpath('barprog'), stdout = "prog.c:  BAR\n")
 
 test.pass_test()

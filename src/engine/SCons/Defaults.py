@@ -53,34 +53,6 @@ import SCons.Scanner.Fortran
 import SCons.Scanner.Prog
 import SCons.Util
 
-class SharedCmdGenerator:
-    """A callable class that acts as a command generator.
-    It is designed to hold on to 2 actions, and return
-    one if the shared=1 keyword arg is supplied to the
-    Builder method, and the other if not.
-
-    Also, all target nodes will have the shared attribute
-    set to match the vaue of the shared keyword argument,
-    zero by default."""
-    def __init__(self, static, shared):
-        self.action_static = static
-        self.action_shared = shared
-        
-    def __call__(self, target, source, env, shared=0, **kw):
-        for src in source:
-            try:
-                if (src.attributes.shared and not shared) or \
-                   (shared and not src.attributes.shared):
-                    raise SCons.Errors.UserError("Source file: %s must be built with shared=%s in order to be compatible with target: %s" % (src, str(shared), target[0]))
-            except AttributeError:
-                pass
-        for t in target:
-            t.attributes.shared = shared
-        if shared:
-            return self.action_shared
-        else:
-            return self.action_static
-
 def yaccEmitter(target, source, env, **kw):
     # Yacc can be configured to emit a .h file as well
     # as a .c file, if -d is specified on the command line.
@@ -104,14 +76,41 @@ CXXFile = SCons.Builder.Builder(action = { '.ll' : '$LEXCOM',
                                 emitter = yaccEmitter,
                                 suffix = '$CXXFILESUFFIX')
 
-CAction = SCons.Action.Action("$CCCOM")
-ShCAction = SCons.Action.Action("$SHCCCOM")
-CXXAction = SCons.Action.Action("$CXXCOM")
-ShCXXAction = SCons.Action.Action("$SHCXXCOM")
-F77Action = SCons.Action.Action("$F77COM")
-ShF77Action = SCons.Action.Action("$SHF77COM")
-F77PPAction = SCons.Action.Action("$F77PPCOM")
-ShF77PPAction = SCons.Action.Action("$SHF77PPCOM")
+class SharedFlagChecker:
+    """This is a callable class that is used as
+    a build action for all objects, libraries, and programs.
+    Its job is to run before the "real" action that builds the
+    file, to make sure we aren't trying to link shared objects
+    into a static library/program, or static objects into a
+    shared library."""
+
+    def __init__(self, shared):
+        self.shared = shared
+
+    def __call__(self, source, target, env, **kw):
+        if kw.has_key('shared'):
+            raise SCons.Errors.UserError, "The shared= parameter to Library() or Object() no longer works.\nUse SharedObject() or SharedLibrary() instead."
+        for tgt in target:
+            tgt.attributes.shared = self.shared
+
+        for src in source:
+            if hasattr(src.attributes, 'shared'):
+                if self.shared and not src.attributes.shared:
+                    raise SCons.Errors.UserError, "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0])
+                elif not self.shared and src.attributes.shared:
+                    raise SCons.Errors.UserError, "Source file: %s is shared and is not compatible with static target: %s" % (src, target[0])
+
+SharedCheck = SharedFlagChecker(1)
+StaticCheck = SharedFlagChecker(0)
+
+CAction = SCons.Action.Action([ StaticCheck, "$CCCOM" ])
+ShCAction = SCons.Action.Action([ SharedCheck, "$SHCCCOM" ])
+CXXAction = SCons.Action.Action([ StaticCheck, "$CXXCOM" ])
+ShCXXAction = SCons.Action.Action([ SharedCheck, "$SHCXXCOM" ])
+F77Action = SCons.Action.Action([ StaticCheck, "$F77COM" ])
+ShF77Action = SCons.Action.Action([ SharedCheck, "$SHF77COM" ])
+F77PPAction = SCons.Action.Action([ StaticCheck, "$F77PPCOM" ])
+ShF77PPAction = SCons.Action.Action([ SharedCheck, "$SHF77PPCOM" ])
 
 if os.path.normcase('.c') == os.path.normcase('.C'):
     # We're on a case-insensitive system, so .[CF] (upper case)
@@ -129,41 +128,39 @@ else:
     F_static = F77PPAction
     F_shared = ShF77PPAction
 
-shared_obj = SCons.Builder.DictCmdGenerator({ ".C"   : C_shared,
-                                              ".cc"  : ShCXXAction,
-                                              ".cpp" : ShCXXAction,
-                                              ".cxx" : ShCXXAction,
-                                              ".c++" : ShCXXAction,
-                                              ".C++" : ShCXXAction,
-                                              ".c"   : ShCAction,
-                                              ".f"   : ShF77Action,
-                                              ".for" : ShF77Action,
-                                              ".FOR" : ShF77Action,
-                                              ".F"   : F_shared,
-                                              ".fpp" : ShF77PPAction,
-                                              ".FPP" : ShF77PPAction })
+StaticObject = SCons.Builder.Builder(action = { ".C"   : C_static,
+                                                ".cc"  : CXXAction,
+                                                ".cpp" : CXXAction,
+                                                ".cxx" : CXXAction,
+                                                ".c++" : CXXAction,
+                                                ".C++" : CXXAction,
+                                                ".c"   : CAction,
+                                                ".f"   : F77Action,
+                                                ".for" : F77Action,
+                                                ".F"   : F_static,
+                                                ".FOR" : F77Action,
+                                                ".fpp" : F77PPAction,
+                                                ".FPP" : F77PPAction },
+                                     prefix = '$OBJPREFIX',
+                                     suffix = '$OBJSUFFIX',
+                                     src_builder = [CFile, CXXFile])
 
-static_obj = SCons.Builder.DictCmdGenerator({ ".C"   : C_static,
-                                              ".cc"  : CXXAction,
-                                              ".cpp" : CXXAction,
-                                              ".cxx" : CXXAction,
-                                              ".c++" : CXXAction,
-                                              ".C++" : CXXAction,
-                                              ".c"   : CAction,
-                                              ".f"   : F77Action,
-                                              ".for" : F77Action,
-                                              ".F"   : F_static,
-                                              ".FOR" : F77Action,
-                                              ".fpp" : F77PPAction,
-                                              ".FPP" : F77PPAction })
-
-Object = SCons.Builder.Builder(generator = \
-                               SharedCmdGenerator(static=SCons.Action.CommandGeneratorAction(static_obj),
-                                                  shared=SCons.Action.CommandGeneratorAction(shared_obj)),
-                               prefix = '$OBJPREFIX',
-                               suffix = '$OBJSUFFIX',
-                               src_suffix = static_obj.src_suffixes(),
-                               src_builder = [CFile, CXXFile])
+SharedObject = SCons.Builder.Builder(action = { ".C"   : C_shared,
+                                                ".cc"  : ShCXXAction,
+                                                ".cpp" : ShCXXAction,
+                                                ".cxx" : ShCXXAction,
+                                                ".c++" : ShCXXAction,
+                                                ".C++" : ShCXXAction,
+                                                ".c"   : ShCAction,
+                                                ".f"   : ShF77Action,
+                                                ".for" : ShF77Action,
+                                                ".FOR" : ShF77Action,
+                                                ".F"   : F_shared,
+                                                ".fpp" : ShF77PPAction,
+                                                ".FPP" : ShF77PPAction },
+                                     prefix = '$OBJPREFIX',
+                                     suffix = '$OBJSUFFIX',
+                                     src_builder = [CFile, CXXFile])
 
 def win32TempFileMunge(env, cmd_list, for_signature): 
     """Given a list of command line arguments, see if it is too
@@ -193,25 +190,16 @@ def win32LinkGenerator(env, target, source, for_signature, **kw):
     args.extend(map(SCons.Util.to_String, source))
     return win32TempFileMunge(env, args, for_signature)
 
-Program = SCons.Builder.Builder(action='$LINKCOM',
+ProgScan = SCons.Scanner.Prog.ProgScan()
+
+Program = SCons.Builder.Builder(action=[ StaticCheck, '$LINKCOM' ],
                                 prefix='$PROGPREFIX',
                                 suffix='$PROGSUFFIX',
                                 src_suffix='$OBJSUFFIX',
-                                src_builder=Object,
-                                scanner = SCons.Scanner.Prog.ProgScan())
+                                src_builder=StaticObject,
+                                scanner = ProgScan)
 
-class LibAffixGenerator:
-    def __init__(self, static, shared):
-        self.static_affix = static
-        self.shared_affix = shared
-
-    def __call__(self, shared=0, **kw):
-        if shared:
-            return self.shared_affix
-        return self.static_affix
-
-def win32LibGenerator(target, source, env, for_signature, shared=1,
-                      no_import_lib=0):
+def win32LibGenerator(target, source, env, for_signature, no_import_lib=0):
     listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
 
     for tgt in target:
@@ -235,47 +223,46 @@ def win32LibGenerator(target, source, env, for_signature, shared=1,
             listCmd.append(str(src))
     return win32TempFileMunge(env, listCmd, for_signature)
 
-def win32LibEmitter(target, source, env, shared=0,
-                    no_import_lib=0):
-    if shared:
-        dll = None
-        for tgt in target:
-            ext = os.path.splitext(str(tgt))[1]
-            if ext == env.subst("$SHLIBSUFFIX"):
-                dll = tgt
-                break
-        if not dll:
-            raise SCons.Errors.UserError("A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX"))
+def win32LibEmitter(target, source, env, no_import_lib=0):
+    dll = None
+    for tgt in target:
+        ext = os.path.splitext(str(tgt))[1]
+        if ext == env.subst("$SHLIBSUFFIX"):
+            dll = tgt
+            break
+    if not dll:
+        raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX")
         
-        if env.has_key("WIN32_INSERT_DEF") and \
-           env["WIN32_INSERT_DEF"] and \
-           not '.def' in map(lambda x: os.path.split(str(x))[1],
-                             source):
+    if env.has_key("WIN32_INSERT_DEF") and \
+       env["WIN32_INSERT_DEF"] and \
+       not '.def' in map(lambda x: os.path.split(str(x))[1],
+                         source):
 
-            # append a def file to the list of sources
-            source.append("%s%s" % (os.path.splitext(str(dll))[0],
-                                    env.subst("$WIN32DEFSUFFIX")))
-        if not no_import_lib and \
-           not env.subst("$LIBSUFFIX") in \
-           map(lambda x: os.path.split(str(x))[1], target):
-            # Append an import library to the list of targets.
-            target.append("%s%s%s" % (env.subst("$LIBPREFIX"),
-                                      os.path.splitext(str(dll))[0],
-                                      env.subst("$LIBSUFFIX")))
+        # append a def file to the list of sources
+        source.append("%s%s" % (os.path.splitext(str(dll))[0],
+                                env.subst("$WIN32DEFSUFFIX")))
+    if not no_import_lib and \
+       not env.subst("$LIBSUFFIX") in \
+       map(lambda x: os.path.split(str(x))[1], target):
+        # Append an import library to the list of targets.
+        target.append("%s%s%s" % (env.subst("$LIBPREFIX"),
+                                  os.path.splitext(str(dll))[0],
+                                  env.subst("$LIBSUFFIX")))
     return (target, source)
 
-Library = SCons.Builder.Builder(generator = \
-                                SharedCmdGenerator(shared="$SHLINKCOM",
-                                                   static="$ARCOM"),
-                                emitter="$LIBEMITTER",
-                                prefix = \
-                                LibAffixGenerator(static='$LIBPREFIX',
-                                                  shared='$SHLIBPREFIX'),
-                                suffix = \
-                                LibAffixGenerator(static='$LIBSUFFIX',
-                                                  shared='$SHLIBSUFFIX'),
-                                src_suffix = '$OBJSUFFIX',
-                                src_builder = Object)
+StaticLibrary = SCons.Builder.Builder(action=[ StaticCheck, "$ARCOM" ],
+                                      prefix = '$LIBPREFIX',
+                                      suffix = '$LIBSUFFIX',
+                                      src_suffix = '$OBJSUFFIX',
+                                      src_builder = StaticObject)
+
+SharedLibrary = SCons.Builder.Builder(action=[ SharedCheck, "$SHLINKCOM" ],
+                                      emitter="$LIBEMITTER",
+                                      prefix = '$SHLIBPREFIX',
+                                      suffix = '$SHLIBSUFFIX',
+                                      scanner = ProgScan,
+                                      src_suffix = '$OBJSUFFIX',
+                                      src_builder = SharedObject)
 
 LaTeXAction = SCons.Action.Action('$LATEXCOM')
 
@@ -480,8 +467,12 @@ def make_win32_env_from_paths(include, lib, path):
                          'CFile'          : CFile,
                          'CXXFile'        : CXXFile,
                          'DVI'            : DVI,
-                         'Library'        : Library,
-                         'Object'         : Object,
+                         'Library'        : StaticLibrary,
+                         'StaticLibrary'  : StaticLibrary,
+                         'SharedLibrary'  : SharedLibrary,
+                         'Object'         : StaticObject,
+                         'StaticObject'   : StaticObject,
+                         'SharedObject'   : SharedObject,
                          'PDF'            : PDF,
                          'PostScript'     : PostScript,
                          'Program'        : Program },
@@ -589,8 +580,12 @@ if os.name == 'posix':
                          'CFile'          : CFile,
                          'CXXFile'        : CXXFile,
                          'DVI'            : DVI,
-                         'Library'        : Library,
-                         'Object'         : Object,
+                         'Library'        : StaticLibrary,
+                         'StaticLibrary'  : StaticLibrary,
+                         'SharedLibrary'  : SharedLibrary,
+                         'Object'         : StaticObject,
+                         'StaticObject'   : StaticObject,
+                         'SharedObject'   : SharedObject,
                          'PDF'            : PDF,
                          'PostScript'     : PostScript,
                          'Program'        : Program },
