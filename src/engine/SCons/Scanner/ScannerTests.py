@@ -82,6 +82,19 @@ class ScannerTestCase(unittest.TestCase):
         s = SCons.Scanner.Scanner({})
         assert isinstance(s, SCons.Scanner.Selector), s
 
+        s = SCons.Scanner.Scanner(func, name='fooscan')
+        assert str(s) == 'fooscan', str(s)
+        s = SCons.Scanner.Scanner({}, name='barscan')
+        assert str(s) == 'barscan', str(s)
+
+        s = SCons.Scanner.Scanner(func, name='fooscan', argument=9)
+        assert str(s) == 'fooscan', str(s)
+        assert s.argument == 9, s.argument
+        s = SCons.Scanner.Scanner({}, name='fooscan', argument=888)
+        assert str(s) == 'fooscan', str(s)
+        assert s.argument == 888, s.argument
+
+        
 class BaseTestCase(unittest.TestCase):
 
     def func(self, filename, env, target, *args):
