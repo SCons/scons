@@ -6,21 +6,28 @@ import sys
 
 class ScannerTestBase:
     
-    def func(self, filename, env):
+    def func(self, filename, env, *args):
         self.filename = filename
         self.env = env
+
+        if len(args) > 0:
+            self.arg = args[0]
+        
         return self.deps
 
-    def error_func(self, filename, env):
-        self.fail("the wrong function was called")
 
-    def test(self, scanner, env, filename, deps):
+    def test(self, scanner, env, filename, deps, *args):
         self.deps = deps
         deps = scanner.scan(filename, env)
 
         self.failUnless(self.filename == filename, "the filename was passed incorrectly")
         self.failUnless(self.env == env, "the environment was passed incorrectly")
         self.failUnless(self.deps == deps, "the dependencies were returned incorrectly")
+
+        if len(args) > 0:
+            self.failUnless(self.arg == args[0], "the argument was passed incorrectly")
+        else:
+            self.failIf(hasattr(self, "arg"), "an argument was given when it shouldn't have been")
 
 class DummyEnvironment:
     pass
@@ -31,21 +38,41 @@ class ScannerPositionalTestCase(ScannerTestBase, unittest.TestCase):
     def runTest(self):
         s = scons.Scanner.Scanner(self.func)
         env = DummyEnvironment()
-        env.ARGUMENT = "arg1"
-        self.test(s, env, 'f1.cpp', ['f1.h', 'f2.h'])
+        env.VARIABLE = "var1"
+        self.test(s, env, 'f1.cpp', ['f1.h', 'f1.hpp'])
 
 class ScannerKeywordTestCase(ScannerTestBase, unittest.TestCase):
     "Test the Scanner class using the keyword argument"
     def runTest(self):
         s = scons.Scanner.Scanner(function = self.func)
         env = DummyEnvironment()
-        env.ARGUMENT = "arg1"
-        self.test(s, env, 'f1.cpp', ['f1.h', 'f2.h'])
+        env.VARIABLE = "var2"
+        self.test(s, env, 'f2.cpp', ['f2.h', 'f2.hpp'])
+
+class ScannerPositionalArgumentTestCase(ScannerTestBase, unittest.TestCase):
+    "Test the Scanner class using the position argument and optional argument"
+    def runTest(self):
+        arg = "this is the argument"
+        s = scons.Scanner.Scanner(self.func, arg)
+        env = DummyEnvironment()
+        env.VARIABLE = "var3"
+        self.test(s, env, 'f3.cpp', ['f3.h', 'f3.hpp'], arg)
+
+class ScannerKeywordArgumentTestCase(ScannerTestBase, unittest.TestCase):
+    "Test the Scanner class using the keyword argument and optional argument"
+    def runTest(self):
+        arg = "this is another argument"
+        s = scons.Scanner.Scanner(function = self.func, argument = arg)
+        env = DummyEnvironment()
+        env.VARIABLE = "var4"
+        self.test(s, env, 'f4.cpp', ['f4.h', 'f4.hpp'], arg)
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ScannerPositionalTestCase())
     suite.addTest(ScannerKeywordTestCase())
+    suite.addTest(ScannerPositionalArgumentTestCase())
+    suite.addTest(ScannerKeywordArgumentTestCase())
     return suite
 
 if __name__ == "__main__":
