@@ -1426,6 +1426,7 @@ class has_src_builderTestCase(unittest.TestCase):
         f5 = fs.File('f5', sub2)
         f6 = fs.File('f6', sub2)
         f7 = fs.File('f7', sub2)
+        f8 = fs.File('f8', sub2)
 
         h = f1.has_src_builder()
         assert not h, h
@@ -1451,6 +1452,7 @@ class has_src_builderTestCase(unittest.TestCase):
         assert f3.builder is b1, f3.builder
 
         f7.set_src_builder(b1)
+        f8.builder_set(b1)
 
         test.write(['sub2', 'SCCS', 's.f5'], "sub2/SCCS/s.f5\n")
         test.write(['sub2', 'RCS', 'f6,v'], "sub2/RCS/f6,v\n")
@@ -1469,6 +1471,10 @@ class has_src_builderTestCase(unittest.TestCase):
         h = f7.has_src_builder()
         assert h, h
         h = f7.has_builder()
+        assert h, h
+        h = f8.has_src_builder()
+        assert not h, h
+        h = f8.has_builder()
         assert h, h
 
 class prepareTestCase(unittest.TestCase):
