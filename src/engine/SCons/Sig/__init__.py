@@ -137,12 +137,19 @@ class SConsignFile:
             keys.sort()
             for name in keys:
                 file.write("%s: %s\n" % (name, self.entries[name]))
-            file.close
+            file.close()
             if fname != self.sconsign:
+                try:
+                    mode = os.stat(self.sconsign)[0]
+                    os.chmod(self.sconsign, 0666)
+                    os.unlink(self.sconsign)
+                except:
+                    pass
                 try:
                     os.rename(fname, self.sconsign)
                 except:
                     open(self.sconsign, 'wb').write(open(fname, 'rb').read())
+                    os.chmod(self.sconsign, mode)
             try:
                 os.unlink(temp)
             except:

@@ -59,10 +59,7 @@ sub2__sconsign = test.workpath('sub2', '.sconsign')
 test.write(sub1__sconsign, "")
 test.write(sub2__sconsign, "")
 
-# For *NIX systems, make .sconsign not writable.
-# For Win32 systems, open it to lock it.
 os.chmod(sub1__sconsign, 0444)
-f = open(sub1__sconsign, 'r')
 
 test.run(arguments = '.')
 
@@ -70,6 +67,5 @@ test.fail_test(test.read(sub1__sconsign) == "")
 test.fail_test(test.read(sub2__sconsign) == "")
 
 os.chmod(sub1__sconsign, 0666)
-f.close()
 
 test.pass_test()

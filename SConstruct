@@ -599,7 +599,7 @@ if change:
             "rm -rf %s" % b_psv,
             "cp -rp %s %s" % (b_ps, b_psv),
             "find %s -name .consign -exec rm {} \\;" % b_psv,
-            "tar zcf $TARGET -C build %s" % psv,
+            "tar czh -f $TARGET -C build %s" % psv,
         ]
         env.Command(os.path.join('build',
                                  'dist',
