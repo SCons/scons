@@ -19,6 +19,8 @@ RELEASE 0.02 -
 
   - Added the Export method (courtesy Charles Crain).
 
+  - Documented CXXFLAGS, CXXCOM, and CPPPATH (courtesy Anthony Roach).
+
 
 
 RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001
