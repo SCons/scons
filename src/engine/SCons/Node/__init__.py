@@ -151,8 +151,6 @@ class Node:
         if parent not in self.parents: self.parents.append(parent)
 
     def children(self):
-        if not self.scanned:
-            self.scan()
 	return self.sources + self.depends
 
     def get_parents(self):

@@ -143,6 +143,8 @@ class Taskmaster:
     def __init__(self, targets=[], tasker=Task, calc=Calc()):
         
         def out_of_date(node):
+            # Scan the file before fetching its children().
+            node.scan()
             return filter(lambda x: x.get_state() != SCons.Node.up_to_date,
                           node.children())
 

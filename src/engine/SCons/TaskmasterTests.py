@@ -34,9 +34,10 @@ built = None
 executed = None
 
 class Node:
-    def __init__(self, name, kids = []):
+    def __init__(self, name, kids = [], scans = []):
         self.name = name
         self.kids = kids
+        self.scans = scans
         self.builder = Node.build
         self.bsig = None
         self.csig = None
@@ -52,6 +53,12 @@ class Node:
 
     def children(self):
 	return self.kids
+
+    def scan(self):
+        self.kids = self.kids + self.scans
+        for scan in self.scans:
+            scan.parents.append(self)
+        self.scans = []
   
     def get_parents(self):
         return self.parents
@@ -210,7 +217,23 @@ class TaskmasterTestCase(unittest.TestCase):
         t.executed()
         assert not tm.is_blocked()
         t = tm.next_task()
-        assert tm. next_task() == None
+        assert tm.next_task() == None
+
+
+        n1 = Node("n1")
+        n2 = Node("n2")
+        n3 = Node("n3", [n1], [n2])
+        tm = SCons.Taskmaster.Taskmaster([n3])
+        t = tm.next_task()
+        assert t.get_target() == n1
+        t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n2
+        t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n3
+        t.executed()
+        assert tm.next_task() == None
     
     def test_cycle_detection(self):
         n1 = Node("n1")
