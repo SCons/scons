@@ -173,20 +173,21 @@ def _concat(prefix, list, suffix, env, f=lambda x: x):
 
     for x in list:
         x = str(x)
+        if x:
 
-        if prefix:
-            if prefix[-1] == ' ':
-                ret.append(prefix[:-1])
-            elif x[:len(prefix)] != prefix:
-                x = prefix + x
+            if prefix:
+                if prefix[-1] == ' ':
+                    ret.append(prefix[:-1])
+                elif x[:len(prefix)] != prefix:
+                    x = prefix + x
 
-        ret.append(x)
+            ret.append(x)
 
-        if suffix:
-            if suffix[0] == ' ':
-                ret.append(suffix[1:])
-            elif x[-len(suffix):] != suffix:
-                ret[-1] = ret[-1]+suffix
+            if suffix:
+                if suffix[0] == ' ':
+                    ret.append(suffix[1:])
+                elif x[-len(suffix):] != suffix:
+                    ret[-1] = ret[-1]+suffix
 
     return ret
 

@@ -22,6 +22,9 @@ RELEASE 0.96 - XXX
   - Allow the emitter argument to a Builder() to be or expand to a list
     of emitter functions, which will be called in sequence.
 
+  - Suppress null values in construction variables like $LIBS that use
+    the internal _concat() function.
+
   From Chad Austin and Christoph Wiedemann:
 
   - Add support for a $RPATH variable to supply a list of directories
