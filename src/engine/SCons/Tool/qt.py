@@ -1,7 +1,7 @@
 
 """SCons.Tool.qt
 
-Tool-specific initialization for qt.
+Tool-specific initialization for Qt.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -37,6 +37,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import re
 
+import SCons.Action
+import SCons.Builder
 import SCons.Defaults
 import SCons.Scanner
 import SCons.Tool
@@ -294,7 +296,7 @@ def generate(env):
                     Action(checkMocIncluded,None)])
 
     # ... and the corresponding builders
-    uicBld = Builder(action='$QT_UICCOM',
+    uicBld = Builder(action=SCons.Action.Action('$QT_UICCOM', '$QT_UICCOMSTR'),
                      emitter=uicEmitter,
                      src_suffix='$QT_UISUFFIX',
                      suffix='$QT_UICDECLSUFFIX',
@@ -302,11 +304,13 @@ def generate(env):
                      source_scanner=uicScanner)
     mocBld = Builder(action={}, prefix={}, suffix={})
     for h in header_extensions:
-        mocBld.add_action(h, '$QT_MOCFROMHCOM')
+        act = SCons.Action.Action('$QT_MOCFROMHCOM', '$QT_MOCFROMHCOMSTR')
+        mocBld.add_action(h, act)
         mocBld.prefix[h] = '$QT_MOCHPREFIX'
         mocBld.suffix[h] = '$QT_MOCHSUFFIX'
     for cxx in cxx_suffixes:
-        mocBld.add_action(cxx, '$QT_MOCFROMCXXCOM')
+        act = SCons.Action.Action('$QT_MOCFROMCXXCOM', '$QT_MOCFROMCXXCOMSTR')
+        mocBld.add_action(cxx, act)
         mocBld.prefix[cxx] = '$QT_MOCCXXPREFIX'
         mocBld.suffix[cxx] = '$QT_MOCCXXSUFFIX'
 

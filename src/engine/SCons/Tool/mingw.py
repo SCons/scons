@@ -37,6 +37,8 @@ import os
 import os.path
 import string
 
+import SCons.Action
+import SCons.Builder
 import SCons.Tool
 import SCons.Util
 
@@ -94,7 +96,9 @@ def shlib_emitter(target, source, env):
 
 shlib_action = SCons.Action.CommandGenerator(shlib_generator)
 
-res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.o',
+res_action = SCons.Action.Action('$RCCOM', '$RCCOMSTR')
+
+res_builder = SCons.Builder.Builder(action=res_action, suffix='.o',
                                     source_scanner=SCons.Defaults.ObjSourceScan)
 SCons.Defaults.ObjSourceScan.add_scanner('.rc', SCons.Defaults.CScan)
 
