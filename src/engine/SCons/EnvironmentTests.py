@@ -587,9 +587,9 @@ class EnvironmentTestCase(unittest.TestCase):
                           RDirs=RDirs)
         flags = env.subst_list('$_LIBFLAGS', 1)[0]
         assert len(flags) == 3, flags
-        assert flags[0] == 'foofoobar', \
+        assert flags[0] == 'foobar', \
                flags[0]
-        assert flags[1] == 'foobarbar', \
+        assert flags[1] == 'foobar', \
                flags[1]
         assert flags[2] == 'foobazbar', \
                flags[2]
@@ -611,7 +611,7 @@ class EnvironmentTestCase(unittest.TestCase):
                flags[2]
         assert flags[3] == os.path.normpath('foo'), \
                flags[3]
-        assert flags[4] == os.path.normpath('xx/baz/barbar'), \
+        assert flags[4] == os.path.normpath('xx/baz/bar'), \
                flags[4]
         assert flags[5] == os.path.normpath('foo'), \
                flags[5]
@@ -635,7 +635,7 @@ class EnvironmentTestCase(unittest.TestCase):
                flags[2]
         assert flags[3] == os.path.normpath('foo'), \
                flags[3]
-        assert flags[4] == os.path.normpath('xx/baz/barbar'), \
+        assert flags[4] == os.path.normpath('xx/baz/bar'), \
                flags[4]
         assert flags[5] == os.path.normpath('foo'), \
                flags[5]
@@ -899,6 +899,30 @@ class EnvironmentTestCase(unittest.TestCase):
         env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';')
         assert(env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
         assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
+
+    def test_AppendUnique(self):
+        """Test appending to unique values to construction variables
+
+        This strips values that are already present when lists are
+        involved."""
+        env = Environment(AAA1 = 'a1',
+                          AAA2 = 'a2',
+                          AAA3 = 'a3',
+                          BBB1 = ['b1'],
+                          BBB2 = ['b2'],
+                          BBB3 = ['b3'])
+        env.AppendUnique(AAA1 = 'a1',
+                         AAA2 = ['a2'],
+                         AAA3 = ['a3', 'b', 'c', 'a3'],
+                         BBB1 = 'b1',
+                         BBB2 = ['b2'],
+                         BBB3 = ['b3', 'c', 'd', 'b3'])
+        assert env['AAA1'] == 'a1a1', env['AAA1']
+        assert env['AAA2'] == ['a2'], env['AAA2']
+        assert env['AAA3'] == ['a3', 'b', 'c'], env['AAA3']
+        assert env['BBB1'] == ['b1'], env['BBB1']
+        assert env['BBB2'] == ['b2'], env['BBB2']
+        assert env['BBB3'] == ['b3', 'c', 'd'], env['BBB3']
 
     def test_Copy(self):
 	"""Test construction Environment copying
@@ -1188,6 +1212,30 @@ class EnvironmentTestCase(unittest.TestCase):
         env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
         assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
         assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+
+    def test_PrependUnique(self):
+        """Test prepending unique values to construction variables
+
+        This strips values that are already present when lists are
+        involved."""
+        env = Environment(AAA1 = 'a1',
+                          AAA2 = 'a2',
+                          AAA3 = 'a3',
+                          BBB1 = ['b1'],
+                          BBB2 = ['b2'],
+                          BBB3 = ['b3'])
+        env.PrependUnique(AAA1 = 'a1',
+                          AAA2 = ['a2'],
+                          AAA3 = ['a3', 'b', 'c', 'a3'],
+                          BBB1 = 'b1',
+                          BBB2 = ['b2'],
+                          BBB3 = ['b3', 'b', 'c', 'b3'])
+        assert env['AAA1'] == 'a1a1', env['AAA1']
+        assert env['AAA2'] == ['a2'], env['AAA2']
+        assert env['AAA3'] == ['b', 'c', 'a3'], env['AAA3']
+        assert env['BBB1'] == ['b1'], env['BBB1']
+        assert env['BBB2'] == ['b2'], env['BBB2']
+        assert env['BBB3'] == ['b', 'c', 'b3'], env['BBB3']
 
     def test_Replace(self):
         """Test replacing construction variables in an Environment
