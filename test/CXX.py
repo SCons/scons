@@ -155,7 +155,9 @@ test.fail_test(test.read('test4' + _exe) != "This is a .c++ file.\n")
 
 test.fail_test(test.read('test5' + _exe) != "This is a .C++ file.\n")
 
-if os.path.normcase('.c') != os.path.normcase('.C'):
+# Cygwin's os.path.normcase pretends it's on a case-sensitive filesystem.
+_is_cygwin = sys.platform == "cygwin"
+if os.path.normcase('.c') != os.path.normcase('.C') and not _is_cygwin:
 
     test.write('SConstruct', """
 env = Environment(LINK = r'%s mylink.py',
