@@ -36,36 +36,44 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-import os.path
+test.subdir('work1', 'work2')
 
-env = Environment(XXX='bar%s')
+
+
+test.write(['work1', 'SConstruct'], """
+import os.path
+import stat
+
+env = Environment(XXX='bar%(_exe)s')
 
 def before(env, target, source):
     f=open(str(target[0]), "wb")
     f.write("Foo\\n")
     f.close()
     f=open("before.txt", "ab")
-    f.write(str(target[0]) + "\\n")
+    f.write(os.path.splitext(str(target[0]))[0] + "\\n")
     f.close()
 
 def after(env, target, source):
-    fin = open(str(target[0]), "rb")
-    fout = open("after_" + str(target[0]), "wb")
+    t = str(target[0])
+    a = "after_" + os.path.splitext(t)[0]
+    fin = open(t, "rb")
+    fout = open(a, "wb")
     fout.write(fin.read())
     fout.close()
     fin.close()
+    os.chmod(a, os.stat(a)[stat.ST_MODE] | stat.S_IXUSR)
 
 foo = env.Program(source='foo.c', target='foo')
 AddPreAction(foo, before)
-AddPostAction('foo%s', after)
+AddPostAction('foo%(_exe)s', after)
 
 bar = env.Program(source='bar.c', target='bar')
 env.AddPreAction('$XXX', before)
 env.AddPostAction('$XXX', after)
-""" % (_exe, _exe))
+""" % locals())
 
-test.write('foo.c', r"""
+test.write(['work1', 'foo.c'], r"""
 #include <stdio.h>
 
 int main(void)
@@ -75,7 +83,7 @@ int main(void)
 }
 """)
 
-test.write('bar.c', r"""
+test.write(['work1', 'bar.c'], r"""
 #include <stdio.h>
 
 int main(void)
@@ -85,20 +93,57 @@ int main(void)
 }
 """)
 
+test.run(chdir='work1', arguments='.')
 
-test.run(arguments='.')
+test.run(program=test.workpath('work1', 'foo'+ _exe), stdout="foo.c\n")
+test.run(program=test.workpath('work1', 'bar'+ _exe), stdout="bar.c\n")
 
-test.run(program=test.workpath('foo'+ _exe), stdout="foo.c\n")
-test.run(program=test.workpath('bar'+ _exe), stdout="bar.c\n")
+test.must_match(['work1', 'before.txt'], "bar\nfoo\n")
 
-test.fail_test(test.read('before.txt', 'rb') != "bar%s\nfoo%s\n" % (_exe, _exe))
+after_foo_exe = test.workpath('work1', 'after_foo' + _exe)
+test.run(program=after_foo_exe, stdout="foo.c\n")
 
-after_foo_exe = test.workpath('after_foo' + _exe)
-os.chmod(after_foo_exe, os.stat(after_foo_exe)[stat.ST_MODE] | stat.S_IXUSR)
-test.run(program=test.workpath(after_foo_exe), stdout="foo.c\n")
+after_bar_exe = test.workpath('work1', 'after_bar' + _exe)
+test.run(program=after_bar_exe, stdout="bar.c\n")
 
-after_bar_exe = test.workpath('after_bar' + _exe)
-os.chmod(after_bar_exe, os.stat(after_bar_exe)[stat.ST_MODE] | stat.S_IXUSR)
-test.run(program=test.workpath(after_bar_exe), stdout="bar.c\n")
+
+
+
+test.write(['work2', 'SConstruct'], """\
+def b(target, source, env):
+    open(str(target[0]), 'w').write(env['X'] + '\\n')
+env1 = Environment(X='111')
+env2 = Environment(X='222')
+B = Builder(action = b, env = env1, multi=1)
+print "B =", B
+print "B.env =", B.env
+env1.Append(BUILDERS = {'B' : B})
+env2.Append(BUILDERS = {'B' : B})
+env3 = env1.Copy(X='333')
+print "env1 =", env1
+print "env2 =", env2
+print "env3 =", env3
+f1 = env1.B(File('file1.out'), [])
+f2 = env2.B('file2.out', [])
+f3 = env3.B('file3.out', [])
+def do_nothing(env, target, source):
+    pass
+AddPreAction(f2[0], do_nothing)
+AddPostAction(f3[0], do_nothing)
+print "f1[0].builder =", f1[0].builder
+print "f2[0].builder =", f2[0].builder
+print "f3[0].builder =", f3[0].builder
+print "f1[0].env =", f1[0].env
+print "f2[0].env =", f2[0].env
+print "f3[0].env =", f3[0].env
+""")
+
+test.run(chdir='work2', arguments = '.')
+
+test.must_match(['work2', 'file1.out'], "111\n")
+test.must_match(['work2', 'file2.out'], "222\n")
+test.must_match(['work2', 'file3.out'], "333\n")
+
+
 
 test.pass_test()
