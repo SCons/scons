@@ -1040,54 +1040,63 @@ class UtilTestCase(unittest.TestCase):
 
         env_path = os.environ['PATH']
 
-        pathdirs_1234 = [ test.workpath('sub1'),
-                          test.workpath('sub2'),
-                          test.workpath('sub3'),
-                          test.workpath('sub4'),
-                        ] + string.split(env_path, os.pathsep)
+        try:
+            pathdirs_1234 = [ test.workpath('sub1'),
+                              test.workpath('sub2'),
+                              test.workpath('sub3'),
+                              test.workpath('sub4'),
+                            ] + string.split(env_path, os.pathsep)
 
-        pathdirs_1243 = [ test.workpath('sub1'),
-                          test.workpath('sub2'),
-                          test.workpath('sub4'),
-                          test.workpath('sub3'),
-                        ] + string.split(env_path, os.pathsep)
+            pathdirs_1243 = [ test.workpath('sub1'),
+                              test.workpath('sub2'),
+                              test.workpath('sub4'),
+                              test.workpath('sub3'),
+                            ] + string.split(env_path, os.pathsep)
 
-        os.environ['PATH'] = string.join(pathdirs_1234, os.pathsep)
-        wi = WhereIs('xxx.exe')
-        assert wi == test.workpath(sub3_xxx_exe), wi
-        wi = WhereIs('xxx.exe', pathdirs_1243)
-        assert wi == test.workpath(sub4_xxx_exe), wi
-        wi = WhereIs('xxx.exe', string.join(pathdirs_1243, os.pathsep))
-        assert wi == test.workpath(sub4_xxx_exe), wi
-
-        wi = WhereIs('xxx.exe',reject = sub3_xxx_exe)
-        assert wi == test.workpath(sub4_xxx_exe), wi
-        wi = WhereIs('xxx.exe', pathdirs_1243, reject = sub3_xxx_exe)
-        assert wi == test.workpath(sub4_xxx_exe), wi
-
-        os.environ['PATH'] = string.join(pathdirs_1243, os.pathsep)
-        wi = WhereIs('xxx.exe')
-        assert wi == test.workpath(sub4_xxx_exe), wi
-        wi = WhereIs('xxx.exe', pathdirs_1234)
-        assert wi == test.workpath(sub3_xxx_exe), wi
-        wi = WhereIs('xxx.exe', string.join(pathdirs_1234, os.pathsep))
-        assert wi == test.workpath(sub3_xxx_exe), wi
-
-        if sys.platform == 'win32':
-            wi = WhereIs('xxx', pathext = '')
-            assert wi is None, wi
-
-            wi = WhereIs('xxx', pathext = '.exe')
+            os.environ['PATH'] = string.join(pathdirs_1234, os.pathsep)
+            wi = WhereIs('xxx.exe')
+            assert wi == test.workpath(sub3_xxx_exe), wi
+            wi = WhereIs('xxx.exe', pathdirs_1243)
+            assert wi == test.workpath(sub4_xxx_exe), wi
+            wi = WhereIs('xxx.exe', string.join(pathdirs_1243, os.pathsep))
             assert wi == test.workpath(sub4_xxx_exe), wi
 
-            wi = WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
-            assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+            wi = WhereIs('xxx.exe',reject = sub3_xxx_exe)
+            assert wi == test.workpath(sub4_xxx_exe), wi
+            wi = WhereIs('xxx.exe', pathdirs_1243, reject = sub3_xxx_exe)
+            assert wi == test.workpath(sub4_xxx_exe), wi
 
-            # Test that we return a normalized path even when
-            # the path contains forward slashes.
-            forward_slash = test.workpath('') + '/sub3'
-            wi = WhereIs('xxx', path = forward_slash, pathext = '.EXE')
-            assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+            os.environ['PATH'] = string.join(pathdirs_1243, os.pathsep)
+            wi = WhereIs('xxx.exe')
+            assert wi == test.workpath(sub4_xxx_exe), wi
+            wi = WhereIs('xxx.exe', pathdirs_1234)
+            assert wi == test.workpath(sub3_xxx_exe), wi
+            wi = WhereIs('xxx.exe', string.join(pathdirs_1234, os.pathsep))
+            assert wi == test.workpath(sub3_xxx_exe), wi
+
+            if sys.platform == 'win32':
+                wi = WhereIs('xxx', pathext = '')
+                assert wi is None, wi
+
+                wi = WhereIs('xxx', pathext = '.exe')
+                assert wi == test.workpath(sub4_xxx_exe), wi
+
+                wi = WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
+                assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+
+                # Test that we return a normalized path even when
+                # the path contains forward slashes.
+                forward_slash = test.workpath('') + '/sub3'
+                wi = WhereIs('xxx', path = forward_slash, pathext = '.EXE')
+                assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+
+            del os.environ['PATH']
+            wi = WhereIs('xxx.exe')
+            assert wi is None, wi
+
+        finally:
+            os.environ['PATH'] = env_path
+            
 
     def test_is_valid_construction_var(self):
         """Testing is_valid_construction_var()"""

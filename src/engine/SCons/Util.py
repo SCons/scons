@@ -1055,7 +1055,10 @@ if sys.platform == 'win32':
 
     def WhereIs(file, path=None, pathext=None, reject=[]):
         if path is None:
-            path = os.environ['PATH']
+            try:
+                path = os.environ['PATH']
+            except KeyError:
+                return None
         if is_String(path):
             path = string.split(path, os.pathsep)
         if pathext is None:
@@ -1087,7 +1090,10 @@ elif os.name == 'os2':
 
     def WhereIs(file, path=None, pathext=None, reject=[]):
         if path is None:
-            path = os.environ['PATH']
+            try:
+                path = os.environ['PATH']
+            except KeyError:
+                return None
         if is_String(path):
             path = string.split(path, os.pathsep)
         if pathext is None:
@@ -1114,7 +1120,10 @@ else:
 
     def WhereIs(file, path=None, pathext=None, reject=[]):
         if path is None:
-            path = os.environ['PATH']
+            try:
+                path = os.environ['PATH']
+            except KeyError:
+                return None
         if is_String(path):
             path = string.split(path, os.pathsep)
         if not is_List(reject):
