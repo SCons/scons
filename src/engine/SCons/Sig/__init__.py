@@ -204,18 +204,19 @@ class Calculator:
         # derived files, because calling get_signature() on the
         # derived nodes will in turn call bsig() again and do that
         # for us.  Hence:
-        def walk_non_derived(n, parent, myself=node):
+        sigs = []
+        def non_derived(n, parent, myself=node):
             if not n.builder or n is myself:
                 return filter(lambda x, i=myself.ignore: x not in i,
                               n.all_children(None))
             return []
-        walker = SCons.Node.Walker(node, walk_non_derived)
-        sigs = []
-        while 1:
+        def get_sig(n, parent, self=self, myself=node, sigs=sigs):
+            if not n is myself:
+                sigs.append(self.get_signature(n))
+        walker = SCons.Node.Walker(node, non_derived, eval_func=get_sig)
+        child = walker.next()
+        while child:
             child = walker.next()
-            if child is None: break
-            if child is node: continue # skip the node itself
-            sigs.append(self.get_signature(child))
 
         if node.builder:
             sigs.append(self.module.signature(node.builder_sig_adapter()))

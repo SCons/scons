@@ -117,11 +117,11 @@ class Task:
         nodes = {}
         for t in self.targets:
             def get_parents(node, parent): return node.get_parents()
-            walker = SCons.Node.Walker(t, get_parents)
-            while 1:
+	    def set_nodes(node, parent, nodes=nodes): nodes[node] = 1
+            walker = SCons.Node.Walker(t, get_parents, eval_func=set_nodes)
+            n = walker.next()
+            while n:
                 n = walker.next()
-                if n == None: break
-                nodes[n] = 1
         pending = filter(lambda x: x.get_state() == SCons.Node.pending,
                          nodes.keys())
         tasks = {}
