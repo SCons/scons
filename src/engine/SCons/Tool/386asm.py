@@ -34,32 +34,12 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-import string
-import re
-
-import SCons.Action
-import SCons.Defaults
-import SCons.Tool
-
+import as
 from SCons.Tool.PharLapCommon import addPharLapPaths
-
-ASSuffixes = ['.s', '.asm', '.ASM']
-ASPPSuffixes = ['.spp', '.SPP']
-if os.path.normcase('.s') == os.path.normcase('.S'):
-    ASSuffixes.extend(['.S'])
-else:
-    ASPPSuffixes.extend(['.S'])
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-
-    for suffix in ASSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.ASAction)
-
-    for suffix in ASPPSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
+    as.generate(env)
 
     env['AS']        = '386asm'
     env['ASFLAGS']   = ''

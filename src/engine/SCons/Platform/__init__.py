@@ -66,6 +66,12 @@ def platform_default():
             return 'cygwin'
         elif string.find(sys.platform, 'irix') != -1:
             return 'irix'
+        elif string.find(sys.platform, 'sunos') != -1:
+            return 'sunos'
+        elif string.find(sys.platform, 'hp-ux') != -1:
+            return 'hpux'
+        elif string.find(sys.platform, 'aix') != -1:
+            return 'aix'
         else:
             return 'posix'
     elif os.name == 'os2':

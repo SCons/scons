@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.icc
+"""engine.SCons.Tool.ifl
 
 Tool-specific initialization for the Intel Fortran compiler.
 
@@ -33,30 +33,11 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-
-import SCons.Action
-import SCons.Tool
-import SCons.Errors
-
-F77Suffixes = ['.f', '.for', '.FOR']
-F77PPSuffixes = ['.fpp', '.FPP']
-if os.path.normcase('.f') == os.path.normcase('.F'):
-    F77Suffixes.append('.F')
-else:
-    F77PPSuffixes.append('.F')
+import f77
 
 def generate(env):
     """Add Builders and construction variables for ifl to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-
-    for suffix in F77Suffixes:
-        static_obj.add_action(suffix, SCons.Defaults.F77Action)
-        shared_obj.add_action(suffix, SCons.Defaults.ShF77Action)
-
-    for suffix in F77PPSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.F77PPAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShF77PPAction)
+    f77.generate(env)
 
     env['F77']        = 'ifl'
     env['F77FLAGS']   = ''

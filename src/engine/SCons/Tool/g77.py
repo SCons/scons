@@ -33,41 +33,15 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-
-import SCons.Defaults
-import SCons.Tool
-import SCons.Util
+import f77
 
 compilers = ['g77', 'f77']
 
-F77Suffixes = ['.f', '.for', '.FOR']
-F77PPSuffixes = ['.fpp', '.FPP']
-if os.path.normcase('.f') == os.path.normcase('.F'):
-    F77Suffixes.append('.F')
-else:
-    F77PPSuffixes.append('.F')
-
 def generate(env):
     """Add Builders and construction variables for g77 to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+    f77.generate(env)
 
-    for suffix in F77Suffixes:
-        static_obj.add_action(suffix, SCons.Defaults.F77Action)
-        shared_obj.add_action(suffix, SCons.Defaults.ShF77Action)
-
-    for suffix in F77PPSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.F77PPAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShF77PPAction)
-
-    env['F77']        = env.Detect(compilers) or 'g77'
-    env['F77FLAGS']   = ''
-    env['F77COM']     = '$F77 $F77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['F77PPCOM']   = '$F77 $F77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['SHF77']      = '$F77'
-    env['SHF77FLAGS'] = '$F77FLAGS -fPIC'
-    env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
+    env['F77'] = env.Detect(compilers) or 'g77'
 
 def exists(env):
     return env.Detect(compilers)

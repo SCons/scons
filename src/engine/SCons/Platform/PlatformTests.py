@@ -68,6 +68,30 @@ class PlatformTestCase(unittest.TestCase):
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
 
+        p = SCons.Platform.Platform('aix')
+        assert str(p) == 'aix', p
+        env = Environment()
+        p(env)
+        assert env['PROGSUFFIX'] == '', env
+        assert env['LIBSUFFIX'] == '.a', env
+        assert env['SHELL'] == 'sh', env
+
+        p = SCons.Platform.Platform('sunos')
+        assert str(p) == 'sunos', p
+        env = Environment()
+        p(env)
+        assert env['PROGSUFFIX'] == '', env
+        assert env['LIBSUFFIX'] == '.a', env
+        assert env['SHELL'] == 'sh', env
+
+        p = SCons.Platform.Platform('hpux')
+        assert str(p) == 'hpux', p
+        env = Environment()
+        p(env)
+        assert env['PROGSUFFIX'] == '', env
+        assert env['LIBSUFFIX'] == '.a', env
+        assert env['SHELL'] == 'sh', env
+
         p = SCons.Platform.Platform('win32')
         assert str(p) == 'win32', p
         env = Environment()

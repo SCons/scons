@@ -164,9 +164,30 @@ def tool_list(platform, env):
         "prefer MIPSPro on IRIX"
         linkers = ['sgilink', 'gnulink']
         c_compilers = ['sgicc', 'gcc']
-        assemblers = ['sgias', 'gas']
-        fortran_compilers = ['sgif77', 'g77']
+        assemblers = ['as', 'gas']
+        fortran_compilers = ['f77', 'g77']
         ars = ['sgiar']
+    elif str(platform) == 'sunos':
+        "prefer Forte tools on SunOS"
+        linkers = ['sunlink', 'gnulink']
+        c_compilers = ['suncc', 'gcc']
+        assemblers = ['as', 'gas']
+        fortran_compilers = ['f77', 'g77']
+        ars = ['sunar']
+    elif str(platform) == 'hpux':
+        "prefer aCC tools on HP-UX"
+        linkers = ['hplink', 'gnulink']
+        c_compilers = ['hpcc', 'gcc']
+        assemblers = ['as', 'gas']
+        fortran_compilers = ['f77', 'g77']
+        ars = ['ar']
+    elif str(platform) == 'aix':
+        "prefer AIX Visual Age tools on AIX"
+        linkers = ['aixlink', 'gnulink']
+        c_compilers = ['aixcc', 'gcc']
+        assemblers = ['as', 'gas']
+        fortran_compilers = ['aixf77', 'g77']
+        ars = ['ar']
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']

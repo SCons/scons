@@ -1,11 +1,10 @@
-"""SCons.Tool.gnulink
+"""engine.SCons.Platform.sunos
 
-Tool-specific initialization for the gnu linker.
+Platform-specific initialization for Sun systems.
 
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
+There normally shouldn't be any need to import this module directly.  It
+will usually be imported through the generic SCons.Platform.Platform()
 selection method.
-
 """
 
 #
@@ -33,13 +32,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import link
-
-linkers = ['c++', 'cc', 'g++', 'gcc']
+import posix
 
 def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
-
-def exists(env):
-    return env.Detect(linkers)
+    posix.generate(env)

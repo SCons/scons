@@ -33,41 +33,19 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
-
-import SCons.Tool
-import SCons.Defaults
-import SCons.Util
+import cc
 
 compilers = ['cc', 'gcc']
 
-CSuffixes = ['.c']
-if os.path.normcase('.c') == os.path.normcase('.C'):
-    CSuffixes.append('.C')
-
 def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+    cc.generate(env)
 
-    for suffix in CSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.CAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
-
-    env['CC']        = env.Detect(compilers) or 'cc'
-    env['CCFLAGS']   = ''
-    env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
-    env['SHCC']      = '$CC'
+    env['CC'] = env.Detect(compilers) or 'cc'
     if env['PLATFORM'] == 'cygwin':
         env['SHCCFLAGS'] = '$CCFLAGS'
     else:
         env['SHCCFLAGS'] = '$CCFLAGS -fPIC'
-    env['SHCCCOM']   = '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
-    env['SHOBJSUFFIX'] = '.os'
-    env['INCPREFIX']  = '-I'
-    env['INCSUFFIX']  = ''
-    env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
-
-    env['CFILESUFFIX'] = '.c'
 
 def exists(env):
     return env.Detect(compilers)

@@ -1,11 +1,10 @@
-"""SCons.Tool.gnulink
+"""SCons.Tool.hplink
 
-Tool-specific initialization for the gnu linker.
+Tool-specific initialization for the HP linker.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
 
 #
@@ -35,11 +34,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import link
 
-linkers = ['c++', 'cc', 'g++', 'gcc']
+linkers = ['aCC', 'cc']
 
 def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
+    "Add Builders and construction variables for HP linker to an Environment."
     link.generate(env)
+    
+    env['SHLINKFLAGS'] = '$LINKFLAGS -b'
 
 def exists(env):
     return env.Detect(linkers)

@@ -1,11 +1,12 @@
-"""SCons.Tool.gnulink
+"""engine.SCons.Tool.sunar
 
-Tool-specific initialization for the gnu linker.
+Tool-specific initialization for Solaris (Forte) ar (library archive). If CC
+exists, static libraries should be built with it, so that template
+instantians can be resolved.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
 
 #
@@ -33,13 +34,26 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import link
-
-linkers = ['c++', 'cc', 'g++', 'gcc']
+import SCons.Defaults
 
 def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
+    """Add Builders and construction variables for ar to an Environment."""
+    bld = SCons.Defaults.StaticLibrary
+    env['BUILDERS']['Library'] = bld
+    env['BUILDERS']['StaticLibrary'] = bld
+    
+    if env.Detect('CC'):
+        env['AR']          = 'CC'
+        env['ARFLAGS']     = '-xar'
+        env['ARCOM']       = '$AR $ARFLAGS -o $TARGET $SOURCES'
+    else:
+        env['AR']          = 'ar'
+        env['ARFLAGS']     = 'r'
+        env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
+
+    env['SHLINK']      = '$LINK'
+    env['SHLINKFLAGS'] = '$LINKFLAGS -G'
+    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
 def exists(env):
-    return env.Detect(linkers)
+    return env.Detect('CC') or env.Detect('ar')

@@ -1,6 +1,6 @@
-"""SCons.Tool.gnulink
+"""SCons.Tool.link
 
-Tool-specific initialization for the gnu linker.
+Tool-specific initialization for the generic Posix linker.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -33,13 +33,28 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import link
+import SCons.Defaults
+import SCons.Util
 
-linkers = ['c++', 'cc', 'g++', 'gcc']
+linkers = ['c++', 'cc']
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
+    env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
+    env['BUILDERS']['Program'] = SCons.Defaults.Program
+    
+    env['SHLINK']      = '$LINK'
+    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
+    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['SHLIBEMITTER']= None
+    env['LINK']        = env.Detect(linkers) or 'c++'
+    env['LINKFLAGS']   = ''
+    env['LINKCOM']     = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['LIBDIRPREFIX']='-L'
+    env['LIBDIRSUFFIX']=''
+    env['_LIBFLAGS']='${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIX, LIBSUFFIX, __env__)}'
+    env['LIBLINKPREFIX']='-l'
+    env['LIBLINKSUFFIX']=''
 
 def exists(env):
     return env.Detect(linkers)

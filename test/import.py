@@ -46,6 +46,8 @@ x = SCons.Platform.%s.generate
 tools = [
     # Can't import '386asm' directly due to initial '3' syntax error...
     'ar',
+    'as',
+    'cc',
     'default',
     'dvipdf',
     'dvips',
@@ -59,6 +61,7 @@ tools = [
     'ilink',
     'latex',
     'lex',
+    'link',
     # Can't import 'linkloc' everywhere due to Windows registry dependency...
     'masm',
     'mingw',
@@ -69,9 +72,7 @@ tools = [
     'pdflatex',
     'pdftex',
     'sgiar',
-    'sgias',
     'sgicc',
-    'sgif77',
     'sgilink',
     'tar',
     'tex',

@@ -33,34 +33,16 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Action
-import SCons.Tool
-import SCons.Errors
-
-CSuffixes = ['.c', '.C']
-CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
+import cc
 
 def generate(env):
-    """Add Builders and construction variables for MSVC++ to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
-
-    for suffix in CSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.CAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
-
-    for suffix in CXXSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.CXXAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
+    """Add Builders and construction variables for the OS/2 to an Environment."""
+    cc.generate(env)
 
     env['CC']         = 'icc'
-    env['CCFLAGS']    = ''
     env['CCCOM']      = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['CXX']        = '$CC'
-    env['CXXFLAGS']   = '$CCFLAGS'
     env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
     env['INCPREFIX']  = '/I'
-    env['INCSUFFIX']  = '' 
-
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
 

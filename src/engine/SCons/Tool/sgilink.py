@@ -33,28 +33,16 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Defaults
-import SCons.Util
+import link
 
 linkers = ['CC', 'cc']
 
 def generate(env):
     """Add Builders and construction variables for MIPSPro to an Environment."""
-    env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
-    env['BUILDERS']['Program'] = SCons.Defaults.Program
+    link.generate(env)
     
-    env['SHLINK']      = '$LINK'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
-    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-    env['SHLIBEMITTER']= None
     env['LINK']        = env.Detect(linkers) or 'cc'
     env['LINKFLAGS']   = '-LANG:std'
-    env['LINKCOM']     = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-    env['LIBDIRPREFIX']='-L'
-    env['LIBDIRSUFFIX']=''
-    env['_LIBFLAGS']='${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIX, LIBSUFFIX, __env__)}'
-    env['LIBLINKPREFIX']='-l'
-    env['LIBLINKSUFFIX']=''
 
 def exists(env):
     return env.Detect(linkers)

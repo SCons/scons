@@ -1,11 +1,10 @@
-"""SCons.Tool.gnulink
+"""engine.SCons.Tool.aixf77
 
-Tool-specific initialization for the gnu linker.
+Tool-specific initialization for IBM Visual Age f77 Fortran compiler.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
 
 #
@@ -33,13 +32,20 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import link
+import f77
 
-linkers = ['c++', 'cc', 'g++', 'gcc']
+pcompilers = ['xlf77']
+rcompilers = ['xlf77_r']
 
 def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
+    """
+    Add Builders and construction variables for the Visual Age FORTRAN
+    compiler to an Environment.
+    """
+    f77.generate(env)
+
+    env['F77'] = env.Detect(pcompilers) or 'f77'
+    env['SHF77'] = env.Detect(rcompilers) or 'f77'
 
 def exists(env):
-    return env.Detect(linkers)
+    return env.Detect(pcompilers)

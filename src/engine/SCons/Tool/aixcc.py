@@ -1,11 +1,10 @@
-"""SCons.Tool.gnulink
+"""SCons.Tool.aixcc
 
-Tool-specific initialization for the gnu linker.
+Tool-specific initialization for IBM Visual Age C++ and C compilers.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
 
 #
@@ -33,13 +32,19 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import link
-
-linkers = ['c++', 'cc', 'g++', 'gcc']
+import cc
 
 def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
+    """
+    Add Builders and construction variables for Visual Age C and C++ compilers
+    to an Environment.
+    """
+    cc.generate(env)
+
+    env['CC'] = 'xlc'
+    env['SHCC'] = 'xlc_r'
+    env['CXX'] = 'xlC'
+    env['SHCXX'] = 'xlC_r'
 
 def exists(env):
-    return env.Detect(linkers)
+    return env.Detect('xlC')

@@ -1,11 +1,10 @@
-"""SCons.Tool.gnulink
+"""SCons.Tool.hpcc
 
-Tool-specific initialization for the gnu linker.
+Tool-specific initialization for HP aCC and cc.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
 
 #
@@ -33,13 +32,13 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import link
-
-linkers = ['c++', 'cc', 'g++', 'gcc']
+import cc
 
 def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
+    """Add Builders and construction variables for aCC & cc to an Environment."""
+    cc.generate(env)
+
+    env['CXX']        = 'aCC'
 
 def exists(env):
-    return env.Detect(linkers)
+    return env.Detect('aCC')
