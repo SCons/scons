@@ -230,5 +230,158 @@ else:
     # output at this point.
     test.run(arguments = "--debug=objects")
 
+############################
+# test --debug=presub
+
+test.write('cat.py', """\
+import sys
+open(sys.argv[2], "wb").write(open(sys.argv[1], "rb").read())
+sys.exit(0)
+""")
+
+test.write('SConstruct', """\
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
+FILE = Builder(action="$FILECOM")
+TEMP = Builder(action="$TEMPCOM")
+LIST = Builder(action="$LISTCOM")
+FUNC = Builder(action=cat)
+env = Environment(PYTHON='%s',
+                  BUILDERS = {'FILE':FILE, 'TEMP':TEMP, 'LIST':LIST, 'FUNC':FUNC},
+                  FILECOM="$PYTHON cat.py $SOURCES $TARGET",
+                  TEMPCOM="$PYTHON cat.py $SOURCES temp\\n$PYTHON cat.py temp $TARGET",
+                  LISTCOM=["$PYTHON cat.py $SOURCES temp", "$PYTHON cat.py temp $TARGET"],
+                  FUNCCOM=cat)
+env.Command('file01.out', 'file01.in', "$FILECOM")
+env.Command('file02.out', 'file02.in', ["$FILECOM"])
+env.Command('file03.out', 'file03.in', "$TEMPCOM")
+env.Command('file04.out', 'file04.in', ["$TEMPCOM"])
+env.Command('file05.out', 'file05.in', "$LISTCOM")
+env.Command('file06.out', 'file06.in', ["$LISTCOM"])
+env.Command('file07.out', 'file07.in', cat)
+env.Command('file08.out', 'file08.in', "$FUNCCOM")
+env.Command('file09.out', 'file09.in', ["$FUNCCOM"])
+env.FILE('file11.out', 'file11.in')
+env.FILE('file12.out', 'file12.in')
+env.TEMP('file13.out', 'file13.in')
+env.TEMP('file14.out', 'file14.in')
+env.LIST('file15.out', 'file15.in')
+env.LIST('file16.out', 'file16.in')
+env.FUNC('file17.out', 'file17.in')
+env.FUNC('file18.out', 'file18.in')
+""" % TestSCons.python)
+
+test.write('file01.in', "file01.in\n")
+test.write('file02.in', "file02.in\n")
+test.write('file03.in', "file03.in\n")
+test.write('file04.in', "file04.in\n")
+test.write('file05.in', "file05.in\n")
+test.write('file06.in', "file06.in\n")
+test.write('file07.in', "file07.in\n")
+test.write('file08.in', "file08.in\n")
+test.write('file09.in', "file09.in\n")
+test.write('file11.in', "file11.in\n")
+test.write('file12.in', "file12.in\n")
+test.write('file13.in', "file13.in\n")
+test.write('file14.in', "file14.in\n")
+test.write('file15.in', "file15.in\n")
+test.write('file16.in', "file16.in\n")
+test.write('file17.in', "file17.in\n")
+test.write('file18.in', "file18.in\n")
+
+expect = """\
+Building file01.out with action(s):
+  $PYTHON cat.py $SOURCES $TARGET
+__PYTHON__ cat.py file01.in file01.out
+Building file02.out with action(s):
+  $PYTHON cat.py $SOURCES $TARGET
+__PYTHON__ cat.py file02.in file02.out
+Building file03.out with action(s):
+  $PYTHON cat.py $SOURCES temp
+  $PYTHON cat.py temp $TARGET
+__PYTHON__ cat.py file03.in temp
+__PYTHON__ cat.py temp file03.out
+Building file04.out with action(s):
+  $PYTHON cat.py $SOURCES temp
+  $PYTHON cat.py temp $TARGET
+__PYTHON__ cat.py file04.in temp
+__PYTHON__ cat.py temp file04.out
+Building file05.out with action(s):
+  $PYTHON cat.py $SOURCES temp
+  $PYTHON cat.py temp $TARGET
+__PYTHON__ cat.py file05.in temp
+__PYTHON__ cat.py temp file05.out
+Building file06.out with action(s):
+  $PYTHON cat.py $SOURCES temp
+  $PYTHON cat.py temp $TARGET
+__PYTHON__ cat.py file06.in temp
+__PYTHON__ cat.py temp file06.out
+Building file07.out with action(s):
+  cat(env, target, source)
+cat("file07.out", "file07.in")
+Building file08.out with action(s):
+  cat(env, target, source)
+cat("file08.out", "file08.in")
+Building file09.out with action(s):
+  cat(env, target, source)
+cat("file09.out", "file09.in")
+Building file11.out with action(s):
+  $PYTHON cat.py $SOURCES $TARGET
+__PYTHON__ cat.py file11.in file11.out
+Building file12.out with action(s):
+  $PYTHON cat.py $SOURCES $TARGET
+__PYTHON__ cat.py file12.in file12.out
+Building file13.out with action(s):
+  $PYTHON cat.py $SOURCES temp
+  $PYTHON cat.py temp $TARGET
+__PYTHON__ cat.py file13.in temp
+__PYTHON__ cat.py temp file13.out
+Building file14.out with action(s):
+  $PYTHON cat.py $SOURCES temp
+  $PYTHON cat.py temp $TARGET
+__PYTHON__ cat.py file14.in temp
+__PYTHON__ cat.py temp file14.out
+Building file15.out with action(s):
+  $PYTHON cat.py $SOURCES temp
+  $PYTHON cat.py temp $TARGET
+__PYTHON__ cat.py file15.in temp
+__PYTHON__ cat.py temp file15.out
+Building file16.out with action(s):
+  $PYTHON cat.py $SOURCES temp
+  $PYTHON cat.py temp $TARGET
+__PYTHON__ cat.py file16.in temp
+__PYTHON__ cat.py temp file16.out
+Building file17.out with action(s):
+  cat(env, target, source)
+cat("file17.out", "file17.in")
+Building file18.out with action(s):
+  cat(env, target, source)
+cat("file18.out", "file18.in")
+"""
+expect = string.replace(expect, '__PYTHON__', TestSCons.python)
+test.run(arguments = "--debug=presub .", stdout=test.wrap_stdout(expect))
+
+test.must_match('file01.out', "file01.in\n")
+test.must_match('file02.out', "file02.in\n")
+test.must_match('file03.out', "file03.in\n")
+test.must_match('file04.out', "file04.in\n")
+test.must_match('file05.out', "file05.in\n")
+test.must_match('file06.out', "file06.in\n")
+test.must_match('file07.out', "file07.in\n")
+test.must_match('file08.out', "file08.in\n")
+test.must_match('file09.out', "file09.in\n")
+test.must_match('file11.out', "file11.in\n")
+test.must_match('file12.out', "file12.in\n")
+test.must_match('file13.out', "file13.in\n")
+test.must_match('file14.out', "file14.in\n")
+test.must_match('file15.out', "file15.in\n")
+test.must_match('file16.out', "file16.in\n")
+test.must_match('file17.out', "file17.in\n")
+test.must_match('file18.out', "file18.in\n")
 
 test.pass_test()

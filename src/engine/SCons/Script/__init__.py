@@ -409,6 +409,8 @@ def _set_globals(options):
                 memory_outf = sys.stdout
             elif options.debug == "objects":
                 print_objects = 1
+            elif options.debug == "presub":
+                SCons.Action.print_actions_presub = 1
             elif options.debug == "time":
                 print_time = 1
             elif options.debug == "tree":
@@ -492,7 +494,8 @@ class OptParser(OptionParser):
                              "build all Default() targets.")
 
         def opt_debug(option, opt, value, parser):
-            if value in ["count", "dtree", "includes", "memory", "objects", "pdb", "time", "tree"]:
+            if value in ["count", "dtree", "includes", "memory", "objects",
+                         "pdb", "presub", "time", "tree"]:
                 setattr(parser.values, 'debug', value)
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
