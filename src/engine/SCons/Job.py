@@ -179,11 +179,9 @@ else:
         def get(self, block = 1):
             """Remove and return a result tuple from the results queue."""
             return self.resultsQueue.get(block)
-            
-        def get_nowait(self):
-            """Remove and result a result tuple from the results queue 
-            without blocking."""
-            return self.get(0)
+
+        def preparation_failed(self, obj):
+            self.resultsQueue.put((obj, 0))
 
     class Parallel:
         """This class is used to execute tasks in parallel, and is somewhat 
@@ -213,7 +211,6 @@ else:
             self.taskmaster = taskmaster
             self.tp = ThreadPool(num)
 
-            self.jobs = 0
             self.maxjobs = num
 
         def start(self):
@@ -222,8 +219,25 @@ else:
             more tasks. If a task fails to execute (i.e. execute() raises
             an exception), then the job will stop."""
 
+            jobs = 0
+            
             while 1:
-                if self.jobs < self.maxjobs:
+
+                # There's a concern here that the while-loop test below
+                # might delay reporting status back about failed build
+                # tasks until the entire build is done if tasks execute
+                # fast enough, or self.maxjobs is big enough.  It looks
+                # like that's enough of a corner case that we'll wait to
+                # see if it's an issue in practice.  If so, one possible
+                # fix might be:
+                #
+                #       while jobs < self.maxjobs and \
+                #             self.tp.resultsQueue.empty():
+                #
+                # but that's somewhat unattractive because the
+                # resultsQueue.empty() check might introduce some
+                # significant overhead involving mutex locking.
+                while jobs < self.maxjobs:
                     task = self.taskmaster.next_task()
                     if task is None:
                         break
@@ -234,26 +248,25 @@ else:
                     except KeyboardInterrupt:
                         raise
                     except:
-                        # Let the failed() callback function arrange for the
-                        # build to stop if that's appropriate.
-                        task.failed()
+                        # Let the failed() callback function arrange
+                        # for the build to stop if that's appropriate.
+                        task.exception_set()
+                        self.tp.preparation_failed(task)
+                        jobs = jobs + 1
+                        continue
 
                     # dispatch task
                     self.tp.put(task)
-                    self.jobs = self.jobs + 1
+                    jobs = jobs + 1
 
-                while 1:
-                    try:
-                        task, ok = self.tp.get_nowait()
-                    except Queue.Empty:
-                        if not (self.jobs is self.maxjobs or self.taskmaster.is_blocked()):
-                            break
-                        task, ok = self.tp.get()
+                if not task and not jobs: break
 
-                    self.jobs = self.jobs - 1
-                    if ok:
-                        task.executed()
-                    else:
-                        task.failed()
+                task, ok = self.tp.get()
 
-                    task.postprocess()
+                jobs = jobs - 1
+                if ok:
+                    task.executed()
+                else:
+                    task.failed()
+
+                task.postprocess()

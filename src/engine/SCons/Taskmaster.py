@@ -58,6 +58,7 @@ class Task:
         self.targets = targets
         self.top = top
         self.node = node
+        self.exc_clear()
 
     def display(self, message):
         """Allow the calling interface to display a message
@@ -73,7 +74,7 @@ class Task:
         # Now that it's the appropriate time, give the TaskMaster a
         # chance to raise any exceptions it encountered while preparing
         # this task.
-        self.tm.exception_raise()
+        self.exception_raise()
 
         if self.tm.message:
             self.display(self.tm.message)
@@ -209,14 +210,25 @@ class Task:
             t.postprocess()
 
     def exc_info(self):
-        return self.tm.exception
+        return self.exception
 
     def exc_clear(self):
-        self.tm.exception_clear()
+        self.exception = (None, None, None)
+        self.exception_raise = self._no_exception_to_raise
 
-    def exception_set(self):
-        self.tm.exception_set()
+    def exception_set(self, exception=None):
+        if not exception:
+            exception = sys.exc_info()
+        self.exception = exception
+        self.exception_raise = self._exception_raise
 
+    def _no_exception_to_raise(self):
+        pass
+
+    def _exception_raise(self):
+        """Raise a pending exception that was recorded while
+        getting a Task ready for execution."""
+        self.tm.exception_raise(self.exc_info())
 
 
 def order(dependencies):
@@ -240,7 +252,6 @@ class Taskmaster:
         self.tasker = tasker
         self.ready = None # the next task that is ready to be executed
         self.order = order
-        self.exception_clear()
         self.message = None
 
     def _find_next_ready_node(self):
@@ -249,6 +260,8 @@ class Taskmaster:
         if self.ready:
             return
 
+        self.ready_exc = None
+        
         while self.candidates:
             node = self.candidates[-1]
             state = node.get_state()
@@ -266,7 +279,7 @@ class Taskmaster:
             except SystemExit:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
-                self.exception_set((SCons.Errors.ExplicitExit, e))
+                self.ready_exc = (SCons.Errors.ExplicitExit, e)
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -277,7 +290,7 @@ class Taskmaster:
                 # children (like a child couldn't be linked in to a
                 # BuildDir, or a Scanner threw something).  Arrange to
                 # raise the exception when the Task is "executed."
-                self.exception_set()
+                self.ready_exc = sys.exc_info()
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -313,7 +326,7 @@ class Taskmaster:
                 # the kids are derived (like a child couldn't be linked
                 # from a repository).  Arrange to raise the exception
                 # when the Task is "executed."
-                self.exception_set()
+                self.ready_exc = sys.exc_info()
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -397,8 +410,13 @@ class Taskmaster:
             # a child couldn't be linked in to a BuildDir when deciding
             # whether this node is current).  Arrange to raise the
             # exception when the Task is "executed."
-            self.exception_set()
+            self.ready_exc = sys.exc_info()
+
+        if self.ready_exc:
+            task.exception_set(self.ready_exc)
+
         self.ready = None
+        self.ready_exc = None
 
         return task
 
@@ -442,21 +460,6 @@ class Taskmaster:
         self.candidates.extend(self.pending)
         self.pending = []
 
-    def exception_set(self, exception=None):
-        if exception is None:
-            exception = sys.exc_info()
-        self.exception = exception
-        self.exception_raise = self._exception_raise
-
-    def exception_clear(self):
-        self.exception = (None, None, None)
-        self.exception_raise = self._no_exception_to_raise
-
-    def _no_exception_to_raise(self):
-        pass
-
-    def _exception_raise(self):
-        """Raise a pending exception that was recorded while
-        getting a Task ready for execution."""
-        exc_type, exc_value = self.exception[:2]
+    def exception_raise(self, exception):
+        exc_type, exc_value = exception[:2]
         raise exc_type, exc_value

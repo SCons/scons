@@ -25,9 +25,12 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import string
 import sys
 import TestSCons
 import TestCmd
+
+python = TestSCons.python
 
 test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
@@ -41,7 +44,7 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.write('foo.in', "foo.in\n")
 
-test.run(arguments = "foo.out", stderr = """scons: \*\*\* \[foo.out\] Exception
+expected_stderr = """scons: \*\*\* \[foo.out\] Exception
 Traceback \((most recent call|innermost) last\):
   File ".+", line \d+, in \S+
     [^\n]+
@@ -50,6 +53,74 @@ Traceback \((most recent call|innermost) last\):
   File "SConstruct", line 3, in func
     raise "func exception"
 func exception
-""", status = 2)
+"""
+
+test.run(arguments = "foo.out", stderr = expected_stderr, status = 2)
+
+test.run(arguments = "-j2 foo.out", stderr = expected_stderr, status = 2)
+
+
+# Verify that exceptions caused by exit values of builder actions are
+# correectly signalled, for both Serial and Parallel jobs.
+
+test.write('myfail.py', r"""\
+import sys
+sys.exit(1)
+""")
+
+test.write('SConstruct', """
+Fail = Builder(action = r'%s myfail.py $TARGETS $SOURCE')
+env = Environment(BUILDERS = { 'Fail' : Fail })
+env.Fail(target = 'f1', source = 'f1.in')
+""" % (python))
+
+test.write('f1.in', "f1.in\n")
+
+expected_stderr = "scons: \*\*\* \[f1\] Error 1\n"
+
+test.run(arguments = '.', status = 2, stderr = expected_stderr)
+test.run(arguments = '-j2 .', status = 2, stderr = expected_stderr)
+
+
+# Verify that all exceptions from simultaneous tasks are reported,
+# even if the exception is raised during the Task.prepare()
+# [Node.prepare()]
+
+test.write('SConstruct', """
+Fail = Builder(action = r'%s myfail.py $TARGETS $SOURCE')
+env = Environment(BUILDERS = { 'Fail' : Fail })
+env.Fail(target = 'f1', source = 'f1.in')
+env.Fail(target = 'f2', source = 'f2.in')
+env.Fail(target = 'f3', source = 'f3.in')
+""" % (python))
+
+# f2.in is not created to cause a Task.prepare exception
+test.write('f3.in', 'f3.in\n')
+
+# In Serial task mode, get the first exception and stop
+test.run(arguments = '.', status = 2, stderr = expected_stderr)
+
+# In Parallel task mode, we will get all three exceptions.
+
+expected_stderr_list = [
+  expected_stderr,
+  "scons: \*\*\* Source `f2\.in' not found, needed by target `f2'\.  Stop\.\n",
+  string.replace(expected_stderr, 'f1', 'f3')
+  ]
+  
+# Unfortunately, we aren't guaranteed what order we will get the
+# exceptions in...
+orders = [ (1,2,3), (1,3,2), (2,1,3), (2,3,1), (3,1,2), (3,2,1) ]
+otexts = []
+for A,B,C in orders:
+    otexts.append("%s%s%s"%(expected_stderr_list[A-1],
+                            expected_stderr_list[B-1],
+                            expected_stderr_list[C-1]))
+                           
+                      
+expected_stderrs = "(" + string.join(otexts, "|") + ")"
+
+test.run(arguments = '-j3 .', status = 2, stderr = expected_stderrs)
+
 
 test.pass_test()
