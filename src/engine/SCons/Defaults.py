@@ -181,14 +181,18 @@ def copy_func(dest, src):
 Copy = ActionFactory(copy_func,
                      lambda dest, src: 'Copy("%s", "%s")' % (dest, src))
 
-def delete_func(entry):
+def delete_func(entry, must_exist=0):
+    if not must_exist and not os.path.exists(entry):
+        return None
     if os.path.isfile(entry):
         return os.unlink(entry)
     else:
         return shutil.rmtree(entry, 1)
 
-Delete = ActionFactory(delete_func,
-                       lambda entry: 'Delete("%s")' % entry)
+def delete_strfunc(entry, must_exist=0):
+    return 'Delete("%s")' % entry
+
+Delete = ActionFactory(delete_func, delete_strfunc)
 
 Mkdir = ActionFactory(os.makedirs,
                       lambda dir: 'Mkdir("%s")' % dir)

@@ -7617,7 +7617,7 @@ env.Command('bar.out', 'bar.in',
 .EE
 
 .TP
-.RI Delete( entry )
+.RI Delete( entry ", [" must_exist ])
 Returns an Action that
 deletes the specified
 .IR entry ,
@@ -7625,6 +7625,15 @@ which may be a file or a directory tree.
 If a directory is specified,
 the entire directory tree
 will be removed.
+If the
+.I must_exist
+flag is set,
+then a Python error will be thrown
+if the specified entry does not exist;
+the default is
+.BR must_exist=0 ,
+that is, the Action will silently do nothing
+if the entry does not exist.
 Examples:
 
 .ES
@@ -7633,6 +7642,8 @@ Execute(Delete('/tmp/buildroot'))
 env.Command('foo.out', 'foo.in',
             [Delete('${TARGET.dir}'),
              MyBuildAction])
+
+Execute(Delete('file_that_must_exist', must_exist=1))
 .EE
 
 .TP
