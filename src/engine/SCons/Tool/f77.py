@@ -34,38 +34,80 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
+import SCons.Scanner.Fortran
 import SCons.Tool
 import SCons.Util
+import fortran
 
 compilers = ['f77']
 
-F77Suffixes = ['.f', '.for', '.FOR']
-F77PPSuffixes = ['.fpp', '.FPP']
-if SCons.Util.case_sensitive_suffixes('.f', '.F'):
-    F77PPSuffixes.append('.F')
-else:
-    F77Suffixes.append('.F')
+#
+F77Action = SCons.Action.Action("$F77COM")
+ShF77Action = SCons.Action.Action("$SHF77COM")
+F77PPAction = SCons.Action.Action("$F77PPCOM")
+ShF77PPAction = SCons.Action.Action("$SHF77PPCOM")
 
-def generate(env):
+#
+F77Suffixes = ['.f77']
+F77PPSuffixes = []
+if SCons.Util.case_sensitive_suffixes('.f77', '.F77'):
+    F77PPSuffixes.append('.F77')
+else:
+    F77Suffixes.append('.F77')
+
+#
+F77Scan = SCons.Scanner.Fortran.FortranScan("F77PATH")
+
+for suffix in F77Suffixes + F77PPSuffixes:
+    SCons.Defaults.ObjSourceScan.add_scanner(suffix, F77Scan)
+
+#
+F77Generator = fortran.VariableListGenerator('F77', 'FORTRAN', '_FORTRAND')
+F77FlagsGenerator = fortran.VariableListGenerator('F77FLAGS', 'FORTRANFLAGS')
+ShF77Generator = fortran.VariableListGenerator('SHF77', 'SHFORTRAN', 'F77', 'FORTRAN', '_FORTRAND')
+ShF77FlagsGenerator = fortran.VariableListGenerator('SHF77FLAGS', 'SHFORTRANFLAGS')
+
+def add_to_env(env):
     """Add Builders and construction variables for f77 to an Environment."""
+    env.AppendUnique(FORTRANSUFFIXES = F77Suffixes + F77PPSuffixes)
+
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     for suffix in F77Suffixes:
-        static_obj.add_action(suffix, SCons.Defaults.F77Action)
-        shared_obj.add_action(suffix, SCons.Defaults.ShF77Action)
+        static_obj.add_action(suffix, F77Action)
+        shared_obj.add_action(suffix, ShF77Action)
+        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
+        shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
 
     for suffix in F77PPSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.F77PPAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShF77PPAction)
+        static_obj.add_action(suffix, F77PPAction)
+        shared_obj.add_action(suffix, ShF77PPAction)
+        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
+        shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
 
-    env['F77']        = env.Detect(compilers) or 'f77'
-    env['F77FLAGS']   = SCons.Util.CLVar('')
-    env['F77COM']     = '$F77 $F77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['F77PPCOM']   = '$F77 $F77FLAGS $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['SHF77']      = '$F77'
-    env['SHF77FLAGS'] = SCons.Util.CLVar('$F77FLAGS')
-    env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
-    env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
+    env['_F77G']      = F77Generator
+    env['_F77FLAGSG'] = F77FlagsGenerator
+    env['F77COM']     = '$_F77G $_F77FLAGSG $_F77INCFLAGS -c -o $TARGET $SOURCES'
+    env['F77PPCOM']   = '$_F77G $_F77FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
+
+    env['_SHF77G']      = ShF77Generator
+    env['_SHF77FLAGSG'] = ShF77FlagsGenerator
+    env['SHF77COM']   = '$_SHF77G $_SHF77FLAGSG $_F77INCFLAGS -c -o $TARGET $SOURCES'
+    env['SHF77PPCOM'] = '$_SHF77G $_SHF77FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
+
+    env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs)} $)'
+
+def generate(env):
+    fortran.add_to_env(env)
+
+    import f90
+    import f95
+    f90.add_to_env(env)
+    f95.add_to_env(env)
+
+    add_to_env(env)
+
+    env['_FORTRAND']        = env.Detect(compilers) or 'f77'
 
 def exists(env):
     return env.Detect(compilers)

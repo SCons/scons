@@ -147,6 +147,12 @@ RELEASE 0.96 - XXX
   - Fix escaping file names on command lines when the expansion is
     concatenated with another string.
 
+  - Add support for Fortran 90 and Fortran 95.  This adds $FORTRAN*
+    variables that specify a default compiler, command-line, flags,
+    etc. for all Fortran versions, plus separate $F90* and $F95*
+    variables for when different compilers/flags/etc. must be specified
+    for different Fortran versions.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.

@@ -990,10 +990,14 @@ as
 bcc32
 c++
 cc
+cvf
 dmd
 dvipdf
 dvips
 f77
+f90
+f95
+fortran
 g++
 g77
 gas
@@ -4218,7 +4222,8 @@ User-specified C preprocessor options.
 These will be included in any command that uses the C preprocessor,
 including not just compilation of C and C++ source files
 via the $CCCOM, $SHCCCOM, $CXXCOM and $SHCXXCOM command lines,
-but also the $F77PPCOM and $SHF77PPCOM command lines
+but also the $FORTRANPPCOM, $SHFORTRANPPCOM,
+$F77PPCOM and $SHF77PPCOM command lines
 used to compile a Fortran source file,
 and the $ASPPCOM command line
 used to assemble an assembly language source file,
@@ -4438,13 +4443,23 @@ command lines. The function should take one argument: the command line
 string to escape; and should return the escaped command line.
 
 .IP F77
-The Fortran compiler.
+The Fortran 77 compiler.
+You should normally set the $FORTRAN variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set $F77 if you need to use a specific compiler
+or compiler version for Fortran 77 files.
 
-.IP F77COM 
-The command line used to compile a Fortran source file to an object file.
+.IP F77COM
+The command line used to compile a Fortran 77 source file to an object file.
+You only need to set $F77COM if you need to use a specific
+command line for Fortran 77 files.
+You should normally set the $FORTRANCOM variable,
+which specifies the default command line
+for all Fortran versions.
 
 .IP F77FLAGS
-General user-specified options that are passed to the Fortran compiler.
+General user-specified options that are passed to the Fortran 77 compiler.
 Note that this variable does
 .I not
 contain
@@ -4455,10 +4470,16 @@ See
 .BR _F77INCFLAGS ,
 below,
 for the variable that expands to those options.
+You only need to set $F77FLAGS if you need to define specific
+user options for Fortran 77 files.
+You should normally set the $FORTRANFLAGS variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
 
 .IP _F77INCFLAGS
 An automatically-generated construction variable
-containing the Fortran compiler command-line options
+containing the Fortran 77 compiler command-line options
 for specifying directories to be searched for include files.
 The value of $_F77INCFLAGS is created
 by appending $INCPREFIX and $INCSUFFIX
@@ -4466,22 +4487,28 @@ to the beginning and end
 of each directory in $F77PATH.
 
 .IP F77PATH
-The list of directories that the Fortran compiler will search for include
-directories. The Fortran implicit dependency scanner will search these
+The list of directories that the Fortran 77 compiler will search for include
+directories. The implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
-arguments in F77FLAGS because the result will be non-portable
+arguments in $F77FLAGS because the result will be non-portable
 and the directories will not be searched by the dependency scanner. Note:
-directory names in F77PATH will be looked-up relative to the SConscript
-directory when they are used in a command. To force 
+directory names in $F77PATH will be looked-up relative to the SConscript
+directory when they are used in a command. To force
 .B scons
 to look-up a directory relative to the root of the source tree use #:
+You only need to set $F77PATH if you need to define a specific
+include path for Fortran 77 files.
+You should normally set the $FORTRANPATH variable,
+which specifies the include path
+for the default Fortran compiler
+for all Fortran versions.
 
 .ES
 env = Environment(F77PATH='#/include')
 .EE
 
 .IP
-The directory look-up can also be forced using the 
+The directory look-up can also be forced using the
 .BR Dir ()
 function:
 
@@ -4509,20 +4536,373 @@ include $_F77INCFLAGS:
 env = Environment(F77COM="my_compiler $_F77INCFLAGS -c -o $TARGET $SOURCE")
 .EE
 
-.IP F77PPCOM 
-The command line used to compile a Fortran source file to an object file
+.IP F77PPCOM
+The command line used to compile a Fortran 77 source file to an object file
 after first running the file through the C preprocessor.
 Any options specified in the $F77FLAGS and $CPPFLAGS construction variables
 are included on this command line.
+You only need to set $F77PPCOM if you need to use a specific
+C-preprocessor command line for Fortran 77 files.
+You should normally set the $FORTRANPPCOM variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+
+.IP F90
+The Fortran 90 compiler.
+You should normally set the $FORTRAN variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set $F90 if you need to use a specific compiler
+or compiler version for Fortran 90 files.
+
+.IP F90COM
+The command line used to compile a Fortran 90 source file to an object file.
+You only need to set $F90COM if you need to use a specific
+command line for Fortran 90 files.
+You should normally set the $FORTRANCOM variable,
+which specifies the default command line
+for all Fortran versions.
+
+.IP F90FLAGS
+General user-specified options that are passed to the Fortran 90 compiler.
+Note that this variable does
+.I not
+contain
+.B -I
+(or similar) include search path options
+that scons generates automatically from $F90PATH.
+See
+.BR _F90INCFLAGS ,
+below,
+for the variable that expands to those options.
+You only need to set $F90FLAGS if you need to define specific
+user options for Fortran 90 files.
+You should normally set the $FORTRANFLAGS variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+
+.IP _F90INCFLAGS
+An automatically-generated construction variable
+containing the Fortran 90 compiler command-line options
+for specifying directories to be searched for include files.
+The value of $_F90INCFLAGS is created
+by appending $INCPREFIX and $INCSUFFIX
+to the beginning and end
+of each directory in $F90PATH.
+
+.IP F90PATH
+The list of directories that the Fortran 90 compiler will search for include
+directories. The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in $F90FLAGS because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in $F90PATH will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+.B scons
+to look-up a directory relative to the root of the source tree use #:
+You only need to set $F90PATH if you need to define a specific
+include path for Fortran 90 files.
+You should normally set the $FORTRANPATH variable,
+which specifies the include path
+for the default Fortran compiler
+for all Fortran versions.
+
+.ES
+env = Environment(F90PATH='#/include')
+.EE
+
+.IP
+The directory look-up can also be forced using the
+.BR Dir ()
+function:
+
+.ES
+include = Dir('include')
+env = Environment(F90PATH=include)
+.EE
+
+.IP
+The directory list will be added to command lines
+through the automatically-generated
+$_F90INCFLAGS
+construction variable,
+which is constructed by
+appending the values of the
+$INCPREFIX and $INCSUFFIX
+construction variables
+to the beginning and end
+of each directory in $F90PATH.
+Any command lines you define that need
+the F90PATH directory list should
+include $_F90INCFLAGS:
+
+.ES
+env = Environment(F90COM="my_compiler $_F90INCFLAGS -c -o $TARGET $SOURCE")
+.EE
+
+.IP F90PPCOM
+The command line used to compile a Fortran 90 source file to an object file
+after first running the file through the C preprocessor.
+Any options specified in the $F90FLAGS and $CPPFLAGS construction variables
+are included on this command line.
+You only need to set $F90PPCOM if you need to use a specific
+C-preprocessor command line for Fortran 90 files.
+You should normally set the $FORTRANPPCOM variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+
+.IP F95
+The Fortran 95 compiler.
+You should normally set the $FORTRAN variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set $F95 if you need to use a specific compiler
+or compiler version for Fortran 95 files.
+
+.IP F95COM
+The command line used to compile a Fortran 95 source file to an object file.
+You only need to set $F95COM if you need to use a specific
+command line for Fortran 95 files.
+You should normally set the $FORTRANCOM variable,
+which specifies the default command line
+for all Fortran versions.
+
+.IP F95FLAGS
+General user-specified options that are passed to the Fortran 95 compiler.
+Note that this variable does
+.I not
+contain
+.B -I
+(or similar) include search path options
+that scons generates automatically from $F95PATH.
+See
+.BR _F95INCFLAGS ,
+below,
+for the variable that expands to those options.
+You only need to set $F95FLAGS if you need to define specific
+user options for Fortran 95 files.
+You should normally set the $FORTRANFLAGS variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+
+.IP _F95INCFLAGS
+An automatically-generated construction variable
+containing the Fortran 95 compiler command-line options
+for specifying directories to be searched for include files.
+The value of $_F95INCFLAGS is created
+by appending $INCPREFIX and $INCSUFFIX
+to the beginning and end
+of each directory in $F95PATH.
+
+.IP F95PATH
+The list of directories that the Fortran 95 compiler will search for include
+directories. The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in $F95FLAGS because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in $F95PATH will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+.B scons
+to look-up a directory relative to the root of the source tree use #:
+You only need to set $F95PATH if you need to define a specific
+include path for Fortran 95 files.
+You should normally set the $FORTRANPATH variable,
+which specifies the include path
+for the default Fortran compiler
+for all Fortran versions.
+
+.ES
+env = Environment(F95PATH='#/include')
+.EE
+
+.IP
+The directory look-up can also be forced using the
+.BR Dir ()
+function:
+
+.ES
+include = Dir('include')
+env = Environment(F95PATH=include)
+.EE
+
+.IP
+The directory list will be added to command lines
+through the automatically-generated
+$_F95INCFLAGS
+construction variable,
+which is constructed by
+appending the values of the
+$INCPREFIX and $INCSUFFIX
+construction variables
+to the beginning and end
+of each directory in $F95PATH.
+Any command lines you define that need
+the F95PATH directory list should
+include $_F95INCFLAGS:
+
+.ES
+env = Environment(F95COM="my_compiler $_F95INCFLAGS -c -o $TARGET $SOURCE")
+.EE
+
+.IP F95PPCOM
+The command line used to compile a Fortran 95 source file to an object file
+after first running the file through the C preprocessor.
+Any options specified in the $F95FLAGS and $CPPFLAGS construction variables
+are included on this command line.
+You only need to set $F95PPCOM if you need to use a specific
+C-preprocessor command line for Fortran 95 files.
+You should normally set the $FORTRANPPCOM variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+
+.IP FORTRAN
+The default Fortran compiler
+for all versions of Fortran.
+
+.IP FORTRANCOM 
+The command line used to compile a Fortran source file to an object file.
+By default, any options specified
+in the $FORTRANFLAGS, $CPPFLAGS, $_CPPDEFFLAGS, 
+$_FORTRANMODFLAG, and $_FORTRANINCFLAGS construction variables
+are included on this command line.
+
+.IP FORTRANFLAGS
+General user-specified options that are passed to the Fortran compiler.
+Note that this variable does
+.I not
+contain
+.B -I
+(or similar) include or module search path options
+that scons generates automatically from $FORTRANPATH.
+See
+.BR _FORTRANINCFLAGS and _FORTRANMODFLAGS,
+below,
+for the variables that expand those options.
+
+.IP _FORTRANINCFLAGS
+An automatically-generated construction variable
+containing the Fortran compiler command-line options
+for specifying directories to be searched for include 
+files and module files.
+The value of $_FORTRANINCFLAGS is created
+by prepending/appending $INCPREFIX and $INCSUFFIX
+to the beginning and end
+of each directory in $FORTRANPATH.
+
+.IP FORTRANMODDIR
+Directory location where the Fortran compiler should place
+any module files it generates.  This variable is empty, by default. Some 
+Fortran compilers will internally append this directory in the search path 
+for module files, as well
+
+.IP FORTRANMODDIRPREFIX
+The prefix used to specify a module directory on the Fortran compiler command
+line.
+This will be appended to the beginning of the directory
+in the $FORTRANMODDIR construction variables
+when the $_FORTRANMODFLAG variables is automatically generated.
+
+.IP FORTRANMODDIRSUFFIX
+The suffix used to specify a module directory on the Fortran compiler command
+line.
+This will be appended to the beginning of the directory
+in the $FORTRANMODDIR construction variables
+when the $_FORTRANMODFLAG variables is automatically generated.
+
+.IP FORTRANMODFLAG
+An automatically-generated construction variable
+containing the Fortran compiler command-line option
+for specifying the directory location where the Fortran
+compiler should place any module files that happen to get 
+generated during compilation.
+The value of $_FORTRANMODFLAG is created
+by prepending/appending $FORTRANMODDIRPREFIX and $FORTRANMODDIRSUFFIX
+to the beginning and end of the directory in $FORTRANMODDIR.
+
+.IP FORTRANMODPREFIX
+The module file prefix used by the Fortran compiler.  SCons assumes that
+the Fortran compiler follows the quasi-standard naming convention for
+module files of
+.I <module_name>.mod.
+As a result, this variable is left empty, by default.  For situations in
+which the compiler does not necessarily follow the normal convention,
+the user may use this variable.  Its value will be appended to every
+module file name as scons attempts to resolve dependencies.
+
+.IP FORTRANMODSUFFIX
+The module file suffix used by the Fortran compiler.  SCons assumes that
+the Fortran compiler follows the quasi-standard naming convention for
+module files of
+.I <module_name>.mod.
+As a result, this variable is set to ".mod", by default.  For situations
+in which the compiler does not necessarily follow the normal convention,
+the user may use this variable.  Its value will be appended to every
+module file name as scons attempts to resolve dependencies.
+
+.IP FORTRANPATH
+The list of directories that the Fortran compiler will search for
+include files and (for some compilers) module files. The Fortran implicit
+dependency scanner will search these directories for include files (but
+not module files since they are autogenerated and, as such, may not
+actually exist at the time the scan takes place). Don't explicitly put
+include directory arguments in FORTRANFLAGS because the result will be
+non-portable and the directories will not be searched by the dependency
+scanner. Note: directory names in FORTRANPATH will be looked-up relative
+to the SConscript directory when they are used in a command. To force
+.B scons
+to look-up a directory relative to the root of the source tree use #:
+
+.ES
+env = Environment(FORTRANPATH='#/include')
+.EE
+
+.IP
+The directory look-up can also be forced using the 
+.BR Dir ()
+function:
+
+.ES
+include = Dir('include')
+env = Environment(FORTRANPATH=include)
+.EE
+
+.IP
+The directory list will be added to command lines
+through the automatically-generated
+$_FORTRANINCFLAGS
+construction variable,
+which is constructed by
+appending the values of the
+$INCPREFIX and $INCSUFFIX
+construction variables
+to the beginning and end
+of each directory in $FORTRANPATH.
+Any command lines you define that need
+the FORTRANPATH directory list should
+include $_FORTRANINCFLAGS:
+
+.ES
+env = Environment(FORTRANCOM="my_compiler $_FORTRANINCFLAGS -c -o $TARGET $SOURCE")
+.EE
+
+.IP FORTRANPPCOM 
+The command line used to compile a Fortran source file to an object file
+after first running the file through the C preprocessor. 
+By default, any options specified in the $FORTRANFLAGS, $CPPFLAGS,
+_CPPDEFFLAGS, $_FORTRANMODFLAG, and $_FORTRANINCFLAGS
+construction variables are included on this command line.
 
 .IP FORTRANSUFFIXES
 The list of suffixes of files that will be scanned
 for Fortran implicit dependencies
-(INCLUDE lines).
+(INCLUDE lines & USE statements).
 The default list is:
 
 .ES
-[".f", ".F", ".for", ".FOR"]
+[".f", ".F", ".for", ".FOR", ".ftn", ".FTN", ".fpp", ".FPP",
+".f77", ".F77", ".f90", ".F90", ".f95", ".F95"]
 .EE
 
 .IP File
@@ -4553,16 +4933,16 @@ The default list is:
 The prefix used to specify an include directory on the C compiler command
 line.
 This will be appended to the beginning of each directory
-in the $CPPPATH and $F77PATH construction variables
-when the $_CPPINCFLAGS and $_F77INCFLAGS
+in the $CPPPATH and $FORTRANPATH construction variables
+when the $_CPPINCFLAGS and $_FORTRANINCFLAGS
 variables are automatically generated.
 
 .IP INCSUFFIX
 The suffix used to specify an include directory on the C compiler command
 line.
 This will be appended to the end of each directory
-in the $CPPPATH and $F77PATH construction variables
-when the $_CPPINCFLAGS and $_F77INCFLAGS
+in the $CPPPATH and $FORTRANPATH construction variables
+when the $_CPPINCFLAGS and $_FORTRANINCFLAGS
 variables are automatically generated.
 
 .IP INSTALL
@@ -5336,21 +5716,139 @@ See the
 construction variable for more information.
 
 .IP SHF77
-The Fortran compiler used for generating shared-library objects.
+The Fortran 77 compiler used for generating shared-library objects.
+You should normally set the $SHFORTRANC variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set $SHF77 if you need to use a specific compiler
+or compiler version for Fortran 77 files.
 
 .IP SHF77COM
-The command line used to compile a Fortran source file
+The command line used to compile a Fortran 77 source file
 to a shared-library object file.
+You only need to set $SHF77COM if you need to use a specific
+command line for Fortran 77 files.
+You should normally set the $SHFORTRANCOM variable,
+which specifies the default command line
+for all Fortran versions.
 
 .IP SHF77FLAGS
-Options that are passed to the Fortran compiler
+Options that are passed to the Fortran 77 compiler
 to generated shared-library objects.
+You only need to set $SHF77FLAGS if you need to define specific
+user options for Fortran 77 files.
+You should normally set the $SHFORTRANFLAGS variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
 
 .IP SHF77PPCOM
-The command line used to compile a Fortran source file to a
+The command line used to compile a Fortran 77 source file to a
 shared-library object file
 after first running the file through the C preprocessor.
 Any options specified in the $SHF77FLAGS and $CPPFLAGS construction variables
+are included on this command line.
+You only need to set $SHF77PPCOM if you need to use a specific
+C-preprocessor command line for Fortran 77 files.
+You should normally set the $SHFORTRANPPCOM variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+
+.IP SHF90
+The Fortran 90 compiler used for generating shared-library objects.
+You should normally set the $SHFORTRANC variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set $SHF90 if you need to use a specific compiler
+or compiler version for Fortran 90 files.
+
+.IP SHF90COM
+The command line used to compile a Fortran 90 source file
+to a shared-library object file.
+You only need to set $SHF90COM if you need to use a specific
+command line for Fortran 90 files.
+You should normally set the $SHFORTRANCOM variable,
+which specifies the default command line
+for all Fortran versions.
+
+.IP SHF90FLAGS
+Options that are passed to the Fortran 90 compiler
+to generated shared-library objects.
+You only need to set $SHF90FLAGS if you need to define specific
+user options for Fortran 90 files.
+You should normally set the $SHFORTRANFLAGS variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+
+.IP SHF90PPCOM
+The command line used to compile a Fortran 90 source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified in the $SHF90FLAGS and $CPPFLAGS construction variables
+are included on this command line.
+You only need to set $SHF90PPCOM if you need to use a specific
+C-preprocessor command line for Fortran 90 files.
+You should normally set the $SHFORTRANPPCOM variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+
+.IP SHF95
+The Fortran 95 compiler used for generating shared-library objects.
+You should normally set the $SHFORTRANC variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set $SHF95 if you need to use a specific compiler
+or compiler version for Fortran 95 files.
+
+.IP SHF95COM
+The command line used to compile a Fortran 95 source file
+to a shared-library object file.
+You only need to set $SHF95COM if you need to use a specific
+command line for Fortran 95 files.
+You should normally set the $SHFORTRANCOM variable,
+which specifies the default command line
+for all Fortran versions.
+
+.IP SHF95FLAGS
+Options that are passed to the Fortran 95 compiler
+to generated shared-library objects.
+You only need to set $SHF95FLAGS if you need to define specific
+user options for Fortran 95 files.
+You should normally set the $SHFORTRANFLAGS variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+
+.IP SHF95PPCOM
+The command line used to compile a Fortran 95 source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified in the $SHF95FLAGS and $CPPFLAGS construction variables
+are included on this command line.
+You only need to set $SHF95PPCOM if you need to use a specific
+C-preprocessor command line for Fortran 95 files.
+You should normally set the $SHFORTRANPPCOM variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+
+.IP SHFORTRAN
+The default Fortran compiler used for generating shared-library objects.
+
+.IP SHFORTRANCOM
+The command line used to compile a Fortran source file
+to a shared-library object file.
+
+.IP SHFORTRANFLAGS
+Options that are passed to the Fortran compiler
+to generate shared-library objects.
+
+.IP SHFORTRANPPCOM
+The command line used to compile a Fortran source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified
+in the $SHFORTRANFLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
 .IP SHLIBPREFIX

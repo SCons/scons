@@ -61,6 +61,7 @@ import string
 import SCons.Tool
 import SCons.Scanner.D
 import SCons.Builder
+import SCons.Defaults
 
 # Adapted from c++.py
 def isD(source):
@@ -86,6 +87,8 @@ def generate(env):
 
     static_obj.add_action('.d', '$DCOM')
     shared_obj.add_action('.d', '$DCOM')
+    static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
+    shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
 
     env['DC'] = 'dmd'
     env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -of$TARGET $SOURCES'

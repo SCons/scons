@@ -107,7 +107,7 @@ env = Environment(CPPFLAGS = '-x',
                   CC = r'%s mygcc.py cc',
                   CXX = r'%s mygcc.py c++',
                   CXXFLAGS = [],
-                  F77 = r'%s mygcc.py g77')
+                  FORTRAN = r'%s mygcc.py g77')
 env.Program(target = 'foo', source = Split('test1.c test2.cpp test3.F'))
 """ % (python, python, python, python))
 
@@ -144,7 +144,7 @@ env = Environment(CPPFLAGS = '-x',
                   CC = r'%s mygcc.py cc',
                   CXX = r'%s mygcc.py c++',
                   CXXFLAGS = [],
-                  F77 = r'%s mygcc.py g77')
+                  FORTRAN = r'%s mygcc.py g77')
 env.SharedLibrary(target = File('foo.bar'),
                   source = Split('test1.c test2.cpp test3.F'))
 """ % (python, python, python, python))

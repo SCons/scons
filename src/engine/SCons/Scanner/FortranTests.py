@@ -134,19 +134,90 @@ test.write([ 'repository', 'src', 'ccc.f'], """
 
 test.write([ 'repository', 'src', 'ddd.f'], "\n")
 
+
+test.write('fff90a.f90',"""
+      PROGRAM FOO
+
+!  Test comments - these includes should NOT be picked up
+C     INCLUDE 'fi.f'
+#     INCLUDE 'fi.f'
+  !   INCLUDE 'fi.f'
+
+      INCLUDE 'f1.f'  ! in-line comments are valid syntax
+      INCLUDE"fi.f"   ! space is significant - this should be ignored
+      INCLUDE  <f2.f>  ! Absoft compiler allows greater than/less than delimiters
+!
+!  Allow kind type parameters
+      INCLUDE kindType_"f3.f"
+      INCLUDE kind_Type_"f4.f"
+!
+!  Test multiple statements per line - use various spacings between semicolons
+      incLUDE 'f5.f';include "f6.f"  ;  include <f7.f>; include 'f8.f' ;include kindType_'f9.f'
+!
+!  Test various USE statement syntaxes
+!
+      USE Mod01
+      use mod02
+      use use
+      USE mOD03, ONLY : someVar
+      USE MOD04 ,only:someVar
+      USE Mod05 , ONLY: someVar ! in-line comment
+      USE Mod06,ONLY :someVar,someOtherVar
+
+      USE  mod07;USE  mod08; USE mod09 ;USE mod10 ; USE mod11  ! Test various semicolon placements
+      use mod12 ;use mod13! Test comment at end of line
+
+!     USE modi
+!     USE modia ; use modib    ! Scanner regexp will only ignore the first - this is a deficiency in the regexp
+    ! USE modic ; ! use modid  ! Scanner regexp should ignore both modules
+      USE mod14 !; USE modi    ! Only ignore the second
+      USE mod15!;USE modi
+      USE mod16  !  ;  USE  modi
+
+!  Test semicolon syntax - use various spacings
+      USE :: mod17
+      USE::mod18
+      USE ::mod19 ; USE:: mod20
+
+      use, non_intrinsic :: mod21, ONLY : someVar ; use,intrinsic:: mod22
+      USE, NON_INTRINSIC::mod23 ; USE ,INTRINSIC ::mod24
+
+USE mod25  ! Test USE statement at the beginning of line
+
+
+; USE modi   ! Scanner should ignore this since it isn't valid syntax
+      USEmodi   ! No space in between USE and module name - ignore it
+      USE mod01   ! This one is a duplicate - there should only be one dependency to it.
+
+      STOP
+      END
+""")
+
+modules = ['mod01.mod', 'mod02.mod', 'mod03.mod', 'mod04.mod', 'mod05.mod',
+           'mod06.mod', 'mod07.mod', 'mod08.mod', 'mod09.mod', 'mod10.mod',
+           'mod11.mod', 'mod12.mod', 'mod13.mod', 'mod14.mod', 'mod15.mod',
+           'mod16.mod', 'mod17.mod', 'mod18.mod', 'mod19.mod', 'mod20.mod',
+           'mod21.mod', 'mod22.mod', 'mod23.mod', 'mod24.mod', 'mod25.mod']
+
+for m in modules:
+    test.write(m, "\n")
+
+test.subdir('modules')
+test.write(['modules', 'use.mod'], "\n")
+
 # define some helpers:
 
 class DummyEnvironment:
     def __init__(self, listCppPath):
         self.path = listCppPath
-        
+
     def Dictionary(self, *args):
         if not args:
-            return { 'F77PATH': self.path }
-        elif len(args) == 1 and args[0] == 'F77PATH':
+            return { 'FORTRANPATH': self.path, 'FORTRANMODSUFFIX' : ".mod" }
+        elif len(args) == 1 and args[0] == 'FORTRANPATH':
             return self.path
         else:
-            raise KeyError, "Dummy environment only has F77PATH attribute."
+            raise KeyError, "Dummy environment only has FORTRANPATH attribute."
 
     def has_key(self, key):
         return self.Dictionary().has_key(key)
@@ -161,6 +232,8 @@ class DummyEnvironment:
         del self.Dictionary()[key]
 
     def subst(self, arg):
+        if arg[0] == '$':
+            return self[arg[1:]]
         return arg
 
     def subst_path(self, path):
@@ -274,7 +347,7 @@ class FortranScannerTestCase8(unittest.TestCase):
         headers =  ['d1/d2/f2.f', 'd1/f2.f', 'f2.f']
         deps_match(self, deps, map(test.workpath, headers))
         test.unlink('f2.f')
-        
+
 class FortranScannerTestCase9(unittest.TestCase):
     def runTest(self):
         test.write('f3.f', "\n")
@@ -290,11 +363,11 @@ class FortranScannerTestCase9(unittest.TestCase):
         setattr(n, 'rexists', my_rexists)
 
         deps = s(n, env, path)
-        
+
         # Make sure rexists() got called on the file node being
         # scanned, essential for cooperation with BuildDir functionality.
         assert n.rexists_called
-        
+
         headers =  ['d1/f3.f', 'f3.f']
         deps_match(self, deps, map(test.workpath, headers))
         test.unlink('f3.f')
@@ -334,7 +407,7 @@ class FortranScannerTestCase11(unittest.TestCase):
 
         # Did we catch the warning from not finding not_there.f?
         assert to.out
-        
+
         deps_match(self, deps, [ 'f5.f' ])
 
 class FortranScannerTestCase12(unittest.TestCase):
@@ -402,6 +475,42 @@ class FortranScannerTestCase15(unittest.TestCase):
         deps_match(self, deps, map(test.workpath, headers))
         test.write(['d1', 'f2.f'], "\n")
 
+class FortranScannerTestCase16(unittest.TestCase):
+    def runTest(self):
+        test.write('f1.f', "\n")
+        test.write('f2.f', "\n")
+        test.write('f3.f', "\n")
+        test.write('f4.f', "\n")
+        test.write('f5.f', "\n")
+        test.write('f6.f', "\n")
+        test.write('f7.f', "\n")
+        test.write('f8.f', "\n")
+        test.write('f9.f', "\n")
+        test.write('f10.f', "\n")
+        env = DummyEnvironment([test.workpath('modules')])
+        s = SCons.Scanner.Fortran.FortranScan()
+        path = s.path(env)
+        fs = SCons.Node.FS.FS(original)
+        deps = s(make_node('fff90a.f90', fs), env, path)
+        headers = ['f1.f', 'f2.f', 'f3.f', 'f4.f', 'f5.f', 'f6.f', 'f7.f', 'f8.f', 'f9.f']
+        modules = ['mod01.mod', 'mod02.mod', 'mod03.mod', 'mod04.mod', 'mod05.mod',
+                   'mod06.mod', 'mod07.mod', 'mod08.mod', 'mod09.mod', 'mod10.mod',
+                   'mod11.mod', 'mod12.mod', 'mod13.mod', 'mod14.mod', 'mod15.mod',
+                   'mod16.mod', 'mod17.mod', 'mod18.mod', 'mod19.mod', 'mod20.mod',
+                   'mod21.mod', 'mod22.mod', 'mod23.mod', 'mod24.mod', 'mod25.mod', 'modules/use.mod']
+        deps_expected = headers + modules
+        deps_match(self, deps, map(test.workpath, deps_expected))
+        test.unlink('f1.f')
+        test.unlink('f2.f')
+        test.unlink('f3.f')
+        test.unlink('f4.f')
+        test.unlink('f5.f')
+        test.unlink('f6.f')
+        test.unlink('f7.f')
+        test.unlink('f8.f')
+        test.unlink('f9.f')
+        test.unlink('f10.f')
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(FortranScannerTestCase1())
@@ -419,6 +528,7 @@ def suite():
     suite.addTest(FortranScannerTestCase13())
     suite.addTest(FortranScannerTestCase14())
     suite.addTest(FortranScannerTestCase15())
+    suite.addTest(FortranScannerTestCase16())
     return suite
 
 if __name__ == "__main__":

@@ -49,7 +49,6 @@ import SCons.Builder
 import SCons.Environment
 import SCons.Scanner.C
 import SCons.Scanner.D
-import SCons.Scanner.Fortran
 import SCons.Scanner.Prog
 import SCons.Sig
 
@@ -115,13 +114,6 @@ DSuffixes = ['.d']
 for suffix in DSuffixes:
     ObjSourceScan.add_scanner(suffix, DScan)
 
-FortranScan = SCons.Scanner.Fortran.FortranScan()
-
-FortranSuffixes = [".f", ".F", ".for", ".FOR"]
-
-for suffix in FortranSuffixes:
-    ObjSourceScan.add_scanner(suffix, FortranScan)
-
 IDLSuffixes = [".idl", ".IDL"]
 
 # cleanup
@@ -133,11 +125,6 @@ DAction = SCons.Action.Action("$DCOM")
 ShCAction = SCons.Action.Action("$SHCCCOM")
 CXXAction = SCons.Action.Action("$CXXCOM")
 ShCXXAction = SCons.Action.Action("$SHCXXCOM")
-
-F77Action = SCons.Action.Action("$F77COM")
-ShF77Action = SCons.Action.Action("$SHF77COM")
-F77PPAction = SCons.Action.Action("$F77PPCOM")
-ShF77PPAction = SCons.Action.Action("$SHF77PPCOM")
 
 ASAction = SCons.Action.Action("$ASCOM")
 ASPPAction = SCons.Action.Action("$ASPPCOM")
@@ -235,7 +222,7 @@ def _concat(prefix, list, suffix, env, f=lambda x: x):
     element in the list using the 'env' dictionary and then calling f
     on the list, and finally concatenating 'prefix' and 'suffix' onto
     each element of the list. A trailing space on 'prefix' or leading
-    space on 'suffix' will cause them to be put into seperate list
+    space on 'suffix' will cause them to be put into separate list
     elements rather than being concatenated."""
     
     if not list:
@@ -347,7 +334,6 @@ ConstructionEnvironment = {
     'SCANNERS'   : [],
     'CPPSUFFIXES': CSuffixes,
     'DSUFFIXES'  : DSuffixes,
-    'FORTRANSUFFIXES': FortranSuffixes,
     'IDLSUFFIXES': IDLSuffixes,
     'PDFPREFIX'  : '',
     'PDFSUFFIX'  : '.pdf',
@@ -361,7 +347,6 @@ ConstructionEnvironment = {
     '_LIBFLAGS'    : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
     '_LIBDIRFLAGS' : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs)} $)',
     '_CPPINCFLAGS' : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
-    '_F77INCFLAGS' : '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs)} $)',
     '_CPPDEFFLAGS' : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
     'TEMPFILE'     : NullCmdGenerator
     }
