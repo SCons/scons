@@ -49,11 +49,11 @@ Things to do to release a new X.Y version of SCons:
 
 		ae_p scons.0
 
-		aede {95}
+		aede {96}
 
-		aerpass {95}
+		aerpass {96}
 
-		aeib {95}
+		aeib {96}
 
 		aed
 
@@ -67,16 +67,16 @@ Things to do to release a new X.Y version of SCons:
 
 	START THE NEW BRANCH FOR RELEASE
 
-		aenbr -p scons.0 {96}
+		aenbr -p scons.0 {97}
 
-		aenc -p scons.0.{96}
+		aenc -p scons.0.{97}
 
                         Call it something like,
                         "Initialize the new branch for release."
                         Cause = internal_enhancement.
                         Exempt it from all tests (*_exempt = true).
 
-		ae_p scons.0.{96}
+		ae_p scons.0.{97}
 
 		aedb 100
 
@@ -154,28 +154,26 @@ Things to do to release a new X.Y version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.{96}-1.noarch.rpm
-		put scons-0.{96}-1.src.rpm
-		put scons-0.{96}.tar.gz
-		put scons-0.{96}.win32.exe
-		put scons-0.{96}.zip
-		put scons-local-0.{96}.tar.gz
-		put scons-local-0.{96}.zip
-		put scons-src-0.{96}.tar.gz
-		put scons-src-0.{96}.zip
-		put scons_0.{96}-1_all.deb
+		put scons-0.{97}-1.noarch.rpm
+		put scons-0.{97}-1.src.rpm
+		put scons-0.{97}.tar.gz
+		put scons-0.{97}.win32.exe
+		put scons-0.{97}.zip
+		put scons-local-0.{97}.tar.gz
+		put scons-local-0.{97}.zip
+		put scons-src-0.{97}.tar.gz
+		put scons-src-0.{97}.zip
+		put scons_0.{97}-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
-		Go to the Admin page
-
-		=> Edit/Add File Releases
+		Go to the File Release page
 
 		Package Name:  scons
 
 		=> Add Release
 
-		New release name:  0.{96}
+		New release name:  0.{97}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -192,12 +190,12 @@ Things to do to release a new X.Y version of SCons:
 
 		Edit the file info:
 
-			scons-0.{96}-1.noarch.rpm	Any	.rpm
-			scons-0.{96}-1.src.rpm		Any	Source .rpm
-			scons-0.{96}.tar.gz		Any	.gz
-			scons-0.{96}.win32.exe		i386	.exe (32-bit Windows)
-			scons-0.{96}.zip		Any	.zip
-			scons_0.{96}-1_all.deb		Any	.deb
+			scons-0.{97}-1.noarch.rpm	Any	.rpm
+			scons-0.{97}-1.src.rpm		Any	Source .rpm
+			scons-0.{97}.tar.gz		Any	.gz
+			scons-0.{97}.win32.exe		i386	.exe (32-bit Windows)
+			scons-0.{97}.zip		Any	.zip
+			scons_0.{97}-1_all.deb		Any	.deb
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -206,15 +204,13 @@ Things to do to release a new X.Y version of SCons:
 		Release Notice section.
 
 
-		Go to the Admin page
-
-		=> Edit/Add File Releases
+		Go to the File Release page
 
 		Package Name:  scons-local
 
 		=> Add Release
 
-		New release name:  0.{96}
+		New release name:  0.{97}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -231,8 +227,8 @@ Things to do to release a new X.Y version of SCons:
 
 		Edit the file info:
 
-			scons-local-0.{96}.tar.gz	Any	.gz
-			scons-local-0.{96}.zip   	Any	.zip
+			scons-local-0.{97}.tar.gz	Any	.gz
+			scons-local-0.{97}.zip   	Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -241,15 +237,13 @@ Things to do to release a new X.Y version of SCons:
 		Release Notice section.
 
 
-		Go to the Admin page
-
-		=> Edit/Add File Releases
+		Go to the File Release page
 
 		Package Name:  scons-src
 
 		=> Add Release
 
-		New release name:  0.{96}
+		New release name:  0.{97}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -266,8 +260,8 @@ Things to do to release a new X.Y version of SCons:
 
 		Edit the file info:
 
-			scons-src-0.{96}.tar.gz		Any	.gz
-			scons-src-0.{96}.zip   		Any	.zip
+			scons-src-0.{97}.tar.gz		Any	.gz
+			scons-src-0.{97}.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -276,7 +270,7 @@ Things to do to release a new X.Y version of SCons:
 		Release Notice section.
 
 
-	Hide release 0.{94} at the SourceForge download page:
+	Hide release 0.{95} at the SourceForge download page:
 
 		Go to the Admin page
 
@@ -286,7 +280,7 @@ Things to do to release a new X.Y version of SCons:
 
 		=> Edit Releases
 
-		Release Name: 0.{94}
+		Release Name: 0.{95}
 
 		=> Edit This Release
 
@@ -303,7 +297,7 @@ Things to do to release a new X.Y version of SCons:
 
 		=> Edit Releases
 
-		Release Name: 0.{94}
+		Release Name: 0.{95}
 
 		=> Edit This Release
 
@@ -320,7 +314,7 @@ Things to do to release a new X.Y version of SCons:
 
 		=> Edit Releases
 
-		Release Name: 0.{94}
+		Release Name: 0.{95}
 
 		=> Edit This Release
 
@@ -330,7 +324,7 @@ Things to do to release a new X.Y version of SCons:
 
 
 
-	In the Bugs Tracker, add a Group for the new release 0.{94}
+	In the Bugs Tracker, add a Group for the new release 0.{97}
 
 
 
@@ -345,7 +339,11 @@ Things to do to release a new X.Y version of SCons:
 
 		template:  new version number
 
-		src/index.in:  announcement on the home page
+                src/doc.py:  new version number
+
+                src/download.py:  new version number
+
+		src/index.py:  announcement on the home page
 
 		src/scons-doc.tar.gz:  update
 
@@ -439,23 +437,33 @@ Things to do to release a new X.Y version of SCons:
 Template describe-the-release section:
 
 IMPORTANT:  Release 0.95 contains the following interface changes:
+
   - XXX
 
   See the release notes for more information about these changes.
 
 This release adds the following features:
+
+  - XXX
+
+This release enhances the following existing features:
+
   - XXX
 
 The following fixes have been added:
+
   - XXX
 
 Performance has been improved as follows:
+
   - XXX
 
 The following changes have been made to the SCons packaging:
+
   - XXX
 
 The documentation has been improved:
+
   - XXX
 =======================
 Template scons-devel announcement:
