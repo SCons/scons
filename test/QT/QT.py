@@ -923,8 +923,20 @@ test.run(chdir='work12', arguments='-n noqtdir=1')
 # Consequently, we need to just wipe out its value as follows>
 os.environ['QTDIR'] = ''
 test.run(chdir='work12', stderr=None, arguments='-n noqtdir=1')
-test.fail_test(not test.match_re(test.stderr(), r"""
+
+moc = test.where_is('moc')
+if moc:
+    import os.path
+    expect = """
+scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
+File "SConstruct", line \d+, in \?
+""" % os.path.dirname(os.path.dirname(moc))
+else:
+    expect = """
 scons: warning: Could not detect qt, using empty QTDIR
-""" + TestSCons.file_expr))
+File "SConstruct", line \d+, in \?
+"""
+
+test.fail_test(not test.match_re(test.stderr(), expect))
 
 test.pass_test()

@@ -140,13 +140,23 @@ scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_
 File "SConstruct", line 1, in ?
 """
 
+moc = test.where_is('moc')
+if moc:
+    import os.path
+    qt_err = """
+scons: warning: Could not detect qt, using moc executable as a hint (QTDIR=%s)
+File "SConstruct", line 1, in ?
+""" % os.path.dirname(os.path.dirname(moc))
+else:
+    qt_err = """
+scons: warning: Could not detect qt, using empty QTDIR
+File "SConstruct", line 1, in ?
+"""
+
 error_output = {
     'icl' : intel_license_warning,
     'intelc' : intel_license_warning,
-    'qt' : """
-scons: warning: Could not detect qt, using empty QTDIR
-File "SConstruct", line 1, in ?
-""",
+    'qt' : qt_err,
 }
 
 # An SConstruct for importing Tool names that have illegal characters
@@ -176,7 +186,7 @@ for tool in tools:
     if stderr != '' and stderr != error_output.get(tool, ''):
         print "Failed importing '%s', stderr:" % tool
         print stderr
-        failures.append[tool]
+        failures.append(tool)
 
 test.fail_test(len(failures))
 
