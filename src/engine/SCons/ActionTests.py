@@ -8,7 +8,7 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
- 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
 #
@@ -33,10 +33,12 @@ def Func():
 import os
 import re
 import StringIO
+import string
 import sys
 import types
 import unittest
 import UserDict
+import UserString
 
 import SCons.Action
 import SCons.Environment
@@ -66,13 +68,13 @@ if os.environ.has_key( 'ACTPY_PIPE' ):
     if os.environ.has_key( 'PIPE_STDOUT_FILE' ):
          stdout_msg = open(os.environ['PIPE_STDOUT_FILE'], 'r').read()
     else:
-         stdout_msg = "act.py: stdout: executed act.py\\n"
+         stdout_msg = "act.py: stdout: executed act.py %s\\n" % string.join(sys.argv[1:])
     sys.stdout.write( stdout_msg )
     if os.environ.has_key( 'PIPE_STDERR_FILE' ):
          stderr_msg = open(os.environ['PIPE_STDERR_FILE'], 'r').read()
     else:
-         stderr_msg = "act.py: stderr: executed act.py\\n"
-    sys.stderr.write( stderr_msg ) 
+         stderr_msg = "act.py: stderr: executed act.py %s\\n" % string.join(sys.argv[1:])
+    sys.stderr.write( stderr_msg )
 sys.exit(0)
 """)
 
@@ -88,6 +90,32 @@ scons_env = SCons.Environment.Environment()
 # so it doesn't clutter the output.
 sys.stdout = StringIO.StringIO()
 
+class CmdStringHolder(UserString.UserString):
+    # Copped from SCons.Util
+    def __init__(self, cmd, literal=None):
+        UserString.UserString.__init__(self, cmd)
+        self.literal = literal
+
+    def is_literal(self):
+        return self.literal
+
+    def escape(self, escape_func):
+        """Escape the string with the supplied function.  The
+        function is expected to take an arbitrary string, then
+        return it with all special characters escaped and ready
+        for passing to the command interpreter.
+
+        After calling this function, the next call to str() will
+        return the escaped string.
+        """
+
+        if self.is_literal():
+            return escape_func(self.data)
+        elif ' ' in self.data or '\t' in self.data:
+            return '"%s"' % self.data
+        else:
+            return self.data
+
 class Environment:
     def __init__(self, **kw):
         self.d = {}
@@ -97,18 +125,70 @@ class Environment:
         self.d['ESCAPE'] = scons_env['ESCAPE']
         for k, v in kw.items():
             self.d[k] = v
-    def subst(self, s):
-        if not SCons.Util.is_String(s):
-            return s
+    def subst_dict(self, target, source):
+        dict = self.d.copy()
+        if not SCons.Util.is_List(target):
+            target = [target]
+        if not SCons.Util.is_List(source):
+            source = [source]
+        dict['TARGETS'] = target
+        dict['SOURCES'] = source
         try:
-            if s[0] == '$':
-                if s[1] == '{':
-                    return self.d.get(s[2:-1], '')
-                else:
-                    return self.d.get(s[1:], '')
+            dict['TARGET'] = target[0]
         except IndexError:
-            pass
-        return self.d.get(s, s)
+            dict['TARGET'] = ''
+        try:
+            dict['SOURCE'] = source[0]
+        except IndexError:
+            dict['SOURCE'] = ''
+        return dict
+    def subst(self, strSubst):
+        if not SCons.Util.is_String(strSubst):
+            return strSubst
+        try:
+            s0, s1 = strSubst[:2]
+        except (IndexError, ValueError):
+            return strSubst
+        if s0 == '$':
+            if s1 == '{':
+                return self.d.get(strSubst[2:-1], '')
+            else:
+                return self.d.get(strSubst[1:], '')
+        return strSubst
+    def subst_list(self, strSubst, raw=0, target=[], source=[]):
+        dict = self.subst_dict(target, source)
+        if SCons.Util.is_String(strSubst):
+            strSubst = string.split(strSubst)
+        elif not SCons.Util.is_List(strSubst):
+            return strSubst
+        result = []
+        for s in strSubst:
+            if SCons.Util.is_String(s):
+                try:
+                    s0, s1 = s[:2]
+                except (IndexError, ValueError):
+                    result.append(s)
+                else:
+                    if s0 == '$':
+                        if s1 == '{':
+                            s = eval(s[2:-1], {}, dict)
+                        else:
+                            s = dict.get(s[1:], '')
+                    if s:
+                        if not SCons.Util.is_List(s):
+                            s = [s]
+                        result.extend(s)
+            else:
+                result.append(s)
+        def l(obj):
+            try:
+                l = obj.is_literal
+            except AttributeError:
+                literal = None
+            else:
+                literal = l()
+            return CmdStringHolder(str(obj), literal)
+        return [map(l, result)]
     def __getitem__(self, item):
         return self.d[item]
     def __setitem__(self, item, value):
@@ -125,7 +205,7 @@ class Environment:
         res = Environment()
         res.d = SCons.Environment.our_deepcopy(self.d)
         for k, v in kw.items():
-            res.d[k] = v        
+            res.d[k] = v
         return res
     def sig_dict(self):
         d = {}
@@ -341,7 +421,7 @@ class ActionBaseTestCase(unittest.TestCase):
             pass
         else:
             assert 0, "Should have thrown a TypeError adding to an int."
-        
+
 class CommandActionTestCase(unittest.TestCase):
 
     def test_init(self):
@@ -353,7 +433,7 @@ class CommandActionTestCase(unittest.TestCase):
     def test_strfunction(self):
         """Test fetching the string representation of command Actions
         """
-            
+
         act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE')
         s = act.strfunction([], [], Environment())
         assert s == ['xyzzy'], s
@@ -391,7 +471,7 @@ class CommandActionTestCase(unittest.TestCase):
             env = self.env
         except AttributeError:
             env = Environment()
-            
+
         cmd1 = r'%s %s %s xyzzy' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd1)
@@ -427,17 +507,15 @@ class CommandActionTestCase(unittest.TestCase):
         cmd4 = r'%s %s %s ${SOURCES[:2]}' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd4)
-        r = act([],
-                source = [DummyNode('three'),
-                          DummyNode('four'),
-                          DummyNode('five')],
-                env = env.Copy())
+        sources = [DummyNode('three'), DummyNode('four'), DummyNode('five')]
+        env2 = env.Copy()
+        r = act([], source = sources, env = env2)
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'three' 'four'\n", c
 
         cmd5 = r'%s %s %s $TARGET XYZZY' % (python, act_py, outfile)
-        
+
         act = SCons.Action.CommandAction(cmd5)
         env5 = Environment()
         if scons_env.has_key('ENV'):
@@ -446,18 +524,18 @@ class CommandActionTestCase(unittest.TestCase):
         else:
             env5['ENV'] = {}
             PATH = ''
-        
+
         env5['ENV']['XYZZY'] = 'xyzzy'
         r = act(target = DummyNode('out5'), source = [], env = env5)
 
         act = SCons.Action.CommandAction(cmd5)
         r = act(target = DummyNode('out5'),
                 source = [],
-                env = env.Copy(ENV = {'XYZZY' : 'xyzzy',
+                env = env.Copy(ENV = {'XYZZY' : 'xyzzy5',
                                       'PATH' : PATH}))
         assert r == 0
         c = test.read(outfile, 'r')
-        assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy'\n", c
+        assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy5'\n", c
 
         class Obj:
             def __init__(self, str):
@@ -479,24 +557,6 @@ class CommandActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "act.py: '222' '111' '333' '444'\n", c
 
-        cmd7 = '%s %s %s one\n\n%s %s %s two' % (python, act_py, outfile,
-                                                 python, act_py, outfile)
-        expect7 = '%s %s %s one\n%s %s %s two\n' % (python, act_py, outfile,
-                                                    python, act_py, outfile)
-
-        act = SCons.Action.CommandAction(cmd7)
-
-        global show_string 
-        show_string = ""
-        def my_show(string):
-            global show_string
-            show_string = show_string + string + "\n"
-        act.show = my_show
-
-        r = act([], [], env.Copy())
-        assert r == 0
-        assert show_string == expect7, show_string
-
         if os.name == 'nt':
             # NT treats execs of directories and non-executable files
             # as "file not found" errors
@@ -510,7 +570,7 @@ class CommandActionTestCase(unittest.TestCase):
             expect_nonexecutable = 126
 
         # Test that a nonexistent command returns 127
-        act = SCons.Action.CommandAction(python + "_XyZzY_")
+        act = SCons.Action.CommandAction(python + "_no_such_command_")
         r = act([], [], env.Copy(out = outfile))
         assert r == expect_nonexistent, "r == %d" % r
 
@@ -544,8 +604,8 @@ class CommandActionTestCase(unittest.TestCase):
         # intermixed, so count the lines separately.
         outlines = re.findall(act_out, pipe_out)
         errlines = re.findall(act_err, pipe_out)
-        assert len(outlines) == 8, outlines
-        assert len(errlines) == 8, errlines
+        assert len(outlines) == 6, pipe_out + repr(outlines)
+        assert len(errlines) == 6, pipe_out + repr(errlines)
 
         # test redirection operators
         def test_redirect(self, redir, stdout_msg, stderr_msg):
@@ -613,20 +673,25 @@ class CommandActionTestCase(unittest.TestCase):
                 self.data = x
             def __str__(self):
                 return self.data
+            def escape(self, escape_func):
+                return escape_func(self.data)
             def is_literal(self):
                 return 1
 
         a = SCons.Action.CommandAction(["xyzzy"])
-        a([], [], Environment(SPAWN = func))
-        assert t.executed == [ 'xyzzy' ]
+        e = Environment(SPAWN = func)
+        a([], [], e)
+        assert t.executed == [ 'xyzzy' ], t.executed
 
         a = SCons.Action.CommandAction(["xyzzy"])
-        a([], [], Environment(SPAWN = func, SHELL = 'fake shell'))
-        assert t.executed == [ 'xyzzy' ]
-        assert t.shell == 'fake shell'
+        e = Environment(SPAWN = func, SHELL = 'fake shell')
+        a([], [], e)
+        assert t.executed == [ 'xyzzy' ], t.executed
+        assert t.shell == 'fake shell', t.shell
 
         a = SCons.Action.CommandAction([ LiteralStr("xyzzy") ])
-        a([], [], Environment(SPAWN = func, ESCAPE = escape_func))
+        e = Environment(SPAWN = func, ESCAPE = escape_func)
+        a([], [], e)
         assert t.executed == [ '**xyzzy**' ], t.executed
 
     def test_get_raw_contents(self):

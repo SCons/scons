@@ -116,7 +116,8 @@ def _do_create_action(act, strfunction=_null, varlist=[]):
             # like a function or a CommandGenerator in that variable
             # instead of a string.
             return CommandGeneratorAction(LazyCmdGenerator(var))
-        listCmds = map(lambda x: CommandAction(x), string.split(act, '\n'))
+        listCmds = map(lambda x: CommandAction(x),
+                       string.split(str(act), '\n'))
         if len(listCmds) == 1:
             return listCmds[0]
         else:
@@ -175,9 +176,7 @@ class CommandAction(ActionBase):
         self.cmd_list = cmd
 
     def strfunction(self, target, source, env):
-        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env,
-                                               SCons.Util.SUBST_CMD,
-                                               target, source)
+        cmd_list = env.subst_list(self.cmd_list, 0, target, source)
         return map(_string_from_cmd_list, cmd_list)
 
     def __call__(self, target, source, env):
@@ -221,9 +220,7 @@ class CommandAction(ActionBase):
             else:
                 raise SCons.Errors.UserError('Missing SPAWN construction variable.')
 
-        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env,
-                                               SCons.Util.SUBST_CMD,
-                                               target, source)
+        cmd_list = env.subst_list(self.cmd_list, 0, target, source)
         for cmd_line in cmd_list:
             if len(cmd_line):
                 if print_actions:
@@ -253,11 +250,10 @@ class CommandAction(ActionBase):
                             # and will produce something reasonable for
                             # just about everything else:
                             ENV[key] = str(value)
-                    
+
                     # Escape the command line for the command
                     # interpreter we are using
-                    map(lambda x, e=escape: x.escape(e), cmd_line)
-                    cmd_line = map(str, cmd_line)
+                    cmd_line = SCons.Util.escape_list(cmd_line, escape)
                     if pipe_build:
                         ret = pspawn( shell, escape, cmd_line[0], cmd_line,
                                       ENV, pstdout, pstderr )

@@ -101,9 +101,16 @@ else:
 
 class UtilTestCase(unittest.TestCase):
     def test_subst(self):
-        """Test the subst function"""
+        """Test the subst() function"""
         class MyNode(DummyNode):
             """Simple node work-alike with some extra stuff for testing."""
+            def __init__(self, name):
+                DummyNode.__init__(self, name)
+                class Attribute:
+                    pass
+                self.attribute = Attribute()
+                self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
+                self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
             def get_stuff(self, extra):
                 return self.name + extra
             foo = 1
@@ -174,9 +181,9 @@ class UtilTestCase(unittest.TestCase):
             'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
 
             # Test recursion.
-            #'RECURSE'   : 'foo $RECURSE bar',
-            #'RRR'       : 'foo $SSS bar',
-            #'SSS'       : '$RRR',
+            'RECURSE'   : 'foo $RECURSE bar',
+            'RRR'       : 'foo $SSS bar',
+            'SSS'       : '$RRR',
         }
 
         env = DummyEnv(loc)
@@ -232,6 +239,19 @@ class UtilTestCase(unittest.TestCase):
             "test ${SOURCES[0:2].get_stuff('blah')}",
             "test foo/blah.cppblah /bar/ack.cppblah",
 
+            "test ${SOURCES.attribute.attr1}",
+            "test attr$1-blah.cpp attr$1-ack.cpp attr$1-ack.c",
+
+            "test ${SOURCES.attribute.attr2}",
+            "test attr$2-blah.cpp attr$2-ack.cpp attr$2-ack.c",
+
+            # Test adjacent expansions.
+            "foo$BAR",
+            "foobaz",
+
+            "foo${BAR}",
+            "foobaz",
+
             # Test that adjacent expansions don't get re-interpreted
             # together.  The correct disambiguated expansion should be:
             #   $XXX$HHH => ${FFF}III => GGGIII
@@ -260,7 +280,7 @@ class UtilTestCase(unittest.TestCase):
             '$N',                   '',
             '$X',                   'x',
             '$Y',                   'x',
-            #'$R',                   '',
+            '$R',                   '',
             '$S',                   'x y',
             '$LS',                  'x y',
             '$L',                   'x y',
@@ -279,7 +299,6 @@ class UtilTestCase(unittest.TestCase):
         while cases:
             input, expect = cases[:2]
             expect = cvt(expect)
-            #print "    " + input
             result = apply(scons_subst, (input, env), kwargs)
             if result != expect:
                 if failed == 0: print
@@ -310,15 +329,15 @@ class UtilTestCase(unittest.TestCase):
                 "a aA b",
                 "a aA b",
 
-            #"$RECURSE",
-            #   "foo  bar",
-            #   "foo bar",
-            #   "foo bar",
+            "$RECURSE",
+               "foo  bar",
+               "foo bar",
+               "foo bar",
 
-            #"$RRR",
-            #   "foo  bar",
-            #   "foo bar",
-            #   "foo bar",
+            "$RRR",
+               "foo  bar",
+               "foo bar",
+               "foo bar",
         ]
 
         failed = 0
@@ -358,12 +377,22 @@ class UtilTestCase(unittest.TestCase):
 
     def test_subst_list(self):
         """Testing the scons_subst_list() method..."""
-        target = [ DummyNode("./foo/bar.exe"),
-                   DummyNode("/bar/baz with spaces.obj"),
-                   DummyNode("../foo/baz.obj") ]
-        source = [ DummyNode("./foo/blah with spaces.cpp"),
-                   DummyNode("/bar/ack.cpp"),
-                   DummyNode("../foo/ack.c") ]
+        class MyNode(DummyNode):
+            """Simple node work-alike with some extra stuff for testing."""
+            def __init__(self, name):
+                DummyNode.__init__(self, name)
+                class Attribute:
+                    pass
+                self.attribute = Attribute()
+                self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
+                self.attribute.attr2 = 'attr$2-' + os.path.basename(name)
+
+        target = [ MyNode("./foo/bar.exe"),
+                   MyNode("/bar/baz with spaces.obj"),
+                   MyNode("../foo/baz.obj") ]
+        source = [ MyNode("./foo/blah with spaces.cpp"),
+                   MyNode("/bar/ack.cpp"),
+                   MyNode("../foo/ack.c") ]
 
         loc = {
             'xxx'       : None,
@@ -405,6 +434,11 @@ class UtilTestCase(unittest.TestCase):
             'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
             'FUNC1'     : lambda x: x,
             'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
+
+            # Test recursion.
+            'RECURSE'   : 'foo $RECURSE bar',
+            'RRR'       : 'foo $SSS bar',
+            'SSS'       : '$RRR',
         }
 
         env = DummyEnv(loc)
@@ -425,6 +459,26 @@ class UtilTestCase(unittest.TestCase):
             [
                 ["foo/blah with spaces.cpp", "/bar/ack.cpp", "../foo/ack.cbefore"],
                 ["after"],
+            ],
+
+            "foo$FFF",
+            [
+                ["fooGGG"],
+            ],
+
+            "foo${FFF}",
+            [
+                ["fooGGG"],
+            ],
+
+            "test ${SOURCES.attribute.attr1}",
+            [
+                ["test", "attr$1-blah with spaces.cpp", "attr$1-ack.cpp", "attr$1-ack.c"],
+            ],
+
+            "test ${SOURCES.attribute.attr2}",
+            [
+                ["test", "attr$2-blah with spaces.cpp", "attr$2-ack.cpp", "attr$2-ack.c"],
             ],
 
             "$DO --in=$FOO --out=$BAR",
@@ -459,7 +513,7 @@ class UtilTestCase(unittest.TestCase):
 
             # Test various combinations of strings, lists and functions.
             None,                   [[]],
-            #[None],                 [[]],
+            [None],                 [[]],
             '',                     [[]],
             [''],                   [[]],
             'x',                    [['x']],
@@ -481,17 +535,23 @@ class UtilTestCase(unittest.TestCase):
             ['$LS'],                [['x y']],
             '$L',                   [['x', 'y']],
             ['$L'],                 [['x', 'y']],
-            #cs,                     [['cs']],
-            #[cs],                   [['cs']],
-            #cl,                     [['cl']],
-            #[cl],                   [['cl']],
+            cs,                     [['cs']],
+            [cs],                   [['cs']],
+            cl,                     [['cl']],
+            [cl],                   [['cl']],
             '$CS',                  [['cs']],
             ['$CS'],                [['cs']],
             '$CL',                  [['cl']],
             ['$CL'],                [['cl']],
 
-            # Test 
+            # Test function calls within ${}.
             '$FUNCCALL',            [['a', 'xc', 'b']],
+
+            # Test handling of newlines in white space.
+            'foo\nbar',             [['foo'], ['bar']],
+            'foo\n\nbar',           [['foo'], ['bar']],
+            'foo \n \n bar',        [['foo'], ['bar']],
+            'foo \nmiddle\n bar',   [['foo'], ['middle'], ['bar']],
         ]
 
         kwargs = {'target' : target, 'source' : source}
@@ -523,14 +583,68 @@ class UtilTestCase(unittest.TestCase):
                              'foo\nwith\nnewlines',
                              'bar\nwith\nnewlines',
                              'xyz']], cmd_list
-        cmd_list[0][0].escape(escape_func)
-        assert cmd_list[0][0] == 'abc', c
-        cmd_list[0][1].escape(escape_func)
-        assert cmd_list[0][1] == '**foo\nwith\nnewlines**', c
-        cmd_list[0][2].escape(escape_func)
-        assert cmd_list[0][2] == '**bar\nwith\nnewlines**', c
-        cmd_list[0][3].escape(escape_func)
-        assert cmd_list[0][3] == 'xyz', c
+        c = cmd_list[0][0].escape(escape_func)
+        assert c == 'abc', c
+        c = cmd_list[0][1].escape(escape_func)
+        assert c == '**foo\nwith\nnewlines**', c
+        c = cmd_list[0][2].escape(escape_func)
+        assert c == '**bar\nwith\nnewlines**', c
+        c = cmd_list[0][3].escape(escape_func)
+        assert c == 'xyz', c
+
+        # Tests of the various SUBST_* modes of substitution.
+        subst_list_cases = [
+            "test $xxx",
+                [["test"]],
+                [["test"]],
+                [["test"]],
+
+            "test $($xxx$)",
+                [["test", "$($)"]],
+                [["test"]],
+                [["test"]],
+
+            "test $( $xxx $)",
+                [["test", "$(", "$)"]],
+                [["test"]],
+                [["test"]],
+
+            "$AAA ${AAA}A $BBBB $BBB",
+                [["a", "aA", "b"]],
+                [["a", "aA", "b"]],
+                [["a", "aA", "b"]],
+
+            "$RECURSE",
+               [["foo", "bar"]],
+               [["foo", "bar"]],
+               [["foo", "bar"]],
+
+            "$RRR",
+               [["foo", "bar"]],
+               [["foo", "bar"]],
+               [["foo", "bar"]],
+        ]
+
+        failed = 0
+        while subst_list_cases:
+            input, eraw, ecmd, esig = subst_list_cases[:4]
+            result = scons_subst_list(input, env, mode=SUBST_RAW)
+            if result != eraw:
+                if failed == 0: print
+                print "    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw))
+                failed = failed + 1
+            result = scons_subst_list(input, env, mode=SUBST_CMD)
+            if result != ecmd:
+                if failed == 0: print
+                print "    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd))
+                failed = failed + 1
+            result = scons_subst_list(input, env, mode=SUBST_SIG)
+            if result != esig:
+                if failed == 0: print
+                print "    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig))
+                failed = failed + 1
+            del subst_list_cases[:4]
+        assert failed == 0, "%d subst() mode cases failed" % failed
 
     def test_splitext(self):
         assert splitext('foo') == ('foo','')
@@ -809,8 +923,7 @@ class UtilTestCase(unittest.TestCase):
             return '**' + cmd + '**'
 
         cmd_list = scons_subst_list(input_list, dummy_env)
-        map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
-        cmd_list = map(str, cmd_list[0])
+        cmd_list = SCons.Util.escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
     def test_SpecialAttrWrapper(self):
@@ -822,13 +935,11 @@ class UtilTestCase(unittest.TestCase):
             return '**' + cmd + '**'
 
         cmd_list = scons_subst_list(input_list, dummy_env)
-        map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
-        cmd_list = map(str, cmd_list[0])
+        cmd_list = SCons.Util.escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
         cmd_list = scons_subst_list(input_list, dummy_env, mode=SUBST_SIG)
-        map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
-        cmd_list = map(str, cmd_list[0])
+        cmd_list = SCons.Util.escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
 
     def test_mapPaths(self):
@@ -1057,7 +1168,7 @@ class UtilTestCase(unittest.TestCase):
         r = adjustixes('pre-file.xxx', 'pre-', '-suf')
         assert r == 'pre-file.xxx', r
         r = adjustixes('dir/file', 'pre-', '-suf')
-        assert r == 'dir/pre-file-suf', r
+        assert r == os.path.join('dir', 'pre-file-suf'), r
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
