@@ -1,3 +1,5 @@
+REM __COPYRIGHT__
+REM __FILE__ __REVISION__ __DATE__ __DEVELOPER__
 @echo off
 if "%OS%" == "Windows_NT" goto WinNT
 REM for 9x/Me you better not have more than 9 args

@@ -1,3 +1,5 @@
+__COPYRIGHT__
+
 Steps for adding a new script/utility to the SCons packages.  Assume
 that you're creating a new man page, too.  In the template steps
 below, "newscript" is the name of the new script/utility being added.

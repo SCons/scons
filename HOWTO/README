@@ -1,3 +1,5 @@
+__COPYRIGHT__
+
 Here you'll find plain text documentation of how to handle various SCons
 project procedures.  Files contained herein:
 
@@ -6,5 +8,22 @@ change.txt
         distributing aedist change sets, and updating the CVS repository
         on SourceForge.
 
+new-platform.txt
+        Steps to add a new Platform/*.py file.  This is probably out
+        of date.
+
+new-script.txt
+        Steps to add a new script or utility (like scons and sconsign)
+        to what we ship.
+
+new-tool.txt
+        Steps to add a new Tool/*.py file.  This is probably out of date.
+
 release.txt
 	Steps to go through when releasing a new version of SCons.
+
+subrelease.txt
+	Steps to go through when releasing a new subsidiary version
+	of SCons--for example, 0.95.1 after we've released 0.95.
+	So far, we've only done this to get some early testing on major
+	refactorings.

@@ -1,3 +1,5 @@
+__COPYRIGHT__
+
 Adding a new Tool to the SCons distribution:
 
     --  Add the following files (aenf):
