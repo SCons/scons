@@ -8835,7 +8835,7 @@ that
 env = Environment(TMPBUILD = '/tmp/builddir')
 env.Command('foo.out', 'foo.in',
             [Mkdir('$TMPBUILD'),
-             Copy('${SOURCE.dir}', '$TMPBUILD')
+             Copy('$TMPBUILD', '${SOURCE.dir}')
              "cd $TMPBUILD && make",
              Delete('$TMPBUILD')])
 .EE

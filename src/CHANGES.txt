@@ -272,6 +272,10 @@ RELEASE 0.97 - XXX
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
     $CCFLAGS, and -mwindows to $LINKFLAGS.
 
+  From Sanjoy Mahajan:
+
+  - Fix a bad use of Copy() in an example in the man page.
+
   From Michael McCracken:
 
   - Add a new "applelink" tool to handle the things like Frameworks and
