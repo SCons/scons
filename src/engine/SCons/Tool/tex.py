@@ -78,11 +78,12 @@ def TeXLaTeXAction(target = None, source= None, env=None):
     """A builder for TeX and LaTeX that scans the source file to
     decide the "flavor" of the source and then executes the appropriate
     program."""
-    LaTeXFile = False
+    LaTeXFile = None
     for src in source:
 	content = src.get_contents()
         if re.search("\\\\document(style|class)",content):
-	   LaTeXFile = True
+	   LaTeXFile = 1
+           break
     if LaTeXFile:
 	LaTeXAuxAction(target,source,env)
     else:

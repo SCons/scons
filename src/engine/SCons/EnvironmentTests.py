@@ -1357,7 +1357,7 @@ class EnvironmentTestCase(unittest.TestCase):
             def __init__(self):
                 self.list = []
             def Repository(self, *dirs):
-                self.list.extend(dirs)
+                self.list.extend(list(dirs))
             def Dir(self, name):
                 return name
         env = Environment(FOO='rrr', BAR='sss')
