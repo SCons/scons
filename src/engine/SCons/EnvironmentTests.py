@@ -2159,9 +2159,6 @@ f5: \
         # Configure() will write to a local temporary file.
         test = TestCmd.TestCmd(workdir = '')
         save = os.getcwd()
-        # Configure() will test, if we are reading a SConscript file
-        import SCons.Script.SConscript
-        SCons.Script.SConscript.sconscript_reading = 1
 
         try:
             os.chdir(test.workpath())

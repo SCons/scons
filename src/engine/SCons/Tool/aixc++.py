@@ -36,7 +36,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 
 import SCons.Platform.aix
-import SCons.Script.SConscript
 
 cplusplus = __import__('c++', globals(), locals(), [])
 
@@ -48,7 +47,7 @@ def get_xlc(env):
     return SCons.Platform.aix.get_xlc(env, xlc, xlc_r, packages)
 
 def smart_cxxflags(source, target, env, for_signature):
-    build_dir = SCons.Script.SConscript.GetBuildPath()
+    build_dir = env.GetBuildPath()
     if build_dir:
         return '-qtempinc=' + os.path.join(build_dir, 'tempinc')
     return ''

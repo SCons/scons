@@ -1188,7 +1188,7 @@ class Base(SubstitutionEnvironment):
         if args:
             nargs = nargs + self.subst_list(args)[0]
         nkw = self.subst_kw(kw)
-        nkw['called_from_env_method'] = 1
+        nkw['_depth'] = kw.get('_depth', 0) + 1
         try:
             nkw['custom_tests'] = self.subst_kw(nkw['custom_tests'])
         except KeyError:

@@ -413,6 +413,12 @@ class SConsEnvironment(SCons.Environment.Base):
     # as global functions.
     #
 
+    def Configure(self, *args, **kw):
+        if not SCons.Script.SConscript.sconscript_reading:
+            raise SCons.Errors.UserError, "Calling Configure from Builders is not supported."
+        kw['_depth'] = kw.get('_depth', 0) + 1
+        return apply(SCons.Environment.Base.Configure, (self,)+args, kw)
+
     def Default(self, *targets):
         global DefaultCalled
         global DefaultTargets
@@ -526,6 +532,12 @@ SCons.Environment.Environment = SConsEnvironment
 
 def Options(files=None, args=Arguments):
     return SCons.Options.Options(files, args)
+
+def Configure(*args, **kw):
+    if not SCons.Script.SConscript.sconscript_reading:
+        raise SCons.Errors.UserError, "Calling Configure from Builders is not supported."
+    kw['_depth'] = 1
+    return apply(SCons.SConf.SConf, args, kw)
 
 #
 _DefaultEnvironmentProxy = None
@@ -646,7 +658,7 @@ def BuildDefaultGlobals():
         'Action'                : SCons.Action.Action,
         'BoolOption'            : SCons.Options.BoolOption,
         'Builder'               : SCons.Builder.Builder,
-        'Configure'             : SCons.SConf.SConf,
+        'Configure'             : Configure,
         'EnumOption'            : SCons.Options.EnumOption,
         'Environment'           : SCons.Environment.Environment,
         'ListOption'            : SCons.Options.ListOption,
