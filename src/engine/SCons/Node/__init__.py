@@ -417,16 +417,6 @@ class Node:
 
         return deps
 
-    def implicit_factory(self, path):
-        """
-        Turn a cache implicit dependency path into a node.
-        This is called so many times that doing caching
-        here is a significant performance boost.
-        __cacheable__
-        """
-        env = self.get_build_env()
-        return env.get_factory(self.builder.source_factory)(path)
-
     def get_scanner(self, env, kw={}):
         return env.get_scanner(self.scanner_key())
 
@@ -482,7 +472,8 @@ class Node:
         if implicit_cache and not implicit_deps_changed:
             implicit = self.get_stored_implicit()
             if implicit:
-                implicit = map(self.implicit_factory, implicit)
+                factory = build_env.get_factory(self.builder.source_factory)
+                implicit = map(factory, implicit)
                 self._add_child(self.implicit, self.implicit_dict, implicit)
                 calc = build_env.get_calculator()
                 if implicit_deps_unchanged or self.current(calc):
