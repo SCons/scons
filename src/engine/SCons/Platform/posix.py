@@ -40,6 +40,11 @@ import sys
 
 import SCons.Util
 
+exitvalmap = {
+    2 : 127,
+    13 : 126,
+}
+
 def escape(arg):
     "escape shell special characters"
     slash = '\\'

@@ -37,6 +37,7 @@ import os.path
 import string
 import sys
 import tempfile
+from SCons.Platform.posix import exitvalmap
 
 import SCons.Util
 

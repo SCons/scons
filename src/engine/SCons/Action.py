@@ -45,11 +45,6 @@ _null = _Null
 print_actions = 1;
 execute_actions = 1;
 
-exitvalmap = {
-    2 : 127,
-    13 : 126,
-}
-
 default_ENV = None
 
 def rfile(n):

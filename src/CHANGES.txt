@@ -88,6 +88,8 @@ RELEASE 0.14 - XXX
 
   - Support Import('*') to import everything that's been Export()ed.
 
+  - Fix an undefined exitvalmap on Win32 systems.
+
   From David Snopek:
 
   - Contribute the "Autoscons" code for Autoconf-like checking for
