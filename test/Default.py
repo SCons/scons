@@ -99,30 +99,57 @@ test.fail_test(test.read(test.workpath('four', 'bar.out')) != "four/bar.in\n")
 
 
 
-test.subdir('subdir')
+test.subdir('sub1')
 
 test.write('SConstruct', """
 B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = [B])
 env.B(target = 'xxx.out', source = 'xxx.in')
-SConscript('subdir/SConscript')
+SConscript('sub1/SConscript')
 """ % python)
 
 test.write('xxx.in', "xxx.in\n")
 
-test.write(['subdir', 'SConscript'], """
+test.write(['sub1', 'SConscript'], """
 B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = [B])
 env.B(target = 'xxx.out', source = 'xxx.in')
 Default('xxx.out')
 """ % python)
 
-test.write(['subdir', 'xxx.in'], "subdir/xxx.in\n")
+test.write(['sub1', 'xxx.in'], "sub1/xxx.in\n")
 
 test.run()	# no arguments, use the Default
 
 test.fail_test(os.path.exists(test.workpath('xxx.out')))
-test.fail_test(test.read(test.workpath('subdir', 'xxx.out')) != "subdir/xxx.in\n")
+test.fail_test(test.read(test.workpath('sub1', 'xxx.out')) != "sub1/xxx.in\n")
+
+
+
+test.subdir('sub2')
+
+test.write('SConstruct', """
+Default('sub2')
+B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = [B])
+env.B(target = 'xxx.out', source = 'xxx.in')
+SConscript('sub2/SConscript')
+""" % python)
+
+test.write('xxx.in', "xxx.in\n")
+
+test.write(['sub2', 'SConscript'], """
+B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = [B])
+env.B(target = 'xxx.out', source = 'xxx.in')
+""" % python)
+
+test.write(['sub2', 'xxx.in'], "sub2/xxx.in\n")
+
+test.run()	# no arguments, use the Default
+
+test.fail_test(os.path.exists(test.workpath('xxx.out')))
+test.fail_test(test.read(test.workpath('sub2', 'xxx.out')) != "sub2/xxx.in\n")
 
 
 

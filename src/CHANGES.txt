@@ -8,6 +8,14 @@
 
 
 
+RELEASE 0.04 - 
+
+  From Steven Knight:
+
+  - Fix using a directory as a Default().
+
+
+
 RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
 
   From Charles Crain:
