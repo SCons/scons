@@ -569,12 +569,10 @@ class Base(SubstitutionEnvironment):
         
     def get_scanner(self, skey):
         """Find the appropriate scanner given a key (usually a file suffix).
-        __cacheable__
         """
         sm = self._gsm()
-        if sm.has_key(skey):
-            return sm[skey]
-        return None
+        try: return sm[skey]
+        except (KeyError, TypeError): return None
 
     def _smd(self):
         "__reset_cache__"

@@ -708,6 +708,12 @@ class BaseTestCase(unittest.TestCase):
 
         suffixes = [".c", ".cc", ".cxx", ".m4", ".m5"]
 
+        env = Environment()
+        try: del env['SCANNERS']
+        except KeyError: pass
+        s = map(env.get_scanner, suffixes)
+        assert s == [None, None, None, None, None], s
+
         env = Environment(SCANNERS = [])
         s = map(env.get_scanner, suffixes)
         assert s == [None, None, None, None, None], s
