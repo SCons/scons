@@ -89,6 +89,7 @@ SCons/Tool/ifl.py
 SCons/Tool/ifort.py
 SCons/Tool/ilink.py
 SCons/Tool/ilink32.py
+SCons/Tool/intelc.py
 SCons/Tool/latex.py
 SCons/Tool/lex.py
 SCons/Tool/link.py
@@ -101,6 +102,8 @@ SCons/Tool/mslib.py
 SCons/Tool/mslink.py
 SCons/Tool/msvc.py
 SCons/Tool/msvs.py
+SCons/Tool/mwcc.py
+SCons/Tool/mwld.py
 SCons/Tool/nasm.py
 SCons/Tool/pdflatex.py
 SCons/Tool/pdftex.py

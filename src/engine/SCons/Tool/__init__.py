@@ -264,8 +264,8 @@ def tool_list(platform, env):
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
         linkers = ['mslink', 'gnulink', 'ilink', 'linkloc', 'ilink32' ]
-        c_compilers = ['msvc', 'mingw', 'gcc', 'icl', 'icc', 'cc', 'bcc32' ]
-        cxx_compilers = ['msvc', 'icc', 'g++', 'c++', 'bcc32' ]
+        c_compilers = ['msvc', 'mingw', 'gcc', 'intelc', 'icl', 'icc', 'cc', 'bcc32' ]
+        cxx_compilers = ['msvc', 'intelc', 'icc', 'g++', 'c++', 'bcc32' ]
         assemblers = ['masm', 'nasm', 'gas', '386asm' ]
         fortran_compilers = ['g77', 'ifl', 'cvf', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
@@ -312,8 +312,8 @@ def tool_list(platform, env):
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']
-        c_compilers = ['gcc', 'msvc', 'icc', 'cc']
-        cxx_compilers = ['g++', 'msvc', 'icc', 'c++']
+        c_compilers = ['gcc', 'msvc', 'intelc', 'icc', 'cc']
+        cxx_compilers = ['g++', 'msvc', 'intelc', 'icc', 'c++']
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['g77', 'ifort', 'ifl', 'fortran']
         ars = ['ar', 'mslib']
@@ -332,7 +332,7 @@ def tool_list(platform, env):
         ar = None
     else:
         # Don't use g++ if the C compiler has built-in C++ support:
-        if c_compiler in ('msvc', 'icc'):
+        if c_compiler in ('msvc', 'intelc', 'icc'):
             cxx_compiler = None
         else:
             cxx_compiler = FindTool(cxx_compilers, env) or cxx_compilers[0]
@@ -345,13 +345,15 @@ def tool_list(platform, env):
                                 'dmd',
                                 'dvipdf', 'dvips', 'gs',
                                 'jar', 'javac', 'javah',
-                                'latex', 'lex', 'm4', 'midl', 'msvs',
+                                'latex', 'lex',
+                                'm4', 'midl', 'msvs',
                                 'pdflatex', 'pdftex', 'Perforce',
                                 'RCS', 'rmic', 'rpcgen',
                                 'SCCS',
                                 # 'Subversion',
                                 'swig',
-                                'tar', 'tex', 'yacc', 'zip'],
+                                'tar', 'tex',
+                                'yacc', 'zip'],
                                env)
 
     tools = ([linker, c_compiler, cxx_compiler,

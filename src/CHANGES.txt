@@ -193,6 +193,11 @@ RELEASE 0.97 - XXX
   - Avoid copying __builtin__ values into a construction environment's
     dictionary when evaluating construction variables.
 
+  - Add a new cross-platform intelc.py Tool that can detect and configure
+    the Intel C++ v8 compiler on both Windows, where it's named icl,
+    and Linux, where it's named icc.  (Niall Douglas contributed an
+    early prototype of parts of this module.)
+
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
@@ -342,6 +347,11 @@ RELEASE 0.97 - XXX
 
   - Have the Qt Builder make uic-generated files dependent on the .ui.h
     file, if one exists.
+
+  From Russell Yanofsky:
+
+  - Add support for the Metrowerks Codewarrior compiler and linker
+    (mwcc and mwld).
 
 
 
