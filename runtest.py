@@ -344,7 +344,10 @@ elif all:
     keys.sort()
     tests = map(tdict.get, keys)
 elif testlistfile:
-    tests = map(Test, map(lambda x: x[:-1], open(testlistfile, 'r').readlines()))
+    tests = open(testlistfile, 'r').readlines()
+    tests = filter(lambda x: x[0] != '#', tests)
+    tests = map(lambda x: x[:-1], tests)
+    tests = map(Test, tests)
 else:
     sys.stderr.write("""\
 runtest.py:  No tests were specified on the command line.
