@@ -10,7 +10,11 @@
 #export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
-export DH_COMPAT=3
+# We expect this to be provided by the calling build script:
+export DH_COMPAT
+# Here's the previous/"normal" Debian value (?), but it breaks on a
+# converted Red Hat debhelper installation:
+#export DH_COMPAT=3
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS

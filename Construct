@@ -59,6 +59,10 @@ $jw = cons::whereis('jw');
 $dh_builddeb = cons::whereis('dh_builddeb');
 $fakeroot = cons::whereis('fakeroot');
 
+# My installation on Red Hat doesn't like any debhelper version
+# beyond 2, so let's use 2 as the default on any non-Debian build.
+$DH_COMPAT = (-f "/etc/debian_version") ? 3 : 2;
+
 #
 # Now grab the information that we "build" into the files (using sed).
 #
@@ -335,7 +339,7 @@ if ($dh_builddeb && $fakeroot){
 		  map("build/script/$_", @script_files),
 		  qq(rm -rf build/engine/build build/engine/dist
 		     rm -rf build/script/build build/script/dist
-		     fakeroot make -f debian/rules ENVOKED_BY_CONSTRUCT=1 binary
-		     env DH_COMPAT=3 dh_clean
+		     fakeroot make -f debian/rules DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary
+		     env DH_COMPAT=$DH_COMPAT dh_clean
     ));
 }
