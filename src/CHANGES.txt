@@ -28,6 +28,12 @@ RELEASE 0.XX - XXX
 
   - Add an "sconsign" script to print the contents of .sconsign files.
 
+  - Speed up maintaining the various lists of Node children by using
+    dictionaries to avoid "x in list" searches.
+
+  - Cache the computed list of Node children minus those being Ignored
+    so it's only calculated once.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

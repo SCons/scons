@@ -969,7 +969,11 @@ class Dir(Entry):
         else:
             return self.entries['..'].root()
 
-    def all_children(self, scan):
+    def children(self, scan=1):
+        return filter(lambda x, i=self.ignore: x not in i,
+                             self.all_children(scan))
+
+    def all_children(self, scan=1):
         keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
         kids = map(lambda x, s=self: s.entries[x], keys)
         def c(one, two):

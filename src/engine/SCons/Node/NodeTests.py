@@ -429,20 +429,23 @@ class NodeTestCase(unittest.TestCase):
         n1 = SCons.Node.Node()
         n1.builder_set(Builder())
         node.implicit = []
-        node._add_child(node.implicit, [n1])
+        node.implicit_dict = {}
+        node._add_child(node.implicit, node.implicit_dict, [n1])
 
         node.prepare()  # should not throw an exception
 
         n2 = SCons.Node.Node()
         n2.linked = 1
         node.implicit = []
-        node._add_child(node.implicit, [n2])
+        node.implicit_dict = {}
+        node._add_child(node.implicit, node.implicit_dict, [n2])
 
         node.prepare()  # should not throw an exception
 
         n3 = SCons.Node.Node()
         node.implicit = []
-        node._add_child(node.implicit, [n3])
+        node.implicit_dict = {}
+        node._add_child(node.implicit, node.implicit_dict, [n3])
 
         node.prepare()  # should not throw an exception
 
@@ -451,7 +454,8 @@ class NodeTestCase(unittest.TestCase):
                 return None
         n4 = MyNode()
         node.implicit = []
-        node._add_child(node.implicit, [n4]) 
+        node.implicit_dict = {}
+        node._add_child(node.implicit, node.implicit_dict, [n4]) 
         exc_caught = 0
         try:
             node.prepare()
@@ -650,8 +654,9 @@ class NodeTestCase(unittest.TestCase):
         node.add_source([n1, n2, n3])
         node.add_dependency([n4, n5, n6])
         node.implicit = []
-        node._add_child(node.implicit, [n7, n8, n9])
-        node._add_child(node.implicit, [n10, n11, n12])
+        node.implicit_dict = {}
+        node._add_child(node.implicit, node.implicit_dict, [n7, n8, n9])
+        node._add_child(node.implicit, node.implicit_dict, [n10, n11, n12])
         node.add_ignore([n2, n5, n8, n11])
 
         kids = node.children()
@@ -680,8 +685,9 @@ class NodeTestCase(unittest.TestCase):
         node.add_source([n1, n2, n3])
         node.add_dependency([n4, n5, n6])
         node.implicit = []
-        node._add_child(node.implicit, [n7, n8, n9])
-        node._add_child(node.implicit, [n10, n11, n12])
+        node.implicit_dict = {}
+        node._add_child(node.implicit, node.implicit_dict, [n7, n8, n9])
+        node._add_child(node.implicit, node.implicit_dict, [n10, n11, n12])
         node.add_ignore([n2, n5, n8, n11])
 
         kids = node.all_children()
@@ -717,10 +723,14 @@ class NodeTestCase(unittest.TestCase):
         n1.add_source([n2, n3])
 
         nw = SCons.Node.Walker(n1)
-        assert nw.next().name ==  "n2"
-        assert nw.next().name ==  "n3"
-        assert nw.next().name ==  "n1"
-        assert nw.next() == None
+        n = nw.next()
+        assert n.name ==  "n2", n.name
+        n = nw.next()
+        assert n.name ==  "n3", n.name
+        n = nw.next()
+        assert n.name ==  "n1", n.name
+        n = nw.next()
+        assert n == None, n
 
         n4 = MyNode("n4")
         n5 = MyNode("n5")

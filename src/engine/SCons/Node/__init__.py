@@ -95,10 +95,20 @@ class Node:
         # canonical example being a builder to fetch a file from a
         # source code system like CVS or Subversion).
 
+        # Each list of children that we maintain is accompanied by a
+        # dictionary used to look up quickly whether a node is already
+        # present in the list.  Empirical tests showed that it was
+        # fastest to maintain them as side-by-side Node attributes in
+        # this way, instead of wrapping up each list+dictionary pair in
+        # a class.  (Of course, we could always still do that in the
+        # future if we had a good reason to...).
         self.sources = []       # source files used to build node
+        self.sources_dict = {}
         self.depends = []       # explicit dependencies (from Depends)
-        self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
+        self.depends_dict = {}
         self.ignore = []        # dependencies to ignore
+        self.ignore_dict = {}
+        self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
         self.parents = {}
         self.wkids = None       # Kids yet to walk, when it's an array
         self.source_scanner = None      # implicit scanner from scanner map
@@ -349,6 +359,7 @@ class Node:
         if not self.implicit is None:
             return
         self.implicit = []
+        self.implicit_dict = {}
         if not self.has_builder():
             return
 
@@ -356,7 +367,7 @@ class Node:
             implicit = self.get_stored_implicit()
             if implicit is not None:
                 implicit = map(self.implicit_factory, implicit)
-                self._add_child(self.implicit, implicit)
+                self._add_child(self.implicit, self.implicit_dict, implicit)
                 calc = SCons.Sig.default_calc
                 if implicit_deps_unchanged or calc.current(self, calc.bsig(self)):
                     return
@@ -365,18 +376,21 @@ class Node:
                     # we need to recalculate the implicit deps,
                     # and the bsig:
                     self.implicit = []
+                    self.implicit_dict = {}
                     self.del_bsig()
 
         build_env = self.get_build_env()
 
         for child in self.children(scan=0):
             self._add_child(self.implicit,
+                            self.implicit_dict,
                             child.get_implicit_deps(build_env,
                                                     child.source_scanner,
                                                     self))
 
         # scan this node itself for implicit dependencies
         self._add_child(self.implicit,
+                        self.implicit_dict,
                         self.get_implicit_deps(build_env,
                                                self.target_scanner,
                                                self))
@@ -557,26 +571,33 @@ class Node:
 
     def add_dependency(self, depend):
         """Adds dependencies. The depend argument must be a list."""
-        self._add_child(self.depends, depend)
+        self._add_child(self.depends, self.depends_dict, depend)
 
     def add_ignore(self, depend):
         """Adds dependencies to ignore. The depend argument must be a list."""
-        self._add_child(self.ignore, depend)
+        self._add_child(self.ignore, self.ignore_dict, depend)
 
     def add_source(self, source):
         """Adds sources. The source argument must be a list."""
-        self._add_child(self.sources, source)
+        self._add_child(self.sources, self.sources_dict, source)
 
-    def _add_child(self, collection, child):
-        """Adds 'child' to 'collection'. The 'child' argument must be a list"""
+    def _add_child(self, collection, dict, child):
+        """Adds 'child' to 'collection', first checking 'dict' to see if
+        it's already present. The 'child' argument must be a list"""
         if type(child) is not type([]):
             raise TypeError("child must be a list")
-        child = filter(lambda x, s=collection: x not in s, child)
-        if child:
-            collection.extend(child)
-
+        added = None
         for c in child:
+            if not dict.has_key(c):
+                collection.append(c)
+                dict[c] = 1
+                added = 1
             c.parents[self] = 1
+        if added:
+            try:
+                delattr(self, '_children')
+            except AttributeError:
+                pass
 
     def add_wkid(self, wkid):
         """Add a node to the list of kids waiting to be evaluated"""
@@ -586,8 +607,15 @@ class Node:
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those
         that are ignored by this node."""
-        return filter(lambda x, i=self.ignore: x not in i,
-                      self.all_children(scan))
+        if scan:
+            self.scan()
+        try:
+            return self._children
+        except AttributeError:
+            c = filter(lambda x, i=self.ignore: x not in i,
+                              self.all_children(scan=0))
+            self._children = c
+            return c
 
     def all_children(self, scan=1):
         """Return a list of all the node's direct children."""
