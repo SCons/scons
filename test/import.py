@@ -75,6 +75,7 @@ tools = [
     'lex',
     'link',
     # Can't import 'linkloc' everywhere due to Windows registry dependency...
+    'm4',
     'masm',
     'midl',
     'mingw',

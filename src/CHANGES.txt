@@ -15,6 +15,10 @@ RELEASE 0.15 - XXX
   - Fix handling of library prefixes when the subdirectory matches
     the prefix.
 
+  From Timothee Bessett:
+
+  - Add an M4 Builder.
+
   From Charles Crain:
 
   - Use '.lnk' as the suffix on the temporary file for linking long

@@ -58,6 +58,7 @@
 ./SCons/Tool/latex.py
 ./SCons/Tool/lex.py
 ./SCons/Tool/link.py
+./SCons/Tool/m4.py
 ./SCons/Tool/masm.py
 ./SCons/Tool/midl.py
 ./SCons/Tool/mingw.py

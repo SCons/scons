@@ -228,7 +228,7 @@ def tool_list(platform, env):
     other_tools = FindAllTools(['BitKeeper', 'CVS',
                                 'dvipdf', 'dvips', 'gs',
                                 'jar', 'javac', 'javah',
-                                'latex', 'lex', 'midl', 'msvs',
+                                'latex', 'lex', 'm4', 'midl', 'msvs',
                                 'pdflatex', 'pdftex', 'Perforce',
                                 'RCS', 'rmic', 'SCCS',
                                 # 'Subversion',
