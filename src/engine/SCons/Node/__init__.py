@@ -208,7 +208,7 @@ class Node:
     def builder_set(self, builder):
         self.builder = builder
 
-    def has_builder(self):
+    def has_builder(self, fetch = 1):
         """Return whether this Node has a builder or not.
 
         In Boolean tests, this turns out to be a *lot* more efficient

@@ -37,9 +37,9 @@ test = TestSCons.TestSCons()
 cvs = test.where_is('cvs')
 if not cvs:
     print "Could not find CVS, skipping test(s)."
-    test.no_result(1)
+    test.pass_test(1)
 
-test.subdir('CVS', 'import', 'work1', 'work2', 'work3')
+test.subdir('CVS', 'import', ['import', 'sub'], 'work1', 'work2')
 
 # Set up the CVS repository.
 cvsroot = test.workpath('CVS')
@@ -50,6 +50,18 @@ test.run(program = cvs, arguments = 'init')
 test.write(['import', 'aaa.in'], "import/aaa.in\n")
 test.write(['import', 'bbb.in'], "import/bbb.in\n")
 test.write(['import', 'ccc.in'], "import/ccc.in\n")
+
+test.write(['import', 'sub', 'SConscript'], """\
+Import("env")
+env.Cat('ddd.out', 'ddd.in')
+env.Cat('eee.out', 'eee.in')
+env.Cat('fff.out', 'fff.in')
+env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
+""")
+
+test.write(['import', 'sub', 'ddd.in'], "import/sub/ddd.in\n")
+test.write(['import', 'sub', 'eee.in'], "import/sub/eee.in\n")
+test.write(['import', 'sub', 'fff.in'], "import/sub/fff.in\n")
 
 test.run(chdir = 'import',
          program = cvs,
@@ -71,23 +83,38 @@ env.Cat('bbb.out', 'foo/bbb.in')
 env.Cat('ccc.out', 'foo/ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 env.SourceCode('.', env.CVS(r'%s'))
+SConscript('foo/sub/SConscript', "env")
 """ % cvsroot)
 
 test.subdir(['work1', 'foo'])
 test.write(['work1', 'foo', 'bbb.in'], "work1/foo/bbb.in\n")
 
+test.subdir(['work1', 'foo', 'sub',])
+test.write(['work1', 'foo', 'sub', 'eee.in'], "work1/foo/sub/eee.in\n")
+
 test.run(chdir = 'work1',
          arguments = '.',
-         stdout = test.wrap_stdout("""\
+         stdout = test.wrap_stdout(read_str = """\
+cvs -Q -d %s co -p foo/sub/SConscript > foo/sub/SConscript
+""" % (cvsroot),
+                                   build_str = """\
 cvs -Q -d %s co -p foo/aaa.in > foo/aaa.in
 cat("aaa.out", "foo/aaa.in")
 cat("bbb.out", "foo/bbb.in")
 cvs -Q -d %s co -p foo/ccc.in > foo/ccc.in
 cat("ccc.out", "foo/ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-""" % (cvsroot, cvsroot)))
+cvs -Q -d %s co -p foo/sub/ddd.in > foo/sub/ddd.in
+cat("foo/sub/ddd.out", "foo/sub/ddd.in")
+cat("foo/sub/eee.out", "foo/sub/eee.in")
+cvs -Q -d %s co -p foo/sub/fff.in > foo/sub/fff.in
+cat("foo/sub/fff.out", "foo/sub/fff.in")
+cat("foo/sub/all", ["foo/sub/ddd.out", "foo/sub/eee.out", "foo/sub/fff.out"])
+""" % (cvsroot, cvsroot, cvsroot, cvsroot)))
 
 test.fail_test(test.read(['work1', 'all']) != "import/aaa.in\nwork1/foo/bbb.in\nimport/ccc.in\n")
+
+test.fail_test(test.read(['work1', 'foo', 'sub', 'all']) != "import/sub/ddd.in\nwork1/foo/sub/eee.in\nimport/sub/fff.in\n")
 
 # Test CVS checkouts when the module name is specified.
 test.write(['work2', 'SConstruct'], """
@@ -105,21 +132,36 @@ env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 env.SourceCode('.', env.CVS(r'%s', 'foo'))
+SConscript('sub/SConscript', "env")
 """ % cvsroot)
 
 test.write(['work2', 'bbb.in'], "work2/bbb.in\n")
 
+test.subdir(['work2', 'sub'])
+test.write(['work2', 'sub', 'eee.in'], "work2/sub/eee.in\n")
+
 test.run(chdir = 'work2',
          arguments = '.',
-         stdout = test.wrap_stdout("""\
+         stdout = test.wrap_stdout(read_str = """\
+cvs -q -d %s co -p foo/sub/SConscript > sub/SConscript
+""" % (cvsroot),
+                                   build_str = """\
 cvs -q -d %s co -p foo/aaa.in > aaa.in
 cat("aaa.out", "aaa.in")
 cat("bbb.out", "bbb.in")
 cvs -q -d %s co -p foo/ccc.in > ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-""" % (cvsroot, cvsroot)))
+cvs -q -d %s co -p foo/sub/ddd.in > sub/ddd.in
+cat("sub/ddd.out", "sub/ddd.in")
+cat("sub/eee.out", "sub/eee.in")
+cvs -q -d %s co -p foo/sub/fff.in > sub/fff.in
+cat("sub/fff.out", "sub/fff.in")
+cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
+""" % (cvsroot, cvsroot, cvsroot, cvsroot)))
 
 test.fail_test(test.read(['work2', 'all']) != "import/aaa.in\nwork2/bbb.in\nimport/ccc.in\n")
+
+test.fail_test(test.read(['work2', 'sub', 'all']) != "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n")
 
 test.pass_test()

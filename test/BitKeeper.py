@@ -37,7 +37,7 @@ test = TestSCons.TestSCons()
 bk = test.where_is('bk')
 if not bk:
     print "Could not find BitKeeper, skipping test(s)."
-    test.no_result(1)
+    test.pass_test(1)
 
 try:
     login = os.getlogin()
@@ -51,7 +51,7 @@ host = os.uname()[1]
 
 email = "%s@%s" % (login, host)
 
-test.subdir('BitKeeper', 'import', 'work1', 'work2', 'work3')
+test.subdir('BitKeeper', 'import', ['import', 'sub'], 'work1', 'work2')
 
 # Set up the BitKeeper repository.
 bkroot = test.workpath('BitKeeper')
@@ -80,6 +80,18 @@ test.write(['import', 'aaa.in'], "import/aaa.in\n")
 test.write(['import', 'bbb.in'], "import/bbb.in\n")
 test.write(['import', 'ccc.in'], "import/ccc.in\n")
 
+test.write(['import', 'sub', 'SConscript'], """\
+Import("env")
+env.Cat('ddd.out', 'ddd.in')
+env.Cat('eee.out', 'eee.in')
+env.Cat('fff.out', 'fff.in')
+env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
+""")
+
+test.write(['import', 'sub', 'ddd.in'], "import/sub/ddd.in\n")
+test.write(['import', 'sub', 'eee.in'], "import/sub/eee.in\n")
+test.write(['import', 'sub', 'fff.in'], "import/sub/fff.in\n")
+
 test.run(chdir = 'import',
          program = bk,
          arguments = 'import -q -f -tplain . %s/foo' % bkroot)
@@ -99,27 +111,45 @@ env.Cat('bbb.out', 'foo/bbb.in')
 env.Cat('ccc.out', 'foo/ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 env.SourceCode('.', env.BitKeeper(r'%s'))
+SConscript('foo/sub/SConscript', "env")
 """ % bkroot)
 
 test.subdir(['work1', 'foo'])
 test.write(['work1', 'foo', 'bbb.in'], "work1/foo/bbb.in\n")
 
+test.subdir(['work1', 'foo', 'sub'])
+test.write(['work1', 'foo', 'sub', 'eee.in'], "work1/foo/sub/eee.in\n")
+
 test.run(chdir = 'work1',
          arguments = '.',
-         stdout = test.wrap_stdout("""\
+         stdout = test.wrap_stdout(read_str = """\
+bk get -p %s/foo/sub/SConscript > foo/sub/SConscript
+""" % (bkroot),
+                                   build_str = """\
 bk get -p %s/foo/aaa.in > foo/aaa.in
 cat("aaa.out", "foo/aaa.in")
 cat("bbb.out", "foo/bbb.in")
 bk get -p %s/foo/ccc.in > foo/ccc.in
 cat("ccc.out", "foo/ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-""" % (bkroot, bkroot)),
+bk get -p %s/foo/sub/ddd.in > foo/sub/ddd.in
+cat("foo/sub/ddd.out", "foo/sub/ddd.in")
+cat("foo/sub/eee.out", "foo/sub/eee.in")
+bk get -p %s/foo/sub/fff.in > foo/sub/fff.in
+cat("foo/sub/fff.out", "foo/sub/fff.in")
+cat("foo/sub/all", ["foo/sub/ddd.out", "foo/sub/eee.out", "foo/sub/fff.out"])
+""" % (bkroot, bkroot, bkroot, bkroot)),
          stderr = """\
+%s/foo/sub/SConscript 1.1: 5 lines
 %s/foo/aaa.in 1.1: 1 lines
 %s/foo/ccc.in 1.1: 1 lines
-""" % (bkroot, bkroot))
+%s/foo/sub/ddd.in 1.1: 1 lines
+%s/foo/sub/fff.in 1.1: 1 lines
+""" % (bkroot, bkroot, bkroot, bkroot, bkroot))
 
 test.fail_test(test.read(['work1', 'all']) != "import/aaa.in\nwork1/foo/bbb.in\nimport/ccc.in\n")
+
+test.fail_test(test.read(['work1', 'foo', 'sub', 'all']) != "import/sub/ddd.in\nwork1/foo/sub/eee.in\nimport/sub/fff.in\n")
 
 # Test BitKeeper checkouts when the module name is specified.
 test.write(['work2', 'SConstruct'], """
@@ -137,21 +167,36 @@ env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 env.SourceCode('.', env.BitKeeper(r'%s', 'foo'))
+SConscript('sub/SConscript', "env")
 """ % bkroot)
 
 test.write(['work2', 'bbb.in'], "work2/bbb.in\n")
 
+test.subdir(['work2', 'sub'])
+test.write(['work2', 'sub', 'eee.in'], "work2/sub/eee.in\n")
+
 test.run(chdir = 'work2',
          arguments = '.',
-         stdout = test.wrap_stdout("""\
+         stdout = test.wrap_stdout(read_str = """\
+bk get -q -p %s/foo/sub/SConscript > sub/SConscript
+""" % (bkroot),
+                                   build_str = """\
 bk get -q -p %s/foo/aaa.in > aaa.in
 cat("aaa.out", "aaa.in")
 cat("bbb.out", "bbb.in")
 bk get -q -p %s/foo/ccc.in > ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-""" % (bkroot, bkroot)))
+bk get -q -p %s/foo/sub/ddd.in > sub/ddd.in
+cat("sub/ddd.out", "sub/ddd.in")
+cat("sub/eee.out", "sub/eee.in")
+bk get -q -p %s/foo/sub/fff.in > sub/fff.in
+cat("sub/fff.out", "sub/fff.in")
+cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
+""" % (bkroot, bkroot, bkroot, bkroot)))
 
 test.fail_test(test.read(['work2', 'all']) != "import/aaa.in\nwork2/bbb.in\nimport/ccc.in\n")
+
+test.fail_test(test.read(['work2', 'sub', 'all']) != "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n")
 
 test.pass_test()

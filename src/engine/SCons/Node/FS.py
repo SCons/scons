@@ -1016,7 +1016,7 @@ class File(Entry):
         if self.fs.CachePath and self.fs.cache_force and os.path.exists(self.path):
             CachePush(self, None, None)
 
-    def has_builder(self):
+    def has_builder(self, fetch = 1):
         """Return whether this Node has a builder or not.
 
         If this Node doesn't have an explicit builder, this is where we
@@ -1025,7 +1025,7 @@ class File(Entry):
         try:
             b = self.builder
         except AttributeError:
-            if not os.path.exists(self.path):
+            if fetch and not os.path.exists(self.path):
                 b = self.src_builder()
             else:
                 b = None

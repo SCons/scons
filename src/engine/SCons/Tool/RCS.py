@@ -48,7 +48,7 @@ def generate(env, platform):
     env['CO']       = 'co'
     env['RCS']      = 'rcs'
     env['RCSFLAGS'] = ''
-    env['RCSCOM']   = '$CO $RCSFLAGS -p $TARGET,v > $TARGET'
+    env['RCSCOM']   = '$CO $RCSFLAGS $TARGET'
 
 def exists(env):
     return env.Detect('rcs')

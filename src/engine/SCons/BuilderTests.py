@@ -140,7 +140,7 @@ class BuilderTestCase(unittest.TestCase):
                 return self.name
             def builder_set(self, builder):
                 self.builder = builder
-            def has_builder(self):
+            def has_builder(self, fetch=1):
                 return not self.builder is None
             def env_set(self, env, safe=0):
                 self.env = env

@@ -186,8 +186,21 @@ def SConscript(*ls, **kw):
                     f = fn
                 else:
                     f = SCons.Node.FS.default_fs.File(str(fn))
+                _file_ = None
                 if f.rexists():
                     _file_ = open(f.rstr(), "r")
+                elif f.has_builder():
+                    # The SConscript file apparently exists in a source
+                    # code management system.  Build it, but then remove
+                    # the builder so that it doesn't get built *again*
+                    # during the actual build phase.
+                    f.build()
+                    f.builder_set(None)
+                    s = str(f)
+                    if os.path.exists(s):
+                        _file_ = open(s, "r")
+
+                if _file_:
                     SCons.Node.FS.default_fs.chdir(f.dir)
                     if sconscript_chdir:
                         old_dir = os.getcwd()

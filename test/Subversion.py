@@ -35,14 +35,14 @@ test = TestSCons.TestSCons()
 svn = test.where_is('svn')
 if not svn:
     print "Could not find Subversion, skipping test(s)."
-    test.no_result(1)
+    test.pass_test(1)
 
 svnadmin = test.where_is('svnadmin')
 if not svn:
     print "Could not find Subversion, skipping test(s)."
-    test.no_result(1)
+    test.pass_test(1)
 
-test.subdir('Subversion', 'import', 'work1', 'work2', 'work3')
+test.subdir('Subversion', 'import', ['import', 'sub'], 'work1', 'work2')
 
 # Set up the Subversion repository.
 svnrootpath = test.workpath('Subversion')
@@ -53,6 +53,18 @@ test.run(program = svnadmin, arguments = 'create %s' % svnrootpath)
 test.write(['import', 'aaa.in'], "import/aaa.in\n")
 test.write(['import', 'bbb.in'], "import/bbb.in\n")
 test.write(['import', 'ccc.in'], "import/ccc.in\n")
+
+test.write(['import', 'sub', 'SConscript'], """\
+Import("env")
+env.Cat('ddd.out', 'ddd.in')
+env.Cat('eee.out', 'eee.in')
+env.Cat('fff.out', 'fff.in')
+env.Cat('all', ['ddd.out', 'eee.out', 'fff.out'])
+""")
+
+test.write(['import', 'sub', 'ddd.in'], "import/sub/ddd.in\n")
+test.write(['import', 'sub', 'eee.in'], "import/sub/eee.in\n")
+test.write(['import', 'sub', 'fff.in'], "import/sub/fff.in\n")
 
 test.run(chdir = 'import',
          program = svn,
@@ -73,23 +85,38 @@ env.Cat('bbb.out', 'foo/bbb.in')
 env.Cat('ccc.out', 'foo/ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 env.SourceCode('.', env.Subversion(r'%s'))
+SConscript('foo/sub/SConscript', "env")
 """ % svnrooturl)
 
 test.subdir(['work1', 'foo'])
 test.write(['work1', 'foo', 'bbb.in'], "work1/foo/bbb.in\n")
 
+test.subdir(['work1', 'foo', 'sub'])
+test.write(['work1', 'foo', 'sub', 'eee.in'], "work1/foo/sub/eee.in\n")
+
 test.run(chdir = 'work1',
          arguments = '.',
-         stdout = test.wrap_stdout("""\
+         stdout = test.wrap_stdout(read_str = """\
+svn cat %s/foo/sub/SConscript > foo/sub/SConscript
+""" % (svnrooturl),
+                                   build_str = """\
 svn cat %s/foo/aaa.in > foo/aaa.in
 cat("aaa.out", "foo/aaa.in")
 cat("bbb.out", "foo/bbb.in")
 svn cat %s/foo/ccc.in > foo/ccc.in
 cat("ccc.out", "foo/ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-""" % (svnrooturl, svnrooturl)))
+svn cat %s/foo/sub/ddd.in > foo/sub/ddd.in
+cat("foo/sub/ddd.out", "foo/sub/ddd.in")
+cat("foo/sub/eee.out", "foo/sub/eee.in")
+svn cat %s/foo/sub/fff.in > foo/sub/fff.in
+cat("foo/sub/fff.out", "foo/sub/fff.in")
+cat("foo/sub/all", ["foo/sub/ddd.out", "foo/sub/eee.out", "foo/sub/fff.out"])
+""" % (svnrooturl, svnrooturl, svnrooturl, svnrooturl)))
 
 test.fail_test(test.read(['work1', 'all']) != "import/aaa.in\nwork1/foo/bbb.in\nimport/ccc.in\n")
+
+test.fail_test(test.read(['work1', 'foo', 'sub', 'all']) != "import/sub/ddd.in\nwork1/foo/sub/eee.in\nimport/sub/fff.in\n")
 
 # Test Subversion checkouts when the module name is specified.
 test.write(['work2', 'SConstruct'], """
@@ -106,21 +133,36 @@ env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
 env.SourceCode('.', env.Subversion(r'%s', 'foo'))
+SConscript('sub/SConscript', "env")
 """ % svnrooturl)
 
 test.write(['work2', 'bbb.in'], "work2/bbb.in\n")
 
+test.subdir(['work2', 'sub'])
+test.write(['work2', 'sub', 'eee.in'], "work2/sub/eee.in\n")
+
 test.run(chdir = 'work2',
          arguments = '.',
-         stdout = test.wrap_stdout("""\
+         stdout = test.wrap_stdout(read_str = """\
+svn cat %s/foo/sub/SConscript > sub/SConscript
+""" % (svnrooturl),
+                                   build_str = """\
 svn cat %s/foo/aaa.in > aaa.in
 cat("aaa.out", "aaa.in")
 cat("bbb.out", "bbb.in")
 svn cat %s/foo/ccc.in > ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-""" % (svnrooturl, svnrooturl)))
+svn cat %s/foo/sub/ddd.in > sub/ddd.in
+cat("sub/ddd.out", "sub/ddd.in")
+cat("sub/eee.out", "sub/eee.in")
+svn cat %s/foo/sub/fff.in > sub/fff.in
+cat("sub/fff.out", "sub/fff.in")
+cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
+""" % (svnrooturl, svnrooturl, svnrooturl, svnrooturl)))
 
 test.fail_test(test.read(['work2', 'all']) != "import/aaa.in\nwork2/bbb.in\nimport/ccc.in\n")
+
+test.fail_test(test.read(['work2', 'sub', 'all']) != "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n")
 
 test.pass_test()

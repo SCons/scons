@@ -144,7 +144,7 @@ def _init_nodes(builder, env, overrides, tlist, slist):
     for t in tlist:
         if t.side_effect:
             raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
-        if t.has_builder():
+        if t.has_builder(fetch = 0):
             if t.env != env:
                 raise UserError, "Two different environments were specified for the same target: %s"%str(t)
             elif t.overrides != overrides:

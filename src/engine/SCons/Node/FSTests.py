@@ -1180,6 +1180,10 @@ class has_builderTestCase(unittest.TestCase):
         f1 = fs.File('f1', d)
         f2 = fs.File('f2', d)
         f3 = fs.File('f3', d)
+        f4 = fs.File('f4', d)
+        f5 = fs.File('f5', d)
+        f6 = fs.File('f6', d)
+        f7 = fs.File('f7', d)
 
         h = f1.has_builder()
         assert not h, h
@@ -1195,6 +1199,17 @@ class has_builderTestCase(unittest.TestCase):
         h = f3.has_builder()
         assert h, h
         assert f3.builder is b1, f3.builder
+
+        test.write(['sub', 'f4'], "sub/f4\n")
+        test.write(['sub', 'f6'], "sub/f6\n")
+        h = f4.has_builder(fetch = 0)
+        assert not h, h
+        h = f5.has_builder(fetch = 0)
+        assert not h, h
+        h = f6.has_builder(fetch = 1)
+        assert not h, h
+        h = f7.has_builder(fetch = 1)
+        assert h, h
 
 class prepareTestCase(unittest.TestCase):
     def runTest(self):
