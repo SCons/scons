@@ -8,7 +8,7 @@
 
 
 
-RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
+RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
 
   From Hartmut Goebel:
 
