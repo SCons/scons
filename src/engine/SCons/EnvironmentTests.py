@@ -544,6 +544,23 @@ class EnvironmentTestCase(unittest.TestCase):
         assert i.__class__.__name__ == 'File'
         assert i.path == 'dep.py'
 
+    def test_AlwaysBuild(self):
+        """Test the AlwaysBuild() method"""
+        env = Environment()
+        t = env.AlwaysBuild('a', 'b', ['c', 'd'])
+        assert t[0].__class__.__name__ == 'File'
+        assert t[0].path == 'a'
+        assert t[0].always_build
+        assert t[1].__class__.__name__ == 'File'
+        assert t[1].path == 'b'
+        assert t[1].always_build
+        assert t[2].__class__.__name__ == 'File'
+        assert t[2].path == 'c'
+        assert t[2].always_build
+        assert t[3].__class__.__name__ == 'File'
+        assert t[3].path == 'd'
+        assert t[3].always_build
+
     def test_Precious(self):
         """Test the Precious() method."""
         env = Environment()
@@ -877,6 +894,16 @@ class EnvironmentTestCase(unittest.TestCase):
         assert x is None, x
         x = env.get('bbb', 'XXX')
         assert x == 'XXX', x
+
+    def test_concat(self):
+        "Test _concat()"
+        e1 = Environment(PRE='pre', SUF='suf', STR='a b', LIST=['a', 'b'])
+        s = e1.subst
+        assert s("${_concat('', '', '', __env__)}") == ''
+        assert s("${_concat('', [], '', __env__)}") == ''
+        assert s("${_concat(PRE, '', SUF, __env__)}") == ''
+        assert s("${_concat(PRE, STR, SUF, __env__)}") == 'prea bsuf'
+        assert s("${_concat(PRE, LIST, SUF, __env__)}") == 'preasuf prebsuf'
 
     def test_FindIxes(self):
         "Test FindIxes()"

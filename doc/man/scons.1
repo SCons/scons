@@ -1831,6 +1831,14 @@ and
 USERNAME.
 
 .TP
+.RI AlwaysBuild( target ", ...)"
+Marks each given
+.I target
+so that it will always be rebuilt.
+Multiple targets can be passed in to a single call to
+.BR AlwaysBuild ().
+
+.TP
 .RI Precious( target ", ...)"
 Marks each given
 .I target
@@ -2176,15 +2184,14 @@ SCons also treats
 as C files.
 
 .IP _concat
-A function used to produce variables like $_CPPINCFLAGS. It takes six
-arguments: a prefix to concatenate onto each element, a list of elements, a
-suffix to concatenate onto each element, a dictionary of global variables
-for variable interpolation, a list of local variables for variable
-interpolation, and an optional function that will be called to transform the list
-before concatenation.
+A function used to produce variables like $_CPPINCFLAGS. It takes five
+arguments: a prefix to concatenate onto each element, a list of
+elements, a suffix to concatenate onto each element, an environment
+for variable interpolation, and an optional function that will be
+called to transform the list before concatenation.
 
 .ES
-env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, locals(), globals(), RDirs)} $)',
+env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
 .EE
 
 .IP CPPFLAGS

@@ -10,6 +10,10 @@
 
 RELEASE 0.15 - XXX
 
+  From Chad Austin:
+
+  - Fix the _concat() documentation, and add a test for it.
+
   From Matt Balvin:
 
   - Fix handling of library prefixes when the subdirectory matches
