@@ -1905,6 +1905,43 @@ Note the use of the Export() method
 to set the "ccflags" variable to a different
 value for each variant build.
 
+.SS Hierarchical Build of Two Libraries Linked With a Program
+
+.ES
+SConstruct:
+
+    env = Environment(LIBPATH = ['#libA', '#libB'])
+    Export('env')
+    SConscript('libA/SConscript')
+    SConscript('libB/SConscript')
+    SConscript('Main/SConscript')
+
+libA/SConscript:
+
+    Import('env')
+    env.Library('a', 'a1.c a2.c a3.c')
+
+libB/SConscript:                                                  
+    Import('env')
+    env.Library('b', 'b1.c b2.c b3.c')
+
+Main/SConscript:
+
+    Import('env')
+    e = env.Copy(LIBS = ['a', ','b'])
+    e.Program('foo', 'm1.c m2.c m3.c')
+.EE
+
+The '#' in the LIBPATH directories specify that they're relative to the
+top-level directory, so they don't turn into "Main/libA" when they're
+used in Main/SConscript.
+
+Specifying only 'a' and 'b' for the library names
+allows SCons to append the appropriate library
+prefix and suffix for the current platform
+(for example, 'liba.a' on POSIX systems,
+'a.lib' on Windows).
+
 .SH ENVIRONMENT
 
 .IP SCONS_LIB_DIR
