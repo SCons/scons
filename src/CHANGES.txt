@@ -15,6 +15,11 @@ RELEASE 0.97 - XXX
   - Allow Help() to be called multiple times, appending to the help
     text each call.
 
+  From Steven Knight:
+
+  - When compiling with Microsoft Visual Studio, don't include the ATL and
+    MFC directories in the default INCLUDE and LIB environment variables.
+
   From Gary Oberbrunner:
 
   - Add an Environment.Dump() method to print the contents of a

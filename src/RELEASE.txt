@@ -33,6 +33,15 @@ RELEASE 0.97 - XXX
       variable, instead of returning them (the same way it handles
       the -l option).
 
+    - When compiling with Microsoft Visual Studio, SCons no longer
+      adds the ATL and MFC directories to the INCLUDE and LIB
+      environment variables by default.  If you want these directories
+      included in your environment variables, you should now set the
+      $MSVS_USE_MFC_DIRS *construction* variable when initializing
+      your environment:
+
+          env = Environment(MSVS_USE_MFC_DIRS = 1)
+
   Please note the following important changes since release 0.95:
 
     - All Builder calls (both built-in like Program(), Library(),
@@ -131,28 +140,6 @@ RELEASE 0.97 - XXX
       SCons uses to initialize all construction variables has *not*
       changed.  This change *only* affects any cases where you explicitly
       use UserList objects to initialize or append to a variable.
-
-  Please note the following FUTURE changes that you may wish to prepare
-  for:
-
-    - When compiling with Microsoft Visual Studio, SCons currently adds
-      the ATL and MFC directories to the INCLUDE and LIB environment
-      variables by default.  This default behavior will be changed in
-      a future release; the current plan is to change it for the 0.97
-      release (next beta release).
-
-      Whether or not the ATL and MFC directories are added to these
-      environment variables is now controlled by a new MSVS_USE_MFC_DIRS
-      *construction* variable.  Setting this variable to a non-zero
-      value when you initialize an Environment will ensure that these
-      directories will be included in your external path(s) even when
-      the default behavior changes:
-
-          env = Environment(MSVS_USE_MFC_DIRS = 1)
-
-      The MSVS_USE_MFC_DIRS variable may, of course, be set to 0 (or
-      None) to prevent SCons from adding the ATL and MFC directories to
-      the INCLUDE and LIB environment variables.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
