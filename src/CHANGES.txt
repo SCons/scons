@@ -20,6 +20,13 @@ RELEASE 0.97 - XXX
   - Add an Environment.Dump() method to print the contents of a
     construction environment.
 
+  - Allow $LIBS (and similar variables) to contain explicit File Nodes.
+
+  - Change ParseConfig to add the found library names directly to the
+    $LIBS variable, instead of returning them.
+
+  - Add ParseConfig() support for the -framework GNU linker option.
+
   From Kevin Quick:
 
   - Fix the Builder name returned from ListBuilders and other instances

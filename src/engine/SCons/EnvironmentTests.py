@@ -1335,19 +1335,18 @@ class EnvironmentTestCase(unittest.TestCase):
                 def read(self):
                     return "-I/usr/include/fum -Ibar -X\n" + \
                            "-L/usr/fax -Lfoo -lxxx " + \
-                           "-Wa,-as -Wl,-link -Wp,-cpp abc -pthread"
+                           "-Wa,-as -Wl,-link -Wp,-cpp abc -pthread -framework Carbon"
             return fake_file()
         try:
             os.popen = my_popen
-            libs = env.ParseConfig("fake $COMMAND")
+            env.ParseConfig("fake $COMMAND")
             assert save_command == ['fake command'], save_command
-            assert libs == ['abc'], libs
             assert env['ASFLAGS'] == ['assembler', '-Wa,-as'], env['ASFLAGS']
             assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar'], env['CPPPATH']
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
             assert env['LIBPATH'] == ['list', '/usr/fax', 'foo'], env['LIBPATH']
-            assert env['LIBS'] == ['xxx'], env['LIBS']
-            assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread'], env['LINKFLAGS']
+            assert env['LIBS'] == ['xxx', env.File('abc')], env['LIBS']
+            assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread', '-framework', 'Carbon'], env['LINKFLAGS']
             assert env['CCFLAGS'] == ['', '-X', '-pthread'], env['CCFLAGS']
         finally:
             os.popen = orig_popen

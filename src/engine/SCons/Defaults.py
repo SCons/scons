@@ -234,31 +234,34 @@ def _concat(prefix, list, suffix, env, f=lambda x: x):
 
     list = f(env.subst_path(list))
 
-    ret = []
+    result = []
 
     # ensure that prefix and suffix are strings
     prefix = str(env.subst(prefix, SCons.Util.SUBST_RAW))
     suffix = str(env.subst(suffix, SCons.Util.SUBST_RAW))
 
     for x in list:
+        if isinstance(x, SCons.Node.FS.File):
+            result.append(x)
+            continue
         x = str(x)
         if x:
 
             if prefix:
                 if prefix[-1] == ' ':
-                    ret.append(prefix[:-1])
+                    result.append(prefix[:-1])
                 elif x[:len(prefix)] != prefix:
                     x = prefix + x
 
-            ret.append(x)
+            result.append(x)
 
             if suffix:
                 if suffix[0] == ' ':
-                    ret.append(suffix[1:])
+                    result.append(suffix[1:])
                 elif x[-len(suffix):] != suffix:
-                    ret[-1] = ret[-1]+suffix
+                    result[-1] = result[-1]+suffix
 
-    return ret
+    return result
 
 def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=None):
     """This is a wrapper around _concat() that checks for the existence
@@ -272,16 +275,19 @@ def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=None):
         else:
             c = _concat
     def f(list, sp=stripprefix, ss=stripsuffix):
-        ret = []
+        result = []
         for l in list:
+            if isinstance(l, SCons.Node.FS.File):
+                result.append(l)
+                continue
             if not SCons.Util.is_String(l):
                 l = str(l)
             if l[:len(sp)] == sp:
                 l = l[len(sp):]
             if l[-len(ss):] == ss:
                 l = l[:-len(ss)]
-            ret.append(l)
-        return ret
+            result.append(l)
+        return result
     return c(prefix, list, suffix, env, f)
 
 def _defines(prefix, defs, suffix, env, c=_concat):
