@@ -1944,12 +1944,14 @@ class SaveStringsTestCase(unittest.TestCase):
         fs1.BuildDir('d1', 'src', duplicate=1)
 
         s = map(str, nodes)
-        assert s == ['src/f', 'd1/f', 'd0/b', 'd1/b'], s
+        expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
+        assert s == expect, s
 
         modify(nodes)
 
         s = map(str, nodes)
-        assert s == ['src/f', 'src/f', 'd0/b', 'd1/b'], s
+        expect = map(os.path.normpath, ['src/f', 'src/f', 'd0/b', 'd1/b'])
+        assert s == expect, s
 
         SCons.Node.FS.save_strings(1)
         fs2 = SCons.Node.FS.FS(test.workpath('fs2'))
@@ -1958,12 +1960,14 @@ class SaveStringsTestCase(unittest.TestCase):
         fs2.BuildDir('d1', 'src', duplicate=1)
 
         s = map(str, nodes)
-        assert s == ['src/f', 'd1/f', 'd0/b', 'd1/b'], s
+        expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
+        assert s == expect, s
 
         modify(nodes)
 
         s = map(str, nodes)
-        assert s == ['src/f', 'd1/f', 'd0/b', 'd1/b'], s
+        expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
+        assert s == expect, s
 
 
 
