@@ -563,8 +563,8 @@ class Node:
             binfo.bimplicitsigs = implicitsigs
 
             if has_builder:
-                binfo.bact = str(executor)
-                binfo.bactsig = calc.module.signature(executor)
+                binfo.bact = executor.get_contents()
+                binfo.bactsig = bactsig
 
         binfo.bsig = calc.module.collect(filter(None, sigs))
 
@@ -901,6 +901,11 @@ class Node:
             elif osig[k] != nsig[k]:
                 lines.append("`%s' changed\n" % k)
 
+        if len(lines) == 0 and old_bkids != new_bkids:
+            lines.append("the dependency order changed:\n" +
+                         "%sold: %s\n" % (' '*15, old_bkids) +
+                         "%snew: %s\n" % (' '*15, new_bkids))
+
         if len(lines) == 0:
             newact, newactsig = self.binfo.bact, self.binfo.bactsig
             if old.bact != newact:
@@ -909,9 +914,7 @@ class Node:
                              "%snew: %s\n" % (' '*15, newact))
 
         if len(lines) == 0:
-            lines.append("the dependency order changed:\n" +
-                         "%sold: %s\n" % (' '*15, old_bkids) +
-                         "%snew: %s\n" % (' '*15, new_bkids))
+            return "rebuilding `%s' for unknown reasons" % self
 
         preamble = "rebuilding `%s' because" % self
         if len(lines) == 1:
