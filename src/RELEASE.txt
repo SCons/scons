@@ -64,6 +64,16 @@ RELEASE 0.97 - XXX
         different file.  This may cause configuration tests to be re-run
         the first time after you install 0.97.
 
+    --  setup.py INSTALLS VERSION-NUMBERED SCRIPTS AND DIRS BY DEFAULT
+
+        The setup.py script has been changed to always install SCons in
+        a version-numbered directory (e.g. /usr/local/lib/scons-0.97
+        or D:\Python23\scons-0.97) and with a version-numbered script
+        name (scons-0.97) in addition to the usual installation of an
+        "scons" script name.  A number of new setup.py options allow
+        control over what does or does not get installed, and where.
+        See the README.txt or README files for additional information.
+
     --  setup.py NOW INSTALLS MAN PAGES ON UNIX AND Linux SYSTEMS
 
         The SCons setup.py script now installs the "scons.1" and

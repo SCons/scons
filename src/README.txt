@@ -86,50 +86,69 @@ provided Python-standard setup script as follows:
 
         # python setup.py install
 
-If this is the first time you are installing SCons on your system,
-the above command will install:
+By default, the above command will do the following:
 
-    --  the scons script in the default system script directory (/usr/bin
-        or C:\Python*\Scripts, for example);
+    --  Install the version-numbered "scons-__VERSION__" and
+    "sconsign-__VERSION__"
+        scripts in the default system script directory (/usr/bin or
+        C:\Python*\Scripts, for example).  This can be disabled by
+        specifying the "--no-version-script" option on the command
+        line.
 
-    --  the build engine in an appropriate stand-alone SCons library
-        directory (/usr/lib/scons or C:\Python*\scons, for example);
-
-    --  on UNIX or Linux systems, the troff-formatted man pages in an
-        appropriate directory (/usr/share/man/man1 or /usr/man/man1,
+    --  Install scripts named "scons" and "sconsign" scripts in the
+        default system script directory (/usr/bin or C:\Python*\Scripts,
         for example).  This can be disabled by specifying the
-        "--no-install-doc" option on the command line.
+        "--no-scons-script" option on the command line, which is useful
+        if you want to install and experiment with a new version before
+        making it the default on your system.  On UNIX or Linux systems,
+        you can have the "scons" and "sconsign" scripts be hard links or
+        symbolic links to the "scons-__VERSION__" and "sconsign-__VERSION__" scripts
+        by specifying the "--hardlink-scons" or "--symlink-scons"
+        options on the command line.
 
-Note that, by default, SCons does not install its library in the
-standard Python library directories.  If you want to be able to use the
-SCons library modules (the build engine) in other Python scripts, you
-can run the setup script as follows:
+    --  Install "scons-__VERSION__.bat" and "scons.bat" wrapper scripts in the
+        Python prefix directory on Windows (C:\Python*, for example).
+        This can be disabled by specifying the "--no-install-bat" option
+        on the command line.  On UNIX or Linux systems, the
+        "--install-bat" option may be specified to have "scons-__VERSION__.bat"
+        and "scons.bat" files installed in the default system script
+        directory, which is useful if you want to install SCons in a
+        shared file system directory that can be used to execute SCons
+        from both UNIX/Linux and Windows systems.
+
+    --  Install the SCons build engine (a Python module) in an
+        appropriate version-numbered SCons library directory
+        (/usr/lib/scons-__VERSION__ or C:\Python*\scons-__VERSION__, for example).
+        See below for more options related to installing the build
+        engine library.
+
+    --  Install the troff-format man pages in an appropriate directory
+        on UNIX or Linux systems (/usr/share/man/man1 or /usr/man/man1,
+        for example).  This can be disabled by specifying the
+        "--no-install-man" option on the command line.  The man pages
+        can be installed on Windows systems by specifying the
+        "--install-man" option on the command line.
+
+Note that, by default, SCons does not install its build engine library
+in the standard Python library directories.  If you want to be able to
+use the SCons library modules (the build engine) in other Python
+scripts, specify the "--standard-lib" option on the command line, as
+follows:
 
         # python setup.py install --standard-lib
 
-This will install the build engine in the standard Python
-library directory (/usr/lib/python*/site-packages or
+This will install the build engine in the standard Python library
+directory (/usr/lib/python*/site-packages or
 C:\Python*\Lib\site-packages).
 
-Alternatively, you may want to install multiple versions of SCons
-side-by-side, which you can do as follows:
-
-        # python setup.py install --version-lib
-
-This will install the build engine in a version-specific library
-directory (/usr/lib/scons-__VERSION__ or C:\Python*\scons-__VERSION__).
-
-If this is not the first time you are installing SCons on your system,
-the setup script will, by default, search for where you have previously
-installed the SCons library, and install this version's library the
-same way--that is, if you previously installed the SCons library in
-the standard Python library, the setup script will install this one
-in the same location.  You may, of course, specify one of the --*-lib
-options described above to select a specific library location, or use
-the following option to explicitly select installation into the default
-standalone library directory (/usr/lib/scons or C:\Python*\scons):
+Alternatively, you can have SCons install its build engine library in a
+hard-coded standalone library directory, instead of the default
+version-numbered directory, by specifying the "--standalone-lib" option
+on the command line, as follows:
 
         # python setup.py install --standalone-lib
+
+This is usually not recommended, however.
 
 Note that, to install SCons in any of the above system directories,
 you should have system installation privileges (that is, "root" or
