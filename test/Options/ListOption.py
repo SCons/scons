@@ -51,7 +51,8 @@ opts.AddOptions(
     ListOption('shared',
                'libraries to build as shared libraries',
                'all',
-               names = list_of_libs),
+               names = list_of_libs,
+               map = {'GL':'gl', 'QT':'qt'}),
     )
 
 env = Environment(options=opts)
@@ -77,13 +78,17 @@ test.run(arguments='shared=x11,ical')
 check(['ical,x11', '1', 'ical x11', 'ical x11'])
 test.run(arguments='shared=x11,,ical,,')
 check(['ical,x11', '1', 'ical x11', 'ical x11'])
+test.run(arguments='shared=GL')
+check(['gl', '0', 'gl', 'gl'])
+test.run(arguments='shared=QT,GL')
+check(['gl,qt', '0', 'gl qt', 'gl qt'])
 
 
 test.run(arguments='shared=foo',
          stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "SConstruct", line 14, in ?
+File "SConstruct", line 15, in ?
 """, status=2)
 
 # be paranoid in testing some more combinations
@@ -92,28 +97,28 @@ test.run(arguments='shared=foo,ical',
          stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "SConstruct", line 14, in ?
+File "SConstruct", line 15, in ?
 """, status=2)
 
 test.run(arguments='shared=ical,foo',
          stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "SConstruct", line 14, in ?
+File "SConstruct", line 15, in ?
 """, status=2)
 
 test.run(arguments='shared=ical,foo,x11',
          stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo
-File "SConstruct", line 14, in ?
+File "SConstruct", line 15, in ?
 """, status=2)
 
 test.run(arguments='shared=foo,x11,,,bar',
          stderr = """
 scons: *** Error converting option: shared
 Invalid value(s) for option: foo,bar
-File "SConstruct", line 14, in ?
+File "SConstruct", line 15, in ?
 """, status=2)
 
 test.write('SConstruct', """

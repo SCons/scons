@@ -56,7 +56,8 @@ class ListOptionTestCase(unittest.TestCase):
         """Test the ListOption converter"""
         opts = SCons.Options.Options()
         opts.Add(SCons.Options.ListOption('test', 'test option help', 'all',
-                                          ['one', 'two', 'three']))
+                                          ['one', 'two', 'three'],
+                                          {'ONE':'one', 'TWO':'two'}))
 
         o = opts.options[0]
 
@@ -68,8 +69,12 @@ class ListOptionTestCase(unittest.TestCase):
 
         x = o.converter('one')
         assert str(x) == 'one', x
+        x = o.converter('ONE')
+        assert str(x) == 'one', x
 
         x = o.converter('two')
+        assert str(x) == 'two', x
+        x = o.converter('TWO')
         assert str(x) == 'two', x
 
         x = o.converter('three')
@@ -94,6 +99,9 @@ class ListOptionTestCase(unittest.TestCase):
         assert str(x) == 'all', x
 
         x = o.converter('three,two,one')
+        assert str(x) == 'all', x
+
+        x = o.converter('three,ONE,TWO')
         assert str(x) == 'all', x
 
         caught = None

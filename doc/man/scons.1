@@ -7536,7 +7536,7 @@ and all input values will be
 converted to lower case.
 
 .TP
-.RI ListOption( key ", " help ", " default ", " names )
+.RI ListOption( key ", " help ", " default ", " names ", [", map ])
 Return a tuple of arguments
 to set up an option
 whose value may be one or more
@@ -7560,6 +7560,14 @@ with all values separated by commas.
 The default may be a string of
 comma-separated default values,
 or a list of the default values.
+The optional
+.I map
+argument is a dictionary
+that can be used to convert
+input values into specific legal values
+in the
+.I names
+list.
 
 .TP
 .RI PackageOption( key ", " help ", " default )
