@@ -216,7 +216,7 @@ test.fail_test(os.path.exists(test.workpath("configure", "config.log")))
 
 # test that no error is raised, if all targets are up-to-date. In this
 # case .cache and config.log shouldn't be created
-stdout=test.wrap_stdout(build_str='scons: "." is up to date.\n',
+stdout=test.wrap_stdout(build_str="scons: `.' is up to date.\n",
                         read_str="""\
 Executing Custom Test ... ok
 """)

@@ -60,32 +60,24 @@ test.run(arguments = 'f1.out')
 
 test.run(arguments = 'f1.out f2.out',
          stdout = test.wrap_stdout(
-"""scons: "f1.out" is up to date.
+"""scons: `f1.out' is up to date.
 %s build.py f2.out f2.in
 """ % python))
 
 atime = os.path.getatime(test.workpath('f1.in'))
 mtime = os.path.getmtime(test.workpath('f1.in'))
 
-test.run(arguments = '--max-drift=0 f1.out f2.out',
-         stdout = test.wrap_stdout(
-"""scons: "f1.out" is up to date.
-scons: "f2.out" is up to date.
-"""))
+test.up_to_date(options='--max-drift=0', arguments='f1.out f2.out')
 
 test.write('f1.in', "f1.in delta\n")
 os.utime(test.workpath('f1.in'), (atime,mtime))
 
-test.run(arguments = '--max-drift=0 f1.out f2.out',
-         stdout = test.wrap_stdout(
-"""scons: "f1.out" is up to date.
-scons: "f2.out" is up to date.
-"""))
+test.up_to_date(options='--max-drift=0', arguments='f1.out f2.out')
 
 test.run(arguments = '--max-drift=-1 f1.out f2.out',
          stdout = test.wrap_stdout(
 """%s build.py f1.out f1.in
-scons: "f2.out" is up to date.
+scons: `f2.out' is up to date.
 """ % python))
 
 # Test that Set/GetOption('max_drift') works:

@@ -47,45 +47,45 @@ wpath = test.workpath()
 
 test.run(arguments = '-f SConscript .',
          stdout = test.wrap_stdout(read_str = 'SConscript %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '-f %s .' % subdir_BuildThis,
          stdout = test.wrap_stdout(read_str = 'subdir/BuildThis %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '--file=SConscript .',
          stdout = test.wrap_stdout(read_str = 'SConscript %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '--file=%s .' % subdir_BuildThis,
          stdout = test.wrap_stdout(read_str = 'subdir/BuildThis %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '--makefile=SConscript .',
          stdout = test.wrap_stdout(read_str = 'SConscript %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '--makefile=%s .' % subdir_BuildThis,
          stdout = test.wrap_stdout(read_str = 'subdir/BuildThis %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '--sconstruct=SConscript .',
          stdout = test.wrap_stdout(read_str = 'SConscript %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '--sconstruct=%s .' % subdir_BuildThis,
          stdout = test.wrap_stdout(read_str = 'subdir/BuildThis %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '-f - .', stdin = """
 import os
 print "STDIN " + os.getcwd()
 """,
          stdout = test.wrap_stdout(read_str = 'STDIN %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '-f no_such_file .',
-         stdout = test.wrap_stdout('scons: "." is up to date.\n'),
+         stdout = test.wrap_stdout("scons: `.' is up to date.\n"),
          stderr = "Ignoring missing SConscript 'no_such_file'\n")
 
 test.pass_test()

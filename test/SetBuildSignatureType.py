@@ -63,7 +63,7 @@ copy1("foo.out.out", "foo.out")
          stderr=warning%16)
 
 test.run(arguments='foo.out.out',
-         stdout=test.wrap_stdout('scons: "foo.out.out" is up to date.\n'),
+         stdout=test.wrap_stdout("scons: `foo.out.out' is up to date.\n"),
          stderr=warning%16)
 
 test.write('SConstruct', """
@@ -88,7 +88,7 @@ SetBuildSignatureType('content')
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
 copy2("foo.out", "foo.in")
-scons: "foo.out.out" is up to date.
+scons: `foo.out.out' is up to date.
 """),
          stderr=warning%17)
 

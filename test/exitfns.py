@@ -46,7 +46,7 @@ register(x3, "no kwd args")
 
 """
 
-expected_output = test.wrap_stdout('scons: "." is up to date.\n') + \
+expected_output = test.wrap_stdout("scons: `.' is up to date.\n") + \
 """running x3('no kwd args', kwd=None)
 running x3(5, kwd='bar')
 running x2(12)

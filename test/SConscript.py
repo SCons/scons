@@ -210,7 +210,7 @@ wpath = test.workpath()
 
 test.run(arguments = ".",
          stdout = test.wrap_stdout(read_str = 'SConstruct %s\nSConscript %s\n' % (wpath, wpath),
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 # Test exporting all global variables as a list of keys:
 test.write("SConstruct", """

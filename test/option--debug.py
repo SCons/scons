@@ -107,7 +107,7 @@ test.fail_test(string.find(test.stdout(), tree) == -1)
 test.run(arguments = "--debug=includes .")
 test.run(arguments = "--debug=includes foo.c")
 
-tree = """scons: \".\" is up to date.
+tree = """scons: `.' is up to date.
 
 +-.
   +-SConstruct

@@ -51,10 +51,8 @@ test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
 test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
          stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
 
-test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('scons: "foo.mid" is up to date.\n'))
-test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('scons: "foo.out" is up to date.\n'))
+test.up_to_date(options="--max-drift=0 -f SConstruct1", arguments="foo.mid")
+test.up_to_date(options="--max-drift=0 -f SConstruct2", arguments="foo.out")
 
 test.write('foo.in', "foo.in 2")
 
@@ -63,9 +61,7 @@ test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
 test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
          stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
 
-test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('scons: "foo.mid" is up to date.\n'))
-test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('scons: "foo.out" is up to date.\n'))
+test.up_to_date(options="--max-drift=0 -f SConstruct1", arguments="foo.mid")
+test.up_to_date(options="--max-drift=0 -f SConstruct2", arguments="foo.out")
 
 test.pass_test()

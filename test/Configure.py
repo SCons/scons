@@ -91,7 +91,7 @@ if not (r1 and r2 and r3 and r4 and r5 and r6):
      Exit(1)
 """ % (lib,lib))
 
-    required_stdout = test.wrap_stdout(build_str='scons: "." is up to date.\n',
+    required_stdout = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
                                        read_str=
     """Checking for main(); in library %s (header math.h) ... ok
 Checking for main(); in library None (header math.h) ... ok
@@ -125,7 +125,7 @@ if not (not r1 and not r2):
      Exit(1)
 """)
 
-    required_stdout = test.wrap_stdout(build_str='scons: "." is up to date.\n',
+    required_stdout = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
                                        read_str=
     """Checking for C header no_std_c_header.h ... failed
 Checking for main in library no_c_library_SAFFDG ... failed

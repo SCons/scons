@@ -50,7 +50,7 @@ sys.exit(0)
 """)
 
 # Execute a subsidiary SConscript just to make sure we can
-# get at the SCanners keyword from there.
+# get at the Scanner keyword from there.
 
 test.write('SConstruct', """
 SConscript('SConscript')
@@ -132,7 +132,6 @@ test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4
 
 test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
 
-test.run(arguments = 'foo',
-         stdout=test.wrap_stdout('scons: "foo" is up to date.\n'))
+test.up_to_date(arguments = 'foo')
 
 test.pass_test()

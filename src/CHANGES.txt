@@ -57,6 +57,9 @@ RELEASE 0.15 - XXX
   - Make the Script.Options() subclass match the underlying base class
     implementation.
 
+  - When reporting a target is up to date, quote the target like make
+    (backquote-quote) instead of with double quotes.
+
   From Steve Leblanc:
 
   - Don't update the .sconsign files when run with -n.

@@ -157,8 +157,11 @@ def whereis(file):
 
 aegis = whereis('aegis')
 
-spe = None
+sp = []
+spe = []
 if aegis:
+    sp = os.popen("aesub '$sp' 2>/dev/null", "r").read()[:-1]
+    sp = string.split(sp, os.pathsep)
     spe = os.popen("aesub '$spe' 2>/dev/null", "r").read()[:-1]
     spe = string.split(spe, os.pathsep)
 
@@ -315,11 +318,13 @@ os.environ['SCONS_CWD'] = cwd
 os.environ['SCONS_VERSION'] = version
 
 old_pythonpath = os.environ.get('PYTHONPATH')
-os.environ['PYTHONPATH'] = pythonpath_dir + \
-                           os.pathsep + \
-                           os.path.join(cwd, 'build', 'etc') + \
-                           os.pathsep + \
-                           os.path.join(cwd, 'etc')
+
+pythonpaths = [ pythonpath_dir ]
+for p in sp:
+    pythonpaths.append(os.path.join(p, 'build', 'etc'))
+    pythonpaths.append(os.path.join(p, 'etc'))
+os.environ['PYTHONPATH'] = string.join(pythonpaths, os.pathsep)
+
 if old_pythonpath:
     os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + \
                                os.pathsep + \

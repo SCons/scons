@@ -73,7 +73,7 @@ test.writable('repository', 0)
 #
 expect = test.wrap_stdout("""\
 Local copy of aaa.out from %s
-scons: "aaa.out" is up to date.
+scons: `aaa.out' is up to date.
 """ % repository_aaa_out)
 
 test.run(chdir = 'work',

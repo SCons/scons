@@ -56,7 +56,7 @@ test 2
 
 test 4
 
-""", build_str = 'scons: "." is up to date.\n')
+""", build_str = "scons: `.' is up to date.\n")
 
 test.run(arguments = ".", stdout = expect)
 

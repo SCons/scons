@@ -48,7 +48,7 @@ print "sconstruct", os.getcwd()
 
 test.run(arguments = ".",
          stdout = test.wrap_stdout(read_str = 'sconstruct %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 
 test.write('Sconstruct', """
@@ -58,7 +58,7 @@ print "Sconstruct", os.getcwd()
 
 test.run(arguments = ".",
          stdout = test.wrap_stdout(read_str = 'Sconstruct %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.write('SConstruct', """
 import os
@@ -67,6 +67,6 @@ print "SConstruct", os.getcwd()
 
 test.run(arguments = ".",
          stdout = test.wrap_stdout(read_str = 'SConstruct %s\n' % wpath,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.pass_test()

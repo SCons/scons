@@ -64,7 +64,7 @@ good_stdout = test.wrap_stdout(read_str = """\
 ['xxx']
 ['-X']
 ['abc']
-""", build_str = 'scons: "." is up to date.\n')
+""", build_str = "scons: `.' is up to date.\n")
 
 test.run(arguments = ".", stdout = good_stdout)
 

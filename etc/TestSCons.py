@@ -258,7 +258,7 @@ class TestSCons(TestCmd.TestCmd):
     def up_to_date(self, options = None, arguments = None, **kw):
         s = ""
         for arg in string.split(arguments):
-            s = s + 'scons: "%s" is up to date.\n' % arg
+            s = s + "scons: `%s' is up to date.\n" % arg
             if options:
                 arguments = options + " " + arguments
         kw['arguments'] = arguments

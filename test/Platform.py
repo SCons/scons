@@ -62,7 +62,7 @@ expect = test.wrap_stdout(read_str = """'.exe'
 '.lib'
 '.a'
 '.lib'
-""", build_str = 'scons: "." is up to date.\n')
+""", build_str = "scons: `.' is up to date.\n")
 
 test.run(arguments = ".", stdout = expect)
 

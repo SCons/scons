@@ -239,8 +239,8 @@ if f77:
     test.run(program = bar52, stdout = " b2.for\n")
 
 test.run(chdir='work1', arguments='. ../build', stdout=test.wrap_stdout("""\
-scons: "." is up to date.
-scons: "%s" is up to date.
+scons: `.' is up to date.
+scons: `%s' is up to date.
 """ % test.workpath('build')))
 
 import os
@@ -298,7 +298,7 @@ test.run(program = test.workpath('build', 'var5', 'foo4' + _exe),
                                  stdout = "f4.c 2\n")
 
 test.run(chdir='work1', arguments='../build/var5', stdout=test.wrap_stdout("""\
-scons: "%s" is up to date.
+scons: `%s' is up to date.
 """ % test.workpath('build', 'var5')))
 
 #
@@ -358,7 +358,7 @@ test.write( ['work3', 'existing.h'], """\
 """)
 
 test.run(chdir='work3',
-         stdout=test.wrap_stdout('scons: "." is up to date.\n'),
+         stdout=test.wrap_stdout("scons: `.' is up to date.\n"),
          stderr="""\
 existing.h:/* a header file */
 non_existing.h:

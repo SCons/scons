@@ -51,6 +51,6 @@ expect = """['aaa']
 
 test.run(arguments = ".",
          stdout = test.wrap_stdout(read_str = expect,
-                                   build_str = 'scons: "." is up to date.\n'))
+                                   build_str = "scons: `.' is up to date.\n"))
 
 test.pass_test()

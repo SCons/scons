@@ -66,7 +66,7 @@ Traceback \((most recent call|innermost) last\):
 test.run(arguments='foo.out exit.out', stderr=stderr, status=2)
 
 test.run(arguments='foo.out exit.out', stderr=stderr, status=2)
-assert string.find(test.stdout(), 'scons: "foo.out" is up to date.') != -1, test.stdout()
+assert string.find(test.stdout(), "scons: `foo.out' is up to date.") != -1, test.stdout()
 
 
 

@@ -54,8 +54,7 @@ copy2("foo.out", "foo.in")
 copy1("foo.out.out", "foo.out")
 """))
 
-test.run(arguments='foo.out.out',
-         stdout=test.wrap_stdout('scons: "foo.out.out" is up to date.\n'))
+test.up_to_date(arguments='foo.out.out')
 
 test.write('SConstruct', """
 env = Environment()
@@ -79,7 +78,7 @@ TargetSignatures('content')
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
 copy2("foo.out", "foo.in")
-scons: "foo.out.out" is up to date.
+scons: `foo.out.out' is up to date.
 """))
 
 test.write('SConstruct', """
