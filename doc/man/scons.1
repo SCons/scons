@@ -5684,6 +5684,45 @@ else:
     Tool('msvc')(env)
 .EE
 
+.IP PRINT_CMD_LINE_FUNC
+A Python function used to print the command lines as they are executed
+(assuming command printing is not disabled by the
+.B -q
+or
+.B -s
+options or their equivalents).
+The function should take four arguments:
+.IR s ,
+the command being executed (a string),
+.IR target ,
+the target being built (file node, list, or string name(s)),
+.IR source ,
+the source(s) used (file node, list, or string name(s)), and
+.IR env ,
+the environment being used.
+
+The function must do the printing itself.  The default implementation,
+used if this variable is not set or is None, is:
+.ES
+def print_cmd_line(s, target, source, env):
+  sys.stdout.write(s + "\n")
+.EE
+
+Here's an example of a more interesting function:
+.ES
+def print_cmd_line(s, target, source, env):
+   sys.stdout.write("Building %s -> %s...\n" %
+    (' and '.join([str(x) for x in source]),
+     ' and '.join([str(x) for x in target])))
+env=Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
+env.Program('foo', 'foo.c')
+.EE
+
+This just prints "Building <targetname> from <sourcename>..." instead
+of the actual commands.
+Such a function could also log the actual commands to a log file,
+for example.
+
 .IP PROGPREFIX
 The prefix used for executable file names.
 

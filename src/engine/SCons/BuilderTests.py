@@ -107,7 +107,7 @@ class Environment:
         return self.d.has_key(item)
     def keys(self):
         return self.d.keys()
-    def get(self, key, value):
+    def get(self, key, value=None):
         return self.d.get(key, value)
     def Override(self, overrides):
         env = apply(Environment, (), self.d)
