@@ -147,16 +147,24 @@ env = Environment(QTDIR = QTDIR,
                   QT_MOC = r'%s',
                   QT_UIC = r'%s',
                   tools=['default','qt'])
+dup = 1
 if ARGUMENTS.get('build_dir', 0):
     if ARGUMENTS.get('chdir', 0):
         SConscriptChdir(1)
     else:
         SConscriptChdir(0)
-    BuildDir('build', '.', duplicate=1)
-    sconscript = Dir('build').File('SConscript')
+    dup=int(ARGUMENTS.get('dup', 1))
+    if dup == 0:
+        builddir = 'build_dup0'
+        env['QT_DEBUG'] = 1
+    else:
+        builddir = 'build'
+    BuildDir(builddir, '.', duplicate=dup)
+    print builddir, dup
+    sconscript = Dir(builddir).File('SConscript')
 else:
     sconscript = File('SConscript')
-Export("env")
+Export("env dup")
 SConscript( sconscript )
 """ % (QT, QT_LIB, QT_MOC, QT_UIC))
 
@@ -210,6 +218,12 @@ test.run(chdir='work1',
 
 test.fail_test( not os.path.exists(test.workpath('work1', 'build', moc)) )
 
+test.run(chdir='work1',
+         arguments = "build_dir=1 chdir=1 dup=0 " +
+                     test.workpath('work1', 'build_dup0', aaa_exe) )
+test.must_exist(['work1', 'build_dup0', moc],
+                ['work1', 'build_dup0', aaa_exe])
+
 ##############################################################################
 # 2. create .cpp, .h, moc_....cpp from .ui file
 
@@ -221,7 +235,8 @@ h = 'aaa.h'
 
 createSConstruct(test, ['work2', 'SConstruct'])
 test.write(['work2', 'SConscript'], """
-Import("env")
+Import("env dup")
+if dup == 0: env.Append(CPPPATH=['#', '.'])
 env.SharedLibrary(target = 'aaa', source = ['aaa.ui', 'useit.cpp'])
 """)
 
@@ -271,17 +286,39 @@ test.not_up_to_date(chdir='work2', options = '-n', arguments = obj)
 test.up_to_date(chdir='work2', options = '-n', arguments = cpp)
 test.up_to_date(chdir='work2', options = '-n', arguments = h)
 test.up_to_date(chdir='work2', options = '-n', arguments = moc)
+# clean up
+test.run(chdir='work2', arguments = '-c ' + aaa_dll)
 
 test.run(chdir='work2',
          arguments = "build_dir=1 " +
                      test.workpath('work2', 'build', aaa_dll) )
+test.fail_test(not os.path.exists(test.workpath('work2','build',moc)) or
+               not os.path.exists(test.workpath('work2','build',cpp)) or
+               not os.path.exists(test.workpath('work2','build',h)) or
+               os.path.exists(test.workpath('work2', moc)) or
+               os.path.exists(test.workpath('work2', cpp)) or
+               os.path.exists(test.workpath('work2', h)))
 test.run(chdir='work2',
          arguments = "build_dir=1 chdir=1 " +
                      test.workpath('work2', 'build', aaa_dll) )
-
 test.fail_test(not os.path.exists(test.workpath('work2','build',moc)) or
                not os.path.exists(test.workpath('work2','build',cpp)) or
-               not os.path.exists(test.workpath('work2','build',h)))
+               not os.path.exists(test.workpath('work2','build',h)) or
+               os.path.exists(test.workpath('work2', moc)) or
+               os.path.exists(test.workpath('work2', cpp)) or
+               os.path.exists(test.workpath('work2', h)))
+
+test.run(chdir='work2',
+         arguments = "build_dir=1 chdir=1 dup=0 " +
+                     test.workpath('work2', 'build_dup0', aaa_dll) )
+
+test.must_exist(['work2','build_dup0',moc], 
+                ['work2','build_dup0',cpp],
+                ['work2','build_dup0',h])
+test.must_not_exist(['work2', moc],
+                    ['work2', cpp],
+                    ['work2', h])
+
 
 ##############################################################################
 # 3. create a moc file from a cpp file
@@ -291,7 +328,8 @@ moc = 'aaa.moc'
 
 createSConstruct(test, ['work3', 'SConstruct'])
 test.write(['work3', 'SConscript'], """
-Import("env")
+Import("env dup")
+if dup == 0: env.Append(CPPPATH=['.'])
 env.StaticLibrary(target = '%s', source = ['aaa.cpp','useit.cpp'])
 """ % lib_aaa)
 
@@ -323,6 +361,7 @@ void aaa(void) Q_OBJECT
 #include "%s"
 """ % moc)
 test.not_up_to_date(chdir='work3', options = '-n', arguments = moc)
+test.run(chdir='work3', options = '-c', arguments = lib_aaa)
 
 test.run(chdir='work3',
          arguments = "build_dir=1 " +
@@ -334,6 +373,11 @@ test.run(chdir='work3',
                      test.workpath('work3', 'build', lib_aaa) )
 
 test.fail_test(not os.path.exists(test.workpath('work3', 'build', moc)))
+
+test.run(chdir='work3',
+         arguments = "build_dir=1 dup=0 " +
+                     test.workpath('work3', 'build_dup0', lib_aaa) )
+test.must_exist(['work3', 'build_dup0', moc])
 
 ##############################################################################
 # 4. Test with a copied environment.
@@ -565,7 +609,7 @@ int main() {
     os.environ['PATH']='.'
 
     test.run(chdir='work7', stderr=None, arguments="-c test_realqt" + _exe)
-    test.fail_test(not test.match_re(test.stderr(), r"""
+    test.fail_test(not test.match_re_dotall(test.stderr(), r""".*
 scons: warning: Could not detect qt, using empty QTDIR
 File "[^\"]*", line \d+, in .+
 """))
