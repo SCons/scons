@@ -69,6 +69,12 @@ RELEASE 0.14 - XXX
 
   - Add a standalone "Alias" function (separate from an Environment).
 
+  - Make Export() work for local variables.
+
+  - Support passing a dictionary to Export().
+
+  - Support Import('*') to import everything that's been Export()ed.
+
   From Greg Spencer:
 
   - Support the C preprocessor #import statement.

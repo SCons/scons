@@ -3318,9 +3318,12 @@ The exported variables are kept in a global collection,
 so subsequent calls to
 .BR Export ()
 will over-write previous exports that have the same name. 
-Multiple variable names should be passed to
+Multiple variable names can be passed to
 .BR Export ()
-as separate arguments. Examples:
+as separate arguments or as a list. A dictionary can be used to map
+variables to a different name when exported. Both local variables and
+global variables can be exported.
+Examples:
 
 .ES
 env = Environment()
@@ -3328,8 +3331,14 @@ env = Environment()
 Export("env")
 
 package = 'my_name'
-# Make env and package available for all SConscript files to Import().
+# Make env and package available for all SConscript files:.
 Export("env", "package")
+
+# Make env and package available for all SConscript files:
+Export(["env", "package"])
+
+# Make env available using the name debug:.
+Export({"debug":env})
 .EE
 
 .IP
@@ -3405,14 +3414,17 @@ argument to
 Variables exported by 
 .BR SConscript ()
 have precedence.
-Multiple variable names should be passed to 
+Multiple variable names can be passed to 
 .BR Import ()
-as separate arguments.
+as separate arguments or as a list. The variable "*" can be used
+to import all variables.
 Examples:
 
 .ES
 Import("env")
 Import("env", "variable")
+Import(["env", "variable"])
+Import("*")
 .EE
 
 .TP
@@ -3554,7 +3566,8 @@ as a SConscript (configuration) file.
 
 The optional 
 .I exports
-argument provides a list of variable names to export to
+argument provides a list of variable names or a dictionary of
+named values to export to
 .IR script ". "
 These variables are locally exported only to the specified
 .IR script ,

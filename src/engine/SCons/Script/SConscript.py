@@ -75,24 +75,46 @@ def _scons_add_args(alist):
         a, b = string.split(arg, '=', 2)
         arguments[a] = b
 
+def get_calling_namespaces():
+    """Return the locals and globals for the function that called
+    into this module in the current callstack."""
+    try: 1/0
+    except: frame = sys.exc_info()[2].tb_frame
+    
+    while frame.f_globals.get("__name__") == __name__: frame = frame.f_back
+
+    return frame.f_locals, frame.f_globals
+
+    
+def compute_exports(exports):
+    """Compute a dictionary of exports given one of the parameters
+    to the Export() function or the exports argument to SConscript()."""
+    exports = SCons.Util.argmunge(exports)
+    loc, glob = get_calling_namespaces()
+
+    retval = {}
+    try:
+        for export in exports:
+            if SCons.Util.is_Dict(export):
+                retval.update(export)
+            else:
+                try:
+                    retval[export] = loc[export]
+                except KeyError:
+                    retval[export] = glob[export]
+    except KeyError, x:
+        raise SCons.Errors.UserError, "Export of non-existant variable '%s'"%x
+
+    return retval
+    
+
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
     def __init__(self, exports):
         self.globals = BuildDefaultGlobals()
         self.retval = None 
         self.prev_dir = SCons.Node.FS.default_fs.getcwd()
-        self.exports = {} # exports from the calling SConscript
-
-        try:
-            if SCons.Util.is_List(exports):
-                for export in exports:
-                    self.exports[export] = stack[-1].globals[export]
-            else:
-                for export in string.split(exports):
-                    self.exports[export] = stack[-1].globals[export]
-        except KeyError, x:
-            raise SCons.Errors.UserError, "Export of non-existant variable '%s'"%x
-
+        self.exports = compute_exports(exports)  # exports from the calling SConscript
         
 # the SConstruct/SConscript call stack:
 stack = []
@@ -339,21 +361,22 @@ def FindFile(file, dirs):
     return SCons.Node.FS.find_file(file, nodes)
 
 def Export(*vars):
-    try:
-        for var in vars:
-            for v in string.split(var):
-                global_exports[v] = stack[-1].globals[v]
-    except KeyError, x:
-        raise SCons.Errors.UserError, "Export of non-existant variable '%s'"%x
+    for var in vars:
+        global_exports.update(compute_exports(var))
 
 def Import(*vars):
     try:
         for var in vars:
-            for v in string.split(var):
-                if stack[-1].exports.has_key(v):
-                    stack[-1].globals[v] = stack[-1].exports[v]
+            var = SCons.Util.argmunge(var)
+            for v in var:
+                if 'v' == '*':
+                    stack[-1].globals.update(global_exports)
+                    stack[-1].globals.update(stack[-1].exports[v])
                 else:
-                    stack[-1].globals[v] = global_exports[v]
+                    if stack[-1].exports.has_key(v):
+                        stack[-1].globals[v] = stack[-1].exports[v]
+                    else:
+                        stack[-1].globals[v] = global_exports[v]
     except KeyError,x:
         raise SCons.Errors.UserError, "Import of non-existant variable '%s'"%x
 

@@ -212,5 +212,135 @@ test.run(arguments = ".",
          stdout = test.wrap_stdout(read_str = 'SConstruct %s\nSConscript %s\n' % (wpath, wpath),
                                    build_str = 'scons: "." is up to date.\n'))
 
+# Test exporting all global variables as a list of keys:
+test.write("SConstruct", """
+x = 'x'
+y = 'zoom'
+Export(globals().keys())                         
+SConscript('SConscript')
+""")
+
+test.write("SConscript", """
+Import(['x', 'y'])
+assert x == 'x'
+assert y == 'zoom'
+""")
+
+test.run(arguments = ".")
+
+# Test exporting all global variables as a list of keys in SConscript call:
+test.write("SConstruct", """
+x = 'x'
+y = 'zoom'
+SConscript('SConscript', globals().keys())
+""")
+
+test.write("SConscript", """
+Import(['x', 'y'])
+assert x == 'x'
+assert y == 'zoom'
+""")
+
+test.run(arguments = ".")
+
+# Test exporting all global variables as a dictionary:
+test.write("SConstruct", """
+x = 'x'
+y = 'zoom'
+Export(globals())                         
+SConscript('SConscript')
+""")
+
+test.write("SConscript", """
+Import(['x', 'y'])
+assert x == 'x'
+assert y == 'zoom'
+""")
+
+test.run(arguments = ".")
+
+# Test exporting all global variables as dictionary in SConscript call:
+test.write("SConstruct", """
+x = 'x'
+y = 'zoom'
+SConscript('SConscript', globals())
+""")
+
+test.write("SConscript", """
+Import(['x', 'y'])
+assert x == 'x'
+assert y == 'zoom'
+""")
+
+test.run(arguments = ".")
+
+# Test export of local variables:
+test.write("SConstruct", """
+def f():
+    x = 'x'
+    y = 'zoom'
+    Export('x', 'y')
+
+f()
+SConscript('SConscript')
+""")
+
+test.write("SConscript", """
+Import(['x', 'y'])
+assert x == 'x'
+assert y == 'zoom'
+""")
+
+test.run(arguments = ".")
+
+# Test export of local variables in SConscript call:
+test.write("SConstruct", """
+def f():
+    x = 'x'
+    y = 'zoom'
+    SConscript('SConscript', ['x', 'y'])
+f()
+""")
+
+test.write("SConscript", """
+Import(['x', 'y'])
+assert x == 'x'
+assert y == 'zoom'
+""")
+
+test.run(arguments = ".")
+
+# Test export of local variables as a dictionary:
+test.write("SConstruct", """
+def f():
+    x = 'x'
+    y = 'zoom'
+    Export(locals())
+
+f()
+SConscript('SConscript')
+""")
+
+test.write("SConscript", """
+Import(['x', 'y'])
+assert x == 'x'
+assert y == 'zoom'
+""")
+
+test.run(arguments = ".")
+
+# Test importing all variables:
+test.write("SConstruct", """
+x = 'x'
+y = 'zoom'
+Export('x')
+SConscript('SConscript', 'y')
+""")
+
+test.write("SConscript", """
+Import('*')
+assert x == 'x'
+assert y == 'zoom'
+""")
 
 test.pass_test()
