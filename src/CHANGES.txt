@@ -63,6 +63,8 @@ RELEASE 0.05 -
 
   - Run HTML docs through tidy to clean up the HTML (for Konqueror).
 
+  - Add preliminary support for Unicode strings.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.

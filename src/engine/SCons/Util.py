@@ -444,8 +444,14 @@ def is_Dict(e):
 def is_List(e):
     return type(e) is types.ListType or isinstance(e, UserList.UserList)
 
-def is_String(e):
-    return type(e) is types.StringType or isinstance(e, UserString)
+if hasattr(types, 'UnicodeType'):
+    def is_String(e):
+        return type(e) is types.StringType \
+            or type(e) is types.UnicodeType \
+            or isinstance(e, UserString)
+else:
+    def is_String(e):
+        return type(e) is types.StringType or isinstance(e, UserString)
 
 # attempt to load the windows registry module:
 can_read_reg = 0

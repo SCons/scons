@@ -23,11 +23,13 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
+import sys
+import types
+import unittest
+
 import TestCmd
 import SCons.Scanner.Prog
-import unittest
-import sys
-import os.path
 
 test = TestCmd.TestCmd(workdir = '')
 
@@ -94,6 +96,19 @@ def suite():
     suite.addTest(ProgScanTestCase1())
     suite.addTest(ProgScanTestCase2())
     suite.addTest(ProgScanTestCase3())
+    if hasattr(types, 'UnicodeType'):
+        code = """if 1:
+            class ProgScanTestCase4(unittest.TestCase):
+                def runTest(self):
+                    env = DummyEnvironment(LIBPATH=test.workpath("d1/d2") + ' ' +\
+                                           test.workpath("d1"),
+                                           LIBS=u'l2 l3')
+                    s = SCons.Scanner.Prog.ProgScan()
+                    deps = s.scan('dummy', env)
+                    assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
+            suite.addTest(ProgScanTestCase4())
+            \n"""
+        exec code
     return suite
 
 if __name__ == "__main__":

@@ -32,6 +32,7 @@ def Func():
 
 import os.path
 import sys
+import types
 import unittest
 
 import TestCmd
@@ -117,6 +118,21 @@ class BuilderTestCase(unittest.TestCase):
         assert target.name == 'n8 n9'
         assert target.sources[0].name == 'n10'
         assert target.sources[1].name == 'n11'
+
+        if hasattr(types, 'UnicodeType'):
+            code = """if 1:
+                targets = builder(env, target = u'n12 n13', source = [u'n14 n15'])
+                assert targets[0].name == u'n12'
+                assert targets[0].sources[0].name == u'n14 n15'
+                assert targets[1].name == u'n13'
+                assert targets[1].sources[0].name == u'n14 n15'
+
+                target = builder(env, target = [u'n16 n17'], source = u'n18 n19')
+                assert target.name == u'n16 n17'
+                assert target.sources[0].name == u'n18'
+                assert target.sources[1].name == u'n19'
+                \n"""
+            exec code
 
     def test_noname(self):
         """Test error reporting for missing name

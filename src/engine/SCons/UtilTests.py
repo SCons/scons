@@ -28,6 +28,7 @@ import os.path
 import re
 import string
 import sys
+import types
 import unittest
 import SCons.Node
 import SCons.Node.FS
@@ -38,21 +39,32 @@ class UtilTestCase(unittest.TestCase):
     def test_str2nodes(self):
 	"""Test the str2nodes function."""
 	nodes = scons_str2nodes("Util.py UtilTests.py")
-	assert len(nodes) == 2
+        assert len(nodes) == 2, nodes
 	assert isinstance(nodes[0], SCons.Node.FS.File)
 	assert isinstance(nodes[1], SCons.Node.FS.File)
 	assert nodes[0].path == "Util.py"
 	assert nodes[1].path == "UtilTests.py"
 
+        if hasattr(types, 'UnicodeType'):
+            code = """if 1:
+                nodes = scons_str2nodes(u"Util.py UtilTests.py")
+                assert len(nodes) == 2, nodes
+                assert isinstance(nodes[0], SCons.Node.FS.File)
+                assert isinstance(nodes[1], SCons.Node.FS.File)
+                assert nodes[0].path == u"Util.py"
+                assert nodes[1].path == u"UtilTests.py"
+                \n"""
+            exec code
+
 	nodes = scons_str2nodes("Util.py UtilTests.py", SCons.Node.FS.FS().File)
-	assert len(nodes) == 2
+        assert len(nodes) == 2, nodes
 	assert isinstance(nodes[0], SCons.Node.FS.File)
 	assert isinstance(nodes[1], SCons.Node.FS.File)
 	assert nodes[0].path == "Util.py"
 	assert nodes[1].path == "UtilTests.py"
 
 	nodes = scons_str2nodes(["Util.py", "UtilTests.py"])
-	assert len(nodes) == 2
+        assert len(nodes) == 2, nodes
 	assert isinstance(nodes[0], SCons.Node.FS.File)
 	assert isinstance(nodes[1], SCons.Node.FS.File)
 	assert nodes[0].path == "Util.py"
@@ -60,7 +72,7 @@ class UtilTestCase(unittest.TestCase):
 
 	n1 = SCons.Node.FS.default_fs.File("Util.py")
 	nodes = scons_str2nodes([n1, "UtilTests.py"])
-	assert len(nodes) == 2
+        assert len(nodes) == 2, nodes
 	assert isinstance(nodes[0], SCons.Node.FS.File)
 	assert isinstance(nodes[1], SCons.Node.FS.File)
 	assert nodes[0].path == "Util.py"
@@ -270,6 +282,8 @@ class UtilTestCase(unittest.TestCase):
         assert is_Dict(UserDict.UserDict())
         assert not is_Dict([])
         assert not is_Dict("")
+        if hasattr(types, 'UnicodeType'):
+            exec "assert not is_Dict(u'')"
 
     def test_is_List(self):
         assert is_List([])
@@ -277,9 +291,13 @@ class UtilTestCase(unittest.TestCase):
         assert is_List(UserList.UserList())
         assert not is_List({})
         assert not is_List("")
+        if hasattr(types, 'UnicodeType'):
+            exec "assert not is_List(u'')"
 
     def test_is_String(self):
         assert is_String("")
+        if hasattr(types, 'UnicodeType'):
+            exec "assert is_String(u'')"
         try:
             import UserString
         except:

@@ -30,9 +30,8 @@ __revision__ = "src/engine/SCons/ActionTests.py __REVISION__ __DATE__ __DEVELOPE
 def Func():
     pass
 
-import unittest
-
 import sys
+import types
 import unittest
 
 import SCons.Action
@@ -46,19 +45,23 @@ class ActionTestCase(unittest.TestCase):
         def foo():
             pass
         a1 = SCons.Action.Action(foo)
-        assert isinstance(a1, SCons.Action.FunctionAction)
+        assert isinstance(a1, SCons.Action.FunctionAction), a1
 
         a2 = SCons.Action.Action("string")
-        assert isinstance(a2, SCons.Action.CommandAction)
+        assert isinstance(a2, SCons.Action.CommandAction), a2
 
-        a3 = SCons.Action.Action(["x", a2, "y"])
-        assert isinstance(a3, SCons.Action.ListAction)
+        if hasattr(types, 'UnicodeType'):
+            exec "a3 = SCons.Action.Action(u'string')"
+            exec "assert isinstance(a3, SCons.Action.CommandAction), a3"
 
-        a4 = SCons.Action.Action(1)
-        assert a4 is None, a4
+        a4 = SCons.Action.Action(["x", a2, "y"])
+        assert isinstance(a4, SCons.Action.ListAction), a4
 
-	a5 = SCons.Action.Action(a1)
-	assert a5 is a1
+        a5 = SCons.Action.Action(1)
+        assert a5 is None, a5
+
+        a6 = SCons.Action.Action(a1)
+        assert a6 is a1
 
 class ActionBaseTestCase(unittest.TestCase):
 
