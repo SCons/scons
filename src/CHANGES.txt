@@ -29,6 +29,11 @@ RELEASE 0.14 - XXX
   - Pass an Environment to the Options validator method, and
     add an Options.Save() method.
 
+  From Steve Christensen:
+
+  - Add an optional sort function argument to the GenerateHelpText()
+    Options function.
+
   From Steven Knight:
 
   - Add support for Java (javac and jar).

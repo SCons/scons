@@ -71,7 +71,7 @@ class OptionsTestCase(unittest.TestCase):
         assert o.default == None
         assert o.validater == None
         assert o.converter == None
-	assert o.should_save == 0
+        assert o.should_save == 0
 
         o = opts.options[1]
         assert o.key == 'ANSWER'
@@ -172,6 +172,18 @@ class OptionsTestCase(unittest.TestCase):
                  check,
                  lambda x: int(x) + 12)
 
+        opts.Add('B',
+                 'b - alpha test',
+                 "42",
+                 check,
+                 lambda x: int(x) + 12)
+
+        opts.Add('A',
+                 'a - alpha test',
+                 "42",
+                 check,
+                 lambda x: int(x) + 12)
+
         env = Environment()
         opts.Update(env, {})
 
@@ -179,12 +191,36 @@ class OptionsTestCase(unittest.TestCase):
 ANSWER: THE answer to THE question
     default: 42
     actual: 54
+
+B: b - alpha test
+    default: 42
+    actual: 54
+
+A: a - alpha test
+    default: 42
+    actual: 54
 """
 
         text = opts.GenerateHelpText(env)
         assert text == expect, text
+
+        expectAlpha = """
+A: a - alpha test
+    default: 42
+    actual: 54
+
+ANSWER: THE answer to THE question
+    default: 42
+    actual: 54
+
+B: b - alpha test
+    default: 42
+    actual: 54
+"""
+        text = opts.GenerateHelpText(env, sort=cmp)
+        assert text == expectAlpha, text
         
 if __name__ == "__main__":
     suite = unittest.makeSuite(OptionsTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)

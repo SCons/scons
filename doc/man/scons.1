@@ -2938,15 +2938,30 @@ opts.Save('options.cache', env)
 .EE
 
 .TP
-.RI GenerateHelpText( env )
+.RI GenerateHelpText( env ", [" sort ])
 This generates help text documenting the customizable construction
 variables suitable to passing in to the Help() function. 
 .I env
 is the construction environment that will be used to get the actual values
-of customizable variables. Example:
+of customizable variables. Calling with 
+an optional
+.I sort
+function
+will cause the output to be sorted
+by the specified argument.
+The specific
+.I sort
+function
+should take two arguments
+and return
+-1, 0 or 1
+(like the standard Python
+.I cmp
+function).
 
 .ES
 Help(opts.GenerateHelpText(env))
+Help(opts.GenerateHelpText(env, sort=cmp))
 .EE
 
 The text based SConscript file is executed as a Python script, and the

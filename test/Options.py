@@ -258,4 +258,54 @@ test.run(arguments='"DEBUG_BUILD=0"')
 check(['0','0'])
 checkSave('options.saved',{'DEBUG_BUILD':'0'})
 
+test.write('SConstruct', """
+opts = Options('custom.py')
+opts.Add('RELEASE_BUILD',
+         'Set to 1 to build a release build',
+         0,
+         None,
+         int)
+
+opts.Add('DEBUG_BUILD',
+         'Set to 1 to build a debug build',
+         1,
+         None,
+         int)
+
+opts.Add('CC',
+         'The C compiler')
+
+opts.Add('UNSPECIFIED',
+         'An option with no value')
+
+env = Environment(options=opts)
+
+Help('Variables settable in custom.py or on the command line:\\n' + opts.GenerateHelpText(env,sort=cmp))
+
+""")
+
+test.run(arguments='-h',
+         stdout = """scons: Reading SConscript files ...
+scons: done reading SConscript files.
+Variables settable in custom.py or on the command line:
+
+CC: The C compiler
+    default: None
+    actual: %s
+
+DEBUG_BUILD: Set to 1 to build a debug build
+    default: 1
+    actual: 0
+
+RELEASE_BUILD: Set to 1 to build a release build
+    default: 0
+    actual: 1
+
+UNSPECIFIED: An option with no value
+    default: None
+    actual: None
+
+Use scons -H for help about command-line options.
+"""%cc)
+
 test.pass_test()

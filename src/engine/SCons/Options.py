@@ -170,7 +170,7 @@ class Options:
         except IOError, x:
             raise SCons.Errors.UserError, 'Error writing options to file: %s\n%s' % (filename, x)
 
-    def GenerateHelpText(self, env):
+    def GenerateHelpText(self, env, sort=None):
         """
         Generate the help text for the options.
 
@@ -179,7 +179,13 @@ class Options:
 
         help_text = ""
 
-        for option in self.options:
+        if sort:
+            options = self.options[:]
+            options.sort(lambda x,y,func=sort: func(x.key,y.key))
+        else:
+            options = self.options
+
+        for option in options:
             help_text = help_text + '\n%s: %s\n    default: %s\n'%(option.key, option.help, option.default)
             if env.has_key(option.key):
                 help_text = help_text + '    actual: %s\n'%env.subst('${%s}'%option.key)
