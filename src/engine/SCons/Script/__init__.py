@@ -105,11 +105,18 @@ class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def execute(self):
         if self.targets[0].builder:
-            os.unlink(self.targets[0].path)
-            print "Removed " + self.targets[0].path
+            try:
+                os.unlink(self.targets[0].path)
+            except OSError:
+                pass
+            else:
+                print "Removed " + self.targets[0].path
             try:
                 for t in self.targets[1:]:
-                    os.unlink(t.path)
+                    try:
+                        os.unlink(t.path)
+                    except OSError:
+                        pass
             except IndexError:
                 pass
 

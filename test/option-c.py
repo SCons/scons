@@ -44,7 +44,8 @@ test.write('SConstruct', """
 B = Builder(name = 'B', action = r'%s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo1.out', source = 'foo1.in')
-env.B(target = 'foo2.out', source = 'foo2.in')
+env.B(target = 'foo2.out', source = 'foo2.xxx')
+env.B(target = 'foo2.xxx', source = 'foo2.in')
 env.B(target = 'foo3.out', source = 'foo3.in')
 """ % python)
 
@@ -57,30 +58,42 @@ test.write('foo3.in', "foo3.in\n")
 test.run(arguments = 'foo1.out foo2.out foo3.out')
 
 test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
+test.fail_test(test.read(test.workpath('foo2.xxx')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
 test.run(arguments = '-c foo1.out', stdout = "Removed foo1.out\n")
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
+test.fail_test(not os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(not os.path.exists(test.workpath('foo2.out')))
 test.fail_test(not os.path.exists(test.workpath('foo3.out')))
 
-test.run(arguments = '--clean foo2.out', stdout = "Removed foo2.out\n")
+test.run(arguments = '--clean foo2.out foo2.xxx', stdout = "Removed foo2.xxx\nRemoved foo2.out\n")
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
+test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(os.path.exists(test.workpath('foo2.out')))
 test.fail_test(not os.path.exists(test.workpath('foo3.out')))
 
 test.run(arguments = '--remove foo3.out', stdout = "Removed foo3.out\n")
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
+test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(os.path.exists(test.workpath('foo2.out')))
 test.fail_test(os.path.exists(test.workpath('foo3.out')))
 
 test.run(arguments = '.')
 
 test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
+test.fail_test(test.read(test.workpath('foo2.xxx')) != "foo2.in\n")
+test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
+test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
+
+test.run(arguments = '-c foo2.xxx', stdout = "Removed foo2.xxx\n")
+
+test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
+test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 

@@ -68,6 +68,9 @@ RELEASE 0.05 -
   - Efficiency:  don't scan dependencies more than once during the
     walk of a tree.
 
+  - Fix the -c option so it doesn't stop removing targets if one doesn't
+    already exist.
+
   From Steve Leblanc:
 
   - Add support for the -u option.
