@@ -143,5 +143,11 @@ Default('.')
 
 test.run(chdir = 'sub4', arguments = '-U')
 
+test.write('SConstruct', """
+Default('no_a_target.in')
+""")
+
+# The following should result in an error, but because of bug 642327, it doesn't:
+test.run(arguments = '-U')
 
 test.pass_test()

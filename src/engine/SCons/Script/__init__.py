@@ -742,8 +742,14 @@ def _main():
             # -U with default targets
             default_targets = SCons.Script.SConscript.default_targets
             def check_dir(x, target_top=target_top):
-                cwd = x.cwd.srcnode()
-                return cwd == target_top
+                if hasattr(x, 'cwd') and not x.cwd is None:
+                    cwd = x.cwd.srcnode()
+                    return cwd == target_top
+                else:
+                    # x doesn't have a cwd, so it's either not a target,
+                    # or not a file, so go ahead and keep it as a default
+                    # target and let the engine sort it out:
+                    return 1                
             default_targets = filter(check_dir, default_targets)
             SCons.Script.SConscript.default_targets = default_targets
             target_top = None

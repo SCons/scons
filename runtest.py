@@ -245,16 +245,21 @@ if package:
 else:
     sd = None
     ld = None
-    if spe:
-        if not scons:
-            for dir in spe:
-                d = os.path.join(dir, 'src', 'script')
-                f = os.path.join(d, 'scons.py')
-                if os.path.isfile(f):
-                    sd = d
-                    scons = f
-        spe = map(lambda x: os.path.join(x, 'src', 'engine'), spe)
-        ld = string.join(spe, os.pathsep)
+
+    # XXX:  Logic like the following will be necessary once
+    # we fix runtest.py to run tests within an Aegis change
+    # without symlinks back to the baseline(s).
+    #
+    #if spe:
+    #    if not scons:
+    #        for dir in spe:
+    #            d = os.path.join(dir, 'src', 'script')
+    #            f = os.path.join(d, 'scons.py')
+    #            if os.path.isfile(f):
+    #                sd = d
+    #                scons = f
+    #    spe = map(lambda x: os.path.join(x, 'src', 'engine'), spe)
+    #    ld = string.join(spe, os.pathsep)
 
     scons_dir = sd or os.path.join(cwd, 'src', 'script')
 
