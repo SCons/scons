@@ -440,7 +440,7 @@ class Target_or_Source:
             return ''
         return repr(nl0)
 
-def subst_dict(target, source, env):
+def subst_dict(target, source):
     """Create a dictionary for substitution of special
     construction variables.
 
@@ -453,12 +453,8 @@ def subst_dict(target, source, env):
     source - the source (object or array of objects),
              used to generate the SOURCES and SOURCE
              construction variables
-
-    env    - the construction Environment used for this
-             build, which is made available as the __env__
-             construction variable
     """
-    dict = { '__env__' : env, }
+    dict = {}
 
     if target:
         tnl = NLWrapper(target, lambda x: x.get_subst_proxy())
@@ -603,7 +599,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
                 return self.expand(args, lvars)
 
     if dict is None:
-        dict = subst_dict(target, source, env)
+        dict = subst_dict(target, source)
 
     ss = StringSubber(env, mode, target, source)
     result = ss.substitute(strSubst, dict)
@@ -785,7 +781,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
             self.in_strip = None
 
     if dict is None:
-        dict = subst_dict(target, source, env)
+        dict = subst_dict(target, source)
 
     ls = ListSubber(env, mode, target, source)
     ls.substitute(strSubst, dict, 0)
