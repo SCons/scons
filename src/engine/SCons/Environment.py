@@ -214,10 +214,131 @@ class BuilderDict(UserDict):
         for i, v in dict.items():
             self.__setitem__(i, v)
 
-class Base:
-    """Base class for construction Environments.  These are
-    the primary objects used to communicate dependency and
-    construction information to the build engine.
+class _Environment:
+    """Abstract base class for different flavors of construction
+    environment objects.
+
+    This collects common methods that need to be used by all types of
+    construction environment (proxies as well as "real" environments)
+    so that construction variable substitution and translation from
+    strings into Nodes happen in accordance with the object's other
+    rules--in other words, for the case of proxies, wherever we need to
+    do something like env.subst(), env.arg2nodes() and fetch attributes or
+    values like the wrapper proxy, not the underlying wrapped environment.
+    """
+    def arg2nodes(self, args, node_factory=_null, lookup_list=_null):
+        if node_factory is _null:
+            node_factory = self.fs.File
+        if lookup_list is _null:
+            lookup_list = self.lookup_list
+
+        if not args:
+            return []
+
+        if SCons.Util.is_List(args):
+            args = SCons.Util.flatten(args)
+        else:
+            args = [args]
+
+        nodes = []
+        for v in args:
+            if SCons.Util.is_String(v):
+                n = None
+                for l in lookup_list:
+                    n = l(v)
+                    if not n is None:
+                        break
+                if not n is None:
+                    if SCons.Util.is_String(n):
+                        n = self.subst(n, raw=1)
+                        if node_factory:
+                            n = node_factory(n)
+                    if SCons.Util.is_List(n):
+                        nodes.extend(n)
+                    else:
+                        nodes.append(n)
+                elif node_factory:
+                    v = node_factory(self.subst(v, raw=1))
+                    if SCons.Util.is_List(v):
+                        nodes.extend(v)
+                    else:
+                        nodes.append(v)
+            else:
+                nodes.append(v)
+    
+        return nodes
+
+    def subst(self, string, raw=0, target=None, source=None, dict=None, conv=None):
+        """Recursively interpolates construction variables from the
+        Environment into the specified string, returning the expanded
+        result.  Construction variables are specified by a $ prefix
+        in the string and begin with an initial underscore or
+        alphabetic character followed by any number of underscores
+        or alphanumeric characters.  The construction variable names
+        may be surrounded by curly braces to separate the name from
+        trailing characters.
+        """
+        return SCons.Util.scons_subst(string, self, raw, target, source, dict, conv)
+
+    def subst_kw(self, kw, raw=0, target=None, source=None, dict=None):
+        nkw = {}
+        for k, v in kw.items():
+            k = self.subst(k, raw, target, source, dict)
+            if SCons.Util.is_String(v):
+                v = self.subst(v, raw, target, source, dict)
+            nkw[k] = v
+        return nkw
+
+    def subst_list(self, string, raw=0, target=None, source=None, dict=None, conv=None):
+        """Calls through to SCons.Util.scons_subst_list().  See
+        the documentation for that function."""
+        return SCons.Util.scons_subst_list(string, self, raw, target, source, dict, conv)
+
+    def subst_path(self, path):
+        """Substitute a path list, turning EntryProxies into Nodes
+        and leaving Nodes (and other objects) as-is."""
+
+        if not SCons.Util.is_List(path):
+            path = [path]
+
+        def s(obj):
+            """This is the "string conversion" routine that we have our
+            substitutions use to return Nodes, not strings.  This relies
+            on the fact that an EntryProxy object has a get() method that
+            returns the underlying Node that it wraps, which is a bit of
+            architectural dependence that we might need to break or modify
+            in the future in response to additional requirements."""
+            try:
+                get = obj.get
+            except AttributeError:
+                pass
+            else:
+                obj = get()
+            return obj
+
+        r = []
+        for p in path:
+            if SCons.Util.is_String(p):
+                p = self.subst(p, conv=s)
+                if SCons.Util.is_List(p):
+                    if len(p) == 1:
+                        p = p[0]
+                    else:
+                        # We have an object plus a string, or multiple
+                        # objects that we need to smush together.  No choice
+                        # but to make them into a string.
+                        p = string.join(map(SCons.Util.to_String, p), '')
+            else:
+                p = s(p)
+            r.append(p)
+        return r
+
+    subst_target_source = subst
+
+class Base(_Environment):
+    """Base class for "real" construction Environments.  These are the
+    primary objects used to communicate dependency and construction
+    information to the build engine.
 
     Keyword arguments supplied when the construction Environment
     is created are construction variables used to initialize the
@@ -341,48 +462,6 @@ class Base:
     # is actually already out of the closet and used by people.
     #######################################################################
 
-    def arg2nodes(self, args, node_factory=_null, lookup_list=_null):
-        if node_factory is _null:
-            node_factory = self.fs.File
-        if lookup_list is _null:
-            lookup_list = self.lookup_list
-
-        if not args:
-            return []
-
-        if SCons.Util.is_List(args):
-            args = SCons.Util.flatten(args)
-        else:
-            args = [args]
-
-        nodes = []
-        for v in args:
-            if SCons.Util.is_String(v):
-                n = None
-                for l in lookup_list:
-                    n = l(v)
-                    if not n is None:
-                        break
-                if not n is None:
-                    if SCons.Util.is_String(n):
-                        n = self.subst(n, raw=1)
-                        if node_factory:
-                            n = node_factory(n)
-                    if SCons.Util.is_List(n):
-                        nodes.extend(n)
-                    else:
-                        nodes.append(n)
-                elif node_factory:
-                    v = node_factory(self.subst(v, raw=1))
-                    if SCons.Util.is_List(v):
-                        nodes.extend(v)
-                    else:
-                        nodes.append(v)
-            else:
-                nodes.append(v)
-    
-        return nodes
-
     def get_calculator(self):
         try:
             return self._calculator
@@ -443,74 +522,6 @@ class Base:
             del self.scanner_map
         except AttributeError:
             pass
-
-    def subst(self, string, raw=0, target=None, source=None, dict=None, conv=None):
-        """Recursively interpolates construction variables from the
-        Environment into the specified string, returning the expanded
-        result.  Construction variables are specified by a $ prefix
-        in the string and begin with an initial underscore or
-        alphabetic character followed by any number of underscores
-        or alphanumeric characters.  The construction variable names
-        may be surrounded by curly braces to separate the name from
-        trailing characters.
-        """
-        return SCons.Util.scons_subst(string, self, raw, target, source, dict, conv)
-
-    def subst_kw(self, kw, raw=0, target=None, source=None, dict=None):
-        nkw = {}
-        for k, v in kw.items():
-            k = self.subst(k, raw, target, source, dict)
-            if SCons.Util.is_String(v):
-                v = self.subst(v, raw, target, source, dict)
-            nkw[k] = v
-        return nkw
-
-    def subst_list(self, string, raw=0, target=None, source=None, dict=None, conv=None):
-        """Calls through to SCons.Util.scons_subst_list().  See
-        the documentation for that function."""
-        return SCons.Util.scons_subst_list(string, self, raw, target, source, dict, conv)
-
-
-    def subst_path(self, path):
-        """Substitute a path list, turning EntryProxies into Nodes
-        and leaving Nodes (and other objects) as-is."""
-
-        if not SCons.Util.is_List(path):
-            path = [path]
-
-        def s(obj):
-            """This is the "string conversion" routine that we have our
-            substitutions use to return Nodes, not strings.  This relies
-            on the fact that an EntryProxy object has a get() method that
-            returns the underlying Node that it wraps, which is a bit of
-            architectural dependence that we might need to break or modify
-            in the future in response to additional requirements."""
-            try:
-                get = obj.get
-            except AttributeError:
-                pass
-            else:
-                obj = get()
-            return obj
-
-        r = []
-        for p in path:
-            if SCons.Util.is_String(p):
-                p = self.subst(p, conv=s)
-                if SCons.Util.is_List(p):
-                    if len(p) == 1:
-                        p = p[0]
-                    else:
-                        # We have an object plus a string, or multiple
-                        # objects that we need to smush together.  No choice
-                        # but to make them into a string.
-                        p = string.join(map(SCons.Util.to_String, p), '')
-            else:
-                p = s(p)
-            r.append(p)
-        return r
-
-    subst_target_source = subst
 
     def _update(self, dict):
         """Update an environment's values directly, bypassing the normal
@@ -726,15 +737,12 @@ class Base:
         """
 
         if overrides:
-            env = copy.copy(self)
-            env._dict = copy.copy(self._dict)
-            env['__env__'] = env
-            overrides = copy_non_reserved_keywords(overrides)
-            new = {}
-            for key, value in overrides.items():
-                new[key] = SCons.Util.scons_subst_once(value, self, key)
-            env._dict.update(new)
-            if __debug__: logInstanceCreation(self, 'EnvironmentOverride')
+            o = copy_non_reserved_keywords(overrides)
+            overrides = {}
+            for key, value in o.items():
+                overrides[key] = SCons.Util.scons_subst_once(value, self, key)
+        if overrides:
+            env = OverrideEnvironment(self, overrides)
             return env
         else:
             return self
@@ -1331,6 +1339,91 @@ class Base:
         """
         """
         return SCons.Node.Python.Value(value)
+
+class OverrideEnvironment(_Environment):
+    """A proxy that overrides variables in a wrapped "real"
+    (Environment.Base) construction environment by returning values from
+    an overrides dictionary in preference to values from the underlying
+    subject environment.
+
+    This is a lightweight (I hope) proxy that passes through most use of
+    attributes to the underlying Environment.Base class, but has just
+    enough additional methods defined to act like a real construction
+    environment with overridden values.
+
+    Note that because we subclass _Environment, this class also has
+    inherited arg2nodes() and subst*() methods.  Those methods can't
+    be proxied because they need *this* object's methods to fetch the
+    overridden values.
+    """
+    def __init__(self, subject, overrides={}):
+        if __debug__: logInstanceCreation(self, 'OverrideEnvironment')
+        self.__dict__['__subject'] = subject
+        self.__dict__['overrides'] = overrides
+        self.__dict__['overrides']['__env__'] = self
+
+    # Methods that make this class act like a proxy.
+    def __getattr__(self, name):
+        return getattr(self.__dict__['__subject'], name)
+    def __setattr__(self, name, value):
+        return setattr(self.__dict__['__subject'], name, value)
+
+    # Methods that make this class act like a dictionary.
+    def __getitem__(self, key):
+        try:
+            return self.__dict__['overrides'][key]
+        except KeyError:
+            return self.__dict__['__subject'].__getitem__(key)
+    def __setitem__(self, key, value):
+        if not SCons.Util.is_valid_construction_var(key):
+            raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
+        self.__dict__['overrides'][key] = value
+    def __delitem__(self, key):
+        try:
+            del self.__dict__['overrides'][key]
+        except KeyError:
+            pass
+        return self.__dict__['__subject'].__delitem__(key)
+    def get(self, key, default=None):
+        "Emulates the get() method of dictionaries."""
+        try:
+            return self.__dict__['overrides'][key]
+        except KeyError:
+            return self.__dict__['__subject'].get(key, default)
+    def has_key(self, key):
+        try:
+            self.__dict__['overrides'][key]
+            return 1
+        except KeyError:
+            return self.__dict__['__subject'].has_key(key)
+    def items(self):
+        "Emulates the items() method of dictionaries."""
+        return self.Dictionary().items()
+
+    # Overridden private construction environment methods.
+    def _update(self, dict):
+        """Update an environment's values directly, bypassing the normal
+        checks that occur when users try to set items.
+        """
+        self.__dict__['overrides'].update(dict)
+
+    # Overridden public construction environment methods.
+    def Dictionary(self, *args):
+	if not args:
+            result = self.__dict__['__subject'].Dictionary().copy()
+            result.update(self.__dict__['overrides'])
+	    return result
+	dlist = map(lambda k, s=self: s.__getitem__(k), args)
+	if len(dlist) == 1:
+	    dlist = dlist[0]
+	return dlist
+    def Override(self, overrides):
+        kw = copy_non_reserved_keywords(overrides)
+        self.__dict__['overrides'].update(our_deepcopy(kw))
+        return self
+    def Replace(self, **kw):
+        kw = copy_non_reserved_keywords(kw)
+        self.__dict__['overrides'].update(our_deepcopy(kw))
 
 # The entry point that will be used by the external world
 # to refer to a construction environment.  This allows the wrapper
