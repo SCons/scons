@@ -126,6 +126,8 @@ ignore_errors = 0
 keep_going_on_error = 0
 help_option = None
 print_tree = 0
+climb_up = 0
+target_top = None
 exit_status = 0 # exit status, assume success by default
 
 # utility functions
@@ -353,7 +355,6 @@ def options_init():
     def opt_C(opt, arg):
 	try:
 	    os.chdir(arg)
-            SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
 	except:
 	    sys.stderr.write("Could not change directory to 'arg'\n")
 
@@ -514,7 +515,11 @@ def options_init():
 	short = 's', long = ['silent', 'quiet'],
 	help = "Don't print commands.")
 
-    Option(func = opt_not_yet, future = 1,
+    def opt_u(opt, arg):
+        global climb_up
+        climb_up = 1
+
+    Option(func = opt_u,
 	short = 'u', long = ['up', 'search-up'],
 	help = "Search up directory tree for SConstruct.")
 
@@ -578,6 +583,18 @@ options_init()
 
 
 
+def _SConstruct_exists(dirname=''):
+    """This function checks that an SConstruct file exists in a directory.
+    If so, it returns the path of the file. By default, it checks the
+    current directory.
+    """
+    for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
+        sfile = os.path.join(dirname, file)
+        if os.path.isfile(sfile):
+            return sfile
+    return None
+
+
 def UsageString():
     help_opts = filter(lambda x: x.helpline, option_list)
     s = "Usage: scons [OPTION] [TARGET] ...\n" + "Options:\n" + \
@@ -587,7 +604,7 @@ def UsageString():
 
 
 def _main():
-    global scripts, num_jobs, task_class, calc
+    global scripts, num_jobs, task_class, calc, target_top
 
     targets = []
 
@@ -625,11 +642,27 @@ def _main():
                 targets.append(a)
         SCons.Script.SConscript._scons_add_args(xmit_args)
 
+    if climb_up:
+        target_top = ''  # directory to prepend to targets
+        script_dir = os.getcwd()  # location of script
+        while script_dir and not _SConstruct_exists(script_dir):
+            script_dir, last_part = os.path.split(script_dir)
+            if last_part:
+                target_top = os.path.join(last_part, target_top)
+            else:
+                script_dir = ''
+        if script_dir:
+	    print "scons: Entering directory %s" % script_dir
+            os.chdir(script_dir)
+        else:
+            raise UserError, "No SConstruct file found."
+        
+    SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
+
     if not scripts:
-        for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
-            if os.path.isfile(file):
-                scripts.append(file)
-                break
+        sfile = _SConstruct_exists()
+        if sfile:
+            scripts.append(sfile)
 
     if help_option == 'H':
 	print UsageString()
@@ -671,19 +704,30 @@ def _main():
 
     if not targets:
         targets = SCons.Script.SConscript.default_targets
-	
-    def Entry(x):
-	if isinstance(x, SCons.Node.Node):
-	    return x
-        try:
-            node = SCons.Node.FS.default_fs.Entry(x, create = 0)
-        except UserError:
-            str = "scons: *** Do not know how to make target `%s'." % x
-            if not keep_going_on_error:
-                sys.stderr.write(str + "  Stop.\n")
-                sys.exit(2)
-            sys.stderr.write(str + "\n")
-            node = None
+
+    if target_top:
+        target_top = SCons.Node.FS.default_fs.Dir(target_top)
+
+    def Entry(x, top = target_top):
+        if isinstance(x, SCons.Node.Node):
+            node = x
+        else:
+            try:
+                node = SCons.Node.FS.default_fs.Entry(x,
+                                                      directory = top,
+                                                      create = 0)
+            except UserError:
+                string = "scons: *** Do not know how to make target `%s'." % x
+                if not keep_going_on_error:
+                    sys.stderr.write(string + "  Stop.\n")
+                    sys.exit(2)
+                sys.stderr.write(string + "\n")
+                node = None
+        if top and not node.is_under(top):
+            if isinstance(node, SCons.Node.FS.Dir) and top.is_under(node):
+                node = top
+            else:
+                node = None
         return node
 
     nodes = filter(lambda x: x is not None, map(Entry, targets))

@@ -98,8 +98,8 @@ RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
 	- No support yet for the following command-line options:
 
              -d -e -l --list-actions --list-derived --list-where
-	     -o -p -q -r -R --random -u -w --write-filenames -W
-	     --warn-undefined-variables
+             -o -p -q -r -R --random -w --write-filenames -W
+             --warn-undefined-variables
 
   Thank you for your interest, and please let us know how we can help
   improve SCons for your needs.

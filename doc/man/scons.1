@@ -147,18 +147,18 @@ built:
 scons src/subdir
 .EE
 
-.\" or changing directory and invoking scons with the
-.\" .B -u
-.\" option, which traverses up the directory
-.\" hierarchy until it finds the 
-.\" .I SConstruct
-.\" file, and then builds
-.\" targets relatively to the current subdirectory:
-.\" 
-.\" .ES
-.\" cd src/subdir
-.\" scons -u .
-.\" .EE
+or by changing directory and invoking scons with the
+.B -u
+option, which traverses up the directory
+hierarchy until it finds the 
+.I SConstruct
+file, and then builds
+targets relatively to the current subdirectory:
+
+.ES
+cd src/subdir
+scons -u .
+.EE
 
 .B scons
 supports building multiple targets in parallel via a
@@ -482,15 +482,16 @@ Ignored for compatibility with GNU
 appear up-to-date is unnecessary when using 
 .BR scons .)
 
-.\" .TP
-.\" -u
-.\" Traverse up directories until an 
-.\" .I SConstruct
-.\" or 
-.\" .I sconstruct
-.\" file is found, and use that
-.\" as the top of the directory tree.  Only targets at or below the
-.\" current directory will be built.
+.TP
+-u
+Walks up the directory structure until an 
+.I SConstruct ,
+.I Sconstruct
+or 
+.I sconstruct
+file is found, and uses that
+as the top of the directory tree.  Only targets at or below the
+current directory will be built.
 
 .TP
 -v, --version

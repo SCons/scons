@@ -43,8 +43,8 @@ include_cache = {}
 def CScan(fs = SCons.Node.FS.default_fs):
     "Return a prototype Scanner instance for scanning C/C++ source files"
     cs = CScanner(scan, "CScan", [fs, ()],
-                  [".c", ".C", ".cxx", ".cpp", ".c++",
-                   ".h", ".H", ".hxx", ".hpp"])
+                  [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+                   ".h", ".H", ".hxx", ".hpp", ".hh"])
     cs.fs = fs
     return cs
 

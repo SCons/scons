@@ -24,16 +24,54 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
-import string
+import os.path
 import sys
+
+import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+python = sys.executable
 
-test.run(arguments = '-u',
-	 stderr = "Warning:  the -u option is not yet implemented\n")
+test.subdir('sub1', 'sub2', 'sub3')
+
+test.write('build.py', r"""
+import sys
+contents = open(sys.argv[2], 'rb').read()
+file = open(sys.argv[1], 'wb')
+file.write(contents)
+file.close()
+""")
+
+test.write('SConstruct', """
+B = Builder(name='B', action='%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = [B])
+env.B(target = 'sub1/foo.out', source = 'sub1/foo.in')
+Default('.')
+Export('env')
+SConscript('sub2/SConscript')
+env.B(target = 'sub3/baz.out', source = 'sub3/baz.in')
+""" % python)
+
+test.write(['sub2', 'SConscript'], """
+Import('env')
+env.B(target = 'bar.out', source = 'bar.in')
+""")
+
+test.write(['sub1', 'foo.in'], "sub1/foo.in")
+test.write(['sub2', 'bar.in'], "sub2/bar.in")
+test.write(['sub3', 'baz.in'], "sub3/baz.in")
+
+test.run(arguments = '-u foo.out', chdir = 'sub1')
+
+test.fail_test(test.read(['sub1', 'foo.out']) != "sub1/foo.in")
+test.fail_test(os.path.exists(test.workpath('sub2', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
+
+test.run(chdir = 'sub2', arguments = '-u')
+
+test.fail_test(test.read(['sub2', 'bar.out']) != "sub2/bar.in")
+test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
 
 test.pass_test()
  

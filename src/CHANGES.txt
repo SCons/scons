@@ -68,9 +68,17 @@ RELEASE 0.05 -
   - Efficiency:  don't scan dependencies more than once during the
     walk of a tree.
 
+  From Steve Leblanc:
+
+  - Add support for the -u option.
+
+  - Add .cc and .hh file suffixes to the C Scanner.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.
+
+  - Add support for using code to generate a command to build a target.
 
 
 
