@@ -54,6 +54,8 @@ test.write(['subdir', 'f3.in'], "f3.in\n")
 test.write(['subdir', 'f4.in'], "f4.in\n")
 
 test.run(arguments = 'subdir')
+print test.stdout()
+print test.stderr()
 
 test.fail_test(test.read(['subdir', 'f1.out']) != "f1.in\n")
 test.fail_test(test.read(['subdir', 'f2.out']) != "f2.in\n")

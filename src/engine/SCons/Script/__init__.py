@@ -68,12 +68,12 @@ import SCons.Script.SConscript
 class BuildTask(SCons.Taskmaster.Task):
     """An SCons build task."""
     def execute(self):
-        if self.target.get_state() == SCons.Node.up_to_date:
+        if self.targets[0].get_state() == SCons.Node.up_to_date:
             if self.top:
-                print 'scons: "%s" is up to date.' % str(self.target)
+                print 'scons: "%s" is up to date.' % str(self.targets[0])
         else:
             try:
-                self.target.build()
+                self.targets[0].build()
             except BuildError, e:
                 sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
                 if e.errstr == 'Exception':
@@ -87,8 +87,7 @@ class BuildTask(SCons.Taskmaster.Task):
         # this method is serialized, but execute isn't:
         if print_tree and self.top:
             print
-            print SCons.Util.render_tree(self.target, get_children)
-
+            print SCons.Util.render_tree(self.targets[0], get_children)
 
     def failed(self):
         global ignore_errors
@@ -102,9 +101,14 @@ class BuildTask(SCons.Taskmaster.Task):
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def execute(self):
-        if self.target.builder:
-	    os.unlink(self.target.path)
-	    print "Removed " + self.target.path
+        if self.targets[0].builder:
+            os.unlink(self.targets[0].path)
+            print "Removed " + self.targets[0].path
+            try:
+                for t in self.targets[1:]:
+                    os.unlink(t.path)
+            except IndexError:
+                pass
 
 
 # Global variables

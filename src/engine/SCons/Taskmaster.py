@@ -131,7 +131,7 @@ class Task:
         pending = filter(lambda x: x.get_state() == SCons.Node.pending,
                          nodes.keys())
         tasks = {}
-        for t in map(lambda r: r.task, ready):
+        for t in map(lambda r: r.task, pending):
             tasks[t] = 1
         self.tm.pending_remove(tasks.keys())
 
