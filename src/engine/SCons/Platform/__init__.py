@@ -52,14 +52,17 @@ import SCons.Errors
 
 def platform_default():
     """Return the platform string for our execution environment.
+
+    The returned value should map to one of the SCons/Platform/*.py
+    files.  Since we're architecture independent, though, we don't
+    care about the machine architecture.
     """
-    if sys.platform == 'win32':
-        return 'win32'
-    if os.name == 'cygwin':
-        return 'cygwin'
     if os.name == 'posix':
-        return 'posix'
-    return None
+        if sys.platform == 'cygwin':
+            return 'cygwin'
+	return 'posix'
+    else:
+        return sys.platform
 
 def platform_module(name = platform_default()):
     """Return the imported module for the platform.
