@@ -747,7 +747,7 @@ for p in [ scons ]:
 
     commands = [
         "rm -rf %s" % local,
-        "$PYTHON $SETUP_PY install --install-script=%s --install-lib=%s" % \
+        "$PYTHON $SETUP_PY install --install-script=%s --install-lib=%s --no-compile" % \
                                                 (cwd_local, cwd_local_slv),
         "mv %s/scons %s/scons.py" % (local, local),
     ]

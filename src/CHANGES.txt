@@ -10,6 +10,10 @@
 
 RELEASE 0.10 - XXX
 
+  From Steven Knight:
+
+  - Remove Python bytecode (*.pyc) files from the scons-local packages.
+
 
 
 RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
