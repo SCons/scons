@@ -250,9 +250,12 @@ class SConfBuildTask(SCons.Taskmaster.Task):
                 if cache_mode == CACHE:
                     t.state = SCons.Node.up_to_date
                 else:
-                    bsig = t.calc_signature(sconf_global.calc)
-                    is_up_to_date = (is_up_to_date and
-                                     bsig == bi.bsig)
+                    new_bsig = t.calc_signature(sconf_global.calc)
+                    if t.env.use_build_signature():
+                        old_bsig = bi.bsig
+                    else:
+                        old_bsig = bi.csig
+                    is_up_to_date = (is_up_to_date and new_bsig == old_bsig)
                 cached_error = cached_error or bi.result
             else:
                 # the node hasn't been built in a SConf context or doesn't

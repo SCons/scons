@@ -438,6 +438,8 @@ RELEASE 0.97 - XXX
     try:-except: blocks that catch all errors, which potentially catch
     and mask keyboard interrupts.
 
+  - Fix us of TargetSignatures('content') with the SConf subsystem.
+
   From Russell Yanofsky:
 
   - Add support for the Metrowerks Codewarrior compiler and linker
