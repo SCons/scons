@@ -136,9 +136,9 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         },
         'user' : {
                 'htmlindex' : 'book1.html',
-                'html'      : 1,
-                'ps'        : 1,
-                'pdf'       : 1,
+                'html'      : 0,
+                'ps'        : 0,
+                'pdf'       : 0,
                 'text'      : 0,
                 'scan'      : Scanner(name = 'user',
                                       function = scansgml,
