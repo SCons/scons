@@ -39,6 +39,7 @@ for dir in ['one', 'two', 'three']:
 int
 main(int argc, char *argv[])
 {
+	argv[argc++] = "--";
 	printf("%s\n");
 	exit (0);
 }
@@ -48,6 +49,7 @@ main(int argc, char *argv[])
 int
 main(int argc, char *argv[])
 {
+	argv[argc++] = "--";
 	printf("%s\n");
 	exit (0);
 }

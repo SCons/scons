@@ -18,6 +18,7 @@ test.write('f1.c', """
 int
 main(int argc, char *argv[])
 {
+    argv[argc++] = "--";
     printf(\"f1.c\n\");
     exit (0);
 }
@@ -27,6 +28,7 @@ test.write('f2.c', """
 int
 main(int argc, char *argv[])
 {
+    argv[argc++] = "--";
     printf(\"f2.c\n\");
     exit (0);
 }
@@ -37,6 +39,7 @@ test.write('f3.c', """
 int
 main(int argc, char *argv[])
 {
+    argv[argc++] = "--";
     printf(\"f3.c\n\");
     exit (0);
 }
@@ -46,6 +49,7 @@ test.write('f4.c', """
 int
 main(int argc, char *argv[])
 {
+    argv[argc++] = "--";
     printf(\"f4.c\n\");
     exit (0);
 }

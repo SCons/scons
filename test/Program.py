@@ -15,6 +15,7 @@ test.write('foo.c', """
 int
 main(int argc, char *argv[])
 {
+	argv[argc++] = "--";
 	printf("foo.c\n");
 	exit (0);
 }
