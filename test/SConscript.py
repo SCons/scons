@@ -43,26 +43,26 @@ SConscript('SConscript')
 x1 = "SConstruct x1"
 x2 = "SConstruct x2"
 x3,x4 = SConscript('SConscript1', "x1 x2")
-assert x3 == "SConscript1 x3"
-assert x4 == "SConscript1 x4"
+assert x3 == "SConscript1 x3", x3
+assert x4 == "SConscript1 x4", x4
 
 (x3,x4) = SConscript('SConscript2', ["x1","x2"])
-assert x3 == "SConscript2 x3"
-assert x4 == "SConscript2 x4"
+assert x3 == "SConscript2 x3", x3
+assert x4 == "SConscript2 x4", x4
 
 Export("x1 x2")
 SConscript('SConscript3')
 Import("x1 x2")
-assert x1 == "SConscript3 x1"
-assert x2 == "SConscript3 x2"
+assert x1 == "SConscript3 x1", x1
+assert x2 == "SConscript3 x2", x2
 
 x1 = "SConstruct x1"
 x2 = "SConstruct x2"
 Export("x1","x2")
 SConscript('SConscript4')
 Import("x1"," x2")
-assert x1 == "SConscript4 x1"
-assert x2 == "SConscript4 x2"
+assert x1 == "SConscript4 x1", x1
+assert x2 == "SConscript4 x2", x2
 
 subdir = Dir('subdir')
 script = File('SConscript', subdir)
@@ -75,7 +75,7 @@ import UserList
 x7 = "SConstruct x7"
 x8 = "SConstruct x8"
 x9 = SConscript('SConscript6', UserList.UserList(["x7", "x8"]))
-assert x9 == "SConscript6 x9"
+assert x9 == "SConscript6 x9", x9
 
 SConscript('SConscript7')
 """)
@@ -91,8 +91,8 @@ print "SConscript " + os.getcwd()
 
 test.write('SConscript1', """
 Import("x1 x2")
-assert x1 == "SConstruct x1"
-assert x2 == "SConstruct x2"
+assert x1 == "SConstruct x1", x1
+assert x2 == "SConstruct x2", x2
 
 x3 = "SConscript1 x3"
 x4 = "SConscript1 x4"
@@ -102,8 +102,8 @@ Return("x3 x4")
 
 test.write('SConscript2', """\
 Import("x1","x2")
-assert x1 == "SConstruct x1"
-assert x2 == "SConstruct x2"
+assert x1 == "SConstruct x1", x1
+assert x2 == "SConstruct x2", x2
 x3 = "SConscript2 x3"
 x4 = "SConscript2 x4"
 Return("x3","x4")
@@ -112,15 +112,15 @@ Return("x3","x4")
 
 test.write('SConscript3', """\
 Import("x1 x2")
-assert x1 == "SConstruct x1"
-assert x2 == "SConstruct x2"
+assert x1 == "SConstruct x1", x1
+assert x2 == "SConstruct x2", x2
 x1 = "SConscript3 x1"
 x2 = "SConscript3 x2"
 
 x5 = SConscript('SConscript31', "x1")
 Import("x6")
-assert x5 == "SConscript31 x5"
-assert x6 == "SConscript31 x6"
+assert x5 == "SConscript31 x5", x5
+assert x6 == "SConscript31 x6", x6
 
 Export("x1 x2")
 """)
@@ -128,8 +128,8 @@ Export("x1 x2")
 
 test.write('SConscript31', """\
 Import("x1 x2")
-assert x1 == "SConscript3 x1"
-assert x2 == "SConstruct x2"
+assert x1 == "SConscript3 x1", x1
+assert x2 == "SConstruct x2", x2
 x5 = "SConscript31 x5"
 x6 = "SConscript31 x6"
 Export("x6")
@@ -139,8 +139,8 @@ Return("x5")
 
 test.write('SConscript4', """\
 Import("x1", "x2")
-assert x1 == "SConstruct x1"
-assert x2 == "SConstruct x2"
+assert x1 == "SConstruct x1", x1
+assert x2 == "SConstruct x2", x2
 x1 = "SConscript4 x1"
 x2 = "SConscript4 x2"
 Export("x1", "x2")
@@ -165,8 +165,8 @@ A = Action("A")
 
 test.write('SConscript6', """\
 Import("x7 x8")
-assert x7 == "SConstruct x7"
-assert x8 == "SConstruct x8"
+assert x7 == "SConstruct x7", x7
+assert x8 == "SConstruct x8", x8
 x9 = "SConscript6 x9"
 Return("x9")
 """)

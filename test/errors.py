@@ -56,15 +56,18 @@ env.foo('foo.out', 'foo.in')
 env.exit('exit.out', 'exit.in')
 """)
 
+# print_exception doesn't always show a source line if the source file
+# no longer exists or that line in the source file no longer exists,
+# so make sure the proper variations are supported in the following
+# regexp.
 stderr = """scons: \*\*\* \[exit.out\] Exception
 Traceback \((most recent call|innermost) last\):
-  File ".+", line \d+, in \S+
+(  File ".+", line \d+, in \S+
     [^\n]+
-  File ".+", line \d+, in \S+
+)*(  File ".+", line \d+, in \S+
+)*(  File ".+", line \d+, in \S+
     [^\n]+
-  File ".+", line \d+, in \S+
-    [^\n]+
-\S.+
+)*\S.+
 """
 
 test.run(arguments='foo.out exit.out', stderr=stderr, status=2)

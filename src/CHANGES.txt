@@ -270,6 +270,9 @@ RELEASE 0.97 - XXX
 
   - Fix hard-coding of JDK path names in various Java tests.
 
+  - Handle Python stack traces consistently (stop at the SConscript stack
+    frame, by default) even if the Python source code isn't available.
+
   From Levi Stephen:
 
   - Allow $JARCHDIR to be expanded to other construction variables.

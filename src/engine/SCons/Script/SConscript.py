@@ -169,6 +169,9 @@ def Return(*vars):
     else:
         stack[-1].retval = tuple(retval)
 
+
+stack_bottom = '% Stack boTTom %' # hard to define a variable w/this name :)
+
 def _SConscript(fs, *files, **kw):
     top = fs.Top
     sd = fs.SConstruct_dir.rdir()
@@ -236,12 +239,14 @@ def _SConscript(fs, *files, **kw):
                     # directory can be easily imported.
                     sys.path = [ f.dir.get_abspath() ] + sys.path
 
-                    # This is the magic line that actually reads up and
-                    # executes the stuff in the SConscript file.  We
-                    # look for the "exec _file_ " from the beginning
-                    # of this line to find the right stack frame (the
-                    # next one) describing the SConscript file and line
-                    # number that creates a node.
+                    # This is the magic line that actually reads up
+                    # and executes the stuff in the SConscript file.
+                    # The locals for this frame contain the special
+                    # bottom-of-the-stack marker so that any
+                    # exceptions that occur when processing this
+                    # SConscript can base the printed frames at this
+                    # level and not show SCons internals as well.
+                    stack[-1].globals.update({stack_bottom:1})
                     exec _file_ in stack[-1].globals
                 else:
                     SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning,
@@ -268,51 +273,38 @@ def _SConscript(fs, *files, **kw):
     else:
         return tuple(results)
 
-def is_our_exec_statement(line):
-    return not line is None and line[:12] == "exec _file_ "
-
 def SConscript_exception(file=sys.stderr):
     """Print an exception stack trace just for the SConscript file(s).
     This will show users who have Python errors where the problem is,
     without cluttering the output with all of the internal calls leading
     up to where we exec the SConscript."""
     exc_type, exc_value, exc_tb = sys.exc_info()
-    stack = traceback.extract_tb(exc_tb)
-    last_text = ""
-    found = 0
-    i = 0
-    for frame in stack:
-        if is_our_exec_statement(last_text):
-            found = 1
-            break
-        i = i + 1
-        last_text = frame[3]
-    if not found:
+    tb = exc_tb
+    while tb and not tb.tb_frame.f_locals.has_key(stack_bottom):
+        tb = tb.tb_next
+    if not tb:
         # We did not find our exec statement, so this was actually a bug
         # in SCons itself.  Show the whole stack.
-        i = 0
+        tb = exc_tb
+    stack = traceback.extract_tb(tb)
     type = str(exc_type)
     if type[:11] == "exceptions.":
         type = type[11:]
     file.write('%s: %s:\n' % (type, exc_value))
-    for fname, line, func, text in stack[i:]:
+    for fname, line, func, text in stack:
         file.write('  File "%s", line %d:\n' % (fname, line))
         file.write('    %s\n' % text)
 
 def annotate(node):
     """Annotate a node with the stack frame describing the
     SConscript file and line number that created it."""
-    stack = traceback.extract_stack()
-    last_text = ""
-    for frame in stack:
-        # If the script text of the previous frame begins with the
-        # magic "exec _file_ " string, then this frame describes the
-        # SConscript file and line number that caused this node to be
-        # created.  Record the tuple and carry on.
-        if is_our_exec_statement(last_text):
-            node.creator = frame
-            return
-        last_text = frame[3]
+    tb = exc_tb = sys.exc_info()[2]
+    while tb and not tb.tb_frame.f_locals.has_key(stack_bottom):
+        tb = tb.tb_next
+    if not tb:
+        # We did not find any exec of an SConscript file: what?!
+        raise InternalError, "could not find SConscript stack frame"
+    node.creator = traceback.extract_stack(tb)[0]
 
 # The following line would cause each Node to be annotated using the
 # above function.  Unfortunately, this is a *huge* performance hit, so
