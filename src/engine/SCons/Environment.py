@@ -701,40 +701,47 @@ class Base:
     def ParseConfig(self, command, function=None):
         """
         Use the specified function to parse the output of the command
-        in order to modify the current environment. The 'command'
-        can be a string or a list of strings representing a command and
+        in order to modify the current environment. The 'command' can
+        be a string or a list of strings representing a command and
         it's arguments. 'Function' is an optional argument that takes
         the environment and the output of the command. If no function is
         specified, the output will be treated as the output of a typical
-        'X-config' command (i.e. gtk-config) and used to set the CPPPATH,
-        LIBPATH, LIBS, and CCFLAGS variables.
+        'X-config' command (i.e. gtk-config) and used to append to the
+        ASFLAGS, CCFLAGS, CPPFLAGS, CPPPATH, LIBPATH, LIBS, LINKFLAGS
+        and CCFLAGS variables.
         """
 
         # the default parse function
         def parse_conf(env, output):
             dict = {
-                'CPPPATH' : [],
-                'LIBPATH' : [],
-                'LIBS'    : [],
-                'CCFLAGS' : [],
+                'ASFLAGS'       : [],
+                'CCFLAGS'       : [],
+                'CPPFLAGS'      : [],
+                'CPPPATH'       : [],
+                'LIBPATH'       : [],
+                'LIBS'          : [],
+                'LINKFLAGS'     : [],
             }
             static_libs = []
     
             params = string.split(output)
             for arg in params:
-                switch = arg[0:1]
-                opt = arg[1:2]
-                if switch == '-':
-                    if opt == 'L':
-                        dict['LIBPATH'].append(arg[2:])
-                    elif opt == 'l':
-                        dict['LIBS'].append(arg[2:])
-                    elif opt == 'I':
-                        dict['CPPPATH'].append(arg[2:])
-                    else:
-                        dict['CCFLAGS'].append(arg)
-                else:
+                if arg[0] != '-':
                     static_libs.append(arg)
+                elif arg[:2] == '-L':
+                    dict['LIBPATH'].append(arg[2:])
+                elif arg[:2] == '-l':
+                    dict['LIBS'].append(arg[2:])
+                elif arg[:2] == '-I':
+                    dict['CPPPATH'].append(arg[2:])
+                elif arg[:4] == '-Wa,':
+                    dict['ASFLAGS'].append(arg)
+                elif arg[:4] == '-Wl,':
+                    dict['LINKFLAGS'].append(arg)
+                elif arg[:4] == '-Wp,':
+                    dict['CPPFLAGS'].append(arg)
+                else:
+                    dict['CCFLAGS'].append(arg)
             apply(env.Append, (), dict)
             return static_libs
     
