@@ -10,7 +10,7 @@ PYTHON=/usr/bin/python2.1
 #######
 
 # Uncomment this to turn on verbose mode.
-export DH_VERBOSE=1
+#export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
 export DH_COMPAT=2
