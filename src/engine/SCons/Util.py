@@ -271,7 +271,7 @@ def find_file(filename, paths,
             node = node_factory(filename, dir)
             # Return true of the node exists or is a derived node.
             if node.builder or \
-               (isinstance(node, SCons.Node.FS.Entry) and node.exists()):
+               (isinstance(node, SCons.Node.FS.Entry) and node.cached_exists()):
                 retval = node
                 break
         except TypeError:
@@ -317,7 +317,7 @@ class VarInterpolator:
             suffix =''
 
         dict[self.dest] = map(lambda x, suff=suffix, pref=prefix: \
-                              pref + os.path.normpath(str(x)) + suff,
+                              pref + str(x) + suff,
                               src)
 
     def instance(self, dir, fs):

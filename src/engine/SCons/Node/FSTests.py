@@ -403,7 +403,16 @@ class FSTestCase(unittest.TestCase):
 	fs.chdir(fs.Dir('../..'))
 	assert str(fs.getcwd()) == test.workdir, str(fs.getcwd())
         
-        #XXX test exists()
+        f1 = fs.File(test.workpath("do_i_exist"))
+        assert not f1.exists()
+        test.write("do_i_exist","\n")
+        assert f1.exists()
+        assert f1.cached_exists()
+        test.unlink("do_i_exist")
+        assert not f1.exists()
+        assert f1.cached_exists()
+        f1.build()
+        assert not f1.cached_exists()
 
         #XXX test current() for directories
 

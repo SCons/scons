@@ -138,8 +138,8 @@ def deps_match(self, deps, headers):
     expect.sort()
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
-def make_node(filename):
-    return SCons.Node.FS.default_fs.File(test.workpath(filename))
+def make_node(filename, fs=SCons.Node.FS.default_fs):
+    return fs.File(test.workpath(filename))
 
 # define some tests:
 
@@ -221,9 +221,9 @@ class CScannerTestCase8(unittest.TestCase):
         fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment(["include"])
         s = SCons.Scanner.C.CScan(fs = fs)
-        deps1 = s.instance(env).scan(make_node('fa.cpp'), None)
+        deps1 = s.instance(env).scan(fs.File('fa.cpp'), None)
         fs.chdir(fs.Dir('subdir'))
-        deps2 = s.instance(env).scan(make_node('fa.cpp'), None)
+        deps2 = s.instance(env).scan(fs.File('#fa.cpp'), None)
         headers1 =  ['include/fa.h', 'include/fb.h']
         headers2 =  ['subdir/include/fa.h', 'subdir/include/fb.h']
         deps_match(self, deps1, headers1)
@@ -231,12 +231,12 @@ class CScannerTestCase8(unittest.TestCase):
 
 class CScannerTestCase9(unittest.TestCase):
     def runTest(self):
+        test.write('fa.h','\n')
         fs = SCons.Node.FS.FS(test.workpath(''))
         s = SCons.Scanner.C.CScan(fs=fs)
         env = DummyEnvironment([])
-        test.write('fa.h','\n')
-        deps = s.instance(env).scan(make_node('fa.cpp'), None)
-        deps_match(self, deps, [ test.workpath('fa.h') ])
+        deps = s.instance(env).scan(fs.File('fa.cpp'), None)
+        deps_match(self, deps, [ 'fa.h' ])
         test.unlink('fa.h')
 
 class CScannerTestCase10(unittest.TestCase):
@@ -246,8 +246,8 @@ class CScannerTestCase10(unittest.TestCase):
         s = SCons.Scanner.C.CScan(fs=fs)
         env = DummyEnvironment([])
         test.write('include/fa.cpp', test.read('fa.cpp'))
-        deps = s.instance(env).scan(make_node('include/fa.cpp'), None)
-        deps_match(self, deps, [ test.workpath('include/fa.h'), test.workpath('include/fb.h') ])
+        deps = s.instance(env).scan(fs.File('#include/fa.cpp'), None)
+        deps_match(self, deps, [ 'include/fa.h', 'include/fb.h' ])
         test.unlink('include/fa.cpp')
 
 def suite():

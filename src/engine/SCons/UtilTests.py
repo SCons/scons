@@ -166,7 +166,7 @@ class UtilTestCase(unittest.TestCase):
         test.write('./foo', 'Some file\n')
         fs = SCons.Node.FS.FS(test.workpath(""))
         os.chdir(test.workpath("")) # FS doesn't like the cwd to be something other than it's root
-        node_derived = fs.File(test.workpath('./bar/baz'))
+        node_derived = fs.File(test.workpath('bar/baz'))
         node_derived.builder_set(1) # Any non-zero value.
         paths = map(fs.Dir, ['.', './bar'])
         nodes = [find_file('foo', paths, fs.File), 

@@ -33,6 +33,7 @@ canonical default.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
 import os
 import os.path
 import types
@@ -65,81 +66,22 @@ class ParentOfRoot:
         self.duplicate = 1
         self.path = ""
         self.srcpath = ""
+        self.abspath_=''
+        self.path_=''
+        self.srcpath_=''
 
     def is_under(self, dir):
         return 0
 
-class PathName:
-    """This is a string like object with limited capabilities (i.e.,
-    cannot always be used interchangeably with strings).  This class
-    is used by PathDict to manage case-insensitive path names.  It preserves
-    the case of the string with which it was created, but on OS's with
-    case insensitive paths, it will hash equal to any case of the same
-    path when placed in a dictionary."""
+    def up(self):
+        return None
 
-    try:
-        convert_path = unicode
-    except NameError:
-        convert_path = str
-
-    def __init__(self, path_name=''):
-        if isinstance(path_name, PathName):
-            self.__dict__ = path_name.__dict__
-        else:
-            self.data = PathName.convert_path(path_name)
-            self.norm_path = os.path.normcase(self.data)
-
-    def __hash__(self):
-        return hash(self.norm_path)
-    def __cmp__(self, other):
-        if isinstance(other, PathName):
-            return cmp(self.norm_path, other.norm_path)
-        return cmp(self.norm_path,
-                   os.path.normcase(PathName.convert_path(other)))
-    def __rcmp__(self, other):
-        if isinstance(other, PathName):
-            return cmp(other.norm_path, self.norm_path)
-        return cmp(os.path.normcase(PathName.convert_path(other)),
-                   self.norm_path)
-    def __str__(self):
-        return str(self.data)
-    def __repr__(self):
-        return repr(self.data)
-
-class PathDict(UserDict):
-    """This is a dictionary-like class meant to hold items keyed
-    by path name.  The difference between this class and a normal
-    dictionary is that string or unicode keys will act differently
-    on OS's that have case-insensitive path names.  Specifically
-    string or unicode keys of different case will be treated as
-    equal on the OS's.
-
-    All keys are implicitly converted to PathName objects before
-    insertion into the dictionary."""
-
-    def __init__(self, initdict = {}):
-        UserDict.__init__(self, initdict)
-        old_dict = self.data
-        self.data = {}
-        for key, val in old_dict.items():
-            self.data[PathName(key)] = val
-
-    def __setitem__(self, key, val):
-        self.data[PathName(key)] = val
-
-    def __getitem__(self, key):
-        return self.data[PathName(key)]
-
-    def __delitem__(self, key):
-        del(self.data[PathName(key)])
-
-    def setdefault(self, key, value):
-        key = PathName(key)
-        try:
-            return self.data[key]
-        except KeyError:
-            self.data[key] = value
-            return value
+if os.path.normcase("TeSt") == os.path.normpath("TeSt"):
+    def _my_normcase(x):
+        return x
+else:
+    def _my_normcase(x):
+        return string.upper(x)
 
 class FS:
     def __init__(self, path = None):
@@ -155,7 +97,7 @@ class FS:
             self.pathTop = os.getcwd()
         else:
             self.pathTop = path
-        self.Root = PathDict()
+        self.Root = {}
         self.Top = None
 
     def set_toplevel_dir(self, path):
@@ -164,16 +106,28 @@ class FS:
         
     def __setTopLevelDir(self):
         if not self.Top:
-            self.Top = self.__doLookup(Dir, self.pathTop)
+            self.Top = self.__doLookup(Dir, os.path.normpath(self.pathTop))
             self.Top.path = '.'
             self.Top.srcpath = '.'
-            self.Top.path_ = os.path.join('.', '')
+            self.Top.path_ = '.' + os.sep
             self._cwd = self.Top
         
     def getcwd(self):
         self.__setTopLevelDir()
 	return self._cwd
 
+    def __checkClass(self, node, klass):
+        if klass == Entry:
+            return node
+        if node.__class__ == Entry:
+            node.__class__ = klass
+            node._morph()
+            return node
+        if not isinstance(node, klass):
+            raise TypeError, "Tried to lookup %s '%s' as a %s." % \
+                  (node.__class__.__name__, str(node), klass.__name__)
+        return node
+        
     def __doLookup(self, fsclass, name, directory=None):
         """This method differs from the File and Dir factory methods in
         one important way: the meaning of the directory parameter.
@@ -182,55 +136,39 @@ class FS:
 	relative path with directory=None, then an AssertionError will be
 	raised."""
 
-        head, tail = os.path.split(os.path.normpath(name))
-        if not tail:
-            # We have reached something that looks like a root
-            # of an absolute path.  What we do here is a little
-            # weird.  If we are on a UNIX system, everything is
-            # well and good, just return the root node.
-            #
-            # On DOS/Win32 things are strange, since a path
-            # starting with a slash is not technically an
-            # absolute path, but a path relative to the
-            # current drive.  Therefore if we get a path like
-            # that, we will return the root Node of the
-            # directory parameter.  If the directory parameter is
-            # None, raise an exception.
-
-            drive, tail = os.path.splitdrive(head)
-            #if sys.platform is 'win32' and not drive:
-            #    if not directory:
-            #        raise OSError, 'No drive letter supplied for absolute path.'
-            #    return directory.root()
-            dir = Dir(tail, ParentOfRoot())
-            dir.path = drive + dir.path
-            dir.path_ = drive + dir.path_
-            dir.abspath = drive + dir.abspath
-            dir.abspath_ = drive + dir.abspath_
-            dir.srcpath = dir.path
-            return self.Root.setdefault(drive, dir)
-        if head:
-            # Recursively look up our parent directories.
-            directory = self.__doLookup(Dir, head, directory)
+        path_comp = string.split(name, os.sep)
+        drive, path_first = os.path.splitdrive(path_comp[0])
+        if not path_first:
+            # Absolute path
+            drive_path = _my_normcase(drive)
+            try:
+                directory = self.Root[drive_path]
+            except KeyError:
+                dir = Dir(drive, ParentOfRoot())
+                dir.path = dir.path + os.sep
+                dir.abspath = dir.abspath + os.sep
+                dir.srcpath = dir.srcpath + os.sep
+                self.Root[drive_path] = dir
+                directory = dir
+            path_comp = path_comp[1:]
         else:
-            # This path looks like a relative path.  No leading slash or drive
-	    # letter.  Therefore, we will look up this path relative to the
-	    # supplied top-level directory.
-	    assert directory, "Tried to lookup a node by relative path with no top-level directory supplied."
-        ret = directory.entries.setdefault(tail, fsclass(tail, directory))
-	if fsclass.__name__ == 'Entry':
-            # If they were looking up a generic entry, then
-	    # whatever came back is all right.
-	    return ret
-	if ret.__class__.__name__ == 'Entry':
-	    # They were looking up a File or Dir but found a
-	    # generic entry.  Transform the node.
-	    ret.__class__ = fsclass
-	    ret._morph()
-	    return ret
-        if not isinstance(ret, fsclass):
-            raise TypeError, "Tried to lookup %s '%s' as a %s." % \
-    			(ret.__class__.__name__, str(ret), fsclass.__name__)
+            path_comp = [ path_first, ] + path_comp[1:]
+        # Lookup the directory
+        for path_name in path_comp[:-1]:
+            path_norm = _my_normcase(path_name)
+            try:
+                directory = self.__checkClass(directory.entries[path_norm],
+                                              Dir)
+            except KeyError:
+                dir_temp = Dir(path_name, directory)
+                directory.entries[path_norm] = dir_temp
+                directory = dir_temp
+        file_name = _my_normcase(path_comp[-1])
+        try:
+            ret = self.__checkClass(directory.entries[file_name], fsclass)
+        except KeyError:
+            ret = fsclass(path_comp[-1], directory)
+            directory.entries[file_name] = ret
         return ret
 
     def __transformPath(self, name, directory):
@@ -246,10 +184,10 @@ class FS:
         self.__setTopLevelDir()
         if name[0] == '#':
             directory = self.Top
-            name = os.path.join(os.path.normpath('./'), name[1:])
+            name = os.path.join('./', name[1:])
         elif not directory:
             directory = self._cwd
-        return (name, directory)
+        return (os.path.normpath(name), directory)
 
     def chdir(self, dir):
         """Change the current working directory for lookups.
@@ -335,18 +273,18 @@ class Entry(SCons.Node.Node):
         assert directory, "A directory must be provided"
 
         self.duplicate = directory.duplicate
-        self.abspath = os.path.join(directory.abspath, name)
-
+        self.abspath = directory.abspath_ + name
         if str(directory.path) == '.':
             self.path = name
         else:
-            self.path = os.path.join(directory.path, name)
+            self.path = directory.path_ + name
 
         self.path_ = self.path
         self.abspath_ = self.abspath
         self.dir = directory
 	self.use_signature = 1
         self.__doSrcpath(self.duplicate)
+        self.srcpath_ = self.srcpath
 
     def get_dir(self):
         return self.dir
@@ -359,7 +297,7 @@ class Entry(SCons.Node.Node):
         if str(self.dir.srcpath) == '.':
             self.srcpath = self.name
         else:
-            self.srcpath = os.path.join(self.dir.srcpath, self.name)
+            self.srcpath = self.dir.srcpath_ + self.name
 
     def __str__(self):
 	"""A FS node's string representation is its path name."""
@@ -370,6 +308,13 @@ class Entry(SCons.Node.Node):
 
     def exists(self):
         return os.path.exists(str(self))
+
+    def cached_exists(self):
+        try:
+            return self.exists_flag
+        except AttributeError:
+            self.exists_flag = self.exists()
+            return self.exists_flag
 
     def current(self):
         """If the underlying path doesn't exist, we know the node is
@@ -415,15 +360,13 @@ class Dir(Entry):
 	into the file system tree.  Specify that directories (this
 	node) don't use signatures for currency calculation."""
 
-        self.path_ = os.path.join(self.path, '')
-        self.abspath_ = os.path.join(self.abspath, '')
+        self.path_ = self.path + os.sep
+        self.abspath_ = self.abspath + os.sep
+        self.srcpath_ = self.srcpath + os.sep
 
-        self.entries = PathDict()
+        self.entries = {}
         self.entries['.'] = self
-        if hasattr(self, 'dir'):
-            self.entries['..'] = self.dir
-	else:
-	    self.entries['..'] = None
+        self.entries['..'] = self.dir
         self.use_signature = None
         self.builder = 1
         self._sconsign = None
@@ -435,12 +378,14 @@ class Dir(Entry):
 
     def adjust_srcpath(self, duplicate):
         Entry.adjust_srcpath(self, duplicate)
+        self.srcpath_ = self.srcpath + os.sep
         self.__doReparent(duplicate)
                 
     def link(self, srcdir, duplicate):
         """Set this directory as the build directory for the
         supplied source directory."""
         self.srcpath = srcdir.path
+        self.srcpath_ = srcdir.path_
         self.__doReparent(duplicate)
 
     def up(self):
@@ -500,6 +445,7 @@ class Dir(Entry):
             import SCons.Sig.MD5
             self._sconsign = SCons.Sig.SConsignFile(self, SCons.Sig.MD5)
         return self._sconsign
+
 
 
 # XXX TODO?
@@ -592,24 +538,25 @@ class File(Entry):
         # ensure that the directories for this node are
         # created.
 
-        listPaths = []
-        strPath = self.abspath
-        while 1:
-            strPath, strFile = os.path.split(strPath)
-            if os.path.exists(strPath):
+        listDirs = []
+        parent=self.dir
+        while parent:
+            if parent.cached_exists():
                 break
-            listPaths.append(strPath)
-            if not strFile:
-                break
-        listPaths.reverse()
-        for strPath in listPaths:
+            listDirs.append(parent)
+            parent = parent.up()
+        listDirs.reverse()
+        for dirnode in listDirs:
             try:
-                os.mkdir(strPath)
+                os.mkdir(dirnode.abspath)
+                dirnode.exists_flag = 1
             except OSError:
                 pass
 
     def build(self):
         self.__createDir()
         Entry.build(self)
+        self.exists_flag = self.exists()
 
 default_fs = FS()
+

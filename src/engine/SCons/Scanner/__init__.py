@@ -137,7 +137,7 @@ class Recursive(Base):
         """
 
         nodes = [node]
-        seen = [node]
+        seen = {node : 0}
         deps = []
         while nodes:
             n = nodes.pop(0)
@@ -145,9 +145,10 @@ class Recursive(Base):
                 d = self.function(n, env, self.argument)
             else:
                 d = self.function(n, env)
-            d = filter(lambda x, seen=seen: x not in seen, d)
+            d = filter(lambda x, seen=seen: not seen.has_key(x), d)
             if d:
                 deps.extend(d)
-                seen.extend(d)
                 nodes.extend(d)
+                for n in d:
+                    seen[n] = 0
         return deps
