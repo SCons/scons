@@ -71,10 +71,25 @@ in the local directory,
 will internally change its working
 directory (chdir) to the directory containing the file.
 
+The
+.I SConstruct
+file can specify subsidiary
+configuration files using the
+.B SConscript()
+function.
+By convention,
+these subsidiary files are named
+.IR SConscript ,
+although any name may be used.
+(Because of this naming convention,
+the term "SConscript files"
+is sometimes used to refer
+generically to all
+.B scons
+configuration files,
+regardless of actual file name.)
+
 The configuration files
-(generically referred to as
-.I SConscript
-files)
 specify the target files to be built, and
 (optionally) the rules to build those targets.  Reasonable default
 rules exist for building common software components (executable
@@ -913,6 +928,7 @@ function:
 .ES
 bar_obj = env.StaticObject('bar.c', CCFLAGS='-DBAR')
 print "The path to bar_obj is:", str(bar_obj)
+.EE
 
 .B scons
 provides the following builders:

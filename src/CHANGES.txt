@@ -44,6 +44,9 @@ RELEASE 0.10 - XXX
     multiple source files specified; the target is now deduced from just
     the first source file in the list.
 
+  - Documentation fixes: better initial explanation of SConscript files;
+    fix a misformatted "table" in the StaticObject explanation.
+
   From Steve Leblanc:
 
   - Add a Clean() method to support removing user-specified targets
