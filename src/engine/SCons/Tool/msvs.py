@@ -77,6 +77,29 @@ def _generateGUID(slnfile, name):
     solution = "{" + solution[:8] + "-" + solution[8:12] + "-" + solution[12:16] + "-" + solution[16:28] + "}"
     return solution
 
+# This is how we re-invoke SCons from inside MSVS Project files.
+# The problem is that we might have been invoked as either scons.bat
+# or scons.py.  If we were invoked directly as scons.py, then we could
+# use sys.argv[0] to find the SCons "executable," but that doesn't work
+# if we were invoked as scons.bat, which uses "python -c" to execute
+# things and ends up with "-c" as sys.argv[0].  Consequently, we have
+# the MSVS Project file invoke SCons the same way that scons.bat does,
+# which works regardless of how we were invoked.
+exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
+
+# The string for the Python executable we tell the Project file to use
+# is either sys.executable or, if an external PYTHON_ROOT environment
+# variable exists, $(PYTHON)ROOT\\python.exe (generalized a little to
+# pluck the actual executable name from sys.executable).
+try:
+    python_root = os.environ['PYTHON_ROOT']
+except KeyError:
+    python_executable = sys.executable
+else:
+    python_executable = os.path.join('$(PYTHON_ROOT)',
+                                     os.path.split(sys.executable)[1])
+
 class Config:
     pass
 
@@ -233,7 +256,9 @@ class _GenerateV6DSP(_DSPGenerator):
                 self.file.write('# PROP %sOutput_Dir "%s"\n'
                                 '# PROP %sIntermediate_Dir "%s"\n' % (base,outdir,base,outdir))
                 (d,c) = os.path.split(str(self.conspath))
-                cmd = '%s %s -C %s -f %s %s' % (sys.executable, os.path.normpath(sys.argv[0]), d, c, buildtarget)
+                cmd = '%s -c "%s" -C %s -f %s %s' % (python_executable,
+                                                     exec_script_main,
+                                                     d, c, buildtarget)
                 self.file.write('# PROP %sCmd_Line "%s"\n' 
                                 '# PROP %sRebuild_Opt "-c && %s"\n'
                                 '# PROP %sTarget_File "%s"\n'
@@ -356,11 +381,16 @@ class _GenerateV6DSP(_DSPGenerator):
 class _GenerateV7DSP(_DSPGenerator):
     """Generates a Project file for MSVS .NET"""
 
+    def __init__(self, dspfile, source, env, version):
+        _DSPGenerator.__init__(self, dspfile, source, env)
+        if version==7.0: self.version="7.00"
+        else: self.version="7.10"
+
     def PrintHeader(self):
         self.file.write('<?xml version="1.0" encoding = "Windows-1252"?>\n'
                         '<VisualStudioProject\n'
                         '	ProjectType="Visual C++"\n'
-                        '	Version="7.00"\n'
+                        '	Version="%s"\n'
                         '	Name="%s"\n'
                         '	SccProjectName=""\n'
                         '	SccLocalPath=""\n'
@@ -368,7 +398,7 @@ class _GenerateV7DSP(_DSPGenerator):
                         '	<Platforms>\n'
                         '		<Platform\n'
                         '			Name="Win32"/>\n'
-                        '	</Platforms>\n' % self.name)
+                        '	</Platforms>\n' % (self.version, self.name))
 
     def PrintProject(self):
         
@@ -383,13 +413,13 @@ class _GenerateV7DSP(_DSPGenerator):
             buildtarget = self.configs[kind].buildtarget
 
             (d,c) = os.path.split(str(self.conspath))
-            cmd = '%s %s -C %s -f %s %s\n' % (sys.executable,\
-                                              os.path.normpath(sys.argv[0]),\
-                                              d,c,buildtarget)
+            cmd = '%s -c &quot;%s&quot; -C %s -f %s %s' % (python_executable,
+                                                   exec_script_main_xml,
+                                                   d, c, buildtarget)
 
-            cleancmd = '%s %s -C %s -f %s -c %s' % (sys.executable,\
-                                                    os.path.normpath(sys.argv[0]),\
-                                                    d,c,buildtarget)
+            cleancmd = '%s -c &quot;%s&quot; -C %s -f %s -c %s' % (python_executable,
+                                                         exec_script_main_xml,
+                                                         d, c, buildtarget)
 
             self.file.write('		<Configuration\n'
                             '			Name="%s|Win32"\n'
@@ -530,8 +560,11 @@ class _DSWGenerator:
 
 class _GenerateV7DSW(_DSWGenerator):
     """Generates a Solution file for MSVS .NET"""
-    def __init__(self, dswfile, dspfile, source, env):
-        _DSWGenerator.__init__(self, dswfile,dspfile,source,env)
+    def __init__(self, dswfile, dspfile, source, env, version):
+        _DSWGenerator.__init__(self, dswfile, dspfile, source, env)
+
+        if version==7.0: self.version="7.00"
+        else: self.version="8.00"
 
         if env.has_key('slnguid') and env['slnguid']:
             self.slnguid = env['slnguid']
@@ -584,13 +617,13 @@ class _GenerateV7DSW(_DSWGenerator):
 
     def PrintSolution(self):
         """Writes a solution file"""
-        self.file.write('Microsoft Visual Studio Solution File, Format Version 7.00\n'
+        self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n'
         # the next line has the GUID for an external makefile project.
                         'Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%s", "%s", "%s"\n'
                         'EndProject\n'
                         'Global\n'
                         '	GlobalSection(SolutionConfiguration) = preSolution\n'\
-                         % (self.name, os.path.basename(self.dspfile), self.slnguid))
+                         % (self.version, self.name, os.path.basename(self.dspfile), self.slnguid))
         confkeys = self.configs.keys()
         confkeys.sort()
         cnt = 0
@@ -673,7 +706,7 @@ def GenerateDSP(dspfile, source, env):
     """Generates a Project file based on the version of MSVS that is being used"""
 
     if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
-        g = _GenerateV7DSP(dspfile, source, env)
+        g = _GenerateV7DSP(dspfile, source, env, float(env['MSVS_VERSION']))
         g.Build()
     else:
         g = _GenerateV6DSP(dspfile, source, env)
@@ -683,7 +716,7 @@ def GenerateDSW(dswfile, dspfile, source, env):
     """Generates a Solution/Workspace file based on the version of MSVS that is being used"""
     
     if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
-        g = _GenerateV7DSW(dswfile, dspfile, source, env)
+        g = _GenerateV7DSW(dswfile, dspfile, source, env, float(env['MSVS_VERSION']))
         g.Build()
     else:
         g = _GenerateV6DSW(dswfile, dspfile, source, env)

@@ -122,6 +122,10 @@ RELEASE 0.95 - XXX
   - Supply meaningful error messages, not stack traces, if we try to add
     a non-Node as a source, dependency, or ignored dependency of a Node.
 
+  - Generate MSVS Project files that re-invoke SCons properly regardless
+    of whether the file was built via scons.bat or scons.py.
+    (Thanks to Niall Douglas for contributing code and testing.)
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.
