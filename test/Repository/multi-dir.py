@@ -85,26 +85,19 @@ main(int argc, char *argv[])
 }
 """)
 
-#
-test.run(chdir = 'repository', arguments = ".")
+# Make the repository non-writable,
+# so we'll detect if we try to write into it accidentally.
+test.writable('repository', 0)
 
-test.run(program = repository_src_xxx, stdout =
+test.run(chdir = 'work', options = opts, arguments = ".")
+
+test.run(program = work_src_xxx, stdout =
 """repository/include/my_string.h
 repository/src/include.h
 repository/src/main.c
 """)
 
-# Double-check that the Repository is up-to-date.
-test.up_to_date(chdir = 'repository', arguments = ".")
-
-# Make the repository non-writable,
-# so we'll detect if we try to write into it accidentally.
-test.writable('repository', 0)
-
-# Because the Repository is completely up-to-date,
-# a build in an empty work directory should also be up-to-date.
-test.up_to_date(chdir = 'work', options = opts, arguments = ".")
-
+#
 test.write(['work', 'include', 'my_string.h'], r"""
 #define	MY_STRING	"work/include/my_string.h"
 """)
