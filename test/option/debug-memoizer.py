@@ -28,6 +28,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test calling the --debug=memoizer option.
 """
 
+import os
 import string
 
 import TestSCons
@@ -43,11 +44,46 @@ env.Cat('file.out', 'file.in')
 
 test.write('file.in', "file.in\n")
 
-test.run(arguments = '--debug=memoizer')
+# The banner, and a list of representative method names that we expect
+# to show up in the output.  Of course, this depends on keeping those
+# names in the implementation, so if we change them, we'll have to
+# change this test...
+expect = [
+    "Memoizer (memory cache) hits and misses",
+    "Dir.exists()",
+    "Executor.get_contents()",
+    "File._save_str()",
+    "SConsEnvironment.get_calculator()",
+]
 
-expect = "Memoizer (memory cache) hits and misses"
-test.fail_test(string.find(test.stdout(), expect) == -1)
+test.run(arguments = '--debug=memoizer')
+stdout = test.stdout()
+missing = filter(lambda e, s=stdout: string.find(s, e) == -1, expect)
+if missing:
+    print "Missing the following strings in the command line --debug=memoizer output:"
+    print "    " + string.join(missing, "\n    ")
+    print "STDOUT ============"
+    print stdout
+    test.fail_test(1)
 
 test.must_match('file.out', "file.in\n")
+
+
+
+test.unlink("file.out")
+
+os.environ['SCONSFLAGS'] = '--debug=memoizer'
+
+test.run()
+stdout = test.stdout()
+missing = filter(lambda e, s=stdout: string.find(s, e) == -1, expect)
+if missing:
+    print "Missing the following strings in the SCONSFLAGS=--debug=memoizer output:"
+    print "    " + string.join(missing, "\n    ")
+    print "STDOUT ============"
+    print stdout
+    test.fail_test(1)
+
+
 
 test.pass_test()

@@ -378,8 +378,8 @@ class CounterEntry:
 
 import UserDict
 class Counter(UserDict.UserDict):
-    def __call__(self, klass, code):
-        k = (klass.__name__, id(code))
+    def __call__(self, obj, methname):
+        k = obj.__class__.__name__ + '.' + methname
         try:
             return self[k]
         except KeyError:
@@ -390,18 +390,13 @@ CacheCount = Counter()
 CacheCountSelf = Counter()
 CacheCountOne = Counter()
 
-Code_to_Name = {}
-
 def Dump():
     items = CacheCount.items() + CacheCountSelf.items() + CacheCountOne.items()
-    def keyify(t):
-        return Code_to_Name[(t[0], t[1])]
-    items = map(lambda t, k=keyify: (k(t[0]), t[1]), items)
     items.sort()
     for k, v in items:
         print "    %7d hits %7d misses   %s()" % (v.hit, v.miss, k)
 
-def Count_cache_get(func, cdict, args, kw):
+def Count_cache_get(name, func, cdict, args, kw):
     """Called instead of name to see if this method call's return
     value has been cached.  If it has, just return the cached
     value; if not, call the actual method and cache the return."""
@@ -410,7 +405,7 @@ def Count_cache_get(func, cdict, args, kw):
 
     ckey = obj._MeMoIZeR_Key + ':' + _MeMoIZeR_gen_key(args, kw)
 
-    c = CacheCount(obj.__class__, func)
+    c = CacheCount(obj, name)
     rval = cdict.get(ckey, "_MeMoIZeR")
     if rval is "_MeMoIZeR":
         rval = cdict[ckey] = apply(func, args, kw)
@@ -420,7 +415,7 @@ def Count_cache_get(func, cdict, args, kw):
 
     return rval
 
-def Count_cache_get_self(func, cdict, self):
+def Count_cache_get_self(name, func, cdict, self):
     """Called instead of func(self) to see if this method call's
     return value has been cached.  If it has, just return the cached
     value; if not, call the actual method and cache the return.
@@ -429,7 +424,7 @@ def Count_cache_get_self(func, cdict, self):
 
     ckey = self._MeMoIZeR_Key
 
-    c = CacheCountSelf(self.__class__, func)
+    c = CacheCountSelf(self, name)
     rval = cdict.get(ckey, "_MeMoIZeR")
     if rval is "_MeMoIZeR":
         rval = cdict[ckey] = func(self)
@@ -439,7 +434,7 @@ def Count_cache_get_self(func, cdict, self):
 
     return rval
 
-def Count_cache_get_one(func, cdict, self, arg):
+def Count_cache_get_one(name, func, cdict, self, arg):
     """Called instead of func(self, arg) to see if this method call's
     return value has been cached.  If it has, just return the cached
     value; if not, call the actual method and cache the return.
@@ -449,7 +444,7 @@ def Count_cache_get_one(func, cdict, self, arg):
     ckey = self._MeMoIZeR_Key + ':' + \
            (getattr(arg, "_MeMoIZeR_Key", None) or repr(arg))
 
-    c = CacheCountOne(self.__class__, func)
+    c = CacheCountOne(self, name)
     rval = cdict.get(ckey, "_MeMoIZeR")
     if rval is "_MeMoIZeR":
         rval = cdict[ckey] = func(self, arg)
@@ -465,13 +460,29 @@ MCG_dict = {
     'MCGO' : Memoizer_cache_get_one,
 }
 
+MCG_lambda = "lambda *args, **kw: MCG(methcode, methcached, args, kw)"
+MCGS_lambda = "lambda self: MCGS(methcode, methcached, self)"
+MCGO_lambda = "lambda self, arg: MCGO(methcode, methcached, self, arg)"
+
 def EnableCounting():
+    """Enable counting of Memoizer hits and misses by overriding the
+    globals that hold the non-counting versions of the functions and
+    lambdas we call with the counting versions.
+    """
     global MCG_dict
+    global MCG_lambda
+    global MCGS_lambda
+    global MCGO_lambda
+
     MCG_dict = {
         'MCG'  : Count_cache_get,
         'MCGS' : Count_cache_get_self,
         'MCGO' : Count_cache_get_one,
     }
+
+    MCG_lambda = "lambda *args, **kw: MCG(methname, methcode, methcached, args, kw)"
+    MCGS_lambda = "lambda self: MCGS(methname, methcode, methcached, self)"
+    MCGO_lambda = "lambda self, arg: MCGO(methname, methcode, methcached, self, arg)"
 
 
 
@@ -585,32 +596,25 @@ def memoize_classdict(klass, modelklass, new_klassdict, cacheable, resetting):
     new_klassdict['_MeMoIZeR_converted'] = 1
 
     for name,code in cacheable.items():
-        Code_to_Name[(klass.__name__, id(code))] = klass.__name__ + '.' + name
         eval_dict = {
+            'methname' : name,
             'methcode' : code,
             'methcached' : {},
         }
         eval_dict.update(MCG_dict)
-        if code.func_code.co_argcount == 1 and \
-               not code.func_code.co_flags & 0xC:
-            compiled = \
-                compile("\n"*1 +
-                        "lambda self: MCGS(methcode, methcached, self)",
-                        whoami('cache_get_self', name),
-                        "eval")
-        elif code.func_code.co_argcount == 2 and \
-               not code.func_code.co_flags & 0xC:
-            compiled = \
-                compile("\n"*2 +
-                "lambda self, arg: MCGO(methcode, methcached, self, arg)",
-                        whoami('cache_get_one', name),
-                        "eval")
+        fc = code.func_code
+        if fc.co_argcount == 1 and not fc.co_flags & 0xC:
+            compiled = compile("\n"*1 + MCGS_lambda,
+                               whoami('cache_get_self', name),
+                               "eval")
+        elif fc.co_argcount == 2 and not fc.co_flags & 0xC:
+            compiled = compile("\n"*2 + MCGO_lambda,
+                               whoami('cache_get_one', name),
+                               "eval")
         else:
-            compiled = \
-                compile("\n"*3 +
-                "lambda *args, **kw: MCG(methcode, methcached, args, kw)",
-                        whoami('cache_get', name),
-                        "eval")
+            compiled = compile("\n"*3 + MCG_lambda,
+                               whoami('cache_get', name),
+                               "eval")
         newmethod = eval(compiled, eval_dict, {})
         new_klassdict[name] = newmethod
 
