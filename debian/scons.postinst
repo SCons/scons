@@ -6,7 +6,7 @@
 #
 
 PACKAGE=scons
-DIRLIST="/usr/lib/scons-0.04"
+DIRLIST="/usr/lib/scons-0.05"
 
 case "$1" in
     configure|abort-upgrade|abort-remove|abort-deconfigure)

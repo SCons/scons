@@ -85,7 +85,7 @@ $developer = $ARG{developer} || $ENV{USERNAME} || $ENV{LOGNAME} || $ENV{USER};
 
 $revision = $ARG{version};
 chomp($revision = `$aesub '\$version' 2>/dev/null`) if $aesub && ! $revision;
-$revision = '0.04' if ! $revision;
+$revision = '0.05' if ! $revision;
 
 @arr = split(/\./, $revision);
 @arr = ($arr[0], map {length($_) == 1 ? "0$_" : $_} @arr[1 .. $#arr]);
@@ -98,7 +98,7 @@ $revision = join('.', @arr);
 #pop @arr if $#arr >= 2;
 #map {s/^[CD]//, s/^0*(\d\d)$/$1/} @arr;
 #$version = join('.', @arr);
-$version = '0.04';
+$version = '0.05';
 
 $change = $ARG{change};
 chomp($change = `$aesub '\$change' 2>/dev/null`) if $aesub && ! $change;
