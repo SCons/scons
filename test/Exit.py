@@ -28,11 +28,16 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the explicit Exit() function.
 """
 
+import os.path
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.subdir('subdir')
+
+subdir_foo_in = os.path.join('subdir', 'foo.in')
+subdir_foo_out = os.path.join('subdir', 'foo.out')
 
 test.write('SConstruct', """\
 print "SConstruct"
@@ -102,9 +107,11 @@ test.write(['subdir', 'foo.in'], "subdir/foo.in\n")
 
 test.run(status = 27,
          stdout = test.wrap_stdout("""\
-exit_builder("subdir/foo.out", "subdir/foo.in")
-"""),
-         stderr = "scons: *** [subdir/foo.out] Explicit exit, status 27\n")
+exit_builder("%s", "%s")
+""" % (subdir_foo_out, subdir_foo_in)),
+         stderr = """\
+scons: *** [%s] Explicit exit, status 27
+""" % (subdir_foo_out))
 
 test.fail_test(test.read(['subdir', 'foo.out']) != "subdir/foo.in\n")
 
