@@ -252,7 +252,7 @@ class Entry(Node):
         else:
             self.abspath = self.path = name
 	self.parent = directory
-	self.uses_signature = 1
+	self.use_signature = 1
 
     def __str__(self):
 	"""A FS node's string representation is its path name."""
@@ -261,7 +261,16 @@ class Entry(Node):
     def exists(self):
         return os.path.exists(self.path)
 
-    
+    def current(self):
+        """If the underlying path doesn't exist, we know the node is
+        not current without even checking the signature, so return 0.
+        Otherwise, return None to indicate that signature calculation
+        should proceed as normal to find out if the node is current."""
+        if not self.exists():
+            return 0
+        return None
+
+
 
 # XXX TODO?
 # Annotate with the creator
@@ -300,7 +309,7 @@ class Dir(Entry):
 	    delattr(self, 'parent')
 	else:
 	    self.entries['..'] = None
-        self.uses_signature = None
+        self.use_signature = None
 
     def up(self):
         return self.entries['..']
@@ -315,6 +324,12 @@ class Dir(Entry):
 	return map(lambda x, s=self: s.entries[x],
 		   filter(lambda k: k != '.' and k != '..',
 			  self.entries.keys()))
+
+    def current(self):
+        """Always return that a directory node is out-of-date so
+        that it will always be "built" by trying to build all of
+        its directory entries."""
+        return 0
 
 
 # XXX TODO?

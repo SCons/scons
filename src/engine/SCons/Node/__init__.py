@@ -54,6 +54,7 @@ class Node:
 	self.builder = None
 	self.env = None
         self.state = None
+        self.use_signature = 1
 
     def build(self):
 	if not self.builder:
@@ -104,6 +105,9 @@ class Node:
 
     def get_state(self):
         return self.state
+
+    def current(self):
+        return None
 
 class Wrapper:
     def __init__(self, node):

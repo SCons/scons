@@ -114,7 +114,7 @@ class Calculator:
         signatures - the dictionary that the signatures will be
         gathered into.
         """
-        for source_node in node.sources + node.depends:
+        for source_node in node.children():
             if not signatures.has_key(source_node):
                 signature = self.signature(source_node)
                 signatures[source_node] = signature
@@ -145,7 +145,11 @@ class Calculator:
         in the .sconsign file.
         """
 
-        if node.has_signature():
+        if not node.use_signature:
+            # This node type doesn't use a signature (e.g. a
+            # directory) so bail right away.
+            return None
+        elif node.has_signature():
             sig = node.get_signature()
         elif node.builder:
             signatures = {}
@@ -184,8 +188,13 @@ class Calculator:
         and 1 if it hasn't
         """
 
-        if not node.exists():
-            return 0
+        c = node.current()
+        if not c is None:
+            # The node itself has told us whether or not it's
+            # current without checking the signature.  The
+            # canonical uses here are a "0" return for a file
+            # that doesn't exist, or a directory.
+            return c
 
         dir, filename = os.path.split(node.path)
         oldtime, oldsig = self.get_sig_file(dir).get(filename)

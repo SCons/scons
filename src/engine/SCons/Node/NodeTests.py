@@ -89,6 +89,10 @@ class NodeTestCase(unittest.TestCase):
 	node.builder_set(b)
 	assert node.builder == b
 
+    def test_current(self):
+        node = SCons.Node.Node()
+        assert node.current() is None
+
     def test_env_set(self):
 	"""Test setting a Node's Environment
 	"""

@@ -95,6 +95,9 @@ class FSTestCase(unittest.TestCase):
 
         f1 = fs.File('f1', directory = d1)
 
+        assert d1.current() == 0
+        assert f1.current() == 0
+
         assert f1.path == 'd1/f1', "f1.path %s != d1/f1" % f1.path
         assert str(f1) == 'd1/f1', "str(f1) %s != d1/f1" % str(f1)
 

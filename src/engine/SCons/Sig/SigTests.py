@@ -51,6 +51,7 @@ class DummyNode:
         self.path = file.path
         self.builder = file.builder
 	self.depends = []
+        self.use_signature = 1
         
     def get_contents(self):
         # a file that doesn't exist has no contents:
@@ -66,7 +67,15 @@ class DummyNode:
 
     def exists(self):
         return not self.file.contents is None
-        
+
+    def children(self):
+        return self.sources + self.depends
+
+    def current(self):
+        if not self.exists():
+            return 0
+        return None
+
     def has_signature(self):
         return hasattr(self, "sig")
 
