@@ -65,8 +65,12 @@ from SCons.Optik import OptionParser, SUPPRESS_HELP, OptionValueError
 import SCons.Script.SConscript
 import SCons.Sig
 import SCons.Taskmaster
-from SCons.Util import display
+import SCons.Util
 import SCons.Warnings
+
+#
+display = SCons.Util.display
+progress_display = SCons.Util.DisplayEngine()
 
 #
 # Task control.
@@ -720,6 +724,8 @@ def _main(args, parser):
         SCons.SConf.dryrun = 1
         
     if options.no_progress or options.silent:
+        progress_display.set_mode(0)
+    if options.silent:
         display.set_mode(0)
     if options.silent:
         SCons.Action.print_actions = None
@@ -807,7 +813,7 @@ def _main(args, parser):
     for rep in repositories:
         SCons.Node.FS.default_fs.Repository(rep)
 
-    display("scons: Reading SConscript files ...")
+    progress_display("scons: Reading SConscript files ...")
     try:
         start_time = time.time()
         try:
@@ -826,11 +832,11 @@ def _main(args, parser):
         global sconscript_time
         sconscript_time = time.time() - start_time
     except PrintHelp, text:
-        display("scons: done reading SConscript files.")
+        progress_display("scons: done reading SConscript files.")
         print text
         print "Use scons -H for help about command-line options."
         sys.exit(0)
-    display("scons: done reading SConscript files.")
+    progress_display("scons: done reading SConscript files.")
 
     SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
@@ -956,7 +962,7 @@ def _main(args, parser):
             """Leave the order of dependencies alone."""
             return dependencies
 
-    display("scons: " + opening_message)
+    progress_display("scons: " + opening_message)
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc, order)
 
     jobs = SCons.Job.Jobs(ssoptions.get('num_jobs'), taskmaster)
@@ -964,7 +970,7 @@ def _main(args, parser):
     try:
         jobs.run()
     finally:
-        display("scons: " + closing_message)
+        progress_display("scons: " + closing_message)
         if not options.noexec:
             SCons.Sig.write()
 

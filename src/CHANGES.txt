@@ -12,6 +12,9 @@ RELEASE X.XX - XXX
 
   From Steven Knight:
 
+  - The -Q option suppressed too many messages; fix it so that it only
+    suppresses the Reading/Building messages.
+
 
 
 RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500

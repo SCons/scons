@@ -57,4 +57,12 @@ test.run(arguments = '-Q f1.out f2.out', stdout = """\
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
+# Make sure -q doesn't suppress other messages, too.
+test.run(arguments = '-Q -c f1.out f2.out', stdout = """\
+Removed f1.out
+Removed f2.out
+""")
+test.fail_test(os.path.exists(test.workpath('f1.out')))
+test.fail_test(os.path.exists(test.workpath('f2.out')))
+
 test.pass_test()
