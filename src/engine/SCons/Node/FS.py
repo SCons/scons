@@ -1543,8 +1543,9 @@ def find_file(filename, paths, node_factory = default_fs.File):
     for dir in paths:
         try:
             node = node_factory(filename, dir)
-            # Return true of the node exists or is a derived node.
+            # Return true if the node exists or is a derived node.
             if node.is_derived() or \
+               node.is_pseudo_derived() or \
                (isinstance(node, SCons.Node.FS.Base) and node.exists()):
                 retval = node
                 break

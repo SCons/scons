@@ -1373,13 +1373,17 @@ class find_fileTestCase(unittest.TestCase):
         os.chdir(test.workpath("")) # FS doesn't like the cwd to be something other than it's root
         node_derived = fs.File(test.workpath('bar/baz'))
         node_derived.builder_set(1) # Any non-zero value.
+        node_pseudo = fs.File(test.workpath('pseudo'))
+        node_pseudo.set_src_builder(1) # Any non-zero value.
         paths = map(fs.Dir, ['.', './bar'])
         nodes = [SCons.Node.FS.find_file('foo', paths, fs.File), 
-                 SCons.Node.FS.find_file('baz', paths, fs.File)] 
+                 SCons.Node.FS.find_file('baz', paths, fs.File),
+                 SCons.Node.FS.find_file('pseudo', paths, fs.File)] 
         file_names = map(str, nodes)
         file_names = map(os.path.normpath, file_names)
         assert os.path.normpath('./foo') in file_names, file_names
         assert os.path.normpath('./bar/baz') in file_names, file_names
+        assert os.path.normpath('./pseudo') in file_names, file_names
 
 class StringDirTestCase(unittest.TestCase):
     def runTest(self):

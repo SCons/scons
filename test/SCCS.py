@@ -44,6 +44,8 @@ def is_writable(file):
     mode = os.stat(file)[stat.ST_MODE]
     return mode & stat.S_IWUSR
 
+
+
 # Test explicit checkouts from local SCCS files.
 test.subdir('work1', ['work1', 'sub'])
 
@@ -130,6 +132,8 @@ test.fail_test(not is_writable(test.workpath('work1', 'ccc.in')))
 test.fail_test(not is_writable(test.workpath('work1', 'sub', 'ddd.in')))
 test.fail_test(not is_writable(test.workpath('work1', 'sub', 'fff.in')))
 
+
+
 # Test transparent checkouts from SCCS files in an SCCS subdirectory.
 test.subdir('work2', ['work2', 'SCCS'],
             ['work2', 'sub'], ['work2', 'sub', 'SCCS'])
@@ -214,5 +218,48 @@ test.fail_test(is_writable(test.workpath('work2', 'aaa.in')))
 test.fail_test(is_writable(test.workpath('work2', 'ccc.in')))
 test.fail_test(is_writable(test.workpath('work2', 'sub', 'ddd.in')))
 test.fail_test(is_writable(test.workpath('work2', 'sub', 'fff.in')))
+
+
+
+
+# Test transparent SCCS checkouts of implicit dependencies.
+test.subdir('work3', ['work3', 'SCCS'])
+
+test.write(['work3', 'foo.c'], """\
+#include "foo.h"
+int
+main(int argc, char *argv[]) {
+    printf(STR);
+    printf("work3/foo.c\\n");
+}
+""")
+test.run(chdir = 'work3',
+         program = sccs,
+         arguments = "create foo.c",
+         stderr = None)
+test.unlink(['work3', 'foo.c'])
+test.unlink(['work3', ',foo.c'])
+
+test.write(['work3', 'foo.h'], """\
+#define STR     "work3/foo.h\\n"
+""")
+test.run(chdir = 'work3',
+         program = sccs,
+         arguments = "create foo.h",
+         stderr = None)
+test.unlink(['work3', 'foo.h'])
+test.unlink(['work3', ',foo.h'])
+
+test.write(['work3', 'SConstruct'], """
+env = Environment()
+env.Program('foo.c')
+""")
+
+test.run(chdir='work3', stderr = """\
+foo.c 1.1: 6 lines
+foo.h 1.1: 1 lines
+""")
+
+
 
 test.pass_test()

@@ -49,6 +49,8 @@ def is_writable(file):
     mode = os.stat(file)[stat.ST_MODE]
     return mode & stat.S_IWUSR
 
+
+
 # Test explicit checkouts from local RCS files.
 test.subdir('work1', ['work1', 'sub'])
 
@@ -136,6 +138,8 @@ test.fail_test(is_writable(test.workpath('work1', 'aaa.in')))
 test.fail_test(is_writable(test.workpath('work1', 'ccc.in')))
 test.fail_test(is_writable(test.workpath('work1', 'sub', 'ddd.in')))
 test.fail_test(is_writable(test.workpath('work1', 'sub', 'fff.in')))
+
+
 
 # Test transparent RCS checkouts from an RCS subdirectory.
 test.subdir('work2', ['work2', 'RCS'],
@@ -240,6 +244,48 @@ test.fail_test(not is_writable(test.workpath('work2', 'aaa.in')))
 test.fail_test(not is_writable(test.workpath('work2', 'ccc.in')))
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'ddd.in')))
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'fff.in')))
+
+
+
+# Test transparent RCS checkouts of implicit dependencies.
+test.subdir('work3', ['work3', 'RCS'])
+
+test.write(['work3', 'foo.c'], """\
+#include "foo.h"
+int
+main(int argc, char *argv[]) {
+    printf(STR);
+    printf("work3/foo.c\\n");
+}
+""")
+test.run(chdir = 'work3',
+         program = ci,
+         arguments = "-f -tfoo.c foo.c",
+         stderr = None)
+
+test.write(['work3', 'foo.h'], """\
+#define STR     "work3/foo.h\\n"
+""")
+test.run(chdir = 'work3',
+         program = ci,
+         arguments = "-f -tfoo.h foo.h",
+         stderr = None)
+
+test.write(['work3', 'SConstruct'], """
+env = Environment()
+env.Program('foo.c')
+""")
+
+test.run(chdir='work3', stderr="""\
+RCS/foo.c,v  -->  foo.c
+revision 1.1
+done
+RCS/foo.h,v  -->  foo.h
+revision 1.1
+done
+""")
+
+
 
 #
 test.pass_test()
