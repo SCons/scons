@@ -75,6 +75,8 @@ RELEASE 0.XX - XXX
   - Be smarter about linking: use $CC by default and $CXX only if we're
     linking with any C++ objects.
 
+  - Avoid SCons hanging when a piped command has a lot of output to read.
+
 
 
 RELEASE 0.90 - Wed, 25 Jun 2003 14:24:52 -0500

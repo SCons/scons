@@ -63,8 +63,16 @@ except:
     pass
 f.close()
 if os.environ.has_key( 'ACTPY_PIPE' ):
-    sys.stdout.write( 'act.py: stdout: executed act.py\\n' )
-    sys.stderr.write( 'act.py: stderr: executed act.py\\n' ) 
+    if os.environ.has_key( 'PIPE_STDOUT_MSG' ):
+         stdout_msg = os.environ['PIPE_STDOUT_MSG']
+    else:
+         stdout_msg = "act.py: stdout: executed act.py\\n"
+    sys.stdout.write( stdout_msg )
+    if os.environ.has_key( 'PIPE_STDERR_MSG' ):
+         stderr_msg = os.environ['PIPE_STDERR_MSG']
+    else:
+         stderr_msg = "act.py: stderr: executed act.py\\n"
+    sys.stderr.write( stderr_msg ) 
 sys.exit(0)
 """)
 
@@ -528,39 +536,59 @@ class CommandActionTestCase(unittest.TestCase):
         self.test_execute()
         self.env['PSTDOUT'].close()
         pipe_out = test.read( pipe_file )
+
         if sys.platform == 'win32':
             cr = '\r'
         else:
             cr = ''
-        act_out = "act.py: stdout: executed act.py"
-        act_err = "act.py: stderr: executed act.py"
-        found = re.findall( "%s%s\n%s%s\n" % (act_out, cr, act_err, cr),
-                            pipe_out )
-        assert len(found) == 8, found
+        act_out = "act.py: stdout: executed act.py\n"
+        act_err = "act.py: stderr: executed act.py\n"
+
+        # Since we are now using select(), stdout and stderr can be
+        # intermixed, so count the lines separately.
+        outlines = re.findall(act_out + cr, pipe_out)
+        errlines = re.findall(act_err + cr, pipe_out)
+        assert len(outlines) == 8, outlines
+        assert len(errlines) == 8, errlines
 
         # test redirection operators
-        def test_redirect(self, redir):
+        def test_redirect(self, redir, stdout_msg, stderr_msg):
             cmd = r'%s %s %s xyzzy %s' % (python, act_py, outfile, redir)
             pipe = open( pipe_file, "w" )
             act = SCons.Action.CommandAction(cmd)
-            r = act([], [], self.env.Copy(PSTDOUT = pipe, PSTDERR = pipe))
+            env = Environment( ENV = {'ACTPY_PIPE' : '1',
+                                      'PIPE_STDOUT_MSG' : stdout_msg,
+                                      'PIPE_STDERR_MSG' : stderr_msg},
+                               PIPE_BUILD = 1,
+                               PSTDOUT = pipe, PSTDERR = pipe )
+            r = act([], [], env)
             pipe.close()
             assert r == 0
             return (test.read(outfile2, 'r'), test.read(pipe_file, 'r'))
-        
-        (redirected, pipe_out) = test_redirect(self,'> %s' % outfile2 )
-        assert redirected == "%s\n" % act_out
-        assert pipe_out == "%s\n" % act_err
 
-        (redirected, pipe_out) = test_redirect(self,'2> %s' % outfile2 )
-        assert redirected == "%s\n" % act_err
-        assert pipe_out == "%s\n" % act_out
+        (redirected, pipe_out) = test_redirect(self,'> %s' % outfile2,
+                                               act_out, act_err)
+        assert redirected == act_out
+        assert pipe_out == act_err
 
-        (redirected, pipe_out) = test_redirect(self,'> %s 2>&1' % outfile2 )
-        assert (redirected == "%s\n%s\n" % (act_out, act_err) or
-                redirected == "%s\n%s\n" % (act_err, act_out))
-        assert pipe_out == "" 
-        
+        (redirected, pipe_out) = test_redirect(self,'2> %s' % outfile2,
+                                               act_out, act_err)
+        assert redirected == act_err
+        assert pipe_out == act_out
+
+        (redirected, pipe_out) = test_redirect(self,'> %s 2>&1' % outfile2,
+                                               act_out, act_err)
+        assert (redirected == act_out + act_err or
+                redirected == act_err + act_out)
+        assert pipe_out == ""
+
+        act_err = "Long Command Output\n"*3000
+        # the size of the string should exceed the system's default block size
+        act_out = ""
+        (redirected, pipe_out) = test_redirect(self,'> %s' % outfile2,
+                                               act_out, act_err)
+        assert (redirected == act_out)
+        assert (pipe_out == act_err)
 
     def test_set_handler(self):
         """Test setting the command handler...

@@ -37,6 +37,7 @@ import os.path
 import popen2
 import string
 import sys
+import select
 
 import SCons.Util
 
@@ -93,18 +94,33 @@ def fork_spawn(sh, escape, cmd, args, env):
             return stat | 0x80
         return stat >> 8
 
+def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
+    stdout_eof = stderr_eof = 0
+    while not (stdout_eof and stderr_eof):
+        (i,o,e) = select.select([cmd_stdout, cmd_stderr], [], [])
+        if cmd_stdout in i:
+            str = cmd_stdout.read()
+            if len(str) == 0:
+                stdout_eof = 1
+            elif stdout != None:
+                stdout.write(str)
+        if cmd_stderr in i:
+            str = cmd_stderr.read()
+            if len(str) == 0:
+                #sys.__stderr__.write( "stderr_eof=1\n" )
+                stderr_eof = 1
+            else:
+                #sys.__stderr__.write( "str(stderr) = %s\n" % str )
+                stderr.write(str)
+    
+
 def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # spawn using Popen3 combined with the env command
     # the command name and the command's stdout is written to stdout
     # the command's stderr is written to stderr
     s = _get_env_command( sh, escape, cmd, args, env)
     proc = popen2.Popen3(s, 1)
-    # process stdout
-    if stdout != None:
-        stdout.write(proc.fromchild.read())
-    # process stderr
-    if stderr != None:
-        stderr.write(proc.childerr.read())
+    process_cmd_output(proc.fromchild, proc.childerr, stdout, stderr)
     stat = proc.wait()
     if stat & 0xff:
         return stat | 0x80
@@ -151,12 +167,7 @@ def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
             childErr = os.fdopen( rFdErr )
         else:
             childErr = childOut
-        # process stdout
-        if stdout != None:
-            stdout.write( childOut.read() )
-        # process stderr
-        if stderr != None:
-            stderr.write( childErr.read() )
+        process_cmd_output(childOut, childErr, stdout, stderr)
         os.close( rFdOut )
         if stdout != stderr:
             os.close( rFdErr )
