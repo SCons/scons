@@ -49,6 +49,10 @@ RELEASE 0.15 - XXX
 
   - Don't update the .sconsign files when run with -n.
 
+  From Anthony Roach
+
+  - Fix Import('*').
+
   From David Snopek
 
   - Fix use of SConf in paths with white space in them.

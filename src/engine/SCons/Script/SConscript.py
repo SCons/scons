@@ -376,9 +376,9 @@ def Import(*vars):
         for var in vars:
             var = SCons.Util.argmunge(var)
             for v in var:
-                if 'v' == '*':
+                if v == '*':
                     stack[-1].globals.update(global_exports)
-                    stack[-1].globals.update(stack[-1].exports[v])
+                    stack[-1].globals.update(stack[-1].exports)
                 else:
                     if stack[-1].exports.has_key(v):
                         stack[-1].globals[v] = stack[-1].exports[v]

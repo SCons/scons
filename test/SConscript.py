@@ -343,4 +343,6 @@ assert x == 'x'
 assert y == 'zoom'
 """)
 
+test.run(arguments = ".")
+
 test.pass_test()
