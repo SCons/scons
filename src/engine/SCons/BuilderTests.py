@@ -36,6 +36,8 @@ import types
 import unittest
 
 import TestCmd
+
+import SCons.Action
 import SCons.Builder
 import SCons.Errors
 import SCons.Node.FS
@@ -188,7 +190,11 @@ class BuilderTestCase(unittest.TestCase):
         def func():
             pass
         builder = SCons.Builder.Builder(name="builder", action=func)
-        assert builder.action.function == func
+        assert isinstance(builder.action, SCons.Action.FunctionAction)
+        # Preserve the following so that the baseline test will fail.
+        # Remove it in favor of the previous test at some convenient
+        # point in the future.
+        assert builder.action.execfunction == func
 
     def test_generator(self):
         """Test Builder creation given a generator function."""

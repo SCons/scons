@@ -31,7 +31,6 @@ test = TestSCons.TestSCons()
 test.write('SConstruct1', """
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
-    print "built %s"%target[0]
 
 env=Environment(BUILDERS={'B' : Builder(action=build)})
 env.B('foo.mid', 'foo.in')
@@ -40,7 +39,6 @@ env.B('foo.mid', 'foo.in')
 test.write('SConstruct2', """
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
-    print "built %s"%target[0]
 
 env=Environment(BUILDERS={'B' : Builder(action=build)})
 env.B('foo.out', 'foo.mid')
@@ -49,9 +47,9 @@ env.B('foo.out', 'foo.mid')
 test.write('foo.in', "foo.in")
 
 test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('built foo.mid\n'))
+         stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
 test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('built foo.out\n'))
+         stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
 
 test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
          stdout = test.wrap_stdout('scons: "foo.mid" is up to date.\n'))
@@ -61,9 +59,9 @@ test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
 test.write('foo.in', "foo.in 2")
 
 test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('built foo.mid\n'))
+         stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
 test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('built foo.out\n'))
+         stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
 
 test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
          stdout = test.wrap_stdout('scons: "foo.mid" is up to date.\n'))

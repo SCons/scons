@@ -42,6 +42,9 @@ RELEASE 0.10 - XXX
       consistent.  All error messages now begin with "scons: ***"
       and all warning messages now begin with "scons: warning:".
 
+    - SCons now prints a description of Python functions that are
+      invoked to build a target.
+
   Please note the following important changes since release 0.08:
 
     - The SetCommandHandler() function has been superceded

@@ -32,7 +32,6 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', 
 """
 def copy(source, target):
-    print 'copy() < %s > %s' % (source, target)
     open(target, "wb").write(open(source, "rb").read())
 
 def build(env, source, target):
@@ -55,8 +54,8 @@ test.write('bar.in', 'bar.in\n')
 test.write('blat.in', 'blat.in\n')
 
 test.run(arguments = 'foo.out bar.out', stdout=test.wrap_stdout("""\
-copy() < foo.in > foo.out
-copy() < bar.in > bar.out
+build("foo.out", "foo.in")
+build("bar.out", "bar.in")
 """))
 
 expect = """\
@@ -68,8 +67,8 @@ assert test.read('log.txt') == expect
 test.write('bar.in', 'bar.in 2 \n')
 
 test.run(arguments = 'log.txt', stdout=test.wrap_stdout("""\
-copy() < bar.in > bar.out
-copy() < blat.in > blat.out
+build("bar.out", "bar.in")
+build("blat.out", "blat.in")
 """))
 
 expect = """\
@@ -83,8 +82,8 @@ assert test.read('log.txt') == expect
 test.write('foo.in', 'foo.in 2 \n')
 
 test.run(arguments = ".", stdout=test.wrap_stdout("""\
-copy() < foo.in > foo.out
-copy() < log.txt > log.out
+build("foo.out", "foo.in")
+build("log.out", "log.txt")
 """))
 
 expect = """\
@@ -104,10 +103,10 @@ test.fail_test(os.path.exists(test.workpath('blat.out')))
 test.fail_test(os.path.exists(test.workpath('log.txt')))
 
 test.run(arguments = "-j 4 .", stdout=test.wrap_stdout("""\
-copy() < bar.in > bar.out
-copy() < blat.in > blat.out
-copy() < foo.in > foo.out
-copy() < log.txt > log.out
+build("bar.out", "bar.in")
+build("blat.out", "blat.in")
+build("foo.out", "foo.in")
+build("log.out", "log.txt")
 """))
 
 expect = """\
@@ -123,7 +122,6 @@ import os.path
 import os
 
 def copy(source, target):
-    print 'copy() < %s > %s' % (source, target)
     open(target, "wb").write(open(source, "rb").read())
 
 def build(env, source, target):

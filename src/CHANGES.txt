@@ -19,6 +19,12 @@ RELEASE 0.10 - XXX
 
   - Remove Python bytecode (*.pyc) files from the scons-local packages.
 
+  - Have FunctionActions print a description of what they're doing
+    (a representation of the Python call).
+
+  - Fix the Install() method so that, like other actions, it prints
+    what would have happened when the -n option is used.
+
   From Steve Leblanc:
 
   - Add a Clean() method to support removing user-specified targets

@@ -90,7 +90,6 @@ class BuildDirTestCase(unittest.TestCase):
     def runTest(self):
         """Test build dir functionality"""
         test=TestCmd(workdir='')
-        os.chdir(test.workdir)
 
         fs = SCons.Node.FS.FS()
         f1 = fs.File('build/test1')
@@ -156,6 +155,8 @@ class BuildDirTestCase(unittest.TestCase):
         # A derived file in the repository
         test.write([ 'rep1', 'build', 'var1', 'test2.out' ], 'test2.out_rep')
         test.write([ 'rep1', 'build', 'var2', 'test2.out' ], 'test2.out_rep')
+
+        os.chdir(test.workpath('work'))
 
         fs = SCons.Node.FS.FS(test.workpath('work'))
         fs.BuildDir('build/var1', 'src', duplicate=0)
@@ -254,12 +255,13 @@ class BuildDirTestCase(unittest.TestCase):
         assert f8.rfile().path == os.path.normpath(test.workpath('rep1/build/var2/test2.out')),\
                f8.rfile().path
         
-        # Test to see if file_link() works...
+        # Test to see if LinkAction() works...
         test.subdir('src','build')
-        test.write('src/foo', 'foo\n')
+        test.write('src/foo', 'src/foo\n')
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
-        SCons.Node.FS.file_link(test.workpath('src/foo'),
-                                test.workpath('build/foo'))
+        SCons.Node.FS.LinkAction.execute(fs.File(test.workpath('build/foo')),
+                                         fs.File(test.workpath('src/foo')),
+                                         None)
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR | stat.S_IWRITE)
         st=os.stat(test.workpath('build/foo'))
         assert (stat.S_IMODE(st[stat.ST_MODE]) & stat.S_IWRITE), \
@@ -352,14 +354,11 @@ class BuildDirTestCase(unittest.TestCase):
         os.symlink = simulator.symlink_fail
         shutil.copy2 = simulator.copy
 
-        # XXX this is just to pass the baseline test, it won't be needed once
-        # this change is integrated
-        SCons.Node.FS._link = simulator.link_fail
-
-        test.write('src/foo', 'foo\n')
+        test.write('src/foo', 'src/foo\n')
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
-        SCons.Node.FS.file_link(test.workpath('src/foo'),
-                                test.workpath('build/foo'))
+        SCons.Node.FS.LinkAction.execute(fs.File(test.workpath('build/foo')),
+                                         fs.File(test.workpath('src/foo')),
+                                         None)
         test.unlink( "src/foo" )
         test.unlink( "build/foo" )
 

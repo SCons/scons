@@ -67,7 +67,12 @@ test.write('f4.in', "f4.in\n")
 test.run(arguments = 'f1.out f3.out')
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
-         stdout = test.wrap_stdout('scons: "f1.out" is up to date.\nscons: "f3.out" is up to date.\n'))
+         stdout = test.wrap_stdout("""\
+scons: "f1.out" is up to date.
+build("f2.out", "f2.in")
+scons: "f3.out" is up to date.
+build("f4.out", "f4.in")
+"""))
 
 os.utime(test.workpath('f1.in'), 
          (os.path.getatime(test.workpath('f1.in')),
@@ -77,7 +82,12 @@ os.utime(test.workpath('f3.in'),
           os.path.getmtime(test.workpath('f3.in'))+10))
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
-         stdout = test.wrap_stdout('scons: "f2.out" is up to date.\nscons: "f4.out" is up to date.\n'))
+         stdout = test.wrap_stdout("""\
+build("f1.out", "f1.in")
+scons: "f2.out" is up to date.
+build("f3.out", "f3.in")
+scons: "f4.out" is up to date.
+"""))
 
 
 test.pass_test()

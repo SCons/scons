@@ -55,17 +55,16 @@ import copy
 #                         'lib',
 #                         'scons-%d' % SCons.__version__)] + sys.path[1:]
 
+import SCons.Errors
+import SCons.Job
 import SCons.Node
 import SCons.Node.FS
-import SCons.Job
-from SCons.Errors import *
-import SCons.Sig
-from SCons.Taskmaster import Taskmaster
-import SCons.Builder
-import SCons.Script.SConscript
-import SCons.Warnings
 from SCons.Optik import OptionParser, SUPPRESS_HELP, OptionValueError
+import SCons.Script.SConscript
+import SCons.Sig
+import SCons.Taskmaster
 from SCons.Util import display
+import SCons.Warnings
 
 
 #
@@ -124,15 +123,15 @@ class BuildTask(SCons.Taskmaster.Task):
 
     def failed(self):
         e = sys.exc_value
-        if sys.exc_type == BuildError:
+        if sys.exc_type == SCons.Errors.BuildError:
             sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
             if e.errstr == 'Exception':
                 traceback.print_exception(e.args[0], e.args[1], e.args[2])
-        elif sys.exc_type == UserError:
+        elif sys.exc_type == SCons.Errors.UserError:
             # We aren't being called out of a user frame, so
             # don't try to walk the stack, just print the error.
             sys.stderr.write("\nscons: *** %s\n" % e)
-        elif sys.exc_type == StopError:
+        elif sys.exc_type == SCons.Errors.StopError:
             s = str(e)
             if not keep_going_on_error:
                 s = s + '  Stop.'
@@ -661,7 +660,6 @@ def _main():
         _setup_warn(options.warn)
     if options.noexec:
         SCons.Action.execute_actions = None
-        SCons.Node.FS.execute_actions = None
         CleanTask.execute = CleanTask.show
     if options.no_progress or options.silent:
         display.set_mode(0)
@@ -696,7 +694,7 @@ def _main():
             display("scons: Entering directory %s" % script_dir)
             os.chdir(script_dir)
         else:
-            raise UserError, "No SConstruct file found."
+            raise SCons.Errors.UserError, "No SConstruct file found."
 
     SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
 
@@ -718,7 +716,7 @@ def _main():
         SCons.Script.SConscript.print_help = 1
 
     if not scripts:
-        raise UserError, "No SConstruct file found."
+        raise SCons.Errors.UserError, "No SConstruct file found."
 
     class Unbuffered:
         def __init__(self, file):
@@ -863,7 +861,7 @@ def main():
         sys.exit(2)
     except SyntaxError, e:
         _scons_syntax_error(e)
-    except UserError, e:
+    except SCons.Errors.UserError, e:
         _scons_user_error(e)
     except:
         _scons_other_errors()

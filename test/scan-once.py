@@ -64,9 +64,12 @@ test.write('file1.s', 'file1.s\n')
 
 test.run(arguments = '.',
          stdout = test.wrap_stdout("""scanning file1.s for file2.s
+echo("file2.s", "file1.s")
 create file2.s from file1.s
 scanning file1.s for file2.s
+echo("file3.s", "file2.s")
 create file3.s from file2.s
+echo("file4.s", "file3.s")
 create file4.s from file3.s
 """))
 
@@ -75,8 +78,10 @@ test.write('file2.s', 'file2.s\n')
 test.run(arguments = '.',
          stdout = test.wrap_stdout("""scanning file1.s for file2.s
 scanning file2.s for file3.s
+echo("file3.s", "file2.s")
 create file3.s from file2.s
 scanning file2.s for file3.s
+echo("file4.s", "file3.s")
 create file4.s from file3.s
 """))
 
@@ -86,6 +91,7 @@ test.run(arguments = '.',
          stdout = test.wrap_stdout("""scanning file1.s for file2.s
 scanning file2.s for file3.s
 scanning file3.s for file4.s
+echo("file4.s", "file3.s")
 create file4.s from file3.s
 """))
 

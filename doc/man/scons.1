@@ -2867,16 +2867,16 @@ Builder objects,
 rather than let each separate Builder object
 create a separate Action.
 
-The Action method takes a single argument
+The Action method takes one or two arguments
 and returns an appropriate object for the action
-represented by the type of the argument:
+represented by the type of the first argument:
 
 .IP Action
-If the argument is already an Action object,
+If the first argument is already an Action object,
 the object is simply returned.
 
 .IP String
-If the argument is a string,
+If the first argument is a string,
 a command-line Action is returned.
 
 .ES
@@ -2894,7 +2894,7 @@ Action('$CC -c -o $TARGET $SOURCES')
 
 
 .IP List
-If the argument is a list,
+If the first argument is a list,
 then a list of Action objects is returned.
 An Action object is created as necessary
 for each element in the list.
@@ -2912,7 +2912,7 @@ Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
 .EE
 
 .IP Function
-If the argument is a Python function,
+If the first argument is a Python function,
 a function Action is returned.
 The Python function takes three keyword arguments,
 .B target
@@ -2953,6 +2953,22 @@ def build_it(target = None, source = None, env = None):
  
 a = Action(build_it)
 .EE
+
+The second, optional argument
+is a Python function that returns
+a string to be printed describing the action being executed.
+This function takes two arguments,
+an array of targets to be created by the function action,
+and an array of sources used to create the target(s):
+
+def build_it(target, source, env):
+    # build the target from the source
+    return 0
+
+def string_it(target, source):
+    return "building '%s' from '%s'" % (target[0], source[0])
+
+a = Action(build_it, string_it)
 .PP
 If the action argument is not one of the above,
 None is returned.

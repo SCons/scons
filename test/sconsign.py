@@ -74,7 +74,6 @@ os.chmod(sub1__sconsign, 0666)
 
 test.write('SConstruct', """
 def build1(target, source, env):
-    print '%s->%s'%(str(source[0]), str(target[0]))
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
     return None
 
@@ -88,7 +87,7 @@ scons: warning: Ignoring corrupt .sconsign file: sub1..sconsign
 .*
 '''
 
-stdout = test.wrap_stdout('foo.in->sub1.foo.out\n')
+stdout = test.wrap_stdout('build1\("sub1/foo.out", "foo.in"\)\n')
 
 test.write(sub1__sconsign, 'not:a:sconsign:file')
 test.run(arguments = '.', stderr=stderr, stdout=stdout, status=2)

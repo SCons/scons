@@ -37,9 +37,13 @@ import string
 import sys
 import UserDict
 
-import SCons.Util
 import SCons.Errors
+import SCons.Util
 
+class _Null:
+    pass
+
+_null = _Null
 
 print_actions = 1;
 execute_actions = 1;
@@ -71,7 +75,7 @@ class CommandGenerator:
     def __init__(self, generator):
         self.generator = generator
 
-def _do_create_action(act):
+def _do_create_action(act, strfunction=_null):
     """This is the actual "implementation" for the
     Action factory method, below.  This handles the
     fact that passing lists to Action() itself has
@@ -89,7 +93,7 @@ def _do_create_action(act):
     elif isinstance(act, CommandGenerator):
         return CommandGeneratorAction(act.generator)
     elif callable(act):
-        return FunctionAction(act)
+        return FunctionAction(act, strfunction=strfunction)
     elif SCons.Util.is_String(act):
         var=SCons.Util.get_environment_var(act)
         if var:
@@ -109,17 +113,17 @@ def _do_create_action(act):
     else:
         return None
 
-def Action(act):
+def Action(act, strfunction=_null):
     """A factory for action objects."""
     if SCons.Util.is_List(act):
-        acts = filter(lambda x: not x is None,
-                      map(_do_create_action, act))
+        acts = map(lambda x, s=strfunction: _do_create_action(x, s), act)
+        acts = filter(lambda x: not x is None, acts)
         if len(acts) == 1:
             return acts[0]
         else:
             return ListAction(acts)
     else:
-        return _do_create_action(act)
+        return _do_create_action(act, strfunction=strfunction)
 
 class ActionBase:
     """Base class for actions that create output objects."""
@@ -202,10 +206,10 @@ class CommandAction(ActionBase):
         handle lists of commands, even though that's not how we use it
         externally.
         """
+        import SCons.Util
+
         escape = env.get('ESCAPE', lambda x: x)
 
-        import SCons.Errors
-        
         if env.has_key('SHELL'):
             shell = env['SHELL']
         else:
@@ -271,8 +275,6 @@ class CommandGeneratorAction(ActionBase):
         self.generator = generator
 
     def __generate(self, target, source, env, for_signature):
-        import SCons.Util
-
         # ensure that target is a list, to make it easier to write
         # generator functions:
         if not SCons.Util.is_List(target):
@@ -315,21 +317,45 @@ class LazyCmdGenerator:
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""
-    def __init__(self, function):
-        self.function = function
+
+    def __init__(self, execfunction, strfunction=_null):
+        self.execfunction = execfunction
+        if strfunction is _null:
+            def strfunction(target, source, execfunction=execfunction):
+                def quote(s):
+                    return '"' + str(s) + '"'
+                try:
+                    name = execfunction.__name__
+                except AttributeError:
+                    try:
+                        name = execfunction.__class__.__name__
+                    except AttributeError:
+                        name = "unknown_python_function"
+                if len(target) == 1:
+                    tstr = quote(target[0])
+                else:
+                    tstr = str(map(lambda x, q=quote: q(x), target))
+                if len(source) == 1:
+                    sstr = quote(source[0])
+                else:
+                    sstr = str(map(lambda x, q=quote: q(x), source))
+                return "%s(%s, %s)" % (name, tstr, sstr)
+        self.strfunction = strfunction
 
     def execute(self, target, source, env):
-        # if print_actions:
-        # XXX:  WHAT SHOULD WE PRINT HERE?
+        r = 0
+        if not SCons.Util.is_List(target):
+            target = [target]
+        if not SCons.Util.is_List(source):
+            source = [source]
+        if print_actions and self.strfunction:
+            s = self.strfunction(target, source)
+            if s:
+                self.show(s)
         if execute_actions:
-            if not SCons.Util.is_List(target):
-                target = [target]
-
-            if not SCons.Util.is_List(source):
-                source = [source]
             rsources = map(rfile, source)
-
-            return self.function(target=target, source=rsources, env=env)
+            r = self.execfunction(target=target, source=rsources, env=env)
+        return r
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this callable action.
@@ -340,11 +366,11 @@ class FunctionAction(ActionBase):
         #XXX DOES NOT ACCOUNT FOR CHANGES IN ENVIRONMENT VARIABLES
         #THE FUNCTION MAY USE
         try:
-            # "self.function" is a function.
-            code = self.function.func_code.co_code
+            # "self.execfunction" is a function.
+            code = self.execfunction.func_code.co_code
         except:
-            # "self.function" is a callable object.
-            code = self.function.__call__.im_func.func_code.co_code
+            # "self.execfunction" is a callable object.
+            code = self.execfunction.__call__.im_func.func_code.co_code
         return str(code)
 
 class ListAction(ActionBase):
@@ -367,9 +393,7 @@ class ListAction(ActionBase):
 
         Simple concatenation of the signatures of the elements.
         """
-
-        ret = ""
-        for a in self.list:
-            ret = ret + a.get_contents(target, source, env)
-        return ret
-
+        return string.join(map(lambda x, t=target, s=source, e=env:
+                                      x.get_contents(t, s, e),
+                               self.list),
+                           "")

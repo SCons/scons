@@ -38,40 +38,25 @@ import shutil
 import string
 import sys
 import types
+from UserDict import UserDict
 
+import SCons.Action
 import SCons.Builder
 import SCons.Defaults
-from SCons.Errors import UserError
+import SCons.Errors
 import SCons.Node
 import SCons.Node.FS
-import SCons.Util
-import SCons.Warnings
-from UserDict import UserDict
 import SCons.Platform
 import SCons.Tool
+import SCons.Util
+import SCons.Warnings
 
-def installFunc(target, source, env):
-    try:
-        map(lambda t: os.unlink(str(t)), target)
-    except OSError:
-        pass
+def installString(target, source):
+    return 'Install file: "%s" as "%s"' % (source[0], target[0])
 
-    try:
-        SCons.Node.FS.file_link(str(source[0]), str(target[0]))
-        print 'Install file: "%s" as "%s"' % \
-              (source[0], target[0])
-        return 0
-    except IOError, e:
-        sys.stderr.write('Unable to install "%s" as "%s"\n%s\n' % \
-                         (source[0], target[0], str(e)))
-        return -1
-    except OSError, e:
-        sys.stderr.write('Unable to install "%s" as "%s"\n%s\n' % \
-                         (source[0], target[0], str(e)))
-        return -1
+installAction = SCons.Action.Action(SCons.Node.FS.LinkFunc, installString)
 
-InstallBuilder = SCons.Builder.Builder(name='Install',
-                                       action=installFunc)
+InstallBuilder = SCons.Builder.Builder(name='Install', action=installAction)
 
 def our_deepcopy(x):
    """deepcopy lists and dictionaries, and just copy the reference
@@ -232,7 +217,7 @@ class Environment:
                 for name, builder in bd.items():
                     setattr(self, name, BuilderWrapper(self, builder))
             else:
-                raise UserError, "The use of the BUILDERS Environment variable as a list or Builder instance is deprecated.  BUILDERS should be a dictionary of name->Builder instead."
+                raise SCons.Errors.UserError, "The use of the BUILDERS Environment variable as a list or Builder instance is deprecated.  BUILDERS should be a dictionary of name->Builder instead."
         for s in self._dict['SCANNERS']:
             setattr(self, s.name, s)
         
@@ -378,7 +363,7 @@ class Environment:
 	    # buildable without actually having a builder, so we allow
 	    # it to be a side effect as well.
             if side_effect.builder is not None and side_effect.builder != 1:
-                raise UserError, "Multiple ways to build the same target were specified for: %s" % str(side_effect)
+                raise SCons.Errors.UserError, "Multiple ways to build the same target were specified for: %s" % str(side_effect)
             side_effect.add_source(targets)
             side_effect.side_effect = 1
             self.Precious(side_effect)

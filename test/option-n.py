@@ -75,7 +75,10 @@ test.write('f3.in', "f3.in\n")
 test.write(['src', 'f4.in'], "src/f4.in\n")
 
 args = 'f1.out f2.out'
-expect = test.wrap_stdout("%s build.py f1.out\n%s build.py f2.out\n" % (python, python))
+expect = test.wrap_stdout("""\
+%s build.py f1.out
+%s build.py f2.out
+""" % (python, python))
 
 test.run(arguments = args, stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
@@ -117,29 +120,17 @@ test.run(arguments = '-c -n ' + args, stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
-# XXX Because Install is a function action, it doesn't know how
-# to print what's going on when -n is used.  Following the
-# directions on the XXX lines below whenever that gets fixed.
 #
 install_f3_in = os.path.join('install', 'f3.in')
-# XXX Uncomment the next line and remove the one after it when we
-# fix the Install print during -n.
-#expect = test.wrap_stdout('Install file: "f3.in" as "%s"\n' % install_f3_in)
-expect = test.wrap_stdout('')
+expect = test.wrap_stdout('Install file: "f3.in" as "%s"\n' % install_f3_in)
 
 test.run(arguments = '-n install', stdout = expect)
 test.fail_test(os.path.exists(test.workpath('install', 'f3.in')))
-
-# XXX Remove the next line when we fix the Install print during -n.
-expect = test.wrap_stdout('Install file: "f3.in" as "%s"\n' % install_f3_in)
 
 test.run(arguments = 'install', stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
 
 test.write('f3.in', "f3.in again\n")
-
-# XXX Remove the next line when we fix the Install print during -n.
-expect = test.wrap_stdout('')
 
 test.run(arguments = '-n install', stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))

@@ -32,7 +32,6 @@ test.write('SConstruct', """
 env = Environment()
 
 def copy1(env, source, target):
-    print 'copy %s -> %s'%(str(source[0]), str(target[0]))
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
 def copy2(env, source, target):
@@ -50,7 +49,10 @@ SetBuildSignatureType('content')
 test.write('foo.in', 'foo.in')
 
 test.run(arguments='foo.out.out',
-         stdout=test.wrap_stdout('copy foo.in -> foo.out\ncopy foo.out -> foo.out.out\n'))
+         stdout=test.wrap_stdout("""\
+copy2("foo.out", "foo.in")
+copy1("foo.out.out", "foo.out")
+"""))
 
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout('scons: "foo.out.out" is up to date.\n'))
@@ -59,7 +61,6 @@ test.write('SConstruct', """
 env = Environment()
 
 def copy1(env, source, target):
-    print 'copy %s -> %s'%(str(source[0]), str(target[0]))
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
 def copy2(env, source, target):
@@ -76,13 +77,15 @@ SetBuildSignatureType('content')
 """)
 
 test.run(arguments='foo.out.out',
-         stdout=test.wrap_stdout('copy foo.in -> foo.out\nscons: "foo.out.out" is up to date.\n'))
+         stdout=test.wrap_stdout("""\
+copy2("foo.out", "foo.in")
+scons: "foo.out.out" is up to date.
+"""))
 
 test.write('SConstruct', """
 env = Environment()
 
 def copy1(env, source, target):
-    print 'copy %s -> %s'%(str(source[0]), str(target[0]))
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
 def copy2(env, source, target):
@@ -99,13 +102,14 @@ SetBuildSignatureType('build')
 """)
 
 test.run(arguments='foo.out.out',
-         stdout=test.wrap_stdout('copy foo.out -> foo.out.out\n'))
+         stdout=test.wrap_stdout("""\
+copy1("foo.out.out", "foo.out")
+"""))
 
 test.write('SConstruct', """
 env = Environment()
 
 def copy1(env, source, target):
-    print 'copy %s -> %s'%(str(source[0]), str(target[0]))
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
 
 def copy2(env, source, target):
@@ -121,7 +125,10 @@ SetBuildSignatureType('build')
 """)
 
 test.run(arguments='foo.out.out',
-         stdout=test.wrap_stdout('copy foo.in -> foo.out\ncopy foo.out -> foo.out.out\n'))
+         stdout=test.wrap_stdout("""\
+copy2("foo.out", "foo.in")
+copy1("foo.out.out", "foo.out")
+"""))
 
 
 test.pass_test()

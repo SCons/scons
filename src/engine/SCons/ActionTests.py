@@ -105,9 +105,11 @@ class ActionTestCase(unittest.TestCase):
         """
         def foo():
             pass
+        def bar():
+            pass
         a1 = SCons.Action.Action(foo)
         assert isinstance(a1, SCons.Action.FunctionAction), a1
-        assert a1.function == foo, a1.function
+        assert a1.execfunction == foo, a1.execfunction
 
         a2 = SCons.Action.Action("string")
         assert isinstance(a2, SCons.Action.CommandAction), a2
@@ -156,9 +158,14 @@ class ActionTestCase(unittest.TestCase):
         assert isinstance(a10.list[0], SCons.Action.CommandAction), a10.list[0]
         assert a10.list[0].cmd_list == ["x"], a10.list[0].cmd_list
         assert isinstance(a10.list[1], SCons.Action.FunctionAction), a10.list[1]
-        assert a10.list[1].function == foo, a10.list[1].function
+        assert a10.list[1].execfunction == foo, a10.list[1].execfunction
         assert isinstance(a10.list[2], SCons.Action.CommandAction), a10.list[2]
         assert a10.list[2].cmd_list == ["z"], a10.list[2].cmd_list
+
+        a11 = SCons.Action.Action(foo, strfunction=bar)
+        assert isinstance(a11, SCons.Action.FunctionAction), a11
+        assert a11.execfunction == foo, a11.execfunction
+        assert a11.strfunction == bar, a11.strfunction
 
 class ActionBaseTestCase(unittest.TestCase):
 
@@ -487,10 +494,30 @@ class FunctionActionTestCase(unittest.TestCase):
     def test_init(self):
         """Test creation of a function Action
         """
-        def func():
+        def func1():
             pass
-        a = SCons.Action.FunctionAction(func)
-        assert a.function == func
+        def func2():
+            pass
+        def func3():
+            pass
+        def func4():
+            pass
+
+        a = SCons.Action.FunctionAction(func1)
+        assert a.execfunction == func1, a.execfunction
+        assert isinstance(a.strfunction, types.FunctionType)
+
+        a = SCons.Action.FunctionAction(func2, strfunction=func3)
+        assert a.execfunction == func2, a.execfunction
+        assert a.strfunction == func3, a.strfunction
+
+        a = SCons.Action.FunctionAction(func3, func4)
+        assert a.execfunction == func3, a.execfunction
+        assert a.strfunction == func4, a.strfunction
+
+        a = SCons.Action.FunctionAction(func4, None)
+        assert a.execfunction == func4, a.execfunction
+        assert a.strfunction is None, a.strfunction
 
     def test_execute(self):
         """Test executing a function Action
@@ -554,6 +581,18 @@ class FunctionActionTestCase(unittest.TestCase):
         assert r == 2
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
+
+        def build_it(target, source, env, self=self):
+            self.build_it = 1
+            return 0
+        def string_it(target, source, self=self):
+            self.string_it = 1
+            return None
+        act = SCons.Action.FunctionAction(build_it, string_it)
+        r = act.execute([], [], Environment())
+        assert r == 0, r
+        assert self.build_it
+        assert self.string_it
 
     def test_get_contents(self):
         """Test fetching the contents of a function Action
@@ -677,7 +716,7 @@ if __name__ == "__main__":
                  CommandGeneratorActionTestCase,
                  FunctionActionTestCase,
                  ListActionTestCase,
-                 LazyActionTestCase]
+                 LazyActionTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(map(tclass, names))

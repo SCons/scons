@@ -36,19 +36,35 @@ canonical default.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
 import os
 import os.path
-import types
-import SCons.Node
-from UserDict import UserDict
+import string
 import sys
+import types
+from UserDict import UserDict
+
+import SCons.Action
 import SCons.Errors
+import SCons.Node
 import SCons.Warnings
 
-execute_actions = 1
+#
+# SCons.Action objects for interacting with the outside world.
+#
+# The Node.FS methods in this module should use these actions to
+# create and/or remove files and directories; they should *not* use
+# os.{link,symlink,unlink,mkdir}(), etc., directly.
+#
+# Using these SCons.Action objects ensures that descriptions of these
+# external activities are properly displayed, that the displays are
+# suppressed when the -s (silent) option is used, and (most importantly)
+# the actions are disabled when the the -n option is used, in which case
+# there should be *no* changes to the external file system(s)...
+#
 
-def file_link(src, dest):
+def LinkFunc(target, source, env):
+    src = source[0].path
+    dest = target[0].path
     dir, file = os.path.split(dest)
     if dir and not os.path.isdir(dir):
         os.makedirs(dir)
@@ -56,17 +72,37 @@ def file_link(src, dest):
     # fails, try a symlink.  If that fails then just copy it.
     try :
         os.link(src, dest)
-    except (AttributeError, OSError) :
+    except (AttributeError, OSError):
         try :
             os.symlink(src, dest)
-        except (AttributeError, OSError) :
+        except (AttributeError, OSError):
             import shutil
             import stat
             shutil.copy2(src, dest)
             st=os.stat(src)
             os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    return 0
 
+LinkAction = SCons.Action.Action(LinkFunc, None)
 
+def LocalString(target, source):
+    return 'Local copy of %s from %s' % (target[0], source[0])
+
+LocalCopy = SCons.Action.Action(LinkFunc, LocalString)
+
+def UnlinkFunc(target, source, env):
+    os.unlink(target[0].path)
+    return 0
+
+UnlinkAction = SCons.Action.Action(UnlinkFunc, None)
+
+def MkdirFunc(target, source, env):
+    os.mkdir(target[0].path)
+    return 0
+
+MkdirAction = SCons.Action.Action(MkdirFunc, None)
+
+#
 class ParentOfRoot:
     """
     An instance of this class is used as the parent of the root of a
@@ -842,13 +878,11 @@ class File(Entry):
             if isinstance(p, ParentOfRoot):
                 raise SCons.Errors.StopError, parent.path
             parent = p
-        if not execute_actions:
-            return
         listDirs.reverse()
         for dirnode in listDirs:
+            dirnode._exists = 1
             try:
-                os.mkdir(dirnode.abspath)
-                dirnode._exists = 1
+                MkdirAction.execute(dirnode, None, None)
             except OSError:
                 pass
 
@@ -871,8 +905,7 @@ class File(Entry):
 
         if self.exists():
             if self.builder and not self.precious:
-                if execute_actions:
-                    os.unlink(self.path)
+                UnlinkAction.execute(self, None, None)
                 if hasattr(self, '_exists'):
                     delattr(self, '_exists')
         else:
@@ -894,12 +927,12 @@ class File(Entry):
         if self.duplicate and not self.builder and not self.created:
             src=self.srcnode().rfile()
             if src.exists() and src.abspath != self.abspath:
+                self._createDir()
                 try:
-                    os.unlink(self.abspath)
+                    UnlinkAction.execute(self, None, None)
                 except OSError:
                     pass
-                self._createDir()
-                file_link(src.abspath, self.abspath)
+                LinkAction.execute(self, src, None)
                 self.created = 1
 
                 # Set our exists cache accordingly
@@ -919,9 +952,7 @@ class File(Entry):
                     # ...and it's even up-to-date...
                     if self._local:
                         # ...and they'd like a local copy.
-                        print "Local copy of %s from %s" % (self.path, r.path)
-                        if execute_actions:
-                            file_link(r.path, self.path)
+                        LocalCopy.execute(self, r, None)
                         self.set_bsig(bsig)
                         self.store_bsig()
                     return 1

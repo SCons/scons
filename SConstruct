@@ -228,7 +228,6 @@ def SCons_revision(target, source, env):
     # this routine will change when the version number changes
     # and things will get rebuilt properly.
     global version
-    print "SCons_revision() < %s > %s" % (s, t)
     inf = open(s, 'rb')
     outf = open(t, 'wb')
     for line in inf.readlines():
