@@ -392,6 +392,19 @@ class Base:
         the documentation for that function."""
         return SCons.Util.scons_subst_list(string, self, raw, target, source, dict)
 
+    def subst_path(self, path):
+        """Substitute a path list."""
+
+        if not SCons.Util.is_List(path):
+            path = [path]
+
+        r = []
+        for p in path:
+            if SCons.Util.is_String(p):
+                p = self.subst(p)
+            r.append(p)
+        return r
+
     def _update(self, dict):
         """Update an environment's values directly, bypassing the normal
         checks that occur when users try to set items.

@@ -163,6 +163,11 @@ class DummyEnvironment:
     def subst(self, arg):
         return arg
 
+    def subst_path(self, path):
+        if type(path) != type([]):
+            path = [path]
+        return map(self.subst, path)
+
 def deps_match(self, deps, headers):
     scanned = map(os.path.normpath, map(str, deps))
     expect = map(os.path.normpath, headers)

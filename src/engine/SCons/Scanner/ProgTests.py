@@ -73,6 +73,11 @@ class DummyEnvironment:
     def subst(self, s):
         return s
 
+    def subst_path(self, path):
+        if type(path) != type([]):
+            path = [path]
+        return map(self.subst, path)
+
 def deps_match(deps, libs):
     deps=map(str, deps)
     deps.sort()

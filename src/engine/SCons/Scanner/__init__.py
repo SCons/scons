@@ -55,15 +55,7 @@ class FindPathDirs:
         except KeyError:
             return ()
 
-        if not SCons.Util.is_List(path):
-            path = [path]
-        r = []
-        for p in path:
-            if SCons.Util.is_String(p):
-                p = env.subst(p)
-            r.append(p)
-
-        return tuple(self.fs.Rsearchall(r,
+        return tuple(self.fs.Rsearchall(env.subst_path(path),
                                         must_exist = 0,
                                         clazz = SCons.Node.FS.Dir,
                                         cwd = dir))

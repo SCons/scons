@@ -416,6 +416,17 @@ class EnvironmentTestCase(unittest.TestCase):
             subst = env.subst_list('$FOO', call=None)
             assert subst is bar, subst
 
+    def test_subst_path(self):
+        """Test substituting a path list
+        """
+        env = Environment(FOO='foo', BAR='bar')
+
+        r = env.subst_path('$FOO')
+        assert r == ['foo'], r
+
+        r = env.subst_path(['$FOO', 'xxx', '$BAR'])
+        assert r == ['foo', 'xxx', 'bar'], r
+
     def test_Builder_calls(self):
         """Test Builder calls through different environments
         """
