@@ -60,6 +60,7 @@
     <!ENTITY separate SYSTEM "separate.sgml">
     <!ENTITY simple SYSTEM "simple.sgml">
     <!ENTITY sourcecode SYSTEM "sourcecode.sgml">
+    <!ENTITY tasks SYSTEM "tasks.sgml">
     <!ENTITY troubleshoot SYSTEM "troubleshoot.sgml">
     <!ENTITY variants SYSTEM "variants.sgml">
 
@@ -241,6 +242,11 @@
   Platform()
   Tools()
   -->
+
+  <appendix id="app-tasks">
+    <title>Handling Common Tasks</title>
+    &tasks;
+  </appendix>
 
   <!--
 

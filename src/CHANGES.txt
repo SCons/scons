@@ -203,6 +203,9 @@ RELEASE 0.95 - XXX
   - Build Type Libraries in the target directory, not the source
     directory.
 
+  - Add an appendix to the User's Guide showing how to accomplish
+    various common tasks in Python.
+
   From Greg Spencer:
 
   - Add support for Microsoft Visual Studio 2003 (version 7.1).
