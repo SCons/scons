@@ -110,9 +110,9 @@ env.Cat('aaa.out', 'foo/aaa.in')
 env.Cat('bbb.out', 'foo/bbb.in')
 env.Cat('ccc.out', 'foo/ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
-env.SourceCode('.', env.CVS(r'%s'))
+env.SourceCode('.', env.CVS(r'%(cvsroot)s'))
 SConscript('foo/sub/SConscript', "env")
-""" % cvsroot)
+""" % locals())
 
 test.subdir(['work1', 'foo'])
 test.write(['work1', 'foo', 'bbb.in'], "work1/foo/bbb.in\n")
@@ -123,39 +123,33 @@ test.write(['work1', 'foo', 'sub', 'eee.in'], "work1/foo/sub/eee.in\n")
 test.run(chdir = 'work1',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-cvs -Q -d %s co foo/sub/SConscript
-""" % (cvsroot),
+cvs -Q -d %(cvsroot)s co foo/sub/SConscript
+""" % locals(),
                                    build_str = """\
-cvs -Q -d %s co foo/aaa.in
-cat(["aaa.out"], ["%s"])
-cat(["bbb.out"], ["%s"])
-cvs -Q -d %s co foo/ccc.in
-cat(["ccc.out"], ["%s"])
+cvs -Q -d %(cvsroot)s co foo/aaa.in
+cat(["aaa.out"], ["%(foo_aaa_in)s"])
+cat(["bbb.out"], ["%(foo_bbb_in)s"])
+cvs -Q -d %(cvsroot)s co foo/ccc.in
+cat(["ccc.out"], ["%(foo_ccc_in)s"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-cvs -Q -d %s co foo/sub/ddd.in
-cat(["%s"], ["%s"])
-cat(["%s"], ["%s"])
-cvs -Q -d %s co foo/sub/fff.in
-cat(["%s"], ["%s"])
-cat(["%s"], ["%s", "%s", "%s"])
-""" % (cvsroot,
-       foo_aaa_in,
-       foo_bbb_in,
-       cvsroot,
-       foo_ccc_in,
-       cvsroot,
-       foo_sub_ddd_out, foo_sub_ddd_in,
-       foo_sub_eee_out, foo_sub_eee_in,
-       cvsroot,
-       foo_sub_fff_out, foo_sub_fff_in,
-       foo_sub_all, foo_sub_ddd_out, foo_sub_eee_out, foo_sub_fff_out)))
+cvs -Q -d %(cvsroot)s co foo/sub/ddd.in
+cat(["%(foo_sub_ddd_out)s"], ["%(foo_sub_ddd_in)s"])
+cat(["%(foo_sub_eee_out)s"], ["%(foo_sub_eee_in)s"])
+cvs -Q -d %(cvsroot)s co foo/sub/fff.in
+cat(["%(foo_sub_fff_out)s"], ["%(foo_sub_fff_in)s"])
+cat(["%(foo_sub_all)s"], ["%(foo_sub_ddd_out)s", "%(foo_sub_eee_out)s", "%(foo_sub_fff_out)s"])
+""" % locals()))
 
 # Checking things back out of CVS apparently messes with the line
 # endings, so read the result files in non-binary mode.
 
-test.fail_test(test.read(['work1', 'all'], 'r') != "import/aaa.in\nwork1/foo/bbb.in\nimport/ccc.in\n")
+test.must_match(['work1', 'all'],
+                "import/aaa.in\nwork1/foo/bbb.in\nimport/ccc.in\n",
+                mode='r')
 
-test.fail_test(test.read(['work1', 'foo', 'sub', 'all'], 'r') != "import/sub/ddd.in\nwork1/foo/sub/eee.in\nimport/sub/fff.in\n")
+test.must_match(['work1', 'foo', 'sub', 'all'],
+                "import/sub/ddd.in\nwork1/foo/sub/eee.in\nimport/sub/fff.in\n",
+                mode='r')
 
 test.fail_test(not is_writable(test.workpath('work1', 'foo', 'sub', 'SConscript')))
 test.fail_test(not is_writable(test.workpath('work1', 'foo', 'aaa.in')))
@@ -180,9 +174,9 @@ env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
-env.SourceCode('.', env.CVS(r'%s', 'foo'))
+env.SourceCode('.', env.CVS(r'%(cvsroot)s', 'foo'))
 SConscript('sub/SConscript', "env")
-""" % cvsroot)
+""" % locals())
 
 test.write(['work2', 'bbb.in'], "work2/bbb.in\n")
 
@@ -192,41 +186,38 @@ test.write(['work2', 'sub', 'eee.in'], "work2/sub/eee.in\n")
 test.run(chdir = 'work2',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-cvs -q -d %s co -d sub foo/sub/SConscript
+cvs -q -d %(cvsroot)s co -d sub foo/sub/SConscript
 U sub/SConscript
-""" % (cvsroot),
+""" % locals(),
                                    build_str = """\
-cvs -q -d %s co -d . foo/aaa.in
+cvs -q -d %(cvsroot)s co -d . foo/aaa.in
 U ./aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
-cvs -q -d %s co -d . foo/ccc.in
+cvs -q -d %(cvsroot)s co -d . foo/ccc.in
 U ./ccc.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-cvs -q -d %s co -d sub foo/sub/ddd.in
+cvs -q -d %(cvsroot)s co -d sub foo/sub/ddd.in
 U sub/ddd.in
-cat(["%s"], ["%s"])
-cat(["%s"], ["%s"])
-cvs -q -d %s co -d sub foo/sub/fff.in
+cat(["%(sub_ddd_out)s"], ["%(sub_ddd_in)s"])
+cat(["%(sub_eee_out)s"], ["%(sub_eee_in)s"])
+cvs -q -d %(cvsroot)s co -d sub foo/sub/fff.in
 U sub/fff.in
-cat(["%s"], ["%s"])
-cat(["%s"], ["%s", "%s", "%s"])
-""" % (cvsroot,
-       cvsroot,
-       cvsroot,
-       sub_ddd_out, sub_ddd_in,
-       sub_eee_out, sub_eee_in,
-       cvsroot,
-       sub_fff_out, sub_fff_in,
-       sub_all, sub_ddd_out, sub_eee_out, sub_fff_out)))
+cat(["%(sub_fff_out)s"], ["%(sub_fff_in)s"])
+cat(["%(sub_all)s"], ["%(sub_ddd_out)s", "%(sub_eee_out)s", "%(sub_fff_out)s"])
+""" % locals()))
 
 # Checking things back out of CVS apparently messes with the line
 # endings, so read the result files in non-binary mode.
 
-test.fail_test(test.read(['work2', 'all'], 'r') != "import/aaa.in\nwork2/bbb.in\nimport/ccc.in\n")
+test.must_match(['work2', 'all'],
+                "import/aaa.in\nwork2/bbb.in\nimport/ccc.in\n",
+                mode='r')
 
-test.fail_test(test.read(['work2', 'sub', 'all'], 'r') != "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n")
+test.must_match(['work2', 'sub', 'all'],
+                "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n",
+                mode='r')
 
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'SConscript')))
 test.fail_test(not is_writable(test.workpath('work2', 'aaa.in')))
@@ -265,24 +256,30 @@ env.SourceCode('ccc.in', cvs)
 test.run(chdir = 'work3',
          arguments = '.',
          stdout = test.wrap_stdout(build_str = """\
-cvs -q -d %s co -d . foo/aaa.in
+cvs -q -d %(cvsroot)s co -d . foo/aaa.in
 U ./aaa.in
 cat(["aaa.out"], ["aaa.in"])
-cvs -q -d %s co -d . foo/bbb.in
+cvs -q -d %(cvsroot)s co -d . foo/bbb.in
 U ./bbb.in
 cat(["bbb.out"], ["bbb.in"])
-cvs -q -d %s co -d . foo/ccc.in
+cvs -q -d %(cvsroot)s co -d . foo/ccc.in
 U ./ccc.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-""" % (cvsroot,
-       cvsroot,
-       cvsroot)))
+""" % locals()))
 
-test.must_match(['work3', 'aaa.out'], "import/aaa.in\n")
-test.must_match(['work3', 'bbb.out'], "import/bbb.in\n")
-test.must_match(['work3', 'ccc.out'], "import/ccc.in\n")
-test.must_match(['work3', 'all'], "import/aaa.in\nimport/bbb.in\nimport/ccc.in\n")
+test.must_match(['work3', 'aaa.out'],
+                "import/aaa.in\n",
+                mode='r')
+test.must_match(['work3', 'bbb.out'],
+                "import/bbb.in\n",
+                mode='r')
+test.must_match(['work3', 'ccc.out'],
+                "import/ccc.in\n",
+                mode='r')
+test.must_match(['work3', 'all'],
+                "import/aaa.in\nimport/bbb.in\nimport/ccc.in\n",
+                mode='r')
 
 # Test CVS checkouts from a remote server (Tigris.org).
 test.subdir(['work4'])

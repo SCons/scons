@@ -175,8 +175,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.11.D001 2004/09/13 13:22:19 knight"
-__version__ = "0.11"
+__revision__ = "TestCmd.py 0.12.D001 2004/10/21 14:00:53 knight"
+__version__ = "0.12"
 
 import os
 import os.path

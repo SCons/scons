@@ -76,8 +76,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.11.D001 2004/09/13 13:22:19 knight"
-__version__ = "0.11"
+__revision__ = "TestCommon.py 0.12.D001 2004/10/21 14:00:53 knight"
+__version__ = "0.12"
 
 import os
 import os.path
@@ -193,10 +193,10 @@ class TestCommon(TestCmd):
         apply(TestCmd.__init__, [self], kw)
         os.chdir(self.workdir)
 
-    def must_contain(self, file, required):
+    def must_contain(self, file, required, mode = 'rb'):
         """Ensures that the specified file contains the required text.
         """
-        file_contents = self.read(file)
+        file_contents = self.read(file, mode)
         contains = (string.find(file_contents, required) != -1)
         if not contains:
             print "File `%s' does not contain required string." % file
@@ -218,13 +218,13 @@ class TestCommon(TestCmd):
             print "Missing files: `%s'" % string.join(missing, "', `")
             self.fail_test(missing)
 
-    def must_match(self, file, expect):
+    def must_match(self, file, expect, mode = 'rb'):
         """Matches the contents of the specified file (first argument)
         against the expected contents (second argument).  The expected
         contents are a list of lines or a string which will be split
         on newlines.
         """
-        file_contents = self.read(file)
+        file_contents = self.read(file, mode)
         try:
             self.fail_test(not self.match(file_contents, expect))
         except:
