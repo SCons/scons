@@ -41,11 +41,11 @@ Things to do to release a new version of SCons:
 
 		ae_p scons.0
 
-		aede {91}
+		aede {92}
 
-		aerpass {91}
+		aerpass {92}
 
-		aeib {91}
+		aeib {92}
 
 		aeb
 
@@ -59,16 +59,16 @@ Things to do to release a new version of SCons:
 
 	START THE NEW BRANCH FOR RELEASE
 
-		aenbr -p scons.0 {92}
+		aenbr -p scons.0 {93}
 
-		aenc -p scons.0.{92}
+		aenc -p scons.0.{93}
 
                         Call it something like,
                         "Initialize the new branch for release."
                         Cause = internal_enhancement.
                         Exempt it from all tests (*_exempt = true).
 
-		ae_p scons.0.{92}
+		ae_p scons.0.{93}
 
 		aedb 100
 
@@ -146,16 +146,16 @@ Things to do to release a new version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.{92}-1.noarch.rpm
-		put scons-0.{92}-1.src.rpm
-		put scons-0.{92}.tar.gz
-		put scons-0.{92}.win32.exe
-		put scons-0.{92}.zip
-		put scons-local-0.{92}.tar.gz
-		put scons-local-0.{92}.zip
-		put scons-src-0.{92}.tar.gz
-		put scons-src-0.{92}.zip
-		put scons_0.{92}-1_all.deb
+		put scons-0.{93}-1.noarch.rpm
+		put scons-0.{93}-1.src.rpm
+		put scons-0.{93}.tar.gz
+		put scons-0.{93}.win32.exe
+		put scons-0.{93}.zip
+		put scons-local-0.{93}.tar.gz
+		put scons-local-0.{93}.zip
+		put scons-src-0.{93}.tar.gz
+		put scons-src-0.{93}.zip
+		put scons_0.{93}-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
@@ -167,7 +167,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.{92}
+		New release name:  0.{93}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -184,12 +184,12 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-0.{92}-1.noarch.rpm	Any	.rpm
-			scons-0.{92}-1.src.rpm		Any	Source .rpm
-			scons-0.{92}.tar.gz		Any	.gz
-			scons-0.{92}.win32.exe		i386	.exe (32-bit Windows)
-			scons-0.{92}.zip		Any	.zip
-			scons_0.{92}-1_all.deb		Any	.deb
+			scons-0.{93}-1.noarch.rpm	Any	.rpm
+			scons-0.{93}-1.src.rpm		Any	Source .rpm
+			scons-0.{93}.tar.gz		Any	.gz
+			scons-0.{93}.win32.exe		i386	.exe (32-bit Windows)
+			scons-0.{93}.zip		Any	.zip
+			scons_0.{93}-1_all.deb		Any	.deb
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -206,7 +206,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.{92}
+		New release name:  0.{93}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -223,8 +223,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-local-0.{92}.tar.gz	Any	.gz
-			scons-local-0.{92}.zip   	Any	.zip
+			scons-local-0.{93}.tar.gz	Any	.gz
+			scons-local-0.{93}.zip   	Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -241,7 +241,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.{92}
+		New release name:  0.{93}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -258,8 +258,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-src-0.{92}.tar.gz		Any	.gz
-			scons-src-0.{92}.zip   		Any	.zip
+			scons-src-0.{93}.tar.gz		Any	.gz
+			scons-src-0.{93}.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -268,7 +268,7 @@ Things to do to release a new version of SCons:
 		Release Notice section.
 
 
-	Hide release {0.14} at the SourceForge download page:
+	Hide release {0.90} at the SourceForge download page:
 
 		Go to the Admin page
 
@@ -278,7 +278,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: {0.14}
+		Release Name: {0.90}
 
 		=> Edit This Release
 
@@ -295,7 +295,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: {0.14}
+		Release Name: {0.90}
 
 		=> Edit This Release
 
@@ -312,7 +312,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: {0.14}
+		Release Name: {0.90}
 
 		=> Edit This Release
 

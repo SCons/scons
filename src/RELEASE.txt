@@ -20,35 +20,17 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
+RELEASE X.XX - XXX
 
-  This is the third beta release of SCons.  Please consult the
+  This is the fourth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.92:
 
   Please note the following important changes since release 0.91:
 
   - The Debian package available from the SCons web site now
     uses Python version 2.2.
-
-  Please note the following important changes since release 0.90:
-
-  - The spelling of the 'validater' keyword argument to the
-    Options.Add() method has been corrected to 'validator'.  The old
-    spelling still works but has been deprecated and generates a
-    warning.
-
-  - The SConscript() function no longer splits its first argument on
-    white space into a list of SConscript file names.  You must now
-    explicitly enclose the file names in a list:
-
-        SConscript(['sub1/SConscript', 'sub2/SConscript'])
-
-    Or use the Split() function (or something similar) to create a list:
-
-        SConscript(Split('sub1/SConscript sub2/SConscript'))
-
-    This makes the SConscript() function's handling of file names
-    consistent with the rest of SCons.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
