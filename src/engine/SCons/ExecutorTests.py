@@ -310,22 +310,43 @@ class ExecutorTestCase(unittest.TestCase):
         ts = x.get_timestamp()
         assert ts == 0, ts
 
-    def test_scan(self):
+    def test_scan_targets(self):
+        """Test scanning the targets for implicit dependencies"""
+        env = MyEnvironment(S='string')
+        t1 = MyNode('t1')
+        t2 = MyNode('t2')
+        sources = [MyNode('s1'), MyNode('s2')]
+        x = SCons.Executor.Executor('b', env, [{}], [t1, t2], sources)
+
+        deps = x.scan_targets(None)
+        assert t1.implicit == ['dep-t1', 'dep-t2'], t1.implicit
+        assert t2.implicit == ['dep-t1', 'dep-t2'], t2.implicit
+
+        t1.implicit = []
+        t2.implicit = []
+
+        deps = x.scan_targets(MyScanner('scanner-'))
+        assert t1.implicit == ['scanner-t1', 'scanner-t2'], t1.implicit
+        assert t2.implicit == ['scanner-t1', 'scanner-t2'], t2.implicit
+
+    def test_scan_sources(self):
         """Test scanning the sources for implicit dependencies"""
         env = MyEnvironment(S='string')
-        targets = [MyNode('t')]
+        t1 = MyNode('t1')
+        t2 = MyNode('t2')
         sources = [MyNode('s1'), MyNode('s2')]
-        x = SCons.Executor.Executor('b', env, [{}], targets, sources)
+        x = SCons.Executor.Executor('b', env, [{}], [t1, t2], sources)
 
-        deps = x.scan(None)
-        t = targets[0]
-        assert t.implicit == ['dep-s1', 'dep-s2'], t.implicit
+        deps = x.scan_sources(None)
+        assert t1.implicit == ['dep-s1', 'dep-s2'], t1.implicit
+        assert t2.implicit == ['dep-s1', 'dep-s2'], t2.implicit
 
-        t.implicit = []
+        t1.implicit = []
+        t2.implicit = []
 
-        deps = x.scan(MyScanner('scanner-'))
-        t = targets[0]
-        assert t.implicit == ['scanner-s1', 'scanner-s2'], t.implicit
+        deps = x.scan_sources(MyScanner('scanner-'))
+        assert t1.implicit == ['scanner-s1', 'scanner-s2'], t1.implicit
+        assert t2.implicit == ['scanner-s1', 'scanner-s2'], t2.implicit
 
     def test_get_missing_sources(self):
         """Test the ability to check if any sources are missing"""

@@ -45,9 +45,10 @@ class Node:
         self.cached = 0
         self.scanned = 0
         self.scanner = None
+        self.targets = [self]
         class Builder:
             def targets(self, node):
-                return [node]
+                return node.targets
         self.builder = Builder()
         self.bsig = None
         self.csig = None
@@ -430,6 +431,19 @@ class TaskmasterTestCase(unittest.TestCase):
         tm = SCons.Taskmaster.Taskmaster([n2])
         assert tm.next_task() is None
 
+        n1 = Node("n1")
+        n2 = Node("n2")
+        n1.targets = [n1, n2]
+        n1._current_val = 1
+        tm = SCons.Taskmaster.Taskmaster([n1])
+        t = tm.next_task()
+        t.executed()
+
+        s = n1.get_state()
+        assert s == SCons.Node.up_to_date, s
+        s = n2.get_state()
+        assert s == SCons.Node.executed, s
+
 
     def test_make_ready_out_of_date(self):
         """Test the Task.make_ready() method's list of out-of-date Nodes
@@ -701,7 +715,9 @@ class TaskmasterTestCase(unittest.TestCase):
         built_text = "xxx"
         visited_nodes = []
         n1.set_state(SCons.Node.executing)
+
         t.executed()
+
         s = n1.get_state()
         assert s == SCons.Node.executed, s
         assert built_text == "xxx really", built_text
@@ -713,11 +729,30 @@ class TaskmasterTestCase(unittest.TestCase):
         built_text = "should_not_change"
         visited_nodes = []
         n2.set_state(None)
+
         t.executed()
-        s = n1.get_state()
-        assert s == SCons.Node.executed, s
+
+        s = n2.get_state()
+        assert s is None, s
         assert built_text == "should_not_change", built_text
-        assert visited_nodes == ["n2"], visited_nodes
+        assert visited_nodes == ['n2'], visited_nodes
+
+        n3 = Node("n3")
+        n4 = Node("n4")
+        n3.targets = [n3, n4]
+        tm = SCons.Taskmaster.Taskmaster([n3])
+        t = tm.next_task()
+        visited_nodes = []
+        n3.set_state(SCons.Node.up_to_date)
+        n4.set_state(SCons.Node.executing)
+
+        t.executed()
+
+        s = n3.get_state()
+        assert s == SCons.Node.up_to_date, s
+        s = n4.get_state()
+        assert s == SCons.Node.executed, s
+        assert visited_nodes == ['n3'], visited_nodes
 
     def test_prepare(self):
         """Test preparation of multiple Nodes for a task

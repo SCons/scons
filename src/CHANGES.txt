@@ -248,6 +248,10 @@ RELEASE 0.97 - XXX
   - Fix re-scanning of generated source files for implicit dependencies
     when the -j option is used.
 
+  - Fix a dependency problem that caused $LIBS scans to not be added
+    to all of the targets in a multiple-target builder call, which
+    could cause out-of-order builds when the -j option is used.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

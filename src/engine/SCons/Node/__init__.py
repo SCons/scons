@@ -495,19 +495,16 @@ class Node:
                     self._children_reset()
                     self.del_binfo()
 
-        scanner = self.builder.source_scanner
-        self.get_executor().scan(scanner)
+        executor = self.get_executor()
 
-        # scan this node itself for implicit dependencies
+        # Have the executor scan the sources.
+        executor.scan_sources(self.builder.source_scanner)
+
+        # If there's a target scanner, have the executor scan the target
+        # node itself and associated targets that might be built.
         scanner = self.builder.target_scanner
         if scanner:
-            path = self.get_build_scanner_path(scanner)
-            deps = self.get_implicit_deps(build_env, scanner, path)
-            self._add_child(self.implicit, self.implicit_dict, deps)
-
-        # XXX See note above re: --implicit-cache.
-        #if implicit_cache:
-        #    self.store_implicit()
+            executor.scan_targets(scanner)
 
     def scanner_key(self):
         return None
