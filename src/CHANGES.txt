@@ -100,6 +100,10 @@ RELEASE 0.97 - XXX
   - Fix the ability to specify a target_factory of Dir() to a Builder,
     which the default create-a-directory Builder was interfering with.
 
+  - Mark a directory as built if it's created as part of the preparation
+    for another target, to avoid trying to build it again when it comes
+    up in the target list.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and

@@ -1504,7 +1504,7 @@ class prepareTestCase(unittest.TestCase):
         """Test the prepare() method"""
 
         class MyFile(SCons.Node.FS.File):
-            def _createDir(self):
+            def _createDir(self, update=None):
                 raise SCons.Errors.StopError
             def exists(self):
                 return None
@@ -1533,9 +1533,14 @@ class prepareTestCase(unittest.TestCase):
         xyz.set_state(SCons.Node.up_to_date)
         xyz.prepare()
         assert dir_made == [], dir_made
+        state = new_dir.get_state()
+        assert state != SCons.Node.executed, state
+
         xyz.set_state(0)
         xyz.prepare()
         assert dir_made[0].path == "new_dir", dir_made[0]
+        state = new_dir.get_state()
+        assert state == SCons.Node.executed, state
 
         dir = fs.Dir("dir")
         dir.prepare()

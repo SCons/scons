@@ -1507,7 +1507,7 @@ class File(Base):
 
         return includes
 
-    def _createDir(self):
+    def _createDir(self, update=None):
         # ensure that the directories for this node are
         # created.
 
@@ -1529,6 +1529,11 @@ class File(Base):
                 # directory.  The dirnode.build() method will suppress
                 # the build if it's the default builder.
                 SCons.Node.Node.build(dirnode)
+                if update:
+                    # Mark this directory as built so we don't try to build
+                    # it again if it has an explicit user-defined Builder.
+                    dirnode.set_state(SCons.Node.executed)
+                    dirnode.built()
                 # The build() action may or may not have actually
                 # created the directory, depending on whether the -n
                 # option was used or not.  Delete the _exists and
@@ -1667,7 +1672,7 @@ class File(Base):
                         pass
             else:
                 try:
-                    self._createDir()
+                    self._createDir(update=1)
                 except SCons.Errors.StopError, drive:
                     desc = "No drive `%s' for target `%s'." % (drive, self)
                     raise SCons.Errors.StopError, desc
