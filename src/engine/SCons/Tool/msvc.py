@@ -409,10 +409,14 @@ def generate(env):
     for suffix in CSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.CAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
+        static_obj.add_emitter(suffix, static_object_emitter)
+        shared_obj.add_emitter(suffix, shared_object_emitter)
 
     for suffix in CXXSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
+        static_obj.add_emitter(suffix, static_object_emitter)
+        shared_obj.add_emitter(suffix, shared_object_emitter)
 
     env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Z7") or ""}'])
     env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'])
@@ -433,8 +437,8 @@ def generate(env):
     env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '/I'
     env['INCSUFFIX']  = ''
-    env.Append(OBJEMITTER = [static_object_emitter])
-    env.Append(SHOBJEMITTER = [shared_object_emitter])
+#    env.Append(OBJEMITTER = [static_object_emitter])
+#    env.Append(SHOBJEMITTER = [shared_object_emitter])
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'rc'

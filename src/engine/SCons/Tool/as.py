@@ -52,9 +52,11 @@ def generate(env):
 
     for suffix in ASSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.ASAction)
+        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
 
     for suffix in ASPPSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
+        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
 
     env['AS']        = env.Detect(assemblers) or 'as'
     env['ASFLAGS']   = SCons.Util.CLVar('')

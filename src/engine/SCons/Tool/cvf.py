@@ -1,10 +1,6 @@
-"""engine.SCons.Tool.g77
+"""engine.SCons.Tool.cvf
 
-Tool-specific initialization for g77.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
+Tool-specific initialization for the Compaq Visual Fortran compiler.
 
 """
 
@@ -33,15 +29,25 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import f77
+import SCons.Util
+import fortran
 
-compilers = ['g77', 'f77']
+compilers = ['f90']
 
 def generate(env):
-    """Add Builders and construction variables for g77 to an Environment."""
-    f77.generate(env)
+    """Add Builders and construction variables for compaq visual fortran to an Environment."""
 
-    env['_FORTRAND'] = env.Detect(compilers) or 'g77'
+    fortran.generate(env)
+
+    env['FORTRAN']        = 'f90'
+    env['FORTRANCOM']     = '$FORTRAN $FORTRANFLAGS $_FORTRANMODODFLAG $_FORTRANINCFLAGS /compile_only ${SOURCES.win32} /object:${TARGET.win32}'
+    env['FORTRANPPCOM']   = '$FORTRAN $FORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANMODODFLAG $_FORTRANINCFLAGS /compile_only ${SOURCES.win32} /object:${TARGET.win32}'
+    env['SHFORTRANCOM']   = '$SHFORTRAN $SHFORTRANFLAGS $_FORTRANMODODFLAG $_FORTRANINCFLAGS /compile_only ${SOURCES.win32} /object:${TARGET.win32}'
+    env['SHFORTRANPPCOM'] = '$SHFORTRAN $SHFORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANMODODFLAG $_FORTRANINCFLAGS /compile_only ${SOURCES.win32} /object:${TARGET.win32}'
+    env['OBJSUFFIX']      = '.obj'
+    env['FORTRANMODDIR'] = '${TARGET.dir}'
+    env['FORTRANMODDIRPREFIX'] = '/module:'
+    env['FORTRANMODDIRSUFFIX'] = ''
 
 def exists(env):
     return env.Detect(compilers)

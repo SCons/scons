@@ -6,7 +6,7 @@ This looks for modules that define a callable object that can modify
 a construction environment as appropriate for a given tool (or tool
 chain).
 
-Note that because this subsysem just *selects* a callable that can
+Note that because this subsystem just *selects* a callable that can
 modify a construction environment, it's possible for people to define
 their own "tool specification" in an arbitrary callable function.  No
 one needs to use or tie in to this subsystem in order to roll their own
@@ -170,26 +170,24 @@ def createObjBuilders(env):
         static_obj = env['BUILDERS']['StaticObject']
     except KeyError:
         static_obj = SCons.Builder.Builder(action = {},
-                                           emitter = "$OBJEMITTER",
+                                           emitter = {},
                                            prefix = '$OBJPREFIX',
                                            suffix = '$OBJSUFFIX',
                                            src_builder = ['CFile', 'CXXFile'],
                                            source_scanner = SCons.Defaults.ObjSourceScan, single_source=1)
         env['BUILDERS']['StaticObject'] = static_obj
         env['BUILDERS']['Object'] = static_obj
-        env['OBJEMITTER'] = SCons.Defaults.StaticObjectEmitter
 
     try:
         shared_obj = env['BUILDERS']['SharedObject']
     except KeyError:
         shared_obj = SCons.Builder.Builder(action = {},
-                                           emitter = "$SHOBJEMITTER",
+                                           emitter = {},
                                            prefix = '$SHOBJPREFIX',
                                            suffix = '$SHOBJSUFFIX',
                                            src_builder = ['CFile', 'CXXFile'],
                                            source_scanner = SCons.Defaults.ObjSourceScan, single_source=1)
         env['BUILDERS']['SharedObject'] = shared_obj
-        env['SHOBJEMITTER'] = SCons.Defaults.SharedObjectEmitter
 
     return (static_obj, shared_obj)
 
@@ -251,7 +249,7 @@ def tool_list(platform, env):
         c_compilers = ['msvc', 'mingw', 'gcc', 'icl', 'icc', 'cc', 'bcc32' ]
         cxx_compilers = ['msvc', 'icc', 'g++', 'c++', 'bcc32' ]
         assemblers = ['masm', 'nasm', 'gas', '386asm' ]
-        fortran_compilers = ['g77', 'ifl']
+        fortran_compilers = ['g77', 'ifl', 'cvf', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
@@ -267,7 +265,7 @@ def tool_list(platform, env):
         c_compilers = ['sgicc', 'gcc', 'cc']
         cxx_compilers = ['sgic++', 'g++', 'c++']
         assemblers = ['as', 'gas']
-        fortran_compilers = ['f77', 'g77']
+        fortran_compilers = ['f77', 'g77', 'fortran']
         ars = ['sgiar']
     elif str(platform) == 'sunos':
         "prefer Forte tools on SunOS"
@@ -275,7 +273,7 @@ def tool_list(platform, env):
         c_compilers = ['suncc', 'gcc', 'cc']
         cxx_compilers = ['sunc++', 'g++', 'c++']
         assemblers = ['as', 'gas']
-        fortran_compilers = ['f77', 'g77']
+        fortran_compilers = ['f77', 'g77', 'fortran']
         ars = ['sunar']
     elif str(platform) == 'hpux':
         "prefer aCC tools on HP-UX"
@@ -283,7 +281,7 @@ def tool_list(platform, env):
         c_compilers = ['hpcc', 'gcc', 'cc']
         cxx_compilers = ['hpc++', 'g++', 'c++']
         assemblers = ['as', 'gas']
-        fortran_compilers = ['f77', 'g77']
+        fortran_compilers = ['f77', 'g77', 'fortran']
         ars = ['ar']
     elif str(platform) == 'aix':
         "prefer AIX Visual Age tools on AIX"
@@ -291,7 +289,7 @@ def tool_list(platform, env):
         c_compilers = ['aixcc', 'gcc', 'cc']
         cxx_compilers = ['aixc++', 'g++', 'c++']
         assemblers = ['as', 'gas']
-        fortran_compilers = ['aixf77', 'g77']
+        fortran_compilers = ['aixf77', 'g77', 'fortran']
         ars = ['ar']
     else:
         "prefer GNU tools on all other platforms"
@@ -299,7 +297,7 @@ def tool_list(platform, env):
         c_compilers = ['gcc', 'msvc', 'icc', 'cc']
         cxx_compilers = ['g++', 'msvc', 'icc', 'c++']
         assemblers = ['gas', 'nasm', 'masm']
-        fortran_compilers = ['g77', 'ifl']
+        fortran_compilers = ['g77', 'ifl', 'fortran']
         ars = ['ar', 'mslib']
 
     c_compiler = FindTool(c_compilers, env) or c_compilers[0]

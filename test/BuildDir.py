@@ -35,7 +35,7 @@ fortran_runtime = TestSCons.fortran_lib
 
 test = TestSCons.TestSCons()
 
-f77 = test.detect('F77')
+fortran = test.detect('FORTRAN')
 
 foo11 = test.workpath('work1', 'build', 'var1', 'foo1' + _exe)
 foo12 = test.workpath('work1', 'build', 'var1', 'foo2' + _exe)
@@ -78,15 +78,15 @@ env.BuildDir("$BUILD/var4", "$SRC", duplicate=0)
 BuildDir(var5, src, duplicate=0)
 BuildDir(var6, src)
 
-env = Environment(CPPPATH='#src', F77PATH='#src')
+env = Environment(CPPPATH='#src', FORTRANPATH='#src')
 SConscript('build/var1/SConscript', "env")
 SConscript('build/var2/SConscript', "env")
 
-env = Environment(CPPPATH=src, F77PATH=src)
+env = Environment(CPPPATH=src, FORTRANPATH=src)
 SConscript('build/var3/SConscript', "env")
 SConscript(File('SConscript', var4), "env")
 
-env = Environment(CPPPATH='.', F77PATH='.')
+env = Environment(CPPPATH='.', FORTRANPATH='.')
 SConscript('../build/var5/SConscript', "env")
 SConscript('../build/var6/SConscript', "env")
 """)
@@ -118,11 +118,11 @@ env2.Program(target='foo3', source='f3.c')
 env2.Program(target='foo4', source='f4.c')
 
 try:
-    f77 = env['F77']
+    fortran = env.subst('$FORTRAN')
 except:
-    f77 = None
+    fortran = None
 
-if f77 and env.Detect(env['F77']):
+if fortran and env.Detect(fortran):
     env.Command(target='b2.f', source='b2.in', action=buildIt)
     env.Copy(LIBS = %s).Program(target='bar2', source='b2.f')
     env.Copy(LIBS = %s).Program(target='bar1', source='b1.f')
@@ -241,7 +241,7 @@ test.run(program = foo42, stdout = "f2.c\n")
 test.run(program = foo51, stdout = "f1.c\n")
 test.run(program = foo52, stdout = "f2.c\n")
 
-if f77:
+if fortran:
     test.run(program = bar11, stdout = " b1.for\n")
     test.run(program = bar12, stdout = " b2.for\n")
     test.run(program = bar21, stdout = " b1.for\n")

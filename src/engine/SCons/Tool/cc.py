@@ -49,6 +49,8 @@ def generate(env):
     for suffix in CSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.CAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
+        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
+        shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
         
     env['CC']        = 'cc'
     env['CCFLAGS']   = SCons.Util.CLVar('')
