@@ -386,10 +386,13 @@ env.MyAction('target', [])
     test.run(chdir=work_dir, status=2,
              stderr="scons: *** Calling Configure from Builders is not supported.\n")
 
-    # 4.3 test the calling Configure from multiple subsidiary
-    # SConscript files does *not* result in an error.
+    # 4.3 test the calling Configure from multiple subsidiary,
+    # nested SConscript files does *not* result in an error.
 
-    test.subdir([work_dir, 'dir1'], [work_dir, 'dir2'])
+    test.subdir([work_dir, 'dir1'],
+                [work_dir, 'dir2'],
+                [work_dir, 'dir2', 'sub1'],
+                [work_dir, 'dir2', 'sub1', 'sub2'])
     test.write([work_dir, 'SConstruct'], """
 env = Environment()
 SConscript(dirs=['dir1', 'dir2'], exports="env")
@@ -400,6 +403,18 @@ conf = env.Configure()
 conf.Finish()
 """)
     test.write([work_dir, 'dir2', 'SConscript'], """
+Import("env")
+conf = env.Configure()
+conf.Finish()
+SConscript(dirs=['sub1'], exports="env")
+""")
+    test.write([work_dir, 'dir2', 'sub1', 'SConscript'], """
+Import("env")
+conf = env.Configure()
+conf.Finish()
+SConscript(dirs=['sub2'], exports="env")
+""")
+    test.write([work_dir, 'dir2', 'sub1', 'sub2', 'SConscript'], """
 Import("env")
 conf = env.Configure()
 conf.Finish()
