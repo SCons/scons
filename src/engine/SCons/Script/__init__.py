@@ -608,6 +608,17 @@ class OptParser(OptionParser):
                         #      "LOAD-AVERAGE."
                         # type="int",
                         help=SUPPRESS_HELP)
+        def opt_duplicate(option, opt, value, parser):
+            if not value in SCons.Node.FS.Valid_Duplicates:
+                raise OptionValueError("`%s' is not a valid duplication style." % value)
+            setattr(parser.values, 'duplicate', value)
+            # Set the duplicate stye right away so it can affect linking
+            # of SConscript files.
+            SCons.Node.FS.set_duplicate(value)
+        self.add_option('--duplicate', action="callback", type="string",
+                        callback=opt_duplicate, nargs=1, dest="duplicate",
+                        help="Set the preferred duplication methods. Must be one of "
+                        + string.join(SCons.Node.FS.Valid_Duplicates, ", "))
         self.add_option('--list-derived', action="callback",
                         callback=opt_not_yet,
                         # help="Don't build; list files that would be built."
@@ -683,7 +694,8 @@ class SConscriptSettableOptions:
         self.settable = {'num_jobs':1,
                          'max_drift':SCons.Sig.default_max_drift,
                          'implicit_cache':0,
-                         'clean':0}
+                         'clean':0,
+                         'duplicate':'hard-soft-copy'}
 
     def get(self, name):
         if not self.settable.has_key(name):
@@ -709,6 +721,16 @@ class SConscriptSettableOptions:
                 value = int(value)
             except ValueError, x:
                 raise SCons.Errors.UserError, "An integer is required: %s"%repr(value)
+        elif name == 'duplicate':
+            try:
+                value = str(value)
+            except ValueError:
+                raise SCons.Errors.UserError, "A string is required: %s"%repr(value)
+            if not value in SCons.Node.FS.Valid_Duplicates:
+                raise SCons.Errors.UserError, "Not a valid duplication style: %s" % value
+            # Set the duplicate stye right away so it can affect linking
+            # of SConscript files.
+            SCons.Node.FS.set_duplicate(value)
             
         self.settable[name] = value
     
@@ -745,7 +767,7 @@ def _main(args, parser):
         CleanTask.execute = CleanTask.show
     if options.question:
         SCons.SConf.dryrun = 1
-        
+
     if options.no_progress or options.silent:
         progress_display.set_mode(0)
     if options.silent:
@@ -877,6 +899,7 @@ def _main(args, parser):
     # Now that we've read the SConscripts we can set the options
     # that are SConscript settable:
     SCons.Node.implicit_cache = ssoptions.get('implicit_cache')
+    SCons.Node.FS.set_duplicate(ssoptions.get('duplicate'))
 
     lookup_top = None
     if targets:
