@@ -82,11 +82,11 @@ def scansgml(node, env, target):
     for m in matches:
         file, format = m
         if format and file[-len(format):] != format:
-            file = file + format
+            file = file + '.' + format
         if not os.path.isabs(file):
             a = []
             f = file
-            while 1:
+            while f:
                 f, tail = os.path.split(f)
                 if tail == 'doc':
                     break
@@ -97,7 +97,8 @@ def scansgml(node, env, target):
     return includes
 
 s = Scanner(name = 'sgml', function = scansgml, skeys = ['.sgml', '.mod'])
-env = env.Copy(SCANNERS = [s])
+orig_env = env
+env = orig_env.Copy(SCANNERS = [s])
 
 if jw:
     #
@@ -106,8 +107,8 @@ if jw:
     # rebuild all the docs every time just because the date changes.
     #
     date, ver, rev = env.Dictionary('DATE', 'VERSION', 'REVISION')
-    #version_sgml = File(os.path.join(build, "version.sgml"))
-    version_sgml = File("version.sgml")
+    version_sgml = File(os.path.join(build, "version.sgml"))
+    #version_sgml = File("version.sgml")
     verfile = str(version_sgml)
     try:
         os.unlink(verfile)
@@ -165,17 +166,32 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
     # We have to tell SCons to scan the top-level SGML files which
     # get included by the document SGML files in the subdirectories.
     #
-    included_sgml = [
-        'scons.mod',
-        'copyright.sgml',
-    ]
+    manifest = File('MANIFEST').rstr()
+    src_files = map(lambda x: x[:-1], open(manifest).readlines())
+    for s in src_files:
+        base, ext = os.path.splitext(s)
+        if ext in ['.fig', '.jpg']:
+            orig_env.Install(build, s)
+        else:
+            orig_env.SCons_revision(os.path.join(build, s), s)
 
     #
     # For each document, build the document itself in HTML, Postscript,
     # and PDF formats.
     #
     for doc in docs.keys():
-        main = os.path.join(doc, 'main.sgml')
+        manifest = File(os.path.join(doc, 'MANIFEST')).rstr()
+        src_files = map(lambda x: x[:-1],
+                        open(manifest).readlines())
+        for s in src_files:
+            base, ext = os.path.splitext(s)
+            if ext in ['.fig', '.jpg']:
+                orig_env.Install(os.path.join(build, doc), os.path.join(doc, s))
+            else:
+                orig_env.SCons_revision(os.path.join(build, doc, s),
+                                        os.path.join(doc, s))
+
+        main = os.path.join(build, doc, 'main.sgml')
         out = 'main.out'
 
         # Hard-coding the scons-src path is a bit of a hack.  This can
@@ -218,7 +234,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
             if fig2dev:
                 for g in docs[doc].get('graphics', []):
-                    fig = os.path.join(doc, '%s.fig' % g)
+                    fig = os.path.join(build, doc, '%s.fig' % g)
                     jpg = os.path.join(htmldir, '%s.jpg' % g)
                     env.Command(jpg, fig,
                                 "%s -L jpeg -q 100 $SOURCES $TARGET" % fig2dev)
@@ -241,7 +257,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
             if fig2dev:
                 for g in docs[doc].get('graphics', []):
-                    fig = os.path.join(doc, '%s.fig' % g)
+                    fig = os.path.join(build, doc, '%s.fig' % g)
                     eps = os.path.join(build, 'PS', '%s.eps' % g)
                     env.Command(eps, fig, "%s -L eps $SOURCES $TARGET" % fig2dev)
                     env.Depends(ps, eps)
@@ -308,7 +324,7 @@ for man in man_page_list:
 # for easy distribution to the web site.
 #
 if tar_deps:
-    tar_list = map(lambda x: x[11:], tar_list)
+    tar_list = string.join(map(lambda x: x[11:], tar_list))
     env.Command(doc_tar_gz, tar_deps,
                 "tar cf${TAR_HFLAG} - -C build/doc %s | gzip > $TARGET" % tar_list)
     Local(doc_tar_gz)

@@ -88,13 +88,6 @@ Things to do to release a new version of SCons:
                 aecp src/setupTests.py
                 vi src/setupTests.py
 
-		# Optionally, do the same in the following:
-		[optional] aecp HOWTO/change.txt
-		[optional] vi HOWTO/change.txt
-
-		[optional] aecp HOWTO/release.txt
-		[optional] vi HOWTO/release.txt
-
                 # Read through and update the README files if necessary
 		[optional] aecp README
 		[optional] vi README
