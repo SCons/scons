@@ -134,4 +134,14 @@ test.fail_test(os.path.exists(test.workpath('bar.out')))
 test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 
 
+# Make sure that a Default() directory doesn't cause an exception.
+test.subdir('sub4')
+
+test.write(['sub4', 'SConstruct'], """
+Default('.')
+""")
+
+test.run(chdir = 'sub4', arguments = '-U')
+
+
 test.pass_test()

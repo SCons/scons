@@ -203,6 +203,7 @@ class FSTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS()
 
         d1 = fs.Dir('d1')
+        assert d1.cwd is d1, d1
 
         f1 = fs.File('f1', directory = d1)
 

@@ -496,6 +496,7 @@ class Dir(Entry):
         self.entries = {}
         self.entries['.'] = self
         self.entries['..'] = self.dir
+        self.cwd = self
         self.builder = 1
         self._sconsign = None
 
