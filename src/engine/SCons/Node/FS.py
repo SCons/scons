@@ -69,8 +69,8 @@ else:
     _existsp = os.path.exists
 
 def LinkFunc(target, source, env):
-    src = str(source[0])
-    dest = str(target[0])
+    src = source[0].path
+    dest = target[0].path
     dir, file = os.path.split(dest)
     if dir and not os.path.isdir(dir):
         os.makedirs(dir)

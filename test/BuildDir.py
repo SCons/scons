@@ -61,7 +61,7 @@ bar42 = test.workpath('work1', 'build', 'var4', 'bar2' + _exe)
 bar51 = test.workpath('build', 'var5', 'bar1' + _exe)
 bar52 = test.workpath('build', 'var5', 'bar2' + _exe)
 
-test.subdir('work1', 'work2')
+test.subdir('work1', 'work2', 'work3')
 
 test.write(['work1', 'SConstruct'], """
 src = Dir('src')
@@ -348,4 +348,31 @@ test.run(chdir='work2', arguments='.')
 
 test.up_to_date(chdir='work2', arguments='.')
 
+test.write( ['work3', 'SConstruct'], """\
+SConscriptChdir(0)
+BuildDir('build', '.', duplicate=1 ) 
+SConscript( 'build/SConscript' )
+""")
+
+test.write( ['work3', 'SConscript'], """\
+import sys
+headers = ['existing.h', 'non_existing.h']
+for header in headers:
+    h = File( header )
+    contents = h.get_contents()
+    sys.stderr.write( '%s:%s\\n' % (header, contents))
+""")
+
+test.write( ['work3', 'existing.h'], """\
+/* a header file */\
+""")
+
+test.run(chdir='work3',
+         stdout=test.wrap_stdout('scons: "." is up to date.\n'),
+         stderr="""\
+existing.h:/* a header file */
+non_existing.h:
+""")
+
 test.pass_test()
+
