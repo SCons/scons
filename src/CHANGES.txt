@@ -24,6 +24,17 @@ RELEASE 0.03 -
 
   - Fetch the location of the Microsoft Visual C++ compiler(s) from
     the Registry, instead of hard-coding the location.
+    
+  - Made Scanner objects take Nodes, not path names.
+    
+  - Have the C Scanner cache the #include file names instead of
+    (re-)scanning the file each time it's called.
+
+  - Created a separate class for parent "nodes" of file system roots,
+    eliminating the need for separate is-parent-null checks everywhere.
+    
+  - Removed defined __hash__() and __cmp() methods from FS.Entry, in
+    favor of Python's more efficient built-in identity comparisons.
 
 
 
