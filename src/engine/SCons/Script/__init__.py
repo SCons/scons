@@ -493,9 +493,11 @@ class OptParser(OptionParser):
                         help="Search up directory tree for SConstruct,       "
                              "build all Default() targets.")
 
-        def opt_debug(option, opt, value, parser):
-            if value in ["count", "dtree", "includes", "memory", "objects",
-                         "pdb", "presub", "time", "tree"]:
+        debug_options = ["count", "dtree", "includes", "memory", "objects",
+                         "pdb", "presub", "time", "tree"]
+
+        def opt_debug(option, opt, value, parser, debug_options=debug_options):
+            if value in debug_options:
                 setattr(parser.values, 'debug', value)
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
@@ -503,7 +505,7 @@ class OptParser(OptionParser):
                         callback=opt_debug, nargs=1, dest="debug",
                         metavar="TYPE",
                         help="Print various types of debugging information: "
-                             "count, dtree, includes, memory, objects, pdb, time, tree.")
+                             "%s." % string.join(debug_options, ", "))
 
         self.add_option('-f', '--file', '--makefile', '--sconstruct',
                         action="append", nargs=1,
