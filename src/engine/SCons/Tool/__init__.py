@@ -146,21 +146,21 @@ def tool_list(platform, env):
         c_compilers = ['msvc', 'gcc', 'icc']
         assemblers = ['masm', 'nasm', 'gas']
         fortran_compilers = ['g77', 'ifl']
-        ars = ['lib', 'ar']
+        ars = ['mslib', 'ar']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', 'mslink']
         c_compilers = ['icc', 'gcc', 'msvc']
         assemblers = ['nasm', 'masm', 'gas']
         fortran_compilers = ['ifl', 'g77']
-        ars = ['ar', 'lib']
+        ars = ['ar', 'mslib']
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']
         c_compilers = ['gcc', 'msvc', 'icc']
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['g77', 'ifl']
-        ars = ['ar', 'lib']
+        ars = ['ar', 'mslib']
 
     linker = FindTool(linkers, env) or linkers[0]
     c_compiler = FindTool(c_compilers, env) or c_compilers[0]

@@ -1,4 +1,4 @@
-"""SCons.Tool.lib
+"""SCons.Tool.mslib
 
 Tool-specific initialization for lib (MicroSoft library archiver).
 

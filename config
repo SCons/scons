@@ -6,13 +6,24 @@
  */
 
 /*
- * The build_command field of the project config file is used to invoke the
- * relevant build command.  This command tells make where to find the rules.
- * The ${s src/script/scons.py} expands to a path into the baseline during
- * development if the script file is not in the change.  Look in aesub(5)
- * for more information about command substitutions.
+ * The build_command field of the project config file is used to invoke
+ * the relevant build command.  This command tells SCons where to find
+ * the rules.
+ *
+ * The ${bl}/build/scons-src/src/engine points $SCONS_LIB_DIR points
+ * SCons at the last-built scons-src package, which should have
+ * everything.  This means that, under Aegis, we're really using the
+ * currently-checked-in baseline to build the current version.  This
+ * implies that using a new feature in our own SConscripts is a
+ * two-stage process: check in the underlying feature, then check in a
+ * change to use it in our SConscripts.
+ *
+ * The ${s src/script/scons.py} expands to a path into the baseline
+ * during development if the script file is not in the change.
+ *
+ * Look in aesub(5) for more information about command substitutions.
  */
-build_command = "SCONS_LIB_DIR=src/engine python ${Source src/script/scons.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+build_command = "SCONS_LIB_DIR=${BaseLine}/build/scons-src/src/engine python ${Source src/script/scons.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * SCons removes its targets before constructing them, which qualifies it

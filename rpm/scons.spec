@@ -138,10 +138,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Tool/latex.pyc
 /usr/lib/scons/SCons/Tool/lex.py
 /usr/lib/scons/SCons/Tool/lex.pyc
-/usr/lib/scons/SCons/Tool/lib.py
-/usr/lib/scons/SCons/Tool/lib.pyc
 /usr/lib/scons/SCons/Tool/masm.py
 /usr/lib/scons/SCons/Tool/masm.pyc
+/usr/lib/scons/SCons/Tool/mslib.py
+/usr/lib/scons/SCons/Tool/mslib.pyc
 /usr/lib/scons/SCons/Tool/mslink.py
 /usr/lib/scons/SCons/Tool/mslink.pyc
 /usr/lib/scons/SCons/Tool/msvc.py

@@ -73,6 +73,8 @@ RELEASE 0.09 -
   - Prevent SCons from unlinking files in certain situations when
     the -n option is used.
 
+  - Change the name of Tool/lib.py to Tool/mslib.py.
+
  From Steven Knight and Anthony Roach:
 
   - Man page:  document the fact that Builder calls return Node objects.

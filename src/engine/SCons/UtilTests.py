@@ -489,8 +489,8 @@ class UtilTestCase(unittest.TestCase):
 
         res = mapPaths([ file, 'baz', 'blat/boo', '#test' ], dir)
         assert res[0] == file, res[0]
-        assert res[1] == os.path.normpath('foo/baz'), res[1]
-        assert res[2] == os.path.normpath('foo/blat/boo'), res[2]
+        assert res[1] == os.path.join('foo', 'baz'), res[1]
+        assert res[2] == os.path.join('foo', 'blat/boo'), res[2]
         assert res[3] == '#test', res[3]
 
         env=DummyEnv()

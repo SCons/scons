@@ -36,6 +36,14 @@ RELEASE 0.09 - XXX
       formally succeeded despite the absence of a scanned file will now
       fail unless the -k (keep going on error) flag is used.
 
+    - The specification of the name for the 'lib' tool (the Microsoft
+      library archiver) has now been changed to 'mslib'.  If you
+      previously used the Tool() method to fetch the 'lib' tool
+      explicitly, you will need to change the name in the call to
+      'mslib':
+
+          env = Environment(tools = [ Tool('mslib') ])
+
   Please note the following important changes since release 0.07:
 
     - Builder objects no longer automatically split target and source
