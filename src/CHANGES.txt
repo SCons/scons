@@ -37,6 +37,10 @@ RELEASE 0.09 -
 
   - Issue a warning when -c can't remove a target.
 
+  - Eliminate unnecessary Scanner calls by checking for the
+    existence of a file before scanning it.  (This adds a generic
+    hook to check an arbitrary condition before scanning.)
+
  From Jeff Petkau:
 
   - Fix interpretation of '#/../foo' on Win32 systems.

@@ -124,6 +124,21 @@ class ScannerHashTestCase(ScannerTestBase, unittest.TestCase):
         self.failUnless(hash(dict.keys()[0]) == hash(None),
                         "did not hash Scanner base class as expected")
 
+class ScannerCheckTestCase(unittest.TestCase):
+    "Test the Scanner.Base class __hash__() method"
+    def setUp(self):
+        self.checked = {}
+    def runTest(self):
+        def my_scan(filename, env, target, *args):
+            return []
+        def check(node, s=self):
+            s.checked[node] = 1
+            return 1
+        s = SCons.Scanner.Base(my_scan, "Check", scan_check = check)
+        scanned = s.scan('x', DummyEnvironment(), DummyTarget())
+        self.failUnless(self.checked['x'] == 1,
+                        "did not call check function")
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ScannerPositionalTestCase())
@@ -131,6 +146,7 @@ def suite():
     suite.addTest(ScannerPositionalArgumentTestCase())
     suite.addTest(ScannerKeywordArgumentTestCase())
     suite.addTest(ScannerHashTestCase())
+    suite.addTest(ScannerCheckTestCase())
     return suite
 
 if __name__ == "__main__":

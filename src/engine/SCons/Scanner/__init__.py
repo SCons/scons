@@ -52,7 +52,8 @@ class Base:
                  name = "NONE",
                  argument = _null,
                  skeys = [],
-                 node_factory = SCons.Node.FS.default_fs.File):
+                 node_factory = SCons.Node.FS.default_fs.File,
+                 scan_check = None):
         """
         Construct a new scanner object given a scanner function.
 
@@ -77,7 +78,7 @@ class Base:
         Examples:
 
         s = Scanner(my_scanner_function)
-        
+
         s = Scanner(function = my_scanner_function)
 
         s = Scanner(function = my_scanner_function, argument = 'foo')
@@ -94,6 +95,7 @@ class Base:
         self.argument = argument
         self.skeys = skeys
         self.node_factory = node_factory
+        self.scan_check = scan_check
 
     def scan(self, node, env, target):
         """
@@ -102,6 +104,8 @@ class Base:
         environment that will be passed to the scanner function. A list of
         direct dependency nodes for the specified node will be returned.
         """
+        if self.scan_check and not self.scan_check(node):
+            return []
 
         if not self.argument is _null:
             list = self.function(node, env, target, self.argument)
@@ -123,7 +127,17 @@ class Base:
     def __hash__(self):
         return hash(None)
 
-class Recursive(Base):
+class RExists(Base):
+    """
+    Scan a node only if it exists (locally or in a Repository).
+    """
+    def __init__(self, *args, **kw):
+        def rexists_check(node):
+            return node.rexists()
+        kw['scan_check'] = rexists_check
+        apply(Base.__init__, (self,) + args, kw)
+
+class Recursive(RExists):
     """
     The class for recursive dependency scanning.  This will
     re-scan any new files returned by each call to the

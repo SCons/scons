@@ -2681,6 +2681,16 @@ The
 argument is the argument supplied
 when the scanner was created, if any.
 
+.IP scan_check
+An optional Python function that takes a Node (file)
+as an argument and returns whether the
+Node should, in fact,
+be scanned for dependencies.
+This check can be used to eliminate unnecessary
+calls to the scanner function when,
+for example, the underlying file
+represented by a Node does not yet exist.
+
 .SH SYSTEM-SPECIFIC BEHAVIOR
 SCons and its configuration files are very portable,
 due largely to its implementation in Python.
