@@ -1,3 +1,5 @@
+__COPYRIGHT__
+
 This directory contains our end-to-end SCons tests.
 
 They are all meant to be run essentially standalone, with the exception

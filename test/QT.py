@@ -462,18 +462,15 @@ ENV = dummy_env['ENV']
 try:
     PATH=ARGUMENTS['PATH']
     if ENV.has_key('PATH'):
-        ENV_PATH = PATH + ':' + ENV['PATH']
+        ENV_PATH = PATH + os.pathsep + ENV['PATH']
     else:
         Exit(0) # this is certainly a weird system :-)
 except KeyError:
-    if ENV.has_key('PATH'):
-        ENV_PATH=dummy_env['ENV']['PATH']
-    else:
-        ENV_PATH=''
-    pass
+    ENV_PATH=ENV.get('PATH', '')
 
 env = Environment(tools=['default','qt'],
                   ENV={'PATH':ENV_PATH,
+                       'PATHEXT':os.environ.get('PATHEXT'),
                        'HOME':os.getcwd()},
                        # moc / uic want to write stuff in ~/.qt
                   CXXFILESUFFIX=".cpp")
@@ -564,19 +561,22 @@ int main() {
 
     QTDIR=os.environ['QTDIR']
     del os.environ['QTDIR']
+    PATH=os.environ['PATH']
+    os.environ['PATH']='.'
 
     test.run(chdir='work7', stderr=None, arguments="-c test_realqt" + _exe)
     test.fail_test(not test.match_re(test.stderr(), r"""
 scons: warning: Could not detect qt, using empty QTDIR
-File "SConstruct", line \d+, in .+
+File "[^\"]*", line \d+, in .+
 """))
 
+    os.environ['PATH'] = PATH
+
     test.run(chdir='work7', stderr=None,
-             arguments="PATH=%s/bin test_realqt%s"%(QTDIR,_exe))
-    
+             arguments="PATH=%s%sbin test_realqt%s"%(QTDIR,os.sep,_exe))
     test.fail_test(not test.match_re(test.stderr(), r"""
 scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
-File "SConstruct", line \d+, in .+
+File "[^\"]*", line \d+, in .+
 """ % (re.escape(QTDIR))))
 
     
@@ -826,10 +826,15 @@ env.StaticLibrary('aaa.cpp')
 """)
 
 test.run(chdir='work12', stderr=None)
-test.fail_test(not test.match_re(test.stderr(), r"""
+
+match12 = r"""
 scons: warning: Generated moc file 'aaa.moc' is not included by 'aaa.cpp'
 File .+
-"""))
+"""
+
+# In case 'ar' gives a warning about creating a library.
+test.fail_test(not test.match_re(test.stderr(), match12) and \
+               not test.match_re(test.stderr(), match12 + ".+\n"))
 
 os.environ['QTDIR'] = QT
 test.run(chdir='work12', arguments='-n noqtdir=1')
@@ -845,7 +850,7 @@ os.environ['QTDIR'] = ''
 test.run(chdir='work12', stderr=None, arguments='-n noqtdir=1')
 test.fail_test(not test.match_re(test.stderr(), r"""
 scons: warning: Could not detect qt, using empty QTDIR
-File "SConstruct", line \d+, in .+
+File "[^\"]*", line \d+, in .+
 """))
 
 test.pass_test()
