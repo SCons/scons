@@ -1580,6 +1580,16 @@ class EnvironmentTestCase(unittest.TestCase):
                                              'PREFIX', 'SUFFIX',
                                              'LIBPREFIX', 'LIBSUFFIX')
 
+    def test_SetDefault(self):
+        """Test the SetDefault method"""
+        env = Environment(tools = [])
+        env.SetDefault(V1 = 1)
+        env.SetDefault(V1 = 2)
+        assert env['V1'] == 1
+        env['V2'] = 2
+        env.SetDefault(V2 = 1)
+        assert env['V2'] == 2
+
     def test_Tool(self):
         """Test the Tool() method"""
         env = Environment(LINK='link', NONE='no-such-tool')
