@@ -1994,6 +1994,13 @@ class EnvironmentTestCase(unittest.TestCase):
         d = env.Dir('${BAR}_$BAR')
         assert d == 'Dir(bardir_bardir)', d
 
+    def test_Dump(self):
+        """Test the Dump() method"""
+
+        env = Environment(FOO = 'foo')
+        assert env.Dump('FOO') == "'foo'", env.Dump('FOO')
+        assert len(env.Dump()) > 200, env.Dump()    # no args version
+
     def test_Environment(self):
         """Test the Environment() method"""
         env = Environment(FOO = 'xxx', BAR = 'yyy')

@@ -2627,6 +2627,40 @@ see "File and Directory Nodes," below.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI env.Dump([ key ])
+Returns a pretty printable representation of the environment.
+.IR key ,
+if not
+.IR None ,
+should be a string containing the name of the variable of interest.
+
+This SConstruct:
+.ES
+env=Environment()
+print env.Dump('CCCOM')
+.EE
+will print:
+.ES
+'$CC $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+.EE
+
+.ES
+env=Environment()
+print env.Dump()
+.EE
+will print:
+.ES
+{ 'AR': 'ar',
+  'ARCOM': '$AR $ARFLAGS $TARGET $SOURCES\n$RANLIB $RANLIBFLAGS $TARGET',
+  'ARFLAGS': ['r'],
+  'AS': 'as',
+  'ASCOM': '$AS $ASFLAGS -o $TARGET $SOURCES',
+  'ASFLAGS': [],
+  ...
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI EnsurePythonVersion( major ", " minor )
 .TP
 .RI env.EnsurePythonVersion( major ", " minor )

@@ -10,6 +10,15 @@
 
 RELEASE 0.97 - XXX
 
+  From Gary Oberbrunner:
+
+  - Add an Environment.Dump() method to print the contents of a
+    construction environment.
+
+
+
+RELEASE 0.96.1 - XXX
+
   From Craig Bachelor:
 
   - Handle white space in the executable Python path name within in MSVS
