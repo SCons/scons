@@ -33,9 +33,9 @@ test.write('SConstruct3', """
 raise InternalError, 'error inside'
 """)
 test.run(arguments='-f SConstruct3', stderr = r"""Traceback \((most recent call|innermost) last\):
-  File ".*scons", line \d+, in \?
+  File ".*scons(\.py)?", line \d+, in \?
     main\(\)
-  File ".*scons", line \d+, in main
+  File ".*scons(\.py)?", line \d+, in main
     exec f in globals\(\)
   File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
