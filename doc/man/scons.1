@@ -860,8 +860,7 @@ platform name when the Environment is constructed. Changing the PATH
 variable after the Environment is constructed will not cause the tools to
 be redetected.
 
-SCons supports the following tool specifications
-out of the box on all platforms:
+SCons supports the following tool specifications out of the box:
 .ES
 386asm
 ar
@@ -878,6 +877,7 @@ gcc
 gnulink
 jar
 javac
+javah
 latex
 lex
 linkloc
@@ -890,6 +890,7 @@ msvc
 nasm
 pdflatex
 pdftex
+rmic
 sgiar
 sgias
 sgicc
@@ -1366,6 +1367,40 @@ env.JavaH(target = 'include',
 env.JavaH(target = 'export',
           source = ['classes/foo.class', 'classes/bar.class'],
           JAVACLASSDIR = 'classes')
+.EE
+
+.IP RMIC
+Builds stub and skeleton class files
+for remote objects
+from Java .class files.
+The target is a directory
+relative to which the stub
+and skeleton class files will be written.
+The source can be the names of .class files,
+or the objects return from the
+.B Java
+builder.
+
+If the construction variable
+.B JAVACLASSDIR
+is set, either in the environment
+or in the call to the
+.B RMIC
+builder itself,
+then the value of the variable
+will be stripped from the
+beginning of any .class file names.
+
+.ES
+classes = env.Java(target = 'classdir', source = 'src')
+env.RMIC(target = 'outdir1', source = classes)
+
+env.RMIC(target = 'outdir2',
+         source = ['package/foo.class', 'package/bar.class'])
+
+env.RMIC(target = 'outdir3',
+         source = ['classes/foo.class', 'classes/bar.class'],
+         JAVACLASSDIR = 'classes')
 .EE
 
 .IP TypeLibrary
@@ -2733,6 +2768,19 @@ Options that are passed to the $RCS_CO command.
 .IP RDirs
 A function that converts a file name into a list of Dir instances by
 searching the repositories. 
+
+.IP RMIC
+The Java RMI stub compiler.
+
+.IP RMICCOM
+The command line used to compile stub
+and skeleton class files
+from Java classes that contain RMI implementations.
+Any options specified in the $RMICFLAGS construction variable
+are included on this command line.
+
+.IP RMICFLAGS
+General options passed to the Java RMI stub compiler.
 
 .IP SCANNERS
 A list of the available implicit dependency scanners. [CScan] by default.

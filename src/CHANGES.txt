@@ -57,7 +57,7 @@ RELEASE 0.14 - XXX
 
   From Steven Knight:
 
-  - Add Java support (javac, javah and jar).
+  - Add Java support (javac, javah, jar and rmic).
 
   - Propagate the external SYSTEMROOT environment variable into ENV on
     Win32 systems, so external commands that use sockets will work.

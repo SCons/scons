@@ -226,7 +226,7 @@ def tool_list(platform, env):
                                 'jar', 'javac', 'javah',
                                 'latex', 'lex', 'midl',
                                 'pdflatex', 'pdftex', 'Perforce',
-                                'RCS', 'SCCS',
+                                'RCS', 'rmic', 'SCCS',
                                 # 'Subversion',
                                 'tar', 'tex', 'yacc', 'zip'],
                                env)
