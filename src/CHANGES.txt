@@ -14,6 +14,8 @@ RELEASE 0.06 -
 
   - Add .zip files to the packages we build.
 
+  - Man page:  document LIBS, fix a typo.
+
 
 
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600

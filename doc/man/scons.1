@@ -855,7 +855,7 @@ to generate a source file.
 .IP LIBDIRPREFIX
 The prefix used to specify a library directory on the linker command line.
 
-.IP LIBDIRASUFFIX
+.IP LIBDIRSUFFIX
 The suffix used to specify a library directory on the linker command line.
 
 .IP LIBLINKPREFIX
@@ -891,6 +891,12 @@ env = Environment(LIBPATH=libs)
 
 .IP LIBPREFIX
 The prefix used for library file names.
+
+.IP LIBS
+A list of one or more libraries
+that will be linked with
+any executable programs
+created by this environment.
 
 .IP LIBSUFFIX 
 The suffix used for library file names.
