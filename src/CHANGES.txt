@@ -37,6 +37,11 @@ RELEASE X.XX - XXX
   - Add support for CCVERSION and CXXVERSION variables for a number
     of C and C++ compilers.
 
+  From Sergey Fogel:
+
+  - Add test cases for the new capabilities to run bibtex and to rerun
+    latex as needed.
+
   From Ralf W. Grosse-Kunstleve:
 
   - Accomodate anydbm modules that don't have a sync() method.

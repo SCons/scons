@@ -64,7 +64,7 @@ def LaTeXAuxAction(target = None, source= None, env=None):
     # Now if bibtex will need to be run.
     content = open(basename + ".aux","rb").read()
     if string.find(content, "bibdata") != -1:
-        bibfile = self.fs.File(basename)
+        bibfile = env.fs.File(basename)
         BibTeXAction(None,bibfile,env)
     # Now check if latex needs to be run yet again.
     for trial in range(3):

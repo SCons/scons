@@ -84,6 +84,8 @@ foo.DVI(target = 'foo.dvi', source = 'foo.tex')
 foo.DVI(target = 'foo-latex.dvi', source = 'foo-latex.tex')
 bar.DVI(target = 'bar', source = 'bar.tex')
 bar.DVI(target = 'bar-latex', source = 'bar-latex.tex')
+foo.DVI('rerun.tex')
+foo.DVI('bibtex-test.tex')
 """ % python)
 
     tex = r"""
@@ -98,10 +100,49 @@ This is the %s LaTeX file.
 \end{document}
 """
 
+    rerun = r"""
+\documentclass{article}
+
+\begin{document}
+
+\LaTeX\ will need to run twice on this document to get a reference to section
+\ref{sec}.
+
+\section{Next section}
+\label{sec}
+
+\end{document}
+"""
+
+    bibtex = r"""
+\documentclass{article}
+
+\begin{document}
+
+Run \texttt{latex}, then \texttt{bibtex}, then \texttt{latex} twice again \cite{lamport}.
+
+\bibliographystyle{plain}
+\bibliography{test}
+
+\end{document}
+"""
+
+    bib = r"""
+@Book{lamport,
+  author =	 {L. Lamport},
+  title = 	 {{\LaTeX: A} Document Preparation System},
+  publisher = 	 {Addison-Wesley},
+  year = 	 1994
+}
+"""
+
     test.write('foo.tex', tex % 'foo.tex')
     test.write('bar.tex', tex % 'bar.tex')
     test.write('foo-latex.tex', latex % ('style', 'foo-latex.tex'))
     test.write('bar-latex.tex', latex % ('class', 'bar-latex.tex'))
+    test.write('rerun.tex', rerun)
+    test.write('bibtex-test.tex', bibtex)
+    test.write('test.bib', bib)
 
     test.run(arguments = 'foo.dvi foo-latex.dvi', stderr = None)
     test.fail_test(os.path.exists(test.workpath('wrapper.out')))
@@ -112,5 +153,12 @@ This is the %s LaTeX file.
     test.fail_test(not os.path.exists(test.workpath('wrapper.out')))
     test.fail_test(not os.path.exists(test.workpath('bar.dvi')))
     test.fail_test(not os.path.exists(test.workpath('bar-latex.dvi')))
+
+    test.run(stderr = None)
+    output_lines = string.split(test.stdout(), '\n')
+    reruns = filter(lambda x: x == 'latex rerun.tex', output_lines)
+    test.fail_test(len(reruns) != 2)
+    bibtex = filter(lambda x: x == 'bibtex bibtex-test', output_lines)
+    test.fail_test(len(bibtex) != 1)
 
 test.pass_test()
