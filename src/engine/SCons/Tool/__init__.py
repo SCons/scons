@@ -98,14 +98,13 @@ def createProgBuilder(env):
     try:
         program = env['BUILDERS']['Program']
     except KeyError:
-        program = SCons.Builder.Builder(action=[ SCons.Defaults.StaticCheck,
-                                                 '$LINKCOM' ],
-                                emitter='$PROGEMITTER',
-                                prefix='$PROGPREFIX',
-                                suffix='$PROGSUFFIX',
-                                src_suffix='$OBJSUFFIX',
-                                src_builder='Object',
-                                scanner = SCons.Defaults.ProgScan)
+        program = SCons.Builder.Builder(action = '$LINKCOM',
+                                        emitter = '$PROGEMITTER',
+                                        prefix = '$PROGPREFIX',
+                                        suffix = '$PROGSUFFIX',
+                                        src_suffix = '$OBJSUFFIX',
+                                        src_builder = 'Object',
+                                        scanner = SCons.Defaults.ProgScan)
         env['BUILDERS']['Program'] = program
 
     return program
@@ -120,8 +119,7 @@ def createStaticLibBuilder(env):
     try:
         static_lib = env['BUILDERS']['StaticLibrary']
     except KeyError:
-        static_lib = SCons.Builder.Builder(action=[ SCons.Defaults.StaticCheck,
-                                                    "$ARCOM" ],
+        static_lib = SCons.Builder.Builder(action = "$ARCOM",
                                            emitter = '$LIBEMITTER',
                                            prefix = '$LIBPREFIX',
                                            suffix = '$LIBSUFFIX',
@@ -142,8 +140,8 @@ def createSharedLibBuilder(env):
     try:
         shared_lib = env['BUILDERS']['SharedLibrary']
     except KeyError:
-        shared_lib = SCons.Builder.Builder(action=[ SCons.Defaults.SharedCheck,
-                                                    "$SHLINKCOM" ],
+        action_list = [ SCons.Defaults.SharedCheck, "$SHLINKCOM" ]
+        shared_lib = SCons.Builder.Builder(action = action_list,
                                            emitter = "$SHLIBEMITTER",
                                            prefix = '$SHLIBPREFIX',
                                            suffix = '$SHLIBSUFFIX',
@@ -171,22 +169,24 @@ def createObjBuilders(env):
         static_obj = env['BUILDERS']['StaticObject']
     except KeyError:
         static_obj = SCons.Builder.Builder(action = {},
-                                           emitter="$OBJEMITTER",
+                                           emitter = "$OBJEMITTER",
                                            prefix = '$OBJPREFIX',
                                            suffix = '$OBJSUFFIX',
                                            src_builder = ['CFile', 'CXXFile'])
         env['BUILDERS']['StaticObject'] = static_obj
         env['BUILDERS']['Object'] = static_obj
+        env['OBJEMITTER'] = SCons.Defaults.StaticObjectEmitter
 
     try:
         shared_obj = env['BUILDERS']['SharedObject']
     except KeyError:
         shared_obj = SCons.Builder.Builder(action = {},
+                                           emitter = "$SHOBJEMITTER",
                                            prefix = '$SHOBJPREFIX',
                                            suffix = '$SHOBJSUFFIX',
-                                           emitter="$OBJEMITTER",
                                            src_builder = ['CFile', 'CXXFile'])
         env['BUILDERS']['SharedObject'] = shared_obj
+        env['SHOBJEMITTER'] = SCons.Defaults.SharedObjectEmitter
 
     return (static_obj, shared_obj)
 

@@ -115,6 +115,10 @@ RELEASE 0.95 - XXX
   - Fix specifying .class files as input to JavaH with the .class suffix
     when they weren't generated using the Java Builder.
 
+  - Make the check for whether all of the objects going into a
+    SharedLibrary() are shared work even if the object was built in a
+    previous run.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.
