@@ -1639,11 +1639,7 @@ class File(Base):
         if self.get_state() != SCons.Node.up_to_date:
             if self.exists():
                 if self.is_derived() and not self.precious:
-                    try:
-                        Unlink(self, [], None)
-                    except OSError, e:
-                        raise SCons.Errors.BuildError(node = self,
-                                                      errstr = e.strerror)
+                    Unlink(self, [], None)
                     try:
                         delattr(self, '_exists')
                     except AttributeError:
@@ -1670,12 +1666,12 @@ class File(Base):
                 self._createDir()
                 try:
                     Unlink(self, None, None)
-                except OSError:
+                except SCons.Errors.BuildError:
                     pass
                 try:
                     Link(self, src, None)
-                except IOError, e:
-                    desc = "Cannot duplicate `%s' in `%s': %s." % (src, self.dir, e.strerror)
+                except SCons.Errors.BuildError, e:
+                    desc = "Cannot duplicate `%s' in `%s': %s." % (src, self.dir, e.errstr)
                     raise SCons.Errors.StopError, desc
                 self.linked = 1
                 # The Link() action may or may not have actually

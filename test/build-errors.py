@@ -187,4 +187,37 @@ else:
             break
     test.fail_test(error_message_not_found)
 
+test.write('SConstruct4', r"""
+env = Environment()
+env.Command('test.out', 'test.in', 'cp $SOURCE $TARGET')
+env.InstallAs('test2.out', 'test.out')
+# Mark test2.out as precious so we'll handle the exception in
+# FunctionAction() rather than when the target is cleaned before building.
+env.Precious('test2.out')
+env.Default('test2.out')
+""")
+
+test.write('test.in', "test.in 1\n")
+
+test.run(arguments = '-f SConstruct4 .')
+
+test.write('test.in', "test.in 2\n")
+
+test.writable('test2.out', 0)
+f = open(test.workpath('test2.out'))
+
+test.run(arguments = '-f SConstruct4 .',
+         stderr = None,
+         status = 2)
+
+f.close()
+test.writable('test2.out', 1)
+
+test.description_set("Incorrect STDERR:\n%s" % test.stderr())
+errs = [
+    "scons: *** [test2.out] Permission denied\n",
+    "scons: *** [test2.out] permission denied\n",
+]
+test.fail_test(test.stderr() not in errs)
+
 test.pass_test()

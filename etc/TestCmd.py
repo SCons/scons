@@ -175,8 +175,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.8.D001 2004/07/15 06:24:14 knight"
-__version__ = "0.8"
+__revision__ = "TestCmd.py 0.11.D001 2004/09/13 13:22:19 knight"
+__version__ = "0.11"
 
 import os
 import os.path
@@ -860,10 +860,14 @@ class TestCmd:
             f = _mode_writable
         else:
             f = _mode_non_writable
-        try:
-            os.path.walk(top, _walk_chmod, f)
-        except:
-            pass # ignore any problems changing modes
+        if os.path.isfile(top):
+            st = os.stat(top)
+            os.chmod(top, f(st[stat.ST_MODE]))
+        else:
+            try:
+                os.path.walk(top, _walk_chmod, f)
+            except:
+                pass # ignore any problems changing modes
 
     def write(self, file, content, mode = 'wb'):
         """Writes the specified content text (second argument) to the

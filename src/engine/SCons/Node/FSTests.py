@@ -344,7 +344,7 @@ class BuildDirTestCase(unittest.TestCase):
         save_Link = SCons.Node.FS.Link
         def Link_IOError(target, source, env):
             raise IOError, "Link_IOError"
-        SCons.Node.FS.Link = Link_IOError
+        SCons.Node.FS.Link = SCons.Action.Action(Link_IOError, None)
 
         test.write(['work', 'src', 'IOError'], "work/src/IOError\n")
 

@@ -161,7 +161,10 @@ class BuildTask(SCons.Taskmaster.Task):
             t, e = sys.exc_info()[:2]
 
         if t == SCons.Errors.BuildError:
-            sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
+            fname = e.node
+            if SCons.Util.is_List(e.node):
+                fname = string.join(map(str, e.node), ', ')
+            sys.stderr.write("scons: *** [%s] %s\n" % (fname, e.errstr))
             if e.errstr == 'Exception':
                 traceback.print_exception(e.args[0], e.args[1], e.args[2])
         elif t == SCons.Errors.ExplicitExit:
