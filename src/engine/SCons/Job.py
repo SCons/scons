@@ -86,8 +86,9 @@ class Serial:
             try:
                 task.execute()
             except:
+                # Let the failed() callback function arrange for the
+                # build to stop if that's appropriate.
                 self.taskmaster.failed(task)
-                return
             else:
                 self.taskmaster.executed(task)
 
@@ -219,12 +220,10 @@ class Parallel:
                     finally:
                         cv.acquire()
                 except:
+                    # Let the failed() callback function arrange for
+                    # calling self.jobs.stop() to to stop the build
+                    # if that's appropriate.
                     self.taskmaster.failed(task)
-                    # stop all jobs since there was a failure:
-                    # (this will wake up any waiting jobs, so
-                    #  it isn't necessary to explicitly wake them
-                    #  here)
-                    self.jobs.stop() 
                 else:
                     self.taskmaster.executed(task)
                     

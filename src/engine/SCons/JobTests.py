@@ -68,6 +68,7 @@ class Taskmaster:
         """n is the number of dummy tasks to perform."""
 
         self.test_case = test_case
+        self.stop = None
         self.num_tasks = n
         self.num_iterated = 0
         self.num_executed = 0
@@ -88,7 +89,7 @@ class Taskmaster:
 
 
     def next_task(self):
-        if self.all_tasks_are_iterated():
+        if self.stop or self.all_tasks_are_iterated():
             return None
         else:
             self.num_iterated = self.num_iterated + 1
@@ -110,6 +111,7 @@ class Taskmaster:
 
     def failed(self, task):
         self.num_failed = self.num_failed + 1
+        self.stop = 1
     
     def is_blocked(self):
         # simulate blocking tasks
