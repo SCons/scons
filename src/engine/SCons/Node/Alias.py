@@ -49,7 +49,7 @@ class AliasNameSpace(UserDict.UserDict):
             self[name] = a
         return a
 
-    def lookup(self, name):
+    def lookup(self, name, **kw):
         try:
             return self[name]
         except KeyError:
