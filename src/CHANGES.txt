@@ -20,6 +20,8 @@ RELEASE 0.XX - XXX
   - Add a DefaultEnvironment() function that only creates a default
     environment on-demand (for fetching source files, e.g.).
 
+  - Portability fix for test/M4.py.
+
   From Steven Knight:
 
   - Tighten up the scons -H help output.

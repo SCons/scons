@@ -99,8 +99,8 @@ bar.M4(target = 'bar', source = 'bar.m4')
 
     test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 
-    test.fail_test(test.read('foo.x') != "line 1\nfff\nline 3\n")
+    test.fail_test(test.read('foo.x', 'r') != "line 1\nfff\nline 3\n")
 
-    test.fail_test(test.read('bar') != "line 1\nbbb\nline 3\n")
+    test.fail_test(test.read('bar', 'r') != "line 1\nbbb\nline 3\n")
 
 test.pass_test()
