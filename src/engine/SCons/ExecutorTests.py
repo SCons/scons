@@ -78,8 +78,10 @@ class MyNode:
                                            [self],
                                            ['s1', 's2'])
         apply(executor, (self, errfunc), {})
+    def get_scanner(self, env, kw):
+        return MyScanner('dep-')
     def get_implicit_deps(self, env, scanner, path):
-        return ['dep-' + str(self)]
+        return [scanner.prefix + str(self)]
     def add_to_implicit(self, deps):
         self.implicit.extend(deps)
     def missing(self):
@@ -88,6 +90,8 @@ class MyNode:
         return 'cs-'+calc+'-'+self.name
 
 class MyScanner:
+    def __init__(self, prefix):
+        self.prefix = prefix
     def path(self, env, cwd, target, source):
         return ()
     def select(self, node):
@@ -161,6 +165,22 @@ class ExecutorTestCase(unittest.TestCase):
 
         p = x.get_build_scanner_path(s)
         assert p == "scanner: sss, here, ['t'], ['s1', 's2']", p
+
+    def test_get_kw(self):
+        """Test the get_kw() method"""
+        t = MyNode('t')
+        x = SCons.Executor.Executor(MyAction(),
+                                    MyEnvironment(),
+                                    [],
+                                    [t],
+                                    ['s1', 's2'],
+                                    builder_kw={'X':1, 'Y':2})
+        kw = x.get_kw()
+        assert kw == {'X':1, 'Y':2}, kw
+        kw = x.get_kw({'Z':3})
+        assert kw == {'X':1, 'Y':2, 'Z':3}, kw
+        kw = x.get_kw({'X':4})
+        assert kw == {'X':4, 'Y':2}, kw
 
     def test__call__(self):
         """Test calling an Executor"""
@@ -296,9 +316,16 @@ class ExecutorTestCase(unittest.TestCase):
         targets = [MyNode('t')]
         sources = [MyNode('s1'), MyNode('s2')]
         x = SCons.Executor.Executor('b', env, [{}], targets, sources)
-        scanner = MyScanner()
-        deps = x.scan(scanner)
-        assert targets[0].implicit == ['dep-s1', 'dep-s2'], targets[0].implicit
+
+        deps = x.scan(None)
+        t = targets[0]
+        assert t.implicit == ['dep-s1', 'dep-s2'], t.implicit
+
+        t.implicit = []
+
+        deps = x.scan(MyScanner('scanner-'))
+        t = targets[0]
+        assert t.implicit == ['scanner-s1', 'scanner-s2'], t.implicit
 
     def test_get_missing_sources(self):
         """Test the ability to check if any sources are missing"""
