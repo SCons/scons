@@ -244,6 +244,12 @@ bin/
         there's a copy of the script we use to translate an Aegis change
         into a CVS checkin.
 
+bootstrap.py
+        A build script for use with Aegis.  This collects a current copy
+        of SCons from the Aegis baseline directories in a bootstrap/
+        subdirectory, and then executes SCons with the supplied
+        command-line arguments.
+
 build/
         This doesn't exist yet if you're looking at a vanilla source
         tree.  This is generated as part of our build process, and it's

@@ -10,33 +10,60 @@
  * the relevant build command.  This command tells SCons where to find
  * the rules.
  *
- * The ${bl}/build/scons-src/src/engine points $SCONS_LIB_DIR points
- * SCons at the last-built scons-src package, which should have
- * everything.  This means that, under Aegis, we're really using the
- * currently-checked-in baseline to build the current version.  This
- * implies that using a new feature in our own SConscripts is a
- * two-stage process: check in the underlying feature, then check in a
- * change to use it in our SConscripts.
+ * Our chicken-and-egg dilemma is this: we want to use the version of
+ * SCons under development in an Aegis change to build itself.  But the
+ * pieces of SCons are likely only partly in this change, and partly in
+ * baselines.
  *
- * The ${s src/script/scons.py} expands to a path into the baseline
- * during development if the script file is not in the change.
+ * Python only imports things on a module-by-module basis--which is to
+ * say, once it finds __init__.py in a given directory, it assumes that
+ * all other files in that module are in the same directory.  But that's
+ * not the way Aegis works, because if a file hasn't changed on the
+ * branch, it will only be in its parent's baseline directory.
+ *
+ * Aegis' mechanism for working around this sort of problem is to make
+ * symlinks to the proper baseline versions of each file, which makes
+ * it look like everything is in the local tree.  That's unattractive,
+ * though, because we really want to eat our own dog food and use the
+ * SCons -Y options to pull things from the baseline repositories.
+ *
+ * So our solution (suggested by Anthony Roach) is a bootstrap.py script
+ * that does some Aegis-like searching through the baseline directories
+ * and makes a bootstrap copy of the version of SCons under development
+ * that we can use for building.  After it makes this copy of SCons, it
+ * executes it with the same command-line arguments we supplied (and
+ * setting $SCONS_LIB_DIR to the right directory) so we can use it
+ * here with command-line options as if it were SCons itself.  (Note,
+ * however, that bootstrap.py only understands the specific command-line
+ * options already in use here, so if you change the call below to add
+ * some other SCons options, you may have to modify bootstrap.py to
+ * recognize them.
+ *
+ * The ${Source bootstrap.py} substitution finds bootstrap.py wherever
+ * it may be in the Aegis baselines.
+ *
+ * The long -Y${SUBSTitute...} substitution takes the Aegis baseline
+ * search path and turns it into the right -Y command-line options for
+ * SCons.
+ *
+ * The rest of the substitutions (${DEVeloper}, etc.) should be obvious.
  *
  * Look in aesub(5) for more information about command substitutions.
  */
-build_command = "SCONS_LIB_DIR=src/engine python ${Source src/script/scons.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+build_command = "python ${Source bootstrap.py} -Y${SUBSTitute : \\ -Y $Search_Path} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * SCons removes its targets before constructing them, which qualifies it
  * for the following entry in the config file.  The files must be removed
  * first, otherwise the baseline would cease to be self-consistent.
- */
 link_integration_directory = true;
+ */
 
 /*
  * This is set temporarily to allow us to build using the SCons
  * currently checked in to the src directory.
- */
 create_symlinks_before_build = true;
+ */
 
 /*
  *	aegis - project change supervisor
