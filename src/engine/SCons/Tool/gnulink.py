@@ -47,7 +47,7 @@ def generate(env, platform):
     env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['SHLIBEMITTER']= None
-    env['LINK']        = SCons.Util.Detect(linkers, env) or 'c++'
+    env['LINK']        = env.Detect(linkers) or 'c++'
     env['LINKFLAGS']   = ''
     env['LINKCOM']     = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBDIRPREFIX']='-L'
@@ -56,4 +56,4 @@ def generate(env, platform):
     env['LIBLINKSUFFIX']=''
 
 def exists(env):
-    return SCons.Util.Detect(linkers, env)
+    return env.Detect(linkers)

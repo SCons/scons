@@ -53,7 +53,7 @@ def generate(env, platform):
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
 
-    env['CXX']        = SCons.Util.Detect(compilers, env) or 'c++'
+    env['CXX']        = env.Detect(compilers) or 'c++'
     env['CXXFLAGS']   = '$CCFLAGS'
     env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCXX']      = '$CXX'
@@ -65,4 +65,4 @@ def generate(env, platform):
     env['CXXFILESUFFIX'] = '.cc'
 
 def exists(env):
-    return SCons.Util.Detect(compilers, env)
+    return env.Detect(compilers)

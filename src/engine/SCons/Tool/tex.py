@@ -50,4 +50,4 @@ def generate(env, platform):
     env['TEXCOM']   = '$TEX $TEXFLAGS $SOURCES'
 
 def exists(env):
-    return SCons.Util.Detect(['tex'], env)
+    return env.Detect('tex')

@@ -440,6 +440,23 @@ class Environment:
         except KeyError:
             return None
 
+    def Detect(self, progs):
+        """Return the first available program in progs.
+        """
+        path = None
+        pathext = None
+        if self.has_key('ENV'):
+            if self['ENV'].has_key('PATH'):
+                path = self['ENV']['PATH']
+            if self['ENV'].has_key('PATHEXT'):
+                pathext = self['ENV']['PATHEXT']
+        if not SCons.Util.is_List(progs):
+            progs = [ progs ]
+        for prog in progs:
+            path = SCons.Util.WhereIs(prog, path, pathext)
+            if path: return prog
+        return None
+
 class VarInterpolator:
     def __init__(self, dest, src, prefix, suffix):
         self.dest = dest

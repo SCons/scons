@@ -51,4 +51,4 @@ def generate(env, platform):
     env['PSCOM']      = '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES'
 
 def exists(env):
-    return SCons.Util.Detect(['dvips'], env)
+    return env.Detect('dvips')

@@ -23,8 +23,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import string
 import sys
+import TestCmd
 import unittest
 
 from SCons.Environment import *
@@ -580,7 +582,35 @@ class EnvironmentTestCase(unittest.TestCase):
         assert dict['_CPPINCFLAGS'][17] == '$)', \
                dict['_CPPINCFLAGS'][17]
 
+    def test_Detect(self):
+        """Test Detect()ing tools"""
+        test = TestCmd.TestCmd(workdir = '')
+        test.subdir('sub1', 'sub2')
+        test.write(['sub1', 'xxx.exe'], "sub1/xxx.exe\n")
+        test.write(['sub2', 'xxx.exe'], "sub2/xxx.exe\n")
 
+        sub1 = test.workpath('sub1')
+        sub2 = test.workpath('sub2')
+        env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+        x = env.Detect('xxx.exe')
+        assert x is None, x
+
+        sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
+        os.chmod(sub2_xxx_exe, 0755)
+
+        env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+        x = env.Detect('xxx.exe')
+        assert x == 'xxx.exe'
+
+        sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
+        os.chmod(sub1_xxx_exe, 0755)
+
+        x = env.Detect('xxx.exe')
+        assert x == 'xxx.exe'
+
+        env = Environment(ENV = { 'PATH' : [] })
+        x = env.Detect('xxx.exe')
+        assert x is None, x
 
     def test_platform(self):
         """Test specifying a platform callable when instantiating."""

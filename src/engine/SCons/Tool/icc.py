@@ -68,4 +68,4 @@ def generate(env, platform):
     env['CXXFILESUFFIX'] = '.cc'
 
 def exists(env):
-    return SCons.Util.Detect(['icc'], env)
+    return env.Detect('icc')

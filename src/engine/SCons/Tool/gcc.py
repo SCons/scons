@@ -53,7 +53,7 @@ def generate(env, platform):
         static_obj.add_action(suffix, SCons.Defaults.CAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
 
-    env['CC']        = SCons.Util.Detect(compilers, env) or 'cc'
+    env['CC']        = env.Detect(compilers) or 'cc'
     env['CCFLAGS']   = ''
     env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCC']      = '$CC'
@@ -66,4 +66,4 @@ def generate(env, platform):
     env['CFILESUFFIX'] = '.c'
 
 def exists(env):
-    return SCons.Util.Detect(compilers, env)
+    return env.Detect(compilers)

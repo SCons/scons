@@ -61,4 +61,4 @@ def generate(env, platform):
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS /c /Fo$TARGET $SOURCES'
 
 def exists(env):
-    return SCons.Util.Detect(['ml'], env)
+    return env.Detect('ml')

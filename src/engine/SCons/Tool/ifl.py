@@ -68,4 +68,4 @@ def generate(env, platform):
     env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET'
 
 def exists(env):
-    return SCons.Util.Detect(['ifl'], env)
+    return env.Detect('ifl')

@@ -53,10 +53,10 @@ def generate(env, platform):
         bld = TarBuilder
         env['BUILDERS']['Tar'] = bld
 
-    env['TAR']        = SCons.Util.Detect(tars, env) or 'gtar'
+    env['TAR']        = env.Detect(tars) or 'gtar'
     env['TARFLAGS']   = '-c'
     env['TARCOM']     = '$TAR $TARFLAGS -f $TARGET $SOURCES'
     env['TARSUFFIX']  = '.tar'
 
 def exists(env):
-    return SCons.Util.Detect(tars, env)
+    return env.Detect(tars)

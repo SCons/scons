@@ -44,7 +44,7 @@ def generate(env, platform):
     
     arcom = '$AR $ARFLAGS $TARGET $SOURCES'
     ranlib = 'ranlib'
-    if SCons.Util.Detect([ranlib], env):
+    if env.Detect(ranlib):
         arcom = arcom + '\n$RANLIB $RANLIBFLAGS $TARGET'
 
     env['AR']          = 'ar'
@@ -57,4 +57,4 @@ def generate(env, platform):
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
 def exists(env):
-    return SCons.Util.Detect(['ar'], env)
+    return env.Detect('ar')

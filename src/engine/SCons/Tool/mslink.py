@@ -153,4 +153,4 @@ def generate(env, platform):
     env['ENV']['PATH']           = exe_path
 
 def exists(env):
-    return SCons.Util.Detect(['link'], env)
+    return env.Detect('link')

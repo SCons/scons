@@ -45,4 +45,4 @@ def generate(env, platform):
     env['ARCOM']       = '$AR $ARFLAGS /OUT:$TARGET $SOURCES'
 
 def exists(env):
-    return SCons.Util.Detect(['lib'], env)
+    return env.Detect('lib')

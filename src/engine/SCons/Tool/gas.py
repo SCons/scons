@@ -58,10 +58,10 @@ def generate(env, platform):
     for suffix in ASPPSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
 
-    env['AS']        = SCons.Util.Detect(assemblers, env) or 'as'
+    env['AS']        = env.Detect(assemblers) or 'as'
     env['ASFLAGS']   = ''
     env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS -o $TARGET $SOURCES'
 
 def exists(env):
-    return SCons.Util.Detect(assemblers, env)
+    return env.Detect(assemblers)

@@ -48,4 +48,4 @@ def generate(env, platform):
     env['LEXCOM']   = '$LEX $LEXFLAGS -t $SOURCES > $TARGET'
     
 def exists(env):
-    return SCons.Util.Detect(['lex'], env)
+    return env.Detect('lex')

@@ -61,4 +61,4 @@ def generate(env, platform):
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS -c -o $TARGET $SOURCES'
 
 def exists(env):
-    return SCons.Util.Detect(['nasm'], env)
+    return env.Detect('nasm')

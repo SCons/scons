@@ -54,4 +54,4 @@ def generate(env, platform):
     env['PDFLATEXCOM']   = '$PDFLATEX $PDFLATEXFLAGS $SOURCES $TARGET'
 
 def exists(env):
-    return SCons.Util.Detect(['pdflatex'], env)
+    return env.Detect('pdflatex')
