@@ -193,7 +193,7 @@ Removed foo3.out
 Removed %s
 Removed %s
 Removed directory subd
-""" % (os.path.join('subd','foon.in'), os.path.join('subd', 'SConscript')))
+""" % (os.path.join('subd', 'SConscript'), os.path.join('subd','foon.in')))
 test.run(arguments = '-c -n .', stdout=expect)
 
 expect = test.wrap_stdout("""Removed foo1.out
@@ -202,7 +202,7 @@ Removed foo3.out
 Removed %s
 Removed %s
 Removed directory subd
-""" % (os.path.join('subd','foon.in'), os.path.join('subd', 'SConscript')))
+""" % (os.path.join('subd','SConscript'), os.path.join('subd', 'foon.in')))
 test.run(arguments = '-c .', stdout=expect)
 test.fail_test(os.path.exists(test.workpath('subdir', 'foon.in')))
 test.fail_test(os.path.exists(test.workpath('subdir')))

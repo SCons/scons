@@ -861,6 +861,10 @@ def dir_index(directory):
     for file in os.listdir(directory):
         fullname = os.path.join(directory, file)
         files.append(fullname)
+
+    # os.listdir() isn't guaranteed to return files in any specific order,
+    # but some of the test code expects sorted output.
+    files.sort()
     return files
 
 def fs_delete(path, remove=1):

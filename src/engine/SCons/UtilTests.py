@@ -631,21 +631,25 @@ class UtilTestCase(unittest.TestCase):
         test = TestCmd.TestCmd(workdir = '')
         base = test.workpath('')
         xxx = test.workpath('xxx.xxx')
+        ZZZ = test.workpath('ZZZ.ZZZ')
         sub1_yyy = test.workpath('sub1', 'yyy.yyy')
+        
         test.subdir('sub1')
         test.write(xxx, "\n")
+        test.write(ZZZ, "\n")
         test.write(sub1_yyy, "\n")
 
         old_stdout = sys.stdout
         sys.stdout = OutBuffer()
 
-        exp = "Removed " + os.path.join(base, sub1_yyy) + '\n' + \
+        exp = "Removed " + os.path.join(base, ZZZ) + "\n" + \
+              "Removed " + os.path.join(base, sub1_yyy) + '\n' + \
               "Removed directory " + os.path.join(base, 'sub1') + '\n' + \
               "Removed " + os.path.join(base, xxx) + '\n' + \
               "Removed directory " + base + '\n'
 
         SCons.Util.fs_delete(base, remove=0)
-        assert sys.stdout.buffer == exp
+        assert sys.stdout.buffer == exp, sys.stdout.buffer
         assert os.path.exists(sub1_yyy)
 
         sys.stdout.buffer = ""

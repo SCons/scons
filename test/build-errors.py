@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import string
+import sys
 import TestCmd
 import TestSCons
 
@@ -71,6 +72,10 @@ if os.name == 'nt':
         unspecified % 'f1'
     ]
     test.fail_test(not test.stderr() in errs)
+elif string.find(sys.platform, 'irix') != -1:
+    test.fail_test(test.stderr() != """sh: %s:  not found
+scons: *** [f1] Error 127
+""" % no_such_file)
 else:
     test.fail_test(test.stderr() != """sh: %s: No such file or directory
 scons: *** [f1] Error 127
@@ -96,6 +101,10 @@ if os.name == 'nt':
         unspecified % 'f2'
     ]
     test.fail_test(not test.stderr() in errs)
+elif string.find(sys.platform, 'irix') != -1:
+    test.fail_test(test.stderr() != """sh: %s: cannot execute
+scons: *** [f2] Error 126
+""" % not_executable)
 else:
     test.fail_test(test.stderr() != """sh: %s: Permission denied
 scons: *** [f2] Error 126
@@ -120,6 +129,10 @@ if os.name == 'nt':
         unspecified % 'f3'
     ]
     test.fail_test(not test.stderr() in errs)
+elif string.find(sys.platform, 'irix') != -1:
+    test.fail_test(test.stderr() != """sh: %s: cannot execute
+scons: *** [f3] Error 126
+""" % test.workdir)
 else:
     test.fail_test(test.stderr() != """sh: %s: is a directory
 scons: *** [f3] Error 126

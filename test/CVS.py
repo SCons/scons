@@ -233,7 +233,8 @@ test.fail_test(not is_writable(test.workpath('work2', 'sub', 'fff.in')))
 test.subdir(['work3'])
 
 test.write(['work3', 'SConstruct'], """\
-env = Environment()
+import os
+env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
 env.SourceCode('.', env.CVS(':pserver:anonymous:@cvs.sourceforge.net:/cvsroot/scons'))
 env.Install('install', 'scons/SConstruct')
 """)

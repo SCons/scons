@@ -123,7 +123,7 @@ SConscript('sub2/SConscript', 'env')
 test.run(arguments = '.', stderr=None)
 
 # on IRIX, ld32 prints out a warning saying that libbaz.a isn't used
-sw = 'ld32: WARNING 84 : ./libbaz.a is not used for resolving any symbol.'
+sw = 'ld32: WARNING 84 : ./libbaz.a is not used for resolving any symbol.\n'
 test.fail_test(not test.stderr() in ['', sw])
 
 test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
