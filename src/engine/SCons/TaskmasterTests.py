@@ -46,6 +46,8 @@ class Node:
         self.csig = None
         self.state = None
         self.parents = []
+        self.side_effect = 0
+        self.side_effects = []
 
         for kid in kids:
             kid.parents.append(self)
@@ -292,7 +294,40 @@ class TaskmasterTestCase(unittest.TestCase):
         t.executed()
         assert tm.next_task() == None
         assert scan_called == 5, scan_called
-    
+
+        n1 = Node("n1")
+        n2 = Node("n2")
+        n3 = Node("n3")
+        n4 = Node("n4", [n1,n2,n3])
+        n5 = Node("n5", [n4])
+        n3.side_effect = 1
+        n1.side_effects = n2.side_effects = n3.side_effects = [n4]
+        tm = SCons.Taskmaster.Taskmaster([n1,n2,n3,n4,n5])
+        t = tm.next_task()
+        assert t.get_target() == n1
+        assert n4.state == SCons.Node.executing
+        assert tm.is_blocked()
+        t.executed()
+        assert not tm.is_blocked()
+        t = tm.next_task()
+        assert t.get_target() == n2
+        assert tm.is_blocked()
+        t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n3
+        assert tm.is_blocked()
+        t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n4
+        assert tm.is_blocked()
+        t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n5
+        assert not tm.is_blocked()
+        assert not tm.next_task()
+        t.executed()
+
+
     def test_cycle_detection(self):
         n1 = Node("n1")
         n2 = Node("n2", [n1])

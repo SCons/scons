@@ -129,11 +129,11 @@ class BuildTask(SCons.Taskmaster.Task):
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def show(self):
-        if self.targets[0].builder:
+        if self.targets[0].builder or self.targets[0].side_effect:
             print "Removed " + self.targets[0].path
 
     def remove(self):
-        if self.targets[0].builder:
+        if self.targets[0].builder or self.targets[0].side_effect:
             try:
                 os.unlink(self.targets[0].path)
             except OSError:

@@ -39,7 +39,7 @@ import copy
 
 class Task:
     """Default SCons build engine task.
-    
+
     This controls the interaction of the actual building of node
     and the rest of the engine.
 
@@ -50,7 +50,7 @@ class Task:
     needs to customze something by sub-classing Taskmaster (or
     some other build engine class), we should first try to migrate
     that functionality into this class.
-    
+
     Note that it's generally a good idea for sub-classes to call
     these methods explicitly to update state, etc., rather than
     roll their own interaction with Taskmaster from scratch."""
@@ -73,11 +73,6 @@ class Task:
         """
         return self.node
 
-    def set_tstates(self, state):
-        """Set all of the target nodes's states."""
-        for t in self.targets:
-            t.set_state(state)
-
     def executed(self):
         """Called when the task has been successfully executed.
 
@@ -88,8 +83,10 @@ class Task:
         back on the pending list."""
 
         if self.targets[0].get_state() == SCons.Node.executing:
-            self.set_tstates(SCons.Node.executed)
             for t in self.targets:
+                for side_effect in t.side_effects:
+                    side_effect.set_state(None)
+                t.set_state(SCons.Node.executed)
                 t.built()
 
         self.tm.executed(self.node)
@@ -100,7 +97,8 @@ class Task:
 
     def fail_stop(self):
         """Explicit stop-the-build failure."""
-        self.set_tstates(SCons.Node.failed)
+        for t in self.targets:
+            t.set_state(SCons.Node.failed)
         self.tm.stop()
 
     def fail_continue(self):
@@ -116,7 +114,7 @@ class Task:
             n = walker.next()
             while n:
                 n = walker.next()
-        
+
         self.tm.executed(self.node)
 
     def make_ready(self):
@@ -126,7 +124,11 @@ class Task:
             bsig = self.tm.calc.bsig(t)
             if not self.tm.calc.current(t, bsig):
                 state = SCons.Node.executing
-        self.set_tstates(state)
+        for t in self.targets:
+            if state == SCons.Node.executing:
+                for side_effect in t.side_effects:
+                    side_effect.set_state(state)
+            t.set_state(state)
 
 class Calc:
     def bsig(self, node):
@@ -136,7 +138,7 @@ class Calc:
 
     def current(self, node, sig):
         """Default SCons build engine is-it-current function.
-    
+
         This returns "always out of date," so every node is always
         built/visited.
         """
@@ -146,7 +148,7 @@ class Taskmaster:
     """A generic Taskmaster for handling a bunch of targets.
 
     Classes that override methods of this class should call
-    the base class method, so this class can do its thing.    
+    the base class method, so this class can do its thing.
     """
 
     def __init__(self, targets=[], tasker=Task, calc=Calc()):
@@ -164,11 +166,11 @@ class Taskmaster:
 
         if self.ready:
             return
-        
+
         while self.candidates:
             node = self.candidates[-1]
             state = node.get_state()
-            
+
             # Skip nodes that have already been executed:
             if state != None and state != SCons.Node.stack:
                 self.candidates.pop()
@@ -191,12 +193,23 @@ class Taskmaster:
             # Add non-derived files that have not been built
             # to the candidates list:
             def derived(node):
-                return node.builder and node.get_state() == None
+                return (node.builder or node.side_effect) and node.get_state() == None
             derived = filter(derived, children)
             if derived:
                 derived.reverse()
                 self.candidates.extend(derived)
                 continue
+
+            # Skip nodes whose side-effects are currently being built:
+            cont = 0
+            for side_effect in node.side_effects:
+                if side_effect.get_state() == SCons.Node.executing:
+                    self.pending.append(node)
+                    node.set_state(SCons.Node.pending)
+                    self.candidates.pop()
+                    cont = 1
+                    break
+            if cont: continue
 
             # Skip nodes that are pending on a currently executing node:
             if node.depends_on(self.executing) or node.depends_on(self.pending):
@@ -211,25 +224,26 @@ class Taskmaster:
 
     def next_task(self):
         """Return the next task to be executed."""
-        
+
         self._find_next_ready_node()
 
         node = self.ready
-        
+
         if node is None:
             return None
-        
+
         self.executing.append(node)
+        self.executing.extend(node.side_effects)
         try:
             tlist = node.builder.targets(node)
         except AttributeError:
             tlist = [node]
-        task = self.tasker(self, tlist, node in self.targets, node) 
+        task = self.tasker(self, tlist, node in self.targets, node)
         task.make_ready()
         self.ready = None
-        
+
         return task
-            
+
     def is_blocked(self):
         self._find_next_ready_node()
 
@@ -243,7 +257,9 @@ class Taskmaster:
 
     def executed(self, node):
         self.executing.remove(node)
-        
+        for side_effect in node.side_effects:
+            self.executing.remove(side_effect)
+
         # move the current pending nodes to the candidates list:
         # (they may not all be ready to build, but _find_next_ready_node()
         #  will figure out which ones are really ready)

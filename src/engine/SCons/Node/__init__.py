@@ -85,6 +85,8 @@ class Node:
         self.includes = None
         self.build_args = {}
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
+        self.side_effect = 0 # true iff this node is a side effect
+        self.side_effects = [] # the side effects of building this target
 
     def generate_build_args(self):
         dict = copy.copy(self.env.Dictionary())
