@@ -158,10 +158,10 @@ test.write('file3b.out', 'file3b.out\n')
 
 test.run(arguments='.', 
          stderr=r"""
-scons: warning: Did you mean to use `target' instead of `targets'\?
+scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
 File "SConstruct", line \d+, in .+
 
-scons: warning: Did you mean to use `source' instead of `sources'\?
+scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
 File "SConstruct", line \d+, in .+
 """)
 
@@ -170,10 +170,10 @@ test.must_match(['file3b'], 'file3b.out\n')
 
 test.run(arguments='--warn=misleading-keywords .', 
          stderr=r"""
-scons: warning: Did you mean to use `target' instead of `targets'\?
+scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
 File "SConstruct", line \d+, in .+
 
-scons: warning: Did you mean to use `source' instead of `sources'\?
+scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
 File "SConstruct", line \d+, in .+
 """)
 

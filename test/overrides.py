@@ -115,14 +115,14 @@ test.write('mylink.py',"""
 open('goodbye.not_exe', 'wt').write('this is not a program!')
 """)
 
-test.run(arguments='goodbye.not_exe', stderr="""\
+test.run(arguments='goodbye.not_exe', stderr=None)
+test.fail_test(not test.match_re(test.stderr(), r"""
+scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
+File "SConstruct", line \d+, in .+
 
-scons: warning: Did you mean to use `target' instead of `targets'?
-File "SConstruct", line 8, in ?
-
-scons: warning: Did you mean to use `source' instead of `sources'?
-File "SConstruct", line 8, in ?
-""")
+scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
+File "SConstruct", line \d+, in .+
+"""))
 
 assert test.read('goodbye.not_obj') == 'this is no object file!'
 assert test.read('goodbye.not_exe') == 'this is not a program!'
