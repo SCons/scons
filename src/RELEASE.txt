@@ -36,12 +36,11 @@ RELEASE 0.95 - XXX
 
     - The meaning of some of the values of the "mode" argument to
       the SCons.Util.scons_subst() and SCons.Util.scons_subst_list()
-      functions have been swapped.  The wrapper Environment.subst()
-      and Environment.subst_list() methods remain completely unchanged,
-      this so this should have no external effect.  (We've listed the
-      change here because it might cause a problem if you're reaching
-      into the SCons internals and calling either of the SCons.Util
-      functions directly.)
+      functions have been swapped.  The wrapper Environment.subst() and
+      Environment.subst_list() methods remain completely unchanged, so
+      this should have no external effect.  (We've listed the change here
+      because it might cause a problem if you're reaching into the SCons
+      internals and calling either of these SCons.Util functions directly.)
 
     - The "overrides" keyword argument to calls to the Builder() function
       used to create new Builder objects has been deprecated and will
@@ -55,6 +54,28 @@ RELEASE 0.95 - XXX
           # New way, items are specified as keyword arguments:
           Builder(action = 'cp $TDIR/$TARGET $SDIR/$SOURCE',
                   TDIR = dir1, SDIR = dir2)
+
+  Please note the following FUTURE changes that you may wish to prepare
+  for:
+
+    - When compiling with Microsoft Visual Studio, SCons currently adds
+      the ATL and MFC directories to the INCLUDE and LIB environment
+      variables by default.  This default behavior will be changed in
+      a future release; the current plan is to change it for the 0.97
+      release (two releases from now).
+
+      Whether or not the ATL and MFC directories are added to these
+      environment variables is now controlled by a new MSVS_USE_MFC_DIRS
+      *construction* variable.  Setting this variable to a non-zero
+      value when you initialize an Environment will ensure that these
+      directories will be included in your external path(s) even when
+      the default behavior changes:
+
+          env = Environment(MSVS_USE_MFC_DIRS = 1)
+
+      The MSVS_USE_MFC_DIRS variable may, of course, be set to 0 (or
+      None) to prevent SCons from adding the ATL and MFC directories to
+      the INCLUDE and LIB environment variables.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.

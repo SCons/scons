@@ -45,6 +45,10 @@ RELEASE 0.95 - XXX
 
   - Fix the ability to save/restore a PackageOption to a file.
 
+  From Steve Christensen:
+
+  - Update the MSVS .NET and MSVC 6.0/7.0 path detection.
+
   From David M. Cooke:
 
   - Make the Fortran scanner case-insensitive for the INCLUDE string.
@@ -193,6 +197,10 @@ RELEASE 0.95 - XXX
     appending flags as strings or lists.
 
   - Make things like ${TARGET.dir} work in *PATH construction variables.
+
+  - Allow a $MSVS_USE_MFC_DIRS construction variable to control whether
+    ATL and MFC directories are included in the default INCLUDE and
+    LIB paths.
 
   From Vincent Risi:
 

@@ -52,7 +52,7 @@ CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
 
 def _parse_msvc7_overrides(version):
     """ Parse any overridden defaults for MSVS directory locations in MSVS .NET. """
-    
+
     # First, we get the shell folder for this user:
     if not SCons.Util.can_read_reg:
         raise SCons.Errors.InternalError, "No Windows registry module was found"
@@ -192,7 +192,7 @@ def get_msvc_path (path, version, platform='x86'):
     # if we got here, then we didn't find the registry entries:
     raise SCons.Errors.InternalError, "The %s path was not found in the registry."%path
 
-def _get_msvc6_default_paths(version):
+def _get_msvc6_default_paths(version, use_mfc_dirs):
     """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values of those
     three environment variables that should be set in order to execute
     the MSVC 6.0 tools properly, if the information wasn't available
@@ -217,17 +217,29 @@ def _get_msvc6_default_paths(version):
             MVSVCdir = os.path.join(MVSdir,'VC98')
 
         MVSCommondir = r'%s\Common' % MVSdir
-        include_path = r'%s\ATL\include;%s\MFC\include;%s\include' % (MVSVCdir, MVSVCdir, MVSVCdir)
-        lib_path = r'%s\MFC\lib;%s\lib' % (MVSVCdir, MVSVCdir)
-        exe_path = r'%s\MSDev98\bin;%s\bin' % (MVSCommondir, MVSVCdir)
+        if use_mfc_dirs:
+            mfc_include_ = r'%s\ATL\include;%s\MFC\include;' % (MVSVCdir, MVSVCdir)
+            mfc_lib_ = r'%s\MFC\lib;' % MVSVCdir
+        else:
+            mfc_include_ = ''
+            mfc_lib_ = ''
+        include_path = r'%s%s\include' % (mfc_include_, MVSVCdir)
+        lib_path = r'%s%s\lib' % (mfc_lib_, MVSVCdir)
+
+        if os.environ.has_key('OS') and os.environ['OS'] == "Windows_NT":
+            osdir = 'WINNT'
+        else:
+            osdir = 'WIN95'
+
+        exe_path = r'%s\tools\%s;%s\MSDev98\bin;%s\tools;%s\bin' % (MVSCommondir, osdir, MVSCommondir,  MVSCommondir, MVSVCdir)
     return (include_path, lib_path, exe_path)
 
-def _get_msvc7_default_paths(version):
+def _get_msvc7_default_paths(version, use_mfc_dirs):
     """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values of those
     three environment variables that should be set in order to execute
     the MSVC .NET tools properly, if the information wasn't available
     from the registry."""
-            
+
     MVSdir = None
     paths = {}
     exe_path = ''
@@ -243,19 +255,34 @@ def _get_msvc7_default_paths(version):
             # last resort -- default install location
             MVSdir = r'C:\Program Files\Microsoft Visual Studio .NET'
 
-    if not MVSdir:
+    if MVSdir:
         if SCons.Util.can_read_reg and paths.has_key('VCINSTALLDIR'):
             MVSVCdir = paths['VCINSTALLDIR']
         else:
             MVSVCdir = os.path.join(MVSdir,'Vc7')
 
         MVSCommondir = r'%s\Common7' % MVSdir
-        include_path = r'%s\atlmfc\include;%s\include' % (MVSVCdir, MVSVCdir, MVSVCdir)
-        lib_path = r'%s\atlmfc\lib;%s\lib' % (MVSVCdir, MVSVCdir)
-        exe_path = r'%s\Tools\bin;%s\Tools;%s\bin' % (MVSCommondir, MVSCommondir, MVSVCdir)
+        if use_mfc_dirs:
+            mfc_include_ = r'%s\atlmfc\include;' % MVSVCdir
+            mfc_lib_ = r'%s\atlmfc\lib;' % MVSVCdir
+        else:
+            mfc_include_ = ''
+            mfc_lib_ = ''
+        include_path = r'%s%s\include;%s\PlatformSDK\include' % (mfc_include_, MVSVCdir, MVSVCdir)
+        lib_path = r'%s%s\lib;%s\PlatformSDK\lib' % (mfc_lib_, MVSVCdir, MVSVCdir)
+        exe_path = r'%s\IDE;%s\bin;%s\Tools;%s\Tools\bin' % (MVSCommondir,MVSVCdir, MVSCommondir, MVSCommondir )
+
+        if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKSDKDIR'):
+            include_path = include_path + r';%s\include'%paths['FRAMEWORKSDKDIR']
+            lib_path = lib_path + r';%s\lib'%paths['FRAMEWORKSDKDIR']
+            exe_path = exe_path + r';%s\bin'%paths['FRAMEWORKSDKDIR']
+
+        if SCons.Util.can_read_reg and paths.has_key('FRAMEWORKDIR') and paths.has_key('FRAMEWORKVERSION'):
+            exe_path = exe_path + r';%s\%s'%(paths['FRAMEWORKDIR'],paths['FRAMEWORKVERSION'])
+
     return (include_path, lib_path, exe_path)
 
-def get_msvc_paths(version=None):
+def get_msvc_paths(version=None, use_mfc_dirs=0):
     """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values
     of those three environment variables that should be set
     in order to execute the MSVC tools properly."""
@@ -276,10 +303,10 @@ def get_msvc_paths(version=None):
     # base installation from the registry and deduce the default
     # directories.
     if float(version) >= 7.0:
-        defpaths = _get_msvc7_default_paths(version)
+        defpaths = _get_msvc7_default_paths(version, use_mfc_dirs)
     else:
-        defpaths = _get_msvc6_default_paths(version)
-    
+        defpaths = _get_msvc6_default_paths(version, use_mfc_dirs)
+
     try:
         include_path = get_msvc_path("include", version)
     except (SCons.Util.RegError, SCons.Errors.InternalError):
@@ -294,7 +321,7 @@ def get_msvc_paths(version=None):
         exe_path = get_msvc_path("path", version)
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         exe_path = defpaths[2]
-    
+
     return (include_path, lib_path, exe_path)
 
 def get_msvc_default_paths(version = None):
@@ -432,7 +459,10 @@ def generate(env):
         if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
             include_path, lib_path, exe_path = get_msvc_default_paths(version)
         else:
-            include_path, lib_path, exe_path = get_msvc_paths(version)
+            # By default, add the MFC directories, because this is what
+            # we've been doing for a long time.  We may change this.
+            use_mfc_dirs = env.get('MSVS_USE_MFC_DIRS', 1)
+            include_path, lib_path, exe_path = get_msvc_paths(version, use_mfc_dirs)
 
         # since other tools can set these, we just make sure that the
         # relevant stuff from MSVS is in there somewhere.
@@ -453,7 +483,7 @@ def exists(env):
         v = SCons.Tool.msvs.get_visualstudio_versions()
     except (SCons.Util.RegError, SCons.Errors.InternalError):
         pass
-    
+
     if not v:
         return env.Detect('cl')
     else:
