@@ -42,7 +42,7 @@ class Jobs:
         """
         create 'num' jobs using the given taskmaster.
 
-        If 'num' is equal to 0, then a serial job will be used,
+        If 'num' is 1 or less, then a serial job will be used,
         otherwise 'num' parallel jobs will be used.
         """
 

@@ -22,6 +22,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+"""
+This tests the -j command line option, and the SetJobs() and GetJobs()
+SConscript functions.
+"""
+
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import string
@@ -89,27 +94,85 @@ def RunTest(args, extra):
 
     return start2, finish1
 
-start2, finish1 = RunTest('-j 2 f1 f2', "first")
-
+# Test 2 parallel jobs.
 # fail if the second file was not started
-# before the first one was finished
+# before the first one was finished.
+start2, finish1 = RunTest('-j 2 f1 f2', "first")
 test.fail_test(not (start2 < finish1))
-
-s2, f1 = RunTest('-j 2 f1 f2', "first")
 
 # re-run the test with the same input, fail if we don't
 # get back the same times, which would indicate that
 # SCons rebuilt the files even though nothing changed
+s2, f1 = RunTest('-j 2 f1 f2', "first")
 test.fail_test(start2 != s2)
 test.fail_test(finish1 != f1)
 
-start2, finish1 = RunTest('f1 f2', "second")
-
+# Test a single serial job.
 # fail if the second file was started
 # before the first one was finished
+start2, finish1 = RunTest('f1 f2', "second")
 test.fail_test(start2 < finish1)
 
+# Make sure that a parallel build using a list builder
+# succeedes.
 test.run(arguments='-j 2 out')
+
+# Test SetJobs() with no -j:
+test.write('SConstruct', """
+MyBuild = Builder(action = r'%s build.py $TARGETS')
+env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
+env.MyBuild(target = 'f1', source = 'f1.in')
+env.MyBuild(target = 'f2', source = 'f2.in')
+
+def copyn(env, target, source):
+    import shutil
+    import time
+    time.sleep(1)
+    for t in target:
+        shutil.copy(str(source[0]), str(t))
+
+t = env.Command(target=['foo/foo1.out', 'foo/foo2.out'], source='foo/foo.in', action=copyn)
+env.Install('out', t)
+
+assert GetJobs() == 1
+SetJobs(2)
+assert GetJobs() == 2
+""" % python)
+
+# This should be a prallel build because the SConscript sets jobs to 2.
+# fail if the second file was not started
+# before the first one was finished
+start2, finish1 = RunTest('f1 f2', "third")
+test.fail_test(not (start2 < finish1))
+
+# Test SetJobs() with -j:
+test.write('SConstruct', """
+MyBuild = Builder(action = r'%s build.py $TARGETS')
+env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
+env.MyBuild(target = 'f1', source = 'f1.in')
+env.MyBuild(target = 'f2', source = 'f2.in')
+
+def copyn(env, target, source):
+    import shutil
+    import time
+    time.sleep(1)
+    for t in target:
+        shutil.copy(str(source[0]), str(t))
+
+t = env.Command(target=['foo/foo1.out', 'foo/foo2.out'], source='foo/foo.in', action=copyn)
+env.Install('out', t)
+
+assert GetJobs() == 1
+SetJobs(2)
+assert GetJobs() == 1
+""" % python)
+
+# This should be a serial build since -j 1 overrides the call to SetJobs().
+# fail if the second file was started
+# before the first one was finished
+start2, finish1 = RunTest('-j 1 f1 f2', "fourth")
+test.fail_test(start2 < finish1)
+
 
 test.pass_test()
  

@@ -2395,6 +2395,13 @@ foo = FindFile('foo', ['dir1', 'dir2'])
 .\"XXX
 
 .TP
+.RI GetJobs()
+Get the number of jobs (commands) that will be run simultaneously. See also 
+.I -j
+and
+.IR SetJobs() .
+
+.TP
 .RI Help( text )
 This specifies help text to be printed if the 
 .B -h 
@@ -2609,6 +2616,15 @@ signature. When using "timestamp" signatures, changes in the
 command line will not cause files to be rebuilt. "MD5" signatures take
 longer to compute, but "timestamp" signatures are less accurate. The
 default is "MD5".
+
+.TP
+.RI SetJobs( num )
+Specifies the number of jobs (commands) to run simultaneously. 
+.I -j
+overrides this function. See also 
+.I -j
+and 
+.IR GetJobs() .
 
 .TP
 .RI Split( arg )

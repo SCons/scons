@@ -303,6 +303,18 @@ def EnsurePythonVersion(major, minor):
         print "Python %d.%d or greater required, but you have Python %s" %(major,minor,v)
         sys.exit(2)
 
+def GetJobs():
+    return SCons.Script.get_num_jobs(SCons.Script.options)
+
+def SetJobs(num):
+    try:
+        tmp = int(num)
+        if tmp < 1:
+            raise ValueError
+        SCons.Script.num_jobs = tmp
+    except ValueError, x:
+        raise SCons.Errors.UserError, "A positive integer is required: %s"%repr(num)
+    
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -325,6 +337,7 @@ def BuildDefaultGlobals():
     globals['FindFile']          = FindFile
     globals['GetBuildPath']      = GetBuildPath
     globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
+    globals['GetJobs']           = GetJobs
     globals['GetLaunchDir']      = GetLaunchDir
     globals['Help']              = Help
     globals['Import']            = Import
@@ -344,6 +357,7 @@ def BuildDefaultGlobals():
     globals['SetBuildSignatureType'] = SetBuildSignatureType
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
     globals['SetContentSignatureType'] = SetContentSignatureType
+    globals['SetJobs']           = SetJobs
     globals['SharedLibrary']     = SCons.Defaults.SharedLibrary
     globals['SharedObject']      = SCons.Defaults.SharedObject
     globals['Split']             = SCons.Util.Split

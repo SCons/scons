@@ -178,6 +178,7 @@ exit_status = 0 # exit status, assume success by default
 profiling = 0
 repositories = []
 sig_module = None
+num_jobs = 1 # this is modifed by SConscript.SetJobs()
 
 def print_it(text):
     print text
@@ -189,6 +190,12 @@ class PrintHelp(Exception):
     pass
 
 # utility functions
+
+def get_num_jobs(options):
+    if hasattr(options, 'num_jobs'):
+        return options.num_jobs
+    else:
+        return num_jobs
 
 def get_all_children(node): return node.all_children(None)
 
@@ -604,8 +611,6 @@ class OptParser(OptionParser):
         opt, arglist = OptionParser.parse_args(self, args, values)
         if opt.implicit_deps_changed or opt.implicit_deps_unchanged:
             opt.implicit_cache = 1
-        if not hasattr(opt, "num_jobs"):
-            setattr(opt, "num_jobs", 1)
         return opt, arglist
 
 
@@ -626,6 +631,7 @@ def _main():
             # it's OK if there's no SCONSFLAGS
             pass
     parser = OptParser()
+    global options
     options, args = parser.parse_args(all_args)
 
     if options.help_msg:
@@ -835,7 +841,7 @@ def _main():
     display("scons: Building targets ...")
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
 
-    jobs = SCons.Job.Jobs(options.num_jobs, taskmaster)
+    jobs = SCons.Job.Jobs(get_num_jobs(options), taskmaster)
 
     try:
         jobs.run()
