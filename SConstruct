@@ -82,7 +82,7 @@ try:
     date = ARGUMENTS['date']
 except:
     date = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(time.time()))
-    
+
 if ARGUMENTS.has_key('developer'):
     developer = ARGUMENTS['developer']
 elif os.environ.has_key('USERNAME'):
@@ -173,7 +173,7 @@ else:
 
 
 zcat = 'gzip -d -c'
-    
+
 #
 # Figure out if we can handle .zip files.
 #
@@ -221,7 +221,7 @@ except:
 
 def SCons_revision(target, source, env):
     """Interpolate specific values from the environment into a file.
-    
+
     This is used to copy files into a tree that gets packaged up
     into the source file package.
     """
@@ -250,7 +250,7 @@ revbuilder = Builder(action = Action(SCons_revision, varlist=['VERSION']))
 
 env = Environment(
                    ENV                 = ENV,
- 
+
                    BUILD               = build_id,
                    BUILDSYS            = build_system,
                    COPYRIGHT           = copyright,
@@ -307,6 +307,7 @@ python_scons = {
         'pkg'           : 'python-' + project,
         'src_subdir'    : 'engine',
         'inst_subdir'   : os.path.join('lib', 'python1.5', 'site-packages'),
+        'rpm_dir'       : '/usr/lib/scons',
 
         'debian_deps'   : [
                             'debian/changelog',
@@ -370,6 +371,7 @@ scons_script = {
         'pkg'           : project + '-script',
         'src_subdir'    : 'script',
         'inst_subdir'   : 'bin',
+        'rpm_dir'       : '/usr/bin',
 
         'debian_deps'   : [
                             'debian/changelog',
@@ -398,7 +400,7 @@ scons_script = {
 scons = {
         'pkg'           : project,
 
-        'debian_deps'   : [ 
+        'debian_deps'   : [
                             'debian/changelog',
                             'debian/control',
                             'debian/copyright',
@@ -409,7 +411,7 @@ scons = {
                             'debian/rules',
                           ],
 
-        'files'         : [ 
+        'files'         : [
                             'CHANGES.txt',
                             'LICENSE.txt',
                             'README.txt',
@@ -484,6 +486,7 @@ for p in [ scons ]:
                     open(manifest_in).readlines())
     raw_files = src_files[:]
     dst_files = src_files[:]
+    rpm_files = []
 
     MANIFEST_in_list = []
 
@@ -499,12 +502,17 @@ for p in [ scons ]:
             isubdir = p['subinst_dirs'][sp['pkg']]
             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
-            f = map(lambda x: x[:-1], open(MANIFEST_in).readlines())
-            raw_files.extend(f)
-            src_files.extend(map(lambda x, s=ssubdir: os.path.join(s, x), f))
+            files = map(lambda x: x[:-1], open(MANIFEST_in).readlines())
+            raw_files.extend(files)
+            src_files.extend(map(lambda x, s=ssubdir: os.path.join(s, x), files))
+            for f in files:
+                r = os.path.join(sp['rpm_dir'], f)
+                rpm_files.append(r)
+                if f[-3:] == ".py":
+                    rpm_files.append(r + 'c')
             if isubdir:
-                f = map(lambda x, i=isubdir: os.path.join(i, x), f)
-            dst_files.extend(f)
+                files = map(lambda x, i=isubdir: os.path.join(i, x), files)
+            dst_files.extend(files)
             for k in sp['filemap'].keys():
                 f = sp['filemap'][k]
                 if f:
@@ -589,7 +597,7 @@ for p in [ scons ]:
                     "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
                     "rm -f .temp",
         ])
-    
+
         #
         # Run setup.py in the unpacked subdirectory to "install" everything
         # into our build/test subdirectory.  The runtest.py script will set
@@ -655,18 +663,35 @@ for p in [ scons ]:
         topdir = os.path.join(os.getcwd(), build, 'build',
                               'bdist.' + platform, 'rpm')
 
-	BUILDdir = os.path.join(topdir, 'BUILD', pkg + '-' + version)
-	RPMSdir = os.path.join(topdir, 'RPMS', 'noarch')
-	SOURCESdir = os.path.join(topdir, 'SOURCES')
-	SPECSdir = os.path.join(topdir, 'SPECS')
-	SRPMSdir = os.path.join(topdir, 'SRPMS')
+        BUILDdir = os.path.join(topdir, 'BUILD', pkg + '-' + version)
+        RPMSdir = os.path.join(topdir, 'RPMS', 'noarch')
+        SOURCESdir = os.path.join(topdir, 'SOURCES')
+        SPECSdir = os.path.join(topdir, 'SPECS')
+        SRPMSdir = os.path.join(topdir, 'SRPMS')
 
+        specfile_in = os.path.join('rpm', "%s.spec.in" % pkg)
         specfile = os.path.join(SPECSdir, "%s-1.spec" % pkg_version)
         sourcefile = os.path.join(SOURCESdir, "%s.tar.gz" % pkg_version);
         noarch_rpm = os.path.join(RPMSdir, "%s-1.noarch.rpm" % pkg_version)
         src_rpm = os.path.join(SRPMSdir, "%s-1.src.rpm" % pkg_version)
 
-        env.InstallAs(specfile, os.path.join('rpm', "%s.spec" % pkg))
+        def spec_function(target, source, env):
+            """Generate the RPM .spec file from the template file.
+
+            This fills in the %files portion of the .spec file with a
+            list generated from our MANIFEST(s), so we don't have to
+            maintain multiple lists.
+            """
+            c = open(str(source[0]), 'rb').read()
+            c = string.replace(c, '__RPM_FILES__', env['RPM_FILES'])
+            open(str(target[0]), 'wb').write(c)
+
+        rpm_files.sort()
+        rpm_files_str = string.join(rpm_files, "\n") + "\n"
+        rpm_spec_env = env.Copy(RPM_FILES = rpm_files_str)
+        rpm_spec_action = Action(spec_function, varlist=['RPM_FILES'])
+        rpm_spec_env.Command(specfile, specfile_in, rpm_spec_action)
+
         env.InstallAs(sourcefile, tar_gz)
 
         targets = [ noarch_rpm, src_rpm ]
@@ -875,14 +900,14 @@ if change:
 
             env.Command(src_tar_gz, b_psv_stamp,
                         "tar cz${TAR_HFLAG} -f $TARGET -C build %s" % psv)
-    
+
             #
             # Unpack the archive into build/unpack/scons-{version}.
             #
             unpack_tar_gz_files = map(lambda x, u=unpack_tar_gz_dir, psv=psv:
                                              os.path.join(u, psv, x),
                                       sfiles)
-    
+
             #
             # We'd like to replace the last three lines with the following:
             #
@@ -896,7 +921,7 @@ if change:
                 "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
                 "rm -f .temp",
             ])
-    
+
             #
             # Run setup.py in the unpacked subdirectory to "install" everything
             # into our build/test subdirectory.  The runtest.py script will set
@@ -938,16 +963,16 @@ if change:
 
             zipenv = env.Copy(CD = 'build', PSV = psv)
             zipenv.Command(src_zip, b_psv_stamp, zipit)
-    
+
             #
             # Unpack the archive into build/unpack/scons-{version}.
             #
             unpack_zip_files = map(lambda x, u=unpack_zip_dir, psv=psv:
                                              os.path.join(u, psv, x),
                                       sfiles)
-    
+
             env.Command(unpack_zip_files, src_zip, unzipit)
-    
+
             #
             # Run setup.py in the unpacked subdirectory to "install" everything
             # into our build/test subdirectory.  The runtest.py script will set
