@@ -349,7 +349,7 @@ def get_msvc_default_paths(version=None, use_mfc_dirs=0):
         return _get_msvc6_default_paths(version, use_mfc_dirs)
 
 def validate_vars(env):
-    """Validate the PDB, PCH, and PCHSTOP construction variables."""
+    """Validate the PCH and PCHSTOP construction variables."""
     if env.has_key('PCH') and env['PCH']:
         if not env.has_key('PCHSTOP'):
             raise SCons.Errors.UserError, "The PCHSTOP construction must be defined if PCH is defined."
@@ -357,8 +357,7 @@ def validate_vars(env):
             raise SCons.Errors.UserError, "The PCHSTOP construction variable must be a string: %r"%env['PCHSTOP']
 
 def pch_emitter(target, source, env):
-    """Sets up the PDB dependencies for a pch file, and adds the object
-    file target."""
+    """Adds the object file target."""
 
     validate_vars(env)
 
@@ -376,22 +375,14 @@ def pch_emitter(target, source, env):
 
     target = [pch, obj] # pch must be first, and obj second for the PCHCOM to work
 
-    if env.has_key('PDB') and env['PDB']:
-        env.SideEffect(env['PDB'], target)
-        env.Precious(env['PDB'])
-
     return (target, source)
 
 def object_emitter(target, source, env, parent_emitter):
-    """Sets up the PDB and PCH dependencies for an object file."""
+    """Sets up the PCH dependencies for an object file."""
 
     validate_vars(env)
 
     parent_emitter(target, source, env)
-
-    if env.has_key('PDB') and env['PDB']:
-        env.SideEffect(env['PDB'], target)
-        env.Precious(env['PDB'])
 
     if env.has_key('PCH') and env['PCH']:
         env.Depends(target, env['PCH'])
@@ -421,7 +412,7 @@ def generate(env):
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
 
-    env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Zi /Fd%s"%File(PDB)) or ""}'])
+    env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Z7") or ""}'])
     env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'])
     env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'
@@ -473,7 +464,8 @@ def generate(env):
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
 
-    env['PCHCOM'] = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo${TARGETS[1]} /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS'
+    env['PCHPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Yd") or ""}'])
+    env['PCHCOM'] = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo${TARGETS[1]} /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS $PCHPDBFLAGS'
     env['BUILDERS']['PCH'] = pch_builder
 
 def exists(env):
