@@ -20,6 +20,10 @@ RELEASE 0.95 - XXX
   - Accomodate the fact that Cygwin's os.path.normcase() lies about
     the underlying system being case-sensitive.
 
+  From David M. Cooke:
+
+  - Make the Fortran scanner case-insensitive for the INCLUDE string.
+
   From Charles Crain:
 
   - If no version of MSVC is detected but the tool is specified,
