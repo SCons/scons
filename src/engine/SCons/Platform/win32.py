@@ -177,18 +177,19 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
                 pass
         return ret
 
+def exec_spawn(l, env):
+    try:
+        result = os.spawnve(os.P_WAIT, l[0], l, env)
+    except OSError, e:
+        result = exitvalmap[e[0]]
+        sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))
+    return result
+
 def spawn(sh, escape, cmd, args, env):
     if not sh:
         sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
         return 127
-    else:
-        try:
-            args = [sh, '/C', escape(string.join(args)) ]
-            ret = os.spawnve(os.P_WAIT, sh, args, env)
-        except OSError, e:
-            ret = exitvalmap[e[0]]
-            sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
-        return ret
+    return exec_spawn([sh, '/C', escape(string.join(args))], env)
 
 # Windows does not allow special characters in file names anyway, so
 # no need for a complex escape function, we will just quote the arg.

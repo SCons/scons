@@ -57,42 +57,28 @@ def escape(arg):
 
     return '"' + arg + '"'
 
-def _get_env_command(sh, escape, cmd, args, env):
-    if env:
-        s = 'env - '
-        for key in env.keys():
-            s = s + '%s=%s '%(key, escape(env[key]))
-        s = s + sh + ' -c '
-        s = s + escape(string.join(args))
-    else:
-        s = string.join(args)
-    return s
-
-def env_spawn(sh, escape, cmd, args, env):
-    s = _get_env_command( sh, escape, cmd, args, env)
-    stat = os.system(s)
+def exec_system(l, env):
+    stat = os.system(string.join(l))
     if stat & 0xff:
         return stat | 0x80
     return stat >> 8
 
-def spawn_spawn(sh, escape, cmd, args, env):
-    args = [sh, '-c', string.join(args)]
-    stat = os.spawnvpe(os.P_WAIT, sh, args, env)
+def exec_spawnvpe(l, env):
+    stat = os.spawnvpe(os.P_WAIT, l[0], l, env)
     # os.spawnvpe() returns the actual exit code, not the encoding
     # returned by os.waitpid() or os.system().
     return stat
 
-def fork_spawn(sh, escape, cmd, args, env):
+def exec_fork(l, env):
     pid = os.fork()
     if not pid:
         # Child process.
         exitval = 127
-        args = [sh, '-c', string.join(args)]
         try:
-            os.execvpe(sh, args, env)
+            os.execvpe(l[0], l, env)
         except OSError, e:
             exitval = exitvalmap[e[0]]
-            sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+            sys.stderr.write("scons: %s: %s\n" % (l[0], e[1]))
         os._exit(exitval)
     else:
         # Parent process.
@@ -100,6 +86,24 @@ def fork_spawn(sh, escape, cmd, args, env):
         if stat & 0xff:
             return stat | 0x80
         return stat >> 8
+
+def _get_env_command(sh, escape, cmd, args, env):
+    s = string.join(args)
+    if env:
+        l = ['env', '-'] + \
+            map(lambda t, e=escape: t[0]+'='+e(t[1]), env.items()) + \
+            [sh, '-c', escape(s)]
+        s = string.join(l)
+    return s
+
+def env_spawn(sh, escape, cmd, args, env):
+    return exec_system([_get_env_command( sh, escape, cmd, args, env)], env)
+
+def spawnvpe_spawn(sh, escape, cmd, args, env):
+    return exec_spawnvpe([sh, '-c', string.join(args)], env)
+
+def fork_spawn(sh, escape, cmd, args, env):
+    return exec_fork([sh, '-c', string.join(args)], env)
 
 def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
     stdout_eof = stderr_eof = 0
@@ -119,21 +123,16 @@ def process_cmd_output(cmd_stdout, cmd_stderr, stdout, stderr):
             else:
                 #sys.__stderr__.write( "str(stderr) = %s\n" % str )
                 stderr.write(str)
-    
 
-def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
-    # spawn using Popen3 combined with the env command
-    # the command name and the command's stdout is written to stdout
-    # the command's stderr is written to stderr
-    s = _get_env_command( sh, escape, cmd, args, env)
-    proc = popen2.Popen3(s, 1)
+def exec_popen3(l, env, stdout, stderr):
+    proc = popen2.Popen3(string.join(l), 1)
     process_cmd_output(proc.fromchild, proc.childerr, stdout, stderr)
     stat = proc.wait()
     if stat & 0xff:
         return stat | 0x80
     return stat >> 8
 
-def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
+def exec_piped_fork(l, env, stdout, stderr):
     # spawn using fork / exec and providing a pipe for the command's
     # stdout / stderr stream
     if stdout != stderr:
@@ -156,12 +155,11 @@ def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
         if stdout != stderr:
             os.close( wFdErr )
         exitval = 127
-        args = [sh, '-c', string.join(args)]
         try:
-            os.execvpe(sh, args, env)
+            os.execvpe(l[0], l, env)
         except OSError, e:
             exitval = exitvalmap[e[0]]
-            stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+            stderr.write("scons: %s: %s\n" % (l[0], e[1]))
         os._exit(exitval)
     else:
         # Parent process
@@ -182,6 +180,19 @@ def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
             return stat | 0x80
         return stat >> 8
 
+def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
+    # spawn using Popen3 combined with the env command
+    # the command name and the command's stdout is written to stdout
+    # the command's stderr is written to stderr
+    return exec_popen3([_get_env_command(sh, escape, cmd, args, env)],
+                       env, stdout, stderr)
+
+def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
+    # spawn using fork / exec and providing a pipe for the command's
+    # stdout / stderr stream
+    return exec_piped_fork([sh, '-c', string.join(args)],
+                           env, stdout, stderr)
+
 
 
 def generate(env):
@@ -199,7 +210,7 @@ def generate(env):
     # not be a default that works best for all users.
 
     if os.__dict__.has_key('spawnvpe'):
-        spawn = spawn_spawn
+        spawn = spawnvpe_spawn
     elif env.Detect('env'):
         spawn = env_spawn
     else:
