@@ -6,6 +6,7 @@ scons/Environment.py
 scons/Job.py
 scons/Node/__init__.py
 scons/Node/FS.py
+scons/Scanner/__init__.py
 scons/Sig/__init__.py
 scons/Sig/MD5.py
 scons/Sig/TimeStamp.py
