@@ -83,15 +83,22 @@ class PathName:
         convert_path = str
 
     def __init__(self, path_name=''):
-        self.data = PathName.convert_path(path_name)
-        self.norm_path = os.path.normcase(self.data)
+        if isinstance(path_name, PathName):
+            self.__dict__ = path_name.__dict__
+        else:
+            self.data = PathName.convert_path(path_name)
+            self.norm_path = os.path.normcase(self.data)
 
     def __hash__(self):
         return hash(self.norm_path)
     def __cmp__(self, other):
+        if isinstance(other, PathName):
+            return cmp(self.norm_path, other.norm_path)
         return cmp(self.norm_path,
                    os.path.normcase(PathName.convert_path(other)))
     def __rcmp__(self, other):
+        if isinstance(other, PathName):
+            return cmp(other.norm_path, self.norm_path)
         return cmp(os.path.normcase(PathName.convert_path(other)),
                    self.norm_path)
     def __str__(self):
@@ -127,10 +134,11 @@ class PathDict(UserDict):
         del(self.data[PathName(key)])
 
     def setdefault(self, key, value):
+        key = PathName(key)
         try:
-            return self.data[PathName(key)]
+            return self.data[key]
         except KeyError:
-            self.data[PathName(key)] = value
+            self.data[key] = value
             return value
 
 class FS:
