@@ -1886,9 +1886,8 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
         verbose("looking for '%s' in '%s' ...\n" % (filename, pathdir))
         dir = lookup_dir(pathdir)
         def func(node):
-            if node.is_derived() or \
-               node.is_pseudo_derived() or \
-               (isinstance(node, SCons.Node.FS.Base) and node.exists()):
+            if isinstance(node, SCons.Node.FS.File) and \
+               (node.is_derived() or node.is_pseudo_derived() or node.exists()):
                     return node
             return None
 

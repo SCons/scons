@@ -1428,23 +1428,26 @@ class find_fileTestCase(unittest.TestCase):
         """Testing find_file function"""
         test = TestCmd(workdir = '')
         test.write('./foo', 'Some file\n')
+        test.subdir('same')
         test.subdir('bar')
         test.write(['bar', 'on_disk'], 'Another file\n')
+        test.write(['bar', 'same'], 'bar/same\n')
         fs = SCons.Node.FS.FS(test.workpath(""))
         os.chdir(test.workpath("")) # FS doesn't like the cwd to be something other than it's root
         node_derived = fs.File(test.workpath('bar/baz'))
         node_derived.builder_set(1) # Any non-zero value.
         node_pseudo = fs.File(test.workpath('pseudo'))
         node_pseudo.set_src_builder(1) # Any non-zero value.
-        paths = map(fs.Dir, ['.', './bar'])
-        nodes = [SCons.Node.FS.find_file('foo', paths, fs.File),
-                 SCons.Node.FS.find_file('baz', paths, fs.File),
-                 SCons.Node.FS.find_file('pseudo', paths, fs.File)]
+        paths = map(fs.Dir, ['.', 'same', './bar'])
+        nodes = [SCons.Node.FS.find_file('foo', paths, fs.File)]
+        nodes.append(SCons.Node.FS.find_file('baz', paths, fs.File))
+        nodes.append(SCons.Node.FS.find_file('pseudo', paths, fs.File))
+        nodes.append(SCons.Node.FS.find_file('same', paths, fs.File, verbose=1))
         file_names = map(str, nodes)
         file_names = map(os.path.normpath, file_names)
-        assert os.path.normpath('./foo') in file_names, file_names
-        assert os.path.normpath('./bar/baz') in file_names, file_names
-        assert os.path.normpath('./pseudo') in file_names, file_names
+        expect = ['./foo', './bar/baz', './pseudo', './bar/same']
+        expect = map(os.path.normpath, expect)
+        assert file_names == expect, file_names
 
         import StringIO
         save_sys_stdout = sys.stdout
@@ -1462,6 +1465,7 @@ class find_fileTestCase(unittest.TestCase):
             sys.stdout = sio
             SCons.Node.FS.find_file('baz', paths, fs.File, verbose=1)
             expect = "  find_file: looking for 'baz' in '.' ...\n" + \
+                     "  find_file: looking for 'baz' in 'same' ...\n" + \
                      "  find_file: looking for 'baz' in 'bar' ...\n" + \
                      "  find_file: ... FOUND 'baz' in 'bar'\n"
             c = sio.getvalue()
@@ -1471,6 +1475,7 @@ class find_fileTestCase(unittest.TestCase):
             sys.stdout = sio
             SCons.Node.FS.find_file('on_disk', paths, fs.File, verbose=1)
             expect = "  find_file: looking for 'on_disk' in '.' ...\n" + \
+                     "  find_file: looking for 'on_disk' in 'same' ...\n" + \
                      "  find_file: looking for 'on_disk' in 'bar' ...\n" + \
                      "  find_file: ... FOUND 'on_disk' in 'bar'\n"
             c = sio.getvalue()
