@@ -115,6 +115,8 @@ def our_deepcopy(x):
 
 def apply_tools(env, tools, toolpath):
     if tools:
+        # Filter out null tools from the list.
+        tools = filter(None, tools)
         for tool in tools:
             if SCons.Util.is_String(tool):
                 env.Tool(tool, toolpath)

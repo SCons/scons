@@ -866,6 +866,23 @@ class EnvironmentTestCase(unittest.TestCase):
         finally:
             SCons.Defaults.ConstructionEnvironment = save
 
+    def test_null_tools(self):
+        """Test specifying a tool of None is OK."""
+        def t1(env):
+            env['TOOL1'] = 111
+        def t2(env):
+            env['TOOL2'] = 222
+        env = Environment(tools = [t1, None, t2], XYZ = 'aaa')
+        assert env['TOOL1'] == 111, env['TOOL1']
+        assert env['TOOL2'] == 222, env
+        assert env['XYZ'] == 'aaa', env
+        env = Environment(tools = [None], XYZ = 'xyz')
+        assert env['XYZ'] == 'xyz', env
+        env = Environment(tools = [t1, '', t2], XYZ = 'ddd')
+        assert env['TOOL1'] == 111, env['TOOL1']
+        assert env['TOOL2'] == 222, env
+        assert env['XYZ'] == 'ddd', env
+
     def test_concat(self):
         "Test _concat()"
         e1 = Environment(PRE='pre', SUF='suf', STR='a b', LIST=['a', 'b'])
