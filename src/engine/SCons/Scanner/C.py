@@ -38,6 +38,8 @@ import SCons.Util
 
 include_re = re.compile('^[ \t]*#[ \t]*include[ \t]+(<|")([\\w./\\\\]+)(>|")', re.M)
 
+include_cache = {}
+
 def CScan(fs = SCons.Node.FS.default_fs):
     "Return a prototype Scanner instance for scanning C/C++ source files"
     cs = CScanner(scan, "CScan", [fs, ()],
@@ -96,27 +98,31 @@ def scan(node, env, args = [SCons.Node.FS.default_fs, ()]):
     fs, cpppath = args
     nodes = []
 
-    if node.exists():
+    try:
+        nodes = node.found_includes[cpppath]
+    except KeyError:
+        if node.exists():
 
-        # cache the includes list in node so we only scan it once:
-        if hasattr(node, 'includes'):
-            includes = node.includes
-        else:
-            includes = include_re.findall(node.get_contents())
-            node.includes = includes
-
-        source_dir = node.get_dir()
-
-        for include in includes:
-            if include[0] == '"':
-                node = SCons.Util.find_file(include[1], (source_dir,) + cpppath,
-                                            fs.File)
+            # cache the includes list in node so we only scan it once:
+            if hasattr(node, 'includes'):
+                includes = node.includes
             else:
-                node = SCons.Util.find_file(include[1], cpppath + (source_dir,),
-                                            fs.File)
+                includes = include_re.findall(node.get_contents())
+                node.includes = includes
 
-            if not node is None:
-                nodes.append(node)
+            source_dir = node.get_dir()
+            
+            for include in includes:
+                if include[0] == '"':
+                    n = SCons.Util.find_file(include[1], (source_dir,) + cpppath,
+                                                fs.File)
+                else:
+                    n = SCons.Util.find_file(include[1], cpppath + (source_dir,),
+                                                fs.File)
+
+                if not n is None:
+                    nodes.append(n)
+        node.found_includes[cpppath] = nodes
 
     # Schwartzian transform from the Python FAQ Wizard
     def st(List, Metric):
@@ -129,7 +135,8 @@ def scan(node, env, args = [SCons.Node.FS.default_fs, ()]):
         return map(stripit, paired)
 
     def normalize(node):
-        return os.path.normpath(str(node))
+        return str(node)
 
     return st(nodes, normalize)
+
 

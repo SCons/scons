@@ -73,6 +73,13 @@ class DummyNode:
     def exists(self):
         return not self.file.contents is None
 
+    def cached_exists(self):
+        try:
+            return self.exists_cache
+        except AttributeError:
+            self.exists_cache = self.exists()
+            return self.exists_cache
+        
     def children(self):
         return self.sources + self.depends
 
@@ -287,6 +294,8 @@ class CalcTestCase(unittest.TestCase):
                 return self.kids
             def exists(self):
                 return 1
+            def cached_exists(self):
+                return 1
             def get_bsig(self):
                 return self.bsig
             def get_csig(self):
@@ -331,6 +340,8 @@ class CalcTestCase(unittest.TestCase):
     def test_Calc_get_signature(self):
         class NE(self.nodeclass):
             def exists(self):
+                return 0
+            def cached_exists(self):
                 return 0
             def has_signature(self):
                 return None

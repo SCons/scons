@@ -71,6 +71,7 @@ class Node:
         self.csig = None
         self.use_signature = 1
         self.precious = None
+        self.found_includes = {}
 
     def build(self):
         """Actually build the node.   Return the status from the build."""
@@ -94,6 +95,8 @@ class Node:
                                  sys.exc_traceback)
         if stat:
             raise BuildError(node = self, errstr = "Error %d" % stat)
+
+        self.found_includes = {}
 
         # If we succesfully build a node, then we need to rescan for
         # implicit dependencies, since it might have changed on us.
