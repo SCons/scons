@@ -37,6 +37,10 @@ RELEASE 0.12 - XXX
 
   - Add support for Tar and Zip files.
 
+  From Lachlan O'Dea:
+
+  - Add SharedObject() support to the masm tool.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600

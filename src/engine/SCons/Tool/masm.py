@@ -51,9 +51,11 @@ def generate(env, platform):
 
     for suffix in ASSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.ASAction)
+        shared_obj.add_action(suffix, SCons.Defaults.ASAction)
 
     for suffix in ASPPSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
+        shared_obj.add_action(suffix, SCons.Defaults.ASPPAction)
 
     env['AS']        = 'ml'
     env['ASFLAGS']   = '/nologo'
