@@ -28,7 +28,8 @@ RELEASE 0.96 - XXX
   From Chad Austin and Christoph Wiedemann:
 
   - Add support for a $RPATH variable to supply a list of directories
-    to search for shared libraries when linking a program.
+    to search for shared libraries when linking a program.  Used by
+    the GNU and IRIX linkers (gnulink and sgilink).
 
   From Charles Crain:
 

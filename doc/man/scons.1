@@ -5658,8 +5658,9 @@ General options passed to the Java RMI stub compiler.
 
 .IP RPATH
 A list of paths to search for shared libraries when running programs.
-Currently only used in the GNU linker.  Ignored on platforms and
-toolchains that don't support it.  Note that the paths added to RPATH
+Currently only used in the GNU linker (gnulink) and IRIX linker (sgilink).
+Ignored on platforms and toolchains that don't support it.
+Note that the paths added to RPATH
 are not transformed by
 .B scons
 in any way:  if you want an absolute
