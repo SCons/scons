@@ -221,3 +221,5 @@ def generate(env, platform):
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
     
+def exists():
+    return SCons.Util.WhereIs('cl')

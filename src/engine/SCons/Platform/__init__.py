@@ -89,7 +89,7 @@ def DefaultToolList(name = platform_default()):
     """Select a default tool list for the specified platform.
     """
     module = platform_module(name)
-    return module.tool_list()
+    return SCons.Tool.tool_list()
 
 class PlatformSpec:
     def __init__(self, name):

@@ -37,6 +37,15 @@ import os.path
 
 import SCons.Defaults
 import SCons.Tool
+import SCons.Util
+
+compilers = ['g77', 'f77']
+for i in compilers:
+    if SCons.Util.WhereIs(i):
+        compiler = i
+        break
+    compiler = None
+
 
 F77Suffixes = ['.f', '.for', '.FOR']
 F77PPSuffixes = ['.fpp', '.FPP']
@@ -65,3 +74,6 @@ def generate(env, platform):
     env['SHF77FLAGS'] = '$F77FLAGS -fPIC'
     env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
+
+def exists():
+    return compiler

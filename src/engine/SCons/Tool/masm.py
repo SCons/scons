@@ -59,3 +59,6 @@ def generate(env, platform):
     env['ASFLAGS']   = '/nologo'
     env['ASCOM']     = '$AS $ASFLAGS /c /Fo$TARGET $SOURCES'
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS /c /Fo$TARGET $SOURCES'
+
+def exists():
+    return SCons.Util.WhereIs('ml')

@@ -45,3 +45,6 @@ def generate(env, platform):
     env['YACC']      = 'yacc'
     env['YACCFLAGS'] = ''
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
+
+def exists():
+    return SCons.Util.WhereIs('yacc')

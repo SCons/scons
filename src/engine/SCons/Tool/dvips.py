@@ -49,3 +49,6 @@ def generate(env, platform):
     env['DVIPS']      = 'dvips'
     env['DVIPSFLAGS'] = ''
     env['PSCOM']      = '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES'
+
+def exists():
+    return SCons.Util.WhereIs('dvips')

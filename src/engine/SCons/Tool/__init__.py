@@ -67,6 +67,7 @@ def Tool(name, platform = None):
             file.close()
     spec = ToolSpec(name)
     spec.__call__ = sys.modules[full_name].generate
+    spec.exists = sys.modules[full_name].exists
     return spec
 
 def createObjBuilders(env):
@@ -123,3 +124,34 @@ def createCFileBuilders(env):
         env['BUILDERS']['CXXFile'] = cxx_file
 
     return (c_file, cxx_file)
+
+linkers = ['gnulink', 'mslink', 'ilink']
+c_compilers = ['gcc', 'msvc', 'icc']
+cxx_compilers = ['g++'] # only those that are seperate from the c compiler
+fortran_compilers = ['g77']
+assemblers = ['gas', 'nasm', 'masm']
+other_tools = ['ar', 'dvipdf', 'dvips',
+               'latex', 'lex', 'lib',
+               'pdflatex', 'pdftex',
+               'tar', 'tex', 'yacc']
+
+def FindTool(tools):
+    for tool in tools:
+        t = Tool(tool)
+        if t.exists():
+            return tool
+    return None
+
+def _ToolExists(tool):
+    return Tool(tool).exists()
+
+def FindAllTools(tools):
+    return filter (_ToolExists, tools)
+             
+def tool_list():
+    return [FindTool(linkers),
+            FindTool(c_compilers),
+            FindTool(cxx_compilers),
+            FindTool(fortran_compilers),
+            FindTool(assemblers)
+           ] + FindAllTools(other_tools)

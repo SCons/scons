@@ -53,3 +53,6 @@ def generate(env, platform):
     env['LATEX']      = 'latex'
     env['LATEXFLAGS'] = ''
     env['LATEXCOM']   = '$LATEX $LATEXFLAGS $SOURCES'
+
+def exists():
+    return SCons.Util.WhereIs('latex')

@@ -46,3 +46,6 @@ def generate(env, platform):
     env['LIBDIRSUFFIX']=''
     env['LIBLINKPREFIX']=''
     env['LIBLINKSUFFIX']='$LIBSUFFIX'
+
+def exists():
+    return SCons.Util.WhereIs('ilink')

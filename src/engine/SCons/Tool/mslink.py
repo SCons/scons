@@ -39,6 +39,7 @@ import string
 import SCons.Defaults
 import SCons.Errors
 import SCons.Action
+import SCons.Util
 
 from SCons.Tool.msvc import get_msdev_paths
 
@@ -150,3 +151,6 @@ def generate(env, platform):
     include_path, lib_path, exe_path = get_msdev_paths()
     env['ENV']['LIB']            = lib_path
     env['ENV']['PATH']           = exe_path
+
+def exists():
+    return SCons.Util.WhereIs('link')

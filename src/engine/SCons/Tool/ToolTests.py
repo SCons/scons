@@ -32,10 +32,12 @@ import SCons.Tool
 class ToolTestCase(unittest.TestCase):
     def test_Tool(self):
         """Test the Tool() function"""
+        # FIXME - this might fail, since there might be no C++ compiler on the system.
+        # How do we handle this?
         t = SCons.Tool.Tool('g++')
         env= { 'BUILDERS' : {}, 'ENV' : {} }
         t(env, 'foo')
-        assert env['CXX'] == 'c++', env['CXX']
+        assert (env['CXX'] == 'c++' or env['CXX'] == 'g++'), env['CXX']
         assert env['CXXFLAGS'] == '$CCFLAGS', env['CXXFLAGS']
         assert env['INCPREFIX'] == '-I', env['INCPREFIX']
 

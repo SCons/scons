@@ -56,4 +56,5 @@ def generate(env, platform):
     env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
-
+def exists():
+    return SCons.Util.WhereIs('ar')

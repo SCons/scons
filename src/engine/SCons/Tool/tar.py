@@ -35,11 +35,21 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Builder
 import SCons.Node.FS
+import SCons.Util
+
+tars = ['gtar', 'tar']
+
+for i in tars:
+    if SCons.Util.WhereIs(i):
+        tar = i
+        break
+    tar = None
 
 TarBuilder = SCons.Builder.Builder(action = '$TARCOM',
                                    source_factory = SCons.Node.FS.default_fs.Entry,
 				   suffix = '$TARSUFFIX',
                                    multi = 1)
+
 
 def generate(env, platform):
     """Add Builders and construction variables for tar to an Environment."""
@@ -49,7 +59,10 @@ def generate(env, platform):
         bld = TarBuilder
         env['BUILDERS']['Tar'] = bld
 
-    env['TAR']        = 'tar'
+    env['TAR']        = tar
     env['TARFLAGS']   = '-c'
     env['TARCOM']     = '$TAR $TARFLAGS -f $TARGET $SOURCES'
     env['TARSUFFIX']  = '.tar'
+
+def exists():
+    return tar

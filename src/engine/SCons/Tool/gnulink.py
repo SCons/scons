@@ -36,8 +36,16 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Defaults
 import SCons.Util
 
+linkers = ['c++', 'cc', 'g++', 'gcc']
+
+for i in linkers:
+    if SCons.Util.WhereIs(i):
+        linker = i
+        break
+    linker = None
+
 def generate(env, platform):
-    """Add Builders and construction variables for ar to an Environment."""
+    """Add Builders and construction variables for gnulink to an Environment."""
     env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
     env['BUILDERS']['Program'] = SCons.Defaults.Program
     
@@ -45,10 +53,13 @@ def generate(env, platform):
     env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['SHLIBEMITTER']= None
-    env['LINK']        = 'c++'
+    env['LINK']        = linker
     env['LINKFLAGS']   = ''
     env['LINKCOM']     = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBDIRPREFIX']='-L'
     env['LIBDIRSUFFIX']=''
     env['LIBLINKPREFIX']='-l'
     env['LIBLINKSUFFIX']=''
+
+def exists():
+    return linker
