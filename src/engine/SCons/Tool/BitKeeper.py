@@ -42,21 +42,16 @@ def generate(env, platform):
     """Add a Builder factory function and construction variables for
     BitKeeper to an Environment."""
 
-    def BitKeeperFactory(repos, module='', env=env):
+    def BitKeeperFactory(env=env):
         """ """
-        # fail if repos is not an absolute path name?
-        if module != '':
-           module = os.path.join(module, '')
-        return SCons.Builder.Builder(action = "$BITKEEPERCOM",
-                                     env = env,
-                                     overrides = {'BKREPOSITORY':repos,
-                                                  'BKMODULE':module})
+        return SCons.Builder.Builder(action = "$BITKEEPERCOM", env = env)
 
     setattr(env, 'BitKeeper', BitKeeperFactory)
 
-    env['BITKEEPER']      = 'bk'
-    env['BITKEEPERFLAGS'] = ''
-    env['BITKEEPERCOM']   = '$BITKEEPER get $BITKEEPERFLAGS -p $BKREPOSITORY/$BKMODULE$TARGET > $TARGET'
+    env['BITKEEPER']         = 'bk'
+    env['BITKEEPERGET']      = '$BITKEEPER get'
+    env['BITKEEPERGETFLAGS'] = ''
+    env['BITKEEPERCOM']      = '$BITKEEPERGET $BITKEEPERGETFLAGS $TARGET'
 
 def exists(env):
     return env.Detect('bk')

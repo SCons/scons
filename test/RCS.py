@@ -29,6 +29,7 @@ Test fetching source files from RCS.
 """
 
 import os.path
+import stat
 
 import TestSCons
 
@@ -44,7 +45,11 @@ if not ci:
     print "Could not find `ci' command, skipping test(s)."
     test.pass_test(1)
 
-# Test explicit checkouts from local RCS files
+def is_writable(file):
+    mode = os.stat(file)[stat.ST_MODE]
+    return mode & stat.S_IWUSR
+
+# Test explicit checkouts from local RCS files.
 test.subdir('work1', ['work1', 'sub'])
 
 for file in ['aaa.in', 'bbb.in', 'ccc.in']:
@@ -86,7 +91,7 @@ def cat(env, source, target):
         f.write(open(src, "rb").read())
     f.close()
 env = Environment(BUILDERS={'Cat':Builder(action=cat)},
-                  RCSFLAGS='-q')
+                  RCS_COFLAGS='-q')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -122,6 +127,12 @@ cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 test.fail_test(test.read(['work1', 'all']) != "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
 
 test.fail_test(test.read(['work1', 'sub', 'all']) != "work1/sub/ddd.in\nchecked-out work1/sub/eee.in\nwork1/sub/fff.in\n")
+
+test.fail_test(is_writable(test.workpath('work1', 'sub', 'SConscript')))
+test.fail_test(is_writable(test.workpath('work1', 'aaa.in')))
+test.fail_test(is_writable(test.workpath('work1', 'ccc.in')))
+test.fail_test(is_writable(test.workpath('work1', 'sub', 'ddd.in')))
+test.fail_test(is_writable(test.workpath('work1', 'sub', 'fff.in')))
 
 # Test transparent RCS checkouts from an RCS subdirectory.
 test.subdir('work2', ['work2', 'RCS'],
@@ -165,8 +176,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)},
-                  RCSFLAGS='-q')
+_default_env['RCS_COFLAGS'] = '-l'
+env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -181,37 +192,37 @@ test.write(['work2', 'sub', 'eee.in'], "checked-out work2/sub/eee.in\n")
 test.run(chdir = 'work2',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-co sub/SConscript
+co -l sub/SConscript
 """,
                                    build_str = """\
-co aaa.in
+co -l aaa.in
 cat("aaa.out", "aaa.in")
 cat("bbb.out", "bbb.in")
-co ccc.in
+co -l ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-co sub/ddd.in
+co -l sub/ddd.in
 cat("sub/ddd.out", "sub/ddd.in")
 cat("sub/eee.out", "sub/eee.in")
-co sub/fff.in
+co -l sub/fff.in
 cat("sub/fff.out", "sub/fff.in")
 cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 """),
          stderr = """\
 sub/RCS/SConscript,v  -->  sub/SConscript
-revision 1.1
+revision 1.1 (locked)
 done
 RCS/aaa.in,v  -->  aaa.in
-revision 1.1
+revision 1.1 (locked)
 done
 RCS/ccc.in,v  -->  ccc.in
-revision 1.1
+revision 1.1 (locked)
 done
 sub/RCS/ddd.in,v  -->  sub/ddd.in
-revision 1.1
+revision 1.1 (locked)
 done
 sub/RCS/fff.in,v  -->  sub/fff.in
-revision 1.1
+revision 1.1 (locked)
 done
 """)
 
@@ -219,4 +230,11 @@ test.fail_test(test.read(['work2', 'all']) != "work2/aaa.in\nchecked-out work2/b
 
 test.fail_test(test.read(['work2', 'sub', 'all']) != "work2/sub/ddd.in\nchecked-out work2/sub/eee.in\nwork2/sub/fff.in\n")
 
+test.fail_test(not is_writable(test.workpath('work2', 'sub', 'SConscript')))
+test.fail_test(not is_writable(test.workpath('work2', 'aaa.in')))
+test.fail_test(not is_writable(test.workpath('work2', 'ccc.in')))
+test.fail_test(not is_writable(test.workpath('work2', 'sub', 'ddd.in')))
+test.fail_test(not is_writable(test.workpath('work2', 'sub', 'fff.in')))
+
+#
 test.pass_test()

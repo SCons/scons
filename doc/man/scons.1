@@ -1396,42 +1396,17 @@ env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 .EE
 
 .TP
-.RI BitKeeper( repository ", " module )
+.RI BitKeeper( )
 A factory function that
 returns a Builder object
 to be used to fetch source files
-from the specified
-BitKeeper
-.IR repository .
+using BitKeeper.
 The returned Builder
 is intended to be passed to the
 .B SourceCode
 function.
-
-The optional specified
-.I module
-will be added to the beginning
-of all repository path names;
-this can be used, in essence,
-to strip initial directory names
-from the repository path names,
-so that you only have to
-replicate part of the repository
-directory hierarchy in your
-local build directory:
-
 .ES
-# Will fetch foo/bar/src.c
-# from /usr/local/BKsources/foo/bar/src.c.
-env.SourceCode('.', env.BitKeeper('/usr/local/BKsources'))
-
-# Will fetch bar/src.c
-# from /usr/local/BKsources/foo/bar/src.c.
-env.SourceCode('.', env.BitKeeper('/usr/local/BKsources', 'foo'))
-
-# Will fetch src.c
-# from /usr/local/BKsources/foo/bar/src.c.
-env.SourceCode('.', env.BitKeeper('/usr/local/BKsources', 'foo/bar'))
+env.SourceCode('.', env.BitKeeper())
 .EE
 
 .TP
@@ -1890,11 +1865,17 @@ are included on this command line.
 The BitKeeper executable.
 
 .IP BITKEEPERCOM
-The command line used to
-fetch source files from a BitKeeper repository.
+The command line for
+fetching source files using BitKEeper.
 
-.IP BITKEEPERFLAGS
-General options that are passed to BitKeeper.
+.IP BITKEEPERGET
+The command ($BITKEEPER) and subcommand
+for fetching source files using BitKeeper.
+
+.IP BITKEEPERGETFLAGS
+Options that are passed to the BitKeeper
+.B get
+subcommand.
 
 .IP BUILDERS
 A dictionary mapping the names of the builders
@@ -1944,15 +1925,6 @@ SCons also treats
 .I .C
 (upper case) files
 as C files.
-
-.IP CO 
-The RCS "checkout" executable,
-used to fetch source files from RCS.
-See the related variables
-.B RCSCOM
-and
-.BR RCSFLAGS ,
-below.
 
 .IP _concat
 A function used to produce variables like $_CPPINCFLAGS. It takes six
@@ -2033,12 +2005,23 @@ env = Environment(CCCOM="my_compiler $_CPPINCFLAGS -c -o $TARGET $SOURCE")
 .IP CVS
 The CVS executable.
 
+.IP CVSCOFLAGS
+Options that are passed to the CVS checkout subcommand.
+
 .IP CVSCOM
 The command line used to
 fetch source files from a CVS repository.
 
 .IP CVSFLAGS
 General options that are passed to CVS.
+By default, this is set to
+"-d $CVSREPOSITORY"
+to specify from where the files must be fetched.
+
+.IP CVSREPOSITORY
+The path to the CVS repository.
+This is referenced in the default
+$CVSFLAGS value.
 
 .IP CXX
 The C++ compiler.
@@ -2492,17 +2475,21 @@ The flags passed to the resource compiler by the RES builder.
 .IP RCS
 The RCS executable.
 Note that this variable is not actually used
-to fetch source files from RCS;
+for the command to fetch source files from RCS;
 see the
-.B CO
-construction variable, above.
+.B RCS_CO
+construction variable, below.
 
-.IP RCSCOM
+.IP RCS_CO 
+The RCS "checkout" executable,
+used to fetch source files from RCS.
+
+.IP RCS_COCOM
 The command line used to
-fetch source files from RCS.
+fetch (checkout) source files from RCS.
 
-.IP RCSFLAGS
-General options that are passed to RCS.
+.IP RCS_COFLAGS
+Options that are passed to the $RCS_CO command.
 
 .IP RDirs
 A function that converts a file name into a list of Dir instances by
@@ -2520,6 +2507,12 @@ fetch source files from SCCS.
 
 .IP SCCSFLAGS
 General options that are passed to SCCS.
+
+.IP SCCSGETFLAGS
+Options that are passed specifically to the SCCS "get" subcommand.
+This can be set, for example, to
+.I -e
+to check out editable files from SCCS.
 
 .IP SHCC
 The C compiler used for generating shared-library objects.
@@ -2622,15 +2615,15 @@ is that arguments to the command.
 is a dictionary of the environment variables
 in which the command should be executed.
 
-.IP SUBVERSION
+.IP SVN
 The Subversion executable (usually named
 .BR svn ).
 
-.IP SUBVERSIONCOM
+.IP SVNCOM
 The command line used to
 fetch source files from a Subversion repository.
 
-.IP SUBVERSIONFLAGS
+.IP SVNFLAGS
 General options that are passed to Subversion.
 
 .IP TAR

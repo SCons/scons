@@ -46,16 +46,16 @@ def generate(env, platform):
         # fail if repos is not an absolute path name?
         if module != '':
             module = os.path.join(module, '')
-        return SCons.Builder.Builder(action = '$SUBVERSIONCOM',
+        return SCons.Builder.Builder(action = '$SVNCOM',
                                      env = env,
-                                     overrides = {'SUBVERSIONREPOSITORY':repos,
-                                                  'SUBVERSIONMODULE':module})
+                                     overrides = {'SVNREPOSITORY':repos,
+                                                  'SVNMODULE':module})
 
     setattr(env, 'Subversion', SubversionFactory)
 
-    env['SUBVERSION']      = 'svn'
-    env['SUBVERSIONFLAGS'] = ''
-    env['SUBVERSIONCOM']   = '$SUBVERSION $SUBVERSIONFLAGS cat $SUBVERSIONREPOSITORY/$SUBVERSIONMODULE$TARGET > $TARGET'
+    env['SVN']      = 'svn'
+    env['SVNFLAGS'] = ''
+    env['SVNCOM']   = '$SVN $SVNFLAGS cat $SVNREPOSITORY/$SVNMODULE$TARGET > $TARGET'
 
 def exists(env):
     return env.Detect('svn')

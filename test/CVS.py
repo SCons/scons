@@ -29,6 +29,7 @@ Test fetching source files from CVS.
 """
 
 import os
+import stat
 
 import TestSCons
 
@@ -38,6 +39,10 @@ cvs = test.where_is('cvs')
 if not cvs:
     print "Could not find CVS, skipping test(s)."
     test.pass_test(1)
+
+def is_writable(file):
+    mode = os.stat(file)[stat.ST_MODE]
+    return mode & stat.S_IWUSR
 
 test.subdir('CVS', 'import', ['import', 'sub'], 'work1', 'work2')
 
@@ -76,8 +81,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)},
-                  CVSFLAGS='-Q')
+env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env.Prepend(CVSFLAGS='-Q ')
 env.Cat('aaa.out', 'foo/aaa.in')
 env.Cat('bbb.out', 'foo/bbb.in')
 env.Cat('ccc.out', 'foo/ccc.in')
@@ -95,19 +100,19 @@ test.write(['work1', 'foo', 'sub', 'eee.in'], "work1/foo/sub/eee.in\n")
 test.run(chdir = 'work1',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-cvs -Q -d %s co -p foo/sub/SConscript > foo/sub/SConscript
+cvs -Q -d %s co foo/sub/SConscript
 """ % (cvsroot),
                                    build_str = """\
-cvs -Q -d %s co -p foo/aaa.in > foo/aaa.in
+cvs -Q -d %s co foo/aaa.in
 cat("aaa.out", "foo/aaa.in")
 cat("bbb.out", "foo/bbb.in")
-cvs -Q -d %s co -p foo/ccc.in > foo/ccc.in
+cvs -Q -d %s co foo/ccc.in
 cat("ccc.out", "foo/ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-cvs -Q -d %s co -p foo/sub/ddd.in > foo/sub/ddd.in
+cvs -Q -d %s co foo/sub/ddd.in
 cat("foo/sub/ddd.out", "foo/sub/ddd.in")
 cat("foo/sub/eee.out", "foo/sub/eee.in")
-cvs -Q -d %s co -p foo/sub/fff.in > foo/sub/fff.in
+cvs -Q -d %s co foo/sub/fff.in
 cat("foo/sub/fff.out", "foo/sub/fff.in")
 cat("foo/sub/all", ["foo/sub/ddd.out", "foo/sub/eee.out", "foo/sub/fff.out"])
 """ % (cvsroot, cvsroot, cvsroot, cvsroot)))
@@ -115,6 +120,12 @@ cat("foo/sub/all", ["foo/sub/ddd.out", "foo/sub/eee.out", "foo/sub/fff.out"])
 test.fail_test(test.read(['work1', 'all']) != "import/aaa.in\nwork1/foo/bbb.in\nimport/ccc.in\n")
 
 test.fail_test(test.read(['work1', 'foo', 'sub', 'all']) != "import/sub/ddd.in\nwork1/foo/sub/eee.in\nimport/sub/fff.in\n")
+
+test.fail_test(not is_writable(test.workpath('work1', 'foo', 'sub', 'SConscript')))
+test.fail_test(not is_writable(test.workpath('work1', 'foo', 'aaa.in')))
+test.fail_test(not is_writable(test.workpath('work1', 'foo', 'ccc.in')))
+test.fail_test(not is_writable(test.workpath('work1', 'foo', 'sub', 'ddd.in')))
+test.fail_test(not is_writable(test.workpath('work1', 'foo', 'sub', 'fff.in')))
 
 # Test CVS checkouts when the module name is specified.
 test.write(['work2', 'SConstruct'], """
@@ -125,8 +136,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)},
-                  CVSFLAGS='-q')
+env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env.Prepend(CVSFLAGS='-q ')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -163,5 +174,11 @@ cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 test.fail_test(test.read(['work2', 'all']) != "import/aaa.in\nwork2/bbb.in\nimport/ccc.in\n")
 
 test.fail_test(test.read(['work2', 'sub', 'all']) != "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n")
+
+test.fail_test(not is_writable(test.workpath('work2', 'sub', 'SConscript')))
+test.fail_test(not is_writable(test.workpath('work2', 'aaa.in')))
+test.fail_test(not is_writable(test.workpath('work2', 'ccc.in')))
+test.fail_test(not is_writable(test.workpath('work2', 'sub', 'ddd.in')))
+test.fail_test(not is_writable(test.workpath('work2', 'sub', 'fff.in')))
 
 test.pass_test()

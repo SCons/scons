@@ -41,14 +41,14 @@ def generate(env, platform):
 
     def RCSFactory(env=env):
         """ """
-        return SCons.Builder.Builder(action = '$RCSCOM', env = env)
+        return SCons.Builder.Builder(action = '$RCS_COCOM', env = env)
 
     setattr(env, 'RCS', RCSFactory)
 
-    env['CO']       = 'co'
-    env['RCS']      = 'rcs'
-    env['RCSFLAGS'] = ''
-    env['RCSCOM']   = '$CO $RCSFLAGS $TARGET'
+    env['RCS']          = 'rcs'
+    env['RCS_CO']       = 'co'
+    env['RCS_COFLAGS']  = ''
+    env['RCS_COCOM']    = '$RCS_CO $RCS_COFLAGS $TARGET'
 
 def exists(env):
     return env.Detect('rcs')

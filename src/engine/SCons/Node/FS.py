@@ -176,7 +176,7 @@ def get_DefaultRCSBuilder():
     if DefaultRCSBuilder is None:
         import SCons.Builder
         import SCons.Defaults
-        DefaultRCSBuilder = SCons.Builder.Builder(action = '$RCSCOM',
+        DefaultRCSBuilder = SCons.Builder.Builder(action = '$RCS_COCOM',
                                                   env = SCons.Defaults._default_env)
     return DefaultRCSBuilder
 

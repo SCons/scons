@@ -45,9 +45,10 @@ def generate(env, platform):
 
     setattr(env, 'SCCS', SCCSFactory)
 
-    env['SCCS']      = 'sccs'
-    env['SCCSFLAGS'] = ''
-    env['SCCSCOM']   = '$SCCS $SCCSFLAGS get $TARGET'
+    env['SCCS']         = 'sccs'
+    env['SCCSFLAGS']    = ''
+    env['SCCSGETFLAGS'] = ''
+    env['SCCSCOM']      = '$SCCS $SCCSFLAGS get $SCCSGETFLAGS $TARGET'
 
 def exists(env):
     return env.Detect('sccs')

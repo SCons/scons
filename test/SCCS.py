@@ -28,6 +28,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test fetching source files from SCCS.
 """
 
+import os
+import stat
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -36,6 +39,10 @@ sccs = test.where_is('sccs')
 if not sccs:
     print "Could not find SCCS, skipping test(s)."
     test.pass_test(1)
+
+def is_writable(file):
+    mode = os.stat(file)[stat.ST_MODE]
+    return mode & stat.S_IWUSR
 
 # Test explicit checkouts from local SCCS files.
 test.subdir('work1', ['work1', 'sub'])
@@ -74,7 +81,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(BUILDERS={'Cat':Builder(action=cat)},
+                  SCCSGETFLAGS='-e')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -90,31 +98,37 @@ test.write(['work1', 'sub', 'eee.in'], "checked-out work1/sub/eee.in\n")
 test.run(chdir = 'work1',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-sccs get sub/SConscript
+sccs get -e sub/SConscript
 """,
                                    build_str = """\
-sccs get aaa.in
+sccs get -e aaa.in
 cat("aaa.out", "aaa.in")
 cat("bbb.out", "bbb.in")
-sccs get ccc.in
+sccs get -e ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-sccs get sub/ddd.in
+sccs get -e sub/ddd.in
 cat("sub/ddd.out", "sub/ddd.in")
 cat("sub/eee.out", "sub/eee.in")
-sccs get sub/fff.in
+sccs get -e sub/fff.in
 cat("sub/fff.out", "sub/fff.in")
 cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
 """),
          stderr = """\
-sub/SConscript 1.1: 5 lines
-aaa.in 1.1: 1 lines
-ccc.in 1.1: 1 lines
-sub/ddd.in 1.1: 1 lines
-sub/fff.in 1.1: 1 lines
+sub/SConscript 1.1 -> 1.2: 5 lines
+aaa.in 1.1 -> 1.2: 1 lines
+ccc.in 1.1 -> 1.2: 1 lines
+sub/ddd.in 1.1 -> 1.2: 1 lines
+sub/fff.in 1.1 -> 1.2: 1 lines
 """)
 
 test.fail_test(test.read(['work1', 'all']) != "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
+
+test.fail_test(not is_writable(test.workpath('work1', 'sub', 'SConscript')))
+test.fail_test(not is_writable(test.workpath('work1', 'aaa.in')))
+test.fail_test(not is_writable(test.workpath('work1', 'ccc.in')))
+test.fail_test(not is_writable(test.workpath('work1', 'sub', 'ddd.in')))
+test.fail_test(not is_writable(test.workpath('work1', 'sub', 'fff.in')))
 
 # Test transparent checkouts from SCCS files in an SCCS subdirectory.
 test.subdir('work2', ['work2', 'SCCS'],
@@ -194,5 +208,11 @@ sub/fff.in 1.1: 1 lines
 """)
 
 test.fail_test(test.read(['work2', 'all']) != "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n")
+
+test.fail_test(is_writable(test.workpath('work2', 'sub', 'SConscript')))
+test.fail_test(is_writable(test.workpath('work2', 'aaa.in')))
+test.fail_test(is_writable(test.workpath('work2', 'ccc.in')))
+test.fail_test(is_writable(test.workpath('work2', 'sub', 'ddd.in')))
+test.fail_test(is_writable(test.workpath('work2', 'sub', 'fff.in')))
 
 test.pass_test()
