@@ -88,7 +88,6 @@ k2scan = env.Scanner(name = 'k2',
 
 ##########################################################
 # Test scanner as found automatically from the environment
-# (backup_source_scanner)
 
 env = Environment()
 env.Append(SCANNERS = kscan)
@@ -103,14 +102,15 @@ env2.Append(SCANNERS = [k2scan])
 env2.Command('junk', 'junk.k2', r'%(python)s build.py $SOURCES $TARGET')
 
 ##########################################################
-# Test specifying a specific source scanner for a target Node
+# Test specifying a specific source scanner for a Builder
 
-bar = env.Command('bar', 'bar.in', r'%(python)s build.py $SOURCES  $TARGET')
-bar[0].source_scanner = kscan
+bar = env.Command('bar', 'bar.in',
+                  r'%(python)s build.py $SOURCES  $TARGET',
+                  source_scanner=kscan)
 
 ##########################################################
-# Test specifying a source scanner for a Builder that gets
-# automatically applied to targets generated from that Builder
+# Test specifying a source scanner for an intermediary Builder to
+# ensure that the right scanner gets used for the right nodes.
 
 import string
 
