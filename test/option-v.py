@@ -33,7 +33,13 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.write('SConstruct', "")
 
-expect = r"""SCons by Steven Knight et al.:
+if sys.platform == 'win32':
+    expect = r"""SCons by Steven Knight et al.:
+\tengine: v\S+, [^,]*, by \S+ on \S+
+Copyright 2001, 2002 Steven Knight
+"""
+else:
+    expect = r"""SCons by Steven Knight et al.:
 \tscript: v\S+, [^,]*, by \S+ on \S+
 \tengine: v\S+, [^,]*, by \S+ on \S+
 Copyright 2001, 2002 Steven Knight

@@ -679,11 +679,16 @@ def options_init():
         import __main__
         import SCons
 	print "SCons by Steven Knight et al.:"
-	print "\tscript: v%s.%s, %s, by %s on %s" % (__main__.__version__,
-                                                    __main__.__build__,
-                                                    __main__.__date__,
-                                                    __main__.__developer__,
-                                                    __main__.__buildsys__)
+	try:
+	    print "\tscript: v%s.%s, %s, by %s on %s" % (__main__.__version__,
+							 __main__.__build__,
+							 __main__.__date__,
+							 __main__.__developer__,
+							 __main__.__buildsys__)
+	except:
+	    # On win32 there is no scons.py, so there is no __main__.__version__,
+	    # hence there is no script version.
+	    pass 
 	print "\tengine: v%s.%s, %s, by %s on %s" % (SCons.__version__,
                                                     SCons.__build__,
                                                     SCons.__date__,
