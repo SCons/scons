@@ -465,6 +465,44 @@ class CommandActionTestCase(unittest.TestCase):
         s = str(act)
         assert s == "['xyzzy', '$TARGET', '$SOURCE', '$TARGETS', '$SOURCES']", s
 
+    def test_genstring(self):
+        """Test the genstring() method for command Actions
+        """
+
+        env = Environment()
+        t1 = DummyNode('t1')
+        t2 = DummyNode('t2')
+        s1 = DummyNode('s1')
+        s2 = DummyNode('s2')
+        act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE')
+        expect = 'xyzzy $TARGET $SOURCE'
+        s = act.genstring([], [], env)
+        assert s == expect, s
+        s = act.genstring([t1], [s1], env)
+        assert s == expect, s
+        s = act.genstring([t1, t2], [s1, s2], env)
+        assert s == expect, s
+
+        act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES')
+        expect = 'xyzzy $TARGETS $SOURCES'
+        s = act.genstring([], [], env)
+        assert s == expect, s
+        s = act.genstring([t1], [s1], env)
+        assert s == expect, s
+        s = act.genstring([t1, t2], [s1, s2], env)
+        assert s == expect, s
+
+        act = SCons.Action.CommandAction(['xyzzy',
+                                          '$TARGET', '$SOURCE',
+                                          '$TARGETS', '$SOURCES'])
+        expect = "['xyzzy', '$TARGET', '$SOURCE', '$TARGETS', '$SOURCES']"
+        s = act.genstring([], [], env)
+        assert s == expect, s
+        s = act.genstring([t1], [s1], env)
+        assert s == expect, s
+        s = act.genstring([t1, t2], [s1, s2], env)
+        assert s == expect, s
+
     def test_strfunction(self):
         """Test fetching the string representation of command Actions
         """
@@ -829,6 +867,19 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         s = str(a)
         assert s == 'FOO', s
 
+    def test_genstring(self):
+        """Test the command generator Action genstring() method
+        """
+        def f(target, source, env, for_signature, self=self):
+            dummy = env['dummy']
+            self.dummy = dummy
+            return "$FOO $TARGET $SOURCE $TARGETS $SOURCES"
+        a = SCons.Action.CommandGeneratorAction(f)
+        self.dummy = 0
+        s = a.genstring([], [], env=Environment(FOO='xyzzy', dummy=1))
+        assert self.dummy == 1, self.dummy
+        assert s == "$FOO $TARGET $SOURCE $TARGETS $SOURCES", s
+
     def test_strfunction(self):
         """Test the command generator Action string function
         """
@@ -1079,7 +1130,7 @@ class ListActionTestCase(unittest.TestCase):
         assert g == [l[1]], g
 
     def test___str__(self):
-        """Test the __str__() method ffor a list of subsidiary Actions
+        """Test the __str__() method for a list of subsidiary Actions
         """
         def f(target,source,env):
             pass
@@ -1087,6 +1138,17 @@ class ListActionTestCase(unittest.TestCase):
             pass
         a = SCons.Action.ListAction([f, g, "XXX", f])
         s = str(a)
+        assert s == "f(env, target, source)\ng(env, target, source)\nXXX\nf(env, target, source)", s
+
+    def test_genstring(self):
+        """Test the genstring() method for a list of subsidiary Actions
+        """
+        def f(target,source,env):
+            pass
+        def g(target,source,env):
+            pass
+        a = SCons.Action.ListAction([f, g, "XXX", f])
+        s = a.genstring([], [], Environment())
         assert s == "f(env, target, source)\ng(env, target, source)\nXXX\nf(env, target, source)", s
 
     def test_strfunction(self):
@@ -1172,6 +1234,15 @@ class LazyActionTestCase(unittest.TestCase):
         a = SCons.Action.Action('$BAR')
         s = a.strfunction([], [], env=Environment(BAR=f, s=self))
         assert s == "f([], [])", s
+
+    def test_genstring(self):
+        """Test the lazy-evaluation Action genstring() method
+        """
+        def f(target, source, env):
+            pass
+        a = SCons.Action.Action('$BAR')
+        s = a.genstring([], [], env=Environment(BAR=f, s=self))
+        assert s == "f(env, target, source)", s
 
     def test_execute(self):
         """Test executing a lazy-evaluation Action

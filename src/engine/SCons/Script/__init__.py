@@ -70,6 +70,18 @@ import SCons.Util
 import SCons.Warnings
 
 #
+import __builtin__
+try:
+    __builtin__.zip
+except AttributeError:
+    def zip(l1, l2):
+        result = []
+        for i in xrange(len(l1)):
+           result.append((l1[i], l2[i]))
+        return result
+    __builtin__.zip = zip
+
+#
 display = SCons.Util.display
 progress_display = SCons.Util.DisplayEngine()
 
@@ -175,6 +187,58 @@ class BuildTask(SCons.Taskmaster.Task):
 
         self.do_failed(status)
 
+    def make_ready(self):
+        """Make a task ready for execution"""
+        SCons.Taskmaster.Task.make_ready(self)
+        if self.out_of_date and print_explanations:
+            node = self.out_of_date[0]
+            if not node.exists():
+                sys.stdout.write("scons: building `%s' because it doesn't exist\n" % node)
+                return
+
+            oldbsig, oldkids, oldsigs, oldact, oldactsig = node.get_stored_binfo()
+            if oldkids is None:
+                return
+
+            def dictify(kids, sigs):
+                result = {}
+                for k, s in zip(kids, sigs):
+                    result[k] = s
+                return result
+
+            osig = dictify(oldkids, oldsigs)
+
+            newkids, newsigs = map(str, node.bkids), node.bkidsigs
+            nsig = dictify(newkids, newsigs)
+
+            lines = map(lambda x: "`%s' is no longer a dependency\n" % x,
+                        filter(lambda x, nk=newkids: not x in nk, oldkids))
+
+            for k in newkids:
+                if not k in oldkids:
+                    lines.append("`%s' is a new dependency\n" % k)
+                elif osig[k] != nsig[k]:
+                    lines.append("`%s' changed\n" % k)
+
+            if len(lines) == 0:
+                newact, newactsig = node.bact, node.bactsig
+                if oldact != newact:
+                    lines.append("the build action changed:\n" +
+                                 "%sold: %s\n" % (' '*15, oldact) +
+                                 "%snew: %s\n" % (' '*15, newact))
+
+            if len(lines) == 0:
+                lines.append("the dependency order changed:\n" +
+                             "%sold: %s\n" % (' '*15, oldkids) +
+                             "%snew: %s\n" % (' '*15, newkids))
+
+            preamble = "scons: rebuilding `%s' because" % node
+            if len(lines) == 1:
+                sys.stdout.write("%s %s"  % (preamble, lines[0]))
+            else:
+                lines = ["%s:\n" % preamble] + lines
+                sys.stdout.write(string.join(lines, ' '*11))
+
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def show(self):
@@ -225,6 +289,7 @@ class QuestionTask(SCons.Taskmaster.Task):
 keep_going_on_error = 0
 print_count = 0
 print_dtree = 0
+print_explanations = 0
 print_includes = 0
 print_objects = 0
 print_time = 0
@@ -389,7 +454,8 @@ def _SConstruct_exists(dirname=''):
 
 def _set_globals(options):
     global repositories, keep_going_on_error, ignore_errors
-    global print_count, print_dtree, print_includes
+    global print_count, print_dtree
+    global print_explanations, print_includes
     global print_objects, print_time, print_tree
     global memory_outf, memory_stats
 
@@ -402,6 +468,8 @@ def _set_globals(options):
                 print_count = 1
             elif options.debug == "dtree":
                 print_dtree = 1
+            elif options.debug == "explain":
+                print_explanations = 1
             elif options.debug == "includes":
                 print_includes = 1
             elif options.debug == "memory":
@@ -493,7 +561,8 @@ class OptParser(OptionParser):
                         help="Search up directory tree for SConstruct,       "
                              "build all Default() targets.")
 
-        debug_options = ["count", "dtree", "includes", "memory", "objects",
+        debug_options = ["count", "dtree", "explain",
+                         "includes", "memory", "objects",
                          "pdb", "presub", "time", "tree"]
 
         def opt_debug(option, opt, value, parser, debug_options=debug_options):

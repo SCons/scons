@@ -133,6 +133,16 @@ class Executor:
         slist = filter(lambda x, s=self.sources: x not in s, sources)
         self.sources.extend(slist)
 
+    def __str__(self):
+        try:
+            return self.string
+        except AttributeError:
+            action = self.builder.action
+            self.string = action.genstring(self.targets,
+                                           self.sources,
+                                           self.get_build_env())
+            return self.string
+
     def get_raw_contents(self):
         """Fetch the raw signature contents.  This, along with
         get_contents(), is the real reason this class exists, so we can

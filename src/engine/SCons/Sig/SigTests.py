@@ -106,8 +106,12 @@ class DummyNode:
         else:
             return calc.csig(self)
 
-    def set_bsig(self, bsig):
+    def set_binfo(self, bsig, bkids, bkidsigs, bact, bactsig):
         self.bsig = bsig
+        self.bkids = bkids
+        self.bkidsigs = bkidsigs
+        self.bact = bact
+        self.bactsig = bactsig
 
     def get_bsig(self):
         return self.bsig
@@ -129,12 +133,6 @@ class DummyNode:
 
     def get_stored_implicit(self):
         return None
-
-    def store_csig(self):
-        pass
-
-    def store_bsig(self):
-        pass
     
     def store_timestamp(self):
         pass
@@ -327,8 +325,12 @@ class CalcTestCase(unittest.TestCase):
                 return 1
             def get_bsig(self):
                 return self.bsig
-            def set_bsig(self, bsig):
+            def set_binfo(self, bsig, bkids, bkidsig, bact, bactsig):
                 self.bsig = bsig
+                self.bkids = bkids
+                self.bkidsigs = bkidsigs
+                self.bact = bact
+                self.bactsig = bactsig
             def get_csig(self):
                 return self.csig
             def set_csig(self, csig):
@@ -414,7 +416,7 @@ class _SConsignTestCase(unittest.TestCase):
             path = 'not_a_valid_path'
 
         f = SCons.Sig._SConsign()
-        f.set_bsig('foo', 1)
+        f.set_binfo('foo', 1, ['f1'], ['f2'], 'foo act', 'foo actsig')
         assert f.get('foo') == (None, 1, None)
         f.set_csig('foo', 2)
         assert f.get('foo') == (None, 1, 2)
@@ -425,7 +427,7 @@ class _SConsignTestCase(unittest.TestCase):
         assert f.get_implicit('foo') == ['bar']
 
         f = SCons.Sig._SConsign(DummyModule())
-        f.set_bsig('foo', 1)
+        f.set_binfo('foo', 1, ['f1'], ['f2'], 'foo act', 'foo actsig')
         assert f.get('foo') == (None, 1, None)
         f.set_csig('foo', 2)
         assert f.get('foo') == (None, 1, 2)
@@ -446,20 +448,20 @@ class SConsignDBTestCase(unittest.TestCase):
         try:
             d1 = SCons.Sig.SConsignDB(DummyNode('dir1'))
             d1.set_timestamp('foo', 1)
-            d1.set_bsig('foo', 2)
+            d1.set_binfo('foo', 2, ['f1'], ['f2'], 'foo act', 'foo actsig')
             d1.set_csig('foo', 3)
             d1.set_timestamp('bar', 4)
-            d1.set_bsig('bar', 5)
+            d1.set_binfo('bar', 5, ['b1'], ['b2'], 'bar act', 'bar actsig')
             d1.set_csig('bar', 6)
             assert d1.get('foo') == (1, 2, 3)
             assert d1.get('bar') == (4, 5, 6)
 
             d2 = SCons.Sig.SConsignDB(DummyNode('dir1'))
             d2.set_timestamp('foo', 7)
-            d2.set_bsig('foo', 8)
+            d2.set_binfo('foo', 8, ['f3'], ['f4'], 'foo act', 'foo actsig')
             d2.set_csig('foo', 9)
             d2.set_timestamp('bar', 10)
-            d2.set_bsig('bar', 11)
+            d2.set_binfo('bar', 11, ['b3'], ['b4'], 'bar act', 'bar actsig')
             d2.set_csig('bar', 12)
             assert d2.get('foo') == (7, 8, 9)
             assert d2.get('bar') == (10, 11, 12)
@@ -480,7 +482,7 @@ class SConsignDirFileTestCase(unittest.TestCase):
             path = 'not_a_valid_path'
 
         f = SCons.Sig.SConsignDirFile(DummyNode(), DummyModule())
-        f.set_bsig('foo', 1)
+        f.set_binfo('foo', 1, ['f1'], ['f2'], 'foo act', 'foo actsig')
         assert f.get('foo') == (None, 1, None)
         f.set_csig('foo', 2)
         assert f.get('foo') == (None, 1, 2)

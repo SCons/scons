@@ -47,6 +47,8 @@ class MyAction:
     actions = ['action1', 'action2']
     def get_actions(self):
         return self.actions
+    def genstring(self, target, source, env):
+        return string.join(['GENSTRING'] + self.actions + target + source)
     def get_raw_contents(self, target, source, env):
         return string.join(['RAW'] + self.actions + target + source)
     def get_contents(self, target, source, env):
@@ -164,6 +166,14 @@ class ExecutorTestCase(unittest.TestCase):
         assert x.sources == ['s1', 's2'], x.sources
         x.add_sources(['s3', 's1', 's4'])
         assert x.sources == ['s1', 's2', 's3', 's4'], x.sources
+
+    def test___str__(self):
+        """Test the __str__() method"""
+        env = MyEnvironment(S='string')
+
+        x = SCons.Executor.Executor(MyBuilder(env, {}), None, {}, ['t'], ['s'])
+        c = str(x)
+        assert c == 'GENSTRING action1 action2 t s', c
 
     def test_get_raw_contents(self):
         """Test fetching the raw signatures contents"""

@@ -815,7 +815,7 @@ class FSTestCase(unittest.TestCase):
         e8 = fs.Entry("e8")
         assert e8.get_bsig() is None, e8.get_bsig()
         assert e8.get_csig() is None, e8.get_csig()
-        e8.set_bsig('xxx')
+        e8.set_binfo('xxx', [], [], [], [])
         e8.set_csig('yyy')
         assert e8.get_bsig() == 'xxx', e8.get_bsig()
         assert e8.get_csig() == 'yyy', e8.get_csig()
@@ -823,7 +823,7 @@ class FSTestCase(unittest.TestCase):
         f9 = fs.File("f9")
         assert f9.get_bsig() is None, f9.get_bsig()
         assert f9.get_csig() is None, f9.get_csig()
-        f9.set_bsig('xxx')
+        f9.set_binfo('xxx', [], [], [], [])
         f9.set_csig('yyy')
         assert f9.get_bsig() == 'xxx', f9.get_bsig()
         assert f9.get_csig() == 'yyy', f9.get_csig()
@@ -831,7 +831,7 @@ class FSTestCase(unittest.TestCase):
         d10 = fs.Dir("d10")
         assert d10.get_bsig() is None, d10.get_bsig()
         assert d10.get_csig() is None, d10.get_csig()
-        d10.set_bsig('xxx')
+        d10.set_binfo('xxx', [], [], [], [])
         d10.set_csig('yyy')
         assert d10.get_bsig() is None, d10.get_bsig()
         assert d10.get_csig() is None, d10.get_csig()
@@ -1651,7 +1651,7 @@ class CacheDirTestCase(unittest.TestCase):
         SCons.Sig.MD5.collect = my_collect
         try:
             f5 = fs.File("cd.f5")
-            f5.set_bsig('a_fake_bsig')
+            f5.set_binfo('a_fake_bsig', [], [], [], [])
             cp = f5.cachepath()
             dirname = os.path.join('cache', 'A')
             filename = os.path.join(dirname, 'a_fake_bsig')
@@ -1661,7 +1661,7 @@ class CacheDirTestCase(unittest.TestCase):
 
         # Verify that no bsig raises an InternalERror
         f6 = fs.File("cd.f6")
-        f6.set_bsig(None)
+        f6.set_binfo(None, [], [], [], [])
         exc_caught = 0
         try:
             cp = f6.cachepath()

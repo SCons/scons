@@ -29,6 +29,14 @@ other modules:
         This is what the Sig/*.py subsystem uses to decide if a target
         needs to be rebuilt because its action changed.
 
+    genstring()
+        Returns a string representation of the Action *without* command
+        substitution, but allows a CommandGeneratorAction to generate
+        the right action based on the specified target, source and env.
+        This is used by the Signature subsystem (through the Executor)
+        to compare the actions used to build a target last time and
+        this time.
+
 Subclasses also supply the following methods for internal use within
 this module:
 
@@ -215,6 +223,9 @@ class ActionBase:
                 (string.join(map(lambda x: str(x), target), ' and '),
                  string.join(lines, '\n  ')))
 
+    def genstring(self, target, source, env):
+        return str(self)
+
     def get_actions(self):
         return [self]
 
@@ -383,6 +394,9 @@ class CommandGeneratorAction(ActionBase):
             env = {}
         act = self.__generate([], [], env, 0)
         return str(act)
+
+    def genstring(self, target, source, env):
+        return str(self.__generate(target, source, env, 0))
 
     def _execute(self, target, source, env):
         if not SCons.Util.is_List(source):

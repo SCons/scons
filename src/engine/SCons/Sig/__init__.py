@@ -73,6 +73,10 @@ class SConsignEntry:
     bsig = None
     csig = None
     implicit = None
+    bkids = []
+    bkidsigs = []
+    bact = None
+    bactsig = None
 
 class _SConsign:
     """
@@ -139,9 +143,9 @@ class _SConsign:
         entry.csig = csig
         self.set_entry(filename, entry)
 
-    def set_bsig(self, filename, bsig):
+    def set_binfo(self, filename, bsig, bkids, bkidsigs, bact, bactsig):
         """
-        Set the csig .sconsign entry for a file
+        Set the build info .sconsign entry for a file
 
         filename - the filename whose signature will be set
         bsig - the file's built signature
@@ -149,11 +153,15 @@ class _SConsign:
 
         entry = self.get_entry(filename)
         entry.bsig = bsig
+        entry.bkids = bkids
+        entry.bkidsigs = bkidsigs
+        entry.bact = bact
+        entry.bactsig = bactsig
         self.set_entry(filename, entry)
 
     def set_timestamp(self, filename, timestamp):
         """
-        Set the csig .sconsign entry for a file
+        Set the timestamp .sconsign entry for a file
 
         filename - the filename whose signature will be set
         timestamp - the file's timestamp
@@ -171,11 +179,16 @@ class _SConsign:
     def set_implicit(self, filename, implicit):
         """Cache the implicit dependencies for 'filename'."""
         entry = self.get_entry(filename)
-        if SCons.Util.is_String(implicit):
+        if not SCons.Util.is_List(implicit):
             implicit = [implicit]
         implicit = map(str, implicit)
         entry.implicit = implicit
         self.set_entry(filename, entry)
+
+    def get_binfo(self, filename):
+        """Fetch the cached implicit dependencies for 'filename'"""
+        entry = self.get_entry(filename)
+        return entry.bsig, entry.bkids, entry.bkidsigs, entry.bact, entry.bactsig
 
 class SConsignDB(_SConsign):
     """
@@ -360,20 +373,28 @@ class Calculator:
             return bsig
 
         children = node.children()
+        bkids = map(str, children)
 
-        # double check bsig, because the call to childre() above may
+        # double check bsig, because the call to children() above may
         # have set it:
         bsig = cache.get_bsig()
         if bsig is not None:
             return bsig
 
         sigs = map(lambda n, c=self: n.calc_signature(c), children)
+
         if node.has_builder():
-            sigs.append(self.module.signature(node.get_executor()))
+            executor = node.get_executor()
+            bact = str(executor)
+            bactsig = self.module.signature(executor)
+            sigs.append(bactsig)
+        else:
+            bact = ""
+            bactsig = ""
 
-        bsig = self.module.collect(filter(lambda x: not x is None, sigs))
+        bsig = self.module.collect(filter(None, sigs))
 
-        cache.set_bsig(bsig)
+        cache.set_binfo(bsig, bkids, sigs, bact, bactsig)
 
         # don't store the bsig here, because it isn't accurate until
         # the node is actually built.

@@ -344,18 +344,34 @@ class NodeTestCase(unittest.TestCase):
         a = node.builder.get_actions()
         assert isinstance(a[0], MyAction), a[0]
 
-    def test_set_bsig(self):
-        """Test setting a Node's signature
+    def test_set_binfo(self):
+        """Test setting a Node's build information
         """
         node = SCons.Node.Node()
-        node.set_bsig('www')
-        assert node.bsig == 'www'
+        node.set_binfo('www', ['w1'], ['w2'], 'w act', 'w actsig')
+        assert node.bsig == 'www', node.bsig
+        assert node.bkids == ['w1'], node.bkdids
+        assert node.bkidsigs == ['w2'], node.bkidsigs
+        assert node.bact == 'w act', node.bkdid
+        assert node.bactsig == 'w actsig', node.bkidsig
+
+    def test_get_binfo(self):
+        """Test fetching a Node's build information
+        """
+        node = SCons.Node.Node()
+        node.set_binfo('yyy', ['y1'], ['y2'], 'y act', 'y actsig')
+        bsig, bkids, bkidsigs, bact, bactsig = node.get_binfo()
+        assert bsig == 'yyy', bsig
+        assert bkids == ['y1'], bkdids
+        assert bkidsigs == ['y2'], bkidsigs
+        assert bact == 'y act', bkdid
+        assert bactsig == 'y actsig', bkidsig
 
     def test_get_bsig(self):
         """Test fetching a Node's signature
         """
         node = SCons.Node.Node()
-        node.set_bsig('xxx')
+        node.set_binfo('xxx', ['x1'], ['x2'], 'x act', 'x actsig')
         assert node.get_bsig() == 'xxx'
 
     def test_set_csig(self):
@@ -372,11 +388,11 @@ class NodeTestCase(unittest.TestCase):
         node.set_csig('zzz')
         assert node.get_csig() == 'zzz'
 
-    def test_store_bsig(self):
-        """Test calling the method to store a build signature
+    def test_store_binfo(self):
+        """Test calling the method to store build information
         """
         node = SCons.Node.Node()
-        node.store_bsig()
+        node.store_binfo()
 
     def test_store_csig(self):
         """Test calling the method to store a content signature
@@ -907,7 +923,7 @@ class NodeTestCase(unittest.TestCase):
         n = SCons.Node.Node()
 
         n.set_state(3)
-        n.set_bsig('bsig')
+        n.set_binfo('bbb', ['b1'], ['b2'], 'b act', 'b actsig')
         n.set_csig('csig')
         n.includes = 'testincludes'
         n.found_include = {'testkey':'testvalue'}
@@ -917,6 +933,10 @@ class NodeTestCase(unittest.TestCase):
 
         assert n.get_state() is None, n.get_state()
         assert not hasattr(n, 'bsig'), n.bsig
+        assert not hasattr(n, 'bkids'), n.bkids
+        assert not hasattr(n, 'bkidsigs'), n.bkidsigs
+        assert not hasattr(n, 'bact'), n.bact
+        assert not hasattr(n, 'bactsig'), n.bactsig
         assert not hasattr(n, 'csig'), n.csig
         assert n.includes is None, n.includes
         assert n.found_includes == {}, n.found_includes
