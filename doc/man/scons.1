@@ -431,7 +431,7 @@ Ignored for compatibility with GNU
 .IP "-t, --touch"
 Ignored for compatibility with GNU
 .BR make .  
-Touching a file to make it
+(Touching a file to make it
 appear up-to-date is unnecessary when using 
 .BR scons .)
 
@@ -488,6 +488,7 @@ Turn off -w, even if it was turned on implicitly.
 .\" repositories are searched in the order specified.
 
 .SH CONFIGURATION FILE REFERENCE
+.SS Construction Environments
 A construction environment is the basic means by which the configuration
 files communicate build information to 
 .BR scons .
@@ -581,29 +582,7 @@ env.Depends('foo.c', 'foo.h')
 .PP
 .fi
 
-When
-.B scons
-is executed it will build the targets given as arguments on the command
-line. Default targets can be specified using the 
-.B Default 
-function:
-
-.IP
-.nf
-Default('foo', 'bar', 'baz')
-.PP
-.fi
-
-A configuration file can specify other configuration files to execute using
-the 
-.B SConscript 
-function:
-
-.IP
-.nf
-SConscript('dir/SConscript')
-.PP
-.fi
+.SH Construction Variables
 
 A construction environment has an associated dictionary of construction
 variables that are used by built-in or user-supplied build rules. A number
@@ -742,7 +721,52 @@ The suffix used to specify an include directory on the C compiler command
 line.
 
 .IP ENV
-The environment to use when invoking commands.
+A dictionary of environment variables
+to use when invoking commands.
+Note that, by default,
+.B scons
+does
+.I not
+propogate the environment in force when you
+execute
+.B scons
+to the commands used to build target files.
+This is so that builds will be guaranteed
+repeatable regardless of the environment
+variables set at the time
+.B scons
+is invoked.
+
+If you want to propogate your
+environment variables
+to the commands executed
+to build target files,
+you must do so explictly:
+
+.IP
+.nf
+import os
+env = Environment(ENV = os.environ)
+.PP
+.fi
+
+Note that you can choose only to propogate
+certain environment variables.
+A common example is
+the system
+.B PATH
+environment variable
+to force 
+.B scons
+to use the same utilities
+as the invoking shell (or other process):
+
+.IP
+.nf
+import os
+env = Environment(ENV = {'PATH' : os.environ['PATH']})
+.PP
+.fi
 
 .LP
 
@@ -776,6 +800,8 @@ env2 = env.Copy(CC="cl.exe")
 .PP
 .fi
 
+.SS Other Functions
+
 .B scons
 also provides various function not associated with a construction
 environment that configuration files can use to affect the build:
@@ -784,8 +810,7 @@ environment that configuration files can use to affect the build:
 .RI SConscript( script ", [" exports ])
 This tells
 .B scons
-to execute 
-.I script
+to execute .I script
 as a configuration file. The optional 
 .I exports
 argument provides a list of variable names to export to
@@ -800,10 +825,11 @@ using
 .BR Return ()
 will be returned by the call to
 .BR SConscript (). 
-Example:
+Examples:
 
 .IP
 .nf
+SConscript('dir/SConscript')
 foo = SConscript('subdir/SConscript', "env")
 .PP
 .fi
@@ -877,6 +903,13 @@ seperate arguments.
 .BR Default ()
 will also accept the return value of any of the ccnstruction environment
 builder methods.
+Example:
+
+.IP
+.nf
+Default('foo', 'bar', 'baz')
+.PP
+.fi
 
 .TP
 .RI Help( text )
@@ -968,9 +1001,10 @@ multi-stage builder.
 .B scons
 performs construction variable interpolation on the strings that make up
 the command line of builders before executing the command.
-Variables are specified by a $ prefix and the variable name may be
-surrounded by curly braces ({}) to separate the name from the trailing
-characters. Besides construction variables, scons provides the following
+Variables are introduced by a
+.B $
+prefix.
+Besides construction variables, scons provides the following
 variables for each command execution:
 
 .IP TARGET
@@ -999,6 +1033,68 @@ would produce the command line:
 .IP
 .nf
 cc -c -o foo foo.c bar.c
+.PP
+.fi
+
+Variable names may be surrounded by curly braces ({})
+to separate the name from the trailing characters.
+Within the curly braces, a variable name may have
+a Python slice subscript appended to select one
+or more items from a list.
+In the previous example, the string:
+
+.IP
+.nf
+${SOURCES[1]}
+.PP
+.fi
+
+would produce:
+
+.IP
+.nf
+bar.c
+.PP
+.fi
+
+Additionally, a variable name may
+have the following special
+modifiers appended within the enclosing curly braces
+to modify the interpolated string:
+
+.IP base
+The base path of the file name,
+including the directory path
+but excluding any suffix.
+
+.IP dir
+The name of the directory in which the file exists.
+
+.IP file
+The file name,
+minus any directory portion.
+
+.IP filebase
+Just the basename of the file,
+minus any suffix
+and minus the directory.
+
+.IP suffix
+Just the file suffix.
+
+.LP
+
+For example, the specified target will
+expand as follows for the corresponding modifiers:
+
+.IP
+.nf
+$TARGET              => sub/dir/file.x
+${TARGET.base}       => sub/dir/file
+${TARGET.dir}        => sub/dir
+${TARGET.file}       => file.x
+${TARGET.filebase}   => file
+${TARGET.suffix}     => .x
 .PP
 .fi
 
@@ -1080,7 +1176,7 @@ bld = Builder(name = 'PDFBuilder',
 env = Environment(BUILDERS = [bld])
 env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
 
-# The following creates "bar.bdf" from "bar.text"
+# The following creates "bar.pdf" from "bar.text"
 env.PDFBuilder(target = 'bar', source = 'bar')
 .RE
 .fi
@@ -1136,6 +1232,41 @@ subdirectory/SConscript:
     env.Program(target = 'foo', source = 'foo.c')
 .RE
 .fi
+
+.SS Building Multiple Variants From the Same Source
+
+Use the BuildDir() method to establish
+one or more separate build directories for
+a given source directory,
+then use the SConscript() method
+to specify the SConscript files
+in the build directories:
+
+.RS
+.nf
+SConstruct:
+
+    Export("ccflags")
+
+    ccflags = '-DFOO'
+    BuildDir('foo', 'src')
+    SConscript('foo/SConscript')
+
+    ccflags = '-DBAR'
+    BuildDir('bar', 'src')
+    SConscript('bar/SConscript')
+
+src/SConscript:
+
+    Import("ccflags")
+    env = Environment(CCFLAGS = ccflags)
+    env.Program(target = 'src', source = 'src.c')
+.RE
+.fi
+
+Note the use of the Export() method
+to set the "ccflags" variable to a different
+value for each variant build.
 
 .SH ENVIRONMENT
 

@@ -33,6 +33,10 @@ RELEASE 0.03 -
   - Add a CFile Builder object that supports turning lex (.l) and
     yacc (.y) files into .c files.
 
+  - Document: variable interpretation attributes; how to propogate
+    the user's environment variables to executed commands; how to
+    build variants in multiple BuildDirs.
+
   From Anthony Roach:
 
   - Add a "duplicate" keyword argument to BuildDir() that can be set
