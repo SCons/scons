@@ -8386,12 +8386,6 @@ b = Builder("my_build < $TARGET > $SOURCE",
             emitter = {'.suf1' : e_suf1,
                        '.suf2' : e_suf2})
 .EE
-.IP
-The 
-.I generator
-and
-.I action
-arguments must not both be used for the same Builder.
 
 .IP multi
 Specifies whether this builder is allowed to be called multiple times for
@@ -8440,6 +8434,13 @@ def g(source, target, env, for_signature):
 
 b = Builder(generator=g)
 .EE
+
+.IP
+The 
+.I generator
+and
+.I action
+arguments must not both be used for the same Builder.
 
 .IP src_builder
 Specifies a builder to use when a source file name suffix does not match

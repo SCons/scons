@@ -494,6 +494,10 @@ RELEASE 0.97 - XXX
 
   - Allow $JARCHDIR to be expanded to other construction variables.
 
+  From Greg Ward:
+
+  - Fix a misplaced line in the man page.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
