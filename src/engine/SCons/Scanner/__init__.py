@@ -31,6 +31,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 __version__ = "__VERSION__"
 
+
+from SCons.Util import scons_str2nodes
+
+
 class _Null:
     pass
 
@@ -40,7 +44,7 @@ _null = _Null
 
 class Scanner:
 
-    def __init__(self, function, argument=_null):
+    def __init__(self, function, argument=_null, skeys=[]):
         """
         Construct a new scanner object given a scanner function.
 
@@ -50,11 +54,15 @@ class Scanner:
         'argument' - an optional argument that will be passed to the
         scanner function if it is given.
 
+        'skeys; - an optional list argument that can be used to determine
+        which scanner should be used for a given Node. In the case of File
+        nodes, for example, the 'skeys' would be file suffixes.
+
         The scanner function's first argument will be the name of a file
         that should be scanned for dependencies, the second argument will
         be an Environment object, the third argument will be the value
         passed into 'argument', and the returned list should contain the
-        file names of all the direct dependencies of the file.
+        Nodes for all the direct dependencies of the file.
 
         Examples:
 
@@ -73,20 +81,30 @@ class Scanner:
 
         self.function = function
         self.argument = argument
+        self.name = "NONE"
+        self.skeys = skeys
 
     def scan(self, filename, env):
         """
         This method does the actually scanning. 'filename' is the filename
         that will be passed to the scanner function, and 'env' is the
         environment that will be passed to the scanner function. A list of
-        dependencies will be returned.
+        dependencies will be returned (i.e. a list of 'Node's).
         """
 
         if not self.argument is _null:
             return self.function(filename, env, self.argument)
         else:
             return self.function(filename, env)
-        
 
+    def __cmp__(self, other):
+        return cmp(self.__dict__, other.__dict__)
 
+    def __call__(self, sources=None):
+        slist = scons_str2nodes(source, self.node_factory)
+        for s in slist:
+            s.scanner_set(self)
 
+        if len(slist) == 1:
+            slist = slist[0]
+        return slist

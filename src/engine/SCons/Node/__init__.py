@@ -59,6 +59,8 @@ class Node:
 	self.depends = []
         self.parents = []
 	self.builder = None
+        self.scanner = None
+        self.scanned = 0
 	self.env = None
         self.state = None
         self.bsig = None
@@ -96,7 +98,15 @@ class Node:
                 return self.node.builder.get_contents(env = env)
         return Adapter(self)
 
-    def env_set(self, env):
+    def scanner_set(self, scanner):
+        self.scanner = scanner
+
+    def scan(self):
+        self.scanned = 1
+
+    def env_set(self, env, safe=0):
+        if safe and self.env:
+            return
 	self.env = env
 
     def get_bsig(self):
@@ -142,6 +152,8 @@ class Node:
         if parent not in self.parents: self.parents.append(parent)
 
     def children(self):
+        if not self.scanned:
+            self.scan()
 	return self.sources + self.depends
 
     def get_parents(self):

@@ -36,7 +36,7 @@ import re
 import types
 import SCons.Util
 import SCons.Builder
-
+from SCons.Errors import UserError
 
 def Command():
     pass	# XXX
@@ -76,6 +76,8 @@ class Environment:
 	self._dict = copy.deepcopy(SCons.Defaults.ConstructionEnvironment)
 	if kw.has_key('BUILDERS') and type(kw['BUILDERS']) != type([]):
 	        kw['BUILDERS'] = [kw['BUILDERS']]
+        if kw.has_key('SCANNERS') and type(kw['SCANNERS']) != type([]):
+                kw['SCANNERS'] = [kw['SCANNERS']]
 	self._dict.update(copy.deepcopy(kw))
 
 	class BuilderWrapper:
@@ -103,7 +105,8 @@ class Environment:
 	for b in self._dict['BUILDERS']:
 	    setattr(self, b.name, BuilderWrapper(self, b))
 
-
+        for s in self._dict['SCANNERS']:
+            setattr(self, s.name, s)
 
     def __cmp__(self, other):
 	return cmp(self._dict, other._dict)
@@ -170,3 +173,14 @@ class Environment:
 	trailing characters.
 	"""
 	return SCons.Util.scons_subst(string, self._dict, {})
+
+    def get_scanner(self, skey):
+        """Find the appropriate scanner given a key (usually a file suffix).
+        Does a linear search. Could be sped up by creating a dictionary if
+        this proves too slow.
+        """
+        if self._dict['SCANNERS']:
+            for scanner in self._dict['SCANNERS']:
+                if skey in scanner.skeys:
+                    return scanner
+        return None

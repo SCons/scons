@@ -27,9 +27,7 @@ import os
 import string
 import sys
 import unittest
-
 import SCons.Node.FS
-
 
 
 built_it = None
@@ -40,10 +38,17 @@ class Builder:
         built_it = 1
         return 0
 
+class Scanner:
+    def scan(self, filename, env):
+        return [SCons.Node.FS.default_fs.File(filename)]
+
 class Environment:
+    def __init__(self):
+        self.scanner = Scanner()
     def Dictionary(self, *args):
 	pass
-
+    def get_scanner(self, skey):
+        return self.scanner
 
 
 class FSTestCase(unittest.TestCase):
@@ -285,6 +290,16 @@ class FSTestCase(unittest.TestCase):
         assert d12.path_ == "subdir/d12/"
         e13 = fs.Entry("subdir/e13")
         assert e13.path == "subdir/subdir/e13"
+
+        # Test scanning
+        f1.scanner = Scanner()
+        f1.scan()
+        assert f1.depends[0].path_ == "d1/f1"
+        f1.scanner = None
+        f1.depends = []
+        f1.scanned = 0
+        f1.scan()
+        assert f1.depends[0].path_ == "d1/f1"
 
         #XXX test exists()
 

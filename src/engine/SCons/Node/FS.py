@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import types
 import SCons.Node
 from UserDict import UserDict
 import sys
@@ -439,6 +440,16 @@ class File(Entry):
         """Fetch the previous signature information from the
         .sconsign entry."""
         return self.dir.sconsign().get(self.name)
+
+    def scan(self):
+        if not self.scanned and self.env:
+            if self.scanner:
+                scanner = self.scanner
+            else:
+                scanner = self.env.get_scanner(os.path.splitext(self.name)[1])
+            if scanner:
+                self.add_dependency(scanner.scan(self.path_, self.env))
+            self.scanned = 1
 
 
 default_fs = FS()

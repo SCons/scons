@@ -23,6 +23,13 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+# Define a null function for use as a builder action.
+# Where this is defined in the file seems to affect its
+# byte-code contents, so try to minimize changes by
+# defining it here, before we even import anything.
+def Func():
+    pass
+
 import sys
 import unittest
 
@@ -73,7 +80,7 @@ class BuilderTestCase(unittest.TestCase):
 	        return self.name
 	    def builder_set(self, builder):
 		self.builder = builder
-	    def env_set(self, env):
+	    def env_set(self, env, safe=0):
 		self.env = env
 	    def add_source(self, source):
 		self.sources.extend(source)
@@ -84,6 +91,7 @@ class BuilderTestCase(unittest.TestCase):
 	assert n1.env == env
 	assert n1.builder == builder
 	assert n1.sources == [n2]
+        assert n2.env == env
 
     def test_action(self):
 	"""Test Builder creation
@@ -221,16 +229,13 @@ class BuilderTestCase(unittest.TestCase):
         contents = b1.get_contents()
         assert contents == "foo", contents
 
-        def func():
-            pass
-
-        b2 = SCons.Builder.Builder(action = func)
+        b2 = SCons.Builder.Builder(action = Func)
         contents = b2.get_contents()
-        assert contents == "\177\340\0\177\341\0d\0\0S", contents
+        assert contents == "\177\036\000\177\037\000d\000\000S", repr(contents)
 
-        b3 = SCons.Builder.Builder(action = ["foo", func, "bar"])
+        b3 = SCons.Builder.Builder(action = ["foo", Func, "bar"])
         contents = b3.get_contents()
-        assert contents == "foo\177\340\0\177\341\0d\0\0Sbar", contents
+        assert contents == "foo\177\036\000\177\037\000d\000\000Sbar", repr(contents)
 
     def test_name(self):
 	"""Test Builder creation with a specified name

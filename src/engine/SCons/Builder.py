@@ -171,13 +171,18 @@ class BuilderBase:
                                            env.subst(self.prefix),
                                            env.subst(self.suffix)),
                                 self.node_factory)
+
 	slist = scons_str2nodes(adjustixes(source, None,
                                            env.subst(self.src_suffix)),
                                 self.node_factory)
+
 	for t in tlist:
 	    t.builder_set(self)
 	    t.env_set(env)
 	    t.add_source(slist)
+
+	for s in slist:
+	    s.env_set(env, 1)
 
 	if len(tlist) == 1:
 	    tlist = tlist[0]

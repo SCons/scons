@@ -44,6 +44,24 @@ class Builder:
 
 
 
+scanned_it = {}
+
+class Scanner:
+    """A dummy Scanner class for testing purposes.  "Scanning"
+    a target is simply setting a value in the dictionary.
+    """
+    def __init__(self, name, skeys=[]):
+        self.name = name
+        self.skeys = skeys
+
+    def scan(self, filename):
+        scanned_it[filename] = 1
+
+    def __cmp__(self, other):
+        return cmp(self.__dict__, other.__dict__)
+
+
+
 class EnvironmentTestCase(unittest.TestCase):
 
     def test_Builders(self):
@@ -76,6 +94,44 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert built_it['out1']
 	assert built_it['out2']
 	assert built_it['out3']
+
+    def test_Scanners(self):
+        """Test Scanner execution through different environments
+
+        One environment is initialized with a single
+        Scanner object, one with a list of a single Scanner
+        object, and one with a list of two Scanner objects.
+        """
+        global scanned_it
+
+	s1 = Scanner(name = 'scanner1', skeys = [".c", ".cc"])
+	s2 = Scanner(name = 'scanner2', skeys = [".m4"])
+
+	scanned_it = {}
+	env1 = Environment(SCANNERS = s1)
+	env1.scanner1.scan(filename = 'out1')
+	assert scanned_it['out1']
+
+	scanned_it = {}
+	env2 = Environment(SCANNERS = [s1])
+	env1.scanner1.scan(filename = 'out1')
+	assert scanned_it['out1']
+
+	scanned_it = {}
+	env3 = Environment(SCANNERS = [s1, s2])
+	env3.scanner1.scan(filename = 'out1')
+	env3.scanner2.scan(filename = 'out2')
+	env3.scanner1.scan(filename = 'out3')
+	assert scanned_it['out1']
+	assert scanned_it['out2']
+	assert scanned_it['out3']
+
+	s = env3.get_scanner(".c")
+	assert s == s1, s
+	s = env3.get_scanner(skey=".m4")
+	assert s == s2, s
+	s = env3.get_scanner(".cxx")
+	assert s == None, s
 
     def test_Command(self):
 	pass	# XXX
@@ -144,9 +200,6 @@ class EnvironmentTestCase(unittest.TestCase):
 	pass	# XXX
 
     def test_InstallAs(self):
-	pass	# XXX
-
-    def test_Scanners(self):
 	pass	# XXX
 
     def test_Update(self):

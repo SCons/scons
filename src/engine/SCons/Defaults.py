@@ -35,7 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import SCons.Builder
-
+import SCons.Scanner.C
 
 
 Object = SCons.Builder.Builder(name = 'Object',
@@ -64,6 +64,7 @@ Library = SCons.Builder.Builder(name = 'Library',
                                 src_suffix = '$OBJSUFFIX',
                                 src_builder = Object)
 
+CScan = SCons.Scanner.C.CScan()
 
 
 if os.name == 'posix':
@@ -82,6 +83,7 @@ if os.name == 'posix':
         'ARFLAGS'    : 'r',
         'ARCOM'      : '$AR $ARFLAGS $TARGET $SOURCES\nranlib $TARGET',
         'BUILDERS'   : [Object, Program, Library],
+        'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.o',
         'PROGPREFIX' : '',
@@ -107,6 +109,7 @@ elif os.name == 'nt':
         'ARFLAGS'    : '/nologo',
         'ARCOM'      : '$AR $ARFLAGS /out:$TARGET $SOURCES',
         'BUILDERS'   : [Object, Program, Library],
+        'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.obj',
         'PROGPREFIX' : '',

@@ -39,7 +39,10 @@ quote_re = re.compile('^[ \t]*#[ \t]*include[ \t]+"([\\w./\\\\]+)"', re.M)
 
 def CScan():
     "Return a Scanner instance for scanning C/C++ source files"
-    return SCons.Scanner.Scanner(scan)
+    s = SCons.Scanner.Scanner(scan, SCons.Node.FS.default_fs.File,
+                              [".c", ".C", ".cxx", ".cpp", ".c++"])
+    s.name = "CScan"
+    return s
 
 def find_files(filenames, paths):
     """
@@ -63,7 +66,7 @@ def find_files(filenames, paths):
 
     return fullnames
 
-def scan(filename, env):
+def scan(filename, env, node_factory):
     """
     scan(str, Environment) -> [str]
 
@@ -101,10 +104,5 @@ def scan(filename, env):
     deps = (find_files(angle_includes, paths + [source_dir])
             + find_files(quote_includes, [source_dir] + paths))
 
+    deps = map(node_factory, deps)
     return deps
-
-    
-    
-    
-
-    
