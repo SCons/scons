@@ -134,13 +134,42 @@ Object = SCons.Builder.Builder(name = 'Object',
                                src_suffix = static_obj.src_suffixes(),
                                src_builder = [CFile, CXXFile])
 
-Program = SCons.Builder.Builder(name = 'Program',
-                                action = '$LINKCOM',
-                                prefix = '$PROGPREFIX',
-                                suffix = '$PROGSUFFIX',
-                                src_suffix = '$OBJSUFFIX',
-                                src_builder = Object,
-                                scanner = SCons.Scanner.Prog.ProgScan())
+def win32LinkGenerator(env, target, source, **kw):
+    args = []
+    for a in [env['LINKFLAGS'],
+              '/OUT:' + str(target[0]),
+              env['_LIBDIRFLAGS'],
+              env['_LIBFLAGS'],
+              map(lambda x: str(x), source)]:
+        if SCons.Util.is_List(a):
+            args.extend(a)
+        else:
+            args.append(a)
+    argstring = string.join(args, " ")
+    if len(argstring) <= 2048:
+        return env['LINK'] + " " + argstring
+    else:
+        import tempfile
+        tmp = tempfile.mktemp()
+        open(tmp, 'w').write(argstring + "\n")
+        return [ env['LINK'] + " @" + tmp,
+                 "del " + tmp, ]
+
+kw = {
+       'name'        : 'Program',
+       'prefix'      : '$PROGPREFIX',
+       'suffix'      : '$PROGSUFFIX',
+       'src_suffix'  : '$OBJSUFFIX',
+       'src_builder' : Object,
+       'scanner'     : SCons.Scanner.Prog.ProgScan()
+}
+
+if sys.platform == 'win32':
+    kw['generator'] = win32LinkGenerator
+else:
+    kw['action'] = '$LINKCOM'
+
+Program = apply(SCons.Builder.Builder, (), kw)
 
 class LibAffixGenerator:
     def __init__(self, static, shared):
@@ -389,7 +418,11 @@ def make_win32_env_from_paths(include, lib, path):
         'SHF77PPCOM' : '$SHF77 $SHF77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'LINK'       : 'link',
         'LINKFLAGS'  : '/nologo',
-        'LINKCOM'    : '$LINK $LINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
+        # XXX - We'd like to do this as follows, but '$LINKCOM' in
+        # a Builder above gets expanded too soon to stick a function
+        # right in the environment like this.  Revisit this when this
+        # capability has been added (cf. bug report #537058).
+        #'LINKCOM'    : win32Link,
         'SHLINK'     : '$LINK',
         'SHLINKFLAGS': '$LINKFLAGS /dll',
         'SHLINKCOM'  : '$SHLINK $SHLINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',

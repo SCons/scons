@@ -64,6 +64,10 @@ RELEASE 0.07 -
 
   - Man page:  Add a hierarchical libraries + Program example.
 
+  - Support long MSVC linker command lines through a builder action
+    that writes to a temporary file and uses the magic MSVC "link @file"
+    argument syntax if the line is longer than 2K characters.
+
   From Steve Leblanc:
 
   - Add the SConscriptChdir() method.
