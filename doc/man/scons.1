@@ -844,6 +844,31 @@ The prefix used to specify a library to link on the linker command line.
 .IP LIBLINKSUFFIX
 The suffix used to specify a library to link on the linker command line.
 
+.IP LIBPATH
+The list of directories that will be searched for libraries.
+The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in LINKFLAGS because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in LIBPATH will be looked-up relative to the SConscript
+directory when they are used in a command. To force 
+.B scons
+to look-up a directory relative to the root of the source tree use #:
+
+.ES
+env = Environment(LIBPATH='#/libs')
+.EE
+
+.IP
+The directory look-up can also be forced using the 
+.BR Dir ()
+function:
+
+.ES
+libs = Dir('libs')
+env = Environment(LIBPATH=libs)
+.EE
+
 .IP LIBPREFIX
 The prefix used for library file names.
 
