@@ -62,13 +62,13 @@ class ParentOfRoot:
     This class is an instance of the Null object pattern.
     """
     def __init__(self):
-        self.abspath = ""
         self.duplicate = 1
-        self.path = ""
-        self.srcpath = ""
-        self.abspath_=''
-        self.path_=''
-        self.srcpath_=''
+        self.abspath = ''
+        self.path = ''
+        self.srcpath = ''
+        self.abspath_ = ''
+        self.path_ = ''
+        self.srcpath_ = ''
 
     def is_under(self, dir):
         return 0
@@ -164,9 +164,9 @@ class FS:
         drive, path_first = os.path.splitdrive(path_comp[0])
         if not path_first:
             # Absolute path
-            drive = _my_normcase(drive)
+            drive_path = _my_normcase(drive)
             try:
-                directory = self.Root[drive]
+                directory = self.Root[drive_path]
             except KeyError:
                 if not create:
                     raise UserError
@@ -174,7 +174,7 @@ class FS:
                 dir.path = dir.path + os.sep
                 dir.abspath = dir.abspath + os.sep
                 dir.srcpath = dir.srcpath + os.sep
-                self.Root[drive] = dir
+                self.Root[drive_path] = dir
                 directory = dir
             path_comp = path_comp[1:]
         else:
@@ -322,8 +322,8 @@ class FS:
             n = func(None, path)
             if n:
                 return n
-            for dir in self.Repositories:
-                n = func(dir.path, path)
+            for rep in self.Repositories:
+                n = func(rep.path, path)
                 if n:
                     return n
         return None
@@ -345,8 +345,8 @@ class FS:
                 if not os.path.isabs(path):
                     if path[0] == '#':
                         path = path[1:]
-                    for dir in self.Repositories:
-                        n = func(dir.path, path)
+                    for rep in self.Repositories:
+                        n = func(rep.path, path)
                         if n:
                             ret.append(n)
         return ret
@@ -471,8 +471,6 @@ class Entry(SCons.Node.Node):
 # XXX TODO?
 # Annotate with the creator
 # rel_path
-# srcpath / srcdir
-# link / is_linked
 # linked_targets
 # is_accessible
 
@@ -608,16 +606,10 @@ class Dir(Entry):
 
 
 # XXX TODO?
-# rsrcpath
-# source_exists
-# derived_exists
-# is_on_rpath
 # base_suf
 # suffix
 # addsuffix
 # accessible
-# ignore
-# bind
 # relpath
 
 class File(Entry):
@@ -711,15 +703,35 @@ class File(Entry):
         return Entry.exists(self)
 
     def rexists(self):
-        if self.duplicate and not self.created:
-            self.created = 1
-            if self.srcpath != self.path and \
-               os.path.exists(self.srcpath):
-                if os.path.exists(self.path):
-                    os.unlink(self.path)
-                self.__createDir()
-                file_link(self.srcpath, self.path)
-        return Entry.rexists(self)
+        if self.path != self.srcpath:
+            if os.path.exists(self.srcpath):
+                if self.duplicate and not self.created:
+                    self.created = 1
+                    if os.path.exists(self.path):
+                        os.unlink(self.path)
+                    self.__createDir()
+                    file_link(self.srcpath, self.path)
+                return 1
+            for rep in self.fs.Repositories:
+                if not os.path.isabs(self.path):
+                    f = os.path.join(rep.path, self.path)
+                    if os.path.exists(f):
+                        return 1
+                f = os.path.join(rep.path, self.srcpath)
+                if os.path.exists(f):
+                    if self.duplicate and not self.created:
+                        self.created = 1
+                        if os.path.exists(self.path):
+                            os.unlink(self.path)
+                        self.__createDir()
+                        file_link(f, self.path)
+                    else:
+                        self.srcpath = f
+                        self.srcpath_ = f + os.sep
+                    return 1
+            return None
+        else:
+            return Entry.rexists(self)
 
     def scanner_key(self):
         return os.path.splitext(self.name)[1]

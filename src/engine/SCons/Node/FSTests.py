@@ -672,17 +672,25 @@ class RepositoryTestCase(unittest.TestCase):
         work_d4 = fs.File(os.path.join('work', 'd4'))
         list = fs.Rsearchall(['d3', work_d4])
         assert list == ['d3', work_d4], list
+
+        fs.BuildDir('build', '.')
         
-        f1 = fs.File(test.workpath("work", "i_do_not_exist"))
-        assert not f1.rexists()
+        f = fs.File(test.workpath("work", "i_do_not_exist"))
+        assert not f.rexists()
         
         test.write(["rep2", "i_exist"], "\n")
-        f1 = fs.File(test.workpath("work", "i_exist"))
-        assert f1.rexists()
+        f = fs.File(test.workpath("work", "i_exist"))
+        assert f.rexists()
         
         test.write(["work", "i_exist_too"], "\n")
-        f1 = fs.File(test.workpath("work", "i_exist_too"))
-        assert f1.rexists()
+        f = fs.File(test.workpath("work", "i_exist_too"))
+        assert f.rexists()
+
+        f1 = fs.File(os.path.join('build', 'f1'))
+        assert not f1.rexists()
+
+        f2 = fs.File(os.path.join('build', 'f2'))
+        assert f2.rexists()
 
         test.write(["rep2", "tstamp"], "tstamp\n")
         # Okay, *this* manipulation accomodates Windows FAT file systems

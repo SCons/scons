@@ -233,11 +233,19 @@ class FortranScannerTestCase9(unittest.TestCase):
         test.write('f3.f', "\n")
         env = DummyEnvironment([])
         s = SCons.Scanner.Fortran.FortranScan()
-        deps = s.scan(make_node('fff3.f'), env, DummyTarget())
+
+        n = make_node('fff3.f')
+        def my_rexists(s=n):
+            s.rexists_called = 1
+            return s.old_rexists()
+        setattr(n, 'old_rexists', n.rexists)
+        setattr(n, 'rexists', my_rexists)
+
+        deps = s.scan(n, env, DummyTarget())
         
-        # Make sure exists() gets called on the file node being
+        # Make sure rexists() got called on the file node being
         # scanned, essential for cooperation with BuildDir functionality.
-        assert SCons.Node.FS.default_fs.File(test.workpath('fff3.f')).created
+        assert n.rexists_called
         
         headers =  ['d1/f3.f', 'f3.f']
         deps_match(self, deps, map(test.workpath, headers))

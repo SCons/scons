@@ -211,11 +211,19 @@ class CScannerTestCase5(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
-        deps = s.scan(make_node('f3.cpp'), env, DummyTarget())
-        
-        # Make sure exists() gets called on the file node being
+
+        n = make_node('f3.cpp')
+        def my_rexists(s=n):
+            s.rexists_called = 1
+            return s.old_rexists()
+        setattr(n, 'old_rexists', n.rexists)
+        setattr(n, 'rexists', my_rexists)
+
+        deps = s.scan(n, env, DummyTarget())
+
+        # Make sure rexists() got called on the file node being
         # scanned, essential for cooperation with BuildDir functionality.
-        assert SCons.Node.FS.default_fs.File(test.workpath('f3.cpp')).created
+        assert n.rexists_called
         
         headers =  ['d1/f1.h', 'd1/f2.h', 'd1/f3-test.h',
                     'f1.h', 'f2.h', 'f3-test.h', 'fi.h', 'fj.h']
