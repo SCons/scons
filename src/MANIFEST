@@ -5,6 +5,7 @@ scons/Defaults.py
 scons/Environment.py
 scons/Errors.py
 scons/Job.py
+scons/exitfuncs.py
 scons/Node/__init__.py
 scons/Node/FS.py
 scons/Scanner/__init__.py
