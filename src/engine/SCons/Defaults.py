@@ -69,7 +69,7 @@ class SharedCmdGenerator:
         for src in source:
             try:
                 if src.attributes.shared != shared:
-                    raise UserError("Source file: %s must be built with shared=%s in order to be compatible with the selected target." % (src, str(shared)))
+                    raise SCons.Errors.UserError("Source file: %s must be built with shared=%s in order to be compatible with the selected target." % (src, str(shared)))
             except AttributeError:
                 pass
         for t in target:
@@ -247,7 +247,7 @@ def win32LibEmitter(target, source, env, shared=0,
                 dll = tgt
                 break
         if not dll:
-            raise UserError("A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX"))
+            raise SCons.Errors.UserError("A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX"))
         
         if env.has_key("WIN32_INSERT_DEF") and \
            env["WIN32_INSERT_DEF"] and \
