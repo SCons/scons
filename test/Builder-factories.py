@@ -43,10 +43,10 @@ import os.path
 def mkdir(env, source, target):
     t = str(target[0])
     os.makedirs(t)
-    open(os.path.join(t, 'marker'), 'w').write("MakeDirectory\\n")
+    open(os.path.join(t, 'marker'), 'wb').write("MakeDirectory\\n")
 MakeDirectory = Builder(action=mkdir, target_factory=Dir)
 def collect(env, source, target):
-    out = open(str(target[0]), 'w')
+    out = open(str(target[0]), 'wb')
     dir = str(source[0])
     for f in os.listdir(dir):
         f = os.path.join(dir, f)

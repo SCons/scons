@@ -50,11 +50,17 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(DPATH = ['.'],
-                  DC = r'%s mydc.py',
-                  DFLAGS = [],
-                  DCOM = '$DC $TARGET $SOURCES',
-                  OBJSUFFIX = '.o')
+# Force the 'dmd' tool to get added to the Environment, even if it's not
+# installed, so we get its definition of variables to deal with turning
+# '.d' suffix files into objects.
+env = Environment()
+Tool('dmd')(env)
+# Now replace those suffixes with our fake-D things.
+env.Replace(DPATH = ['.'],
+            DC = r'%s mydc.py',
+            DFLAGS = [],
+            DCOM = '$DC $TARGET $SOURCES',
+            OBJSUFFIX = '.o')
 env.Append(CPPSUFFIXES = ['.x'])
 env.Object(target = 'test1', source = 'test1.d')
 env.InstallAs('test1_d', 'test1.d')
