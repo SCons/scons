@@ -143,6 +143,8 @@ class BuildTask(SCons.Taskmaster.Task):
                 s = s + '  Stop.'
             sys.stderr.write("scons: *** %s\n" % s)
         else:
+            if e is None:
+                e = sys.exc_type
             sys.stderr.write("scons: *** %s\n" % e)
 
         self.do_failed()

@@ -73,13 +73,12 @@ class Task:
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here.  Do thread unsafe stuff in
         prepare(), executed() or failed()."""
-        try:
-            # We recorded an exception while getting this Task ready
-            # for execution.  Raise it now.
-            raise self.node.exc_type, self.node.exc_value
-        except AttributeError:
-            # The normal case:  no exception to raise.
-            pass
+
+        # Now that it's the appropriate time, give the TaskMaster a
+        # chance to raise any exceptions it encountered while preparing
+        # this task.
+        self.tm.exception_raise()
+
         try:
             self.targets[0].build()
         except KeyboardInterrupt:
@@ -194,6 +193,7 @@ class Taskmaster:
         self.ready = None # the next task that is ready to be executed
         self.calc = calc
         self.order = order
+        self.exception_set(None, None)
 
     def _find_next_ready_node(self):
         """Find the next node that is ready to be built"""
@@ -218,10 +218,9 @@ class Taskmaster:
             except:
                 # We had a problem just trying to figure out the
                 # children (like a child couldn't be linked in to a
-                # BuildDir).  Arrange to raise the exception when the
-                # Task is "executed."
-                node.exc_type = sys.exc_type
-                node.exc_value = sys.exc_value
+                # BuildDir, or a Scanner threw something).  Arrange to
+                # raise the exception when the Task is "executed."
+                self.exception_set(sys.exc_type, sys.exc_value)
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -296,8 +295,7 @@ class Taskmaster:
             # a child couldn't be linked in to a BuildDir when deciding
             # whether this node is current).  Arrange to raise the
             # exception when the Task is "executed."
-            node.exc_type = sys.exc_type
-            node.exc_value = sys.exc_value
+            self.exception_set(sys.exc_type, sys.exc_value)
         self.ready = None
 
         return task
@@ -331,4 +329,19 @@ class Taskmaster:
         self.pending.reverse()
         self.candidates.extend(self.pending)
         self.pending = []
+
+    def exception_set(self, type, value):
+        """Record an exception type and value to raise later, at an
+        appropriate time."""
+        self.exc_type = type
+        self.exc_value = value
+
+    def exception_raise(self):
+        """Raise any pending exception that was recorded while
+        getting a Task ready for execution."""
+        if self.exc_type:
+            try:
+                raise self.exc_type, self.exc_value
+            finally:
+                self.exception_set(None, None)
 

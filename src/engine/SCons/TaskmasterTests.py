@@ -385,8 +385,8 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster(targets = [n1], tasker = MyTask)
         t = tm.next_task()
-        assert n1.exc_type == MyException, n1.exc_type
-        assert str(n1.exc_value) == "from make_ready()", n1.exc_value
+        assert tm.exc_type == MyException, tm.exc_type
+        assert str(tm.exc_value) == "from make_ready()", tm.exc_value
 
 
     def test_children_errors(self):
@@ -398,8 +398,8 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = MyNode("n1")
         tm = SCons.Taskmaster.Taskmaster([n1])
         t = tm.next_task()
-        assert n1.exc_type == SCons.Errors.StopError, "Did not record StopError on node"
-        assert str(n1.exc_value) == "stop!", "Unexpected exc_value `%s'" % n1.exc_value
+        assert tm.exc_type == SCons.Errors.StopError, "Did not record StopError on node"
+        assert str(tm.exc_value) == "stop!", "Unexpected exc_value `%s'" % tm.exc_value
 
     def test_cycle_detection(self):
         """Test detecting dependency cycles
@@ -590,9 +590,9 @@ class TaskmasterTestCase(unittest.TestCase):
 
         built_text = None
         n5 = Node("n5")
-        n5.exc_type = MyException
-        n5.exc_value = "exception value"
         tm = SCons.Taskmaster.Taskmaster([n5])
+        tm.exc_type = MyException
+        tm.exc_value = "exception value"
         t = tm.next_task()
         exc_caught = None
         try:
@@ -602,6 +602,39 @@ class TaskmasterTestCase(unittest.TestCase):
             exc_caught = 1
         assert exc_caught, "did not catch expected MyException"
         assert built_text is None, built_text
+
+    def test_exception(self):
+        """Test generic Taskmaster exception handling
+
+        """
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster([n1])
+
+        tm.exception_set(1, 2)
+        assert tm.exc_type == 1, tm.exc_type
+        assert tm.exc_value == 2, tm.exc_value
+
+        tm.exception_set(None, None)
+        assert tm.exc_type is None, tm.exc_type
+        assert tm.exc_value is None, tm.exc_value
+
+        tm.exception_set("exception 1", None)
+        try:
+            tm.exception_raise()
+        except:
+            assert sys.exc_type == "exception 1", sys.exc_type
+            assert sys.exc_value is None, sys.exc_type
+        else:
+            assert 0, "did not catch expected exception"
+
+        tm.exception_set("exception 2", "xyzzy")
+        try:
+            tm.exception_raise()
+        except:
+            assert sys.exc_type == "exception 2", sys.exc_type
+            assert sys.exc_value == "xyzzy", sys.exc_type
+        else:
+            assert 0, "did not catch expected exception"
 
 
 

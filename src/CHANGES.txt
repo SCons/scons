@@ -51,6 +51,9 @@ RELEASE 0.12 - XXX
     (e.g. ${SOURCES[2]}) when calculating the build signature of a
     command.
 
+  - Don't silently swallow exceptions thrown by Scanners (or other
+    exceptions while finding a node's dependent children).
+
   From Lachlan O'Dea:
 
   - Add SharedObject() support to the masm tool.
