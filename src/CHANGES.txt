@@ -25,6 +25,9 @@ RELEASE 0.96 - XXX
   - Suppress null values in construction variables like $LIBS that use
     the internal _concat() function.
 
+  - Remove .dll files from the construction variables searched for
+    libraries that can be fed to Win32 compilers.
+
   From Chad Austin and Christoph Wiedemann:
 
   - Add support for a $RPATH variable to supply a list of directories
@@ -139,6 +142,9 @@ RELEASE 0.96 - XXX
   - Try to find the ICL license file path name in the external environment
     and the registry before resorting to the hard-coded path name.
 
+  - Add support for fetching command-line keyword=value arguments in
+    order from an ARGLIST list.
+
   From Simon Perkins:
 
   - Fix a bug introduced in building shared libraries under MinGW.
@@ -149,6 +155,9 @@ RELEASE 0.96 - XXX
 
   - If Visual Studio is installed, assume the C/C++ compiler, the linker
     and the MIDL compiler that comes with it are available, too.
+
+  - Better error messages when evaluating a construction variable
+    expansion yields a Python syntax error.
 
   From sam th:
 

@@ -61,6 +61,7 @@ def do_nothing(text): pass
 HelpFunction = do_nothing
 
 Arguments = {}
+ArgList = []
 CommandLineTargets = []
 DefaultCalled = None
 DefaultTargets = []
@@ -88,6 +89,7 @@ def _scons_add_args(alist):
     for arg in alist:
         a, b = string.split(arg, '=', 1)
         Arguments[a] = b
+        ArgList.append((a, b))
 
 def _scons_add_targets(tlist):
     if tlist:
@@ -684,6 +686,7 @@ def BuildDefaultGlobals():
 
         # Other variables we provide.
         'ARGUMENTS'             : Arguments,
+        'ARGLIST'               : ArgList,
         'BUILD_TARGETS'         : BuildTargets,
         'COMMAND_LINE_TARGETS'  : CommandLineTargets,
         'DEFAULT_TARGETS'       : DefaultTargets,

@@ -314,6 +314,17 @@ else:
     env = Environment()
 .EE
 
+The command-line variable arguments are also available
+in the ARGLIST list,
+indexed by their order on the command line.
+This allows you to process them in order rather than by name,
+if necessary.
+ARGLIST[0] returns a tuple
+containing (argname, argvalue).
+A Python exception is thrown if you
+try to access a list member that
+does not exist.
+
 .B scons
 requires Python version 1.5.2 or later.
 There should be no other dependencies or requirements to run
@@ -3748,6 +3759,37 @@ In addition to the global functions and methods,
 supports a number of Python variables
 that can be used in SConscript files
 to affect how you want the build to be performed.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+ARGLIST
+A list
+.IR keyword = value
+arguments specified on the command line.
+Each element in the list is a tuple
+containing the
+.RI ( keyword , value )
+of the argument.
+The separate
+.I keyword
+and
+.I value
+elements of the tuple
+can be accessed by
+subscripting for element
+.B [0]
+and
+.B [1]
+of the tuple, respectively.
+
+.ES
+print "first keyword, value =", ARGLIST[0][0], ARGLIST[0][1]
+print "second keyword, value =", ARGLIST[1][0], ARGLIST[1][1]
+third_tuple = ARGLIST[2]
+print "third keyword, value =", third_tuple[0], third_tuple[1]
+for key, value in ARGLIST:
+    # process key and value
+.EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
