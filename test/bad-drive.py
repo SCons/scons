@@ -94,11 +94,11 @@ test.run(arguments = bad_drive + 'no_target_1',
          status = 2)
 
 test.run(arguments = bad_drive + 'no_target_2',
-         stderr = "scons: *** No Builder for target `ccc.does_not_exist', needed by `%sno_target_2'.  Stop.\n" % bad_drive,
+         stderr = "scons: *** Source `ccc.does_not_exist' not found, needed by target `%sno_target_2'.  Stop.\n" % bad_drive,
          status = 2)
 
 test.run(arguments = 'ddd.out',
-         stderr = "scons: *** No Builder for target `%sno_source', needed by `ddd.out'.  Stop.\n" % bad_drive,
+         stderr = "scons: *** Source `%sno_source' not found, needed by target `ddd.out'.  Stop.\n" % bad_drive,
          status = 2)
 
 test.pass_test()

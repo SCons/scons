@@ -598,7 +598,7 @@ class Node:
                    not node.rexists()
         missing_sources = filter(missing, self.children())
         if missing_sources:
-            desc = "No Builder for target `%s', needed by `%s'." % (missing_sources[0], self)
+            desc = "Source `%s' not found, needed by target `%s'." % (missing_sources[0], self)
             raise SCons.Errors.StopError, desc
 
     def remove(self):

@@ -54,12 +54,12 @@ test.run(arguments = '-k foo/bar foo',
          status = 2)
 
 test.run(arguments = "aaa.out",
-         stderr = "scons: *** No Builder for target `aaa.in', needed by `aaa.out'.  Stop.\n",
+         stderr = "scons: *** Source `aaa.in' not found, needed by target `aaa.out'.  Stop.\n",
          status = 2)
 
 test.run(arguments = "-k bbb.out aaa.out",
-         stderr = """scons: *** No Builder for target `bbb.in', needed by `bbb.out'.
-scons: *** No Builder for target `aaa.in', needed by `aaa.out'.
+         stderr = """scons: *** Source `bbb.in' not found, needed by target `bbb.out'.
+scons: *** Source `aaa.in' not found, needed by target `aaa.out'.
 """,
          status = 2)
 
