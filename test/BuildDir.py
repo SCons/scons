@@ -234,9 +234,7 @@ test.write(['test', 'src', 'f1.h'], r"""
 #define F1_STR "f1.c 2\n"
 """)
 
-open('/dev/tty', 'w').write('-----\n')
 test.run(chdir='test', arguments = '../build/var5')
-print test.stdout()
 
 test.run(program = foo51, stdout = "f1.c 2\n")
 
