@@ -80,12 +80,7 @@ test.run(program = test.workpath('aaa' + _exe), stdout = "myyacc.py\naaa.y\n")
 
 
 
-yacc = None
-for dir in string.split(os.environ['PATH'], os.pathsep):
-    y = os.path.join(dir, 'yacc' + _exe)
-    if os.path.exists(y):
-        yacc = y
-        break
+yacc = test.where_is('yacc')
 
 if yacc:
 

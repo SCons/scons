@@ -185,12 +185,7 @@ test.fail_test(test.read('test6' + _exe) != "%s\nThis is a .FPP file.\n" % o)
 
 
 
-g77 = None
-for dir in string.split(os.environ['PATH'], os.pathsep):
-    g = os.path.join(dir, 'g77' + _exe)
-    if os.path.exists(g):
-        g77 = g
-        break
+g77 = test.where_is('g77')
 
 if g77:
 

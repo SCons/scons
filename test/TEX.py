@@ -32,11 +32,6 @@ import TestSCons
 
 python = sys.executable
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
-
 test = TestSCons.TestSCons()
 
 
@@ -68,12 +63,7 @@ test.fail_test(test.read('test.dvi') != "This is a test.\n")
 
 
 
-tex = None
-for dir in string.split(os.environ['PATH'], os.pathsep):
-    t = os.path.join(dir, 'tex' + _exe)
-    if os.path.exists(t):
-        tex = t
-        break
+tex = test.where_is('tex')
 
 if tex:
 

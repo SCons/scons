@@ -32,11 +32,6 @@ import TestSCons
 
 python = sys.executable
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
-
 test = TestSCons.TestSCons()
 
 
@@ -74,12 +69,7 @@ test.fail_test(not os.path.exists(test.workpath('test.pdf')))
 
 
 
-pdftex = None
-for dir in string.split(os.environ['PATH'], os.pathsep):
-    t = os.path.join(dir, 'pdftex' + _exe)
-    if os.path.exists(t):
-        pdftex = t
-        break
+pdftex = test.where_is('pdftex')
 
 if pdftex:
 

@@ -74,12 +74,7 @@ test.run(program = test.workpath('aaa' + _exe), stdout = "mylex.py\naaa.l\n")
 
 
 
-lex = None
-for dir in string.split(os.environ['PATH'], os.pathsep):
-    l = os.path.join(dir, 'lex' + _exe)
-    if os.path.exists(l):
-        lex = l
-        break
+lex = test.where_is('lex')
 
 if lex:
 

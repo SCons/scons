@@ -32,11 +32,6 @@ import TestSCons
 
 python = sys.executable
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
-
 test = TestSCons.TestSCons()
 
 
@@ -126,12 +121,7 @@ test.fail_test(test.read('test4.ps') != " -x\nThis is a .latex test.\n")
 
 
 
-dvips = None
-for dir in string.split(os.environ['PATH'], os.pathsep):
-    l = os.path.join(dir, 'dvips' + _exe)
-    if os.path.exists(l):
-        dvips = l
-        break
+dvips = test.where_is('dvips')
 
 if dvips:
 

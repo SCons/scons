@@ -41,13 +41,9 @@ or incorrect permissions).
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-from string import join, split
-
 __author__ = "Steven Knight <knight@baldmt.com>"
 __revision__ = "TestCmd.py 0.D002 2001/08/31 14:56:12 software"
 __version__ = "0.02"
-
-from types import *
 
 import os
 import os.path
@@ -55,9 +51,26 @@ import popen2
 import re
 import shutil
 import stat
+import string
 import sys
 import tempfile
 import traceback
+import types
+
+try:
+    from UserString import UserString
+except ImportError:
+    class UserString:
+        pass
+
+if hasattr(types, 'UnicodeType'):
+    def is_String(e):
+        return type(e) is types.StringType \
+            or type(e) is types.UnicodeType \
+            or isinstance(e, UserString)
+else:
+    def is_String(e):
+        return type(e) is types.StringType or isinstance(e, UserString)
 
 tempfile.template = 'testcmd.'
 
@@ -161,10 +174,10 @@ def pass_test(self = None, condition = 1, function = None):
 def match_exact(lines = None, matches = None):
     """
     """
-    if not type(lines) is ListType:
-	lines = split(lines, "\n")
-    if not type(matches) is ListType:
-	matches = split(matches, "\n")
+    if not type(lines) is types.ListType:
+	lines = string.split(lines, "\n")
+    if not type(matches) is types.ListType:
+	matches = string.split(matches, "\n")
     if len(lines) != len(matches):
 	return
     for i in range(len(lines)):
@@ -175,10 +188,10 @@ def match_exact(lines = None, matches = None):
 def match_re(lines = None, res = None):
     """
     """
-    if not type(lines) is ListType:
-	lines = split(lines, "\n")
-    if not type(res) is ListType:
-	res = split(res, "\n")
+    if not type(lines) is types.ListType:
+	lines = string.split(lines, "\n")
+    if not type(res) is types.ListType:
+	res = string.split(res, "\n")
     if len(lines) != len(res):
 	return
     for i in range(len(lines)):
@@ -190,11 +203,52 @@ def match_re_dotall(lines = None, res = None):
     """
     """
     if not type(lines) is type(""):
-        lines = join(lines, "\n")
+        lines = string.join(lines, "\n")
     if not type(res) is type(""):
-        res = join(res, "\n")
+        res = string.join(res, "\n")
     if re.compile("^" + res + "$", re.DOTALL).match(lines):
         return 1
+
+if sys.platform == 'win32':
+
+    def where_is(file, path=None, pathext=None):
+        if path is None:
+            path = os.environ['PATH']
+        if is_String(path):
+            path = string.split(path, os.pathsep)
+        if pathext is None:
+            pathext = os.environ['PATHEXT']
+        if is_String(pathext):
+            pathext = string.split(pathext, os.pathsep)
+        for ext in pathext:
+            if string.lower(ext) == string.lower(file[-len(ext):]):
+                pathext = ['']
+                break
+        for dir in path:
+            f = os.path.join(dir, file)
+            for ext in pathext:
+                fext = f + ext
+                if os.path.isfile(fext):
+                    return fext
+        return None
+
+else:
+
+    def where_is(file, path=None, pathext=None):
+        if path is None:
+            path = os.environ['PATH']
+        if is_String(path):
+            path = string.split(path, os.pathsep)
+        for dir in path:
+            f = os.path.join(dir, file)
+            if os.path.isfile(f):
+                try:
+                    st = os.stat(f)
+                except:
+                    continue
+                if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                    return f
+        return None
 
 class TestCmd:
     """Class TestCmd
@@ -372,7 +426,7 @@ class TestCmd:
 	be specified; it must begin with an 'r'.  The default is
 	'rb' (binary read).
 	"""
-	if type(file) is ListType:
+	if type(file) is types.ListType:
 	    file = apply(os.path.join, tuple(file))
 	if not os.path.isabs(file):
 	    file = os.path.join(self.workdir, file)
@@ -416,7 +470,7 @@ class TestCmd:
 	except AttributeError:
 	    (tochild, fromchild, childerr) = os.popen3(cmd)
 	    if stdin:
-		if type(stdin) is ListType:
+		if type(stdin) is types.ListType:
 		    for line in stdin:
 			tochild.write(line)
 		else:
@@ -432,7 +486,7 @@ class TestCmd:
 	    raise
 	else:
 	    if stdin:
-		if type(stdin) is ListType:
+		if type(stdin) is types.ListType:
 		    for line in stdin:
 			p.tochild.write(line)
 		else:
@@ -487,7 +541,7 @@ class TestCmd:
 	for sub in subdirs:
 	    if sub is None:
 		continue
-	    if type(sub) is ListType:
+	    if type(sub) is types.ListType:
 		sub = apply(os.path.join, tuple(sub))
 	    new = os.path.join(self.workdir, sub)
 	    try:
@@ -505,7 +559,7 @@ class TestCmd:
 	assumed to be under the temporary working directory unless it
 	is an absolute path name.
 	"""
-	if type(file) is ListType:
+	if type(file) is types.ListType:
 	    file = apply(os.path.join, tuple(file))
 	if not os.path.isabs(file):
 	    file = os.path.join(self.workdir, file)
@@ -516,6 +570,15 @@ class TestCmd:
 	"""Set the verbose level.
 	"""
 	self.verbose = verbose
+
+    def where_is(self, file, path=None, pathext=None):
+        """Find an executable file.
+        """
+	if type(file) is types.ListType:
+	    file = apply(os.path.join, tuple(file))
+	if not os.path.isabs(file):
+	    file = where_is(file, path, pathext)
+        return file
 
     def workdir_set(self, path):
 	"""Creates a temporary working directory with the specified
@@ -590,7 +653,7 @@ class TestCmd:
 	exist.  The I/O mode for the file may be specified; it must
 	begin with a 'w'.  The default is 'wb' (binary write).
 	"""
-	if type(file) is ListType:
+	if type(file) is types.ListType:
 	    file = apply(os.path.join, tuple(file))
 	if not os.path.isabs(file):
 	    file = os.path.join(self.workdir, file)

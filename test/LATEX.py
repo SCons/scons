@@ -32,11 +32,6 @@ import TestSCons
 
 python = sys.executable
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
-
 test = TestSCons.TestSCons()
 
 
@@ -75,12 +70,7 @@ test.fail_test(test.read('test2.dvi') != "This is a .latex test.\n")
 
 
 
-latex = None
-for dir in string.split(os.environ['PATH'], os.pathsep):
-    l = os.path.join(dir, 'latex' + _exe)
-    if os.path.exists(l):
-        latex = l
-        break
+latex = test.where_is('latex')
 
 if latex:
 
