@@ -201,6 +201,27 @@ Invalid value(s) for option: foo,bar
 File "SConstruct", line 14, in ?
 """, status=2)
 
+test.write('SConstruct', """
+from SCons.Options import ListOption
+
+opts = Options(args=ARGUMENTS)
+opts.AddOptions(
+    ListOption('gpib',
+               'comment',
+               ['ENET', 'GPIB'],
+               names = ['ENET', 'GPIB', 'LINUX_GPIB', 'NO_GPIB']),
+    )
+
+env = Environment(options=opts)
+Help(opts.GenerateHelpText(env))
+
+print env['gpib']
+Default(env.Alias('dummy', None))
+""")
+
+test.run(stdout=test.wrap_stdout(read_str="ENET,GPIB\n", build_str="""\
+scons: Nothing to be done for `dummy'.
+"""))
 
 #### test PackageOption ####
 

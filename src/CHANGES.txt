@@ -57,6 +57,9 @@ RELEASE 0.97 - XXX
     so it prints a meaningful string, not the binary representation of
     the function contents.
 
+  - Allow a ListOption's default value(s) to be a Python list of specified
+    values, not just a string containing a comma-separated list of names.
+
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption
