@@ -2066,6 +2066,8 @@ Source files must have one of the following extensions:
   .FOR    Fortran file
   .fpp    Fortran file + C pre-processor
   .FPP    Fortran file + C pre-processor
+  .m      Objective C file
+  .mm     Objective C++ file
   .s      assembly language file
   .S      WIN32:  assembly language file
           POSIX:  assembly language file + C pre-processor
@@ -4930,6 +4932,7 @@ The default list is:
 [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
  ".h", ".H", ".hxx", ".hpp", ".hh",
  ".F", ".fpp", ".FPP",
+ ".m", ".mm",
  ".S", ".spp", ".SPP"]
 .EE
 
@@ -4975,7 +4978,10 @@ SCons also treats files with the suffixes
 .IR .c++ ,
 and
 .I .C++
-as C++ files.
+as C++ files,
+and files with
+.I .mm
+suffixes as Objective C++ files.
 On case-sensitive systems (Linux, UNIX, and other POSIX-alikes),
 SCons also treats
 .I .C

@@ -40,7 +40,7 @@ import SCons.Util
 
 compilers = ['CC', 'c++']
 
-CXXSuffixes = ['.cpp', '.cc', '.cxx', '.c++', '.C++']
+CXXSuffixes = ['.cpp', '.cc', '.cxx', '.c++', '.C++', '.mm']
 if SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CXXSuffixes.append('.C')
 
