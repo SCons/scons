@@ -31,6 +31,8 @@ RELEASE 0.02 -
   - Added a GetBuildPath() method to return the full path to the
     Node for a specified string.
 
+  - Fixed variable substitution in CPPPATH and LIBPATH.
+
   From Anthony Roach:
 
   - Documented CXXFLAGS, CXXCOM, and CPPPATH.

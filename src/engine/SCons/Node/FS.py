@@ -50,7 +50,7 @@ except AttributeError:
     def file_link(src, dest):
         shutil.copyfile(src, dest)
         st=os.stat(src)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]))
+        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
 
 class PathName:
     """This is a string like object with limited capabilities (i.e.,

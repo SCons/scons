@@ -31,6 +31,7 @@ import unittest
 import SCons.Node.FS
 from TestCmd import TestCmd
 from SCons.Errors import UserError
+import stat
 
 built_it = None
 
@@ -84,6 +85,18 @@ class BuildDirTestCase(unittest.TestCase):
         f2 = fs.File('build/var2/test1')
         assert f1.srcpath == 'src/test1', f1.srcpath
         assert f2.srcpath == 'src/test1', f2.srcpath
+
+        # Test to see if file_link() works...
+        test=TestCmd(workdir='')
+        test.subdir('src','build')
+        test.write('src/foo', 'foo\n')
+        os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
+        SCons.Node.FS.file_link(test.workpath('src/foo'),
+                                test.workpath('build/foo'))
+        os.chmod(test.workpath('src/foo'), stat.S_IRUSR | stat.S_IWRITE)
+        st=os.stat(test.workpath('build/foo'))
+        assert (stat.S_IMODE(st[stat.ST_MODE]) & stat.S_IWRITE), \
+               stat.S_IMODE(st[stat.ST_MODE])
 
         exc_caught = 0
         try:

@@ -188,17 +188,20 @@ class UtilTestCase(unittest.TestCase):
         assert dict['_LIBFLAGS'][2] == 'foobazbar', \
                dict['_LIBFLAGS'][2]
 
-        dict = {'CPPPATH'   : [ 'foo', 'bar', 'baz' ],
+        dict = {'CPPPATH'   : [ 'foo', 'bar', 'baz', '$FOO/bar' ],
                 'INCPREFIX' : 'foo',
-                'INCSUFFIX' : 'bar'}
+                'INCSUFFIX' : 'bar',
+                'FOO'       : 'baz' }
         autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_INCFLAGS']) == 3, dict('_INCFLAGS')
+        assert len(dict['_INCFLAGS']) == 4, dict['_INCFLAGS']
         assert dict['_INCFLAGS'][0] == os.path.normpath('foo/xx/foobar'), \
                dict['_INCFLAGS'][0]
         assert dict['_INCFLAGS'][1] == os.path.normpath('foo/xx/barbar'), \
                dict['_INCFLAGS'][1]
         assert dict['_INCFLAGS'][2] == os.path.normpath('foo/xx/bazbar'), \
                dict['_INCFLAGS'][2]
+        assert dict['_INCFLAGS'][3] == os.path.normpath('foo/xx/baz/barbar'), \
+               dict['_INCFLAGS'][3]
         
         
 if __name__ == "__main__":

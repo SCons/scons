@@ -266,7 +266,7 @@ class VarInterpolator:
         src = dict[self.src]
         if not type(src) is types.ListType and not isinstance(src, UserList):
             src = [ src ]
-        return src
+        return map(lambda x, d=dict: scons_subst(x, {}, d), src)
 
     def generate(self, dict):
         if not dict.has_key(self.src):
