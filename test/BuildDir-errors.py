@@ -151,5 +151,22 @@ scons: internal stack trace:
 
 f.close()
 
-#
+# ensure that specifying multiple source directories for one
+# build directory results in an error message, rather
+# than just silently failing.
+test.subdir('duplicate', ['duplicate', 'src1'], ['duplicate', 'src2'])
+test.write(['duplicate', 'SConstruct'], """\
+BuildDir('build', 'src1')
+BuildDir('build', 'src2')
+""")
+
+test.run(chdir = 'duplicate',
+         arguments = ".",
+         status = 2,
+         stderr = None)
+test.fail_test(test.stderr() != """
+scons: *** 'build' already has a source directory: 'src1'.
+File \"SConstruct\", line 2, in ?
+""")
+
 test.pass_test()
