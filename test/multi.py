@@ -161,7 +161,7 @@ test.write('file5b.in', 'file5b.in\n')
 test.run(arguments='file5.out', 
          stderr=TestSCons.re_escape("""
 scons: warning: Two different environments were specified for target file5.out,
-	but they appear to have the same action: build(["file5.out"], ["file5b.in"])
+	but they appear to have the same action: build(target, source, env)
 """) + TestSCons.file_expr)
 
 test.must_match('file5.out', "file5a.in\nfile5b.in\n")
