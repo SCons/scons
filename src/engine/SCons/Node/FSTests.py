@@ -1528,7 +1528,8 @@ class CacheDirTestCase(unittest.TestCase):
             self.retrieved = []
             built_it = None
 
-            f1.build()
+            r = f1.retrieve_from_cache()
+            assert r == 1, r
             assert self.retrieved == [f1], self.retrieved
             assert built_it is None, built_it
 
@@ -1536,9 +1537,10 @@ class CacheDirTestCase(unittest.TestCase):
             self.retrieved = []
             built_it = None
 
-            f1.build()
+            r = f1.retrieve_from_cache()
+            assert r is None, r
             assert self.retrieved == [f1], self.retrieved
-            assert built_it, built_it
+            assert built_it is None, built_it
         finally:
             SCons.Node.FS.CacheRetrieve = save_CacheRetrieve
 
@@ -1554,7 +1556,8 @@ class CacheDirTestCase(unittest.TestCase):
             self.retrieved = []
             built_it = None
 
-            f2.build()
+            r = f2.retrieve_from_cache()
+            assert r == 1, r
             assert self.retrieved == [f2], self.retrieved
             assert built_it is None, built_it
 
@@ -1562,9 +1565,10 @@ class CacheDirTestCase(unittest.TestCase):
             self.retrieved = []
             built_it = None
 
-            f2.build()
+            r = f2.retrieve_from_cache()
+            assert r is None, r
             assert self.retrieved == [f2], self.retrieved
-            assert built_it, built_it
+            assert built_it is None, built_it
         finally:
             SCons.Node.FS.CacheRetrieveSilent = save_CacheRetrieveSilent
 
@@ -1602,12 +1606,19 @@ class CacheDirTestCase(unittest.TestCase):
 
         # Verify how the cachepath() method determines the name
         # of the file in cache.
-        f5 = fs.File("cd.f5")
-        f5.set_bsig('a_fake_bsig')
-        cp = f5.cachepath()
-        dirname = os.path.join('cache', 'A')
-        filename = os.path.join(dirname, 'a_fake_bsig')
-        assert cp == (dirname, filename), cp
+        def my_collect(list):
+            return list[0]
+        save_collect = SCons.Sig.MD5.collect
+        SCons.Sig.MD5.collect = my_collect
+        try:
+            f5 = fs.File("cd.f5")
+            f5.set_bsig('a_fake_bsig')
+            cp = f5.cachepath()
+            dirname = os.path.join('cache', 'A')
+            filename = os.path.join(dirname, 'a_fake_bsig')
+            assert cp == (dirname, filename), cp
+        finally:
+            SCons.Sig.MD5.collect = save_collect
 
         # Verify that no bsig raises an InternalERror
         f6 = fs.File("cd.f6")
@@ -1661,7 +1672,8 @@ class CacheDirTestCase(unittest.TestCase):
             self.retrieved = []
             built_it = None
 
-            f8.build()
+            r = f8.retrieve_from_cache()
+            assert r == 1, r
             assert self.retrieved == [f8], self.retrieved
             assert built_it is None, built_it
 
@@ -1669,9 +1681,10 @@ class CacheDirTestCase(unittest.TestCase):
             self.retrieved = []
             built_it = None
 
-            f8.build()
+            r = f8.retrieve_from_cache()
+            assert r is None, r
             assert self.retrieved == [f8], self.retrieved
-            assert built_it, built_it
+            assert built_it is None, built_it
         finally:
             SCons.Node.FS.CacheRetrieveSilent = save_CacheRetrieveSilent
 

@@ -270,5 +270,33 @@ test.run(chdir = 'subdir')
 
 test.fail_test(os.path.exists(test.workpath('cache3', 'N', 'None')))
 
+#############################################################################
+# Test that multiple target files get retrieved from cache correctly.
+
+test.subdir('multiple', 'cache4')
+
+test.write(['multiple', 'SConstruct'], """\
+CacheDir(r'%s')
+env = Environment()
+env.Command(['foo', 'bar'], ['input'], 'touch foo bar')
+""" % (test.workpath('cache4')))
+
+test.write(['multiple', 'input'], "multiple/input\n")
+
+test.run(chdir = 'multiple')
+
+test.fail_test(not os.path.exists(test.workpath('multiple', 'foo')))
+test.fail_test(not os.path.exists(test.workpath('multiple', 'bar')))
+
+test.run(chdir = 'multiple', arguments = '-c')
+
+test.fail_test(os.path.exists(test.workpath('multiple', 'foo')))
+test.fail_test(os.path.exists(test.workpath('multiple', 'bar')))
+
+test.run(chdir = 'multiple')
+
+test.fail_test(not os.path.exists(test.workpath('multiple', 'foo')))
+test.fail_test(not os.path.exists(test.workpath('multiple', 'bar')))
+
 # All done.
 test.pass_test()

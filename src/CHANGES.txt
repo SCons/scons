@@ -78,6 +78,12 @@ RELEASE 0.95 - XXX
     environments so long as the builders have the same signature for
     the environments in questions (that is, they're the same action).
 
+  From Bob Halley:
+
+  - When multiple targets are built by a single action, retrieve all
+    of them from cache, not just the first target, and exec the build
+    command if any of the targets isn't present in the cache.
+
   From Steven Knight:
 
   - Fix EnsureSConsVersion() so it checks against the SCons version,

@@ -92,7 +92,13 @@ class Task:
         prepare(), executed() or failed()."""
 
         try:
-            self.targets[0].build()
+            everything_was_cached = 1
+            for t in self.targets:
+                if not t.retrieve_from_cache():
+                    everything_was_cached = 0
+                    break
+            if not everything_was_cached:
+                self.targets[0].build()
         except KeyboardInterrupt:
             raise
         except SystemExit:

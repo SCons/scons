@@ -31,6 +31,7 @@ import SCons.Errors
 
 
 built_text = None
+cache_text = []
 visited_nodes = []
 executed = None
 scan_called = 0
@@ -40,6 +41,7 @@ class Node:
         self.name = name
         self.kids = kids
         self.scans = scans
+        self.cached = 0
         self.scanned = 0
         self.scanner = None
         self.builder = Node.build
@@ -54,6 +56,12 @@ class Node:
 
         for kid in kids:
             kid.parents.append(self)
+
+    def retrieve_from_cache(self):
+        global cache_text
+        if self.cached:
+            cache_text.append(self.name + " retrieved")
+        return self.cached
 
     def build(self):
         global built_text
@@ -654,6 +662,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
         """
         global built_text
+        global cache_text
 
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster([n1])
@@ -707,6 +716,43 @@ class TaskmasterTestCase(unittest.TestCase):
             assert type(e.args[2]) == type(sys.exc_traceback), e.args[2]
         else:
             raise TestFailed, "did not catch expected BuildError"
+
+        built_text = None
+        cache_text = []
+        n5 = Node("n5")
+        n6 = Node("n6")
+        n6.cached = 1
+        tm = SCons.Taskmaster.Taskmaster([n5])
+        t = tm.next_task()
+        # This next line is moderately bogus.  We're just reaching
+        # in and setting the targets for this task to an array.  The
+        # "right" way to do this would be to have the next_task() call
+        # set it up by having something that approximates a real Builder
+        # return this list--but that's more work than is probably
+        # warranted right now.
+        t.targets = [n5, n6]
+        t.execute()
+        assert built_text == "n5 built", built_text
+        assert cache_text == [], cache_text
+
+        built_text = None
+        cache_text = []
+        n7 = Node("n7")
+        n8 = Node("n8")
+        n7.cached = 1
+        n8.cached = 1
+        tm = SCons.Taskmaster.Taskmaster([n7])
+        t = tm.next_task()
+        # This next line is moderately bogus.  We're just reaching
+        # in and setting the targets for this task to an array.  The
+        # "right" way to do this would be to have the next_task() call
+        # set it up by having something that approximates a real Builder
+        # return this list--but that's more work than is probably
+        # warranted right now.
+        t.targets = [n7, n8]
+        t.execute()
+        assert built_text is None, built_text
+        assert cache_text == ["n7 retrieved", "n8 retrieved"], cache_text
 
     def test_exception(self):
         """Test generic Taskmaster exception handling
