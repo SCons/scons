@@ -36,7 +36,7 @@ import SCons.Tool
 import SCons.Defaults
 import SCons.Util
 
-CSuffixes = ['.c']
+CSuffixes = ['.c', '.m']
 if not SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CSuffixes.append('.C')
 

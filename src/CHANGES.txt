@@ -25,6 +25,11 @@ RELEASE 0.97 - XXX
   - Allow Tools found on a toolpath to import Python modules from
     their local directory.
 
+  From Timothee Besset:
+
+  - Add support for Objective C/C++ .m and .mm file suffixes (for
+    Mac OS X).
+
   From Steve Christensen:
 
   - Handle exceptions from Python functions as build actions.
