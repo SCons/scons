@@ -53,18 +53,21 @@ from SCons.Builder import Builder
 #
 # Task control.
 #
-class Task:
+class BuildTask(SCons.Taskmaster.Task):
     """An SCons build task."""
-
-    def __init__(self, target):
-        self.target = target
-
     def execute(self):
         try:
             self.target.build()
         except BuildError, e:
             sys.stderr.write("scons: *** [%s] Error %d\n" % (e.node, e.stat))
             raise
+
+class CleanTask(SCons.Taskmaster.Task):
+    """An SCons clean task."""
+    def execute(self):
+        if hasattr(self.target, "builder"):
+	    os.unlink(self.target.path)
+	    print "Removed " + self.target.path
 
 class ScriptTaskmaster(SCons.Taskmaster.Taskmaster):
     """Controlling logic for tasks.
@@ -92,6 +95,8 @@ include_dirs = []
 help_option = None
 num_jobs = 1
 scripts = []
+task_class = BuildTask	# default action is to build targets
+current_func = None
 
 # utility functions
 
@@ -299,7 +304,12 @@ def options_init():
 	short = 'bmSt', long = ['no-keep-going', 'stop', 'touch'],
 	help = "Ignored for compatibility.")
 
-    Option(func = opt_not_yet,
+    def opt_c(opt, arg):
+	global task_class, current_func
+	task_class = CleanTask
+	current_func = SCons.Taskmaster.current
+
+    Option(func = opt_c,
 	short = 'c', long = ['clean', 'remove'],
 	help = "Remove specified targets and dependencies.")
 
@@ -517,7 +527,7 @@ def UsageString():
 
 
 def main():
-    global scripts, help_option, num_jobs
+    global scripts, help_option, num_jobs, task_class, current_func
 
     targets = []
 
@@ -607,9 +617,13 @@ def main():
 	targets = default_targets
 
     nodes = map(lambda x: SCons.Node.FS.default_fs.File(x), targets)
+
     calc = SCons.Sig.Calculator(SCons.Sig.MD5)
 
-    taskmaster = ScriptTaskmaster(nodes, Task, calc.current)
+    if not current_func:
+        current_func = calc.current
+
+    taskmaster = ScriptTaskmaster(nodes, task_class, current_func)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     jobs.start()
