@@ -2001,6 +2001,13 @@ f5: \
         assert str(t) == 'xxx.out', str(t)
         assert 'xxx.in' in map(lambda x: x.path, t.sources)
 
+        # Make sure we can use Builder keyword arguments
+        # on Command() calls.
+        env.Command(target='mmm.out', source='mmm.1.in',
+                    action='multibuild', multi=1)
+        env.Command(target='mmm.out', source='mmm.2.in',
+                    action='multibuild', multi=1)
+
     def test_Configure(self):
         """Test the Configure() method"""
         # Configure() will write to a local temporary file.

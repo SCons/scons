@@ -117,10 +117,13 @@ class Environment:
         self._dict.update(dict)
     def get_calculator(self):
         return SCons.Sig.default_calc
+    def get_scanner(self, scanner_key):
+        return self._dict['SCANNERS'][0]
 
 class Builder:
-    def __init__(self, is_explicit=1):
-        self.env = Environment()
+    def __init__(self, env=None, is_explicit=1):
+        if env is None: env = Environment()
+        self.env = env
         self.overrides = {}
         self.action = MyAction()
         self.source_factory = MyNode
@@ -796,8 +799,6 @@ class NodeTestCase(unittest.TestCase):
     def test_get_source_scanner(self):
         """Test fetching the source scanner for a Node
         """
-        class Builder:
-            pass
         target = SCons.Node.Node()
         source = SCons.Node.Node()
         s = target.get_source_scanner(source)
@@ -807,18 +808,33 @@ class NodeTestCase(unittest.TestCase):
         ts2 = Scanner()
         ts3 = Scanner()
 
-        source.backup_source_scanner = ts1
-        s = target.get_source_scanner(source)
+        class Builder1(Builder):
+            def __call__(self, source):
+                r = SCons.Node.Node()
+                r.builder = self
+                return [r]
+        class Builder2(Builder1):
+            def __init__(self, scanner):
+                self.source_scanner = scanner
+
+        builder = Builder2(ts1)
+            
+        targets = builder([source])
+        s = targets[0].get_source_scanner(source)
         assert s is ts1, s
 
-        target.builder = Builder()
+        target.builder_set(Builder2(ts1))
         target.builder.source_scanner = ts2
         s = target.get_source_scanner(source)
         assert s is ts2, s
 
-        target.source_scanner = ts3
-        s = target.get_source_scanner(source)
+        builder = Builder1(env=Environment(SCANNERS = [ts3]))
+
+        targets = builder([source])
+        
+        s = targets[0].get_source_scanner(source)
         assert s is ts3, s
+
 
     def test_scan(self):
         """Test Scanner functionality
@@ -831,8 +847,7 @@ class NodeTestCase(unittest.TestCase):
         d = MyNode("ddd")
         node.found_includes = [d]
 
-        assert node.target_scanner == None, node.target_scanner
-        node.target_scanner = s
+        node.builder.target_scanner = s
         assert node.implicit is None
 
         node.scan()
@@ -866,7 +881,7 @@ class NodeTestCase(unittest.TestCase):
             sn = StoredNode("eee")
             sn._children = ['fake']
             sn.builder_set(Builder())
-            sn.target_scanner = s
+            sn.builder.target_scanner = s
 
             sn.scan()
 
