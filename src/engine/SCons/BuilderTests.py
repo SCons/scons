@@ -39,6 +39,7 @@ import TestCmd
 import SCons.Builder
 import SCons.Errors
 import SCons.Node.FS
+import SCons.Warnings
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
@@ -158,17 +159,24 @@ class BuilderTestCase(unittest.TestCase):
         assert target.sources[1].name == uni('n19')
 
     def test_noname(self):
-        """Test error reporting for missing name
+        """Test deprecated warning for Builder name.
 
-        Verify that the Builder constructor gives an error message if the
-        name is missing.
+        Using the name argument for Builder() is deprectaed and the
+        user should receive a warning.
         """
+        SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
+        SCons.Warnings.warningAsException(1)
+
         try:
-            b = SCons.Builder.Builder()
-        except SCons.Errors.UserError:
-            pass
-        else:
-            assert 0
+            try:
+                b = SCons.Builder.Builder(name='foo')
+            except SCons.Warnings.DeprecatedWarning:
+                pass
+            else:
+                assert 0
+        finally:
+            SCons.Warnings.suppressWarningClass(SCons.Warnings.DeprecatedWarning)
+            SCons.Warnings.warningAsException(0)
 
     def test_action(self):
         """Test Builder creation

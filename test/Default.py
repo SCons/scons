@@ -43,32 +43,32 @@ file.close()
 """)
 
 test.write(['one', 'SConstruct'], """
-B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out')
 """ % python)
 
 test.write(['two', 'SConstruct'], """
-B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out', 'bar.out')
 """ % python)
 
 test.write(['three', 'SConstruct'], """
-B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out bar.out')
 """ % python)
 
 test.write(['four', 'SConstruct'], """
-B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = ['foo bar'], source = 'foo.in')
 env.B(target = 'foo', source = 'foo.in')
 env.B(target = 'bar', source = 'bar.in')
@@ -76,8 +76,8 @@ Default(['foo bar'])
 """ % python)
 
 test.write(['five', 'SConstruct'], """
-B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 Default(env.B(target = 'foo.out', source = 'foo.in'))
 Default(env.B(target = 'bar.out', source = 'bar.in'))
 """ % python)
@@ -115,8 +115,8 @@ test.fail_test(test.read(test.workpath('five', 'bar.out')) != "five/bar.in\n")
 test.subdir('sub1')
 
 test.write('SConstruct', """
-B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 SConscript('sub1/SConscript')
 """ % python)
@@ -124,8 +124,8 @@ SConscript('sub1/SConscript')
 test.write('xxx.in', "xxx.in\n")
 
 test.write(['sub1', 'SConscript'], """
-B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 Default('xxx.out')
 """ % python)
@@ -143,8 +143,8 @@ test.subdir('sub2')
 
 test.write('SConstruct', """
 Default('sub2')
-B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 SConscript('sub2/SConscript')
 """ % python)
@@ -152,8 +152,8 @@ SConscript('sub2/SConscript')
 test.write('xxx.in', "xxx.in\n")
 
 test.write(['sub2', 'SConscript'], """
-B = Builder(name = 'B', action = r'%s build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 """ % python)
 

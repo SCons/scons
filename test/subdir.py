@@ -40,8 +40,8 @@ file.close()
 """)
 
 test.write('SConstruct', """
-B = Builder(name = "B", action = "python build.py $TARGETS $SOURCES")
-env = Environment(BUILDERS = [B])
+B = Builder(action = "python build.py $TARGETS $SOURCES")
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'subdir/f1.out', source = 'subdir/f1.in')
 env.B(target = 'subdir/f2.out', source = 'subdir/f2.in')
 env.B(target = 'subdir/f3.out', source = 'subdir/f3.in')

@@ -30,6 +30,7 @@ import sys
 import os
 import os.path
 import SCons.Node.FS
+import SCons.Warnings
 
 test = TestCmd.TestCmd(workdir = '')
 
@@ -230,11 +231,23 @@ class CScannerTestCase8(unittest.TestCase):
 
 class CScannerTestCase9(unittest.TestCase):
     def runTest(self):
+        SCons.Warnings.enableWarningClass(SCons.Warnings.DependencyWarning)
+        class TestOut:
+            def __call__(self, x):
+                self.out = x
+
+        to = TestOut()
+        to.out = None
+        SCons.Warnings._warningOut = to
         test.write('fa.h','\n')
         fs = SCons.Node.FS.FS(test.workpath(''))
         s = SCons.Scanner.C.CScan(fs=fs)
         env = DummyEnvironment([])
         deps = s.scan(fs.File('fa.cpp'), env, DummyTarget())
+
+        # Did we catch the warning associated with not finding fb.h?
+        assert to.out
+        
         deps_match(self, deps, [ 'fa.h' ])
         test.unlink('fa.h')
 

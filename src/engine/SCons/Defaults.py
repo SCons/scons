@@ -68,8 +68,9 @@ class SharedCmdGenerator:
     def __call__(self, target, source, env, shared=0, **kw):
         for src in source:
             try:
-                if src.attributes.shared != shared:
-                    raise SCons.Errors.UserError("Source file: %s must be built with shared=%s in order to be compatible with the selected target." % (src, str(shared)))
+                if (src.attributes.shared and not shared) or \
+                   (shared and not src.attributes.shared):
+                    raise SCons.Errors.UserError("Source file: %s must be built with shared=%s in order to be compatible with target: %s" % (src, str(shared), target[0]))
             except AttributeError:
                 pass
         for t in target:
@@ -90,15 +91,13 @@ def yaccEmitter(target, source, env, **kw):
                       '.h')
     return (target, source)
 
-CFile = SCons.Builder.Builder(name = 'CFile',
-                              action = { '.l'    : '$LEXCOM',
+CFile = SCons.Builder.Builder(action = { '.l'    : '$LEXCOM',
                                          '.y'    : '$YACCCOM',
                                        },
                               emitter = yaccEmitter,
                               suffix = '$CFILESUFFIX')
 
-CXXFile = SCons.Builder.Builder(name = 'CXXFile',
-                                action = { '.ll' : '$LEXCOM',
+CXXFile = SCons.Builder.Builder(action = { '.ll' : '$LEXCOM',
                                            '.yy' : '$YACCCOM',
                                          },
                                 emitter = yaccEmitter,
@@ -156,9 +155,8 @@ static_obj = SCons.Builder.DictCmdGenerator({ ".C"   : C_static,
                                               ".FOR" : F77Action,
                                               ".fpp" : F77PPAction,
                                               ".FPP" : F77PPAction })
-                                                     
-Object = SCons.Builder.Builder(name = 'Object',
-                               generator = \
+
+Object = SCons.Builder.Builder(generator = \
                                SharedCmdGenerator(static=SCons.Action.CommandGeneratorAction(static_obj),
                                                   shared=SCons.Action.CommandGeneratorAction(shared_obj)),
                                prefix = '$OBJPREFIX',
@@ -166,7 +164,7 @@ Object = SCons.Builder.Builder(name = 'Object',
                                src_suffix = static_obj.src_suffixes(),
                                src_builder = [CFile, CXXFile])
 
-def win32TempFileMunge(env, cmd_list, for_signature):
+def win32TempFileMunge(env, cmd_list, for_signature): 
     """Given a list of command line arguments, see if it is too
     long to pass to the win32 command line interpreter.  If so,
     create a temp file, then pass "@tempfile" as the sole argument
@@ -194,8 +192,7 @@ def win32LinkGenerator(env, target, source, for_signature, **kw):
     args.extend(map(SCons.Util.to_String, source))
     return win32TempFileMunge(env, args, for_signature)
 
-Program = SCons.Builder.Builder(name='Program',
-                                action='$LINKCOM',
+Program = SCons.Builder.Builder(action='$LINKCOM',
                                 prefix='$PROGPREFIX',
                                 suffix='$PROGSUFFIX',
                                 src_suffix='$OBJSUFFIX',
@@ -266,8 +263,7 @@ def win32LibEmitter(target, source, env, shared=0,
                                       env.subst("$LIBSUFFIX")))
     return (target, source)
 
-Library = SCons.Builder.Builder(name = 'Library',
-                                generator = \
+Library = SCons.Builder.Builder(generator = \
                                 SharedCmdGenerator(shared="$SHLINKCOM",
                                                    static="$ARCOM"),
                                 emitter="$LIBEMITTER",
@@ -282,8 +278,7 @@ Library = SCons.Builder.Builder(name = 'Library',
 
 LaTeXAction = SCons.Action.Action('$LATEXCOM')
 
-DVI = SCons.Builder.Builder(name = 'DVI',
-                            action = { '.tex'   : '$TEXCOM',
+DVI = SCons.Builder.Builder(action = { '.tex'   : '$TEXCOM',
                                        '.ltx'   : LaTeXAction,
                                        '.latex' : LaTeXAction,
                                      },
@@ -295,8 +290,7 @@ DVI = SCons.Builder.Builder(name = 'DVI',
 
 PDFLaTeXAction = SCons.Action.Action('$PDFLATEXCOM')
 
-PDF = SCons.Builder.Builder(name = 'PDF',
-                            action = { '.dvi'   : '$PDFCOM',
+PDF = SCons.Builder.Builder(action = { '.dvi'   : '$PDFCOM',
                                        '.tex'   : '$PDFTEXCOM',
                                        '.ltx'   : PDFLaTeXAction,
                                        '.latex' : PDFLaTeXAction,
@@ -304,8 +298,7 @@ PDF = SCons.Builder.Builder(name = 'PDF',
                             prefix = '$PDFPREFIX',
                             suffix = '$PDFSUFFIX')
 
-PostScript = SCons.Builder.Builder(name = 'PostScript',
-                                   action = '$PSCOM',
+PostScript = SCons.Builder.Builder(action = '$PSCOM',
                                    prefix = '$PSPREFIX',
                                    suffix = '$PSSUFFIX',
                                    src_suffix = '.dvi',
@@ -316,8 +309,7 @@ CScan = SCons.Scanner.C.CScan()
 def alias_builder(env, target, source):
     pass
 
-Alias = SCons.Builder.Builder(name = 'Alias',
-                              action = alias_builder,
+Alias = SCons.Builder.Builder(action = alias_builder,
                               target_factory = SCons.Node.Alias.default_ans.Alias,
                               source_factory = SCons.Node.FS.default_fs.Entry,
                               multi = 1)
@@ -481,8 +473,15 @@ def make_win32_env_from_paths(include, lib, path):
         'PSCOM'      : '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES',
         'PSPREFIX'   : '',
         'PSSUFFIX'   : '.ps',
-        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Library, Object,
-                        PDF, PostScript, Program],
+        'BUILDERS'   : { 'Alias'          : Alias,
+                         'CFile'          : CFile,
+                         'CXXFile'        : CXXFile,
+                         'DVI'            : DVI,
+                         'Library'        : Library,
+                         'Object'         : Object,
+                         'PDF'            : PDF,
+                         'PostScript'     : PostScript,
+                         'Program'        : Program },
         'SCANNERS'   : [CScan],
         'LIBDIRPREFIX'          : '/LIBPATH:',
         'LIBDIRSUFFIX'          : '',
@@ -583,8 +582,15 @@ if os.name == 'posix':
         'PSCOM'      : '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES',
         'PSPREFIX'   : '',
         'PSSUFFIX'   : '.ps',
-        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Library, Object,
-                        PDF, PostScript, Program],
+        'BUILDERS'   : { 'Alias'          : Alias,
+                         'CFile'          : CFile,
+                         'CXXFile'        : CXXFile,
+                         'DVI'            : DVI,
+                         'Library'        : Library,
+                         'Object'         : Object,
+                         'PDF'            : PDF,
+                         'PostScript'     : PostScript,
+                         'Program'        : Program },
         'SCANNERS'   : [CScan],
         'LIBDIRPREFIX'          : '-L',
         'LIBDIRSUFFIX'          : '',

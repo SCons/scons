@@ -15,6 +15,17 @@ RELEASE 0.08 -
   - Fixed a bug with relative CPPPATH dirs when using BuildDir().
     (Bug reported by Bob Summerwill.)
 
+  - Added a warnings framework and a --warn option to enable or
+    disable warnings.
+
+  - Make the C scanner warn users if files referenced by #include
+    directives cannot be found and --warn=dependency is specified.
+
+  - The BUILDERS construction variable should now be a dictionary
+    that maps builder names to actions.  Existing uses of lists,
+    and the Builder name= keyword argument, generate warnings
+    about use of deprecated features.
+
   From Steven Knight:
 
   - Add a "platform=" keyword argument to Environment instantiation,

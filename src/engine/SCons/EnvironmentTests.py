@@ -27,7 +27,7 @@ import sys
 import unittest
 
 from SCons.Environment import *
-
+import SCons.Warnings
 
 
 built_it = {}
@@ -76,6 +76,7 @@ class EnvironmentTestCase(unittest.TestCase):
 	b1 = Builder(name = 'builder1')
 	b2 = Builder(name = 'builder2')
 
+        # BUILDERS as a list or instance, now deprecated...
 	built_it = {}
 	env1 = Environment(BUILDERS = b1)
 	env1.builder1.execute(target = 'out1')
@@ -99,6 +100,47 @@ class EnvironmentTestCase(unittest.TestCase):
         env4 = env3.Copy()
         assert env4.builder1.env is env4
         assert env4.builder2.env is env4
+
+        # Now test BUILDERS as a dictionary.
+        built_it = {}
+        env5 = Environment(BUILDERS={ 'foo' : b1 })
+        env5['BUILDERS']['bar'] = b2
+        env5.foo.execute(target='out1')
+        env5.bar.execute(target='out2')
+        assert built_it['out1']
+        assert built_it['out2']
+
+        built_it = {}
+        env6 = Environment()
+        env6['BUILDERS'] = { 'foo' : b1,
+                             'bar' : b2 }
+        env6.foo.execute(target='out1')
+        env6.bar.execute(target='out2')
+        assert built_it['out1']
+        assert built_it['out2']
+
+        # Now test deprecated warning for BUILDERS as a list
+        # or instance.
+
+        SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
+        SCons.Warnings.warningAsException(1)
+        try:
+            try:
+                env=Environment(BUILDERS=b1)
+            except SCons.Warnings.DeprecatedWarning:
+                pass
+            else:
+                assert 0
+
+            try:
+                env=Environment(BUILDERS=[b1, b2])
+            except SCons.Warnings.DeprecatedWarning:
+                pass
+            else:
+                assert 0
+        finally:
+            SCons.Warnings.suppressWarningClass(SCons.Warnings.DeprecatedWarning)
+            SCons.Warnings.warningAsException(0)
 
     def test_Scanners(self):
         """Test Scanner execution through different environments

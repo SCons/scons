@@ -236,7 +236,7 @@ def SCons_revision(target, source, env):
     outf.close()
     os.chmod(t, os.stat(s)[0])
 
-revbuilder = Builder(name = 'SCons_revision', action = SCons_revision)
+revbuilder = Builder(action = SCons_revision)
 
 env = Environment(
                    ENV                 = ENV,
@@ -266,7 +266,7 @@ env = Environment(
                    UNPACK_TAR_GZ_DIR   = unpack_tar_gz_dir,
                    UNPACK_ZIP_DIR      = unpack_zip_dir,
 
-                   BUILDERS            = [ revbuilder ],
+                   BUILDERS            = { 'SCons_revision' : revbuilder },
                  )
 
 #

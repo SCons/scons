@@ -38,6 +38,7 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.Scanner
 import SCons.Util
+import SCons.Warnings
 
 include_re = re.compile('^[ \t]*#[ \t]*include[ \t]+(<|")([\\w./\\\\]+)(>|")', re.M)
 
@@ -114,6 +115,9 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
 
                 if not n is None:
                     nodes.append(n)
+                else:
+                    SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
+                                        "No dependency generated for file: %s (included from: %s) -- file not found" % (include[1], node))
         node.found_includes[cpppath] = nodes
 
     # Schwartzian transform from the Python FAQ Wizard

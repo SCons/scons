@@ -63,6 +63,7 @@ import SCons.Sig.MD5
 from SCons.Taskmaster import Taskmaster
 import SCons.Builder
 import SCons.Script.SConscript
+import SCons.Warnings
 
 
 #
@@ -200,24 +201,20 @@ def _scons_syntax_error(e):
 def find_deepest_user_frame(tb):
     """
     Find the deepest stack frame that is not part of SCons.
+
+    Input is a "pre-processed" stack trace in the form
+    returned by traceback.extract_tb() or traceback.extract_stack()
     """
     
-    stack = [tb]
-    while tb.tb_next is not None:
-        tb = tb.tb_next
-        stack.append(tb)
-
-    stack.reverse()
+    tb.reverse()
 
     # find the deepest traceback frame that is not part
     # of SCons:
-    for frame in stack:
-        filename = frame.tb_frame.f_code.co_filename
+    for frame in tb:
+        filename = frame[0]
         if string.find(filename, os.sep+'SCons'+os.sep) == -1:
-            tb = frame
-            break
-        
-    return tb
+            return frame
+    return tb[0]
 
 def _scons_user_error(e):
     """Handle user errors. Print out a message and a description of the
@@ -226,10 +223,7 @@ def _scons_user_error(e):
     not part of SCons itself.
     """
     etype, value, tb = sys.exc_info()
-    tb = find_deepest_user_frame(tb)
-    lineno = traceback.tb_lineno(tb)
-    filename = tb.tb_frame.f_code.co_filename
-    routine = tb.tb_frame.f_code.co_name
+    filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_tb(tb))
     sys.stderr.write("\nSCons error: %s\n" % value)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
     sys.exit(2)
@@ -241,10 +235,15 @@ def _scons_user_warning(e):
     not part of SCons itself.
     """
     etype, value, tb = sys.exc_info()
-    tb = find_deepest_user_frame(tb)
-    lineno = traceback.tb_lineno(tb)
-    filename = tb.tb_frame.f_code.co_filename
-    routine = tb.tb_frame.f_code.co_name
+    filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_tb(tb))
+    sys.stderr.write("\nSCons warning: %s\n" % e)
+    sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
+
+def _scons_internal_warning(e):
+    """Slightly different from _scons_user_warning in that we use the
+    *current call stack* rather than sys.exc_info() to get our stack trace.
+    This is used by the warnings framework to print warnings."""
+    filename, lineno, routine, dummy = find_deepest_user_frame(traceback.extract_stack())
     sys.stderr.write("\nSCons warning: %s\n" % e)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
 
@@ -685,9 +684,62 @@ def options_init():
 	short = 'W', long = ['what-if', 'new-file', 'assume-new'], arg = 'FILE',
 	help = "Consider FILE to be changed.")
 
-    Option(func = opt_not_yet, future = 1,
-	long = ['warn-undefined-variables'],
-	help = "Warn when an undefined variable is referenced.")
+    def opt_warn(opt, arg):
+        """The --warn option.  An argument to this option
+        should be of the form <warning-class> or no-<warning-class>.
+        The warning class is munged in order to get an actual class
+        name from the SCons.Warnings module to enable or disable.
+        The supplied <warning-class> is split on hyphens, each element
+        is captialized, then smushed back together.  Then the string
+        "SCons.Warnings." is added to the front and "Warning" is added
+        to the back to get the fully qualified class name.
+
+        For example, --warn=deprecated will enable the
+        SCons.Warnings.DeprecatedWarning class.
+
+        --warn=no-dependency will disable the
+        SCons.Warnings.DependencyWarning class.
+
+        As a special case, --warn=all and --warn=no-all
+        will enable or disable (respectively) the base
+        class of all warnings, which is SCons.Warning.Warning."""
+        
+        elems = string.split(string.lower(arg), '-')
+        enable = 1
+        if elems[0] == 'no':
+            enable = 0
+            del elems[0]
+
+        if len(elems) == 1 and elems[0] == 'all':
+            class_name = "Warning"
+        else:
+            class_name = string.join(map(string.capitalize, elems), '') + \
+                         "Warning"
+        try:
+            clazz = getattr(SCons.Warnings, class_name)
+        except AttributeError:
+            sys.stderr.write("No warning type: '%s'\n" % arg)
+        else:
+            if enable:
+                SCons.Warnings.enableWarningClass(clazz)
+            else:
+                SCons.Warnings.suppressWarningClass(clazz)
+
+    Option(func = opt_warn,
+           long = [ 'warn', 'warning' ], arg='WARNING-SPEC',
+           help = "Enable or disable warnings.")
+
+
+    # We want to preserve the --warn-undefined-variables option for
+    # compatibility with GNU Make.  Unfortunately, this conflicts with
+    # the --warn=type option that we're using for our own warning
+    # control.  The getopt module reports "--warn not a unique prefix"
+    # when both are defined.  We may be able to support both in the
+    # future with a more robust getopt solution.
+    #
+    #Option(func = opt_not_yet, future = 1,
+    #    long = ['warn-undefined-variables'],
+    #    help = "Warn when an undefined variable is referenced.")
 
     Option(func = opt_not_yet, future = 1,
 	short = 'Y', long = ['repository'], arg = 'REPOSITORY',
@@ -748,6 +800,10 @@ def _main():
 	getopt_err = getopt.GetoptError
     except:
 	getopt_err = getopt.error
+
+    # Enable deprecated warnings by default.
+    SCons.Warnings._warningOut = _scons_internal_warning
+    SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
 
     try:
 	cmd_opts, t = getopt.getopt(string.split(os.environ['SCONSFLAGS']),

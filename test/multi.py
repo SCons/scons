@@ -35,8 +35,8 @@ def build(env, target, source):
     for s in source:
         file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=1)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'foo.out', source = 'bar.in')
 """)
@@ -55,8 +55,8 @@ def build(env, target, source):
     for s in source:
         file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=0)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=0)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'foo.out', source = 'bar.in')
 """)
@@ -74,8 +74,8 @@ def build(env, target, source):
     for s in source:
         file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=1)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in', foo=1)
 env.B(target = 'foo.out', source = 'bar.in', foo=2)
 """)
@@ -93,8 +93,8 @@ def build(env, target, source):
     for s in source:
         file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=1)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
 env2 = env.Copy(CCFLAGS='foo')
 env.B(target = 'foo.out', source = 'foo.in')
 env2.B(target = 'foo.out', source = 'bar.in')
@@ -113,8 +113,8 @@ def build(env, target, source):
     for s in source:
         file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=0)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=0)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'foo.out', source = 'foo.in')
 """)
@@ -128,9 +128,12 @@ def build(env, target, source):
     for s in source:
         file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=1)
-C = Builder(name='C', action=build, multi=1)
-env = Environment(BUILDERS = [B,C])
+def build2(env, target, source):
+    build(env, target, source)
+
+B = Builder(action=build, multi=1)
+C = Builder(action=build2, multi=1)
+env = Environment(BUILDERS = { 'B' : B, 'C' : C })
 env.B(target = 'foo.out', source = 'foo.in')
 env.C(target = 'foo.out', source = 'bar.in')
 """)
@@ -139,7 +142,7 @@ test.run(arguments='foo.out',
          status=2, 
          stderr="""
 SCons error: Two different builders (B and C) were specified for the same target: foo.out
-File "SConstruct", line 11, in ?
+File "SConstruct", line 14, in ?
 """)
 
 test.write('SConstruct', """
@@ -149,8 +152,8 @@ def build(env, target, source):
         for s in source:
             file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=1)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = ['foo.out', 'bar.out'], source = 'foo.in')
 env.B(target = ['foo.out', 'bar.out'], source = 'bar.in')
 """)
@@ -168,8 +171,8 @@ def build(env, target, source):
         for s in source:
             file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=1)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = ['foo.out', 'bar.out'], source = 'foo.in')
 env.B(target = ['bar.out', 'foo.out'], source = 'bar.in')
 """)
@@ -197,8 +200,8 @@ def build(env, target, source):
         for s in source:
             file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=1)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = ['foo.out', 'bar.out'], source = 'foo.in')
 env.B(target = ['bar.out', 'blat.out'], source = 'bar.in')
 """)
@@ -217,8 +220,8 @@ def build(env, target, source):
         for s in source:
             file.write(open(str(s), 'rb').read())
 
-B = Builder(name='B', action=build, multi=1)
-env = Environment(BUILDERS = [B])
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = ['foo.out', 'bar.out'], source = 'foo.in')
 env.B(target = 'foo.out', source = 'bar.in')
 """)

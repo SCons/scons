@@ -51,9 +51,9 @@ def emitter(target, source, env):
     target.append(str(target[0])+".foo")
     return target,source
 
-b = Builder(name='foo', action=build, emitter=emitter)
+b = Builder(action=build, emitter=emitter)
 
-env=Environment(BUILDERS=[b])
+env=Environment(BUILDERS={ 'foo': b })
 env.foo('f.out', 'f.in')
 """)
 

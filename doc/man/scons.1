@@ -587,6 +587,26 @@ Print a message containing the working directory before and
 after other processing.
 
 .TP
+.RI --warn= type ", --warn=no-" type
+Enable or disable warnings.
+.I type
+specifies the type of warnings to be enabled or disabled:
+
+.TP
+.RI --warn=all ", " --warn=no-all
+Enables or disables all warnings.
+
+.TP
+.RI --warn=dependency ", " --warn=no-dependency
+Enables or disables warnings about dependencies.
+These warnings are disabled by default.
+
+.TP
+.RI --warn=deprecated ", " --warn=no-deprecated
+Enables or disables warnings about use of deprecated features.
+These warnings are enabled by default.
+
+.TP
 --no-print-directory
 Turn off -w, even if it was turned on implicitly.
 
@@ -1101,8 +1121,12 @@ General options passed to the static library archiver.
 The command line used to generate a static library from object files.
 
 .IP BUILDERS
-A list of the available builders.
-[Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, Program] by default.
+A dictionary mapping the names of the builders
+available through this environment
+to underlying Builder objects.
+Builders named
+Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, and Program
+are available by default.
 
 .IP CC 
 The C compiler.
@@ -1869,7 +1893,7 @@ Example:
 def e(target, source, env):
     return (target + ['foo.foo'], source + ['foo.src'])
 
-b = Builder(name="Foo", emitter=e)
+b = Builder(emitter=e)
 .EE
 
 .IP generator
@@ -1899,7 +1923,7 @@ Example:
 def g(source, target, env, for_signature):
     return [["gcc", "-c", "-o"] + target + source] 
 
-b = Builder(name="Object", generator=g)
+b = Builder(generator=g)
 .EE
 
 The 
@@ -1915,8 +1939,8 @@ will be associated with the target
 result of the call).
 
 .ES
-b = Builder(name='MyBuild', action="build < $SOURCE > $TARGET")
-env = Environment(BUILDERS = [b])
+b = Builder(action="build < $SOURCE > $TARGET")
+env = Environment(BUILDERS = {'MyBuild' : b})
 env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
 .EE
 
@@ -2421,11 +2445,10 @@ Notice also that you can leave off the target file suffix,
 and the builder will add it automatically.
 
 .ES
-bld = Builder(name = 'PDFBuilder',
-              action = 'pdftex < $SOURCES > $TARGET'
+bld = Builder(action = 'pdftex < $SOURCES > $TARGET'
               suffix = '.pdf',
               src_suffix = '.tex')
-env = Environment(BUILDERS = [bld])
+env = Environment(BUILDERS = {'PDFBuilder' : bld})
 env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
 
 # The following creates "bar.pdf" from "bar.tex"

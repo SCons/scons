@@ -96,6 +96,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Taskmaster.pyc
 /usr/lib/scons/SCons/Util.py
 /usr/lib/scons/SCons/Util.pyc
+/usr/lib/scons/SCons/Warnings.py
+/usr/lib/scons/SCons/Warnings.pyc
 /usr/lib/scons/SCons/__init__.py
 /usr/lib/scons/SCons/__init__.pyc
 /usr/lib/scons/SCons/exitfuncs.py

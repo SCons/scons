@@ -33,7 +33,7 @@ def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
     print "built %s"%target[0]
 
-env=Environment(BUILDERS=[Builder(name='B', action=build)])
+env=Environment(BUILDERS={'B' : Builder(action=build)})
 env.B('foo.mid', 'foo.in')
 """)
 
@@ -42,7 +42,7 @@ def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
     print "built %s"%target[0]
 
-env=Environment(BUILDERS=[Builder(name='B', action=build)])
+env=Environment(BUILDERS={'B' : Builder(action=build)})
 env.B('foo.out', 'foo.mid')
 """)
 

@@ -51,8 +51,8 @@ os.environ['PYTHONPATH'] = test.workpath('.')
 test.write('SConstruct', """
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
-B = Builder(name = 'B', action = build)
-env = Environment(BUILDERS = [B])
+B = Builder(action = build)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')

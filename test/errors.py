@@ -42,8 +42,8 @@ def foo(env, target, source):
 def exit(env, target, source):
     raise 'exit'
 
-env = Environment(BUILDERS = [Builder(name='foo', action=foo),
-                              Builder(name='exit', action=exit)])
+env = Environment(BUILDERS = { 'foo'  : Builder(action=foo),
+                               'exit' : Builder(action=exit) })
 
 env.foo('foo.out', 'foo.in')
 env.exit('exit.out', 'exit.in')

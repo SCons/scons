@@ -45,6 +45,8 @@ from SCons.Errors import UserError
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
+import SCons.Warnings
+from UserDict import UserDict
 
 def installFunc(env, target, source):
     try:
@@ -81,6 +83,29 @@ def our_deepcopy(x):
    else:
        copy = x
    return copy
+
+class BuilderDict(UserDict):
+    """This is a dictionary-like class used by Environment
+    to hold Builders.  We need to do this, because every time
+    someone changes the Builders in the Environment's BUILDERS
+    dictionary, we need to update the Environment's attributes."""
+    def setEnvironment(self, env):
+        self.env = env
+        
+    def __setitem__(self, item, val):
+        UserDict.__setitem__(self, item, val)
+        try:
+            self.env.Replace() # re-compute Builders
+        except AttributeError:
+            # Have to catch this because sometimes
+            # __setitem__ gets called out of __init__, when
+            # we don't have an env attribute yet, nor do
+            # we want one!
+            pass
+
+    def __delitem__(self, item):
+        UserDict.__delitem__(self, item)
+        self.env.Replace()
 
 class Environment:
     """Base class for construction Environments.  These are
@@ -155,14 +180,13 @@ class Environment:
         """
         apply(self.Replace, (), kw)
 
-    def Replace(self, **kw):
-        """Replace existing construction variables in an Environment
-        with new construction variables and/or values.
-        """
-        self._dict.update(our_deepcopy(kw))
-        if self._dict.has_key('BUILDERS') and \
-           not SCons.Util.is_List(self._dict['BUILDERS']):
-            self._dict['BUILDERS'] = [self._dict['BUILDERS']]
+    def __updateBuildersAndScanners(self):
+        """Update attributes for builders and scanners.
+
+        Have to be careful in this function...we can't
+        call functions like __setitem__() or Replace(), or
+        we will have infinite recursion."""
+        
         if self._dict.has_key('SCANNERS') and \
            not SCons.Util.is_List(self._dict['SCANNERS']):
             self._dict['SCANNERS'] = [self._dict['SCANNERS']]
@@ -190,11 +214,37 @@ class Environment:
                 kw['env'] = self.env
                 apply(self.builder.execute, (), kw)
 
-        for b in self._dict['BUILDERS']:
-            setattr(self, b.name, BuilderWrapper(self, b))
+        if self._dict.has_key('BUILDERS'):
+            if SCons.Util.is_Dict(self._dict['BUILDERS']):
+                bd = self._dict['BUILDERS']
+                if not isinstance(bd, BuilderDict):
+                    # Convert it to a BuilderDict.  This class
+                    # Updates our builder attributes every time
+                    # someone changes it.
+                    bd = BuilderDict(bd)
+                    bd.setEnvironment(self)
+                    self._dict['BUILDERS'] = bd
+                for name, builder in bd.items():
+                    setattr(self, name, BuilderWrapper(self, builder))
+            else:
+                SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                                    "The use of the BUILDERS Environment variable as a list or Builder instance is deprecated.  BUILDERS should be a dictionary of name->Builder instead.")
+                
+                if not SCons.Util.is_List(self._dict['BUILDERS']):
+                    self._dict['BUILDERS'] = [self._dict['BUILDERS']]
+                for b in self._dict['BUILDERS']:
+                    setattr(self, b.name, BuilderWrapper(self, b))
 
         for s in self._dict['SCANNERS']:
             setattr(self, s.name, s)
+        
+
+    def Replace(self, **kw):
+        """Replace existing construction variables in an Environment
+        with new construction variables and/or values.
+        """
+        self._dict.update(our_deepcopy(kw))
+        self.__updateBuildersAndScanners()
 
     def Append(self, **kw):
         """Append values to existing construction variables
@@ -212,6 +262,7 @@ class Environment:
                 self._dict[key] = [ self._dict[key] ] + kw[key]
             else:
                 self._dict[key] = self._dict[key] + kw[key]
+        self.__updateBuildersAndScanners()
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""
@@ -257,6 +308,7 @@ class Environment:
 
     def __setitem__(self, key, value):
         self._dict[key] = value
+        self.__updateBuildersAndScanners()
 
     def __getitem__(self, key):
         return self._dict[key]
@@ -272,7 +324,7 @@ class Environment:
         source files using the supplied action.  Action may
         be any type that the Builder constructor will accept
         for an action."""
-        bld = SCons.Builder.Builder(name="Command", action=action)
+        bld = SCons.Builder.Builder(action=action)
         return bld(self, target, source)
 
     def Install(self, dir, source):

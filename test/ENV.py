@@ -36,9 +36,9 @@ bin2_build_py = test.workpath('bin2', 'build.py')
 
 test.write('SConstruct', """
 import os
-Bld = Builder(name = 'Bld', action = r"%s build.py $TARGET $SOURCES")
-env1 = Environment(ENV = {'X' : 'env1'}, BUILDERS = [Bld])
-env2 = Environment(ENV = {'X' : 'env2'}, BUILDERS = [Bld])
+Bld = Builder(action = r"%s build.py $TARGET $SOURCES")
+env1 = Environment(ENV = {'X' : 'env1'}, BUILDERS = { 'Bld' : Bld })
+env2 = Environment(ENV = {'X' : 'env2'}, BUILDERS = { 'Bld' : Bld })
 env1.Bld(target = 'env1.out', source = 'input')
 env2.Bld(target = 'env2.out', source = 'input')
 """ % python)

@@ -155,10 +155,10 @@ Return('foo')
 
 
 test.write('SConscript5', """
-B = Builder(name = 'B', action = 'B')
+B = Builder(action = 'B')
 def scan():
     pass
-S = Scanner(name = 'S', function = scan)
+S = Scanner(function = scan)
 A = Action("A")
 """)
 

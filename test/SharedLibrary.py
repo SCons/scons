@@ -182,7 +182,7 @@ test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
 
 test.run(arguments = '-f SConstructFoo', status=2, stderr='''
-SCons error: Source file: foo\..* must be built with shared=1 in order to be compatible with the selected target.
+SCons error: Source file: foo\..* must be built with shared=1 in order to be compatible with target: .*
 File ".*", line .*, in .*
 '''
 )

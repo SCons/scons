@@ -48,8 +48,8 @@ def g(source, target, for_signature, env):
     return [[python, "build.py", "$TEMPFILE"] + source,
             [python, "build.py"] + target + ["$TEMPFILE"]]
 
-b = Builder(name = 'b', generator=g)
-env = Environment(BUILDERS = [b],
+b = Builder(generator=g)
+env = Environment(BUILDERS = { 'b' : b },
                   TEMPFILE=".temp")
 env.b(target = 'foo1.out', source = 'foo1.in')
 env.b(target = 'foo2.out', source = 'foo2.in')

@@ -41,8 +41,8 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-B = Builder(name = 'B', action = r'%s build.py $TARGET 1 $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s build.py $TARGET 1 $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 """ % python)
 
@@ -55,8 +55,8 @@ test.fail_test(test.read('foo.out') != "1\nfoo.in\n")
 test.up_to_date(arguments = '.')
 
 test.write('SConstruct', """
-B = Builder(name = 'B', action = r'%s build.py $TARGET 2 $SOURCES')
-env = Environment(BUILDERS = [B])
+B = Builder(action = r'%s build.py $TARGET 2 $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 """ % python)
 
@@ -74,8 +74,8 @@ def func(env, target, source):
                                        string.join(map(str, source)))
     print cmd
     return os.system(cmd)
-B = Builder(name = 'B', action = func)
-env = Environment(BUILDERS = [B])
+B = Builder(action = func)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 """ % python)
 
@@ -99,8 +99,8 @@ class bld:
     def get_contents(self, env, target, source):
         return self.cmd %% (string.join(map(str, target)),
                             string.join(map(str, source)))
-B = Builder(name = 'B', action = bld())
-env = Environment(BUILDERS = [B])
+B = Builder(action = bld())
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 """ % python)
 

@@ -40,8 +40,8 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-B = Builder(name = "B", action = r"%s build.py $TARGET $SOURCES")
-env = Environment(BUILDERS = [B])
+B = Builder(action = r"%s build.py $TARGET $SOURCES")
+env = Environment(BUILDERS = { 'B' : B })
 f1 = env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')

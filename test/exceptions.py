@@ -34,8 +34,8 @@ test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 test.write('SConstruct', """
 def func(source = None, target = None, env = None):
     raise "func exception"
-B = Builder(name = 'B', action = func)
-env = Environment(BUILDERS = [B])
+B = Builder(action = func)
+env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 """)
 

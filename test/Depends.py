@@ -42,11 +42,9 @@ file.close()
 """)
 
 test.write('SConstruct', """
-Foo = Builder(name = "Foo",
-              action = r"%s build.py $TARGET $SOURCES subdir/foo.dep")
-Bar = Builder(name = "Bar",
-              action = r"%s build.py $TARGET $SOURCES subdir/bar.dep")
-env = Environment(BUILDERS = [Foo, Bar])
+Foo = Builder(action = r"%s build.py $TARGET $SOURCES subdir/foo.dep")
+Bar = Builder(action = r"%s build.py $TARGET $SOURCES subdir/bar.dep")
+env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar })
 env.Depends(target = ['f1.out', 'f2.out'], dependency = 'subdir/foo.dep')
 env.Depends(target = 'f3.out', dependency = 'subdir/bar.dep')
 env.Foo(target = 'f1.out', source = 'f1.in')

@@ -44,9 +44,9 @@ def build2(target, source, env):
     os.chmod(dir, 0555)
     return None
 
-B1 = Builder(name = "B1", action = build1)
-B2 = Builder(name = "B2", action = build2)
-env = Environment(BUILDERS = [B1, B2])
+B1 = Builder(action = build1)
+B2 = Builder(action = build2)
+env = Environment(BUILDERS = { 'B1' : B1, 'B2' : B2 })
 env.B1(target = 'sub1/foo.out', source = 'foo.in')
 env.B2(target = 'sub2/foo.out', source = 'foo.in')
 env.B2(target = 'sub3/foo.out', source = 'foo.in')

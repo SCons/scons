@@ -41,8 +41,8 @@ test.write("f2.in", "\n")
 test.write("f3.in", "\n")
 
 test.write('SConstruct1', r"""
-bld = Builder(name = 'bld', action = '%s $SOURCES $TARGET')
-env = Environment(BUILDERS = [bld])
+bld = Builder(action = '%s $SOURCES $TARGET')
+env = Environment(BUILDERS = { 'bld' : bld })
 env.bld(target = 'f1', source = 'f1.in')
 """ % string.replace(no_such_file, '\\', '\\\\'))
 
@@ -78,8 +78,8 @@ scons: *** [f1] Error 127
 
 
 test.write('SConstruct2', r"""
-bld = Builder(name = 'bld', action = '%s $SOURCES $TARGET')
-env = Environment(BUILDERS = [bld])
+bld = Builder(action = '%s $SOURCES $TARGET')
+env = Environment(BUILDERS = { 'bld': bld })
 env.bld(target = 'f2', source = 'f2.in')
 """ % string.replace(not_executable, '\\', '\\\\'))
 
@@ -102,8 +102,8 @@ scons: *** [f2] Error 126
 """ % not_executable)
 
 test.write('SConstruct3', r"""
-bld = Builder(name = 'bld', action = '%s $SOURCES $TARGET')
-env = Environment(BUILDERS = [bld])
+bld = Builder(action = '%s $SOURCES $TARGET')
+env = Environment(BUILDERS = { 'bld' : bld })
 env.bld(target = 'f3', source = 'f3.in')
 """ % string.replace(test.workdir, '\\', '\\\\'))
 

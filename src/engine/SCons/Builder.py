@@ -40,6 +40,7 @@ import SCons.Action
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
+import SCons.Warnings
 
 class DictCmdGenerator:
     """This is a callable class that can be used as a
@@ -73,6 +74,9 @@ class DictCmdGenerator:
 
 def Builder(**kw):
     """A factory for builder objects."""
+    if kw.has_key('name'):
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                            "The use of the 'name' parameter to Builder() is deprecated.")
     if kw.has_key('generator'):
         if kw.has_key('action'):
             raise UserError, "You must not specify both an action and a generator."
@@ -124,7 +128,7 @@ def _init_nodes(builder, env, args, tlist, slist):
                     if isinstance(t.builder, ListBuilder) and isinstance(builder, ListBuilder) and t.builder.builder == builder.builder:
                         raise UserError, "Two different target sets have a target in common: %s"%str(t)
                     else:
-                        raise UserError, "Two different builders (%s and %s) were specified for the same target: %s"%(t.builder.name, builder.name, str(t))
+                        raise UserError, "Two different builders (%s and %s) were specified for the same target: %s"%(t.builder.get_name(env), builder.get_name(env), str(t))
             elif t.sources != slist:
                 raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
 
@@ -202,8 +206,6 @@ class BuilderBase:
                         scanner = None,
                         emitter = None,
                         multi = 0):
-        if name is None:
-            raise UserError, "You must specify a name for the builder."
         self.name = name
         self.action = SCons.Action.Action(action)
         self.multi = multi
@@ -230,6 +232,22 @@ class BuilderBase:
         self.scanner = scanner
 
         self.emitter = emitter
+
+    def get_name(self, env):
+        """Attempts to get the name of the Builder.
+
+        If the Builder's name attribute is None, then we will look at
+        the BUILDERS variable of env, expecting it to be a dictionary
+        containing this Builder, and we will return the key of the
+        dictionary."""
+
+        if self.name:
+            return self.name
+        try:
+            index = env['BUILDERS'].values().index(self)
+            return env['BUILDERS'].keys()[index]
+        except (AttributeError, KeyError, ValueError):
+            return str(self.__class__)
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
@@ -342,8 +360,11 @@ class ListBuilder:
 
     def __init__(self, builder, env, tlist):
         self.builder = builder
-	self.tlist = tlist
-        self.name = "ListBuilder(%s)"%builder.name
+        self.tlist = tlist
+        self.name = "ListBuilder(%s)"%builder.get_name(env)
+
+    def get_name(self, env):
+        return self.name
 
     def execute(self, **kw):
         if hasattr(self, 'status'):
