@@ -39,13 +39,17 @@ test = TestSCons.TestSCons()
 foo1 = test.workpath('foo1' + _exe)
 foo2 = test.workpath('foo2' + _exe)
 foo3 = test.workpath('foo3' + _exe)
-foo_args = 'foo1%s foo2%s foo3%s' % (_exe, _exe, _exe)
+foo4 = test.workpath('foo4' + _exe)
+foo5 = test.workpath('foo5' + _exe)
+foo_args = 'foo1%s foo2%s foo3%s foo4%s foo5%s' % (_exe, _exe, _exe, _exe, _exe)
 
 test.write('SConstruct', """
 env = Environment()
 env.Program(target = 'foo1', source = 'f1.c')
 env.Program(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
 env.Program(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
+env.Program('foo4', 'f4.c')
+env.Program('foo5.c')
 """)
 
 test.write('f1.c', r"""
@@ -118,11 +122,33 @@ main(int argc, char *argv[])
 }
 """)
 
+test.write('f4.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("f4.c\n");
+	exit (0);
+}
+""")
+
+test.write('foo5.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("foo5.c\n");
+	exit (0);
+}
+""")
+
 test.run(arguments = '.')
 
 test.run(program = foo1, stdout = "f1.c\n")
 test.run(program = foo2, stdout = "f2a.c\nf2b.c\nf2c.c\n")
 test.run(program = foo3, stdout = "f3a.c\nf3b.c\nf3c.c\n")
+test.run(program = foo4, stdout = "f4.c\n")
+test.run(program = foo5, stdout = "foo5.c\n")
 
 test.up_to_date(arguments = '.')
 
@@ -144,11 +170,33 @@ f3b(void)
 }
 """)
 
+test.write('f4.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("f4.c X\n");
+	exit (0);
+}
+""")
+
+test.write('foo5.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("foo5.c X\n");
+	exit (0);
+}
+""")
+
 test.run(arguments = '.')
 
 test.run(program = foo1, stdout = "f1.c X\n")
 test.run(program = foo2, stdout = "f2a.c\nf2b.c\nf2c.c\n")
 test.run(program = foo3, stdout = "f3a.c\nf3b.c X\nf3c.c\n")
+test.run(program = foo4, stdout = "f4.c X\n")
+test.run(program = foo5, stdout = "foo5.c X\n")
 
 test.up_to_date(arguments = '.')
 
@@ -156,6 +204,8 @@ test.up_to_date(arguments = '.')
 oldtime1 = os.path.getmtime(foo1)
 oldtime2 = os.path.getmtime(foo2)
 oldtime3 = os.path.getmtime(foo3)
+oldtime4 = os.path.getmtime(foo4)
+oldtime5 = os.path.getmtime(foo5)
 
 time.sleep(2) # introduce a small delay, to make the test valid
 
@@ -164,6 +214,8 @@ test.run(arguments = foo_args)
 test.fail_test(oldtime1 != os.path.getmtime(foo1))
 test.fail_test(oldtime2 != os.path.getmtime(foo2))
 test.fail_test(oldtime3 != os.path.getmtime(foo3))
+test.fail_test(oldtime4 != os.path.getmtime(foo4))
+test.fail_test(oldtime5 != os.path.getmtime(foo5))
 
 test.write('f1.c', r"""
 int
@@ -183,11 +235,33 @@ f3b(void)
 }
 """)
 
+test.write('f4.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("f4.c Y\n");
+	exit (0);
+}
+""")
+
+test.write('foo5.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("foo5.c Y\n");
+	exit (0);
+}
+""")
+
 test.run(arguments = foo_args)
 
 test.run(program = foo1, stdout = "f1.c Y\n")
 test.run(program = foo2, stdout = "f2a.c\nf2b.c\nf2c.c\n")
 test.run(program = foo3, stdout = "f3a.c\nf3b.c Y\nf3c.c\n")
+test.run(program = foo4, stdout = "f4.c Y\n")
+test.run(program = foo5, stdout = "foo5.c Y\n")
 
 test.up_to_date(arguments = foo_args)
 
@@ -209,11 +283,33 @@ f3b(void)
 }
 """)
 
+test.write('f4.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("f4.c Z\n");
+	exit (0);
+}
+""")
+
+test.write('foo5.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("foo5.c Z\n");
+	exit (0);
+}
+""")
+
 test.run(arguments = foo_args)
 
 test.run(program = foo1, stdout = "f1.c Z\n")
 test.run(program = foo2, stdout = "f2a.c\nf2b.c\nf2c.c\n")
 test.run(program = foo3, stdout = "f3a.c\nf3b.c Z\nf3c.c\n")
+test.run(program = foo4, stdout = "f4.c Z\n")
+test.run(program = foo5, stdout = "foo5.c Z\n")
 
 test.up_to_date(arguments = foo_args)
 
@@ -221,6 +317,8 @@ test.up_to_date(arguments = foo_args)
 oldtime1 = os.path.getmtime(foo1)
 oldtime2 = os.path.getmtime(foo2)
 oldtime3 = os.path.getmtime(foo3)
+oldtime4 = os.path.getmtime(foo4)
+oldtime5 = os.path.getmtime(foo5)
 
 time.sleep(2) # introduce a small delay, to make the test valid
 
@@ -229,5 +327,7 @@ test.run(arguments = foo_args)
 test.fail_test(not (oldtime1 == os.path.getmtime(foo1)))
 test.fail_test(not (oldtime2 == os.path.getmtime(foo2)))
 test.fail_test(not (oldtime3 == os.path.getmtime(foo3)))
+test.fail_test(not (oldtime4 == os.path.getmtime(foo4)))
+test.fail_test(not (oldtime5 == os.path.getmtime(foo5)))
 
 test.pass_test()

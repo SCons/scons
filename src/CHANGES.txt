@@ -34,6 +34,9 @@ RELEASE 0.10 - XXX
   - Significant performance improvement from using a more efficient
     check, throughout the code, for whether a Node has a Builder.
 
+  - Fix specifying only the source file to MultiStepBuilders such as
+    the Program Builder.  (Bug reported by Dean Bair.)
+
   From Steve Leblanc:
 
   - Add a Clean() method to support removing user-specified targets

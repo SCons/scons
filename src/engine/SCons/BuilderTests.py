@@ -420,6 +420,12 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt.sources[1]) == 'test2.foo', str(tgt.sources[1])
         assert str(tgt.sources[2]) == 'test3.txt', str(tgt.sources[2])
 
+        tgt = builder2(env, 'aaa.bar')
+        assert str(tgt) == 'aaa', str(tgt)
+        assert str(tgt.sources[0]) == 'aaa.foo', str(tgt.sources[0])
+        assert str(tgt.sources[0].sources[0]) == 'aaa.bar', \
+               str(tgt.sources[0].sources[0])
+
         builder3 = SCons.Builder.MultiStepBuilder(name = "builder3",
                                                   action = 'foo',
                                                   src_builder = 'xyzzy',

@@ -425,7 +425,11 @@ class MultiStepBuilder(BuilderBase):
         self.sdict = {}
         self.cached_src_suffixes = {} # source suffixes keyed on id(env)
 
-    def __call__(self, env, target = None, source = None, **kw):
+    def __call__(self, env, target = None, source = _null, **kw):
+        if source is _null:
+            source = target
+            target = None
+
         slist = SCons.Node.arg2nodes(source, self.source_factory)
         final_sources = []
 
