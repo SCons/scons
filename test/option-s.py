@@ -48,19 +48,22 @@ env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
 """ % python)
 
+test.write('f1.in', "f1.in\n")
+test.write('f2.in', "f2.in\n")
+
 test.run(arguments = '-s f1.out f2.out', stdout = "")
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
-os.unlink(test.workpath('f1.out'))
-os.unlink(test.workpath('f2.out'))
+test.unlink('f1.out')
+test.unlink('f2.out')
 
 test.run(arguments = '--silent f1.out f2.out', stdout = "")
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
-os.unlink(test.workpath('f1.out'))
-os.unlink(test.workpath('f2.out'))
+test.unlink('f1.out')
+test.unlink('f2.out')
 
 test.run(arguments = '--quiet f1.out f2.out', stdout = "")
 test.fail_test(not os.path.exists(test.workpath('f1.out')))

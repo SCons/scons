@@ -54,6 +54,9 @@ env.Succeed(target = 'aaa.out', source = 'aaa.1')
 env.Succeed(target = 'bbb.out', source = 'bbb.in')
 """ % (python, python))
 
+test.write('aaa.in', "aaa.in\n")
+test.write('bbb.in', "bbb.in\n")
+
 test.run(arguments = 'aaa.out bbb.out',
          stderr =
          'scons: *** [aaa.1] Error 1\n')

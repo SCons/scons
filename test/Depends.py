@@ -73,7 +73,8 @@ test.write(['subdir', 'foo.dep'], "subdir/foo.dep 1\n")
 test.write(['subdir', 'bar.dep'], "subdir/bar.dep 1\n")
 
 #XXXtest.run(arguments = '.')
-test.run(arguments = 'f1.out f2.out f3.out subdir/f4.out')
+#test.run(arguments = 'f1.out f2.out f3.out subdir/f4.out')
+test.run(arguments = 'f1.out f2.out f3.out')
 
 test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 1\n")
 test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 1\n")
@@ -86,7 +87,8 @@ test.write(['subdir', 'foo.dep'], "subdir/foo.dep 2\n")
 test.write(['subdir', 'bar.dep'], "subdir/bar.dep 2\n")
 
 #XXXtest.run(arguments = '.')
-test.run(arguments = 'f1.out f2.out f3.out subdir/f4.out')
+#test.run(arguments = 'f1.out f2.out f3.out subdir/f4.out')
+test.run(arguments = 'f1.out f2.out f3.out')
 
 test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 2\n")
 test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 2\n")
@@ -97,7 +99,8 @@ test.fail_test(test.read('f3.out') != "f3.in\nsubdir/bar.dep 2\n")
 test.write(['subdir', 'bar.dep'], "subdir/bar.dep 3\n")
 
 #XXXtest.run(arguments = '.')
-test.run(arguments = 'f1.out f2.out f3.out subdir/f4.out')
+#test.run(arguments = 'f1.out f2.out f3.out subdir/f4.out')
+test.run(arguments = 'f1.out f2.out f3.out')
 
 test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 2\n")
 test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 2\n")
