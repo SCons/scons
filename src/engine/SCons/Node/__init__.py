@@ -584,13 +584,13 @@ class Node:
         executor = self.get_executor()
 
         sourcelist = executor.get_source_binfo(calc)
+        depends = self.depends
+        implicit = self.implicit or []
 
-        sourcelist = filter(lambda t, s=self: s.do_not_ignore(t[0]), sourcelist)
-        depends = filter(self.do_not_ignore, self.depends)
-        if self.implicit is None:
-            implicit = []
-        else:
-            implicit = filter(self.do_not_ignore, self.implicit)
+        if self.ignore:
+            sourcelist = filter(lambda t, s=self: s.do_not_ignore(t[0]), sourcelist)
+            depends = filter(self.do_not_ignore, depends)
+            implicit = filter(self.do_not_ignore, implicit)
 
         def calc_signature(node, calc=calc):
             return node.calc_signature(calc)
@@ -761,7 +761,10 @@ class Node:
 
     def _children_get(self):
         "__cacheable__"
-        return filter(self.do_not_ignore, self.all_children(scan=0))
+        children = self.all_children(scan=0)
+        if self.ignore:
+            children = filter(self.do_not_ignore, children)
+        return children
         
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those
