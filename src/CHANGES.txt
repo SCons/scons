@@ -222,6 +222,9 @@ RELEASE 0.97 - XXX
     is old enough at this point that it probably isn't worth the
     effort to make it do so.
 
+  - Enhanced the SCons setup.py script to install man pages on
+    UNIX/Linux systems.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

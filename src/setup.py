@@ -37,6 +37,7 @@ if head:
 try:
     import distutils.core
     import distutils.command.install
+    import distutils.command.install_data
     import distutils.command.install_lib
     import distutils.command.install_scripts
     import distutils.command.build_scripts
@@ -51,15 +52,18 @@ your system, or on how to install SCons from a different package.
     sys.exit(1)
 
 _install = distutils.command.install.install
+_install_data = distutils.command.install_data.install_data
 _install_lib = distutils.command.install_lib.install_lib
 _install_scripts = distutils.command.install_scripts.install_scripts
 _build_scripts = distutils.command.build_scripts.build_scripts
 
+install_doc = 1
 standard_lib = 0
 standalone_lib = 0
 version_lib = 0
 
 installed_lib_dir = None
+installed_man_pages_dir = None
 installed_scripts_dir = None
 
 def set_explicitly(name, args):
@@ -84,6 +88,8 @@ def set_explicitly(name, args):
 
 class install(_install):
     user_options = _install.user_options + [
+                    ('no-install-doc', None,
+                     "do not install SCons man pages"),
                     ('standard-lib', None,
                      "install SCons library in standard Python location"),
                     ('standalone-lib', None,
@@ -92,6 +98,7 @@ class install(_install):
                      "install SCons library in version-specific directory")
                    ]
     boolean_options = _install.boolean_options + [
+                       'no-install-doc',
                        'standard-lib',
                        'standalone-lib',
                        'version-lib'
@@ -99,6 +106,7 @@ class install(_install):
 
     def initialize_options(self):
         _install.initialize_options(self)
+        self.no_install_doc = 0
         self.standard_lib = 0
         self.standalone_lib = 0
         self.version_lib = 0
@@ -106,7 +114,9 @@ class install(_install):
 
     def finalize_options(self):
         _install.finalize_options(self)
-        global standard_lib, standalone_lib, version_lib
+        global install_doc, standard_lib, standalone_lib, version_lib
+        if self.no_install_doc:
+            install_doc = 0
         standard_lib = self.standard_lib
         standalone_lib = self.standalone_lib
         version_lib = self.version_lib
@@ -194,6 +204,19 @@ class build_scripts(_build_scripts):
         _build_scripts.finalize_options(self)
         self.build_dir = os.path.join('build', 'scripts')
 
+class install_data(_install_data):
+    def initialize_options(self):
+        _install_data.initialize_options(self)
+        global install_doc
+        self.install_doc = install_doc
+    def finalize_options(self):
+        _install_data.finalize_options(self)
+        if self.install_doc:
+            global installed_man_pages_dir
+            installed_man_pages_dir = self.install_dir + '/man/man1'
+        else:
+            self.data_files = []
+
 arguments = {
     'name'             : "scons",
     'version'          : "__VERSION__",
@@ -210,19 +233,31 @@ arguments = {
     'scripts'          : ['script/scons', 'script/sconsign'],
     'cmdclass'         : {'install'         : install,
                           'install_lib'     : install_lib,
+                          'install_data'    : install_data,
                           'install_scripts' : install_scripts,
                           'build_scripts'   : build_scripts}
 }
 
-try:
-    if sys.platform == 'win32' or sys.argv[1] == "bdist_wininst":
-        arguments['data_files'] = [('.', ["script/scons.bat"])]
-except IndexError:
-    pass
+is_win32 = 0
+if not sys.platform == 'win32':
+    try:
+        if sys.argv[1] == 'bdist_wininst':
+            is_win32 = 1
+    except IndexError:
+        pass
+else:
+    is_win32 = 1
+
+if is_win32:
+    arguments['data_files'] = [('.', ["script/scons.bat"])]
+else:
+    arguments['data_files'] = [('man/man1', ["scons.1", "sconsign.1"])]
 
 apply(distutils.core.setup, (), arguments)
 
 if installed_lib_dir:
     print "Installed SCons library modules into %s" % installed_lib_dir
+if installed_man_pages_dir:
+    print "Installed SCons man pages into %s" % installed_man_pages_dir
 if installed_scripts_dir:
-    print "Installed SCons script into %s" % installed_scripts_dir
+    print "Installed SCons scripts into %s" % installed_scripts_dir
