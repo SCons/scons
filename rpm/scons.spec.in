@@ -41,9 +41,9 @@ python setup.py build
 
 %install
 python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES --install-lib=/usr/lib/scons --install-scripts=/usr/bin
-mkdir -p $RPM_BUILD_ROOT/usr/man/man1
-gzip -c scons.1 > $RPM_BUILD_ROOT/usr/man/man1/scons.1.gz
-gzip -c sconsign.1 > $RPM_BUILD_ROOT/usr/man/man1/sconsign.1.gz
+mkdir -p $RPM_BUILD_ROOT%_mandir/man1
+gzip -c scons.1 > $RPM_BUILD_ROOT%_mandir/man1/scons.1.gz
+gzip -c sconsign.1 > $RPM_BUILD_ROOT%_mandir/man1/sconsign.1.gz
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -51,5 +51,5 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 __RPM_FILES__
-%doc /usr/man/man1/scons.1.gz
-%doc /usr/man/man1/sconsign.1.gz
+%doc %{_mandir}/man1/scons.1*
+%doc %{_mandir}/man1/sconsign.1*

@@ -34,6 +34,9 @@ RELEASE X.XX - XXX
   - Support directories as build sources, so that a rebuild of a target
     can be triggered if anything underneath the directory changes.
 
+  - Have the scons.bat and scons.py files look for the SCons modules
+    in site-packages as well.
+
   From Christian Engel:
 
   - Support more flexible inclusion of separate C and C++ compilers.
@@ -127,6 +130,10 @@ RELEASE X.XX - XXX
 
   - Allow a directory to be the target or source or dependency of a
     Depends(), Ignore(), Precious() or SideEffect() call.
+
+  From Gerard Patel:
+
+  - Use the %{_mandir} macro when building our RPM package.
 
   From Marko Rauhamaa:
 
