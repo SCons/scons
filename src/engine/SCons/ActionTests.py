@@ -40,7 +40,8 @@ import TestCmd
 import UserDict
 
 import SCons.Environment
-Environment = SCons.Environment.EnvProxy
+def Environment(dict):
+    return apply(SCons.Environment.Environment, (), dict)
 
 class ActionTestCase(unittest.TestCase):
 

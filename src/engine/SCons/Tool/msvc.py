@@ -39,6 +39,8 @@ import string
 import SCons.Action
 import SCons.Tool
 import SCons.Errors
+import SCons.Builder
+import SCons.Util
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -187,6 +189,62 @@ def get_msdev_paths(version=None):
                 exe_path = ''
     return (include_path, lib_path, exe_path)
 
+def validate_vars(env):
+    """Validate the PDB, PCH, and PCHSTOP construction variables."""
+    if env.has_key('PDB') and env['PDB']:
+        if not isinstance(env['PDB'], SCons.Node.FS.File):
+            raise SCons.Errors.UserError, "The PDB construction variable must be a File instance: %s"%env['PDB']
+
+    if env.has_key('PCH') and env['PCH']:
+        if not isinstance(env['PCH'], SCons.Node.FS.File):
+            raise SCons.Errors.UserError, "The PCH construction variable must be a File instance: %s"%env['PCH']
+        if not env.has_key('PCHSTOP'):
+            raise SCons.Errors.UserError, "The PCHSTOP construction must be defined if PCH is defined."
+        if not SCons.Util.is_String(env['PCHSTOP']):
+            raise SCons.Errors.UserError, "The PCHSTOP construction variable must be a string: %r"%env['PCHSTOP']
+
+def pch_emitter(target, source, env):
+    """Sets up the PDB dependencies for a pch file, and adds the object
+    file target."""
+
+    validate_vars(env)
+
+    pch = None
+    obj = None
+
+    for t in target:
+        if os.path.splitext(str(t))[1] == '.pch':
+            pch = t
+        if os.path.splitext(str(t))[1] == '.obj':
+            obj = t
+
+    if not obj:
+        obj = os.path.splitext(str(pch))[0]+'.obj'
+
+    target = [pch, obj] # pch must be first, and obj second for the PCHCOM to work
+
+    if env.has_key('PDB') and env['PDB']:
+        env.SideEffect(env['PDB'], target)
+        env.Precious(env['PDB'])
+
+    return (target, source)
+
+def object_emitter(target, source, env):
+    """Sets up the PDB and PCH dependencies for an object file."""
+
+    validate_vars(env)
+
+    if env.has_key('PDB') and env['PDB']:
+        env.SideEffect(env['PDB'], target)
+        env.Precious(env['PDB'])
+
+    if env.has_key('PCH') and env['PCH']:
+        env.Depends(target, env['PCH'])
+
+    return (target, source)
+
+pch_builder = SCons.Builder.Builder(action='$PCHCOM', suffix='.pch', emitter=pch_emitter)
+
 def generate(env, platform):
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
@@ -199,20 +257,24 @@ def generate(env, platform):
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
 
+    env['CCPDBFLAGS'] = '${(PDB and "/Zi /Fd%s"%PDB) or ""}'
+    env['CCPCHFLAGS'] = '${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",PCH)) or ""}'
+    env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'
     env['CCFLAGS']    = '/nologo'
-    env['CCCOM']      = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['CCCOM']      = '$CC $CCFLAGS $CCCOMFLAGS' 
     env['SHCC']       = '$CC'
     env['SHCCFLAGS']  = '$CCFLAGS'
-    env['SHCCCOM']    = '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['SHCCCOM']    = '$SHCC $SHCCFLAGS $CCCOMFLAGS'
     env['CXX']        = '$CC'
     env['CXXFLAGS']   = '$CCFLAGS'
-    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['CXXCOM']     = '$CXX $CXXFLAGS $CCCOMFLAGS'
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = '$CXXFLAGS'
-    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CCCOMFLAGS'
     env['INCPREFIX']  = '/I'
-    env['INCSUFFIX']  = '' 
+    env['INCSUFFIX']  = ''
+    env['OBJEMITTER'] = object_emitter
 
     include_path, lib_path, exe_path = get_msdev_paths()
     env['ENV']['INCLUDE'] = include_path
@@ -220,6 +282,9 @@ def generate(env, platform):
 
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
+
+    env['PCHCOM'] = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo${TARGETS[1]} /Yc$PCHSTOP /Fp${TARGETS[0]} $CCPDBFLAGS'
+    env['BUILDERS']['PCH'] = pch_builder
 
 def exists(env):
     return env.Detect('cl')

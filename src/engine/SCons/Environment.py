@@ -111,42 +111,6 @@ class BuilderDict(UserDict):
 
 _rm = re.compile(r'\$[()]')
 
-class EnvProxy(UserDict):
-    """This is a dictionary-like class that is returned
-    by Environment.Override().
-
-    In addition to providing
-    normal dictionary-like access to the variables in the
-    Environment, it also exposes the functions subst()
-    and subst_list(), allowing users to easily do variable
-    interpolation when writing their FunctionActions
-    and CommandGeneratorActions."""
-
-    def __init__(self, env):
-        UserDict.__init__(self, env)
-
-    def subst(self, string, raw=0):
-        if raw:
-            regex_remove = None
-        else:
-            regex_remove = _rm
-        return SCons.Util.scons_subst(string, self.data, {}, regex_remove)
-
-    def subst_list(self, string, raw=0):
-        if raw:
-            regex_remove = None
-        else:
-            regex_remove = _rm
-        return SCons.Util.scons_subst_list(string, self.data, {}, regex_remove)
-
-    def Override(self, overrides):
-        if overrides:
-            proxy = EnvProxy(self)
-            proxy.update(overrides)
-            return proxy
-        else:
-            return self
-
 class Environment:
     """Base class for construction Environments.  These are
     the primary objects used to communicate dependency and
@@ -453,8 +417,8 @@ class Environment:
             return side_effects[0]
         else:
             return side_effects
-  
-    def subst(self, string):
+
+    def subst(self, string, raw=0):
 	"""Recursively interpolates construction variables from the
 	Environment into the specified string, returning the expanded
 	result.  Construction variables are specified by a $ prefix
@@ -464,12 +428,20 @@ class Environment:
 	may be surrounded by curly braces to separate the name from
 	trailing characters.
 	"""
-	return SCons.Util.scons_subst(string, self._dict, {})
-
-    def subst_list(self, string):
+        if raw:
+            regex_remove = None
+        else:
+            regex_remove = _rm
+        return SCons.Util.scons_subst(string, self._dict, {}, regex_remove)
+    
+    def subst_list(self, string, raw=0):
         """Calls through to SCons.Util.scons_subst_list().  See
         the documentation for that function."""
-        return SCons.Util.scons_subst_list(string, self._dict, {})
+        if raw:
+            regex_remove = None
+        else:
+            regex_remove = _rm
+        return SCons.Util.scons_subst_list(string, self._dict, {}, regex_remove)
 
     def get_scanner(self, skey):
         """Find the appropriate scanner given a key (usually a file suffix).
@@ -518,17 +490,23 @@ class Environment:
 
     def Override(self, overrides):
         """
-        Produce a modified psuedo-environment whose variables
+        Produce a modified environment whose variables
         are overriden by the overrides dictionaries.
 
-        overrides - a dictionaru that will override
+        overrides - a dictionary that will override
         the variables of this environment.
+
+        This function is much more efficient than Copy()
+        or creating a new Environment because it doesn't do
+        a deep copy of the dictionary, and doesn't do a copy
+        at all if there are no overrides.
         """
 
         if overrides:
-            proxy = EnvProxy(self._dict)
-            proxy.update(overrides)
-            return proxy
+            env = copy.copy(self)
+            env._dict = copy.copy(self._dict)
+            env._dict.update(overrides)
+            return env
         else:
             return self
 
@@ -536,6 +514,10 @@ class Environment:
         "Emulates the get() method of dictionaries."""
         return self._dict.get(key, default)
 
+    def items(self):
+        "Emulates the items() method of dictionaries."""
+        return self._dict.items()
+    
 class VarInterpolator:
     def __init__(self, dest, src, prefix, suffix):
         self.dest = dest

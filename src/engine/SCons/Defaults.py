@@ -133,6 +133,7 @@ ASPPAction = SCons.Action.Action([ StaticCheckSet, "$ASPPCOM" ])
 def StaticObject():
     """A function for generating the static object Builder."""
     return SCons.Builder.Builder(action = {},
+                                 emitter="$OBJEMITTER",
                                  prefix = '$OBJPREFIX',
                                  suffix = '$OBJSUFFIX',
                                  src_builder = ['CFile', 'CXXFile'])
@@ -142,6 +143,7 @@ def SharedObject():
     return SCons.Builder.Builder(action = {},
                                  prefix = '$SHOBJPREFIX',
                                  suffix = '$SHOBJSUFFIX',
+                                 emitter="$OBJEMITTER",
                                  src_builder = ['CFile', 'CXXFile'])
 
 ProgScan = SCons.Scanner.Prog.ProgScan()
@@ -176,6 +178,7 @@ def PDF():
                                  suffix = '$PDFSUFFIX')
 
 Program = SCons.Builder.Builder(action=[ StaticCheck, '$LINKCOM' ],
+                                emitter='$PROGEMITTER',
                                 prefix='$PROGPREFIX',
                                 suffix='$PROGSUFFIX',
                                 src_suffix='$OBJSUFFIX',

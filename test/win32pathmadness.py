@@ -91,11 +91,11 @@ upper = os.path.join(string.upper(drive),rest)
 lower = os.path.join(string.lower(drive),rest)
 
 test.run(chdir=upper)
-test.run(chdir=lower, stdout="""\
+test.run(chdir=lower, stdout=test.wrap_stdout("""\
 scons: .* is up to date.
 scons: .* is up to date.
 scons: .* is up to date.
-""")
+"""))
 
 test.write('SConstruct', """
 env=Environment()
@@ -122,10 +122,10 @@ test.write('b.h', """
 """)
 
 test.run(arguments='a.lib b.lib')
-test.run(arguments='b.lib a.lib', stdout="""\
+test.run(arguments='b.lib a.lib', stdout=test.wrap_stdout("""\
 scons: .* is up to date.
 scons: .* is up to date.
-""")
+"""))
 
 
 

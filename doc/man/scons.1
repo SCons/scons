@@ -902,6 +902,19 @@ A synonym for the
 .B StaticObject
 builder.
 
+.IP PCH
+Builds a Microsoft Visual C++ precompiled header. Calling this builder
+returns a list of two targets: the PCH as the first element, and the object
+file as the second element. Normally the object file is ignored. This builder is only
+provided when Microsoft Visual C++ is being used as the compiler. 
+The PCH builder is generally used in
+conjuction with the PCH construction variable to force object files to use
+the precompiled header:
+
+.ES
+env['PCH'] = env.PCH('StdAfx.cpp')[0]
+.EE
+
 .IP Program
 Builds an executable given one or more object files or C, C++
 or Fortran source files.
@@ -1786,6 +1799,47 @@ The prefix used for (static) object file names.
 
 .IP OBJSUFFIX 
 The suffix used for (static) object file names.
+
+.IP PCH
+The Microsoft Visual C++ precompiled header that will be used when compiling
+object files. This variable is ignored by tools other than Microsoft Visual C++.
+When this variable is
+defined SCons will add options to the compiler command line to
+cause it to use the precompiled header, and will also set up the
+dependencies for the PCH file. This variable must reference a File instance created either
+with File() or returned by the PCH builder:
+
+.ES
+env['PCH'] = env.PCH('StdAfx.cpp')[0]
+.EE
+
+.IP PCHSTOP
+This variable specifies how much of a source file is precompiled. This
+variable is ignored by tools other than Microsoft Visual C++, or when
+the PCH variable is not being used. When this variable is define it
+must be a string that is the name of the header that
+is included at the end of the precompiled portion of the source files, or
+the empty string if the "#pragma hrdstop" construct is being used:
+
+.ES
+env['PCHSTOP'] = File('StdAfx.h')
+.EE
+
+
+
+.IP PDB
+The Microsoft Visual C++ PDB file that will store debugging information for
+object files, shared libraries, and programs. This variable is ignored by
+tools other than Microsoft Visual C++.
+When this variable is
+defined SCons will add options to the compiler and linker command line to
+cause them to generate external debugging information, and will also set up the
+dependencies for the PDB file. This variable must reference
+a File instance created with File():
+
+.ES
+env['PDB'] = File('hello.pdb')
+.EE
 
 .IP PDFCOM
 The command line used to convert TeX DVI files into a PDF file.
@@ -3201,6 +3255,72 @@ CC: The C compiler.
     actual: cc
 
 .EE
+
+.SS Using Microsoft Visual C++ precompiled headers
+
+Since windows.h includes everything and the kitchen sink, it can take quite
+some time to compile it over and over again for a bunch of object files, so
+Microsoft provides a mechanism to compile a set of headers once and then
+include the previously compiled headers in any object file. This
+technology is called precompiled headers. The general recipe is to create a
+file named "StdAfx.cpp" that includes a single header named "StdAfx.h", and
+then include every header you want to precompile in "StdAfx.h", and finally
+include "StdAfx.h" as the first header in all the source files you are
+compiling to object files. For example:
+
+StdAfx.h:
+.ES
+#include <windows.h>
+#include <my_big_header.h>
+.EE
+
+StdAfx.cpp:
+.ES
+#include <StdAfx.h>
+.EE
+
+Foo.cpp:
+.ES
+#include <StdAfx.h>
+
+/* do some stuff */
+.EE
+
+Bar.cpp:
+.ES
+#include <StdAfx.h>
+
+/* do some other stuff */
+.EE
+
+SConstruct:
+.ES
+env=Environment()
+env['PCHSTOP'] = File('StdAfx.h')
+env['PCH'] = env.PCH('StdAfx.cpp')[0]
+env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
+.EE
+
+For more information see the document for the PCH builder, and the PCH and
+PCHSTOP construction variables. To learn about the details of precompiled
+headers consult the MSDN documention for /Yc, /Yu, and /Yp.
+
+.SS Using Microsoft Visual C++ external debugging information
+
+Since including debugging information in programs and shared libraries can
+cause their size to increase significantly, Microsoft provides a mechanism
+for including the debugging information in an external file called a PDB
+file. SCons supports PDB files through the PDB construction
+variable. 
+
+SConstruct:
+.ES
+env=Environment()
+env['PDB'] = File('MyApp.pdb')
+env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
+.EE
+
+For more information see the document for the PDB construction variable.
 
 .SH ENVIRONMENT
 

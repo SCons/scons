@@ -40,6 +40,7 @@ import SCons.Defaults
 import SCons.Errors
 import SCons.Action
 import SCons.Util
+import msvc
 
 from SCons.Tool.msvc import get_msdev_paths
 
@@ -68,12 +69,19 @@ def win32TempFileMunge(env, cmd_list, for_signature):
 def win32LinkGenerator(env, target, source, for_signature):
     args = [ '$LINK', '$LINKFLAGS', '/OUT:%s' % target[0],
              '$(', '$_LIBDIRFLAGS', '$)', '$_LIBFLAGS' ]
+    
+    if env.has_key('PDB') and env['PDB']:
+        args.extend(['/PDB:%s'%env['PDB'], '/DEBUG'])
+
     args.extend(map(SCons.Util.to_String, source))
     return win32TempFileMunge(env, args, for_signature)
 
 def win32LibGenerator(target, source, env, for_signature):
     listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
     no_import_lib = env.get('no_import_lib', 0)
+
+    if env.has_key('PDB') and env['PDB']:
+        listCmd.extend(['/PDB:%s'%env['PDB'], '/DEBUG'])
 
     for tgt in target:
         ext = os.path.splitext(str(tgt))[1]
@@ -94,9 +102,12 @@ def win32LibGenerator(target, source, env, for_signature):
         else:
             # Just treat it as a generic source file.
             listCmd.append(str(src))
+
     return win32TempFileMunge(env, listCmd, for_signature)
 
 def win32LibEmitter(target, source, env):
+    msvc.validate_vars(env)
+    
     dll = None
     no_import_lib = env.get('no_import_lib', 0)
     
@@ -116,6 +127,11 @@ def win32LibEmitter(target, source, env):
         # append a def file to the list of sources
         source.append("%s%s" % (os.path.splitext(str(dll))[0],
                                 env.subst("$WIN32DEFSUFFIX")))
+
+    if env.has_key('PDB') and env['PDB']:
+        env.SideEffect(env['PDB'], target)
+        env.Precious(env['PDB'])
+    
     if not no_import_lib and \
        not env.subst("$LIBSUFFIX") in \
        map(lambda x: os.path.split(str(x))[1], target):
@@ -124,6 +140,15 @@ def win32LibEmitter(target, source, env):
                                   os.path.splitext(str(dll))[0],
                                   env.subst("$LIBSUFFIX")))
     return (target, source)
+
+def prog_emitter(target, source, env):
+    msvc.validate_vars(env)
+    
+    if env.has_key('PDB') and env['PDB']:
+        env.SideEffect(env['PDB'], target)
+        env.Precious(env['PDB'])
+        
+    return (target,source)
 
 ShLibAction = SCons.Action.CommandGenerator(win32LibGenerator)
 LinkAction = SCons.Action.CommandGenerator(win32LinkGenerator)
@@ -140,6 +165,7 @@ def generate(env, platform):
     env['LINK']        = 'link'
     env['LINKFLAGS']   = '/nologo'
     env['LINKCOM']     = LinkAction
+    env['PROGEMITTER'] = prog_emitter
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''
     env['LIBLINKPREFIX']=''

@@ -121,7 +121,7 @@ tree = """scons: \".\" is up to date.
       +-foo.h
 """
 test.run(arguments = "--debug=tree .")
-test.fail_test(string.find(test.stdout(), tree) != 0)
+test.fail_test(string.find(test.stdout(), tree) == -1)
 
 test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
 test.fail_test(string.find(test.stdout(), "(Pdb)") == -1)

@@ -79,6 +79,9 @@ RELEASE 0.09 -
   - Add an Options() object for friendlier accomodation of command-
     line arguments.
 
+  - Add support for Microsoft VC++ precompiled header (.pch)
+    and debugger (.pdb) files.
+
   From sam th:
 
   - Dynamically check for the existence of utilities with which to
