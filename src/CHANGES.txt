@@ -104,6 +104,11 @@ RELEASE 0.97 - XXX
   - Enhance the tests to guarantee persistence of ListOption
     values in saved options files.
 
+  From Christian Neeb:
+
+  - Fix the Java parser's handling of string definitions to avoid ignoring
+    subsequent code.
+
   From Han-Wen Nienhuys:
 
   - Optimize variable expansion by:  using the re.sub() method (when

@@ -43,6 +43,9 @@ public class Foo
      public static void main(String[] args)
      {
 
+        /* This tests a former bug where strings would eat later code. */
+        String hello1 = new String("Hello, world!");
+
      }
 
 }
