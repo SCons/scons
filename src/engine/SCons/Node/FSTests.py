@@ -421,6 +421,23 @@ class FSTestCase(unittest.TestCase):
         f1 = SCons.Node.FS.default_fs.File(test.workpath("binary_file"))
         assert f1.get_contents() == "Foo\x1aBar", f1.get_contents()
 
+        def nonexistent(method, str):
+            try:
+                x = method(str, create = 0)
+            except UserError:
+                pass
+            else:
+                raise TestFailed, "did not catch expected UserError"
+
+        nonexistent(fs.Entry, 'nonexistent')
+        nonexistent(fs.Entry, 'nonexistent/foo')
+
+        nonexistent(fs.File, 'nonexistent')
+        nonexistent(fs.File, 'nonexistent/foo')
+
+        nonexistent(fs.Dir, 'nonexistent')
+        nonexistent(fs.Dir, 'nonexistent/foo')
+
         #XXX test current() for directories
 
         #XXX test sconsign() for directories

@@ -51,6 +51,9 @@ RELEASE 0.04 -
 
   - Add the Ignore() method to ignore dependencies.
 
+  - Provide an error message when a nonexistent target is specified
+    on the command line.
+
   From Steve Leblanc:
 
   - Add var=value command-line arguments.

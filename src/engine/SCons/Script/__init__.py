@@ -640,10 +640,18 @@ def _main():
     def Entry(x):
 	if isinstance(x, SCons.Node.Node):
 	    return x
-	else:
-	    return SCons.Node.FS.default_fs.Entry(x)
-	
-    nodes = map(Entry, targets)
+        try:
+            node = SCons.Node.FS.default_fs.Entry(x, create = 0)
+        except UserError:
+            str = "scons: *** Do not know how to make target `%s'." % x
+            if not keep_going_on_error:
+                sys.stderr.write(str + "  Stop.\n")
+                sys.exit(2)
+            sys.stderr.write(str + "\n")
+            node = None
+        return node
+
+    nodes = filter(lambda x: x is not None, map(Entry, targets))
 
     if not calc:
         calc = SCons.Sig.Calculator(SCons.Sig.MD5)

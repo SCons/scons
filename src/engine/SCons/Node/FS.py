@@ -128,7 +128,7 @@ class FS:
                   (node.__class__.__name__, str(node), klass.__name__)
         return node
         
-    def __doLookup(self, fsclass, name, directory=None):
+    def __doLookup(self, fsclass, name, directory = None, create = 1):
         """This method differs from the File and Dir factory methods in
         one important way: the meaning of the directory parameter.
         In this method, if directory is None or not supplied, the supplied
@@ -144,6 +144,8 @@ class FS:
             try:
                 directory = self.Root[drive_path]
             except KeyError:
+                if not create:
+                    raise UserError
                 dir = Dir(drive, ParentOfRoot())
                 dir.path = dir.path + os.sep
                 dir.abspath = dir.abspath + os.sep
@@ -160,6 +162,8 @@ class FS:
                 directory = self.__checkClass(directory.entries[path_norm],
                                               Dir)
             except KeyError:
+                if not create:
+                    raise UserError
                 dir_temp = Dir(path_name, directory)
                 directory.entries[path_norm] = dir_temp
                 directory.add_wkid(dir_temp)
@@ -168,6 +172,8 @@ class FS:
         try:
             ret = self.__checkClass(directory.entries[file_name], fsclass)
         except KeyError:
+            if not create:
+                raise UserError
             ret = fsclass(path_comp[-1], directory)
             directory.entries[file_name] = ret
             directory.add_wkid(ret)
@@ -198,7 +204,7 @@ class FS:
         if not dir is None:
             self._cwd = dir
 
-    def Entry(self, name, directory = None):
+    def Entry(self, name, directory = None, create = 1):
         """Lookup or create a generic Entry node with the specified name.
         If the name is a relative path (begins with ./, ../, or a file
         name), then it is looked up relative to the supplied directory
@@ -206,9 +212,9 @@ class FS:
         construction time) if no directory is supplied.
         """
         name, directory = self.__transformPath(name, directory)
-        return self.__doLookup(Entry, name, directory)
+        return self.__doLookup(Entry, name, directory, create)
     
-    def File(self, name, directory = None):
+    def File(self, name, directory = None, create = 1):
         """Lookup or create a File node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
         then it is looked up relative to the supplied directory node,
@@ -219,9 +225,9 @@ class FS:
         specified path.
         """
         name, directory = self.__transformPath(name, directory)
-        return self.__doLookup(File, name, directory)
+        return self.__doLookup(File, name, directory, create)
 
-    def Dir(self, name, directory = None):
+    def Dir(self, name, directory = None, create = 1):
         """Lookup or create a Dir node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
         then it is looked up relative to the supplied directory node,
@@ -232,7 +238,7 @@ class FS:
         specified path.
         """
         name, directory = self.__transformPath(name, directory)
-        return self.__doLookup(Dir, name, directory)
+        return self.__doLookup(Dir, name, directory, create)
 
     def BuildDir(self, build_dir, src_dir, duplicate=1):
         """Link the supplied build directory to the source directory
