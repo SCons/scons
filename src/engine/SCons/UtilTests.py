@@ -84,6 +84,7 @@ class UtilTestCase(unittest.TestCase):
         loc['sources'] = PathList(map(os.path.normpath, [ "./foo/blah.cpp",
                                                           "/bar/ack.cpp",
                                                           "../foo/ack.c" ]))
+        loc['xxx'] = None
 
         if os.sep == '/':
             def cvt(str):
@@ -122,6 +123,9 @@ class UtilTestCase(unittest.TestCase):
 
         newcom = scons_subst("test ${target.dir}", loc, {})
         assert newcom == cvt("test foo")
+
+        newcom = scons_subst("test $xxx", loc, {})
+        assert newcom == cvt("test "), newcom
 
 
 

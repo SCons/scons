@@ -177,7 +177,11 @@ def scons_subst(string, locals, globals):
         if key[:1] == '{' and key[-1:] == '}':
             key = key[1:-1]
 	try:
-	    s = str(eval(key, locals, globals))
+            e = eval(key, locals, globals)
+            if e is None:
+                s = ''
+            else:
+                s = str(e)
 	except NameError:
 	    s = ''
 	return s
