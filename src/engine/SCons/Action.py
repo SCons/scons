@@ -29,11 +29,13 @@ XXX
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import copy
 import os
 import os.path
 import re
 import string
 import sys
+import UserDict
 
 import SCons.Util
 
@@ -259,6 +261,27 @@ class ActionBase:
 _rm = re.compile(r'\$[()]')
 _remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
 
+class EnvDictProxy(UserDict.UserDict):
+    """This is a dictionary-like class that contains the
+    Environment dictionary we pass to FunctionActions
+    and CommandGeneratorActions.
+
+    In addition to providing
+    normal dictionary-like access to the variables in the
+    Environment, it also exposes the functions subst()
+    and subst_list(), allowing users to easily do variable
+    interpolation when writing their FunctionActions
+    and CommandGeneratorActions."""
+
+    def __init__(self, env):
+        UserDict.UserDict.__init__(self, env)
+
+    def subst(self, string):
+        return SCons.Util.scons_subst(string, self.data, {}, _rm)
+
+    def subst_list(self, string):
+        return SCons.Util.scons_subst_list(string, self.data, {}, _rm)
+
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
     def __init__(self, string):
@@ -325,7 +348,14 @@ class CommandGeneratorAction(ActionBase):
         if kw.has_key("target") and not SCons.Util.is_List(kw["target"]):
             kw["target"] = [kw["target"]]
 
-        gen_list = apply(self.generator, (), kw)
+        # Wrap the environment dictionary in an EnvDictProxy
+        # object to make variable interpolation easier for the
+        # client.
+        args = copy.copy(kw)
+        if args.has_key("env") and not isinstance(args["env"], EnvDictProxy):
+            args["env"] = EnvDictProxy(args["env"])
+
+        gen_list = apply(self.generator, (), args)
         gen_list = map(lambda x: map(str, x), gen_list)
 
         # Do environment variable substitution on returned command list
@@ -386,6 +416,8 @@ class FunctionAction(ActionBase):
             if kw.has_key('source') and not \
                SCons.Util.is_List(kw['source']):
                 kw['source'] = [ kw['source'] ]
+            if kw.has_key("env") and not isinstance(kw["env"], EnvDictProxy):
+                kw["env"] = EnvDictProxy(kw["env"])
             return apply(self.function, (), kw)
 
     def get_contents(self, **kw):

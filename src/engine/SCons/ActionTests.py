@@ -158,6 +158,9 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         def f(dummy, env, self=self):
             self.dummy = dummy
+            assert env.subst('$FOO') == 'foo baz\nbar ack', env.subst('$FOO')
+            assert env.subst_list('$FOO') == [ [ 'foo', 'baz' ],
+                                               [ 'bar', 'ack' ] ], env.subst_list('$FOO')
             return [["$FOO"]]
         def ch(cmd, args, env, self=self):
             self.cmd.append(cmd)
@@ -203,13 +206,16 @@ class FunctionActionTestCase(unittest.TestCase):
         """Test executing a function Action
         """
         self.inc = 0
-        def f(s, target, source):
+        def f(s, target, source, env):
             s.inc = s.inc + 1
             s.target = target
             s.source=source
+            assert env.subst("foo$BAR") == 'foofoo bar', env.subst("foo$BAR")
+            assert env.subst_list("foo$BAR") == [ [ 'foofoo', 'bar' ] ], \
+                   env.subst_list("foo$BAR")
             return 0
         a = SCons.Action.FunctionAction(f)
-        a.execute(s = self, target=1, source=2)
+        a.execute(s = self, target=1, source=2, env={'BAR':'foo bar'})
         assert self.inc == 1, self.inc
         assert self.source == [2], self.source
         assert self.target == [1], self.target
