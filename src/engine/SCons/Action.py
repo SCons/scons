@@ -218,6 +218,9 @@ class ActionBase:
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
 
+    def print_cmd_line(self, s, target, source, env):
+        sys.stdout.write(s + "\n")
+
     def __call__(self, target, source, env,
                                errfunc=None,
                                presub=_null,
@@ -238,7 +241,15 @@ class ActionBase:
         if show and self.strfunction:
             s = self.strfunction(target, source, env)
             if s:
-                sys.stdout.write(s + '\n')
+                try:
+                    get = env.get
+                except AttributeError:
+                    print_func = self.print_cmd_line
+                else:
+                    print_func = get('PRINT_CMD_LINE_FUNC')
+                    if not print_func:
+                        print_func = self.print_cmd_line
+                print_func(s, target, source, env)
         if execute:
             stat = self.execute(target, source, env)
             if stat and errfunc:

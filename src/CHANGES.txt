@@ -38,6 +38,9 @@ RELEASE 0.97 - XXX
 
   - Add ParseConfig() support for the -framework GNU linker option.
 
+  - Add a PRINT_CMD_LINE_FUNC construction variable to allow people
+    to filter (or log) command-line output.
+
   From Kevin Quick:
 
   - Fix the Builder name returned from ListBuilders and other instances

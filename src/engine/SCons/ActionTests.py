@@ -139,7 +139,7 @@ class Environment:
         self.d[item] = value
     def has_key(self, item):
         return self.d.has_key(item)
-    def get(self, key, value):
+    def get(self, key, value=None):
         return self.d.get(key, value)
     def items(self):
         return self.d.items()
@@ -350,6 +350,25 @@ class ActionBaseTestCase(unittest.TestCase):
         assert a1 != a3
         assert a2 != a3
 
+    def test_print_cmd_lines(self):
+        """Test the print_cmd_lines() method
+        """
+        save_stdout = sys.stdout
+
+        try:
+            def execfunc(target, source, env):
+                pass
+            a = SCons.Action.Action(execfunc)
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.print_cmd_line("foo bar", None, None, None)
+            s = sio.getvalue()
+            assert s == "foo bar\n", s
+
+        finally:
+            sys.stdout = save_stdout
+
     def test___call__(self):
         """Test calling an Action
         """
@@ -437,6 +456,14 @@ class ActionBaseTestCase(unittest.TestCase):
             result = a("out", "in", env, execute=1, errfunc=errfunc)
             assert result == 7, result
             assert errfunc_result == [7], errfunc_result
+
+            result = []
+            def my_print_cmd_line(s, target, source, env, result=result):
+                result.append(s)
+            env['PRINT_CMD_LINE_FUNC'] = my_print_cmd_line
+            a("output", "input", env)
+            assert result == ['execfunc(["output"], ["input"])'], result
+            
 
         finally:
             sys.stdout = save_stdout
