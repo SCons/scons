@@ -34,14 +34,17 @@ else:
 
 test = TestSCons.TestSCons()
 
-test.subdir('repository', 'work')
+
+
+# First, test a single repository.
+test.subdir('repository', 'work1')
 
 repository = test.workpath('repository')
 repository_foo_c = test.workpath('repository', 'foo.c')
-work_foo = test.workpath('work', 'foo' + _exe)
-work_foo_c = test.workpath('work', 'foo.c')
+work1_foo = test.workpath('work1', 'foo' + _exe)
+work1_foo_c = test.workpath('work1', 'foo.c')
 
-test.write(['work', 'SConstruct'], r"""
+test.write(['work1', 'SConstruct'], r"""
 Repository(r'%s')
 env = Environment()
 env.Program(target= 'foo', source = Split('aaa.c bbb.c foo.c'))
@@ -81,43 +84,43 @@ main(int argc, char *argv[])
 # if we try to write into it accidentally.
 test.writable('repository', 0)
 
-test.run(chdir = 'work', arguments = '.')
+test.run(chdir = 'work1', arguments = '.')
 
-test.run(program = work_foo, stdout = """repository/aaa.c
+test.run(program = work1_foo, stdout = """repository/aaa.c
 repository/bbb.c
 repository/foo.c
 """)
 
-test.up_to_date(chdir = 'work', arguments = '.')
+test.up_to_date(chdir = 'work1', arguments = '.')
 
 #
-test.write(['work', 'bbb.c'], r"""
+test.write(['work1', 'bbb.c'], r"""
 void
 bbb(void)
 {
-	printf("work/bbb.c\n");
+	printf("work1/bbb.c\n");
 }
 """)
 
-test.run(chdir = 'work', arguments = '.')
+test.run(chdir = 'work1', arguments = '.')
 
-test.run(program = work_foo, stdout = """repository/aaa.c
-work/bbb.c
+test.run(program = work1_foo, stdout = """repository/aaa.c
+work1/bbb.c
 repository/foo.c
 """)
 
-test.up_to_date(chdir = 'work', arguments = '.')
+test.up_to_date(chdir = 'work1', arguments = '.')
 
 #
-test.write(['work', 'aaa.c'], r"""
+test.write(['work1', 'aaa.c'], r"""
 void
 aaa(void)
 {
-	printf("work/aaa.c\n");
+	printf("work1/aaa.c\n");
 }
 """)
 
-test.write(['work', 'foo.c'], r"""
+test.write(['work1', 'foo.c'], r"""
 extern void aaa(void);
 extern void bbb(void);
 int
@@ -126,44 +129,213 @@ main(int argc, char *argv[])
 	argv[argc++] = "--";
 	aaa();
 	bbb();
-	printf("work/foo.c\n");
+	printf("work1/foo.c\n");
 	exit (0);
 }
 """)
 
-test.run(chdir = 'work', arguments = '.')
+test.run(chdir = 'work1', arguments = '.')
 
-test.run(program = work_foo, stdout = """work/aaa.c
-work/bbb.c
-work/foo.c
+test.run(program = work1_foo, stdout = """work1/aaa.c
+work1/bbb.c
+work1/foo.c
 """)
 
-test.up_to_date(chdir = 'work', arguments = '.')
+test.up_to_date(chdir = 'work1', arguments = '.')
 
 #
-test.unlink(['work', 'aaa.c'])
+test.unlink(['work1', 'aaa.c'])
 
-test.run(chdir = 'work', arguments = '.')
+test.run(chdir = 'work1', arguments = '.')
 
-test.run(program = work_foo, stdout = """repository/aaa.c
-work/bbb.c
-work/foo.c
+test.run(program = work1_foo, stdout = """repository/aaa.c
+work1/bbb.c
+work1/foo.c
 """)
 
-test.up_to_date(chdir = 'work', arguments = '.')
+test.up_to_date(chdir = 'work1', arguments = '.')
 
 #
-test.unlink(['work', 'bbb.c'])
-test.unlink(['work', 'foo.c'])
+test.unlink(['work1', 'bbb.c'])
+test.unlink(['work1', 'foo.c'])
 
-test.run(chdir = 'work', arguments = '.')
+test.run(chdir = 'work1', arguments = '.')
 
-test.run(program = work_foo, stdout = """repository/aaa.c
+test.run(program = work1_foo, stdout = """repository/aaa.c
 repository/bbb.c
 repository/foo.c
 """)
 
-test.up_to_date(chdir = 'work', arguments = '.')
+test.up_to_date(chdir = 'work1', arguments = '.')
+
+
+
+# Now, test multiple repositories.
+test.subdir('repository.new', 'repository.old', 'work2')
+
+repository_new = test.workpath('repository.new')
+repository_old = test.workpath('repository.old')
+work2_foo = test.workpath('work2', 'foo' + _exe)
+
+test.write(['work2', 'SConstruct'], r"""
+Repository(r'%s')
+Repository(r'%s')
+env = Environment()
+env.Program(target= 'foo', source = Split('aaa.c bbb.c foo.c'))
+""" % (repository_new, repository_old))
+
+test.write(['repository.old', 'aaa.c'], r"""
+void
+aaa(void)
+{
+	printf("repository.old/aaa.c\n");
+}
+""")
+
+test.write(['repository.old', 'bbb.c'], r"""
+void
+bbb(void)
+{
+	printf("repository.old/bbb.c\n");
+}
+""")
+
+test.write(['repository.old', 'foo.c'], r"""
+extern void aaa(void);
+extern void bbb(void);
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	aaa();
+	bbb();
+	printf("repository.old/foo.c\n");
+	exit (0);
+}
+""")
+
+# Make both repositories non-writable, so we'll detect
+# if we try to write into it accidentally.
+test.writable('repository.new', 0)
+test.writable('repository.old', 0)
+
+test.run(chdir = 'work2', arguments = '.')
+
+test.run(program = work2_foo, stdout = """repository.old/aaa.c
+repository.old/bbb.c
+repository.old/foo.c
+""")
+
+test.up_to_date(chdir = 'work2', arguments = '.')
+
+#
+test.writable('repository.new', 1)
+
+test.write(['repository.new', 'aaa.c'], r"""
+void
+aaa(void)
+{
+	printf("repository.new/aaa.c\n");
+}
+""")
+
+test.write(['work2', 'bbb.c'], r"""
+void
+bbb(void)
+{
+	printf("work2/bbb.c\n");
+}
+""")
+
+#
+test.writable('repository.new', 0)
+
+test.run(chdir = 'work2', arguments = '.')
+
+test.run(program = work2_foo, stdout = """repository.new/aaa.c
+work2/bbb.c
+repository.old/foo.c
+""")
+
+test.up_to_date(chdir = 'work2', arguments = '.')
+
+#
+test.write(['work2', 'aaa.c'], r"""
+void
+aaa(void)
+{
+	printf("work2/aaa.c\n");
+}
+""")
+
+test.write(['work2', 'foo.c'], r"""
+extern void aaa(void);
+extern void bbb(void);
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	aaa();
+	bbb();
+	printf("work2/foo.c\n");
+	exit (0);
+}
+""")
+
+#
+test.run(chdir = 'work2', arguments = '.')
+
+test.run(program = work2_foo, stdout = """work2/aaa.c
+work2/bbb.c
+work2/foo.c
+""")
+
+test.up_to_date(chdir = 'work2', arguments = '.')
+
+#
+test.unlink(['work2', 'aaa.c'])
+test.unlink(['work2', 'bbb.c'])
+
+#
+test.run(chdir = 'work2', arguments = '.')
+
+test.run(program = work2_foo, stdout = """repository.new/aaa.c
+repository.old/bbb.c
+work2/foo.c
+""")
+
+test.up_to_date(chdir = 'work2', arguments = '.')
+
+#
+test.unlink(['work2', 'foo.c'])
+
+#
+test.run(chdir = 'work2', arguments = '.')
+
+test.run(program = work2_foo, stdout = """repository.new/aaa.c
+repository.old/bbb.c
+repository.old/foo.c
+""")
+
+test.up_to_date(chdir = 'work2', arguments = '.')
+
+#
+test.writable('repository.new', 1)
+
+test.unlink(['repository.new', 'aaa.c'])
+
+test.writable('repository.new', 0)
+
+#
+test.run(chdir = 'work2', arguments = '.')
+
+test.run(program = work2_foo, stdout = """repository.old/aaa.c
+repository.old/bbb.c
+repository.old/foo.c
+""")
+
+test.up_to_date(chdir = 'work2', arguments = '.')
+
 
 #
 test.pass_test()

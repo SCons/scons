@@ -95,7 +95,7 @@ repository/src/main.c
 """)
 
 # Double-check that the Repository is up-to-date.
-#test.up_to_date(chdir = 'repository', arguments = ".")
+test.up_to_date(chdir = 'repository', arguments = ".")
 
 # Make the repository non-writable,
 # so we'll detect if we try to write into it accidentally.
@@ -143,4 +143,3 @@ repository/src/main.c
 
 #
 test.pass_test()
-__END__
