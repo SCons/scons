@@ -174,7 +174,7 @@ def createObjBuilders(env):
                                            prefix = '$OBJPREFIX',
                                            suffix = '$OBJSUFFIX',
                                            src_builder = ['CFile', 'CXXFile'],
-                                           source_scanner = SCons.Defaults.ObjSourceScan)
+                                           source_scanner = SCons.Defaults.ObjSourceScan, single_source=1)
         env['BUILDERS']['StaticObject'] = static_obj
         env['BUILDERS']['Object'] = static_obj
         env['OBJEMITTER'] = SCons.Defaults.StaticObjectEmitter
@@ -187,7 +187,7 @@ def createObjBuilders(env):
                                            prefix = '$SHOBJPREFIX',
                                            suffix = '$SHOBJSUFFIX',
                                            src_builder = ['CFile', 'CXXFile'],
-                                           source_scanner = SCons.Defaults.ObjSourceScan)
+                                           source_scanner = SCons.Defaults.ObjSourceScan, single_source=1)
         env['BUILDERS']['SharedObject'] = shared_obj
         env['SHOBJEMITTER'] = SCons.Defaults.SharedObjectEmitter
 

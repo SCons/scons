@@ -152,17 +152,21 @@ createSConstruct(test, ['SConstruct'],
                     QT_UICDECLFLAGS='-y',
                     QT_MOCFROMHFLAGS='-z',
                     QT_MOCFROMCXXFLAGS='-i -w',
-                    QT_HSUFFIX='.hpp',
-                    QT_MOCNAMEGENERATOR=lambda x,src_suffix,env: x + '.moc.cpp',
-                    QT_UISUFFIX='.des',
-                    QT_UIHSUFFUX='.des.hpp',
-                    CXXFILESUFFIX='.cpp',""")
+                    QT_UICDECLPREFIX='uic-',
+                    QT_UICDECLSUFFIX='.hpp',
+                    QT_UICIMPLPREFIX='',
+                    QT_UICIMPLSUFFIX='.cxx',
+                    QT_MOCHPREFIX='mmm',
+                    QT_MOCHSUFFIX='.cxx',
+                    QT_MOCCXXPREFIX='moc',
+                    QT_MOCCXXSUFFIX='.inl',
+                    QT_UISUFFIX='.myui',""")
 test.write('SConscript',"""
 Import("env")
 env.Program('mytest', ['mocFromH.cpp',
                        'mocFromCpp.cpp',
-                       'an_ui_file.des',
-                       'another_ui_file.des',
+                       'an_ui_file.myui',
+                       'another_ui_file.myui',
                        'main.cpp'])
 """)
 
@@ -178,14 +182,14 @@ test.write('mocFromH.cpp', """
 test.write('mocFromCpp.cpp', """
 #include "my_qobject.h"
 void mocFromCpp() Q_OBJECT
-#include "mocFromCpp.moc.cpp"
+#include "mocmocFromCpp.inl"
 """)
 
-test.write('an_ui_file.des', """
+test.write('an_ui_file.myui', """
 void an_ui_file()
 """)
 
-test.write('another_ui_file.des', """
+test.write('another_ui_file.myui', """
 void another_ui_file()
 """)
 
@@ -195,8 +199,8 @@ test.write('another_ui_file.desc.hpp', """
 
 test.write('main.cpp', """
 #include "mocFromH.hpp"
-#include "an_ui_file.hpp"
-#include "another_ui_file.hpp"
+#include "uic-an_ui_file.hpp"
+#include "uic-another_ui_file.hpp"
 void mocFromCpp();
 
 int main() {
@@ -213,14 +217,29 @@ def _existAll( test, files ):
     return reduce(lambda x,y: x and y,
                   map(os.path.exists,map(test.workpath, files)))
                        
-test.fail_test(not _existAll(test, ['mocFromH.moc.cpp',
-                                    'mocFromCpp.moc.cpp',
-                                    'an_ui_file.cpp',
-                                    'an_ui_file.hpp',
-                                    'an_ui_file.moc.cpp',
-                                    'another_ui_file.cpp',
-                                    'another_ui_file.hpp',
-                                    'another_ui_file.moc.cpp']))
+createSConstruct(test, ['SConstruct'],
+                 """QT_UICIMPLFLAGS='-x',
+                    QT_UICDECLFLAGS='-y',
+                    QT_MOCFROMHFLAGS='-z',
+                    QT_MOCFROMCXXFLAGS='-i -w',
+                    QT_UICDECLPREFIX='uic-',
+                    QT_UICDECLSUFFIX='.hpp',
+                    QT_UICIMPLPREFIX='',
+                    QT_UICIMPLSUFFIX='.cxx',
+                    QT_MOCHPREFIX='mmm',
+                    QT_MOCHSUFFIX='.cxx',
+                    QT_MOCCXXPREFIX='moc',
+                    QT_MOCCXXSUFFIX=`.inl',
+                    QT_UISUFFIX='.myui',""")
+
+test.fail_test(not _existAll(test, ['mmmmocFromH.cxx',
+                                    'mocmocFromCpp.inl',
+                                    'an_ui_file.cxx',
+                                    'uic-an_ui_file.hpp',
+                                    'mmman_ui_file.cxx',
+                                    'another_ui_file.cxx',
+                                    'uic-another_ui_file.hpp',
+                                    'mmmanother_ui_file.cxx']))
 
 def _flagTest(test,fileToContentsStart):
     import string
@@ -229,10 +248,10 @@ def _flagTest(test,fileToContentsStart):
             return 1
     return 0
 
-test.fail_test(_flagTest(test, {'mocFromH.moc.cpp':'/* mymoc.py -z */',
-                                'mocFromCpp.moc.cpp':'/* mymoc.py -w */',
-                                'an_ui_file.cpp':'/* myuic.py -x */',
-                                'an_ui_file.hpp':'/* myuic.py -y */',
-                                'an_ui_file.moc.cpp':'/* mymoc.py -z */'}))
+test.fail_test(_flagTest(test, {'mmmmocFromH.cxx':'/* mymoc.py -z */',
+                                'mocmocFromCpp.inl':'/* mymoc.py -w */',
+                                'an_ui_file.cxx':'/* myuic.py -x */',
+                                'uic-an_ui_file.hpp':'/* myuic.py -y */',
+                                'mmman_ui_file.cxx':'/* mymoc.py -z */'}))
 
 test.pass_test()

@@ -524,6 +524,51 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(my_env, source = 'f6.zzz')
         assert tgt.path == 'f6.emit', tgt.path
 
+    def test_single_source(self):
+        """Test Builder with single_source flag set"""
+        def func(target, source, env):
+            open(str(target[0]), "w")
+            if (len(source) == 1 and len(target) == 1):
+                env['CNT'][0] = env['CNT'][0] + 1
+                
+        env = Environment()
+        infiles = []
+        outfiles = []
+        for i in range(10):
+            infiles.append(test.workpath('%d.in' % i))
+            outfiles.append(test.workpath('%d.out' % i))
+            test.write(infiles[-1], "\n")
+        builder = SCons.Builder.Builder(action=SCons.Action.Action(func,None),
+                                        single_source = 1, suffix='.out')
+        env['CNT'] = [0]
+        tgt = builder(env, target=outfiles[0], source=infiles[0])
+        tgt.prepare()
+        tgt.build()
+        assert env['CNT'][0] == 1, env['CNT'][0]
+        tgt = builder(env, outfiles[1], infiles[1])
+        tgt.prepare()
+        tgt.build()
+        assert env['CNT'][0] == 2
+        tgts = builder(env, infiles[2:4])
+        for t in tgts: t.prepare()
+        tgts[0].build()
+        tgts[1].build()
+        assert env['CNT'][0] == 4
+        try:
+            tgt = builder(env, outfiles[4], infiles[4:6])
+        except SCons.Errors.UserError:
+            pass
+        else:
+            assert 0
+        try:
+            # The builder may output more than one target per input file.
+            tgt = builder(env, outfiles[4:6], infiles[4:6])
+        except SCons.Errors.UserError:
+            pass
+        else:
+            assert 0
+        
+        
     def test_ListBuilder(self):
         """Testing ListBuilder class."""
         def function2(target, source, env, tlist = [outfile, outfile2], **kw):

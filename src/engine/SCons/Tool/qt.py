@@ -41,10 +41,33 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-header_extensions = [".h", ".hxx", ".hpp", ".hh"]
+class ToolQtWarning(SCons.Warnings.Warning):
+    pass
 
+class GeneratedMocFileNotIncluded(ToolQtWarning):
+    pass
+
+class QtdirNotFound(ToolQtWarning):
+    pass
+
+SCons.Warnings.enableWarningClass(ToolQtWarning)
+
+header_extensions = [".h", ".hxx", ".hpp", ".hh"]
 if SCons.Util.case_sensitive_suffixes('.h', '.H'):
     header_extensions.append('.H')
+cplusplus = __import__('c++', globals(), locals(), [])
+cxx_suffixes = cplusplus.CXXSuffixes
+
+def checkMocIncluded(target, source, env):
+    moc = target[0]
+    cpp = source[0]
+    # looks like cpp.includes is cleared before the build stage :-(
+    includes = SCons.Defaults.CScan(cpp, env)
+    if not moc in includes:
+        SCons.Warnings.warn(
+            GeneratedMocFileNotIncluded,
+            "Generated moc file '%s' is not included by '%s'" %
+            (str(moc), str(cpp)))
 
 class _Automoc:
     """
@@ -52,87 +75,105 @@ class _Automoc:
     StaticLibraries.
     """
 
-    def __init__(self, objBuilderName,uicDeclBuild,mocFromHBld,mocFromCppBld):
+    def __init__(self, objBuilderName):
         self.objBuilderName = objBuilderName
-        self.uicDeclBld = uicDeclBuild
-        self.mocFromHBld = mocFromHBld
-        self.mocFromCppBld = mocFromCppBld
         
     def __call__(self, target, source, env):
         """
         Smart autoscan function. Gets the list of objects for the Program
         or Lib. Adds objects and builders for the special qt files.
         """
+        try:
+            if int(env.subst('$QT_AUTOSCAN')) == 0:
+                return target, source
+        except ValueError:
+            pass
+        try:
+            debug = int(env.subst('$QT_DEBUG'))
+        except ValueError:
+            debug = 0
+        
+        # some shortcuts used in the scanner
         FS = SCons.Node.FS.default_fs
         splitext = SCons.Util.splitext
-
+        objBuilder = getattr(env, self.objBuilderName)
+  
         # To make the following work, we assume that we stay in the
         # root directory
-        old_os_cwd = os.getcwd()
-        old_fs_cwd = FS.getcwd()
-        FS.chdir(FS.Dir('#'), change_os_dir=1)
+        #old_os_cwd = os.getcwd()
+        #old_fs_cwd = FS.getcwd()
+        #FS.chdir(FS.Dir('#'), change_os_dir=1)
 
-        # a regular expression for the Q_OBJECT macro
-        # currently fails, when Q_OBJECT is in comment (e.g. /* Q_OBJECT */)
-        q_object_search = re.compile(r'\sQ_OBJECT[\s;]')
-        # out_sources contains at least all sources for the Library or Prog
+        # some regular expressions:
+        # Q_OBJECT detection
+        q_object_search = re.compile(r'[^A-Za-z0-9]Q_OBJECT[^A-Za-z0-9]') 
+        # cxx and c comment 'eater'
+        comment = re.compile(r'(//.*)|(/\*(([^*])|(\*[^/]))*\*/)')
+
+        # The following is kind of hacky to get builders working properly (FIXME)
+        objBuilderEnv = objBuilder.env
+        objBuilder.env = env
+        mocBuilderEnv = env.Moc.env
+        env.Moc.env = env
+        
+        # make a deep copy for the result; MocH objects will be appended
         out_sources = source[:]
-        for s in source:
-            prefix, suffix = splitext(str(s))
-            # Nodes for header (h) / moc file (moc_cpp) / cpp file (cpp)
-            # and ui.h file (ui_h)
-            cpp = s.sources[0]
-            ui = None
-            if cpp.sources != None and len(cpp.sources) > 0:
-                src_src_suffix = splitext(str(cpp.sources[0]))[1]
-                if src_src_suffix == env.subst('$QT_UISUFFIX'):
-                    ui = cpp.sources[0]
-            
-            src_prefix, src_suffix = splitext(str(cpp.srcnode()))
+
+        for obj in source:
+            if not obj.has_builder():
+                # binary obj file provided
+                if debug:
+                    print "scons: qt: '%s' seems to be a binary. Discarded." % str(obj)
+                continue
+            cpp = obj.sources[0]
+            if not splitext(str(cpp))[1] in cxx_suffixes:
+                if debug:
+                    print "scons: qt: '%s' is no cxx file. Discarded." % str(cpp) 
+                # c or fortran source
+                continue
+            cpp_contents = comment.sub('', cpp.get_contents())
             h=None
             for h_ext in header_extensions:
-                if os.path.exists(src_prefix + h_ext):
-                    h = FS.File(src_prefix + h_ext)
-
-            if ui:
-                # file built from .ui file -> build also header from .ui
-                h = self.uicDeclBld(env, prefix, ui)
-                env.Depends(cpp, h)
-                ui_h_suff = env.subst('$QT_UIHSUFFIX')
-                if os.path.exists(src_prefix + ui_h_suff):
-                    # if a .ui.h file exists, we need to specify the dependecy ...
-                    ui_h = FS.File(src_prefix + ui_h_suff)
-                    env.Depends(cpp, ui_h)
-            if (h and q_object_search.search(h.get_contents())) or ui:
+                # try to find the header file in the corresponding source
+                # directory
+                hname = splitext(cpp.name)[0] + h_ext
+                h = SCons.Node.FS.find_file(hname,
+                                            (cpp.get_dir(),),
+                                            FS.File)
+                if h:
+                    if debug:
+                        print "scons: qt: Scanning '%s' (header of '%s')" % (str(h), str(cpp))
+                    h_contents = comment.sub('', h.get_contents())
+                    break
+            if not h and debug:
+                print "scons: qt: no header for '%s'." % (str(cpp))
+            if h and q_object_search.search(h_contents):
                 # h file with the Q_OBJECT macro found -> add moc_cpp
-                d,base = os.path.split(prefix)
-                src_ext = splitext(str(h))[1]
-                moc_cpp = FS.File(os.path.join(d, 
-                    env['QT_MOCNAMEGENERATOR'](base, src_ext, env)))
-                objBuilder = getattr(env, self.objBuilderName)
-                if env.get('QT_AUTOBUILD_MOC_SOURCES'):
-                    moc_o = objBuilder(source=moc_cpp)
-                    out_sources.append(moc_o)
-                    objBuilder(moc_o, moc_cpp)
-                self.mocFromHBld(env, moc_cpp, h)
+                moc_cpp = env.Moc(h)
+                moc_o = objBuilder(moc_cpp)
+                out_sources.append(moc_o)
                 #moc_cpp.target_scanner = SCons.Defaults.CScan
-            if cpp and q_object_search.search(cpp.get_contents()):
+                if debug:
+                    print "scons: qt: found Q_OBJECT macro in '%s', moc'ing to '%s'" % (str(h), str(moc_cpp))
+            if cpp and q_object_search.search(cpp_contents):
                 # cpp file with Q_OBJECT macro found -> add moc
                 # (to be included in cpp)
-                d,base = os.path.split(prefix)
-                src_ext = splitext(str(cpp))[1]
-                moc = FS.File(os.path.join(d, 
-                    env['QT_MOCNAMEGENERATOR'](base, src_ext, env)))
-                self.mocFromCppBld(env, moc, cpp)
+                moc = env.Moc(cpp)
                 env.Ignore(moc, moc)
+                if debug:
+                    print "scons: qt: found Q_OBJECT macro in '%s', moc'ing to '%s'" % (str(cpp), str(moc))
                 #moc.source_scanner = SCons.Defaults.CScan
+        # restore the original env attributes (FIXME)
+        objBuilder.env = objBuilderEnv
+        env.Moc.env = mocBuilderEnv
 
-        os.chdir(old_os_cwd)
-        FS.chdir(old_fs_cwd)
-        if env.get('QT_AUTOBUILD_MOC_SOURCES'):
-            return (target, out_sources)
-        else:
-            return (target, source)
+        #os.chdir(old_os_cwd)
+        #FS.chdir(old_fs_cwd)
+
+        return (target, out_sources)
+
+AutomocShared = _Automoc('SharedObject')
+AutomocStatic = _Automoc('StaticObject')
 
 def _detect(env):
     """Not really safe, but fast method to detect the QT library"""
@@ -142,85 +183,121 @@ def _detect(env):
     if not QTDIR:
         QTDIR = os.environ.get('QTDIR',None)
     if not QTDIR:
-        moc = env.Detect('moc')
+        moc = env.WhereIs('moc')
         if moc:
             QTDIR = os.path.dirname(os.path.dirname(moc))
+            SCons.Warnings.warn(
+                QtdirNotFound,
+                "Could not detect qt, using moc executable as a hint (QTDIR=%s)" % QTDIR)
         else:
             QTDIR = None
+            SCons.Warnings.warn(
+                QtdirNotFound,
+                "Could not detect qt, using empty QTDIR")
     return QTDIR
+
 
 def generate(env):
     """Add Builders and construction variables for qt to an Environment."""
+    CLVar = SCons.Util.CLVar
+    Action = SCons.Action.Action
+    Builder = SCons.Builder.Builder
+    splitext = SCons.Util.splitext
 
+    # the basics
     env['QTDIR']  = _detect(env)
     env['QT_MOC'] = os.path.join('$QTDIR','bin','moc')
     env['QT_UIC'] = os.path.join('$QTDIR','bin','uic')
-    env['QT_LIB'] = 'qt'
+    env['QT_LIB'] = 'qt' # may be set to qt-mt
 
-    # Should moc-generated sources be automatically compiled?
-    env['QT_AUTOBUILD_MOC_SOURCES'] = 1
+    # Should the qt tool try to figure out, which sources are to be moc'ed ?
+    env['QT_AUTOSCAN'] = 1
 
     # Some QT specific flags. I don't expect someone wants to
     # manipulate those ...
-    env['QT_UICIMPLFLAGS'] = SCons.Util.CLVar('')
-    env['QT_UICDECLFLAGS'] = SCons.Util.CLVar('')
-    env['QT_MOCFROMHFLAGS'] = SCons.Util.CLVar('')
-    env['QT_MOCFROMCXXFLAGS'] = SCons.Util.CLVar('-i')
+    env['QT_UICIMPLFLAGS'] = CLVar('')
+    env['QT_UICDECLFLAGS'] = CLVar('')
+    env['QT_MOCFROMHFLAGS'] = CLVar('')
+    env['QT_MOCFROMCXXFLAGS'] = CLVar('-i')
 
-    # Suffixes for the headers / sources to generate
-    env['QT_HSUFFIX'] = '.h'
+    # suffixes/prefixes for the headers / sources to generate
+    env['QT_UICDECLPREFIX'] = ''
+    env['QT_UICDECLSUFFIX'] = '.h'
+    env['QT_UICIMPLPREFIX'] = 'uic_'
+    env['QT_UICIMPLSUFFIX'] = '$CXXFILESUFFIX'
+    env['QT_MOCHPREFIX'] = 'moc_'
+    env['QT_MOCHSUFFIX'] = '$CXXFILESUFFIX'
+    env['QT_MOCCXXPREFIX'] = ''
+    env['QT_MOCCXXSUFFIX'] = '.moc'
     env['QT_UISUFFIX'] = '.ui'
-    env['QT_UIHSUFFIX'] = '.ui.h'
-    env['QT_MOCNAMEGENERATOR'] = \
-        lambda x, src_suffix, env: 'moc_' + x + env.get('CXXFILESUFFIX','.cc')
+
+    def uicEmitter(target, source, env):
+        adjustixes = SCons.Util.adjustixes
+        bs = SCons.Util.splitext(str(source[0]))[0]
+        # first target (header) is automatically added by builder
+        if len(target) < 2:
+            # second target is implementation
+            target.append(adjustixes(bs,
+                                     env.subst('$QT_UICIMPLPREFIX'),
+                                     env.subst('$QT_UICIMPLSUFFIX')))
+        if len(target) < 3:
+            # third target is moc file
+            target.append(adjustixes(bs,
+                                     env.subst('$QT_MOCHPREFIX'),
+                                     env.subst('$QT_MOCHSUFFIX')))
+        return target, source
 
     # Commands for the qt support ...
-    # command to generate implementation (cpp) file from a .ui file
-    env['QT_UICIMPLCOM'] = ('$QT_UIC $QT_UICIMPLFLAGS -impl '
-                            '${TARGETS[0].filebase}$QT_HSUFFIX '
-                            '-o $TARGET $SOURCES')
-    # command to generate declaration (h) file from a .ui file
-    env['QT_UICDECLCOM'] = ('$QT_UIC $QT_UICDECLFLAGS '
-                            '-o ${TARGETS[0].base}$QT_HSUFFIX $SOURCES')
+    # command to generate header, implementation and moc-file from a .ui file
+    env['QT_UICCOM'] = [
+        CLVar('$QT_UIC $QT_UICDECLFLAGS -o ${TARGETS[0]} $SOURCE'),
+        CLVar('$QT_UIC $QT_UICIMPLFLAGS -impl ${TARGETS[0].file} '
+              '-o ${TARGETS[1]} $SOURCE'),
+        CLVar('$QT_MOC $QT_MOCFROMHFLAGS -o ${TARGETS[2]} ${TARGETS[0]}')]
     # command to generate meta object information for a class declarated
     # in a header
-    env['QT_MOCFROMHCOM'] = '$QT_MOC $QT_MOCFROMHFLAGS -o $TARGET $SOURCE'
-    # command to generate meta object information for a class declatazed
+    env['QT_MOCFROMHCOM'] = (
+        '$QT_MOC $QT_MOCFROMHFLAGS -o ${TARGETS[0]} $SOURCE')
+    # command to generate meta object information for a class declarated
     # in a cpp file
-    env['QT_MOCFROMCXXCOM'] = '$QT_MOC $QT_MOCFROMCXXFLAGS -o $TARGET $SOURCE'
-
+    env['QT_MOCFROMCXXCOM'] = [
+        CLVar('$QT_MOC $QT_MOCFROMCXXFLAGS -o ${TARGETS[0]} $SOURCE'),
+        Action(checkMocIncluded,None)]
     # ... and the corresponding builders
-    uicDeclBld = SCons.Builder.Builder(action='$QT_UICDECLCOM',
-                                       src_suffix='$QT_UISUFFIX',
-                                       suffix='$QT_HSUFFIX')
-    mocFromHBld = SCons.Builder.Builder(action='$QT_MOCFROMHCOM',
-                                        src_suffix='$QT_HSUFFIX',
-                                        suffix='$QT_MOCSUFFIX')
-    mocFromCppBld = SCons.Builder.Builder(action='$QT_MOCFROMCXXCOM',
-                                          src_suffix='$QT_CXXSUFFIX',
-                                          suffix='$QT_MOCSUFFIX')
+    uicBld = Builder(action='$QT_UICCOM',
+                     emitter=uicEmitter,
+                     src_suffix='$QT_UISUFFIX',
+                     suffix='$QT_UICDECLSUFFIX',
+                     prefix='$QT_UICDECLPREFIX')
+    mocBld = Builder(action={}, prefix={}, suffix={})
+    for h in header_extensions:
+        mocBld.add_action(h, '$QT_MOCFROMHCOM')
+        mocBld.prefix[h] = '$QT_MOCHPREFIX'
+        mocBld.suffix[h] = '$QT_MOCHSUFFIX'
+    for cxx in cxx_suffixes:
+        mocBld.add_action(cxx, '$QT_MOCFROMCXXCOM')
+        mocBld.prefix[cxx] = '$QT_MOCCXXPREFIX'
+        mocBld.suffix[cxx] = '$QT_MOCCXXSUFFIX'
 
-    # we use CXXFile to generate .cpp files from .ui files
-    c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
-    cxx_file.add_action('$QT_UISUFFIX', '$QT_UICIMPLCOM')
+    # register the builders 
+    env['BUILDERS']['Uic'] = uicBld
+    env['BUILDERS']['Moc'] = mocBld
+    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+    static_obj.src_builder.append('Uic')
+    shared_obj.src_builder.append('Uic')
 
     # We use the emitters of Program / StaticLibrary / SharedLibrary
-    # to produce almost all builders except .cpp from .ui
-    # First, make sure the Environment has Object builders.
-    SCons.Tool.createObjBuilders(env)
+    # to scan for moc'able files
     # We can't refer to the builders directly, we have to fetch them
     # as Environment attributes because that sets them up to be called
     # correctly later by our emitter.
-    env.Append(PROGEMITTER = [_Automoc('StaticObject',
-                                  uicDeclBld,mocFromHBld,mocFromCppBld)],
-               SHLIBEMITTER = [_Automoc('SharedObject',
-                                   uicDeclBld,mocFromHBld,mocFromCppBld)],
-               LIBEMITTER = [_Automoc('StaticObject',
-                                 uicDeclBld,mocFromHBld,mocFromCppBld)])
-    # Of course, we need to link against the qt libraries
-    env.AppendUnique(CPPPATH=[os.path.join('$QTDIR', 'include')])
-    env.AppendUnique(LIBPATH=[os.path.join('$QTDIR', 'lib')])
-    env.AppendUnique(LIBS=['$QT_LIB'])
+    env.AppendUnique(PROGEMITTER =[AutomocStatic],
+                     SHLIBEMITTER=[AutomocShared],
+                     LIBEMITTER  =[AutomocStatic],
+                     # Of course, we need to link against the qt libraries
+                     CPPPATH=[os.path.join('$QTDIR', 'include')],
+                     LIBPATH=[os.path.join('$QTDIR', 'lib')],
+                     LIBS=['$QT_LIB'])
 
 def exists(env):
     return _detect(env)

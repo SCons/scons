@@ -96,7 +96,7 @@ class BuildTask(SCons.Taskmaster.Task):
         target = self.targets[0]
         if target.get_state() == SCons.Node.up_to_date:
             if self.top and target.has_builder():
-                display("scons: `%s' is up to date." % str(target))
+                display("scons: `%s' is up to date." % str(self.node))
         elif target.has_builder() and not hasattr(target.builder, 'status'):
             if print_time:
                 start_time = time.time()

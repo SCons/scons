@@ -52,7 +52,9 @@ def generate(env):
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-    env['SHLIBEMITTER']= None
+    # don't set up the emitter, cause AppendUnique will generate a list
+    # starting with None :-(
+    #env['SHLIBEMITTER']= None
     env['SMARTLINK']   = smart_link
     env['LINK']        = "$SMARTLINK"
     env['LINKFLAGS']   = SCons.Util.CLVar('')
