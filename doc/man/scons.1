@@ -264,14 +264,20 @@ or
 .I sconstruct
 in the specified directory.)
 
-.IP -d
-Display dependencies while building target files.  Useful for
-figuring out why a specific file is being rebuilt, as well as
-general debugging of the build process.
+.\" .IP -d
+.\" Display dependencies while building target files.  Useful for
+.\" figuring out why a specific file is being rebuilt, as well as
+.\" general debugging of the build process.
 
-.\" .TP 
-.\" .RI --debug= flags
-.\"Print debugging information. ???
+.TP
+.RI --debug= type
+Print debugging information durring the build process.
+.I type
+specifies what type of of debugging information to print. Currently the
+only supported type is
+.I tree
+which causes the dependency tree to be printed after each top-level
+target is built.
 
 .IP "-e, --environment-overrides"
 Variables from the execution environment override construction

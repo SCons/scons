@@ -207,7 +207,41 @@ class UtilTestCase(unittest.TestCase):
         
         assert dict['_INCFLAGS'][4] == os.path.normpath('fooblatbar'), \
                dict['_INCFLAGS'][4]
-        
+
+    def test_render_tree(self):
+        class Node:
+            def __init__(self, name, children=[]):
+                self.children = children
+                self.name = name
+            def __str__(self):
+                return self.name
+
+        def get_children(node):
+            return node.children
+
+        windows_h = Node("windows.h")
+        stdlib_h = Node("stdlib.h")
+        stdio_h = Node("stdio.h")
+        bar_c = Node("bar.c", [stdlib_h, windows_h])
+        bar_o = Node("bar.o", [bar_c])
+        foo_c = Node("foo.c", [stdio_h])
+        foo_o = Node("foo.o", [foo_c])
+        foo = Node("foo", [foo_o, bar_o])
+
+        expect = """\
++-foo
+  +-foo.o
+  | +-foo.c
+  |   +-stdio.h
+  +-bar.o
+    +-bar.c
+      +-stdlib.h
+      +-windows.h
+"""
+
+        actual = render_tree(foo, get_children)
+        assert expect == actual, (expect, actual)
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

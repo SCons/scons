@@ -20,6 +20,8 @@ RELEASE 0.03 -
   - Add a "duplicate" keyword argument to BuildDir() that can be set
     to prevent linking/copying source files into build directories.
 
+  - Add a "--debug=tree" option to print an ASCII dependency tree.
+
 
 
 RELEASE 0.02 - Sun, 23 Dec 2001 19:05:09 -0600

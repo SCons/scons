@@ -71,9 +71,15 @@ class BuildTask(SCons.Taskmaster.Task):
         if self.target.get_state() == SCons.Node.up_to_date:
             if self.top:
                 print 'scons: "%s" is up to date.' % str(self.target)
+                if print_tree:
+                    print
+                    print SCons.Util.render_tree(self.target, get_children)
         else:
             try:
                 self.target.build()
+                if self.top and print_tree:
+                    print
+                    print SCons.Util.render_tree(self.target, get_children)
             except BuildError, e:
                 sys.stderr.write("scons: *** [%s] Error %s\n" % (e.node, str(e.stat)))
                 raise
@@ -106,8 +112,11 @@ calc = None
 ignore_errors = 0
 keep_going_on_error = 0
 help_option = None
+print_tree = 0
 
 # utility functions
+
+def get_children(node): return node.children()
 
 def _scons_syntax_error(e):
     """Handle syntax errors. Print out a message and show where the error
@@ -340,9 +349,17 @@ def options_init():
 	short = 'd',
 	help = "Print file dependency information.")
 
-    Option(func = opt_not_yet, future = 1,
-	long = ['debug'], arg = 'FLAGS',
-	help = "Print various types of debugging information.")
+    def opt_debug(opt, arg):
+        global print_tree
+        if arg == "tree":
+            print_tree = 1
+        else:
+            sys.stderr.write("Warning:  %s is not a valid debug type\n"
+                             % arg)
+
+    Option(func = opt_debug,
+           long = ['debug'], arg='TYPE',
+           help = "Print various types of debugging information.")
 
     Option(func = opt_not_yet, future = 1,
 	short = 'e', long = ['environment-overrides'],
