@@ -61,7 +61,7 @@ class Node:
     def __init__(self):
         self.sources = []       # source files used to build node
         self.depends = []       # explicit dependencies (from Depends)
-        self.implicit = []      # implicit (scanned) dependencies
+        self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
         self.ignore = []        # dependencies to ignore
         self.parents = {}
         self.wkids = None       # Kids yet to walk, when it's an array
@@ -119,7 +119,7 @@ class Node:
             
             def get_parents(node, parent): return node.get_parents()
             def clear_cache(node, parent): 
-                node.implicit = []
+                node.implicit = None
             w = Walker(self, get_parents, ignore_cycle, clear_cache)
             while w.next(): pass
 
@@ -163,15 +163,19 @@ class Node:
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""
         # Don't bother scanning non-derived files, because we don't
-	# care what their dependencies are.
+        # care what their dependencies are.
         # Don't scan again, if we already have scanned.
-        if self.builder and not self.implicit: 
-            for child in self.children(scan=0):
-                self._add_child(self.implicit, child.get_implicit_deps(self.env, child.source_scanner, self))
+        if self.implicit is None:
+            if self.builder:
+                self.implicit = []
+                for child in self.children(scan=0):
+                    self._add_child(self.implicit, child.get_implicit_deps(self.env, child.source_scanner, self))
             
-            # scan this node itself for implicit dependencies
-            self._add_child(self.implicit, self.get_implicit_deps(self.env, self.target_scanner, self))
-
+                # scan this node itself for implicit dependencies
+                self._add_child(self.implicit, self.get_implicit_deps(self.env, self.target_scanner, self))
+            else:
+                self.implicit = []
+    
     def scanner_key(self):
         return None
 
@@ -248,10 +252,13 @@ class Node:
     def all_children(self, scan=1):
         """Return a list of all the node's direct children."""
         #XXX Need to remove duplicates from this
-        if scan and not self.implicit:
+        if scan:
             self.scan()
-        return self.sources + self.depends + self.implicit
-
+        if self.implicit is None:
+            return self.sources + self.depends
+        else:
+            return self.sources + self.depends + self.implicit
+    
     def get_parents(self):
         return self.parents.keys()
 

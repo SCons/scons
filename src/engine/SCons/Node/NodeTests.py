@@ -386,7 +386,9 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
         assert node.target_scanner == None, node.target_scanner
         node.target_scanner = ds
+        assert node.implicit is None
         node.scan()
+        assert node.implicit == []
 
     def test_scanner_key(self):
         """Test that a scanner_key() method exists"""
@@ -411,6 +413,7 @@ class NodeTestCase(unittest.TestCase):
 
         node.add_source([n1, n2, n3])
         node.add_dependency([n4, n5, n6])
+        node.implicit = []
         node._add_child(node.implicit, [n7, n8, n9])
         node._add_child(node.implicit, [n10, n11, n12])
         node.add_ignore([n2, n5, n8, n11])
@@ -440,13 +443,14 @@ class NodeTestCase(unittest.TestCase):
 
         node.add_source([n1, n2, n3])
         node.add_dependency([n4, n5, n6])
+        node.implicit = []
         node._add_child(node.implicit, [n7, n8, n9])
         node._add_child(node.implicit, [n10, n11, n12])
         node.add_ignore([n2, n5, n8, n11])
 
         kids = node.all_children()
         for kid in [n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12]:
-            assert kid in kids
+            assert kid in kids, kid
 
     def test_state(self):
         """Test setting and getting the state of a node

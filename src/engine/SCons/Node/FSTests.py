@@ -388,6 +388,9 @@ class FSTestCase(unittest.TestCase):
         assert f1.implicit[0].path_ == os.path.join("d1", "f1")
         f1.implicit = []
         f1.scan()
+        assert f1.implicit == []
+        f1.implicit = None
+        f1.scan()
         assert f1.implicit[0].path_ == os.path.join("d1", "f1")
 
         # Test building a file whose directory is not there yet...
