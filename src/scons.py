@@ -248,7 +248,13 @@ Option(func = opt_not_yet, future = 1,
 	long = ['cache-show'],
 	help = "Print what would have built Cached targets.")
 
-Option(func = opt_not_yet,
+def opt_C(opt, arg):
+    try:
+	os.chdir(arg)
+    except:
+	sys.stderr.write("Could not change directory to 'arg'\n")
+
+Option(func = opt_C,
 	short = 'C', long = ['directory'], arg = 'DIRECTORY',
 	help = "Change to DIRECTORY before doing anything.")
 

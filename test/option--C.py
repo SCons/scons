@@ -10,17 +10,51 @@ test = TestCmd.TestCmd(program = 'scons.py',
                        workdir = '',
                        interpreter = 'python')
 
-test.write('SConstruct', "")
+wpath = test.workpath()
+wpath_sub = test.workpath('sub')
+wpath_sub_dir = test.workpath('sub', 'dir')
 
-test.run(chdir = '.', arguments = '-C foo')
+test.subdir('sub', ['sub', 'dir'])
 
-test.fail_test(test.stderr() !=
-		"Warning:  the -C option is not yet implemented\n")
+test.write('SConstruct', """
+import os
+print "SConstruct", os.getcwd()
+""")
 
-test.run(chdir = '.', arguments = '--directory=foo')
+test.write(['sub', 'SConstruct'], """
+import os
+print "sub/SConstruct", os.getcwd()
+""")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the --directory option is not yet implemented\n")
+test.write(['sub', 'dir', 'SConstruct'], """
+import os
+print "sub/dir/SConstruct", os.getcwd()
+""")
+
+test.run(chdir = '.', arguments = '-C sub')
+
+test.fail_test(test.stdout() != "sub/SConstruct %s\n" % wpath_sub)
+test.fail_test(test.stderr() != "")
+
+test.run(chdir = '.', arguments = '-C sub -C dir')
+
+test.fail_test(test.stdout() != "sub/dir/SConstruct %s\n" % wpath_sub_dir)
+test.fail_test(test.stderr() != "")
+
+test.run(chdir = '.')
+
+test.fail_test(test.stdout() != "SConstruct %s\n" % wpath)
+test.fail_test(test.stderr() != "")
+
+test.run(chdir = '.', arguments = '--directory=sub/dir')
+
+test.fail_test(test.stdout() != "sub/dir/SConstruct %s\n" % wpath_sub_dir)
+test.fail_test(test.stderr() != "")
+
+test.run(chdir = '.', arguments = '-C %s -C %s' % (wpath_sub_dir, wpath_sub))
+
+test.fail_test(test.stdout() != "sub/SConstruct %s\n" % wpath_sub)
+test.fail_test(test.stderr() != "")
 
 test.pass_test()
  
