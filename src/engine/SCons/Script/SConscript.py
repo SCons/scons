@@ -49,6 +49,7 @@ import SCons.Node.Alias
 
 import os
 import os.path
+import re
 import string
 import sys
 import traceback
@@ -453,11 +454,16 @@ class Options(SCons.Options.Options):
     def __init__(self, files=None, args=arguments):
         SCons.Options.Options.__init__(self, files, args)
 
-def CheckVersion(major,minor,version_string):
+def CheckVersion(major, minor, version_string):
     """Return 0 if 'major' and 'minor' are greater than the version
     in 'version_string', and 1 otherwise."""
-    version = string.split(string.split(version_string, ' ')[0], '.')
-    if major > int(version[0]) or (major == int(version[0]) and minor > int(version[1])):
+    try:
+        v_major, v_minor, v_micro, release, serial = sys.version_info
+    except AttributeError:
+        version = string.split(string.split(version_string, ' ')[0], '.')
+        v_major = int(version[0])
+        v_minor = int(re.match('\d+', version[1]).group())
+    if major > v_major or (major == v_major and minor > v_minor):
         return 0
     else:
         return 1

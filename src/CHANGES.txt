@@ -28,6 +28,8 @@ RELEASE X.XX - XXX
   - Support #include when there's no space before the opening quote
     or angle bracket.
 
+  - Accomodate alphanumeric version strings in EnsurePythonVersion().
+
 
 
 RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
