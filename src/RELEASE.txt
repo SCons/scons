@@ -20,7 +20,7 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.10 - XXX
+RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
   This is the tenth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
@@ -28,9 +28,26 @@ RELEASE 0.10 - XXX
   Please note the following important changes since release 0.09:
 
     - The Scanner interface has been changed to make it easier to
-      write user-defined scanners and to eliminate unnecessary
-      scanner calls.  This will require changing your user-defined
-      SCanner definitions.  XXX
+
+      write user-defined Scanners and to eliminate unnecessary Scanner
+      calls.  This required changing the meaning of the third argument
+      passed to your user-defined scanner functions.  The third argument
+      was formerly the target node whose build was causing a scan of the
+      current node specified as the first argument:
+
+        def scanner_function(node, env, target):
+
+      The third argument is now the path of directories that can be
+      searched for files found during the scan of the current node:
+
+        def scanner_function(node, env, path):
+
+      If you did not actually use the third argument in your scanner
+      function, which should be the case for most definitions, you do
+      not need to change your scanner function.  (You may, however, wish
+      to change the name of the third argument from "target" to "path"
+      to reflect the changed meaning and avoid misleading anyone who
+      looks at your SConscript files.)
 
     - The .sconsign file format has been changed from ASCII to a pickled
       Python data structure.  This improves performance and future
@@ -85,12 +102,15 @@ RELEASE 0.10 - XXX
       keyword arguments, but are instead passed as construction 
       variables.
 
-  Owing to an extensive test suite, the SCons team believes that this
-  release is of sufficient quality that you can use it for real work,
-  despite the "alpha" label.
+  SCons is developed with an extensive regression test suite, and a
+  rigorous development methodology for continually improving that suite.
+  Because of this, SCons is of sufficient quality that you can use it
+  for real work.  The "alpha" status of the release reflects that we
+  still may change interfaces in future releases, which may require
+  modifications to your SConscript files.  We strive to hold these
+  changes to a minimum.
 
-  Nevertheless, because this is an alpha release, heed the following
-  disclaimers:
+  Nevertheless, please heed the following disclaimers:
 
     - There may, of course, be bugs.  Please report any bugs or other
       problems that you find to our bug tracker at our SourceForge
@@ -100,11 +120,6 @@ RELEASE 0.10 - XXX
 
       We have a reliable bug-fixing methodology already in place and
       strive to respond to problems relatively quickly.
-
-    - It is possible that interfaces will change in future releases.  We
-      will strive to hold this to a minimum, but you may need to modify
-      your SConscript files in the future if there is a compelling reason
-      to change an interface.
 
     - Documentation is spottier than we'd like.  You may need to dive
       into the source code to figure out how to do something.  Asking
@@ -153,6 +168,15 @@ RELEASE 0.10 - XXX
     - If a file is specified to be built in multiple ways, the last
       processed builder specification overwrites all other builders,
       without any warning.
+
+    - On Win32 systems, you must put a space between the redirection
+      characters < and >, and the specified files (or construction
+      variable expansions):
+
+        command < $SOURCE > $TARGET
+
+      If you don't put space (for example, "<$SOURCE"), SCons will not
+      recognize the redirection.
 
     - Executing the -u or -U option from a source directory that has an
       associated BuildDir() does not build the targets in the BuildDir().

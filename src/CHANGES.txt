@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.10 - XXX
+RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
   From Derrick 'dman' Hudson:
 
@@ -85,7 +85,7 @@ RELEASE 0.10 - XXX
 
   - Added support for the MinGW tool chain.
 
-  - Added a --debug=inclues option.
+  - Added a --debug=includes option.
 
 
 
