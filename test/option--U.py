@@ -144,10 +144,11 @@ Default('.')
 test.run(chdir = 'sub4', arguments = '-U')
 
 test.write('SConstruct', """
-Default('no_a_target.in')
+Default('not_a_target.in')
 """)
 
-# The following should result in an error, but because of bug 642327, it doesn't:
-test.run(arguments = '-U')
+test.run(arguments = '-U', status=2, stderr="""\
+scons: *** Do not know how to make target `not_a_target.in'.  Stop.
+""")
 
 test.pass_test()

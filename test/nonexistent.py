@@ -38,6 +38,8 @@ test.write('SConstruct', """
 env = Environment()
 env.Command("aaa.out", "aaa.in", "should never get executed")
 env.Command("bbb.out", "bbb.in", "should never get executed")
+File('xxx')
+Dir('ddd')
 """)
 
 test.run(arguments = 'foo',
@@ -46,7 +48,6 @@ test.run(arguments = 'foo',
 
 test.run(arguments = '-k foo/bar foo',
          stderr = """scons: *** Do not know how to make target `foo/bar'.
-scons: *** Do not know how to make target `foo'.
 """,
          status = 2)
 
@@ -59,5 +60,34 @@ test.run(arguments = "-k bbb.out aaa.out",
 scons: *** No Builder for target `aaa.in', needed by `aaa.out'.
 """,
          status = 2)
+
+test.run(arguments = '-k aaa.in bbb.in',
+         stderr = """scons: *** Do not know how to make target `aaa.in'.
+scons: *** Do not know how to make target `bbb.in'.
+""",
+         status = 2)
+
+
+test.run(arguments = 'xxx',
+         stderr = "scons: *** Do not know how to make target `xxx'.  Stop.\n",
+         status = 2)
+
+test.run(arguments = 'ddd')
+
+
+# Make sure that SCons doesn't print up-to-date messages for non-derived files that exist:
+test.write('SConstruct', """
+File('xxx')
+""")
+
+test.write('xxx', "xxx")
+
+test.run(arguments='xxx', stdout=test.wrap_stdout("""\
+scons: Nothing to be done for `xxx'.
+"""))
+         
+test.run(arguments='xxx', stdout=test.wrap_stdout("""\
+scons: Nothing to be done for `xxx'.
+"""))
 
 test.pass_test()

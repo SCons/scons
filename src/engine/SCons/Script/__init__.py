@@ -73,8 +73,9 @@ from SCons.Optik import OptionParser, SUPPRESS_HELP, OptionValueError
 class BuildTask(SCons.Taskmaster.Task):
     """An SCons build task."""
     def execute(self):
-        if self.targets[0].get_state() == SCons.Node.up_to_date:
-            if self.top:
+        t = self.targets[0]
+        if t.get_state() == SCons.Node.up_to_date:
+            if self.top and t.builder:
                 display('scons: "%s" is up to date.' % str(self.targets[0]))
         else:
             if print_time:
@@ -86,10 +87,31 @@ class BuildTask(SCons.Taskmaster.Task):
                 command_time = command_time+finish_time-start_time
                 print "Command execution time: %f seconds"%(finish_time-start_time)
 
+    def do_failed(self):
+        if ignore_errors:
+            SCons.Taskmaster.Task.executed(self)
+        elif keep_going_on_error:
+            SCons.Taskmaster.Task.fail_continue(self)
+            exit_status = 2
+        else:
+            SCons.Taskmaster.Task.fail_stop(self)
+            exit_status = 2
+            
     def executed(self):
-        SCons.Taskmaster.Task.executed(self)
-        if not self.targets[0].builder and self.top:
-            print "scons: Nothing to be done for `%s'." % str(self.targets[0])
+        t = self.targets[0]
+        if self.top and not t.builder and not t.side_effect:
+            if not t.exists():
+                sys.stderr.write("scons: *** Do not know how to make target `%s'." % t)
+                if not keep_going_on_error:
+                    sys.stderr.write("  Stop.")
+                sys.stderr.write("\n")
+                self.do_failed()
+            else:
+                print "scons: Nothing to be done for `%s'." % t
+                SCons.Taskmaster.Task.executed(self)
+        else:
+            SCons.Taskmaster.Task.executed(self)
+                
         # print the tree here instead of in execute() because
         # this method is serialized, but execute isn't:
         if print_tree and self.top:
@@ -119,15 +141,8 @@ class BuildTask(SCons.Taskmaster.Task):
             sys.stderr.write("scons: *** %s\n" % s)
         else:
             sys.stderr.write("scons: *** %s\n" % e)
-        
-        if ignore_errors:
-            SCons.Taskmaster.Task.executed(self)
-        elif keep_going_on_error:
-            SCons.Taskmaster.Task.fail_continue(self)
-            exit_status = 2
-        else:
-            SCons.Taskmaster.Task.fail_stop(self)
-            exit_status = 2
+
+        self.do_failed()
 
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
@@ -782,21 +797,11 @@ def _main():
         if isinstance(x, SCons.Node.Node):
             node = x
         else:
-            try:
-                node = SCons.Node.Alias.default_ans.lookup(x)
-                if node is None:
-                    node = SCons.Node.FS.default_fs.Entry(x,
-                                                          directory = top,
-                                                          create = 0)
-            except UserError:
-                string = "scons: *** Do not know how to make target `%s'." % x
-                if not keep_going_on_error:
-                    sys.stderr.write(string + "  Stop.\n")
-                    sys.exit(2)
-                sys.stderr.write(string + "\n")
-                global exit_status
-                exit_status = 2
-                node = None
+            node = SCons.Node.Alias.default_ans.lookup(x)
+            if node is None:
+                node = SCons.Node.FS.default_fs.Entry(x,
+                                                      directory = top,
+                                                      create = 1)
         if top and not node.is_under(top):
             if isinstance(node, SCons.Node.FS.Dir) and top.is_under(node):
                 node = top

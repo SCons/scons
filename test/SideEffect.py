@@ -70,7 +70,6 @@ test.write('bar.in', 'bar.in 2 \n')
 test.run(arguments = 'log.txt', stdout=test.wrap_stdout("""\
 copy() < bar.in > bar.out
 copy() < blat.in > blat.out
-scons: Nothing to be done for `log.txt'.
 """))
 
 expect = """\

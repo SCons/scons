@@ -22,9 +22,10 @@ RELEASE 0.10 - XXX
   - Convert the .sconsign file format from ASCII to a pickled Python
     data structure.
 
-  - Made consistent the format of error messages (now all start with
-    "scons: ***") and warning messages (now all start with "scons:
-    warning:").
+  - Error message cleanups:  Made consistent the format of error
+    messages (now all start with "scons: ***") and warning messages (now
+    all start with "scons: warning:").  Caught more cases with the "Do
+    not know how to build" error message.
 
 
 
