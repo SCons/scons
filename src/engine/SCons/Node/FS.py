@@ -66,29 +66,77 @@ import SCons.Warnings
 # there should be *no* changes to the external file system(s)...
 #
 
+def _copy_func(src, dest):
+    shutil.copy2(src, dest)
+    st=os.stat(src)
+    os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+
+Valid_Duplicates = ['hard-soft-copy', 'soft-hard-copy',
+                    'hard-copy', 'soft-copy', 'copy']
+
+Link_Funcs = [] # contains the callables of the specified duplication style
+
+def set_duplicate(duplicate):
+    # Fill in the Link_Funcs list according to the argument
+    # (discarding those not available on the platform).
+
+    # Set up the dictionary that maps the argument names to the
+    # underlying implementations.  We do this inside this function,
+    # not in the top-level module code, so that we can remap os.link
+    # and os.symlink for testing purposes.
+    try:
+        _hardlink_func = os.link
+    except AttributeError:
+        _hardlink_func = None
+
+    try:
+        _softlink_func = os.symlink
+    except AttributeError:
+        _softlink_func = None
+
+    link_dict = {
+        'hard' : _hardlink_func,
+        'soft' : _softlink_func,
+        'copy' : _copy_func
+    }
+
+    if not duplicate in Valid_Duplicates:
+        raise SCons.Errors.InternalError, ("The argument of set_duplicate "
+                                           "should be in Valid_Duplicates")
+    global Link_Funcs
+    Link_Funcs = []
+    for func in string.split(duplicate,'-'):
+        if link_dict[func]:
+            Link_Funcs.append(link_dict[func])
+
 def LinkFunc(target, source, env):
-    t = target[0]
-    dest = t.path
-    fs = t.fs
-    src = source[0].path
+    # Relative paths cause problems with symbolic links, so
+    # we use absolute paths, which may be a problem for people
+    # who want to move their soft-linked src-trees around. Those
+    # people should use the 'hard-copy' mode, softlinks cannot be
+    # used for that; at least I have no idea how ...
+    src = source[0].abspath
+    dest = target[0].abspath
     dir, file = os.path.split(dest)
-    if dir and not fs.isdir(dir):
-        fs.makedirs(dir)
-    # Now actually link the files.  First try to make a hard link.  If that
-    # fails, try a symlink.  If that fails then just copy it.
-    try :
-        fs.link(src, dest)
-    except (AttributeError, OSError):
-        try :
-            fs.symlink(src, dest)
-        except (AttributeError, OSError):
-            fs.copy2(src, dest)
-            st = fs.stat(src)
-            fs.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    if dir and not os.path.isdir(dir):
+        os.makedirs(dir)
+    if not Link_Funcs:
+        # Set a default order of link functions.
+        set_duplicate('hard-soft-copy')
+    # Now link the files with the previously specified order.
+    for func in Link_Funcs:
+        try:
+            func(src,dest)
+            break
+        except OSError:
+            if func == Link_Funcs[-1]:
+                # exception of the last link method (copy) are fatal
+                raise
+            else:
+                pass
     return 0
 
 Link = SCons.Action.Action(LinkFunc, None)
-
 def LocalString(target, source, env):
     return 'Local copy of %s from %s' % (target[0], source[0])
 

@@ -601,6 +601,25 @@ targets specified on the command line will still be processed.
 .\" average is at least 
 .\" .I N
 .\" (a floating-point number).
+
+.TP
+.RI --duplicate= ORDER
+There are three ways to duplicate files in a build tree: hard links,
+soft (symbolic) links and copies. The default behaviour of SCons is to 
+prefer hard links to soft links to copies. You can specify different
+behaviours with this option.
+.IR ORDER 
+must be one of 
+.IR hard-soft-copy
+(the default),
+.IR soft-hard-copy ,
+.IR hard-copy ,
+.IR soft-copy
+or
+.IR copy .
+SCons will attempt to duplicate files using
+the mechanisms in the specified order.
+
 .\"
 .\" .TP
 .\" --list-derived
@@ -2095,7 +2114,9 @@ into
 and then build the derived files within the copied tree.
 (The duplication is performed by
 linking or copying,
-depending on the platform.)
+depending on the platform; see also the
+.IR --duplicate
+option.)
 This guarantees correct builds
 regardless of whether intermediate source files
 are generated during the build,
@@ -3344,10 +3365,19 @@ SConsignFile("/home/me/SCons/signatures")
 .TP
 .RI env.SetOption( name ", " value )
 This function provides a way to set a select subset of the scons command
-line options from a SConscript file. The options supported are: clean which
-cooresponds to -c, --clean, and --remove; implicit_cache which corresponds
-to --implicit-cache; max_drift which corresponds to --max-drift; and
-num_jobs which corresponds to -j and --jobs. See the documentation for the
+line options from a SConscript file. The options supported are:
+.B clean
+which corresponds to -c, --clean, and --remove;
+.B duplicate
+which 
+corresponds to --duplicate;
+.B implicit_cache
+which corresponds to --implicit-cache;
+.B max_drift
+which corresponds to --max-drift;
+.B num_jobs
+which corresponds to -j and --jobs.
+See the documentation for the
 corresponding command line object for information about each specific
 option. Example:
 
