@@ -366,17 +366,17 @@ class Base:
                     return scanner
         return None
 
-    def subst(self, string, raw=0, target=None, source=None, dict=None):
-	"""Recursively interpolates construction variables from the
-	Environment into the specified string, returning the expanded
-	result.  Construction variables are specified by a $ prefix
-	in the string and begin with an initial underscore or
-	alphabetic character followed by any number of underscores
-	or alphanumeric characters.  The construction variable names
-	may be surrounded by curly braces to separate the name from
-	trailing characters.
-	"""
-        return SCons.Util.scons_subst(string, self, raw, target, source, dict)
+    def subst(self, string, raw=0, target=None, source=None, dict=None, conv=None):
+        """Recursively interpolates construction variables from the
+        Environment into the specified string, returning the expanded
+        result.  Construction variables are specified by a $ prefix
+        in the string and begin with an initial underscore or
+        alphabetic character followed by any number of underscores
+        or alphanumeric characters.  The construction variable names
+        may be surrounded by curly braces to separate the name from
+        trailing characters.
+        """
+        return SCons.Util.scons_subst(string, self, raw, target, source, dict, conv)
 
     def subst_kw(self, kw, raw=0, target=None, source=None, dict=None):
         nkw = {}
@@ -387,21 +387,42 @@ class Base:
             nkw[k] = v
         return nkw
 
-    def subst_list(self, string, raw=0, target=None, source=None, dict=None):
+    def subst_list(self, string, raw=0, target=None, source=None, dict=None, conv=None):
         """Calls through to SCons.Util.scons_subst_list().  See
         the documentation for that function."""
-        return SCons.Util.scons_subst_list(string, self, raw, target, source, dict)
+        return SCons.Util.scons_subst_list(string, self, raw, target, source, dict, conv)
+
 
     def subst_path(self, path):
-        """Substitute a path list."""
+        """Substitute a path list, turning EntryProxies into Nodes
+        and leaving Nodes (and other objects) as-is."""
 
         if not SCons.Util.is_List(path):
             path = [path]
 
+        def s(obj):
+            """This is the "string conversion" routine that we have our
+            substitutions use to return Nodes, not strings.  This relies
+            on the fact that an EntryProxy object has a get() method that
+            returns the underlying Node that it wraps, which is a bit of
+            architectural dependence that we might need to break or modify
+            in the future in response to additional requirements."""
+            try:
+                get = obj.get
+            except AttributeError:
+                pass
+            else:
+                obj = get()
+            return obj
+
         r = []
         for p in path:
             if SCons.Util.is_String(p):
-                p = self.subst(p)
+                p = self.subst(p, conv=s)
+                if SCons.Util.is_List(p):
+                    p = p[0]
+            else:
+                p = s(p)
             r.append(p)
         return r
 

@@ -419,13 +419,27 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_subst_path(self):
         """Test substituting a path list
         """
-        env = Environment(FOO='foo', BAR='bar')
+        class MyProxy:
+            def __init__(self, val):
+                self.val = val
+            def get(self):
+                return self.val + '-proxy'
+
+        class MyObj:
+            pass
+
+        env = Environment(FOO='foo', BAR='bar', PROXY=MyProxy('my1'))
 
         r = env.subst_path('$FOO')
         assert r == ['foo'], r
 
         r = env.subst_path(['$FOO', 'xxx', '$BAR'])
         assert r == ['foo', 'xxx', 'bar'], r
+
+        n = MyObj()
+
+        r = env.subst_path(['$PROXY', MyProxy('my2'), n])
+        assert r == ['my1-proxy', 'my2-proxy', n], r
 
     def test_Builder_calls(self):
         """Test Builder calls through different environments
