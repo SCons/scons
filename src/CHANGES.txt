@@ -89,6 +89,11 @@ RELEASE 0.97 - XXX
   - Print an internal Python stack trace in response to an otherwise
     unexplained error when --debug=stacktrace is specified.
 
+  From Chris Pawling:
+
+  - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
+    Visual Studio version to use.
+
   From Kevin Quick:
 
   - Fix the Builder name returned from ListBuilders and other instances
