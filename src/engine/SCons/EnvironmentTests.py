@@ -798,6 +798,26 @@ class EnvironmentTestCase(unittest.TestCase):
         x = s("${_concat(PRE, LIST, SUF, __env__)}")
         assert x == 'preasuf prebsuf', x
 
+    def test__update(self):
+        """Test the _update() method"""
+        env = Environment(X = 'x', Y = 'y', Z = 'z')
+        assert env['X'] == 'x', env['X']
+        assert env['Y'] == 'y', env['Y']
+        assert env['Z'] == 'z', env['Z']
+        env._update({'X'       : 'xxx',
+                     'TARGET'  : 't',
+                     'TARGETS' : 'ttt',
+                     'SOURCE'  : 's',
+                     'SOURCES' : 'sss',
+                     'Z'       : 'zzz'})
+        assert env['X'] == 'xxx', env['X']
+        assert env['Y'] == 'y', env['Y']
+        assert env['Z'] == 'zzz', env['Z']
+        assert env['TARGET'] == 't', env['TARGET']
+        assert env['TARGETS'] == 'ttt', env['TARGETS']
+        assert env['SOURCE'] == 's', env['SOURCE']
+        assert env['SOURCES'] == 'sss', env['SOURCES']
+
 
 
     def test_Append(self):
