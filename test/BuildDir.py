@@ -268,28 +268,28 @@ def equal_stats(x,y):
 
 # Make sure we did duplicate the source files in build/var2,
 # and that their stats are the same:
-test.fail_test(not os.path.exists(test.workpath('work1', 'build', 'var2', 'f1.c')))
-test.fail_test(not os.path.exists(test.workpath('work1', 'build', 'var2', 'f2.in')))
+test.must_exist(['work1', 'build', 'var2', 'f1.c'])
+test.must_exist(['work1', 'build', 'var2', 'f2.in'])
 test.fail_test(not equal_stats(test.workpath('work1', 'build', 'var2', 'f1.c'), test.workpath('work1', 'src', 'f1.c')))
 test.fail_test(not equal_stats(test.workpath('work1', 'build', 'var2', 'f2.in'), test.workpath('work1', 'src', 'f2.in')))
  
 # Make sure we didn't duplicate the source files in build/var3.
-test.fail_test(os.path.exists(test.workpath('work1', 'build', 'var3', 'f1.c')))
-test.fail_test(os.path.exists(test.workpath('work1', 'build', 'var3', 'f2.in')))
-test.fail_test(os.path.exists(test.workpath('work1', 'build', 'var3', 'b1.f')))
-test.fail_test(os.path.exists(test.workpath('work1', 'build', 'var3', 'b2.in')))
+test.must_not_exist(['work1', 'build', 'var3', 'f1.c'])
+test.must_not_exist(['work1', 'build', 'var3', 'f2.in'])
+test.must_not_exist(['work1', 'build', 'var3', 'b1.f'])
+test.must_not_exist(['work1', 'build', 'var3', 'b2.in'])
 
 # Make sure we didn't duplicate the source files in build/var4.
-test.fail_test(os.path.exists(test.workpath('work1', 'build', 'var4', 'f1.c')))
-test.fail_test(os.path.exists(test.workpath('work1', 'build', 'var4', 'f2.in')))
-test.fail_test(os.path.exists(test.workpath('work1', 'build', 'var4', 'b1.f')))
-test.fail_test(os.path.exists(test.workpath('work1', 'build', 'var4', 'b2.in')))
+test.must_not_exist(['work1', 'build', 'var4', 'f1.c'])
+test.must_not_exist(['work1', 'build', 'var4', 'f2.in'])
+test.must_not_exist(['work1', 'build', 'var4', 'b1.f'])
+test.must_not_exist(['work1', 'build', 'var4', 'b2.in'])
 
 # Make sure we didn't duplicate the source files in build/var5.
-test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f1.c')))
-test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f2.in')))
-test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b1.f')))
-test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b2.in')))
+test.must_not_exist(['build', 'var5', 'f1.c'])
+test.must_not_exist(['build', 'var5', 'f2.in'])
+test.must_not_exist(['build', 'var5', 'b1.f'])
+test.must_not_exist(['build', 'var5', 'b2.in'])
 
 # verify that header files in the source directory are scanned properly:
 test.write(['work1', 'src', 'f1.h'], r"""
