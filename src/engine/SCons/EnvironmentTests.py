@@ -117,6 +117,8 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert xxx == 'x'
 	assert zzz == 'z'
 	assert env.Dictionary().has_key('BUILDERS')
+	assert env.Dictionary().has_key('CC')
+	assert env.Dictionary().has_key('CCFLAGS')
 	assert env.Dictionary().has_key('ENV')
 
     def test_ENV(self):

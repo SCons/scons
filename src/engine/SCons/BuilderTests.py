@@ -42,6 +42,11 @@ test = TestCmd.TestCmd(workdir = '')
 test.write('act.py', """import os, string, sys
 f = open(sys.argv[1], 'w')
 f.write("act.py: " + string.join(sys.argv[2:]) + "\\n")
+try:
+    if sys.argv[3]:
+        f.write("act.py: " + os.environ[sys.argv[3]] + "\\n")
+except:
+    pass
 f.close()
 sys.exit(0)
 """)
@@ -146,6 +151,14 @@ class BuilderTestCase(unittest.TestCase):
 	assert r == 0
 	c = test.read(outfile, 'r')
 	assert c == "act.py: three four\n", c
+
+	cmd5 = "python %s %s $target XYZZY" % (act_py, outfile)
+
+	builder = SCons.Builder.Builder(action = cmd5)
+	r = builder.execute(target = 'out5', env = {'ENV' : {'XYZZY' : 'xyzzy'}})
+	assert r == 0
+	c = test.read(outfile, 'r')
+	assert c == "act.py: out5 XYZZY\nact.py: xyzzy\n", c
 
 	def function1(kw):
 	    open(kw['out'], 'w').write("function1\n")

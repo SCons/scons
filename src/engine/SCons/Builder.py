@@ -87,7 +87,6 @@ class BuilderBase:
 		            f = f + suf
 		ret.append(f)
 	    return ret
-	    
 
 	tlist = scons_str2nodes(adjustixes(target, self.prefix, self.suffix),
                                 self.node_factory)
@@ -223,10 +222,9 @@ class CommandAction(ActionBase):
 	        s = [s]
             loc['sources'] = PathList(map(os.path.normpath, s))
 
-	try:
-	    glob = self.env.Dictionary()
-	except:
-	    glob = {}
+	glob = {}
+	if kw.has_key('env'):
+	    glob = kw['env']
 
 	cmd = scons_subst(self.command, loc, glob)
 	if print_actions:
@@ -238,10 +236,10 @@ class CommandAction(ActionBase):
 		# Child process.
 		args = string.split(cmd)
 		try:
-		    ENV = kw['ENV']
+		    ENV = kw['env']['ENV']
 		except:
 		    import SCons.Defaults
-		    ENV = SCons.Defaults.ENV
+		    ENV = SCons.Defaults.ConstructionEnvironment['ENV']
 		os.execvpe(args[0], args, ENV)
 	    else:
 		# Parent process.

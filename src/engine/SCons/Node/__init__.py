@@ -59,7 +59,7 @@ class Node:
 	if not hasattr(self, "builder"):
 	    return None
 	sources_str = string.join(map(lambda x: str(x), self.sources))
-	stat = self.builder.execute(ENV = self.env.Dictionary('ENV'),
+	stat = self.builder.execute(env = self.env.Dictionary(),
 				    target = str(self), source = sources_str)
 	if stat != 0:
 	    raise BuildError(node = self, stat = stat)
@@ -84,13 +84,17 @@ class Node:
 	"""Adds dependencies. The depends argument must be a list."""
         if type(depend) is not type([]):
             raise TypeError("depend must be a list")
-	self.depends.extend(depend)
+	depend = filter(lambda x, d=self.depends: x not in d, depend)
+	if len(depend):
+	    self.depends.extend(depend)
 
     def add_source(self, source):
 	"""Adds sources. The source argument must be a list."""
         if type(source) is not type([]):
             raise TypeError("source must be a list")
-	self.sources.extend(source)
+	source = filter(lambda x, s=self.sources: x not in s, source)
+	if len(source):
+	    self.sources.extend(source)
 
     def children(self):
 	return self.sources + self.depends

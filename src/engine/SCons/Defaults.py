@@ -38,12 +38,12 @@ import SCons.Builder
 
 
 Object = SCons.Builder.Builder(name = 'Object',
-                               action = 'cc -c -o $target $sources',
+                               action = '$CC $CCFLAGS -c -o $target $sources',
                                src_suffix='.c',
                                suffix='.o')
 
 Program = SCons.Builder.Builder(name = 'Program',
-                                action = 'cc -o $target $sources',
+                                action = '$CC -o $target $sources',
                                 builders = [ Object ])
 
 Library = SCons.Builder.Builder(name = 'Library',
@@ -52,6 +52,9 @@ Library = SCons.Builder.Builder(name = 'Library',
                                 suffix = '.a',
                                 builders = [ Object ])
 
-Builders = [Object, Program, Library]
-
-ENV = { 'PATH' : '/usr/local/bin:/bin:/usr/bin' }
+ConstructionEnvironment = {
+	'CC' : 'cc',
+	'CCFLAGS' : '',
+	'BUILDERS' : [Object, Program, Library],
+	'ENV' : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
+}

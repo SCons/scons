@@ -132,6 +132,8 @@ class NodeTestCase(unittest.TestCase):
 	assert node.depends == ['one']
 	node.add_dependency(['two', 'three'])
 	assert node.depends == ['one', 'two', 'three']
+	node.add_dependency(['three', 'four', 'one'])
+	assert node.depends == ['one', 'two', 'three', 'four']
 
     def test_add_source(self):
 	"""Test adding sources to a Node's list.
@@ -146,6 +148,8 @@ class NodeTestCase(unittest.TestCase):
 	assert node.sources == ['one']
 	node.add_source(['two', 'three'])
 	assert node.sources == ['one', 'two', 'three']
+	node.add_source(['three', 'four', 'one'])
+	assert node.sources == ['one', 'two', 'three', 'four']
 
     def test_children(self):
 	"""Test fetching the "children" of a Node.

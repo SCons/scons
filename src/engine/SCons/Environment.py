@@ -72,17 +72,10 @@ class Environment:
     """
 
     def __init__(self, **kw):
-	self._dict = {}
-	if kw.has_key('BUILDERS'):
-	    builders = kw['BUILDERS']
-	    if not type(builders) is types.ListType:
-		kw['BUILDERS'] = [builders]
-	else:
-	    import SCons.Defaults
-	    kw['BUILDERS'] = SCons.Defaults.Builders[:]
-	if not kw.has_key('ENV'):
-	    import SCons.Defaults
-	    kw['ENV'] = SCons.Defaults.ENV.copy()
+	import SCons.Defaults
+	self._dict = copy.deepcopy(SCons.Defaults.ConstructionEnvironment)
+	if kw.has_key('BUILDERS') and type(kw['BUILDERS']) != type([]):
+	        kw['BUILDERS'] = [kw['BUILDERS']]
 	self._dict.update(copy.deepcopy(kw))
 
 	class BuilderWrapper:
@@ -107,7 +100,7 @@ class Environment:
 	    	kw['env'] = self
 	    	apply(self.builder.execute, (), kw)
 
-	for b in kw['BUILDERS']:
+	for b in self._dict['BUILDERS']:
 	    setattr(self, b.name, BuilderWrapper(self, b))
 
 

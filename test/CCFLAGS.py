@@ -28,13 +28,13 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is implemented.
-
 test.write('SConstruct', """
 foo = Environment(CCFLAGS = '-DFOO')
 bar = Environment(CCFLAGS = '-DBAR')
-foo.Program(target = 'progfoo', source = 'prog.c')
-bar.Program(target = 'progbar', source = 'prog.c')
+foo.Object(target = 'foo.o', source = 'prog.c')
+bar.Object(target = 'bar.o', source = 'prog.c')
+foo.Program(target = 'foo', source = 'foo.o')
+bar.Program(target = 'bar', source = 'bar.o')
 """)
 
 test.write('prog.c', """
@@ -53,9 +53,9 @@ main(int argc, char *argv[])
 """)
 
 
-test.run(arguments = 'progfoo progbar')
+test.run(arguments = 'foo bar')
 
-test.run(program = test.workpath('progfoo'), stdout = "prog.c:  FOO\n")
-test.run(program = test.workpath('progbar'), stdout = "prog.c:  BAR\n")
+test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
+test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
 
 test.pass_test()
