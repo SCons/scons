@@ -281,13 +281,11 @@ class ActionTestCase(unittest.TestCase):
             pass
         def bar():
             pass
-        cg = SCons.Action.CommandGenerator(foo)
-
-        a1 = SCons.Action.Action(cg)
+        a1 = SCons.Action.Action(foo, generator=1)
         assert isinstance(a1, SCons.Action.CommandGeneratorAction), a1
         assert a1.generator is foo, a1.generator
 
-        a2 = SCons.Action.Action(cg, strfunction=bar)
+        a2 = SCons.Action.Action(foo, strfunction=bar, generator=1)
         assert isinstance(a2, SCons.Action.CommandGeneratorAction), a2
         assert a2.generator is foo, a2.generator
 
@@ -578,7 +576,7 @@ class _ActionActionTestCase(unittest.TestCase):
 
         def gen(target, source, env, for_signature):
             return 'generat' + env.get('GEN', 'or')
-        a = SCons.Action.Action(SCons.Action.CommandGenerator(gen))
+        a = SCons.Action.Action(gen, generator=1)
         s = a.presub_lines(env)
         assert s == ["generator"], s
         s = a.presub_lines(Environment(GEN = 'ed'))
@@ -597,7 +595,7 @@ class _ActionActionTestCase(unittest.TestCase):
         # containing all the Actions.
         def bar():
             return None
-        baz = SCons.Action.CommandGenerator(bar)
+        baz = SCons.Action.Action(bar, generator=1)
         act1 = SCons.Action.Action('foo bar')
         act2 = SCons.Action.Action([ 'foo', bar ])
 
@@ -1419,7 +1417,7 @@ class ListActionTestCase(unittest.TestCase):
             pass
         def g(target,source,env,for_signature):
             return 'generated %s %s' % (target[0], source[0])
-        g = SCons.Action.CommandGenerator(g)
+        g = SCons.Action.Action(g, generator=1)
         a = SCons.Action.ListAction([f, g, "XXX", f])
         s = a.genstring(['foo.x'], ['bar.y'], Environment())
         assert s == "f(target, source, env)\ngenerated foo.x bar.y\nXXX\nf(target, source, env)", s
@@ -1464,7 +1462,7 @@ class ListActionTestCase(unittest.TestCase):
             s.foo=1
             return "y"
         a = SCons.Action.ListAction(["x",
-                                     SCons.Action.CommandGenerator(gen),
+                                     SCons.Action.Action(gen, generator=1),
                                      "z"])
         c = a.get_contents(target=[], source=[], env=Environment(s = self))
         assert self.foo==1, self.foo
