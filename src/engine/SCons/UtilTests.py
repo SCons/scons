@@ -29,6 +29,8 @@ import string
 import sys
 import types
 import unittest
+from UserDict import UserDict
+
 from SCons.Util import *
 import TestCmd
 
@@ -960,8 +962,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_is_Dict(self):
         assert is_Dict({})
-        import UserDict
-        assert is_Dict(UserDict.UserDict())
+        assert is_Dict(UserDict())
         assert not is_Dict([])
         assert not is_Dict("")
         if hasattr(types, 'UnicodeType'):
@@ -1492,7 +1493,7 @@ class UtilTestCase(unittest.TestCase):
         s['c'] = 'CCC'
         assert s['c'] == 'CCC', s['c']
 
-        class DummyEnv(UserDict.UserDict):
+        class DummyEnv(UserDict):
             def subst(self, key):
                 if key[0] == '$':
                     return self[key[1:]]
@@ -1501,6 +1502,8 @@ class UtilTestCase(unittest.TestCase):
         env = DummyEnv()
 
         s = Selector({'.d' : 'DDD', '.e' : 'EEE'})
+        ret = s(env, [])
+        assert ret == None, ret
         ret = s(env, ['foo.d'])
         assert ret == 'DDD', ret
         ret = s(env, ['bar.e'])

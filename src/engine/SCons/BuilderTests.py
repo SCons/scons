@@ -855,6 +855,164 @@ class BuilderTestCase(unittest.TestCase):
         assert src.source_scanner is None, src.source_scanner
         assert src.backup_source_scanner == scanner, src.backup_source_scanner
 
+    def test_Builder_API(self):
+        """Test Builder interface.
+
+        Some of this is tested elsewhere in this file, but this is a
+        quick collection of common operations on builders with various
+        forms of component specifications."""
+
+        builder = SCons.Builder.Builder()
+
+        env = Environment(BUILDERS={'Bld':builder})
+        r = builder.get_name(env)
+        assert r == 'Bld', r
+        r = builder.get_prefix(env)
+        assert r == '', r
+        r = builder.get_suffix(env)
+        assert r == '', r
+        r = builder.get_src_suffix(env)
+        assert r == '', r
+        r = builder.src_suffixes(env)
+        assert r == [], r
+        r = builder.targets('foo')
+        assert r == ['foo'], r
+
+        # src_suffix can be a single string or a list of strings
+
+        builder.set_src_suffix('.foo')
+        r = builder.get_src_suffix(env)
+        assert r == '.foo', r
+        r = builder.src_suffixes(env)
+        assert r == ['.foo'], r
+
+        builder.set_src_suffix(['.foo', '.bar'])
+        r = builder.get_src_suffix(env)
+        assert r == '.foo', r
+        r = builder.src_suffixes(env)
+        assert r == ['.foo', '.bar'], r
+
+        builder.set_src_suffix(['.bar', '.foo'])
+        r = builder.get_src_suffix(env)
+        assert r == '.bar', r
+        r = builder.src_suffixes(env)
+        assert r == ['.bar', '.foo'], r
+
+        # adjust_suffix normalizes the suffix, adding a `.' if needed
+
+        r = builder.adjust_suffix('.foo')
+        assert r == '.foo', r
+        r = builder.adjust_suffix('_foo')
+        assert r == '_foo', r
+        r = builder.adjust_suffix('$foo')
+        assert r == '$foo', r
+        r = builder.adjust_suffix('foo')
+        assert r == '.foo', r
+        r = builder.adjust_suffix('f._$oo')
+        assert r == '.f._$oo', r
+
+        # prefix and suffix can be one of:
+        #   1. a string (adjusted and env variables substituted),
+        #   2. a function (passed (env,sources), returns suffix string)
+        #   3. a dict of src_suffix:suffix settings, key==None is
+        #      default suffix (special case of #2, so adjust_suffix
+        #      not applied)
+
+        builder = SCons.Builder.Builder(prefix='lib', suffix='foo')
+
+        env = Environment(BUILDERS={'Bld':builder})
+        r = builder.get_name(env)
+        assert r == 'Bld', r
+        r = builder.get_prefix(env)
+        assert r == 'lib', r
+        r = builder.get_suffix(env)
+        assert r == '.foo', r
+
+        mkpref = lambda env,sources: 'Lib'
+        mksuff = lambda env,sources: '.Foo'
+        builder = SCons.Builder.Builder(prefix=mkpref, suffix=mksuff)
+
+        env = Environment(BUILDERS={'Bld':builder})
+        r = builder.get_name(env)
+        assert r == 'Bld', r
+        r = builder.get_prefix(env)
+        assert r == 'Lib', r
+        r = builder.get_suffix(env)
+        assert r == '.Foo', r
+
+        builder = SCons.Builder.Builder(prefix='$PREF', suffix='$SUFF')
+
+        env = Environment(BUILDERS={'Bld':builder},PREF="LIB",SUFF=".FOO")
+        r = builder.get_name(env)
+        assert r == 'Bld', r
+        r = builder.get_prefix(env)
+        assert r == 'LIB', r
+        r = builder.get_suffix(env)
+        assert r == '.FOO', r
+
+        builder = SCons.Builder.Builder(prefix={None:'A_',
+                                                '.C':'E_'},
+                                        suffix={None:'.B',
+                                                '.C':'.D'})
+
+        env = Environment(BUILDERS={'Bld':builder})
+        r = builder.get_name(env)
+        assert r == 'Bld', r
+        r = builder.get_prefix(env)
+        assert r == 'A_', r
+        r = builder.get_suffix(env)
+        assert r == '.B', r
+        r = builder.get_prefix(env, ['X.C'])
+        assert r == 'E_', r
+        r = builder.get_suffix(env, ['X.C'])
+        assert r == '.D', r
+
+        builder = SCons.Builder.Builder(prefix='A_', suffix={}, action={})
+
+        env = Environment(BUILDERS={'Bld':builder})
+        r = builder.get_name(env)
+        assert r == 'Bld', r
+        r = builder.get_prefix(env)
+        assert r == 'A_', r
+        r = builder.get_suffix(env)
+        assert r == None, r
+        r = builder.get_src_suffix(env)
+        assert r == '', r
+        r = builder.src_suffixes(env)
+        assert r == [], r
+
+        # Builder actions can be a string, a list, or a dictionary
+        # whose keys are the source suffix.  The add_action()
+        # specifies a new source suffix/action binding.
+
+        builder.add_action('.src_sfx1', 'FOO')
+        r = builder.get_name(env)
+        assert r == 'Bld', r
+        r = builder.get_prefix(env)
+        assert r == 'A_', r
+        r = builder.get_suffix(env)
+        assert r == None, r
+        r = builder.get_suffix(env, ['X.src_sfx1'])
+        assert r == None, r
+        r = builder.get_src_suffix(env)
+        assert r == '.src_sfx1', r
+        r = builder.src_suffixes(env)
+        assert r == ['.src_sfx1'], r
+
+        builder.add_action('.src_sfx2', 'BAR')
+
+        r = builder.get_name(env)
+        assert r == 'Bld', r
+        r = builder.get_prefix(env)
+        assert r == 'A_', r
+        r = builder.get_suffix(env)
+        assert r ==  None, r
+        r = builder.get_src_suffix(env)
+        assert r == '.src_sfx1', r
+        r = builder.src_suffixes(env)
+        assert r == ['.src_sfx1', '.src_sfx2'], r
+
+
     def test_Builder_Args(self):
         """Testing passing extra args to a builder."""
         def buildFunc(target, source, env, s=self):
