@@ -257,11 +257,10 @@ int main() {
             assert not ret and output == ""
         finally:
             sconf.Finish()
-            
-        
 
-    def test_StandardTests(self):
-        """Test standard checks
+
+    def test_CheckHeader(self):
+        """Test SConf.CheckHeader()
         """
         self._resetSConfState()
         sconf = self.SConf.SConf(self.scons_env,
@@ -278,6 +277,18 @@ int main() {
             r = sconf.CheckHeader( "HopefullyNoHeader.noh", language="C++" )
             assert not r, "unexpectedly found HopefullyNoHeader.noh"
 
+        finally:
+            sconf.Finish()
+
+    def test_CheckCHeader(self):
+        """Test SConf.CheckCHeader()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+
+        try:
             # CheckCHeader()
             r = sconf.CheckCHeader( "stdio.h", include_quotes="<>" )
             assert r, "did not find stdio.h"
@@ -286,6 +297,18 @@ int main() {
             r = sconf.CheckCHeader( "HopefullyNoCHeader.noh" )
             assert not r, "unexpectedly found HopefullyNoCHeader.noh"
 
+        finally:
+            sconf.Finish()
+
+    def test_CheckCXXHeader(self):
+        """Test SConf.CheckCXXHeader()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+
+        try:
             # CheckCXXHeader()
             r = sconf.CheckCXXHeader( "vector", include_quotes="<>" )
             assert r, "did not find vector"
@@ -294,11 +317,35 @@ int main() {
             r = sconf.CheckCXXHeader( "HopefullyNoCXXHeader.noh" )
             assert not r, "unexpectedly found HopefullyNoCXXHeader.noh"
 
+        finally:
+            sconf.Finish()
+
+    def test_CheckLib(self):
+        """Test SConf.CheckLib()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+
+        try:
             # CheckLib()
             r = sconf.CheckLib( existing_lib, "main", autoadd=0 )
             assert r, "did not find %s" % existing_lib
             r = sconf.CheckLib( "hopefullynolib", "main", autoadd=0 )
             assert not r, "unexpectedly found hopefullynolib"
+
+            # CheckLib() with list of libs
+            r = sconf.CheckLib( [existing_lib], "main", autoadd=0 )
+            assert r, "did not find %s" % existing_lib
+            r = sconf.CheckLib( ["hopefullynolib"], "main", autoadd=0 )
+            assert not r, "unexpectedly found hopefullynolib"
+            r = sconf.CheckLib( [], "sin", autoadd=0 )
+            assert not r, "unexpectedly found nonexistent library"
+            r = sconf.CheckLib( [existing_lib,"hopefullynolib"], "main", autoadd=0 )
+            assert r, "did not find %s,%s " % (existing_lib,r)
+            r = sconf.CheckLib( ["hopefullynolib",existing_lib], "main", autoadd=0 )
+            assert r, "did not find %s " % existing_lib
 
             # CheckLib() with autoadd
             def libs(env):
@@ -322,6 +369,18 @@ int main() {
             finally:
                 sconf.env = env
 
+        finally:
+            sconf.Finish()
+
+    def test_CheckLibWithHeader(self):
+        """Test SConf.CheckLibWithHeader()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+
+        try:
             # CheckLibWithHeader()
             r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=0 )
             assert r, "did not find %s" % existing_lib
@@ -329,6 +388,20 @@ int main() {
             assert r, "did not find %s, #include stdio.h first" % existing_lib
             r = sconf.CheckLibWithHeader( "hopefullynolib", "math.h", "C", autoadd=0 )
             assert not r, "unexpectedly found hopefullynolib"
+
+            # CheckLibWithHeader() with lists of libs
+            r = sconf.CheckLibWithHeader( [existing_lib], "math.h", "C", autoadd=0 )
+            assert r, "did not find %s" % existing_lib
+            r = sconf.CheckLibWithHeader( [existing_lib], ["stdio.h", "math.h"], "C", autoadd=0 )
+            assert r, "did not find %s, #include stdio.h first" % existing_lib
+            r = sconf.CheckLibWithHeader( [], "math.h", "C", call="sin(3);", autoadd=0 )
+            assert not r, "unexpectedly found non-existent library"
+            r = sconf.CheckLibWithHeader( ["hopefullynolib"], "math.h", "C", autoadd=0 )
+            assert not r, "unexpectedly found hopefullynolib"
+            r = sconf.CheckLibWithHeader( ["hopefullynolib",existing_lib], ["stdio.h", "math.h"], "C", autoadd=0 )
+            assert r, "did not find %s, #include stdio.h first" % existing_lib
+            r = sconf.CheckLibWithHeader( [existing_lib,"hopefullynolib"], ["stdio.h", "math.h"], "C", autoadd=0 )
+            assert r, "did not find %s, #include stdio.h first" % existing_lib
 
             # CheckLibWithHeader with autoadd
             def libs(env):
@@ -352,12 +425,35 @@ int main() {
             finally:
                 sconf.env = env
 
+        finally:
+            sconf.Finish()
+
+    def test_CheckFunc(self):
+        """Test SConf.CheckFunc()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+
+        try:
             # CheckFunc()
             r = sconf.CheckFunc('strcpy')
             assert r, "did not find strcpy"
             r = sconf.CheckFunc('hopefullynofunction')
             assert not r, "unexpectedly found hopefullynofunction"
 
+        finally:
+            sconf.Finish()
+
+    def test_(self):
+        """Test SConf.CheckType()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+        try:
             # CheckType()
             r = sconf.CheckType('off_t', '#include <sys/types.h>\n')
             assert r, "did not find off_t"

@@ -689,6 +689,13 @@ def CheckLib(context, library = None, symbol = "main", autoadd = 1,
     Note that library may also be None to test whether the given symbol
     compiles without flags.
     """
+
+    if library == []:
+        library = [None]
+
+    if not SCons.Util.is_List(library):
+        library = [library]
+    
     # ToDo: accept path for the library
     res = SCons.Conftest.CheckLib(context, library, symbol, header = header,
                                         language = language, autoadd = autoadd)
@@ -701,7 +708,7 @@ def CheckLib(context, library = None, symbol = "main", autoadd = 1,
 # XXX
 # Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
 
-def CheckLibWithHeader(context, library, header, language,
+def CheckLibWithHeader(context, libs, header, language,
                                                 call = "main();", autoadd = 1):
     # ToDo: accept path for library. Support system header files.
     """
@@ -718,10 +725,18 @@ def CheckLibWithHeader(context, library, header, language,
     for s in header:
         l.append('#include "%s"\n' % (s))
 
-    res = SCons.Conftest.CheckLib(context, library, "main", string.join(l, ''),
+
+    if libs == []:
+        libs = [None]
+
+    if not SCons.Util.is_List(libs):
+        libs = [libs]
+
+    res = SCons.Conftest.CheckLib(context, libs, "main", string.join(l, ''),
             call = call, language = language, autoadd = autoadd)
     context.did_show_result = 1
     if not res:
         return 1        # Ok
     return 0            # Failed
 
+    

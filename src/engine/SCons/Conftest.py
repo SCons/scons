@@ -305,10 +305,11 @@ def CheckType(context, type_name, fallback = None,
     return ret
 
 
-def CheckLib(context, lib_name, func_name, header = None,
+def CheckLib(context, libs, func_name, header = None,
                  extra_libs = None, call = None, language = None, autoadd = 1):
     """
-    Configure check for a C or C++ library "lib_name".
+    Configure check for a C or C++ libraries "libs".  Searches through
+    the list of libraries, until one is found where the test succeeds.
     Tests if "func_name" or "call" exists in the library.  Note: if it exists
     in another library the test succeeds anyway!
     Optional "header" can be defined to include a header file.  If not given a
@@ -332,11 +333,6 @@ def CheckLib(context, lib_name, func_name, header = None,
         includetext = ''
     if not header:
         header = ""
-
-    lang, suffix, msg = _lang2suffix(language)
-    if msg:
-        context.Display("Cannot check for library %s: %s\n" % (lib_name, msg))
-        return msg
 
     text = """
             %s
@@ -369,26 +365,35 @@ def CheckLib(context, lib_name, func_name, header = None,
     else:
         calltext = call
 
-    context.Display("Checking for %s in %s library %s... "
-                                                  % (calltext, lang, lib_name))
-    if lib_name:
-        l = [ lib_name ]
-        if extra_libs:
-            l.extend(extra_libs)
-        oldLIBS = context.AppendLIBS(l)
-        sym = "HAVE_LIB" + lib_name
-    else:
-        oldLIBS = -1
-        sym = None
+    for lib_name in libs:
 
-    ret = context.BuildProg(text, suffix)
+        lang, suffix, msg = _lang2suffix(language)
+        if msg:
+            context.Display("Cannot check for library %s: %s\n" % (lib_name, msg))
+            return msg
 
-    _YesNoResult(context, ret, sym, text)
-    if oldLIBS != -1 and (ret or not autoadd):
-        context.SetLIBS(oldLIBS)
+        context.Display("Checking for %s in %s library %s... "
+                        % (calltext, lang, lib_name))
+        if lib_name:
+            l = [ lib_name ]
+            if extra_libs:
+                l.extend(extra_libs)
+            oldLIBS = context.AppendLIBS(l)
+            sym = "HAVE_LIB" + lib_name
+        else:
+            oldLIBS = -1
+            sym = None
+
+        ret = context.BuildProg(text, suffix)
+
+        _YesNoResult(context, ret, sym, text)
+        if oldLIBS != -1 and (ret or not autoadd):
+            context.SetLIBS(oldLIBS)
+            
+        if ret == "":
+            return ret
 
     return ret
-
 
 #
 # END OF PUBLIC FUNCTIONS
