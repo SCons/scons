@@ -40,7 +40,13 @@ import link
 ccLinker = None
 
 # search for the acc compiler and linker front end
-for dir in os.listdir('/opt'):
+
+try:
+    dirs = os.listdir('/opt')
+except:
+    dirs = []
+
+for dir in dirs:
     linker = '/opt/' + dir + '/bin/aCC'
     if os.path.exists(linker):
         ccLinker = linker
