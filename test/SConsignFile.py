@@ -77,8 +77,7 @@ test.fail_test(os.path.exists(test.workpath('work1', 'subdir', '.sconsign')))
 
 #
 test.write(['work2', 'SConstruct'], """
-e = Environment(XXX = 'scons')
-e.SConsignFile('my_${XXX}ign')
+SConsignFile('my_sconsign')
 B = Builder(action = "%s ../build.py $TARGETS $SOURCES")
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'f5.out', source = 'f5.in')

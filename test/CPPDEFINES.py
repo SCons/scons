@@ -78,10 +78,12 @@ test.run(arguments = '.', stdout=expect)
 test.write('SConstruct', """\
 foo = Environment(CPPDEFINES = ['FOO', ('VAL', 7)])
 bar = Environment(CPPDEFINES = {'BAR':None, 'VAL':8})
+baz = Environment(CPPDEFINES = ['BAZ', ('VAL', 9)])
 f = foo.Object(target = 'foo', source = 'prog.c')
 b = bar.Object(target = 'bar', source = 'prog.c')
 foo.Program(target = 'foo', source = f)
 bar.Program(target = 'bar', source = b)
+baz.Program(target = 'baz', source = 'baz.cpp')
 """)
 
 test.write('prog.c', r"""
@@ -99,10 +101,24 @@ main(int argc, char *argv[])
 }
 """)
 
+test.write('baz.cpp', r"""\
+#include <stdio.h>
+#include <stdlib.h>
+int
+main(int argc, char *argv[])
+{
+#ifdef  BAZ
+        printf("baz.cpp:  BAZ %d\n", VAL);
+#endif
+        return(0);
+}
+""")
+
 
 test.run(arguments = '.')
 
 test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO 7\n")
 test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR 8\n")
+test.run(program = test.workpath('baz'), stdout = "baz.cpp:  BAZ 9\n")
 
 test.pass_test()
