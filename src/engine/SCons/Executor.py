@@ -196,19 +196,16 @@ class Executor:
         """
         return filter(lambda s: s.missing(), self.sources)
 
-    def get_source_binfo(self, calc, ignore=[]):
-        """
-        Return three lists, one of the source files, one of their
-        calculated signatures, and one of their strings (path names).
-        __cacheable__
-        """
+    def get_unignored_sources(self, ignore):
+        """__cacheable__"""
         sourcelist = self.sources
         if ignore:
             sourcelist = filter(lambda s, i=ignore: not s in i, sourcelist)
-        calc_signature = lambda node, calc=calc: node.calc_signature(calc)
-        return (sourcelist,
-                map(calc_signature, sourcelist),
-                map(str,  sourcelist))
+        return sourcelist
+
+    def process_sources(self, func, ignore=[]):
+        """__cacheable__"""
+        return map(func, self.get_unignored_sources(ignore))
 
 
 
@@ -235,8 +232,10 @@ class Null:
         pass
     def get_missing_sources(self):
         return []
-    def get_source_binfo(self, calc, ignore=[]):
-        return ([], [], [])
+    def get_unignored_sources(self, ignore=[]):
+        return []
+    def process_sources(self, func, ignore=[]):
+        return []
 
 
 

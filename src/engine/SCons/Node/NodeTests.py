@@ -560,6 +560,15 @@ class NodeTestCase(unittest.TestCase):
         assert hasattr(binfo, 'bimplicitsigs')
         assert binfo.bsig == 666, binfo.bsig
 
+    def test_rel_path(self):
+        """Test the rel_path() method
+        """
+        node = SCons.Node.Node()
+        other = SCons.Node.Node()
+        other.__str__ = lambda: "xyzzy"
+        r = node.rel_path(other)
+        assert r == "xyzzy", r
+
     def test_explain(self):
         """Test explaining why a Node must be rebuilt
         """
@@ -578,11 +587,12 @@ class NodeTestCase(unittest.TestCase):
         result = node.explain()
         assert result == None, result
 
-        class Null_BInfo:
-            def __init__(self):
+        def get_null_info():
+            class Null_BInfo:
                 pass
+            return Null_BInfo()
 
-        node.get_stored_info = Null_BInfo
+        node.get_stored_info = get_null_info
         #see above: node.__str__ = lambda: 'null_binfo'
         result = node.explain()
         assert result == "Cannot explain why `null_binfo' is being rebuilt: No previous build information found\n", result

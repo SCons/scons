@@ -51,7 +51,21 @@ def sort_match(test, lines, expect):
 def re_sep(*args):
     return string.replace(apply(os.path.join, args), '\\', '\\\\')
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+
+
+class MyTestSCons(TestSCons.TestSCons):
+    # subclass with a method for running the sconsign script
+    def __init__(self, *args, **kw):
+	apply(TestSCons.TestSCons.__init__, (self,)+args, kw)
+	self.my_kw = {
+            'interpreter' : TestSCons.python,
+	    'program' : sconsign,
+	}
+    def run_sconsign(self, *args, **kw):
+        kw.update(self.my_kw)
+        return apply(self.run, args, kw)
+
+test = MyTestSCons(match = TestCmd.match_re)
 
 
 
@@ -96,41 +110,33 @@ test.write(['work1', 'sub2', 'inc2.h'], r"""\
 #define STRING2 "inc2.h"
 """)
 
-test.run(chdir = 'work1', arguments = '--implicit-cache .')
+test.run(chdir = 'work1', arguments = '--debug=stacktrace --implicit-cache .')
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "work1/sub1/.sconsign",
+test.run_sconsign(arguments = "work1/sub1/.sconsign",
          stdout = """\
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-v work1/sub1/.sconsign",
+test.run_sconsign(arguments = "-v work1/sub1/.sconsign",
          stdout = """\
 hello.exe:
     timestamp: None
     bsig: \S+
     csig: None
     implicit:
-        %s: \S+
+        hello.obj: \S+
 hello.obj:
     timestamp: None
     bsig: \S+
     csig: None
     implicit:
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-b -v work1/sub1/.sconsign",
+test.run_sconsign(arguments = "-b -v work1/sub1/.sconsign",
          stdout = """\
 hello.exe:
     bsig: \S+
@@ -138,9 +144,7 @@ hello.obj:
     bsig: \S+
 """)
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-c -v work1/sub1/.sconsign",
+test.run_sconsign(arguments = "-c -v work1/sub1/.sconsign",
          stdout = """\
 hello.exe:
     csig: None
@@ -148,74 +152,57 @@ hello.obj:
     csig: None
 """)
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.obj work1/sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.obj work1/sub1/.sconsign",
          stdout = """\
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.obj -e hello.exe -e hello.obj work1/sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj work1/sub1/.sconsign",
          stdout = """\
 hello.obj: None \S+ None
-        %s: \S+
+        hello.c: \S+
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.c'),
-       re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "work1/sub2/.sconsign",
+# XXX NOT SURE IF THIS IS RIGHT!
+sub2_inc1_h = re_sep('sub2', 'inc1.h')
+sub2_inc2_h = re_sep('sub2', 'inc2.h')
+
+test.run_sconsign(arguments = "work1/sub2/.sconsign",
          stdout = """\
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-        %s: \S+
-        %s: \S+
-""" % (re_sep('sub2', 'hello.obj'),
-       re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h')))
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-i -v work1/sub2/.sconsign",
+test.run_sconsign(arguments = "-i -v work1/sub2/.sconsign",
          stdout = """\
 hello.exe:
     implicit:
-        %s: \S+
+        hello.obj: \S+
 hello.obj:
     implicit:
-        %s: \S+
-        %s: \S+
-        %s: \S+
-""" % (re_sep('sub2', 'hello.obj'),
-       re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h')))
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.obj work1/sub2/.sconsign work1/sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.obj work1/sub2/.sconsign work1/sub1/.sconsign",
          stdout = """\
 hello.obj: None \S+ None
-        %s: \S+
-        %s: \S+
-        %s: \S+
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
 test.run(chdir = 'work1', arguments = '--clean .')
 
@@ -230,29 +217,23 @@ env2.Program('sub2/hello.c')
 
 time.sleep(1)
 
-test.run(chdir = 'work1', arguments = '. --max-drift=1')
+test.run(chdir = 'work1', arguments = '. --max-drift=1 --debug=stacktrace')
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.exe -e hello.obj work1/sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj work1/sub1/.sconsign",
          stdout = """\
 hello.exe: None \d+ None
-        %s: \d+
+        hello.obj: \d+
 hello.obj: None \d+ None
-        %s: \d+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \d+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.exe -e hello.obj -r work1/sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r work1/sub1/.sconsign",
          stdout = """\
 hello.exe: None \d+ None
-        %s: \d+
+        hello.obj: \d+
 hello.obj: None \d+ None
-        %s: \d+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \d+
+""")
 
 
 ##############################################################################
@@ -297,36 +278,25 @@ test.write(['work2', 'sub2', 'inc2.h'], r"""\
 
 test.run(chdir = 'work2', arguments = '--implicit-cache .')
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "work2/.sconsign")
+test.run_sconsign(arguments = "work2/.sconsign")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "work2/.sconsign",
+test.run_sconsign(arguments = "work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
+        hello.c: \S+
 === sub2:
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-        %s: \S+
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c'),
-       re_sep('sub2', 'hello.obj'),
-       re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h')))
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-v work2/.sconsign",
+test.run_sconsign(arguments = "-v work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe:
@@ -334,38 +304,31 @@ hello.exe:
     bsig: \S+
     csig: None
     implicit:
-        %s: \S+
+        hello.obj: \S+
 hello.obj:
     timestamp: None
     bsig: \S+
     csig: None
     implicit:
-        %s: \S+
+        hello.c: \S+
 === sub2:
 hello.exe:
     timestamp: None
     bsig: \S+
     csig: None
     implicit:
-        %s: \S+
+        hello.obj: \S+
 hello.obj:
     timestamp: None
     bsig: \S+
     csig: None
     implicit:
-        %s: \S+
-        %s: \S+
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c'),
-       re_sep('sub2', 'hello.obj'),
-       re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h')))
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-b -v work2/.sconsign",
+test.run_sconsign(arguments = "-b -v work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe:
@@ -379,9 +342,7 @@ hello.obj:
     bsig: \S+
 """)
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-c -v work2/.sconsign",
+test.run_sconsign(arguments = "-c -v work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe:
@@ -395,82 +356,59 @@ hello.obj:
     csig: None
 """)
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.obj work2/.sconsign",
+test.run_sconsign(arguments = "-e hello.obj work2/.sconsign",
          stdout = """\
 === sub1:
 hello.obj: None \S+ None
-        %s: \S+
+        hello.c: \S+
 === sub2:
 hello.obj: None \S+ None
-        %s: \S+
-        %s: \S+
-        %s: \S+
-""" % (re_sep('sub1', 'hello.c'),
-       re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h')))
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.obj -e hello.exe -e hello.obj work2/.sconsign",
+test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj work2/.sconsign",
          stdout = """\
 === sub1:
 hello.obj: None \S+ None
-        %s: \S+
+        hello.c: \S+
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
+        hello.c: \S+
 === sub2:
 hello.obj: None \S+ None
-        %s: \S+
-        %s: \S+
-        %s: \S+
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-        %s: \S+
-        %s: \S+
-""" % (re_sep('sub1', 'hello.c'),
-       re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c'),
-       re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h'),
-       re_sep('sub2', 'hello.obj'),
-       re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h')))
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-i -v work2/.sconsign",
+test.run_sconsign(arguments = "-i -v work2/.sconsign",
          stdout = """\
 === sub1:
 hello.exe:
     implicit:
-        %s: \S+
+        hello.obj: \S+
 hello.obj:
     implicit:
-        %s: \S+
+        hello.c: \S+
 === sub2:
 hello.exe:
     implicit:
-        %s: \S+
+        hello.obj: \S+
 hello.obj:
     implicit:
-        %s: \S+
-        %s: \S+
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c'),
-       re_sep('sub2', 'hello.obj'),
-       re_sep('sub2', 'hello.c'),
-       re_sep('sub2', 'inc1.h'),
-       re_sep('sub2', 'inc2.h')))
+        hello.c: \S+
+        inc1.h: \S+
+        inc2.h: \S+
+""")
 
 test.run(chdir = 'work2', arguments = '--clean .')
 
@@ -493,81 +431,63 @@ expect = """\
 hello.c: \d+ None \d+
 """
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign",
          stdout = """\
 === sub1:
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign.dblite",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign.dblite",
          stdout = """\
 === sub1:
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.c -e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign",
+test.run_sconsign(arguments = "-e hello.c -e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign",
          stdout = """\
 === sub1:
 hello.c: \d+ None \d+
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.c -e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign.dblite",
+test.run_sconsign(arguments = "-e hello.c -e hello.exe -e hello.obj -d sub1 -f dblite work2/my_sconsign.dblite",
          stdout = """\
 === sub1:
 hello.c: \d+ None \d+
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.c -e hello.exe -e hello.obj -r -d sub1 -f dblite work2/my_sconsign",
+test.run_sconsign(arguments = "-e hello.c -e hello.exe -e hello.obj -r -d sub1 -f dblite work2/my_sconsign",
          stdout = """\
 === sub1:
 hello.c: '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' None \d+
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-e hello.c -e hello.exe -e hello.obj -r -d sub1 -f dblite work2/my_sconsign.dblite",
+test.run_sconsign(arguments = "-e hello.c -e hello.exe -e hello.obj -r -d sub1 -f dblite work2/my_sconsign.dblite",
          stdout = """\
 === sub1:
 hello.c: '\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d' None \d+
 hello.exe: None \S+ None
-        %s: \S+
+        hello.obj: \S+
 hello.obj: None \S+ None
-        %s: \S+
-""" % (re_sep('sub1', 'hello.obj'),
-       re_sep('sub1', 'hello.c')))
+        hello.c: \S+
+""")
 
 ##############################################################################
 
@@ -575,39 +495,25 @@ test.write('bad1', "bad1\n")
 test.write('bad2.dblite', "bad2.dblite\n")
 test.write('bad3', "bad3\n")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-f dblite no_sconsign",
+test.run_sconsign(arguments = "-f dblite no_sconsign",
          stderr = "sconsign: \[Errno 2\] No such file or directory: 'no_sconsign'\n")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-f dblite bad1",
+test.run_sconsign(arguments = "-f dblite bad1",
          stderr = "sconsign: \[Errno 2\] No such file or directory: 'bad1.dblite'\n")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-f dblite bad1.dblite",
+test.run_sconsign(arguments = "-f dblite bad1.dblite",
          stderr = "sconsign: \[Errno 2\] No such file or directory: 'bad1.dblite'\n")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-f dblite bad2",
+test.run_sconsign(arguments = "-f dblite bad2",
          stderr = "sconsign: ignoring invalid `dblite' file `bad2'\n")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-f dblite bad2.dblite",
+test.run_sconsign(arguments = "-f dblite bad2.dblite",
          stderr = "sconsign: ignoring invalid `dblite' file `bad2.dblite'\n")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-f sconsign no_sconsign",
+test.run_sconsign(arguments = "-f sconsign no_sconsign",
          stderr = "sconsign: \[Errno 2\] No such file or directory: 'no_sconsign'\n")
 
-test.run(interpreter = TestSCons.python,
-         program = sconsign,
-         arguments = "-f sconsign bad3",
+test.run_sconsign(arguments = "-f sconsign bad3",
          stderr = "sconsign: ignoring invalid .sconsign file `bad3'\n")
 
 test.pass_test()

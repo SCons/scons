@@ -297,6 +297,7 @@ class ParentOfRoot:
         self.duplicate=0
         self.srcdir=None
         self.build_dirs=[]
+        self.path_elements=[]
         
     def is_under(self, dir):
         return 0
@@ -461,6 +462,7 @@ class Base(SCons.Node.Node):
             self.path = name
         else:
             self.path = directory.entry_path(name)
+        self.path_elements = directory.path_elements + [self]
 
         self.dir = directory
         self.cwd = None # will hold the SConscript directory for target nodes
@@ -541,18 +543,15 @@ class Base(SCons.Node.Node):
         Node.FS.Base object that owns us."""
         if not dir:
             dir = self.fs.getcwd()
-        path_elems = []
-        d = self
-        if d == dir:
-            path_elems.append('.')
-        else:
-            while d != dir and not isinstance(d, ParentOfRoot):
-                path_elems.append(d.name)
-                d = d.dir
-            path_elems.reverse()
-        ret = string.join(path_elems, os.sep)
-        return ret
-            
+        if self == dir:
+            return '.'
+        path_elems = self.path_elements
+        try: i = path_elems.index(dir)
+        except ValueError: pass
+        else: path_elems = path_elems[i+1:]
+        path_elems = map(lambda n: n.name, path_elems)
+        return string.join(path_elems, os.sep)
+
     def set_src_builder(self, builder):
         """Set the source code builder for this node."""
         self.sbuilder = builder
@@ -642,6 +641,9 @@ class Entry(Base):
         if self.fs.islink(self.abspath):
             return ''             # avoid errors for dangling symlinks
         raise AttributeError
+
+    def rel_path(self, other):
+        return self.disambiguate().rel_path(other)
 
     def exists(self):
         """Return if the Entry exists.  Check the file system to see
@@ -1252,6 +1254,29 @@ class Dir(Base):
         else:
             return self.entries['..'].root()
 
+    def rel_path(self, other):
+        """Return a path to "other" relative to this directory."""
+        if isinstance(other, Dir):
+            name = []
+        else:
+            try:
+                name = [other.name]
+                other = other.dir
+            except AttributeError:
+                return str(other)
+        if self is other:
+            return name and name[0] or '.'
+        i = 0
+        for x, y in map(None, self.path_elements, other.path_elements):
+            if not x is y:
+                break
+            i = i + 1
+        path_elems = ['..']*(len(self.path_elements)-i) \
+                   + map(lambda n: n.name, other.path_elements[i:]) \
+                   + name
+             
+        return string.join(path_elems, os.sep)
+
     def scan(self):
         if not self.implicit is None:
             return
@@ -1596,10 +1621,12 @@ class File(Base):
 
     def get_stored_implicit(self):
         binfo = self.get_stored_info()
-        try:
-            return binfo.bimplicit
-        except AttributeError:
-            return None
+        try: implicit = binfo.bimplicit
+        except AttributeError: return None
+        else: return map(self.dir.Entry, implicit)
+
+    def rel_path(self, other):
+        return self.dir.rel_path(other)
 
     def get_found_includes(self, env, scanner, path):
         """Return the included implicit dependencies in this file.

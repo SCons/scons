@@ -358,28 +358,41 @@ class ExecutorTestCase(unittest.TestCase):
         missing = x.get_missing_sources()
         assert missing == [sources[0]], missing
 
-    def test_get_source_binfo(self):
-        """Test fetching the build signature info for the sources"""
+    def test_get_unignored_sources(self):
+        """Test fetching the unignored source list"""
         env = MyEnvironment()
-        t1 = MyNode('t')
         s1 = MyNode('s1')
         s2 = MyNode('s2')
-        x = SCons.Executor.Executor('b', env, [{}], [t1], [s1, s2])
+        s3 = MyNode('s3')
+        x = SCons.Executor.Executor('b', env, [{}], [], [s1, s2, s3])
 
-        b = x.get_source_binfo('C')
-        assert b == ([s1, s2],
-                     ['cs-C-s1', 'cs-C-s2'],
-                     ['s1', 's2']), b
+        r = x.get_unignored_sources([])
+        assert r == [s1, s2, s3], map(str, r)
 
-        b = x.get_source_binfo('C', [s1])
-        assert b == ([s2],
-                     ['cs-C-s2'],
-                     ['s2']), b
+        r = x.get_unignored_sources([s2])
+        assert r == [s1, s3], map(str, r)
 
-        b = x.get_source_binfo('C', [s2])
-        assert b == ([s1],
-                     ['cs-C-s1'],
-                     ['s1']), b
+        r = x.get_unignored_sources([s1, s3])
+        assert r == [s2], map(str, r)
+
+    def test_process_sources(self):
+        """Test processing the source list through a function"""
+        env = MyEnvironment()
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+        s3 = MyNode('s3')
+        x = SCons.Executor.Executor('b', env, [{}], [], [s1, s2, s3])
+
+        r = x.process_sources(str)
+        assert r == ['s1', 's2', 's3'], r
+
+        r = x.process_sources(str, [s2])
+        assert r == ['s1', 's3'], r
+
+        def xxx(x):
+            return 'xxx-' + str(x)
+        r = x.process_sources(xxx, [s1, s3])
+        assert r == ['xxx-s2'], r
 
 
 

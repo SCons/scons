@@ -256,6 +256,12 @@ RELEASE 0.97 - XXX
     to all of the targets in a multiple-target builder call, which
     could cause out-of-order builds when the -j option is used.
 
+  - Store the paths of source files and dependencies in the .sconsign*
+    file(s) relative to the target's directory, not relative to the
+    top-level SConstruct directory.  This starts to make it possible to
+    subdivide the dependency tree arbitrarily by putting an SConstruct
+    file in every directory and using content signatures.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
