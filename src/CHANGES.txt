@@ -29,6 +29,8 @@ RELEASE 0.97 - XXX
 
   - Make it possible to support with custom Alias (sub-)classes.
 
+  - Allow Builders to take empty source lists when called.
+
   From Timothee Besset:
 
   - Add support for Objective C/C++ .m and .mm file suffixes (for

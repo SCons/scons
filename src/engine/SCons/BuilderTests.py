@@ -219,6 +219,9 @@ class BuilderTestCase(unittest.TestCase):
                                         target_factory=MyNode,
                                         source_factory=MyNode)
 
+        tgt = builder(env, source=[])
+        assert tgt == [], tgt
+
         n1 = MyNode("n1")
         n2 = MyNode("n2")
         builder(env, target = n1, source = n2)
@@ -667,6 +670,10 @@ class BuilderTestCase(unittest.TestCase):
 
         env = Environment()
         builder = SCons.Builder.Builder(action = function2)
+
+        tgts = builder(env, source=[])
+        assert tgts == [], tgts
+
         tgts = builder(env, target = [outfile, outfile2], source = 'foo')
         for t in tgts:
             t.prepare()
@@ -714,6 +721,9 @@ class BuilderTestCase(unittest.TestCase):
         builder2 = SCons.Builder.MultiStepBuilder(action='bar',
                                                   src_builder = builder1,
                                                   src_suffix = '.foo')
+
+        tgt = builder2(env, source=[])
+        assert tgt == [], tgt
 
         tgt = builder2(env, target='baz',
                        source=['test.bar', 'test2.foo', 'test3.txt'])[0]
@@ -763,15 +773,21 @@ class BuilderTestCase(unittest.TestCase):
                                                  '.bar' : func_action,
                                                  '$BAR_SUFFIX' : func_action,
                                                  '$FOO_SUFFIX' : func_action })
+
+        tgt = builder(env, source=[])
+        assert tgt == [], tgt
         
         assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
+
         tgt = builder(env, target='test1', source='test1.foo')[0]
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
         assert tgt.builder.action is builder.action
+
         tgt = builder(env, target='test2', source='test1.bar')[0]
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
         assert tgt.builder.action is builder.action
+
         flag = 0
         tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
         try:
