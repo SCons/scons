@@ -706,6 +706,12 @@ class UtilTestCase(unittest.TestCase):
         c = cmd_list[0][3].escape(escape_func)
         assert c == 'xyz', c
 
+        cmd_list = scons_subst_list("abc${LITERALS}xyz", env)
+        c = cmd_list[0][0].escape(escape_func)
+        assert c == '**abcfoo\nwith\nnewlines**', c
+        c = cmd_list[0][1].escape(escape_func)
+        assert c == '**bar\nwith\nnewlinesxyz**', c
+
         # Tests of the various SUBST_* modes of substitution.
         subst_list_cases = [
             "test $xxx",

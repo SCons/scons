@@ -638,8 +638,8 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
     class ListSubber(UserList.UserList):
         """A class to construct the results of a scons_subst_list() call.
 
-        Like StringSubber, this class binds a specific binds a specific
-        construction environment, mode, target and source with two methods
+        Like StringSubber, this class binds a specific construction 
+        environment, mode, target and source with two methods
         (substitute() and expand()) that handle the expansion.
 
         In addition, however, this class is used to track the state of
@@ -677,6 +677,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
             the results of expansions of side-by-side strings still get
             re-evaluated separately, not smushed together.
             """
+
             if is_String(s):
                 try:
                     s0, s1 = s[:2]
@@ -737,6 +738,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
             This serves as a wrapper for splitting up a string into
             separate tokens.
             """
+
             if is_String(args) and not isinstance(args, CmdStringHolder):
                 args = _separate_args.findall(args)
                 for a in args:
@@ -758,38 +760,58 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
             another line to the result."""
             UserList.UserList.append(self, [])
             self.next_word()
+
         def this_word(self):
             """Arrange for the next word to append to the end of the
             current last word in the result."""
             self.append = self.add_to_current_word
+
         def next_word(self):
             """Arrange for the next word to start a new word."""
             self.append = self.add_new_word
 
         def add_to_current_word(self, x):
+            """Append the string x to the end of the current last word
+            in the result.  If that is not possible, then just add
+            it as a new word.  Make sure the entire concatenated string
+            inherits the object attributes of x (in particular, the 
+            escape function) by wrapping it as CmdStringHolder."""
+
             if not self.in_strip or self.mode != SUBST_SIG:
                 try:
-                    self[-1][-1] = self[-1][-1] + x
+                    y = self[-1][-1] + x
                 except IndexError:
                     self.add_new_word(x)
+                else:
+                    literal1 = self.literal(self[-1][-1])
+                    literal2 = self.literal(x)
+                    y = self.conv(y)
+                    if is_String(y):
+                        y = CmdStringHolder(y, literal1 or literal2)
+                    self[-1][-1] = y
+
         def add_new_word(self, x):
             if not self.in_strip or self.mode != SUBST_SIG:
-                try:
-                    l = x.is_literal
-                except AttributeError:
-                    literal = None
-                else:
-                    literal = l()
+                literal = self.literal(x)
                 x = self.conv(x)
                 if is_String(x):
                     x = CmdStringHolder(x, literal)
                 self[-1].append(x)
             self.append = self.add_to_current_word
 
+        def literal(self, x):
+            try:
+                l = x.is_literal
+            except AttributeError:
+                return None
+            else:
+                return l()
+
         def open_strip(self, x):
             """Handle the "open strip" $( token."""
             self.add_strip(x)
             self.in_strip = 1
+
         def close_strip(self, x):
             """Handle the "close strip" $) token."""
             self.add_strip(x)
@@ -909,14 +931,35 @@ else:
 
 class Proxy:
     """A simple generic Proxy class, forwarding all calls to
-    subject.  Inherit from this class to create a Proxy."""
+    subject.  So, for the benefit of the python newbie, what does
+    this really mean?  Well, it means that you can take an object, let's
+    call it 'objA', and wrap it in this Proxy class, with a statement
+    like this 
+
+                 proxyObj = Proxy(objA),   
+
+    Then, if in the future, you do something like this  
+
+                 x = proxyObj.var1, 
+
+    since Proxy does not have a 'var1' attribute (but presumably objA does), 
+    the request actually is equivalent to saying 
+                
+                 x = objA.var1
+
+    Inherit from this class to create a Proxy."""
+
     def __init__(self, subject):
+        """Wrap an object as a Proxy object"""
         self.__subject = subject
 
     def __getattr__(self, name):
+        """Retrieve an attribute from the wrapped object.  If the named
+           attribute doesn't exist, AttributeError is raised"""
         return getattr(self.__subject, name)
 
     def get(self):
+        """Retrieve the entire wrapped object"""
         return self.__subject
 
 # attempt to load the windows registry module:

@@ -348,15 +348,24 @@ class EntryProxy(SCons.Util.Proxy):
                                              entry.name + "_base")
 
     def __get_posix_path(self):
-        """Return the path with / as the path separator, regardless
-        of platform."""
+        """Return the path with / as the path separator,
+        regardless of platform."""
         if os.sep == '/':
             return self
         else:
             entry = self.get()
-            return SCons.Util.SpecialAttrWrapper(string.replace(entry.get_path(),
-                                                                os.sep, '/'),
-                                                 entry.name + "_posix")
+            r = string.replace(entry.get_path(), os.sep, '/')
+            return SCons.Util.SpecialAttrWrapper(r, entry.name + "_posix")
+
+    def __get_win32_path(self):
+        """Return the path with \ as the path separator,
+        regardless of platform."""
+        if os.sep == '\\':
+            return self
+        else:
+            entry = self.get()
+            r = string.replace(entry.get_path(), os.sep, '\\')
+            return SCons.Util.SpecialAttrWrapper(r, entry.name + "_win32")
 
     def __get_srcnode(self):
         return EntryProxy(self.get().srcnode())
@@ -379,6 +388,7 @@ class EntryProxy(SCons.Util.Proxy):
     
     dictSpecialAttrs = { "base"     : __get_base_path,
                          "posix"    : __get_posix_path,
+                         "win32"    : __get_win32_path,
                          "srcpath"  : __get_srcnode,
                          "srcdir"   : __get_srcdir,
                          "dir"      : __get_dir,
