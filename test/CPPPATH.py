@@ -41,7 +41,7 @@ args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
 test = TestSCons.TestSCons()
 
-test.subdir('include', 'subdir', ['subdir', 'include'])
+test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
 test.write('SConstruct', """
 env = Environment(CPPPATH = ['include'])
@@ -55,24 +55,26 @@ env = Environment(CPPPATH=[include])
 SConscript('variant/SConscript', "env")
 """)
 
-test.write(['subdir', 'SConscript'], """
+test.write(['subdir', 'SConscript'],
+"""
 Import("env")
 env.Program(target='prog', source='prog.c')
 """)
 
-test.write('include/foo.h',
+test.write(['include', 'foo.h'],
 r"""
 #define	FOO_STRING "include/foo.h 1\n"
 #include <bar.h>
 """)
 
-test.write('include/bar.h',
+test.write(['include', 'bar.h'],
 r"""
 #define BAR_STRING "include/bar.h 1\n"
 """)
 
-test.write('subdir/prog.c',
-r"""#include <foo.h>
+test.write(['subdir', 'prog.c'],
+r"""
+#include <foo.h>
 #include <stdio.h>
 
 int
@@ -86,13 +88,13 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('subdir/include/foo.h',
+test.write(['subdir', 'include', 'foo.h'],
 r"""
 #define	FOO_STRING "subdir/include/foo.h 1\n"
 #include "bar.h"
 """)
 
-test.write('subdir/include/bar.h',
+test.write(['subdir', 'include', 'bar.h'],
 r"""
 #define BAR_STRING "subdir/include/bar.h 1\n"
 """)
@@ -115,8 +117,7 @@ test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
 
 test.up_to_date(arguments = args)
 
-test.unlink('include/foo.h')
-test.write('include/foo.h',
+test.write(['include', 'foo.h'],
 r"""
 #define	FOO_STRING "include/foo.h 2\n"
 #include "bar.h"
@@ -138,9 +139,8 @@ test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
 
 test.up_to_date(arguments = args)
 
-
-test.unlink('include/bar.h')
-test.write('include/bar.h',
+#
+test.write(['include', 'bar.h'],
 r"""
 #define BAR_STRING "include/bar.h 2\n"
 """)
@@ -163,16 +163,36 @@ test.up_to_date(arguments = args)
 
 # Change CPPPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
-env = Environment(CPPPATH = ['include'])
+env = Environment(CPPPATH = 'inc2 include')
 obj = env.Object(target='prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(CPPPATH=[include])
+env = Environment(CPPPATH=['inc2', include])
 SConscript('variant/SConscript', "env")
 """)
+
+test.up_to_date(arguments = args)
+
+#
+test.write(['inc2', 'foo.h'],
+r"""
+#define FOO_STRING "inc2/foo.h 1\n"
+#include <bar.h>
+""")
+
+test.run(arguments = args)
+
+test.run(program = test.workpath(prog),
+         stdout = "subdir/prog.c\ninc2/foo.h 1\ninclude/bar.h 2\n")
+
+test.run(program = test.workpath(subdir_prog),
+         stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
+
+test.run(program = test.workpath(variant_prog),
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 2\n")
 
 test.up_to_date(arguments = args)
 

@@ -34,45 +34,94 @@ else:
 
 test = TestSCons.TestSCons()
 
-foo_exe = test.workpath('subdir/foo' + _exe)
+test.subdir('sub1', 'sub2')
+
+foo_exe = test.workpath('foo' + _exe)
 
 test.write('SConstruct', """
-SConscript('subdir/SConscript')
+env = Environment(LIBS=['bar'], LIBPATH = '.')
+env.Program(target='foo', source='foo.c')
+SConscript('sub1/SConscript', 'env')
+SConscript('sub2/SConscript', 'env')
 """)
 
-test.subdir('subdir')
+test.write(['sub1', 'SConscript'], r"""
+Import('env')
+lib = env.Library(target='bar', source='bar.c baz.c')
+env.Install('..', lib)
+""")
 
-test.write('subdir/foo.c', r"""
-void do_it();
+test.write(['sub2', 'SConscript'], r"""
+Import('env')
+lib = env.Library(target='baz', source='baz.c')
+env.Install('..', lib)
+""")
+
+test.write('foo.c', r"""
+void bar();
+void baz();
 
 int main(void)
 {
-   do_it();
+   bar();
+   baz();
    return 0;
 }
 """)
 
-test.write('subdir/bar.c', r"""
+test.write(['sub1', 'bar.c'], r"""
 #include <stdio.h>
 
-void do_it()
+void bar()
 {
-   printf("bar.c\n");
+   printf("sub1/bar.c\n");
 }
 """)
 
-test.write('subdir/SConscript', r"""
-env = Environment(LIBS=['bar'], LIBPATH = [ '#subdir' ])
-env.Library(target='bar', source='bar.c')
-env.Program(target='foo', source='foo.c')
+test.write(['sub1', 'baz.c'], r"""
+#include <stdio.h>
+
+void baz()
+{
+   printf("sub1/baz.c\n");
+}
+""")
+
+test.write(['sub2', 'baz.c'], r"""
+#include <stdio.h>
+
+void baz()
+{
+   printf("sub2/baz.c\n");
+}
 """)
 
 test.run(arguments = '.')
 
-test.run(program=foo_exe, stdout='bar.c\n')
+test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+
+#
+test.write('SConstruct', """
+env = Environment(LIBS='baz bar', LIBPATH = '.')
+env.Program(target='foo', source='foo.c')
+SConscript('sub1/SConscript', 'env')
+SConscript('sub2/SConscript', 'env')
+""")
+
+test.run(arguments = '.')
+
+test.run(program=foo_exe, stdout='sub1/bar.c\nsub2/baz.c\n')
+
+#
+test.write('SConstruct', """
+env = Environment(LIBS=['bar', 'baz'], LIBPATH = '.')
+env.Program(target='foo', source='foo.c')
+SConscript('sub1/SConscript', 'env')
+SConscript('sub2/SConscript', 'env')
+""")
+
+test.run(arguments = '.')
+
+test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
 test.pass_test()
-
-
-
-

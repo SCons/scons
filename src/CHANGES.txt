@@ -41,6 +41,9 @@ RELEASE 0.06 -
 
   - Add support for the -U option.
 
+  - Allow CPPPATH, LIBPATH and LIBS to be specified as white-space
+    separated strings.
+
 
 
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600

@@ -241,7 +241,9 @@ class VarInterpolator:
 
     def prepareSrc(self, dict):
         src = dict[self.src]
-        if not is_List(src):
+        if is_String(src):
+            src = string.split(src)
+        elif not is_List(src):
             src = [ src ]
 
         def prepare(x, dict=dict):

@@ -36,14 +36,16 @@ else:
     
 test = TestSCons.TestSCons()
 
+test.subdir('lib1', 'lib2')
+
 prog1 = test.workpath('prog') + _exe
 prog2 = test.workpath('prog2') + _exe
 
 test.write('SConstruct', """
-env = Environment(LIBS = [ 'foo1' ],
-                  LIBPATH = [ './libs' ])
-env.Program(target = 'prog', source = 'prog.c')
-env.Library(target = './libs/foo1', source = 'f1.c')
+env1 = Environment(LIBS = [ 'foo1' ],
+                  LIBPATH = [ './lib1' ])
+env1.Program(target = 'prog', source = 'prog.c')
+env1.Library(target = './lib1/foo1', source = 'f1.c')
 
 env2 = Environment(LIBS = 'foo2',
                    LIBPATH = '.')
@@ -90,27 +92,48 @@ test.write('f1.c', r"""
 void
 f1(void)
 {
-	printf("f1.cnew\n");
+	printf("f1.c 1\n");
 }
 """)
 
 test.run(arguments = '.')
 test.run(program = prog1,
-         stdout = "f1.cnew\nprog.c\n")
+         stdout = "f1.c 1\nprog.c\n")
 test.run(program = prog2,
-         stdout = "f1.cnew\nprog.c\n")
+         stdout = "f1.c 1\nprog.c\n")
 
 test.up_to_date(arguments = '.')
 
 # Change LIBPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
-env = Environment(LIBS = [ 'foo1' ],
-                  LIBPATH = [ './libs', './lib2' ])
-env.Program(target = 'prog', source = 'prog.c')
-env.Library(target = './libs/foo1', source = 'f1.c')
+env1 = Environment(LIBS = [ 'foo1' ],
+                  LIBPATH = [ './lib1', './lib2' ])
+env1.Program(target = 'prog', source = 'prog.c')
+env1.Library(target = './lib1/foo1', source = 'f1.c')
+
+env2 = Environment(LIBS = 'foo2',
+                   LIBPATH = '. ./lib2')
+env2.Program(target = 'prog2', source = 'prog.c')
+env2.Library(target = 'foo2', source = 'f1.c')
 """)
 
 test.up_to_date(arguments = '.', stderr = None)
+
+test.write('f1.c', r"""
+void
+f1(void)
+{
+	printf("f1.c 2\n");
+}
+""")
+
+test.run(arguments = '.')
+test.run(program = prog1,
+         stdout = "f1.c 2\nprog.c\n")
+test.run(program = prog2,
+         stdout = "f1.c 2\nprog.c\n")
+
+test.up_to_date(arguments = '.')
 
 # Check that a null-string LIBPATH doesn't blow up.
 test.write('SConstruct', """
