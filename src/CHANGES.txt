@@ -173,6 +173,15 @@ RELEASE 0.95 - XXX
   - Save memory at build time by allowing Nodes to delete their build
     environments after they've been built.
 
+  - Add AppendUnique() and PrependUnique() Environment methods, which
+    add values to construction variables like Append() and Prepend()
+    do, but suppress any duplicate elements in the list.
+
+  - Allow the 'qt' tool to still be used successfully from a copied
+    Environment.  The include and library directories previously ended up
+    having the same string re-appended to the end, yielding an incorrect
+    path name.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.

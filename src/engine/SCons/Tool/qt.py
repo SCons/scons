@@ -210,9 +210,9 @@ def generate(env):
     env['LIBEMITTER'] = _Automoc('StaticObject',
                                  uicDeclBld,mocFromHBld,mocFromCppBld)
     # Of course, we need to link against the qt libraries
-    env.Append(CPPPATH=os.path.join('$QTDIR', 'include'))
-    env.Append(LIBPATH=os.path.join('$QTDIR', 'lib')) 
-    env.Append(LIBS='$QT_LIB')
+    env.AppendUnique(CPPPATH=[os.path.join('$QTDIR', 'include')])
+    env.AppendUnique(LIBPATH=[os.path.join('$QTDIR', 'lib')])
+    env.AppendUnique(LIBS=['$QT_LIB'])
 
 def exists(env):
     return _detect(env)

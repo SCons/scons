@@ -2035,6 +2035,24 @@ after: /biz:/foo/bar:/foo
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI env.AppendUnique( key = val ", [...])"
+Appends the specified keyword arguments
+to the end of construction variables in the environment.
+If the Environment does not have
+the specified construction variable,
+it is simply added to the environment.
+If the construction variable being appended to is a list,
+then any value(s) that already exist in the
+construction variable will
+.I not
+be added again to the list.
+
+.ES
+env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 env.BitKeeper()
 A factory function that
 returns a Builder object
@@ -2937,6 +2955,24 @@ print 'after:',env['ENV']['INCLUDE']
 yields:
 before: /biz:/foo
 after: /foo/bar:/foo:/biz
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI env.AppendUnique( key = val ", [...])"
+Appends the specified keyword arguments
+to the beginning of construction variables in the environment.
+If the Environment does not have
+the specified construction variable,
+it is simply added to the environment.
+If the construction variable being appended to is a list,
+then any value(s) that already exist in the
+construction variable will
+.I not
+be added again to the list.
+
+.ES
+env.PrependUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

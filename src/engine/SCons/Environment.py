@@ -454,6 +454,31 @@ class Base:
 
         self._dict[envname][name] = nv
 
+    def AppendUnique(self, **kw):
+        """Append values to existing construction variables
+        in an Environment, if they're not already there.
+        """
+        kw = our_deepcopy(kw)
+        for key, val in kw.items():
+            if not self._dict.has_key(key):
+                self._dict[key] = val
+            elif SCons.Util.is_Dict(self._dict[key]) and \
+                 SCons.Util.is_Dict(val):
+                self._dict[key].update(val)
+            elif SCons.Util.is_List(val):
+                dk = self._dict[key]
+                if not SCons.Util.is_List(dk):
+                    dk = [dk]
+                val = filter(lambda x, dk=dk: x not in dk, val)
+                self._dict[key] = dk + val
+            else:
+                dk = self._dict[key]
+                if SCons.Util.is_List(dk):
+                    if not val in dk:
+                        self._dict[key] = dk + val
+                else:
+                    self._dict[key] = self._dict[key] + val
+
     def Copy(self, tools=None, toolpath=[], **kw):
         """Return a copy of a construction Environment.  The
         copy is like a Python "deep copy"--that is, independent
@@ -622,6 +647,31 @@ class Base:
             self._dict[envname] = {}
 
         self._dict[envname][name] = nv
+
+    def PrependUnique(self, **kw):
+        """Append values to existing construction variables
+        in an Environment, if they're not already there.
+        """
+        kw = our_deepcopy(kw)
+        for key, val in kw.items():
+            if not self._dict.has_key(key):
+                self._dict[key] = val
+            elif SCons.Util.is_Dict(self._dict[key]) and \
+                 SCons.Util.is_Dict(val):
+                self._dict[key].update(val)
+            elif SCons.Util.is_List(val):
+                dk = self._dict[key]
+                if not SCons.Util.is_List(dk):
+                    dk = [dk]
+                val = filter(lambda x, dk=dk: x not in dk, val)
+                self._dict[key] = val + dk
+            else:
+                dk = self._dict[key]
+                if SCons.Util.is_List(dk):
+                    if not val in dk:
+                        self._dict[key] = val + dk
+                else:
+                    self._dict[key] = val + dk
 
     def Replace(self, **kw):
         """Replace existing construction variables in an Environment
