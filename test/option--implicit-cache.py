@@ -297,4 +297,35 @@ assert string.find(test.stdout(), 'is up to date') != -1, test.stdout()
 test.run(arguments = variant_prog)
 assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
 
+# Test forcing rescanning:
+test.write(['include', 'foo.h'],
+r"""
+#define	FOO_STRING "include/foo.h 3\n"
+#include "bar.h"
+""")
+
+test.run(arguments = "--implicit-cache " + args)
+
+test.write(['include', 'foo.h'],
+r"""
+#define	FOO_STRING "include/foo.h 3\n"
+#include "baz.h"
+#include "bar.h"
+""")
+
+test.run(arguments = "--implicit-deps-unchanged " + variant_prog)
+assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
+
+test.write(['include', 'baz.h'],
+r"""
+#define BAZ_STRING "include/baz.h 2\n"
+""")
+
+test.run(arguments = "--implicit-deps-unchanged " + variant_prog)
+assert string.find(test.stdout(), 'is up to date') != -1, test.stdout()
+
+test.run(arguments = "--implicit-deps-changed " + variant_prog)
+assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
+
+
 test.pass_test()

@@ -135,7 +135,7 @@ RELEASE 0.08 -
     suffix computation, code cleanup in MultiStepBuilder.__call__(),
     and replicating some logic in scons_subst().
 
-  - Add a --implicit-deps-unchanged option.
+  - Add --implicit-deps-changed and --implicit-deps-unchanged options.
 
   - Add a GetLaunchDir() function.
 

@@ -550,6 +550,15 @@ def options_init():
         long = ['implicit-cache'],
         help = "Cache implicit dependencies")
 
+    def opt_implicit_deps_changed(opt, arg):
+        import SCons.Node
+        SCons.Node.implicit_cache = 1
+        SCons.Node.implicit_deps_changed = 1
+
+    Option(func = opt_implicit_deps_changed,
+        long = ['implicit-deps-changed'],
+        help = "Ignore the cached implicit deps.")
+
     def opt_implicit_deps_unchanged(opt, arg):
         import SCons.Node
         SCons.Node.implicit_cache = 1

@@ -60,6 +60,10 @@ implicit_cache = 0
 # controls whether implicit dep changes are ignored:
 implicit_deps_unchanged = 0
 
+# controls whether the cached implicit deps are ignored:
+implicit_deps_changed = 0
+
+
 class Node:
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
@@ -200,7 +204,7 @@ class Node:
         if not self.builder:
             return
 
-        if implicit_cache:
+        if implicit_cache and not implicit_deps_changed:
             implicit = self.get_stored_implicit()
             if implicit is not None:
                 implicit = map(self.builder.source_factory, implicit)

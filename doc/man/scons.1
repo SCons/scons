@@ -400,6 +400,12 @@ dependency is added earlier in the implicit dependency search path
 (e.g. CPPPATH) than a current implicit dependency with the same name.
 
 .TP
+--implicit-deps-changed
+Force SCons to ignore the cached implicit dependencies. This causes the
+implicit dependencies to be rescanned and recached. This implies
+.BR --implicit-cache .
+
+.TP
 --implicit-deps-unchanged
 Force SCons to ignore changes in the implicit dependencies.
 This causes cached implicit dependencies to always be used.
