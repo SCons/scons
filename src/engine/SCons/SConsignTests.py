@@ -23,10 +23,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.SConsign
+import os
 import sys
 import TestCmd
 import unittest
+
+import SCons.SConsign
 
 class BuildInfo:
     def __init__(self, name):
@@ -111,13 +113,29 @@ class SConsignDBTestCase(unittest.TestCase):
             bbb = d1.get_entry('bbb')
             assert bbb.name == 'bbb name'
 
-            d2 = SCons.SConsign.DB(DummyNode('dir1'))
+            d2 = SCons.SConsign.DB(DummyNode('dir2'))
             d2.set_entry('ccc', BuildInfo('ccc name'))
             d2.set_entry('ddd', BuildInfo('ddd name'))
             ccc = d2.get_entry('ccc')
             assert ccc.name == 'ccc name'
             ddd = d2.get_entry('ddd')
             assert ddd.name == 'ddd name'
+
+            d31 = SCons.SConsign.DB(DummyNode('dir3/sub1'))
+            d31.set_entry('eee', BuildInfo('eee name'))
+            d31.set_entry('fff', BuildInfo('fff name'))
+            eee = d31.get_entry('eee')
+            assert eee.name == 'eee name'
+            fff = d31.get_entry('fff')
+            assert fff.name == 'fff name'
+
+            d32 = SCons.SConsign.DB(DummyNode('dir3%ssub2' % os.sep))
+            d32.set_entry('ggg', BuildInfo('ggg name'))
+            d32.set_entry('hhh', BuildInfo('hhh name'))
+            ggg = d32.get_entry('ggg')
+            assert ggg.name == 'ggg name'
+            hhh = d32.get_entry('hhh')
+            assert hhh.name == 'hhh name'
         finally:
             SCons.SConsign.database = save_database
 

@@ -28,6 +28,10 @@ RELEASE 0.97 - XXX
   - Have the environment store the toolpath and re-use it to find Tools
     modules during later Copy() or Tool() calls (unless overridden).
 
+  - Normalize the directory path names in SConsignFile() database
+    files so the same signature file can interoperate on Windows and
+    non-Windows systems.
+
   From Stanislav Baranov:
 
   - Make it possible to support with custom Alias (sub-)classes.
