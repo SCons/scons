@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Defaults
+import SCons.Util
 
 PDFLaTeXAction = SCons.Action.Action('$PDFLATEXCOM')
 
@@ -50,7 +51,7 @@ def generate(env):
     bld.add_action('.latex', PDFLaTeXAction)
 
     env['PDFLATEX']      = 'pdflatex'
-    env['PDFLATEXFLAGS'] = ''
+    env['PDFLATEXFLAGS'] = SCons.Util.CLVar('')
     env['PDFLATEXCOM']   = '$PDFLATEX $PDFLATEXFLAGS $SOURCES $TARGET'
 
 def exists(env):

@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Util
+
 import f77
 
 def generate(env):
@@ -40,11 +42,11 @@ def generate(env):
     f77.generate(env)
 
     env['F77']        = 'ifl'
-    env['F77FLAGS']   = ''
+    env['F77FLAGS']   = SCons.Util.CLVar('')
     env['F77COM']     = '$F77 $F77FLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET'
     env['F77PPCOM']   = '$F77 $F77FLAGS $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET'
     env['SHF77']      = '$F77'
-    env['SHF77FLAGS'] = '$F77FLAGS'
+    env['SHF77FLAGS'] = SCons.Util.CLVar('$F77FLAGS')
     env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET'
     env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET'
 

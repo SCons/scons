@@ -34,6 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Builder
+import SCons.Util
 
 def generate(env):
     """Add a Builder factory function and construction variables for
@@ -47,7 +48,7 @@ def generate(env):
 
     env['RCS']          = 'rcs'
     env['RCS_CO']       = 'co'
-    env['RCS_COFLAGS']  = ''
+    env['RCS_COFLAGS']  = SCons.Util.CLVar('')
     env['RCS_COCOM']    = '$RCS_CO $RCS_COFLAGS $TARGET'
 
 def exists(env):

@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Util
+
 import link
 
 linkers = ['g++', 'gcc']
@@ -42,7 +44,7 @@ def generate(env):
     link.generate(env)
 
     if env['PLATFORM'] == 'hpux':
-        env['SHLINKFLAGS'] = '$LINKFLAGS -shared -fPIC'
+        env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared -fPIC')
     
 def exists(env):
     return env.Detect(linkers)

@@ -35,13 +35,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
 import SCons.Tool
+import SCons.Util
 
 def generate(env):
     """Add Builders and construction variables for ilink to an Environment."""
     SCons.Tool.createProgBuilder(env)
     
     env['LINK']        = 'ilink'
-    env['LINKFLAGS']   = ''
+    env['LINKFLAGS']   = SCons.Util.CLVar('')
     env['LINKCOM']     = '$LINK $LINKFLAGS /O:$TARGET $SOURCES $( $_LIBDIRFLAGS $) $_LIBFLAGS'
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''

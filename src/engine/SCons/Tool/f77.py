@@ -61,11 +61,11 @@ def generate(env):
         shared_obj.add_action(suffix, SCons.Defaults.ShF77PPAction)
 
     env['F77']        = env.Detect(compilers) or 'f77'
-    env['F77FLAGS']   = ''
+    env['F77FLAGS']   = SCons.Util.CLVar('')
     env['F77COM']     = '$F77 $F77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['F77PPCOM']   = '$F77 $F77FLAGS $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['SHF77']      = '$F77'
-    env['SHF77FLAGS'] = '$F77FLAGS'
+    env['SHF77FLAGS'] = SCons.Util.CLVar('$F77FLAGS')
     env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
 

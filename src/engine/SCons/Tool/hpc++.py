@@ -36,6 +36,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import string
 
+import SCons.Util
+
 cplusplus = __import__('c++', globals(), locals(), [])
 
 acc = None
@@ -66,9 +68,9 @@ def generate(env):
             env['CXXVERSION'] = string.split(line)[-1]
 
         if env['PLATFORM'] == 'cygwin':
-            env['SHCXXFLAGS'] = '$CXXFLAGS'
+            env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
         else:
-            env['SHCXXFLAGS'] = '$CXXFLAGS +Z'
+            env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS +Z')
 
 def exists(env):
     return acc

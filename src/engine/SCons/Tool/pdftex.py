@@ -34,6 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
+import SCons.Util
 
 def generate(env):
     """Add Builders and construction variables for pdftex to an Environment."""
@@ -46,7 +47,7 @@ def generate(env):
     bld.add_action('.tex', '$PDFTEXCOM')
 
     env['PDFTEX']      = 'pdftex'
-    env['PDFTEXFLAGS'] = ''
+    env['PDFTEXFLAGS'] = SCons.Util.CLVar('')
     env['PDFTEXCOM']   = '$PDFTEX $PDFTEXFLAGS $SOURCES $TARGET'
 
 def exists(env):

@@ -34,7 +34,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 
 import SCons.Tool
 import SCons.Util
@@ -43,7 +42,7 @@ def _yaccEmitter(target, source, env, ysuf, hsuf):
     # If -d is specified on the command line, yacc will emit a .h
     # or .hpp file as well as a .c or .cpp file, depending on whether
     # the input file is a .y or .yy, respectively.
-    if len(source) and '-d' in string.split(env.subst("$YACCFLAGS")):
+    if len(source) and '-d' in SCons.Util.CLVar(env.subst("$YACCFLAGS")):
         base, ext = os.path.splitext(SCons.Util.to_String(source[0]))
         if ext == ysuf:
             base, ext = os.path.splitext(SCons.Util.to_String(target[0]))
@@ -66,7 +65,7 @@ def generate(env):
     cxx_file.add_emitter('.yy', yyEmitter)
 
     env['YACC']      = env.Detect('bison') or 'yacc'
-    env['YACCFLAGS'] = ''
+    env['YACCFLAGS'] = SCons.Util.CLVar('')
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
 
 def exists(env):

@@ -34,18 +34,18 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import re
 import string
 import types
-import re
 
 import SCons.Action
-import SCons.Tool
-import SCons.Errors
-import SCons.Warnings
 import SCons.Builder
-import SCons.Util
+import SCons.Errors
 import SCons.Platform.win32
+import SCons.Tool
 import SCons.Tool.msvs
+import SCons.Util
+import SCons.Warnings
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -395,20 +395,20 @@ def generate(env):
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
 
-    env['CCPDBFLAGS'] = '${(PDB and "/Zi /Fd%s"%File(PDB)) or ""}'
-    env['CCPCHFLAGS'] = '${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'
+    env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Zi /Fd%s"%File(PDB)) or ""}'])
+    env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s /Fp%s"%(PCHSTOP or "",File(PCH))) or ""}'])
     env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'
-    env['CCFLAGS']    = '/nologo'
-    env['CCCOM']      = '$CC $CCFLAGS $CCCOMFLAGS' 
+    env['CCFLAGS']    = SCons.Util.CLVar('/nologo')
+    env['CCCOM']      = '$CC $CCFLAGS $CCCOMFLAGS'
     env['SHCC']       = '$CC'
-    env['SHCCFLAGS']  = '$CCFLAGS'
+    env['SHCCFLAGS']  = SCons.Util.CLVar('$CCFLAGS')
     env['SHCCCOM']    = '$SHCC $SHCCFLAGS $CCCOMFLAGS'
     env['CXX']        = '$CC'
-    env['CXXFLAGS']   = ['$CCFLAGS', '$(', '/TP', '$)']
+    env['CXXFLAGS']   = SCons.Util.CLVar('$CCFLAGS $( /TP $)')
     env['CXXCOM']     = '$CXX $CXXFLAGS $CCCOMFLAGS'
     env['SHCXX']      = '$CXX'
-    env['SHCXXFLAGS'] = '$CXXFLAGS'
+    env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CCCOMFLAGS'
     env['CPPDEFPREFIX']  = '/D'
     env['CPPDEFSUFFIX']  = ''
@@ -419,7 +419,7 @@ def generate(env):
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'rc'
-    env['RCFLAGS'] = ''
+    env['RCFLAGS'] = SCons.Util.CLVar('')
     env['RCCOM'] = '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
     CScan = env.get_scanner('.c')
     if CScan:

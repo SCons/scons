@@ -34,7 +34,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 import re
 
 import SCons.Defaults
@@ -55,27 +54,27 @@ def generate(env):
 
     # platform specific settings
     if env['PLATFORM'] == 'cygwin':
-        env['SHCXXFLAGS'] = '$CXXFLAGS'
+        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     elif env['PLATFORM'] == 'aix':
         # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = '$CXXFLAGS -DPIC -mminimal-toc'
-        env['SHCXXFLAGS'] = '$CXXFLAGS -mminimal-toc'
+        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -DPIC -mminimal-toc')
+        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -mminimal-toc')
         env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
         env['SHOBJSUFFIX'] = '$OBJSUFFIX'
     elif env['PLATFORM'] == 'hpux':
         # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC -DPIC'
-        env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
+        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC -DPIC')
+        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC')
         env['SHOBJSUFFIX'] = '.pic.o'
     elif env['PLATFORM'] == 'sunos':
         # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC -DPIC'
-        env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
+        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC -DPIC')
+        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC')
         env['SHOBJSUFFIX'] = '.pic.o'
     else:
         # Original line from Christian Engel added -DPIC:
-        #env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC -DPIC'
-        env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
+        #env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC -DPIC')
+        env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -fPIC')
     # determine compiler version
     if env['CXX']:
         line = os.popen(env['CXX'] + ' --version').readline()

@@ -34,9 +34,9 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
 import os.path
 import re
+import sys
 
 import SCons.Defaults
 import SCons.Tool
@@ -154,10 +154,10 @@ def generate(env):
 
     # Some QT specific flags. I don't expect someone wants to
     # manipulate those ...
-    env['QT_UICIMPLFLAGS'] = ''
-    env['QT_UICDECLFLAGS'] = ''
-    env['QT_MOCFROMHFLAGS'] = ''
-    env['QT_MOCFROMCXXFLAGS'] = '-i'
+    env['QT_UICIMPLFLAGS'] = SCons.Util.CLVar('')
+    env['QT_UICDECLFLAGS'] = SCons.Util.CLVar('')
+    env['QT_MOCFROMHFLAGS'] = SCons.Util.CLVar('')
+    env['QT_MOCFROMCXXFLAGS'] = SCons.Util.CLVar('-i')
 
     # Suffixes for the headers / sources to generate
     env['QT_HSUFFIX'] = '.h'

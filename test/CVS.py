@@ -105,7 +105,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
                   BUILDERS={'Cat':Builder(action=cat)})
-env.Prepend(CVSFLAGS='-Q ')
+env.Prepend(CVSFLAGS='-Q')
 env.Cat('aaa.out', 'foo/aaa.in')
 env.Cat('bbb.out', 'foo/bbb.in')
 env.Cat('ccc.out', 'foo/ccc.in')
@@ -175,7 +175,7 @@ def cat(env, source, target):
     f.close()
 env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
                   BUILDERS={'Cat':Builder(action=cat)})
-env.Prepend(CVSFLAGS='-q ')
+env.Prepend(CVSFLAGS='-q')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')

@@ -50,12 +50,12 @@ def generate(env):
     SCons.Tool.createProgBuilder(env)
     
     env['SHLINK']      = '$LINK'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
+    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['SHLIBEMITTER']= None
     env['SMARTLINK']   = smart_link
     env['LINK']        = "$SMARTLINK"
-    env['LINKFLAGS']   = ''
+    env['LINKFLAGS']   = SCons.Util.CLVar('')
     env['LINKCOM']     = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBDIRPREFIX']='-L'
     env['LIBDIRSUFFIX']=''

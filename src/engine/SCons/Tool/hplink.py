@@ -35,6 +35,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 
+import SCons.Util
+
 import link
 
 ccLinker = None
@@ -59,8 +61,8 @@ def generate(env):
     """
     link.generate(env)
     
-    env['LINKFLAGS']   = '-Wl,+s -Wl,+vnocompatwarnings'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -b'
+    env['LINKFLAGS']   = SCons.Util.CLVar('-Wl,+s -Wl,+vnocompatwarnings')
+    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -b')
     env['SHLIBSUFFIX'] = '.sl'
 
 def exists(env):

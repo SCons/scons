@@ -45,10 +45,8 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment()
-shlink = foo.Dictionary('SHLINK')
-shlinkflags = foo.Dictionary('SHLINKFLAGS')
 bar = Environment(SHLINK = '',
-                  SHLINKFLAGS = r'%s wrapper.py ' + shlink + ' ' + shlinkflags)
+                  SHLINKFLAGS = foo.subst(r'%s wrapper.py $SHLINK $SHLINKFLAGS'))
 foo.SharedLibrary(target = 'foo', source = 'foo.c')
 bar.SharedLibrary(target = 'bar', source = 'bar.c')
 """ % python)

@@ -30,15 +30,18 @@ import string
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+import string
 env = Environment()
 print env['CC']
-print env['CCFLAGS']
+print string.join(env['CCFLAGS'])
 Default(env.Alias('dummy', None))
 """)
 test.run()
 cc, ccflags = string.split(test.stdout(), '\n')[1:3]
 
 test.write('SConstruct', """
+import string
+
 # test validator.  Change a key and add a new one to the environment
 def validator(key, value, environ):
     environ[key] = "v"
@@ -71,9 +74,9 @@ opts.Add('UNSPECIFIED',
 
 def test_tool(env):
     if env['RELEASE_BUILD']:
-        env['CCFLAGS'] = env['CCFLAGS'] + ' -O'
+        env.Append(CCFLAGS = '-O')
     if env['DEBUG_BUILD']:
-        env['CCFLAGS'] = env['CCFLAGS'] + ' -g'
+        env.Append(CCFLAGS = '-g')
 
 
 env = Environment(options=opts, tools=['default', test_tool])
@@ -83,7 +86,7 @@ Help('Variables settable in custom.py or on the command line:\\n' + opts.Generat
 print env['RELEASE_BUILD']
 print env['DEBUG_BUILD']
 print env['CC']
-print env['CCFLAGS']
+print string.join(env['CCFLAGS'])
 print env['VALIDATE']
 print env['valid_key']
 
@@ -109,22 +112,22 @@ def check(expect):
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 test.run()
-check(['0', '1', cc, ccflags + ' -g', 'v', 'v'])
+check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
 test.run(arguments='"RELEASE_BUILD=1"')
-check(['1', '1', cc, ccflags + ' -O -g', 'v', 'v'])
+check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
 
 test.run(arguments='"RELEASE_BUILD=1" "DEBUG_BUILD=0"')
-check(['1', '0', cc, ccflags + ' -O', 'v', 'v'])
+check(['1', '0', cc, string.strip(ccflags + ' -O'), 'v', 'v'])
 
 test.run(arguments='"CC=not_a_c_compiler"')
-check(['0', '1', 'not_a_c_compiler', ccflags + ' -g', 'v', 'v'])
+check(['0', '1', 'not_a_c_compiler', string.strip(ccflags + ' -g'), 'v', 'v'])
 
 test.run(arguments='"UNDECLARED=foo"')
-check(['0', '1', cc, ccflags + ' -g', 'v', 'v'])
+check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
 test.run(arguments='"CCFLAGS=--taco"')
-check(['0', '1', cc, ccflags + ' -g', 'v', 'v'])
+check(['0', '1', cc, string.strip(ccflags + ' -g'), 'v', 'v'])
 
 test.write('custom.py', """
 DEBUG_BUILD=0
@@ -132,10 +135,10 @@ RELEASE_BUILD=1
 """)
 
 test.run()
-check(['1', '0', cc, ccflags + ' -O', 'v', 'v'])
+check(['1', '0', cc, string.strip(ccflags + ' -O'), 'v', 'v'])
 
 test.run(arguments='"DEBUG_BUILD=1"')
-check(['1', '1', cc, ccflags + ' -O -g', 'v', 'v'])
+check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
 
 test.run(arguments='-h',
          stdout = """scons: Reading SConscript files ...

@@ -36,8 +36,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 
 import SCons.Builder
-import SCons.Util
 import SCons.Node.FS
+import SCons.Util
 
 # This function should maybe be moved to SCons.Util?
 from SCons.Tool.PharLapCommon import addPathIfNotExists
@@ -58,7 +58,7 @@ def generate(env):
     setattr(env, 'Perforce', PerforceFactory)
 
     env['P4']      = 'p4'
-    env['P4FLAGS'] = ''
+    env['P4FLAGS'] = SCons.Util.CLVar('')
     env['P4COM']   = '$P4 $P4FLAGS sync $TARGET'
     try:
         environ = env['ENV']

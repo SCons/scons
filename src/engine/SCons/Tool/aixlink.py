@@ -35,6 +35,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 
+import SCons.Util
+
 import aixcc
 import link
 
@@ -55,8 +57,8 @@ def generate(env):
     link.generate(env)
 
     env['SMARTLINKFLAGS'] = smart_linkflags
-    env['LINKFLAGS']      = '$SMARTLINKFLAGS'
-    env['SHLINKFLAGS']    = '$LINKFLAGS -qmkshrobj -qsuppress=1501-218'
+    env['LINKFLAGS']      = SCons.Util.CLVar('$SMARTLINKFLAGS')
+    env['SHLINKFLAGS']    = SCons.Util.CLVar('$LINKFLAGS -qmkshrobj -qsuppress=1501-218')
     env['SHLIBSUFFIX']    = '.a'
 
 def exists(env):

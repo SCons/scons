@@ -1305,6 +1305,123 @@ class UtilTestCase(unittest.TestCase):
         assert nl[0:2].child.bar == [ 't1child', 't2child' ], \
                nl[0:2].child.bar
 
+    def test_CLVar(self):
+        """Test the command-line construction variable class"""
+        f = SCons.Util.CLVar('a b')
+
+        r = f + 'c d'
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + ' c d'
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + ['c d']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', 'c d'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + [' c d']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', ' c d'], r.data
+        assert str(r) == 'a b  c d', str(r)
+
+        r = f + ['c', 'd']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + [' c', 'd']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', ' c', 'd'], r.data
+        assert str(r) == 'a b  c d', str(r)
+
+        f = SCons.Util.CLVar(['a b'])
+
+        r = f + 'c d'
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + ' c d'
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + ['c d']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a b', 'c d'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + [' c d']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a b', ' c d'], r.data
+        assert str(r) == 'a b  c d', str(r)
+
+        r = f + ['c', 'd']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + [' c', 'd']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a b', ' c', 'd'], r.data
+        assert str(r) == 'a b  c d', str(r)
+
+        f = SCons.Util.CLVar(['a', 'b'])
+
+        r = f + 'c d'
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + ' c d'
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + ['c d']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', 'c d'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + [' c d']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', ' c d'], r.data
+        assert str(r) == 'a b  c d', str(r)
+
+        r = f + ['c', 'd']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', 'c', 'd'], r.data
+        assert str(r) == 'a b c d', str(r)
+
+        r = f + [' c', 'd']
+        assert isinstance(r, SCons.Util.CLVar), type(r)
+        assert r.data == ['a', 'b', ' c', 'd'], r.data
+        assert str(r) == 'a b  c d', str(r)
+
+        loc = {}
+        loc['FOO'] = 'foo'
+        loc['BAR'] = SCons.Util.CLVar('bar')
+        loc['CALL'] = lambda target, source, env, for_signature: 'call'
+        env = DummyEnv(loc)
+
+        cmd = SCons.Util.CLVar("test $FOO $BAR $CALL test")
+
+        newcmd = scons_subst(cmd, env)
+        assert newcmd == 'test foo bar call test', newcmd
+
+        cmd_list = scons_subst_list(cmd, env)
+        assert len(cmd_list) == 1, cmd_list
+        assert cmd_list[0][0] == "test", cmd_list[0][0]
+        assert cmd_list[0][1] == "foo", cmd_list[0][1]
+        assert cmd_list[0][2] == "bar", cmd_list[0][2]
+        assert cmd_list[0][3] == "call", cmd_list[0][3]
+        assert cmd_list[0][4] == "test", cmd_list[0][4]
+
     def test_Selector(self):
         """Test the Selector class"""
 

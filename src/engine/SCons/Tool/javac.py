@@ -41,6 +41,7 @@ import string
 import SCons.Builder
 from SCons.Node.FS import _my_normcase
 from SCons.Tool.JavaCommon import parse_java_file
+import SCons.Util
 
 def classname(path):
     """Turn a string (path name) into a Java class name."""
@@ -100,7 +101,7 @@ def generate(env):
     env['BUILDERS']['Java'] = JavaBuilder
 
     env['JAVAC']            = 'javac'
-    env['JAVACFLAGS']       = ''
+    env['JAVACFLAGS']       = SCons.Util.CLVar('')
     env['JAVACCOM']         = '$JAVAC $JAVACFLAGS -d ${TARGET.attributes.java_classdir} -sourcepath ${SOURCE.dir.rdir()} $SOURCES'
     env['JAVACLASSSUFFIX']  = '.class'
     env['JAVASUFFIX']       = '.java'

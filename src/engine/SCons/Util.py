@@ -1202,6 +1202,33 @@ else:
 
 display = DisplayEngine()
 
+def Split(arg):
+    if is_List(arg):
+        return arg
+    elif is_String(arg):
+        return string.split(arg)
+    else:
+        return [arg]
+
+class CLVar(UserList.UserList):
+    """A class for command-line construction variables.
+
+    This is a list that uses Split() to split an initial string along
+    white-space arguments, and similarly to split any strings that get
+    added.  This allows us to Do the Right Thing with Append() and
+    Prepend() (as well as straight Python foo = env['VAR'] + 'arg1
+    arg2') regardless of whether a user adds a list or a string to a
+    command-line construction variable.
+    """
+    def __init__(self, seq = []):
+        UserList.UserList.__init__(self, Split(seq))
+    def __coerce__(self, other):
+        if is_String(other):
+            other = Split(other)
+        return (self, other)
+    def __str__(self):
+        return string.join(self.data)
+
 class Selector(UserDict.UserDict):
     """A callable dictionary that maps file suffixes to dictionary
     values."""

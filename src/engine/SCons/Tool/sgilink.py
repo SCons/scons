@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Util
+
 import link
 
 linkers = ['CC', 'cc']
@@ -42,7 +44,7 @@ def generate(env):
     link.generate(env)
     
     env['LINK'] = env.Detect(linkers) or 'cc'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
+    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
 
 def exists(env):
     return env.Detect(linkers)

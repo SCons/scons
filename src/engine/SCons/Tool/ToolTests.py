@@ -52,7 +52,7 @@ class ToolTestCase(unittest.TestCase):
         t = SCons.Tool.Tool('g++')
         t(env)
         assert (env['CXX'] == 'c++' or env['CXX'] == 'g++'), env['CXX']
-        assert env['CXXFLAGS'] == '$CCFLAGS', env['CXXFLAGS']
+        assert env['CXXFLAGS'] == ['$CCFLAGS'], env['CXXFLAGS']
         assert env['INCPREFIX'] == '-I', env['INCPREFIX']
         assert env['TOOLS'] == ['g++'], env['TOOLS']
 

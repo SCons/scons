@@ -33,11 +33,12 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
 import os
+import os.path
+import string
+
 import SCons.Tool
 import SCons.Util
-import string
 
 # This is what we search for to find mingw:
 key_program = 'mingw32-gcc'
@@ -47,7 +48,7 @@ def find(env):
     return env.WhereIs(key_program) or SCons.Util.WhereIs(key_program)
 
 def shlib_generator(target, source, env, for_signature):
-    cmd = ['$SHLINK', '$SHLINKFLAGS'] 
+    cmd = SCons.Util.CLVar('$SHLINK', '$SHLINKFLAGS') 
 
     dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
     if dll: cmd.extend(['-o', dll])
@@ -117,10 +118,10 @@ def generate(env):
 
     #... but a few things differ:
     env['CC'] = 'gcc'
-    env['SHCCFLAGS'] = '$CCFLAGS'
+    env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
     env['CXX'] = 'g++'
-    env['SHCXXFLAGS'] = '$CXXFLAGS'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
+    env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
+    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM']   = shlib_action
     env['SHLIBEMITTER']= shlib_emitter
     env['LINK'] = 'g++'
@@ -131,8 +132,8 @@ def generate(env):
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'windres'
-    env['RCFLAGS'] = ''
-    env['RCINCFLAGS'] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs)} $)'
+    env['RCFLAGS'] = SCons.Util.CLVar('')
+    env['RCINCFLAGS'] = SCons.Util.CLVar('$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs)} $)')
     env['RCINCPREFIX'] = '--include-dir '
     env['RCINCSUFFIX'] = ''
     env['RCCOM'] = '$RC $RCINCFLAGS $RCFLAGS -i $SOURCE -o $TARGET'

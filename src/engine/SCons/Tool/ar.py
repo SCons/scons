@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
 import SCons.Tool
+import SCons.Util
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
@@ -46,9 +47,9 @@ def generate(env):
         arcom = arcom + '\n$RANLIB $RANLIBFLAGS $TARGET'
 
     env['AR']          = 'ar'
-    env['ARFLAGS']     = 'r'
+    env['ARFLAGS']     = SCons.Util.CLVar('r')
     env['RANLIB']      = ranlib
-    env['RANLIBFLAGS'] = ''
+    env['RANLIBFLAGS'] = SCons.Util.CLVar('')
     env['ARCOM']       = arcom
 
 def exists(env):

@@ -37,6 +37,7 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Tool.msvs
 import SCons.Tool.msvc
+import SCons.Util
 
 def generate(env):
     """Add Builders and construction variables for lib to an Environment."""
@@ -57,7 +58,7 @@ def generate(env):
         pass
 
     env['AR']          = 'lib'
-    env['ARFLAGS']     = '/nologo'
+    env['ARFLAGS']     = SCons.Util.CLVar('/nologo')
     env['ARCOM']       = "${TEMPFILE('$AR $ARFLAGS /OUT:$TARGET $SOURCES')}"
 
 def exists(env):

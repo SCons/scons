@@ -37,6 +37,7 @@ import os.path
 
 import SCons.Defaults
 import SCons.Tool
+import SCons.Util
 
 ASSuffixes = ['.s', '.asm', '.ASM']
 ASPPSuffixes = ['.spp', '.SPP']
@@ -56,7 +57,7 @@ def generate(env):
         static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
 
     env['AS']        = 'nasm'
-    env['ASFLAGS']   = ''
+    env['ASFLAGS']   = SCons.Util.CLVar('')
     env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 

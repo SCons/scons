@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
 import SCons.Platform
+import SCons.Util
 
 # Ghostscript goes by different names on different platforms...
 platform = SCons.Platform.platform_default()
@@ -58,7 +59,7 @@ def generate(env):
     bld.add_action('.ps', '$GSCOM')
 
     env['GS']      = gs
-    env['GSFLAGS'] = '-dNOPAUSE -dBATCH -sDEVICE=pdfwrite'
+    env['GSFLAGS'] = SCons.Util.CLVar('-dNOPAUSE -dBATCH -sDEVICE=pdfwrite')
     env['GSCOM']   = '$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES'
 
 
