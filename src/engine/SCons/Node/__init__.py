@@ -76,16 +76,22 @@ class Node:
         """Actually build the node.   Return the status from the build."""
 	if not self.builder:
 	    return None
-        if not self.precious:
-            self.remove()
         try:
-            stat = self.builder.execute(env = self.env.Dictionary(),
-                                        target = self, source = self.sources)
-        except:
-            raise BuildError(self, "Exception",
-                             sys.exc_type,
-                             sys.exc_value,
-                             sys.exc_traceback)
+            # If this Builder instance has already been called,
+            # there will already be an associated status.
+            stat = self.builder.status
+        except AttributeError:
+            if not self.precious:
+                self.remove()
+            try:
+                stat = self.builder.execute(env = self.env.Dictionary(),
+                                            target = self,
+                                            source = self.sources)
+            except:
+                raise BuildError(self, "Exception",
+                                 sys.exc_type,
+                                 sys.exc_value,
+                                 sys.exc_traceback)
         if stat:
             raise BuildError(node = self, errstr = "Error %d" % stat)
 

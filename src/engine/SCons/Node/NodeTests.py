@@ -52,6 +52,17 @@ class NoneBuilder(Builder):
         apply(Builder.execute, (self,), kw)
         return None
 
+class ListBuilder(Builder):
+    def __init__(self, *nodes):
+        self.nodes = nodes
+    def execute(self, **kw):
+        if hasattr(self, 'status'):
+            return self.status
+        for n in self.nodes:
+            n.remove()
+        kw['target'] = self.nodes[0]
+        self.status = apply(Builder.execute, (self,), kw)
+
 class FailBuilder:
     def execute(self, **kw):
         return 1
@@ -117,8 +128,13 @@ class NodeTestCase(unittest.TestCase):
         global built_it
 
         class MyNode(SCons.Node.Node):
+            def __init__(self, **kw):
+                apply(SCons.Node.Node.__init__, (self,), kw)
+                self.remove_count = 0
             def __str__(self):
                 return self.path
+            def remove(self):
+                self.remove_count= self.remove_count+ 1
 	# Make sure it doesn't blow up if no builder is set.
         node = MyNode()
 	node.build()
@@ -146,6 +162,41 @@ class NodeTestCase(unittest.TestCase):
         assert type(built_target) == type(MyNode()), type(built_target)
         assert str(built_target) == "qqq", str(built_target)
         assert built_source == ["rrr", "sss"], built_source
+
+        fff = MyNode()
+        ggg = MyNode()
+        lb = ListBuilder(fff, ggg)
+        e = Environment()
+        fff.builder_set(lb)
+        fff.env_set(e)
+        fff.path = "fff"
+        ggg.builder_set(lb)
+        ggg.env_set(e)
+        ggg.path = "ggg"
+        fff.sources = ["hhh", "iii"]
+        ggg.sources = ["hhh", "iii"]
+
+        built_it = None
+        fff.build()
+        assert built_it
+        ggg.build()
+        assert ggg.remove_count== 1, ggg.remove_count
+        assert type(built_target) == type(MyNode()), type(built_target)
+        assert str(built_target) == "fff", str(built_target)
+        assert built_source == ["hhh", "iii"], built_source
+
+        delattr(lb, 'status')
+        fff.remove_count = 0
+        ggg.remove_count = 0
+
+        built_it = None
+        ggg.build()
+        #assert built_it
+        fff.build()
+        assert fff.remove_count== 1, fff.remove_count
+        assert type(built_target) == type(MyNode()), type(built_target)
+        assert str(built_target) == "fff", str(built_target)
+        assert built_source == ["hhh", "iii"], built_source
 
     def test_builder_set(self):
 	"""Test setting a Node's Builder
