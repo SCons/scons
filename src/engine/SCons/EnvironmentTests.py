@@ -296,7 +296,7 @@ class EnvironmentTestCase(unittest.TestCase):
                         action='buildfoo $target $source')
         assert t.builder
         assert t.builder.action.__class__.__name__ == 'CommandAction'
-        assert t.builder.action.command == 'buildfoo $target $source'
+        assert t.builder.action.cmd_list == ['buildfoo', '$target', '$source']
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
@@ -327,6 +327,10 @@ class EnvironmentTestCase(unittest.TestCase):
 	env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
 	str = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
 	assert str == "c c", str
+
+        env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
+        lst = env.subst_list([ "$AAA", "B $CCC" ])
+        assert lst == [ [ "a", "b" ], [ "c", "B a", "b" ], [ "c" ] ], lst
 
     def test_autogenerate(dict):
         """Test autogenerating variables in a dictionary."""

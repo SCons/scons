@@ -84,8 +84,7 @@ class MD5TestCase(unittest.TestCase):
         try:
             signature('string')
         except AttributeError, e:
-            # the error string should begin with "unable to fetch contents of 'string': "
-            assert string.find(str(e), "unable to fetch contents of 'string':") == 0
+            assert string.find(str(e), "unable to fetch contents") == 0, str(e)
         else:
             raise AttributeError, "unexpected get_contents() attribute"
 

@@ -167,8 +167,9 @@ class Environment:
                 self.env = env
                 self.builder = builder
 
-            def __call__(self, target = None, source = None):
-                return self.builder(self.env, target, source)
+            def __call__(self, target = None, source = None, **kw):
+                return apply(self.builder, (self.env, target, source),
+                             kw)
 
             # This allows a Builder to be executed directly
             # through the Environment to which it's attached.
@@ -238,6 +239,9 @@ class Environment:
     def __delitem__(self, key):
         del self._dict[key]
 
+    def has_key(self, key):
+        return self._dict.has_key(key)
+
     def Command(self, target, source, action):
         """Builds the supplied target files from the supplied
         source files using the supplied action.  Action may
@@ -281,6 +285,11 @@ class Environment:
 	trailing characters.
 	"""
 	return SCons.Util.scons_subst(string, self._dict, {})
+
+    def subst_list(self, string):
+        """Calls through to SCons.Util.scons_subst_list().  See
+        the documentation for that function."""
+        return SCons.Util.scons_subst_list(string, self._dict, {})
 
     def get_scanner(self, skey):
         """Find the appropriate scanner given a key (usually a file suffix).

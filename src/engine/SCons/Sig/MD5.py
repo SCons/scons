@@ -78,12 +78,9 @@ def collect(signatures):
 def signature(obj):
     """Generate a signature for an object
     """
-    try:
-        contents = str(obj.get_contents())
-    except AttributeError, e:
-        raise AttributeError, \
-	      "unable to fetch contents of '%s': %s" % (str(obj), e)
-    return hexdigest(md5.new(contents).digest())
+    if not hasattr(obj, 'get_contents'):
+        raise AttributeError, "unable to fetch contents of '%s'" % str(obj)
+    return hexdigest(md5.new(str(obj.get_contents())).digest())
 
 def to_string(signature):
     """Convert a signature to a string"""

@@ -33,31 +33,60 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import string
-from Errors import UserError
+import copy
+from SCons.Errors import UserError
 
 import SCons.Action
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 
+class DictCmdGenerator:
+    """This is a callable class that can be used as a
+    command generator function.  It holds on to a dictionary
+    mapping file suffixes to Actions.  It uses that dictionary
+    to return the proper action based on the file suffix of
+    the source file."""
+    
+    def __init__(self, action_dict):
+        self.action_dict = action_dict
+
+    def src_suffixes(self):
+        return self.action_dict.keys()
+
+    def __call__(self, source, target, env, **kw):
+        ext = None
+        for src in map(str, source):
+            my_ext = os.path.splitext(src)[1]
+            if ext and my_ext != ext:
+                raise UserError("Cannot build multiple sources with different extensions.")
+            ext = my_ext
+
+        if ext is None:
+            raise UserError("Cannot deduce file extension from source files: %s" % repr(map(str, source)))
+        try:
+            # XXX Do we need to perform Environment substitution
+            # on the keys of action_dict before looking it up?
+            return self.action_dict[ext]
+        except KeyError:
+            raise UserError("Don't know how to build a file with suffix %s." % ext)
 
 def Builder(**kw):
     """A factory for builder objects."""
-    
     if kw.has_key('generator'):
         if kw.has_key('action'):
             raise UserError, "You must not specify both an action and a generator."
         kw['action'] = SCons.Action.CommandGenerator(kw['generator'])
         del kw['generator']
-
-    if kw.has_key('action') and SCons.Util.is_Dict(kw['action']):
-        return apply(CompositeBuilder, (), kw)
-    elif kw.has_key('src_builder'):
+    elif kw.has_key('action') and SCons.Util.is_Dict(kw['action']):
+        action_dict = kw['action']
+        kw['action'] = SCons.Action.CommandGenerator(DictCmdGenerator(action_dict))
+        kw['src_suffix'] = action_dict.keys()
+        
+    if kw.has_key('src_builder'):
         return apply(MultiStepBuilder, (), kw)
     else:
         return apply(BuilderBase, (), kw)
-
-
 
 def _init_nodes(builder, env, tlist, slist):
     """Initialize lists of target and source nodes with all of
@@ -76,6 +105,29 @@ def _init_nodes(builder, env, tlist, slist):
         t.add_source(slist)
         if builder.scanner:
             t.target_scanner = builder.scanner
+        
+class _callable_adaptor:
+    """When crteating a Builder, you can pass a string OR
+    a callable in for prefix, suffix, or src_suffix.
+    src_suffix even takes a list!
+
+    If a string or list is passed, we use this class to
+    adapt it to a callable."""
+    def __init__(self, static):
+        self.static = static
+
+    def __call__(self, **kw):
+        return self.static
+
+    def __cmp__(self, other):
+        if isinstance(other, _callable_adaptor):
+            return cmp(self.static, other.static)
+        return -1
+
+def _adjust_suffix(suff):
+    if suff and not suff[0] in [ '.', '$' ]:
+        return '.' + suff
+    return suff
 
 class BuilderBase:
     """Base class for Builders, objects that create output
@@ -90,27 +142,40 @@ class BuilderBase:
                         node_factory = SCons.Node.FS.default_fs.File,
                         target_factory = None,
                         source_factory = None,
-                        scanner = None):
+                        scanner = None,
+                        emitter = None):
         if name is None:
             raise UserError, "You must specify a name for the builder."
         self.name = name
         self.action = SCons.Action.Action(action)
 
-        self.prefix = prefix
-        self.suffix = suffix
-        self.src_suffix = src_suffix
+        if callable(prefix):
+            self.prefix = prefix
+        else:
+            self.prefix = _callable_adaptor(str(prefix))
+
+        if callable(suffix):
+            self.suffix = suffix
+        else:
+            self.suffix = _callable_adaptor(str(suffix))
+
+        if callable(src_suffix):
+            self.src_suffix = src_suffix
+        elif SCons.Util.is_String(src_suffix):
+            self.src_suffix = _callable_adaptor([ str(src_suffix) ])
+        else:
+            self.src_suffix = _callable_adaptor(src_suffix)
+            
         self.target_factory = target_factory or node_factory
         self.source_factory = source_factory or node_factory
         self.scanner = scanner
-        if self.suffix and self.suffix[0] not in '.$':
-            self.suffix = '.' + self.suffix
-        if self.src_suffix and self.src_suffix[0] not in '.$':
-            self.src_suffix = '.' + self.src_suffix
+
+        self.emitter = emitter
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
 
-    def _create_nodes(self, env, target = None, source = None):
+    def _create_nodes(self, env, args, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
         def adjustixes(files, pre, suf):
@@ -122,25 +187,46 @@ class BuilderBase:
                     if pre and f[:len(pre)] != pre:
                         path, fn = os.path.split(os.path.normpath(f))
                         f = os.path.join(path, pre + fn)
-                    if suf:
-                        if f[-len(suf):] != suf:
-                            f = f + suf
-                ret.append(f)
-            return ret
+                    # Only append a suffix if the file does not have one.
+		    if suf and not os.path.splitext(f)[1]:
+		        if f[-len(suf):] != suf:
+		            f = f + suf
+		ret.append(f)
+	    return ret
 
+        pre = self.get_prefix(env, args)
+        suf = self.get_suffix(env, args)
         tlist = SCons.Node.arg2nodes(adjustixes(target,
-                                                env.subst(self.prefix),
-                                                env.subst(self.suffix)),
+                                                pre, suf),
                                      self.target_factory)
-
+        src_suf = self.get_src_suffix(env, args)
         slist = SCons.Node.arg2nodes(adjustixes(source,
                                                 None,
-                                                env.subst(self.src_suffix)),
+                                                src_suf),
                                      self.source_factory)
+        if self.emitter:
+            emit_args = { 'target' : tlist,
+                          'source' : slist,
+                          'env' : env }
+            emit_args.update(args)
+            target, source = apply(self.emitter, (), emit_args)
+
+            # Have to run it through again in case the
+            # function returns non-Node targets/sources.
+            tlist = SCons.Node.arg2nodes(adjustixes(target,
+                                                    pre, suf),
+                                         self.target_factory)
+            slist = SCons.Node.arg2nodes(adjustixes(source,
+                                                    None,
+                                                    src_suf),
+                                         self.source_factory)
+            
+        for t in tlist:
+            t.build_args = args
         return tlist, slist
 
-    def __call__(self, env, target = None, source = None):
-        tlist, slist = self._create_nodes(env, target, source)
+    def __call__(self, env, target = None, source = None, **kw):
+        tlist, slist = self._create_nodes(env, kw, target, source)
 
         if len(tlist) == 1:
             _init_nodes(self, env, tlist, slist)
@@ -167,10 +253,23 @@ class BuilderBase:
         """
         return apply(self.action.get_contents, (), kw)
 
-    def src_suffixes(self, env):
-        if self.src_suffix != '':
-            return [env.subst(self.src_suffix)]
-        return []
+    def src_suffixes(self, env, args):
+        return map(lambda x, e=env: e.subst(_adjust_suffix(x)),
+                   apply(self.src_suffix, (), args))
+
+    def get_src_suffix(self, env, args):
+        """Get the first src_suffix in the list of src_suffixes."""
+        ret = self.src_suffixes(env, args)
+        if not ret:
+            return ''
+        else:
+            return ret[0]
+
+    def get_suffix(self, env, args):
+        return env.subst(_adjust_suffix(apply(self.suffix, (), args)))
+
+    def get_prefix(self, env, args):
+        return env.subst(apply(self.prefix, (), args))
 
     def targets(self, node):
         """Return the list of targets for this builder instance.
@@ -199,7 +298,7 @@ class ListBuilder:
             # unlink all targets and make all directories
             # before building anything
             t.prepare()
-        kw['target'] = self.tlist[0]
+        kw['target'] = self.tlist
         self.status = apply(self.builder.execute, (), kw)
         for t in self.tlist:
             if not t is kw['target']:
@@ -212,8 +311,8 @@ class ListBuilder:
     def get_contents(self, **kw):
         return apply(self.builder.get_contents, (), kw)
 
-    def src_suffixes(self, env):
-        return self.builder.src_suffixes(env)
+    def src_suffixes(self, env, args):
+        return self.builder.src_suffixes(env, args)
 
     def targets(self, node):
         """Return the list of targets for this builder instance.
@@ -240,112 +339,55 @@ class MultiStepBuilder(BuilderBase):
                         node_factory = SCons.Node.FS.default_fs.File,
                         target_factory = None,
                         source_factory = None,
-                        scanner=None):
+                        scanner=None,
+                        emitter=None):
         BuilderBase.__init__(self, name, action, prefix, suffix, src_suffix,
                              node_factory, target_factory, source_factory,
-                             scanner)
+                             scanner, emitter)
+        if not SCons.Util.is_List(src_builder):
+            src_builder = [ src_builder ]
         self.src_builder = src_builder
+        self.sdict = {}
 
-    def __call__(self, env, target = None, source = None):
+    def __call__(self, env, target = None, source = None, **kw):
         slist = SCons.Node.arg2nodes(source, self.source_factory)
         final_sources = []
-        src_suffix = env.subst(self.src_suffix)
-        sdict = {}
-        for suff in self.src_builder.src_suffixes(env):
-            sdict[suff] = None
+
+        r=repr(env)
+        try:
+            sdict = self.sdict[r]
+        except KeyError:
+            sdict = {}
+            self.sdict[r] = sdict
+            for bld in self.src_builder:
+                for suf in bld.src_suffixes(env, kw):
+                    sdict[suf] = bld
+                    
         for snode in slist:
             path, ext = os.path.splitext(snode.abspath)
             if sdict.has_key(ext):
-                tgt = self.src_builder(env, target = [ path ], source = snode)
+                src_bld = sdict[ext]
+
+                dictArgs = copy.copy(kw)
+                dictArgs['target'] = [path]
+                dictArgs['source'] = snode
+                dictArgs['env'] = env
+                tgt = apply(src_bld, (), dictArgs)
                 if not SCons.Util.is_List(tgt):
                     final_sources.append(tgt)
                 else:
                     final_sources.extend(tgt)
             else:
                 final_sources.append(snode)
-        return BuilderBase.__call__(self, env, target=target,
-                                    source=final_sources)
+        dictKwArgs = kw
+        dictKwArgs['target'] = target
+        dictKwArgs['source'] = final_sources
+        return apply(BuilderBase.__call__,
+                     (self, env), dictKwArgs)
 
-    def src_suffixes(self, env):
-        return BuilderBase.src_suffixes(self, env) + \
-               self.src_builder.src_suffixes(env)
-
-class CompositeBuilder(BuilderBase):
-    """This is a convenient Builder subclass that can build different
-    files based on their suffixes.  For each target, this builder
-    will examine the target's sources.  If they are all the same
-    suffix, and that suffix is equal to one of the child builders'
-    src_suffix, then that child builder will be used.  Otherwise,
-    UserError is thrown."""
-    def __init__(self,  name = None,
-                        prefix='',
-                        suffix='',
-                        action = {},
-                        src_builder = []):
-        BuilderBase.__init__(self, name=name, prefix=prefix,
-                             suffix=suffix)
-        if src_builder and not SCons.Util.is_List(src_builder):
-            src_builder = [src_builder]
-        self.src_builder = src_builder
-        self.action_dict = action
-        self.sdict = {}
-        self.sbuild = {}
-
-    def __call__(self, env, target = None, source = None):
-        tlist, slist = BuilderBase._create_nodes(self, env,
-                                                 target=target, source=source)
-
-        r = repr(env)
-        if not self.sdict.has_key(r):
-            self.sdict[r] = {}
-            self.sbuild[r] = []
-            for suff in self.src_suffixes(env):
-                suff = env.subst(suff)
-                self.sdict[r][suff] = suff
-                self.sbuild[r].extend(filter(lambda x, e=env, s=suff:
-                                                    e.subst(x.suffix) == s,
-                                             self.src_builder))
-            for sb in self.sbuild[r]:
-                suff = env.subst(sb.suffix)
-                for s in sb.src_suffixes(env):
-                     self.sdict[r][env.subst(s)] = suff
-
-        sufflist = map(lambda x, s=self.sdict[r]:
-                              s[os.path.splitext(x.path)[1]],
-                       slist)
-        last_suffix = ''
-        for suff in sufflist:
-            if last_suffix and last_suffix != suff:
-                raise UserError, "The builder for %s can only build source files of identical suffixes:  %s." % \
-                      (tlist[0].path,
-                       str(map(lambda t: str(t.path), tlist[0].sources)))
-            last_suffix = suff
-
-        if last_suffix:
-            kw = {
-                'name' : self.name,
-                'action' : self.action_dict[last_suffix],
-                'src_suffix' : last_suffix,
-            }
-            if self.sbuild[r]:
-                sb = filter(lambda x, e=env, s=last_suffix:
-                                   e.subst(x.suffix) == s,
-                            self.sbuild[r])
-                if sb:
-                    kw['src_builder'] = sb[0]
-            # XXX We should be able to cache this
-            bld = apply(Builder, (), kw)
-            for tnode in tlist:
-                bld.__call__(env, target = tnode, source = slist)
-
-        if len(tlist) == 1:
-            tlist = tlist[0]
-        return tlist
-
-    def src_suffixes(self, env):
-        suffixes = map(lambda k, e=env: e.subst(k), self.action_dict.keys()) + \
-                   reduce(lambda x, y: x + y,
-                          map(lambda b, e=env: b.src_suffixes(e),
-                              self.src_builder),
-                          [])
-        return suffixes
+    def src_suffixes(self, env, args):
+        return BuilderBase.src_suffixes(self, env, args) + \
+               reduce(lambda x, y: x + y,
+                      map(lambda b, e=env, args=args: b.src_suffixes(e, args),
+                          self.src_builder),
+                      [])

@@ -14,6 +14,50 @@ RELEASE 0.07 -
 
   - Internal cleanup of environment passing to function Actions.
 
+  - Builders can now take arbitrary keyword arguments to create
+    attributes to be passed to: command generator functions,
+    FunctionAction functions, Builder emitter functions (below),
+    and prefix/suffix generator functions (below).
+
+  - Command generator functions can now return ANYTHING that can be
+    converted into an Action (a function, a string, a CommandGenerator
+    instance, even an ActionBase instance).
+
+  - Actions now call get_contents() with the actual target and source
+    nodes used for the build.
+
+  - A new DictCmdGenerator class replaces CompositeBuilder to support
+    more flexible Builder behavior internally.
+
+  - Builders can now take an emitter= keyword argument.  An emitter
+    is a function that takes target, source, and env argument, then
+    return a 2-tuple of (new sources, new targets).  The emitter is
+    called when the Builder is __call__'ed, allowing a user to modify
+    source and target lists.
+
+  - The prefix, suffix and src_suffix Builder arguments now take a
+    callable as well a string.  The callable is passed the Environment
+    and any extra Builder keyword arguments and is expected to return
+    the appropriate prefix or suffix.
+
+  - CommandActions can now be a string, a list of command + argument
+    strings, or a list of commands (strings or lists).
+
+  - Added shared library support.  The Object and Library Builders now
+    take a "shared=1" keyword argument to specify that a shared object
+    or shared library should be built.  It is an error to try to build
+    static objects into a shared library or vice versa.
+
+  - Win32 support for .def files has been added.  Added the Win32-specific
+    construction variables $WIN32DEFPREFIX, $WIN32DEFSUFFIX,
+    $WIN32DLLPREFIX and $WIN32IMPLIBPREFIX.  When building a .dll,
+    the new construction variable $WIN32_INSERT_DEF, controls whether
+    the appropriately-named .def file is inserted into the target
+    list (if not already present).  A .lib file is always added to
+    a Library build if not present in the list of targets.
+
+  - ListBuilder now passes all targets to the action, not just the first.
+
   From Steven Knight:
 
   - Fix so that -c -n does *not* remove the targets!

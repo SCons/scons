@@ -54,14 +54,27 @@ class ActionTestCase(unittest.TestCase):
             exec "a3 = SCons.Action.Action(u'string')"
             exec "assert isinstance(a3, SCons.Action.CommandAction), a3"
 
-        a4 = SCons.Action.Action(["x", a2, "y"])
+        a4 = SCons.Action.Action(["x", "y", "z", [ "a", "b", "c"]])
         assert isinstance(a4, SCons.Action.ListAction), a4
+        assert isinstance(a4.list[0], SCons.Action.CommandAction), a4.list[0]
+        assert isinstance(a4.list[1], SCons.Action.CommandAction), a4.list[1]
+        assert isinstance(a4.list[2], SCons.Action.CommandAction), a4.list[2]
+        assert isinstance(a4.list[3], SCons.Action.CommandAction), a4.list[3]
+        assert a4.list[3].cmd_list == [ "a", "b", "c" ], a4.list[3].cmd_list
 
         a5 = SCons.Action.Action(1)
         assert a5 is None, a5
 
         a6 = SCons.Action.Action(a1)
-        assert a6 is a1
+        assert a6 is a1, a6
+
+        a7 = SCons.Action.Action([[ "explicit", "command", "line" ]])
+        assert isinstance(a7, SCons.Action.CommandAction), a7
+        assert a7.cmd_list == [ "explicit", "command", "line" ], a7.cmd_list
+
+        a8 = SCons.Action.Action(["a8"])
+        assert isinstance(a8, SCons.Action.CommandAction), a8
+        assert a8.cmd_list == [ "a8" ], a8.cmd_list
 
 class ActionBaseTestCase(unittest.TestCase):
 
@@ -106,8 +119,8 @@ class CommandActionTestCase(unittest.TestCase):
     def test_init(self):
         """Test creation of a command Action
         """
-        a = SCons.Action.CommandAction("xyzzy")
-        assert a.command == "xyzzy"
+        a = SCons.Action.CommandAction(["xyzzy"])
+        assert a.cmd_list == [ "xyzzy" ], a.cmd_list
 
     def test_execute(self):
         """Test executing a command Action
@@ -127,23 +140,27 @@ class CommandActionTestCase(unittest.TestCase):
             return 0
         SCons.Action.SetCommandHandler(func)
         assert SCons.Action.spawn is func
-        a = SCons.Action.CommandAction("xyzzy")
+        a = SCons.Action.CommandAction(["xyzzy"])
         a.execute()
         assert t.executed == 1
 
     def test_get_raw_contents(self):
         """Test fetching the contents of a command Action
         """
-        a = SCons.Action.CommandAction("| $( $foo | $bar $) |")
-        c = a.get_contents(foo = 'FFF', bar = 'BBB')
+        a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
+                                        "$)", "|"])
+        c = a.get_contents(target=[], source=[],
+                           foo = 'FFF', bar = 'BBB')
         assert c == "| $( FFF | BBB $) |"
 
     def test_get_contents(self):
         """Test fetching the contents of a command Action
         """
-        a = SCons.Action.CommandAction("| $foo $( | $) $bar |")
-        c = a.get_contents(foo = 'FFF', bar = 'BBB')
-        assert c == "| FFF BBB |"
+        a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
+                                        "$)", "|"])
+        c = a.get_contents(target=[], source=[],
+                           foo = 'FFF', bar = 'BBB')
+        assert c == "| |", c
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
 
@@ -164,7 +181,14 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             assert env.subst('$FOO') == 'foo baz\nbar ack', env.subst('$FOO')
             assert env.subst_list('$FOO') == [ [ 'foo', 'baz' ],
                                                [ 'bar', 'ack' ] ], env.subst_list('$FOO')
-            return [["$FOO"]]
+            return "$FOO"
+        def func_action(env, dummy, self=self):
+            assert env.subst('$foo') == 'bar', env.subst('$foo')
+            assert env.subst_list('$foo') == [ [ 'bar' ] ], env.subst_list('$foo')
+            assert env.subst_list([ '$foo', 'bar' ]) == [[ 'bar', 'bar' ]], env.subst_list([ [ '$foo', 'bar' ] ])
+            self.dummy=dummy
+        def f2(dummy, env, f=func_action):
+            return f
         def ch(cmd, args, env, self=self):
             self.cmd.append(cmd)
             self.args.append(args)
@@ -182,6 +206,11 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         assert self.dummy == 1
         assert self.cmd == [ 'foo', 'bar'], self.cmd
         assert self.args == [ [ 'foo', 'baz' ], [ 'bar', 'ack' ] ], self.args
+
+        b=SCons.Action.CommandGeneratorAction(f2)
+        self.dummy = 0
+        b.execute(dummy=2, env={ 'foo' : 'bar' })
+        assert self.dummy==2, self.dummy
         del self.dummy
 
     def test_get_contents(self):
@@ -191,8 +220,9 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             return [["guux", foo, "$(", "ignore", "$)", bar]]
 
         a = SCons.Action.CommandGeneratorAction(f)
-        c = a.get_contents(foo = 'FFF', bar = 'BBB')
-        assert c == [["guux", 'FFF', 'BBB']], c
+        c = a.get_contents(target=[], source=[],
+                           foo = 'FFF', bar = 'BBB')
+        assert c == "guux FFF BBB", c
 
 
 class FunctionActionTestCase(unittest.TestCase):
@@ -227,7 +257,7 @@ class FunctionActionTestCase(unittest.TestCase):
         """Test fetching the contents of a function Action
         """
         a = SCons.Action.FunctionAction(Func)
-        c = a.get_contents()
+        c = a.get_contents(target=[], source=[])
         assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
 
 class ListActionTestCase(unittest.TestCase):
@@ -241,8 +271,7 @@ class ListActionTestCase(unittest.TestCase):
         assert isinstance(a.list[0], SCons.Action.CommandAction)
         assert isinstance(a.list[1], SCons.Action.FunctionAction)
         assert isinstance(a.list[2], SCons.Action.ListAction)
-        assert isinstance(a.list[2].list[0], SCons.Action.CommandAction)
-        assert isinstance(a.list[2].list[1], SCons.Action.CommandAction)
+        assert a.list[2].list[0].cmd_list == [ 'y' ]
 
     def test_execute(self):
         """Test executing a list of subsidiary Actions
@@ -259,7 +288,7 @@ class ListActionTestCase(unittest.TestCase):
         """Test fetching the contents of a list of subsidiary Actions
         """
         a = SCons.Action.ListAction(["x", "y", "z"])
-        c = a.get_contents()
+        c = a.get_contents(target=[], source=[])
         assert c == "xyz", c
 
 

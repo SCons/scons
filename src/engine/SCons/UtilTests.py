@@ -93,7 +93,9 @@ class UtilTestCase(unittest.TestCase):
         assert newcom == cvt("test %s/foo/bar.exe"%os.getcwd()), newcom
 
         newcom = scons_subst("test ${SOURCES.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/blah.cpp /bar/ack.cpp %s/foo/ack.c"%(os.getcwd(),os.path.normpath(os.getcwd()+"/.."))), newcom
+        assert newcom == cvt("test %s/foo/blah.cpp %s %s/foo/ack.c"%(os.getcwd(),
+                                                                     os.path.abspath(os.path.normpath("/bar/ack.cpp")),
+                                                                     os.path.normpath(os.getcwd()+"/.."))), newcom
 
         newcom = scons_subst("test ${SOURCE.abspath}", loc, {})
         assert newcom == cvt("test %s/foo/blah.cpp"%os.getcwd()), newcom
@@ -160,11 +162,23 @@ class UtilTestCase(unittest.TestCase):
         assert cmd_list[1][0] == 'after', cmd_list[1][0]
         assert cmd_list[0][2] == cvt('../foo/ack.cbefore'), cmd_list[0][2]
 
+        # Test inputting a list to scons_subst_list()
+        cmd_list = scons_subst_list([ "$SOURCES$NEWLINE", "$TARGETS",
+                                        "This is a test" ],
+                                    loc, {})
+        assert len(cmd_list) == 2, len(cmd_list)
+        assert cmd_list[0][0] == cvt('foo/blah with spaces.cpp'), cmd_list[0][0]
+        assert cmd_list[1][0] == cvt("after"), cmd_list[1]
+        assert cmd_list[1][4] == "This is a test", cmd_list[1]
+
         glob = { 'a' : 1, 'b' : 2 }
         loc = {'a' : 3, 'c' : 4 }
         cmd_list = scons_subst_list("test $a $b $c $d test", glob, loc)
         assert len(cmd_list) == 1, cmd_list
         assert cmd_list[0] == ['test', '3', '2', '4', 'test'], cmd_list
+
+        
+        
 
     def test_render_tree(self):
         class Node:
@@ -235,6 +249,36 @@ class UtilTestCase(unittest.TestCase):
             assert is_String(UserString.UserString(''))
         assert not is_String({})
         assert not is_String([])
+
+    def test_to_String(self):
+        """Test the to_String() method."""
+        assert to_String(1) == "1", to_String(1)
+        assert to_String([ 1, 2, 3]) == str([1, 2, 3]), to_String([1,2,3])
+        assert to_String("foo") == "foo", to_String("foo")
+
+        try:
+            import UserString
+
+            s1=UserString.UserString('blah')
+            assert to_String(s1) is s1, s1
+            assert to_String(s1) == 'blah', s1
+
+            class Derived(UserString.UserString):
+                pass
+            s2 = Derived('foo')
+            assert to_String(s2) is s2, s2
+            assert to_String(s2) == 'foo', s2
+
+            if hasattr(types, 'UnicodeType'):
+                s3=UserString.UserString(unicode('bar'))
+                assert to_String(s3) is s3, s3
+                assert to_String(s3) == unicode('bar'), s3
+        except ImportError:
+            pass
+
+        if hasattr(types, 'UnicodeType'):
+            s4 = unicode('baz')
+            assert to_String(s4) == unicode('baz'), to_String(s4)
 
     def test_WhereIs(self):
         test = TestCmd.TestCmd(workdir = '')

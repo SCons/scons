@@ -153,6 +153,13 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
     the argv array that should be passed to a spawn or exec
     function.
 
+    Also, this method can accept a list of strings as input
+    to strSubst, which explicitly denotes the command line
+    arguments.  This is useful if you want to pass in
+    command line arguments with spaces or newlines in them.
+    Otheriwise, if you just passed in a string, they would
+    get split along the spaces and newlines.
+    
     One important thing this guy does is preserve environment
     variables that are lists.  For instance, if you have
     an environment variable that is a Python list (or UserList-
@@ -170,16 +177,23 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
             if e is None:
                 s = ''
             elif is_List(e):
-                s = string.join(map(str, e), '\0')
+                s = string.join(map(to_String, e), '\0')
             else:
-                s = _space_sep.sub('\0', str(e))
+                s = _space_sep.sub('\0', to_String(e))
 	except NameError:
 	    s = ''
 	return s
     n = 1
 
-    # Tokenize the original string...
-    strSubst = _space_sep.sub('\0', str(strSubst))
+    if is_List(strSubst):
+        # This looks like our input is a list of strings,
+        # as explained in the docstring above.  Munge
+        # it into a tokenized string by concatenating
+        # the list with nulls.
+        strSubst = string.join(strSubst, '\0')
+    else:
+        # Tokenize the original string...
+        strSubst = _space_sep.sub('\0', to_String(strSubst))
     
     # Now, do the substitution
     while n != 0:
@@ -248,6 +262,14 @@ def is_Dict(e):
 
 def is_List(e):
     return type(e) is types.ListType or isinstance(e, UserList.UserList)
+
+def to_String(s):
+    """Better than str() because it will preserve a unicode
+    object without converting it to ASCII."""
+    if is_String(s):
+        return s
+    else:
+        return str(s)
 
 def argmunge(arg):
     """This function converts a string or list into a list of strings or Nodes.

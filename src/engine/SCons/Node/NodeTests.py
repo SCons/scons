@@ -40,12 +40,13 @@ cycle_detected = None
 
 class Builder:
     def execute(self, **kw):
-        global built_it, built_target, built_source
-        built_it = 1
+        global built_it, built_target, built_source, built_args
+	built_it = 1
         built_target = kw['target']
         built_source = kw['source']
+        built_args = kw
         return 0
-    def get_contents(self, env):
+    def get_contents(self, env, target, source):
         return 7
 
 class NoneBuilder(Builder):
@@ -160,11 +161,14 @@ class NodeTestCase(unittest.TestCase):
         node.env_set(Environment())
         node.path = "qqq"
         node.sources = ["rrr", "sss"]
+        node.build_args = { "foo" : 1, "bar" : 2 }
         node.build()
         assert built_it
         assert type(built_target) == type(MyNode()), type(built_target)
         assert str(built_target) == "qqq", str(built_target)
         assert built_source == ["rrr", "sss"], built_source
+        assert built_args["foo"] == 1, built_args
+        assert built_args["bar"] == 2, built_args
 
         fff = MyNode()
         ggg = MyNode()

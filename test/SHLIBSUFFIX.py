@@ -24,49 +24,32 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import sys
 import TestSCons
 
-python = sys.executable
+if sys.platform == 'win32':
+    lib_ = ''
+else:
+    lib_ = 'lib'
 
 test = TestSCons.TestSCons()
 
-test.write('build.py', r"""
-import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write(contents)
-file.close()
+test.write('SConstruct', """
+env = Environment(SHLIBSUFFIX = '.shlib')
+env.Library (target = 'foo', source = 'foo.c', shared = 1)
 """)
 
-test.write('SConstruct', """
-def buildIt(env, target, source):
-    contents = open(str(source[0]), 'rb').read()
-    file = open(str(target[0]), 'wb')
-    file.write(contents)
-    file.close()
-    return 0
-
-env = Environment()
-env.Command(target = 'f1.out', source = 'f1.in',
-            action = buildIt)
-env.Command(target = 'f2.out', source = 'f2.in',
-            action = r'%s' + " build.py temp2 $SOURCES\\n" + r'%s' + " build.py $TARGET temp2")
-env.Command(target = 'f3.out', source = 'f3.in',
-            action = [ [ r'%s', 'build.py', 'temp3', '$SOURCES' ],
-                       [ r'%s', 'build.py', '$TARGET', 'temp3'] ])
-""" % (python, python, python, python))
-
-test.write('f1.in', "f1.in\n")
-
-test.write('f2.in', "f2.in\n")
-
-test.write('f3.in', "f3.in\n")
+test.write('foo.c', r"""
+void
+foo(void)
+{
+	printf("foo.c\n");
+}
+""")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('f1.out') != "f1.in\n")
-test.fail_test(test.read('f2.out') != "f2.in\n")
-test.fail_test(test.read('f3.out') != "f3.in\n")
+test.fail_test(not os.path.exists(test.workpath(lib_ + 'foo.shlib')))
 
 test.pass_test()

@@ -62,6 +62,9 @@ class Node:
     build, or use to build other Nodes.
     """
 
+    class Attrs:
+        pass
+
     def __init__(self):
         self.sources = []       # source files used to build node
         self.depends = []       # explicit dependencies (from Depends)
@@ -80,6 +83,22 @@ class Node:
         self.precious = None
         self.found_includes = {}
         self.includes = None
+        self.build_args = {}
+        self.attributes = self.Attrs() # Generic place to stick information about the Node.
+
+    def generate_build_args(self):
+        dict = copy.copy(self.env.Dictionary())
+        if hasattr(self, 'dir'):
+            auto = self.env.autogenerate(dir = self.dir)
+        else:
+            auto = self.env.autogenerate()
+        dict.update(auto)
+
+        dictArgs = { 'env' : dict,
+                     'target' : self,
+                     'source' : self.sources }
+        dictArgs.update(self.build_args)
+        return dictArgs
 
     def build(self):
         """Actually build the node.   Return the status from the build."""
@@ -93,15 +112,8 @@ class Node:
             stat = self.builder.status
         except AttributeError:
             try:
-                dict = copy.copy(self.env.Dictionary())
-                if hasattr(self, 'dir'):
-                    auto = self.env.autogenerate(dir = self.dir)
-                else:
-                    auto = self.env.autogenerate()
-                dict.update(auto)
-                stat = self.builder.execute(env = dict,
-                                            target = self,
-                                            source = self.sources)
+                stat = apply(self.builder.execute, (),
+                             self.generate_build_args())
             except:
                 raise BuildError(self, "Exception",
                                  sys.exc_type,
@@ -158,13 +170,8 @@ class Node:
             def __init__(self, node):
                 self.node = node
             def get_contents(self):
-                dict = self.node.env.Dictionary()
-                dict.update(self.node.env.autogenerate())
-                try:
-                    dir = self.node.getcwd()
-                except AttributeError:
-                    dir = None
-                return self.node.builder.get_contents(env = dict)
+                return apply(self.node.builder.get_contents, (),
+                             self.node.generate_build_args())
         return Adapter(self)
 
     def get_implicit_deps(self, env, scanner, target):

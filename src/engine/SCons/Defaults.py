@@ -40,6 +40,7 @@ import os
 import stat
 import string
 import sys
+import os.path
 
 import SCons.Action
 import SCons.Builder
@@ -50,8 +51,33 @@ import SCons.Scanner.C
 import SCons.Scanner.Prog
 import SCons.Util
 
+class SharedCmdGenerator:
+    """A callable class that acts as a command generator.
+    It is designed to hold on to 2 actions, and return
+    one if the shared=1 keyword arg is supplied to the
+    Builder method, and the other if not.
 
-
+    Also, all target nodes will have the shared attribute
+    set to match the vaue of the shared keyword argument,
+    zero by default."""
+    def __init__(self, static, shared):
+        self.action_static = static
+        self.action_shared = shared
+        
+    def __call__(self, target, source, env, shared=0):
+        for src in source:
+            try:
+                if src.attributes.shared != shared:
+                    raise UserError("Source file: %s must be built with shared=%s in order to be compatible with the selected target." % (src, str(shared)))
+            except AttributeError:
+                pass
+        for t in target:
+            t.attributes.shared = shared
+        if shared:
+            return self.action_shared
+        else:
+            return self.action_static
+                         
 CFile = SCons.Builder.Builder(name = 'CFile',
                               action = { '.l'    : '$LEXCOM',
                                          '.y'    : '$YACCCOM',
@@ -64,29 +90,48 @@ CXXFile = SCons.Builder.Builder(name = 'CXXFile',
                                          },
                                 suffix = '$CXXFILESUFFIX')
 
-CPlusPlusAction = SCons.Action.Action('$CXXCOM')
+CXXAction = SCons.Action.Action("$CXXCOM")
+ShCXXAction = SCons.Action.Action("$SHCXXCOM")
+F77Action = SCons.Action.Action("$F77COM")
+ShF77Action = SCons.Action.Action("$SHF77COM")
+F77PPAction = SCons.Action.Action("$F77PPCOM")
+ShF77PPAction = SCons.Action.Action("$SHF77PPCOM")
 
-FortranAction = SCons.Action.Action('$F77COM')
+shared_obj = SCons.Builder.DictCmdGenerator({ ".C"   : ShCXXAction,
+                                              ".cc"  : ShCXXAction,
+                                              ".cpp" : ShCXXAction,
+                                              ".cxx" : ShCXXAction,
+                                              ".c++" : ShCXXAction,
+                                              ".C++" : ShCXXAction,
+                                              ".c"   : "$SHCCCOM",
+                                              ".f"   : ShF77Action,
+                                              ".for" : ShF77Action,
+                                              ".FOR" : ShF77Action,
+                                              ".F"   : ShF77PPAction,
+                                              ".fpp" : ShF77PPAction,
+                                              ".FPP" : ShF77PPAction })
 
-FortranPPAction = SCons.Action.Action('$F77PPCOM')
-
+static_obj = SCons.Builder.DictCmdGenerator({ ".C"   : CXXAction,
+                                              ".cc"  : CXXAction,
+                                              ".cpp" : CXXAction,
+                                              ".cxx" : CXXAction,
+                                              ".c++" : CXXAction,
+                                              ".C++" : CXXAction,
+                                              ".c"   : "$CCCOM",
+                                              ".f"   : F77Action,
+                                              ".for" : F77Action,
+                                              ".F"   : F77PPAction,
+                                              ".FOR" : F77Action,
+                                              ".fpp" : F77PPAction,
+                                              ".FPP" : F77PPAction })
+                                                     
 Object = SCons.Builder.Builder(name = 'Object',
-                               action = { '.c'   : '$CCCOM',
-                                          '.C'   : CPlusPlusAction,
-                                          '.cc'  : CPlusPlusAction,
-                                          '.cpp' : CPlusPlusAction,
-                                          '.cxx' : CPlusPlusAction,
-                                          '.c++' : CPlusPlusAction,
-                                          '.C++' : CPlusPlusAction,
-                                          '.f'   : FortranAction,
-                                          '.for' : FortranAction,
-                                          '.FOR' : FortranAction,
-                                          '.F'   : FortranPPAction,
-                                          '.fpp' : FortranPPAction,
-                                          '.FPP' : FortranPPAction,
-                                        },
+                               generator = \
+                               SharedCmdGenerator(static=SCons.Action.CommandGeneratorAction(static_obj),
+                                                  shared=SCons.Action.CommandGeneratorAction(shared_obj)),
                                prefix = '$OBJPREFIX',
                                suffix = '$OBJSUFFIX',
+                               src_suffix = static_obj.src_suffixes(),
                                src_builder = [CFile, CXXFile])
 
 Program = SCons.Builder.Builder(name = 'Program',
@@ -97,12 +142,91 @@ Program = SCons.Builder.Builder(name = 'Program',
                                 src_builder = Object,
                                 scanner = SCons.Scanner.Prog.ProgScan())
 
-Library = SCons.Builder.Builder(name = 'Library',
-                                action = '$ARCOM',
-                                prefix = '$LIBPREFIX',
-                                suffix = '$LIBSUFFIX',
-                                src_suffix = '$OBJSUFFIX',
-                                src_builder = Object)
+class LibAffixGenerator:
+    def __init__(self, static, shared):
+        self.static_affix = static
+        self.shared_affix = shared
+
+    def __call__(self, shared=0, win32=0):
+        if shared:
+            return self.shared_affix
+        return self.static_affix
+
+def win32LibGenerator(target, source, env, shared=1):
+    listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
+
+    for tgt in target:
+        ext = os.path.splitext(str(tgt))[1]
+        if ext == env.subst("$LIBSUFFIX"):
+            # Put it on the command line as an import library.
+            listCmd.append("${WIN32IMPLIBPREFIX}%s" % tgt)
+        else:
+            listCmd.append("${WIN32DLLPREFIX}%s" % tgt)
+
+    listCmd.extend([ '$_LIBDIRFLAGS', '$_LIBFLAGS' ])
+    for src in source:
+        ext = os.path.splitext(str(src))[1]
+        if ext == env.subst("$WIN32DEFSUFFIX"):
+            # Treat this source as a .def file.
+            listCmd.append("${WIN32DEFPREFIX}%s" % src)
+        else:
+            # Just treat it as a generic source file.
+            listCmd.append(str(src))
+    return listCmd
+
+def win32LibEmitter(target, source, env, shared=0):
+    if shared:
+        dll = None
+        for tgt in target:
+            ext = os.path.splitext(str(tgt))[1]
+            if ext == env.subst("$SHLIBSUFFIX"):
+                dll = tgt
+                break
+        if not dll:
+            raise UserError("A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX"))
+        
+        if env.has_key("WIN32_INSERT_DEF") and \
+           env["WIN32_INSERT_DEF"] and \
+           not '.def' in map(lambda x: os.path.split(str(x))[1],
+                             source):
+
+            # append a def file to the list of sources
+            source.append("%s%s" % (os.path.splitext(str(dll))[0],
+                                    env.subst("$WIN32DEFSUFFIX")))
+        if not env.subst("$LIBSUFFIX") in \
+           map(lambda x: os.path.split(str(x))[1], target):
+            # Append an import library to the list of targets.
+            target.append("%s%s%s" % (env.subst("$LIBPREFIX"),
+                                      os.path.splitext(str(dll))[0],
+                                      env.subst("$LIBSUFFIX")))
+    return (target, source)
+
+PosixLibrary = SCons.Builder.Builder(name = 'Library',
+                                     generator = \
+                                     SharedCmdGenerator(shared="$SHLINKCOM",
+                                                        static="$ARCOM"),
+                                     prefix = \
+                                     LibAffixGenerator(static='$LIBPREFIX',
+                                                       shared='$SHLIBPREFIX'),
+                                     suffix = \
+                                     LibAffixGenerator(static='$LIBSUFFIX',
+                                                       shared='$SHLIBSUFFIX'),
+                                     src_suffix = '$OBJSUFFIX',
+                                     src_builder = Object)
+
+Win32Library = SCons.Builder.Builder(name = 'Library',
+                                     generator = \
+                                     SharedCmdGenerator(shared=SCons.Action.CommandGeneratorAction(win32LibGenerator),
+                                                        static="$ARCOM"),
+                                     emitter = win32LibEmitter,
+                                     prefix = \
+                                     LibAffixGenerator(static='$LIBPREFIX',
+                                                       shared='$SHLIBPREFIX'),
+                                     suffix = \
+                                     LibAffixGenerator(static='$LIBSUFFIX',
+                                                       shared='$SHLIBSUFFIX'),
+                                     src_suffix = '$OBJSUFFIX',
+                                     src_builder = Object)
 
 LaTeXAction = SCons.Action.Action('$LATEXCOM')
 
@@ -244,21 +368,36 @@ def make_win32_env_from_paths(include, lib, path):
         'CC'         : 'cl',
         'CCFLAGS'    : '/nologo',
         'CCCOM'      : '$CC $CCFLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'SHCC'      : '$CC',
+        'SHCCFLAGS' : '$CCFLAGS',
+        'SHCCCOM'    : '$SHCC $SHCCFLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
         'CFILESUFFIX' : '.c',
         'CXX'        : '$CC',
         'CXXFLAGS'   : '$CCFLAGS',
         'CXXCOM'     : '$CXX $CXXFLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'SHCXX'      : '$CXX',
+        'SHCXXFLAGS' : '$CXXFLAGS',
+        'SHCXXCOM'   : '$SHCXX $SHCXXFLAGS $CPPFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
         'CXXFILESUFFIX' : '.cc',
         'F77'        : 'g77',
         'F77FLAGS'   : '',
         'F77COM'     : '$F77 $F77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'F77PPCOM'   : '$F77 $F77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77'      : '$F77',
+        'SHF77FLAGS' : '$F77FLAGS',
+        'SHF77COM'   : '$SHF77 $SHF77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77PPCOM' : '$SHF77 $SHF77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'LINK'       : 'link',
         'LINKFLAGS'  : '/nologo',
         'LINKCOM'    : '$LINK $LINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
+        'SHLINK'     : '$LINK',
+        'SHLINKFLAGS': '$LINKFLAGS /dll',
+        'SHLINKCOM'  : '$SHLINK $SHLINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
         'AR'         : 'lib',
         'ARFLAGS'    : '/nologo',
         'ARCOM'      : '$AR $ARFLAGS /OUT:$TARGET $SOURCES',
+        'SHLIBPREFIX': '',
+        'SHLIBSUFFIX': '.dll',
         'LEX'        : 'lex',
         'LEXFLAGS'   : '',
         'LEXCOM'     : '$LEX $LEXFLAGS -t $SOURCES > $TARGET',
@@ -281,7 +420,7 @@ def make_win32_env_from_paths(include, lib, path):
         'PSCOM'      : '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES',
         'PSPREFIX'   : '',
         'PSSUFFIX'   : '.ps',
-        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Library, Object,
+        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Win32Library, Object,
                         PDF, PostScript, Program],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
@@ -289,13 +428,20 @@ def make_win32_env_from_paths(include, lib, path):
         'PROGPREFIX' : '',
         'PROGSUFFIX' : '.exe',
         'LIBPREFIX'  : '',
+        'LIBPREFIXES': '$LIBPREFIX',
         'LIBSUFFIX'  : '.lib',
+        'LIBSUFFIXES': '$LIBSUFFIX',
         'LIBDIRPREFIX'          : '/LIBPATH:',
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '',
         'LIBLINKSUFFIX'         : '$LIBSUFFIX',
         'INCPREFIX'             : '/I',
         'INCSUFFIX'             : '',
+        'WIN32DEFPREFIX'        : '/def:',
+        'WIN32DEFSUFFIX'        : '.def',
+        'WIN32DLLPREFIX'        : '/out:',
+        'WIN32IMPLIBPREFIX'     : '/implib:',
+        'WIN32_INSERT_DEF'      : 1,
         'ENV'        : {
             'INCLUDE'  : include,
             'LIB'      : lib,
@@ -316,7 +462,8 @@ def make_win32_env(version):
 
 
 if os.name == 'posix':
-
+    Library = PosixLibrary
+    
     arcom = '$AR $ARFLAGS $TARGET $SOURCES'
     ranlib = 'ranlib'
     if SCons.Util.WhereIs(ranlib):
@@ -326,23 +473,41 @@ if os.name == 'posix':
         'CC'         : 'cc',
         'CCFLAGS'    : '',
         'CCCOM'      : '$CC $CCFLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHCC'       : '$CC',
+        'SHCCFLAGS'  : '$CCFLAGS -fPIC',
+        'SHCCCOM'    : '$SHCC $SHCCFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'CFILESUFFIX' : '.c',
         'CXX'        : 'c++',
         'CXXFLAGS'   : '$CCFLAGS',
         'CXXCOM'     : '$CXX $CXXFLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'CXXFILESUFFIX' : '.cc',
+        'SHCXX'      : '$CXX',
+        'SHCXXFLAGS' : '$CXXFLAGS -fPIC',
+        'SHCXXCOM'   : '$SHCXX $SHCXXFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'F77'        : 'g77',
         'F77FLAGS'   : '',
         'F77COM'     : '$F77 $F77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'F77PPCOM'   : '$F77 $F77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77FLAGS' : '$F77FLAGS -fPIC',
+        'SHF77COM'   : '$F77 $SHF77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77PPCOM' : '$F77 $SHF77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77'      : '$F77',
+        'SHF77FLAGS' : '$F77FLAGS -fPIC',
+        'SHF77COM'   : '$SHF77 $SHF77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'SHF77PPCOM' : '$SHF77 $SHF77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'LINK'       : '$CXX',
         'LINKFLAGS'  : '',
         'LINKCOM'    : '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS',
+        'SHLINK'     : '$LINK',
+        'SHLINKFLAGS': '$LINKFLAGS -shared',
+        'SHLINKCOM'  : '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS',
         'AR'         : 'ar',
         'ARFLAGS'    : 'r',
         'RANLIB'     : ranlib,
         'RANLIBFLAGS' : '',
         'ARCOM'      : arcom,
+        'SHLIBPREFIX': '$LIBPREFIX',
+        'SHLIBSUFFIX': '.so',
         'LEX'        : 'lex',
         'LEXFLAGS'   : '',
         'LEXCOM'     : '$LEX $LEXFLAGS -t $SOURCES > $TARGET',
@@ -363,7 +528,7 @@ if os.name == 'posix':
         'PSCOM'      : '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES',
         'PSPREFIX'   : '',
         'PSSUFFIX'   : '.ps',
-        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Library, Object,
+        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, PosixLibrary, Object,
                         PDF, PostScript, Program],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
@@ -371,7 +536,9 @@ if os.name == 'posix':
         'PROGPREFIX' : '',
         'PROGSUFFIX' : (sys.platform == 'cygwin') and '.exe' or '',
         'LIBPREFIX'  : 'lib',
+        'LIBPREFIXES': '$LIBPREFIX',
         'LIBSUFFIX'  : '.a',
+        'LIBSUFFIXES': [ '$LIBSUFFIX', '$SHLIBSUFFIX' ],
         'LIBDIRPREFIX'          : '-L',
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '-l',
@@ -382,6 +549,8 @@ if os.name == 'posix':
     }
 
 elif os.name == 'nt':
+    Library = Win32Library
+    
     versions = None
     try:
         versions = get_devstudio_versions()

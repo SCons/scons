@@ -1,3 +1,5 @@
+.\" 1. Builder's __call__ method can now take arbitrary keyword arguments.
+.\" These args are saved with the target node of the build, then passed along
 .\" Copyright (c) 2001, 2002 Steven Knight
 .\"
 .\" Permission is hereby granted, free of charge, to any person obtaining
@@ -31,9 +33,9 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "January 2002"
+.TH SCONS 1 "April 2002"
 .SH NAME
-scons \- software constructor
+scons \- a software construction tool
 .SH SYNOPSIS
 .B scons
 [
@@ -492,7 +494,7 @@ any out-of-date target files, but do not execute the commands.
 
 .TP
 .RI --profile= file
-Run SCons under the Python profile
+Run SCons under the Python profiler
 and save the results in the specified
 .IR file .
 The results may be analyzed using the Python
@@ -653,6 +655,17 @@ env.Object(target = 'aaa', source = 'aaa.c')
 env.Object(target = 'bbb.o', source = 'bbb.c++')
 env.Object(target = 'ccc.obj', source = 'ccc.f')
 .EE
+.IP
+The
+.B Object
+builder accepts an optional "shared" keyword that, when non-zero,
+specifies that the object file should be built for
+inclusion in a shared library
+(that is, built with the '-fPIC' option when using gcc):
+
+.ES
+env.Object(target = 'ddd.obj', source = 'ddd.c', shared = 1)
+.EE
 
 .IP Program
 Builds an executable given one or more object files or C/C++ source
@@ -665,14 +678,49 @@ env.Program(target = 'foo', source = 'foo.o bar.c baz.f')
 .EE
 
 .IP Library
-Builds a library given one or more object files or C/C++ source
-files. If any C/C++ source files are given, then they will be automatically
+Builds a static or shared library given one or more object files
+or C, C++ or Fortran source files.
+If any source files are given,
+then they will be automatically
 compiled to object files. The library prefix and suffix (if any) are
 automatically added to the target. Example:
 
 .ES
 env.Library(target = 'bar', source = 'bar.c foo.o')
 .EE
+.IP
+By default,
+.B Library
+builds a static library.
+A shared library (.so on a POSIX system, .dll on WIN32)
+may be specified by setting the
+.B shared
+keyword argument to non-zero:
+
+.ES
+env.Library(target = 'bar', source = 'bar.c foo.o', shared = 1)
+.EE
+.IP
+On WIN32 systems, the
+.B Library
+builder will always build an import (.lib) library
+in addition to the shared (.dll) library,
+adding a .lib library with the same basename
+if there is not already a .lib file explicitly
+listed in the targets.
+
+Any object files listed in the
+.B source
+list for a shared library
+must have been built for a shared library
+(that is, using a non-zero
+.B shared
+keyword argument).
+Conversely, object files built into a static library must
+.I not
+have been built for a shared library.
+.B scons
+will raise an error if there is any mismatch.
 
 .IP CFile
 Builds a C source file given a lex (.l) or yacc (.y) input file.
@@ -737,7 +785,8 @@ env.PostScript(target = 'aaa.ps', source = 'aaa.tex')   # builds from aaa.tex
 env.PostScript(target = 'bbb', source = 'bbb.dvi')      # builds bbb.dvi
 .EE
 .LP
-.B scons automatically scans
+.B scons
+automatically scans
 C, C++ and Fortran source files with .F, .fpp, or .FOR file extensions
 for C preprocessor dependencies,
 so the dependencies do not need to be specified explicitly.
@@ -901,11 +950,11 @@ A list of the available builders.
 .IP CC 
 The C compiler.
 
+.IP CCCOM 
+The command line used to compile a C source file to a (static) object file.
+
 .IP CCFLAGS 
 General options that are passed to the C compiler.
-
-.IP CCCOM 
-The command line used to compile a C source file to an object file.
 
 .IP CFILESUFFIX
 The suffix for C source files.
@@ -957,11 +1006,11 @@ when generating C++ files from Lex (.ll) or YACC (.yy) input files.
 The default suffix is
 .IR .cc .
 
-.IP CXXFLAGS 
-General options that are passed to the C++ compiler.
-
 .IP CXXCOM
 The command line used to compile a C++ source file to an object file.
+
+.IP CXXFLAGS 
+General options that are passed to the C++ compiler.
 
 .IP DVIPDF
 The TeX DVI file to PDF file converter.
@@ -1024,11 +1073,11 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 .IP F77
 The Fortran compiler.
 
-.IP F77FLAGS
-General options that are passed to the Fortran compiler.
-
 .IP F77COM 
 The command line used to compile a Fortran source file to an object file.
+
+.IP F77FLAGS
+General options that are passed to the Fortran compiler.
 
 .IP F77PPCOM 
 The command line used to compile a Fortran source file to an object file
@@ -1101,7 +1150,10 @@ env = Environment(LIBPATH=libs)
 .EE
 
 .IP LIBPREFIX
-The prefix used for library file names.
+The prefix used for (static) library file names.
+
+.IP LIBPREFIXES
+An array of legal prefixes for library file names.
 
 .IP LIBS
 A list of one or more libraries
@@ -1110,7 +1162,10 @@ any executable programs
 created by this environment.
 
 .IP LIBSUFFIX 
-The suffix used for library file names.
+The suffix used for (static) library file names.
+
+.IP LIBSUFFIXES
+An array of legal suffixes for library file names.
 
 .IP LINK
 The linker.
@@ -1160,6 +1215,58 @@ General options passed to the archive indexer.
 .IP SCANNERS
 A list of the available implicit dependency scanners. [CScan] by default.
 
+.IP SHCC
+The C compiler used for generating shared-library objects.
+
+.IP SHCCCOM
+The command line used to compile a C source file
+to a shared-library object file.
+
+.IP SHCCFLAGS
+Options that are passed to the C compiler
+to generate shared-library objects.
+
+.IP SHCXX
+The C++ compiler used for generating shared-library objects.
+
+.IP SHCXXCOM
+The command line used to compile a C++ source file
+to a shared-library object file.
+
+.IP SHCXXFLAGS
+Options that are passed to the C++ compiler
+to generate shared-library objects.
+
+.IP SHF77
+The Fortran compiler used for generating shared-library objects.
+
+.IP SHF77COM
+The command line used to compile a Fortran source file
+to a shared-library object file.
+
+.IP SHF77FLAGS
+Options that are passed to the Fortran compiler
+to generated shared-library objects.
+
+.IP SHF77PPCOM
+The command line used to compile a Fortran source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified in the $CPPFLAGS construction variable
+are included on this command line.
+
+.IP SHLIBPREFIX
+The prefix used for shared library file names.
+
+.IP SHLIBSUFFIX
+The suffix used for shared library file names.
+
+.IP SHLINK
+The linker for programs that use shared libraries.
+
+.IP SHLINKFLAGS
+General options passed to the linker for programs using shared libraries.
+
 .IP TEX
 The TeX formatter and typesetter.
 
@@ -1168,6 +1275,24 @@ The command line used to call the TeX formatter and typesetter.
 
 .IP TEXFLAGS
 General options passed to the TeX formatter and typesetter.
+
+.IP WIN32_INSERT_DEF
+When this is set to true,
+a library build of a WIN32 shared library (.dll file)
+will also build a corresponding .def file at the same time,
+if a .def file is not already listed as a build target.
+
+.IP WIN32DEFPREFIX
+The prefix used to build WIN32 .def files.
+
+.IP WIN32DEFSUFFIX
+The suffix used for WIN32 .def file names.
+
+.IP WIN32DLLPREFIX
+The prefix used to build WIN32 shared libraries (.dll files).
+
+.IP WIN32IMPLIBPREFIX
+The prefix used to build WIN32 import libraries.
 
 .IP YACC
 The parser generator.
@@ -1379,7 +1504,7 @@ to the directory in which each subsidiary
 configure (SConscript) file lives.
 Note that you may enable and disable
 this ability by calling
-.R SConscriptChdir()
+SConscriptChdir()
 multiple times:
 
 .ES
@@ -1401,7 +1526,7 @@ The function must expect three arguments:
 .ES
 def commandhandler(cmd, args, env):
 .EE
-
+.IP
 .I cmd
 is the path to the command to be executed.
 .I args
@@ -1437,8 +1562,10 @@ by default.
 can be extended by adding new builders to a construction
 environment using the 
 .B Builder 
-function. Builder accepts the following
-arguments:
+function.
+The
+.B Builder
+function accepts the following arguments:
 
 .IP name
 The name of the builder. This will be the
@@ -1448,39 +1575,74 @@ used to create an instance of the builder.
 .IP action
 The command line string used to build the target from the source. 
 .B action
-can also be a dictionary
+can also be:
+a list of strings representing the command
+to be executed and its arguments
+(suitable for enclosing white space in an argument),
+a dictionary
 mapping source file name suffixes to
 any combination of command line strings
 (if the builder should accept multiple source file extensions),
-Python functions,
-or Action objects
-(see the next section).
+a Python function;
+an Action object
+(see the next section);
+or a list of any of the above.
 
 .IP prefix 
 The prefix that will be prepended to the target file name.
+The value may also be a function call
+that returns the prefix.
+The function will be passed the environment
+and any extra keyword arguments
+supplied when the Builder is called.
 
 .IP suffix
 The suffix that will be appended to the target file name.
+The value may also be a function call
+that returns the suffix.
+The function will be passed the environment
+and any extra keyword arguments
+supplied when the Builder is called.
 
 .IP src_suffix
 The expected source file name suffix.
+The value may also be a function call
+that returns the source file name suffix.
+The function will be passed the environment
+and any extra keyword arguments
+supplied when the Builder is called.
 
 .IP src_builder
 Specifies a builder to use when a source file name suffix does not match
 any of the suffixes of the builder. Using this argument produces a
 multi-stage builder.
 
+.IP emitter
+A function that is passed the target, source, and environment,
+and which returns a tuple containing two lists,
+the list of targets to be built by this builder,
+and the list of sources for this builder.
+This allows the target and source lists to
+be manipulated before the target(s) are actually built.
+Example:
+
+.ES
+def e(target, source, env):
+    return (target + ['foo.foo'], source + ['foo.src'])
+
+b = Builder(name="Foo", emitter=e)
+.EE
+
 .IP generator
-A function that returns a list of command lines that will be executed to build
-the target(s) from the source(s). The command lines must be returned as
-lists, where the first element of the list is the executable, and the other
-elements in the list are the arguments that will be passed to the
-executable. The 
-.I generator
-and
-.I action
-arguments must not both be used for the same Builder. The generator function
-should take 3 arguments:
+A function that returns a list of actions that will be executed to build
+the target(s) from the source(s).
+The returned action(s) may be
+an Action object, or anything that
+can be converted into an Action object
+(see the next section).
+
+The generator function
+takes 3 arguments:
 .I source 
 - a list of source nodes, 
 .I target
@@ -1489,11 +1651,35 @@ should take 3 arguments:
 - the construction environment. Example:
 
 .ES
-def g(env, source, target):
-	return [["gcc", "-c", "-o"] + target + source] 
+def g(source, target, env):
+    return [["gcc", "-c", "-o"] + target + source] 
 
 b = Builder(name="Object", generator=g)
 .EE
+
+The 
+.I generator
+and
+.I action
+arguments must not both be used for the same Builder.
+
+Any additional keyword arguments supplied
+when a Builder object is called
+will be associated with the target
+(and any other files built as a
+result of the call).
+
+.ES
+b = Builder(name='MyBuild', action="build < $SOURCE > $TARGET")
+env = Environment(BUILDERS = [b])
+env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
+.EE
+
+These extra keyword arguments are passed to the
+following functions:
+command generator functions, funcion Actions,
+emitter functions,
+and functions that generate prefix, suffix or src_suffix.
 
 .SS Action Objects
 
@@ -1522,6 +1708,24 @@ a command-line Action is returned.
 
 .ES
 Action('$CC -c -o $TARGET $SOURCES')
+.EE
+
+.IP List
+If the argument is a list,
+then a list of Action objects is returned.
+An Action object is created as necessary
+for each element in the list.
+If an element
+.I within
+the list is itself a list,
+the internal list is the
+command and arguments to be executed via
+the command line.
+This allows white space to be enclosed
+in an argument by defining
+a command in a list within a list:
+.ES
+Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
 .EE
 
 .IP Function
@@ -1566,12 +1770,6 @@ def build_it(target = None, source = None, env = None):
  
 a = Action(build_it)
 .EE
-
-.IP List
-If the argument is a list,
-then a list of Action objects is returned.
-An Action object is created as necessary
-for each element in the list.
 .PP
 If the action argument is not one of the above,
 None is returned.
@@ -1605,26 +1803,34 @@ The file names of the sources of the build command.
 .LP 
 For example, given the construction variable CC='cc', targets=['foo'], and
 sources=['foo.c', 'bar.c']:
+
 .ES
 action='$CC -c -o $TARGET $SOURCES'
 .EE
+
 would produce the command line:
+
 .ES
 cc -c -o foo foo.c bar.c
 .EE
+
 Variable names may be surrounded by curly braces ({})
 to separate the name from the trailing characters.
 Within the curly braces, a variable name may have
 a Python slice subscript appended to select one
 or more items from a list.
 In the previous example, the string:
+
 .ES
 ${SOURCES[1]}
 .EE
+
 would produce:
+
 .ES
 bar.c
 .EE
+
 Additionally, a variable name may
 have the following special
 modifiers appended within the enclosing curly braces
@@ -1820,11 +2026,19 @@ env = Environment(CPPPATH = ['include1', 'include2'])
 env.Program(target = 'foo', source = 'foo.c')
 .EE
 
-.SS Building a Library
+.SS Building a Static Library
 
 .ES
 env = Environment()
-env.Library(target = 'mylib', source = 'l1.c l2.c')
+env.Library(target = 'static', source = 'l1.c l2.c')
+.EE
+
+.SS Building a Shared Library
+
+.ES
+env = Environment()
+env.Library(target = 'shared', source = 'l3.c l4.c',
+            shared = 1)
 .EE
 
 .SS Linking a Local Library Into a Program

@@ -49,7 +49,7 @@ class DummyTarget:
 class DummyEnvironment:
     def __init__(self, **kw):
         self._dict = kw
-        self._dict['LIBSUFFIX'] = '.lib'
+        self._dict['LIBSUFFIXES'] = '.lib'
         
     def Dictionary(self, *args):
         if not args:
@@ -66,6 +66,9 @@ class DummyEnvironment:
 
     def __delitem__(self,key):
         del self.Dictionary()[key]
+
+    def subst(self, s):
+        return s
 
 def deps_match(deps, libs):
     deps=map(str, deps)

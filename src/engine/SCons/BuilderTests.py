@@ -82,6 +82,11 @@ class Environment:
         return self.d.get(s, s)
     def get_scanner(self, ext):
         return env_scanner
+    def Dictionary(self):
+        return {}
+    def autogenerate(self, dir=''):
+        return {}
+    
 env = Environment()
 
 class BuilderTestCase(unittest.TestCase):
@@ -129,20 +134,23 @@ class BuilderTestCase(unittest.TestCase):
         assert target.sources[0].name == 'n10'
         assert target.sources[1].name == 'n11'
 
-        if hasattr(types, 'UnicodeType'):
-            code = """if 1:
-                targets = builder(env, target = u'n12 n13', source = [u'n14 n15'])
-                assert targets[0].name == u'n12'
-                assert targets[0].sources[0].name == u'n14 n15'
-                assert targets[1].name == u'n13'
-                assert targets[1].sources[0].name == u'n14 n15'
+        if not hasattr(types, 'UnicodeType'):
+            uni = str
+        else:
+            uni = unicode
 
-                target = builder(env, target = [u'n16 n17'], source = u'n18 n19')
-                assert target.name == u'n16 n17'
-                assert target.sources[0].name == u'n18'
-                assert target.sources[1].name == u'n19'
-                \n"""
-            exec code
+        targets = builder(env, target = uni('n12 n13'),
+                          source = [uni('n14 n15')])
+        assert targets[0].name == uni('n12')
+        assert targets[0].sources[0].name == uni('n14 n15')
+        assert targets[1].name == uni('n13')
+        assert targets[1].sources[0].name == uni('n14 n15')
+
+        target = builder(env, target = [uni('n16 n17')],
+                         source = uni('n18 n19'))
+        assert target.name == uni('n16 n17')
+        assert target.sources[0].name == uni('n18')
+        assert target.sources[1].name == uni('n19')
 
     def test_noname(self):
         """Test error reporting for missing name
@@ -163,7 +171,7 @@ class BuilderTestCase(unittest.TestCase):
         Verify that we can retrieve the supplied action attribute.
         """
         builder = SCons.Builder.Builder(name="builder", action="foo")
-        assert builder.action.command == "foo"
+        assert builder.action.cmd_list == ["foo"]
 
     def test_generator(self):
         """Test Builder creation given a generator function."""
@@ -276,7 +284,8 @@ class BuilderTestCase(unittest.TestCase):
         def my_show(string):
             global show_string
             show_string = show_string + string + "\n"
-        builder.action.show = my_show
+        for action in builder.action.list:
+            action.show = my_show
 
         r = builder.execute()
         assert r == 0
@@ -341,7 +350,7 @@ class BuilderTestCase(unittest.TestCase):
             def __init__(self, **kw):
                 open(kw['out'], 'a').write("class2b\n")
 
-        builder = MyBuilder(action = [cmd2, function2, class2a(), class2b], name = "clist")
+        builder = MyBuilder(action = SCons.Action.ListAction([cmd2, function2, class2a(), class2b]), name = "clist")
         r = builder.execute(out = outfile)
         assert r.__class__ == class2b
         c = test.read(outfile, 'r')
@@ -384,7 +393,7 @@ class BuilderTestCase(unittest.TestCase):
         contents = b2.get_contents()
         assert contents == "\177\036\000\177\037\000d\000\000S", repr(contents)
 
-        b3 = SCons.Builder.Builder(name = "b3", action = ["foo", Func, "bar"])
+        b3 = SCons.Builder.Builder(name = "b3", action = SCons.Action.ListAction(["foo", Func, "bar"]))
         contents = b3.get_contents()
         assert contents == "foo\177\036\000\177\037\000d\000\000Sbar", repr(contents)
 
@@ -430,9 +439,9 @@ class BuilderTestCase(unittest.TestCase):
         Make sure that there is no '.' separator appended.
         """
         builder = SCons.Builder.Builder(name = "builder", prefix = 'lib.')
-        assert builder.prefix == 'lib.'
+        assert builder.get_prefix(env,{}) == 'lib.'
         builder = SCons.Builder.Builder(name = "builder", prefix = 'lib')
-        assert builder.prefix == 'lib'
+        assert builder.get_prefix(env,{}) == 'lib'
         tgt = builder(env, target = 'tgt1', source = 'src1')
         assert tgt.path == 'libtgt1', \
                 "Target has unexpected name: %s" % tgt.path
@@ -451,7 +460,7 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment(XSUFFIX = '.x', YSUFFIX = '.y')
 
         b1 = SCons.Builder.Builder(name = "builder", src_suffix = '.c')
-        assert b1.src_suffixes(env) == ['.c'], b1.src_suffixes(env)
+        assert b1.src_suffixes(env,{}) == ['.c'], b1.src_suffixes(env,{})
 
         tgt = b1(env, target = 'tgt2', source = 'src2')
         assert tgt.sources[0].path == 'src2.c', \
@@ -466,19 +475,19 @@ class BuilderTestCase(unittest.TestCase):
         b2 = SCons.Builder.Builder(name = "b2",
                                    src_suffix = '.2',
                                    src_builder = b1)
-        assert b2.src_suffixes(env) == ['.2', '.c'], b2.src_suffixes(env)
+        assert b2.src_suffixes(env,{}) == ['.2', '.c'], b2.src_suffixes(env,{})
 
         b3 = SCons.Builder.Builder(name = "b3",
                                    action = {'.3a' : '', '.3b' : ''})
-        s = b3.src_suffixes(env)
+        s = b3.src_suffixes(env,{})
         s.sort()
         assert s == ['.3a', '.3b'], s
 
         b4 = SCons.Builder.Builder(name = "b4", src_suffix = '$XSUFFIX')
-        assert b4.src_suffixes(env) == ['.x'], b4.src_suffixes(env)
+        assert b4.src_suffixes(env,{}) == ['.x'], b4.src_suffixes(env,{})
 
         b5 = SCons.Builder.Builder(name = "b5", action = {'$YSUFFIX' : ''})
-        assert b5.src_suffixes(env) == ['.y'], b5.src_suffixes(env)
+        assert b5.src_suffixes(env,{}) == ['.y'], b5.src_suffixes(env,{})
 
     def test_suffix(self):
         """Test Builder creation with a specified target suffix
@@ -487,9 +496,9 @@ class BuilderTestCase(unittest.TestCase):
         beginning if it isn't already present.
         """
         builder = SCons.Builder.Builder(name = "builder", suffix = '.o')
-        assert builder.suffix == '.o'
+        assert builder.get_suffix(env,{}) == '.o', builder.get_suffix(env,{})
         builder = SCons.Builder.Builder(name = "builder", suffix = 'o')
-        assert builder.suffix == '.o'
+        assert builder.get_suffix(env,{}) == '.o', builder.get_suffix(env,{})
         tgt = builder(env, target = 'tgt3', source = 'src3')
         assert tgt.path == 'tgt3.o', \
                 "Target has unexpected name: %s" % tgt[0].path
@@ -575,20 +584,24 @@ class BuilderTestCase(unittest.TestCase):
         
     def test_CompositeBuilder(self):
         """Testing CompositeBuilder class."""
-        builder = SCons.Builder.Builder(name = "builder",
-                                        action={ '.foo' : 'foo',
-                                                 '.bar' : 'bar' })
+        def func_action(target, source, env):
+            return 0
         
-        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+        builder = SCons.Builder.Builder(name = "builder",
+                                        action={ '.foo' : func_action,
+                                                 '.bar' : func_action })
+        
+        assert isinstance(builder, SCons.Builder.BuilderBase)
+        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
         tgt = builder(env, target='test1', source='test1.foo')
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
-        assert tgt.builder.action.command == 'foo'
-        tgt = builder(env, target='test2', source='test2.bar')
-        assert tgt.builder.action.command == 'bar'
+        assert isinstance(tgt.builder.action.generator, SCons.Builder.DictCmdGenerator)
         flag = 0
+        tgt = builder(env, target='test2', source='test2.bar test1.foo')
         try:
-            tgt = builder(env, target='test2', source='test2.bar test1.foo')
-        except SCons.Errors.UserError:
+            tgt.build()
+        except SCons.Errors.BuildError, e:
+            assert e.args[0] == SCons.Errors.UserError
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
@@ -601,7 +614,8 @@ class BuilderTestCase(unittest.TestCase):
                                         action = { '.foo' : 'foo',
                                                    '.bar' : 'bar' },
                                         src_builder = foo_bld)
-        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+        assert isinstance(builder, SCons.Builder.MultiStepBuilder)
+        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
 
         tgt = builder(env, target='t1', source='t1a.ina t1b.ina')
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
@@ -618,7 +632,8 @@ class BuilderTestCase(unittest.TestCase):
                                         action = { '.foo' : 'foo',
                                                    '.bar' : 'bar' },
                                         src_builder = [foo_bld, bar_bld])
-        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+        assert isinstance(builder, SCons.Builder.MultiStepBuilder)
+        assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
 
         tgt = builder(env, target='t3-foo', source='t3a.foo t3b.ina')
         assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
@@ -627,25 +642,32 @@ class BuilderTestCase(unittest.TestCase):
         assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
 
         flag = 0
+        tgt = builder(env, target='t5', source='test5a.foo test5b.inb')
         try:
-            tgt = builder(env, target='t5', source='test5a.foo test5b.inb')
-        except SCons.Errors.UserError:
+            tgt.build()
+        except SCons.Errors.BuildError, e:
+            assert e.args[0] == SCons.Errors.UserError
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
         flag = 0
+        tgt = builder(env, target='t6', source='test6a.bar test6b.ina')
         try:
-            tgt = builder(env, target='t6', source='test6a.bar test6b.ina')
-        except SCons.Errors.UserError:
+            tgt.build()
+        except SCons.Errors.BuildError, e:
+            assert e.args[0] == SCons.Errors.UserError
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
         flag = 0
+        tgt = builder(env, target='t4', source='test4a.ina test4b.inb')
         try:
-            tgt = builder(env, target='t4', source='test4a.ina test4b.inb')
-        except SCons.Errors.UserError:
+            tgt.build()
+        except SCons.Errors.BuildError, e:
+            assert e.args[0] == SCons.Errors.UserError
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+
 
     def test_build_scanner(self):
         """Testing ability to set a target scanner through a builder."""
@@ -682,6 +704,44 @@ class BuilderTestCase(unittest.TestCase):
         src = tgt.sources[0]
         assert tgt.target_scanner != env_scanner, tgt.target_scanner
         assert src.source_scanner == env_scanner
+
+    def test_Builder_Args(self):
+        """Testing passing extra agrs to a builder."""
+        def buildFunc(target, source, env, foo, bar, s=self):
+            s.foo=foo
+            s.bar=bar
+
+        builder = SCons.Builder.Builder(name="builder", action=buildFunc)
+        tgt = builder(env, target='foo', source='bar', foo=1, bar=2)
+        tgt.build()
+        assert self.foo == 1, self.foo
+        assert self.bar == 2, self.bar
+
+    def test_emitter(self):
+        """Test emitter functions."""
+        def emit(target, source, env, foo=0, bar=0):
+            if foo:
+                target.append("bar")
+            if bar:
+                source.append("foo")
+            return ( target, source )
+
+        builder = SCons.Builder.Builder(name="builder", action='foo',
+                                        emitter=emit)
+        tgt = builder(env, target='foo', source='bar')
+        assert str(tgt) == 'foo', str(tgt)
+        assert str(tgt.sources[0]) == 'bar', str(tgt.sources[0])
+
+        tgt = builder(env, target='foo', source='bar', foo=1)
+        assert len(tgt) == 2, len(tgt)
+        assert 'foo' in map(str, tgt), map(str, tgt)
+        assert 'bar' in map(str, tgt), map(str, tgt)
+
+        tgt = builder(env, target='foo', source='bar', bar=1)
+        assert str(tgt) == 'foo', str(tgt)
+        assert len(tgt.sources) == 2, len(tgt.sources)
+        assert 'foo' in map(str, tgt.sources), map(str, tgt.sources)
+        assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')

@@ -101,9 +101,7 @@ test.run(program = prog1,
          stdout = "f1.c 1\nprog.c\n")
 test.run(program = prog2,
          stdout = "f1.c 1\nprog.c\n")
-
-test.up_to_date(arguments = '.')
-
+#test.up_to_date(arguments = '.')
 # Change LIBPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
 env1 = Environment(LIBS = [ 'foo1' ],
@@ -117,7 +115,7 @@ env2.Program(target = 'prog2', source = 'prog.c')
 env2.Library(target = 'foo2', source = 'f1.c')
 """)
 
-test.up_to_date(arguments = '.', stderr = None)
+test.up_to_date(arguments = '.', stderr=None)
 
 test.write('f1.c', r"""
 void

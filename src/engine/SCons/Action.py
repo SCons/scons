@@ -38,6 +38,7 @@ import sys
 import UserDict
 
 import SCons.Util
+import SCons.Errors
 
 print_actions = 1;
 execute_actions = 1;
@@ -171,27 +172,52 @@ def GetCommandHandler():
 
 class CommandGenerator:
     """
-    Wrappes a command generator function so the Action() factory
+    Wraps a command generator function so the Action() factory
     function can tell a generator function from a function action.
     """
     def __init__(self, generator):
         self.generator = generator
 
+def _do_create_action(act):
+    """This is the actual "implementation" for the
+    Action factory method, below.  This handles the
+    fact that passing lists to Action() itself has
+    different semantics than passing lists as elements
+    of lists.
 
-def Action(act):
-    """A factory for action objects."""
+    The former will create a ListAction, the latter
+    will create a CommandAction by converting the inner
+    list elements to strings."""
+
     if isinstance(act, ActionBase):
         return act
+    elif SCons.Util.is_List(act):
+        return CommandAction(act)
     elif isinstance(act, CommandGenerator):
         return CommandGeneratorAction(act.generator)
     elif callable(act):
         return FunctionAction(act)
     elif SCons.Util.is_String(act):
-        return CommandAction(act)
-    elif SCons.Util.is_List(act):
-        return ListAction(act)
+        listCmds = map(lambda x: CommandAction(string.split(x)),
+                       string.split(act, '\n'))
+        if len(listCmds) == 1:
+            return listCmds[0]
+        else:
+            return ListAction(listCmds)
     else:
         return None
+
+def Action(act):
+    """A factory for action objects."""
+    if SCons.Util.is_List(act):
+        acts = filter(lambda x: not x is None,
+                      map(_do_create_action, act))
+        if len(acts) == 1:
+            return acts[0]
+        else:
+            return ListAction(acts)
+    else:
+        return _do_create_action(act)
 
 class ActionBase:
     """Base class for actions that create output objects."""
@@ -241,7 +267,7 @@ class ActionBase:
                 t = [t]
             try:
                 cwd = t[0].cwd
-            except AttributeError:
+            except (IndexError, AttributeError):
                 pass
             dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(str, t)))
             if dict['TARGETS']:
@@ -259,6 +285,16 @@ class ActionBase:
         dict.update(kw)
 
         return dict
+
+def _string_from_cmd_list(cmd_list):
+    """Takes a list of command line arguments and returns a pretty
+    representation for printing."""
+    cl = []
+    for arg in cmd_list:
+        if ' ' in arg or '\t' in arg:
+            arg = '"' + arg + '"'
+        cl.append(arg)
+    return string.join(cl)
 
 _rm = re.compile(r'\$[()]')
 _remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
@@ -286,22 +322,19 @@ class EnvDictProxy(UserDict.UserDict):
 
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
-    def __init__(self, string):
-        self.command = string
+    def __init__(self, cmd):
+        import SCons.Util
+        
+        self.cmd_list = map(SCons.Util.to_String, cmd)
 
     def execute(self, **kw):
         dict = apply(self.subst_dict, (), kw)
         import SCons.Util
-        cmd_list = SCons.Util.scons_subst_list(self.command, dict, {}, _rm)
+        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, dict, {}, _rm)
         for cmd_line in cmd_list:
             if len(cmd_line):
                 if print_actions:
-                    cl = []
-                    for arg in cmd_line:
-                        if ' ' in arg or '\t' in arg:
-                            arg = '"' + arg + '"'
-                        cl.append(arg)
-                    self.show(string.join(cl))
+                    self.show(_string_from_cmd_list(cmd_line))
                 if execute_actions:
                     try:
                         ENV = kw['env']['ENV']
@@ -328,7 +361,8 @@ class CommandAction(ActionBase):
     def get_raw_contents(self, **kw):
         """Return the complete contents of this action's command line.
         """
-        return SCons.Util.scons_subst(self.command, self._sig_dict(kw), {})
+        return SCons.Util.scons_subst(string.join(self.cmd_list),
+                                      self._sig_dict(kw), {})
 
     def get_contents(self, **kw):
         """Return the signature contents of this action's command line.
@@ -336,19 +370,16 @@ class CommandAction(ActionBase):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        return SCons.Util.scons_subst(self.command, self._sig_dict(kw), {}, _remove)
+        return SCons.Util.scons_subst(string.join(self.cmd_list),
+                                      self._sig_dict(kw), {}, _remove)
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
     def __init__(self, generator):
         self.generator = generator
 
-    def execute(self, **kw):
-        # ensure that target is a list, to make it easier to write
-        # generator functions:
+    def __generate(self, kw):
         import SCons.Util
-        if kw.has_key("target") and not SCons.Util.is_List(kw["target"]):
-            kw["target"] = [kw["target"]]
 
         # Wrap the environment dictionary in an EnvDictProxy
         # object to make variable interpolation easier for the
@@ -357,36 +388,19 @@ class CommandGeneratorAction(ActionBase):
         if args.has_key("env") and not isinstance(args["env"], EnvDictProxy):
             args["env"] = EnvDictProxy(args["env"])
 
-        gen_list = apply(self.generator, (), args)
-        gen_list = map(lambda x: map(str, x), gen_list)
+        # ensure that target is a list, to make it easier to write
+        # generator functions:
+        if args.has_key("target") and not SCons.Util.is_List(args["target"]):
+            args["target"] = [args["target"]]
 
-        # Do environment variable substitution on returned command list
-        dict = apply(self.subst_dict, (), kw)
-        cmd_list = [ ]
-        for gen_line in gen_list:
-            cmd_list.append([])
-            curr_line = cmd_list[-1]
-            for gen_arg in gen_line:
-                arg_list = SCons.Util.scons_subst_list(gen_arg, dict, {})
-                curr_line.extend(arg_list[0])
-                if(len(arg_list) > 1):
-                    cmd_list.extend(arg_list[1:])
-                    curr_line = cmd_list[-1]
-        
-        for cmd_line in filter(lambda x: x, cmd_list):
-            if print_actions:
-                self.show(cmd_line)
-            if execute_actions:
-                try:
-                    ENV = kw['env']['ENV']
-                except:
-                    import SCons.Defaults
-                    ENV = SCons.Defaults.ConstructionEnvironment['ENV']
-                ret = spawn(cmd_line[0], cmd_line, ENV)
-                if ret:
-                    return ret
+        ret = apply(self.generator, (), args)
+        gen_cmd = Action(ret)
+        if not gen_cmd:
+            raise SCons.Errors.UserError("Object returned from command generator: %s cannot be used to create an Action." % repr(ret))
+        return gen_cmd
 
-        return 0
+    def execute(self, **kw):
+        return apply(self.__generate(kw).execute, (), kw)
 
     def get_contents(self, **kw):
         """Return the signature contents of this action's command line.
@@ -394,14 +408,7 @@ class CommandGeneratorAction(ActionBase):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-	kw['source'] = ["__s1__", "__s2__"]
-	kw['target'] = ["__t1__", "__t2__"]
-	cmd_list = apply(self.generator, (), kw)
-	cmd_list = map(lambda x: map(str, x), cmd_list)
-	cmd_list = map(lambda x: string.join(x,  "\0"), cmd_list)
-	cmd_list = map(lambda x: _remove.sub('', x), cmd_list)
-	cmd_list = map(lambda x: filter(lambda y: y, string.split(x, "\0")), cmd_list)
-	return cmd_list
+        return apply(self.__generate(kw).get_contents, (), kw)
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""

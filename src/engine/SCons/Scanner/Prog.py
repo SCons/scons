@@ -66,14 +66,21 @@ def scan(node, env, target, fs):
         libs = string.split(libs)
 
     try:
-        prefix = env.Dictionary('LIBPREFIX')
+        prefix = env.Dictionary('LIBPREFIXES')
+        if not SCons.Util.is_List(prefix):
+            prefix = [ prefix ]
     except KeyError:
-        prefix = ''
+        prefix = [ '' ]
 
     try:
-        suffix = env.Dictionary('LIBSUFFIX')
+        suffix = env.Dictionary('LIBSUFFIXES')
+        if not SCons.Util.is_List(suffix):
+            suffix = [ suffix ]
     except KeyError:
-        suffix = ''
+        suffix = [ '' ]
 
-    libs = map(lambda x, s=suffix, p=prefix: p + x + s, libs)
-    return SCons.Node.FS.find_files(libs, libpath, fs.File)
+    ret = []
+    for suf in map(env.subst, suffix):
+        for pref in map(env.subst, prefix):
+            ret.extend(map(lambda x, s=suf, p=pref: p + x + s, libs))
+    return SCons.Node.FS.find_files(ret, libpath, fs.File)
