@@ -7156,8 +7156,9 @@ and turn it into the appropriate class of Node
 to be returned by this Scanner object.
 
 .IP scan_check
-An optional Python function that takes a Node (file)
-as an argument and returns whether the
+An optional Python function that takes two arguments,
+a Node (file) and a construction environment,
+and returns whether the
 Node should, in fact,
 be scanned for dependencies.
 This check can be used to eliminate unnecessary

@@ -27,6 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import imp
 import os
 import os.path
+import time
 
 import TestSCons
 
@@ -171,5 +172,118 @@ scons: `f8.out' is up to date.
 """))
 
 test.up_to_date(arguments = 'f5.out f6.out f7.out f8.out')
+
+# Ensure that switching signature types causes a rebuild:
+test.write('SConstruct', """
+SourceSignatures('MD5')
+
+def build(env, target, source):
+    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+B = Builder(action = build)
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'switch.out', source = 'switch.in')
+""")
+
+test.write('switch.in', "switch.in\n")
+
+test.run(arguments = 'switch.out',
+         stdout = test.wrap_stdout("""\
+build("switch.out", "switch.in")
+"""))
+
+test.up_to_date(arguments = 'switch.out')
+
+test.write('SConstruct', """
+SourceSignatures('timestamp')
+
+def build(env, target, source):
+    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+B = Builder(action = build)
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'switch.out', source = 'switch.in')
+""")
+
+test.run(arguments = 'switch.out',
+         stdout = test.wrap_stdout("""\
+build("switch.out", "switch.in")
+"""))
+
+test.up_to_date(arguments = 'switch.out')
+
+test.write('SConstruct', """
+SourceSignatures('MD5')
+
+def build(env, target, source):
+    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+B = Builder(action = build)
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'switch.out', source = 'switch.in')
+""")
+
+test.run(arguments = 'switch.out',
+         stdout = test.wrap_stdout("""\
+build("switch.out", "switch.in")
+"""))
+
+test.up_to_date(arguments = 'switch.out')
+
+test.write('switch.in', "switch.in 2\n")
+
+test.run(arguments = 'switch.out',
+         stdout = test.wrap_stdout("""\
+build("switch.out", "switch.in")
+"""))
+
+
+# Test both implicit_cache and timestamp signatures at the same time:
+test.write('SConstruct', """
+SetOption('implicit_cache', 1)
+SourceSignatures('timestamp')
+
+def build(env, target, source):
+    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+B = Builder(action = build)
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'both.out', source = 'both.in')
+""")
+
+test.write('both.in', "both.in 1\n")
+
+test.run(arguments = 'both.out',
+         stdout = test.wrap_stdout("""\
+build("both.out", "both.in")
+"""))
+
+time.sleep(2)
+
+test.write('both.in', "both.in 2\n")
+
+test.run(arguments = 'both.out',
+         stdout = test.wrap_stdout("""\
+build("both.out", "both.in")
+"""))
+
+time.sleep(2)
+
+test.write('both.in', "both.in 3\n")
+
+test.run(arguments = 'both.out',
+         stdout = test.wrap_stdout("""\
+build("both.out", "both.in")
+"""))
+
+time.sleep(2)
+
+test.write('both.in', "both.in 4\n")
+
+test.run(arguments = 'both.out',
+         stdout = test.wrap_stdout("""\
+build("both.out", "both.in")
+"""))
+
+time.sleep(2)
+
+
+test.up_to_date(arguments = 'both.out')
 
 test.pass_test()

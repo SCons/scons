@@ -458,6 +458,9 @@ class Calculator:
         
         oldtime, oldbsig, oldcsig = node.get_prevsiginfo()
 
+        if type(newsig) != type(oldbsig):
+            return 0
+
         if not node.has_builder() and node.get_timestamp() == oldtime:
             return 1
 

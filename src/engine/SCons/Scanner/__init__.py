@@ -158,7 +158,7 @@ class Base:
         environment that will be passed to the scanner function. A list of
         direct dependency nodes for the specified node will be returned.
         """
-        if self.scan_check and not self.scan_check(node):
+        if self.scan_check and not self.scan_check(node, env):
             return []
 
         if not self.argument is _null:
@@ -199,8 +199,8 @@ class Current(Base):
     """
 
     def __init__(self, *args, **kw):
-        def current_check(node):
-            c = not node.has_builder() or node.current(SCons.Sig.default_calc)
+        def current_check(node, env):
+            c = not node.has_builder() or node.current(env.get_calculator())
             return c
         kw['scan_check'] = current_check
         apply(Base.__init__, (self,) + args, kw)

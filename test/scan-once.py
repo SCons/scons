@@ -62,7 +62,7 @@ def scan(node, env, envkey, arg):
     print 'XScanner: node =', os.path.split(str(node))[1]
     return []
 
-def exists_check(node):
+def exists_check(node, env):
     return os.path.exists(str(node))
 
 XScanner = Scanner(name = 'XScanner',
