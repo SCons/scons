@@ -30,10 +30,11 @@ utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-def current(obj, sig):
-    """Return whether the objects timestamp is up-to-date.
+def current(new, old):
+    """Return whether a new timestamp is up-to-date with
+    respect to an old timestamp.
     """
-    return obj.get_signature() >= sig
+    return not old is None and new <= old
 
 def collect(signatures):
     """

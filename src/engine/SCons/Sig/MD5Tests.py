@@ -57,9 +57,9 @@ class MD5TestCase(unittest.TestCase):
 	Simple comparison of different "signature" values.
 	"""
 	obj = my_obj('111')
-	assert not current(obj, signature(my_obj('110')))
-	assert     current(obj, signature(my_obj('111')))
-	assert not current(obj, signature(my_obj('112')))
+	assert not current(obj.get_signature(), signature(my_obj('110')))
+	assert     current(obj.get_signature(), signature(my_obj('111')))
+	assert not current(obj.get_signature(), signature(my_obj('112')))
 
     def test_collect(self):
 	"""Test collecting a list of signatures into a new signature value

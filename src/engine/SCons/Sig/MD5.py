@@ -33,11 +33,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import md5
 import string
 
-def current(obj, sig):
-    """Return whether a given object is up-to-date with the
-    specified signature.
+def current(new, old):
+    """Return whether a new signature is up-to-date with
+    respect to an old signature.
     """
-    return obj.get_signature() == sig
+    return new == old
 
 def hexdigest(s):
     """Return a signature as a string of hex characters.

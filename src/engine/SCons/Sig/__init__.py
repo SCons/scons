@@ -197,7 +197,7 @@ class Calculator:
         else:
             newsig = self.signature(node)
         
-        return newsig == oldsig
+        return self.module.current(newsig, oldsig)
 
     def write(self, nodes):
         """

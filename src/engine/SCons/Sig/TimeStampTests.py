@@ -53,9 +53,9 @@ class TimeStampTestCase(unittest.TestCase):
 	Simple comparison of different timestamp values.
 	"""
 	o1 = my_obj(value = 111)
-	assert current(o1, 110)
-	assert current(o1, 111)
-	assert not current(o1, 112)
+	assert not current(o1.get_signature(), 110)
+	assert current(o1.get_signature(), 111)
+	assert current(o1.get_signature(), 112)
 
     def test_collect(self):
 	"""Test collecting a list of signatures into a new signature value
