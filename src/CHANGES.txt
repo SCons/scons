@@ -35,6 +35,8 @@ RELEASE 0.12 - XXX
   - Make TARGET, TARGETS, SOURCE and SOURCES reserved variable names and
     warn if the user tries to set them in a construction environment.
 
+  - Add support for Tar and Zip files.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600

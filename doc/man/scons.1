@@ -1309,6 +1309,57 @@ be specified using the
 .B Depends 
 method of a construction environment (see below).
 
+.IP Tar
+Builds a tar archive of the specified files
+and/or directories.
+Unlike most builders,
+the
+.B Tar
+builder may be called multiple times
+for a given target;
+each additional call
+adds to the list of entries
+that will be built into the archive.
+
+.ES
+env.Tar('src.tar', 'src')
+
+# Create the stuff.tar file.
+env.Tar('stuff', ['subdir1', 'subdir2'])
+# Also add "another" to the stuff.tar file.
+env.Tar('stuff', 'another')
+
+# Set TARFLAGS to create a gzip-filtered archive.
+env = Environment(TARFLAGS = '-c -z')
+env.Tar('foo.tar.gz', 'foo')
+
+# Also set the suffix to .tgz.
+env = Environment(TARFLAGS = '-c -z',
+                  TARSUFFIX = '.tgz')
+env.Tar('foo')
+.EE
+
+.IP Zip
+Builds a zip archive of the specified files
+and/or directories.
+Unlike most builders,
+the
+.B Zip
+builder may be called multiple times
+for a given target;
+each additional call
+adds to the list of entries
+that will be built into the archive.
+
+.ES
+env.Zip('src.zip', 'src')
+
+# Create the stuff.zip file.
+env.Zip('stuff', ['subdir1', 'subdir2'])
+# Also add "another" to the stuff.tar file.
+env.Zip('stuff', 'another')
+.EE
+
 .SS Other Construction Environment Methods
 Additional construction environment methods include:
 
@@ -2596,6 +2647,15 @@ to generate a source file.
 
 .IP YACCFLAGS
 General options passed to the parser generator.
+
+.IP ZIP
+The zip compression and file packaging utility.
+
+.IP ZIPCOM
+The command line used to call the zip utility.
+
+.IP ZIPFLAGS
+General options passed to the zip utility.
 
 .LP
 Construction variables can be retrieved and set using the 

@@ -202,10 +202,11 @@ def tool_list(platform, env):
         
     other_tools = FindAllTools(['BitKeeper', 'CVS',
                                 'dvipdf', 'dvips',
-                                'latex', 'lex', 'Perforce',
-                                'pdflatex', 'pdftex',
+                                'latex', 'lex',
+                                'pdflatex', 'pdftex', 'Perforce',
                                 'RCS', 'SCCS', 'Subversion',
-                                'tar', 'tex', 'yacc'], env)
+                                'tar', 'tex', 'yacc', 'zip'],
+                               env)
 
     tools = ([linker, c_compiler, cxx_compiler,
               fortran_compiler, assembler, ar]

@@ -1,6 +1,6 @@
-"""SCons.Tool.tar
+"""SCons.Tool.zip
 
-Tool-specific initialization for tar.
+Tool-specific initialization for zip.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -33,30 +33,56 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
+
 import SCons.Builder
 import SCons.Node.FS
 import SCons.Util
 
-tars = ['tar', 'gtar']
+try:
+    import zipfile
 
-TarBuilder = SCons.Builder.Builder(action = '$TARCOM',
+    def zip(target, source, env):
+        def visit(arg, dirname, names):
+            for name in names:
+                path = os.path.join(dirname, name)
+                if os.path.isfile(path):
+                    arg.write(path)
+        zf = zipfile.ZipFile(str(target[0]), 'w')
+        for s in source:
+            if os.path.isdir(str(s)):
+                os.path.walk(str(s), visit, zf)
+            else:
+                zf.write(str(s))
+        zf.close()
+
+    internal_zip = 1
+
+except ImportError:
+    zip = "$ZIP $ZIPFLAGS $( ${TARGET.abspath} $) $SOURCES"
+
+    internal_zip = 0
+
+zipAction = SCons.Action.Action(zip)
+
+ZipBuilder = SCons.Builder.Builder(action = '$ZIPCOM',
                                    source_factory = SCons.Node.FS.default_fs.Entry,
-				   suffix = '$TARSUFFIX',
+                                   suffix = '$ZIPSUFFIX',
                                    multi = 1)
 
 
 def generate(env, platform):
-    """Add Builders and construction variables for tar to an Environment."""
+    """Add Builders and construction variables for zip to an Environment."""
     try:
-        bld = env['BUILDERS']['Tar']
+        bld = env['BUILDERS']['Zip']
     except KeyError:
-        bld = TarBuilder
-        env['BUILDERS']['Tar'] = bld
+        bld = ZipBuilder
+        env['BUILDERS']['Zip'] = bld
 
-    env['TAR']        = env.Detect(tars) or 'gtar'
-    env['TARFLAGS']   = '-c'
-    env['TARCOM']     = '$TAR $TARFLAGS -f $TARGET $SOURCES'
-    env['TARSUFFIX']  = '.tar'
+    env['ZIP']        = 'zip'
+    env['ZIPFLAGS']   = ''
+    env['ZIPCOM']     = zipAction
+    env['ZIPSUFFIX']  = '.zip'
 
 def exists(env):
-    return env.Detect(tars)
+    return internal_zip or env.Detect('zip')

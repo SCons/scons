@@ -97,18 +97,27 @@ os.system(string.join(sys.argv[1:], " "))
 foo = Environment()
 tar = foo.Dictionary('TAR')
 bar = Environment(TAR = r'%s wrapper.py ' + tar)
+f3 = Environment(TARFLAGS = '-c -z', TARSUFFIX = '.tar.gz')
+f4 = Environment(TARFLAGS = '-c -z', TARSUFFIX = '.tgz')
+f5 = Environment(TARFLAGS = '-c -z')
 foo.Tar(target = 'foo.tar', source = ['file10', 'file11'])
 foo.Tar(target = 'foo.tar', source = 'file12')
 bar.Tar(target = 'bar.tar', source = ['file13', 'file14'])
 bar.Tar(target = 'bar.tar', source = 'file15')
+f3.Tar(target = 'f3', source = 'file16')
+f3.Tar(target = 'f3', source = ['file17', 'file18'])
+f4.Tar(target = 'f4', source = 'file19')
+f4.Tar(target = 'f4', source = ['file20', 'file21'])
+f5.Tar(target = 'f5.tgz', source = 'file22')
+f5.Tar(target = 'f5.tgz', source = ['file23', 'file24'])
 """ % python)
 
-    test.write('file10', "file10\n")
-    test.write('file11', "file11\n")
-    test.write('file12', "file12\n")
-    test.write('file13', "file13\n")
-    test.write('file14', "file14\n")
-    test.write('file15', "file15\n")
+    for f in ['file10', 'file11', 'file12',
+              'file13', 'file14', 'file15',
+              'file16', 'file17', 'file18',
+              'file19', 'file20', 'file21',
+              'file22', 'file23', 'file24']:
+        test.write(f, f + "\n")
 
     test.run(arguments = 'foo.tar', stderr = None)
 
@@ -122,10 +131,32 @@ bar.Tar(target = 'bar.tar', source = 'file15')
 
     test.fail_test(not os.path.exists(test.workpath('bar.tar')))
 
+    test.run(arguments = '.', stderr = None)
+
+    test.fail_test(os.path.exists(test.workpath('f3.tar')))
+    test.fail_test(not os.path.exists(test.workpath('f3.tar.gz')))
+
+    test.fail_test(os.path.exists(test.workpath('f4.tar')))
+    test.fail_test(os.path.exists(test.workpath('f4.tar.gz')))
+    test.fail_test(not os.path.exists(test.workpath('f4.tgz')))
+
+    test.fail_test(os.path.exists(test.workpath('f5.tar')))
+    test.fail_test(os.path.exists(test.workpath('f5.tar.gz')))
+    test.fail_test(not os.path.exists(test.workpath('f5.tgz')))
+
     test.run(program = tar, arguments = "-t -f foo.tar", stderr = None)
     test.fail_test(test.stdout() != "file10\nfile11\nfile12\n")
 
     test.run(program = tar, arguments = "-t -f bar.tar", stderr = None)
     test.fail_test(test.stdout() != "file13\nfile14\nfile15\n")
+
+    test.run(program = tar, arguments = "-t -z -f f3.tar.gz", stderr = None)
+    test.fail_test(test.stdout() != "file16\nfile17\nfile18\n")
+
+    test.run(program = tar, arguments = "-t -z -f f4.tgz", stderr = None)
+    test.fail_test(test.stdout() != "file19\nfile20\nfile21\n")
+
+    test.run(program = tar, arguments = "-t -z -f f5.tgz", stderr = None)
+    test.fail_test(test.stdout() != "file22\nfile23\nfile24\n")
 
 test.pass_test()
