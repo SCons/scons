@@ -29,12 +29,13 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('foo.c',
-"""#include "include/foo.h"
+"""#include "foo.h"
 #include <stdio.h>
 
 int main(void)
 {
-    printf(TEST_STRING);
+    printf(FOO_STRING);
+    printf(BAR_STRING);
     return 0;
 }
 """)
@@ -43,29 +44,52 @@ test.subdir('include')
 
 test.write('include/foo.h',
 """
-#define TEST_STRING "Bad news\n"
+#define	FOO_STRING "foo.h 1\n"
+#include "bar.h"
+""")
+
+test.write('include/bar.h',
+"""
+#define BAR_STRING "bar.h 1\n"
 """)
 
 test.write('SConstruct', """
-env = Environment()
+env = Environment(CPPPATH = ['include'])
 env.Program(target='prog', source='foo.c')
-#env.Depends(target='foo.c', dependency='include/foo.h')
 """)
 
 test.run(arguments = 'prog')
 
 test.run(program = test.workpath('prog'),
-         stdout = "Bad news\n")
+         stdout = "foo.h 1\nbar.h 1\n")
+
+test.up_to_date(arguments = 'prog')
 
 test.unlink('include/foo.h')
 test.write('include/foo.h',
 """
-#define TEST_STRING "Good news\n"
+#define	FOO_STRING "foo.h 2\n"
+#include "bar.h"
 """)
 
 test.run(arguments = 'prog')
 
 test.run(program = test.workpath('prog'),
-         stdout = "Good news\n")
+         stdout = "foo.h 2\nbar.h 1\n")
+
+test.up_to_date(arguments = 'prog')
+
+test.unlink('include/bar.h')
+test.write('include/bar.h',
+"""
+#define BAR_STRING "bar.h 2\n"
+""")
+
+test.run(arguments = 'prog')
+
+test.run(program = test.workpath('prog'),
+         stdout = "foo.h 2\nbar.h 2\n")
+
+test.up_to_date(arguments = 'prog')
 
 test.pass_test()

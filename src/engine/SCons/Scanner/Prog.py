@@ -30,7 +30,7 @@ import SCons.Util
 def ProgScan():
     """Return a Scanner instance for scanning executable files
     for static-lib dependencies"""
-    s = SCons.Scanner.Scanner(scan, SCons.Node.FS.default_fs.File)
+    s = SCons.Scanner.Base(scan, SCons.Node.FS.default_fs.File)
     s.name = "ProgScan"
     return s
 

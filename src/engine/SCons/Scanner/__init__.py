@@ -42,7 +42,11 @@ class _Null:
 # used as an actual argument value.
 _null = _Null
 
-class Scanner:
+class Base:
+    """
+    The base class for dependency scanners.  This implements
+    straightforward, single-pass scanning of a single file.
+    """
 
     def __init__(self, function, argument=_null, skeys=[]):
         """
@@ -86,10 +90,10 @@ class Scanner:
 
     def scan(self, filename, env):
         """
-        This method does the actually scanning. 'filename' is the filename
+        This method scans a single object. 'filename' is the filename
         that will be passed to the scanner function, and 'env' is the
         environment that will be passed to the scanner function. A list of
-        dependencies will be returned (i.e. a list of 'Node's).
+        direct dependency nodes for the specified filename will be returned.
         """
 
         if not self.argument is _null:
@@ -108,3 +112,36 @@ class Scanner:
         if len(slist) == 1:
             slist = slist[0]
         return slist
+
+class Recursive(Base):
+    """
+    The class for recursive dependency scanning.  This will
+    re-scan any new files returned by each call to the
+    underlying scanning function, and return the aggregate
+    list of all dependencies.
+    """
+
+    def scan(self, filename, env):
+        """
+        This method does the actual scanning. 'filename' is the filename
+        that will be passed to the scanner function, and 'env' is the
+        environment that will be passed to the scanner function. An
+        aggregate list of dependency nodes for the specified filename
+        and any of its scanned dependencies will be returned.
+        """
+
+        files = [filename]
+        seen = [filename]
+        deps = []
+        while files:
+            f = files.pop(0)
+            if not self.argument is _null:
+                d = self.function(f, env, self.argument)
+            else:
+                d = self.function(f, env)
+            d = filter(lambda x, seen=seen: str(x) not in seen, d)
+            deps.extend(d)
+            s = map(str, d)
+	    seen.extend(s)
+            files.extend(s)
+        return deps

@@ -79,12 +79,21 @@ int main()
 
 test.subdir('d1', ['d1', 'd2'])
 
-headers = ['f1.h','f2.h', 'f3.h', 'never.h',
-           'd1/f1.h', 'd1/f2.h', 'd1/f3.h',
-           'd1/d2/f1.h', 'd1/d2/f2.h', 'd1/d2/f3.h', 'd1/d2/f4.h']
+headers = ['f1.h','f2.h', 'f3.h', 'fi.h', 'fj.h', 'never.h',
+           'd1/f1.h', 'd1/f2.h', 'd1/f3.h', 'd1/fi.h', 'd1/fj.h',
+           'd1/d2/f1.h', 'd1/d2/f2.h', 'd1/d2/f3.h',
+           'd1/d2/f4.h', 'd1/d2/fi.h', 'd1/d2/fj.h']
 
 for h in headers:
     test.write(h, " ")
+
+test.write('f2.h',"""
+#include "fi.h"
+""")
+
+test.write('f3.h',"""
+#include <fj.h>
+""")
 
 # define some helpers:
 
@@ -115,7 +124,8 @@ class CScannerTestCase1(unittest.TestCase):
         env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
         deps = s.scan(test.workpath('f1.cpp'), env)
-        self.failUnless(deps_match(deps, ['f1.h', 'f2.h']), map(str, deps))
+	headers = ['f1.h', 'f2.h', 'fi.h']
+        self.failUnless(deps_match(deps, headers), map(str, deps))
 
 class CScannerTestCase2(unittest.TestCase):
     def runTest(self):
@@ -146,7 +156,8 @@ class CScannerTestCase5(unittest.TestCase):
         env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
         deps = s.scan(test.workpath('f3.cpp'), env)
-        headers =  ['f1.h', 'f2.h', 'f3.h', 'd1/f1.h', 'd1/f2.h', 'd1/f3.h']
+        headers =  ['f1.h', 'f2.h', 'f3.h', 'fi.h', 'fj.h',
+                    'd1/f1.h', 'd1/f2.h', 'd1/f3.h']
         self.failUnless(deps_match(deps, headers), map(str, deps))
 
 def suite():

@@ -40,8 +40,9 @@ quote_re = re.compile('^[ \t]*#[ \t]*include[ \t]+"([\\w./\\\\]+)"', re.M)
 
 def CScan():
     "Return a Scanner instance for scanning C/C++ source files"
-    s = SCons.Scanner.Scanner(scan, SCons.Node.FS.default_fs.File,
-                              [".c", ".C", ".cxx", ".cpp", ".c++"])
+    s = SCons.Scanner.Recursive(scan, SCons.Node.FS.default_fs.File,
+                                [".c", ".C", ".cxx", ".cpp", ".c++",
+                                 ".h", ".H", ".hxx", ".hpp"])
     s.name = "CScan"
     return s
 
