@@ -907,7 +907,22 @@ class find_fileTestCase(unittest.TestCase):
         assert os.path.normpath('./foo') in file_names, file_names
         assert os.path.normpath('./bar/baz') in file_names, file_names
 
+class StringDirTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test using a string as the second argument of
+        File() and Dir()"""
 
+        test = TestCmd(workdir = '')
+        test.subdir('sub')
+        fs = SCons.Node.FS.FS(test.workpath(''))
+
+        d = fs.Dir('sub', '.')
+        assert str(d) == 'sub'
+        assert d.exists()
+        f = fs.File('file', 'sub')
+        assert str(f) == os.path.join('sub', 'file')
+        assert not f.exists()
+        
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -915,5 +930,6 @@ if __name__ == "__main__":
     suite.addTest(BuildDirTestCase())
     suite.addTest(RepositoryTestCase())
     suite.addTest(find_fileTestCase())
+    suite.addTest(StringDirTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

@@ -395,6 +395,8 @@ class FS:
         if isinstance(name, Entry):
             return self.__checkClass(name, klass)
         else:
+            if directory and not isinstance(directory, Dir):
+                directory = self.Dir(directory)
             name, directory = self.__transformPath(name, directory)
             return self.__doLookup(klass, name, directory, create)
     

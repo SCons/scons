@@ -115,6 +115,9 @@ RELEASE 0.09 -
 
   - Make -U and Default('source') fail gracefully.
 
+  - Allow the File() and Dir() methods to take a path-name string as
+    the starting directory, in addition to a Dir object.
+
   From sam th:
 
   - Dynamically check for the existence of utilities with which to
