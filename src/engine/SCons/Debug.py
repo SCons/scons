@@ -104,3 +104,51 @@ else:
         def memory():
             res = resource.getrusage(resource.RUSAGE_SELF)
             return res[4]
+
+
+
+caller_dicts = {}
+
+def caller(back=0):
+    import traceback
+    tb = traceback.extract_stack(limit=3+back)
+    key = tb[1][:3]
+    try:
+        entry = caller_dicts[key]
+    except KeyError:
+        entry = caller_dicts[key] = {}
+    key = tb[0][:3]
+    try:
+        entry[key] = entry[key] + 1
+    except KeyError:
+        entry[key] = 1
+
+def dump_caller_counts(file=sys.stdout):
+    keys = caller_dicts.keys()
+    keys.sort()
+    for k in keys:
+        file.write("Callers of %s:%d(%s):\n" % func_shorten(k))
+        counts = caller_dicts[k]
+        callers = counts.keys()
+        callers.sort()
+        for c in callers:
+            #file.write("    counts[%s] = %s\n" % (c, counts[c]))
+            t = ((counts[c],) + func_shorten(c))
+            file.write("    %6d %s:%d(%s)\n" % t)
+
+shorten_list = [
+    ( '/scons/SCons/',          1),
+    ( '/src/engine/SCons/',     1),
+    ( '/usr/lib/python',        0),
+]
+
+def func_shorten(func_tuple):
+    f = func_tuple[0]
+    for t in shorten_list:
+        i = string.find(f, t[0])
+        if i >= 0:
+            if t[1]:
+                i = i + len(t[0])
+            f = f[i:]
+            break
+    return (f,)+func_tuple[1:]

@@ -35,7 +35,7 @@ Compare the --debug=object counts from two build logs.
 
 def fetch_counts(fname):
     contents = open(fname).read()
-    m = re.search('\nObject counts:\n(.*)\n[^\s]', contents, re.S)
+    m = re.search('\nObject counts:(\n\s[^\n]*)*', contents, re.S)
     lines = m.group().split('\n')
     list = [l.split() for l in lines if re.match('\s+\d', l)]
     d = {}

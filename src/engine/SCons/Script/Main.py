@@ -1127,6 +1127,11 @@ def _main(args, parser):
         print "Memoizer (memory cache) hits and misses:"
         SCons.Memoize.Dump()
 
+    # Dump any caller counts.  This is purely for internal debugging
+    # during development, so there's no need to control it with a
+    # --debug= option.
+    SCons.Debug.dump_caller_counts()
+
 def _exec_main():
     all_args = sys.argv[1:]
     try:
