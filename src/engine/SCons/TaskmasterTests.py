@@ -625,6 +625,20 @@ class TaskmasterTestCase(unittest.TestCase):
         tm = MyTM()
         assert tm.is_blocked()
 
+    def test_next_top_level_candidate(self):
+        """Test the next_top_level_candidate() method
+        """
+        n1 = Node("n1")
+        n2 = Node("n2", [n1])
+        n3 = Node("n3", [n2])
+
+        tm = SCons.Taskmaster.Taskmaster([n3])
+        t = tm.next_task()
+        assert tm.executing == [n1], tm.executing
+        t.fail_stop()
+        assert t.targets == [n3], t.targets
+        assert t.top == 1, t.top
+
     def test_stop(self):
         """Test the stop() method
 

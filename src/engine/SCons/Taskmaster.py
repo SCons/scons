@@ -152,7 +152,15 @@ class Task:
         for t in self.targets:
             t.set_state(SCons.Node.failed)
         self.tm.failed(self.node)
+        next_top = self.tm.next_top_level_candidate()
         self.tm.stop()
+
+        if next_top:
+            # We're stopping because of a build failure, but give the
+            # calling Task class a chance to postprocess() the top-level
+            # target under which the build failure occurred.
+            self.targets = [next_top]
+            self.top = 1
 
     def fail_continue(self):
         """Explicit continue-the-build failure.
@@ -425,6 +433,14 @@ class Taskmaster:
         self._find_next_ready_node()
 
         return not self.ready and (self.pending or self.executing)
+
+    def next_top_level_candidate(self):
+        candidates = self.candidates[:]
+        candidates.reverse()
+        for c in candidates:
+            if c in self.targets:
+                return c
+        return None
 
     def stop(self):
         """Stop the current build completely."""

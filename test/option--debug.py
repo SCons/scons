@@ -126,24 +126,61 @@ test.fail_test(string.find(test.stdout(), stree2) == -1)
 
 
 
-tree = """
+dtree = """
 +-foo.xxx
   +-foo.ooo
   +-bar.ooo
 """
 
 test.run(arguments = "--debug=dtree foo.xxx")
-test.fail_test(string.find(test.stdout(), tree) == -1)
+test.fail_test(string.find(test.stdout(), dtree) == -1)
 
-tree = """
+includes = """
 +-foo.c
   +-foo.h
     +-bar.h
 """
 test.run(arguments = "--debug=includes foo.ooo")
+test.fail_test(string.find(test.stdout(), includes) == -1)
+
+# Make sure we print the debug stuff even if there's a build failure.
+test.write('bar.h', """
+#ifndef BAR_H
+#define BAR_H
+#include "foo.h"
+#endif
+THIS SHOULD CAUSE A BUILD FAILURE
+""")
+
+test.run(arguments = "--debug=tree foo.xxx",
+         status = 2,
+         stderr = None)
 test.fail_test(string.find(test.stdout(), tree) == -1)
 
-# these shouldn't print out anything in particular, but
+test.run(arguments = "--debug=dtree foo.xxx",
+         status = 2,
+         stderr = None)
+test.fail_test(string.find(test.stdout(), dtree) == -1)
+
+# In an ideal world, --debug=includes would also work when there's a build
+# failure, but this would require even more complicated logic to scan
+# all of the intermediate nodes that get skipped when the build failure
+# occurs.  On the YAGNI theory, we're just not going to worry about this
+# until it becomes an issue that someone actually cares enough about.
+#test.run(arguments = "--debug=includes foo.xxx",
+#         status = 2,
+#         stderr = None)
+#test.fail_test(string.find(test.stdout(), includes) == -1)
+
+# Restore bar.h to something good.
+test.write('bar.h', """
+#ifndef BAR_H
+#define BAR_H
+#include "foo.h"
+#endif
+""")
+
+# These shouldn't print out anything in particular, but
 # they shouldn't crash either:
 test.run(arguments = "--debug=includes .")
 test.run(arguments = "--debug=includes foo.c")

@@ -121,25 +121,6 @@ class BuildTask(SCons.Taskmaster.Task):
         else:
             SCons.Taskmaster.Task.executed(self)
 
-        # print the tree here instead of in execute() because
-        # this method is serialized, but execute isn't:
-        if print_tree and self.top:
-            print
-            SCons.Util.print_tree(self.targets[0], get_all_children)
-        if print_stree and self.top:
-            print
-            SCons.Util.print_tree(self.targets[0], get_all_children,
-                                  showtags=2)
-        if print_dtree and self.top:
-            print
-            SCons.Util.print_tree(self.targets[0], get_derived_children)
-        if print_includes and self.top:
-            t = self.targets[0]
-            tree = t.render_include_tree()
-            if tree:
-                print
-                print tree
-
     def failed(self):
         # Handle the failure of a build task.  The primary purpose here
         # is to display the various types of Errors and Exceptions
@@ -181,6 +162,25 @@ class BuildTask(SCons.Taskmaster.Task):
         self.do_failed(status)
 
         self.exc_clear()
+
+    def postprocess(self):
+        if self.top:
+            t = self.targets[0]
+            if print_tree:
+                print
+                SCons.Util.print_tree(t, get_all_children)
+            if print_stree:
+                print
+                SCons.Util.print_tree(t, get_all_children, showtags=2)
+            if print_dtree:
+                print
+                SCons.Util.print_tree(t, get_derived_children)
+            if print_includes:
+                tree = t.render_include_tree()
+                if tree:
+                    print
+                    print tree
+        SCons.Taskmaster.Task.postprocess(self)
 
     def make_ready(self):
         """Make a task ready for execution"""
