@@ -5660,6 +5660,15 @@ for the variable that expands to library search path options.
 .IP LINKCOM
 The command line used to link object files into an executable.
 
+.IP LINKCOMSTR
+The string displayed when object files
+are linked into an executable.
+If this is not set, then $LINKCOM (the command line) is displayed.
+
+.ES
+env = Environment(LINKCOMSTR = "Linking $TARGET")
+.EE
+
 .IP M4
 The M4 macro preprocessor.
 
@@ -6427,6 +6436,17 @@ The suffix used for shared library file names.
 
 .IP SHLINK
 The linker for programs that use shared libraries.
+
+.IP SHLINKCOM
+The command line used to link programs using shared libaries.
+
+.IP SHLINKCOMSTR
+The string displayed when programs using shared libraries are linked.
+If this is not set, then $SHLINKCOM (the command line) is displayed.
+
+.ES
+env = Environment(SHLINKCOMSTR = "Linking shared $TARGET")
+.EE
 
 .IP SHLINKFLAGS
 General user options passed to the linker for programs using shared libraries.

@@ -129,8 +129,8 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR")
 ASAction = SCons.Action.Action("$ASCOM", "$ASCOMSTR")
 ASPPAction = SCons.Action.Action("$ASPPCOM")
 
-LinkAction = SCons.Action.Action("$LINKCOM")
-ShLinkAction = SCons.Action.Action("$SHLINKCOM")
+LinkAction = SCons.Action.Action("$LINKCOM", "$LINKCOMSTR")
+ShLinkAction = SCons.Action.Action("$SHLINKCOM", "$SHLINKCOMSTR")
 
 ArAction = SCons.Action.Action("$ARCOM")
 
