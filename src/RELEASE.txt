@@ -20,10 +20,14 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.13 - Mon, 31 Mar 2003 20:22:00 -0600
+RELEASE 0.14 - XXX
 
-  This is the thirteenth alpha release of SCons.  Please consult the
+  This is the fourteenth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.13:
+
+  -
 
   Please note the following important changes since release 0.11:
 
