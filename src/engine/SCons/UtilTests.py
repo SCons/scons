@@ -508,15 +508,21 @@ class UtilTestCase(unittest.TestCase):
         wi = WhereIs('xxx.exe', string.join(pathdirs_1234, os.pathsep))
         assert wi == test.workpath(sub3_xxx_exe), wi
 
-	if sys.platform == 'win32':
-	    wi = WhereIs('xxx', pathext = '')
-	    assert wi is None, wi
+        if sys.platform == 'win32':
+            wi = WhereIs('xxx', pathext = '')
+            assert wi is None, wi
 
-	    wi = WhereIs('xxx', pathext = '.exe')
-	    assert wi == test.workpath(sub4_xxx_exe), wi
+            wi = WhereIs('xxx', pathext = '.exe')
+            assert wi == test.workpath(sub4_xxx_exe), wi
 
-	    wi = WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
-	    assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+            wi = WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
+            assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+
+            # Test that we return a normalized path even when
+            # the path contains forward slashes.
+            forward_slash = test.workpath('') + '/sub3'
+            wi = WhereIs('xxx', path = forward_slash, pathext = '.EXE')
+            assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
 
     def test_get_env_var(self):
         """Testing get_environment_var()."""

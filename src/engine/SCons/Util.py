@@ -731,7 +731,7 @@ if sys.platform == 'win32':
             for ext in pathext:
                 fext = f + ext
                 if os.path.isfile(fext):
-                    return fext
+                    return os.path.normpath(fext)
         return None
 
 elif os.name == 'os2':
@@ -752,7 +752,7 @@ elif os.name == 'os2':
             for ext in pathext:
                 fext = f + ext
                 if os.path.isfile(fext):
-                    return fext
+                    return os.path.normpath(fext)
         return None
 
 else:
@@ -770,7 +770,7 @@ else:
                 except:
                     continue
                 if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
-                    return f
+                    return os.path.normpath(f)
         return None
 
 def ParseConfig(env, command, function=None):
