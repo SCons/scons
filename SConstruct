@@ -4,7 +4,7 @@
 # See the README file for an overview of how SCons is built and tested.
 #
 
-copyright_years = '2001, 2002, 2003'
+copyright_years = '2001, 2002, 2003, 2004'
 
 #
 # __COPYRIGHT__
