@@ -60,6 +60,9 @@ class NoParallelSupportWarning(Warning):
 class ReservedVariableWarning(Warning):
     pass
 
+class MisleadingKeywordsWarning(Warning):
+    pass
+
 _warningAsException = 0
 
 # The below is a list of 2-tuples.  The first element is a class object.

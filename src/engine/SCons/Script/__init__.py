@@ -752,6 +752,8 @@ def _main(args, parser):
     SCons.Warnings.enableWarningClass(SCons.Warnings.DuplicateEnvironmentWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.MissingSConscriptWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.NoParallelSupportWarning)
+    # This is good for newbies, and hopefully most everyone else too.
+    SCons.Warnings.enableWarningClass(SCons.Warnings.MisleadingKeywordsWarning)
 
     global ssoptions
     ssoptions = SConscriptSettableOptions(options)

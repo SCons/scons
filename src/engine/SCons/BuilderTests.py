@@ -261,6 +261,35 @@ class BuilderTestCase(unittest.TestCase):
         target = builder(env, source='n21')
         assert target.name == 'p-n21.s', target
 
+    def test_mistaken_variables(self):
+        """Test keyword arguments that are often mistakes
+        """
+        import SCons.Warnings
+        env = Environment()
+        builder = SCons.Builder.Builder(action="foo")
+
+        save_warn = SCons.Warnings.warn
+        warned = []
+        def my_warn(exception, warning, warned=warned):
+            warned.append(warning)
+        SCons.Warnings.warn = my_warn
+
+        try:
+            target = builder(env, 'mistaken1', sources='mistaken1.c')
+            assert warned == ["Did you mean to use `source' instead of `sources'?"], warned
+            del warned[:]
+
+            target = builder(env, 'mistaken2', targets='mistaken2.c')
+            assert warned == ["Did you mean to use `target' instead of `targets'?"], warned
+            del warned[:]
+
+            target = builder(env, 'mistaken3', targets='mistaken3', sources='mistaken3.c')
+            assert "Did you mean to use `source' instead of `sources'?" in warned, warned
+            assert "Did you mean to use `target' instead of `targets'?" in warned, warned
+            del warned[:]
+        finally:
+            SCons.Warnings.warn = save_warn
+
     def test_action(self):
         """Test Builder creation
 

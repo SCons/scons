@@ -140,4 +140,44 @@ File "SConstruct", line \d+, in .+
 test.run(arguments='--warn=no-duplicate-environment file1.out')
 
 
+
+test.write('SConstruct', """
+def build(env, target, source):
+    file = open(str(target[0]), 'wb')
+    for s in source:
+        file.write(open(str(s), 'rb').read())
+
+B = Builder(action=build, multi=1)
+env = Environment(BUILDERS = { 'B' : B })
+env.B(targets = 'file3a.out', source = 'file3a.in')
+env.B(target = 'file3b.out', sources = 'file3b.in')
+""")
+
+test.write('file3a.in', 'file3a.in\n')
+test.write('file3b.out', 'file3b.out\n')
+
+test.run(arguments='.', 
+         stderr=r"""
+scons: warning: Did you mean to use `target' instead of `targets'\?
+File "SConstruct", line \d+, in .+
+
+scons: warning: Did you mean to use `source' instead of `sources'\?
+File "SConstruct", line \d+, in .+
+""")
+
+test.must_match(['file3a'], 'file3a.in\n')
+test.must_match(['file3b'], 'file3b.out\n')
+
+test.run(arguments='--warn=misleading-keywords .', 
+         stderr=r"""
+scons: warning: Did you mean to use `target' instead of `targets'\?
+File "SConstruct", line \d+, in .+
+
+scons: warning: Did you mean to use `source' instead of `sources'\?
+File "SConstruct", line \d+, in .+
+""")
+
+test.run(arguments='--warn=no-misleading-keywords .')
+
+
 test.pass_test()

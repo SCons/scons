@@ -68,6 +68,11 @@ RELEASE 0.96 - XXX
 
   - Add a --debug=presub option to print actions prior to substitution.
 
+  - Add a warning upon use of the override keywords "targets" and
+    "sources" when calling Builders.  These are usually mistakes which
+    are otherwise silently (and confusingly) turned into construction
+    variable overrides.
+
   From Simon Perkins:
 
   - Fix a bug introduced in building shared libraries under MinGW.
