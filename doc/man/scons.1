@@ -494,11 +494,20 @@ This only works when run under Python 2.1 or later.
 Re-run SCons under the control of the
 .RI pdb
 Python debugger.
-The
---debug=pdb
-argument will be stripped from the command-line,
-but all other arguments will be passed in-order
-to the SCons invocation run by the debugger.
+.EE
+
+.TP
+--debug=presub
+Print the raw command line used to build each target
+before the construction environment variables are substituted.
+Also shows which targets are being built by this command.
+Output looks something like this:
+.ES
+$ scons --debug=presub
+Building myprog.o with action(s):
+  $SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
+...
+.EE
 
 .TP
 --debug=time

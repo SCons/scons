@@ -241,7 +241,7 @@ class ActionTestCase(unittest.TestCase):
 
 class ActionBaseTestCase(unittest.TestCase):
 
-    def test_cmp(self):
+    def test___cmp__(self):
         """Test Action comparison
         """
         a1 = SCons.Action.Action("x")
@@ -256,26 +256,58 @@ class ActionBaseTestCase(unittest.TestCase):
         """
         save_stdout = sys.stdout
 
-        save = SCons.Action.print_actions
+        save_print_actions = SCons.Action.print_actions
         SCons.Action.print_actions = 0
 
-        sio = StringIO.StringIO()
-        sys.stdout = sio
-        a = SCons.Action.Action("x")
-        a.show("xyzzy")
-        s = sio.getvalue()
-        assert s == "", s
+        try:
+            a = SCons.Action.Action("x")
 
-        SCons.Action.print_actions = 1
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.show("xyzzy")
+            s = sio.getvalue()
+            assert s == "", s
 
-        sio = StringIO.StringIO()
-        sys.stdout = sio
-        a.show("foobar")
-        s = sio.getvalue()
-        assert s == "foobar\n", s
+            SCons.Action.print_actions = 1
 
-        SCons.Action.print_actions = save
-        sys.stdout = save_stdout
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.show("foobar")
+            s = sio.getvalue()
+            assert s == "foobar\n", s
+
+        finally:
+            SCons.Action.print_actions = save_print_actions
+            sys.stdout = save_stdout
+
+    def test_presub(self):
+        """Test the presub() method
+        """
+        save_stdout = sys.stdout
+
+        save_print_actions_presub = SCons.Action.print_actions_presub
+        SCons.Action.print_actions_presub = 0
+
+        try:
+            a = SCons.Action.Action("x")
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.presub("xyzzy")
+            s = sio.getvalue()
+            assert s == "", s
+
+            SCons.Action.print_actions_presub = 1
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.presub("foobar")
+            s = sio.getvalue()
+            assert s == "Building foobar with action(s):\n  x\n", s
+
+        finally:
+            SCons.Action.print_actions_presub = save_print_actions_presub
+            sys.stdout = save_stdout
 
     def test_get_actions(self):
         """Test the get_actions() method
@@ -363,11 +395,25 @@ class ActionBaseTestCase(unittest.TestCase):
 
 class CommandActionTestCase(unittest.TestCase):
 
-    def test_init(self):
+    def test___init__(self):
         """Test creation of a command Action
         """
         a = SCons.Action.CommandAction(["xyzzy"])
         assert a.cmd_list == [ "xyzzy" ], a.cmd_list
+
+    def test___str__(self):
+        """Test fetching the pre-substitution string for command Actions
+        """
+        env = Environment()
+        act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE')
+        s = str(act)
+        assert s == 'xyzzy $TARGET $SOURCE', s
+
+        act = SCons.Action.CommandAction(['xyzzy',
+                                          '$TARGET', '$SOURCE',
+                                          '$TARGETS', '$SOURCES'])
+        s = str(act)
+        assert s == "['xyzzy', '$TARGET', '$SOURCE', '$TARGETS', '$SOURCES']", s
 
     def test_strfunction(self):
         """Test fetching the string representation of command Actions
@@ -526,7 +572,6 @@ class CommandActionTestCase(unittest.TestCase):
         r = act([], [], env.Copy(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
-
     def test_pipe_execute(self):
         """Test capturing piped output from an action
         """
@@ -635,67 +680,6 @@ class CommandActionTestCase(unittest.TestCase):
         a([], [], e)
         assert t.executed == [ '**xyzzy**' ], t.executed
 
-    def test_get_raw_contents(self):
-        """Test fetching the contents of a command Action
-        """
-        def CmdGen(target, source, env, for_signature):
-            assert for_signature
-            return "%s %s" % \
-                   (env["foo"], env["bar"])
-
-        # The number 1 is there to make sure all args get converted to strings.
-        a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
-                                        "$)", "|", "$baz", 1])
-        c = a.get_raw_contents(target=[], source=[],
-                               env=Environment(foo = 'FFF', bar = 'BBB',
-                                               baz = CmdGen))
-        assert c == "| $( FFF | BBB $) | FFF BBB 1", c
-
-        # We've discusssed using the real target and source names in a
-        # CommandAction's signature contents.  This would have have the
-        # advantage of recompiling when a file's name changes (keeping
-        # debug info current), but it would currently break repository
-        # logic that will change the file name based on whether the
-        # files come from a repository or locally.  If we ever move to
-        # that scheme, then all of the '__t1__' and '__s6__' file names
-        # in the asserts below would change to 't1' and 's6' and the
-        # like.
-        t = map(DummyNode, ['t1', 't2', 't3', 't4', 't5', 't6'])
-        s = map(DummyNode, ['s1', 's2', 's3', 's4', 's5', 's6'])
-        env = Environment()
-
-        a = SCons.Action.CommandAction(["$TARGET"])
-        c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "t1", c
-
-        a = SCons.Action.CommandAction(["$TARGETS"])
-        c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "t1 t2 t3 t4 t5 t6", c
-
-        a = SCons.Action.CommandAction(["${TARGETS[2]}"])
-        c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "t3", c
-
-        a = SCons.Action.CommandAction(["${TARGETS[3:5]}"])
-        c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "t4 t5", c
-
-        a = SCons.Action.CommandAction(["$SOURCE"])
-        c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "s1", c
-
-        a = SCons.Action.CommandAction(["$SOURCES"])
-        c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "s1 s2 s3 s4 s5 s6", c
-
-        a = SCons.Action.CommandAction(["${SOURCES[2]}"])
-        c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "s3", c
-
-        a = SCons.Action.CommandAction(["${SOURCES[3:5]}"])
-        c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "s4 s5", c
-
     def test_get_contents(self):
         """Test fetching the contents of a command Action
         """
@@ -767,13 +751,22 @@ class CommandActionTestCase(unittest.TestCase):
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
 
-    def test_init(self):
+    def test___init__(self):
         """Test creation of a command generator Action
         """
         def f(target, source, env):
             pass
         a = SCons.Action.CommandGeneratorAction(f)
         assert a.generator == f
+
+    def test___str__(self):
+        """Test the pre-substitution strings for command generator Actions
+        """
+        def f(target, source, env, for_signature, self=self):
+            return "FOO"
+        a = SCons.Action.CommandGeneratorAction(f)
+        s = str(a)
+        assert s == 'FOO', s
 
     def test_strfunction(self):
         """Test the command generator Action string function
@@ -866,7 +859,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
 class FunctionActionTestCase(unittest.TestCase):
 
-    def test_init(self):
+    def test___init__(self):
         """Test creation of a function Action
         """
         def func1():
@@ -893,6 +886,22 @@ class FunctionActionTestCase(unittest.TestCase):
         a = SCons.Action.FunctionAction(func4, None)
         assert a.execfunction == func4, a.execfunction
         assert a.strfunction is None, a.strfunction
+
+    def test___str__(self):
+        """Test the __str__() method for function Actions
+        """
+        def func1():
+            pass
+        a = SCons.Action.FunctionAction(func1)
+        s = str(a)
+        assert s == "func1(env, target, source)", s
+
+        class class1:
+            def __call__(self):
+                pass
+        a = SCons.Action.FunctionAction(class1())
+        s = str(a)
+        assert s == "class1(env, target, source)", s
 
     def test_execute(self):
         """Test executing a function Action
@@ -984,7 +993,7 @@ class FunctionActionTestCase(unittest.TestCase):
 
 class ListActionTestCase(unittest.TestCase):
 
-    def test_init(self):
+    def test___init__(self):
         """Test creation of a list of subsidiary Actions
         """
         def func():
@@ -1007,6 +1016,17 @@ class ListActionTestCase(unittest.TestCase):
         assert isinstance(l[1], SCons.Action.CommandAction), l[1]
         g = l[1].get_actions()
         assert g == [l[1]], g
+
+    def test___str__(self):
+        """Test the __str__() method ffor a list of subsidiary Actions
+        """
+        def f(target,source,env):
+            pass
+        def g(target,source,env):
+            pass
+        a = SCons.Action.ListAction([f, g, "XXX", f])
+        s = str(a)
+        assert s == "f(env, target, source)\ng(env, target, source)\nXXX\nf(env, target, source)", s
 
     def test_strfunction(self):
         """Test the string function for a list of subsidiary Actions
@@ -1069,7 +1089,7 @@ class ListActionTestCase(unittest.TestCase):
         assert c == "xyz", c
 
 class LazyActionTestCase(unittest.TestCase):
-    def test_init(self):
+    def test___init__(self):
         """Test creation of a lazy-evaluation Action
         """
         # Environment variable references should create a special
