@@ -6,4 +6,6 @@
 
 Import qw( env test_dir );
 
-$env->Install("#$test_dir", qw(TestCmd.py unittest.py));
+@modules = qw(TestCmd.py TestSCons.py unittest.py);
+
+$env->Install("#$test_dir", @modules);

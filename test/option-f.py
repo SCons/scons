@@ -2,12 +2,10 @@
 
 __revision__ = "test/option-f.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import os.path
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.subdir('subdir')
 
@@ -25,46 +23,46 @@ print "subdir/BuildThis", os.getcwd()
 
 wpath = test.workpath()
 
-test.run(chdir = '.', arguments = '-f SConscript')
+test.run(arguments = '-f SConscript')
 test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '-f ' + subdir_BuildThis)
+test.run(arguments = '-f ' + subdir_BuildThis)
 test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '--file=SConscript')
+test.run(arguments = '--file=SConscript')
 test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '--file=' + subdir_BuildThis)
+test.run(arguments = '--file=' + subdir_BuildThis)
 test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '--makefile=SConscript')
+test.run(arguments = '--makefile=SConscript')
 test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '--makefile=' + subdir_BuildThis)
+test.run(arguments = '--makefile=' + subdir_BuildThis)
 test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '--sconstruct=SConscript')
+test.run(arguments = '--sconstruct=SConscript')
 test.fail_test(test.stdout() != ("SConscript %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '--sconstruct=' + subdir_BuildThis)
+test.run(arguments = '--sconstruct=' + subdir_BuildThis)
 test.fail_test(test.stdout() != ("subdir/BuildThis %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '-f -', stdin = """
+test.run(arguments = '-f -', stdin = """
 import os
 print "STDIN " + os.getcwd()
 """)
 test.fail_test(test.stdout() != ("STDIN %s\n" % wpath))
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '-f no_such_file')
+test.run(arguments = '-f no_such_file')
 test.fail_test(test.stdout() != "")
 test.fail_test(test.stderr() != "Ignoring missing script 'no_such_file'\n")
 

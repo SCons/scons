@@ -2,13 +2,11 @@
 
 __revision__ = "test/option--I.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.subdir('sub1', 'sub2')
 
@@ -31,12 +29,12 @@ import bar
 print bar.variable
 """)
 
-test.run(chdir = '.', arguments = '-I sub1 -I sub2')
+test.run(arguments = '-I sub1 -I sub2')
 
 test.fail_test(test.stdout() != "sub1/foo\nsub2/bar\n")
 test.fail_test(test.stderr() != "")
 
-test.run(chdir = '.', arguments = '--include-dir=sub2 --include-dir=sub1')
+test.run(arguments = '--include-dir=sub2 --include-dir=sub1')
 
 test.fail_test(test.stdout() != "sub2/foo\nsub2/bar\n")
 test.fail_test(test.stderr() != "")

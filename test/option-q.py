@@ -2,22 +2,20 @@
 
 __revision__ = "test/option-q.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '-q')
+test.run(arguments = '-q')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the -q option is not yet implemented\n")
 
-test.run(chdir = '.', arguments = '--question')
+test.run(arguments = '--question')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the --question option is not yet implemented\n")

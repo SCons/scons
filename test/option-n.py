@@ -2,14 +2,12 @@
 
 __revision__ = "test/option-n.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import os.path
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
@@ -29,7 +27,7 @@ env.MyBuild(target = 'f2.out', source = 'f2.in')
 args = 'f1.out f2.out'
 expect = "python build.py f1.out\npython build.py f2.out\n"
 
-test.run(chdir = '.', arguments = args)
+test.run(arguments = args)
 
 test.fail_test(test.stdout() != expect)
 test.fail_test(test.stderr() != "")
@@ -39,35 +37,35 @@ test.fail_test(not os.path.exists(test.workpath('f2.out')))
 os.unlink(test.workpath('f1.out'))
 os.unlink(test.workpath('f2.out'))
 
-test.run(chdir = '.', arguments = '-n ' + args)
+test.run(arguments = '-n ' + args)
 
 test.fail_test(test.stdout() != expect)
 test.fail_test(test.stderr() != "")
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(chdir = '.', arguments = '--no-exec ' + args)
+test.run(arguments = '--no-exec ' + args)
 
 test.fail_test(test.stdout() != expect)
 test.fail_test(test.stderr() != "")
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(chdir = '.', arguments = '--just-print ' + args)
+test.run(arguments = '--just-print ' + args)
 
 test.fail_test(test.stdout() != expect)
 test.fail_test(test.stderr() != "")
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(chdir = '.', arguments = '--dry-run ' + args)
+test.run(arguments = '--dry-run ' + args)
 
 test.fail_test(test.stdout() != expect)
 test.fail_test(test.stderr() != "")
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.run(chdir = '.', arguments = '--recon ' + args)
+test.run(arguments = '--recon ' + args)
 
 test.fail_test(test.stdout() != expect)
 test.fail_test(test.stderr() != "")

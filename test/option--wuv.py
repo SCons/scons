@@ -2,17 +2,15 @@
 
 __revision__ = "test/option--wuv.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '--warn-undefined-variables')
+test.run(arguments = '--warn-undefined-variables')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the --warn-undefined-variables option is not yet implemented\n")

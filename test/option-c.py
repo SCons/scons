@@ -2,27 +2,25 @@
 
 __revision__ = "test/option-c.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '-c')
+test.run(arguments = '-c')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the -c option is not yet implemented\n")
 
-test.run(chdir = '.', arguments = '--clean')
+test.run(arguments = '--clean')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the --clean option is not yet implemented\n")
 
-test.run(chdir = '.', arguments = '--remove')
+test.run(arguments = '--remove')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the --remove option is not yet implemented\n")

@@ -2,22 +2,20 @@
 
 __revision__ = "test/option--Y.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '-Y foo')
+test.run(arguments = '-Y foo')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the -Y option is not yet implemented\n")
 
-test.run(chdir = '.', arguments = '--repository=foo')
+test.run(arguments = '--repository=foo')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the --repository option is not yet implemented\n")

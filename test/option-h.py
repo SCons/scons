@@ -2,21 +2,19 @@
 
 __revision__ = "test/option-h.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
-test.run(chdir = '.', arguments = '-h')
+test.run(arguments = '-h')
 
 test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '-h')
+test.run(arguments = '-h')
 
 test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
 

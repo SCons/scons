@@ -2,14 +2,12 @@
 
 __revision__ = "test/option-s.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import os.path
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
@@ -26,7 +24,7 @@ env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
 """)
 
-test.run(chdir = '.', arguments = '-s f1.out f2.out')
+test.run(arguments = '-s f1.out f2.out')
 
 test.fail_test(test.stdout() != "")
 test.fail_test(test.stderr() != "")
@@ -36,7 +34,7 @@ test.fail_test(not os.path.exists(test.workpath('f2.out')))
 os.unlink(test.workpath('f1.out'))
 os.unlink(test.workpath('f2.out'))
 
-test.run(chdir = '.', arguments = '--silent f1.out f2.out')
+test.run(arguments = '--silent f1.out f2.out')
 
 test.fail_test(test.stdout() != "")
 test.fail_test(test.stderr() != "")
@@ -46,7 +44,7 @@ test.fail_test(not os.path.exists(test.workpath('f2.out')))
 os.unlink(test.workpath('f1.out'))
 os.unlink(test.workpath('f2.out'))
 
-test.run(chdir = '.', arguments = '--quiet f1.out f2.out')
+test.run(arguments = '--quiet f1.out f2.out')
 
 test.fail_test(test.stdout() != "")
 test.fail_test(test.stderr() != "")

@@ -2,22 +2,20 @@
 
 __revision__ = "test/option-e.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '-e')
+test.run(arguments = '-e')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the -e option is not yet implemented\n")
 
-test.run(chdir = '.', arguments = '--environment-overrides')
+test.run(arguments = '--environment-overrides')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the --environment-overrides option is not yet implemented\n")

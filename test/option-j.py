@@ -2,7 +2,7 @@
 
 __revision__ = "test/option-j.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
@@ -16,9 +16,7 @@ except ImportError:
     sys.exit()
 
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import time
@@ -42,7 +40,7 @@ def RunTest(args):
     test.write('f1.in', 'f1.in')
     test.write('f2.in', 'f2.in')
 
-    test.run(chdir = '.', arguments = args)
+    test.run(arguments = args)
 
     str = test.read("f1")
     start1,finish1 = map(float, string.split(str, "\n"))

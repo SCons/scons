@@ -2,11 +2,9 @@
 
 __revision__ = "test/Program.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment()
@@ -22,7 +20,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(chdir = '.', arguments = 'foo')
+test.run(arguments = 'foo')
 
 test.run(program = test.workpath('foo'))
 

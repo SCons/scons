@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 
-__revision__ = "test/option-n.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "test/option--.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import os.path
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
@@ -28,7 +26,7 @@ env.MyBuild(target = '-f2.out', source = 'f2.in')
 
 expect = "python build.py -f1.out\npython build.py -f2.out\n"
 
-test.run(chdir = '.', arguments = '-- -f1.out -f2.out')
+test.run(arguments = '-- -f1.out -f2.out')
 
 test.fail_test(test.stdout() != expect)
 test.fail_test(test.stderr() != "")

@@ -2,17 +2,15 @@
 
 __revision__ = "test/option-u.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '-u')
+test.run(arguments = '-u')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the -u option is not yet implemented\n")

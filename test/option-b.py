@@ -2,17 +2,15 @@
 
 __revision__ = "test/option-b.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '-b')
+test.run(arguments = '-b')
 
 test.fail_test(test.stderr() !=
 		"Warning:  ignoring -b option\n")

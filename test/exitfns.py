@@ -2,11 +2,9 @@
 
 __revision__ = "test/exitfns.py __REVISION__ __DATE__ __DEVELOPER__"
 
-from TestCmd import TestCmd
+import TestSCons
 
-test = TestCmd(program = 'scons.py',
-               workdir = '',
-               interpreter = 'python')
+test = TestSCons.TestSCons()
 
 sconstruct = """
 from scons.exitfuncs import *
@@ -35,7 +33,7 @@ running x3('no kwd args', kwd=None)
 
 test.write('SConstruct', sconstruct)
 
-test.run(chdir = '.', arguments='-f SConstruct')
+test.run(arguments='-f SConstruct')
 
 test.fail_test(test.stdout() != expected_output)
 
@@ -46,7 +44,7 @@ def f():
 sys.exitfunc = f
 """ + sconstruct)
 
-test.run(chdir = '.', arguments='-f SConstruct')
+test.run(arguments='-f SConstruct')
 
 test.fail_test(test.stdout() != expected_output)
 

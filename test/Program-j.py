@@ -2,11 +2,9 @@
 
 __revision__ = "test/Program-j.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment()
@@ -54,7 +52,7 @@ main(int argc, char *argv[])
 """)
 
 
-test.run(chdir = '.', arguments = '-j 3 f1 f2 f3 f4')
+test.run(arguments = '-j 3 f1 f2 f3 f4')
 
 test.run(program = test.workpath('f1'))
 test.fail_test(test.stdout() != "f1.c\n")

@@ -2,17 +2,15 @@
 
 __revision__ = "test/option--cs.py __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import TestSCons
 import string
 import sys
 
-test = TestCmd.TestCmd(program = 'scons.py',
-                       workdir = '',
-                       interpreter = 'python')
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(chdir = '.', arguments = '--cache-show')
+test.run(arguments = '--cache-show')
 
 test.fail_test(test.stderr() !=
 		"Warning:  the --cache-show option is not yet implemented\n")
