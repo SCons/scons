@@ -20,12 +20,10 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX XXXXX
+RELEASE 0.92 - Tue Aug 19 19:05:23 CDT 2003
 
   This is the third beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
-
-  Please note the following important changes since release 0.91:
 
   Please note the following important changes since release 0.90:
 
