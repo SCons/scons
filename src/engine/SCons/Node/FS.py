@@ -1618,7 +1618,8 @@ class File(Base):
                             rcspath = os.path.join(dir, rcspath)
                         if os.path.exists(rcspath):
                             scb = get_DefaultRCSBuilder()
-                self.builder = scb
+                if scb is not None:
+                    self.builder_set(scb)
             self.sbuilder = scb
         return not scb is None
 

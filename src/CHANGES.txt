@@ -63,6 +63,8 @@ RELEASE 0.97 - XXX
     module prior to Python 2.3, which would generate an exception for
     a nonexistent file even when ignore_errors was set.)
 
+  - Only replace a Node's builder with a non-null source builder.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
