@@ -1476,7 +1476,7 @@ class File(Base):
         listDirs.reverse()
         for dirnode in listDirs:
             try:
-                Mkdir(dirnode, None, None)
+                Mkdir(dirnode, [], None)
                 # The Mkdir() action may or may not have actually
                 # created the directory, depending on whether the -n
                 # option was used or not.  Delete the _exists and
@@ -1506,17 +1506,10 @@ class File(Base):
             return None
         if b and self.fs.CachePath:
             if self.fs.cache_show:
-                if CacheRetrieveSilent(self, None, None) == 0:
-                    def do_print(action, targets, sources, env, s=self):
-                        if action.strfunction:
-                            al = action.strfunction(targets, s.sources, env)
-                            if not SCons.Util.is_List(al):
-                                al = [al]
-                            for a in al:
-                                action.show(a)
-                    self._for_each_action(do_print)
+                if CacheRetrieveSilent(self, [], None) == 0:
+                    self.build(presub=0, execute=0)
                     return 1
-            elif CacheRetrieve(self, None, None) == 0:
+            elif CacheRetrieve(self, [], None) == 0:
                 return 1
         return None
 
@@ -1526,7 +1519,7 @@ class File(Base):
         # method has a chance to clear the build signature, which it
         # will do if this file has a source scanner.
         if self.fs.CachePath and self.fs.exists(self.path):
-            CachePush(self, None, None)
+            CachePush(self, [], None)
         SCons.Node.Node.built(self)
         self.found_includes = {}
         try:
@@ -1596,7 +1589,7 @@ class File(Base):
             if self.exists():
                 if self.is_derived() and not self.precious:
                     try:
-                        Unlink(self, None, None)
+                        Unlink(self, [], None)
                     except OSError, e:
                         raise SCons.Errors.BuildError(node = self,
                                                       errstr = e.strerror)

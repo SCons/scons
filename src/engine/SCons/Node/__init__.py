@@ -161,25 +161,13 @@ class Node:
             if not create:
                 raise
             import SCons.Executor
-            executor = SCons.Executor.Executor(self.builder,
+            executor = SCons.Executor.Executor(self.builder.action,
                                                self.builder.env,
-                                               {},
+                                               [self.builder.overrides],
                                                [self],
                                                self.sources)
             self.executor = executor
         return executor
-
-    def _for_each_action(self, func):
-        """Call a function for each action required to build a node.
-
-        The purpose here is to have one place for the logic that
-        collects and executes all of the actions for a node's builder,
-        even though multiple sections of code elsewhere need this logic
-        to do different things."""
-        if not self.has_builder():
-            return
-        executor = self.get_executor()
-        executor(self, func)
 
     def retrieve_from_cache(self):
         """Try to retrieve the node's content from a cache
@@ -192,19 +180,19 @@ class Node:
         """
         return 0
         
-    def build(self):
+    def build(self, **kw):
         """Actually build the node.
 
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
         """
-        def do_action(action, targets, sources, env, s=self):
-            stat = action(targets, sources, env)
-            if stat:
-                raise SCons.Errors.BuildError(node = s,
-                                              errstr = "Error %d" % stat)
-        self._for_each_action(do_action)
+        if not self.has_builder():
+            return
+        def errfunc(stat, node=self):
+            raise SCons.Errors.BuildError(node=node, errstr="Error %d" % stat)
+        executor = self.get_executor()
+        apply(executor, (self, errfunc), kw)
 
     def built(self):
         """Called just after this node is sucessfully built."""
