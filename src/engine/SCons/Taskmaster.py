@@ -31,6 +31,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import string
 import sys
+import traceback
 
 import SCons.Node
 import SCons.Errors
@@ -238,7 +239,10 @@ class Taskmaster:
                 # children (like a child couldn't be linked in to a
                 # BuildDir, or a Scanner threw something).  Arrange to
                 # raise the exception when the Task is "executed."
-                self.exception_set(sys.exc_type, sys.exc_value)
+                x = SCons.Errors.TaskmasterException(sys.exc_type,
+                                                     sys.exc_value,
+                                                     sys.exc_traceback)
+                self.exception_set(x)
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -262,7 +266,10 @@ class Taskmaster:
                 # the kids are derived (like a child couldn't be linked
                 # from a repository).  Arrange to raise the exception
                 # when the Task is "executed."
-                self.exception_set(sys.exc_type, sys.exc_value)
+                x = SCons.Errors.TaskmasterException(sys.exc_type,
+                                                     sys.exc_value,
+                                                     sys.exc_traceback)
+                self.exception_set(x)
                 self.candidates.pop()
                 self.ready = node
                 break
@@ -338,7 +345,10 @@ class Taskmaster:
             # a child couldn't be linked in to a BuildDir when deciding
             # whether this node is current).  Arrange to raise the
             # exception when the Task is "executed."
-            self.exception_set(sys.exc_type, sys.exc_value)
+            x = SCons.Errors.TaskmasterException(sys.exc_type,
+                                                 sys.exc_value,
+                                                 sys.exc_traceback)
+            self.exception_set(x)
         self.ready = None
 
         return task
@@ -373,18 +383,23 @@ class Taskmaster:
         self.candidates.extend(self.pending)
         self.pending = []
 
-    def exception_set(self, type, value):
+    def exception_set(self, type, value=None):
         """Record an exception type and value to raise later, at an
         appropriate time."""
         self.exc_type = type
         self.exc_value = value
+        self.exc_traceback = traceback
 
     def exception_raise(self):
         """Raise any pending exception that was recorded while
         getting a Task ready for execution."""
         if self.exc_type:
             try:
-                raise self.exc_type, self.exc_value
+                try:
+                    raise self.exc_type, self.exc_value
+                except TypeError:
+                    # exc_type was probably an instance,
+                    # so raise it by itself.
+                    raise self.exc_type
             finally:
                 self.exception_set(None, None)
-

@@ -132,12 +132,22 @@ os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
 test.run(chdir = 'ro-src',
          arguments = ".",
          status = 2,
-         stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.\n" % os.path.join('src', 'file.in'))
+         stderr = None)
+test.fail_test(not test.match_re_dotall(test.stderr(), """\
+scons: \\*\\*\\* Cannot duplicate `src.file\\.in' in `build': Permission denied.  Stop.
+scons: internal stack trace:
+  File .*
+"""))
 
 test.run(chdir = 'ro-src',
          arguments = "-k .",
          status = 2,
-         stderr = "scons: *** Cannot duplicate `%s' in `build': Permission denied.\n" % os.path.join('src', 'file.in'))
+         stderr = None)
+test.fail_test(not test.match_re_dotall(test.stderr(), """\
+scons: \\*\\*\\* Cannot duplicate `src.file\.in' in `build': Permission denied.
+scons: internal stack trace:
+  File .*
+"""))
 
 f.close()
 

@@ -404,8 +404,11 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster(targets = [n1], tasker = MyTask)
         t = tm.next_task()
-        assert tm.exc_type == MyException, tm.exc_type
-        assert str(tm.exc_value) == "from make_ready()", tm.exc_value
+        assert isinstance(tm.exc_type, SCons.Errors.TaskmasterException), repr(tm.exc_type)
+        assert tm.exc_value is None, tm.exc_value
+        e = tm.exc_type
+        assert e.type == MyException, e.type
+        assert str(e.value) == "from make_ready()", str(e.value)
 
 
     def test_children_errors(self):
@@ -417,11 +420,16 @@ class TaskmasterTestCase(unittest.TestCase):
         class ExitNode(Node):
             def children(self):
                 sys.exit(77)
+
         n1 = StopNode("n1")
         tm = SCons.Taskmaster.Taskmaster([n1])
         t = tm.next_task()
-        assert tm.exc_type == SCons.Errors.StopError, "Did not record StopError on node"
-        assert str(tm.exc_value) == "stop!", "Unexpected exc_value `%s'" % tm.exc_value
+        assert isinstance(tm.exc_type, SCons.Errors.TaskmasterException), repr(tm.exc_type)
+        assert tm.exc_value is None, tm.exc_value
+        e = tm.exc_type
+        assert e.type == SCons.Errors.StopError, e.type
+        assert str(e.value) == "stop!", "Unexpected exc_value `%s'" % e.value
+
         n2 = ExitNode("n2")
         tm = SCons.Taskmaster.Taskmaster([n2])
         t = tm.next_task()
@@ -576,10 +584,12 @@ class TaskmasterTestCase(unittest.TestCase):
         exc_caught = None
         try:
             t.prepare()
-        except MyException, v:
-            assert str(v) == "exception value", v
+        except MyException, e:
             exc_caught = 1
+        except:
+            pass
         assert exc_caught, "did not catch expected MyException"
+        assert str(e) == "exception value", e
         assert built_text is None, built_text
 
     def test_execute(self):
@@ -652,6 +662,10 @@ class TaskmasterTestCase(unittest.TestCase):
         assert tm.exc_type == 1, tm.exc_type
         assert tm.exc_value == 2, tm.exc_value
 
+        tm.exception_set(3)
+        assert tm.exc_type == 3, tm.exc_type
+        assert tm.exc_value is None, tm.exc_value
+
         tm.exception_set(None, None)
         assert tm.exc_type is None, tm.exc_type
         assert tm.exc_value is None, tm.exc_value
@@ -661,7 +675,7 @@ class TaskmasterTestCase(unittest.TestCase):
             tm.exception_raise()
         except:
             assert sys.exc_type == "exception 1", sys.exc_type
-            assert sys.exc_value is None, sys.exc_type
+            assert sys.exc_value is None, sys.exc_value
         else:
             assert 0, "did not catch expected exception"
 
@@ -670,7 +684,7 @@ class TaskmasterTestCase(unittest.TestCase):
             tm.exception_raise()
         except:
             assert sys.exc_type == "exception 2", sys.exc_type
-            assert sys.exc_value == "xyzzy", sys.exc_type
+            assert sys.exc_value == "xyzzy", sys.exc_value
         else:
             assert 0, "did not catch expected exception"
 

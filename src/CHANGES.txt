@@ -52,6 +52,8 @@ RELEASE 0.XX - XXX
 
   - Allow the source of Command() to be a directory.
 
+  - Better error handling of things like raw TypeErrors in SConscripts.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building
@@ -64,6 +66,8 @@ RELEASE 0.XX - XXX
 
   - Fix the value returned by the Node.prevsiginfo() method to conform
     to a previous change when checking whether a node is current.
+
+  - Supply a stack trace if the Taskmaster catches an exception.
 
   From Laurent Pelecq:
 

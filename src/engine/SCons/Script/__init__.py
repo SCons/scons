@@ -133,28 +133,41 @@ class BuildTask(SCons.Taskmaster.Task):
                 print tree
 
     def failed(self):
-        e = sys.exc_value
+        # Handle the failure of a build task.  The primary purpose here
+        # is to display the various types of Errors and Exceptions
+        # appropriately.
         status = 2
-        if sys.exc_type == SCons.Errors.BuildError:
+        e = sys.exc_value
+        t = sys.exc_type
+        tb = None
+        if t is SCons.Errors.TaskmasterException:
+            # The Taskmaster received an Error or Exception while trying
+            # to process or build the Nodes and dependencies, which it
+            # wrapped up for us in the object recorded as the value of
+            # the Exception, so process the wrapped info instead of the
+            # TaskmasterException itself.
+            t = e.type
+            tb = e.traceback
+            e = e.value
+
+        if t == SCons.Errors.BuildError:
             sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
             if e.errstr == 'Exception':
                 traceback.print_exception(e.args[0], e.args[1], e.args[2])
-        elif sys.exc_type == SCons.Errors.UserError:
-            # We aren't being called out of a user frame, so
-            # don't try to walk the stack, just print the error.
-            sys.stderr.write("\nscons: *** %s\n" % e)
-        elif sys.exc_type == SCons.Errors.StopError:
-            s = str(e)
-            if not keep_going_on_error:
-                s = s + '  Stop.'
-            sys.stderr.write("scons: *** %s\n" % s)
-        elif sys.exc_type == SCons.Errors.ExplicitExit:
+        elif t == SCons.Errors.ExplicitExit:
             status = e.status
             sys.stderr.write("scons: *** [%s] Explicit exit, status %s\n" % (e.node, e.status))
         else:
             if e is None:
-                e = sys.exc_type
-            sys.stderr.write("scons: *** %s\n" % e)
+                e = t
+            s = str(e)
+            if t == SCons.Errors.StopError and not keep_going_on_error:
+                s = s + '  Stop.'
+            sys.stderr.write("scons: *** %s\n" % s)
+
+        if tb:
+            sys.stderr.write("scons: internal stack trace:\n")
+            traceback.print_tb(tb, file=sys.stderr)
 
         self.do_failed(status)
 
@@ -290,11 +303,11 @@ def _scons_internal_warning(e):
     sys.stderr.write("\nscons: warning: %s\n" % e)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
 
-def _scons_other_errors():
+def _scons_internal_error():
     """Handle all errors but user errors. Print out a message telling
     the user what to do in this case and print a normal trace.
     """
-    print 'other errors'
+    print 'internal error'
     traceback.print_exc()
     sys.exit(2)
 
@@ -984,12 +997,18 @@ def main():
         sys.exit(2)
     except SyntaxError, e:
         _scons_syntax_error(e)
+    except SCons.Errors.InternalError:
+        _scons_internal_error()
     except SCons.Errors.UserError, e:
         _scons_user_error(e)
     except SCons.Errors.ConfigureDryRunError, e:
         _scons_configure_dryrun_error(e)
     except:
-        _scons_other_errors()
+        # An exception here is likely a builtin Python exception Python
+        # code in an SConscript file.  Show them precisely what the
+        # problem was and where it happened.
+        SCons.Script.SConscript.SConscript_exception()
+        sys.exit(2)
 
     if print_time:
         total_time = time.time()-start_time

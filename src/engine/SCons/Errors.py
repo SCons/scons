@@ -61,3 +61,10 @@ class ConfigureDryRunError(UserError):
     but the user requested a dry-run"""
     def __init__(self,file):
         UserError.__init__(self,"Cannot update configure test (%s) within a dry-run." % str(file))
+
+class TaskmasterException(Exception):
+    def __init__(self, type, value, traceback, *args):
+        self.type = type
+        self.value = value
+        self.traceback = traceback
+        self.args = args

@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
 import sys
 import TestSCons
 
@@ -107,6 +108,11 @@ test.write('zzz', "zzz 1\n")
 
 test.run(arguments = '.',
          status = 2,
-         stderr = "scons: *** kfile_scan error:  yyy 1\n")
+         stderr = None)
+test.fail_test(not test.match_re_dotall(test.stderr(), """\
+scons: \\*\\*\\* kfile_scan error:  yyy 1
+scons: internal stack trace:
+  File .*
+"""))
 
 test.pass_test()

@@ -309,6 +309,30 @@ def SConscript(*ls, **kw):
     else:
         return tuple(results)
 
+def is_our_exec_statement(line):
+    return not line is None and line[:12] == "exec _file_ "
+
+def SConscript_exception(file=sys.stderr):
+    """Print an exception stack trace just for the SConscript file(s).
+    This will show users who have Python errors where the problem is,
+    without cluttering the output with all of the internal calls leading
+    up to where we exec the SConscript."""
+    stack = traceback.extract_tb(sys.exc_traceback)
+    last_text = ""
+    i = 0
+    for frame in stack:
+        if is_our_exec_statement(last_text):
+            break
+        i = i + 1
+        last_text = frame[3]
+    type = str(sys.exc_type)
+    if type[:11] == "exceptions.":
+        type = type[11:]
+    file.write('%s: %s:\n' % (type, sys.exc_value))
+    for fname, line, func, text in stack[i:]:
+        file.write('  File "%s", line %d:\n' % (fname, line))
+        file.write('    %s\n' % text)
+
 def annotate(node):
     """Annotate a node with the stack frame describing the
     SConscript file and line number that created it."""
@@ -319,7 +343,7 @@ def annotate(node):
         # magic "exec _file_ " string, then this frame describes the
         # SConscript file and line number that caused this node to be
         # created.  Record the tuple and carry on.
-        if not last_text is None and last_text[:12] == "exec _file_ ":
+        if is_our_exec_statement(last_text):
             node.creator = frame
             return
         last_text = frame[3]

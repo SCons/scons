@@ -65,6 +65,15 @@ class ErrorsTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             assert e.args == "Cannot update configure test (FileName) within a dry-run."
 
+    def test_TaskmasterException(self):
+        """Test the TaskmasterException."""
+        try:
+            raise SCons.Errors.TaskmasterException("one", "two", "three")
+        except SCons.Errors.TaskmasterException, e:
+            assert e.type == "one", e.type
+            assert e.value == "two", e.value
+            assert e.traceback == "three", e.traceback
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(ErrorsTestCase, 'test_')

@@ -33,9 +33,13 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
-test.write('foo.in', 'foo')
-test.write('exit.in', 'exit')
-test.write('SConstruct', """
+
+
+test.write('foo.in', 'foo\n')
+
+test.write('exit.in', 'exit\n')
+
+test.write('SConstruct', """\
 import sys
 
 def foo(env, target, source):
@@ -70,13 +74,40 @@ assert string.find(test.stdout(), "scons: `foo.out' is up to date.") != -1, test
 
 
 
-test.write('SConstruct1', """
+# Test AttributeError.
+test.write('SConstruct', """\
+a = 1
+a.append(2)
+""")
+
+test.run(status = 2, stderr = """\
+AttributeError: 'int' object has no attribute 'append':
+  File "SConstruct", line 2:
+    a.append\(2\)
+""")
+
+
+
+# Test NameError.
+test.write('SConstruct', """\
+a == 1
+""")
+
+test.run(status = 2, stderr = """\
+NameError: a:
+  File "SConstruct", line 1:
+    a == 1
+""")
+
+
+
+# Test SyntaxError.
+test.write('SConstruct', """
 a ! x
 """)
 
-test.run(arguments='-f SConstruct1',
-	 stdout = "scons: Reading SConscript files ...\n",
-	 stderr = """  File "SConstruct1", line 2
+test.run(stdout = "scons: Reading SConscript files ...\n",
+	 stderr = """  File "SConstruct", line 2
 
     a ! x
 
@@ -87,32 +118,49 @@ SyntaxError: invalid syntax
 """, status=2)
 
 
-test.write('SConstruct2', """
+
+# Test TypeError.
+test.write('SConstruct', """\
+a = 1
+a[2] = 3
+""")
+
+test.run(status = 2, stderr = """\
+TypeError: object does not support item assignment:
+  File "SConstruct", line 2:
+    a\[2\] = 3
+""")
+
+
+
+# Test UserError.
+test.write('SConstruct', """
 assert not globals().has_key("UserError")
 import SCons.Errors
 raise SCons.Errors.UserError, 'Depends() require both sources and targets.'
 """)
 
-test.run(arguments='-f SConstruct2',
-	 stdout = "scons: Reading SConscript files ...\n",
+test.run(stdout = "scons: Reading SConscript files ...\n",
 	 stderr = """
 scons: \*\*\* Depends\(\) require both sources and targets.
-File "SConstruct2", line 4, in \?
+File "SConstruct", line 4, in \?
 """, status=2)
 
-test.write('SConstruct3', """
+
+
+# Test InternalError.
+test.write('SConstruct', """
 assert not globals().has_key("InternalError")
 from SCons.Errors import InternalError
 raise InternalError, 'error inside'
 """)
 
-test.run(arguments='-f SConstruct3',
-	 stdout = "scons: Reading SConscript files ...\nother errors\n",
+test.run(stdout = "scons: Reading SConscript files ...\ninternal error\n",
 	 stderr = r"""Traceback \((most recent call|innermost) last\):
   File ".+", line \d+, in .+
   File ".+", line \d+, in .+
   File ".+", line \d+, in .+
-  File "SConstruct3", line \d+, in \?
+  File "SConstruct", line \d+, in \?
     raise InternalError, 'error inside'
 InternalError: error inside
 """, status=2)
@@ -122,11 +170,16 @@ import sys
 sys.exit(2)
 ''')
 
+
+
+# Test ...
 test.write('SConstruct', """
 env=Environment()
 Default(env.Command(['one.out', 'two.out'], ['foo.in'], action=r'%s build.py'))
 """%python)
 
 test.run(status=2, stderr="scons: \\*\\*\\* \\[one.out\\] Error 2\n")
+
+
 
 test.pass_test()
