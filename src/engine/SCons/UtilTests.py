@@ -1252,8 +1252,14 @@ class UtilTestCase(unittest.TestCase):
         import tempfile
         filename = tempfile.mktemp()
         str = '1234567890 ' + filename
-        open(filename, 'w').write(str)
-        assert open(get_native_path(filename)).read() == str
+        try:
+            open(filename, 'w').write(str)
+            assert open(get_native_path(filename)).read() == str
+        finally:
+            try:
+                os.unlink(filename)
+            except OSError:
+                pass
 
     def test_subst_dict(self):
         """Test substituting dictionary values in an Action
