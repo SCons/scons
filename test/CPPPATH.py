@@ -194,14 +194,20 @@ test.run(program = test.workpath(variant_prog),
 
 test.up_to_date(arguments = args)
 
-# Check that a null-string CPPPATH doesn't blow up.
+# Check that neither a null-string CPPPATH nor a
+# a CPPPATH containing null values blows up.
 test.write('SConstruct', """
 env = Environment(CPPPATH = '')
-env.Library('foo', source = 'empty.c')
+env.Library('one', source = 'empty1.c')
+env = Environment(CPPPATH = [None])
+env.Library('two', source = 'empty2.c')
+env = Environment(CPPPATH = [''])
+env.Library('three', source = 'empty3.c')
 """)
 
-test.write('empty.c', """
-""")
+test.write('empty1.c', "\n")
+test.write('empty2.c', "\n")
+test.write('empty3.c', "\n")
 
 test.run(arguments = '.',
          stderr=TestSCons.noisy_ar,
