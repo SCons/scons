@@ -213,7 +213,11 @@ class SConsignDB(_SConsign):
         if self.dirty:
             global SConsign_db
             SConsign_db[self.dir.path] = cPickle.dumps(self.entries, 1)
-            SConsign_db.sync()
+            try:
+                SConsign_db.sync()
+            except AttributeError:
+                # Not all anydbm modules have sync() methods.
+                pass
 
 class SConsignDir(_SConsign):
     def __init__(self, fp=None, module=None):
