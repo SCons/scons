@@ -87,6 +87,35 @@ line 3
 
     test.fail_test(test.read('test2.jar') != "test2.CLASS\nline 3\n")
 
+test.write('myjar2.py', r"""
+import sys
+import string
+f=open(sys.argv[2], 'wb')
+f.write(string.join(sys.argv[1:]))
+f.write("\n")
+f.close()
+sys.exit(0)
+""")
+
+test.write('SConstruct', """
+env = Environment(tools = ['jar'],
+                  JAR = r'%s myjar2.py',
+                  JARFLAGS='cvf')
+env.Jar(target = 'classes.jar', source = [ 'testdir/bar.class',
+                                           'foo.mf' ],
+        JARCHDIR='testdir')
+""" % (python))
+
+test.subdir('testdir')
+test.write([ 'testdir', 'bar.class' ], 'foo')
+test.write('foo.mf',
+           """Manifest-Version : 1.0
+           blah
+           blah
+           blah
+           """)
+test.run(arguments='classes.jar')
+test.fail_test(test.read('classes.jar') != 'cvfm classes.jar foo.mf -C testdir bar.class\n')
 
 if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
     print "Could not find Java, skipping test(s)."

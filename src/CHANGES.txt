@@ -10,6 +10,16 @@
 
 RELEASE X.XX - XXX
 
+  From Charles Crain:
+
+  - Add support for a JARCHDIR variable to control changing to a
+    directory using the jar -C option.
+
+  - Add support for detecting Java manifest files when using jar,
+    and specifying them using the jar m flag.
+
+  - Fix some Python 2.2 specific things in various tool modules.
+
   From Christian Engel:
 
   - Support more flexible inclusion of separate C and C++ compilers.

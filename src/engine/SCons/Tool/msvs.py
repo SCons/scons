@@ -259,10 +259,10 @@ class _GenerateV6DSP(_DSPGenerator):
                         '# End Project\n')
         
         # now we pickle some data and add it to the file -- MSDEV will ignore it.
-        pdata = pickle.dumps(self.configs,True)
+        pdata = pickle.dumps(self.configs,1)
         pdata = base64.encodestring(pdata)
         self.file.write(pdata + '\n')
-        pdata = pickle.dumps(self.sources,True)
+        pdata = pickle.dumps(self.sources,1)
         pdata = base64.encodestring(pdata)
         self.file.write(pdata + '\n')
   
@@ -410,10 +410,10 @@ class _GenerateV7DSP(_DSPGenerator):
         self.file.write('</VisualStudioProject>\n')
 
         # now we pickle some data and add it to the file -- MSDEV will ignore it.
-        pdata = pickle.dumps(self.configs,True)
+        pdata = pickle.dumps(self.configs,1)
         pdata = base64.encodestring(pdata)
         self.file.write('<!-- SCons Data:\n' + pdata + '\n')
-        pdata = pickle.dumps(self.sources,True)
+        pdata = pickle.dumps(self.sources,1)
         pdata = base64.encodestring(pdata)
         self.file.write(pdata + '-->\n')
   
@@ -601,7 +601,7 @@ class _GenerateV7DSW(_DSWGenerator):
                         '	GlobalSection(ExtensibilityAddIns) = postSolution\n'
                         '	EndGlobalSection\n'
                         'EndGlobal\n')
-        pdata = pickle.dumps(self.configs,True)
+        pdata = pickle.dumps(self.configs,1)
         pdata = base64.encodestring(pdata)
         self.file.write(pdata + '\n')
 
@@ -1035,5 +1035,5 @@ def exists(env):
             return env.Detect('msdev')
     else:
         # there's at least one version of MSVS installed.
-        return True
+        return 1
 

@@ -434,4 +434,4 @@ def exists(env):
         return env.Detect('cl')
     else:
         # there's at least one version of MSVS installed.
-        return True
+        return 1

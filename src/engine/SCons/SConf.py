@@ -154,6 +154,7 @@ class SConf:
         0 on error.
         """
 
+        global SCons
         import SCons.Script    # really ugly, but we need BuildTask :-(
         # Is it better to provide a seperate Task for SConf builds ?
         class SConfBuildTask(SCons.Script.BuildTask):

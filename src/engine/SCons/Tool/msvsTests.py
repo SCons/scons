@@ -392,7 +392,7 @@ def DummyQueryValue(key, value):
     return rv
 
 def DummyExists(path):
-    return True
+    return 1
 
 class msvsTestCase(unittest.TestCase):
     def test_get_default_visual_studio_version(self):

@@ -1426,6 +1426,19 @@ env.M4(target = 'foo.c', source = 'foo.c.m4')
 .IP Jar
 Builds a Java archive (.jar) file
 from a source tree of .class files.
+If the $JAVACHDIR value is set, the
+.B jar
+command will change to the specified directory using the
+.B \-C
+option.
+If the contents any of the source files begin with the string
+.BR Manifest-Version ,
+the file is assumed to be a manifest
+and is passed to the
+.B jar
+command with the
+.B m
+option set.
 
 .ES
 env.Jar(target = 'foo.jar', source = 'classes')
@@ -3886,6 +3899,12 @@ in force for this file installation.
 
 .IP JAR
 The Java archive tool.
+
+.IP JARCHDIR
+The directory to which the Java archive tool should change
+(using the
+.B \-C
+option).
 
 .IP JARCOM
 The command line used to call the Java archive tool.
