@@ -37,10 +37,10 @@ RELEASE 0.96 - XXX
           import anydbm
           SConsignFile('.sconsign_file_name', anydbm)
 
-    - The internal format of .sconsign files has been changed.
-      This may cause warnings about "ignoring corrupt .sconsign files"
-      and rebuilds when you use SCons 0.96 for the first time in a tre
-      that was previously gbuilt with SCons 0.95 or earlier.
+    - The internal format of .sconsign files has been changed.  This might
+      cause warnings about "ignoring corrupt .sconsign files" and rebuilds
+      when you use SCons 0.96 for the first time in a tree that was
+      previously built with SCons 0.95 or earlier.
 
     - The scan_check function that can be supplied to a custom Scanner now
       must take two arguments, the Node to be checked and a construction
@@ -53,7 +53,6 @@ RELEASE 0.96 - XXX
       the following scanner, you must now add the suffix to a construction
       environment through which you plan to call the scanner, as follows:
 
-
           CScan.add_skey('.x')       => env.Append(CPPSUFFIXES = ['.x'])
           DScan.add_skey('.x')       => env.Append(DSUFFIXES = ['.x'])
           FortranScan.add_skey('.x') => env.Append(FORTRANSUFFIXES = ['.x'])
@@ -61,6 +60,15 @@ RELEASE 0.96 - XXX
     - The internal "node_factory" keyword argument has been removed;
       the seperate and more flexible "target_factory" and "source_factory"
       keywords should be used instead.
+
+    - SCons now treats file "extensions" that contain all digits (for
+      example, "file.123") as part of the file basename, for easier
+      handling of version numbers in the names of shared libraries
+      and other files.  Builders will now add their file extensions to
+      file names specified with all-digit extensions.  If you need to
+      generate a file with an all-digit extension using a Builder that
+      adds a file extension, you can preserve the previous behavior by
+      wrapping the file name in a File() call.
 
     - The behavior of the env.Append() and env.Prepend() methods has
       changed when appending a string value to a UserList, or vice versa.

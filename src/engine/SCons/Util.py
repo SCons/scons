@@ -98,15 +98,39 @@ _altsep = os.altsep
 if _altsep is None and sys.platform == 'win32':
     # My ActivePython 2.0.1 doesn't set os.altsep!  What gives?
     _altsep = '/'
+if _altsep:
+    def rightmost_separator(path, sep, _altsep=_altsep):
+        rfind = string.rfind
+        return max(rfind(path, sep), rfind(path, _altsep))
+else:
+    rightmost_separator = string.rfind
+
+# First two from the Python Cookbook, just for completeness.
+# (Yeah, yeah, YAGNI...)
+def containsAny(str, set):
+    """Check whether sequence str contains ANY of the items in set."""
+    for c in set:
+        if c in str: return 1
+    return 0
+
+def containsAll(str, set):
+    """Check whether sequence str contains ALL of the items in set."""
+    for c in set:
+        if c not in str: return 0
+    return 1
+
+def containsOnly(str, set):
+    """Check whether sequence str contains ONLY items in set."""
+    for c in str:
+        if c not in set: return 0
+    return 1
 
 def splitext(path):
     "Same as os.path.splitext() but faster."
-    if _altsep:
-        sep = max(string.rfind(path, os.sep), string.rfind(path, _altsep))
-    else:
-        sep = string.rfind(path, os.sep)
+    sep = rightmost_separator(path, os.sep)
     dot = string.rfind(path, '.')
-    if dot > sep:
+    # An ext is only real if it has at least one non-digit char
+    if dot > sep and not containsOnly(path[dot:], "0123456789."):
         return path[:dot],path[dot:]
     else:
         return path,""

@@ -179,6 +179,10 @@ RELEASE 0.96 - XXX
 
   - Avoid stack traces when trying to read dangling symlinks.
 
+  - Treat file "extensions" that only contain digits as part of the
+    file basename.  This supports version numbers as part of shared
+    library names, for example.
+
   From Simon Perkins:
 
   - Fix a bug introduced in building shared libraries under MinGW.
