@@ -80,7 +80,7 @@ def get_calling_namespaces():
     """Return the locals and globals for the function that called
     into this module in the current callstack."""
     try: 1/0
-    except: frame = sys.exc_info()[2].tb_frame
+    except ZeroDivisionError: frame = sys.exc_info()[2].tb_frame
     
     while frame.f_globals.get("__name__") == __name__: frame = frame.f_back
 

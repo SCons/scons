@@ -317,6 +317,8 @@ class _GenerateV6DSP(_DSPGenerator):
         try:
             datas = base64.decodestring(datas)
             data = pickle.loads(datas)
+        except KeyboardInterrupt:
+            raise
         except:
             return # unable to unpickle any data for some reason
 
@@ -334,6 +336,8 @@ class _GenerateV6DSP(_DSPGenerator):
         try:
             datas = base64.decodestring(datas)
             data = pickle.loads(datas)
+        except KeyboardInterrupt:
+            raise
         except:
             return # unable to unpickle any data for some reason
 
@@ -474,6 +478,8 @@ class _GenerateV7DSP(_DSPGenerator):
         try:
             datas = base64.decodestring(datas)
             data = pickle.loads(datas)
+        except KeyboardInterrupt:
+            raise
         except:
             return # unable to unpickle any data for some reason
 
@@ -490,6 +496,8 @@ class _GenerateV7DSP(_DSPGenerator):
         try:
             datas = base64.decodestring(datas)
             data = pickle.loads(datas)
+        except KeyboardInterrupt:
+            raise
         except:
             return # unable to unpickle any data for some reason
 
@@ -567,6 +575,8 @@ class _GenerateV7DSW(_DSWGenerator):
         try:
             datas = base64.decodestring(datas)
             data = pickle.loads(datas)
+        except KeyboardInterrupt:
+            raise
         except:
             return # unable to unpickle any data for some reason
 

@@ -422,6 +422,8 @@ class OptParser(OptionParser):
                                                                   __main__.__date__,
                                                                   __main__.__developer__,
                                                                   __main__.__buildsys__))
+        except KeyboardInterrupt:
+            raise
         except:
             # On win32 there is no scons.py, so there is no __main__.__version__,
             # hence there is no script version.
@@ -740,7 +742,7 @@ def _main(args, parser):
         cdir = _create_path(options.directory)
         try:
             os.chdir(cdir)
-        except:
+        except OSError:
             sys.stderr.write("Could not change directory to %s\n" % cdir)
 
     xmit_args = []
