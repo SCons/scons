@@ -35,6 +35,10 @@ RELEASE 0.06 -
   - Fixed an exception when CPPPATH or LIBPATH is a null string.
     (Bug reported by Richard Kiss.)
 
+  From Steve Leblanc:
+
+  - Add support for the -U option.
+
 
 
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600

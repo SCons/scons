@@ -483,15 +483,24 @@ appear up-to-date is unnecessary when using
 .BR scons .)
 
 .TP
--u
+-u, --up, --search-up
 Walks up the directory structure until an 
 .I SConstruct ,
 .I Sconstruct
 or 
 .I sconstruct
 file is found, and uses that
-as the top of the directory tree.  Only targets at or below the
+as the top of the directory tree. Only targets at or below the
 current directory will be built.
+
+.TP
+-U
+Works exactly the same way as the
+.B -u
+option except for the way default targets are handled.
+When this option is used and no targets are specified on the command line,
+all default targets are built, whether or not they are below the current
+directory.
 
 .TP
 -v, --version

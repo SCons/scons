@@ -542,6 +542,14 @@ def options_init():
 	short = 'u', long = ['up', 'search-up'],
 	help = "Search up directory tree for SConstruct.")
 
+    def opt_U(opt, arg):
+        global climb_up
+        climb_up = 2
+
+    Option(func = opt_U,
+	short = 'U',
+	help = "Search up directory tree for SConstruct.")
+
     def option_v(opt, arg):
         import SCons
 	print "SCons by Steven Knight et al.:"
@@ -721,11 +729,15 @@ def _main():
 	print UsageString()
 	sys.exit(0)
 
+    if target_top:
+        if climb_up == 2 and not targets:
+            # -U with default targets
+            target_top = None
+        else:
+            target_top = SCons.Node.FS.default_fs.Dir(target_top)
+
     if not targets:
         targets = SCons.Script.SConscript.default_targets
-
-    if target_top:
-        target_top = SCons.Node.FS.default_fs.Dir(target_top)
 
     def Entry(x, top = target_top):
         if isinstance(x, SCons.Node.Node):
