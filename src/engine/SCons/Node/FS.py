@@ -1834,8 +1834,7 @@ class File(Base):
 
 default_fs = FS()
 
-
-def find_file(filename, paths, node_factory = default_fs.File):
+def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
     """
     find_file(str, [Dir()]) -> [nodes]
 
@@ -1850,8 +1849,12 @@ def find_file(filename, paths, node_factory = default_fs.File):
     Only the first file found is returned, and none is returned
     if no file is found.
     """
+    if verbose and not SCons.Util.is_String(verbose):
+        verbose = "find_file"
     retval = None
     for dir in paths:
+        if verbose:
+            sys.stdout.write("  %s: looking for '%s' in '%s' ...\n" % (verbose, filename, dir))
         try:
             node = node_factory(filename, dir)
             # Return true if the node exists or is a derived node.
@@ -1859,6 +1862,8 @@ def find_file(filename, paths, node_factory = default_fs.File):
                node.is_pseudo_derived() or \
                (isinstance(node, SCons.Node.FS.Base) and node.exists()):
                 retval = node
+                if verbose:
+                    sys.stdout.write("  %s: ... FOUND '%s' in '%s'\n" % (verbose, filename, dir))
                 break
         except TypeError:
             # If we find a directory instead of a file, we don't care

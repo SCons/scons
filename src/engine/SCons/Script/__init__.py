@@ -420,6 +420,8 @@ def _set_globals(options):
                 print_dtree = 1
             elif options.debug == "explain":
                 print_explanations = 1
+            elif options.debug == "findlibs":
+                SCons.Scanner.Prog.print_find_libs = "findlibs"
             elif options.debug == "includes":
                 print_includes = 1
             elif options.debug == "memory":
@@ -526,7 +528,7 @@ class OptParser(OptionParser):
                         help="Search up directory tree for SConstruct,       "
                              "build all Default() targets.")
 
-        debug_options = ["count", "dtree", "explain",
+        debug_options = ["count", "dtree", "explain", "findlibs",
                          "includes", "memory", "objects",
                          "pdb", "presub", "stacktrace",
                          "time", "tree"]

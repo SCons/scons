@@ -30,6 +30,9 @@ import SCons.Node.FS
 import SCons.Scanner
 import SCons.Util
 
+# global, set by --debug=findlibs
+print_find_libs = None
+
 def ProgScan(fs = SCons.Node.FS.default_fs, **kw):
     """Return a prototype Scanner instance for scanning executable
     files for static-lib dependencies"""
@@ -85,7 +88,7 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
             lib = env.subst(lib)
             for pref, suf in pairs:
                 l = adjustixes(lib, pref, suf)
-                l = find_file(l, libpath, fs.File)
+                l = find_file(l, libpath, fs.File, verbose=print_find_libs)
                 if l:
                     result.append(l)
         else:

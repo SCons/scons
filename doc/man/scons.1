@@ -520,6 +520,13 @@ Print the dependency tree
 after each top-level target is built. This prints out only derived files.
 
 .TP
+--debug=findlibs
+Instruct the scanner that searches for libraries
+to print a message about each potential library
+name it is searching for,
+and about the actual libraries it finds.
+
+.TP
 --debug=includes
 Print the include tree after each top-level target is built. 
 This is generally used to find out what files are included by the sources
