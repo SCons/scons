@@ -320,11 +320,6 @@ class BuilderBase:
     def get_actions(self):
         return self.action.get_actions()
 
-    def execute(self, target, source, env):
-        """Execute a builder's action to create an output object.
-        """
-        return self.action.execute(target, source, env)
-
     def get_raw_contents(self, target, source, env):
         """Fetch the "contents" of the builder's action.
         """
@@ -380,20 +375,6 @@ class ListBuilder(SCons.Util.Proxy):
         self.tlist = tlist
         self.multi = builder.multi
         self.name = "ListBuilder(%s)"%builder.name
-
-    def execute(self, target, source, env):
-        if hasattr(self, 'status'):
-            return self.status
-        for t in self.tlist:
-            # unlink all targets and make all directories
-            # before building anything
-            t.prepare()
-        target = self.tlist
-        self.status = self.builder.execute(target, source, env)
-        for t in self.tlist:
-            if not t is target:
-                t.build()
-        return self.status
 
     def targets(self, node):
         """Return the list of targets for this builder instance.

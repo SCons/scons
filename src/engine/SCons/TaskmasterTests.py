@@ -115,6 +115,10 @@ class Node:
         return self.name
 
 
+class OtherError(Exception):
+    pass
+
+
 class TaskmasterTestCase(unittest.TestCase):
 
     def test_next_task(self):
@@ -337,8 +341,10 @@ class TaskmasterTestCase(unittest.TestCase):
         assert not tm.next_task()
         t.executed()
 
-
     def test_cycle_detection(self):
+        """Test detecting dependency cycles
+
+        """
         n1 = Node("n1")
         n2 = Node("n2", [n1])
         n3 = Node("n3", [n2])
@@ -409,6 +415,8 @@ class TaskmasterTestCase(unittest.TestCase):
         assert tm.next_task() is None
 
     def test_executed(self):
+        """Test when a task has been executed
+        """
         pass
 
     def test_prepare(self):
@@ -429,6 +437,66 @@ class TaskmasterTestCase(unittest.TestCase):
         t.prepare()
         assert n1.prepared
         assert n2.prepared
+
+    def test_execute(self):
+        """Test executing a task
+
+        """
+        global built_text
+
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster([n1])
+        t = tm.next_task()
+        t.execute()
+        assert built_text == "n1 built", built_text
+
+        def raise_UserError():
+            raise SCons.Errors.UserError
+        n2 = Node("n2")
+        n2.build = raise_UserError
+        tm = SCons.Taskmaster.Taskmaster([n2])
+        t = tm.next_task()
+        try:
+            t.execute()
+        except SCons.Errors.UserError:
+            pass
+        else:
+            raise TestFailed, "did not catch expected UserError"
+
+        def raise_BuildError():
+            raise SCons.Errors.BuildError
+        n3 = Node("n3")
+        n3.build = raise_BuildError
+        tm = SCons.Taskmaster.Taskmaster([n3])
+        t = tm.next_task()
+        try:
+            t.execute()
+        except SCons.Errors.BuildError:
+            pass
+        else:
+            raise TestFailed, "did not catch expected BuildError"
+
+        def raise_OtherError():
+            raise OtherError
+        n4 = Node("n4")
+        n4.build = raise_OtherError
+        tm = SCons.Taskmaster.Taskmaster([n4])
+        t = tm.next_task()
+        try:
+            t.execute()
+        except SCons.Errors.BuildError, e:
+            # On a generic (non-BuildError) exception from a Builder,
+            # the target should throw a BuildError exception with the
+            # args set to the exception value, instance, and traceback.
+            assert e.node == n4, e.node
+            assert e.errstr == "Exception", e.errstr
+            assert len(e.args) == 3, `e.args`
+            assert e.args[0] == OtherError, e.args[0]
+            assert isinstance(e.args[1], OtherError), type(e.args[1])
+            assert type(e.args[2]) == type(sys.exc_traceback), e.args[2]
+        else:
+            raise TestFailed, "did not catch expected BuildError"
+
 
 
 

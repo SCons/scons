@@ -29,13 +29,12 @@ Generic Taskmaster.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-
-
+import copy
+import string
+import sys
 
 import SCons.Node
-import string
 import SCons.Errors
-import copy
 
 class Task:
     """Default SCons build engine task.
@@ -71,12 +70,24 @@ class Task:
 
     def execute(self):
         """Called to execute the task.
-        
-        This methods is called from multiple threads in
-        a parallel build, so only do thread safe stuff here.
-        Do thread unsafe stuff in prepare(), executed() or failed()."""
-        if self.targets[0].get_state() != SCons.Node.up_to_date:
+
+        This method is called from multiple threads in a parallel build,
+        so only do thread safe stuff here.  Do thread unsafe stuff in
+        prepare(), executed() or failed()."""
+        try:
             self.targets[0].build()
+        except KeyboardInterrupt:
+            raise
+        except SCons.Errors.UserError:
+            raise
+        except SCons.Errors.BuildError:
+            raise
+        except:
+            raise SCons.Errors.BuildError(self.targets[0],
+                                          "Exception",
+                                          sys.exc_type,
+                                          sys.exc_value,
+                                          sys.exc_traceback)
 
     def get_target(self):
         """Fetch the target being built or updated by this task.

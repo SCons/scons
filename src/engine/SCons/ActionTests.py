@@ -30,19 +30,73 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 def Func():
     pass
 
+import os
 import sys
 import types
 import unittest
-
-import SCons.Action
-import TestCmd
-import SCons.Errors
-
 import UserDict
 
+import SCons.Action
 import SCons.Environment
-def Environment(dict):
-    return apply(SCons.Environment.Environment, (), dict)
+import SCons.Errors
+
+import TestCmd
+
+# Initial setup of the common environment for all tests,
+# a temporary working directory containing a
+# script for writing arguments to an output file.
+#
+# We don't do this as a setUp() method because it's
+# unnecessary to create a separate directory and script
+# for each test, they can just use the one.
+test = TestCmd.TestCmd(workdir = '')
+
+test.write('act.py', """import os, string, sys
+f = open(sys.argv[1], 'w')
+f.write("act.py: '" + string.join(sys.argv[2:], "' '") + "'\\n")
+try:
+    if sys.argv[3]:
+        f.write("act.py: '" + os.environ[sys.argv[3]] + "'\\n")
+except:
+    pass
+f.close()
+sys.exit(0)
+""")
+
+act_py = test.workpath('act.py')
+
+outfile = test.workpath('outfile')
+outfile2 = test.workpath('outfile2')
+
+scons_env = SCons.Environment.Environment()
+
+class Environment:
+    def __init__(self, **kw):
+        self.d = {}
+        self.d['SHELL'] = scons_env['SHELL']
+        self.d['SPAWN'] = scons_env['SPAWN']
+        self.d['ESCAPE'] = scons_env['ESCAPE']
+        for k, v in kw.items():
+            self.d[k] = v
+    def subst(self, s):
+        if not SCons.Util.is_String(s):
+            return s
+        try:
+            if s[0] == '$':
+                return self.d.get(s[1:], '')
+        except IndexError:
+            pass
+        return self.d.get(s, s)
+    def __getitem__(self, item):
+        return self.d[item]
+    def has_key(self, item):
+        return self.d.has_key(item)
+    def get(self, key, value):
+        return self.d.get(key, value)
+    def items(self):
+        return self.d.items()
+
+python = sys.executable
 
 class ActionTestCase(unittest.TestCase):
 
@@ -53,6 +107,7 @@ class ActionTestCase(unittest.TestCase):
             pass
         a1 = SCons.Action.Action(foo)
         assert isinstance(a1, SCons.Action.FunctionAction), a1
+        assert a1.function == foo, a1.function
 
         a2 = SCons.Action.Action("string")
         assert isinstance(a2, SCons.Action.CommandAction), a2
@@ -96,6 +151,15 @@ class ActionTestCase(unittest.TestCase):
         assert isinstance(a9.list[2], SCons.Action.CommandAction), a9.list[2]
         assert a9.list[2].cmd_list == ["z"], a9.list[2].cmd_list
 
+        a10 = SCons.Action.Action(["x", foo, "z"])
+        assert isinstance(a10, SCons.Action.ListAction), a10
+        assert isinstance(a10.list[0], SCons.Action.CommandAction), a10.list[0]
+        assert a10.list[0].cmd_list == ["x"], a10.list[0].cmd_list
+        assert isinstance(a10.list[1], SCons.Action.FunctionAction), a10.list[1]
+        assert a10.list[1].function == foo, a10.list[1].function
+        assert isinstance(a10.list[2], SCons.Action.CommandAction), a10.list[2]
+        assert a10.list[2].cmd_list == ["z"], a10.list[2].cmd_list
+
 class ActionBaseTestCase(unittest.TestCase):
 
     def test_cmp(self):
@@ -120,17 +184,19 @@ class ActionBaseTestCase(unittest.TestCase):
         """
         a = SCons.Action.Action("x")
 
-        d = a.subst_dict([],[],Environment({'a' : 'A', 'b' : 'B'}))
+        d = a.subst_dict([], [], Environment(a = 'A', b = 'B'))
         assert d['a'] == 'A', d
         assert d['b'] == 'B', d
 
-        d = a.subst_dict(target = 't', source = 's',env=Environment({}))
+        d = a.subst_dict(target = 't', source = 's', env = Environment())
         assert str(d['TARGETS']) == 't', d['TARGETS']
         assert str(d['TARGET']) == 't', d['TARGET']
         assert str(d['SOURCES']) == 's', d['SOURCES']
         assert str(d['SOURCE']) == 's', d['SOURCE']
 
-        d = a.subst_dict(target = ['t1', 't2'], source = ['s1', 's2'], env=Environment({}))
+        d = a.subst_dict(target = ['t1', 't2'],
+                         source = ['s1', 's2'],
+                         env = Environment())
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
         assert TARGETS == ['t1', 't2'], d['TARGETS']
@@ -148,7 +214,9 @@ class ActionBaseTestCase(unittest.TestCase):
             def rstr(self):
                 return 'rstr-' + self.name
 
-        d = a.subst_dict(target = [N('t3'), 't4'], source = ['s3', N('s4')], env=Environment({}))
+        d = a.subst_dict(target = [N('t3'), 't4'],
+                         source = ['s3', N('s4')],
+                         env = Environment())
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
         assert TARGETS == ['t3', 't4'], d['TARGETS']
@@ -165,10 +233,119 @@ class CommandActionTestCase(unittest.TestCase):
         assert a.cmd_list == [ "xyzzy" ], a.cmd_list
 
     def test_execute(self):
-        """Test executing a command Action
+        """Test execution of command Actions
+
         """
-        self.test_set_handler()
-        pass
+        cmd1 = r'%s %s %s xyzzy' % (python, act_py, outfile)
+
+        act = SCons.Action.CommandAction(cmd1)
+        r = act.execute([], [], Environment())
+        assert r == 0
+        c = test.read(outfile, 'r')
+        assert c == "act.py: 'xyzzy'\n", c
+
+        cmd2 = r'%s %s %s $TARGET' % (python, act_py, outfile)
+
+        act = SCons.Action.CommandAction(cmd2)
+        r = act.execute('foo', [], Environment())
+        assert r == 0
+        c = test.read(outfile, 'r')
+        assert c == "act.py: 'foo'\n", c
+
+        cmd3 = r'%s %s %s ${TARGETS}' % (python, act_py, outfile)
+
+        act = SCons.Action.CommandAction(cmd3)
+        r = act.execute(['aaa', 'bbb'], [], Environment())
+        assert r == 0
+        c = test.read(outfile, 'r')
+        assert c == "act.py: 'aaa' 'bbb'\n", c
+
+        cmd4 = r'%s %s %s $SOURCES' % (python, act_py, outfile)
+
+        act = SCons.Action.CommandAction(cmd4)
+        r = act.execute([], ['one', 'two'], Environment())
+        assert r == 0
+        c = test.read(outfile, 'r')
+        assert c == "act.py: 'one' 'two'\n", c
+
+        cmd4 = r'%s %s %s ${SOURCES[:2]}' % (python, act_py, outfile)
+
+        act = SCons.Action.CommandAction(cmd4)
+        r = act.execute([],
+                        source = ['three', 'four', 'five'],
+                        env = Environment())
+        assert r == 0
+        c = test.read(outfile, 'r')
+        assert c == "act.py: 'three' 'four'\n", c
+
+        cmd5 = r'%s %s %s $TARGET XYZZY' % (python, act_py, outfile)
+
+        act = SCons.Action.CommandAction(cmd5)
+        r = act.execute(target = 'out5',
+                        source = [],
+                        env = Environment(ENV = {'XYZZY' : 'xyzzy'}))
+        assert r == 0
+        c = test.read(outfile, 'r')
+        assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy'\n", c
+
+        class Obj:
+            def __init__(self, str):
+                self._str = str
+            def __str__(self):
+                return self._str
+
+        cmd6 = r'%s %s %s ${TARGETS[1]} $TARGET ${SOURCES[:2]}' % (python, act_py, outfile)
+
+        act = SCons.Action.CommandAction(cmd6)
+        r = act.execute(target = [Obj('111'), Obj('222')],
+                        source = [Obj('333'), Obj('444'), Obj('555')],
+                        env = Environment())
+        assert r == 0
+        c = test.read(outfile, 'r')
+        assert c == "act.py: '222' '111' '333' '444'\n", c
+
+        cmd7 = '%s %s %s one\n\n%s %s %s two' % (python, act_py, outfile,
+                                                 python, act_py, outfile)
+        expect7 = '%s %s %s one\n%s %s %s two\n' % (python, act_py, outfile,
+                                                    python, act_py, outfile)
+
+        act = SCons.Action.CommandAction(cmd7)
+
+        global show_string
+        show_string = ""
+        def my_show(string):
+            global show_string
+            show_string = show_string + string + "\n"
+        act.show = my_show
+
+        r = act.execute([], [], Environment())
+        assert r == 0
+        assert show_string == expect7, show_string
+
+        if os.name == 'nt':
+            # NT treats execs of directories and non-executable files
+            # as "file not found" errors
+            expect_nonexistent = 1
+            expect_nonexecutable = 1
+        else:
+            expect_nonexistent = 127
+            expect_nonexecutable = 126
+
+        # Test that a nonexistent command returns 127
+        act = SCons.Action.CommandAction(python + "_XyZzY_")
+        r = act.execute([], [], Environment(out = outfile))
+        assert r == expect_nonexistent, "r == %d" % r
+
+        # Test that trying to execute a directory returns 126
+        dir, tail = os.path.split(python)
+        act = SCons.Action.CommandAction(dir)
+        r = act.execute([], [], Environment(out = outfile))
+        assert r == expect_nonexecutable, "r == %d" % r
+
+        # Test that trying to execute a non-executable file returns 126
+        act = SCons.Action.CommandAction(outfile)
+        r = act.execute([], [], Environment(out = outfile))
+        assert r == expect_nonexecutable, "r == %d" % r
 
     def test_set_handler(self):
         """Test setting the command handler...
@@ -200,16 +377,16 @@ class CommandActionTestCase(unittest.TestCase):
             assert 0, "should have gotten user error"
             
         a = SCons.Action.CommandAction(["xyzzy"])
-        a.execute([],[],Environment({'SPAWN':func}))
+        a.execute([], [], Environment(SPAWN = func))
         assert t.executed == [ 'xyzzy' ]
 
         a = SCons.Action.CommandAction(["xyzzy"])
-        a.execute([],[],Environment({'SPAWN':func, 'SHELL':'fake shell'}))
+        a.execute([], [], Environment(SPAWN = func, SHELL = 'fake shell'))
         assert t.executed == [ 'xyzzy' ]
         assert t.shell == 'fake shell'
 
         a = SCons.Action.CommandAction([ LiteralStr("xyzzy") ])
-        a.execute([],[],Environment({'SPAWN':func, 'ESCAPE':escape_func}))
+        a.execute([], [], Environment(SPAWN = func, ESCAPE = escape_func))
         assert t.executed == [ '**xyzzy**' ], t.executed
 
     def test_get_raw_contents(self):
@@ -218,7 +395,7 @@ class CommandActionTestCase(unittest.TestCase):
         a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
                                         "$)", "|"])
         c = a.get_raw_contents(target=[], source=[],
-                               env=Environment({'foo':'FFF', 'bar':'BBB'}))
+                               env=Environment(foo = 'FFF', bar = 'BBB'))
         assert c == "| $( FFF | BBB $) |", c
 
     def test_get_contents(self):
@@ -227,7 +404,7 @@ class CommandActionTestCase(unittest.TestCase):
         a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
                                         "$)", "|"])
         c = a.get_contents(target=[], source=[],
-                           env=Environment({'foo':'FFF', 'bar':'BBB'}))
+                           env=Environment(foo = 'FFF', bar = 'BBB'))
         assert c == "| |", c
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
@@ -247,26 +424,13 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def f(target, source, env, for_signature, self=self):
             dummy = env['dummy']
             self.dummy = dummy
-            s = env.subst("$FOO $( bar $) baz")
-            assert s == 'foo baz\nbar ack bar baz', s
-            s = env.subst("$FOO $( bar $) baz", raw=1)
-            assert s == 'foo baz\nbar ack $( bar $) baz', s
-            s = env.subst_list("$FOO $( bar $) baz")
-            assert s == [[ 'foo', 'baz' ], [ 'bar', 'ack', 'bar', 'baz' ]], s
-            s = env.subst_list("$FOO $( bar $) baz", raw=1)
-            assert s == [[ 'foo', 'baz' ],
-                         [ 'bar', 'ack', '$(', 'bar', '$)', 'baz' ]], s
+            s = env.subst("$FOO")
+            assert s == 'foo baz\nbar ack', s
             return "$FOO"
         def func_action(target, source, env, self=self):
             dummy=env['dummy']
-            s = env.subst('$foo $( bar $)')
-            assert s == 'bar bar', s
-            s = env.subst('$foo $( bar $)', raw=1)
-            assert s == 'bar $( bar $)', s
-            s = env.subst_list([ '$foo', '$(', 'bar', '$)' ])
-            assert s == [[ 'bar', 'bar' ]], s
-            s = env.subst_list([ '$foo', '$(', 'bar', '$)' ], raw=1)
-            assert s == [[ 'bar', '$(', 'bar', '$)' ]], s
+            s = env.subst('$foo')
+            assert s == 'bar', s
             self.dummy=dummy
         def f2(target, source, env, for_signature, f=func_action):
             return f
@@ -278,17 +442,17 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         self.dummy = 0
         self.cmd = []
         self.args = []
-        a.execute([],[],env=Environment({ 'FOO' : 'foo baz\nbar ack',
-                                          'dummy' : 1,
-                                          'SPAWN':ch}))
+        a.execute([], [], env=Environment(FOO = 'foo baz\nbar ack',
+                                          dummy = 1,
+                                          SPAWN = ch))
         assert self.dummy == 1, self.dummy
         assert self.cmd == ['foo', 'bar'], self.cmd
         assert self.args == [[ 'foo', 'baz' ], [ 'bar', 'ack' ]], self.args
 
-        b=SCons.Action.CommandGeneratorAction(f2)
+        b = SCons.Action.CommandGeneratorAction(f2)
         self.dummy = 0
-        b.execute(target=[], source=[], env=Environment({ 'foo' : 'bar',
-                                                          'dummy' : 2 }))
+        b.execute(target=[], source=[], env=Environment(foo =  'bar',
+                                                        dummy =  2 ))
         assert self.dummy==2, self.dummy
         del self.dummy
 
@@ -299,8 +463,8 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
                 self.t.rfile_called = 1
         def f3(target, source, env, for_signature):
             return ''
-        c=SCons.Action.CommandGeneratorAction(f3)
-        c.execute(target=[], source=DummyFile(self), env=Environment({}))
+        c = SCons.Action.CommandGeneratorAction(f3)
+        c.execute(target=[], source=DummyFile(self), env=Environment())
         assert self.rfile_called
 
     def test_get_contents(self):
@@ -314,7 +478,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         a = SCons.Action.CommandGeneratorAction(f)
         c = a.get_contents(target=[], source=[],
-                           env=Environment({'foo':'FFF', 'bar' : 'BBB'}))
+                           env=Environment(foo = 'FFF', bar =  'BBB'))
         assert c == "guux FFF BBB", c
 
 
@@ -337,21 +501,65 @@ class FunctionActionTestCase(unittest.TestCase):
             s.inc = s.inc + 1
             s.target = target
             s.source=source
-            assert env.subst("foo$BAR") == 'foofoo bar', env.subst("foo$BAR")
-            assert env.subst_list("foo$BAR") == [ [ 'foofoo', 'bar' ] ], \
-                   env.subst_list("foo$BAR")
+            assert env.subst("$BAR") == 'foo bar', env.subst("$BAR")
             return 0
         a = SCons.Action.FunctionAction(f)
-        a.execute(target=1, source=2, env=Environment({'BAR':'foo bar','s':self}))
+        a.execute(target=1, source=2, env=Environment(BAR = 'foo bar',
+                                                      s = self))
         assert self.inc == 1, self.inc
         assert self.source == [2], self.source
         assert self.target == [1], self.target
+
+        global count
+        count = 0
+        def function1(target, source, env):
+            global count
+            count = count + 1
+            for t in target:
+                open(t, 'w').write("function1\n")
+            return 1
+
+        act = SCons.Action.FunctionAction(function1)
+        r = None
+        try:
+            r = act.execute(target = [outfile, outfile2],
+                            source=[],
+                            env=Environment())
+        except SCons.Errors.BuildError:
+            pass
+        assert r == 1
+        assert count == 1
+        c = test.read(outfile, 'r')
+        assert c == "function1\n", c
+        c = test.read(outfile2, 'r')
+        assert c == "function1\n", c
+
+        class class1a:
+            def __init__(self, target, source, env):
+                open(env['out'], 'w').write("class1a\n")
+
+        act = SCons.Action.FunctionAction(class1a)
+        r = act.execute([], [], Environment(out = outfile))
+        assert r.__class__ == class1a
+        c = test.read(outfile, 'r')
+        assert c == "class1a\n", c
+
+        class class1b:
+            def __call__(self, target, source, env):
+                open(env['out'], 'w').write("class1b\n")
+                return 2
+
+        act = SCons.Action.FunctionAction(class1b())
+        r = act.execute([], [], Environment(out = outfile))
+        assert r == 2
+        c = test.read(outfile, 'r')
+        assert c == "class1b\n", c
 
     def test_get_contents(self):
         """Test fetching the contents of a function Action
         """
         a = SCons.Action.FunctionAction(Func)
-        c = a.get_contents(target=[], source=[], env=Environment({}))
+        c = a.get_contents(target=[], source=[], env=Environment())
         assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
 
 class ListActionTestCase(unittest.TestCase):
@@ -388,8 +596,28 @@ class ListActionTestCase(unittest.TestCase):
             s = env['s']
             s.inc = s.inc + 1
         a = SCons.Action.ListAction([f, f, f])
-        a.execute([],[],Environment({'s':self}))
+        a.execute([], [], Environment(s = self))
         assert self.inc == 3, self.inc
+
+        cmd2 = r'%s %s %s syzygy' % (python, act_py, outfile)
+
+        def function2(target, source, env):
+            open(env['out'], 'a').write("function2\n")
+            return 0
+
+        class class2a:
+            def __call__(self, target, source, env):
+                open(env['out'], 'a').write("class2a\n")
+                return 0
+
+        class class2b:
+            def __init__(self, target, source, env):
+                open(env['out'], 'a').write("class2b\n")
+        act = SCons.Action.ListAction([cmd2, function2, class2a(), class2b])
+        r = act.execute([], [], Environment(out = outfile))
+        assert r.__class__ == class2b
+        c = test.read(outfile, 'r')
+        assert c == "act.py: 'syzygy'\nfunction2\nclass2a\nclass2b\n", c
 
     def test_get_contents(self):
         """Test fetching the contents of a list of subsidiary Actions
@@ -402,7 +630,7 @@ class ListActionTestCase(unittest.TestCase):
         a = SCons.Action.ListAction(["x",
                                      SCons.Action.CommandGenerator(gen),
                                      "z"])
-        c = a.get_contents(target=[], source=[], env=Environment({'s':self}))
+        c = a.get_contents(target=[], source=[], env=Environment(s = self))
         assert self.foo==1, self.foo
         assert c == "xyz", c
 
@@ -429,7 +657,7 @@ class LazyActionTestCase(unittest.TestCase):
             s.test=1
             return 0
         a = SCons.Action.Action('$BAR')
-        a.execute([],[], env=Environment({'BAR':f,'s':self}))
+        a.execute([], [], env=Environment(BAR = f, s = self))
         assert self.test == 1, self.test
 
     def test_get_contents(self):
@@ -437,7 +665,7 @@ class LazyActionTestCase(unittest.TestCase):
         """
         a = SCons.Action.Action("${FOO}")
         c = a.get_contents(target=[], source=[],
-                           env=Environment({'FOO':[["This", "is", "$(", "a", "$)", "test"]]}))
+                           env = Environment(FOO = [["This", "is", "$(", "a", "$)", "test"]]))
         assert c == "This is test", c
 
 

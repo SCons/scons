@@ -38,7 +38,7 @@ built_target =  None
 built_source =  None
 cycle_detected = None
 
-class Builder:
+class MyAction:
     def execute(self, target, source, env):
         global built_it, built_target, built_source, built_args
         built_it = 1
@@ -46,8 +46,12 @@ class Builder:
         built_source = source
         built_args = env
         return 0
+
+class Builder:
+    def targets(self, t):
+        return [t]
     def get_actions(self):
-        return 'xyzzy'
+        return [MyAction()]
     def get_contents(self, target, source, env):
         return 7
 
@@ -89,58 +93,14 @@ class Environment:
 
 class NodeTestCase(unittest.TestCase):
 
-    def test_BuildException(self):
-        """Test throwing an exception on build failure.
-        """
-        node = SCons.Node.Node()
-        node.builder_set(FailBuilder())
-        node.env_set(Environment())
-        try:
-            node.build()
-        except SCons.Errors.BuildError:
-            pass
-        else:
-            raise TestFailed, "did not catch expected BuildError"
-
-        node = SCons.Node.Node()
-        node.builder_set(ExceptBuilder())
-        node.env_set(Environment())
-        try:
-            node.build()
-        except SCons.Errors.BuildError:
-            pass
-        else:
-            raise TestFailed, "did not catch expected BuildError"
-
-        node = SCons.Node.Node()
-        node.builder_set(ExceptBuilder2())
-        node.env_set(Environment())
-        try:
-            node.build()
-        except SCons.Errors.BuildError, e:
-            # On a generic (non-BuildError) exception from a Builder,
-            # the Node should throw a BuildError exception with
-            # the args set to the exception value, type, and traceback.
-            assert len(e.args) == 3, `e.args`
-            assert e.args[0] == 'foo', e.args[0]
-            assert e.args[1] is None
-            assert type(e.args[2]) is type(sys.exc_traceback), e.args[2]
-        else:
-            raise TestFailed, "did not catch expected BuildError"
-
     def test_build(self):
         """Test building a node
         """
         global built_it
 
         class MyNode(SCons.Node.Node):
-            def __init__(self, **kw):
-                apply(SCons.Node.Node.__init__, (self,), kw)
-                self.prepare_count = 0
             def __str__(self):
                 return self.path
-            def prepare(self):
-                self.prepare_count = self.prepare_count+ 1
         # Make sure it doesn't blow up if no builder is set.
         node = MyNode()
         node.build()
@@ -153,8 +113,8 @@ class NodeTestCase(unittest.TestCase):
         node.sources = ["yyy", "zzz"]
         node.build()
         assert built_it
-        assert type(built_target) == type(MyNode()), type(built_target)
-        assert str(built_target) == "xxx", str(built_target)
+        assert type(built_target[0]) == type(MyNode()), type(built_target[0])
+        assert str(built_target[0]) == "xxx", str(built_target[0])
         assert built_source == ["yyy", "zzz"], built_source
 
         built_it = None
@@ -166,8 +126,8 @@ class NodeTestCase(unittest.TestCase):
         node.overrides = { "foo" : 1, "bar" : 2 }
         node.build()
         assert built_it
-        assert type(built_target) == type(MyNode()), type(built_target)
-        assert str(built_target) == "qqq", str(built_target)
+        assert type(built_target[0]) == type(MyNode()), type(built_target[0])
+        assert str(built_target[0]) == "qqq", str(built_target[0])
         assert built_source == ["rrr", "sss"], built_source
         assert built_args["foo"] == 1, built_args
         assert built_args["bar"] == 2, built_args
@@ -184,28 +144,6 @@ class NodeTestCase(unittest.TestCase):
         ggg.path = "ggg"
         fff.sources = ["hhh", "iii"]
         ggg.sources = ["hhh", "iii"]
-
-        built_it = None
-        fff.build()
-        assert built_it
-        ggg.build()
-        assert ggg.prepare_count== 1, ggg.prepare_count
-        assert type(built_target) == type(MyNode()), type(built_target)
-        assert str(built_target) == "fff", str(built_target)
-        assert built_source == ["hhh", "iii"], built_source
-
-        delattr(lb, 'status')
-        fff.prepare_count = 0
-        ggg.prepare_count = 0
-
-        built_it = None
-        ggg.build()
-        #assert built_it
-        fff.build()
-        assert fff.prepare_count== 1, fff.prepare_count
-        assert type(built_target) == type(MyNode()), type(built_target)
-        assert str(built_target) == "fff", str(built_target)
-        assert built_source == ["hhh", "iii"], built_source
 
     def test_depends_on(self):
         parent = SCons.Node.Node()
@@ -249,8 +187,8 @@ class NodeTestCase(unittest.TestCase):
         """
         node = SCons.Node.Node()
         node.builder_set(Builder())
-        a = node.get_actions()
-        assert a == 'xyzzy', a
+        a = node.builder.get_actions()
+        assert isinstance(a[0], MyAction), a[0]
 
     def test_set_bsig(self):
         """Test setting a Node's signature

@@ -46,13 +46,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 
-import string
-import types
 import copy
-import sys
-import SCons.Sig
+import types
 
-from SCons.Errors import BuildError, UserError
+import SCons.Sig
 import SCons.Util
 
 # Node states
@@ -110,38 +107,25 @@ class Node:
     def generate_build_env(self):
         return self.env.Override(self.overrides)
 
-    def get_actions(self):
-        """Fetch the action list to build."""
-        return self.builder.get_actions()
-
     def build(self):
-        """Actually build the node.   Return the status from the build."""
-        # This method is called from multiple threads in a parallel build,
-        # so only do thread safe stuff here. Do thread unsafe stuff in built().
+        """Actually build the node.
+
+        This method is called from multiple threads in a parallel build,
+        so only do thread safe stuff here. Do thread unsafe stuff in
+        built().
+        """
         if not self.builder:
             return None
-        try:
-            # If this Builder instance has already been called,
-            # there will already be an associated status.
-            stat = self.builder.status
-        except AttributeError:
-            try:
-                stat = self.builder.execute(self, self.sources, self.generate_build_env())
-            except KeyboardInterrupt:
-                raise
-            except UserError:
-                raise
-            except BuildError:
-                raise
-            except:
-                raise BuildError(self, "Exception",
-                                 sys.exc_type,
-                                 sys.exc_value,
-                                 sys.exc_traceback)
-        if stat:
-            raise BuildError(node = self, errstr = "Error %d" % stat)
-
-        return stat
+        action_list = self.builder.get_actions()
+        if not action_list:
+            return
+        targets = self.builder.targets(self)
+        env = self.generate_build_env()
+        for action in action_list:
+            stat = action.execute(targets, self.sources, env)
+            if stat:
+                raise SCons.Errors.BuildError(node = self,
+                                              errstr = "Error %d" % stat)
 
     def built(self):
         """Called just after this node is sucessfully built."""

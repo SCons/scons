@@ -40,10 +40,16 @@ class Builder:
     def __init__(self, factory):
         self.factory = factory
 
-    def execute(self, target, source, env):
-        global built_it
-        built_it = 1
-        return 0
+    def get_actions(self):
+        class Action:
+            def execute(self, targets, sources, env):
+                global built_it
+                built_it = 1
+                return 0
+        return [Action()]
+
+    def targets(self, t):
+        return [t]
     
     def source_factory(self, name):
         return self.factory(name)
@@ -554,6 +560,8 @@ class FSTestCase(unittest.TestCase):
         fs.chdir(fs.Dir('..'))
 
         # Test scanning
+        f1.builder_set(Builder(fs.File))
+        f1.env_set(Environment())
         f1.target_scanner = Scanner()
         f1.scan()
         assert f1.implicit[0].path_ == os.path.join("d1", "f1")

@@ -78,29 +78,9 @@ class BuildTask(SCons.Taskmaster.Task):
             if self.top and target.builder:
                 display('scons: "%s" is up to date.' % str(target))
         elif target.builder and not hasattr(target.builder, 'status'):
-            action_list = target.get_actions()
-            if not action_list:
-                return
-            env = target.generate_build_env()
             if print_time:
                 start_time = time.time()
-            try:
-                for action in action_list:
-                    stat = action.execute(self.targets, target.sources, env)
-                    if stat:
-                        raise BuildError(node = target,
-                                         errstr = "Error %d" % stat)
-            except KeyboardInterrupt:
-                raise
-            except UserError:
-                raise
-            except BuildError:
-                raise
-            except:
-                raise BuildError(target, "Exception",
-                                 sys.exc_type,
-                                 sys.exc_value,
-                                 sys.exc_traceback)
+            SCons.Taskmaster.Task.execute(self)
             if print_time:
                 finish_time = time.time()
                 global command_time
@@ -131,7 +111,7 @@ class BuildTask(SCons.Taskmaster.Task):
                 SCons.Taskmaster.Task.executed(self)
         else:
             SCons.Taskmaster.Task.executed(self)
-                
+
         # print the tree here instead of in execute() because
         # this method is serialized, but execute isn't:
         if print_tree and self.top:
@@ -142,14 +122,11 @@ class BuildTask(SCons.Taskmaster.Task):
             print SCons.Util.render_tree(self.targets[0], get_derived_children)
 
     def failed(self):
-        global exit_status
-
         e = sys.exc_value
         if sys.exc_type == BuildError:
             sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
             if e.errstr == 'Exception':
-                traceback.print_exception(e.args[0], e.args[1],
-                                          e.args[2])
+                traceback.print_exception(e.args[0], e.args[1], e.args[2])
         elif sys.exc_type == UserError:
             # We aren't being called out of a user frame, so
             # don't try to walk the stack, just print the error.
