@@ -204,7 +204,8 @@ def tool_list(platform, env):
                                 'dvipdf', 'dvips',
                                 'latex', 'lex',
                                 'pdflatex', 'pdftex', 'Perforce',
-                                'RCS', 'SCCS', 'Subversion',
+                                'RCS', 'SCCS',
+                                # 'Subversion',
                                 'tar', 'tex', 'yacc', 'zip'],
                                env)
 

@@ -201,7 +201,7 @@ def copyFunc(dest, source, env):
 
 def _concat(prefix, list, suffix, env, f=lambda x: x):
     """Creates a new list from 'list' by first interpolating each
-    element in the list using 'locals' and 'globals' and then calling f
+    element in the list using the 'env' dictionary and then calling f
     on the list, and finally concatenating 'prefix' and 'suffix' onto
     each element of the list. A trailing space on 'prefix' or leading
     space on 'suffix' will cause them to be put into seperate list

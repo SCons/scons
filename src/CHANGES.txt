@@ -35,8 +35,8 @@ RELEASE 0.12 - XXX
 
   - Add an Environment.SourceCode() method to support fetching files
     from source code systems.  Add factory methods that create Builders
-    to support BitKeeper, CVS, RCS, SCCS and Subversion.  Add support
-    for fetching files from RCS or SCCS transparently (like GNU Make).
+    to support BitKeeper, CVS, RCS, and SCCS.  Add support for fetching
+    files from RCS or SCCS transparently (like GNU Make).
 
   - Make the internal to_String() function more efficient.
 
@@ -82,6 +82,9 @@ RELEASE 0.12 - XXX
 
   - Fix an exception thrown when the -U option was used with no
     Default() target specified.
+
+  - Fix -u so that it builds things in corresponding build directories
+    when used in a source directory.
 
   From Lachlan O'Dea:
 

@@ -1769,47 +1769,47 @@ env.SourceCode('.', env.BitKeeper('/usr/local/BKsources'))
 env.SourceCode('src', env.CVS('/usr/local/CVSROOT'))
 env.SourceCode('/', env.RCS())
 env.SourceCode(['f1.c', 'f2.c'], env.SCCS())
-env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
 env.SourceCode('no_source.c', None)
 .EE
-
-.TP
-.RI Subversion( repository ", " module )
-A factory function that
-returns a Builder object
-to be used to fetch source files
-from the specified Subversion
-.IR repository .
-The returned Builder
-is intended to be passed to the
-.B SourceCode
-function.
-
-The optional specified
-.I module
-will be added to the beginning
-of all repository path names;
-this can be used, in essence,
-to strip initial directory names
-from the repository path names,
-so that you only have to
-replicate part of the repository
-directory hierarchy in your
-local build directory:
-
-.ES
-# Will fetch foo/bar/src.c
-# from /usr/local/Subversion/foo/bar/src.c.
-env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
-
-# Will fetch bar/src.c
-# from /usr/local/Subversion/foo/bar/src.c.
-env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo'))
-
-# Will fetch src.c
-# from /usr/local/Subversion/foo/bar/src.c.
-env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo/bar'))
-.EE
+'\"env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
+'\"
+'\".TP
+'\".RI Subversion( repository ", " module )
+'\"A factory function that
+'\"returns a Builder object
+'\"to be used to fetch source files
+'\"from the specified Subversion
+'\".IR repository .
+'\"The returned Builder
+'\"is intended to be passed to the
+'\".B SourceCode
+'\"function.
+'\"
+'\"The optional specified
+'\".I module
+'\"will be added to the beginning
+'\"of all repository path names;
+'\"this can be used, in essence,
+'\"to strip initial directory names
+'\"from the repository path names,
+'\"so that you only have to
+'\"replicate part of the repository
+'\"directory hierarchy in your
+'\"local build directory:
+'\"
+'\".ES
+'\"# Will fetch foo/bar/src.c
+'\"# from /usr/local/Subversion/foo/bar/src.c.
+'\"env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
+'\"
+'\"# Will fetch bar/src.c
+'\"# from /usr/local/Subversion/foo/bar/src.c.
+'\"env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo'))
+'\"
+'\"# Will fetch src.c
+'\"# from /usr/local/Subversion/foo/bar/src.c.
+'\"env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo/bar'))
+'\".EE
 
 .SS Construction Variables
 .\" XXX From Gary Ruben, 23 April 2002:
@@ -2614,17 +2614,17 @@ is that arguments to the command.
 .I env
 is a dictionary of the environment variables
 in which the command should be executed.
-
-.IP SVN
-The Subversion executable (usually named
-.BR svn ).
-
-.IP SVNCOM
-The command line used to
-fetch source files from a Subversion repository.
-
-.IP SVNFLAGS
-General options that are passed to Subversion.
+'\"
+'\".IP SVN
+'\"The Subversion executable (usually named
+'\".BR svn ).
+'\"
+'\".IP SVNCOM
+'\"The command line used to
+'\"fetch source files from a Subversion repository.
+'\"
+'\".IP SVNFLAGS
+'\"General options that are passed to Subversion.
 
 .IP TAR
 The tar archiver.
@@ -3986,7 +3986,7 @@ into the expanded string:
 def foo(target, source, env):
     return "bar"
 
-# Will expand to $BAR to "bar baz"
+# Will expand $BAR to "bar baz"
 env=Environment(FOO=foo, BAR="$FOO baz")
 .EE
 
