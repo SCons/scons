@@ -112,6 +112,7 @@ tools = [
     'qt',
     'RCS',
     'rmic',
+    'rpcgen',
     'SCCS',
     'sgiar',
     'sgic++',

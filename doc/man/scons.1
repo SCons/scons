@@ -1022,6 +1022,7 @@ pdflatex
 pdftex
 qt
 rmic
+rpcgen
 sgiar
 sgic++
 sgicc
@@ -1654,6 +1655,66 @@ env.RMIC(target = 'outdir2',
 env.RMIC(target = 'outdir3',
          source = ['classes/foo.class', 'classes/bar.class'],
          JAVACLASSDIR = 'classes')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP RPCGenClient()
+.IP env.RPCGenClient()
+Generates an RPC client stub (_clnt.c) file
+from a specified RPC (.x) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+
+.ES
+# Builds src/rpcif_clnt.c
+env.RPCGenClient('src/rpcif.x')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP RPCGenHeader()
+.IP env.RPCGenHeader()
+Generates an RPC header (.h) file
+from a specified RPC (.x) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+
+.ES
+# Builds src/rpcif.h
+env.RPCGenHeader('src/rpcif.x')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP RPCGenService()
+.IP env.RPCGenService()
+Generates an RPC server-skeleton (_svc.c) file
+from a specified RPC (.x) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+
+.ES
+# Builds src/rpcif_svc.c
+env.RPCGenClient('src/rpcif.x')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.IP RPCGenXDR()
+.IP env.RPCGenXDR()
+Generates an RPC XDR routine (_xdr.c) file
+from a specified RPC (.x) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+
+.ES
+# Builds src/rpcif_xdr.c
+env.RPCGenClient('src/rpcif.x')
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -5827,6 +5888,40 @@ are included on this command line.
 
 .IP RMICFLAGS
 General options passed to the Java RMI stub compiler.
+
+.IP RPCGEN
+The RPC protocol compiler.
+
+.IP RPCGENCLIENTFLAGS
+Options passed to the RPC protocol compiler
+when generating client side stubs.
+These are in addition to any flags specified in the
+.B RPCGENFLAGS
+construction variable.
+
+.IP RPCGENFLAGS
+General options passed to the RPC protocol compiler.
+
+.IP RPCGENHEADERFLAGS
+Options passed to the RPC protocol compiler
+when generating a header file.
+These are in addition to any flags specified in the
+.B RPCGENFLAGS
+construction variable.
+
+.IP RPCGENSERVICEFLAGS
+Options passed to the RPC protocol compiler
+when generating server side stubs.
+These are in addition to any flags specified in the
+.B RPCGENFLAGS
+construction variable.
+
+.IP RPCGENXDRFLAGS
+Options passed to the RPC protocol compiler
+when generating XDR routines.
+These are in addition to any flags specified in the
+.B RPCGENFLAGS
+construction variable.
 
 .IP RPATH
 A list of paths to search for shared libraries when running programs.
