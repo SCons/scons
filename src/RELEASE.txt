@@ -26,6 +26,13 @@ RELEASE 0.97 - XXX
   Please consult the CHANGES.txt file for a list of specific changes
   since last release.
 
+  Please note the following important changes since release 0.96:
+
+    - The ParseConfig() method now adds library file names returned
+      by the specified *-config command to the $LIBS construction
+      variable, instead of returning them (the same way it handles
+      the -l option).
+
   Please note the following important changes since release 0.95:
 
     - All Builder calls (both built-in like Program(), Library(),

@@ -33,6 +33,9 @@ test = TestSCons.TestSCons()
 
 test_config = test.workpath('test-config')
 
+# 'abc' is supposed to be a static lib; it is included in LIBS as a
+# File node.
+# It used to be returned as the 'static_libs' output of ParseConfig.
 test.write('test-config', """#! /usr/bin/env python
 print "-I/usr/include/fum -Ibar -X"
 print "-L/usr/fax -Lfoo -lxxx abc"
@@ -40,41 +43,37 @@ print "-L/usr/fax -Lfoo -lxxx abc"
 
 test.write('SConstruct', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
-static_libs = env.ParseConfig([r"%s", r"%s", "--libs --cflags"])
+env.ParseConfig([r"%s", r"%s", "--libs --cflags"])
 print env['CPPPATH']
 print env['LIBPATH']
-print env['LIBS']
+print map(lambda x: str(x), env['LIBS'])
 print env['CCFLAGS']
-print static_libs
 """ % (TestSCons.python, test_config))
 
 test.write('SConstruct2', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '',
                   PYTHON = '%s')
-static_libs = env.ParseConfig(r"$PYTHON %s --libs --cflags")
+env.ParseConfig(r"$PYTHON %s --libs --cflags")
 print env['CPPPATH']
 print env['LIBPATH']
-print env['LIBS']
+print map(lambda x: str(x), env['LIBS'])
 print env['CCFLAGS']
-print static_libs
 """ % (TestSCons.python, test_config))
 
 test.write('SConstruct3', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
-static_libs = ParseConfig(env, r"%s %s --libs --cflags")
+ParseConfig(env, r"%s %s --libs --cflags")
 print env['CPPPATH']
 print env['LIBPATH']
-print env['LIBS']
+print map(lambda x: str(x), env['LIBS'])
 print env['CCFLAGS']
-print static_libs
 """ % (TestSCons.python, test_config))
 
 good_stdout = test.wrap_stdout(read_str = """\
 ['/usr/include/fum', 'bar']
 ['/usr/fax', 'foo']
-['xxx']
+['xxx', 'abc']
 ['-X']
-['abc']
 """, build_str = "scons: `.' is up to date.\n")
 
 test.run(arguments = ".", stdout = good_stdout)

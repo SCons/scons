@@ -3071,6 +3071,16 @@ option gets added to both the
 and
 .B LINKFLAGS
 variables.
+A returned
+.B -framework
+option gets added to the
+.B LINKFLAGS
+variable.
+Any other strings not associated with options
+are assumed to be the names of libraries
+and added to the
+.B LIBS 
+construction variable.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP

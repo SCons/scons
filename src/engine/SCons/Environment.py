@@ -739,7 +739,7 @@ class Base:
         """
 
         # the default parse function
-        def parse_conf(env, output):
+        def parse_conf(env, output, fs=self.fs):
             dict = {
                 'ASFLAGS'       : [],
                 'CCFLAGS'       : [],
@@ -749,12 +749,15 @@ class Base:
                 'LIBS'          : [],
                 'LINKFLAGS'     : [],
             }
-            static_libs = []
     
             params = string.split(output)
+            append_next_arg_to=''       # for multi-word args
             for arg in params:
-                if arg[0] != '-':
-                    static_libs.append(arg)
+                if append_next_arg_to:
+                    dict[append_next_arg_to].append(arg)
+                    append_next_arg_to = ''
+                elif arg[0] != '-':
+                    dict['LIBS'].append(fs.File(arg))
                 elif arg[:2] == '-L':
                     dict['LIBPATH'].append(arg[2:])
                 elif arg[:2] == '-l':
@@ -767,13 +770,15 @@ class Base:
                     dict['LINKFLAGS'].append(arg)
                 elif arg[:4] == '-Wp,':
                     dict['CPPFLAGS'].append(arg)
+                elif arg == '-framework':
+                    dict['LINKFLAGS'].append(arg)
+                    append_next_arg_to='LINKFLAGS'
                 elif arg == '-pthread':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
                 else:
                     dict['CCFLAGS'].append(arg)
             apply(env.Append, (), dict)
-            return static_libs
     
         if function is None:
             function = parse_conf
