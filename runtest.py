@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# runtests.py - wrapper script for running SCons tests
+# runtest.py - wrapper script for running SCons tests
 #
 # This script mainly exists to set PYTHONPATH to the right list of
 # directories to test the SCons modules.
@@ -126,17 +126,24 @@ else:
 
     lib_dir = os.path.join(cwd, 'src', 'engine')
 
+if scons:
+    # Let the version of SCons that the -x option pointed to find
+    # its own modules.
+    os.environ['SCONS'] = scons
+else:
+    # Because SCons is really aggressive about finding its modules,
+    # it sometimes finds SCons modules elsewhere on the system.
+    # This forces SCons to use the modules that are being tested.
+    os.environ['SCONS_LIB_DIR'] = lib_dir
+
+if scons_exec:
+    os.environ['SCONS_EXEC'] = '1'
+
 os.environ['PYTHONPATH'] = lib_dir + \
                            os.pathsep + \
                            os.path.join(cwd, 'build', 'etc') + \
                            os.pathsep + \
                            os.path.join(cwd, 'etc')
-
-if scons:
-    os.environ['SCONS'] = scons
-
-if scons_exec:
-    os.environ['SCONS_EXEC'] = '1'
 
 os.chdir(scons_dir)
 
