@@ -169,6 +169,8 @@ class Scanner:
     def __call__(self, node):
         self.called = 1
         return node.found_includes
+    def path(self, env, dir, target=None, source=None):
+        return ()
     def select(self, node):
         return self
 
@@ -309,8 +311,19 @@ class NodeTestCase(unittest.TestCase):
             assert str(act.built_target[0]) == "xxx", str(act.built_target[0])
             assert act.built_source == ["yyy", "zzz"], act.built_source
 
+    def test_get_build_scanner_path(self):
+        """Test the get_build_scanner_path() method"""
+        n = SCons.Node.Node()
+        class MyExecutor:
+            def get_build_scanner_path(self, scanner):
+                return 'executor would call %s' % scanner
+        x = MyExecutor()
+        n.set_executor(x)
+        p = n.get_build_scanner_path('fake_scanner')
+        assert p == "executor would call fake_scanner", p
+
     def test_get_executor(self):
-        """Test the reset_executor() method"""
+        """Test the get_executor() method"""
         n = SCons.Node.Node()
 
         try:
@@ -337,7 +350,7 @@ class NodeTestCase(unittest.TestCase):
         assert x.env == 'env2', x.env
 
     def test_set_executor(self):
-        """Test the reset_executor() method"""
+        """Test the set_executor() method"""
         n = SCons.Node.Node()
         n.set_executor(1)
         assert n.executor == 1, n.executor

@@ -612,11 +612,11 @@ class Entry(Base):
         self.clear()
         return File.rfile(self)
 
-    def get_found_includes(self, env, scanner, target):
+    def get_found_includes(self, env, scanner, path):
         """If we're looking for included files, it's because this Entry
         is really supposed to be a File itself."""
         node = self.rfile()
-        return node.get_found_includes(env, scanner, target)
+        return node.get_found_includes(env, scanner, path)
 
     def scanner_key(self):
         return self.get_suffix()
@@ -1456,29 +1456,13 @@ class File(Base):
         except AttributeError:
             return None
 
-    def get_found_includes(self, env, scanner, target):
+    def get_found_includes(self, env, scanner, path):
         """Return the included implicit dependencies in this file.
-        Cache results so we only scan the file once regardless of
-        how many times this information is requested."""
+        Cache results so we only scan the file once per path
+        regardless of how many times this information is requested.
+        __cacheable__"""
         if not scanner:
             return []
-
-        try:
-            path = target.scanner_paths[scanner]
-        except AttributeError:
-            # The target had no scanner_paths attribute, which means
-            # it's an Alias or some other node that's not actually a
-            # file.  In that case, back off and use the path for this
-            # node itself.
-            try:
-                path = self.scanner_paths[scanner]
-            except KeyError:
-                path = scanner.path(env, self.cwd, target)
-                self.scanner_paths[scanner] = path
-        except KeyError:
-            path = scanner.path(env, target.cwd, target)
-            target.scanner_paths[scanner] = path
-
         return scanner(self, env, path)
 
     def _createDir(self):

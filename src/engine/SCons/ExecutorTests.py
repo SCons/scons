@@ -61,9 +61,12 @@ class MyBuilder:
         self.action = MyAction()
 
 class MyNode:
-    def __init__(self, pre, post):
+    def __init__(self, name=None, pre=[], post=[]):
+        self.name = name
         self.pre_actions = pre
         self.post_actions = post
+    def __str__(self):
+        return self.name
     def build(self, errfunc=None):
         executor = SCons.Executor.Executor(MyAction(self.pre_actions +
                                                     [self.builder.action] +
@@ -73,6 +76,12 @@ class MyNode:
                                            [self],
                                            ['s1', 's2'])
         apply(executor, (self, errfunc), {})
+
+class MyScanner:
+    def path(self, env, dir, target, source):
+        target = map(str, target)
+        source = map(str, source)
+        return "scanner: %s, %s, %s, %s" % (env['SCANNERVAL'], dir, target, source)
         
 
 class ExecutorTestCase(unittest.TestCase):
@@ -124,6 +133,21 @@ class ExecutorTestCase(unittest.TestCase):
         assert be['O'] == 'ob3', be['O']
         assert be['Y'] == 'yyy', be['Y']
 
+    def test_get_build_scanner_path(self):
+        """Test fetching the path for the specified scanner."""
+        t = MyNode('t')
+        t.cwd = 'here'
+        x = SCons.Executor.Executor(MyAction(),
+                                    MyEnvironment(SCANNERVAL='sss'),
+                                    [],
+                                    [t],
+                                    ['s1', 's2'])
+
+        s = MyScanner()
+
+        p = x.get_build_scanner_path(s)
+        assert p == "scanner: sss, here, ['t'], ['s1', 's2']", p
+
     def test__call__(self):
         """Test calling an Executor"""
         result = []
@@ -140,7 +164,7 @@ class ExecutorTestCase(unittest.TestCase):
         a = MyAction([action1, action2])
         b = MyBuilder(env, {})
         b.action = a
-        n = MyNode([pre], [post])
+        n = MyNode('n', [pre], [post])
         n.builder = b
         n.build()
         assert result == ['pre', 'action1', 'action2', 'post'], result
@@ -152,7 +176,7 @@ class ExecutorTestCase(unittest.TestCase):
                 errfunc(1)
             return 1
 
-        n = MyNode([pre_err], [post])
+        n = MyNode('n', [pre_err], [post])
         n.builder = b
         n.build()
         assert result == ['pre_err', 'action1', 'action2', 'post'], result
@@ -219,7 +243,7 @@ class ExecutorTestCase(unittest.TestCase):
         a = MyAction([action1])
         x = SCons.Executor.Executor(a, env, [], ['t1', 't2'], ['s1', 's2'])
 
-        x(MyNode([], []), None)
+        x(MyNode('', [], []), None)
         assert result == ['action1'], result
         s = str(x)
         assert s[:10] == 'GENSTRING ', s
@@ -228,7 +252,7 @@ class ExecutorTestCase(unittest.TestCase):
         x.nullify()
 
         assert result == [], result
-        x(MyNode([], []), None)
+        x(MyNode('', [], []), None)
         assert result == [], result
         s = str(x)
         assert s == '', s

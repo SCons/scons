@@ -54,8 +54,7 @@ def Scanner(function, *args, **kw):
         return apply(Base, (function,) + args, kw)
 
 
-class Binder:
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+class _Binder:
     def __init__(self, bindval):
         self._val = bindval
     def __call__(self):
@@ -63,42 +62,38 @@ class Binder:
     def __str__(self):
         return str(self._val)
         #debug: return 'B<%s>'%str(self._val)
-    
+
+BinderDict = {}
+
+def Binder(path):
+    try:
+        return BinderDict[path]
+    except KeyError:
+        b = _Binder(path)
+        BinderDict[path] = b
+        return b
+
+
 class FindPathDirs:
     """A class to bind a specific *PATH variable name and the fs object
     to a function that will return all of the *path directories."""
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
     def __init__(self, variable, fs):
         self.variable = variable
         self.fs = fs
-    def __call__(self, env, dir, target=None, argument=None):
-        "__cacheable__"
+    def __call__(self, env, dir, target=None, source=None, argument=None):
+        # The goal is that we've made caching this unnecessary
+        # because the caching takes place at higher layers.
         try:
             path = env[self.variable]
         except KeyError:
             return ()
 
-        path = env.subst_path(path, target=target)
+        path = env.subst_path(path, target=target, source=source)
         path_tuple = tuple(self.fs.Rsearchall(path,
                                               must_exist = 0, #kwq!
                                               clazz = SCons.Node.FS.Dir,
                                               cwd = dir))
         return Binder(path_tuple)
-
-if not SCons.Memoize.has_metaclass:
-    _FPD_Base = FindPathDirs
-    class FindPathDirs(SCons.Memoize.Memoizer, _FPD_Base):
-        "Cache-backed version of FindPathDirs"
-        def __init__(self, *args, **kw):
-            apply(_FPD_Base.__init__, (self,)+args, kw)
-            SCons.Memoize.Memoizer.__init__(self)
-    _BinderBase = Binder
-    class Binder(SCons.Memoize.Memoizer, _BinderBase):
-        "Cache-backed version of Binder"
-        def __init__(self, *args, **kw):
-            apply(_BinderBase.__init__, (self,)+args, kw)
-            SCons.Memoize.Memoizer.__init__(self)
-
 
 class Base:
     """
@@ -189,14 +184,13 @@ class Base:
         self.scan_check = scan_check
         self.recursive = recursive
 
-    def path(self, env, dir=None, target=None):
-        "__cacheable__"
+    def path(self, env, dir=None, target=None, source=None):
         if not self.path_function:
             return ()
         if not self.argument is _null:
-            return self.path_function(env, dir, target, self.argument)
+            return self.path_function(env, dir, target, source, self.argument)
         else:
-            return self.path_function(env, dir, target)
+            return self.path_function(env, dir, target, source)
 
     def __call__(self, node, env, path = ()):
         """

@@ -77,6 +77,17 @@ class Executor:
 
         return build_env
 
+    def get_build_scanner_path(self, scanner):
+        """
+        __cacheable__
+        """
+        env = self.get_build_env()
+        try:
+            cwd = self.targets[0].cwd
+        except (IndexError, AttributeError):
+            cwd = None
+        return scanner.path(env, cwd, self.targets, self.sources)
+
     def do_nothing(self, target, errfunc, kw):
         pass
 
