@@ -20,9 +20,9 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
+RELEASE 0.96 - XXX
 
-  This is the sixth beta release of SCons.  Please consult the
+  This is the seventh beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.94:

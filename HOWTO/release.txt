@@ -1,4 +1,10 @@
-Things to do to release a new version of SCons:
+This document covers how to prepare major releases of SCons--that is,
+releases numbered with X.Y format, such as 0.93, 1.0, etc.
+
+If you need to prepare a specific subrelease (X.Y.Z, such as 0.94.1),
+then see the document HOWTO/subrelease.txt.
+
+Things to do to release a new X.Y version of SCons:
 
 	Prepare the describe-the-release section for the announcements
 
@@ -41,11 +47,11 @@ Things to do to release a new version of SCons:
 
 		ae_p scons.0
 
-		aede {93}
+		aede {95}
 
-		aerpass {93}
+		aerpass {95}
 
-		aeib {93}
+		aeib {95}
 
 		aeb
 
@@ -59,16 +65,16 @@ Things to do to release a new version of SCons:
 
 	START THE NEW BRANCH FOR RELEASE
 
-		aenbr -p scons.0 {94}
+		aenbr -p scons.0 {96}
 
-		aenc -p scons.0.{94}
+		aenc -p scons.0.{96}
 
                         Call it something like,
                         "Initialize the new branch for release."
                         Cause = internal_enhancement.
                         Exempt it from all tests (*_exempt = true).
 
-		ae_p scons.0.{94}
+		ae_p scons.0.{96}
 
 		aedb 100
 
@@ -146,16 +152,16 @@ Things to do to release a new version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.{94}-1.noarch.rpm
-		put scons-0.{94}-1.src.rpm
-		put scons-0.{94}.tar.gz
-		put scons-0.{94}.win32.exe
-		put scons-0.{94}.zip
-		put scons-local-0.{94}.tar.gz
-		put scons-local-0.{94}.zip
-		put scons-src-0.{94}.tar.gz
-		put scons-src-0.{94}.zip
-		put scons_0.{94}-1_all.deb
+		put scons-0.{96}-1.noarch.rpm
+		put scons-0.{96}-1.src.rpm
+		put scons-0.{96}.tar.gz
+		put scons-0.{96}.win32.exe
+		put scons-0.{96}.zip
+		put scons-local-0.{96}.tar.gz
+		put scons-local-0.{96}.zip
+		put scons-src-0.{96}.tar.gz
+		put scons-src-0.{96}.zip
+		put scons_0.{96}-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
@@ -167,7 +173,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.{94}
+		New release name:  0.{96}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -184,12 +190,12 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-0.{94}-1.noarch.rpm	Any	.rpm
-			scons-0.{94}-1.src.rpm		Any	Source .rpm
-			scons-0.{94}.tar.gz		Any	.gz
-			scons-0.{94}.win32.exe		i386	.exe (32-bit Windows)
-			scons-0.{94}.zip		Any	.zip
-			scons_0.{94}-1_all.deb		Any	.deb
+			scons-0.{96}-1.noarch.rpm	Any	.rpm
+			scons-0.{96}-1.src.rpm		Any	Source .rpm
+			scons-0.{96}.tar.gz		Any	.gz
+			scons-0.{96}.win32.exe		i386	.exe (32-bit Windows)
+			scons-0.{96}.zip		Any	.zip
+			scons_0.{96}-1_all.deb		Any	.deb
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -206,7 +212,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.{94}
+		New release name:  0.{96}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -223,8 +229,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-local-0.{94}.tar.gz	Any	.gz
-			scons-local-0.{94}.zip   	Any	.zip
+			scons-local-0.{96}.tar.gz	Any	.gz
+			scons-local-0.{96}.zip   	Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -241,7 +247,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.{94}
+		New release name:  0.{96}
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -258,8 +264,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-src-0.{94}.tar.gz		Any	.gz
-			scons-src-0.{94}.zip   		Any	.zip
+			scons-src-0.{96}.tar.gz		Any	.gz
+			scons-src-0.{96}.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -268,7 +274,7 @@ Things to do to release a new version of SCons:
 		Release Notice section.
 
 
-	Hide release 0.{92} at the SourceForge download page:
+	Hide release 0.{94} at the SourceForge download page:
 
 		Go to the Admin page
 
@@ -278,7 +284,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: 0.{92}
+		Release Name: 0.{94}
 
 		=> Edit This Release
 
@@ -295,7 +301,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: 0.{92}
+		Release Name: 0.{94}
 
 		=> Edit This Release
 
@@ -312,7 +318,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: 0.{92}
+		Release Name: 0.{94}
 
 		=> Edit This Release
 
@@ -322,7 +328,7 @@ Things to do to release a new version of SCons:
 
 
 
-	In the Bugs Tracker, add a Group for the new release 0.{92}
+	In the Bugs Tracker, add a Group for the new release 0.{94}
 
 
 
@@ -430,7 +436,7 @@ Things to do to release a new version of SCons:
 =======================
 Template describe-the-release section:
 
-IMPORTANT:  Release 0.92 contains the following interface changes:
+IMPORTANT:  Release 0.95 contains the following interface changes:
   - XXX
 
   See the release notes for more information about these changes.
@@ -454,7 +460,7 @@ Template scons-devel announcement:
 
 SConspirators--
 
-SCons alpha release 0.92 is now available for download.
+SCons beta release 0.95 is now available for download.
 
 XXX Template describe-the-release section goes here XXX
 
@@ -465,7 +471,7 @@ release.
 =======================
 Template scons-users + scons-announce announcement:
 
-Version 0.92 of SCons has been released and is available for download
+Version 0.95 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/
@@ -498,7 +504,7 @@ SCons is a software construction tool (build tool, or make tool) written
 in Python.  It is based on the design which won the Software Carpentry
 build tool competition in August 2000.
 
-Version 0.92 of SCons has been released and is available for download
+Version 0.95 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/
