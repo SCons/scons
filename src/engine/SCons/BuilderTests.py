@@ -1236,7 +1236,7 @@ class BuilderTestCase(unittest.TestCase):
     def test_get_name(self):
         """Test getting name of builder.
 
-        Each type of builder should return it's environment-specific
+        Each type of builder should return its environment-specific
         name when queried appropriately.  """
 
         b1 = SCons.Builder.Builder(action='foo', suffix='.o')
@@ -1245,6 +1245,8 @@ class BuilderTestCase(unittest.TestCase):
                                             src_suffix = '.foo',
                                             src_builder = b1)
         b4 = SCons.Builder.Builder(action={})
+        b5 = SCons.Builder.Builder(action='foo', name='builder5')
+        b6 = SCons.Builder.Builder(action='foo')
         assert isinstance(b4, SCons.Builder.CompositeBuilder)
         assert isinstance(b4.action, SCons.Action.CommandGeneratorAction)
         
@@ -1256,10 +1258,18 @@ class BuilderTestCase(unittest.TestCase):
                                      'B2': b2,
                                      'B3': b3,
                                      'B4': b4})
-        assert b1.get_name(env) == 'bldr1', b1.get_name(env2) == 'B1'
-        assert b2.get_name(env) == 'bldr2', b2.get_name(env2) == 'B2'
-        assert b3.get_name(env) == 'bldr3', b3.get_name(env2) == 'B3'
-        assert b4.get_name(env) == 'bldr4', b4.get_name(env2) == 'B4'
+        assert b1.get_name(env) == 'bldr1', b1.get_name(env)
+        assert b2.get_name(env) == 'bldr2', b2.get_name(env)
+        assert b3.get_name(env) == 'bldr3', b3.get_name(env)
+        assert b4.get_name(env) == 'bldr4', b4.get_name(env)
+        assert b5.get_name(env) == 'builder5', b5.get_name(env)
+        assert b6.get_name(env) == 'SCons.Builder.BuilderBase', b6.get_name(env)
+        assert b1.get_name(env2) == 'B1', b1.get_name(env2)
+        assert b2.get_name(env2) == 'B2', b2.get_name(env2)
+        assert b3.get_name(env2) == 'B3', b3.get_name(env2)
+        assert b4.get_name(env2) == 'B4', b4.get_name(env2)
+        assert b5.get_name(env2) == 'builder5', b5.get_name(env2)
+        assert b6.get_name(env2) == 'SCons.Builder.BuilderBase', b6.get_name(env2)
 
         for B in b3.get_src_builders(env):
             assert B.get_name(env) == 'bldr1'

@@ -407,6 +407,7 @@ class BuilderBase:
                         multi = 0,
                         env = None,
                         single_source = 0,
+                        name = None,
                         **overrides):
         if __debug__: logInstanceCreation(self, 'BuilderBase')
         self.action = SCons.Action.Action(action)
@@ -436,6 +437,11 @@ class BuilderBase:
 
         self.emitter = emitter
 
+        # Optional Builder name should only be used for Builders
+        # that don't get attached to construction environments.
+        if name:
+            self.name = name
+
     def __nonzero__(self):
         raise InternalError, "Do not test for the Node.builder attribute directly; use Node.has_builder() instead"
 
@@ -444,13 +450,17 @@ class BuilderBase:
 
         Look at the BUILDERS variable of env, expecting it to be a
         dictionary containing this Builder, and return the key of the
-        dictionary."""
+        dictionary.  If there's no key, then return a directly-configured
+        name (if there is one) or the name of the class (by default)."""
 
         try:
             index = env['BUILDERS'].values().index(self)
             return env['BUILDERS'].keys()[index]
         except (AttributeError, KeyError, ValueError):
-            return str(self.__class__)
+            try:
+                return self.name
+            except AttributeError:
+                return str(self.__class__)
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
