@@ -141,8 +141,12 @@ class BuildTask(SCons.Taskmaster.Task):
         # is to display the various types of Errors and Exceptions
         # appropriately.
         status = 2
-        t, e = self.exc_info()[:2]
-        tb = None
+        exc_info = self.exc_info()
+        try:
+            t, e, tb = exc_info
+        except ValueError:
+            t, e = exc_info
+            tb = None
         if t is None:
             # The Taskmaster didn't record an exception for this Task;
             # see if the sys module has one.
@@ -166,7 +170,7 @@ class BuildTask(SCons.Taskmaster.Task):
                 s = s + '  Stop.'
             sys.stderr.write("scons: *** %s\n" % s)
 
-            if tb:
+            if tb and print_stacktrace:
                 sys.stderr.write("scons: internal stack trace:\n")
                 traceback.print_tb(tb, file=sys.stderr)
 
@@ -240,6 +244,7 @@ print_dtree = 0
 print_explanations = 0
 print_includes = 0
 print_objects = 0
+print_stacktrace = 0
 print_time = 0
 print_tree = 0
 memory_stats = None
@@ -400,7 +405,8 @@ def _set_globals(options):
     global repositories, keep_going_on_error, ignore_errors
     global print_count, print_dtree
     global print_explanations, print_includes
-    global print_objects, print_time, print_tree
+    global print_objects, print_stacktrace
+    global print_time, print_tree
     global memory_outf, memory_stats
 
     if options.repository:
@@ -423,6 +429,8 @@ def _set_globals(options):
                 print_objects = 1
             elif options.debug == "presub":
                 SCons.Action.print_actions_presub = 1
+            elif options.debug == "stacktrace":
+                print_stacktrace = 1
             elif options.debug == "time":
                 print_time = 1
             elif options.debug == "tree":
@@ -520,7 +528,8 @@ class OptParser(OptionParser):
 
         debug_options = ["count", "dtree", "explain",
                          "includes", "memory", "objects",
-                         "pdb", "presub", "time", "tree"]
+                         "pdb", "presub", "stacktrace",
+                         "time", "tree"]
 
         def opt_debug(option, opt, value, parser, debug_options=debug_options):
             if value in debug_options:

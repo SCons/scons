@@ -461,5 +461,10 @@ class Taskmaster:
         self.pending = []
 
     def exception_raise(self, exception):
-        exc_type, exc_value = exception[:2]
-        raise exc_type, exc_value
+        exc = exception[:]
+        try:
+            exc_type, exc_value, exc_traceback = exc
+        except ValueError:
+            exc_type, exc_value = exc
+            exc_traceback = None
+        raise exc_type, exc_value, exc_traceback

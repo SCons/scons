@@ -73,6 +73,9 @@ RELEASE 0.97 - XXX
   - Add a PRINT_CMD_LINE_FUNC construction variable to allow people
     to filter (or log) command-line output.
 
+  - Print an internal Python stack trace in response to an otherwise
+    unexplained error when --debug=stacktrace is specified.
+
   From Kevin Quick:
 
   - Fix the Builder name returned from ListBuilders and other instances

@@ -921,7 +921,25 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             assert 0, "did not catch expected exception"
 
-        t.exception_set(("exception 3", "XYZZY"))
+        try:
+            1/0
+        except:
+            tb = sys.exc_info()[2]
+        t.exception_set(("exception 3", "arg", tb))
+        try:
+            t.exception_raise()
+        except:
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            assert exc_type == 'exception 3', exc_type
+            assert exc_value == "arg", exc_value
+            import traceback
+            x = traceback.extract_tb(tb)[-1]
+            y = traceback.extract_tb(exc_tb)[-1]
+            assert x == y, "x = %s, y = %s" % (x, y)
+        else:
+            assert 0, "did not catch expected exception"
+
+        t.exception_set(("exception 4", "XYZZY"))
         def fw_exc(exc):
             raise 'exception_forwarded', exc
         tm.exception_raise = fw_exc 
@@ -930,7 +948,7 @@ class TaskmasterTestCase(unittest.TestCase):
         except:
             exc_type, exc_value = sys.exc_info()[:2]
             assert exc_type == 'exception_forwarded', exc_type
-            assert exc_value[0] == "exception 3", exc_value[0]
+            assert exc_value[0] == "exception 4", exc_value[0]
             assert exc_value[1] == "XYZZY", exc_value[1]
         else:
             assert 0, "did not catch expected exception"
