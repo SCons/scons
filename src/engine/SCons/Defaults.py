@@ -120,13 +120,13 @@ IDLSuffixes = [".idl", ".IDL"]
 del suffix
 
 # Actions for common languages.
-CAction = SCons.Action.Action("$CCCOM")
+CAction = SCons.Action.Action("$CCCOM", "$CCCOMSTR")
 DAction = SCons.Action.Action("$DCOM")
 ShCAction = SCons.Action.Action("$SHCCCOM")
-CXXAction = SCons.Action.Action("$CXXCOM")
+CXXAction = SCons.Action.Action("$CXXCOM", "$CXXCOMSTR")
 ShCXXAction = SCons.Action.Action("$SHCXXCOM")
 
-ASAction = SCons.Action.Action("$ASCOM")
+ASAction = SCons.Action.Action("$ASCOM", "$ASCOMSTR")
 ASPPAction = SCons.Action.Action("$ASPPCOM")
 
 LinkAction = SCons.Action.Action("$LINKCOM")

@@ -130,6 +130,10 @@ RELEASE 0.97 - XXX
   - Fix expansion of env.Command() overrides within target and
     source file names.
 
+  - Support easier configurability of what's displayed by various default
+    actions through new construction variables:  $ASCOMSTR, $CCCOMSTR,
+    $CXXCOMSTR.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
