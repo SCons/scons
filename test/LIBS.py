@@ -43,6 +43,7 @@ foo2_exe = test.workpath('foo2' + _exe)
 foo3_exe = test.workpath('foo3' + _exe)
 foo4_exe = test.workpath('foo4' + _exe)
 foo5_exe = test.workpath('foo5' + _exe)
+slprog_exe = test.workpath('slprog' + _exe)
 
 test.write('SConstruct', """
 env = Environment(LIBS=['bar'], LIBPATH = '.')
@@ -55,6 +56,8 @@ env4 = Environment(LIBS=File(r'%s'), LIBPATH = '.')
 env4.Program(target='foo4', source='foo4.c')
 env5 = Environment(LIBS=['bar', '$UNSPECIFIED'], LIBPATH = '.')
 env5.Program(target='foo5', source='foo5.c')
+sl = env.StaticLibrary('sl.c')
+env.Program(target='slprog.c', LIBS=[sl])
 SConscript('sub1/SConscript', 'env')
 SConscript('sub2/SConscript', 'env')
 """ % (bar_lib, bar_lib))
@@ -88,6 +91,24 @@ test.write('foo2.c', foo_contents)
 test.write('foo3.c', foo_contents)
 test.write('foo4.c', foo_contents)
 test.write('foo5.c', foo_contents)
+
+test.write('sl.c', """\
+void
+sl(void)
+{
+        printf("sl.c\\n");
+}
+""")
+
+test.write('slprog.c', """\
+int
+main(int argc, char *argv[])
+{
+        sl();
+        printf("slprog.c\\n");
+        exit (0);
+}
+""")
 
 test.write(['sub1', 'bar.c'], r"""
 #include <stdio.h>
@@ -124,6 +145,7 @@ test.run(program=foo2_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 test.run(program=foo3_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 test.run(program=foo4_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 test.run(program=foo5_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+test.run(program=slprog_exe, stdout='sl.c\nslprog.c\n')
 
 #
 test.write('SConstruct', """

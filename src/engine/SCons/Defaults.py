@@ -232,6 +232,8 @@ def _concat(prefix, list, suffix, env, f=lambda x: x):
     if not list:
         return list
 
+    if SCons.Util.is_List(list):
+        list = SCons.Util.flatten(list)
     list = f(env.subst_path(list))
 
     result = []
