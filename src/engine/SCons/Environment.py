@@ -763,11 +763,20 @@ class Base:
                 elif arg[0] != '-':
                     dict['LIBS'].append(fs.File(arg))
                 elif arg[:2] == '-L':
-                    dict['LIBPATH'].append(arg[2:])
+                    if arg[2:]:
+                        dict['LIBPATH'].append(arg[2:])
+                    else:
+                        append_next_arg_to = 'LIBPATH'
                 elif arg[:2] == '-l':
-                    dict['LIBS'].append(arg[2:])
+                    if arg[2:]:
+                        dict['LIBS'].append(arg[2:])
+                    else:
+                        append_next_arg_to = 'LIBS'
                 elif arg[:2] == '-I':
-                    dict['CPPPATH'].append(arg[2:])
+                    if arg[2:]:
+                        dict['CPPPATH'].append(arg[2:])
+                    else:
+                        append_next_arg_to = 'CPPPATH'
                 elif arg[:4] == '-Wa,':
                     dict['ASFLAGS'].append(arg)
                 elif arg[:4] == '-Wl,':

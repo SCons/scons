@@ -91,6 +91,9 @@ RELEASE 0.97 - XXX
   - Add a missing newline to the end of the --debug=explain "unknown
     reasons" message.
 
+  - Enhance ParseConfig() to work properly for spaces in between the -I,
+    -L and -l options and their arguments.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
