@@ -257,13 +257,13 @@ class FSTestCase(unittest.TestCase):
             fs.Dir(string.join(['ddd', 'd1'], sep))
             fs.Dir(string.join(['ddd', 'd1', 'f4'], sep))
             fs.Dir(string.join(['ddd', 'd1', 'f5'], sep))
-            kids = map(lambda x: x.path, dir.children())
+            kids = map(lambda x: x.path, dir.children(None))
             kids.sort()
             assert kids == [os.path.join('ddd', 'd1'),
 	                    os.path.join('ddd', 'f1'),
 			    os.path.join('ddd', 'f2'),
 			    os.path.join('ddd', 'f3')]
-            kids = map(lambda x: x.path_, dir.children())
+            kids = map(lambda x: x.path_, dir.children(None))
             kids.sort()
             assert kids == [os.path.join('ddd', 'd1', ''),
                             os.path.join('ddd', 'f1'),
@@ -383,16 +383,23 @@ class FSTestCase(unittest.TestCase):
         match(e13.path, "subdir/subdir/e13")
 
         # Test scanning
-        scn = Scanner()
-        f1.scanners = [ scn ]
-        f1.scan()
-        assert f1.implicit[scn][0].path_ == os.path.join("d1", "f1")
-        del f1.implicit[scn]
-        f1.scan()
+        scn1 = Scanner()
+        f1.scan(scn1)
+        assert f1.implicit[scn1][0].path_ == os.path.join("d1", "f1")
+        del f1.implicit[scn1]
+        f1.scan(scn1)
         assert len(f1.implicit) == 0, f1.implicit
-        del f1.scanned[scn]
-        f1.scan()
-        assert f1.implicit[scn][0].path_ == os.path.join("d1", "f1")
+        del f1.scanned[scn1]
+        f1.scan(scn1)
+        assert f1.implicit[scn1][0].path_ == os.path.join("d1", "f1")
+
+        # Test multiple scanners
+        scn2 = Scanner()
+        f2 = fs.File("f2")
+        f2.scan(scn1)
+        f2.scan(scn2)
+        assert f2.implicit[scn1][0].path_ == 'subdir/f2', f2.implicit[scn1][0].path_
+        assert f2.implicit[scn2][0].path_ == 'subdir/f2', f2.implicit[scn2][0].path_
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))
@@ -467,6 +474,9 @@ class FSTestCase(unittest.TestCase):
         #XXX test get_timestamp()
 
         #XXX test get_prevsiginfo()
+
+        assert fs.File('foo.x').scanner_key() == '.x'
+        assert fs.File('foo.xyz').scanner_key() == '.xyz'
 
 
 class find_fileTestCase(unittest.TestCase):

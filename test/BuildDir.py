@@ -52,7 +52,7 @@ BuildDir('build/var1', src)
 BuildDir(var2, src)
 BuildDir(var3, src, duplicate=0)
 
-env = Environment()
+env = Environment(CPPPATH='#src')
 SConscript('build/var1/SConscript', "env")
 SConscript('build/var2/SConscript', "env")
 

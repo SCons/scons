@@ -54,10 +54,11 @@ class Task:
     Note that it's generally a good idea for sub-classes to call
     these methods explicitly to update state, etc., rather than
     roll their own interaction with Taskmaster from scratch."""
-    def __init__(self, tm, targets, top):
+    def __init__(self, tm, targets, top, scanner = None):
         self.tm = tm
         self.targets = targets
         self.top = top
+        self.scanner = scanner
 
     def execute(self):
         if self.targets[0].get_state() != SCons.Node.up_to_date:
@@ -89,8 +90,9 @@ class Task:
             parents = {}
             for p in reduce(lambda x, y: x + y.get_parents(), self.targets, []):
                 parents[p] = 1
-            ready = filter(lambda x: (x.get_state() == SCons.Node.pending
-                                      and x.children_are_executed()),
+            ready = filter(lambda x, s=self.scanner:
+                                  (x.get_state() == SCons.Node.pending
+                                   and x.children_are_executed(s)),
                            parents.keys())
             tasks = {}
             for t in map(lambda r: r.task, ready):
@@ -171,9 +173,12 @@ class Taskmaster:
                 # (finished or currently executing).  Find another one.
                 return []
             # Scan the file before fetching its children().
-            node.scan()
+            if parent:
+                scanner = parent.src_scanner_get(node.scanner_key())
+            else:
+                scanner = None
             return filter(lambda x: x.get_state() != SCons.Node.up_to_date,
-                          node.children())
+                          node.children(scanner))
 
         def cycle_error(node, stack):
             if node.builder:
@@ -201,8 +206,12 @@ class Taskmaster:
                 tlist = node.builder.targets(node)
             except AttributeError:
                 tlist = [ node ]
-            task = self.tasker(self, tlist, self.walkers[0].is_done())
-            if not tlist[0].children_are_executed():
+            if parent:
+                scanner = parent.src_scanner_get(node.scanner_key())
+            else:
+                scanner = None
+            task = self.tasker(self, tlist, self.walkers[0].is_done(), scanner)
+            if not tlist[0].children_are_executed(scanner):
                 for t in tlist:
                     t.set_state(SCons.Node.pending)
                     t.task = task

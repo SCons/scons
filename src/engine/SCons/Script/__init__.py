@@ -149,7 +149,7 @@ exit_status = 0 # exit status, assume success by default
 
 # utility functions
 
-def get_children(node): return node.all_children()
+def get_children(node): return node.all_children(None)
 
 def _scons_syntax_error(e):
     """Handle syntax errors. Print out a message and show where the error

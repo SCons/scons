@@ -39,6 +39,8 @@ class Node:
         self.name = name
         self.kids = kids
         self.scans = scans
+        self.scanned = {}
+        self.src_scanners = {}
         self.builder = Node.build
         self.bsig = None
         self.csig = None
@@ -55,16 +57,28 @@ class Node:
     def prepare(self):
         pass
 
-    def children(self):
-	return self.kids
+    def children(self, scanner):
+        if not self.scanned.get(scanner, None):
+            self.scan(scanner)
+            self.scanned[scanner] = 1
+        return self.kids
 
-    def scan(self):
+    def scan(self, scanner):
 	global scan_called
 	scan_called = scan_called + 1
         self.kids = self.kids + self.scans
         for scan in self.scans:
             scan.parents.append(self)
         self.scans = []
+
+    def src_scanner_set(self, key, scanner):
+        self.src_scanners[key] = scanner
+
+    def src_scanner_get(self, key):
+        return self.src_scanners.get(key, None)
+
+    def scanner_key(self):
+        return self.name
   
     def get_parents(self):
         return self.parents
@@ -84,11 +98,11 @@ class Node:
     def store_sigs(self):
         pass
   
-    def children_are_executed(self):
+    def children_are_executed(self, scanner):
         return reduce(lambda x,y: ((y.get_state() == SCons.Node.executed
                                    or y.get_state() == SCons.Node.up_to_date)
                                    and x),
-                      self.children(),
+                      self.children(scanner),
                       1)
     def __str__(self):
         return self.name
@@ -234,13 +248,16 @@ class TaskmasterTestCase(unittest.TestCase):
         n3 = Node("n3", [n1], [n2])
         tm = SCons.Taskmaster.Taskmaster([n3])
         t = tm.next_task()
-        assert t.get_target() == n1
+        target = t.get_target()
+        assert target == n1, target
         t.executed()
         t = tm.next_task()
-        assert t.get_target() == n2
+        target = t.get_target()
+        assert target == n2, target
         t.executed()
         t = tm.next_task()
-        assert t.get_target() == n3
+        target = t.get_target()
+        assert target == n3, target
         t.executed()
         assert tm.next_task() == None
 
@@ -345,13 +362,13 @@ class TaskmasterTestCase(unittest.TestCase):
     def test_add_ready(self):
         """Test adding a task to the ready queue"""
         class MyTask:
-            def __init__(self, tm, tlist, top):
+            def __init__(self, tm, tlist, top, scanner):
                 pass
             def make_ready(self):
                 pass
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster([n1], tasker = MyTask)
-        task = MyTask(tm, [], 0)
+        task = MyTask(tm, [], 0, None)
         tm.add_ready(task)
         assert tm.ready == [ task ], tm.ready
 

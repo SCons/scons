@@ -62,10 +62,11 @@ class Node:
         self.ignore = []	# dependencies to ignore
         self.parents = {}
         self.wkids = None       # Kids yet to walk, when it's an array
-	self.builder = None
-        self.scanners = []
-        self.scanned = {}
-	self.env = None
+        self.builder = None
+        self.scanner = None     # explicit scanner from this node's Builder
+        self.scanned = {}       # cached scanned values
+        self.src_scanners = {}  # scanners for this node's source files
+        self.env = None
         self.state = None
         self.bsig = None
         self.csig = None
@@ -96,28 +97,11 @@ class Node:
 
         self.found_includes = {}
 
-        # If we succesfully build a node, then we need to rescan for
+        # If we successfully build a node, then we need to rescan for
         # implicit dependencies, since it might have changed on us.
+        self.scanned = {}
 
-        # XXX Modify this so we only rescan using the scanner(s) relevant
-        # to this build.
-        for scn in self.scanners:
-            try:
-                del self.scanned[scn]
-            except KeyError:
-                pass
-        
-        self.scan()
-
-        for scn in self.scanners:
-            try:
-                for dep in self.implicit[scn]:
-                    w=Walker(dep)
-                    while not w.is_done():
-                        w.next().scan()
-            except KeyError:
-                pass
-	return stat
+        return stat
 
     def builder_set(self, builder):
 	self.builder = builder
@@ -144,12 +128,21 @@ class Node:
         return Adapter(self)
 
     def scanner_set(self, scanner):
-        if not scanner in self.scanners:
-            self.scanners.append(scanner)
+        self.scanner = scanner
 
-    def scan(self):
-        for scn in self.scanners:
-            self.scanned[scn] = 1
+    def src_scanner_set(self, key, scanner):
+        self.src_scanners[key] = scanner
+
+    def src_scanner_get(self, key):
+        return self.src_scanners.get(key, None)
+
+    def scan(self, scanner = None):
+        if not scanner:
+            scanner = self.scanner
+        self.scanned[scanner] = 1
+
+    def scanner_key(self):
+        return None
 
     def env_set(self, env, safe=0):
         if safe and self.env:
@@ -222,17 +215,22 @@ class Node:
         if self.wkids != None:
             self.wkids.append(wkid)
 
-    def children(self):
+    def children(self, scanner):
         """Return a list of the node's direct children, minus those
         that are ignored by this node."""
-        return filter(lambda x, i=self.ignore: x not in i, self.all_children())
+        return filter(lambda x, i=self.ignore: x not in i,
+                      self.all_children(scanner))
 
-    def all_children(self):
+    def all_children(self, scanner):
         """Return a list of all the node's direct children."""
         #XXX Need to remove duplicates from this
-        return self.sources \
-               + self.depends \
-               + reduce(lambda x, y: x + y, self.implicit.values(), [])
+        if not self.implicit.has_key(scanner):
+            self.scan(scanner)
+        if scanner:
+            implicit = self.implicit[scanner]
+        else:
+            implicit = reduce(lambda x, y: x + y, self.implicit.values(), [])
+        return self.sources + self.depends + implicit
 
     def get_parents(self):
         return self.parents.keys()
@@ -246,14 +244,14 @@ class Node:
     def current(self):
         return None
 
-    def children_are_executed(self):
+    def children_are_executed(self, scanner):
         return reduce(lambda x,y: ((y.get_state() == executed
                                    or y.get_state() == up_to_date)
                                    and x),
-                      self.children(),
+                      self.children(scanner),
                       1)
 
-def get_children(node, parent): return node.children()
+def get_children(node, parent): return node.children(None)
 def ignore_cycle(node, stack): pass
 def do_nothing(node, parent): pass
 

@@ -417,7 +417,7 @@ class Dir(Entry):
         else:
             return self.entries['..'].root()
 
-    def children(self):
+    def children(self, scanner):
 	#XXX --random:  randomize "dependencies?"
 	keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
 	kids = map(lambda x, s=self: s.entries[x], keys)
@@ -446,7 +446,7 @@ class Dir(Entry):
         """If all of our children were up-to-date, then this
         directory was up-to-date, too."""
         state = 0
-        for kid in self.children():
+        for kid in self.children(None):
             s = kid.get_state()
             if s and (not state or s > state):
                 state = s
@@ -523,13 +523,13 @@ class File(Entry):
         .sconsign entry."""
         return self.dir.sconsign().get(self.name)
 
-    def scan(self):
-        if self.env:
-            for scn in self.scanners:
-                if not self.scanned.has_key(scn):
-                    deps = scn.scan(self, self.env)
-                    self.add_implicit(deps,scn)
-                    self.scanned[scn] = 1
+    def scan(self, scanner = None):
+        if not scanner:
+            scanner = self.scanner
+        if scanner and not self.scanned.has_key(scanner):
+            deps = scanner.scan(self, self.env)
+            self.add_implicit(deps, scanner)
+            self.scanned[scanner] = 1
                     
     def exists(self):
         if self.duplicate and not self.created:
@@ -541,6 +541,9 @@ class File(Entry):
                 self.__createDir()
                 file_link(self.srcpath, self.path)
         return Entry.exists(self)
+
+    def scanner_key(self):
+        return os.path.splitext(self.name)[1]
 
     def __createDir(self):
         # ensure that the directories for this node are

@@ -63,6 +63,13 @@ def _init_nodes(builder, env, tlist, slist):
     """Initialize lists of target and source nodes with all of
     the proper Builder information.
     """
+    src_scanner = None
+    if slist:
+        src_key = slist[0].scanner_key()	# the file suffix
+        src_scanner = env.get_scanner(src_key)
+        if src_scanner:
+            src_scanner = src_scanner.instance(env)
+
     for t in tlist:
         t.cwd = SCons.Node.FS.default_fs.getcwd()	# XXX
         t.builder_set(builder)
@@ -70,12 +77,8 @@ def _init_nodes(builder, env, tlist, slist):
         t.add_source(slist)
         if builder.scanner:
             t.scanner_set(builder.scanner.instance(env))
-
-    for s in slist:
-        s.env_set(env, 1)
-        scanner = env.get_scanner(os.path.splitext(s.name)[1])
-        if scanner:
-            s.scanner_set(scanner.instance(env))
+        if src_scanner:
+            t.src_scanner_set(src_key, src_scanner)
 
 
 

@@ -103,6 +103,8 @@ class BuilderTestCase(unittest.TestCase):
 		self.env = env
 	    def add_source(self, source):
 		self.sources.extend(source)
+            def scanner_key(self):
+                return self.name
         builder = SCons.Builder.Builder(name="builder", action="foo", node_factory=Node)
 
 	n1 = Node("n1");
@@ -111,7 +113,7 @@ class BuilderTestCase(unittest.TestCase):
 	assert n1.env == env
 	assert n1.builder == builder
 	assert n1.sources == [n2]
-        assert n2.env == env
+        assert not hasattr(n2, 'env')
 
         target = builder(env, target = 'n3', source = 'n4')
         assert target.name == 'n3'
@@ -662,9 +664,9 @@ class BuilderTestCase(unittest.TestCase):
                 instanced = 1
                 return self
         scn = TestScanner()
-        builder=SCons.Builder.Builder(name = "builder", scanner=scn)
+        builder = SCons.Builder.Builder(name = "builder", scanner=scn)
         tgt = builder(env, target='foo', source='bar')
-        assert scn in tgt.scanners, tgt.scanners
+        assert tgt.scanner == scn, tgt.scanner
         assert instanced
 
         instanced = None
@@ -677,7 +679,7 @@ class BuilderTestCase(unittest.TestCase):
                                          src_builder = builder1,
                                          scanner = scn)
         tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
-        assert scn in tgt.scanners, tgt.scanners
+        assert tgt.scanner == scn, tgt.scanner
         assert instanced
 
     def test_src_scanner(slf):
@@ -690,9 +692,9 @@ class BuilderTestCase(unittest.TestCase):
                  return self
         env_scanner = TestScanner()
         builder = SCons.Builder.Builder(name = "builder", action='action')
-        tgt = builder(env, target='foo', source='bar')
-        assert not tgt.scanners == [ env_scanner ]
-        assert tgt.sources[0].scanners == [ env_scanner ]
+        tgt = builder(env, target='foo.x', source='bar')
+        assert tgt.scanner != env_scanner, tgt.scanner
+        assert tgt.src_scanners[''] == env_scanner, tgt.src_scanners
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')

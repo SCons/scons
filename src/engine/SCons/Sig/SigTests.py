@@ -81,11 +81,11 @@ class DummyNode:
             self.exists_cache = self.exists()
             return self.exists_cache
         
-    def children(self):
+    def children(self, scanner):
         return filter(lambda x, i=self.ignore: x not in i,
                       self.sources + self.depends)
         
-    def all_children(self):
+    def all_children(self, scanner):
         return self.sources + self.depends
 
     def current(self):
@@ -296,9 +296,9 @@ class CalcTestCase(unittest.TestCase):
                 self.ignore = []
                 self.builder = None
                 self.use_signature = 1
-            def children(self):
+            def children(self, scanner):
                 return filter(lambda x, i=self.ignore: x not in i, self.kids)
-            def all_children(self):
+            def all_children(self, scanner):
                 return self.kids
             def exists(self):
                 return 1
