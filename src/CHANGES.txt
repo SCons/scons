@@ -67,6 +67,9 @@ RELEASE 0.04 -
 
   - Only compute a build signature once for each node.
 
+  - Changes to our sys.path[] manipulation to support installation into
+    an arbitrary --prefix value.
+
   From Steve Leblanc:
 
   - Add var=value command-line arguments.
