@@ -41,6 +41,7 @@ import os.path
 import shutil
 import stat
 import string
+import sys
 import cStringIO
 
 import SCons.Action
@@ -218,7 +219,9 @@ class ParentOfRoot:
     def src_builder(self):
         return _null
 
-if os.path.normcase("TeSt") == os.path.normpath("TeSt"):
+# Cygwin's os.path.normcase pretends it's on a case-sensitive filesystem.
+_is_cygwin = sys.platform == "cygwin"
+if os.path.normcase("TeSt") == os.path.normpath("TeSt") and not _is_cygwin:
     def _my_normcase(x):
         return x
 else:

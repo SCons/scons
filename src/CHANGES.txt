@@ -28,6 +28,9 @@ RELEASE 0.95 - XXX
   - Add support for a "toolpath" Tool() and Environment keyword that
     allows Tool modules to be found in specified local directories.
 
+  - Work around Cygwin Python's silly fiction that it's using a
+    case-sensitive file system.
+
   From Chris Burghart:
 
   - Fix the ability to save/restore a PackageOption to a file.

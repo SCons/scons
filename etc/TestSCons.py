@@ -94,7 +94,7 @@ class TestNoResult(Exception):
 
 if os.name == 'posix':
     def _failed(self, status = 0):
-        if self.status is None:
+        if self.status is None or status is None:
             return None
         if os.WIFSIGNALED(self.status):
             return None
@@ -106,7 +106,8 @@ if os.name == 'posix':
             return None
 elif os.name == 'nt':
     def _failed(self, status = 0):
-        return not self.status is None and self.status != status
+        return not (self.status is None or status is None) and \
+               self.status != status
     def _status(self):
         return self.status
 
@@ -168,7 +169,8 @@ class TestSCons(TestCmd.TestCmd):
 			don't test error output.
 
                 status  The expected exit status from the 
-                        command. 
+                        command.  A value of None means don't
+                        test exit status.
 
         By default, this does not test standard output (stdout = None),
         and expects that error output is empty (stderr = "").
