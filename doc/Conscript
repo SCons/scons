@@ -15,6 +15,12 @@ Import qw(
 $doc_tar_gz = "#build/dist/scons-doc-$version.tar.gz";
 
 #
+# We'll only try to build text files (for some documents)
+# if lynx is available to do the dump.
+#
+$lynx = cons::whereis('lynx');
+
+#
 # Always create a version.sgml file containing the version information
 # for this run.  Ignore it for dependency purposes so we don't
 # rebuild all the docs every time just because the date changes.
@@ -36,10 +42,17 @@ close(FILE);
 Ignore("version.sgml");
 
 #
-# Each document will live in its own subdirectory.  List them here.
+# Each document will live in its own subdirectory.  List them here
+# as hash keys, with a hash of the info to control its build.
 #
-@doc_dirs = qw(
-    design
+%doc_dirs = (
+    'design' => {
+    		'html'	=> 'book1.html',
+	},
+    'man' => {
+    		'html'	=> 'scons.html',
+		'text'	=> 1,
+	},
 );
 
 # Find internal dependencies in .sgml files:
@@ -79,18 +92,22 @@ foreach $sgml (@included_sgml) {
 # For each document, build the document itself in HTML, Postscript,
 # and PDF formats.
 #
-foreach $doc (@doc_dirs) {
+foreach $doc (keys %doc_dirs) {
     my $main = "$doc/main.sgml";
     my $out = "main.out";
 
     my $htmldir = "HTML/scons-$doc";
+    my $html = "$htmldir/" . $doc_dirs{$doc}->{'html'};
     my $ps = "PS/scons-$doc.ps";
     my $pdf = "PDF/scons-$doc.pdf";
+    my $text = "TEXT/scons-$doc.txt";
 
     $env->QuickScan(\&scansgml, $main);
 
-    $env->Command("$htmldir/book1.html", $main,
-	qq(jw -b html -o %>:d %<));
+    $env->Command($html, $main,
+	[qq(rm -f %>:d/*.html),
+	 qq(jw -b html -o %>:d %<),
+	]);
 
     $env->Command($ps, $main,
 	[qq(rm -f %>:d/$out),
@@ -106,7 +123,11 @@ foreach $doc (@doc_dirs) {
 	 qq(rm -f %>:d/$out),
 	]);
 
-    push(@tar_deps, "$htmldir/book1.html", $ps, $pdf);
+    if ($doc_dirs{$doc}->{'text'} && $lynx) {
+	$env->Command($text, $html, qq(lynx -dump %<:a > %>));
+    }
+
+    push(@tar_deps, $html, $ps, $pdf);
     push(@tar_list, "$htmldir/[A-Za-z]*", $ps, $pdf);
 }
 

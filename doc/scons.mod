@@ -23,7 +23,7 @@
 <!ENTITY Make "<application>Make</application>">
 <!ENTITY Makepp "<application>Make++</application>">
 <!ENTITY SCons "<application>SCons</application>">
-
+<!ENTITY scons "<application>scons</application>">
 
 
 <!--

@@ -14,10 +14,11 @@ Default qw( . );
 
 #
 # An internal "whereis" routine to figure out if we have a
-# given program available.
+# given program available.  Put it in the "cons::" package
+# so subsidiary Conscript files can get at it easily, too.
 #
 use Config;
-sub whereis {
+sub cons::whereis {
     my $file = shift;
     foreach my $dir (split(/$Config{path_sep}/, $ENV{PATH})) {
 	$f = File::Spec->catfile($dir, $file);
@@ -32,10 +33,10 @@ sub whereis {
 # This will allow people to still do SCons work even if they
 # don't have Aegis or RPM installed, for example.
 #
-$aegis = whereis('aegis');
-$aesub = whereis('aesub');
-$rpm = whereis('rpm');
-$jw = whereis('jw');
+$aegis = cons::whereis('aegis');
+$aesub = cons::whereis('aesub');
+$rpm = cons::whereis('rpm');
+$jw = cons::whereis('jw');
 
 #
 # Now grab the information that we "build" into the files (using sed).

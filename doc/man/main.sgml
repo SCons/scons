@@ -1,0 +1,103 @@
+<!--
+
+  Copyright 2001 Steven Knight
+
+-->
+
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+[
+
+    <!ENTITY % version SYSTEM "../version.sgml">
+    %version;
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+    <!ENTITY desc SYSTEM "desc.sgml">
+    <!ENTITY options SYSTEM "options.sgml">
+]>
+
+<refentry id="scons">
+
+  <!--
+  <docinfo>
+    <title>SCons Design version &build_version;</title>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <edition>Revision &build_revision; (&build_date;)</edition>
+
+    <pubdate>2001</pubdate>
+
+    <copyright>
+      <year>2001</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <legalnotice>
+      &copyright;
+    </legalnotice>
+
+    <releaseinfo>version &build_version;</releaseinfo>
+
+  </docinfo>
+  -->
+
+  <refmeta>
+    <refentrytitle>scons</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+
+  <refnamediv>
+    <refname>scons</refname>
+    <refpurpose>software constructor</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>scons</command>
+      <arg choice="opt" rep="repeat">
+        <option>OPTION</option>
+      </arg>
+      <arg choice="opt" rep="repeat">
+        name=value
+      </arg>
+      <arg choice="opt" rep="repeat">
+        target
+      </arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>Description</title>
+    &desc;
+  </refsect1>
+
+  <refsect1>
+    <title>Options</title>
+    &options;
+  </refsect1>
+
+  <refsect1>
+    <title>See Also</title>
+    <para>
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>Bugs</title>
+    <para>
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>Author</title>
+    <para>
+      Steven Knight
+    </para>
+  </refsect1>
+
+</refentry>
