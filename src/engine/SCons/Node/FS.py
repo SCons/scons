@@ -388,6 +388,7 @@ class Entry(SCons.Node.Node):
         self.__doSrcpath(self.duplicate)
         self.srcpath_ = self.srcpath
         self.cwd = None # will hold the SConscript directory for target nodes
+        self._local = None
 
     def get_dir(self):
         return self.dir
@@ -459,6 +460,9 @@ class Entry(SCons.Node.Node):
             return 1
         else:
             return self.dir.is_under(dir)
+
+    def set_local(self):
+        self._local = 1
 
 
 
@@ -606,7 +610,6 @@ class Dir(Entry):
 # source_exists
 # derived_exists
 # is_on_rpath
-# local
 # base_suf
 # suffix
 # addsuffix
@@ -758,8 +761,10 @@ class File(Entry):
             if r != self:
                 # ...but there is one in a Repository...
                 if calc.current(r, bsig):
-                    # ...and it's even up-to-date.
-                    # XXX Future: copy locally if requested
+                    # ...and it's even up-to-date...
+                    if self._local:
+                        # ...and they'd like a local copy.
+                        file_link(r.path, self.path)
                     return 1
             self._rfile = self
             return None

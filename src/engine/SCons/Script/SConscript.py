@@ -206,6 +206,14 @@ def Default(*targets):
             default_targets.extend(SCons.Node.arg2nodes(t,
                                          SCons.Node.FS.default_fs.Entry))
 
+def Local(*targets):
+    for targ in targets:
+        if isinstance(targ, SCons.Node.Node):
+            targ.set_local()
+        else:
+            for t in SCons.Node.arg2nodes(targ, SCons.Node.FS.default_fs.Entry):
+               t.set_local()
+
 def Help(text):
     if print_help:
         print text
@@ -280,6 +288,7 @@ def BuildDefaultGlobals():
     globals['Help']              = Help
     globals['Import']            = Import
     globals['Library']           = SCons.Defaults.StaticLibrary
+    globals['Local']             = Local
     globals['Object']            = SCons.Defaults.StaticObject
     globals['Repository']        = SCons.Node.FS.default_fs.Repository
     globals['SetBuildSignatureType'] = SetBuildSignatureType
