@@ -125,70 +125,11 @@ class Environment:
         self.d['ESCAPE'] = scons_env['ESCAPE']
         for k, v in kw.items():
             self.d[k] = v
-    def subst_dict(self, target, source):
-        dict = self.d.copy()
-        if not SCons.Util.is_List(target):
-            target = [target]
-        if not SCons.Util.is_List(source):
-            source = [source]
-        dict['TARGETS'] = target
-        dict['SOURCES'] = source
-        try:
-            dict['TARGET'] = target[0]
-        except IndexError:
-            dict['TARGET'] = ''
-        try:
-            dict['SOURCE'] = source[0]
-        except IndexError:
-            dict['SOURCE'] = ''
-        return dict
-    def subst(self, strSubst):
-        if not SCons.Util.is_String(strSubst):
-            return strSubst
-        try:
-            s0, s1 = strSubst[:2]
-        except (IndexError, ValueError):
-            return strSubst
-        if s0 == '$':
-            if s1 == '{':
-                return self.d.get(strSubst[2:-1], '')
-            else:
-                return self.d.get(strSubst[1:], '')
-        return strSubst
-    def subst_list(self, strSubst, raw=0, target=[], source=[]):
-        dict = self.subst_dict(target, source)
-        if SCons.Util.is_String(strSubst):
-            strSubst = string.split(strSubst)
-        elif not SCons.Util.is_List(strSubst):
-            return strSubst
-        result = []
-        for s in strSubst:
-            if SCons.Util.is_String(s):
-                try:
-                    s0, s1 = s[:2]
-                except (IndexError, ValueError):
-                    result.append(s)
-                else:
-                    if s0 == '$':
-                        if s1 == '{':
-                            s = eval(s[2:-1], {}, dict)
-                        else:
-                            s = dict.get(s[1:], '')
-                    if s:
-                        if not SCons.Util.is_List(s):
-                            s = [s]
-                        result.extend(s)
-            else:
-                result.append(s)
-        def l(obj):
-            try:
-                l = obj.is_literal
-            except AttributeError:
-                literal = None
-            else:
-                literal = l()
-            return CmdStringHolder(str(obj), literal)
-        return [map(l, result)]
+    # Just use the underlying scons_subst*() utility methods.
+    def subst(self, strSubst, raw=0, target=[], source=[], dict=None):
+        return SCons.Util.scons_subst(strSubst, self, raw, target, source, dict)
+    def subst_list(self, strSubst, raw=0, target=[], source=[], dict=None):
+        return SCons.Util.scons_subst_list(strSubst, self, raw, target, source, dict)
     def __getitem__(self, item):
         return self.d[item]
     def __setitem__(self, item, value):
@@ -434,33 +375,35 @@ class CommandActionTestCase(unittest.TestCase):
         """Test fetching the string representation of command Actions
         """
 
+        env = Environment()
+        t1 = DummyNode('t1')
+        t2 = DummyNode('t2')
+        s1 = DummyNode('s1')
+        s2 = DummyNode('s2')
         act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE')
-        s = act.strfunction([], [], Environment())
+        s = act.strfunction([], [], env)
         assert s == ['xyzzy'], s
-        s = act.strfunction([DummyNode('target')], [DummyNode('source')], Environment())
-        assert s == ['xyzzy target source'], s
-        s = act.strfunction([DummyNode('t1'), DummyNode('t2')],
-                            [DummyNode('s1'), DummyNode('s2')], Environment())
+        s = act.strfunction([t1], [s1], env)
+        assert s == ['xyzzy t1 s1'], s
+        s = act.strfunction([t1, t2], [s1, s2], env)
         assert s == ['xyzzy t1 s1'], s
 
         act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES')
-        s = act.strfunction([], [], Environment())
+        s = act.strfunction([], [], env)
         assert s == ['xyzzy'], s
-        s = act.strfunction([DummyNode('target')], [DummyNode('source')], Environment())
-        assert s == ['xyzzy target source'], s
-        s = act.strfunction([DummyNode('t1'), DummyNode('t2')],
-                            [DummyNode('s1'), DummyNode('s2')], Environment())
+        s = act.strfunction([t1], [s1], env)
+        assert s == ['xyzzy t1 s1'], s
+        s = act.strfunction([t1, t2], [s1, s2], env)
         assert s == ['xyzzy t1 t2 s1 s2'], s
 
         act = SCons.Action.CommandAction(['xyzzy',
                                           '$TARGET', '$SOURCE',
                                           '$TARGETS', '$SOURCES'])
-        s = act.strfunction([], [], Environment())
+        s = act.strfunction([], [], env)
         assert s == ['xyzzy'], s
-        s = act.strfunction([DummyNode('target')], [DummyNode('source')], Environment())
-        assert s == ['xyzzy target source target source'], s
-        s = act.strfunction([DummyNode('t1'), DummyNode('t2')],
-                            [DummyNode('s1'), DummyNode('s2')], Environment())
+        s = act.strfunction([t1], [s1], env)
+        assert s == ['xyzzy t1 s1 t1 s1'], s
+        s = act.strfunction([t1, t2], [s1, s2], env)
         assert s == ['xyzzy t1 s1 t1 t2 s1 s2'], s
 
     def test_execute(self):
@@ -787,10 +730,14 @@ class CommandActionTestCase(unittest.TestCase):
         a = SCons.Action.CommandAction(["$TARGET"])
         c = a.get_contents(target=t, source=s, env=env)
         assert c == "t1", c
+        c = a.get_contents(target=t, source=s, env=env, dict={})
+        assert c == "", c
 
         a = SCons.Action.CommandAction(["$TARGETS"])
         c = a.get_contents(target=t, source=s, env=env)
         assert c == "t1 t2 t3 t4 t5 t6", c
+        c = a.get_contents(target=t, source=s, env=env, dict={})
+        assert c == "", c
 
         a = SCons.Action.CommandAction(["${TARGETS[2]}"])
         c = a.get_contents(target=t, source=s, env=env)
@@ -803,10 +750,14 @@ class CommandActionTestCase(unittest.TestCase):
         a = SCons.Action.CommandAction(["$SOURCE"])
         c = a.get_contents(target=t, source=s, env=env)
         assert c == "s1", c
+        c = a.get_contents(target=t, source=s, env=env, dict={})
+        assert c == "", c
 
         a = SCons.Action.CommandAction(["$SOURCES"])
         c = a.get_contents(target=t, source=s, env=env)
         assert c == "s1 s2 s3 s4 s5 s6", c
+        c = a.get_contents(target=t, source=s, env=env, dict={})
+        assert c == "", c
 
         a = SCons.Action.CommandAction(["${SOURCES[2]}"])
         c = a.get_contents(target=t, source=s, env=env)
@@ -906,10 +857,12 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             assert mystr == "$( foo $bar $)", mystr
             return "test"
 
+        env = Environment(foo = 'FFF', bar =  'BBB',
+                          ignore = 'foo', test=test)
         a = SCons.Action.CommandGeneratorAction(f)
-        c = a.get_contents(target=[], source=[],
-                           env=Environment(foo = 'FFF', bar =  'BBB',
-                                           ignore = 'foo', test=test))
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c == "guux FFF BBB test", c
+        c = a.get_contents(target=[], source=[], env=env, dict={})
         assert c == "guux FFF BBB test", c
 
 
@@ -1022,6 +975,8 @@ class FunctionActionTestCase(unittest.TestCase):
         a = SCons.Action.FunctionAction(Func)
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
+        c = a.get_contents(target=[], source=[], env=Environment(), dict={})
+        assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
 
         a = SCons.Action.FunctionAction(Func, varlist=['XYZ'])
         c = a.get_contents(target=[], source=[], env=Environment())
@@ -1111,6 +1066,9 @@ class ListActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=Environment(s = self))
         assert self.foo==1, self.foo
         assert c == "xyz", c
+        c = a.get_contents(target=[], source=[], env=Environment(s = self), dict={})
+        assert self.foo==1, self.foo
+        assert c == "xyz", c
 
 class LazyActionTestCase(unittest.TestCase):
     def test_init(self):
@@ -1151,9 +1109,11 @@ class LazyActionTestCase(unittest.TestCase):
         """Test fetching the contents of a lazy-evaluation Action
         """
         a = SCons.Action.Action("${FOO}")
-        c = a.get_contents(target=[], source=[],
-                           env = Environment(FOO = [["This", "is", "$(", "$a", "$)", "test"]]))
-        assert c == "This is test", c
+        env = Environment(FOO = [["This", "is", "a", "test"]])
+        c = a.get_contents(target=[], source=[], env=env)
+        assert c == "This is a test", c
+        c = a.get_contents(target=[], source=[], env=env, dict={})
+        assert c == "This is a test", c
 
 
 if __name__ == "__main__":

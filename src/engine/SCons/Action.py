@@ -172,7 +172,7 @@ class CommandAction(ActionBase):
     def __init__(self, cmd):
         # Cmd list can actually be a list or a single item...basically
         # anything that we could pass in as the first arg to
-        # scons_subst_list().
+        # Environment.subst_list().
         self.cmd_list = cmd
 
     def strfunction(self, target, source, env):
@@ -263,32 +263,28 @@ class CommandAction(ActionBase):
                         return ret
         return 0
 
-    def get_raw_contents(self, target, source, env):
+    def get_raw_contents(self, target, source, env, dict=None):
         """Return the complete contents of this action's command line.
         """
         cmd = self.cmd_list
-        if not SCons.Util.is_List(cmd):
-            cmd = [ cmd ]
-        return SCons.Util.scons_subst(string.join(map(str, cmd)),
-                                      env,
-                                      SCons.Util.SUBST_RAW,
-                                      SCons.Util.target_prep(target),
-                                      SCons.Util.source_prep(source))
+        if SCons.Util.is_List(cmd):
+            cmd = string.join(map(str, cmd))
+        else:
+            cmd = str(cmd)
+        return env.subst(cmd, SCons.Util.SUBST_RAW, target, source, dict)
 
-    def get_contents(self, target, source, env):
+    def get_contents(self, target, source, env, dict=None):
         """Return the signature contents of this action's command line.
 
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
         cmd = self.cmd_list
-        if not SCons.Util.is_List(cmd):
-            cmd = [ cmd ]
-        return SCons.Util.scons_subst(string.join(map(str, cmd)),
-                                      env,
-                                      SCons.Util.SUBST_SIG,
-                                      SCons.Util.target_prep(target),
-                                      SCons.Util.source_prep(source))
+        if SCons.Util.is_List(cmd):
+            cmd = string.join(map(str, cmd))
+        else:
+            cmd = str(cmd)
+        return env.subst(cmd, SCons.Util.SUBST_SIG, target, source, dict)
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
@@ -321,13 +317,13 @@ class CommandGeneratorAction(ActionBase):
         act = self.__generate(target, source, env, 0)
         return act(target, rsources, env)
 
-    def get_contents(self, target, source, env):
+    def get_contents(self, target, source, env, dict=None):
         """Return the signature contents of this action's command line.
 
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        return self.__generate(target, source, env, 1).get_contents(target, source, env)
+        return self.__generate(target, source, env, 1).get_contents(target, source, env, dict=None)
 
 class LazyCmdGenerator:
     """This is a simple callable class that acts as a command generator.
@@ -393,7 +389,7 @@ class FunctionAction(ActionBase):
             r = self.execfunction(target=target, source=rsources, env=env)
         return r
 
-    def get_contents(self, target, source, env):
+    def get_contents(self, target, source, env, dict=None):
         """Return the signature contents of this callable action.
 
         By providing direct access to the code object of the
@@ -433,14 +429,13 @@ class ListAction(ActionBase):
                 return r
         return 0
 
-    def get_contents(self, target, source, env):
+    def get_contents(self, target, source, env, dict=None):
         """Return the signature contents of this action list.
 
         Simple concatenation of the signatures of the elements.
         """
-        target = SCons.Util.target_prep(target)
-        source = SCons.Util.source_prep(source)
-        return string.join(map(lambda x, t=target, s=source, e=env:
-                                      x.get_contents(t, s, e),
+        dict = SCons.Util.subst_dict(target, source, env)
+        return string.join(map(lambda x, t=target, s=source, e=env, d=dict:
+                                      x.get_contents(t, s, e, d),
                                self.list),
                            "")

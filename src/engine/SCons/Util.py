@@ -348,19 +348,96 @@ def escape_list(list, escape_func):
             return e(escape_func)
     return map(escape, list)
 
-def target_prep(target):
-    if target and not isinstance(target, NodeList):
-        if not is_List(target):
-            target = [target]
-        target = NodeList(map(lambda x: x.get_subst_proxy(), target))
-    return target
+class NLWrapper:
+    """A wrapper class that delays turning a list of sources or targets
+    into a NodeList until it's needed.  The specified function supplied
+    when the object is initialized is responsible for turning raw nodes
+    into proxies that implement the special attributes like .abspath,
+    .source, etc.  This way, we avoid creating those proxies just
+    "in case" someone is going to use $TARGET or the like, and only
+    go through the trouble if we really have to.
 
-def source_prep(source):
-    if source and not isinstance(source, NodeList):
-        if not is_List(source):
-            source = [source]
-        source = NodeList(map(lambda x: x.rfile().get_subst_proxy(), source))
-    return source
+    In practice, this might be a wash performance-wise, but it's a little
+    cleaner conceptually...
+    """
+
+    def __init__(self, list, func):
+        self.list = list
+        self.func = func
+    def _create_nodelist(self):
+        try:
+            return self.nodelist
+        except AttributeError:
+            list = self.list
+            if list is None:
+                list = []
+            elif not is_List(list):
+                list = [list]
+            # The map(self.func) call is what actually turns
+            # a list into appropriate proxies.
+            self.nodelist = NodeList(map(self.func, list))
+        return self.nodelist
+
+class Targets_or_Sources(UserList.UserList):
+    """A class that implements $TARGETS or $SOURCES expansions by in turn
+    wrapping a NLWrapper.  This class handles the different methods used
+    to access the list, calling the NLWrapper to create proxies on demand.
+
+    Note that we subclass UserList.UserList purely so that the is_List()
+    function will identify an object of this class as a list during
+    variable expansion.  We're not really using any UserList.UserList
+    methods in practice.
+    """
+    def __init__(self, nl):
+        self.nl = nl
+    def __getattr__(self, attr):
+        nl = self.nl._create_nodelist()
+        return getattr(nl, attr)
+    def __getitem__(self, i):
+        nl = self.nl._create_nodelist()
+        return nl[i]
+    def __getslice__(self, i, j):
+        nl = self.nl._create_nodelist()
+        i = max(i, 0); j = max(j, 0)
+        return nl[i:j]
+    def __str__(self):
+        nl = self.nl._create_nodelist()
+        return str(nl)
+    def __repr__(self):
+        nl = self.nl._create_nodelist()
+        return repr(nl)
+
+class Target_or_Source:
+    """A class that implements $TARGET or $SOURCE expansions by in turn
+    wrapping a NLWrapper.  This class handles the different methods used
+    to access an individual proxy Node, calling the NLWrapper to create
+    a proxy on demand.
+    """
+    def __init__(self, nl):
+        self.nl = nl
+    def __getattr__(self, attr):
+        nl = self.nl._create_nodelist()
+        try:
+            nl0 = nl[0]
+        except IndexError:
+            # If there is nothing in the list, then we have no attributes to
+            # pass through, so raise AttributeError for everything.
+            raise AttributeError, "NodeList has no attribute: %s" % attr
+        return getattr(nl0, attr)
+    def __str__(self):
+        nl = self.nl._create_nodelist()
+        try:
+            nl0 = nl[0]
+        except IndexError:
+            return ''
+        return str(nl0)
+    def __repr__(self):
+        nl = self.nl._create_nodelist()
+        try:
+            nl0 = nl[0]
+        except IndexError:
+            return ''
+        return repr(nl0)
 
 def subst_dict(target, source, env):
     """Create a dictionary for substitution of special
@@ -380,17 +457,17 @@ def subst_dict(target, source, env):
              build, which is made available as the __env__
              construction variable
     """
-    dict = { '__env__' : env }
+    dict = { '__env__' : env, }
 
-    target = target_prep(target)
-    dict['TARGETS'] = target
-    if dict['TARGETS']:
-        dict['TARGET'] = dict['TARGETS'][0]
+    if target:
+        tnl = NLWrapper(target, lambda x: x.get_subst_proxy())
+        dict['TARGETS'] = Targets_or_Sources(tnl)
+        dict['TARGET'] = Target_or_Source(tnl)
 
-    source = source_prep(source)
-    dict['SOURCES'] = source
-    if dict['SOURCES']:
-        dict['SOURCE'] = dict['SOURCES'][0]
+    if source:
+        snl = NLWrapper(source, lambda x: x.rfile().get_subst_proxy())
+        dict['SOURCES'] = Targets_or_Sources(snl)
+        dict['SOURCE'] = Target_or_Source(snl)
 
     return dict
 
@@ -399,15 +476,15 @@ def subst_dict(target, source, env):
 # gives a command line suitable for passing to a shell.  SUBST_SIG
 # gives a command line appropriate for calculating the signature
 # of a command line...if this changes, we should rebuild.
-SUBST_RAW = 0
-SUBST_CMD = 1
+SUBST_CMD = 0
+SUBST_RAW = 1
 SUBST_SIG = 2
 
 _rm = re.compile(r'\$[()]')
 _remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
 
 # Indexed by the SUBST_* constants above.
-_regex_remove = [ None, _rm, _remove ]
+_regex_remove = [ _rm, None, _remove ]
 
 # This regular expression splits a string into the following types of
 # arguments for use by the scons_subst() and scons_subst_list() functions:
@@ -427,7 +504,7 @@ _separate_args = re.compile(r'(\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}|\s+|[^\s\
 # space characters in the string result from the scons_subst() function.
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None):
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=None):
     """Expand a string containing construction variable substitutions.
 
     This is the work-horse function for substitutions in file names
@@ -522,8 +599,11 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None):
             else:
                 return self.expand(args, lvars)
 
+    if dict is None:
+        dict = subst_dict(target, source, env)
+
     ss = StringSubber(env, mode, target, source)
-    result = ss.substitute(strSubst, subst_dict(target, source, env))
+    result = ss.substitute(strSubst, dict)
 
     if is_String(result):
         # Remove $(-$) pairs and any stuff in between,
@@ -538,7 +618,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None):
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=None):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
@@ -694,8 +774,11 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None):
             self.add_strip(x)
             self.in_strip = None
 
+    if dict is None:
+        dict = subst_dict(target, source, env)
+
     ls = ListSubber(env, mode, target, source)
-    ls.substitute(strSubst, subst_dict(target, source, env), 0)
+    ls.substitute(strSubst, dict, 0)
 
     return ls.data
 

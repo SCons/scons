@@ -34,6 +34,15 @@ RELEASE 0.95 - XXX
       variable to 0 (or zipfile.ZIP_STORED, if you import the
       underlying zipfile module).
 
+    - The meaning of some of the values of the "mode" argument to
+      the SCons.Util.scons_subst() and SCons.Util.scons_subst_list()
+      functions have been swapped.  The wrapper Environment.subst()
+      and Environment.subst_list() methods remain completely unchanged,
+      this so this should have no external effect.  (We've listed the
+      change here because it might cause a problem if you're reaching
+      into the SCons internals and calling either of the SCons.Util
+      functions directly.)
+
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
   Because of this, SCons is of sufficient quality that you can use it

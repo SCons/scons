@@ -180,6 +180,9 @@ class UtilTestCase(unittest.TestCase):
             'FUNC1'     : lambda x: x,
             'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
 
+            # Various tests refactored from ActionTests.py.
+            'LIST'      : [["This", "is", "$(", "$a", "$)", "test"]],
+
             # Test recursion.
             'RECURSE'   : 'foo $RECURSE bar',
             'RRR'       : 'foo $SSS bar',
@@ -338,6 +341,28 @@ class UtilTestCase(unittest.TestCase):
                "foo  bar",
                "foo bar",
                "foo bar",
+
+            # Verify what happens with no target or source nodes.
+            "$TARGET $SOURCES",
+                " ",
+                "",
+                "",
+
+            "$TARGETS $SOURCE",
+                " ",
+                "",
+                "",
+
+            # Various tests refactored from ActionTests.py.
+            "${LIST}",
+               "This is $(  $) test",
+               "This is test",
+               "This is test",
+
+            ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
+                "| $( a | b $) | c 1",
+                "| a | b | c 1",
+                "| | c 1",
         ]
 
         failed = 0
@@ -360,6 +385,25 @@ class UtilTestCase(unittest.TestCase):
                 failed = failed + 1
             del subst_cases[:4]
         assert failed == 0, "%d subst() mode cases failed" % failed
+
+        t1 = MyNode('t1')
+        t2 = MyNode('t2')
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+        result = scons_subst("$TARGET $SOURCES", env,
+                                  target=[t1, t2],
+                                  source=[s1, s2])
+        assert result == "t1 s1 s2", result
+        result = scons_subst("$TARGET $SOURCES", env,
+                                  target=[t1, t2],
+                                  source=[s1, s2],
+                                  dict={})
+        assert result == " ", result
+
+        result = scons_subst("$TARGET $SOURCES", env, target=[], source=[])
+        assert result == " ", result
+        result = scons_subst("$TARGETS $SOURCE", env, target=[], source=[])
+        assert result == " ", result
 
         # Test interpolating a callable.
         newcom = scons_subst("test $CMDGEN1 $SOURCES $TARGETS",
@@ -434,6 +478,9 @@ class UtilTestCase(unittest.TestCase):
             'FUNCCALL'  : '${FUNC1("$AAA $FUNC2 $BBB")}',
             'FUNC1'     : lambda x: x,
             'FUNC2'     : lambda target, source, env, for_signature: ['x$CCC'],
+
+            # Various tests refactored from ActionTests.py.
+            'LIST'      : [["This", "is", "$(", "$a", "$)", "test"]],
 
             # Test recursion.
             'RECURSE'   : 'foo $RECURSE bar',
@@ -568,6 +615,20 @@ class UtilTestCase(unittest.TestCase):
             del cases[:2]
         assert failed == 0, "%d subst_list() cases failed" % failed
 
+        t1 = MyNode('t1')
+        t2 = MyNode('t2')
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+        result = scons_subst_list("$TARGET $SOURCES", env,
+                                  target=[t1, t2],
+                                  source=[s1, s2])
+        assert result == [['t1', 's1', 's2']], result
+        result = scons_subst_list("$TARGET $SOURCES", env,
+                                  target=[t1, t2],
+                                  source=[s1, s2],
+                                  dict={})
+        assert result == [[]], result
+
         # Test interpolating a callable.
         _t = DummyNode('t')
         _s = DummyNode('s')
@@ -615,15 +676,40 @@ class UtilTestCase(unittest.TestCase):
                 [["a", "aA", "b"]],
 
             "$RECURSE",
-               [["foo", "bar"]],
-               [["foo", "bar"]],
-               [["foo", "bar"]],
+                [["foo", "bar"]],
+                [["foo", "bar"]],
+                [["foo", "bar"]],
 
             "$RRR",
-               [["foo", "bar"]],
-               [["foo", "bar"]],
-               [["foo", "bar"]],
+                [["foo", "bar"]],
+                [["foo", "bar"]],
+                [["foo", "bar"]],
+
+            # Verify what happens with no target or source nodes.
+            "$TARGET $SOURCES",
+                [[]],
+                [[]],
+                [[]],
+
+            "$TARGETS $SOURCE",
+                [[]],
+                [[]],
+                [[]],
+
+            # Various test refactored from ActionTests.py
+            "${LIST}",
+                [['This', 'is', '$(', '$)', 'test']],
+                [['This', 'is', 'test']],
+                [['This', 'is', 'test']],
+
+            ["|", "$(", "$AAA", "|", "$BBB", "$)", "|", "$CCC", 1],
+                [["|", "$(", "a", "|", "b", "$)", "|", "c", "1"]],
+                [["|", "a", "|", "b", "|", "c", "1"]],
+                [["|", "|", "c", "1"]],
         ]
+
+        r = scons_subst_list("$TARGET $SOURCES", env, mode=SUBST_RAW)
+        assert r == [[]], r
 
         failed = 0
         while subst_list_cases:
@@ -1027,15 +1113,20 @@ class UtilTestCase(unittest.TestCase):
         d = subst_dict([], [], env)
         assert d['__env__'] is env, d['__env__']
 
-        d = subst_dict(target = DummyNode('t'), source = DummyNode('s'), env=DummyEnv())
+        t = DummyNode('t')
+        s = DummyNode('s')
+        env = DummyEnv()
+        d = subst_dict(target=t, source=s, env=env)
         assert str(d['TARGETS'][0]) == 't', d['TARGETS']
         assert str(d['TARGET']) == 't', d['TARGET']
         assert str(d['SOURCES'][0]) == 's', d['SOURCES']
         assert str(d['SOURCE']) == 's', d['SOURCE']
 
-        d = subst_dict(target = [DummyNode('t1'), DummyNode('t2')],
-                       source = [DummyNode('s1'), DummyNode('s2')],
-                       env = DummyEnv())
+        t1 = DummyNode('t1')
+        t2 = DummyNode('t2')
+        s1 = DummyNode('s1')
+        s2 = DummyNode('s2')
+        d = subst_dict(target=[t1, t2], source=[s1, s2], env=env)
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
         assert TARGETS == ['t1', 't2'], d['TARGETS']
@@ -1055,9 +1146,11 @@ class UtilTestCase(unittest.TestCase):
             def get_subst_proxy(self):
                 return self
 
-        d = subst_dict(target = [N('t3'), DummyNode('t4')],
-                       source = [DummyNode('s3'), N('s4')],
-                       env = DummyEnv())
+        t3 = N('t3')
+        t4 = DummyNode('t4')
+        s3 = DummyNode('s3')
+        s4 = N('s4')
+        d = subst_dict(target=[t3, t4], source=[s3, s4], env=env)
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
         assert TARGETS == ['t3', 't4'], d['TARGETS']
