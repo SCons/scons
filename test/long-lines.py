@@ -35,12 +35,10 @@ test = TestSCons.TestSCons()
 if sys.platform == 'win32':
     lib_=''
     _dll = '.dll'
-    _export = '__declspec(dllexport) '
     linkflag = '/LIBPATH:' + test.workpath()
 else:
     lib_='lib'
     _dll='.so'
-    _export=''
     linkflag = '-L' + test.workpath()
 
 test.write('SConstruct', """
@@ -50,12 +48,10 @@ while len(linkflags) <= 8100:
 env = Environment(LINKFLAGS = '$LINKXXX', LINKXXX = linkflags)
 env.Program(target = 'foo', source = 'foo.c')
 # Library(shared=1) uses $LINKFLAGS by default.
-env.Library(target = 'bar', source = 'foo.c', shared=1)
+env.Library(target = 'bar', source = 'foo.c', shared=1, no_import_lib=1)
 """ % (linkflag, linkflag))
 
 test.write('foo.c', r"""
-%svoid foo() { }
-
 int
 main(int argc, char *argv[])
 {
@@ -63,7 +59,7 @@ main(int argc, char *argv[])
 	printf("foo.c\n");
 	exit (0);
 }
-""" % _export)
+""")
 
 test.run(arguments = '.')
 

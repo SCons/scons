@@ -64,7 +64,7 @@ class SharedCmdGenerator:
         self.action_static = static
         self.action_shared = shared
         
-    def __call__(self, target, source, env, shared=0, for_signature=0):
+    def __call__(self, target, source, env, shared=0, **kw):
         for src in source:
             try:
                 if src.attributes.shared != shared:
@@ -206,18 +206,21 @@ class LibAffixGenerator:
         self.static_affix = static
         self.shared_affix = shared
 
-    def __call__(self, shared=0, win32=0):
+    def __call__(self, shared=0, **kw):
         if shared:
             return self.shared_affix
         return self.static_affix
 
-def win32LibGenerator(target, source, env, for_signature, shared=1):
+def win32LibGenerator(target, source, env, for_signature, shared=1,
+                      no_import_lib=0):
     listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
 
     for tgt in target:
         ext = os.path.splitext(str(tgt))[1]
         if ext == env.subst("$LIBSUFFIX"):
             # Put it on the command line as an import library.
+            if no_import_lib:
+                raise SCons.Errors.UserError, "%s: You cannot specify a .lib file as a target of a shared library build if no_import_library is nonzero." % tgt
             listCmd.append("${WIN32IMPLIBPREFIX}%s" % tgt)
         else:
             listCmd.append("${WIN32DLLPREFIX}%s" % tgt)
@@ -233,7 +236,8 @@ def win32LibGenerator(target, source, env, for_signature, shared=1):
             listCmd.append(str(src))
     return win32TempFileMunge(env, listCmd, for_signature)
 
-def win32LibEmitter(target, source, env, shared=0):
+def win32LibEmitter(target, source, env, shared=0,
+                    no_import_lib=0):
     if shared:
         dll = None
         for tgt in target:
@@ -252,7 +256,8 @@ def win32LibEmitter(target, source, env, shared=0):
             # append a def file to the list of sources
             source.append("%s%s" % (os.path.splitext(str(dll))[0],
                                     env.subst("$WIN32DEFSUFFIX")))
-        if not env.subst("$LIBSUFFIX") in \
+        if not no_import_lib and \
+           not env.subst("$LIBSUFFIX") in \
            map(lambda x: os.path.split(str(x))[1], target):
             # Append an import library to the list of targets.
             target.append("%s%s%s" % (env.subst("$LIBPREFIX"),
