@@ -66,30 +66,37 @@ test.write(['src', 'f.in'], 'f.in')
 test.write(['src', 'g.in'], 'g.in')
 test.write(['src', 'h.in'], 'h.in')
 
-test.run(arguments='.')
+# Do 'src' last so that creation of the emitter files in there doesn't
+# interfere with searching for them in the BuildDirs.
 
-test.must_exist(test.workpath('src', 'f.out'))
-test.must_exist(test.workpath('src', 'f.out.foo'))
-test.must_exist(test.workpath('var1', 'f.out'))
-test.must_exist(test.workpath('var1', 'f.out.foo'))
+test.run(arguments='var2')
+
 test.must_exist(test.workpath('var2', 'f.out'))
 test.must_exist(test.workpath('var2', 'f.out.foo'))
-
-test.must_exist(test.workpath('src', 'g.out'))
-test.must_exist(test.workpath('src', 'g.out.foo'))
-test.must_exist(test.workpath('var1', 'g.out'))
-test.must_exist(test.workpath('var1', 'g.out.foo'))
 test.must_exist(test.workpath('var2', 'g.out'))
 test.must_exist(test.workpath('var2', 'g.out.foo'))
-
-test.must_exist(test.workpath('src', 'h.out'))
-test.must_exist(test.workpath('src', 'emit.1'))
-test.must_exist(test.workpath('src', 'emit.2'))
-test.must_exist(test.workpath('var1', 'h.out'))
-test.must_exist(test.workpath('var1', 'emit.1'))
-test.must_exist(test.workpath('var1', 'emit.2'))
 test.must_exist(test.workpath('var2', 'h.out'))
 test.must_exist(test.workpath('var2', 'emit.1'))
 test.must_exist(test.workpath('var2', 'emit.2'))
+
+test.run(arguments = 'var1')
+
+test.must_exist(test.workpath('var1', 'f.out'))
+test.must_exist(test.workpath('var1', 'f.out.foo'))
+test.must_exist(test.workpath('var1', 'g.out'))
+test.must_exist(test.workpath('var1', 'g.out.foo'))
+test.must_exist(test.workpath('var1', 'h.out'))
+test.must_exist(test.workpath('var1', 'emit.1'))
+test.must_exist(test.workpath('var1', 'emit.2'))
+
+test.run(arguments = 'src')
+
+test.must_exist(test.workpath('src', 'f.out'))
+test.must_exist(test.workpath('src', 'f.out.foo'))
+test.must_exist(test.workpath('src', 'g.out'))
+test.must_exist(test.workpath('src', 'g.out.foo'))
+test.must_exist(test.workpath('src', 'h.out'))
+test.must_exist(test.workpath('src', 'emit.1'))
+test.must_exist(test.workpath('src', 'emit.2'))
 
 test.pass_test()
