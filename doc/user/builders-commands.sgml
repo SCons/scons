@@ -71,7 +71,7 @@
 
   <programlisting>
      env = Environment()
-     env.Command('foo.out', 'foo.in', "sed 's/x/y/' < $SOURCE > $TARGET")
+     env.Command('foo.out', 'foo.in', "sed 's/x/y/' &lt; $SOURCE &gt; $TARGET")
   </programlisting>
 
   <literallayout>

@@ -291,7 +291,7 @@ over the file scanning rather than being called for each input line:
         env = Environment(ENV = {'PATH' : '__ROOT__/usr/local/bin'})
         env.Append(SCANNERS = kscan)
 
-        env.Command('foo', 'foo.k', 'kprocess < $SOURCES > $TARGET')
+        env.Command('foo', 'foo.k', 'kprocess &lt; $SOURCES &gt; $TARGET')
       </file>
       <file name="foo.k">
       include other_file

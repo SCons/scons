@@ -111,6 +111,58 @@
  </para>
 
  <section>
+ <title>Cleaning Up After a Build</title>
+
+   <para>
+
+   When using &SCons;, it is unnecessary to add special
+   commands or target names to clean up after a build.
+   Instead, you simply use the
+   <literal>-c</literal> or <literal>--clean</literal>
+   option when you invoke &SCons;,
+   and &SCons; removes the appropriate built files.
+   So if we build our example above
+   and then invoke <literal>scons -c</literal>
+   afterwards, the output on POSIX looks like:
+
+   </para>
+
+   <scons_example name="clean">
+      <file name="SConstruct">
+      Program('hello.c')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+   </scons_example>
+
+   <scons_output example="clean" os="posix">
+      <command>scons</command>
+      <command>scons -c</command>
+   </scons_output>
+
+   <para>
+
+   And the output on Windows looks like:
+
+   </para>
+
+   <scons_output example="clean" os="win32">
+      <command>scons</command>
+      <command>scons -c</command>
+   </scons_output>
+
+   <para>
+
+   Notice that &SCons; changes its output to tell you that it
+   is <literal>Cleaning targets ...</literal> and
+   <literal>done cleaning targets.</literal>
+
+   </para>
+
+ </section>
+
+ <section>
  <title>The &SConstruct; File</title>
 
    <para>
@@ -347,7 +399,7 @@
    </para>
 
    <programlisting>
-      Program('program', Split('main.c file1.c file2.'))
+      Program('program', Split('main.c file1.c file2.c'))
    </programlisting>
 
    <para>
@@ -381,7 +433,7 @@
    </para>
 
    <programlisting>
-      list = Split('main.c file1.c file2.')
+      list = Split('main.c file1.c file2.c')
       Program('program', list)
    </programlisting>
 
@@ -422,7 +474,7 @@
    </para>
 
    <programlisting>
-      list = Split('main.c file1.c file2.')
+      list = Split('main.c file1.c file2.c')
       Program(target = 'program', source = list)
    </programlisting>
 
@@ -435,7 +487,7 @@
    </para>
 
    <programlisting>
-      list = Split('main.c file1.c file2.')
+      list = Split('main.c file1.c file2.c')
       Program(source = list, target = 'program')
    </programlisting>
 

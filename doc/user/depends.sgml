@@ -386,7 +386,7 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <programlisting>
-       #include "hello.h" 
+       #include &lt;hello.h&gt;
        int
        main()
        {
@@ -753,9 +753,8 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <programlisting>
-       env = Environment()
-       hello = env.Program('hello.c')
-       env.Ignore(hello, '/usr/include/stdio.h')
+       hello = Program('hello.c')
+       Ignore(hello, '/usr/include/stdio.h')
     </programlisting>
 
   </section>
@@ -777,9 +776,8 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <programlisting>
-       env = Environment()
-       hello = env.Program('hello.c')
-       env.Depends(hello, 'other_file')
+       hello = Program('hello.c')
+       Depends(hello, 'other_file')
     </programlisting>
 
     <!-- XXX mention that you can use arrays for target and source? -->
