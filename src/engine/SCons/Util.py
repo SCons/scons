@@ -116,11 +116,16 @@ class PathList(UserList.UserList):
         """Return the file name with path and suffix stripped."""
         return self.__getFileName().__splitPath(os.path.splitext)[0]
 
+    def __getAbsPath(self):
+        """Return the absolute path"""
+        return map(os.path.abspath, self.data)
+
     dictSpecialAttrs = { "file" : __getFileName,
                          "base" : __getBasePath,
                          "filebase" : __getBase,
                          "dir" : __getDir,
-                         "suffix" : __getSuffix }
+                         "suffix" : __getSuffix,
+                         "abspath" : __getAbsPath}
     
     def __str__(self):
         return string.join(self.data)

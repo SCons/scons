@@ -216,8 +216,8 @@ class ActionBase:
                      construction variables
 
             source - the source (object or array of objects),
-                     used to generate the SOURCES construction
-                     variable
+                     used to generate the SOURCES and SOURCE 
+                     construction variables
 
         Any other keyword arguments are copied into the
         dictionary."""
@@ -253,6 +253,8 @@ class ActionBase:
             if not SCons.Util.is_List(s):
                 s = [s]
             dict['SOURCES'] = SCons.Util.PathList(map(os.path.normpath, map(str, s)))
+            if dict['SOURCES']:
+                dict['SOURCE'] = dict['SOURCES'][0]
 
         dict.update(kw)
 

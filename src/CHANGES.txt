@@ -35,6 +35,13 @@ RELEASE 0.07 -
   - Implemented caching of content signatures, plus added --max-drift
     option to control caching.
 
+  - Implemented caching of dependency signatures, enabled by new
+    --implicit-cache option.
+
+  - Added abspath construction variable modifier.
+
+  - Added $SOURCE variable as a synonym for $SOURCES[0].
+
 
 
 RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600

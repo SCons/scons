@@ -88,6 +88,8 @@ class ActionBaseTestCase(unittest.TestCase):
         assert str(d['TARGETS']) == 't', d['TARGETS']
         assert str(d['TARGET']) == 't', d['TARGET']
         assert str(d['SOURCES']) == 's', d['SOURCES']
+        assert str(d['SOURCE']) == 's', d['SOURCE']
+
 
         d = a.subst_dict(target = ['t1', 't2'], source = ['s1', 's2'])
         TARGETS = map(lambda x: str(x), d['TARGETS'])
@@ -97,6 +99,7 @@ class ActionBaseTestCase(unittest.TestCase):
         SOURCES = map(lambda x: str(x), d['SOURCES'])
         SOURCES.sort()
         assert SOURCES == ['s1', 's2'], d['SOURCES']
+        assert str(d['SOURCE']) == 's1', d['SOURCE']
 
 class CommandActionTestCase(unittest.TestCase):
 

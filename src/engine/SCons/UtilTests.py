@@ -46,6 +46,7 @@ class UtilTestCase(unittest.TestCase):
         loc['SOURCES'] = PathList(map(os.path.normpath, [ "./foo/blah.cpp",
                                                           "/bar/ack.cpp",
                                                           "../foo/ack.c" ]))
+        loc['SOURCE'] = loc['SOURCES'][0]
         loc['xxx'] = None
         loc['zero'] = 0
         loc['one'] = 1
@@ -70,7 +71,7 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("test $TARGET", loc, {})
         assert newcom == cvt("test foo/bar.exe")
 
-        newcom = scons_subst("test $TARGET$SOURCE[0]", loc, {})
+        newcom = scons_subst("test $TARGET$FOO[0]", loc, {})
         assert newcom == cvt("test foo/bar.exe[0]")
 
         newcom = scons_subst("test ${TARGET.file}", loc, {})
@@ -87,6 +88,15 @@ class UtilTestCase(unittest.TestCase):
 
         newcom = scons_subst("test ${TARGET.dir}", loc, {})
         assert newcom == cvt("test foo")
+
+        newcom = scons_subst("test ${TARGET.abspath}", loc, {})
+        assert newcom == cvt("test %s/foo/bar.exe"%os.getcwd()), newcom
+
+        newcom = scons_subst("test ${SOURCES.abspath}", loc, {})
+        assert newcom == cvt("test %s/foo/blah.cpp /bar/ack.cpp %s/foo/ack.c"%(os.getcwd(),os.path.normpath(os.getcwd()+"/.."))), newcom
+
+        newcom = scons_subst("test ${SOURCE.abspath}", loc, {})
+        assert newcom == cvt("test %s/foo/blah.cpp"%os.getcwd()), newcom
 
         newcom = scons_subst("test $xxx", loc, {})
         assert newcom == cvt("test"), newcom

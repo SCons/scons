@@ -1553,8 +1553,13 @@ target if multiple targets are being built.
 .IP TARGETS
 The file names of all targets being built.
 
+.IP SOURCE
+The file name of the source of the build command, or the file name of the
+first source if multiple sources are being built.
+
 .IP SOURCES
 The file names of the sources of the build command.
+
 .LP 
 For example, given the construction variable CC='cc', targets=['foo'], and
 sources=['foo.c', 'bar.c']:
@@ -1603,6 +1608,9 @@ and minus the directory.
 .IP suffix
 Just the file suffix.
 
+.IP abspath
+The absolute path name of the file.
+
 .LP
 For example, the specified target will
 expand as follows for the corresponding modifiers:
@@ -1614,6 +1622,7 @@ ${TARGET.dir}        => sub/dir
 ${TARGET.file}       => file.x
 ${TARGET.filebase}   => file
 ${TARGET.suffix}     => .x
+${TARGET.abspath}    => /top/dir/sub/dir/file.x
 .EE
 
 .LP
