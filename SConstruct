@@ -247,7 +247,8 @@ def SCons_revision(target, source, env):
     outf.close()
     os.chmod(t, os.stat(s)[0])
 
-revbuilder = Builder(action = Action(SCons_revision, varlist=['VERSION']))
+revbuilder = Builder(action = Action(SCons_revision,
+                                     varlist=['COPYRIGHT', 'VERSION']))
 
 env = Environment(
                    ENV                 = ENV,
