@@ -46,11 +46,11 @@ raise InternalError, 'error inside'
 """)
 test.run(chdir = '.', arguments='-f SConstruct3')
 expect = r"""Traceback \((most recent call|innermost) last\):
-  File "%s", line 163, in \?
+  File "%s", line \d+, in \?
     main\(\)
-  File "%s", line 153, in main
+  File "%s", line \d+, in main
     execfile\(file\)
-  File "SConstruct3", line 2, in \?
+  File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
 InternalError: error inside
 """ % (sconspath, sconspath)
