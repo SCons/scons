@@ -33,7 +33,13 @@ import TestCmd
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
-test.write('SConstruct', """
+for source_signature in ['MD5', 'timestamp']:
+
+    print "Testing Value node with source signatures:", source_signature
+
+    test.write('SConstruct', """
+SourceSignatures(r'%s')
+
 class Custom:
     def __init__(self, value):  self.value = value
     def __str__(self):          return "C=" + str(self.value)
@@ -50,54 +56,68 @@ env['BUILDERS']['B'] = Builder(action = create)
 env.B('f1.out', Value(P))
 env.B('f2.out', Value(L))
 env.B('f3.out', Value(C))
-""")
+""" % source_signature)
 
+    test.run(arguments='-c')
+    test.run()
 
-test.run()
-out1 = """create("f1.out", "'/usr/local'")"""
-out2 = """create("f2.out", "10")"""
-out3 = """create\\("f3.out", "<.*.Custom instance at """
-test.fail_test(string.find(test.stdout(), out1) == -1)
-test.fail_test(string.find(test.stdout(), out2) == -1)
-test.fail_test(re.search(out3, test.stdout()) == None)
+    out1 = """create("f1.out", "'/usr/local'")"""
+    out2 = """create("f2.out", "10")"""
+    out3 = """create\\("f3.out", "<.*.Custom instance at """
+    #" <- unconfuses emacs syntax highlighting
+    test.fail_test(string.find(test.stdout(), out1) == -1)
+    test.fail_test(string.find(test.stdout(), out2) == -1)
+    test.fail_test(re.search(out3, test.stdout()) == None)
 
-test.fail_test(not os.path.exists(test.workpath('f1.out')))
-test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/usr/local')
-test.fail_test(not os.path.exists(test.workpath('f2.out')))
-test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '10')
-test.fail_test(not os.path.exists(test.workpath('f3.out')))
-test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/usr/local')
+    test.fail_test(not os.path.exists(test.workpath('f1.out')))
+    test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/usr/local')
+    test.fail_test(not os.path.exists(test.workpath('f2.out')))
+    test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '10')
+    test.fail_test(not os.path.exists(test.workpath('f3.out')))
+    test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/usr/local')
 
-test.up_to_date(arguments = ".")
+    if source_signature == 'MD5':
+        test.up_to_date(arguments='.')
 
-test.run(arguments = 'prefix=/usr')
-out4 = """create("f1.out", "'/usr'")"""
-out5 = """create("f2.out", "4")"""
-out6 = """create\\("f3.out", "<.*.Custom instance at """
-test.fail_test(string.find(test.stdout(), out4) == -1)
-test.fail_test(string.find(test.stdout(), out5) == -1)
-test.fail_test(re.search(out6, test.stdout()) == None)
+    test.run(arguments='prefix=/usr')
+    out4 = """create("f1.out", "'/usr'")"""
+    out5 = """create("f2.out", "4")"""
+    out6 = """create\\("f3.out", "<.*.Custom instance at """
+    #" <- unconfuses emacs syntax highlighting
+    test.fail_test(string.find(test.stdout(), out4) == -1)
+    test.fail_test(string.find(test.stdout(), out5) == -1)
+    test.fail_test(re.search(out6, test.stdout()) == None)
 
-test.fail_test(not os.path.exists(test.workpath('f1.out')))
-test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/usr')
-test.fail_test(not os.path.exists(test.workpath('f2.out')))
-test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '4')
-test.fail_test(not os.path.exists(test.workpath('f3.out')))
-test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/usr')
+    test.fail_test(not os.path.exists(test.workpath('f1.out')))
+    test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/usr')
+    test.fail_test(not os.path.exists(test.workpath('f2.out')))
+    test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '4')
+    test.fail_test(not os.path.exists(test.workpath('f3.out')))
+    test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/usr')
 
-test.unlink('f3.out')
+    if source_signature == 'MD5':
+        test.up_to_date('prefix=/usr', '.')
 
-test.run(arguments = 'prefix=/var')
-out4 = """create("f1.out", "'/var'")"""
-test.fail_test(string.find(test.stdout(), out4) == -1)
-test.fail_test(string.find(test.stdout(), out5) != -1)
-test.fail_test(re.search(out6, test.stdout()) == None)
+    test.unlink('f3.out')
 
-test.fail_test(not os.path.exists(test.workpath('f1.out')))
-test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/var')
-test.fail_test(not os.path.exists(test.workpath('f2.out')))
-test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '4')
-test.fail_test(not os.path.exists(test.workpath('f3.out')))
-test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/var')
+    test.run(arguments='prefix=/var')
+    out4 = """create("f1.out", "'/var'")"""
+
+    test.fail_test(string.find(test.stdout(), out4) == -1)
+    if source_signature == 'MD5':
+        test.fail_test(string.find(test.stdout(), out5) != -1)
+    else:
+        test.fail_test(string.find(test.stdout(), out5) == -1)
+    test.fail_test(re.search(out6, test.stdout()) == None)
+
+    if source_signature == 'MD5':
+        test.up_to_date('prefix=/var', '.')
+
+    test.fail_test(not os.path.exists(test.workpath('f1.out')))
+    test.fail_test(open(test.workpath('f1.out'), 'rb').read() != '/var')
+    test.fail_test(not os.path.exists(test.workpath('f2.out')))
+    test.fail_test(open(test.workpath('f2.out'), 'rb').read() != '4')
+    test.fail_test(not os.path.exists(test.workpath('f3.out')))
+    test.fail_test(open(test.workpath('f3.out'), 'rb').read() != 'C=/var')
 
 test.pass_test()

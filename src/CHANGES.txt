@@ -14,6 +14,9 @@ RELEASE 0.XX - XXX
 
   - Support specifying a list of tools when calling Environment.Copy().
 
+  - Give a Value Nodes a timestamp of the system time when they're
+    created, so they'll work when using timestamp-based signatures.
+
   From Steven Knight:
 
   - Tighten up the scons -H help output.

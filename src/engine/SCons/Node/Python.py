@@ -30,6 +30,7 @@ Python nodes.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Node
+import time
 
 class Value(SCons.Node.Node):
     """A class for Python variables, typically passed on the command line 
@@ -38,6 +39,7 @@ class Value(SCons.Node.Node):
     def __init__(self, value):
         SCons.Node.Node.__init__(self)
         self.value = value
+        self.timestamp = time.time()
 
     def __str__(self):
         return repr(self.value)
@@ -74,3 +76,6 @@ class Value(SCons.Node.Node):
         for kid in self.children(None):
             contents = contents + kid.get_contents()
         return contents
+
+    def get_timestamp(self):
+        return self.timestamp
