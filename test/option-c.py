@@ -72,15 +72,8 @@ test.fail_test(test.read(test.workpath('foo2.xxx')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
-def wrap_clean_stdout(string):
-    return "scons: Reading SConscript files ...\n" + \
-           "scons: done reading SConscript files.\n" + \
-           "scons: Cleaning targets ...\n" + \
-           string + \
-           "scons: done cleaning targets.\n"
-
 test.run(arguments = '-c foo1.out',
-         stdout = wrap_clean_stdout("Removed foo1.out\n"))
+         stdout = test.wrap_stdout("Removed foo1.out\n", cleaning=1))
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(not os.path.exists(test.workpath('foo2.xxx')))
@@ -88,7 +81,8 @@ test.fail_test(not os.path.exists(test.workpath('foo2.out')))
 test.fail_test(not os.path.exists(test.workpath('foo3.out')))
 
 test.run(arguments = '--clean foo2.out foo2.xxx',
-         stdout = wrap_clean_stdout("Removed foo2.xxx\nRemoved foo2.out\n"))
+         stdout = test.wrap_stdout("Removed foo2.xxx\nRemoved foo2.out\n",
+                                   cleaning=1))
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
@@ -96,7 +90,7 @@ test.fail_test(os.path.exists(test.workpath('foo2.out')))
 test.fail_test(not os.path.exists(test.workpath('foo3.out')))
 
 test.run(arguments = '--remove foo3.out',
-         stdout = wrap_clean_stdout("Removed foo3.out\n"))
+         stdout = test.wrap_stdout("Removed foo3.out\n", cleaning=1))
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
@@ -115,7 +109,7 @@ if hasattr(os, 'symlink'):
     test.fail_test(not os.path.islink(test.workpath('symlink2')))
 
 test.run(arguments = '-c foo2.xxx',
-         stdout = wrap_clean_stdout("Removed foo2.xxx\n"))
+         stdout = test.wrap_stdout("Removed foo2.xxx\n", cleaning=1))
 
 test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
 test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
@@ -134,11 +128,11 @@ if hasattr(os, 'symlink'):
 
 test.run(arguments = 'foo1.out foo2.out foo3.out')
 
-expect = wrap_clean_stdout("""Removed foo1.out
+expect = test.wrap_stdout("""Removed foo1.out
 Removed foo2.xxx
 Removed foo2.out
 Removed foo3.out
-""")
+""", cleaning=1)
 
 test.run(arguments = '-c -n foo1.out foo2.out foo3.out', stdout = expect)
 
@@ -152,7 +146,7 @@ test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 test.writable('.', 0)
 f = open(test.workpath('foo1.out'))
 test.run(arguments = '-c foo1.out',
-         stdout = wrap_clean_stdout("scons: Could not remove 'foo1.out': Permission denied\n"))
+         stdout = test.wrap_stdout("scons: Could not remove 'foo1.out': Permission denied\n", cleaning=1))
 test.fail_test(not os.path.exists(test.workpath('foo1.out')))
 f.close()
 test.writable('.', 1)
@@ -179,37 +173,40 @@ test.write(['subd', 'SConscript'], """
 Clean('.', 'foox.in')
 """)
 
-expect = wrap_clean_stdout("""Removed foo2.xxx
+expect = test.wrap_stdout("""Removed foo2.xxx
 Removed aux1.x
 Removed aux2.x
-""")
+""", cleaning=1)
 test.run(arguments = '-c foo2.xxx', stdout=expect)
 test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
 test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
-expect = wrap_clean_stdout("Removed %s\n" % os.path.join('subd', 'foox.in'))
+expect = test.wrap_stdout("Removed %s\n" % os.path.join('subd', 'foox.in'),
+                          cleaning = 1)
 test.run(arguments = '-c subd', stdout=expect)
 test.fail_test(os.path.exists(test.workpath('foox.in')))
 
-expect = wrap_clean_stdout("""Removed foo1.out
+expect = test.wrap_stdout("""Removed foo1.out
 Removed foo2.xxx
 Removed foo2.out
 Removed foo3.out
 Removed %s
 Removed %s
 Removed directory subd
-""" % (os.path.join('subd','SConscript'), os.path.join('subd', 'foon.in')))
+""" % (os.path.join('subd','SConscript'), os.path.join('subd', 'foon.in')),
+                          cleaning = 1)
 test.run(arguments = '-c -n .', stdout=expect)
 
-expect = wrap_clean_stdout("""Removed foo1.out
+expect = test.wrap_stdout("""Removed foo1.out
 Removed foo2.out
 Removed foo3.out
 Removed %s
 Removed %s
 Removed directory subd
-""" % (os.path.join('subd','SConscript'), os.path.join('subd', 'foon.in')))
+""" % (os.path.join('subd','SConscript'), os.path.join('subd', 'foon.in')),
+                          cleaning = 1)
 test.run(arguments = '-c .', stdout=expect)
 test.fail_test(os.path.exists(test.workpath('subdir', 'foon.in')))
 test.fail_test(os.path.exists(test.workpath('subdir')))

@@ -135,6 +135,8 @@ RELEASE 0.97 - XXX
   - Catch incidents of bad builder creation (without an action) and
     supply meaningful error messages.
 
+  - Better test infrastructure for -c output.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
