@@ -62,6 +62,11 @@ RELEASE 0.95 - XXX
 
   - Initialize the name of a Scanner.Classic scanner correctly.
 
+  From James Juhasz:
+
+  - Add support for the .dylib shared library suffix and the -dynamiclib
+    linker option on Mac OS X.
+
   From Steven Knight:
 
   - Add an Execute() method for executing actions directly.
