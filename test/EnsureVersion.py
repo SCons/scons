@@ -78,7 +78,10 @@ sys.exit(0)
 
 test.write('SConstruct', """\
 import sys
-delattr(sys, 'version_info')
+try:
+    delattr(sys, 'version_info')
+except AttributeError:
+    pass
 sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
 EnsurePythonVersion(1,3)
 sys.exit(0)
@@ -88,7 +91,10 @@ test.run()
 
 test.write('SConstruct', """\
 import sys
-delattr(sys, 'version_info')
+try:
+    delattr(sys, 'version_info')
+except AttributeError:
+    pass
 sys.version = '2.3+ (#0, Feb 24 2003, 19:13:11)\\n'
 EnsurePythonVersion(2,2)
 sys.exit(0)
@@ -98,7 +104,10 @@ test.run()
 
 test.write('SConstruct', """\
 import sys
-delattr(sys, 'version_info')
+try:
+    delattr(sys, 'version_info')
+except AttributeError:
+    pass
 sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
 EnsurePythonVersion(2,3)
 sys.exit(0)
@@ -108,7 +117,10 @@ test.run()
 
 test.write('SConstruct', """\
 import sys
-delattr(sys, 'version_info')
+try:
+    delattr(sys, 'version_info')
+except AttributeError:
+    pass
 sys.version = '2.3b1 (#0, Feb 24 2003, 19:13:11)\\n'
 EnsurePythonVersion(2,4)
 sys.exit(0)
