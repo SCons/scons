@@ -104,7 +104,7 @@ swig = test.where_is('swig')
 
 if swig:
 
-    version = string.join(string.split(sys.version, '.')[:2], '.')
+    version = sys.version[:3] # see also sys.prefix documentation
 
     test.write("wrapper.py",
 """import os
@@ -116,7 +116,7 @@ os.system(string.join(sys.argv[1:], " "))
 
     test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='/usr/include/python%s/',
+                  CPPPATH='%s/include/python%s/',
                   SHCCFLAGS='',
                   SHOBJSUFFIX='.o',
                   SHLIBPREFIX='')
@@ -124,7 +124,7 @@ swig = foo.Dictionary('SWIG')
 bar = foo.Copy(SWIG = r'%s wrapper.py ' + swig)
 foo.SharedLibrary(target = 'foo', source = ['foo.c', 'foo.i'])
 bar.SharedLibrary(target = 'bar', source = ['bar.c', 'bar.i'])
-""" % (version, python))
+""" % (sys.prefix, version, python))
 
     test.write("foo.c", """\
 char *

@@ -82,6 +82,10 @@ RELEASE X.XX - XXX
   - Split the non-SCons-specific functionality from SConf.py to a new,
     re-usable Conftest.py module.
 
+  From Christoph Wiedemann:
+  
+  - Fix test/SWIG.py to find the Python include directory in all cases.
+
 
 
 RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
