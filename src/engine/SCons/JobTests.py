@@ -136,6 +136,9 @@ class ExceptionTask:
     def postprocess(self):
         self.taskmaster.num_postprocessed = self.taskmaster.num_postprocessed + 1
 
+    def exception_set(self):
+        self.taskmaster.exception_set()
+
 class Taskmaster:
     """A dummy taskmaster class for testing the job classes."""
 
@@ -196,6 +199,9 @@ class Taskmaster:
                                  == self.end_list[i]
                                  == (i + 1))
         return serial
+
+    def exception_set(self):
+        pass
 
 class ParallelTestCase(unittest.TestCase):
     def runTest(self):

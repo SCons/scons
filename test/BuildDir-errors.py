@@ -132,22 +132,16 @@ os.chmod(dir, os.stat(dir)[stat.ST_MODE] & ~stat.S_IWUSR)
 test.run(chdir = 'ro-src',
          arguments = ".",
          status = 2,
-         stderr = None)
-test.fail_test(not test.match_re_dotall(test.stderr(), """\
-scons: \\*\\*\\* Cannot duplicate `src.file\\.in' in `build': Permission denied.  Stop.
-scons: internal stack trace:
-  File .*
-"""))
+         stderr = """\
+scons: *** Cannot duplicate `%s' in `build': Permission denied.  Stop.
+""" % (os.path.join('src', 'file.in')))
 
 test.run(chdir = 'ro-src',
          arguments = "-k .",
          status = 2,
-         stderr = None)
-test.fail_test(not test.match_re_dotall(test.stderr(), """\
-scons: \\*\\*\\* Cannot duplicate `src.file\.in' in `build': Permission denied.
-scons: internal stack trace:
-  File .*
-"""))
+         stderr = """\
+scons: *** Cannot duplicate `%s' in `build': Permission denied.
+""" % (os.path.join('src', 'file.in')))
 
 f.close()
 
@@ -163,10 +157,9 @@ BuildDir('build', 'src2')
 test.run(chdir = 'duplicate',
          arguments = ".",
          status = 2,
-         stderr = None)
-test.fail_test(test.stderr() != """
+         stderr = """
 scons: *** 'build' already has a source directory: 'src1'.
-File \"SConstruct\", line 2, in ?
+File "SConstruct", line 2, in ?
 """)
 
 test.pass_test()

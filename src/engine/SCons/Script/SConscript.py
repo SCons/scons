@@ -270,7 +270,8 @@ def SConscript_exception(file=sys.stderr):
     This will show users who have Python errors where the problem is,
     without cluttering the output with all of the internal calls leading
     up to where we exec the SConscript."""
-    stack = traceback.extract_tb(sys.exc_traceback)
+    exc_type, exc_value, exc_tb = sys.exc_info()
+    stack = traceback.extract_tb(exc_tb)
     last_text = ""
     found = 0
     i = 0
@@ -284,10 +285,10 @@ def SConscript_exception(file=sys.stderr):
         # We did not find our exec statement, so this was actually a bug
         # in SCons itself.  Show the whole stack.
         i = 0
-    type = str(sys.exc_type)
+    type = str(exc_type)
     if type[:11] == "exceptions.":
         type = type[11:]
-    file.write('%s: %s:\n' % (type, sys.exc_value))
+    file.write('%s: %s:\n' % (type, exc_value))
     for fname, line, func, text in stack[i:]:
         file.write('  File "%s", line %d:\n' % (fname, line))
         file.write('    %s\n' % text)
