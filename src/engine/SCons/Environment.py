@@ -220,11 +220,6 @@ class Environment:
     def Scanners(self):
 	pass	# XXX
 
-    def	Update(self, **kw):
-        """A deprecated synonym for Replace().
-        """
-        apply(self.Replace, (), kw)
-        
     def Replace(self, **kw):
         """Replace existing construction variables in an Environment
         with new construction variables and/or values.

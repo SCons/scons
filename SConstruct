@@ -470,9 +470,9 @@ for p in [ scons ]:
     # to the directory in which setup.py exists.
     #
     setup_py = os.path.join(build, 'setup.py')
-    env.Update(PKG = pkg,
-               PKG_VERSION = pkg_version,
-               SETUP_PY = setup_py)
+    env.Replace(PKG = pkg,
+                PKG_VERSION = pkg_version,
+                SETUP_PY = setup_py)
     Local(setup_py)
 
     #

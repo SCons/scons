@@ -16,6 +16,9 @@ RELEASE 0.12 - XXX
     to control how the Install() and InstallAs() Builders install files.
     The default INSTALL function now copies, not links, files.
 
+  - Remove deprecated features:  the "name" argument to Builder objects,
+    and the Environment.Update() method.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600

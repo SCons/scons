@@ -99,9 +99,6 @@ class DictCmdGenerator:
 def Builder(**kw):
     """A factory for builder objects."""
     composite = None
-    if kw.has_key('name'):
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                            "The use of the 'name' parameter to Builder() is deprecated.")
     if kw.has_key('generator'):
         if kw.has_key('action'):
             raise UserError, "You must not specify both an action and a generator."

@@ -185,26 +185,6 @@ class BuilderTestCase(unittest.TestCase):
         assert target.name == uni('n16 n17')
         assert target.sources[0].name == uni('n18 n19')
 
-    def test_noname(self):
-        """Test deprecated warning for Builder name.
-
-        Using the name argument for Builder() is deprectaed and the
-        user should receive a warning.
-        """
-        SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
-        SCons.Warnings.warningAsException(1)
-
-        try:
-            try:
-                b = SCons.Builder.Builder(name='foo')
-            except SCons.Warnings.DeprecatedWarning:
-                pass
-            else:
-                assert 0
-        finally:
-            SCons.Warnings.suppressWarningClass(SCons.Warnings.DeprecatedWarning)
-            SCons.Warnings.warningAsException(0)
-
     def test_action(self):
         """Test Builder creation
 
