@@ -27,10 +27,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import sys
 import TestSCons
+import TestCmd
 
 python = sys.executable
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestCmd.match_re)
 
 test.subdir('sub1', 'sub2')
 
@@ -116,5 +117,45 @@ test.run(arguments = 'blat')
 
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 test.fail_test(not os.path.exists(test.workpath('f3.out')))
+
+test.write('f3.in', "f3.in 2 \n")
+
+test.run(arguments = 'f1.out', stdout=""".* build.py f3.out f3.in
+.* build.py f1.out f1.in
+""")
+
+test.up_to_date(arguments = 'f1.out')
+
+test.write('SConstruct', """
+SetBuildSignatureType('content')
+B = Builder(action = r"%s build.py $TARGET $SOURCES")
+env = Environment()
+env['BUILDERS']['B'] = B
+env.B(target = 'f1.out', source = 'f1.in')
+env.B(target = 'f2.out', source = 'f2.in')
+env.B(target = 'f3.out', source = 'f3.in')
+SConscript('sub1/SConscript', "env")
+SConscript('sub2/SConscript', "env")
+env.Alias('foo', ['f2.out', 'sub1'])
+env.Alias('bar', ['sub2', 'f3.out'])
+env.Alias('blat', ['sub2', 'f3.out'])
+env.Alias('blat', ['f2.out', 'sub1'])
+env.Depends('f1.out', 'bar')
+""" % python)
+
+os.unlink(test.workpath('f1.out'))
+
+test.run(arguments = 'f1.out')
+
+test.fail_test(not os.path.exists(test.workpath('f1.out')))
+
+test.write('f3.in', "f3.in 3 \n")
+
+test.run(arguments = 'f1.out', stdout=""".* build.py f3.out f3.in
+.* build.py f1.out f1.in
+""")
+
+test.up_to_date(arguments = 'f1.out')
+
 
 test.pass_test()

@@ -63,14 +63,6 @@ class Alias(SCons.Node.Node):
         """A "builder" for aliases."""
         pass
 
-    def set_bsig(self, bsig):
-        """An alias has no signature."""
-        self.bsig = None
-
-    def set_csig(self, csig):
-        """An alias has no signature."""
-        self.csig = None
-
     def current(self, calc):
         """If all of our children were up-to-date, then this
         Alias was up-to-date, too."""
@@ -95,6 +87,14 @@ class Alias(SCons.Node.Node):
         # what directory scons was run from. Alias nodes
         # are outside the filesystem:
         return 1
+
+    def get_contents(self):
+        """The contents of an alias is the concatenation
+        of all the contents of its sources"""
+        contents = ""
+        for kid in self.children(None):
+            contents = contents + kid.get_contents()
+        return contents
         
 default_ans = AliasNameSpace()
 
