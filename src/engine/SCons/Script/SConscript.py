@@ -191,7 +191,6 @@ def SConscript(*ls, **kw):
     results = []
     for fn in files:
         stack.append(Frame(exports))
-        old_dir = None
         old_sys_path = sys.path
         try:
             if fn == "-":
@@ -202,7 +201,6 @@ def SConscript(*ls, **kw):
                 else:
                     f = default_fs.File(str(fn))
                 _file_ = None
-                old_dir = default_fs.getcwd()
 
                 # Change directory to the top of the source
                 # tree to make sure the os's cwd and the cwd of
@@ -242,6 +240,7 @@ def SConscript(*ls, **kw):
                         # default_fs.chdir(), because we still need to
                         # interpret the stuff within the SConscript file
                         # relative to where we are logically.
+                        default_fs.chdir(ldir, change_os_dir=0)
                         os.chdir(f.rfile().dir.abspath)
 
                     # Append the SConscript directory to the beginning
@@ -263,15 +262,14 @@ def SConscript(*ls, **kw):
         finally:
             sys.path = old_sys_path
             frame = stack.pop()
-            default_fs.chdir(frame.prev_dir)
-            if old_dir:
-                try:
-                    default_fs.chdir(old_dir, change_os_dir=sconscript_chdir)
-                except OSError:
-                    # There was no local directory, so chdir to the
-                    # Repository directory.  Like above, we do this
-                    # directly.
-                    os.chdir(old_dir.rdir().abspath)
+            try:
+                default_fs.chdir(frame.prev_dir, change_os_dir=sconscript_chdir)
+            except OSError:
+                # There was no local directory, so chdir to the
+                # Repository directory.  Like above, we do this
+                # directly.
+                default_fs.chdir(frame.prev_dir, change_os_dir=0)
+                os.chdir(frame.prev_dir.rdir().abspath)
 
             results.append(frame.retval)
 

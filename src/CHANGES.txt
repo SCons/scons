@@ -10,6 +10,14 @@
 
 RELEASE 0.13 - XXX
 
+  From Charles Crain:
+
+  - Fix a bug when BuildDir(duplicate=0) is used and SConscript
+    files are called from within other SConscript files.
+
+  - Support (older) versions of Perforce which don't set the Windows
+    registry.
+
 
 
 RELEASE 0.12 - Thu, 27 Mar 2003 23:52:09 -0600

@@ -378,6 +378,14 @@ class BuildDirTestCase(unittest.TestCase):
             test.unlink( "src/foo" )
             test.unlink( "build/foo" )
 
+        # Test against a former bug.  Make sure we can get a repository
+        # path for the build directory itself!
+        fs=SCons.Node.FS.FS(test.workpath('work'))
+        test.subdir('work')
+        fs.BuildDir('build/var3', 'src', duplicate=0)
+        d1 = fs.Dir('build/var3')
+        assert d1.rdir() == fs.Dir('src'), str(d1.rdir())
+
         # verify the link creation attempts in file_link()
         class LinkSimulator :
             """A class to intercept os.[sym]link() calls and track them."""

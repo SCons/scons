@@ -557,10 +557,15 @@ class FS:
         to match.
         """
         self.__setTopLevelDir()
-        if not dir is None:
-            self._cwd = dir
-            if change_os_dir:
-                os.chdir(dir.abspath)
+        curr=self._cwd
+        try:
+            if not dir is None:
+                self._cwd = dir
+                if change_os_dir:
+                    os.chdir(dir.abspath)
+        except:
+            self._cwd = curr
+            raise
 
     def Entry(self, name, directory = None, create = 1, klass=None):
         """Lookup or create a generic Entry node with the specified name.
@@ -640,6 +645,13 @@ class FS:
             n = self.__doLookup(clazz, name, d)
             if n.exists():
                 return n
+            if isinstance(n, Dir):
+                # If n is a Directory that has Repositories directly
+                # attached to it, then any of those is a valid Repository
+                # path.  Return the first one that exists.
+                reps = filter(lambda x: x.exists(), n.getRepositories())
+                if len(reps):
+                    return reps[0]
             d = n.get_dir()
             name = n.name
             # Search repositories of all directories that this file is under.

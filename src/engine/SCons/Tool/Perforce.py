@@ -79,10 +79,15 @@ def generate(env, platform):
 
     if SCons.Util.can_read_reg:
         # If we can read the registry, add the path to Perforce to our environment.
-        k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                  'Software\\Perforce\\environment')
-        val, tok = SCons.Util.RegQueryValueEx(k, 'P4INSTROOT')
-        addPathIfNotExists(environ, 'PATH', val)
+        try:
+            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                      'Software\\Perforce\\environment')
+            val, tok = SCons.Util.RegQueryValueEx(k, 'P4INSTROOT')
+            addPathIfNotExists(environ, 'PATH', val)
+        except SCons.Util.RegError:
+            # Can't detect where Perforce is, hope the user has it set in the
+            # PATH.
+            pass
 
 def exists(env):
     return env.Detect('p4')
