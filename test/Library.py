@@ -33,7 +33,7 @@ env = Environment(LIBS = [ 'foo1', 'libfoo2' ],
                   LIBPATH = [ '.' ])
 env.Library(target = 'foo1', source = 'f1.c')
 Library(target = 'libfoo2', source = Split('f2a.c f2b.c f2c.c'))
-libtgt=env.Library(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
+libtgt=env.Library(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.cpp'])
 env.Program(target = 'prog', source = [ 'prog.c', libtgt ])
 """)
 
@@ -85,11 +85,12 @@ f3b(void)
 }
 """)
 
-test.write('f3c.c', r"""
-void
+test.write('f3c.cpp', r"""
+#include <stdio.h>
+extern "C" void
 f3c(void)
 {
-	printf("f3c.c\n");
+	printf("f3c.cpp\n");
 }
 """)
 
@@ -120,6 +121,6 @@ main(int argc, char *argv[])
 test.run(arguments = '.')
 
 test.run(program = test.workpath('prog'),
-         stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
+         stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.cpp\nprog.c\n")
 
 test.pass_test()
