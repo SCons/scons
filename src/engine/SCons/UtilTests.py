@@ -173,6 +173,32 @@ class UtilTestCase(unittest.TestCase):
         file_names = map(os.path.normpath, file_names)
         assert os.path.normpath('./foo') in file_names, file_names
         assert os.path.normpath('./bar/baz') in file_names, file_names
+
+    def test_autogenerate(dict):
+        """Test autogenerating variables in a dictionary."""
+        dict = {'LIBS'          : [ 'foo', 'bar', 'baz' ],
+                'LIBLINKPREFIX' : 'foo',
+                'LIBLINKSUFFIX' : 'bar'}
+        autogenerate(dict)
+        assert len(dict['_LIBFLAGS']) == 3, dict('_LIBFLAGS')
+        assert dict['_LIBFLAGS'][0] == 'foofoobar', \
+               dict['_LIBFLAGS'][0]
+        assert dict['_LIBFLAGS'][1] == 'foobarbar', \
+               dict['_LIBFLAGS'][1]
+        assert dict['_LIBFLAGS'][2] == 'foobazbar', \
+               dict['_LIBFLAGS'][2]
+
+        dict = {'CPPPATH'   : [ 'foo', 'bar', 'baz' ],
+                'INCPREFIX' : 'foo',
+                'INCSUFFIX' : 'bar'}
+        autogenerate(dict)
+        assert len(dict['_INCFLAGS']) == 3, dict('_INCFLAGS')
+        assert dict['_INCFLAGS'][0] == 'foofoobar', \
+               dict['_INCFLAGS'][0]
+        assert dict['_INCFLAGS'][1] == 'foobarbar', \
+               dict['_INCFLAGS'][1]
+        assert dict['_INCFLAGS'][2] == 'foobazbar', \
+               dict['_INCFLAGS'][2]
         
         
 if __name__ == "__main__":

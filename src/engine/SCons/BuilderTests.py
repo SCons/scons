@@ -275,6 +275,18 @@ class BuilderTestCase(unittest.TestCase):
         contents = b3.get_contents()
         assert contents == "foo\177\036\000\177\037\000d\000\000Sbar", repr(contents)
 
+        b4 = SCons.Builder.Builder(action = "$_LIBFLAGS $_LIBDIRFLAGS $_INCFLAGS")
+        contents = b4.get_contents(LIBS = ['foo', 'bar'],
+                                   LIBLINKPREFIX = '-l',
+                                   LIBLINKSUFFIX = '',
+                                   LIBPATH = ['lib'],
+                                   LIBDIRPREFIX = '-L',
+                                   LIBDIRSUFFIX = '/',
+                                   CPPPATH = ['c', 'p'],
+                                   INCPREFIX = '-I',
+                                   INCSUFFIX = '')
+        assert contents == "-lfoo -lbar -Llib/ -Ic -Ip", contents
+
     def test_name(self):
 	"""Test Builder creation with a specified name
 	"""

@@ -34,7 +34,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 import SCons.Node.FS
-from SCons.Util import PathList, scons_str2nodes, scons_subst, scons_subst_list
+from SCons.Util import PathList, scons_str2nodes, scons_subst, scons_subst_list, autogenerate
 import string
 import types
 from UserList import UserList
@@ -363,6 +363,9 @@ class ActionBase:
             dict['SOURCES'] = PathList(map(os.path.normpath, map(str, s)))
 
         dict.update(kw)
+
+        # Autogenerate necessary construction variables.
+        autogenerate(dict)
 
         return dict
 
