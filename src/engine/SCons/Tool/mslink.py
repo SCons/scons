@@ -143,7 +143,7 @@ def generate(env):
     env['LINK']        = 'link'
     env['LINKFLAGS']   = SCons.Util.CLVar('/nologo')
     env['_PDB'] = pdbGenerator
-    env['LINKCOM'] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $SOURCES")}'
+    env['LINKCOM'] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.win32 $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $SOURCES.win32")}'
     env.Append(PROGEMITTER = [prog_emitter])
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''
@@ -160,7 +160,7 @@ def generate(env):
     env['REGSVRACTION'] = regServerCheck
     env['REGSVR'] = os.path.join(SCons.Platform.win32.get_system_root(),'System32','regsvr32')
     env['REGSVRFLAGS'] = '/s '
-    env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS $TARGET'
+    env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS ${TARGET.win32}'
 
     try:
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)

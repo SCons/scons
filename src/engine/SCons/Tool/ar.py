@@ -51,6 +51,8 @@ def generate(env):
     env['RANLIB']      = ranlib
     env['RANLIBFLAGS'] = SCons.Util.CLVar('')
     env['ARCOM']       = arcom
+    env['LIBPREFIX']   = 'lib'
+    env['LIBSUFFIX']   = '.a'
 
 def exists(env):
     return env.Detect('ar')

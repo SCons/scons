@@ -40,6 +40,8 @@ def generate(env):
     env['AR']          = 'tlib'
     env['ARFLAGS']     = SCons.Util.CLVar('')
     env['ARCOM']       = '$AR $TARGET $ARFLAGS /a $SOURCES'
+    env['LIBPREFIX']   = ''
+    env['LIBSUFFIX']   = '.lib'
 
 def exists(env):
     return SCons.Tool.bcc32.findIt('tlib', env)

@@ -60,6 +60,8 @@ def generate(env):
     env['AR']          = 'lib'
     env['ARFLAGS']     = SCons.Util.CLVar('/nologo')
     env['ARCOM']       = "${TEMPFILE('$AR $ARFLAGS /OUT:$TARGET $SOURCES')}"
+    env['LIBPREFIX']   = ''
+    env['LIBSUFFIX']   = '.lib'
 
 def exists(env):
     try:

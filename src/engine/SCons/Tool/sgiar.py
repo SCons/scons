@@ -55,6 +55,8 @@ def generate(env):
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['LIBPREFIX']   = 'lib'
+    env['LIBSUFFIX']   = '.a'
 
 def exists(env):
     return env.Detect('CC') or env.Detect('ar')

@@ -158,6 +158,10 @@ RELEASE 0.96 - XXX
     variables for when different compilers/flags/etc. must be specified
     for different Fortran versions.
 
+  - Have individual tools that create libraries override the default
+    $LIBPREFIX and $LIBSUFFIX values set by the platform.  This makes
+    it easier to use Microsoft Visual Studio tools on a CygWin platform.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
