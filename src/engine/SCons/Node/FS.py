@@ -66,29 +66,25 @@ import SCons.Warnings
 # there should be *no* changes to the external file system(s)...
 #
 
-if hasattr(os, 'symlink'):
-    def _existsp(p):
-        return os.path.exists(p) or os.path.islink(p)
-else:
-    _existsp = os.path.exists
-
 def LinkFunc(target, source, env):
+    t = target[0]
+    dest = t.path
+    fs = t.fs
     src = source[0].path
-    dest = target[0].path
     dir, file = os.path.split(dest)
-    if dir and not os.path.isdir(dir):
-        os.makedirs(dir)
+    if dir and not fs.isdir(dir):
+        fs.makedirs(dir)
     # Now actually link the files.  First try to make a hard link.  If that
     # fails, try a symlink.  If that fails then just copy it.
     try :
-        os.link(src, dest)
+        fs.link(src, dest)
     except (AttributeError, OSError):
         try :
-            os.symlink(src, dest)
+            fs.symlink(src, dest)
         except (AttributeError, OSError):
-            shutil.copy2(src, dest)
-            st=os.stat(src)
-            os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+            fs.copy2(src, dest)
+            st = fs.stat(src)
+            fs.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
 Link = SCons.Action.Action(LinkFunc, None)
@@ -99,31 +95,34 @@ def LocalString(target, source, env):
 LocalCopy = SCons.Action.Action(LinkFunc, LocalString)
 
 def UnlinkFunc(target, source, env):
-    os.unlink(target[0].path)
+    t = target[0]
+    t.fs.unlink(t.path)
     return 0
 
 Unlink = SCons.Action.Action(UnlinkFunc, None)
 
 def MkdirFunc(target, source, env):
-    os.mkdir(target[0].path)
+    t = target[0]
+    t.fs.mkdir(t.path)
     return 0
 
 Mkdir = SCons.Action.Action(MkdirFunc, None)
 
 def CacheRetrieveFunc(target, source, env):
     t = target[0]
+    fs = t.fs
     cachedir, cachefile = t.cachepath()
-    if os.path.exists(cachefile):
-        shutil.copy2(cachefile, t.path)
-        st = os.stat(cachefile)
-        os.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    if fs.exists(cachefile):
+        fs.copy2(cachefile, t.path)
+        st = fs.stat(cachefile)
+        fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
         return 0
     return 1
 
 def CacheRetrieveString(target, source, env):
     t = target[0]
     cachedir, cachefile = t.cachepath()
-    if os.path.exists(cachefile):
+    if t.fs.exists(cachefile):
         return "Retrieved `%s' from cache" % t.path
     return None
 
@@ -133,20 +132,21 @@ CacheRetrieveSilent = SCons.Action.Action(CacheRetrieveFunc, None)
 
 def CachePushFunc(target, source, env):
     t = target[0]
+    fs = t.fs
     cachedir, cachefile = t.cachepath()
-    if os.path.exists(cachefile):
+    if fs.exists(cachefile):
         # Don't bother copying it if it's already there.
         return
 
-    if not os.path.isdir(cachedir):
-        os.mkdir(cachedir)
+    if not fs.isdir(cachedir):
+        fs.mkdir(cachedir)
 
     tempfile = cachefile+'.tmp'
     try:
-        shutil.copy2(t.path, tempfile)
-        os.rename(tempfile, cachefile)
-        st = os.stat(t.path)
-        os.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        fs.copy2(t.path, tempfile)
+        fs.rename(tempfile, cachefile)
+        st = fs.stat(t.path)
+        fs.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     except OSError:
         # It's possible someone else tried writing the file at the same
         # time we did.  Print a warning but don't stop the build, since
@@ -384,7 +384,7 @@ class Base(SCons.Node.Node):
         try:
             return self._exists
         except AttributeError:
-            self._exists = _existsp(self.abspath)
+            self._exists = self.fs.exists_or_islink(self.abspath)
             return self._exists
 
     def rexists(self):
@@ -531,11 +531,11 @@ class Entry(Base):
         Since this should return the real contents from the file
         system, we check to see into what sort of subclass we should
         morph this Entry."""
-        if os.path.isfile(self.abspath):
+        if self.fs.isfile(self.abspath):
             self.__class__ = File
             self._morph()
             return File.get_contents(self)
-        if os.path.isdir(self.abspath):
+        if self.fs.isdir(self.abspath):
             self.__class__ = Dir
             self._morph()
             return Dir.get_contents(self)
@@ -545,7 +545,7 @@ class Entry(Base):
         """Return if the Entry exists.  Check the file system to see
         what we should turn into first.  Assume a file if there's no
         directory."""
-        if os.path.isdir(self.abspath):
+        if self.fs.isdir(self.abspath):
             self.__class__ = Dir
             self._morph()
             return Dir.exists(self)
@@ -559,7 +559,7 @@ class Entry(Base):
         """Return the Entry's calculated signature.  Check the file
         system to see what we should turn into first.  Assume a file if
         there's no directory."""
-        if os.path.isdir(self.abspath):
+        if self.fs.isdir(self.abspath):
             self.__class__ = Dir
             self._morph()
             return Dir.calc_signature(self, calc)
@@ -574,7 +574,70 @@ class Entry(Base):
 _classEntry = Entry
 
 
-class FS:
+class LocalFS:
+    # This class implements an abstraction layer for operations involving
+    # a local file system.  Essentially, this wraps any function in
+    # the os, os.path or shutil modules that we use to actually go do
+    # anything with or to the local file system.
+    #
+    # Note that there's a very good chance we'll refactor this part of
+    # the architecture in some way as we really implement the interface(s)
+    # for remote file system Nodes.  For example, the right architecture
+    # might be to have this be a subclass instead of a base class.
+    # Nevertheless, we're using this as a first step in that direction.
+    #
+    # We're not using chdir() yet because the calling subclass method
+    # needs to use os.chdir() directly to avoid recursion.  Will we
+    # really need this one?
+    #def chdir(self, path):
+    #    return os.chdir(path)
+    def chmod(self, path, mode):
+        return os.chmod(path, mode)
+    def copy2(self, src, dst):
+        return shutil.copy2(src, dst)
+    def exists(self, path):
+        return os.path.exists(path)
+    def getmtime(self, path):
+        return os.path.getmtime(path)
+    def isdir(self, path):
+        return os.path.isdir(path)
+    def isfile(self, path):
+        return os.path.isfile(path)
+    def link(self, src, dst):
+        return os.link(src, dst)
+    def listdir(self, path):
+        return os.listdir(path)
+    def makedirs(self, path):
+        return os.makedirs(path)
+    def mkdir(self, path):
+        return os.mkdir(path)
+    def rename(self, old, new):
+        return os.rename(old, new)
+    def stat(self, path):
+        return os.stat(path)
+    def symlink(self, src, dst):
+        return os.symlink(src, dst)
+    def open(self, path):
+        return open(path)
+    def unlink(self, path):
+        return os.unlink(path)
+
+    if hasattr(os, 'symlink'):
+        def exists_or_islink(self, path):
+            return os.path.exists(path) or os.path.islink(path)
+    else:
+        exists_or_islink = exists
+
+#class RemoteFS:
+#    # Skeleton for the obvious methods we might need from the
+#    # abstraction layer for a remote filesystem.
+#    def upload(self, local_src, remote_dst):
+#        pass
+#    def download(self, remote_src, local_dst):
+#        pass
+
+
+class FS(LocalFS):
     def __init__(self, path = None):
         """Initialize the Node.FS subsystem.
 
@@ -585,12 +648,12 @@ class FS:
         The path argument must be a valid absolute path.
         """
         if __debug__: logInstanceCreation(self)
+        self.Top = None
         if path == None:
             self.pathTop = os.getcwd()
         else:
             self.pathTop = path
         self.Root = {}
-        self.Top = None
         self.SConstruct_dir = None
         self.CachePath = None
         self.cache_force = None
@@ -681,7 +744,7 @@ class FS:
                 # look at the actual filesystem and make sure there isn't
                 # a file already there
                 path = directory.path_ + path_name
-                if os.path.isfile(path):
+                if self.isfile(path):
                     raise TypeError, \
                           "File %s found where directory expected." % path
 
@@ -700,11 +763,11 @@ class FS:
             # a directory at that path on the disk, and vice versa
             path = directory.path_ + path_comp[-1]
             if fsclass == File:
-                if os.path.isdir(path):
+                if self.isdir(path):
                     raise TypeError, \
                           "Directory %s found where file expected." % path
             elif fsclass == Dir:
-                if os.path.isfile(path):
+                if self.isfile(path):
                     raise TypeError, \
                           "File %s found where directory expected." % path
             
@@ -1077,7 +1140,7 @@ class Dir(Base):
         # be out of date.
         if not self.searched:
             try:
-                for filename in os.listdir(self.abspath):
+                for filename in self.fs.listdir(self.abspath):
                     if filename != '.sconsign':
                         self.Entry(filename)
             except OSError:
@@ -1243,7 +1306,7 @@ class File(Base):
 
     def get_timestamp(self):
         if self.rexists():
-            return os.path.getmtime(self.rfile().abspath)
+            return self.fs.getmtime(self.rfile().abspath)
         else:
             return 0
 
@@ -1364,7 +1427,7 @@ class File(Base):
         # Push this file out to cache before the superclass Node.built()
         # method has a chance to clear the build signature, which it
         # will do if this file has a source scanner.
-        if self.fs.CachePath and os.path.exists(self.path):
+        if self.fs.CachePath and self.fs.exists(self.path):
             CachePush(self, None, None)
         SCons.Node.Node.built(self)
         self.found_includes = {}
@@ -1378,7 +1441,7 @@ class File(Base):
             pass
 
     def visited(self):
-        if self.fs.CachePath and self.fs.cache_force and os.path.exists(self.path):
+        if self.fs.CachePath and self.fs.cache_force and self.fs.exists(self.path):
             CachePush(self, None, None)
 
     def has_src_builder(self):
@@ -1405,7 +1468,7 @@ class File(Base):
                     sccspath = os.path.join('SCCS', 's.' + self.name)
                     if dir != '.':
                         sccspath = os.path.join(dir, sccspath)
-                    if os.path.exists(sccspath):
+                    if self.fs.exists(sccspath):
                         scb = get_DefaultSCCSBuilder()
                     else:
                         rcspath = os.path.join('RCS', self.name + ',v')
@@ -1452,8 +1515,8 @@ class File(Base):
 
     def remove(self):
         """Remove this file."""
-        if _existsp(self.path):
-            os.unlink(self.path)
+        if self.fs.exists_or_islink(self.path):
+            self.fs.unlink(self.path)
             return 1
         return None
 
