@@ -1058,6 +1058,9 @@ class Base:
         nodes = self.arg2nodes(dirs, self.fs.Dir)
         return SCons.Node.FS.find_file(file, nodes, self.fs.File)
 
+    def Flatten(self, sequence):
+        return SCons.Util.flatten(sequence)
+
     def GetBuildPath(self, files):
         result = map(str, self.arg2nodes(files, self.fs.Entry))
         if SCons.Util.is_List(files):

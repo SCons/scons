@@ -152,6 +152,9 @@ RELEASE 0.96 - XXX
     one target.  This keeps things consistent and easier to program to
     across platforms.
 
+  - Add a Flatten() function to make it easier to deal with the Builders
+    all returning lists of targets, not individual targets.
+
   From Chris Murray:
 
   - Add a .win32 attribute to force file names to expand with
