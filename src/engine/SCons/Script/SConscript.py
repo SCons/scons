@@ -124,7 +124,7 @@ def compute_exports(exports):
                 except KeyError:
                     retval[export] = glob[export]
     except KeyError, x:
-        raise SCons.Errors.UserError, "Export of non-existant variable '%s'"%x
+        raise SCons.Errors.UserError, "Export of non-existent variable '%s'"%x
 
     return retval
     
@@ -154,7 +154,7 @@ def Return(*vars):
             for v in string.split(var):
                 retval.append(stack[-1].globals[v])
     except KeyError, x:
-        raise SCons.Errors.UserError, "Return of non-existant variable '%s'"%x
+        raise SCons.Errors.UserError, "Return of non-existent variable '%s'"%x
         
     if len(retval) == 1:
         stack[-1].retval = retval[0]
@@ -477,7 +477,7 @@ class SConsEnvironment(SCons.Environment.Base):
                         else:
                             stack[-1].globals[v] = global_exports[v]
         except KeyError,x:
-            raise SCons.Errors.UserError, "Import of non-existant variable '%s'"%x
+            raise SCons.Errors.UserError, "Import of non-existent variable '%s'"%x
 
     def SConscript(self, *ls, **kw):
         ls = map(lambda l, self=self: self.subst(l), ls)
