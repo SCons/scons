@@ -1,8 +1,8 @@
-scons (0.15-1) unstable; urgency=low
+scons (0.90-1) unstable; urgency=low
 
-  * Ninth post-official-Debian build cycle
+  * First beta release.
 
- -- Steven Knight <knight@baldmt.com>  Wed, 21 May 2003 05:16:32 -0500
+ -- Steven Knight <knight@baldmt.com>  Wed, 25 Jun 2003 14:24:52 -0500
 
 
 scons (0.14-1) unstable; urgency=low

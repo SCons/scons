@@ -82,9 +82,6 @@ Things to do to release a new version of SCons:
                 aecp SConstruct
                 vi SConstruct
 
-                aecp debian/changelog
-                vi debian/changelog
-
                 aecp rpm/scons.spec.in
                 vi rpm/scons.spec.in
 
@@ -97,11 +94,6 @@ Things to do to release a new version of SCons:
 
 		[optional] aecp HOWTO/release.txt
 		[optional] vi HOWTO/release.txt
-
-		# Prep the following files to track the changes
-		# made during the next development cycle
-		aecp src/CHANGES.txt src/RELEASE.txt
-		vi src/CHANGES.txt src/RELEASE.txt
 
                 # Read through and update the README files if necessary
 		[optional] aecp README
@@ -422,6 +414,22 @@ Things to do to release a new version of SCons:
                 [Wait until the morning so the announcement hits the
                 main freshmeat.net page while people in the U.S. are
                 awake and working]
+
+
+
+	Checkin another change to prepare for development on this branch.
+
+		# Prep the following files to track the changes
+		# made during the next development cycle
+		aecp src/CHANGES.txt src/RELEASE.txt
+		vi src/CHANGES.txt src/RELEASE.txt
+
+		# Optionally, update release numbers in the following:
+		[optional] aecp HOWTO/change.txt
+		[optional] vi HOWTO/change.txt
+
+		[optional] aecp HOWTO/release.txt
+		[optional] vi HOWTO/release.txt
 
 
 

@@ -20,9 +20,9 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.15 - XXX
+RELEASE 0.90 - Wed, 25 Jun 2003 14:24:52 -0500
 
-  This is the fifteenth alpha release of SCons.  Please consult the
+  This is the first beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.14:
@@ -84,9 +84,8 @@ RELEASE 0.15 - XXX
 
   Nevertheless, please heed the following disclaimers:
 
-    - There may, of course, be bugs.  Please report any bugs or other
-      problems that you find to our bug tracker at our SourceForge
-      project page:
+    - Please report any bugs or other problems that you find to our bug
+      tracker at our SourceForge project page:
 
       http://sourceforge.net/tracker/?func=add&group_id=30337&atid=398971
 
@@ -157,9 +156,6 @@ RELEASE 0.15 - XXX
       this fix does not work on all systems or in all circumstances.
       We're working to try to find a universal solution.
 
-    - Executing the -u or -U option from a source directory that has an
-      associated BuildDir() does not build the targets in the BuildDir().
-
     - Modifying a construction environment in a subsidiary SConscript
       file modifies the global environment.
 
@@ -176,11 +172,11 @@ RELEASE 0.15 - XXX
       (for example) \some\target is the same as X:\some\target (for your
       current volume X:).
 
-    - .sconsign files can be written even when the -n option is used,
-      possibly causing incorrect "up to date" builds the next time around.
+    - Using a construction variable in its own expansion can cause
+      an infinite loop.
 
-    - An explicit target beginning with "../" (i.e. above the current
-      directory) is ignored when using the -u, -U or -D options.
+    - When using SourceSignatures('timestamp'), changes to Python
+      Value() do not cause rebuilds.
 
     - No support yet for the following planned command-line options:
 
@@ -203,5 +199,5 @@ With plenty of help from the SCons Development team:
         Steve Leblanc
         Anthony Roach
         Greg Spencer
-        Christoph Widemann
+        Christoph Wiedemann
 
