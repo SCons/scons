@@ -470,6 +470,71 @@ class TaskmasterTestCase(unittest.TestCase):
         assert str(e.value) == "from make_ready()", str(e.value)
 
 
+    def test_make_ready_all(self):
+        class MyCalc(SCons.Taskmaster.Calc):
+            def current(self, node, sig):
+                n = str(node)
+                return n[0] == 'c'
+
+        class MyTask(SCons.Taskmaster.Task):
+            make_ready = SCons.Taskmaster.Task.make_ready_all
+
+        n1 = Node("n1")
+        c2 = Node("c2")
+        n3 = Node("n3")
+        c4 = Node("c4")
+
+        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4],
+                                         calc = MyCalc())
+
+        t = tm.next_task()
+        target = t.get_target()
+        assert target is n1, target
+        assert target.state == SCons.Node.executing, target.state
+        t = tm.next_task()
+        target = t.get_target()
+        assert target is c2, target
+        assert target.state == SCons.Node.up_to_date, target.state
+        t = tm.next_task()
+        target = t.get_target()
+        assert target is n3, target
+        assert target.state == SCons.Node.executing, target.state
+        t = tm.next_task()
+        target = t.get_target()
+        assert target is c4, target
+        assert target.state == SCons.Node.up_to_date, target.state
+        t = tm.next_task()
+        assert t is None
+
+        n1 = Node("n1")
+        c2 = Node("c2")
+        n3 = Node("n3")
+        c4 = Node("c4")
+
+        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4],
+                                         tasker = MyTask,
+                                         calc = MyCalc())
+
+        t = tm.next_task()
+        target = t.get_target()
+        assert target is n1, target
+        assert target.state == SCons.Node.executing, target.state
+        t = tm.next_task()
+        target = t.get_target()
+        assert target is c2, target
+        assert target.state == SCons.Node.executing, target.state
+        t = tm.next_task()
+        target = t.get_target()
+        assert target is n3, target
+        assert target.state == SCons.Node.executing, target.state
+        t = tm.next_task()
+        target = t.get_target()
+        assert target is c4, target
+        assert target.state == SCons.Node.executing, target.state
+        t = tm.next_task()
+        assert t is None
+
+
     def test_children_errors(self):
         """Test errors when fetching the children of a node.
         """
