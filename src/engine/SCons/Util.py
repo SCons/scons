@@ -343,10 +343,11 @@ class DisplayEngine:
     def __init__(self):
         self.__call__ = self.print_it
 
-    def print_it(self, text):
-        sys.stdout.write(text + '\n')
+    def print_it(self, text, append_newline=1):
+        if append_newline: text = text + '\n'
+        sys.stdout.write(text)
 
-    def dont_print(self, text):
+    def dont_print(self, text, append_newline=1):
         pass
 
     def set_mode(self, mode):

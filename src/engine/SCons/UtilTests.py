@@ -1210,8 +1210,12 @@ class UtilTestCase(unittest.TestCase):
         display("line2")
         display.set_mode(1)
         display("line3")
-
-        assert sys.stdout.buffer == "line1\nline3\n"
+        display("line4\n", append_newline=0)
+        display.set_mode(0)
+        display("dont print1")
+        display("dont print2\n", append_newline=0)
+        display.set_mode(1)
+        assert sys.stdout.buffer == "line1\nline3\nline4\n"
         sys.stdout = old_stdout
 
     def test_fs_delete(self):

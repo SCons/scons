@@ -300,7 +300,7 @@ def generate(env):
     # default.  We're doing this for SYSTEMROOT, though, because it's
     # needed for anything that uses sockets, and seldom changes.  Weigh
     # the impact carefully before adding other variables to this list.
-    import_env = [ 'SYSTEMROOT' ]
+    import_env = [ 'SYSTEMROOT', 'TEMP', 'TMP' ]
     for var in import_env:
         v = os.environ.get(var)
         if v:

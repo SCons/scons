@@ -78,6 +78,9 @@ Autoconf-like configuration support; low level implementation of tests.
 #                       The file must not exist or be empty when starting.
 #                       Empty or None to skip this (some tests will not work!).
 #
+# context.config_h      (may be missing). If present, must be a string, which
+#                       will be filled with the contents of a config_h file.
+#
 # context.vardict       Dictionary holding variables used for the tests and
 #                       stores results from the tests, used for the build
 #                       commands.
@@ -91,8 +94,16 @@ Autoconf-like configuration support; low level implementation of tests.
 #                       be a number and "SYSTEMNAME" a string.
 #
 
+import re
 import string
 from types import IntType
+
+#
+# PUBLIC VARIABLES
+#
+
+LogInputFiles = 1    # Set that to log the input files in case of a failed test
+LogErrorMessages = 1 # Set that to log Conftest-generated error messages
 
 #
 # PUBLIC FUNCTIONS
@@ -121,9 +132,10 @@ def CheckBuilder(context, text = None, language = None):
 
     if not text:
         text = """
-                int main() {
-                        return 0;
-                    }\n\n"""
+int main() {
+    return 0;
+}
+"""
 
     context.Display("Checking if building a %s file works... " % lang)
     ret = context.BuildProg(text, suffix)
@@ -164,10 +176,10 @@ def CheckFunc(context, function_name, header = None, language = None):
         includetext = ''
     if not header:
         header = """
-                #ifdef __cplusplus
-                extern "C"
-                #endif
-                char %s();""" % function_name
+#ifdef __cplusplus
+extern "C"
+#endif
+char %s();""" % function_name
 
     lang, suffix, msg = _lang2suffix(language)
     if msg:
@@ -175,21 +187,22 @@ def CheckFunc(context, function_name, header = None, language = None):
         return msg
 
     text = """
-            %(include)s
-            #include <assert.h>
-            %(hdr)s
+%(include)s
+#include <assert.h>
+%(hdr)s
 
-            int main() {
-                    #if defined (__stub_%(name)s) || defined (__stub___%(name)s)
-                    fail fail fail
-                    #else
-                    %(name)s();
-                    #endif
+int main() {
+#if defined (__stub_%(name)s) || defined (__stub___%(name)s)
+  fail fail fail
+#else
+  %(name)s();
+#endif
 
-                    return 0;
-                }\n\n""" % { 'name': function_name,
-                             'include': includetext,
-                             'hdr': header }
+  return 0;
+}
+""" % { 'name': function_name,
+        'include': includetext,
+        'hdr': header }
 
     context.Display("Checking for %s function %s()... " % (lang, function_name))
     ret = context.BuildProg(text, suffix)
@@ -282,17 +295,18 @@ def CheckType(context, type_name, fallback = None,
     # - Using "sizeof(TYPE)" is valid when TYPE is actually a variable.
     # - Using the previous two together works reliably.
     text = """
-            %(include)s
-            %(header)s
+%(include)s
+%(header)s
 
-            int main() {
-                    if ((%(name)s *) 0)
-                            return 0;
-                    if (sizeof (%(name)s))
-                            return 0;
-            }\n\n""" % { 'include': includetext,
-                         'header': header,
-                         'name': type_name }
+int main() {
+  if ((%(name)s *) 0)
+    return 0;
+  if (sizeof (%(name)s))
+    return 0;
+}
+""" % { 'include': includetext,
+        'header': header,
+        'name': type_name }
 
     context.Display("Checking for %s type %s... " % (lang, type_name))
     ret = context.BuildProg(text, suffix)
@@ -335,27 +349,28 @@ def CheckLib(context, libs, func_name, header = None,
         header = ""
 
     text = """
-            %s
-            %s """ % (includetext, header)
+%s
+%s""" % (includetext, header)
 
     # Add a function declaration if needed.
     if func_name and func_name != "main" and not header:
         text = text + """
-                #ifdef __cplusplus
-                extern "C"
-                #endif
-                char %s();""" % func_name
+#ifdef __cplusplus
+extern "C"
+#endif
+char %s();
+""" % func_name
 
     # The actual test code.
     if not call:
         call = "%s();" % func_name
     text = text + """
-            int
-            main() {
-            %s
-            return 0;
-            }
-            \n\n""" % call
+int
+main() {
+  %s
+return 0;
+}
+""" % call
 
     i = string.find(call, "\n")
     if i > 0:
@@ -390,7 +405,7 @@ def CheckLib(context, libs, func_name, header = None,
         if oldLIBS != -1 and (ret or not autoadd):
             context.SetLIBS(oldLIBS)
             
-        if ret == "":
+        if not ret:
             return ret
 
     return ret
@@ -418,8 +433,8 @@ def _YesNoResult(context, ret, key, text):
 def _Have(context, key, have):
     """
     Store result of a test in context.havedict and context.headerfilename.
-    "key" is a "HAVE_abc" name.  It is turned into all CAPITALS and ":./" are
-    replaced by an underscore.
+    "key" is a "HAVE_abc" name.  It is turned into all CAPITALS and non-
+    alphanumerics are replaced by an underscore.
     The value of "have" can be:
     1      - Feature is defined, add "#define key".
     0      - Feature is not defined, add "/* #undef key */".
@@ -432,22 +447,24 @@ def _Have(context, key, have):
              when desired and escape special characters!
     """
     key_up = string.upper(key)
-    key_up = string.replace(key_up, ':', '_')
-    key_up = string.replace(key_up, '.', '_')
-    key_up = string.replace(key_up, '/', '_')
-    key_up = string.replace(key_up, ' ', '_')
+    key_up = re.sub('[^A-Z0-9_]', '_', key_up)
     context.havedict[key_up] = have
+    if have == 1:
+        line = "#define %s\n" % key_up
+    elif have == 0:
+        line = "/* #undef %s */\n" % key_up
+    elif type(have) == IntType:
+        line = "#define %s %d\n" % (key_up, have)
+    else:
+        line = "#define %s %s\n" % (key_up,
+                                    re.sub('[^A-Za-z0-9_]', '_', str(have)))
+    
     if context.headerfilename:
         f = open(context.headerfilename, "a")
-        if have == 1:
-            f.write("#define %s\n" % key_up)
-        elif have == 0:
-            f.write("/* #undef %s */\n" % key_up)
-        elif type(have) == IntType:
-            f.write("#define %s %d\n" % (key_up, have))
-        else:
-            f.write("#define %s %s\n" % (key_up, str(have)))
+        f.write(line)
         f.close()
+    elif hasattr(context,'config_h'):
+        context.config_h = context.config_h + line
 
 
 def _LogFailed(context, text, msg):
@@ -455,15 +472,17 @@ def _LogFailed(context, text, msg):
     Write to the log about a failed program.
     Add line numbers, so that error messages can be understood.
     """
-    context.Log("Failed program was:\n")
-    lines = string.split(text, '\n')
-    if len(lines) and lines[-1] == '':
-        lines = lines[:-1]              # remove trailing empty line
-    n = 1
-    for line in lines:
-        context.Log("%d: %s\n" % (n, line))
-        n = n + 1
-    context.Log("Error message: %s\n" % msg)
+    if LogInputFiles:
+        context.Log("Failed program was:\n")
+        lines = string.split(text, '\n')
+        if len(lines) and lines[-1] == '':
+            lines = lines[:-1]              # remove trailing empty line
+        n = 1
+        for line in lines:
+            context.Log("%d: %s\n" % (n, line))
+            n = n + 1
+    if LogErrorMessages:
+        context.Log("Error message: %s\n" % msg)
 
 
 def _lang2suffix(lang):

@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import re
 import string
 import sys
 
@@ -109,7 +110,7 @@ env.B(target='aaa.out', source='aaa.in')
 """)
 # test that conf_dir isn't created and an error is raised
 stderr=r"""
-scons: \*\*\* Cannot update configure test \(config\.test\) within a dry-run\.
+scons: \*\*\* Cannot create configure directory "config\.test" within a dry-run\.
 File \S+, line \S+, in \S+
 """
 test.run(arguments="-q aaa.out",stderr=stderr,status=2,
@@ -121,9 +122,9 @@ test.fail_test(os.path.exists(test.workpath("configure", "config.log")))
 # verify that .cache and config.log are not created.
 # an error should be raised
 stderr=r"""
-scons: \*\*\* Cannot update configure test \(config\.test.conftest_0\.in\) within a dry-run\.
+scons: \*\*\* Cannot update configure test "%s" within a dry-run\.
 File \S+, line \S+, in \S+
-"""
+""" % re.escape(os.path.join("config.test", "conftest_0.in"))
 test.subdir(['configure','config.test'])
 test.run(arguments="-q aaa.out",stderr=stderr,status=2,
          chdir=test.workpath("configure"))
@@ -138,17 +139,13 @@ test.fail_test(os.path.exists(test.workpath("configure", "config.log")))
 # test that no error is raised, if all targets are up-to-date. In this
 # case .cache and config.log shouldn't be created
 stdout=test.wrap_stdout(build_str='cp aaa.in aaa.out\n',
-                        read_str="""\
-Executing Custom Test ... ok
+                        read_str="""Executing Custom Test ... yes
 """)
 test.run(stdout=stdout,arguments="aaa.out",status=0,chdir=test.workpath("configure"))
-cache1_mtime = os.path.getmtime(test.workpath("configure","config.test",".cache"))
 log1_mtime = os.path.getmtime(test.workpath("configure","config.log"))
 test.run(arguments="-q aaa.out",status=0,
          chdir=test.workpath("configure"))
-cache2_mtime = os.path.getmtime(test.workpath("configure","config.test",".cache"))
 log2_mtime = os.path.getmtime(test.workpath("configure","config.log"))
-test.fail_test( cache1_mtime != cache2_mtime )
 test.fail_test( log1_mtime != log2_mtime )
 
 test.pass_test()

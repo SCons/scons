@@ -421,6 +421,47 @@ This will produce consistent output for build logs,
 regardless of whether a target
 file was rebuilt or retrieved from the cache.
 
+.TP
+.RI --config= mode
+This specifies how the
+.B Configure
+call should use or generate the
+results of configuration tests.
+The option should be specified from
+among the following choices:
+
+.TP
+--config=auto
+scons will use its normal dependency mechanisms
+to decide if a test must be rebuilt or not.
+This saves time by not running the same configuration tests
+every time you invoke scons,
+but will overlook changes in system header files
+or external commands (such as compilers)
+if you don't specify those dependecies explicitly.
+This is the default behavior.
+
+.TP
+--config=force
+If this option is specified,
+all configuration tests will be re-run
+regardless of whether the
+cached results are out of date.
+This can be used to explicitly
+force the configuration tests to be updated
+in response to an otherwise unconfigured change
+in a system header file or compiler.
+
+.TP
+--config=cache
+If this option is specified,
+no configuration tests will be rerun
+and all results will be taken from cache.
+Note that scons will still consider it an error
+if --config=cache is specified
+and a necessary test does not
+yet have any results in the cache.
+
 .TP 
 .RI "-C" " directory" ",  --directory=" directory
 Change to the specified 
@@ -2504,9 +2545,9 @@ env.Command('baz.out', 'baz.in',
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ])
+.RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ", " config_h ])
 .TP
-.RI env.Configure([ custom_tests ", " conf_dir ", " log_file ])
+.RI env.Configure([ custom_tests ", " conf_dir ", " log_file ", " config_h ])
 Creates a Configure object for integrated
 functionality similar to GNU autoconf.
 See the section "Configure Contexts,"
@@ -6432,13 +6473,16 @@ In contrast to autoconf,
 .B scons
 does not maintain an explicit cache of the tested values,
 but uses its normal dependency tracking to keep the checked values
-up to date. 
+up to date. However, users may override this behaviour with the 
+.B --config
+command line option.
+
 The following methods can be used to perform checks:
 
 .TP
-.RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ])
+.RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ", " config_h ])
 .TP
-.RI env.Configure([ custom_tests ", " conf_dir ", " log_file ])
+.RI env.Configure([ custom_tests ", " conf_dir ", " log_file ", " config_h ])
 This creates a configure context, which can be used to perform checks.
 .I env
 specifies the environment for building the tests.
@@ -6461,6 +6505,30 @@ If you are using the
 .B BuildDir
 method,
 you may want to specify a subdirectory under your build directory.
+.I config_h
+specifies a C header file where the results of tests 
+will be written, e.g. #define HAVE_STDIO_H, #define HAVE_LIBM, etc. 
+The default is to not write a
+.B config.h
+file.
+You can specify the same
+.B config.h
+file in multiple calls to Configure,
+in which case
+.B scons
+will concatenate all results in the specified file.
+Note that SCons
+uses its normal dependency checking
+to decide if it's necessary to rebuild
+the specified
+.I config_h
+file.
+This means that the file is not necessarily re-built each
+time scons is run,
+but is only rebuilt if its contents will have changed
+and some target that depends on the
+.I config_h
+file is being built.
 
 .EE
 A created

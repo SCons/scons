@@ -53,8 +53,3 @@ class ExplicitExit(Exception):
         self.status = status
         apply(Exception.__init__, (self,) + args)
 
-class ConfigureDryRunError(UserError):
-    """Raised when a file needs to be updated during a Configure process,
-    but the user requested a dry-run"""
-    def __init__(self,file):
-        UserError.__init__(self,"Cannot update configure test (%s) within a dry-run." % str(file))

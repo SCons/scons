@@ -28,9 +28,10 @@ Autoconf-like configuration support.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import cPickle
 import os
+import re
 import string
+import StringIO
 import sys
 import traceback
 import types
@@ -44,34 +45,272 @@ import SCons.Util
 import SCons.Warnings
 import SCons.Conftest
 
-# First i thought of using a different filesystem as the default_fs,
-# but it showed up that there are too many side effects in doing that.
-SConfFS=SCons.Node.FS.default_fs
+# Turn off the Conftest error logging
+SCons.Conftest.LogInputFiles = 0
+SCons.Conftest.LogErrorMessages = 0
 
 # to be set, if we are in dry-run mode
 dryrun = 0
 
-_ac_build_counter = 0
-_ac_config_counter = 0
-_activeSConfObjects = {}
+AUTO=0  # use SCons dependency scanning for up-to-date checks
+FORCE=1 # force all tests to be rebuilt
+CACHE=2 # force all tests to be taken from cache (raise an error, if necessary)
+cache_mode = AUTO
 
+def SetCacheMode(mode):
+    """Set the Configure cache mode. mode must be one of "auto", "force",
+    or "cache"."""
+    global cache_mode
+    if mode == "auto":
+        cache_mode = AUTO
+    elif mode == "force":
+        cache_mode = FORCE
+    elif mode == "cache":
+        cache_mode = CACHE
+    else:
+        raise ValueError, "SCons.SConf.SetCacheMode: Unknown mode " + mode
+
+progress_display = SCons.Util.display # will be overwritten by SCons.Script
+def SetProgressDisplay(display):
+    """Set the progress display to use (called from SCons.Script)"""
+    global progress_display
+    progress_display = display
+
+SConfFS=SCons.Node.FS.default_fs
+
+_ac_build_counter = 0 # incremented, whenever TryBuild is called
+_ac_config_logs = {}  # all config.log files created in this build
+_ac_config_hs   = {}  # all config.h files created in this build
+sconf_global = None   # current sconf object
+
+def _createConfigH(target, source, env):
+    t = open(str(target[0]), "w")
+    defname = re.sub('[^A-Za-z0-9_]', '_', string.upper(str(target[0])))
+    t.write("""#ifndef %(DEFNAME)s_SEEN
+#define %(DEFNAME)s_SEEN
+
+""" % {'DEFNAME' : defname})
+    t.write(source[0].get_contents())
+    t.write("""
+#endif /* %(DEFNAME)s_SEEN */
+""" % {'DEFNAME' : defname})
+    t.close()
+
+def _stringConfigH(target, source, env):
+    return "scons: Configure: creating " + str(target[0])
+
+def CreateConfigHBuilder(env):
+    """Called just before the building targets phase begins."""
+    if len(_ac_config_hs) == 0:
+        return
+    action = SCons.Action.Action(_createConfigH,
+                                 _stringConfigH)
+    sconfigHBld = SCons.Builder.Builder(action=action)
+    env.Append( BUILDERS={'SConfigHBuilder':sconfigHBld} )
+    for k in _ac_config_hs.keys():
+        env.SConfigHBuilder(k, env.Value(_ac_config_hs[k]))
+    
 class SConfWarning(SCons.Warnings.Warning):
     pass
-SCons.Warnings.enableWarningClass( SConfWarning )
+SCons.Warnings.enableWarningClass(SConfWarning)
 
-# action to create the source
+# some error definitions
+class SConfError(SCons.Errors.UserError):
+    def __init__(self,msg):
+        SCons.Errors.UserError.__init__(self,msg)
+
+class ConfigureDryRunError(SConfError):
+    """Raised when a file or directory needs to be updated during a Configure
+    process, but the user requested a dry-run"""
+    def __init__(self,target):
+        if not isinstance(target, SCons.Node.FS.File):
+            msg = 'Cannot create configure directory "%s" within a dry-run.' % str(target)
+        else:
+            msg = 'Cannot update configure test "%s" within a dry-run.' % str(target)
+        SConfError.__init__(self,msg)
+
+class ConfigureCacheError(SConfError):
+    """Raised when a use explicitely requested the cache feature, but the test
+    is run the first time."""
+    def __init__(self,target):
+        SConfError.__init__(self, '"%s" is not yet built and cache is forced.' % str(target))
+
+# define actions for building text files
 def _createSource( target, source, env ):
     fd = open(str(target[0]), "w")
-    fd.write(env['SCONF_TEXT'])
+    fd.write(source[0].get_contents())
     fd.close()
-
 def _stringSource( target, source, env ):
     import string
-    return (str(target[0]) + ' <- \n  |' +
-            string.replace( env['SCONF_TEXT'], "\n", "\n  |" ) )
+    return (str(target[0]) + ' <-\n  |' +
+            string.replace( source[0].get_contents(),
+                            '\n', "\n  |" ) )
 
+# python 2.2 introduces types.BooleanType
 BooleanTypes = [types.IntType]
 if hasattr(types, 'BooleanType'): BooleanTypes.append(types.BooleanType)
+
+class SConfBuildInfo(SCons.Node.FS.BuildInfo):
+    """
+    Special build info for targets of configure tests. Additional members
+    are result (did the builder succeed last time?) and string, which
+    contains messages of the original build phase.
+    """
+    result = None # -> 0/None -> no error, != 0 error
+    string = None # the stdout / stderr output when building the target
+    
+    def __init__(self, result, string, sig):
+        self.result = result
+        self.string = string
+        self.bsig = sig
+
+
+class Streamer:
+    """
+    'Sniffer' for a file-like writable object. Similar to the unix tool tee.
+    """
+    def __init__(self, orig):
+        self.orig = orig
+        self.s = StringIO.StringIO()
+
+    def write(self, str):
+        if self.orig:
+            self.orig.write(str)
+        self.s.write(str)
+
+    def writelines(self, lines):
+        for l in lines:
+            self.write(l + '\n')
+
+    def getvalue(self):
+        """
+        Return everything written to orig since the Streamer was created.
+        """
+        return self.s.getvalue()
+        
+
+class SConfBuildTask(SCons.Taskmaster.Task):
+    """
+    This is almost the same as SCons.Script.BuildTask. Handles SConfErrors
+    correctly and knows about the current cache_mode.
+    """
+    def display(self, message):
+        if sconf_global.logstream:
+            sconf_global.logstream.write("scons: Configure: " + message + "\n")
+
+    def display_cached_string(self, bi):
+        """
+        Logs the original builder messages, given the SConfBuildInfo instance
+        bi.
+        """
+        if not isinstance(bi, SConfBuildInfo):
+            SCons.Warnings.warn(SConfWarning,
+              "The stored build information has an unexpected class.")
+        else:
+            self.display("The original builder output was:\n" +
+                         string.replace("  |" + str(bi.string),
+                                        "\n", "\n  |"))
+
+    def failed(self):
+        # check, if the reason was a ConfigureDryRunError or a
+        # ConfigureCacheError and if yes, reraise the exception
+        exc_type = self.exc_info()[0]
+        if issubclass(exc_type, SConfError):
+            raise
+        elif issubclass(exc_type, SCons.Errors.BuildError):
+            # we ignore Build Errors (occurs, when a test doesn't pass)
+            pass
+        else:
+            self.display('Caught exception while building "%s":\n' %
+                         self.targets[0])
+            try:
+                excepthook = sys.excepthook
+            except AttributeError:
+                # Earlier versions of Python don't have sys.excepthook...
+                def excepthook(type, value, tb):
+                    import traceback
+                    traceback.print_tb(tb)
+                    print type, value
+            apply(excepthook, self.exc_info())
+        return SCons.Taskmaster.Task.failed(self)
+
+    def collect_node_states(self):
+        # returns (is_up_to_date, cached_error, cachable)
+        # where is_up_to_date is 1, if the node(s) are up_to_date
+        #       cached_error  is 1, if the node(s) are up_to_date, but the
+        #                           build will fail
+        #       cachable      is 0, if some nodes are not in our cache
+        is_up_to_date = 1
+        cached_error = 0
+        cachable = 1
+        for t in self.targets:
+            bi = t.get_stored_info()
+            c_bi = isinstance(bi, SConfBuildInfo)
+            if c_bi:
+                if cache_mode == CACHE:
+                    t.state = SCons.Node.up_to_date
+                else:
+                    bsig = t.calc_signature(sconf_global.calc)
+                    is_up_to_date = (is_up_to_date and
+                                     bsig == bi.bsig)
+                cached_error = cached_error or bi.result
+            else:
+                # the node hasn't been built in a SConf context or doesn't
+                # exist
+                cachable = 0
+                is_up_to_date = 0
+        return (is_up_to_date, cached_error, cachable)
+
+    def execute(self):
+        sconf = sconf_global
+
+        is_up_to_date, cached_error, cachable = self.collect_node_states()
+
+        if cache_mode == CACHE and not cachable:
+            raise ConfigureCacheError(self.targets[0])
+        elif cache_mode == FORCE:
+            is_up_to_date = 0
+
+        if cached_error and is_up_to_date:
+            self.display("Building \"%s\" failed in a previous run and all "
+                         "its sources are up to date." % str(self.targets[0]))
+            self.display_cached_string(self.targets[0].get_stored_info())
+            raise SCons.Errors.BuildError # will be 'caught' in self.failed
+        elif is_up_to_date:            
+            self.display("\"%s\" is up to date." % str(self.targets[0]))
+            self.display_cached_string(self.targets[0].get_stored_info())
+        elif dryrun:
+            raise ConfigureDryRunError(self.targets[0])
+        else:
+            # note stdout and stderr are the same here
+            s = sys.stdout = sys.stderr = Streamer(sys.stdout)
+            try:
+                env = self.targets[0].get_build_env()
+                env['PSTDOUT'] = env['PSTDERR'] = s
+                try:
+                    sconf.cached = 0
+                    self.targets[0].build()
+                finally:
+                    sys.stdout = sys.stderr = env['PSTDOUT'] = \
+                                 env['PSTDERR'] = sconf.logstream
+            except KeyboardInterrupt:
+                raise
+            except SystemExit:
+                exc_value = sys.exc_info()[1]
+                raise SCons.Errors.ExplicitExit(self.targets[0],exc_value.code)
+            except:
+                for t in self.targets:
+                    sig = t.calc_signature(sconf.calc)
+                    string = s.getvalue()
+                    t.dir.sconsign().set_entry(t.name,
+                                               SConfBuildInfo(1,string,sig))
+                raise
+            else:
+                for t in self.targets:
+                    sig = t.calc_signature(sconf.calc)
+                    string = s.getvalue()
+                    t.dir.sconsign().set_entry(t.name,
+                                               SConfBuildInfo(0,string,sig))
 
 class SConf:
     """This is simply a class to represent a configure context. After
@@ -87,7 +326,8 @@ class SConf:
     """
 
     def __init__(self, env, custom_tests = {}, conf_dir='#/.sconf_temp',
-                 log_file='#/config.log'): 
+                 log_file='#/config.log', config_h = None,
+                 called_from_env_method = 0): 
         """Constructor. Pass additional tests in the custom_tests-dictinary,
         e.g. custom_tests={'CheckPrivate':MyPrivateTest}, where MyPrivateTest
         defines a custom test.
@@ -100,7 +340,7 @@ class SConf:
         global SConfFS
         if not SConfFS:
             SConfFS = SCons.Node.FS.FS(SCons.Node.FS.default_fs.pathTop)
-        if len(_activeSConfObjects.keys()) > 0:
+        if not sconf_global is None:
             raise (SCons.Errors.UserError,
                    "Only one SConf object may be active at one time")
         self.env = env
@@ -110,6 +350,8 @@ class SConf:
             self.logfile = None
         self.logstream = None
         self.lastTarget = None
+        self.called_from_env_method = called_from_env_method
+        self.cached = 0 # will be set, if all test results are cached
 
         # add default tests
         default_tests = {
@@ -125,81 +367,22 @@ class SConf:
         self.AddTests(custom_tests)
         self.confdir = SConfFS.Dir(conf_dir)
         self.calc = None
-        self.cache = {}
+        if not config_h is None:
+            config_h = SConfFS.File(config_h)
+        self.config_h = config_h
         self._startup()
 
     def Finish(self):
         """Call this method after finished with your tests:
         env = sconf.Finish()"""
-        global _lastSConfObj
-        _lastSConfObj = None
         self._shutdown()
         return self.env
-
-    def _setCache(self, nodes, already_done = []):
-        # Set up actions used for caching errors
-        # Caching positive tests should not be necessary, cause
-        # the build system knows, if test objects/programs/outputs
-        # are up to date.
-        for n in nodes:
-            # The 'n in already_done' expression is not really efficient.
-            # We may do something more sophisticated in the future :-),
-            # but there should not be that many dependencies in configure
-            # tests
-            if (n.has_builder() and
-                not n in already_done):
-                n.add_pre_action(SCons.Action.Action(self._preCache,
-                                                     self._stringCache))
-                n.add_post_action(SCons.Action.Action(self._postCache,
-                                                      self._stringCache))
-                already_done.append( n )
-            self._setCache(n.children())
-
-            # Calling children() has set up the implicit cache (and
-            # other state), but we're not really building things yet,
-            # so generated files won't have been generated.  Clear the
-            # state so we will, in fact, build everything that's necessary
-            # when we do the build.
-            #
-            # XXX - it would be good to find a better way to do this,
-            # maybe by doing something with the actions in the actual
-            # Taskmaster...?
-            n.clear()
 
     def BuildNodes(self, nodes):
         """
         Tries to build the given nodes immediately. Returns 1 on success,
         0 on error.
         """
-
-        global SCons
-        import SCons.Script    # really ugly, but we need BuildTask :-(
-        # Is it better to provide a seperate Task for SConf builds ?
-        class SConfBuildTask(SCons.Script.BuildTask):
-            """Errors in SConf builds are not fatal, so we override
-            the do_failed method"""
-            def do_failed(self, status=2):
-                pass
-
-        class SConfDryRunTask(SConfBuildTask):
-            """Raise ConfiugreDryRunErrors whenever a target is to
-            be built. Pass these Errors to the main script."""
-            def execute(self):
-                target = self.targets[0]
-                if (target.get_state() != SCons.Node.up_to_date and
-                    target.has_builder() and
-                    not hasattr(target.builder, 'status')):
-
-                    raise SCons.Errors.ConfigureDryRunError(target)
-                
-            def failed(self):
-                exc_type, exc_value = self.exc_info()[:2]
-                if exc_type == SCons.Errors.ConfigureDryRunError:
-                    raise exc_type, exc_value
-                # Should be SConfBuildTask.failed(), really,
-                # but that causes name errors in Python 1.5.2.
-                SCons.Script.BuildTask.failed(self)
-
         if self.logstream != None:
             # override stdout / stderr to write in log file
             oldStdout = sys.stdout
@@ -212,26 +395,15 @@ class SConf:
         old_os_dir = os.getcwd()
         SConfFS.chdir(SConfFS.Top, change_os_dir=1)
 
-        self._setCache( nodes ) 
         ret = 1
 
         try:
             # ToDo: use user options for calc
             self.calc = SCons.Sig.Calculator(max_drift=0)
-            if dryrun:
-                buildTask = SConfDryRunTask
-            else:
-                buildTask = SConfBuildTask
-            tm = SCons.Taskmaster.Taskmaster( nodes, buildTask )
+            tm = SCons.Taskmaster.Taskmaster(nodes, SConfBuildTask)
             # we don't want to build tests in parallel
             jobs = SCons.Job.Jobs(1, tm )
-            try:
-                jobs.run()
-            except SCons.Errors.BuildError, e:
-                sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
-                if e.errstr == 'Exception':
-                    traceback.print_exception(e.args[0], e.args[1], e.args[2])
-
+            jobs.run()
             for n in nodes:
                 state = n.get_state()
                 if (state != SCons.Node.executed and
@@ -288,13 +460,14 @@ class SConf:
             # Slide our wrapper into the construction environment as
             # the SPAWN function.
             self.env['SPAWN'] = self.pspawn_wrapper
-            self.env['SCONF_TEXT'] = text
+            sourcetext = self.env.Value(text)
 
             if text != None:
-                source = self.confdir.File(f + extension)
-                sourceNode = self.env.SConfSourceBuilder(target=source,
-                                                         source=None)
-                nodesToBeBuilt.extend(sourceNode)
+                textFile = self.confdir.File(f + extension)
+                textFileNode = self.env.SConfSourceBuilder(target=textFile,
+                                                           source=sourcetext)
+                nodesToBeBuilt.extend(textFileNode)
+                source = textFileNode
             else:
                 source = None
 
@@ -305,9 +478,8 @@ class SConf:
             result = self.BuildNodes(nodesToBeBuilt)
 
         finally:
-            # Clean up the environment, restoring the SPAWN value.
+            # Restor the SPAWN value to the environment.
             self.env['SPAWN'] = save_spawn
-            del self.env['SCONF_TEXT']
 
         _ac_build_counter = _ac_build_counter + 1
         if result:
@@ -377,6 +549,8 @@ class SConf:
                        "Test called after sconf.Finish()")
             context = CheckContext(self.sconf)
             ret = apply(self.test, (context,) +  args, kw)
+            if not self.sconf.config_h is None:
+                self.sconf.config_h_text = self.sconf.config_h_text + context.config_h
             context.Result("error: no result")
             return ret
 
@@ -392,75 +566,11 @@ class SConf:
         for name in tests.keys():
             self.AddTest(name, tests[name])
 
-    def _preCache(self, target, source, env):
-        # Action before target is actually built
-        #
-        # We record errors in the cache. Only non-exisiting targets may
-        # have recorded errors
-        needs_rebuild = target[0].exists()
-        buildSig = target[0].calc_signature(self.calc)
-        for node in source:
-            if node.get_state() != SCons.Node.up_to_date:
-                # if any of the sources has changed, we cannot use our cache
-                needs_rebuild = 1
-        tname = str(target[0])
-        if not self.cache.has_key( tname ):
-            # We have no recorded error, so we try to build the target
-            needs_rebuild = 1
-        else:
-            lastBuildSig = self.cache[tname]['builder']
-            if lastBuildSig != buildSig:
-                needs_rebuild = 1
-        if not needs_rebuild:
-            # When we are here, we can savely pass the recorded error
-            print ('(cached): Building "%s" failed in a previous run.' %
-                   target[0])
-            return 1
-        else:
-            # Otherwise, we try to record an error
-            self.cache[tname] = {
-               'builder' :  buildSig
-            }
-
-    def _postCache(self, target, source, env):
-        # Action after target is successfully built
-        #
-        # No error during build -> remove the recorded error
-        del self.cache[str(target[0])]
-
-    def _stringCache(self, target, source, env):
-        return None
-
-    def _loadCache(self):
-        # try to load build-error cache
-        try:
-            cacheDesc = cPickle.load(open(str(self.confdir.File(".cache"))))
-            if cacheDesc['scons_version'] != SCons.__version__:
-                raise Exception, "version mismatch"
-            self.cache = cacheDesc['data']
-        except KeyboardInterrupt:
-            raise
-        except:
-            self.cache = {}
-
-    def _dumpCache(self):
-        if dryrun:
-            return
-        # try to dump build-error cache
-        try:
-            cacheDesc = {'scons_version' : SCons.__version__,
-                         'data'          : self.cache }
-            cPickle.dump(cacheDesc, open(str(self.confdir.File(".cache")),"w"))
-        except Exception, e:
-            # this is most likely not only an IO error, but an error
-            # inside SConf ...
-            SCons.Warnings.warn( SConfWarning, "Couldn't dump SConf cache" )
-
     def _createDir( self, node ):
         dirName = str(node)
         if dryrun:
             if not os.path.isdir( dirName ):
-                raise SCons.Errors.ConfigureDryRunError(dirName)
+                raise ConfigureDryRunError(dirName)
         else:
             if not os.path.isdir( dirName ):
                 os.makedirs( dirName )
@@ -470,8 +580,8 @@ class SConf:
         """Private method. Set up logstream, and set the environment
         variables necessary for a piped build
         """
-        global _ac_config_counter
-        global _activeSConfObjects
+        global _ac_config_logs
+        global sconf_global
         global SConfFS
         
         self.lastEnvFs = self.env.fs
@@ -482,41 +592,43 @@ class SConf:
         if self.logfile != None and not dryrun:
             # truncate logfile, if SConf.Configure is called for the first time
             # in a build
-            if _ac_config_counter == 0:
-                log_mode = "w"
-            else:
+            if _ac_config_logs.has_key(self.logfile):
                 log_mode = "a"
+            else:
+                _ac_config_logs[self.logfile] = None
+                log_mode = "w"
             self.logstream = open(str(self.logfile), log_mode)
             # logfile may stay in a build directory, so we tell
             # the build system not to override it with a eventually
             # existing file with the same name in the source directory
             self.logfile.dir.add_ignore( [self.logfile] )
 
-            tb = traceback.extract_stack()[-3]
-            
-            self.logstream.write( '\nfile %s,line %d:\n\tConfigure( confdir = %s )\n\n' %
-                                  (tb[0], tb[1], str(self.confdir)) )
+            tb = traceback.extract_stack()[-3-self.called_from_env_method]
+            old_fs_dir = SConfFS.getcwd()
+            SConfFS.chdir(SConfFS.Top, change_os_dir=0)
+            self.logstream.write('file %s,line %d:\n\tConfigure(confdir = %s)\n' %
+                                 (tb[0], tb[1], str(self.confdir)) )
+            SConfFS.chdir(old_fs_dir)
         else: 
             self.logstream = None
         # we use a special builder to create source files from TEXT
         action = SCons.Action.Action(_createSource,
-                                     _stringSource,
-                                     varlist=['SCONF_TEXT'])
+                                     _stringSource)
         sconfSrcBld = SCons.Builder.Builder(action=action)
         self.env.Append( BUILDERS={'SConfSourceBuilder':sconfSrcBld} )
+        self.config_h_text = _ac_config_hs.get(self.config_h, "")
         self.active = 1
         # only one SConf instance should be active at a time ...
-        _activeSConfObjects[self] = None
-        _ac_config_counter = _ac_config_counter + 1
-        self._loadCache()
+        sconf_global = self
 
     def _shutdown(self):
         """Private method. Reset to non-piped spawn"""
-        global _activeSConfObjets
+        global sconf_global, _ac_config_hs
 
         if not self.active:
             raise SCons.Errors.UserError, "Finish may be called only once!"
-        if self.logstream != None:
+        if self.logstream != None and not dryrun:
+            self.logstream.write("\n")
             self.logstream.close()
             self.logstream = None
         # remove the SConfSourceBuilder from the environment
@@ -524,8 +636,9 @@ class SConf:
         del blds['SConfSourceBuilder']
         self.env.Replace( BUILDERS=blds )
         self.active = 0
-        del _activeSConfObjects[self]
-        self._dumpCache()
+        sconf_global = None
+        if not self.config_h is None:
+            _ac_config_hs[self.config_h] = self.config_h_text
         self.env.fs = self.lastEnvFs
 
 class CheckContext:
@@ -549,22 +662,27 @@ class CheckContext:
     def __init__(self, sconf):
         """Constructor. Pass the corresponding SConf instance."""
         self.sconf = sconf
-        self.cached = 0
         self.did_show_result = 0
 
         # for Conftest.py:
         self.vardict = {}
         self.havedict = {}
-        self.headerfilename = None      # XXX may cause trouble!
+        self.headerfilename = None
+        self.config_h = "" # config_h text will be stored here
+        # we don't regenerate the config.h file after each test. That means,
+        # that tests won't be able to include the config.h file, and so
+        # they can't do an #ifdef HAVE_XXX_H. This shouldn't be a major
+        # issue, though. If it turns out, that we need to include config.h
+        # in tests, we must ensure, that the dependencies are worked out
+        # correctly. Note that we can't use Conftest.py's support for config.h,
+        # cause we will need to specify a builder for the config.h file ...
 
     def Message(self, text):
         """Inform about what we are doing right now, e.g.
         'Checking for SOMETHING ... '
         """
-        # write to config.log
-        if self.sconf.logstream != None:
-            self.sconf.logstream.write(text + '\n')
-        sys.stdout.write(text)
+        self.Display(text)
+        self.sconf.cached = 1
         self.did_show_result = 0
 
     def Result(self, res):
@@ -575,24 +693,18 @@ class CheckContext:
         """
         if type(res) in BooleanTypes:
             if res:
-                text = "ok"
+                text = "yes"
             else:
-                text = "failed"
+                text = "no"
         elif type(res) == types.StringType:
             text = res
         else:
             raise TypeError, "Expected string, int or bool, got " + str(type(res))
 
         if self.did_show_result == 0:
-            if self.cached:
-                text = text + " (cached)"
-
             # Didn't show result yet, do it now.
-            if self.sconf.logstream != None:
-                self.sconf.logstream.write("Result: " + text + "\n\n")
-            sys.stdout.write(text + "\n")
+            self.Display(text + "\n")
             self.did_show_result = 1
-
 
     def TryBuild(self, *args, **kw):
         return apply(self.sconf.TryBuild, args, kw)
@@ -620,32 +732,14 @@ class CheckContext:
     #### Stuff used by Conftest.py (look there for explanations).
 
     def BuildProg(self, text, ext):
+        self.sconf.cached = 1
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
-        res = self.TryBuild(self.env.Program, text, ext)
-        if type(res) in BooleanTypes:
-            if res:
-                ret = ""
-            else:
-                ret = "failed to build test program"
-        elif type(res) == types.StringType:
-            ret = res
-        else:
-            raise TypeError, "Expected string or int"
-        return ret
+        return not self.TryBuild(self.env.Program, text, ext)
 
     def CompileProg(self, text, ext):
+        self.sconf.cached = 1
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
-        res = self.TryBuild(self.env.Object, text, ext)
-        if type(res) in BooleanTypes:
-            if res:
-                ret = ""
-            else:
-                ret = "failed to compile test program"
-        elif type(res) == types.StringType:
-            ret = res
-        else:
-            raise TypeError, "Expected string or int"
-        return ret
+        return not self.TryBuild(self.env.Object, text, ext)
 
     def AppendLIBS(self, lib_name_list):
         oldLIBS = self.env.get( 'LIBS', [] )
@@ -658,8 +752,14 @@ class CheckContext:
         return oldLIBS
 
     def Display(self, msg):
-        sys.stdout.write(msg)
-        self.Log(msg)
+        if self.sconf.cached:
+            # We assume that Display is called twice for each test here
+            # once for the Checking for ... message and once for the result.
+            # The self.sconf.cached flag can only be set between those calls
+            msg = "(cached) " + msg
+            self.sconf.cached = 0
+        progress_display(msg, append_newline=0)
+        self.Log("scons: Configure: " + msg + "\n")
 
     def Log(self, msg):
         if self.sconf.logstream != None:
@@ -671,37 +771,41 @@ class CheckContext:
 def CheckFunc(context, function_name, language = None):
     res = SCons.Conftest.CheckFunc(context, function_name, language = language)
     context.did_show_result = 1
-    if not res:
-        return 1        # Ok
-    return 0            # Failed
-
+    return not res
 
 def CheckType(context, type_name, includes = "", language = None):
     res = SCons.Conftest.CheckType(context, type_name,
                                         header = includes, language = language)
     context.did_show_result = 1
-    if not res:
-        return 1        # Ok
-    return 0            # Failed
+    return not res
 
+def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
+    # used by CheckHeader and CheckLibWithHeader to produce C - #include
+    # statements from the specified header (list)
+    if not SCons.Util.is_List(headers):
+        headers = [headers]
+    l = []
+    if leaveLast:
+        lastHeader = headers[-1]
+        headers = headers[:-1]
+    else:
+        lastHeader = None
+    for s in headers:
+        l.append("#include %s%s%s\n"
+                 % (include_quotes[0], s, include_quotes[1]))
+    return string.join(l, ''), lastHeader
 
 def CheckHeader(context, header, include_quotes = '<>', language = None):
     """
     A test for a C or C++ header file.
     """
-    if not SCons.Util.is_List(header):
-        header = [header]
-    l = []
-    for s in header[:-1]:
-        l.append("#include %s%s%s\n" % (include_quotes[0], s, include_quotes[1]))
-    res = SCons.Conftest.CheckHeader(context, header[-1], string.join(l, ''),
+    prog_prefix, hdr_to_check = \
+                 createIncludesFromHeaders(header, 1, include_quotes)
+    res = SCons.Conftest.CheckHeader(context, hdr_to_check, prog_prefix,
                                      language = language,
                                      include_quotes = include_quotes)
     context.did_show_result = 1
-    if not res:
-        return 1        # Ok
-    return 0            # Failed
-
+    return not res
 
 # Bram: Make this function obsolete?  CheckHeader() is more generic.
 
@@ -722,7 +826,7 @@ def CheckCXXHeader(context, header, include_quotes = '""'):
 
 
 def CheckLib(context, library = None, symbol = "main", autoadd = 1,
-                                               header = None, language = None):
+             header = None, language = None):
     """
     A test for a library. See also CheckLibWithHeader.
     Note that library may also be None to test whether the given symbol
@@ -739,16 +843,13 @@ def CheckLib(context, library = None, symbol = "main", autoadd = 1,
     res = SCons.Conftest.CheckLib(context, library, symbol, header = header,
                                         language = language, autoadd = autoadd)
     context.did_show_result = 1
-    if not res:
-        return 1        # Ok
-    return 0            # Failed
-
+    return not res
 
 # XXX
 # Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
 
 def CheckLibWithHeader(context, libs, header, language,
-                                                call = "main();", autoadd = 1):
+                       call = "main();", autoadd = 1):
     # ToDo: accept path for library. Support system header files.
     """
     Another (more sophisticated) test for a library.
@@ -757,25 +858,17 @@ def CheckLibWithHeader(context, libs, header, language,
     As in CheckLib, we support library=None, to test if the call compiles
     without extra link flags.
     """
-
-    if not SCons.Util.is_List(header):
-        header = [header]
-    l = []
-    for s in header:
-        l.append('#include "%s"\n' % (s))
-
-
+    prog_prefix, dummy = \
+                 createIncludesFromHeaders(header, 0)
     if libs == []:
         libs = [None]
 
     if not SCons.Util.is_List(libs):
         libs = [libs]
 
-    res = SCons.Conftest.CheckLib(context, libs, "main", string.join(l, ''),
+    res = SCons.Conftest.CheckLib(context, libs, "main", prog_prefix,
             call = call, language = language, autoadd = autoadd)
     context.did_show_result = 1
-    if not res:
-        return 1        # Ok
-    return 0            # Failed
+    return not res
 
     

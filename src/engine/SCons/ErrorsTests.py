@@ -58,14 +58,6 @@ class ErrorsTestCase(unittest.TestCase):
         except SCons.Errors.ExplicitExit, e:
             assert e.node == "node"
 
-    def test_ConfigureDryRunError(self):
-        """Test the ConfigureDryRunError."""
-        try:
-            raise SCons.Errors.ConfigureDryRunError, "FileName"
-        except SCons.Errors.UserError, e:
-            assert e.args == ("Cannot update configure test (FileName) within a dry-run.",)
-
-
 if __name__ == "__main__":
     suite = unittest.makeSuite(ErrorsTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

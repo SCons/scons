@@ -49,6 +49,18 @@ RELEASE 0.97 - XXX
     - The deprecated "validater" keyword to the Options.Add() method
       has been removed.
 
+    - The %TEMP% and %TMP% external environment variables are now
+      propagated automatically to the command execution environment on
+      Windows systems.
+
+    - The Configure() subsystem now reports tests results as "yes" and
+      "no" instead of "ok" and "failed."  This might interfere with any
+      scripts that automatically parse the Configure() output from SCons.
+
+    - The Configure() subsystem now stores its cached results in a
+      different file.  This may cause configuration tests to be re-run
+      the first time after you install 0.97.
+
   Please note the following important changes since release 0.95:
 
     - All Builder calls (both built-in like Program(), Library(),
