@@ -176,9 +176,10 @@ else:
     python = sys.executable
 
 class ActionTestCase(unittest.TestCase):
+    """Test the Action() factory function"""
 
-    def test_factory(self):
-        """Test the Action factory
+    def test_FunctionAction(self):
+        """Test the Action() factory's creation of FunctionAction objects
         """
         def foo():
             pass
@@ -188,61 +189,134 @@ class ActionTestCase(unittest.TestCase):
         assert isinstance(a1, SCons.Action.FunctionAction), a1
         assert a1.execfunction == foo, a1.execfunction
 
-        a2 = SCons.Action.Action("string")
-        assert isinstance(a2, SCons.Action.CommandAction), a2
-        assert a2.cmd_list == "string", a2.cmd_list
+        a11 = SCons.Action.Action(foo, strfunction=bar)
+        assert isinstance(a11, SCons.Action.FunctionAction), a11
+        assert a11.execfunction == foo, a11.execfunction
+        assert a11.strfunction == bar, a11.strfunction
+
+    def test_CommandAction(self):
+        """Test the Action() factory's creation of CommandAction objects
+        """
+        a1 = SCons.Action.Action("string")
+        assert isinstance(a1, SCons.Action.CommandAction), a1
+        assert a1.cmd_list == "string", a1.cmd_list
 
         if hasattr(types, 'UnicodeType'):
-            exec "a3 = SCons.Action.Action(u'string')"
-            exec "assert isinstance(a3, SCons.Action.CommandAction), a3"
+            exec "a2 = SCons.Action.Action(u'string')"
+            exec "assert isinstance(a2, SCons.Action.CommandAction), a2"
 
-        a4 = SCons.Action.Action(["x", "y", "z", [ "a", "b", "c"]])
+        a3 = SCons.Action.Action(["a3"])
+        assert isinstance(a3, SCons.Action.CommandAction), a3
+        assert a3.cmd_list == "a3", a3.cmd_list
+
+        a4 = SCons.Action.Action([[ "explicit", "command", "line" ]])
+        assert isinstance(a4, SCons.Action.CommandAction), a4
+        assert a4.cmd_list == [ "explicit", "command", "line" ], a4.cmd_list
+
+        def foo():
+            pass
+
+        a5 = SCons.Action.Action("string", strfunction=foo)
+        assert isinstance(a5, SCons.Action.CommandAction), a5
+        assert a5.cmd_list == "string", a5.cmd_list
+        assert a5.strfunction == foo, a5.strfunction
+
+    def test_ListAction(self):
+        """Test the Action() factory's creation of ListAction objects
+        """
+        a1 = SCons.Action.Action(["x", "y", "z", [ "a", "b", "c"]])
+        assert isinstance(a1, SCons.Action.ListAction), a1
+        assert isinstance(a1.list[0], SCons.Action.CommandAction), a1.list[0]
+        assert a1.list[0].cmd_list == "x", a1.list[0].cmd_list
+        assert isinstance(a1.list[1], SCons.Action.CommandAction), a1.list[1]
+        assert a1.list[1].cmd_list == "y", a1.list[1].cmd_list
+        assert isinstance(a1.list[2], SCons.Action.CommandAction), a1.list[2]
+        assert a1.list[2].cmd_list == "z", a1.list[2].cmd_list
+        assert isinstance(a1.list[3], SCons.Action.CommandAction), a1.list[3]
+        assert a1.list[3].cmd_list == [ "a", "b", "c" ], a1.list[3].cmd_list
+
+        a2 = SCons.Action.Action("x\ny\nz")
+        assert isinstance(a2, SCons.Action.ListAction), a2
+        assert isinstance(a2.list[0], SCons.Action.CommandAction), a2.list[0]
+        assert a2.list[0].cmd_list == "x", a2.list[0].cmd_list
+        assert isinstance(a2.list[1], SCons.Action.CommandAction), a2.list[1]
+        assert a2.list[1].cmd_list == "y", a2.list[1].cmd_list
+        assert isinstance(a2.list[2], SCons.Action.CommandAction), a2.list[2]
+        assert a2.list[2].cmd_list == "z", a2.list[2].cmd_list
+
+        def foo():
+            pass
+
+        a3 = SCons.Action.Action(["x", foo, "z"])
+        assert isinstance(a3, SCons.Action.ListAction), a3
+        assert isinstance(a3.list[0], SCons.Action.CommandAction), a3.list[0]
+        assert a3.list[0].cmd_list == "x", a3.list[0].cmd_list
+        assert isinstance(a3.list[1], SCons.Action.FunctionAction), a3.list[1]
+        assert a3.list[1].execfunction == foo, a3.list[1].execfunction
+        assert isinstance(a3.list[2], SCons.Action.CommandAction), a3.list[2]
+        assert a3.list[2].cmd_list == "z", a3.list[2].cmd_list
+
+        a4 = SCons.Action.Action(["x", "y"], strfunction=foo)
         assert isinstance(a4, SCons.Action.ListAction), a4
         assert isinstance(a4.list[0], SCons.Action.CommandAction), a4.list[0]
         assert a4.list[0].cmd_list == "x", a4.list[0].cmd_list
         assert isinstance(a4.list[1], SCons.Action.CommandAction), a4.list[1]
         assert a4.list[1].cmd_list == "y", a4.list[1].cmd_list
-        assert isinstance(a4.list[2], SCons.Action.CommandAction), a4.list[2]
-        assert a4.list[2].cmd_list == "z", a4.list[2].cmd_list
-        assert isinstance(a4.list[3], SCons.Action.CommandAction), a4.list[3]
-        assert a4.list[3].cmd_list == [ "a", "b", "c" ], a4.list[3].cmd_list
+        assert a4.strfunction == foo, a4.strfunction
 
+        a5 = SCons.Action.Action("x\ny", strfunction=foo)
+        assert isinstance(a5, SCons.Action.ListAction), a5
+        assert isinstance(a5.list[0], SCons.Action.CommandAction), a5.list[0]
+        assert a5.list[0].cmd_list == "x", a5.list[0].cmd_list
+        assert isinstance(a5.list[1], SCons.Action.CommandAction), a5.list[1]
+        assert a5.list[1].cmd_list == "y", a5.list[1].cmd_list
+        assert a5.strfunction == foo, a5.strfunction
+
+    def test_CommandGeneratorAction(self):
+        """Test the Action() factory's creation of CommandGeneratorAction objects
+        """
+        def foo():
+            pass
+        def bar():
+            pass
+        cg = SCons.Action.CommandGenerator(foo)
+
+        a1 = SCons.Action.Action(cg)
+        assert isinstance(a1, SCons.Action.CommandGeneratorAction), a1
+        assert a1.generator is foo, a1.generator
+
+        a2 = SCons.Action.Action(cg, strfunction=bar)
+        assert isinstance(a2, SCons.Action.CommandGeneratorAction), a2
+        assert a2.generator is foo, a2.generator
+        assert a2.strfunction is bar, a2.strfunction
+
+    def test_LazyCmdGeneratorAction(self):
+        """Test the Action() factory's creation of lazy CommandGeneratorAction objects
+        """
+        def foo():
+            pass
+
+        a1 = SCons.Action.Action("$FOO")
+        assert isinstance(a1, SCons.Action.CommandGeneratorAction), a1
+        assert isinstance(a1.generator, SCons.Action.LazyCmdGenerator), a1.generator
+
+        a2 = SCons.Action.Action("$FOO", strfunction=foo)
+        assert isinstance(a2, SCons.Action.CommandGeneratorAction), a2
+        assert isinstance(a2.generator, SCons.Action.LazyCmdGenerator), a2.generator
+        assert a2.strfunction is foo, a2.strfunction
+
+    def test_no_action(self):
+        """Test when the Action() factory can't create an action object
+        """
         a5 = SCons.Action.Action(1)
         assert a5 is None, a5
 
-        a6 = SCons.Action.Action(a1)
-        assert a6 is a1, a6
-
-        a7 = SCons.Action.Action([[ "explicit", "command", "line" ]])
-        assert isinstance(a7, SCons.Action.CommandAction), a7
-        assert a7.cmd_list == [ "explicit", "command", "line" ], a7.cmd_list
-
-        a8 = SCons.Action.Action(["a8"])
-        assert isinstance(a8, SCons.Action.CommandAction), a8
-        assert a8.cmd_list == "a8", a8.cmd_list
-
-        a9 = SCons.Action.Action("x\ny\nz")
-        assert isinstance(a9, SCons.Action.ListAction), a9
-        assert isinstance(a9.list[0], SCons.Action.CommandAction), a9.list[0]
-        assert a9.list[0].cmd_list == "x", a9.list[0].cmd_list
-        assert isinstance(a9.list[1], SCons.Action.CommandAction), a9.list[1]
-        assert a9.list[1].cmd_list == "y", a9.list[1].cmd_list
-        assert isinstance(a9.list[2], SCons.Action.CommandAction), a9.list[2]
-        assert a9.list[2].cmd_list == "z", a9.list[2].cmd_list
-
-        a10 = SCons.Action.Action(["x", foo, "z"])
-        assert isinstance(a10, SCons.Action.ListAction), a10
-        assert isinstance(a10.list[0], SCons.Action.CommandAction), a10.list[0]
-        assert a10.list[0].cmd_list == "x", a10.list[0].cmd_list
-        assert isinstance(a10.list[1], SCons.Action.FunctionAction), a10.list[1]
-        assert a10.list[1].execfunction == foo, a10.list[1].execfunction
-        assert isinstance(a10.list[2], SCons.Action.CommandAction), a10.list[2]
-        assert a10.list[2].cmd_list == "z", a10.list[2].cmd_list
-
-        a11 = SCons.Action.Action(foo, strfunction=bar)
-        assert isinstance(a11, SCons.Action.FunctionAction), a11
-        assert a11.execfunction == foo, a11.execfunction
-        assert a11.strfunction == bar, a11.strfunction
+    def test_reentrance(self):
+        """Test the Action() factory when the action is already an Action object
+        """
+        a1 = SCons.Action.Action("foo")
+        a2 = SCons.Action.Action(a1)
+        assert a2 is a1, a2
 
 class ActionBaseTestCase(unittest.TestCase):
 
@@ -541,6 +615,12 @@ class CommandActionTestCase(unittest.TestCase):
         assert s == ['xyzzy t1 s1 t1 s1'], s
         s = act.strfunction([t1, t2], [s1, s2], env)
         assert s == ['xyzzy t1 s1 t1 t2 s1 s2'], s
+
+        def sf(target, source, env):
+            return "sf was called"
+        act = SCons.Action.CommandAction('foo', strfunction=sf)
+        s = act.strfunction([], [], env)
+        assert s == "sf was called", s
 
     def test_execute(self):
         """Test execution of command Actions
@@ -897,6 +977,12 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         assert self.dummy == 1, self.dummy
         assert s == ['xyzzy'], s
 
+        def sf(target, source, env):
+            return "sf was called"
+        a = SCons.Action.CommandGeneratorAction(f, strfunction=sf)
+        s = a.strfunction([], [], env=Environment())
+        assert s == "sf was called", s
+
     def test_execute(self):
         """Test executing a command generator Action
         """
@@ -1182,6 +1268,12 @@ class ListActionTestCase(unittest.TestCase):
         a = SCons.Action.ListAction([f, g, "XXX", f])
         s = a.strfunction([], [], Environment())
         assert s == "f([], [])\ng([], [])\nXXX\nf([], [])", s
+
+        def sf(target, source, env):
+            return "sf was called"
+        act = SCons.Action.ListAction([f, g, "XXX", f], strfunction=sf)
+        s = act.strfunction([], [], Environment())
+        assert s == "sf was called", s
 
     def test_execute(self):
         """Test executing a list of subsidiary Actions

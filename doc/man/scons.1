@@ -6445,19 +6445,31 @@ and emitter functions.
 
 .SS Action Objects
 
-The Builder function will turn its
+The
+.BR Builder()
+function will turn its
 .B action
 keyword argument into an appropriate
 internal Action object.
-Occasionally, it may be more efficient
-to create an explicit Action object
-and use it to initialize multiple
-Builder objects,
-rather than let each separate Builder object
-create a separate Action.
+You can also explicity create Action objects
+using the
+.BR Action ()
+global function,
+which can then be passed to the
+.BR Builder ()
+function.
+This can be used to configure
+an Action object more flexibly,
+or it may simply be more efficient
+than letting each separate Builder object
+create a separate Action
+when multiple
+Builder objects need to do the same thing.
 
-The Action method takes one or two arguments
-and returns an appropriate object for the action
+The
+.BR Action ()
+global function
+returns an appropriate object for the action
 represented by the type of the first argument:
 
 .IP Action
@@ -6548,7 +6560,7 @@ a = Action(build_it)
 The second, optional argument
 is a Python function that returns
 a string to be printed to describe the action being executed.
-Like the function to build a file,
+Like a function to build a file,
 this function takes three arguments:
 .B target
 (a Node object representing the target file),
