@@ -2289,6 +2289,24 @@ f5: \
         result = env.Execute("foo")
         assert result == "foo executed", result
 
+    def test_Entry(self):
+        """Test the Entry() method"""
+        class MyFS:
+            def Entry(self, name):
+                return 'Entry(%s)' % name
+
+        env = Environment(FOO = 'fooentry', BAR = 'barentry')
+        env.fs = MyFS()
+
+        e = env.Entry('e')
+        assert e == 'Entry(e)', e
+
+        e = env.Entry('$FOO')
+        assert e == 'Entry(fooentry)', e
+
+        e = env.Entry('${BAR}_$BAR')
+        assert e == 'Entry(barentry_barentry)', e
+
     def test_File(self):
         """Test the File() method"""
         class MyFS:

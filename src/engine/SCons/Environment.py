@@ -1223,6 +1223,11 @@ class Base(SubstitutionEnvironment):
         """
         return apply(self.fs.Dir, (self.subst(name),) + args, kw)
 
+    def Entry(self, name, *args, **kw):
+        """
+        """
+        return apply(self.fs.Entry, (self.subst(name),) + args, kw)
+
     def Environment(self, **kw):
         return apply(SCons.Environment.Environment, [], self.subst_kw(kw))
 

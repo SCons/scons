@@ -221,6 +221,7 @@ GlobalDefaultEnvironmentFunctions = [
     #The Command() method is handled separately, below.
     'Depends',
     'Dir',
+    'Entry',
     'Execute',
     'File',
     'FindFile',
