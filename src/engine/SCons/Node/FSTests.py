@@ -407,7 +407,9 @@ class BuildDirTestCase(unittest.TestCase):
         test.subdir('work')
         fs.BuildDir('build/var3', 'src', duplicate=0)
         d1 = fs.Dir('build/var3')
-        assert d1.rdir() == fs.Dir('src'), str(d1.rdir())
+        r = d1.rdir()
+        s = fs.Dir('src')
+        assert r == s, "%s != %s" % (r, s)
 
         # verify the link creation attempts in file_link()
         class LinkSimulator :
