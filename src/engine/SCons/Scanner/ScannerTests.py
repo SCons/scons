@@ -23,12 +23,32 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import unittest
-import SCons.Scanner
 import sys
+import unittest
+import UserDict
 
-class DummyEnvironment:
-    pass
+import SCons.Scanner
+
+class DummyEnvironment(UserDict.UserDict):
+    def __init__(self, dict=None, **kw):
+        UserDict.UserDict.__init__(self, dict)
+        self.data.update(kw)
+    def subst(self, strSubst):
+        return strSubst
+
+class FindPathDirsTestCase(unittest.TestCase):
+    def test_FindPathDirs(self):
+        """Test the FindPathDirs callable class"""
+
+        class FS:
+            def Rsearchall(self, nodes, must_exist=0, clazz=None, cwd=dir):
+                return ['xxx'] + nodes
+
+        env = DummyEnvironment(LIBPATH = [ 'foo' ])
+
+        fpd = SCons.Scanner.FindPathDirs('LIBPATH', FS())
+        result = fpd(env, dir)
+        assert result == ('xxx', 'foo'), result
 
 class ScannerTestCase(unittest.TestCase):
     
@@ -297,6 +317,7 @@ class ClassicCPPTestCase(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     tclasses = [
+                 FindPathDirsTestCase,
                  ScannerTestCase,
                  CurrentTestCase,
                  ClassicTestCase,

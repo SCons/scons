@@ -33,17 +33,9 @@ import SCons.Util
 def ProgScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning executable
     files for static-lib dependencies"""
-    ps = SCons.Scanner.Base(scan, "ProgScan", fs, path_function = path)
+    pf = SCons.Scanner.FindPathDirs('LIBPATH', fs)
+    ps = SCons.Scanner.Base(scan, "ProgScan", path_function = pf)
     return ps
-
-def path(env, dir, fs = SCons.Node.FS.default_fs):
-    try:
-        libpath = env['LIBPATH']
-    except KeyError:
-        return ()
-    return tuple(fs.Rsearchall(SCons.Util.mapPaths(libpath, dir, env),
-                               clazz = SCons.Node.FS.Dir,
-                               must_exist = 0))
 
 def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
     """
