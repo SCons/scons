@@ -596,13 +596,16 @@ env.Program('bar', ['bar.c', 'foo.c'])
 provides the following builders:
 
 .IP Object
-Builds an object file from one or more C/C++ source files. Source files
-must have one of the following extensions: .c, .C, .cc, .cpp, .cxx, .c++, .C++. 
+Builds an object file from one or more C, C++, or Fortran source files.
+Source files must have one of the following extensions:
+.c, .C, .cc, .cpp, .cxx, .c++, .C++, .f, .F, .for, .FOR, .fpp, .FPP. 
 The target object file prefix and suffix (if any) are automatically
-added. Example:
+added. Examples:
 
 .ES
-env.Object(target = 'bar', source = 'bar.c')
+env.Object(target = 'aaa', source = 'aaa.c')
+env.Object(target = 'bbb.o', source = 'bbb.c++')
+env.Object(target = 'ccc.obj', source = 'ccc.f')
 .EE
 
 .IP Program
@@ -612,7 +615,7 @@ compiled to object files. The executable prefix and suffix (if any) are
 automatically added to the target. Example:
 
 .ES
-env.Program(target = 'bar', source = 'bar.c foo.o')
+env.Program(target = 'foo', source = 'foo.o bar.c baz.f')
 .EE
 
 .IP Library
@@ -688,10 +691,13 @@ env.PostScript(target = 'aaa.ps', source = 'aaa.tex')   # builds from aaa.tex
 env.PostScript(target = 'bbb', source = 'bbb.dvi')      # builds bbb.dvi
 .EE
 .LP
-C/C++ source files are automatically scanned for dependencies by 
-.B scons
-so the dependencies do not need to be provided. In addition, all builder
-targets automatically depend on their sources. An explicit dependency can
+.B scons automatically scans
+C, C++ and Fortran source files with .F, .fpp, or .FOR file extensions
+for C preprocessor dependencies,
+so the dependencies do not need to be specified explicitly.
+In addition, all builder
+targets automatically depend on their sources.
+An explicit dependency can
 be specified using the 
 .B Depends 
 method of a construction environment (see below).
@@ -862,6 +868,12 @@ when generating C files from Lex (.l) or YACC (.y) input files.
 The default suffix, of course, is
 .IR .c .
 
+.IP CPPFLAGS
+C preprocessor options.
+These will be included in the $F77PPCOM 
+command line used to compile a Fortran source file to an object file
+after first running the file through the C preprocessor.
+
 .IP CPPPATH
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
@@ -960,6 +972,21 @@ as the invoking shell (or other process):
 import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 .EE
+
+.IP F77
+The Fortran compiler.
+
+.IP F77FLAGS
+General options that are passed to the Fortran compiler.
+
+.IP F77COM 
+The command line used to compile a Fortran source file to an object file.
+
+.IP F77PPCOM 
+The command line used to compile a Fortran source file to an object file
+after first running the file through the C preprocessor.
+Any options specified in the $CPPFLAGS construction variable
+are included on this command line.
 
 .IP INCPREFIX
 The prefix used to specify an include directory on the C compiler command

@@ -66,6 +66,10 @@ CXXFile = SCons.Builder.Builder(name = 'CXXFile',
 
 CPlusPlusAction = SCons.Action.Action('$CXXCOM')
 
+FortranAction = SCons.Action.Action('$F77COM')
+
+FortranPPAction = SCons.Action.Action('$F77PPCOM')
+
 Object = SCons.Builder.Builder(name = 'Object',
                                action = { '.c'   : '$CCCOM',
                                           '.C'   : CPlusPlusAction,
@@ -74,6 +78,12 @@ Object = SCons.Builder.Builder(name = 'Object',
                                           '.cxx' : CPlusPlusAction,
                                           '.c++' : CPlusPlusAction,
                                           '.C++' : CPlusPlusAction,
+                                          '.f'   : FortranAction,
+                                          '.for' : FortranAction,
+                                          '.FOR' : FortranAction,
+                                          '.F'   : FortranPPAction,
+                                          '.fpp' : FortranPPAction,
+                                          '.FPP' : FortranPPAction,
                                         },
                                prefix = '$OBJPREFIX',
                                suffix = '$OBJSUFFIX',
@@ -239,6 +249,10 @@ def make_win32_env_from_paths(include, lib, path):
         'CXXFLAGS'   : '$CCFLAGS',
         'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
         'CXXFILESUFFIX' : '.cc',
+        'F77'        : 'g77',
+        'F77FLAGS'   : '',
+        'F77COM'     : '$F77 $F77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'F77PPCOM'   : '$F77 $F77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'LINK'       : 'link',
         'LINKFLAGS'  : '/nologo',
         'LINKCOM'    : '$LINK $LINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
@@ -317,6 +331,10 @@ if os.name == 'posix':
         'CXXFLAGS'   : '$CCFLAGS',
         'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'CXXFILESUFFIX' : '.cc',
+        'F77'        : 'g77',
+        'F77FLAGS'   : '',
+        'F77COM'     : '$F77 $F77FLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'F77PPCOM'   : '$F77 $F77FLAGS $CPPFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'LINK'       : '$CXX',
         'LINKFLAGS'  : '',
         'LINKCOM'    : '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS',

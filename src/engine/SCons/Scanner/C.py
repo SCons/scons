@@ -44,10 +44,12 @@ include_re = re.compile('^[ \t]*#[ \t]*include[ \t]+(<|")([\\w./\\\\]+)(>|")', r
 include_cache = {}
 
 def CScan(fs = SCons.Node.FS.default_fs):
-    "Return a prototype Scanner instance for scanning C/C++ source files"
+    """Return a prototype Scanner instance for scanning source files
+    that use the C pre-processor"""
     cs = CScanner(scan, "CScan", [fs, ()],
                   [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
-                   ".h", ".H", ".hxx", ".hpp", ".hh"])
+                   ".h", ".H", ".hxx", ".hpp", ".hh",
+                   ".F", ".fpp", ".FPP"])
     cs.fs = fs
     return cs
 
