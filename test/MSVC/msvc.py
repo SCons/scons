@@ -91,20 +91,23 @@ test.write('StdAfx.cpp', '''
 #include "StdAfx.h"
 ''')
 
-test.run(arguments='test.exe')
+#  Visual Studio 8 has deprecated the /Yd option and prints warnings
+#  about it, so ignore stderr when running SCons.
 
-test.fail_test(not os.path.exists(test.workpath('test.exe')))
-test.fail_test(not os.path.exists(test.workpath('test.res')))
-test.fail_test(not os.path.exists(test.workpath('test.pdb')))
-test.fail_test(not os.path.exists(test.workpath('StdAfx.pch')))
-test.fail_test(not os.path.exists(test.workpath('StdAfx.obj')))
+test.run(arguments='test.exe', stderr=None)
+
+test.must_exist(test.workpath('test.exe'))
+test.must_exist(test.workpath('test.res'))
+test.must_exist(test.workpath('test.pdb'))
+test.must_exist(test.workpath('StdAfx.pch'))
+test.must_exist(test.workpath('StdAfx.obj'))
 
 test.run(program=test.workpath('test.exe'), stdout='2001 test 1\n')
 
 test.write('resource.h', '''
 #define IDS_TEST 2002
 ''')
-test.run(arguments='test.exe')
+test.run(arguments='test.exe', stderr=None)
 test.run(program=test.workpath('test.exe'), stdout='2002 test 1\n')
 
 test.write('test.rc', '''
@@ -115,54 +118,54 @@ BEGIN
     IDS_TEST "test 2"
 END
 ''')
-test.run(arguments='test.exe')
+test.run(arguments='test.exe', stderr=None)
 test.run(program=test.workpath('test.exe'), stdout='2002 test 2\n')
 
 test.run(arguments='-c .')
 
-test.fail_test(os.path.exists(test.workpath('test.exe')))
-test.fail_test(os.path.exists(test.workpath('test.pdb')))
-test.fail_test(os.path.exists(test.workpath('test.res')))
-test.fail_test(os.path.exists(test.workpath('StdAfx.pch')))
-test.fail_test(os.path.exists(test.workpath('StdAfx.obj')))
+test.must_not_exist(test.workpath('test.exe'))
+test.must_not_exist(test.workpath('test.pdb'))
+test.must_not_exist(test.workpath('test.res'))
+test.must_not_exist(test.workpath('StdAfx.pch'))
+test.must_not_exist(test.workpath('StdAfx.obj'))
 
-test.run(arguments='test.exe')
+test.run(arguments='test.exe', stderr=None)
 
-test.fail_test(not os.path.exists(test.workpath('test.pdb')))
-test.fail_test(not os.path.exists(test.workpath('StdAfx.pch')))
-test.fail_test(not os.path.exists(test.workpath('StdAfx.obj')))
+test.must_exist(test.workpath('test.pdb'))
+test.must_exist(test.workpath('StdAfx.pch'))
+test.must_exist(test.workpath('StdAfx.obj'))
 
 test.run(arguments='-c test.pdb')
-test.fail_test(os.path.exists(test.workpath('test.exe')))
-test.fail_test(os.path.exists(test.workpath('test.obj')))
-test.fail_test(os.path.exists(test.workpath('test.pdb')))
-test.fail_test(os.path.exists(test.workpath('StdAfx.pch')))
-test.fail_test(os.path.exists(test.workpath('StdAfx.obj')))
+test.must_not_exist(test.workpath('test.exe'))
+test.must_not_exist(test.workpath('test.obj'))
+test.must_not_exist(test.workpath('test.pdb'))
+test.must_not_exist(test.workpath('StdAfx.pch'))
+test.must_not_exist(test.workpath('StdAfx.obj'))
 
-test.run(arguments='StdAfx.pch')
+test.run(arguments='StdAfx.pch', stderr=None)
 
-test.fail_test(os.path.exists(test.workpath('test.pdb')))
-test.fail_test(not os.path.exists(test.workpath('StdAfx.pch')))
-test.fail_test(not os.path.exists(test.workpath('StdAfx.obj')))
+test.must_not_exist(test.workpath('test.pdb'))
+test.must_exist(test.workpath('StdAfx.pch'))
+test.must_exist(test.workpath('StdAfx.obj'))
 
 test.run(arguments='-c test.exe')
-test.fail_test(os.path.exists(test.workpath('test.exe')))
-test.fail_test(os.path.exists(test.workpath('test.obj')))
-test.fail_test(os.path.exists(test.workpath('test.pdb')))
-test.fail_test(os.path.exists(test.workpath('StdAfx.pch')))
-test.fail_test(os.path.exists(test.workpath('StdAfx.obj')))
+test.must_not_exist(test.workpath('test.exe'))
+test.must_not_exist(test.workpath('test.obj'))
+test.must_not_exist(test.workpath('test.pdb'))
+test.must_not_exist(test.workpath('StdAfx.pch'))
+test.must_not_exist(test.workpath('StdAfx.obj'))
 
-test.run(arguments='test.obj')
-test.fail_test(os.path.exists(test.workpath('test.pdb')))
-test.fail_test(not os.path.exists(test.workpath('test.obj')))
+test.run(arguments='test.obj', stderr=None)
+test.must_not_exist(test.workpath('test.pdb'))
+test.must_exist(test.workpath('test.obj'))
 
 
 start = time.time()
-test.run(arguments='fast.obj')
+test.run(arguments='fast.obj', stderr=None)
 fast = time.time() - start
 
 start = time.time()
-test.run(arguments='slow.obj')
+test.run(arguments='slow.obj', stderr=None)
 slow = time.time() - start
 
 # using precompiled headers should be significantly faster
@@ -173,9 +176,9 @@ test.write('resource.h', '''
 #define IDS_TEST 2003
 ''')
 
-test.not_up_to_date(arguments='test.res')
-test.not_up_to_date(arguments='StdAfx.pch')
-test.not_up_to_date(arguments='test.exe')
+test.not_up_to_date(arguments='test.res', stderr=None)
+test.not_up_to_date(arguments='StdAfx.pch', stderr=None)
+test.not_up_to_date(arguments='test.exe', stderr=None)
 test.run(program=test.workpath('test.exe'), stdout='2003 test 2\n')
 
 
@@ -215,17 +218,17 @@ test.write('src/StdAfx.cpp', '''
 #include "StdAfx.h"
 ''')
 
-test.run(arguments='out')
+test.run(arguments='out', stderr=None)
 
-test.fail_test(not os.path.exists(test.workpath('out/test.pdb')))
-test.fail_test(not os.path.exists(test.workpath('build/StdAfx.pch')))
-test.fail_test(not os.path.exists(test.workpath('build/StdAfx.obj')))
+test.must_exist(test.workpath('out/test.pdb'))
+test.must_exist(test.workpath('build/StdAfx.pch'))
+test.must_exist(test.workpath('build/StdAfx.obj'))
 
 test.run(arguments='-c out')
 
-test.fail_test(os.path.exists(test.workpath('out/test.pdb')))
-test.fail_test(os.path.exists(test.workpath('build/StdAfx.pch')))
-test.fail_test(os.path.exists(test.workpath('build/StdAfx.obj'))) 
+test.must_not_exist(test.workpath('out/test.pdb'))
+test.must_not_exist(test.workpath('build/StdAfx.pch'))
+test.must_not_exist(test.workpath('build/StdAfx.obj'))
 
 #####
 # Test error reporting

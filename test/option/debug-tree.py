@@ -39,11 +39,15 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
-env.Program('foo', Split('foo.c bar.c'))
+env.Program('Foo', Split('Foo.c Bar.c'))
 """)
 
-test.write('foo.c', r"""
-#include "foo.h"
+# N.B.:  We use upper-case file names (Foo* and Bar*) so that the sorting
+# order with our upper-case SConstruct file is the same on case-sensitive
+# (UNIX/Linux) and case-insensitive (Windows) systems.
+
+test.write('Foo.c', r"""
+#include "Foo.h"
 int main(int argc, char *argv[])
 {
 	argv[argc++] = "--";
@@ -52,75 +56,75 @@ int main(int argc, char *argv[])
 }
 """)
 
-test.write('bar.c', """
-#include "bar.h"
+test.write('Bar.c', """
+#include "Bar.h"
 """)
 
-test.write('foo.h', """
+test.write('Foo.h', """
 #ifndef FOO_H
 #define FOO_H
-#include "bar.h"
+#include "Bar.h"
 #endif
 """)
 
-test.write('bar.h', """
+test.write('Bar.h', """
 #ifndef BAR_H
 #define BAR_H
-#include "foo.h"
+#include "Foo.h"
 #endif
 """)
 
 tree1 = """
-+-foo.xxx
-  +-foo.ooo
-  | +-foo.c
-  | +-foo.h
-  | +-bar.h
-  +-bar.ooo
-    +-bar.c
-    +-bar.h
-    +-foo.h
++-Foo.xxx
+  +-Foo.ooo
+  | +-Foo.c
+  | +-Foo.h
+  | +-Bar.h
+  +-Bar.ooo
+    +-Bar.c
+    +-Bar.h
+    +-Foo.h
 """
 
-test.run(arguments = "--debug=tree foo.xxx")
+test.run(arguments = "--debug=tree Foo.xxx")
 test.fail_test(string.find(test.stdout(), tree1) == -1)
 
 tree2 = """
 +-.
+  +-Bar.c
+  +-Bar.ooo
+  | +-Bar.c
+  | +-Bar.h
+  | +-Foo.h
+  +-Foo.c
+  +-Foo.ooo
+  | +-Foo.c
+  | +-Foo.h
+  | +-Bar.h
+  +-Foo.xxx
+  | +-Foo.ooo
+  | | +-Foo.c
+  | | +-Foo.h
+  | | +-Bar.h
+  | +-Bar.ooo
+  |   +-Bar.c
+  |   +-Bar.h
+  |   +-Foo.h
   +-SConstruct
-  +-bar.c
-  +-bar.ooo
-  | +-bar.c
-  | +-bar.h
-  | +-foo.h
-  +-foo.c
-  +-foo.ooo
-  | +-foo.c
-  | +-foo.h
-  | +-bar.h
-  +-foo.xxx
-    +-foo.ooo
-    | +-foo.c
-    | +-foo.h
-    | +-bar.h
-    +-bar.ooo
-      +-bar.c
-      +-bar.h
-      +-foo.h
 """
 test.run(arguments = "--debug=tree .")
 test.fail_test(string.find(test.stdout(), tree2) == -1)
 
 # Make sure we print the debug stuff even if there's a build failure.
-test.write('bar.h', """
+test.write('Bar.h', """
 #ifndef BAR_H
 #define BAR_H
-#include "foo.h"
+#include "Foo.h"
 #endif
 THIS SHOULD CAUSE A BUILD FAILURE
 """)
 
-test.run(arguments = "--debug=tree foo.xxx",
+test.run(arguments = "--debug=tree Foo.xxx",
          status = 2,
          stderr = None)
 test.fail_test(string.find(test.stdout(), tree1) == -1)
