@@ -260,7 +260,7 @@ diff_command =
  */
 test_command = "python1.5 ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -q ${File_Name}";
 
-batch_test_command = "python1.5 ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -o ${Output} ${File_Names} ${COMment $spe}";
+batch_test_command = "python1.5 ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -o ${Output} --aegis ${File_Names} ${COMment $spe}";
 
 new_test_filename = "test/CHANGETHIS.py";
 

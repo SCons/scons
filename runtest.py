@@ -22,32 +22,49 @@
 #
 # Options:
 #
-#	-a		Run all tests; does a virtual 'find' for
-#			all SCons tests under the current directory.
+#       -a              Run all tests; does a virtual 'find' for
+#                       all SCons tests under the current directory.
 #
-#	-d		Debug.  Runs the script under the Python
-#			debugger (pdb.py) so you don't have to
-#			muck with PYTHONPATH yourself.
+#       --aegis         Print test results to an output file (specified
+#                       by the -o option) in the format expected by
+#                       aetest(5).  This is intended for use in the
+#                       batch_test_command field in the Aegis project
+#                       config file.
+#
+#       -d              Debug.  Runs the script under the Python
+#                       debugger (pdb.py) so you don't have to
+#                       muck with PYTHONPATH yourself.
+#
+#       -f file         Only execute the tests listed in the specified
+#                       file.
 #
 #       -h              Print the help and exit.
 #
-#       -o file         Print test results to the specified file
-#                       in the format expected by aetest(5).  This
-#                       is intended for use in the batch_test_command
-#                       field in the Aegis project config file.
+#       -o file         Print test results to the specified file.
+#                       The --aegis and --xml options specify the
+#                       output format.
 #
-#	-P Python	Use the specified Python interpreter.
+#       -P Python       Use the specified Python interpreter.
 #
-#	-p package	Test against the specified package.
+#       -p package      Test against the specified package.
 #
-#	-q		Quiet.  By default, runtest.py prints the
-#			command line it will execute before
-#			executing it.  This suppresses that print.
+#       --passed        In the final summary, also report which tests
+#                       passed.  The default is to only report tests
+#                       which failed or returned NO RESULT.
 #
-#	-X		The scons "script" is an executable; don't
-#			feed it to Python.
+#       -q              Quiet.  By default, runtest.py prints the
+#                       command line it will execute before
+#                       executing it.  This suppresses that print.
+#
+#       -X              The scons "script" is an executable; don't
+#                       feed it to Python.
 #
 #       -x scons        The scons script to use for tests.
+#
+#       --xml           Print test results to an output file (specified
+#                       by the -o option) in an SCons-specific XML format.
+#                       This is (will be) used for reporting results back
+#                       to a central SCons test monitoring infrastructure.
 #
 # (Note:  There used to be a -v option that specified the SCons
 # version to be tested, when we were installing in a version-specific
@@ -60,6 +77,7 @@ import getopt
 import glob
 import os
 import os.path
+import popen2
 import re
 import stat
 import string
@@ -67,12 +85,14 @@ import sys
 
 all = 0
 debug = ''
+format = None
 tests = []
-printcmd = 1
+printcommand = 1
 package = None
+print_passed_summary = None
 scons = None
 scons_exec = None
-output = None
+outputfile = None
 testlistfile = None
 version = ''
 
@@ -94,10 +114,11 @@ helpstr = """\
 Usage: runtest.py [OPTIONS] [TEST ...]
 Options:
   -a, --all                   Run all tests.
+  --aegis                     Print results in Aegis format.
   -d, --debug                 Run test scripts under the Python debugger.
   -f FILE, --file FILE        Run tests in specified FILE.
   -h, --help                  Print this message and exit.
-  -o FILE, --output FILE      Print test results to FILE (Aegis format).
+  -o FILE, --output FILE      Print test results to FILE.
   -P Python                   Use the specified Python interpreter.
   -p PACKAGE, --package PACKAGE
                               Test against the specified PACKAGE:
@@ -109,16 +130,20 @@ Options:
                                 src-zip       .zip source package
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
+  --passed                    Summarize which tests passed.
   -q, --quiet                 Don't print the test being executed.
   -v version                  Specify the SCons version.
   -X                          Test script is executable, don't feed to Python.
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
+  --xml                       Print results in SCons XML format.
 """
 
 opts, args = getopt.getopt(sys.argv[1:], "adf:ho:P:p:qv:Xx:",
-                            ['all', 'debug', 'file=', 'help', 'output=',
-                             'package=', 'python=', 'quiet',
-                             'version=', 'exec='])
+                            ['all', 'aegis',
+                             'debug', 'file=', 'help', 'output=',
+                             'package=', 'passed', 'python=', 'quiet',
+                             'version=', 'exec=',
+                             'xml'])
 
 for o, a in opts:
     if o == '-a' or o == '--all':
@@ -133,21 +158,25 @@ for o, a in opts:
         print helpstr
         sys.exit(0)
     elif o == '-o' or o == '--output':
-        if not os.path.isabs(a):
+        if a != '-' and not os.path.isabs(a):
             a = os.path.join(cwd, a)
-        output = a
-    elif o == '-P' or o == '--python':
-        python = a
+        outputfile = a
     elif o == '-p' or o == '--package':
         package = a
+    elif o == '--passed':
+        print_passed_summary = 1
+    elif o == '-P' or o == '--python':
+        python = a
     elif o == '-q' or o == '--quiet':
-        printcmd = 0
+        printcommand = 0
     elif o == '-v' or o == '--version':
         version = a
     elif o == '-X':
         scons_exec = 1
     elif o == '-x' or o == '--exec':
         scons = a
+    elif o in ['--aegis', '--xml']:
+        format = o
 
 def whereis(file):
     for dir in string.split(os.environ['PATH'], os.pathsep):
@@ -175,7 +204,7 @@ else:
 
 sp.append(cwd)
 
-class Test:
+class Base:
     def __init__(self, path, spe=None):
         self.path = path
         self.abspath = os.path.abspath(path)
@@ -186,6 +215,67 @@ class Test:
                     self.abspath = f
                     break
         self.status = None
+
+class SystemExecutor(Base):
+    def execute(self):
+        s = os.system(self.command)
+        if s >= 256:
+            s = s / 256
+        self.status = s
+        if s < 0 or s > 2:
+            sys.stdout.write("Unexpected exit status %d\n" % s)
+
+try:
+    popen2.Popen3
+except AttributeError:
+    class PopenExecutor(Base):
+        def execute(self):
+            (tochild, fromchild, childerr) = os.popen3(self.command)
+            tochild.close()
+            self.stdout = fromchild.read()
+            self.stderr = childerr.read()
+            fromchild.close()
+            self.status = childerr.close()
+            if not self.status:
+                self.status = 0
+else:
+    class PopenExecutor(Base):
+        def execute(self):
+            p = popen2.Popen3(self.command, 1)
+            p.tochild.close()
+            self.stdout = p.fromchild.read()
+            self.stderr = p.childerr.read()
+            self.status = p.wait()
+
+class Aegis(SystemExecutor):
+    def header(self, f):
+        f.write('test_result = [\n')
+    def write(self, f):
+        f.write('    { file_name = "%s";\n' % self.path)
+        f.write('      exit_status = %d; },\n' % self.status)
+    def footer(self, f):
+        f.write('];\n')
+
+class XML(PopenExecutor):
+    def header(self, f):
+        f.write('  <results>\n')
+    def write(self, f):
+        f.write('    <test>\n')
+        f.write('      <file_name>%s</file_name>\n' % self.path)
+        f.write('      <command_line>%s</command_line>\n' % self.command)
+        f.write('      <exit_status>%s</exit_status>\n' % self.status)
+        f.write('      <stdout>%s</stdout>\n' % self.stdout)
+        f.write('      <stderr>%s</stderr>\n' % self.stderr)
+        f.write('    </test>\n')
+    def footer(self, f):
+        f.write('  </results>\n')
+
+format_class = {
+    None        : SystemExecutor,
+    '--aegis'   : Aegis,
+    '--xml'     : XML,
+}
+Test = format_class[format]
 
 if args:
     if spe:
@@ -370,20 +460,23 @@ def escape(s):
     return s
 
 for t in tests:
-    cmd = string.join(map(escape, [python, debug, t.abspath]), " ")
-    if printcmd:
-        sys.stdout.write(cmd + "\n")
-    s = os.system(cmd)
-    if s >= 256:
-        s = s / 256
-    t.status = s
-    if s < 0 or s > 2:
-        sys.stdout.write("Unexpected exit status %d\n" % s)
+    t.command = string.join(map(escape, [python, debug, t.abspath]), " ")
+    if printcommand:
+        sys.stdout.write(t.command + "\n")
+    t.execute()
 
+passed = filter(lambda t: t.status == 0, tests)
 fail = filter(lambda t: t.status == 1, tests)
 no_result = filter(lambda t: t.status == 2, tests)
 
 if len(tests) != 1:
+    if passed and print_passed_summary:
+        if len(passed) == 1:
+            sys.stdout.write("\nPassed the following test:\n")
+        else:
+            sys.stdout.write("\nPassed the following %d tests:\n" % len(passed))
+        paths = map(lambda x: x.path, passed)
+        sys.stdout.write("\t" + string.join(paths, "\n\t") + "\n")
     if fail:
         if len(fail) == 1:
             sys.stdout.write("\nFailed the following test:\n")
@@ -399,19 +492,25 @@ if len(tests) != 1:
         paths = map(lambda x: x.path, no_result)
         sys.stdout.write("\t" + string.join(paths, "\n\t") + "\n")
 
-if output:
-    f = open(output, 'w')
-    f.write("test_result = [\n")
-    for t in tests:
-        f.write('    { file_name = "%s";\n' % t.path)
-        f.write('      exit_status = %d; },\n' % t.status)
-    f.write("];\n")
-    f.close()
-    sys.exit(0)
-else:
-    if len(fail):
-        sys.exit(1)
-    elif len(no_result):
-        sys.exit(2)
+if outputfile:
+    if outputfile == '-':
+        f = sys.stdout
     else:
-        sys.exit(0)
+        f = open(outputfile, 'w')
+    tests[0].header(f)
+    #f.write("test_result = [\n")
+    for t in tests:
+        t.write(f)
+    tests[0].footer(f)
+    #f.write("];\n")
+    if outputfile != '-':
+        f.close()
+
+if format == '--aegis':
+    sys.exit(0)
+elif len(fail):
+    sys.exit(1)
+elif len(no_result):
+    sys.exit(2)
+else:
+    sys.exit(0)
