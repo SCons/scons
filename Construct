@@ -88,7 +88,7 @@ Command $env [@test_files], $tar_gz, qq(
 
 Export qw( env test_dir );
 
-Build "aux/Conscript";
+Build "etc/Conscript";
 
 #
 # If we're running in the actual Aegis project, pack up a complete
