@@ -331,7 +331,8 @@ RELEASE 0.97 - XXX
   - Fix command-line expansion of Python Value Nodes.
 
   - Internal cleanups:  Remove an unnecessary scan argument.  Associate
-    Scanners only with Builders, not nodes.
+    Scanners only with Builders, not nodes.  Apply overrides once when a
+    Builder is called, not in multiple places.
 
   - Use the correct scanner if the same source file is used for targets in
     two different environments with the same path but different scanners.

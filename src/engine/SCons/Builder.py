@@ -298,9 +298,6 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
                 else:
                     raise UserError, "Two environments with different actions were specified for the same target: %s"%str(t)
 
-            elif t.overrides != overrides:
-                raise UserError, "Two different sets of overrides were specified for the same target: %s"%str(t)
-
             if builder.multi:
                 if t.builder != builder:
                     if isinstance(t.builder, ListBuilder) and isinstance(builder, ListBuilder) and t.builder.builder == builder.builder:
@@ -332,14 +329,13 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
             raise UserError, "Builder %s must have an action to build %s."%(builder.get_name(env or builder.env), map(str,tlist))
         executor = SCons.Executor.Executor(builder.action,
                                            env or builder.env,
-                                           [builder.overrides, overrides],
+                                           [],  # env already has overrides
                                            tlist,
                                            slist,
                                            executor_kw)
 
     # Now set up the relevant information in the target Nodes themselves.
     for t in tlist:
-        t.overrides = overrides
         t.cwd = SCons.Node.FS.default_fs.getcwd()
         t.builder_set(builder)
         t.env_set(env)
@@ -491,8 +487,6 @@ class BuilderBase:
 
         overwarn.warn()
 
-        env = env.Override(overwarn.data)
-
         src_suf = self.get_src_suffix(env)
 
         source = _adjustixes(source, None, src_suf)
@@ -572,6 +566,15 @@ class BuilderBase:
         else:
             ekw = self.executor_kw.copy()
             ekw['chdir'] = chdir
+        if kw:
+            if self.overrides:
+                env_kw = self.overrides.copy()
+                env_kw.update(kw)
+            else:
+                env_kw = kw
+        else:
+            env_kw = self.overrides
+        env = env.Override(env_kw)
         return self._execute(env, target, source, OverrideWarner(kw), ekw)
 
     def adjust_suffix(self, suff):

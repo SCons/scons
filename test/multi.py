@@ -87,8 +87,8 @@ scons: *** Multiple ways to build the same target were specified for: file2.out 
 
 
 #
-# The second call generates an error if the two calls have different
-# overrides.
+# A warning is generated if the calls have different overrides but the
+# overrides don't appear to affect the build operation.
 #
 
 test.write('SConstruct', """
@@ -107,34 +107,75 @@ test.write('file3a.in', 'file3a.in\n')
 test.write('file3b.in', 'file3b.in\n')
 
 test.run(arguments='file3.out', 
-         status=2, 
          stderr=TestSCons.re_escape("""
-scons: *** Two different sets of overrides were specified for the same target: file3.out
+scons: warning: Two different environments were specified for target file3.out,
+\tbut they appear to have the same action: build(target, source, env)
 """) + TestSCons.file_expr)
 
+#
+# A warning is generated if the calls have different overrides but the
+# overrides don't appear to affect the build operation.
+#
+
+test.write('build.py',r"""#!/usr/bin/env python
+import sys
+def build(num, target, source):
+    file = open(str(target), 'wb')
+    file.write('%s\n'%num)
+    for s in source:
+        file.write(open(str(s), 'rb').read())
+build(sys.argv[1],sys.argv[2],sys.argv[3:])
+""")
+
+test.write('SConstruct', """
+
+B = Builder(action='%(python)s build.py $foo $TARGET $SOURCES', multi=1)
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'file03.out', source = 'file03a.in', foo=1)
+env.B(target = 'file03.out', source = 'file03b.in', foo=2)
+""" % {'python':TestSCons.python})
+
+test.write('file03a.in', 'file03a.in\n')
+test.write('file03b.in', 'file03b.in\n')
+
+test.run(arguments='file03.out', 
+         status=2, 
+         stderr=TestSCons.re_escape("""
+scons: *** Two environments with different actions were specified for the same target: file03.out
+""") + TestSCons.file_expr)
 
 #
 # Everything works if the two calls have the same overrides.
 #
 
-test.write('SConstruct', """
-def build(env, target, source):
-    file = open(str(target[0]), 'wb')
+test.write('build.py',r"""#!/usr/bin/env python
+import sys
+def build(num, target, source):
+    file = open(str(target), 'wb')
+    file.write('%s\n'%num)
     for s in source:
         file.write(open(str(s), 'rb').read())
+build(sys.argv[1],sys.argv[2],sys.argv[3:])
+""")
 
-B = Builder(action=build, multi=1)
+test.write('SConstruct', """
+
+B = Builder(action='%(python)s build.py $foo $TARGET $SOURCES', multi=1)
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'file4.out', source = 'file4a.in', foo=3)
 env.B(target = 'file4.out', source = 'file4b.in', foo=3)
-""")
+""" % {'python':TestSCons.python})
 
 test.write('file4a.in', 'file4a.in\n')
 test.write('file4b.in', 'file4b.in\n')
 
-test.run(arguments='file4.out')
+test.run(arguments='file4.out', 
+         stderr=TestSCons.re_escape("""
+scons: warning: Two different environments were specified for target file4.out,
+	but they appear to have the same action: %(python)s build.py \$foo \$TARGET \$SOURCES
+""" % {'python':TestSCons.python}) + TestSCons.file_expr)
 
-test.must_match('file4.out', "file4a.in\nfile4b.in\n")
+test.must_match('file4.out', "3\nfile4a.in\nfile4b.in\n")
 
 
 #
