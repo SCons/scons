@@ -1014,7 +1014,17 @@ def _main(args, parser):
         if isinstance(x, SCons.Node.Node):
             node = x
         else:
-            node = SCons.Node.Alias.default_ans.lookup(x)
+            node = None
+            # Why would ltop be None? Unfortunately this happens.
+            if ltop == None: ltop = ''
+            # Curdir becomes important when SCons is called with -u, -C,
+            # or similar option that changes directory, and so the paths
+            # of targets given on the command line need to be adjusted.
+            curdir = os.path.join(os.getcwd(), str(ltop))
+            for lookup in SCons.Node.arg2nodes_lookups:
+                node = lookup(x, curdir=curdir)
+                if node != None:
+                    break
             if node is None:
                 node = fs.Entry(x, directory=ltop, create=1)
         if ttop and not node.is_under(ttop):
@@ -1024,7 +1034,7 @@ def _main(args, parser):
                 node = None
         return node
 
-    nodes = filter(lambda x: x is not None, map(Entry, targets))
+    nodes = filter(None, map(Entry, targets))
 
     task_class = BuildTask	# default action is to build targets
     opening_message = "Building targets ..."

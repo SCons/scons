@@ -25,6 +25,10 @@ RELEASE 0.97 - XXX
   - Allow Tools found on a toolpath to import Python modules from
     their local directory.
 
+  From Stanislav Baranov:
+
+  - Make it possible to support with custom Alias (sub-)classes.
+
   From Timothee Besset:
 
   - Add support for Objective C/C++ .m and .mm file suffixes (for
