@@ -29,13 +29,10 @@ XXX
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import copy
 import os
 import os.path
 import re
 import string
-import sys
-import UserDict
 
 import SCons.Errors
 import SCons.Util

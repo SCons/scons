@@ -29,10 +29,6 @@ This file implements the warnings framework for SCons.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
-import copy
-import traceback
-
 import SCons.Errors
 
 class Warning(SCons.Errors.UserError):

@@ -34,10 +34,6 @@ import copy
 import os
 import os.path
 import re
-import shutil
-import string
-import sys
-import types
 from UserDict import UserDict
 
 import SCons.Action

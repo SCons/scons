@@ -39,7 +39,6 @@ tool definition.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import imp
-import os
 import sys
 
 import SCons.Errors

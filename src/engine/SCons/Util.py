@@ -764,6 +764,6 @@ def fs_delete(path, remove=1):
                 if remove: os.rmdir(path)
                 display("Removed directory " + path)
     except OSError, e:
-        print "scons: Could not remove '%s':" % str(t), e.strerror
+        print "scons: Could not remove '%s':" % str(path), e.strerror
 
 display = DisplayEngine()

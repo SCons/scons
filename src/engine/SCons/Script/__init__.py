@@ -44,7 +44,6 @@ import os.path
 import string
 import sys
 import traceback
-import copy
 
 # Strip the script directory from sys.path() so on case-insensitive
 # (WIN32) systems Python doesn't think that the "scons" script is the

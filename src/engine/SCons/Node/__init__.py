@@ -47,7 +47,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import copy
-import types
 
 import SCons.Sig
 import SCons.Util
@@ -457,7 +456,7 @@ class Node:
     def get_state(self):
         return self.state
 
-    def current(self):
+    def current(self, calc=None):
         return None
 
     def rfile(self):

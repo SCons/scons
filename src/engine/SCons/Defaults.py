@@ -37,9 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import os
-import stat
 import string
-import sys
 import os.path
 
 import SCons.Action

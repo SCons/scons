@@ -29,13 +29,13 @@ The Signature package for the scons software construction utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import cPickle
 import os
 import os.path
-import string
-import SCons.Node
 import time
+
+import SCons.Node
 import SCons.Warnings
-import cPickle
 
 try:
     import MD5

@@ -56,6 +56,12 @@ RELEASE 0.10 - XXX
   - Add a Clean() method to support removing user-specified targets
     when using the -c option.
 
+  - Add a development script for running SCons through PyChecker.
+
+  - Clean up things found by PyChecker (mostly unnecessary imports).
+
+  - Add a script to use HappyDoc to create HTML class documentation.
+
   From Lachlan O'Dea:
 
   - Make the Environment.get() method return None by default.

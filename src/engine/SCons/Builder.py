@@ -46,8 +46,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import os.path
-import string
-import copy
 from SCons.Errors import UserError
 
 import SCons.Action
