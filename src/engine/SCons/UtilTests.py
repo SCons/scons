@@ -155,6 +155,11 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("test aXbXcXd", loc, {}, re.compile('X'))
         assert newcom == cvt("test abcd"), newcom
 
+        glob = { 'a' : 1, 'b' : 2 }
+        loc = {'a' : 3, 'c' : 4 }
+        newcom = scons_subst("test $a $b $c $d test", glob, loc)
+        assert newcom == "test 3 2 4 test", newcom
+
     def test_subst_list(self):
         """Testing the scons_subst_list() method..."""
         loc = {}
@@ -187,6 +192,12 @@ class UtilTestCase(unittest.TestCase):
         assert len(cmd_list) == 2, cmd_list
         assert cmd_list[1][0] == 'after', cmd_list[1][0]
         assert cmd_list[0][2] == cvt('../foo/ack.cbefore'), cmd_list[0][2]
+
+        glob = { 'a' : 1, 'b' : 2 }
+        loc = {'a' : 3, 'c' : 4 }
+        cmd_list = scons_subst_list("test $a $b $c $d test", glob, loc)
+        assert len(cmd_list) == 1, cmd_list
+        assert cmd_list[0] == ['test', '3', '2', '4', 'test'], cmd_list
 
     def test_autogenerate(dict):
         """Test autogenerating variables in a dictionary."""

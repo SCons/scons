@@ -170,7 +170,7 @@ class PathList(UserList.UserList):
 _cv = re.compile(r'\$([_a-zA-Z]\w*|{[^}]*})')
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-def scons_subst_list(strSubst, locals, globals, remove=None):
+def scons_subst_list(strSubst, globals, locals, remove=None):
     """
     This function is similar to scons_subst(), but with
     one important difference.  Instead of returning a single
@@ -189,12 +189,12 @@ def scons_subst_list(strSubst, locals, globals, remove=None):
     This is the only way to know where the 'split' between arguments
     is for executing a command line."""
 
-    def repl(m, locals=locals, globals=globals):
+    def repl(m, globals=globals, locals=locals):
         key = m.group(1)
         if key[:1] == '{' and key[-1:] == '}':
             key = key[1:-1]
 	try:
-            e = eval(key, locals, globals)
+            e = eval(key, globals, locals)
             if not e:
                 s = ''
             elif is_List(e):
@@ -219,7 +219,7 @@ def scons_subst_list(strSubst, locals, globals, remove=None):
     return map(lambda x: filter(lambda y: y, string.split(x, '\0')),
                listLines)
 
-def scons_subst(strSubst, locals, globals, remove=None):
+def scons_subst(strSubst, globals, locals, remove=None):
     """Recursively interpolates dictionary variables into
     the specified string, returning the expanded result.
     Variables are specified by a $ prefix in the string and
@@ -229,7 +229,7 @@ def scons_subst(strSubst, locals, globals, remove=None):
     surrounded by curly braces to separate the name from
     trailing characters.
     """
-    cmd_list = scons_subst_list(strSubst, locals, globals, remove)
+    cmd_list = scons_subst_list(strSubst, globals, locals, remove)
     return string.join(map(string.join, cmd_list), '\n')
 
 class VarInterpolator:
