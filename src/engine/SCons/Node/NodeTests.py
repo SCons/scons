@@ -830,6 +830,17 @@ class NodeTestCase(unittest.TestCase):
         deps = node.get_implicit_deps(env, s, target)
         assert deps == [d, e, f], map(str, deps)
 
+    def test_get_scanner(self):
+        """Test fetching the environment scanner for a Node
+        """
+        node = SCons.Node.Node()
+        scanner = Scanner()
+        env = Environment(SCANNERS = [scanner])
+        s = node.get_scanner(env)
+        assert s == scanner, s
+        s = node.get_scanner(env, {'X':1})
+        assert s == scanner, s
+
     def test_get_source_scanner(self):
         """Test fetching the source scanner for a Node
         """

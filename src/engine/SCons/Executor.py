@@ -88,20 +88,24 @@ class Executor:
             cwd = None
         return scanner.path(env, cwd, self.targets, self.sources)
 
+    def get_kw(self, kw={}):
+        result = self.builder_kw.copy()
+        result.update(kw)
+        return result
+
     def do_nothing(self, target, errfunc, kw):
         pass
 
     def do_execute(self, target, errfunc, kw):
         """Actually execute the action list."""
-        kw = kw.copy()
-        kw.update(self.builder_kw)
-        apply(self.action, (self.targets, self.sources,
-                            self.get_build_env(), errfunc), kw)
+        apply(self.action,
+              (self.targets, self.sources, self.get_build_env(), errfunc),
+              self.get_kw(kw))
 
     # use extra indirection because with new-style objects (Python 2.2
     # and above) we can't override special methods, and nullify() needs
     # to be able to do this.
-    
+
     def __call__(self, target, errfunc, **kw):
         self.do_execute(target, errfunc, kw)
 
@@ -117,7 +121,7 @@ class Executor:
         self.sources.extend(slist)
 
     # another extra indirection for new-style objects and nullify...
-    
+
     def my_str(self):
         return self.action.genstring(self.targets,
                                      self.sources,
@@ -163,7 +167,8 @@ class Executor:
         if scanner:
             initial_scanners = lambda src, s=scanner: (src, s)
         else:
-            initial_scanners = lambda src, e=env: (src, e.get_scanner(src.scanner_key()))
+            kw = self.get_kw()
+            initial_scanners = lambda src, e=env, kw=kw: (src, src.get_scanner(e, kw))
         scanner_list = map(initial_scanners, self.sources)
         scanner_list = filter(remove_null_scanners, scanner_list)
         scanner_list = map(select_specific_scanner, scanner_list)

@@ -425,6 +425,8 @@ class Node:
         """
         return self.builder.source_factory(path)
 
+    def get_scanner(self, env, kw={}):
+        return env.get_scanner(self.scanner_key())
 
     def get_source_scanner(self, node):
         """Fetch the source scanner for the specified node
@@ -447,7 +449,7 @@ class Node:
             # The builder didn't have an explicit scanner, so go look up
             # a scanner from env['SCANNERS'] based on the node's scanner
             # key (usually the file extension).
-            scanner = self.get_build_env().get_scanner(node.scanner_key())
+            scanner = self.get_scanner(self.get_build_env())
         if scanner:
             scanner = scanner.select(node)
         return scanner
@@ -758,22 +760,7 @@ class Node:
     def do_not_ignore(self, node):
         return node not in self.ignore
 
-    def _children_get(self):
-        "__cacheable__"
-        children = self.all_children(scan=0)
-        if self.ignore:
-            children = filter(self.do_not_ignore, children)
-        return children
-        
-    def children(self, scan=1):
-        """Return a list of the node's direct children, minus those
-        that are ignored by this node."""
-        if scan:
-            self.scan()
-        return self._children_get()
-
-    def all_children(self, scan=1):
-        """Return a list of all the node's direct children."""
+    def _all_children_get(self):
         # The return list may contain duplicate Nodes, especially in
         # source trees where there are a lot of repeated #includes
         # of a tangle of .h files.  Profiling shows, however, that
@@ -791,12 +778,30 @@ class Node:
         # using dictionary keys, lose the order, and the only ordered
         # dictionary patterns I found all ended up using "not in"
         # internally anyway...)
-        if scan:
-            self.scan()
         if self.implicit is None:
             return self.sources + self.depends
         else:
             return self.sources + self.depends + self.implicit
+
+    def _children_get(self):
+        "__cacheable__"
+        children = self._all_children_get()
+        if self.ignore:
+            children = filter(self.do_not_ignore, children)
+        return children
+
+    def all_children(self, scan=1):
+        """Return a list of all the node's direct children."""
+        if scan:
+            self.scan()
+        return self._all_children_get()
+
+    def children(self, scan=1):
+        """Return a list of the node's direct children, minus those
+        that are ignored by this node."""
+        if scan:
+            self.scan()
+        return self._children_get()
 
     def set_state(self, state):
         self.state = state
