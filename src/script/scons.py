@@ -61,6 +61,7 @@ class Taskmaster:
 
 # Global variables
 
+default_targets = []
 local_help = None
 num_jobs = 1
 Scripts = []
@@ -103,6 +104,11 @@ def _scons_other_errors():
 def Conscript(filename):
     global Scripts
     Scripts.append(filename)
+
+def Default(*targets):
+    for t in targets:
+	for s in string.split(t):
+	    default_targets.append(s)
 
 def Help(text):
     global local_help
@@ -533,6 +539,9 @@ def main():
 	# SConscript files.  Give them the options usage.
 	PrintUsage()
 	sys.exit(0)
+
+    if not targets:
+	targets = default_targets
 
     taskmaster = Taskmaster(map(
     			lambda x: SCons.Node.FS.default_fs.File(x),
