@@ -332,7 +332,7 @@ Mylib.ExportLib(env, lib_fullname)
 #cmd_justlib = "cd %s ; make" % Dir(".")
 
 cmd_generated = "%s $SOURCE" % (sys.executable,)
-cmd_justlib = "%s %s -C %s" % (sys.executable, sys.argv[0], Dir("."))
+cmd_justlib = "%s %s -C ${SOURCE[0].dir}" % (sys.executable, sys.argv[0])
 
 ##### Deps appear correct ... but wacky scanning?
 # Why?

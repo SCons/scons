@@ -163,7 +163,17 @@ def GetSConscriptFilenames(ls, kw):
         if not src_dir:
             src_dir, fname = os.path.split(str(files[0]))
         else:
-            fname = os.path.split(files[0])[1]
+            if not isinstance(src_dir, SCons.Node.Node):
+                src_dir = SCons.Node.FS.default_fs.Dir(src_dir)
+            fn = files[0]
+            if not isinstance(fn, SCons.Node.Node):
+                fn = SCons.Node.FS.default_fs.File(fn)
+            if fn.is_under(src_dir):
+                # Get path relative to the source directory.
+                fname = fn.get_path(src_dir)
+            else:
+                # Fast way to only get the terminal path component of a Node.
+                fname = fn.get_path(fn.dir)
         BuildDir(build_dir, src_dir, duplicate)
         files = [os.path.join(str(build_dir), fname)]
 
@@ -187,7 +197,13 @@ def SConscript(*ls, **kw):
                 else:
                     f = SCons.Node.FS.default_fs.File(str(fn))
                 _file_ = None
+                old_dir = SCons.Node.FS.default_fs.getcwd()
+                SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Dir('#'),
+                                               change_os_dir=1)
                 if f.rexists():
+                    # Change directory to top of source tree to make sure
+                    # the os's cwd and the cwd of SCons.Node.FS.default_fs
+                    # match so we can open the SConscript.
                     _file_ = open(f.rstr(), "r")
                 elif f.has_builder():
                     # The SConscript file apparently exists in a source
@@ -199,17 +215,13 @@ def SConscript(*ls, **kw):
                     s = str(f)
                     if os.path.exists(s):
                         _file_ = open(s, "r")
-
                 if _file_:
-                    SCons.Node.FS.default_fs.chdir(f.dir)
-                    if sconscript_chdir:
-                        old_dir = os.getcwd()
-                        os.chdir(str(f.dir))
-
+                    SCons.Node.FS.default_fs.chdir(f.dir,
+                                                   change_os_dir=sconscript_chdir)
                     # prepend the SConscript directory to sys.path so
                     # that Python modules in the SConscript directory can
                     # be easily imported
-                    sys.path = [os.path.abspath(str(f.dir))] + sys.path
+                    sys.path = [ f.dir.abspath ] + sys.path
 
                     # This is the magic line that actually reads up and
                     # executes the stuff in the SConscript file.  We
@@ -227,7 +239,8 @@ def SConscript(*ls, **kw):
             frame = stack.pop()
             SCons.Node.FS.default_fs.chdir(frame.prev_dir)
             if old_dir:
-                os.chdir(old_dir)
+                SCons.Node.FS.default_fs.chdir(old_dir,
+                                               change_os_dir=sconscript_chdir)
 
             results.append(frame.retval)
 
@@ -390,11 +403,10 @@ def Clean(target, files):
         else:
             nodes.extend(SCons.Node.arg2nodes(f, SCons.Node.FS.default_fs.Entry))
 
-    s = str(target)
-    if clean_targets.has_key(s):
-        clean_targets[s].extend(nodes)
-    else:
-        clean_targets[s] = nodes
+    try:
+        clean_targets[target].extend(nodes)
+    except KeyError:
+        clean_targets[target] = nodes
 
 def AddPreAction(files, action):
     nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)

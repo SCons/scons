@@ -338,6 +338,7 @@ class FortranScannerTestCase12(unittest.TestCase):
         path = s.path(env)
         test.write('include/fff4.f', test.read('fff4.f'))
         deps = s(fs.File('#include/fff4.f'), env, path)
+        fs.chdir(fs.Dir('..'))
         deps_match(self, deps, ['include/f4.f'])
         test.unlink('include/fff4.f')
 

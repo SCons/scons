@@ -190,8 +190,8 @@ class BuildDirTestCase(unittest.TestCase):
         assert str(f1) == os.path.normpath('src/test.in'), str(f1)
         # Build path does not exist
         assert not f1.exists()
-        # But source path does
-        assert f1.srcnode().exists()
+        # ...but the actual file is not there...
+        assert not os.path.exists(f1.abspath)
         # And duplicate=0 should also work just like a Repository
         assert f1.rexists()
         # rfile() should point to the source path
@@ -269,6 +269,16 @@ class BuildDirTestCase(unittest.TestCase):
 
         # Verify the Mkdir and Link actions are called
         f9 = fs.File('build/var2/new_dir/test9.out')
+
+        # Test for an interesting pathological case...we have a source
+        # file in a build path, but not in a source path.  This can
+        # happen if you switch from duplicate=1 to duplicate=0, then
+        # delete a source file.  At one time, this would cause exists()
+        # to return a 1 but get_contents() to throw.
+        test.write([ 'work', 'build', 'var1', 'asourcefile' ], 'stuff')
+        f10 = fs.File('build/var1/asourcefile')
+        assert f10.exists()
+        assert f10.get_contents() == 'stuff', f10.get_contents()
 
         save_Mkdir = SCons.Node.FS.Mkdir
         dir_made = []
@@ -801,9 +811,11 @@ class FSTestCase(unittest.TestCase):
         fs = SCons.Node.FS.FS()
         assert str(fs.getcwd()) == ".", str(fs.getcwd())
         fs.chdir(fs.Dir('subdir'))
-        assert str(fs.getcwd()) == "subdir", str(fs.getcwd())
+        # The cwd's path is always "."
+        assert str(fs.getcwd()) == ".", str(fs.getcwd())
+        assert fs.getcwd().path == 'subdir', fs.getcwd().path
         fs.chdir(fs.Dir('../..'))
-        assert str(fs.getcwd()) == test.workdir, str(fs.getcwd())
+        assert fs.getcwd().path == test.workdir, fs.getcwd().path
         
         f1 = fs.File(test.workpath("do_i_exist"))
         assert not f1.exists()

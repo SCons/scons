@@ -40,6 +40,7 @@ all5 = test.workpath('build', 'var5', 'all')
 all6 = test.workpath('build', 'var6', 'all')
 all7 = test.workpath('build', 'var7', 'all')
 all8 = test.workpath('build', 'var8', 'all')
+all9 = test.workpath('test', 'build', 'var9', 'src', 'all')
 
 test.subdir('test')
 
@@ -54,6 +55,7 @@ var5 = Dir('../build/var5')
 var6 = Dir('../build/var6')
 var7 = Dir('../build/var7')
 var8 = Dir('../build/var8')
+var9 = Dir('../build/var9')
 
 def cat(env, source, target):
     target = str(target[0])
@@ -83,6 +85,15 @@ SConscript('src/SConscript', build_dir=var6)
 
 SConscript('src/SConscript', build_dir=var7, src_dir=src, duplicate=0)
 SConscript('src/SConscript', build_dir='../build/var8', duplicate=0)
+
+# This tests the fact that if you specify a src_dir that is above
+# the dir a SConscript is in, that we do the intuitive thing, i.e.,
+# we set the path of the SConscript accordingly.  The below is
+# equivalent to saying:
+#
+# BuildDir('build/var9', '.')
+# SConscript('build/var9/src/SConscript')
+SConscript('src/SConscript', build_dir='build/var9', src_dir='.')
 """) 
 
 test.subdir(['test', 'src'], ['test', 'alt'])
@@ -120,6 +131,7 @@ test.fail_test(test.read(all3) != all_src)
 test.fail_test(test.read(all6) != all_src)
 test.fail_test(test.read(all7) != all_src)
 test.fail_test(test.read(all8) != all_src)
+test.fail_test(test.read(all9) != all_src)
 
 import os
 import stat

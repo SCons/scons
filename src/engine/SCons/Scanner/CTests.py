@@ -324,6 +324,7 @@ class CScannerTestCase10(unittest.TestCase):
         path = s.path(env)
         test.write('include/fa.cpp', test.read('fa.cpp'))
         deps = s(fs.File('#include/fa.cpp'), env, path)
+        fs.chdir(fs.Dir('..'))
         deps_match(self, deps, [ 'include/fa.h', 'include/fb.h' ])
         test.unlink('include/fa.cpp')
 

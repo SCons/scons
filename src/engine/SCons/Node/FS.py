@@ -168,6 +168,9 @@ class ParentOfRoot:
     def get_dir(self):
         return None
 
+    def recurse_get_path(self, dir, path_elems):
+        return path_elems
+
     def src_builder(self):
         return None
 
@@ -201,6 +204,7 @@ class Entry(SCons.Node.Node):
 
         self.name = name
         self.fs = fs
+        self.relpath = {}
 
         assert directory, "A directory must be provided"
 
@@ -222,8 +226,8 @@ class Entry(SCons.Node.Node):
     def __str__(self):
         """A FS node's string representation is its path name."""
         if self.duplicate or self.has_builder():
-            return self.path
-        return self.srcnode().path
+            return self.get_path()
+        return self.srcnode().get_path()
 
     def get_contents(self):
         """Fetch the contents of the entry.
@@ -297,6 +301,32 @@ class Entry(SCons.Node.Node):
             self._srcnode = self
             return self._srcnode
 
+    def recurse_get_path(self, dir, path_elems):
+        """Recursively build a path relative to a supplied directory
+        node."""
+        if self != dir:
+            path_elems.append(self.name)
+            path_elems = self.dir.recurse_get_path(dir, path_elems)
+        return path_elems
+
+    def get_path(self, dir=None):
+        """Return path relative to the current working directory of the
+        FS object that owns us."""
+        if not dir:
+            dir = self.fs.getcwd()
+        try:
+            return self.relpath[dir]
+        except KeyError:
+            if self == dir:
+                # Special case, return "." as the path
+                ret = '.'
+            else:
+                path_elems = self.recurse_get_path(dir, [])
+                path_elems.reverse()
+                ret = string.join(path_elems, os.sep)
+            self.relpath[dir] = ret
+            return ret
+            
     def set_src_builder(self, builder):
         """Set the source code builder for this node."""
         self.sbuilder = builder
@@ -474,12 +504,16 @@ class FS:
             directory = self._cwd
         return (os.path.normpath(name), directory)
 
-    def chdir(self, dir):
+    def chdir(self, dir, change_os_dir=0):
         """Change the current working directory for lookups.
+        If change_os_dir is true, we will also change the "real" cwd
+        to match.
         """
         self.__setTopLevelDir()
         if not dir is None:
             self._cwd = dir
+            if change_os_dir:
+                os.chdir(dir.abspath)
 
     def Entry(self, name, directory = None, create = 1, klass=None):
         """Lookup or create a generic Entry node with the specified name.
@@ -863,11 +897,11 @@ class File(Entry):
     def get_contents(self):
         if not self.rexists():
             return ''
-        return open(self.rstr(), "rb").read()
+        return open(self.rfile().abspath, "rb").read()
 
     def get_timestamp(self):
         if self.rexists():
-            return os.path.getmtime(self.rstr())
+            return os.path.getmtime(self.rfile().abspath)
         else:
             return 0
 

@@ -14,6 +14,13 @@ RELEASE 0.12 - XXX
 
   - Added support for the Perforce source code management system.
 
+  - Fix str(Node.FS) so that it returns a path relative to the calling
+    SConscript file's directory, not the top-level directory.
+
+  - Added support for a separate src_dir argument to SConscript()
+    that allows explicit specification of where the source files
+    for an SConscript file can be found.
+
   From Steven Knight:
 
   - Added an INSTALL construction variable that can be set to a function

@@ -3281,7 +3281,7 @@ Return(["foo", "bar"])
 .EE
 
 .TP
-.RI SConscript( script ", [" exports ", " build_dir ", " duplicate ])
+.RI SConscript( script ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
 This tells
 .B scons
 to execute
@@ -3304,6 +3304,13 @@ that would normally be built in the subdirectory in which
 resides should actually
 be built in
 .IR build_dir .
+The optional
+.I src_dir
+argument specifies that the
+source files from which
+the target files should be built
+can be found in
+.IR src_dir .
 By default,
 .B scons
 will link or copy (depending on the platform)
