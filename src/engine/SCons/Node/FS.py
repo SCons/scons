@@ -143,7 +143,7 @@ class FS:
             self.Top.path = '.'
             self.Top.srcpath = '.'
             self.Top.path_ = os.path.join('.', '')
-            self.cwd = self.Top
+            self._cwd = self.Top
         
     def __hash__(self):
         self.__setTopLevelDir()
@@ -154,6 +154,10 @@ class FS:
         if isinstance(other, FS):
             other.__setTopLevelDir()
 	return cmp(self.__dict__, other.__dict__)
+
+    def getcwd(self):
+        self.__setTopLevelDir()
+	return self._cwd
 
     def __doLookup(self, fsclass, name, directory=None):
         """This method differs from the File and Dir factory methods in
@@ -228,7 +232,7 @@ class FS:
             directory = self.Top
             name = os.path.join(os.path.normpath('./'), name[1:])
         elif not directory:
-            directory = self.cwd
+            directory = self._cwd
         return (name, directory)
 
     def chdir(self, dir):
@@ -236,7 +240,7 @@ class FS:
         """
         self.__setTopLevelDir()
         if not dir is None:
-            self.cwd = dir
+            self._cwd = dir
 
     def Entry(self, name, directory = None):
         """Lookup or create a generic Entry node with the specified name.

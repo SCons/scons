@@ -118,7 +118,7 @@ class Node:
             def get_contents(self):
                 env = self.node.env.Dictionary()
                 try:
-                    dir = self.node.cwd
+                    dir = self.node.getcwd()
                 except AttributeError:
                     dir = None
                 return self.node.builder.get_contents(env = env, dir = dir)

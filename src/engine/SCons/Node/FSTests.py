@@ -416,6 +416,14 @@ class FSTestCase(unittest.TestCase):
         val[e] = 'e'
         for k, v in val.items():
              assert k == os.path.normpath("hash/" + v)
+
+	# Test getcwd()
+        fs = SCons.Node.FS.FS()
+	assert str(fs.getcwd()) == ".", str(fs.getcwd())
+	fs.chdir(fs.Dir('subdir'))
+	assert str(fs.getcwd()) == "subdir", str(fs.getcwd())
+	fs.chdir(fs.Dir('../..'))
+	assert str(fs.getcwd()) == test.workdir, str(fs.getcwd())
         
         #XXX test exists()
 

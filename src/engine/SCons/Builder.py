@@ -180,7 +180,7 @@ class BuilderBase:
                                 self.node_factory)
 
 	for t in tlist:
-            t.cwd = SCons.Node.FS.default_fs.cwd	# XXX
+            t.cwd = SCons.Node.FS.default_fs.getcwd()	# XXX
 	    t.builder_set(self)
 	    t.env_set(env)
 	    t.add_source(slist)
