@@ -44,7 +44,7 @@ all9 = test.workpath('test', 'build', 'var9', 'src', 'all')
 
 test.subdir('test')
 
-test.write('test/SConstruct', """
+test.write(['test', 'SConstruct'], """
 src = Dir('src')
 alt = Dir('alt')
 var1 = Dir('build/var1')
@@ -120,19 +120,19 @@ test.run(chdir='test', arguments = '. ../build')
 all_src = "test/src/aaa.in\ntest/src/bbb.in\ntest/src/ccc.in\n"
 all_alt = "test/alt/aaa.in\ntest/alt/bbb.in\ntest/alt/ccc.in\n"
 
-test.fail_test(test.read(all1) != all_src)
-test.fail_test(test.read(all2) != all_src)
-test.fail_test(test.read(all3) != all_src)
+test.must_match(all1, all_src)
+test.must_match(all2, all_src)
+test.must_match(all3, all_src)
 #XXX We can't support var4 and var5 yet, because our BuildDir linkage
 #XXX is to an entire source directory.  We haven't yet generalized our
 #XXX infrastructure to be able to take the SConscript file from one source
 #XXX directory, but the rest of the files from a different one.
-#XXX test.fail_test(test.read(all4) != all_alt)
-#XXX test.fail_test(test.read(all5) != all_alt)
-test.fail_test(test.read(all6) != all_src)
-test.fail_test(test.read(all7) != all_src)
-test.fail_test(test.read(all8) != all_src)
-test.fail_test(test.read(all9) != all_src)
+#XXX test.must_match(all4, all_alt)
+#XXX test.must_match(all5, all_alt)
+test.must_match(all6, all_src)
+test.must_match(all7, all_src)
+test.must_match(all8, all_src)
+test.must_match(all9, all_src)
 
 import os
 import stat
@@ -145,30 +145,30 @@ def equal_stats(x,y):
 # Make sure we did duplicate the source files in build/var1,
 # and that their stats are the same:
 for file in ['aaa.in', 'bbb.in', 'ccc.in']:
-    test.fail_test(not os.path.exists(test.workpath('test', 'build', 'var1', file)))
+    test.must_exist(test.workpath('test', 'build', 'var1', file))
     test.fail_test(not equal_stats(test.workpath('test', 'build', 'var1', file),
                                    test.workpath('test', 'src', file)))
 
 # Make sure we did duplicate the source files in build/var2,
 # and that their stats are the same:
 for file in ['aaa.in', 'bbb.in', 'ccc.in']:
-    test.fail_test(not os.path.exists(test.workpath('test', 'build', 'var2', file)))
+    test.must_exist(test.workpath('test', 'build', 'var2', file))
     test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', file),
                                    test.workpath('test', 'src', file)))
  
 # Make sure we didn't duplicate the source files in build/var3.
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'aaa.in')))
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'bbb.in')))
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'ccc.in')))
+test.must_not_exist(test.workpath('test', 'build', 'var3', 'aaa.in'))
+test.must_not_exist(test.workpath('test', 'build', 'var3', 'bbb.in'))
+test.must_not_exist(test.workpath('test', 'build', 'var3', 'ccc.in'))
  
 #XXX We can't support var4 and var5 yet, because our BuildDir linkage
 #XXX is to an entire source directory.  We haven't yet generalized our
 #XXX infrastructure to be able to take the SConscript file from one source
 #XXX directory, but the rest of the files from a different one.
 #XXX Make sure we didn't duplicate the source files in build/var4.
-#XXXtest.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'aaa.in')))
-#XXXtest.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'bbb.in')))
-#XXXtest.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'ccc.in')))
+#XXXtest.must_not_exist(test.workpath('test', 'build', 'var4', 'aaa.in'))
+#XXXtest.must_not_exist(test.workpath('test', 'build', 'var4', 'bbb.in'))
+#XXXtest.must_not_exist(test.workpath('test', 'build', 'var4', 'ccc.in'))
 
 #XXX We can't support var4 and var5 yet, because our BuildDir linkage
 #XXX is to an entire source directory.  We haven't yet generalized our
@@ -177,26 +177,26 @@ test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'ccc.in')))
 #XXX Make sure we did duplicate the source files in build/var5,
 #XXX and that their stats are the same:
 #XXXfor file in ['aaa.in', 'bbb.in', 'ccc.in']:
-#XXX    test.fail_test(not os.path.exists(test.workpath('build', 'var5', file)))
+#XXX    test.must_exist(test.workpath('build', 'var5', file))
 #XXX    test.fail_test(not equal_stats(test.workpath('build', 'var5', file),
 #XXX                                   test.workpath('test', 'src', file)))
 
 # Make sure we did duplicate the source files in build/var6,
 # and that their stats are the same:
 for file in ['aaa.in', 'bbb.in', 'ccc.in']:
-    test.fail_test(not os.path.exists(test.workpath('build', 'var6', file)))
+    test.must_exist(test.workpath('build', 'var6', file))
     test.fail_test(not equal_stats(test.workpath('build', 'var6', file),
                                    test.workpath('test', 'src', file)))
  
 # Make sure we didn't duplicate the source files in build/var7.
-test.fail_test(os.path.exists(test.workpath('build', 'var7', 'aaa.in')))
-test.fail_test(os.path.exists(test.workpath('build', 'var7', 'bbb.in')))
-test.fail_test(os.path.exists(test.workpath('build', 'var7', 'ccc.in')))
+test.must_not_exist(test.workpath('build', 'var7', 'aaa.in'))
+test.must_not_exist(test.workpath('build', 'var7', 'bbb.in'))
+test.must_not_exist(test.workpath('build', 'var7', 'ccc.in'))
  
 # Make sure we didn't duplicate the source files in build/var8.
-test.fail_test(os.path.exists(test.workpath('build', 'var8', 'aaa.in')))
-test.fail_test(os.path.exists(test.workpath('build', 'var8', 'bbb.in')))
-test.fail_test(os.path.exists(test.workpath('build', 'var8', 'ccc.in')))
+test.must_not_exist(test.workpath('build', 'var8', 'aaa.in'))
+test.must_not_exist(test.workpath('build', 'var8', 'bbb.in'))
+test.must_not_exist(test.workpath('build', 'var8', 'ccc.in'))
 
 ###################
 test.subdir('test2')
@@ -230,9 +230,34 @@ test.run(chdir="test2")
 
 _obj = TestSCons._obj
 
-test.fail_test(os.path.exists(test.workpath('test2', 'foo' + _obj)))
-test.fail_test(os.path.exists(test.workpath('test2', 'bar' + _obj)))
-test.fail_test(not os.path.exists(test.workpath('test2', 'Build', 'foo' + _obj)))
-test.fail_test(not os.path.exists(test.workpath('test2', 'Build', 'bar' + _obj)))
+test.must_not_exist(test.workpath('test2', 'foo' + _obj))
+test.must_not_exist(test.workpath('test2', 'bar' + _obj))
+test.must_exist(test.workpath('test2', 'Build', 'foo' + _obj))
+test.must_exist(test.workpath('test2', 'Build', 'bar' + _obj))
+
+###################
+# Make sure that directories for subsidiary SConscript() calls
+# in a build_dir get created if they don't already exist.
+test.subdir('test3')
+
+test.subdir(['test3', 'src'], ['test3', 'src', '_glscry'])
+
+test.write(['test3', 'SConstruct'], """\
+SConscript(dirs=['src'], build_dir='build', duplicate=0)
+""")
+
+test.write(['test3', 'src', 'SConscript'], """\
+SConscript(dirs=['_glscry'])
+""")
+
+test.write(['test3', 'src', '_glscry', 'SConscript'], """\
+""")
+
+test.write(['test3', 'src', 'file.in'], "file.in\n")
+
+test.write(['test3', 'src', '_glscry', 'file.in'], "file.in\n")
+
+test.run(chdir='test3')
+
 
 test.pass_test()

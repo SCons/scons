@@ -230,7 +230,9 @@ def _SConscript(fs, *files, **kw):
                 # Repository directory.  Like above, we do this
                 # directly.
                 fs.chdir(frame.prev_dir, change_os_dir=0)
-                os.chdir(frame.prev_dir.rdir().get_abspath())
+                rdir = frame.prev_dir.rdir()
+                rdir._create()  # Make sure there's a directory there.
+                os.chdir(rdir.get_abspath())
 
             results.append(frame.retval)
 

@@ -1286,6 +1286,36 @@ class Dir(Base):
         if not self.builder is MkdirBuilder:
             apply(SCons.Node.Node.build, [self,], kw)
 
+    def _create(self):
+        """Create this directory, silently and without worrying about
+        whether the builder is the default or not."""
+        listDirs = []
+        parent = self
+        while parent:
+            if parent.exists():
+                break
+            listDirs.append(parent)
+            p = parent.up()
+            if isinstance(p, ParentOfRoot):
+                raise SCons.Errors.StopError, parent.path
+            parent = p
+        listDirs.reverse()
+        for dirnode in listDirs:
+            try:
+                # Don't call dirnode.build(), call the base Node method
+                # directly because we definitely *must* create this
+                # directory.  The dirnode.build() method will suppress
+                # the build if it's the default builder.
+                SCons.Node.Node.build(dirnode)
+                dirnode.get_executor().nullify()
+                # The build() action may or may not have actually
+                # created the directory, depending on whether the -n
+                # option was used or not.  Delete the _exists and
+                # _rexists attributes so they can be reevaluated.
+                dirnode.clear()
+            except OSError:
+                pass
+
     def multiple_side_effect_has_builder(self):
         global MkdirBuilder
         return not self.builder is MkdirBuilder and self.has_builder()
@@ -1542,33 +1572,7 @@ class File(Base):
     def _createDir(self):
         # ensure that the directories for this node are
         # created.
-
-        listDirs = []
-        parent=self.dir
-        while parent:
-            if parent.exists():
-                break
-            listDirs.append(parent)
-            p = parent.up()
-            if isinstance(p, ParentOfRoot):
-                raise SCons.Errors.StopError, parent.path
-            parent = p
-        listDirs.reverse()
-        for dirnode in listDirs:
-            try:
-                # Don't call dirnode.build(), call the base Node method
-                # directly because we definitely *must* create this
-                # directory.  The dirnode.build() method will suppress
-                # the build if it's the default builder.
-                SCons.Node.Node.build(dirnode)
-                dirnode.get_executor().nullify()
-                # The build() action may or may not have actually
-                # created the directory, depending on whether the -n
-                # option was used or not.  Delete the _exists and
-                # _rexists attributes so they can be reevaluated.
-                dirnode.clear()
-            except OSError:
-                pass
+        self.dir._create()
 
     def retrieve_from_cache(self):
         """Try to retrieve the node's content from a cache
