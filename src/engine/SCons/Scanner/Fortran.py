@@ -44,6 +44,6 @@ def FortranScan(fs = SCons.Node.FS.default_fs):
     scanner = SCons.Scanner.Classic("FortranScan",
                                     [".f", ".F", ".for", ".FOR"],
                                     "F77PATH",
-                                    "INCLUDE[ \t]+'([\\w./\\\\]+)'",
+                                    "(?i)INCLUDE[ \t]+'([\\w./\\\\]+)'",
                                     fs = fs)
     return scanner

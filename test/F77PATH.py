@@ -77,7 +77,7 @@ test.write(['subdir', 'prog.f'],
 r"""
       PROGRAM PROG
       PRINT *, 'subdir/prog.f'
-      INCLUDE 'foo.f'
+      include 'foo.f'
       STOP
       END
 """)

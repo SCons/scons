@@ -45,7 +45,7 @@ os.chdir(test.workpath(''))
 test.write('fff1.f',"""
       PROGRAM FOO
       INCLUDE 'f1.f'
-      INCLUDE 'f2.f'
+      include 'f2.f'
       STOP
       END
 """)
@@ -53,7 +53,7 @@ test.write('fff1.f',"""
 test.write('fff2.f',"""
       PROGRAM FOO
       INCLUDE 'f2.f'
-      INCLUDE 'd1/f2.f'
+      include 'd1/f2.f'
       INCLUDE 'd2/f2.f'
       STOP
       END
