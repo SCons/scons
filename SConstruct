@@ -204,9 +204,10 @@ try:
             print dest,name
             # if the file exists, then delete it before writing
             # to it so that we don't end up trying to write to a symlink:
-            if os.path.exists(dest):
+            if os.path.isfile(dest) or os.path.islink(dest):
                 os.unlink(dest)
-            open(dest, 'w').write(zf.read(name))
+            if not os.path.isdir(dest):
+                open(dest, 'w').write(zf.read(name))
 
 except:
     if unzip and zip:
