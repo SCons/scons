@@ -10,6 +10,10 @@
 
 RELEASE 0.07 - 
 
+  From Chad Austin:
+
+  - Changes to build SCons packages on IRIX (and other *NIces).
+
   From Charles Crain:
 
   - Internal cleanup of environment passing to function Actions.

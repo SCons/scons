@@ -169,6 +169,9 @@ else:
     python_project_subinst_dir = lib_project
     project_script_subinst_dir = 'bin'
 
+
+zcat = 'gzip -d -c'
+    
 #
 # Figure out if we can handle .zip files.
 #
@@ -256,6 +259,8 @@ env = Environment(
                    ZIPFLAGS            = '-r',
                    UNZIP               = unzip,
                    UNZIPFLAGS          = '-o -d $UNPACK_ZIP_DIR',
+
+                   ZCAT                = zcat,
 
                    TEST_DEB_DIR        = test_deb_dir,
                    TEST_RPM_DIR        = test_rpm_dir,
@@ -552,7 +557,7 @@ for p in [ scons ]:
                                   src_files)
         env.Command(unpack_tar_gz_files, tar_gz, [
                     "rm -rf %s" % os.path.join(unpack_tar_gz_dir, pkg_version),
-                    "zcat $SOURCES > .temp",
+                    "$ZCAT $SOURCES > .temp",
                     "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
                     "rm -f .temp",
         ])
@@ -785,7 +790,7 @@ if change:
             # with separate zcat-tar-rm commands.
             env.Command(unpack_tar_gz_files, src_tar_gz, [
                 "rm -rf %s" % os.path.join(unpack_tar_gz_dir, psv),
-                "zcat $SOURCES > .temp",
+                "$ZCAT $SOURCES > .temp",
                 "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
                 "rm -f .temp",
             ])

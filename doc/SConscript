@@ -36,9 +36,9 @@ Import('env', 'whereis')
 #
 #
 #
-doc_tar_gz = os.path.join('#build',
-                          'dist',
-                          'scons-doc-%s.tar.gz' % env.Dictionary('VERSION'))
+doc_tar = os.path.join('#build',
+                       'dist',
+                       'scons-doc-%s.tar' % env.Dictionary('VERSION'))
 
 #
 # We'll only try to build text files (for some documents)
@@ -276,5 +276,8 @@ if man2html:
 # for easy distribution to the web site.
 #
 if tar_deps:
-    env.Command(doc_tar_gz, tar_deps,
-                "tar zc${TAR_HFLAG} -f $TARGET -C build/doc %s" % tar_list)
+    doc_tar_gz = doc_tar + ".gz"
+    env.Command(doc_tar, tar_deps,
+                "tar cf${TAR_HFLAG} $TARGET -C build/doc %s" % tar_list)
+    env.Command(doc_tar_gz, doc_tar,
+                "gzip $SOURCES")
