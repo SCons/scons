@@ -89,7 +89,7 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
             lib = env.subst(lib)
             for pref, suf in pairs:
                 l = adjustixes(lib, pref, suf)
-                l = find_file(l, libpath, fs.File, verbose=print_find_libs)
+                l = find_file(l, libpath, verbose=print_find_libs)
                 if l:
                     result.append(l)
         else:

@@ -1443,10 +1443,10 @@ class find_fileTestCase(unittest.TestCase):
         node_pseudo.set_src_builder(1) # Any non-zero value.
 
         paths = map(fs.Dir, ['.', 'same', './bar'])
-        nodes = [SCons.Node.FS.find_file('foo', paths, fs.File)]
-        nodes.append(SCons.Node.FS.find_file('baz', paths, fs.File))
-        nodes.append(SCons.Node.FS.find_file('pseudo', paths, fs.File))
-        nodes.append(SCons.Node.FS.find_file('same', paths, fs.File))
+        nodes = [SCons.Node.FS.find_file('foo', paths)]
+        nodes.append(SCons.Node.FS.find_file('baz', paths))
+        nodes.append(SCons.Node.FS.find_file('pseudo', paths))
+        nodes.append(SCons.Node.FS.find_file('same', paths))
 
         file_names = map(str, nodes)
         file_names = map(os.path.normpath, file_names)
@@ -1458,7 +1458,7 @@ class find_fileTestCase(unittest.TestCase):
         # of a directory that we'd otherwise try to search.  If this
         # is broken, we'll see an exception like "Tried to lookup File
         # 'bar/baz' as a Dir.
-        SCons.Node.FS.find_file('baz/no_file_here', paths, fs.File)
+        SCons.Node.FS.find_file('baz/no_file_here', paths)
 
         import StringIO
         save_sys_stdout = sys.stdout
@@ -1466,7 +1466,7 @@ class find_fileTestCase(unittest.TestCase):
         try:
             sio = StringIO.StringIO()
             sys.stdout = sio
-            SCons.Node.FS.find_file('foo', paths, fs.File, verbose="xyz")
+            SCons.Node.FS.find_file('foo', paths, verbose="xyz")
             expect = "  xyz: looking for 'foo' in '.' ...\n" + \
                      "  xyz: ... FOUND 'foo' in '.'\n"
             c = sio.getvalue()
@@ -1474,7 +1474,7 @@ class find_fileTestCase(unittest.TestCase):
 
             sio = StringIO.StringIO()
             sys.stdout = sio
-            SCons.Node.FS.find_file('baz', paths, fs.File, verbose=1)
+            SCons.Node.FS.find_file('baz', paths, verbose=1)
             expect = "  find_file: looking for 'baz' in '.' ...\n" + \
                      "  find_file: looking for 'baz' in 'same' ...\n" + \
                      "  find_file: looking for 'baz' in 'bar' ...\n" + \
@@ -1484,7 +1484,7 @@ class find_fileTestCase(unittest.TestCase):
 
             sio = StringIO.StringIO()
             sys.stdout = sio
-            SCons.Node.FS.find_file('on_disk', paths, fs.File, verbose=1)
+            SCons.Node.FS.find_file('on_disk', paths, verbose=1)
             expect = "  find_file: looking for 'on_disk' in '.' ...\n" + \
                      "  find_file: looking for 'on_disk' in 'same' ...\n" + \
                      "  find_file: looking for 'on_disk' in 'bar' ...\n" + \

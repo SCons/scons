@@ -1242,7 +1242,7 @@ class Base(SubstitutionEnvironment):
     def FindFile(self, file, dirs):
         file = self.subst(file)
         nodes = self.arg2nodes(dirs, self.fs.Dir)
-        return SCons.Node.FS.find_file(file, nodes, self.fs.File)
+        return SCons.Node.FS.find_file(file, tuple(nodes))
 
     def Flatten(self, sequence):
         return SCons.Util.flatten(sequence)

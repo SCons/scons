@@ -51,7 +51,5 @@ class D(SCons.Scanner.Classic):
         # translate dots (package separators) to slashes
         inc = string.replace(include, '.', '/')
 
-        i = SCons.Node.FS.find_file(inc + '.d',
-                                    (source_dir,) + path,
-                                    self.fs.File)
+        i = SCons.Node.FS.find_file(inc + '.d', (source_dir,) + path)
         return i, include
