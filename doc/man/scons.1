@@ -200,6 +200,25 @@ the build in any way.
 .\" option is useful whenever multiple builds may be
 .\" trying to update the cache simultaneously.
 
+.B scons
+requires Python version 1.5.2 or later.
+There should be no other dependencies or requirements to run
+.B scons.
+
+The default
+.B scons
+configuration assumes
+use of the Microsoft Visual C++ compiler suite on WIN32 systems,
+and assumes a C compiler named
+.B cc
+and a C++ compiler named
+.B c++
+(such as found in the GNU C compiler suite)
+on any other type of system.
+You may, of course, override these default values
+by appropriate configuration of
+Environment construction variables.
+
 .SH OPTIONS
 In general, 
 .B scons 

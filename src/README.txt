@@ -27,6 +27,20 @@ the latest version by checking the SCons download page at:
         http://www.scons.org/download.html
 
 
+REQUIREMENTS
+============
+
+SCons requires Python version 1.5.2 or later.  There should be no
+other dependencies or requirements to run SCons.
+
+The default SCons configuration assumes use of the Microsoft Visual C++
+compiler suite on WIN32 systems, and assumes a C compiler named 'cc'
+and a C++ compiler named 'c++' (such as found in the GNU C compiler
+suite) on any other type of system.  You may, of course, override these
+default values by appropriate configuration of Environment construction
+variables.
+
+
 INSTALLATION
 ============
 
