@@ -457,11 +457,11 @@ class UtilTestCase(unittest.TestCase):
         n1 = MyNode('n1')
         env = DummyEnv({'NODE' : n1})
         node = scons_subst("$NODE", env, mode=SUBST_RAW, conv=s)
-        assert node == [n1], node
+        assert node is n1, node
         node = scons_subst("$NODE", env, mode=SUBST_CMD, conv=s)
-        assert node == [n1], node
+        assert node is n1, node
         node = scons_subst("$NODE", env, mode=SUBST_SIG, conv=s)
-        assert node == [n1], node
+        assert node is n1, node
 
         # Test returning a function.
         #env = DummyEnv({'FUNCTION' : foo})

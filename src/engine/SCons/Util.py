@@ -668,8 +668,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
                     result = _dollar_exps.sub(sub_match, args)
                 except TypeError:
                     # If the internal conversion routine doesn't return
-                    # strings (it could be overridden to return Nodes,
-                    # for example), then the re module will throw this
+                    # strings (it could be overridden to return Nodes, for
+                    # example), then the 1.5.2 re module will throw this
                     # exception.  Back off to a slower, general-purpose
                     # algorithm that works for all data types.
                     args = _separate_args.findall(args)
@@ -679,7 +679,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
                     try:
                         result = string.join(result, '')
                     except TypeError:
-                        pass
+                        if len(result) == 1:
+                            result = result[0]
                 return result
             else:
                 return self.expand(args, lvars)
