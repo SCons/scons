@@ -299,9 +299,6 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
             elif t.overrides != overrides:
                 raise UserError, "Two different sets of overrides were specified for the same target: %s"%str(t)
 
-            elif builder.target_scanner and t.target_scanner and builder.target_scanner != t.target_scanner:
-                raise UserError, "Two different scanners were specified for the same target: %s"%str(t)
-
             if builder.multi:
                 if t.builder != builder:
                     if isinstance(t.builder, ListBuilder) and isinstance(builder, ListBuilder) and t.builder.builder == builder.builder:
@@ -346,22 +343,6 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
         t.env_set(env)
         t.add_source(slist)
         t.set_executor(executor)
-        if builder.target_scanner:
-            t.target_scanner = builder.target_scanner
-        if t.source_scanner is None:
-            t.source_scanner = builder.source_scanner
-
-    # Add backup source scanners from the environment to the source
-    # nodes.  This may not be necessary if the node will have a real
-    # source scanner added later (which is why these are the "backup"
-    # source scanners, not the real ones), but because source nodes may
-    # be used multiple times for different targets, it ends up being
-    # more efficient to do this calculation once here, as opposed to
-    # delaying it until later when we potentially have to calculate it
-    # over and over and over.
-    for s in slist:
-        if s.source_scanner is None and s.backup_source_scanner is None:
-            s.backup_source_scanner = env.get_scanner(s.scanner_key())
 
 class EmitterProxy:
     """This is a callable class that can act as a
