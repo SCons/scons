@@ -61,9 +61,10 @@ class SConsignEntry:
                 if arr[2] == '-': self.csig = None
                 else:             self.csig = module.from_string(arr[2])
 
-                if len(arr) < 4:    self.implicit = ''
-                elif arr[3] == '-': self.implicit = None
-                else:               self.implicit = arr[3]
+                if len(arr) < 4:        self.implicit = None # pre-0.07 format
+                elif arr[3] == '':      self.implicit = '' # pre-0.08 format
+                elif arr[3] == '-':     self.implicit = None
+                else:                   self.implicit = string.replace(arr[3], '\0\0', '')
             except IndexError:
                 pass
 
@@ -78,7 +79,7 @@ class SConsignEntry:
         else:                 csig = module.to_string(self.csig)
 
         if self.implicit is None: implicit = '-'
-        else:                     implicit = self.implicit
+        else:                     implicit = '\0\0%s\0\0'%self.implicit
 
         return '%s %s %s %s' % (timestamp, bsig, csig, implicit)
 
@@ -94,8 +95,8 @@ class SConsignEntry:
         if implicit is None:
             self.implicit = None
         else:
-	    if SCons.Util.is_String(implicit):
-	        implicit = [implicit]
+            if SCons.Util.is_String(implicit):
+                implicit = [implicit]
             self.implicit = string.join(map(str, implicit), '\0')
 
 
