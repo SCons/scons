@@ -38,6 +38,7 @@ import SCons.Errors
 import SCons.Node
 import SCons.Node.FS
 import SCons.Platform
+import SCons.SConf
 import SCons.Script
 import SCons.Tool
 import SCons.Util
@@ -508,6 +509,7 @@ def BuildDefaultGlobals():
     globals['Builder']           = SCons.Builder.Builder
     globals['CacheDir']          = SCons.Node.FS.default_fs.CacheDir
     globals['Clean']             = Clean
+    globals['Configure']         = SCons.SConf.SConf
     globals['CScan']             = SCons.Defaults.CScan
     globals['Default']           = Default
     globals['Dir']               = SCons.Node.FS.default_fs.Dir

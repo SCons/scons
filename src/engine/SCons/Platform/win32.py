@@ -32,11 +32,14 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
 import os
 import os.path
+import popen2
 import string
 import sys
+import tempfile
+
+import SCons.Util
 
 class TempFileMunge:
     """A callable class.  You can set an Environment variable to this,
@@ -57,8 +60,6 @@ class TempFileMunge:
            (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= 2048:
             return self.cmd
         else:
-            import tempfile
-
             # In Cygwin, we want to use rm to delete the temporary file,
             # because del does not exist in the sh shell.
             rm = env.Detect('rm') or 'del'
@@ -84,6 +85,48 @@ class TempFileMunge:
 # you had better have cmd or command.com in your PATH when you run
 # scons.
 
+def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
+    if not sh:
+        sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
+        return 127
+    else:
+        # NOTE: This is just a big, big hack.  What we do is simply pipe the
+        # output to a temporary file and then write it to the streams.
+        # I DO NOT know the effect of adding these to a command line that
+        # already has indirection symbols.
+        tmpFile = os.path.normpath(tempfile.mktemp())
+        args.append(">" + str(tmpFile))
+        args.append("2>&1")
+        if stdout != None:
+            # ToDo: use the printaction instead of that
+            stdout.write(string.join(args) + "\n")
+        try:
+            try:
+                args = [sh, '/C', escape(string.join(args)) ]
+                ret = os.spawnve(os.P_WAIT, sh, args, env)
+            except OSError, e:
+                ret = exitvalmap[e[0]]
+                stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+            try:
+                input = open( tmpFile, "r" )
+                while 1:
+                    line = input.readline()
+                    if not line:
+                        break
+                    if stdout != None:
+                        stdout.write(line)
+                    if stderr != None and stderr != stdout:
+                        stderr.write(line)
+            finally:
+                input.close()
+        finally:
+            try:
+                os.remove( tmpFile )
+            except OSError:
+                # What went wrong here ??
+                pass
+        return ret
+        
 def spawn(sh, escape, cmd, args, env):
     if not sh:
         sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
@@ -157,6 +200,7 @@ def generate(env):
     env['SHLIBSUFFIX']    = '.dll'
     env['LIBPREFIXES']    = [ '$LIBPREFIX', '$SHLIBPREFIX' ]
     env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['PSPAWN']         = piped_spawn
     env['SPAWN']          = spawn
     env['SHELL']          = cmd_interp
     env['TEMPFILE']       = TempFileMunge

@@ -31,6 +31,7 @@ def Func():
     pass
 
 import os
+import re
 import StringIO
 import sys
 import types
@@ -61,6 +62,9 @@ try:
 except:
     pass
 f.close()
+if os.environ.has_key( 'ACTPY_PIPE' ):
+    sys.stdout.write( 'act.py: stdout: executed act.py\\n' )
+    sys.stderr.write( 'act.py: stderr: executed act.py\\n' ) 
 sys.exit(0)
 """)
 
@@ -80,6 +84,7 @@ class Environment:
         self.d = {}
         self.d['SHELL'] = scons_env['SHELL']
         self.d['SPAWN'] = scons_env['SPAWN']
+        self.d['PSPAWN'] = scons_env['PSPAWN']
         self.d['ESCAPE'] = scons_env['ESCAPE']
         for k, v in kw.items():
             self.d[k] = v
@@ -94,6 +99,8 @@ class Environment:
         return self.d.get(s, s)
     def __getitem__(self, item):
         return self.d[item]
+    def __setitem__(self, item, value):
+        self.d[item] = value
     def has_key(self, item):
         return self.d.has_key(item)
     def get(self, key, value):
@@ -102,6 +109,12 @@ class Environment:
         return self.d.items()
     def Dictionary(self):
         return self.d
+    def Copy(self, **kw):
+        res = Environment()
+        res.d = SCons.Environment.our_deepcopy(self.d)
+        for k, v in kw.items():
+            res.d[k] = v        
+        return res
     def sig_dict(self):
         d = {}
         for k,v in self.items(): d[k] = v
@@ -348,10 +361,15 @@ class CommandActionTestCase(unittest.TestCase):
         """Test execution of command Actions
 
         """
+        try:
+            env = self.env
+        except AttributeError:
+            env = Environment()
+            
         cmd1 = r'%s %s %s xyzzy' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd1)
-        r = act([], [], Environment())
+        r = act([], [], env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'xyzzy'\n", c
@@ -359,7 +377,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd2 = r'%s %s %s $TARGET' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd2)
-        r = act('foo', [], Environment())
+        r = act('foo', [], env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'foo'\n", c
@@ -367,7 +385,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd3 = r'%s %s %s ${TARGETS}' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd3)
-        r = act(['aaa', 'bbb'], [], Environment())
+        r = act(['aaa', 'bbb'], [], env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'aaa' 'bbb'\n", c
@@ -375,7 +393,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd4 = r'%s %s %s $SOURCES' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd4)
-        r = act([], ['one', 'two'], Environment())
+        r = act([], ['one', 'two'], env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'one' 'two'\n", c
@@ -385,7 +403,7 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction(cmd4)
         r = act([],
                         source = ['three', 'four', 'five'],
-                        env = Environment())
+                        env = env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'three' 'four'\n", c
@@ -395,7 +413,7 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction(cmd5)
         r = act(target = 'out5',
                         source = [],
-                        env = Environment(ENV = {'XYZZY' : 'xyzzy'}))
+                        env = env.Copy(ENV = {'XYZZY' : 'xyzzy'}))
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy'\n", c
@@ -411,7 +429,7 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction(cmd6)
         r = act(target = [Obj('111'), Obj('222')],
                         source = [Obj('333'), Obj('444'), Obj('555')],
-                        env = Environment())
+                        env = env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: '222' '111' '333' '444'\n", c
@@ -423,14 +441,14 @@ class CommandActionTestCase(unittest.TestCase):
 
         act = SCons.Action.CommandAction(cmd7)
 
-        global show_string
+        global show_string 
         show_string = ""
         def my_show(string):
             global show_string
             show_string = show_string + string + "\n"
         act.show = my_show
 
-        r = act([], [], Environment())
+        r = act([], [], env.Copy())
         assert r == 0
         assert show_string == expect7, show_string
 
@@ -445,19 +463,37 @@ class CommandActionTestCase(unittest.TestCase):
 
         # Test that a nonexistent command returns 127
         act = SCons.Action.CommandAction(python + "_XyZzY_")
-        r = act([], [], Environment(out = outfile))
+        r = act([], [], env.Copy(out = outfile))
         assert r == expect_nonexistent, "r == %d" % r
 
         # Test that trying to execute a directory returns 126
         dir, tail = os.path.split(python)
         act = SCons.Action.CommandAction(dir)
-        r = act([], [], Environment(out = outfile))
+        r = act([], [], env.Copy(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
         # Test that trying to execute a non-executable file returns 126
         act = SCons.Action.CommandAction(outfile)
-        r = act([], [], Environment(out = outfile))
+        r = act([], [], env.Copy(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
+
+
+    def test_pipe_execute(self):
+        """Test capturing piped output from an action
+        """
+        pipe_file = open( test.workpath('pipe.out'), "w" )
+        self.env = Environment(ENV = {'ACTPY_PIPE' : '1'}, PIPE_BUILD = 1,
+                               PSTDOUT = pipe_file, PSTDERR = pipe_file)
+        # everything should also work when piping output
+        self.test_execute()
+        self.env['PSTDOUT'].close()
+        pipe_out = test.read( test.workpath('pipe.out') )
+        if sys.platform == 'win32':
+            cr = '\r'
+        else:
+            cr = ''
+        found = re.findall( "act.py: stdout: executed act.py%s\nact.py: stderr: executed act.py%s\n" % (cr, cr), pipe_out )
+        assert len(found) == 8, found
 
     def test_set_handler(self):
         """Test setting the command handler...

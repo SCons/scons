@@ -75,9 +75,21 @@ RELEASE 0.14 - XXX
 
   - Support Import('*') to import everything that's been Export()ed.
 
+  From David Snopek:
+
+  - Contribute the "Autoscons" code for Autoconf-like checking for
+    the existence of libraries, header files and the like.
+
   From Greg Spencer:
 
   - Support the C preprocessor #import statement.
+
+  From Christoph Wiedemann:
+
+  - Integrate David Snopek's "Autoscons" code as the new SConf
+    configuration subsystem, including caching of values between
+    runs (using normal SCons dependency mechanisms), tests, and
+    documentation.
 
 
 

@@ -210,10 +210,28 @@ class CommandAction(ActionBase):
         else:
             raise SCons.Errors.UserError('Missing SHELL construction variable.')
 
-        if env.has_key('SPAWN'):
-            spawn = env['SPAWN']
+        # for SConf support (by now): check, if we want to pipe the command
+        # output to somewhere else
+        if env.has_key('PIPE_BUILD'):
+            pipe_build = 1
+            if env.has_key('PSPAWN'):
+                pspawn = env['PSPAWN']
+            else:
+                raise SCons.Errors.UserError('Missing PSPAWN construction variable.')
+            if env.has_key('PSTDOUT'):
+                pstdout = env['PSTDOUT']
+            else:
+                raise SCons.Errors.UserError('Missing PSTDOUT construction variable.')
+            if env.has_key('PSTDERR'):
+                pstderr = env['PSTDERR']
+            else:
+                raise SCons.Errors.UserError('Missing PSTDOUT construction variable.')
         else:
-            raise SCons.Errors.UserError('Missing SPAWN construction variable.')
+            pipe_build = 0
+            if env.has_key('SPAWN'):
+                spawn = env['SPAWN']
+            else:
+                raise SCons.Errors.UserError('Missing SPAWN construction variable.')
 
         cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env, _rm,
                                                target, source)
@@ -234,7 +252,11 @@ class CommandAction(ActionBase):
                     # interpreter we are using
                     map(lambda x, e=escape: x.escape(e), cmd_line)
                     cmd_line = map(str, cmd_line)
-                    ret = spawn(shell, escape, cmd_line[0], cmd_line, ENV)
+                    if pipe_build:
+                        ret = pspawn( shell, escape, cmd_line[0], cmd_line,
+                                      ENV, pstdout, pstderr )
+                    else:
+                        ret = spawn(shell, escape, cmd_line[0], cmd_line, ENV)
                     if ret:
                         return ret
         return 0

@@ -2868,6 +2868,283 @@ method:
 env2 = env.Copy(CC="cl.exe")
 .EE
 
+.SS Configure contexts
+
+.B scons
+supports
+.I configure contexts,
+an integrated mechanism similar to the
+various AC_CHECK macros in GNU autoconf
+for testing for the existence of C header
+files, libraries, etc.
+In contrast to autoconf,
+.B scons
+does not maintain an explicit cache of the tested values,
+but uses its normal dependency tracking to keep the checked values
+up to date. 
+The following methods can be used to perform checks:
+
+.TP
+.RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ])
+This creates a configure context, which can be used to perform checks.
+.I env
+specifies the environment for building the tests.
+This environment may be modified when performing checks.
+.I custom_tests
+is a dictionary containing custom tests.
+See also the section about custom tests below. 
+By default, no custom tests are added to the configure context.
+.I conf_dir
+specifies a directory where the test cases are built.
+Note that this directory is not used for building
+normal targets.
+The default value is the directory
+#/.sconf_temp.
+.I log_file
+specifies a file which collects the output from commands
+that are executed to check for the existence of header files, libraries, etc.
+The default is the file #/config.log.
+If you are using the
+.B BuildDir
+method,
+you may want to specify a subdirectory under your build directory.
+
+.EE
+A created
+.B Configure
+instance has the following associated methods:
+
+.TP 
+.RI Configure.Finish( self )
+This method should be called after configuration is done.
+It returns the environment as modified
+by the configuration checks performed.
+After this method is called, no further checks can be performed
+with this configuration context.
+However, you can create a new 
+.RI Configure 
+context to perform additional checks.
+Only one context should be active at a time.
+
+The following Checks are predefined.
+(This list will likely grow larger as time
+goes by and developers contribute new useful tests.)
+
+.TP
+.RI Configure.CheckCHeader( self ", " header )
+Checks if 
+.I header
+is usable in the C-language.
+Returns 1 on success and 0 on failure.
+
+.TP
+.RI Configure.CheckCXXHeader( self ", " header )
+Checks if 
+.I header
+is usable in the C++ language.
+Returns 1 on success and 0 on failure.
+
+.TP 
+.RI Configure.CheckLib( self ", [" library ", " symbol ", " autoadd ])
+Checks if 
+.I library 
+provides 
+.IR symbol .
+If the value of
+.I autoadd
+is 1 and the library provides the specified
+.IR symbol ,
+appends the library to the LIBS construction environment variable.
+.I library 
+may also be None (the default),
+in which case 
+.I symbol 
+is checked with the current LIBS variable.
+The default
+.I symbol
+is "main",
+which just check if
+you can link against the specified
+.IR library .
+The default value for
+.I autoadd
+is 1.
+It is assumed, that the C-language is used.
+This method returns 1 on success and 0 on error.
+
+.TP 
+.RI Configure.CheckLibWithHeader( self ", " library ", " header ", " language ", [" call ", " autoadd ])
+
+In contrast to the 
+.RI Configure.CheckLib 
+call, this call provides a more sophisticated way to check against libraries.
+Again, 
+.I library
+specifies the library to check. 
+.I header
+specifies a header to check for.
+.I language
+may be one of 'C','c','CXX','cxx','C++' and 'c++'.
+.I call
+can be any valid expression (with a trailing ';'). The default is 'main();'.
+.I autoadd
+specifies whether to add the library to the environment (only if the check 
+succeeds). This method returns 1 on success and 0 on error.
+
+.EE
+Example of a typical Configure usage:
+
+.ES
+env = Environment()
+conf = Configure( env )
+if not conf.CheckCHeader( 'math.h' ):
+    print 'We really need math.h!'
+    Exit(1)
+if conf.CheckLibWithHeader( 'qt', 'qapp.h', 'c++', 'QApplication qapp(0,0);' ):
+    # do stuff for qt - usage, e.g.
+    conf.env.Append( CPPFLAGS = '-DWITH_QT' )
+env = conf.Finish() 
+.EE
+
+.EE
+You can define your own custom checks. 
+in addition to the predefined checks.
+These are passed in a dictionary to the Configure function.
+This dictionary maps the names of the checks
+to user defined Python callables 
+(either Python functions or class instances implementing the
+.I __call__
+method).
+The first argument of the call is always a 
+.I CheckContext
+instance followed by the arguments,
+which must be supplied by the user of the check.
+These CheckContext instances define the following methods:
+
+.TP 
+.RI CheckContext.Message( self ", " text )
+
+Usually called before the check is started. 
+.I text
+will be displayed to the user, e.g. 'Checking for library X...'
+
+.TP
+.RI CheckContext.Result( self, ", " res )
+
+Usually called after the check is done. 
+.I res
+can be either an integer or a string. In the former case, 'ok' (res != 0) 
+or 'failed' (res == 0) is displayed to the user, in the latter case the 
+given string is displayed.
+
+.TP
+.RI CheckContext.TryCompile( self ", " text ", " extension )
+Checks if a file with the specified 
+.I extension
+(e.g. '.c') containing 
+.I text 
+can be compiled using the environment's
+.B Object 
+builder. Returns 1 on success and 0 on failure.
+
+.TP 
+.RI CheckContext.TryLink( self ", " text ", " extension )
+Checks, if a file with the specified
+.I extension
+(e.g. '.c') containing 
+.I text 
+can be compiled using the environment's
+.B Program
+builder. Returns 1 on success and 0 on failure.
+
+.TP
+.RI CheckContext.TryRun( self ", " text ", " extension )
+Checks, if a file with the specified
+.I extension
+(e.g. '.c') containing 
+.I text 
+can be compiled using the environment's
+.B Program
+builder. On success, the program is run. If the program
+executes successfully
+(that is, its return status is 0),
+a tuple
+.I (1, outputStr)
+is returned, where
+.I outputStr
+is the standard output of the
+program.
+If the program fails execution
+(its return status is non-zero),
+then (0, '') is returned.
+
+.TP
+.RI CheckContext.TryAction( self ", " action ", [" text ", " extension ])
+Checks if the specified
+.I action 
+with an optional source file (contents
+.I text
+, extension 
+.I extension
+= ''
+) can be executed. 
+.I action 
+may be anything which can be converted to a 
+.B scons
+.RI Action.
+On success,
+.I (1, outputStr)
+is returned, where
+.I outputStr
+is the content of the target file.
+On failure
+.I (0, '')
+is returned.
+
+.TP
+.RI CheckContext.TryBuild( self ", " builder ", [" text ", " extension ])
+Low level implementation for testing specific builds;
+the methods above are based on this metho.
+Given the Builder instance
+.I builder
+and the optional 
+.I text
+of a source file with optional
+.IR extension ,
+this method returns 1 on success and 0 on failure. In addition, 
+.I self.lastTarget 
+is set to the build target node, if the build was successful.
+
+.EE
+Example for implementing and using custom tests:
+
+.ES
+def CheckQt(context, qtdir):
+    context.Message( 'Checking for qt ...' )
+    lastLIBS = context.env['LIBS']
+    lastLIBPATH = context.env['LIBPATH']
+    lastCPPPATH= context.env['CPPPATH']
+    context.env.Append(LIBS = 'qt', LIBPATH = qtdir + '/lib', CPPPATH = qtdir + '/include' )
+    ret = context.TryLink("""
+#include <qapp.h>
+int main(int argc, char **argv) { 
+  QApplication qapp(argc, argv);
+  return 0;
+}
+"""
+    if not ret:
+        context.env.Replace(LIBS = lastLIBS, LIBPATH=lastLIBPATH, CPPPATH=lastCPPPATH)
+    context.Result( ret )
+    return ret
+
+env = Environment()
+conf = Configure( env, custom_tests = 'CheckQt' : CheckQt )
+if not conf.CheckQt('/usr/lib/qt'):
+    print 'We really need qt!'
+    Exit(1)
+env = conf.Finish() 
+.EE
+
 .SS Construction Variable Options
 
 Often when building software, various options need to be specified at build
