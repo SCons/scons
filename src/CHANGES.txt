@@ -228,6 +228,9 @@ RELEASE 0.97 - XXX
   - Add support for an Options.FormatOptionHelpText() method that can
     be overridden to customize the format of Options help text.
 
+  - Add a global name for the Entry class (which had already been
+    documented).
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
