@@ -1494,57 +1494,87 @@ class EntryTestCase(unittest.TestCase):
 
 
 
-class RepositoryTestCase(unittest.TestCase):
-    def runTest(self):
-        """Test FS (file system) Repository operations
+class RepositoryTestCase(_tempdirTestCase):
 
-        """
-        fs = SCons.Node.FS.FS()
+    def setUp(self):
+        _tempdirTestCase.setUp(self)
 
-        fs.Repository('foo')
-        fs.Repository(os.path.join('foo', 'bar'))
-        fs.Repository(os.path.join('bar', 'foo'))
-        fs.Repository('bar')
+        self.test.subdir('rep1', 'rep2', 'rep3', 'work')
 
-        rep = fs.Dir('#').getRepositories()
-        assert len(rep) == 4, map(str, rep)
+        self.rep1 = self.test.workpath('rep1')
+        self.rep2 = self.test.workpath('rep2')
+        self.rep3 = self.test.workpath('rep3')
+
+        os.chdir(self.test.workpath('work'))
+
+        self.fs = SCons.Node.FS.FS()
+        self.fs.Repository(self.rep1, self.rep2, self.rep3)
+
+    def test_getRepositories(self):
+        """Test the Dir.getRepositories() method"""
+        self.fs.Repository('foo')
+        self.fs.Repository(os.path.join('foo', 'bar'))
+        self.fs.Repository('bar/foo')
+        self.fs.Repository('bar')
+
+        expect = [
+            self.rep1,
+            self.rep2,
+            self.rep3,
+            'foo',
+            os.path.join('foo', 'bar'),
+            os.path.join('bar', 'foo'),
+            'bar'
+        ]
+
+        rep = self.fs.Dir('#').getRepositories()
         r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
-        assert r == ['foo',
-                     os.path.join('foo', 'bar'),
-                     os.path.join('bar', 'foo'),
-                     'bar'], r
+        assert r == expect, r
 
-        test = TestCmd(workdir = '')
-        test.subdir('rep1', 'rep2', 'rep3', 'work')
+    def test_rfile(self):
+        """Test the File.rfile() method"""
+        f1 = self.fs.File('f1')
+        f2 = self.fs.File('f2')
+        f3 = self.fs.File('f3')
 
-        rep1 = test.workpath('rep1')
-        rep2 = test.workpath('rep2')
-        rep3 = test.workpath('rep3')
+        self.test.write([self.rep1, 'f2'], "")
+        self.test.subdir([self.rep2, 'f3'])
+        self.test.write([self.rep3, 'f3'], "")
 
-        os.chdir(test.workpath('work'))
-
-        fs = SCons.Node.FS.FS()
-        fs.Repository(rep1, rep2, rep3)
-
-        f1 = fs.File(os.path.join('f1'))
         assert f1.rfile() is f1
 
-        test.write([rep1, 'f2'], "")
+        r = f2.rfile()
+        assert not r is f2, r
+        assert str(r) == os.path.join(self.rep1, 'f2'), str(r)
 
-        f2 = fs.File('f2')
-        assert not f2.rfile() is f2, f2.rfile()
-        assert str(f2.rfile()) == os.path.join(rep1, 'f2'), str(f2.rfile())
+        r = f3.rfile()
+        assert not r is f3, r
+        r = f3.rstr()
+        assert r == os.path.join(self.rep3, 'f3'), r
 
-        test.subdir([rep2, 'f3'])
-        test.write([rep3, 'f3'], "")
+    def test_Rsearches(self):
+        """Test the Rsearch() methods"""
+        fs = self.fs
+        test = self.test
+
+        test.write([self.rep1, 'f2'], "")
+        test.subdir([self.rep2, 'f3'])
+        test.write([self.rep3, 'f3'], "")
+
+        r = fs.Rsearch('f1')
+        assert r is None, r
+
+        r = fs.Rsearch('f2')
+        assert r, r
 
         f3 = fs.File('f3')
-        assert not f3.rfile() is f3, f3.rfile()
-        assert f3.rstr() == os.path.join(rep3, 'f3'), f3.rstr()
+        r = fs.Rsearch(f3)
+        assert r is f3, r
 
-        assert fs.Rsearch('f1') is None
-        assert fs.Rsearch('f2')
-        assert fs.Rsearch(f3) is f3
+    def test_Rsearchall(self):
+        """Test the Rsearchall() methods"""
+        fs = self.fs
+        test = self.test
 
         list = fs.Rsearchall(fs.Dir('d1'))
         assert len(list) == 1, list
@@ -1562,16 +1592,19 @@ class RepositoryTestCase(unittest.TestCase):
 
         fs.File('d2').built() # Clear exists cache
         test.subdir(['work', 'd2'])
+
         list = fs.Rsearchall('d2')
         assert map(str, list) == ['d2'], list
 
         fs.File('../rep2/d2').built() # Clear exists cache
         test.subdir(['rep2', 'd2'])
+
         list = fs.Rsearchall('d2')
         assert map(str, list) == ['d2', test.workpath('rep2', 'd2')], list
 
         fs.File('../rep1/d2').built() # Clear exists cache
         test.subdir(['rep1', 'd2'])
+
         list = fs.Rsearchall('d2')
         assert map(str, list) == ['d2',
                                   test.workpath('rep1', 'd2'),
@@ -1582,11 +1615,13 @@ class RepositoryTestCase(unittest.TestCase):
 
         fs.File('d3').built() # Clear exists cache
         test.subdir(['work', 'd3'])
+
         list = map(str, fs.Rsearchall(['d3', 'd4']))
         assert list == ['d3'], list
 
         fs.File('../rep3/d4').built() # Clear exists cache
         test.subdir(['rep3', 'd4'])
+
         list = map(str, fs.Rsearchall(['d3', 'd4']))
         assert list == ['d3', test.workpath('rep3', 'd4')], list
 
@@ -1594,6 +1629,7 @@ class RepositoryTestCase(unittest.TestCase):
         assert list == ['d3', test.workpath('rep3', 'd4')], list
 
         work_d4 = fs.File(os.path.join('work', 'd4'))
+
         list = map(str, fs.Rsearchall(['d3', work_d4]))
         assert list == ['d3', str(work_d4)], list
 
@@ -1606,12 +1642,19 @@ class RepositoryTestCase(unittest.TestCase):
         list = fs.Rsearchall([''])
         assert list == [], list
 
+    def test_rexists(self):
+        """Test the Entry.rexists() method"""
+        fs = self.fs
+        test = self.test
+
+        test.write([self.rep1, 'f2'], "")
+
         fs.BuildDir('build', '.')
 
         f = fs.File(test.workpath("work", "i_do_not_exist"))
         assert not f.rexists()
 
-        test.write(["rep2", "i_exist"], "\n")
+        test.write([self.rep2, "i_exist"], "\n")
         f = fs.File(test.workpath("work", "i_exist"))
         assert f.rexists()
 
@@ -1624,6 +1667,11 @@ class RepositoryTestCase(unittest.TestCase):
 
         f2 = fs.File(os.path.join('build', 'f2'))
         assert f2.rexists()
+
+    def test_FAT_timestamps(self):
+        """Test repository timestamps on FAT file systems"""
+        fs = self.fs
+        test = self.test
 
         test.write(["rep2", "tstamp"], "tstamp\n")
         try:
@@ -1640,7 +1688,11 @@ class RepositoryTestCase(unittest.TestCase):
         finally:
             test.unlink(["rep2", "tstamp"])
 
-        # Make sure get_contents() returns the binary contents.
+    def test_get_contents(self):
+        """Ensure get_contents() returns binary contents from Repositories"""
+        fs = self.fs
+        test = self.test
+
         test.write(["rep3", "contents"], "Con\x1aTents\n")
         try:
             c = fs.File("contents").get_contents()
@@ -1648,9 +1700,11 @@ class RepositoryTestCase(unittest.TestCase):
         finally:
             test.unlink(["rep3", "contents"])
 
-        # XXX test calc_signature()
+    #def test calc_signature(self):
 
-        # XXX test current()
+    #def test current(self):
+
+
 
 class find_fileTestCase(unittest.TestCase):
     def runTest(self):
@@ -2372,7 +2426,6 @@ if __name__ == "__main__":
     suite.addTest(FSTestCase())
     suite.addTest(BuildDirTestCase())
     suite.addTest(EntryTestCase())
-    suite.addTest(RepositoryTestCase())
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())
     suite.addTest(stored_infoTestCase())
@@ -2387,6 +2440,7 @@ if __name__ == "__main__":
     suite.addTest(SaveStringsTestCase())
     tclasses = [
         DirTestCase,
+        RepositoryTestCase,
     ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
