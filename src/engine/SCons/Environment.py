@@ -109,12 +109,13 @@ def our_deepcopy(x):
        copy = x
    return copy
 
-def apply_tools(env, tools):
+def apply_tools(env, tools, toolpath):
     if tools:
         for tool in tools:
             if SCons.Util.is_String(tool):
-                tool = SCons.Tool.Tool(tool)
-            tool(env)
+                env.Tool(tool, toolpath)
+            else:
+                tool(env)
 
 class BuilderWrapper:
     """Wrapper class that associates an environment with a Builder at
@@ -207,6 +208,7 @@ class Base:
     def __init__(self,
                  platform=None,
                  tools=None,
+                 toolpath=[],
                  options=None,
                  **kw):
         self.fs = SCons.Node.FS.default_fs
@@ -238,7 +240,7 @@ class Base:
             tools = self._dict.get('TOOLS', None)
             if tools is None:
                 tools = ['default']
-        apply_tools(self, tools)
+        apply_tools(self, tools, toolpath)
 
         # Reapply the passed in variables after calling the tools,
         # since they should overide anything set by the tools:
@@ -461,7 +463,7 @@ class Base:
 
         self._dict[envname][name] = nv
 
-    def Copy(self, tools=None, **kw):
+    def Copy(self, tools=None, toolpath=[], **kw):
         """Return a copy of a construction Environment.  The
         copy is like a Python "deep copy"--that is, independent
         copies are made recursively of each objects--except that
@@ -477,7 +479,7 @@ class Base:
         except KeyError:
             pass
         
-        apply_tools(clone, tools)
+        apply_tools(clone, tools, toolpath)
 
         # Apply passed-in variables after the new tools.
         apply(clone.Replace, (), kw)
@@ -666,9 +668,9 @@ class Base:
             name = name[:-len(old_suffix)]
         return os.path.join(dir, new_prefix+name+new_suffix)
 
-    def Tool(self, tool):
+    def Tool(self, tool, toolpath=[]):
         tool = self.subst(tool)
-        return SCons.Tool.Tool(tool)(self)
+        return SCons.Tool.Tool(tool, map(self.subst, toolpath))(self)
 
     def WhereIs(self, prog, path=None, pathext=None):
         """Find prog in the path.  

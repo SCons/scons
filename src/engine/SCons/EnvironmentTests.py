@@ -1162,7 +1162,9 @@ class EnvironmentTestCase(unittest.TestCase):
             exc_caught = 1
         assert exc_caught, "did not catch expected UserError"
 
-        env.Tool('cc')
+        # Use a non-existent toolpath directory just to make sure we
+        # can call Tool() with the keyword argument.
+        env.Tool('cc', toolpath=['/no/such/directory'])
         assert env['CC'] == 'cc', env['CC']
 
         env.Tool('$LINK')
