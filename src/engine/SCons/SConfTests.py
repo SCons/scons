@@ -259,91 +259,107 @@ int main() {
     def test_StandardTests(self):
         """Test standard checks
         """
-        def CHeaderChecks( sconf ):
-            res1 = sconf.CheckCHeader( "stdio.h", include_quotes="<>" )
-            res2 = sconf.CheckCHeader( "HopefullyNotCHeader.noh" )
-            return (res1,res2)
-
-        def CXXHeaderChecks(sconf):
-            res1 = sconf.CheckCXXHeader( "vector", include_quotes="<>" )
-            res2 = sconf.CheckCXXHeader( "HopefullyNotCXXHeader.noh" )
-            return (res1,res2)
-
-        def LibChecks(sconf):
-            res1 = sconf.CheckLib( existing_lib, "main", autoadd=0 )
-            res2 = sconf.CheckLib( "hopefullynolib", "main", autoadd=0 )
-            return (res1, res2)
-        
-        def LibChecksAutoAdd(sconf):
-            def libs(env):
-                if env.has_key( "LIBS" ):
-                    return env['LIBS']
-                else:
-                    return []
-            env = sconf.env.Copy()
-            res1 = sconf.CheckLib( existing_lib, "main", autoadd=1 )
-            libs1 = (libs(env), libs(sconf.env) )
-            sconf.env = env.Copy()
-            res2 = sconf.CheckLib( existing_lib, "main", autoadd=0 )
-            libs2 = (libs(env), libs(sconf.env) )
-            sconf.env = env.Copy()
-            return ((res1, libs1), (res2, libs2))
-
-        def LibWithHeaderChecks(sconf):
-            res1 = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=0 )
-            res2 = sconf.CheckLibWithHeader( "hopefullynolib", "math.h", "C", autoadd=0 )
-            return (res1, res2)
-
-        def LibWithHeaderChecksAutoAdd(sconf):
-            def libs(env):
-                if env.has_key( "LIBS" ):
-                    return env['LIBS']
-                else:
-                    return []
-            env = sconf.env.Copy()
-            res1 = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=1 )
-            libs1 = (libs(env), libs(sconf.env) )
-            sconf.env = env.Copy()
-            res2 = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=0 )
-            libs2 = (libs(env), libs(sconf.env) )
-            sconf.env = env.Copy()
-            return ((res1, libs1), (res2, libs2))
-
-        def FuncChecks(sconf):
-            res1 = sconf.CheckFunc('strcpy')
-            res2 = sconf.CheckFunc('hopefullynofunction')
-            return (res1, res2)
-
-        def TypeChecks(sconf):
-            res1 = sconf.CheckType('off_t', '#include <sys/types.h>\n')
-            res2 = sconf.CheckType('hopefullynotypedef_not')
-            return (res1, res2)
-
         self._resetSConfState()
         sconf = self.SConf.SConf(self.scons_env,
                                  conf_dir=self.test.workpath('config.tests'),
                                  log_file=self.test.workpath('config.log'))
         try:
-            (res1, res2) = CHeaderChecks(sconf)
-            assert res1 and not res2 
-            (res1, res2) = CXXHeaderChecks(sconf)
-            assert res1 and not res2 
-            (res1, res2) = LibChecks(sconf)
-            assert res1 and not res2 
-            ((res1, libs1), (res2, libs2)) = LibChecksAutoAdd(sconf)
-            assert res1 and res2 
-            assert len(libs1[1]) - 1 == len(libs1[0]) and libs1[1][-1] == existing_lib
-            assert len(libs2[1]) == len(libs2[0]) 
-            (res1, res2) = LibWithHeaderChecks(sconf)
-            assert res1 and not res2 
-            ((res1, libs1), (res2, libs2)) = LibWithHeaderChecksAutoAdd(sconf)
-            assert res1 and res2 
-            assert len(libs1[1]) - 1 == len(libs1[0]) and libs1[1][-1] == existing_lib
-            assert len(libs2[1]) == len(libs2[0]) 
-            (res1, res2) = FuncChecks(sconf)
-            assert res1 and not res2 
-            (res1, res2) = TypeChecks(sconf)
-            assert res1 and not res2 
+            # CheckHeader()
+            r = sconf.CheckHeader( "stdio.h", include_quotes="<>", language="C" )
+            assert r, "did not find stdio.h"
+            r = sconf.CheckHeader( "HopefullyNoHeader.noh", language="C" )
+            assert not r, "unexpectedly found HopefullyNoHeader.noh"
+            r = sconf.CheckHeader( "vector", include_quotes="<>", language="C++" )
+            assert r, "did not find vector"
+            r = sconf.CheckHeader( "HopefullyNoHeader.noh", language="C++" )
+            assert not r, "unexpectedly found HopefullyNoHeader.noh"
+
+            # CheckCHeader()
+            r = sconf.CheckCHeader( "stdio.h", include_quotes="<>" )
+            assert r, "did not find stdio.h"
+            r = sconf.CheckCHeader( ["math.h", "stdio.h"], include_quotes="<>" )
+            assert r, "did not find stdio.h, #include math.h first"
+            r = sconf.CheckCHeader( "HopefullyNoCHeader.noh" )
+            assert not r, "unexpectedly found HopefullyNoCHeader.noh"
+
+            # CheckCXXHeader()
+            r = sconf.CheckCXXHeader( "vector", include_quotes="<>" )
+            assert r, "did not find vector"
+            r = sconf.CheckCXXHeader( ["stdio.h", "vector"], include_quotes="<>" )
+            assert r, "did not find vector, #include stdio.h first"
+            r = sconf.CheckCXXHeader( "HopefullyNoCXXHeader.noh" )
+            assert not r, "unexpectedly found HopefullyNoCXXHeader.noh"
+
+            # CheckLib()
+            r = sconf.CheckLib( existing_lib, "main", autoadd=0 )
+            assert r, "did not find %s" % existing_lib
+            r = sconf.CheckLib( "hopefullynolib", "main", autoadd=0 )
+            assert not r, "unexpectedly found hopefullynolib"
+
+            # CheckLib() with autoadd
+            def libs(env):
+                return env.get('LIBS', [])
+
+            env = sconf.env.Copy()
+
+            try:
+                r = sconf.CheckLib( existing_lib, "main", autoadd=1 )
+                assert r, "did not find main in %s" % existing_lib
+                expect = libs(env) + [existing_lib]
+                got = libs(sconf.env)
+                assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
+
+                sconf.env = env.Copy()
+                r = sconf.CheckLib( existing_lib, "main", autoadd=0 )
+                assert r, "did not find main in %s" % existing_lib
+                expect = libs(env)
+                got = libs(sconf.env)
+                assert got == expect, "before and after LIBS were not the same"
+            finally:
+                sconf.env = env
+
+            # CheckLibWithHeader()
+            r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=0 )
+            assert r, "did not find %s" % existing_lib
+            r = sconf.CheckLibWithHeader( existing_lib, ["stdio.h", "math.h"], "C", autoadd=0 )
+            assert r, "did not find %s, #include stdio.h first" % existing_lib
+            r = sconf.CheckLibWithHeader( "hopefullynolib", "math.h", "C", autoadd=0 )
+            assert not r, "unexpectedly found hopefullynolib"
+
+            # CheckLibWithHeader with autoadd
+            def libs(env):
+                return env.get('LIBS', [])
+
+            env = sconf.env.Copy()
+
+            try:
+                r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=1 )
+                assert r, "did not find math.h with %s" % existing_lib
+                expect = libs(env) + [existing_lib]
+                got = libs(sconf.env)
+                assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
+
+                sconf.env = env.Copy()
+                r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=0 )
+                assert r, "did not find math.h with %s" % existing_lib
+                expect = libs(env)
+                got = libs(sconf.env)
+                assert got == expect, "before and after LIBS were not the same"
+            finally:
+                sconf.env = env
+
+            # CheckFunc()
+            r = sconf.CheckFunc('strcpy')
+            assert r, "did not find strcpy"
+            r = sconf.CheckFunc('hopefullynofunction')
+            assert not r, "unexpectedly found hopefullynofunction"
+
+            # CheckType()
+            r = sconf.CheckType('off_t', '#include <sys/types.h>\n')
+            assert r, "did not find off_t"
+            r = sconf.CheckType('hopefullynotypedef_not')
+            assert not r, "unexpectedly found hopefullynotypedef_not"
+
         finally:
             sconf.Finish()
 

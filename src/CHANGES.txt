@@ -126,6 +126,12 @@ RELEASE X.XX - XXX
   - Fix ParseConfig() so it works regardless of initial construction
     variable values.
 
+    Extend CheckHeader(), CheckCHeader(), CheckCXXHeader() and
+    CheckLibWithHeader() to accept a list of header files that will be
+    #included in the test.  The last one in the list is assumed to be
+    the one being checked for.  (Prototype code contributed by Gerard
+    Patel and Niall Douglas).
+
   From Clark McGrew:
 
   - Generalize the action for .tex files so that it will decide whether
