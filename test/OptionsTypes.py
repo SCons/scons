@@ -346,7 +346,10 @@ Default(env.Alias('dummy', None))
 
 
 test.run(arguments='-h',
-         stdout = """scons: Reading SConscript files ...
+         stdout = """\
+scons: Reading SConscript files ...
+1
+0
 scons: done reading SConscript files.
 
 warnings: compilation with -Wall and similiar (yes|no)
