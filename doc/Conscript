@@ -36,7 +36,9 @@ $doc_tar_gz = "#build/dist/scons-doc-${\$env->{VERSION}}.tar.gz";
 # We'll only try to build text files (for some documents)
 # if lynx is available to do the dump.
 #
+$groff = cons::whereis('groff');
 $lynx = cons::whereis('lynx');
+$man2html = cons::whereis('man2html');
 
 #
 # Always create a version.sgml file containing the version information
@@ -66,10 +68,6 @@ Ignore("version.sgml");
 %doc_dirs = (
     'design' => {
     		'html'	=> 'book1.html',
-	},
-    'man' => {
-    		'html'	=> 'scons.html',
-		'text'	=> 1,
 	},
     'user' => {
     		'html'	=> 'book1.html',
@@ -151,6 +149,32 @@ foreach $doc (keys %doc_dirs) {
 
     push(@tar_deps, $html, $ps, $pdf);
     push(@tar_list, $htmldir, $ps, $pdf);
+}
+
+#
+# Man page(s), in good ol' troff format.
+#
+my $scons_1 = "man/scons.1";
+
+if ($groff) {
+    my $ps = "PS/scons-man.ps";
+    my $text = "TEXT/scons-man.txt";
+
+    $env->Command($ps, $scons_1, "groff -man -Tps %< > %>");
+
+    $env->Command($text, $scons_1, "groff -man -Tascii %< > %>");
+
+    push(@tar_deps, $ps, $text);
+    push(@tar_list, $ps, $text);
+}
+
+if ($man2html) {
+    my $html = "HTML/scons-man.html";
+
+    $env->Command($html, $scons_1, "man2html %< > %>");
+
+    push(@tar_deps, $html);
+    push(@tar_list, $html);
 }
 
 #
