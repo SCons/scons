@@ -261,7 +261,15 @@ class Taskmaster:
         self.ready = None # the next task that is ready to be executed
         self.order = order
         self.message = None
-        self.altered = []
+
+        # See if we can alter the target list to find any
+        # corresponding targets in linked build directories
+        for node in self.targets:
+            alt, message = node.alter_targets()
+            if alt:
+                self.message = message
+                self.candidates.extend(self.order(alt))
+                continue
 
     def _find_next_ready_node(self):
         """Find the next node that is ready to be built"""
@@ -284,7 +292,9 @@ class Taskmaster:
             node.set_state(SCons.Node.stack)
 
             try:
-                children = node.children()
+                childinfo = map(lambda N: (N.get_state(),
+                                           N.is_derived() or N.is_pseudo_derived(),
+                                           N), node.children())
             except SystemExit:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
@@ -304,79 +314,51 @@ class Taskmaster:
                 self.ready = node
                 break
 
+            
             # Skip this node if any of its children have failed.  This
             # catches the case where we're descending a top-level target
             # and one of our children failed while trying to be built
             # by a *previous* descent of an earlier top-level target.
-            def failed(node): return node.get_state() == SCons.Node.failed
-            if filter(failed, children):
+            if filter(lambda I: I[0] == SCons.Node.failed, childinfo):
                 node.set_state(SCons.Node.failed)
                 self.candidates.pop()
                 continue
 
             # Detect dependency cycles:
-            def in_stack(node): return node.get_state() == SCons.Node.stack
-            cycle = filter(in_stack, children)
+            cycle = filter(lambda I: I[0] == SCons.Node.stack, childinfo)
             if cycle:
-                nodes = filter(in_stack, self.candidates) + cycle
+                nodes = filter(lambda N: N.get_state() == SCons.Node.stack,
+                               self.candidates) + \
+                               map(lambda I: I[2], cycle)
                 nodes.reverse()
                 desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
                 raise SCons.Errors.UserError, desc
 
             # Find all of the derived dependencies (that is,
             # children who have builders or are side effects):
-            try:
-                def derived_nodes(node): return node.is_derived() or node.is_pseudo_derived()
-                derived = filter(derived_nodes, children)
-            except KeyboardInterrupt:
-                raise
-            except:
-                # We had a problem just trying to figure out if any of
-                # the kids are derived (like a child couldn't be linked
-                # from a repository).  Arrange to raise the exception
-                # when the Task is "executed."
-                self.ready_exc = sys.exc_info()
-                self.candidates.pop()
-                self.ready = node
-                break
-
-            # If this was a top-level argument and we haven't already
-            # done so, see if we can alter the target list to find any
-            # corresponding targets in linked build directories:
-            if node in self.targets and node not in self.altered:
-                alt, message = node.alter_targets()
-                if alt:
-                    self.message = message
-                    self.candidates.extend(self.order(alt))
-                    self.altered.append(node)
-                    continue
-
             # Add derived files that have not been built
             # to the candidates list:
-            def unbuilt_nodes(node): return node.get_state() == None
-            not_built = filter(unbuilt_nodes, derived)
+            not_built = filter(lambda I: I[1] and not I[0], childinfo)
             if not_built:
                 # We're waiting on one more derived files that have not
                 # yet been built.  Add this node to the waiting_parents
                 # list of each of those derived files.
-                def add_to_waiting_parents(child, parent=node):
-                    child.add_to_waiting_parents(parent)
-                map(add_to_waiting_parents, not_built)
+                map(lambda I, P=node: I[2].add_to_waiting_parents(P), not_built)
                 not_built.reverse()
-                self.candidates.extend(self.order(not_built))
+                self.candidates.extend(self.order(map(lambda I: I[2],
+                                                      not_built)))
                 continue
 
             # Skip this node if it has side-effects that are
             # currently being built:
-            cont = 0
-            for side_effect in node.side_effects:
-                if side_effect.get_state() == SCons.Node.executing:
-                    self.pending.append(node)
-                    node.set_state(SCons.Node.pending)
-                    self.candidates.pop()
-                    cont = 1
-                    break
-            if cont: continue
+            if reduce(lambda E,N:
+                      E or N.get_state() == SCons.Node.executing,
+                      node.side_effects,
+                      0):
+                self.pending.append(node)
+                node.set_state(SCons.Node.pending)
+                self.candidates.pop()
+                continue
 
             # Skip this node if it is pending on a currently
             # executing node:

@@ -296,11 +296,7 @@ class Node:
 
     def depends_on(self, nodes):
         """Does this node depend on any of 'nodes'?"""
-        for node in nodes:
-            if node in self.children():
-                return 1
-
-        return 0
+        return reduce(lambda D,N,C=self.children(): D or (N in C), nodes, 0)
 
     def builder_set(self, builder):
         self.builder = builder
