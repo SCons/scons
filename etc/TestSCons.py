@@ -22,9 +22,27 @@ import string
 import sys
 
 from TestCommon import *
+from TestCommon import __all__
+
+__all__.extend([ 'TestSCons',
+                 'python',
+                 '_exe',
+                 '_obj',
+                 '_shobj',
+                 'lib_',
+                 '_lib',
+                 'dll_',
+                 '_dll'
+               ])
 
 python = python_executable
-
+_exe = exe_suffix
+_obj = obj_suffix
+_shobj = shobj_suffix
+_lib = lib_suffix
+lib_ = lib_prefix
+_dll = dll_suffix
+dll_ = dll_prefix
 
 def gccFortranLibs():
     """Test whether -lfrtbegin is required.  This can probably be done in

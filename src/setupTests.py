@@ -41,7 +41,7 @@ python = TestSCons.python
 class MyTestSCons(TestSCons.TestSCons):
     def installed(self, lib):
         lines = string.split(self.stdout(), '\n')
-        return lines[-3] == 'Installed SCons library modules into %s' % lib
+        return ('Installed SCons library modules into %s' % lib) in lines
 
 try:
     cwd = os.environ['SCONS_CWD']
@@ -70,10 +70,13 @@ test.subdir('root', 'prefix')
 root = test.workpath('root')
 prefix = test.workpath('prefix')
 
+lib_dir = os.path.join(root + sys.prefix, 'lib')
 v = string.split(string.split(sys.version)[0], '.')
-standard_lib = '%s/usr/lib/python%s.%s/site-packages/' % (root, v[0], v[1])
-standalone_lib = '%s/usr/lib/scons' % root
-version_lib = '%s/usr/lib/%s' % (root, scons_version)
+standard_lib = os.path.join(lib_dir,
+                            'python%s.%s' % (v[0], v[1]),
+                            'site-packages/')
+standalone_lib = os.path.join(lib_dir, 'scons')
+version_lib = os.path.join(lib_dir, scons_version)
 
 os.system("gunzip -c %s | tar xf -" % tar_gz)
 

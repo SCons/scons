@@ -31,6 +31,7 @@ Import('env')
 
 files = [
     'TestCmd.py',
+    'TestCommon.py',
     'TestSCons.py',
     'unittest.py',
 ]
@@ -38,7 +39,6 @@ files = [
 def copy(target, source, env):
     t = str(target[0])
     s = str(source[0])
-    print "copy() < %s > %s" % (s, t)
     open(t, 'wb').write(open(s, 'rb').read())
 
 for file in files:

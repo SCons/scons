@@ -105,7 +105,11 @@ def our_deepcopy(x):
        for key in x.keys():
            copy[key] = our_deepcopy(x[key])
    elif SCons.Util.is_List(x):
-       copy = x.__class__(map(our_deepcopy, x))
+       copy = map(our_deepcopy, x)
+       try:
+           copy = x.__class__(copy)
+       except AttributeError:
+           pass
    else:
        copy = x
    return copy
@@ -455,52 +459,48 @@ class Base:
         """
         kw = our_deepcopy(kw)
         for key, val in kw.items():
+            # It would be easier on the eyes to write this using
+            # "continue" statements whenever we finish processing an item,
+            # but Python 1.5.2 apparently doesn't let you use "continue"
+            # within try:-except: blocks, so we have to nest our code.
             try:
                 orig = self._dict[key]
             except KeyError:
                 # No existing variable in the environment, so just set
                 # it to the new value.
                 self._dict[key] = val
-                continue
-
-            try:
-                # Most straightforward:  just try to add them together.
-                # This will work in most cases, when the original and
-                # new values are of compatible types.
-                self._dict[key] = orig + val
-                continue
-            except TypeError:
-                pass
-
-            try:
-                # Try to update a dictionary value with another.
-                # If orig isn't a dictionary, it won't have an
-                # update() method; if val isn't a dictionary, it
-                # won't have a keys() method.  Either way, it's
-                # an AttributeError.
-                orig.update(val)
-                continue
-            except AttributeError:
-                pass
-
-            try:
-                # Check if the original is a list.
-                add_to_orig = orig.append
-            except AttributeError:
-                pass
             else:
-                # The original is a list, so append the new value to it
-                # (if there's a value to append).
-                if val:
-                    add_to_orig(val)
-                continue
-
-            # The original isn't a list, but the new value is (by process
-            # of elimination), so insert the original in the new value
-            # (if there's one to insert) and replace the variable with it.
-            if orig:
-                val.insert(0, orig)
-            self._dict[key] = val
+                try:
+                    # Most straightforward:  just try to add them
+                    # together.  This will work in most cases, when the
+                    # original and new values are of compatible types.
+                    self._dict[key] = orig + val
+                except TypeError:
+                    try:
+                        # Try to update a dictionary value with another.
+                        # If orig isn't a dictionary, it won't have an
+                        # update() method; if val isn't a dictionary,
+                        # it won't have a keys() method.  Either way,
+                        # it's an AttributeError.
+                        orig.update(val)
+                    except AttributeError:
+                        try:
+                            # Check if the original is a list.
+                            add_to_orig = orig.append
+                        except AttributeError:
+                            # The original isn't a list, but the new
+                            # value is (by process of elimination),
+                            # so insert the original in the new value
+                            # (if there's one to insert) and replace
+                            # the variable with it.
+                            if orig:
+                                val.insert(0, orig)
+                            self._dict[key] = val
+                        else:
+                            # The original is a list, so append the new
+                            # value to it (if there's a value to append).
+                            if val:
+                                add_to_orig(val)
 
     def AppendENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
         """Append path elements to the path 'name' in the 'ENV'
@@ -690,52 +690,48 @@ class Base:
         """
         kw = our_deepcopy(kw)
         for key, val in kw.items():
+            # It would be easier on the eyes to write this using
+            # "continue" statements whenever we finish processing an item,
+            # but Python 1.5.2 apparently doesn't let you use "continue"
+            # within try:-except: blocks, so we have to nest our code.
             try:
                 orig = self._dict[key]
             except KeyError:
                 # No existing variable in the environment, so just set
                 # it to the new value.
                 self._dict[key] = val
-                continue
-
-            try:
-                # Most straightforward:  just try to add them together.
-                # This will work in most cases, when the original and
-                # new values are of compatible types.
-                self._dict[key] = val + orig
-                continue
-            except TypeError:
-                pass
-
-            try:
-                # Try to update a dictionary value with another.
-                # If orig isn't a dictionary, it won't have an
-                # update() method; if val isn't a dictionary, it
-                # won't have a keys() method.  Either way, it's
-                # an AttributeError.
-                orig.update(val)
-                continue
-            except AttributeError:
-                pass
-
-            try:
-                # Check if the added value is a list.
-                add_to_val = val.append
-            except AttributeError:
-                pass
             else:
-                # The added value is a list, so append the original to it
-                # (if there's a value to append).
-                if orig:
-                    add_to_val(orig)
-                self._dict[key] = val
-                continue
-
-            # The added value isn't a list, but the original is (by
-            # process of elimination), so insert the the new value in
-            # the original (if there's one to insert).
-            if val:
-                orig.insert(0, val)
+                try:
+                    # Most straightforward:  just try to add them
+                    # together.  This will work in most cases, when the
+                    # original and new values are of compatible types.
+                    self._dict[key] = val + orig
+                except TypeError:
+                    try:
+                        # Try to update a dictionary value with another.
+                        # If orig isn't a dictionary, it won't have an
+                        # update() method; if val isn't a dictionary,
+                        # it won't have a keys() method.  Either way,
+                        # it's an AttributeError.
+                        orig.update(val)
+                    except AttributeError:
+                        try:
+                            # Check if the added value is a list.
+                            add_to_val = val.append
+                        except AttributeError:
+                            # The added value isn't a list, but the
+                            # original is (by process of elimination),
+                            # so insert the the new value in the original
+                            # (if there's one to insert).
+                            if val:
+                                orig.insert(0, val)
+                        else:
+                            # The added value is a list, so append
+                            # the original to it (if there's a value
+                            # to append).
+                            if orig:
+                                add_to_val(orig)
+                            self._dict[key] = val
 
     def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
         """Prepend path elements to the path 'name' in the 'ENV'
