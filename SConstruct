@@ -39,7 +39,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.95'
+default_version = '0.96'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 Default('.')
@@ -104,13 +104,14 @@ elif aesub:
 else:
     revision = default_version
 
-a = string.split(revision, '.')
-arr = [a[0]]
-for s in a[1:]:
-    if len(s) == 1:
-        s = '0' + s
-    arr.append(s)
-revision = string.join(arr, '.')
+# This is old code that adds an initial "0" to revision numbers < 10.
+#a = string.split(revision, '.')
+#arr = [a[0]]
+#for s in a[1:]:
+#    if len(s) == 1:
+#        s = '0' + s
+#    arr.append(s)
+#revision = string.join(arr, '.')
 
 # Here's how we'd turn the calculated $revision into our package $version.
 # This makes it difficult to coordinate with other files (debian/changelog

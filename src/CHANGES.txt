@@ -8,10 +8,7 @@ r __COPYRIGHT__
 
 
 
-RELEASE 0.95 - XXX
-
-  NOTE:  This is a pre-release of 0.96 for testing purposes.  When 0.96
-  is released, all these changes will be listed as 0.96 changes.
+RELEASE 0.96 - Wed, 18 Aug 2004 13:36:40 +0000
 
   From Chad Austin:
 
