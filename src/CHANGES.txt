@@ -17,6 +17,8 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
   - Fix env.Append() when the operand is an object with a __cmp__()
     method (like a Scanner instance).
 
+  - Fix subclassing the Environment and Scanner classes.
+
   From Gary Oberbrunner:
 
   - Fix how the man page un-indents after examples in some browsers.
