@@ -2799,7 +2799,23 @@ script named
 .SH EXAMPLES
 
 To help you get started using SCons,
-here is a brief overview of some common tasks:
+this section contains a brief overview of some common tasks.
+
+NOTE:  SCons does
+.I not
+build all of its targets by default,
+like other build tools do.
+The canonical way to invoke SCons
+is with a target of '.' (dot)
+to represent all targets in and below the current directory:
+
+.ES
+scons .
+.EE
+
+One or more default targets may be specified
+via the Default() method
+in the SConstruct file.
 
 .SS Basic Compilation From a Single Source File
 
@@ -2807,6 +2823,11 @@ here is a brief overview of some common tasks:
 env = Environment()
 env.Program(target = 'foo', source = 'foo.c')
 .EE
+
+Note:  Build the file by specifying
+the target as an argument
+("scons foo" or "scons foo.exe").
+or by specifying a dot ("scons .").
 
 .SS Basic Compilation From Multiple Source Files
 
@@ -2826,7 +2847,7 @@ env.Program(target = 'foo', source = 'foo.c')
 
 Note:  You do
 .I not
-need to specify -I options by hand.
+need to set CCFLAGS to specify -I options by hand.
 SCons will construct the right -I options from CPPPATH.
 
 .ES
@@ -2845,15 +2866,14 @@ env.Program(target = 'foo', source = 'foo.c')
 
 .ES
 env = Environment()
-env.Library(target = 'static', source = 'l1.c l2.c')
+env.StaticLibrary(target = 'foo', source = 'l1.c l2.c')
 .EE
 
 .SS Building a Shared Library
 
 .ES
 env = Environment()
-env.Library(target = 'shared', source = 'l3.c l4.c',
-            shared = 1)
+env.SharedLibrary(target = 'foo', source = 'l3.c l4.c')
 .EE
 
 .SS Linking a Local Library Into a Program
@@ -2866,8 +2886,9 @@ env.Program(target = 'prog', source = 'p1.c p2.c')
 
 .SS Defining Your Own Builder Object
 
-Notice that you can leave off the target file suffix,
-and the builder will add it automatically.
+Notice that when you invoke the Builder,
+you can leave off the target file suffix,
+and SCons will add it automatically.
 
 .ES
 bld = Builder(action = 'pdftex < $SOURCES > $TARGET'
@@ -2908,8 +2929,9 @@ bar_in.scanner_set(kscan)
 
 .SS Creating a Hierarchical Build
 
-Notice that the file names specified in a subdirectory
-are relative to that subdirectory.
+Notice that the file names specified in a subdirectory's
+SConscript
+file are relative to that subdirectory.
 
 .ES
 SConstruct:
@@ -3004,6 +3026,7 @@ libA/SConscript:
     env.Library('a', 'a1.c a2.c a3.c')
 
 libB/SConscript:                                                  
+
     Import('env')
     env.Library('b', 'b1.c b2.c b3.c')
 
