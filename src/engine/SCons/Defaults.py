@@ -140,8 +140,8 @@ def StaticObject():
 def SharedObject():
     """A function for generating the shared object Builder."""
     return SCons.Builder.Builder(action = {},
-                                 prefix = '$OBJPREFIX',
-                                 suffix = '$OBJSUFFIX',
+                                 prefix = '$SHOBJPREFIX',
+                                 suffix = '$SHOBJSUFFIX',
                                  src_builder = ['CFile', 'CXXFile'])
 
 ProgScan = SCons.Scanner.Prog.ProgScan()
@@ -157,7 +157,7 @@ SharedLibrary = SCons.Builder.Builder(action=[ SharedCheck, "$SHLINKCOM" ],
                                       prefix = '$SHLIBPREFIX',
                                       suffix = '$SHLIBSUFFIX',
                                       scanner = ProgScan,
-                                      src_suffix = '$OBJSUFFIX',
+                                      src_suffix = '$SHOBJSUFFIX',
                                       src_builder = 'SharedObject')
 
 def DVI():

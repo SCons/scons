@@ -39,6 +39,8 @@ def generate(env):
         env['ENV']        = {}
     env['OBJPREFIX']      = ''
     env['OBJSUFFIX']      = '.obj'
+    env['SHOBJPREFIX']    = '$OBJPREFIX'
+    env['SHOBJSUFFIX']    = '$OBJSUFFIX'
     env['PROGPREFIX']     = ''
     env['PROGSUFFIX']     = '.exe'
     env['LIBPREFIX']      = ''

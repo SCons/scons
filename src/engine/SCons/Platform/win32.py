@@ -40,6 +40,8 @@ def generate(env):
     env['ENV']['PATHEXT'] = '.COM;.EXE;.BAT;.CMD'
     env['OBJPREFIX']      = ''
     env['OBJSUFFIX']      = '.obj'
+    env['SHOBJPREFIX']    = '$OBJPREFIX'
+    env['SHOBJSUFFIX']    = '$OBJSUFFIX'
     env['PROGPREFIX']     = ''
     env['PROGSUFFIX']     = '.exe'
     env['LIBPREFIX']      = ''

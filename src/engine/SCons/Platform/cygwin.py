@@ -40,6 +40,8 @@ def generate(env):
     env['ENV']['PATH']    = '/usr/local/bin:/bin:/usr/bin'
     env['OBJPREFIX']      = ''
     env['OBJSUFFIX']      = '.o'
+    env['SHOBJPREFIX']    = '$OBJPREFIX'
+    env['SHOBJSUFFIX']    = '$OBJSUFFIX'
     env['PROGPREFIX']     = ''
     env['PROGSUFFIX']     = '.exe'
     env['LIBPREFIX']      = 'lib'
