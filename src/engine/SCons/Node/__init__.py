@@ -464,7 +464,7 @@ class Node:
         env = self.env or SCons.Defaults.DefaultEnvironment()
         return env.get_calculator()
 
-    def calc_signature(self, calc):
+    def calc_signature(self, calc=None):
         """
         Select and calculate the appropriate build signature for a node.
 
@@ -500,14 +500,14 @@ class Node:
         except AttributeError:
             pass
 
-    def calc_bsig(self, calc):
+    def calc_bsig(self, calc=None):
         try:
             return self.binfo.bsig
         except AttributeError:
             self.binfo = self.gen_binfo(calc)
             return self.binfo.bsig
 
-    def gen_binfo(self, calc):
+    def gen_binfo(self, calc=None):
         """
         Generate a node's build signature, the digested signatures
         of its dependency files and build information.
@@ -521,6 +521,9 @@ class Node:
         already built and updated by someone else, if that's
         what's wanted.
         """
+
+        if calc is None:
+            calc = self.calculator()
 
         binfo = self.new_binfo()
 
@@ -565,7 +568,7 @@ class Node:
         except AttributeError:
             pass
 
-    def calc_csig(self, calc):
+    def calc_csig(self, calc=None):
         try:
             binfo = self.binfo
         except AttributeError:
@@ -573,6 +576,8 @@ class Node:
         try:
             return binfo.csig
         except AttributeError:
+            if calc is None:
+                calc = self.calculator()
             binfo.csig = calc.module.signature(self)
             self.store_info(binfo)
             return binfo.csig
@@ -747,7 +752,7 @@ class Node:
         subtypes are always out of date, so they will always get built."""
         return None
 
-    def children_are_up_to_date(self, calc):
+    def children_are_up_to_date(self, calc=None):
         """Alternate check for whether the Node is current:  If all of
         our children were up-to-date, then this Node was up-to-date, too.
 

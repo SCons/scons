@@ -45,7 +45,10 @@ class Node:
         self.cached = 0
         self.scanned = 0
         self.scanner = None
-        self.builder = Node.build
+        class Builder:
+            def targets(self, node):
+                return [node]
+        self.builder = Builder()
         self.bsig = None
         self.csig = None
         self.state = None
@@ -137,7 +140,9 @@ class Node:
                 return node._current_val
         return Calc()
 
-    def current(self, calc):
+    def current(self, calc=None):
+        if calc is None:
+            calc = self.calculator()
         return calc.current(self, calc.bsig(self))
     
     def depends_on(self, nodes):
