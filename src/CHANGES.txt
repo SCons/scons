@@ -17,7 +17,10 @@ RELEASE 0.97 - XXX
 
   From Steve Christensen:
 
-  - Handle exceptions from Python functions a build actions.
+  - Handle exceptions from Python functions as build actions.
+
+  - Add a set of canned PathOption validators:  PathExists (the default),
+    PathIsFile, PathIsDir and PathIsDirCreate.
 
   From Eric Frias:
 

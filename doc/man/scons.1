@@ -7201,7 +7201,7 @@ or
 to disable use of the specified option.
 
 .TP
-.RI PathOption( key ", " help ", " default )
+.RI PathOption( key ", " help ", " default ", [" validator ])
 Return a tuple of arguments
 to set up an option
 whose value is expected to be a path name.
@@ -7213,6 +7213,38 @@ have a default value of
 and display the specified
 .I help
 text.
+An additional
+.I validator
+may be specified
+that will be called to
+verify that the specified path
+is acceptable.
+SCons supplies the
+following ready-made validators:
+.BR PathOption.PathExists
+(the default),
+which verifies that the specified path exists;
+.BR PathOption.PathIsFile ,
+which verifies that the specified path is an existing file;
+.BR PathOption.PathIsDir ,
+which verifies that the specified path is an existing directory;
+and
+.BR PathOption.PathIsDirCreate ,
+which verifies that the specified path is a directory,
+and will create the specified directory if the path exist.
+You may supply your own
+.I validator
+function,
+which must take three arguments
+.RI ( key ,
+the name of the options variable to be set;
+.IR val ,
+the specified value being checked;
+and
+.IR env ,
+the construction environment)
+and should raise an exception
+if the specified value is not acceptable.
 
 .RE
 These functions make it
@@ -7236,6 +7268,9 @@ opts.AddOptions(
                   'use X11 installed here (yes = search some places)',
                   'yes'),
     PathOption('qtdir', 'where the root of Qt is installed', qtdir),
+    PathOption('foopath', 'where the foo library is installed', foopath,
+               PathOption.PathIsDir),
+
 )
 .EE
 
