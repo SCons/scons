@@ -33,8 +33,63 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
+import string
+import os
+import sys
+import os.path
 
+def escape(arg):
+    "escape shell special characters"
+    slash = '\\'
+    special = '"$'
+
+    arg = string.replace(arg, slash, slash+slash)
+    for c in special:
+        arg = string.replace(arg, c, slash+c)
+
+    return '"' + arg + '"'
+
+def env_spawn(sh, escape, cmd, args, env):
+    if env:
+        s = 'env -i '
+        for key in env.keys():
+            s = s + '%s=%s '%(key, escape(env[key]))
+        s = s + sh + ' -c '
+        s = s + escape(string.join(args))
+    else:
+        s = string.join(args)
+
+    return os.system(s) >> 8
+
+def fork_spawn(sh, escape, cmd, args, env):
+    pid = os.fork()
+    if not pid:
+        # Child process.
+        exitval = 127
+        args = [sh, '-c', string.join(args)]
+        try:
+            os.execvpe(sh, args, env)
+        except OSError, e:
+            exitval = exitvalmap[e[0]]
+            sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+        os._exit(exitval)
+    else:
+        # Parent process.
+        pid, stat = os.waitpid(pid, 0)
+        ret = stat >> 8
+        return ret
+            
 def generate(env):
+
+    # If the env command exists, then we can use os.system()
+    # to spawn commands, otherwise we fall back on os.fork()/os.exec().
+    # os.system() is prefered because it seems to work better with
+    # threads (i.e. -j) and is more efficient than forking Python.
+    if env.Detect('env'):
+        spawn = env_spawn
+    else:
+        spawn = fork_spawn
+
     if not env.has_key('ENV'):
         env['ENV']        = {}
     env['ENV']['PATH']    = '/usr/local/bin:/bin:/usr/bin'
@@ -50,3 +105,6 @@ def generate(env):
     env['SHLIBSUFFIX']    = '.so'
     env['LIBPREFIXES']    = '$LIBPREFIX'
     env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['SPAWN']          = spawn
+    env['SHELL']          = 'sh'
+    env['ESCAPE']         = escape

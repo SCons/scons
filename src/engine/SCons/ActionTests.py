@@ -36,6 +36,7 @@ import unittest
 
 import SCons.Action
 import TestCmd
+import SCons.Errors
 
 import UserDict
 
@@ -157,8 +158,9 @@ class CommandActionTestCase(unittest.TestCase):
             def __init__(self):
                 self.executed = 0
         t=Test()
-        def func(cmd, args, env, test=t):
+        def func(sh, escape, cmd, args, env, test=t):
             test.executed = args
+            test.shell = sh
             return 0
         def escape_func(cmd):
             return '**' + cmd + '**'
@@ -170,17 +172,25 @@ class CommandActionTestCase(unittest.TestCase):
                 return self.data
             def is_literal(self):
                 return 1
+
+        try:
+            SCons.Action.SetCommandHandler(func)
+        except SCons.Errors.UserError:
+            pass
+        else:
+            assert 0, "should have gotten user error"
             
-        SCons.Action.SetCommandHandler(func)
-        assert SCons.Action.spawn is func
         a = SCons.Action.CommandAction(["xyzzy"])
-        a.execute([],[],Environment({}))
+        a.execute([],[],Environment({'SPAWN':func}))
         assert t.executed == [ 'xyzzy' ]
 
-        SCons.Action.SetCommandHandler(func,escape_func)
-        assert SCons.Action.GetEscapeHandler() == escape_func
+        a = SCons.Action.CommandAction(["xyzzy"])
+        a.execute([],[],Environment({'SPAWN':func, 'SHELL':'fake shell'}))
+        assert t.executed == [ 'xyzzy' ]
+        assert t.shell == 'fake shell'
+
         a = SCons.Action.CommandAction([ LiteralStr("xyzzy") ])
-        a.execute([],[],Environment({ }))
+        a.execute([],[],Environment({'SPAWN':func, 'ESCAPE':escape_func}))
         assert t.executed == [ '**xyzzy**' ], t.executed
 
     def test_get_raw_contents(self):
@@ -241,21 +251,17 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             self.dummy=dummy
         def f2(target, source, env, for_signature, f=func_action):
             return f
-        def ch(cmd, args, env, self=self):
+        def ch(sh, escape, cmd, args, env, self=self):
             self.cmd.append(cmd)
             self.args.append(args)
 
         a = SCons.Action.CommandGeneratorAction(f)
         self.dummy = 0
-        old_hdl = SCons.Action.GetCommandHandler()
         self.cmd = []
         self.args = []
-        try:
-            SCons.Action.SetCommandHandler(ch)
-            a.execute([],[],env=Environment({ 'FOO' : 'foo baz\nbar ack',
-                                              'dummy' : 1}))
-        finally:
-            SCons.Action.SetCommandHandler(old_hdl)
+        a.execute([],[],env=Environment({ 'FOO' : 'foo baz\nbar ack',
+                                          'dummy' : 1,
+                                          'SPAWN':ch}))
         assert self.dummy == 1, self.dummy
         assert self.cmd == ['foo', 'bar'], self.cmd
         assert self.args == [[ 'foo', 'baz' ], [ 'bar', 'ack' ]], self.args

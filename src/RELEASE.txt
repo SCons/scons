@@ -25,6 +25,13 @@ RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
   This is the eighth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
+  Please note the following important changes since release 0.08:
+
+    - The SetCommandHandler() function has been superceded
+      by the SPAWN, SHELL and ESCAPE construction variables.
+
+      XXX
+
   Please note the following important changes since release 0.07:
 
     - Builder objects no longer automatically split target and source
@@ -65,35 +72,6 @@ RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
 
     - The prefix, suffix, and src_suffix keyword arguments to the
       Builder() function may no longer be callable functions.
-
-  Please note the following important changes since release 0.06:
-
-    - The functionality of the -U option has changed.  It now works
-      exactly like the -u option (searches up the directory tree for an
-      SConstruct file) but, when no targets are specified on the command
-      line, it will build all targets that are defined in any SConscript
-      files in the current directory.
-
-      The previous functionality of this option is now available in the
-      -D option:  when no targets are specified on the command line,
-      SCons will build *all* Default() targets, not just those at or
-      below the current directory,
-
-    - The default Fortran compilation command on Windows systems now
-      uses Windows conventions (/Fo) instead of UNIX conventions (-o).
-
-    - The $SOURCE construction variable is now a synonym for
-      ${SOURCES[0]}.  This will affect you if you previously set $SOURCE
-      explicitly in a construction environment.
-
-    - Scanner functions now take three or four arguments.  The target
-      Node is now passed in as the third argument; the fourth argument
-      is an optional SCons.Node.FS.FS object.  You will need to update
-      the interfaces of any local Scanner functions you have defined.
-
-    - Command generator functions now take a fourth argument,
-      for_signature.  You will need to add this argument to any
-      generator functions you have defined.
 
   Owing to an extensive test suite, the SCons team believes that this
   release is of sufficient quality that you can use it for real work,
@@ -159,11 +137,6 @@ RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
     - Again, the "SCons Design" documentation on the SCons web
       site is currently out of date.  Take what you read there with a
       grain of salt.
-
-    - SCons does not yet support file names with quotes (" or ') in the
-      file name when an external command is used to create or process a
-      file.  Results will be unpredictable based on the interaction with
-      the shell used to execute the external command.
 
     - If a file is specified to be built in multiple ways, the last
       processed builder specification overwrites all other builders,

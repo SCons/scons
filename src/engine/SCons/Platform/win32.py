@@ -33,8 +33,60 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
+import os
+import os.path
+import string
+import sys
+
+# The upshot of all this is that, if you are using Python 1.5.2,
+# you had better have cmd or command.com in your PATH when you run
+# scons.
+
+def spawn(sh, escape, cmd, args, env):
+    if not sh:
+        sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
+        return 127
+    else:
+        try:
+            args = [sh, '/C', escape(string.join(args)) ]
+            ret = os.spawnve(os.P_WAIT, sh, args, env)
+        except OSError, e:
+            ret = exitvalmap[e[0]]
+            sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+        return ret
+
+# Windows does not allow special characters in file names
+# anyway, so no need for an escape function, we will just quote
+# the arg.
+escape = lambda x: '"' + x + '"'
 
 def generate(env):
+
+    # Attempt to find cmd.exe (for WinNT/2k/XP) or
+    # command.com for Win9x
+    cmd_interp = ''
+    # First see if we can look in the registry...
+    if SCons.Util.can_read_reg:
+        try:
+            # Look for Windows NT system root
+            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                          'Software\\Microsoft\\Windows NT\\CurrentVersion')
+            val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
+            cmd_interp = os.path.join(val, 'System32\\cmd.exe')
+        except SCons.Util.RegError:
+            try:
+                # Okay, try the Windows 9x system root
+                k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                              'Software\\Microsoft\\Windows\\CurrentVersion')
+                val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
+                cmd_interp = os.path.join(val, 'command.com')
+            except:
+                pass
+    if not cmd_interp:
+        cmd_interp = env.Detect('cmd')
+        if not cmd_interp:
+            cmd_interp = env.Detect('command')
+    
     if not env.has_key('ENV'):
         env['ENV']        = {}
     env['ENV']['PATHEXT'] = '.COM;.EXE;.BAT;.CMD'
@@ -50,3 +102,6 @@ def generate(env):
     env['SHLIBSUFFIX']    = '.dll'
     env['LIBPREFIXES']    = [ '$LIBPREFIX', '$SHLIBPREFIX' ]
     env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['SPAWN']          = spawn
+    env['SHELL']          = cmd_interp
+    env['ESCAPE']         = escape

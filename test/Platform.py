@@ -29,9 +29,10 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = {}
+env = Environment()
 Platform('cygwin')(env)
 print "'%s'" % env['PROGSUFFIX']
+assert env['SHELL'] == 'sh'
 Platform('os2')(env)
 print "'%s'" % env['PROGSUFFIX']
 Platform('posix')(env)
@@ -42,7 +43,7 @@ SConscript('SConscript')
 """)
 
 test.write('SConscript', """
-env = {}
+env = Environment()
 Platform('cygwin')(env)
 print "'%s'" % env['LIBSUFFIX']
 Platform('os2')(env)

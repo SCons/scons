@@ -33,20 +33,10 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
+import posix
 
 def generate(env):
-    if not env.has_key('ENV'):
-        env['ENV']        = {}
-    env['ENV']['PATH']    = '/usr/local/bin:/bin:/usr/bin'
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.o'
-    env['SHOBJPREFIX']    = '$OBJPREFIX'
-    env['SHOBJSUFFIX']    = '$OBJSUFFIX'
+    posix.generate(env)
+
     env['PROGPREFIX']     = ''
     env['PROGSUFFIX']     = '.exe'
-    env['LIBPREFIX']      = 'lib'
-    env['LIBSUFFIX']      = '.a'
-    env['SHLIBPREFIX']    = '$LIBPREFIX'
-    env['SHLIBSUFFIX']    = '.so'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]

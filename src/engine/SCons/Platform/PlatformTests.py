@@ -28,34 +28,41 @@ import unittest
 
 import SCons.Errors
 import SCons.Platform
+import UserDict
+
+class Environment(UserDict.UserDict):
+    def Detect(self, cmd):
+        return cmd
 
 class PlatformTestCase(unittest.TestCase):
     def test_Platform(self):
         """Test the Platform() function"""
         p = SCons.Platform.Platform('cygwin')
         assert str(p) == 'cygwin', p
-        env = {}
+        env = Environment()
         p(env)
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.a', env
+        assert env['SHELL'] == 'sh', env
 
         p = SCons.Platform.Platform('os2')
         assert str(p) == 'os2', p
-        env = {}
+        env = Environment()
         p(env)
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.lib', env
 
         p = SCons.Platform.Platform('posix')
         assert str(p) == 'posix', p
-        env = {}
+        env = Environment()
         p(env)
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
+        assert env['SHELL'] == 'sh', env
 
         p = SCons.Platform.Platform('win32')
         assert str(p) == 'win32', p
-        env = {}
+        env = Environment()
         p(env)
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.lib', env
@@ -68,7 +75,7 @@ class PlatformTestCase(unittest.TestCase):
         else:
             raise
 
-        env = {}
+        env = Environment()
         SCons.Platform.Platform()(env)
         assert env != {}, env
 

@@ -40,6 +40,7 @@ import SCons.Builder
 import SCons.Errors
 import SCons.Node.FS
 import SCons.Warnings
+import SCons.Environment
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
@@ -70,9 +71,14 @@ show_string = None
 env_scanner = None
 count = 0
 
+scons_env = SCons.Environment.Environment()
+
 class Environment:
     def __init__(self, **kw):
         self.d = {}
+        self.d['SHELL'] = scons_env['SHELL']
+        self.d['SPAWN'] = scons_env['SPAWN']
+        self.d['ESCAPE'] = scons_env['ESCAPE']
         for k, v in kw.items():
             self.d[k] = v
     def subst(self, s):

@@ -40,6 +40,7 @@ import UserDict
 import SCons.Util
 import SCons.Errors
 
+
 print_actions = 1;
 execute_actions = 1;
 
@@ -56,168 +57,11 @@ def rfile(n):
     except AttributeError:
         return n
 
-if os.name == 'posix':
-
-    def defaultEscape(arg):
-        "escape shell special characters"
-        slash = '\\'
-        special = '"$'
-
-        arg = string.replace(arg, slash, slash+slash)
-        for c in special:
-            arg = string.replace(arg, c, slash+c)
-
-        return '"' + arg + '"'
-
-    # If the env command exists, then we can use os.system()
-    # to spawn commands, otherwise we fall back on os.fork()/os.exec().
-    # os.system() is prefered because it seems to work better with
-    # threads (i.e. -j) and is more efficient than forking Python.
-    if SCons.Util.WhereIs('env'):
-        def defaultSpawn(cmd, args, env):
-            if env:
-                s = 'env -i '
-                for key in env.keys():
-                    s = s + '%s=%s '%(key, defaultEscape(env[key]))
-                s = s + 'sh -c '
-                s = s + defaultEscape(string.join(args))
-            else:
-                s = string.join(args)
-
-            return os.system(s) >> 8
-    else:
-        def defaultSpawn(cmd, args, env):
-            pid = os.fork()
-            if not pid:
-                # Child process.
-                exitval = 127
-                args = ['sh', '-c', string.join(args)]
-                try:
-                    os.execvpe('sh', args, env)
-                except OSError, e:
-                    exitval = exitvalmap[e[0]]
-                    sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
-                os._exit(exitval)
-            else:
-                # Parent process.
-                pid, stat = os.waitpid(pid, 0)
-                ret = stat >> 8
-                return ret
-
-elif os.name == 'nt':
-
-    def pathsearch(cmd, env):
-        # In order to deal with the fact that 1.5.2 doesn't have
-        # os.spawnvpe(), roll our own PATH search.
-        if os.path.isabs(cmd):
-            if not os.path.exists(cmd):
-                exts = env['PATHEXT']
-                if not SCons.Util.is_List(exts):
-                    exts = string.split(exts, os.pathsep)
-                for e in exts:
-                    f = cmd + e
-                    if os.path.exists(f):
-                        return f
-            else:
-                return cmd
-        else:
-            path = env['PATH']
-            if not SCons.Util.is_List(path):
-                path = string.split(path, os.pathsep)
-            exts = env['PATHEXT']
-            if not SCons.Util.is_List(exts):
-                exts = string.split(exts, os.pathsep)
-            pairs = []
-            for dir in path:
-                for e in exts:
-                    pairs.append((dir, e))
-            for dir, ext in pairs:
-                f = os.path.join(dir, cmd)
-                if not ext is None:
-                    f = f + ext
-                if os.path.exists(f):
-                    return f
-        return None
-
-    # Attempt to find cmd.exe (for WinNT/2k/XP) or
-    # command.com for Win9x
-
-    cmd_interp = ''
-    # First see if we can look in the registry...
-    if SCons.Util.can_read_reg:
-        try:
-            # Look for Windows NT system root
-            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                          'Software\\Microsoft\\Windows NT\\CurrentVersion')
-            val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
-            cmd_interp = os.path.join(val, 'System32\\cmd.exe')
-        except SCons.Util.RegError:
-            try:
-                # Okay, try the Windows 9x system root
-                k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                              'Software\\Microsoft\\Windows\\CurrentVersion')
-                val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
-                cmd_interp = os.path.join(val, 'command.com')
-            except:
-                pass
-    if not cmd_interp:
-        cmd_interp = pathsearch('cmd', os.environ)
-        if not cmd_interp:
-            cmd_interp = pathsearch('command', os.environ)
-
-    # The upshot of all this is that, if you are using Python 1.5.2,
-    # you had better have cmd or command.com in your PATH when you run
-    # scons.
-
-    def defaultSpawn(cmd, args, env):
-        if not cmd_interp:
-            sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
-            return 127
-        else:
-            try:
-                args = [cmd_interp, '/C', escape_cmd(string.join(args)) ]
-                ret = os.spawnve(os.P_WAIT, cmd_interp, args, env)
-            except OSError, e:
-                ret = exitvalmap[e[0]]
-                sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
-            return ret
-
-    # Windows does not allow special characters in file names
-    # anyway, so no need for an escape function, we will just quote
-    # the arg.
-    defaultEscape = lambda x: '"' + x + '"'
-else:
-    def defaultSpawn(cmd, args, env):
-        sys.stderr.write("scons: Unknown os '%s', cannot spawn command interpreter.\n" % os.name)
-        sys.stderr.write("scons: Set your command handler with SetCommandHandler().\n")
-        return 127
-
-spawn = defaultSpawn
-escape_cmd = defaultEscape
-
 def SetCommandHandler(func, escape = lambda x: x):
-    """Sets the command handler and escape function for the
-    system.  All command actions are passed through
-    the command handler, which should be a function that accepts
-    3 arguments: a string command, a list of arguments (the first
-    of which is the command itself), and a dictionary representing
-    the execution environment.  The function should then pass
-    the string to a suitable command interpreter.
+    raise SCons.Errors.UserError("SetCommandHandler() is no longer supported, use the SPAWN and ESCAPE construction variables.")
 
-    The escape function should take a string and return the same
-    string with all special characters escaped such that the command
-    interpreter will interpret the string literally."""
-    global spawn, escape_cmd
-    spawn = func
-    escape_cmd = escape
-    
 def GetCommandHandler():
-    global spawn
-    return spawn
-
-def GetEscapeHandler():
-    global escape_cmd
-    return escape_cmd
+    raise SCons.Errors.UserError("GetCommandHandler() is no longer supported, use the SPAWN construction variable.")
 
 class CommandGenerator:
     """
@@ -347,6 +191,20 @@ class CommandAction(ActionBase):
         self.cmd_list = cmd
 
     def execute(self, target, source, env):
+        escape = env.get('ESCAPE', lambda x: x)
+
+        import SCons.Errors
+        
+        if env.has_key('SHELL'):
+            shell = env['SHELL']
+        else:
+            raise SCons.Errors.UserError('Missing SHELL construction variable.')
+
+        if env.has_key('SPAWN'):
+            spawn = env['SPAWN']
+        else:
+            raise SCons.Errors.UserError('Missing SPAWN construction variable.')
+
         dict = self.subst_dict(target, source, env)
         import SCons.Util
         cmd_list = SCons.Util.scons_subst_list(self.cmd_list, dict, {}, _rm)
@@ -365,9 +223,9 @@ class CommandAction(ActionBase):
                         ENV = default_ENV
                     # Escape the command line for the command
                     # interpreter we are using
-                    map(lambda x: x.escape(escape_cmd), cmd_line)
+                    map(lambda x, e=escape: x.escape(e), cmd_line)
                     cmd_line = map(str, cmd_line)
-                    ret = spawn(cmd_line[0], cmd_line, ENV)
+                    ret = spawn(shell, escape, cmd_line[0], cmd_line, ENV)
                     if ret:
                         return ret
         return 0

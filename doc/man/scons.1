@@ -1656,6 +1656,11 @@ import os
 env = Environment(ENV = {'PATH' : os.environ['PATH']})
 .EE
 
+.IP ESCAPE
+A function that will be called to escape shell special characters in
+command lines. The function should take one argument: the command line
+string to escape; and should return the escaped command line.
+
 .IP F77
 The Fortran compiler.
 
@@ -2010,6 +2015,14 @@ are included on this command line.
 Options that are passed to the C++ compiler
 to generate shared-library objects.
 
+.IP SHELL
+A string naming the shell program that will be passed to the 
+.I SPAWN 
+function. 
+See the 
+.I SPAWN 
+construction variable for more information.
+
 .IP SHF77
 The Fortran compiler used for generating shared-library objects.
 
@@ -2045,6 +2058,27 @@ The prefix used for shared object file names.
 
 .IP SHOBJSUFFIX 
 The suffix used for shared object file names.
+
+.IP SPAWN
+A command interpreter function that will be called to execute command line
+strings. The function must expect 4 arguments:
+
+.ES
+def spawn(shell, escape, cmd, args, env):
+.EE
+.IP
+.I sh
+is a string naming the shell program to use.
+.I escape
+is a function that can be called to escape shell special characters in
+the command line. 
+.I cmd
+is the path to the command to be executed.
+.I args
+is that arguments to the command.
+.I env
+is a dictionary of the environment variables
+in which the command should be executed.
 
 .IP TAR
 The tar archiver.
@@ -2347,10 +2381,6 @@ foo = FindFile('foo', ['dir1', 'dir2'])
 .\"XXX
 .\"
 .\".TP
-.\".RI GetCommandHandler( XXX )
-.\"XXX
-.\"
-.\".TP
 .\".RI GetLaunchDir( XXX )
 .\"XXX
 
@@ -2558,27 +2588,6 @@ of a derived file to make its signature, and "content" means to use
 the derived files content signature as its signature. "build" signatures
 are usually faster to compute, but "content" signatures can prevent
 redundant rebuilds. The default is "build".
-
-.TP 
-.RI SetCommandHandler( function )
-
-This registers a user
-.I function
-as the handler
-for interpreting and executing command-line strings.
-The function must expect three arguments:
-
-.ES
-def commandhandler(cmd, args, env):
-.EE
-.IP
-.I cmd
-is the path to the command to be executed.
-.I args
-is that arguments to the command.
-.I env
-is a dictionary of the environment variables
-in which the command should be executed.
 
 .TP
 .RI SetContentSignatureType( type )
