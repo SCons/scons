@@ -258,7 +258,7 @@ num_jobs = 1 # this is modifed by SConscript.SetJobs()
 
 # utility functions
 
-def get_all_children(node): return node.all_children(None)
+def get_all_children(node): return node.all_children()
 
 def get_derived_children(node):
     children = node.all_children(None)
