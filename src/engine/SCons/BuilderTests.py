@@ -389,17 +389,25 @@ class BuilderTestCase(unittest.TestCase):
 	beginning if it isn't already present.
 	"""
 	builder = SCons.Builder.Builder(src_suffix = '.c')
-	assert builder.src_suffix == '.c'
-	builder = SCons.Builder.Builder(src_suffix = 'c')
-	assert builder.src_suffix == '.c'
+        assert builder.src_suffixes() == ['.c'], builder.src_suffixes()
+
 	tgt = builder(env, target = 'tgt2', source = 'src2')
 	assert tgt.sources[0].path == 'src2.c', \
 	        "Source has unexpected name: %s" % tgt.sources[0].path
+
         tgt = builder(env, target = 'tgt3', source = 'src3a src3b')
         assert tgt.sources[0].path == 'src3a.c', \
                 "Sources[0] has unexpected name: %s" % tgt.sources[0].path
         assert tgt.sources[1].path == 'src3b.c', \
                 "Sources[1] has unexpected name: %s" % tgt.sources[1].path
+
+        b2 = SCons.Builder.Builder(src_suffix = '.2', src_builder = builder)
+        assert b2.src_suffixes() == ['.2', '.c'], b2.src_suffixes()
+
+        b3 = SCons.Builder.Builder(action = {'.3a' : '', '.3b' : ''})
+        s = b3.src_suffixes()
+        s.sort()
+        assert s == ['.3a', '.3b'], s
 
     def test_suffix(self):
 	"""Test Builder creation with a specified target suffix

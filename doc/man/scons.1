@@ -519,6 +519,7 @@ env.Program('bar', ['bar.c', 'foo.c'])
 
 .B scons
 provides the following builders:
+
 .IP Object
 Builds an object file from one or more C/C++ source files. Source files
 must have one of the following extensions: .c, .C, .cc, .cpp, .cxx, .c++, .C++. 
@@ -549,6 +550,18 @@ automatically added to the target. Example:
 .IP
 .nf
 env.Library(target = 'bar', source = 'bar.c foo.o')
+.PP
+.fi
+
+.IP CFile
+Builds a C source file given a lex (.l) or yacc (.y) input file.
+The hard-coded suffix .c is
+automatically added to the target
+if it is not already present. Example:
+.IP
+.nf
+env.CFile(target = 'foo.c', source = 'foo.l') # builds foo.c
+env.CFile(target = 'bar', source = 'bar.y')   # builds bar.c
 .PP
 .fi
 
@@ -663,8 +676,29 @@ General options passed to the static library command.
 .IP ARCOM
 The command line used to generate a static library from object files.
 
+.IP LEX
+The lexical analyzer generator.
+
+.IP LEXFLAGS
+General options passed to the lexical analyzer generator.
+
+.IP LEXCOM
+The command line used to call the lexical analyzer generator
+to generate a source file.
+
+.IP YACC
+The parser generator.
+
+.IP YACCFLAGS
+General options passed to the parser generator.
+
+.IP YACCCOM
+The command line used to call the parser generator
+to generate a source file.
+
 .IP BUILDERS
-A list of the available builders. [Object, Program, Library] by default.
+A list of the available builders.
+[CFile, Object, Program, Library] by default.
 
 .IP SCANNERS
 A list of the available implicit dependency scanners. [CScan] by default.

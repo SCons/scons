@@ -30,6 +30,9 @@ RELEASE 0.03 -
   - Refactor BuilderBase.__call__() to separate Node creation/lookup
     from initialization of the Node's builder information.
 
+  - Add a CFile Builder object that supports turning lex (.l) and
+    yacc (.y) files into .c files.
+
   From Anthony Roach:
 
   - Add a "duplicate" keyword argument to BuildDir() that can be set

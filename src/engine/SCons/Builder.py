@@ -209,14 +209,14 @@ class BuilderBase:
             if scanner:
                 s.scanner_set(scanner.instance(env))
 
-    def __call__(self, env, target = None, source = None):
-	tlist, slist = self._create_nodes(env, target, source)
-
-	self._init_nodes(env, tlist, slist)
-
 	if len(tlist) == 1:
 	    tlist = tlist[0]
 	return tlist
+
+    def __call__(self, env, target = None, source = None):
+        tlist, slist = self._create_nodes(env, target, source)
+
+        return self._init_nodes(env, tlist, slist)
 
     def execute(self, **kw):
 	"""Execute a builder's action to create an output object.
@@ -228,6 +228,11 @@ class BuilderBase:
         (for signature calculation).
         """
         return apply(self.action.get_contents, (), kw)
+
+    def src_suffixes(self):
+        if self.src_suffix != '':
+            return [self.src_suffix]
+        return []
 
 class MultiStepBuilder(BuilderBase):
     """This is a builder subclass that can build targets in
@@ -270,6 +275,9 @@ class MultiStepBuilder(BuilderBase):
         return BuilderBase.__call__(self, env, target=target,
                                     source=final_sources)
 
+    def src_suffixes(self):
+        return BuilderBase.src_suffixes(self) + self.src_builder.src_suffixes()
+
 class CompositeBuilder(BuilderBase):
     """This is a convenient Builder subclass that can build different
     files based on their suffixes.  For each target, this builder
@@ -300,30 +308,23 @@ class CompositeBuilder(BuilderBase):
              self.builder_dict[suff] = apply(Builder, (), kw)
 
     def __call__(self, env, target = None, source = None):
-        ret = BuilderBase.__call__(self, env, target=target, source=source)
+        tlist, slist = BuilderBase._create_nodes(self, env,
+                                                 target=target, source=source)
 
-        builder_dict = {}
-        suff_dict = {}
+        # XXX These [bs]dict tables are invariant for each unique
+        # CompositeBuilder + Environment pair, so we should cache them.
+        bdict = {}
+        sdict = {}
         for suffix, bld in self.builder_dict.items():
-            builder_dict[env.subst(bld.src_suffix)] = bld
-            suff_dict[suffix] = suffix
-            b = bld
-            while hasattr(b, 'src_builder'):
-                # Walk the chain of src_builders and add the
-                # src_suffix strings to the maps so that we know
-                # all of those suffixes are legal, too.
-                b = b.src_builder
-                s = env.subst(b.src_suffix)
-                builder_dict[s] = bld
-                suff_dict[s] = suffix
+            bdict[env.subst(bld.src_suffix)] = bld
+            sdict[suffix] = suffix
+            for s in bld.src_suffixes():
+                bdict[s] = bld
+                sdict[s] = suffix
 
-        if type(ret) is types.ListType:
-            tlist = ret
-        else:
-            tlist = [ ret ]
         for tnode in tlist:
-            suflist = map(lambda x, s=suff_dict: s[os.path.splitext(x.path)[1]],
-                          tnode.sources)
+            suflist = map(lambda x, s=sdict: s[os.path.splitext(x.path)[1]],
+                          slist)
             last_suffix=''
             for suffix in suflist:
                 if last_suffix and last_suffix != suffix:
@@ -331,10 +332,19 @@ class CompositeBuilder(BuilderBase):
                 last_suffix = suffix
             if last_suffix:
                 try:
-                    tnode.builder_set(builder_dict[last_suffix])
+                    bdict[last_suffix].__call__(env, target = tnode,
+                                                source = slist)
                 except KeyError:
                     raise UserError, "The builder for %s can not build files with suffix: %s" % (tnode.path, suffix)
-        return ret
+
+        if len(tlist) == 1:
+            tlist = tlist[0]
+        return tlist
+
+    def src_suffixes(self):
+        return reduce(lambda x, y: x + y,
+                      map(lambda b: b.src_suffixes(),
+                          self.builder_dict.values()))
 
 print_actions = 1;
 execute_actions = 1;

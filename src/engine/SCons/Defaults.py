@@ -43,6 +43,12 @@ import SCons.Scanner.Prog
 import string
 import SCons.Errors
 
+CFile = SCons.Builder.Builder(name = 'CFile',
+                              action = { '.l'    : '$LEXCOM',
+                                         '.y'    : '$YACCCOM',
+                                       },
+                              suffix = '.c')
+
 Object = SCons.Builder.Builder(name = 'Object',
                                action = { '.c'   : '$CCCOM',
                                           '.C'   : '$CXXCOM',
@@ -53,7 +59,8 @@ Object = SCons.Builder.Builder(name = 'Object',
                                           '.C++' : '$CXXCOM',
                                         },
                                prefix = '$OBJPREFIX',
-                               suffix = '$OBJSUFFIX')
+                               suffix = '$OBJSUFFIX',
+                               src_builder = CFile)
 
 Program = SCons.Builder.Builder(name = 'Program',
                                 action = '$LINKCOM',
@@ -202,7 +209,13 @@ def make_win32_env_from_paths(include, lib, path):
         'AR'         : 'lib',
         'ARFLAGS'    : '/nologo',
         'ARCOM'      : '$AR $ARFLAGS /OUT:$TARGET $SOURCES',
-        'BUILDERS'   : [Object, Program, Library],
+        'LEX'        : 'lex',
+        'LEXFLAGS'   : '',
+        'LEXCOM'     : '$LEX $LEXFLAGS -o$TARGET $SOURCES',
+        'YACC'       : 'yacc',
+        'YACCFLAGS'  : '',
+        'YACCCOM'    : '$YACC $YACCFLAGS -o $TARGET $SOURCES',
+        'BUILDERS'   : [CFile, Object, Program, Library],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.obj',
@@ -250,7 +263,13 @@ if os.name == 'posix':
         'AR'         : 'ar',
         'ARFLAGS'    : 'r',
         'ARCOM'      : '$AR $ARFLAGS $TARGET $SOURCES\nranlib $TARGET',
-        'BUILDERS'   : [Object, Program, Library],
+        'LEX'        : 'lex',
+        'LEXFLAGS'   : '',
+        'LEXCOM'     : '$LEX $LEXFLAGS -o$TARGET $SOURCES',
+        'YACC'       : 'yacc',
+        'YACCFLAGS'  : '',
+        'YACCCOM'    : '$YACC $YACCFLAGS -o $TARGET $SOURCES',
+        'BUILDERS'   : [CFile, Object, Program, Library],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.o',
@@ -275,12 +294,12 @@ elif os.name == 'nt':
     except:
         try:
             # We failed to detect DevStudio, so fall back to the
-	    # DevStudio environment variables:
+            # DevStudio environment variables:
             ConstructionEnvironment = make_win32_env_from_paths(
                 os.environ["INCLUDE"], os.environ["LIB"], os.environ["PATH"])
         except KeyError:
             # The DevStudio environment variables don't exists,
-	    # so fall back to a reasonable default:
+            # so fall back to a reasonable default:
             MVSdir = r'C:\Program Files\Microsoft Visual Studio'
             MVSVCdir = r'%s\VC98' % MVSdir
             ConstructionEnvironment = make_win32_env_from_paths(
