@@ -69,7 +69,6 @@ This is a .ps test.
 
 test.run(arguments = '.', stderr = None)
 
-print test.read('test1.pdf')
 test.fail_test(test.read('test1.pdf') != " -x\nThis is a .ps test.\n")
 
 

@@ -37,7 +37,8 @@ scons_prof = test.workpath('scons.prof')
 
 test.run(arguments = "--profile=%s -v " % scons_prof)
 test.fail_test(string.find(test.stdout(), 'SCons by ') == -1)
-test.fail_test(string.find(test.stdout(), 'Copyright') == -1)
+test.fail_test(string.find(test.stdout(), 'Copyright') == -1 and
+               string.find(test.stdout(), '__COPYRIGHT__') == -1)
 
 stats = pstats.Stats(scons_prof)
 stats.sort_stats('time')
@@ -58,7 +59,8 @@ scons_prof = test.workpath('scons2.prof')
 
 test.run(arguments = "--profile %s -v " % scons_prof)
 test.fail_test(string.find(test.stdout(), 'SCons by ') == -1)
-test.fail_test(string.find(test.stdout(), 'Copyright') == -1)
+test.fail_test(string.find(test.stdout(), 'Copyright') == -1 and
+               string.find(test.stdout(), '__COPYRIGHT__') == -1)
 
 stats = pstats.Stats(scons_prof)
 stats.sort_stats('time')
