@@ -101,6 +101,9 @@ RELEASE 0.96 - XXX
   - Add support for the strfunction argument to all types of Actions:
     CommandAction, ListAction, and CommandGeneratorAction.
 
+  - Speed up turning file system Nodes into strings by caching the
+    values after we're finished reading the SConscript files.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.

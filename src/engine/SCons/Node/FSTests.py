@@ -1735,23 +1735,29 @@ class clearTestCase(unittest.TestCase):
         e = fs.Entry('e')
         e._exists = 1
         e._rexists = 1
+        e._str_val = 'e'
         e.clear()
         assert not hasattr(e, '_exists')
         assert not hasattr(e, '_rexists')
+        assert not hasattr(e, '_str_val')
 
         d = fs.Dir('d')
         d._exists = 1
         d._rexists = 1
+        d._str_val = 'd'
         d.clear()
         assert not hasattr(d, '_exists')
         assert not hasattr(d, '_rexists')
+        assert not hasattr(d, '_str_val')
 
         f = fs.File('f')
         f._exists = 1
         f._rexists = 1
+        f._str_val = 'f'
         f.clear()
         assert not hasattr(f, '_exists')
         assert not hasattr(f, '_rexists')
+        assert not hasattr(f, '_str_val')
 
 class postprocessTestCase(unittest.TestCase):
     def runTest(self):
@@ -1903,6 +1909,61 @@ class SpecialAttrTestCase(unittest.TestCase):
             caught = 1
         assert caught, "did not catch expected AttributeError"
 
+class SaveStringsTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test caching string values of nodes."""
+        test=TestCmd(workdir='')
+
+        def setup(fs):
+            fs.Dir('src')
+            fs.Dir('d0')
+            fs.Dir('d1')
+
+            d0_f = fs.File('d0/f')
+            d1_f = fs.File('d1/f')
+            d0_b = fs.File('d0/b')
+            d1_b = fs.File('d1/b')
+            d1_f.duplicate = 1
+            d1_b.duplicate = 1
+            d0_b.builder = 1
+            d1_b.builder = 1
+
+            return [d0_f, d1_f, d0_b, d1_b]
+
+        def modify(nodes):
+            d0_f, d1_f, d0_b, d1_b = nodes
+            d1_f.duplicate = 0
+            d1_b.duplicate = 0
+            d0_b.builder = 0
+            d1_b.builder = 0
+
+        fs1 = SCons.Node.FS.FS(test.workpath('fs1'))
+        nodes = setup(fs1)
+        fs1.BuildDir('d0', 'src', duplicate=0)
+        fs1.BuildDir('d1', 'src', duplicate=1)
+
+        s = map(str, nodes)
+        assert s == ['src/f', 'd1/f', 'd0/b', 'd1/b'], s
+
+        modify(nodes)
+
+        s = map(str, nodes)
+        assert s == ['src/f', 'src/f', 'd0/b', 'd1/b'], s
+
+        SCons.Node.FS.save_strings(1)
+        fs2 = SCons.Node.FS.FS(test.workpath('fs2'))
+        nodes = setup(fs2)
+        fs2.BuildDir('d0', 'src', duplicate=0)
+        fs2.BuildDir('d1', 'src', duplicate=1)
+
+        s = map(str, nodes)
+        assert s == ['src/f', 'd1/f', 'd0/b', 'd1/b'], s
+
+        modify(nodes)
+
+        s = map(str, nodes)
+        assert s == ['src/f', 'd1/f', 'd0/b', 'd1/b'], s
+
 
 
 if __name__ == "__main__":
@@ -1921,5 +1982,6 @@ if __name__ == "__main__":
     suite.addTest(clearTestCase())
     suite.addTest(postprocessTestCase())
     suite.addTest(SpecialAttrTestCase())
+    suite.addTest(SaveStringsTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

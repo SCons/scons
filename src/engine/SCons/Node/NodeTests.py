@@ -954,6 +954,12 @@ class NodeTestCase(unittest.TestCase):
         siginfo = n.get_prevsiginfo()
         assert siginfo == (None, None, None), siginfo
 
+    def test_get_suffix(self):
+        """Test the base Node get_suffix() method"""
+        n = SCons.Node.Node()
+        s = n.get_suffix()
+        assert s == '', s
+
     def test_generate_build_dict(self):
         """Test the base Node generate_build_dict() method"""
         n = SCons.Node.Node()

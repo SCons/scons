@@ -667,9 +667,18 @@ class MultiStepBuilder(BuilderBase):
         src_suffixes = self.src_suffixes(env)
 
         for snode in slist:
-            base, ext = self.splitext(str(snode))
-            if sdict.has_key(ext):
-                tgt = sdict[ext]._execute(env, None, snode, overwarn)
+            try:
+                get_suffix = snode.get_suffix
+            except AttributeError:
+                ext = self.splitext(str(snode))
+            else:
+                ext = get_suffix()
+            try:
+                subsidiary_builder = sdict[ext]
+            except KeyError:
+                final_sources.append(snode)
+            else:
+                tgt = subsidiary_builder._execute(env, None, snode, overwarn)
                 # Only supply the builder with sources it is capable
                 # of building.
                 if SCons.Util.is_List(tgt):
@@ -680,8 +689,6 @@ class MultiStepBuilder(BuilderBase):
                     final_sources.append(tgt)
                 else:
                     final_sources.extend(tgt)
-            else:
-                final_sources.append(snode)
 
         return BuilderBase._execute(self, env, target, final_sources, overwarn)
 

@@ -963,6 +963,12 @@ def _main(args, parser):
         sys.exit(0)
     progress_display("scons: done reading SConscript files.")
 
+    # Tell the Node.FS subsystem that we're all done reading the
+    # SConscript files and calling Repository() and BuildDir() and the
+    # like, so it can go ahead and start memoizing the string values of
+    # file system nodes.
+    SCons.Node.FS.save_strings(1)
+
     if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
 
     fs.chdir(fs.Top)
