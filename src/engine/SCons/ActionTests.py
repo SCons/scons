@@ -201,22 +201,26 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def f(target, source, env, for_signature, self=self):
             dummy = env['dummy']
             self.dummy = dummy
-            assert env.subst("$FOO $( bar $) baz") == 'foo baz\nbar ack bar baz', env.subst("$FOO $( bar $) baz")
-            assert env.subst("$FOO $( bar $) baz", raw=1) == 'foo baz\nbar ack $( bar $) baz', env.subst("$FOO $( bar $) baz", raw=1)
-            assert env.subst_list("$FOO $( bar $) baz") == [ [ 'foo', 'baz' ],
-                                                             [ 'bar', 'ack', 'bar', 'baz' ] ], env.subst_list("$FOO $( bar $) baz")
-            assert env.subst_list("$FOO $( bar $) baz",
-                                  raw=1) == [ [ 'foo', 'baz' ],
-                                              [ 'bar', 'ack', '$(', 'bar', '$)', 'baz' ] ], env.subst_list("$FOO $( bar $) baz", raw=1)
+            s = env.subst("$FOO $( bar $) baz")
+            assert s == 'foo baz\nbar ack bar baz', s
+            s = env.subst("$FOO $( bar $) baz", raw=1)
+            assert s == 'foo baz\nbar ack $( bar $) baz', s
+            s = env.subst_list("$FOO $( bar $) baz")
+            assert s == [[ 'foo', 'baz' ], [ 'bar', 'ack', 'bar', 'baz' ]], s
+            s = env.subst_list("$FOO $( bar $) baz", raw=1)
+            assert s == [[ 'foo', 'baz' ],
+                         [ 'bar', 'ack', '$(', 'bar', '$)', 'baz' ]], s
             return "$FOO"
-        def func_action(target, source,env, self=self):
+        def func_action(target, source, env, self=self):
             dummy=env['dummy']
-            assert env.subst('$foo $( bar $)') == 'bar bar', env.subst('$foo $( bar $)')
-            assert env.subst('$foo $( bar $)',
-                             raw=1) == 'bar $( bar $)', env.subst('$foo $( bar $)', raw=1)
-            assert env.subst_list([ '$foo', '$(', 'bar', '$)' ]) == [[ 'bar', 'bar' ]], env.subst_list([ '$foo', '$(', 'bar', '$)' ])
-            assert env.subst_list([ '$foo', '$(', 'bar', '$)' ],
-                                  raw=1) == [[ 'bar', '$(', 'bar', '$)' ]], env.subst_list([ '$foo', '$(', 'bar', '$)' ], raw=1)
+            s = env.subst('$foo $( bar $)')
+            assert s == 'bar bar', s
+            s = env.subst('$foo $( bar $)', raw=1)
+            assert s == 'bar $( bar $)', s
+            s = env.subst_list([ '$foo', '$(', 'bar', '$)' ])
+            assert s == [[ 'bar', 'bar' ]], s
+            s = env.subst_list([ '$foo', '$(', 'bar', '$)' ], raw=1)
+            assert s == [[ 'bar', '$(', 'bar', '$)' ]], s
             self.dummy=dummy
         def f2(target, source, env, for_signature, f=func_action):
             return f
@@ -231,18 +235,31 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         self.args = []
         try:
             SCons.Action.SetCommandHandler(ch)
-            a.execute([],[],env=Environment({ 'FOO' : 'foo baz\nbar ack' , 'dummy':1}))
+            a.execute([],[],env=Environment({ 'FOO' : 'foo baz\nbar ack',
+                                              'dummy' : 1}))
         finally:
             SCons.Action.SetCommandHandler(old_hdl)
-        assert self.dummy == 1
-        assert self.cmd == [ 'foo', 'bar'], self.cmd
-        assert self.args == [ [ 'foo', 'baz' ], [ 'bar', 'ack' ] ], self.args
+        assert self.dummy == 1, self.dummy
+        assert self.cmd == ['foo', 'bar'], self.cmd
+        assert self.args == [[ 'foo', 'baz' ], [ 'bar', 'ack' ]], self.args
 
         b=SCons.Action.CommandGeneratorAction(f2)
         self.dummy = 0
-        b.execute(target=[], source=[], env=Environment({ 'foo' : 'bar','dummy':2 }))
+        b.execute(target=[], source=[], env=Environment({ 'foo' : 'bar',
+                                                          'dummy' : 2 }))
         assert self.dummy==2, self.dummy
         del self.dummy
+
+        class DummyFile:
+            def __init__(self, t):
+                self.t = t
+            def rfile(self):
+                self.t.rfile_called = 1
+        def f3(target, source, env, for_signature):
+            return ''
+        c=SCons.Action.CommandGeneratorAction(f3)
+        c.execute(target=[], source=DummyFile(self), env=Environment({}))
+        assert self.rfile_called
 
     def test_get_contents(self):
         """Test fetching the contents of a command generator Action

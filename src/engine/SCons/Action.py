@@ -56,6 +56,12 @@ def quote(x):
     else:
         return x
 
+def rfile(n):
+    try:
+        return n.rfile()
+    except AttributeError:
+        return n
+
 if os.name == 'posix':
 
     def escape(arg):
@@ -393,7 +399,10 @@ class CommandGeneratorAction(ActionBase):
         return gen_cmd
 
     def execute(self, target, source, env):
-        return self.__generate(target, source, env, 0).execute(target, source, env)
+        if not SCons.Util.is_List(source):
+            source = [source]
+        rsources = map(rfile, source)
+        return self.__generate(target, source, env, 0).execute(target, rsources, env)
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
@@ -430,16 +439,11 @@ class FunctionAction(ActionBase):
             if not SCons.Util.is_List(target):
                 target = [target]
 
-            def rfile(n):
-                try:
-                    return n.rfile()
-                except AttributeError:
-                    return n
             if not SCons.Util.is_List(source):
                 source = [source]
-            source = map(rfile, source)
+            rsources = map(rfile, source)
 
-            return self.function(target=target, source=source, env=env)
+            return self.function(target=target, source=rsources, env=env)
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this callable action.

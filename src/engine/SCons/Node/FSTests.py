@@ -194,7 +194,7 @@ class BuildDirTestCase(unittest.TestCase):
         # But we do have a file in the Repository
         assert f3.rexists()
         # rfile() should point to the source path
-        assert f3.rfile().path == test.workpath('rep1/src/test2.in'),\
+        assert f3.rfile().path == os.path.normpath(test.workpath('rep1/src/test2.in')),\
                f3.rfile().path
 
         assert f4.srcnode().path == os.path.normpath('src/test2.in'),\
@@ -228,12 +228,12 @@ class BuildDirTestCase(unittest.TestCase):
 
         assert not f7.exists()
         assert f7.rexists()
-        assert f7.rfile().path == test.workpath('rep1/build/var1/test2.out'),\
+        assert f7.rfile().path == os.path.normpath(test.workpath('rep1/build/var1/test2.out')),\
                f7.rfile().path
 
         assert not f8.exists()
         assert f8.rexists()
-        assert f8.rfile().path == test.workpath('rep1/build/var2/test2.out'),\
+        assert f8.rfile().path == os.path.normpath(test.workpath('rep1/build/var2/test2.out')),\
                f8.rfile().path
         
         # Test to see if file_link() works...

@@ -44,11 +44,12 @@ opts = "-Y " + test.workpath('repository')
 test.write(['repository', 'SConstruct'], r"""
 OS = ARGUMENTS['OS']
 build_os = "#build/" + OS
+default_ccflags = Environment()['CCFLAGS']
 ccflags = {
     'foo' : '-DFOO',
     'bar' : '-DBAR',
 }
-env = Environment(CCFLAGS = ccflags[OS],
+env = Environment(CCFLAGS = default_ccflags + ' ' + ccflags[OS],
                   CPPPATH = build_os)
 BuildDir(build_os, 'src')
 SConscript(build_os + '/SConscript', "env")
