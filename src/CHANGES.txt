@@ -18,6 +18,8 @@ RELEASE 0.95 - XXX
   - Don't swallow the AttributeError when someone uses an expansion like
     $TARGET.bak, so we can supply a more informative error message.
 
+  - Fix an odd double-quote escape sequence in the man page.
+
 
 
 RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
