@@ -77,6 +77,9 @@ RELEASE 0.XX - XXX
   - Add /TP to the default CXXFLAGS for msvc, so it can compile all
     of the suffixes we use as C++ files.
 
+  - Allow the "prefix" and "suffix" attributes of a Builder to be
+    callable objects that return generated strings.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

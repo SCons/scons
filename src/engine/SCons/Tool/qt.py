@@ -36,8 +36,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import re
 
-import SCons.Tool
 import SCons.Defaults
+import SCons.Tool
+import SCons.Util
 
 header_extensions = (".h", ".H", ".hxx", ".hpp", ".hh")
 
@@ -71,17 +72,17 @@ class _Automoc:
         # out_sources contains at least all sources for the Library or Prog
         out_sources = source[:]
         for s in source:
-            prefix, suffix = os.path.splitext(str(s))
+            prefix, suffix = SCons.Util.splitext(str(s))
             # Nodes for header (h) / moc file (moc_cpp) / cpp file (cpp)
             # and ui.h file (ui_h)
             cpp = s.sources[0]
             ui = None
             if cpp.sources != None and len(cpp.sources) > 0:
-                src_src_suffix = os.path.splitext(str(cpp.sources[0]))[1]
+                src_src_suffix = SCons.Util.splitext(str(cpp.sources[0]))[1]
                 if src_src_suffix == env.subst('$QT_UISUFFIX'):
                     ui = cpp.sources[0]
             
-            src_prefix, src_suffix = os.path.splitext(str(cpp.srcnode()))
+            src_prefix, src_suffix = SCons.Util.splitext(str(cpp.srcnode()))
             h=None
             for h_ext in header_extensions:
                 if os.path.exists(src_prefix + h_ext):
@@ -99,7 +100,7 @@ class _Automoc:
             if (h and q_object_search.search(h.get_contents())) or ui:
                 # h file with the Q_OBJECT macro found -> add moc_cpp
                 dir,base = os.path.split(prefix)
-                src_ext = os.path.splitext(str(h))[1]
+                src_ext = SCons.Util.splitext(str(h))[1]
                 moc_cpp = SCons.Node.FS.default_fs.File(os.path.join(dir, 
                     env['QT_MOCNAMEGENERATOR'](base, src_ext, env)))
                 moc_o = self.objBuilder(source=moc_cpp)
@@ -111,7 +112,7 @@ class _Automoc:
                 # cpp file with Q_OBJECT macro found -> add moc
                 # (to be included in cpp)
                 dir,base = os.path.split(prefix)
-                src_ext = os.path.splitext(str(cpp))[1]
+                src_ext = SCons.Util.splitext(str(cpp))[1]
                 moc = SCons.Node.FS.default_fs.File(os.path.join(dir, 
                     env['QT_MOCNAMEGENERATOR'](base, src_ext, env)))
                 self.mocFromCppBld(env, moc, cpp)

@@ -327,13 +327,13 @@ def pch_emitter(target, source, env):
     obj = None
 
     for t in target:
-        if os.path.splitext(str(t))[1] == '.pch':
+        if SCons.Util.splitext(str(t))[1] == '.pch':
             pch = t
-        if os.path.splitext(str(t))[1] == '.obj':
+        if SCons.Util.splitext(str(t))[1] == '.obj':
             obj = t
 
     if not obj:
-        obj = os.path.splitext(str(pch))[0]+'.obj'
+        obj = SCons.Util.splitext(str(pch))[0]+'.obj'
 
     target = [pch, obj] # pch must be first, and obj second for the PCHCOM to work
 

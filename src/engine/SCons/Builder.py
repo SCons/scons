@@ -238,12 +238,6 @@ def _init_nodes(builder, env, overrides, tlist, slist):
         if scanner:
             s.source_scanner = scanner
 
-
-def _adjust_suffix(suff):
-    if suff and not suff[0] in [ '.', '$' ]:
-        return '.' + suff
-    return suff
-
 class EmitterProxy:
     """This is a callable class that can act as a
     Builder emitter.  It holds on to a string that
@@ -322,10 +316,13 @@ class BuilderBase:
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
 
+    def splitext(self, path):
+        return SCons.Util.splitext(path)
+
     def _create_nodes(self, env, overrides, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
-        def adjustixes(files, pre, suf):
+        def adjustixes(files, pre, suf, self=self):
             if not files:
                 return []
             ret = []
@@ -339,7 +336,7 @@ class BuilderBase:
                         if fn[:len(pre)] != pre:
                             f = os.path.join(path, pre + fn)
                     # Only append a suffix if the file does not have one.
-                    if suf and not SCons.Util.splitext(f)[1]:
+                    if suf and not self.splitext(f)[1]:
                         if f[-len(suf):] != suf:
                             f = f + suf
                 ret.append(f)
@@ -357,7 +354,7 @@ class BuilderBase:
             if isinstance(s, SCons.Node.Node):
                 s = str(s)
             dir, s = os.path.split(s)
-            target = pre + os.path.splitext(s)[0] + suf
+            target = pre + self.splitext(s)[0] + suf
             if dir:
                 target = [ os.path.join(dir, target) ]
         else:
@@ -410,8 +407,27 @@ class BuilderBase:
 
         return tlist
 
+    def adjust_suffix(self, suff):
+        if suff and not suff[0] in [ '.', '$' ]:
+            return '.' + suff
+        return suff
+
+    def get_prefix(self, env):
+        prefix = self.prefix
+        if callable(prefix):
+            prefix = prefix(env)
+        return env.subst(prefix)
+
+    def get_suffix(self, env):
+        suffix = self.suffix
+        if callable(suffix):
+            suffix = suffix(env)
+        else:
+            suffix = self.adjust_suffix(suffix)
+        return env.subst(suffix)
+
     def src_suffixes(self, env):
-        return map(lambda x, e=env: e.subst(_adjust_suffix(x)),
+        return map(lambda x, s=self, e=env: e.subst(s.adjust_suffix(x)),
                    self.src_suffix)
 
     def set_src_suffix(self, src_suffix):
@@ -427,12 +443,6 @@ class BuilderBase:
         if not ret:
             return ''
         return ret[0]
-
-    def get_suffix(self, env):
-        return env.subst(_adjust_suffix(self.suffix))
-
-    def get_prefix(self, env):
-        return env.subst(self.prefix)
 
     def targets(self, node):
         """Return the list of targets for this builder instance.
@@ -532,15 +542,15 @@ class MultiStepBuilder(BuilderBase):
         src_suffixes = self.src_suffixes(env)
 
         for snode in slist:
-            path, ext = SCons.Util.splitext(snode.get_abspath())
+            path, ext = self.splitext(snode.get_abspath())
             if sdict.has_key(ext):
                 src_bld = sdict[ext]
                 tgt = apply(src_bld, (env, path, snode), kw)
                 # Only supply the builder with sources it is capable
                 # of building.
                 if SCons.Util.is_List(tgt):
-                    tgt = filter(lambda x, suf=src_suffixes:
-                                 SCons.Util.splitext(SCons.Util.to_String(x))[1] in suf,
+                    tgt = filter(lambda x, self=self, suf=src_suffixes:
+                                 self.splitext(SCons.Util.to_String(x))[1] in suf,
                                  tgt)
                 if not SCons.Util.is_List(tgt):
                     final_sources.append(tgt)

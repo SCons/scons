@@ -126,7 +126,7 @@ class _DSPGenerator:
         if self.env.has_key('name'):
             self.name = self.env['name']
         else:
-            self.name = os.path.basename(os.path.splitext(self.dspfile)[0])
+            self.name = os.path.basename(SCons.Util.splitext(self.dspfile)[0])
 
         print "Adding '" + self.name + ' - ' + self.config.variant + "' to Visual Studio Project '" + str(dspfile) + "'"
 
@@ -515,7 +515,7 @@ class _DSWGenerator:
         if self.env.has_key('name'):
             self.name = self.env['name']
         else:
-            self.name = os.path.basename(os.path.splitext(self.dspfile)[0])
+            self.name = os.path.basename(SCons.Util.splitext(self.dspfile)[0])
 
     def Build(self):
         pass
@@ -961,19 +961,19 @@ def projectEmitter(target, source, env):
         source = []
 
     # make sure the suffix is correct for the version of MSVS we're running.
-    (base, suff) = os.path.splitext(str(target[0]))
+    (base, suff) = SCons.Util.splitext(str(target[0]))
     suff = env['MSVSPROJECTSUFFIX']
     target[0] = base + suff
 
     dspfile = SCons.Node.FS.default_fs.File(target[0]).srcnode()
-    dswfile = SCons.Node.FS.default_fs.File(os.path.splitext(str(dspfile))[0] + env['MSVSSOLUTIONSUFFIX'])
+    dswfile = SCons.Node.FS.default_fs.File(SCons.Util.splitext(str(dspfile))[0] + env['MSVSSOLUTIONSUFFIX'])
 
     if not source:
         source = [SCons.Script.SConscript.stack[-1].sconscript.srcnode()]
 
     source[0].attributes.sconstruct = SCons.Script.SConscript.stack[0].sconscript
 
-    bdswpath = os.path.splitext(str(target[0]))[0] + env['MSVSSOLUTIONSUFFIX']
+    bdswpath = SCons.Util.splitext(str(target[0]))[0] + env['MSVSSOLUTIONSUFFIX']
     bdswfile = SCons.Node.FS.default_fs.File(bdswpath)
 
     # only make these side effects if they're

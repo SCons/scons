@@ -45,7 +45,7 @@ linkers = ['g++', 'gcc', 'c++', 'cc']
 
 def cxxSource(sources):
     for s in sources:
-        if os.path.splitext(str(s))[1] in cc.CXXSuffixes:
+        if SCons.Util.splitext(str(s))[1] in cc.CXXSuffixes:
             return 1
         if cxxSource(s.sources):
             return 1

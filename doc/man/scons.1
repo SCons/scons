@@ -4901,9 +4901,42 @@ builder with the target.
 
 .IP prefix 
 The prefix that will be prepended to the target file name.
+This may be a simple string,  or a callable object that takes
+a construction environment as its argument
+and returns a prefix.
+
+.ES
+b = Builder("build_it < $SOURCE > $TARGET"
+            prefix = "file-")
+
+def gen_prefix(env):
+    return "file-" + env['PLATFORM'] + '-'
+b = Builder("build_it < $SOURCE > $TARGET"
+            prefix = gen_prefix)
+.EE
 
 .IP suffix
 The suffix that will be appended to the target file name.
+This may be a simple string, or a callable object that takes
+a construction environment as its argument
+and returns a suffix.
+If the suffix is a string, then
+.B scons
+will append a '.' to the beginning of the
+suffix if it's not already there.
+The string returned by callable object
+is untouched and must append its own '.'
+to the beginning if one is desired.
+
+.ES
+b = Builder("build_it < $SOURCE > $TARGET"
+            suffix = "file-"
+
+def gen_suffix(env):
+    return "." + env['PLATFORM'] + "-file"
+b = Builder("build_it < $SOURCE > $TARGET"
+            suffix = gen_suffix)
+.EE
 
 .IP src_suffix
 The expected source file name suffix.

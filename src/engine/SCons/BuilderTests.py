@@ -287,6 +287,37 @@ class BuilderTestCase(unittest.TestCase):
         assert not builder.target_factory is FooFactory
         assert builder.source_factory is FooFactory
 
+    def test_splitext(self):
+        """Test the splitext() method attached to a Builder."""
+        b = SCons.Builder.Builder()
+        assert b.splitext('foo') == ('foo','')
+        assert b.splitext('foo.bar') == ('foo','.bar')
+        assert b.splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'),'')
+
+        class MyBuilder(SCons.Builder.BuilderBase):
+            def splitext(self, path):
+                return "called splitext()"
+
+        b = MyBuilder()
+        ret = b.splitext('xyz.c')
+        assert ret == "called splitext()", ret
+
+    def test_adjust_suffix(self):
+        """Test how a Builder adjusts file suffixes
+        """
+        b = SCons.Builder.Builder()
+        assert b.adjust_suffix('.foo') == '.foo'
+        assert b.adjust_suffix('foo') == '.foo'
+        assert b.adjust_suffix('$foo') == '$foo'
+
+        class MyBuilder(SCons.Builder.BuilderBase):
+            def adjust_suffix(self, suff):
+                return "called adjust_suffix()"
+
+        b = MyBuilder()
+        ret = b.adjust_suffix('.foo')
+        assert ret == "called adjust_suffix()", ret
+
     def test_prefix(self):
         """Test Builder creation with a specified target prefix
 
@@ -311,6 +342,14 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target = 'lib/tgt5', source = 'lib/src5')
         assert tgt.path == os.path.join('lib', 'libtgt5'), \
                 "Target has unexpected name: %s" % tgt.path
+
+        def gen_prefix(env):
+            return "gen_prefix() says " + env['FOO']
+        my_env = Environment(FOO = 'xyzzy')
+        builder = SCons.Builder.Builder(prefix = gen_prefix)
+        assert builder.get_prefix(my_env) == "gen_prefix() says xyzzy"
+        my_env['FOO'] = 'abracadabra'
+        assert builder.get_prefix(my_env) == "gen_prefix() says abracadabra"
 
     def test_src_suffix(self):
         """Test Builder creation with a specified source file suffix
@@ -365,6 +404,14 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, source = 'src5')
         assert tgt.path == 'src5.o', \
                 "Target has unexpected name: %s" % tgt.path
+
+        def gen_suffix(env):
+            return "gen_suffix() says " + env['BAR']
+        my_env = Environment(BAR = 'hocus pocus')
+        builder = SCons.Builder.Builder(suffix = gen_suffix)
+        assert builder.get_suffix(my_env) == "gen_suffix() says hocus pocus", builder.get_suffix(my_env)
+        my_env['BAR'] = 'presto chango'
+        assert builder.get_suffix(my_env) == "gen_suffix() says presto chango"
 
     def test_ListBuilder(self):
         """Testing ListBuilder class."""

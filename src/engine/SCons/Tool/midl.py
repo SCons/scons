@@ -33,13 +33,15 @@ selection method.
 
 __revision__ = "__REVISION__"
 
+import os.path
+
 import SCons.Defaults
 import SCons.Scanner.IDL
-import os.path
+import SCons.Util
 
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""
-    base, ext = os.path.splitext(str(source[0]))
+    base, ext = SCons.Util.splitext(str(source[0]))
     tlb = base + '.tlb'
     incl = base + '.h'
     interface = base + '_i.c'
