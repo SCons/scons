@@ -1,0 +1,109 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<para>
+There is a common set of simple tasks that many build configurations rely
+on as they become more complex. Most build tools have special
+purpose constructs for performing these tasks, but since &SConscript;
+files are &Python; scripts, you can use more flexible built-in &Python;
+services to perform these tasks. This appendix lists a number of these
+tasks and how to implement them in &Python;.
+</para>
+
+<example>
+<title>Wildcard globbing to create a list of filenames</title>
+<programlisting>
+import glob
+files = glob.glob(wildcard)
+</programlisting>
+</example>
+
+<example>
+<title>Filename extension substitution</title>
+<programlisting>
+import os.path
+filename = os.path.splitext(filename)[0]+extension
+</programlisting>
+</example>
+
+<example>
+<title>Appending a path prefix to a list of filenames</title>
+<programlisting>
+import os.path
+filenames = [os.path.join(prefix, x) for x in filenames]
+</programlisting>
+
+<simpara>or in Python 1.5.2:</simpara>
+
+<programlisting>
+import os.path
+new_filenames = [] 
+for x in filenames:
+    new_filenames.append(os.path.join(prefix, x))
+</programlisting>
+</example>
+
+<example>
+<title>Substituting a path prefix with another one</title>
+<programlisting>
+if filename.find(old_prefix) == 0:
+    filename = filename.replace(old_prefix, new_prefix)
+</programlisting>
+
+<simpara>or in Python 1.5.2:</simpara>
+
+<programlisting>
+import string
+if string.find(filename, old_prefix) == 0:
+    filename = string.replace(filename, old_prefix, new_prefix)      
+</programlisting>
+</example>
+
+<example>
+<title>Filtering a filename list to exclude/retain only a specific set
+of extensions</title>
+<programlisting>
+import os.path
+filenames = [x for x in filenames if os.path.splitext(x)[1] in extensions]
+</programlisting>
+
+<simpara>or in Python 1.5.2:</simpara>
+
+<programlisting>
+import os.path
+new_filenames = []
+for x in filenames:
+    if os.path.splitext(x)[1] in extensions:
+        new_filenames.append(x)
+</programlisting>
+</example>
+
+<example>
+<title>The "backtick function": run a shell command and capture the
+output</title>
+<programlisting>import os
+output = os.popen(command).read()
+</programlisting>
+</example>
