@@ -1285,9 +1285,9 @@ If the argument is a Python function,
 a function Action is returned.
 The Python function takes three keyword arguments,
 .B target
-(the name of the target file),
+(a Node object representing the target file),
 .B source
-(the name of the source file)
+(a Node object representing the source file)
 and
 .BR env
 (the construction environment
@@ -1296,8 +1296,15 @@ The
 .B target
 and
 .B source
-arguments may be lists of strings if there is
+arguments may be lists of Node objects if there is
 more than one target file or source file.
+The actual target and source file name(s) may
+be retrieved from their Node objects
+via the built-in Python str() function:
+.ES
+target_file_name = str(target)
+source_file_names = map(lambda x: str(x), source)
+.EE
 .IP
 The function should return
 .B 0

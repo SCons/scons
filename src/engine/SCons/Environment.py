@@ -45,22 +45,22 @@ import shutil
 
 def installFunc(env, target, source):
     try:
-        os.unlink(target)
+        map(lambda t: os.unlink(str(t)), target)
     except OSError:
         pass
     
     try:
-        SCons.Node.FS.file_link(source[0], target)
+        SCons.Node.FS.file_link(str(source[0]), str(target[0]))
         print 'Install file: "%s" as "%s"' % \
-              (source[0], target)
+              (source[0], target[0])
         return 0
     except IOError, e:
         sys.stderr.write('Unable to install "%s" as "%s"\n%s\n' % \
-                         (source[0], target, str(e)))
+                         (source[0], target[0], str(e)))
         return -1
     except OSError, e:
         sys.stderr.write('Unable to install "%s" as "%s"\n%s\n' % \
-                         (source[0], target, str(e)))
+                         (source[0], target[0], str(e)))
         return -1
 
 InstallBuilder = SCons.Builder.Builder(name='Install',

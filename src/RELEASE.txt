@@ -20,10 +20,24 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
+RELEASE 0.06 - 
 
-  This is the fifth alpha release of SCons.  Please consult the
+  This is the sixth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since the previous
+  release:
+
+    - Python functions as Builder actions now take Node objects, not
+      strings, as arguments.  The string representation of a Node
+      object is the file name, so you should change your function
+      actions to use the str() built-in function to fetch the file
+      name:
+
+        def build_it(target = None, source = None, env = None):
+            print "Building %s from %s" % (str(target), str(source))
+	    open(str(target), 'w').write(open(str(source), 'r').read())
+            return 0
 
   Owing to an extensive test suite, the SCons team believes that this
   release is of sufficient quality that you can use it for real work,

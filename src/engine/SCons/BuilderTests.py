@@ -513,12 +513,10 @@ class BuilderTestCase(unittest.TestCase):
         def function2(tlist = [outfile, outfile2], **kw):
             global count
             count = count + 1
-            if not type(kw['target']) is type([]):
-                kw['target'] = [ kw['target'] ]
             for t in kw['target']:
-                open(t, 'w').write("function2\n")
+                open(str(t), 'w').write("function2\n")
             for t in tlist:
-                if not t in kw['target']:
+                if not t in map(str, kw['target']):
                     open(t, 'w').write("function2\n")
             return 1
 
@@ -543,12 +541,10 @@ class BuilderTestCase(unittest.TestCase):
         def function3(tlist = [sub1_out, sub2_out], **kw):
             global count
             count = count + 1
-            if not type(kw['target']) is type([]):
-                kw['target'] = [ kw['target'] ]
             for t in kw['target']:
-                open(t, 'w').write("function3\n")
+                open(str(t), 'w').write("function3\n")
             for t in tlist:
-                if not t in kw['target']:
+                if not t in map(str, kw['target']):
                     open(t, 'w').write("function3\n")
             return 1
 

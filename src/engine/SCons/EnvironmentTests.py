@@ -295,8 +295,8 @@ class EnvironmentTestCase(unittest.TestCase):
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
         def testFunc(env, target, source):
-            assert target == 'foo.out'
-            assert 'foo1.in' in source and 'foo2.in' in source, source
+            assert str(target[0]) == 'foo.out'
+            assert 'foo1.in' in map(str, source) and 'foo2.in' in map(str, source), map(str, source)
             return 0
         t = env.Command(target='foo.out', source=['foo1.in','foo2.in'],
                         action=testFunc)

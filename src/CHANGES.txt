@@ -10,6 +10,12 @@
 
 RELEASE 0.06 - 
 
+  From Charles Crain:
+
+  - Fix command generators to expand construction variables.
+
+  - Make FunctionAction arguments be Nodes, not strings.
+
   From Stephen Kennedy:
 
   - Performance:  Use a dictionary, not a list, for a Node's parents.

@@ -203,12 +203,16 @@ class FunctionActionTestCase(unittest.TestCase):
         """Test executing a function Action
         """
         self.inc = 0
-        def f(s):
+        def f(s, target, source):
             s.inc = s.inc + 1
+            s.target = target
+            s.source=source
             return 0
         a = SCons.Action.FunctionAction(f)
-        a.execute(s = self)
+        a.execute(s = self, target=1, source=2)
         assert self.inc == 1, self.inc
+        assert self.source == [2], self.source
+        assert self.target == [1], self.target
 
     def test_get_contents(self):
         """Test fetching the contents of a function Action

@@ -201,26 +201,28 @@ def SCons_revision(target, source, env):
     This is used to copy files into a tree that gets packaged up
     into the source file package.
     """
+    t = str(target[0])
+    s = str(source[0])
     # Note:  We don't use $VERSION from the environment so that
     # this routine will change when the version number changes
     # and things will get rebuilt properly.
     global version
-    print "SCons_revision() < %s > %s" % (source[0], target)
-    inf = open(source[0], 'rb')
-    outf = open(target, 'wb')
+    print "SCons_revision() < %s > %s" % (s, t)
+    inf = open(s, 'rb')
+    outf = open(t, 'wb')
     for line in inf.readlines():
         # Note:  We construct the __*__ substitution strings here
         # so that they don't get replaced when this file gets
         # copied into the tree for packaging.
         line = string.replace(line, '_' + '_DATE__', env['DATE'])
         line = string.replace(line, '_' + '_DEVELOPER__', env['DEVELOPER'])
-        line = string.replace(line, '_' + '_FILE__', source[0])
+        line = string.replace(line, '_' + '_FILE__', s)
         line = string.replace(line, '_' + '_REVISION__', env['REVISION'])
         line = string.replace(line, '_' + '_VERSION__', version)
         outf.write(line)
     inf.close()
     outf.close()
-    os.chmod(target, os.stat(source[0])[0])
+    os.chmod(t, os.stat(s)[0])
 
 revbuilder = Builder(name = 'SCons_revision', action = SCons_revision)
 
@@ -488,7 +490,7 @@ for p in [ scons ]:
     def copy(target, source, **kw):
         global src_files
 	src_files.sort()
-        f = open(target, 'wb')
+        f = open(str(target[0]), 'wb')
         for file in src_files:
             f.write(file + "\n")
         f.close()

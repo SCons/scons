@@ -39,8 +39,8 @@ def build1(target, source, env):
 def build2(target, source, env):
     import os
     import os.path
-    open(str(target), 'wb').write(open(str(source[0]), 'rb').read())
-    dir, file = os.path.split(target)
+    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
+    dir, file = os.path.split(str(target[0]))
     os.chmod(dir, 0555)
     return None
 

@@ -36,8 +36,10 @@ files = [
 ]
 
 def copy(target, source, env):
-    print "copy() < %s > %s" % (source[0], target)
-    open(target, 'wb').write(open(source[0], 'rb').read())
+    t = str(target[0])
+    s = str(source[0])
+    print "copy() < %s > %s" % (s, t)
+    open(t, 'wb').write(open(s, 'rb').read())
 
 for file in files:
     # Guarantee that real copies of these files always exist in

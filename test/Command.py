@@ -41,8 +41,8 @@ file.close()
 
 test.write('SConstruct', """
 def buildIt(env, target, source):
-    contents = open(source[0], 'rb').read()
-    file = open(target, 'wb')
+    contents = open(str(source[0]), 'rb').read()
+    file = open(str(target[0]), 'wb')
     file.write(contents)
     file.close()
     return 0

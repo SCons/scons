@@ -55,7 +55,7 @@ system, populate the build/scons/ directory by running:
 
         $ scons build/scons
 
-If you don't have SCons version 0.04 or later already installed on your
+If you don't have SCons version 0.06 or later already installed on your
 system, you can use SCons itself to populate the build/scons/ directory
 with a little more work:
 
@@ -124,13 +124,13 @@ the "TESTING PACKAGES" section below.
 BUILDING PACKAGES
 =================
 
-We now use SCons (version 0.04 or later) to build its own packages.
+We now use SCons (version 0.06 or later) to build its own packages.
 If you already have an appropriate version of SCons installed on your
 system, you can build everything by simply running it:
 
         $ scons
 
-If you don't have SCons version 0.04 or later already installed on your
+If you don't have SCons version 0.06 or later already installed on your
 system, you can build this version of SCons with itself with a little
 more work:
 

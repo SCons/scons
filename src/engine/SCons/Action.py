@@ -383,13 +383,12 @@ class FunctionAction(ActionBase):
         # if print_actions:
         # XXX:  WHAT SHOULD WE PRINT HERE?
         if execute_actions:
-            if kw.has_key('target'):
-                if SCons.Util.is_List(kw['target']):
-                    kw['target'] = map(str, kw['target'])
-                else:
-                    kw['target'] = str(kw['target'])
-            if kw.has_key('source'):
-                kw['source'] = map(str, kw['source'])
+            if kw.has_key('target') and not \
+               SCons.Util.is_List(kw['target']):
+                kw['target'] = [ kw['target'] ]
+            if kw.has_key('source') and not \
+               SCons.Util.is_List(kw['source']):
+                kw['source'] = [ kw['source'] ]
             return apply(self.function, (), kw)
 
     def get_contents(self, **kw):
