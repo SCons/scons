@@ -85,7 +85,7 @@ class TestSCons(TestCmd.TestCmd):
 	    print self.stderr()
 	    raise
 	if self.status:
-	    print self.progam + " returned " + (self.status >> 8)
+	    print "%s returned %d" % (self.program, self.status >> 8)
 	    print "STDERR ============"
 	    print self.stderr()
 	    raise TestFailed
@@ -94,6 +94,10 @@ class TestSCons(TestCmd.TestCmd):
 	    print stdout
 	    print "Actual STDOUT ============"
 	    print self.stdout()
+	    stderr = self.stderr()
+	    if stderr:
+		print "STDERR ==================="
+		print stderr
 	    raise TestFailed
 	if stderr and not self.match(self.stderr(), stderr):
 	    print "Expected STDERR =========="
