@@ -129,7 +129,7 @@ public class Example1
 """)
 
 test.write(['com', 'sub', 'foo', 'Example2.java'], """\
-package com.sub.foo;
+package com.other;
 
 public class Example2
 {
@@ -171,7 +171,7 @@ public class Example4
 """)
 
 test.write(['com', 'sub', 'bar', 'Example5.java'], """\
-package com.sub.bar;
+package com.other;
 
 public class Example5
 {
@@ -203,10 +203,10 @@ test.run(arguments = '.')
 test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin/javac -d classes -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n")
 
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'foo', 'Example1.class')))
-test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'foo', 'Example2.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'other', 'Example2.class')))
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'foo', 'Example3.class')))
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'bar', 'Example4.class')))
-test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'bar', 'Example5.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'other', 'Example5.class')))
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'bar', 'Example6.class')))
 
 test.up_to_date(arguments = '.')

@@ -1256,6 +1256,34 @@ env.Jar(target = 'foo.jar', source = 'classes')
 .IP Java
 Builds one or more Java class files
 from a source tree of .java files.
+The class files will be placed underneath
+the specified target directory.
+SCons assumes that each .java file
+contains a single public class
+with the same name as the basename of the file;
+that is, the file
+.I Foo.java
+contains a single public class named
+.IR Foo .
+SCons will search each Java file
+for the Java package name,
+which it assumes can be found on a line
+beginning with the string
+.B package
+in the first column.
+The resulting .class file
+will be placed in a directory reflecting
+the specified package name;
+that is,
+the file
+.I Foo.java
+with a package name of
+.I sub.dir
+will generate a corresponding
+.IR sub/dir/Foo.class
+class file.
+
+Example:
 
 .ES
 env.Java(target = 'classes', source = 'src')
