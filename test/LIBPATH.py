@@ -47,7 +47,8 @@ prog2 = test.workpath(lib_ + 'shlib') + _dll
 
 test.write('SConstruct', """
 env1 = Environment(LIBS = [ 'foo1' ],
-                  LIBPATH = [ './lib1' ])
+                   LIBPATH = [ '$FOO' ],
+                   FOO='./lib1')
 
 f1 = env1.Object('f1', 'f1.c')
 

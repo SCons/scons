@@ -518,7 +518,7 @@ def Split(arg):
     else:
         return [arg]
 
-def mapPaths(paths, dir):
+def mapPaths(paths, dir, env=None):
     """Takes a single node or string, or a list of nodes and/or
     strings.  We leave the nodes untouched, but we put the strings
     under the supplied directory node dir, if they are not an absolute
@@ -528,27 +528,31 @@ def mapPaths(paths, dir):
 
     n = SCons.Node.FS.default_fs.File('foo')
     mapPaths([ n, 'foo', '/bar' ],
-             SCons.Node.FS.default_fs.Dir('baz'))
+             SCons.Node.FS.default_fs.Dir('baz'), env)
 
     ...would return:
 
     [ n, 'baz/foo', '/bar' ]
+
+    The env argument, if given, is used to perform variable
+    substitution on the source string(s).
     """
 
-    def mapPathFunc(path, dir=dir):
-        if dir and is_String(path):
-            if not path:
-                return str(dir)
-            if os.path.isabs(path) or path[0] == '#':
-                return path
-            return dir.path_ + path
+    def mapPathFunc(path, dir=dir, env=env):
+        if is_String(path):
+            if env:
+                path = env.subst(path)
+            if dir:
+                if not path:
+                    return str(dir)
+                if os.path.isabs(path) or path[0] == '#':
+                    return path
+                return dir.path_ + path
         return path
 
     if not is_List(paths):
         paths = [ paths ]
     ret = map(mapPathFunc, paths)
-    if len(ret) == 1:
-        ret = ret[0]
     return ret
     
 

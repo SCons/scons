@@ -362,7 +362,7 @@ class FS:
         then the same applies.
         """
         self.__setTopLevelDir()
-        if name[0] == '#':
+        if name and name[0] == '#':
             directory = self.Top
             name = name[1:]
             if name and (name[0] == os.sep or name[0] == '/'):

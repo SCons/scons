@@ -49,9 +49,8 @@ def scan(node, env, target, fs):
     # target.libpath - env['LIBPATH'] converted to nodes
 
     if not hasattr(target, 'libpath'):
-        def Dir(x, dir=target.cwd, fs=fs): return fs.Dir(x,dir)
         try:
-            target.libpath = tuple(SCons.Node.arg2nodes(env['LIBPATH'],Dir))
+            target.libpath = tuple(fs.Rsearchall(SCons.Util.mapPaths(env['LIBPATH'], target.cwd, env), clazz=SCons.Node.FS.Dir, must_exist=0))
         except KeyError:
             target.libpath = ()
  

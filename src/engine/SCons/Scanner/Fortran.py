@@ -78,7 +78,7 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
 
     if not hasattr(target, 'f77path'):
         try:
-            target.f77path = tuple(fs.Rsearchall(SCons.Util.mapPaths(env['F77PATH'], target.cwd), clazz=SCons.Node.FS.Dir, must_exist=0))
+            target.f77path = tuple(fs.Rsearchall(SCons.Util.mapPaths(env['F77PATH'], target.cwd, env), clazz=SCons.Node.FS.Dir, must_exist=0))
         except KeyError:
             target.f77path = ()
 

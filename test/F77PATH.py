@@ -47,7 +47,7 @@ if not test.where_is('g77'):
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
 test.write('SConstruct', """
-env = Environment(F77PATH = ['include'], LIBS = 'g2c')
+env = Environment(F77PATH = ['$FOO'], LIBS = 'g2c', FOO='include')
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")

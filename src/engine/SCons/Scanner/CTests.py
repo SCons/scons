@@ -175,6 +175,9 @@ class DummyEnvironment:
         else:
             raise KeyError, "Dummy environment only has CPPPATH attribute."
 
+    def subst(self, arg):
+        return arg
+
     def __getitem__(self,key):
         return self.Dictionary()[key]
 
@@ -349,6 +352,17 @@ class CScannerTestCase12(unittest.TestCase):
         deps4 = s.scan(fs.File('build2/ccc.c'), env, DummyTarget())
         deps_match(self, deps4, [ test.workpath('repository/src/ddd.h') ])
         os.chdir(test.workpath(''))
+
+class CScannerTestCase13(unittest.TestCase):
+    def runTest(self):
+        class SubstEnvironment(DummyEnvironment):
+            def subst(self, arg, test=test):
+                return test.workpath("d1")
+        env = SubstEnvironment(["blah"])
+        s = SCons.Scanner.C.CScan()
+        deps = s.scan(make_node('f1.cpp'), env, DummyTarget())
+        headers = ['d1/f2.h', 'f1.h']
+        deps_match(self, deps, map(test.workpath, headers))
         
 
 def suite():
@@ -364,6 +378,7 @@ def suite():
     suite.addTest(CScannerTestCase10())
     suite.addTest(CScannerTestCase11())
     suite.addTest(CScannerTestCase12())
+    suite.addTest(CScannerTestCase13())
     return suite
 
 if __name__ == "__main__":

@@ -107,11 +107,26 @@ class ProgScanTestCase3(unittest.TestCase):
         deps = s.scan('dummy', env, DummyTarget())
         assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
 
+class ProgScanTestCase5(unittest.TestCase):
+    def runTest(self):
+        class SubstEnvironment(DummyEnvironment):
+            def subst(self, arg, path=test.workpath("d1")):
+                if arg == "blah":
+                    return test.workpath("d1")
+                else:
+                    return arg
+        env = SubstEnvironment(LIBPATH=[ "blah" ],
+                               LIBS=string.split('l2 l3'))
+        s = SCons.Scanner.Prog.ProgScan()
+        deps = s.scan('dummy', env, DummyTarget())
+        assert deps_match(deps, [ 'd1/l2.lib' ]), map(str, deps)
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ProgScanTestCase1())
     suite.addTest(ProgScanTestCase2())
     suite.addTest(ProgScanTestCase3())
+    suite.addTest(ProgScanTestCase5())
     if hasattr(types, 'UnicodeType'):
         code = """if 1:
             class ProgScanTestCase4(unittest.TestCase):

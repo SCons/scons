@@ -15,6 +15,9 @@ RELEASE 0.09 -
   - Add a Prepend() method to Environments, to append values to
     the beginning of construction variables.
 
+  - Add support for construction variable substition on scanner
+    directories (in CPPPATH, F77PATH, LIBPATH, etc.).
+
  From Charles Crain and Steven Knight:
 
   - Add Repository() functionality, including the -Y option.

@@ -477,6 +477,27 @@ class UtilTestCase(unittest.TestCase):
         assert cmd_list[0] == 'BAZ', cmd_list[0]
         assert cmd_list[1] == '**$BAR**', cmd_list[1]
 
+    def test_mapPaths(self):
+        """Test the mapPaths function"""
+        fs = SCons.Node.FS.FS()
+        dir=fs.Dir('foo')
+        file=fs.File('bar/file')
+        
+        class DummyEnv:
+            def subst(self, arg):
+                return 'bar'
+
+        res = mapPaths([ file, 'baz', 'blat/boo', '#test' ], dir)
+        assert res[0] == file, res[0]
+        assert res[1] == os.path.normpath('foo/baz'), res[1]
+        assert res[2] == os.path.normpath('foo/blat/boo'), res[2]
+        assert res[3] == '#test', res[3]
+
+        env=DummyEnv()
+        res=mapPaths('bleh', dir, env)
+        assert res[0] == os.path.normpath('foo/bar'), res[1]
+        
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

@@ -44,7 +44,8 @@ test = TestSCons.TestSCons()
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
 test.write('SConstruct', """
-env = Environment(CPPPATH = ['include'])
+env = Environment(CPPPATH = ['$FOO'],
+                  FOO='include')
 obj = env.Object(target='foobar/prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")

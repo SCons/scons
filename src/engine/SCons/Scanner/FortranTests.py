@@ -152,6 +152,9 @@ class DummyEnvironment:
     def __delitem__(self,key):
         del self.Dictionary()[key]
 
+    def subst(self, arg):
+        return arg
+
 def deps_match(self, deps, headers):
     scanned = map(os.path.normpath, map(str, deps))
     expect = map(os.path.normpath, headers)
@@ -354,6 +357,20 @@ class FortranScannerTestCase14(unittest.TestCase):
         deps_match(self, deps4, [ test.workpath('repository/src/ddd.f') ])
         os.chdir(test.workpath(''))
 
+class FortranScannerTestCase15(unittest.TestCase):
+    def runTest(self):
+        class SubstEnvironment(DummyEnvironment):
+            def subst(self, arg, test=test):
+                return test.workpath("d1")
+        test.write(['d1', 'f2.f'], "      INCLUDE 'fi.f'\n")
+        env = SubstEnvironment(["junk"])
+        s = SCons.Scanner.Fortran.FortranScan()
+	fs = SCons.Node.FS.FS(original)
+        deps = s.scan(make_node('fff1.f', fs), env, DummyTarget())
+        headers = ['d1/f1.f', 'd1/f2.f']
+        deps_match(self, deps, map(test.workpath, headers))
+        test.write(['d1', 'f2.f'], "\n")
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(FortranScannerTestCase1())
@@ -370,6 +387,7 @@ def suite():
     suite.addTest(FortranScannerTestCase12())
     suite.addTest(FortranScannerTestCase13())
     suite.addTest(FortranScannerTestCase14())
+    suite.addTest(FortranScannerTestCase15())
     return suite
 
 if __name__ == "__main__":

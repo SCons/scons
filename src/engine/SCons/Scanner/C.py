@@ -80,7 +80,7 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
 
     if not hasattr(target, 'cpppath'):
         try:
-            target.cpppath = tuple(fs.Rsearchall(SCons.Util.mapPaths(env['CPPPATH'], target.cwd), clazz=SCons.Node.FS.Dir, must_exist=0))
+            target.cpppath = tuple(fs.Rsearchall(SCons.Util.mapPaths(env['CPPPATH'], target.cwd, env), clazz=SCons.Node.FS.Dir, must_exist=0))
         except KeyError:
             target.cpppath = ()
 
