@@ -92,6 +92,8 @@ class Node:
     build, or use to build other Nodes.
     """
 
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+
     class Attrs:
         pass
 
@@ -147,18 +149,9 @@ class Node:
         return {}
 
     def get_build_env(self):
-        """Fetch the appropriate Environment to build this node."""
-        try:
-            build_env = self._build_env
-        except AttributeError:
-            # This gets called a lot, so cache it. A node gets created
-            # in the context of a specific environment and it doesn't
-            # get "moved" to a different environment, so caching this
-            # value is safe.
-            executor = self.get_executor()
-            build_env = executor.get_build_env()
-            self._build_env = build_env
-        return self._build_env
+        """Fetch the appropriate Environment to build this node.
+        __cacheable__"""
+        return self.get_executor().get_build_env()
 
     def set_executor(self, executor):
         """Set the action executor for this node."""
@@ -219,7 +212,7 @@ class Node:
         apply(executor, (self, errfunc), kw)
 
     def built(self):
-        """Called just after this node is sucessfully built."""
+        """Called just after this node is successfully built."""
 
         # Clear the implicit dependency caches of any Nodes
         # waiting for this Node to be built.
@@ -237,9 +230,7 @@ class Node:
 
         # Reset this Node's cached state since it was just built and
         # various state has changed.
-        save_state = self.get_state()
         self.clear()
-        self.set_state(save_state)
 
         # Had build info, so it should be stored in the signature
         # cache.  However, if the build info included a content
@@ -275,8 +266,8 @@ class Node:
         """Completely clear a Node of all its cached state (so that it
         can be re-evaluated by interfaces that do continuous integration
         builds).
+        __reset_cache__
         """
-        self.set_state(None)
         self.del_binfo()
         self.del_cinfo()
         try:
@@ -299,8 +290,8 @@ class Node:
         return reduce(lambda D,N,C=self.children(): D or (N in C), nodes, 0)
 
     def builder_set(self, builder):
+        "__cache_reset__"
         self.builder = builder
-        self._src_scanners = {}  # cached scanners are based on the builder
 
     def has_builder(self):
         """Return whether this Node has a builder or not.
@@ -312,6 +303,7 @@ class Node:
         and __nonzero__ attributes on instances of our Builder Proxy
         class(es), generating a bazillion extra calls and slowing
         things down immensely.
+        __cacheable__
         """
         try:
             b = self.builder
@@ -328,7 +320,8 @@ class Node:
         This allows an internal Builder created by SCons to be marked
         non-explicit, so that it can be overridden by an explicit
         builder that the user supplies (the canonical example being
-        directories)."""
+        directories).
+        __cacheable__"""
         return self.has_builder() and self.builder.is_explicit
 
     def get_builder(self, default_builder=None):
@@ -411,37 +404,28 @@ class Node:
 
         return deps
 
-    # cache used to make implicit_factory fast.
-    implicit_factory_cache = {}
-    
     def implicit_factory(self, path):
         """
         Turn a cache implicit dependency path into a node.
         This is called so many times that doing caching
         here is a significant performance boost.
+        __cacheable__
         """
-        try:
-            return self.implicit_factory_cache[path]
-        except KeyError:
-            n = self.builder.source_factory(path)
-            self.implicit_factory_cache[path] = n
-            return n
+        return self.builder.source_factory(path)
 
-    def get_source_scanner(self, node, build_env):
+
+    def get_source_scanner(self, node):
         """Fetch the source scanner for the specified node
 
         NOTE:  "self" is the target being built, "node" is
         the source file for which we want to fetch the scanner.
-
-        build_env is the build environment (it's self.get_build_env(),
-                  but the caller always knows this so it can give it
-                  to us).
 
         Implies self.has_builder() is true; again, expect to only be
         called from locations where this is already verified.
 
         This function may be called very often; it attempts to cache
         the scanner found to improve performance.
+        __cacheable__
         """
         # Called from scan() for each child (node) of this node
         # (self).  The scan() may be called multiple times, so this
@@ -451,22 +435,12 @@ class Node:
         # as an optimization of an already-determined value, not as a
         # changing parameter.
 
-        key = str(id(node)) + '|' + str(id(build_env))
-        try:
-            return self._src_scanners[key]
-        except AttributeError:
-            self._src_scanners = {}
-        except KeyError:
-            pass
-
         if not self.has_builder():
-            self._src_scanners[key] = None
             return None
         
         try:
             scanner = self.builder.source_scanner
             if scanner:
-                self._src_scanners[key] = scanner
                 return scanner
         except AttributeError:
             pass
@@ -475,8 +449,7 @@ class Node:
         # based on the node's scanner key (usually the file
         # extension).
         
-        scanner = build_env.get_scanner(node.scanner_key())
-        self._src_scanners[key] = scanner
+        scanner = self.get_build_env().get_scanner(node.scanner_key())
         return scanner
 
     def scan(self):
@@ -513,7 +486,7 @@ class Node:
                     self.del_binfo()
 
         for child in self.children(scan=0):
-            scanner = self.get_source_scanner(child, build_env)
+            scanner = self.get_source_scanner(child)
             if scanner:
                 deps = child.get_implicit_deps(build_env, scanner, self)
                 self._add_child(self.implicit, self.implicit_dict, deps)
@@ -545,28 +518,21 @@ class Node:
     def calc_signature(self, calc=None):
         """
         Select and calculate the appropriate build signature for a node.
+        __cacheable__
 
         self - the node
         calc - the signature calculation module
         returns - the signature
         """
-        try:
-            return self._calculated_sig
-        except AttributeError:
-            if self.is_derived():
-                import SCons.Defaults
-                
-                env = self.env or SCons.Defaults.DefaultEnvironment()
-                if env.use_build_signature():
-                    sig = self.calc_bsig(calc)
-                else:
-                    sig = self.calc_csig(calc)
-            elif not self.rexists():
-                sig = None
-            else:
-                sig = self.calc_csig(calc)
-            self._calculated_sig = sig
-            return sig
+        if self.is_derived():
+            import SCons.Defaults
+
+            env = self.env or SCons.Defaults.DefaultEnvironment()
+            if env.use_build_signature():
+                return self.calc_bsig(calc)
+        elif not self.rexists():
+            return None
+        return self.calc_csig(calc)
 
     def new_binfo(self):
         return BuildInfo()
@@ -769,10 +735,8 @@ class Node:
             self.wkids.append(wkid)
 
     def _children_reset(self):
-        try:
-            delattr(self, '_children')
-        except AttributeError:
-            pass
+        "__cache_reset__"
+        pass
 
     def filter_ignore(self, nodelist):
         ignore = self.ignore
@@ -782,17 +746,16 @@ class Node:
                 result.append(node)
         return result
 
+    def _children_get(self):
+        "__cacheable__"
+        return self.filter_ignore(self.all_children(scan=0))
+        
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those
         that are ignored by this node."""
         if scan:
             self.scan()
-        try:
-            return self._children
-        except AttributeError:
-            c = self.all_children(scan=0)
-            self._children = self.filter_ignore(c)
-            return self._children
+        return self._children_get()
 
     def all_children(self, scan=1):
         """Return a list of all the node's direct children."""
@@ -875,7 +838,7 @@ class Node:
         if self.is_derived() and self.env:
             env = self.get_build_env()
             for s in self.sources:
-                scanner = self.get_source_scanner(s, env)
+                scanner = self.get_source_scanner(s)
                 def f(node, env=env, scanner=scanner, target=self):
                     return node.get_found_includes(env, scanner, target)
                 return SCons.Util.render_tree(s, f, 1)
@@ -1021,6 +984,14 @@ else:
             return str(map(str, self.data))
 del l
 del ul
+
+if not SCons.Memoize.has_metaclass:
+    _Base = Node
+    class Node(SCons.Memoize.Memoizer, _Base):
+        def __init__(self, *args, **kw):
+            apply(_Base.__init__, (self,)+args, kw)
+            SCons.Memoize.Memoizer.__init__(self)
+
 
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass

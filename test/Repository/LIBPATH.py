@@ -49,7 +49,7 @@ def write_LIBDIRFLAGS(env, target, source):
     pre = env.subst('$LIBDIRPREFIX')
     suf = env.subst('$LIBDIRSUFFIX')
     f = open(str(target[0]), 'wb')
-    for arg in string.split(env.subst('$_LIBDIRFLAGS')):
+    for arg in string.split(env.subst('$_LIBDIRFLAGS', target=target)):
 	if arg[:len(pre)] == pre:
 	    arg = arg[len(pre):]
 	if arg[-len(suf):] == suf:

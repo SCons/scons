@@ -377,6 +377,8 @@ class BuilderBase:
     nodes (files) from input nodes (files).
     """
 
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+
     def __init__(self,  action = None,
                         prefix = '',
                         suffix = '',
@@ -515,7 +517,7 @@ class BuilderBase:
             new_targets = []
             for t in tlist:
                 if not t.is_derived():
-                    t.builder = self
+                    t.builder_set(self)
                     new_targets.append(t)
 
             target, source = self.emitter(target=tlist, source=slist, env=env)
@@ -527,7 +529,7 @@ class BuilderBase:
                 if t.builder is self:
                     # Only delete the temporary builder if the emitter
                     # didn't change it on us.
-                    t.builder = None
+                    t.builder_set(None)
 
             # Have to call arg2nodes yet again, since it is legal for
             # emitters to spit out strings as well as Node instances.
@@ -631,6 +633,14 @@ class BuilderBase:
         """
         self.emitter[suffix] = emitter
 
+if not SCons.Memoize.has_metaclass:
+    _Base = BuilderBase
+    class BuilderBase(SCons.Memoize.Memoizer, _Base):
+        "Cache-backed version of BuilderBase"
+        def __init__(self, *args, **kw):
+            apply(_Base.__init__, (self,)+args, kw)
+            SCons.Memoize.Memoizer.__init__(self)
+
 class ListBuilder(SCons.Util.Proxy):
     """A Proxy to support building an array of targets (for example,
     foo.o and foo.h from foo.y) from a single Action execution.
@@ -687,27 +697,26 @@ class MultiStepBuilder(BuilderBase):
         if not SCons.Util.is_List(src_builder):
             src_builder = [ src_builder ]
         self.src_builder = src_builder
-        self.sdict = {}
-        self.cached_src_suffixes = {} # source suffixes keyed on id(env)
 
+    def _get_sdict(self, env):
+        "__cacheable__"
+        sdict = {}
+        for bld in self.src_builder:
+            if SCons.Util.is_String(bld):
+                try:
+                    bld = env['BUILDERS'][bld]
+                except KeyError:
+                    continue
+            for suf in bld.src_suffixes(env):
+                sdict[suf] = bld
+        return sdict
+        
     def _execute(self, env, target, source, overwarn={}, executor_kw={}):
         # We now assume that target and source are lists or None.
         slist = env.arg2nodes(source, self.source_factory)
         final_sources = []
 
-        try:
-            sdict = self.sdict[id(env)]
-        except KeyError:
-            sdict = {}
-            self.sdict[id(env)] = sdict
-            for bld in self.src_builder:
-                if SCons.Util.is_String(bld):
-                    try:
-                        bld = env['BUILDERS'][bld]
-                    except KeyError:
-                        continue
-                for suf in bld.src_suffixes(env):
-                    sdict[suf] = bld
+        sdict = self._get_sdict(env)
 
         src_suffixes = self.src_suffixes(env)
 
@@ -750,15 +759,12 @@ class MultiStepBuilder(BuilderBase):
     def src_suffixes(self, env):
         """Return a list of the src_suffix attributes for all
         src_builders of this Builder.
+        __cacheable__
         """
-        try:
-            return self.cached_src_suffixes[id(env)]
-        except KeyError:
-            suffixes = BuilderBase.src_suffixes(self, env)
-            for builder in self.get_src_builders(env):
-                suffixes.extend(builder.src_suffixes(env))
-            self.cached_src_suffixes[id(env)] = suffixes
-            return suffixes
+        suffixes = BuilderBase.src_suffixes(self, env)
+        for builder in self.get_src_builders(env):
+            suffixes.extend(builder.src_suffixes(env))
+        return suffixes
 
 class CompositeBuilder(SCons.Util.Proxy):
     """A Builder Proxy whose main purpose is to always have

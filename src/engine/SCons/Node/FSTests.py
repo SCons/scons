@@ -211,7 +211,7 @@ class BuildDirTestCase(unittest.TestCase):
         assert str(f2) == os.path.normpath('build/var2/test.in'), str(f2)
         # Build path exists
         assert f2.exists()
-        # ...and should copy the file from src to build path
+        # ...and exists() should copy the file from src to build path
         assert test.read(['work', 'build', 'var2', 'test.in']) == 'test.in',\
                test.read(['work', 'build', 'var2', 'test.in'])
         # Since exists() is true, so should rexists() be
@@ -898,10 +898,6 @@ class FSTestCase(unittest.TestCase):
         assert deps == [xyz], deps
         assert s.call_count == 1, s.call_count
 
-        deps = f12.get_found_includes(env, s, t1)
-        assert deps == [xyz], deps
-        assert s.call_count == 1, s.call_count
-
         f12.built()
 
         deps = f12.get_found_includes(env, s, t1)
@@ -946,9 +942,9 @@ class FSTestCase(unittest.TestCase):
         f1 = fs.File(test.workpath("do_i_exist"))
         assert not f1.exists()
         test.write("do_i_exist","\n")
-        assert not f1.exists()
+        assert not f1.exists(), "exists() call not cached"
         f1.built()
-        assert f1.exists()
+        assert f1.exists(), "exists() call caching not reset"
         test.unlink("do_i_exist")
         assert f1.exists()
         f1.built()
@@ -1822,33 +1818,48 @@ class clearTestCase(unittest.TestCase):
     def runTest(self):
         """Test clearing FS nodes of cached data."""
         fs = SCons.Node.FS.FS()
+        test = TestCmd(workdir='')
 
         e = fs.Entry('e')
-        e._exists = 1
-        e._rexists = 1
-        e._str_val = 'e'
+        assert not e.exists()
+        assert not e.rexists()
+        assert str(e) == 'e', str(d)
         e.clear()
-        assert not hasattr(e, '_exists')
-        assert not hasattr(e, '_rexists')
-        assert not hasattr(e, '_str_val')
+        assert not e.exists()
+        assert not e.rexists()
+        assert str(e) == 'e', str(d)
 
-        d = fs.Dir('d')
-        d._exists = 1
-        d._rexists = 1
-        d._str_val = 'd'
+        d = fs.Dir(test.workpath('d'))
+        test.subdir('d')
+        assert d.exists()
+        assert d.rexists()
+        assert str(d) == test.workpath('d'), str(d)
+        fs.rename(test.workpath('d'), test.workpath('gone'))
+        # Verify caching is active
+        assert d.exists(), 'caching not active'
+        assert d.rexists()
+        assert str(d) == test.workpath('d'), str(d)
+        # Now verify clear() resets the cache
         d.clear()
-        assert not hasattr(d, '_exists')
-        assert not hasattr(d, '_rexists')
-        assert not hasattr(d, '_str_val')
-
-        f = fs.File('f')
-        f._exists = 1
-        f._rexists = 1
-        f._str_val = 'f'
+        assert not d.exists()      
+        assert not d.rexists()
+        assert str(d) == test.workpath('d'), str(d)
+        
+        f = fs.File(test.workpath('f'))
+        test.write(test.workpath('f'), 'file f')
+        assert f.exists()
+        assert f.rexists()
+        assert str(f) == test.workpath('f'), str(f)
+        # Verify caching is active
+        test.unlink(test.workpath('f'))
+        assert f.exists()
+        assert f.rexists()
+        assert str(f) == test.workpath('f'), str(f)
+        # Now verify clear() resets the cache
         f.clear()
-        assert not hasattr(f, '_exists')
-        assert not hasattr(f, '_rexists')
-        assert not hasattr(f, '_str_val')
+        assert not f.exists()
+        assert not f.rexists()
+        assert str(f) == test.workpath('f'), str(f)
 
 class postprocessTestCase(unittest.TestCase):
     def runTest(self):
@@ -2066,7 +2077,7 @@ class SaveStringsTestCase(unittest.TestCase):
 
         s = map(str, nodes)
         expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
-        assert s == expect, s
+        assert s == expect, 'node str() not cached: %s'%s
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

@@ -481,14 +481,21 @@ test.run(arguments = 'SLF',
 # XXX Note that the generated .h files still get scanned twice,
 # once before they're generated and once after.  That's the
 # next thing to fix here.
-test.fail_test(test.read("MyCScan.out", "rb") != """\
+
+# Note KWQ 01 Nov 2004: used to check for a one for all counts below;
+# this was indirectly a test that the caching method in use at the
+# time was working.  With the introduction of Memoize-based caching,
+# the caching is performed right at the interface level, so the test
+# here cannot be run the same way; ergo real counts are used below.
+
+test.must_match("MyCScan.out", """\
 libg_1.c: 1
 libg_2.c: 1
 libg_3.c: 1
-libg_gx.h: 1
+libg_gx.h: 3
 libg_gy.h: 1
 libg_gz.h: 1
-libg_w.h: 1
+libg_w.h: 3
 """)
 
 test.pass_test()

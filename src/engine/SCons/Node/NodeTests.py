@@ -525,13 +525,18 @@ class NodeTestCase(unittest.TestCase):
     def test_explain(self):
         """Test explaining why a Node must be rebuilt
         """
-        node = SCons.Node.Node()
+        class testNode(SCons.Node.Node):
+            def __str__(self): return 'xyzzy'
+        node = testNode()
         node.exists = lambda: None
-        node.__str__ = lambda: 'xyzzy'
+        # Can't do this with new-style classes (python bug #1066490)
+        #node.__str__ = lambda: 'xyzzy'
         result = node.explain()
         assert result == "building `xyzzy' because it doesn't exist\n", result
 
-        node = SCons.Node.Node()
+        class testNode2(SCons.Node.Node):
+            def __str__(self): return 'null_binfo'
+        node = testNode2()
         result = node.explain()
         assert result == None, result
 
@@ -540,7 +545,7 @@ class NodeTestCase(unittest.TestCase):
                 pass
 
         node.get_stored_info = Null_BInfo
-        node.__str__ = lambda: 'null_binfo'
+        #see above: node.__str__ = lambda: 'null_binfo'
         result = node.explain()
         assert result == "Cannot explain why `null_binfo' is being rebuilt: No previous build information found\n", result
 
@@ -802,7 +807,7 @@ class NodeTestCase(unittest.TestCase):
         """
         target = SCons.Node.Node()
         source = SCons.Node.Node()
-        s = target.get_source_scanner(source, None)
+        s = target.get_source_scanner(source)
         assert s is None, s
 
         ts1 = Scanner()
@@ -821,19 +826,19 @@ class NodeTestCase(unittest.TestCase):
         builder = Builder2(ts1)
             
         targets = builder([source])
-        s = targets[0].get_source_scanner(source, None)
+        s = targets[0].get_source_scanner(source)
         assert s is ts1, s
 
         target.builder_set(Builder2(ts1))
         target.builder.source_scanner = ts2
-        s = target.get_source_scanner(source, None)
+        s = target.get_source_scanner(source)
         assert s is ts2, s
 
         builder = Builder1(env=Environment(SCANNERS = [ts3]))
 
         targets = builder([source])
         
-        s = targets[0].get_source_scanner(source, builder.env)
+        s = targets[0].get_source_scanner(source)
         assert s is ts3, s
 
 
@@ -880,14 +885,13 @@ class NodeTestCase(unittest.TestCase):
         SCons.Node.implicit_deps_unchanged = None
         try:
             sn = StoredNode("eee")
-            sn._children = ['fake']
             sn.builder_set(Builder())
             sn.builder.target_scanner = s
 
             sn.scan()
 
             assert sn.implicit == [], sn.implicit
-            assert sn._children == [], sn._children
+            assert sn.children() == [], sn.children()
 
         finally:
             SCons.Sig.default_calc = save_default_calc
@@ -1100,7 +1104,6 @@ class NodeTestCase(unittest.TestCase):
 
         n.clear()
 
-        assert n.get_state() is None, n.get_state()
         assert not hasattr(n, 'binfo'), n.bsig
         assert n.includes is None, n.includes
         assert n.found_includes == {}, n.found_includes
@@ -1176,8 +1179,13 @@ class NodeListTestCase(unittest.TestCase):
             assert s == "['n3', 'n2', 'n1']", s
 
         r = repr(nl)
-        r = re.sub('at (0x)?[0-9A-Fa-f]+', 'at 0x', repr(nl))
-        l = string.join(["<__main__.MyNode instance at 0x>"]*3, ", ")
+        r = re.sub('at (0x)?[0-9a-z]+', 'at 0x', r)
+        # Don't care about ancestry: just leaf value of MyNode
+        r = re.sub('<.*?\.MyNode', '<MyNode', r)
+        # New-style classes report as "object"; classic classes report
+        # as "instance"...
+        r = re.sub("object", "instance", r)
+        l = string.join(["<MyNode instance at 0x>"]*3, ", ")
         assert r == '[%s]' % l, r
 
 
