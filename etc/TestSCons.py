@@ -28,6 +28,24 @@ class TestNoResult(Exception):
     def __init__(self, args=None):
         self.args = args
 
+if os.name == 'posix':
+    def _failed(self, status = 0):
+        if self.status is None:
+            return None
+        if os.WIFSIGNALED(status):
+            return None
+        return _status(self) != status
+    def _status(self):
+        if os.WIFEXITED(self.status):
+            return os.WEXITSTATUS(self.status)
+        else:
+            return None
+elif os.name == 'nt':
+    def _failed(self, status = 0):
+        return not self.status is None and self.status != status
+    def _status(self):
+        return self.status
+
 class TestSCons(TestCmd.TestCmd):
     """Class for testing SCons.
 
@@ -71,8 +89,8 @@ class TestSCons(TestCmd.TestCmd):
     def run(self, stdout = None, stderr = '', status = 0, **kw):
 	"""Runs SCons.
 
-	This is the same as the base TestCmd.run() method, with
-	the addition of
+        This is the same as the base TestCmd.run() method, with
+        the addition of:
 
 		stdout	The expected standard output from
 			the command.  A value of None means
@@ -84,7 +102,6 @@ class TestSCons(TestCmd.TestCmd):
 
                 status  The expected exit status from the 
                         command. 
-    
 
         By default, this does not test standard output (stdout = None),
         and expects that error output is empty (stderr = "").
@@ -97,8 +114,13 @@ class TestSCons(TestCmd.TestCmd):
 	    print "STDERR ============"
 	    print self.stderr()
 	    raise
-	if not self.status is None and self.status>>8 != status:
-	    print "%s returned %d" % (self.program, self.status >> 8)
+	if _failed(self, status):
+            expect = ''
+            if status != 0:
+                expect = " (expected %d)" % status
+            print "%s returned %d%s" % (self.program, _status(self), expect)
+            print "STDOUT ============"
+            print self.stdout()
 	    print "STDERR ============"
 	    print self.stderr()
 	    raise TestFailed
@@ -113,12 +135,12 @@ class TestSCons(TestCmd.TestCmd):
 		print stderr
 	    raise TestFailed
 	if not stderr is None and not self.match(self.stderr(), stderr):
+            print "STDOUT ==================="
+            print self.stdout()
 	    print "Expected STDERR =========="
 	    print stderr
 	    print "Actual STDERR ============"
 	    print self.stderr()
-            print "STDOUT ==================="
-            print self.stdout()
 	    raise TestFailed
 
     def up_to_date(self, arguments = None, **kw):
