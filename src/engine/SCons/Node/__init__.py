@@ -545,7 +545,7 @@ class Node:
 
         if self.has_builder():
             executor = self.get_executor()
-            binfo.bact = executor.get_contents()
+            binfo.bact = executor.strfunction()
             binfo.bactsig = calc.module.signature(executor)
             sigs.append(binfo.bactsig)
 
@@ -899,10 +899,13 @@ class Node:
 
         if len(lines) == 0:
             newact, newactsig = self.binfo.bact, self.binfo.bactsig
-            if old.bact != newact:
-                lines.append("the build action changed:\n" +
-                             "%sold: %s\n" % (' '*15, old.bact) +
-                             "%snew: %s\n" % (' '*15, newact))
+            if old.bactsig != newactsig:
+                if old.bact == newact:
+                    lines.append("the contents of the build action changed\n")
+                else:
+                    lines.append("the build action changed:\n" +
+                                 "%sold: %s\n" % (' '*15, old.bact) +
+                                 "%snew: %s\n" % (' '*15, newact))
 
         if len(lines) == 0:
             return "rebuilding `%s' for unknown reasons" % self

@@ -137,6 +137,26 @@ class Executor:
                                            self.get_build_env())
             return self.string
 
+    def strfunction(self):
+        try:
+            return self.string
+        except AttributeError:
+            action = self.action
+            build_env = self.get_build_env()
+            if action.strfunction is None:
+                # This instance has strfunction set to None to suppress
+                # printing of the action.  Call the method directly
+                # through the class instead.
+                self._strfunc = action.__class__.strfunction(action,
+                                                             self.targets,
+                                                             self.sources,
+                                                             build_env)
+            else:
+                self._strfunc = action.strfunction(self.targets,
+                                                   self.sources,
+                                                   build_env)
+            return self._strfunc
+
     def get_raw_contents(self):
         """Fetch the raw signature contents.  This, along with
         get_contents(), is the real reason this class exists, so we can
