@@ -61,18 +61,19 @@ content_env=env.Copy()
 content_env.TargetSignatures('content')
 content_env.Command('revision.in', [], '%(python)s getrevision > $TARGET')
 content_env.AlwaysBuild('revision.in')
-env.Precious('main.cpp')
-env.Command('main.cpp', 'revision.in', SubRevision)
-exe = env.Program('main.cpp')
+env.Precious('main.c')
+env.Command('main.c', 'revision.in', SubRevision)
+exe = env.Program('main.c')
 env.Default(exe)
 """ % {'python':TestSCons.python})
 
-test.write('main.cpp', """\
-#include <iostream>
+test.write('main.c', """\
+#include <stdio.h>
 int
 main(int argc, char *argv[])
 {
-    std::cout << "Revision $REV$" << std::endl;
+    printf("Revision $REV$\\n");
+    exit (0);
 }
 """)
 
@@ -80,18 +81,11 @@ test.write('revnum.in', '3.2\n')
 
 prog = 'main' + TestSCons._exe
 
-full_build=test.wrap_stdout("""\
-%(python)s getrevision > revision.in
-subrevision(["main.cpp"], ["revision.in"])
-g++ -c -o main.o main.cpp
-g++ -o main main.o
-""" % {'python':TestSCons.python})
-
 light_build=test.wrap_stdout("""\
 %(python)s getrevision > revision.in
 """ % {'python':TestSCons.python})
 
-test.run(arguments='.', stdout=full_build)
+test.run(arguments='.')
 test.must_exist(prog)
 test.run(program=test.workpath(prog), stdout='Revision $REV: 3.2$\n')
 
@@ -103,7 +97,7 @@ test.must_exist(prog)
 
 test.write('revnum.in', '3.3\n')
 
-test.run(arguments='.', stdout=full_build)
+test.run(arguments='.')
 test.must_exist(prog)
 test.run(program=test.workpath(prog), stdout='Revision $REV: 3.3$\n')
 

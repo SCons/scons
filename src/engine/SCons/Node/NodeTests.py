@@ -91,18 +91,12 @@ class Environment:
         return apply(Environment, (), d)
     def _update(self, dict):
         self._dict.update(dict)
-    def get_calculator(self):
-        return SCons.Sig.default_calc
-    def get_scanner(self, scanner_key):
-        return self._dict['SCANNERS'][0]
 
 class Builder:
-    def __init__(self, env=None):
-        if env is None: env = Environment()
-        self.env = env
+    def __init__(self):
+        self.env = Environment()
         self.overrides = {}
         self.action = MyAction()
-        self.source_factory = MyNode
     def targets(self, t):
         return [t]
     def get_actions(self):
@@ -710,6 +704,8 @@ class NodeTestCase(unittest.TestCase):
     def test_get_source_scanner(self):
         """Test fetching the source scanner for a Node
         """
+        class Builder:
+            pass
         target = SCons.Node.Node()
         source = SCons.Node.Node()
         s = target.get_source_scanner(source)
@@ -719,33 +715,18 @@ class NodeTestCase(unittest.TestCase):
         ts2 = Scanner()
         ts3 = Scanner()
 
-        class Builder1(Builder):
-            def __call__(self, source):
-                r = SCons.Node.Node()
-                r.builder = self
-                return [r]
-        class Builder2 (Builder1):
-            def __init__(self, source_scanner):
-                self.source_scanner = source_scanner
-
-        builder = Builder2(ts1)
-            
-        targets = builder([source])
-        s = targets[0].get_source_scanner(source)
+        source.backup_source_scanner = ts1
+        s = target.get_source_scanner(source)
         assert s is ts1, s
 
-        target.builder_set(Builder2(ts1))
+        target.builder = Builder()
         target.builder.source_scanner = ts2
         s = target.get_source_scanner(source)
         assert s is ts2, s
 
-        builder = Builder1(env=Environment(SCANNERS = [ts3]))
-
-        targets = builder([source])
-        
-        s = targets[0].get_source_scanner(source)
+        target.source_scanner = ts3
+        s = target.get_source_scanner(source)
         assert s is ts3, s
-
 
     def test_scan(self):
         """Test Scanner functionality
@@ -758,7 +739,8 @@ class NodeTestCase(unittest.TestCase):
         d = MyNode("ddd")
         node.found_includes = [d]
 
-        node.builder.target_scanner = s
+        assert node.target_scanner == None, node.target_scanner
+        node.target_scanner = s
         assert node.implicit is None
 
         node.scan()
@@ -791,14 +773,12 @@ class NodeTestCase(unittest.TestCase):
         try:
             sn = StoredNode("eee")
             sn._children = ['fake']
-            sn.builder_set(Builder())
-            sn.builder.target_scanner = s
+            sn.target_scanner = s
 
             sn.scan()
 
             assert sn.implicit == [], sn.implicit
-            assert sn._children == [], sn._children
-
+            assert not hasattr(sn, '_children'), "unexpected _children attribute"
         finally:
             SCons.Sig.default_calc = save_default_calc
             SCons.Node.implicit_cache = save_implicit_cache

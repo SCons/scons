@@ -196,11 +196,6 @@ RELEASE 0.97 - XXX
 
   - Improve the --debug=explain message when the build action changes.
 
-  - Properly reset cached state when a Node subclass has been built.
-
-  - Remove the old target_scanner and source_scanner attributes from
-    Nodes, we're now getting these from the Builder(s).
-
   - Test enhancements in SourceCode.py, option-n.py, midl.py.  Better
     Command() and Scanner test coverage.  Improved test infrastructure
     for -c output.

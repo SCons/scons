@@ -93,7 +93,6 @@ class Builder:
         self.env = Environment()
         self.overrides = {}
         self.action = action
-        self.target_scanner = None
 
     def targets(self, t):
         return [t]
@@ -802,7 +801,7 @@ class FSTestCase(unittest.TestCase):
         f1.builder_set(Builder(fs.File))
         f1.env_set(Environment())
         xyz = fs.File("xyz")
-        f1.builder.target_scanner = Scanner(xyz)
+        f1.target_scanner = Scanner(xyz)
 
         f1.scan()
         assert f1.implicit[0].path == "xyz"
