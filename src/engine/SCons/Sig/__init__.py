@@ -29,6 +29,7 @@ The Signature package for the scons software construction utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import os.path
 import string
 import SCons.Node
@@ -114,17 +115,38 @@ class SConsignFile:
     def write(self):
         """
         Write the .sconsign file to disk.
+
+        Try to write to a temporary file first, and rename it if we
+        succeed.  If we can't write to the temporary file, it's
+        probably because the directory isn't writable (and if so,
+        how did we build anything in this directory, anyway?), so
+        try to write directly to the .sconsign file as a backup.
+        If we can't rename, try to copy the temporary contents back
+        to the .sconsign file.  Either way, always try to remove
+        the temporary file at the end.
         """
         if self.dirty:
+            temp = os.path.join(self.dir.path, '.scons%d' % os.getpid())
             try:
+                file = open(temp, 'wt')
+                fname = temp
+            except:
                 file = open(self.sconsign, 'wt')
+                fname = self.sconsign
+            keys = self.entries.keys()
+            keys.sort()
+            for name in keys:
+                file.write("%s: %s\n" % (name, self.entries[name]))
+            file.close
+            if fname != self.sconsign:
+                try:
+                    os.rename(fname, self.sconsign)
+                except:
+                    open(self.sconsign, 'wb').write(open(fname, 'rb').read())
+            try:
+                os.unlink(temp)
             except:
                 pass
-            else:
-                keys = self.entries.keys()
-                keys.sort()
-                for name in keys:
-                    file.write("%s: %s\n" % (name, self.entries[name]))
 
 
 class Calculator:

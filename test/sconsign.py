@@ -22,39 +22,54 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "test/nonwritable-sconsign.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import os
+import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.subdir('sub1', 'sub2')
+
 test.write('SConstruct', """
-env = Environment()
-env.Program(target = 'foo1', source = 'f1.c')
+def build1(target, source, env):
+    open(str(target), 'wb').write(open(str(source[0]), 'rb').read())
+    return None
+
+def build2(target, source, env):
+    import os
+    import os.path
+    open(str(target), 'wb').write(open(str(source[0]), 'rb').read())
+    dir, file = os.path.split(target)
+    os.chmod(dir, 0555)
+    return None
+
+B1 = Builder(name = "B1", action = build1)
+B2 = Builder(name = "B2", action = build2)
+env = Environment(BUILDERS = [B1, B2])
+env.B1(target = 'sub1/foo.out', source = 'foo.in')
+env.B2(target = 'sub2/foo.out', source = 'foo.in')
 """)
 
-test.write('f1.c', r"""
-int
-main(int argc, char *argv[])
-{
-	argv[argc++] = "--";
-	printf("f1.c\n");
-	exit (0);
-}
-""")
+test.write('foo.in', "foo.in\n")
 
-test.write('.sconsign', "")
+sub1__sconsign = test.workpath('sub1', '.sconsign')
+sub2__sconsign = test.workpath('sub2', '.sconsign')
 
-# For *NIX, systems, make .sconsign not writable.
+test.write(sub1__sconsign, "")
+test.write(sub2__sconsign, "")
+
+# For *NIX systems, make .sconsign not writable.
 # For Win32 systems, open it to lock it.
-os.chmod(test.workpath('.sconsign'), 0444)
-f = open(test.workpath('.sconsign'), 'r')
+os.chmod(sub1__sconsign, 0444)
+f = open(sub1__sconsign, 'r')
 
-test.run(arguments = ".")
-test.run(program = test.workpath('foo1'), stdout = "f1.c\n")
+test.run(arguments = '.')
 
-os.chmod(test.workpath('.sconsign'), 0666)
+test.fail_test(test.read(sub1__sconsign) == "")
+test.fail_test(test.read(sub2__sconsign) == "")
+
+os.chmod(sub1__sconsign, 0666)
 f.close()
 
 test.pass_test()

@@ -36,6 +36,9 @@ RELEASE 0.05 -
   - Look up implicit (scanned) dependencies relative to the directory
     of file being scanned.
 
+  - Make writing .sconsign files more robust by first trying to write
+    to a temp file that we rename.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.
