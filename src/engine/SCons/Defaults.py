@@ -95,7 +95,7 @@ def get_devstudio_versions ():
     """
 
     if not SCons.Util.can_read_reg:
-        raise InternalError, "No Windows registry module was found"
+        raise SCons.Errors.InternalError, "No Windows registry module was found"
 
     K = 'Software\\Microsoft\\Devstudio'
     L = []
@@ -118,7 +118,7 @@ def get_devstudio_versions ():
             pass
     
     if not L:
-        raise InternalError, "DevStudio was not found."
+        raise SCons.Errors.InternalError, "DevStudio was not found."
     
     L.sort()
     L.reverse()
@@ -132,7 +132,7 @@ def get_msvc_path (path, version, platform='x86'):
     """
        
     if not SCons.Util.can_read_reg:
-        raise InternalError, "No Windows registry module was found"
+        raise SCons.Errors.InternalError, "No Windows registry module was found"
 
     if path=='lib':
         path= 'Library'
@@ -159,8 +159,24 @@ def get_msvc_path (path, version, platform='x86'):
             pass
 
     # if we got here, then we didn't find the registry entries:
-    raise InternalError, "%s was not found in the registry."%path
+    raise SCons.Errors.InternalError, "%s was not found in the registry."%path
 
+def get_msdev_dir(version):
+    """Returns the root directory of the MSDev installation from the
+    registry if it can be found, otherwise we guess."""
+    if SCons.Util.can_read_reg:  
+        K = ('Software\\Microsoft\\Devstudio\\%s\\' +
+             'Products\\Microsoft Visual C++') % \
+             version
+        for base in (SCons.Util.HKEY_LOCAL_MACHINE,
+                     SCons.Util.HKEY_CURRENT_USER):
+            try:
+                k = SCons.Util.RegOpenKeyEx(base,K)
+                val, tok = SCons.Util.RegQueryValueEx(k, 'ProductDir')
+                return os.path.split(val)[0]
+            except SCons.Util.RegError:
+                pass
+    
 def make_win32_env_from_paths(include, lib, path):
     """
     Build a dictionary of construction variables for a win32 platform. 
@@ -217,7 +233,7 @@ def make_win32_env(version):
     return make_win32_env_from_paths(get_msvc_path("include", version),
                                      get_msvc_path("lib", version),
                                      get_msvc_path("path", version) 
-                                     + ";" + os.environ[PATH])
+                                     + ";" + os.environ['PATH'])
     
 
 if os.name == 'posix':
@@ -259,24 +275,50 @@ if os.name == 'posix':
     }
 
 elif os.name == 'nt':
-    
+    versions = None
     try:
         versions = get_devstudio_versions()
         ConstructionEnvironment = make_win32_env(versions[0]) #use highest version
-    except:
-        try:
-            # We failed to detect DevStudio, so fall back to the
-            # DevStudio environment variables:
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        # Could not get the configured directories from the registry.
+        # However, the configured directories only appear if the user
+        # changes them from the default.  Therefore, we'll see if
+        # we can get the path to the MSDev base installation from
+        # the registry and deduce the default directories.
+        MVSdir = None
+        if versions:
+            MVSdir = get_msdev_dir(versions[0])
+        if MVSdir:
+            MVSVCdir = r'%s\VC98' % MVSdir
+            MVSCommondir = r'%s\Common' % MVSdir
+            try:
+                extra_path = os.pathsep + os.environ['PATH']
+            except KeyError:
+                extra_path = ''
             ConstructionEnvironment = make_win32_env_from_paths(
-                os.environ["INCLUDE"], os.environ["LIB"], os.environ["PATH"])
-        except KeyError:
-            # The DevStudio environment variables don't exists,
-            # so fall back to a reasonable default:
+                r'%s\atl\include;%s\mfc\include;%s\include' % (MVSVCdir, MVSVCdir, MVSVCdir),
+                r'%s\mfc\lib;%s\lib' % (MVSVCdir, MVSVCdir),
+                (r'%s\MSDev98\Bin;%s\Bin' % (MVSCommondir, MVSVCdir)) + extra_path)
+        else:
+            # The DevStudio environment variables don't exist,
+            # so just use the variables from the source environment.
             MVSdir = r'C:\Program Files\Microsoft Visual Studio'
             MVSVCdir = r'%s\VC98' % MVSdir
             MVSCommondir = r'%s\Common' % MVSdir
+            try:
+                include_path = os.environ['INCLUDE']
+            except KeyError:
+                include_path = ''
+            try:
+                lib_path = os.environ['LIB']
+            except KeyError:
+                lib_path = ''
+            try:
+                exe_path = os.environ['PATH']
+            except KeyError:
+                exe_path = ''
             ConstructionEnvironment = make_win32_env_from_paths(
-                r'%s\atl\include;%s\mfc\include;%s\include' % (MVSVCdir, MVSVCdir, MVSVCdir),
-                r'%s\mvc\lib;%s\lib' % (MVSVCdir, MVSVCdir),
-                (r'%s\MSDev98\Bin' % MVSCommondir) + os.pathsep + os.environ["PATH"])
+                include_path,
+                lib_path,
+                exe_path)
 

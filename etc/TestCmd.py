@@ -402,7 +402,7 @@ class TestCmd:
 	if self.verbose:
 	    sys.stderr.write(cmd + "\n")
 	try:
-	    p = popen2.Popen3(cmd, 1)
+            p = popen2.Popen3(cmd, 1)
 	except AttributeError:
 	    (tochild, fromchild, childerr) = os.popen3(cmd)
 	    if stdin:
@@ -415,7 +415,9 @@ class TestCmd:
 	    self._stdout.append(fromchild.read())
 	    self._stderr.append(childerr.read())
 	    fromchild.close()
-	    self._status = childerr.close()
+            self.status = childerr.close()
+            if not self.status:
+                self.status = 0
 	except:
 	    raise
 	else:

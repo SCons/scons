@@ -25,6 +25,9 @@ RELEASE 0.05 -
   - More performance optimizations:  cache #include lines from files,
     eliminate unnecessary calls.
 
+  - Fix irregularities in the way we fetch DevStudio information from
+    the Windows registry, and in our registry error handling.
+
   From Steven Knight:
 
   - Flush stdout after print so it intermixes correctly with stderr

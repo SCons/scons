@@ -318,9 +318,23 @@ class VarInterpolator:
         except KeyError:
             suffix =''
 
-        dict[self.dest] = map(lambda x, suff=suffix, pref=prefix: \
-                              pref + str(x) + suff,
-                              src)
+        def autogenFunc(x, suff=suffix, pref=prefix):
+            """Generate the interpolated variable.  If the prefix
+            ends in a space, or the suffix begins in a space,
+            leave it as a separate element of the list."""
+            ret = [ str(x) ]
+            if pref and pref[-1] == ' ':
+                ret.insert(0, pref[:-1])
+            else:
+                ret[0] = pref + ret[0]
+            if suff and suff[0] == ' ':
+                ret.append(suff[1:])
+            else:
+                ret[-1] = ret[-1] + suff
+            return ret
+        dict[self.dest] = reduce(lambda x, y: x+y,
+                                 map(autogenFunc,
+                                     src))
 
     def instance(self, dir, fs):
         return self

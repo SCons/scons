@@ -207,27 +207,28 @@ class UtilTestCase(unittest.TestCase):
                dict['_LIBFLAGS'][2]
 
         blat = SCons.Node.FS.default_fs.File('blat')
-        dict = {'CPPPATH'   : [ 'foo', 'bar', 'baz', '$FOO/bar', blat],
-                'INCPREFIX' : 'foo',
+        dict = {'CPPPATH'   : [ 'foo', '$FOO/bar', blat],
+                'INCPREFIX' : 'foo ',
                 'INCSUFFIX' : 'bar',
                 'FOO'       : 'baz' }
         autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_INCFLAGS']) == 7, dict['_INCFLAGS']
+        assert len(dict['_INCFLAGS']) == 8, dict['_INCFLAGS']
         assert dict['_INCFLAGS'][0] == '$(', \
                dict['_INCFLAGS'][0]
-        assert dict['_INCFLAGS'][1] == os.path.normpath('foo/xx/foobar'), \
+        assert dict['_INCFLAGS'][1] == os.path.normpath('foo'), \
                dict['_INCFLAGS'][1]
-        assert dict['_INCFLAGS'][2] == os.path.normpath('foo/xx/barbar'), \
+        assert dict['_INCFLAGS'][2] == os.path.normpath('/xx/foobar'), \
                dict['_INCFLAGS'][2]
-        assert dict['_INCFLAGS'][3] == os.path.normpath('foo/xx/bazbar'), \
+        assert dict['_INCFLAGS'][3] == os.path.normpath('foo'), \
                dict['_INCFLAGS'][3]
-        assert dict['_INCFLAGS'][4] == os.path.normpath('foo/xx/baz/barbar'), \
+        assert dict['_INCFLAGS'][4] == os.path.normpath('/xx/baz/barbar'), \
                dict['_INCFLAGS'][4]
-        
-        assert dict['_INCFLAGS'][5] == os.path.normpath('fooblatbar'), \
+        assert dict['_INCFLAGS'][5] == os.path.normpath('foo'), \
                dict['_INCFLAGS'][5]
-        assert dict['_INCFLAGS'][6] == '$)', \
+        assert dict['_INCFLAGS'][6] == os.path.normpath('blatbar'), \
                dict['_INCFLAGS'][6]
+        assert dict['_INCFLAGS'][7] == '$)', \
+               dict['_INCFLAGS'][7]
 
     def test_render_tree(self):
         class Node:
