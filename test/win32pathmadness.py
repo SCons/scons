@@ -44,10 +44,10 @@ if sys.platform != 'win32':
 test.subdir('src', 'build', 'include', 'src2')
 
 test.write('src/SConstruct', """
-env=Environment(LIBS=['../build/foo'], CPPPATH=['../include'], CCCOM='$CC $CCFLAGS $CPPFLAGS $_INCFLAGS /c ${SOURCES.abspath} /Fo$TARGET')
+env=Environment(LIBS=['../build/foo'], CPPPATH=['../include'], CCCOM='$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS /c ${SOURCES.abspath} /Fo$TARGET')
 foo=env.Object('../build/foo', 'foo.c')
 Default(env.Library('../build/foo', foo))
-Default(env.Library('../build/bar', 'bar.c', shared=1))
+Default(env.SharedLibrary('../build/bar', 'bar.c'))
 Default(env.Program('../build/bar', ['main.c', '../src2/blat.c', '../build/bar.lib']))
 """)
 

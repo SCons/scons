@@ -60,26 +60,6 @@ for l in infile.readlines():
 sys.exit(0)
 """)
 
-    test.write('myg77.py', r"""
-import sys
-args = sys.argv[1:]
-inf = None
-while args:
-    a = args[0]
-    args = args[1:]
-    if a[0] != '/':
-        if not inf:
-            inf = a
-        continue
-    if a[:3] == '/Fo': out = a[3:]
-infile = open(inf, 'rb')
-outfile = open(out, 'wb')
-for l in infile.readlines():
-    if l[:4] != '#g77':
-	outfile.write(l)
-sys.exit(0)
-""")
-
 else:
 
     test.write('mylink.py', r"""
@@ -96,7 +76,7 @@ for l in infile.readlines():
 sys.exit(0)
 """)
 
-    test.write('myg77.py', r"""
+test.write('myg77.py', r"""
 import getopt
 import sys
 opts, args = getopt.getopt(sys.argv[1:], 'co:')

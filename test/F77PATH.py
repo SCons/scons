@@ -41,6 +41,11 @@ args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
 test = TestSCons.TestSCons()
 
+if not test.where_is('g77'):
+    print "g77 is not installed on this system."
+    print "Cannot test F77PATH."
+    test.no_result(1)
+
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
 test.write('SConstruct', """

@@ -40,40 +40,7 @@ test = TestSCons.TestSCons()
 
 
 
-if sys.platform == 'win32':
-
-    o = ' -x /c'
-
-    test.write('myg77.py', r"""
-import sys
-args = sys.argv[1:]
-inf = None
-optstring = ''
-while args:
-    a = args[0]
-    args = args[1:]
-    if not a[0] in '/-':
-        if not inf:
-            inf = a
-        continue
-    if a[:3] == '/Fo':
-        out = a[3:]
-        continue
-    optstring = optstring + ' ' + a
-infile = open(inf, 'rb')
-outfile = open(out, 'wb')
-outfile.write(optstring + "\n")
-for l in infile.readlines():
-    if l[:4] != '#g77':
-	outfile.write(l)
-sys.exit(0)
-""")
-
-else:
-
-    o = ' -x -c'
-
-    test.write('myg77.py', r"""
+test.write('myg77.py', r"""
 import getopt
 import sys
 opts, args = getopt.getopt(sys.argv[1:], 'co:x')
@@ -129,17 +96,17 @@ test.write('test6.FPP', r"""This is a .FPP file.
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _obj) != "%s\nThis is a .f file.\n" % o)
+test.fail_test(test.read('test1' + _obj) != " -x -c\nThis is a .f file.\n")
 
-test.fail_test(test.read('test2' + _obj) != "%s\nThis is a .for file.\n" % o)
+test.fail_test(test.read('test2' + _obj) != " -x -c\nThis is a .for file.\n")
 
-test.fail_test(test.read('test3' + _obj) != "%s\nThis is a .FOR file.\n" % o)
+test.fail_test(test.read('test3' + _obj) != " -x -c\nThis is a .FOR file.\n")
 
-test.fail_test(test.read('test4' + _obj) != "%s\nThis is a .F file.\n" % o)
+test.fail_test(test.read('test4' + _obj) != " -x -c\nThis is a .F file.\n")
 
-test.fail_test(test.read('test5' + _obj) != "%s\nThis is a .fpp file.\n" % o)
+test.fail_test(test.read('test5' + _obj) != " -x -c\nThis is a .fpp file.\n")
 
-test.fail_test(test.read('test6' + _obj) != "%s\nThis is a .FPP file.\n" % o)
+test.fail_test(test.read('test6' + _obj) != " -x -c\nThis is a .FPP file.\n")
 
 
 

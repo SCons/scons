@@ -34,8 +34,8 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 test.write('SConstruct', "")
 
 expect = r"""SCons by Steven Knight et al.:
-\tscript: v\d\.\d\d\.\S+, \d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d, by \S+ on \S+
-\tengine: v\d\.\d\d\.\S+, \d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d, by \S+ on \S+
+\tscript: v\S+, [^,]*, by \S+ on \S+
+\tengine: v\S+, [^,]*, by \S+ on \S+
 Copyright 2001, 2002 Steven Knight
 """
 

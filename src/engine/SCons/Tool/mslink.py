@@ -34,6 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import string
 
 import SCons.Defaults
 import SCons.Errors
