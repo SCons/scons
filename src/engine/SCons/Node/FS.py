@@ -531,11 +531,6 @@ class Base(SCons.Node.Node):
             if dir.srcdir:
                 srcnode = self.fs.Entry(name, dir.srcdir,
                                         klass=self.__class__)
-                if srcnode.is_under(dir):
-                    # Shouldn't source from something in the build
-                    # path: probably means build_dir is under
-                    # src_dir and we are reflecting.
-                    break
                 return srcnode
             name = dir.name + os.sep + name
             dir=dir.get_dir()
@@ -1011,98 +1006,121 @@ class FS(LocalFS):
             self.__setTopLevelDir()
             self.Top.addRepository(d)
 
-    def Rsearch(self, path, clazz=_classEntry, cwd=None):
+    def do_Rsearch(self, path, func, clazz=_classEntry, cwd=None, verbose=lambda x: x):
         """Search for something in a Repository.  Returns the first
         one found in the list, or None if there isn't one.
         __cacheable__
         """
         if isinstance(path, SCons.Node.Node):
             return path
+
+        path, dir = self.__transformPath(path, cwd)
+        d, name = os.path.split(path)
+        norm_name = _my_normcase(name)
+        if d:
+            dir = dir.Dir(d)
+        try:
+            node = dir.entries[norm_name]
+        except KeyError:
+            node = dir.node_on_disk(name, clazz)
         else:
-            name, d = self.__transformPath(path, cwd)
-            n = self._doLookup(clazz, name, d)
-            if n.exists():
-                return n
-            if isinstance(n, Dir):
-                # If n is a Directory that has Repositories directly
-                # attached to it, then any of those is a valid Repository
-                # path.  Return the first one that exists.
-                reps = filter(lambda x: x.exists(), n.getRepositories())
-                if len(reps):
-                    return reps[0]
-            d = n.get_dir()
-            name = n.name
-            # Search repositories of all directories that this file is under.
-            while d:
-                for rep in d.getRepositories():
-                    try:
-                        rnode = self._doLookup(clazz, name, rep)
-                        # Only find the node if it exists and it is not
-			# a derived file.  If for some reason, we are
-			# explicitly building a file IN a Repository, we
-			# don't want it to show up in the build tree.
-			# This is usually the case with BuildDir().
-			# We only want to find pre-existing files.
-                        if rnode.exists() and \
-                           (isinstance(rnode, Dir) or not rnode.is_derived()):
-                            return rnode
-                    except TypeError:
-                        pass # Wrong type of node.
-                # Prepend directory name
-                name = d.name + os.sep + name
-                # Go up one directory
-                d = d.get_dir()
+            node = func(node)
+            if node:
+                dir = node.get_dir()
+        if node:
+            verbose("... FOUND '%s' in '%s'\n" % (name, dir))
+            return node
+        fname = '.'
+        while dir:
+            for rep in dir.getRepositories():
+                rdir = rep.Dir(fname)
+                try:
+                    node = rdir.entries[norm_name]
+                except KeyError:
+                    node = rdir.node_on_disk(name, clazz)
+                else:
+                    node = func(node)
+                if node:
+                    verbose("... FOUND '%s' in '%s'\n" % (name, dir))
+                    return node
+            fname = dir.name + os.sep + fname
+            dir = dir.get_dir()
         return None
+
+    def Rsearch(self, path, clazz=_classEntry, cwd=None):
+        def func(node):
+            if node.exists() and \
+               (isinstance(node, Dir) or not node.is_derived()):
+                   return node
+            return None
+        return self.do_Rsearch(path, func, clazz, cwd)
 
     def Rsearchall(self, pathlist, must_exist=1, clazz=_classEntry, cwd=None):
         """Search for a list of somethings in the Repository list.
         __cacheable__
         """
-        ret = []
+        result = []
         if SCons.Util.is_String(pathlist):
             pathlist = string.split(pathlist, os.pathsep)
         if not SCons.Util.is_List(pathlist):
             pathlist = [pathlist]
+
+        if must_exist:
+            select = lambda x, clazz=clazz: isinstance(x, clazz) and x.exists()
+        else:
+            select = lambda x, clazz=clazz: isinstance(x, clazz)
+
         for path in filter(None, pathlist):
             if isinstance(path, SCons.Node.Node):
-                ret.append(path)
+                result.append(path)
+                continue
+
+            path, dir = self.__transformPath(path, cwd)
+            d, name = os.path.split(path)
+            norm_name = _my_normcase(name)
+            if d:
+                dir = dir.Dir(d)
+            try:
+                node = dir.entries[norm_name]
+            except KeyError:
+                # If there's no Node on disk, we'll filter
+                # out the returned None below.
+                if must_exist:
+                    n = dir.node_on_disk(name, clazz)
+                else:
+                    n = self._doLookup(clazz, name, dir)
+                    dir.srcdir_duplicate(name, clazz)
+                result.append(n)
             else:
-                name, d = self.__transformPath(path, cwd)
-                n = self._doLookup(clazz, name, d)
-                if not must_exist or n.exists():
-                    ret.append(n)
-                if isinstance(n, Dir):
-                    # If this node is a directory, then any repositories
-                    # attached to this node can be repository paths.
-                    ret.extend(filter(lambda x, me=must_exist, clazz=clazz: isinstance(x, clazz) and (not me or x.exists()),
-                                      n.getRepositories()))
-                    
-                d = n.get_dir()
-                name = n.name
-                # Search repositories of all directories that this file
-                # is under.
-                while d:
-                    for rep in d.getRepositories():
-                        try:
-                            rnode = self._doLookup(clazz, name, rep)
-                            # Only find the node if it exists (or
-                            # must_exist is zero) and it is not a
-                            # derived file.  If for some reason, we
-                            # are explicitly building a file IN a
-                            # Repository, we don't want it to show up in
-                            # the build tree.  This is usually the case
-                            # with BuildDir().  We only want to find
-                            # pre-existing files.
-                            if (not must_exist or rnode.exists()) and \
-                               (not rnode.is_derived() or isinstance(rnode, Dir)):
-                                ret.append(rnode)
-                        except TypeError:
-                            pass # Wrong type of node.
-                    # Prepend directory name
-                    name = d.name + os.sep + name
-                    # Go up one directory
-                    d = d.get_dir()
-        return ret
+                if not must_exist or node.exists():
+                    result.append(node)
+                if isinstance(node, Dir):
+                    result.extend(filter(select, node.getRepositories()))
+                if node:
+                    dir = node.get_dir()
+            fname = '.'
+            while dir:
+                for rep in dir.getRepositories():
+                    rdir = rep.Dir(fname)
+                    try:
+                        node = rdir.entries[norm_name]
+                    except KeyError:
+                        # If there's no Node on disk, we'll filter
+                        # out the returned None below.
+                        if must_exist:
+                            n = rdir.node_on_disk(name, clazz)
+                        else:
+                            n = self._doLookup(clazz, name, rdir)
+                            rdir.srcdir_duplicate(name, clazz)
+                        result.append(n)
+                    else:
+                        if (not must_exist or node.exists()) and \
+                           (isinstance(node, Dir) or not node.is_derived()):
+                            result.append(node)
+                fname = dir.name + os.sep + fname
+                dir = dir.get_dir()
+
+        return filter(None, result)
 
     def CacheDir(self, path):
         self.CachePath = path
@@ -1354,6 +1372,34 @@ class Dir(Base):
     def sccs_on_disk(self, name):
         sccspath = 'SCCS' + os.sep + 's.'+name
         return self.entry_exists_on_disk(sccspath)
+
+    def srcdir_duplicate(self, name, clazz):
+        dname = '.'
+        dir = self
+        while dir:
+            if dir.srcdir:
+                srcdir = dir.srcdir.Dir(dname)
+                if srcdir.entry_exists_on_disk(name):
+                    srcnode = self.fs._doLookup(clazz, name, srcdir)
+                    if self.duplicate:
+                        node = self.fs._doLookup(clazz, name, self)
+                        node.do_duplicate(srcnode)
+                        return node
+                    else:
+                        return srcnode
+            dname = dir.name + os.sep + dname
+            dir = dir.get_dir()
+        return None
+
+    def node_on_disk(self, name, clazz):
+        if self.entry_exists_on_disk(name) or \
+           self.sccs_on_disk(name) or \
+           self.rcs_on_disk(name):
+            try:
+                return self.fs._doLookup(clazz, name, self)
+            except TypeError:
+                pass
+        return self.srcdir_duplicate(name, clazz)
 
 class RootDir(Dir):
     """A class for the root directory of a file system.
@@ -1811,27 +1857,48 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
     else:
         verbose = lambda x: x
 
-    retval = None
+    filedir, filename = os.path.split(filename)
+    if filedir:
+        lookup_dir = lambda d, fd=filedir: d.Dir(fd)
+    else:
+        lookup_dir = lambda d: d
 
     if callable(paths):
         paths = paths()
 
-    for dir in paths:
-        verbose("looking for '%s' in '%s' ...\n" % (filename, dir))
-        try:
-            node = node_factory(filename, dir)
-            # Return true if the node exists or is a derived node.
+    # Give Entries a chance to morph into Dirs.
+    paths = map(lambda p: p.must_be_a_Dir(), paths)
+
+    for pathdir in paths:
+        verbose("looking for '%s' in '%s' ...\n" % (filename, pathdir))
+        dir = lookup_dir(pathdir)
+        def func(node):
             if node.is_derived() or \
                node.is_pseudo_derived() or \
                (isinstance(node, SCons.Node.FS.Base) and node.exists()):
-                retval = node
-                verbose("... FOUND '%s' in '%s'\n" % (filename, dir))
-                break
-        except TypeError:
-            # If we find a directory instead of a file, we don't care
-            pass
+                    return node
+            return None
 
-    return retval
+        node = default_fs.do_Rsearch(filename, func, File, dir, verbose)
+        if node:
+            return node
+
+        dirname = '.'
+        while dir:
+            if dir.srcdir:
+                d = dir.srcdir.Dir(dirname)
+                if d.is_under(dir):
+                    # Shouldn't source from something in the build path:
+                    # build_dir is probably under src_dir, in which case
+                    # we are reflecting.
+                    break
+                node = dir.fs.do_Rsearch(filename, func, File, d, verbose)
+                if node:
+                    return File(filename, dir.Dir(dirname), dir.fs)
+            dirname = dir.name + os.sep + dirname
+            dir = dir.get_dir()
+
+    return None
 
 def find_files(filenames, paths, node_factory = default_fs.File):
     """
