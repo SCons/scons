@@ -457,7 +457,7 @@ class Environment:
         else:
             return self
 
-    def get(self, key, default):
+    def get(self, key, default=None):
         "Emulates the get() method of dictionaries."""
         return self._dict.get(key, default)
 

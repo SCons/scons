@@ -683,6 +683,19 @@ class EnvironmentTestCase(unittest.TestCase):
         assert env['TOOL2'] == 222, env
         assert env['AAA'] == 'aaa', env
 
+    def test_get(self):
+        """Test the get() method."""
+        env = Environment(aaa = 'AAA')
+
+        x = env.get('aaa')
+        assert x == 'AAA', x
+        x = env.get('aaa', 'XXX')
+        assert x == 'AAA', x
+        x = env.get('bbb')
+        assert x is None, x
+        x = env.get('bbb', 'XXX')
+        assert x == 'XXX', x
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

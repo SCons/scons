@@ -30,6 +30,10 @@ RELEASE 0.10 - XXX
   - Add a Clean() method to support removing user-specified targets
     when using the -c option.
 
+  From Lachlan O'Dea:
+
+  - Make the Environment.get() method return None by default.
+
   From Anthony Roach:
 
   - Add SetJobs() and GetJobs() methods to allow configuration of the
