@@ -496,6 +496,8 @@ def UsageString():
 def main():
     global scripts, help_option, num_jobs
 
+    targets = []
+
     # It looks like 2.0 changed the name of the exception class
     # raised by getopt.
     try:
@@ -515,10 +517,13 @@ def main():
 	for opt, arg in cmd_opts:
 	    opt_func[opt](opt, arg)
 
-    cmd_opts, targets = getopt.getopt(sys.argv[1:], short_opts, long_opts)
-
-    for opt, arg in cmd_opts:
-	opt_func[opt](opt, arg)
+    try:
+	cmd_opts, targets = getopt.getopt(sys.argv[1:], short_opts, long_opts)
+    except getopt_err, x:
+	_scons_user_error(x)
+    else:
+	for opt, arg in cmd_opts:
+	    opt_func[opt](opt, arg)
 
     if not scripts:
         for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
