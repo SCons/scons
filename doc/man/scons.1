@@ -2421,6 +2421,16 @@ SConscript('bar/SConscript')	# will not chdir to bar
 .EE
 
 .TP 
+.RI SetBuildSignatureType( type )
+
+This function tells SCons what type of build signature to use: "build" or
+"content". "build" means to concatenate the signatures of all source files
+of a derived file to make its signature, and "content" means to use
+the derived files content signature as its signature. "build" signatures
+are usually faster to compute, but "content" signatures can prevent
+redundant rebuilds. The default is "build".
+
+.TP 
 .RI SetCommandHandler( function )
 
 This registers a user
@@ -2440,6 +2450,17 @@ is that arguments to the command.
 .I env
 is a dictionary of the environment variables
 in which the command should be executed.
+
+.TP
+.RI SetContentSignatureType( type )
+
+This function tells SCons what type of content signature to use: "MD5" or
+"timestamp". "MD5" means to use the MD5 checksum of a files contents as
+its signature, and "timestamp" means to use a files timestamp as its
+signature. When using "timestamp" signatures, changes in the
+command line will not cause files to be rebuilt. "MD5" signatures take
+longer to compute, but "timestamp" signatures are less accurate. The
+default is "MD5".
 
 .TP
 .RI Split( arg )

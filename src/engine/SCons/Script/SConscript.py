@@ -39,7 +39,6 @@ import SCons.Node.FS
 import SCons.Platform
 import SCons.Tool
 import SCons.Util
-import SCons.Sig
 import SCons.Options
 import SCons
 
@@ -258,12 +257,25 @@ def GetLaunchDir():
     return launch_dir
 
 def SetBuildSignatureType(type):
+    import SCons.Sig
     if type == 'build':
         SCons.Sig.build_signature = 1
     elif type == 'content':
         SCons.Sig.build_signature = 0
     else:
         raise SCons.Errors.UserError, "Unknown build signature type '%s'"%type
+
+def SetContentSignatureType(type):
+    import SCons.Script
+    if type == 'MD5':
+        import SCons.Sig.MD5
+        SCons.Script.sig_module = SCons.Sig.MD5
+    elif type == 'timestamp':
+        import SCons.Sig.TimeStamp
+        SCons.Script.sig_module = SCons.Sig.TimeStamp
+    else:
+        raise SCons.Errors.UserError, "Unknown content signature type '%s'"%type
+
 
 class Options(SCons.Options.Options):
     def Update(self, env):
@@ -321,6 +333,7 @@ def BuildDefaultGlobals():
     globals['Object']            = SCons.Defaults.StaticObject
     globals['Repository']        = SCons.Node.FS.default_fs.Repository
     globals['SetBuildSignatureType'] = SetBuildSignatureType
+    globals['SetContentSignatureType'] = SetContentSignatureType
     globals['StaticLibrary']     = SCons.Defaults.StaticLibrary
     globals['StaticObject']      = SCons.Defaults.StaticObject
     globals['SharedLibrary']     = SCons.Defaults.SharedLibrary

@@ -36,6 +36,13 @@ import SCons.Node
 import time
 import SCons.Warnings
 
+try:
+    import MD5
+    default_module = MD5
+except ImportError:
+    import TimeStamp
+    default_module = TimeStamp
+
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
@@ -265,14 +272,13 @@ class SConsignFile:
             except:
                 pass
 
-
 class Calculator:
     """
     Encapsulates signature calculations and .sconsign file generating
     for the build engine.
     """
 
-    def __init__(self, module=None, max_drift=2*24*60*60):
+    def __init__(self, module=default_module, max_drift=2*24*60*60):
         """
         Initialize the calculator.
 
@@ -281,17 +287,7 @@ class Calculator:
           cache content signatures. A negative value means to never cache
           content signatures. (defaults to 2 days)
         """
-        if module is None:
-            try:
-                import MD5
-                self.module = MD5
-            except ImportError:
-                # fallback on timestamp signatures if MD5 is not available
-                # XXX add a warning message here
-                import TimeStamp
-                self.module = TimeStamp
-        else:
-            self.module = module
+        self.module = module
         self.max_drift = max_drift
 
     def bsig(self, node):

@@ -96,6 +96,9 @@ RELEASE 0.09 -
 
   - Fix the overly-verbose stack trace on ListBuilder build errors.
 
+  - Add a SetContentSignatureType() function, allowing use of file
+    timestamps instead of MD5 signatures.
+
   From sam th:
 
   - Dynamically check for the existence of utilities with which to

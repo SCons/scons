@@ -63,6 +63,13 @@ def to_string(signature):
 
 def from_string(string):
     """Convert a string to a timestamp"""
-    return int(string)
+    try:
+        return int(string)
+    except ValueError:
+        # if the signature isn't an int, then
+        # the user probably just switched from
+        # MD5 signatures to timestamp signatures,
+        # so ignore the error:
+        return None
 
 

@@ -61,7 +61,6 @@ import SCons.Node.FS
 import SCons.Job
 from SCons.Errors import *
 import SCons.Sig
-import SCons.Sig.MD5
 from SCons.Taskmaster import Taskmaster
 import SCons.Builder
 import SCons.Script.SConscript
@@ -178,6 +177,7 @@ exit_status = 0 # exit status, assume success by default
 profiling = 0
 max_drift = None
 repositories = []
+sig_module = None
 
 #
 def print_it(text):
@@ -1040,9 +1040,14 @@ def _main():
 
     if not calc:
         if max_drift is not None:
-            SCons.Sig.default_calc = SCons.Sig.Calculator(SCons.Sig.MD5,
-                                                          max_drift)
-
+            if sig_module is not None:
+                SCons.Sig.default_calc = SCons.Sig.Calculator(module=sig_module,
+                                                              max_drift=max_drift)
+            else:
+                SCons.Sig.default_calc = SCons.Sig.Calculator(max_drift=max_drift)
+        elif sig_module is not None:
+            SCons.Sig.default_calc = SCons.Sig.Calculator(module=sig_module)
+            
         calc = SCons.Sig.default_calc
 
     display("scons: Building targets ...")

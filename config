@@ -234,14 +234,20 @@ diff_command =
 	test $? -le 1";
 
 /*
- * We use an intermediary test.pl script to execute tests.
- * This serves as glue between the tests themselves (which are
- * written to conform to Perl conventions) and Aegis' expectations.
- * See the comments in the test.pl script itself for details.
+ * We use a runtest.pl script to execute tests.  This takes care of
+ * massaging environment variables and the like to test agains the
+ * unpacked package in the current directory.
+ *
+ * Note that we must include $spe in the batch_test_command line (so
+ * that Aegis thinks we're smart about testing ourselves against the
+ * baseline) but we don't actually need it.  Our tests always run
+ * relative to the package built under the current directory, which
+ * is set appropriately during a baseline test.  So we just use the
+ * proper aesub variable to comment out the expanded $spe.
  */
 test_command = "python ${Source runtest.py Absolute} -p tar-gz -q ${File_Name}";
 
-batch_test_command = "python ${Source runtest.py Absolute} -p tar-gz -o ${Output} ${File_Names}";
+batch_test_command = "python ${Source runtest.py Absolute} -p tar-gz -o ${Output} ${File_Names} ${COMment $spe}";
 
 new_test_filename = "test/CHANGETHIS.py";
 

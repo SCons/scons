@@ -246,5 +246,11 @@ if output:
         f.write('      exit_status = %d; },\n' % t.status)
     f.write("];\n")
     f.close()
-
-sys.exit(len(fail) + len(no_result))
+    sys.exit(0)
+else:
+    if len(fail):
+        sys.exit(1)
+    elif len(no_result):
+        sys.exit(2)
+    else:
+        sys.exit(0)
