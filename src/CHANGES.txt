@@ -19,6 +19,11 @@ RELEASE 0.96 - XXX
   - Add a $QT_AUTOBUILD_MOC_SOURCES construction variable that controls
     whether moc-generated .cpp files get compiled.
 
+  From Chad Austin and Christoph Wiedemann:
+
+  - Add support for a $RPATH variable to supply a list of directories
+    to search for shared libraries when linking a program.
+
   From Charles Crain:
 
   - Restore the ability to do construction variable substitutions in all

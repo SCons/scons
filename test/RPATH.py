@@ -1,13 +1,4 @@
-"""SCons.Tool.gnulink
-
-Tool-specific initialization for the gnu linker.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -33,25 +24,48 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
+import sys
+import TestSCons
 
-import link
+_exe = TestSCons._exe
 
-linkers = ['g++', 'gcc']
+test = TestSCons.TestSCons()
 
-def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
+if sys.platform == 'cygwin':
+    test.no_result(1)
+elif sys.platform == 'win32':
+    test.no_result(1)
 
-    if env['PLATFORM'] == 'hpux':
-        env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared -fPIC')
+foo = test.workpath('foo' + _exe)
 
-    # __RPATH is set to $_RPATH in the platform specification if that
-    # platform supports it.
-    env.Append(LINKFLAGS=['$__RPATH'])
-    env['RPATHPREFIX'] = '-Wl,--rpath='
-    env['RPATHSUFFIX'] = ''
-    env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
-    
-def exists(env):
-    return env.Detect(linkers)
+test.subdir('bar')
+
+test.write('SConstruct', """\
+SConscript('bar/SConscript')
+Program('foo', 'foo.c', LIBS='bar', LIBPATH='bar', RPATH='bar')
+""")
+
+test.write('foo.c', """\
+int main() {
+    void bar();
+    bar();
+    exit (0);
+}
+""")
+
+test.write(['bar', 'SConscript'], """\
+SharedLibrary('bar', 'bar.c')
+""")
+
+test.write(['bar', 'bar.c'], """\
+#include <stdio.h>
+void bar() {
+    puts("bar");
+}
+""")
+
+test.run(arguments='.')
+
+test.run(program=foo, chdir=test.workpath('.'), stdout='bar\n')
+
+test.pass_test()

@@ -229,3 +229,6 @@ def generate(env):
     env['SPAWN']          = spawn
     env['SHELL']          = 'sh'
     env['ESCAPE']         = escape
+
+    # This platform supports RPATH specifications.
+    env['__RPATH'] = '$_RPATH'
