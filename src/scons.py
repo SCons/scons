@@ -517,14 +517,14 @@ def main():
     while Scripts:
         file, Scripts = Scripts[0], Scripts[1:]
 	if file == "-":
-	    exec sys.stdin
+	    exec sys.stdin in globals()
 	else:
             try:
 		f = open(file, "r")
 	    except IOError, s:
 		sys.stderr.write("Ignoring missing script '%s'\n" % file)
 	    else:
-		exec f 
+		exec f in globals()
 
     if local_help:
 	# They specified -h, but there was no Help() inside the
