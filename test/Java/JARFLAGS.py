@@ -32,29 +32,23 @@ test = TestSCons.TestSCons()
 
 test.subdir('src')
 
-if test.detect_tool('javac'):
-    where_javac = test.detect('JAVAC', 'javac')
-else:
-    import SCons.Environment
-    env = SCons.Environment.Environment()
-    where_javac = env.WhereIs('javac', os.environ['PATH'])
-    if not where_javac:
-        where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
-        if not where_javac:
-            print "Could not find Java javac, skipping test(s)."
-            test.pass_test(1)
+ENV = test.java_ENV()
 
-if test.detect_tool('jar'):
-    where_jar = test.detect('JAR', 'jar')
+if test.detect_tool('javac', ENV=ENV):
+    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
 else:
-    import SCons.Environment
-    env = SCons.Environment.Environment()
-    where_jar = env.WhereIs('jar', os.environ['PATH'])
-    if not where_jar:
-        where_jar = env.WhereIs('jar', '/usr/local/j2sdk1.3.1/bin')
-        if not where_jar:
-            print "Could not find Java jar, skipping test(s)."
-            test.pass_test(1)
+    where_javac = test.where_is('javac')
+if not where_javac:
+    print "Could not find Java javac, skipping test(s)."
+    test.pass_test(1)
+
+if test.detect_tool('jar', ENV=ENV):
+    where_jar = test.detect('JAR', 'jar', ENV=ENV)
+else:
+    where_javac = test.where_is('jar')
+if not where_jar:
+    print "Could not find Java jar, skipping test(s)."
+    test.pass_test(1)
 
 test.write('SConstruct', """
 env = Environment(tools = ['javac', 'jar'],

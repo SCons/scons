@@ -138,7 +138,21 @@ class TestSCons(TestCommon):
 	    kw['workdir'] = ''
 	apply(TestCommon.__init__, [self], kw)
 
-    def detect(self, var, prog=None):
+    def Environment(self, ENV=None, *args, **kw):
+        """
+        Return a construction Environment that optionally overrides
+        the default external environment with the specified ENV.
+        """
+        import SCons.Environment
+        import SCons.Errors
+        if not ENV is None:
+            kw['ENV'] = ENV
+        try:
+            return apply(SCons.Environment.Environment, args, kw)
+        except (SCons.Errors.UserError, SCons.Errors.InternalError):
+            return None
+
+    def detect(self, var, prog=None, ENV=None):
         """
         Detect a program named 'prog' by first checking the construction
         variable named 'var' and finally searching the path used by
@@ -147,9 +161,7 @@ class TestSCons(TestCommon):
         prog is None, then the value of the environment variable will be
         used as prog.
         """
-
-        import SCons.Environment
-        env = SCons.Environment.Environment()
+        env = self.Environment(ENV)
         try:
             if prog is None:
                 prog = env[var]
@@ -157,25 +169,33 @@ class TestSCons(TestCommon):
         except KeyError:
             return None
 
-    def detect_tool(self, tool, prog=None):
+    def detect_tool(self, tool, prog=None, ENV=None):
         """
         Given a tool (i.e., tool specification that would be passed
-        to the "tools=" parameter of Environment()) and one a program that
+        to the "tools=" parameter of Environment()) and a program that
         corresponds to that tool, return true if and only if we can find
         that tool using Environment.Detect().
 
-        By default, progs is set to the value passed into the tools parameter.
+        By default, prog is set to the value passed into the tools parameter.
         """
 
         if not prog:
             prog = tool
-        import SCons.Environment
-        import SCons.Errors
-        try:
-            env=SCons.Environment.Environment(tools=[tool])
-        except (SCons.Errors.UserError, SCons.Errors.InternalError):
+        env = self.Environment(ENV, tools=[tool])
+        if env is None:
             return None
         return env.Detect([prog])
+
+    def where_is(self, prog, path=None):
+        """
+        Given a program, search for it in the specified external PATH,
+        or in the actual external PATH is none is specified.
+        """
+        import SCons.Environment
+        env = SCons.Environment.Environment()
+        if path is None:
+            path = os.environ['PATH']
+        return env.WhereIs(prog, path)
 
     def wrap_stdout(self, build_str = "", read_str = "", error = 0, cleaning = 0):
         """Wraps standard output string(s) in the normal
@@ -221,6 +241,33 @@ class TestSCons(TestCommon):
         kw['stdout'] = string.replace(kw['stdout'],'.','\\.')
         kw['match'] = self.match_re_dotall
         apply(self.run, [], kw)
+
+    def java_ENV(self):
+        """
+        Return a default external environment that uses a local Java SDK
+        in preference to whatever's found in the default PATH.
+        """
+        import SCons.Environment
+        env = SCons.Environment.Environment()
+        java_path = [
+            '/usr/local/j2sdk1.4.2/bin',
+            '/usr/local/j2sdk1.4.1/bin',
+            '/usr/local/j2sdk1.3.1/bin',
+            '/usr/local/j2sdk1.3.0/bin',
+            '/usr/local/j2sdk1.2.2/bin',
+            '/usr/local/j2sdk1.2/bin',
+            '/usr/local/j2sdk1.1.8/bin',
+            '/usr/local/j2sdk1.1.7/bin',
+            '/usr/local/j2sdk1.1.6/bin',
+            '/usr/local/j2sdk1.1.5/bin',
+            '/usr/local/j2sdk1.1.4/bin',
+            '/usr/local/j2sdk1.1.3/bin',
+            '/usr/local/j2sdk1.1.2/bin',
+            '/usr/local/j2sdk1.1.1/bin',
+            env['ENV']['PATH'],
+        ]
+        env['ENV']['PATH'] = string.join(java_path, os.pathsep)
+        return env['ENV']
 
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One
