@@ -35,6 +35,9 @@ RELEASE 0.04 -
 
   - Add examples using Library, LIBS, and LIBPATH.
 
+  - The C Scanner now always returns a sorted list of dependencies
+    so order changes don't cause unnecessary rebuilds.
+
   From Steve Leblanc:
 
   - Add var=value command-line arguments.

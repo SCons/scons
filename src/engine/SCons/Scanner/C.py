@@ -118,5 +118,18 @@ def scan(node, env, args = [SCons.Node.FS.default_fs, ()]):
             if not node is None:
                 nodes.append(node)
 
-    return nodes
+    # Schwartzian transform from the Python FAQ Wizard
+    def st(List, Metric):
+        def pairing(element, M = Metric):
+            return (M(element), element)
+        def stripit(pair):
+            return pair[1]
+        paired = map(pairing, List)
+        paired.sort()
+        return map(stripit, paired)
+
+    def normalize(node):
+        return os.path.normpath(str(node))
+
+    return st(nodes, normalize)
 
