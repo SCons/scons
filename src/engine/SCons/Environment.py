@@ -489,6 +489,7 @@ class Base:
         """
         clone = copy.copy(self)
         clone._dict = our_deepcopy(self._dict)
+        clone['__env__'] = clone
         try:
             cbd = clone._dict['BUILDERS']
             clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
@@ -553,6 +554,7 @@ class Base:
         if overrides:
             env = copy.copy(self)
             env._dict = copy.copy(self._dict)
+            env['__env__'] = env
             env._dict.update(overrides)
             return env
         else:

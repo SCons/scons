@@ -148,7 +148,7 @@ Export("env")
 SConscript( sconscript )
 """ % (QT, QT_LIB, QT_MOC, QT_UIC))
 
-test.subdir( 'work1', 'work2', 'work3', 'work4', 'work5', 'work6' )
+test.subdir( 'work1', 'work2', 'work3', 'work4', 'work5', 'work6', 'work7' )
 
 ##############################################################################
 # 1. create a moc file from a header file.
@@ -336,13 +336,14 @@ if not MYLIB_IMPL:
     test.fail_test()
 
 ##############################################################################
-# 5. Test creation from a copied environment.
+# 5. Test creation from a copied environment that already has QT variables.
+#    This makes sure the tool initialization is re-entrant.
 
 createSConstruct(test, ['work5', 'SConstruct'])
 test.write( ['work5', 'SConscript'], """
 Import("env")
 env = env.Copy(tools=['qt'])
-env.Program('main', 'main.cpp', CXXFLAGS=['-g'])
+env.Program('main', 'main.cpp', CXXFLAGS=['-g'], LIBS=[])
 """)
 
 test.write(['work5', 'main.cpp'], r"""
@@ -366,14 +367,47 @@ test.run(program = test.workpath('work5', main_exe),
          stdout = 'qt/include/foo5.h\n')
 
 ##############################################################################
-# 6. look if qt is installed, and try out all builders
+# 6. Test creation from a copied empty environment.
+
+test.write(['work6', 'SConstruct'], """\
+orig = Environment()
+env = orig.Copy(QTDIR = r'%s',
+                QT_LIB = r'%s',
+                QT_MOC = r'%s',
+                QT_UIC = r'%s',
+                tools=['qt'])
+env.Program('main', 'main.cpp', CXXFLAGS=['-g'], LIBS=[])
+""" % (QT, QT_LIB, QT_MOC, QT_UIC))
+
+test.write(['work6', 'main.cpp'], r"""
+#include "foo6.h"
+int main() { foo6(); return 0; }
+""")
+
+test.write(['qt', 'include', 'foo6.h'], """\
+#include <stdio.h>
+void
+foo6(void)
+{
+    printf("qt/include/foo6.h\\n");
+}
+""")
+
+test.run(chdir='work6')
+
+main_exe = 'main' + _exe
+test.run(program = test.workpath('work6', main_exe),
+         stdout = 'qt/include/foo6.h\n')
+
+##############################################################################
+# 7. look if qt is installed, and try out all builders
 
 if os.environ.get('QTDIR', None):
 
     QTDIR=os.environ['QTDIR']
     
 
-    test.write( ['work6', 'SConstruct'],"""
+    test.write( ['work7', 'SConstruct'],"""
 import os
 dummy_env = Environment()
 ENV = dummy_env['ENV']
@@ -409,11 +443,11 @@ env.Program('test_realqt', ['mocFromCpp.cpp',
                             'main.cpp'])
 """)
 
-    test.write( ['work6', 'mocFromCpp.h'],"""
+    test.write( ['work7', 'mocFromCpp.h'],"""
 void mocFromCpp();
 """)
 
-    test.write( ['work6', 'mocFromCpp.cpp'],"""
+    test.write( ['work7', 'mocFromCpp.cpp'],"""
 #include <qobject.h>
 #include "mocFromCpp.h"
 class MyClass1 : public QObject {
@@ -429,7 +463,7 @@ void mocFromCpp() {
 #include "moc_mocFromCpp.cpp"
 """)
 
-    test.write( ['work6', 'mocFromH.h'],"""
+    test.write( ['work7', 'mocFromH.h'],"""
 #include <qobject.h>
 class MyClass2 : public QObject {
   Q_OBJECT;
@@ -441,7 +475,7 @@ class MyClass2 : public QObject {
 void mocFromH();
 """)
     
-    test.write( ['work6', 'mocFromH.cpp'],"""
+    test.write( ['work7', 'mocFromH.cpp'],"""
 #include "mocFromH.h"
     
 MyClass2::MyClass2() : QObject() {}
@@ -451,7 +485,7 @@ void mocFromH() {
 }
 """)
     
-    test.write( ['work6', 'anUiFile.ui'],"""
+    test.write( ['work7', 'anUiFile.ui'],"""
 <!DOCTYPE UI><UI>
 <class>MyWidget</class>
 <widget>
@@ -467,7 +501,7 @@ void mocFromH() {
 </UI>
 """)
 
-    test.write( ['work6', 'main.cpp'], """
+    test.write( ['work7', 'main.cpp'], """
 #include "mocFromCpp.h"
 #include "mocFromH.h"
 #include "anUiFile.h"
@@ -478,13 +512,13 @@ int main() {
 }
 """)
 
-    test.run(chdir='work6', arguments="test_realqt" + _exe)
+    test.run(chdir='work7', arguments="test_realqt" + _exe)
 
     QTDIR=os.environ['QTDIR']
     del os.environ['QTDIR']
 
-    test.run(chdir='work6', arguments="-c test_realqt" + _exe)
-    test.run(chdir='work6', arguments="PATH=%s/bin test_realqt%s"%(QTDIR,_exe))
+    test.run(chdir='work7', arguments="-c test_realqt" + _exe)
+    test.run(chdir='work7', arguments="PATH=%s/bin test_realqt%s"%(QTDIR,_exe))
     
 else:
     print "Could not find QT, skipping test(s)."
