@@ -85,7 +85,10 @@ test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 test.unlink(['sub1', 'foo.out'])
 
 test.write('SConscript', """assert GetLaunchDir() == r'%s'"""%test.workpath('sub1'))
-test.run(arguments = '-U', chdir = 'sub1', stderr = None, status = 2)
+test.run(arguments = '-U',
+         chdir = 'sub1',
+         stderr = "scons: *** No targets specified and no Default() targets found.  Stop.\n",
+         status = 2)
 test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
 test.fail_test(os.path.exists(test.workpath('sub2', 'bar.out')))
 test.fail_test(os.path.exists(test.workpath('sub2b', 'bar.out')))
@@ -133,7 +136,6 @@ test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
 test.fail_test(os.path.exists(test.workpath('bar.out')))
 test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 
-
 # Make sure that a Default() directory doesn't cause an exception.
 test.subdir('sub4')
 
@@ -143,6 +145,17 @@ Default('.')
 
 test.run(chdir = 'sub4', arguments = '-U')
 
+# Make sure no Default() targets doesn't cause an exception.
+test.subdir('sub5')
+
+test.write(['sub5', 'SConstruct'], "\n")
+
+test.run(chdir = 'sub5',
+         arguments = '-U',
+         stderr = "scons: *** No targets specified and no Default() targets found.  Stop.\n",
+         status = 2)
+
+#
 test.write('SConstruct', """
 Default('not_a_target.in')
 """)

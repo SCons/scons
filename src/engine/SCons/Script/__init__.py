@@ -823,7 +823,10 @@ def _main():
                     # or not a file, so go ahead and keep it as a default
                     # target and let the engine sort it out:
                     return 1                
-            default_targets = filter(check_dir, default_targets)
+            if default_targets is None:
+                default_targets = []
+            else:
+                default_targets = filter(check_dir, default_targets)
             SCons.Script.SConscript.default_targets = default_targets
             target_top = None
 

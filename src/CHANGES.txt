@@ -80,6 +80,9 @@ RELEASE 0.12 - XXX
   - Change the default SConscriptChdir() behavior to change to the
     SConscript directory while it's being read.
 
+  - Fix an exception thrown when the -U option was used with no
+    Default() target specified.
+
   From Lachlan O'Dea:
 
   - Add SharedObject() support to the masm tool.
