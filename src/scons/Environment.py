@@ -62,8 +62,25 @@ class Environment:
 	    import scons.Defaults
 	    kw['BUILDERS'] = scons.Defaults.Builders[:]
 	self.Dictionary.update(copy.deepcopy(kw))
+
+	class BuilderWrapper:
+	    """Wrapper class that allows an environment to
+	    be associated with a Builder at instantiation.
+	    """
+	    def __init__(self, env, builder):
+		self.env = env
+		self.builder = builder
+	
+	    def __call__(self, target = None, source = None):
+		return self.builder(self.env, target, source)
+
+	    def execute(self, **kw):
+		apply(self.builder.execute, (), kw)
+
 	for b in kw['BUILDERS']:
-	    setattr(self, b.name, b)
+	    setattr(self, b.name, BuilderWrapper(self, b))
+
+
 
     def __cmp__(self, other):
 	return cmp(self.Dictionary, other.Dictionary)

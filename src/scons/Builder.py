@@ -37,9 +37,10 @@ class Builder:
     def __cmp__(self, other):
 	return cmp(self.__dict__, other.__dict__)
 
-    def __call__(self, target = None, source = None):
+    def __call__(self, env, target = None, source = None):
 	node = lookup(self.node_class, target)
 	node.builder_set(self)
+	node.env_set(self)
 	node.sources = source	# XXX REACHING INTO ANOTHER OBJECT
 	return node
 

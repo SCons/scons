@@ -17,3 +17,6 @@ class Node:
 
     def builder_set(self, builder):
 	self.builder = builder
+
+    def env_set(self, env):
+	self.env = env
