@@ -37,6 +37,25 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
         env = Environment(SHOBJSUFFIX = '.o')
 
+  - Setting the BUILDERS construction variable now properly clears
+    the previous Builder attributes from the construction Environment.
+    Before, you could initialize BUILDERS like so:
+
+        env = Environment(BUILDERS = {'NewBuilder' : foo})
+
+    And still use the canned default Builders like env.Program(),
+    env.Object(), env.StaticLibrary(), etc.  No more.  Beginning with
+    SCons 0.10, an initialization like that above will create an
+    Environment with only the env.NewBuilder() Builder.
+
+    So now, if you want to use a new builder in addition to the default
+    builders, you should explicitly append your new builder to the
+    existing ones using techniques like the following:
+
+        env.Append(BUILDERS = {'NewBuilder' : foo})
+
+        env['BUILDERS']['newbuilder'] = foo
+
   Please note the following important changes since release 0.09:
 
     - The Scanner interface has been changed to make it easier to

@@ -135,7 +135,6 @@ class EnvironmentTestCase(unittest.TestCase):
         assert not called_it.has_key('target')
         assert not called_it.has_key('source')
 
-
     def test_Builder_execs(self):
 	"""Test Builder execution through different environments
 
@@ -160,8 +159,8 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert built_it['out3']
 
         env4 = env3.Copy()
-        assert env4.builder1.env is env4
-        assert env4.builder2.env is env4
+        assert env4.builder1.env is env4, "builder1.env (%s) == env3 (%s)?" % (env4.builder1.env, env3)
+        assert env4.builder2.env is env4, "builder2.env (%s) == env3 (%s)?" % (env4.builder1.env, env3)
 
         # Now test BUILDERS as a dictionary.
         built_it = {}
@@ -188,37 +187,37 @@ class EnvironmentTestCase(unittest.TestCase):
         Scanner object, one with a list of a single Scanner
         object, and one with a list of two Scanner objects.
         """
-        global scanned_it
-
-	s1 = Scanner(name = 'scanner1', skeys = [".c", ".cc"])
-	s2 = Scanner(name = 'scanner2', skeys = [".m4"])
-
-	scanned_it = {}
-	env1 = Environment(SCANNERS = s1)
-        env1.scanner1(filename = 'out1')
-	assert scanned_it['out1']
-
-	scanned_it = {}
-	env2 = Environment(SCANNERS = [s1])
-        env1.scanner1(filename = 'out1')
-	assert scanned_it['out1']
-
-	scanned_it = {}
-        env3 = Environment()
-        env3.Replace(SCANNERS = [s1, s2])
-        env3.scanner1(filename = 'out1')
-        env3.scanner2(filename = 'out2')
-        env3.scanner1(filename = 'out3')
-	assert scanned_it['out1']
-	assert scanned_it['out2']
-	assert scanned_it['out3']
-
-	s = env3.get_scanner(".c")
-	assert s == s1, s
-	s = env3.get_scanner(skey=".m4")
-	assert s == s2, s
-	s = env3.get_scanner(".cxx")
-	assert s == None, s
+#        global scanned_it
+#
+#	s1 = Scanner(name = 'scanner1', skeys = [".c", ".cc"])
+#	s2 = Scanner(name = 'scanner2', skeys = [".m4"])
+#
+#	scanned_it = {}
+#	env1 = Environment(SCANNERS = s1)
+#        env1.scanner1(filename = 'out1')
+#	assert scanned_it['out1']
+#
+#	scanned_it = {}
+#	env2 = Environment(SCANNERS = [s1])
+#        env1.scanner1(filename = 'out1')
+#	assert scanned_it['out1']
+#
+#	scanned_it = {}
+#        env3 = Environment()
+#        env3.Replace(SCANNERS = [s1, s2])
+#        env3.scanner1(filename = 'out1')
+#        env3.scanner2(filename = 'out2')
+#        env3.scanner1(filename = 'out3')
+#	assert scanned_it['out1']
+#	assert scanned_it['out2']
+#	assert scanned_it['out3']
+#
+#	s = env3.get_scanner(".c")
+#	assert s == s1, s
+#	s = env3.get_scanner(skey=".m4")
+#	assert s == s2, s
+#	s = env3.get_scanner(".cxx")
+#	assert s == None, s
 
     def test_Copy(self):
 	"""Test construction Environment copying
@@ -257,6 +256,17 @@ class EnvironmentTestCase(unittest.TestCase):
         assert not 4 in env1.Dictionary('YYY')
         assert env2.Dictionary('ZZZ').has_key(5)
         assert not env1.Dictionary('ZZZ').has_key(5)
+
+        #
+        env1 = Environment(BUILDERS = {'b1' : 1})
+        assert hasattr(env1, 'b1'), "env1.b1 was not set"
+        assert env1.b1.env == env1, "b1.env doesn't point to env1"
+        env2 = env1.Copy(BUILDERS = {'b2' : 2})
+        assert hasattr(env1, 'b1'), "b1 was mistakenly cleared from env1"
+        assert env1.b1.env == env1, "b1.env was changed"
+        assert not hasattr(env2, 'b1'), "b1 was not cleared from env2"
+        assert hasattr(env2, 'b2'), "env2.b2 was not set"
+        assert env2.b2.env == env2, "b2.env doesn't point to env2"
 
     def test_Dictionary(self):
 	"""Test retrieval of known construction variables
@@ -329,8 +339,15 @@ class EnvironmentTestCase(unittest.TestCase):
         """
         env1 = Environment(AAA = 'a', BBB = 'b')
         env1.Replace(BBB = 'bbb', CCC = 'ccc')
+
         env2 = Environment(AAA = 'a', BBB = 'bbb', CCC = 'ccc')
         assert env1 == env2, diff_env(env1, env2)
+
+        env3 = Environment(BUILDERS = {'b1' : 1})
+        assert hasattr(env3, 'b1'), "b1 was not set"
+        env3.Replace(BUILDERS = {'b2' : 2})
+        assert not hasattr(env3, 'b1'), "b1 was not cleared"
+        assert hasattr(env3, 'b2'), "b2 was not set"
 
     def test_Append(self):
         """Test appending to construction variables in an Environment
@@ -352,13 +369,16 @@ class EnvironmentTestCase(unittest.TestCase):
                            KKK = UL(['k', 'K']), LLL = UL(['l', 'L']))
         assert env1 == env2, diff_env(env1, env2)
 
-        env3 = Environment(X = {'x' : 7})
-        try:
-            env3.Append(X = {'x' : 8})
-        except TypeError:
-            pass
-        except:
-            raise
+        env3 = Environment(X = {'x1' : 7})
+        env3.Append(X = {'x1' : 8, 'x2' : 9}, Y = {'y1' : 10})
+        assert env3['X'] == {'x1': 8, 'x2': 9}, env3['X']
+        assert env3['Y'] == {'y1': 10}, env3['Y']
+
+        env4 = Environment(BUILDERS = {'z1' : 11})
+        env4.Append(BUILDERS = {'z2' : 12})
+        assert env4['BUILDERS'] == {'z1' : 11, 'z2' : 12}, env4['BUILDERS']
+        assert hasattr(env4, 'z1')
+        assert hasattr(env4, 'z2')
 
     def test_Prepend(self):
         """Test prepending to construction variables in an Environment
@@ -380,13 +400,16 @@ class EnvironmentTestCase(unittest.TestCase):
                            KKK = UL(['K', 'k']), LLL = UL(['L', 'l']))
         assert env1 == env2, diff_env(env1, env2)
 
-        env3 = Environment(X = {'x' : 7})
-        try:
-            env3.Prepend(X = {'x' : 8})
-        except TypeError:
-            pass
-        except:
-            raise
+        env3 = Environment(X = {'x1' : 7})
+        env3.Prepend(X = {'x1' : 8, 'x2' : 9}, Y = {'y1' : 10})
+        assert env3['X'] == {'x1': 8, 'x2' : 9}, env3['X']
+        assert env3['Y'] == {'y1': 10}, env3['Y']
+
+        env4 = Environment(BUILDERS = {'z1' : 11})
+        env4.Prepend(BUILDERS = {'z2' : 12})
+        assert env4['BUILDERS'] == {'z1' : 11, 'z2' : 12}, env4['BUILDERS']
+        assert hasattr(env4, 'z1')
+        assert hasattr(env4, 'z2')
 
     def test_Depends(self):
 	"""Test the explicit Depends method."""

@@ -1517,6 +1517,23 @@ to underlying Builder objects.
 Builders named
 Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, and Program
 are available by default.
+If you initialize this variable when an
+Environment is created:
+.ES
+env = Environment(BUILDERS = {'NewBuilder' : foo})
+.EE
+the default Builders will no longer be available.
+To use a new Builder object in addition to the default Builders,
+add your new Builder object like this:
+.ES
+env = Environment()
+env.Append(BUILDERS = {'NewBuilder' : foo})
+.EE
+or this:
+.ES
+env = Environment()
+env['BUILDERS]['NewBuilder'] = foo
+.EE
 
 .IP CC 
 The C compiler.
@@ -3574,6 +3591,32 @@ env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
 
 # The following creates "bar.pdf" from "bar.tex"
 env.PDFBuilder(target = 'bar', source = 'bar')
+.EE
+
+Note also that the above initialization
+overwrites the default Builder objects,
+so the Environment created above
+can not be used call Builders like env.Program(),
+env.Object(), env.StaticLibrary(), etc.
+
+.SS Adding Your Own Builder Object to an Environment
+
+.ES
+bld = Builder(action = 'pdftex < $SOURCES > $TARGET'
+              suffix = '.pdf',
+              src_suffix = '.tex')
+env = Environment()
+env.Append(BUILDERS = {'PDFBuilder' : bld})
+env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
+env.Program(target = 'bar', source = 'bar.c')
+.EE
+
+You also can use other Pythonic techniques to add
+to the BUILDERS construction variable, such as:
+
+.ES
+env = Environment()
+env.['BUILDERS]['PDFBuilder'] = bld
 .EE
 
 .SS Defining Your Own Scanner Object

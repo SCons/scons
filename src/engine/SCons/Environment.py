@@ -67,28 +67,69 @@ def our_deepcopy(x):
        copy = x
    return copy
 
-class BuilderDict(UserDict):
-    """This is a dictionary-like class used by Environment
-    to hold Builders.  We need to do this, because every time
-    someone changes the Builders in the Environment's BUILDERS
-    dictionary, we need to update the Environment's attributes."""
-    def setEnvironment(self, env):
+class BuilderWrapper:
+    """Wrapper class that associates an environment with a Builder at
+    instantiation."""
+    def __init__(self, env, builder):
         self.env = env
-        
+        self.builder = builder
+
+    def __call__(self, *args, **kw):
+        return apply(self.builder, (self.env,) + args, kw)
+
+    # This allows a Builder to be executed directly
+    # through the Environment to which it's attached.
+    # In practice, we shouldn't need this, because
+    # builders actually get executed through a Node.
+    # But we do have a unit test for this, and can't
+    # yet rule out that it would be useful in the
+    # future, so leave it for now.
+    def execute(self, **kw):
+        kw['env'] = self.env
+        apply(self.builder.execute, (), kw)
+
+class BuilderDict(UserDict):
+    """This is a dictionary-like class used by an Environment to hold
+    the Builders.  We need to do this because every time someone changes
+    the Builders in the Environment's BUILDERS dictionary, we must
+    update the Environment's attributes."""
+    def __init__(self, dict, env):
+        # Set self.env before calling the superclass initialization,
+        # because it will end up calling our other methods, which will
+        # need to point the values in this dictionary to self.env.
+        self.env = env
+        UserDict.__init__(self, dict)
+
     def __setitem__(self, item, val):
         UserDict.__setitem__(self, item, val)
         try:
-            self.env.Replace() # re-compute Builders
+            self.setenvattr(item, val)
         except AttributeError:
-            # Have to catch this because sometimes
-            # __setitem__ gets called out of __init__, when
-            # we don't have an env attribute yet, nor do
-            # we want one!
+            # Have to catch this because sometimes __setitem__ gets
+            # called out of __init__, when we don't have an env
+            # attribute yet, nor do we want one!
             pass
+
+    def setenvattr(self, item, val):
+        """Set the corresponding environment attribute for this Builder.
+
+        If the value is already a BuilderWrapper, we pull the builder
+        out of it and make another one, so that making a copy of an
+        existing BuilderDict is guaranteed separate wrappers for each
+        Builder + Environment pair."""
+        try:
+            builder = val.builder
+        except AttributeError:
+            builder = val
+        setattr(self.env, item, BuilderWrapper(self.env, builder))
 
     def __delitem__(self, item):
         UserDict.__delitem__(self, item)
-        self.env.Replace()
+        delattr(self.env, item)
+
+    def update(self, dict):
+        for i, v in dict.items():
+            self.__setitem__(i, v)
 
 _rm = re.compile(r'\$[()]')
 
@@ -109,6 +150,8 @@ class Environment:
                  **kw):
         self.fs = SCons.Node.FS.default_fs
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
+
+        self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
         if SCons.Util.is_String(platform):
             platform = SCons.Platform.Platform(platform)
@@ -147,17 +190,22 @@ class Environment:
 	pass	# XXX
 
     def Copy(self, **kw):
-	"""Return a copy of a construction Environment.  The
-	copy is like a Python "deep copy"--that is, independent
-	copies are made recursively of each objects--except that
-	a reference is copied when an object is not deep-copyable
-	(like a function).  There are no references to any mutable
-	objects in the original Environment.
-	"""
+        """Return a copy of a construction Environment.  The
+        copy is like a Python "deep copy"--that is, independent
+        copies are made recursively of each objects--except that
+        a reference is copied when an object is not deep-copyable
+        (like a function).  There are no references to any mutable
+        objects in the original Environment.
+        """
         clone = copy.copy(self)
         clone._dict = our_deepcopy(self._dict)
+        try:
+            cbd = clone._dict['BUILDERS']
+            clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
+        except KeyError:
+            pass
         apply(clone.Replace, (), kw)
-	return clone
+        return clone
 
     def Scanners(self):
 	pass	# XXX
@@ -166,64 +214,18 @@ class Environment:
         """A deprecated synonym for Replace().
         """
         apply(self.Replace, (), kw)
-
-    def __updateBuildersAndScanners(self):
-        """Update attributes for builders and scanners.
-
-        Have to be careful in this function...we can't
-        call functions like __setitem__() or Replace(), or
-        we will have infinite recursion."""
         
-        if self._dict.has_key('SCANNERS') and \
-           not SCons.Util.is_List(self._dict['SCANNERS']):
-            self._dict['SCANNERS'] = [self._dict['SCANNERS']]
-
-        class BuilderWrapper:
-            """Wrapper class that allows an environment to
-            be associated with a Builder at instantiation.
-            """
-            def __init__(self, env, builder):
-                self.env = env
-                self.builder = builder
-
-            def __call__(self, *args, **kw):
-                return apply(self.builder, (self.env,) + args, kw)
-
-            # This allows a Builder to be executed directly
-            # through the Environment to which it's attached.
-            # In practice, we shouldn't need this, because
-            # builders actually get executed through a Node.
-            # But we do have a unit test for this, and can't
-            # yet rule out that it would be useful in the
-            # future, so leave it for now.
-            def execute(self, **kw):
-                kw['env'] = self.env
-                apply(self.builder.execute, (), kw)
-
-        if self._dict.has_key('BUILDERS'):
-            if SCons.Util.is_Dict(self._dict['BUILDERS']):
-                bd = self._dict['BUILDERS']
-                if not isinstance(bd, BuilderDict):
-                    # Convert it to a BuilderDict.  This class
-                    # Updates our builder attributes every time
-                    # someone changes it.
-                    bd = BuilderDict(bd)
-                    bd.setEnvironment(self)
-                    self._dict['BUILDERS'] = bd
-                for name, builder in bd.items():
-                    setattr(self, name, BuilderWrapper(self, builder))
-            else:
-                raise SCons.Errors.UserError, "The use of the BUILDERS Environment variable as a list or Builder instance is deprecated.  BUILDERS should be a dictionary of name->Builder instead."
-        for s in self._dict['SCANNERS']:
-            setattr(self, s.name, s)
-        
-
     def Replace(self, **kw):
         """Replace existing construction variables in an Environment
         with new construction variables and/or values.
         """
+        try:
+            kwbd = our_deepcopy(kw['BUILDERS'])
+            del kw['BUILDERS']
+            self.__setitem__('BUILDERS', kwbd)
+        except KeyError:
+            pass
         self._dict.update(our_deepcopy(kw))
-        self.__updateBuildersAndScanners()
 
     def Append(self, **kw):
         """Append values to existing construction variables
@@ -239,9 +241,11 @@ class Environment:
             elif SCons.Util.is_List(kw[key]) and not \
                  SCons.Util.is_List(self._dict[key]):
                 self._dict[key] = [ self._dict[key] ] + kw[key]
+            elif SCons.Util.is_Dict(self._dict[key]) and \
+                 SCons.Util.is_Dict(kw[key]):
+                self._dict[key].update(kw[key])
             else:
                 self._dict[key] = self._dict[key] + kw[key]
-        self.__updateBuildersAndScanners()
 
     def Prepend(self, **kw):
         """Prepend values to existing construction variables
@@ -257,9 +261,11 @@ class Environment:
             elif SCons.Util.is_List(kw[key]) and not \
                  SCons.Util.is_List(self._dict[key]):
                 self._dict[key] = kw[key] + [ self._dict[key] ]
+            elif SCons.Util.is_Dict(self._dict[key]) and \
+                 SCons.Util.is_Dict(kw[key]):
+                self._dict[key].update(kw[key])
             else:
                 self._dict[key] = kw[key] + self._dict[key]
-        self.__updateBuildersAndScanners()
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""
@@ -304,8 +310,16 @@ class Environment:
 	return dlist
 
     def __setitem__(self, key, value):
-        self._dict[key] = value
-        self.__updateBuildersAndScanners()
+        if key == 'BUILDERS':
+            try:
+                bd = self._dict[key]
+                for k in bd.keys():
+                    del bd[k]
+            except KeyError:
+                self._dict[key] = BuilderDict(kwbd, self)
+            self._dict[key].update(value)
+        else:
+            self._dict[key] = value
 
     def __getitem__(self, key):
         return self._dict[key]

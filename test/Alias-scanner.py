@@ -45,7 +45,8 @@ def cat(env, source, target):
     f.close()
 
 XBuilder = Builder(action = cat, src_suffix = '.x', suffix = '.c')
-env = Environment(BUILDERS = { 'XBuilder': XBuilder })
+env = Environment()
+env.Append(BUILDERS = { 'XBuilder': XBuilder })
 f = env.XBuilder(source = ['file.x'], target = ['file.c'])
 env.Alias(target = ['cfiles'], source = f)
 Default(['cfiles'])

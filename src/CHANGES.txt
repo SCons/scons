@@ -32,6 +32,13 @@ RELEASE 0.11 - XXX
   - Doc changes:  Eliminate description of deprecated "name" keyword
     argument from Builder definition (reported by Gary Ruben).
 
+  - Support using env.Append() on BUILDERS (and other dictionaries).
+    (Bug reported by Bj=F6rn Bylander.)
+
+  - Setting the BUILDERS construction variable now properly clears
+    the previous Builder attributes from the construction Environment.
+    (Bug reported by Bj=F6rn Bylander.)
+
   From Anthony Roach:
 
   - Use a different static object suffix (.os) when using gcc so shared
