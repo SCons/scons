@@ -573,5 +573,56 @@ class File(Entry):
         else:
             self.__createDir()
 
+
 default_fs = FS()
 
+
+def find_file(filename, paths, node_factory = default_fs.File):
+    """
+    find_file(str, [Dir()]) -> [nodes]
+
+    filename - a filename to find
+    paths - a list of directory path *nodes* to search in
+
+    returns - the node created from the found file.
+
+    Find a node corresponding to either a derived file or a file
+    that exists already.
+
+    Only the first file found is returned, and none is returned
+    if no file is found.
+    """
+    retval = None
+    for dir in paths:
+        try:
+            node = node_factory(filename, dir)
+            # Return true of the node exists or is a derived node.
+            if node.builder or \
+               (isinstance(node, SCons.Node.FS.Entry) and node.cached_exists()):
+                retval = node
+                break
+        except TypeError:
+            # If we find a directory instead of a file, we don't care
+            pass
+
+    return retval
+
+def find_files(filenames, paths, node_factory = default_fs.File):
+    """
+    find_files([str], [Dir()]) -> [nodes]
+
+    filenames - a list of filenames to find
+    paths - a list of directory path *nodes* to search in
+
+    returns - the nodes created from the found files.
+
+    Finds nodes corresponding to either derived files or files
+    that exist already.
+
+    Only the first file found is returned for each filename,
+    and any files that aren't found are ignored.
+    """
+    nodes = map(lambda x, paths=paths, node_factory=node_factory:
+                       find_file(x, paths, node_factory),
+                filenames)
+    return filter(lambda x: x != None, nodes)

@@ -188,22 +188,6 @@ class UtilTestCase(unittest.TestCase):
         assert cmd_list[1][0] == 'after', cmd_list[1][0]
         assert cmd_list[0][2] == cvt('../foo/ack.cbefore'), cmd_list[0][2]
 
-    def test_find_file(self):
-        """Testing find_file function."""
-        test = TestCmd.TestCmd(workdir = '')
-        test.write('./foo', 'Some file\n')
-        fs = SCons.Node.FS.FS(test.workpath(""))
-        os.chdir(test.workpath("")) # FS doesn't like the cwd to be something other than it's root
-        node_derived = fs.File(test.workpath('bar/baz'))
-        node_derived.builder_set(1) # Any non-zero value.
-        paths = map(fs.Dir, ['.', './bar'])
-        nodes = [find_file('foo', paths, fs.File), 
-                 find_file('baz', paths, fs.File)] 
-        file_names = map(str, nodes)
-        file_names = map(os.path.normpath, file_names)
-        assert os.path.normpath('./foo') in file_names, file_names
-        assert os.path.normpath('./bar/baz') in file_names, file_names
-
     def test_autogenerate(dict):
         """Test autogenerating variables in a dictionary."""
         dict = {'LIBS'          : [ 'foo', 'bar', 'baz' ],

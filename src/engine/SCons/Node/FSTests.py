@@ -469,10 +469,29 @@ class FSTestCase(unittest.TestCase):
         #XXX test get_prevsiginfo()
 
 
+class find_fileTestCase(unittest.TestCase):
+    def runTest(self):
+        """Testing find_file function"""
+        test = TestCmd(workdir = '')
+        test.write('./foo', 'Some file\n')
+        fs = SCons.Node.FS.FS(test.workpath(""))
+        os.chdir(test.workpath("")) # FS doesn't like the cwd to be something other than it's root
+        node_derived = fs.File(test.workpath('bar/baz'))
+        node_derived.builder_set(1) # Any non-zero value.
+        paths = map(fs.Dir, ['.', './bar'])
+        nodes = [SCons.Node.FS.find_file('foo', paths, fs.File), 
+                 SCons.Node.FS.find_file('baz', paths, fs.File)] 
+        file_names = map(str, nodes)
+        file_names = map(os.path.normpath, file_names)
+        assert os.path.normpath('./foo') in file_names, file_names
+        assert os.path.normpath('./bar/baz') in file_names, file_names
+
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(FSTestCase())
     suite.addTest(BuildDirTestCase())
+    suite.addTest(find_fileTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

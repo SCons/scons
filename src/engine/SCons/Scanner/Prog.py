@@ -66,4 +66,4 @@ def scan(node, env, node_factory):
         suffix=''
 
     libs = map(lambda x, s=suffix, p=prefix: p + x + s, libs)
-    return SCons.Util.find_files(libs, paths, node_factory)
+    return SCons.Node.FS.find_files(libs, paths, node_factory)

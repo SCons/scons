@@ -114,10 +114,12 @@ def scan(node, env, args = [SCons.Node.FS.default_fs, ()]):
             
             for include in includes:
                 if include[0] == '"':
-                    n = SCons.Util.find_file(include[1], (source_dir,) + cpppath,
+                    n = SCons.Node.FS.find_file(include[1],
+                                                (source_dir,) + cpppath,
                                                 fs.File)
                 else:
-                    n = SCons.Util.find_file(include[1], cpppath + (source_dir,),
+                    n = SCons.Node.FS.find_file(include[1],
+                                                cpppath + (source_dir,),
                                                 fs.File)
 
                 if not n is None:
