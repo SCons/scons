@@ -1,13 +1,4 @@
-"""SCons.Tool.pdftex
-
-Tool-specific initialization for pdftex.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -33,25 +24,46 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Action
-import SCons.Defaults
-import SCons.Util
+"""
+Test the ability to configure the $PDFLATEXCOM construction variable.
+"""
 
-PDFTeXAction = SCons.Action.Action('$PDFTEXCOM', '$PDFTEXCOMSTR')
+import os
+import string
+import sys
+import TestSCons
 
-def generate(env):
-    """Add Builders and construction variables for pdftex to an Environment."""
-    try:
-        bld = env['BUILDERS']['PDF']
-    except KeyError:
-        bld = SCons.Defaults.PDF()
-        env['BUILDERS']['PDF'] = bld
+python = TestSCons.python
+_exe   = TestSCons._exe
 
-    bld.add_action('.tex', PDFTeXAction)
+test = TestSCons.TestSCons()
 
-    env['PDFTEX']      = 'pdftex'
-    env['PDFTEXFLAGS'] = SCons.Util.CLVar('')
-    env['PDFTEXCOM']   = '$PDFTEX $PDFTEXFLAGS $SOURCES $TARGET'
 
-def exists(env):
-    return env.Detect('pdftex')
+
+test.write('mypdflatex.py', r"""
+import sys
+outfile = open(sys.argv[1], 'wb')
+infile = open(sys.argv[2], 'rb')
+for l in filter(lambda l: l != '/*latex*/\n', infile.readlines()):
+    outfile.write(l)
+sys.exit(0)
+""")
+
+test.write('SConstruct', """
+env = Environment(TOOLS = ['pdflatex'],
+                  PDFLATEXCOM = r'%(python)s mypdflatex.py $TARGET $SOURCE')
+env.PDF('test1', 'test1.latex')
+""" % locals())
+
+test.write('test1.latex', """\
+test1.latex
+/*latex*/
+""")
+
+test.run()
+
+test.must_match('test1.pdf', "test1.latex\n")
+
+
+
+test.pass_test()

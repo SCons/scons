@@ -45,14 +45,14 @@ import SCons.Util
 
 # Define an action to build a generic tex file.  This is sufficient for all 
 # tex files.
-TeXAction = SCons.Action.CommandAction("$TEXCOM")
+TeXAction = SCons.Action.Action("$TEXCOM", "$TEXCOMSTR")
 
 # Define an action to build a latex file.  This action might be needed more
 # than once if we are dealing with labels and bibtex
-LaTeXAction = SCons.Action.CommandAction("$LATEXCOM")
+LaTeXAction = SCons.Action.Action("$LATEXCOM", "$LATEXCOMSTR")
 
 # Define an action to run BibTeX on a file.
-BibTeXAction = SCons.Action.CommandAction("$BIBTEXCOM")
+BibTeXAction = SCons.Action.Action("$BIBTEXCOM", "$BIBTEXCOMSTR")
 
 def LaTeXAuxAction(target = None, source= None, env=None):
     """A builder for LaTeX files that checks the output in the aux file
@@ -74,21 +74,28 @@ def LaTeXAuxAction(target = None, source= None, env=None):
         LaTeXAction(target,source,env)
     return 0
 
-def TeXLaTeXAction(target = None, source= None, env=None):
+LaTeX_re = re.compile("\\\\document(style|class)")
+
+def is_LaTeX(flist):
+    # Scan a file list to decide if it's TeX- or LaTeX-flavored.
+    for f in flist:
+        content = f.get_contents()
+        if LaTeX_re.search(content):
+	    return 1
+    return 0
+
+def TeXLaTeXFunction(target = None, source= None, env=None):
     """A builder for TeX and LaTeX that scans the source file to
     decide the "flavor" of the source and then executes the appropriate
     program."""
-    LaTeXFile = None
-    for src in source:
-	content = src.get_contents()
-        if re.search("\\\\document(style|class)",content):
-	   LaTeXFile = 1
-           break
-    if LaTeXFile:
+    if is_LaTeX(source):
 	LaTeXAuxAction(target,source,env)
     else:
 	TeXAction(target,source,env)
     return 0
+
+TeXLaTeXAction = SCons.Action.Action(TeXLaTeXFunction,
+                                     strfunction=None)
 
 def generate(env):
     """Add Builders and construction variables for TeX to an Environment."""

@@ -4503,6 +4503,16 @@ The command line used to call the bibliography generator for the
 TeX formatter and typesetter and the LaTeX structured formatter and
 typesetter.
 
+.IP BIBTEXCOMSTR
+The string displayed when generating a bibliography
+for TeX or LaTeX.
+If this is not set, then $BIBTEXCOM (the command line) is displayed.
+
+.ES
+env = Environment(BIBTEXCOMSTR = "Generating bibliography $TARGET")
+.EE
+
+
 .IP BIBTEXFLAGS
 General options passed to the bibliography generator for the TeX formatter
 and typesetter and the LaTeX structured formatter and typesetter.
@@ -5583,6 +5593,15 @@ The LaTeX structured formatter and typesetter.
 
 .IP LATEXCOM
 The command line used to call the LaTeX structured formatter and typesetter.
+
+.IP LATEXCOMSTR
+The string displayed when calling
+the LaTeX structured formatter and typesetter.
+If this is not set, then $LATEXCOM (the command line) is displayed.
+
+.ES
+env = Environment(LATEXCOMSTR = "Building $TARGET from LaTeX input $SOURCES")
+.EE
 
 .IP LATEXFLAGS
 General options passed to the LaTeX structured formatter and typesetter.
@@ -6763,6 +6782,15 @@ The TeX formatter and typesetter.
 
 .IP TEXCOM
 The command line used to call the TeX formatter and typesetter.
+
+.IP TEXCOMSTR
+The string displayed when calling
+the TeX formatter and typesetter.
+If this is not set, then $TEXCOM (the command line) is displayed.
+
+.ES
+env = Environment(TEXCOMSTR = "Building $TARGET from TeX input $SOURCES")
+.EE
 
 .IP TEXFLAGS
 General options passed to the TeX formatter and typesetter.
