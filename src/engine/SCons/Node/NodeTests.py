@@ -288,6 +288,47 @@ class NodeTestCase(unittest.TestCase):
             assert str(act.built_target[0]) == "xxx", str(act.built_target[0])
             assert act.built_source == ["yyy", "zzz"], act.built_source
 
+    def test_get_executor(self):
+        """Test the reset_executor() method"""
+        n = SCons.Node.Node()
+
+        try:
+            n.get_executor(0)
+        except AttributeError:
+            pass
+        else:
+            self.fail("did not catch expected AttributeError")
+
+        class Builder:
+            action = 'act'
+            env = 'env1'
+            overrides = {}
+
+        n = SCons.Node.Node()
+        n.builder_set(Builder())
+        x = n.get_executor()
+        assert x.env == 'env1', x.env
+
+        n = SCons.Node.Node()
+        n.builder_set(Builder())
+        n.env_set('env2')
+        x = n.get_executor()
+        assert x.env == 'env2', x.env
+
+    def test_set_executor(self):
+        """Test the reset_executor() method"""
+        n = SCons.Node.Node()
+        n.set_executor(1)
+        assert n.executor == 1, n.executor
+
+    def test_reset_executor(self):
+        """Test the reset_executor() method"""
+        n = SCons.Node.Node()
+        n.set_executor(1)
+        assert n.executor == 1, n.executor
+        n.reset_executor()
+        assert not hasattr(n, 'executor'), "unexpected executor attribute"
+
     def test_built(self):
         """Test the built() method"""
         class SubNode(SCons.Node.Node):

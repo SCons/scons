@@ -173,7 +173,7 @@ class Node:
             if self.post_actions:
                 act = act + self.post_actions
             executor = SCons.Executor.Executor(act,
-                                               self.builder.env,
+                                               self.env or self.builder.env,
                                                [self.builder.overrides],
                                                [self],
                                                self.sources)
