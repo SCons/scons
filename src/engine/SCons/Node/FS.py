@@ -39,6 +39,18 @@ import types
 import SCons.Node
 from UserDict import UserDict
 import sys
+from SCons.Errors import UserError
+
+try:
+    import os
+    file_link = os.link
+except AttributeError:
+    import shutil
+    import stat
+    def file_link(src, dest):
+        shutil.copyfile(src, dest)
+        st=os.stat(src)
+        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]))
 
 class PathName:
     """This is a string like object with limited capabilities (i.e.,
@@ -119,6 +131,7 @@ class FS:
         self.Root = PathDict()
         self.Top = self.__doLookup(Dir, path)
         self.Top.path = '.'
+        self.Top.srcpath = '.'
         self.Top.path_ = os.path.join('.', '')
         self.cwd = self.Top
 
@@ -242,7 +255,17 @@ class FS:
         name, directory = self.__transformPath(name, directory)
         return self.__doLookup(Dir, name, directory)
 
-
+    def BuildDir(self, build_dir, src_dir):
+        """Link the supplied build directory to the source directory
+        for purposes of building files."""
+        dirSrc = self.Dir(src_dir)
+        dirBuild = self.Dir(build_dir)
+        if not dirSrc.is_under(self.Top) or not dirBuild.is_under(self.Top):
+            raise UserError, "Both source and build directories must be under top of build tree."
+        if dirSrc.is_under(dirBuild):
+            raise UserError, "Source directory cannot be under build directory."
+        dirBuild.link(dirSrc)
+        
 
 class Entry(SCons.Node.Node):
     """A generic class for file system entries.  This class if for
@@ -272,6 +295,19 @@ class Entry(SCons.Node.Node):
         self.abspath_ = self.abspath
         self.dir = directory
 	self.use_signature = 1
+        self.__doSrcpath()
+
+    def adjust_srcpath(self):
+        self.__doSrcpath()
+        
+    def __doSrcpath(self):
+        if self.dir:
+            if str(self.dir.srcpath) == '.':
+                self.srcpath = self.name
+            else:
+                self.srcpath = os.path.join(self.dir.srcpath, self.name)
+        else:
+            self.srcpath = self.name
 
     def __str__(self):
 	"""A FS node's string representation is its path name."""
@@ -300,6 +336,13 @@ class Entry(SCons.Node.Node):
         if not self.exists():
             return 0
         return None
+
+    def is_under(self, dir):
+        if self is dir:
+            return 1
+        if not self.dir:
+            return 0
+        return self.dir.is_under(dir)
 
 
 
@@ -342,6 +385,21 @@ class Dir(Entry):
         self.use_signature = None
         self.builder = 1
         self._sconsign = None
+
+    def __doReparent(self):
+        for ent in self.entries.values():
+            if not ent is self and not ent is self.dir:
+                ent.adjust_srcpath()
+
+    def adjust_srcpath(self):
+        Entry.adjust_srcpath(self)
+        self.__doReparent()
+                
+    def link(self, srcdir):
+        """Set this directory as the build directory for the
+        supplied source directory."""
+        self.srcpath = srcdir.path
+        self.__doReparent()
 
     def up(self):
         return self.entries['..']
@@ -425,17 +483,21 @@ class Dir(Entry):
 class File(Entry):
     """A class for files in a file system.
     """
+    def __init__(self, name, directory = None):
+        Entry.__init__(self, name, directory)
+        self._morph()
+        
     def _morph(self):
-	"""Turn a file system node into a File object.  Nothing
-	to be done, actually, because all of the info we need
-	is handled by our base Entry class initialization."""
-        pass
+        """Turn a file system node into a File object."""
+        self.created = 0
 
     def root(self):
         return self.dir.root()
 
     def get_contents(self):
-        return open(self.path, "r").read()
+        if not self.exists():
+            return ''
+        return open(str(self), "r").read()
 
     def get_timestamp(self):
         if self.exists():
@@ -472,6 +534,17 @@ class File(Entry):
                     self.add_implicit(scn.scan(self.path, self.env),
                                       scn)
                     self.scanned[scn] = 1
+                    
+    def exists(self):
+        if not self.created:
+            self.created = 1
+            if self.srcpath != self.path and \
+               os.path.exists(self.srcpath):
+                if os.path.exists(self.path):
+                    os.unlink(self.path)
+                self.__createDir()
+                file_link(self.srcpath, self.path)
+        return Entry.exists(self)
 
     def __createDir(self):
         # ensure that the directories for this node are

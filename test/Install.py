@@ -24,53 +24,73 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestCmd
+import os.path
+import sys
+import time
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestCmd.match_re)
+if sys.platform == 'win32':
+    _exe = '.exe'
+else:
+    _exe = ''
 
-test.write('SConstruct1', """
-a ! x
+test = TestSCons.TestSCons()
+
+foo1 = test.workpath('export/foo1' + _exe)
+foo2 = test.workpath('export/foo2' + _exe)
+
+test.write('SConstruct', """
+env=Environment()
+t=env.Program(target='foo1', source='f1.c')
+env.Install(dir='export', source=t)
+t=env.Program(target='foo2', source='f2.c')
+env.Install(dir='export', source=t)
 """)
 
-test.run(arguments='-f SConstruct1',
-	 stdout = "",
-	 stderr = """  File "SConstruct1", line 2
+test.write('f1.c', """
+#include <stdio.h>
 
-    a ! x
-
-      \^
-
-SyntaxError: invalid syntax
-
+int main(void)
+{
+   printf("f1.c\n");
+   return 0;
+}
 """)
 
+test.write('f2.c', """
+#include <stdio.h>
 
-test.write('SConstruct2', """
-raise UserError, 'Depends() require both sources and targets.'
+int main(void)
+{
+   printf("f2.c\n");
+   return 0;
+}
 """)
 
-test.run(arguments='-f SConstruct2',
-	 stdout = "",
-	 stderr = """
-SCons error: Depends\(\) require both sources and targets.
-File "SConstruct2", line 2, in \?
+test.run(arguments = '.')
+
+test.run(program = foo1, stdout = "f1.c\n")
+test.run(program = foo2, stdout = "f2.c\n")
+
+# make sure the programs didn't get rebuilt, because nothing changed:
+oldtime1 = os.path.getmtime(foo1)
+oldtime2 = os.path.getmtime(foo2)
+
+test.write('f1.c', """
+#include <stdio.h>
+
+int main(void)
+{
+   printf("f1.c again\n");
+   return 0;
+}
 """)
 
-test.write('SConstruct3', """
-raise InternalError, 'error inside'
-""")
+time.sleep(2) # introduce a small delay, to make the test valid
 
-test.run(arguments='-f SConstruct3',
-	 stdout = "other errors\n",
-	 stderr = r"""Traceback \((most recent call|innermost) last\):
-  File ".*Script.py", line \d+, in main
-    _main\(\)
-  File ".*Script.py", line \d+, in _main
-    exec file in script_env
-  File "SConstruct3", line \d+, in \?
-    raise InternalError, 'error inside'
-InternalError: error inside
-""")
+test.run(arguments = '.')
+
+test.fail_test(oldtime1 == os.path.getmtime(foo1))
+test.fail_test(oldtime2 != os.path.getmtime(foo2))
 
 test.pass_test()

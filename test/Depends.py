@@ -52,7 +52,7 @@ env.Depends(target = 'f3.out', dependency = 'subdir/bar.dep')
 env.Foo(target = 'f1.out', source = 'f1.in')
 env.Foo(target = 'f2.out', source = 'f2.in')
 env.Bar(target = 'f3.out', source = 'f3.in')
-SConscript('subdir/SConscript')
+SConscript('subdir/SConscript', Export(env=env))
 """ % (python, python))
 
 test.write(['subdir', 'SConscript'], """

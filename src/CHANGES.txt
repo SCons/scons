@@ -13,6 +13,12 @@ RELEASE 0.02 -
   - Fixed the version comment in the scons.bat (the UNIX geek used
     # instead of @rem).
 
+  - Added support for the Install method (courtesy Charles Crain).
+
+  - Added support for the BuildDir method (courtesy Charles Crain).
+
+  - Added the Export method (courtesy Charles Crain).
+
 
 
 RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001

@@ -96,7 +96,7 @@ def scan(filename, env, args = [SCons.Node.FS.default_fs, ()]):
 
     fs, cpppath = args
 
-    try:
+    if fs.File(filename, fs.Top).exists():
         file = open(filename)
         contents = file.read()
         file.close()
@@ -109,9 +109,9 @@ def scan(filename, env, args = [SCons.Node.FS.default_fs, ()]):
             source_dir = (fs.Dir(dir, fs.Top),)
         else:
             source_dir = ( fs.Top, )
+
         return (SCons.Util.find_files(angle_includes, cpppath + source_dir,
                                       fs.File)
                 + SCons.Util.find_files(quote_includes, source_dir + cpppath,
                                         fs.File))
-    except (IOError, OSError):
-        return []
+    return []

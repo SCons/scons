@@ -42,6 +42,7 @@ import os.path
 import string
 import sys
 import traceback
+import copy
 
 # Strip the script directory from sys.path() so on case-insensitive
 # (WIN32) systems Python doesn't think that the "scons" script is the
@@ -159,9 +160,9 @@ def _scons_other_errors():
 
 
 
-def SConscript(filename):
+def SConscript(sconscript, export={}):
     global scripts
-    scripts.append(SCons.Node.FS.default_fs.File(filename))
+    scripts.append( (SCons.Node.FS.default_fs.File(sconscript), export) )
 
 def Default(*targets):
     for t in targets:
@@ -175,7 +176,12 @@ def Help(text):
 	print "Use scons -H for help about command-line options."
 	sys.exit(0)
 
+def BuildDir(build_dir, src_dir):
+    SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir)
 
+def Export(**kw):
+    # A convenient shorthand to pass exports to the SConscript function.
+    return kw
 
 #
 # After options are initialized, the following variables are
@@ -374,9 +380,9 @@ def options_init():
     def opt_f(opt, arg):
 	global scripts
 	if arg == '-':
-            scripts.append(arg)
+            scripts.append( ( arg, {} ) )
 	else:
-	    scripts.append(SCons.Node.FS.default_fs.File(arg))
+            scripts.append( (SCons.Node.FS.default_fs.File(arg), {}) )
 
     Option(func = opt_f,
 	short = 'f', long = ['file', 'makefile', 'sconstruct'], arg = 'FILE',
@@ -599,7 +605,7 @@ def _main():
     if not scripts:
         for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
             if os.path.isfile(file):
-                scripts.append(SCons.Node.FS.default_fs.File(file))
+                scripts.append( (SCons.Node.FS.default_fs.File(file), {}) )
                 break
 
     if help_option == 'H':
@@ -619,17 +625,19 @@ def _main():
     sys.path = include_dirs + sys.path
 
     while scripts:
-        f, scripts = scripts[0], scripts[1:]
+        f, exports = scripts.pop(0)
+        script_env = copy.copy(globals())
+        script_env.update(exports)
         if f == "-":
-	    exec sys.stdin in globals()
+            exec sys.stdin in script_env
 	else:
-            try:
-                file = open(f.path, "r")
-	    except IOError, s:
-                sys.stderr.write("Ignoring missing SConscript '%s'\n" % f.path)
-	    else:
+            if f.exists():
+                file = open(str(f), "r")
                 SCons.Node.FS.default_fs.chdir(f.dir)
-                exec file in globals()
+                exec file in script_env
+            else:
+                sys.stderr.write("Ignoring missing SConscript '%s'\n" % f.path)
+
     SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
     if help_option == 'h':

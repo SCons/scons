@@ -415,8 +415,32 @@ class NodeTestCase(unittest.TestCase):
         assert n2.children_are_executed()
         assert n1.children_are_executed()
 
-
-
+    def test_rescan(self):
+        """Test that built nodes are rescanned."""
+        class DummyScanner:
+            pass
+        
+        class TestNode(SCons.Node.Node):
+            def scan(self):
+                for scn in self.scanners:
+                    if not self.scanned.has_key(scn):
+                        n=SCons.Node.Node()
+                        n.scanner_set(scn)
+                        self.add_implicit([ n ], scn)
+                    self.scanned[scn] = 1
+        tn=TestNode()
+        tn.builder_set(Builder())
+        tn.env_set(Environment())
+        ds = DummyScanner()
+        tn.scanner_set(ds)
+        tn.scan()
+        map(lambda x: x.scan(), tn.depends)
+        assert tn.scanned[ds]
+        assert len(tn.implicit[ds]) == 1, tn.implicit
+        tn.build()
+        assert len(tn.implicit[ds]) == 2, tn.implicit
+        for dep in tn.implicit[ds]:
+            assert dep.scanned[ds] == 1
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(NodeTestCase, 'test_')

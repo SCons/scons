@@ -29,6 +29,7 @@ import unittest
 import sys
 import os
 import os.path
+import SCons.Node.FS
 
 test = TestCmd.TestCmd(workdir = '')
 
@@ -176,6 +177,11 @@ class CScannerTestCase5(unittest.TestCase):
         env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
         deps = s.instance(env).scan(test.workpath('f3.cpp'), env)
+        
+        # Make sure exists() gets called on the file node being
+        # scanned, essential for cooperation with BuildDir functionality.
+        assert SCons.Node.FS.default_fs.File(test.workpath('f3.cpp')).created
+        
         headers =  ['f1.h', 'f2.h', 'f3.h', 'fi.h', 'fj.h',
                     'd1/f1.h', 'd1/f2.h', 'd1/f3.h']
         deps_match(self, deps, map(test.workpath, headers))

@@ -30,7 +30,7 @@ XXX
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
-
+import os
 import copy
 import os.path
 import re
@@ -40,12 +40,32 @@ import SCons.Builder
 import SCons.Defaults
 from SCons.Errors import UserError
 from UserList import UserList
+import SCons.Node.FS
+import sys
+import shutil
 
-def Command():
-    pass	# XXX
+def installFunc(env, target, source):
+    try:
+        os.unlink(target)
+    except OSError:
+        pass
+    
+    try:
+        SCons.Node.FS.file_link(source[0], target)
+        print 'Install file: "%s" as "%s"' % \
+              (source[0], target)
+        return 0
+    except IOError, e:
+        sys.stderr.write('Unable to install "%s" as "%s"\n%s\n' % \
+                         (source[0], target, str(e)))
+        return -1
+    except OSError, e:
+        sys.stderr.write('Unable to install "%s" as "%s"\n%s\n' % \
+                         (source[0], target, str(e)))
+        return -1
 
-def Install():
-    pass	# XXX
+InstallBuilder = SCons.Builder.Builder(name='Install',
+                                       action=installFunc)
 
 def InstallAs():
     pass	# XXX
@@ -170,6 +190,20 @@ class Environment:
         for an action."""
         bld = SCons.Builder.Builder(name="Command", action=action)
         return bld(self, target, source)
+
+    def Install(self, dir, source):
+        """Install specified files in the given directory."""
+        sources = SCons.Util.scons_str2nodes(source)
+        dnodes = SCons.Util.scons_str2nodes(dir,
+                                            SCons.Node.FS.default_fs.Dir)
+        tgt = []
+        for dnode in dnodes:
+            for src in sources:
+                target = SCons.Node.FS.default_fs.File(src.name, dnode)
+                tgt.append(InstallBuilder(self, target, src))
+        if len(tgt) == 1:
+            tgt = tgt[0]
+        return tgt
 
     def subst(self, string):
 	"""Recursively interpolates construction variables from the

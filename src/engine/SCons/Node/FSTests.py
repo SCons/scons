@@ -29,7 +29,8 @@ import string
 import sys
 import unittest
 import SCons.Node.FS
-
+from TestCmd import TestCmd
+from SCons.Errors import UserError
 
 built_it = None
 
@@ -59,6 +60,54 @@ class Environment:
     def get_scanner(self, skey):
         return self.scanner
 
+class BuildDirTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test build dir functionality"""
+        fs = SCons.Node.FS.FS()
+        f1 = fs.File('build/test1')
+        fs.BuildDir('build', 'src')
+        f2 = fs.File('build/test2')
+        assert f1.srcpath == 'src/test1', f1.srcpath
+        assert f2.srcpath == 'src/test2', f2.srcpath
+
+        fs = SCons.Node.FS.FS()
+        f1 = fs.File('build/test1')
+        fs.BuildDir('build', '.')
+        f2 = fs.File('build/test2')
+        assert f1.srcpath == 'test1', f1.srcpath
+        assert f2.srcpath == 'test2', f2.srcpath
+
+        fs = SCons.Node.FS.FS()
+        fs.BuildDir('build/var1', 'src')
+        fs.BuildDir('build/var2', 'src')
+        f1 = fs.File('build/var1/test1')
+        f2 = fs.File('build/var2/test1')
+        assert f1.srcpath == 'src/test1', f1.srcpath
+        assert f2.srcpath == 'src/test1', f2.srcpath
+
+        exc_caught = 0
+        try:
+            fs = SCons.Node.FS.FS()
+            fs.BuildDir('/test/foo', '.')
+        except UserError:
+            exc_caught = 1
+        assert exc_caught, "Should have caught a UserError."
+
+        exc_caught = 0
+        try:
+            fs = SCons.Node.FS.FS()
+            fs.BuildDir('build', '/test/foo')
+        except UserError:
+            exc_caught = 1
+        assert exc_caught, "Should have caught a UserError."
+
+        exc_caught = 0
+        try:
+            fs = SCons.Node.FS.FS()
+            fs.BuildDir('build', 'build/src')
+        except UserError:
+            exc_caught = 1
+        assert exc_caught, "Should have caught a UserError."
 
 class FSTestCase(unittest.TestCase):
     def runTest(self):
@@ -68,8 +117,6 @@ class FSTestCase(unittest.TestCase):
         tests in one environment, so we don't have to set up a
         complicated directory structure for each test individually.
         """
-        from TestCmd import TestCmd
-
         test = TestCmd(workdir = '')
         test.subdir('sub', ['sub', 'dir'])
 
@@ -393,5 +440,6 @@ class FSTestCase(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(FSTestCase())
+    suite.addTest(BuildDirTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

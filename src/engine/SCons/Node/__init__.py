@@ -76,6 +76,28 @@ class Node:
                                     target = self, source = self.sources)
 	if stat != 0:
 	    raise BuildError(node = self, stat = stat)
+
+        # If we succesfully build a node, then we need to rescan for
+        # implicit dependencies, since it might have changed on us.
+
+        # XXX Modify this so we only rescan using the scanner(s) relevant
+        # to this build.
+        for scn in self.scanners:
+            try:
+                del self.scanned[scn]
+            except KeyError:
+                pass
+        
+        self.scan()
+
+        for scn in self.scanners:
+            try:
+                for dep in self.implicit[scn]:
+                    w=Walker(dep)
+                    while not w.is_done():
+                        w.next().scan()
+            except KeyError:
+                pass
 	return stat
 
     def builder_set(self, builder):

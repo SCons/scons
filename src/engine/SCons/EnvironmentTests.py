@@ -139,9 +139,6 @@ class EnvironmentTestCase(unittest.TestCase):
 	s = env3.get_scanner(".cxx")
 	assert s == None, s
 
-    def test_Command(self):
-	pass	# XXX
-
     def test_Copy(self):
 	"""Test construction Environment copying
 
@@ -218,7 +215,14 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env1 == env2
 
     def test_Install(self):
-	pass	# XXX
+	"""Test Install method"""
+        env=Environment()
+        tgt = env.Install('export', [ 'build/foo1', 'build/foo2' ])
+        paths = map(str, tgt)
+        paths.sort()
+        assert paths == [ 'export/foo1', 'export/foo2' ], paths
+        for tnode in tgt:
+            assert tnode.builder == InstallBuilder
 
     def test_InstallAs(self):
 	pass	# XXX
