@@ -71,18 +71,21 @@ class BuildTask(SCons.Taskmaster.Task):
         if self.target.get_state() == SCons.Node.up_to_date:
             if self.top:
                 print 'scons: "%s" is up to date.' % str(self.target)
-                if print_tree:
-                    print
-                    print SCons.Util.render_tree(self.target, get_children)
         else:
             try:
                 self.target.build()
-                if self.top and print_tree:
-                    print
-                    print SCons.Util.render_tree(self.target, get_children)
             except BuildError, e:
                 sys.stderr.write("scons: *** [%s] Error %s\n" % (e.node, str(e.stat)))
                 raise
+
+    def executed(self):
+        SCons.Taskmaster.Task.executed(self)
+        # print the tree here instead of in execute() because
+        # this method is serialized, but execute isn't:
+        if print_tree and self.top:
+            print
+            print SCons.Util.render_tree(self.target, get_children)
+
 
     def failed(self):
         global ignore_errors
