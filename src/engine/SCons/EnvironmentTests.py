@@ -1484,25 +1484,6 @@ class EnvironmentTestCase(unittest.TestCase):
         finally:
             os.chdir(save)
 
-    def test_Default(self):
-        """Test the Default() method"""
-        env = Environment(FOO = 'fff', BAR = 'bbb')
-
-        t = env.Default(None)
-        assert SCons.Environment.DefaultTargets == []
-
-        t = env.Default('xyz')
-        d = map(str, SCons.Environment.DefaultTargets)
-        assert d == ['xyz'], d
-
-        t = env.Default('$FOO')
-        d = map(str, SCons.Environment.DefaultTargets)
-        assert d == ['xyz', 'fff'], d
-
-        t = env.Default(None, '$BAR', 'another_file')
-        d = map(str, SCons.Environment.DefaultTargets)
-        assert d == ['bbb', 'another_file'], d
-
     def test_Depends(self):
         """Test the explicit Depends method."""
         env = Environment(FOO = 'xxx', BAR='yyy')

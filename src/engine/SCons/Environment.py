@@ -64,7 +64,6 @@ class _Null:
 
 _null = _Null
 
-DefaultTargets = None
 CleanTargets = {}
 CalculatorArgs = {}
 
@@ -810,18 +809,6 @@ class Base:
         bld = SCons.Builder.Builder(action=action,
                                     source_factory=self.fs.Entry)
         return bld(self, target, source)
-
-    def Default(self, *targets):
-        global DefaultTargets
-        if DefaultTargets is None:
-            DefaultTargets = []
-        for t in targets:
-            if t is None:
-                DefaultTargets = []
-            elif isinstance(t, SCons.Node.Node):
-                DefaultTargets.append(t)
-            else:
-                DefaultTargets.extend(self.arg2nodes(t, self.fs.Entry))
 
     def Depends(self, target, dependency):
         """Explicity specify that 'target's depend on 'dependency'."""

@@ -2374,6 +2374,13 @@ Later calls to
 will add to the (now empty) default-target list
 like normal.
 
+The current list of targets added using the
+.BR Default ()
+function or method is available in the
+.B DEFAULT_TARGETS
+list;
+see below.
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI DefaultEnvironment([ args ])
@@ -3566,6 +3573,147 @@ the calling environment's PATHEXT
 or the user's current PATHEXT
 (os.environ['PATHEXT'])
 by default.
+
+.SS SConscript Variables
+In addition to the global functions and methods,
+.B scons
+supports a number of Python variables
+that can be used in SConscript files
+to affect how you want the build to be performed.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+ARGUMENTS
+A dictionary of all the
+.IR keyword = value
+arguments specified on the command line.
+The dictionary is not in order,
+and if a given keyword has
+more than one value assigned to it
+on the command line,
+the last (right-most) value is
+the one in the
+.B ARGUMENTS
+dictionary.
+
+.ES
+if ARGUMENTS.get('debug', 0):
+    env = Environment(CCFLAGS = '-g')
+else:
+    env = Environment()
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+BUILD_TARGETS
+A list of the targets which
+.B scons
+will actually try to build,
+regardless of whether they were specified on
+the command line or via the
+.BR Default ()
+function or method.
+The elements of this list may be strings
+.I or
+nodes, so you should run the list through the Python
+.B str
+function to make sure any Node path names
+are converted to strings.
+
+Because this list may be taken from the
+list of targets specified using the
+.BR Default ()
+function or method,
+the contents of the list may change
+on each successive call to
+.BR Default ().
+See the
+.B DEFAULT_TARGETS
+list, below,
+for additional information.
+
+.ES
+if 'foo' in BUILD_TARGETS:
+    print "Don't forget to test the `foo' program!"
+if 'special/program' in BUILD_TARGETS:
+    SConscript('special')
+.EE
+.IP
+Note that the
+.B BUILD_TARGETS
+list only contains targets expected listed
+on the command line or via calls to the
+.BR Default ()
+function or method.
+It does
+.I not
+contain all dependent targets that will be built as
+a result of making the sure the explicitly-specified
+targets are up to date.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+COMMAND_LINE_TARGETS
+A list of the targets explicitly specified on
+the command line.
+If there are no targets specified on the command line,
+the list is empty.
+This can be used, for example,
+to take specific actions only
+when a certain target or targets
+is explicitly being built:
+
+.ES
+if 'foo' in COMMAND_LINE_TARGETS:
+    print "Don't forget to test the `foo' program!"
+if 'special/program' in COMMAND_LINE_TARGETS:
+    SConscript('special')
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+DEFAULT_TARGETS
+A list of the target
+.I nodes
+that have been specified using the
+.BR Default ()
+function or method.
+The elements of the list are nodes,
+so you need to run them through the Python
+.B str
+function to get at the path name for each Node.
+
+.ES
+print str(DEFAULT_TARGETS[0])
+if 'foo' in map(str, DEFAULT_TARGETS):
+    print "Don't forget to test the `foo' program!"
+.EE
+.IP
+The contents of the
+.B DEFAULT_TARGETS
+list change on on each successive call to the
+.BR Default ()
+function:
+
+.ES
+print map(str, DEFAULT_TARGETS)   # originally []
+Default('foo')
+print map(str, DEFAULT_TARGETS)   # now a node ['foo']
+Default('bar')
+print map(str, DEFAULT_TARGETS)   # now a node ['foo', 'bar']
+Default(None)
+print map(str, DEFAULT_TARGETS)   # back to []
+.EE
+.IP
+Consequently, be sure to use
+.B DEFAULT_TARGETS
+only after you've made all of your
+.BR Default ()
+calls,
+or else simply be careful of the order
+of these statements in your SConscript files
+so that you don't look for a specific
+default target before it's actually been added to the list.
 
 .SS Construction Variables
 .\" XXX From Gary Ruben, 23 April 2002:

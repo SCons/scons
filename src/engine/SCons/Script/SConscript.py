@@ -53,13 +53,27 @@ import string
 import sys
 import traceback
 import types
+import UserList
+
+launch_dir = os.path.abspath(os.curdir)
 
 def do_nothing(text): pass
 HelpFunction = do_nothing
 
-arguments = {}
+Arguments = {}
+CommandLineTargets = []
+DefaultCalled = None
+DefaultTargets = []
 GlobalDict = {}
-launch_dir = os.path.abspath(os.curdir)
+
+class TargetList(UserList.UserList):
+    def _do_nothing(self, *args, **kw):
+        pass
+    def _add_Default(self, list):
+        self.extend(list)
+    def _clear(self):
+        del self[:]
+BuildTargets = TargetList()
 
 # global exports set by Export():
 global_exports = {}
@@ -71,10 +85,16 @@ sconscript_chdir = 1
 sconscript_reading = 0
 
 def _scons_add_args(alist):
-    global arguments
     for arg in alist:
         a, b = string.split(arg, '=', 2)
-        arguments[a] = b
+        Arguments[a] = b
+
+def _scons_add_targets(tlist):
+    if tlist:
+        CommandLineTargets.extend(tlist)
+        BuildTargets.extend(tlist)
+        BuildTargets._add_Default = BuildTargets._do_nothing
+        BuildTargets._clear = BuildTargets._do_nothing
 
 def get_calling_namespaces():
     """Return the locals and globals for the function that called
@@ -387,6 +407,26 @@ class SConsEnvironment(SCons.Environment.Base):
     # as global functions.
     #
 
+    def Default(self, *targets):
+        global DefaultCalled
+        global DefaultTargets
+        DefaultCalled = 1
+        for t in targets:
+            if t is None:
+                # Delete the elements from the list in-place, don't
+                # reassign an empty list to DefaultTargets, so that the
+                # DEFAULT_TARGETS variable will still point to the
+                # same object we point to.
+                del DefaultTargets[:]
+                BuildTargets._clear()
+            elif isinstance(t, SCons.Node.Node):
+                DefaultTargets.append(t)
+                BuildTargets._add_Default([t])
+            else:
+                nodes = self.arg2nodes(t, self.fs.Entry)
+                DefaultTargets.extend(nodes)
+                BuildTargets._add_Default(nodes)
+
     def EnsureSConsVersion(self, major, minor):
         """Exit abnormally if the SCons version is not late enough."""
         if not self._check_version(major,minor,SCons.__version__):
@@ -460,7 +500,7 @@ class SConsEnvironment(SCons.Environment.Base):
 #
 SCons.Environment.Environment = SConsEnvironment
 
-def Options(files=None, args=arguments):
+def Options(files=None, args=Arguments):
     return SCons.Options.Options(files, args)
 
 def SetBuildSignatureType(type):
@@ -545,6 +585,7 @@ class DefaultEnvironmentCall:
 # DefaultEnvironment().
 GlobalDefaultEnvironmentFunctions = [
     # Methods from the SConsEnvironment class, above.
+    'Default',
     'EnsurePythonVersion',
     'EnsureSConsVersion',
     'Exit',
@@ -566,7 +607,6 @@ GlobalDefaultEnvironmentFunctions = [
     'CacheDir',
     'Clean',
     'Command',
-    'Default',
     'Depends',
     'Dir',
     'File',
@@ -624,23 +664,31 @@ def BuildDefaultGlobals():
     SConstruct and SConscript files.
     """
 
-    globals = {}
-    globals['Action']            = SCons.Action.Action
-    globals['ARGUMENTS']         = arguments
-    globals['BoolOption']        = SCons.Options.BoolOption
-    globals['Builder']           = SCons.Builder.Builder
-    globals['Configure']         = SCons.SConf.SConf
-    globals['EnumOption']        = SCons.Options.EnumOption
-    globals['Environment']       = SCons.Environment.Environment
-    globals['ListOption']        = SCons.Options.ListOption
-    globals['Options']           = Options
-    globals['PackageOption']     = SCons.Options.PackageOption
-    globals['PathOption']        = SCons.Options.PathOption
-    globals['Platform']          = SCons.Platform.Platform
-    globals['Return']            = Return
-    globals['Scanner']           = SCons.Scanner.Base
-    globals['Tool']              = SCons.Tool.Tool
-    globals['WhereIs']           = SCons.Util.WhereIs
+    globals = {
+        # Global functions that don't get executed through the
+        # default Environment.
+        'Action'                : SCons.Action.Action,
+        'BoolOption'            : SCons.Options.BoolOption,
+        'Builder'               : SCons.Builder.Builder,
+        'Configure'             : SCons.SConf.SConf,
+        'EnumOption'            : SCons.Options.EnumOption,
+        'Environment'           : SCons.Environment.Environment,
+        'ListOption'            : SCons.Options.ListOption,
+        'Options'               : Options,
+        'PackageOption'         : SCons.Options.PackageOption,
+        'PathOption'            : SCons.Options.PathOption,
+        'Platform'              : SCons.Platform.Platform,
+        'Return'                : Return,
+        'Scanner'               : SCons.Scanner.Base,
+        'Tool'                  : SCons.Tool.Tool,
+        'WhereIs'               : SCons.Util.WhereIs,
+
+        # Other variables we provide.
+        'ARGUMENTS'             : Arguments,
+        'BUILD_TARGETS'         : BuildTargets,
+        'COMMAND_LINE_TARGETS'  : CommandLineTargets,
+        'DEFAULT_TARGETS'       : DefaultTargets,
+    }
 
     # Functions we might still convert to Environment methods.
     globals['CScan']             = SCons.Defaults.CScan

@@ -73,12 +73,71 @@
   </section>
 
   <section>
+  <title>Getting at Command-Line Targets</title>
+
+    <para>
+
+    &SCons; supports a &COMMAND_LINE_TARGETS; variable
+    that lets you get at the list of targets that the
+    user specified on the command line.
+    You can use the targets to manipulate the
+    build in any way you wish.
+    As a simple example,
+    suppose that you want to print a reminder
+    to the user whenever a specific program is built.
+    You can do this by checking for the
+    target in the &COMMAND_LINE_TARGETS; list:
+
+    </para>
+
+    <scons_example name="COMMAND_LINE_TARGETS">
+      <file name="SConstruct" printme="1">
+      if 'bar' in COMMAND_LINE_TARGETS:
+          print "Don't forget to copy `bar' to the archive!"
+      Default(Program('foo.c'))
+      Program('bar.c')
+      </file>
+      <file name="foo.c">
+      foo.c
+      </file>
+      <file name="bar.c">
+      foo.c
+      </file>
+    </scons_example>
+
+    <para>
+
+    Then, running &SCons; with the default target
+    works as it always does,
+    but explicity specifying the &bar; target
+    on the command line generates the warning message:
+
+    </para>
+
+    <scons_output example="COMMAND_LINE_TARGETS">
+      <command>scons -Q</command>
+      <command>scons -Q bar</command>
+    </scons_output>
+
+    <para>
+
+    Another practical use for the &COMMAND_LINE_TARGETS; variable
+    might be to speed up a build
+    by only reading certain subsidiary &SConscript;
+    files if a specific target is requested.
+
+    </para>
+
+  </section>
+
+  <section>
   <title>Controlling the Default Targets</title>
 
     <para>
 
     One of the most basic things you can control
-    is which targets &SCons; will build by default.
+    is which targets &SCons; will build by default--that is,
+    when there are no targets specified on the command line.
     As mentioned previously,
     &SCons; will normally build every target
     in or below the current directory
@@ -276,22 +335,182 @@
        <command>scons -Q .</command>
     </scons_output>
 
+    <section>
+    <title>Getting at the List of Default Targets</title>
+
+      <para>
+
+      &SCons; supports a &DEFAULT_TARGETS; variable
+      that lets you get at the current list of default targets.
+      The &DEFAULT_TARGETS variable has
+      two important differences from the &COMMAND_LINE_TARGETS; variable.
+      First, the &DEFAULT_TARGETS; variable is a list of
+      internal &SCons; nodes,
+      so you need to convert the list elements to strings
+      if you want to print them or look for a specific target name.
+      Fortunately, you can do this easily
+      by using the Python <function>map</function> function
+      to run the list through <function>str</function>:
+
+      </para>
+
+      <scons_example name="DEFAULT_TARGETS_1">
+         <file name="SConstruct" printme="1">
+         prog1 = Program('prog1.c')
+         Default(prog1)
+         print "DEFAULT_TARGETS is", map(str, DEFAULT_TARGETS)
+         </file>
+         <file name="prog1.c">
+         prog1.c
+         </file>
+      </scons_example>
+
+      <para>
+
+      (Keep in mind that all of the manipulation of the
+      &DEFAULT_TARGETS; list takes place during the
+      first phase when &SCons; is reading up the &SConscript; files,
+      which is obvious if 
+      we leave off the <literal>-Q</literal> flag when we run &SCons;:)
+
+      </para>
+
+      <scons_output example="DEFAULT_TARGETS_1">
+         <command>scons</command>
+      </scons_output>
+
+      <para>
+
+      Second,
+      the contents of the &DEFAULT_TARGETS; list change
+      in response to calls to the &Default: function,
+      as you can see from the following &SConstruct; file:
+
+      </para>
+
+      <scons_example name="DEFAULT_TARGETS_2">
+         <file name="SConstruct" printme="1">
+         prog1 = Program('prog1.c')
+         Default(prog1)
+         print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
+         prog2 = Program('prog2.c')
+         Default(prog2)
+         print "DEFAULT_TARGETS is now", map(str, DEFAULT_TARGETS)
+         </file>
+         <file name="prog1.c">
+         prog1.c
+         </file>
+         <file name="prog2.c">
+         prog2.c
+         </file>
+      </scons_example>
+
+      <para>
+
+      Which yields the output:
+
+      </para>
+
+      <scons_output example="DEFAULT_TARGETS_2">
+         <command>scons</command>
+      </scons_output>
+
+      <para>
+
+      In practice, this simply means that you
+      need to pay attention to the order in
+      which you call the &Default; function
+      and refer to the &DEFAULT_TARGETS; list,
+      to make sure that you don't examine the
+      list before you've added the default targets
+      you expect to find in it.
+
+      </para>
+
+    </section>
+
   </section>
 
-  <!--
-
   <section>
-  <title>Getting at Command-Line Targets</title>
+  <title>Getting at the List of Build Targets, Regardless of Origin</title>
 
     <para>
 
-    XXX
+    We've already been introduced to the
+    &COMMAND_LINE_TARGETS; variable,
+    which contains a list of targets specified on the command line,
+    and the &DEFAULT_TARGETS; variable,
+    which contains a list of targets specified
+    via calls to the &Default; method or function.
+    Sometimes, however,
+    you want a list of whatever targets
+    &SCons; will try to build,
+    regardless of whether the targets came from the
+    command line or a &Default; call.
+    You could code this up by hand, as follows:
 
     </para>
 
-  </section>
+    <sconstruct>
+      if COMMAND_LINE_TARGETS:
+          targets = COMMAND_LINE_TARGETS
+      else:
+          targets = DEFAULT_TARGETS
+    </sconstruct>
 
-  -->
+    <para>
+
+    &SCons;, however, provides a convenient
+    &BUILD_TARGETS; variable
+    that eliminates the need for this by-hand manipulation.
+    Essentially, the &BUILD_TARGETS; variable
+    contains a list of the command-line targets,
+    if any were specified,
+    and if no command-line targets were specified,
+    it contains a list of the targets specified
+    via the &Default; method or function.
+
+    </para>
+
+    <para>
+
+    Because &BUILD_TARGETS; may contain a list of &SCons; nodes,
+    you must convert the list elements to strings
+    if you want to print them or look for a specific target name,
+    just like the &DEFAULT_TARGETS; list:
+
+    </para>
+
+    <scons_example name="BUILD_TARGETS_1">
+      <file name="SConstruct" printme="1">
+      prog1 = Program('prog1.c')
+      Program('prog2.c')
+      Default(prog1)
+      print "BUILD_TARGETS is", map(str, BUILD_TARGETS)
+      </file>
+      <file name="prog1.c">
+      prog1.c
+      </file>
+      <file name="prog2.c">
+      prog2.c
+      </file>
+    </scons_example>
+
+    <para>
+
+    Notice how the value of &BUILD_TARGETS;
+    changes depending on whether a target is
+    specified on the command line:
+
+    </para>
+
+    <scons_output example="BUILD_TARGETS_1">
+      <command>scons -Q</command>
+      <command>scons -Q prog2</command>
+      <command>scons -Q -c .</command>
+    </scons_output>
+
+  </section>
 
   <section>
   <title>Command-Line <varname>variable</varname>=<varname>value</varname> Build Options</title>
