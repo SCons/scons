@@ -19,6 +19,10 @@ RELEASE 0.12 - XXX
   - Remove deprecated features:  the "name" argument to Builder objects,
     and the Environment.Update() method.
 
+  - Add an Environment.SourceCode() method to support fetching files
+    from source code systems.  Add factory methods that create Builders
+    to support BitKeeper, CVS, RCS, SCCS and Subversion.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600

@@ -110,7 +110,7 @@ class ExceptBuilder2:
 class Environment:
     def Dictionary(self, *args):
         return {}
-    def Override(selv, overrides):
+    def Override(self, overrides):
         return overrides
 
 class Scanner:
@@ -166,7 +166,7 @@ class NodeTestCase(unittest.TestCase):
         node.overrides = { "foo" : 1, "bar" : 2 }
         node.build()
         assert built_it
-        assert built_target[0] == node, build_target[0]
+        assert built_target[0] == node, built_target[0]
         assert built_source == ["rrr", "sss"], built_source
         assert built_args["foo"] == 1, built_args
         assert built_args["bar"] == 2, built_args
@@ -184,6 +184,21 @@ class NodeTestCase(unittest.TestCase):
         fff.sources = ["hhh", "iii"]
         ggg.sources = ["hhh", "iii"]
         # [Charles C. 1/7/2002] Uhhh, why are there no asserts here?
+
+        built_it = None
+        jjj = MyNode("jjj")
+        b = Builder()
+        jjj.builder_set(b)
+        # NOTE:  No env_set()!  We should pull the environment from the builder.
+        b.env = Environment()
+        b.overrides = { "on" : 3, "off" : 4 }
+        e.builder = b
+        jjj.build()
+        assert built_it
+        assert built_target[0] == jjj, built_target[0]
+        assert built_source == [], built_source
+        assert built_args["on"] == 3, built_args
+        assert built_args["off"] == 4, built_args
 
         built_it = None
         built_order = 0

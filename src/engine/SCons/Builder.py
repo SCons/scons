@@ -216,12 +216,16 @@ class BuilderBase:
                         source_factory = None,
                         scanner = None,
                         emitter = None,
-                        multi = 0):
+                        multi = 0,
+                        env = None,
+                        overrides = {}):
         self.name = name
         self.action = SCons.Action.Action(action)
         self.multi = multi
         self.prefix = prefix
         self.suffix = suffix
+        self.env = env
+        self.overrides = overrides
 
         self.set_src_suffix(src_suffix)
 

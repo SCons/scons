@@ -367,6 +367,15 @@ class Environment:
             ret = ret[0]
         return ret
 
+    def SourceCode(self, entry, builder):
+        """Arrange for a source code builder for (part of) a tree."""
+        entries = SCons.Node.arg2nodes(entry, self.fs.Entry)
+        for entry in entries:
+            entry.set_src_builder(builder)
+        if len(entries) == 1:
+            return entries[0]
+        return entries
+
     def SideEffect(self, side_effect, target):
         """Tell scons that side_effects are built as side 
         effects of building targets."""

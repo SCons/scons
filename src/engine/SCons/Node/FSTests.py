@@ -1168,6 +1168,34 @@ class StringDirTestCase(unittest.TestCase):
         assert str(f) == os.path.join('sub', 'file')
         assert not f.exists()
 
+class has_builderTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test the has_builder() method"""
+        test = TestCmd(workdir = '')
+        fs = SCons.Node.FS.FS(test.workpath(''))
+        os.chdir(test.workpath(''))
+        test.subdir('sub')
+
+        d = fs.Dir('sub', '.')
+        f1 = fs.File('f1', d)
+        f2 = fs.File('f2', d)
+        f3 = fs.File('f3', d)
+
+        h = f1.has_builder()
+        assert not h, h
+
+        b1 = Builder(fs.File)
+        d.set_src_builder(b1)
+
+        test.write(['sub', 'f2'], "sub/f2\n")
+        h = f1.has_builder()    # cached from previous has_builder() call
+        assert not h, h
+        h = f2.has_builder()
+        assert not h, h
+        h = f3.has_builder()
+        assert h, h
+        assert f3.builder is b1, f3.builder
+
 class prepareTestCase(unittest.TestCase):
     def runTest(self):
         """Test the prepare() method"""
@@ -1328,6 +1356,7 @@ if __name__ == "__main__":
     suite.addTest(RepositoryTestCase())
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())
+    suite.addTest(has_builderTestCase())
     suite.addTest(prepareTestCase())
     suite.addTest(get_actionsTestCase())
     suite.addTest(CacheDirTestCase())

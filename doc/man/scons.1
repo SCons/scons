@@ -1349,6 +1349,45 @@ env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 .EE
 
 .TP
+.RI BitKeeper( repository ", " module )
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from the specified
+BitKeeper
+.IR repository .
+The returned Builder
+is intended to be passed to the
+.B SourceCode
+function.
+
+The optional specified
+.I module
+will be added to the beginning
+of all repository path names;
+this can be used, in essence,
+to strip initial directory names
+from the repository path names,
+so that you only have to
+replicate part of the repository
+directory hierarchy in your
+local build directory:
+
+.ES
+# Will fetch foo/bar/src.c
+# from /usr/local/BKsources/foo/bar/src.c.
+env.SourceCode('.', env.BitKeeper('/usr/local/BKsources'))
+
+# Will fetch bar/src.c
+# from /usr/local/BKsources/foo/bar/src.c.
+env.SourceCode('.', env.BitKeeper('/usr/local/BKsources', 'foo'))
+
+# Will fetch src.c
+# from /usr/local/BKsources/foo/bar/src.c.
+env.SourceCode('.', env.BitKeeper('/usr/local/BKsources', 'foo/bar'))
+.EE
+
+.TP
 .RI Command( target ", " source ", " commands )
 Executes a specific action
 (or list of actions)
@@ -1391,6 +1430,45 @@ for the keywords.
 .ES
 env2 = env.Copy()
 env3 = env.Copy(CCFLAGS = '-g')
+.EE
+
+.TP
+.RI CVS( repository ", " module )
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from the specified
+CVS
+.IR repository .
+The returned Builder
+is intended to be passed to the
+.B SourceCode
+function.
+
+The optional specified
+.I module
+will be added to the beginning
+of all repository path names;
+this can be used, in essence,
+to strip initial directory names
+from the repository path names,
+so that you only have to
+replicate part of the repository
+directory hierarchy in your
+local build directory:
+
+.ES
+# Will fetch foo/bar/src.c
+# from /usr/local/CVSROOT/foo/bar/src.c.
+env.SourceCode('.', env.CVS('/usr/local/CVSROOT'))
+
+# Will fetch bar/src.c
+# from /usr/local/CVSROOT/foo/bar/src.c.
+env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo'))
+
+# Will fetch src.c
+# from /usr/local/CVSROOT/foo/bar/src.c.
+env.SourceCode('.', env.CVS('/usr/local/CVSROOT', 'foo/bar'))
 .EE
 
 .TP
@@ -1487,13 +1565,40 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 .EE
 
 .TP
+.RI RCS( )
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from RCS.
+The returned Builder
+is intended to be passed to the
+.B SourceCode
+function:
+.ES
+env.SourceCode('.', env.RCS())
+.EE
+
+.TP
 .RI Replace( key = val ", [...])"
 Replaces construction variables in the Environment
 with the specified keyword arguments.
-(Note:  "Update()" is a deprecated synonym for this method.)
 
 .ES
 env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
+.EE
+
+.TP
+.RI SCCS( )
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from SCCS.
+The returned Builder
+is intended to be passed to the
+.B SourceCode
+function:
+.ES
+env.SourceCode('.', env.SCCS())
 .EE
 
 .TP
@@ -1519,6 +1624,96 @@ is executed at a time.
 Consequently, you only need to use this method
 for side-effect targets that are built as a result of
 multiple build commands.
+
+.TP
+.RI SourceCode( entries , builder )
+Arrange for non-existent source files to
+be fetched from a source code system
+using the specified
+.IR builder .
+The specified
+.I entries
+may be a Node, string or list of both,
+and may represent either individual
+source files or directories in which
+source files can be found.
+For any non-existent source files,
+.B scons
+will search up the directory tree
+and use the first
+.B SourceCode
+builder it finds.
+The specified
+.I builder
+may be
+.BR None ,
+in which case
+.B scons
+will not use a builder to fetch
+source files for the specified
+.IR entries ,
+even if a
+.B SourceCode
+builder has been specified
+for a directory higher up the tree.
+Note that if the specified
+.I builder
+is one you create by hand,
+it must have an associated
+construction environment to use
+when fetching a source file.
+.B scons
+provides a set of canned factory
+functions that return appropriate
+Builders for various popular
+source code management systems.
+Canonical examples of invocation include:
+.ES
+env.SourceCode('.', env.BitKeeper('/usr/local/BKsources'))
+env.SourceCode('src', env.CVS('/usr/local/CVSROOT'))
+env.SourceCode('/', env.RCS())
+env.SourceCode(['f1.c', 'f2.c'], env.SCCS())
+env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
+env.SourceCode('no_source.c', None)
+.EE
+
+.TP
+.RI Subversion( repository ", " module )
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from the specified Subversion
+.IR repository .
+The returned Builder
+is intended to be passed to the
+.B SourceCode
+function.
+
+The optional specified
+.I module
+will be added to the beginning
+of all repository path names;
+this can be used, in essence,
+to strip initial directory names
+from the repository path names,
+so that you only have to
+replicate part of the repository
+directory hierarchy in your
+local build directory:
+
+.ES
+# Will fetch foo/bar/src.c
+# from /usr/local/Subversion/foo/bar/src.c.
+env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
+
+# Will fetch bar/src.c
+# from /usr/local/Subversion/foo/bar/src.c.
+env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo'))
+
+# Will fetch src.c
+# from /usr/local/Subversion/foo/bar/src.c.
+env.SourceCode('.', env.Subversion('file:///usr/local/Subversion', 'foo/bar'))
+.EE
 
 .SS Construction Variables
 .\" XXX From Gary Ruben, 23 April 2002:
@@ -1570,6 +1765,16 @@ after first running the file through the C preprocessor.
 Any options specified in the $ASFLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
+.IP BITKEEPER
+The BitKeeper executable.
+
+.IP BITKEEPERCOM
+The command line used to
+fetch source files from a BitKeeper repository.
+
+.IP BITKEEPERFLAGS
+General options that are passed to BitKeeper.
+
 .IP BUILDERS
 A dictionary mapping the names of the builders
 available through this environment
@@ -1619,6 +1824,15 @@ SCons also treats
 (upper case) files
 as C files.
 
+.IP CO 
+The RCS "checkout" executable,
+used to fetch source files from RCS.
+See the related variables
+.B RCSCOM
+and
+.BR RCSFLAGS ,
+below.
+
 .IP _concat
 A function used to produce variables like $_CPPINCFLAGS. It takes six
 arguments: a prefix to concatenate onto each element, a list of elements, a
@@ -1630,7 +1844,6 @@ before concatenation.
 .ES
 env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, locals(), globals(), RDirs)} $)',
 .EE
-
 
 .IP CPPFLAGS
 C preprocessor options.
@@ -1695,6 +1908,16 @@ include $_CPPINCFLAGS:
 .ES
 env = Environment(CCCOM="my_compiler $_CPPINCFLAGS -c -o $TARGET $SOURCE")
 .EE
+
+.IP CVS
+The CVS executable.
+
+.IP CVSCOM
+The command line used to
+fetch source files from a CVS repository.
+
+.IP CVSFLAGS
+General options that are passed to CVS.
 
 .IP CXX
 The C++ compiler.
@@ -2135,12 +2358,37 @@ The command line used by the RES builder.
 .IP RCFLAGS
 The flags passed to the resource compiler by the RES builder.
 
+.IP RCS
+The RCS executable.
+Note that this variable is not actually used
+to fetch source files from RCS;
+see the
+.B CO
+construction variable, above.
+
+.IP RCSCOM
+The command line used to
+fetch source files from RCS.
+
+.IP RCSFLAGS
+General options that are passed to RCS.
+
 .IP RDirs
 A function that converts a file name into a list of Dir instances by
 searching the repositories. 
 
 .IP SCANNERS
 A list of the available implicit dependency scanners. [CScan] by default.
+
+.IP SCCS
+The SCCS executable.
+
+.IP SCCSCOM
+The command line used to
+fetch source files from SCCS.
+
+.IP SCCSFLAGS
+General options that are passed to SCCS.
 
 .IP SHCC
 The C compiler used for generating shared-library objects.
@@ -2232,6 +2480,17 @@ is that arguments to the command.
 .I env
 is a dictionary of the environment variables
 in which the command should be executed.
+
+.IP SUBVERSION
+The Subversion executable (usually named
+.BR svn ).
+
+.IP SUBVERSIONCOM
+The command line used to
+fetch source files from a Subversion repository.
+
+.IP SUBVERSIONFLAGS
+General options that are passed to Subversion.
 
 .IP TAR
 The tar archiver.
@@ -3188,6 +3447,24 @@ The
 and
 .I action
 arguments must not both be used for the same Builder.
+
+.IP env
+A construction environment that can be used
+to fetch source code using this Builder.
+(Note that this environment is
+.I not
+used for normal builds of normal target files,
+which use the environment that was
+used to call the Builder for the target file.)
+
+.IP overrides
+A dictionary of construction variables
+that will be set in the executing
+construction environment when this
+Builder is invoked.
+The canonical example here would be
+to set a construction variable to 
+the repository of a source code system.
 
 Any additional keyword arguments supplied
 when a Builder object is called

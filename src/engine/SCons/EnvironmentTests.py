@@ -473,6 +473,18 @@ class EnvironmentTestCase(unittest.TestCase):
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
+    def test_SourceCode(self):
+        """Test the SourceCode() method."""
+        env = Environment()
+        e = env.SourceCode('foo', None)
+        s = e.src_builder()
+        assert s is None, s
+
+        b = Builder()
+        env.SourceCode(e, b)
+        s = e.src_builder()
+        assert s is b, s
+
     def test_SideEffect(self):
         """Test the SideEffect() method"""
         env = Environment()

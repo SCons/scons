@@ -33,6 +33,8 @@ SCons/Taskmaster.py
 SCons/Tool/__init__.py
 SCons/Tool/386asm.py
 SCons/Tool/ar.py
+SCons/Tool/BitKeeper.py
+SCons/Tool/CVS.py
 SCons/Tool/default.py
 SCons/Tool/dvipdf.py
 SCons/Tool/dvips.py
@@ -56,11 +58,14 @@ SCons/Tool/nasm.py
 SCons/Tool/pdflatex.py
 SCons/Tool/pdftex.py
 SCons/Tool/PharLapCommon.py
+SCons/Tool/RCS.py
+SCons/Tool/SCCS.py
 SCons/Tool/sgiar.py
 SCons/Tool/sgias.py
 SCons/Tool/sgicc.py
 SCons/Tool/sgif77.py
 SCons/Tool/sgilink.py
+SCons/Tool/Subversion.py
 SCons/Tool/tar.py
 SCons/Tool/tex.py
 SCons/Tool/yacc.py

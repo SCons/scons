@@ -168,6 +168,9 @@ class ParentOfRoot:
     def get_dir(self):
         return None
 
+    def src_builder(self):
+        return None
+
 if os.path.normcase("TeSt") == os.path.normpath("TeSt"):
     def _my_normcase(x):
         return x
@@ -293,6 +296,24 @@ class Entry(SCons.Node.Node):
                 dir=dir.get_dir()
             self._srcnode = self
             return self._srcnode
+
+    def set_src_builder(self, builder):
+        """Set the source code builder for this node."""
+        self.sbuilder = builder
+
+    def src_builder(self):
+        """Fetch the source code builder for this node.
+
+        If there isn't one, we cache the source code builder specified
+        for the directory (which in turn will cache the value from its
+        parent directory, and so on up to the file system root).
+        """
+        try:
+            scb = self.sbuilder
+        except AttributeError:
+            scb = self.dir.src_builder()
+            self.sbuilder = scb
+        return scb
 
 # This is for later so we can differentiate between Entry the class and Entry
 # the method of the FS class.
@@ -994,6 +1015,22 @@ class File(Entry):
     def visited(self):
         if self.fs.CachePath and self.fs.cache_force and os.path.exists(self.path):
             CachePush(self, None, None)
+
+    def has_builder(self):
+        """Return whether this Node has a builder or not.
+
+        If this Node doesn't have an explicit builder, this is where we
+        figure out, on the fly, if there's a source code builder for it.
+        """
+        try:
+            b = self.builder
+        except AttributeError:
+            if not os.path.exists(self.path):
+                b = self.src_builder()
+            else:
+                b = None
+            self.builder = b
+        return not b is None
 
     def prepare(self):
         """Prepare for this file to be created."""

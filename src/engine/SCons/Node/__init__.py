@@ -89,15 +89,21 @@ class Node:
         pass
 
     def __init__(self):
+        # Note that we no longer explicitly initialize a self.builder
+        # attribute to None here.  That's because the self.builder
+        # attribute may be created on-the-fly later by a subclass (the
+        # canonical example being a builder to fetch a file from a
+        # source code system like CVS or Subversion).
+
         self.sources = []       # source files used to build node
         self.depends = []       # explicit dependencies (from Depends)
         self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
         self.ignore = []        # dependencies to ignore
         self.parents = {}
         self.wkids = None       # Kids yet to walk, when it's an array
-        self.builder = None
         self.source_scanner = None      # implicit scanner from scanner map
         self.target_scanner = None      # explicit scanner from this node's Builder
+
         self.env = None
         self.state = None
         self.precious = None
@@ -116,12 +122,32 @@ class Node:
         Annotate(self)
 
     def generate_build_env(self):
-        return self.env.Override(self.overrides)
+        """Generate the appropriate Environment to build this node."""
+        if self.env is None:
+            # The node itself doesn't have an associated Environment
+            # (which kind of implies it's a source code file, but who
+            # knows...).  Regardless of why, use the environment (if
+            # any) associated with the Builder itself.
+            env = self.builder.env
+            overrides = self.builder.overrides
+        else:
+            # The normal case: use the Environment used to specify how
+            # this Node is to be built.
+            env = self.env
+            overrides = self.overrides
+        return env.Override(overrides)
 
     def _for_each_action(self, func):
+        """Call a function for each action required to build a node.
+
+        The purpose here is to have one place for the logic that
+        collects and executes all of the actions for a node's builder,
+        even though multiple sections of code elsewhere need this logic
+        to do different things."""
         if not self.has_builder():
-            return None
-        action_list = self.pre_actions + self.builder.get_actions() + \
+            return
+        action_list = self.pre_actions + \
+                      self.builder.get_actions() + \
                       self.post_actions
         if not action_list:
             return
@@ -193,7 +219,14 @@ class Node:
         class(es), generating a bazillion extra calls and slowing
         things down immensely.
         """
-        return not self.builder is None
+        try:
+            b = self.builder
+        except AttributeError:
+            # There was no explicit builder for this Node, so initialize
+            # the self.builder attribute to None now.
+            self.builder = None
+            b = self.builder
+        return not b is None
 
     def builder_sig_adapter(self):
         """Create an adapter for calculating a builder's signature.

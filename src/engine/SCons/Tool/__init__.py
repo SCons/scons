@@ -200,9 +200,11 @@ def tool_list(platform, env):
         else:
             cxx_compiler = FindTool(['g++'], env)
         
-    other_tools = FindAllTools(['dvipdf', 'dvips',
+    other_tools = FindAllTools(['BitKeeper', 'CVS',
+                                'dvipdf', 'dvips',
                                 'latex', 'lex',
                                 'pdflatex', 'pdftex',
+                                'RCS', 'SCCS', 'Subversion',
                                 'tar', 'tex', 'yacc'], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
