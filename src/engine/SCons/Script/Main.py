@@ -868,8 +868,6 @@ def _main(args, parser):
         if script_dir:
             display("scons: Entering directory `%s'" % script_dir)
             os.chdir(script_dir)
-        else:
-            raise SCons.Errors.UserError, "No SConstruct file found."
 
     fs.set_toplevel_dir(os.getcwd())
 

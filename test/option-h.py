@@ -31,14 +31,29 @@ import sys
 test = TestSCons.TestSCons()
 
 test.run(arguments = '-h')
+test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
 
+test.run(arguments = '-u -h')
+test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+
+test.run(arguments = '-U -h')
+test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+
+test.run(arguments = '-D -h')
 test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
 
 test.write('SConstruct', "")
 
 test.run(arguments = '-h')
+test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
 
+test.run(arguments = '-u -h')
+test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+
+test.run(arguments = '-U -h')
+test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
+
+test.run(arguments = '-D -h')
 test.fail_test(string.find(test.stdout(), '-h, --help') == -1)
 
 test.pass_test()
- 
