@@ -123,6 +123,9 @@ RELEASE 0.14 - XXX
   - Contribute the "Autoscons" code for Autoconf-like checking for
     the existence of libraries, header files and the like.
 
+  - Have the Tool() function add the tool name to the $TOOLS
+    construction variable.
+
   From Greg Spencer:
 
   - Support the C preprocessor #import statement.

@@ -2944,6 +2944,10 @@ The command line used to call the TeX formatter and typesetter.
 .IP TEXFLAGS
 General options passed to the TeX formatter and typesetter.
 
+.IP TOOLS
+A list of the names of the Tool specifications
+that are part of this construction environment.
+
 .IP WIN32_INSERT_DEF
 When this is set to true,
 a library build of a WIN32 shared library (.dll file)
@@ -4168,6 +4172,21 @@ tools keyword of the Environment() method.
 
 .ES
 env = Environment(tools = [ Tool('msvc') ])
+.EE
+
+The object may be called with a construction
+environment as an argument,
+in which case the object will be
+add the necessary variables
+to the construction environment
+and the name of the tool will be added to the
+.B $TOOLS
+construction variable.
+
+.ES
+env = Environment()
+t = Tool('msvc')
+t(env)  # adds 'msvc' to the TOOLS variable
 .EE
 
 .TP

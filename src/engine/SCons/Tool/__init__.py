@@ -48,6 +48,10 @@ class ToolSpec:
     def __init__(self, name):
         self.name = name
 
+    def __call__(self, env, *args, **kw):
+        env.Append(TOOLS = [ self.name ])
+        apply(self.generate, ( env, ) + args, kw)
+
     def __str__(self):
         return self.name
     
@@ -66,7 +70,7 @@ def Tool(name):
         if file:
             file.close()
     spec = ToolSpec(name)
-    spec.__call__ = sys.modules[full_name].generate
+    spec.generate = sys.modules[full_name].generate
     spec.exists = sys.modules[full_name].exists
     return spec
 

@@ -39,6 +39,8 @@ class ToolTestCase(unittest.TestCase):
                 if not SCons.Util.is_List(progs):
                     progs = [ progs ]
                 return progs[0]
+            def Append(self, **kw):
+                self.dict.update(kw)
             def __getitem__(self, key):
                 return self.dict[key]
             def __setitem__(self, key, val):
@@ -52,6 +54,7 @@ class ToolTestCase(unittest.TestCase):
         assert (env['CXX'] == 'c++' or env['CXX'] == 'g++'), env['CXX']
         assert env['CXXFLAGS'] == '$CCFLAGS', env['CXXFLAGS']
         assert env['INCPREFIX'] == '-I', env['INCPREFIX']
+        assert env['TOOLS'] == ['g++'], env['TOOLS']
 
         try:
             SCons.Tool.Tool()
