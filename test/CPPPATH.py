@@ -176,4 +176,12 @@ SConscript('variant/SConscript', "env")
 
 test.up_to_date(arguments = args)
 
+# Check that a null-string CPPPATH doesn't blow up.
+test.write('SConstruct', """
+env = Environment(CPPPATH = '')
+env.Library('foo', source = '')
+""")
+
+test.run(arguments = '.')
+
 test.pass_test()

@@ -306,7 +306,12 @@ class VarInterpolator:
         if not dict.has_key(self.src):
             dict[self.dest] = ''
             return
-        src = self.prepareSrc(dict)
+
+        src = filter(lambda x: not x is None, self.prepareSrc(dict))
+
+        if not src:
+            dict[self.dest] = ''
+            return
 
         try:
             prefix = str(dict[self.prefix])
@@ -345,16 +350,18 @@ class DirVarInterp(VarInterpolator):
         self.fs = None
         self.Dir = None
         self.dictInstCache = {}
-        
+
     def prepareSrc(self, dict):
         src = VarInterpolator.prepareSrc(self, dict)
-	
-	def prepare(x, self=self):
-	    if not isinstance(x, SCons.Node.Node):
-		return self.fs.Dir(str(x), directory=self.dir)
-	    else:
-		return x
-	    
+
+        def prepare(x, self=self):
+            if isinstance(x, SCons.Node.Node):
+                return x
+            elif str(x):
+                return self.fs.Dir(str(x), directory=self.dir)
+            else:
+                return None
+
         return map(prepare, src)
 
     def instance(self, dir, fs):

@@ -112,4 +112,12 @@ env.Library(target = './libs/foo1', source = 'f1.c')
 
 test.up_to_date(arguments = '.', stderr = None)
 
+# Check that a null-string LIBPATH doesn't blow up.
+test.write('SConstruct', """
+env = Environment(LIBPATH = '')
+env.Library('foo', source = '')
+""")
+
+test.run(arguments = '.')
+
 test.pass_test()

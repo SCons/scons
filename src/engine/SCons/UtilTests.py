@@ -242,6 +242,12 @@ class UtilTestCase(unittest.TestCase):
         assert dict['_INCFLAGS'][7] == '$)', \
                dict['_INCFLAGS'][7]
 
+        dict = {'CPPPATH'  : '',
+                'LIBPATH'  : '' }
+        autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/yy'))
+        assert len(dict['_INCFLAGS']) == 0, dict['_INCFLAGS']
+        assert len(dict['_LIBDIRFLAGS']) == 0, dict['_LIBDIRFLAGS']
+
     def test_render_tree(self):
         class Node:
             def __init__(self, name, children=[]):

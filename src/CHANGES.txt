@@ -32,6 +32,9 @@ RELEASE 0.06 -
   - Use the POSIX-standard lex -t flag, not the GNU-specific -o flag.
     (Bug reported by Russell Christensen.)
 
+  - Fixed an exception when CPPPATH or LIBPATH is a null string.
+    (Bug reported by Richard Kiss.)
+
 
 
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
