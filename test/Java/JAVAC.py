@@ -91,18 +91,17 @@ line 3
     test.must_match('test2.class', "test2.JAVA\nline 3\n")
 
 
-if test.detect_tool('javac'):
-    where_javac = test.detect('JAVAC', 'javac')
+
+ENV = test.java_ENV()
+
+if test.detect_tool('javac', ENV=ENV):
+    where_javac = test.detect('JAVAC', 'javac', ENV=ENV)
 else:
-    import SCons.Environment
-    env = SCons.Environment.Environment()
-    where_javac = env.WhereIs('javac', os.environ['PATH'])
-    if not where_javac:
-        where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
-        if not where_javac:
-            print "Could not find Java, skipping test(s)."
-            test.pass_test(1)
-        
+    where_javac = test.where_is('javac')
+if not where_javac:
+    print "Could not find Java javac, skipping test(s)."
+    test.pass_test(1)
+
 
 
 test.write("wrapper.py", """\

@@ -121,15 +121,15 @@ if swig:
     version = sys.version[:3] # see also sys.prefix documentation
 
     # handle testing on other platforms:
+    ldmodule_prefix = '_'
+
     frameworks = ''
-    ldmodule_prefix = ''
     platform_sys_prefix = sys.prefix
     if sys.platform == 'darwin':
         # OS X has a built-in Python but no static libpython
         # so you should link to it using apple's 'framework' scheme.
         # (see top of file for further explanation)
         frameworks = '-framework Python'
-        ldmodule_prefix = '_'
         platform_sys_prefix = '/System/Library/Frameworks/Python.framework/Versions/%s/' % version
     
     test.write("wrapper.py",
@@ -191,7 +191,7 @@ extern char *bar_string();
 
     test.run(arguments = ldmodule_prefix+'foo' + _dll)
 
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
+    test.must_not_exist(test.workpath('wrapper.out'))
 
     test.run(program = python, stdin = """\
 import foo
@@ -204,7 +204,7 @@ This is foo.c!
 
     test.run(arguments = ldmodule_prefix+'bar' + _dll)
 
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+    test.must_match('wrapper.out', "wrapper.py\n")
 
     test.run(program = python, stdin = """\
 import foo

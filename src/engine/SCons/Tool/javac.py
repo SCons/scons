@@ -61,6 +61,9 @@ def emit_java_classes(target, source, env):
             java_files = filter(lambda n, js=js:
                                 _my_normcase(n[-len(js):]) == js,
                                 names)
+            # The on-disk entries come back in arbitrary order.  Sort them
+            # so our target and source lists are determinate.
+            java_files.sort()
             mydir = dirnode.Dir(dirname)
             java_paths = map(lambda f, d=mydir: d.File(f), java_files)
             arg.extend(java_paths)

@@ -49,7 +49,9 @@ for opt, arg in cmd_opts:
     else: opt_string = opt_string + ' ' + opt
 def process(outfile, name):
     if os.path.isdir(name):
-        for entry in os.listdir(name):
+        entries = os.listdir(name)
+        entries.sort()
+        for entry in entries:
 	    process(outfile, os.path.join(name, entry))
     else:
         outfile.write(open(name, 'rb').read())
