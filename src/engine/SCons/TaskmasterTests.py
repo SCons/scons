@@ -38,7 +38,8 @@ class Node:
         self.name = name
         self.kids = kids
         self.builder = Node.build
-        self.signature = None
+        self.bsig = None
+        self.csig = None
         self.state = None
         self.parents = []
 
@@ -61,8 +62,11 @@ class Node:
     def set_state(self, state):
         self.state = state
 
-    def set_signature(self, sig):
-        self.signature = sig
+    def set_bsig(self, bsig):
+        self.bsig = bsig
+
+    def set_csig(self, csig):
+        self.csig = csig
   
     def children_are_executed(self):
         return reduce(lambda x,y: ((y.get_state() == SCons.Node.executed
@@ -70,38 +74,6 @@ class Node:
                                    and x),
                       self.children(),
                       1)
-
-
-
-#class Task(unittest.TestCase):
-#    def test_execute(self):
-#        pass
-#
-#    def test_get_target(self):
-#        pass
-#
-#    def test_set_sig(self):
-#        pass
-#
-#    def test_set_state(self):
-#        pass
-#
-#    def test_up_to_date(self):
-#        pass
-#
-#    def test_executed(self):
-#        pass
-#
-#    def test_failed(self):
-#        pass
-#
-#    def test_fail_stop(self):
-#        pass
-#
-#    def test_fail_continue(self):
-#        pass
-
-    
 
 
 
@@ -142,7 +114,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
         assert tm.next_task() == None
 
-        global top_node
+        built = "up to date: "
         top_node = n3
 
         class MyCalc(SCons.Taskmaster.Calc):
@@ -168,7 +140,6 @@ class TaskmasterTestCase(unittest.TestCase):
 
         t = tm.next_task()
         t.execute()
-        print built
         assert built == "n1 up-to-date"
         t.executed()
 
@@ -295,10 +266,10 @@ class TaskmasterTestCase(unittest.TestCase):
         assert tm.next_task() is None
 
     #def test_add_pending(self):
-    #    passs
+    #    pass
     #
     #def test_remove_pending(self):
-    #    passs
+    #    pass
 
 
 

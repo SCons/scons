@@ -262,9 +262,6 @@ class Entry(SCons.Node.Node):
 	"""A FS node's string representation is its path name."""
 	return self.path
 
-    def set_signature(self, sig):
-        SCons.Node.Node.set_signature(self, sig)
-
     def exists(self):
         return os.path.exists(self.path)
 
@@ -340,7 +337,11 @@ class Dir(Entry):
         """A null "builder" for directories."""
         pass
 
-    def set_signature(self, sig):
+    def set_bsig(self, bsig):
+        """A directory has no signature."""
+        pass
+
+    def set_csig(self, csig):
         """A directory has no signature."""
         pass
 
@@ -359,11 +360,13 @@ class Dir(Entry):
             return 0
 
     def sconsign(self):
+        """Return the .sconsign file info for this directory,
+        creating it first if necessary."""
         if not self._sconsign:
             #XXX Rework this to get rid of the hard-coding
             import SCons.Sig
             import SCons.Sig.MD5
-            self._sconsign = SCons.Sig.SConsignFile(self.path, SCons.Sig.MD5)
+            self._sconsign = SCons.Sig.SConsignFile(self, SCons.Sig.MD5)
         return self._sconsign
 
 
@@ -408,13 +411,26 @@ class File(Entry):
         else:
             return 0
 
-    def set_signature(self, sig):
-        Entry.set_signature(self, sig)
-        #XXX Rework this to get rid of the hard-coding
-        import SCons.Sig.MD5
-        self.dir.sconsign().set(self.name, self.get_timestamp(), sig, SCons.Sig.MD5)
+    def set_bsig(self, bsig):
+        """Set the build signature for this file, updating the
+        .sconsign entry."""
+        Entry.set_bsig(self, bsig)
+        self.set_sconsign()
 
-    def get_oldentry(self):
+    def set_csig(self, csig):
+        """Set the content signature for this file, updating the
+        .sconsign entry."""
+        Entry.set_csig(self, csig)
+        self.set_sconsign()
+
+    def set_sconsign(self):
+        """Update a file's .sconsign entry with its current info."""
+        self.dir.sconsign().set(self.name, self.get_timestamp(),
+                                self.get_bsig(), self.get_csig())
+
+    def get_prevsiginfo(self):
+        """Fetch the previous signature information from the
+        .sconsign entry."""
         return self.dir.sconsign().get(self.name)
 
 

@@ -52,8 +52,11 @@ class DummyNode:
         self.builder = file.builder
 	self.depends = []
         self.use_signature = 1
+        self.bsig = None
+        self.csig = None
         self.oldtime = 0
-        self.oldsig = 0
+        self.oldbsig = 0
+        self.oldcsig = 0
         
     def get_contents(self):
         # a file that doesn't exist has no contents:
@@ -78,17 +81,14 @@ class DummyNode:
             return 0
         return None
 
-    def has_signature(self):
-        return hasattr(self, "sig")
+    def set_bsig(self, bsig):
+        self.bsig = bsig
 
-    def set_signature(self, sig):
-        self.sig = sig
+    def get_bsig(self):
+        return self.bsig
 
-    def get_signature(self):
-        return self.sig
-
-    def get_oldentry(self):
-        return (self.oldtime, self.oldsig)
+    def get_prevsiginfo(self):
+        return (self.oldtime, self.oldbsig, self.oldcsig)
 
 
 def create_files(test):
@@ -132,7 +132,8 @@ def current(calc, node):
 def write(calc, nodes):
     for node in nodes:
         node.oldtime = node.file.timestamp
-        node.oldsig = calc.get_signature(node)
+        node.oldbsig = calc.bsig(node)
+        node.oldcsig = calc.csig(node)
         
 
 class SigTestBase:
@@ -246,30 +247,33 @@ class CalcTestCase(unittest.TestCase):
             def current(self, newsig, oldsig):
                 return newsig == oldsig
             def signature(self, node):
-                return node.get_signature()
+                return node.get_csig()
 
         class MyNode:
-            def __init__(self, name, sig):
+            def __init__(self, name, bsig, csig):
                 self.name = name
-                self.sig = sig
+                self.bsig = bsig
+                self.csig = csig
                 self.kids = []
                 self.builder = None
                 self.use_signature = 1
             def children(self):
                 return self.kids
-            def has_signature(self):
-                return self.sig != None
-            def get_signature(self):
-                return self.sig
-            def get_oldentry(self):
-                return 0, self.sig
+            def exists(self):
+                return 1
+            def get_bsig(self):
+                return self.bsig
+            def get_csig(self):
+                return self.csig
+            def get_prevsiginfo(self):
+                return 0, self.bsig, self.csig
             def get_timestamp(self):
                 return 1
 
         self.module = MySigModule()
         self.nodeclass = MyNode
         self.test_Calc___init__()
-        self.test_Calc_collect()
+        self.test_Calc_bsig()
         self.test_Calc_get_signature()
         self.test_Calc_current()
 
@@ -277,14 +281,19 @@ class CalcTestCase(unittest.TestCase):
         self.calc = SCons.Sig.Calculator(self.module)
         assert self.calc.module == self.module
 
-    def test_Calc_collect(self):
-        n1 = self.nodeclass('n1', 11)
-        n2 = self.nodeclass('n2', 22)
-        n3 = self.nodeclass('n3', 33)
+    def test_Calc_bsig(self):
+        n1 = self.nodeclass('n1', 11, 12)
+        n2 = self.nodeclass('n2', 22, 23)
+        n3 = self.nodeclass('n3', 33, 34)
         n1.builder = 1
         n1.kids = [n2, n3]
 
-        assert self.calc.collect(n1) == 55
+        assert self.calc.bsig(n1) == 55
+
+    def test_Calc_bsig(self):
+        n = self.nodeclass('n', 11, 12)
+
+        assert self.calc.csig(n) == 12
 
     def test_Calc_get_signature(self):
         class NE(self.nodeclass):
@@ -298,24 +307,24 @@ class CalcTestCase(unittest.TestCase):
             def has_signature(self):
                 return None
 
-        n1 = self.nodeclass('n1', 11)
+        n1 = self.nodeclass('n1', 11, 12)
         n1.use_signature = 0
         assert self.calc.get_signature(n1) is None
 
-        n2 = self.nodeclass('n2', 22)
-        assert self.calc.get_signature(n2) == 22
+        n2 = self.nodeclass('n2', 22, 23)
+        assert self.calc.get_signature(n2) == 23
 
-        n3 = self.nodeclass('n3', 33)
-        n4 = self.nodeclass('n4', None)
+        n3 = self.nodeclass('n3', 33, 34)
+        n4 = self.nodeclass('n4', None, None)
         n4.builder = 1
         n4.kids = [n2, n3]
-        assert self.calc.get_signature(n4) == 55
+        assert self.calc.get_signature(n4) == 57
 
-        n5 = NE('n5', 55)
+        n5 = NE('n5', 55, 56)
         assert self.calc.get_signature(n5) is None
 
-        n6 = NN('n6', 66)
-        assert self.calc.get_signature(n6) == 66
+        n6 = NN('n6', 66, 67)
+        assert self.calc.get_signature(n6) == 67
 
     def test_Calc_current(self):
         class N0(self.nodeclass):
@@ -328,15 +337,15 @@ class CalcTestCase(unittest.TestCase):
             def current(self):
                 return None
 
-        n0 = N0('n0', 11)
+        n0 = N0('n0', 11, 12)
         assert not self.calc.current(n0, 10)
         assert not self.calc.current(n0, 11)
 
-        n1 = N1('n1', 22)
+        n1 = N1('n1', 22, 23)
         assert self.calc.current(n1, 20)
         assert self.calc.current(n1, 22)
 
-        nn = NN('nn', 33)
+        nn = NN('nn', 33, 34)
         assert not self.calc.current(nn, 30)
         assert self.calc.current(nn, 33)
 

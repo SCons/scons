@@ -61,9 +61,12 @@ class Node:
 	self.builder = None
 	self.env = None
         self.state = None
+        self.bsig = None
+        self.csig = None
         self.use_signature = 1
 
     def build(self):
+        """Actually build the node.   Return the status from the build."""
 	if not self.builder:
 	    return None
 	sources_str = string.join(map(lambda x: str(x), self.sources))
@@ -79,14 +82,23 @@ class Node:
     def env_set(self, env):
 	self.env = env
 
-    def has_signature(self):
-        return hasattr(self, "signature")
+    def get_bsig(self):
+        """Get the node's build signature (based on the signatures
+        of its dependency files and build information)."""
+        return self.bsig
 
-    def set_signature(self, signature):
-        self.signature = signature
+    def set_bsig(self, bsig):
+        """Set the node's build signature (based on the signatures
+        of its dependency files and build information)."""
+        self.bsig = bsig
 
-    def get_signature(self):
-        return self.signature
+    def get_csig(self):
+        """Get the signature of the node's content."""
+        return self.csig
+
+    def set_csig(self, csig):
+        """Set the signature of the node's content."""
+        self.csig = csig
 
     def add_dependency(self, depend):
 	"""Adds dependencies. The depend argument must be a list."""

@@ -254,7 +254,29 @@ class FSTestCase(unittest.TestCase):
         assert e5.path_ == "e3/e5", e5.path_
 	assert e5.dir.path == "e3", e5.dir.path
 
-        #XXX test set_signature()
+        e8 = fs.Entry("e8")
+        assert e8.get_bsig() is None, e8.get_bsig()
+        assert e8.get_csig() is None, e8.get_csig()
+        e8.set_bsig('xxx')
+        e8.set_csig('yyy')
+        assert e8.get_bsig() == 'xxx', e8.get_bsig()
+        assert e8.get_csig() == 'yyy', e8.get_csig()
+
+        f9 = fs.File("f9")
+        assert f9.get_bsig() is None, f9.get_bsig()
+        assert f9.get_csig() is None, f9.get_csig()
+        f9.set_bsig('xxx')
+        f9.set_csig('yyy')
+        assert f9.get_bsig() == 'xxx', f9.get_bsig()
+        assert f9.get_csig() == 'yyy', f9.get_csig()
+
+        d10 = fs.Dir("d10")
+        assert d10.get_bsig() is None, d10.get_bsig()
+        assert d10.get_csig() is None, d10.get_csig()
+        d10.set_bsig('xxx')
+        d10.set_csig('yyy')
+        assert d10.get_bsig() is None, d10.get_bsig()
+        assert d10.get_csig() is None, d10.get_csig()
 
         #XXX test exists()
 
@@ -272,7 +294,7 @@ class FSTestCase(unittest.TestCase):
 
         #XXX test get_timestamp()
 
-        #XXX test get_oldentry()
+        #XXX test get_prevsiginfo()
 
 
 

@@ -52,54 +52,75 @@ class SConsignFile:
         module - the signature module being used
         """
         
-        self.path = os.path.join(dir, '.sconsign')
+        self.dir = dir
+        self.module = module
+        self.sconsign = os.path.join(dir.path, '.sconsign')
         self.entries = {}
+        self.dirty = None
                     
         try:
-            file = open(self.path, 'rt')
+            file = open(self.sconsign, 'rt')
         except:
             pass
         else:
             for line in file.readlines():
                 filename, rest = map(string.strip, string.split(line, ":"))
-                time, signature = map(string.strip, string.split(rest, " "))
-                self.entries[filename] = (int(time), module.from_string(signature))
+                self.entries[filename] = rest
 
         global sig_files
         sig_files.append(self)
 
     def get(self, filename):
         """
-        Get the signature for a file
+        Get the .sconsign entry for a file
 
         filename - the filename whose signature will be returned
-        returns - (timestamp, signature)
+        returns - (timestamp, bsig, csig)
         """
         
         try:
-            return self.entries[filename]
+            arr = map(string.strip, string.split(self.entries[filename], " "))
         except KeyError:
-            return (0, None)
+            return (None, None, None)
+        try:
+            if arr[1] == '-': bsig = None
+            else:             bsig = self.module.from_string(arr[1])
+        except IndexError:
+            bsig = None
+        try:
+            if arr[2] == '-': csig = None
+            else:             csig = self.module.from_string(arr[2])
+        except IndexError:
+            csig = None
+        return (int(arr[0]), bsig, csig)
 
-    def set(self, filename, timestamp, signature, module):
+    def set(self, filename, timestamp, bsig = None, csig = None):
         """
-        Set the signature for a file
+        Set the .sconsign entry for a file
 
         filename - the filename whose signature will be set
         timestamp - the timestamp
-        signature - the signature
         module - the signature module being used
+        bsig - the file's build signature
+        csig - the file's content signature
         """
-        self.entries[filename] = (timestamp, module.to_string(signature))
+        if bsig is None: bsig = '-'
+        else:            bsig = self.module.to_string(bsig)
+        if csig is None: csig = ''
+        else:            csig = ' ' + self.module.to_string(csig)
+        self.entries[filename] = "%d %s%s" % (timestamp, bsig, csig)
+        self.dirty = 1
 
     def write(self):
         """
         Write the .sconsign file to disk.
         """
-        
-        file = open(self.path, 'wt')
-        for item in self.entries.items():
-            file.write("%s: %d %s\n" % (item[0], item[1][0], item[1][1]))
+        if self.dirty:
+            file = open(self.sconsign, 'wt')
+            keys = self.entries.keys()
+            keys.sort()
+            for name in keys:
+                file.write("%s: %s\n" % (name, self.entries[name]))
 
 
 class Calculator:
@@ -116,24 +137,39 @@ class Calculator:
         """
         self.module = module
 
-    
-    def collect(self, node):
+    def bsig(self, node):
         """
-        Collect the signatures of a node's sources.
+        Generate a node's build signature, the digested signatures
+        of its dependency files and build information.
 
         node - the node whose sources will be collected
+        returns - the build signature
 
         This no longer handles the recursive descent of the
         node's children's signatures.  We expect that they're
         already built and updated by someone else, if that's
         what's wanted.
         """
+        #XXX If configured, use the content signatures from the
+        #XXX .sconsign file if the timestamps match.
         sigs = map(lambda n,s=self: s.get_signature(n), node.children())
         return self.module.collect(filter(lambda x: not x is None, sigs))
 
+    def csig(self, node):
+        """
+        Generate a node's content signature, the digested signature
+        of its content.
+
+        node - the node
+        returns - the content signature
+        """
+        #XXX If configured, use the content signatures from the
+        #XXX .sconsign file if the timestamps match.
+        return self.module.signature(node)
+
     def get_signature(self, node):
         """
-        Get the signature for a node.
+        Get the appropriate signature for a node.
 
         node - the node
         returns - the signature or None if the signature could not
@@ -147,27 +183,22 @@ class Calculator:
             # This node type doesn't use a signature (e.g. a
             # directory) so bail right away.
             return None
-        elif node.has_signature():
-            sig = node.get_signature()
         elif node.builder:
-            sig = self.collect(node)
+            return self.bsig(node)
+        elif not node.exists():
+            return None
         else:
-            if not node.exists():
-                return None
-            
-            # XXX handle nodes that are not under the source root
-            sig = self.module.signature(node)
-
-        return sig
+            return self.csig(node)
 
     def current(self, node, newsig):
         """
-        Check if a node is up to date.
+        Check if a signature is up to date with respect to a node.
 
         node - the node whose signature will be checked
+        newsig - the (presumably current) signature of the file
 
-        returns - 0 if the signature has changed since the last invocation,
-        and 1 if it hasn't
+        returns - 1 if the file is current with the specified signature,
+        0 if it isn't
         """
 
         c = node.current()
@@ -178,11 +209,9 @@ class Calculator:
             # that doesn't exist, or a directory.
             return c
 
-        oldtime, oldsig = node.get_oldentry()
+        oldtime, oldbsig, oldcsig = node.get_prevsiginfo()
 
-        newtime = node.get_timestamp()
-
-        if not node.builder and newtime == oldtime:
-            newsig = oldsig
+        if not node.builder and node.get_timestamp() == oldtime:
+            return 1
         
-        return self.module.current(newsig, oldsig)
+        return self.module.current(newsig, oldbsig)

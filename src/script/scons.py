@@ -311,10 +311,10 @@ def options_init():
         global task_class, calc
         task_class = CleanTask
         class CleanCalculator:
-            def get_signature(self, node):
+            def bsig(self, node):
                 return None
-            def set_signature(self, node, sig):
-                pass
+            def csig(self, node):
+                return None
             def current(self, node, sig):
                 return 0
             def write(self):

@@ -37,11 +37,25 @@ import SCons.Node
 
 
 class Task:
-    """Default SCons build engine task."""
+    """Default SCons build engine task.
+    
+    This controls the interaction of the actual building of node
+    and the rest of the engine.
+
+    This is expected to handle all of the normally-customizable
+    aspects of controlling a build, so any given application
+    *should* be able to do what it wants by sub-classing this
+    class and overriding methods as appropriate.  If an application
+    needs to customze something by sub-classing Taskmaster (or
+    some other build engine class), we should first try to migrate
+    that functionality into this class.
+    
+    Note that it's generally a good idea for sub-classes to call
+    these methods explicitly to update state, etc., rather than
+    roll their own interaction with Taskmaster from scratch."""
     def __init__(self, tm, target, top):
         self.tm = tm
         self.target = target
-        self.sig = None
         self.top = top
 
     def execute(self):
@@ -49,28 +63,49 @@ class Task:
             self.target.build()
 
     def get_target(self):
+        """Fetch the target being built or updated by this task.
+        """
         return self.target
 
-    def set_sig(self, sig):
-        self.sig = sig
+    def set_bsig(self, bsig):
+        """Set the task's (*not* the target's)  build signature.
 
-    def set_state(self, state):
+        This will be used later to update the target's build
+        signature if the build succeeds."""
+        self.bsig = bsig
+
+    def set_tstate(self, state):
+        """Set the target node's state."""
         self.target.set_state(state)
 
     def executed(self):
+        """Called when the task has been successfully executed.
+
+        This may have been a do-nothing operation (to preserve
+        build order), so check the node's state before updating
+        things.  Most importantly, this calls back to the
+        Taskmaster to put any node tasks waiting on this one
+        back on the pending list."""
         if self.target.get_state() == SCons.Node.executing:
-            self.set_state(SCons.Node.executed)
+            self.set_tstate(SCons.Node.executed)
+            self.target.set_bsig(self.bsig)
             self.tm.add_pending(self.target)
-            self.target.set_signature(self.sig)
 
     def failed(self):
+        """Default action when a task fails:  stop the build."""
         self.fail_stop()
 
     def fail_stop(self):
-        self.set_state(SCons.Node.failed)
+        """Explicit stop-the-build failure."""
+        self.set_tstate(SCons.Node.failed)
         self.tm.stop()
 
     def fail_continue(self):
+        """Explicit continue-the-build failure.
+
+        This sets failure status on the target node and all of
+        its dependent parent nodes.
+        """
         def get_parents(node): return node.get_parents()
         walker = SCons.Node.Walker(self.target, get_parents)
         while 1:
@@ -82,15 +117,10 @@ class Task:
 
 
 class Calc:
-    def get_signature(self, node):
+    def bsig(self, node):
         """
         """
         return None
-
-    def set_signature(self, node):
-        """
-        """
-        pass
 
     def current(self, node, sig):
         """Default SCons build engine is-it-current function.
@@ -119,9 +149,9 @@ class Taskmaster:
         self._find_next_ready_node()
 
     def next_task(self):
+        """Return the next task to be executed."""
         if self.ready:
             task = self.ready.pop()
-            
             if not self.ready:
                 self._find_next_ready_node()
             return task
@@ -147,7 +177,7 @@ class Taskmaster:
                 # set the signature for non-derived files
                 # here so they don't get recalculated over
                 # and over again:
-                n.set_signature(self.calc.get_signature(n))
+                n.set_csig(self.calc.csig(n))
                 continue
             task = self.tasker(self, n, self.walkers[0].is_done())
             if not n.children_are_executed():
@@ -155,42 +185,42 @@ class Taskmaster:
                 n.task = task
                 self.pending = self.pending + 1
                 continue
-            sig = self.calc.get_signature(n)
-            task.set_sig(sig)
-            if self.calc.current(n, sig):
-                task.set_state(SCons.Node.up_to_date)
-            else:
-                task.set_state(SCons.Node.executing)
-
-            self.ready.append(task)
+            self.make_ready(task, n)
             return
             
     def is_blocked(self):
         return not self.ready and self.pending
 
     def stop(self):
+        """Stop the current build completely."""
         self.walkers = []
         self.pending = 0
         self.ready = []
 
     def add_pending(self, node):
-        # add all the pending parents that are now executable to the 'ready'
-        # queue:
+        """Add all the pending parents that are now executable
+        to the 'ready' queue."""
         ready = filter(lambda x: (x.get_state() == SCons.Node.pending
                                   and x.children_are_executed()),
                        node.get_parents())
         for n in ready:
             task = n.task
             delattr(n, "task")
-            sig = self.calc.get_signature(n)
-            task.set_sig(sig)
-            if self.calc.current(n, sig):
-                task.set_state(SCons.Node.up_to_date)
-            else:
-                task.set_state(SCons.Node.executing)
-            self.ready.append(task)
+            self.make_ready(task, n) 
         self.pending = self.pending - len(ready)
 
     def remove_pending(self, node):
+        """Remove a node from the 'ready' queue."""
         if node.get_state() == SCons.Node.pending:
             self.pending = self.pending - 1
+
+    def make_ready(self, task, node):
+        """Common routine that takes a single task+node and makes
+        them available on the 'ready' queue."""
+        bsig = self.calc.bsig(node)
+        task.set_bsig(bsig)
+        if self.calc.current(node, bsig):
+            task.set_tstate(SCons.Node.up_to_date)
+        else:
+            task.set_tstate(SCons.Node.executing)
+        self.ready.append(task)

@@ -103,27 +103,33 @@ class NodeTestCase(unittest.TestCase):
 	node.env_set(e)
 	assert node.env == e
 
-    def test_has_signature(self):
-	"""Test whether or not a node has a signature
-	"""
-	node = SCons.Node.Node()
-	assert not node.has_signature()
-	node.set_signature('xxx')
-	assert node.has_signature()
+    def test_set_bsig(self):
+        """Test setting a Node's signature
+        """
+        node = SCons.Node.Node()
+        node.set_bsig('www')
+        assert node.bsig == 'www'
 
-    def test_set_signature(self):
-	"""Test setting a Node's signature
-	"""
-	node = SCons.Node.Node()
-	node.set_signature('yyy')
-        assert node.signature == 'yyy'
+    def test_get_bsig(self):
+        """Test fetching a Node's signature
+        """
+        node = SCons.Node.Node()
+        node.set_bsig('xxx')
+        assert node.get_bsig() == 'xxx'
 
-    def test_get_signature(self):
-	"""Test fetching a Node's signature
-	"""
-	node = SCons.Node.Node()
-	node.set_signature('zzz')
-        assert node.get_signature() == 'zzz'
+    def test_set_csig(self):
+        """Test setting a Node's signature
+        """
+        node = SCons.Node.Node()
+        node.set_csig('yyy')
+        assert node.csig == 'yyy'
+
+    def test_get_csig(self):
+        """Test fetching a Node's signature
+        """
+        node = SCons.Node.Node()
+        node.set_csig('zzz')
+        assert node.get_csig() == 'zzz'
 
     def test_add_dependency(self):
 	"""Test adding dependencies to a Node's list.
