@@ -24,9 +24,12 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import re
+import string
 import sys
 import types
 import unittest
+import UserList
 
 import SCons.Errors
 import SCons.Node
@@ -1118,9 +1121,39 @@ class NodeTestCase(unittest.TestCase):
         n1.call_for_all_waiting_parents(func)
         assert result == [n1, n2], result
 
+class NodeListTestCase(unittest.TestCase):
+    def test___str__(self):
+        """Test"""
+        n1 = MyNode("n1")
+        n2 = MyNode("n2")
+        n3 = MyNode("n3")
+        nl = SCons.Node.NodeList([n3, n2, n1])
+
+        l = [1]
+        ul = UserList.UserList([2])
+        try:
+            l.extend(ul)
+        except TypeError:
+            # An older version of Python (*cough* 1.5.2 *cough*)
+            # that doesn't allow UserList objects to extend lists.
+            pass
+        else:
+            s = str(nl)
+            assert s == "['n3', 'n2', 'n1']", s
+
+        r = repr(nl)
+        r = re.sub('at (0x)?[0-9a-z]+', 'at 0x', repr(nl))
+        l = string.join(["<__main__.MyNode instance at 0x>"]*3, ", ")
+        assert r == '[%s]' % l, r
+
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(NodeTestCase, 'test_')
+    suite = unittest.TestSuite()
+    tclasses = [ NodeTestCase,
+                 NodeListTestCase ]
+    for tclass in tclasses:
+        names = unittest.getTestCaseNames(tclass, 'test_')
+        suite.addTests(map(tclass, names))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

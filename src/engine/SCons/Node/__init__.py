@@ -48,6 +48,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import copy
 import string
+import UserList
 
 from SCons.Debug import logInstanceCreation
 import SCons.SConsign
@@ -957,6 +958,20 @@ class Node:
         else:
             lines = ["%s:\n" % preamble] + lines
             return string.join(lines, ' '*11)
+
+l = [1]
+ul = UserList.UserList([2])
+try:
+    l.extend(ul)
+except TypeError:
+    def NodeList(l):
+        return l
+else:
+    class NodeList(UserList.UserList):
+        def __str__(self):
+            return str(map(str, self.data))
+del l
+del ul
 
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass

@@ -34,6 +34,7 @@ import os.path
 import sys
 import types
 import unittest
+import UserList
 
 import TestCmd
 
@@ -206,8 +207,8 @@ class BuilderTestCase(unittest.TestCase):
                                         target_factory=MyNode,
                                         source_factory=MyNode)
 
-        n1 = MyNode("n1");
-        n2 = MyNode("n2");
+        n1 = MyNode("n1")
+        n2 = MyNode("n2")
         builder(env, target = n1, source = n2)
         assert env_arg2nodes_called
         assert n1.env == env, n1.env
@@ -216,15 +217,48 @@ class BuilderTestCase(unittest.TestCase):
         assert n1.executor, "no executor found"
         assert not hasattr(n2, 'env')
 
-        target = builder(env, target = 'n3', source = 'n4')[0]
+        l = [1]
+        ul = UserList.UserList([2])
+        try:
+            l.extend(ul)
+        except TypeError:
+            def mystr(l):
+                return str(map(str, l))
+        else:
+            mystr = str
+
+        nnn1 = MyNode("nnn1")
+        nnn2 = MyNode("nnn2")
+        tlist = builder(env, target = [nnn1, nnn2], source = [])
+        s = mystr(tlist)
+        assert s == "['nnn1', 'nnn2']", s
+        l = map(str, tlist)
+        assert l == ['nnn1', 'nnn2'], l
+
+        tlist = builder(env, target = 'n3', source = 'n4')
+        s = mystr(tlist)
+        assert s == "['n3']", s
+        target = tlist[0]
+        l = map(str, tlist)
+        assert l == ['n3'], l
         assert target.name == 'n3'
         assert target.sources[0].name == 'n4'
 
-        target = builder(env, target = 'n4 n5', source = ['n6 n7'])[0]
+        tlist = builder(env, target = 'n4 n5', source = ['n6 n7'])
+        s = mystr(tlist)
+        assert s == "['n4 n5']", s
+        l = map(str, tlist)
+        assert l == ['n4 n5'], l
+        target = tlist[0]
         assert target.name == 'n4 n5'
         assert target.sources[0].name == 'n6 n7'
 
-        target = builder(env, target = ['n8 n9'], source = 'n10 n11')[0]
+        tlist = builder(env, target = ['n8 n9'], source = 'n10 n11')
+        s = mystr(tlist)
+        assert s == "['n8 n9']", s
+        l = map(str, tlist)
+        assert l == ['n8 n9'], l
+        target = tlist[0]
         assert target.name == 'n8 n9'
         assert target.sources[0].name == 'n10 n11'
 

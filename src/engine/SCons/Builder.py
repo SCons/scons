@@ -126,6 +126,7 @@ import SCons.Action
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
 import SCons.Executor
+import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
@@ -578,7 +579,7 @@ class BuilderBase:
             builder = ListBuilder(self, env, tlist)
         _init_nodes(builder, env, overwarn.data, executor_kw, tlist, slist)
 
-        return tlist
+        return SCons.Node.NodeList(tlist)
 
     def __call__(self, env, target=None, source=None, chdir=_null, **kw):
         # We now assume that target and source are lists or None.
