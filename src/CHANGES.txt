@@ -18,6 +18,11 @@ RELEASE 0.14 - XXX
 
   - Remove the "platform" argument from tool specifications.
 
+  From Allen Bierbaum:
+
+  - Pass an Environment to the Options validator method, and
+    add an Options.Save() method.
+
   From Steven Knight:
 
   - Add support for Java (javac and jar).

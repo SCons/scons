@@ -30,6 +30,7 @@ variables to a scons build.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Errors
+import SCons.Util
 import os.path
 
 
@@ -38,13 +39,20 @@ class Options:
     Holds all the options, updates the environment with the variables,
     and renders the help text.
     """
-    def __init__(self, file=None):
+    def __init__(self, files=None):
         """
-        file - [optional] the name of the customizable file.
+        files - [optional] List of option configuration files to load
+            (backward compatibility) If a single string is passed it is 
+                                     automatically placed in a file list
         """
 
         self.options = []
-        self.file = file
+        self.files = None
+        if SCons.Util.is_String(files):
+           self.files = [ files ]
+        elif files:
+           self.files = files
+
 
     def Add(self, key, help="", default=None, validater=None, converter=None):
         """
@@ -54,8 +62,9 @@ class Options:
         help - optional help text for the options
         default - optional default value
         validater - optional function that is called to validate the option's value
+                    Called with (key, value, environment)
         converter - optional function that is called to convert the option's value before
-            putting it in the environment.
+                    putting it in the environment.
         """
 
         class Option:
@@ -67,6 +76,7 @@ class Options:
         option.default = default
         option.validater = validater
         option.converter = converter
+        option.should_save = 0
 
         self.options.append(option)
 
@@ -86,11 +96,24 @@ class Options:
                 values[option.key] = option.default
 
         # next set the value specified in the options file
-        if self.file and os.path.exists(self.file):
-            execfile(self.file, values)
+        if self.files:
+           for filename in self.files:
+              if os.path.exists(filename):
+                 execfile(filename, values)
 
         # finally set the values specified on the command line
         values.update(args)
+        
+        # Update the should save state
+        # This will mark options that have either been set on command line
+        # or in a loaded option file
+        # KeyError occurs when an option has default of None and has not been set
+        for option in self.options:
+            try:
+                if values[option.key] != option.default:
+                    option.should_save = 1
+            except KeyError:
+                pass
 
         # put the variables in the environment:
         # (don't copy over variables that are not declared
@@ -114,8 +137,38 @@ class Options:
         # Finally validate the values:
         for option in self.options:
             if option.validater:
-                option.validater(option.key, env.subst('${%s}'%option.key))
+                option.validater(option.key, env.subst('${%s}'%option.key), env)
+                
+    
 
+    def Save(self, filename, env):
+        """
+        Saves all the options in the given file.  This file can
+        then be used to load the options next run.  This can be used
+        to create an option cache file.
+
+        filename - Name of the file to save into
+        env - the environment get the option values from
+        """
+
+        # Create the file and write out the header
+        try:
+            fh = open(filename, 'w')
+
+            # Make an assignment in the file for each option within the environment
+            # that was assigned a value other than the default.
+            for option in self.options:
+                try:
+                    value = env[option.key]
+                    if option.should_save:
+                        fh.write('%s = \'%s\'\n' % (option.key, value))
+                except KeyError:
+                    pass
+
+            fh.close()
+
+        except IOError, x:
+            raise SCons.Errors.UserError, 'Error writing options to file: %s\n%s' % (filename, x)
 
     def GenerateHelpText(self, env):
         """

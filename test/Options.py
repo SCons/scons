@@ -39,6 +39,11 @@ test.run()
 cc, ccflags = string.split(test.stdout(), '\n')[1:3]
 
 test.write('SConstruct', """
+# test validator.  Change a key and add a new one to the environment
+def validator(key, value, environ):
+    environ[key] = "v"
+    environ["valid_key"] = "v"
+
 opts = Options('custom.py')
 opts.Add('RELEASE_BUILD',
          'Set to 1 to build a release build',
@@ -55,6 +60,12 @@ opts.Add('DEBUG_BUILD',
 opts.Add('CC',
          'The C compiler')
 
+opts.Add('VALIDATE',
+         'An option for testing validation',
+         "notset",
+         validator,
+         None)
+
 opts.Add('UNSPECIFIED',
          'An option with no value')
 
@@ -63,7 +74,7 @@ def test_tool(env):
         env['CCFLAGS'] = env['CCFLAGS'] + ' -O'
     if env['DEBUG_BUILD']:
         env['CCFLAGS'] = env['CCFLAGS'] + ' -g'
-    
+
 
 env = Environment(options=opts, tools=['default', test_tool])
 
@@ -73,6 +84,8 @@ print env['RELEASE_BUILD']
 print env['DEBUG_BUILD']
 print env['CC']
 print env['CCFLAGS']
+print env['VALIDATE']
+print env['valid_key']
 
 # unspecified options should not be set:
 assert not env.has_key('UNSPECIFIED')
@@ -88,7 +101,7 @@ opts.Update(env)
 assert env['RELEASE_BUILD'] == r
 
 Default(env.Alias('dummy', None))
-        
+
 """)
 
 def check(expect):
@@ -96,22 +109,22 @@ def check(expect):
     assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 test.run()
-check(['0', '1', cc, ccflags + ' -g'])
+check(['0', '1', cc, ccflags + ' -g', 'v', 'v'])
 
 test.run(arguments='"RELEASE_BUILD=1"')
-check(['1', '1', cc, ccflags + ' -O -g'])
+check(['1', '1', cc, ccflags + ' -O -g', 'v', 'v'])
 
 test.run(arguments='"RELEASE_BUILD=1" "DEBUG_BUILD=0"')
-check(['1', '0', cc, ccflags + ' -O'])
+check(['1', '0', cc, ccflags + ' -O', 'v', 'v'])
 
 test.run(arguments='"CC=not_a_c_compiler"')
-check(['0', '1', 'not_a_c_compiler', ccflags + ' -g'])
+check(['0', '1', 'not_a_c_compiler', ccflags + ' -g', 'v', 'v'])
 
 test.run(arguments='"UNDECLARED=foo"')
-check(['0', '1', cc, ccflags + ' -g'])
+check(['0', '1', cc, ccflags + ' -g', 'v', 'v'])
 
 test.run(arguments='"CCFLAGS=--taco"')
-check(['0', '1', cc, ccflags + ' -g'])
+check(['0', '1', cc, ccflags + ' -g', 'v', 'v'])
 
 test.write('custom.py', """
 DEBUG_BUILD=0
@@ -119,11 +132,11 @@ RELEASE_BUILD=1
 """)
 
 test.run()
-check(['1', '0', cc, ccflags + ' -O'])
+check(['1', '0', cc, ccflags + ' -O', 'v', 'v'])
 
 test.run(arguments='"DEBUG_BUILD=1"')
-check(['1', '1', cc, ccflags + ' -O -g'])
-   
+check(['1', '1', cc, ccflags + ' -O -g', 'v', 'v'])
+
 test.run(arguments='-h',
          stdout = """scons: Reading SConscript files ...
 scons: done reading SConscript files.
@@ -141,11 +154,108 @@ CC: The C compiler
     default: None
     actual: %s
 
+VALIDATE: An option for testing validation
+    default: notset
+    actual: v
+
 UNSPECIFIED: An option with no value
     default: None
     actual: None
 
 Use scons -H for help about command-line options.
 """%cc)
+
+# Test saving of options and multi loading
+#
+test.write('SConstruct', """
+opts = Options(['custom.py', 'options.saved'])
+opts.Add('RELEASE_BUILD',
+         'Set to 1 to build a release build',
+         0,
+         None,
+         int)
+
+opts.Add('DEBUG_BUILD',
+         'Set to 1 to build a debug build',
+         1,
+         None,
+         int)
+
+opts.Add('UNSPECIFIED',
+         'An option with no value')
+
+env = Environment(options = opts)
+
+print env['RELEASE_BUILD']
+print env['DEBUG_BUILD']
+
+opts.Save('options.saved', env)
+""")
+
+# Check the save file by executing and comparing against
+# the expected dictionary
+def checkSave(file, expected):
+    gdict = {}
+    ldict = {}
+    execfile(file, gdict, ldict)
+    assert expected == ldict
+
+# First test with no command line options
+# This should just leave the custom.py settings
+test.run()
+check(['1','0'])
+checkSave('options.saved', { 'RELEASE_BUILD':'1', 'DEBUG_BUILD':'0'})
+
+# Override with command line arguments
+test.run(arguments='"DEBUG_BUILD=3"')
+check(['1','3'])
+checkSave('options.saved', {'RELEASE_BUILD':'1', 'DEBUG_BUILD':'3'})
+
+# Now make sure that saved options are overridding the custom.py
+test.run()
+check(['1','3'])
+checkSave('options.saved', {'DEBUG_BUILD':'3', 'RELEASE_BUILD':'1'})
+
+# Load no options from file(s)
+# Used to test for correct output in save option file
+test.write('SConstruct', """
+opts = Options()
+opts.Add('RELEASE_BUILD',
+         'Set to 1 to build a release build',
+         '0',
+         None,
+         int)
+
+opts.Add('DEBUG_BUILD',
+         'Set to 1 to build a debug build',
+         '1',
+         None,
+         int)
+
+opts.Add('UNSPECIFIED',
+         'An option with no value')
+
+env = Environment(options = opts)
+
+print env['RELEASE_BUILD']
+print env['DEBUG_BUILD']
+
+opts.Save('options.saved', env)
+""")
+
+# First check for empty output file when nothing is passed on command line
+test.run()
+check(['0','1'])
+checkSave('options.saved', {})
+
+# Now specify one option the same as default and make sure it doesn't write out
+test.run(arguments='"DEBUG_BUILD=1"')
+check(['0','1'])
+checkSave('options.saved', {})
+
+# Now specify same option non-default and make sure only it is written out
+test.run(arguments='"DEBUG_BUILD=0"')
+check(['0','0'])
+checkSave('options.saved',{'DEBUG_BUILD':'0'})
 
 test.pass_test()

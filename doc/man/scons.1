@@ -2863,11 +2863,11 @@ command line or a text-based SConscript file through an Options
 object. To create an Options object, call the Options() function:
 
 .TP
-.RI Options([ file ])
+.RI Options([ files ])
 This creates an Options object that will read construction variables from
-the filename based in the 
-.I file
-argument. If no filename is given, then no file will be read. Example:
+the file or list of filenames given in the  
+.I files
+argument. If no files are given, then no files will be read. Example:
 
 .ES
 opts = Options('custom.py')
@@ -2885,8 +2885,8 @@ is the help text for the variable.
 .I default 
 is the default value of the variable.
 .I validater
-is called to validate the value of the variable, and should take two
-arguments: key and value.
+is called to validate the value of the variable, and should take three
+arguments: key, value, and environment
 .I converter
 is called to convert the value before putting it in the environment, and
 should take a single argument: value. Example:
@@ -2905,6 +2905,22 @@ the Environment() function:
 
 .ES
 env = Environment(options=opts)
+.EE
+
+.TP
+.RI Save( filename ", " env )
+This saves the currently set options into a script file named  
+.I filename
+that can be used on the next invocation to automatically load the current
+settings.  This method combined with the Options method can be used to
+support caching of options between runs.
+
+.ES
+env = Environment()
+opts = Options(['options.cache', 'custom.py'])
+opts.Add(...)
+opts.Update(env)
+opts.Save('options.cache', env)
 .EE
 
 .TP

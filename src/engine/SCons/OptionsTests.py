@@ -29,6 +29,7 @@ import SCons.Options
 import sys
 import string
 
+
 class Environment:
     def __init__(self):
         self.dict = {}
@@ -42,8 +43,16 @@ class Environment:
         return self.dict.has_key(key)
 
 
-def check(key,value):
+def check(key,value, env):
     assert value == 6 * 9,key
+    
+# Check saved option file by executing and comparing against
+# the expected dictionary
+def checkSave(file, expected):
+    gdict = {}
+    ldict = {}
+    execfile(file, gdict, ldict)
+    assert expected == ldict
 
 class OptionsTestCase(unittest.TestCase):
     def test_Add(self):
@@ -62,12 +71,13 @@ class OptionsTestCase(unittest.TestCase):
         assert o.default == None
         assert o.validater == None
         assert o.converter == None
+	assert o.should_save == 0
 
         o = opts.options[1]
         assert o.key == 'ANSWER'
         assert o.help == 'THE answer to THE question'
         assert o.default == "42"
-        o.validater(o.key, o.converter(o.default))
+        o.validater(o.key, o.converter(o.default), {})
 
     def test_Update(self):
 
@@ -131,6 +141,27 @@ class OptionsTestCase(unittest.TestCase):
         env = Environment()
         opts.Update(env, {'ANSWER':'42'})
         assert env['ANSWER'] == 54
+
+
+    def test_Save(self):
+
+        test = TestSCons.TestSCons()
+        cache_file = test.workpath('cached.options')
+        opts = SCons.Options.Options()
+        
+        # test saving out empty file
+        opts.Add('OPT_VAL',
+                 'An option to test',
+                 21,
+                 None,
+                 None)
+
+        env = Environment()
+        opts.Update(env, {})
+        assert env['OPT_VAL'] == 21
+        opts.Save(cache_file, env)
+        checkSave(cache_file, {})
+
 
     def test_GenerateHelpText(self):
         opts = SCons.Options.Options()
