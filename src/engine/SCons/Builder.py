@@ -70,7 +70,7 @@ def Action(act):
 	l = string.split(act, "\n")
 	if len(l) > 1:
 	    act = l
-    if type(act) == types.FunctionType:
+    if callable(act):
 	return FunctionAction(act)
     elif type(act) == types.StringType:
 	return CommandAction(act)

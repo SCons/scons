@@ -145,6 +145,23 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert d.__class__.__name__ == 'File'
 	assert d.path == 'Environment.py'
 
+    def test_Command(self):
+        """Test the Command() method."""
+        env = Environment()
+        t = env.Command(target='foo.out', source=['foo1.in', 'foo2.in'],
+                        action='buildfoo %(target)s %(source)s')
+        assert t.derived
+        assert t.builder.action.__class__.__name__ == 'CommandAction'
+        assert t.builder.action.command == 'buildfoo %(target)s %(source)s'
+        assert 'foo1.in' in map(lambda x: x.path, t.sources)
+        assert 'foo2.in' in map(lambda x: x.path, t.sources)
+
+        def testFunc(ENV, target, source):
+            assert target == 'foo.out'
+            assert source == 'foo1.in foo2.in' or source == 'foo2.in foo1.in'
+        env.Command(target='foo.out', source=['foo1.in','foo2.in'],
+                    action=testFunc)
+
     def test_subst(self):
 	"""Test substituting construction variables within strings
 	

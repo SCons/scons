@@ -80,16 +80,16 @@ class BuilderTestCase(unittest.TestCase):
 	one is an internal Python function, one is a list
 	containing one of each.
 	"""
+
 	cmd1 = "python %s %s xyzzy" % (act_py, outfile)
+
 	builder = SCons.Builder.Builder(action = cmd1)
 	r = builder.execute()
 	assert r == 0
 	assert test.read(outfile, 'r') == "act.py: xyzzy\n"
 
 	def function1(kw):
-	    f = open(kw['out'], 'w')
-	    f.write("function1\n")
-	    f.close()
+	    open(kw['out'], 'w').write("function1\n")
 	    return 1
 
 	builder = SCons.Builder.Builder(action = function1)
@@ -97,14 +97,44 @@ class BuilderTestCase(unittest.TestCase):
 	assert r == 1
 	assert test.read(outfile, 'r') == "function1\n"
 
-	cmd2 = "python %s %s syzygy" % (act_py, outfile)
-	def function2(kw):
-	    open(kw['out'], 'a').write("function2\n")
-	    return 2
-	builder = SCons.Builder.Builder(action = [cmd2, function2])
+	class class1a:
+	    def __init__(self, kw):
+		open(kw['out'], 'w').write("class1a\n")
+
+	builder = SCons.Builder.Builder(action = class1a)
+	r = builder.execute(out = outfile)
+	assert r.__class__ == class1a
+	assert test.read(outfile, 'r') == "class1a\n"
+
+	class class1b:
+	    def __call__(self, kw):
+		open(kw['out'], 'w').write("class1b\n")
+		return 2
+
+	builder = SCons.Builder.Builder(action = class1b())
 	r = builder.execute(out = outfile)
 	assert r == 2
-	assert test.read(outfile, 'r') == "act.py: syzygy\nfunction2\n"
+	assert test.read(outfile, 'r') == "class1b\n"
+
+	cmd2 = "python %s %s syzygy" % (act_py, outfile)
+
+	def function2(kw):
+	    open(kw['out'], 'a').write("function2\n")
+	    return 0
+
+	class class2a:
+	    def __call__(self, kw):
+		open(kw['out'], 'a').write("class2a\n")
+		return 0
+
+	class class2b:
+	    def __init__(self, kw):
+		open(kw['out'], 'a').write("class2b\n")
+
+	builder = SCons.Builder.Builder(action = [cmd2, function2, class2a(), class2b])
+	r = builder.execute(out = outfile)
+	assert r.__class__ == class2b
+	assert test.read(outfile, 'r') == "act.py: syzygy\nfunction2\nclass2a\nclass2b\n"
 
     def test_insuffix(self):
 	"""Test Builder creation with a specified input suffix

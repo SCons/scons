@@ -12,7 +12,7 @@ import copy
 import re
 import types
 import SCons.Util
-
+import SCons.Builder
 
 
 def Command():
@@ -138,6 +138,14 @@ class Environment:
 	if len(dlist) == 1:
 	    dlist = dlist[0]
 	return dlist
+
+    def Command(self, target, source, action):
+        """Builds the supplied target files from the supplied
+        source files using the supplied action.  Action may
+        be any type that the Builder constructor will accept
+        for an action."""
+        bld = SCons.Builder.Builder(name="Command", action=action)
+        return bld(self, target, source)
 
     def subst(self, string):
 	"""Recursively interpolates construction variables from the

@@ -10,7 +10,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 from SCons.Errors import BuildError
 import string
-
+import types
 
 
 class Node:
