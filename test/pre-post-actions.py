@@ -36,7 +36,7 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.subdir('work1', 'work2')
+test.subdir('work1', 'work2', 'work3')
 
 
 
@@ -143,6 +143,29 @@ test.run(chdir='work2', arguments = '.')
 test.must_match(['work2', 'file1.out'], "111\n")
 test.must_match(['work2', 'file2.out'], "222\n")
 test.must_match(['work2', 'file3.out'], "333\n")
+
+
+
+test.write(['work3', 'SConstruct'], """\
+def pre(target, source, env):
+    pass
+def post(target, source, env):
+    pass
+def build(target, source, env):
+    open(str(target[0]), 'wb').write('build()\\n')
+env = Environment()
+AddPreAction('dir', pre)
+AddPostAction('dir', post)
+env.Command('dir/file', [], build)
+""")
+
+test.run(chdir = 'work3', arguments = 'dir/file', stdout=test.wrap_stdout("""\
+pre(["dir"], [])
+post(["dir"], [])
+build(["dir/file"], [])
+"""))
+
+test.must_match(['work3', 'dir', 'file'], "build()\n")
 
 
 
