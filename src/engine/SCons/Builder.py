@@ -122,11 +122,11 @@ elif os.name == 'nt':
 
 def Builder(**kw):
     """A factory for builder objects."""
-    if kw.has_key('src_builder'):
-        return apply(MultiStepBuilder, (), kw)
-    elif kw.has_key('action') and (type(kw['action']) is types.DictType or
-                                   isinstance(kw['action'], UserDict)):
+    if kw.has_key('action') and (type(kw['action']) is types.DictType or
+                                 isinstance(kw['action'], UserDict)):
         return apply(CompositeBuilder, (), kw)
+    elif kw.has_key('src_builder'):
+        return apply(MultiStepBuilder, (), kw)
     else:
         return apply(BuilderBase, (), kw)
 
@@ -263,46 +263,64 @@ class CompositeBuilder(BuilderBase):
     will examine the target's sources.  If they are all the same
     suffix, and that suffix is equal to one of the child builders'
     src_suffix, then that child builder will be used.  Otherwise,
-    UserError is thrown.
-
-    Child builders are supplied via the builders arg to the
-    constructor.  Each must have its src_suffix set."""
+    UserError is thrown."""
     def __init__(self,  name = None,
                         prefix='',
                         suffix='',
-                        action = {}):
+                        action = {},
+                        src_builder = []):
         BuilderBase.__init__(self, name=name, prefix=prefix,
                              suffix=suffix)
+        if src_builder and not type(src_builder) is types.ListType:
+            src_builder = [src_builder]
+        self.src_builder = src_builder
         self.builder_dict = {}
         for suff, act in action.items():
-             self.builder_dict[suff] = BuilderBase(name = name,
-                                                   action = act,
-                                                   src_suffix = suff)
+             # Create subsidiary builders for every suffix in the
+             # action dictionary.  If there's a src_builder that
+             # matches the suffix, add that to the initializing
+             # keywords so that a MultiStepBuilder will get created.
+             kw = {'name' : name, 'action' : act, 'src_suffix' : suff}
+             src_bld = filter(lambda x, s=suff: x.suffix == s, self.src_builder)
+             if src_bld:
+                 kw['src_builder'] = src_bld[0]
+             self.builder_dict[suff] = apply(Builder, (), kw)
 
     def __call__(self, env, target = None, source = None):
         ret = BuilderBase.__call__(self, env, target=target, source=source)
 
         builder_dict = {}
+        suff_dict = {}
         for suffix, bld in self.builder_dict.items():
             builder_dict[env.subst(bld.src_suffix)] = bld
+            suff_dict[suffix] = suffix
+            b = bld
+            while hasattr(b, 'src_builder'):
+                # Walk the chain of src_builders and add the
+                # src_suffix strings to the maps so that we know
+                # all of those suffixes are legal, too.
+                b = b.src_builder
+                s = env.subst(b.src_suffix)
+                builder_dict[s] = bld
+                suff_dict[s] = suffix
 
         if type(ret) is types.ListType:
             tlist = ret
         else:
             tlist = [ ret ]
         for tnode in tlist:
-            suflist = map(lambda x: os.path.splitext(x.path)[1],
+            suflist = map(lambda x, s=suff_dict: s[os.path.splitext(x.path)[1]],
                           tnode.sources)
             last_suffix=''
             for suffix in suflist:
                 if last_suffix and last_suffix != suffix:
-                    raise UserError, "The builder for %s is only capable of building source files of identical suffixes." % tnode.path
+                    raise UserError, "The builder for %s can only build source files of identical suffixes:  %s." % (tnode.path, str(map(lambda t: str(t.path), tnode.sources)))
                 last_suffix = suffix
             if last_suffix:
                 try:
                     tnode.builder_set(builder_dict[last_suffix])
                 except KeyError:
-                    raise UserError, "Builder not capable of building files with suffix: %s" % suffix
+                    raise UserError, "The builder for %s can not build files with suffix: %s" % (tnode.path, suffix)
         return ret
 
 print_actions = 1;

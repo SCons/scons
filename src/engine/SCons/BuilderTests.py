@@ -454,6 +454,57 @@ class BuilderTestCase(unittest.TestCase):
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
+        foo_bld = SCons.Builder.Builder(action = 'a-foo',
+                                            src_suffix = '.ina',
+                                            suffix = '.foo')
+        assert isinstance(foo_bld, SCons.Builder.BuilderBase)
+        builder = SCons.Builder.Builder(action = { '.foo' : 'foo',
+                                                   '.bar' : 'bar' },
+                                        src_builder = foo_bld)
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+
+        tgt = builder(env, target='t1', source='t1a.ina t1b.ina')
+        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
+
+        tgt = builder(env, target='t2', source='t2a.foo t2b.ina')
+        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder), tgt.builder.__dict__
+
+        bar_bld = SCons.Builder.Builder(action = 'a-bar',
+                                        src_suffix = '.inb',
+                                        suffix = '.bar')
+        assert isinstance(bar_bld, SCons.Builder.BuilderBase)
+        builder = SCons.Builder.Builder(action = { '.foo' : 'foo',
+                                                   '.bar' : 'bar' },
+                                        src_builder = [foo_bld, bar_bld])
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+
+        tgt = builder(env, target='t3-foo', source='t3a.foo t3b.ina')
+        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
+
+        tgt = builder(env, target='t3-bar', source='t3a.bar t3b.inb')
+        assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
+
+        flag = 0
+        try:
+            tgt = builder(env, target='t5', source='test5a.foo test5b.inb')
+        except SCons.Errors.UserError:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+
+        flag = 0
+        try:
+            tgt = builder(env, target='t6', source='test6a.bar test6b.ina')
+        except SCons.Errors.UserError:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+
+        flag = 0
+        try:
+            tgt = builder(env, target='t4', source='test4a.ina test4b.inb')
+        except SCons.Errors.UserError:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
+
     def test_build_scanner(self):
         """Testing ability to set a target scanner through a builder."""
         global instanced

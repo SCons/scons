@@ -24,7 +24,8 @@ RELEASE 0.03 -
     to each individually.
 
   - Refactor to move CompositeBuilder initialization logic from the
-    factory wrapper to the __init__() method.
+    factory wrapper to the __init__() method, and allow a Builder to
+    have both an action and a src_builder (or array of them).
 
   From Anthony Roach:
 
