@@ -79,10 +79,10 @@ def signature(obj):
     """Generate a signature for an object
     """
     try:
-        contents = str(obj.get_contents())
+        gc = obj.get_contents
     except AttributeError:
         raise AttributeError, "unable to fetch contents of '%s'" % str(obj)
-    return hexdigest(md5.new(contents).digest())
+    return hexdigest(md5.new(str(gc())).digest())
 
 def to_string(signature):
     """Convert a signature to a string"""

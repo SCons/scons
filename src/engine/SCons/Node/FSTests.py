@@ -1716,6 +1716,32 @@ class SpecialAttrTestCase(unittest.TestCase):
             assert f.posix.for_signature() == 'baz.blat_posix', \
                    f.posix.for_signature()
 
+        # Check that attempts to access non-existent attributes of the
+        # subst proxy generate the right exceptions and messages.
+        caught = None
+        try:
+            fs.Dir('ddd').get_subst_proxy().no_such_attr
+        except AttributeError, e:
+            assert str(e) == "Dir instance 'ddd' has no attribute 'no_such_attr'", e
+            caught = 1
+        assert caught, "did not catch expected AttributeError"
+
+        caught = None
+        try:
+            fs.Entry('eee').get_subst_proxy().no_such_attr
+        except AttributeError, e:
+            assert str(e) == "Entry instance 'eee' has no attribute 'no_such_attr'", e
+            caught = 1
+        assert caught, "did not catch expected AttributeError"
+
+        caught = None
+        try:
+            fs.File('fff').get_subst_proxy().no_such_attr
+        except AttributeError, e:
+            assert str(e) == "File instance 'fff' has no attribute 'no_such_attr'", e
+            caught = 1
+        assert caught, "did not catch expected AttributeError"
+
         fs.BuildDir('foo', 'baz')
 
         assert str(f.srcpath) == os.path.normpath('baz/bar/baz.blat'), str(f.srcpath)
