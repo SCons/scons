@@ -35,6 +35,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import os.path
 
+import SCons.Util
+
 import link
 
 ccLinker = None
@@ -56,7 +58,7 @@ def generate(env):
     """Add Builders and construction variables for Forte to an Environment."""
     link.generate(env)
     
-    env['SHLINKFLAGS'] = '$LINKFLAGS -G'
+    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -G')
 
 def exists(env):
     return ccLinker

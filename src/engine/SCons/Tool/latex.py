@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Defaults
+import SCons.Util
 
 LaTeXAction = SCons.Action.Action('$LATEXCOM')
 
@@ -51,7 +52,7 @@ def generate(env):
     bld.add_action('.latex', LaTeXAction)
 
     env['LATEX']      = 'latex'
-    env['LATEXFLAGS'] = ''
+    env['LATEXFLAGS'] = SCons.Util.CLVar('')
     env['LATEXCOM']   = '$LATEX $LATEXFLAGS $SOURCES'
 
 def exists(env):

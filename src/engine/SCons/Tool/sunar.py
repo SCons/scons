@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
 import SCons.Tool
+import SCons.Util
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
@@ -43,15 +44,15 @@ def generate(env):
     
     if env.Detect('CC'):
         env['AR']          = 'CC'
-        env['ARFLAGS']     = '-xar'
+        env['ARFLAGS']     = SCons.Util.CLVar('-xar')
         env['ARCOM']       = '$AR $ARFLAGS -o $TARGET $SOURCES'
     else:
         env['AR']          = 'ar'
-        env['ARFLAGS']     = 'r'
+        env['ARFLAGS']     = SCons.Util.CLVar('r')
         env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
 
     env['SHLINK']      = '$LINK'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -G'
+    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -G')
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
 def exists(env):

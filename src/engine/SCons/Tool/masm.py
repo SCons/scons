@@ -37,6 +37,7 @@ import os.path
 
 import SCons.Defaults
 import SCons.Tool
+import SCons.Util
 
 ASSuffixes = ['.s', '.asm', '.ASM']
 ASPPSuffixes = ['.spp', '.SPP']
@@ -58,7 +59,7 @@ def generate(env):
         shared_obj.add_action(suffix, SCons.Defaults.ASPPAction)
 
     env['AS']        = 'ml'
-    env['ASFLAGS']   = '/nologo'
+    env['ASFLAGS']   = SCons.Util.CLVar('/nologo')
     env['ASCOM']     = '$AS $ASFLAGS /c /Fo$TARGET $SOURCES'
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c /Fo$TARGET $SOURCES'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1

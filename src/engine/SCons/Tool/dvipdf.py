@@ -34,6 +34,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
+import SCons.Util
 
 def generate(env):
     """Add Builders and construction variables for dvipdf to an Environment."""
@@ -45,11 +46,11 @@ def generate(env):
     bld.add_action('.dvi', '$PDFCOM')
 
     env['DVIPDF']      = 'dvipdf'
-    env['DVIPDFFLAGS'] = ''
+    env['DVIPDFFLAGS'] = SCons.Util.CLVar('')
     env['DVIPDFCOM']   = '$DVIPDF $DVIPDFFLAGS $SOURCES $TARGET'
 
     # Deprecated synonym.
-    env['PDFCOM']      = '$DVIPDFCOM'
+    env['PDFCOM']      = ['$DVIPDFCOM']
 
 def exists(env):
     return env.Detect('dvipdf')

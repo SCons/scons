@@ -33,6 +33,8 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Util
+
 import cc
 
 compilers = ['gcc', 'cc']
@@ -43,9 +45,9 @@ def generate(env):
 
     env['CC'] = env.Detect(compilers) or 'gcc'
     if env['PLATFORM'] == 'cygwin':
-        env['SHCCFLAGS'] = '$CCFLAGS'
+        env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
     else:
-        env['SHCCFLAGS'] = ['$CCFLAGS', '-fPIC']
+        env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS -fPIC')
 
 def exists(env):
     return env.Detect(compilers)

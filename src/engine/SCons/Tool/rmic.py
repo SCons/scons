@@ -39,6 +39,7 @@ import string
 
 import SCons.Builder
 import SCons.Node.FS
+import SCons.Util
 
 def emit_rmic_classes(target, source, env):
     """Create and return lists of Java RMI stub and skeleton
@@ -101,7 +102,7 @@ def generate(env):
     env['BUILDERS']['RMIC'] = RMICBuilder
 
     env['RMIC']            = 'rmic'
-    env['RMICFLAGS']       = ''
+    env['RMICFLAGS']       = SCons.Util.CLVar('')
     env['RMICCOM']         = '$RMIC $RMICFLAGS -d ${TARGET.attributes.java_lookupdir} -classpath ${SOURCE.attributes.java_classdir} ${SOURCES.attributes.java_classname}'
     env['JAVACLASSSUFFIX']  = '.class'
 

@@ -101,16 +101,16 @@ def generate(env):
     bld.add_action('.tex', TeXLaTeXAction)
 
     env['TEX']      = 'tex'
-    env['TEXFLAGS'] = ''
+    env['TEXFLAGS'] = SCons.Util.CLVar('')
     env['TEXCOM']   = '$TEX $TEXFLAGS $SOURCES'
 
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
     env['LATEX']      = 'latex'
-    env['LATEXFLAGS'] = ''
+    env['LATEXFLAGS'] = SCons.Util.CLVar('')
     env['LATEXCOM']   = '$LATEX $LATEXFLAGS $SOURCES'
 
     env['BIBTEX']      = 'bibtex'
-    env['BIBTEXFLAGS'] = ''
+    env['BIBTEXFLAGS'] = SCons.Util.CLVar('')
     env['BIBTEXCOM']   = '$BIBTEX $BIBTEXFLAGS $SOURCES'
 
 

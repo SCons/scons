@@ -48,10 +48,8 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(LIBS = ['foo'], LIBPATH = ['.'])
-ranlib = foo.Dictionary('RANLIB')
-ranlibflags = foo.Dictionary('RANLIBFLAGS')
 bar = Environment(LIBS = ['bar'], LIBPATH = ['.'], RANLIB = '',
-                  RANLIBFLAGS = r'%s wrapper.py ' + ranlib + ' ' + ranlibflags)
+                  RANLIBFLAGS = foo.subst(r'%s wrapper.py $RANLIB $RANLIBFLAGS'))
 foo.Library(target = 'foo', source = 'foo.c')
 bar.Library(target = 'bar', source = 'bar.c')
 

@@ -44,10 +44,8 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(LIBS = ['foo'], LIBPATH = ['.'])
-ar = foo.Dictionary('AR')
-arflags = foo.Dictionary('ARFLAGS')
 bar = Environment(LIBS = ['bar'], LIBPATH = ['.'],
-                  AR = '', ARFLAGS = r'%s wrapper.py ' + ar + ' ' + arflags)
+                  AR = '', ARFLAGS = foo.subst(r'%s wrapper.py $AR $ARFLAGS'))
 foo.Library(target = 'foo', source = 'foo.c')
 bar.Library(target = 'bar', source = 'bar.c')
 

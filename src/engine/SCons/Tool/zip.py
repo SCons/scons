@@ -83,7 +83,7 @@ def generate(env):
         env['BUILDERS']['Zip'] = bld
 
     env['ZIP']        = 'zip'
-    env['ZIPFLAGS']   = ''
+    env['ZIPFLAGS']   = SCons.Util.CLVar('')
     env['ZIPCOM']     = zipAction
     env['ZIPCOMPRESSION'] =  zipcompression
     env['ZIPSUFFIX']  = '.zip'

@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 
 import SCons.Builder
+import SCons.Util
 
 def generate(env):
     """Add a Builder factory function and construction variables for
@@ -54,7 +55,7 @@ def generate(env):
     setattr(env, 'Subversion', SubversionFactory)
 
     env['SVN']      = 'svn'
-    env['SVNFLAGS'] = ''
+    env['SVNFLAGS'] = SCons.Util.CLVar('')
     env['SVNCOM']   = '$SVN $SVNFLAGS cat $SVNREPOSITORY/$SVNMODULE$TARGET > $TARGET'
 
 def exists(env):

@@ -34,15 +34,17 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import as
 from SCons.Tool.PharLapCommon import addPharLapPaths
+import SCons.Util
+
+import as
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     as.generate(env)
 
     env['AS']        = '386asm'
-    env['ASFLAGS']   = ''
+    env['ASFLAGS']   = SCons.Util.CLVar('')
     env['ASCOM']     = '$AS $ASFLAGS $SOURCES -o $TARGET'
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $SOURCES -o $TARGET'
 

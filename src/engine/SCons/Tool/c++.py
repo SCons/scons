@@ -67,10 +67,10 @@ def generate(env):
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
         
     env['CXX']        = 'c++'
-    env['CXXFLAGS']   = '$CCFLAGS'
+    env['CXXFLAGS']   = SCons.Util.CLVar('$CCFLAGS')
     env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCXX']      = '$CXX'
-    env['SHCXXFLAGS'] = '$CXXFLAGS'
+    env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 
     env['CPPDEFPREFIX']  = '-D'

@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
 import SCons.Tool
+import SCons.Util
 
 def generate(env):
     """Add Builders and construction variables for lex to an Environment."""
@@ -44,7 +45,7 @@ def generate(env):
     cxx_file.add_action('.ll', '$LEXCOM')
 
     env['LEX']      = env.Detect('flex') or 'lex'
-    env['LEXFLAGS'] = ''
+    env['LEXFLAGS'] = SCons.Util.CLVar('')
     env['LEXCOM']   = '$LEX $LEXFLAGS -t $SOURCES > $TARGET'
     
 def exists(env):

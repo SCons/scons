@@ -59,7 +59,7 @@ def generate(env):
         static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
 
     env['AS']        = env.Detect(assemblers) or 'as'
-    env['ASFLAGS']   = ''
+    env['ASFLAGS']   = SCons.Util.CLVar('')
     env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 

@@ -64,8 +64,8 @@ def generate(env):
     """Add Builders and construction variables for midl to an Environment."""
 
     env['MIDL']          = 'MIDL.EXE'
-    env['MIDLFLAGS']     = '/nologo'
-    env['MIDLCOM']       = "$MIDL $MIDLFLAGS /tlb ${TARGETS[0]} /h ${TARGETS[1]} /iid ${TARGETS[2]} /proxy ${TARGETS[3]} /dlldata ${TARGETS[4]} $SOURCE 2> NUL"
+    env['MIDLFLAGS']     = SCons.Util.CLVar('/nologo')
+    env['MIDLCOM']       = '$MIDL $MIDLFLAGS /tlb ${TARGETS[0]} /h ${TARGETS[1]} /iid ${TARGETS[2]} /proxy ${TARGETS[3]} /dlldata ${TARGETS[4]} $SOURCE 2> NUL'
     env['BUILDERS']['TypeLibrary'] = midl_builder
 
 def exists(env):

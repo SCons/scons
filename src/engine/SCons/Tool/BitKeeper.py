@@ -37,6 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 
 import SCons.Builder
+import SCons.Util
 
 def generate(env):
     """Add a Builder factory function and construction variables for
@@ -50,7 +51,7 @@ def generate(env):
 
     env['BITKEEPER']         = 'bk'
     env['BITKEEPERGET']      = '$BITKEEPER get'
-    env['BITKEEPERGETFLAGS'] = ''
+    env['BITKEEPERGETFLAGS'] = SCons.Util.CLVar('')
     env['BITKEEPERCOM']      = '$BITKEEPERGET $BITKEEPERGETFLAGS $TARGET'
 
 def exists(env):

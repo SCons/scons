@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Defaults
+import SCons.Util
 
 PostScript = SCons.Builder.Builder(action = '$PSCOM',
                                    prefix = '$PSPREFIX',
@@ -47,7 +48,7 @@ def generate(env):
     env['BUILDERS']['PostScript'] = PostScript
     
     env['DVIPS']      = 'dvips'
-    env['DVIPSFLAGS'] = ''
+    env['DVIPSFLAGS'] = SCons.Util.CLVar('')
     env['PSCOM']      = '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES'
 
 def exists(env):

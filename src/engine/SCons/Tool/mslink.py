@@ -34,16 +34,15 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 
 import SCons.Action
 import SCons.Defaults
 import SCons.Errors
-import SCons.Util
-import SCons.Tool
-import SCons.Tool.msvs
-import SCons.Tool.msvc
 import SCons.Platform.win32
+import SCons.Tool
+import SCons.Tool.msvc
+import SCons.Tool.msvs
+import SCons.Util
 
 def pdbGenerator(env, target, source, for_signature):
     if target and env.has_key('PDB') and env['PDB']:
@@ -137,13 +136,13 @@ def generate(env):
     SCons.Tool.createProgBuilder(env)
     
     env['SHLINK']      = '$LINK'
-    env['SHLINKFLAGS'] = '$LINKFLAGS /dll'
+    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS /dll')
     env['_SHLINK_TARGETS'] = win32ShlinkTargets
     env['_SHLINK_SOURCES'] = win32ShlinkSources
     env['SHLINKCOM']   =  compositeLinkAction
     env['SHLIBEMITTER']= win32LibEmitter
     env['LINK']        = 'link'
-    env['LINKFLAGS']   = '/nologo'
+    env['LINKFLAGS']   = SCons.Util.CLVar('/nologo')
     env['_PDB'] = pdbGenerator
     env['LINKCOM'] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $SOURCES")}'
     env['PROGEMITTER'] = prog_emitter

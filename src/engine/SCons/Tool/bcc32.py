@@ -59,10 +59,10 @@ def generate(env):
         static_obj.add_action(suffix, SCons.Defaults.CAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
     env['CC']        = 'bcc32'
-    env['CCFLAGS']   = ''
+    env['CCFLAGS']   = SCons.Util.CLVar('')
     env['CCCOM']     = '$CC -q $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCC']      = '$CC'
-    env['SHCCFLAGS'] = '$CCFLAGS'
+    env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
     env['SHCCCOM']   = '$SHCC -WD $SHCCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['CPPDEFPREFIX']  = '-D'
     env['CPPDEFSUFFIX']  = ''

@@ -37,6 +37,7 @@ import glob
 import os.path
 
 import SCons.Builder
+import SCons.Util
 
 def jarSources(target, source, env, for_signature):
     """Only include sources that are not a manifest file."""
@@ -63,13 +64,14 @@ def jarManifest(target, source, env, for_signature):
 def jarFlags(target, source, env, for_signature):
     """If we have a manifest, make sure that the 'm'
     flag is specified."""
+    jarflags = env.subst('$JARFLAGS')
     for src in source:
         contents = src.get_contents()
         if contents[:16] == "Manifest-Version":
-            if not 'm' in env['JARFLAGS']:
-                return env['JARFLAGS'] + 'm'
+            if not 'm' in jarflags:
+                return jarflags + 'm'
             break
-    return env['JARFLAGS']
+    return jarflags
 
 def jarChdir(target, source, env, for_signature):
     """If we have an Environment variable by the name
@@ -91,7 +93,7 @@ def generate(env):
         env['BUILDERS']['Jar'] = JarBuilder
 
     env['JAR']        = 'jar'
-    env['JARFLAGS']   = 'cf'
+    env['JARFLAGS']   = SCons.Util.CLVar('cf')
     env['_JARFLAGS']  = jarFlags
     env['_JARMANIFEST'] = jarManifest
     env['_JARSOURCES'] = jarSources

@@ -31,13 +31,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Tool
 import SCons.Tool.bcc32
+import SCons.Util
 
 def generate(env):
     SCons.Tool.bcc32.findIt('tlib', env)
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createStaticLibBuilder(env)
     env['AR']          = 'tlib'
-    env['ARFLAGS']     = ''
+    env['ARFLAGS']     = SCons.Util.CLVar('')
     env['ARCOM']       = '$AR $TARGET $ARFLAGS /a $SOURCES'
 
 def exists(env):

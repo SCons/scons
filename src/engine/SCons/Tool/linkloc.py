@@ -35,7 +35,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 import re
 
 import SCons.Action
@@ -84,11 +83,11 @@ def generate(env):
 
     env['SUBST_CMD_FILE'] = LinklocGenerator
     env['SHLINK']      = '$LINK'
-    env['SHLINKFLAGS'] = '$LINKFLAGS'
+    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS')
     env['SHLINKCOM']   = '${SUBST_CMD_FILE("$SHLINK $SHLINKFLAGS $( $_LIBDIRFLAGS $) $_LIBFLAGS -dll $TARGET $SOURCES")}'
     env['SHLIBEMITTER']= None
     env['LINK']        = "linkloc"
-    env['LINKFLAGS']   = ''
+    env['LINKFLAGS']   = SCons.Util.CLVar('')
     env['LINKCOM']     = '${SUBST_CMD_FILE("$LINK $LINKFLAGS $( $_LIBDIRFLAGS $) $_LIBFLAGS -exe $TARGET $SOURCES")}'
     env['LIBDIRPREFIX']='-libpath '
     env['LIBDIRSUFFIX']=''

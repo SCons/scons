@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 
 import SCons.Builder
+import SCons.Util
 
 def generate(env):
     """Add a Builder factory function and construction variables for
@@ -57,8 +58,8 @@ def generate(env):
     setattr(env, 'CVS', CVSFactory)
 
     env['CVS']        = 'cvs'
-    env['CVSFLAGS']   = '-d $CVSREPOSITORY'
-    env['CVSCOFLAGS'] = ''
+    env['CVSFLAGS']   = SCons.Util.CLVar('-d $CVSREPOSITORY')
+    env['CVSCOFLAGS'] = SCons.Util.CLVar('')
     env['CVSCOM']     = '$CVS $CVSFLAGS co $CVSCOFLAGS ${TARGET.posix}'
 
 def exists(env):

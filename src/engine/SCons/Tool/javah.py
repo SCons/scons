@@ -40,6 +40,7 @@ import string
 import SCons.Builder
 import SCons.Node.FS
 import SCons.Tool.javac
+import SCons.Util
 
 def emit_java_headers(target, source, env):
     """Create and return lists of Java stub header files that will
@@ -118,7 +119,7 @@ def generate(env):
 
     env['_JAVAHOUTFLAG']    = JavaHOutFlagGenerator
     env['JAVAH']            = 'javah'
-    env['JAVAHFLAGS']       = ''
+    env['JAVAHFLAGS']       = SCons.Util.CLVar('')
     env['JAVAHCOM']         = '$JAVAH $JAVAHFLAGS $_JAVAHOUTFLAG -classpath ${SOURCE.attributes.java_classdir} ${SOURCES.attributes.java_classname}'
     env['JAVACLASSSUFFIX']  = '.class'
 
