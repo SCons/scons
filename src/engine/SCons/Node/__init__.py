@@ -176,6 +176,17 @@ class Node:
         executor = self.get_executor()
         executor(self, func)
 
+    def retrieve_from_cache(self):
+        """Try to retrieve the node's content from a cache
+
+        This method is called from multiple threads in a parallel build,
+        so only do thread safe stuff here. Do thread unsafe stuff in
+        built().
+
+        Returns true iff the node was successfully retrieved.
+        """
+        return 0
+        
     def build(self):
         """Actually build the node.
 

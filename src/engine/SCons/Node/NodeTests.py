@@ -253,6 +253,12 @@ class NodeTestCase(unittest.TestCase):
             assert str(act.built_target[0]) == "xxx", str(act.built_target[0])
             assert act.built_source == ["yyy", "zzz"], act.built_source
 
+    def test_retrieve_from_cache(self):
+        """Test the base retrieve_from_cache() method"""
+        n = SCons.Node.Node()
+        r = n.retrieve_from_cache()
+        assert r == 0, r
+
     def test_visited(self):
         """Test the base visited() method
 

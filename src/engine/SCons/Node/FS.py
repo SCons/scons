@@ -48,6 +48,7 @@ import SCons.Action
 import SCons.Errors
 import SCons.Node
 import SCons.Util
+import SCons.Sig.MD5
 import SCons.Warnings
 
 #
@@ -1311,20 +1312,18 @@ class File(Base):
             except OSError:
                 pass
 
-    def build(self):
-        """Actually build the file.
-
-        This overrides the base class build() method to check for the
-        existence of derived files in a CacheDir before going ahead and
-        building them.
+    def retrieve_from_cache(self):
+        """Try to retrieve the node's content from a cache
 
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
+
+        Returns true iff the node was successfully retrieved.
         """
         b = self.is_derived()
         if not b and not self.has_src_builder():
-            return
+            return None
         if b and self.fs.CachePath:
             if self.fs.cache_show:
                 if CacheRetrieveSilent(self, None, None) == 0:
@@ -1336,10 +1335,10 @@ class File(Base):
                             for a in al:
                                 action.show(a)
                     self._for_each_action(do_print)
-                    return
+                    return 1
             elif CacheRetrieve(self, None, None) == 0:
-                return
-        SCons.Node.Node.build(self)
+                return 1
+        return None
 
     def built(self):
         """Called just after this node is sucessfully built."""
@@ -1509,10 +1508,13 @@ class File(Base):
             bsig = self.get_bsig()
             if bsig is None:
                 raise SCons.Errors.InternalError, "cachepath(%s) found a bsig of None" % self.path
-            bsig = str(bsig)
-            subdir = string.upper(bsig[0])
+            # Add the path to the cache signature, because multiple
+            # targets built by the same action will all have the same
+            # build signature, and we have to differentiate them somehow.
+            cache_sig = SCons.Sig.MD5.collect([bsig, self.path])
+            subdir = string.upper(cache_sig[0])
             dir = os.path.join(self.fs.CachePath, subdir)
-            return dir, os.path.join(dir, bsig)
+            return dir, os.path.join(dir, cache_sig)
         return None, None
 
     def target_from_source(self, prefix, suffix, splitext=SCons.Util.splitext):
