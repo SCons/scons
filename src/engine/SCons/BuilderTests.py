@@ -1075,6 +1075,51 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt.sources[0]) == 'i0.w', map(str, tgt.sources)
         assert str(tgt.sources[1]) == 'i1.y', map(str, tgt.sources)
 
+    def test_get_name(self):
+        """Test getting name of builder.
+
+        Each type of builder should return it's environment-specific
+        name when queried appropriately.  """
+
+        b1 = SCons.Builder.Builder(action='foo', suffix='.o')
+        b2 = SCons.Builder.Builder(action='foo', suffix='.c')
+        b3 = SCons.Builder.MultiStepBuilder(action='bar',
+                                            src_suffix = '.foo',
+                                            src_builder = b1)
+        b4 = SCons.Builder.Builder(action={})
+        assert isinstance(b4, SCons.Builder.CompositeBuilder)
+        assert isinstance(b4.action, SCons.Action.CommandGeneratorAction)
+        
+        env = Environment(BUILDERS={'bldr1': b1,
+                                    'bldr2': b2,
+                                    'bldr3': b3,
+                                    'bldr4': b4})
+        env2 = Environment(BUILDERS={'B1': b1,
+                                     'B2': b2,
+                                     'B3': b3,
+                                     'B4': b4})
+        assert b1.get_name(env) == 'bldr1', b1.get_name(env2) == 'B1'
+        assert b2.get_name(env) == 'bldr2', b2.get_name(env2) == 'B2'
+        assert b3.get_name(env) == 'bldr3', b3.get_name(env2) == 'B3'
+        assert b4.get_name(env) == 'bldr4', b4.get_name(env2) == 'B4'
+
+        for B in b3.get_src_builders(env):
+            assert B.get_name(env) == 'bldr1'
+        for B in b3.get_src_builders(env2):
+            assert B.get_name(env2) == 'B1'
+
+        tgts = b1(env, target = [outfile, outfile2], source='moo')
+        for t in tgts:
+            assert t.builder.get_name(env) == 'ListBuilder(bldr1)'
+            # The following are not symbolically correct, because the
+            # ListBuilder was only created on behalf of env, so it
+            # would probably be OK if better correctness
+            # env-to-builder mappings caused this to fail in the
+            # future.
+            assert t.builder.get_name(env2) == 'ListBuilder(B1)'
+
+        tgt = b4(env, target = 'moo', source='cow')
+        assert tgt[0].builder.get_name(env) == 'bldr4'
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')

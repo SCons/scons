@@ -308,6 +308,8 @@ def _init_nodes(builder, env, overrides, tlist, slist):
                         raise UserError, "Two different target sets have a target in common: %s"%str(t)
                     else:
                         raise UserError, "Two different builders (%s and %s) were specified for the same target: %s"%(t.builder.get_name(env), builder.get_name(env), str(t))
+                elif isinstance(t.builder, ListBuilder) ^ isinstance(builder, ListBuilder):
+                    raise UserError, "Cannot build same target `%s' as singular and list"%str(t)
             elif t.sources != slist:
                 raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
 
@@ -631,9 +633,6 @@ class ListBuilder(SCons.Util.Proxy):
         """
         return self.tlist
 
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
-
     def get_name(self, env):
         """Attempts to get the name of the Builder."""
 
@@ -767,6 +766,3 @@ class CompositeBuilder(SCons.Util.Proxy):
     def add_action(self, suffix, action):
         self.cmdgen.add_action(suffix, action)
         self.set_src_suffix(self.cmdgen.src_suffixes())
-
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)

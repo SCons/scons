@@ -20,6 +20,11 @@ RELEASE 0.97 - XXX
   - Add an Environment.Dump() method to print the contents of a
     construction environment.
 
+  From Kevin Quick:
+
+  - Fix the Builder name returned from ListBuilders and other instances
+    of subclasses of the BuilderBase class.
+
 
 
 RELEASE 0.96.1 - XXX
