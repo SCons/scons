@@ -102,9 +102,9 @@ class Taskmaster:
         # simulate blocking tasks
         return self.num_iterated - self.num_executed >= max(num_jobs/2, 2)
 
-    def tasks_where_serial(self):
+    def tasks_were_serial(self):
         "analyze the task order to see if they were serial"
-        serial = 1 # assume the tasks where serial
+        serial = 1 # assume the tasks were serial
         for i in range(num_tasks):
             serial = serial and (self.begin_list[i]
                                  == self.end_list[i]
@@ -131,12 +131,12 @@ class ParallelTestCase(unittest.TestCase):
         for job in jobs:
             job.wait()
 
-        self.failUnless(not taskmaster.tasks_where_serial(),
-                        "the tasks where not executed in parallel")
+        self.failUnless(not taskmaster.tasks_were_serial(),
+                        "the tasks were not executed in parallel")
         self.failUnless(taskmaster.all_tasks_are_executed(),
-                        "all the tests where not executed")
+                        "all the tests were not executed")
         self.failUnless(taskmaster.all_tasks_are_iterated(),
-                        "all the tests where not iterated over")
+                        "all the tests were not iterated over")
 
 class SerialTestCase(unittest.TestCase):
     def runTest(self):
@@ -145,12 +145,12 @@ class SerialTestCase(unittest.TestCase):
         taskmaster = Taskmaster(num_tasks, self)
         job = scons.Job.Serial(taskmaster)
         job.start()
-        self.failUnless(taskmaster.tasks_where_serial(),
-                        "the tasks where not executed in series")
+        self.failUnless(taskmaster.tasks_were_serial(),
+                        "the tasks were not executed in series")
         self.failUnless(taskmaster.all_tasks_are_executed(),
-                        "all the tests where not executed")
+                        "all the tests were not executed")
         self.failUnless(taskmaster.all_tasks_are_iterated(),
-                        "all the tests where not iterated over")
+                        "all the tests were not iterated over")
 
 def suite():
     suite = unittest.TestSuite()
