@@ -9,9 +9,13 @@ import SCons.Node.FS
 built_it = None
 
 class Builder:
-    def execute(self, target = None, source = None):
+    def execute(self, **kw):
         global built_it
         built_it = 1
+
+class Environment:
+    def Dictionary(self, *args):
+	pass
 
 class FSTestCase(unittest.TestCase):
     def runTest(self):
@@ -94,6 +98,7 @@ class FSTestCase(unittest.TestCase):
         d1.path = "d"           # XXX FAKE SUBCLASS ATTRIBUTE
         d1.add_source(["d"])    # XXX FAKE SUBCLASS ATTRIBUTE
         d1.builder_set(Builder())
+        d1.env_set(Environment())
         d1.build()
         assert built_it
 
@@ -102,6 +107,7 @@ class FSTestCase(unittest.TestCase):
         f1.path = "f"           # XXX FAKE SUBCLASS ATTRIBUTE
         f1.add_source(["f"])    # XXX FAKE SUBCLASS ATTRIBUTE
         f1.builder_set(Builder())
+        f1.env_set(Environment())
         f1.build()
         assert built_it
 
