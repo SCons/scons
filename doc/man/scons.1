@@ -3191,6 +3191,41 @@ construction variable.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI ParseDepends( filename ", [" must_exist ])
+.TP
+.RI env.ParseDepends( filename ", [" must_exist ])
+Parses the contents of the specified
+.I filename
+as a list of dependencies in the style of
+.BR Make
+or
+.BR mkdep ,
+and explicitly establishes all of the listed dependencies.
+By default,
+it is not an error
+if the specified
+.I filename
+does not exist.
+The optional
+.I must_exit
+argument may be set to a non-zero
+value to have
+scons
+throw an exception and
+generate an error if the file does not exist,
+or is otherwise inaccessible.
+The
+.I filename
+and all of the files listed therein
+will be interpreted relative to
+the directory of the
+.I SConscript
+file which called the
+.B ParseDepends
+function.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 env.Perforce()
 A factory function that
 returns a Builder object

@@ -69,6 +69,9 @@ RELEASE 0.97 - XXX
   - Allow a ListOption's default value(s) to be a Python list of specified
     values, not just a string containing a comma-separated list of names.
 
+  - Add a ParseDepends() function that will parse up a list of explicit
+    dependencies from a "make depend" style file.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and

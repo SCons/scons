@@ -1520,3 +1520,32 @@ def unique(s):
         if x not in u:
             u.append(x)
     return u
+
+# Much of the logic here was originally based on recipe 4.9 from the
+# Python CookBook, but we had to dumb it way down for Python 1.5.2.
+class LogicalLines:
+
+    def __init__(self, fileobj):
+        self.fileobj = fileobj
+
+    def readline(self):
+        result = []
+        while 1:
+            line = self.fileobj.readline()
+            if not line:
+                break
+            if line[-2:] == '\\\n':
+                result.append(line[:-2])
+            else:
+                result.append(line)
+                break
+        return string.join(result, '')
+
+    def readlines(self):
+        result = []
+        while 1:
+            line = self.readline()
+            if not line:
+                break
+            result.append(line)
+        return result

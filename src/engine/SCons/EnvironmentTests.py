@@ -1353,6 +1353,38 @@ class EnvironmentTestCase(unittest.TestCase):
         finally:
             os.popen = orig_popen
 
+    def test_ParseDepends(self):
+        """Test the ParseDepends() method"""
+        env = Environment()
+
+        test = TestCmd.TestCmd(workdir = '')
+
+        test.write('mkdep', """
+f1: foo
+f2 f3: bar
+f4: abc def
+#file: dependency
+f5: \
+   ghi \
+   jkl \
+   mno \
+""")
+
+        tlist = []
+        dlist = []
+        def my_depends(target, dependency, tlist=tlist, dlist=dlist):
+            tlist.extend(target)
+            dlist.extend(dependency)
+
+        env.Depends = my_depends
+
+        env.ParseDepends(test.workpath('mkdep'))
+
+        t = map(str, tlist)
+        d = map(str, dlist)
+        assert t == ['f1', 'f2', 'f3', 'f4', 'f5'], t
+        assert d == ['foo', 'bar', 'abc', 'def', 'ghi', 'jkl', 'mno'], d
+
     def test_Platform(self):
         """Test the Platform() method"""
         env = Environment(WIN32='win32', NONE='no-such-platform')
