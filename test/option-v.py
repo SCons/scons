@@ -33,21 +33,26 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.write('SConstruct', "")
 
-if sys.platform == 'win32':
-    expect = r"""SCons by Steven Knight et al.:
+# Win32 may or may not print a line for the script version
+# depending on whether it's invoked through scons.py or scons.bat.
+expect1 = r"""SCons by Steven Knight et al.:
 \tengine: v\S+, [^,]*, by \S+ on \S+
 Copyright 2001, 2002 Steven Knight
 """
-else:
-    expect = r"""SCons by Steven Knight et al.:
+
+expect2 = r"""SCons by Steven Knight et al.:
 \tscript: v\S+, [^,]*, by \S+ on \S+
 \tengine: v\S+, [^,]*, by \S+ on \S+
 Copyright 2001, 2002 Steven Knight
 """
 
-test.run(arguments = '-v', stdout = expect)
+test.run(arguments = '-v')
+test.fail_test(not test.match_re(test.stdout(), expect1) and
+               not test.match_re(test.stdout(), expect2))
 
-test.run(arguments = '--version', stdout = expect)
+test.run(arguments = '--version')
+test.fail_test(not test.match_re(test.stdout(), expect1) and
+               not test.match_re(test.stdout(), expect2))
 
 test.pass_test()
  

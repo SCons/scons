@@ -127,7 +127,7 @@ bar.Tar(target = 'bar.tar', source = 'file15')
 
     test.fail_test(not os.path.exists(test.workpath('bar.tar')))
 
-    test.run(program = tar, arguments = "-t -f foo.tar")
+    test.run(program = tar, arguments = "-t -f foo.tar", stderr = None)
     test.fail_test(test.stdout() != "file10\nfile11\nfile12\n")
 
     test.run(program = tar, arguments = "-t -f bar.tar", stderr = None)

@@ -58,5 +58,5 @@ def generate(env):
     env['LIBSUFFIX']      = '.lib'
     env['SHLIBPREFIX']    = ''
     env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = '$LIBSUFFIX'
+    env['LIBPREFIXES']    = [ '$LIBPREFIX', '$SHLIBPREFIX' ]
+    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]

@@ -29,11 +29,9 @@ import TestSCons
 import os
 
 if sys.platform == 'win32':
-    _obj = '.obj'
     fooflags = '/nologo -DFOO'
     barflags = '/nologo -DBAR'
 else:
-    _obj = '.o'
     fooflags = '-DFOO'
     barflags = '-DBAR'
     
@@ -45,19 +43,21 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 foo = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
 bar = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
-foo.SharedObject(target = 'foo%s', source = 'prog.c')
-bar.SharedObject(target = 'bar%s', source = 'prog.c')
-foo.SharedLibrary(target = 'foo', source = 'foo%s')
-bar.SharedLibrary(target = 'bar', source = 'bar%s')
+
+foo_obj = foo.SharedObject(target = 'foo', source = 'prog.c')
+foo.SharedLibrary(target = 'foo', source = foo_obj)
+
+bar_obj = bar.SharedObject(target = 'bar', source = 'prog.c')
+bar.SharedLibrary(target = 'bar', source = bar_obj)
 
 fooMain = foo.Copy(LIBS='foo', LIBPATH='.')
-foo_obj = fooMain.Object(target='foomain', source='main.c')
-fooMain.Program(target='fooprog', source=foo_obj)
+foomain_obj = fooMain.Object(target='foomain', source='main.c')
+fooMain.Program(target='fooprog', source=foomain_obj)
 
 barMain = bar.Copy(LIBS='bar', LIBPATH='.')
-bar_obj = barMain.Object(target='barmain', source='main.c')
-barMain.Program(target='barprog', source=bar_obj)
-""" % (fooflags, barflags, _obj, _obj, _obj, _obj))
+barmain_obj = barMain.Object(target='barmain', source='main.c')
+barMain.Program(target='barprog', source=barmain_obj)
+""" % (fooflags, barflags))
 
 test.write('foo.def', r"""
 LIBRARY        "foo"
@@ -107,17 +107,19 @@ test.run(program = test.workpath('barprog'), stdout = "prog.c:  BAR\n")
 
 test.write('SConstruct', """
 bar = Environment(SHCCFLAGS = '%s', WIN32_INSERT_DEF=1)
-bar.SharedObject(target = 'foo%s', source = 'prog.c')
-bar.SharedObject(target = 'bar%s', source = 'prog.c')
-bar.SharedLibrary(target = 'foo', source = 'foo%s')
-bar.SharedLibrary(target = 'bar', source = 'bar%s')
+
+foo_obj = bar.SharedObject(target = 'foo', source = 'prog.c')
+bar.SharedLibrary(target = 'foo', source = foo_obj)
+
+bar_obj = bar.SharedObject(target = 'bar', source = 'prog.c')
+bar.SharedLibrary(target = 'bar', source = bar_obj)
 
 barMain = bar.Copy(LIBS='bar', LIBPATH='.')
-foo_obj = barMain.Object(target='foomain', source='main.c')
-bar_obj = barMain.Object(target='barmain', source='main.c')
-barMain.Program(target='barprog', source=foo_obj)
-barMain.Program(target='fooprog', source=bar_obj)
-""" % (barflags, _obj, _obj, _obj, _obj))
+foomain_obj = barMain.Object(target='foomain', source='main.c')
+barmain_obj = barMain.Object(target='barmain', source='main.c')
+barMain.Program(target='barprog', source=foomain_obj)
+barMain.Program(target='fooprog', source=barmain_obj)
+""" % (barflags))
 
 test.run(arguments = '.')
 

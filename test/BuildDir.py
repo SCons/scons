@@ -36,6 +36,11 @@ else:
 
 test = TestSCons.TestSCons()
 
+test.write('SConstruct', "print Environment()['F77']\n")
+test.run()
+f77 = test.where_is(test.stdout()[:-1])
+test.unlink('SConstruct')
+
 foo11 = test.workpath('test', 'build', 'var1', 'foo1' + _exe)
 foo12 = test.workpath('test', 'build', 'var1', 'foo2' + _exe)
 foo21 = test.workpath('test', 'build', 'var2', 'foo1' + _exe)
@@ -105,9 +110,10 @@ env.Command(target='f2.c', source='f2.in', action=buildIt)
 env.Program(target='foo2', source='f2.c')
 env.Program(target='foo1', source='f1.c')
 
-env.Command(target='b2.f', source='b2.in', action=buildIt)
-env.Copy(LIBS = 'g2c').Program(target='bar2', source='b2.f')
-env.Copy(LIBS = 'g2c').Program(target='bar1', source='b1.f')
+if WhereIs(env['F77']):
+    env.Command(target='b2.f', source='b2.in', action=buildIt)
+    env.Copy(LIBS = 'g2c').Program(target='bar2', source='b2.f')
+    env.Copy(LIBS = 'g2c').Program(target='bar1', source='b1.f')
 """)
 
 test.write('test/src/f1.c', r"""
@@ -177,16 +183,17 @@ test.run(program = foo42, stdout = "f2.c\n")
 test.run(program = foo51, stdout = "f1.c\n")
 test.run(program = foo52, stdout = "f2.c\n")
 
-test.run(program = bar11, stdout = " b1.for\n")
-test.run(program = bar12, stdout = " b2.for\n")
-test.run(program = bar21, stdout = " b1.for\n")
-test.run(program = bar22, stdout = " b2.for\n")
-test.run(program = bar31, stdout = " b1.for\n")
-test.run(program = bar32, stdout = " b2.for\n")
-test.run(program = bar41, stdout = " b1.for\n")
-test.run(program = bar42, stdout = " b2.for\n")
-test.run(program = bar51, stdout = " b1.for\n")
-test.run(program = bar52, stdout = " b2.for\n")
+if f77:
+    test.run(program = bar11, stdout = " b1.for\n")
+    test.run(program = bar12, stdout = " b2.for\n")
+    test.run(program = bar21, stdout = " b1.for\n")
+    test.run(program = bar22, stdout = " b2.for\n")
+    test.run(program = bar31, stdout = " b1.for\n")
+    test.run(program = bar32, stdout = " b2.for\n")
+    test.run(program = bar41, stdout = " b1.for\n")
+    test.run(program = bar42, stdout = " b2.for\n")
+    test.run(program = bar51, stdout = " b1.for\n")
+    test.run(program = bar52, stdout = " b2.for\n")
 
 # Make sure we didn't duplicate the source files in build/var3.
 test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f1.c')))
