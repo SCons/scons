@@ -36,8 +36,11 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+# Note:  Win32 basically has two modes that it can os.chmod() files to
+# 0444 and 0666, and directories to 0555 and 0777, so we can only really
+# oscillate between those values.
 test.write('SConstruct', """
-Execute(Chmod('f1', 0777))
+Execute(Chmod('f1', 0666))
 Execute(Chmod('d2', 0777))
 def cat(env, source, target):
     target = str(target[0])
@@ -49,13 +52,13 @@ def cat(env, source, target):
 Cat = Action(cat)
 env = Environment()
 env.Command('bar.out', 'bar.in', [Cat,
-                                  Chmod("f3", 0755),
-                                  Chmod("d4", 0755)])
+                                  Chmod("f3", 0666),
+                                  Chmod("d4", 0777)])
 env = Environment(FILE = 'f5')
-env.Command('f6.out', 'f6.in', [Chmod('$FILE', 0775), Cat])
+env.Command('f6.out', 'f6.in', [Chmod('$FILE', 0666), Cat])
 env.Command('f7.out', 'f7.in', [Cat,
-                                Chmod('Chmod-$SOURCE', 0775),
-                                Chmod('${TARGET}-Chmod', 0775)])
+                                Chmod('Chmod-$SOURCE', 0666),
+                                Chmod('${TARGET}-Chmod', 0666)])
 """)
 
 test.write('f1', "f1\n")
@@ -71,63 +74,63 @@ test.write('f7.in', "f7.in\n")
 test.write('Chmod-f7.in', "Chmod-f7.in\n")
 test.write('f7.out-Chmod', "f7.out-Chmod\n")
 
-os.chmod(test.workpath('f1'), 0700)
-os.chmod(test.workpath('d2'), 0700)
-os.chmod(test.workpath('f3'), 0700)
-os.chmod(test.workpath('d4'), 0700)
-os.chmod(test.workpath('f5'), 0700)
-os.chmod(test.workpath('Chmod-f7.in'), 0700)
-os.chmod(test.workpath('f7.out-Chmod'), 0700)
+os.chmod(test.workpath('f1'), 0444)
+os.chmod(test.workpath('d2'), 0555)
+os.chmod(test.workpath('f3'), 0444)
+os.chmod(test.workpath('d4'), 0555)
+os.chmod(test.workpath('f5'), 0444)
+os.chmod(test.workpath('Chmod-f7.in'), 0444)
+os.chmod(test.workpath('f7.out-Chmod'), 0444)
 
-expect = test.wrap_stdout(read_str = 'Chmod("f1", 0777)\nChmod("d2", 0777)\n',
+expect = test.wrap_stdout(read_str = 'Chmod("f1", 0666)\nChmod("d2", 0777)\n',
                           build_str = """\
 cat("bar.out", "bar.in")
-Chmod("f3", 0755)
-Chmod("d4", 0755)
-Chmod("f5", 0775)
+Chmod("f3", 0666)
+Chmod("d4", 0777)
+Chmod("f5", 0666)
 cat("f6.out", "f6.in")
 cat("f7.out", "f7.in")
-Chmod("Chmod-f7.in", 0775)
-Chmod("f7.out-Chmod", 0775)
+Chmod("Chmod-f7.in", 0666)
+Chmod("f7.out-Chmod", 0666)
 """)
 test.run(options = '-n', arguments = '.', stdout = expect)
 
 s = stat.S_IMODE(os.stat(test.workpath('f1'))[stat.ST_MODE])
-test.fail_test(s != 0700)
+test.fail_test(s != 0444)
 s = stat.S_IMODE(os.stat(test.workpath('d2'))[stat.ST_MODE])
-test.fail_test(s != 0700)
+test.fail_test(s != 0555)
 test.must_not_exist('bar.out')
 s = stat.S_IMODE(os.stat(test.workpath('f3'))[stat.ST_MODE])
-test.fail_test(s != 0700)
+test.fail_test(s != 0444)
 s = stat.S_IMODE(os.stat(test.workpath('d4'))[stat.ST_MODE])
-test.fail_test(s != 0700)
+test.fail_test(s != 0555)
 s = stat.S_IMODE(os.stat(test.workpath('f5'))[stat.ST_MODE])
-test.fail_test(s != 0700)
+test.fail_test(s != 0444)
 test.must_not_exist('f6.out')
 test.must_not_exist('f7.out')
 s = stat.S_IMODE(os.stat(test.workpath('Chmod-f7.in'))[stat.ST_MODE])
-test.fail_test(s != 0700)
+test.fail_test(s != 0444)
 s = stat.S_IMODE(os.stat(test.workpath('f7.out-Chmod'))[stat.ST_MODE])
-test.fail_test(s != 0700)
+test.fail_test(s != 0444)
 
 test.run()
 
 s = stat.S_IMODE(os.stat(test.workpath('f1'))[stat.ST_MODE])
-test.fail_test(s != 0777)
+test.fail_test(s != 0666)
 s = stat.S_IMODE(os.stat(test.workpath('d2'))[stat.ST_MODE])
 test.fail_test(s != 0777)
 test.must_match('bar.out', "bar.in\n")
 s = stat.S_IMODE(os.stat(test.workpath('f3'))[stat.ST_MODE])
-test.fail_test(s != 0755)
+test.fail_test(s != 0666)
 s = stat.S_IMODE(os.stat(test.workpath('d4'))[stat.ST_MODE])
-test.fail_test(s != 0755)
+test.fail_test(s != 0777)
 s = stat.S_IMODE(os.stat(test.workpath('f5'))[stat.ST_MODE])
-test.fail_test(s != 0775)
+test.fail_test(s != 0666)
 test.must_match('f6.out', "f6.in\n")
 test.must_match('f7.out', "f7.in\n")
 s = stat.S_IMODE(os.stat(test.workpath('Chmod-f7.in'))[stat.ST_MODE])
-test.fail_test(s != 0775)
+test.fail_test(s != 0666)
 s = stat.S_IMODE(os.stat(test.workpath('f7.out-Chmod'))[stat.ST_MODE])
-test.fail_test(s != 0775)
+test.fail_test(s != 0666)
 
 test.pass_test()
