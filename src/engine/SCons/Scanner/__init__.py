@@ -48,12 +48,14 @@ class Base:
     straightforward, single-pass scanning of a single file.
     """
 
-    def __init__(self, function, argument=_null, skeys=[]):
+    def __init__(self, function, name = "NONE", argument=_null, skeys=[]):
         """
         Construct a new scanner object given a scanner function.
 
         'function' - a scanner function taking two or three arguments and
         returning a list of strings.
+
+        'name' - a name for identifying this scanner object.
 
         'argument' - an optional argument that will be passed to the
         scanner function if it is given.
@@ -84,8 +86,8 @@ class Base:
         # would need to be changed is the documentation.
 
         self.function = function
+        self.name = name
         self.argument = argument
-        self.name = "NONE"
         self.skeys = skeys
 
     def scan(self, filename, env):
@@ -101,17 +103,18 @@ class Base:
         else:
             return self.function(filename, env)
 
+    def instance(self, env):
+        """
+        Return an instance of a Scanner object for use in scanning.
+
+        In the base class, we just return the scanner itself.
+        Other Scanner classes may use this to clone copies and/or
+        return unique instances as needed.
+        """
+        return self
+
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
-
-    def __call__(self, sources=None):
-        slist = scons_str2nodes(source, self.node_factory)
-        for s in slist:
-            s.scanner_set(self)
-
-        if len(slist) == 1:
-            slist = slist[0]
-        return slist
 
 class Recursive(Base):
     """

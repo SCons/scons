@@ -28,11 +28,9 @@ import SCons.Node.FS
 import SCons.Util
 
 def ProgScan():
-    """Return a Scanner instance for scanning executable files
-    for static-lib dependencies"""
-    s = SCons.Scanner.Base(scan, SCons.Node.FS.default_fs.File)
-    s.name = "ProgScan"
-    return s
+    """Return a prototype Scanner instance for scanning executable
+    files for static-lib dependencies"""
+    return SCons.Scanner.Base(scan, "ProgScan", SCons.Node.FS.default_fs.File)
 
 def scan(filename, env, node_factory):
     """

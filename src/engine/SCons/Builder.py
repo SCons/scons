@@ -184,7 +184,7 @@ class BuilderBase:
 	    t.env_set(env)
 	    t.add_source(slist)
             if self.scanner:
-                t.scanner_set(self.scanner)
+                t.scanner_set(self.scanner.instance(env))
 
 	for s in slist:
 	    s.env_set(env, 1)

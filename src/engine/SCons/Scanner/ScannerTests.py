@@ -57,38 +57,59 @@ class DummyEnvironment:
 
 
 class ScannerPositionalTestCase(ScannerTestBase, unittest.TestCase):
-    "Test the Scanner class using the position argument"
+    "Test the Scanner.Base class using the position argument"
     def runTest(self):
-        s = SCons.Scanner.Base(self.func)
+        s = SCons.Scanner.Base(self.func, "Pos")
         env = DummyEnvironment()
         env.VARIABLE = "var1"
         self.test(s, env, 'f1.cpp', ['f1.h', 'f1.hpp'])
 
+	env = DummyEnvironment()
+	env.VARIABLE = "i1"
+	i = s.instance(env)
+	self.test(i, env, 'i1.cpp', ['i1.h', 'i1.hpp'])
+
 class ScannerKeywordTestCase(ScannerTestBase, unittest.TestCase):
-    "Test the Scanner class using the keyword argument"
+    "Test the Scanner.Base class using the keyword argument"
     def runTest(self):
-        s = SCons.Scanner.Base(function = self.func)
+        s = SCons.Scanner.Base(function = self.func, name = "Key")
         env = DummyEnvironment()
         env.VARIABLE = "var2"
         self.test(s, env, 'f2.cpp', ['f2.h', 'f2.hpp'])
 
+	env = DummyEnvironment()
+	env.VARIABLE = "i2"
+	i = s.instance(env)
+	self.test(i, env, 'i2.cpp', ['i2.h', 'i2.hpp'])
+
 class ScannerPositionalArgumentTestCase(ScannerTestBase, unittest.TestCase):
-    "Test the Scanner class using the position argument and optional argument"
+    "Test the Scanner.Base class using both position and optional arguments"
     def runTest(self):
         arg = "this is the argument"
-        s = SCons.Scanner.Base(self.func, arg)
+        s = SCons.Scanner.Base(self.func, "PosArg", arg)
         env = DummyEnvironment()
         env.VARIABLE = "var3"
         self.test(s, env, 'f3.cpp', ['f3.h', 'f3.hpp'], arg)
 
+	env = DummyEnvironment()
+	env.VARIABLE = "i3"
+	i = s.instance(env)
+	self.test(i, env, 'i3.cpp', ['i3.h', 'i3.hpp'], arg)
+
 class ScannerKeywordArgumentTestCase(ScannerTestBase, unittest.TestCase):
-    "Test the Scanner class using the keyword argument and optional argument"
+    "Test the Scanner.Base class using both keyword and optional arguments"
     def runTest(self):
         arg = "this is another argument"
-        s = SCons.Scanner.Base(function = self.func, argument = arg)
+        s = SCons.Scanner.Base(function = self.func, name = "KeyArg",
+                               argument = arg)
         env = DummyEnvironment()
         env.VARIABLE = "var4"
         self.test(s, env, 'f4.cpp', ['f4.h', 'f4.hpp'], arg)
+
+	env = DummyEnvironment()
+	env.VARIABLE = "i4"
+	i = s.instance(env)
+	self.test(i, env, 'i4.cpp', ['i4.h', 'i4.hpp'], arg)
 
 def suite():
     suite = unittest.TestSuite()

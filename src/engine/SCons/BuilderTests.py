@@ -61,6 +61,7 @@ act_py = test.workpath('act.py')
 outfile = test.workpath('outfile')
 
 show_string = None
+instanced = None
 
 class Environment:
             def subst(self, s):
@@ -349,13 +350,19 @@ class BuilderTestCase(unittest.TestCase):
 
     def test_build_scanner(self):
         """Testing ability to set a target scanner through a builder."""
+        global instanced
         class TestScanner:
-            pass
+            def instance(self, env):
+                global instanced
+                instanced = 1
+                return self
         scn = TestScanner()
         builder=SCons.Builder.Builder(scanner=scn)
         tgt = builder(env, target='foo', source='bar')
         assert tgt.scanner == scn, tgt.scanner
+        assert instanced
 
+        instanced = None
         builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
                                          suffix='.foo')
@@ -364,6 +371,7 @@ class BuilderTestCase(unittest.TestCase):
                                          scanner = scn)
         tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
         assert tgt.scanner == scn, tgt.scanner
+        assert instanced
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')
