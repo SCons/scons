@@ -646,6 +646,9 @@ class FS:
             path_comp = path_comp[1:]
         else:
             path_comp = [ path_first, ] + path_comp[1:]
+
+        if not path_comp:
+            path_comp = ['']
             
         # Lookup the directory
         for path_name in path_comp[:-1]:
