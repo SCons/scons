@@ -40,7 +40,8 @@ test = TestSCons.TestSCons()
 test.subdir('work1', ['work1', 'src'], ['work1', 'src', 'subdir'],
             'work2', ['work2', 'src'], ['work2', 'src', 'subdir'],
             'work3', ['work3', 'src'], ['work3', 'src', 'subdir'],
-            'work4', ['work4', 'src'], ['work4', 'src', 'subdir'])
+            'work4', ['work4', 'src'], ['work4', 'src', 'subdir'],
+            'work5', ['work5', 'src'], ['work5', 'src', 'subdir'])
 
 subdir_file6 = os.path.join('subdir', 'file6')
 subdir_file6_in = os.path.join('subdir', 'file6.in')
@@ -110,7 +111,7 @@ Import("env")
 env.Cat('file1', 'file1.in')
 env.Cat('file2', 'file2.k')
 env.Cat('file3', ['xxx', 'yyy', 'zzz'])
-env.Command('file4', 'file4.in', r"%s %s $TARGET - $SOURCES")
+env.Command('file4', 'file4.in', r"%s %s $TARGET $FILE4FLAG $SOURCES", FILE4FLAG="-")
 env.Cat('file5', 'file5.k')
 env.Cat('subdir/file6', 'subdir/file6.in')
 """ % (python, cat_py))
@@ -299,13 +300,13 @@ test.must_match(['work1', 'src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
 #
 test.write(['work1', 'src', 'SConscript'], """\
 Import("env")
-env.Command('file4', 'file4.in', r"%s %s $TARGET $SOURCES")
+env.Command('file4', 'file4.in', r"%s %s $TARGET $FILE4FLAG $SOURCES", FILE4FLAG="")
 """ % (python, cat_py))
 
 test.run(chdir='work1/src',arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file4' because the build action changed:
-               old: %s %s $TARGET - $SOURCES
-               new: %s %s $TARGET $SOURCES
+               old: %s %s file4 - file4.in
+               new: %s %s file4 file4.in
 %s %s file4 file4.in
 """ % (python, cat_py,
        python, cat_py,
