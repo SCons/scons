@@ -1,0 +1,117 @@
+<!--
+
+  Copyright 2001 Steven Knight
+
+-->
+
+<!doctype book PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+[
+
+    <!ENTITY % version SYSTEM "../version.sgml">
+    %version;
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+    <!ENTITY acks SYSTEM "acks.sgml">
+    <!ENTITY bground SYSTEM "bground.sgml">
+    <!ENTITY engine SYSTEM "engine.sgml">
+    <!ENTITY goals SYSTEM "goals.sgml">
+    <!ENTITY install SYSTEM "install.sgml">
+    <!ENTITY intro SYSTEM "intro.sgml">
+    <!ENTITY issues SYSTEM "issues.sgml">
+    <!ENTITY native SYSTEM "native.sgml">
+    <!ENTITY overview SYSTEM "overview.sgml">
+
+]>
+
+<book>
+  <bookinfo>
+    <title>SCons Design version &build_version;</title>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <edition>Revision &build_revision; (&build_date;)</edition>
+
+    <pubdate>2001</pubdate>
+
+    <copyright>
+      <year>2001</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <legalnotice>
+      &copyright;
+    </legalnotice>
+
+    <releaseinfo>version &build_version;</releaseinfo>
+
+  </bookinfo>
+
+  <chapter id="chap-intro">
+    <title>Introduction</title>
+    &intro;
+  </chapter>
+
+  <chapter id="chap-goals">
+    <title>Goals</title>
+    &goals;
+  </chapter>
+
+  <chapter id="chap-overview">
+    <title>Overview</title>
+    &overview;
+  </chapter>
+
+  <chapter id="chap-engine">
+    <title>Build Engine API</title>
+    &engine;
+  </chapter>
+
+  <chapter id="chap-native">
+    <title>Native Python Interface</title>
+    &native;
+  </chapter>
+
+  <chapter id="chap-install">
+    <title>Installation</title>
+    &install;
+  </chapter>
+
+  <chapter id="chap-issues">
+    <title>Other Issues</title>
+    &issues;
+  </chapter>
+
+  <chapter id="chap-background">
+    <title>Background</title>
+    &bground;
+  </chapter>
+
+  <chapter id="chap-summary">
+    <title>Summary</title>
+    <para>
+
+      &SCons; offers a robust and feature-rich design for an SC-build
+      tool.  With a Build Engine based on the proven design of
+      the &Cons; utility, it offers increased simplification of the
+      user interface for unsophisticated users with the addition
+      of the "do-the-right-thing" <function>env.Make</function>
+      method, increased flexibility for sophisticated users with the
+      addition of &Builder; and &Scanner; objects, a mechanism to
+      allow tool-masters (and users) to share working construction
+      environments, and embeddability to provide reliable dependency
+      management in a variety of environments and interfaces.
+
+    </para>
+  </chapter>
+
+  <chapter id="chap-acks">
+    <title>Acknowledgements</title>
+    &acks;
+  </chapter>
+
+</book>

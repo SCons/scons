@@ -1,0 +1,92 @@
+<!--
+
+  Copyright 2001 Steven Knight
+
+-->
+
+ <para>
+
+   The &SCons; tool provides an easy-to-use, feature-rich interface
+   for constructing software.  Architecturally, &SCons; separates
+   its dependency analysis and external object management into an
+   interface-independent Build Engine that could be embedded in any
+   software system that can run Python.
+
+ </para>
+
+ <para>
+
+   At the command line, &SCons; presents an easily-grasped tool
+   where configuration files are Python scripts, reducing the need
+   to learn new build-tool syntax. Inexperienced users can use
+   intelligent methods that ``do the right thing'' to build software
+   with a minimum of fuss. Sophisticated users can use a rich set
+   of underlying features for finer control of the build process,
+   including mechanisms for easily extending the build process to new
+   file types.
+   
+ </para>
+ 
+ <para>
+ 
+   Dependencies are tracked using digital signatures,
+   which provide more robust dependency analysis than file time
+   stamps. Implicit dependencies are determined automatically by
+   scanning the contents of source files, avoiding the need for
+   laborious and fragile maintenance of static lists of dependencies in
+   configuration files.
+   
+ </para>
+
+ <para>
+
+   The &SCons; tool supports use of files from one or more central code
+   repositories, a mechanism for caching derived files, and parallel
+   builds.  The tool also includes a framework for sharing build
+   environments, which allows system administrators or integrators to
+   define appropriate build parameters for use by other users.
+
+ </para>
+
+<section id="sect-document">
+ <title>About This Document</title>
+
+ <para>
+
+   This document is an ongoing work-in-progress to write down the ideas
+   and tradeoffs that have gone, and will go into, the &SCons; design.
+   As such, this is intended primarily for use by developers and others
+   working on &SCons;, although it is also intended to serve as a
+   detailed overview of &SCons; for other interested parties.  It will
+   be continually updated and evolve, and will likely overlap with other
+   documentation produced by the project.  Sections of this document
+   that deal with syntax, for example, may move or be copied into a user
+   guide or reference manual.
+
+ </para>
+
+ <para>
+
+   So please don't assume that everything mentioned here has been
+   decided and carved in stone.  If you have ideas for improvements, or
+   questions about things that don't seem to make any sense, please help
+   improve the design by speaking up about them.
+
+ </para>
+
+<REMARK>
+Sections marked like this
+(prefixed with <literal>RATIONALE:</literal> in the HTML,
+surrounded by <literal>BEGIN RATIONALE:</literal>
+and <literal>END RATIONALE:</literal>
+in the printed documentatio)
+are DocBook REMARKs,
+comments about the document
+rather than actual document.
+I've used these to mark sections that need work,
+but also to cite some open design issues.
+If you have input on any of these marked issues,
+I'm especially eager to hear it.
+</REMARK>
+
+</section>

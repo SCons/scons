@@ -1,0 +1,343 @@
+<!--
+
+  Copyright 2001 Steven Knight
+
+-->
+
+<para>
+
+ The "Native Python" interface is the interface
+ that the actual &SCons; utility will present to users.
+ Because it exposes the Python Build Engine API,
+ &SCons; users will have direct access to the complete
+ functionality of the Build Engine.
+ In contrast, a different user interface such as a GUI
+ may choose to only use, and present to the end-user,
+ a subset of the Build Engine functionality.
+
+</para>
+
+<section id="sect-config">
+ <title>Configuration files</title>
+
+ <para>
+
+  &SCons; configuration files are simply Python scripts that invoke
+  methods to specify target files to be built, rules for building the
+  target files, and dependencies.  Common build rules are available by
+  default and need not be explicitly specified in the configuration
+  files.
+
+ </para>
+
+ <para>
+
+  By default, the &SCons; utility reads a configuration file named
+  &SConstruct; in the current directory.  A <option>-f</option>
+  command-line option exists to read a different file name.
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-syntax">
+ <title>Python syntax</title>
+
+ <para>
+
+  Because &SCons; configuration files are Python scripts, normal Python
+  syntax can be used to generate or manipulate lists of targets or
+  dependencies:
+
+ </para>
+
+	<programlisting>
+	sources = ['aaa.c', 'bbb.c', 'ccc.c']
+	env.Make('bar', sources)
+	</programlisting>
+
+ <para>
+
+  Python flow-control can be used to iterate through invocations of
+  build rules:
+
+ </para>
+
+	<programlisting>
+	objects = ['aaa.o', 'bbb.o', 'ccc.o']
+	for obj in objects:
+	        src = replace(obj, '.o', '.c')
+	        env.Make(obj, src)
+	</programlisting>
+
+ <para>
+
+  or to handle more complicated conditional invocations:
+
+ </para>
+
+	<programlisting>
+	# only build 'foo' on Linux systems
+	if sys.platform == 'linux1':
+	        env.Make('foo', 'foo.c')
+	</programlisting>
+
+ <para>
+
+  Because &SCons; configuration files are Python scripts, syntax errors
+  will be caught by the Python parser.  Target-building does not begin
+  until after all configuration files are read, so a syntax error will
+  not cause a build to fail half-way.
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-subsidiary">
+ <title>Subsidiary configuration Files</title>
+
+ <para>
+
+  A configuration file can instruct &SCons; to read up subsidiary
+  configuration files.  Subsidiary files are specified explicitly in a
+  configuration file via the &SConscript; method.  As usual, multiple
+  file names may be specified with white space separation, or in an
+  array:
+
+ </para>
+
+	<programlisting>
+	SConscript('other_file')
+	SConscript('file1 file2')
+	SConscript(['file3', 'file4'])
+	SConscript(['file name with white space'])
+	</programlisting>
+
+ <para>
+
+  An explicit <literal>sconscript</literal> keyword may be used:
+
+ </para>
+
+	<programlisting>
+	SConscript(sconscript = 'other_file')
+	</programlisting>
+
+ <para>
+
+  Including subsidiary configuration files is recursive: a configuration
+  file included via &SConscript; may in turn &SConscript; other
+  configuration files.
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-scoping">
+ <title>Variable scoping in subsidiary files</title>
+
+ <para>
+
+  When a subsidiary configuration file is read, it is given its own
+  namespace; it does not have automatic access to variables from the parent
+  configuration file.
+
+ </para>
+
+ <para>
+
+  Any variables (not just &SCons; objects) that are to be shared between configuration files must be
+  explicitly passed in the &SConscript; call
+  using the &Export method:
+
+ </para>
+
+	<programlisting>
+	env = Environment()
+	debug = Environment(CCFLAGS = '-g')
+	installdir = '/usr/bin'
+	SConscript('src/SConscript', Export(env=env, debug=debug, installdir=installdir))
+	</programlisting>
+
+<REMARK>
+The <literal>env=env</literal> stuff bugs me
+because it imposes extra work on the normal
+case where you <emphasis>don't</emphasis> rename
+the variables.
+Can we simplify the &Export; method
+so that a string
+without a keyword assignment
+is split into variables that are passed
+through transparently?
+Equivalent to the above example:
+<literal>SConscript('src/SConscript', Export('env debug installdir'))</literal>
+</REMARK>
+
+ <para>
+
+  Which may be specified explicitly using a keyword argument:
+
+ </para>
+
+	<programlisting>
+	env = Environment()
+	debug = Environment(CCFLAGS = '-g')
+	installdir = '/usr/bin'
+	SConscript(sconscript = 'src/SConscript',
+	           export = Export(env=env, debug=debug, installdir=installdir))
+	</programlisting>
+
+ <para>
+
+  Explicit variable-passing provides control over exactly what is available
+  to a subsidiary file, and avoids unintended side effects of changes in
+  one configuration file affecting other far-removed configuration files
+  (a very hard-to-debug class of build problem).
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-hierarchy">
+ <title>Hierarchical builds</title>
+
+ <para>
+
+  The &SConscript; method is so named because, by convention, subsidiary
+  configuration files in subdirectories are named &SConscript;:
+
+ </para>
+
+	<programlisting>
+	SConscript('src/SConscript')
+	SConscript('lib/build_me')
+	</programlisting>
+
+ <para>
+
+  When a subsidiary configuration file is read from a subdirectory, all
+  of that configuration file's targets and build rules are interpreted
+  relative to that directory (as if &SCons; had changed its working
+  directory to that subdirectory).  This allows for easy support of
+  hierarchical builds of directory trees for large projects.
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-sharing">
+ <title>Sharing &consenvs;</title>
+
+ <para>
+
+  &SCons; will allow users to share &consenvs, as well as other &SCons;
+  objects and Python variables, by importing them from a central, shared
+  repository using normal Python syntax:
+
+ </para>
+
+	<programlisting>
+	from LocalEnvironments import optimized, debug
+
+	optimized.Make('foo', 'foo.c')
+	debug.Make('foo-d', 'foo.c')
+	</programlisting>
+
+ <para>
+
+  The expectation is that some local tool-master, integrator or
+  administrator will be responsible for assembling environments (creating
+  the &Builder; objects that specify the tools, options, etc.) and make
+  these available for sharing by all users.
+
+ </para>
+
+ <para>
+
+  The modules containing shared &consenvs;
+  (<literal>LocalEnvironments</literal> in the above example) can be
+  checked in and controlled with the rest of the source files.  This
+  allows a project to track the combinations of tools and command-line
+  options that work on different platforms, at different times, and with
+  different tool versions, by using already-familiar revision control
+  tools.
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-help">
+ <title>Help</title>
+
+ <para>
+
+  The &SCons; utility provides a &Help; function to allow the writer
+  of a &SConstruct; file to provide help text that is specific to
+  the local build tree:
+
+ </para>
+
+	<programlisting>
+	Help("""
+	Type:
+	        scons .         build and test everything
+	        scons test      build the software
+	        scons src       run the tests
+	        scons web       build the web pages
+	""")
+	</programlisting>
+
+ <para>
+
+  This help text is displayed in response to the <option>-h</option>
+  command-line option.  Calling the &Help; function more than once is an
+  error.
+
+ </para>
+  
+</section>
+
+
+
+<section id="sect-debug">
+ <title>Debug</title>
+
+ <para>
+
+  &SCons; supports several command-line options for printing extra
+  information with which to debug build problems.
+
+ </para>
+
+<REMARK>
+These need to be specified and explained
+beyond what the man page will have.
+</REMARK>
+
+  <!-- BEGIN HTML -->
+
+ <para>
+
+  See the -d, -p, -pa, and -pw options
+  in the  <!--<A HREF="#sccons_Man_page">man page</A>-->, below.
+  All of these options make use of call-back functions to
+  <!--<A HREF="reference.html#Customizing_output">control the output</A>-->
+  printed by the Build Engine.
+
+ </para>
+
+  <!-- END HTML -->
+
+</section>

@@ -1,0 +1,1888 @@
+<!--
+
+  Copyright 2001 Steven Knight
+
+-->
+
+<section id="sect-principles">
+ <title>General Principles</title>
+
+ <section>
+  <title>Keyword arguments</title>
+  
+  <para>
+
+   All methods and functions in this API will support the use of keyword
+   arguments in calls, for the sake of explicitness and readability.
+   For brevity in the hands of experts, most methods and functions
+   will also support positional arguments for their most-commonly-used
+   arguments.  As an explicit example, the following two lines will each
+   arrange for an executable program named <filename>foo</filename> (or
+   <filename>foo.exe</filename> on a Win32 system) to be compiled from
+   the <filename>foo.c</filename> source file:
+
+  </para>
+
+	<programlisting>
+	env.Program(target = 'foo', source = 'foo.c')
+
+	env.Program('foo', 'foo.c')
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>Internal object representation</title>
+
+  <para>
+
+   All methods and functions use internal (Python) objects that
+   represent the external objects (files, for example) for which they
+   perform dependency analysis.
+
+  </para>
+
+  <para>
+
+   All methods and functions in this API that accept an external object
+   as an argument will accept <emphasis>either</emphasis> a string
+   description or an object reference.  For example, the two following
+   two-line examples are equivalent:
+
+  </para>
+
+	<programlisting>
+	env.Object(target = 'foo.o', source = 'foo.c')
+	env.Program(target = 'foo', 'foo.o')    # builds foo from foo.o
+
+	foo_obj = env.Object(target = 'foo.o', source = 'foo.c')
+	env.Program(target = 'foo', foo_obj)    # builds foo from foo.o
+	</programlisting>
+
+ </section>
+
+</section>
+
+
+
+<section id="sect-envs">
+ <title>&ConsEnvs</title>
+
+ <para>
+
+  A &consenv; is the basic means by which a software system interacts
+  with the &SCons; Python API to control a build process.
+
+ </para>
+
+ <para>
+
+  A &consenv; is an object with associated methods for generating target
+  files of various types (&Builder; objects), other associated object
+  methods for automatically determining dependencies from the contents
+  of various types of source files (&Scanner; objects), and a dictionary
+  of values used by these methods.
+
+ </para>
+
+ <para>
+
+  Passing no arguments to the &Environment; instantiation creates a
+  &consenv; with default values for the current platform:
+
+ </para>
+
+	<programlisting>
+	env = Environment()
+	</programlisting>
+
+ <section>
+  <title>&Consvars;</title>
+
+  <para>
+
+   A &consenv; has an associated dictionary of &consvars; that control how
+   the build is performed.  By default, the &Environment; method creates
+   a &consenv; with values that make most software build "out of the box"
+   on the host system.  These default values will be generated at the
+   time &SCons; is installed using functionality similar to that provided
+   by GNU &Autoconf;.
+   <footnote>
+    <para>
+     It would be nice if we could avoid re-inventing the wheel here by
+     using some other Python-based tool &Autoconf replacement--like what
+     was supposed to come out of the Software Carpentry configuration
+     tool contest.  It will probably be most efficient to roll our own
+     logic initially and convert if something better does come along.
+    </para>
+   </footnote>
+   At a minimum, there will be pre-configured sets of default values
+   that will provide reasonable defaults for UNIX and Windows NT.
+
+  </para>
+
+  <para>
+
+   The default &consenv; values may be overridden when a new &consenv; is
+   created by specifying keyword arguments:
+
+  </para>
+
+	<programlisting>
+	env = Environment(CC =          'gcc',
+	                  CCFLAGS =    '-g',
+	                  CPPPATH =    ['.', 'src', '/usr/include'],
+	                  LIBPATH =    ['/usr/lib', '.'])
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>Fetching &consvars;</title>
+
+  <para>
+
+   A copy of the dictionary of &consvars; can be returned using
+   the &Dictionary; method:
+
+  </para>
+
+	<programlisting>
+	env = Environment()
+	dict = env.Dictionary()
+	</programlisting>
+
+<REMARK>
+In the current source code, I implemented this as a dictionary attribute
+named <literal>Dictionary</literal>.  While reasonably Pythonic, this
+is ultimately Not Good.  We don't want people using a reference to the
+dictionary to change construction variables out from under an existing
+environment.  We should use an internal <literal>_dict</literal>
+attribute and control access to it through a method, as specified above.
+</REMARK>
+
+  <para>
+
+   If any arguments are supplied, then just the corresponding value(s)
+   are returned:
+
+  </para>
+
+	<programlisting>
+	ccflags = env.Dictionary('CCFLAGS')
+	cc, ld = env.Dictionary('CC', 'LD')
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>Copying a &consenv;</title>
+
+  <para>
+
+   A method exists to return a copy of an existing environment, with
+   any overridden values specified as keyword arguments to the method:
+
+  </para>
+
+	<programlisting>
+	env = Environment()
+	debug = env.Copy(CCFLAGS = '-g')
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>Multiple &consenvs;</title>
+
+  <para>
+
+   Different external objects often require different build
+   characteristics.  Multiple &consenvs; may be defined, each with
+   different values:
+
+  </para>
+
+	<programlisting>
+	env = Environment(CCFLAGS = '')
+	debug = Environment(CCFLAGS = '-g')
+	env.Make(target = 'hello', source = 'hello.c')
+	debug.Make(target = 'hello-debug', source = 'hello.c')
+	</programlisting>
+
+  <para>
+
+   Dictionaries of values from multiple &consenvs; may be passed to the
+   &Environment; instantiation or the &Copy; method, in which case the
+   last-specified dictionary value wins:
+
+  </para>
+
+	<programlisting>
+	env1 = Environment(CCFLAGS = '-O', LDFLAGS = '-d')
+	env2 = Environment(CCFLAGS = '-g')
+	new = Environment(env1.Dictionary(), env2.Dictionary())
+	</programlisting>
+
+  <para>
+
+   The <varname>new</varname> environment in the above example retains
+   <literal>LDFLAGS = '-d'</literal> from the <varname>env1</varname>
+   environment, and <literal>CCFLAGS = '-g'</literal> from the
+   <varname>env2</varname> environment.
+
+  </para>
+
+  <!--
+
+	hardware details
+	current directory
+	OS environment variables
+	compilers and options,
+	aliases for commands,
+	versions of tools
+
+	environment overrides a la Cons
+
+	compilation options
+
+	cross compilation via selection of tool+options
+
+	paths for header files (specify alternate path)
+
+	accomodate smart compilers that can tell you
+	"I know how to turn .c or .ccp into .o",
+	"I know how to turn .f into .o"
+
+   -->
+
+ </section>
+
+ <section>
+  <title>Variable substitution</title>
+
+  <para>
+
+   Within a construction command, any variable from the &consenv; may
+   be interpolated by prefixing the name of the construction with
+   <symbol>$</symbol>:
+
+  </para>
+
+	<programlisting>
+	MyBuilder = Builder(command = "$XX $XXFLAGS -c $_INPUTS -o $target")
+
+	env.Command(targets = 'bar.out', sources = 'bar.in',
+	            command = "sed '1d' < $source > $target")
+	</programlisting>
+
+  <para>
+
+   Variable substitution is recursive:  the command line is expanded
+   until no more substitutions can be made.
+
+  </para>
+
+  <para>
+
+   Variable names following the <symbol>$</symbol> may be enclosed in
+   braces.  This can be used to concatenate an interpolated value with an
+   alphanumeric character:
+
+  </para>
+
+	<programlisting>
+	VerboseBuilder = Builder(command = "$XX -${XXFLAGS}v > $target")
+	</programlisting>
+
+  <para>
+
+   The variable within braces may contain a pair of parentheses
+   after a Python function name to be evaluated (for example,
+   <literal>${map()}</literal>).  &SCons; will interpolate the return
+   value from the function (presumably a string):
+
+  </para>
+
+	<programlisting>
+	env = Environment(FUNC = myfunc)
+	env.Command(target = 'foo.out', source = 'foo.in',
+	            command = "${FUNC($<)}")
+	</programlisting>
+
+  <para>
+
+   If a referenced variable is not defined in the &consenv;,
+   the null string is interpolated.
+
+  </para>
+
+  <para>
+
+   The following special variables can also be used:
+
+  </para>
+
+  <variablelist>
+
+   <varlistentry>
+    <term><literal>$targets</literal></term>
+    <listitem>
+     <para>
+
+      All target file names.  If multiple targets are specified in an
+      array, <literal>$targets</literal> expands to the entire list of
+      targets, separated by a single space.
+
+    </para>
+
+    <para>
+
+      Individual targets from a list may be extracted by enclosing
+      the <literal>targets</literal> keyword in braces and using the
+      appropriate Python array index or slice:
+
+    </para>
+
+	<programlisting>
+	${targets[0]}     # expands to the first target
+
+	${targets[1:]}    # expands to all but the first target
+
+	${targets[1:-1]}  # expands to all but the first and last targets
+	</programlisting>
+
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><literal>$target</literal></term>
+    <listitem>
+     <para>
+
+      A synonym for <literal>${targets[0]}</literal>, the first target
+      specified.
+
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><literal>$sources</literal></term>
+    <listitem>
+     <para>
+
+      All input file names.  Any input file names that
+      are used anywhere else on the current command
+      line (via <literal>${sources[0]}</literal>,
+      <literal>${sources{[1]}</literal>, etc.) are removed from the
+      expanded list.
+
+     </para>
+    </listitem>
+   </varlistentry>
+
+  </variablelist>
+
+  <para>
+
+   Any of the above special variables may be enclosed in braces and
+   followed immediately by one of the following attributes to select just
+   a portion of the expanded path name:
+
+  </para>
+
+  <variablelist>
+
+   <varlistentry>
+    <term><literal>.base</literal></term>
+    <listitem>
+     <para>
+
+      Basename: the directory plus the file name, minus any file suffix.
+
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><literal>.dir</literal></term>
+    <listitem>
+     <para>
+
+      The directory in which the file lives.  This is a relative path,
+      where appropriate.
+
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><literal>.file</literal></term>
+    <listitem>
+     <para>
+
+      The file name, minus any directory portion.
+
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><literal>.suffix</literal></term>
+    <listitem>
+     <para>
+
+      The file name suffix (that is, the right-most dot in the file name,
+      and all characters to the right of that).
+
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><literal>.filebase</literal></term>
+    <listitem>
+     <para>
+
+      The file name (no directory portion), minus any file suffix.
+
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><literal>.abspath</literal></term>
+    <listitem>
+     <para>
+
+      The absolute path to the file.
+
+     </para>
+    </listitem>
+   </varlistentry>
+
+  </variablelist>
+
+ </section>
+
+</section>
+
+
+
+<section id="sect-builders">
+ <title>&Builder; Objects</title>
+
+ <para>
+
+  By default, &SCons; supplies (and uses) a number of pre-defined
+  &Builder; objects:
+
+ </para>
+
+ <informaltable>
+  <tgroup cols="2">
+  <tbody>
+
+   <row>
+    <entry>&Object;</entry>
+    <entry>compile or assemble an object file</entry>
+   </row>
+
+   <row>
+    <entry>&Library;</entry>
+    <entry>archive files into a library</entry>
+   </row>
+
+   <row>
+    <entry>&SharedLibrary;</entry>
+    <entry>archive files into a shared library</entry>
+   </row>
+
+   <row>
+    <entry>&Program;</entry>
+    <entry>link objects and/or libraries into an executable</entry>
+   </row>
+
+   <row>
+    <entry>&MakeBuilder;</entry>
+    <entry>build according to file suffixes; see below</entry>
+   </row>
+
+  </tbody>
+  </tgroup>
+ </informaltable>
+
+<REMARK>
+&Library; and &SharedLibrary; have nearly identical
+semantics, just different
+tools and &consenvs (paths, etc.) that they use.
+In other words, you can construct a shared library
+using just the &Library; &Builder; object
+with a different environment.
+I think that's a better way to do it.
+Feedback?
+</REMARK>
+
+ <para>
+
+  A &consenv; can be explicitly initialized with associated &Builder;
+  objects that will be bound to the &consenv; object:
+
+ </para>
+
+	<programlisting>
+	env = Environment(BUILDERS = ['Object', 'Program'])
+	</programlisting>
+
+ <para>
+
+  &Builder; objects bound to a &consenv; can be called directly as
+  methods.  When invoked, a &Builder; object returns a (list of) objects
+  that it will build:
+
+ </para>
+
+	<programlisting>
+	obj = env.Object(target ='hello.o', source = 'hello.c')
+	lib = env.Library(target ='libfoo.a',
+	                  source = ['aaa.c', 'bbb.c'])
+	slib = env.SharedLibrary(target ='libbar.so',
+	                         source = ['xxx.c', 'yyy.c'])
+	prog = env.Program(target ='hello',
+	                   source = ['hello.o', 'libfoo.a', 'libbar.so'])
+	</programlisting>
+
+ <section>
+  <title>Specifying multiple inputs</title>
+
+  <para>
+
+   Multiple input files that go into creating a target file may be passed
+   in as a single string, with the individual file names separated by
+   white space:
+
+  </para>
+
+	<programlisting>
+	env.Library(target = 'foo.a', source = 'aaa.c bbb.c ccc.c')
+	env.Object(target = 'yyy.o', source = 'yyy.c')
+	env.Program(target = 'bar', source = 'xxx.c yyy.o foo.a')
+	</programlisting>
+
+  <para>
+
+   Alternatively, multiple input files that go into creating a target
+   file may be passed in as an array.  This allows input files to be
+   specified using their object representation:
+
+  </para>
+
+	<programlisting>
+	env.Library(target = 'foo.a', source = ['aaa.c', 'bbb.c', 'ccc.c'])
+	yyy_obj = env.Object(target = 'yyy.o', source = 'yyy.c')
+	env.Program(target = 'bar', source = ['xxx.c', yyy_obj, 'foo.a'])
+	</programlisting>
+
+   <para>
+
+    Individual string elements within an array of input files are
+    <emphasis>not</emphasis> further split into white-space separated
+    file names.  This allows file names that contain white space to
+    be specified by putting the value into an array:
+
+	<programlisting>
+	env.Program(target = 'foo', source = ['an input file.c'])
+	</programlisting>
+
+   </para>
+
+ </section>
+
+ <section>
+  <title>Specifying multiple targets</title>
+
+  <para>
+
+   Conversely, the generated target may be a string listing multiple
+   files separated by white space:
+
+  </para>
+
+	<programlisting>
+	env.Object(target = 'grammar.o y.tab.h', source = 'grammar.y')
+	</programlisting>
+
+  <para>
+
+   An array of multiple target files can be used to mix string and object
+   representations, or to accomodate file names that contain white space:
+
+  </para>
+
+	<programlisting>
+	env.Program(target = ['my program'], source = 'input.c')
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>File prefixes and suffixes</title>
+
+  <para>
+
+   For portability, if the target file name does not already have an
+   appropriate file prefix or suffix, the &Builder; objects will
+   append one appropriate for the file type on the current system:
+
+  </para>
+
+	<programlisting>
+	# builds 'hello.o' on UNIX, 'hello.obj' on Windows NT:
+	obj = env.Object(target ='hello', source = 'hello.c')
+
+	# builds 'libfoo.a' on UNIX, 'foo.lib' on Windows NT:
+	lib = env.Library(target ='foo', source = ['aaa.c', 'bbb.c'])
+
+	# builds 'libbar.so' on UNIX, 'bar.dll' on Windows NT:
+	slib = env.SharedLibrary(target ='bar', source = ['xxx.c', 'yyy.c'])
+
+	# builds 'hello' on UNIX, 'hello.exe' on Windows NT:
+	prog = env.Program(target ='hello',
+	                   source = ['hello.o', 'libfoo.a', 'libbar.so'])
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>&Builder; object exceptions</title>
+
+  <para>
+
+   &Builder; objects raise the following exceptions on error:
+
+ <REMARK>
+ LIST THESE ONCE WE FIGURE OUT WHAT THEY ARE FROM CODING THEM.
+ </REMARK>
+
+  </para>
+ </section>
+
+ <section>
+  <title>User-defined &Builder; objects</title>
+
+  <para>
+
+   Users can define additional &Builder; objects for specific external
+   object types unknown to &SCons;.  A &Builder; object may build its
+   target by executing an external command:
+
+  </para>
+
+	<programlisting>
+	WebPage = Builder(command = 'htmlgen $HTMLGENFLAGS $sources > $target',
+	                input_suffix = '.in',
+	                output_suffix = '.html')
+	</programlisting>
+
+  <para>
+
+   Alternatively, a &Builder; object may also build its target by
+   executing a Python function:
+
+   </para>
+
+	<programlisting>
+	def update(dest):
+	        # [code to update the object]
+	        return 1
+
+	OtherBuilder1 = Builder(function = update,
+	                input_suffix = ['.in', '.input'])
+	</programlisting>
+
+   <para>
+   
+   An optional argument to pass to the function may be specified:
+
+  </para>
+
+	<programlisting>
+	def update_arg(dest, arg):
+	        # [code to update the object]
+	        return 1
+
+	OtherBuilder2 = Builder(function = update_arg,
+	                function_arg = 'xyzzy',
+	                input_suffix = ['.in', '.input'])
+	</programlisting>
+
+  <para>
+
+   Both an external command and an internal function may be specified,
+   in which case the function will be called to build the object first,
+   followed by the command line.
+
+  </para>
+
+ <REMARK>
+ NEED AN EXAMPLE HERE.
+ </REMARK>
+
+  <para>
+
+   User-defined &Builder; objects can be used like the default &Builder;
+   objects to initialize &consenvs;.
+
+  </para>
+
+	<programlisting>
+	WebPage = Builder(command = 'htmlgen $HTMLGENFLAGS $sources > $target',
+	                input_suffix = '.in',
+	                output_suffix = '.html')
+	env = Environment(BUILDERS = ['WebPage'])
+	env.WebPage(target = 'foo.html', source = 'foo.in')
+	# Builds 'bar.html' on UNIX, 'bar.htm' on Windows NT:
+	env.WebPage(target = 'bar', source = 'bar.in')
+	</programlisting>
+
+  <para>
+
+   The command-line specification can interpolate variables from the
+   &consenv;; see "Variable substitution," above.
+
+  </para>
+
+  <para>
+
+   A &Builder; object may optionally be initialized with a list of
+   the expected suffixes of input files for this object.  It may also
+   be initialized with an output suffix for the files that this
+   &Builder; object builds.  These arguments are used in automatic
+   dependency analysis and in generating output file names that don't
+   have suffixes supplied explicitly.
+
+  </para>
+ </section>
+
+ <section>
+  <title>Copying &Builder; Objects</title>
+
+  <para>
+
+   A &Copy; method exists to return a copy of an existing &Builder;
+   object, with any overridden values specified as keyword arguments to
+   the method:
+
+  </para>
+
+	<programlisting>
+	build = Builder(function = my_build)
+	build_out = build.Copy(output_suffix = '.out')
+	</programlisting>
+
+  <para>
+
+   Typically, &Builder; objects will be supplied by a tool-master or
+   administrator through a shared &consenv;.
+
+  </para>
+ </section>
+
+ <section>
+  <title>Special-purpose build rules</title>
+
+  <para>
+
+   A pre-defined &Command; builder exists to associate a target file with
+   a specific command or list of commands for building the file:
+
+  </para>
+
+	<programlisting>
+	env.Command(target = 'foo.out', source = 
+	            command = 'foo.in', "foo.process $sources > $target")
+
+	commands = [    "bar.process -o .tmpfile $sources",
+	                "mv .tmpfile $target" ]
+	env.Command(target = 'bar.out', source = 'bar.in', command = commands)
+	</programlisting>
+
+  <para>
+   This is useful when it's too cumbersome to create a &Builder;
+   object just to build a single file in a special way.
+
+  </para>
+ </section>
+
+ <section>
+  <title>The &MakeBuilder; &Builder;</title>
+
+  <para>
+
+   A pre-defined &Builder; object named &MakeBuilder; exists to make
+   simple builds as easy as possible for users, at the expense of
+   sacrificing some build portability.
+
+  </para>
+
+  <para>
+
+   The following minimal example builds the 'hello' program from the
+   'hello.c' source file:
+
+  </para>
+
+	<programlisting>
+	Environment().Make('hello', 'hello.c')
+	</programlisting>
+
+  <para>
+
+   Users of the &MakeBuilder; &Builder; object are not required to
+   understand intermediate steps involved in generating a file--for
+   example, the distinction between compiling source code into an object
+   file, and then linking object files into an executable.  The details
+   of intermediate steps are handled by the invoked method.  Users that
+   need to, however, can specify intermediate steps explicitly:
+
+  </para>
+
+	<programlisting>
+	env = Environment()
+	env.Make(target = 'hello.o', source = 'hello.c')
+	env.Make(target = 'hello', source = 'hello.o')
+	</programlisting>
+
+  <para>
+
+   The &MakeBuilder; method understands the file suffixes specified and
+   "does the right thing" to generate the target object and program
+   files, respectively.  It does this by examining the specified output
+   suffixes for the &Builder; objects bound to the environment.
+
+  </para>
+
+  <para>
+
+   Because file name suffixes in the target and source file names
+   must be specified, the &MakeBuilder; method can't be used
+   portably across operating systems.  In other words, for the
+   example above, the &MakeBuilder; builder will not generate
+   <filename>hello.exe</filename> on Windows NT.
+
+  </para>
+
+ </section>
+
+ <section>
+  <title>&Builder; maps</title>
+
+<REMARK>
+Do we even need this anymore?
+Now that the individual builders
+have specified <literal>input_suffix</literal>
+and <literal>output_suffix</literal> values,
+all of the information we need to support
+the &MakeBuilder; builder is right there in the environment.
+I think this is a holdover from before I
+added the <literal>suffix</literal> arguments.
+If you want &MakeBuilder; to do something different,
+you set it up with another environment...
+</REMARK>
+
+  <para>
+
+   The <function>env.Make</function> method "does the right thing" to
+   build different file types because it uses a dictionary from the
+   &consenv; that maps file suffixes to the appropriate &Builder; object.
+   This &BUILDERMAP; can be initialized at instantiation:
+
+  </para>
+
+	<programlisting>
+	env = Environment(BUILDERMAP = {
+	                        '.o' : Object,
+	                        '.a' : Library,
+	                        '.html' : WebPage,
+	                        '' : Program,
+	                })
+	</programlisting>
+
+  <para>
+
+   With the &BUILDERMAP; properly initialized, the
+   <function>env.Make</function> method can be used to build additional
+   file types:
+
+  </para>
+
+	<programlisting>
+	env.Make(target = 'index.html', source = 'index.input')
+	</programlisting>
+
+  <para>
+
+   &Builder; objects referenced in the &BUILDERMAP; do not need to be
+   listed separately in the &BUILDERS; variable.  The &consenv; will
+   bind the union of the &Builder; objects listed in both variables.
+
+  </para>
+
+ <!--
+
+   YYY support scanners which detect files which haven't been generated yet
+
+ -->
+
+ </section>
+
+</section>
+
+
+
+<section id="sect-deps">
+ <title>Dependencies</title>
+
+ <section>
+  <title>Automatic dependencies</title>
+
+  <para>
+
+   By default, &SCons; assumes that a target file has <literal>automatic
+   dependencies</literal> on the:
+
+  </para>
+
+  <blockquote>
+   <simplelist>
+
+    <member>tool used to build the target file</member>
+
+    <member>contents of the input files</member>
+
+    <member>command line used to build the target file</member>
+
+   </simplelist>
+  </blockquote>
+
+  <para>
+
+   If any of these changes, the target file will be rebuilt.
+
+  </para>
+ </section>
+
+ <section>
+  <title>Implicit dependencies</title>
+
+  <para>
+
+   Additionally, &SCons; can scan the contents of files for
+   <literal>implicit dependencies</literal> on other files.  For
+   example, &SCons; will scan the contents of a <filename>.c</filename>
+   file and determine that any object created from it is
+   dependent on any <filename>.h</filename> files specified via
+   <literal>#include</literal>.  &SCons;, therefore, "does the right
+   thing" without needing to have these dependencies listed explicitly:
+
+  </para>
+
+	<programlisting>
+	% cat Construct
+	env = Environment()
+	env.Program('hello', 'hello.c')
+	% cat hello.c
+	#include "hello_string.h"
+	main()
+	{
+	        printf("%s\n", STRING);
+	}
+	% cat > hello_string.h
+	#define STRING  "Hello, world!\n"
+	% scons .
+	gcc -c hello.c -o hello.o
+	gcc -o hello hello.c
+	% ./hello
+	Hello, world!
+	% cat > hello_string.h
+	#define STRING  "Hello, world, hello!\n"
+	% scons .
+	gcc -c hello.c -o hello.o
+	gcc -o hello hello.c
+	% ./hello
+	Hello, world, hello!
+	%
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>Ignoring dependencies</title>
+
+  <para>
+
+   Undesirable <literal>automatic dependencies</literal> or
+   <literal>implicit dependencies</literal> may be ignored:
+
+  </para>
+
+	<programlisting>
+	env.Program(target = 'bar', source = 'bar.c')
+	env.Ignore('bar', '/usr/bin/gcc', 'version.h')
+	</programlisting>
+
+  <para>
+
+   In the above example, the <filename>bar</filename> program will not
+   be rebuilt if the <filename>/usr/bin/gcc</filename> compiler or the
+   <filename>version.h</filename> file change.
+
+  </para>
+ </section>
+
+ <section>
+  <title>Explicit dependencies</title>
+
+  <para>
+
+   Dependencies that are unknown to &SCons; may be specified explicitly
+   in an &SCons; configuration file:
+
+  </para>
+
+	<programlisting>
+	env.Dependency(target = 'output1', dependency = 'input_1 input_2')
+	env.Dependency(target = 'output2', dependency = ['input_1', 'input_2'])
+	env.Dependency(target = 'output3', dependency = ['white space input'])
+
+	env.Dependency(target = 'output_a output_b', dependency = 'input_3')
+	env.Dependency(target = ['output_c', 'output_d'], dependency = 'input_4')
+	env.Dependency(target = ['white space output'], dependency = 'input_5')
+	</programlisting>
+
+  <para>
+
+   Just like the <literal>target</literal> keyword argument, the
+   <literal>dependency</literal> keyword argument may be specified as a
+   string of white-space separated file names, or as an array.
+
+  </para>
+
+  <para>
+
+   A dependency on an &SCons; configuration file itself may be specified
+   explicitly to force a rebuild whenever the configuration file changes:
+
+  </para>
+
+	<programlisting>
+	env.Dependency(target = 'archive.tar.gz', dependency = 'SConstruct')
+	</programlisting>
+
+ </section>
+
+</section>
+
+
+
+<section id="sect-scanners">
+ <title>&Scanner; Objects</title>
+
+ <para>
+
+  Analagous to the previously-described &Builder; objects, &SCons;
+  supplies (and uses) &Scanner; objects to search the contents of
+  a file for implicit dependency files:
+
+ </para>
+
+ <informaltable>
+  <tgroup cols="2">
+  <tbody>
+
+   <row>
+    <entry>CScan</entry>
+    <entry>scan .{c,C,cc,cxx,cpp} files for #include dependencies</entry>
+   </row>
+
+  </tbody>
+  </tgroup>
+ </informaltable>
+
+ <para>
+
+  A &consenv; can be explicitly initialized with
+  associated &Scanner; objects:
+
+ </para>
+
+	<programlisting>
+	env = Environment(SCANNERS = ['CScan', 'M4Scan'])
+	</programlisting>
+
+ <para>
+
+  &Scanner; objects bound to a &consenv; can be
+  associated directly with specified files:
+
+ </para>
+
+	<programlisting>
+	env.CScan('foo.c', 'bar.c')
+	env.M4Scan('input.m4')
+	</programlisting>
+
+ <section>
+  <title>User-defined &Scanner; objects</title>
+
+  <para>
+
+   A user may define a &Scanner; object to scan a type of file for
+   implicit dependencies:
+
+  </para>
+
+	<programlisting>
+	def scanner1(file_contents):
+	        # search for dependencies
+	        return dependency_list
+
+	FirstScan = Scanner(function = scanner1)
+	</programlisting>
+
+  <para>
+
+   The scanner function must return a list of dependencies that its finds
+   based on analyzing the file contents it is passed as an argument.
+
+  </para>
+
+  <para>
+
+   The scanner function, when invoked, will be passed the calling
+   environment.  The scanner function can use &consenvs; from the passed
+   environment to affect how it performs its dependency scan--the
+   canonical example being to use some sort of search-path construction
+   variable to look for dependency files in other directories:
+
+  </para>
+
+	<programlisting>
+	def scanner2(file_contents, env):
+	        path = env.{'SCANNERPATH'}	# XXX
+	        # search for dependencies using 'path'
+	        return dependency_list
+
+	SecondScan = Scanner(function = scanner2)
+	</programlisting>
+
+  <para>
+
+   The user may specify an additional argument when the &Scanner; object
+   is created.  When the scanner is invoked, the additional argument
+   will be passed to the scanner funciton, which can be used in any way
+   the scanner function sees fit:
+
+  </para>
+
+	<programlisting>
+	def scanner3(file_contents, env, arg):
+	        # skip 'arg' lines, then search for dependencies
+	        return dependency_list
+
+	Skip_3_Lines_Scan = Scanner(function = scanner2, argument = 3)
+	Skip_6_Lines_Scan = Scanner(function = scanner2, argument = 6)
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>Copying &Scanner; Objects</title>
+
+  <para>
+
+   A method exists to return a copy of an existing &Scanner; object,
+   with any overridden values specified as keyword arguments to the
+   method:
+
+  </para>
+
+	<programlisting>
+	scan = Scanner(function = my_scan)
+	scan_path = scan.Copy(path = '%SCANNERPATH')
+	</programlisting>
+
+  <para>
+
+   Typically, &Scanner; objects will be supplied by a tool-master or
+   administrator through a shared &consenv;.
+
+  </para>
+ </section>
+
+ <section>
+  <title>&Scanner; maps</title>
+
+<REMARK>
+If the &BUILDERMAP; proves unnecessary,
+we could/should get rid of this one, too,
+by adding a parallel <literal>input_suffix</literal>
+argument to the &Scanner; factory...
+Comments?
+</REMARK>
+
+  <para>
+
+   Each &consenv; has a &SCANNERMAP;, a dictionary that associates
+   different file suffixes with a scanner object that can be used to
+   generate a list of dependencies from the contents of that file.  This
+   &SCANNERMAP; can be initialized at instantiation:
+
+  </para>
+
+	<programlisting>
+	env = Environment(SCANNERMAP = {
+	                        '.c' : CScan,
+	                        '.cc' : CScan,
+	                        '.m4' : M4Scan,
+	                })
+	</programlisting>
+
+  <para>
+
+   &Scanner; objects referenced in the &SCANNERMAP; do not need to
+   be listed separately in the &SCANNERS; variable.  The &consenv;
+   will bind the union of the &Scanner; objects listed
+   in both variables.
+
+  </para>
+
+ </section>
+
+</section>
+
+
+
+<section id="sect-targets">
+ <title>Targets</title>
+
+ <para>
+
+  The methods in the build engine API described so far merely
+  establish associations that describe file dependencies, how a
+  file should be scanned, etc.  Since the real point is to actually
+  <emphasis>build</emphasis> files, &SCons; also has methods that
+  actually direct the build engine to build, or otherwise manipulate,
+  target files.
+
+ </para>
+
+ <section>
+  <title>Building targets</title>
+  <para>
+
+   One or more targets may be built as follows:
+
+  </para>
+
+	<programlisting>
+	env.Build(target = ['foo', 'bar'])
+	</programlisting>
+
+  <para>
+
+   Note that specifying a directory (or other collective object) will
+   cause all subsidiary/dependent objects to be built as well:
+
+  </para>
+
+	<programlisting>
+	env.Build(target = '.')
+
+	env.Build(target = 'builddir')
+	</programlisting>
+
+  <para>
+
+   By default, &SCons; explicitly removes a target file before
+   invoking the underlying function or command(s) to build it.
+
+  </para>
+ </section>
+
+ <section>
+  <title>Removing targets</title>
+
+  <para>
+
+   A "cleanup" operation of removing generated (target) files is
+   performed as follows:
+
+  </para>
+
+	<programlisting>
+	env.Clean(target = ['foo', 'bar'])
+	</programlisting>
+
+  <para>
+
+   Like the &Build; method, the &Clean; method may be passed a
+   directory or other collective object, in which case the subsidiary
+   target objects under the directory will be removed:
+
+  </para>
+
+	<programlisting>
+	env.Clean(target = '.')
+
+	env.Clean(target = 'builddir')
+	</programlisting>
+
+  <para>
+
+   (The directories themselves are not removed.)
+
+  </para>
+ </section>
+
+ <section>
+  <title>Suppressing build-target removal</title>
+
+  <para>
+
+   As mentioned, by default, &SCons; explicitly removes a target
+   file before invoking the underlying function or command(s) to build
+   it.  Files that should not be removed before rebuilding can be
+   specified via the &Precious; method:
+
+  </para>
+
+	<programlisting>
+	env.Library(target = 'libfoo.a', source = ['aaa.c', 'bbb.c', 'ccc.c'])
+	env.Precious('libfoo.a')
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>Default targets</title>
+
+  <para>
+
+   The user may specify default targets that will be built if there are no
+   targets supplied on the command line:
+
+  </para>
+
+	<programlisting>
+	env.Default('install', 'src')
+	</programlisting>
+
+  <para>
+
+   Multiple calls to the &Default; method (typically one per &SConscript;
+   file) append their arguments to the list of default targets.
+
+  </para>
+ </section>
+
+ <section>
+  <title>File installation</title>
+
+  <para>
+
+   Files may be installed in a destination directory:
+
+  </para>
+
+	<programlisting>
+	env.Install('/usr/bin', 'program1', 'program2')
+	</programlisting>
+
+  <para>
+
+   Files may be renamed on installation:
+
+  </para>
+
+	<programlisting>
+	env.InstallAs('/usr/bin/xyzzy', 'xyzzy.in')
+	</programlisting>
+
+  <para>
+
+   Multiple files may be renamed on installation by specifying
+   equal-length lists of target and source files:
+
+  </para>
+
+	<programlisting>
+	env.InstallAs(['/usr/bin/foo', '/usr/bin/bar'],
+	                ['foo.in', 'bar.in'])
+	</programlisting>
+
+ </section>
+
+ <section>
+  <title>Target aliases</title>
+
+  <para>
+
+   In order to provide convenient "shortcut" target names that expand to
+   a specified list of targets, aliases may be established:
+
+  </para>
+
+	<programlisting>
+	env.Alias(alias = 'install',
+	          targets = ['/sbin', '/usr/lib', '/usr/share/man'])
+	</programlisting>
+
+  <para>
+
+   In this example, specifying a target of <literal>install</literal>
+   will cause all the files in the associated directories to be built
+   (that is, installed).
+
+  </para>
+
+  <para>
+
+   An &Alias; may include one or more other &Aliases; in its list:
+
+  </para>
+
+	<programlisting>
+	env.Alias(alias = 'libraries', targets = ['lib'])
+	env.Alias(alias = 'programs', targets = ['libraries', 'src'])
+	</programlisting>
+
+ </section>
+
+</section>
+
+
+
+<section id="sect-custom">
+ <title>Customizing output</title>
+
+<REMARK>
+Take this whole section with a grain of salt.
+I whipped it up without a great deal of thought
+to try to add a "competitive advantage"
+for the second round of the Software Carpentry contest.
+In particular, hard-coding the
+analysis points and the keywords that specify them
+feels inflexible,
+but I can't think of another way it would be
+done effectively.
+I dunno, maybe this is fine as it is...
+</REMARK>
+
+ <para>
+
+  The &SCons; API supports the ability to customize, redirect, or
+  suppress its printed output through user-defined functions.
+  &SCons; has several pre-defined points in its build process at
+  which it calls a function to (potentially) print output.  User-defined
+  functions can be specified for these call-back points when &Build;
+  or &Clean;is invoked:
+
+ </para>
+
+	<programlisting>
+	env.Build(target = '.',
+	       on_analysis = dump_dependency,
+	       pre_update = my_print_command,
+	       post_update = my_error_handler)
+	       on_error = my_error_handler)
+	</programlisting>
+
+ <para>
+
+  The specific call-back points are:
+
+ </para>
+
+ <variablelist>
+
+  <varlistentry>
+   <term><literal>on_analysis</literal></term>
+   <listitem>
+    <para>
+
+     Called for every object, immediately after the object has been
+     analyzed to see if it's out-of-date.  Typically used to print a
+     trace of considered objects for debugging of unexpected dependencies.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>pre_update</literal></term>
+   <listitem>
+    <para>
+
+     Called for every object that has been determined to be out-of-date
+     before its update function or command is executed.  Typically used
+     to print the command being called to update a target.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>post_update</literal></term>
+   <listitem>
+    <para>
+
+     Called for every object after its update function or command has
+     been executed.  Typically used to report that a top-level specified
+     target is up-to-date or was not remade.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>on_error</literal></term>
+   <listitem>
+    <para>
+
+     Called for every error returned by an update function or command.
+     Typically used to report errors with some string that will be
+     identifiable to build-analysis tools.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+ </variablelist>
+
+ <para>
+
+  Functions for each of these call-back points all take the same
+  arguments:
+
+ </para>
+
+	<programlisting>
+	my_dump_dependency(target, level, status, update, dependencies)
+	</programlisting>
+
+ <para>
+
+  where the arguments are:
+
+ </para>
+
+ <variablelist>
+
+  <varlistentry>
+   <term><literal>target</literal></term>
+   <listitem>
+    <para>
+
+     The target object being considered.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>level</literal></term>
+   <listitem>
+    <para>
+
+     Specifies how many levels the dependency analysis has
+     recursed in order to consider the <literal>target</literal>.
+     A value of <literal>0</literal> specifies a top-level
+     <literal>target</literal> (that is, one passed to the
+     &Build; or &Clean; method).  Objects which a top-level
+     <literal>target</literal> is directly dependent upon have a
+     <literal>level</literal> of <1>, their direct dependencies have a
+     <literal>level</literal> of <2>, etc.  Typically used to indent
+     output to reflect the recursive levels.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>status</literal></term>
+   <listitem>
+    <para>
+
+     A string specifying the current status of the target
+     (<literal>"unknown"</literal>, <literal>"built"</literal>,
+     <literal>"error"</literal>, <literal>"analyzed"</literal>, etc.).  A
+     complete list will be enumerated and described during implementation.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>update</literal></term>
+   <listitem>
+    <para>
+
+     The command line or function name that will be (or has been) executed
+     to update the <literal>target</literal>.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+  <varlistentry>
+   <term><literal>dependencies</literal></term>
+   <listitem>
+    <para>
+
+     A list of direct dependencies of the target.
+
+    </para>
+   </listitem>
+  </varlistentry>
+
+ </variablelist>
+
+</section>
+
+
+
+<section id="separate">
+ <title>Separate source and build trees</title>
+
+<REMARK>
+I've never liked Cons' use of the name <literal>Link</literal>
+for this functionality,
+mainly because the term is overloaded
+with linking object files into an executable.
+Yet I've never come up with anything better.
+Any suggestions?
+</REMARK>
+
+<REMARK>
+Also, I made this an &Environment; method because
+it logically belongs in the API reference
+(the build engine needs to know about it),
+and I thought it was clean to have
+everything in the build-engine API
+be called through an &Environment; object.
+But <literal>&Link</literal> isn't really
+associated with a specific environment
+(the &Cons; classic implementation just
+leaves it as a bare function call),
+so maybe we should just follow that example
+and not call it through an environment...
+</REMARK>
+
+ <para>
+
+  &SCons; allows target files to be built completely separately from
+  the source files by "linking" a build directory to an underlying
+  source directory:
+
+ </para>
+
+	<programlisting>
+	env.Link('build', 'src')
+
+	SConscript('build/SConscript')
+	</programlisting>
+
+ <para>
+
+  &SCons; will copy (or hard link) necessary files (including the
+  &SConscript; file) into the build directory hierarchy.  This allows the
+  source directory to remain uncluttered by derived files.
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-variant">
+ <title>Variant builds</title>
+
+ <para>
+
+  The &Link; method may be used in conjunction with multiple
+  &consenvs; to support variant builds.  The following
+  &SConstruct; and &SConscript; files would build separate debug and
+  production versions of the same program side-by-side:
+
+ </para>
+
+	<programlisting>
+	% cat SConstruct
+	env = Environment()
+	env.Link('build/debug', 'src')
+	env.Link('build/production', 'src')
+	flags = '-g'
+	SConscript('build/debug/SConscript', Export(env))
+	flags = '-O'
+	SConscript('build/production/SConscript', Export(env))
+	% cat src/SConscript
+	env = Environment(CCFLAGS = flags)
+	env.Program('hello', 'hello.c')
+	</programlisting>
+
+ <para>
+
+  The following example would build the appropriate program for the current
+  compilation platform, without having to clean any directories of object
+  or executable files for other architectures:
+
+ </para>
+
+	<programlisting>
+	% cat SConstruct
+	build_platform = os.path.join('build', sys.platform)
+	Link(build_platform, 'src')
+	SConscript(os.path.join(build_platform, 'SConscript'))
+	% cat src/SConscript
+	env = Environment
+	env.Program('hello', 'hello.c')
+	</programlisting>
+
+</section>
+
+
+
+<section id="sect-repositories">
+ <title>Code repositories</title>
+
+<REMARK>
+Like &Link;, &Repository; and &Local; are part of the
+API reference, but not really tied to any specific environment.
+Is it better to be consistent about calling
+everything in the API through an environment,
+or to leave these independent so as
+not to complicate their calling interface?
+</REMARK>
+
+ <para>
+
+  &SCons; may use files from one or more shared code repositories in order
+  to build local copies of changed target files.  A repository would
+  typically be a central directory tree, maintained by an integrator,
+  with known good libraries and executables.
+
+ </para>
+
+	<programlisting>
+	Repository('/home/source/1.1', '/home/source/1.0')
+	</programlisting>
+
+ <para>
+
+  Specified repositories will be searched in-order for any file
+  (configuration file, input file, target file) that does not exist
+  in the local directory tree.  When building a local target file,
+  &SCons; will rewrite path names in the build command to use the
+  necessary repository files.  This includes modifying lists of
+  <option>-I</option> or <option>-L</option> flags to specify an
+  appropriate set of include paths for dependency analysis.
+
+ </para>
+ <para>
+
+  &SCons; will modify the Python <varname>sys.path</varname> variable to
+  reflect the addition of repositories to the search path, so that any
+  imported modules or packages necessary for the build can be found in a
+  repository, as well.
+
+ </para>
+ <para>
+
+  If an up-to-date target file is found in a code repository, the file
+  will not be rebuilt or copied locally.  Files that must exist locally
+  (for example, to run tests) may be specified:
+
+ </para>
+
+	<programlisting>
+	Local('program', 'libfoo.a')
+	</programlisting>
+
+ <para>
+
+  in which case &SCons; will copy or link an up-to-date copy of the
+  file from the appropriate repository.
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-caching">
+ <title>Derived-file caching</title>
+
+<REMARK>
+There should be extensions to this part of the API for
+auxiliary functions like cleaning the cache.
+</REMARK>
+
+ <para>
+
+  &SCons; can maintain a cache directory of target files which may be
+  shared among multiple builds.  This reduces build times by allowing
+  developers working on a project together to share common target
+  files:
+
+ </para>
+
+	<programlisting>
+	Cache('/var/tmp/build.cache/i386')
+	</programlisting>
+
+ <para>
+
+  When a target file is generated, a copy is added to the cache.
+  When generating a target file, if &SCons; determines that a file
+  that has been built with the exact same dependencies already exists
+  in the specified cache, &SCons; will copy the cached file rather
+  than re-building the target.
+
+ </para>
+ <para>
+
+  Command-line options exist to modify the &SCons; caching behavior
+  for a specific build, including disabling caching, building
+  dependencies in random order, and displaying commands as if cached
+  files were built.
+
+ </para>
+
+</section>
+
+
+
+<section id="sect-jobs">
+ <title>Job management</title>
+
+<REMARK>
+This has been completely superseded by
+the more sophisticated &Task; manager
+that Anthony Roach has contributed.
+I need to write that up...
+</REMARK>
+
+ <para>
+
+  A simple API exists to inform the Build Engine how many jobs may
+  be run simultaneously:
+
+ </para>
+
+	<programlisting>
+	Jobs(limit = 4)
+	</programlisting>
+
+</section>

@@ -1,0 +1,67 @@
+<!--
+
+  Copyright 2001 Steven Knight
+
+-->
+
+ <para>
+
+  Most of the ideas in &SCons; originate with &Cons;, a Perl-based
+  software construction utility that has been in use by a small but
+  growing community since its development by Bob Sidebotham at FORE
+  Systems in 1996.  The &Cons; copyright was transferred in 2000 from
+  Marconi (who purchased FORE Systems) to the Free Software Foundation.
+  I've been a principal implementer and maintainer of &Cons; for several
+  years.
+
+ </para>
+
+ <para>
+
+  &Cons; was originally designed to handle complicated software build
+  problems (multiple directories, variant builds) while keeping the
+  input files simple and maintainable. The general philosophy is that
+  the build tool should ``do the right thing'' with minimal input
+  from an unsophisticated user, while still providing a rich set of
+  underlying functionality for more complicated software construction
+  tasks needed by experts.
+
+ </para>
+
+ <para>
+
+  In 2000, the Software Carpentry sought entries in a contest for a
+  new, Python-based build tool that would provide an improvement
+  over Make for physical scientists and other non-programmers
+  struggling to use their computers more effectively.  Prior to that,
+  the idea of combining the superior build architecture of &Cons;
+  with the easier syntax of Python had come up several times on
+  the <literal>cons-discuss</literal> mailing list.  The Software
+  Carpentry contest provided the right motivation to spend some
+  actual time working on a design document.
+
+ </para>
+
+ <para>
+
+  After two rounds of competition, the submitted design, named
+  <application>ScCons</application>, won the competition.  Software
+  Carpentry, however, did not immediately fund implementation of the
+  build tool, instead contracting for additional, more detailed draft(s)
+  of the design document.  This proved to be not as strong motivation as
+  actual coding, and after several months of inactivity, I essentially
+  resigned from the Software Carpentry effort in early 2001 to start
+  working on the tool independently.
+
+ </para>
+
+ <para>
+
+  After half a year of prototyping some of the important infrastructure,
+  I accumulated enough code to take the project public at SourceForge,
+  renaming it &SCons; to distinguish it slightly from the version of the
+  design that won the Software Carpentry contest while still honoring
+  its roots there and in the original &Cons; utility.  And also because
+  it would be a teensy bit easier to type.
+
+ </para>

@@ -1,0 +1,77 @@
+#
+#
+#
+
+Import qw(
+    date
+    env
+    revision
+    version
+);
+
+#
+$verfile = SourcePath("version.sgml");
+open(FILE, ">$verfile") || die "Cannot open '$verfile': $!";
+print FILE <<_EOF_;
+<!--
+THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
+-->
+<!ENTITY build_date "$date">
+<!ENTITY build_version "$version">
+<!ENTITY build_revision "$revision">
+_EOF_
+close(FILE);
+
+Ignore("#$verfile");
+
+#
+#
+#
+
+@doc_dirs = qw(
+    design
+);
+
+# Find internal dependencies in .sgml files:
+#
+#	<!entity bground SYSTEM "bground.sgml">
+#	<graphic fileref="file.jpg">
+#
+# This only finds one per line, and assumes that anything
+# defined as a SYSTEM entity is, in fact, a file included
+# somewhere in the document.
+sub scansgml {
+    my @includes = ();
+    do {
+	if (/<!entity\s+(?:%\s+)?(?:\S+)\s+SYSTEM\s+"([^"]*)">/i) {
+	    push(@includes, $1);
+  	} elsif (/<graphic[^>]*\sfileref="([^"]*)"/) {
+	    push(@includes, "design/$1");
+	}
+    } while (<scan::quickscan::SCAN>);
+    @includes;
+}
+
+$env->QuickScan(\&scansgml, "scons.mod");
+$env->QuickScan(\&scansgml, "copyright.sgml");
+
+foreach $doc (@doc_dirs) {
+    my $main = "$doc/main.sgml";
+    my $out = "main.out";
+
+    $env->QuickScan(\&scansgml, $main);
+
+    $env->Command("HTML/$doc/book1.html", $main,
+	qq(jw -b html -o %>:d %<));
+
+    $env->Command("PS/$doc.ps", $main,
+	[qq(jw -b ps -o %>:d %<),
+	 qq(mv %>:d/main.ps %>),
+	]);
+
+    $env->Command("PDF/$doc.pdf", $main,
+	[qq(jw -b pdf -o %>:d %<),
+	 qq(mv %>:d/main.pdf %>),
+#	 qq(rm -f %>:d/$out),
+	]);
+}

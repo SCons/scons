@@ -91,6 +91,15 @@ Export qw( env test_dir );
 Build "etc/Conscript";
 
 #
+# Documentation.
+#
+Link 'build/doc' => 'doc';
+
+Export qw( date env revision version );
+
+Build 'build/doc/Conscript';
+
+#
 # If we're running in the actual Aegis project, pack up a complete
 # source .tar.gz from the project files and files in the change,
 # so we can share it with helpful developers who don't use Aegis.
