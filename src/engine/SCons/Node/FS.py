@@ -764,7 +764,10 @@ class File(Entry):
                     # ...and it's even up-to-date...
                     if self._local:
                         # ...and they'd like a local copy.
+                        print "Local copy of %s from %s" % (self.path, r.path)
                         file_link(r.path, self.path)
+                        self.set_bsig(bsig)
+                        self.store_bsig()
                     return 1
             self._rfile = self
             return None
