@@ -815,6 +815,30 @@ class UtilTestCase(unittest.TestCase):
         SOURCES.sort()
         assert SOURCES == ['rstr-s4', 's3'], d['SOURCES']
 
+    def test_PrependPath(self):
+        """Test prepending to a path"""
+        p1 = r'C:\dir\num\one;C:\dir\num\two'
+        p2 = r'C:\mydir\num\one;C:\mydir\num\two'
+        # have to include the pathsep here so that the test will work on UNIX too.
+        p1 = PrependPath(p1,r'C:\dir\num\two',sep = ';') 
+        p1 = PrependPath(p1,r'C:\dir\num\three',sep = ';')
+        p2 = PrependPath(p2,r'C:\mydir\num\three',sep = ';')
+        p2 = PrependPath(p2,r'C:\mydir\num\one',sep = ';')
+        assert(p1 == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
+        assert(p2 == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+
+    def test_AppendPath(self):
+        """Test appending to a path."""
+        p1 = r'C:\dir\num\one;C:\dir\num\two'
+        p2 = r'C:\mydir\num\one;C:\mydir\num\two'
+        # have to include the pathsep here so that the test will work on UNIX too.
+        p1 = AppendPath(p1,r'C:\dir\num\two',sep = ';') 
+        p1 = AppendPath(p1,r'C:\dir\num\three',sep = ';')
+        p2 = AppendPath(p2,r'C:\mydir\num\three',sep = ';')
+        p2 = AppendPath(p2,r'C:\mydir\num\one',sep = ';')
+        assert(p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
+        assert(p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
+
     def test_NodeList(self):
         """Test NodeList class"""
         class TestClass:

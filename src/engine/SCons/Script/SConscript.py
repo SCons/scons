@@ -112,11 +112,16 @@ def compute_exports(exports):
 
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
-    def __init__(self, exports):
+    def __init__(self, exports, sconscript):
         self.globals = BuildDefaultGlobals()
         self.retval = None 
         self.prev_dir = SCons.Node.FS.default_fs.getcwd()
         self.exports = compute_exports(exports)  # exports from the calling SConscript
+        # make sure the sconscript attr is a Node.
+        if isinstance(sconscript, SCons.Node.Node):
+            self.sconscript = sconscript
+        else:
+            self.sconscript = SCons.Node.FS.default_fs.File(str(sconscript))
         
 # the SConstruct/SConscript call stack:
 stack = []
@@ -215,7 +220,7 @@ def SConscript(*ls, **kw):
     # evaluate each SConscript file
     results = []
     for fn in files:
-        stack.append(Frame(exports))
+        stack.append(Frame(exports,fn))
         old_sys_path = sys.path
         try:
             if fn == "-":

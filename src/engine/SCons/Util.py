@@ -737,6 +737,16 @@ if can_read_reg:
     HKEY_CURRENT_USER = hkey_mod.HKEY_CURRENT_USER
     HKEY_USERS = hkey_mod.HKEY_USERS
 
+    def RegGetValue(root, key):
+        """Returns a value in the registry without
+        having to open the key first."""
+        # I would use os.path.split here, but it's not a filesystem
+        # path...
+        p = key.rfind('\\') + 1
+        keyp = key[:p]
+        val = key[p:]
+        k = SCons.Util.RegOpenKeyEx(root, keyp)
+        return SCons.Util.RegQueryValueEx(k,val)
 
 if sys.platform == 'win32':
 
@@ -802,6 +812,84 @@ else:
                 if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
                     return os.path.normpath(f)
         return None
+
+def PrependPath(oldpath, newpath, sep = os.pathsep):
+    """Prepend newpath elements to the given oldpath.  Will only add
+    any particular path once (leaving the first one it encounters and
+    ignoring the rest, to preserve path order), and will normpath and
+    normcase all paths to help assure this.  This can also handle the
+    case where the given oldpath variable is a list instead of a
+    string, in which case a list will be returned instead of a string.
+    """
+
+    orig = oldpath
+    is_list = 1
+    paths = orig
+    if not SCons.Util.is_List(orig):
+        paths = string.split(paths, sep)
+        is_list = 0
+
+    if SCons.Util.is_List(newpath):
+        newpaths = newpath
+    else:
+        newpaths = string.split(newpath, sep)
+
+    newpaths = newpaths + paths # prepend new paths
+
+    normpaths = []
+    paths = []
+    # now we add them only of they are unique
+    for path in newpaths:
+        normpath = os.path.normpath(os.path.normcase(path))
+        if path and not normpath in normpaths:
+            paths.append(path)
+            normpaths.append(normpath)
+
+    if is_list:
+        return paths
+    else:
+        return string.join(paths, sep)
+
+def AppendPath(oldpath, newpath, sep = os.pathsep):
+    """Append newpath elements to the given oldpath.  Will only add
+    any particular path once (leaving the first one it encounters and
+    ignoring the rest, to preserve path order), and will normpath and
+    normcase all paths to help assure this.  This can also handle the
+    case where the given oldpath variable is a list instead of a
+    string, in which case a list will be returned instead of a string.
+    """
+
+    orig = oldpath
+    is_list = 1
+    paths = orig
+    if not SCons.Util.is_List(orig):
+        paths = string.split(paths, sep)
+        is_list = 0
+
+    if SCons.Util.is_List(newpath):
+        newpaths = newpath
+    else:
+        newpaths = string.split(newpath, sep)
+
+    newpaths = paths + newpaths # append new paths
+    newpaths.reverse()
+    
+    normpaths = []
+    paths = []
+    # now we add them only of they are unique
+    for path in newpaths:
+        normpath = os.path.normpath(os.path.normcase(path))
+        if path and not normpath in normpaths:
+            paths.append(path)
+            normpaths.append(normpath)
+
+    paths.reverse()
+
+    if is_list:
+        return paths
+    else:
+        return string.join(paths, sep)
+
 
 def ParseConfig(env, command, function=None):
     """Use the specified function to parse the output of the command in order

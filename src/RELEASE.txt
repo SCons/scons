@@ -27,7 +27,12 @@ RELEASE 0.15 - XXX
 
   Please note the following important changes since release 0.14:
 
-  -
+  - SCons now tries to verify that Microsoft Visual Studio (including
+    Visual C++) is actually installed before using it, by checking that
+    the program directory exists.  If SCons cannot find your copy of
+    Visual Studio, it is probably because it installed itself itself in
+    a default directory that we have not seen before.  If this is the
+    case, please let us know so that we can update future versions.
 
   Please note the following important changes since release 0.13:
 

@@ -1,7 +1,12 @@
 """SCons.Environment
 
-XXX
+Base class for construction Environments.  These are
+the primary objects used to communicate dependency and
+construction information to the build engine.
 
+Keyword arguments supplied when the construction Environment
+is created are construction variables used to initialize the
+Environment 
 """
 
 #
@@ -33,6 +38,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import copy
 import os
 import os.path
+import string
 import re
 import shutil
 from UserDict import UserDict
@@ -270,6 +276,45 @@ class Environment:
                 self._dict[key].update(kw[key])
             else:
                 self._dict[key] = kw[key] + self._dict[key]
+
+    def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
+        """Prepend path elements to the path 'name' in the 'ENV'
+        dictionary for this environment.  Will only add any particular
+        path once, and will normpath and normcase all paths to help
+        assure this.  This can also handle the case where the env
+        variable is a list instead of a string.
+        """
+
+        orig = ''
+        if self._dict.has_key(envname) and self._dict[envname].has_key(name):
+            orig = self._dict[envname][name]
+
+        nv = SCons.Util.PrependPath(orig, newpath, sep)
+            
+        if not self._dict.has_key(envname):
+            self._dict[envname] = {}
+
+        self._dict[envname][name] = nv
+
+    def AppendENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
+        """Append path elements to the path 'name' in the 'ENV'
+        dictionary for this environment.  Will only add any particular
+        path once, and will normpath and normcase all paths to help
+        assure this.  This can also handle the case where the env
+        variable is a list instead of a string.
+        """
+
+        orig = ''
+        if self._dict.has_key(envname) and self._dict[envname].has_key(name):
+            orig = self._dict[envname][name]
+
+        nv = SCons.Util.AppendPath(orig, newpath, sep)
+            
+        if not self._dict.has_key(envname):
+            self._dict[envname] = {}
+
+        self._dict[envname][name] = nv
+
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""

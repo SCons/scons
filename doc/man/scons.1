@@ -31,7 +31,7 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "May 2003"
+.TH SCONS 1 "June 2003"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -887,6 +887,7 @@ mingw
 mslib
 mslink
 msvc
+msvs
 nasm
 pdflatex
 pdftex
@@ -1148,6 +1149,49 @@ Example:
 
 .ES
 env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
+.EE
+
+.IP MSVSProject
+Builds Microsoft Visual Studio project files.
+.B scons
+will detect installed versions of Visual Studio
+up to and including versions 7.x (.NET).
+When one is detected,
+this builder will generate the correct
+project file
+.RI ( .vcproj
+or
+.IR .dsp )
+and solution file
+.RI ( .sln
+or
+.IR .dsw ).
+This builder takes a number of additional
+keyword arguments that supply information
+necessary to build the proper project files.
+Examples:
+
+.ES
+# For Visual Studio 7.0 or later (.NET).
+env.MSVSProject(target = 'Foo.vcproj',
+                slnguid = '{SLNGUID}',
+                srcs = ['foo.cpp'],
+                incs = ['sdk.h'],
+                localincs = ['foo.h'],
+                resources = ['foo.rc'],
+                misc = ['readme.txt'],
+                buildtarget = 'Foo.exe',
+                variant = 'Release')
+
+# For earlier Visual Studio versions.
+env.MSVSProject(target = 'Foo.dsp',
+                srcs = ['foo.cpp'],
+                incs = ['sdk.h'],
+                localincs = ['foo.h'],
+                resources = ['foo.rc'],
+                misc = ['readme.txt'],
+                buildtarget = 'Foo.exe',
+                variant = 'Release')
 .EE
 
 .IP RES
@@ -2645,6 +2689,28 @@ General options passed to the linker.
 
 .IP LINKCOM
 The command line used to link object files into an executable.
+
+.IP MSVSPROJECTCOM
+The action used to generate Microsoft Visual Studio
+project and solution files.
+
+.IP MSVSPROJECTSUFFIX
+The suffix used for Microsoft Visual Studio project (DSP) files.
+The default value is
+.B .vcproj
+when using Visual Studio version 7.x (.NET),
+and
+.B .dsp
+when using earlier versions of Visual Studio.
+
+.IP MSVSSOLUTIONSUFFIX
+The suffix used for Microsoft Visual Studio solution (DSW) files.
+The default value is
+.B .sln
+when using Visual Studio version 7.x (.NET),
+and
+.B .dsw
+when using earlier versions of Visual Studio.
 
 .IP no_import_lib
 When set to non-zero,

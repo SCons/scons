@@ -39,6 +39,16 @@ RELEASE 0.15 - XXX
 
   - Fix use of the SConf subsystem with SConscriptChdir().
 
+  From Greg Spencer
+
+  - Check for the existence of MS Visual Studio on disk before using it,
+    to avoid getting fooled by leftover junk in the registry.
+
+  - Add support for MSVC++ .NET.
+
+  - Add support for MS Visual Studio project files (DSP, DSW,
+    SLN and VCPROJ files).
+
 
 
 RELEASE 0.14 - Wed, 21 May 2003 05:16:32 -0500

@@ -40,9 +40,9 @@ import SCons.Action
 import SCons.Defaults
 import SCons.Errors
 import SCons.Util
-import msvc
-
-from SCons.Tool.msvc import get_msdev_paths
+import SCons.Tool.msvs
+import SCons.Tool.msvc
+import SCons.Platform.win32
 
 def pdbGenerator(env, target, source, for_signature):
     if target and env.has_key('PDB') and env['PDB']:
@@ -73,7 +73,7 @@ def win32ShlinkSources(target, source, env, for_signature):
     return listCmd
     
 def win32LibEmitter(target, source, env):
-    msvc.validate_vars(env)
+    SCons.Tool.msvc.validate_vars(env)
     
     dll = env.FindIxes(target, "SHLIBPREFIX", "SHLIBSUFFIX")
     no_import_lib = env.get('no_import_lib', 0)
@@ -107,7 +107,7 @@ def win32LibEmitter(target, source, env):
     return (target, source)
 
 def prog_emitter(target, source, env):
-    msvc.validate_vars(env)
+    SCons.Tool.msvc.validate_vars(env)
     
     if env.has_key('PDB') and env['PDB']:
         env.SideEffect(env['PDB'], target)
@@ -159,14 +159,26 @@ def generate(env):
     env['WIN32EXPSUFFIX']        = '.exp'
 
     env['REGSVRACTION'] = regServerCheck
-    env['REGSVR'] = 'regsvr32'
+    env['REGSVR'] = os.path.join(SCons.Platform.win32.get_system_root(),'System32','regsvr32')
     env['REGSVRFLAGS'] = '/s '
     env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS $TARGET'
 
-    if SCons.Util.can_read_reg:
-        include_path, lib_path, exe_path = get_msdev_paths()
-        env['ENV']['LIB']            = lib_path
-        env['ENV']['PATH']           = exe_path
+    version = SCons.Tool.msvs.get_default_visualstudio_version(env)
+    
+    if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
+        include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_default_paths(version)
+    else:
+        include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_paths(version)
+
+    # since other tools can set these, we just make sure that the
+    # relevant stuff from MSVS is in there somewhere.
+    env.PrependENVPath('INCLUDE', include_path)
+    env.PrependENVPath('LIB', lib_path)
+    env.PrependENVPath('PATH', exe_path)
 
 def exists(env):
-    return env.Detect('link')
+    if not SCons.Util.can_read_reg or not SCons.Tool.msvs.get_visualstudio_versions():
+        return env.Detect('link')
+    else:
+        # there's at least one version of MSVS installed.
+        return True

@@ -474,6 +474,54 @@ class EnvironmentTestCase(unittest.TestCase):
         assert hasattr(env4, 'z1')
         assert hasattr(env4, 'z2')
 
+    def test_PrependENVPath(self):
+        """Test prepending to an ENV path."""
+        env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        # have to include the pathsep here so that the test will work on UNIX too.
+        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';') 
+        env1.PrependENVPath('PATH',r'C:\dir\num\three',sep = ';')
+        env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV',sep = ';')
+        env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
+        assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
+        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+
+    def test_AppendENVPath(self):
+        """Test appending to an ENV path."""
+        env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        # have to include the pathsep here so that the test will work on UNIX too.
+        env1.AppendENVPath('PATH',r'C:\dir\num\two', sep = ';')
+        env1.AppendENVPath('PATH',r'C:\dir\num\three', sep = ';')
+        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
+        env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';')
+        assert(env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
+        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
+
+    def test_AppendENVPath(self):
+        """Test prepending to an ENV path."""
+        env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        # have to include the pathsep here so that the test will work on UNIX too.
+        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';') 
+        env1.PrependENVPath('PATH',r'C:\dir\num\three',sep = ';')
+        env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV',sep = ';')
+        env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
+        assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
+        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+
+    def test_AppendENVPath(self):
+        """Test appending to an ENV path."""
+        env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        # have to include the pathsep here so that the test will work on UNIX too.
+        env1.AppendENVPath('PATH',r'C:\dir\num\two', sep = ';')
+        env1.AppendENVPath('PATH',r'C:\dir\num\three', sep = ';')
+        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
+        env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';')
+        assert(env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
+        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
+
     def test_Depends(self):
 	"""Test the explicit Depends method."""
 	env = Environment()

@@ -309,6 +309,7 @@ elif scons_lib_dir:
 if scons_exec:
     os.environ['SCONS_EXEC'] = '1'
 
+os.environ['SCONS_SCRIPT_DIR'] = scons_script_dir
 os.environ['SCONS_CWD'] = cwd
 
 os.environ['SCONS_VERSION'] = version

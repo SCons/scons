@@ -63,7 +63,7 @@ local = env.Copy(WIN32_INSERT_DEF = 1)
 barsrc = [
     'BarObject.cpp',
     'bar.cpp',
-    local.RES('bar.rc', RCFLAGS= '/I\"${SOURCE.srcdir}\"'),
+    local.RES('bar.rc', RCFLAGS= '/I${SOURCE.srcdir}'),
     ]
 
 local.TypeLibrary('bar.idl')
