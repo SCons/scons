@@ -416,9 +416,9 @@ class NodeTestCase(unittest.TestCase):
         """
         n1 = SCons.Node.Node()
         assert not n1.has_explicit_builder()
-        n1.builder_set(Builder(is_explicit=1))
+        n1.set_explicit(1)
         assert n1.has_explicit_builder()
-        n1.builder_set(Builder(is_explicit=None))
+        n1.set_explicit(None)
         assert not n1.has_explicit_builder()
 
     def test_get_builder(self):

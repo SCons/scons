@@ -143,6 +143,7 @@ class MyNode_without_target_from_source:
         self.name = name
         self.sources = []
         self.builder = None
+        self.is_explicit = None
         self.side_effect = 0
     def __str__(self):
         return self.name
@@ -150,8 +151,10 @@ class MyNode_without_target_from_source:
         self.builder = builder
     def has_builder(self):
         return not self.builder is None
+    def set_explicit(self, is_explicit):
+        self.is_explicit = is_explicit
     def has_explicit_builder(self):
-        return not self.builder is None and self.builder.is_explicit
+        return self.is_explicit
     def env_set(self, env, safe=0):
         self.env = env
     def add_source(self, source):

@@ -1126,11 +1126,13 @@ class Base(SubstitutionEnvironment):
                 result.extend(bld(self, t, source))
             return result
 
-        action = SCons.Action.Action(action)
         nkw = self.subst_kw(kw)
-        nkw['source_factory'] = self.fs.Entry
-        nkw['multi'] = 1
-        nkw['action'] = action
+        nkw.update({
+            'action'            : SCons.Action.Action(action),
+            'source_factory'    : self.fs.Entry,
+            'multi'             : 1,
+            'is_explicit'       : None,
+        })
         bld = apply(SCons.Builder.Builder, (), nkw)
 
         # Apply the Builder separately to each target so that the Aliases
