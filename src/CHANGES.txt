@@ -42,6 +42,10 @@ RELEASE 0.95 - XXX
   - Supply an error message if the user tries to configure a BuildDir
     for a directory that already has one.
 
+  - Remove documentation of the still-unimplemented -e option.
+
+  - Add -H help text listing the legal --debug values.
+
 
 
 RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
