@@ -817,7 +817,7 @@ def scons_subst_once(strSubst, env, key):
                         if a in matchlist:
                             a = env[key]
                         if is_List(a):
-                            r.extend(string.join(map(str, a)))
+                            r.append(string.join(map(str, a)))
                         else:
                             r.append(str(a))
                     result.append(string.join(r, ''))
@@ -830,7 +830,7 @@ def scons_subst_once(strSubst, env, key):
             if a in matchlist:
                 a = env[key]
             if is_List(a):
-                result.extend(string.join(map(str, a)))
+                result.append(string.join(map(str, a)))
             else:
                 result.append(str(a))
         return string.join(result, '')

@@ -38,7 +38,6 @@ import sys
 import types
 import unittest
 import UserDict
-import UserString
 
 import SCons.Action
 import SCons.Environment
@@ -90,10 +89,9 @@ scons_env = SCons.Environment.Environment()
 # so it doesn't clutter the output.
 sys.stdout = StringIO.StringIO()
 
-class CmdStringHolder(UserString.UserString):
-    # Copped from SCons.Util
+class CmdStringHolder:
     def __init__(self, cmd, literal=None):
-        UserString.UserString.__init__(self, cmd)
+        self.data = str(cmd)
         self.literal = literal
 
     def is_literal(self):
