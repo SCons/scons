@@ -119,7 +119,6 @@ There are the following methods for internal use within this module:
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
 import UserDict
 import UserList
 

@@ -136,7 +136,7 @@ def generate(env):
         env['DLINKFLAGPREFIX'] = '-'
         env['DLINKFLAGSUFFIX'] = ''
 
-        static_lib = SCons.Tool.createStaticLibBuilder(env)
+        SCons.Tool.createStaticLibBuilder(env)
 
         # Basically, we hijack the link and ar builders with our own.
         # these builders check for the presence of D source, and swap out

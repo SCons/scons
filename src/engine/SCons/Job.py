@@ -168,7 +168,7 @@ else:
 
             # Create worker threads
             for i in range(num):
-                worker = Worker(self.requestQueue, self.resultsQueue)
+                Worker(self.requestQueue, self.resultsQueue)
 
         def put(self, obj):
             """Put task into request queue."""

@@ -528,7 +528,8 @@ class OptParser(OptionParser):
 
         def opt_debug(option, opt, value, parser, debug_options=debug_options):
             if value in debug_options:
-                setattr(parser.values, 'debug', value)
+                #setattr(parser.values, 'debug', value)
+                parser.values.debug = value
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
         self.add_option('--debug', action="callback", type="string",
@@ -540,7 +541,8 @@ class OptParser(OptionParser):
         def opt_duplicate(option, opt, value, parser):
             if not value in SCons.Node.FS.Valid_Duplicates:
                 raise OptionValueError("`%s' is not a valid duplication style." % value)
-            setattr(parser.values, 'duplicate', value)
+            #setattr(parser.values, 'duplicate', value)
+            parser.values.duplicate = value
             # Set the duplicate style right away so it can affect linking
             # of SConscript files.
             SCons.Node.FS.set_duplicate(value)
@@ -582,7 +584,8 @@ class OptParser(OptionParser):
 
         def opt_j(option, opt, value, parser):
             value = int(value)
-            setattr(parser.values, 'num_jobs', value)
+            #setattr(parser.values, 'num_jobs', value)
+            parser.values.num_jobs = value
         self.add_option('-j', '--jobs', action="callback", type="int",
                         callback=opt_j, metavar="N",
                         help="Allow N jobs at once.")
@@ -750,12 +753,12 @@ class SConscriptSettableOptions:
                 value = int(value)
                 if value < 1:
                     raise ValueError
-            except ValueError, x:
+            except ValueError:
                 raise SCons.Errors.UserError, "A positive integer is required: %s"%repr(value)
         elif name == 'max_drift':
             try:
                 value = int(value)
-            except ValueError, x:
+            except ValueError:
                 raise SCons.Errors.UserError, "An integer is required: %s"%repr(value)
         elif name == 'duplicate':
             try:

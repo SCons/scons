@@ -34,7 +34,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import re
 import string
 
 import SCons.Builder
@@ -87,7 +86,6 @@ def emit_java_headers(target, source, env):
         if not isinstance(target[0], SCons.Node.FS.Dir):
             target[0].__class__ = SCons.Node.FS.Dir
             target[0]._morph()
-        File = SCons.Node.FS.default_fs.File
         tlist = []
         for s in source:
             fname = string.replace(s.attributes.java_classname, '.', '_') + '.h'
@@ -100,7 +98,7 @@ def emit_java_headers(target, source, env):
 def JavaHOutFlagGenerator(target, source, env, for_signature):
     try:
         t = target[0]
-    except AttributeError, TypeError:
+    except (AttributeError, TypeError):
         t = target
     try:
         return '-d ' + str(t.attributes.java_lookupdir)

@@ -44,7 +44,8 @@ def generate(env):
         """ """
         return SCons.Builder.Builder(action = '$SCCSCOM', env = env)
 
-    setattr(env, 'SCCS', SCCSFactory)
+    #setattr(env, 'SCCS', SCCSFactory)
+    env.SCCS = SCCSFactory
 
     env['SCCS']         = 'sccs'
     env['SCCSFLAGS']    = SCons.Util.CLVar('')

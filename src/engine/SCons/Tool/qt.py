@@ -36,7 +36,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import re
-import sys
 
 import SCons.Defaults
 import SCons.Tool
@@ -106,9 +105,9 @@ class _Automoc:
                     env.Depends(cpp, ui_h)
             if (h and q_object_search.search(h.get_contents())) or ui:
                 # h file with the Q_OBJECT macro found -> add moc_cpp
-                dir,base = os.path.split(prefix)
+                d,base = os.path.split(prefix)
                 src_ext = splitext(str(h))[1]
-                moc_cpp = FS.File(os.path.join(dir, 
+                moc_cpp = FS.File(os.path.join(d, 
                     env['QT_MOCNAMEGENERATOR'](base, src_ext, env)))
                 objBuilder = getattr(env, self.objBuilderName)
                 if env.get('QT_AUTOBUILD_MOC_SOURCES'):
@@ -120,9 +119,9 @@ class _Automoc:
             if cpp and q_object_search.search(cpp.get_contents()):
                 # cpp file with Q_OBJECT macro found -> add moc
                 # (to be included in cpp)
-                dir,base = os.path.split(prefix)
+                d,base = os.path.split(prefix)
                 src_ext = splitext(str(cpp))[1]
-                moc = FS.File(os.path.join(dir, 
+                moc = FS.File(os.path.join(d, 
                     env['QT_MOCNAMEGENERATOR'](base, src_ext, env)))
                 self.mocFromCppBld(env, moc, cpp)
                 env.Ignore(moc, moc)

@@ -234,7 +234,6 @@ class Current(Base):
 
     def __init__(self, *args, **kw):
         def current_check(node, env):
-            calc = env.get_calculator()
             c = not node.has_builder() or node.current(env.get_calculator())
             return c
         kw['scan_check'] = current_check

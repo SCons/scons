@@ -124,6 +124,9 @@ for suffix in FortranSuffixes:
 
 IDLSuffixes = [".idl", ".IDL"]
 
+# cleanup
+del suffix
+
 # Actions for common languages.
 CAction = SCons.Action.Action("$CCCOM")
 DAction = SCons.Action.Action("$DCOM")

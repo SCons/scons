@@ -50,6 +50,7 @@ import string
 import sys
 
 import SCons.Errors
+import SCons.Tool
 
 def platform_default():
     """Return the platform string for our execution environment.

@@ -35,7 +35,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import re
 import string
 
 import SCons.Builder
@@ -67,8 +66,8 @@ def emit_java_classes(target, source, env):
         os.path.walk(sdir.rdir().get_abspath(), visit, slist)
 
     tlist = []
-    for file in slist:
-        pkg_dir, classes = parse_java_file(file.get_abspath())
+    for f in slist:
+        pkg_dir, classes = parse_java_file(f.get_abspath())
         if pkg_dir:
             for c in classes:
                 t = target[0].Dir(pkg_dir).File(c+class_suffix)
@@ -84,7 +83,7 @@ def emit_java_classes(target, source, env):
         else:
             # This is an odd end case:  no package and no classes.
             # Just do our best based on the source file name.
-            base = str(file)[:-len(java_suffix)]
+            base = str(f)[:-len(java_suffix)]
             t = target[0].File(base + class_suffix)
             t.attributes.java_classdir = target[0]
             t.attributes.java_classname = classname(base)

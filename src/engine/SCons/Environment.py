@@ -39,8 +39,6 @@ import copy
 import os
 import os.path
 import string
-import re
-import shutil
 from UserDict import UserDict
 
 import SCons.Action
@@ -417,11 +415,8 @@ class Base:
     def scanner_map_delete(self, kw=None):
         """Delete the cached scanner map (if we need to).
         """
-        if not kw is None:
-            try:
-                kw['SCANNERS']
-            except KeyError:
-                return
+        if not kw is None and not kw.has_key('SCANNERS'):
+            return
         try:
             del self.scanner_map
         except AttributeError:
