@@ -106,8 +106,10 @@ RELEASE 0.97 - XXX
 
   From Han-Wen Nienhuys:
 
-  - Optimize variable expansion by using the re.sub() method (when
-    possible).
+  - Optimize variable expansion by:  using the re.sub() method (when
+    possible); not using "eval" for variables for which we can fetch the
+    value directory; avoiding slowing substitution logic when there's no
+    '$' in the string.
 
   From Gary Oberbrunner:
 
