@@ -909,6 +909,14 @@ class FSTestCase(unittest.TestCase):
         assert deps == [xyz], deps
         assert s.call_count == 2, s.call_count
 
+        env2 = Environment()
+
+        deps = f12.get_found_includes(env2, s, t1)
+        assert deps == [xyz], deps
+        assert s.call_count == 3, s.call_count
+
+
+
         # Make sure we can scan this file even if the target isn't
         # a file that has a scanner (it might be an Alias, e.g.).
         class DummyNode:
