@@ -86,16 +86,30 @@ Command $env [@test_files], $tar_gz, qq(
     tar zxf %< -C $test_dir
 );
 
-Install $env $test_dir, "TestCmd.py";
+Export qw( env test_dir );
+
+Build "aux/Conscript";
 
 #
 # If we're running in the actual Aegis project, pack up a complete
 # source .tar.gz from the project files and files in the change,
 # so we can share it with helpful developers who don't use Aegis.
 #
-eval '@src_files = grep($_ !~ /\.(aeignore|consign)$/ && ! $seen{$_}++,
+# First, lie and say that we've seen any files removed by this
+# change, so they don't get added to the source files list
+# that goes into the archive.
+#
+
+foreach (`aegis -list cf 2>/dev/null`) {
+    $seen{"$1\n"}++ if /^source\s+remove\s.*\s(\S+)$/;
+}
+
+eval '@src_files = grep(! $seen{$_}++,
 		    `aegis -list -terse pf 2>/dev/null`,
 		    `aegis -list -terse cf 2>/dev/null`)';
+
+@src_files = grep($_ !~ /(\.aeignore|\.consign)$/, @src_files);
+
 if (@src_files) {
     chomp(@src_files);
 
