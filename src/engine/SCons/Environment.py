@@ -774,8 +774,8 @@ class Base:
 
     def Depends(self, target, dependency):
         """Explicity specify that 'target's depend on 'dependency'."""
-        tlist = self.arg2nodes(target, self.fs.File)
-        dlist = self.arg2nodes(dependency, self.fs.File)
+        tlist = self.arg2nodes(target, self.fs.Entry)
+        dlist = self.arg2nodes(dependency, self.fs.Entry)
         for t in tlist:
             t.add_dependency(dlist)
 
@@ -809,8 +809,8 @@ class Base:
 
     def Ignore(self, target, dependency):
         """Ignore a dependency."""
-        tlist = self.arg2nodes(target, self.fs.File)
-        dlist = self.arg2nodes(dependency, self.fs.File)
+        tlist = self.arg2nodes(target, self.fs.Entry)
+        dlist = self.arg2nodes(dependency, self.fs.Entry)
         for t in tlist:
             t.add_ignore(dlist)
 
@@ -869,7 +869,7 @@ class Base:
     def Precious(self, *targets):
         tlist = []
         for t in targets:
-            tlist.extend(self.arg2nodes(t, self.fs.File))
+            tlist.extend(self.arg2nodes(t, self.fs.Entry))
 
         for t in tlist:
             t.set_precious()
@@ -891,8 +891,8 @@ class Base:
     def SideEffect(self, side_effect, target):
         """Tell scons that side_effects are built as side 
         effects of building targets."""
-        side_effects = self.arg2nodes(side_effect, self.fs.File)
-        targets = self.arg2nodes(target, self.fs.File)
+        side_effects = self.arg2nodes(side_effect, self.fs.Entry)
+        targets = self.arg2nodes(target, self.fs.Entry)
 
         for side_effect in side_effects:
             # A builder of 1 means the node is supposed to appear

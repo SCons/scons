@@ -123,6 +123,11 @@ RELEASE X.XX - XXX
   - Split the non-SCons-specific functionality from SConf.py to a new,
     re-usable Conftest.py module.
 
+  From Gary Oberbrunner:
+
+  - Allow a directory to be the target or source or dependency of a
+    Depends(), Ignore(), Precious() or SideEffect() call.
+
   From Marko Rauhamaa:
 
   - Have the closing message say "...terminated because of errors" if
@@ -134,7 +139,7 @@ RELEASE X.XX - XXX
     used.   ("rm" doesn't understand Win32-format path names.)
 
   From Christoph Wiedemann:
-  
+
   - Fix test/SWIG.py to find the Python include directory in all cases.
 
 

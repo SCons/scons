@@ -1343,23 +1343,35 @@ class EnvironmentTestCase(unittest.TestCase):
         assert d == ['bbb', 'another_file'], d
 
     def test_Depends(self):
-	"""Test the explicit Depends method."""
-	env = Environment(FOO = 'xxx', BAR='yyy')
-	t = env.Depends(target='EnvironmentTest.py', dependency='Environment.py')
-	assert t.__class__.__name__ == 'File'
-	assert t.path == 'EnvironmentTest.py'
-	assert len(t.depends) == 1
-	d = t.depends[0]
-	assert d.__class__.__name__ == 'File'
-	assert d.path == 'Environment.py'
+        """Test the explicit Depends method."""
+        env = Environment(FOO = 'xxx', BAR='yyy')
+        env.Dir('dir1')
+        env.Dir('dir2')
+        env.File('xxx.py')
+        env.File('yyy.py')
+        t = env.Depends(target='EnvironmentTest.py', dependency='Environment.py')
+        assert t.__class__.__name__ == 'Entry', t.__class__.__name__
+        assert t.path == 'EnvironmentTest.py'
+        assert len(t.depends) == 1
+        d = t.depends[0]
+        assert d.__class__.__name__ == 'Entry', d.__class__.__name__
+        assert d.path == 'Environment.py'
 
-	t = env.Depends(target='${FOO}.py', dependency='${BAR}.py')
-	assert t.__class__.__name__ == 'File'
-	assert t.path == 'xxx.py'
-	assert len(t.depends) == 1
-	d = t.depends[0]
-	assert d.__class__.__name__ == 'File'
-	assert d.path == 'yyy.py'
+        t = env.Depends(target='${FOO}.py', dependency='${BAR}.py')
+        assert t.__class__.__name__ == 'File', t.__class__.__name__
+        assert t.path == 'xxx.py'
+        assert len(t.depends) == 1
+        d = t.depends[0]
+        assert d.__class__.__name__ == 'File', d.__class__.__name__
+        assert d.path == 'yyy.py'
+
+        t = env.Depends(target='dir1', dependency='dir2')
+        assert t.__class__.__name__ == 'Dir', t.__class__.__name__
+        assert t.path == 'dir1'
+        assert len(t.depends) == 1
+        d = t.depends[0]
+        assert d.__class__.__name__ == 'Dir', d.__class__.__name__
+        assert d.path == 'dir2'
 
     def test_Dir(self):
         """Test the Dir() method"""
@@ -1427,20 +1439,34 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_Ignore(self):
         """Test the explicit Ignore method."""
         env = Environment(FOO='yyy', BAR='zzz')
+        env.Dir('dir1')
+        env.Dir('dir2')
+        env.File('yyyzzz')
+        env.File('zzzyyy')
+
         t = env.Ignore(target='targ.py', dependency='dep.py')
-        assert t.__class__.__name__ == 'File'
+        assert t.__class__.__name__ == 'Entry', t.__class__.__name__
         assert t.path == 'targ.py'
         assert len(t.ignore) == 1
         i = t.ignore[0]
-        assert i.__class__.__name__ == 'File'
+        assert i.__class__.__name__ == 'Entry', i.__class__.__name__
         assert i.path == 'dep.py'
+
         t = env.Ignore(target='$FOO$BAR', dependency='$BAR$FOO')
-        assert t.__class__.__name__ == 'File'
+        assert t.__class__.__name__ == 'File', t.__class__.__name__
         assert t.path == 'yyyzzz'
         assert len(t.ignore) == 1
         i = t.ignore[0]
-        assert i.__class__.__name__ == 'File'
+        assert i.__class__.__name__ == 'File', i.__class__.__name__
         assert i.path == 'zzzyyy'
+
+        t = env.Ignore(target='dir1', dependency='dir2')
+        assert t.__class__.__name__ == 'Dir', t.__class__.__name__
+        assert t.path == 'dir1'
+        assert len(t.ignore) == 1
+        i = t.ignore[0]
+        assert i.__class__.__name__ == 'Dir', i.__class__.__name__
+        assert i.path == 'dir2'
 
     def test_Install(self):
 	"""Test the Install method"""
@@ -1530,21 +1556,24 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_Precious(self):
         """Test the Precious() method"""
         env = Environment(FOO='ggg', BAR='hhh')
-        t = env.Precious('a', '${BAR}b', ['c', 'd'], '$FOO')
-        assert t[0].__class__.__name__ == 'File'
-        assert t[0].path == 'a'
+        env.Dir('p_hhhb')
+        env.File('p_d')
+        t = env.Precious('p_a', 'p_${BAR}b', ['p_c', 'p_d'], 'p_$FOO')
+
+        assert t[0].__class__.__name__ == 'Entry', t[0].__class__.__name__
+        assert t[0].path == 'p_a'
         assert t[0].precious
-        assert t[1].__class__.__name__ == 'File'
-        assert t[1].path == 'hhhb'
+        assert t[1].__class__.__name__ == 'Dir', t[1].__class__.__name__
+        assert t[1].path == 'p_hhhb'
         assert t[1].precious
-        assert t[2].__class__.__name__ == 'File'
-        assert t[2].path == 'c'
+        assert t[2].__class__.__name__ == 'Entry', t[2].__class__.__name__
+        assert t[2].path == 'p_c'
         assert t[2].precious
-        assert t[3].__class__.__name__ == 'File'
-        assert t[3].path == 'd'
+        assert t[3].__class__.__name__ == 'File', t[3].__class__.__name__
+        assert t[3].path == 'p_d'
         assert t[3].precious
-        assert t[4].__class__.__name__ == 'File'
-        assert t[4].path == 'ggg'
+        assert t[4].__class__.__name__ == 'Entry', t[4].__class__.__name__
+        assert t[4].path == 'p_ggg'
         assert t[4].precious
 
     def test_Repository(self):
@@ -1602,10 +1631,13 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_SideEffect(self):
         """Test the SideEffect() method"""
         env = Environment(LIB='lll', FOO='fff', BAR='bbb')
+        env.File('mylll.pdb')
+        env.Dir('mymmm.pdb')
 
         foo = env.Object('foo.obj', 'foo.cpp')
         bar = env.Object('bar.obj', 'bar.cpp')
         s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])
+        assert s.__class__.__name__ == 'Entry', s.__class__.__name__
         assert s.path == 'mylib.pdb'
         assert s.side_effect
         assert foo.side_effects == [s]
@@ -1616,12 +1648,24 @@ class EnvironmentTestCase(unittest.TestCase):
         fff = env.Object('fff.obj', 'fff.cpp')
         bbb = env.Object('bbb.obj', 'bbb.cpp')
         s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])
+        assert s.__class__.__name__ == 'File', s.__class__.__name__
         assert s.path == 'mylll.pdb'
         assert s.side_effect
         assert fff.side_effects == [s], fff.side_effects
         assert bbb.side_effects == [s], bbb.side_effects
         assert s.depends_on([bbb])
         assert s.depends_on([fff])
+
+        ggg = env.Object('ggg.obj', 'ggg.cpp')
+        ccc = env.Object('ccc.obj', 'ccc.cpp')
+        s = env.SideEffect('mymmm.pdb', ['ggg.obj', 'ccc.obj'])
+        assert s.__class__.__name__ == 'Dir', s.__class__.__name__
+        assert s.path == 'mymmm.pdb'
+        assert s.side_effect
+        assert ggg.side_effects == [s], ggg.side_effects
+        assert ccc.side_effects == [s], ccc.side_effects
+        assert s.depends_on([ccc])
+        assert s.depends_on([ggg])
 
     def test_SourceCode(self):
         """Test the SourceCode() method."""
