@@ -502,6 +502,27 @@ class SConsignEntryTestCase(unittest.TestCase):
         assert e.get_implicit() == []
         assert e.render(m) == "987 654 321 "	# note trailing space
 
+	e.set_implicit(None)
+        assert e.get_implicit() == None, e.get_implicit()
+
+	e.set_implicit('')
+        assert e.get_implicit() == [], e.get_implicit()
+
+	e.set_implicit('foo')
+        assert e.get_implicit() == ['foo'], e.get_implicit()
+
+	e.set_implicit('foo bar')
+        assert e.get_implicit() == ['foo bar'], e.get_implicit()
+
+	e.set_implicit(['foo'])
+        assert e.get_implicit() == ['foo'], e.get_implicit()
+
+	e.set_implicit(['foo bar'])
+        assert e.get_implicit() == ['foo bar'], e.get_implicit()
+
+	e.set_implicit(['foo', 'bar'])
+        assert e.get_implicit() == ['foo', 'bar'], e.get_implicit()
+
 class SConsignFileTestCase(unittest.TestCase):
 
     def runTest(self):

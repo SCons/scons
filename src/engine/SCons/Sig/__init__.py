@@ -91,9 +91,11 @@ class SConsignEntry:
             return string.split(self.implicit, '\0')
 
     def set_implicit(self, implicit):
-        if not implicit:
+        if implicit is None:
             self.implicit = None
         else:
+	    if SCons.Util.is_String(implicit):
+	        implicit = [implicit]
             self.implicit = string.join(map(str, implicit), '\0')
 
 
