@@ -900,7 +900,7 @@ if change:
 
     cmd = "aegis -list -terse pf 2>/dev/null"
     pf = map(lambda x: x[:-1], os.popen(cmd, "r").readlines())
-    cmd = "aegis -list -terse cf 2>/dev/null"
+    cmd = "aegis -list -terse -c %s cf 2>/dev/null" % change
     cf = map(lambda x: x[:-1], os.popen(cmd, "r").readlines())
     u = {}
     for f in pf + cf:

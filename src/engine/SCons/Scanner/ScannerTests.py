@@ -155,7 +155,7 @@ class BaseTestCase(unittest.TestCase):
         s = SCons.Scanner.Base(self.func, "Hash")
         dict = {}
         dict[s] = 777
-        self.failUnless(hash(dict.keys()[0]) == hash(repr(s)),
+        self.failUnless(hash(dict.keys()[0]) == id(s),
                         "did not hash Scanner base class as expected")
 
     def test_scan_check(self):
