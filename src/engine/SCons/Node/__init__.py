@@ -250,7 +250,24 @@ class Node:
         return not b is None
 
     def is_derived(self):
+        """
+        Returns true iff this node is derived (i.e. built).
+
+        This should return true only for nodes whose path should be in
+        the build directory when duplicate=0 and should contribute their build
+        signatures when they are used as source files to other derived files. For
+        example: source with source builders are not derived in this sense,
+        and hence should not return true.
+        """
         return self.has_builder() or self.side_effect
+
+    def is_pseudo_derived(self):
+        """
+        Returns true iff this node is built, but should use a source path
+        when duplicate=0 and should contribute a content signature (i.e.
+        source signature) when used as a source for other derived files.
+        """
+        return 0
 
     def alter_targets(self):
         """Return a list of alternate targets for this Node.
@@ -470,7 +487,10 @@ class Node:
         or are derived.
         """
         def missing(node):
-            return not node.is_derived() and not node.linked and not node.rexists()
+            return not node.is_derived() and \
+                   not node.is_pseudo_derived() and \
+                   not node.linked and \
+                   not node.rexists()
         missing_sources = filter(missing, self.children())
         if missing_sources:
             desc = "No Builder for target `%s', needed by `%s'." % (missing_sources[0], self)
@@ -578,7 +598,7 @@ class Node:
         Return a text representation, suitable for displaying to the
         user, of the include tree for the sources of this node.
         """
-        if self.has_builder() and self.env:
+        if self.is_derived() and self.env:
             env = self.get_build_env()
             for s in self.sources:
                 def f(node, env=env, scanner=s.source_scanner, target=self):

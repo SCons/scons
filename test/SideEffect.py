@@ -150,4 +150,40 @@ test.run(arguments='log')
 test.fail_test(not os.path.exists(test.workpath('log/bar.out')))
 test.fail_test(not os.path.exists(test.workpath('log/blat.out')))
 
+test.write('SConstruct', 
+"""
+def copy(source, target):
+    open(target, "wb").write(open(source, "rb").read())
+
+def build(env, source, target):
+    copy(str(source[0]), str(target[0]))
+    if target[0].side_effects:
+        side_effect = open(str(target[0].side_effects[0]), "ab")
+        side_effect.write('%s -> %s\\n'%(str(source[0]), str(target[0])))
+
+Build = Builder(action=build)
+env = Environment(BUILDERS={'Build':Build})
+Export('env')
+SConscript('SConscript', build_dir='build', duplicate=0)""")
+
+test.write('SConscript', """
+Import('env')
+env.Build('foo.out', 'foo.in')
+env.Build('bar.out', 'bar.in')
+env.Build('blat.out', 'blat.in')
+env.SideEffect('log.txt', ['foo.out', 'bar.out', 'blat.out'])
+""")
+
+test.write('foo.in', 'foo.in\n')
+test.write('bar.in', 'bar.in\n')
+
+test.run(arguments = 'build/foo.out build/bar.out')
+
+expect = """\
+foo.in -> build/foo.out
+bar.in -> build/bar.out
+"""
+
+assert test.read('build/log.txt') == expect
+
 test.pass_test()

@@ -115,6 +115,9 @@ RELEASE 0.14 - XXX
   - Fix a number of tests that searched for a Fortran compiler using the
     external PATH instead of what SCons would use.
 
+  - Fix the interaction of SideEffect() and BuildDir() so that (for
+    example) PDB files get put correctly in a BuildDir().
+
   From David Snopek:
 
   - Contribute the "Autoscons" code for Autoconf-like checking for

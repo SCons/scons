@@ -255,7 +255,7 @@ class Taskmaster:
             # Find all of the derived dependencies (that is,
             # children who have builders or are side effects):
             try:
-                def derived_nodes(node): return node.is_derived()
+                def derived_nodes(node): return node.is_derived() or node.is_pseudo_derived()
                 derived = filter(derived_nodes, children)
             except:
                 # We had a problem just trying to figure out if any of

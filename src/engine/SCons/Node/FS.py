@@ -350,7 +350,7 @@ class Entry(SCons.Node.Node):
 
     def __str__(self):
         """A FS node's string representation is its path name."""
-        if self.duplicate or self.has_builder():
+        if self.duplicate or self.is_derived():
             return self.get_path()
         return self.srcnode().get_path()
 
@@ -766,7 +766,7 @@ class FS:
 			# This is usually the case with BuildDir().
 			# We only want to find pre-existing files.
                         if rnode.exists() and \
-                           (isinstance(rnode, Dir) or not rnode.has_builder()):
+                           (isinstance(rnode, Dir) or not rnode.is_derived()):
                             return rnode
                     except TypeError:
                         pass # Wrong type of node.
@@ -814,7 +814,7 @@ class FS:
                             # with BuildDir().  We only want to find
                             # pre-existing files.
                             if (not must_exist or rnode.exists()) and \
-                               (not rnode.has_builder() or isinstance(rnode, Dir)):
+                               (not rnode.is_derived() or isinstance(rnode, Dir)):
                                 ret.append(rnode)
                         except TypeError:
                             pass # Wrong type of node.
@@ -1122,7 +1122,7 @@ class File(Entry):
         returns - the signature
         """
 
-        if self.has_builder():
+        if self.is_derived():
             if SCons.Sig.build_signature:
                 return calc.bsig(self.rfile(), self)
             else:
@@ -1226,7 +1226,7 @@ class File(Entry):
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
         """
-        b = self.has_builder()
+        b = self.is_derived()
         if not b and not self.has_src_builder():
             return
         if b and self.fs.CachePath:
@@ -1298,22 +1298,16 @@ class File(Entry):
             self.sbuilder = scb
         return not scb is None
 
-    def is_derived(self):
-        """Return whether this file is a derived file or not.
-
-        This overrides the base class method to account for the fact
-        that a file may be derived transparently from a source code
-        builder.
-        """
-        return self.has_builder() or self.side_effect or self.has_src_builder()
-
     def alter_targets(self):
         """Return any corresponding targets in a build directory.
         """
-        if self.has_builder():
+        if self.is_derived():
             return [], None
         return self.fs.build_dir_target_climb(self.dir, [self.name])
 
+    def is_pseudo_derived(self):
+        return self.has_src_builder()
+    
     def prepare(self):
         """Prepare for this file to be created."""
 
@@ -1321,7 +1315,7 @@ class File(Entry):
 
         if self.get_state() != SCons.Node.up_to_date:
             if self.exists():
-                if self.has_builder() and not self.precious:
+                if self.is_derived() and not self.precious:
                     try:
                         Unlink(self, None, None)
                     except OSError, e:
@@ -1345,7 +1339,7 @@ class File(Entry):
 
     def exists(self):
         # Duplicate from source path if we are set up to do this.
-        if self.duplicate and not self.has_builder() and not self.linked:
+        if self.duplicate and not self.is_derived() and not self.linked:
             src=self.srcnode().rfile()
             if src.exists() and src.abspath != self.abspath:
                 self._createDir()
@@ -1436,7 +1430,7 @@ def find_file(filename, paths, node_factory = default_fs.File):
         try:
             node = node_factory(filename, dir)
             # Return true of the node exists or is a derived node.
-            if node.has_builder() or \
+            if node.is_derived() or \
                (isinstance(node, SCons.Node.FS.Entry) and node.exists()):
                 retval = node
                 break
