@@ -167,8 +167,25 @@ class Task:
 
         self.tm.executed(self.node)
 
-    def make_ready(self):
-        """Make a task ready for execution."""
+    def make_ready_all(self):
+        """Mark all targets in a task ready for execution.
+
+        This is used when the interface needs every target Node to be
+        visited--the canonical example being the "scons -c" option.
+        """
+        self.out_of_date = self.targets[:]
+        state = SCons.Node.executing
+        for t in self.targets:
+            for side_effect in t.side_effects:
+                side_effect.set_state(state)
+            t.set_state(state)
+
+    def make_ready_current(self):
+        """Mark all targets in a task ready for execution if any target
+        is not current.
+
+        This is the default behavior for building only what's necessary.
+        """
         self.out_of_date = []
         calc = self.tm.calc
         if calc:
@@ -189,6 +206,8 @@ class Task:
             state = SCons.Node.up_to_date
             for t in self.targets:
                 t.set_state(state)
+
+    make_ready = make_ready_current
 
     def postprocess(self):
         """Post process a task after it's been executed."""

@@ -267,6 +267,11 @@ class CleanTask(SCons.Taskmaster.Task):
 
     execute = remove
 
+    # Have the taskmaster arrange to "execute" all of the targets, because
+    # we'll figure out ourselves (in remove() or show() above) whether
+    # anything really needs to be done.
+    make_ready = SCons.Taskmaster.Task.make_ready_all
+
     def prepare(self):
         pass
 
@@ -1051,7 +1056,6 @@ def _main(args, parser):
 
     nodes = filter(lambda x: x is not None, map(Entry, targets))
 
-    calc = None
     task_class = BuildTask	# default action is to build targets
     opening_message = "Building targets ..."
     closing_message = "done building targets."
@@ -1061,16 +1065,6 @@ def _main(args, parser):
     try:
         if ssoptions.get('clean'):
             task_class = CleanTask
-            class CleanCalculator:
-                def bsig(self, node):
-                    return None
-                def csig(self, node):
-                    return None
-                def current(self, node, sig):
-                    return 0
-                def write(self):
-                    pass
-            calc = CleanCalculator()
             opening_message = "Cleaning targets ..."
             closing_message = "done cleaning targets."
             failure_message = "cleaning terminated because of errors."
@@ -1095,7 +1089,7 @@ def _main(args, parser):
             return dependencies
 
     progress_display("scons: " + opening_message)
-    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc, order)
+    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, None, order)
 
     nj = ssoptions.get('num_jobs')
     jobs = SCons.Job.Jobs(nj, taskmaster)
