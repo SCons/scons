@@ -45,24 +45,35 @@ import SCons.Errors
 import SCons.Defaults
 
 class ToolSpec:
-    def __init__(self, name):
+    def __init__(self, name, **kw):
         self.name = name
+        # remember these so we can merge them into the call
+        self.init_kw = kw
 
     def __call__(self, env, *args, **kw):
+        if self.init_kw is not None:
+            # Merge call kws into init kws;
+            # but don't bash self.init_kw.
+            if kw is not None:
+                call_kw = kw
+                kw = self.init_kw.copy()
+                kw.update(call_kw)
+            else:
+                kw = self.init_kw
         env.Append(TOOLS = [ self.name ])
         apply(self.generate, ( env, ) + args, kw)
 
     def __str__(self):
         return self.name
     
-def Tool(name, toolpath=[]):
+def Tool(name, toolpath=[], **kw):
     "Select a canned Tool specification, optionally searching in toolpath."
 
     try:
         file, path, desc = imp.find_module(name, toolpath)
         try:
             module = imp.load_module(name, file, path, desc)
-            spec = ToolSpec(name)
+            spec = apply(ToolSpec, (name,), kw)
             spec.generate = module.generate
             spec.exists = module.exists
             return spec
@@ -83,7 +94,7 @@ def Tool(name, toolpath=[]):
             raise SCons.Errors.UserError, "No tool named '%s': %s" % (name, e)
         if file:
             file.close()
-    spec = ToolSpec(name)
+    spec = apply(ToolSpec, (name,), kw)
     spec.generate = sys.modules[full_name].generate
     spec.exists = sys.modules[full_name].exists
     return spec

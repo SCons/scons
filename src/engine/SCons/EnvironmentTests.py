@@ -840,6 +840,22 @@ class EnvironmentTestCase(unittest.TestCase):
         t4(env)
         assert env['TOOL4'] == 444, env
 
+        test = TestCmd.TestCmd(workdir = '')
+        test.write('faketool.py', """\
+def generate(env, **kw):
+    for k, v in kw.items():
+        env[k] = v
+
+def exists(env):
+    return 1
+""")
+
+        env = Environment(tools = [('faketool', {'a':1, 'b':2, 'c':3})],
+                          toolpath = [test.workpath('')])
+        assert env['a'] == 1, env['a']
+        assert env['b'] == 2, env['b']
+        assert env['c'] == 3, env['c']
+
     def test_Default_TOOLS(self):
         """Test overriding the default TOOLS variable"""
         def t5(env):
