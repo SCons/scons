@@ -21,7 +21,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __USER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 import unittest
