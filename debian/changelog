@@ -1,3 +1,10 @@
+scons (0.09-1) unstable; urgency=low
+
+  * Third post-official-Debian build cycle
+
+ -- Steven Knight <knight@baldmt.com>  Thu,  5 Dec 2002 04:48:25 -0600
+
+
 scons (0.08-1) unstable; urgency=low
 
   * Second post-official-Debian build cycle

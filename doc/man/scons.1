@@ -870,8 +870,8 @@ env.SharedLibrary('word', 'word.cpp', SHLIBSUFFIX='.ocx')
 
 All Builders return a Node or a list of Nodes,
 representing the target or targets that will be built.
-A list of Nodes is returned if there is more than one target, and a
-single Node is returned if there is only one target.
+A list of Nodes is returned if there is more than one target,
+and a single Node is returned if there is only one target.
 A
 .I Node
 is an internal SCons object
@@ -897,6 +897,15 @@ makes for a more portable build
 by avoiding having to specify
 a platform-specific object suffix
 when calling the Program() builder.
+
+The path name for a Node's file may be used
+by passing the Node to the Python-builtin
+.B str()
+function:
+
+.ES
+bar_obj = env.StaticObject('bar.c', CCFLAGS='-DBAR')
+print "The path to bar_obj is:", str(bar_obj)
 
 .B scons
 provides the following builders:

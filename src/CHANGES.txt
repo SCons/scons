@@ -8,40 +8,42 @@
 
 
 
-RELEASE 0.09 - 
+RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
 
- From Chad Austin:
+  From Chad Austin:
 
   - Add a Prepend() method to Environments, to append values to
     the beginning of construction variables.
 
-  - Add support for construction variable substition on scanner
-    directories (in CPPPATH, F77PATH, LIBPATH, etc.).
+  From Matt Balvin:
 
- From Charles Crain and Steven Knight:
+  - Add long command-line support to the "lib" Tool (Microsoft library
+    archiver), too.
 
-  - Add Repository() functionality, including the -Y option.
+  From Charles Crain:
 
   - Allow $$ in a string to be passed through as $.
 
   - Support file names with odd characters in them.
 
- From Matt Balvin:
+  - Add support for construction variable substition on scanner
+    directories (in CPPPATH, F77PATH, LIBPATH, etc.).
 
- - Add long command-line support to the "lib" (MicroSoft static library)
-   Tool, too.
+  From Charles Crain and Steven Knight:
 
- From Steven Knight:
+  - Add Repository() functionality, including the -Y option.
 
- - Fix auto-deduction of target names so that deduced targets end
-   up in the same subdirectory as the source.
+  From Steven Knight:
 
- - Don't remove source files specified on the command line!
+  - Fix auto-deduction of target names so that deduced targets end
+    up in the same subdirectory as the source.
 
- - Suport the Intel Fortran Compiler (ifl.exe).
+  - Don't remove source files specified on the command line!
 
- - Supply an error message if there are no command-line or
-   Default() targets specified.
+  - Suport the Intel Fortran Compiler (ifl.exe).
+
+  - Supply an error message if there are no command-line or
+    Default() targets specified.
 
   - Fix the ASPPCOM values for the GNU assembler.
     (Bug reported by Brett Polivka.)
@@ -75,11 +77,11 @@ RELEASE 0.09 -
 
   - Change the name of Tool/lib.py to Tool/mslib.py.
 
- From Steven Knight and Anthony Roach:
+  From Steven Knight and Anthony Roach:
 
   - Man page:  document the fact that Builder calls return Node objects.
 
- From Steve LeBlanc:
+  From Steve LeBlanc:
 
   - Refactor option processing to use our own version of Greg Ward's
     Optik module, modified to run under Python 1.5.2.
@@ -87,31 +89,31 @@ RELEASE 0.09 -
   - Add a ParseConfig() command to modify an environment based on
     parsing output from a *-config command.
 
- From Jeff Petkau:
+  From Jeff Petkau:
 
   - Fix interpretation of '#/../foo' on Win32 systems.
 
- From Anthony Roach:
+  From Anthony Roach:
 
- - Fixed use of command lines with spaces in their arguments,
-   and use of Nodes with spaces in their string representation.
+  - Fixed use of command lines with spaces in their arguments,
+    and use of Nodes with spaces in their string representation.
 
- - Make access and modification times of files in a BuildDir match
-   the source file, even when hard linking isn't available.
+  - Make access and modification times of files in a BuildDir match
+    the source file, even when hard linking isn't available.
 
- - Make -U be case insensitive on Win32 systems.
+  - Make -U be case insensitive on Win32 systems.
 
- - Issue a warning and continue when finding a corrupt .sconsign file.
+  - Issue a warning and continue when finding a corrupt .sconsign file.
 
- - Fix using an alias as a dependency of a target so that if one of the
-   alias' dependencies gets rebuilt, the resulting target will, too.
+  - Fix using an alias as a dependency of a target so that if one of the
+    alias' dependencies gets rebuilt, the resulting target will, too.
 
- - Fix differently ordered targets causing unnecessary rebuilds
-   on case insensitive systems.
+  - Fix differently ordered targets causing unnecessary rebuilds
+    on case insensitive systems.
 
- - Use os.system() to execute external commands whenever the "env"
-   utility is available, which is much faster than fork()/exec(),
-   and fixes the -j option on several platforms.
+  - Use os.system() to execute external commands whenever the "env"
+    utility is available, which is much faster than fork()/exec(),
+    and fixes the -j option on several platforms.
 
   - Fix use of -j with multiple targets.
 

@@ -279,8 +279,20 @@ LICENSE
         A copy of the copyright and terms under which SCons is
         distributed (the Open Source Initiative-approved MIT license).
 
+LICENSE-local
+        A copy of the copyright and terms under which SCons is
+        distributed for inclusion in the scons-local-{version} packages.
+        This is the same as LICENSE with a preamble that specifies
+        the licensing terms are for SCons itself, not any other
+        package that includes SCons.
+
 README
         What you're looking at right now.
+
+README-local
+        A README file for inclusion in the scons-local-{version}
+        packages.  Similar to this file, but stripped down and modified
+        for people looking at including SCons in their shipped software.
 
 rpm/
         The .spec file for building our RPM packages.
@@ -295,12 +307,14 @@ runtest.py
 SConstruct
         The "Makefile" for the SCons distribution.
 
-        (It has been pointed out that it's hard to find the SCons API in
-        this SConstruct file, and that it looks a lot more like a pure
-        Python script than a build configuration file.  That's mainly
-        because all of the magick we have to perform to deal with all of
-        the different packaging formats requires a lot of pure Python
-        manipulation.)
+        (It has been pointed out that it's hard to find the SCons API
+        in this SConstruct file, and that it looks a lot more like a
+        pure Python script than a build configuration file.  That's
+        mainly because all of the magick we have to perform to deal with
+        all of the different packaging formats requires a lot of pure
+        Python manipulation.  In other words, don't look at this file
+        for an example of how easy it is to use SCons to build "normal"
+        software.)
 
 src/
         Where the actual source code is kept, of course.

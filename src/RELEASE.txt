@@ -20,7 +20,7 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.09 - XXX
+RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
 
   This is the ninth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
@@ -44,6 +44,17 @@ RELEASE 0.09 - XXX
 
           env = Environment(tools = [ Tool('mslib') ])
 
+    - In order to make it clear what SCons is doing when, SCons now
+      prints explicit messages:
+      
+                scons: Reading SConscript files ...
+                scons: done reading SConscript files.
+                scons: Building targets ...
+                scons: done building targets.
+
+      These message might interfere with scripts that examine SCons
+      output.  These messages may be suppressed with the new -Q option.
+
   Please note the following important changes since release 0.07:
 
     - Builder objects no longer automatically split target and source
@@ -56,9 +67,8 @@ RELEASE 0.09 - XXX
 
           env.Program(target = 'foo', source = 'f1.c f2.c')
 
-      These calls will need to be changed by next release.  You may
-      either split up the string into an array of individual file name
-      strings by hand:
+      These calls must be changed.  You may either split up the string
+      into an array of individual file name strings by hand:
 
           env.Program(target = 'foo', source = ['f1.c', 'f2.c'])
 
@@ -75,12 +85,12 @@ RELEASE 0.09 - XXX
       (You may, of course, also use the string.split() function from
       the standard Python library to convert your strings.)
 
-   -  The Object and Library builders no longer use the "shared"
-      keyword argument to specify if the target object or library is a
+    - The Object and Library builders no longer use the "shared" keyword
+      argument to specify if the target object or library is a
       shared library.  Instead, separate StaticObject, SharedObject,
-      StaticLibrary and SharedLibrary builders exist to explicitly build
-      the appropriate target.  The Object and Library buidlers are now
-      synonyms for StaticObject and StaticLibrary, respecitvely.
+      StaticLibrary and SharedLibrary builders exist to build the
+      appropriate target explicitly.  The Object and Library builders
+      are now synonyms for StaticObject and StaticLibrary, respecitvely.
 
     - The prefix, suffix, and src_suffix keyword arguments to the
       Builder() function may no longer be callable functions.
@@ -154,23 +164,32 @@ RELEASE 0.09 - XXX
       processed builder specification overwrites all other builders,
       without any warning.
 
-    - There is not yet a mechanism to configure using file timestamps
-      instead of MD5 signatures to determine if a file is up-to-date.
-
     - Executing the -u or -U option from a source directory that has an
       associated BuildDir() does not build the targets in the BuildDir().
 
     - No support yet for the following future features:
-
-        - Configurable signature calculation
 
         - No support for caching built files.
 
         - No support yet for the following command-line options:
 
              -d -e -l --list-actions --list-derived --list-where
-             -o -p -r -R --random -w --write-filenames -W
-             --warn-undefined-variables
+             -o --override -p -r -R --random -w --write-filenames
+             -W --warn-undefined-variables
 
-  Thank you for your interest, and please let us know how we can help
-  improve SCons for your needs.
+
+
+Thank you for your interest, and please let us know how we can help
+improve SCons for your needs.
+
+Steven Knight
+knight at baldmt dot com
+http://www.baldmt.com/~knight/
+
+With plenty of help from the SCons Development team:
+        Chad Austin
+        Charles Crain
+        Steve Leblanc
+        Anthony Roach
+        Terrel Shumway
+
