@@ -41,12 +41,17 @@ import TestSCons
 import os
 import string
 
+_exe = TestSCons._exe
+lib_ = TestSCons.lib_
+_lib = TestSCons._lib
+_obj = TestSCons._obj
+dll_ = TestSCons.dll_
+_dll = TestSCons._dll
+
 if sys.platform == 'win32':
-    _obj = '.obj'
     fooflags = '/nologo -DFOO'
     barflags = '/nologo -DBAR'
 else:
-    _obj = '.o'
     fooflags = '-DFOO'
     barflags = '-DBAR'
     
@@ -211,16 +216,20 @@ builddir_srcnodes = [ os.path.join('bld', 'goof.in'),
                       os.path.join('bld', 'subsrcdir', 'boo.c'),
                     ]
 
-sub_build_nodes = [ os.path.join('bld','subsrcdir','boo.o'),
-                    os.path.join('bld','goo.o'),
-                    os.path.join('bld','goof.c'),
-                    os.path.join('bld','libgoo.a'),
+sub_build_nodes = [ os.path.join('bld', 'subsrcdir','boo' + _obj),
+                    os.path.join('bld', 'goo' + _obj),
+                    os.path.join('bld', 'goof.c'),
+                    os.path.join('bld', lib_ + 'goo' + _lib),
 ]
 
-build_nodes = ['fooprog', 'libfoo.so', 'foo.o',
-               'barprog', 'libbar.so', 'bar.o',
+build_nodes = ['fooprog' + _exe,
+               dll_ + 'foo' + _dll,
+	       'foo' + _obj,
+               'barprog' + _exe,
+	       dll_ + 'bar' + _dll,
+	       'bar' + _obj,
 
-               'gooprog',
+               'gooprog' + _exe,
 
                ] + builddir_srcnodes + sub_build_nodes
 
