@@ -63,8 +63,8 @@ class Builder:
 	return cmp(self.__dict__, other.__dict__)
 
     def __call__(self, env, target = None, source = None):
-	tlist = SCons.Util.scons_str2nodes(target)
-	slist = SCons.Util.scons_str2nodes(source)
+	tlist = SCons.Util.scons_str2nodes(target, self.node_factory)
+	slist = SCons.Util.scons_str2nodes(source, self.node_factory)
 	for t in tlist:
 	    t.builder_set(self)
 	    t.env_set(env)
@@ -80,7 +80,102 @@ class Builder:
 	"""
 	return apply(self.action.execute, (), kw)
 
+class BuilderProxy:
+    """This base class serves as a proxy to a builder object,
+    exposing the same interface, but just forwarding calls to
+    the underlying object."""
+    def __init__(self, builder):
+        self.subject = builder
 
+    def __call__(self, env, target = None, source = None):
+        return self.subject.__call__(env, target, source)
+
+    def execute(self, **kw):
+        return apply(self.subject.execute, (), kw)
+    
+    def __cmp__(self, other):
+        return cmp(self.__dict__, other.__dict__)
+
+    def __getattr__(self, name):
+        assert 'subject' in self.__dict__.keys(), \
+               "You must call __init__() on the BuilderProxy base."
+        return getattr(self.subject, name)
+    
+class TargetNamingBuilder(BuilderProxy):
+    """This is a simple Builder Proxy that decorates the names
+    of a Builder's targets prior to passing them to the underlying
+    Builder.  You can use this to simplify the syntax of a target
+    file.  For instance, you might want to call a Library builder
+    with a target of "foo" and expect to get "libfoo.a" back."""
+
+    def __init__(self, builder, prefix='', suffix=''):
+        """
+        builder - The underlying Builder object
+        
+        prefix - text to prepend to target names (may contain
+        environment variables)
+
+        suffix - text to append to target names (may contain
+        environment variables)
+        """
+        BuilderProxy.__init__(self, builder)
+        self.prefix=prefix
+        self.suffix=suffix
+
+    def __call__(self, env, target = None, source = None):
+        tlist = SCons.Util.scons_str2nodes(target,
+                                           self.subject.node_factory)
+        tlist_decorated = []
+        for tnode in tlist:
+            path, fn = os.path.split(tnode.path)
+            tlist_decorated.append(self.subject.
+                                   node_factory(os.path.join(path,
+                                                             env.subst(self.prefix) +
+                                                             fn +
+                                                             env.subst(self.suffix))))
+        return self.subject.__call__(env, target=tlist_decorated, source=source)
+
+class MultiStepBuilder(Builder):
+    """This is a builder subclass that can build targets in
+    multiple steps according to the suffixes of the source files.
+    Given one or more "subordinate" builders in its constructor,
+    this class will apply those builders to any files matching
+    the builder's input_suffix, using a file of the same name
+    as the source, but with input_suffix changed to output_suffix.
+    The targets of these builders then become sources for this
+    builder.
+    """
+    def __init__(self,  name = None,
+			action = None,
+			input_suffix = None,
+			output_suffix = None,
+                        node_factory = SCons.Node.FS.default_fs.File,
+                        builders = []):
+        Builder.__init__(self, name, action, input_suffix, output_suffix,
+                         node_factory)
+        self.builder_dict = {}
+        for bld in builders:
+            if bld.insuffix and bld.outsuffix:
+                self.builder_dict[bld.insuffix] = bld
+
+    def __call__(self, env, target = None, source = None):
+        slist = SCons.Util.scons_str2nodes(source, self.node_factory)
+        final_sources = []
+        for snode in slist:
+            path, ext = os.path.splitext(snode.path)
+            if self.builder_dict.has_key(ext):
+                bld = self.builder_dict[ext]
+                tgt = bld(env,
+                          target=[ path+bld.outsuffix, ],
+                          source=snode)
+                if not type(tgt) is types.ListType:
+                    final_sources.append(tgt)
+                else:
+                    final_sources.extend(tgt)
+            else:
+                final_sources.append(snode)
+        return Builder.__call__(self, env, target=target,
+                                source=final_sources)
 
 print_actions = 1;
 execute_actions = 1;

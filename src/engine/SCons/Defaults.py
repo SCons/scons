@@ -38,10 +38,20 @@ import SCons.Builder
 
 
 Object = SCons.Builder.Builder(name = 'Object',
-				action = 'cc -c -o %(target)s %(source)s')
-Program = SCons.Builder.Builder(name = 'Program',
-				action = 'cc -o %(target)s %(source)s')
+                               action = 'cc -c -o %(target)s %(source)s',
+                               input_suffix='.c',
+                               output_suffix='.o')
+Program = SCons.Builder.MultiStepBuilder(name = 'Program',
+                                         action = 'cc -o %(target)s %(source)s',
+                                         builders = [ Object ])
+Library = SCons.Builder.MultiStepBuilder(name = 'Library',
+                                         action = 'ar r %(target)s %(source)s\nranlib %(target)s',
+                                         builders = [ Object ])
 
-Builders = [Object, Program]
+Library = SCons.Builder.TargetNamingBuilder(builder = Library,
+                                            prefix='lib',
+                                            suffix='.a')
+
+Builders = [Object, Program, Library]
 
 ENV = { 'PATH' : '/usr/local/bin:/bin:/usr/bin' }

@@ -47,7 +47,7 @@ from SCons.Taskmaster import Taskmaster
 #
 from SCons.Environment import Environment
 from SCons.Builder import Builder
-
+from SCons.Defaults import *
 
 
 #

@@ -28,14 +28,16 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is implemented.
-
+#XXX Need to switch TestBld to Program() when LIBS variable is working.
 test.write('SConstruct', """
-env = Environment(LIBS = 'foo1 foo2 foo3')
+TestBld = Builder(name='TestBld',
+                  action='cc -o %(target)s %(source)s -L./ -lfoo1 -lfoo2 -lfoo3')
+env = Environment(BUILDERS=[ TestBld, Library ])
 env.Library(target = 'foo1', source = 'f1.c')
 env.Library(target = 'foo2', source = 'f2a.c f2b.c f2c.c')
 env.Library(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
-env.Program(target = 'prog', source = 'prog.c')
+env.TestBld(target = 'prog', source = 'prog.c')
+env.Depends(target = 'prog', dependency = 'libfoo1.a libfoo2.a libfoo3.a')
 """)
 
 test.write('f1.c', """
@@ -113,12 +115,13 @@ main(int argc, char *argv[])
 	f3b();
 	f3c();
 	printf("prog.c\n");
+        return 0;
 }
 """)
 
-test.run(arguments = 'libfoo1.a libfoo2.a libfoo3.a')
+test.run(arguments = 'libfoo1.a libfoo2.a libfoo3.a prog')
 
 test.run(program = test.workpath('prog'),
-	stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
+         stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")
 
 test.pass_test()

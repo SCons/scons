@@ -29,7 +29,6 @@ import SCons.Node
 import SCons.Node.FS
 from SCons.Util import scons_str2nodes
 
-
 class UtilTestCase(unittest.TestCase):
     def test_str2nodes(self):
 	"""Test the str2nodes function."""
@@ -40,7 +39,7 @@ class UtilTestCase(unittest.TestCase):
 	assert nodes[0].path == "Util.py"
 	assert nodes[1].path == "UtilTests.py"
 
-	nodes = scons_str2nodes("Util.py UtilTests.py", SCons.Node.FS.FS())
+	nodes = scons_str2nodes("Util.py UtilTests.py", SCons.Node.FS.FS().File)
 	assert len(nodes) == 2
 	assert isinstance(nodes[0], SCons.Node.FS.File)
 	assert isinstance(nodes[1], SCons.Node.FS.File)
@@ -69,7 +68,6 @@ class UtilTestCase(unittest.TestCase):
 	class OtherNode:
 	    pass
 	node = scons_str2nodes(OtherNode())
-
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')

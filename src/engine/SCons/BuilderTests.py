@@ -49,15 +49,16 @@ sys.exit(0)
 act_py = test.workpath('act.py')
 outfile = test.workpath('outfile')
 
+class Environment:
+            def subst(self, s):
+                return s
+env = Environment()
 
 class BuilderTestCase(unittest.TestCase):
 
     def test__call__(self):
 	"""Test calling a builder to establish source dependencies
 	"""
-	class Environment:
-	    pass
-	env = Environment()
 	class Node:
 	    def __init__(self, name):
 		self.name = name
@@ -197,6 +198,31 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(input_suffix = 'o')
 	assert builder.insuffix == '.o'
 
+    def test_TargetNamingBuilder(self):
+        """Testing the TargetNamingBuilder class."""
+        builder = SCons.Builder.Builder(action='foo')
+        proxy = SCons.Builder.TargetNamingBuilder(builder=builder,
+                                                  prefix='foo',
+                                                  suffix='bar')
+        tgt = proxy(env, target='baz', source='bleh')
+        assert tgt.path == 'foobazbar', \
+               "Target has unexpected name: %s" % tgt[0].path
+        assert tgt.builder == builder
+
+    def test_MultiStepBuilder(self):
+        """Testing MultiStepBuilder class."""
+        builder1 = SCons.Builder.Builder(action='foo',
+                                        input_suffix='.bar',
+                                        output_suffix='.foo')
+        builder2 = SCons.Builder.MultiStepBuilder(action='foo',
+                                                  builders = [ builder1 ])
+        tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
+        flag = 0
+        for snode in tgt.sources:
+            if snode.path == 'test.foo':
+                flag = 1
+                assert snode.sources[0].path == 'test.bar'
+        assert flag
 
 
 if __name__ == "__main__":

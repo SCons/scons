@@ -34,7 +34,7 @@ import types
 import string
 import SCons.Node.FS
 
-def scons_str2nodes(arg, fs=SCons.Node.FS.default_fs):
+def scons_str2nodes(arg, node_factory=SCons.Node.FS.default_fs.File):
     """This function converts a string or list into a list of Node instances.
     It follows the rules outlined in the SCons design document by accepting
     any of the following inputs:
@@ -54,7 +54,7 @@ def scons_str2nodes(arg, fs=SCons.Node.FS.default_fs):
     nodes = []
     for v in narg:
 	if type(v) is types.StringType:
-	    nodes.append(fs.File(v))
+	    nodes.append(node_factory(v))
 	# Do we enforce the following restriction?  Maybe, but it
 	# also restricts what we can do for allowing people to
 	# use the engine with alternate Node implementations...
