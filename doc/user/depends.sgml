@@ -48,9 +48,8 @@ operating system on which the build is performed (as reported by C<uname
 
   So far we've seen how &SCons; handles one-time builds.
   But the real point of a build tool like &SCons;
-  is to rebuild the necessary things,
-  and only the necessary thing, when source files change.
-  Put another way,
+  is to rebuild only the necessary things
+  when source files change--or, put another way,
   &SCons; should <emphasis>not</emphasis>
   waste time rebuilding things that have already been built.
   You can see this at work simply be re-invoking &SCons;
@@ -88,8 +87,8 @@ operating system on which the build is performed (as reported by C<uname
 
   <para>
 
-  Note that &SCons; only reports "...is up to date"
-  for target files named explicitly on the command line,
+  Note that &SCons; reports <literal>"...is up to date"</literal>
+  only for target files named explicitly on the command line,
   to avoid cluttering the output.
 
   </para>
@@ -102,7 +101,8 @@ operating system on which the build is performed (as reported by C<uname
     The other side of avoiding unnecessary rebuilds
     is the fundamental build tool behavior
     of <emphasis>rebuilding</emphasis>
-    things when a source file changes.
+    things when a source file changes,
+    so that the built software is up to date.
     &SCons; keeps track of this through a
     &signature; for each source file,
     and allows you to configure
@@ -113,7 +113,7 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <section>
-    <title>MD5 Signatures</title>
+    <title>MD5 Source File Signatures</title>
 
       <para>
 
@@ -185,7 +185,7 @@ operating system on which the build is performed (as reported by C<uname
     </section>
 
     <section>
-    <title>Time Stamps</title>
+    <title>Source File Time Stamps</title>
 
       <para>
 
@@ -231,17 +231,30 @@ operating system on which the build is performed (as reported by C<uname
   <section>
   <title>Target File Signatures</title>
 
+    <para>
+
+    As you've just seen,
+    &SCons; uses signatures to decide whether a 
+    target file is up to date or must be rebuilt.
+    When a target file depends on another target file,
+    &SCons; allows you to separately configure
+    how the signatures of an "intermediate" target file
+    is used when deciding if a dependent target file
+    must be rebuilt.
+
+    </para>
+
     <section>
     <title>Build Signatures</title>
 
       <para>
 
-      We've already seen how modifying a source file
+      Modifying a source file
       will cause not only its direct target file to be rebuilt,
       but also the target file(s)
       that depend on that direct target file.
       In our example,
-      changing the contents of &hello_c; cause
+      changing the contents of the &hello_c; file causes
       the &hello_o; file to be rebuilt,
       which in turn causes the
       &hello; program to be rebuilt:
@@ -304,14 +317,13 @@ operating system on which the build is performed (as reported by C<uname
 
       <para>
 
-      Sometimes, however,
-      a source file can be changed
-      in such a way that the
-      target file(s) built from it
-      will be rebuilt
-      exactly the same as the last time.
-      If so, then any target files
-      that depend on built-but-not-changed target
+      Sometimes a source file can be changed
+      in such a way that the contents of the
+      rebuilt target file(s)
+      will be exactly the same as the last time
+      the file was built.
+      If so, then any other target files
+      that depend on such a built-but-not-changed target
       file actually need not be rebuilt.
       You can have &SCons;
       realize that a dependent target file
@@ -376,7 +388,7 @@ operating system on which the build is performed (as reported by C<uname
 
     Now suppose that our "Hello, World!" program
     actually has a <literal>#include</literal> line
-    to include &hello_h; file in the compilation:
+    to include the &hello_h; file in the compilation:
 
     </para>
 
@@ -524,11 +536,13 @@ operating system on which the build is performed (as reported by C<uname
     the scanning time is usually a very small percentage
     of the overall time spent on the build.
     You're most likely to notice the scanning time,
-    however, when you rebuild all or part of a large system:
-    &SCons; will take some extra time to "think about"
+    however, when you <emphasis>rebuild</emphasis>
+    all or part of a large system:
+    &SCons; will likely take some extra time to "think about"
     what must be built before it issues the
-    first build command,
-    or decides that nothing must be rebuilt.
+    first build command
+    (or decides that everything is up to date
+    and nothing must be rebuilt).
 
  <!--
  Isn't this expensive? The answer is, it depends. If you do a full build of a
@@ -549,9 +563,13 @@ operating system on which the build is performed (as reported by C<uname
     introduced by incorrect dependencies.
     Nevertheless, the "waiting time"
     while &SCons; scans files can annoy
-    individual developers waiting for their builds.
+    individual developers waiting for their builds to finish.
     Consequently, &SCons; lets you cache
     the implicit dependencies
+    that its scanners find,
+    for use by later builds.
+    You do this either by specifying the
+    &implicit-cache; option on the command line:
 
     </para>
 
@@ -565,10 +583,49 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    &SCons; does not cache implicit dependencies like this by default
-    because XXX
+    Or by setting the &implicit_cache; option
+    in an &SConscript; file:
 
     </para>
+
+    <literallayout>
+       SetOption('implicit_cache', 1)
+    </literallayout>
+
+    <para>
+
+    &SCons; does not cache implicit dependencies like this by default
+    because XXX
+    
+    </para>
+
+    <para>
+    
+    XXX
+
+    </para>
+
+    <section>
+    <title>The &implicit-deps-changed; Option</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>The &implicit-deps-unchanged; Option</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+    </section>
 
   </section>
 
@@ -641,13 +698,13 @@ operating system on which the build is performed (as reported by C<uname
     <para>
 
     On the other hand,
-    sometimes a file depends on another
-    file that the scanner(s) in &SCons; will not detect.
+    sometimes a file depends on another file
+    that has no &SCons; scanner will detect.
     For this situation,
-    &SCons; allows you to specific that one file explicitly
+    &SCons; allows you to specific explicitly that one file
     depends on another file,
-    and must be rebuilt whenever that file changes,
-    using the &Depends; method:
+    and must be rebuilt whenever that file changes.
+    This is specified using the &Depends; method:
 
     </para>
 

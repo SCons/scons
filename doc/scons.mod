@@ -15,12 +15,15 @@
 -->
 
 <!ENTITY Aegis "<application>Aegis</application>">
+<!ENTITY Ant "<application>Ant</application>">
 <!ENTITY Autoconf "<application>Autoconf</application>">
+<!ENTITY Automake "<application>Automake</application>">
 <!ENTITY Cons "<application>Cons</application>">
 <!ENTITY gcc "<application>gcc</application>">
 <!ENTITY Jam "<application>Jam</application>">
 <!ENTITY Make "<application>Make</application>">
 <!ENTITY Makepp "<application>Make++</application>">
+<!ENTITY Python "<application>Python</application>">
 <!ENTITY ranlib "<application>ranlib</application>">
 <!ENTITY SCons "<application>SCons</application>">
 <!ENTITY scons "<application>scons</application>">
@@ -58,6 +61,28 @@
 <!ENTITY TimeStamp "<classname>TimeStamp</classname>">
 <!ENTITY Walker "<classname>Walker</classname>">
 <!ENTITY Wrapper "<classname>Wrapper</classname>">
+
+
+
+<!--
+
+  Options, command-line.
+
+-->
+
+<!ENTITY implicit-cache "<literal>--implicit-cache</literal>">
+<!ENTITY implicit-deps-changed "<literal>--implicit-deps-changed</literal>">
+<!ENTITY implicit-deps-unchanged "<literal>--implicit-deps-unchanged</literal>">
+
+<!--
+
+  Options, SConscript-settable.
+
+-->
+
+<!ENTITY implicit_cache "<literal>implicit_cache</literal>">
+<!ENTITY implicit_deps_changed "<literal>implicit_deps_changed</literal>">
+<!ENTITY implicit_deps_unchanged "<literal>implicit_deps_unchanged</literal>">
 
 
 
@@ -167,6 +192,7 @@
 -->
 
 <!ENTITY build_dir "<varname>build_dir</varname>">
+<!ENTITY exports "<varname>exports</varname>">
 <!ENTITY source "<varname>source</varname>">
 <!ENTITY target "<varname>target</varname>">
 
@@ -255,6 +281,27 @@
 <!ENTITY hello_h "<filename>hello.h</filename>">
 <!ENTITY hello_o "<filename>hello.o</filename>">
 <!ENTITY prog "<filename>prog</filename>">
+<!ENTITY prog1 "<filename>prog1</filename>">
+<!ENTITY prog2 "<filename>prog2</filename>">
 <!ENTITY prog_c "<filename>prog.c</filename>">
 <!ENTITY prog_exe "<filename>prog.exe</filename>">
 <!ENTITY stdio_h "<filename>stdio.h</filename>">
+
+<!--
+
+  Punctuation.
+
+-->
+
+<!ENTITY plus "<literal>+</literal>">
+<!ENTITY hash "<literal>#</literal>">
+
+<!--
+
+  Mailing lists
+
+-->
+
+<!ENTITY scons-announce "<literal>scons-announce@lists.sourceforge.net</literal>">
+<!ENTITY scons-devel "<literal>scons-devel@lists.sourceforge.net</literal>">
+<!ENTITY scons-users "<literal>scons-users@lists.sourceforge.net</literal>">

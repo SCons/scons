@@ -391,11 +391,10 @@ environment undisturbed.
 
    It is rare that all of the software in a large,
    complicated system needs to be built the same way.
-   Different source files need different options
-   enabled on the command line;
-   different executable programs need to be linked
-   with different libraries (shared or static);
-   XXX
+   For example, different source files may need different options
+   enabled on the command line,
+   or different executable programs need to be linked
+   with different libraries.
    &SCons; accomodates these different build
    requirements by allowing you to create and
    configure multiple &consenvs;
@@ -651,46 +650,58 @@ environment undisturbed.
    <para>
 
    You can fetch individual construction variables
-   using the normal Python syntax
-   for accessing individual named items in a dictionary:
+   using the normal syntax
+   for accessing individual named items in a Python dictionary:
 
    </para>
 
    <programlisting>
       env = Environment()
-      print "CCCOM is:", env['CCCOM']
+      print "CC is:", env['CC']
    </programlisting>
+
+   <para>
+
+   This example &SConstruct; file doesn't build anything,
+   but because it's actually a Python script,
+   it will print the value of &CC; for us:
+
+   </para>
 
    <literallayout>
       % <userinput>scons</userinput>
-      CCCOM is: $CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
+      CC is: cc
    </literallayout>
 
    <para>
 
-   Note, however, that a &consenv;
+   A &consenv;, however,
    is actually a Python object with
    associated methods, etc.
    If you want to have direct access to only the
    dictionary of construction variables,
-   you can fetch this using the &Dictionary; method.
-   This provides the
+   you can fetch this using the &Dictionary; method:
 
    </para>
 
    <programlisting>
-      env = Environment()
+      env = Environment(FOO = 'foo', BAR = 'bar')
       dict = env.Dictionary()
-      # XXX SOMETHING WHERE A DICT IS NEEDED
+      for key, value in dict.items():
+          print "key = %s, value = %s % (key, value)
    </programlisting>
 
    <para>
+
+   This &SConstruct; file
+   will print the dictionary items for us as follows:
 
    </para>
 
    <literallayout>
       % <userinput>scons</userinput>
-      # XXX
+      key = FOO, value = foo
+      key = BAR, value = bar
    </literallayout>
 
  </section>

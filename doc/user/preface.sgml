@@ -25,7 +25,50 @@
 
   <para>
 
-  XXX
+  Thank you for taking the time to read about &SCons;.
+  &SCons; is a next-generation
+  software construction tool,
+  or make tool--that is, a software utility
+  for building software (or other files)
+  and keeping built software up-to-date
+  whenever the underlying input files change.
+
+  </para>
+
+  <para>
+
+  The most distinctive thing about &SCons;
+  is that its configuration files are
+  actually <emphasis>scripts</emphasis>,
+  written in the &Python; programming language.
+  This is in contrast to most alternative build tools,
+  which typically invent a new language to
+  configure the build.
+  &SCons; still has a learning curve, of course,
+  because you have to know what functions to call
+  to set up your build properly,
+  but the underlying syntax used should be familiar
+  to anyone who has ever looked at a Python script.
+
+  </para>
+
+  <para>
+
+  Paradoxically,
+  using Python as the configuration file format
+  makes &SCons;
+  <emphasis>easier</emphasis>
+  for non-programmers to learn
+  than the cryptic languages of other build tools,
+  which are usally invented by programmers for other programmers.
+  This is in no small part to the
+  consistency and readability that are built in to Python.
+  It just so happens that making a real, live
+  scripting language the basis for the
+  configuration files
+  makes it a snap for more accomplished programmers
+  to do more complicated things with builds,
+  as necessary.
 
   </para>
 
@@ -34,7 +77,18 @@
 
     <para>
 
-    XXX
+    &SCons; is a response to a perennial problem:
+    building software is harder than it should be.
+    In a nutshell:  the old, reliable model of the
+    venerable and ubiquitous &Make; program
+    has had a hard time keeping up with
+    how complicated building software has become.
+    The fact that &Make; has kept up as well as it has is impressive,
+    and a testament to how the simplicity.
+    But anyone who has wrestled with &Automake; and &Autoconf;
+    to try to guarantee that a bit of software
+    will build correctly on multiple platforms
+    can tell you that it takes a lot of work to get right.
 
     </para>
 
@@ -45,22 +99,71 @@
 
     <para>
 
-    By default, &SCons; guarantees a correct build
-    regardless of what end case you may have.
+    There are a few overriding principles
+    we try to live up to in designing and implementing &SCons:
 
     </para>
 
+    <variablelist>
+
+      <varlistentry>
+      <term>Correctness</term>
+
+      <listitem>
+      <para>
+
+      First and foremost,
+      by default, &SCons; guarantees a correct build
+      even if it means sacrificing performance a little.
+      We strive to guarantee the build is correct
+      regardless of how the software being built is structured,
+      how it may have been written,
+      or how unusual the tools are that build it.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>Performance</term>
+
+      <listitem>
+      <para>
+
+      Given that the build is correct,
+      we try to make &SCons; build software
+      as quickly as possible.
+      In particular, wherever we may have needed to slow
+      down the default &SCons; behavior to guarantee a correct build,
+      we also try to make it easy to speed up &SCons;
+      through optimization options that let you trade off
+      guaranteed correctness for speed.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>Convenience</term>
+
+      <listitem>
+      <para>
+
+      &SCons; tries to do as much for you out of the box as reasonable,
+      including detecting the right tools on your system
+      and using them correctly to build the software.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
 
-    &SCons; makes it easy to speed up the build through
-    optimization options that trade off
-    guaranteed correctness for speed.
-
-    </para>
-
-    <para>
-
-    &SCons; tries to do as much for you out of the box as reasonable.
+    In a nutshell, we try hard to make &SCons; just
+    "do the right thing" and build software correctly,
+    with a minimum of hassles.
 
     </para>
 
@@ -86,7 +189,15 @@
 
     </para>
 
+    <para>
+
+    XXX
+
+    </para>
+
   </section>
+
+  <!--
 
   <section>
   <title>Conventions</title>
@@ -98,6 +209,8 @@
     </para>
 
   </section>
+
+  -->
 
   <section>
   <title>Acknowledgements</title>
@@ -151,23 +264,49 @@
     tool without the energy, enthusiasm
     and time people have contributed over the past few years.
     The "core team"
-    of Chad Austin, Anthony Roach, Charles Crain, and Steve Leblanc
+    of Chad Austin, Anthony Roach, Charles Crain,
+    Steve Leblanc, Greg Spencer and Christoph Wiedemann
     have been great about reviewing my (and other) changes
     and catching problems before they get in the code base.
-    Technically,
+    Of particular technical note:
     Anthony's outstanding and innovative work on the tasking engine
-    has given &SCons; a vastly superior parallel build model,
-    and Charles has been the master of the crucial Node infrastructure.
+    has given &SCons; a vastly superior parallel build model;
+    Charles has been the master of the crucial Node infrastructure;
+    Christoph's work on the Configure infrastructure
+    has added crucial Autoconf-like functionality;
+    and Greg has provided excellent support
+    for Microsoft Visual Studio.
+
+    </para>
+
+    <para>
+
+    Special thanks to David Snopek for contributing
+    his underlying "Autocons" code that formed
+    the basis of Christoph's work with the Configure functionality.
+    David was extremely generous in making
+    this code available to &SCons;,
+    given that he initially released it under the GPL
+    and &SCons; is released under a less-restrictive MIT-style license.
+
+    </para>
+
+    <para>
+
     &SCons; has received contributions
     from many other people, of course:
     Matt Balvin (extending long command-line support on Win32),
+    Allen Bierbaum (extensions and fixes to Options),
+    Steve Christensen (help text sorting and function action signature fixes),
     Michael Cook (avoiding losing signal bits from executed commands),
     Derrick 'dman' Hudson (),
     Alex Jacques (work on the Win32 scons.bat file),
     Stephen Kennedy (performance enhancements),
     Lachlan O'Dea (SharedObject() support for masm
     and normalized paths for the WhereIs() function),
-    Jeff Petkau (fixes for CacheDir and other areas),
+    Damyan Pepper (keeping output like Make),
+    Jeff Petkau (significant fixes for CacheDir and other areas),
+    Stefan Reichor (Ghostscript support),
     Zed Shaw (Append() and Replace() environment methods),
     Terrel Shumway (build and test fixes, as well as the SCons Wiki),
     sam th (dynamic checks for utilities)
@@ -188,6 +327,15 @@
 
     </para>
 
+    <para>
+
+    And last, thanks to Guido van Rossum
+    for his elegant scripting language,
+    which is the basis not only for the &SCons; implementation,
+    but for the interface itself.
+
+    </para>
+
   </section>
 
   <section>
@@ -198,6 +346,27 @@
     The best way to contact people involved with SCons,
     including the author,
     is through the SCons mailing lists.
+
+    </para>
+
+    <para>
+
+    If you want to ask general questions about how to use &SCons;
+    send email to &scons-users;.
+
+    </para>
+
+    <para>
+
+    If you want to contact the &SCons; development community directly,
+    send email to &scons-devel;.
+
+    </para>
+
+    <para>
+
+    If you want to receive announcements about &SCons,
+    join the low-volume &scons-announce; mailing list.
 
     </para>
 

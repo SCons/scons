@@ -99,7 +99,18 @@ the makefiles.
  </para>
 
  <section>
- <title>XXX</title>
+ <title>Differences Between &Make; and &SCons;</title>
+
+   <para>
+
+   XXX
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Advantages of &SCons; Over &Make;</title>
 
    <para>
 

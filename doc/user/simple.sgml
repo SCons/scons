@@ -23,24 +23,6 @@
 
 -->
 
-<!--
-
-=head2 Perl scripts
-
-Cons is Perl-based. That is, Cons scripts F<Conscript> and F<Construct>
-files, the equivalent to F<Makefile> or F<makefile> are all written in
-Perl. This provides an immediate benefit: the language for writing scripts
-is a familiar one. Even if you don't happen to be a Perl programmer, it
-helps to know that Perl is basically just a simple declarative language,
-with a well-defined flow of control, and familiar semantics. It has
-variables that behave basically the way you would expect them to,
-subroutines, flow of control, and so on. There is no special syntax
-introduced for Cons. The use of Perl as a scripting language simplifies
-the task of expressing the appropriate solution to the often complex
-requirements of a build.
-
--->
-
  <para>
 
  Here's the famous "Hello, World!" program in C:
@@ -100,7 +82,7 @@ requirements of a build.
  to specify the name of the source file,
  and that &SCons; deduces the names of
  the object and executable files
- correctly from the source file.
+ correctly from the base of the source file name.
 
  </para>
 
@@ -113,16 +95,16 @@ requirements of a build.
  on POSIX systems,
  <filename>hello.obj</filename> and <filename>hello.exe</filename>
  on Windows systems.
- This is a simple example of how easy it is to
- use &SCons; to write portable software builds.
+ This is a simple example of how &SCons;
+ makes it extremely easy to
+ write portable software builds.
 
  </para>
 
  <para>
 
  (Note that we won't provide duplicate side-by-side
- POSIX and Windows output for the 
- rest of the examples in this guide;
+ POSIX and Windows output for all of the examples in this guide;
  just keep in mind that, unless otherwise specified,
  any of the examples should work equally well on both types of systems.)
 
@@ -143,15 +125,14 @@ requirements of a build.
 
    <para>
 
-   What may not be obvious, though, is that
-   there's an important difference between
+   There is, however, an important difference between
    an &SConstruct; file and a &Makefile;:
    the &SConstruct; file is actually a Python script.
-   If you're not already familiar with Python, don't worry;
-   Python is very easy to learn,
-   and this User's Guide will introduce you step-by-step
+   If you're not already familiar with Python, don't worry.
+   This User's Guide will introduce you step-by-step
    to the relatively small amount of Python you'll
    need to know to be able to use &SCons; effectively.
+   And Python is very easy to learn.
 
    </para>
 
@@ -188,9 +169,11 @@ requirements of a build.
 
    <para>
 
+   You've just seen how to configure &SCons;
+   to compile a program from a single source file.
    It's more common, of course,
    that you'll need to build a program from
-   not just one, but many input source files.
+   many input source files, not just one.
    To do this, you need to put the
    source files in a Python list
    (enclosed in square brackets),
@@ -355,7 +338,7 @@ requirements of a build.
 
    &SCons; also allows you to identify
    the output file and input source files
-   by Python keyword arguments.
+   using Python keyword arguments.
    The output file is known as the
    <emphasis>target</emphasis>,
    and the source file(s) are known (logically enough) as the
@@ -374,7 +357,8 @@ requirements of a build.
 
    Whether or not you choose to use keyword arguments
    to identify the target and source files
-   is purely a personal choice.
+   is purely a personal choice;
+   &SCons; functions the same either way.
 
    </para>
 
@@ -448,8 +432,8 @@ requirements of a build.
 
    A more straightforward, but perhaps less convenient,
    way to share source files between multiple programs
-   is to simply include the common source files
-   when listing the source files for each program:
+   is simply to include the common files
+   in the lists of source files for each program:
 
    </para>
 
@@ -484,12 +468,12 @@ requirements of a build.
    If two or more programs
    share a lot of common source files,
    repeating the common files in the list for each program
-   a maintenance problem if you need to change the
+   can be a maintenance problem when you need to change the
    list of common files.
    You can simplify this by creating a separate Python list
    to hold the common file names,
    and concatenating it with other lists
-   using the Python &+; operator:
+   using the Python &plus; operator:
 
    </para>
 

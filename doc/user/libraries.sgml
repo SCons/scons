@@ -98,8 +98,8 @@
 
     <para>
 
-    Usually, the goal of building a library
-    is to link it with one or more programs.
+    Usually, you build a library
+    because you want to link it with one or more programs.
     You link libraries with a program by specifying
     the libraries in the &LIBS; construction variable,
     and by specifying the directory in which
@@ -215,7 +215,11 @@
 
     <para>
 
-    On a POSIX or Linux system,
+    When the linker is executed,
+    &SCons; will create appropriate flags
+    so that the linker will look for
+    libraries in the same directories as &SCons;.
+    So on a POSIX or Linux system,
     a build of the above example would look like:
 
     </para>

@@ -25,14 +25,6 @@
 
 <!--
 
-=head2 A hierarchy of build scripts
-
-A larger build, in Cons, is organized by creating a hierarchy of B<build
-scripts>. At the top of the tree is a script called F<Construct>. The rest
-of the scripts, by convention, are each called F<Conscript>. These scripts
-are connected together, very simply, by the C<Build>, C<Export>, and
-C<Import> commands.
-
 
 =head2 The Build command
 
@@ -55,16 +47,6 @@ F<Conscript> file should explicitly disable this feature as follows:
   Conscript_chdir 0;
 
 =head2 Relative, top-relative, and absolute file names
-
-You may have noticed that the file names specified to the Build command are
-relative to the location of the script it is invoked from. This is generally
-true for other filename arguments to other commands, too, although we might
-as well mention here that if you begin a file name with a hash mark, ``#'',
-then that file is interpreted relative to the top-level directory (where the
-F<Construct> file resides). And, not surprisingly, if you begin it with ``/'',
-then it is considered to be an absolute pathname. This is true even on
-systems which use a back slash rather than a forward slash to name absolute
-paths.
 
 (There is another file prefix, ``!'', that is interpreted specially by
 Cons.  See discussion of the C<Link> command, below, for details.)
@@ -158,7 +140,6 @@ C<$env> is to be exported, then the following will suffice:
 
 Needless to say, the variables may be modified locally before invoking
 C<Build> on the subsidiary script.
-
 
 =head2 Build script evaluation order
 
@@ -274,14 +255,186 @@ make no difference to the build.
 
     <para>
 
-    XXX
+    Subsidiary &SConscript; files make it easy to create a build
+    hierarchy because all of the file and directory names
+    in a subsidiary &SConscript; files are interpreted
+    relative to the directory in which the &SConscript; file lives.
+    Typically, this allows the &SConscript; file containing the
+    instructions to build a target file
+    to live in the same directory as the source files
+    from which the target will be built,
+    making it easy to update how the software is built
+    whenever files are added or deleted
+    (or other changes are made).
+
+    </para>
+
+    <para>
+
+    For example, suppose we want to build two programs
+    &prog1; and &prog2; in two separate directories
+    with the same names as the programs.
+    One typical way to do this would be
+    with a top-level &SConstruct; file like this:
 
     </para>
 
     <programlisting>
-      SConscript(['display/SConscript',
-                  'mouse/SConscript'])
+      SConscript(['prog1/SConscript',
+                  'prog2/SConscript'])
     </programlisting>
+
+    <para>
+
+    And subsidiary &SConscript; files that look like this:
+
+    </para>
+
+    <programlisting>
+      env = Environment()
+      env.Program('prog1', ['main.c', 'foo1.c', 'foo2.c'])
+    </programlisting>
+
+    <para>
+
+    And this:
+
+    </para>
+
+    <programlisting>
+      env = Environment()
+      env.Program('prog2', ['main.c', 'bar1.c', 'bar2.c'])
+    </programlisting>
+
+    <para>
+
+    Then, when we run &SCons; in the top-level directory,
+    our build looks like:
+
+    </para>
+
+    <literallayout>
+       % <userinput>scons</userinput>
+       cc -c prog1/foo1.c -o prog1/foo1.o
+       cc -c prog1/foo2.c -o prog1/foo2.o
+       cc -c prog1/main.c -o prog1/main.o
+       cc -o prog1/prog1 prog1/main.o prog1/foo1.o prog1/foo2.o
+       cc -c prog2/bar1.c -o prog2/bar1.o
+       cc -c prog2/bar2.c -o prog2/bar2.o
+       cc -c prog2/main.c -o prog2/main.o
+       cc -o prog2/prog2 prog2/main.o prog2/bar1.o prog2/bar2.o
+    </literallayout>
+
+    <para>
+
+    Notice the following:
+
+    First, you can have files with the same names
+    in multiple directories, like main.c in the above example.
+
+    Second, unlike standard recursive use of &Make;,
+    &SCons; stays in the top-level directory and
+    issues commands
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Top-Level Path Names in Subsidiary &SConscript; Files</title>
+
+    <para>
+
+    If you need to use a file from another directory,
+    it's sometimes more convenient to specify
+    the path to a file in another directory
+    from the top-level &SConstruct; directory,
+    even when you're using that file in
+    a subsidiary &SConscript; file in a subdirectory.
+    You can tell &SCons; to interpret a path name
+    as relative to the top-level &SConstruct; directory,
+    not the local directory of the &SConscript; file,
+    by appending a &hash; (hash mark)
+    to the beginning of the path name:
+
+
+    </para>
+
+    <literallayout>
+       env = Environment()
+       env.Program('prog', ['main.c', '#lib/foo1.c', 'foo2.c'])
+    </literallayout>
+
+    <para>
+
+    In this example,
+    the <literal>lib</literal> directory is
+    directly underneath the top-level &SConstruct; directory.
+    If the above &SConscript; file is in a subdirectory
+    named <literal>src/prog</literal>,
+    the output would look like:
+
+    </para>
+
+    <literallayout>
+       % <userinput>scons</userinput>
+       cc -c lib/foo1.c -o lib/foo1.o
+       cc -c src/prog/foo2.c -o src/prog/foo2.o
+       cc -c src/prog/main.c -o src/prog/main.o
+       cc -o src/prog/prog prog/main.o lib/foo1.o prog/foo2.o
+    </literallayout>
+
+    <para>
+
+    (Notice that the <literal>lib/foo1.o</literal> object file
+    is built in the same directory as its source file.
+    See section XXX, below,
+    for information about 
+    how to build the object file in a different subdirectory.)
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Absolute Path Names</title>
+
+    <para>
+
+    Of course, you can always specify
+    an absolute path name for a file--for example:
+
+    </para>
+
+    <literallayout>
+       env = Environment()
+       env.Program('prog', ['main.c', '/usr/joe/lib/foo1.c', 'foo2.c'])
+    </literallayout>
+
+    <para>
+
+    Which, when executed, would yield:
+
+    </para>
+
+    <literallayout>
+       % <userinput>scons</userinput>
+       cc -c /usr/joe/lib/foo1.c -o /usr/joe/lib/foo1.o
+       cc -c src/prog/foo2.c -o src/prog/foo2.o
+       cc -c src/prog/main.c -o src/prog/main.o
+       cc -o src/prog/prog prog/main.o /usr/joe/lib/foo1.o prog/foo2.o
+    </literallayout>
+
+    <para>
+
+    (As was the case with top-relative path names,
+    notice that the <literal>/usr/joe/lib/foo1.o</literal> object file
+    is built in the same directory as its source file.
+    See section XXX, below,
+    for information about 
+    how to build the object file in a different subdirectory.)
+
+    </para>
 
   </section>
 
@@ -290,17 +443,53 @@ make no difference to the build.
 
     <para>
 
-    XXX
+    In the previous example,
+    each of the subsidiary &SConscript; files
+    created its own construction environment
+    by calling &Environment; separately.
+    This obviously works fine,
+    but if each program must be built
+    with the same construction variables,
+    it's cumbersome and error-prone to initialize
+    separate construction environments
+    in the same way over and over in each subsidiary
+    &SConscript; file.
 
     </para>
 
-    <programlisting>
-      SConscript(['display/SConscript',
-                  'mouse/SConscript'])
-    </programlisting>
+    <para>
+
+    &SCons; supports the ability to <emphasis>export</emphasis> variables
+    from a parent &SConscript; file
+    to its subsidiary &SConscript; files,
+    which allows you to share common initialized
+    values throughout your build hierarchy.
+
+    </para>
 
     <section>
     <title>Exporting Variables</title>
+
+      <para>
+
+      There are two ways to export a variable,
+      such as a construction environment,
+      from one &SConscript; file,
+      so that it may be used by other &SConscript; files.
+      First, you can call the &Export;
+      function with a list of variables,
+      or a string white-space separated variable names.
+      Each call to &Export; adds one
+      or more variables to a global list
+      of variables that are available for import
+      by other &SConscript; files.
+
+      </para>
+
+      <programlisting>
+        env = Environment()
+        Export('env')
+      </programlisting>
 
       <para>
 
@@ -309,9 +498,65 @@ make no difference to the build.
       </para>
 
       <programlisting>
-        SConscript(['display/SConscript',
-                    'mouse/SConscript'])
+        env = Environment()
+        debug = ARGUMENTS['debug']
+        Export('env', 'debug')
       </programlisting>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        Export('env debug')
+      </programlisting>
+
+      <para>
+
+      Second, you can specify a list of
+      variables to exported as a second argument
+      to the &SConscript; function call:
+
+      </para>
+
+      <programlisting>
+        SConscript('src/SConscript', 'env')
+      </programlisting>
+
+      <para>
+
+      Or as the &exports; keyword argument:
+
+      </para>
+
+      <programlisting>
+        SConscript('src/SConscript', exports='env')
+      </programlisting>
+
+      <para>
+
+      These calls export the specified variables
+      to only the listed &SConscript; files.
+      You may, however, specify more than one
+      &SConscript; file in a list:
+
+      </para>
+
+      <programlisting>
+        SConscript(['src1/SConscript',
+                    'src2/SConscript'], exports='env')
+      </programlisting>
+
+      <para>
+
+      This is functionally equivalent to
+      calling the &SConscript; function
+      multiple times with the same &exports; argument,
+      one per &SConscript; file.
+
+      </para>
 
     </section>
 
@@ -325,14 +570,9 @@ make no difference to the build.
       </para>
 
       <programlisting>
-        SConscript(['display/SConscript',
-                   'mouse/SConscript'])
+        Import('env')
+        env.Program('prog', ['prog.c'])
       </programlisting>
-
-    </section>
-
-    <section>
-    <title>Returning Values</title>
 
       <para>
 
@@ -341,9 +581,64 @@ make no difference to the build.
       </para>
 
       <programlisting>
-        SConscript(['display/SConscript',
-                    'mouse/SConscript'])
+        Import('env', 'debug')
+        env = env.Copy(DEBUG = debug)
+        env.Program('prog', ['prog.c'])
       </programlisting>
+
+      <para>
+
+      Which is exactly equivalent to:
+
+      </para>
+
+      <programlisting>
+        Import('env debug')
+        env = env.Copy(DEBUG = debug)
+        env.Program('prog', ['prog.c'])
+      </programlisting>
+
+      <para>
+
+      XXX
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Returning Values From an &SConscript; File</title>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        obj = env.Object('foo.c')
+        Return('obj')
+      </programlisting>
+
+      <para>
+
+      XXX
+
+      </para>
+
+      <programlisting>
+        objs = []
+        for subdir in ['foo', 'bar']:
+            o = SConscript('%s/SConscript' % subdir)
+            objs.append(o)
+        env.Library('prog', objs)
+      </programlisting>
+
+      <para>
+
+      XXX
+
+      </para>
 
     </section>
 
