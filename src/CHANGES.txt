@@ -145,6 +145,9 @@ RELEASE 0.97 - XXX
   - Fix handling of src_suffix values that aren't extensions (don't
     begin with a '.').
 
+  - Don't retrieve files from a CacheDir, but report what would happen,
+    when the -n option is used.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
