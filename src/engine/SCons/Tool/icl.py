@@ -38,6 +38,7 @@ import string
 
 import SCons.Tool.msvc
 import SCons.Util
+import SCons.Warnings
 
 # Find Intel compiler:
 # Could enumerate subkeys here to be more flexible.
@@ -99,7 +100,33 @@ def generate(env):
     env['CXX']        = 'icl'
     env['LINK']        = 'xilink'
 
-    env['ENV']['INTEL_LICENSE_FILE'] = r'C:\Program Files\Common Files\Intel\Licenses'
+    # Look for license file dir.
+    envlicdir = os.environ.get("INTEL_LICENSE_FILE", '')
+    K = ('SOFTWARE\Intel\Licenses')
+    try:
+        k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
+        reglicdir = SCons.Util.RegQueryValueEx(k, "w_cpp")[0]
+    except (AttributeError, SCons.Util.RegError):
+        reglicdir = ""
+    defaultlicdir = r'C:\Program Files\Common Files\Intel\Licenses'
+
+    licdir = None
+    for ld in [envlicdir, reglicdir]:
+        if ld and os.path.exists(ld):
+            licdir = ld
+            break
+    if not licdir:
+        licdir = defaultlicdir
+        if not os.path.exists(licdir):
+            class ICLLicenseDirWarning(SCons.Warnings.Warning):
+                pass
+            SCons.Warnings.enableWarningClass(ICLLicenseDirWarning)
+            SCons.Warnings.warn(ICLLicenseDirWarning,
+                                "Intel license dir was not found."
+                                "  Tried using the INTEL_LICENSE_FILE environment variable (%s), the registry (%s) and the default path (%s)."
+                                "  Using the default path as a last resort."
+                                    % (envlicdir, reglicdir, defaultlicdir))
+    env['ENV']['INTEL_LICENSE_FILE'] = licdir
 
 def exists(env):
     try:
