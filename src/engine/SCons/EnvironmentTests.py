@@ -875,7 +875,7 @@ class EnvironmentTestCase(unittest.TestCase):
             ['e7'],     [''],           ['e7', ''],
             ['e8'],     UL(['']),       UL(['e8', '']),
 
-            UL(['i1']), 'I1',           UL(['i1', 'I1']),
+            UL(['i1']), 'I1',           UL(['i1', 'I', '1']),
             UL(['i2']), ['I2'],         UL(['i2', 'I2']),
             UL(['i3']), UL(['I3']),     UL(['i3', 'I3']),
             UL(['i4']), '',             UL(['i4']),
@@ -902,7 +902,7 @@ class EnvironmentTestCase(unittest.TestCase):
             [],         [''],           [''],
             [],         UL(['']),       UL(['']),
 
-            UL([]),     'O1',           ['O1'],
+            UL([]),     'O1',           ['O', '1'],
             UL([]),     ['O2'],         ['O2'],
             UL([]),     UL(['O3']),     UL(['O3']),
             UL([]),     '',             UL([]),
@@ -920,7 +920,7 @@ class EnvironmentTestCase(unittest.TestCase):
             [''],       [''],           ['', ''],
             [''],       UL(['']),       UL(['', '']),
 
-            UL(['']),   'Q1',           ['', 'Q1'],
+            UL(['']),   'Q1',           ['', 'Q', '1'],
             UL(['']),   ['Q2'],         ['', 'Q2'],
             UL(['']),   UL(['Q3']),     UL(['', 'Q3']),
             UL(['']),   '',             UL(['']),
@@ -1297,7 +1297,7 @@ class EnvironmentTestCase(unittest.TestCase):
             ['e7'],     [''],           ['', 'e7'],
             ['e8'],     UL(['']),       UL(['', 'e8']),
 
-            UL(['i1']), 'I1',           UL(['I1', 'i1']),
+            UL(['i1']), 'I1',           UL(['I', '1', 'i1']),
             UL(['i2']), ['I2'],         UL(['I2', 'i2']),
             UL(['i3']), UL(['I3']),     UL(['I3', 'i3']),
             UL(['i4']), '',             UL(['i4']),
@@ -1324,7 +1324,7 @@ class EnvironmentTestCase(unittest.TestCase):
             [],         [''],           [''],
             [],         UL(['']),       UL(['']),
 
-            UL([]),     'O1',           UL(['O1']),
+            UL([]),     'O1',           UL(['O', '1']),
             UL([]),     ['O2'],         UL(['O2']),
             UL([]),     UL(['O3']),     UL(['O3']),
             UL([]),     '',             UL([]),
@@ -1342,7 +1342,7 @@ class EnvironmentTestCase(unittest.TestCase):
             [''],       [''],           ['', ''],
             [''],       UL(['']),       UL(['', '']),
 
-            UL(['']),   'Q1',           UL(['Q1', '']),
+            UL(['']),   'Q1',           UL(['Q', '1', '']),
             UL(['']),   ['Q2'],         UL(['Q2', '']),
             UL(['']),   UL(['Q3']),     UL(['Q3', '']),
             UL(['']),   '',             UL(['']),

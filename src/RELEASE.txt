@@ -25,6 +25,32 @@ RELEASE 0.96 - XXX
   This is the seventh beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
+  Please note the following important changes since release 0.95:
+
+    - The behavior of the env.Append() and env.Prepend() methods has
+      changed when appending a string value to a UserList.  They now
+      behave like normal Python addition of a string to a UserList.
+      Given an initialization like:
+
+          env = Environment(VARIABLE = UserList(['foo']))
+
+      An Append() call like:
+
+          env.Append(VARIABLE = 'bar')
+
+      Will now yield a $VARIABLE value of ['foo', 'b', 'a', 'r'].
+      This is because Python UserList objects treat added strings as
+      sequences of letters.
+
+      The old behavior of yielding a $VARIABLE value of ['foo', 'bar']
+      now requires that the appended variable be a list (when the original
+      variable is a UserList object):
+
+        env.Append(VARIABLE = ['bar'])
+
+      Note that the behavior when appending to normal lists has *not*
+      changed.
+
   Please note the following important changes since release 0.94:
 
     - The internal Python function used by the Zip Builder in Python
@@ -62,7 +88,7 @@ RELEASE 0.96 - XXX
       the ATL and MFC directories to the INCLUDE and LIB environment
       variables by default.  This default behavior will be changed in
       a future release; the current plan is to change it for the 0.97
-      release (two releases from now).
+      release (next release).
 
       Whether or not the ATL and MFC directories are added to these
       environment variables is now controlled by a new MSVS_USE_MFC_DIRS
