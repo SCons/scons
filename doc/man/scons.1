@@ -829,7 +829,7 @@ will call the specified elements
 to update the new construction environment:
 
 .ES
-def my_tool(env):
+def my_tool(env, platform):
     env['XYZZY'] = 'xyzzy'
 
 env = Environment(tools = [my_tool])
