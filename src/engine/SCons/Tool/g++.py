@@ -55,7 +55,7 @@ def generate(env, platform):
     env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = '$CXXFLAGS -fPIC'
-    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['SHCXXCOM']   = '$SHCXX $SHCXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['INCPREFIX']  = '-I'
     env['INCSUFFIX']  = ''
 

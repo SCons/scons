@@ -1,13 +1,4 @@
-"""SCons.Tool.gcc
-
-Tool-specific initialization for gcc.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # Copyright (c) 2001, 2002 Steven Knight
 #
@@ -33,31 +24,41 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os.path
+import TestSCons
 
-import SCons.Tool
-import SCons.Defaults
+test = TestSCons.TestSCons()
 
-CSuffixes = ['.c']
-if os.path.normcase('.c') == os.path.normcase('.C'):
-    CSuffixes.append('.C')
+test.subdir('foo')
+test.subdir('bar')
+test.subdir(['bar', 'baz'])
 
-def generate(env, platform):
-    """Add Builders and construction variables for gcc to an Environment."""
-    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+test.write('testfile1', 'test 1\n')
+test.write(['foo', 'testfile2'], 'test 2\n')
+test.write(['bar', 'testfile1'], 'test 3\n')
+test.write(['bar', 'baz', 'testfile2'], 'test 4\n')
 
-    for suffix in CSuffixes:
-        static_obj.add_action(suffix, SCons.Defaults.CAction)
-        shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
+test.write('SConstruct', """
+file1 = FindFile('testfile1', [ 'foo', '.', 'bar', 'bar/baz' ])
+print open(str(file1), 'r').read()
+file2 = FindFile('testfile1', [ 'bar', 'foo', '.', 'bar/baz' ])
+print open(str(file2), 'r').read()
+file3 = FindFile('testfile2', [ 'foo', '.', 'bar', 'bar/baz' ])
+print open(str(file3), 'r').read()
+file4 = FindFile('testfile2', [ 'bar/baz', 'foo', '.', 'bar' ])
+print open(str(file4), 'r').read()
+""")
 
-    env['CC']        = 'gcc'
-    env['CCFLAGS']   = ''
-    env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
-    env['SHCC']      = '$CC'
-    env['SHCCFLAGS'] = '$CCFLAGS -fPIC'
-    env['SHCCCOM']   = '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+expect = """test 1
 
-    env['INCPREFIX']  = '-I'
-    env['INCSUFFIX']  = ''
+test 3
 
-    env['CFILESUFFIX'] = '.c'
+test 2
+
+test 4
+
+"""
+
+test.run(stdout = expect)
+
+test.pass_test()
+

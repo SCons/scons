@@ -95,6 +95,14 @@ class BuildDirTestCase(unittest.TestCase):
         assert f2.srcpath == os.path.normpath('src/test1'), f2.srcpath
 
         fs = SCons.Node.FS.FS()
+        fs.BuildDir('../var1', 'src')
+        fs.BuildDir('../var2', 'src')
+        f1 = fs.File('../var1/test1')
+        f2 = fs.File('../var2/test1')
+        assert f1.srcpath == os.path.normpath('src/test1'), f1.srcpath
+        assert f2.srcpath == os.path.normpath('src/test1'), f2.srcpath
+
+        fs = SCons.Node.FS.FS()
         fs.BuildDir('build/var1', 'src', duplicate=0)
         fs.BuildDir('build/var2', 'src')
         f1 = fs.File('build/var1/test1')
@@ -125,14 +133,6 @@ class BuildDirTestCase(unittest.TestCase):
         st=os.stat(test.workpath('build/foo'))
         assert (stat.S_IMODE(st[stat.ST_MODE]) & stat.S_IWRITE), \
                stat.S_IMODE(st[stat.ST_MODE])
-
-        exc_caught = 0
-        try:
-            fs = SCons.Node.FS.FS()
-            fs.BuildDir('/test/foo', '.')
-        except UserError:
-            exc_caught = 1
-        assert exc_caught, "Should have caught a UserError."
 
         exc_caught = 0
         try:

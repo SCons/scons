@@ -220,6 +220,10 @@ def GetBuildPath(files):
         return ret[0]
     return ret
 
+def FindFile(file, dirs):
+    nodes = SCons.Node.arg2nodes(dirs, SCons.Node.FS.default_fs.Dir)
+    return SCons.Node.FS.find_file(file, nodes)
+
 def Export(*vars):
     try:
         for var in vars:
@@ -256,6 +260,7 @@ def BuildDefaultGlobals():
     globals['Environment']       = SCons.Environment.Environment
     globals['Export']            = Export
     globals['File']              = SCons.Node.FS.default_fs.File
+    globals['FindFile']          = FindFile
     globals['GetBuildPath']      = GetBuildPath
     globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
     globals['Help']              = Help

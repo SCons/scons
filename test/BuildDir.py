@@ -36,34 +36,36 @@ else:
 
 test = TestSCons.TestSCons()
 
-foo11 = test.workpath('build', 'var1', 'foo1' + _exe)
-foo12 = test.workpath('build', 'var1', 'foo2' + _exe)
-foo21 = test.workpath('build', 'var2', 'foo1' + _exe)
-foo22 = test.workpath('build', 'var2', 'foo2' + _exe)
-foo31 = test.workpath('build', 'var3', 'foo1' + _exe)
-foo32 = test.workpath('build', 'var3', 'foo2' + _exe)
-foo41 = test.workpath('build', 'var4', 'foo1' + _exe)
-foo42 = test.workpath('build', 'var4', 'foo2' + _exe)
+foo11 = test.workpath('test', 'build', 'var1', 'foo1' + _exe)
+foo12 = test.workpath('test', 'build', 'var1', 'foo2' + _exe)
+foo21 = test.workpath('test', 'build', 'var2', 'foo1' + _exe)
+foo22 = test.workpath('test', 'build', 'var2', 'foo2' + _exe)
+foo31 = test.workpath('test', 'build', 'var3', 'foo1' + _exe)
+foo32 = test.workpath('test', 'build', 'var3', 'foo2' + _exe)
+foo41 = test.workpath('test', 'build', 'var4', 'foo1' + _exe)
+foo42 = test.workpath('test', 'build', 'var4', 'foo2' + _exe)
 foo51 = test.workpath('build', 'var5', 'foo1' + _exe)
 foo52 = test.workpath('build', 'var5', 'foo2' + _exe)
 
-bar11 = test.workpath('build', 'var1', 'bar1' + _exe)
-bar12 = test.workpath('build', 'var1', 'bar2' + _exe)
-bar21 = test.workpath('build', 'var2', 'bar1' + _exe)
-bar22 = test.workpath('build', 'var2', 'bar2' + _exe)
-bar31 = test.workpath('build', 'var3', 'bar1' + _exe)
-bar32 = test.workpath('build', 'var3', 'bar2' + _exe)
-bar41 = test.workpath('build', 'var4', 'bar1' + _exe)
-bar42 = test.workpath('build', 'var4', 'bar2' + _exe)
+bar11 = test.workpath('test', 'build', 'var1', 'bar1' + _exe)
+bar12 = test.workpath('test', 'build', 'var1', 'bar2' + _exe)
+bar21 = test.workpath('test', 'build', 'var2', 'bar1' + _exe)
+bar22 = test.workpath('test', 'build', 'var2', 'bar2' + _exe)
+bar31 = test.workpath('test', 'build', 'var3', 'bar1' + _exe)
+bar32 = test.workpath('test', 'build', 'var3', 'bar2' + _exe)
+bar41 = test.workpath('test', 'build', 'var4', 'bar1' + _exe)
+bar42 = test.workpath('test', 'build', 'var4', 'bar2' + _exe)
 bar51 = test.workpath('build', 'var5', 'bar1' + _exe)
 bar52 = test.workpath('build', 'var5', 'bar2' + _exe)
 
-test.write('SConstruct', """
+test.subdir('test')
+
+test.write('test/SConstruct', """
 src = Dir('src')
 var2 = Dir('build/var2')
 var3 = Dir('build/var3')
 var4 = Dir('build/var4')
-var5 = Dir('build/var5')
+var5 = Dir('../build/var5')
 
 
 BuildDir('build/var1', src)
@@ -81,11 +83,11 @@ SConscript('build/var3/SConscript', "env")
 SConscript(File('SConscript', var4), "env")
 
 env = Environment(CPPPATH='.', F77PATH='.')
-SConscript('build/var5/SConscript', "env")
+SConscript('../build/var5/SConscript', "env")
 """) 
 
-test.subdir('src')
-test.write(['src', 'SConscript'], """
+test.subdir(['test', 'src'])
+test.write(['test', 'src', 'SConscript'], """
 import os
 import os.path
 
@@ -108,7 +110,7 @@ env.Copy(LIBS = 'g2c').Program(target='bar2', source='b2.f')
 env.Copy(LIBS = 'g2c').Program(target='bar1', source='b1.f')
 """)
 
-test.write('src/f1.c', r"""
+test.write('test/src/f1.c', r"""
 #include "f1.h"
 
 int
@@ -120,7 +122,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('src/f2.in', r"""
+test.write('test/src/f2.in', r"""
 #include "f2.h"
 
 int
@@ -132,37 +134,37 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('src/f1.h', r"""
+test.write('test/src/f1.h', r"""
 #define F1_STR "f1.c\n"
 """)
 
-test.write('src/f2.h', r"""
+test.write('test/src/f2.h', r"""
 #define F2_STR "f2.c\n"
 """)
 
-test.write(['src', 'b1.f'], r"""
+test.write(['test', 'src', 'b1.f'], r"""
       PROGRAM FOO
       INCLUDE 'b1.for'
       STOP
       END
 """)
 
-test.write(['src', 'b2.in'], r"""
+test.write(['test', 'src', 'b2.in'], r"""
       PROGRAM FOO
       INCLUDE 'b2.for'
       STOP
       END
 """)
 
-test.write(['src', 'b1.for'], r"""
+test.write(['test', 'src', 'b1.for'], r"""
       PRINT *, 'b1.for'
 """)
 
-test.write(['src', 'b2.for'], r"""
+test.write(['test', 'src', 'b2.for'], r"""
       PRINT *, 'b2.for'
 """)
 
-test.run(arguments = '.')
+test.run(chdir='test', arguments = '. ../build')
 
 test.run(program = foo11, stdout = "f1.c\n")
 test.run(program = foo12, stdout = "f2.c\n")
@@ -187,22 +189,21 @@ test.run(program = bar51, stdout = " b1.for\n")
 test.run(program = bar52, stdout = " b2.for\n")
 
 # Make sure we didn't duplicate the source files in build/var3.
-test.fail_test(os.path.exists(test.workpath('build', 'var3', 'f1.c')))
-test.fail_test(os.path.exists(test.workpath('build', 'var3', 'f2.in')))
-test.fail_test(os.path.exists(test.workpath('build', 'var3', 'b1.f')))
-test.fail_test(os.path.exists(test.workpath('build', 'var3', 'b2.in')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f1.c')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f2.in')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'b1.f')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'b2.in')))
 
 # Make sure we didn't duplicate the source files in build/var4.
-test.fail_test(os.path.exists(test.workpath('build', 'var4', 'f1.c')))
-test.fail_test(os.path.exists(test.workpath('build', 'var4', 'f2.in')))
-test.fail_test(os.path.exists(test.workpath('build', 'var4', 'b1.f')))
-test.fail_test(os.path.exists(test.workpath('build', 'var4', 'b2.in')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'f1.c')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'f2.in')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'b1.f')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'b2.in')))
 
 # Make sure we didn't duplicate the source files in build/var5.
 test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f1.c')))
 test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f2.in')))
 test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b1.f')))
 test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b2.in')))
-
 
 test.pass_test()

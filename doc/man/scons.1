@@ -560,7 +560,7 @@ Works exactly the same way as the
 option except for the way default targets are handled.
 When this option is used and no targets are specified on the command line,
 all default targets that are defined in the SConscript(s) in the current
-directory are built, regardless of what directory the resulant targets end
+directory are built, regardless of what directory the resultant targets end
 up in.
 
 .TP
@@ -817,7 +817,7 @@ executable program
 (on POSIX systems)
 or 
 .B bar.exe
-(on Windows sytems)
+(on Windows systems)
 from the bar.c source file:
 
 .ES
@@ -1336,7 +1336,7 @@ General options passed to the assembler.
 The command line used to assemble an assembly-language
 source file into an object file
 after first running the file through the C preprocessor.
-Any options specified in the $CPPFLAGS construction variable
+Any options specified in the $ASFLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
 .IP BUILDERS
@@ -1352,6 +1352,8 @@ The C compiler.
 
 .IP CCCOM 
 The command line used to compile a C source file to a (static) object file.
+Any options specified in the $CCFLAGS and $CPPFLAGS construction variables
+are included on this command line.
 
 .IP CCFLAGS 
 General options that are passed to the C compiler.
@@ -1372,7 +1374,8 @@ as C files.
 .IP CPPFLAGS
 C preprocessor options.
 These will be included in any command that uses the C preprocessor,
-inluding not just compilation of C and C++ source files,
+including not just compilation of C and C++ source files
+via the $CCCOM, $SHCCCOM, $CXXCOM and $SHCXXCOM command lines,
 but also the $F77PPCOM command line
 used to compile a Fortran source file,
 and the $ASPPCOM command line
@@ -1456,6 +1459,8 @@ as C++ files.
 
 .IP CXXCOM
 The command line used to compile a C++ source file to an object file.
+Any options specified in the $CXXFLAGS and $CPPFLAGS construction variables
+are included on this command line.
 
 .IP CXXFLAGS 
 General options that are passed to the C++ compiler.
@@ -1583,7 +1588,7 @@ env = Environment(F77COM="my_compiler $_F77INCFLAGS -c -o $TARGET $SOURCE")
 .IP F77PPCOM 
 The command line used to compile a Fortran source file to an object file
 after first running the file through the C preprocessor.
-Any options specified in the $CPPFLAGS construction variable
+Any options specified in the $F77FLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
 .IP INCPREFIX
@@ -1798,6 +1803,8 @@ The C compiler used for generating shared-library objects.
 .IP SHCCCOM
 The command line used to compile a C source file
 to a shared-library object file.
+Any options specified in the $SHCCFLAGS and $CPPFLAGS construction variables
+are included on this command line.
 
 .IP SHCCFLAGS
 Options that are passed to the C compiler
@@ -1809,6 +1816,8 @@ The C++ compiler used for generating shared-library objects.
 .IP SHCXXCOM
 The command line used to compile a C++ source file
 to a shared-library object file.
+Any options specified in the $SHCXXFLAGS and $CPPFLAGS construction variables
+are included on this command line.
 
 .IP SHCXXFLAGS
 Options that are passed to the C++ compiler
@@ -1829,7 +1838,7 @@ to generated shared-library objects.
 The command line used to compile a Fortran source file to a
 shared-library object file
 after first running the file through the C preprocessor.
-Any options specified in the $CPPFLAGS construction variable
+Any options specified in the $SHF77FLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
 .IP SHLIBPREFIX
@@ -1941,6 +1950,13 @@ normally be built under
 .IR src_dir .
 Multiple build directories can be set up for multiple build variants, for
 example. 
+.I src_dir
+must be underneath the SConstruct file's directory,
+and
+.I build_dir
+may not be underneath the
+.I src_dir .
+
 .B scons
 will link or copy (depending on the platform) all the source files into the
 build directory if 
@@ -1989,6 +2005,9 @@ This returns an object that represents a given directory
 can be a relative or absolute path. 
 .I directory
 is an optional directory that will be used as the parent directory. 
+
+.TP
+.RI FindFile( file ", "
 
 .TP
 .RI Export( vars )

@@ -40,6 +40,13 @@ RELEASE 0.08 -
 
   - Fix handling file names with multiple dots.
 
+  - Allow a build directory to be outside of the SConstruct tree.
+
+  - Add a FindFile() function that searches for a file node with a
+    specified name.
+
+  - Add $CPPFLAGS to the shared-object command lines for g++ and gcc.
+
   From Charles Crain and Steven Knight:
 
   - Add a "tools=" keyword argument to Environment instantiation,

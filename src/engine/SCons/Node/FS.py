@@ -289,8 +289,8 @@ class FS:
         if not isinstance(build_dir, SCons.Node.Node):
             build_dir = self.Dir(build_dir)
         build_dir.duplicate = duplicate
-        if not src_dir.is_under(self.Top) or not build_dir.is_under(self.Top):
-            raise UserError, "Both source and build directories must be under top of build tree."
+        if not src_dir.is_under(self.Top):
+            raise UserError, "Source directory must be under top of build tree."
         if src_dir.is_under(build_dir):
             raise UserError, "Source directory cannot be under build directory."
         build_dir.link(src_dir, duplicate)
