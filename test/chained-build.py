@@ -65,6 +65,7 @@ test.up_to_date(chdir='w1',
                 options="--max-drift=0 -f SConstruct2",
                 arguments="foo.out")
 
+test.sleep()  # make sure foo.in rewrite has new mod-time
 test.write(['w1', 'foo.in'], "foo.in 2")
 
 test.run(chdir='w1',
@@ -101,6 +102,7 @@ test.up_to_date(chdir='w2',
                 options="--max-drift=0 -f SConstruct2",
                 arguments="foo.out")
 
+test.sleep()  # make sure foo.in rewrite has new mod-time
 test.write(['w2', 'foo.in'], "foo.in 2")
 
 test.run(chdir='w2',

@@ -160,6 +160,10 @@ RELEASE 0.96 - XXX
 
   - Fix a bug introduced in building shared libraries under MinGW.
 
+  From Kevin Quick:
+
+  - Fix test/chained-build.py on systems that execute within one second.
+
   From Anthony Roach:
 
   - Fix use of the --implicit-cache option with timestamp signatures.
