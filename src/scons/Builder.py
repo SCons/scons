@@ -51,6 +51,11 @@ class Builder:
 
 
 
+print_actions = 1;
+execute_actions = 1;
+
+
+
 def Action(act):
     """A factory for action objects."""
     if type(act) == types.FunctionType:
@@ -78,8 +83,10 @@ class CommandAction(ActionBase):
 
     def execute(self, **kw):
 	cmd = self.command % kw
-	self.show(cmd)
-	os.system(cmd)
+	if print_actions:
+	    self.show(cmd)
+	if execute_actions:
+	    os.system(cmd)
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""
@@ -87,5 +94,7 @@ class FunctionAction(ActionBase):
 	self.function = function
 
     def execute(self, **kw):
+	# if print_actions:
 	# XXX:  WHAT SHOULD WE PRINT HERE?
-	self.function(kw)
+	if execute_actions:
+	    self.function(kw)

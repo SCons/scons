@@ -3,6 +3,7 @@
 __revision__ = "test/option-n.py __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestCmd
+import os.path
 import string
 import sys
 
@@ -10,32 +11,68 @@ test = TestCmd.TestCmd(program = 'scons.py',
                        workdir = '',
                        interpreter = 'python')
 
-test.write('SConstruct', "")
+test.write('build.py', r"""
+import sys
+file = open(sys.argv[1], 'w')
+file.write("build.py: %s\n" % sys.argv[1])
+file.close()
+""")
 
-test.run(chdir = '.', arguments = '-n')
+test.write('SConstruct', """
+MyBuild = Builder(name = "MyBuild",
+		  action = "python build.py %(target)s")
+env = Environment(BUILDERS = [MyBuild])
+env.MyBuild(target = 'f1.out', source = 'f1.in')
+env.MyBuild(target = 'f2.out', source = 'f2.in')
+""")
 
-test.fail_test(test.stderr() !=
-		"Warning:  the -n option is not yet implemented\n")
+args = 'f1.out f2.out'
+expect = "python build.py f1.out\npython build.py f2.out\n"
 
-test.run(chdir = '.', arguments = '--no-exec')
+test.run(chdir = '.', arguments = args)
 
-test.fail_test(test.stderr() !=
-		"Warning:  the --no-exec option is not yet implemented\n")
+test.fail_test(test.stdout() != expect)
+test.fail_test(test.stderr() != "")
+test.fail_test(not os.path.exists(test.workpath('f1.out')))
+test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
-test.run(chdir = '.', arguments = '--just-print')
+os.unlink(test.workpath('f1.out'))
+os.unlink(test.workpath('f2.out'))
 
-test.fail_test(test.stderr() !=
-		"Warning:  the --just-print option is not yet implemented\n")
+test.run(chdir = '.', arguments = '-n ' + args)
 
-test.run(chdir = '.', arguments = '--dry-run')
+test.fail_test(test.stdout() != expect)
+test.fail_test(test.stderr() != "")
+test.fail_test(os.path.exists(test.workpath('f1.out')))
+test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.fail_test(test.stderr() !=
-		"Warning:  the --dry-run option is not yet implemented\n")
+test.run(chdir = '.', arguments = '--no-exec ' + args)
 
-test.run(chdir = '.', arguments = '--recon')
+test.fail_test(test.stdout() != expect)
+test.fail_test(test.stderr() != "")
+test.fail_test(os.path.exists(test.workpath('f1.out')))
+test.fail_test(os.path.exists(test.workpath('f2.out')))
 
-test.fail_test(test.stderr() !=
-		"Warning:  the --recon option is not yet implemented\n")
+test.run(chdir = '.', arguments = '--just-print ' + args)
+
+test.fail_test(test.stdout() != expect)
+test.fail_test(test.stderr() != "")
+test.fail_test(os.path.exists(test.workpath('f1.out')))
+test.fail_test(os.path.exists(test.workpath('f2.out')))
+
+test.run(chdir = '.', arguments = '--dry-run ' + args)
+
+test.fail_test(test.stdout() != expect)
+test.fail_test(test.stderr() != "")
+test.fail_test(os.path.exists(test.workpath('f1.out')))
+test.fail_test(os.path.exists(test.workpath('f2.out')))
+
+test.run(chdir = '.', arguments = '--recon ' + args)
+
+test.fail_test(test.stdout() != expect)
+test.fail_test(test.stderr() != "")
+test.fail_test(os.path.exists(test.workpath('f1.out')))
+test.fail_test(os.path.exists(test.workpath('f2.out')))
 
 test.pass_test()
- 
+

@@ -338,7 +338,10 @@ Option(func = opt_not_yet, future = 1,
 	long = ['list-where'],
 	help = "Don't build; list files and where defined.")
 
-Option(func = opt_not_yet,
+def opt_n(opt, arg):
+    scons.Builder.execute_actions = None
+
+Option(func = opt_n,
 	short = 'n', long = ['no-exec', 'just-print', 'dry-run', 'recon'],
 	help = "Don't build; just print commands.")
 
@@ -366,7 +369,10 @@ Option(func = opt_not_yet, future = 1,
 	long = ['random'],
 	help = "Build dependencies in random order.")
 
-Option(func = opt_not_yet,
+def opt_s(opt, arg):
+    scons.Builder.print_actions = None
+
+Option(func = opt_s,
 	short = 's', long = ['silent', 'quiet'],
 	help = "Don't print commands.")
 
