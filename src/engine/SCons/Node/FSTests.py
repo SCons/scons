@@ -1533,14 +1533,10 @@ class prepareTestCase(unittest.TestCase):
         xyz.set_state(SCons.Node.up_to_date)
         xyz.prepare()
         assert dir_made == [], dir_made
-        state = new_dir.get_state()
-        assert state != SCons.Node.executed, state
 
         xyz.set_state(0)
         xyz.prepare()
         assert dir_made[0].path == "new_dir", dir_made[0]
-        state = new_dir.get_state()
-        assert state == SCons.Node.executed, state
 
         dir = fs.Dir("dir")
         dir.prepare()

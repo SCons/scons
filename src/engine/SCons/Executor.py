@@ -105,6 +105,9 @@ class Executor:
         except AttributeError:
             return al
 
+    def do_nothing(self, target, errfunc, **kw):
+        pass
+
     def __call__(self, target, errfunc, **kw):
         """Actually execute the action list."""
         action_list = self.get_action_list(target)
@@ -158,6 +161,11 @@ class Executor:
                                                    self.sources,
                                                    build_env)
             return self._strfunc
+
+    def nullify(self):
+        self.__call__ = self.do_nothing
+        self.string = None
+        self._strfunc = None
 
     def get_raw_contents(self):
         """Fetch the raw signature contents.  This, along with
