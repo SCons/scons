@@ -10,16 +10,6 @@
 
 RELEASE X.XX - XXX
 
-  From Christian Engel:
-
-  - Support more flexible inclusion of separate C and C++ compilers.
-
-  - Use package management tools on AIX and Solaris to find where
-    the comilers are installed, and what version they are.
-
-  - Add support for CCVERSION and CXXVERSION variables for a number
-    of C and C++ compilers.
-
   From Steven Knight:
 
   - The -Q option suppressed too many messages; fix it so that it only
