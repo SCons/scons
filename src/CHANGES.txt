@@ -71,6 +71,10 @@ RELEASE 0.08 -
 
   - Add support for the GNU as, Microsoft masm, and nasm assemblers.
 
+  - Allow the "target" argument to a Builder call to be omitted, in
+    which case the target(s) are deduced from the source file(s) and the
+    Builder's specified suffix.
+
   From Jeff Petkau:
 
   - Fix --implicit-cache if the scanner returns an empty list.

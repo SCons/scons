@@ -56,6 +56,11 @@ import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
 
+class _Null:
+    pass
+
+_null = _Null
+
 class DictCmdGenerator:
     """This is a callable class that can be used as a
     command generator function.  It holds on to a dictionary
@@ -142,6 +147,8 @@ def _init_nodes(builder, env, args, tlist, slist):
             s.source_scanner = scanner
 
     for t in tlist:
+        if t.side_effect:
+            raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
         if t.builder is not None:
             if t.env != env: 
                 raise UserError, "Two different environments were specified for the same target: %s"%str(t)
@@ -267,11 +274,11 @@ class BuilderBase:
                         path, fn = os.path.split(os.path.normpath(f))
                         f = os.path.join(path, pre + fn)
                     # Only append a suffix if the file does not have one.
-		    if suf and not os.path.splitext(f)[1]:
-		        if f[-len(suf):] != suf:
-		            f = f + suf
-		ret.append(f)
-	    return ret
+                    if suf and not os.path.splitext(f)[1]:
+                        if f[-len(suf):] != suf:
+                            f = f + suf
+                ret.append(f)
+            return ret
 
         pre = self.get_prefix(env)
         suf = self.get_suffix(env)
@@ -290,14 +297,20 @@ class BuilderBase:
             emit_args.update(args)
             target, source = apply(self.emitter, (), emit_args)
 
-        tlist = SCons.Node.arg2nodes(adjustixes(target, pre, suf),
-                                     self.target_factory)
         slist = SCons.Node.arg2nodes(adjustixes(source, None, src_suf),
                                      self.source_factory)
+        if target is None:
+            target = map(lambda x, s=suf: os.path.splitext(str(x))[0] + s,
+                         slist)
+        tlist = SCons.Node.arg2nodes(adjustixes(target, pre, suf),
+                                     self.target_factory)
 
         return tlist, slist
 
-    def __call__(self, env, target = None, source = None, **kw):
+    def __call__(self, env, target = None, source = _null, **kw):
+        if source is _null:
+            source = target
+            target = None
         tlist, slist = self._create_nodes(env, kw, target, source)
 
         if len(tlist) == 1:
@@ -456,7 +469,7 @@ class MultiStepBuilder(BuilderBase):
                 src_bld = sdict[ext]
 
                 dictArgs = copy.copy(kw)
-                dictArgs['target'] = [ path + src_bld.get_suffix(env) ]
+                dictArgs['target'] = [path]
                 dictArgs['source'] = snode
                 dictArgs['env'] = env
                 tgt = apply(src_bld, (), dictArgs)

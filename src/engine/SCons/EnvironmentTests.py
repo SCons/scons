@@ -52,6 +52,7 @@ def diff_env(env1, env2):
     s2 = s2 + "}\n"
     return s1 + s2
 
+called_it = {}
 built_it = {}
 
 class Builder:
@@ -59,10 +60,15 @@ class Builder:
     a target is simply setting a value in the dictionary.
     """
     def __init__(self, name = None):
-    	self.name = name
+        self.name = name
+
+    def __call__(self, env, **kw):
+        global called_it
+        called_it.update(kw)
 
     def execute(self, target = None, **kw):
-	built_it[target] = 1
+        global built_it
+        built_it[target] = 1
 
 
 
@@ -86,7 +92,36 @@ class Scanner:
 
 class EnvironmentTestCase(unittest.TestCase):
 
-    def test_Builders(self):
+    def test_Builder_calls(self):
+        """Test Builder calls through different environments
+        """
+        global called_it
+
+        b1 = Builder()
+        b2 = Builder()
+
+        env = Environment()
+        env.Replace(BUILDERS = { 'builder1' : b1,
+                                 'builder2' : b2 })
+        called_it = {}
+        env.builder1(target = 'out1')
+        assert called_it['target'] == 'out1', called_it
+        assert not called_it.has_key('source')
+
+        called_it = {}
+        env.builder2(target = 'out2', xyzzy = 1)
+        assert called_it['target'] == 'out2', called_it
+        assert called_it['xyzzy'] == 1, called_it
+        assert not called_it.has_key('source')
+
+        called_it = {}
+        env.builder1(foo = 'bar')
+        assert called_it['foo'] == 'bar', called_it
+        assert not called_it.has_key('target')
+        assert not called_it.has_key('source')
+
+
+    def test_Builder_execs(self):
 	"""Test Builder execution through different environments
 
 	One environment is initialized with a single
@@ -371,6 +406,18 @@ class EnvironmentTestCase(unittest.TestCase):
         t.build()
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
+
+    def test_SideEffect(self):
+        """Test the SideEffect() method"""
+        env = Environment()
+        foo = env.Object('foo.obj', 'foo.cpp')
+        bar = env.Object('bar.obj', 'bar.cpp')
+        s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])
+        assert s.side_effect
+        assert foo.side_effects == [s]
+        assert bar.side_effects == [s]
+        assert s.depends_on([bar])
+        assert s.depends_on([foo])
 
     def test_subst(self):
 	"""Test substituting construction variables within strings

@@ -212,9 +212,8 @@ class Environment:
                 self.env = env
                 self.builder = builder
 
-            def __call__(self, target = None, source = None, **kw):
-                return apply(self.builder, (self.env, target, source),
-                             kw)
+            def __call__(self, *args, **kw):
+                return apply(self.builder, (self.env,) + args, kw)
 
             # This allows a Builder to be executed directly
             # through the Environment to which it's attached.
@@ -356,6 +355,25 @@ class Environment:
         if len(ret) == 1:
             ret = ret[0]
         return ret
+
+    def SideEffect(self, side_effect, target):
+        """Tell scons that side_effects are built as side 
+        effects of building targets."""
+        side_effects = SCons.Node.arg2nodes(side_effect, self.fs.File)
+        targets = SCons.Node.arg2nodes(target, self.fs.File)
+
+        for side_effect in side_effects:
+            if side_effect.builder is not None:
+                raise UserError, "Multiple ways to build the same target were specified for: %s" % str(side_effect)
+            side_effect.add_source(targets)
+            side_effect.side_effect = 1
+            self.Precious(side_effect)
+            for target in targets:
+                target.side_effects.append(side_effect)
+        if len(side_effects) == 1:
+            return side_effects[0]
+        else:
+            return side_effects
   
     def subst(self, string):
 	"""Recursively interpolates construction variables from the

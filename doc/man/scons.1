@@ -33,7 +33,7 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "May 2002"
+.TH SCONS 1 "July 2002"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -543,16 +543,6 @@ appear up-to-date is unnecessary when using
 .BR scons .)
 
 .TP
--T
-Works exactly the same way as the
-.B -u
-option except for the way default targets are handled.
-When this option is used and no targets are specified on the command line,
-all default targets that are defined in the SConscript files in the current
-directory are built, regardless of what directory the resulant targets end
-up in.
-
-.TP
 -u, --up, --search-up
 Walks up the directory structure until an 
 .I SConstruct ,
@@ -757,34 +747,64 @@ yacc
 
 Build rules are specified by calling a construction
 environment's builder methods.
-The arguments to the builder methods are target (a list of
-target files) and source (a list of source files).
-If a string is given
-for target or source, then 
-.B scons 
-.I currently
-interprets it as a space-delimited list of files.
-NOTE:  Splitting a string into a list of files this
-way will be
-.I removed
-as of the next version of SCons.
-If you currently use space-delimited file lists,
-you must change them by next release.
-See the discussion of the Split() function
-for more information.
+The arguments to the builder methods are
+.B target
+(a list of target files)
+and
+.B source
+(a list of source files).
 
-The following are examples of calling the Program builder:
+Because long lists of file names
+can lead to a lot of quoting,
+.B scons
+supplies a
+.B Split()
+function that splits a single string
+into a list, separated on
+strings of white-space characters.
+(This is similar to the
+string.split() method
+from the standard Python library.)
+
+Like all Python arguments,
+the target and source arguments to a builder
+can be specified either with or without
+the "target" and "source" keywords.
+When the keywords are omitted,
+the target is first,
+followed by the source.
+The following are equivalent examples of calling the Program builder:
 
 .ES
-# The recommended ways to call a builder
-# with multiple source input files:
 env.Program('bar', ['bar.c', 'foo.c'])
 env.Program('bar', Split('bar.c foo.c'))
+env.Program(source =  ['bar.c', 'foo.c'], target = 'bar')
+env.Program(target = 'bar', Split('bar.c foo.c'))
+env.Program('bar', source = string.split('bar.c foo.c'))
+.EE
 
-# Space-delimited lists.
-# The following will NOT work in version 0.08 of SCons!
-env.Program(target = 'bar', source = 'bar.c foo.c')
-env.Program('bar', 'bar.c foo.c')
+When the target shares the same base name
+as the source and only the suffix varies,
+and if the builder has a suffix defined for the target file type,
+then the target argument may be omitted completely,
+and
+.B scons
+will deduce the target file name from
+the source file name.
+The following examples all build the
+executable program
+.B bar
+(on POSIX systems)
+or 
+.B bar.exe
+(on Windows sytems)
+from the bar.c source file:
+
+.ES
+env.Program(target = 'bar', source = 'bar.c')
+env.Program('bar', source = 'bar.c')
+env.Program(source = 'bar.c')
+env.Program('bar.c')
 .EE
 
 .B scons
@@ -820,8 +840,13 @@ Source files must have one of the following extensions:
   .SPP    assembly language file + C pre-processor
 .EE
 .IP
-The target object file prefix and suffix (if any) are automatically
-added. Examples:
+The target object file prefix
+(specified by the $OBJPREFIX construction variable; nothing by default)
+and suffix
+(specified by the $OBJSUFFIX construction variable;
+\.obj on Windows systems, .o on POSIX systems)
+are automatically added to the target if not already present.
+Examples:
 
 .ES
 env.StaticObject(target = 'aaa', source = 'aaa.c')
@@ -836,8 +861,13 @@ Source files must have one of the same set of extensions
 specified above for the
 .B StaticObject
 builder.
-The target object file prefix and suffix (if any) are automatically
-added. Examples:
+The target object file prefix
+(specified by the $OBJPREFIX construction variable; nothing by default)
+and suffix
+(specified by the $OBJSUFFIX construction variable;
+\.obj on Windows systems, .o on POSIX systems)
+are automatically added to the target if not already present.
+Examples:
 
 .ES
 env.SharedObject(target = 'ddd', source = 'ddd.c')
@@ -861,11 +891,16 @@ builder;
 see that builder's description for
 a list of legal source file suffixes
 and how they are interpreted.
-The executable prefix and suffix (if any) are
-automatically added to the target. Example:
+The target executable file prefix
+(specified by the $PROGPREFIX construction variable; nothing by default)
+and suffix
+(specified by the $PROGSUFFIX construction variable;
+by default, .exe on Windows systems, nothing on POSIX systems)
+are automatically added to the target if not already present.
+Example:
 
 .ES
-env.Program(target = 'foo', source = 'foo.o bar.c baz.f')
+env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
 .EE
 
 .IP StaticLibrary
@@ -874,14 +909,22 @@ or C, C++ or Fortran source files.
 If any source files are given,
 then they will be automatically
 compiled to object files.
-The library prefix and suffix (if any)
+The static library prefix and suffix (if any)
 are automatically added to the target.
+The target library file prefix
+(specified by the $LIBPREFIX construction variable;
+by default, lib on POSIX systems, nothing on Windows systems)
+and suffix
+(specified by the $LIBSUFFIX construction variable;
+by default, .lib on Windows systems, .a on POSIX systems)
+are automatically added to the target if not already present.
 Example:
 
 .ES
-env.StaticLibrary(target = 'bar', source = 'bar.c foo.o')
+env.StaticLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
 .EE
 
+.IP
 Any object files listed in the
 .B source
 must have been built for a static library
@@ -899,12 +942,19 @@ or C, C++ or Fortran source files.
 If any source files are given,
 then they will be automatically
 compiled to object files.
-The library prefix and suffix (if any)
+The static library prefix and suffix (if any)
 are automatically added to the target.
+The target library file prefix
+(specified by the $SHLIBPREFIX construction variable;
+by default, lib on POSIX systems, nothing on Windows systems)
+and suffix
+(specified by the $SHLIBSUFFIX construction variable;
+by default, .dll on Windows systems, .so on POSIX systems)
+are automatically added to the target if not already present.
 Example:
 
 .ES
-env.SharedLibrary(target = 'bar', source = 'bar.c foo.o')
+env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
 .EE
 .IP
 On WIN32 systems, the
@@ -984,7 +1034,7 @@ if it is not already present.  Example:
 .ES
 # builds from aaa.tex
 env.PDF(target = 'aaa.pdf', source = 'aaa.tex')
-# builds bbb.dvi
+# builds bbb.pdf from bbb.dvi
 env.PDF(target = 'bbb', source = 'bbb.dvi')
 .EE
 
@@ -999,7 +1049,7 @@ if it is not already present.  Example:
 .ES
 # builds from aaa.tex
 env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
-# builds bbb.dvi
+# builds bbb.ps from bbb.dvi
 env.PostScript(target = 'bbb', source = 'bbb.dvi')
 .EE
 .LP
@@ -1309,6 +1359,15 @@ and the $ASPPCOM command line
 used to assemble an assembly language source file,
 after first running each file through the C preprocessor.
 
+.IP _CPPINCFLAGS
+An automatically-generated construction variable
+containing the C preprocessor command-line options
+for specifying directories to be searched for include files.
+The value of $_CPPINCFLAGS is created
+by appending $INCPREFIX and $INCSUFFIX
+to the beginning and end
+of each directory in $CPPPATH.
+
 .IP CPPPATH
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
@@ -1332,6 +1391,25 @@ function:
 .ES
 include = Dir('include')
 env = Environment(CPPPATH=include)
+.EE
+
+.IP
+The directory list will be added to command lines
+through the automatically-generated
+$_CPPINCFLAGS
+construction variable,
+which is constructed by
+appending the values of the
+$INCPREFIX and $INCSUFFIX
+construction variables
+to the beginning and end
+of each directory in $CPPPATH.
+Any command lines you define that need
+the CPPPATH directory list should
+include $_CPPINCFLAGS:
+
+.ES
+env = Environment(CCCOM="my_compiler $_CPPINCFLAGS -c -o $TARGET $SOURCE")
 .EE
 
 .IP CXX
@@ -1429,6 +1507,15 @@ The command line used to compile a Fortran source file to an object file.
 .IP F77FLAGS
 General options that are passed to the Fortran compiler.
 
+.IP _F77INCFLAGS
+An automatically-generated construction variable
+containing the Fortran compiler command-line options
+for specifying directories to be searched for include files.
+The value of $_F77INCFLAGS is created
+by appending $INCPREFIX and $INCSUFFIX
+to the beginning and end
+of each directory in $F77PATH.
+
 .IP F77PATH
 The list of directories that the Fortran compiler will search for include
 directories. The Fortran implicit dependency scanner will search these
@@ -1454,6 +1541,25 @@ include = Dir('include')
 env = Environment(F77PATH=include)
 .EE
 
+.IP
+The directory list will be added to command lines
+through the automatically-generated
+$_F77INCFLAGS
+construction variable,
+which is constructed by
+appending the values of the
+$INCPREFIX and $INCSUFFIX
+construction variables
+to the beginning and end
+of each directory in $F77PATH.
+Any command lines you define that need
+the F77PATH directory list should
+include $_F77INCFLAGS:
+
+.ES
+env = Environment(F77COM="my_compiler $_F77INCFLAGS -c -o $TARGET $SOURCE")
+.EE
+
 .IP F77PPCOM 
 The command line used to compile a Fortran source file to an object file
 after first running the file through the C preprocessor.
@@ -1463,10 +1569,18 @@ are included on this command line.
 .IP INCPREFIX
 The prefix used to specify an include directory on the C compiler command
 line.
+This will be appended to the beginning of each directory
+in the $CPPPATH and $F77PATH construction variables
+when the $_CPPINCFLAGS and $_F77INCFLAGS
+variables are automatically generated.
 
 .IP INCSUFFIX
 The suffix used to specify an include directory on the C compiler command
 line.
+This will be appended to the end of each directory
+in the $CPPPATH and $F77PATH construction variables
+when the $_CPPINCFLAGS and $_F77INCFLAGS
+variables are automatically generated.
 
 .IP LATEX
 The LaTeX structured formatter and typesetter.
@@ -1487,17 +1601,47 @@ General options passed to the lexical analyzer generator.
 The command line used to call the lexical analyzer generator
 to generate a source file.
 
+.IP _LIBDIRFLAGS
+An automatically-generated construction variable
+containing the linker command-line options
+for specifying directories to be searched for library.
+The value of $_LIBDIRFLAGS is created
+by appending $LIBDIRPREFIX and $LIBDIRSUFFIX
+to the beginning and end
+of each directory in $LIBPATH.
+
 .IP LIBDIRPREFIX
 The prefix used to specify a library directory on the linker command line.
+This will be appended to the beginning of each directory
+in the $LIBPATH construction variable
+when the $_LIBDIRFLAGS variable is automatically generated.
 
 .IP LIBDIRSUFFIX
 The suffix used to specify a library directory on the linker command line.
+This will be appended to the end of each directory
+in the $LIBPATH construction variable
+when the $_LIBDIRFLAGS variable is automatically generated.
+
+.IP _LIBFLAGS
+An automatically-generated construction variable
+containing the linker command-line options
+for specifying libraries to be linked with the resulting target.
+The value of $_LIBFLAGS is created
+by appending $LIBLINKPREFIX and $LIBLINKSUFFIX
+to the beginning and end
+of each directory in $LIBS.
 
 .IP LIBLINKPREFIX
 The prefix used to specify a library to link on the linker command line.
+This will be appended to the beginning of each library
+in the $LIBS construction variable
+when the $_LIBFLAGS variable is automatically generated.
 
 .IP LIBLINKSUFFIX
 The suffix used to specify a library to link on the linker command line.
+This will be appended to the end of each library
+in the $LIBS construction variable
+when the $_LIBFLAGS variable is automatically generated.
 
 .IP LIBPATH
 The list of directories that will be searched for libraries.
@@ -1524,6 +1668,25 @@ libs = Dir('libs')
 env = Environment(LIBPATH=libs)
 .EE
 
+.IP
+The directory list will be added to command lines
+through the automatically-generated
+$_LIBDIRFLAGS
+construction variable,
+which is constructed by
+appending the values of the
+$LIBDIRPREFIX and $LIBDIRSUFFIX
+construction variables
+to the beginning and end
+of each directory in $LIBPATH.
+Any command lines you define that need
+the LIBPATH directory list should
+include $_LIBDIRFLAGS:
+
+.ES
+env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
+.EE
+
 .IP LIBPREFIX
 The prefix used for (static) library file names.
 
@@ -1535,6 +1698,25 @@ A list of one or more libraries
 that will be linked with
 any executable programs
 created by this environment.
+
+.IP
+The library list will be added to command lines
+through the automatically-generated
+$_LIBFLAGS
+construction variable,
+which is constructed by
+appending the values of the
+$LIBLINKPREFIX and $LIBLINKSUFFIX
+construction variables
+to the beginning and end
+of each directory in $LIBS.
+Any command lines you define that need
+the LIBS library list should
+include $_LIBFLAGS:
+
+.ES
+env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
+.EE
 
 .IP LIBSUFFIX 
 The suffix used for (static) library file names.
@@ -1953,17 +2135,6 @@ files = Split("""
 	f6.c
 """)
 .EE
-.IP
-NOTE:  Currently, all builders perform this white-space split
-automatically on their target and source file arguments.
-As of the next version of SCons,
-Builder objects will no longer perform this split.
-If you use white-space separated strings of file names,
-you will need to convert them to lists
-by the next release of SCons by hand,
-or by using the Split() function provided here,
-or by using a similar function such as the
-string.split() function in the Python library.
 
 .TP
 .RI Tool( string )
@@ -2608,12 +2779,7 @@ env.Program(target = 'prog', source = 'p1.c p2.c')
 
 .SS Defining Your Own Builder Object
 
-You
-.I must
-specify a "name" keyword argument for the builder,
-as that becomes the Environment method name
-you use to call the builder.
-Notice also that you can leave off the target file suffix,
+Notice that you can leave off the target file suffix,
 and the builder will add it automatically.
 
 .ES

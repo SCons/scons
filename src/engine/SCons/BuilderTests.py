@@ -107,6 +107,7 @@ class BuilderTestCase(unittest.TestCase):
                 self.name = name
                 self.sources = []
                 self.builder = None
+                self.side_effect = 0
             def __str__(self):
                 return self.name
             def builder_set(self, builder):
@@ -474,7 +475,7 @@ class BuilderTestCase(unittest.TestCase):
                 "Source has unexpected name: %s" % tgt.sources[0].path
 
         tgt = b1(env, target = 'tgt3', source = 'src3a src3b')
-	assert len(tgt.sources) == 1
+        assert len(tgt.sources) == 1
         assert tgt.sources[0].path == 'src3a src3b.c', \
                 "Unexpected tgt.sources[0] name: %s" % tgt.sources[0].path
 
@@ -578,9 +579,9 @@ class BuilderTestCase(unittest.TestCase):
                                                   action='bar',
                                                   src_builder = builder1,
                                                   src_suffix = '.foo')
-        tgt = builder2(env, target='baz', source=['test.bleh.bar', 'test2.foo', 'test3.txt'])
-        assert str(tgt.sources[0]) == 'test.bleh.foo', str(tgt.sources[0])
-        assert str(tgt.sources[0].sources[0]) == 'test.bleh.bar', \
+        tgt = builder2(env, target='baz', source=['test.bar', 'test2.foo', 'test3.txt'])
+        assert str(tgt.sources[0]) == 'test.foo', str(tgt.sources[0])
+        assert str(tgt.sources[0].sources[0]) == 'test.bar', \
                str(tgt.sources[0].sources[0])
         assert str(tgt.sources[1]) == 'test2.foo', str(tgt.sources[1])
         assert str(tgt.sources[2]) == 'test3.txt', str(tgt.sources[2])
@@ -654,7 +655,7 @@ class BuilderTestCase(unittest.TestCase):
         assert isinstance(tgt.builder, SCons.Builder.MultiStepBuilder)
 
         flag = 0
-        tgt = builder(env, target='t5', source=[ 'test5a.foo',  'test5b.inb' ])
+        tgt = builder(env, target='t5', source='test5a.foo test5b.inb')
         try:
             tgt.build()
         except SCons.Errors.UserError:
@@ -662,7 +663,7 @@ class BuilderTestCase(unittest.TestCase):
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
         flag = 0
-        tgt = builder(env, target='t6', source=[ 'test6a.bar',  'test6b.ina' ])
+        tgt = builder(env, target='t6', source='test6a.bar test6b.ina')
         try:
             tgt.build()
         except SCons.Errors.UserError:
@@ -670,7 +671,7 @@ class BuilderTestCase(unittest.TestCase):
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
         flag = 0
-        tgt = builder(env, target='t4', source=[ 'test4a.ina',  'test4b.inb' ])
+        tgt = builder(env, target='t4', source='test4a.ina test4b.inb')
         try:
             tgt.build()
         except SCons.Errors.UserError:
@@ -774,6 +775,64 @@ class BuilderTestCase(unittest.TestCase):
         builder2a=SCons.Builder.Builder(name="builder2", action='foo',
                                         emitter="$FOO")
         assert builder2 == builder2a, repr(builder2.__dict__) + "\n" + repr(builder2a.__dict__)
+
+    def test_no_target(self):
+        """Test deducing the target from the source."""
+
+        b = SCons.Builder.Builder(action='foo', suffix='.o')
+
+        tgt = b(env, 'aaa')
+        assert str(tgt) == 'aaa.o', str(tgt)
+        assert len(tgt.sources) == 1, map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'aaa', map(str, tgt.sources)
+
+        tgt = b(env, 'bbb.c')
+        assert str(tgt) == 'bbb.o', str(tgt)
+        assert len(tgt.sources) == 1, map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'bbb.c', map(str, tgt.sources)
+
+        tgt = b(env, 'ccc.x.c')
+        assert str(tgt) == 'ccc.x.o', str(tgt)
+        assert len(tgt.sources) == 1, map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'ccc.x.c', map(str, tgt.sources)
+
+        tgt = b(env, ['d0.c', 'd1.c'])
+        assert len(tgt) == 2, map(str, tgt)
+        assert str(tgt[0]) == 'd0.o', map(str, tgt)
+        assert str(tgt[1]) == 'd1.o', map(str, tgt)
+        assert len(tgt[0].sources) == 2,  map(str, tgt[0].sources)
+        assert str(tgt[0].sources[0]) == 'd0.c', map(str, tgt[0].sources)
+        assert str(tgt[0].sources[1]) == 'd1.c', map(str, tgt[0].sources)
+        assert len(tgt[1].sources) == 2,  map(str, tgt[1].sources)
+        assert str(tgt[1].sources[0]) == 'd0.c', map(str, tgt[1].sources)
+        assert str(tgt[1].sources[1]) == 'd1.c', map(str, tgt[1].sources)
+
+        tgt = b(env, source='eee')
+        assert str(tgt) == 'eee.o', str(tgt)
+        assert len(tgt.sources) == 1, map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'eee', map(str, tgt.sources)
+
+        tgt = b(env, source='fff.c')
+        assert str(tgt) == 'fff.o', str(tgt)
+        assert len(tgt.sources) == 1, map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'fff.c', map(str, tgt.sources)
+
+        tgt = b(env, source='ggg.x.c')
+        assert str(tgt) == 'ggg.x.o', str(tgt)
+        assert len(tgt.sources) == 1, map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'ggg.x.c', map(str, tgt.sources)
+
+        tgt = b(env, source=['h0.c', 'h1.c'])
+        assert len(tgt) == 2, map(str, tgt)
+        assert str(tgt[0]) == 'h0.o', map(str, tgt)
+        assert str(tgt[1]) == 'h1.o', map(str, tgt)
+        assert len(tgt[0].sources) == 2,  map(str, tgt[0].sources)
+        assert str(tgt[0].sources[0]) == 'h0.c', map(str, tgt[0].sources)
+        assert str(tgt[0].sources[1]) == 'h1.c', map(str, tgt[0].sources)
+        assert len(tgt[1].sources) == 2,  map(str, tgt[1].sources)
+        assert str(tgt[1].sources[0]) == 'h0.c', map(str, tgt[1].sources)
+        assert str(tgt[1].sources[1]) == 'h1.c', map(str, tgt[1].sources)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')
