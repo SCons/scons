@@ -64,7 +64,7 @@ def _init_nodes(builder, env, tlist, slist):
     the proper Builder information.
     """
     for s in slist:
-        src_key = slist[0].scanner_key()        # the file suffix
+        src_key = s.scanner_key()        # the file suffix
         scanner = env.get_scanner(src_key)
         if scanner:
             s.source_scanner = scanner
@@ -115,10 +115,8 @@ class BuilderBase:
         """
         def adjustixes(files, pre, suf):
             ret = []
-            if SCons.Util.is_String(files):
-                files = string.split(files)
-            if not SCons.Util.is_List(files):
-                files = [files]
+            files = SCons.Util.argmunge(files)
+
             for f in files:
                 if SCons.Util.is_String(f):
                     if pre and f[:len(pre)] != pre:

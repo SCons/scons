@@ -196,6 +196,12 @@ def scons_subst(strSubst, globals, locals, remove=None):
     surrounded by curly braces to separate the name from
     trailing characters.
     """
+    
+    # Make the common case (i.e. nothing to do) fast:
+    if string.find(strSubst, "$") == -1 \
+       and (remove is None or remove.search(strSubst) is None):
+        return strSubst
+    
     cmd_list = scons_subst_list(strSubst, globals, locals, remove)
     return string.join(map(string.join, cmd_list), '\n')
 
@@ -237,6 +243,23 @@ def is_Dict(e):
 
 def is_List(e):
     return type(e) is types.ListType or isinstance(e, UserList.UserList)
+
+def argmunge(arg):
+    """This function converts a string or list into a list of strings or Nodes.
+    It follows the rules outlined in the SCons design document by accepting
+    any of the following inputs:
+        - A single string containing names separated by spaces. These will be
+          split apart at the spaces.
+        - A single None instance
+        - A list containing either strings or Node instances. Any strings
+          in the list are not split at spaces.
+    In all cases, the function returns a list of Nodes and strings."""
+    if is_List(arg):
+        return arg
+    elif is_String(arg):
+        return string.split(arg)
+    else:
+        return [arg]
 
 if hasattr(types, 'UnicodeType'):
     def is_String(e):

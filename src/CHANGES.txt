@@ -20,6 +20,12 @@ RELEASE 0.07 -
 
   - Significant internal restructuring of Scanners and Taskmaster.
 
+  - Added new --debug=dtree option.
+
+  - Fixes for --profile option.
+
+  - Performance improvement in construction variable substitution.
+
 
 
 RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600

@@ -347,11 +347,7 @@ def arg2nodes(arg, node_factory=None):
           in the list are not split at spaces.
     In all cases, the function returns a list of Node instances."""
 
-    narg = arg
-    if SCons.Util.is_String(arg):
-        narg = string.split(arg)
-    elif not SCons.Util.is_List(arg):
-        narg = [arg]
+    narg = SCons.Util.argmunge(arg)
 
     nodes = []
     for v in narg:

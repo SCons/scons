@@ -208,6 +208,11 @@ class UtilTestCase(unittest.TestCase):
         if hasattr(types, 'UnicodeType'):
             exec "assert not is_List(u'')"
 
+    def test_argmunge(self):
+        assert argmunge("foo bar") == ["foo", "bar"]
+        assert argmunge(["foo", "bar"]) == ["foo", "bar"]
+        assert argmunge("foo") == ["foo"]
+
     def test_is_String(self):
         assert is_String("")
         if hasattr(types, 'UnicodeType'):
