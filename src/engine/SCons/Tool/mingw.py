@@ -137,7 +137,7 @@ def generate(env):
     env['RCINCPREFIX'] = '--include-dir '
     env['RCINCSUFFIX'] = ''
     env['RCCOM'] = '$RC $RCINCFLAGS $RCFLAGS -i $SOURCE -o $TARGET'
-    env.Append(CPPSUFFIXES = ['.rc'])
+    SCons.Defaults.ObjSourceScan.add_scanner('.rc', SCons.Defaults.CScan)
     env['BUILDERS']['RES'] = res_builder
     
     # Some setting from the platform also have to be overridden:

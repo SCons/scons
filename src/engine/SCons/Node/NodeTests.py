@@ -138,6 +138,8 @@ class Scanner:
     def __call__(self, node):
         self.called = 1
         return node.found_includes
+    def select(self, node):
+        return self
 
 class MyNode(SCons.Node.Node):
     """The base Node class contains a number of do-nothing methods that
@@ -543,12 +545,6 @@ class NodeTestCase(unittest.TestCase):
         node.add_dependency([three, four, one])
         assert node.depends == [zero, one, two, three, four]
 
-        assert zero.get_parents() == [node]
-        assert one.get_parents() == [node]
-        assert two.get_parents() == [node]
-        assert three.get_parents() == [node]
-        assert four.get_parents() == [node]
-
         try:
             node.add_depends([[five, six]])
         except:
@@ -556,8 +552,6 @@ class NodeTestCase(unittest.TestCase):
         else:
             raise "did not catch expected exception"
         assert node.depends == [zero, one, two, three, four]
-        assert five.get_parents() == []
-        assert six.get_parents() == []
 
 
     def test_add_source(self):
@@ -583,12 +577,6 @@ class NodeTestCase(unittest.TestCase):
         node.add_source([three, four, one])
         assert node.sources == [zero, one, two, three, four]
 
-        assert zero.get_parents() == [node]
-        assert one.get_parents() == [node]
-        assert two.get_parents() == [node]
-        assert three.get_parents() == [node]
-        assert four.get_parents() == [node]
-
         try:
             node.add_source([[five, six]])
         except:
@@ -596,8 +584,6 @@ class NodeTestCase(unittest.TestCase):
         else:
             raise "did not catch expected exception"
         assert node.sources == [zero, one, two, three, four]
-        assert five.get_parents() == []
-        assert six.get_parents() == []
 
     def test_add_ignore(self):
         """Test adding files whose dependencies should be ignored.
@@ -622,12 +608,6 @@ class NodeTestCase(unittest.TestCase):
         node.add_ignore([three, four, one])
         assert node.ignore == [zero, one, two, three, four]
 
-        assert zero.get_parents() == [node]
-        assert one.get_parents() == [node]
-        assert two.get_parents() == [node]
-        assert three.get_parents() == [node]
-        assert four.get_parents() == [node]
-
         try:
             node.add_ignore([[five, six]])
         except:
@@ -635,8 +615,6 @@ class NodeTestCase(unittest.TestCase):
         else:
             raise "did not catch expected exception"
         assert node.ignore == [zero, one, two, three, four]
-        assert five.get_parents() == []
-        assert six.get_parents() == []
 
     def test_get_found_includes(self):
         """Test the default get_found_includes() method
@@ -688,6 +666,33 @@ class NodeTestCase(unittest.TestCase):
         e.found_includes = [f]
         deps = node.get_implicit_deps(env, s, target)
         assert deps == [d, e, f], map(str, deps)
+
+    def test_get_source_scanner(self):
+        """Test fetching the source scanner for a Node
+        """
+        class Builder:
+            pass
+        target = SCons.Node.Node()
+        source = SCons.Node.Node()
+        s = target.get_source_scanner(source)
+        assert s is None, s
+
+        ts1 = Scanner()
+        ts2 = Scanner()
+        ts3 = Scanner()
+
+        source.backup_source_scanner = ts1
+        s = target.get_source_scanner(source)
+        assert s is ts1, s
+
+        source.builder = Builder()
+        source.builder.source_scanner = ts2
+        s = target.get_source_scanner(source)
+        assert s is ts2, s
+
+        target.source_scanner = ts3
+        s = target.get_source_scanner(source)
+        assert s is ts3, s
 
     def test_scan(self):
         """Test Scanner functionality
@@ -947,6 +952,7 @@ class NodeTestCase(unittest.TestCase):
         n.includes = 'testincludes'
         n.found_include = {'testkey':'testvalue'}
         n.implicit = 'testimplicit'
+        n.waiting_parents = ['foo', 'bar']
 
         n.clear()
 
@@ -955,6 +961,7 @@ class NodeTestCase(unittest.TestCase):
         assert n.includes is None, n.includes
         assert n.found_includes == {}, n.found_includes
         assert n.implicit is None, n.implicit
+        assert n.waiting_parents == [], n.waiting_parents
 
     def test_get_subst_proxy(self):
         """Test the get_subst_proxy method."""
@@ -984,6 +991,25 @@ class NodeTestCase(unittest.TestCase):
         """Test calling the base Node postprocess() method"""
         n = SCons.Node.Node()
         n.postprocess()
+
+    def test_add_to_waiting_parents(self):
+        """Test the add_to_waiting_parents() method"""
+        n1 = SCons.Node.Node()
+        n2 = SCons.Node.Node()
+        assert n1.waiting_parents == [], n1.waiting_parents
+        n1.add_to_waiting_parents(n2)
+        assert n1.waiting_parents == [n2], n1.waiting_parents
+
+    def test_call_for_all_waiting_parents(self):
+        """Test the call_for_all_waiting_parents() method"""
+        n1 = SCons.Node.Node()
+        n2 = SCons.Node.Node()
+        n1.add_to_waiting_parents(n2)
+        result = []
+        def func(node, result=result):
+            result.append(node)
+        n1.call_for_all_waiting_parents(func)
+        assert result == [n1, n2], result
 
 
 

@@ -119,6 +119,14 @@ RELEASE 0.96 - XXX
     the parents's implicit dependencies, let returning up the normal
     Taskmaster descent take care of it for us.
 
+  - Add documented support for separate target_scanner and source_scanner
+    arguments to Builder creation, which allows different scanners to
+    be applied to source files
+
+  - Don't re-install or (re-generate) .h files when a subsidiary #included
+    .h file changes.  This eliminates incorrect circular dependencies
+    with .h files generated from other source files.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.

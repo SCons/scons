@@ -193,6 +193,9 @@ class DummyEnvironment(UserDict.UserDict):
             path = [path]
         return map(self.subst, path)
 
+    def get_calculator(self):
+        return None
+
 if os.path.normcase('foo') == os.path.normcase('FOO'):
     my_normpath = os.path.normcase
 else:

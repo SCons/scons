@@ -50,14 +50,11 @@ class Node:
         self.csig = None
         self.state = None
         self.prepared = None
-        self.parents = []
+        self.waiting_parents = []
         self.side_effect = 0
         self.side_effects = []
         self.alttargets = []
         self.postprocessed = None
-
-        for kid in kids:
-            kid.parents.append(self)
 
     def retrieve_from_cache(self):
         global cache_text
@@ -99,15 +96,18 @@ class Node:
         global scan_called
         scan_called = scan_called + 1
         self.kids = self.kids + self.scans
-        for scan in self.scans:
-            scan.parents.append(self)
         self.scans = []
 
     def scanner_key(self):
         return self.name
   
-    def get_parents(self):
-        return self.parents
+    def add_to_waiting_parents(self, node):
+        self.waiting_parents.append(node)
+  
+    def call_for_all_waiting_parents(self, func):
+        func(self)
+        for parent in self.waiting_parents:
+            parent.call_for_all_waiting_parents(func)
 
     def get_state(self):
         return self.state
@@ -569,7 +569,6 @@ class TaskmasterTestCase(unittest.TestCase):
         n2 = Node("n2", [n1])
         n3 = Node("n3", [n2])
         n1.kids = [n3]
-        n3.parents.append(n1)
 
         try:
             tm = SCons.Taskmaster.Taskmaster([n3])

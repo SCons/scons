@@ -218,6 +218,9 @@ class DummyEnvironment:
     def __delitem__(self,key):
         del self.Dictionary()[key]
 
+    def get_calculator(self):
+        return None
+
 global my_normpath
 my_normpath = os.path.normpath
 

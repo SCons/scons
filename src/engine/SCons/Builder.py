@@ -300,7 +300,7 @@ def _init_nodes(builder, env, overrides, tlist, slist):
             elif t.overrides != overrides:
                 raise UserError, "Two different sets of overrides were specified for the same target: %s"%str(t)
 
-            elif builder.scanner and t.target_scanner and builder.scanner != t.target_scanner:
+            elif builder.target_scanner and t.target_scanner and builder.target_scanner != t.target_scanner:
                 raise UserError, "Two different scanners were specified for the same target: %s"%str(t)
 
             if builder.multi:
@@ -338,15 +338,22 @@ def _init_nodes(builder, env, overrides, tlist, slist):
         t.env_set(env)
         t.add_source(slist)
         t.set_executor(executor)
-        if builder.scanner:
-            t.target_scanner = builder.scanner
-        if not t.source_scanner:
-            t.source_scanner = env.get_scanner(t.scanner_key())
+        if builder.target_scanner:
+            t.target_scanner = builder.target_scanner
+        if t.source_scanner is None:
+            t.source_scanner = builder.source_scanner
 
-    # Last, add scanners from the Environment to the source Nodes.
+    # Add backup source scanners from the environment to the source
+    # nodes.  This may not be necessary if the node will have a real
+    # source scanner added later (which is why these are the "backup"
+    # source scanners, not the real ones), but because source nodes may
+    # be used multiple times for different targets, it ends up being
+    # more efficient to do this calculation once here, as opposed to
+    # delaying it until later when we potentially have to calculate it
+    # over and over and over.
     for s in slist:
-        if not s.source_scanner:
-            s.source_scanner = env.get_scanner(s.scanner_key())
+        if s.source_scanner is None and s.backup_source_scanner is None:
+            s.backup_source_scanner = env.get_scanner(s.scanner_key())
 
 class EmitterProxy:
     """This is a callable class that can act as a
@@ -389,7 +396,8 @@ class BuilderBase:
                         src_suffix = '',
                         target_factory = SCons.Node.FS.default_fs.File,
                         source_factory = SCons.Node.FS.default_fs.File,
-                        scanner = None,
+                        target_scanner = None,
+                        source_scanner = None,
                         emitter = None,
                         multi = 0,
                         env = None,
@@ -416,7 +424,8 @@ class BuilderBase:
 
         self.target_factory = target_factory
         self.source_factory = source_factory
-        self.scanner = scanner
+        self.target_scanner = target_scanner
+        self.source_scanner = source_scanner
 
         self.emitter = emitter
 
@@ -592,7 +601,8 @@ class ListBuilder(SCons.Util.Proxy):
         if __debug__: logInstanceCreation(self)
         SCons.Util.Proxy.__init__(self, builder)
         self.builder = builder
-        self.scanner = builder.scanner
+        self.target_scanner = builder.target_scanner
+        self.source_scanner = builder.source_scanner
         self.env = env
         self.tlist = tlist
         self.multi = builder.multi
@@ -628,12 +638,13 @@ class MultiStepBuilder(BuilderBase):
                         src_suffix = '',
                         target_factory = SCons.Node.FS.default_fs.File,
                         source_factory = SCons.Node.FS.default_fs.File,
-                        scanner=None,
+                        target_scanner = None,
+                        source_scanner = None,
                         emitter=None):
         if __debug__: logInstanceCreation(self)
         BuilderBase.__init__(self, action, prefix, suffix, src_suffix,
                              target_factory, source_factory,
-                             scanner, emitter)
+                             target_scanner, source_scanner, emitter)
         if not SCons.Util.is_List(src_builder):
             src_builder = [ src_builder ]
         self.src_builder = src_builder

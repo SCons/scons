@@ -178,6 +178,8 @@ class SConfTestCase(unittest.TestCase):
                         return None
                     def postprocess(self):
                         pass
+                    def clear(self):
+                        pass
                 return [MyNode('n1'), MyNode('n2')]
         self.scons_env.Append(BUILDERS = {'SConfActionBuilder' : MyBuilder()})
         sconf.TryBuild(self.scons_env.SConfActionBuilder)

@@ -27,11 +27,15 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that dependencies in installed header files get re-scanned correctly.
 """
 
+import os.path
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.subdir('work1', ['work1', 'dist'])
+
+test.write(['work1', 'SConstruct'], """
 env = Environment(CPPPATH=['#include'])
 Export('env')
 SConscript('dist/SConscript')
@@ -39,31 +43,72 @@ libfoo = env.StaticLibrary('foo', ['foo.c'])
 Default(libfoo)
 """)
 
-test.write('foo.c', """
+test.write(['work1', 'foo.c'], """
 #include <h1.h>
 """)
 
-test.subdir('dist')
-
-test.write(['dist', 'SConscript'], """\
+test.write(['work1', 'dist', 'SConscript'], """\
 Import('env')
 env.Install('#include', ['h1.h', 'h2.h', 'h3.h'])
 """)
 
-test.write(['dist', 'h1.h'], """\
+test.write(['work1', 'dist', 'h1.h'], """\
 #include "h2.h"
 """)
 
-test.write(['dist', 'h2.h'], """\
+test.write(['work1', 'dist', 'h2.h'], """\
 #include "h3.h"
 """)
 
-test.write(['dist', 'h3.h'], """\
+test.write(['work1', 'dist', 'h3.h'], """\
 int foo = 3;
 """)
 
-test.run(arguments = ".")
+test.run(chdir = 'work1', arguments = ".")
 
-test.up_to_date(arguments = ".")
+test.up_to_date(chdir = 'work1', arguments = ".")
+
+#
+test.subdir('ref', 'work2', ['work2', 'src'])
+
+test.write(['work2', 'SConstruct'], """
+env = Environment(CPPPATH=['build', r'%s'])
+env.Install('build', 'src/in1.h')
+env.Install('build', 'src/in2.h')
+env.Install('build', 'src/in3.h')
+""" % test.workpath('ref'))
+
+test.write(['ref', 'in1.h'], '#define FILE "ref/in1.h"\n#include <in2.h>\n')
+test.write(['ref', 'in2.h'], '#define FILE "ref/in2.h"\n#include <in3.h>\n')
+test.write(['ref', 'in3.h'], '#define FILE "ref/in3.h"\n#define FOO 0\n')
+
+src_in1_h = '#define FILE "src/in1.h"\n#include <in2.h>\n'
+src_in2_h = '#define FILE "src/in2.h"\n#include <in3.h>\n'
+src_in3_h = '#define FILE "src/in3.h"\n#define FOO 0\n'
+test.write(['work2', 'src', 'in1.h'], src_in1_h)
+test.write(['work2', 'src', 'in2.h'], src_in2_h)
+test.write(['work2', 'src', 'in3.h'], src_in3_h)
+
+test.run(chdir = 'work2', arguments = 'build')
+
+test.must_match(['work2', 'build', 'in1.h'], src_in1_h)
+test.must_match(['work2', 'build', 'in2.h'], src_in2_h)
+test.must_match(['work2', 'build', 'in3.h'], src_in3_h)
+
+test.up_to_date(chdir = 'work2', arguments = 'build')
+
+src_in3_h = '#define FILE "src/in3.h"\n#define FOO 1\n'
+test.write(['work2', 'src', 'in3.h'], src_in3_h)
+
+test.run(chdir = 'work2', arguments = 'build', stdout=test.wrap_stdout("""\
+Install file: "%s" as "%s"
+""" % (os.path.join('src', 'in3.h'),
+       os.path.join('build', 'in3.h'))))
+
+test.must_match(['work2', 'build', 'in1.h'], src_in1_h)
+test.must_match(['work2', 'build', 'in2.h'], src_in2_h)
+test.must_match(['work2', 'build', 'in3.h'], src_in3_h)
+
+test.up_to_date(chdir = 'work2', arguments = 'build')
 
 test.pass_test()

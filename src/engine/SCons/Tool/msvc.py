@@ -448,7 +448,7 @@ def generate(env):
     env['RC'] = 'rc'
     env['RCFLAGS'] = SCons.Util.CLVar('')
     env['RCCOM'] = '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
-    env.Append(CPPSUFFIXES = ['.rc'])
+    SCons.Defaults.ObjSourceScan.add_scanner('.rc', SCons.Defaults.CScan)
     env['BUILDERS']['RES'] = res_builder
 
     try:

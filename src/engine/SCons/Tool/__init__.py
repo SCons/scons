@@ -104,7 +104,7 @@ def createProgBuilder(env):
                                         suffix = '$PROGSUFFIX',
                                         src_suffix = '$OBJSUFFIX',
                                         src_builder = 'Object',
-                                        scanner = SCons.Defaults.ProgScan)
+                                        target_scanner = SCons.Defaults.ProgScan)
         env['BUILDERS']['Program'] = program
 
     return program
@@ -146,7 +146,7 @@ def createSharedLibBuilder(env):
                                            emitter = "$SHLIBEMITTER",
                                            prefix = '$SHLIBPREFIX',
                                            suffix = '$SHLIBSUFFIX',
-                                           scanner = SCons.Defaults.ProgScan,
+                                           target_scanner = SCons.Defaults.ProgScan,
                                            src_suffix = '$SHOBJSUFFIX',
                                            src_builder = 'SharedObject')
         env['BUILDERS']['SharedLibrary'] = shared_lib
@@ -173,7 +173,8 @@ def createObjBuilders(env):
                                            emitter = "$OBJEMITTER",
                                            prefix = '$OBJPREFIX',
                                            suffix = '$OBJSUFFIX',
-                                           src_builder = ['CFile', 'CXXFile'])
+                                           src_builder = ['CFile', 'CXXFile'],
+                                           source_scanner = SCons.Defaults.ObjSourceScan)
         env['BUILDERS']['StaticObject'] = static_obj
         env['BUILDERS']['Object'] = static_obj
         env['OBJEMITTER'] = SCons.Defaults.StaticObjectEmitter
@@ -185,7 +186,8 @@ def createObjBuilders(env):
                                            emitter = "$SHOBJEMITTER",
                                            prefix = '$SHOBJPREFIX',
                                            suffix = '$SHOBJSUFFIX',
-                                           src_builder = ['CFile', 'CXXFile'])
+                                           src_builder = ['CFile', 'CXXFile'],
+                                           source_scanner = SCons.Defaults.ObjSourceScan)
         env['BUILDERS']['SharedObject'] = shared_obj
         env['SHOBJEMITTER'] = SCons.Defaults.SharedObjectEmitter
 

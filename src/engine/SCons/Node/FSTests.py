@@ -60,6 +60,8 @@ class Scanner:
         return [self.node]
     def __hash__(self):
         return self.hash
+    def select(self, node):
+        return self
 
 class Environment:
     def __init__(self):
@@ -1033,12 +1035,6 @@ class FSTestCase(unittest.TestCase):
 
         skey = fs.Dir('ddd.x').scanner_key()
         assert skey is None, skey
-
-        d1 = fs.Dir('dir')
-        f1 = fs.File('dir/file')
-        assert f1.dir == d1, f1.dir
-        parents = f1.get_parents()
-        assert parents == [ d1 ], parents
 
         test.write("i_am_not_a_directory", "\n")
         try:

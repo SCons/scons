@@ -96,6 +96,8 @@ def SharedFlagChecker(source, target, env):
 SharedCheck = SCons.Action.Action(SharedFlagChecker, None)
 
 # Scanners and suffixes for common languages.
+ObjSourceScan = SCons.Scanner.Scanner({})
+
 CScan = SCons.Scanner.C.CScan()
 
 CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
@@ -103,13 +105,22 @@ CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
              ".F", ".fpp", ".FPP",
              ".S", ".spp", ".SPP"]
 
+for suffix in CSuffixes:
+    ObjSourceScan.add_scanner(suffix, CScan)
+
 DScan = SCons.Scanner.D.DScan()
 
 DSuffixes = ['.d']
 
+for suffix in DSuffixes:
+    ObjSourceScan.add_scanner(suffix, DScan)
+
 FortranScan = SCons.Scanner.Fortran.FortranScan()
 
 FortranSuffixes = [".f", ".F", ".for", ".FOR"]
+
+for suffix in FortranSuffixes:
+    ObjSourceScan.add_scanner(suffix, FortranScan)
 
 IDLSuffixes = [".idl", ".IDL"]
 
@@ -330,7 +341,7 @@ class NullCmdGenerator:
 
 ConstructionEnvironment = {
     'BUILDERS'   : {},
-    'SCANNERS'   : [CScan, FortranScan, DScan],
+    'SCANNERS'   : [],
     'CPPSUFFIXES': CSuffixes,
     'DSUFFIXES'  : DSuffixes,
     'FORTRANSUFFIXES': FortranSuffixes,

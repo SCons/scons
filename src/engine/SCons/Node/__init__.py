@@ -116,10 +116,11 @@ class Node:
         self.ignore = []        # dependencies to ignore
         self.ignore_dict = {}
         self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
-        self.parents = {}
+        self.waiting_parents = []
         self.wkids = None       # Kids yet to walk, when it's an array
         self.target_scanner = None      # explicit scanner from this node's Builder
-        self.source_scanner = None      # source scanner
+        self.source_scanner = None
+        self.backup_source_scanner = None
 
         self.env = None
         self.state = None
@@ -208,19 +209,28 @@ class Node:
         else:
             self.store_info(new_binfo)
 
-        # Clear out the implicit dependency caches:
-        # XXX this really should somehow be made more general and put
-        #     under the control of the scanners.
-        if self.source_scanner:
-            self.found_includes = {}
-            self.includes = None
-            for parent in self.get_parents():
-                parent.implicit = None
-                parent.del_binfo()
+        # Clear our scanned included files.
+        self.found_includes = {}
+        self.includes = None
+
+        # Clear the implicit dependency caches of any Nodes
+        # waiting for this Node to be built.
+        for parent in self.waiting_parents:
+            parent.implicit = None
+            parent.del_binfo()
+        self.waiting_parents = []
 
         # The content just changed, delete any cached info
         # so it will get recalculated.
         self.del_cinfo()
+
+    def add_to_waiting_parents(self, node):
+        self.waiting_parents.append(node)
+
+    def call_for_all_waiting_parents(self, func):
+        func(self)
+        for parent in self.waiting_parents:
+            parent.call_for_all_waiting_parents(func)
 
     def postprocess(self):
         """Clean up anything we don't need to hang onto after we've
@@ -247,6 +257,8 @@ class Node:
         self.includes = None
         self.found_includes = {}
         self.implicit = None
+
+        self.waiting_parents = []
 
     def visited(self):
         """Called just after this node has been visited
@@ -329,6 +341,10 @@ class Node:
         if not scanner:
             return []
 
+        # Give the scanner a chance to select a more specific scanner
+        # for this Node.
+        scanner = scanner.select(self)
+
         try:
             recurse = scanner.recursive
         except AttributeError:
@@ -366,6 +382,22 @@ class Node:
             n = self.builder.source_factory(path)
             self.implicit_factory_cache[path] = n
             return n
+
+    def get_source_scanner(self, node):
+        """Fetch the source scanner for the specified node
+
+        NOTE:  "self" is the target being built, "node" is
+        the source file for which we want to fetch the scanner.
+        """
+        if self.source_scanner:
+            return self.source_scanner
+        try:
+            scanner = node.builder.source_scanner
+            if scanner:
+                return scanner
+        except AttributeError:
+            pass
+        return node.backup_source_scanner or None
 
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""
@@ -405,20 +437,14 @@ class Node:
         #            self.del_binfo()
 
         for child in self.children(scan=0):
-            scanner = child.source_scanner
+            scanner = self.get_source_scanner(child)
             if scanner:
-                self._add_child(self.implicit,
-                                self.implicit_dict,
-                                child.get_implicit_deps(build_env,
-                                                        scanner,
-                                                        self))
+                deps = child.get_implicit_deps(build_env, scanner, self)
+                self._add_child(self.implicit, self.implicit_dict, deps)
 
         # scan this node itself for implicit dependencies
-        self._add_child(self.implicit,
-                        self.implicit_dict,
-                        self.get_implicit_deps(build_env,
-                                               self.target_scanner,
-                                               self))
+        deps = self.get_implicit_deps(build_env, self.target_scanner, self)
+        self._add_child(self.implicit, self.implicit_dict, deps)
 
         # XXX See note above re: --implicit-cache.
         #if implicit_cache:
@@ -632,7 +658,6 @@ class Node:
                 collection.append(c)
                 dict[c] = 1
                 added = 1
-            c.parents[self] = 1
         if added:
             self._children_reset()
 
@@ -686,9 +711,6 @@ class Node:
         else:
             return self.sources + self.depends + self.implicit
 
-    def get_parents(self):
-        return self.parents.keys()
-
     def set_state(self, state):
         self.state = state
 
@@ -738,7 +760,8 @@ class Node:
         if self.is_derived() and self.env:
             env = self.get_build_env()
             for s in self.sources:
-                def f(node, env=env, scanner=s.source_scanner, target=self):
+                scanner = s.get_source_scanner(self)
+                def f(node, env=env, scanner=scanner, target=self):
                     return node.get_found_includes(env, scanner, target)
                 return SCons.Util.render_tree(s, f, 1)
         else:

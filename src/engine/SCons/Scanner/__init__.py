@@ -43,6 +43,15 @@ class _Null:
 # used as an actual argument value.
 _null = _Null
 
+def Scanner(function, *args, **kw):
+    """Public interface factory function for creating different types
+    of Scanners based on the different types of "functions" that may
+    be supplied."""
+    if SCons.Util.is_Dict(function):
+        return apply(Selector, (function,) + args, kw)
+    else:
+        return apply(Base, (function,) + args, kw)
+
 class FindPathDirs:
     """A class to bind a specific *PATH variable name and the fs object
     to a function that will return all of the *path directories."""
@@ -190,6 +199,31 @@ class Base:
             return env.subst_list(self.skeys)[0]
         return self.skeys
 
+    def select(self, node):
+        return self
+
+
+class Selector(Base):
+    """
+    A class for selecting a more specific scanner based on the
+    scanner_key() (suffix) for a specific Node.
+    """
+    def __init__(self, dict, *args, **kw):
+        Base.__init__(self, (None,)+args, kw)
+        self.dict = dict
+
+    def __call__(self, node, env, path = ()):
+        return self.select(node)(node, env, path)
+
+    def select(self, node):
+        try:
+            return self.dict[node.scanner_key()]
+        except KeyError:
+            return None
+
+    def add_scanner(self, skey, scanner):
+        self.dict[skey] = scanner
+
 
 class Current(Base):
     """
@@ -200,6 +234,7 @@ class Current(Base):
 
     def __init__(self, *args, **kw):
         def current_check(node, env):
+            calc = env.get_calculator()
             c = not node.has_builder() or node.current(env.get_calculator())
             return c
         kw['scan_check'] = current_check
