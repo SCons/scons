@@ -1252,21 +1252,27 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_Action(self):
         """Test the Action() method"""
+        import SCons.Action
+
         env = Environment(FOO = 'xyzzy')
 
         a = env.Action('foo')
         assert a, a
+        assert a.__class__ is SCons.Action.CommandAction, a
 
         a = env.Action('$FOO')
         assert a, a
+        assert a.__class__ is SCons.Action.CommandGeneratorAction, a
 
         a = env.Action(['$FOO', 'foo'])
         assert a, a
+        assert a.__class__ is SCons.Action.ListAction, a
 
         def func(arg):
             pass
         a = env.Action(func)
         assert a, a
+        assert a.__class__ is SCons.Action.FunctionAction, a
 
     def test_AddPostAction(self):
         """Test the AddPostAction() method"""
