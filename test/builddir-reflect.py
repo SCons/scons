@@ -33,10 +33,14 @@ in the build_dir as sources for that same build dir.
 Test based on bug #1055521 filed by Gary Oberbrunner.
 """
 
+import os.path
+import re
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 python = TestSCons.python
+re_python = re.escape(python)
 
 test.write("mycc.py", """
 print 'Compile'
@@ -79,12 +83,16 @@ main() { printf(HI_STR);}
 cpppath = 'dir1/dir2'   # note, no leading '#'
 test.write('SConstruct', sconstruct % locals() )
 
+targets = re.escape(os.path.join('dir1', 'dir2'))
+INC_CNI = re.escape(os.path.join('INC_dir1', 'dir2', 'dir1', 'dir2_CNI'))
+
+# The .* after mycc\\.py below handles /nologo flags from Visual C/C++.
 test.run(arguments = '',
          stdout=test.wrap_stdout("""\
-scons: building associated BuildDir targets: dir1/dir2
-%(python)s mycc.py INC_dir1/dir2/dir1/dir2_CNI .+
+scons: building associated BuildDir targets: %(targets)s
+%(re_python)s mycc\\.py.* %(INC_CNI)s .+
 Compile
-%(python)s mylink.py .+
+%(re_python)s mylink\\.py .+
 Link
 """ % locals()),
          match=TestSCons.match_re,
@@ -103,12 +111,15 @@ test.must_not_exist('dir1')
 cpppath = '#dir1/dir2'   # note leading '#'
 test.write('SConstruct', sconstruct % locals() )
 
+INC_CNI = re.escape(os.path.join('INC_dir1', 'dir2_CNI'))
+
+# The .* after mycc\\.py below handles /nologo flags from Visual C/C++.
 test.run(arguments = '',
          stdout=test.wrap_stdout("""\
-scons: building associated BuildDir targets: dir1/dir2
-%(python)s mycc.py INC_dir1/dir2_CNI .+
+scons: building associated BuildDir targets: %(targets)s
+%(re_python)s mycc\\.py.* %(INC_CNI)s .+
 Compile
-%(python)s mylink.py .+
+%(re_python)s mylink\\.py .+
 Link
 """ % locals()),
          match=TestSCons.match_re,

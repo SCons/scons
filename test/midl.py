@@ -43,7 +43,9 @@ test.write('SConstruct',"""
 import os.path
 import os
 
-env = Environment(CCFLAGS = ' -nologo ', CPPPATH='${TARGET.dir}')
+env = Environment(CCFLAGS = ' -nologo ',
+                  CPPPATH = '${TARGET.dir}',
+                  MSVS_USE_MFC_DIRS = 1)
 Export('env')
 
 BuildDir('build', 'src')

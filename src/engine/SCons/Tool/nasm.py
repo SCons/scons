@@ -58,8 +58,9 @@ def generate(env):
 
     env['AS']        = 'nasm'
     env['ASFLAGS']   = SCons.Util.CLVar('')
+    env['ASPPFLAGS'] = '$ASFLAGS'
     env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
-    env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env['ASPPCOM']   = '$CC $ASPPFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
 
 def exists(env):
     return env.Detect('nasm')

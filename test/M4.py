@@ -78,12 +78,12 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(M4FLAGS='-DFFF=fff')
+foo = Environment(M4=r'%(m4)s', M4FLAGS='-DFFF=fff')
 m4 = foo.Dictionary('M4')
-bar = Environment(M4 = r'%s wrapper.py ' + m4, M4FLAGS='-DBBB=bbb')
+bar = Environment(M4 = r'%(python)s wrapper.py ' + m4, M4FLAGS='-DBBB=bbb')
 foo.M4(target = 'foo.x', source = 'foo.x.m4')
 bar.M4(target = 'bar', source = 'bar.m4')
-""" % python)
+""" % locals())
 
     test.write('foo.x.m4', "line 1\n"
                            "FFF\n"

@@ -134,11 +134,14 @@ tools = [
     'zip',
 ]
 
-error_output = {
-    'icl' : """
+intel_license_warning = """
 scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
 File "SConstruct", line 1, in ?
-""",
+"""
+
+error_output = {
+    'icl' : intel_license_warning,
+    'intelc' : intel_license_warning,
     'qt' : """
 scons: warning: Could not detect qt, using empty QTDIR
 File "SConstruct", line 1, in ?
