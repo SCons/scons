@@ -68,7 +68,7 @@ aesub = whereis('aesub')
 dh_builddeb = whereis('dh_builddeb')
 fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
-rpm = whereis('rpm')
+rpmbuild = whereis('rpmbuild') or whereis('rpm')
 unzip = whereis('unzip')
 zip = whereis('zip')
 
@@ -265,6 +265,9 @@ env = Environment(
                    UNZIPFLAGS          = '-o -d $UNPACK_ZIP_DIR',
 
                    ZCAT                = zcat,
+
+                   RPMBUILD            = rpmbuild,
+                   RPM2CPIO            = 'rpm2cpio',
 
                    TEST_DEB_DIR        = test_deb_dir,
                    TEST_RPM_DIR        = test_rpm_dir,
@@ -641,7 +644,7 @@ for p in [ scons ]:
                 os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
         ])
 
-    if rpm:
+    if rpmbuild:
         topdir = os.path.join(os.getcwd(), build, 'build',
                               'bdist.' + platform, 'rpm')
 
@@ -653,14 +656,14 @@ for p in [ scons ]:
 
         specfile = os.path.join(SPECSdir, "%s-1.spec" % pkg_version)
         sourcefile = os.path.join(SOURCESdir, "%s.tar.gz" % pkg_version);
-        rpm = os.path.join(RPMSdir, "%s-1.noarch.rpm" % pkg_version)
+        noarch_rpm = os.path.join(RPMSdir, "%s-1.noarch.rpm" % pkg_version)
         src_rpm = os.path.join(SRPMSdir, "%s-1.src.rpm" % pkg_version)
 
         env.InstallAs(specfile, os.path.join('rpm', "%s.spec" % pkg))
         env.InstallAs(sourcefile, tar_gz)
 
-        targets = [ rpm, src_rpm ]
-        cmd = "rpm --define '_topdir $(%s$)' -ba $SOURCES" % topdir
+        targets = [ noarch_rpm, src_rpm ]
+        cmd = "$RPMBUILD --define '_topdir $(%s$)' -ba $SOURCES" % topdir
         if not os.path.isdir(BUILDdir):
             cmd = ("$( mkdir -p %s; $)" % BUILDdir) + cmd
         env.Command(targets, specfile, cmd)
@@ -671,8 +674,8 @@ for p in [ scons ]:
         dfiles = map(lambda x, d=test_rpm_dir: os.path.join(d, 'usr', x),
                      dst_files)
         env.Command(dfiles,
-                    rpm,
-                    "rpm2cpio $SOURCES | (cd $TEST_RPM_DIR && cpio -id)")
+                    noarch_rpm,
+                    "$RPM2CPIO $SOURCES | (cd $TEST_RPM_DIR && cpio -id)")
 
     if dh_builddeb and fakeroot:
         # Our Debian packaging builds directly into build/dist,
