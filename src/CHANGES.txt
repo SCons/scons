@@ -94,6 +94,11 @@ RELEASE 0.96 - XXX
   - Add a --debug=explain option that reports the reason(s) why SCons
     thinks it must rebuild something.
 
+  - Add --save-explain-info and SetOption('save_explain_info') options
+    to control whether the --debug=explain information is saved in
+    the .sconsign file(s).  Not saving this information can improve
+    performance and save memory usage.
+
   - Add support for functions that return platform-independent Actions
     to Chmod(), Copy(), Delete(), Mkdir(), Move() and Touch() files
     and/or directories.  Like any other Actions, the returned Action

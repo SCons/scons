@@ -528,7 +528,6 @@ class OptParser(OptionParser):
 
         def opt_debug(option, opt, value, parser, debug_options=debug_options):
             if value in debug_options:
-                #setattr(parser.values, 'debug', value)
                 parser.values.debug = value
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
@@ -541,7 +540,6 @@ class OptParser(OptionParser):
         def opt_duplicate(option, opt, value, parser):
             if not value in SCons.Node.FS.Valid_Duplicates:
                 raise OptionValueError("`%s' is not a valid duplication style." % value)
-            #setattr(parser.values, 'duplicate', value)
             parser.values.duplicate = value
             # Set the duplicate style right away so it can affect linking
             # of SConscript files.
@@ -584,7 +582,6 @@ class OptParser(OptionParser):
 
         def opt_j(option, opt, value, parser):
             value = int(value)
-            #setattr(parser.values, 'num_jobs', value)
             parser.values.num_jobs = value
         self.add_option('-j', '--jobs', action="callback", type="int",
                         callback=opt_j, metavar="N",
@@ -626,6 +623,10 @@ class OptParser(OptionParser):
 
         self.add_option('-s', '--silent', '--quiet', action="store_true",
                         default=0, help="Don't print commands.")
+
+        self.add_option('--save-explain-info', type="int", action="store",
+                        dest='save_explain_info', metavar='0|1',
+                        help="(Don't) save --debug=explain information")
 
         self.add_option('-u', '--up', '--search-up', action="store_const",
                         dest="climb_up", default=0, const=1,
@@ -734,7 +735,8 @@ class SConscriptSettableOptions:
                          'max_drift':SCons.Sig.default_max_drift,
                          'implicit_cache':0,
                          'clean':0,
-                         'duplicate':'hard-soft-copy'}
+                         'duplicate':'hard-soft-copy',
+                         'save_explain_info':1}
 
     def get(self, name):
         if not self.settable.has_key(name):
@@ -770,7 +772,7 @@ class SConscriptSettableOptions:
             # Set the duplicate stye right away so it can affect linking
             # of SConscript files.
             SCons.Node.FS.set_duplicate(value)
-            
+
         self.settable[name] = value
     
 
@@ -947,6 +949,7 @@ def _main(args, parser):
     # that are SConscript settable:
     SCons.Node.implicit_cache = ssoptions.get('implicit_cache')
     SCons.Node.FS.set_duplicate(ssoptions.get('duplicate'))
+    SCons.Node.Save_Explain_Info = ssoptions.get('save_explain_info') or print_explanations
 
     lookup_top = None
     if targets:

@@ -68,8 +68,7 @@ class Base:
 
     def get_entry(self, filename):
         """
-        Create an entry for the filename and return it, or if one already exists,
-        then return it.
+        Fetch the specified entry attribute.
         """
         return self.entries[filename]
 
@@ -77,13 +76,7 @@ class Base:
         """
         Set the entry.
         """
-        try:
-            entry = self.entries[filename]
-        except KeyError:
-            self.entries[filename] = obj
-        else:
-            for key, val in obj.__dict__.items():
-                entry.__dict__[key] = val
+        self.entries[filename] = obj
         self.dirty = 1
 
 class DB(Base):

@@ -758,6 +758,18 @@ Ignored for compatibility with GNU
 .BR make .
 
 .TP
+.RI --save-explain-info= 0|1
+By default,
+scons will save additional information about the build
+that is used by the
+.B --debug=explain
+option.
+Setting
+.B --save-explain-info=0
+will tell scons to speed up the build
+by not saving this information.
+
+.TP
 -t, --touch
 Ignored for compatibility with GNU
 .BR make .  
@@ -3423,7 +3435,9 @@ which corresponds to --implicit-cache;
 .B max_drift
 which corresponds to --max-drift;
 .B num_jobs
-which corresponds to -j and --jobs.
+which corresponds to -j and --jobs;
+.B save_explain_info
+which corresponds to --save-explain-info.
 See the documentation for the
 corresponding command line object for information about each specific
 option. Example:

@@ -28,40 +28,93 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct1', """
+test.subdir('w1', 'w2')
+
+SConstruct1_contents = """\
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
 
 env=Environment(BUILDERS={'B' : Builder(action=build)})
 env.B('foo.mid', 'foo.in')
-""")
+"""
 
-test.write('SConstruct2', """
+SConstruct2_contents = """\
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
 
 env=Environment(BUILDERS={'B' : Builder(action=build)})
 env.B('foo.out', 'foo.mid')
-""")
+"""
 
-test.write('foo.in', "foo.in")
+# Test with the default of saving explanation info.
+test.write(['w1', 'SConstruct1'], SConstruct1_contents)
+test.write(['w1', 'SConstruct2'], SConstruct2_contents)
+test.write(['w1', 'foo.in'], "foo.in 1")
 
-test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
+test.run(chdir='w1',
+         arguments="--max-drift=0 -f SConstruct1 foo.mid",
          stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
-test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
+test.run(chdir='w1',
+         arguments="--max-drift=0 -f SConstruct2 foo.out",
          stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
 
-test.up_to_date(options="--max-drift=0 -f SConstruct1", arguments="foo.mid")
-test.up_to_date(options="--max-drift=0 -f SConstruct2", arguments="foo.out")
+test.up_to_date(chdir='w1',
+                options="--max-drift=0 -f SConstruct1",
+                arguments="foo.mid")
+test.up_to_date(chdir='w1',
+                options="--max-drift=0 -f SConstruct2",
+                arguments="foo.out")
 
-test.write('foo.in', "foo.in 2")
+test.write(['w1', 'foo.in'], "foo.in 2")
 
-test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
+test.run(chdir='w1',
+         arguments="--max-drift=0 -f SConstruct1 foo.mid",
          stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
-test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
+test.run(chdir='w1',
+         arguments="--max-drift=0 -f SConstruct2 foo.out",
          stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
 
-test.up_to_date(options="--max-drift=0 -f SConstruct1", arguments="foo.mid")
-test.up_to_date(options="--max-drift=0 -f SConstruct2", arguments="foo.out")
+test.up_to_date(chdir='w1',
+                options="--max-drift=0 -f SConstruct1",
+                arguments="foo.mid")
+test.up_to_date(chdir='w1',
+                options="--max-drift=0 -f SConstruct2",
+                arguments="foo.out")
+
+# Now test when we're not saving explanation info.
+preamble = "SetOption('save_explain_info', 0)\n"
+test.write(['w2', 'SConstruct1'], preamble + SConstruct1_contents)
+test.write(['w2', 'SConstruct2'], preamble + SConstruct2_contents)
+test.write(['w2', 'foo.in'], "foo.in 1")
+
+test.run(chdir='w2',
+         arguments="--max-drift=0 -f SConstruct1 foo.mid",
+         stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
+test.run(chdir='w2',
+         arguments="--max-drift=0 -f SConstruct2 foo.out",
+         stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
+
+test.up_to_date(chdir='w2',
+                options="--max-drift=0 -f SConstruct1",
+                arguments="foo.mid")
+test.up_to_date(chdir='w2',
+                options="--max-drift=0 -f SConstruct2",
+                arguments="foo.out")
+
+test.write(['w2', 'foo.in'], "foo.in 2")
+
+test.run(chdir='w2',
+         arguments="--max-drift=0 -f SConstruct1 foo.mid",
+         stdout = test.wrap_stdout('build("foo.mid", "foo.in")\n'))
+test.run(chdir='w2',
+         arguments="--max-drift=0 -f SConstruct2 foo.out",
+         stdout = test.wrap_stdout('build("foo.out", "foo.mid")\n'))
+
+test.up_to_date(chdir='w2',
+                options="--max-drift=0 -f SConstruct1",
+                arguments="foo.mid")
+test.up_to_date(chdir='w2',
+                options="--max-drift=0 -f SConstruct2",
+                arguments="foo.out")
 
 test.pass_test()
