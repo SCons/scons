@@ -753,6 +753,7 @@ def _main(args, parser):
         else:
             targets.append(a)
     SCons.Script.SConscript._scons_add_args(xmit_args)
+    SCons.Script.SConscript._scons_add_targets(targets)
 
     target_top = None
     if options.climb_up:
@@ -865,6 +866,7 @@ def _main(args, parser):
         # There are no targets specified on the command line,
         # so if they used -u, -U or -D, we may have to restrict
         # what actually gets built.
+        d = None
         if target_top:
             if options.climb_up == 1:
                 # -u, local directory and below
@@ -886,18 +888,18 @@ def _main(args, parser):
                         # or not a file, so go ahead and keep it as a default
                         # target and let the engine sort it out:
                         return 1                
-                default_targets = SCons.Environment.DefaultTargets
-                if default_targets is None:
-                    default_targets = []
-                else:
-                    default_targets = filter(check_dir, default_targets)
-                SCons.Environment.DefaultTargets = default_targets
+                d = filter(check_dir, SCons.Script.SConscript.DefaultTargets)
+                SCons.Script.SConscript.DefaultTargets[:] = d
                 target_top = None
                 lookup_top = None
 
-        targets = SCons.Environment.DefaultTargets
-        if targets is None:
-            targets = [fs.Dir('.')]
+        if SCons.Script.SConscript.DefaultCalled:
+            targets = SCons.Script.SConscript.DefaultTargets
+        else:
+            if d is None:
+                d = [fs.Dir('.')]
+            targets = d
+
 
     if not targets:
         sys.stderr.write("scons: *** No targets specified and no Default() targets found.  Stop.\n")

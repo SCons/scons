@@ -174,6 +174,9 @@
 -->
 
 <!ENTITY ARGUMENTS "<varname>ARGUMENTS</varname>">
+<!ENTITY BUILD_TARGETS "<varname>BUILD_TARGETS</varname>">
+<!ENTITY COMMAND_LINE_TARGETS "<varname>COMMAND_LINE_TARGETS</varname>">
+<!ENTITY DEFAULT_TARGETS "<varname>DEFAULT_TARGETS</varname>">
 
 
 

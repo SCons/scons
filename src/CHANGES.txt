@@ -25,6 +25,8 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
 
   - Fix subclassing the Environment and Scanner classes.
 
+  - Add BUILD_TARGETS, COMMAND_LINE_TARGETS and DEFAULT_TARGETS variables.
+
   From Steve Leblanc:
 
   - SGI fixes:  Fix C++ compilation, add a separate Tool/sgic++.py module.
