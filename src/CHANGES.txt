@@ -190,6 +190,9 @@ RELEASE 0.97 - XXX
   - Cache evaluation of LazyActions so we don't create a new object
     for each invocation.
 
+  - When scanning, don't create Nodes for include files that don't
+    actually exist on disk.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

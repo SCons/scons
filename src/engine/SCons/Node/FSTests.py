@@ -408,8 +408,7 @@ class BuildDirTestCase(unittest.TestCase):
         fs.BuildDir('build/var3', 'src', duplicate=0)
         d1 = fs.Dir('build/var3')
         r = d1.rdir()
-        s = fs.Dir('src')
-        assert r == s, "%s != %s" % (r, s)
+        assert r == d1, "%s != %s" % (r, d1)
 
         # verify the link creation attempts in file_link()
         class LinkSimulator :
@@ -542,6 +541,8 @@ class BuildDirTestCase(unittest.TestCase):
                 'work/src/b1/b2/f' : 'work/src/f',
                 'work/src/b1/b2/b1' : 'work/src/b1/',
                 'work/src/b1/b2/b1/f' : 'work/src/b1/f',
+                'work/src/b1/b2/b1/b2' : 'work/src/b1/b2',
+                'work/src/b1/b2/b1/b2/f' : 'work/src/b1/b2/f',
         }
 
         alter_map = {
@@ -1328,18 +1329,18 @@ class RepositoryTestCase(unittest.TestCase):
         list = fs.Rsearchall('#d2')
         assert list == [], list
 
-        test.subdir(['work', 'd2'])
         fs.File('d2').built() # Clear exists cache
+        test.subdir(['work', 'd2'])
         list = fs.Rsearchall('d2')
         assert map(str, list) == ['d2'], list
 
-        test.subdir(['rep2', 'd2'])
         fs.File('../rep2/d2').built() # Clear exists cache
+        test.subdir(['rep2', 'd2'])
         list = fs.Rsearchall('d2')
         assert map(str, list) == ['d2', test.workpath('rep2', 'd2')], list
 
-        test.subdir(['rep1', 'd2'])
         fs.File('../rep1/d2').built() # Clear exists cache
+        test.subdir(['rep1', 'd2'])
         list = fs.Rsearchall('d2')
         assert map(str, list) == ['d2',
                                   test.workpath('rep1', 'd2'),
@@ -1348,13 +1349,13 @@ class RepositoryTestCase(unittest.TestCase):
         list = fs.Rsearchall(['d3', 'd4'])
         assert list == [], list
 
-        test.subdir(['work', 'd3'])
         fs.File('d3').built() # Clear exists cache
+        test.subdir(['work', 'd3'])
         list = map(str, fs.Rsearchall(['d3', 'd4']))
         assert list == ['d3'], list
 
-        test.subdir(['rep3', 'd4'])
         fs.File('../rep3/d4').built() # Clear exists cache
+        test.subdir(['rep3', 'd4'])
         list = map(str, fs.Rsearchall(['d3', 'd4']))
         assert list == ['d3', test.workpath('rep3', 'd4')], list
 
@@ -1425,6 +1426,8 @@ class find_fileTestCase(unittest.TestCase):
         """Testing find_file function"""
         test = TestCmd(workdir = '')
         test.write('./foo', 'Some file\n')
+        test.subdir('bar')
+        test.write(['bar', 'on_disk'], 'Another file\n')
         fs = SCons.Node.FS.FS(test.workpath(""))
         os.chdir(test.workpath("")) # FS doesn't like the cwd to be something other than it's root
         node_derived = fs.File(test.workpath('bar/baz'))
@@ -1459,6 +1462,15 @@ class find_fileTestCase(unittest.TestCase):
             expect = "  find_file: looking for 'baz' in '.' ...\n" + \
                      "  find_file: looking for 'baz' in 'bar' ...\n" + \
                      "  find_file: ... FOUND 'baz' in 'bar'\n"
+            c = sio.getvalue()
+            assert c == expect, c
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            SCons.Node.FS.find_file('on_disk', paths, fs.File, verbose=1)
+            expect = "  find_file: looking for 'on_disk' in '.' ...\n" + \
+                     "  find_file: looking for 'on_disk' in 'bar' ...\n" + \
+                     "  find_file: ... FOUND 'on_disk' in 'bar'\n"
             c = sio.getvalue()
             assert c == expect, c
         finally:

@@ -98,7 +98,10 @@ Link
          match=TestSCons.match_re,
          )
 
-test.must_exist(['dir1', 'dir2', 'foo.h'])
+# Note that we don't check for the existence of dir1/dir2/foo.h, because
+# this bad cpppath will expand to dir1/dir2/dir1/dir2, which means it
+# won't pick up the srcdir copy of dir/dir2/foo.h.  That's all right,
+# we just need to make sure it doesn't create dir1/dir2/dir1/dir2/foo.h.
 test.must_exist(['dir1', 'dir2', 'src1', 'foo.c'])
 test.must_not_exist(['dir1', 'dir2', 'dir1', 'dir2', 'foo.h'])
 

@@ -323,7 +323,7 @@ class Classic(Current):
         if callable(path): path = path()
         n = SCons.Node.FS.find_file(include,
                                     (source_dir,) + tuple(path),
-                                    self.fs.File)
+                                    SCons.Node.FS.File)
         return n, include
 
     def sort_key(self, include):
