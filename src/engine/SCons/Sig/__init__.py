@@ -29,14 +29,6 @@ The Signature package for the scons software construction utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import cPickle
-import os
-import os.path
-import time
-
-import SCons.Node
-import SCons.Warnings
-
 try:
     import MD5
     default_module = MD5
@@ -44,6 +36,8 @@ except ImportError:
     import TimeStamp
     default_module = TimeStamp
 
+# XXX We should move max_drift into Node/FS.py,
+# since it's really something about files.
 default_max_drift = 2*24*60*60
 
 class SConsignEntry:
@@ -71,122 +65,5 @@ class Calculator:
         """
         self.module = module
         self.max_drift = max_drift
-
-    def bsig(self, node, cache=None):
-        """
-        Generate a node's build signature, the digested signatures
-        of its dependency files and build information.
-
-        node - the node whose sources will be collected
-        cache - alternate node to use for the signature cache
-        returns - the build signature
-
-        This no longer handles the recursive descent of the
-        node's children's signatures.  We expect that they're
-        already built and updated by someone else, if that's
-        what's wanted.
-        """
-
-        if cache is None: cache = node
-
-        bsig = cache.get_bsig()
-        if bsig is not None:
-            return bsig
-
-        children = node.children()
-        bkids = map(str, children)
-
-        # double check bsig, because the call to children() above may
-        # have set it:
-        bsig = cache.get_bsig()
-        if bsig is not None:
-            return bsig
-
-        sigs = map(lambda n, c=self: n.calc_signature(c), children)
-
-        if node.has_builder():
-            executor = node.get_executor()
-            bact = str(executor)
-            bactsig = self.module.signature(executor)
-            sigs.append(bactsig)
-        else:
-            bact = ""
-            bactsig = ""
-
-        bsig = self.module.collect(filter(None, sigs))
-
-        cache.set_binfo(bsig, bkids, sigs, bact, bactsig)
-
-        # don't store the bsig here, because it isn't accurate until
-        # the node is actually built.
-
-        return bsig
-
-    def csig(self, node, cache=None):
-        """
-        Generate a node's content signature, the digested signature
-        of its content.
-
-        node - the node
-        cache - alternate node to use for the signature cache
-        returns - the content signature
-        """
-
-        if cache is None: cache = node
-
-        csig = cache.get_csig()
-        if csig is not None:
-            return csig
-        
-        if self.max_drift >= 0:
-            oldtime, oldbsig, oldcsig = node.get_prevsiginfo()
-        else:
-            import SCons.SConsign
-            oldtime, oldbsig, oldcsig = SCons.SConsign.Base.null_siginfo
-
-        mtime = node.get_timestamp()
-
-        if (oldtime and oldcsig and oldtime == mtime):
-            # use the signature stored in the .sconsign file
-            csig = oldcsig
-            # Set the csig here so it doesn't get recalculated unnecessarily
-            # and so it's set when the .sconsign file gets written
-            cache.set_csig(csig)
-        else:
-            csig = self.module.signature(node)
-            # Set the csig here so it doesn't get recalculated unnecessarily
-            # and so it's set when the .sconsign file gets written
-            cache.set_csig(csig)
-
-            if self.max_drift >= 0 and (time.time() - mtime) > self.max_drift:
-                node.store_csig()
-                node.store_timestamp()
-
-        return csig
-
-    def current(self, node, newsig):
-        """
-        Check if a signature is up to date with respect to a node.
-
-        node - the node whose signature will be checked
-        newsig - the (presumably current) signature of the file
-
-        returns - 1 if the file is current with the specified signature,
-        0 if it isn't
-        """
-
-        if node.always_build:
-            return 0
-        
-        oldtime, oldbsig, oldcsig = node.get_prevsiginfo()
-
-        if type(newsig) != type(oldbsig):
-            return 0
-
-        if not node.has_builder() and node.get_timestamp() == oldtime:
-            return 1
-
-        return self.module.current(newsig, oldbsig)
-
 
 default_calc = Calculator()

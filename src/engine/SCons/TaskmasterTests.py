@@ -55,6 +55,8 @@ class Node:
         self.side_effects = []
         self.alttargets = []
         self.postprocessed = None
+        self._bsig_val = None
+        self._current_val = 0
 
     def retrieve_from_cache(self):
         global cache_text
@@ -127,6 +129,14 @@ class Node:
     def store_bsig(self):
         pass
 
+    def calculator(self):
+        class Calc:
+            def bsig(self, node):
+                return node._bsig_val
+            def current(self, node, sig):
+                return node._current_val
+        return Calc()
+
     def current(self, calc):
         return calc.current(self, calc.bsig(self))
     
@@ -194,10 +204,6 @@ class TaskmasterTestCase(unittest.TestCase):
         built_text = "up to date: "
         top_node = n3
 
-        class MyCalc(SCons.Taskmaster.Calc):
-            def current(self, node, sig):
-                return 1
-
         class MyTask(SCons.Taskmaster.Task):
             def execute(self):
                 global built_text
@@ -210,10 +216,12 @@ class TaskmasterTestCase(unittest.TestCase):
                     self.targets[0].build()
 
         n1.set_state(None)
+        n1._current_val = 1
         n2.set_state(None)
+        n2._current_val = 1
         n3.set_state(None)
-        tm = SCons.Taskmaster.Taskmaster(targets = [n3],
-                                         tasker = MyTask, calc = MyCalc())
+        n3._current_val = 1
+        tm = SCons.Taskmaster.Taskmaster(targets = [n3], tasker = MyTask)
 
         t = tm.next_task()
         t.prepare()
@@ -413,11 +421,6 @@ class TaskmasterTestCase(unittest.TestCase):
     def test_make_ready_out_of_date(self):
         """Test the Task.make_ready() method's list of out-of-date Nodes
         """
-        class MyCalc(SCons.Taskmaster.Calc):
-            def current(self, node, sig):
-                n = str(node)
-                return n[0] == 'c'
-
         ood = []
         def TaskGen(tm, targets, top, node, ood=ood):
             class MyTask(SCons.Taskmaster.Task):
@@ -430,11 +433,12 @@ class TaskmasterTestCase(unittest.TestCase):
 
         n1 = Node("n1")
         c2 = Node("c2")
+        c2._current_val = 1
         n3 = Node("n3")
         c4 = Node("c4")
+        c4._current_val = 1
         tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4],
-                                         tasker = TaskGen,
-                                         calc = MyCalc())
+                                         tasker = TaskGen)
 
         del ood[:]
         t = tm.next_task()
@@ -471,21 +475,18 @@ class TaskmasterTestCase(unittest.TestCase):
 
 
     def test_make_ready_all(self):
-        class MyCalc(SCons.Taskmaster.Calc):
-            def current(self, node, sig):
-                n = str(node)
-                return n[0] == 'c'
-
+        """Test the make_ready_all() method"""
         class MyTask(SCons.Taskmaster.Task):
             make_ready = SCons.Taskmaster.Task.make_ready_all
 
         n1 = Node("n1")
         c2 = Node("c2")
+        c2._current_val = 1
         n3 = Node("n3")
         c4 = Node("c4")
+        c4._current_val = 1
 
-        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4],
-                                         calc = MyCalc())
+        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4])
 
         t = tm.next_task()
         target = t.get_target()
@@ -512,8 +513,7 @@ class TaskmasterTestCase(unittest.TestCase):
         c4 = Node("c4")
 
         tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4],
-                                         tasker = MyTask,
-                                         calc = MyCalc())
+                                         tasker = MyTask)
 
         t = tm.next_task()
         target = t.get_target()

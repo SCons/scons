@@ -219,9 +219,7 @@ class SConf:
                 buildTask = SConfDryRunTask
             else:
                 buildTask = SConfBuildTask
-            tm = SCons.Taskmaster.Taskmaster( nodes,
-                                              buildTask,
-                                              self.calc )
+            tm = SCons.Taskmaster.Taskmaster( nodes, buildTask )
             # we don't want to build tests in parallel
             jobs = SCons.Job.Jobs(1, tm )
             try:
