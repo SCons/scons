@@ -1,0 +1,898 @@
+<para>
+
+  The &SCons; architecture consists of three layers:
+
+</para>
+
+<mediaobject>
+  <imageobject>
+    <imagedata fileref="arch" format="eps" align="center">
+  </imageobject>
+  <imageobject>
+    <imagedata fileref="arch.jpg" format="jpg" align="center">
+  </imageobject>
+  <!--  PDF files?
+  <imageobject>
+    <imagedata fileref="arch.pdf" align="center">
+  </imageobject>
+  -->
+</mediaobject>
+
+<itemizedlist>
+
+  <listitem>
+    <para>
+
+      The &SCons; <emphasis>Build Engine</emphasis>, a package of Python
+      modules that handle dependency management and updating out-of-date
+      objects.
+
+    </para>
+  </listitem>
+
+  <listitem>
+    <para>
+
+      The &SCons; <emphasis>API</emphasis> (applications programming
+      interface) between the Build Engine
+      and the user interface.
+
+    </para>
+  </listitem>
+
+  <listitem>
+    <para>
+
+      The &scons; <emphasis>script</emphasis> itself (note lower case
+      <emphasis>sc</emphasis>), which is the pre-provided interface to
+      the Build Engine.
+
+    </para>
+  </listitem>
+
+</itemizedlist>
+
+<para>
+
+  Notice that this architecture separates the internal workings of
+  &SCons; (the Build Engine) from the
+  external user interface.  The benefit is that the &SCons; Build Engine
+  can be imported into any other software package written in Python
+  to support a variety of user interfaces&mdash;or, to look at it
+  in reverse, other software interfaces can use the &SCons; Build
+  Engine to manage dependencies between their objects.
+
+</para>
+
+<para>
+
+  Because the
+  &SCons; package itself is modular, only those parts of the package
+  relevant to the embedding interface need be imported; for example,
+  a utility that wants to use only file timestamps for checking
+  whether a file is up-to-date
+  need not import the MD5 signature module.
+
+</para>
+
+<section>
+  <title>The &SCons; Build Engine</title>
+
+  <para>
+
+    The Build Engine is a package of Python modules that
+    form the heart of &SCons;.
+
+    The Build Engine can be broadly divided into five
+    architectural subsystems, each responsible
+    for a crucial part of &SCons; functionality:
+
+  </para>
+
+  <itemizedlist>
+
+    <listitem>
+      <para>
+
+        A <emphasis>node</emphasis> subsystem, responsible for managing
+        the files (or other objects) to be built, and the dependency
+        relationships between them.
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        A <emphasis>scanner</emphasis> subsystem, responsible for
+	scanning various file types for implicit dependencies.
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        A <emphasis>signature</emphasis> subsystem, responsible for
+        deciding whether a given file (or other object) requires
+        rebuilding.
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        A <emphasis>builder</emphasis> subsystem, responsible for
+        actually executing the necessary command or function to
+        build a file (or other object).
+
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+
+        A <emphasis>job/task</emphasis> subsystem, responsible for
+        handling parallelization of builds.
+
+      </para>
+    </listitem>
+
+  </itemizedlist>
+
+  <para>
+
+    The rest of this section will provide a high-level overview of the
+    class structure of each of these Build Engine subsystems.
+
+  </para>
+
+  <section>
+    <title>Node Subsystem</title>
+
+    <para>
+
+      The node subsystem of the Build Engine is
+      responsible for managing the knowledge in &SCons; of
+      the relationships among the external objects
+      (files) it is responsible for updating.
+      The most important of these relationships is
+      the dependency relationship between various &Node; objects,
+      which &SCons; uses to determine the order
+      in which builds should be performed.
+
+    </para>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="node" format="eps" align="center">
+      </imageobject>
+      <imageobject>
+        <imagedata fileref="node.jpg" format="jpg" align="center">
+      </imageobject>
+      <!--  PDF files?
+      <imageobject>
+        <imagedata fileref="node.pdf" align="center">
+      </imageobject>
+      -->
+    </mediaobject>
+
+    <para>
+
+      The &scons; script (or other
+      user interface)
+      tells the Build Engine
+      about dependencies
+      through its &consenv; API.
+      The Build Engine also discovers
+      dependencies automatically through the use of &Scanner; objects.
+
+    </para>
+
+    <para>
+
+      Subclasses of the &Node; class maintain additional
+      relationships that reflect the real-world
+      existence of these objects.
+      For example, the &Node_FS; subclass
+      is responsible for managing a
+      representation of the directory hierarchy
+      of a file system.
+
+    </para>
+
+    <para>
+
+      A &Walker; class is used by other subsystems
+      to walk the dependency tree maintained by the &Node; class.
+      The &Walker; class maintains a stack of &Node; objects
+      visited during its depth-first traversal of the
+      dependency tree,
+      and uses an intermediate node &Wrapper; class
+      to maintain state information about a
+      &Node; object's dependencies.
+
+    </para>
+
+  </section>
+
+  <section>
+    <title>Scanner Subsystem</title>
+
+    <para>
+
+      The scanner subsystem is responsible for maintaining
+      objects that can scan the contents of a &Node;'s
+      for implicit dependencies.
+
+    </para>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="scanner" format="eps" align="center">
+      </imageobject>
+      <imageobject>
+        <imagedata fileref="scanner.jpg" format="jpg" align="center">
+      </imageobject>
+      <!--  PDF files?
+      <imageobject>
+        <imagedata fileref="scanner.pdf" align="center">
+      </imageobject>
+      -->
+    </mediaobject>
+
+    <para>
+
+      In practice, a given &Scanner; subclass object
+      functions as a prototype,
+      returning clones of itself
+      depending on the &consenv;
+      values governing how the &Node;
+      should be scanned.
+
+    </para>
+
+  </section>
+
+  <section>
+    <title>Signature Subsystem</title>
+
+    <para>
+
+      The signature subsystem is responsible for computing
+      signature information for &Node; objects.
+      The signature subsystem in &SCons;
+      supports multiple ways to
+      determine whether a &Node is up-to-date
+      by using an abstract &Sig; class
+      as a strategy wrapper:
+
+    </para>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="sig" format="eps" align="center">
+      </imageobject>
+      <imageobject>
+        <imagedata fileref="sig.jpg" format="jpg" align="center">
+      </imageobject>
+      <!--  PDF files?
+      <imageobject>
+        <imagedata fileref="sig.pdf" align="center">
+      </imageobject>
+      -->
+    </mediaobject>
+
+    <para>
+
+      By default, &SCons; tracks dependencies by computing and
+      maintaining MD5 signatures for the contents of each source file
+      (or other object). The signature of a <emphasis>derived</emphasis>
+      file consists of the aggregate of the signatures of all the source
+      files <emphasis>plus</emphasis> the command-line string used to
+      build the file. These signatures are stored in a &sconsign; file
+      in each directory.
+
+    </para>
+
+    <para>
+
+      If the contents of any of the source files changes, the change to its
+      MD5 signature is propogated to the signature of the derived file(s). The
+      simple fact that the new signature does not match the stored signature
+      indicates that the derived file is not up to date and must be rebuilt.
+
+    </para>
+
+    <para>
+
+      A separate &TimeStamp; subclass of the &Sig; class supports
+      the use of traditional file timestamps for
+      deciding whether files are up-to-date.
+
+    </para>
+
+  </section>
+
+  <section>
+    <title>Builder Subsystem</title>
+
+    <para>
+
+      The &SCons; Build Engine records how out-of-date files
+      (or other objects) should be rebuilt in &Builder; objects,
+      maintained by the builder subsystem:
+
+    </para>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="builder" format="eps" align="center">
+      </imageobject>
+      <imageobject>
+        <imagedata fileref="builder.jpg" format="jpg" align="center">
+      </imageobject>
+      <!--  PDF files?
+      <imageobject>
+        <imagedata fileref="builder.pdf" align="center">
+      </imageobject>
+      -->
+    </mediaobject>
+
+    <para>
+      
+      The actual underlying class name is &BuilderBase;,
+      and there are subclasses that can encapsulate
+      multiple &Builder; objects for special purposes.
+      One subclass
+      (&CompositeBuilder;)
+      selects an appropriate encapsulated &Builder;
+      based on the file suffix of the target object.
+      The other
+      (&MultiStepBuilder;).
+      can chain together multiple
+      &Builder; objects,
+      for example,
+      to build an executable program from a source file
+      through an implicit intermediate object file.
+
+    </para>
+
+    <para>
+
+      A &BuilderBase; object has an associated
+      &ActionBase; object
+      responsible for actually executing
+      the appropriate steps
+      to update the target file.
+      There are three subclasses,
+      one for externally executable commands
+      (&CommandAction;),
+      one for Python functions
+      (&FunctionAction;),
+      and one for lists of
+      multiple &Action; objects
+      (&ListAction;).
+
+    </para>
+
+  </section>
+
+  <section>
+    <title>Job/Task Subsystem</title>
+
+    <para>
+
+      &SCons; supports parallel builds with a thread-based tasking
+      model, managed by the job/task subsystem.
+
+    </para>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="job-task" format="eps" align="center">
+      </imageobject>
+      <imageobject>
+        <imagedata fileref="job-task.jpg" format="jpg" align="center">
+      </imageobject>
+      <!--  PDF files?
+      <imageobject>
+        <imagedata fileref="job-task.pdf" align="center">
+      </imageobject>
+      -->
+    </mediaobject>
+
+    <para>
+      
+      Instead of performing an outer-loop recursive descent
+      of the dependency tree and then forking a task when it finds a
+      file that needs updating, &SCons; starts as many threads as are
+      requested, each thread managed by the &Jobs; class.
+      As a performance optimization,
+      the &Jobs; class maintains an internal
+      distinction between
+      &Serial; and &Parallel;
+      build jobs,
+      so that serial builds
+      don't pay any performance penalty
+      by using a multi-threaded implementation
+      written for &Parallel; builds.
+
+    </para>
+
+    <para>
+      
+      Each &Jobs; object, running in its own thread,
+      then requests a &Task; from a central &Taskmaster;,
+      which is responsible
+      for handing out available &Task; objects for (re-)building
+      out-of-date nodes. A condition variable
+      makes sure that the &Jobs; objects
+      query the &Taskmaster; one at a time.
+
+    </para>
+
+    <para>
+
+      The &Taskmaster uses the node subsystem's
+      &Walker; class to walk the dependency tree,
+      and the &Sig; class to use the
+      appropriate method
+      of deciding if a &Node; is up-to-date.
+
+    </para>
+
+    <para>
+
+      This scheme has many advantages over the standard &Make;
+      implementation of <option>-j</option>.
+      Effective use of <option>-j</option> is difficult
+      with the usual recursive use of Make,
+      because the number of jobs started by <option>-j</option> multiply
+      at each level of the source tree.
+      This makes the actual number of jobs
+      executed at any moment very dependent on the size and layout of
+      the tree. &SCons;, in contrast, starts only as many jobs as are
+      requested, and keeps them constantly busy (excepting jobs that
+      block waiting for their dependency files to finish building).
+
+    </para>
+
+  </section>
+
+</section>
+
+<section>
+  <title>The &SCons; API</title>
+
+  <para>
+
+    This section provides an overview of the &SCons; interface. The
+    complete interface specification is both more detailed and flexible
+    than this overview.
+
+  </para>
+
+  <section>
+    <title>&ConsVars;</title>
+
+    <para>
+
+      In &SCons;, a &consenv; is an object through which an external
+      interface (such as the &scons; script) communicates dependency
+      information to the &SCons; Build Engine.
+
+    </para>
+
+    <para>
+
+      A construction environment is implemented as a dictionary
+      containing:
+
+    </para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>
+
+          construction variables, string values that are substituted
+          into command lines or used by builder functions;
+
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+
+          one or more &Builder; objects that can be invoked to update a
+          file or other object;
+
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+
+          one or more &Scanner; objects that can be used to
+          scan a file automatically for dependencies (such as
+          files specified on <literal>#include</literal> lines).
+
+        </para>
+      </listitem>
+
+    </itemizedlist>
+
+    <para>
+
+      &Consenvs; are instantiated as follows:
+
+    </para>
+
+    <programlisting>
+      env = Environment()
+      env_debug = Environment(CCFLAGS = '-g')
+    </programlisting>
+
+  </section>
+
+  <section>
+    <title>&Builder; Objects</title>
+
+    <para>
+
+      An &SCons; &Builder; object encapsulates information about how to
+      build a specific type of file: an executable program, an object
+      file, a library, etc. A &Builder; object is associated with a
+      file through an associated &consenv; method and later invoked to
+      actually build the file. The &Builder; object will typically use
+      construction variables (such as &CCFLAGS;, &LIBPATH;) to influence
+      the specific build execution.
+
+    </para>
+
+    <para>
+
+      &Builder; objects are instantiated as follows:
+
+    </para>
+
+    <programlisting>
+      bld = Builder(name = 'Program', action = "$CC -o $TARGET $SOURCES")
+    </programlisting>
+
+    <para>
+
+      In the above example, the <literal>action</literal> is a
+      command-line string in which the Build Engine will
+      interpolate the values of construction
+      variables before execution. The actual
+      <literal>action</literal> specified, though,
+      may be a function:
+
+    </para>
+
+    <programlisting>
+      def update(dest):
+          # [code to update the object]
+          return 0
+
+      bld = Builder(name = 'Program', function = update)
+    </programlisting>
+
+    <para>
+
+      Or a callable Python object (or class):
+
+    </para>
+
+    <programlisting>
+      class class_a:
+          def __call__(self, kw):
+              # build the desired object
+          return 0
+
+      builder = SCons.Builder.Builder(action = class_a())
+    </programlisting>
+
+    <para>
+
+      A &Builder; object may have the <literal>prefix</literal> and
+      <literal>suffix</literal> of its target file type specified
+      as keyword arguments at instantiation.  Additionally, the
+      suffix of the <emphasis>source files</emphasis> used by this
+      &Builder; to build its target files may be specified using the
+      <literal>src_suffix</literal> keyword argument:
+
+    </para>
+
+    <programlisting>
+      bld_lib = Builder(name = 'Library', action = "$AR r $TARGET $SOURCES",
+                        prefix = 'lib', suffix = '.a', src_suffix = '.o')
+    </programlisting>
+
+    <para>
+
+      The specified <literal>prefix</literal> and
+      <literal>suffix</literal> will be appended to the name of any
+      target file built by this &Builder; object, if they are not
+      already part of the file name.  The <literal>src_suffix</literal>
+      is used by the &SCons; Build Engine to chain together
+      multiple &Builder; objects to create,
+      for example, a library from the original source
+      files without having to specify the
+      intermediate <literal>.o</literal> files.
+
+    </para>
+
+    <para>
+
+      &Builder; objects are associated with a &consenv; through a
+      &consvar; named &BUILDERS;, a list of the &Builder objects that
+      will be available for execution through the &consenv:
+
+    </para>
+
+    <programlisting>
+      env = Environment(BUILDERS = [ Object, Library, WebPage, Program ])
+    </programlisting>
+
+  </section>
+
+  <section>
+    <title>&Scanner; Objects</title>
+
+    <para>
+
+      &Scanner; objects perform automatic checking for dependencies
+      by scanning the contents of files. The canonical
+      example is scanning a C source file or header file for
+      files specified on <literal>#include</literal> lines.
+
+    </para>
+
+    <para>
+
+      A &Scanner; object is instantiated as follows:
+
+    </para>
+
+    <programlisting>
+      def c_scan(contents):
+           # scan contents of file
+           return # list of files found
+
+      c_scanner = Scanner(name = 'CScan', function = c_scan,
+                          argument = None,
+                          skeys = ['.c', '.C', '.h', '.H')
+    </programlisting>
+
+    <para>
+
+      The <literal>skeys</literal> argument specifies a list of file
+      suffixes for file types that this &Scanner; knows how to scan.
+
+    </para>
+
+    <para>
+
+      &Scanner; objects are associated with a &consenv; through a
+      &consvar; named &SCANNERS;, a list of the &Scanner; objects that
+      will be available through the &consenv:
+
+    </para>
+
+    <programlisting>
+      env = Environment(SCANNERS = [ CScan, M4Scan ])
+    </programlisting>
+
+    <para>
+
+      For utilities that will build files with a variety of file
+      suffixes, or which require unusual scanning rules, a &Scanner;
+      object may be associated explicitly with a &Builder; object as
+      follows:
+
+    </para>
+
+    <programlisting>
+      def tool_scan(contents):
+          # scan contents of file
+          return # list of files found
+
+      tool_scanner = Scanner(name = 'TScan', function = tool_scan)
+
+      bld = Builder(name = 'Tool', scanner = tool_scanner)
+    </programlisting>
+
+  </section>
+
+  <section>
+    <title>&BuildDir;</title>
+
+    <para>
+
+      &SCons; supports a flexible mechanism for building target
+      files in a separate build directory from the source files.
+      The &BuildDir; syntax is straightforward:
+
+    </para>
+
+    <programlisting>
+      BuildDir(source = 'src', build = 'bld')
+    </programlisting>
+
+    <para>
+
+      By
+      default, source files are linked or copied into the build
+      directory, because exactly replicating the source directory
+      is sometimes necessary for certain combinations of use of
+      <literal>#include "..."</literal> and <option>-I</option> search
+      paths.
+
+      An option exists to specify that only output files should be placed in
+      the build directory:
+
+    </para>
+
+    <programlisting>
+      BuildDir(source = 'src', build = 'bld', no_sources = 1)
+    </programlisting>
+
+  </section>
+
+  <section>
+    <title>&Repository;</title>
+
+    <para>
+
+      &SCons; supports the ability to search a list of code repositories
+      for source files and derived files. This works much like
+      &Make;'s <varname>VPATH</varname> feature, as implemented in
+      recent versions of GNU &Make;.
+      (The POSIX standard for &Make; specifies slightly
+      different behavior for <varname>VPATH</varname>.)
+      The syntax is:
+
+    </para>
+
+    <programlisting>
+      Repository('/home/source/1.1', '/home/source/1.0')
+    </programlisting>
+
+    <para>
+
+      A command-line <option>-Y</option> option exists to allow
+      repositories to be specified on the command line, or in the
+      &SCONSFLAGS; environment variable (not construction variable!).
+      This avoids a chicken-and-egg situation and allows the top-level
+      &SConstruct; file to be found in a repository as well.
+
+    </para>
+
+  </section>
+
+  <section>
+    <title>&Cache;</title>
+
+    <para>
+
+      &SCons; supports a way for developers to share derived files. Again, the
+      syntax is straightforward:
+
+    </para>
+
+    <programlisting>
+      Cache('/var/build.cache/i386')
+    </programlisting>
+
+    <para>
+
+      Copies of any derived files built will be placed in the specified
+      directory with their MD5 signature. If another build results in an
+      out-of-date derived file with the same signature, the derived file
+      will be copied from the cache instead of being rebuilt.
+
+    </para>
+
+  </section>
+
+</section>
+
+<section>
+  <title>The &scons; Script</title>
+
+  <para>
+
+    The &scons; script provides an interface
+    that looks roughly equivalent to the
+    classic &Make; utility&mdash;that is, execution from the command
+    line, and dependency information read from configuration files.
+
+  </para>
+
+  <para>
+
+    The most noticeable difference between &scons; and &Make;, or most
+    other build tools, is that the configuration files are actually
+    Python scripts, generically called "SConscripts" (although the
+    top-level "Makefile" is named &SConstruct). Users do not have to
+    learn a new language syntax, but instead configure dependency
+    information by making direct calls to the Python API of the
+    &SCons; Build Engine. Here is an example &SConstruct file which
+    builds a program in side-by-side normal and debug versions:
+
+  </para>
+
+  <programlisting>
+    env = Environment()
+    debug = env.Copy(CCFLAGS = '-g')
+
+    source_files = ['f1.c', 'f2.c', 'f3.c']
+
+    env.Program(target = 'foo', sources = source_files)
+    debug.Program(target = 'foo-debug', sources = source_files)
+  </programlisting>
+
+  <para>
+
+    Notice the fact that this file is a Python script, which allows us
+    to define and re-use an array that lists the source files.
+
+  </para>
+
+  <para>
+
+    Because quoting individul strings in long
+    lists of files can get tedious and error-prone, the &SCons;
+    methods support a short-cut of listing multiple files in a single
+    string, separated by white space.
+    This would change
+    the assignment in the above example to a more easily-readable:
+
+  </para>
+
+  <programlisting>
+    source_files = 'f1.c f2.c f3.c'
+  </programlisting>
+
+  <para>
+
+    The mechanism to establish hierarchical builds is to "include" any
+    subsidiary configuration files in the build by listing them explicitly
+    in a call to the &SConscript; function:
+
+  </para>
+
+  <programlisting>
+    SConscript('src/SConscript', 'lib/SConscript')
+  </programlisting>
+
+  <para>
+
+    By convention, configuration files in subdirectories are named
+    &SConscript;.
+
+  </para>
+
+  <para>
+
+    The &scons; script has intentionally been made to look, from
+    the outside, as much like &Make; as is practical. To this
+    end, the &scons; script supports all of the same command-line
+    options supported by GNU &Make;: <option>-f</option> FILE,
+    <option>-j</option>, <option>-k</option>, <option>-s</option>,
+    etc. For compatibility, &scons; ignores those GNU &Make; options
+    that don't make sense for the &SCons; architecture, such as
+    <option>-b</option>, <option>-m</option>, <option>-S</option>,
+    and <option>-t</option>.  The
+    intention is that, given an equivalent &SConstruct; file for a
+    &Makefile;, a user could use &SCons; as a drop-in replacement for
+    &Make;. Additional command-line options are, where possible, taken
+    from the Perl &Cons; utility on which the &SCons; design is based.
+
+  </para>
+
+</section>

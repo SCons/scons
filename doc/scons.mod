@@ -24,6 +24,7 @@
 <!ENTITY Makepp "<application>Make++</application>">
 <!ENTITY SCons "<application>SCons</application>">
 <!ENTITY scons "<application>scons</application>">
+<!ENTITY ScCons "<application>ScCons</application>">
 
 
 <!--
@@ -32,11 +33,28 @@
 
 -->
 
+<!ENTITY Action "<classname>Action</classname>">
+<!ENTITY ActionBase "<classname>ActionBase</classname>">
+<!ENTITY CommandAction "<classname>CommandAction</classname>">
+<!ENTITY FunctionAction "<classname>FunctionAction</classname>">
+<!ENTITY ListAction "<classname>ListAction</classname>">
 <!ENTITY Builder "<classname>Builder</classname>">
+<!ENTITY BuilderBase "<classname>BuilderBase</classname>">
+<!ENTITY CompositeBuilder "<classname>CompositeBuilder</classname>">
+<!ENTITY MultiStepBuilder "<classname>MultiStepBuilder</classname>">
 <!ENTITY Job "<classname>Job</classname>">
+<!ENTITY Jobs "<classname>Jobs</classname>">
+<!ENTITY Serial "<classname>Serial</classname>">
+<!ENTITY Parallel "<classname>Parallel</classname>">
 <!ENTITY Node "<classname>Node</classname>">
+<!ENTITY Node_FS "<classname>Node.FS</classname>">
 <!ENTITY Scanner "<classname>Scanner</classname>">
+<!ENTITY Sig "<classname>Sig</classname>">
 <!ENTITY Signature "<classname>Signature</classname>">
+<!ENTITY Taskmaster "<classname>Taskmaster</classname>">
+<!ENTITY TimeStamp "<classname>TimeStamp</classname>">
+<!ENTITY Walker "<classname>Walker</classname>">
+<!ENTITY Wrapper "<classname>Wrapper</classname>">
 
 
 
@@ -47,11 +65,12 @@
 -->
 
 <!ENTITY Makefile "<filename>Makefile</filename>">
+<!ENTITY Makefiles "<filename>Makefiles</filename>">
 <!ENTITY SConscript "<filename>SConscript</filename>">
 <!ENTITY SConstruct "<filename>SConstruct</filename>">
 <!ENTITY Sconstruct "<filename>Sconstruct</filename>">
 <!ENTITY sconstruct "<filename>sconstruct</filename>">
-<!ENTITY sconsign "<filename>.consign</filename>">
+<!ENTITY sconsign "<filename>.sconsign</filename>">
 
 
 
@@ -99,9 +118,9 @@
 -->
 
 <!ENTITY BUILDERMAP "<varname>BUILDERMAP</varname>">
-<!ENTITY BUILDERS "<varname>BUILDERMAP</varname>">
+<!ENTITY BUILDERS "<varname>BUILDERS</varname>">
 <!ENTITY SCANNERMAP "<varname>SCANNERMAP</varname>">
-<!ENTITY SCANNERS "<varname>SCANNERMAP</varname>">
+<!ENTITY SCANNERS "<varname>SCANNERS</varname>">
 
 
 
@@ -111,6 +130,9 @@
 
 -->
 
+<!ENTITY CCFLAGS "<varname>CCFLAGS</varname>">
+<!ENTITY LIBPATH "<varname>LIBPATH</varname>">
+<!ENTITY PYTHONPATH "<varname>PYTHONPATH</varname>">
 <!ENTITY SCONSFLAGS "<varname>SCONSFLAGS</varname>">
 
 
@@ -126,6 +148,7 @@
 <!ENTITY SharedLibrary "<function>SharedLibrary</function>">
 <!ENTITY Program "<function>Program</function>">
 <!ENTITY MakeBuilder "<function>Make</function>">
+<!ENTITY BuildDir "<function>BuildDir</function>">
 
 
 
