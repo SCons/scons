@@ -364,24 +364,42 @@ test.run(arguments = ".",
                                    build_str = "scons: `.' is up to date.\n"))
 
 # Test calling SConscript through a construction environment.
-test.subdir('sub')
+test.subdir('sub1', 'sub2')
+
 test.write("SConstruct", """\
-env = Environment(SUBDIR='sub')
+env = Environment(SUB1='sub1', SUB2='sub2')
 print "SConstruct"
 x = 'xxx'
-env.Export("x")
-env.SConscript('$SUBDIR/SConscript')
+y = 'yyy'
+env.Export(["x", "y"])
+env.SConscript('$SUB1/SConscript')
+env.SConscript(dirs=['$SUB2'])
 """)
 
-test.write(['sub', 'SConscript'], """\
+test.write(['sub1', 'SConscript'], """\
 env = Environment()
 env.Import("x")
-print "sub/SConscript"
+print "sub1/SConscript"
 print "x =", x
 """)
 
+test.write(['sub2', 'SConscript'], """\
+env = Environment()
+env.Import("y")
+print "sub2/SConscript"
+print "y =", y
+""")
+
+expect = """\
+SConstruct
+sub1/SConscript
+x = xxx
+sub2/SConscript
+y = yyy
+"""
+
 test.run(arguments = ".",
-         stdout = test.wrap_stdout(read_str = "SConstruct\nsub/SConscript\nx = xxx\n",
+         stdout = test.wrap_stdout(read_str = expect,
                                    build_str = "scons: `.' is up to date.\n"))
 
 test.write("SConstruct", """\

@@ -493,6 +493,13 @@ class SConsEnvironment(SCons.Environment.Base):
         for key, val in kw.items():
             if SCons.Util.is_String(val):
                 val = self.subst(val)
+            elif SCons.Util.is_List(val):
+                result = []
+                for v in val:
+                    if SCons.Util.is_String(v):
+                        v = self.subst(v)
+                    result.append(v)
+                val = result
             subst_kw[key] = val
 
         files, exports = self._get_SConscript_filenames(ls, subst_kw)
