@@ -12,6 +12,11 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX XXXXX
 
   From Steven Knight
 
+  From Gerard Patel
+
+  - When the yacc -d flag is used, take the .h file base name from the
+    target .c file, not the source (matching what yacc does).
+
 
 
 RELEASE 0.91 - Thu, 14 Aug 2003 13:00:44 -0500

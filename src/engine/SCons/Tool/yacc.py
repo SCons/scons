@@ -46,6 +46,7 @@ def _yaccEmitter(target, source, env, ysuf, hsuf):
     if len(source) and '-d' in string.split(env.subst("$YACCFLAGS")):
         base, ext = os.path.splitext(SCons.Util.to_String(source[0]))
         if ext == ysuf:
+            base, ext = os.path.splitext(SCons.Util.to_String(target[0]))
             target.append(base + hsuf)
     return (target, source)
 

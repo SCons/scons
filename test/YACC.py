@@ -105,6 +105,7 @@ foo.Program(target = 'foo', source = 'foo.y')
 bar.Program(target = 'bar', source = 'bar.y')
 foo.Program(target = 'hello', source = ['hello.cpp']) 
 foo.CXXFile(target = 'file.cpp', source = ['file.yy'], YACCFLAGS='-d')
+foo.CFile(target = 'not_foo', source = 'foo.y')
 """ % python)
 
     yacc = r"""
@@ -161,6 +162,7 @@ int main()
 
     test.write('bar.y', yacc % 'bar.y')
 
+    # Build the foo program
     test.run(arguments = 'foo' + _exe, stderr = None)
 
     test.up_to_date(arguments = 'foo' + _exe)
@@ -169,6 +171,25 @@ int main()
 
     test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "foo.y\n")
 
+    test.fail_test(not os.path.exists(test.workpath('foo.h')))
+
+    test.run(arguments = '-c .')
+
+    test.fail_test(os.path.exists(test.workpath('foo.h')))
+
+    #
+    test.run(arguments = 'not_foo.c')
+
+    test.up_to_date(arguments = 'not_foo.c')
+
+    test.fail_test(os.path.exists(test.workpath('foo.h')))
+    test.fail_test(not os.path.exists(test.workpath('not_foo.h')))
+
+    test.run(arguments = '-c .')
+
+    test.fail_test(os.path.exists(test.workpath('not_foo.h')))
+
+    #
     test.run(arguments = 'bar' + _exe)
 
     test.up_to_date(arguments = 'bar' + _exe)
@@ -177,12 +198,7 @@ int main()
 
     test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "bar.y\n")
 
-    test.fail_test(not os.path.exists(test.workpath('foo.h')))
-
-    test.run(arguments = '-c .')
-
-    test.fail_test(os.path.exists(test.workpath('foo.h')))
-
+    #
     test.run(arguments = '.')
 
     test.up_to_date(arguments = '.')
