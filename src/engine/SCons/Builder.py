@@ -207,13 +207,13 @@ def _init_nodes(builder, env, overrides, tlist, slist):
         t.set_executor(executor)
         if builder.scanner:
             t.target_scanner = builder.scanner
-        if not hasattr(t, 'source_scanner'):
+        if not t.source_scanner:
             t.source_scanner = env.get_scanner(t.scanner_key())
 
     # Last, add scanners from the Environment to the source Nodes.
     for s in slist:
-        if not hasattr(s, 'source_scanner'):
-             s.source_scanner = env.get_scanner(s.scanner_key())
+        if not s.source_scanner:
+            s.source_scanner = env.get_scanner(s.scanner_key())
 
 class EmitterProxy:
     """This is a callable class that can act as a

@@ -55,7 +55,6 @@ outfile = test.workpath('outfile')
 outfile2 = test.workpath('outfile2')
 
 show_string = None
-env_scanner = None
 
 scons_env = SCons.Environment.Environment()
 
@@ -71,6 +70,7 @@ class Environment:
             self.d[k] = v
         global env_arg2nodes_called
         env_arg2nodes_called = None
+        self.scanner = None
     def subst(self, s):
         if not SCons.Util.is_String(s):
             return s
@@ -94,7 +94,7 @@ class Environment:
             list.append(a)
         return list
     def get_scanner(self, ext):
-        return env_scanner
+        return self.scanner
     def Dictionary(self):
         return {}
     def autogenerate(self, dir=''):
@@ -130,6 +130,7 @@ class MyNode_without_target_from_source:
         self.sources = []
         self.builder = None
         self.side_effect = 0
+        self.source_scanner = None
     def __str__(self):
         return self.name
     def builder_set(self, builder):
@@ -743,19 +744,30 @@ class BuilderTestCase(unittest.TestCase):
 
     def test_src_scanner(slf):
         """Testing ability to set a source file scanner through a builder."""
-        global env_scanner
         class TestScanner:
             def key(self, env):
                  return 'TestScannerkey'
             def instance(self, env):
                  return self
-        env_scanner = TestScanner()
-        env = Environment()
+
+        scanner = TestScanner()
         builder = SCons.Builder.Builder(action='action')
-        tgt = builder(env, target='foo.x', source='bar.y')
+
+        # With no scanner specified, source_scanner is None.
+        env1 = Environment()
+        tgt = builder(env1, target='foo1.x', source='bar.y')
         src = tgt.sources[0]
-        assert tgt.target_scanner != env_scanner, tgt.target_scanner
-        assert src.source_scanner == env_scanner, src.source_scanner
+        assert tgt.target_scanner != scanner, tgt.target_scanner
+        assert src.source_scanner is None, src.source_scanner
+
+        # Later use of the same source file with an environment that
+        # has a scanner must still set the scanner.
+        env2 = Environment()
+        env2.scanner = scanner
+        tgt = builder(env2, target='foo2.x', source='bar.y')
+        src = tgt.sources[0]
+        assert tgt.target_scanner != scanner, tgt.target_scanner
+        assert src.source_scanner == scanner, src.source_scanner
 
     def test_Builder_Args(self):
         """Testing passing extra args to a builder."""

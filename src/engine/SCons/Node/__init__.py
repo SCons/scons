@@ -112,11 +112,7 @@ class Node:
         self.parents = {}
         self.wkids = None       # Kids yet to walk, when it's an array
         self.target_scanner = None      # explicit scanner from this node's Builder
-
-        # If/when this attribute exists, it's an implicit scanner from
-        # the scanner map for an environment.  The attribute is created
-        # when we select the scanner, a value of None means there is none.
-        #self.source_scanner = None
+        self.source_scanner = None      # source scanner
 
         self.env = None
         self.state = None
@@ -201,21 +197,16 @@ class Node:
         # Clear out the implicit dependency caches:
         # XXX this really should somehow be made more general and put
         #     under the control of the scanners.
-        try:
-            scanner = self.source_scanner
-        except AttributeError:
-            pass
-        else:
-            if scanner:
-                self.found_includes = {}
-                self.includes = None
+        if self.source_scanner:
+            self.found_includes = {}
+            self.includes = None
 
-                def get_parents(node, parent): return node.get_parents()
-                def clear_cache(node, parent):
-                    node.implicit = None
-                    node.del_bsig()
-                w = Walker(self, get_parents, ignore_cycle, clear_cache)
-                while w.next(): pass
+            def get_parents(node, parent): return node.get_parents()
+            def clear_cache(node, parent):
+                node.implicit = None
+                node.del_bsig()
+            w = Walker(self, get_parents, ignore_cycle, clear_cache)
+            while w.next(): pass
 
         # clear out the content signature, since the contents of this
         # node were presumably just changed:
@@ -393,17 +384,13 @@ class Node:
         build_env = self.get_build_env()
 
         for child in self.children(scan=0):
-            try:
-                scanner = child.source_scanner
-            except AttributeError:
-                pass
-            else:
-                if scanner:
-                    self._add_child(self.implicit,
-                                    self.implicit_dict,
-                                    child.get_implicit_deps(build_env,
-                                                            scanner,
-                                                            self))
+            scanner = child.source_scanner
+            if scanner:
+                self._add_child(self.implicit,
+                                self.implicit_dict,
+                                child.get_implicit_deps(build_env,
+                                                        scanner,
+                                                        self))
 
         # scan this node itself for implicit dependencies
         self._add_child(self.implicit,
