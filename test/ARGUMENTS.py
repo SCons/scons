@@ -29,7 +29,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-foo = open('foo.out', 'w')
+foo = open('foo.out', 'wb')
 keys = ARGUMENTS.keys()
 keys.sort()
 for k in keys:
