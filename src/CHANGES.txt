@@ -68,6 +68,8 @@ RELEASE 0.07 -
     that writes to a temporary file and uses the magic MSVC "link @file"
     argument syntax if the line is longer than 2K characters.
 
+  - Fix F77 command-line options on Win32 (use /Fo instead of -o).
+
   From Steve Leblanc:
 
   - Add the SConscriptChdir() method.

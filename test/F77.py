@@ -43,16 +43,15 @@ test = TestSCons.TestSCons()
 if sys.platform == 'win32':
 
     test.write('mylink.py', r"""
-import getopt
-import os
+import string
 import sys
 args = sys.argv[1:]
 while args:
     a = args[0]
     if a[0] != '/':
         break
-    args.pop(0)
-    if a[:5] == '/OUT:': out = a[5:]
+    args = args[1:]
+    if string.lower(a[:5]) == '/out:': out = a[5:]
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
@@ -61,11 +60,30 @@ for l in infile.readlines():
 sys.exit(0)
 """)
 
+    test.write('myg77.py', r"""
+import sys
+args = sys.argv[1:]
+inf = None
+while args:
+    a = args[0]
+    args = args[1:]
+    if a[0] != '/':
+        if not inf:
+            inf = a
+        continue
+    if a[:3] == '/Fo': out = a[3:]
+infile = open(inf, 'rb')
+outfile = open(out, 'wb')
+for l in infile.readlines():
+    if l[:4] != '#g77':
+	outfile.write(l)
+sys.exit(0)
+""")
+
 else:
 
     test.write('mylink.py', r"""
 import getopt
-import os
 import sys
 opts, args = getopt.getopt(sys.argv[1:], 'o:')
 for opt, arg in opts:
@@ -78,9 +96,8 @@ for l in infile.readlines():
 sys.exit(0)
 """)
 
-test.write('myg77.py', r"""
+    test.write('myg77.py', r"""
 import getopt
-import os
 import sys
 opts, args = getopt.getopt(sys.argv[1:], 'co:')
 for opt, arg in opts:
