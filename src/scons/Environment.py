@@ -79,7 +79,9 @@ class Environment:
 	(like a function).  There are no references to any mutable
 	objects in the original Environment.
 	"""
-	return copy.deepcopy(self)
+	clone = copy.deepcopy(self)
+	apply(clone.Update, (), kw)
+	return clone
 
     def Scanners(self):
 	pass	# XXX

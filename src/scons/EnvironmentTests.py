@@ -61,12 +61,21 @@ class EnvironmentTestCase(unittest.TestCase):
 	Update the copy independently afterwards and check that
 	the original remains intact (that is, no dangling
 	references point to objects in the copied environment).
+	Copy the original with some construction variable
+	updates and check that the original remains intact
+	and the copy has the updated values.
 	"""
 	env1 = Environment(XXX = 'x', YYY = 'y')
 	env2 = env1.Copy()
 	env1copy = env1.Copy()
 	env2.Update(YYY = 'yyy')
 	assert env1 != env2
+	assert env1 == env1copy
+
+	env3 = env1.Copy(XXX = 'x3', ZZZ = 'z3')
+	assert env3.Dictionary['XXX'] == 'x3'
+	assert env3.Dictionary['YYY'] == 'y'
+	assert env3.Dictionary['ZZZ'] == 'z3'
 	assert env1 == env1copy
 
     def test_Dictionary(self):
