@@ -36,7 +36,16 @@ if sys.platform == 'win32':
 else:
     _exe = ''
 
+ranlib = None
+for dir in string.split(os.environ['PATH'], os.pathsep):
+    r = os.path.join(dir, 'ranlib' + _exe)
+    if os.path.exists(r):
+        ranlib = r
+        break
+
 test = TestSCons.TestSCons()
+
+test.no_result(not ranlib)
 
 test.write("wrapper.py",
 """import os
