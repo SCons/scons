@@ -279,10 +279,11 @@ def generate(env, platform):
     if CScan:
         CScan.add_skey('.rc')
     env['BUILDERS']['RES'] = res_builder
-    
-    include_path, lib_path, exe_path = get_msdev_paths()
-    env['ENV']['INCLUDE'] = include_path
-    env['ENV']['PATH']    = exe_path
+
+    if SCons.Util.can_read_reg:
+        include_path, lib_path, exe_path = get_msdev_paths()
+        env['ENV']['INCLUDE'] = include_path
+        env['ENV']['PATH']    = exe_path
 
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'

@@ -134,7 +134,10 @@ def generate(env, platform):
     env['SHLIBEMITTER']= win32LibEmitter
     env['LINK']        = 'link'
     env['LINKFLAGS']   = '/nologo'
-    env['LINKCOM']     = LinkAction
+    if str(platform) == 'cygwin':
+        env['LINKCOM'] = '$LINK $LINKFLAGS /OUT:$TARGET $( $_LIBDIRFLAGS $) $_LIBFLAGS $SOURCES'
+    else:
+        env['LINKCOM'] = LinkAction
     env['PROGEMITTER'] = prog_emitter
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''
@@ -145,9 +148,10 @@ def generate(env, platform):
     env['WIN32DEFSUFFIX']        = '.def'
     env['WIN32_INSERT_DEF']      = 0
 
-    include_path, lib_path, exe_path = get_msdev_paths()
-    env['ENV']['LIB']            = lib_path
-    env['ENV']['PATH']           = exe_path
+    if SCons.Util.can_read_reg:
+        include_path, lib_path, exe_path = get_msdev_paths()
+        env['ENV']['LIB']            = lib_path
+        env['ENV']['PATH']           = exe_path
 
 def exists(env):
     return env.Detect('link')
