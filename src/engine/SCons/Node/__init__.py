@@ -120,8 +120,13 @@ class Node:
             def get_parents(node, parent): return node.get_parents()
             def clear_cache(node, parent): 
                 node.implicit = None
+                node.bsig = None
             w = Walker(self, get_parents, ignore_cycle, clear_cache)
             while w.next(): pass
+
+        # clear out the content signature, since the contents of this
+        # node were presumably just changed:
+        self.csig = None
 
     def depends_on(self, nodes):
         """Does this node depend on any of 'nodes'?"""
@@ -194,6 +199,11 @@ class Node:
         of its dependency files and build information)."""
         self.bsig = bsig
 
+    def store_bsig(self):
+        """Make the build signature permanent (that is, store it in the
+        .sconsign file or equivalent)."""
+        pass
+
     def get_csig(self):
         """Get the signature of the node's content."""
         return self.csig
@@ -202,10 +212,18 @@ class Node:
         """Set the signature of the node's content."""
         self.csig = csig
 
-    def store_sigs(self):
-        """Make the signatures permanent (that is, store them in the
+    def store_csig(self):
+        """Make the content signature permanent (that is, store it in the
         .sconsign file or equivalent)."""
         pass
+
+    def get_prevsiginfo(self):
+        """Fetch the previous signature information from the
+        .sconsign entry."""
+        return None
+
+    def get_timestamp(self):
+        return 0
 
     def set_precious(self, precious = 1):
         """Set the Node's precious value."""

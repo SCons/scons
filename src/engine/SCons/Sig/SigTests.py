@@ -99,15 +99,21 @@ class DummyNode:
     def get_bsig(self):
         return self.bsig
 
+    def store_bsig(self):
+        pass
+
     def set_csig(self, csig):
         self.csig = csig
 
     def get_csig(self):
         return self.csig
 
+    def store_csig(self):
+        pass
+
     def get_prevsiginfo(self):
         return (self.oldtime, self.oldbsig, self.oldcsig)
-
+    
     def builder_sig_adapter(self):
         class Adapter:
             def get_contents(self):
@@ -160,7 +166,11 @@ def write(calc, nodes):
         node.oldtime = node.file.timestamp
         node.oldbsig = calc.bsig(node)
         node.oldcsig = calc.csig(node)
-        
+
+def clear(nodes):
+    for node in nodes:
+        node.csig = None
+        node.bsig = None
 
 class SigTestBase:
     
@@ -173,6 +183,7 @@ class SigTestBase:
         self.test_initial()
         self.test_built()
         self.test_modify()
+        self.test_modify_same_time()
         self.test_delete()
         self.test_cache()
         
@@ -217,6 +228,8 @@ class SigTestBase:
         self.files[6].modify('blah blah blah', 333)
         self.files[8].modify('blah blah blah', 333)
 
+        clear(nodes)
+
         self.failUnless(not current(calc, nodes[0]), "modified directly")
         self.failUnless(not current(calc, nodes[1]), "direct source modified")
         self.failUnless(current(calc, nodes[2]))
@@ -228,6 +241,27 @@ class SigTestBase:
         self.failUnless(not current(calc, nodes[8]), "modified directory")
         self.failUnless(not current(calc, nodes[9]), "direct source modified")
         self.failUnless(not current(calc, nodes[10]), "indirect source modified")
+
+
+    def test_modify_same_time(self):
+
+        nodes = create_nodes(self.files)
+
+        calc = SCons.Sig.Calculator(self.module, 0)
+
+        write(calc, nodes)
+
+        #simulate a modification of some files without changing the timestamp:
+        self.files[0].modify('blah blah blah blah', 333)
+        self.files[3].modify('blah blah blah blah', 333)
+        self.files[6].modify('blah blah blah blah', 333)
+        self.files[8].modify('blah blah blah blah', 333)
+
+        clear(nodes)
+
+        for node in nodes:
+            self.failUnless(current(calc, node),
+                            "all of the nodes should be current")
 
     def test_delete(self):
         
@@ -306,6 +340,10 @@ class CalcTestCase(unittest.TestCase):
                 return 1
             def get_bsig(self):
                 return self.bsig
+            def set_bsig(self, bsig):
+                self.bsig = bsig
+            def store_sigs(self):
+                pass
             def get_csig(self):
                 return self.csig
             def get_prevsiginfo(self):

@@ -157,6 +157,7 @@ climb_up = 0
 target_top = None
 exit_status = 0 # exit status, assume success by default
 profiling = 0
+max_drift = None
 
 # utility functions
 
@@ -510,6 +511,18 @@ def options_init():
 	long = ['list-where'],
 	help = "Don't build; list files and where defined.")
 
+    def opt_max_drift(opt, arg):
+        global max_drift
+        try:
+            max_drift = int(arg)
+        except ValueError: 
+            raise UserError, "The argument for --max-drift must be an integer."
+
+    Option(func = opt_max_drift,
+        long = ['max-drift'],
+        arg = 'SECONDS',
+        help = "Set the maximum system clock drift to be SECONDS.")
+
     def opt_n(opt, arg):
 	SCons.Action.execute_actions = None
 	CleanTask.execute = CleanTask.show
@@ -797,7 +810,10 @@ def _main():
     nodes = filter(lambda x: x is not None, map(Entry, targets))
 
     if not calc:
-        calc = SCons.Sig.Calculator(SCons.Sig.MD5)
+        if max_drift is None:
+            calc = SCons.Sig.Calculator(SCons.Sig.MD5)
+        else:
+            calc = SCons.Sig.Calculator(SCons.Sig.MD5, max_drift)
 
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
 

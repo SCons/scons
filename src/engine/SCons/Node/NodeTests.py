@@ -266,11 +266,17 @@ class NodeTestCase(unittest.TestCase):
         node.set_csig('zzz')
         assert node.get_csig() == 'zzz'
 
-    def test_store_sigs(self):
-        """Test calling the method to store signatures
+    def test_store_bsig(self):
+        """Test calling the method to store a build signature
         """
         node = SCons.Node.Node()
-        node.store_sigs()
+        node.store_bsig()
+
+    def test_store_sigs(self):
+        """Test calling the method to store a content signature
+        """
+        node = SCons.Node.Node()
+        node.store_csig()
 
     def test_set_precious(self):
         """Test setting a Node's precious value

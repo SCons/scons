@@ -33,6 +33,7 @@ import os
 import os.path
 import string
 import SCons.Node
+import time
 
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
@@ -52,13 +53,13 @@ class SConsignFile:
         dir - the directory for the file
         module - the signature module being used
         """
-        
+
         self.dir = dir
         self.module = module
         self.sconsign = os.path.join(dir.path, '.sconsign')
         self.entries = {}
         self.dirty = None
-                    
+
         try:
             file = open(self.sconsign, 'rt')
         except:
@@ -78,7 +79,7 @@ class SConsignFile:
         filename - the filename whose signature will be returned
         returns - (timestamp, bsig, csig)
         """
-        
+
         try:
             arr = map(string.strip, string.split(self.entries[filename], " "))
         except KeyError:
@@ -162,13 +163,17 @@ class Calculator:
     for the build engine.
     """
 
-    def __init__(self, module):
+    def __init__(self, module, max_drift=2*24*60*60):
         """
         Initialize the calculator.
 
         module - the signature module to use for signature calculations
+        max_drift - the maximum system clock drift used to determine when to
+          cache content signatures. A negative value means to never cache
+          content signatures. (defaults to 2 days)
         """
         self.module = module
+        self.max_drift = max_drift
 
     def bsig(self, node):
         """
@@ -185,21 +190,23 @@ class Calculator:
         """
         if not node.use_signature:
             return None
-        #XXX If configured, use the content signatures from the
-        #XXX .sconsign file if the timestamps match.
 
         bsig = node.get_bsig()
         if not bsig is None:
             return bsig
 
-        sigs = []
-        for child in node.children():
-            sigs.append(self.get_signature(child))
+        sigs = map(self.get_signature, node.children())
         if node.builder:
             sigs.append(self.module.signature(node.builder_sig_adapter()))
+        bsig = self.module.collect(filter(lambda x: not x is None, sigs))
 
-        return self.module.collect(filter(lambda x: not x is None, sigs))
-        
+        node.set_bsig(bsig)
+
+        # don't store the bsig here, because it isn't accurate until
+        # the node is actually built.
+
+        return bsig
+
     def csig(self, node):
         """
         Generate a node's content signature, the digested signature
@@ -210,14 +217,35 @@ class Calculator:
         """
         if not node.use_signature:
             return None
-        #XXX If configured, use the content signatures from the
-        #XXX .sconsign file if the timestamps match.
+
         csig = node.get_csig()
         if not csig is None:
             return csig
-        
-        return self.module.signature(node)
-        
+
+        if self.max_drift >= 0:
+            info = node.get_prevsiginfo()
+        else:
+            info = None
+
+        mtime = node.get_timestamp()
+
+        if (info and info[0] and info[2] and info[0] == mtime):
+            # use the signature stored in the .sconsign file
+            csig = info[2]
+            # Set the csig here so it doesn't get recalculated unnecessarily
+            # and so it's set when the .sconsign file gets written
+            node.set_csig(csig)
+        else:
+            csig = self.module.signature(node)
+            # Set the csig here so it doesn't get recalculated unnecessarily
+            # and so it's set when the .sconsign file gets written
+            node.set_csig(csig)
+
+            if self.max_drift >= 0 and (time.time() - mtime) > self.max_drift:
+                node.store_csig()
+
+        return csig
+
     def get_signature(self, node):
         """
         Get the appropriate signature for a node.
@@ -264,5 +292,5 @@ class Calculator:
 
         if not node.builder and node.get_timestamp() == oldtime:
             return 1
-        
+
         return self.module.current(newsig, oldbsig)

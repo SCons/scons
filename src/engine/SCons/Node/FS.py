@@ -520,10 +520,19 @@ class File(Entry):
         else:
             return 0
 
-    def store_sigs(self):
-        """Update a file's .sconsign entry with its current info."""
-        self.dir.sconsign().set(self.name, self.get_timestamp(),
-                                self.get_bsig(), self.get_csig())
+    def store_csig(self):
+        old = self.get_prevsiginfo()
+        self.dir.sconsign().set(self.name,
+                                self.get_timestamp(),
+                                old[1],
+                                self.get_csig())
+
+    def store_bsig(self):
+        old = self.get_prevsiginfo()
+        self.dir.sconsign().set(self.name,
+                                self.get_timestamp(),
+                                self.get_bsig(),
+                                old[2])
 
     def get_prevsiginfo(self):
         """Fetch the previous signature information from the

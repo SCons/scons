@@ -93,7 +93,10 @@ class Node:
     def set_csig(self, csig):
         self.csig = csig
 
-    def store_sigs(self):
+    def store_csig(self):
+        pass
+
+    def store_bsig(self):
         pass
   
     

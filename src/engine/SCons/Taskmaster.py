@@ -90,7 +90,7 @@ class Task:
         if self.targets[0].get_state() == SCons.Node.executing:
             self.set_tstates(SCons.Node.executed)
             for t in self.targets:
-                t.store_sigs()
+                t.store_bsig()
                 t.built()
 
         self.tm.executed(self.node)
@@ -189,13 +189,6 @@ class Taskmaster:
                 nodes.reverse()
                 desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
                 raise SCons.Errors.UserError, desc
-
-            for child in children:
-                if not child.builder:
-                    # set the signature for non-derived files
-                    # here so they don't get recalculated over
-                    # and over again:
-                    child.set_csig(self.calc.csig(child))
 
             # Add non-derived files that have not been built
             # to the candidates list:

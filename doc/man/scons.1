@@ -428,6 +428,17 @@ Ignored for compatibility with non-GNU versions of
 .BR make .
 
 .TP
+.RI --max-drift= SECONDS
+Set the maximum expected drift in the modification time of files to 
+.IR SECONDS .
+This value determines how old a file must be before its content signature
+is cached. The default value is 2 days, which means a file must have a
+modification time of at least two days ago in order to have its content
+signature cached. A negative value means to never cache the content
+signature and to ignore the cached value if there already is one. A value
+of 0 means to always cache the signature, no matter how old the file is.
+
+.TP
 -n, --just-print, --dry-run, --recon
 No execute.  Print the commands that would be executed to build
 any out-of-date target files, but do not execute the commands.
