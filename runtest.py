@@ -22,6 +22,13 @@
 #			debugger (pdb.py) so you don't have to
 #			muck with PYTHONPATH yourself.
 #
+#       -h              Print the help and exit.
+#
+#       -o file         Print test results to the specified file
+#                       in the format expected by aetest(5).  This
+#                       is intended for use in the batch_test_command
+#                       field in the Aegis project config file.
+#
 #	-p package	Test against the specified package.
 #
 #	-q		Quiet.  By default, runtest.py prints the
@@ -55,6 +62,9 @@ printcmd = 1
 package = None
 scons = None
 scons_exec = None
+output = None
+
+cwd = os.getcwd()
 
 if sys.platform == 'win32':
     lib_dir = os.path.join(sys.exec_prefix, "lib")
@@ -63,36 +73,73 @@ else:
     # not an executable, so it's all right.
     lib_dir = os.path.join(sys.exec_prefix, "lib", "python" + sys.version[0:3])
 
-opts, args = getopt.getopt(sys.argv[1:], "adqp:Xx:",
-			    ['all', 'debug', 'exec=', 'quiet', 'package='])
+helpstr = """\
+Usage: runtest.py [OPTIONS] [TEST ...]
+Options:
+  -a, --all                   Run all tests.
+  -d, --debug                 Run test scripts under the Python debugger.
+  -h, --help                  Print this message and exit.
+  -o FILE, --output FILE      Print test results to FILE (Aegis format).
+  -p PACKAGE, --package PACKAGE
+                              Test against the specified PACKAGE:
+                                deb         Debian
+                                rpm         Red Hat
+                                src-tar-gz  .tar.gz source package
+                                src-zip     .zip source package
+                                tar-gz      .tar.gz distribution
+                                zip         .zip distribution
+  -q, --quiet                 Don't print the test being executed.
+  -X                          Test script is executable, don't feed to Python.
+  -x SCRIPT, --exec SCRIPT    Test SCRIPT.
+"""
+
+opts, args = getopt.getopt(sys.argv[1:], "adho:p:qXx:",
+                            ['all', 'debug', 'help', 'output=',
+                             'package=', 'quiet', 'exec='])
 
 for o, a in opts:
-    if o == '-a' or o == '--all': all = 1
-    elif o == '-d' or o == '--debug': debug = os.path.join(lib_dir, "pdb.py")
-    elif o == '-q' or o == '--quiet': printcmd = 0
-    elif o == '-p' or o == '--package': package = a
-    elif o == '-X': scons_exec = 1
-    elif o == '-x' or o == '--exec': scons = a
+    if o == '-a' or o == '--all':
+        all = 1
+    elif o == '-d' or o == '--debug':
+        debug = os.path.join(lib_dir, "pdb.py")
+    elif o == '-h' or o == '--help':
+        print helpstr
+        sys.exit(0)
+    elif o == '-o' or o == '--output':
+        if not os.path.isabs(a):
+            a = os.path.join(cwd, a)
+        output = a
+    elif o == '-p' or o == '--package':
+        package = a
+    elif o == '-q' or o == '--quiet':
+        printcmd = 0
+    elif o == '-X':
+        scons_exec = 1
+    elif o == '-x' or o == '--exec':
+        scons = a
 
-cwd = os.getcwd()
+class Test:
+    def __init__(self, path):
+        self.path = path
+        self.abspath = os.path.abspath(path)
+        self.status = None
 
 if args:
     for a in args:
-        tests.extend(glob.glob(os.path.abspath(a)))
+        for g in glob.glob(a):
+            tests.append(Test(g))
 elif all:
-    def find_Test_py(arg, dirname, names):
-	global tests
-        n = filter(lambda n: n[-8:] == "Tests.py", names)
-        tests.extend(map(lambda x,d=dirname: os.path.join(d, x), n))
+    def find_Test_py(arg, dirname, names, t=tests):
+        for n in filter(lambda n: n[-8:] == "Tests.py", names):
+            t.append(Test(os.path.join(dirname, n)))
     os.path.walk('src', find_Test_py, 0)
 
-    def find_py(arg, dirname, names):
-	global tests
-        n = filter(lambda n: n[-3:] == ".py", names)
-        tests.extend(map(lambda x,d=dirname: os.path.join(d, x), n))
+    def find_py(arg, dirname, names, t=tests):
+        for n in filter(lambda n: n[-3:] == ".py", names):
+            t.append(Test(os.path.join(dirname, n)))
     os.path.walk('test', find_py, 0)
 
-    tests.sort()
+    tests.sort(lambda a, b: cmp(a.path, b.path))
 
 if package:
 
@@ -152,39 +199,52 @@ os.environ['PYTHONPATH'] = lib_dir + \
 
 os.chdir(scons_dir)
 
-fail = []
-no_result = []
+class Unbuffered:
+    def __init__(self, file):
+        self.file = file
+    def write(self, arg):
+        self.file.write(arg)
+        self.file.flush()
+    def __getattr__(self, attr):
+        return getattr(self.file, attr)
 
-for path in tests:
-    if os.path.isabs(path):
-	abs = path
-    else:
-	abs = os.path.join(cwd, path)
-    cmd = string.join([sys.executable, debug, abs], " ")
+sys.stdout = Unbuffered(sys.stdout)
+
+for t in tests:
+    cmd = string.join([sys.executable, debug, t.abspath], " ")
     if printcmd:
-	print cmd
+        sys.stdout.write(cmd + "\n")
     s = os.system(cmd)
-    if s == 1 or s == 256:
-        fail.append(path)
-    elif s == 2 or s == 512:
-        no_result.append(path)
-    elif s != 0:
-        print "Unexpected exit status %d" % s
+    if s >= 256:
+        s = s / 256
+    t.status = s
+    if s < 0 or s > 2:
+        sys.stdout.write("Unexpected exit status %d\n" % s)
+
+fail = filter(lambda t: t.status == 1, tests)
+no_result = filter(lambda t: t.status == 2, tests)
 
 if len(tests) != 1:
     if fail:
         if len(fail) == 1:
-            str = "test"
+            sys.stdout.write("\nFailed the following test:\n")
         else:
-            str = "%d tests" % len(fail)
-        print "\nFailed the following %s:" % str
-        print "\t", string.join(fail, "\n\t")
+            sys.stdout.write("\nFailed the following %d tests:\n" % len(fail))
+        sys.stdout.write("\t" + string.join(fail, "\n\t") + "\n")
     if no_result:
         if len(no_result) == 1:
-            str = "test"
+            sys.stdout.write("\nNO RESULT from the following test:\n")
         else:
-            str = "%d tests" % len(no_result)
-        print "\nNO RESULT from the following %s:" % str
-        print "\t", string.join(no_result, "\n\t")
+            sys.stdout.write("\nNO RESULT from the following %d tests:\n" % len(no_result))
+        sys.stdout.write("\t" + string.join(no_result, "\n\t") + "\n")
+
+if output:
+    f = open(output, 'w')
+    f.write("test_result = [\n")
+    for t in tests:
+        f.write('    { file_name = "%s";\n' % t.path)
+        f.write('      exit_status = %d; },\n' % t.status)
+    f.write("];\n")
+    f.close()
 
 sys.exit(len(fail) + len(no_result))

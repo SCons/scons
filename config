@@ -241,6 +241,8 @@ diff_command =
  */
 test_command = "python ${Source runtest.py Absolute} -p tar-gz -q ${File_Name}";
 
+batch_test_command = "python ${Source runtest.py Absolute} -p tar-gz -o ${Output} ${File_Names}";
+
 new_test_filename = "test/CHANGETHIS.py";
 
 /*
