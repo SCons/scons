@@ -112,16 +112,22 @@ use Cwd;
 $test1_dir = File::Spec->catfile(cwd, "build", "test1");
 $test2_dir = File::Spec->catfile(cwd, "build", "test2");
 
-$test1_lib_dir = File::Spec->catfile($test1_dir,
-                                     "lib",
-                                     "$project-$version");
+$lib_project = File::Spec->catfile("lib", "$project");
+
+# Originally, we were going to package the build engine in a
+# private SCons library that contained the version number, so
+# we could easily have multiple side-by-side versions of SCons
+# installed.  Keep this around in case we ever want to go back
+# to that scheme.  Note that this also requires changes to
+# runtest.py and src/setup.py.
+#$lib_project = File::Spec->catfile("lib", "$project-$version");
+
+$test1_lib_dir = File::Spec->catfile($test1_dir, $lib_project);
 
 $test2_lib_dir = File::Spec->catfile($test2_dir,
                                      "lib",
                                      "python${python_ver}",
                                      "site-packages");
-
-$lib_project_ver = File::Spec->catfile("lib", "$project-$version");
 
 $unpack_dir = File::Spec->catfile(cwd, "build", "unpack");
 
@@ -149,7 +155,21 @@ $env = new cons( ENV => {
 		 SEDCOM		=> "%SED %SEDFLAGS %< > %>",
 		);
 
-my @src_deps;
+#
+# Define SCons packages.
+#
+# In the original, more complicated packaging scheme, we were going
+# to have separate packages for:
+#
+#	python-scons	only the build engine
+#	scons-script	only the script
+#	scons		the script plus the build engine
+#
+# We're now only delivering a single "scons" package, but this is still
+# "built" as two sub-packages (the build engine and the script), so
+# the definitions remain here, even though we're not using them for
+# separate packages.
+#
 
 $python_scons = {
         'pkg'		=> "python-$project",
@@ -170,8 +190,14 @@ $python_scons = {
         }
 };
 
-# Supporting this is going to take some magic in src/engine/setup.py,
-# so comment it out for now.
+#
+# The original packaging scheme would have have required us to push
+# the Python version number into the package name (python1.5-scons,
+# python2.0-scons, etc.), which would have required a definition
+# like the following.  Leave this here in case we ever decide to do
+# this in the future, but note that this would require some modification
+# to src/engine/setup.py before it would really work.
+#
 #$python2_scons = {
 #        'pkg'		=> "python2-$project",
 #        'src_subdir'	=> 'engine',
@@ -219,15 +245,18 @@ $scons = {
                                 debian/scons.postinst
                                 debian/scons.prerm) ],
 
-        'files'		=> [ qw(LICENSE.txt README.txt setup.cfg setup.py) ],
+        'files'		=> [ qw(LICENSE.txt README.txt script/scons.bat
+                                setup.cfg setup.py) ],
 
         'subpkgs'	=> [ $python_scons, $scons_script ],
-        'subinst_dirs'	=> { "python-$project" => $lib_project_ver,
+        'subinst_dirs'	=> { "python-$project" => $lib_project,
                              "$project-script" => 'bin',
                            },
 };
 
-for $p ($scons, $python_scons, $scons_script) {
+my @src_deps;
+
+for $p ($scons) {
     #
     # Initialize variables with the right directories for this package.
     #
@@ -352,7 +381,7 @@ for $p ($scons, $python_scons, $scons_script) {
         push(@build_targets, $deb);
         $env->Depends($deb, @{$p->{'debian_deps'}});
         $commands .= qq(
-                fakeroot make -f debian/rules DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-$pkg
+                fakeroot make -f debian/rules VERSION=%VERSION DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-$pkg
                 env DH_COMPAT=$DH_COMPAT dh_clean);
     }
 

@@ -51,7 +51,9 @@ install-common-stamp:
 install-scons: build install-common
 	python build/scons/setup.py install \
 --install-scripts=`pwd`/debian/scons/usr/bin \
---install-purelib=`pwd`/debian/scons/usr/lib/scons-0.01 --no-compile
+--install-purelib=`pwd`/debian/scons/usr/lib/scons --no-compile
+# Here's how we'd install the build engine in a version-specific directory.
+#--install-purelib=`pwd`/debian/scons/usr/lib/scons-$VERSION --no-compile
 
 install-python-scons: build install-common
 	python build/python-scons/setup.py install \

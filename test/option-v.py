@@ -33,7 +33,9 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.write('SConstruct', "")
 
-expect = r"""SCons version \S+, by Steven Knight et al.
+expect = r"""SCons by Steven Knight et al.:
+\tscript version \S+
+\tbuild engine version \S+
 Copyright 2001 Steven Knight
 """
 

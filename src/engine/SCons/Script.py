@@ -497,7 +497,10 @@ def options_init():
 	help = "Search up directory tree for SConstruct.")
 
     def option_v(opt, arg):
-	print "SCons version __VERSION__, by Steven Knight et al."
+        import SCons
+	print "SCons by Steven Knight et al.:"
+	print "\tscript version __VERSION__"
+	print "\tbuild engine version %s" % SCons.__version__
 	print "Copyright 2001 Steven Knight"
 	sys.exit(0)
 

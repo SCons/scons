@@ -23,54 +23,6 @@ the latest version by checking the SCons download page at:
         http://www.scons.org/download.html
 
 
-ABOUT SCONS PACKAGES
-====================
-
-The complete SCons system is comprised of three separate packages:
-
-    scons [THIS PACKAGE]
-        The scons script itself, plus the SCons build engine
-        installed into an SCons-specific library directory.
-
-    python-scons
-        The SCons build engine, installed into the standard
-        Python library directory.
-
-    scons-script
-        Only the scons script itself.
-
-Depending on what you want to do with SCons, you may need to install
-additional (or other) packages:
-
-    If you just want to use scons (the script) to build software:
-
-        Install this package.  You do not need to install any other
-        packages.
-
-    If you do NOT want to use the scons script, but you want to use the
-    SCons build engine in other Python software:
-
-        Do NOT install this package.  Install the python-scons package
-        instead.
-
-    If you want to use the scons script AND you want to use the SCons
-    build engine in other Python software:
-
-        Install this package AND install the python-scons package.
-
-        Note that this installs two separate copies of the build engine,
-        one (in an SCons-specific library directory) used by the scons
-        script itself and one (in the standard Python library) used by
-        other software.  This allows you the flexibility to upgrade
-        one build engine without affecting the other.
-
-    If you want the scons script and other Python software to use the
-    same version of the build engine:
-
-        Do NOT install this package.  Install the python-scons AND the
-        scons-script packages instead.
-
-
 INSTALLATION
 ============
 
@@ -78,6 +30,11 @@ To install this package, simply run the provided Python-standard setup
 script as follows:
 
         # python setup.py
+
+This will install the scons script in the default script directory
+(/usr/bin or C:\Python*\Scripts, for example) and the build engine in an
+appropriate SCons library directory (/usr/lib/scons or C:\Python*\SCons,
+for example).
 
 You should have system installation privileges (that is, "root" or
 "Administrator") when running the setup.py script.
@@ -153,7 +110,7 @@ Steven Knight
 knight at baldmt dot com
 http://www.baldmt.com/~knight/
 
-With more than a little help from:
+With more than a little help from the SCons Development team:
         Chad Austin
         Charles Crain
         Steve Leblanc

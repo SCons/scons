@@ -30,20 +30,26 @@ import sys
 import os.path
 import os
 
-#XXX once we migrate to the new scheme of using /usr/lib/scons
-#    instead of /usr/lib/scons-X.Y this hardcoding will go away:
-scons_lib_dir = "scons-0.01"
+# Strip the script directory from sys.path() so on case-insensitive
+# (WIN32) systems Python doesn't think that the "scons" script is the
+# "SCons" package.  Replace it with our own library directories
+# (version-specific first, in case they installed by hand there,
+# followed by generic) so we pick up the right version of the build
+# engine modules if they're in either directory.
 
-script_dir = sys.path[0]
+libs = []
+
 if os.environ.has_key("SCONS_LIB_DIR"):
-    lib_dir = os.environ["SCONS_LIB_DIR"]
-elif script_dir and script_dir != os.curdir:
-    (head, tail) = os.path.split(script_dir)
-    lib_dir = os.path.join(head, "lib", scons_lib_dir)
-else:
-    lib_dir = os.path.join(os.pardir, "lib", scons_lib_dir)
+    libs.append = os.environ["SCONS_LIB_DIR"]
 
-sys.path = [lib_dir] + sys.path
+if sys.platform == 'win32':
+    libs.extend([ os.path.join(sys.prefix, 'SCons-__VERSION__'),
+                  os.path.join(sys.prefix, 'SCons') ])
+else:
+    libs.extend([ os.path.join(sys.prefix, 'lib', 'scons-__VERSION__'),
+                  os.path.join(sys.prefix, 'lib', 'scons') ])
+
+sys.path = libs + sys.path[1:]
 
 import SCons.Script
 SCons.Script.main()

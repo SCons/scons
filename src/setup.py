@@ -38,7 +38,9 @@ from distutils.command.install_lib import install_lib
 
 class my_install_lib(install_lib):
     def finalize_options(self):
+	open("/dev/tty", "w").write("lib:  self.install_dir = %s\n" % self.install_dir)
         install_lib.finalize_options(self)
+	open("/dev/tty", "w").write("lib:  self.install_dir = %s\n" % self.install_dir)
 	head = self.install_dir
         while head:
 	    if head == os.sep:
@@ -46,27 +48,47 @@ class my_install_lib(install_lib):
 		break
 	    else:
 	        head, tail = os.path.split(head)
-	    open("/dev/tty", 'w').write("head = " + head + "\n")
-	    if tail[:6] in ["python", "Python"]:
-	        break
-        if head:
-            self.install_dir = os.path.join(head, "scons-__VERSION__")
+            if tail[:6] == "python":
+                self.install_dir = os.path.join(head, "scons")
+                # Our original packaging scheme placed the build engine
+                # in a private library directory that contained the SCons
+                # version number in the directory name.  Here's how this
+                # was supported here.  See the Construct file for details
+                # on other files that would need to be changed to support
+                # this as well.
+                #self.install_dir = os.path.join(head, "scons-__VERSION__")
+                return
+            elif tail[:6] == "Python":
+                self.install_dir = os.path.join(head, tail)
+                return
 
-setup(name = "scons",
-      version = "__VERSION__",
-      description = "an Open Source software construction tool",
-      long_description = """SCons is an Open Source software construction tool--that is, a build tool; an
+description = \
+"""SCons is an Open Source software construction tool--that is, a build tool; an
 improved substitute for the classic Make utility; a better way to build
-software.""",
-      author = "Steven Knight",
-      author_email = "knight@baldmt.com",
-      url = "http://www.scons.org/",
-      license = "MIT, freely distributable",
-      keywords = "scons, cons, make, build tool, make tool",
-      packages = ["SCons",
-                  "SCons.Node",
-                  "SCons.Scanner",
-                  "SCons.Sig"],
-      package_dir = {'': 'engine'},
-      scripts = ["script/scons"],
-      cmdclass = {'install_lib': my_install_lib})
+software."""
+
+keywords = "scons, cons, make, build tool, make tool, software build tool, software construction tool"
+
+arguments = {
+    'name'             : "scons",
+    'version'          : "__VERSION__",
+    'description'      : "an Open Source software construction tool",
+    'long_description' : description,
+    'author'           : "Steven Knight",
+    'author_email'     : "knight@scons.org",
+    'url'              : "http://www.scons.org/",
+    'license'          : "MIT, freely distributable",
+    'keywords'         : keywords,
+    'packages'         : ["SCons",
+                          "SCons.Node",
+                          "SCons.Scanner",
+                          "SCons.Sig"],
+    'package_dir'      : {'' : 'engine'},
+    'scripts'          : ["script/scons"],
+    'cmdclass'         : {'install_lib' : my_install_lib}
+}
+
+if sys.argv[1] == "bdist_wininst":
+    arguments['data_files'] = [('.', ["script/scons.bat"])]
+
+apply(setup, (), arguments)

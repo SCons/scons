@@ -114,7 +114,14 @@ if build == 'aegis':
     scons_dir = os.path.join(cwd, 'build', 'test' + str(testver), 'bin')
 
     if testver == 1:
-        test_dir = os.path.join('test1', 'lib', 'scons-' + str(version))
+        test_dir = os.path.join('test1', 'lib', 'scons')
+        # Our original packaging scheme placed the build engine
+        # in a private library directory that contained the SCons
+        # version number in the directory name.  Here's how this
+        # was supported here.  See the Construct file for details
+        # on other files that would need to be changed to support
+        # this as well.
+        #test_dir = os.path.join('test1', 'lib', 'scons-' + str(version))
     elif testver == 2:
         test_dir = os.path.join('test2', 'lib', 'python' + sys.version[0:3],
                                 'site-packages')
