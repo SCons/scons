@@ -19,8 +19,9 @@ def generate(env):
 
     cplusplus.generate(env)
 
-    env['CXX'] = 'CC'
-    env['SHCXX'] = 'CC'
+    env['CXX']         = 'CC'
+    env['CXXFLAGS']    = ['$CCFLAGS', '-LANG:std']
+    env['SHCXX']       = 'CC'
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
     
