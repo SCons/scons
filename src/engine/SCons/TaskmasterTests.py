@@ -44,30 +44,21 @@ class Node:
     def children(self):
 	return self.kids
 
+    def get_state(self):
+        pass
+
+    def set_state(self, state):
+        pass
+
+class Task:
+    def __init__(self, target):
+        self.target = target
+
+    def set_state(self, state):
+        pass
 
 
 class TaskmasterTestCase(unittest.TestCase):
-
-    def test_next_node(self):
-	"""Test fetching the next node
-	"""
-	n1 = Node("n1")
-	n2 = Node("n2")
-	n3 = Node("n3", [n1, n2])
-
-	tm = SCons.Taskmaster.Taskmaster([n3])
-	n, top = tm.next_node()
-	assert n.name == "n1"
-	assert top == None
-	n, top = tm.next_node()
-	assert n.name == "n2"
-	assert top == None
-	n, top = tm.next_node()
-	assert n.name == "n3"
-	assert top == 1
-	n, top = tm.next_node()
-	assert n == None
-	assert top == None
 
     def test_next_task(self):
 	"""Test fetching the next task
@@ -76,8 +67,8 @@ class TaskmasterTestCase(unittest.TestCase):
 
 	n1 = Node("n1")
 	n2 = Node("n2")
-	n3 = Node("n3", [n1, n2])
-
+        n3 = Node("n3", [n1, n2])
+        
 	tm = SCons.Taskmaster.Taskmaster([n3])
 	tm.next_task().execute()
 	assert built == "n1 built"
@@ -93,15 +84,25 @@ class TaskmasterTestCase(unittest.TestCase):
 
 	built = "up to date: "
 
+        global top_node
+        top_node = n3
 	class MyTM(SCons.Taskmaster.Taskmaster):
-	    def up_to_date(self, node):
-		global built
-	        built = built + " " + node.name
+	    def up_to_date(self, node, top):
+                if node == top_node:
+                    assert top
+                global built
+                built = built + " " + node.name
 
 	tm = MyTM(targets = [n3], current = current)
 	assert tm.next_task() == None
+        print built
 	assert built == "up to date:  n1 n2 n3"
 
+        n4 = Node("n4")
+        n4.get_state = lambda: SCons.Node.executed
+        tm = SCons.Taskmaster.Taskmaster([n4])
+        assert tm.next_task() == None
+        
     def test_is_blocked(self):
         """Test whether a task is blocked
 
@@ -122,7 +123,7 @@ class TaskmasterTestCase(unittest.TestCase):
 	Both default and overridden in a subclass.
 	"""
 	tm = SCons.Taskmaster.Taskmaster()
-	tm.executed('foo')
+	tm.executed(Task('foo'))
 
 	class MyTM(SCons.Taskmaster.Taskmaster):
 	    def executed(self, task):
@@ -137,7 +138,7 @@ class TaskmasterTestCase(unittest.TestCase):
 	"""
 	tm = SCons.Taskmaster.Taskmaster()
 	#XXX
-	tm.failed('foo')
+	tm.failed(Task('foo'))
 
 	class MyTM(SCons.Taskmaster.Taskmaster):
 	    def failed(self, task):

@@ -34,6 +34,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 from SCons.Errors import BuildError
 import string
 import types
+import copy
+
+# Node states:
+executing = 1
+executed = 2
+up_to_date = 3
+failed = 4
 
 
 class Node:
@@ -46,6 +53,7 @@ class Node:
 	self.depends = []
 	self.derived = 0
 	self.env = None
+        self.state = None
 
     def build(self):
 	if not hasattr(self, "builder"):
@@ -87,26 +95,27 @@ class Node:
     def children(self):
 	return self.sources + self.depends
 
+    def set_state(self, state):
+        self.state = state
 
-
+    def get_state(self):
+        return self.state
 
 class Wrapper:
     def __init__(self, node):
         self.node = node
-        self.kids = node.children()
+        self.kids = copy.copy(node.children())
         # XXX randomize kids here, if requested
 
 class Walker:
     """An iterator for walking a Node tree.
-    
+
     This is depth-first, children are visited before the parent.
-    The Walker object can be initialized with any node, and 
+    The Walker object can be initialized with any node, and
     returns the next node on the descent with each next() call.
     """
     def __init__(self, node):
-	self.current = Wrapper(node)
-	self.stack = []
-	self.top = self.current
+        self.stack = [Wrapper(node)]
 
     def next(self):
 	"""Return the next node for this walk of the tree.
@@ -114,23 +123,12 @@ class Walker:
 	This function is intentionally iterative, not recursive,
 	to sidestep any issues of stack size limitations.
 	"""
-	if not self.current:
-	    return None
 
-	while 1:
-	    if self.current.kids:
-	    	k = Wrapper(self.current.kids[0])
-	    	self.current.kids = self.current.kids[1:]
-		if k.kids:
-		    self.stack.append(self.current)
-		    self.current = k
-		else:
-		    return k.node
-	    else:
-		n = self.current.node
-	        if self.stack:
-		    self.current = self.stack[-1]
-		    self.stack = self.stack[0:-1]
-		else:
-		    self.current = None
-		return n
+	while self.stack:
+	    if self.stack[-1].kids:
+	    	self.stack.append(Wrapper(self.stack[-1].kids.pop(0)))
+            else:
+                return self.stack.pop().node
+
+    def is_done(self):
+        return not self.stack

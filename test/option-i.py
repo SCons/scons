@@ -29,8 +29,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is supported.
-
 test.write('succeed.py', r"""
 import sys
 file = open(sys.argv[1], 'w')
@@ -54,29 +52,36 @@ env.Fail(target = 'bbb.1', source = 'bbb.in')
 env.Succeed(target = 'bbb.out', source = 'bbb.1')
 """)
 
-test.run(arguments = '.')
+test.run(arguments = 'aaa.1 aaa.out bbb.1 bbb.out',
+         stderr = 'scons: *** [aaa.1] Error 1\n')
 
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
 test.fail_test(os.path.exists(test.workpath('aaa.out')))
 test.fail_test(os.path.exists(test.workpath('bbb.1')))
 test.fail_test(os.path.exists(test.workpath('bbb.out')))
 
-test.run(arguments = '-i .')
-
+test.run(arguments = '-i aaa.1 aaa.out bbb.1 bbb.out',
+         stderr =
+         'scons: *** [aaa.1] Error 1\n'
+         'scons: *** [bbb.1] Error 1\n')
+         
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
-test.fail_test(test.read('aaa.out') != "aaa.out\n")
+test.fail_test(test.read('aaa.out') != "succeed.py: aaa.out\n")
 test.fail_test(os.path.exists(test.workpath('bbb.1')))
-test.fail_test(test.read('bbb.out') != "bbb.out\n")
+test.fail_test(test.read('bbb.out') != "succeed.py: bbb.out\n")
 
 test.unlink("aaa.out")
 test.unlink("bbb.out")
 
-test.run(arguments = '--ignore-errors .')
+test.run(arguments = '--ignore-errors aaa.1 aaa.out bbb.1 bbb.out',
+         stderr =
+         'scons: *** [aaa.1] Error 1\n'
+         'scons: *** [bbb.1] Error 1\n')
 
 test.fail_test(os.path.exists(test.workpath('aaa.1')))
-test.fail_test(test.read('aaa.out') != "aaa.out\n")
+test.fail_test(test.read('aaa.out') != "succeed.py: aaa.out\n")
 test.fail_test(os.path.exists(test.workpath('bbb.1')))
-test.fail_test(test.read('bbb.out') != "bbb.out\n")
+test.fail_test(test.read('bbb.out') != "succeed.py: bbb.out\n")
 
 test.pass_test()
  

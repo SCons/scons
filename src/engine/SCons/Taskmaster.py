@@ -44,8 +44,9 @@ class Task:
     def execute(self):
         self.target.build()
 
-
-
+    def set_state(self, state):
+        return self.target.set_state(state)
+        
 def current(node):
     """Default SCons build engine is-it-current function.
 
@@ -58,40 +59,41 @@ def current(node):
 
 class Taskmaster:
     """A generic Taskmaster for handling a bunch of targets.
+
+    Classes that override methods of this class should call
+    the base class method, so this class can do it's thing.    
     """
 
     def __init__(self, targets=[], tasker=Task, current=current):
-        self.targets = targets
+        self.walkers = map(SCons.Node.Walker, targets)
         self.tasker = tasker
         self.current = current
-        self.num_iterated = 0
-        self.walker = None
-
-    def next_node(self):
-        t = None
-        if self.walker:
-            t = self.walker.next()
-        if t == None and self.num_iterated < len(self.targets):
-            t = self.targets[self.num_iterated]
-            self.num_iterated = self.num_iterated + 1
-            t.top_target = 1
-            self.walker = SCons.Node.Walker(t)
-            t = self.walker.next()
-        top = None
-        if hasattr(t, "top_target"):
-            top = 1
-        return t, top
+        self.targets = targets
 
     def next_task(self):
-        n, top = self.next_node()
-        while n != None:
-            if self.current(n):
-                self.up_to_date(n)
+        while self.walkers:
+            n = self.walkers[0].next()
+            if n == None:
+                self.walkers.pop(0)
+            elif n.get_state() == SCons.Node.up_to_date:
+                self.up_to_date(n, self.walkers[0].is_done())
+            elif n.get_state() == SCons.Node.failed:
+                # XXX do the right thing here
+                pass
+            elif n.get_state() == SCons.Node.executing:
+                # XXX do the right thing here
+                pass
+            elif n.get_state() == SCons.Node.executed:
+                # skip this node because it has already been executed
+                pass
+            elif self.current(n):
+                n.set_state(SCons.Node.up_to_date)
+                self.up_to_date(n, self.walkers[0].is_done())
             else:
+                n.set_state(SCons.Node.executing)
                 return self.tasker(n)
-            n, top = self.next_node()
-        return None
-
+	return None
+ 
     def is_blocked(self):
         return 0
 
@@ -99,8 +101,8 @@ class Taskmaster:
         pass
 
     def executed(self, task):
-        pass
+        task.set_state(SCons.Node.executed)
 
     def failed(self, task):
-        self.walker = None
-        self.num_iterated = len(self.targets)
+        self.walkers = []
+        task.set_state(SCons.Node.failed)

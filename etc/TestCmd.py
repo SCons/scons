@@ -486,6 +486,20 @@ class TestCmd:
 		count = count + 1
 	return count
 
+    def unlink (self, file):
+        """Unlinks the specified file name.
+	The file name may be a list, in which case the elements are
+	concatenated with the os.path.join() method.  The file is
+	assumed to be under the temporary working directory unless it
+	is an absolute path name.
+	"""
+	if type(file) is ListType:
+	    file = apply(os.path.join, tuple(file))
+	if not os.path.isabs(file):
+	    file = os.path.join(self.workdir, file)
+        os.unlink(file)
+        
+
     def verbose_set(self, verbose):
 	"""Set the verbose level.
 	"""

@@ -157,6 +157,14 @@ class NodeTestCase(unittest.TestCase):
 	kids.sort()
 	assert kids == ['five', 'four', 'one', 'six', 'three', 'two']
 
+    def test_state(self):
+	"""Test setting and getting the state of a node
+	"""
+        node = SCons.Node.Node()
+        assert node.get_state() == None
+        node.set_state(SCons.Node.executing)
+        assert node.get_state() == SCons.Node.executing
+
     def test_walker(self):
 	"""Test walking a Node tree.
 	"""
@@ -169,7 +177,9 @@ class NodeTestCase(unittest.TestCase):
     	n1 = MyNode("n1")
 
 	nw = SCons.Node.Walker(n1)
+        assert not nw.is_done()
 	assert nw.next().name ==  "n1"
+        assert nw.is_done()
 	assert nw.next() == None
 
     	n2 = MyNode("n2")

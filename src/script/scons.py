@@ -61,6 +61,9 @@ class BuildTask(SCons.Taskmaster.Task):
         except BuildError, e:
             sys.stderr.write("scons: *** [%s] Error %d\n" % (e.node, e.stat))
             raise
+        
+    def set_state(self, state):
+        return self.target.set_state(state)
 
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
@@ -73,21 +76,23 @@ class ScriptTaskmaster(SCons.Taskmaster.Taskmaster):
     """Controlling logic for tasks.
     
     This is the stock Taskmaster from the build engine, except
-    that we override the next_task() method to provide our
-    script-specific up-to-date message for command-line targets.
+    that we override the up_to_date() method to provide our
+    script-specific up-to-date message for command-line targets,
+    and failed to provide the ignore-errors feature.
     """
-    def next_task(self):
-        t, top = SCons.Taskmaster.Taskmaster.next_node(self)
-        while t != None:
-            if not self.current(t):
-                return self.tasker(t)
-            elif top:
-                print 'scons: "%s" is up to date.' % t
-            t, top = SCons.Taskmaster.Taskmaster.next_node(self)
-        return None
+    def up_to_date(self, node, top):
+        if top:
+            print 'scons: "%s" is up to date.' % node
+        SCons.Taskmaster.Taskmaster.up_to_date(self, node)
+        
+    def failed(self, task):
+        if self.ignore_errors:
+            SCons.Taskmaster.Taskmaster.executed(self, task)
+        else:
+            SCons.Taskmaster.Taskmaster.failed(self, task)
 
-
-
+    ignore_errors = 0
+    
 # Global variables
 
 default_targets = []
@@ -371,7 +376,10 @@ def options_init():
 	short = 'H', long = ['help-options'],
 	help = "Print this message and exit.")
 
-    Option(func = opt_not_yet,
+    def opt_i(opt, arg):
+        ScriptTaskmaster.ignore_errors = 1
+
+    Option(func = opt_i,
 	short = 'i', long = ['ignore-errors'],
 	help = "Ignore errors from build actions.")
 
