@@ -148,6 +148,11 @@ class Node:
         __cacheable__"""
         return self.get_executor().get_build_env()
 
+    def get_build_scanner_path(self, scanner):
+        """Fetch the appropriate Environment to build this node.
+        __cacheable__"""
+        return self.get_executor().get_build_scanner_path(scanner)
+
     def set_executor(self, executor):
         """Set the action executor for this node."""
         self.executor = executor
@@ -315,8 +320,7 @@ class Node:
         This allows an internal Builder created by SCons to be marked
         non-explicit, so that it can be overridden by an explicit
         builder that the user supplies (the canonical example being
-        directories).
-        __cacheable__"""
+        directories)."""
         return self.has_builder() and self.builder.is_explicit
 
     def get_builder(self, default_builder=None):
@@ -354,7 +358,7 @@ class Node:
         """
         return [], None
 
-    def get_found_includes(self, env, scanner, target):
+    def get_found_includes(self, env, scanner, path):
         """Return the scanned include lines (implicit dependencies)
         found in this node.
 
@@ -364,7 +368,7 @@ class Node:
         """
         return []
 
-    def get_implicit_deps(self, env, scanner, target):
+    def get_implicit_deps(self, env, scanner, path):
         """Return a list of implicit dependencies for this node.
 
         This method exists to handle recursive invocation of the scanner
@@ -390,7 +394,7 @@ class Node:
         while nodes:
            n = nodes.pop(0)
            d = filter(lambda x, seen=seen: not seen.has_key(x),
-                      n.get_found_includes(env, scanner, target))
+                      n.get_found_includes(env, scanner, path))
            if d:
                deps.extend(d)
                for n in d:
@@ -421,7 +425,6 @@ class Node:
 
         This function may be called very often; it attempts to cache
         the scanner found to improve performance.
-        __cacheable__
         """
         # Called from scan() for each child (node) of this node
         # (self).  The scan() may be called multiple times, so this
@@ -434,10 +437,9 @@ class Node:
         if not self.has_builder():
             return None
         
+        scanner = None
         try:
             scanner = self.builder.source_scanner
-            if scanner:
-                return scanner
         except AttributeError:
             pass
 
@@ -445,7 +447,10 @@ class Node:
         # based on the node's scanner key (usually the file
         # extension).
         
-        scanner = self.get_build_env().get_scanner(node.scanner_key())
+        if not scanner:
+            scanner = self.get_build_env().get_scanner(node.scanner_key())
+        if scanner:
+            scanner = scanner.select(node)
         return scanner
 
     def scan(self):
@@ -481,16 +486,24 @@ class Node:
                     self._children_reset()
                     self.del_binfo()
 
+        # Potential optimization for the N^2 problem if we can tie
+        # scanning to the Executor in some way so that we can scan
+        # source files onces and then spread the implicit dependencies
+        # to all of the targets at once.
+        #kids = self.children(scan=0)
+        #for child in filter(lambda n: n.implicit is None, kids):
         for child in self.children(scan=0):
             scanner = self.get_source_scanner(child)
             if scanner:
-                deps = child.get_implicit_deps(build_env, scanner, self)
+                path = self.get_build_scanner_path(scanner)
+                deps = child.get_implicit_deps(build_env, scanner, path)
                 self._add_child(self.implicit, self.implicit_dict, deps)
 
         # scan this node itself for implicit dependencies
         scanner = self.builder.target_scanner
         if scanner:
-            deps = self.get_implicit_deps(build_env, scanner, self)
+            path = self.get_build_scanner_path(scanner)
+            deps = self.get_implicit_deps(build_env, scanner, path)
             self._add_child(self.implicit, self.implicit_dict, deps)
 
         # XXX See note above re: --implicit-cache.
@@ -836,8 +849,9 @@ class Node:
             env = self.get_build_env()
             for s in self.sources:
                 scanner = self.get_source_scanner(s)
-                def f(node, env=env, scanner=scanner, target=self):
-                    return node.get_found_includes(env, scanner, target)
+                path = self.get_build_scanner_path(scanner)
+                def f(node, env=env, scanner=scanner, path=path):
+                    return node.get_found_includes(env, scanner, path)
                 return SCons.Util.render_tree(s, f, 1)
         else:
             return None

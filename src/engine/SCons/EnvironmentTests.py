@@ -503,11 +503,14 @@ class SubstitutionTestCase(unittest.TestCase):
         r = env.subst_path(['$FOO', 'xxx', '$BAR'])
         assert r == ['foo', 'xxx', 'bar'], r
 
-        r = env.subst_path(['$FOO', '$TARGET', '$BAR'])
-        assert r == ['foo', '', 'bar'], r
+        r = env.subst_path(['$FOO', '$TARGET', '$SOURCE', '$BAR'])
+        assert r == ['foo', '', '', 'bar'], r
 
-        r = env.subst_path(['$FOO', '$TARGET', '$BAR'], target=MyNode('yyy'))
-        assert map(str, r) == ['foo', 'yyy', 'bar'], r
+        r = env.subst_path(['$FOO', '$TARGET', '$BAR'], target=MyNode('ttt'))
+        assert map(str, r) == ['foo', 'ttt', 'bar'], r
+
+        r = env.subst_path(['$FOO', '$SOURCE', '$BAR'], source=MyNode('sss'))
+        assert map(str, r) == ['foo', 'sss', 'bar'], r
 
         n = MyObj()
 

@@ -933,6 +933,8 @@ class BuilderTestCase(unittest.TestCase):
                  return 'TestScannerkey'
             def instance(self, env):
                  return self
+            def select(self, node):
+                 return self
             name = 'TestScanner'
             def __str__(self):
                 return self.name
@@ -962,7 +964,7 @@ class BuilderTestCase(unittest.TestCase):
             name = 'EnvTestScanner'
             def __str__(self):
                 return self.name
-            def select(self, scanner):
+            def select(self, node):
                 return self
             def path(self, env, dir=None):
                 return ()

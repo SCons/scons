@@ -42,7 +42,7 @@ class DummyEnvironment(UserDict.UserDict):
         if strSubst[0] == '$':
             return [self.data[strSubst[1:]]]
         return [[strSubst]]
-    def subst_path(self, path, target=None):
+    def subst_path(self, path, target=None, source=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)
@@ -123,6 +123,25 @@ class BaseTestCase(unittest.TestCase):
             self.failUnless(self.arg == args[0], "the argument was passed incorrectly")
         else:
             self.failIf(hasattr(self, "arg"), "an argument was given when it shouldn't have been")
+
+    def test_path(self):
+        """Test the Scanner.Base path() method"""
+        def pf(env, cwd, target, source, argument=None):
+            return "pf: %s %s %s %s %s" % \
+                        (env.VARIABLE, cwd, target[0], source[0], argument)
+
+        env = DummyEnvironment()
+        env.VARIABLE = 'v1'
+        target = DummyNode('target')
+        source = DummyNode('source')
+
+        s = SCons.Scanner.Base(self.func, path_function=pf)
+        p = s.path(env, 'here', [target], [source])
+        assert p == "pf: v1 here target source None", p
+
+        s = SCons.Scanner.Base(self.func, path_function=pf, argument="xyz")
+        p = s.path(env, 'here', [target], [source])
+        assert p == "pf: v1 here target source xyz", p
 
     def test_positional(self):
         """Test the Scanner.Base class using positional arguments"""

@@ -78,7 +78,7 @@ class DummyEnvironment:
             return ''
         return s
 
-    def subst_path(self, path, target=None):
+    def subst_path(self, path, target=None, source=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)
