@@ -1570,10 +1570,35 @@ Will create foo.tlb, foo.h, foo_i.c, foo_p.c, and foo_data.c.
 
 .IP DVI
 Builds a .dvi file from a .tex, .ltx or .latex input file.
+If the source file suffix is .tex,
+.B scons
+will examine the contents of the file;
+if the string
+.B \\documentclass
+or
+.B \\documentstyle
+is found, the file is assumed to be a LaTeX file and
+the target is built by invoking the $LATEXCOM command line;
+otherwise, the $TEXCOM command line is used.
+If the file is a LaTeX file,
+the
+.B DVI
+builder will also examine the contents
+of the
+.B .aux file
+and invoke the $BIBTEX command line
+if the string
+.B bibdata
+is found,
+and will examine the contents
+.B .log
+file and re-run the $LATEXCOM command
+if the log file says it is necessary.
+
 The suffix .dvi
 (hard-coded within TeX itself)
 is automatically added to the target
-if it is not already present. Example:
+if it is not already present. Examples:
 
 .ES
 # builds from aaa.tex
@@ -3395,6 +3420,19 @@ source file into an object file
 after first running the file through the C preprocessor.
 Any options specified in the $ASFLAGS and $CPPFLAGS construction variables
 are included on this command line.
+
+.IP BIBTEX
+The bibliography generator for the TeX formatter and typesetter and the
+LaTeX structured formatter and typesetter.
+
+.IP BIBTEXCOM
+The command line used to call the bibliography generator for the
+TeX formatter and typesetter and the LaTeX structured formatter and
+typesetter.
+
+.IP BIBTEXFLAGS
+General options passed to the bibliography generator for the TeX formatter
+and typesetter and the LaTeX structured formatter and typesetter.
 
 .IP BITKEEPER
 The BitKeeper executable.

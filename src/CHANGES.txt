@@ -77,6 +77,12 @@ RELEASE X.XX - XXX
     subclass of Environment.Base and setting a new Environment.Environment
     variable as the calling entry point.
 
+  From Clark McGrew:
+
+  - Generalize the action for .tex files so that it will decide whether
+    a file is TeX or LaTeX, check the .aux output to decide if it should
+    run bibtex, and check the .log output to re-run LaTeX if needed.
+
   From Bram Moolenaar:
 
   - Split the non-SCons-specific functionality from SConf.py to a new,

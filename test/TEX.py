@@ -81,7 +81,9 @@ foo = Environment(ENV = ENV)
 tex = foo.Dictionary('TEX')
 bar = Environment(ENV = ENV, TEX = r'%s wrapper.py ' + tex)
 foo.DVI(target = 'foo.dvi', source = 'foo.tex')
+foo.DVI(target = 'foo-latex.dvi', source = 'foo-latex.tex')
 bar.DVI(target = 'bar', source = 'bar.tex')
+bar.DVI(target = 'bar-latex', source = 'bar-latex.tex')
 """ % python)
 
     tex = r"""
@@ -89,20 +91,26 @@ This is the %s TeX file.
 \end
 """
 
+    latex = r"""
+\document%s{letter}
+\begin{document}
+This is the %s LaTeX file.
+\end{document}
+"""
+
     test.write('foo.tex', tex % 'foo.tex')
-
     test.write('bar.tex', tex % 'bar.tex')
+    test.write('foo-latex.tex', latex % ('style', 'foo-latex.tex'))
+    test.write('bar-latex.tex', latex % ('class', 'bar-latex.tex'))
 
-    test.run(arguments = 'foo.dvi', stderr = None)
-
+    test.run(arguments = 'foo.dvi foo-latex.dvi', stderr = None)
     test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-
     test.fail_test(not os.path.exists(test.workpath('foo.dvi')))
+    test.fail_test(not os.path.exists(test.workpath('foo-latex.dvi')))
 
-    test.run(arguments = 'bar.dvi', stderr = None)
-
+    test.run(arguments = 'bar.dvi bar-latex.dvi', stderr = None)
     test.fail_test(not os.path.exists(test.workpath('wrapper.out')))
-
     test.fail_test(not os.path.exists(test.workpath('bar.dvi')))
+    test.fail_test(not os.path.exists(test.workpath('bar-latex.dvi')))
 
 test.pass_test()
