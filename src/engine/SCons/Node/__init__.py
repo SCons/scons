@@ -72,10 +72,13 @@ class Node:
         """Actually build the node.   Return the status from the build."""
 	if not self.builder:
 	    return None
-        stat = self.builder.execute(env = self.env.Dictionary(),
-                                    target = self, source = self.sources)
-	if stat != 0:
-	    raise BuildError(node = self, stat = stat)
+        try:
+            stat = self.builder.execute(env = self.env.Dictionary(),
+                                        target = self, source = self.sources)
+        except:
+            raise BuildError(node = self, errstr = "Exception")
+        if stat:
+            raise BuildError(node = self, errstr = "Error %d" % stat)
 
         # If we succesfully build a node, then we need to rescan for
         # implicit dependencies, since it might have changed on us.

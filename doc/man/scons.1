@@ -723,6 +723,7 @@ to look-up a directory relative to the root of the source tree use #:
 env = Environment(CPPPATH='#/include')
 .EE
 
+.IP
 The directory look-up can also be forced using the 
 .BR Dir ()
 function:
@@ -1077,10 +1078,11 @@ method used to create an instance of the builder.
 The command line string used to build the target from the source. 
 .B action
 can also be a dictionary
-mapping source file name suffixes to command line string
+mapping source file name suffixes to
+any combination of command line strings
 (if the builder should accept multiple source file extensions),
-a Python function,
-or an Action object
+Python functions,
+or Action objects
 (see the next section).
 
 .IP prefix 
@@ -1110,7 +1112,7 @@ Builder objects,
 rather than let each separate Builder object
 create a separate Action.
 
-The Action function takes a single argument
+The Action method takes a single argument
 and returns an appropriate object for the action
 represented by the type of the argument:
 
@@ -1122,9 +1124,45 @@ the object is simply returned.
 If the argument is a string,
 a command-line Action is returned.
 
+.ES
+Action('$CC -c -o $TARGET $SOURCES')
+.EE
+
 .IP Function
 If the argument is a Python function,
 a function Action is returned.
+The Python function takes three keyword arguments,
+.B target
+(the name of the target file),
+.B source
+(the name of the source file)
+and
+.BR env
+(the construction environment
+used for building the target file).
+The
+.B target
+and
+.B source
+arguments may be lists of strings if there is
+more than one target file or source file.
+.IP
+The function should return
+.B 0
+or
+.B None
+to indicate a successful build of the target file(s).
+The function may raise an exception
+or return a non-zero exit status
+to indicate an unsuccessful build.
+
+.ES
+def build_it(target = None, source = None, env = None):
+    # build the target from the source
+    return 0
+ 
+a = Action(build_it)
+.EE
 
 .IP List
 If the argument is a list,

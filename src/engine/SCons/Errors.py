@@ -33,9 +33,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 class BuildError(Exception):
-    def __init__(self, node=None, stat=0, *args):
+    def __init__(self, node=None, errstr="Unknown error", *args):
         self.node = node
-        self.stat = stat
+        self.errstr = errstr
         self.args = args
 
 class InternalError(Exception):

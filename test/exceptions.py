@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Copyright (c) 2001 Steven Knight
 #
@@ -23,37 +24,22 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import sys
-import unittest
-import SCons.Errors
+import TestSCons
 
+test = TestSCons.TestSCons()
 
-class ErrorsTestCase(unittest.TestCase):
-    def test_BuildError(self):
-        """Test the BuildError exception."""
-        try:
-            raise SCons.Errors.BuildError(node = "n", errstr = "foo")
-        except SCons.Errors.BuildError, e:
-            assert e.node == "n"
-            assert e.errstr == "foo"
+test.write('SConstruct', """
+def func(source = None, target = None, env = None):
+    raise "func exception"
+B = Builder(name = 'B', action = func)
+env = Environment(BUILDERS = [B])
+env.B(target = 'foo.out', source = 'foo.in')
+""")
 
-    def test_InternalError(self):
-	"""Test the InternalError exception."""
-        try:
-            raise SCons.Errors.InternalError, "test internal error"
-        except SCons.Errors.InternalError, e:
-            assert e.args == "test internal error"
+test.write('foo.in', "foo.in\n")
 
-    def test_UserError(self):
-	"""Test the UserError exception."""
-        try:
-            raise SCons.Errors.UserError, "test user error"
-        except SCons.Errors.UserError, e:
-            assert e.args == "test user error"
+test.run(arguments = "foo.out", stderr = "scons: *** [foo.out] Exception\n")
 
-
-
-if __name__ == "__main__":
-    suite = unittest.makeSuite(ErrorsTestCase, 'test_')
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+test.pass_test()

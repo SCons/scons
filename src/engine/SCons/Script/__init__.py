@@ -75,7 +75,7 @@ class BuildTask(SCons.Taskmaster.Task):
             try:
                 self.target.build()
             except BuildError, e:
-                sys.stderr.write("scons: *** [%s] Error %s\n" % (e.node, str(e.stat)))
+                sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
                 raise
 
     def executed(self):

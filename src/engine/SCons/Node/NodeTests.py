@@ -47,9 +47,18 @@ class Builder:
     def get_contents(self, env, dir):
         return 7
 
+class NoneBuilder(Builder):
+    def execute(self, **kw):
+        apply(Builder.execute, (self,), kw)
+        return None
+
 class FailBuilder:
     def execute(self, **kw):
         return 1
+
+class ExceptBuilder:
+    def execute(self, **kw):
+        raise SCons.Errors.BuildError
 
 class Environment:
     def Dictionary(self, *args):
@@ -72,9 +81,21 @@ class NodeTestCase(unittest.TestCase):
 	else:
 	    raise TestFailed, "did not catch expected BuildError"
 
+        node = SCons.Node.Node()
+        node.builder_set(ExceptBuilder())
+        node.env_set(Environment())
+        try:
+            node.build()
+        except SCons.Errors.BuildError:
+            pass
+        else:
+            raise TestFailed, "did not catch expected BuildError"
+
     def test_build(self):
 	"""Test building a node
 	"""
+        global built_it
+
         class MyNode(SCons.Node.Node):
             def __str__(self):
                 return self.path
@@ -93,6 +114,18 @@ class NodeTestCase(unittest.TestCase):
         assert type(built_target) == type(MyNode()), type(built_target)
         assert str(built_target) == "xxx", str(built_target)
         assert built_source == ["yyy", "zzz"], built_source
+
+        built_it = None
+        node = MyNode()
+        node.builder_set(NoneBuilder())
+        node.env_set(Environment())
+        node.path = "qqq"
+        node.sources = ["rrr", "sss"]
+        node.build()
+        assert built_it
+        assert type(built_target) == type(MyNode()), type(built_target)
+        assert str(built_target) == "qqq", str(built_target)
+        assert built_source == ["rrr", "sss"], built_source
 
     def test_builder_set(self):
 	"""Test setting a Node's Builder

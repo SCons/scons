@@ -20,6 +20,9 @@ RELEASE 0.04 -
     variables and other functions, defined begin and end macros for
     the example sections, regularized white space separation.
 
+  - Function action fixes:  None is now a successful return value.
+    Exceptions are now reported.  Document function actions.
+
 
 
 RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
