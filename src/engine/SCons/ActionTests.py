@@ -1006,6 +1006,13 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         s = a.strfunction([], [], env=Environment())
         assert s == "sf was called", s
 
+        def f(target, source, env, for_signature, self=self):
+            def null(target, source, env):
+                pass
+            return SCons.Action.Action(null, strfunction=None)
+        a = SCons.Action.CommandGeneratorAction(f)
+        s = a.strfunction([], [], env=Environment())
+
     def test_execute(self):
         """Test executing a command generator Action
         """
