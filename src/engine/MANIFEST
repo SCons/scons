@@ -1,3 +1,4 @@
+LICENSE.txt
 MANIFEST
 SCons/__init__.py
 SCons/Builder.py
