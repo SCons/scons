@@ -55,6 +55,7 @@ SCons/Tool/mslib.py
 SCons/Tool/mslink.py
 SCons/Tool/msvc.py
 SCons/Tool/nasm.py
+SCons/Tool/Perforce.py
 SCons/Tool/pdflatex.py
 SCons/Tool/pdftex.py
 SCons/Tool/PharLapCommon.py

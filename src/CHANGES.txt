@@ -10,6 +10,10 @@
 
 RELEASE 0.12 - XXX
 
+  From Charles Crain:
+
+  - Added support for the Perforce source code management system.
+
   From Steven Knight:
 
   - Added an INSTALL construction variable that can be set to a function

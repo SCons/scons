@@ -1535,6 +1535,37 @@ env.InstallAs(target = '../lib/libfoo.a ../lib/libbar.a',
 .EE
 
 .TP
+.RI Perforce( )
+A factory function that
+returns a Builder object
+to be used to fetch source files
+from the Perforce source code management system.
+The returned Builder
+is intended to be passed to the
+.B SourceCode
+function:
+.ES
+env.SourceCode('.', env.Perforce())
+.EE
+.IP
+Perforce uses a number of external
+environment variables for its operation.
+Consequently, this function adds the
+following variables from the user's external environment
+to the construction environment's
+ENV dictionary:
+P4CHARSET,
+P4CLIENT,
+P4LANGUAGE,
+P4PASSWD,
+P4PORT,
+P4USER,
+SYSTEMROOT,
+USER,
+and
+USERNAME.
+
+.TP
 .RI Precious( target ", ...)"
 Marks each given
 .I target
@@ -2281,6 +2312,16 @@ The prefix used for (static) object file names.
 
 .IP OBJSUFFIX 
 The suffix used for (static) object file names.
+
+.IP P4
+The Perforce executable.
+
+.IP P4COM
+The command line used to
+fetch source files from Perforce.
+
+.IP P4FLAGS
+General options that are passed to Perforce.
 
 .IP PCH
 The Microsoft Visual C++ precompiled header that will be used when compiling
