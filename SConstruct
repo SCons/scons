@@ -167,6 +167,31 @@ test2_lib_dir = os.path.join(test2_dir,
 
 unpack_dir = os.path.join(os.getcwd(), "build", "unpack")
 
+def SCons_revision(target, source, env):
+    """Interpolate specific values from the environment into a file.
+    
+    This is used to copy files into a tree that gets packaged up
+    into the source file package.
+    """
+    print "SCons_revision() < %s > %s" % (source[0], target)
+    inf = open(source[0], 'rb')
+    outf = open(target, 'wb')
+    for line in inf.readlines():
+        # Note:  We construct the __*__ substitution strings here
+        # so that they don't get replaced when this file gets
+        # copied into the tree for packaging.
+        line = string.replace(line, '_' + '_DATE__', env['DATE'])
+        line = string.replace(line, '_' + '_DEVELOPER__', env['DEVELOPER'])
+        line = string.replace(line, '_' + '_FILE__', source[0])
+        line = string.replace(line, '_' + '_REVISION__', env['REVISION'])
+        line = string.replace(line, '_' + '_VERSION__', env['VERSION'])
+        outf.write(line)
+    inf.close()
+    outf.close()
+    os.chmod(target, os.stat(source[0])[0])
+
+revbuilder = Builder(name = 'SCons_revision', action = SCons_revision)
+
 env = Environment(
                    ENV           = ENV,
 
@@ -178,14 +203,8 @@ env = Environment(
                    REVISION      = revision,
                    VERSION       = version,
                    DH_COMPAT     = dh_compat,
- 
-                   SED           = 'sed',
-                   SEDFLAGS      = "$( -e 's+__DATE__+$DATE+' $)" + \
-                                   " -e 's+__DEVELOPER__+$DEVELOPER+'" + \
-                                   " -e 's+__FILE__+$SOURCES'+" + \
-                                   " -e 's+__REVISION__+$REVISION'+" + \
-                                   " -e 's+__VERSION__+$VERSION'+",
-                   SEDCOM        = '$SED $SEDFLAGS $SOURCES > $TARGET',
+
+                   BUILDERS      = [ revbuilder ],
                  )
 
 #
@@ -396,9 +415,7 @@ for p in [ scons ]:
     #
     for b in src_files:
 	s = p['filemap'].get(b, b)
-        env.Command(os.path.join(build, b),
-                    os.path.join(src, s),
-                    "$SEDCOM")
+        env.SCons_revision(os.path.join(build, b), os.path.join(src, s))
 
     #
     # NOW, finally, we can create the MANIFEST, which we do
@@ -588,8 +605,7 @@ if change:
         b_psv = os.path.join('build', psv)
 
         for file in sfiles:
-            env.Command(os.path.join(b_ps, file), file,
-                        [ "$SEDCOM", "chmod --reference=$SOURCES $TARGET" ])
+            env.SCons_revision(os.path.join(b_ps, file), file)
 
         b_ps_files = map(lambda x, d=b_ps: os.path.join(d, x), sfiles)
         cmds = [

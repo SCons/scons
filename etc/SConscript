@@ -42,4 +42,4 @@ directories = [
 
 for module in modules:
     for dir in directories:
-        env.Command(os.path.join(dir, module), module, "$SEDCOM")
+        env.SCons_revision(os.path.join(dir, module), module)
