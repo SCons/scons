@@ -1,0 +1,137 @@
+#!/usr/bin/env python
+#
+# Copyright (c) 2001, 2002 Steven Knight
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+import sys
+import TestSCons
+
+python = sys.executable
+
+test = TestSCons.TestSCons()
+
+test.write('build.py', r"""
+import sys
+try:
+    input = open(sys.argv[1], 'r')
+except IndexError:
+    input = sys.stdin
+
+def process(fp):
+    for line in fp.readlines():
+        if line[:8] == 'include ':
+            file = line[8:-1]
+	    process(open(file, 'r'))
+        else:
+            sys.stdout.write(line)
+
+process(input)
+
+sys.exit(0)
+""")
+
+# Execute a subsidiary SConscript just to make sure we can
+# get at the SCanners keyword from there.
+
+test.write('SConstruct', """
+SConscript('SConscript')
+""")
+
+test.write('SConscript', """
+import re
+
+include_re = re.compile(r'^include\s+(\S+)$', re.M)
+
+def kfile_scan(node, env, arg):
+    contents = node.get_contents()
+    includes = include_re.findall(contents)
+    return includes
+
+kscan = Scanner(name = 'kfile',
+                function = kfile_scan,
+                argument = None,
+                skeys = ['.k'])
+scanners = Environment().Dictionary('SCANNERS')
+env = Environment(SCANNERS = scanners + [kscan])
+
+env.Command('foo', 'foo.k', '%s build.py < $SOURCES > $TARGET')
+
+bar_in = File('bar.in')
+env.Command('bar', bar_in, '%s build.py $SOURCES > $TARGET')
+bar_in.scanner_set(kscan)
+""" % (python, python))
+
+test.write('foo.k', 
+"""foo.k 1 line 1
+include xxx
+include yyy
+foo.k 1 line 4
+""")
+
+test.write('bar.in', 
+"""include yyy
+bar.in 1 line 2
+bar.in 1 line 3
+include zzz
+""")
+
+test.write('xxx', "xxx 1\n")
+
+test.write('yyy', "yyy 1\n")
+
+test.write('zzz', "zzz 1\n")
+
+test.run(arguments = '.')
+
+test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n")
+
+test.fail_test(test.read('bar') != "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
+
+test.up_to_date(arguments = '.')
+
+test.write('xxx', "xxx 2\n")
+
+test.run(arguments = '.')
+
+test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n")
+
+test.fail_test(test.read('bar') != "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
+
+test.write('yyy', "yyy 2\n")
+
+test.run(arguments = '.')
+
+test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
+
+test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
+
+test.write('zzz', "zzz 2\n")
+
+test.run(arguments = '.')
+
+test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
+
+test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
+
+test.pass_test()

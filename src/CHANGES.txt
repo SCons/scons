@@ -15,10 +15,16 @@ RELEASE 0.05 -
   - Allow a library to specified as a command-line source file, not just
     in the LIBS construction variable.
 
+  - Compensate for a bug in os.path.normpath() that returns '' for './'
+    on WIN32.
+
   From Steven Knight:
 
   - Flush stdout after print so it intermixes correctly with stderr
     when redirected.
+
+  - Allow Scanners to return a list of strings, and document how to
+    write your own Scanners.
 
 
 

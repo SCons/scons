@@ -1097,8 +1097,9 @@ function. Builder accepts the following
 arguments:
 
 .IP name
-The name of the builder. This will be the of the construction environment
-method used to create an instance of the builder.
+The name of the builder. This will be the
+name of the construction environment method
+used to create an instance of the builder.
 
 .IP action
 The command line string used to build the target from the source. 
@@ -1198,10 +1199,13 @@ for each element in the list.
 .PP
 If the action argument is not one of the above,
 None is returned.
+
 .SS Variable Substitution
+
+Before executing a command,
 .B scons
 performs construction variable interpolation on the strings that make up
-the command line of builders before executing the command.
+the command line of builders.
 Variables are introduced by a
 .B $
 prefix.
@@ -1320,7 +1324,64 @@ but the command signature added to any target files would be:
 echo Last build occurred  . > $TARGET
 .EE
 
-.\" XXX document how to add user defined scanners. 
+.SS Scanner Objects
+
+You can use the
+.B Scanner
+function to define
+objects to scan
+new file types for implicit dependencies.
+Scanner accepts the following arguments:
+
+.IP name
+The name of the Scanner.
+This is mainly used
+to identify the Scanner internally.
+
+.IP argument
+An optional argument that, if specified,
+will be passed to the scanner function.
+
+.IP skeys
+An optional list that can be used to
+determine which scanner should be used for
+a given Node.
+In the usual case of scanning for file names,
+this array can be a list of suffixes
+for the different file types that this
+Scanner knows how to scan.
+
+.IP function
+A Python function that will process
+the Node (file)
+and return a list of strings (file names)
+representing the implicit
+dependencies found in the contents.
+The function takes three arguments:
+
+    def scanner_function(node, env, arg):
+
+The
+.B node
+argument is the internal
+SCons node representing the file.
+Use
+.B str(node)
+to fetch the name of the file, and
+.B node.get_contents()
+to fetch contents of the file.
+
+The
+.B env
+argument is the construction environment for the scan.
+Fetch values from it using the
+.B env.Dictionary()
+method.
+
+The
+.B arg
+argument is the argument supplied
+when the scanner was created.
 
 .SH EXAMPLES
 
@@ -1389,8 +1450,8 @@ You
 specify a "name" keyword argument for the builder,
 as that becomes the Environment method name
 you use to call the builder.
-Notice also that you can leave off the suffixes,
-and the builder will add them automatically.
+Notice also that you can leave off the target file suffix,
+and the builder will add it automatically.
 
 .ES
 bld = Builder(name = 'PDFBuilder',
@@ -1400,8 +1461,34 @@ bld = Builder(name = 'PDFBuilder',
 env = Environment(BUILDERS = [bld])
 env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
 
-# The following creates "bar.pdf" from "bar.text"
+# The following creates "bar.pdf" from "bar.tex"
 env.PDFBuilder(target = 'bar', source = 'bar')
+.EE
+
+.SS Defining Your Own Scanner Object
+
+.ES
+import re
+
+include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
+
+def kfile_scan(node, env, arg):
+    contents = node.get_contents()
+    includes = include_re.findall(contents)
+    return includes
+
+kscan = Scanner(name = 'kfile',
+                function = kfile_scan,
+                argument = None,
+                skeys = ['.k'])
+scanners = Environment().Dictionary('SCANNERS')
+env = Environment(SCANNERS = scanners + [kscan])
+
+env.Command('foo', 'foo.k', 'kprocess < $SOURCES > $TARGET')
+
+bar_in = File('bar.in')
+env.Command('bar', bar_in, 'kprocess $SOURCES > $TARGET')
+bar_in.scanner_set(kscan)
 .EE
 
 .SS Creating a Hierarchical Build

@@ -41,11 +41,14 @@ class ScannerTestBase:
 
     def test(self, scanner, env, filename, deps, *args):
         self.deps = deps
-        deps = scanner.scan(filename, env)
+        scanned = scanner.scan(filename, env)
+        scanned_strs = map(lambda x: str(x), scanned)
 
         self.failUnless(self.filename == filename, "the filename was passed incorrectly")
         self.failUnless(self.env == env, "the environment was passed incorrectly")
-        self.failUnless(self.deps == deps, "the dependencies were returned incorrectly")
+        self.failUnless(scanned_strs == deps, "the dependencies were returned incorrectly")
+        for d in scanned:
+            self.failUnless(type(d) != type(""), "got a string in the dependencies")
 
         if len(args) > 0:
             self.failUnless(self.arg == args[0], "the argument was passed incorrectly")

@@ -32,7 +32,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 __version__ = "__VERSION__"
 
 
-from SCons.Util import scons_str2nodes
+import SCons.Node.FS
+import SCons.Util
 
 
 class _Null:
@@ -48,7 +49,12 @@ class Base:
     straightforward, single-pass scanning of a single file.
     """
 
-    def __init__(self, function, name = "NONE", argument=_null, skeys=[]):
+    def __init__(self,
+                 function,
+                 name = "NONE",
+                 argument = _null,
+                 skeys = [],
+                 node_factory = SCons.Node.FS.default_fs.File):
         """
         Construct a new scanner object given a scanner function.
 
@@ -89,19 +95,26 @@ class Base:
         self.name = name
         self.argument = argument
         self.skeys = skeys
+        self.node_factory = node_factory
 
     def scan(self, node, env):
         """
         This method scans a single object. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
         environment that will be passed to the scanner function. A list of
-        direct dependency nodes for the specified filename will be returned.
+        direct dependency nodes for the specified node will be returned.
         """
 
         if not self.argument is _null:
-            return self.function(node, env, self.argument)
+            list = self.function(node, env, self.argument)
         else:
-            return self.function(node, env)
+            list = self.function(node, env)
+        nodes = []
+        for l in list:
+            if not isinstance(l, SCons.Node.FS.Entry):
+                l = self.node_factory(l)
+            nodes.append(l)
+        return nodes
 
     def instance(self, env):
         """
@@ -141,11 +154,8 @@ class Recursive(Base):
         deps = []
         while nodes:
             n = nodes.pop(0)
-            if not self.argument is _null:
-                d = self.function(n, env, self.argument)
-            else:
-                d = self.function(n, env)
-            d = filter(lambda x, seen=seen: not seen.has_key(x), d)
+            d = filter(lambda x, seen=seen: not seen.has_key(x),
+                       Base.scan(self, n, env))
             if d:
                 deps.extend(d)
                 nodes.extend(d)
