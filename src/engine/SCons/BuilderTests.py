@@ -59,6 +59,7 @@ class BuilderTestCase(unittest.TestCase):
     def test__call__(self):
 	"""Test calling a builder to establish source dependencies
 	"""
+	env = Environment()
 	class Node:
 	    def __init__(self, name):
 		self.name = name
@@ -110,7 +111,40 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(action = cmd1)
 	r = builder.execute()
 	assert r == 0
-	assert test.read(outfile, 'r') == "act.py: xyzzy\n"
+	c = test.read(outfile, 'r')
+	assert c == "act.py: xyzzy\n", c
+
+	cmd2 = "python %s %s $target" % (act_py, outfile)
+
+	builder = SCons.Builder.Builder(action = cmd2)
+	r = builder.execute(target = 'foo')
+	assert r == 0
+	c = test.read(outfile, 'r')
+	assert c == "act.py: foo\n", c
+
+	cmd3 = "python %s %s ${targets}" % (act_py, outfile)
+
+	builder = SCons.Builder.Builder(action = cmd3)
+	r = builder.execute(target = ['aaa', 'bbb'])
+	assert r == 0
+	c = test.read(outfile, 'r')
+	assert c == "act.py: aaa bbb\n", c
+
+	cmd4 = "python %s %s $sources" % (act_py, outfile)
+
+	builder = SCons.Builder.Builder(action = cmd4)
+	r = builder.execute(source = ['one', 'two'])
+	assert r == 0
+	c = test.read(outfile, 'r')
+	assert c == "act.py: one two\n", c
+
+	cmd4 = "python %s %s ${sources[:2]}" % (act_py, outfile)
+
+	builder = SCons.Builder.Builder(action = cmd4)
+	r = builder.execute(source = ['three', 'four', 'five'])
+	assert r == 0
+	c = test.read(outfile, 'r')
+	assert c == "act.py: three four\n", c
 
 	def function1(kw):
 	    open(kw['out'], 'w').write("function1\n")
@@ -119,7 +153,8 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(action = function1)
 	r = builder.execute(out = outfile)
 	assert r == 1
-	assert test.read(outfile, 'r') == "function1\n"
+	c = test.read(outfile, 'r')
+	assert c == "function1\n", c
 
 	class class1a:
 	    def __init__(self, kw):
@@ -128,7 +163,8 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(action = class1a)
 	r = builder.execute(out = outfile)
 	assert r.__class__ == class1a
-	assert test.read(outfile, 'r') == "class1a\n"
+	c = test.read(outfile, 'r')
+	assert c == "class1a\n", c
 
 	class class1b:
 	    def __call__(self, kw):
@@ -138,7 +174,8 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(action = class1b())
 	r = builder.execute(out = outfile)
 	assert r == 2
-	assert test.read(outfile, 'r') == "class1b\n"
+	c = test.read(outfile, 'r')
+	assert c == "class1b\n", c
 
 	cmd2 = "python %s %s syzygy" % (act_py, outfile)
 
@@ -158,7 +195,8 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(action = [cmd2, function2, class2a(), class2b])
 	r = builder.execute(out = outfile)
 	assert r.__class__ == class2b
-	assert test.read(outfile, 'r') == "act.py: syzygy\nfunction2\nclass2a\nclass2b\n"
+	c = test.read(outfile, 'r')
+	assert c == "act.py: syzygy\nfunction2\nclass2a\nclass2b\n", c
 
     def test_insuffix(self):
 	"""Test Builder creation with a specified input suffix

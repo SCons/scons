@@ -39,9 +39,9 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-B1 = Builder(name = 'B1', action = ["python build.py .temp %(source)s",
-				    "python build.py %(target)s .temp"])
-B2 = Builder(name = 'B2', action = "python build.py .temp %(source)s\\npython build.py %(target)s .temp")
+B1 = Builder(name = 'B1', action = ["python build.py .temp $sources",
+				    "python build.py $targets .temp"])
+B2 = Builder(name = 'B2', action = "python build.py .temp $sources\\npython build.py $targets .temp")
 env = Environment(BUILDERS = [B1, B2])
 env.B1(target = 'foo1.out', source = 'foo1.in')
 env.B2(target = 'foo2.out', source = 'foo2.in')

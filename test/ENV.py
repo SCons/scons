@@ -40,7 +40,7 @@ test.write('SConstruct', """
 import os
 bin1_path = r'%s' + os.pathsep + os.environ['PATH']
 bin2_path = r'%s' + os.pathsep + os.environ['PATH']
-Bld = Builder(name = 'Bld', action = "build.py %%(target)s %%(source)s")
+Bld = Builder(name = 'Bld', action = "build.py $target $sources")
 bin1 = Environment(ENV = {'PATH' : bin1_path}, BUILDERS = [Bld])
 bin2 = Environment(ENV = {'PATH' : bin2_path}, BUILDERS = [Bld])
 bin1.Bld(target = 'bin1.out', source = 'input')

@@ -33,7 +33,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import SCons.Node.FS
-import SCons.Util
+from SCons.Util import PathList, scons_str2nodes, scons_varrepl
 import string
 import types
 
@@ -63,8 +63,8 @@ class Builder:
 	return cmp(self.__dict__, other.__dict__)
 
     def __call__(self, env, target = None, source = None):
-	tlist = SCons.Util.scons_str2nodes(target, self.node_factory)
-	slist = SCons.Util.scons_str2nodes(source, self.node_factory)
+	tlist = scons_str2nodes(target, self.node_factory)
+	slist = scons_str2nodes(source, self.node_factory)
 	for t in tlist:
 	    t.builder_set(self)
 	    t.env_set(env)
@@ -123,8 +123,7 @@ class TargetNamingBuilder(BuilderProxy):
         self.suffix=suffix
 
     def __call__(self, env, target = None, source = None):
-        tlist = SCons.Util.scons_str2nodes(target,
-                                           self.subject.node_factory)
+        tlist = scons_str2nodes(target, self.subject.node_factory)
         tlist_decorated = []
         for tnode in tlist:
             path, fn = os.path.split(tnode.path)
@@ -159,7 +158,7 @@ class MultiStepBuilder(Builder):
                 self.builder_dict[bld.insuffix] = bld
 
     def __call__(self, env, target = None, source = None):
-        slist = SCons.Util.scons_str2nodes(source, self.node_factory)
+        slist = scons_str2nodes(source, self.node_factory)
         final_sources = []
         for snode in slist:
             path, ext = os.path.splitext(snode.path)
@@ -214,7 +213,21 @@ class CommandAction(ActionBase):
 	self.command = string
 
     def execute(self, **kw):
-	cmd = self.command % kw
+        try:
+            t = kw['target']
+            if type(t) is types.StringType:
+                t = [t]
+            tgt = PathList(map(os.path.normpath, t))
+        except:
+            tgt = PathList()
+        try:
+            s = kw['source']
+            if type(s) is types.StringType:
+                s = [s]
+            src = PathList(map(os.path.normpath, s))
+        except:
+            src = PathList()
+        cmd = scons_varrepl(self.command, tgt, src)
 	if print_actions:
 	    self.show(cmd)
 	ret = 0

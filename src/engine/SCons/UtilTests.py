@@ -24,10 +24,12 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
+import os.path
 import unittest
 import SCons.Node
 import SCons.Node.FS
-from SCons.Util import scons_str2nodes
+from SCons.Util import scons_str2nodes, scons_varrepl, PathList
+
 
 class UtilTestCase(unittest.TestCase):
     def test_str2nodes(self):
@@ -68,6 +70,48 @@ class UtilTestCase(unittest.TestCase):
 	class OtherNode:
 	    pass
 	node = scons_str2nodes(OtherNode())
+
+
+    def test_varrepl(self):
+	"""Test the varrepl function."""
+        targets = PathList(map(os.path.normpath, [ "./foo/bar.exe",
+                                                   "/bar/baz.obj",
+                                                   "../foo/baz.obj" ]))
+        sources = PathList(map(os.path.normpath, [ "./foo/blah.cpp",
+                                                   "/bar/ack.cpp",
+                                                   "../foo/ack.c" ]))
+
+        newcom = scons_varrepl("test $targets $sources", targets, sources)
+	assert newcom == "test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp /bar/ack.cpp ../foo/ack.c"
+
+        newcom = scons_varrepl("test $targets[:] $sources[0]", targets, sources)
+	assert newcom == "test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp"
+
+        newcom = scons_varrepl("test ${targets[1:]}v", targets, sources)
+	assert newcom == "test /bar/baz.obj ../foo/baz.objv"
+
+        newcom = scons_varrepl("test $target", targets, sources)
+	assert newcom == "test foo/bar.exe"
+
+        newcom = scons_varrepl("test $target$source[0]", targets, sources)
+	assert newcom == "test foo/bar.exe$source[0]"
+
+        newcom = scons_varrepl("test ${target.file}", targets, sources)
+	assert newcom == "test bar.exe"
+
+        newcom = scons_varrepl("test ${target.filebase}", targets, sources)
+	assert newcom == "test bar"
+
+        newcom = scons_varrepl("test ${target.suffix}", targets, sources)
+	assert newcom == "test .exe"
+
+        newcom = scons_varrepl("test ${target.base}", targets, sources)
+	assert newcom == "test foo/bar"
+
+        newcom = scons_varrepl("test ${target.dir}", targets, sources)
+	assert newcom == "test foo"
+
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')

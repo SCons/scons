@@ -43,8 +43,8 @@ sys.exit(exitval)
 """)
 
 test.write(['one', 'SConstruct'], """
-B0 = Builder(name = 'B0', action = "python ../build.py 0 %(target)s %(source)s")
-B1 = Builder(name = 'B1', action = "python ../build.py 1 %(target)s %(source)s")
+B0 = Builder(name = 'B0', action = "python ../build.py 0 $target $sources")
+B1 = Builder(name = 'B1', action = "python ../build.py 1 $target $sources")
 env = Environment(BUILDERS = [B0, B1])
 env.B1(target = 'f1.out', source = 'f1.in')
 env.B0(target = 'f2.out', source = 'f2.in')
@@ -63,8 +63,8 @@ test.fail_test(os.path.exists(test.workpath('f2.out')))
 test.fail_test(os.path.exists(test.workpath('f3.out')))
 
 test.write(['two', 'SConstruct'], """
-B0 = Builder(name = 'B0', action = "python ../build.py 0 %(target)s %(source)s")
-B1 = Builder(name = 'B1', action = "python ../build.py 1 %(target)s %(source)s")
+B0 = Builder(name = 'B0', action = "python ../build.py 0 $target $sources")
+B1 = Builder(name = 'B1', action = "python ../build.py 1 $target $sources")
 env = Environment(BUILDERS = [B0, B1])
 env.B0(target = 'f1.out', source = 'f1.in')
 env.B1(target = 'f2.out', source = 'f2.in')
@@ -83,8 +83,8 @@ test.fail_test(os.path.exists(test.workpath('f2.out')))
 test.fail_test(os.path.exists(test.workpath('f3.out')))
 
 test.write(['three', 'SConstruct'], """
-B0 = Builder(name = 'B0', action = "python ../build.py 0 %(target)s %(source)s")
-B1 = Builder(name = 'B1', action = "python ../build.py 1 %(target)s %(source)s")
+B0 = Builder(name = 'B0', action = "python ../build.py 0 $target $sources")
+B1 = Builder(name = 'B1', action = "python ../build.py 1 $target $sources")
 env = Environment(BUILDERS = [B0, B1])
 env.B0(target = 'f1.out', source = 'f1.in')
 env.B0(target = 'f2.out', source = 'f2.in')
