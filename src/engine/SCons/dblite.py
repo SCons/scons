@@ -5,6 +5,7 @@ import cPickle
 import time
 import shutil
 import os
+import os.path
 import types
 import __builtin__
 
@@ -26,14 +27,22 @@ try:
 except NameError:
     def unicode(s): return s
 
+dblite_suffix = '.dblite'
+tmp_suffix = '.tmp'
+
 class dblite:
 
   def __init__(self, file_base_name, flag, mode):
     assert flag in (None, "r", "w", "c", "n")
     if (flag is None): flag = "r"
-    if file_base_name[-7:] != '.dblite':
-        file_base_name = file_base_name + '.dblite'
-    self._file_name = file_base_name
+    base, ext = os.path.splitext(file_base_name)
+    if ext == dblite_suffix:
+      # There's already a suffix on the file name, don't add one.
+      self._file_name = file_base_name
+      self._tmp_name = base + tmp_suffix
+    else:
+      self._file_name = file_base_name + dblite_suffix
+      self._tmp_name = file_base_name + tmp_suffix
     self._flag = flag
     self._mode = mode
     self._dict = {}
@@ -63,9 +72,10 @@ class dblite:
 
   def sync(self):
     self._check_writable()
-    f = _open(self._file_name, "wb", self._mode)
+    f = _open(self._tmp_name, "wb", self._mode)
     cPickle.dump(self._dict, f, 1)
     f.close()
+    os.rename(self._tmp_name, self._file_name)
     self._needs_sync = 00000
     if (keep_all_files):
       shutil.copyfile(
