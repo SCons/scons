@@ -53,6 +53,10 @@ RELEASE 0.96 - XXX
           DScan.add_skey('.x')       => env.Append(DSUFFIXES = ['.x'])
           FortranScan.add_skey('.x') => env.Append(FORTRANSUFFIXES = ['.x'])
 
+    - The internal "node_factory" keyword argument has been removed;
+      the seperate and more flexible "target_factory" and "source_factory"
+      keywords should be used instead.
+
     - The behavior of the env.Append() and env.Prepend() methods has
       changed when appending a string value to a UserList, or vice versa.
       They now behave like normal Python addition of a string to
