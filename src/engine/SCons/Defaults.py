@@ -95,7 +95,7 @@ def SharedFlagChecker(source, target, env):
 SharedCheck = SCons.Action.Action(SharedFlagChecker, None)
 
 # Scanners and suffixes for common languages.
-ObjSourceScan = SCons.Scanner.Scanner({})
+ObjSourceScan = SCons.Scanner.Scanner({}, name='ObjSrcScanner')
 
 CScan = SCons.Scanner.C.CScan()
 

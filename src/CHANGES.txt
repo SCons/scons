@@ -180,7 +180,8 @@ RELEASE 0.97 - XXX
 
   - Internal Scanners fixes:  Make sure Scanners are only passed Nodes.
     Fix how a Scanner.Selector called its base class initialization.
-    Make comparisons of Scanner objects more robust.
+    Make comparisons of Scanner objects more robust.  Add a name to
+    an internal default ObjSourceScanner.
 
   From Christoph Wiedemann:
 
