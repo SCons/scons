@@ -1509,6 +1509,21 @@ class UtilTestCase(unittest.TestCase):
         r = adjustixes('dir/file', 'pre-', '-suf')
         assert r == os.path.join('dir', 'pre-file-suf'), r
 
+    def test_containsAny(self):
+        """Test the containsAny() function"""
+        assert containsAny('*.py', '*?[]')
+        assert not containsAny('file.txt', '*?[]')
+
+    def test_containsAll(self):
+        """Test the containsAll() function"""
+        assert containsAll('43221', '123')
+        assert not containsAll('134', '123')
+
+    def test_containsOnly(self):
+        """Test the containsOnly() function"""
+        assert containsOnly('.83', '0123456789.')
+        assert not containsOnly('43221', '123')
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
