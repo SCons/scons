@@ -38,6 +38,10 @@ RELEASE 0.14 - XXX
   - Check out CVS source files using POSIX path names (forward slashes
     as separators) even on Win32.
 
+  - Add Node.clear() and Node.FS.Entry.clear() methods to wipe out a
+    Node's state, allowing it to be re-evaluated by continuous
+    integration build interfaces.
+
 
 
 RELEASE 0.13 - Mon, 31 Mar 2003 20:22:00 -0600

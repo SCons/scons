@@ -193,6 +193,18 @@ class Node:
         # node were presumably just changed:
         self.del_csig()
 
+    def clear(self):
+        """Completely clear a Node of all its cached state (so that it
+        can be re-evaluated by interfaces that do continuous integration
+        builds).
+        """
+        self.set_state(None)
+        self.del_bsig()
+        self.del_csig()
+        self.includes = None
+        self.found_includes = {}
+        self.implicit = None
+
     def visited(self):
         """Called just after this node has been visited
         without requiring a build.."""

@@ -1461,6 +1461,31 @@ class CacheDirTestCase(unittest.TestCase):
             SCons.Warnings.warningAsException(old_warn_exceptions)
             SCons.Warnings.suppressWarningClass(SCons.Warnings.CacheWriteErrorWarning)
 
+class clearTestCase(unittest.TestCase):
+    def runTest(self):
+        fs = SCons.Node.FS.FS()
+
+        e = fs.Entry('e')
+        e._exists = 1
+        e._rexists = 1
+        e.clear()
+        assert not hasattr(e, '_exists')
+        assert not hasattr(e, '_rexists')
+
+        d = fs.Dir('d')
+        d._exists = 1
+        d._rexists = 1
+        d.clear()
+        assert not hasattr(d, '_exists')
+        assert not hasattr(d, '_rexists')
+
+        f = fs.File('f')
+        f._exists = 1
+        f._rexists = 1
+        f.clear()
+        assert not hasattr(f, '_exists')
+        assert not hasattr(f, '_rexists')
+
 
 
 if __name__ == "__main__":
@@ -1475,5 +1500,6 @@ if __name__ == "__main__":
     suite.addTest(get_actionsTestCase())
     suite.addTest(SConstruct_dirTestCase())
     suite.addTest(CacheDirTestCase())
+    suite.addTest(clearTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

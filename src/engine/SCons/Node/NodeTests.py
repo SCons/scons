@@ -889,6 +889,26 @@ class NodeTestCase(unittest.TestCase):
         finally:
             SCons.Node.Annotate = save_Annotate
 
+    def test_clear(self):
+        """Test clearing all cached state information."""
+        n = SCons.Node.Node()
+
+        n.set_state(3)
+        n.set_bsig('bsig')
+        n.set_csig('csig')
+        n.includes = 'testincludes'
+        n.found_include = {'testkey':'testvalue'}
+        n.implicit = 'testimplicit'
+
+        n.clear()
+
+        assert n.get_state() is None, n.get_state()
+        assert not hasattr(n, 'bsig'), n.bsig
+        assert not hasattr(n, 'csig'), n.csig
+        assert n.includes is None, n.includes
+        assert n.found_includes == {}, n.found_includes
+        assert n.implicit is None, n.implicit
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(NodeTestCase, 'test_')

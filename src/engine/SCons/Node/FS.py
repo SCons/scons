@@ -263,6 +263,21 @@ class Entry(SCons.Node.Node):
         self.cwd = None # will hold the SConscript directory for target nodes
         self.duplicate = directory.duplicate
 
+    def clear(self):
+        """Completely clear an Entry of all its cached state (so that it
+        can be re-evaluated by interfaces that do continuous integration
+        builds).
+        """
+        SCons.Node.Node.clear(self)
+        try:
+            delattr(self, '_exists')
+        except AttributeError:
+            pass
+        try:
+            delattr(self, '_rexists')
+        except AttributeError:
+            pass
+
     def get_dir(self):
         return self.dir
 
