@@ -88,6 +88,8 @@ things.  Here is an overview of them:
     test.stderr()
     test.stderr(run)
 
+    test.symlink(target, link)
+
     test.match(actual, expected)
 
     test.match_exact("actual 1\nactual 2\n", "expected 1\nexpected 2\n")
@@ -173,8 +175,8 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.6.D001 2004/03/20 17:39:42 knight"
-__version__ = "0.6"
+__revision__ = "TestCmd.py 0.7.D001 2004/07/08 10:02:13 knight"
+__version__ = "0.7"
 
 import os
 import os.path
@@ -494,6 +496,8 @@ class TestCmd:
         """
         if not self._dirlist:
             return
+        os.chdir(self._cwd)            
+        self.workdir = None
         if condition is None:
             condition = self.condition
         if self._preserve[condition]:
@@ -507,8 +511,6 @@ class TestCmd:
                 shutil.rmtree(dir, ignore_errors = 1)
             self._dirlist = []
                 
-        self.workdir = None
-        os.chdir(self._cwd)            
         try:
             global _Cleanup
             _Cleanup.remove(self)
@@ -752,7 +754,21 @@ class TestCmd:
                 count = count + 1
         return count
 
-    def unlink (self, file):
+    def symlink(self, target, link):
+        """Creates a symlink to the specified target.
+        The link name may be a list, in which case the elements are
+        concatenated with the os.path.join() method.  The link is
+        assumed to be under the temporary working directory unless it
+        is an absolute path name. The target is *not* assumed to be
+        under the temporary working directory.
+        """
+        if is_List(link):
+            link = apply(os.path.join, tuple(link))
+        if not os.path.isabs(link):
+            link = os.path.join(self.workdir, link)
+        os.symlink(target, link)
+
+    def unlink(self, file):
         """Unlinks the specified file name.
         The file name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The file is

@@ -32,6 +32,8 @@ TestCommon object; see the TestCmd documentation for details.
 Here is an overview of the methods and keyword arguments that are
 provided by the TestCommon class:
 
+    test.must_contain('file', 'required text\n')
+
     test.must_exist('file1', ['file2', ...])
 
     test.must_match('file', "expected contents\n")
@@ -73,8 +75,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.6.D002 2004/03/29 06:21:41 knight"
-__version__ = "0.6"
+__revision__ = "TestCommon.py 0.7.D001 2004/07/08 10:02:13 knight"
+__version__ = "0.7"
 
 import os
 import os.path
@@ -181,6 +183,19 @@ class TestCommon(TestCmd):
         """
         apply(TestCmd.__init__, [self], kw)
         os.chdir(self.workdir)
+
+    def must_contain(self, file, required):
+        """Ensures that the specified file contains the required text.
+        """
+        file_contents = self.read(file)
+        contains = (string.find(file_contents, required) != -1)
+        if not contains:
+            print "File `%s' does not contain required string." % file
+            print "Required string ====="
+            print required
+            print "%s contents =====" % file
+            print file_contents
+            self.fail_test(not contains)
 
     def must_exist(self, *files):
         """Ensures that the specified file(s) must exist.  An individual

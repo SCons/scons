@@ -990,6 +990,13 @@ class FSTestCase(unittest.TestCase):
         assert c == "", c
         assert e.__class__ == SCons.Node.FS.Dir
 
+        if hasattr(os, 'symlink'):
+            os.symlink('nonexistent', test.workpath('dangling_symlink'))
+            e = fs.Entry('dangling_symlink')
+            c = e.get_contents()
+            assert e.__class__ == SCons.Node.FS.Entry
+            assert c == "", c
+
         test.write("tstamp", "tstamp\n")
         try:
             # Okay, *this* manipulation accomodates Windows FAT file systems

@@ -494,7 +494,7 @@ class Base(SCons.Node.Node):
         try:
             return self._exists
         except AttributeError:
-            self._exists = self.fs.exists_or_islink(self.abspath)
+            self._exists = self.fs.exists(self.abspath)
             return self._exists
 
     def rexists(self):
@@ -635,6 +635,8 @@ class Entry(Base):
             self.__class__ = Dir
             self._morph()
             return Dir.get_contents(self)
+        if self.fs.islink(self.abspath):
+            return ''             # avoid errors for dangling symlinks
         raise AttributeError
 
     def exists(self):
@@ -719,9 +721,13 @@ class LocalFS:
         return os.unlink(path)
 
     if hasattr(os, 'symlink'):
+        def islink(self, path):
+            return os.path.islink(path)
         def exists_or_islink(self, path):
             return os.path.exists(path) or os.path.islink(path)
     else:
+        def islink(self, path):
+            return 0                    # no symlinks
         exists_or_islink = exists
 
 #class RemoteFS:
@@ -1700,7 +1706,11 @@ class File(Base):
         else:
             old = BuildInfo()
 
-        mtime = self.get_timestamp()
+        try:
+            mtime = self.get_timestamp()
+        except:
+            mtime = 0
+            raise SCons.Errors.UserError, "no such %s" % self
 
         try:
             if (old.timestamp and old.csig and old.timestamp == mtime):
