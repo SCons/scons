@@ -249,12 +249,13 @@ class Calculator:
         self.module = module
         self.max_drift = max_drift
 
-    def bsig(self, node):
+    def bsig(self, node, cache=None):
         """
         Generate a node's build signature, the digested signatures
         of its dependency files and build information.
 
         node - the node whose sources will be collected
+        cache - alternate node to use for the signature cache
         returns - the build signature
 
         This no longer handles the recursive descent of the
@@ -262,27 +263,50 @@ class Calculator:
         already built and updated by someone else, if that's
         what's wanted.
         """
-        sigs = map(lambda n, c=self: n.calc_signature(c), node.children())
+
+        if cache is None: cache = node
+
+        bsig = cache.get_bsig()
+        if bsig is not None:
+            return bsig
+
+        children = node.children()
+
+        # double check bsig, because the call to childre() above may
+        # have set it:
+        bsig = cache.get_bsig()
+        if bsig is not None:
+            return bsig
+        
+        sigs = map(lambda n, c=self: n.calc_signature(c), children)
         if node.has_builder():
             sigs.append(self.module.signature(node.builder_sig_adapter()))
 
         bsig = self.module.collect(filter(lambda x: not x is None, sigs))
 
-        node.set_bsig(bsig)
+        cache.set_bsig(bsig)
 
         # don't store the bsig here, because it isn't accurate until
         # the node is actually built.
 
         return bsig
 
-    def csig(self, node):
+    def csig(self, node, cache=None):
         """
         Generate a node's content signature, the digested signature
         of its content.
 
         node - the node
+        cache - alternate node to use for the signature cache
         returns - the content signature
         """
+
+        if cache is None: cache = node
+
+        csig = cache.get_csig()
+        if csig is not None:
+            return csig
+        
         if self.max_drift >= 0:
             info = node.get_prevsiginfo()
         else:
@@ -295,12 +319,12 @@ class Calculator:
             csig = info[2]
             # Set the csig here so it doesn't get recalculated unnecessarily
             # and so it's set when the .sconsign file gets written
-            node.set_csig(csig)
+            cache.set_csig(csig)
         else:
             csig = self.module.signature(node)
             # Set the csig here so it doesn't get recalculated unnecessarily
             # and so it's set when the .sconsign file gets written
-            node.set_csig(csig)
+            cache.set_csig(csig)
 
             if self.max_drift >= 0 and (time.time() - mtime) > self.max_drift:
                 node.store_csig()

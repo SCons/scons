@@ -96,6 +96,8 @@ RELEASE 0.11 - XXX
   - Allow the same object files on Win32 to be linked into either
     shared or static libraries.
 
+  - Cache implicit cache values when using --implicit-cache.
+
 
 
 RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600

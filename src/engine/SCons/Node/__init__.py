@@ -255,6 +255,22 @@ class Node:
 
         return deps
 
+    # cache used to make implicit_factory fast.
+    implicit_factory_cache = {}
+    
+    def implicit_factory(self, path):
+        """
+        Turn a cache implicit dependency path into a node.
+        This is called so many times that doing caching
+        here is a significant perforamnce boost.
+        """
+        try:
+            return self.implicit_factory_cache[path]
+        except KeyError:
+            n = self.builder.source_factory(path)
+            self.implicit_factory_cache[path] = n
+            return n
+
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""
         # Don't bother scanning non-derived files, because we don't
@@ -269,7 +285,7 @@ class Node:
         if implicit_cache and not implicit_deps_changed:
             implicit = self.get_stored_implicit()
             if implicit is not None:
-                implicit = map(self.builder.source_factory, implicit)
+                implicit = map(self.implicit_factory, implicit)
                 self._add_child(self.implicit, implicit)
                 calc = SCons.Sig.default_calc
                 if implicit_deps_unchanged or calc.current(self, calc.bsig(self)):
@@ -306,33 +322,25 @@ class Node:
             return
         self.env = env
 
-    def calc_signature(self, calc):
+    def calc_signature(self, calc, cache=None):
         """
         Select and calculate the appropriate build signature for a node.
 
         self - the node
         calc - the signature calculation module
+        cache - alternate node to use for the signature cache
         returns - the signature
-
-        This method does not store the signature in the node or
-        in the .sconsign file.
         """
 
         if self.has_builder():
             if SCons.Sig.build_signature:
-                if not hasattr(self, 'bsig'):
-                    self.set_bsig(calc.bsig(self))
-                return self.get_bsig()
+                return calc.bsig(self, cache)
             else:
-                if not hasattr(self, 'csig'):
-                    self.set_csig(calc.csig(self))
-                return self.get_csig()
+                return calc.csig(self, cache)
         elif not self.exists():
             return None
         else:
-            if not hasattr(self, 'csig'):
-                self.set_csig(calc.csig(self))
-            return self.get_csig()
+            return calc.csig(self, cache)
 
     def get_bsig(self):
         """Get the node's build signature (based on the signatures

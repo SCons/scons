@@ -850,34 +850,26 @@ class File(Entry):
         else:
             return 0
 
-    def calc_signature(self, calc):
+    def calc_signature(self, calc, cache=None):
         """
         Select and calculate the appropriate build signature for a File.
 
         self - the File node
         calc - the signature calculation module
+        cache - alternate node to use for the signature cache
         returns - the signature
-
-        This method does not store the signature in the node or
-        in the .sconsign file.
         """
 
         if self.has_builder():
             if SCons.Sig.build_signature:
-                if not hasattr(self, 'bsig'):
-                    self.set_bsig(calc.bsig(self.rfile()))
-                return self.get_bsig()
+                return calc.bsig(self.rfile(), self)
             else:
-                if not hasattr(self, 'csig'):
-                    self.set_csig(calc.csig(self.rfile()))
-                return self.get_csig()
+                return calc.csig(self.rfile(), self)
         elif not self.rexists():
             return None
         else:
-            if not hasattr(self, 'csig'):
-                self.set_csig(calc.csig(self.rfile()))
-            return self.get_csig()
-
+            return calc.csig(self.rfile(), self)
+        
     def store_csig(self):
         self.dir.sconsign().set_csig(self.name, self.get_csig())
 
