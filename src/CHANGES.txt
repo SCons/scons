@@ -69,6 +69,11 @@ RELEASE 0.97 - XXX
   - Allow a ListOption's default value(s) to be a Python list of specified
     values, not just a string containing a comma-separated list of names.
 
+  From Clive Levinson:
+
+  - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
+    $CCFLAGS, and -mwindows to $LINKFLAGS.
+
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption
