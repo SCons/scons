@@ -245,10 +245,16 @@ opts.Add('DEBUG_BUILD',
 opts.Add('UNSPECIFIED',
          'An option with no value')
 
+opts.Add('LISTOPTION_TEST',
+         'testing list option persistence',
+         'none',
+         names = ['a','b','c',])
+
 env = Environment(options = opts)
 
 print env['RELEASE_BUILD']
 print env['DEBUG_BUILD']
+print env['LISTOPTION_TEST']
 
 opts.Save('options.saved', env)
 """)
@@ -264,9 +270,9 @@ check(['0','1'])
 checkSave('options.saved', {})
 
 # Now specify same option non-default and make sure only it is written out
-test.run(arguments='"DEBUG_BUILD=0"')
+test.run(arguments='"DEBUG_BUILD=0" "LISTOPTION_TEST=a,b"')
 check(['0','0'])
-checkSave('options.saved',{'DEBUG_BUILD':0})
+checkSave('options.saved',{'DEBUG_BUILD':0, 'LISTOPTION_TEST':'a,b'})
 
 test.write('SConstruct', """
 opts = Options('custom.py')
