@@ -129,7 +129,9 @@ program using the F<build/foo.c> path name.
 
    <para>
 
-   X
+   Use the &BuildDir; function to establish that target
+   files should be built in a separate directory
+   from the source files:
 
    </para>
 
@@ -141,7 +143,7 @@ program using the F<build/foo.c> path name.
 
    <para>
 
-   X
+   Note that XXX
 
    </para>
 

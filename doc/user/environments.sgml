@@ -592,6 +592,11 @@ environment undisturbed.
    variables when you create each &consenv;,
    you can use the &Copy; method
    to create a copy of a &consenv;.
+
+   </para>
+
+   <para>
+
    Like the &Environment; call that creates a &consenv;,
    the &Copy; method takes &consvar; assignments,
    which will override the values in the copied &consenv;.
@@ -643,16 +648,47 @@ environment undisturbed.
 
    <para>
 
-   X
+   You can fetch individual construction variables
+   using the normal Python syntax
+   for accessing individual named items in a dictionary:
 
    </para>
 
    <programlisting>
       env = Environment()
+      print "CCCOM is:", env['CCCOM']
    </programlisting>
 
    <literallayout>
       % <userinput>scons</userinput>
+      CCCOM is: $CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES
+   </literallayout>
+
+   <para>
+
+   Note, however, that a &consenv;
+   is actually a Python object with
+   associated methods, etc.
+   If you want to have direct access to only the
+   dictionary of construction variables,
+   you can fetch this using the &Dictionary; method.
+   This provides the
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      dict = env.Dictionary()
+      # XXX SOMETHING WHERE A DICT IS NEEDED
+   </programlisting>
+
+   <para>
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      # XXX
    </literallayout>
 
  </section>
@@ -660,21 +696,42 @@ environment undisturbed.
  <section>
  <title>Modifying a &ConsEnv;</title>
 
+   <para>
+
+   &SCons; provides various methods that
+   support modifying existing values in a &consenv;.
+
+   </para>
+
    <section>
    <title>Replacing Values in a &ConsEnv;</title>
 
      <para>
 
-     X
+     You can replace existing construction variable values
+     using the &Replace; method:
 
      </para>
 
      <programlisting>
-        env = Environment()
+        env = Environment(CCFLAGS = '-DDEFINE1)
+        env.Program('foo.c')
+        env.Replace(CCFLAGS = '-DDEFINE2')
+        env.Program('bar.c')
      </programlisting>
+
+     <para>
+
+     The replaced value completely overwrites
+
+     </para>
 
      <literallayout>
         % <userinput>scons</userinput>
+        gcc -DDEFINE2 -c bar.c -o bar.o
+        gcc -o bar bar.o
+        gcc -DDEFINE2 -c foo.c -o foo.o
+        gcc -o foo foo.o
      </literallayout>
 
    </section>
@@ -684,16 +741,22 @@ environment undisturbed.
 
      <para>
 
-     X
+     You can append a value to
+     an existing construction variable
+     using the &Append; method:
 
      </para>
 
      <programlisting>
-        env = Environment()
+        env = Environment(CCFLAGS = '-DMY_VALUE')
+        env.Append(CCFLAGS = ' -DLAST')
+        env.Program('foo.c')
      </programlisting>
 
      <literallayout>
         % <userinput>scons</userinput>
+        gcc -DMY_VALUE -DLAST -c foo.c -o foo.o
+        gcc -o foo foo.o
      </literallayout>
 
    </section>
@@ -703,16 +766,22 @@ environment undisturbed.
 
      <para>
 
-     X
+     You can append a value to the beginning
+     an existing construction variable
+     using the &Prepend; method:
 
      </para>
 
      <programlisting>
-        env = Environment()
+        env = Environment(CCFLAGS = '-DMY_VALUE')
+        env.Prepend(CCFLAGS = '-DFIRST ')
+        env.Program('foo.c')
      </programlisting>
 
      <literallayout>
         % <userinput>scons</userinput>
+        gcc -DFIRST -DMY_VALUE -c foo.c -o foo.o
+        gcc -o foo foo.o
      </literallayout>
 
    </section>

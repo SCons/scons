@@ -148,7 +148,7 @@
   </chapter>
 
   <chapter id="chap-command">
-    <title>Avoiding Having to Write Builders</title>
+    <title>Not Writing a Builder (for One-Time Builds)</title>
     &command;
   </chapter>
 

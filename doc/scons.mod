@@ -101,6 +101,8 @@
 <!ENTITY Module "<function>Module</function>">
 <!ENTITY Objects "<function>Objects</function>">
 <!ENTITY Precious "<function>Precious</function>">
+<!ENTITY Prepend "<function>Prepend</function>">
+<!ENTITY Replace "<function>Replace</function>">
 <!ENTITY Repository "<function>Repository</function>">
 <!ENTITY RuleSet "<function>RuleSet</function>">
 <!ENTITY Salt "<function>Salt</function>">

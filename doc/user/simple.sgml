@@ -105,7 +105,7 @@ requirements of a build.
 
  <para>
 
- Second, notice that the same input &SConstruct; file
+ Second, notice that the same input &SConstruct; file,
  without any changes,
  generates the correct output file names on both systems:
  <filename>hello.o</filename> and <filename>hello</filename>

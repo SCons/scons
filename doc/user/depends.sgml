@@ -124,10 +124,10 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    This saves time by avoiding unnecessary rebuilds when,
+    This avoids unnecessary rebuilds when,
     for example, someone rewrites the
     contents of a file without making a change.
-    But if the contents of the file change,
+    But if the contents of the file really change,
     then &SCons; detects the change
     and rebuilds the program as required:
 
@@ -145,28 +145,7 @@ operating system on which the build is performed (as reported by C<uname
        %
     </literallayout>
 
-    <para>
-
-    X
-
-    </para>
-
   </section>
-
- <!--
-
- Now it turns out that F<hello.c> also includes the interface definition
- file, F<world.h>:
-
- How does Cons know that F<hello.c> includes F<world.h>, and that F<hello.o>
- must therefore be recompiled? For now, suffice it to say that when
- considering whether or not F<hello.o> is up-to-date, Cons invokes a scanner
- for its dependency, F<hello.c>. This scanner enumerates the files included
- by F<hello.c> to come up with a list of further dependencies, beyond those
- made explicit by the Cons script. This process is recursive: any files
- included by included files will also be scanned.
-
- -->
 
   <section>
   <title>Implicit Dependencies</title>
@@ -257,9 +236,24 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
+  </section>
+
+  <section>
+  <title>Caching Implicit Dependencies</title>
+
     <para>
 
-    X
+    Scanning each file for <literal>#include</literal> lines
+    does take some extra processing time.
+    When you're doing a full build of a large system,
+    the scanning time is a small percentage
+    of the overall time spent on the build.
+    You're most likely to notice the scanning time,
+    however, when you rebuild all or part of a large system:
+    &SCons; will take some extra time to "think about"
+    what must be built before it issues the
+    first build command,
+    or decides that nothing must be rebuilt.
 
  <!--
  Isn't this expensive? The answer is, it depends. If you do a full build of a
@@ -269,6 +263,35 @@ operating system on which the build is performed (as reported by C<uname
  time than make!). The good news is that Cons makes it very easy to
  intelligently subset your build, when you are working on localized changes.
  -->
+
+    </para>
+
+    <para>
+
+    In practice, having &SCons; scan files saves time
+    relative to the amount of potential time
+    lost to tracking down subtle problems
+    introduced by incorrect dependencies.
+    Nevertheless, the "waiting time"
+    while &SCons; scans files can annoy
+    individual developers waiting for their builds.
+    Consequently, &SCons; lets you cache
+    the implicit dependencies
+
+    </para>
+
+    <literallayout>
+       % <userinput>scons --implicit-cache hello</userinput>
+       cc -c hello.c -o hello.o
+       cc -o hello hello.o
+       % <userinput>scons hello</userinput>
+       scons: `hello' is up to date.
+    </literallayout>
+
+    <para>
+
+    &SCons; does not cache implicit dependencies like this by default
+    because XXX
 
     </para>
 
