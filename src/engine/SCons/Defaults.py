@@ -184,7 +184,7 @@ Copy = ActionFactory(copy_func,
 def delete_func(entry, must_exist=0):
     if not must_exist and not os.path.exists(entry):
         return None
-    if os.path.isfile(entry):
+    if not os.path.exists(entry) or os.path.isfile(entry):
         return os.unlink(entry)
     else:
         return shutil.rmtree(entry, 1)
