@@ -1445,7 +1445,9 @@ which exists outside of any file system.
 This Node object, or the alias name,
 may be used as a dependency of any other target,
 including another alias. Alias can be called multiple times for the same
-alias to add additional targets to the alias.
+alias to add additional targets to the alias. There is also an Alias
+global function for creating or referencing an alias independently of
+any construction environment.
 
 .ES
 env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
@@ -3006,6 +3008,14 @@ The specified action(s) may be
 an Action object, or anything that
 can be converted into an Action object
 (see below).
+
+.TP
+.RI Alias ( name )
+Creates or references an alias independent of the construction environment.
+
+.ES
+Alias('install')
+.EE
 
 .TP
 .RI BuildDir( build_dir ", " src_dir ", [" duplicate ])

@@ -50,11 +50,18 @@ env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')
 SConscript('sub1/SConscript', "env")
 SConscript('sub2/SConscript', "env")
-env.Alias('foo', ['f2.out', 'sub1'])
-env.Alias('bar', ['sub2', 'f3.out'])
+
+foo = Alias('foo')
+foo2 = env.Alias('foo', ['f2.out', 'sub1'])
+assert foo == foo2
+bar = env.Alias('bar', ['sub2', 'f3.out'])
 env.Alias('blat', ['sub2', 'f3.out'])
 env.Alias('blat', ['f2.out', 'sub1'])
 env.Depends('f1.out', 'bar')
+
+assert Alias('foo') == foo
+assert Alias('bar') == bar
+
 """ % python)
 
 test.write(['sub1', 'SConscript'], """

@@ -43,6 +43,7 @@ import SCons.Tool
 import SCons.Util
 import SCons.Options
 import SCons
+import SCons.Node.Alias
 
 import os
 import os.path
@@ -461,6 +462,13 @@ def AddPostAction(files, action):
 def Exit(value=0):
     sys.exit(value)
 
+
+def Alias(name):
+    alias = SCons.Node.Alias.default_ans.lookup(name)
+    if alias is None:
+        alias = SCons.Node.Alias.default_ans.Alias(name)
+    return alias
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -519,4 +527,5 @@ def BuildDefaultGlobals():
     globals['TargetSignatures']  = TargetSignatures
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
+    globals['Alias']             = Alias
     return globals

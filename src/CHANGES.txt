@@ -65,6 +65,10 @@ RELEASE 0.14 - XXX
 
   - Add support for using Ghostscript to convert Postscript to PDF files.
 
+  From Anthony Roach:
+
+  - Add a standalone "Alias" function (separate from an Environment).
+
   From Greg Spencer:
 
   - Support the C preprocessor #import statement.
