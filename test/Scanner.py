@@ -82,8 +82,9 @@ k2scan = env.Scanner(name = 'k2',
                      argument = None,
                      skeys = ['.k2'])
 
-scanners = Environment().Dictionary('SCANNERS')
-env = Environment(SCANNERS = scanners + [kscan, k2scan])
+env = Environment()
+env.Append(SCANNERS = kscan)
+env.Append(SCANNERS = [k2scan])
 
 env.Command('foo', 'foo.k', r'%s build.py $SOURCES $TARGET')
 
