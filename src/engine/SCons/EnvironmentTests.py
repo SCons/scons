@@ -195,6 +195,12 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env.Dictionary().has_key('CCFLAGS')
 	assert env.Dictionary().has_key('ENV')
 
+	assert env['XXX'] == 'x'
+	env['XXX'] = 'foo'
+	assert env.Dictionary('XXX') == 'foo'
+	del env['XXX']
+	assert not env.Dictionary().has_key('XXX')
+
     def test_ENV(self):
 	"""Test setting the external ENV in Environments
 	"""

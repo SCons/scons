@@ -227,6 +227,15 @@ class Environment:
 	    dlist = dlist[0]
 	return dlist
 
+    def __setitem__(self, key, value):
+        self._dict[key] = value
+
+    def __getitem__(self, key):
+        return self._dict[key]
+
+    def __delitem__(self, key):
+        del self._dict[key]
+
     def Command(self, target, source, action):
         """Builds the supplied target files from the supplied
         source files using the supplied action.  Action may
