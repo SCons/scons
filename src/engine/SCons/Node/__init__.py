@@ -925,7 +925,7 @@ class Node:
                                  fmt_with_title('new: ', newact))
 
         if len(lines) == 0:
-            return "rebuilding `%s' for unknown reasons" % self
+            return "rebuilding `%s' for unknown reasons\n" % self
 
         preamble = "rebuilding `%s' because" % self
         if len(lines) == 1:

@@ -88,6 +88,9 @@ RELEASE 0.97 - XXX
   - Fix env.SConscript() when called with a list of SConscipt files.
     (The SConscript() global function already worked properly.)
 
+  - Add a missing newline to the end of the --debug=explain "unknown
+    reasons" message.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
