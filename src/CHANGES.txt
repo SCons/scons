@@ -64,6 +64,9 @@ RELEASE 0.96 - XXX
     the env.SourceCode() method was called with an individual file name
     or node, not a directory name or node.
 
+  - Enhance the Task.make_ready() method to create a list of the
+    out-of-date Nodes for the task for use by the wrapping interface.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
