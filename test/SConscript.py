@@ -374,6 +374,8 @@ y = 'yyy'
 env.Export(["x", "y"])
 env.SConscript('$SUB1/SConscript')
 env.SConscript(dirs=['$SUB2'])
+SConscript(['s1', 's2'])
+env.SConscript(['s3', 's4'])
 """)
 
 test.write(['sub1', 'SConscript'], """\
@@ -389,6 +391,11 @@ env.Import("y")
 print "sub2/SConscript"
 print "y =", y
 """)
+
+test.write('s1', "\n")
+test.write('s2', "\n")
+test.write('s3', "\n")
+test.write('s4', "\n")
 
 expect = """\
 SConstruct
