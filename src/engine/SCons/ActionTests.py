@@ -1408,11 +1408,12 @@ class ListActionTestCase(unittest.TestCase):
         """
         def f(target,source,env):
             pass
-        def g(target,source,env):
-            pass
+        def g(target,source,env,for_signature):
+            return 'generated %s %s' % (target[0], source[0])
+        g = SCons.Action.CommandGenerator(g)
         a = SCons.Action.ListAction([f, g, "XXX", f])
-        s = a.genstring([], [], Environment())
-        assert s == "f(target, source, env)\ng(target, source, env)\nXXX\nf(target, source, env)", s
+        s = a.genstring(['foo.x'], ['bar.y'], Environment())
+        assert s == "f(target, source, env)\ngenerated foo.x bar.y\nXXX\nf(target, source, env)", s
 
     def test_execute(self):
         """Test executing a list of subsidiary Actions
