@@ -43,6 +43,11 @@ RELEASE 0.97 - XXX
   - Fix the Builder name returned from ListBuilders and other instances
     of subclasses of the BuilderBase class.
 
+  - Add Builders and construction variables to support rpcgen:
+    RPCGenClient(), RPCGenHeader(), RPCGenService(), RPCGenXDR(),
+    $RPCGEN, $RPCGENFLAGS, $RPCGENCLIENTFLAGS, $RPCGENHEADERFLAGS,
+    $RPCGENSERVICEFLAGS, $RPCGENXDRFLAGS.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
