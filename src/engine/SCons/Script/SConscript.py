@@ -239,8 +239,11 @@ def annotate(node):
             return
         last_text = frame[3]
 
-SCons.Node.Annotate = annotate
-    
+# The following line would cause each Node to be annotated using the
+# above function.  Unfortunately, this is a *huge* performance hit, so
+# leave this disabled until we find a more efficient mechanism.
+#SCons.Node.Annotate = annotate
+
 def Default(*targets):
     global default_targets
     if default_targets is None:
