@@ -484,6 +484,14 @@ class SubstitutionTestCase(unittest.TestCase):
             def get(self):
                 return self.val + '-proxy'
 
+        class MyNode:
+            def __init__(self, val):
+                self.val = val
+            def get_subst_proxy(self):
+                return self
+            def __str__(self):
+                return self.val
+
         class MyObj:
             pass
 
@@ -494,6 +502,12 @@ class SubstitutionTestCase(unittest.TestCase):
 
         r = env.subst_path(['$FOO', 'xxx', '$BAR'])
         assert r == ['foo', 'xxx', 'bar'], r
+
+        r = env.subst_path(['$FOO', '$TARGET', '$BAR'])
+        assert r == ['foo', '', 'bar'], r
+
+        r = env.subst_path(['$FOO', '$TARGET', '$BAR'], target=MyNode('yyy'))
+        assert map(str, r) == ['foo', 'yyy', 'bar'], r
 
         n = MyObj()
 

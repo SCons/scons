@@ -188,7 +188,7 @@ class DummyEnvironment(UserDict.UserDict):
             return [self.data[strSubst[1:]]]
         return [[strSubst]]
 
-    def subst_path(self, path):
+    def subst_path(self, path, target=None):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)

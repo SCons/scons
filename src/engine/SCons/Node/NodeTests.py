@@ -1128,12 +1128,6 @@ class NodeTestCase(unittest.TestCase):
         s = n.get_suffix()
         assert s == '', s
 
-    def test_generate_build_dict(self):
-        """Test the base Node generate_build_dict() method"""
-        n = SCons.Node.Node()
-        dict = n.generate_build_dict()
-        assert dict == {}, dict
-
     def test_postprocess(self):
         """Test calling the base Node postprocess() method"""
         n = SCons.Node.Node()

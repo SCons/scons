@@ -95,7 +95,7 @@ def generate(env):
 
     env['DC'] = 'dmd'
     env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -of$TARGET $SOURCES'
-    env['_DINCFLAGS'] = '$( ${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs)}  $)'
+    env['_DINCFLAGS'] = '$( ${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET)}  $)'
     env['_DVERFLAGS'] = '$( ${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}  $)'
     env['_DDEBUGFLAGS'] = '$( ${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)} $)'
     env['_DFLAGS'] = '$( ${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)} $)'
@@ -132,7 +132,7 @@ def generate(env):
         env['DLIB'] = 'lib'
         env['DLIBCOM'] = '$DLIB $_DLIBFLAGS -c $TARGET $SOURCES $_DLINKLIBFLAGS'
 
-        env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs)} $)'
+        env['_DLINKLIBFLAGS'] = '$( ${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET)} $)'
         env['_DLIBFLAGS'] = '$( ${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)} $)'
         env['DLINKFLAGS'] = []
         env['DLIBLINKPREFIX'] = ''

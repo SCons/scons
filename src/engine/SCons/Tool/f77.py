@@ -111,7 +111,7 @@ def add_to_env(env):
     env['_SHF77COMSTRG']    = ShF77CommandStrGenerator
     env['_SHF77PPCOMSTRG']  = ShF77PPCommandStrGenerator
 
-    env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs)} $)'
+    env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs, TARGET)} $)'
 
     env['_F77COMD']     = '$_F77G $_F77FLAGSG $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['_F77PPCOMD']   = '$_F77G $_F77FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'

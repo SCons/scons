@@ -143,11 +143,6 @@ class Node:
     def get_suffix(self):
         return ''
 
-    def generate_build_dict(self):
-        """Return an appropriate dictionary of values for building
-        this Node."""
-        return {}
-
     def get_build_env(self):
         """Fetch the appropriate Environment to build this node.
         __cacheable__"""

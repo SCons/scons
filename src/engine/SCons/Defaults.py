@@ -43,6 +43,7 @@ import stat
 import string
 import time
 import types
+import sys
 
 import SCons.Action
 import SCons.Builder
@@ -161,17 +162,6 @@ ActionFactory = SCons.Action.ActionFactory
 Chmod = ActionFactory(os.chmod,
                       lambda dest, mode: 'Chmod("%s", 0%o)' % (dest, mode))
 
-def Copy(dest, src):
-    def _copy_func(target, source, env, dest=dest, src=src):
-        dest = str(env.arg2nodes(dest, env.fs.Entry)[0])
-        src = str(env.arg2nodes(src, env.fs.Entry)[0])
-        shutil.copytree(src, dest, 1)
-    def _copy_str(target, source, env, dest=dest, src=src):
-        dest = str(env.arg2nodes(dest, env.fs.Entry)[0])
-        src = str(env.arg2nodes(src, env.fs.Entry)[0])
-        return 'Copy("%s", "%s")' % (dest, src)
-    return SCons.Action.Action(_copy_func, strfunction=_copy_str)
-
 def copy_func(dest, src):
     if os.path.isfile(src):
         return shutil.copy(src, dest)
@@ -221,7 +211,7 @@ def copyFunc(dest, source, env):
     os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
-def _concat(prefix, list, suffix, env, f=lambda x: x):
+def _concat(prefix, list, suffix, env, f=lambda x: x, target=None):
     """Creates a new list from 'list' by first interpolating each
     element in the list using the 'env' dictionary and then calling f
     on the list, and finally concatenating 'prefix' and 'suffix' onto
@@ -234,7 +224,7 @@ def _concat(prefix, list, suffix, env, f=lambda x: x):
 
     if SCons.Util.is_List(list):
         list = SCons.Util.flatten(list)
-    list = f(env.subst_path(list))
+    list = f(env.subst_path(list, target=target))
 
     result = []
 
@@ -341,24 +331,57 @@ class NullCmdGenerator:
     def __call__(self, target, source, env, for_signature=None):
         return self.cmd
 
+class Variable_Method_Caller:
+    """A class for finding a construction variable on the stack and
+    calling one of its methods.
+
+    We use this to support "construction variables" in our string
+    eval()s that actually stand in for methods--specifically, use
+    of "RDirs" in call to _concat that should actually execute the
+    "TARGET.RDirs" method.  (We used to support this by creating a little
+    "build dictionary" that mapped RDirs to the method, but this got in
+    the way of Memoizing construction environments, because we had to
+    create new environment objects to hold the variables.)
+    """
+    def __init__(self, variable, method):
+        self.variable = variable
+        self.method = method
+    def __call__(self, *args, **kw):
+        try: 1/0
+        except ZeroDivisionError: frame = sys.exc_info()[2].tb_frame
+        variable = None
+        while frame:
+            try:
+                variable = frame.f_locals[self.variable]
+            except KeyError:
+                pass
+            frame = frame.f_back
+        if variable is None:
+            return None
+        method = getattr(variable, self.method)
+        return apply(method, args, kw)
+
 ConstructionEnvironment = {
-    'BUILDERS'   : {},
-    'SCANNERS'   : [],
-    'CPPSUFFIXES': CSuffixes,
-    'DSUFFIXES'  : DSuffixes,
-    'IDLSUFFIXES': IDLSuffixes,
-    'PDFPREFIX'  : '',
-    'PDFSUFFIX'  : '.pdf',
-    'PSPREFIX'   : '',
-    'PSSUFFIX'   : '.ps',
-    'ENV'        : {},
-    'INSTALL'    : copyFunc,
-    '_concat'     : _concat,
-    '_defines'    : _defines,
-    '_stripixes'  : _stripixes,
-    '_LIBFLAGS'    : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
-    '_LIBDIRFLAGS' : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs)} $)',
-    '_CPPINCFLAGS' : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
-    '_CPPDEFFLAGS' : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
-    'TEMPFILE'     : NullCmdGenerator
-    }
+    'BUILDERS'      : {},
+    'SCANNERS'      : [],
+    'CPPSUFFIXES'   : CSuffixes,
+    'DSUFFIXES'     : DSuffixes,
+    'IDLSUFFIXES'   : IDLSuffixes,
+    'PDFPREFIX'     : '',
+    'PDFSUFFIX'     : '.pdf',
+    'PSPREFIX'      : '',
+    'PSSUFFIX'      : '.ps',
+    'ENV'           : {},
+    'INSTALL'       : copyFunc,
+    '_concat'       : _concat,
+    '_defines'      : _defines,
+    '_stripixes'    : _stripixes,
+    '_LIBFLAGS'     : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
+    '_LIBDIRFLAGS'  : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET)} $)',
+    '_CPPINCFLAGS'  : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET)} $)',
+    '_CPPDEFFLAGS'  : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
+    'TEMPFILE'      : NullCmdGenerator,
+    'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
+    'File'          : Variable_Method_Caller('TARGET', 'File'),
+    'RDirs'         : Variable_Method_Caller('TARGET', 'RDirs'),
+}

@@ -139,7 +139,7 @@ def generate(env):
 
     env['RC'] = 'windres'
     env['RCFLAGS'] = SCons.Util.CLVar('')
-    env['RCINCFLAGS'] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs)} $)'
+    env['RCINCFLAGS'] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs, TARGET)} $)'
     env['RCINCPREFIX'] = '--include-dir '
     env['RCINCSUFFIX'] = ''
     env['RCCOM'] = '$RC $RCINCFLAGS $RCFLAGS -i $SOURCE -o $TARGET'

@@ -490,6 +490,9 @@ def subst_dict(target, source):
         tnl = NLWrapper(target, lambda x: x.get_subst_proxy())
         dict['TARGETS'] = Targets_or_Sources(tnl)
         dict['TARGET'] = Target_or_Source(tnl)
+    else:
+        dict['TARGETS'] = None
+        dict['TARGET'] = None
 
     if source:
         def get_src_subst_proxy(node):
@@ -503,6 +506,9 @@ def subst_dict(target, source):
         snl = NLWrapper(source, get_src_subst_proxy)
         dict['SOURCES'] = Targets_or_Sources(snl)
         dict['SOURCE'] = Target_or_Source(snl)
+    else:
+        dict['SOURCES'] = None
+        dict['SOURCE'] = None
 
     return dict
 

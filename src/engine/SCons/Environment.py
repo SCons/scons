@@ -372,7 +372,7 @@ class SubstitutionEnvironment:
         lvars['__env__'] = self
         return SCons.Util.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv)
 
-    def subst_path(self, path):
+    def subst_path(self, path, target=None):
         """Substitute a path list, turning EntryProxies into Nodes
         and leaving Nodes (and other objects) as-is."""
 
@@ -397,7 +397,7 @@ class SubstitutionEnvironment:
         r = []
         for p in path:
             if SCons.Util.is_String(p):
-                p = self.subst(p, conv=s)
+                p = self.subst(p, target=target, conv=s)
                 if SCons.Util.is_List(p):
                     if len(p) == 1:
                         p = p[0]

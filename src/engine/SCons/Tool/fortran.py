@@ -137,7 +137,7 @@ def add_to_env(env):
     env['_SHFORTRANPPCOMG']     = ShFortranPPCommandGenerator
     env['_SHFORTRANPPCOMSTRG']  = ShFortranPPCommandStrGenerator
 
-    env['_FORTRANINCFLAGS'] = '$( ${_concat(INCPREFIX, FORTRANPATH, INCSUFFIX, __env__, RDirs)} $)'
+    env['_FORTRANINCFLAGS'] = '$( ${_concat(INCPREFIX, FORTRANPATH, INCSUFFIX, __env__, RDirs, TARGET)} $)'
 
     env['FORTRANMODPREFIX'] = ''     # like $LIBPREFIX
     env['FORTRANMODSUFFIX'] = '.mod' # like $LIBSUFFIX

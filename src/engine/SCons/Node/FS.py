@@ -1397,13 +1397,6 @@ class File(Base):
         return self.fs.Rsearchall(pathlist, clazz=Dir, must_exist=0,
                                   cwd=self.cwd)
 
-    def generate_build_dict(self):
-        """Return an appropriate dictionary of values for building
-        this File."""
-        return {'Dir' : self.Dir,
-                'File' : self.File,
-                'RDirs' : self.RDirs}
-
     def _morph(self):
         """Turn a file system node into a File object.  __cache_reset__"""
         self.scanner_paths = {}
@@ -1480,10 +1473,10 @@ class File(Base):
             try:
                 path = self.scanner_paths[scanner]
             except KeyError:
-                path = scanner.path(env, self.cwd)
+                path = scanner.path(env, self.cwd, target)
                 self.scanner_paths[scanner] = path
         except KeyError:
-            path = scanner.path(env, target.cwd)
+            path = scanner.path(env, target.cwd, target)
             target.scanner_paths[scanner] = path
 
         return scanner(self, env, path)

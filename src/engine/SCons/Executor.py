@@ -70,26 +70,10 @@ class Executor:
         overrides = {}
         for odict in self.overridelist:
             overrides.update(odict)
-        try:
-            generate_build_dict = self.targets[0].generate_build_dict
-        except (AttributeError, IndexError):
-            pass
-        else:
-            overrides.update(generate_build_dict())
 
         import SCons.Defaults
         env = self.env or SCons.Defaults.DefaultEnvironment()
         build_env = env.Override(overrides)
-
-        # Update the overrides with the $TARGET/$SOURCE variables for
-        # this target+source pair, so that evaluations of arbitrary
-        # Python functions have them in the __env__ environment
-        # they're passed.  Note that the underlying substitution
-        # functions also override these with their own $TARGET/$SOURCE
-        # expansions, which is *usually* duplicated effort, but covers
-        # a corner case where an Action is called directly from within
-        # a function action with different target and source lists.
-        build_env._update(SCons.Util.subst_dict(self.targets, self.sources))
 
         return build_env
 
