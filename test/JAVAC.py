@@ -78,7 +78,7 @@ if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 env = Environment(tools = ['javac'],
                   JAVAC = r'%s myjavac.py')
 env.Java(target = '.', source = '.')
-""" % (python, python))
+""" % python)
 
     test.write('test2.JAVA', """\
 test2.JAVA
@@ -88,7 +88,7 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test2.class') != "test2.JAVA\nline3\n")
+    test.fail_test(test.read('test2.class') != "test2.JAVA\nline 3\n")
 
 
 if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):

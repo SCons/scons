@@ -33,7 +33,6 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-
 test.write('myjar.py', r"""
 import sys
 args = sys.argv[1:]
@@ -75,7 +74,7 @@ if os.path.normcase('.class') == os.path.normcase('.CLASS'):
     test.write('SConstruct', """
 env = Environment(tools = ['jar'],
                   JAR = r'%s myjar.py')
-env.Program(target = 'test2.jar', source = 'test2.CLASS')
+env.Jar(target = 'test2.jar', source = 'test2.CLASS')
 """ % (python))
 
     test.write('test2.CLASS', """\
@@ -86,7 +85,7 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test2' + _exe) != "test2.CLASS\nline 3\n")
+    test.fail_test(test.read('test2.jar') != "test2.CLASS\nline 3\n")
 
 
 if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
