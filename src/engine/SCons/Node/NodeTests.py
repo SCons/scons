@@ -90,7 +90,8 @@ class NodeTestCase(unittest.TestCase):
         node.sources = ["yyy", "zzz"]
 	node.build()
 	assert built_it
-        assert built_target == "xxx", built_target
+        assert type(built_target) == type(MyNode()), type(built_target)
+        assert str(built_target) == "xxx", str(built_target)
         assert built_source == ["yyy", "zzz"], built_source
 
     def test_builder_set(self):

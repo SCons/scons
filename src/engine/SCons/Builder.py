@@ -347,17 +347,17 @@ class ActionBase:
         if kw.has_key('target'):
             t = kw['target']
             del kw['target']
-            if type(t) is type(""):
+            if not type(t) is types.ListType:
                 t = [t]
-            dict['TARGETS'] = PathList(map(os.path.normpath, t))
+            dict['TARGETS'] = PathList(map(os.path.normpath, map(str, t)))
 	    if dict['TARGETS']:
                 dict['TARGET'] = dict['TARGETS'][0]
         if kw.has_key('source'):
             s = kw['source']
             del kw['source']
-            if type(s) is type(""):
+            if not type(s) is types.ListType:
                 s = [s]
-            dict['SOURCES'] = PathList(map(os.path.normpath, s))
+            dict['SOURCES'] = PathList(map(os.path.normpath, map(str, s)))
 
         dict.update(kw)
 
@@ -408,6 +408,13 @@ class FunctionAction(ActionBase):
 	# if print_actions:
 	# XXX:  WHAT SHOULD WE PRINT HERE?
 	if execute_actions:
+            if kw.has_key('target'):
+                if type(kw['target']) is types.ListType:
+                    kw['target'] = map(str, kw['target'])
+                else:
+                    kw['target'] = str(kw['target'])
+            if kw.has_key('source'):
+                kw['source'] = map(str, kw['source'])
             return apply(self.function, (), kw)
 
     def get_contents(self, **kw):

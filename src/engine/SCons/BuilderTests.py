@@ -171,6 +171,21 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
         assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy'\n", c
 
+        class Obj:
+            def __init__(self, str):
+                self._str = str
+            def __str__(self):
+                return self._str
+
+        cmd6 = r'%s %s %s ${TARGETS[1]} $TARGET ${SOURCES[:2]}' % (python, act_py, outfile)
+
+        builder = SCons.Builder.Builder(action = cmd6)
+        r = builder.execute(target = [Obj('111'), Obj('222')],
+                            source = [Obj('333'), Obj('444'), Obj('555')])
+        assert r == 0
+        c = test.read(outfile, 'r')
+        assert c == "act.py: '222' '111' '333' '444'\n", c
+
         cmd7 = '%s %s %s one\n\n%s %s %s two' % (python, act_py, outfile,
                                                  python, act_py, outfile)
         expect7 = '%s %s %s one\n%s %s %s two\n' % (python, act_py, outfile,
