@@ -98,11 +98,16 @@ def exists(env):
 
 test.subdir('tools')
 
+test.write(['tools', 'Common.py'], r"""\
+One = 1
+""")
+
 test.write(['tools', 'SCCS.py'], r"""\
+import Common
 def generate(env):
-    env['TOOL_SCCS2'] = 1
+    env['TOOL_SCCS2'] = Common.One
 def exists(env):
-    return 1
+    return Common.One
 """)
 
 test.write(['tools', 'bar.py'], r"""\
