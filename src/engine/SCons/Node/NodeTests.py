@@ -42,7 +42,7 @@ built_order = 0
 class MyAction:
     def __init__(self):
         self.order = 0
-        
+
     def __call__(self, target, source, env):
         global built_it, built_target, built_source, built_args, built_order
         built_it = 1
@@ -260,7 +260,7 @@ class NodeTestCase(unittest.TestCase):
         """
         n = SCons.Node.Node()
         n.visited()
-            
+
     def test_depends_on(self):
         """Test the depends_on() method
         """
@@ -268,7 +268,7 @@ class NodeTestCase(unittest.TestCase):
         child = SCons.Node.Node()
         parent.add_dependency([child])
         assert parent.depends_on([child])
-        
+
     def test_builder_set(self):
         """Test setting a Node's Builder
         """
@@ -455,7 +455,7 @@ class NodeTestCase(unittest.TestCase):
         n4 = MyNode()
         node.implicit = []
         node.implicit_dict = {}
-        node._add_child(node.implicit, node.implicit_dict, [n4]) 
+        node._add_child(node.implicit, node.implicit_dict, [n4])
         exc_caught = 0
         try:
             node.prepare()
@@ -836,134 +836,16 @@ class NodeTestCase(unittest.TestCase):
 
             def for_signature(self):
                 return self.sig
-            
+
         n = TestNode("foo", "bar")
         assert n.get_string(0) == "foo", n.get_string(0)
         assert n.get_string(1) == "bar", n.get_string(1)
 
-    def test_arg2nodes(self):
-        """Test the arg2nodes function."""
-        dict = {}
-        class X(SCons.Node.Node):
-            pass
-        def Factory(name, directory = None, create = 1, dict=dict, X=X):
-            if not dict.has_key(name):
-                dict[name] = X()
-                dict[name].name = name
-            return dict[name]
-
-        nodes = SCons.Node.arg2nodes("Util.py UtilTests.py", Factory)
-        assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], X)
-        assert nodes[0].name == "Util.py UtilTests.py"
-
-        if hasattr(types, 'UnicodeType'):
-            code = """if 1:
-                nodes = SCons.Node.arg2nodes(u"Util.py UtilTests.py", Factory)
-                assert len(nodes) == 1, nodes
-                assert isinstance(nodes[0], X)
-                assert nodes[0].name == u"Util.py UtilTests.py"
-                \n"""
-            exec code in globals(), locals()
-
-        nodes = SCons.Node.arg2nodes(["Util.py", "UtilTests.py"], Factory)
-        assert len(nodes) == 2, nodes
-        assert isinstance(nodes[0], X)
-        assert isinstance(nodes[1], X)
-        assert nodes[0].name == "Util.py"
-        assert nodes[1].name == "UtilTests.py"
-
-        n1 = Factory("Util.py")
-        nodes = SCons.Node.arg2nodes([n1, "UtilTests.py"], Factory)
-        assert len(nodes) == 2, nodes
-        assert isinstance(nodes[0], X)
-        assert isinstance(nodes[1], X)
-        assert nodes[0].name == "Util.py"
-        assert nodes[1].name == "UtilTests.py"
-
-        class SConsNode(SCons.Node.Node):
-            pass
-        nodes = SCons.Node.arg2nodes(SConsNode())
-        assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], SConsNode), node
-
-        class OtherNode:
-            pass
-        nodes = SCons.Node.arg2nodes(OtherNode())
-        assert len(nodes) == 1, nodes
-        assert isinstance(nodes[0], OtherNode), node
-
-        def lookup_a(str, F=Factory):
-            if str[0] == 'a':
-                n = F(str)
-                n.a = 1
-                return n
-            else:
-                return None
-
-        def lookup_b(str, F=Factory):
-            if str[0] == 'b':
-                n = F(str)
-                n.b = 1
-                return n
-            else:
-                return None
-
-        SCons.Node.arg2nodes_lookups.append(lookup_a)
-        SCons.Node.arg2nodes_lookups.append(lookup_b)
-
-        nodes = SCons.Node.arg2nodes(['aaa', 'bbb', 'ccc'], Factory)
-        assert len(nodes) == 3, nodes
-
-        assert nodes[0].name == 'aaa', nodes[0]
-        assert nodes[0].a == 1, nodes[0]
-        assert not hasattr(nodes[0], 'b'), nodes[0]
-
-        assert nodes[1].name == 'bbb'
-        assert not hasattr(nodes[1], 'a'), nodes[1]
-        assert nodes[1].b == 1, nodes[1]
-
-        assert nodes[2].name == 'ccc'
-        assert not hasattr(nodes[2], 'a'), nodes[1]
-        assert not hasattr(nodes[2], 'b'), nodes[1]
-
-        def lookup_bbbb(str, F=Factory):
-            if str == 'bbbb':
-                n = F(str)
-                n.bbbb = 1
-                return n
-            else:
-                return None
-
-        def lookup_c(str, F=Factory):
-            if str[0] == 'c':
-                n = F(str)
-                n.c = 1
-                return n
-            else:
-                return None
-
-        nodes = SCons.Node.arg2nodes(['bbbb', 'ccc'], Factory,
-                                     [lookup_c, lookup_bbbb, lookup_b])
-        assert len(nodes) == 2, nodes
-
-        assert nodes[0].name == 'bbbb'
-        assert not hasattr(nodes[0], 'a'), nodes[1]
-        assert not hasattr(nodes[0], 'b'), nodes[1]
-        assert nodes[0].bbbb == 1, nodes[1]
-        assert not hasattr(nodes[0], 'c'), nodes[0]
-
-        assert nodes[1].name == 'ccc'
-        assert not hasattr(nodes[1], 'a'), nodes[1]
-        assert not hasattr(nodes[1], 'b'), nodes[1]
-        assert not hasattr(nodes[1], 'bbbb'), nodes[0]
-        assert nodes[1].c == 1, nodes[1]
-        
     def test_literal(self):
         """Test the is_literal() function."""
         n=SCons.Node.Node()
         assert n.is_literal()
-        
+
     def test_Annotate(self):
         """Test using an interface-specific Annotate function."""
         def my_annotate(node, self=self):

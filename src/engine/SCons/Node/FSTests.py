@@ -1708,36 +1708,36 @@ class SpecialAttrTestCase(unittest.TestCase):
 
         f=fs.Entry('foo/bar/baz.blat').get_subst_proxy()
         assert str(f.dir) == os.path.normpath('foo/bar'), str(f.dir)
-        assert f.dir.is_literal()
+        assert f.dir.is_literal(), f.dir
         assert f.dir.for_signature() == 'bar', f.dir.for_signature()
         
         assert str(f.file) == 'baz.blat', str(f.file)
-        assert f.file.is_literal()
+        assert f.file.is_literal(), f.file
         assert f.file.for_signature() == 'baz.blat_file', \
                f.file.for_signature()
         
         assert str(f.base) == os.path.normpath('foo/bar/baz'), str(f.base)
-        assert f.base.is_literal()
+        assert f.base.is_literal(), f.base
         assert f.base.for_signature() == 'baz.blat_base', \
                f.base.for_signature()
         
         assert str(f.filebase) == 'baz', str(f.filebase)
-        assert f.filebase.is_literal()
+        assert f.filebase.is_literal(), f.filebase
         assert f.filebase.for_signature() == 'baz.blat_filebase', \
                f.filebase.for_signature()
         
         assert str(f.suffix) == '.blat', str(f.suffix)
-        assert f.suffix.is_literal()
+        assert f.suffix.is_literal(), f.suffix
         assert f.suffix.for_signature() == 'baz.blat_suffix', \
                f.suffix.for_signature()
         
         assert str(f.abspath) == test.workpath('foo', 'bar', 'baz.blat'), str(f.abspath)
-        assert f.abspath.is_literal()
+        assert f.abspath.is_literal(), f.abspath
         assert f.abspath.for_signature() == 'baz.blat_abspath', \
                f.abspath.for_signature()
         
         assert str(f.posix) == 'foo/bar/baz.blat', str(f.posix)
-        assert f.posix.is_literal()
+        assert f.posix.is_literal(), f.posix
         if f.posix != f:
             assert f.posix.for_signature() == 'baz.blat_posix', \
                    f.posix.for_signature()
@@ -1771,11 +1771,11 @@ class SpecialAttrTestCase(unittest.TestCase):
         fs.BuildDir('foo', 'baz')
 
         assert str(f.srcpath) == os.path.normpath('baz/bar/baz.blat'), str(f.srcpath)
-        assert f.srcpath.is_literal()
+        assert f.srcpath.is_literal(), f.srcpath
         assert isinstance(f.srcpath.get(), SCons.Node.FS.Entry)
         
         assert str(f.srcdir) == os.path.normpath('baz/bar'), str(f.srcdir)
-        assert f.srcdir.is_literal()
+        assert f.srcdir.is_literal(), f.srcdir
         assert isinstance(f.srcdir.get(), SCons.Node.FS.Dir)
 
         # And now, combinations!!!
