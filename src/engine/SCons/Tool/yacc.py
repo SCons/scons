@@ -61,8 +61,10 @@ def generate(env):
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
     
     c_file.add_action('.y', SCons.Defaults.YaccAction)
+    c_file.add_action('.yacc', SCons.Defaults.YaccAction)
     cxx_file.add_action('.yy', SCons.Defaults.YaccAction)
     c_file.add_emitter('.y', yEmitter)
+    c_file.add_emitter('.yacc', yEmitter)
     cxx_file.add_emitter('.yy', yyEmitter)
 
     env['YACC']      = env.Detect('bison') or 'yacc'
