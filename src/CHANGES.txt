@@ -64,6 +64,11 @@ RELEASE 0.11 - XXX
     everything in the current directory and below (like Make).  This
     can be disabled by specifying Default(None) in an SConscript.
 
+  - Revamp SCons installation to fix a case-sensitive installation
+    on Win32 systems, and to add SCons-specific --standard-lib,
+    --standalone-lib, and --version-lib options for easier user
+    control of where the libraries get installed.
+
   From Steve Leblanc:
 
   - Fix the output of -c -n when directories are involved, so it

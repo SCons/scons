@@ -62,36 +62,61 @@ if script_dir:
     local = os.path.join(script_dir, local)
 libs.append(local)
 
+scons_version = 'scons-%s' % __version__
+
+prefs = []
+
 if sys.platform == 'win32':
-    libs.extend([ os.path.join(sys.prefix, 'SCons-%s' % __version__),
-                  os.path.join(sys.prefix, 'SCons') ])
+    # sys.prefix is (likely) C:\Python*;
+    # check only C:\Python*.
+    prefs.append(sys.prefix)
 else:
-    prefs = []
-
-    _bin = os.path.join('', 'bin')
-    _usr = os.path.join('', 'usr')
-    _usr_local = os.path.join('', 'usr', 'local')
-
+    # On other (POSIX) platforms, things are more complicated due to
+    # the variety of path names and library locations.  Try to be smart
+    # about it.
     if script_dir == 'bin':
+        # script_dir is `pwd`/bin;
+        # check `pwd`/lib/scons*.
         prefs.append(os.getcwd())
     else:
         if script_dir == '.' or script_dir == '':
             script_dir = os.getcwd()
-        if script_dir[-len(_bin):] == _bin:
-            prefs.append(script_dir[:-len(_bin)])
+        head, tail = os.path.split(script_dir)
+        if tail == "bin":
+            # script_dir is /foo/bin;
+            # check /foo/lib/scons*.
+            prefs.append(head)
 
-    if sys.prefix[-len(_usr):] == _usr:
+    head, tail = os.path.split(sys.prefix)
+    if tail == "usr":
+        # sys.prefix is /foo/usr;
+        # check /foo/usr/lib/scons* first,
+        # then /foo/usr/local/lib/scons*.
         prefs.append(sys.prefix)
-	prefs.append(os.path.join(sys.prefix, "local"))
-    elif sys.prefix[-len(_usr_local):] == _usr_local:
-        _local = os.path.join('', 'local')
-        prefs.append(sys.prefix[:-len(_local)])
-        prefs.append(sys.prefix)
+        prefs.append(os.path.join(sys.prefix, "local"))
+    elif tail == "local":
+        h, t = os.path.split(head)
+        if t == "usr":
+            # sys.prefix is /foo/usr/local;
+            # check /foo/usr/local/lib/scons* first,
+            # then /foo/usr/lib/scons*.
+            prefs.append(sys.prefix)
+            prefs.append(head)
+        else:
+            # sys.prefix is /foo/local;
+            # check only /foo/local/lib/scons*.
+            prefs.append(sys.prefix)
     else:
+        # sys.prefix is /foo (ends in neither /usr or /local);
+        # check only /foo/lib/scons*.
         prefs.append(sys.prefix)
 
-    libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons-%s' % __version__), prefs))
-    libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons'), prefs))
+    prefs = map(lambda x: os.path.join(x, 'lib'), prefs)
+
+# Look first for 'scons-__version__' in all of our preference libs,
+# then for 'scons'.
+libs.extend(map(lambda x: os.path.join(x, scons_version), prefs))
+libs.extend(map(lambda x: os.path.join(x, 'scons'), prefs))
 
 sys.path = libs + sys.path
 

@@ -250,9 +250,9 @@ diff_command =
  * is set appropriately during a baseline test.  So we just use the
  * proper aesub variable to comment out the expanded $spe.
  */
-test_command = "python ${Source runtest.py Absolute} -p tar-gz -q ${File_Name}";
+test_command = "python ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -q ${File_Name}";
 
-batch_test_command = "python ${Source runtest.py Absolute} -p tar-gz -o ${Output} ${File_Names} ${COMment $spe}";
+batch_test_command = "python ${Source runtest.py Absolute} -p tar-gz -v ${SUBSTitute '\\.[CD][0-9]+$' '' ${VERsion}} -o ${Output} ${File_Names} ${COMment $spe}";
 
 new_test_filename = "test/CHANGETHIS.py";
 

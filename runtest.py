@@ -73,6 +73,7 @@ package = None
 scons = None
 scons_exec = None
 output = None
+version = ''
 
 if os.name == 'java':
     python = os.path.join(sys.prefix, 'jython')
@@ -107,13 +108,15 @@ Options:
                                 tar-gz        .tar.gz distribution
                                 zip           .zip distribution
   -q, --quiet                 Don't print the test being executed.
+  -v version                  Specify the SCons version.
   -X                          Test script is executable, don't feed to Python.
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "adho:P:p:qXx:",
+opts, args = getopt.getopt(sys.argv[1:], "adho:P:p:qv:Xx:",
                             ['all', 'debug', 'help', 'output=',
-                             'package=', 'python=', 'quiet', 'exec='])
+                             'package=', 'python=', 'quiet',
+                             'version=', 'exec='])
 
 for o, a in opts:
     if o == '-a' or o == '--all':
@@ -133,6 +136,8 @@ for o, a in opts:
         package = a
     elif o == '-q' or o == '--quiet':
         printcmd = 0
+    elif o == '-v' or o == '--version':
+        version = a
     elif o == '-X':
         scons_exec = 1
     elif o == '-x' or o == '--exec':
@@ -144,7 +149,7 @@ def whereis(file):
         if os.path.isfile(f):
             try:
                 st = os.stat(f)
-            except:
+            except OSError:
                 continue
             if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
                 return f
@@ -303,6 +308,10 @@ elif scons_lib_dir:
 
 if scons_exec:
     os.environ['SCONS_EXEC'] = '1'
+
+os.environ['SCONS_CWD'] = cwd
+
+os.environ['SCONS_VERSION'] = version
 
 os.environ['PYTHONPATH'] = pythonpath_dir + \
                            os.pathsep + \

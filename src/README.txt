@@ -87,23 +87,54 @@ provided Python-standard setup script as follows:
 
         # python setup.py install
 
-This will install the scons script in the default system script
-directory (/usr/bin or C:\Python*\Scripts, for example) and the build
-engine in an appropriate SCons library directory (/usr/lib/scons or
-C:\Python*\SCons, for example).
+If this is the first time you are installing SCons on your system,
+the above command will install the scons script in the default system
+script directory (/usr/bin or C:\Python*\Scripts, for example) and the
+build engine in an appropriate stand-alone SCons library directory
+(/usr/lib/scons or C:\Python*\scons, for example).
 
-You should have system installation privileges (that is, "root" or
-"Administrator") when running the setup.py script to install SCons in
-the default system directories.
+Note that, by default, SCons does not install its library in the
+standard Python library directories.  If you want to be able to use the
+SCons library modules (the build engine) in other Python scripts, you
+can run the setup script as follows:
 
-If you don't have system installation privileges, you can use the
---prefix option to specify an alternate installation location, such as
-your home directory:
+        # python setup.py install --standard-lib
+
+This will install the build engine in the standard Python
+library directory (/usr/lib/python*/site-packages or
+C:\Python*\Lib\site-packages).
+
+Alternatively, you may want to install multiple versions of SCons
+side-by-side, which you can do as follows:
+
+        # python setup.py install --version-lib
+
+This will install the build engine in a version-specific library
+directory (/usr/lib/scons-__VERSION__ or C:\Python*\scons-__VERSION__).
+
+If this is not the first time you are installing SCons on your system,
+the setup script will, by default, search for where you have previously
+installed the SCons library, and install this version's library the
+same way--that is, if you previously installed the SCons library in
+the standard Python library, the setup script will install this one
+in the same location.  You may, of course, specify one of the --*-lib
+options described above to select a specific library location, or use
+the following option to explicitly select installation into the default
+standalone library directory (/usr/lib/scons or C:\Python*\scons):
+
+        # python setup.py install --standalone-lib
+
+Note that, to install SCons in any of the above system directories,
+you should have system installation privileges (that is, "root" or
+"Administrator") when running the setup.py script.  If you don't have
+system installation privileges, you can use the --prefix option to
+specify an alternate installation location, such as your home directory:
 
         $ python setup.py install --prefix=$HOME
 
-This will install the scons script itself in $HOME/bin and the
-associated library in $HOME/lib/scons
+This will install SCons in the appropriate locations relative to
+$HOME--that is, the scons script itself $HOME/bin and the associated
+library in $HOME/lib/scons, for example.
 
 
 DOCUMENTATION
