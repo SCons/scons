@@ -32,6 +32,7 @@ import TestSCons
 python = TestSCons.python
 _exe   = TestSCons._exe
 _obj   = TestSCons._obj
+_dll   = TestSCons._dll
 
 test = TestSCons.TestSCons()
 
@@ -60,7 +61,7 @@ env.Copy(SWIGFLAGS = '-c++').Program(target = 'test3', source = 'test3.i')
 """ % (python))
 
 test.write('test1.i', r"""
-void
+int
 main(int argc, char *argv[]) {
 	argv[argc++] = "--";
 	printf("test1.i\n");
@@ -76,7 +77,7 @@ swig
 test.write('test3.i', r"""
 #include <stdio.h>
 #include <stdlib.h>
-void
+int
 main(int argc, char *argv[]) {
 	argv[argc++] = "--";
 	printf("test3.i\n");
@@ -103,6 +104,8 @@ swig = test.where_is('swig')
 
 if swig:
 
+    version = string.join(string.split(sys.version, '.')[:2], '.')
+
     test.write("wrapper.py",
 """import os
 import string
@@ -113,64 +116,78 @@ os.system(string.join(sys.argv[1:], " "))
 
     test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='/usr/include/python1.5/',
+                  CPPPATH='/usr/include/python%s/',
                   SHCCFLAGS='',
                   SHOBJSUFFIX='.o',
                   SHLIBPREFIX='')
 swig = foo.Dictionary('SWIG')
-#bar = Environment(SWIG = r'%s wrapper.py ' + swig)
-foo.SharedLibrary(target = 'example', source = ['example.c', 'example.i'])
-#foo.SharedLibrary(target = 'foo', source = ['example.c'])
-#foo.SharedLibrary(target = 'foo', source = ['example.i'])
-#bar.SharedLibrary(target = 'bar', source = 'example.i')
-""" % python)
+bar = foo.Copy(SWIG = r'%s wrapper.py ' + swig)
+foo.SharedLibrary(target = 'foo', source = ['foo.c', 'foo.i'])
+bar.SharedLibrary(target = 'bar', source = ['bar.c', 'bar.i'])
+""" % (version, python))
 
-    # Simple example.c and example.i stolen from the SWIG tutorial.
-    test.write("example.c", """\
-#include <time.h>
-double My_variable = 3.0;
-
-int fact(int n) {
-    if (n <= 1) return 1;
-    else return n*fact(n-1);
-}
-
-int my_mod(int x, int y) {
-    return (x%y);
-}
-	
-char *get_time()
+    test.write("foo.c", """\
+char *
+foo_string()
 {
-    return "Tue Aug 12 23:32:15 2003";
+    return "This is foo.c!";
 }
 """)
 
-    test.write("example.i", """\
-%module example
+    test.write("foo.i", """\
+%module foo
 %{
 /* Put header files here (optional) */
 %}
 
-extern double My_variable;
-extern int fact(int n);
-extern int my_mod(int x, int y);
-extern char *get_time();
+extern char *foo_string();
 """)
 
-    test.run(arguments = '.')
+    test.write("bar.c", """\
+char *
+bar_string()
+{
+    return "This is bar.c!";
+}
+""")
 
-    test.up_to_date(arguments = '.')
+    test.write("bar.i", """\
+%module bar
+%{
+/* Put header files here (optional) */
+%}
+
+extern char *bar_string();
+""")
+
+    test.run(arguments = 'foo' + _dll)
+
+    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
     test.run(program = python, stdin = """\
-import example
-print example.fact(5)
-print example.my_mod(7, 3)
-print example.get_time()
+import foo
+print foo.foo_string()
 """, stdout="""\
-120
-1
-Tue Aug 12 23:32:15 2003
+This is foo.c!
 """)
+
+    test.up_to_date(arguments = 'foo' + _dll)
+
+    test.run(arguments = 'bar' + _dll)
+
+    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+
+    test.run(program = python, stdin = """\
+import foo
+import bar
+print foo.foo_string()
+print bar.bar_string()
+""", stdout="""\
+This is foo.c!
+This is bar.c!
+""")
+
+    test.up_to_date(arguments = '.')
 
 
 

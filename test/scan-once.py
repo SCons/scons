@@ -303,10 +303,14 @@ import re
 for k in fromdict.keys():
     if k != "ENV" and k != "SCANNERS" and k != "CFLAGS" and k != "CXXFLAGS" \
     and not SCons.Util.is_Dict(fromdict[k]):
-        # the next line fails in Cygwin because it tries to do env.subst on
-        # $RMIC $RMICFLAGS -d ${TARGET.attributes.java_lookupdir} ...
-        # when $TARGET is None, so $TARGET.attributes throws an exception
-        todict[k] = env.subst(str(fromdict[k]))
+        # The next line can fail on some systems because it would try to
+        # do env.subst on:
+        #       $RMIC $RMICFLAGS -d ${TARGET.attributes.java_lookupdir} ...
+        # When $TARGET is None, so $TARGET.attributes would throw an
+        # exception.
+        f = fromdict[k]
+        if SCons.Util.is_String(f) and string.find(f, "TARGET") == -1:
+             todict[k] = env.subst(f)
 todict["CFLAGS"] = fromdict["CPPFLAGS"] + " " + \
     string.join(map(lambda x: "-I" + x, env["CPPPATH"])) + " " + \
     string.join(map(lambda x: "-L" + x, env["LIBPATH"])) 
