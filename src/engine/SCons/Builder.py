@@ -126,15 +126,6 @@ def Builder(**kw):
         return apply(MultiStepBuilder, (), kw)
     elif kw.has_key('action') and (type(kw['action']) is types.DictType or
                                    isinstance(kw['action'], UserDict)):
-        action_dict = kw['action']
-        builders = []
-        for suffix, action in action_dict.items():
-            bld_kw = kw.copy()
-            bld_kw['action'] = action
-            bld_kw['src_suffix'] = suffix
-            builders.append(apply(BuilderBase, (), bld_kw))
-        del kw['action']
-        kw['builders'] = builders
         return apply(CompositeBuilder, (), kw)
     else:
         return apply(BuilderBase, (), kw)
@@ -279,14 +270,14 @@ class CompositeBuilder(BuilderBase):
     def __init__(self,  name = None,
                         prefix='',
                         suffix='',
-                        builders=[]):
+                        action = {}):
         BuilderBase.__init__(self, name=name, prefix=prefix,
                              suffix=suffix)
         self.builder_dict = {}
-        for bld in builders:
-            if not bld.src_suffix:
-                raise InternalError, "All builders supplied to CompositeBuilder class must have a src_suffix."
-            self.builder_dict[bld.src_suffix] = bld
+        for suff, act in action.items():
+             self.builder_dict[suff] = BuilderBase(name = name,
+                                                   action = act,
+                                                   src_suffix = suff)
 
     def __call__(self, env, target = None, source = None):
         ret = BuilderBase.__call__(self, env, target=target, source=source)

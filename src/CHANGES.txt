@@ -19,6 +19,9 @@ RELEASE 0.03 -
     as separate file names, allowing prefixes and suffixes to be appended
     to each individually.
 
+  - Refactor to move CompositeBuilder initialization logic from the
+    factory wrapper to the __init__() method.
+
   From Anthony Roach:
 
   - Add a "duplicate" keyword argument to BuildDir() that can be set
