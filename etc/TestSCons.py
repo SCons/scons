@@ -16,6 +16,7 @@ or attributes defined in this subclass.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import os.path
 import TestCmd
 
 class TestFailed(Exception):
@@ -40,7 +41,8 @@ class TestSCons(TestCmd.TestCmd):
 	If they're not overridden by keyword arguments, this
 	initializes the object with the following default values:
 
-		program = 'scons.py'
+		program = 'scons' if it exists,
+			  else 'scons.py'
 		interpreter = 'python'
 		workdir = ''
 
@@ -51,7 +53,10 @@ class TestSCons(TestCmd.TestCmd):
 	is not necessary.
 	"""
 	if not kw.has_key('program'):
-	    kw['program'] = 'scons.py'
+	    if os.path.exists('scons'):
+		kw['program'] = 'scons'
+	    else:
+		kw['program'] = 'scons.py'
 	if not kw.has_key('interpreter'):
 	    kw['interpreter'] = 'python'
 	if not kw.has_key('workdir'):

@@ -18,4 +18,4 @@ setup(name = "scons",
       author = "Steven Knight",
       author_email = "knight@baldmt.com",
       url = "http://www.baldmt.com/scons",
-      scripts = ["scons.py"])
+      scripts = ["scons"])

@@ -116,6 +116,10 @@ $env = new cons( ENV => {
 
 my @src_deps;
 
+my %src_file = (
+    'scons'	=> 'scons.py',
+);
+
 for $dir ('script', 'engine') {
 
     my $pkg = $package_name{$dir};
@@ -130,9 +134,9 @@ for $dir ('script', 'engine') {
     #
     # Run everything in the MANIFEST through the sed command we concocted.
     #
-    my $file;
-    foreach $file (@files) {
-	$env->Command("$build/$file", "$src/$file", "%SEDCOM");
+    foreach $b (@files) {
+	my $s = $src_file{$b} || $b;
+	$env->Command("$build/$b", "$src/$s", "%SEDCOM");
     }
 
     #
@@ -197,7 +201,8 @@ for $dir ('script', 'engine') {
     my %seen;
     map($seen{$_}++, "MANIFEST", "setup.py");
     @test_files = map(File::Spec->catfile($install, $_),
-    			grep($_ =~ /\.py$/ && ! $seen{$_}++, @files));
+    			grep(!$seen{$_}++ &&
+			     ($_ =~ /\.py$/ || $src_file{$_}), @files));
 
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
