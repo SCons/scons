@@ -265,7 +265,13 @@ def SConscript(*ls, **kw):
             frame = stack.pop()
             default_fs.chdir(frame.prev_dir)
             if old_dir:
-                default_fs.chdir(old_dir, change_os_dir=sconscript_chdir)
+                try:
+                    default_fs.chdir(old_dir, change_os_dir=sconscript_chdir)
+                except OSError:
+                    # There was no local directory, so chdir to the
+                    # Repository directory.  Like above, we do this
+                    # directly.
+                    os.chdir(old_dir.rdir().abspath)
 
             results.append(frame.retval)
 

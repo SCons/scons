@@ -24,6 +24,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Test how we handle SConscript calls when using a Repository.
+"""
+
 import sys
 import TestSCons
 
@@ -37,68 +41,86 @@ test = TestSCons.TestSCons()
 #
 test.subdir('work',
             ['work', 'src'],
-            'repository',
-            ['repository', 'src'])
+            'rep1',
+            ['rep1', 'src'],
+            'rep2',
+            ['rep2', 'build'],
+            ['rep2', 'src'],
+            ['rep2', 'src', 'sub'])
 
 #
-workpath_repository = test.workpath('repository')
-work_src_foo = test.workpath('work', 'src', 'foo' + _exe)
+workpath_rep1 = test.workpath('rep1')
+workpath_rep2 = test.workpath('rep2')
 
 #
 test.write(['work', 'SConstruct'], """
 Repository(r'%s')
 SConscript('src/SConscript')
-""" % workpath_repository)
+""" % workpath_rep1)
 
-test.write(['repository', 'src', 'SConscript'], """
-env = Environment()
-env.Program(target = 'foo', source = ['aaa.c', 'bbb.c', 'main.c'])
+test.write(['rep1', 'src', 'SConscript'], """\
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
+env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env.Cat(target = 'foo', source = ['aaa.in', 'bbb.in', 'ccc.in'])
 """)
 
-test.write(['repository', 'src', 'aaa.c'], r"""
-void
-aaa(void)
-{
-	printf("repository/src/aaa.c\n");
-}
-""")
+test.write(['rep1', 'src', 'aaa.in'], "rep1/src/aaa.in\n")
+test.write(['rep1', 'src', 'bbb.in'], "rep1/src/bbb.in\n")
+test.write(['rep1', 'src', 'ccc.in'], "rep1/src/ccc.in\n")
 
-test.write(['repository', 'src', 'bbb.c'], r"""
-void
-bbb(void)
-{
-	printf("repository/src/bbb.c\n");
-}
-""")
-
-test.write(['repository', 'src', 'main.c'], r"""
-extern void aaa(void);
-extern void bbb(void);
-
-int
-main(int argc, char *argv[])
-{
-	argv[argc++] = "--";
-	aaa();
-	bbb();
-	printf("repository/src/main.c\n");
-	exit (0);
-}
-""")
-
-# Make the repository non-writable,
+# Make the rep1 non-writable,
 # so we'll detect if we try to write into it accidentally.
-test.writable('repository', 0)
+test.writable('rep1', 0)
 
 test.run(chdir = 'work', arguments = ".")
 
-test.run(program = work_src_foo, stdout =
-"""repository/src/aaa.c
-repository/src/bbb.c
-repository/src/main.c
+test.fail_test(test.read(['work', 'src', 'foo']) != """\
+rep1/src/aaa.in
+rep1/src/bbb.in
+rep1/src/ccc.in
 """)
 
 test.up_to_date(chdir = 'work', arguments = ".")
+
+#
+test.write(['rep2', 'build', 'SConstruct'], """
+Repository(r'%s')
+SConscript('src/SConscript')
+""" % workpath_rep2)
+
+test.write(['rep2', 'src', 'SConscript'], """\
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
+env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env.Cat(target = 'foo', source = ['aaa.in', 'bbb.in', 'ccc.in'])
+SConscript('sub/SConscript')
+""")
+
+test.write(['rep2', 'src', 'sub', 'SConscript'], """\
+""")
+
+test.write(['rep2', 'src', 'aaa.in'], "rep2/src/aaa.in\n")
+test.write(['rep2', 'src', 'bbb.in'], "rep2/src/bbb.in\n")
+test.write(['rep2', 'src', 'ccc.in'], "rep2/src/ccc.in\n")
+
+test.run(chdir = 'rep2/build', arguments = ".")
+
+test.fail_test(test.read(['rep2', 'build', 'src', 'foo']) != """\
+rep2/src/aaa.in
+rep2/src/bbb.in
+rep2/src/ccc.in
+""")
 
 #
 test.pass_test()
