@@ -45,6 +45,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import UserDict
+import UserList
 
 import SCons.Action
 from SCons.Debug import logInstanceCreation
@@ -116,6 +117,15 @@ class DictEmitter(SCons.Util.Selector):
             target, source = emitter(target, source, env)
         return (target, source)
 
+class ListEmitter(UserList.UserList):
+    """A callable list of emitters that calls each in sequence,
+    returning the result.
+    """
+    def __call__(self, target, source, env):
+        for e in self.data:
+            target, source = e(target, source, env)
+        return (target, source)
+
 def Builder(**kw):
     """A factory for builder objects."""
     composite = None
@@ -142,6 +152,8 @@ def Builder(**kw):
             kw['emitter'] = EmitterProxy(var)
         elif SCons.Util.is_Dict(emitter):
             kw['emitter'] = DictEmitter(emitter)
+        elif SCons.Util.is_List(emitter):
+            kw['emitter'] = ListEmitter(emitter)
 
     if kw.has_key('src_builder'):
         ret = apply(MultiStepBuilder, (), kw)
@@ -242,13 +254,16 @@ class EmitterProxy:
         # Recursively substitute the variable.
         # We can't use env.subst() because it deals only
         # in strings.  Maybe we should change that?
-        while SCons.Util.is_String(emitter) and \
-              env.has_key(emitter):
+        while SCons.Util.is_String(emitter) and env.has_key(emitter):
             emitter = env[emitter]
-        if not callable(emitter):
-            return (target, source)
+        if callable(emitter):
+            target, source = emitter(target, source, env)
+        elif SCons.Util.is_List(emitter):
+            for e in emitter:
+                target, source = e(target, source, env)
 
-        return emitter(target, source, env)
+        return (target, source)
+
 
     def __cmp__(self, other):
         return cmp(self.var, other.var)

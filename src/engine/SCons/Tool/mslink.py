@@ -140,12 +140,12 @@ def generate(env):
     env['_SHLINK_TARGETS'] = win32ShlinkTargets
     env['_SHLINK_SOURCES'] = win32ShlinkSources
     env['SHLINKCOM']   =  compositeLinkAction
-    env['SHLIBEMITTER']= win32LibEmitter
+    env.Append(SHLIBEMITTER = [win32LibEmitter])
     env['LINK']        = 'link'
     env['LINKFLAGS']   = SCons.Util.CLVar('/nologo')
     env['_PDB'] = pdbGenerator
     env['LINKCOM'] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $SOURCES")}'
-    env['PROGEMITTER'] = prog_emitter
+    env.Append(PROGEMITTER = [prog_emitter])
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''
     env['LIBLINKPREFIX']=''

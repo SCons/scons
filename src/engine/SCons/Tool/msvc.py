@@ -441,8 +441,8 @@ def generate(env):
     env['CPPDEFSUFFIX']  = ''
     env['INCPREFIX']  = '/I'
     env['INCSUFFIX']  = ''
-    env['OBJEMITTER'] = static_object_emitter
-    env['SHOBJEMITTER'] = shared_object_emitter
+    env.Append(OBJEMITTER = [static_object_emitter])
+    env.Append(SHOBJEMITTER = [shared_object_emitter])
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'rc'

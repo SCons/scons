@@ -123,7 +123,7 @@ def generate(env):
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM']   = shlib_action
-    env['SHLIBEMITTER']= shlib_emitter
+    env.Append(SHLIBEMITTER = [shlib_emitter])
     env['LINK'] = 'g++'
     env['AS'] = 'as'
     env['WIN32DEFPREFIX']        = ''
@@ -133,7 +133,7 @@ def generate(env):
 
     env['RC'] = 'windres'
     env['RCFLAGS'] = SCons.Util.CLVar('')
-    env['RCINCFLAGS'] = SCons.Util.CLVar('$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs)} $)')
+    env['RCINCFLAGS'] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs)} $)'
     env['RCINCPREFIX'] = '--include-dir '
     env['RCINCSUFFIX'] = ''
     env['RCCOM'] = '$RC $RCINCFLAGS $RCFLAGS -i $SOURCE -o $TARGET'
