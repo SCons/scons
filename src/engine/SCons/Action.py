@@ -665,14 +665,22 @@ class ActionCaller:
                 # or something like that.  Do the best we can.
                 contents = str(actfunc)
         return contents
+    def subst(self, s, target, source, env):
+        # Special-case hack:  Let a custom function wrapped in an
+        # ActionCaller get at the environment through which the action
+        # was called by using this hard-coded value as a special return.
+        if s == '$__env__':
+            return env
+        else:
+            return env.subst(s, 0, target, source)
     def subst_args(self, target, source, env):
-        return map(lambda x, e=env, t=target, s=source:
-                          e.subst(x, 0, t, s),
+        return map(lambda x, self=self, t=target, s=source, e=env:
+                          self.subst(x, t, s, e),
                    self.args)
     def subst_kw(self, target, source, env):
         kw = {}
         for key in self.kw.keys():
-            kw[key] = env.subst(self.kw[key], 0, target, source)
+            kw[key] = self.subst(self.kw[key], target, source, env)
         return kw
     def __call__(self, target, source, env):
         args = self.subst_args(target, source, env)

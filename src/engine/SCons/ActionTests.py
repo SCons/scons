@@ -1588,15 +1588,22 @@ class ActionCallerTestCase(unittest.TestCase):
         def strfunc(a1, a2, a3):
             pass
 
-        af = SCons.Action.ActionFactory(actfunc, strfunc)
-        ac = SCons.Action.ActionCaller(af, [1, '$FOO', 3], {})
-        ac([], [], Environment(FOO = 2))
-        assert actfunc_args == [1, '2', 3], actfunc_args
+        e = Environment(FOO = 2, BAR = 5)
 
+        af = SCons.Action.ActionFactory(actfunc, strfunc)
+        ac = SCons.Action.ActionCaller(af, ['$__env__', '$FOO', 3], {})
+        ac([], [], e)
+        assert actfunc_args[0] is e, actfunc_args
+        assert actfunc_args[1] == '2', actfunc_args
+        assert actfunc_args[2] == 3, actfunc_args
         del actfunc_args[:]
-        ac = SCons.Action.ActionCaller(af, [], {'a3' : 6, 'a2' : '$BAR', 'a1' : 4})
-        ac([], [], Environment(BAR = 5))
-        assert actfunc_args == [4, '5', 6], actfunc_args
+
+        ac = SCons.Action.ActionCaller(af, [], {'a3' : '$__env__', 'a2' : '$BAR', 'a1' : 4})
+        ac([], [], e)
+        assert actfunc_args[0] == 4, actfunc_args
+        assert actfunc_args[1] == '5', actfunc_args
+        assert actfunc_args[2] is e, actfunc_args
+        del actfunc_args[:]
 
     def test_strfunction(self):
         """Test calling the ActionCaller strfunction() method"""
