@@ -48,7 +48,7 @@ def find(env):
     return env.WhereIs(key_program) or SCons.Util.WhereIs(key_program)
 
 def shlib_generator(target, source, env, for_signature):
-    cmd = SCons.Util.CLVar('$SHLINK', '$SHLINKFLAGS') 
+    cmd = SCons.Util.CLVar(['$SHLINK', '$SHLINKFLAGS']) 
 
     dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
     if dll: cmd.extend(['-o', dll])
