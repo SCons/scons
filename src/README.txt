@@ -187,28 +187,14 @@ in the general flood of messages.
 MAILING LISTS
 =============
 
-PLEASE NOTE:  We are in the process of planning to move our mailing list
-administration on 14 March 2004.  Details are available at our mailing
-lists page:
-
-        http://www.scons.org/lists.html
-
 An active mailing list for users of SCons is available.  You may send
 questions or comments to the list at:
 
-        users@scons.tigris.org                  (after 14 March 2004)
+        users@scons.tigris.org
 
-        scons-users@lists.sourceforge.net       (prior to 14 March 2004)
-
-After 14 March 2004, please check our mailing lists web page in case
-the actual date of the move has changed.
-
-You may subscribe to the (new) mailing list by sending email to:
+You may subscribe to the mailing list by sending email to:
 
         users-subscribe@scons.tigris.org
-
-To subscribe to the old (sourceforge.net) mailing list prior to the move,
-please consult the directions at our mailing lists page (address above).
 
 There is also a low-volume mailing list available for announcements
 about SCons.  Subscribe by sending email to:

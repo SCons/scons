@@ -20,10 +20,11 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.96 - XXX
+RELEASE 0.96 - Wed, 18 Aug 2004 13:36:40 +0000
 
-  This is the seventh beta release of SCons.  Please consult the
-  CHANGES.txt file for a list of specific changes since last release.
+  This is a pre-release for testing the seventh beta release of SCons.
+  Please consult the CHANGES.txt file for a list of specific changes
+  since last release.
 
   Please note the following important changes since release 0.95:
 
@@ -161,7 +162,7 @@ RELEASE 0.96 - XXX
       the ATL and MFC directories to the INCLUDE and LIB environment
       variables by default.  This default behavior will be changed in
       a future release; the current plan is to change it for the 0.97
-      release (next release).
+      release (next beta release).
 
       Whether or not the ATL and MFC directories are added to these
       environment variables is now controlled by a new MSVS_USE_MFC_DIRS
@@ -238,10 +239,6 @@ RELEASE 0.96 - XXX
       site is currently out of date.  Take what you read there with a
       grain of salt.
 
-    - If a file is specified to be built in multiple ways, the last
-      processed builder specification overwrites all other builders,
-      without any warning.
-
     - On Win32 systems, you must put a space between the redirection
       characters < and >, and the specified files (or construction
       variable expansions):
@@ -250,16 +247,6 @@ RELEASE 0.96 - XXX
 
       If you don't supply a space (for example, "<$SOURCE"), SCons will
       not recognize the redirection.
-
-    - People have reported problems with SCons not stopping a build when
-      an interrupt (CTRL+C) is received.  A fix was checked in to 0.11
-      that should fix this behavior on many systems, but there are
-      issues with the underlying Python os.system() call that suggest
-      this fix does not work on all systems or in all circumstances.
-      We're working to try to find a universal solution.
-
-    - Modifying a construction environment in a subsidiary SConscript
-      file modifies the global environment.
 
     - MSVC .res files are not rebuilt when icons change.
 
@@ -294,17 +281,11 @@ RELEASE 0.96 - XXX
     - SCons does not automatically rebuild LaTeX files when the file
       has an undefined reference on the first build.
 
-    - SideEffect() files are not retrieved properly from a CacheDir(),
-      and can lead to a stack trace.
-
     - Use of --implicit-cache with TargetSignatures('content') can,
       for some changes, not rebuild a file when necessary.
 
     - SCons does not currently automatically check out SConstruct or
       SConscript files from SCCS, RCS or BitKeeper.
-
-    - The Command() global function (specified without a construction
-      environment) is broken.
 
     - No support yet for the following planned command-line options:
 
