@@ -44,12 +44,11 @@ or incorrect permissions).
 from string import join, split
 
 __author__ = "Steven Knight <knight@baldmt.com>"
-__revision__ = "TestCmd.py 0.D001 2001/01/14 00:43:41 software"
-__version__ = "0.01"
+__revision__ = "TestCmd.py 0.D002 2001/08/31 14:56:12 software"
+__version__ = "0.02"
 
 from types import *
 
-import FCNTL
 import os
 import os.path
 import popen2
@@ -354,21 +353,22 @@ class TestCmd:
 	    program = os.path.join(self._cwd, program)
 	self.program = program
 
-    def read(self, file):
+    def read(self, file, mode = 'rb'):
 	"""Reads and returns the contents of the specified file name.
 	The file name may be a list, in which case the elements are
 	concatenated with the os.path.join() method.  The file is
 	assumed to be under the temporary working directory unless it
-	is an absolute path name.
+	is an absolute path name.  The I/O mode for the file may
+	be specified; it must begin with an 'r'.  The default is
+	'rb' (binary read).
 	"""
 	if type(file) is ListType:
 	    file = apply(os.path.join, tuple(file))
 	if not os.path.isabs(file):
 	    file = os.path.join(self.workdir, file)
-	f = os.fdopen(os.open(file, FCNTL.O_RDONLY))
-	contents = f.read()
-	f.close()
-	return contents
+	if mode[0] != 'r':
+	    raise ValueError, "mode must begin with 'r'"
+	return open(file, mode).read()
 
     def run(self, program = None,
 		  interpreter = None,
@@ -401,17 +401,34 @@ class TestCmd:
 	    cmd = cmd + " " + arguments
 	if self.verbose:
 	    sys.stderr.write(cmd + "\n")
-	p = popen2.Popen3(cmd, 1)
-	if stdin:
-	    if type(stdin) is ListType:
-		for line in stdin:
-		    p.tochild.write(line)
-	    else:
-		p.tochild.write(stdin)
-	p.tochild.close()
-	self._stdout.append(p.fromchild.read())
-	self._stderr.append(p.childerr.read())
-	self.status = p.wait()
+	try:
+	    p = popen2.Popen3(cmd, 1)
+	except AttributeError:
+	    (tochild, fromchild, childerr) = os.popen3(cmd)
+	    if stdin:
+		if type(stdin) is ListType:
+		    for line in stdin:
+			tochild.write(line)
+		else:
+		    tochild.write(stdin)
+	    tochild.close()
+	    self._stdout.append(fromchild.read())
+	    self._stderr.append(childerr.read())
+	    fromchild.close()
+	    self._status = childerr.close()
+	except:
+	    raise
+	else:
+	    if stdin:
+		if type(stdin) is ListType:
+		    for line in stdin:
+			p.tochild.write(line)
+		else:
+		    p.tochild.write(stdin)
+	    p.tochild.close()
+	    self._stdout.append(p.fromchild.read())
+	    self._stderr.append(p.childerr.read())
+	    self.status = p.wait()
 	if chdir:
 	    os.chdir(oldcwd)
 
@@ -535,17 +552,19 @@ class TestCmd:
 	    f = _mode_non_writable
 	os.path.walk(top, _walk_chmod, f)
 
-    def write(self, file, content):
+    def write(self, file, content, mode = 'wb'):
 	"""Writes the specified content text (second argument) to the
 	specified file name (first argument).  The file name may be
 	a list, in which case the elements are concatenated with the
 	os.path.join() method.	The file is created under the temporary
 	working directory.  Any subdirectories in the path must already
-	exist.	"""
+	exist.  The I/O mode for the file may be specified; it must
+	begin with a 'w'.  The default is 'wb' (binary write).
+	"""
 	if type(file) is ListType:
 	    file = apply(os.path.join, tuple(file))
 	if not os.path.isabs(file):
 	    file = os.path.join(self.workdir, file)
-	fd = os.open(file, FCNTL.O_CREAT|FCNTL.O_WRONLY)
-	os.write(fd, content)
-	os.close(fd)
+	if mode[0] != 'w':
+	    raise ValueError, "mode must begin with 'w'"
+	open(file, mode).write(content)
