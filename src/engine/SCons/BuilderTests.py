@@ -389,38 +389,6 @@ class BuilderTestCase(unittest.TestCase):
         contents = b3.get_contents()
         assert contents == "foo\177\036\000\177\037\000d\000\000Sbar", repr(contents)
 
-        b4 = SCons.Builder.Builder(name = "b4", action = "$_LIBFLAGS $_LIBDIRFLAGS $_INCFLAGS")
-        kw = {'LIBS'          : ['l1', 'l2'],
-              'LIBLINKPREFIX' : '-l',
-              'LIBLINKSUFFIX' : '',
-              'LIBPATH'       : ['lib'],
-              'LIBDIRPREFIX'  : '-L',
-              'LIBDIRSUFFIX'  : 'X',
-              'CPPPATH'       : ['c', 'p'],
-              'INCPREFIX'     : '-I',
-              'INCSUFFIX'     : ''}
-
-        contents = apply(b4.get_raw_contents, (), kw)
-        assert contents == "-ll1 -ll2 $( -LlibX $) $( -Ic -Ip $)", contents
-
-        contents = apply(b4.get_contents, (), kw)
-        assert contents == "-ll1 -ll2", "'%s'" % contents
-
-        # SCons.Node.FS has been imported by our import of
-        # SCons.Node.Builder.  It's kind of bogus that we don't
-        # import this ourselves before using it this way, but it's
-        # maybe a little cleaner than tying these tests directly
-        # to the other module via a direct import.
-        kw['dir'] = SCons.Node.FS.default_fs.Dir('d')
-
-        contents = apply(b4.get_raw_contents, (), kw)
-        expect = os.path.normpath("-ll1 -ll2 $( -Ld/libX $) $( -Id/c -Id/p $)")
-        assert contents == expect, contents + " != " + expect
-
-        contents = apply(b4.get_contents, (), kw)
-        expect = os.path.normpath("-ll1 -ll2")
-        assert contents == expect, contents + " != " + expect
-
     def test_node_factory(self):
 	"""Test a Builder that creates nodes of a specified class
 	"""

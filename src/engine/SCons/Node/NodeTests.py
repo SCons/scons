@@ -77,7 +77,9 @@ class ExceptBuilder2:
 
 class Environment:
     def Dictionary(self, *args):
-	pass
+        return {}
+    def autogenerate(self, **kw):
+        return {}
 
 
 

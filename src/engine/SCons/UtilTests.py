@@ -207,50 +207,6 @@ class UtilTestCase(unittest.TestCase):
         assert len(cmd_list) == 1, cmd_list
         assert cmd_list[0] == ['test', '3', '2', '4', 'test'], cmd_list
 
-    def test_autogenerate(dict):
-        """Test autogenerating variables in a dictionary."""
-        dict = {'LIBS'          : [ 'foo', 'bar', 'baz' ],
-                'LIBLINKPREFIX' : 'foo',
-                'LIBLINKSUFFIX' : 'bar'}
-        autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_LIBFLAGS']) == 3, dict('_LIBFLAGS')
-        assert dict['_LIBFLAGS'][0] == 'foofoobar', \
-               dict['_LIBFLAGS'][0]
-        assert dict['_LIBFLAGS'][1] == 'foobarbar', \
-               dict['_LIBFLAGS'][1]
-        assert dict['_LIBFLAGS'][2] == 'foobazbar', \
-               dict['_LIBFLAGS'][2]
-
-        blat = SCons.Node.FS.default_fs.File('blat')
-        dict = {'CPPPATH'   : [ 'foo', '$FOO/bar', blat],
-                'INCPREFIX' : 'foo ',
-                'INCSUFFIX' : 'bar',
-                'FOO'       : 'baz' }
-        autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_INCFLAGS']) == 8, dict['_INCFLAGS']
-        assert dict['_INCFLAGS'][0] == '$(', \
-               dict['_INCFLAGS'][0]
-        assert dict['_INCFLAGS'][1] == os.path.normpath('foo'), \
-               dict['_INCFLAGS'][1]
-        assert dict['_INCFLAGS'][2] == os.path.normpath('/xx/foobar'), \
-               dict['_INCFLAGS'][2]
-        assert dict['_INCFLAGS'][3] == os.path.normpath('foo'), \
-               dict['_INCFLAGS'][3]
-        assert dict['_INCFLAGS'][4] == os.path.normpath('/xx/baz/barbar'), \
-               dict['_INCFLAGS'][4]
-        assert dict['_INCFLAGS'][5] == os.path.normpath('foo'), \
-               dict['_INCFLAGS'][5]
-        assert dict['_INCFLAGS'][6] == os.path.normpath('blatbar'), \
-               dict['_INCFLAGS'][6]
-        assert dict['_INCFLAGS'][7] == '$)', \
-               dict['_INCFLAGS'][7]
-
-        dict = {'CPPPATH'  : '',
-                'LIBPATH'  : '' }
-        autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/yy'))
-        assert len(dict['_INCFLAGS']) == 0, dict['_INCFLAGS']
-        assert len(dict['_LIBDIRFLAGS']) == 0, dict['_LIBDIRFLAGS']
-
     def test_render_tree(self):
         class Node:
             def __init__(self, name, children=[]):

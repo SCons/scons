@@ -322,6 +322,49 @@ class EnvironmentTestCase(unittest.TestCase):
 	str = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
 	assert str == "c c", str
 
+    def test_autogenerate(dict):
+        """Test autogenerating variables in a dictionary."""
+        env = Environment(LIBS = [ 'foo', 'bar', 'baz' ],
+                          LIBLINKPREFIX = 'foo',
+                          LIBLINKSUFFIX = 'bar')
+        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/xx'))
+        assert len(dict['_LIBFLAGS']) == 3, dict['_LIBFLAGS']
+        assert dict['_LIBFLAGS'][0] == 'foofoobar', \
+               dict['_LIBFLAGS'][0]
+        assert dict['_LIBFLAGS'][1] == 'foobarbar', \
+               dict['_LIBFLAGS'][1]
+        assert dict['_LIBFLAGS'][2] == 'foobazbar', \
+               dict['_LIBFLAGS'][2]
+
+        blat = SCons.Node.FS.default_fs.File('blat')
+        env = Environment(CPPPATH = [ 'foo', '$FOO/bar', blat],
+                          INCPREFIX = 'foo ',
+                          INCSUFFIX = 'bar',
+                          FOO = 'baz')
+        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/xx'))
+        assert len(dict['_INCFLAGS']) == 8, dict['_INCFLAGS']
+        assert dict['_INCFLAGS'][0] == '$(', \
+               dict['_INCFLAGS'][0]
+        assert dict['_INCFLAGS'][1] == os.path.normpath('foo'), \
+               dict['_INCFLAGS'][1]
+        assert dict['_INCFLAGS'][2] == os.path.normpath('/xx/foobar'), \
+               dict['_INCFLAGS'][2]
+        assert dict['_INCFLAGS'][3] == os.path.normpath('foo'), \
+               dict['_INCFLAGS'][3]
+        assert dict['_INCFLAGS'][4] == os.path.normpath('/xx/baz/barbar'), \
+               dict['_INCFLAGS'][4]
+        assert dict['_INCFLAGS'][5] == os.path.normpath('foo'), \
+               dict['_INCFLAGS'][5]
+        assert dict['_INCFLAGS'][6] == os.path.normpath('blatbar'), \
+               dict['_INCFLAGS'][6]
+        assert dict['_INCFLAGS'][7] == '$)', \
+               dict['_INCFLAGS'][7]
+
+        env = Environment(CPPPATH = '', LIBPATH = '')
+        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/yy'))
+        assert len(dict['_INCFLAGS']) == 0, dict['_INCFLAGS']
+        assert len(dict['_LIBDIRFLAGS']) == 0, dict['_LIBDIRFLAGS']
+
 
 
 if __name__ == "__main__":

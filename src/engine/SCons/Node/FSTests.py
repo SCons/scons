@@ -57,7 +57,9 @@ class Environment:
     def __init__(self):
         self.scanner = Scanner()
     def Dictionary(self, *args):
-	pass
+        return {}
+    def autogenerate(self, **kw):
+        return {}
     def get_scanner(self, skey):
         return self.scanner
 

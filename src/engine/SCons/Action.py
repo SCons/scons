@@ -254,9 +254,6 @@ class ActionBase:
 
         dict.update(kw)
 
-        # Autogenerate necessary construction variables.
-        SCons.Util.autogenerate(dict, dir = cwd)
-
         return dict
 
 _rm = re.compile(r'\$[()]')

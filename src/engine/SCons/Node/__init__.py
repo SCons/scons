@@ -84,7 +84,13 @@ class Node:
             stat = self.builder.status
         except AttributeError:
             try:
-                stat = self.builder.execute(env = self.env.Dictionary(),
+                dict = copy.copy(self.env.Dictionary())
+                if hasattr(self, 'dir'):
+                    auto = self.env.autogenerate(dir = self.dir)
+                else:
+                    auto = self.env.autogenerate()
+                dict.update(auto)
+                stat = self.builder.execute(env = dict,
                                             target = self,
                                             source = self.sources)
             except:
@@ -119,12 +125,13 @@ class Node:
             def __init__(self, node):
                 self.node = node
             def get_contents(self):
-                env = self.node.env.Dictionary()
+                dict = self.node.env.Dictionary()
+                dict.update(self.node.env.autogenerate())
                 try:
                     dir = self.node.getcwd()
                 except AttributeError:
                     dir = None
-                return self.node.builder.get_contents(env = env)
+                return self.node.builder.get_contents(env = dict)
         return Adapter(self)
 
     def scanner_set(self, scanner):
