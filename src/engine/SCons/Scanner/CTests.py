@@ -157,6 +157,14 @@ int main()
 
 test.write([ 'repository', 'src', 'ddd.h'], "\n")
 
+test.write('f5.c', """\
+#include\"f5a.h\"
+#include<f5b.h>
+""")
+
+test.write("f5a.h", "\n")
+test.write("f5b.h", "\n")
+
 # define some helpers:
 
 class DummyEnvironment:
@@ -376,6 +384,15 @@ class CScannerTestCase13(unittest.TestCase):
         deps = s(make_node('f1.cpp'), env, path)
         headers = ['d1/f2.h', 'f1.h']
         deps_match(self, deps, map(test.workpath, headers))
+
+class CScannerTestCase14(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment([])
+        s = SCons.Scanner.C.CScan()
+        path = s.path(env)
+        deps = s(make_node('f5.c'), env, path)
+        headers = ['f5a.h', 'f5b.h']
+        deps_match(self, deps, map(test.workpath, headers))
         
 
 def suite():
@@ -392,6 +409,7 @@ def suite():
     suite.addTest(CScannerTestCase11())
     suite.addTest(CScannerTestCase12())
     suite.addTest(CScannerTestCase13())
+    suite.addTest(CScannerTestCase14())
     return suite
 
 if __name__ == "__main__":

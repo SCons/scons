@@ -40,6 +40,6 @@ def CScan(fs = SCons.Node.FS.default_fs):
                                    ".h", ".H", ".hxx", ".hpp", ".hh",
                                    ".F", ".fpp", ".FPP"],
                                   "CPPPATH",
-                                  '^[ \t]*#[ \t]*(?:include|import)[ \t]+(<|")([^>"]+)(>|")',
+                                  '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")',
                                   fs = fs)
     return cs

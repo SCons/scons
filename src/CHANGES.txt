@@ -25,6 +25,9 @@ RELEASE X.XX - XXX
   - The -Q option suppressed too many messages; fix it so that it only
     suppresses the Reading/Building messages.
 
+  - Support #include when there's no space before the opening quote
+    or angle bracket.
+
 
 
 RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
