@@ -39,18 +39,21 @@ class Task:
 class Taskmaster:
     "XXX: this is here only until the build engine is implemented"
 
-    def __init__(self, targets):
+    def __init__(self, targets, calc):
         self.targets = targets
+        self.calc = calc
         self.num_iterated = 0
 
 
     def next_task(self):
-        if self.num_iterated == len(self.targets):
-            return None
-        else:
-            current = self.num_iterated
+        while self.num_iterated < len(self.targets):
+            t = self.targets[self.num_iterated]
             self.num_iterated = self.num_iterated + 1
-            return Task(self.targets[current])
+            if self.calc.current(t):
+                print 'scons: "%s" is up to date.' % t
+            else:
+                return Task(t)
+        return None
 
     def is_blocked(self):
         return 0
@@ -583,34 +586,10 @@ def main():
     if not targets:
 	targets = default_targets
 
-    # XXX Right now, this next block prints all "up to date" messages
-    # first, and then goes through and builds the other nodes:
-    #
-    #		$ scons aaa bbb ccc ddd
-    #		scons: "aaa" is up to date.
-    #		scons: "ccc" is up to date.
-    #		cc -o bbb bbb.c
-    #		cc -o ddd ddd.c
-    #
-    # When we get the real Task and Taskmaster classes, this should
-    # be changed to interact with the engine to deal with targets in
-    # the same order as specified:
-    #
-    #		$ scons aaa bbb ccc ddd
-    #		scons: "aaa" is up to date.
-    #		cc -o bbb bbb.c
-    #		scons: "ccc" is up to date.
-    #		cc -o ddd ddd.c
-    #
+    nodes = map(lambda x: SCons.Node.FS.default_fs.File(x), targets)
     calc = SCons.Sig.Calculator(SCons.Sig.MD5)
-    nodes = []
-    for t in map(lambda x: SCons.Node.FS.default_fs.File(x), targets):
-	if calc.current(t):
-	    print 'scons: "%s" is up to date.' % t.path
-	else:
-	    nodes.append(t)
-    
-    taskmaster = Taskmaster(nodes)
+
+    taskmaster = Taskmaster(nodes, calc)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     jobs.start()
