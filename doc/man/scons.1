@@ -4702,6 +4702,60 @@ For VS7, it is:
 .IP
 Where '<VSDir>' is the installed location of Visual Studio.
 
+.IP MSVS_USE_MFC_DIRS
+Tells the MS Visual Studio tool(s) to use
+the MFC directories in its default paths
+for compiling and linking.
+Under MSVS version 6,
+setting
+.B MSVS_USE_MFC_DIRS
+to a non-zero value
+adds the
+.BR ATL\\include
+and
+.BR MFC\\include
+directories to
+the default
+.B INCLUDE
+external environment variable,
+and adds the
+.B MFC\\lib
+directory to
+the default
+.B LIB
+external environment variable.
+Under MSVS version 7,
+setting
+.B MSVS_USE_MFC_DIRS
+to a non-zero value
+adds the
+.BR atlmfc\\include
+directory to the default
+.B INCLUDE
+external environment variable,
+and adds the
+.BR atlmfc\\lib
+directory to the default
+.B LIB
+external environment variable.
+The current default value is
+.BR 1 ,
+which means these directories
+are added to the paths by default.
+This default value is likely to change
+in a future release,
+so users who want the ATL and MFC
+values included in their paths
+are encouraged to enable the
+.B MSVS_USE_MFC_DIRS
+value explicitly
+to avoid future incompatibility.
+This variable has no effect if the
+.BR INCLUDE
+or
+.BR LIB
+environment variables are set explictly.
+
 .IP MSVS_VERSION
 Sets the preferred version of MSVS to use.
 

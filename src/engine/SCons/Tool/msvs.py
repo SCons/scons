@@ -933,8 +933,13 @@ def get_msvs_install_dirs(version = None):
 
     # .NET framework SDK install dir
     try:
-        (rv['FRAMEWORKSDKDIR'], t) = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE,
-            r'Software\Microsoft\.NETFramework\sdkInstallRoot')
+        if rv.has_key('FRAMEWORKVERSION') and rv['FRAMEWORKVERSION'][:4] == 'v1.1':
+            key = r'Software\Microsoft\.NETFramework\sdkInstallRootv1.1'
+        else:
+            key = r'Software\Microsoft\.NETFramework\sdkInstallRoot'
+
+        (rv['FRAMEWORKSDKDIR'], t) = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE,key)
+
     except SCons.Util.RegError:
         pass
 
