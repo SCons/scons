@@ -218,6 +218,7 @@ class Base:
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
 
+        self._dict['__env__'] = self
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
         if platform is None:

@@ -1133,14 +1133,9 @@ class UtilTestCase(unittest.TestCase):
     def test_subst_dict(self):
         """Test substituting dictionary values in an Action
         """
-        env = DummyEnv({'a' : 'A', 'b' : 'B'})
-        d = subst_dict([], [], env)
-        assert d['__env__'] is env, d['__env__']
-
         t = DummyNode('t')
         s = DummyNode('s')
-        env = DummyEnv()
-        d = subst_dict(target=t, source=s, env=env)
+        d = subst_dict(target=t, source=s)
         assert str(d['TARGETS'][0]) == 't', d['TARGETS']
         assert str(d['TARGET']) == 't', d['TARGET']
         assert str(d['SOURCES'][0]) == 's', d['SOURCES']
@@ -1150,7 +1145,7 @@ class UtilTestCase(unittest.TestCase):
         t2 = DummyNode('t2')
         s1 = DummyNode('s1')
         s2 = DummyNode('s2')
-        d = subst_dict(target=[t1, t2], source=[s1, s2], env=env)
+        d = subst_dict(target=[t1, t2], source=[s1, s2])
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
         assert TARGETS == ['t1', 't2'], d['TARGETS']
@@ -1174,7 +1169,7 @@ class UtilTestCase(unittest.TestCase):
         t4 = DummyNode('t4')
         s3 = DummyNode('s3')
         s4 = N('s4')
-        d = subst_dict(target=[t3, t4], source=[s3, s4], env=env)
+        d = subst_dict(target=[t3, t4], source=[s3, s4])
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
         assert TARGETS == ['t3', 't4'], d['TARGETS']

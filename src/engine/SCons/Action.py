@@ -440,7 +440,7 @@ class ListAction(ActionBase):
 
         Simple concatenation of the signatures of the elements.
         """
-        dict = SCons.Util.subst_dict(target, source, env)
+        dict = SCons.Util.subst_dict(target, source)
         return string.join(map(lambda x, t=target, s=source, e=env, d=dict:
                                       x.get_contents(t, s, e, d),
                                self.list),
