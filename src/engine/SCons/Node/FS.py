@@ -167,6 +167,7 @@ class FS:
             path_comp = path_comp[1:]
         else:
             path_comp = [ path_first, ] + path_comp[1:]
+            
         # Lookup the directory
         for path_name in path_comp[:-1]:
             path_norm = _my_normcase(path_name)
@@ -176,6 +177,14 @@ class FS:
             except KeyError:
                 if not create:
                     raise UserError
+
+                # look at the actual filesystem and make sure there isn't
+                # a file already there
+                path = os.path.join(str(directory), path_name)
+                if os.path.isfile(path):
+                    raise TypeError, \
+                          "File %s found where directory expected." % path
+
                 dir_temp = Dir(path_name, directory)
                 directory.entries[path_norm] = dir_temp
                 directory.add_wkid(dir_temp)
@@ -186,6 +195,19 @@ class FS:
         except KeyError:
             if not create:
                 raise UserError
+
+            # make sure we don't create File nodes when there is actually
+            # a directory at that path on the disk, and vice versa
+            path = os.path.join(str(directory), path_comp[-1])
+            if fsclass == File:
+                if os.path.isdir(path):
+                    raise TypeError, \
+                          "Directory %s found where file expected." % path
+            elif fsclass == Dir:
+                if os.path.isfile(path):
+                    raise TypeError, \
+                          "File %s found where directory expected." % path
+            
             ret = fsclass(path_comp[-1], directory)
             directory.entries[file_name] = ret
             directory.add_wkid(ret)

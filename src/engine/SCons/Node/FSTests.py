@@ -487,6 +487,21 @@ class FSTestCase(unittest.TestCase):
         parents = f1.get_parents()
         assert parents == [ d1 ], parents
 
+        test.write("i_am_not_a_directory", "\n")
+        exc_caught = 0        
+        try:
+            fs.Dir(test.workpath("i_am_not_a_directory"))
+        except TypeError:
+            exc_caught = 1
+        assert exc_caught, "Should have caught a TypeError"
+        test.unlink("i_am_not_a_directory")
+
+        exc_caught = 0
+        try:
+            fs.File(sub_dir)
+        except TypeError:
+            exc_caught = 1
+        assert exc_caught, "Should have caught a TypeError"
 
 class find_fileTestCase(unittest.TestCase):
     def runTest(self):

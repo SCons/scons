@@ -14,6 +14,9 @@ RELEASE 0.07 -
 
   - Changes to build SCons packages on IRIX (and other *NIces).
 
+  - Don't create a directory Node when a file already exists there,
+    and vice versa.
+
   From Charles Crain:
 
   - Internal cleanup of environment passing to function Actions.
