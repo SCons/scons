@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -64,7 +64,7 @@
 
     
 
-    <literallayout>
+    <screen>
       % <userinput>scons</userinput>
       scons: Reading SConscript files ...
       scons: done reading SConscript files.
@@ -74,7 +74,7 @@
       % <userinput>export SCONSFLAGS="-Q"</userinput>
       % <userinput>scons</userinput>
           ... [build output] ...
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -83,9 +83,9 @@
 
     </para>
 
-    <literallayout>
-      $ setenv SCONSFLAGS "-Q"
-    </literallayout>
+    <screen>
+      $ <userinput>setenv SCONSFLAGS "-Q"</userinput>
+    </screen>
 
     <para>
 
@@ -131,7 +131,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       cc -c -o foo.o foo.c
       cc -o foo foo.o
@@ -139,7 +139,7 @@
       Don't forget to copy `bar' to the archive!
       cc -c -o bar.o bar.c
       cc -o bar bar.o
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -190,7 +190,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q</userinput>
        cc -c -o hello.o hello.c
        cc -o hello hello.o
@@ -199,7 +199,7 @@
        % <userinput>scons -Q goodbye</userinput>
        cc -c -o goodbye.o goodbye.c
        cc -o goodbye goodbye.o
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -212,13 +212,13 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q .</userinput>
        cc -c -o goodbye.o goodbye.c
        cc -o goodbye goodbye.o
        cc -c -o hello.o hello.c
        cc -o hello hello.o
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -264,7 +264,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q</userinput>
        cc -c -o prog1.o prog1.c
        cc -o prog1 prog1.o
@@ -273,7 +273,7 @@
        % <userinput>scons -Q .</userinput>
        cc -c -o prog2.o prog2.c
        cc -o prog2 prog2.o
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -296,7 +296,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q</userinput>
        cc -c -o prog1/foo.o prog1/foo.c
        cc -c -o prog1/main.o prog1/main.c
@@ -307,7 +307,7 @@
        cc -c -o prog2/bar.o prog2/bar.c
        cc -c -o prog2/main.o prog2/main.c
        cc -o prog2/main prog2/main.o prog2/bar.o
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -331,7 +331,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q</userinput>
        scons: *** No targets specified and no Default() targets found.  Stop.
        % <userinput>scons -Q .</userinput>
@@ -339,7 +339,7 @@
        cc -o prog1 prog1.o
        cc -c -o prog2.o prog2.c
        cc -o prog2 prog2.o
-    </literallayout>
+    </screen>
 
     <section>
     <title>Getting at the List of Default Targets</title>
@@ -376,7 +376,7 @@
 
       </para>
 
-      <literallayout>
+      <screen>
          % <userinput>scons</userinput>
          scons: Reading SConscript files ...
          DEFAULT_TARGETS is ['prog1']
@@ -385,7 +385,7 @@
          cc -c -o prog1.o prog1.c
          cc -o prog1 prog1.o
          scons: done building targets.
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -411,7 +411,7 @@
 
       </para>
 
-      <literallayout>
+      <screen>
          % <userinput>scons</userinput>
          scons: Reading SConscript files ...
          DEFAULT_TARGETS is now ['prog1']
@@ -423,7 +423,7 @@
          cc -c -o prog2.o prog2.c
          cc -o prog2 prog2.o
          scons: done building targets.
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -506,7 +506,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       BUILD_TARGETS is ['prog1']
       cc -c -o prog1.o prog1.c
@@ -521,7 +521,7 @@
       Removed prog1
       Removed prog2.o
       Removed prog2
-    </literallayout>
+    </screen>
 
   </section>
 
@@ -541,9 +541,9 @@
 
     </para>
 
-    <literallayout>
-      % scons -Q debug=1
-    </literallayout>
+    <screen>
+      % <userinput>scons -Q debug=1</userinput>
+    </screen>
 
     <para>
 
@@ -591,7 +591,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q debug=0</userinput>
        cc -c -o prog.o prog.c
        cc -o prog prog.o
@@ -602,7 +602,7 @@
        cc -o prog prog.o
        % <userinput>scons -Q debug=1</userinput>
        scons: `.' is up to date.
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -691,12 +691,12 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q RELEASE=1</userinput>
       cc -DRELEASE_BUILD=1 -c -o bar.o bar.c
       cc -DRELEASE_BUILD=1 -c -o foo.o foo.c
       cc -o foo foo.o bar.o
-    </literallayout>
+    </screen>
 
   </section>
 
@@ -737,7 +737,7 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q -h</userinput>
       
       RELEASE: Set to 1 to build for release
@@ -745,7 +745,7 @@
           actual: 0
       
       Use scons -H for help about command-line options.
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -806,12 +806,12 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       cc -DRELEASE_BUILD=1 -c -o bar.o bar.c
       cc -DRELEASE_BUILD=1 -c -o foo.o foo.c
       cc -o foo foo.o bar.o
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -830,12 +830,12 @@
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       cc -DRELEASE_BUILD=0 -c -o bar.o bar.c
       cc -DRELEASE_BUILD=0 -c -o foo.o foo.c
       cc -o foo foo.o bar.o
-    </literallayout>
+    </screen>
 
   </section>
 
@@ -881,7 +881,7 @@
 
       <programlisting>
            opts = Options('custom.py')
-           opts.Add(BoolOption('RELEASE', 0, 'Set to build for release'))
+           opts.Add(BoolOption('RELEASE', 'Set to build for release', 0))
            env = Environment(options = opts,
                              CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
            env.Program('foo.c')
@@ -896,15 +896,15 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q RELEASE=yes foo.o</userinput>
         cc -DRELEASE_BUILD=1 -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q RELEASE=t foo.o</userinput>
         cc -DRELEASE_BUILD=1 -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -927,15 +927,15 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q RELEASE=no foo.o</userinput>
         cc -DRELEASE_BUILD=0 -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q RELEASE=f foo.o</userinput>
         cc -DRELEASE_BUILD=0 -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -956,13 +956,13 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q RELEASE=bad_value foo.o</userinput>
         
         scons: *** Error converting option: RELEASE
         Invalid value for boolean option: bad_value
         File "SConstruct", line 4, in ?
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -988,7 +988,7 @@
 
       <programlisting>
            opts = Options('custom.py')
-           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+           opts.Add(EnumOption('COLOR', 'Set background color', 'red',
                                allowed_values=('red', 'green', 'blue')))
            env = Environment(options = opts,
                              CPPDEFINES={'COLOR' : '"${COLOR}"'})
@@ -1002,14 +1002,14 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLOR=red foo.o</userinput>
         cc -DCOLOR="red" -c -o foo.o foo.c
         % <userinput>scons -Q COLOR=blue foo.o</userinput>
         cc -DCOLOR="blue" -c -o foo.o foo.c
         % <userinput>scons -Q COLOR=green foo.o</userinput>
         cc -DCOLOR="green" -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -1020,12 +1020,12 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLOR=magenta foo.o</userinput>
         
         scons: *** Invalid value for option COLOR: magenta
         File "SConstruct", line 5, in ?
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -1043,7 +1043,7 @@
 
       <programlisting>
            opts = Options('custom.py')
-           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+           opts.Add(EnumOption('COLOR', 'Set background color', 'red',
                                allowed_values=('red', 'green', 'blue'),
                                map={'navy':'blue'}))
            env = Environment(options = opts,
@@ -1061,10 +1061,10 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLOR=navy foo.o</userinput>
         cc -DCOLOR="blue" -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -1076,7 +1076,7 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLOR=Red foo.o</userinput>
         
         scons: *** Invalid value for option COLOR: Red
@@ -1089,7 +1089,7 @@
         
         scons: *** Invalid value for option COLOR: nAvY
         File "SConstruct", line 5, in ?
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -1103,7 +1103,7 @@
 
       <programlisting>
            opts = Options('custom.py')
-           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+           opts.Add(EnumOption('COLOR', 'Set background color', 'red',
                                allowed_values=('red', 'green', 'blue'),
                                map={'navy':'blue'},
                                ignorecase=1))
@@ -1118,7 +1118,7 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLOR=Red foo.o</userinput>
         cc -DCOLOR="Red" -c -o foo.o foo.c
         % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
@@ -1127,7 +1127,7 @@
         cc -DCOLOR="blue" -c -o foo.o foo.c
         % <userinput>scons -Q COLOR=green foo.o</userinput>
         cc -DCOLOR="green" -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
       <para>
 
@@ -1142,7 +1142,7 @@
 
       <programlisting>
            opts = Options('custom.py')
-           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+           opts.Add(EnumOption('COLOR', 'Set background color', 'red',
                                allowed_values=('red', 'green', 'blue'),
                                map={'navy':'blue'},
                                ignorecase=2))
@@ -1162,14 +1162,14 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLOR=Red foo.o</userinput>
         cc -DCOLOR="red" -c -o foo.o foo.c
         % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
         cc -DCOLOR="blue" -c -o foo.o foo.c
         % <userinput>scons -Q COLOR=GREEN foo.o</userinput>
         cc -DCOLOR="green" -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
     </section>
 
@@ -1189,7 +1189,7 @@
 
       <programlisting>
            opts = Options('custom.py')
-           opts.Add(ListOption('COLORS', 0, 'List of colors',
+           opts.Add(ListOption('COLORS', 'List of colors', 0,
                                ['red', 'green', 'blue']))
            env = Environment(options = opts,
                              CPPDEFINES={'COLORS' : '"${COLORS}"'})
@@ -1205,12 +1205,12 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLORS=red,blue foo.o</userinput>
-        TypeError: sequence item 0: expected string, int found:
+        cc -DCOLORS="red blue" -c -o foo.o foo.c
         % <userinput>scons -Q COLORS=blue,green,red foo.o</userinput>
-        TypeError: sequence item 0: expected string, int found:
-      </literallayout>
+        cc -DCOLORS="blue green red" -c -o foo.o foo.c
+      </screen>
 
       <para>
 
@@ -1222,12 +1222,12 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLORS=all foo.o</userinput>
-        TypeError: sequence item 0: expected string, int found:
+        cc -DCOLORS="red green blue" -c -o foo.o foo.c
         % <userinput>scons -Q COLORS=none foo.o</userinput>
-        TypeError: sequence item 0: expected string, int found:
-      </literallayout>
+        cc -DCOLORS="" -c -o foo.o foo.c
+      </screen>
 
       <para>
 
@@ -1236,10 +1236,13 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q COLORS=magenta foo.o</userinput>
-        TypeError: sequence item 0: expected string, int found:
-      </literallayout>
+        
+        scons: *** Error converting option: COLORS
+        Invalid value(s) for option: magenta
+        File "SConstruct", line 5, in ?
+      </screen>
 
     </section>
 
@@ -1260,7 +1263,9 @@
 
       <programlisting>
            opts = Options('custom.py')
-           opts.Add(PathOption('CONFIG', '/etc/my_config', 'Path to configuration file'))
+           opts.Add(PathOption('CONFIG',
+                               'Path to configuration file',
+                               '/etc/my_config'))
            env = Environment(options = opts,
                              CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
            env.Program('foo.c')
@@ -1274,14 +1279,12 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q foo.o</userinput>
-        
-        scons: *** Path does not exist for option CONFIG: Path to configuration file
-        File "SConstruct", line 4, in ?
+        cc -DCONFIG_FILE="/etc/my_config" -c -o foo.o foo.c
         % <userinput>scons -Q CONFIG=/usr/local/etc/other_config foo.o</userinput>
-        cc -DCONFIG_FILE="/usr/local/etc/other_config" -c -o foo.o foo.c
-      </literallayout>
+        scons: `foo.o' is up to date.
+      </screen>
 
     </section>
 
@@ -1304,7 +1307,9 @@
 
       <programlisting>
            opts = Options('custom.py')
-           opts.Add(PackageOption('PACKAGE', '/opt/location', 'Location package'))
+           opts.Add(PackageOption('PACKAGE',
+                                  'Location package',
+                                  '/opt/location'))
            env = Environment(options = opts,
                              CPPDEFINES={'PACKAGE' : '"$PACKAGE"'})
            env.Program('foo.c')
@@ -1323,18 +1328,16 @@
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q foo.o</userinput>
-        
-        scons: *** Path does not exist for option PACKAGE: Location package
-        File "SConstruct", line 4, in ?
+        cc -DPACKAGE="/opt/location" -c -o foo.o foo.c
         % <userinput>scons -Q PACKAGE=/usr/local/location foo.o</userinput>
         cc -DPACKAGE="/usr/local/location" -c -o foo.o foo.c
         % <userinput>scons -Q PACKAGE=yes foo.o</userinput>
         cc -DPACKAGE="1" -c -o foo.o foo.c
         % <userinput>scons -Q PACKAGE=no foo.o</userinput>
         cc -DPACKAGE="0" -c -o foo.o foo.c
-      </literallayout>
+      </screen>
 
     </section>
 

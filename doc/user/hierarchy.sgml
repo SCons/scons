@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -315,7 +315,7 @@ make no difference to the build.
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q</userinput>
        cc -c -o prog1/foo1.o prog1/foo1.c
        cc -c -o prog1/foo2.o prog1/foo2.c
@@ -325,7 +325,7 @@ make no difference to the build.
        cc -c -o prog2/bar2.o prog2/bar2.c
        cc -c -o prog2/main.o prog2/main.c
        cc -o prog2/prog2 prog2/main.o prog2/bar1.o prog2/bar2.o
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -380,19 +380,19 @@ make no difference to the build.
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q</userinput>
        cc -c -o lib/foo1.o lib/foo1.c
        cc -c -o src/prog/foo2.o src/prog/foo2.c
        cc -c -o src/prog/main.o src/prog/main.c
        cc -o src/prog/prog src/prog/main.o lib/foo1.o src/prog/foo2.o
-    </literallayout>
+    </screen>
 
     <para>
 
     (Notice that the <literal>lib/foo1.o</literal> object file
     is built in the same directory as its source file.
-    See section XXX, below,
+    See <xref linkend="chap-separate">, below,
     for information about 
     how to build the object file in a different subdirectory.)
 
@@ -421,20 +421,20 @@ make no difference to the build.
 
     </para>
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q</userinput>
        cc -c -o src/prog/foo2.o src/prog/foo2.c
        cc -c -o src/prog/main.o src/prog/main.c
        cc -c -o /usr/joe/lib/foo1.o /usr/joe/lib/foo1.c
        cc -o src/prog/prog src/prog/main.o /usr/joe/lib/foo1.o src/prog/foo2.o
-    </literallayout>
+    </screen>
 
     <para>
 
     (As was the case with top-relative path names,
     notice that the <literal>/usr/joe/lib/foo1.o</literal> object file
     is built in the same directory as its source file.
-    See section XXX, below,
+    See <xref linkend="chap-separate">, below,
     for information about 
     how to build the object file in a different subdirectory.)
 
@@ -714,13 +714,13 @@ make no difference to the build.
 
       </para>
 
-      <literallayout>
+      <screen>
         % <userinput>scons -Q</userinput>
         cc -c -o bar/bar.o bar/bar.c
         cc -c -o foo/foo.o foo/foo.c
         ar r libprog.a foo/foo.o bar/bar.o
         ranlib libprog.a
-      </literallayout>
+      </screen>
 
     </section>
 

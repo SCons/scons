@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -67,14 +67,14 @@ which the C<AfterBuild> method is called.
 
  </para>
 
- <literallayout>
+ <screen>
     % <userinput>scons -Q</userinput>
     cc -c -o f1.o f1.c
     cc -c -o f2.o f2.c
     cc -c -o f3.o f3.c
     ar r libfoo.a f1.o f2.o f3.o
     ranlib libfoo.a
- </literallayout>
+ </screen>
 
  <para>
 

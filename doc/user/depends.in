@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -96,7 +96,7 @@ operating system on which the build is performed (as reported by C<uname
   </para>
 
   <section>
-  <title>Source File Signatures</title>
+  <title>Deciding When a Source File Has Changed:  the &SourceSignatures; Function</title>
 
     <para>
 
@@ -219,7 +219,7 @@ operating system on which the build is performed (as reported by C<uname
   </section>
 
   <section>
-  <title>Target File Signatures</title>
+  <title>Deciding When a Target File Has Changed:  the &TargetSignatures; Function</title>
 
     <para>
 
@@ -227,7 +227,7 @@ operating system on which the build is performed (as reported by C<uname
     &SCons; uses signatures to decide whether a 
     target file is up to date or must be rebuilt.
     When a target file depends on another target file,
-    &SCons; allows you to separately configure
+    &SCons; allows you to configure separately
     how the signatures of "intermediate" target files
     are used when deciding if a dependent target file
     must be rebuilt.
@@ -668,7 +668,7 @@ operating system on which the build is performed (as reported by C<uname
   </section>
 
   <section>
-  <title>The &Ignore; Method</title>
+  <title>Ignoring Dependencies:  the &Ignore; Method</title>
 
     <para>
 
@@ -707,7 +707,7 @@ operating system on which the build is performed (as reported by C<uname
     </scons_output>
     -->
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q hello</userinput>
       cc -c -o hello.o hello.c
       cc -o hello hello.o
@@ -717,7 +717,7 @@ operating system on which the build is performed (as reported by C<uname
         [CHANGE THE CONTENTS OF hello.h]
       % <userinput>scons -Q hello</userinput>
       scons: `hello' is up to date.
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -748,7 +748,7 @@ operating system on which the build is performed (as reported by C<uname
   </section>
 
   <section>
-  <title>The &Depends; Method</title>
+  <title>Explicit Dependencies:  the &Depends; Method</title>
 
     <para>
 
@@ -770,7 +770,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <!-- XXX mention that you can use arrays for target and source? -->
 
-    <literallayout>
+    <screen>
        % <userinput>scons -Q hello</userinput>
        cc -c hello.c -o hello.o
        cc -o hello hello.o
@@ -781,7 +781,7 @@ operating system on which the build is performed (as reported by C<uname
        % <userinput>scons -Q hello</userinput>
        cc -c hello.c -o hello.o
        cc -o hello hello.o
-    </literallayout>
+    </screen>
 
   </section>
 

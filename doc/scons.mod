@@ -1,5 +1,7 @@
 <!--
 
+  __COPYRIGHT__
+
   An SCons-specific DTD module, for use with SCons DocBook
   documentation, that contains names, phrases, acronyms, etc. used
   throughout the SCons documentation.
@@ -20,13 +22,18 @@
 <!ENTITY Automake "<application>Automake</application>">
 <!ENTITY cc "<application>cc</application>">
 <!ENTITY Cons "<application>Cons</application>">
+<!ENTITY cp "<application>cp</application>">
 <!ENTITY csh "<application>csh</application>">
 <!ENTITY gcc "<application>gcc</application>">
 <!ENTITY Jam "<application>Jam</application>">
+<!ENTITY jar "<application>jar</application>">
+<!ENTITY javac "<application>javac</application>">
+<!ENTITY javah "<application>javah</application>">
 <!ENTITY Make "<application>Make</application>">
 <!ENTITY Makepp "<application>Make++</application>">
 <!ENTITY Python "<application>Python</application>">
 <!ENTITY ranlib "<application>ranlib</application>">
+<!ENTITY rmic "<application>rmic</application>">
 <!ENTITY SCons "<application>SCons</application>">
 <!ENTITY scons "<application>scons</application>">
 <!ENTITY ScCons "<application>ScCons</application>">
@@ -72,6 +79,7 @@
 
 -->
 
+<!ENTITY debug-explain "<literal>--debug=explain</literal>">
 <!ENTITY implicit-cache "<literal>--implicit-cache</literal>">
 <!ENTITY implicit-deps-changed "<literal>--implicit-deps-changed</literal>">
 <!ENTITY implicit-deps-unchanged "<literal>--implicit-deps-unchanged</literal>">
@@ -125,13 +133,18 @@
 <!ENTITY Clean "<function>Clean</function>">
 <!ENTITY Clone "<function>Clone</function>">
 <!ENTITY Command "<function>Command</function>">
+<!ENTITY Configure "<function>Configure</function>">
 <!ENTITY Copy "<function>Copy</function>">
 <!ENTITY Default "<function>Default</function>">
 <!ENTITY DefaultRules "<function>DefaultRules</function>">
 <!ENTITY Depends "<function>Depends</function>">
+<!ENTITY Dir "<function>Dir</function>">
+<!ENTITY Entry "<function>Entry</function>">
 <!ENTITY EnumOption "<function>EnumOption</function>">
 <!ENTITY Environment "<function>Environment</function>">
 <!ENTITY Export "<function>Export</function>">
+<!ENTITY File "<function>File</function>">
+<!ENTITY Finish "<function>Finish</function>">
 <!ENTITY GenerateHelpText "<function>GenerateHelpText</function>">
 <!ENTITY Help "<function>Help</function>">
 <!ENTITY Ignore "<function>Ignore</function>">
@@ -161,6 +174,25 @@
 <!ENTITY TargetSignatures "<function>TargetSignatures</function>">
 <!ENTITY Task "<function>Task</function>">
 
+<!-- Environment methods -->
+<!ENTITY subst "<function>subst</function>">
+
+<!-- Configure context functions -->
+<!ENTITY Message "<function>Message</function>">
+<!ENTITY Result "<function>Result</function>">
+<!ENTITY CheckCHeader "<function>CheckCHeader</function>">
+<!ENTITY CheckCXXHeader "<function>CheckCXXHeader</function>">
+<!ENTITY CheckFunc "<function>CheckFunc</function>">
+<!ENTITY CheckHeader "<function>CheckHeader</function>">
+<!ENTITY CheckLibrary "<function>CheckLibrary</function>">
+<!ENTITY CheckType "<function>CheckType</function>">
+<!ENTITY TryAction "<function>TryAction</function>">
+<!ENTITY TryBuild "<function>TryBuild</function>">
+<!ENTITY TryCompile "<function>TryCompile</function>">
+<!ENTITY TryLink "<function>TryLink</function>">
+<!ENTITY TryRun "<function>TryRun</function>">
+
+<!-- Python functions -->
 <!ENTITY str "<function>str</function>">
 <!ENTITY zipfile "<function>zipfile</function>">
 
@@ -192,11 +224,13 @@
 <!ENTITY BUILDERS "<varname>BUILDERS</varname>">
 <!ENTITY CC "<varname>CC</varname>">
 <!ENTITY CCFLAGS "<varname>CCFLAGS</varname>">
+<!ENTITY CCCOM "<varname>CCCOM</varname>">
 <!ENTITY COLOR "<varname>COLOR</varname>">
 <!ENTITY COLORS "<varname>COLORS</varname>">
 <!ENTITY CONFIG "<varname>CONFIG</varname>">
 <!ENTITY CPPDEFINES "<varname>CPPDEFINES</varname>">
 <!ENTITY ENV "<varname>ENV</varname>">
+<!ENTITY JAVACLASSDIR "<varname>JAVACLASSDIR</varname>">
 <!ENTITY LIBDIRPREFIX "<varname>LIBDIRPREFIX</varname>">
 <!ENTITY LIBDIRSUFFIX "<varname>LIBDIRSUFFIX</varname>">
 <!ENTITY LIBLINKPREFIX "<varname>LIBLINKPREFIX</varname>">
@@ -296,6 +330,10 @@
 -->
 
 <!ENTITY buildfunc "<literal>builder function</literal>">
+<!ENTITY builder_method "<literal>builder method</literal>">
+
+<!ENTITY Configure_Contexts "<literal>Configure Contexts</literal>">
+<!ENTITY configure_context "<literal>configure context</literal>">
 
 <!ENTITY ConsEnv "<literal>Construction Environment</literal>">
 <!ENTITY ConsEnvs "<literal>Construction Environments</literal>">
@@ -320,11 +358,15 @@
 <!ENTITY Generator "<literal>Generator</literal>">
 <!ENTITY generator "<literal>generator</literal>">
 
+<!ENTITY Nodes "<literal>Nodes</literal>">
+
 <!ENTITY signature "<literal>signature</literal>">
 <!ENTITY buildsignature "<literal>build signature</literal>">
 
 <!ENTITY true "<literal>true</literal>">
 <!ENTITY false "<literal>false</literal>">
+
+<!ENTITY typedef "<literal>typedef</literal>">
 
 <!--
 
@@ -333,22 +375,31 @@
 -->
 
 <!ENTITY bar "<application>bar</application>">
-<!ENTITY common1_c "<application>common1.c</application>">
-<!ENTITY common2_c "<application>common2.c</application>">
+<!ENTITY common1_c "<filename>common1.c</filename>">
+<!ENTITY common2_c "<filename>common2.c</filename>">
 <!ENTITY custom_py "<filename>custom.py</filename>">
 <!ENTITY goodbye "<application>goodbye</application>">
-<!ENTITY file_dll "<application>file.dll</application>">
-<!ENTITY file_lib "<application>file.lib</application>">
-<!ENTITY file_o "<application>file.o</application>">
-<!ENTITY file_obj "<application>file.obj</application>">
+<!ENTITY goodbye_o "<filename>goodbye.o</filename>">
+<!ENTITY goodbye_obj "<filename>goodbye.obj</filename>">
+<!ENTITY file_dll "<filename>file.dll</filename>">
+<!ENTITY file_in "<filename>file.in</filename>">
+<!ENTITY file_lib "<filename>file.lib</filename>">
+<!ENTITY file_o "<filename>file.o</filename>">
+<!ENTITY file_obj "<filename>file.obj</filename>">
+<!ENTITY file_out "<filename>file.out</filename>">
 <!ENTITY foo "<application>foo</application>">
+<!ENTITY foo_o "<filename>foo.o</filename>">
+<!ENTITY foo_obj "<filename>foo.obj</filename>">
 <!ENTITY hello "<application>hello</application>">
 <!ENTITY hello_c "<filename>hello.c</filename>">
 <!ENTITY hello_exe "<filename>hello.exe</filename>">
 <!ENTITY hello_h "<filename>hello.h</filename>">
 <!ENTITY hello_o "<filename>hello.o</filename>">
+<!ENTITY hello_obj "<filename>hello.obj</filename>">
 <!ENTITY libfile_a "<filename>libfile_a</filename>">
 <!ENTITY libfile_so "<filename>libfile_so</filename>">
+<!ENTITY new_hello "<application>new_hello</application>">
+<!ENTITY new_hello_exe "<application>new_hello.exe</application>">
 <!ENTITY prog "<filename>prog</filename>">
 <!ENTITY prog1 "<filename>prog1</filename>">
 <!ENTITY prog2 "<filename>prog2</filename>">
@@ -371,6 +422,6 @@
 
 -->
 
-<!ENTITY scons-announce "<literal>scons-announce@lists.sourceforge.net</literal>">
-<!ENTITY scons-devel "<literal>scons-devel@lists.sourceforge.net</literal>">
-<!ENTITY scons-users "<literal>scons-users@lists.sourceforge.net</literal>">
+<!ENTITY scons-announce "<literal>announce@scons.tigris.org</literal>">
+<!ENTITY scons-devel "<literal>dev@scons.tigris.org</literal>">
+<!ENTITY scons-users "<literal>users@scons.tigris.org</literal>">

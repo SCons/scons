@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -90,9 +90,9 @@
 
     </para>
 
-    <literallayout>
-      $ setenv SCONSFLAGS "-Q"
-    </literallayout>
+    <screen>
+      $ <userinput>setenv SCONSFLAGS "-Q"</userinput>
+    </screen>
 
     <para>
 
@@ -560,9 +560,9 @@
 
     </para>
 
-    <literallayout>
-      % scons -Q debug=1
-    </literallayout>
+    <screen>
+      % <userinput>scons -Q debug=1</userinput>
+    </screen>
 
     <para>
 
@@ -920,7 +920,7 @@
       <scons_example name="BoolOption">
         <file name="SConstruct" printme="1">
            opts = Options('custom.py')
-           opts.Add(BoolOption('RELEASE', 0, 'Set to build for release'))
+           opts.Add(BoolOption('RELEASE', 'Set to build for release', 0))
            env = Environment(options = opts,
                              CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
            env.Program('foo.c')
@@ -1024,7 +1024,7 @@
       <scons_example name="EnumOption">
         <file name="SConstruct" printme="1">
            opts = Options('custom.py')
-           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+           opts.Add(EnumOption('COLOR', 'Set background color', 'red',
                                allowed_values=('red', 'green', 'blue')))
            env = Environment(options = opts,
                              CPPDEFINES={'COLOR' : '"${COLOR}"'})
@@ -1078,7 +1078,7 @@
       <scons_example name="EnumOption_map">
         <file name="SConstruct" printme="1">
            opts = Options('custom.py')
-           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+           opts.Add(EnumOption('COLOR', 'Set background color', 'red',
                                allowed_values=('red', 'green', 'blue'),
                                map={'navy':'blue'}))
            env = Environment(options = opts,
@@ -1133,7 +1133,7 @@
       <scons_example name="EnumOption_ic1">
         <file name="SConstruct" printme="1">
            opts = Options('custom.py')
-           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+           opts.Add(EnumOption('COLOR', 'Set background color', 'red',
                                allowed_values=('red', 'green', 'blue'),
                                map={'navy':'blue'},
                                ignorecase=1))
@@ -1173,7 +1173,7 @@
       <scons_example name="EnumOption_ic2">
         <file name="SConstruct" printme="1">
            opts = Options('custom.py')
-           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+           opts.Add(EnumOption('COLOR', 'Set background color', 'red',
                                allowed_values=('red', 'green', 'blue'),
                                map={'navy':'blue'},
                                ignorecase=2))
@@ -1222,7 +1222,7 @@
       <scons_example name="ListOption">
         <file name="SConstruct" printme="1">
            opts = Options('custom.py')
-           opts.Add(ListOption('COLORS', 0, 'List of colors',
+           opts.Add(ListOption('COLORS', 'List of colors', 0,
                                ['red', 'green', 'blue']))
            env = Environment(options = opts,
                              CPPDEFINES={'COLORS' : '"${COLORS}"'})
@@ -1293,7 +1293,9 @@
       <scons_example name="PathOption">
         <file name="SConstruct" printme="1">
            opts = Options('custom.py')
-           opts.Add(PathOption('CONFIG', '__ROOT__/etc/my_config', 'Path to configuration file'))
+           opts.Add(PathOption('CONFIG',
+                               'Path to configuration file',
+                               '__ROOT__/etc/my_config'))
            env = Environment(options = opts,
                              CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
            env.Program('foo.c')
@@ -1344,7 +1346,9 @@
       <scons_example name="PackageOption">
         <file name="SConstruct" printme="1">
            opts = Options('custom.py')
-           opts.Add(PackageOption('PACKAGE', '__ROOT__/opt/location', 'Location package'))
+           opts.Add(PackageOption('PACKAGE',
+                                  'Location package',
+                                  '__ROOT__/opt/location'))
            env = Environment(options = opts,
                              CPPDEFINES={'PACKAGE' : '"$PACKAGE"'})
            env.Program('foo.c')

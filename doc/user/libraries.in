@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -94,7 +94,7 @@
     </para>
 
     <section>
-    <title>Building Static Libraries Explicitly</title>
+    <title>Building Static Libraries Explicitly:  the &StaticLibrary; Builder</title>
 
       <para>
 
@@ -121,7 +121,7 @@
     </section>
 
     <section>
-    <title>Building Shared (DLL) Libraries</title>
+    <title>Building Shared (DLL) Libraries:  the &SharedLibrary; Builder</title>
 
       <para>
 
@@ -198,7 +198,7 @@
     <scons_example name="ex2">
       <file name="SConstruct" printme="1">
       Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-      Program('prog.c', LIBS='foo', LIBPATH='.')
+      Program('prog.c', LIBS=['foo', 'bar'], LIBPATH='.')
       </file>
       <file name="f1.c">
       int main() { printf("Hello, world!\n"); }
@@ -253,6 +253,38 @@
 
     </para>
 
+    <para>
+
+    Note also that,
+    if you only have a single library to link with,
+    you can specify the library name in single string,
+    instead of a Python list,
+    so that:
+
+    </para>
+
+    <sconstruct>
+      Program('prog.c', LIBS='foo', LIBPATH='.')
+    </sconstruct>
+
+    <para>
+
+    is equivalent to:
+
+    </para>
+
+    <sconstruct>
+      Program('prog.c', LIBS=['foo'], LIBPATH='.')
+    </sconstruct>
+
+    <para>
+
+    This is similar to the way that &SCons;
+    handles either a string or a list to
+    specify a single source file.
+
+    </para>
+
   </section>
 
   <section>
@@ -301,8 +333,16 @@
     </para>
 
     <sconstruct>
-      LIBPATH = 'C:\lib;D:\lib'
+      LIBPATH = 'C:\\lib;D:\\lib'
     </sconstruct>
+
+    <para>
+
+    (Note that Python requires that the backslash
+    separators in a Windows path name
+    be escaped within strings.)
+
+    </para>
 
     <para>
 

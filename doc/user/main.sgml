@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -35,6 +35,7 @@
     <!ENTITY actions SYSTEM "actions.sgml">
     <!ENTITY alias SYSTEM "alias.sgml">
     <!ENTITY ant SYSTEM "ant.sgml">
+    <!ENTITY build-install SYSTEM "build-install.sgml">
     <!ENTITY builders-built-in SYSTEM "builders-built-in.sgml">
     <!ENTITY builders-commands SYSTEM "builders-commands.sgml">
     <!ENTITY builders-writing SYSTEM "builders-writing.sgml">
@@ -49,14 +50,18 @@
     <!ENTITY example SYSTEM "example.sgml">
     <!ENTITY help SYSTEM "help.sgml">
     <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
+    <!ENTITY java SYSTEM "java.sgml">
     <!ENTITY install SYSTEM "install.sgml">
+    <!ENTITY less-simple SYSTEM "less-simple.sgml">
     <!ENTITY libraries SYSTEM "libraries.sgml">
     <!ENTITY make SYSTEM "make.sgml">
+    <!ENTITY nodes SYSTEM "nodes.sgml">
     <!ENTITY precious SYSTEM "precious.sgml">
     <!ENTITY preface SYSTEM "preface.sgml">
     <!ENTITY repositories SYSTEM "repositories.sgml">
     <!ENTITY run SYSTEM "run.sgml">
     <!ENTITY scanners SYSTEM "scanners.sgml">
+    <!ENTITY sconf SYSTEM "sconf.sgml">
     <!ENTITY separate SYSTEM "separate.sgml">
     <!ENTITY simple SYSTEM "simple.sgml">
     <!ENTITY sourcecode SYSTEM "sourcecode.sgml">
@@ -77,10 +82,10 @@
 
     <edition>Revision &buildrevision; (&builddate;)</edition>
 
-    <pubdate>2003</pubdate>
+    <pubdate>2004</pubdate>
 
     <copyright>
-      <year>2003</year>
+      <year>2004</year>
       <holder>Steven Knight</holder>
     </copyright>
 
@@ -92,9 +97,14 @@
 
   </bookinfo>
 
-  <chapter id="chap-preface">
+  <preface id="chap-preface">
     <title>Preface</title>
     &preface;
+  </preface>
+
+  <chapter id="chap-build-install">
+    <title>Building and Installing &SCons;</title>
+    &build-install;
   </chapter>
 
   <chapter id="chap-simple">
@@ -102,9 +112,19 @@
     &simple;
   </chapter>
 
+  <chapter id="chap-less-simple">
+    <title>Less Simple Things to Do With Builds</title>
+    &less-simple;
+  </chapter>
+
   <chapter id="chap-libraries">
     <title>Building and Linking with Libraries</title>
     &libraries;
+  </chapter>
+
+  <chapter id="chap-nodes">
+    <title>Node Objects</title>
+    &nodes;
   </chapter>
 
   <chapter id="chap-depends">
@@ -118,7 +138,7 @@
   </chapter>
 
   <chapter id="chap-ENV">
-    <title>Controlling the Environment Used to Execute Build Commands</title>
+    <title>Controlling the External Environment Used to Execute Build Commands</title>
     &ENV_file;
   </chapter>
 
@@ -128,17 +148,17 @@
   </chapter>
 
   <chapter id="chap-help">
-    <title>Providing Build Help</title>
+    <title>Providing Build Help:  the &Help; Function</title>
     &help;
   </chapter>
 
   <chapter id="chap-install">
-    <title>Installing Files in Other Directories</title>
+    <title>Installing Files in Other Directories:  the &Install; Builder</title>
     &install;
   </chapter>
 
   <chapter id="chap-precious">
-    <title>Preventing Removal of Targets</title>
+    <title>Preventing Removal of Targets:  the &Precious; Function</title>
     &precious;
   </chapter>
 
@@ -172,14 +192,14 @@
   </chapter>
 
   <chapter id="chap-builders-commands">
-    <title>Not Writing a Builder:  The &Command; Builder</title>
+    <title>Not Writing a Builder:  the &Command; Builder</title>
     &builders-commands;
   </chapter>
 
   <!--
 
   <chapter id="chap-actions">
-    <title>SCons Actions</title>
+    <title>&SCons; Actions</title>
     &actions;
   </chapter>
 
@@ -193,6 +213,11 @@
   <chapter id="chap-repositories">
     <title>Building From Code Repositories</title>
     &repositories;
+  </chapter>
+
+  <chapter id="chap-sconf">
+    <title>Multi-Platform Configuration (&Autoconf; Functionality)</title>
+    &sconf;
   </chapter>
 
   <!--
@@ -214,6 +239,11 @@
     &alias;
   </chapter>
 
+  <chapter id="chap-java">
+    <title>Java Builds</title>
+    &java;
+  </chapter>
+
   <!--
 
   <chapter id="chap-run">
@@ -221,12 +251,12 @@
     &run;
   </chapter>
 
+  -->
+
   <chapter id="chap-troubleshooting">
     <title>Troubleshooting</title>
     &troubleshoot;
   </chapter>
-
-  -->
 
   <!--
   AddPostAction()

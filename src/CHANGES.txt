@@ -157,6 +157,18 @@ RELEASE 0.96 - XXX
 
   - Performance optimizations in Node.FS.__doLookup().
 
+  - Man page fixes:  formatting typos, misspellings, bad example.
+
+  - User's Guide fixes: Fix the signatures of the various example
+    *Options() calls.  Triple-quote properly a multi-line Split example.
+
+  - User's Guide additions:  Chapter describing File and Directory
+    Nodes.  Section describing declarative nature of SCons functions in
+    SConscript files.  Better organization and clarification of points
+    raised by Robert P. J. Day.  Chapter describing SConf (Autoconf-like)
+    functionality.  Chapter describing how to install Python and
+    SCons.  Chapter describing Java builds.
+
   From Chris Murray:
 
   - Add a .win32 attribute to force file names to expand with
@@ -198,6 +210,12 @@ RELEASE 0.96 - XXX
 
   - Avoid problems when there are null entries (None or '') in tool
     lists or CPPPATH.
+
+  - Add an example and explanation of how to use "tools = ['default', ..."
+    when creating a construction environment.
+
+  - Add a section describing File and Directory Nodes and some of their
+    attributes and methods.
 
   From Simon Perkins:
 

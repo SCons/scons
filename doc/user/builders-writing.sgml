@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -187,10 +187,10 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       foobuild < file.input > file.foo
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -213,10 +213,12 @@ This functionality could be invoked as in the following example:
        env.Program('hello.c')
     </programlisting>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       AttributeError: SConsEnvironment instance has no attribute 'Program':
-    </literallayout>
+        File "SConstruct", line 4:
+          env.Program('hello.c')
+    </screen>
 
     <para>
 
@@ -261,12 +263,12 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       foobuild < file.input > file.foo
       cc -c -o hello.o hello.c
       cc -o hello hello.o
-    </literallayout>
+    </screen>
 
   </section>
 
@@ -301,11 +303,11 @@ This functionality could be invoked as in the following example:
        env.Foo('file2')
     </programlisting>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       foobuild < file1.input > file1.foo
       foobuild < file2.input > file2.foo
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -439,10 +441,10 @@ This functionality could be invoked as in the following example:
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
-      build_function("file.foo", "file.input")
-    </literallayout>
+      build_function(["file.foo"], ["file.input"])
+    </screen>
 
   </section>
 
@@ -574,10 +576,10 @@ This functionality could be invoked as in the following example:
        env.Foo('file')
     </programlisting>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       foobuild < file.input > file.foo
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -616,10 +618,10 @@ This functionality could be invoked as in the following example:
        env.Foo('file')
     </programlisting>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q</userinput>
       foobuild file.foo new_target - file.input new_source
-    </literallayout>
+    </screen>
 
     <programlisting>
        bld = Builder(action = 'XXX',

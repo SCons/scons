@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -222,6 +222,44 @@
   -->
 
   <section>
+  <title>A Caveat About This Guide's Completeness</title>
+
+  <para>
+
+  One word of warning as you read through this Guide:
+  Like too much Open Source software out there,
+  the &SCons; documentation lags the available features.
+  In other words,
+  there's a lot that &SCons; can do that
+  isn't yet covered in this User's Guide.
+  (Come to think of it,
+  that also describes a lot of proprietary software, doesn't it?)
+
+  </para>
+
+  <para>
+
+  Although this User's Guide isn't as complete as we'd like it to be,
+  our development process does emphasize
+  making sure that the &SCons; man page is kept up-to-date
+  with new features.
+  So if you're trying to figure out how to do something
+  that &SCons; supports
+  but can't find enough (or any) information here,
+  it would be worth your while to look
+  at the man page to see if the information is covered there.
+  And if you do,
+  maybe you'd even consider contributing
+  a section to the User's Guide
+  so the next person looking for
+  that information won't have to
+  go through the same thing...?
+
+  </para>
+
+  </section>
+
+  <section>
   <title>Acknowledgements</title>
 
     <para>
@@ -274,7 +312,7 @@
     and time people have contributed over the past few years.
     The "core team"
     of Chad Austin, Anthony Roach, Charles Crain,
-    Steve Leblanc, Gary Oerbrunner, Greg Spencer and Christoph Wiedemann
+    Steve Leblanc, Gary Oberbrunner, Greg Spencer and Christoph Wiedemann
     have been great about reviewing my (and other) changes
     and catching problems before they get in the code base.
     Of particular technical note:

@@ -1,6 +1,6 @@
 <!--
 
-  Copyright (c) 2001, 2002, 2003 Steven Knight
+  __COPYRIGHT__
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -315,9 +315,9 @@ subdirectories under the repository tree.
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>scons -Q -Y /usr/repository1 -Y /usr/repository2</userinput>
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -407,13 +407,13 @@ subdirectories under the repository tree.
       <command>scons -Q -Y __ROOT__/usr/repository1</command>
     </scons_output>
     -->
-    <literallayout>
+    <screen>
       % <userinput>cd $HOME/build</userinput>
       % <userinput>edit hello.c</userinput>
       % <userinput>scons -Q -Y /usr/repository1</userinput>
       cc -c -o hello.o hello.c
       cc -o hello hello.o /usr/repository1/file1.o /usr/repository1/file2.o
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -438,12 +438,12 @@ subdirectories under the repository tree.
 
     </para>
 
-    <literallayout>
+    <screen>
       % <userinput>mkdir $HOME/build2</userinput>
       % <userinput>cd $HOME/build2</userinput>
       % <userinput>scons -Q -Y /usr/all/repository hello</userinput>
       scons: `hello' is up-to-date.
-    </literallayout>
+    </screen>
 
     <para>
 
@@ -490,11 +490,11 @@ subdirectories under the repository tree.
 
     </para>
 
-    <literallayout>
-      % scons -Y /usr/all/repository hello
+    <screen>
+      % <userinput>scons -Y /usr/all/repository hello</userinput>
       Local copy of hello from /usr/all/repository/hello
       scons: `hello' is up-to-date.
-    </literallayout>
+    </screen>
 
     <para>
 
