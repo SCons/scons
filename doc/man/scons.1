@@ -5113,6 +5113,15 @@ are included on this command line.
 .IP RMICFLAGS
 General options passed to the Java RMI stub compiler.
 
+.IP RPATH
+A list of paths to search for shared libraries when running programs.
+Currently only used in the GNU linker.  Ignored on platforms and
+toolchains that don't support it.  Note that the paths added to RPATH
+are not transformed by
+.B scons
+in any way:  if you want an absolute
+path, you must make it absolute yourself.
+
 .IP SCANNERS
 A list of the available implicit dependency scanners. [CScan] by default.
 
