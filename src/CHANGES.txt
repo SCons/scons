@@ -23,6 +23,8 @@ RELEASE 0.95 - XXX
   - Fix an incorrect _concat() call in the $RCINCFLAGS definition for
     the mingw Tool.
 
+  - Fix a problem with the msvc tool with Python versions prior to 2.3.
+
   From David M. Cooke:
 
   - Make the Fortran scanner case-insensitive for the INCLUDE string.
