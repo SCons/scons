@@ -37,6 +37,9 @@ RELEASE 0.08 -
   - Fix --implicit-cache causing redundant rebuilds when the header
     file list changed.
 
+  - Fix --implicit-cache when a file has no implicit dependencies and
+    its source is generated.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to

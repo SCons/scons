@@ -82,13 +82,13 @@ class SConsignEntry:
         return '%s %s %s %s' % (timestamp, bsig, csig, implicit)
 
     def get_implicit(self):
-        if self.implicit is None:
+        if not self.implicit:
             return None
         else:
             return string.split(self.implicit, '\0')
 
     def set_implicit(self, implicit):
-        if implicit is None:
+        if not implicit:
             self.implicit = None
         else:
             self.implicit = string.join(map(str, implicit), '\0')

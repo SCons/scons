@@ -53,6 +53,11 @@ BuildDir('variant', 'subdir', 0)
 include = Dir('include')
 env = Environment(CPPPATH=['inc2', include])
 SConscript('variant/SConscript', "env")
+
+def copy(target, source, env):
+    open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
+nodep = env.Command('nodeps.c', 'nodeps.in', action=copy)
+env.Program('nodeps', 'nodeps.c')
 """)
 
 test.write(['subdir', 'SConscript'],
@@ -60,6 +65,17 @@ test.write(['subdir', 'SConscript'],
 Import("env")
 env.Program(target='prog', source='prog.c')
 """)
+
+test.write('nodeps.in', 
+r"""
+int
+main(int argc, char *argv[])
+{
+    argv[argc++] = "--";
+    return 0;
+}
+""")
+
 
 test.write(['include', 'foo.h'],
 r"""
@@ -222,5 +238,9 @@ test.run(program = test.workpath(subdir_prog),
 
 test.run(program = test.workpath(variant_prog),
          stdout = "subdir/prog.c\ninclude/foo.h 3\ninclude/bar.h 1\n")
+
+# test in the face of a file with no dependencies where the source file is generated:
+test.run(arguments = "--implicit-cache nodeps%s"%_exe)
+
 
 test.pass_test()
