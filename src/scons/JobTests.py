@@ -52,16 +52,27 @@ class Task:
         self.taskmaster.end_list.append(self.i)
         self.taskmaster.guard.release()
 
+class ExceptionTask:
+    """A dummy task class for testing purposes."""
+
+    def __init__(self, i, taskmaster):
+        pass
+        
+    def execute(self):
+        raise "exception"
+
 class Taskmaster:
     """A dummy taskmaster class for testing the job classes."""
 
-    def __init__(self, n, test_case):
+    def __init__(self, n, test_case, Task):
         """n is the number of dummy tasks to perform."""
 
         self.test_case = test_case
         self.num_tasks = n
         self.num_iterated = 0
         self.num_executed = 0
+        self.num_failed = 0
+        self.Task = Task
         # 'guard' guards 'task_begin_list' and 'task_end_list'
         try:
             import threading
@@ -81,7 +92,7 @@ class Taskmaster:
             return None
         else:
             self.num_iterated = self.num_iterated + 1
-            return Task(self.num_iterated, self)
+            return self.Task(self.num_iterated, self)
 
     def all_tasks_are_executed(self):
         return self.num_executed == self.num_tasks
@@ -96,8 +107,10 @@ class Taskmaster:
                                   "the task wasn't really executed")
         self.test_case.failUnless(task.__class__ is Task,
                                   "the task wasn't really a Task instance")
-                                
-        
+
+    def failed(self, task):
+        self.num_failed = self.num_failed + 1
+    
     def is_blocked(self):
         # simulate blocking tasks
         return self.num_iterated - self.num_executed >= max(num_jobs/2, 2)
@@ -120,7 +133,7 @@ class ParallelTestCase(unittest.TestCase):
         except:
             raise NoThreadsException()
 
-        taskmaster = Taskmaster(num_tasks, self)
+        taskmaster = Taskmaster(num_tasks, self, Task)
         jobs = scons.Job.Jobs(num_jobs, taskmaster)
         jobs.start()
         jobs.wait()
@@ -131,12 +144,14 @@ class ParallelTestCase(unittest.TestCase):
                         "all the tests were not executed")
         self.failUnless(taskmaster.all_tasks_are_iterated(),
                         "all the tests were not iterated over")
+        self.failIf(taskmaster.num_failed,
+                    "some task(s) failed to execute") 
 
 class SerialTestCase(unittest.TestCase):
     def runTest(self):
         "test a serial job"
 
-        taskmaster = Taskmaster(num_tasks, self)
+        taskmaster = Taskmaster(num_tasks, self, Task)
         jobs = scons.Job.Jobs(1, taskmaster)
         jobs.start()
         jobs.wait()
@@ -147,11 +162,48 @@ class SerialTestCase(unittest.TestCase):
                         "all the tests were not executed")
         self.failUnless(taskmaster.all_tasks_are_iterated(),
                         "all the tests were not iterated over")
+        self.failIf(taskmaster.num_failed,
+                    "some task(s) failed to execute") 
+
+class SerialExceptionTestCase(unittest.TestCase):
+    def runTest(self):
+        "test a serial job with tasks that raise exceptions"
+
+        taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
+        jobs = scons.Job.Jobs(1, taskmaster)
+        jobs.start()
+        jobs.wait()
+
+        self.failIf(taskmaster.num_executed,
+                    "a task was executed")
+        self.failUnless(taskmaster.num_iterated == 1,
+                    "exactly one task should have been iterated")
+        self.failUnless(taskmaster.num_failed == 1,
+                    "exactly one task should have failed")
+
+class ParallelExceptionTestCase(unittest.TestCase):
+    def runTest(self):
+        "test parallel jobs with tasks that raise exceptions"
+
+        taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
+        jobs = scons.Job.Jobs(num_jobs, taskmaster)
+        jobs.start()
+        jobs.wait()
+
+        self.failIf(taskmaster.num_executed,
+                    "a task was executed")
+        self.failUnless(taskmaster.num_iterated >= 1,
+                    "exactly one task should have been iterated")
+        self.failUnless(taskmaster.num_failed == 1,
+                    "exactly one task should have failed") 
+
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ParallelTestCase())
     suite.addTest(SerialTestCase())
+    suite.addTest(SerialExceptionTestCase())
+    suite.addTest(ParallelExceptionTestCase())
     return suite
 
 if __name__ == "__main__":

@@ -114,6 +114,8 @@ class Taskmaster:
     def executed(self, task):
         pass
 
+    def failed(self, task):
+        pass
 
 
 taskmaster = Taskmaster(map(lambda x: lookup(File, x), targets))
