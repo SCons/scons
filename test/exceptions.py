@@ -27,8 +27,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import sys
 import TestSCons
+import TestCmd
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.write('SConstruct', """
 def func(source = None, target = None, env = None):
@@ -40,6 +41,16 @@ env.B(target = 'foo.out', source = 'foo.in')
 
 test.write('foo.in', "foo.in\n")
 
-test.run(arguments = "foo.out", stderr = "scons: *** [foo.out] Exception\n")
-
+test.run(arguments = "foo.out", stderr = """scons: \*\*\* \[foo.out\] Exception
+Traceback \((most recent call|innermost) last\):
+  File ".+", line \d+, in .+
+    .+
+  File ".+", line \d+, in .+
+    .+
+  File ".+", line \d+, in .+
+    .+
+  File "SConstruct", line 3, in func
+    raise "func exception"
+func exception
+""")
 test.pass_test()

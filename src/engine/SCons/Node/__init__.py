@@ -35,6 +35,7 @@ from SCons.Errors import BuildError
 import string
 import types
 import copy
+import sys
 
 # Node states
 #
@@ -77,7 +78,10 @@ class Node:
             stat = self.builder.execute(env = self.env.Dictionary(),
                                         target = self, source = self.sources)
         except:
-            raise BuildError(node = self, errstr = "Exception")
+            raise BuildError(self, "Exception",
+                             sys.exc_type,
+                             sys.exc_value,
+                             sys.exc_traceback)
         if stat:
             raise BuildError(node = self, errstr = "Error %d" % stat)
 

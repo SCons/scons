@@ -60,6 +60,10 @@ class ExceptBuilder:
     def execute(self, **kw):
         raise SCons.Errors.BuildError
 
+class ExceptBuilder2:
+    def execute(self, **kw):
+        raise "foo"
+
 class Environment:
     def Dictionary(self, *args):
 	pass
@@ -88,6 +92,22 @@ class NodeTestCase(unittest.TestCase):
             node.build()
         except SCons.Errors.BuildError:
             pass
+        else:
+            raise TestFailed, "did not catch expected BuildError"
+
+        node = SCons.Node.Node()
+        node.builder_set(ExceptBuilder2())
+        node.env_set(Environment())
+        try:
+            node.build()
+        except SCons.Errors.BuildError, e:
+            # On a generic (non-BuildError) exception from a Builder,
+            # the Node should throw a BuildError exception with
+            # the args set to the exception value, type, and traceback.
+            assert len(e.args) == 3, `e.args`
+            assert e.args[0] == 'foo', e.args[0]
+            assert e.args[1] is None
+            assert type(e.args[2]) is type(sys.exc_traceback), e.args[2]
         else:
             raise TestFailed, "did not catch expected BuildError"
 

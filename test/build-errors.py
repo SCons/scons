@@ -90,7 +90,7 @@ test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
 if os.name == 'nt':
     errs = [
         bad_command,
-        unrecognized % (no_such_file, 'f2'),
+        unrecognized % (not_executable, 'f2'),
         unspecified % 'f2'
     ]
     test.fail_test(not test.stderr() in errs)
@@ -113,7 +113,7 @@ test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
 if os.name == 'nt':
     errs = [
         bad_command,
-        unrecognized % (no_such_file, 'f3'),
+        unrecognized % (test.workdir, 'f3'),
         unspecified % 'f3'
     ]
     test.fail_test(not test.stderr() in errs)
