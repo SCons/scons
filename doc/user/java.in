@@ -117,9 +117,106 @@
   <section>
   <title>How &SCons; Handles Java Dependencies</title>
 
-    <scons_output example="java">
+    <para>
+
+    In addition to searching the source directory for
+    <filename>.java</filename> files,
+    &SCons; actually runs the <filename>.java</filename> files
+    through a stripped-down Java parser that figures out
+    what classes are defined.
+    In other words, &SCons; knows,
+    without you having to tell it,
+    what <filename>.class</filename> files
+    will be produced by the &javac; call.
+    So our one-liner example from the preceding section:
+
+    </para>
+
+    <scons_example name="java-classes">
+      <file name="SConstruct" printme="1">
+      Java('classes', 'src')
+      </file>
+      <file name="src/Example1.java">
+      public class Example1
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      public class AdditionalClass1
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+      <file name="src/Example2.java">
+      public class Example2
+      {
+        class Inner2 {
+          public static void main(String[] args)
+          {
+            System.out.println("Hello Java world!\n");
+          }
+        }
+      }
+      </file>
+      <file name="src/Example3.java">
+      public class Example3
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      public class AdditionalClass3
+      {
+        public static void main(String[] args)
+        {
+          System.out.println("Hello Java world!\n");
+        }
+      }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Will not only tell you reliably
+    that the <filename>.class</filename> files
+    in the <filename>classes</filename> subdirectory 
+    are up-to-date:
+
+    </para>
+
+    <scons_output example="java-classes">
       <command>scons -Q</command>
       <command>scons -Q classes</command>
+    </scons_output>
+
+    <para>
+
+    But it will also remove all of the generated
+    <filename>.class</filename> files,
+    even for inner classes,
+    without you having to specify them manually.
+    For example, if our
+    <filename>Example1.java</filename>
+    and
+    <filename>Example3.java</filename>
+    files both define additional classes,
+    and the class defined in <filename>Example2.java</filename>
+    has an inner class,
+    running <userinput>scons -c</userinput>
+    will clean up all of those <filename>.class</filename> files
+    as well:
+
+    </para>
+
+    <scons_output example="java-classes">
+      <command>scons -Q</command>
+      <command>scons -Q -c classes</command>
     </scons_output>
 
   </section>

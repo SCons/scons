@@ -153,7 +153,7 @@
     <para>
 
     Check for the availability of a library
-    using the &CheckLibrary; method.
+    using the &CheckLib; method.
     You only specify the basename of the library,
     you don't need to add a <literal>lib</literal>
     prefix or a <literal>.a</literal> or <literal>.lib</literal> suffix:
@@ -171,9 +171,13 @@
 
     <para>
 
-    If the library requires the inclusion of
-    a header file to compile successfully,
-    add that as a second argument:
+    Because the ability to use a library successfully
+    often depends on having access to a header file
+    that describes the library's interface,
+    you can check for a library
+    <emphasis>and</emphasis> a header file
+    at the same time by using the
+    &CheckLibWithHeader; method:
 
     </para>
 
@@ -185,6 +189,14 @@
         Exit(1)
     env = conf.Finish()
     </programlisting>
+
+    <para>
+
+    This is essentially shorthand for
+    separate calls to the &CheckHeader; and &CheckLib;
+    functions.
+
+    </para>
 
   </section>
 

@@ -77,6 +77,10 @@ remove_list = [
         'MANIFEST',
         'os_spawnv_fix.diff',
         'setup.cfg',
+        'SCons-win32-install-1.jpg',
+        'SCons-win32-install-2.jpg',
+        'SCons-win32-install-3.jpg',
+        'SCons-win32-install-4.jpg',
 ]
 
 src_remove_list = [

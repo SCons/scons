@@ -89,11 +89,70 @@
   <section>
   <title>How &SCons; Handles Java Dependencies</title>
 
+    <para>
+
+    In addition to searching the source directory for
+    <filename>.java</filename> files,
+    &SCons; actually runs the <filename>.java</filename> files
+    through a stripped-down Java parser that figures out
+    what classes are defined.
+    In other words, &SCons; knows,
+    without you having to tell it,
+    what <filename>.class</filename> files
+    will be produced by the &javac; call.
+    So our one-liner example from the preceding section:
+
+    </para>
+
+    <programlisting>
+      Java('classes', 'src')
+    </programlisting>
+
+    <para>
+
+    Will not only tell you reliably
+    that the <filename>.class</filename> files
+    in the <filename>classes</filename> subdirectory 
+    are up-to-date:
+
+    </para>
+
     <screen>
       % <userinput>scons -Q</userinput>
       javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
       % <userinput>scons -Q classes</userinput>
       scons: `classes' is up to date.
+    </screen>
+
+    <para>
+
+    But it will also remove all of the generated
+    <filename>.class</filename> files,
+    even for inner classes,
+    without you having to specify them manually.
+    For example, if our
+    <filename>Example1.java</filename>
+    and
+    <filename>Example3.java</filename>
+    files both define additional classes,
+    and the class defined in <filename>Example2.java</filename>
+    has an inner class,
+    running <userinput>scons -c</userinput>
+    will clean up all of those <filename>.class</filename> files
+    as well:
+
+    </para>
+
+    <screen>
+      % <userinput>scons -Q</userinput>
+      javac -d classes -sourcepath src src/Example1.java src/Example2.java src/Example3.java
+      % <userinput>scons -Q -c classes</userinput>
+      Removed classes/Example1.class
+      Removed classes/AdditionalClass1.class
+      Removed classes/Example2$Inner2.class
+      Removed classes/Example2.class
+      Removed classes/Example3.class
+      Removed classes/AdditionalClass3.class
     </screen>
 
   </section>
