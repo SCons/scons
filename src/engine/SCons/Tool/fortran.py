@@ -44,11 +44,6 @@ import SCons.Util
 
 compilers = ['f95', 'f90', 'f77']
 
-FortranAction = SCons.Action.Action("$FORTRANCOM")
-ShFortranAction = SCons.Action.Action("$SHFORTRANCOM")
-FortranPPAction = SCons.Action.Action("$FORTRANPPCOM")
-ShFortranPPAction = SCons.Action.Action("$SHFORTRANPPCOM")
-
 #
 #  Not yet sure how to deal with fortran pre-processor functions.
 #  Different compilers do this differently in modern fortran.  Some still
@@ -85,7 +80,7 @@ def _fortranEmitter(target, source, env):
     suffix = env.subst('$FORTRANMODSUFFIX')
     modules = map(lambda x, s=suffix: string.lower(x) + s, modules)
     for m in modules:
-       target.append(m)
+       target.append(env.fs.File(m))
     return (target, source)
 
 def FortranEmitter(target, source, env):
@@ -105,23 +100,34 @@ class VariableListGenerator:
             except KeyError: pass
         return ''
 
+#
 FortranGenerator = VariableListGenerator('FORTRAN', 'F77', '_FORTRAND')
 FortranFlagsGenerator = VariableListGenerator('FORTRANFLAGS', 'F77FLAGS')
+FortranCommandGenerator = VariableListGenerator('FORTRANCOM', 'F77COM', '_FORTRANCOMD')
+FortranPPCommandGenerator = VariableListGenerator('FORTRANPPCOM', 'F77PPCOM', '_FORTRANPPCOMD')
 ShFortranGenerator = VariableListGenerator('SHFORTRAN', 'SHF77', 'FORTRAN', 'F77', '_FORTRAND')
 ShFortranFlagsGenerator = VariableListGenerator('SHFORTRANFLAGS', 'SHF77FLAGS')
+ShFortranCommandGenerator = VariableListGenerator('SHFORTRANCOM', 'SHF77COM', '_SHFORTRANCOMD')
+ShFortranPPCommandGenerator = VariableListGenerator('SHFORTRANPPCOM', 'SHF77PPCOM', '_SHFORTRANPPCOMD')
+
+#
+FortranAction = SCons.Action.Action('$_FORTRANCOMG ')
+FortranPPAction = SCons.Action.Action('$_FORTRANPPCOMG ')
+ShFortranAction = SCons.Action.Action('$_SHFORTRANCOMG ')
+ShFortranPPAction = SCons.Action.Action('$_SHFORTRANPPCOMG ')
 
 def add_to_env(env):
     """Add Builders and construction variables for Fortran to an Environment."""
 
-    env['_FORTRANG']      = FortranGenerator
-    env['_FORTRANFLAGSG'] = FortranFlagsGenerator
-    env['FORTRANCOM']     = '$_FORTRANG $_FORTRANFLAGSG $_FORTRANINCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
-    env['FORTRANPPCOM']   = '$_FORTRANG $_FORTRANFLAGSG $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_FORTRANG']        = FortranGenerator
+    env['_FORTRANFLAGSG']   = FortranFlagsGenerator
+    env['_FORTRANCOMG']     = FortranCommandGenerator
+    env['_FORTRANPPCOMG']   = FortranPPCommandGenerator
 
     env['_SHFORTRANG']      = ShFortranGenerator
     env['_SHFORTRANFLAGSG'] = ShFortranFlagsGenerator
-    env['SHFORTRANCOM']   = '$_SHFORTRANG $_SHFORTRANFLAGSG $_FORTRANINCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
-    env['SHFORTRANPPCOM'] = '$_SHFORTRANG $_SHFORTRANFLAGSG $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_SHFORTRANCOMG']   = ShFortranCommandGenerator
+    env['_SHFORTRANPPCOMG'] = ShFortranPPCommandGenerator
 
     env['_FORTRANINCFLAGS'] = '$( ${_concat(INCPREFIX, FORTRANPATH, INCSUFFIX, __env__, RDirs)} $)'
 
@@ -148,6 +154,11 @@ def add_to_env(env):
         shared_obj.add_action(suffix, ShFortranPPAction)
         static_obj.add_emitter(suffix, FortranEmitter)
         shared_obj.add_emitter(suffix, ShFortranEmitter)
+
+    env['_FORTRANCOMD']     = '$_FORTRANG $_FORTRANFLAGSG $_FORTRANINCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_FORTRANPPCOMD']   = '$_FORTRANG $_FORTRANFLAGSG $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_SHFORTRANCOMD']   = '$_SHFORTRANG $_SHFORTRANFLAGSG $_FORTRANINCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
+    env['_SHFORTRANPPCOMD'] = '$_SHFORTRANG $_SHFORTRANFLAGSG $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
 
 def generate(env):
     import f77
