@@ -129,6 +129,11 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("test $a $b $c $d test", glob, loc)
         assert newcom == "test 3 2 4 test", newcom
 
+    def test_splitext(self):
+        assert splitext('foo') == ('foo','')
+        assert splitext('foo.bar') == ('foo','.bar')
+        assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'),'')
+
     def test_subst_list(self):
         """Testing the scons_subst_list() method..."""
         loc = {}

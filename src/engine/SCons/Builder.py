@@ -82,9 +82,9 @@ class DictCmdGenerator:
     def __call__(self, source, target, env, **kw):
         ext = None
         for src in map(str, source):
-            my_ext = os.path.splitext(src)[1]
+            my_ext = SCons.Util.splitext(src)[1]
             if ext and my_ext != ext:
-                raise UserError("Cannot build multiple sources with different extensions.")
+                raise UserError("Cannot build multiple sources with different extensions: %s, %s" % (ext, my_ext))
             ext = my_ext
 
         if ext is None:
@@ -274,7 +274,7 @@ class BuilderBase:
                         path, fn = os.path.split(os.path.normpath(f))
                         f = os.path.join(path, pre + fn)
                     # Only append a suffix if the file does not have one.
-                    if suf and not os.path.splitext(f)[1]:
+                    if suf and not SCons.Util.splitext(f)[1]:
                         if f[-len(suf):] != suf:
                             f = f + suf
                 ret.append(f)
@@ -442,18 +442,18 @@ class MultiStepBuilder(BuilderBase):
         if not SCons.Util.is_List(src_builder):
             src_builder = [ src_builder ]
         self.src_builder = src_builder
-        self.sdict = {}
+        self.sdict = {} 
+        self.cached_src_suffixes = {} # source suffixes keyed on id(env)
 
     def __call__(self, env, target = None, source = None, **kw):
         slist = SCons.Node.arg2nodes(source, self.source_factory)
         final_sources = []
 
-        r=repr(env)
         try:
-            sdict = self.sdict[r]
+            sdict = self.sdict[id(env)]
         except KeyError:
             sdict = {}
-            self.sdict[r] = sdict
+            self.sdict[id(env)] = sdict
             for bld in self.src_builder:
                 if SCons.Util.is_String(bld):
                     try:
@@ -463,33 +463,27 @@ class MultiStepBuilder(BuilderBase):
                 for suf in bld.src_suffixes(env):
                     sdict[suf] = bld
                     
+        src_suffixes = self.src_suffixes(env)
         for snode in slist:
-            path, ext = os.path.splitext(snode.abspath)
+            path, ext = SCons.Util.splitext(snode.abspath)
             if sdict.has_key(ext):
                 src_bld = sdict[ext]
-
-                dictArgs = copy.copy(kw)
-                dictArgs['target'] = [path]
-                dictArgs['source'] = snode
-                dictArgs['env'] = env
-                tgt = apply(src_bld, (), dictArgs)
-                if not SCons.Util.is_List(tgt):
-                    tgt = [ tgt ]
-
+                tgt = apply(src_bld, (env, path, snode), kw)
                 # Only supply the builder with sources it is capable
                 # of building.
-                tgt = filter(lambda x,
-                             suf=self.src_suffixes(env):
-                             os.path.splitext(SCons.Util.to_String(x))[1] in \
-                             suf, tgt)
-                final_sources.extend(tgt)
+                if SCons.Util.is_List(tgt):
+                    tgt = filter(lambda x, suf=src_suffixes:
+                                 SCons.Util.splitext(SCons.Util.to_String(x))[1] in suf,
+                                 tgt)
+                if not SCons.Util.is_List(tgt):
+                    final_sources.append(tgt)
+                else:
+                    final_sources.extend(tgt)
             else:
                 final_sources.append(snode)
-        dictKwArgs = kw
-        dictKwArgs['target'] = target
-        dictKwArgs['source'] = final_sources
+
         return apply(BuilderBase.__call__,
-                     (self, env), dictKwArgs)
+                     (self, env, target, final_sources), kw)
 
     def get_src_builders(self, env):
         """Return all the src_builders for this Builder.
@@ -512,10 +506,14 @@ class MultiStepBuilder(BuilderBase):
         """Return a list of the src_suffix attributes for all
         src_builders of this Builder.
         """
-        suffixes = BuilderBase.src_suffixes(self, env)
-        for builder in self.get_src_builders(env):
-            suffixes.extend(builder.src_suffixes(env))
-        return suffixes
+        try:
+            return self.cached_src_suffixes[id(env)]
+        except KeyError:
+            suffixes = BuilderBase.src_suffixes(self, env)
+            for builder in self.get_src_builders(env):
+                suffixes.extend(builder.src_suffixes(env))
+            self.cached_src_suffixes[id(env)] = suffixes
+            return suffixes
 
 class CompositeBuilder(SCons.Util.Proxy):
     """A Builder Proxy whose main purpose is to always have

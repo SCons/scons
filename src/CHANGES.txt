@@ -118,6 +118,11 @@ RELEASE 0.08 -
     one build comand, in which case the commands will not be executed
     simultaneously.
 
+  - Significant performance gains from not using our own version of
+    the inefficient stock os.path.splitext() method, caching source
+    suffix computation, code cleanup in MultiStepBuilder.__call__(),
+    and replicating some logic in scons_subst().
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to

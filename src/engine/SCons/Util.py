@@ -47,6 +47,18 @@ except ImportError:
     class UserString:
         pass
 
+def splitext(path):
+    "Same as os.path.splitext() but faster."
+    if os.altsep:
+        sep = max(string.rfind(path, os.sep), string.rfind(path, os.altsep))
+    else:
+        sep = string.rfind(path, os.sep)
+    dot = string.rfind(path, '.')
+    if dot > sep:
+        return path[:dot],path[dot:]
+    else:
+        return path,""
+
 def updrive(path):
     """
     Make the drive letter (if any) upper case.
@@ -108,11 +120,11 @@ class PathList(UserList.UserList):
     def __getBasePath(self):
         """Return the file's directory and file name, with the
         suffix stripped."""
-        return self.__splitPath(os.path.splitext)[0]
+        return self.__splitPath(splitext)[0]
 
     def __getSuffix(self):
         """Return the file's suffix."""
-        return self.__splitPath(os.path.splitext)[1]
+        return self.__splitPath(splitext)[1]
 
     def __getFileName(self):
         """Return the file's name without the path."""
@@ -124,11 +136,11 @@ class PathList(UserList.UserList):
 
     def __getBase(self):
         """Return the file name with path and suffix stripped."""
-        return self.__getFileName().__splitPath(os.path.splitext)[0]
+        return self.__getFileName().__splitPath(splitext)[0]
 
     def __getAbsPath(self):
         """Return the absolute path"""
-	return map(lambda x: updrive(os.path.abspath(x)), self.data)
+        return map(lambda x: updrive(os.path.abspath(x)), self.data)
 
     dictSpecialAttrs = { "file" : __getFileName,
                          "base" : __getBasePath,
@@ -203,9 +215,9 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
 
     def repl(m, globals=globals, locals=locals):
         key = m.group(1)
-        if key[:1] == '{' and key[-1:] == '}':
+        if key[0] == '{':
             key = key[1:-1]
-	try:
+        try:
             e = eval(key, globals, locals)
             if e is None:
                 s = ''
@@ -213,10 +225,9 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
                 s = string.join(map(to_String, e), '\0')
             else:
                 s = _space_sep.sub('\0', to_String(e))
-	except NameError:
-	    s = ''
-	return s
-    n = 1
+        except NameError:
+            s = ''
+        return s
 
     if is_List(strSubst):
         # This looks like our input is a list of strings,
@@ -227,8 +238,9 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
     else:
         # Tokenize the original string...
         strSubst = _space_sep.sub('\0', to_String(strSubst))
-    
+
     # Now, do the substitution
+    n = 1
     while n != 0:
         strSubst, n = _cv.subn(repl, strSubst)
     # Now parse the whole list into tokens.
@@ -248,14 +260,35 @@ def scons_subst(strSubst, globals, locals, remove=None):
     surrounded by curly braces to separate the name from
     trailing characters.
     """
+
+    # This function needs to be fast, so don't call scons_subst_list
+
+    def repl(m, globals=globals, locals=locals):
+        key = m.group(1)
+        if key[0] == '{':
+            key = key[1:-1]
+        try:
+            e = eval(key, globals, locals)
+            if e is None:
+                s = ''
+            elif is_List(e):
+                s = string.join(map(to_String, e), ' ')
+            else:
+                s = to_String(e)
+        except NameError:
+            s = ''
+        return s
+
+    # Now, do the substitution
+    n = 1
+    while n != 0:
+        strSubst,n = _cv.subn(repl, strSubst)
+    # and then remove remove
+    if remove:
+        strSubst = remove.sub('', strSubst)
     
-    # Make the common case (i.e. nothing to do) fast:
-    if string.find(strSubst, "$") == -1 \
-       and (remove is None or remove.search(strSubst) is None):
-        return strSubst
-    
-    cmd_list = scons_subst_list(strSubst, globals, locals, remove)
-    return string.join(map(string.join, cmd_list), '\n')
+    # strip out redundant white-space
+    return string.strip(_space_sep.sub(' ', strSubst))
 
 def render_tree(root, child_func, margin=[0], visited={}):
     """
