@@ -1888,7 +1888,14 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
 
     for pathdir in paths:
         verbose("looking for '%s' in '%s' ...\n" % (filename, pathdir))
-        dir = lookup_dir(pathdir)
+
+        try: dir = lookup_dir(pathdir)
+        except TypeError: dir = None
+        if not dir:
+            # We tried to look up a directory, but it seems there's
+            # already a file node (or something else) there.  No big.
+            continue
+
         def func(node):
             if isinstance(node, SCons.Node.FS.File) and \
                (node.is_derived() or node.is_pseudo_derived() or node.exists()):

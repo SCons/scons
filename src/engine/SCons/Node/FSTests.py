@@ -1432,22 +1432,33 @@ class find_fileTestCase(unittest.TestCase):
         test.subdir('bar')
         test.write(['bar', 'on_disk'], 'Another file\n')
         test.write(['bar', 'same'], 'bar/same\n')
+
         fs = SCons.Node.FS.FS(test.workpath(""))
-        os.chdir(test.workpath("")) # FS doesn't like the cwd to be something other than it's root
+        # FS doesn't like the cwd to be something other than its root.
+        os.chdir(test.workpath(""))
+
         node_derived = fs.File(test.workpath('bar/baz'))
         node_derived.builder_set(1) # Any non-zero value.
         node_pseudo = fs.File(test.workpath('pseudo'))
         node_pseudo.set_src_builder(1) # Any non-zero value.
+
         paths = map(fs.Dir, ['.', 'same', './bar'])
         nodes = [SCons.Node.FS.find_file('foo', paths, fs.File)]
         nodes.append(SCons.Node.FS.find_file('baz', paths, fs.File))
         nodes.append(SCons.Node.FS.find_file('pseudo', paths, fs.File))
-        nodes.append(SCons.Node.FS.find_file('same', paths, fs.File, verbose=1))
+        nodes.append(SCons.Node.FS.find_file('same', paths, fs.File))
+
         file_names = map(str, nodes)
         file_names = map(os.path.normpath, file_names)
         expect = ['./foo', './bar/baz', './pseudo', './bar/same']
         expect = map(os.path.normpath, expect)
         assert file_names == expect, file_names
+
+        # Make sure we don't blow up if there's already a File in place
+        # of a directory that we'd otherwise try to search.  If this
+        # is broken, we'll see an exception like "Tried to lookup File
+        # 'bar/baz' as a Dir.
+        SCons.Node.FS.find_file('baz/no_file_here', paths, fs.File)
 
         import StringIO
         save_sys_stdout = sys.stdout
