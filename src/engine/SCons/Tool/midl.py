@@ -38,6 +38,7 @@ import os.path
 import SCons.Defaults
 import SCons.Scanner.IDL
 import SCons.Util
+import SCons.Tool.msvs
 
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""
@@ -69,4 +70,10 @@ def generate(env):
     env['BUILDERS']['TypeLibrary'] = midl_builder
 
 def exists(env):
-    return env.Detect('midl')
+    if SCons.Tool.msvs.is_msvs_installed():
+        # there's at least one version of MSVS installed, which comes with midl:
+        return 1
+    else:
+        return env.Detect('midl')
+
+

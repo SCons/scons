@@ -127,6 +127,9 @@ RELEASE 0.96 - XXX
 
   - Fix use of the --implicit-cache option with timestamp signatures.
 
+  - If Visual Studio is installed, assume the C/C++ compiler, the linker
+    and the MIDL compiler that comes with it are available, too.
+
   From sam th:
 
   - Allow SConf.CheckLib() to search a list of libraries, like the
