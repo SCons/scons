@@ -149,43 +149,34 @@ file5.k 1 line 4
 
 test.write(['work1', 'src', 'subdir', 'file6.in'], "subdir/file6.in 1\n")
 
+work1_inc_aaa = test.workpath('work1', 'inc', 'aaa')
+work1_inc_ddd = test.workpath('work1', 'inc', 'ddd')
+work1_inc_eee = test.workpath('work1', 'inc', 'eee')
+work1_inc_bbb_k = test.workpath('work1', 'inc', 'bbb.k')
+
 #
 test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
 scons: building `file1' because it doesn't exist
-%s %s file1 file1.in
+%(python)s %(cat_py)s file1 file1.in
 scons: building `file2' because it doesn't exist
-%s %s file2 file2.k
+%(python)s %(cat_py)s file2 file2.k
 scons: building `file3' because it doesn't exist
-%s %s file3 xxx yyy zzz
+%(python)s %(cat_py)s file3 xxx yyy zzz
 scons: building `file4' because it doesn't exist
-%s %s file4 - file4.in
-scons: building `%s' because it doesn't exist
-Install file: "aaa" as "%s"
-scons: building `%s' because it doesn't exist
-Install file: "ddd" as "%s"
-scons: building `%s' because it doesn't exist
-Install file: "eee.in" as "%s"
-scons: building `%s' because it doesn't exist
-Install file: "bbb.k" as "%s"
+%(python)s %(cat_py)s file4 - file4.in
+scons: building `%(work1_inc_aaa)s' because it doesn't exist
+Install file: "aaa" as "%(work1_inc_aaa)s"
+scons: building `%(work1_inc_ddd)s' because it doesn't exist
+Install file: "ddd" as "%(work1_inc_ddd)s"
+scons: building `%(work1_inc_eee)s' because it doesn't exist
+Install file: "eee.in" as "%(work1_inc_eee)s"
+scons: building `%(work1_inc_bbb_k)s' because it doesn't exist
+Install file: "bbb.k" as "%(work1_inc_bbb_k)s"
 scons: building `file5' because it doesn't exist
-%s %s file5 file5.k
-scons: building `%s' because it doesn't exist
-%s %s %s %s
-""" % (python, cat_py,
-       python, cat_py,
-       python, cat_py,
-       python, cat_py,
-       test.workpath('work1', 'inc', 'aaa'),
-       test.workpath('work1', 'inc', 'aaa'),
-       test.workpath('work1', 'inc', 'ddd'),
-       test.workpath('work1', 'inc', 'ddd'),
-       test.workpath('work1', 'inc', 'eee'),
-       test.workpath('work1', 'inc', 'eee'),
-       test.workpath('work1', 'inc', 'bbb.k'),
-       test.workpath('work1', 'inc', 'bbb.k'),
-       python, cat_py,
-       subdir_file6,
-       python, cat_py, subdir_file6, subdir_file6_in)))
+%(python)s %(cat_py)s file5 file5.k
+scons: building `%(subdir_file6)s' because it doesn't exist
+%(python)s %(cat_py)s %(subdir_file6)s %(subdir_file6_in)s
+""" % locals()))
 
 test.must_match(['work1', 'src', 'file1'], "file1.in 1\n")
 test.must_match(['work1', 'src', 'file2'], """\
@@ -214,29 +205,21 @@ test.write(['work1', 'src', 'bbb.k'], "bbb.k 2\ninclude ccc\n")
 
 test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file1' because `file1.in' changed
-%s %s file1 file1.in
+%(python)s %(cat_py)s file1 file1.in
 scons: rebuilding `file2' because `yyy' changed
-%s %s file2 file2.k
+%(python)s %(cat_py)s file2 file2.k
 scons: rebuilding `file3' because:
            `yyy' changed
            `zzz' changed
-%s %s file3 xxx yyy zzz
-scons: rebuilding `%s' because:
-           `%s' is no longer a dependency
-           `%s' is no longer a dependency
+%(python)s %(cat_py)s file3 xxx yyy zzz
+scons: rebuilding `%(work1_inc_bbb_k)s' because:
+           `%(work1_inc_ddd)s' is no longer a dependency
+           `%(work1_inc_eee)s' is no longer a dependency
            `bbb.k' changed
-Install file: "bbb.k" as "%s"
-scons: rebuilding `file5' because `%s' changed
-%s %s file5 file5.k
-""" % (python, cat_py,
-       python, cat_py,
-       python, cat_py,
-       test.workpath('work1', 'inc', 'bbb.k'),
-       test.workpath('work1', 'inc', 'ddd'),
-       test.workpath('work1', 'inc', 'eee'),
-       test.workpath('work1', 'inc', 'bbb.k'),
-       test.workpath('work1', 'inc', 'bbb.k'),
-       python, cat_py)))
+Install file: "bbb.k" as "%(work1_inc_bbb_k)s"
+scons: rebuilding `file5' because `%(work1_inc_bbb_k)s' changed
+%(python)s %(cat_py)s file5 file5.k
+""" % locals()))
 
 test.must_match(['work1', 'src', 'file1'], "file1.in 2\n")
 test.must_match(['work1', 'src', 'file2'], """\
@@ -262,8 +245,8 @@ env.Cat('file3', ['xxx', 'yyy'])
 
 test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file3' because `zzz' is no longer a dependency
-%s %s file3 xxx yyy
-""" % (python, cat_py)))
+%(python)s %(cat_py)s file3 xxx yyy
+""" % locals()))
 
 test.must_match(['work1', 'src', 'file3'], "xxx 1\nyyy 2\n")
 
@@ -275,8 +258,8 @@ env.Cat('file3', ['xxx', 'yyy', 'zzz'])
 
 test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file3' because `zzz' is a new dependency
-%s %s file3 xxx yyy zzz
-""" % (python, cat_py)))
+%(python)s %(cat_py)s file3 xxx yyy zzz
+""" % locals()))
 
 test.must_match(['work1', 'src', 'file3'], "xxx 1\nyyy 2\nzzz 2\n")
 
@@ -290,8 +273,8 @@ test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file3' because the dependency order changed:
                old: ['xxx', 'yyy', 'zzz']
                new: ['zzz', 'yyy', 'xxx']
-%s %s file3 zzz yyy xxx
-""" % (python, cat_py)))
+%(python)s %(cat_py)s file3 zzz yyy xxx
+""" % locals()))
 
 test.must_match(['work1', 'src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
 
@@ -302,7 +285,7 @@ f3 = File('file3')
 env.Cat(f3, ['zzz', 'yyy', 'xxx'])
 env.AddPostAction(f3, r"%(python)s %(cat_py)s ${TARGET}.yyy $SOURCES yyy")
 env.AddPreAction(f3, r"%(python)s %(cat_py)s ${TARGET}.alt $SOURCES")
-""" % {'python':python, 'cat_py':cat_py})
+""" % locals())
 
 test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file3' because the build action changed:
@@ -313,7 +296,7 @@ scons: rebuilding `file3' because the build action changed:
 %(python)s %(cat_py)s file3.alt zzz yyy xxx
 %(python)s %(cat_py)s file3 zzz yyy xxx
 %(python)s %(cat_py)s file3.yyy zzz yyy xxx yyy
-""" % {'python':python, 'cat_py':cat_py}))
+""" % locals()))
 
 test.must_match(['work1', 'src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
 test.must_match(['work1', 'src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n")
@@ -326,7 +309,7 @@ f3 = File('file3')
 env.Cat(f3, ['zzz', 'yyy', 'xxx'])
 env.AddPostAction(f3, r"%(python)s %(cat_py)s ${TARGET}.yyy $SOURCES xxx")
 env.AddPreAction(f3, r"%(python)s %(cat_py)s ${TARGET}.alt $SOURCES")
-""" % {'python':python, 'cat_py':cat_py})
+""" % locals())
 
 test.run(chdir='work1/src', arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file3' because the build action changed:
@@ -339,7 +322,7 @@ scons: rebuilding `file3' because the build action changed:
 %(python)s %(cat_py)s file3.alt zzz yyy xxx
 %(python)s %(cat_py)s file3 zzz yyy xxx
 %(python)s %(cat_py)s file3.yyy zzz yyy xxx xxx
-""" % {'python':python, 'cat_py':cat_py}))
+""" % locals()))
 
 test.must_match(['work1', 'src', 'file3'], "zzz 2\nyyy 2\nxxx 1\n")
 test.must_match(['work1', 'src', 'file3.alt'], "zzz 2\nyyy 2\nxxx 1\n")
@@ -348,14 +331,14 @@ test.must_match(['work1', 'src', 'file3.yyy'], "zzz 2\nyyy 2\nxxx 1\nxxx 1\n")
 #
 test.write(['work1', 'src', 'SConscript'], """\
 Import("env")
-env.Command('file4', 'file4.in', r"%s %s $TARGET $FILE4FLAG $SOURCES", FILE4FLAG="")
-""" % (python, cat_py))
+env.Command('file4', 'file4.in', r"%(python)s %(cat_py)s $TARGET $FILE4FLAG $SOURCES", FILE4FLAG="")
+""" % locals())
 
 test.run(chdir='work1/src',arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file4' because the contents of the build action changed
                action: %(python)s %(cat_py)s $TARGET $FILE4FLAG $SOURCES
 %(python)s %(cat_py)s file4 file4.in
-""" % {'python':python, 'cat_py':cat_py})),
+""" % locals()))
 
 test.must_match(['work1', 'src', 'file4'], "file4.in 1\n")
 
@@ -380,10 +363,10 @@ Import("env")
 env.Cat('file1', 'file1.in')
 env.Cat('file2', 'file2.k')
 env.Cat('file3', ['xxx', 'yyy', 'zzz'])
-env.Command('file4', 'file4.in', r"%s %s $TARGET - $SOURCES")
+env.Command('file4', 'file4.in', r"%(python)s %(cat_py)s $TARGET - $SOURCES")
 env.Cat('file5', 'file5.k')
 env.Cat('subdir/file6', 'subdir/file6.in')
-""" % (python, cat_py))
+""" % locals())
 
 test.write(['work4', 'src', 'aaa'], "aaa 1\n")
 test.write(['work4', 'src', 'bbb.k'], """\
@@ -448,31 +431,27 @@ test.write(['work4', 'src', 'yyy'], "yyy 2\n")
 test.write(['work4', 'src', 'zzz'], "zzz 2\n")
 test.write(['work4', 'src', 'bbb.k'], "bbb.k 2\ninclude ccc\n")
 
+work4_inc_bbb_k = test.workpath('work4', 'inc', 'bbb.k')
+work4_inc_ddd = test.workpath('work4', 'inc', 'ddd')
+work4_inc_eee = test.workpath('work4', 'inc', 'eee')
+
 test.run(chdir='work4/src', arguments=args, stdout=test.wrap_stdout("""\
 scons: rebuilding `file1' because `file1.in' changed
-%s %s file1 file1.in
+%(python)s %(cat_py)s file1 file1.in
 scons: rebuilding `file2' because `yyy' changed
-%s %s file2 file2.k
+%(python)s %(cat_py)s file2 file2.k
 scons: rebuilding `file3' because:
            `yyy' changed
            `zzz' changed
-%s %s file3 xxx yyy zzz
-scons: rebuilding `%s' because:
-           `%s' is no longer a dependency
-           `%s' is no longer a dependency
+%(python)s %(cat_py)s file3 xxx yyy zzz
+scons: rebuilding `%(work4_inc_bbb_k)s' because:
+           `%(work4_inc_ddd)s' is no longer a dependency
+           `%(work4_inc_eee)s' is no longer a dependency
            `bbb.k' changed
-Install file: "bbb.k" as "%s"
-scons: rebuilding `file5' because `%s' changed
-%s %s file5 file5.k
-""" % (python, cat_py,
-       python, cat_py,
-       python, cat_py,
-       test.workpath('work4', 'inc', 'bbb.k'),
-       test.workpath('work4', 'inc', 'ddd'),
-       test.workpath('work4', 'inc', 'eee'),
-       test.workpath('work4', 'inc', 'bbb.k'),
-       test.workpath('work4', 'inc', 'bbb.k'),
-       python, cat_py)))
+Install file: "bbb.k" as "%(work4_inc_bbb_k)s"
+scons: rebuilding `file5' because `%(work4_inc_bbb_k)s' changed
+%(python)s %(cat_py)s file5 file5.k
+""" % locals()))
 
 test.must_match(['work4', 'src', 'file1'], "file1.in 2\n")
 test.must_match(['work4', 'src', 'file2'], """\
