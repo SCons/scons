@@ -34,6 +34,11 @@ RELEASE 0.95 - XXX
     values.  Previously, SCons would only use the values if all three
     were set in the registry.
 
+  From Scott Lystig Fritchie:
+
+  - Fix the ability to use a custom _concat() function in the
+    construction environment when calling _stripixes().
+
   From Steven Knight:
 
   - Fix EnsureSConsVersion() so it checks against the SCons version,
