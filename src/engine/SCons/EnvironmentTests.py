@@ -87,13 +87,18 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert built_it['out1']
 
 	built_it = {}
-	env3 = Environment(BUILDERS = [b1, b2])
+        env3 = Environment()
+        env3.Update(BUILDERS = [b1, b2])
 	env3.builder1.execute(target = 'out1')
 	env3.builder2.execute(target = 'out2')
 	env3.builder1.execute(target = 'out3')
 	assert built_it['out1']
 	assert built_it['out2']
 	assert built_it['out3']
+
+        env4 = env3.Copy()
+        assert env4.builder1.env is env4
+        assert env4.builder2.env is env4
 
     def test_Scanners(self):
         """Test Scanner execution through different environments
@@ -118,7 +123,8 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert scanned_it['out1']
 
 	scanned_it = {}
-	env3 = Environment(SCANNERS = [s1, s2])
+        env3 = Environment()
+        env3.Update(SCANNERS = [s1, s2])
 	env3.scanner1.scan(filename = 'out1')
 	env3.scanner2.scan(filename = 'out2')
 	env3.scanner1.scan(filename = 'out3')

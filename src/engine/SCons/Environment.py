@@ -76,40 +76,12 @@ class Environment:
     def __init__(self, **kw):
 	import SCons.Defaults
 	self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
-	if kw.has_key('BUILDERS') and type(kw['BUILDERS']) != type([]):
-	        kw['BUILDERS'] = [kw['BUILDERS']]
-        if kw.has_key('SCANNERS') and type(kw['SCANNERS']) != type([]):
-                kw['SCANNERS'] = [kw['SCANNERS']]
-	self._dict.update(our_deepcopy(kw))
-
-	class BuilderWrapper:
-	    """Wrapper class that allows an environment to
-	    be associated with a Builder at instantiation.
-	    """
-	    def __init__(self, env, builder):
-		self.env = env
-		self.builder = builder
-	
-	    def __call__(self, target = None, source = None):
-		return self.builder(self.env, target, source)
-
-	    # This allows a Builder to be executed directly
-	    # through the Environment to which it's attached.
-	    # In practice, we shouldn't need this, because
-	    # builders actually get executed through a Node.
-	    # But we do have a unit test for this, and can't
-	    # yet rule out that it would be useful in the
-	    # future, so leave it for now.
-	    def execute(self, **kw):
-	    	kw['env'] = self
-	    	apply(self.builder.execute, (), kw)
-
-	for b in self._dict['BUILDERS']:
-	    setattr(self, b.name, BuilderWrapper(self, b))
-
-        for s in self._dict['SCANNERS']:
-            setattr(self, s.name, s)
-
+        apply(self.Update, (), kw)
+        
+    def __mungeDict(self):
+        """Take care of any special attributes in our dictionary."""
+        
+        
     def __cmp__(self, other):
 	return cmp(self._dict, other._dict)
 
@@ -137,6 +109,40 @@ class Environment:
 	construction variables and/or values.
 	"""
 	self._dict.update(our_deepcopy(kw))
+        if self._dict.has_key('BUILDERS') and \
+           type(self._dict['BUILDERS']) != type([]):
+            self._dict['BUILDERS'] = [self._dict['BUILDERS']]
+        if self._dict.has_key('SCANNERS') and \
+           type(self._dict['SCANNERS']) != type([]):
+            self._dict['SCANNERS'] = [self._dict['SCANNERS']]
+
+        class BuilderWrapper:
+            """Wrapper class that allows an environment to
+            be associated with a Builder at instantiation.
+            """
+            def __init__(self, env, builder):
+                self.env = env
+                self.builder = builder
+
+            def __call__(self, target = None, source = None):
+                return self.builder(self.env, target, source)
+
+            # This allows a Builder to be executed directly
+            # through the Environment to which it's attached.
+            # In practice, we shouldn't need this, because
+            # builders actually get executed through a Node.
+            # But we do have a unit test for this, and can't
+            # yet rule out that it would be useful in the
+            # future, so leave it for now.
+            def execute(self, **kw):
+                kw['env'] = self.env
+                apply(self.builder.execute, (), kw)
+
+        for b in self._dict['BUILDERS']:
+            setattr(self, b.name, BuilderWrapper(self, b))
+
+        for s in self._dict['SCANNERS']:
+            setattr(self, s.name, s)
 
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""
