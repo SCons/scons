@@ -20,15 +20,18 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.14 - XXX
+RELEASE 0.14 - Wed, 21 May 2003 05:16:32 -0500
 
   This is the fourteenth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.13:
 
-  - Tool specifications no longer take a "platform" argument.
-    XXX
+  - Tool specifications no longer take a "platform" argument.  You
+    will need to remove this argument if you define any local Tool
+    specifications.  The new env['PLATFORM'] construction variable can
+    now be used to find the string that used to be passed in as the
+    "platform" argument.
 
   - Emitter functions in Builders are now passed Node objects, not
     strings, for all targets and sources.  Your emitter may need to
@@ -54,6 +57,13 @@ RELEASE 0.14 - XXX
   - Callable expansions of construction variables in a command line
     now take a fourth "for_signature" argument that is set when the
     expansion is being called to generate a build signature.
+
+  - Construction variables for building a target are now frozen when the
+    Builder is called; later changes to the Environment do not
+    necessarily affect how the target is build.  You may need to
+    re-order statements in your SConscript files to make sure
+    construction variables are set before calling the Builders that will
+    use them.
 
   Please note the following important changes since release 0.11:
 
@@ -153,9 +163,6 @@ RELEASE 0.14 - XXX
     - Modifying a construction environment in a subsidiary SConscript
       file modifies the global environment.
 
-    - PDB files on Win32 in a build that uses BuildDir() are built in
-      the source directory, not the build directory.
-
     - MSVC .res files are not rebuilt when icons change.
 
     - The -c option does not clean up .sconsign files or directories
@@ -168,6 +175,12 @@ RELEASE 0.14 - XXX
     - On Win32, SCons does not recognize that a target specified as
       (for example) \some\target is the same as X:\some\target (for your
       current volume X:).
+
+    - .sconsign files can be written even when the -n option is used,
+      possibly causing incorrect "up to date" builds the next time around.
+
+    - An explicit target beginning with "../" (i.e. above the current
+      directory) is ignored when using the -u, -U or -D options.
 
     - No support yet for the following planned command-line options:
 
@@ -189,5 +202,6 @@ With plenty of help from the SCons Development team:
         Charles Crain
         Steve Leblanc
         Anthony Roach
-        Terrel Shumway
+        Greg Spencer
+        Christoph Widemann
 

@@ -203,9 +203,9 @@ PACKAGES" section below.
 BUILDING PACKAGES
 =================
 
-We now use SCons (version 0.11 or later) to build its own packages.
-If you already have an appropriate version of SCons installed on your
-system, you can build everything by simply running it:
+We use SCons (version 0.11 or later) to build its own packages.  If you
+already have an appropriate version of SCons installed on your system,
+you can build everything by simply running it:
 
         $ scons
 
