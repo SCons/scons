@@ -198,11 +198,19 @@ class ActionBase:
         if print_actions:
             sys.stdout.write(s + '\n')
 
-    def presub(self, target):
+    def presub(self, target, env):
         if print_actions_presub:
             if not SCons.Util.is_List(target):
                 target = [target]
+            # CommandGeneratorAction needs a real environment
+            # in order to return the proper string here, since
+            # it may call LazyCmdGenerator, which looks up a key
+            # in that env.  So we temporarily remember the env here,
+            # and CommandGeneratorAction will use this env
+            # when it calls its __generate method.
+            self.presub_env = env
             lines = string.split(str(self), '\n')
+            self.presub_env = None      # don't need this any more
             sys.stdout.write("Building %s with action(s):\n  %s\n"%
                 (string.join(map(lambda x: str(x), target), ' and '),
                  string.join(lines, '\n  ')))
@@ -327,7 +335,7 @@ class CommandAction(ActionBase):
         return 0
 
     def __call__(self, target, source, env):
-        self.presub(target)
+        self.presub(target, env)
         return self._execute(target, source, env)
 
     def get_contents(self, target, source, env, dict=None):
@@ -369,7 +377,11 @@ class CommandGeneratorAction(ActionBase):
         return act.strfunction(target, rsources, env)
 
     def __str__(self):
-        act = self.__generate([], [], {}, 0)
+        try:
+            env = self.presub_env or {}
+        except AttributeError:
+            env = {}
+        act = self.__generate([], [], env, 0)
         return str(act)
 
     def _execute(self, target, source, env):
@@ -384,7 +396,7 @@ class CommandGeneratorAction(ActionBase):
             source = [source]
         rsources = map(rfile, source)
         act = self.__generate(target, source, env, 0)
-        act.presub(target)
+        act.presub(target, env)
         return act._execute(target, source, env)
 
     def get_contents(self, target, source, env, dict=None):
@@ -411,6 +423,9 @@ class LazyCmdGenerator:
         except KeyError:
             # The variable reference substitutes to nothing.
             return ''
+
+    def __str__(self):
+        return 'LazyCmdGenerator: %s'%str(self.var)
 
     def _execute(self, target, source, env, for_signature):
         try:
@@ -472,7 +487,7 @@ class FunctionAction(ActionBase):
         return r
 
     def __call__(self, target, source, env):
-        self.presub(target)
+        self.presub(target, env)
         return self._execute(target, source, env)
 
     def get_contents(self, target, source, env, dict=None):
@@ -523,7 +538,7 @@ class ListAction(ActionBase):
         return 0
 
     def __call__(self, target, source, env):
-        self.presub(target)
+        self.presub(target, env)
         return self._execute(target, source, env)
 
     def get_contents(self, target, source, env, dict=None):

@@ -291,10 +291,11 @@ class ActionBaseTestCase(unittest.TestCase):
 
         try:
             a = SCons.Action.Action("x")
+            env = Environment()
 
             sio = StringIO.StringIO()
             sys.stdout = sio
-            a.presub("xyzzy")
+            a.presub("xyzzy", env)
             s = sio.getvalue()
             assert s == "", s
 
@@ -302,9 +303,57 @@ class ActionBaseTestCase(unittest.TestCase):
 
             sio = StringIO.StringIO()
             sys.stdout = sio
-            a.presub("foobar")
+            a.presub("foobar", env)
             s = sio.getvalue()
             assert s == "Building foobar with action(s):\n  x\n", s
+
+            a = SCons.Action.Action(["y", "z"])
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.presub("foobar", env)
+            s = sio.getvalue()
+            assert s == "Building foobar with action(s):\n  y\n  z\n", s
+
+            def func():
+                pass
+            a = SCons.Action.Action(func)
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.presub("foobar", env)
+            s = sio.getvalue()
+            assert s == "Building foobar with action(s):\n  func(env, target, source)\n", s
+
+            def gen(target, source, env, for_signature):
+                return 'generat' + env.get('GEN', 'or')
+            a = SCons.Action.Action(SCons.Action.CommandGenerator(gen))
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.presub("foobar", env)
+            s = sio.getvalue()
+            assert s == "Building foobar with action(s):\n  generator\n", s
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.presub("foobar", Environment(GEN = 'ed'))
+            s = sio.getvalue()
+            assert s == "Building foobar with action(s):\n  generated\n", s
+
+            a = SCons.Action.Action("$ACT")
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.presub("foobar", env)
+            s = sio.getvalue()
+            assert s == "Building foobar with action(s):\n  \n", s
+
+            sio = StringIO.StringIO()
+            sys.stdout = sio
+            a.presub("foobar", Environment(ACT = 'expanded action'))
+            s = sio.getvalue()
+            assert s == "Building foobar with action(s):\n  expanded action\n", s
 
         finally:
             SCons.Action.print_actions_presub = save_print_actions_presub
