@@ -278,7 +278,7 @@ def options_init():
 	This exists to provide a central location for everything
 	describing a command-line option, so that we can change
 	options without having to update the code to handle the
-	option in one place, the -h help message in another place,
+	option in one place, the -H help message in another place,
 	etc.  There are no methods here, only attributes.
 
 	You can initialize an Option with the following:
@@ -293,13 +293,13 @@ def options_init():
 		stores an optstring to be printed.
 
 	helpline
-		The string to be printed in -h output.  If no
+		The string to be printed in -H output.  If no
 		helpline is specified but a help string is
 		specified (the usual case), a helpline will be
 		constructed automatically from the short, long,
 		arg, and help attributes.  (In practice, then,
 		setting helpline without setting func allows you
-		to print arbitrary lines of text in the -h
+		to print arbitrary lines of text in the -H
 		output.)
 
 	short	The string for short, single-hyphen
@@ -310,23 +310,29 @@ def options_init():
 
 	long	An array of strings for long, double-hyphen
 		command-line options.  Do not include
-		the hyphens:
+		the initial hyphens:
 
 			['my-option', 'verbose']
 
 	arg	If this option takes an argument, this string
 		specifies how you want it to appear in the
-		-h output ('DIRECTORY', 'FILE', etc.).
+		-H output ('DIRECTORY', 'FILE', etc.).
 
 	help	The help string that will be printed for
-		this option in the -h output.  Must be
+		this option in the -H output.  Must be
 		49 characters or fewer.
+
+		May be an array of strings, which will be
+		printed on successive lines.  The first string
+		must be 49 characters or fewer.  The remaining
+		strings will be indented two spaces and must
+		be 47 characters or fewer.
 
 	future	If non-zero, this indicates that this feature
 		will be supported in a future release, not
 		the currently planned one.  SCons will
 		recognize the option, but it won't show up
-		in the -h output.
+		in the -H output.
 
 	The following attribute is derived from the supplied attributes:
 
@@ -337,7 +343,7 @@ def options_init():
 
 	All Option objects are stored in the global option_list list,
 	in the order in which they're created.  This is the list
-	that's used to generate -h output, so the order in which the
+	that's used to generate -H output, so the order in which the
 	objects are created is the order in which they're printed.
 
 	The upshot is that specifying a command-line option and having
@@ -354,6 +360,8 @@ def options_init():
 	    self.short = short
 	    self.long = long
 	    self.arg = arg
+	    if not SCons.Util.is_List(help):
+	        help = [help]
 	    self.help = help
 	    opts = []
 	    if self.short:
@@ -374,7 +382,8 @@ def options_init():
 		    sep = " " * (28 - len(self.optstring))
 		else:
 		    sep = self.helpstring = "\n" + " " * 30
-		self.helpline = "  " + self.optstring + sep + self.help
+		self.helpline = "  " + self.optstring + sep + \
+		                string.join(self.help, "\n" + " " * 32)
 	    else:
 		self.helpline = None
 	    global option_list
@@ -448,7 +457,8 @@ def options_init():
 
     Option(func = opt_D,
         short = 'D',
-        help = "Search up directory tree for SConstruct.")
+        help = ["Search up directory tree for SConstruct,",
+                "build all Default() targets."])
 
     def opt_debug(opt, arg):
         global print_tree
@@ -646,7 +656,8 @@ def options_init():
 
     Option(func = opt_u,
 	short = 'u', long = ['up', 'search-up'],
-	help = "Search up directory tree for SConstruct.")
+        help = ["Search up directory tree for SConstruct,",
+                "build targets at or below current directory."])
 
     def opt_U(opt, arg):
         global climb_up
@@ -654,7 +665,8 @@ def options_init():
 
     Option(func = opt_U,
         short = 'U',
-        help = "Search up directory tree for SConstruct.")
+        help = ["Search up directory tree for SConstruct,",
+                "build Default() targets from local SConscript."])
 
     def option_v(opt, arg):
         import SCons

@@ -35,6 +35,9 @@ RELEASE 0.08 -
   - Updated README instructions and setup.py code to catch an
     installation failure from not having distutils installed.
 
+  - Add descriptions to the -H help text for -D, -u and -U so
+    people can tell them apart.
+
   From Jeff Petkau:
 
   - Fix --implicit-cache if the scanner returns an empty list.
