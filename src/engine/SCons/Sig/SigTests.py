@@ -211,7 +211,7 @@ class SigTestBase:
         self.failUnless(current(calc, nodes[4]))
         self.failUnless(current(calc, nodes[5]))
         self.failUnless(not current(calc, nodes[6]), "modified directly")
-        self.failUnless(current(calc, nodes[7]), "indirect source modified")
+        self.failUnless(not current(calc, nodes[7]), "indirect source modified")
         self.failUnless(not current(calc, nodes[8]), "modified directory")
         self.failUnless(not current(calc, nodes[9]), "direct source modified")
         self.failUnless(not current(calc, nodes[10]), "indirect source modified")

@@ -30,8 +30,8 @@ import sys
 import unittest
 import SCons.Node
 import SCons.Node.FS
-from SCons.Util import scons_str2nodes, scons_subst, PathList, scons_subst_list
-
+from SCons.Util import *
+import TestCmd
 
 class UtilTestCase(unittest.TestCase):
     def test_str2nodes(self):
@@ -159,6 +159,21 @@ class UtilTestCase(unittest.TestCase):
         assert len(cmd_list) == 2, cmd_list
         assert cmd_list[1][0] == 'after', cmd_list[1][0]
         assert cmd_list[0][2] == cvt('../foo/ack.cbefore'), cmd_list[0][2]
+
+    def test_find_files(self):
+        """Testing find_files function."""
+        test = TestCmd.TestCmd(workdir = '')
+        test.write('./foo', 'Some file\n')
+        fs = SCons.Node.FS.FS(test.workpath(""))
+        node_derived = fs.File(test.workpath('./bar/baz'))
+        node_derived.builder_set(1) # Any non-zero value.
+        nodes = find_files(['foo', 'baz'],
+                           map(test.workpath, ['./', './bar' ]), fs.File)
+        file_names = map(str, nodes)
+        file_names = map(os.path.normpath, file_names)
+        assert os.path.normpath('./foo') in file_names, file_names
+        assert os.path.normpath('./bar/baz') in file_names, file_names
+        
         
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')

@@ -221,3 +221,37 @@ def scons_subst(strSubst, locals, globals):
     """
     cmd_list = scons_subst_list(strSubst, locals, globals)
     return string.join(map(string.join, cmd_list), '\n')
+
+def find_files(filenames, paths,
+               node_factory = SCons.Node.FS.default_fs.File):
+    """
+    find_files([str], [str]) -> [nodes]
+
+    filenames - a list of filenames to find
+    paths - a list of paths to search in
+
+    returns - the nodes created from the found files.
+
+    Finds nodes corresponding to either derived files or files
+    that exist already.
+
+    Only the first fullname found is returned for each filename, and any
+    file that aren't found are ignored.
+    """
+    nodes = []
+    for filename in filenames:
+        for path in paths:
+            fullname = os.path.join(path, filename)
+            try:
+                node = node_factory(fullname)
+                # Return true of the node exists or is a derived node.
+                if node.builder or \
+                   (isinstance(node, SCons.Node.FS.Entry) and node.exists()):
+                    nodes.append(node)
+                    break
+            except TypeError:
+                # If we find a directory instead of a file, we
+                # don't care
+                pass
+
+    return nodes

@@ -33,6 +33,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Scanner
 import re
 import os.path
+import SCons.Util
 
 angle_re = re.compile('^[ \t]*#[ \t]*include[ \t]+<([\\w./\\\\]+)>', re.M)
 quote_re = re.compile('^[ \t]*#[ \t]*include[ \t]+"([\\w./\\\\]+)"', re.M)
@@ -43,28 +44,6 @@ def CScan():
                               [".c", ".C", ".cxx", ".cpp", ".c++"])
     s.name = "CScan"
     return s
-
-def find_files(filenames, paths):
-    """
-    find_files([str], [str]) -> [str]
-
-    filenames - a list of filenames to find
-    paths - a list of paths to search in
-
-    returns - the fullnames of the files
-
-    Only the first fullname found is returned for each filename, and any
-    file that aren't found are ignored.
-    """
-    fullnames = []
-    for filename in filenames:
-        for path in paths:
-            fullname = os.path.join(path, filename)
-            if os.path.exists(fullname):
-                fullnames.append(fullname)
-                break
-
-    return fullnames
 
 def scan(filename, env, node_factory):
     """
@@ -87,22 +66,24 @@ def scan(filename, env, node_factory):
     dependencies.
     """
 
-    if hasattr(env, "CPPPATH"):
-        paths = env.CPPPATH
-    else:
+    try:
+        paths = env.Dictionary("CPPPATH")
+    except KeyError:
         paths = []
+
+    try:
+        file = open(filename)
+        contents = file.read()
+        file.close()
+
+        angle_includes = angle_re.findall(contents)
+        quote_includes = quote_re.findall(contents)
+
+        source_dir = os.path.dirname(filename)
         
-    file = open(filename)
-    contents = file.read()
-    file.close()
-
-    angle_includes = angle_re.findall(contents)
-    quote_includes = quote_re.findall(contents)
-
-    source_dir = os.path.dirname(filename)
-    
-    deps = (find_files(angle_includes, paths + [source_dir])
-            + find_files(quote_includes, [source_dir] + paths))
-
-    deps = map(node_factory, deps)
-    return deps
+        return (SCons.Util.find_files(angle_includes, paths + [source_dir],
+                                      node_factory)
+                + SCons.Util.find_files(quote_includes, [source_dir] + paths,
+                                        node_factory))
+    except OSError:
+        return []

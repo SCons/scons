@@ -25,6 +25,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 import unittest
+import string
 
 from SCons.Sig.MD5 import current, collect, signature, to_string, from_string
 
@@ -83,7 +84,8 @@ class MD5TestCase(unittest.TestCase):
         try:
             signature('string')
         except AttributeError, e:
-            assert str(e) == "unable to fetch contents of 'string': 'string' object has no attribute 'get_contents'", e
+            # the error string should begin with "unable to fetch contents of 'string': "
+            assert string.find(str(e), "unable to fetch contents of 'string':") == 0
         else:
             raise AttributeError, "unexpected get_contents() attribute"
 

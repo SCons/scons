@@ -27,6 +27,7 @@ import TestCmd
 import SCons.Scanner.C
 import unittest
 import sys
+import os.path
 
 test = TestCmd.TestCmd(workdir = '')
 
@@ -88,55 +89,65 @@ for h in headers:
 # define some helpers:
 
 class DummyEnvironment:
-    pass
+    def __init__(self, listCppPath):
+        self.path = listCppPath
+        
+    def Dictionary(self, *args):
+        if not args:
+            return { 'CPPPATH': self.path }
+        elif len(args) == 1 and args[0] == 'CPPPATH':
+            return self.path
+        else:
+            raise KeyError, "Dummy environment only has CPPPATH attribute."
 
 def deps_match(deps, headers):
-    return deps.sort() == map(test.workpath, headers).sort()
+    deps = map(str, deps)
+    headers = map(test.workpath, headers)
+    deps.sort()
+    headers.sort()
+    return map(os.path.normpath, deps) == \
+           map(os.path.normpath, headers)
 
 # define some tests:
 
 class CScannerTestCase1(unittest.TestCase):
     def runTest(self):
-        env = DummyEnvironment
+        env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
         deps = s.scan(test.workpath('f1.cpp'), env)
-        self.failUnless(deps_match(deps, ['f1.h', 'f2.h']))
+        self.failUnless(deps_match(deps, ['f1.h', 'f2.h']), map(str, deps))
 
 class CScannerTestCase2(unittest.TestCase):
     def runTest(self):
-        env = DummyEnvironment
-        env.CPPPATH = [test.workpath("d1")]
+        env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.C.CScan()
         deps = s.scan(test.workpath('f1.cpp'), env)
         headers = ['f1.h', 'd1/f2.h']
-        self.failUnless(deps_match(deps, headers)) 
+        self.failUnless(deps_match(deps, headers), map(str, deps))
 
 class CScannerTestCase3(unittest.TestCase):
     def runTest(self):
-        env = DummyEnvironment
-        env.CPPPATH = [test.workpath("d1")]
+        env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.C.CScan()
         deps = s.scan(test.workpath('f2.cpp'), env)
-        headers = ['f1.h', 'd1/f2.h', 'd1/d2/f1.h']
-        self.failUnless(deps_match(deps, headers))
-                  
+        headers = ['f1.h', 'd1/f1.h', 'd1/d2/f1.h']
+        self.failUnless(deps_match(deps, headers), map(str, deps))
 
 class CScannerTestCase4(unittest.TestCase):
     def runTest(self):
-        env = DummyEnvironment
-        env.CPPPATH = [test.workpath("d1"), test.workpath("d1/d2")]
+        env = DummyEnvironment([test.workpath("d1"), test.workpath("d1/d2")])
         s = SCons.Scanner.C.CScan()
         deps = s.scan(test.workpath('f2.cpp'), env)
-        headers =  ['f1.h', 'd1/f2.h', 'd1/d2/f1.h', 'd1/d2/f4.h']
-        self.failUnless(deps_match(deps, headers))
+        headers =  ['f1.h', 'd1/f1.h', 'd1/d2/f1.h', 'd1/d2/f4.h']
+        self.failUnless(deps_match(deps, headers), map(str, deps))
         
 class CScannerTestCase5(unittest.TestCase):
     def runTest(self):
-        env = DummyEnvironment
+        env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
         deps = s.scan(test.workpath('f3.cpp'), env)
         headers =  ['f1.h', 'f2.h', 'f3.h', 'd1/f1.h', 'd1/f2.h', 'd1/f3.h']
-        self.failUnless(deps_match(deps, headers))
+        self.failUnless(deps_match(deps, headers), map(str, deps))
 
 def suite():
     suite = unittest.TestSuite()

@@ -192,10 +192,15 @@ class Walker:
     returns the next node on the descent with each next() call.
     'kids_func' is an optional function that will be called to
     get the children of a node instead of calling 'children'.
+    
+    This class does not get caught in node cycles caused, for example,
+    by C header file include loops.
     """
     def __init__(self, node, kids_func=get_children):
         self.kids_func = kids_func
         self.stack = [Wrapper(node, self.kids_func)]
+        self.history = {} # used to efficiently detect and avoid cycles
+        self.history[node] = None
 
     def next(self):
 	"""Return the next node for this walk of the tree.
@@ -206,10 +211,14 @@ class Walker:
 
 	while self.stack:
 	    if self.stack[-1].kids:
-	    	self.stack.append(Wrapper(self.stack[-1].kids.pop(0),
-                                          self.kids_func))
+                node = self.stack[-1].kids.pop(0)
+                if not self.history.has_key(node):
+                    self.stack.append(Wrapper(node, self.kids_func))
+                    self.history[node] = None
             else:
-                return self.stack.pop().node
+                node = self.stack.pop().node
+                del self.history[node]
+                return node
 
     def is_done(self):
         return not self.stack

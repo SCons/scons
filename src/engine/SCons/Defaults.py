@@ -36,7 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import SCons.Builder
 import SCons.Scanner.C
-
+import SCons.Scanner.Prog
 
 Object = SCons.Builder.Builder(name = 'Object',
                                action = { '.c'   : '$CCCOM',
@@ -55,7 +55,8 @@ Program = SCons.Builder.Builder(name = 'Program',
                                 prefix = '$PROGPREFIX',
                                 suffix = '$PROGSUFFIX',
                                 src_suffix = '$OBJSUFFIX',
-                                src_builder = Object)
+                                src_builder = Object,
+                                scanner = SCons.Scanner.Prog.ProgScan())
 
 Library = SCons.Builder.Builder(name = 'Library',
                                 action = '$ARCOM',
@@ -72,13 +73,13 @@ if os.name == 'posix':
     ConstructionEnvironment = {
         'CC'         : 'cc',
         'CCFLAGS'    : '',
-        'CCCOM'      : '$CC $CCFLAGS -c -o $TARGET $SOURCES',
+        'CCCOM'      : '$CC $CCFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'CXX'        : 'c++',
         'CXXFLAGS'   : '$CCFLAGS',
-        'CXXCOM'     : '$CXX $CXXFLAGS -c -o $TARGET $SOURCES',
+        'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
         'LINK'       : '$CXX',
         'LINKFLAGS'  : '',
-        'LINKCOM'    : '$LINK $LINKFLAGS -o $TARGET $SOURCES',
+        'LINKCOM'    : '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS',
         'AR'         : 'ar',
         'ARFLAGS'    : 'r',
         'ARCOM'      : '$AR $ARFLAGS $TARGET $SOURCES\nranlib $TARGET',
@@ -94,6 +95,8 @@ if os.name == 'posix':
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '-l',
         'LIBLINKSUFFIX'         : '',
+        'INCPREFIX'             : '-I',
+        'INCSUFFIX'             : '',
         'ENV'        : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
     }
 
@@ -102,13 +105,13 @@ elif os.name == 'nt':
     ConstructionEnvironment = {
         'CC'         : 'cl',
         'CCFLAGS'    : '/nologo',
-        'CCCOM'      : '$CC $CCFLAGS /c $SOURCES /Fo$TARGET',
+        'CCCOM'      : '$CC $CCFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
         'CXX'        : '$CC',
         'CXXFLAGS'   : '$CCFLAGS',
-        'CXXCOM'     : '$CXX $CXXFLAGS /c $SOURCES /Fo$TARGET',
+        'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
         'LINK'       : 'link',
         'LINKFLAGS'  : '',
-        'LINKCOM'    : '$LINK $LINKFLAGS /out:$TARGET $SOURCES',
+        'LINKCOM'    : '$LINK $LINKFLAGS /out:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
         'AR'         : 'lib',
         'ARFLAGS'    : '/nologo',
         'ARCOM'      : '$AR $ARFLAGS /out:$TARGET $SOURCES',
@@ -124,6 +127,8 @@ elif os.name == 'nt':
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '',
         'LIBLINKSUFFIX'         : '$LIBSUFFIX',
+        'INCPREFIX'             : '/I',
+        'INCSUFFIX'             : '',
         'ENV'        : {
                         'PATH'    : r'C:\Python20;C:\WINNT\system32;C:\WINNT;C:\Program Files\Microsoft Visual Studio\VC98\Bin\;',
                         'PATHEXT' : '.COM;.EXE;.BAT;.CMD',

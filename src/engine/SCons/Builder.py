@@ -136,7 +136,8 @@ class BuilderBase:
 			prefix = '',
 			suffix = '',
 			src_suffix = '',
-			node_factory = SCons.Node.FS.default_fs.File):
+                        node_factory = SCons.Node.FS.default_fs.File,
+                        scanner = None):
 	self.name = name
 	self.action = Action(action)
 
@@ -144,6 +145,7 @@ class BuilderBase:
 	self.suffix = suffix
 	self.src_suffix = src_suffix
 	self.node_factory = node_factory
+        self.scanner = scanner
         if self.suffix and self.suffix[0] not in '.$':
 	    self.suffix = '.' + self.suffix
         if self.src_suffix and self.src_suffix[0] not in '.$':
@@ -158,9 +160,10 @@ class BuilderBase:
 	    if not type(files) is type([]):
 	        files = [files]
 	    for f in files:
-		if type(f) == type(""):
+                if type(f) is types.StringType or isinstance(f, UserString):
 		    if pre and f[:len(pre)] != pre:
-		        f = pre + f
+                        path, fn = os.path.split(os.path.normpath(f))
+                        f = os.path.join(path, pre + fn)
 		    if suf:
 		        if f[-len(suf):] != suf:
 		            f = f + suf
@@ -180,6 +183,8 @@ class BuilderBase:
 	    t.builder_set(self)
 	    t.env_set(env)
 	    t.add_source(slist)
+            if self.scanner:
+                t.scanner_set(self.scanner)
 
 	for s in slist:
 	    s.env_set(env, 1)
@@ -216,9 +221,10 @@ class MultiStepBuilder(BuilderBase):
 			prefix = '',
 			suffix = '',
 			src_suffix = '',
-			node_factory = SCons.Node.FS.default_fs.File):
+                        node_factory = SCons.Node.FS.default_fs.File,
+                        scanner=None):
         BuilderBase.__init__(self, name, action, prefix, suffix, src_suffix,
-                             node_factory)
+                             node_factory, scanner)
         self.src_builder = src_builder
 
     def __call__(self, env, target = None, source = None):

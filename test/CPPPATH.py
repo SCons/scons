@@ -28,11 +28,44 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is implemented.
+test.write('foo.c',
+"""#include "include/foo.h"
+#include <stdio.h>
 
-test.write('SConstruct', """
+int main(void)
+{
+    printf(TEST_STRING);
+    return 0;
+}
 """)
 
-test.run(arguments = '.')
+test.subdir('include')
+
+test.write('include/foo.h',
+"""
+#define TEST_STRING "Bad news\n"
+""")
+
+test.write('SConstruct', """
+env = Environment()
+env.Program(target='prog', source='foo.c')
+#env.Depends(target='foo.c', dependency='include/foo.h')
+""")
+
+test.run(arguments = 'prog')
+
+test.run(program = test.workpath('prog'),
+         stdout = "Bad news\n")
+
+test.unlink('include/foo.h')
+test.write('include/foo.h',
+"""
+#define TEST_STRING "Good news\n"
+""")
+
+test.run(arguments = 'prog')
+
+test.run(program = test.workpath('prog'),
+         stdout = "Good news\n")
 
 test.pass_test()

@@ -296,10 +296,13 @@ class NodeTestCase(unittest.TestCase):
 	nw = SCons.Node.Walker(n1)
 	assert nw.next().name ==  "n4"
 	assert nw.next().name ==  "n5"
+        assert nw.history.has_key(n2)
 	assert nw.next().name ==  "n2"
 	assert nw.next().name ==  "n6"
 	assert nw.next().name ==  "n7"
+        assert nw.history.has_key(n3)
 	assert nw.next().name ==  "n3"
+        assert nw.history.has_key(n1)
 	assert nw.next().name ==  "n1"
 	assert nw.next() == None
 

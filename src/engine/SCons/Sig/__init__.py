@@ -31,7 +31,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import string
-
+import SCons.Node
 
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
@@ -154,7 +154,22 @@ class Calculator:
             return None
         #XXX If configured, use the content signatures from the
         #XXX .sconsign file if the timestamps match.
-        sigs = map(lambda n,s=self: s.get_signature(n), node.children())
+
+        # Collect the signatures for ALL the nodes that this
+        # node depends on. Just collecting the direct
+        # dependants is not good enough, because
+        # the signature of a non-derived file does
+        # not include the signatures of its psuedo-sources
+        # (e.g. the signature for a .c file does not include
+        # the signatures of the .h files that it includes).
+        walker = SCons.Node.Walker(node)
+        sigs = []
+        while 1:
+            child = walker.next()
+            if child is None: break
+            if child is node: continue # skip the node itself
+            sigs.append(self.get_signature(child))
+
         if node.builder:
             sigs.append(self.module.signature(node.builder_sig_adapter()))
         return self.module.collect(filter(lambda x: not x is None, sigs))

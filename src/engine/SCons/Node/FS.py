@@ -271,7 +271,7 @@ class Entry(SCons.Node.Node):
 	return self.path
 
     def exists(self):
-        return os.path.exists(self.path)
+        return os.path.exists(self.abspath)
 
     def current(self):
         """If the underlying path doesn't exist, we know the node is
@@ -338,7 +338,13 @@ class Dir(Entry):
 	kids = map(lambda x, s=self: s.entries[x],
 		   filter(lambda k: k != '.' and k != '..',
 			  self.entries.keys()))
-	kids.sort()
+	def c(one, two):
+            if one.abspath < two.abspath:
+               return -1
+            if one.abspath > two.abspath:
+               return 1
+            return 0
+	kids.sort(c)
 	return kids
 
     def build(self):
@@ -451,5 +457,28 @@ class File(Entry):
                 self.add_dependency(scanner.scan(self.path_, self.env))
             self.scanned = 1
 
+    def __createDir(self):
+        # ensure that the directories for this node are
+        # created.
+
+        listPaths = []
+        strPath = self.abspath
+        while 1:
+            strPath, strFile = os.path.split(strPath)
+            if os.path.exists(strPath):
+                break
+            listPaths.append(strPath)
+            if not strFile:
+                break
+        listPaths.reverse()
+        for strPath in listPaths:
+            try:
+                os.mkdir(strPath)
+            except OSError:
+                pass
+
+    def build(self):
+        self.__createDir()
+        Entry.build(self)
 
 default_fs = FS()

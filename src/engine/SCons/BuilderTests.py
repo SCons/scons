@@ -36,7 +36,6 @@ import unittest
 import TestCmd
 import SCons.Builder
 
-
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
 # script for writing arguments to an output file.
@@ -269,6 +268,7 @@ class BuilderTestCase(unittest.TestCase):
 	class Foo:
 	    pass
 	def FooFactory(target):
+            global Foo
 	    return Foo(target)
 	builder = SCons.Builder.Builder(node_factory = FooFactory)
 	assert builder.node_factory is FooFactory
@@ -347,6 +347,23 @@ class BuilderTestCase(unittest.TestCase):
             flag = 1
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
+    def test_build_scanner(self):
+        """Testing ability to set a target scanner through a builder."""
+        class TestScanner:
+            pass
+        scn = TestScanner()
+        builder=SCons.Builder.Builder(scanner=scn)
+        tgt = builder(env, target='foo', source='bar')
+        assert tgt.scanner == scn, tgt.scanner
+
+        builder1 = SCons.Builder.Builder(action='foo',
+                                         src_suffix='.bar',
+                                         suffix='.foo')
+        builder2 = SCons.Builder.Builder(action='foo',
+                                         src_builder = builder1,
+                                         scanner = scn)
+        tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
+        assert tgt.scanner == scn, tgt.scanner
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')

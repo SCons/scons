@@ -81,7 +81,11 @@ class Environment:
                       ( '_LIBDIRFLAGS',
                         'LIBPATH',
                         'LIBDIRPREFIX',
-                        'LIBDIRSUFFIX' ) )
+                        'LIBDIRSUFFIX' ),
+                      ( '_INCFLAGS',
+                        'CPPPATH',
+                        'INCPREFIX',
+                        'INCSUFFIX' ) )
 
     def __init__(self, **kw):
 	import SCons.Defaults

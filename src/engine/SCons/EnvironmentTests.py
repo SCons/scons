@@ -269,6 +269,18 @@ class EnvironmentTestCase(unittest.TestCase):
         assert env.Dictionary('_LIBFLAGS')[2] == 'foobazbar', \
                env.Dictionary('_LIBFLAGS')[2]
 
+        env = Environment(CPPPATH = [ 'foo', 'bar', 'baz' ],
+                          INCPREFIX = 'foo',
+                          INCSUFFIX = 'bar')
+        assert len(env.Dictionary('_INCFLAGS')) == 3, env.Dictionary('_INCFLAGS')
+        assert env.Dictionary('_INCFLAGS')[0] == 'foofoobar', \
+               env.Dictionary('_INCFLAGS')[0]
+        assert env.Dictionary('_INCFLAGS')[1] == 'foobarbar', \
+               env.Dictionary('_INCFLAGS')[1]
+        assert env.Dictionary('_INCFLAGS')[2] == 'foobazbar', \
+               env.Dictionary('_INCFLAGS')[2]
+        
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # Copyright (c) 2001 Steven Knight
 #
@@ -24,40 +23,44 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
+import SCons.Scanner
+import SCons.Node.FS
+import SCons.Util
 
-test = TestSCons.TestSCons()
+def ProgScan():
+    """Return a Scanner instance for scanning executable files
+    for static-lib dependencies"""
+    s = SCons.Scanner.Scanner(scan, SCons.Node.FS.default_fs.File)
+    s.name = "ProgScan"
+    return s
 
-test.write('SConstruct', """
-env = Environment(LIBS = [ 'foo1' ],
-                  LIBPATH = [ './libs' ])
-env.Program(target = 'prog', source = 'prog.c')
-env.Library(target = './libs/foo1', source = 'f1.c')
-""")
+def scan(filename, env, node_factory):
+    """
+    This scanner scans program files for static-library
+    dependencies.  It will search the LIBPATH environment variable
+    for libraries specified in the LIBS variable, returning any
+    files it finds as dependencies.
+    """
 
-test.write('f1.c', """
-void
-f1(void)
-{
-	printf("f1.c\n");
-}
-""")
+    try:
+        paths = env.Dictionary("LIBPATH")
+    except KeyError:
+        paths = []
 
-test.write('prog.c', """
-void f1(void);
-int
-main(int argc, char *argv[])
-{
-	argv[argc++] = "--";
-	f1();
-	printf("prog.c\n");
-        return 0;
-}
-""")
+    try:
+        libs = env.Dictionary("LIBS")
+    except KeyError:
+        libs = []
 
-test.run(arguments = 'prog')
+    try:
+        prefix = env.Dictionary("LIBPREFIX")
+    except KeyError:
+        prefix=''
 
-test.run(program = test.workpath('prog'),
-         stdout = "f1.c\nprog.c\n")
+    try:
+        suffix = env.Dictionary("LIBSUFFIX")
+    except KeyError:
+        suffix=''
 
-test.pass_test()
+    libs = map(lambda x, s=suffix, p=prefix: p + x + s, libs)
+    return SCons.Util.find_files(libs, paths, node_factory)

@@ -301,6 +301,12 @@ class FSTestCase(unittest.TestCase):
         f1.scan()
         assert f1.depends[0].path_ == "d1/f1"
 
+        # Test building a file whose directory is not there yet...
+        f1 = fs.File(test.workpath("foo/bar/baz/ack"))
+        assert not f1.dir.exists()
+        f1.build()
+        assert f1.dir.exists()
+        
         #XXX test exists()
 
         #XXX test current() for directories
