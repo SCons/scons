@@ -59,6 +59,7 @@ class Taskmaster:
 local_help = None
 num_jobs = 1
 Scripts = []
+include_dirs = []
 
 # utility functions
 
@@ -315,7 +316,11 @@ def options_init():
 	short = 'i', long = ['ignore-errors'],
 	help = "Ignore errors from build actions.")
 
-    Option(func = opt_not_yet,
+    def opt_I(opt, arg):
+	global include_dirs
+	include_dirs = include_dirs + [arg]
+
+    Option(func = opt_I,
 	short = 'I', long = ['include-dir'], arg = 'DIRECTORY',
 	help = "Search DIRECTORY for imported Python modules.")
 
@@ -503,6 +508,8 @@ def main():
     #    dirlist = dirlist + [dir]
     #
     #sys.path = dirlist
+
+    sys.path = include_dirs + sys.path
 
     # initialize node factory
     init()
