@@ -89,22 +89,23 @@ def SConscript(script, exports=[]):
     # push:
     stack.append(Frame(exports))
 
-    # call:
-    if script == "-":
-        exec sys.stdin in stack[-1].globals
-    else:
-        f = SCons.Node.FS.default_fs.File(script)
-        if f.exists():
-            file = open(str(f), "r")
-            SCons.Node.FS.default_fs.chdir(f.dir)
-            exec file in stack[-1].globals
+    try:
+        # call:
+        if script == "-":
+            exec sys.stdin in stack[-1].globals
         else:
-            sys.stderr.write("Ignoring missing SConscript '%s'\n" % f.path)
-    
-
-    # pop:
-    frame = stack.pop()
-    SCons.Node.FS.default_fs.chdir(frame.prev_dir)
+            if not isinstance(script, SCons.Node.Node):
+                script = SCons.Node.FS.default_fs.File(script)
+            if script.exists():
+                file = open(str(script), "r")
+                SCons.Node.FS.default_fs.chdir(script.dir)
+                exec file in stack[-1].globals
+            else:
+                sys.stderr.write("Ignoring missing SConscript '%s'\n" % script.path)
+    finally:
+        # pop:
+        frame = stack.pop()
+        SCons.Node.FS.default_fs.chdir(frame.prev_dir)
     
     return frame.retval
     
@@ -122,8 +123,8 @@ def Help(text):
         print "Use scons -H for help about command-line options."
         sys.exit(0)
 
-def BuildDir(build_dir, src_dir):
-    SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir)
+def BuildDir(build_dir, src_dir, duplicate=1):
+    SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)
 
 def GetBuildPath(files):
     nodes = SCons.Util.scons_str2nodes(files,
@@ -173,4 +174,6 @@ def BuildDefaultGlobals():
     globals['Export'] = Export
     globals['Import'] = Import
     globals['Return'] = Return
+    globals['Dir'] = SCons.Node.FS.default_fs.Dir
+    globals['File'] = SCons.Node.FS.default_fs.File
     return globals

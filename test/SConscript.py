@@ -59,6 +59,10 @@ Import("x1"," x2")
 assert x1 == "SConscript4 x1"
 assert x2 == "SConscript4 x2"
 
+subdir = Dir('subdir')
+script = File('SConscript', subdir)
+foo = SConscript(script)
+assert foo == "subdir/SConscript foo"
 """)
 
 test.write('SConscript', """
@@ -128,6 +132,11 @@ x2 = "SConscript4 x2"
 Export("x1", "x2")
 """)
 
+test.subdir('subdir')
+test.write(['subdir', 'SConscript'], """
+foo = 'subdir/SConscript foo'
+Return('foo')
+""")
 
 wpath = test.workpath()
 

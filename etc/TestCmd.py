@@ -564,8 +564,11 @@ class TestCmd:
 	    f = _mode_writable
 	else:
 	    f = _mode_non_writable
-	os.path.walk(top, _walk_chmod, f)
-
+	try:
+	    os.path.walk(top, _walk_chmod, f)
+	except:
+	    pass # ignore any problems changing modes
+	    
     def write(self, file, content, mode = 'wb'):
 	"""Writes the specified content text (second argument) to the
 	specified file name (first argument).  The file name may be

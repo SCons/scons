@@ -36,17 +36,29 @@ else:
 
 test = TestSCons.TestSCons()
 
-foo1 = test.workpath('build/var1/foo1' + _exe)
-foo2 = test.workpath('build/var1/foo2' + _exe)
-foo3 = test.workpath('build/var2/foo1' + _exe)
-foo4 = test.workpath('build/var2/foo2' + _exe)
+foo11 = test.workpath('build', 'var1', 'foo1' + _exe)
+foo12 = test.workpath('build', 'var1', 'foo2' + _exe)
+foo21 = test.workpath('build', 'var2', 'foo1' + _exe)
+foo22 = test.workpath('build', 'var2', 'foo2' + _exe)
+foo31 = test.workpath('build', 'var3', 'foo1' + _exe)
+foo32 = test.workpath('build', 'var3', 'foo2' + _exe)
 
 test.write('SConstruct', """
-BuildDir('build/var1', 'src')
-BuildDir('build/var2', 'src')
-SConscript('build/var1/SConscript')
-SConscript('build/var2/SConscript')
-""")
+src = Dir('src')
+var2 = Dir('build/var2')
+var3 = Dir('build/var3')
+
+BuildDir('build/var1', src)
+BuildDir(var2, src)
+BuildDir(var3, src, duplicate=0)
+
+env = Environment()
+SConscript('build/var1/SConscript', "env")
+SConscript('build/var2/SConscript', "env")
+
+env = Environment(CPPPATH=src)
+SConscript('build/var3/SConscript', "env")
+""") 
 
 test.subdir('src')
 test.write('src/SConscript', """
@@ -62,8 +74,7 @@ def buildIt(target, source, env):
     f2.close()
     f1.close()
     return 0
-
-env = Environment()
+Import("env")
 env.Command(target='f2.c', source='f2.in', action=buildIt)
 env.Program(target='foo2', source='f2.c')
 env.Program(target='foo1', source='f1.c')
@@ -103,9 +114,15 @@ test.write('src/f2.h', r"""
 
 test.run(arguments = '.')
 
-test.run(program = foo1, stdout = "f1.c\n")
-test.run(program = foo2, stdout = "f2.c\n")
-test.run(program = foo3, stdout = "f1.c\n")
-test.run(program = foo4, stdout = "f2.c\n")
+test.run(program = foo11, stdout = "f1.c\n")
+test.run(program = foo12, stdout = "f2.c\n")
+test.run(program = foo21, stdout = "f1.c\n")
+test.run(program = foo22, stdout = "f2.c\n")
+test.run(program = foo31, stdout = "f1.c\n")
+test.run(program = foo32, stdout = "f2.c\n")
+
+# Make sure we didn't duplicate the source files in build/var3.
+test.fail_test(os.path.exists(test.workpath('build', 'var3', 'f1.c')))
+test.fail_test(os.path.exists(test.workpath('build', 'var3', 'f2.in')))
 
 test.pass_test()

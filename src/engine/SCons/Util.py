@@ -37,6 +37,7 @@ import re
 from UserList import UserList
 import SCons.Node.FS
 import copy
+import SCons.Node
 
 def scons_str2nodes(arg, node_factory=SCons.Node.FS.default_fs.File):
     """This function converts a string or list into a list of Node instances.
@@ -199,7 +200,7 @@ def scons_subst_list(strSubst, locals, globals):
     n = 1
 
     # Tokenize the original string...
-    strSubst = _space_sep.sub('\0', strSubst)
+    strSubst = _space_sep.sub('\0', str(strSubst))
     
     # Now, do the substitution
     while n != 0:
@@ -266,7 +267,14 @@ class VarInterpolator:
         src = dict[self.src]
         if not type(src) is types.ListType and not isinstance(src, UserList):
             src = [ src ]
-        return map(lambda x, d=dict: scons_subst(x, {}, d), src)
+
+        def prepare(x, dict=dict):
+            if isinstance(x, SCons.Node.Node):
+                return x
+            else:
+                return scons_subst(x, {}, dict)
+
+        return map(prepare, src)
 
     def generate(self, dict):
         if not dict.has_key(self.src):
@@ -300,9 +308,14 @@ class DirVarInterp(VarInterpolator):
         
     def prepareSrc(self, dict):
         src = VarInterpolator.prepareSrc(self, dict)
-        return map(lambda x, fs=self.fs, d=self.dir: \
-                   fs.Dir(str(x), directory = d).path,
-                   src)
+	
+	def prepare(x, self=self):
+	    if not isinstance(x, SCons.Node.Node):
+		return self.fs.Dir(str(x), directory=self.dir)
+	    else:
+		return x
+	    
+        return map(prepare, src)
 
     def instance(self, dir, fs):
         try:

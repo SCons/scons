@@ -165,9 +165,10 @@ class UtilTestCase(unittest.TestCase):
         test = TestCmd.TestCmd(workdir = '')
         test.write('./foo', 'Some file\n')
         fs = SCons.Node.FS.FS(test.workpath(""))
+        os.chdir(test.workpath("")) # FS doesn't like the cwd to be something other than it's root
         node_derived = fs.File(test.workpath('./bar/baz'))
         node_derived.builder_set(1) # Any non-zero value.
-        paths = map(lambda x, fs=fs: fs.Dir(x), ['.', './bar'])
+        paths = map(fs.Dir, ['.', './bar'])
         nodes = find_files(['foo', 'baz'], paths, fs.File)
         file_names = map(str, nodes)
         file_names = map(os.path.normpath, file_names)
@@ -188,12 +189,13 @@ class UtilTestCase(unittest.TestCase):
         assert dict['_LIBFLAGS'][2] == 'foobazbar', \
                dict['_LIBFLAGS'][2]
 
-        dict = {'CPPPATH'   : [ 'foo', 'bar', 'baz', '$FOO/bar' ],
+        blat = SCons.Node.FS.default_fs.File('blat')
+        dict = {'CPPPATH'   : [ 'foo', 'bar', 'baz', '$FOO/bar', blat],
                 'INCPREFIX' : 'foo',
                 'INCSUFFIX' : 'bar',
                 'FOO'       : 'baz' }
         autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_INCFLAGS']) == 4, dict['_INCFLAGS']
+        assert len(dict['_INCFLAGS']) == 5, dict['_INCFLAGS']
         assert dict['_INCFLAGS'][0] == os.path.normpath('foo/xx/foobar'), \
                dict['_INCFLAGS'][0]
         assert dict['_INCFLAGS'][1] == os.path.normpath('foo/xx/barbar'), \
@@ -203,6 +205,8 @@ class UtilTestCase(unittest.TestCase):
         assert dict['_INCFLAGS'][3] == os.path.normpath('foo/xx/baz/barbar'), \
                dict['_INCFLAGS'][3]
         
+        assert dict['_INCFLAGS'][4] == os.path.normpath('fooblatbar'), \
+               dict['_INCFLAGS'][4]
         
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')

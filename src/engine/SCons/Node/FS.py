@@ -279,18 +279,20 @@ class FS:
         name, directory = self.__transformPath(name, directory)
         return self.__doLookup(Dir, name, directory)
 
-    def BuildDir(self, build_dir, src_dir):
+    def BuildDir(self, build_dir, src_dir, duplicate=1):
         """Link the supplied build directory to the source directory
         for purposes of building files."""
         self.__setTopLevelDir()
-        dirSrc = self.Dir(src_dir)
-        dirBuild = self.Dir(build_dir)
-        if not dirSrc.is_under(self.Top) or not dirBuild.is_under(self.Top):
+        if not isinstance(src_dir, SCons.Node.Node):
+            src_dir = self.Dir(src_dir)
+        if not isinstance(build_dir, SCons.Node.Node):
+            build_dir = self.Dir(build_dir)
+        build_dir.duplicate = duplicate
+        if not src_dir.is_under(self.Top) or not build_dir.is_under(self.Top):
             raise UserError, "Both source and build directories must be under top of build tree."
-        if dirSrc.is_under(dirBuild):
+        if src_dir.is_under(build_dir):
             raise UserError, "Source directory cannot be under build directory."
-        dirBuild.link(dirSrc)
-        
+        build_dir.link(src_dir, duplicate)
 
 class Entry(SCons.Node.Node):
     """A generic class for file system entries.  This class if for
@@ -309,6 +311,7 @@ class Entry(SCons.Node.Node):
 
         self.name = name
         if directory:
+            self.duplicate = directory.duplicate
             self.abspath = os.path.join(directory.abspath, name)
             if str(directory.path) == '.':
                 self.path = name
@@ -316,16 +319,18 @@ class Entry(SCons.Node.Node):
                 self.path = os.path.join(directory.path, name)
         else:
             self.abspath = self.path = name
+            self.duplicate = 1
         self.path_ = self.path
         self.abspath_ = self.abspath
         self.dir = directory
 	self.use_signature = 1
-        self.__doSrcpath()
+        self.__doSrcpath(self.duplicate)
 
-    def adjust_srcpath(self):
-        self.__doSrcpath()
+    def adjust_srcpath(self, duplicate):
+        self.__doSrcpath(duplicate)
         
-    def __doSrcpath(self):
+    def __doSrcpath(self, duplicate):
+        self.duplicate = duplicate
         if self.dir:
             if str(self.dir.srcpath) == '.':
                 self.srcpath = self.name
@@ -336,7 +341,10 @@ class Entry(SCons.Node.Node):
 
     def __str__(self):
 	"""A FS node's string representation is its path name."""
-	return self.path
+        if self.duplicate or self.builder:
+            return self.path
+        else:
+            return self.srcpath
 
     def __cmp__(self, other):
 	if type(self) != types.StringType and type(other) != types.StringType:
@@ -351,7 +359,7 @@ class Entry(SCons.Node.Node):
 	return hash(self.abspath_)
 
     def exists(self):
-        return os.path.exists(self.abspath)
+        return os.path.exists(str(self))
 
     def current(self):
         """If the underlying path doesn't exist, we know the node is
@@ -411,20 +419,20 @@ class Dir(Entry):
         self.builder = 1
         self._sconsign = None
 
-    def __doReparent(self):
+    def __doReparent(self, duplicate):
         for ent in self.entries.values():
             if not ent is self and not ent is self.dir:
-                ent.adjust_srcpath()
+                ent.adjust_srcpath(duplicate)
 
-    def adjust_srcpath(self):
-        Entry.adjust_srcpath(self)
-        self.__doReparent()
+    def adjust_srcpath(self, duplicate):
+        Entry.adjust_srcpath(self, duplicate)
+        self.__doReparent(duplicate)
                 
-    def link(self, srcdir):
+    def link(self, srcdir, duplicate):
         """Set this directory as the build directory for the
         supplied source directory."""
         self.srcpath = srcdir.path
-        self.__doReparent()
+        self.__doReparent(duplicate)
 
     def up(self):
         return self.entries['..']
@@ -526,7 +534,7 @@ class File(Entry):
 
     def get_timestamp(self):
         if self.exists():
-            return os.path.getmtime(self.path)
+            return os.path.getmtime(str(self))
         else:
             return 0
 
@@ -556,12 +564,12 @@ class File(Entry):
         if self.env:
             for scn in self.scanners:
                 if not self.scanned.has_key(scn):
-                    self.add_implicit(scn.scan(self.path, self.env),
-                                      scn)
+                    deps = scn.scan(str(self), self.env)
+                    self.add_implicit(deps,scn)
                     self.scanned[scn] = 1
                     
     def exists(self):
-        if not self.created:
+        if self.duplicate and not self.created:
             self.created = 1
             if self.srcpath != self.path and \
                os.path.exists(self.srcpath):

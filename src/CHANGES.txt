@@ -15,6 +15,11 @@ RELEASE 0.03 -
   - Search both /usr/lib and /usr/local/lib for scons directories by
     adding them both to sys.path, with whichever is in sys.prefix first.
 
+  From Anthony Roach:
+
+  - Add a "duplicate" keyword argument to BuildDir() that can be set
+    to prevent linking/copying source files into build directories.
+
 
 
 RELEASE 0.02 - Sun, 23 Dec 2001 19:05:09 -0600

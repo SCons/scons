@@ -78,23 +78,29 @@ is normally executed in a top-level directory containing a
 file, specifying the target or targets to be built as
 command-line arguments.  The command
 
-.RS
+.IP
+.nf
 scons .
-.RE
+.PP
+.fi
 
 will build all target files in or below the current directory 
 .RI ( . ")."
 
-.RS
+.IP
+.nf
 scons /
-.RE
+.PP
+.fi
 
 will build all target files in or below the root directory (i.e.,
 all files).  Specific targets may be supplied:
 
-.RS
+.IP
+.nf
 scons foo bar
-.RE
+.PP
+.fi
 
 Targets may be omitted from the command line,
 in which case the targets specified
@@ -102,9 +108,11 @@ in the configuration file(s) as
 .B Default
 targets will be built:
 
-.RS
+.IP
+.nf
 scons
-.RE
+.PP
+.fi
 
 Specifying "cleanup" targets in configuration files is not
 necessary.  The 
@@ -112,12 +120,16 @@ necessary.  The
 flag removes all files
 necessary to build the specified target:
 .IP
+.nf
 scons -c .
 .PP
+.fi
 to remove all target files, or:
 .IP
+.nf
 scons -c build export
 .PP
+.fi
 to remove target files under build and export.
 
 A subset of a hierarchical tree may be built by
@@ -126,9 +138,11 @@ remaining at the top-level directory (where the
 file lives) and specifying the subdirectory as the target to be
 built:
 
-.RS
+.IP
+.nf
 scons src/subdir
-.RE
+.PP
+.fi
 
 .\" or changing directory and invoking scons with the
 .\" .B -u
@@ -151,18 +165,22 @@ supports building multiple targets in parallel via a
 option that takes, as its argument, the number
 of simultaneous tasks that may be spawned:
 
-.RS
+.IP
+.nf
 scons -j 4
-.RE
+.PP
+.fi
 
 builds four targets in parallel, for example.
 
 .\" Values of variables to be passed to the configuration file(s)
 .\" may be specified on the command line:
 .\" 
-.\" .RS
+.\" .IP
+.\" .nf
 .\" scons debug=1 .
-.\" .RE
+.\" .PP
+.\" .fi
 .\" 
 .\" These variables can be used in the configuration file(s) to modify
 .\" the build in any way.
@@ -375,9 +393,11 @@ any out-of-date target files, but do not execute the commands.
 .\" option.
 .\"
 .\" To print the database without performing a build do:
-.\" .RS
+.\" .IP
+.\" .nf
 .\" scons -p -q
-.\" .RE
+.\" .PP
+.\" .fi
 .\"
 .\" .IP "-q, --question"
 .\" Do not run any commands, or print anything.  Just return an exit
@@ -469,9 +489,11 @@ A new construction environment is created using the
 .B Environment 
 function:
 
-.RS 
+.IP
+.nf 
 env = Environment()
-.RE
+.PP
+.fi
 
 Build rules are specified by calling builder methods on a construction
 environment. The arguments to the builder methods are target (a list of
@@ -481,15 +503,13 @@ for target or source, then
 interprets it as a space delimited list
 of files. The following are examples of calling a builder:
 
-.RS
+.IP
+.nf
 env.Program(target = 'bar', source = 'bar.c foo.c')
-.RE
-.RS
 env.Program('bar', 'bar.c foo.c')
-.RE
-.RS
 env.Program('bar', ['bar.c', 'foo.c'])
-.RE
+.PP
+.fi
 
 .B scons
 provides the following builders:
@@ -498,30 +518,33 @@ Builds an object file from one or more C/C++ source files. Source files
 must have one of the following extensions: .c, .C, .cc, .cpp, .cxx, .c++, .C++. 
 The target object file prefix and suffix (if any) are automatically
 added. Example:
-
-.RS
+.IP
+.nf
 env.Object(target = 'bar', source = 'bar.c')
-.RE
+.PP
+.fi
 
 .IP Program
 Builds an executable given one or more object files or C/C++ source
 files. If any C/C++ source files are given, then they will be automatically
 compiled to object files. The executable prefix and suffix (if any) are
 automatically added to the target. Example:
-
-.RS
+.IP
+.nf
 env.Program(target = 'bar', source = 'bar.c foo.o')
-.RE
+.PP
+.fi
 
 .IP Library
 Builds a library given one or more object files or C/C++ source
 files. If any C/C++ source files are given, then they will be automatically
 compiled to object files. The library prefix and suffix (if any) are
 automatically added to the target. Example:
-
-.RS
+.IP
+.nf
 env.Library(target = 'bar', source = 'bar.c foo.o')
-.RE
+.PP
+.fi
 
 .LP
 
@@ -533,9 +556,11 @@ be specified using the
 .B Depends 
 method of a construction environment:
 
-.RS
+.IP
+.nf
 env.Depends('foo.c', 'foo.h')
-.RE
+.PP
+.fi
 
 When
 .B scons
@@ -544,18 +569,22 @@ line. Default targets can be specified using the
 .B Default 
 function:
 
-.RS
+.IP
+.nf
 Default('foo', 'bar', 'baz')
-.RE
+.PP
+.fi
 
 A configuration file can specify other configuration files to execute using
 the 
 .B SConscript 
 function:
 
-.RS
+.IP
+.nf
 SConscript('dir/SConscript')
-.RE
+.PP
+.fi
 
 A construction environment has an associated dictionary of construction
 variables that are used by built-in or user-supplied build rules. A number
@@ -587,7 +616,28 @@ The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
 arguments in CCFLAGS or CXXFLAGS because the result will be non-portable
-and the directories will not be searched by the depedency scanner.
+and the directories will not be searched by the depedency scanner. Note:
+directory names in CPPPATH will be looked-up relative to the SConscript
+directory when they are used in a command. To force 
+.B scons
+to look-up a directory relative to the root of the source tree use #:
+.IP
+.nf
+env.Environment(CPPPATH='#/include')
+.PP
+.fi
+.RS
+The directory look-up can also be forced using the 
+.BR Dir ()
+function:
+.RE
+.IP
+.nf
+include = Dir('include')
+env.Environment(CPPPATH=include)
+.PP
+.fi
+.RE
 
 .IP LINK
 The linker.
@@ -660,27 +710,31 @@ Construction variables can be retrieved and set using the
 .B Dictionary 
 method of the construction environment:
 
-.RS
+.IP
+.nf
 dict = env.Dictionary()
-.RE
-.RS
 dict["CC"] = "cc"
-.RE
+.PP
+.fi
 
 Construction variables can also be passed to the construction environment
 constructor:
 
-.RS
+.IP
+.nf
 env = Environment(CC="cc")
-.RE
+.PP
+.fi
 
 or when copying a construction environment using the 
 .B Copy 
 method:
 
-.RS
+.IP
+.nf
 env2 = env.Copy(CC="cl.exe")
-.RE
+.PP
+.fi
 
 .B scons
 also provides various function not associated with a construction
@@ -708,9 +762,11 @@ will be returned by the call to
 .BR SConscript (). 
 Example:
 
-.RS
+.IP
+.nf
 foo = SConscript('subdir/SConscript', "env")
-.RE
+.PP
+.fi
 
 .TP
 .RI Export( vars )
@@ -724,9 +780,11 @@ Multiple variable names can be passed to
 .BR Export ()
 in a space delimited string or as seperate arguments. Example:
 
-.RS
+.IP
+.nf
 Export("env")
-.RE
+.PP
+.fi
 
 .TP 
 .RI Import( vars )
@@ -745,9 +803,11 @@ have precedence. Multiple variable names can be passed to
 .BR Import ()
 in a space delimited string or as seperate arguments. Example:
 
-.RS
+.IP
+.nf
 Import("env")
-.RE
+.PP
+.fi
 
 .TP
 .RI Return( vars )
@@ -761,9 +821,11 @@ Multiple variable names can be passed to
 .BR Return ()
 in a space delimited string or as seperate arguments. Example:
 
-.RS
+.IP
+.nf
 Return("foo")
-.RE
+.PP
+.fi
 
 .TP 
 .RI Default( targets )
@@ -786,7 +848,7 @@ argument is given to
 will exit after printing out the help text.
 
 .TP
-.RI BuildDir( build_dir ", " src_dir )
+.RI BuildDir( build_dir ", " src_dir ", [" duplicate ])
 This specifies a build directory to use for all derived files.  
 .I build_dir
 specifies the build directory to be used for all derived files that would
@@ -796,11 +858,37 @@ Multiple build directories can be set up for multiple build variants, for
 example. 
 .B scons
 will link or copy (depending on the platform) all the source files into the
-build directory, so the build commands will not be modifed if 
-.BR BuildDir ()
-is used.
+build directory if 
+.I duplicate
+is set to 1 (the default). If 
+.I duplicate
+is set to 0, then 
+.B scons 
+will not copy or link any source files, which may cause build problems in
+certain situations (e.g. C source files that are generated by the
+build). 
+.IR duplicate =0
+is usually safe, and is always more efficient than 
+.IR duplicate =1.
+
+.TP
+.RI Dir( name ", [" directory ])
+This returns an object that represents a given directory 
+.IR name . 
+.I name
+can be a relative or absolute path. 
+.I directory
+is an optional directory that will be used as the parent directory. 
 
 
+.TP 
+.RI File( name ", [" directory ])
+This returns an object that represents a given file 
+.IR name . 
+.I name
+can be a relative or absolute path. 
+.I directory
+is an optional directory that will be used as the parent directory. 
 
 
 .SH EXTENDING
@@ -860,15 +948,19 @@ The file names of the sources of the build command.
 For example, given the construction variable CC='cc', targets=['foo'], and
 sources=['foo.c', 'bar.c']:
 
-.RS
+.IP
+.nf
 action='$CC -c -o $TARGET $SOURCES'
-.RE
+.PP
+.fi
 
 would produce the command line:
 
-.RS
+.IP
+.nf
 cc -c -o foo foo.c bar.c
-.RE
+.PP
+.fi
 
 .\" XXX document how to add user defined scanners. 
 

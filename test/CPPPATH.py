@@ -35,8 +35,9 @@ else:
 
 prog = 'prog' + _exe
 subdir_prog = os.path.join('subdir', 'prog' + _exe)
+variant_prog = os.path.join('variant', 'prog' + _exe)
 
-args = prog + ' ' + subdir_prog
+args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
 test = TestSCons.TestSCons()
 
@@ -47,6 +48,11 @@ env = Environment(CPPPATH = ['include'])
 obj = env.Object(target='prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
+
+BuildDir('variant', 'subdir', 0)
+include = Dir('include')
+env = Environment(CPPPATH=[include])
+SConscript('variant/SConscript', "env")
 """)
 
 test.write(['subdir', 'SConscript'], """
@@ -93,7 +99,7 @@ r"""
 
 
 
-test.run(arguments = args, stderr = None)
+test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
          stdout = "subdir/prog.c\ninclude/foo.h 1\ninclude/bar.h 1\n")
@@ -101,9 +107,13 @@ test.run(program = test.workpath(prog),
 test.run(program = test.workpath(subdir_prog),
          stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
 
+test.run(program = test.workpath(variant_prog),
+         stdout = "subdir/prog.c\ninclude/foo.h 1\ninclude/bar.h 1\n")
+
+# Make sure we didn't duplicate the source file in the variant subdirectory.
+test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
+
 test.up_to_date(arguments = args)
-
-
 
 test.unlink('include/foo.h')
 test.write('include/foo.h',
@@ -120,8 +130,13 @@ test.run(program = test.workpath(prog),
 test.run(program = test.workpath(subdir_prog),
          stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
 
-test.up_to_date(arguments = args)
+test.run(program = test.workpath(variant_prog),
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 1\n")
 
+# Make sure we didn't duplicate the source file in the variant subdirectory.
+test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
+
+test.up_to_date(arguments = args)
 
 
 test.unlink('include/bar.h')
@@ -130,7 +145,7 @@ r"""
 #define BAR_STRING "include/bar.h 2\n"
 """)
 
-test.run(arguments = prog)
+test.run(arguments = args)
 
 test.run(program = test.workpath(prog),
          stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 2\n")
@@ -138,6 +153,12 @@ test.run(program = test.workpath(prog),
 test.run(program = test.workpath(subdir_prog),
          stdout = "subdir/prog.c\nsubdir/include/foo.h 1\nsubdir/include/bar.h 1\n")
 
-test.up_to_date(arguments = prog)
+test.run(program = test.workpath(variant_prog),
+         stdout = "subdir/prog.c\ninclude/foo.h 2\ninclude/bar.h 2\n")
+
+# Make sure we didn't duplicate the source file in the variant subdirectory.
+test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
+
+test.up_to_date(arguments = args)
 
 test.pass_test()
