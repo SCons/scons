@@ -27,13 +27,11 @@ etc/
         their own just to help out with SCons development.
 
 runtest.py
-runtest.sh
-        Scripts for running our tests.  The Python version is used
-        by Aegis for running tests against a copy of the source as
-        extracted from an archive.  The shell version runs tests against
-        the local src/ tree, so you don't have to do a build before
-        testing your changes.  (Hmm, that should probably just be an
-        option to runtest.py...)
+	Script for running our tests.  By default, this will run a
+	test against the code in the local src/ tree, so you don't
+	have to do a build before testing your changes.  Aegis uses
+	it with an option that requires that you've done a build
+	(aeb) before running tests.
 
 src/
 	Where the actual source code is kept, of course.

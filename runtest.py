@@ -1,4 +1,38 @@
 #!/usr/bin/env python
+#
+# runtests.py - wrapper script for running SCons tests
+#
+# This script mainly exists to set PYTHONPATH to the right list of
+# directories to test the SCons modules.
+#
+# By default, it directly uses the modules in the local tree:
+# ./src/ (source files we ship) and ./etc/ (other modules we don't)
+#
+# When "-b aegis" is specified, it assumes it's in a directory
+# in which an Aegis build (aeb) has been performed, and sets
+# PYTHONPATH so that it *only* references the modules that have
+# unpacked from the built packages, to test whether the packages
+# are good.
+#
+# Options:
+#
+#	-a		Run all tests; does a virtual 'find' for
+#			all SCons tests under the current directory.
+#
+#	-b system	Assume you're in the specified built system.
+#			'aegis' is the only one currently defined.
+#
+#	-d		Debug.  Runs the script under the Python
+#			debugger (pdb.py) so you don't have to
+#			muck with PYTHONPATH yourself.
+#
+#	-q		Quiet.  By default, runtest.py prints the
+#			command line it will execute before
+#			executing it.  This suppresses that print.
+#
+#	-v		Version.  Specifies the version number to
+#			be used for Aegis interaction.
+#
 
 import getopt
 import os
@@ -11,15 +45,21 @@ all = 0
 build = None
 debug = ''
 tests = []
+printcmd = 1
 version = None
 
-opts, tests = getopt.getopt(sys.argv[1:], "ab:dv:",
-			    ['all','build=','debug','version='])
+opts, tests = getopt.getopt(sys.argv[1:], "ab:dqv:",
+			    ['all','build=','debug','quiet','version='])
 
 for o, a in opts:
     if o == '-a' or o == '--all': all = 1
-    elif o == '-b' or o == '-build': build = a
-    elif o == '-d' or o == '--debug': debug = "/usr/lib/python1.5/pdb.py"
+    elif o == '-b' or o == '--build': build = a
+    elif o == '-d' or o == '--debug': debug = os.path.join(
+					sys.exec_prefix,
+					"lib",
+					"python" + sys.version[0:3],
+					"pdb.py")
+    elif o == '-q' or o == '--quiet': printcmd = 0
     elif o == '-v' or o == '--version': version = a
 
 cwd = os.getcwd()
@@ -85,7 +125,7 @@ for path in tests:
     else:
 	abs = os.path.join(cwd, path)
     cmd = string.join(["python", debug, abs], " ")
-    if all:
+    if printcmd:
 	print cmd
     if os.system(cmd):
 	fail.append(path)
