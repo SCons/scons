@@ -94,6 +94,9 @@ RELEASE 0.97 - XXX
   - Enhance ParseConfig() to work properly for spaces in between the -I,
     -L and -l options and their arguments.
 
+  - Packaging build fix:  Rebuild the files that are use to report the
+    --version of SCons whenever the development version number changes.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
