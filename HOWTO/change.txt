@@ -30,28 +30,28 @@ Handling a change set:
 
     --	Distribute the change to scons-aedist:
 
-		aedist -s -p scons.0.93 {cnum} > scons.0.93.C{cnum}.ae
-		pine -attach scons.0.93.C{cnum}.ae scons-aedist@lists.sourceforge.net
-			Subject: scons.0.93 - {SUMMARY}
-			Body:  aegis -l -p scons.0.93 -c {cnum} cd
+		aedist -s -p scons.0.95 {cnum} > scons.0.95.C{cnum}.ae
+		pine -attach scons.0.95.C{cnum}.ae scons-aedist@lists.sourceforge.net
+			Subject: scons.0.95 - {SUMMARY}
+			Body:  aegis -l -p scons.0.95 -c {cnum} cd
 
-		rm scons.0.93.C{cnum}.ae
+		rm scons.0.95.C{cnum}.ae
 
 	[This will eventually be automated.]
 
     --	Update the aedist baseline on the web site:
 
-		aedist -s -bl -p scons.0.93 > scons.0.93.ae
-		scp scons.0.93.ae stevenknight@scons.sourceforge.net:/home/groups/s/sc/scons/htdocs/scons.0.93.ae
-		rm scons.0.93.ae
+		aedist -s -bl -p scons.0.95 > scons.0.95.ae
+		scp scons.0.95.ae stevenknight@scons.sourceforge.net:/home/groups/s/sc/scons/htdocs/scons.0.95.ae
+		rm scons.0.95.ae
 
 	[This will eventually be automated.]
 
     --	Distribute the change to CVS:
 
 		export CVS_RSH=ssh
-    		ae2cvs -n -aegis -p scons.0.93 -c {cnum} -u ~/SCons/scons
-    		ae2cvs -X -aegis -p scons.0.93 -c {cnum} -u ~/SCons/scons
+    		ae2cvs -n -aegis -p scons.0.95 -c {cnum} -u ~/SCons/scons
+    		ae2cvs -X -aegis -p scons.0.95 -c {cnum} -u ~/SCons/scons
 
         If you need the "ae2cvs" Perl script, you can find a copy
         checked in to the bin/subdirectory.
