@@ -1497,11 +1497,12 @@ class File(Base):
             path = scanner.path(env, target.cwd)
             target.scanner_paths[scanner] = path
 
+        key = str(id(env)) + '|' + str(id(scanner)) + '|' + string.join(map(str,path), ':')
         try:
-            includes = self.found_includes[path]
+            includes = self.found_includes[key]
         except KeyError:
             includes = scanner(self, env, path)
-            self.found_includes[path] = includes
+            self.found_includes[key] = includes
 
         return includes
 

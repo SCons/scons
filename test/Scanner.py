@@ -232,4 +232,82 @@ test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\n
 
 test.up_to_date(arguments = 'foo')
 
+# Now make sure that using the same source file in different
+# environments will get the proper scanner for the environment being
+# used.
+
+test.write('SConstruct2', """
+import re
+
+include_re = re.compile(r'^include\s+(\S+)$', re.M)
+input_re = re.compile(r'^input\s+(\S+)$', re.M)
+
+scan1 = Scanner(name = 'Include',
+                function = lambda N,E,P,A: A.findall(N.get_contents()),
+                argument = include_re,
+                skeys = ['.inp'])
+
+scan2 = Scanner(name = 'Input',
+                function = lambda N,E,P,A: A.findall(N.get_contents()),
+                argument = input_re,
+                skeys = ['.inp'])
+
+env1 = Environment()
+env2 = Environment()
+
+env1.Append(SCANNERS=scan1)
+env2.Append(SCANNERS=scan2)
+
+env1.Command('frog.1', 'frog.inp', r'%(python)s do_incl.py $TARGET $SOURCES')
+env2.Command('frog.2', 'frog.inp', r'%(python)s do_inp.py $TARGET $SOURCES')
+
+"""%{'python':python})
+
+process = r"""
+import sys
+
+def process(infp, outfp):
+    prefix = '%(command)s '
+    l = len(prefix)
+    for line in infp.readlines():
+        if line[:l] == prefix:
+            process(open(line[l:-1], 'rb'), outfp)
+        else:
+            outfp.write(line)
+
+process(open(sys.argv[2], 'rb'),
+        open(sys.argv[1], 'wb'))
+sys.exit(0)
+"""
+
+test.write('do_incl.py', process % { 'command' : 'include' })
+test.write('do_inp.py', process % { 'command' : 'input' })
+
+test.write('frog.inp', """\
+include sound1
+input sound2
+""")
+
+test.write('sound1', 'croak\n')
+test.write('sound2', 'ribbet\n')
+
+test.run(arguments='-f SConstruct2 .',
+stdout=test.wrap_stdout("""\
+%(python)s do_incl.py frog.1 frog.inp
+%(python)s do_inp.py frog.2 frog.inp
+""" % { 'python':python }))
+
+test.must_match('frog.1', 'croak\ninput sound2\n')
+test.must_match('frog.2', 'include sound1\nribbet\n')
+
+test.write('sound2', 'rudeep\n')
+
+test.run(arguments='-f SConstruct2 .',
+stdout=test.wrap_stdout("""\
+%(python)s do_inp.py frog.2 frog.inp
+""" % { 'python':python }))
+
+test.must_match('frog.1', 'croak\ninput sound2\n')
+test.must_match('frog.2', 'include sound1\nrudeep\n')
+
 test.pass_test()
