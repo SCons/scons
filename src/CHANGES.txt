@@ -332,7 +332,9 @@ RELEASE 0.97 - XXX
 
   - Internal cleanups:  Remove an unnecessary scan argument.  Associate
     Scanners only with Builders, not nodes.  Apply overrides once when a
-    Builder is called, not in multiple places.
+    Builder is called, not in multiple places.  Cache results from
+    the Node.FS.get_suffix() and Node.get_build_env() methods.  Use
+    the Python md5 modules' hexdigest() method, if there is one.
 
   - Use the correct scanner if the same source file is used for targets in
     two different environments with the same path but different scanners.
