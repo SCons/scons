@@ -65,7 +65,8 @@ def cat(env, source, target):
         f.write(open(src, "rb").read())
     f.close()
 
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(BUILDERS={'Cat':Builder(action=cat)},
+                  BUILD='build')
 
 Export("env")
 
@@ -84,7 +85,7 @@ SConscript('src/SConscript', build_dir='build/var3', duplicate=0)
 SConscript('src/SConscript', build_dir=var6)
 
 SConscript('src/SConscript', build_dir=var7, src_dir=src, duplicate=0)
-SConscript('src/SConscript', build_dir='../build/var8', duplicate=0)
+env.SConscript('src/SConscript', build_dir='../$BUILD/var8', duplicate=0)
 
 # This tests the fact that if you specify a src_dir that is above
 # the dir a SConscript is in, that we do the intuitive thing, i.e.,

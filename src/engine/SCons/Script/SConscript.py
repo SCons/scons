@@ -433,7 +433,12 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def SConscript(self, *ls, **kw):
         ls = map(lambda l, self=self: self.subst(l), ls)
-        return apply(_SConscript, [self.fs,] + ls, kw)
+        subst_kw = {}
+        for key, val in kw.items():
+            if SCons.Util.is_String(val):
+                val = self.subst(val)
+            subst_kw[key] = val
+        return apply(_SConscript, [self.fs,] + ls, subst_kw)
 
     def SetOption(self, name, value):
         name = self.subst(name)
