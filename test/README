@@ -27,7 +27,7 @@ are either:
 
 The upshot is that you should be able to:
 
-	egrep -l '#XXX' test/*.c
+	egrep -l '#XXX' test/*.py
 
 and see a list of the tests we still have to make work in order to get
 the next release out the door.
