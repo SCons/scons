@@ -172,19 +172,22 @@ x86 = (sys.platform == 'win32' or string.find(sys.platform, 'linux') != -1)
 
 if as and x86:
 
-    test.write("wrapper.py",
-"""import os
+    test.write("wrapper.py", """\
+import os
 import string
 import sys
-open('%s', 'wb').write("wrapper.py\\n")
-os.system(string.join(sys.argv[1:], " "))
+open('%s', 'wb').write("wrapper.py: %%s\\n" %% sys.argv[-1])
+cmd = string.join(sys.argv[1:])
+os.system(cmd)
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
-    test.write('SConstruct', """
+    test.write('SConstruct', """\
 aaa = Environment()
 bbb = aaa.Copy(AS = r'%s wrapper.py ' + WhereIs('as'))
+ccc = aaa.Copy(CPPPATH=['.'])
 aaa.Program(target = 'aaa', source = ['aaa.s', 'aaa_main.c'])
 bbb.Program(target = 'bbb', source = ['bbb.s', 'bbb_main.c'])
+ccc.Program(target = 'ccc', source = ['ccc.S', 'ccc_main.c'])
 """ % python)
 
     test.write('aaa.s', 
@@ -197,13 +200,28 @@ name:
 	.byte	0
 """)
 
-    test.write('bbb.s', 
-"""        .file   "bbb.s"
+    test.write('bbb.s', """\
+.file   "bbb.s"
 .data
 .align 4
 .globl name
 name:
         .ascii	"bbb.s"
+	.byte	0
+""")
+
+    test.write('ccc.h', """\
+#define STRING  "ccc.S"
+""")
+
+    test.write('ccc.S', """\
+#include <ccc.h>
+.file   STRING
+.data
+.align 4
+.globl name
+name:
+        .ascii	STRING
 	.byte	0
 """)
 
@@ -231,17 +249,44 @@ main(int argc, char *argv[])
 }
 """)
 
-    test.run(arguments = 'aaa' + _exe, stderr = None)
+    test.write('ccc_main.c', r"""
+extern char name[];
+
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = "--";
+        printf("ccc_main.c %s\n", name);
+        exit (0);
+}
+""")
+
+    test.write('ddd_main.c', r"""
+extern char name[];
+
+int
+main(int argc, char *argv[])
+{
+        argv[argc++] = "--";
+        printf("ddd_main.c %s\n", name);
+        exit (0);
+}
+""")
+
+    test.run()
 
     test.run(program = test.workpath('aaa'), stdout =  "aaa_main.c aaa.s\n")
-
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-
-    test.run(arguments = 'bbb' + _exe)
-
     test.run(program = test.workpath('bbb'), stdout =  "bbb_main.c bbb.s\n")
+    test.run(program = test.workpath('ccc'), stdout =  "ccc_main.c ccc.S\n")
 
-    test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
+    test.fail_test(test.read('wrapper.out') != "wrapper.py: bbb.s\n")
+
+    test.write("ccc.h", """\
+#define STRING  "ccc.S 2"
+""")
+
+    test.run()
+    test.run(program = test.workpath('ccc'), stdout =  "ccc_main.c ccc.S 2\n")
 
     test.unlink('wrapper.out')
 

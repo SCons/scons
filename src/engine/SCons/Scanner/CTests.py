@@ -194,13 +194,13 @@ class DummyEnvironment:
     def __delitem__(self,key):
         del self.Dictionary()[key]
 
-global my_normpath
-my_normpath = os.path.normpath
 if os.path.normcase('foo') == os.path.normcase('FOO'):
-    global my_normpath
     my_normpath = os.path.normcase
+else:
+    my_normpath = os.path.normpath
 
 def deps_match(self, deps, headers):
+    global my_normpath
     scanned = map(my_normpath, map(str, deps))
     expect = map(my_normpath, headers)
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
@@ -393,7 +393,19 @@ class CScannerTestCase14(unittest.TestCase):
         deps = s(make_node('f5.c'), env, path)
         headers = ['f5a.h', 'f5b.h']
         deps_match(self, deps, map(test.workpath, headers))
-        
+
+class CScannerTestCase15(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment([])
+        s = SCons.Scanner.C.CScan()
+        suffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+                    ".h", ".H", ".hxx", ".hpp", ".hh",
+                    ".F", ".fpp", ".FPP",
+                    ".S", ".spp", ".SPP"]
+        for suffix in suffixes:
+            assert suffix in s.skeys, "%s not in skeys" % suffix
+
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -410,6 +422,7 @@ def suite():
     suite.addTest(CScannerTestCase12())
     suite.addTest(CScannerTestCase13())
     suite.addTest(CScannerTestCase14())
+    suite.addTest(CScannerTestCase15())
     return suite
 
 if __name__ == "__main__":

@@ -38,7 +38,8 @@ def CScan(fs = SCons.Node.FS.default_fs):
     cs = SCons.Scanner.ClassicCPP("CScan",
                                   [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
                                    ".h", ".H", ".hxx", ".hpp", ".hh",
-                                   ".F", ".fpp", ".FPP"],
+                                   ".F", ".fpp", ".FPP",
+                                   ".S", ".spp", ".SPP"],
                                   "CPPPATH",
                                   '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")',
                                   fs = fs)
