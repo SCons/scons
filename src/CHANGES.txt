@@ -112,6 +112,9 @@ RELEASE 0.95 - XXX
   - Fix the env.Action() method so it returns the correct type of
     Action for its argument(s).
 
+  - Fix specifying .class files as input to JavaH with the .class suffix
+    when they weren't generated using the Java Builder.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.
