@@ -218,6 +218,8 @@ RELEASE 0.95 - XXX
   - Have ParseConfig() add a returned -pthread flag to both $CCFLAGS
     and $LINKFLAGS.
 
+  - Fix some test portability issues on Mac OS X (darwin).
+
   From Simon Perkins:
 
   - Fix a bug introduced in building shared libraries under MinGW.
