@@ -31,6 +31,8 @@ RELEASE 0.04 -
   - Add 'Action' and 'Scanner' to the global keywords so SConscript
     files can use them too.
 
+  - Removed the Wrapper class between Nodes and Walkers.
+
 
 
 RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600

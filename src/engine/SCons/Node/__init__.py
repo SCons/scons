@@ -59,6 +59,7 @@ class Node:
         self.depends = []       # explicit dependencies (from Depends)
         self.implicit = {}	# implicit (scanned) dependencies
         self.parents = []
+        self.wkids = None       # Kids yet to walk, when it's an array
 	self.builder = None
         self.scanners = []
         self.scanned = {}
@@ -217,16 +218,6 @@ class Node:
 def get_children(node): return node.children()
 def ignore_cycle(node, stack): pass
 
-class Wrapper:
-    def __init__(self, node, kids_func):
-        self.node = node
-        self.kids = copy.copy(kids_func(node))
-
-        # XXX randomize kids here, if requested
-
-    def __str__(self):
-        return str(self.node)
-
 class Walker:
     """An iterator for walking a Node tree.
 
@@ -244,7 +235,8 @@ class Walker:
     def __init__(self, node, kids_func=get_children, cycle_func=ignore_cycle):
         self.kids_func = kids_func
         self.cycle_func = cycle_func
-        self.stack = [Wrapper(node, self.kids_func)]
+        node.wkids = copy.copy(kids_func(node))
+        self.stack = [node]
         self.history = {} # used to efficiently detect and avoid cycles
         self.history[node] = None
 
@@ -256,15 +248,18 @@ class Walker:
 	"""
 
 	while self.stack:
-	    if self.stack[-1].kids:
-                node = self.stack[-1].kids.pop(0)
+            if self.stack[-1].wkids:
+                node = self.stack[-1].wkids.pop(0)
+                if not self.stack[-1].wkids:
+                    self.stack[-1].wkids = None
                 if self.history.has_key(node):
                     self.cycle_func(node, self.stack)
                 else:
-                    self.stack.append(Wrapper(node, self.kids_func))
+                    node.wkids = copy.copy(self.kids_func(node))
+                    self.stack.append(node)
                     self.history[node] = None
             else:
-                node = self.stack.pop().node
+                node = self.stack.pop()
                 del self.history[node]
                 return node
 
