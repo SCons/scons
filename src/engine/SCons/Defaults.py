@@ -101,6 +101,8 @@ CXXFile = SCons.Builder.Builder(name = 'CXXFile',
                                 emitter = yaccEmitter,
                                 suffix = '$CXXFILESUFFIX')
 
+CAction = SCons.Action.Action("$CCCOM")
+ShCAction = SCons.Action.Action("$SHCCCOM")
 CXXAction = SCons.Action.Action("$CXXCOM")
 ShCXXAction = SCons.Action.Action("$SHCXXCOM")
 F77Action = SCons.Action.Action("$F77COM")
@@ -108,30 +110,46 @@ ShF77Action = SCons.Action.Action("$SHF77COM")
 F77PPAction = SCons.Action.Action("$F77PPCOM")
 ShF77PPAction = SCons.Action.Action("$SHF77PPCOM")
 
-shared_obj = SCons.Builder.DictCmdGenerator({ ".C"   : ShCXXAction,
+if os.path.normcase('.c') == os.path.normcase('.C'):
+    # We're on a case-insensitive system, so .[CF] (upper case)
+    # files should be treated like .[cf] (lower case) files.
+    C_static = CAction
+    C_shared = ShCAction
+    F_static = F77Action
+    F_shared = ShF77Action
+else:
+    # We're on a case-sensitive system, so .C (upper case) files
+    # are C++, and .F (upper case) files get run through the C
+    # preprocessor.
+    C_static = CXXAction
+    C_shared = ShCXXAction
+    F_static = F77PPAction
+    F_shared = ShF77PPAction
+
+shared_obj = SCons.Builder.DictCmdGenerator({ ".C"   : C_shared,
                                               ".cc"  : ShCXXAction,
                                               ".cpp" : ShCXXAction,
                                               ".cxx" : ShCXXAction,
                                               ".c++" : ShCXXAction,
                                               ".C++" : ShCXXAction,
-                                              ".c"   : "$SHCCCOM",
+                                              ".c"   : ShCAction,
                                               ".f"   : ShF77Action,
                                               ".for" : ShF77Action,
                                               ".FOR" : ShF77Action,
-                                              ".F"   : ShF77PPAction,
+                                              ".F"   : F_shared,
                                               ".fpp" : ShF77PPAction,
                                               ".FPP" : ShF77PPAction })
 
-static_obj = SCons.Builder.DictCmdGenerator({ ".C"   : CXXAction,
+static_obj = SCons.Builder.DictCmdGenerator({ ".C"   : C_static,
                                               ".cc"  : CXXAction,
                                               ".cpp" : CXXAction,
                                               ".cxx" : CXXAction,
                                               ".c++" : CXXAction,
                                               ".C++" : CXXAction,
-                                              ".c"   : "$CCCOM",
+                                              ".c"   : CAction,
                                               ".f"   : F77Action,
                                               ".for" : F77Action,
-                                              ".F"   : F77PPAction,
+                                              ".F"   : F_static,
                                               ".FOR" : F77Action,
                                               ".fpp" : F77PPAction,
                                               ".FPP" : F77PPAction })

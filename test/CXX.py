@@ -60,7 +60,7 @@ for l in infile.readlines():
 sys.exit(0)
 """)
 
-    test.write('mycc.py', r"""
+    test.write('myc++.py', r"""
 import sys
 args = sys.argv[1:]
 inf = None
@@ -75,7 +75,7 @@ while args:
 infile = open(inf, 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:6] != '/*cc*/':
+    if l[:7] != '/*c++*/':
 	outfile.write(l)
 sys.exit(0)
 """)
@@ -96,7 +96,7 @@ for l in infile.readlines():
 sys.exit(0)
 """)
 
-    test.write('mycc.py', r"""
+    test.write('myc++.py', r"""
 import getopt
 import sys
 opts, args = getopt.getopt(sys.argv[1:], 'co:')
@@ -105,46 +105,74 @@ for opt, arg in opts:
 infile = open(args[0], 'rb')
 outfile = open(out, 'wb')
 for l in infile.readlines():
-    if l[:6] != '/*cc*/':
+    if l[:7] != '/*c++*/':
 	outfile.write(l)
 sys.exit(0)
 """)
 
 test.write('SConstruct', """
-cc = Environment().Dictionary('CC')
 env = Environment(LINK = r'%s mylink.py',
-                  CC = r'%s mycc.py',
-		  CXX = cc)
-env.Program(target = 'test1', source = 'test1.c')
+                  CXX = r'%s myc++.py')
+env.Program(target = 'test1', source = 'test1.cc')
+env.Program(target = 'test2', source = 'test2.cpp')
+env.Program(target = 'test3', source = 'test3.cxx')
+env.Program(target = 'test4', source = 'test4.c++')
+env.Program(target = 'test5', source = 'test5.C++')
 """ % (python, python))
 
-test.write('test1.c', r"""This is a .c file.
-/*cc*/
+test.write('test1.cc', r"""This is a .cc file.
+/*c++*/
+/*link*/
+""")
+
+test.write('test2.cpp', r"""This is a .cpp file.
+/*c++*/
+/*link*/
+""")
+
+test.write('test3.cxx', r"""This is a .cxx file.
+/*c++*/
+/*link*/
+""")
+
+test.write('test4.c++', r"""This is a .c++ file.
+/*c++*/
+/*link*/
+""")
+
+test.write('test5.C++', r"""This is a .C++ file.
+/*c++*/
 /*link*/
 """)
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _exe) != "This is a .c file.\n")
+test.fail_test(test.read('test1' + _exe) != "This is a .cc file.\n")
 
-if os.path.normcase('.c') == os.path.normcase('.C'):
+test.fail_test(test.read('test2' + _exe) != "This is a .cpp file.\n")
+
+test.fail_test(test.read('test3' + _exe) != "This is a .cxx file.\n")
+
+test.fail_test(test.read('test4' + _exe) != "This is a .c++ file.\n")
+
+test.fail_test(test.read('test5' + _exe) != "This is a .C++ file.\n")
+
+if os.path.normcase('.c') != os.path.normcase('.C'):
 
     test.write('SConstruct', """
-cc = Environment().Dictionary('CC')
 env = Environment(LINK = r'%s mylink.py',
-                  CC = r'%s mycc.py',
-		  CXX = cc)
-env.Program(target = 'test2', source = 'test2.C')
+                  CXX = r'%s myc++.py')
+env.Program(target = 'test6', source = 'test6.C')
 """ % (python, python))
 
-    test.write('test2.C', r"""This is a .C file.
-/*cc*/
+    test.write('test6.C', r"""This is a .C file.
+/*c++*/
 /*link*/
 """)
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test2' + _exe) != "This is a .C file.\n")
+    test.fail_test(test.read('test6' + _exe) != "This is a .C file.\n")
 
 
 
@@ -159,28 +187,32 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment()
-cc = foo.Dictionary('CC')
-bar = Environment(CC = r'%s wrapper.py ' + cc)
-foo.Program(target = 'foo', source = 'foo.c')
-bar.Program(target = 'bar', source = 'bar.c')
+cxx = foo.Dictionary('CXX')
+bar = Environment(CXX = r'%s wrapper.py ' + cxx)
+foo.Program(target = 'foo', source = 'foo.cxx')
+bar.Program(target = 'bar', source = 'bar.cxx')
 """ % python)
 
-test.write('foo.c', r"""
+test.write('foo.cxx', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
 	argv[argc++] = "--";
-	printf("foo.c\n");
+	printf("foo.cxx\n");
 	exit (0);
 }
 """)
 
-test.write('bar.c', r"""
+test.write('bar.cxx', r"""
+#include <stdio.h>
+#include <stdlib.h>
 int
 main(int argc, char *argv[])
 {
 	argv[argc++] = "--";
-	printf("foo.c\n");
+	printf("foo.cxx\n");
 	exit (0);
 }
 """)
