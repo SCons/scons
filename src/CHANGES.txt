@@ -45,6 +45,11 @@ RELEASE 0.03 -
   - Use one CPlusPlusAction in the Object Builder's action dictionary,
     instead of letting it create multiple identical instances.
 
+  From Steve Leblanc:
+
+  - Require that a Builder be given a name argument, supplying a
+    useful error message when it isn't.
+
   From Anthony Roach:
 
   - Add a "duplicate" keyword argument to BuildDir() that can be set

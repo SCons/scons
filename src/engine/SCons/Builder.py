@@ -64,6 +64,8 @@ class BuilderBase:
 			src_suffix = '',
                         node_factory = SCons.Node.FS.default_fs.File,
                         scanner = None):
+        if name is None:
+            raise UserError, "You must specify a name for the builder."
 	self.name = name
 	self.action = SCons.Action.Action(action)
 
