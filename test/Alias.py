@@ -54,7 +54,7 @@ SConscript('sub2/SConscript', "env")
 foo = Alias('foo')
 foo2 = env.Alias('foo', ['f2.out', 'sub1'])
 assert foo == foo2
-bar = env.Alias('bar', ['sub2', 'f3.out'])
+bar = Alias('bar', ['sub2', 'f3.out'])
 env.Alias('blat', ['sub2', 'f3.out'])
 env.Alias('blat', ['f2.out', 'sub1'])
 env.Depends('f1.out', 'bar')

@@ -46,8 +46,6 @@ import types
 import SCons.Action
 import SCons.Builder
 import SCons.Environment
-import SCons.Node.Alias
-import SCons.Node.FS
 import SCons.Scanner.C
 import SCons.Scanner.Fortran
 import SCons.Scanner.Prog
@@ -68,15 +66,6 @@ def DefaultEnvironment(*args, **kw):
         _default_env._build_signature = 1
         _default_env._calc_module = SCons.Sig.default_module
     return _default_env
-
-
-def alias_builder(env, target, source):
-    pass
-
-Alias = SCons.Builder.Builder(action = alias_builder,
-                              target_factory = SCons.Node.Alias.default_ans.Alias,
-                              source_factory = SCons.Node.FS.default_fs.Entry,
-                              multi = 1)
 
 CScan = SCons.Scanner.C.CScan()
 
@@ -264,7 +253,7 @@ class NullCmdGenerator:
         return self.cmd
 
 ConstructionEnvironment = {
-    'BUILDERS'   : { 'Alias' : Alias },
+    'BUILDERS'   : {},
     'SCANNERS'   : [CScan, FortranScan],
     'PDFPREFIX'  : '',
     'PDFSUFFIX'  : '.pdf',

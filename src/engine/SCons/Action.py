@@ -53,12 +53,6 @@ def rfile(n):
     except AttributeError:
         return n
 
-def SetCommandHandler(func, escape = lambda x: x):
-    raise SCons.Errors.UserError("SetCommandHandler() is no longer supported, use the SPAWN and ESCAPE construction variables.")
-
-def GetCommandHandler():
-    raise SCons.Errors.UserError("GetCommandHandler() is no longer supported, use the SPAWN construction variable.")
-
 def _actionAppend(act1, act2):
     # This function knows how to slap two actions together.
     # Mainly, it handles ListActions by concatenating into

@@ -308,6 +308,36 @@ class EnvironmentTestCase(unittest.TestCase):
         assert lst[0][0] == 'test', lst[0][0]
         assert lst[0][1] == 'baz', lst[0][1]
 
+        # Test not calling callables in the Environment
+        if 0:
+            # This will take some serious surgery to subst() and
+            # subst_list(), so just leave these tests out until we can
+            # do that.
+            def bar(arg):
+                pass
+
+            env = Environment(BAR=bar, FOO='$BAR')
+
+            subst = env.subst('$BAR', call=None)
+            assert subst is bar, subst
+
+            subst = env.subst('$FOO', call=None)
+            assert subst is bar, subst
+
+            subst = env.subst_list('$BAR', call=None)
+            assert subst is bar, subst
+
+            subst = env.subst_list('$FOO', call=None)
+            assert subst is bar, subst
+
+    def test_subst_kw(self):
+	"""Test substituting construction variables within dictionaries"""
+	env = Environment(AAA = 'a', BBB = 'b')
+        kw = env.subst_kw({'$AAA' : 'aaa', 'bbb' : '$BBB'})
+        assert len(kw) == 2, kw
+        assert kw['a'] == 'aaa', kw['a']
+        assert kw['bbb'] == 'b', kw['bbb']
+
     def test_Builder_calls(self):
         """Test Builder calls through different environments
         """
@@ -1191,6 +1221,49 @@ class EnvironmentTestCase(unittest.TestCase):
         assert str(n[0]) == 'ggg', n[0]
         assert str(n[1]) == 'bbb', n[1]
 
+    def test_Alias(self):
+        """Test the Alias() method"""
+        env = Environment(FOO='kkk', BAR='lll', EA='export_alias')
+
+        tgt = env.Alias('new_alias')
+        assert str(tgt) == 'new_alias', tgt
+        assert tgt.sources == [], tgt.sources
+
+        tgt = env.Alias('None_alias', None)
+        assert str(tgt) == 'None_alias', tgt
+        assert tgt.sources == [], tgt.sources
+
+        tgt = env.Alias('empty_list', [])
+        assert str(tgt) == 'empty_list', tgt
+        assert tgt.sources == [], tgt.sources
+
+        tgt = env.Alias('export_alias', [ 'asrc1', '$FOO' ])
+        assert str(tgt) == 'export_alias', tgt
+        assert len(tgt.sources) == 2, map(str, tgt.sources)
+        assert str(tgt.sources[0]) == 'asrc1', map(str, tgt.sources)
+        assert str(tgt.sources[1]) == 'kkk', map(str, tgt.sources)
+
+        n = env.Alias(tgt, source = ['$BAR', 'asrc4'])
+        assert n is tgt, n
+        assert len(tgt.sources) == 4, map(str, tgt.sources)
+        assert str(tgt.sources[2]) == 'lll', map(str, tgt.sources)
+        assert str(tgt.sources[3]) == 'asrc4', map(str, tgt.sources)
+
+        n = env.Alias('$EA', 'asrc5')
+        assert n is tgt, n
+        assert len(tgt.sources) == 5, map(str, tgt.sources)
+        assert str(tgt.sources[4]) == 'asrc5', map(str, tgt.sources)
+
+        t1, t2 = env.Alias(['t1', 't2'], ['asrc6', 'asrc7'])
+        assert str(t1) == 't1', t1
+        assert str(t2) == 't2', t2
+        assert len(t1.sources) == 2, map(str, t1.sources)
+        assert str(t1.sources[0]) == 'asrc6', map(str, t1.sources)
+        assert str(t1.sources[1]) == 'asrc7', map(str, t1.sources)
+        assert len(t2.sources) == 2, map(str, t2.sources)
+        assert str(t2.sources[0]) == 'asrc6', map(str, t2.sources)
+        assert str(t2.sources[1]) == 'asrc7', map(str, t2.sources)
+
     def test_AlwaysBuild(self):
         """Test the AlwaysBuild() method"""
         env = Environment(FOO='fff', BAR='bbb')
@@ -1322,6 +1395,32 @@ class EnvironmentTestCase(unittest.TestCase):
         t.build()
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
+
+    def test_Configure(self):
+        """Test the Configure() method"""
+        # Configure() will write to a local temporary file.
+        test = TestCmd.TestCmd(workdir = '')
+        save = os.getcwd()
+
+        try:
+            os.chdir(test.workpath())
+
+            env = Environment(FOO = 'xyzzy')
+
+            def func(arg):
+                pass
+
+            c = env.Configure()
+            assert not c is None, c
+            c.Finish()
+
+            c = env.Configure(custom_tests = {'foo' : func, '$FOO' : func})
+            assert not c is None, c
+            assert hasattr(c, 'foo')
+            assert hasattr(c, 'xyzzy')
+            c.Finish()
+        finally:
+            os.chdir(save)
 
     def test_Default(self):
         """Test the Default() method"""
@@ -1592,6 +1691,26 @@ class EnvironmentTestCase(unittest.TestCase):
         expect = ['/tmp/foo', '/tmp/rrr', '/tmp/sss/foo']
         assert env.fs.list == expect, env.fs.list
 
+    def test_Scanner(self):
+        """Test the Scanner() method"""
+        def scan(node, env, target, arg):
+            pass
+
+        env = Environment(FOO = scan)
+
+        s = env.Scanner('foo')
+        assert not s is None, s
+
+        s = env.Scanner(function = 'foo')
+        assert not s is None, s
+
+        if 0:
+            s = env.Scanner('$FOO')
+            assert not s is None, s
+
+            s = env.Scanner(function = '$FOO')
+            assert not s is None, s
+
     def test_SConsignFile(self):
         """Test the SConsignFile() method"""
         import SCons.Sig
@@ -1749,6 +1868,23 @@ class EnvironmentTestCase(unittest.TestCase):
 
         env.TargetSignatures('$C')
         assert env._build_signature == 0, env._build_signature
+
+    def test_Value(self):
+        """Test creating a Value() object
+        """
+        env = Environment()
+        v1 = env.Value('a')
+        assert v1.value == 'a', v1.value
+
+        value2 = 'a'
+        v2 = env.Value(value2)
+        assert v2.value == value2, v2.value
+        assert v2.value is value2, v2.value
+
+        assert not v1 is v2
+        assert v1.value == v2.value
+
+
 
     def test_Environment_global_variable(type):
         """Test setting Environment variable to an Environment.Base subclass"""

@@ -70,15 +70,29 @@ kscan = Scanner(name = 'kfile',
                 function = kfile_scan,
                 argument = None,
                 skeys = ['.k'])
+
+env = Environment(K2SCAN=kfile_scan)
+
+k2scan = env.Scanner(name = 'k2',
+                     # We'd like to do the following, but it will take
+                     # some major surgery to subst() and subst_list(),
+                     # so comment it out for now.
+                     # function = '$K2SCAN',
+                     function = kfile_scan,
+                     argument = None,
+                     skeys = ['.k2'])
+
 scanners = Environment().Dictionary('SCANNERS')
-env = Environment(SCANNERS = scanners + [kscan])
+env = Environment(SCANNERS = scanners + [kscan, k2scan])
 
 env.Command('foo', 'foo.k', r'%s build.py $SOURCES $TARGET')
+
+env.Command('junk', 'junk.k2', r'%s build.py $SOURCES $TARGET')
 
 bar_in = File('bar.in')
 env.Command('bar', bar_in, r'%s build.py $SOURCES  $TARGET')
 bar_in.source_scanner = kscan
-""" % (python, python))
+""" % (python, python, python))
 
 test.write('foo.k', 
 """foo.k 1 line 1
@@ -94,6 +108,13 @@ bar.in 1 line 3
 include zzz
 """)
 
+test.write('junk.k2', 
+"""include yyy
+junk.k2 1 line 2
+junk.k2 1 line 3
+include zzz
+""")
+
 test.write('xxx', "xxx 1\n")
 
 test.write('yyy', "yyy 1\n")
@@ -106,6 +127,8 @@ test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4
 
 test.fail_test(test.read('bar') != "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
 
+test.fail_test(test.read('junk') != "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+
 test.up_to_date(arguments = '.')
 
 test.write('xxx', "xxx 2\n")
@@ -116,6 +139,8 @@ test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4
 
 test.fail_test(test.read('bar') != "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
 
+test.fail_test(test.read('junk') != "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+
 test.write('yyy', "yyy 2\n")
 
 test.run(arguments = '.')
@@ -124,6 +149,8 @@ test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4
 
 test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
 
+test.fail_test(test.read('junk') != "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+
 test.write('zzz', "zzz 2\n")
 
 test.run(arguments = '.')
@@ -131,6 +158,8 @@ test.run(arguments = '.')
 test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
 
 test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
+
+test.fail_test(test.read('junk') != "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n")
 
 test.up_to_date(arguments = 'foo')
 

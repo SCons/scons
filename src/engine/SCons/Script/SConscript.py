@@ -39,13 +39,12 @@ import SCons.Errors
 import SCons.Node
 import SCons.Node.Alias
 import SCons.Node.FS
-import SCons.Node.Python
+import SCons.Options
 import SCons.Platform
 import SCons.SConf
 import SCons.Script
 import SCons.Tool
 import SCons.Util
-import SCons.Options
 
 import os
 import os.path
@@ -67,10 +66,6 @@ global_exports = {}
 
 # chdir flag
 sconscript_chdir = 1
-
-def SConscriptChdir(flag):
-    global sconscript_chdir
-    sconscript_chdir = flag
 
 def _scons_add_args(alist):
     global arguments
@@ -365,17 +360,17 @@ class SConsEnvironment(SCons.Environment.Base):
                 src_dir, fname = os.path.split(str(files[0]))
             else:
                 if not isinstance(src_dir, SCons.Node.Node):
-                    src_dir = SCons.Node.FS.default_fs.Dir(src_dir)
+                    src_dir = self.fs.Dir(src_dir)
                 fn = files[0]
                 if not isinstance(fn, SCons.Node.Node):
-                    fn = SCons.Node.FS.default_fs.File(fn)
+                    fn = self.fs.File(fn)
                 if fn.is_under(src_dir):
                     # Get path relative to the source directory.
                     fname = fn.get_path(src_dir)
                 else:
                     # Fast way to only get the terminal path component of a Node.
                     fname = fn.get_path(fn.dir)
-            SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)
+            self.fs.BuildDir(build_dir, src_dir, duplicate)
             files = [os.path.join(str(build_dir), fname)]
 
         return (files, exports)
@@ -446,6 +441,10 @@ class SConsEnvironment(SCons.Environment.Base):
 
         return apply(_SConscript, [self.fs,] + files, {'exports' : exports})
 
+    def SConscriptChdir(self, flag):
+        global sconscript_chdir
+        sconscript_chdir = flag
+
     def SetOption(self, name, value):
         name = self.subst(name)
         SCons.Script.ssoptions.set(name, value)
@@ -454,6 +453,9 @@ class SConsEnvironment(SCons.Environment.Base):
 #
 #
 SCons.Environment.Environment = SConsEnvironment
+
+def Options(files=None, args=arguments):
+    return SCons.Options.Options(files, args)
 
 def SetBuildSignatureType(type):
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
@@ -466,10 +468,6 @@ def SetContentSignatureType(type):
                         "The SetContentSignatureType() function has been deprecated;\n" +\
                         "\tuse the SourceSignatures() function instead.")
     SCons.Defaults.DefaultEnvironment().SourceSignatures(type)
-
-class Options(SCons.Options.Options):
-    def __init__(self, files=None, args=arguments):
-        SCons.Options.Options.__init__(self, files, args)
 
 def GetJobs():
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
@@ -489,13 +487,6 @@ def ParseConfig(env, command, function=None):
                         "The ParseConfig() function has been deprecated;\n" +\
                         "\tuse the env.ParseConfig() method instead.")
     return env.ParseConfig(command, function)
-
-
-def Alias(name):
-    alias = SCons.Node.Alias.default_ans.lookup(name)
-    if alias is None:
-        alias = SCons.Node.Alias.default_ans.Alias(name)
-    return alias
 
 #
 _DefaultEnvironmentProxy = None
@@ -557,12 +548,14 @@ GlobalDefaultEnvironmentFunctions = [
     'Help',
     'Import',
     'SConscript',
+    'SConscriptChdir',
     'SetOption',
 
     # Methods from the Environment.Base class.
     'Action',
     'AddPostAction',
     'AddPreAction',
+    'Alias',
     'AlwaysBuild',
     'BuildDir',
     'Builder',
@@ -583,13 +576,17 @@ GlobalDefaultEnvironmentFunctions = [
     'Local',
     'Precious',
     'Repository',
+    'Scanner',
     'SConsignFile',
     'SideEffect',
     'SourceCode',
     'SourceSignatures',
     'Split',
     'TargetSignatures',
+    'Value',
+]
 
+GlobalDefaultBuilders = [
     # Supported builders.
     'CFile',
     'CXXFile',
@@ -616,7 +613,7 @@ GlobalDefaultEnvironmentFunctions = [
     'Zip',
 ]
 
-for name in GlobalDefaultEnvironmentFunctions:
+for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
     GlobalDict[name] = DefaultEnvironmentCall(name)
 
 def BuildDefaultGlobals():
@@ -626,23 +623,17 @@ def BuildDefaultGlobals():
     """
 
     globals = {}
+    globals['ARGUMENTS']         = arguments
+    globals['Configure']         = SCons.SConf.SConf
+    globals['Options']           = Options
     globals['Platform']          = SCons.Platform.Platform
+    globals['Return']            = Return
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
 
     # Functions we're in the process of converting to Environment methods.
-    globals['Alias']             = Alias
-    globals['ARGUMENTS']         = arguments
-    globals['Configure']         = SCons.SConf.SConf
     globals['CScan']             = SCons.Defaults.CScan
     globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
-    globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
-    globals['Options']           = Options
-    globals['Return']            = Return
-    globals['SConscriptChdir']   = SConscriptChdir
-    globals['Scanner']           = SCons.Scanner.Base
-    globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
-    globals['Value']             = SCons.Node.Python.Value
 
     # Deprecated functions, leave these here for now.
     globals['GetJobs']           = GetJobs

@@ -116,7 +116,7 @@ Checking for C++ header file vector... yes
 env = Environment()
 import os
 env['ENV']['PATH'] = os.environ['PATH']
-conf = Configure(env)
+conf = env.Configure()
 r1 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
 r2 = conf.CheckLib( 'no_c_library_SAFFDG' )   # leads to link error
 env = conf.Finish()
@@ -182,11 +182,11 @@ Checking for C header file no_std_c_header.h... no
     
 
     test.write( 'SConstruct', """
-env = Environment()
+env = Environment(LOGFILE='build/config.log')
 import os
 env['ENV']['PATH'] = os.environ['PATH']
 BuildDir( 'build', '.' )
-conf = Configure(env, conf_dir='build/config.tests', log_file='build/config.log')
+conf = env.Configure(conf_dir='build/config.tests', log_file='$LOGFILE')
 r1 = conf.CheckCHeader( 'math.h' )
 r2 = conf.CheckCHeader( 'no_std_c_header.h' ) # leads to compile error
 env = conf.Finish()
@@ -243,11 +243,15 @@ def CustomTest(context):
   context.Result(ret)
   return ret
 
-env = Environment()
+env = Environment(FOO='fff')
 env.Append( CPPPATH='local' )
 import os
 env['ENV']['PATH'] = os.environ['PATH']
-conf = Configure( env, custom_tests = {'CustomTest' : CustomTest} )
+conf = Configure( env, custom_tests = {'CustomTest' : CustomTest,
+                                       '$FOO' : CustomTest} )
+if hasattr(conf, 'fff'):
+  conf.Message('$FOO should not have been expanded!')
+  Exit(1)
 if not conf.CheckCHeader( 'math.h' ):
   Exit(1)
 if conf.CheckCHeader( 'no_std_c_header.h' ):

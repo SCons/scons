@@ -1897,20 +1897,24 @@ can be converted into an Action object
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Alias( alias )
+.RI Alias( alias ", [" targets ])
 .TP
-.RI env.Alias( alias ", " targets )
-Creates a phony target that
-expands to one or more other targets.
+.RI env.Alias( alias ", [" targets ])
+Creates one or more phony targets that
+expand to one or more other targets.
 Returns the Node object representing the alias,
 which exists outside of any file system.
 This Node object, or the alias name,
 may be used as a dependency of any other target,
-including another alias. Alias can be called multiple times for the same
+including another alias.
+.B Alias
+can be called multiple times for the same
 alias to add additional targets to the alias.
 
 .ES
 Alias('install')
+Alias('install', '/usr/bin')
+Alias(['install', 'install-lib'], '/usr/local/lib')
 
 env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
 env.Alias('install', ['/usr/local/man'])
@@ -2258,6 +2262,16 @@ env.Command('baz.out', 'baz.in',
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ])
+.TP
+.RI env.Configure([ custom_tests ", " conf_dir ", " log_file ])
+Creates a Configure object for integrated
+functionality similar to GNU autoconf.
+See the section "Configure Contexts,"
+below, for a complete explanation of the arguments and behavior.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI env.Copy([ key = val ", ...])"
 Return a separate copy of a construction environment.
 If there are any keyword arguments specified,
@@ -2589,6 +2603,25 @@ This function provides a way to query a select subset of the scons command line
 options from a SConscript file. See 
 .IR SetOption () 
 for a description of the options available.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+'\".TP
+'\".RI GlobalBuilders( flag )
+'\"When
+'\".B flag
+'\"is non-zero,
+'\"adds the names of the default builders
+'\"(Program, Library, etc.)
+'\"to the global name space
+'\"so they can be called without an explicit construction environment.
+'\"(This is the default.)
+'\"When
+'\".B
+'\"flag is zero,
+'\"the names of the default builders are removed
+'\"from the global name space
+'\"so that an explicit construction environment is required
+'\"to call all builders.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
@@ -2964,6 +2997,17 @@ Return(["foo", "bar"])
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI Scanner( function ", [" argument ", " keys ", " path_function ", " node_class ", " node_factory ", " scan_check ", " recursive ])
+.TP 
+.RI env.Scanner( function ", [" argument ", " keys ", " path_function ", " node_class ", " node_factory ", " scan_check ", " recursive ])
+Creates a Scanner object for
+the specified
+.IR function .
+See the section "Scanner Objects,"
+below, for a complete explanation of the arguments and behavior.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 env.SCCS()
 A factory function that
@@ -3122,16 +3166,19 @@ SConscript(dirs=['sub3', 'sub4'], name='MySConscript')
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI SConscriptChdir( value )
+.TP
+.RI env.SConscriptChdir( value )
 By default,
 .B scons
 changes its working directory
 to the directory in which each
 subsidiary SConscript file lives.
 This behavior may be disabled
-by specifying:
+by specifying either:
 
 .ES
 SConscriptChdir(0)
+env.SConscriptChdir(0)
 .EE
 .IP
 in which case
@@ -3148,9 +3195,10 @@ SConscriptChdir()
 multiple times:
 
 .ES
+env = Environment()
 SConscriptChdir(0)
 SConscript('foo/SConscript')	# will not chdir to foo
-SConscriptChdir(1)
+env.SConscriptChdir(1)
 SConscript('bar/SConscript')	# will chdir to bar
 .EE
 
@@ -3468,6 +3516,8 @@ env.Tool('gcc')
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Value( value )
+.TP
+.RI env.Value( value )
 Returns a Node object representing the specified Python value.  Value
 nodes can be used as dependencies of targets.  If the result of
 calling
@@ -4993,7 +5043,7 @@ method:
 env2 = env.Copy(CC="cl.exe")
 .EE
 
-.SS Configure contexts
+.SS Configure Contexts
 
 .B scons
 supports
@@ -5011,6 +5061,8 @@ The following methods can be used to perform checks:
 
 .TP
 .RI Configure( env ", [" custom_tests ", " conf_dir ", " log_file ])
+.TP
+.RI env.Configure([ custom_tests ", " conf_dir ", " log_file ])
 This creates a configure context, which can be used to perform checks.
 .I env
 specifies the environment for building the tests.

@@ -616,13 +616,6 @@ class CommandActionTestCase(unittest.TestCase):
             def is_literal(self):
                 return 1
 
-        try:
-            SCons.Action.SetCommandHandler(func)
-        except SCons.Errors.UserError:
-            pass
-        else:
-            assert 0, "should have gotten user error"
-            
         a = SCons.Action.CommandAction(["xyzzy"])
         a([], [], Environment(SPAWN = func))
         assert t.executed == [ 'xyzzy' ]

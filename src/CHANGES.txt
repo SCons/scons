@@ -80,13 +80,14 @@ RELEASE X.XX - XXX
   - Support arbitrary expansion of construction variables within
     file and directory arguments to Builder calls and Environment methods.
 
-  - Add Environment-method versions of the following global
-    functions: Action(), AddPostAction(), AddPreAction(), Builder(),
-    BuildDir(), CacheDir(), Clean(), Default(), EnsurePythonVersion(),
-    EnsureSConsVersion(), Environment(), Exit(), Export(), FindFile(),
-    GetBuildPath(), GetOption(), Help(), Import(), Literal(),
-    Local(), Platform(), Repository(), SConsignFile(), SetOption(),
-    SourceSignatures(), Split(), TargetSignatures(), Tool().
+  - Add Environment-method versions of the following global functions:
+    Action(), AddPostAction(), AddPreAction(), Alias(), Builder(),
+    BuildDir(), CacheDir(), Clean(), Configure(), Default(),
+    EnsurePythonVersion(), EnsureSConsVersion(), Environment(),
+    Exit(), Export(), FindFile(), GetBuildPath(), GetOption(), Help(),
+    Import(), Literal(), Local(), Platform(), Repository(), Scanner(),
+    SConscriptChdir(), SConsignFile(), SetOption(), SourceSignatures(),
+    Split(), TargetSignatures(), Tool(), Value().
 
   - Add the following global functions that correspond to the same-named
     Environment methods:  AlwaysBuild(), Command(), Depends(), Ignore(),
@@ -114,6 +115,8 @@ RELEASE X.XX - XXX
 
   - Allow the Environment.WhereIs() method to take explicit path and
     pathext arguments (like the underlying SCons.Util.WhereIs() function).
+
+  - Remove the long-obsolete {Get,Set}CommandHandler() functions.
 
   From Clark McGrew:
 

@@ -54,7 +54,7 @@ def create(target, source, env):
 env = Environment()
 env['BUILDERS']['B'] = Builder(action = create)
 env.B('f1.out', Value(P))
-env.B('f2.out', Value(L))
+env.B('f2.out', env.Value(L))
 env.B('f3.out', Value(C))
 """ % source_signature)
 

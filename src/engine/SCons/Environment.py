@@ -48,7 +48,9 @@ import SCons.Builder
 import SCons.Defaults
 import SCons.Errors
 import SCons.Node
+import SCons.Node.Alias
 import SCons.Node.FS
+import SCons.Node.Python
 import SCons.Platform
 import SCons.Sig
 import SCons.Sig.MD5
@@ -86,6 +88,14 @@ def installString(target, source, env):
 installAction = SCons.Action.Action(installFunc, installString)
 
 InstallBuilder = SCons.Builder.Builder(action=installAction)
+
+def alias_builder(env, target, source):
+    pass
+
+AliasBuilder = SCons.Builder.Builder(action = alias_builder,
+                                     target_factory = SCons.Node.Alias.default_ans.Alias,
+                                     source_factory = SCons.Node.FS.default_fs.Entry,
+                                     multi = 1)
 
 def our_deepcopy(x):
    """deepcopy lists and dictionaries, and just copy the reference
@@ -201,6 +211,7 @@ class Base:
                  options=None,
                  **kw):
         self.fs = SCons.Node.FS.default_fs
+        self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
 
@@ -374,6 +385,7 @@ class Base:
             mode = SCons.Util.SUBST_CMD
         nkw = {}
         for k, v in kw.items():
+            k = SCons.Util.scons_subst(k, self, mode, target, source)
             if SCons.Util.is_String(v):
                 v = SCons.Util.scons_subst(v, self, mode, target, source)
             nkw[k] = v
@@ -705,6 +717,32 @@ class Base:
             n.add_post_action(action)
         return nodes
 
+    def Alias(self, target, *source, **kw):
+        if not SCons.Util.is_List(target):
+            target = [target]
+        tlist = []
+        for t in target:
+            if not isinstance(t, SCons.Node.Alias.Alias):
+                t = self.arg2nodes(self.subst(t), self.ans.Alias)[0]
+            tlist.append(t)
+        try:
+            s = kw['source']
+        except KeyError:
+            try:
+                s = source[0]
+            except IndexError:
+                s = None
+        if s:
+            if not SCons.Util.is_List(s):
+                s = [s]
+            s = filter(None, s)
+            s = self.arg2nodes(s, self.fs.Entry)
+            for t in tlist:
+                AliasBuilder(self, t, s)
+        if len(tlist) == 1:
+            tlist = tlist[0]
+        return tlist
+
     def AlwaysBuild(self, *targets):
         tlist = []
         for t in targets:
@@ -734,7 +772,7 @@ class Base:
 
         if not isinstance(target, SCons.Node.Node):
             target = self.subst(target)
-            target = SCons.Node.FS.default_fs.Entry(target, create=1)
+            target = self.fs.Entry(target, create=1)
     
         if not SCons.Util.is_List(files):
             files = [files]
@@ -751,13 +789,24 @@ class Base:
         except KeyError:
             CleanTargets[target] = nodes
 
+    def Configure(self, *args, **kw):
+        nargs = [self]
+        if args:
+            nargs = nargs + self.subst_list(args)[0]
+        nkw = self.subst_kw(kw)
+        try:
+            nkw['custom_tests'] = self.subst_kw(nkw['custom_tests'])
+        except KeyError:
+            pass
+        return apply(SCons.SConf.SConf, nargs, nkw)
+
     def Command(self, target, source, action):
         """Builds the supplied target files from the supplied
         source files using the supplied action.  Action may
         be any type that the Builder constructor will accept
         for an action."""
         bld = SCons.Builder.Builder(action=action,
-                                    source_factory=SCons.Node.FS.default_fs.Entry)
+                                    source_factory=self.fs.Entry)
         return bld(self, target, source)
 
     def Default(self, *targets):
@@ -834,7 +883,7 @@ class Base:
         tgt = []
         for dnode in dnodes:
             for src in sources:
-                target = SCons.Node.FS.default_fs.File(src.name, dnode)
+                target = self.fs.File(src.name, dnode)
                 tgt.append(InstallBuilder(self, target, src))
         if len(tgt) == 1:
             tgt = tgt[0]
@@ -881,6 +930,15 @@ class Base:
     def Repository(self, *dirs, **kw):
         dirs = self.arg2nodes(list(dirs), self.fs.Dir)
         apply(self.fs.Repository, dirs, kw)
+
+    def Scanner(self, *args, **kw):
+        nargs = []
+        for arg in args:
+            if SCons.Util.is_String(arg):
+                arg = self.subst(arg)
+            nargs.append(arg)
+        nkw = self.subst_kw(kw)
+        return apply(SCons.Scanner.Base, nargs, nkw)
 
     def SConsignFile(self, name=".sconsign.dbm"):
         name = self.subst(name)
@@ -956,6 +1014,11 @@ class Base:
             self._build_signature = 0
         else:
             raise SCons.Errors.UserError, "Unknown target signature type '%s'"%type
+
+    def Value(self, value):
+        """
+        """
+        return SCons.Node.Python.Value(value)
 
 # The entry point that will be used by the external world
 # to refer to a construction environment.  This allows the wrapper
