@@ -31,7 +31,7 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 import os
 print "SConstruct", os.getcwd()
-Conscript('SConscript')
+SConscript('SConscript')
 """)
 
 # XXX I THINK THEY SHOULD HAVE TO RE-IMPORT OS HERE

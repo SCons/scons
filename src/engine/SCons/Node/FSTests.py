@@ -278,6 +278,14 @@ class FSTestCase(unittest.TestCase):
         assert d10.get_bsig() is None, d10.get_bsig()
         assert d10.get_csig() is None, d10.get_csig()
 
+        fs.chdir(fs.Dir('subdir'))
+        f11 = fs.File("f11")
+        assert f11.path == "subdir/f11"
+        d12 = fs.Dir("d12")
+        assert d12.path_ == "subdir/d12/"
+        e13 = fs.Entry("subdir/e13")
+        assert e13.path == "subdir/subdir/e13"
+
         #XXX test exists()
 
         #XXX test current() for directories

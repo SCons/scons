@@ -75,6 +75,13 @@ class MD5TestCase(unittest.TestCase):
 	o1 = my_obj(value = '111')
         assert '698d51a19d8a121ce581499d7b701668' == signature(o1)
 
+        try:
+            signature('string')
+        except AttributeError, e:
+            assert str(e) == "unable to fetch contents of 'string'"
+        else:
+            raise AttributeError, "unexpected get_contents() attribute"
+
     def test_to_string(self):
         assert '698d51a19d8a121ce581499d7b701668' == to_string('698d51a19d8a121ce581499d7b701668')
 

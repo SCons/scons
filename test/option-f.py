@@ -77,6 +77,6 @@ print "STDIN " + os.getcwd()
 
 test.run(arguments = '-f no_such_file',
 	 stdout = "",
-	 stderr = "Ignoring missing script 'no_such_file'\n")
+	 stderr = "Ignoring missing SConscript 'no_such_file'\n")
 
 test.pass_test()

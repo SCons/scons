@@ -67,7 +67,7 @@ test.run(arguments='-f SConstruct3',
   File ".*scons(\.py)?", line \d+, in \?
     main\(\)
   File ".*scons(\.py)?", line \d+, in main
-    exec f in globals\(\)
+    exec file in globals\(\)
   File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
 InternalError: error inside

@@ -147,9 +147,9 @@ def _scons_other_errors():
 
 
 
-def Conscript(filename):
+def SConscript(filename):
     global scripts
-    scripts.append(filename)
+    scripts.append(SCons.Node.FS.default_fs.File(filename))
 
 def Default(*targets):
     for t in targets:
@@ -361,7 +361,10 @@ def options_init():
 
     def opt_f(opt, arg):
 	global scripts
-	scripts.append(arg)
+	if arg == '-':
+            scripts.append(arg)
+	else:
+	    scripts.append(SCons.Node.FS.default_fs.File(arg))
 
     Option(func = opt_f,
 	short = 'f', long = ['file', 'makefile', 'sconstruct'], arg = 'FILE',
@@ -581,7 +584,7 @@ def main():
     if not scripts:
         for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
             if os.path.isfile(file):
-                scripts.append(file)
+                scripts.append(SCons.Node.FS.default_fs.File(file))
                 break
 
     if help_option == 'H':
@@ -616,16 +619,18 @@ def main():
     sys.path = include_dirs + sys.path
 
     while scripts:
-        file, scripts = scripts[0], scripts[1:]
-	if file == "-":
+        f, scripts = scripts[0], scripts[1:]
+        if f == "-":
 	    exec sys.stdin in globals()
 	else:
             try:
-		f = open(file, "r")
+                file = open(f.path, "r")
 	    except IOError, s:
-		sys.stderr.write("Ignoring missing script '%s'\n" % file)
+                sys.stderr.write("Ignoring missing SConscript '%s'\n" % f.path)
 	    else:
-		exec f in globals()
+                SCons.Node.FS.default_fs.chdir(f.dir)
+                exec file in globals()
+    SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
     if help_option == 'h':
 	# They specified -h, but there was no Help() inside the

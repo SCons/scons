@@ -120,6 +120,7 @@ class FS:
         self.Top = self.__doLookup(Dir, path)
         self.Top.path = '.'
         self.Top.path_ = './'
+        self.cwd = self.Top
 
     def __doLookup(self, fsclass, name, directory=None):
         """This method differs from the File and Dir factory methods in
@@ -188,8 +189,14 @@ class FS:
             directory = self.Top
             name = os.path.join(os.path.normpath('./'), name[1:])
         elif not directory:
-            directory = self.Top
+            directory = self.cwd
         return (name, directory)
+
+    def chdir(self, dir):
+        """Change the current working directory for lookups.
+        """
+        if not dir is None:
+            self.cwd = dir
 
     def Entry(self, name, directory = None):
         """Lookup or create a generic Entry node with the specified name.
