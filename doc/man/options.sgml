@@ -134,9 +134,11 @@
     </listitem>
   </varlistentry>
 
+ <!--
+
   <varlistentry>
     <term>
-     <option>--debug</option>=<replaceable>flags</replaceable>
+     <option>- -debug</option>=<replaceable>flags</replaceable>
     </term>
     <listitem>
       <para>
@@ -147,9 +149,13 @@
     </listitem>
   </varlistentry>
 
+ -->
+
+ <!--
+
   <varlistentry>
     <term> <option>-e</option>,
-     <option>--environment-overrides</option>
+     <option>- -environment-overrides</option>
     </term>
     <listitem>
       <para>
@@ -160,6 +166,8 @@
       </para>
     </listitem>
   </varlistentry>
+
+ -->
 
   <varlistentry>
     <term>
@@ -187,7 +195,11 @@
     <listitem>
       <para>
 
-        Print command-line help message and exit.
+        Print a local help message for this build, if one is defined in
+        the configuration file(s), plus a line that describes the -H
+        option for command-line option help.  If no local help message
+        is defined, prints the standard help message about command-line
+        options.  Exits after displaying the appropriate message.
 
       </para>
     </listitem>
@@ -196,14 +208,13 @@
   <varlistentry>
     <term>
       <option>-H</option>,
-      <option>--help-local</option>,
-      <option>--local-help</option>
+      <option>--help-options</option>
     </term>
     <listitem>
       <para>
 
-        Display a local help message for this build, if one is defined in
-        the configuration file(s).
+        Print the standard help message about command-line options and
+        exit.
 
       </para>
     </listitem>
@@ -277,11 +288,13 @@
     </listitem>
   </varlistentry>
 
+ <!--
+
   <varlistentry>
     <term>
       <option>-l</option>,
-      <option>--load-average</option>=<replaceable>N</replaceable>,
-      <option>--max-load</option>=<replaceable>N</replaceable>
+      <option>- -load-average</option>=<replaceable>N</replaceable>,
+      <option>- -max-load</option>=<replaceable>N</replaceable>
     </term>
     <listitem>
       <para>
@@ -291,18 +304,22 @@
 	average is at least <replaceable>N</replaceable>
 	(a floating-point number).
 
-	<!--
+	<!- -
         ???
 	With no argument, removes a previous load limit.
-	-->
+	- ->
 
       </para>
     </listitem>
   </varlistentry>
 
+ -->
+
+ <!--
+
   <varlistentry>
     <term>
-      <option>--list-derived</option>
+      <option>- -list-derived</option>
     </term>
     <listitem>
       <para>
@@ -318,7 +335,7 @@
 
   <varlistentry>
     <term>
-      <option>--list-actions</option>
+      <option>- -list-actions</option>
     </term>
     <listitem>
       <para>
@@ -334,7 +351,7 @@
 
   <varlistentry>
     <term>
-      <option>--list-where</option>
+      <option>- -list-where</option>
     </term>
     <listitem>
       <para>
@@ -347,6 +364,8 @@
       </para>
     </listitem>
   </varlistentry>
+
+ -->
 
   <varlistentry>
     <term>
@@ -379,11 +398,13 @@
     </listitem>
   </varlistentry>
 
+ <!--
+
   <varlistentry>
     <term>
       <option>-o</option> <replaceable>file</replaceable>,
-      <option>--old-file</option>=<replaceable>file</replaceable>,
-      <option>--assume-old</option>=<replaceable>file</replaceable>
+      <option>- -old-file</option>=<replaceable>file</replaceable>,
+      <option>- -assume-old</option>=<replaceable>file</replaceable>
     </term>
     <listitem>
       <para>
@@ -395,6 +416,8 @@
       </para>
     </listitem>
   </varlistentry>
+
+ -->
 
  <!--
 
@@ -444,10 +467,12 @@
 
  -->
 
+ <!--
+
   <varlistentry>
     <term>
       <option>-q</option>,
-      <option>--question</option>
+      <option>- -question</option>
     </term>
     <listitem>
       <para>
@@ -460,13 +485,15 @@
     </listitem>
   </varlistentry>
 
+ -->
+
  <!--
 
   <varlistentry>
     <term>
       <option>-r</option>,
-      <option>- -no-builtin-rules</option>,
       <option>-R</option>,
+      <option>- -no-builtin-rules</option>,
       <option>- -no-builtin-variables</option>
     </term>
     <listitem>
@@ -481,9 +508,11 @@
 
  -->
 
+ <!--
+
   <varlistentry>
     <term>
-      <option>--random</option>
+      <option>- -random</option>
     </term>
     <listitem>
       <para>
@@ -496,6 +525,8 @@
       </para>
     </listitem>
   </varlistentry>
+
+ -->
 
   <varlistentry>
     <term>
@@ -530,7 +561,8 @@
 
   <varlistentry>
     <term>
-      <option>-t</option>
+      <option>-t</option>,
+      <option>--touch</option>
     </term>
     <listitem>
       <para>
@@ -565,7 +597,8 @@
 
   <varlistentry>
     <term>
-      <option>-v</option>
+      <option>-v</option>,
+      <option>--version</option>,
     </term>
     <listitem>
       <para>
@@ -647,9 +680,11 @@
 
  -->
 
+ <!--
+
   <varlistentry>
     <term>
-      <option>--warn-undefined-variables</option>
+      <option>- -warn-undefined-variables</option>
     </term>
     <listitem>
       <para>
@@ -659,6 +694,8 @@
       </para>
     </listitem>
   </varlistentry>
+
+ -->
 
  <!--
 
