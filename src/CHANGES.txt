@@ -47,6 +47,11 @@ RELEASE 0.XX - XXX
   - Fix the value returned by the Node.prevsiginfo() method to conform
     to a previous change when checking whether a node is current.
 
+  From Laurent Pelecq:
+
+  - When the -debug=pdb option is specified, use pdb.Pdb().runcall() to
+    call pdb directly, don't call Python recursively.
+
   From Christoph Wiedemann
 
   - Have the g++ Tool actually use g++ in preference to c++.

@@ -458,23 +458,7 @@ class OptParser(OptionParser):
                              "build all Default() targets.")
 
         def opt_debug(option, opt, value, parser):
-            if value == "pdb":
-                if os.name == 'java':
-                    python = os.path.join(sys.prefix, 'jython')
-                else:
-                    python = sys.executable
-                args = [ python, "pdb.py" ] + \
-                       filter(lambda x: x != "--debug=pdb", sys.argv)
-                if sys.platform == 'win32':
-                    args[1] = os.path.join(sys.prefix, "lib", "pdb.py")
-                    sys.exit(os.spawnve(os.P_WAIT, args[0], args, os.environ))
-                else:
-                    args[1] = os.path.join(sys.prefix,
-                                           "lib",
-                                           "python" + sys.version[0:3],
-                                           "pdb.py")
-                os.execvpe(args[0], args, os.environ)
-            elif value in ["tree", "dtree", "time", "includes"]:
+            if value in ["pdb","tree", "dtree", "time", "includes"]:
                 setattr(parser.values, 'debug', value)
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
@@ -693,7 +677,7 @@ class SConscriptSettableOptions:
         self.settable[name] = value
     
 
-def _main():
+def _main(args):
     targets = []
 
     # Enable deprecated warnings by default.
@@ -701,15 +685,7 @@ def _main():
     SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.CorruptSConsignWarning)
 
-    all_args = sys.argv[1:]
-    try:
-        all_args = string.split(os.environ['SCONSFLAGS']) + all_args
-    except KeyError:
-            # it's OK if there's no SCONSFLAGS
-            pass
-    parser = OptParser()
-    global options, ssoptions
-    options, args = parser.parse_args(all_args)
+    global ssoptions
     ssoptions = SConscriptSettableOptions(options)
 
     if options.help_msg:
@@ -983,11 +959,27 @@ def _main():
         if not options.noexec:
             SCons.Sig.write()
 
+def _exec_main():
+    all_args = sys.argv[1:]
+    try:
+        all_args = string.split(os.environ['SCONSFLAGS']) + all_args
+    except KeyError:
+            # it's OK if there's no SCONSFLAGS
+            pass
+    parser = OptParser()
+    global options
+    options, args = parser.parse_args(all_args)
+    if options.debug == "pdb":
+        import pdb
+        pdb.Pdb().runcall(_main, args)
+    else:
+        _main(args)
+
 def main():
     global exit_status
     
     try:
-	_main()
+	_exec_main()
     except SystemExit, s:
         if s:
             exit_status = s
