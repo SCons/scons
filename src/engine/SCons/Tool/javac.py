@@ -56,14 +56,15 @@ def emit_java_classes(target, source, env):
 
     slist = []
     js = _my_normcase(java_suffix)
-    def visit(arg, dirname, names, js=js, dirnode=source[0].rdir()):
-        java_files = filter(lambda n, js=js:
-                                   _my_normcase(n[-len(js):]) == js,
-                            names)
-        mydir = dirnode.Dir(dirname)
-        java_paths = map(lambda f, d=mydir: d.File(f), java_files)
-        arg.extend(java_paths)
-    os.path.walk(source[0].rdir().get_abspath(), visit, slist)
+    for sdir in source:
+        def visit(arg, dirname, names, js=js, dirnode=sdir.rdir()):
+            java_files = filter(lambda n, js=js:
+                                _my_normcase(n[-len(js):]) == js,
+                                names)
+            mydir = dirnode.Dir(dirname)
+            java_paths = map(lambda f, d=mydir: d.File(f), java_files)
+            arg.extend(java_paths)
+        os.path.walk(sdir.rdir().get_abspath(), visit, slist)
 
     tlist = []
     for file in slist:

@@ -111,14 +111,15 @@ javac = foo.Dictionary('JAVAC')
 bar = foo.Copy(JAVAC = r'%s wrapper.py ' + javac)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar.Java(target = 'class2', source = 'com/sub/bar')
-foo.Java(target = 'class3', source = 'src')
+foo.Java(target = 'class3', source = ['src1', 'src2'])
 """ % python)
 
 test.subdir('com',
             ['com', 'sub'],
             ['com', 'sub', 'foo'],
             ['com', 'sub', 'bar'],
-            'src')
+            'src1',
+            'src2')
 
 test.write(['com', 'sub', 'foo', 'Example1.java'], """\
 package com.sub.foo;
@@ -204,8 +205,20 @@ public class Example6
 }
 """)
 
+test.write(['src1', 'Example7.java'], """\
+public class Example7
+{
+
+     public static void main(String[] args)
+     {
+
+     }
+
+}
+""")
+
 # Acid-test file for parsing inner Java classes, courtesy Chad Austin.
-test.write(['src', 'Test.java'], """\
+test.write(['src2', 'Test.java'], """\
 class Empty {
 }
 
@@ -265,25 +278,27 @@ class Private {
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin/javac -d class2 -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n")
+test.must_match('wrapper.out', "wrapper.py /usr/local/j2sdk1.3.1/bin/javac -d class2 -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n")
 
-test.fail_test(not os.path.exists(test.workpath('class1', 'com', 'sub', 'foo', 'Example1.class')))
-test.fail_test(not os.path.exists(test.workpath('class1', 'com', 'other', 'Example2.class')))
-test.fail_test(not os.path.exists(test.workpath('class1', 'com', 'sub', 'foo', 'Example3.class')))
+test.must_exist(test.workpath('class1', 'com', 'sub', 'foo', 'Example1.class'))
+test.must_exist(test.workpath('class1', 'com', 'other', 'Example2.class'))
+test.must_exist(test.workpath('class1', 'com', 'sub', 'foo', 'Example3.class'))
 
-test.fail_test(not os.path.exists(test.workpath('class2', 'com', 'sub', 'bar', 'Example4.class')))
-test.fail_test(not os.path.exists(test.workpath('class2', 'com', 'other', 'Example5.class')))
-test.fail_test(not os.path.exists(test.workpath('class2', 'com', 'sub', 'bar', 'Example6.class')))
+test.must_exist(test.workpath('class2', 'com', 'sub', 'bar', 'Example4.class'))
+test.must_exist(test.workpath('class2', 'com', 'other', 'Example5.class'))
+test.must_exist(test.workpath('class2', 'com', 'sub', 'bar', 'Example6.class'))
 
-test.fail_test(not os.path.exists(test.workpath('class3', 'Empty.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Listener.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Private.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Private$1.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test$1.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test$2.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test$3.class')))
-test.fail_test(not os.path.exists(test.workpath('class3', 'Test$Inner.class')))
+test.must_exist(test.workpath('class3', 'Example7.class'))
+
+test.must_exist(test.workpath('class3', 'Empty.class'))
+test.must_exist(test.workpath('class3', 'Listener.class'))
+test.must_exist(test.workpath('class3', 'Private.class'))
+test.must_exist(test.workpath('class3', 'Private$1.class'))
+test.must_exist(test.workpath('class3', 'Test.class'))
+test.must_exist(test.workpath('class3', 'Test$1.class'))
+test.must_exist(test.workpath('class3', 'Test$2.class'))
+test.must_exist(test.workpath('class3', 'Test$3.class'))
+test.must_exist(test.workpath('class3', 'Test$Inner.class'))
 
 test.up_to_date(arguments = '.')
 

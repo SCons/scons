@@ -14,6 +14,10 @@ RELEASE 0.96 - XXX
 
   - Make the CacheDir() directory if it doesn't already exist.
 
+  From Tom Epperly:
+
+  - Allow the Java() Builder to take more than one source directory.
+
   From Bob Halley:
 
   - Make the new *FLAGS variable type work with copied Environments.
