@@ -20,22 +20,28 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
+RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600
 
-  This is the tenth alpha release of SCons.  Please consult the
+  This is the eleventh alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.10:
 
-    - The default suffix for shared object files when using gcc has now
-      been changed to '.os'.  This makes library builds more convenient
-      by allowing both static (compiled without -fPIC) and shared object
-      files (compiled with -fPIC) to exist side-by-side.  If you want to
-      preserve the old behavior of using .o files for shared objects,
-      you must now explicitly reset the SHOBJSUFFIX value in your
-      construction environment as follows:
+    - The default suffix for shared object files when using gcc has
+      now been changed to '.os'.  This is to make library builds more
+      convenient by allowing both static (compiled without -fPIC) and
+      shared object files (compiled with -fPIC) to exist side-by-side.
+      If you want to preserve the old behavior of using .o files for
+      shared objects, you must now explicitly reset the SHOBJSUFFIX
+      value in your construction environment as follows:
 
         env = Environment(SHOBJSUFFIX = '.o')
+
+  - The default behavior when no targets are specified has been changed
+    to be like Make: everything in the current directory and below will
+    be built.  This can be disabled by specifying "Default(None)" in an
+    SConscript, in which case there will be no default targets and
+    SCons will print an appropriate error message.
 
   - Setting the BUILDERS construction variable now properly clears
     the previous Builder attributes from the construction Environment.
@@ -71,12 +77,6 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
     If you have defined a strfunction() for a Python function Action,
     you will need to add a third "env" argument to your function call.
-
-  - The default behavior when no targets are specified has been changed
-    to be like Make: everything in the current directory and below will
-    be built.  This can be disabled by specifying "Default(None)" in an
-    SConscript, in which case there will be no default targets and
-    SCons will print an appropriate error message.
 
   Please note the following important changes since release 0.09:
 
@@ -205,6 +205,17 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
     - Executing the -u or -U option from a source directory that has an
       associated BuildDir() does not build the targets in the BuildDir().
+
+    - Modifying a construction environment in a subsidiary SConscript
+      file modifies the global environment.
+
+    - PDB files on Win32 in a build that uses BuildDir() are built in
+      the source directory, not the build directory.
+
+    - MSVC .res files are not rebuilt when icons change.
+
+    - The -c option does not clean up .sconsign files or directories
+      created as part of the build.
 
     - No support yet for the following planned command-line options:
 

@@ -35,11 +35,9 @@ no other dependencies or requirements to run SCons.  (There is, however,
 an additional requirement to *install* SCons from this particular
 package; see the next section.)
 
-The default SCons configuration assumes use of the Microsoft Visual C++
-compiler suite on WIN32 systems, and assumes a C compiler named 'cc',
-a C++ compiler named 'c++', and a Fortran compiler named 'g77' (such
-as found in the GNU C compiler suite) on any other type of system.
-You may, of course, override these default values by appropriate
+By default, SCons knows how to search for available programming tools
+on various systems--see the SCons man page for details.  You may,
+of course, override the default SCons choices made by appropriate
 configuration of Environment construction variables.
 
 
@@ -52,9 +50,10 @@ Python until Python version 1.6, so if your system is running Python
 1.5.2, you may not have distutils installed.  If you are running
 Python version 1.6 or later, you should be fine.
 
-NOTE TO RED HAT USERS:  All Red Hat Linux versions as late as 7.3
-still ship Python 1.5.2 as the default, so you probably do *not* have
-distutils installed, unless you have already done so manually.
+NOTE TO RED HAT USERS:  All Red Hat Linux versions up to 7.3 still ship
+Python 1.5.2 as the default, so you probably do *not* have distutils
+installed, unless you have already done so manually or are running Red
+Hat 8.0 or later.
 
 In this case, your options are:
 

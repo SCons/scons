@@ -41,6 +41,11 @@ as found in the GNU C compiler suite) on any other type of system.
 You may, of course, override these default values by appropriate
 configuration of Environment construction variables.
 
+By default, SCons knows how to search for available programming tools
+on various systems--see the SCons man page for details.  You may,
+of course, override the default SCons choices made by appropriate
+configuration of Environment construction variables.
+
 
 INSTALLATION REQUIREMENTS
 =========================
@@ -51,9 +56,10 @@ part of Python until Python version 1.6, so if your system is running
 Python 1.5.2, you may not have distutils installed.  If you are running
 Python version 1.6 or later, you should be fine.
 
-NOTE TO RED HAT USERS:  All Red Hat Linux versions as late as 7.3 (at
-least) still ship Python 1.5.2 as the default, so you probably do *not*
-have distutils installed, unless you have already done so manually.
+NOTE TO RED HAT USERS:  All Red Hat Linux versions up to 7.3 still ship
+Python 1.5.2 as the default, so you probably do *not* have distutils
+installed, unless you have already done so manually or are running Red
+Hat 8.0 or later.
 
 In this case, your options are:
 
@@ -91,7 +97,7 @@ system, populate the build/scons/ directory by running:
 
         $ scons build/scons
 
-If you don't have SCons version 0.08 or later already installed on your
+If you don't have SCons version 0.11 or later already installed on your
 system, you can use SCons itself to populate the build/scons/ directory
 with a little more typing:
 
@@ -197,13 +203,13 @@ PACKAGES" section below.
 BUILDING PACKAGES
 =================
 
-We now use SCons (version 0.08 or later) to build its own packages.
+We now use SCons (version 0.11 or later) to build its own packages.
 If you already have an appropriate version of SCons installed on your
 system, you can build everything by simply running it:
 
         $ scons
 
-If you don't have SCons version 0.08 or later already installed on your
+If you don't have SCons version 0.11 or later already installed on your
 system, you can build this version of SCons with itself with a little
 more typing:
 

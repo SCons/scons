@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.11 - XXX
+RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600
 
   From Chad Austin:
 
@@ -90,7 +90,7 @@ RELEASE 0.11 - XXX
 
   From Anthony Roach:
 
-  - Use a different static object suffix (.os) when using gcc so shared
+  - Use a different shared object suffix (.os) when using gcc so shared
     and static objects can exist side-by-side in the same directory.
 
   - Allow the same object files on Win32 to be linked into either

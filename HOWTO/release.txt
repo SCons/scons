@@ -393,6 +393,8 @@ Template describe-the-release section:
 IMPORTANT:  Release 0.11 contains the following interface changes:
   - XXX
 
+  See the release notes for more information about these changes.
+
 This release adds the following features:
   - XXX
 
