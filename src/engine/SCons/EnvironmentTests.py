@@ -1995,6 +1995,12 @@ f5: \
         t.build()
         assert x[0] == 'magic word', x
 
+        t = env.Command(target='${X}.out', source='${X}.in',
+                        action = 'foo',
+                        X = 'xxx')[0]
+        assert str(t) == 'xxx.out', str(t)
+        assert 'xxx.in' in map(lambda x: x.path, t.sources)
+
     def test_Configure(self):
         """Test the Configure() method"""
         # Configure() will write to a local temporary file.

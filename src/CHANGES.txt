@@ -127,6 +127,9 @@ RELEASE 0.97 - XXX
   - Allow Aliases to have actions that will be executed whenever
     any of the expanded Alias targets are out of date.
 
+  - Fix expansion of env.Command() overrides within target and
+    source file names.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

@@ -85,6 +85,9 @@ Command(target = 'f8.out', source = 'f8.in',
         action = r"%(python)s build.py $TARGET $SOURCE")
 env.Command(target = 'f9.out', source = 'f9.in',
             action = r"$EXPAND")
+env.Command(target = '${F10}.out', source = '${F10}.in',
+            action = r"%(python)s build.py $TARGET $SOURCE",
+            F10 = 'f10')
 """ % {'python': python})
 
 test.write('f1.in', "f1.in\n")
@@ -98,6 +101,7 @@ test.write('f6.in', "f6.in\n")
 test.write('f7.in', "f7.in\n")
 test.write('f8.in', "f8.in\n")
 test.write('f9.in', "f9.in\n")
+test.write('f10.in', "f10.in\n")
 
 test.run(arguments = '.')
 
@@ -110,5 +114,6 @@ test.must_match('f6.out', "f6.in\n")
 test.must_match('f7.out', "f7.in\n")
 test.must_match('f8.out', "f8.in\n")
 test.must_match('f9.out', "f9.in\n")
+test.must_match('f10.out', "f10.in\n")
 
 test.pass_test()
