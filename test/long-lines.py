@@ -33,23 +33,37 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 if sys.platform == 'win32':
-    lib_=''
-    _dll = '.dll'
-    linkflag = '/LIBPATH:' + test.workpath()
+    lib_static_lib = 'static.lib'
+    lib_shared_dll ='shared.dll'
+    arflag_init = '/LIBPATH:' + test.workpath()
+    arflag = ' /LIBPATH:' + test.workpath()
+    linkflag_init = '/LIBPATH:' + test.workpath()
+    linkflag = ' /LIBPATH:' + test.workpath()
 else:
-    lib_='lib'
-    _dll='.so'
-    linkflag = '-L' + test.workpath()
+    lib_shared_dll = 'libshared.so'
+    lib_static_lib = 'libstatic.a'
+    arflag_init = 'r'
+    arflag = 'o'
+    linkflag_init = '-L' + test.workpath()
+    linkflag = ' -L' + test.workpath()
 
 test.write('SConstruct', """
+arflags = r'%s'
+while len(arflags) <= 8100:
+    arflags = arflags + r'%s'
+
 linkflags = r'%s'
 while len(linkflags) <= 8100:
-    linkflags = linkflags + r' %s'
-env = Environment(LINKFLAGS = '$LINKXXX', LINKXXX = linkflags)
+    linkflags = linkflags + r'%s'
+
+env = Environment(ARFLAGS = '$ARXXX', ARXXX = arflags,
+                  LINKFLAGS = '$LINKXXX', LINKXXX = linkflags)
 env.Program(target = 'foo', source = 'foo.c')
+
+env.StaticLibrary(target = 'static', source = 'static.c')
 # SharedLibrary() uses $LINKFLAGS by default.
-env.SharedLibrary(target = 'bar', source = 'bar.c', no_import_lib=1)
-""" % (linkflag, linkflag))
+env.SharedLibrary(target = 'shared', source = 'shared.c', no_import_lib=1)
+""" % (arflag_init, arflag, linkflag_init, linkflag))
 
 test.write('foo.c', r"""
 int
@@ -61,12 +75,22 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('bar.c', r"""
+test.write('static.c', r"""
 int
 main(int argc, char *argv[])
 {
 	argv[argc++] = "--";
-	printf("foo.c\n");
+	printf("static.c\n");
+	exit (0);
+}
+""")
+
+test.write('shared.c', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("shared.c\n");
 	exit (0);
 }
 """)
@@ -78,6 +102,8 @@ test.up_to_date(arguments = '.')
 
 test.run(program = test.workpath('foo'), stdout = "foo.c\n")
 
-test.fail_test(not os.path.exists(lib_+'bar'+_dll))
+test.fail_test(not os.path.exists(lib_static_lib))
+
+test.fail_test(not os.path.exists(lib_shared_dll))
 
 test.pass_test()

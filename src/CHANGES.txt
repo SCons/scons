@@ -23,6 +23,11 @@ RELEASE 0.09 -
 
   - Support file names with odd characters in them.
 
+ From Matt Balvin:
+
+ - Add long command-line support to the "lib" (MicroSoft static library)
+   Tool, too.
+
  From Steven Knight:
 
  - Fix auto-deduction of target names so that deduced targets end

@@ -36,35 +36,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import string
 
+import SCons.Action
 import SCons.Defaults
 import SCons.Errors
-import SCons.Action
 import SCons.Util
 import msvc
 
+from SCons.Platform.win32 import TempFileMunge
 from SCons.Tool.msvc import get_msdev_paths
-
-def win32TempFileMunge(env, cmd_list, for_signature): 
-    """Given a list of command line arguments, see if it is too
-    long to pass to the win32 command line interpreter.  If so,
-    create a temp file, then pass "@tempfile" as the sole argument
-    to the supplied command (which is the first element of cmd_list).
-    Otherwise, just return [cmd_list]."""
-    cmd = env.subst_list(cmd_list)[0]
-    if for_signature or \
-       (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= 2048:
-        return [cmd_list]
-    else:
-        import tempfile
-        # We do a normpath because mktemp() has what appears to be
-        # a bug in Win32 that will use a forward slash as a path
-        # delimiter.  Win32's link mistakes that for a command line
-        # switch and barfs.
-        tmp = os.path.normpath(tempfile.mktemp())
-        args = map(SCons.Util.quote_spaces, cmd[1:])
-        open(tmp, 'w').write(string.join(args, " ") + "\n")
-        return [ [cmd[0], '@' + tmp],
-                 ['del', tmp] ]
     
 def win32LinkGenerator(env, target, source, for_signature):
     args = [ '$LINK', '$LINKFLAGS', '/OUT:%s' % target[0],
@@ -74,7 +53,7 @@ def win32LinkGenerator(env, target, source, for_signature):
         args.extend(['/PDB:%s'%target[0].File(env['PDB']), '/DEBUG'])
 
     args.extend(map(SCons.Util.to_String, source))
-    return win32TempFileMunge(env, args, for_signature)
+    return TempFileMunge(env, args, for_signature)
 
 def win32LibGenerator(target, source, env, for_signature):
     listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
@@ -103,7 +82,7 @@ def win32LibGenerator(target, source, env, for_signature):
             # Just treat it as a generic source file.
             listCmd.append(str(src))
 
-    return win32TempFileMunge(env, listCmd, for_signature)
+    return TempFileMunge(env, listCmd, for_signature)
 
 def win32LibEmitter(target, source, env):
     msvc.validate_vars(env)
