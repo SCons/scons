@@ -61,7 +61,8 @@ searches for a file named
 or
 .I sconstruct
 (in that order) in the current directory and reads its
-configuration from the first file found.  An alternate file name may be
+configuration from the first file found.
+An alternate file name may be
 specified via the 
 .B -f
 option. If the specified file is not
@@ -70,11 +71,42 @@ in the local directory,
 will internally change its working
 directory (chdir) to the directory containing the file.
 
-The configuration file specifies the files to be built, and
-(optionally) the rules to build those files.  Reasonable default
+The configuration files
+(generically referred to as
+.I SConscript
+files)
+specify the target files to be built, and
+(optionally) the rules to build those targets.  Reasonable default
 rules exist for building common software components (executable
-programs, object files, libraries), so that for simple software
+programs, object files, libraries), so that for most software
 projects, only the target and input files need be specified.
+
+.B scons
+reads and executes the SConscript files as Python scripts,
+so you may use normal Python scripting capabilities
+(such as flow control, data manipulation, and imported Python libraries)
+to handle complicated build situations.
+.BR scons ,
+however, reads all of the SConscript files
+.I before
+it begins building any targets.
+To make this obvious,
+.B scons
+prints the following messages about what it is doing:
+
+.ES
+$ scons foo.out
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets  ...
+cp foo.in foo.out
+scons: done building targets.
+$
+.EE
+
+These status messages may be suppressed using the
+.B -Q
+option.
 
 .B scons
 can scan known input files automatically for dependency
@@ -111,7 +143,7 @@ scons foo bar
 
 Targets may be omitted from the command line,
 in which case the targets specified
-in the configuration file(s) as
+in the SConscript file(s) as
 .B Default
 targets will be built:
 
@@ -119,7 +151,7 @@ targets will be built:
 scons
 .EE
 
-Specifying "cleanup" targets in configuration files is not
+Specifying "cleanup" targets in SConscript files is not
 necessary.  The 
 .B -c
 flag removes all files
@@ -172,7 +204,7 @@ scons -j 4
 
 builds four targets in parallel, for example.
 
-Values of variables to be passed to the configuration file(s)
+Values of variables to be passed to the SConscript file(s)
 may be specified on the command line:
 
 .ES
@@ -181,7 +213,7 @@ scons debug=1 .
 
 These variables are available in SConscript files
 through the ARGUMENTS dictionary,
-and can be used in the configuration file(s) to modify
+and can be used in the SConscript file(s) to modify
 the build in any way:
 
 .ES
@@ -194,7 +226,7 @@ else:
 .\" .B scons
 .\" can maintain a cache of target (derived) files that can
 .\" be shared between multiple builds.  When caching is enabled in a
-.\" configuration file, any target files built by 
+.\" SConscript file, any target files built by 
 .\" .B scons
 .\" will be copied
 .\" to the cache.  If an up-to-date target file is found in the cache, it
@@ -250,7 +282,7 @@ command is specified.
 .\" --cache-disable, --no-cache
 .\" Disable caching.  Will neither retrieve files from cache nor flush
 .\" files to cache.  Has no effect if use of caching is not specified
-.\" in a configuration file.
+.\" in an SConscript file.
 .\"
 .\" .TP
 .\" --cache-force, --cache-populate
@@ -348,14 +380,14 @@ SConscript files, and the total time spent executing SCons itself.
 .TP
 -e, --environment-overrides
 Variables from the execution environment override construction
-variables from the configuration files.
+variables from the SConscript files.
 
 .TP
 .RI -f " file" ", --file=" file ", --makefile=" file ", --sconstruct=" file
 Use 
 .I file 
-as the initial configuration
-file. If 
+as the initial SConscript file.
+If 
 .I file
 is in another directory,
 .B scons 
@@ -364,7 +396,7 @@ will change to that directory before building targets.
 .TP 
 -h, --help
 Print a local help message for this build, if one is defined in
-the configuration file(s), plus a line that describes the 
+the SConscript file(s), plus a line that describes the 
 .B -H
 option for command-line option help.  If no local help message
 is defined, prints the standard help message about command-line
@@ -496,7 +528,7 @@ any out-of-date target files, but do not execute the commands.
 .\" -p
 .\" Print the data base (construction environments,
 .\" Builder and Scanner objects) that are defined
-.\" after reading the configuration files.
+.\" after reading the SConscript files.
 .\" After printing, a normal build is performed
 .\" as usual, as specified by other command-line options.
 .\" This also prints version information
@@ -522,6 +554,14 @@ pstats module.
 Do not run any commands, or print anything.  Just return an exit
 status that is zero if the specified targets are already up to
 date, non-zero otherwise.
+.TP
+-Q
+Quiets SCons status messages about
+reading SConscript files,
+building targets
+and entering directories.
+Commands that are executed
+to rebuild target files are still printed.
 
 .\" .TP
 .\" -r, -R, --no-builtin-rules, --no-builtin-variables
@@ -539,6 +579,7 @@ date, non-zero otherwise.
 -s, --silent, --quiet
 Silent.  Do not print commands that are executed to rebuild
 target files.
+Also suppresses SCons status messages.
 
 .TP
 -S, --no-keep-going, --stop
@@ -645,7 +686,7 @@ repositories are searched in the order specified.
 .\" .SS Python Basics
 .\" XXX Adding this in the future would be a help.
 .SS Construction Environments
-A construction environment is the basic means by which the configuration
+A construction environment is the basic means by which the SConscript
 files communicate build information to 
 .BR scons .
 A new construction environment is created using the 
@@ -2047,7 +2088,7 @@ locations, or site-specific compiler options may need to be passed to the
 compiler. 
 .B scons
 provides a mechanism for overridding construction variables from the
-command line or a text based configuration file through an Options
+command line or a text-based SConscript file through an Options
 object. To create an Options object, call the Options() function:
 
 .TP
@@ -2107,7 +2148,7 @@ of customizable variables. Example:
 Help(opts.GenerateHelpText(env))
 .EE
 
-The text based configuration file is executed as a Python script, and the
+The text based SConscript file is executed as a Python script, and the
 global variables are queried for customizable construction
 variables. Example:
 
@@ -2120,7 +2161,7 @@ CC = 'my_cc'
 .B scons
 also provides various additional functions,
 not associated with a construction environment,
-that configuration files can use:
+that SConscript files can use:
 
 .TP
 .RI BuildDir( build_dir ", " src_dir ", [" duplicate ])
@@ -2231,7 +2272,7 @@ EnsureSConsVersion(0,9)
 This tells 
 .B scons
 to export a list of variables from the current
-configuration file to all other configuration files. The exported variables
+SConscript file to all other SConscript files. The exported variables
 are kept in a global collection, so subsequent exports
 will over-write previous exports that have the same name. 
 Multiple variable names should be passed to
@@ -2265,7 +2306,7 @@ will exit after printing out the help text.
 .RI Import( vars )
 This tells 
 .B scons
-to import a list of variables into the current configuration file. This
+to import a list of variables into the current SConscript file. This
 will import variables that were exported with
 .BR Export ()
 or in the 
@@ -2300,8 +2341,8 @@ env = Environment(platform = Platform('win32'))
 .RI Return( vars )
 This tells
 .B scons
-what variable(s) to use as the return value(s) of the current configuration
-file. These variables will be returned to the "calling" configuration file
+what variable(s) to use as the return value(s) of the current SConscript
+file. These variables will be returned to the "calling" SConscript file
 as the return value(s) of 
 .BR SConscript ().
 Multiple variable names should be passed to 
@@ -2319,7 +2360,7 @@ This tells
 .B scons
 to execute
 .I script
-as a configuration file. The optional 
+as a SConscript (configuration) file. The optional 
 .I exports
 argument provides a list of variable names to export to
 .IR script ". "
@@ -2348,7 +2389,7 @@ this instructs
 .B scons
 to change its working directory (chdir)
 to the directory in which each subsidiary
-configure (SConscript) file lives.
+SConscript file lives.
 Note that you may enable and disable
 this ability by calling
 SConscriptChdir()

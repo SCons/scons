@@ -76,7 +76,7 @@ class BuildTask(SCons.Taskmaster.Task):
     def execute(self):
         if self.targets[0].get_state() == SCons.Node.up_to_date:
             if self.top:
-                print 'scons: "%s" is up to date.' % str(self.targets[0])
+                display('scons: "%s" is up to date.' % str(self.targets[0]))
         else:
             try:
                 self.targets[0].prepare()
@@ -130,7 +130,7 @@ class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def show(self):
         if self.targets[0].builder or self.targets[0].side_effect:
-            print "Removed " + str(self.targets[0])
+            display("Removed " + str(self.targets[0]))
 
     def remove(self):
         if self.targets[0].builder or self.targets[0].side_effect:
@@ -141,7 +141,7 @@ class CleanTask(SCons.Taskmaster.Task):
                     print "scons: Could not remove '%s':" % str(t), e.strerror
                 else:
                     if removed:
-                        print "Removed " + str(t)
+                        display("Removed " + str(t))
 
     execute = remove
 
@@ -178,6 +178,12 @@ exit_status = 0 # exit status, assume success by default
 profiling = 0
 max_drift = None
 repositories = []
+
+#
+def print_it(text):
+    print text
+
+display = print_it
 
 # Exceptions for this module
 class PrintHelp(Exception):
@@ -546,7 +552,7 @@ def options_init():
 
     Option(func = opt_implicit_cache,
         long = ['implicit-cache'],
-        help = "Cache implicit dependencies")
+        help = "Cache implicit (scanned) dependencies.")
 
     def opt_implicit_deps_changed(opt, arg):
         import SCons.Node
@@ -555,7 +561,7 @@ def options_init():
 
     Option(func = opt_implicit_deps_changed,
         long = ['implicit-deps-changed'],
-        help = "Ignore the cached implicit deps.")
+        help = "Ignore the cached implicit dependencies.")
 
     def opt_implicit_deps_unchanged(opt, arg):
         import SCons.Node
@@ -564,7 +570,7 @@ def options_init():
 
     Option(func = opt_implicit_deps_unchanged,
         long = ['implicit-deps-unchanged'],
-        help = "Ignore changes in implicit deps.")
+        help = "Ignore changes in implicit dependencies.")
 
     def opt_j(opt, arg):
 	global num_jobs
@@ -650,11 +656,21 @@ def options_init():
 	long = ['profile'], arg = 'FILE',
 	help = "Profile SCons and put results in FILE.")
 
+    def opt_Q(opt, arg):
+	global display
+	def dont_print_it(text):
+	    pass
+	display = dont_print_it
+
+    Option(func = opt_Q,
+	short = 'Q',
+	help = "Don't print SCons progress messages.")
+
     def opt_q(opt, arg):
         global task_class
         task_class = QuestionTask
 
-    Option(func = opt_q, future = 1,
+    Option(func = opt_q,
 	short = 'q', long = ['question'],
 	help = "Don't build; exit status says if up to date.")
 
@@ -667,6 +683,10 @@ def options_init():
 	help = "Build dependencies in random order.")
 
     def opt_s(opt, arg):
+	global display
+	def dont_print_it(text):
+	    pass
+	display = dont_print_it
 	SCons.Action.print_actions = None
 
     Option(func = opt_s,
@@ -901,7 +921,7 @@ def _main():
             else:
                 script_dir = ''
         if script_dir:
-	    print "scons: Entering directory %s" % script_dir
+            display("scons: Entering directory %s" % script_dir)
             os.chdir(script_dir)
         else:
             raise UserError, "No SConstruct file found."
@@ -944,7 +964,7 @@ def _main():
     for rep in repositories:
         SCons.Node.FS.default_fs.Repository(rep)
 
-    print "scons: Reading SConscript files ..."
+    display("scons: Reading SConscript files ...")
     try:
         start_time = time.time()
         for script in scripts:
@@ -952,12 +972,12 @@ def _main():
         global sconscript_time
         sconscript_time = time.time() - start_time
     except PrintHelp, text:
-        print "scons: done reading SConscript files."
+        display("scons: done reading SConscript files.")
         print text
         print "Use scons -H for help about command-line options."
         sys.exit(0)
 
-    print "scons: done reading SConscript files."
+    display("scons: done reading SConscript files.")
 
     SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
@@ -1025,7 +1045,7 @@ def _main():
 
         calc = SCons.Sig.default_calc
 
-    print "scons: Building targets ..."
+    display("scons: Building targets ...")
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
@@ -1033,7 +1053,7 @@ def _main():
     try:
         jobs.run()
     finally:
-        print "scons: done building targets."
+        display("scons: done building targets.")
         SCons.Sig.write()
 
 def main():

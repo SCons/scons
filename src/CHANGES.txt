@@ -43,7 +43,7 @@ RELEASE 0.09 -
 
   - Add explicit messages to tell when we're "Reading SConscript files
     ...," "done reading SConscript files," "Building targets," and
-    "done building targets."
+    "done building targets."  Add a -Q option to supress these.
 
   - Add separate $SHOBJPREFIX and $SHOBJSUFFIX construction variables
     (by default, the same as $OBJPREFIX and $OBJSUFFIX).
