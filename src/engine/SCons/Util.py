@@ -1011,6 +1011,11 @@ class Proxy:
         """Retrieve the entire wrapped object"""
         return self.__subject
 
+    def __cmp__(self, other):
+        if issubclass(other.__class__, self.__subject.__class__):
+            return cmp(self.__subject, other)
+        return cmp(self.__dict__, other.__dict__)
+
 # attempt to load the windows registry module:
 can_read_reg = 0
 try:

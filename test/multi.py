@@ -369,7 +369,7 @@ test.write('file12b.in', 'file12b.in\n')
 test.run(arguments='file12.out', 
          status=2, 
          stderr="""
-scons: *** Two different builders (ListBuilder(B) and B) were specified for the same target: file12a.out
+scons: *** Cannot build same target `file12a.out' as singular and list
 File "SConstruct", line 11, in ?
 """)
 
