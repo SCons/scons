@@ -39,6 +39,12 @@ RELEASE 0.02 -
 
   - Made Default() accept Nodes as arguments.
 
+  - Changed Export() to make it easier to use
+  
+  - Added Import() method.
+  
+  - Added Return() method.
+
 
 
 RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001
