@@ -53,6 +53,30 @@ import SCons.Util
 import SCons.Warnings
 
 #
+# We stringify these file system Nodes a lot.  Turning a file system Node
+# into a string is non-trivial, because the final string representation
+# can depend on a lot of factors:  whether it's a derived target or not,
+# whether it's linked to a repository or source directory, and whether
+# there's duplication going on.  The normal technique for optimizing
+# calculations like this is to memoize (cache) the string value, so you
+# only have to do the calculation once.
+#
+# A number of the above factors, however, can be set after we've already
+# been asked to return a string for a Node, because a Repository() or
+# BuildDir() call or the like may not occur until later in SConscript
+# files.  So this variable controls whether we bother trying to save
+# string values for Nodes.  The wrapper interface can set this whenever
+# they're done mucking with Repository and BuildDir and the other stuff,
+# to let this module know it can start returning saved string values
+# for Nodes.
+#
+Save_Strings = None
+
+def save_strings(val):
+    global Save_Strings
+    Save_Strings = val
+
+#
 # SCons.Action objects for interacting with the outside world.
 #
 # The Node.FS methods in this module should use these actions to
@@ -417,16 +441,32 @@ class Base(SCons.Node.Node):
             delattr(self, '_rexists')
         except AttributeError:
             pass
+        try:
+            delattr(self, '_str_val')
+        except AttributeError:
+            pass
+        self.relpath = {}
 
     def get_dir(self):
         return self.dir
 
+    def get_suffix(self):
+        return SCons.Util.splitext(self.name)[1]
+
     def __str__(self):
         """A Node.FS.Base object's string representation is its path
         name."""
-        if self.duplicate or self.is_derived():
-            return self.get_path()
-        return self.srcnode().get_path()
+        try:
+            return self._str_val
+        except AttributeError:
+            global Save_Strings
+            if self.duplicate or self.is_derived():
+                str_val = self.get_path()
+            else:
+                str_val = self.srcnode().get_path()
+            if Save_Strings:
+                self._str_val = str_val
+            return str_val
 
     def exists(self):
         try:
@@ -573,7 +613,7 @@ class Entry(Base):
         return node.get_found_includes(env, scanner, target)
 
     def scanner_key(self):
-        return SCons.Util.splitext(self.name)[1]
+        return self.get_suffix()
 
     def get_contents(self):
         """Fetch the contents of the entry.
@@ -1124,6 +1164,10 @@ class Dir(Base):
                         del node._srcnode
                     except AttributeError:
                         pass
+                    try:
+                        del node._str_val
+                    except AttributeError:
+                        pass
                     if duplicate != None:
                         node.duplicate=duplicate
     
@@ -1347,7 +1391,7 @@ class File(Base):
         return self.dir.root()
 
     def scanner_key(self):
-        return SCons.Util.splitext(self.name)[1]
+        return self.get_suffix()
 
     def get_contents(self):
         if not self.rexists():

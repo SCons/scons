@@ -135,6 +135,9 @@ class Node:
         # what line in what file created the node, for example).
         Annotate(self)
 
+    def get_suffix(self):
+        return ''
+
     def generate_build_dict(self):
         """Return an appropriate dictionary of values for building
         this Node."""
