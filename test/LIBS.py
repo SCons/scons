@@ -29,21 +29,32 @@ import sys
 
 if sys.platform == 'win32':
     _exe = '.exe'
+    bar_lib = 'bar.lib'
 else:
     _exe = ''
+    bar_lib = 'libbar.a'
 
 test = TestSCons.TestSCons()
 
 test.subdir('sub1', 'sub2')
 
-foo_exe = test.workpath('foo' + _exe)
+foo1_exe = test.workpath('foo1' + _exe)
+foo2_exe = test.workpath('foo2' + _exe)
+foo3_exe = test.workpath('foo3' + _exe)
+foo4_exe = test.workpath('foo4' + _exe)
 
 test.write('SConstruct', """
 env = Environment(LIBS=['bar'], LIBPATH = '.')
-env.Program(target='foo', source='foo.c')
+env.Program(target='foo1', source='foo1.c')
+env2 = Environment(LIBS=[File(r'%s')], LIBPATH = '.')
+env2.Program(target='foo2', source='foo2.c')
+env3 = Environment(LIBS='bar', LIBPATH = '.')
+env3.Program(target='foo3', source='foo3.c')
+env4 = Environment(LIBS=File(r'%s'), LIBPATH = '.')
+env4.Program(target='foo4', source='foo4.c')
 SConscript('sub1/SConscript', 'env')
 SConscript('sub2/SConscript', 'env')
-""")
+""" % (bar_lib, bar_lib))
 
 test.write(['sub1', 'SConscript'], r"""
 Import('env')
@@ -57,7 +68,7 @@ lib = env.Library(target='baz', source='baz.c')
 env.Install('..', lib)
 """)
 
-test.write('foo.c', r"""
+foo_contents =  r"""
 void bar();
 void baz();
 
@@ -67,7 +78,12 @@ int main(void)
    baz();
    return 0;
 }
-""")
+"""
+
+test.write('foo1.c', foo_contents)
+test.write('foo2.c', foo_contents)
+test.write('foo3.c', foo_contents)
+test.write('foo4.c', foo_contents)
 
 test.write(['sub1', 'bar.c'], r"""
 #include <stdio.h>
@@ -98,24 +114,27 @@ void baz()
 
 test.run(arguments = '.')
 
-test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+test.run(program=foo2_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+test.run(program=foo3_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+test.run(program=foo4_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
 #
 test.write('SConstruct', """
 env = Environment()
-env.Program(target='foo', source='foo.c', LIBS=['baz', 'bar'], LIBPATH = '.')
+env.Program(target='foo1', source='foo1.c', LIBS=['baz', 'bar'], LIBPATH = '.')
 SConscript('sub1/SConscript', 'env')
 SConscript('sub2/SConscript', 'env')
 """)
 
 test.run(arguments = '.')
 
-test.run(program=foo_exe, stdout='sub1/bar.c\nsub2/baz.c\n')
+test.run(program=foo1_exe, stdout='sub1/bar.c\nsub2/baz.c\n')
 
 #
 test.write('SConstruct', """
 env = Environment(LIBS=['bar', 'baz'], LIBPATH = '.')
-env.Program(target='foo', source='foo.c')
+env.Program(target='foo1', source='foo1.c')
 SConscript('sub1/SConscript', 'env')
 SConscript('sub2/SConscript', 'env')
 """)
@@ -126,19 +145,19 @@ test.run(arguments = '.', stderr=None)
 sw = 'ld32: WARNING 84 : ./libbaz.a is not used for resolving any symbol.\n'
 test.fail_test(not test.stderr() in ['', sw])
 
-test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
 #
 test.write('SConstruct', """
 env = Environment()
-env.Program(target='foo', source='foo.c', LIBS=['bar', 'baz'], LIBPATH = '.')
+env.Program(target='foo1', source='foo1.c', LIBS=['bar', 'baz'], LIBPATH = '.')
 SConscript('sub1/SConscript', 'env')
 SConscript('sub2/SConscript', 'env')
 """)
 
 test.run(arguments = '.')
 
-test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
+test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
 test.write(['sub1', 'baz.c'], r"""
 #include <stdio.h>
@@ -152,6 +171,6 @@ void baz()
 test.run(arguments = '.', stderr=None)
 test.fail_test(not test.stderr() in ['', sw])
 
-test.run(program=foo_exe, stdout='sub1/bar.c\nsub1/baz.c 2\n')
+test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c 2\n')
 
 test.pass_test()

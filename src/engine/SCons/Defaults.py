@@ -195,6 +195,8 @@ def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=_concat):
     def f(list, sp=stripprefix, ss=stripsuffix):
         ret = []
         for l in list:
+            if not SCons.Util.is_String(l):
+                l = str(l)
             if l[:len(sp)] == sp:
                 l = l[len(sp):]
             if l[-len(ss):] == ss:

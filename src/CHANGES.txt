@@ -22,6 +22,11 @@ RELEASE 0.95 - XXX
 
   - Fix looking up a naked drive letter as a directory (Dir('C:')).
 
+  - Support using File nodes in the LIBS construction variable.
+
+  - Allow the LIBS construction variable to be a single string or File
+    node, not a list, when only one library is needed.
+
 
 
 RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
