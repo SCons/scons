@@ -15,6 +15,11 @@ RELEASE 0.04 -
   - Fix using a directory as a Default(), and allow Default() to
     support white space in file names for strings in arrays.
 
+  - Man page updates:  corrected some mistakes, documented various
+    missing Environment methods, alphabetized the construction
+    variables and other functions, defined begin and end macros for
+    the example sections, regularized white space separation.
+
 
 
 RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
