@@ -1103,6 +1103,13 @@ class FunctionActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=Environment(XYZ = 'foo'))
         assert c == "\177\036\000\177\037\000d\000\000Sfoo", repr(c)
 
+        class Foo:
+            def get_contents(self, target, source, env, dict=None):
+                return 'xyzzy'
+        a = SCons.Action.FunctionAction(Foo())
+        c = a.get_contents(target=[], source=[], env=Environment())
+        assert c == 'xyzzy', repr(c)
+
 class ListActionTestCase(unittest.TestCase):
 
     def test___init__(self):
@@ -1265,6 +1272,101 @@ class LazyActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=env, dict={})
         assert c == "This is a test", c
 
+class ActionCallerTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test creation of an ActionCaller"""
+        ac = SCons.Action.ActionCaller(1, [2, 3], {'FOO' : 4, 'BAR' : 5})
+        assert ac.parent == 1, ac.parent
+        assert ac.args == [2, 3], ac.args
+        assert ac.kw == {'FOO' : 4, 'BAR' : 5}, ac.kw
+
+    def test_get_contents(self):
+        """Test fetching the contents of an ActionCaller"""
+        def actfunc():
+            pass
+        def strfunc():
+            pass
+
+        af = SCons.Action.ActionFactory(actfunc, strfunc)
+        ac = SCons.Action.ActionCaller(af, [], {})
+        c = ac.get_contents([], [], Environment())
+        assert c == "\177\005\005\177\006\005d\000\000S", repr(c)
+
+        class ActFunc:
+            def __call__(self):
+                pass
+
+        af = SCons.Action.ActionFactory(ActFunc(), strfunc)
+        ac = SCons.Action.ActionCaller(af, [], {})
+        c = ac.get_contents([], [], Environment())
+        assert c == "\177\020\005\177\021\005d\000\000S", repr(c)
+
+        af = SCons.Action.ActionFactory(str, strfunc)
+        ac = SCons.Action.ActionCaller(af, [], {})
+        c = ac.get_contents([], [], Environment())
+        assert c == "<built-in function str>" or \
+               c == "<type 'str'>", repr(c)
+
+    def test___call__(self):
+        """Test calling an ActionCaller"""
+        actfunc_args = []
+        def actfunc(a1, a2, a3, args=actfunc_args):
+            args.extend([a1, a2, a3])
+        def strfunc(a1, a2, a3):
+            pass
+
+        af = SCons.Action.ActionFactory(actfunc, strfunc)
+        ac = SCons.Action.ActionCaller(af, [1, '$FOO', 3], {})
+        ac([], [], Environment(FOO = 2))
+        assert actfunc_args == [1, '2', 3], actfunc_args
+
+        del actfunc_args[:]
+        ac = SCons.Action.ActionCaller(af, [], {'a3' : 6, 'a2' : '$BAR', 'a1' : 4})
+        ac([], [], Environment(BAR = 5))
+        assert actfunc_args == [4, '5', 6], actfunc_args
+
+    def test_strfunction(self):
+        """Test calling the ActionCaller strfunction() method"""
+        strfunc_args = []
+        def actfunc(a1, a2, a3):
+            pass
+        def strfunc(a1, a2, a3, args=strfunc_args):
+            args.extend([a1, a2, a3])
+
+        af = SCons.Action.ActionFactory(actfunc, strfunc)
+        ac = SCons.Action.ActionCaller(af, [1, '$FOO', 3], {})
+        ac.strfunction([], [], Environment(FOO = 2))
+        assert strfunc_args == [1, '2', 3], strfunc_args
+
+        del strfunc_args[:]
+        ac = SCons.Action.ActionCaller(af, [], {'a3' : 6, 'a2' : '$BAR', 'a1' : 4})
+        ac.strfunction([], [], Environment(BAR = 5))
+        assert strfunc_args == [4, '5', 6], strfunc_args
+
+class ActionFactoryTestCase(unittest.TestCase):
+    def test___init__(self):
+        """Test creation of an ActionFactory"""
+        def actfunc():
+            pass
+        def strfunc():
+            pass
+        ac = SCons.Action.ActionFactory(actfunc, strfunc)
+        assert ac.actfunc is actfunc, ac.actfunc
+        assert ac.strfunc is strfunc, ac.strfunc
+
+    def test___call__(self):
+        """Test calling whatever's returned from an ActionFactory"""
+        actfunc_args = []
+        strfunc_args = []
+        def actfunc(a1, a2, a3, args=actfunc_args):
+            args.extend([a1, a2, a3])
+        def strfunc(a1, a2, a3, args=strfunc_args):
+            args.extend([a1, a2, a3])
+        af = SCons.Action.ActionFactory(actfunc, strfunc)
+        af(3, 6, 9)([], [], Environment())
+        assert actfunc_args == [3, 6, 9], actfunc_args
+        assert strfunc_args == [3, 6, 9], strfunc_args
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -1274,7 +1376,9 @@ if __name__ == "__main__":
                  CommandGeneratorActionTestCase,
                  FunctionActionTestCase,
                  ListActionTestCase,
-                 LazyActionTestCase ]
+                 LazyActionTestCase,
+                 ActionCallerTestCase,
+                 ActionFactoryTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         suite.addTests(map(tclass, names))

@@ -6617,6 +6617,175 @@ a = Action(build_it, varlist=['XXX'])
 If the action argument is not one of the above,
 None is returned.
 
+.SS Miscellaneous Action Functions
+
+.B scons
+supplies a number of functions
+that arrange for various common
+file and directory manipulations
+to be performed.
+These are similar in concept to "tasks" in the 
+Ant build tool,
+although the implementation is slightly different.
+These functions do not actually
+perform the specified action
+at the time the function is called,
+but instead return an Action object
+that can be executed at the
+appropriate time.
+(In Object-Oriented terminology,
+these are actually
+Action
+.I Factory
+functions
+that return Action objects.)
+
+In practice,
+there are two natural ways
+that these
+Action Functions
+are intended to be used.
+
+First,
+if you need
+to perform the action
+at the time the SConscript
+file is being read,
+you can use the
+.B Execute
+global function to do so:
+.ES
+Execute(Touch('file'))
+.EE
+
+Second,
+you can use these functions
+to supply Actions in a list
+for use by the
+.B Command
+method.
+This can allow you to
+perform more complicated
+sequences of file manipulation
+without relying
+on platform-specific
+external commands:
+that 
+.ES
+env = Environment(TMPBUILD = '/tmp/builddir')
+env.Command('foo.out', 'foo.in',
+            [Mkdir('$TMPBUILD'),
+             Copy('${SOURCE.dir}', '$TMPBUILD')
+             "cd $TMPBUILD && make",
+             Delete('$TMPBUILD')])
+.EE
+
+.TP
+.RI Chmod( dest ", " mode )
+Returns an Action object that
+changes the permissions on the specified
+.I dest
+file or directory to the specified
+.IR mode .
+Examples:
+
+.ES
+Execute(Chmod('file', 0755))
+
+env.Command('foo.out', 'foo.in',
+            [Copy('$TARGET', '$SOURCE'),
+             Chmod('$TARGET', 0755)])
+.EE
+
+.TP
+.RI Copy( dest ", " src )
+Returns an Action object
+that will copy the
+.I src
+source file or directory to the
+.I dest
+destination file or directory.
+Examples:
+
+.ES
+Execute(Copy('foo.output', 'foo.input'))
+
+env.Command('bar.out', 'bar.in',
+            Copy('$TARGET', '$SOURCE'))
+.EE
+
+.TP
+.RI Delete( entry )
+Returns an Action that
+deletes the specified
+.IR entry ,
+which may be a file or a directory tree.
+If a directory is specified,
+the entire directory tree
+will be removed.
+Examples:
+
+.ES
+Execute(Delete('/tmp/buildroot'))
+
+env.Command('foo.out', 'foo.in',
+            [Delete('${TARGET.dir}'),
+             MyBuildAction])
+.EE
+
+.TP
+.RI Mkdir( dir )
+Returns an Action
+that creates the specified
+directory
+.I dir .
+Examples:
+
+.ES
+Execute(Mkdir('/tmp/outputdir'))
+
+env.Command('foo.out', 'foo.in',
+            [Mkdir('/tmp/builddir',
+             Copy('$SOURCE', '/tmp/builddir')
+             "cd /tmp/builddir && ])
+
+.EE
+
+.TP
+.RI Move( dest ", " src )
+Returns an Action
+that moves the specified
+.I src
+file or directory to
+the specified
+.I dest
+file or directory.
+Examples:
+
+.ES
+Execute(Move('file.destination', 'file.source'))
+
+env.Command('output_file', 'input_file',
+            [MyBuildAction,
+             Move('$TARGET', 'file_created_by_MyBuildAction')])
+.EE
+
+.TP
+.RI Touch( file )
+Returns an Action
+that updates the modification time
+on the specified
+.IR file .
+Examples:
+
+.ES
+Execute(Touch('file_to_be_touched'))
+
+env.Command('marker', 'input_file',
+            [MyBuildAction,
+             Touch('$TARGET')])
+.EE
+
 .SS Variable Substitution
 
 Before executing a command,

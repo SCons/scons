@@ -674,6 +674,14 @@ def BuildDefaultGlobals():
         'Tool'                  : SCons.Tool.Tool,
         'WhereIs'               : SCons.Util.WhereIs,
 
+        # Action factories.
+        'Chmod'                 : SCons.Defaults.Chmod,
+        'Copy'                  : SCons.Defaults.Copy,
+        'Delete'                : SCons.Defaults.Delete,
+        'Mkdir'                 : SCons.Defaults.Mkdir,
+        'Move'                  : SCons.Defaults.Move,
+        'Touch'                 : SCons.Defaults.Touch,
+
         # Other variables we provide.
         'ARGUMENTS'             : Arguments,
         'BUILD_TARGETS'         : BuildTargets,

@@ -41,6 +41,7 @@ import os.path
 import shutil
 import stat
 import string
+import time
 import types
 
 import SCons.Action
@@ -144,6 +145,61 @@ def PDF():
                                  prefix = '$PDFPREFIX',
                                  suffix = '$PDFSUFFIX')
 
+# Common tasks that we allow users to perform in platform-independent
+# ways by creating ActionFactory instances.
+ActionFactory = SCons.Action.ActionFactory
+
+Chmod = ActionFactory(os.chmod,
+                      lambda dest, mode: 'Chmod("%s", 0%o)' % (dest, mode))
+
+def Copy(dest, src):
+    def _copy_func(target, source, env, dest=dest, src=src):
+        dest = str(env.arg2nodes(dest, env.fs.Entry)[0])
+        src = str(env.arg2nodes(src, env.fs.Entry)[0])
+        shutil.copytree(src, dest, 1)
+    def _copy_str(target, source, env, dest=dest, src=src):
+        dest = str(env.arg2nodes(dest, env.fs.Entry)[0])
+        src = str(env.arg2nodes(src, env.fs.Entry)[0])
+        return 'Copy("%s", "%s")' % (dest, src)
+    return SCons.Action.Action(_copy_func, strfunction=_copy_str)
+
+def copy_func(dest, src):
+    if os.path.isfile(src):
+        return shutil.copy(src, dest)
+    else:
+        return shutil.copytree(src, dest, 1)
+
+Copy = ActionFactory(copy_func,
+                     lambda dest, src: 'Copy("%s", "%s")' % (dest, src))
+
+def delete_func(entry):
+    if os.path.isfile(entry):
+        return os.unlink(entry)
+    else:
+        return shutil.rmtree(entry, 1)
+
+Delete = ActionFactory(delete_func,
+                       lambda entry: 'Delete("%s")' % entry)
+
+Mkdir = ActionFactory(os.makedirs,
+                      lambda dir: 'Mkdir("%s")' % dir)
+
+Move = ActionFactory(lambda dest, src: os.rename(src, dest),
+                     lambda dest, src: 'Move("%s", "%s")' % (dest, src))
+
+def touch_func(file):
+    mtime = int(time.time())
+    if os.path.exists(file):
+        atime = os.path.getatime(file)
+    else:
+        open(file, 'w')
+        atime = mtime
+    return os.utime(file, (atime, mtime))
+
+Touch = ActionFactory(touch_func,
+                      lambda file: 'Touch("%s")' % file)
+
+# Internal utility functions
 def copyFunc(dest, source, env):
     """Install a source file into a destination by copying it (and its
     permission/mode bits)."""
