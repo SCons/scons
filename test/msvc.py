@@ -84,6 +84,7 @@ test.write('foo.cpp', '''
 test.write('StdAfx.h', '''
 #include <windows.h>
 #include <stdio.h>
+#include "resource.h"
 ''')
 
 test.write('StdAfx.cpp', '''
@@ -166,6 +167,16 @@ slow = time.time() - start
 
 # using precompiled headers should be significantly faster
 assert fast < slow*0.8
+
+# Modifying resource.h should cause both the resource and precompiled header to be rebuilt:
+test.write('resource.h', '''
+#define IDS_TEST 2003
+''')
+
+test.not_up_to_date(arguments='test.res')
+test.not_up_to_date(arguments='StdAfx.pch')
+test.not_up_to_date(arguments='test.exe')
+test.run(program=test.workpath('test.exe'), stdout='2003 test 2\n')
 
 
 ##########
