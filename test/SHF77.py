@@ -102,7 +102,7 @@ test.fail_test(test.read('test6' + _obj) != "This is a .FPP file.\n")
 
 
 
-g77 = test.where_is('g77')
+g77 = test.detect('F77', 'g77')
 
 if g77:
 

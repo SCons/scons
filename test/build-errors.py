@@ -77,9 +77,9 @@ elif string.find(sys.platform, 'irix') != -1:
 scons: *** [f1] Error 127
 """ % no_such_file)
 else:
-    test.fail_test(test.stderr() != """sh: %s: No such file or directory
+    test.fail_test(string.find(test.stderr(), """%s: No such file or directory
 scons: *** [f1] Error 127
-""" % no_such_file)
+""" % no_such_file) == -1)
 
 
 test.write('SConstruct2', r"""
@@ -106,9 +106,9 @@ elif string.find(sys.platform, 'irix') != -1:
 scons: *** [f2] Error 126
 """ % not_executable)
 else:
-    test.fail_test(test.stderr() != """sh: %s: Permission denied
+    test.fail_test(string.find(test.stderr(), """%s: Permission denied
 scons: *** [f2] Error 126
-""" % not_executable)
+""" % not_executable) == -1)
 
 test.write('SConstruct3', r"""
 bld = Builder(action = '%s $SOURCES $TARGET')
@@ -134,8 +134,8 @@ elif string.find(sys.platform, 'irix') != -1:
 scons: *** [f3] Error 126
 """ % test.workdir)
 else:
-    test.fail_test(test.stderr() != """sh: %s: is a directory
+    test.fail_test(string.find(test.stderr(), """%s: is a directory
 scons: *** [f3] Error 126
-""" % test.workdir)
+""" % test.workdir) == -1)
 
 test.pass_test()

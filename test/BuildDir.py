@@ -37,15 +37,7 @@ else:
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-try:
-    print Environment()['F77']
-except:
-    print 'There is no fortran compiler.'
-""")
-test.run(arguments = ".")
-f77 = test.where_is(test.stdout()[:-1])
-test.unlink('SConstruct')
+f77 = test.detect('F77')
 
 foo11 = test.workpath('test', 'build', 'var1', 'foo1' + _exe)
 foo12 = test.workpath('test', 'build', 'var1', 'foo2' + _exe)
@@ -139,7 +131,7 @@ try:
 except:
     f77 = None
 
-if f77 and WhereIs(env['F77']):
+if f77 and env.Detect(env['F77']):
     env.Command(target='b2.f', source='b2.in', action=buildIt)
     env.Copy(LIBS = [r'%s']).Program(target='bar2', source='b2.f')
     env.Copy(LIBS = [r'%s']).Program(target='bar1', source='b1.f')

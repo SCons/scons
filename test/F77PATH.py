@@ -43,7 +43,7 @@ args = prog + ' ' + subdir_prog + ' ' + variant_prog
 
 test = TestSCons.TestSCons()
 
-if not test.where_is('g77'):
+if not test.detect('F77', 'g77'):
     test.pass_test()
     
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')

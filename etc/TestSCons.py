@@ -182,17 +182,22 @@ class TestSCons(TestCmd.TestCmd):
 	    print self.stderr()
 	    raise TestFailed
 
-    def detect(self, var, prog):
+    def detect(self, var, prog=None):
         """
-        Detect a program named 'prog' by first checking  the construction 
-        variable named 'var' and finally searching the path. If either method
-        fails to detect the program, then false is returned, otherwise 
-        the programs full path is returned.
+        Detect a program named 'prog' by first checking the construction
+        variable named 'var' and finally searching the path used by
+        SCons. If either method fails to detect the program, then false
+        is returned, otherwise the full path to prog is returned. If
+        prog is None, then the value of the environment variable will be
+        used as prog.
         """
 
         import SCons.Environment
+        env = SCons.Environment.Environment()
         try:
-            return SCons.Environment.Environment()[var] == prog and self.where_is(prog)
+            if prog is None:
+                prog = env[var]
+            return env[var] == prog and env.WhereIs(prog)
         except KeyError:
             return None
 

@@ -113,7 +113,7 @@ test.fail_test(test.read('test6' + _obj) != " -x -c\nThis is a .FPP file.\n")
 
 
 
-g77 = test.where_is('g77')
+g77 = test.detect('F77', 'g77')
 FTN_LIB = TestSCons.fortran_lib
 
 if g77:

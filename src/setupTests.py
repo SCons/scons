@@ -32,6 +32,7 @@ import os
 import os.path
 import shutil
 import string
+import sys
 
 import TestSCons
 
@@ -68,7 +69,8 @@ test.subdir('root')
 
 root = test.workpath('root')
 
-standard_lib = '%s/usr/lib/python1.5/site-packages/' % root
+v = string.split(string.split(sys.version)[0], '.')
+standard_lib = '%s/usr/lib/python%s.%s/site-packages/' % (root, v[0], v[1])
 standalone_lib = '%s/usr/lib/scons' % root
 version_lib = '%s/usr/lib/%s' % (root, scons_version)
 
