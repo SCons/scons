@@ -899,13 +899,18 @@ class Node:
 
         if len(lines) == 0:
             newact, newactsig = self.binfo.bact, self.binfo.bactsig
+            def fmt_with_title(title, strlines):
+                lines = string.split(strlines, '\n')
+                sep = '\n' + ' '*(15 + len(title))
+                return ' '*15 + title + string.join(lines, sep) + '\n'
             if old.bactsig != newactsig:
                 if old.bact == newact:
-                    lines.append("the contents of the build action changed\n")
+                    lines.append("the contents of the build action changed\n" +
+                                 fmt_with_title('action: ', newact))
                 else:
                     lines.append("the build action changed:\n" +
-                                 "%sold: %s\n" % (' '*15, old.bact) +
-                                 "%snew: %s\n" % (' '*15, newact))
+                                 fmt_with_title('old: ', old.bact) +
+                                 fmt_with_title('new: ', newact))
 
         if len(lines) == 0:
             return "rebuilding `%s' for unknown reasons" % self

@@ -455,7 +455,9 @@ if mode:
         tgt = str(target[0])
         src = str(source[0])
         shutil.copy(src, tgt)
-    MyCopy = Builder(action = DifferentCopy)
+    def AltCopyStage2(target, source, env):
+        pass
+    MyCopy = Builder(action = [DifferentCopy, AltCopyStage2])
 
     def ChangingCopy(target, source, env):
         tgt = str(target[0])
@@ -491,8 +493,11 @@ test.run(chdir = 'work5',
 scons: rebuilding `f1.out' because the build action changed:
                old: Copy("f1.out", "f1.in")
                new: DifferentCopy(["f1.out"], ["f1.in"])
+                    AltCopyStage2(["f1.out"], ["f1.in"])
 DifferentCopy(["f1.out"], ["f1.in"])
+AltCopyStage2(["f1.out"], ["f1.in"])
 scons: rebuilding `f2.out' because the contents of the build action changed
+               action: ChangingCopy(["f2.out"], ["f2.in"])
 ChangingCopy(["f2.out"], ["f2.in"])
 """))
 

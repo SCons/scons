@@ -186,6 +186,8 @@ RELEASE 0.97 - XXX
   - Add a deprecated warning for use of the old "scanner" keyword argument
     to Builder creation.
 
+  - Improve the --debug=explain message when the build action changes.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
