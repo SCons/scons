@@ -227,6 +227,20 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("$FOO $BAZ $BAR", DummyEnv(glob))
         assert newcom == "BAR $FOO BAR", newcom
 
+        # Test that we don't blow up even if they subscript something
+        # in ways they "can't."
+        glob = { "FOO" : "BAR",
+                 "NOTHING" : "" ,
+                 "NONE" : None }
+        newcom = scons_subst("${FOO[0]}", DummyEnv(glob))
+        assert newcom == "B", newcom
+        newcom = scons_subst("${FOO[7]}", DummyEnv(glob))
+        assert newcom == "", newcom
+        newcom = scons_subst("${NOTHING[1]}", DummyEnv(glob))
+        assert newcom == "", newcom
+        newcom = scons_subst("${NONE[2]}", DummyEnv(glob))
+        assert newcom == "", newcom
+
     def test_splitext(self):
         assert splitext('foo') == ('foo','')
         assert splitext('foo.bar') == ('foo','.bar')

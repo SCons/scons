@@ -456,7 +456,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None):
             key = key[1:-1]
         try:
             e = eval(key, global_vars, local_vars)
-        except NameError:
+        except (IndexError, NameError, TypeError):
             return '\0\5'
         if callable(e):
             # We wait to evaluate callables until the end of everything
@@ -524,7 +524,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None):
             key = key[1:-1]
         try:
             e = eval(key, global_vars, local_vars)
-        except NameError:
+        except (IndexError, NameError, TypeError):
             return '\0\5'
         if callable(e):
             e = e(target=target, source=source, env=env,

@@ -77,6 +77,9 @@ RELEASE 0.14 - XXX
 
   - Add internal SCons.Node.FS.{Dir,File}.Entry() methods.
 
+  - Interpolate the null string if an out-of-range subscript is used
+    for a construction variable.
+
   From Damyan Pepper:
 
   - Quote the "Entering directory" message like Make.
