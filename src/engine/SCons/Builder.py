@@ -94,6 +94,8 @@ class BuilderBase:
 			suffix = '',
 			src_suffix = '',
                         node_factory = SCons.Node.FS.default_fs.File,
+                        target_factory = None,
+                        source_factory = None,
                         scanner = None):
         if name is None:
             raise UserError, "You must specify a name for the builder."
@@ -103,7 +105,8 @@ class BuilderBase:
 	self.prefix = prefix
 	self.suffix = suffix
 	self.src_suffix = src_suffix
-	self.node_factory = node_factory
+        self.target_factory = target_factory or node_factory
+        self.source_factory = source_factory or node_factory
         self.scanner = scanner
         if self.suffix and self.suffix[0] not in '.$':
 	    self.suffix = '.' + self.suffix
@@ -136,12 +139,12 @@ class BuilderBase:
         tlist = SCons.Node.arg2nodes(adjustixes(target,
                                                 env.subst(self.prefix),
                                                 env.subst(self.suffix)),
-                                     self.node_factory)
+                                     self.target_factory)
 
         slist = SCons.Node.arg2nodes(adjustixes(source,
                                                 None,
                                                 env.subst(self.src_suffix)),
-                                     self.node_factory)
+                                     self.source_factory)
         return tlist, slist
 
     def __call__(self, env, target = None, source = None):
@@ -243,13 +246,16 @@ class MultiStepBuilder(BuilderBase):
 			suffix = '',
 			src_suffix = '',
                         node_factory = SCons.Node.FS.default_fs.File,
+                        target_factory = None,
+                        source_factory = None,
                         scanner=None):
         BuilderBase.__init__(self, name, action, prefix, suffix, src_suffix,
-                             node_factory, scanner)
+                             node_factory, target_factory, source_factory,
+                             scanner)
         self.src_builder = src_builder
 
     def __call__(self, env, target = None, source = None):
-        slist = SCons.Node.arg2nodes(source, self.node_factory)
+        slist = SCons.Node.arg2nodes(source, self.source_factory)
         final_sources = []
         src_suffix = env.subst(self.src_suffix)
         sdict = {}

@@ -7,6 +7,7 @@ SCons/Errors.py
 SCons/Job.py
 SCons/exitfuncs.py
 SCons/Node/__init__.py
+SCons/Node/Alias.py
 SCons/Node/FS.py
 SCons/Scanner/__init__.py
 SCons/Scanner/C.py

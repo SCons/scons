@@ -398,7 +398,32 @@ class BuilderTestCase(unittest.TestCase):
             global Foo
 	    return Foo(target)
 	builder = SCons.Builder.Builder(name = "builder", node_factory = FooFactory)
-	assert builder.node_factory is FooFactory
+	assert builder.target_factory is FooFactory
+	assert builder.source_factory is FooFactory
+
+    def test_target_factory(self):
+	"""Test a Builder that creates target nodes of a specified class
+	"""
+	class Foo:
+	    pass
+	def FooFactory(target):
+            global Foo
+	    return Foo(target)
+	builder = SCons.Builder.Builder(name = "builder", target_factory = FooFactory)
+	assert builder.target_factory is FooFactory
+	assert not builder.source_factory is FooFactory
+
+    def test_source_factory(self):
+	"""Test a Builder that creates source nodes of a specified class
+	"""
+	class Foo:
+	    pass
+	def FooFactory(source):
+            global Foo
+	    return Foo(source)
+	builder = SCons.Builder.Builder(name = "builder", source_factory = FooFactory)
+	assert not builder.target_factory is FooFactory
+	assert builder.source_factory is FooFactory
 
     def test_prefix(self):
 	"""Test Builder creation with a specified target prefix

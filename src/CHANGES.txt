@@ -55,6 +55,8 @@ RELEASE 0.06 -
   - Modify the new DVI builder to create .dvi files from LaTeX (.ltx
     and .latex) files.
 
+  - Add support for Aliases (phony targets).
+
   From Steve Leblanc:
 
   - Add support for the -U option.

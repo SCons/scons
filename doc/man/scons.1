@@ -767,6 +767,20 @@ Multiple targets can be passed in to a single call to
 .BR Precious ().
 
 .TP
+.RI Alias( alias ", " targets )
+Creates a phony target that
+expands to one or more other targets.
+Returns the Node object representing the alias,
+which exists outside of any file system.
+This Node object, or the alias name,
+may be used as a dependency of any other target,
+including another alias.
+
+.ES
+env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
+.EE
+
+.TP
 .RI Update( key = val ", [...])"
 Updates the contents of an environment
 with the specified keyword arguments.
@@ -795,7 +809,7 @@ The command line used to generate a static library from object files.
 
 .IP BUILDERS
 A list of the available builders.
-[CFile, CXXFile, Object, Program, Library] by default.
+[Alias, CFile, CXXFile, DVI, Library, Object, Program] by default.
 
 .IP CC 
 The C compiler.

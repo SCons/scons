@@ -62,6 +62,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Errors.pyc
 /usr/lib/scons/SCons/Job.py
 /usr/lib/scons/SCons/Job.pyc
+/usr/lib/scons/SCons/Node/Alias.py
+/usr/lib/scons/SCons/Node/Alias.pyc
 /usr/lib/scons/SCons/Node/FS.py
 /usr/lib/scons/SCons/Node/FS.pyc
 /usr/lib/scons/SCons/Node/__init__.py

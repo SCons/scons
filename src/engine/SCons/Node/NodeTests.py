@@ -740,6 +740,40 @@ class NodeTestCase(unittest.TestCase):
         assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], OtherNode), node
 
+        def lookup_a(str, F=Factory):
+            if str[0] == 'a':
+                n = F(str)
+                n.a = 1
+                return n
+            else:
+                return None
+
+        def lookup_b(str, F=Factory):
+            if str[0] == 'b':
+                n = F(str)
+                n.b = 1
+                return n
+            else:
+                return None
+
+        SCons.Node.arg2nodes_lookups.append(lookup_a)
+        SCons.Node.arg2nodes_lookups.append(lookup_b)
+
+        nodes = SCons.Node.arg2nodes(['aaa', 'bbb', 'ccc'], Factory)
+        assert len(nodes) == 3, nodes
+
+        assert nodes[0].name == 'aaa', nodes[0]
+        assert nodes[0].a == 1, nodes[0]
+        assert not hasattr(nodes[0], 'b'), nodes[0]
+
+        assert nodes[1].name == 'bbb'
+        assert not hasattr(nodes[1], 'a'), nodes[1]
+        assert nodes[1].b == 1, nodes[1]
+
+        assert nodes[2].name == 'ccc'
+        assert not hasattr(nodes[2], 'a'), nodes[1]
+        assert not hasattr(nodes[2], 'b'), nodes[1]
+
 
 
 if __name__ == "__main__":

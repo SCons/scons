@@ -322,6 +322,9 @@ class Walker:
         return not self.stack
 
 
+arg2nodes_lookups = []
+
+
 def arg2nodes(arg, node_factory=None):
     """This function converts a string or list into a list of Node instances.
     It follows the rules outlined in the SCons design document by accepting
@@ -342,7 +345,14 @@ def arg2nodes(arg, node_factory=None):
     nodes = []
     for v in narg:
         if SCons.Util.is_String(v):
-            if node_factory:
+            n = None
+            for l in arg2nodes_lookups:
+                n = l(v)
+                if not n is None:
+                    break
+            if not n is None:
+                nodes.append(n)
+            elif node_factory:
                 nodes.append(node_factory(v))
         # Do we enforce the following restriction?  Maybe, but it
         # would also restrict what we can do to allow people to

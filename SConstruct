@@ -69,6 +69,7 @@ fakeroot = whereis('fakeroot')
 gzip = whereis('gzip')
 rpm = whereis('rpm')
 unzip = whereis('unzip')
+zip = whereis('zip')
 
 # My installation on Red Hat doesn't like any debhelper version
 # beyond 2, so let's use 2 as the default on any non-Debian build.
@@ -174,24 +175,33 @@ try:
     import zipfile
 
     def zipit(env, target, source):
-        print "Zipping %s:" % target
+        print "Zipping %s:" % str(target[0])
         def visit(arg, dirname, names):
             for name in names:
-                arg.write(os.path.join(dirname, name))
+                path = os.path.join(dirname, name)
+                if os.path.isfile(path):
+                    arg.write(path)
+        zf = zipfile.ZipFile(str(target[0]), 'w')
         os.chdir('build')
-        zf = zipfile.ZipFile(target, 'w')
         os.path.walk(env['PSV'], visit, zf)
         os.chdir('..')
+        zf.close()
 
     def unzipit(env, target, source):
-        print "Unzipping %s:" % source[0]
-        zf = zipfile.ZipFile(source[0], 'r')
+        print "Unzipping %s:" % str(source[0])
+        zf = zipfile.ZipFile(str(source[0]), 'r')
         for name in zf.namelist():
             dest = os.path.join(env['UNPACK_ZIP_DIR'], name)
+            dir = os.path.dirname(dest)
+            try:
+                os.makedirs(dir)
+            except:
+                pass
+            print dest,name
             open(dest, 'w').write(zf.read(name))
 
 except:
-    if unzip:
+    if unzip and zip:
         zipit = "cd build && $ZIP $ZIPFLAGS dist/${TARGET.file} $PSV"
         unzipit = "$UNZIP $UNZIPFLAGS $SOURCES"
 
@@ -237,7 +247,7 @@ env = Environment(
 
                    TAR_HFLAG           = tar_hflag,
 
-                   ZIP                 = whereis('zip'),
+                   ZIP                 = zip,
                    ZIPFLAGS            = '-r',
                    UNZIP               = unzip,
                    UNZIPFLAGS          = '-o -d $UNPACK_ZIP_DIR',
@@ -441,6 +451,8 @@ for p in [ scons ]:
                     open(os.path.join(src, 'MANIFEST.in')).readlines())
     dst_files = src_files[:]
 
+    MANIFEST_in_list = []
+
     if p.has_key('subpkgs'):
         #
         # This package includes some sub-packages.  Read up their
@@ -451,8 +463,9 @@ for p in [ scons ]:
         for sp in p['subpkgs']:
             ssubdir = sp['src_subdir']
             isubdir = p['subinst_dirs'][sp['pkg']]
-            f = map(lambda x: x[:-1],
-                    open(os.path.join(src, ssubdir, 'MANIFEST.in')).readlines())
+            MANIFEST_in = os.path.join(src, ssubdir, 'MANIFEST.in')
+            MANIFEST_in_list.append(MANIFEST_in)
+            f = map(lambda x: x[:-1], open(MANIFEST_in).readlines())
             src_files.extend(map(lambda x, s=ssubdir: os.path.join(s, x), f))
             if isubdir:
                 f = map(lambda x, i=isubdir: os.path.join(i, x), f)
@@ -486,6 +499,7 @@ for p in [ scons ]:
     # MANIFEST itself to the array, of course.
     #
     src_files.append("MANIFEST")
+    MANIFEST_in_list.append(os.path.join(src, 'MANIFEST.in'))
 
     def copy(target, source, **kw):
         global src_files
@@ -495,9 +509,7 @@ for p in [ scons ]:
             f.write(file + "\n")
         f.close()
         return 0
-    env.Command(os.path.join(build, 'MANIFEST'),
-                os.path.join(src, 'MANIFEST.in'),
-                copy)
+    env.Command(os.path.join(build, 'MANIFEST'), MANIFEST_in_list, copy)
 
     #
     # Now go through and arrange to create whatever packages we can.

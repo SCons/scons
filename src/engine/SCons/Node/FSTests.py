@@ -290,8 +290,6 @@ class FSTestCase(unittest.TestCase):
         d1.build()
         assert not built_it
 
-        assert d1.get_parents() == [] 
-
         built_it = None
         assert not built_it
         f1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
@@ -479,6 +477,12 @@ class FSTestCase(unittest.TestCase):
 
         assert fs.File('foo.x').scanner_key() == '.x'
         assert fs.File('foo.xyz').scanner_key() == '.xyz'
+
+        d1 = fs.Dir('dir')
+        f1 = fs.File('dir/file')
+        assert f1.dir == d1, f1.dir
+        parents = f1.get_parents()
+        assert parents == [ d1 ], parents
 
 
 class find_fileTestCase(unittest.TestCase):

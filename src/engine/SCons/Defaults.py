@@ -43,9 +43,11 @@ import sys
 
 import SCons.Action
 import SCons.Builder
+import SCons.Errors
+import SCons.Node.Alias
+import SCons.Node.FS
 import SCons.Scanner.C
 import SCons.Scanner.Prog
-import SCons.Errors
 import SCons.Util
 
 
@@ -120,6 +122,14 @@ DVI = SCons.Builder.Builder(name = 'DVI',
                             suffix = '.dvi')
 
 CScan = SCons.Scanner.C.CScan()
+
+def alias_builder(env, target, source):
+    pass
+
+Alias = SCons.Builder.Builder(name = 'Alias',
+                              action = alias_builder,
+                              target_factory = SCons.Node.Alias.default_ans.Alias,
+                              source_factory = SCons.Node.FS.default_fs.Entry)
 
 def get_devstudio_versions ():
     """
@@ -248,7 +258,7 @@ def make_win32_env_from_paths(include, lib, path):
         'LATEXFLAGS' : '',
         'LATEXCOM'   : '$LATEX $LATEXFLAGS $SOURCES',
         'DVISUFFIX'  : '.dvi',
-        'BUILDERS'   : [CFile, CXXFile, Object, Program, Library, DVI],
+        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Object, Program, Library],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.obj',
@@ -318,7 +328,7 @@ if os.name == 'posix':
         'LATEXFLAGS' : '',
         'LATEXCOM'   : '$LATEX $LATEXFLAGS $SOURCES',
         'DVISUFFIX'  : '.dvi',
-        'BUILDERS'   : [CFile, CXXFile, Object, Program, Library, DVI],
+        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Object, Program, Library],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.o',

@@ -336,6 +336,12 @@ class Entry(SCons.Node.Node):
             self.exists_flag = self.exists()
             return self.exists_flag
 
+    def get_parents(self):
+        parents = SCons.Node.Node.get_parents(self)
+        if self.dir and not isinstance(self.dir, ParentOfRoot):
+            parents.append(self.dir)
+        return parents
+
     def current(self):
         """If the underlying path doesn't exist, we know the node is
         not current without even checking the signature, so return 0.

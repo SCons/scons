@@ -753,9 +753,11 @@ def _main():
             node = x
         else:
             try:
-                node = SCons.Node.FS.default_fs.Entry(x,
-                                                      directory = top,
-                                                      create = 0)
+                node = SCons.Node.Alias.default_ans.lookup(x)
+                if node is None:
+                    node = SCons.Node.FS.default_fs.Entry(x,
+                                                          directory = top,
+                                                          create = 0)
             except UserError:
                 string = "scons: *** Do not know how to make target `%s'." % x
                 if not keep_going_on_error:
