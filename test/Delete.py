@@ -29,6 +29,7 @@ Verify that the Delete() Action works.
 """
 
 import os.path
+import string
 
 import TestSCons
 
@@ -52,6 +53,14 @@ env.Command('f8.out', 'f8.in', [Delete("$FILE"), Delete("$DIR"), Cat])
 env.Command('f9.out', 'f9.in', [Cat,
                                 Delete("Delete-$SOURCE"),
                                 Delete("$TARGET-Delete")])
+env.Command('f10-nonexistent.out', 'f10.in', [Delete("$TARGET"),
+                                              Cat])
+env.Command('d11-nonexistent.out', 'd11.in', [Delete("$TARGET"),
+                                              Mkdir("$TARGET")])
+env.Command('f12-nonexistent.out', 'f12.in', [Delete("$TARGET", must_exist=0),
+                                              Cat])
+env.Command('d13-nonexistent.out', 'd13.in', [Delete("$TARGET", must_exist=0),
+                                              Mkdir("$TARGET")])
 """)
 
 test.write('f1', "f1\n")
@@ -68,12 +77,24 @@ test.write('f8.in', "f8.in\n")
 test.write('f9.in', "f9.in\n")
 test.write('Delete-f9.in', "Delete-f9.in\n")
 test.write('f9.out-Delete', "f9.out-Delete\n")
+test.write('f10.in', "f10.in\n")
+test.subdir('d11.in')
+test.write('f12.in', "f12.in\n")
+test.subdir('d13.in')
 
 expect = test.wrap_stdout(read_str = """\
 Delete("f1")
 Delete("d2")
 """,
                           build_str = """\
+Delete("d11-nonexistent.out")
+Mkdir("d11-nonexistent.out")
+Delete("d13-nonexistent.out")
+Mkdir("d13-nonexistent.out")
+Delete("f10-nonexistent.out")
+cat(["f10-nonexistent.out"], ["f10.in"])
+Delete("f12-nonexistent.out")
+cat(["f12-nonexistent.out"], ["f12.in"])
 cat(["f3.out"], ["f3.in"])
 Delete("f4")
 Delete("d5")
@@ -117,5 +138,29 @@ test.must_match('f8.out', "f8.in\n")
 test.must_match('f9.out', "f9.in\n")
 test.must_not_exist('Delete-f9.in')
 test.must_not_exist('f9.out-Delete')
+test.must_exist('f10-nonexistent.out')
+test.must_exist('d11-nonexistent.out')
+test.must_exist('f12-nonexistent.out')
+test.must_exist('d13-nonexistent.out')
+
+test.write("SConstruct", """\
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
+Cat = Action(cat)
+env = Environment()
+env.Command('f14-nonexistent.out', 'f14.in', [Delete("$TARGET", must_exist=1),
+                                              Cat])
+""")
+
+test.write('f14.in', "f14.in\n")
+
+test.run(status=2, stderr=None)
+
+test.fail_test(string.find(test.stderr(), "No such file or directory") == -1)
 
 test.pass_test()
