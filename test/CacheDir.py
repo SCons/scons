@@ -65,6 +65,23 @@ test.write(['src', 'bbb.in'], "bbb.in\n")
 test.write(['src', 'ccc.in'], "ccc.in\n")
 
 #############################################################################
+
+# Verify that building with -n and an empty cache reports that proper
+# build operations would be taken, but that nothing is actually built
+# and that the cache is still empty.
+test.run(chdir = 'src', arguments = '-n .', stdout = test.wrap_stdout("""\
+cat(["aaa.out"], ["aaa.in"])
+cat(["bbb.out"], ["bbb.in"])
+cat(["ccc.out"], ["ccc.in"])
+cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
+"""))
+
+test.must_not_exist(test.workpath('src', 'aaa.out'))
+test.must_not_exist(test.workpath('src', 'bbb.out'))
+test.must_not_exist(test.workpath('src', 'ccc.out'))
+test.must_not_exist(test.workpath('src', 'all'))
+test.fail_test(len(os.listdir(test.workpath('cache1'))))
+
 # Verify that a normal build works correctly, and clean up.
 # This should populate the cache with our derived files.
 test.run(chdir = 'src', arguments = '.')

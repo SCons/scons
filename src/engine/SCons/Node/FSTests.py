@@ -1552,10 +1552,10 @@ class CacheDirTestCase(unittest.TestCase):
 
         save_CacheRetrieve = SCons.Node.FS.CacheRetrieve
         self.retrieved = []
-        def retrieve_succeed(target, source, env, self=self):
+        def retrieve_succeed(target, source, env, self=self, execute=1):
             self.retrieved.append(target)
             return 0
-        def retrieve_fail(target, source, env, self=self):
+        def retrieve_fail(target, source, env, self=self, execute=1):
             self.retrieved.append(target)
             return 1
 

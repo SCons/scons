@@ -202,9 +202,10 @@ def CacheRetrieveFunc(target, source, env):
     fs = t.fs
     cachedir, cachefile = t.cachepath()
     if fs.exists(cachefile):
-        fs.copy2(cachefile, t.path)
-        st = fs.stat(cachefile)
-        fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        if SCons.Action.execute_actions:
+            fs.copy2(cachefile, t.path)
+            st = fs.stat(cachefile)
+            fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
         return 0
     return 1
 
@@ -1553,6 +1554,25 @@ class File(Base):
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
 
+        Note that there's a special trick here with the execute flag
+        (one that's not normally done for other actions).  Basically
+        if the user requested a noexec (-n) build, then
+        SCons.Action.execute_actions is set to 0 and when any action
+        is called, it does its showing but then just returns zero
+        instead of actually calling the action execution operation.
+        The problem for caching is that if the file does NOT exist in
+        cache then the CacheRetrieveString won't return anything to
+        show for the task, but the Action.__call__ won't call
+        CacheRetrieveFunc; instead it just returns zero, which makes
+        the code below think that the file *was* successfully
+        retrieved from the cache, therefore it doesn't do any
+        subsequent building.  However, the CacheRetrieveString didn't
+        print anything because it didn't actually exist in the cache,
+        and no more build actions will be performed, so the user just
+        sees nothing.  The fix is to tell Action.__call__ to always
+        execute the CacheRetrieveFunc and then have the latter
+        explicitly check SCons.Action.execute_actions itself.
+
         Returns true iff the node was successfully retrieved.
         """
         b = self.is_derived()
@@ -1560,10 +1580,10 @@ class File(Base):
             return None
         if b and self.fs.CachePath:
             if self.fs.cache_show:
-                if CacheRetrieveSilent(self, [], None) == 0:
+                if CacheRetrieveSilent(self, [], None, execute=1) == 0:
                     self.build(presub=0, execute=0)
                     return 1
-            elif CacheRetrieve(self, [], None) == 0:
+            elif CacheRetrieve(self, [], None, execute=1) == 0:
                 return 1
         return None
 
