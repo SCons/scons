@@ -98,7 +98,7 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment()
+foo = Environment(YACCFLAGS='-d')
 yacc = foo.Dictionary('YACC')
 bar = Environment(YACC = r'%s wrapper.py ' + yacc)
 foo.Program(target = 'foo', source = 'foo.y')
@@ -149,5 +149,11 @@ newline: '\n';
     test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 
     test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "bar.y\n")
+
+    test.fail_test(not os.path.exists(test.workpath('foo.h')))
+
+    test.run(arguments = '-c .')
+
+    test.fail_test(os.path.exists(test.workpath('foo.h')))
 
 test.pass_test()

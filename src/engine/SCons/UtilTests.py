@@ -268,25 +268,29 @@ class UtilTestCase(unittest.TestCase):
             import UserString
 
             s1=UserString.UserString('blah')
-            assert to_String(s1) is s1, s1
+            assert to_String(s1) == s1, s1
             assert to_String(s1) == 'blah', s1
 
             class Derived(UserString.UserString):
                 pass
             s2 = Derived('foo')
-            assert to_String(s2) is s2, s2
+            assert to_String(s2) == s2, s2
             assert to_String(s2) == 'foo', s2
 
             if hasattr(types, 'UnicodeType'):
                 s3=UserString.UserString(unicode('bar'))
-                assert to_String(s3) is s3, s3
+                assert to_String(s3) == s3, s3
                 assert to_String(s3) == unicode('bar'), s3
+                assert type(to_String(s3)) is types.UnicodeType, \
+                       type(to_String(s3))
         except ImportError:
             pass
 
         if hasattr(types, 'UnicodeType'):
             s4 = unicode('baz')
             assert to_String(s4) == unicode('baz'), to_String(s4)
+            assert type(to_String(s4)) is types.UnicodeType, \
+                   type(to_String(s4))
 
     def test_WhereIs(self):
         test = TestCmd.TestCmd(workdir = '')
@@ -348,6 +352,14 @@ class UtilTestCase(unittest.TestCase):
 
 	    wi = WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
 	    assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+
+    def test_get_env_var(self):
+        """Testing get_environment_var()."""
+        assert get_environment_var("$FOO") == "FOO", get_environment_var("$FOO")
+        assert get_environment_var("${BAR}") == "BAR", get_environment_var("${BAR}")
+        assert get_environment_var("${BAR}FOO") == None, get_environment_var("${BAR}FOO")
+        assert get_environment_var("$BAR ") == None, get_environment_var("$BAR ")
+        assert get_environment_var("FOO$BAR") == None, get_environment_var("FOO$BAR")
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')

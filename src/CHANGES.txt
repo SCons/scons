@@ -58,6 +58,13 @@ RELEASE 0.07 -
 
   - ListBuilder now passes all targets to the action, not just the first.
 
+  - Fix so that -c now deletes generated yacc .h files.
+
+  - Builder actions and emitter functions can now be initialized, through
+    construction variables, to things other than strings.
+
+  - Make top-relative '#/dir' lookups work like '#dir'.
+
   From Steven Knight:
 
   - Fix so that -c -n does *not* remove the targets!

@@ -198,6 +198,15 @@ def _do_create_action(act):
     elif callable(act):
         return FunctionAction(act)
     elif SCons.Util.is_String(act):
+        var=SCons.Util.get_environment_var(act)
+        if var:
+            # This looks like a string that is purely an Environment
+            # variable reference, like "$FOO" or "${FOO}".  We do
+            # something special here...we lazily evaluate the contents
+            # of that Environment variable, so a user could but something
+            # like a function or a CommandGenerator in that variable
+            # instead of a string.
+            return CommandGeneratorAction(LazyCmdGenerator(var))
         listCmds = map(lambda x: CommandAction(string.split(x)),
                        string.split(act, '\n'))
         if len(listCmds) == 1:
@@ -314,11 +323,19 @@ class EnvDictProxy(UserDict.UserDict):
     def __init__(self, env):
         UserDict.UserDict.__init__(self, env)
 
-    def subst(self, string):
-        return SCons.Util.scons_subst(string, self.data, {}, _rm)
+    def subst(self, string, raw=0):
+        if raw:
+            regex_remove = None
+        else:
+            regex_remove = _rm
+        return SCons.Util.scons_subst(string, self.data, {}, regex_remove)
 
-    def subst_list(self, string):
-        return SCons.Util.scons_subst_list(string, self.data, {}, _rm)
+    def subst_list(self, string, raw=0):
+        if raw:
+            regex_remove = None
+        else:
+            regex_remove = _rm
+        return SCons.Util.scons_subst_list(string, self.data, {}, regex_remove)
 
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
@@ -409,6 +426,21 @@ class CommandGeneratorAction(ActionBase):
         since those parts don't affect signatures.
         """
         return apply(self.__generate(kw).get_contents, (), kw)
+
+class LazyCmdGenerator:
+    """This is a simple callable class that acts as a command generator.
+    It holds on to a key into an Environment dictionary, then waits
+    until execution time to see what type it is, then tries to
+    create an Action out of it."""
+    def __init__(self, var):
+        self.var = SCons.Util.to_String(var)
+
+    def __call__(self, env, **kw):
+        if env.has_key(self.var):
+            return env[self.var]
+        else:
+            # The variable reference substitutes to nothing.
+            return ''
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""

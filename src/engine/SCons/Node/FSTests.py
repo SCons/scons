@@ -232,6 +232,8 @@ class FSTestCase(unittest.TestCase):
             Dir_test('.',           './',          sub_dir,           sub)
             Dir_test('./.',         './',          sub_dir,           sub)
             Dir_test('foo/./bar',   'foo/bar/',    sub_dir_foo_bar,   'foo/')
+            Dir_test('#foo/bar',    'foo/bar/',    sub_dir_foo_bar,   'foo/')
+            Dir_test('#/foo/bar',   'foo/bar/',    sub_dir_foo_bar,   'foo/')
 
             try:
                 f2 = fs.File(string.join(['f1', 'f2'], sep), directory = d1)

@@ -86,6 +86,10 @@ class Environment:
         return {}
     def autogenerate(self, dir=''):
         return {}
+    def __getitem__(self, item):
+        return self.d[item]
+    def has_key(self, item):
+        return self.d.has_key(item)
     
 env = Environment()
 
@@ -738,6 +742,25 @@ class BuilderTestCase(unittest.TestCase):
         assert 'bar' in map(str, tgt), map(str, tgt)
 
         tgt = builder(env, target='foo', source='bar', bar=1)
+        assert str(tgt) == 'foo', str(tgt)
+        assert len(tgt.sources) == 2, len(tgt.sources)
+        assert 'foo' in map(str, tgt.sources), map(str, tgt.sources)
+        assert 'bar' in map(str, tgt.sources), map(str, tgt.sources)
+
+        env2=Environment(FOO=emit)
+        builder2=SCons.Builder.Builder(name="builder2", action='foo',
+                                       emitter="$FOO")
+
+        tgt = builder2(env2, target='foo', source='bar')
+        assert str(tgt) == 'foo', str(tgt)
+        assert str(tgt.sources[0]) == 'bar', str(tgt.sources[0])
+
+        tgt = builder2(env2, target='foo', source='bar', foo=1)
+        assert len(tgt) == 2, len(tgt)
+        assert 'foo' in map(str, tgt), map(str, tgt)
+        assert 'bar' in map(str, tgt), map(str, tgt)
+
+        tgt = builder2(env2, target='foo', source='bar', bar=1)
         assert str(tgt) == 'foo', str(tgt)
         assert len(tgt.sources) == 2, len(tgt.sources)
         assert 'foo' in map(str, tgt.sources), map(str, tgt.sources)

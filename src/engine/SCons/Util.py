@@ -139,6 +139,23 @@ class PathList(UserList.UserList):
         # suffix and basepath.
         return self.__class__([ UserList.UserList.__getitem__(self, item), ])
 
+_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[^}]*})$')
+
+def get_environment_var(varstr):
+    """Given a string, first determine if it looks like a reference
+    to a single environment variable, like "$FOO" or "${FOO}".
+    If so, return that variable with no decorations ("FOO").
+    If not, return None."""
+    mo=_env_var.match(to_String(varstr))
+    if mo:
+        var = mo.group(1)
+        if var[0] == '{':
+            return var[1:-1]
+        else:
+            return var
+    else:
+        return None
+
 def quote_spaces(arg):
     if ' ' in arg or '\t' in arg:
         return '"%s"' % arg
@@ -272,8 +289,10 @@ def is_List(e):
 def to_String(s):
     """Better than str() because it will preserve a unicode
     object without converting it to ASCII."""
-    if is_String(s):
-        return s
+    if hasattr(types, 'UnicodeType') and \
+       (type(s) is types.UnicodeType or \
+        (isinstance(s, UserString) and type(s.data) is types.UnicodeType)):
+        return unicode(s)
     else:
         return str(s)
 

@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import os.path
 import string
 import sys
 import TestSCons
@@ -32,8 +33,12 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 if sys.platform == 'win32':
+    lib_=''
+    _dll = '.dll'
     linkflag = '/LIBPATH:' + test.workpath()
 else:
+    lib_='lib'
+    _dll='.so'
     linkflag = '-L' + test.workpath()
 
 test.write('SConstruct', """
@@ -42,6 +47,8 @@ while len(linkflags) <= 8100:
     linkflags = linkflags + r' %s'
 env = Environment(LINKFLAGS = '$LINKXXX', LINKXXX = linkflags)
 env.Program(target = 'foo', source = 'foo.c')
+# Library(shared=1) uses $LINKFLAGS by default.
+env.Library(target = 'bar', source = 'foo.c', shared=1)
 """ % (linkflag, linkflag))
 
 test.write('foo.c', r"""
@@ -57,5 +64,7 @@ main(int argc, char *argv[])
 test.run(arguments = '.')
 
 test.run(program = test.workpath('foo'), stdout = "foo.c\n")
+
+test.fail_test(not os.path.exists(lib_+'bar'+_dll))
 
 test.pass_test()

@@ -82,6 +82,17 @@ def Builder(**kw):
         action_dict = kw['action']
         kw['action'] = SCons.Action.CommandGenerator(DictCmdGenerator(action_dict))
         kw['src_suffix'] = action_dict.keys()
+
+    if kw.has_key('emitter') and \
+       SCons.Util.is_String(kw['emitter']):
+        # This allows users to pass in an Environment
+        # variable reference (like "$FOO") as an emitter.
+        # We will look in that Environment variable for
+        # a callable to use as the actual emitter.
+        var = SCons.Util.get_environment_var(kw['emitter'])
+        if not var:
+            raise UserError, "Supplied emitter '%s' does not appear to refer to an Environment variable" % kw['emitter']
+        kw['emitter'] = EmitterProxy(var)
         
     if kw.has_key('src_builder'):
         return apply(MultiStepBuilder, (), kw)
@@ -128,6 +139,33 @@ def _adjust_suffix(suff):
     if suff and not suff[0] in [ '.', '$' ]:
         return '.' + suff
     return suff
+
+class EmitterProxy:
+    """This is a callable class that can act as a
+    Builder emitter.  It holds on to a string that
+    is a key into an Environment dictionary, and will
+    look there at actual build time to see if it holds
+    a callable.  If so, we will call that as the actual
+    emitter."""
+    def __init__(self, var):
+        self.var = SCons.Util.to_String(var)
+
+    def __call__(self, target, source, env, **kw):
+        emitter = self.var
+
+        # Recursively substitue the variable.
+        # We can't use env.subst() because it deals only
+        # in strings.  Maybe we should change that?
+        while SCons.Util.is_String(emitter) and \
+              env.has_key(emitter):
+            emitter = env[emitter]
+        if not callable(emitter):
+            return (target, source)
+        args = { 'target':target,
+                 'source':source,
+                 'env':env }
+        args.update(kw)
+        return apply(emitter, (), args)
 
 class BuilderBase:
     """Base class for Builders, objects that create output
@@ -374,9 +412,15 @@ class MultiStepBuilder(BuilderBase):
                 dictArgs['env'] = env
                 tgt = apply(src_bld, (), dictArgs)
                 if not SCons.Util.is_List(tgt):
-                    final_sources.append(tgt)
-                else:
-                    final_sources.extend(tgt)
+                    tgt = [ tgt ]
+
+                # Only supply the builder with sources it is capable
+                # of building.
+                tgt = filter(lambda x,
+                             suf=self.src_suffixes(env, kw):
+                             os.path.splitext(SCons.Util.to_String(x))[1] in \
+                             suf, tgt)
+                final_sources.extend(tgt)
             else:
                 final_sources.append(snode)
         dictKwArgs = kw

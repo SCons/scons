@@ -124,6 +124,8 @@ class CleanTask(SCons.Taskmaster.Task):
                         os.unlink(t.path)
                     except OSError:
                         pass
+                    else:
+                        print "Removed " + t.path
             except IndexError:
                 pass
 

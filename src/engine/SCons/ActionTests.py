@@ -178,14 +178,21 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         def f(dummy, env, self=self):
             self.dummy = dummy
-            assert env.subst('$FOO') == 'foo baz\nbar ack', env.subst('$FOO')
-            assert env.subst_list('$FOO') == [ [ 'foo', 'baz' ],
-                                               [ 'bar', 'ack' ] ], env.subst_list('$FOO')
+            assert env.subst("$FOO $( bar $) baz") == 'foo baz\nbar ack bar baz', env.subst("$FOO $( bar $) baz")
+            assert env.subst("$FOO $( bar $) baz", raw=1) == 'foo baz\nbar ack $( bar $) baz', env.subst("$FOO $( bar $) baz", raw=1)
+            assert env.subst_list("$FOO $( bar $) baz") == [ [ 'foo', 'baz' ],
+                                                             [ 'bar', 'ack', 'bar', 'baz' ] ], env.subst_list("$FOO $( bar $) baz")
+            assert env.subst_list("$FOO $( bar $) baz",
+                                  raw=1) == [ [ 'foo', 'baz' ],
+                                              [ 'bar', 'ack', '$(', 'bar', '$)', 'baz' ] ], env.subst_list("$FOO $( bar $) baz", raw=1)
             return "$FOO"
         def func_action(env, dummy, self=self):
-            assert env.subst('$foo') == 'bar', env.subst('$foo')
-            assert env.subst_list('$foo') == [ [ 'bar' ] ], env.subst_list('$foo')
-            assert env.subst_list([ '$foo', 'bar' ]) == [[ 'bar', 'bar' ]], env.subst_list([ [ '$foo', 'bar' ] ])
+            assert env.subst('$foo $( bar $)') == 'bar bar', env.subst('$foo $( bar $)')
+            assert env.subst('$foo $( bar $)',
+                             raw=1) == 'bar $( bar $)', env.subst('$foo $( bar $)', raw=1)
+            assert env.subst_list([ '$foo', '$(', 'bar', '$)' ]) == [[ 'bar', 'bar' ]], env.subst_list([ '$foo', '$(', 'bar', '$)' ])
+            assert env.subst_list([ '$foo', '$(', 'bar', '$)' ],
+                                  raw=1) == [[ 'bar', '$(', 'bar', '$)' ]], env.subst_list([ '$foo', '$(', 'bar', '$)' ], raw=1)
             self.dummy=dummy
         def f2(dummy, env, f=func_action):
             return f
@@ -291,6 +298,39 @@ class ListActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[])
         assert c == "xyz", c
 
+class LazyActionTestCase(unittest.TestCase):
+    def test_init(self):
+        """Test creation of a lazy-evaluation Action
+        """
+        # Environment variable references should create a special
+        # type of CommandGeneratorAction that lazily evaluates the
+        # variable.
+        a9 = SCons.Action.Action('$FOO')
+        assert isinstance(a9, SCons.Action.CommandGeneratorAction), a9
+        assert a9.generator.var == 'FOO', a9.generator.var
+
+        a10 = SCons.Action.Action('${FOO}')
+        assert isinstance(a9, SCons.Action.CommandGeneratorAction), a10
+        assert a10.generator.var == 'FOO', a10.generator.var
+
+    def test_execute(self):
+        """Test executing a lazy-evalueation Action
+        """
+        def f(s, env):
+            s.test=1
+            return 0
+        a = SCons.Action.Action('$BAR')
+        a.execute(s = self, env={'BAR':f})
+        assert self.test == 1, self.test
+
+    def test_get_contents(self):
+        """Test fetching the contents of a lazy-evaluation Action
+        """
+        a = SCons.Action.Action("${FOO}")
+        c = a.get_contents(target=[], source=[],
+                           env={'FOO':[["This", "is", "$(", "a", "$)", "test"]]})
+        assert c == "This is test", c
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -300,7 +340,8 @@ if __name__ == "__main__":
     for tclass in [CommandActionTestCase,
                    CommandGeneratorActionTestCase,
                    FunctionActionTestCase,
-                   ListActionTestCase]:
+                   ListActionTestCase,
+                   LazyActionTestCase]:
         for func in ["test_init", "test_execute", "test_get_contents"]:
             suite.addTest(tclass(func))
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
