@@ -43,7 +43,7 @@ import sys
 import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 test.subdir('simple',
             'SLF',
@@ -474,7 +474,9 @@ XScanner: node = file3.x
 create file4.x from file3.x
 """))
 
-test.run(arguments = 'SLF', stderr=TestSCons.noisy_ar)
+test.run(arguments = 'SLF',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 # XXX Note that the generated .h files still get scanned twice,
 # once before they're generated and once after.  That's the

@@ -31,7 +31,7 @@ and that generated header files don't cause circular dependencies.
 
 import TestSCons
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 def writeFile(target, contents):
@@ -51,7 +51,8 @@ env.Command('gen.cpp', [],
             lambda env,target,source: writeFile(target, '#include "gen.h"\\n'))
 """)
 
-test.run(stderr=TestSCons.noisy_ar)
+test.run(stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.up_to_date(arguments = '.')
 

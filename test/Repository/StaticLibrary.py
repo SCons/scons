@@ -37,7 +37,7 @@ else:
 
 
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 #
 test.subdir('repository', 'work1', 'work2', 'work3')
@@ -101,7 +101,8 @@ test.writable('repository', 0)
 
 #
 test.run(chdir = 'work1', options = opts, arguments = ".",
-         stderr=TestSCons.noisy_ar)
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.run(program = work1_foo, stdout =
 """repository/aaa.c
@@ -125,7 +126,8 @@ bbb(void)
 """)
 
 test.run(chdir = 'work1', options = opts, arguments = ".",
-         stderr=TestSCons.noisy_ar)
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.run(program = work1_foo, stdout =
 """repository/aaa.c
@@ -144,7 +146,8 @@ test.up_to_date(chdir = 'work1', options = opts, arguments = ".")
 test.writable('repository', 1)
 
 test.run(chdir = 'repository', options = opts, arguments = ".",
-         stderr=TestSCons.noisy_ar)
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.run(program = repository_foo, stdout =
 """repository/aaa.c
@@ -173,7 +176,8 @@ bbb(void)
 """)
 
 test.run(chdir = 'work2', options = opts, arguments = ".",
-         stderr=TestSCons.noisy_ar)
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.run(program = work2_foo, stdout =
 """repository/aaa.c

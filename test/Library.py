@@ -26,7 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
-test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
+test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(LIBS = [ 'foo1', 'libfoo2' ],
@@ -121,7 +121,9 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.', stderr=TestSCons.noisy_ar)
+test.run(arguments = '.',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.cpp\nprog.c\n")
@@ -150,7 +152,9 @@ int main() {
 }
 """)
 
-test.run(stderr=TestSCons.noisy_ar)
+test.run(stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
+
 test.run(program = test.workpath('uses-nrd'),
          stdout = "nrd\n")
 

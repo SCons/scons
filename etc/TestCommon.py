@@ -43,7 +43,8 @@ provided by the TestCommon class:
     test.run(options = "options to be prepended to arguments",
              stdout = "expected standard output from the program",
              stderr = "expected error output from the program",
-             status = expected_status)
+             status = expected_status,
+             match = match_function)
 
 The TestCommon module also provides the following variables
 
@@ -75,8 +76,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.7.D001 2004/07/08 10:02:13 knight"
-__version__ = "0.7"
+__revision__ = "TestCommon.py 0.8.D001 2004/07/15 06:24:14 knight"
+__version__ = "0.8"
 
 import os
 import os.path
@@ -220,7 +221,7 @@ class TestCommon(TestCmd):
             self.fail_test(not self.match(file_contents, expect))
         except:
             print "Unexpected contents of `%s'" % file
-	    print "EXPECTED contents ======"
+            print "EXPECTED contents ======"
             print expect
             print "ACTUAL contents ========"
             print file_contents
@@ -240,7 +241,7 @@ class TestCommon(TestCmd):
 
     def run(self, options = None, arguments = None,
                   stdout = None, stderr = '', status = 0, **kw):
-	"""Runs the program under test, checking that the test succeeded.
+        """Runs the program under test, checking that the test succeeded.
 
         The arguments are the same as the base TestCmd.run() method,
         with the addition of:
@@ -248,13 +249,13 @@ class TestCommon(TestCmd):
                 options Extra options that get appended to the beginning
                         of the arguments.
 
-		stdout	The expected standard output from
-			the command.  A value of None means
-			don't test standard output.
+                stdout  The expected standard output from
+                        the command.  A value of None means
+                        don't test standard output.
 
-		stderr	The expected error output from
-			the command.  A value of None means
-			don't test error output.
+                stderr  The expected error output from
+                        the command.  A value of None means
+                        don't test error output.
 
                 status  The expected exit status from the
                         command.  A value of None means don't
@@ -263,32 +264,37 @@ class TestCommon(TestCmd):
         By default, this expects a successful exit (status = 0), does
         not test standard output (stdout = None), and expects that error
         output is empty (stderr = "").
-	"""
+        """
         if options:
             if arguments is None:
                 arguments = options
             else:
                 arguments = options + " " + arguments
         kw['arguments'] = arguments
-	try:
-	    apply(TestCmd.run, [self], kw)
-	except:
-	    print "STDOUT ============"
-	    print self.stdout()
-	    print "STDERR ============"
-	    print self.stderr()
-	    raise
-	if _failed(self, status):
+        try:
+            match = kw['match']
+            del kw['match']
+        except KeyError:
+            match = self.match
+        try:
+            apply(TestCmd.run, [self], kw)
+        except:
+            print "STDOUT ============"
+            print self.stdout()
+            print "STDERR ============"
+            print self.stderr()
+            raise
+        if _failed(self, status):
             expect = ''
             if status != 0:
                 expect = " (expected %s)" % str(status)
             print "%s returned %s%s" % (self.program, str(_status(self)), expect)
             print "STDOUT ============"
             print self.stdout()
-	    print "STDERR ============"
-	    print self.stderr()
-	    raise TestFailed
-	if not stdout is None and not self.match(self.stdout(), stdout):
+            print "STDERR ============"
+            print self.stderr()
+            raise TestFailed
+        if not stdout is None and not match(self.stdout(), stdout):
             print "Expected STDOUT =========="
             print stdout
             print "Actual STDOUT ============"
@@ -298,11 +304,11 @@ class TestCommon(TestCmd):
                 print "STDERR ==================="
                 print stderr
             raise TestFailed
-	if not stderr is None and not self.match(self.stderr(), stderr):
+        if not stderr is None and not match(self.stderr(), stderr):
             print "STDOUT ==================="
             print self.stdout()
-	    print "Expected STDERR =========="
-	    print stderr
-	    print "Actual STDERR ============"
-	    print self.stderr()
-	    raise TestFailed
+            print "Expected STDERR =========="
+            print stderr
+            print "Actual STDERR ============"
+            print self.stderr()
+            raise TestFailed
