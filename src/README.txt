@@ -35,13 +35,23 @@ script as follows:
 
         # python setup.py install
 
-This will install the scons script in the default script directory
-(/usr/bin or C:\Python*\Scripts, for example) and the build engine in an
-appropriate SCons library directory (/usr/lib/scons or C:\Python*\SCons,
-for example).
+This will install the scons script in the default system script
+directory (/usr/bin or C:\Python*\Scripts, for example) and the build
+engine in an appropriate SCons library directory (/usr/lib/scons or
+C:\Python*\SCons, for example).
 
 You should have system installation privileges (that is, "root" or
-"Administrator") when running the setup.py script.
+"Administrator") when running the setup.py script to install SCons in
+the default system directories.
+
+If you don't have system installation privileges, you can use the
+--prefix option to specify an alternate installation location, such as
+your home directory:
+
+        $ python setup.py install --prefix=$HOME
+
+This will install the scons script itself in $HOME/bin and the
+associated library in $HOME/lib/scons
 
 
 DOCUMENTATION
@@ -126,5 +136,4 @@ With more than a little help from the SCons Development team:
         Charles Crain
         Steve Leblanc
         Anthony Roach
-        Steven Shaw
 

@@ -1,7 +1,5 @@
 #
-# SConstruct file to build scons during development.
-#
-# THIS IS NOT READY YET.  DO NOT TRY TO BUILD SCons WITH ITSELF YET.
+# SConstruct file to build scons packages during development.
 #
 
 #

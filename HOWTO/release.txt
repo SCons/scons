@@ -1,4 +1,4 @@
-Things to do to release a version of SCons:
+Things to do to release a new version of SCons:
 
 	Build and test candidate packages
 
@@ -20,7 +20,7 @@ Things to do to release a version of SCons:
 			   cd scons-src-{version}
 			   python runtest.py -a -x C:\Python15\scons.bat
 
-	Read through the README.txt file for any updates
+	Read through the README and src/README.txt files for any updates
 
 	Prepare src/CHANGES.txt
 
@@ -33,8 +33,11 @@ Things to do to release a version of SCons:
 
 		date -R the latest release
 
-		Can probably keep a lot of the existing text, read
-		it through to make sure it's okay and edit appropriately.
+		Read through to make sure it's okay and edit appropriately.
+
+		Can probably keep most of the existing text
+
+		Add any new known problems
 
 	Prepare debian/changelog
 
@@ -66,13 +69,13 @@ Things to do to release a version of SCons:
 
 		aenbr -p scons.0 {5}
 
-		aenc -p {scons.0.5}
+		aenc -p scons.0.{5}
 
                         Call it something like, "Initialize the new
                         branch."  Cause = internal_enhancement.  Exempt
                         it from all tests (*_exempt = true).
 
-		ae_p scons.0.5
+		ae_p scons.0.{5}
 
 		aedb 100
 
@@ -85,9 +88,13 @@ Things to do to release a version of SCons:
 		vi Construct debian/changelog rpm/scons.spec
 
 		# Optionally, do the same in the following:
-		[optional] aecp HOWTO/change.txt debian/scons.postinst
+		[optional] aecp HOWTO/change.txt
+		[optional] aecp HOWTO/release.txt
+		[optional] aecp debian/scons.postinst
 
-		[optional] vi HOWTO/change.txt debian/scons.postinst
+		[optional] vi HOWTO/change.txt
+		[optional] vi HOWTO/release.txt
+		[optional] vi debian/scons.postinst
 
 		aeb
 
@@ -229,8 +236,8 @@ Template release announcement:
 
 
 
-I'm pleased to announce that version 0.XXX of SCons has been released
-and is available for download from the SCons web site:
+Version 0.XXX of SCons has been released and is available for download
+from the SCons web site:
 
         http://www.scons.org/
 
@@ -240,6 +247,19 @@ Or through the download link at the SCons project page at SourceForge:
 
 RPM and Debian packages and a Win32 installer are all available, in
 addition to the traditional .tar.gz files.
+
+
+WHAT'S NEW IN THIS RELEASE?
+
+Version 0.XXX of SCons contains the following important changes:
+
+  - XXX
+
+For a complete list of changes in version 0.04, see the CHANGES.txt
+file in the release itself.
+
+
+WHAT IS SCONS?
 
 SCons is a software construction tool (build tool, make tool) written
 in Python.  Its design is based on the design which won the Software
@@ -269,6 +289,9 @@ scons-announce mailing list to receive notification when new versions of
 SCons become available:
 
         http://lists.sourceforge.net/lists/listinfo/scons-announce
+
+
+ACKNOWLEDGEMENTS
 
 Special thanks to XXX for his/her/their contributions to this release.
 

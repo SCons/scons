@@ -20,9 +20,9 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
+RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
 
-  This is the third alpha release of SCons.  Please consult the
+  This is the fourth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Owing to an extensive test suite, the SCons team believes that this
@@ -39,7 +39,7 @@ RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
       http://sourceforge.net/tracker/?func=add&group_id=30337&atid=398971
 
       We have a reliable bug-fixing methodology already in place and
-      expect to respond to problems relatively quickly.
+      have been responding to problems relatively quickly.
 
     - It is possible that interfaces will change in future releases.  We
       will strive to hold this to a minimum, but you may need to modify
@@ -58,7 +58,7 @@ RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600
 
     - There may be performance issues.  This release has many performance
       improvements.  If you still find the performance unacceptable, we
-      would very muchlike to hear from you and learn more about your
+      would very much like to hear from you and learn more about your
       configuration so we can optimize the right things.
 
     - Error messages don't always exist where they'd be helpful.

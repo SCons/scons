@@ -1,31 +1,187 @@
-Welcome to the SCons development tree.  Here's a brief guide (not
-guaranteed to be up-to-date) to what you'll find herein:
+# Copyright (c) 2001, 2002 Steven Knight
 
-admin/
-	Documentation of SCons administrative procedures.  Maybe
-	other administrative stuff in the future.
+                 SCons - a software construction tool
+
+Welcome to the SCons development tree.  The purpose of this tree is
+not just to hack SCons code, but to package SCons for production
+distribution.
+
+To that extent, the normal development cycle (enforced by Aegis) is not
+to test the code directly, but to package SCons, unpack the package,
+"install" SCons in a test subdirectory, and then to run the tests
+against the unpacked and installed software.  This helps eliminate
+problems caused by, for example, failure to update the list of files to
+be packaged.
+
+Note that if all you want to do is install and run SCons, it
+will probably be easier for you to download and install the
+scons-{version}.tar.gz package rather than to work with the packaging
+logic in this tree.
+
+
+LATEST VERSION
+==============
+
+Before going further, you can check that this package you have is the
+latest version at the SCons download page:
+
+        http://www.scons.org/download.html
+
+
+INSTALLATION
+============
+
+To install SCons from this package, you must first populate the
+build/scons/ directory.  (For an easier way to install SCons, without
+having to populate this directory, use the scons-{version}.tar.gz
+package.)
+
+If you already have an appropriate version of SCons installed on your
+system, populate the build/scons/ directory by running:
+
+        $ scons build/scons
+
+If you don't have SCons version 0.04 or later already installed on your
+system, you can use SCons itself to populate the build/scons/ directory
+with a little more work:
+
+        $ SCONS_LIB_DIR=`pwd`/src/engine python src/script/scons.py build/scons
+
+Either command populates the build/scons/ directory with the necessary
+files and directory structure to use the Python-standard setup script as
+follows:
+
+        # cd build/scons
+        # python setup.py install
+
+This will install the scons script in the default system script
+directory (/usr/bin or C:\Python*\Scripts, for example) and the build
+engine in an appropriate SCons library directory (/usr/lib/scons or
+C:\Python*\SCons, for example).
+
+You should have system installation privileges (that is, "root" or
+"Administrator") when running the setup.py script to install SCons in
+the default system directories.
+
+If you don't have system installation privileges, you can use the
+--prefix option to specify an alternate installation location, such as
+your home directory:
+
+        $ cd build/scons
+        $ python setup.py install --prefix=$HOME
+
+This will install the scons script itself in $HOME/bin and the
+associated library in $HOME/lib/scons
+
+
+TESTING
+=======
+
+Tests are run by the runtest.py script in this directory.
+
+There are two types of tests in this package.  Unit tests for individual
+SCons modules live underneath the src/engine/ subdirectory and are the
+same base name as the module with "Tests.py" appended--for example,
+the unit test for the Builder.py module is the BuilderTests.py script.
+End-to-end tests of SCons live in the test/ subdirectory.
+
+You may specifically list one or more tests to be run:
+
+        $ python runtest.py src/engine/SCons/BuilderTests.py
+
+        $ python runtest.py test/option-j.py test/Program.py
+
+Alternatively, the runtest.py script takes a -a option that searches
+the tree for all of the tests and runs them:
+
+        $ python runtest.py -a
+
+If more than one test is run, the runtest.py script prints a summary
+of how many tests passed, failed, or yielded no result, and lists any
+unsuccessful tests.
+
+The above invocations all test directly the files underneath the src/
+subdirectory, and do not require that a build be performed first.  The
+runtest.py script supports supports additional options to run tests
+against unpacked packages in the build/test*/ subdirectories.  This is
+in the process of being reworked for the next release, however, so for
+now, see the comments in the runtest.py script itself if you want to run
+tests against a package.
+
+
+BUILDING PACKAGES
+=================
+
+We now use SCons (version 0.04 or later) to build its own packages.
+If you already have an appropriate version of SCons installed on your
+system, you can build everything by simply running it:
+
+        $ scons
+
+If you don't have SCons version 0.04 or later already installed on your
+system, you can build this version of SCons with itself with a little
+more work:
+
+        $ SCONS_LIB_DIR=`pwd`/src/engine python src/script/scons.py
+
+Depending on the utilities installed on your system, any or all of the
+following packages will be built:
+
+        build/dist/scons-0.04-1.noarch.rpm
+        build/dist/scons-0.04-1.src.rpm
+        build/dist/scons-0.04.linux-i686.tar.gz
+        build/dist/scons-0.04.tar.gz
+        build/dist/scons-0.04.win32.exe
+        build/dist/scons-doc-0.04.tar.gz
+        build/dist/scons-src-0.04.tar.gz
+        build/dist/scons_0.04-1_all.deb
+
+The SConstruct file is supposed to be smart enough to avoid trying to
+build packages for which you don't have the proper utilities installed.
+For example, if you don't have Debian packaging tools installed, it
+should just not build the .deb package, not fail the build.
+
+If you receive a build error, please report it to the scons-devel
+mailing list.
+
+Note that in addition to creating the above packages, the default build
+will also unpack one or more of the packages for testing.
+
+
+CONTENTS OF THIS PACKAGE
+========================
+
+Not guaranteed to be up-to-date (but better than nothing):
+
+bin/
+        Miscellaneous utilities used in SCons development.  Right now,
+        there's a copy of the script we use to translate an Aegis change
+        into a CVS checkin.
 
 build/
-        This doesn't exist if you're looking at a vanilla source tree.
-        This is generated as part of our build process, and it's where,
-        believe it or not, we *build* everything.
+        This doesn't exist yet if you're looking at a vanilla source
+        tree.  This is generated as part of our build process, and it's
+        where, believe it or not, we *build* everything.
 
 Construct
-        The "Makefile" for the SCons distribution.  Yes, we're using
-        Cons to build its improved stepchild.  (Of course, this will
-        change to an SConstruct file as soon as we have SCons to the
-        point where it can handle the functionality we need...)
+        The old "Makefile" Cons-based for the SCons distribution.  This
+        is obsolete as of version 0.04, but it's being left around for a
+        little while, just in case...
 
 config
         The Aegis configuration, governing much of how we use Aegis to
         build, test, control source, etc.
 
 debian/
-	Files needed to construct a Debian package. The contents of this
-	directory are dictated by the Debian Policy Manual
-	(http://www.debian.org/doc/debian-policy). The package will not be
-	accepted into the Debian distribution unless the contents of this
-	directory satisfy the relevant Debian policies.
+        Files needed to construct a Debian package. The contents of this
+        directory are dictated by the Debian Policy Manual
+        (http://www.debian.org/doc/debian-policy). The package will not be
+        accepted into the Debian distribution unless the contents of this
+        directory satisfy the relevant Debian policies.
+
+doc/
+        SCons documentation.  A variety of things here, in various
+        stages of (in)completeness.
 
 etc/
         A subdirectory for miscellaneous things that we need.  Right
@@ -33,27 +189,119 @@ etc/
         and which we don't want to force people to have to install on
         their own just to help out with SCons development.
 
+HOWTO/
+        Documentation of SCons administrative procedures (making a
+        change, releasing a new version).  Maybe other administrative
+        stuff in the future.
+
+README
+        What you're looking at right now.
+
+rpm/
+        The .spec file for building our RPM packages.
+
 runtest.py
-	Script for running our tests.  By default, this will run a
-	test against the code in the local src/ tree, so you don't
-	have to do a build before testing your changes.  Aegis uses
-	it with an option that requires that you've done a build
-	(aeb) before running tests.
+        Script for running our tests.  By default, this will run a
+        test against the code in the local src/ tree, so you don't
+        have to do a build before testing your changes.  Aegis uses
+        it with an option that requires that you've done a build
+        (aeb) before running tests.
 
 SConstruct
-        The new "Makefile" for the SCons distribution, as soon as we
-        have SCons to the point where it can build itself.  THIS IS
-	NOT READY YET.
+        The "Makefile" for the SCons distribution.
 
 src/
-	Where the actual source code is kept, of course.
+        Where the actual source code is kept, of course.
 
 template/
         Template files, used by Aegis to give you a head start when you
-        aenf or aent a new file.  I haven't been keeping these up to
-	date...
+        aenf or aent a new file.
 
 test/
         End-to-end tests of the SCons utility itself.  These are
         separate from the individual module unit tests, which live
         side-by-side with the modules under src/.
+
+
+DOCUMENTATION
+=============
+
+See the src/RELEASE.txt file for notes about this specific release,
+including known problems.  See the src/CHANGES.txt file for a list of
+changes since the previous release.
+
+The doc/man/scons.1 man page is included in this package, and contains a
+section of small examples for getting started using SCons.
+
+Additional documentation for SCons is available at:
+
+        http://www.scons.org/doc.html
+
+
+LICENSING
+=========
+
+SCons is distributed under the MIT license, a full copy of which is
+available in the LICENSE.txt file. The MIT license is an approved Open
+Source license, which means:
+
+        This software is OSI Certified Open Source Software.  OSI
+        Certified is a certification mark of the Open Source Initiative.
+
+More information about OSI certifications and Open Source software is
+available at:
+
+        http://www.opensource.org/
+
+
+REPORTING BUGS
+==============
+
+You can report bugs either by following the "Tracker - Bugs" link
+on the SCons project page:
+
+        http://sourceforge.net/projects/scons/
+
+or by sending mail to the SCons developers mailing list:
+
+        scons-devel@lists.sourceforge.net
+
+
+MAILING LISTS
+=============
+
+A mailing list for developers of SCons is available.  You may send
+questions or comments to the list at:
+
+        scons-devel@lists.sourceforge.net
+
+You may request a subscription to the scons-devel mailing list at:
+
+        http://lists.sourceforge.net/lists/listinfo/scons-devel
+
+Subscription to the list is by approval.  In practice, no one is being
+refused list membership right now, but we reserve the right to limit
+membership in the future and/or weed out lurkers.
+
+
+FOR MORE INFORMATION
+====================
+
+Check the SCons web site at:
+
+        http://www.scons.org/
+
+
+AUTHOR INFO
+===========
+
+Steven Knight
+knight at baldmt dot com
+http://www.baldmt.com/~knight/
+
+With more than a little help from the SCons Development team:
+        Chad Austin
+        Charles Crain
+        Steve Leblanc
+        Anthony Roach
+
