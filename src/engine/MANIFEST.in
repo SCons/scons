@@ -41,6 +41,7 @@ SCons/Tool/msvc.py
 SCons/Tool/nasm.py
 SCons/Tool/pdflatex.py
 SCons/Tool/pdftex.py
+SCons/Tool/tar.py
 SCons/Tool/tex.py
 SCons/Tool/yacc.py
 SCons/Util.py

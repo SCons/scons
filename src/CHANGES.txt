@@ -75,6 +75,8 @@ RELEASE 0.08 -
     which case the target(s) are deduced from the source file(s) and the
     Builder's specified suffix.
 
+  - Add a tar archive builder.
+
   From Jeff Petkau:
 
   - Fix --implicit-cache if the scanner returns an empty list.

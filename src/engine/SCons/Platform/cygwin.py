@@ -44,7 +44,7 @@ def tool_list():
     return ['ar', 'dvipdf', 'dvips',
             'g++', 'g77', 'gcc', 'gnulink',
             'latex', 'lex',
-            'pdflatex', 'pdftex', 'tex', 'yacc',
+            'pdflatex', 'pdftex', 'tar', 'tex', 'yacc',
             assembler]
 
 def generate(env):

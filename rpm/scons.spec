@@ -132,6 +132,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Tool/pdflatex.pyc
 /usr/lib/scons/SCons/Tool/pdftex.py
 /usr/lib/scons/SCons/Tool/pdftex.pyc
+/usr/lib/scons/SCons/Tool/tar.py
+/usr/lib/scons/SCons/Tool/tar.pyc
 /usr/lib/scons/SCons/Tool/tex.py
 /usr/lib/scons/SCons/Tool/tex.pyc
 /usr/lib/scons/SCons/Tool/yacc.py

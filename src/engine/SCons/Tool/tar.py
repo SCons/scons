@@ -1,10 +1,11 @@
-"""SCons.Platform.win32
+"""SCons.Tool.tar
 
-Platform-specific initialization for Win32 systems.
+Tool-specific initialization for tar.
 
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
+
 """
 
 #
@@ -32,31 +33,23 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Util
+import SCons.Builder
+import SCons.Node.FS
 
-def tool_list():
-    masm = SCons.Util.WhereIs('ml')
-    nasm =  SCons.Util.WhereIs('nasm')
-    if nasm and not masm:
-        assembler = 'nasm'
-    else:
-        assembler = 'masm'
-    return ['dvipdf', 'dvips', 'g77',
-            'latex', 'lex', 'lib', 'mslink', 'msvc',
-            'pdflatex', 'pdftex', 'tar', 'tex', 'yacc',
-            assembler]
+TarBuilder = SCons.Builder.Builder(action = '$TARCOM',
+                                   source_factory = SCons.Node.FS.default_fs.Entry,
+				   suffix = '$TARSUFFIX',
+                                   multi = 1)
 
-def generate(env):
-    if not env.has_key('ENV'):
-        env['ENV']        = {}
-    env['ENV']['PATHEXT'] = '.COM;.EXE;.BAT;.CMD'
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.obj'
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = '.exe'
-    env['LIBPREFIX']      = ''
-    env['LIBSUFFIX']      = '.lib'
-    env['SHLIBPREFIX']    = ''
-    env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = '$LIBSUFFIX'
+def generate(env, platform):
+    """Add Builders and construction variables for tar to an Environment."""
+    try:
+        bld = env['BUILDERS']['Tar']
+    except KeyError:
+        bld = TarBuilder
+        env['BUILDERS']['Tar'] = bld
+
+    env['TAR']        = 'tar'
+    env['TARFLAGS']   = '-c'
+    env['TARCOM']     = '$TAR $TARFLAGS -f $TARGET $SOURCES'
+    env['TARSUFFIX']  = '.tar'

@@ -355,6 +355,22 @@ class Entry(SCons.Node.Node):
         else:
             return self.srcpath
 
+    def get_contents(self):
+        """Fetch the contents of the entry.
+        
+        Since this should return the real contents from the file
+        system, we check to see into what sort of subclass we should
+        morph this Entry."""
+        if os.path.isfile(self.abspath):
+            self.__class__ = File
+            self._morph()
+            return File.get_contents(self)
+        if os.path.isdir(self.abspath):
+            self.__class__ = Dir
+            self._morph()
+            return Dir.get_contents(self)
+        raise AttributeError
+
     def exists(self):
         return os.path.exists(str(self))
 
@@ -476,6 +492,10 @@ class Dir(Entry):
     def set_csig(self, csig):
         """A directory has no signature."""
         pass
+
+    def get_contents(self):
+        """Return a fixed "contents" value of a directory."""
+        return ''
 
     def current(self):
         """If all of our children were up-to-date, then this

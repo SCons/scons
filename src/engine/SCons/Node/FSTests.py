@@ -479,7 +479,27 @@ class FSTestCase(unittest.TestCase):
 
         #XXX test root()
 
-        #XXX test get_contents()
+        # test Entry.get_contents()
+        e = fs.Entry('does_not_exist')
+        exc_caught = 0
+        try:
+            e.get_contents()
+        except AttributeError:
+            exc_caught = 1
+        assert exc_caught, "Should have caught an AttributError"
+
+        test.write("file", "file\n")
+        e = fs.Entry('file')
+        c = e.get_contents()
+        assert c == "file\n", c
+        assert e.__class__ == SCons.Node.FS.File
+        test.unlink("file")
+
+        test.subdir("dir")
+        e = fs.Entry('dir')
+        c = e.get_contents()
+        assert c == "", c
+        assert e.__class__ == SCons.Node.FS.Dir
 
         #XXX test get_timestamp()
 
