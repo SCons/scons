@@ -38,9 +38,7 @@ from distutils.command.install_lib import install_lib
 
 class my_install_lib(install_lib):
     def finalize_options(self):
-	open("/dev/tty", "w").write("lib:  self.install_dir = %s\n" % self.install_dir)
         install_lib.finalize_options(self)
-	open("/dev/tty", "w").write("lib:  self.install_dir = %s\n" % self.install_dir)
 	head = self.install_dir
         while head:
 	    if head == os.sep:

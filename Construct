@@ -370,7 +370,7 @@ for $p ($scons) {
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
     # to the directory in which setup.py exists.
-    my $commands = qq(rm -rf $build/build $build/dist/*
+    my $commands = qq(rm -rf $build/build $build/dist/* $build/dist/$project-$version
                       python $build/setup.py @setup_args
                       python $build/setup.py bdist_wininst);
 
