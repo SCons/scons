@@ -103,10 +103,11 @@ expect = [ test.workpath(sub3_xxx_exe),
            test.workpath(sub4_xxx_exe),
            test.workpath(sub3_xxx_exe),
            test.workpath(sub4_xxx_exe),
-           'scons: "." is up to date.',
 	 ]
 
-test.run(arguments = ".", stdout = string.join(expect, "\n") + "\n")
+test.run(arguments = ".",
+         stdout = test.wrap_stdout(read_str = string.join(expect, "\n") + "\n",
+                                   build_str = 'scons: "." is up to date.\n'))
 
 os.environ['PATH'] = string.join(pathdirs_1243, os.pathsep)
 
@@ -120,9 +121,10 @@ expect = [ test.workpath(sub4_xxx_exe),
            test.workpath(sub4_xxx_exe),
            test.workpath(sub3_xxx_exe),
            test.workpath(sub4_xxx_exe),
-           'scons: "." is up to date.',
 	 ]
 
-test.run(arguments = ".", stdout = string.join(expect, "\n") + "\n")
+test.run(arguments = ".",
+         stdout = test.wrap_stdout(read_str = string.join(expect, "\n") + "\n",
+                                   build_str = 'scons: "." is up to date.\n'))
 
 test.pass_test()

@@ -48,7 +48,7 @@ file4 = FindFile('testfile2', [ 'bar/baz', 'foo', '.', 'bar' ])
 print open(str(file4), 'r').read()
 """)
 
-expect = """test 1
+expect = test.wrap_stdout(read_str = """test 1
 
 test 3
 
@@ -56,8 +56,7 @@ test 2
 
 test 4
 
-scons: "." is up to date.
-"""
+""", build_str = 'scons: "." is up to date.\n')
 
 test.run(arguments = ".", stdout = expect)
 

@@ -53,7 +53,7 @@ Platform('win32')(env)
 print "'%s'" % env['LIBSUFFIX']
 """)
 
-expect = """'.exe'
+expect = test.wrap_stdout(read_str = """'.exe'
 '.exe'
 ''
 '.exe'
@@ -61,8 +61,7 @@ expect = """'.exe'
 '.lib'
 '.a'
 '.lib'
-scons: "." is up to date.
-"""
+""", build_str = 'scons: "." is up to date.\n')
 
 test.run(arguments = ".", stdout = expect)
 

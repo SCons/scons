@@ -52,10 +52,12 @@ print bar.variable
 """)
 
 test.run(arguments = '-I sub1 -I sub2 .',
-         stdout = 'sub1/foo\nsub2/bar\nscons: "." is up to date.\n')
+         stdout = test.wrap_stdout(read_str = 'sub1/foo\nsub2/bar\n',
+	                           build_str = 'scons: "." is up to date.\n'))
 
 test.run(arguments = '--include-dir=sub2 --include-dir=sub1 .',
-	 stdout = 'sub2/foo\nsub2/bar\nscons: "." is up to date.\n')
+	 stdout = test.wrap_stdout(read_str = 'sub2/foo\nsub2/bar\n',
+	                           build_str = 'scons: "." is up to date.\n'))
 
 test.pass_test()
  

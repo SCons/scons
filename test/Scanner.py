@@ -132,6 +132,7 @@ test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4
 
 test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
 
-test.run(arguments = 'foo', stdout='scons: "foo" is up to date.\n')
+test.run(arguments = 'foo',
+         stdout=test.wrap_stdout('scons: "foo" is up to date.\n'))
 
 test.pass_test()

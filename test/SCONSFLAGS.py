@@ -37,7 +37,12 @@ test.write('SConstruct', r"""
 Help("Help text.\n")
 """)
 
-expect = "Help text.\n\nUse scons -H for help about command-line options.\n"
+expect = """scons: Reading SConscript files ...
+scons: done reading SConscript files.
+Help text.
+
+Use scons -H for help about command-line options.
+"""
 
 os.environ['SCONSFLAGS'] = ''
 

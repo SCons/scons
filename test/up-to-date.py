@@ -58,11 +58,11 @@ test.write('f4.in', "f4.in\n")
 test.run(arguments = 'f1.out f3.out')
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out', stdout =
-"""scons: "f1.out" is up to date.
+test.wrap_stdout("""scons: "f1.out" is up to date.
 %s build.py f2.out f2.in
 scons: "f3.out" is up to date.
 %s build.py f4.out f4.in
-""" % (python, python))
+""" % (python, python)))
 
 test.pass_test()
 

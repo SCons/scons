@@ -41,6 +41,10 @@ RELEASE 0.09 -
     existence of a file before scanning it.  (This adds a generic
     hook to check an arbitrary condition before scanning.)
 
+  - Add explicit messages to tell when we're "Reading SConscript files
+    ...," "done reading SConscript files," "Building targets," and
+    "done building targets."
+
  From Jeff Petkau:
 
   - Fix interpretation of '#/../foo' on Win32 systems.

@@ -87,8 +87,7 @@ SCons warning: Ignoring corrupt .sconsign file: sub1..sconsign
 .*
 '''
 
-stdout = '''foo.in->sub1.foo.out
-'''
+stdout = test.wrap_stdout('foo.in->sub1.foo.out\n')
 
 test.write(sub1__sconsign, 'garbage')
 test.run(arguments = '.', stderr=stderr, stdout=stdout)

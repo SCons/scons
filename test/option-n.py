@@ -51,7 +51,7 @@ test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
 
 args = 'f1.out f2.out'
-expect = "%s build.py f1.out\n%s build.py f2.out\n" % (python, python)
+expect = test.wrap_stdout("%s build.py f1.out\n%s build.py f2.out\n" % (python, python))
 
 test.run(arguments = args, stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
@@ -84,7 +84,7 @@ test.run(arguments = args)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
-expect = "Removed f1.out\nRemoved f2.out\n"
+expect = test.wrap_stdout("Removed f1.out\nRemoved f2.out\n")
 
 test.run(arguments = '-n -c ' + args, stdout = expect)
 

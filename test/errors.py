@@ -71,7 +71,7 @@ a ! x
 """)
 
 test.run(arguments='-f SConstruct1',
-	 stdout = "",
+	 stdout = "scons: Reading SConscript files ...\n",
 	 stderr = """  File "SConstruct1", line 2
 
     a ! x
@@ -90,7 +90,7 @@ raise SCons.Errors.UserError, 'Depends() require both sources and targets.'
 """)
 
 test.run(arguments='-f SConstruct2',
-	 stdout = "",
+	 stdout = "scons: Reading SConscript files ...\n",
 	 stderr = """
 SCons error: Depends\(\) require both sources and targets.
 File "SConstruct2", line 4, in \?
@@ -103,7 +103,7 @@ raise InternalError, 'error inside'
 """)
 
 test.run(arguments='-f SConstruct3',
-	 stdout = "other errors\n",
+	 stdout = "scons: Reading SConscript files ...\nother errors\n",
 	 stderr = r"""Traceback \((most recent call|innermost) last\):
   File ".+", line \d+, in .+
   File ".+", line \d+, in .+

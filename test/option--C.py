@@ -66,19 +66,24 @@ print GetBuildPath('..')
 """)
 
 test.run(arguments = '-C sub .',
-	 stdout = '%s\nscons: "." is up to date.\n' % wpath)
+	 stdout = test.wrap_stdout(read_str = '%s\n' % wpath,
+	                           build_str = 'scons: "." is up to date.\n'))
 
 test.run(arguments = '-C sub -C dir .',
-	 stdout = '%s\nscons: "." is up to date.\n' % wpath_sub)
+	 stdout = test.wrap_stdout(read_str = '%s\n' % wpath_sub,
+	                           build_str = 'scons: "." is up to date.\n'))
 
 test.run(arguments = ".",
-         stdout = 'SConstruct %s\nscons: "." is up to date.\n' % wpath)
+	 stdout = test.wrap_stdout(read_str = 'SConstruct %s\n' % wpath,
+	                           build_str = 'scons: "." is up to date.\n'))
 
 test.run(arguments = '--directory=sub/dir .',
-	 stdout = '%s\nscons: "." is up to date.\n' % wpath_sub)
+	 stdout = test.wrap_stdout(read_str = '%s\n' % wpath_sub,
+	                           build_str = 'scons: "." is up to date.\n'))
 
 test.run(arguments = '-C %s -C %s .' % (wpath_sub_dir, wpath_sub),
-	 stdout = '%s\nscons: "." is up to date.\n' % wpath)
+	 stdout = test.wrap_stdout(read_str = '%s\n' % wpath,
+	                           build_str = 'scons: "." is up to date.\n'))
 
 test.pass_test()
  

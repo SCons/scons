@@ -1,4 +1,4 @@
-"""engine.SCons.SConscript
+"""SCons.Script.SConscript
 
 This module defines the Python API provided to SConscript and SConstruct 
 files.
@@ -47,8 +47,10 @@ import os.path
 import string
 import sys
 
+def do_nothing(text): pass
+HelpFunction = do_nothing
+
 default_targets = []
-print_help = 0
 arguments = {}
 launch_dir = os.path.abspath(os.curdir)
 
@@ -216,10 +218,7 @@ def Local(*targets):
                t.set_local()
 
 def Help(text):
-    if print_help:
-        print text
-        print "Use scons -H for help about command-line options."
-        sys.exit(0)
+    HelpFunction(text)
 
 def BuildDir(build_dir, src_dir, duplicate=1):
     SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)

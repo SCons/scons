@@ -209,7 +209,8 @@ Return("result")
 wpath = test.workpath()
 
 test.run(arguments = ".",
-         stdout = 'SConstruct %s\nSConscript %s\nscons: "." is up to date.\n' % (wpath, wpath))
+         stdout = test.wrap_stdout(read_str = 'SConstruct %s\nSConscript %s\n' % (wpath, wpath),
+                                   build_str = 'scons: "." is up to date.\n'))
 
 
 test.pass_test()

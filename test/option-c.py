@@ -62,21 +62,24 @@ test.fail_test(test.read(test.workpath('foo2.xxx')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
-test.run(arguments = '-c foo1.out', stdout = "Removed foo1.out\n")
+test.run(arguments = '-c foo1.out',
+         stdout = test.wrap_stdout("Removed foo1.out\n"))
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(not os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(not os.path.exists(test.workpath('foo2.out')))
 test.fail_test(not os.path.exists(test.workpath('foo3.out')))
 
-test.run(arguments = '--clean foo2.out foo2.xxx', stdout = "Removed foo2.xxx\nRemoved foo2.out\n")
+test.run(arguments = '--clean foo2.out foo2.xxx',
+         stdout = test.wrap_stdout("Removed foo2.xxx\nRemoved foo2.out\n"))
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(os.path.exists(test.workpath('foo2.out')))
 test.fail_test(not os.path.exists(test.workpath('foo3.out')))
 
-test.run(arguments = '--remove foo3.out', stdout = "Removed foo3.out\n")
+test.run(arguments = '--remove foo3.out',
+         stdout = test.wrap_stdout("Removed foo3.out\n"))
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
@@ -90,7 +93,8 @@ test.fail_test(test.read(test.workpath('foo2.xxx')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
-test.run(arguments = '-c foo2.xxx', stdout = "Removed foo2.xxx\n")
+test.run(arguments = '-c foo2.xxx',
+         stdout = test.wrap_stdout("Removed foo2.xxx\n"))
 
 test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
 test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
@@ -98,7 +102,7 @@ test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
 test.run(arguments = '-c .',
-         stdout = "Removed foo1.out\nRemoved foo2.out\nRemoved foo3.out\n")
+         stdout = test.wrap_stdout("Removed foo1.out\nRemoved foo2.out\nRemoved foo3.out\n"))
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(os.path.exists(test.workpath('foo2.out')))
@@ -106,11 +110,11 @@ test.fail_test(os.path.exists(test.workpath('foo3.out')))
 
 test.run(arguments = 'foo1.out foo2.out foo3.out')
 
-expect = """Removed foo1.out
+expect = test.wrap_stdout("""Removed foo1.out
 Removed foo2.xxx
 Removed foo2.out
 Removed foo3.out
-"""
+""")
 
 test.run(arguments = '-c -n foo1.out foo2.out foo3.out', stdout = expect)
 
@@ -125,7 +129,7 @@ test.writable('.', 0)
 f = open(test.workpath('foo1.out'))
 
 test.run(arguments = '-c foo1.out',
-         stdout = "scons: Could not remove 'foo1.out': Permission denied\n")
+         stdout = test.wrap_stdout("scons: Could not remove 'foo1.out': Permission denied\n"))
 
 test.fail_test(not os.path.exists(test.workpath('foo1.out')))
 

@@ -1,4 +1,4 @@
-"""engine.SCons.script
+"""SCons.Script
 
 This file implements the main() function used by the scons script.
 
@@ -179,6 +179,9 @@ profiling = 0
 max_drift = None
 repositories = []
 
+# Exceptions for this module
+class PrintHelp(Exception):
+    pass
 
 # utility functions
 
@@ -503,9 +506,11 @@ def options_init():
 	help = "Read FILE as the top-level SConstruct file.")
 
     def opt_help(opt, arg):
-	global help_option
+        global help_option
         help_option = 'h'
-	SCons.Script.SConscript.print_help = 1
+        def raisePrintHelp(text):
+            raise PrintHelp, text
+        SCons.Script.SConscript.HelpFunction = raisePrintHelp
 
     Option(func = opt_help,
 	short = 'h', long = ['help'],
@@ -939,11 +944,20 @@ def _main():
     for rep in repositories:
         SCons.Node.FS.default_fs.Repository(rep)
 
-    start_time = time.time()
-    for script in scripts:
-        SCons.Script.SConscript.SConscript(script)
-    global sconscript_time
-    sconscript_time = time.time() - start_time
+    print "scons: Reading SConscript files ..."
+    try:
+        start_time = time.time()
+        for script in scripts:
+            SCons.Script.SConscript.SConscript(script)
+        global sconscript_time
+        sconscript_time = time.time() - start_time
+    except PrintHelp, text:
+        print "scons: done reading SConscript files."
+        print text
+        print "Use scons -H for help about command-line options."
+        sys.exit(0)
+
+    print "scons: done reading SConscript files."
 
     SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
 
@@ -1011,6 +1025,7 @@ def _main():
 
         calc = SCons.Sig.default_calc
 
+    print "scons: Building targets ..."
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
@@ -1018,6 +1033,7 @@ def _main():
     try:
         jobs.run()
     finally:
+        print "scons: done building targets."
         SCons.Sig.write()
 
 def main():

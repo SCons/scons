@@ -120,9 +120,8 @@ test.fail_test(not os.path.exists(test.workpath('f3.out')))
 
 test.write('f3.in', "f3.in 2 \n")
 
-test.run(arguments = 'f1.out', stdout=""".* build.py f3.out f3.in
-.* build.py f1.out f1.in
-""")
+test.run(arguments = 'f1.out',
+         stdout = test.wrap_stdout(".* build.py f3.out f3.in\n.* build.py f1.out f1.in\n"))
 
 test.up_to_date(arguments = 'f1.out')
 
@@ -151,9 +150,8 @@ test.fail_test(not os.path.exists(test.workpath('f1.out')))
 
 test.write('f3.in', "f3.in 3 \n")
 
-test.run(arguments = 'f1.out', stdout=""".* build.py f3.out f3.in
-.* build.py f1.out f1.in
-""")
+test.run(arguments = 'f1.out',
+         stdout = test.wrap_stdout('.* build.py f3.out f3.in\n.* build.py f1.out f1.in\n'))
 
 test.up_to_date(arguments = 'f1.out')
 

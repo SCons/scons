@@ -53,7 +53,7 @@ test.run(arguments = '.')
 test.fail_test(test.read('aaa.out') != "aaa.in\n")
 
 #
-test.run(arguments = "aaa.in", stdout = "")
+test.run(arguments = "aaa.in", stdout = test.wrap_stdout(""))
 
 test.fail_test(not os.path.exists('aaa.in'))
 

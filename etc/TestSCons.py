@@ -133,15 +133,15 @@ class TestSCons(TestCmd.TestCmd):
 	    print self.stderr()
 	    raise TestFailed
 	if not stdout is None and not self.match(self.stdout(), stdout):
-	    print "Expected STDOUT =========="
-	    print stdout
-	    print "Actual STDOUT ============"
-	    print self.stdout()
-	    stderr = self.stderr()
-	    if stderr:
-		print "STDERR ==================="
-		print stderr
-	    raise TestFailed
+                print "Expected STDOUT =========="
+                print stdout
+                print "Actual STDOUT ============"
+                print self.stdout()
+                stderr = self.stderr()
+                if stderr:
+                    print "STDERR ==================="
+                    print stderr
+                raise TestFailed
 	if not stderr is None and not self.match(self.stderr(), stderr):
             print "STDOUT ==================="
             print self.stdout()
@@ -151,12 +151,23 @@ class TestSCons(TestCmd.TestCmd):
 	    print self.stderr()
 	    raise TestFailed
 
+    def wrap_stdout(self, build_str = "", read_str = ""):
+        """Wraps standard output string(s) in the normal
+        "Reading ... done" and "Building ... done" strings
+        """
+        return "scons: Reading SConscript files ...\n" + \
+               read_str + \
+               "scons: done reading SConscript files.\n" + \
+               "scons: Building targets ...\n" + \
+               build_str + \
+               "scons: done building targets.\n"
+
     def up_to_date(self, options = None, arguments = None, **kw):
-	    s = ""
-	    for arg in string.split(arguments):
-		s = s + 'scons: "%s" is up to date.\n' % arg
-                if options:
-                    arguments = options + " " + arguments
-	    kw['arguments'] = arguments
-	    kw['stdout'] = s
-	    apply(self.run, [], kw)
+        s = ""
+        for arg in string.split(arguments):
+            s = s + 'scons: "%s" is up to date.\n' % arg
+            if options:
+                arguments = options + " " + arguments
+        kw['arguments'] = arguments
+        kw['stdout'] = self.wrap_stdout(build_str = s)
+        apply(self.run, [], kw)

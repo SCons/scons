@@ -48,18 +48,26 @@ env.B('foo.out', 'foo.mid')
 
 test.write('foo.in', "foo.in")
 
-test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid", stdout='built foo.mid\n')
-test.run(arguments="--max-drift=0 -f SConstruct2 foo.out", stdout='built foo.out\n')
+test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
+         stdout = test.wrap_stdout('built foo.mid\n'))
+test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
+         stdout = test.wrap_stdout('built foo.out\n'))
 
-test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid", stdout='scons: "foo.mid" is up to date.\n')
-test.run(arguments="--max-drift=0 -f SConstruct2 foo.out", stdout='scons: "foo.out" is up to date.\n')
+test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
+         stdout = test.wrap_stdout('scons: "foo.mid" is up to date.\n'))
+test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
+         stdout = test.wrap_stdout('scons: "foo.out" is up to date.\n'))
 
 test.write('foo.in', "foo.in 2")
 
-test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid", stdout='built foo.mid\n')
-test.run(arguments="--max-drift=0 -f SConstruct2 foo.out", stdout='built foo.out\n')
+test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
+         stdout = test.wrap_stdout('built foo.mid\n'))
+test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
+         stdout = test.wrap_stdout('built foo.out\n'))
 
-test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid", stdout='scons: "foo.mid" is up to date.\n')
-test.run(arguments="--max-drift=0 -f SConstruct2 foo.out", stdout='scons: "foo.out" is up to date.\n')
+test.run(arguments="--max-drift=0 -f SConstruct1 foo.mid",
+         stdout = test.wrap_stdout('scons: "foo.mid" is up to date.\n'))
+test.run(arguments="--max-drift=0 -f SConstruct2 foo.out",
+         stdout = test.wrap_stdout('scons: "foo.out" is up to date.\n'))
 
 test.pass_test()

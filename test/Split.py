@@ -47,9 +47,10 @@ expect = """['aaa']
 ['fff']
 ['ggg', 'hhh']
 ['iii', 'jjj']
-scons: "." is up to date.
 """
 
-test.run(arguments = ".", stdout = expect)
+test.run(arguments = ".",
+         stdout = test.wrap_stdout(read_str = expect,
+                                   build_str = 'scons: "." is up to date.\n'))
 
 test.pass_test()

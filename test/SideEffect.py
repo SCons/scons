@@ -54,10 +54,10 @@ test.write('foo.in', 'foo.in\n')
 test.write('bar.in', 'bar.in\n')
 test.write('blat.in', 'blat.in\n')
 
-test.run(arguments = 'foo.out bar.out', stdout="""\
+test.run(arguments = 'foo.out bar.out', stdout=test.wrap_stdout("""\
 copy() < foo.in > foo.out
 copy() < bar.in > bar.out
-""")
+"""))
 
 expect = """\
 foo.in -> foo.out
@@ -67,10 +67,10 @@ assert test.read('log.txt') == expect
 
 test.write('bar.in', 'bar.in 2 \n')
 
-test.run(arguments = 'log.txt', stdout="""\
+test.run(arguments = 'log.txt', stdout=test.wrap_stdout("""\
 copy() < bar.in > bar.out
 copy() < blat.in > blat.out
-""")
+"""))
 
 expect = """\
 foo.in -> foo.out
@@ -82,10 +82,10 @@ assert test.read('log.txt') == expect
 
 test.write('foo.in', 'foo.in 2 \n')
 
-test.run(arguments = ".", stdout="""\
+test.run(arguments = ".", stdout=test.wrap_stdout("""\
 copy() < foo.in > foo.out
 copy() < log.txt > log.out
-""")
+"""))
 
 expect = """\
 foo.in -> foo.out
@@ -103,12 +103,12 @@ test.fail_test(os.path.exists(test.workpath('bar.out')))
 test.fail_test(os.path.exists(test.workpath('blat.out')))
 test.fail_test(os.path.exists(test.workpath('log.txt')))
 
-test.run(arguments = "-j 4 .", stdout="""\
+test.run(arguments = "-j 4 .", stdout=test.wrap_stdout("""\
 copy() < bar.in > bar.out
 copy() < blat.in > blat.out
 copy() < foo.in > foo.out
 copy() < log.txt > log.out
-""")
+"""))
 
 expect = """\
 bar.in -> bar.out

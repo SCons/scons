@@ -36,7 +36,7 @@ print env['CCFLAGS']
 Default(env.Alias('dummy'))
 """)
 test.run()
-cc, ccflags = string.split(test.stdout(), '\n')[:2]
+cc, ccflags = string.split(test.stdout(), '\n')[1:3]
 
 test.write('SConstruct', """
 opts = Options('custom.py')
@@ -77,7 +77,7 @@ Default(env.Alias('dummy'))
 
 def check(expect):
     result = string.split(test.stdout(), '\n')
-    assert result[0:len(expect)] == expect, (result[0:len(expect)], expect)
+    assert result[1:len(expect)+1] == expect, (result[1:len(expect)+1], expect)
 
 test.run()
 check(['0', '1', cc, ccflags + ' -g'])
@@ -102,8 +102,10 @@ check(['1', '0', cc, ccflags + ' -O'])
 test.run(arguments='"DEBUG_BUILD=1"')
 check(['1', '1', cc, ccflags + ' -O -g'])
    
-test.run(arguments='-h')
-assert test.stdout() == """Variables settable in custom.py or on the command line:
+test.run(arguments='-h',
+         stdout = """scons: Reading SConscript files ...
+scons: done reading SConscript files.
+Variables settable in custom.py or on the command line:
 
 RELEASE_BUILD: Set to 1 to build a release build
     default: 0
@@ -118,6 +120,6 @@ CC: The C compiler
     actual: %s
 
 Use scons -H for help about command-line options.
-"""%cc
+"""%cc)
 
 test.pass_test()

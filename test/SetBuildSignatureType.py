@@ -49,9 +49,11 @@ SetBuildSignatureType('content')
 
 test.write('foo.in', 'foo.in')
 
-test.run(arguments='foo.out.out', stdout='copy foo.in -> foo.out\ncopy foo.out -> foo.out.out\n')
+test.run(arguments='foo.out.out',
+         stdout=test.wrap_stdout('copy foo.in -> foo.out\ncopy foo.out -> foo.out.out\n'))
 
-test.run(arguments='foo.out.out', stdout='scons: "foo.out.out" is up to date.\n')
+test.run(arguments='foo.out.out',
+         stdout=test.wrap_stdout('scons: "foo.out.out" is up to date.\n'))
 
 test.write('SConstruct', """
 env = Environment()
@@ -73,7 +75,8 @@ env.Copy1('foo.out.out', 'foo.out')
 SetBuildSignatureType('content')
 """)
 
-test.run(arguments='foo.out.out', stdout='copy foo.in -> foo.out\nscons: "foo.out.out" is up to date.\n')
+test.run(arguments='foo.out.out',
+         stdout=test.wrap_stdout('copy foo.in -> foo.out\nscons: "foo.out.out" is up to date.\n'))
 
 test.write('SConstruct', """
 env = Environment()
@@ -95,7 +98,8 @@ env.Copy1('foo.out.out', 'foo.out')
 SetBuildSignatureType('build')
 """)
 
-test.run(arguments='foo.out.out', stdout='copy foo.out -> foo.out.out\n')
+test.run(arguments='foo.out.out',
+         stdout=test.wrap_stdout('copy foo.out -> foo.out.out\n'))
 
 test.write('SConstruct', """
 env = Environment()
@@ -116,7 +120,8 @@ env.Copy1('foo.out.out', 'foo.out')
 SetBuildSignatureType('build')
 """)
 
-test.run(arguments='foo.out.out', stdout='copy foo.in -> foo.out\ncopy foo.out -> foo.out.out\n')
+test.run(arguments='foo.out.out',
+         stdout=test.wrap_stdout('copy foo.in -> foo.out\ncopy foo.out -> foo.out.out\n'))
 
 
 test.pass_test()
