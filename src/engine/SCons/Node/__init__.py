@@ -299,6 +299,8 @@ class Node:
             b = self.builder
         return not b is None
 
+    multiple_side_effect_has_builder = has_builder
+
     def is_derived(self):
         """
         Returns true iff this node is derived (i.e. built).

@@ -191,25 +191,29 @@ def _do_create_action(act, *args, **kw):
             return apply(ListAction, (listCmdActions,)+args, kw)
     return None
 
-def Action(act, strfunction=_null, varlist=[]):
+def Action(act, strfunction=_null, varlist=[], presub=_null):
     """A factory for action objects."""
     if SCons.Util.is_List(act):
-        acts = map(lambda x, s=strfunction, v=varlist:
-                          _do_create_action(x, strfunction=s, varlist=v),
+        acts = map(lambda x, s=strfunction, v=varlist, ps=presub:
+                          _do_create_action(x, strfunction=s, varlist=v, presub=ps),
                    act)
         acts = filter(lambda x: not x is None, acts)
         if len(acts) == 1:
             return acts[0]
         else:
-            return ListAction(acts, strfunction=strfunction, varlist=varlist)
+            return ListAction(acts, strfunction=strfunction, varlist=varlist, presub=presub)
     else:
-        return _do_create_action(act, strfunction=strfunction, varlist=varlist)
+        return _do_create_action(act, strfunction=strfunction, varlist=varlist, presub=presub)
 
 class ActionBase:
     """Base class for actions that create output objects."""
-    def __init__(self, strfunction=_null, **kw):
+    def __init__(self, strfunction=_null, presub=_null, **kw):
         if not strfunction is _null:
             self.strfunction = strfunction
+        if presub is _null:
+            self.presub = print_actions_presub
+        else:
+            self.presub = presub
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
@@ -223,12 +227,12 @@ class ActionBase:
             target = [target]
         if not SCons.Util.is_List(source):
             source = [source]
-        if presub is _null:  presub = print_actions_presub
+        if presub is _null:  presub = self.presub
         if show is _null:  show = print_actions
         if execute is _null:  execute = execute_actions
         if presub:
             t = string.join(map(str, target), 'and')
-            l = string.join(self.presub(env), '\n  ')
+            l = string.join(self.presub_lines(env), '\n  ')
             out = "Building %s with action(s):\n  %s\n" % (t, l)
             sys.stdout.write(out)
         if show and self.strfunction:
@@ -243,7 +247,7 @@ class ActionBase:
         else:
             return 0
 
-    def presub(self, env):
+    def presub_lines(self, env):
         # CommandGeneratorAction needs a real environment
         # in order to return the proper string here, since
         # it may call LazyCmdGenerator, which looks up a key

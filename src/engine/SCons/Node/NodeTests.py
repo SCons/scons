@@ -304,6 +304,14 @@ class NodeTestCase(unittest.TestCase):
         n1.builder_set(Builder())
         assert n1.has_builder() == 1
 
+    def test_multiple_side_effect_has_builder(self):
+        """Test the multiple_side_effect_has_builder() method
+        """
+        n1 = SCons.Node.Node()
+        assert n1.multiple_side_effect_has_builder() == 0
+        n1.builder_set(Builder())
+        assert n1.multiple_side_effect_has_builder() == 1
+
     def test_is_derived(self):
         """Test the is_derived() method
         """

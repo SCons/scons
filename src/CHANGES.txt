@@ -138,6 +138,10 @@ RELEASE 0.96 - XXX
   - Slim down the internal Sig.Calculator class by eliminating methods
     whose functionality is now covered by Node methods.
 
+  - Document use of the target_factory and source_factory keyword
+    arguments when creating Builder objects.  Enhance Dir Nodes so that
+    they can be created with user-specified Builder objects.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.

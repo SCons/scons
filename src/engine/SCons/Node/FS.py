@@ -176,10 +176,24 @@ Unlink = SCons.Action.Action(UnlinkFunc, None)
 
 def MkdirFunc(target, source, env):
     t = target[0]
-    t.fs.mkdir(t.path)
+    if not t.fs.exists(t.path):
+        t.fs.mkdir(t.path)
     return 0
 
-Mkdir = SCons.Action.Action(MkdirFunc, None)
+Mkdir = SCons.Action.Action(MkdirFunc, None, presub=None)
+
+MkdirBuilder = None
+
+def get_MkdirBuilder():
+    global MkdirBuilder
+    if MkdirBuilder is None:
+        import SCons.Builder
+        import SCons.Defaults
+        env = SCons.Defaults.DefaultEnvironment()
+        MkdirBuilder = SCons.Builder.Builder(action = Mkdir,
+                                             env = env,
+                                             explain = None)
+    return MkdirBuilder
 
 def CacheRetrieveFunc(target, source, env):
     t = target[0]
@@ -1118,7 +1132,7 @@ class Dir(Base):
         self.entries['.'] = self
         self.entries['..'] = self.dir
         self.cwd = self
-        self.builder = 1
+        self.builder = get_MkdirBuilder()
         self.searched = 0
         self._sconsign = None
         self.build_dirs = []
@@ -1238,7 +1252,13 @@ class Dir(Base):
 
     def build(self, **kw):
         """A null "builder" for directories."""
-        pass
+        global MkdirBuilder
+        if not self.builder is MkdirBuilder:
+            apply(SCons.Node.Node.build, [self,], kw)
+
+    def multiple_side_effect_has_builder(self):
+        global MkdirBuilder
+        return not self.builder is MkdirBuilder and self.has_builder()
 
     def alter_targets(self):
         """Return any corresponding targets in a build directory.
@@ -1262,6 +1282,8 @@ class Dir(Base):
     def current(self, calc=None):
         """If all of our children were up-to-date, then this
         directory was up-to-date, too."""
+        if not self.builder is MkdirBuilder and not self.exists():
+            return 0
         state = 0
         for kid in self.children():
             s = kid.get_state()
@@ -1298,16 +1320,6 @@ class Dir(Base):
         if self.srcdir:
             return self.srcdir
         return Base.srcnode(self)
-
-    def get_executor(self, create=1):
-        """Fetch the action executor for this node.  Create one if
-        there isn't already one, and requested to do so."""
-        try:
-            executor = self.executor
-        except AttributeError:
-            executor = DummyExecutor()
-            self.executor = executor
-        return executor
 
     def get_timestamp(self):
         """Return the latest timestamp from among our children"""
@@ -1482,8 +1494,12 @@ class File(Base):
         listDirs.reverse()
         for dirnode in listDirs:
             try:
-                Mkdir(dirnode, [], None)
-                # The Mkdir() action may or may not have actually
+                # Don't call dirnode.build(), call the base Node method
+                # directly because we definitely *must* create this
+                # directory.  The dirnode.build() method will suppress
+                # the build if it's the default builder.
+                SCons.Node.Node.build(dirnode)
+                # The build() action may or may not have actually
                 # created the directory, depending on whether the -n
                 # option was used or not.  Delete the _exists and
                 # _rexists attributes so they can be reevaluated.
