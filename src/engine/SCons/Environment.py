@@ -686,7 +686,7 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
-            if not self._dict.has_key(key):
+            if not self._dict.has_key(key) or not self._dict[key]:
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
                  SCons.Util.is_Dict(val):
@@ -786,7 +786,7 @@ class Base(SubstitutionEnvironment):
             if name[:len(prefix)] == prefix and name[-len(suffix):] == suffix: 
                 return path
 
-    def ParseConfig(self, command, function=None):
+    def ParseConfig(self, command, function=None, unique=1):
         """
         Use the specified function to parse the output of the command
         in order to modify the current environment. The 'command' can
@@ -800,7 +800,7 @@ class Base(SubstitutionEnvironment):
         """
 
         # the default parse function
-        def parse_conf(env, output, fs=self.fs):
+        def parse_conf(env, output, fs=self.fs, unique=unique):
             dict = {
                 'ASFLAGS'       : [],
                 'CCFLAGS'       : [],
@@ -853,7 +853,11 @@ class Base(SubstitutionEnvironment):
                     dict['LINKFLAGS'].append(arg)
                 else:
                     dict['CCFLAGS'].append(arg)
-            apply(env.Append, (), dict)
+            if unique:
+                appender = env.AppendUnique
+            else:
+                appender = env.Append
+            apply(appender, (), dict)
     
         if function is None:
             function = parse_conf
@@ -979,7 +983,7 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
-            if not self._dict.has_key(key):
+            if not self._dict.has_key(key) or not self._dict[key]:
                 self._dict[key] = val
             elif SCons.Util.is_Dict(self._dict[key]) and \
                  SCons.Util.is_Dict(val):

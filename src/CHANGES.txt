@@ -163,6 +163,10 @@ RELEASE 0.97 - XXX
     it much simpler to support aliases like "clean" that just invoke
     an arbitrary action).
 
+  - Have env.ParseConfig() use AppendUnique() by default to suppress
+    duplicate entries from multiple calls.  Add a "unique" keyword
+    argument to allow the old behavior to be specified.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
