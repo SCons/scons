@@ -58,9 +58,17 @@ def hexdigest(s):
     h = string.hexdigits
     r = ''
     for c in s:
-	i = ord(c)
-	r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
+        i = ord(c)
+        r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
     return r
+
+try:
+    a = md5.new('test').hexdigest()
+except AttributeError:
+    md5sig = lambda c: hexdigest(md5.new(str(c)).digest())
+else:
+    md5sig = lambda c: md5.new(str(c)).hexdigest()
+
 
 def collect(signatures):
     """
@@ -82,7 +90,7 @@ def signature(obj):
         gc = obj.get_contents
     except AttributeError:
         raise AttributeError, "unable to fetch contents of '%s'" % str(obj)
-    return hexdigest(md5.new(str(gc())).digest())
+    return md5sig(gc())
 
 def to_string(signature):
     """Convert a signature to a string"""
