@@ -448,9 +448,7 @@ def generate(env):
     env['RC'] = 'rc'
     env['RCFLAGS'] = SCons.Util.CLVar('')
     env['RCCOM'] = '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
-    CScan = env.get_scanner('.c')
-    if CScan:
-        CScan.add_skey('.rc')
+    env.Append(CPPSUFFIXES = ['.rc'])
     env['BUILDERS']['RES'] = res_builder
 
     try:

@@ -36,10 +36,7 @@ def CScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files
     that use the C pre-processor"""
     cs = SCons.Scanner.ClassicCPP("CScan",
-                                  [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
-                                   ".h", ".H", ".hxx", ".hpp", ".hh",
-                                   ".F", ".fpp", ".FPP",
-                                   ".S", ".spp", ".SPP"],
+                                  "$CPPSUFFIXES",
                                   "CPPPATH",
                                   '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")',
                                   fs = fs)

@@ -137,9 +137,7 @@ def generate(env):
     env['RCINCPREFIX'] = '--include-dir '
     env['RCINCSUFFIX'] = ''
     env['RCCOM'] = '$RC $RCINCFLAGS $RCFLAGS -i $SOURCE -o $TARGET'
-    CScan = env.get_scanner('.c')
-    if CScan:
-        CScan.add_skey('.rc')
+    env.Append(CPPSUFFIXES = ['.rc'])
     env['BUILDERS']['RES'] = res_builder
     
     # Some setting from the platform also have to be overridden:

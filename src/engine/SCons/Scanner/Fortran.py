@@ -42,7 +42,7 @@ def FortranScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files
     for Fortran INCLUDE statements"""
     scanner = SCons.Scanner.Classic("FortranScan",
-                                    [".f", ".F", ".for", ".FOR"],
+                                    "$FORTRANSUFFIXES",
                                     "F77PATH",
                                     "(?i)INCLUDE[ \t]+'([\\w./\\\\]+)'",
                                     fs = fs)

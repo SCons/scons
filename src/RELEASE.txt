@@ -27,6 +27,18 @@ RELEASE 0.96 - XXX
 
   Please note the following important changes since release 0.95:
 
+    - The internal Scanner.add_skey() method longer works for the default
+      scanners, which now use construction variables to hold their lists
+      of suffixes.  If you had a custom Tool specification that was
+      reaching into the internals in this way to add a suffix to one of
+      the following scanner, you must now add the suffix to a construction
+      environment through which you plan to call the scanner, as follows:
+
+
+          CScan.add_skey('.x')       => env.Append(CPPSUFFIXES = ['.x'])
+          DScan.add_skey('.x')       => env.Append(DSUFFIXES = ['.x'])
+          FortranScan.add_skey('.x') => env.Append(FORTRANSUFFIXES = ['.x'])
+
     - The behavior of the env.Append() and env.Prepend() methods has
       changed when appending a string value to a UserList, or vice versa.
       They now behave like normal Python addition of a string to
