@@ -166,6 +166,8 @@ RELEASE X.XX - XXX
 
   - Fix test/SWIG.py to find the Python include directory in all cases.
 
+  - Fix a bug in detection of Qt installed on the local system.
+
 
 
 RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500
