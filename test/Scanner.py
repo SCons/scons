@@ -41,6 +41,10 @@ def process(infp, outfp):
         if line[:8] == 'include ':
             file = line[8:-1]
             process(open(file, 'rb'), outfp)
+        elif line[:8] == 'getfile ':
+            outfp.write('include ')
+            outfp.write(line[8:])
+            # note: converted, but not acted upon
         else:
             outfp.write(line)
 
@@ -61,7 +65,7 @@ import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
-def kfile_scan(node, env, target, arg):
+def kfile_scan(node, env, scanpaths, arg):
     contents = node.get_contents()
     includes = include_re.findall(contents)
     return includes
@@ -82,18 +86,53 @@ k2scan = env.Scanner(name = 'k2',
                      argument = None,
                      skeys = ['.k2'])
 
+##########################################################
+# Test scanner as found automatically from the environment
+# (backup_source_scanner)
+
 env = Environment()
 env.Append(SCANNERS = kscan)
 
-env.Command('foo', 'foo.k', r'%s build.py $SOURCES $TARGET')
+env.Command('foo', 'foo.k', r'%(python)s build.py $SOURCES $TARGET')
+
+##########################################################
+# Test resetting the environment scanners (and specifying as a list).
 
 env2 = env.Copy()
 env2.Append(SCANNERS = [k2scan])
-env2.Command('junk', 'junk.k2', r'%s build.py $SOURCES $TARGET')
+env2.Command('junk', 'junk.k2', r'%(python)s build.py $SOURCES $TARGET')
 
-bar = env.Command('bar', 'bar.in', r'%s build.py $SOURCES  $TARGET')
+##########################################################
+# Test specifying a specific source scanner for a target Node
+
+bar = env.Command('bar', 'bar.in', r'%(python)s build.py $SOURCES  $TARGET')
 bar[0].source_scanner = kscan
-""" % (python, python, python))
+
+##########################################################
+# Test specifying a source scanner for a Builder that gets
+# automatically applied to targets generated from that Builder
+
+import string
+
+def blork(env, target, source):
+    open(str(target[0]), 'wb').write(
+        string.replace(source[0].get_contents(), 'getfile', 'MISSEDME'))
+
+kbld = Builder(action=r'%(python)s build.py $SOURCES $TARGET',
+               src_suffix='.lork',
+               suffix='.blork',
+               source_scanner=kscan)
+blorkbld = Builder(action=blork,
+                   src_suffix='.blork',
+                   suffix='.ork')
+
+env.Append(BUILDERS={'BLORK':blorkbld, 'KB':kbld})
+
+blork = env.KB('moo.lork')
+ork = env.BLORK(blork)
+Alias('make_ork', ork)
+
+""" % {'python': python})
 
 test.write('foo.k', 
 """foo.k 1 line 1
@@ -116,41 +155,80 @@ junk.k2 1 line 3
 include zzz
 """)
 
+test.write('moo.lork',
+"""include xxx
+moo.lork 1 line 2
+include yyy
+moo.lork 1 line 4
+include moo.inc
+""")
+
+test.write('moo.inc',
+"""getfile zzz
+""")
+
 test.write('xxx', "xxx 1\n")
 test.write('yyy', "yyy 1\n")
 test.write('zzz', "zzz 1\n")
 
-test.run(arguments = '.')
+test.run(arguments = '.',
+         stdout=test.wrap_stdout("""\
+%(python)s build.py bar.in bar
+%(python)s build.py foo.k foo
+%(python)s build.py junk.k2 junk
+%(python)s build.py moo.lork moo.blork
+blork(["moo.ork"], ["moo.blork"])
+""" % {'python':python}))
 
 test.must_match('foo', "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n")
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
 test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+test.must_match('moo.ork', "xxx 1\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n")
 
 test.up_to_date(arguments = '.')
 
 test.write('xxx', "xxx 2\n")
 
-test.run(arguments = '.')
+test.run(arguments = '.',
+         stdout=test.wrap_stdout("""\
+%(python)s build.py foo.k foo
+%(python)s build.py moo.lork moo.blork
+blork(["moo.ork"], ["moo.blork"])
+""" % {'python':python}))
 
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n")
 test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
 test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 1\nmoo.lork 1 line 4\ninclude zzz\n")
 
 test.write('yyy', "yyy 2\n")
 
-test.run(arguments = '.')
+test.run(arguments = '.',
+         stdout=test.wrap_stdout("""\
+%(python)s build.py bar.in bar
+%(python)s build.py foo.k foo
+%(python)s build.py junk.k2 junk
+%(python)s build.py moo.lork moo.blork
+blork(["moo.ork"], ["moo.blork"])
+""" % {'python':python}))
 
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
 test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n")
 
 test.write('zzz', "zzz 2\n")
 
-test.run(arguments = '.')
+test.run(arguments = '.',
+         stdout=test.wrap_stdout("""\
+%(python)s build.py bar.in bar
+%(python)s build.py junk.k2 junk
+""" % {'python':python}))
 
 test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
 test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
 test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n")
+test.must_match('moo.ork', "xxx 2\nmoo.lork 1 line 2\nyyy 2\nmoo.lork 1 line 4\ninclude zzz\n")
 
 test.up_to_date(arguments = 'foo')
 
