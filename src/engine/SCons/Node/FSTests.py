@@ -32,9 +32,17 @@ import unittest
 import SCons.Node.FS
 from TestCmd import TestCmd
 import SCons.Errors
+import shutil
 import stat
 
 built_it = None
+
+# This will be built-in in 2.3.  For now fake it.
+try :
+    True , False
+except NameError :
+    True = 1 ; False = 0
+
 
 class Builder:
     def __init__(self, factory):
@@ -272,6 +280,94 @@ class BuildDirTestCase(unittest.TestCase):
         except SCons.Errors.UserError:
             exc_caught = 1
         assert exc_caught, "Should have caught a UserError."
+        test.unlink( "src/foo" )
+        test.unlink( "build/foo" )
+
+        # verify the link creation attempts in file_link()
+        class LinkSimulator :
+            """A class to intercept os.[sym]link() calls and track them."""
+
+            def __init__( self ) :
+                self._reset()
+
+            def _reset( self ) :
+                """Reset the simulator if necessary"""
+                if not self._need_reset() : return # skip if not needed now
+                self.link_called = False
+                self.symlink_called = False
+                self.copy_called = False
+
+            def _need_reset( self ) :
+                """
+                Determines whether or not the simulator needs to be reset.
+                A reset is necessary if the object is first being initialized,
+                or if all three methods have been tried already.
+                """
+                return (
+                        ( not hasattr( self , "link_called" ) )
+                        or
+                        ( self.link_called and
+                          self.symlink_called and
+                          self.copy_called )
+                       )
+
+            def link_fail( self , src , dest ) :
+                self._reset()
+                assert not self.symlink_called , \
+                        "Wrong link order: symlink tried before hard link."
+                assert not self.copy_called , \
+                        "Wrong link order: copy tried before hard link."
+                self.link_called = True
+                raise OSError( "Simulating hard link creation error." )
+
+            def symlink_fail( self , src , dest ) :
+                self._reset()
+                assert self.link_called , \
+                        "Wrong link order: hard link not tried before symlink."
+                assert not self.copy_called , \
+                        "Wrong link order: copy tried before symlink link."
+                self.symlink_called = True
+                raise OSError( "Simulating symlink creation error." )
+
+            def copy( self , src , dest ) :
+                self._reset()
+                assert self.link_called , \
+                        "Wrong link order: hard link not tried before copy."
+                assert self.symlink_called , \
+                        "Wrong link order: symlink not tried before copy."
+                self.copy_called = True
+                # copy succeeds, but use the real copy
+                self._real_copy(src, dest)
+        # end class LinkSimulator
+        simulator = LinkSimulator()
+
+        # save the real functions for later restoration
+        real_link = os.link
+        real_symlink = os.symlink
+        real_copy = shutil.copy2
+        simulator._real_copy = real_copy # the simulator needs the real one
+
+        # override the real functions with our simulation
+        os.link = simulator.link_fail
+        os.symlink = simulator.symlink_fail
+        shutil.copy2 = simulator.copy
+
+        # XXX this is just to pass the baseline test, it won't be needed once
+        # this change is integrated
+        SCons.Node.FS._link = simulator.link_fail
+
+        test.write('src/foo', 'foo\n')
+        os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
+        SCons.Node.FS.file_link(test.workpath('src/foo'),
+                                test.workpath('build/foo'))
+        test.unlink( "src/foo" )
+        test.unlink( "build/foo" )
+
+        # restore the real functions
+        os.link = real_link
+        os.symlink = real_symlink
+        shutil.copy2 = real_copy
+
 
 class FSTestCase(unittest.TestCase):
     def runTest(self):

@@ -48,22 +48,24 @@ import SCons.Warnings
 
 execute_actions = 1
 
-try:
-    import os
-    _link = os.link
-except AttributeError:
-    import shutil
-    import stat
-    def _link(src, dest):
-        shutil.copy2(src, dest)
-        st=os.stat(src)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
-
 def file_link(src, dest):
     dir, file = os.path.split(dest)
     if dir and not os.path.isdir(dir):
         os.makedirs(dir)
-    _link(src, dest)
+    # Now actually link the files.  First try to make a hard link.  If that
+    # fails, try a symlink.  If that fails then just copy it.
+    try :
+        os.link(src, dest)
+    except (AttributeError, OSError) :
+        try :
+            os.symlink(src, dest)
+        except (AttributeError, OSError) :
+            import shutil
+            import stat
+            shutil.copy2(src, dest)
+            st=os.stat(src)
+            os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+
 
 class ParentOfRoot:
     """
