@@ -51,9 +51,9 @@ part of Python until Python version 1.6, so if your system is running
 Python 1.5.2, you may not have distutils installed.  If you are running
 Python version 1.6 or later, you should be fine.
 
-NOTE TO RED HAT USERS:  All Red Hat Linux versions as late as 7.3
-still ship Python 1.5.2 as the default, so you probably do *not* have
-distutils installed, unless you have already done so manually.
+NOTE TO RED HAT USERS:  All Red Hat Linux versions as late as 7.3 (at
+least) still ship Python 1.5.2 as the default, so you probably do *not*
+have distutils installed, unless you have already done so manually.
 
 In this case, your options are:
 
@@ -93,13 +93,13 @@ system, populate the build/scons/ directory by running:
 
 If you don't have SCons version 0.07 or later already installed on your
 system, you can use SCons itself to populate the build/scons/ directory
-with a little more work:
+with a little more typing:
 
         $ SCONS_LIB_DIR=`pwd`/src/engine python src/script/scons.py build/scons
 
-Either command populates the build/scons/ directory with the necessary
-files and directory structure to use the Python-standard setup script as
-follows:
+Either command will populate the build/scons/ directory with the
+necessary files and directory structure to use the Python-standard setup
+script as follows:
 
         # cd build/scons
         # python setup.py install
@@ -109,9 +109,9 @@ directory (/usr/bin or C:\Python*\Scripts, for example) and the build
 engine in an appropriate SCons library directory (/usr/lib/scons or
 C:\Python*\SCons, for example).
 
-You should have system installation privileges (that is, "root" or
-"Administrator") when running the setup.py script to install SCons in
-the default system directories.
+You should have system installation privileges (that is, "root" on POSIX
+or "Administrator" on Windows) when running the setup.py script to
+install SCons in the default system directories.
 
 If you don't have system installation privileges, you can use the
 --prefix option to specify an alternate installation location, such as
@@ -129,11 +129,14 @@ TESTING
 
 Tests are run by the runtest.py script in this directory.
 
-There are two types of tests in this package.  Unit tests for individual
-SCons modules live underneath the src/engine/ subdirectory and are the
-same base name as the module with "Tests.py" appended--for example,
-the unit test for the Builder.py module is the BuilderTests.py script.
-End-to-end tests of SCons live in the test/ subdirectory.
+There are two types of tests in this package:
+
+    Unit tests for individual SCons modules live underneath the
+    src/engine/ subdirectory and are the same base name as the module
+    with "Tests.py" appended--for example, the unit test for the
+    Builder.py module is the BuilderTests.py script.
+
+    End-to-end tests of SCons live in the test/ subdirectory.
 
 You may specifically list one or more tests to be run:
 
@@ -168,7 +171,7 @@ system, you can build everything by simply running it:
 
 If you don't have SCons version 0.07 or later already installed on your
 system, you can build this version of SCons with itself with a little
-more work:
+more typing:
 
         $ SCONS_LIB_DIR=`pwd`/src/engine python src/script/scons.py
 
@@ -192,7 +195,7 @@ For example, if you don't have Debian packaging tools installed, it
 should just not build the .deb package, not fail the build.
 
 If you receive a build error, please report it to the scons-devel
-mailing list.
+mailing list and open a bug report on the SCons bug tracker.
 
 Note that in addition to creating the above packages, the default build
 will also unpack one or more of the packages for testing.
@@ -220,8 +223,8 @@ via the -a option) against the unpacked build/test-/* subdirectory:
 
         $ python runtest.py -p zip
 
-(The canonical invocation is to specify the runtest.py -a option so that
-all tests are run against the specified package.)
+(The canonical invocation is to also use the runtest.py -a option so
+that all tests are run against the specified package.)
 
 
 CONTENTS OF THIS PACKAGE
@@ -283,12 +286,14 @@ runtest.py
         (aeb) before running tests.
 
 SConstruct
-        The "Makefile" for the SCons distribution.  (It has been
-        pointed out that it's hard to find the SCons API in here, and
-        it looks a lot more like a straight Python script than a build
-        configuration file, but that's mainly because all of the magick
-        we have to do to deal with a variety of packaging formats
-        requires a lot of straight Python manipulation.)
+        The "Makefile" for the SCons distribution.
+
+        (It has been pointed out that it's hard to find the SCons API in
+        this SConstruct file, and that it looks a lot more like a pure
+        Python script than a build configuration file.  That's mainly
+        because all of the magick we have to perform to deal with all of
+        the different packaging formats requires a lot of pure Python
+        manipulation.)
 
 src/
         Where the actual source code is kept, of course.

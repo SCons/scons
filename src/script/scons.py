@@ -26,6 +26,16 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+__version__ = "__VERSION__"
+
+__build__ = "__BUILD__"
+
+__buildsys__ = "__BUILDSYS__"
+
+__date__ = "__DATE__"
+
+__developer__ = "__DEVELOPER__"
+
 import sys
 import os.path
 import os
@@ -47,7 +57,7 @@ if os.environ.has_key("SCONS_LIB_DIR"):
     libs.append(os.environ["SCONS_LIB_DIR"])
 
 if sys.platform == 'win32':
-    libs.extend([ os.path.join(sys.prefix, 'SCons-__VERSION__'),
+    libs.extend([ os.path.join(sys.prefix, 'SCons-%s' % __version__),
                   os.path.join(sys.prefix, 'SCons') ])
 else:
     prefs = []
@@ -76,7 +86,7 @@ else:
     else:
         prefs.append(sys.prefix)
 
-    libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons-__VERSION__'), prefs))
+    libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons-%s' % __version__), prefs))
     libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons'), prefs))
 
 sys.path = libs + sys.path[1:]

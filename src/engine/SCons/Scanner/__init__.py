@@ -29,8 +29,6 @@ The Scanner package for the SCons software construction utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__version__ = "__VERSION__"
-
 
 import SCons.Node.FS
 import SCons.Util

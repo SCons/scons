@@ -59,6 +59,8 @@ RELEASE 0.08 -
   - Fix C #include scanning to detect file names with characters like
     '-' in them.
 
+  - Add more specific version / build output to the -v option.
+
   From Jeff Petkau:
 
   - Fix --implicit-cache if the scanner returns an empty list.

@@ -1,6 +1,8 @@
 #
 # SConstruct file to build scons packages during development.
 #
+# See the README file for an overview of how SCons is built and tested.
+#
 
 #
 # Copyright (c) 2001, 2002 Steven Knight
@@ -39,11 +41,9 @@ default_version = '0.08'
 Default('.')
 
 #
-# An internal "whereis" routine to figure out if we have a
-# given program available.  Put it in the "cons::" package
-# so subsidiary Conscript files can get at it easily, too.
+# An internal "whereis" routine to figure out if a given program
+# is available on this system.
 #
-
 def whereis(file):
     for dir in string.split(os.environ['PATH'], os.pathsep):
         f = os.path.join(dir, file)
@@ -59,7 +59,7 @@ def whereis(file):
 #
 # We let the presence or absence of various utilities determine
 # whether or not we bother to build certain pieces of things.
-# This will allow people to still do SCons work even if they
+# This should allow people to still do SCons work even if they
 # don't have Aegis or RPM installed, for example.
 #
 aegis = whereis('aegis')
@@ -72,7 +72,7 @@ unzip = whereis('unzip')
 zip = whereis('zip')
 
 #
-# Now grab the information that we "build" into the files (using sed).
+# Now grab the information that we "build" into the files.
 #
 try:
     date = ARGUMENTS['date']
@@ -88,13 +88,17 @@ elif os.environ.has_key('LOGNAME'):
 elif os.environ.has_key('USER'):
     developer = os.environ['USER']
 
-try:
+if ARGUMENTS.has_key('build_system'):
+    build_system = ARGUMENTS['build_system']
+else:
+    build_system = string.split(os.uname()[1], '.')[0]
+
+if ARGUMENTS.has_key('version'):
     revision = ARGUMENTS['version']
-except:
-    if aesub:
-        revision = os.popen(aesub + " \\$version", "r").read()[:-1]
-    else:
-        revision = default_version
+elif aesub:
+    revision = os.popen(aesub + " \\$version", "r").read()[:-1]
+else:
+    revision = default_version
 
 a = string.split(revision, '.')
 arr = [a[0]]
@@ -120,13 +124,14 @@ revision = string.join(arr, '.')
 #version = string.join(arr, '.')
 version = default_version
 
-try:
+build_id = string.replace(revision, version + '.', '')
+
+if ARGUMENTS.has_key('change'):
     change = ARGUMENTS['change']
-except:
-    if aesub:
-        change = os.popen(aesub + " \\$change", "r").read()[:-1]
-    else:
-        change = default_version
+elif aesub:
+    change = os.popen(aesub + " \\$change", "r").read()[:-1]
+else:
+    change = default_version
 
 python_ver = sys.version[0:3]
 
@@ -139,19 +144,17 @@ for key in ['AEGIS_PROJECT', 'PYTHONPATH']:
 
 lib_project = os.path.join("lib", project)
 
-unpack_tar_gz_dir = os.path.join(os.getcwd(), "build", "unpack-tar-gz")
+cwd_build = os.path.join(os.getcwd(), "build")
 
-unpack_zip_dir = os.path.join(os.getcwd(), "build", "unpack-zip")
+test_deb_dir        = os.path.join(cwd_build, "test-deb")
+test_rpm_dir        = os.path.join(cwd_build, "test-rpm")
+test_tar_gz_dir     = os.path.join(cwd_build, "test-tar-gz")
+test_src_tar_gz_dir = os.path.join(cwd_build, "test-src-tar-gz")
+test_zip_dir        = os.path.join(cwd_build, "test-zip")
+test_src_zip_dir    = os.path.join(cwd_build, "test-src-zip")
 
-test_tar_gz_dir = os.path.join(os.getcwd(), "build", "test-tar-gz")
-test_src_tar_gz_dir = os.path.join(os.getcwd(), "build", "test-src-tar-gz")
-
-test_zip_dir = os.path.join(os.getcwd(), "build", "test-zip")
-test_src_zip_dir = os.path.join(os.getcwd(), "build", "test-src-zip")
-
-test_rpm_dir = os.path.join(os.getcwd(), "build", "test-rpm")
-
-test_deb_dir = os.path.join(os.getcwd(), "build", "test-deb")
+unpack_tar_gz_dir   = os.path.join(cwd_build, "unpack-tar-gz")
+unpack_zip_dir      = os.path.join(cwd_build, "unpack-zip")
 
 if platform == "win32":
     tar_hflag = ''
@@ -226,11 +229,13 @@ def SCons_revision(target, source, env):
         # Note:  We construct the __*__ substitution strings here
         # so that they don't get replaced when this file gets
         # copied into the tree for packaging.
-        line = string.replace(line, '_' + '_DATE__', env['DATE'])
-        line = string.replace(line, '_' + '_DEVELOPER__', env['DEVELOPER'])
-        line = string.replace(line, '_' + '_FILE__', s)
-        line = string.replace(line, '_' + '_REVISION__', env['REVISION'])
-        line = string.replace(line, '_' + '_VERSION__', version)
+        line = string.replace(line, '__BUILD'     + '__', env['BUILD'])
+        line = string.replace(line, '__BUILDSYS'  + '__', env['BUILDSYS'])
+        line = string.replace(line, '__DATE'      + '__', env['DATE'])
+        line = string.replace(line, '__DEVELOPER' + '__', env['DEVELOPER'])
+        line = string.replace(line, '__FILE'      + '__', s)
+        line = string.replace(line, '__REVISION'  + '__', env['REVISION'])
+        line = string.replace(line, '__VERSION'   + '__',  version)
         outf.write(line)
     inf.close()
     outf.close()
@@ -241,6 +246,8 @@ revbuilder = Builder(action = SCons_revision)
 env = Environment(
                    ENV                 = ENV,
  
+                   BUILD               = build_id,
+                   BUILDSYS            = build_system,
                    DATE                = date,
                    DEVELOPER           = developer,
                    REVISION            = revision,

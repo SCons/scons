@@ -44,8 +44,6 @@ their own platform definition.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-__version__ = "__VERSION__"
-
 import imp
 import os
 import sys

@@ -52,7 +52,9 @@ import copy
 # "SCons" package.  Replace it with our own version directory so, if
 # if they're there, we pick up the right version of the build engine
 # modules.
-sys.path = [os.path.join(sys.prefix, 'lib', 'scons-__VERSION__')] + sys.path[1:]
+#sys.path = [os.path.join(sys.prefix,
+#                         'lib',
+#                         'scons-%d' % SCons.__version__)] + sys.path[1:]
 
 import SCons.Node
 import SCons.Node.FS
@@ -673,10 +675,19 @@ def options_init():
                 "build Default() targets from local SConscript."])
 
     def option_v(opt, arg):
+        import __main__
         import SCons
 	print "SCons by Steven Knight et al.:"
-	print "\tscript version __VERSION__"
-	print "\tbuild engine version %s" % SCons.__version__
+	print "\tscript: v%s.%s, %s, by %s on %s" % (__main__.__version__,
+                                                    __main__.__build__,
+                                                    __main__.__date__,
+                                                    __main__.__developer__,
+                                                    __main__.__buildsys__)
+	print "\tengine: v%s.%s, %s, by %s on %s" % (SCons.__version__,
+                                                    SCons.__build__,
+                                                    SCons.__date__,
+                                                    SCons.__developer__,
+                                                    SCons.__buildsys__)
 	print "Copyright 2001, 2002 Steven Knight"
 	sys.exit(0)
 
