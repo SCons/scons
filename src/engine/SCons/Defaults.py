@@ -287,12 +287,16 @@ DVI = SCons.Builder.Builder(name = 'DVI',
 			    # hard-coded within TeX.
                             suffix = '.dvi')
 
+PDFLaTeXAction = SCons.Action.Action('$PDFLATEXCOM')
+
 PDF = SCons.Builder.Builder(name = 'PDF',
-                            action = '$PDFCOM',
+                            action = { '.dvi'   : '$PDFCOM',
+                                       '.tex'   : '$PDFTEXCOM',
+                                       '.ltx'   : PDFLaTeXAction,
+                                       '.latex' : PDFLaTeXAction,
+                                     },
                             prefix = '$PDFPREFIX',
-                            suffix = '$PDFSUFFIX',
-                            src_suffix = '.dvi',
-                            src_builder = DVI)
+                            suffix = '$PDFSUFFIX')
 
 PostScript = SCons.Builder.Builder(name = 'PostScript',
                                    action = '$PSCOM',
@@ -461,6 +465,12 @@ def make_win32_env_from_paths(include, lib, path):
         'PDFCOM'     : '$DVIPDF $DVIPDFFLAGS $SOURCES $TARGET',
         'PDFPREFIX'  : '',
         'PDFSUFFIX'  : '.pdf',
+        'PDFTEX'     : 'pdftex',
+        'PDFTEXFLAGS' : '',
+        'PDFTEXCOM'  : '$PDFTEX $PDFTEXFLAGS $SOURCES $TARGET',
+        'PDFLATEX'   : 'pdflatex',
+        'PDFLATEXFLAGS' : '',
+        'PDFLATEXCOM' : '$PDFLATEX $PDFLATEXFLAGS $SOURCES $TARGET',
         'DVIPS'      : 'dvips',
         'DVIPSFLAGS' : '',
         'PSCOM'      : '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES',
@@ -569,6 +579,12 @@ if os.name == 'posix':
         'PDFCOM'     : '$DVIPDF $DVIPDFFLAGS $SOURCES $TARGET',
         'PDFPREFIX'  : '',
         'PDFSUFFIX'  : '.pdf',
+        'PDFTEX'     : 'pdftex',
+        'PDFTEXFLAGS' : '',
+        'PDFTEXCOM'  : '$PDFTEX $PDFTEXFLAGS $SOURCES $TARGET',
+        'PDFLATEX'   : 'pdflatex',
+        'PDFLATEXFLAGS' : '',
+        'PDFLATEXCOM' : '$PDFLATEX $PDFLATEXFLAGS $SOURCES $TARGET',
         'DVIPS'      : 'dvips',
         'PSCOM'      : '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES',
         'PSPREFIX'   : '',

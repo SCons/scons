@@ -84,6 +84,9 @@ RELEASE 0.07 -
   - Use the same action to build from .c (lower case) and .C (upper
     case) files on case-insensitive systems like Win32.
 
+  - Support building a PDF file directly from a TeX or LaTeX file
+    using pdftex or pdflatex.
+
   From Steve Leblanc:
 
   - Add the SConscriptChdir() method.

@@ -41,95 +41,55 @@ test = TestSCons.TestSCons()
 
 
 
-test.write('mytex.py', r"""
-import os
+test.write('mypdftex.py', r"""
 import sys
+import os
 base_name = os.path.splitext(sys.argv[1])[0]
 infile = open(sys.argv[1], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
+out_file = open(base_name+'.pdf', 'wb')
 for l in infile.readlines():
-    if l[:4] != '#tex':
-        out_file.write(l)
-sys.exit(0)
-""")
-
-test.write('mylatex.py', r"""
-import os
-import sys
-base_name = os.path.splitext(sys.argv[1])[0]
-infile = open(sys.argv[1], 'rb')
-out_file = open(base_name+'.dvi', 'wb')
-for l in infile.readlines():
-    if l[:6] != '#latex':
-        out_file.write(l)
-sys.exit(0)
-""")
-
-test.write('mydvipdf.py', r"""
-import os
-import sys
-infile = open(sys.argv[1], 'rb')
-out_file = open(sys.argv[2], 'wb')
-for l in infile.readlines():
-    if l[:7] != '#dvipdf':
-        out_file.write(l)
+    if l[0] != '\\':
+	out_file.write(l)
 sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(TEX = r'%s mytex.py',
-                  LATEX = r'%s mylatex.py',
-                  DVIPDF = r'%s mydvipdf.py')
-dvi = env.DVI(target = 'test1.dvi', source = 'test1.tex')
-env.DVI(target = 'test2.dvi', source = 'test2.tex')
-env.PDF(target = 'test1.pdf', source = dvi)
-env.PDF(target = 'test2.pdf', source = 'test2.dvi')
-""" % (python, python, python))
+env = Environment(PDFTEX = r'%s mypdftex.py')
+env.PDF(target = 'test.pdf', source = 'test.tex')
+""" % python)
 
-test.write('test1.tex', r"""This is a .dvi test.
-#tex
-#dvipdf
+test.write('test.tex', r"""This is a test.
+\end
 """)
 
-test.write('test2.tex', r"""This is a .tex test.
-#tex
-#dvipdf
-""")
+test.run(arguments = 'test.pdf', stderr = None)
 
-test.run(arguments = '.', stderr = None)
-
-test.fail_test(test.read('test1.pdf') != "This is a .dvi test.\n")
-
-test.fail_test(test.read('test2.pdf') != "This is a .tex test.\n")
+test.fail_test(not os.path.exists(test.workpath('test.pdf')))
 
 
 
-dvipdf = None
+pdftex = None
 for dir in string.split(os.environ['PATH'], os.pathsep):
-    l = os.path.join(dir, 'dvipdf' + _exe)
-    if os.path.exists(l):
-        dvipdf = l
+    t = os.path.join(dir, 'pdftex' + _exe)
+    if os.path.exists(t):
+        pdftex = t
         break
 
-if dvipdf:
+if pdftex:
 
     test.write("wrapper.py", """import os
 import string
 import sys
-cmd = string.join(sys.argv[1:], " ")
-open('%s', 'ab').write("%%s\\n" %% cmd)
-os.system(cmd)
+open('%s', 'wb').write("wrapper.py\\n")
+os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
 foo = Environment()
-dvipdf = foo.Dictionary('DVIPDF')
-bar = Environment(DVIPDF = r'%s wrapper.py ' + dvipdf)
-foo.PDF(target = 'foo.pdf',
-        source = foo.DVI(target = 'foo.dvi', source = 'foo.tex'))
-bar.PDF(target = 'bar.pdf',
-        source = bar.DVI(target = 'bar.dvi', source = 'bar.tex'))
-foo.PDF(target = 'xxx.pdf', source = 'xxx.tex')
+pdftex = foo.Dictionary('PDFTEX')
+bar = Environment(PDFTEX = r'%s wrapper.py ' + pdftex)
+foo.PDF(target = 'foo.pdf', source = 'foo.tex')
+bar.PDF(target = 'bar', source = 'bar.tex')
 """ % python)
 
     tex = r"""
@@ -137,16 +97,7 @@ This is the %s TeX file.
 \end
 """
 
-    latex = r"""
-\documentclass{letter}
-\begin{document}
-This is the %s LaTeX file.
-\end{document}
-"""
-
     test.write('foo.tex', tex % 'foo.tex')
-
-    test.write('xxx.tex', tex % 'xxx.tex')
 
     test.write('bar.tex', tex % 'bar.tex')
 
@@ -156,15 +107,9 @@ This is the %s LaTeX file.
 
     test.fail_test(not os.path.exists(test.workpath('foo.pdf')))
 
-    test.run(arguments = 'xxx.pdf', stderr = None)
-
-    test.fail_test(os.path.exists(test.workpath('wrapper.out')))
-
-    test.fail_test(os.path.exists(test.workpath('xxx.dvi')))
-
     test.run(arguments = 'bar.pdf', stderr = None)
 
-    test.fail_test(test.read('wrapper.out') != "dvipdf bar.dvi bar.pdf\n")
+    test.fail_test(not os.path.exists(test.workpath('wrapper.out')))
 
     test.fail_test(not os.path.exists(test.workpath('bar.pdf')))
 
