@@ -32,7 +32,8 @@ RELEASE 0.XX - XXX
   - Make builder prefixes work correctly when deducing a target
     from a source file name in another directory.
 
-  - Documentation fixes:  typo in the man page.
+  - Documentation fixes: typo in the man page; explain up-front about
+    not propagating the external environment.
 
   - Use "cvs co -d" instead of "cvs co -p >" when checking out something
     from CVS with a specified module name.  This avoids zero-length
@@ -111,6 +112,8 @@ RELEASE 0.XX - XXX
 
   - Initialize the LIB environment variable when using the Intel
     compiler (icl).
+
+  - Documentation fixes:  better explain the AlwaysBuild() function.
 
   From Laurent Pelecq:
 

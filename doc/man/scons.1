@@ -98,7 +98,7 @@ so you may use normal Python scripting capabilities
 (such as flow control, data manipulation, and imported Python libraries)
 to handle complicated build situations.
 .BR scons ,
-however, reads all of the SConscript files
+however, reads and executes all of the SConscript files
 .I before
 it begins building any targets.
 To make this obvious,
@@ -120,6 +120,34 @@ The status messages
 may be suppressed using the
 .B -Q
 option.
+
+.B scons
+does not automatically propagate
+the external environment used to execute
+.B scons
+to the commands used to build target files.
+This is so that builds will be guaranteed
+repeatable regardless of the environment
+variables set at the time
+.B scons
+is invoked.
+This also means that if the compiler or other commands
+that you want to use to build your target files
+are not in standard system locations,
+.B scons
+will not find them unless
+you explicitly set the PATH
+to include those locations.
+Whenever you create an
+.B scons
+construction environment,
+you can propagate the value of PATH
+from your external environment as follows:
+
+.ES
+import os
+env = Environment(ENV = {'PATH' : os.environ['PATH']})
+.EE
 
 .B scons
 can scan known input files automatically for dependency
@@ -1939,7 +1967,17 @@ USERNAME.
 .RI AlwaysBuild( target ", ...)"
 Marks each given
 .I target
-so that it will always be rebuilt.
+so that it is always assumed to be out of date,
+and will always be rebuilt if needed.
+Note, however, that
+.BR AlwaysBuild ()
+does not add its target(s) to the default target list,
+so the targets will only be built
+if they are specified on the command line,
+or are a dependent of a target specified on the command line--but
+they will
+.I always
+be built if so specified.
 Multiple targets can be passed in to a single call to
 .BR AlwaysBuild ().
 
