@@ -88,5 +88,46 @@ test.run(arguments = '--max-drift=-1 f1.out f2.out',
 scons: "f2.out" is up to date.
 """ % python))
 
+# Test that Set/GetOption('max_drift') works:
+test.write('SConstruct', """
+assert GetOption('max_drift') == 2*24*60*60
+SetOption('max_drift', 1)
+assert GetOption('max_drift') == 1
+""")
+
+test.run()
+
+test.write('SConstruct', """
+assert GetOption('max_drift') == 1
+SetOption('max_drift', 10)
+assert GetOption('max_drift') == 1
+""")
+
+test.run(arguments='--max-drift=1')
+
+# Test that SetOption('max_drift') actually sets max_drift
+# by mucking with the file timestamps to make SCons not realize the source has changed
+test.write('SConstruct', """
+SetOption('max_drift', 0)
+B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'foo.out', source = 'foo.in')
+""" % python)
+
+test.write('foo.in', 'foo.in\n')
+
+atime = os.path.getatime(test.workpath('foo.in'))
+mtime = os.path.getmtime(test.workpath('foo.in'))
+
+test.run()
+test.fail_test(test.read('foo.out') != 'foo.in\n')
+
+test.write('foo.in', 'foo.in delta\n')
+os.utime(test.workpath('foo.in'), (atime,mtime))
+
+test.run()
+
+test.fail_test(test.read('foo.out') != 'foo.in\n')
+
 test.pass_test()
 

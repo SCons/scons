@@ -193,7 +193,7 @@ Removed foo3.out
 Removed %s
 Removed %s
 Removed directory subd
-""" % (os.path.join('subd', 'SConscript'), os.path.join('subd','foon.in')))
+""" % (os.path.join('subd','SConscript'), os.path.join('subd', 'foon.in')))
 test.run(arguments = '-c -n .', stdout=expect)
 
 expect = test.wrap_stdout("""Removed foo1.out
@@ -207,4 +207,56 @@ test.run(arguments = '-c .', stdout=expect)
 test.fail_test(os.path.exists(test.workpath('subdir', 'foon.in')))
 test.fail_test(os.path.exists(test.workpath('subdir')))
 
+
+# Ensure that Set/GetOption('clean') works correctly:
+test.write('SConstruct', """
+B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'foo.out', source = 'foo.in')
+
+assert not GetOption('clean')
+"""%python)
+
+test.write('foo.in', '"Foo", I say!\n')
+
+test.run(arguments='foo.out')
+test.fail_test(test.read(test.workpath('foo.out')) != '"Foo", I say!\n')
+
+test.write('SConstruct', """
+B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'foo.out', source = 'foo.in')
+
+assert GetOption('clean')
+SetOption('clean', 0)
+assert GetOption('clean')
+"""%python)
+
+test.run(arguments='-c foo.out')
+test.fail_test(os.path.exists(test.workpath('foo.out')))
+
+test.write('SConstruct', """
+B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'foo.out', source = 'foo.in')
+"""%python)
+
+test.run(arguments='foo.out')
+test.fail_test(test.read(test.workpath('foo.out')) != '"Foo", I say!\n')
+
+test.write('SConstruct', """
+B = Builder(action = r'%s build.py $TARGETS $SOURCES')
+env = Environment(BUILDERS = { 'B' : B })
+env.B(target = 'foo.out', source = 'foo.in')
+
+assert not GetOption('clean')
+SetOption('clean', 1)
+assert GetOption('clean')
+"""%python)
+
+test.run(arguments='foo.out')
+test.fail_test(os.path.exists(test.workpath('foo.out')))
+
 test.pass_test()
+
+

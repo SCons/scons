@@ -90,6 +90,12 @@ RELEASE 0.14 - XXX
 
   - Fix an undefined exitvalmap on Win32 systems.
 
+  - Support new SetOption() and GetOption() functions for setting
+    various command-line options from with an SConscript file.
+
+  - Deprecate the old SetJobs() and GetJobs() functions in favor of
+    using the new generic {Set,Get}Option() functions.
+
   From David Snopek:
 
   - Contribute the "Autoscons" code for Autoconf-like checking for

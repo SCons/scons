@@ -216,7 +216,7 @@ command_time = 0
 exit_status = 0 # exit status, assume success by default
 profiling = 0
 repositories = []
-sig_module = None
+sig_module = SCons.Sig.default_module
 num_jobs = 1 # this is modifed by SConscript.SetJobs()
 
 # Exceptions for this module
@@ -224,12 +224,6 @@ class PrintHelp(Exception):
     pass
 
 # utility functions
-
-def get_num_jobs(options):
-    if hasattr(options, 'num_jobs'):
-        return options.num_jobs
-    else:
-        return num_jobs
 
 def get_all_children(node): return node.all_children(None)
 
@@ -433,7 +427,7 @@ class OptParser(OptionParser):
                         help="Ignored for compatibility.")
 
         self.add_option('-c', '--clean', '--remove', action="store_true",
-                        default=0, dest="clean",
+                        dest="clean",
                         help="Remove specified targets and dependencies.")
 
         self.add_option('-C', '--directory', type="string", action = "append",
@@ -507,7 +501,7 @@ class OptParser(OptionParser):
                         dest='include_dir', metavar="DIRECTORY",
                         help="Search DIRECTORY for imported Python modules.")
 
-        self.add_option('--implicit-cache', action="store_true", default=0,
+        self.add_option('--implicit-cache', action="store_true",
                         dest='implicit_cache',
                         help="Cache implicit dependencies")
 
@@ -650,6 +644,53 @@ class OptParser(OptionParser):
             opt.implicit_cache = 1
         return opt, arglist
 
+class SConscriptSettableOptions:
+    """This class wraps an OptParser instance and provides
+    uniform access to options that can be either set on the command
+    line or from a SConscript file. A value specified on the command
+    line always overrides a value set in a SConscript file.
+    Not all command line options are SConscript settable, and the ones
+    that are must be explicitly added to settable dictionary and optionally
+    validated and coerced in the set() method."""
+    
+    def __init__(self, options):
+        self.options = options
+
+        # This dictionary stores the defaults for all the SConscript
+        # settable options, as well as indicating which options
+        # are SConscript settable. 
+        self.settable = {'num_jobs':1,
+                         'max_drift':SCons.Sig.default_max_drift,
+                         'implicit_cache':0,
+                         'clean':0}
+
+    def get(self, name):
+        if not self.settable.has_key(name):
+            raise SCons.Error.UserError, "This option is not settable from a SConscript file: %s"%name
+        if hasattr(self.options, name) and getattr(self.options, name) is not None:
+            return getattr(self.options, name)
+        else:
+            return self.settable[name]
+
+    def set(self, name, value):
+        if not self.settable.has_key(name):
+            raise SCons.Error.UserError, "This option is not settable from a SConscript file: %s"%name
+
+        if name == 'num_jobs':
+            try:
+                value = int(value)
+                if value < 1:
+                    raise ValueError
+            except ValueError, x:
+                raise SCons.Errors.UserError, "A positive integer is required: %s"%repr(value)
+        elif name == 'max_drift':
+            try:
+                value = int(value)
+            except ValueError, x:
+                raise SCons.Errors.UserError, "An integer is required: %s"%repr(value)
+            
+        self.settable[name] = value
+    
 
 def _main():
     targets = []
@@ -666,8 +707,9 @@ def _main():
             # it's OK if there's no SCONSFLAGS
             pass
     parser = OptParser()
-    global options
+    global options, ssoptions
     options, args = parser.parse_args(all_args)
+    ssoptions = SConscriptSettableOptions(options)
 
     if options.help_msg:
         def raisePrintHelp(text):
@@ -808,6 +850,10 @@ def _main():
         parser.print_help(sys.stdout)
         sys.exit(0)
 
+    # Now that we've read the SConscripts we can set the options
+    # that are SConscript settable:
+    SCons.Node.implicit_cache = ssoptions.get('implicit_cache')
+
     if target_top:
         target_top = SCons.Node.FS.default_fs.Dir(target_top)
         
@@ -865,7 +911,7 @@ def _main():
     if options.question:
         task_class = QuestionTask
     try:
-        if options.clean:
+        if ssoptions.get('clean'):
             task_class = CleanTask
             class CleanCalculator:
                 def bsig(self, node):
@@ -881,15 +927,8 @@ def _main():
         pass
 
     if not calc:
-        if options.max_drift is not None:
-	    if sig_module is not None:
-                SCons.Sig.default_calc = SCons.Sig.Calculator(module=sig_module,
-                                                              max_drift=options.max_drift)
-	    else:
-                SCons.Sig.default_calc = SCons.Sig.Calculator(max_drift=options.max_drift)
-        elif sig_module is not None:
-            SCons.Sig.default_calc = SCons.Sig.Calculator(module=sig_module)
-
+        SCons.Sig.default_calc = SCons.Sig.Calculator(module=sig_module,
+                                                      max_drift=ssoptions.get('max_drift'))
         calc = SCons.Sig.default_calc
 
     if options.random:
@@ -910,7 +949,7 @@ def _main():
     display("scons: Building targets ...")
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc, order)
 
-    jobs = SCons.Job.Jobs(get_num_jobs(options), taskmaster)
+    jobs = SCons.Job.Jobs(ssoptions.get('num_jobs'), taskmaster)
 
     try:
         jobs.run()

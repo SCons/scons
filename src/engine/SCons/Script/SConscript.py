@@ -443,17 +443,18 @@ def EnsurePythonVersion(major, minor):
         sys.exit(2)
 
 def GetJobs():
-    return SCons.Script.get_num_jobs(SCons.Script.options)
+    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                        "The GetJobs() function has been deprecated;\n" +\
+                        "\tuse GetOption('num_jobs') instead.")
 
+    return GetOption('num_jobs')
+ 
 def SetJobs(num):
-    try:
-        tmp = int(num)
-        if tmp < 1:
-            raise ValueError
-        SCons.Script.num_jobs = tmp
-    except ValueError, x:
-        raise SCons.Errors.UserError, "A positive integer is required: %s"%repr(num)
-    
+    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                        "The SetJobs() function has been deprecated;\n" +\
+                        "\tuse SetOption('num_jobs', num) instead.")
+    SetOption('num_jobs', num)
+
 def Clean(target, files):
     if not isinstance(target, SCons.Node.Node):
         target = SCons.Node.FS.default_fs.Entry(target, create=1)
@@ -493,6 +494,12 @@ def Alias(name):
         alias = SCons.Node.Alias.default_ans.Alias(name)
     return alias
 
+def SetOption(name, value):
+    SCons.Script.ssoptions.set(name, value)
+
+def GetOption(name):
+    return SCons.Script.ssoptions.get(name)
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -504,6 +511,7 @@ def BuildDefaultGlobals():
     globals['Action']            = SCons.Action.Action
     globals['AddPostAction']     = AddPostAction
     globals['AddPreAction']      = AddPreAction
+    globals['Alias']             = Alias
     globals['ARGUMENTS']         = arguments
     globals['BuildDir']          = BuildDir
     globals['Builder']           = SCons.Builder.Builder
@@ -524,6 +532,7 @@ def BuildDefaultGlobals():
     globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
     globals['GetJobs']           = GetJobs
     globals['GetLaunchDir']      = GetLaunchDir
+    globals['GetOption']         = GetOption    
     globals['Help']              = Help
     globals['Import']            = Import
     globals['Library']           = SCons.Defaults.StaticLibrary
@@ -543,6 +552,7 @@ def BuildDefaultGlobals():
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
     globals['SetContentSignatureType'] = SetContentSignatureType
     globals['SetJobs']           = SetJobs
+    globals['SetOption']         = SetOption
     globals['SharedLibrary']     = SCons.Defaults.SharedLibrary
     globals['SharedObject']      = SCons.Defaults.SharedObject
     globals['SourceSignatures']  = SourceSignatures
@@ -552,5 +562,4 @@ def BuildDefaultGlobals():
     globals['TargetSignatures']  = TargetSignatures
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
-    globals['Alias']             = Alias
     return globals

@@ -44,6 +44,8 @@ except ImportError:
     import TimeStamp
     default_module = TimeStamp
 
+default_max_drift = 2*24*60*60
+
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
@@ -237,7 +239,7 @@ class Calculator:
     for the build engine.
     """
 
-    def __init__(self, module=default_module, max_drift=2*24*60*60):
+    def __init__(self, module=default_module, max_drift=default_max_drift):
         """
         Initialize the calculator.
 

@@ -327,5 +327,52 @@ assert string.find(test.stdout(), 'is up to date') != -1, test.stdout()
 test.run(arguments = "--implicit-deps-changed " + variant_prog)
 assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
 
+# Test that Set/GetOption('implicit_cache') works:
+test.write('SConstruct', """
+assert not GetOption('implicit_cache')
+SetOption('implicit_cache', 1)
+assert GetOption('implicit_cache')
+""")
+
+test.run()
+
+test.write('SConstruct', """
+assert GetOption('implicit_cache')
+SetOption('implicit_cache', 0)
+assert GetOption('implicit_cache')
+""")
+
+test.run(arguments='--implicit-cache')
+
+# Test to make sure SetOption('implicit_cache', 1) actually enables implicit caching
+# by detecting the one case where implicit caching causes inaccurate builds:
+test.write('SConstruct', """
+SetOption('implicit_cache', 1)
+env=Environment(CPPPATH=['i1', 'i2'])
+env.Object('foo.c')
+""")
+
+test.subdir('i1')
+test.subdir('i2')
+
+test.write('foo.c', """
+#include <foo.h>
+
+int foo(void)
+{
+    FOO_H_DEFINED
+}
+""")
+
+test.write('i2/foo.h', """
+#define FOO_H_DEFINED int x = 1;
+""")
+
+test.run()
+
+test.write('i1/foo.h', """
+""");
+
+test.run()
 
 test.pass_test()

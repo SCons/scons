@@ -45,6 +45,12 @@ RELEASE 0.14 - XXX
     file, you may need to modify the module to make the previously
     global variables available to your Export() or SConscript() call.
 
+  - The SetJobs() and GetJobs() functions have been deprecated.
+    Their new equivalents are:
+
+        SetOption('num_jobs', num)
+        GetOption('num_jobs')
+
   Please note the following important changes since release 0.11:
 
   - The default behavior of SCons is now to change to the directory in

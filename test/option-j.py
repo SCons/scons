@@ -23,8 +23,8 @@
 #
 
 """
-This tests the -j command line option, and the SetJobs() and GetJobs()
-SConscript functions.
+This tests the -j command line option, and the num_jobs
+SConscript settable option.
 """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -134,12 +134,12 @@ def copyn(env, target, source):
 t = env.Command(target=['foo/foo1.out', 'foo/foo2.out'], source='foo/foo.in', action=copyn)
 env.Install('out', t)
 
-assert GetJobs() == 1
-SetJobs(2)
-assert GetJobs() == 2
+assert GetOption('num_jobs') == 1
+SetOption('num_jobs', 2)
+assert GetOption('num_jobs') == 2
 """ % python)
 
-# This should be a prallel build because the SConscript sets jobs to 2.
+# This should be a parallel build because the SConscript sets jobs to 2.
 # fail if the second file was not started
 # before the first one was finished
 start2, finish1 = RunTest('f1 f2', "third")
@@ -162,9 +162,9 @@ def copyn(env, target, source):
 t = env.Command(target=['foo/foo1.out', 'foo/foo2.out'], source='foo/foo.in', action=copyn)
 env.Install('out', t)
 
-assert GetJobs() == 1
-SetJobs(2)
-assert GetJobs() == 1
+assert GetOption('num_jobs') == 1
+SetOption('num_jobs', 2)
+assert GetOption('num_jobs') == 1
 """ % python)
 
 # This should be a serial build since -j 1 overrides the call to SetJobs().

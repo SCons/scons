@@ -3136,7 +3136,7 @@ is returned.
 .TP
 .RI CheckContext.TryBuild( self ", " builder ", [" text ", " extension ])
 Low level implementation for testing specific builds;
-the methods above are based on this metho.
+the methods above are based on this method.
 Given the Builder instance
 .I builder
 and the optional 
@@ -3163,14 +3163,14 @@ int main(int argc, char **argv) {
   QApplication qapp(argc, argv);
   return 0;
 }
-"""
+""")
     if not ret:
         context.env.Replace(LIBS = lastLIBS, LIBPATH=lastLIBPATH, CPPPATH=lastCPPPATH)
     context.Result( ret )
     return ret
 
 env = Environment()
-conf = Configure( env, custom_tests = 'CheckQt' : CheckQt )
+conf = Configure( env, custom_tests = { 'CheckQt' : CheckQt } )
 if not conf.CheckQt('/usr/lib/qt'):
     print 'We really need qt!'
     Exit(1)
@@ -3694,11 +3694,11 @@ foo = FindFile('foo', ['dir1', 'dir2'])
 .\"XXX
 
 .TP
-.RI GetJobs()
-Get the number of jobs (commands) that will be run simultaneously. See also 
-.I -j
-and
-.IR SetJobs() .
+.RI GetOption( name )
+This function provides a way to query a select subset of the scons command line
+options from a SConscript file. See 
+.IR SetOption () 
+for a description of the options available.
 
 .TP
 .RI Help( text )
@@ -3866,6 +3866,20 @@ Return(["foo", "bar"])
 .EE
 
 .TP
+.RI SetOption( name , value )
+This function provides a way to set a select subset of the scons command
+line options from a SConscript file. The options supported are: clean which
+cooresponds to -c, --clean, and --remove; implicit_cache which corresponds
+to --implicit-cache; max_drift which corresponds to --max-drift; and
+num_jobs which corresponds to -j and --jobs. See the documentation for the
+corresponding command line object for information about each specific
+option. Example:
+
+.EE
+SetOption('max_drift', 1)
+.ES
+
+.TP
 .RI SConscript( script ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
 This tells
 .B scons
@@ -3981,35 +3995,40 @@ SConscriptChdir(1)
 SConscript('bar/SConscript')	# will chdir to bar
 .EE
 
-.TP 
-.RI SetBuildSignatureType( type )
+.TP
+.RI TargetSignatures( type )
 
-This function tells SCons what type of build signature to use: "build" or
-"content". "build" means to concatenate the signatures of all source files
-of a derived file to make its signature, and "content" means to use
-the derived files content signature as its signature. "build" signatures
-are usually faster to compute, but "content" signatures can prevent
-redundant rebuilds. The default is "build".
+This function tells SCons what type of signatures to use
+for target files:
+.B "build"
+or
+.BR "content" .
+"build" means the signature of a target file
+is made by concatenating all of the
+signatures of all its source files.
+"content" means the signature of a target
+file is an MD5 checksum of its contents.
+"build" signatures are usually faster to compute,
+but "content" signatures can prevent unnecessary rebuilds
+when a target file is rebuilt to the exact same contents as last time.
+The default is "build".
 
 .TP
-.RI SetContentSignatureType( type )
+.RI SourceSignatures( type )
 
-This function tells SCons what type of content signature to use: "MD5" or
-"timestamp". "MD5" means to use the MD5 checksum of a files contents as
-its signature, and "timestamp" means to use a files timestamp as its
-signature. When using "timestamp" signatures, changes in the
-command line will not cause files to be rebuilt. "MD5" signatures take
-longer to compute, but "timestamp" signatures are less accurate. The
-default is "MD5".
-
-.TP
-.RI SetJobs( num )
-Specifies the number of jobs (commands) to run simultaneously. 
-.I -j
-overrides this function. See also 
-.I -j
-and 
-.IR GetJobs() .
+This function tells SCons what type of signature to use for source files:
+.B "MD5"
+or
+.BR "timestamp" .
+"MD5" means the signature of a source file
+is the MD5 checksum of its contents.
+"timestamp" means the signature of a source file
+is its timestamp (modification time).
+When using "timestamp" signatures,
+changes in the command line will not cause files to be rebuilt.
+"MD5" signatures take longer to compute,
+but are more accurate than "timestamp" signatures.
+The default is "MD5".
 
 .TP
 .RI Split( arg )
