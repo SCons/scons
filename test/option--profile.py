@@ -43,15 +43,19 @@ test.fail_test(string.find(test.stdout(), 'Copyright') == -1 and
 stats = pstats.Stats(scons_prof)
 stats.sort_stats('time')
 
-sys.stdout = StringIO.StringIO()
+try:
+    save_stdout = sys.stdout
+    sys.stdout = StringIO.StringIO()
 
-stats.strip_dirs().print_stats()
+    stats.strip_dirs().print_stats()
 
-s = sys.stdout.getvalue()
+    s = sys.stdout.getvalue()
+finally:
+    sys.stdout = save_stdout
 
-test.fail_test(string.find(s, '__init__.py') == -1)
+test.fail_test(string.find(s, 'Main.py') == -1)
 test.fail_test(string.find(s, 'print_version') == -1)
-test.fail_test(string.find(s, 'SCons.Script.main()') == -1)
+test.fail_test(string.find(s, 'SCons.Script.Main.main()') == -1)
 test.fail_test(string.find(s, 'option_parser.py') == -1)
 
 
@@ -71,11 +75,10 @@ stats.strip_dirs().print_stats()
 
 s = sys.stdout.getvalue()
 
-test.fail_test(string.find(s, '__init__.py') == -1)
+test.fail_test(string.find(s, 'Main.py') == -1)
 test.fail_test(string.find(s, 'print_version') == -1)
-test.fail_test(string.find(s, 'SCons.Script.main()') == -1)
+test.fail_test(string.find(s, 'SCons.Script.Main.main()') == -1)
 test.fail_test(string.find(s, 'option_parser.py') == -1)
  
 
 test.pass_test()
-
