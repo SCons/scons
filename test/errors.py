@@ -27,6 +27,9 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import TestCmd
 import TestSCons
 import string
+import sys
+
+python = sys.executable
 
 test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 
@@ -112,5 +115,17 @@ test.run(arguments='-f SConstruct3',
     raise InternalError, 'error inside'
 InternalError: error inside
 """, status=2)
+
+test.write('build.py', '''
+import sys
+sys.exit(2)
+''')
+
+test.write('SConstruct', """
+env=Environment()
+Default(env.Command(['one.out', 'two.out'], ['foo.in'], action=r'%s build.py'))
+"""%python)
+
+test.run(status=2, stderr="scons: \\*\\*\\* \\[one.out\\] Error 2\n")
 
 test.pass_test()

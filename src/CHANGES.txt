@@ -92,6 +92,8 @@ RELEASE 0.09 -
 
   - Add EnsurePythonVersion() and EnsureSConsVersion() functions.
 
+  - Fix the overly-verbose stack trace on ListBuilder build errors.
+
   From sam th:
 
   - Dynamically check for the existence of utilities with which to

@@ -112,6 +112,8 @@ class Node:
                 raise
             except UserError:
                 raise
+            except BuildError:
+                raise
             except:
                 raise BuildError(self, "Exception",
                                  sys.exc_type,
