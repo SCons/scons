@@ -331,6 +331,7 @@ def BuildDefaultGlobals():
     globals['Library']           = SCons.Defaults.StaticLibrary
     globals['Local']             = Local
     globals['Object']            = SCons.Defaults.StaticObject
+    globals['Options']           = Options
     globals['Repository']        = SCons.Node.FS.default_fs.Repository
     globals['SetBuildSignatureType'] = SetBuildSignatureType
     globals['SetContentSignatureType'] = SetContentSignatureType
@@ -338,6 +339,7 @@ def BuildDefaultGlobals():
     globals['StaticObject']      = SCons.Defaults.StaticObject
     globals['SharedLibrary']     = SCons.Defaults.SharedLibrary
     globals['SharedObject']      = SCons.Defaults.SharedObject
+    globals['ParseConfig']       = SCons.Util.ParseConfig
     globals['Platform']          = SCons.Platform.Platform
     globals['Program']           = SCons.Defaults.Program
     globals['Return']            = Return
@@ -348,5 +350,4 @@ def BuildDefaultGlobals():
     globals['Split']             = SCons.Util.Split
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
-    globals['Options']           = Options
     return globals

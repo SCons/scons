@@ -55,6 +55,9 @@ RELEASE 0.09 -
   - Refactor option processing to use our own version of Greg Ward's
     Optik module, modified to run under Python 1.5.2.
 
+  - Add a ParseConfig() command to modify an environment based on
+    parsing output from a *-config command.
+
  From Jeff Petkau:
 
   - Fix interpretation of '#/../foo' on Win32 systems.

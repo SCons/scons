@@ -2345,6 +2345,34 @@ Import("env", "variable")
 .EE
 
 .TP
+.RI ParseConfig( env , command ", [" function ])
+Calls the specified
+.I function
+to modify the specified environment
+.I env
+as specified by the output of
+.I command .
+The default
+.I function
+expects the output of a typical
+.I *-config command
+(for example,
+.BR gtk-config )
+and parses the returned
+.BR -L ,
+.BR -l ,
+.B -I
+and other options
+into the
+.BR LIBPATH ,
+.BR LIBS ,
+.B CPPPATH
+and
+.B CCFLAGS
+variables,
+respectively.
+
+.TP
 .RI Platform( string )
 Returns a callable object
 that can be used to initialize
