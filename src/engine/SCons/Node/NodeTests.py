@@ -77,10 +77,28 @@ class MyAction(MyActionBase):
         return 0
 
 class MyExecutor:
+    def __init__(self, env=None, targets=[], sources=[]):
+        self.env = env
+        self.targets = targets
+        self.sources = sources
+    def get_build_env(self):
+        return self.env
     def get_build_scanner_path(self, scanner):
         return 'executor would call %s' % scanner
     def cleanup(self):
         self.cleaned_up = 1
+    def scan_targets(self, scanner):
+        if not scanner:
+            return
+        d = scanner(self.targets)
+        for t in self.targets:
+            t.implicit.extend(d)
+    def scan_sources(self, scanner):
+        if not scanner:
+            return
+        d = scanner(self.sources)
+        for t in self.targets:
+            t.implicit.extend(d)
 
 class MyListAction(MyActionBase):
     def __init__(self, list):
@@ -794,38 +812,40 @@ class NodeTestCase(unittest.TestCase):
         assert deps == [], deps
 
         s = Scanner()
-        d = MyNode("ddd")
-        node.found_includes = [d]
+        d1 = MyNode("d1")
+        d2 = MyNode("d2")
+        node.found_includes = [d1, d2]
 
         # Simple return of the found includes
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d], deps
+        assert deps == [d1, d2], deps
 
         # By default, our fake scanner recurses
         e = MyNode("eee")
         f = MyNode("fff")
         g = MyNode("ggg")
-        d.found_includes = [e, f]
+        d1.found_includes = [e, f]
+        d2.found_includes = [e, f]
         f.found_includes = [g]
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d, e, f, g], map(str, deps)
+        assert deps == [d1, d2, e, f, g], map(str, deps)
 
         # Recursive scanning eliminates duplicates
         e.found_includes = [f]
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d, e, f, g], map(str, deps)
+        assert deps == [d1, d2, e, f, g], map(str, deps)
 
         # Scanner method can select specific nodes to recurse
         def no_fff(nodes):
             return filter(lambda n: str(n)[0] != 'f', nodes)
         s.recurse_nodes = no_fff
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d, e, f], map(str, deps)
+        assert deps == [d1, d2, e, f], map(str, deps)
 
         # Scanner method can short-circuit recursing entirely
         s.recurse_nodes = lambda nodes: []
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d], map(str, deps)
+        assert deps == [d1, d2], map(str, deps)
 
     def test_get_scanner(self):
         """Test fetching the environment scanner for a Node
@@ -881,11 +901,13 @@ class NodeTestCase(unittest.TestCase):
     def test_scan(self):
         """Test Scanner functionality
         """
+        env = Environment()
         node = MyNode("nnn")
         node.builder = Builder()
-        node.env_set(Environment())
-        s = Scanner()
+        node.env_set(env)
+        x = MyExecutor(env, [node])
 
+        s = Scanner()
         d = MyNode("ddd")
         node.found_includes = [d]
 

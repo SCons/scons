@@ -55,18 +55,17 @@ class Stats:
 
 StatsNodes = []
 
-fmt = "%(considered)5d" \
-      " %(already_handled)5d" \
-      " %(problem)5d" \
-      " %(child_failed)5d" \
-      " %(not_started)5d" \
-      " %(not_built)5d" \
-      " %(side_effects)5d" \
-      " %(build)5d" \
-      " "
+fmt = "%(considered)3d "\
+      "%(already_handled)3d " \
+      "%(problem)3d " \
+      "%(child_failed)3d " \
+      "%(not_started)3d " \
+      "%(not_built)3d " \
+      "%(side_effects)3d " \
+      "%(build)3d "
 
 def dump_stats():
-    StatsNodes.sort(lambda a, b: cmp(a.name, b.name))
+    StatsNodes.sort(lambda a, b: cmp(str(a), str(b)))
     for n in StatsNodes:
         print (fmt % n.stats.__dict__) + str(n)
 
@@ -164,15 +163,13 @@ class Task:
         things.  Most importantly, this calls back to the
         Taskmaster to put any node tasks waiting on this one
         back on the pending list."""
-
-        if self.targets[0].get_state() == SCons.Node.executing:
-            for t in self.targets:
+        for t in self.targets:
+            if t.get_state() == SCons.Node.executing:
                 for side_effect in t.side_effects:
                     side_effect.set_state(SCons.Node.no_state)
                 t.set_state(SCons.Node.executed)
                 t.built()
-        else:
-            for t in self.targets:
+            else:
                 t.visited()
 
         self.tm.executed(self.node)
@@ -210,16 +207,6 @@ class Task:
 
         self.tm.executed(self.node)
 
-    def mark_targets(self, state):
-        for t in self.targets:
-            t.set_state(state)
-
-    def mark_targets_and_side_effects(self, state):
-        for t in self.targets:
-            for side_effect in t.side_effects:
-                side_effect.set_state(state)
-            t.set_state(state)
-
     def make_ready_all(self):
         """Mark all targets in a task ready for execution.
 
@@ -227,7 +214,10 @@ class Task:
         visited--the canonical example being the "scons -c" option.
         """
         self.out_of_date = self.targets[:]
-        self.mark_targets_and_side_effects(SCons.Node.executing)
+        for t in self.targets:
+            for s in t.side_effects:
+                s.set_state(SCons.Node.executing)
+            t.set_state(SCons.Node.executing)
 
     def make_ready_current(self):
         """Mark all targets in a task ready for execution if any target
@@ -235,11 +225,15 @@ class Task:
 
         This is the default behavior for building only what's necessary.
         """
-        self.out_of_date = filter(lambda T: not T.current(), self.targets)
-        if self.out_of_date:
-            self.mark_targets_and_side_effects(SCons.Node.executing)
-        else:
-            self.mark_targets(SCons.Node.up_to_date)
+        self.out_of_date = []
+        for t in self.targets:
+            if t.current():
+                t.set_state(SCons.Node.up_to_date)
+            else:
+                self.out_of_date.append(t)
+                for s in t.side_effects:
+                    s.set_state(SCons.Node.executing)
+                t.set_state(SCons.Node.executing)
 
     make_ready = make_ready_current
 
@@ -423,7 +417,7 @@ class Taskmaster:
                 # put back on the candidates list when appropriate.
                 self.pending.append(node)
                 node.set_state(SCons.Node.pending)
-                if S: S.not_built = S.built + 1
+                if S: S.not_built = S.not_built + 1
                 continue
 
             # Skip this node if it has side-effects that are

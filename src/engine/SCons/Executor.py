@@ -154,29 +154,38 @@ class Executor:
         """
         return 0
 
-    def scan(self, scanner):
-        """Scan this Executor's source files for implicit dependencies
-        and update all of the targets with them.  This essentially
-        short-circuits an N^2 scan of the sources for each individual
-        targets, which is a hell of a lot more efficient.
+    def scan_targets(self, scanner):
+        self.scan(scanner, self.targets)
+
+    def scan_sources(self, scanner):
+        self.scan(scanner, self.sources)
+
+    def scan(self, scanner, node_list):
+        """Scan a list of this Executor's files (targets or sources) for
+        implicit dependencies and update all of the targets with them.
+        This essentially short-circuits an N*M scan of the sources for
+        each individual target, which is a hell of a lot more efficient.
         """
         env = self.get_build_env()
         select_specific_scanner = lambda t: (t[0], t[1].select(t[0]))
         remove_null_scanners = lambda t: not t[1] is None
-        add_scanner_path = lambda t, s=self: (t[0], t[1], s.get_build_scanner_path(t[1]))
+        add_scanner_path = lambda t, s=self: \
+                                  (t[0], t[1], s.get_build_scanner_path(t[1]))
         if scanner:
-            initial_scanners = lambda src, s=scanner: (src, s)
+            scanner_list = map(lambda src, s=scanner: (src, s), node_list)
         else:
             kw = self.get_kw()
-            initial_scanners = lambda src, e=env, kw=kw: (src, src.get_scanner(e, kw))
-        scanner_list = map(initial_scanners, self.sources)
-        scanner_list = filter(remove_null_scanners, scanner_list)
+            get_initial_scanners = lambda src, e=env, kw=kw: \
+                                          (src, src.get_scanner(e, kw))
+            scanner_list = map(get_initial_scanners, node_list)
+            scanner_list = filter(remove_null_scanners, scanner_list)
+
         scanner_list = map(select_specific_scanner, scanner_list)
         scanner_list = filter(remove_null_scanners, scanner_list)
         scanner_path_list = map(add_scanner_path, scanner_list)
         deps = []
-        for src, scanner, path in scanner_path_list:
-            deps.extend(src.get_implicit_deps(env, scanner, path))
+        for node, scanner, path in scanner_path_list:
+            deps.extend(node.get_implicit_deps(env, scanner, path))
 
         for tgt in self.targets:
             tgt.add_to_implicit(deps)
