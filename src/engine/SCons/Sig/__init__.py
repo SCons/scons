@@ -38,6 +38,10 @@ import time
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
+# 1 means use build signature for derived source files
+# 0 means use content signature for derived source files
+build_signature = 1
+
 def write():
     global sig_files
     for sig_file in sig_files:
@@ -359,13 +363,13 @@ class Calculator:
 
     def get_signature(self, node):
         """
-        Get the appropriate signature for a node.
+        Get the appropriate build signature for a node.
 
         node - the node
         returns - the signature or None if the signature could not
         be computed.
 
-        This method does not store the signature in the node and
+        This method does not store the signature in the node or
         in the .sconsign file.
         """
 
@@ -374,7 +378,10 @@ class Calculator:
             # directory) so bail right away.
             return None
         elif node.builder:
-            return self.bsig(node)
+            if build_signature:
+                return self.bsig(node)
+            else:
+                return self.csig(node)
         elif not node.exists():
             return None
         else:

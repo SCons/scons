@@ -54,6 +54,7 @@ Default(env.B(target = 'sub3/baz.out', source = 'sub3/baz.in'))
 BuildDir('sub2b', 'sub2')
 SConscript('sub2b/SConscript')
 Default(env.B(target = 'sub2/xxx.out', source = 'xxx.in'))
+SConscript('SConscript')
 """ % python)
 
 test.write(['sub2', 'SConscript'], """
@@ -70,6 +71,7 @@ test.write(['sub2', 'bar.in'], "sub2/bar.in\n")
 test.write(['sub3', 'baz.in'], "sub3/baz.in\n")
 test.write('xxx.in', "xxx.in\n")
 
+test.write('SConscript', """assert GetLaunchDir() == '%s'"""%test.workpath('sub1'))
 test.run(arguments = '-U foo.out', chdir = 'sub1')
 
 test.fail_test(not os.path.exists(test.workpath('sub1', 'foo.out')))
@@ -81,6 +83,7 @@ test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 
 test.unlink(['sub1', 'foo.out'])
 
+test.write('SConscript', """assert GetLaunchDir() == '%s'"""%test.workpath('sub1'))
 test.run(arguments = '-U', chdir = 'sub1')
 test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
 test.fail_test(os.path.exists(test.workpath('sub2', 'bar.out')))
@@ -89,6 +92,7 @@ test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
 test.fail_test(os.path.exists(test.workpath('bar.out')))
 test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 
+test.write('SConscript', """assert GetLaunchDir() == '%s'"""%test.workpath('sub2'))
 test.run(chdir = 'sub2', arguments = '-U')
 test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
 test.fail_test(not os.path.exists(test.workpath('sub2', 'bar.out')))
@@ -101,6 +105,7 @@ test.unlink(['sub2', 'bar.out'])
 test.unlink(['sub2b', 'bar.out'])
 test.unlink('bar.out')
 
+test.write('SConscript', """assert GetLaunchDir() == '%s'"""%test.workpath())
 test.run(arguments='-U')
 test.fail_test(not os.path.exists(test.workpath('sub1', 'foo.out')))
 test.fail_test(os.path.exists(test.workpath('sub2', 'bar.out')))
@@ -113,6 +118,7 @@ test.unlink(['sub1', 'foo.out'])
 test.unlink(['sub3', 'baz.out'])
 test.unlink(['sub2', 'xxx.out'])
 
+test.write('SConscript', """assert GetLaunchDir() == '%s'"""%test.workpath('sub3'))
 test.run(chdir = 'sub3', arguments='-U bar')
 test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
 test.fail_test(not os.path.exists(test.workpath('sub2', 'bar.out')))

@@ -135,6 +135,12 @@ RELEASE 0.08 -
     suffix computation, code cleanup in MultiStepBuilder.__call__(),
     and replicating some logic in scons_subst().
 
+  - Add a --implicit-deps-unchanged option.
+
+  - Add a GetLaunchDir() function.
+
+  - Add a SetBuildSignatureType() function.
+
   From Zed Shaw:
 
   - Add an Append() method to Environments, to append values to

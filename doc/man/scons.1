@@ -400,6 +400,13 @@ dependency is added earlier in the implicit dependency search path
 (e.g. CPPPATH) than a current implicit dependency with the same name.
 
 .TP
+--implicit-deps-unchanged
+Force SCons to ignore changes in the implicit dependencies.
+This causes cached implicit dependencies to always be used.
+This implies 
+.BR --implicit-cache .
+
+.TP
 .RI -j " N" ", --jobs=" N
 Specifies the number of jobs (commands) to run simultaneously.
 If there is more than one 

@@ -27,6 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import sys
 import TestSCons
+import string
 
 if sys.platform == 'win32':
     _exe = '.exe'
@@ -265,5 +266,35 @@ main(int argc, char *argv[])
 
 test.run(arguments = "--implicit-cache one%s"%_obj)
 test.run(arguments = "--implicit-cache one%s"%_obj)
+
+# Test forcing of implicit caching:
+test.write(['include', 'foo.h'],
+r"""
+#define	FOO_STRING "include/foo.h 3\n"
+#include "bar.h"
+""")
+
+test.run(arguments = "--implicit-cache " + args)
+
+test.write(['include', 'foo.h'],
+r"""
+#define	FOO_STRING "include/foo.h 3\n"
+#include "baz.h"
+#include "bar.h"
+""")
+
+test.run(arguments = "--implicit-deps-unchanged " + variant_prog)
+assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
+
+test.write(['include', 'baz.h'],
+r"""
+#define BAZ_STRING "include/baz.h 2\n"
+""")
+
+test.run(arguments = "--implicit-deps-unchanged " + variant_prog)
+assert string.find(test.stdout(), 'is up to date') != -1, test.stdout()
+
+test.run(arguments = variant_prog)
+assert string.find(test.stdout(), 'is up to date') == -1, test.stdout()
 
 test.pass_test()

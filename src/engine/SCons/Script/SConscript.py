@@ -39,6 +39,7 @@ import SCons.Node.FS
 import SCons.Platform
 import SCons.Tool
 import SCons.Util
+import SCons.Sig
 
 import os
 import os.path
@@ -48,6 +49,7 @@ import sys
 default_targets = []
 print_help = 0
 arguments = {}
+launch_dir = os.path.abspath(os.curdir)
 
 # global exports set by Export():
 global_exports = {}
@@ -243,6 +245,17 @@ def Import(*vars):
     except KeyError,x:
         raise SCons.Errors.UserError, "Import of non-existant variable '%s'"%x
 
+def GetLaunchDir():
+    return launch_dir
+
+def SetBuildSignatureType(type):
+    if type == 'build':
+        SCons.Sig.build_signature = 1
+    elif type == 'content':
+        SCons.Sig.build_signature = 0
+    else:
+        raise SCons.Errors.UserError, "Unknown build signature type '%s'"%type
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -281,4 +294,6 @@ def BuildDefaultGlobals():
     globals['Split']             = SCons.Util.Split
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
+    globals['GetLaunchDir']      = GetLaunchDir
+    globals['SetBuildSignatureType'] = SetBuildSignatureType
     return globals

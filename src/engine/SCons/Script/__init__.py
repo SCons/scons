@@ -550,6 +550,15 @@ def options_init():
         long = ['implicit-cache'],
         help = "Cache implicit dependencies")
 
+    def opt_implicit_deps_unchanged(opt, arg):
+        import SCons.Node
+        SCons.Node.implicit_cache = 1
+        SCons.Node.implicit_deps_unchanged = 1
+
+    Option(func = opt_implicit_deps_unchanged,
+        long = ['implicit-deps-unchanged'],
+        help = "Ignore changes in implicit deps.")
+
     def opt_j(opt, arg):
 	global num_jobs
 	try:

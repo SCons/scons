@@ -57,6 +57,9 @@ stack = 6 # nodes that are in the current Taskmaster execution stack
 # controls whether implicit depedencies are cached:
 implicit_cache = 0
 
+# controls whether implicit dep changes are ignored:
+implicit_deps_unchanged = 0
+
 class Node:
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
@@ -203,7 +206,7 @@ class Node:
                 implicit = map(self.builder.source_factory, implicit)
                 self._add_child(self.implicit, implicit)
                 calc = SCons.Sig.default_calc
-                if calc.current(self, calc.bsig(self)):
+                if implicit_deps_unchanged or calc.current(self, calc.bsig(self)):
                     return
                 else:
                     # one of this node's sources has changed, so 
