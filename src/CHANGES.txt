@@ -221,10 +221,13 @@ RELEASE 0.97 - XXX
   - Avoid copying __builtin__ values into a construction environment's
     dictionary when evaluating construction variables.
 
-  - Add a new cross-platform intelc.py Tool that can detect and configure
-    the Intel C++ v8 compiler on both Windows, where it's named icl,
-    and Linux, where it's named icc.  (Niall Douglas contributed an
-    early prototype of parts of this module.)
+  - Add a new cross-platform intelc.py Tool that can detect and
+    configure the Intel C++ v8 compiler on both Windows, where it's
+    named icl, and Linux, where it's named icc.  It also checks that
+    the directory specified in the Windows registry exists, and sets a
+    new $INTEL_C_COMPILER_VERSION construction variable to identify the
+    version being used.  (Niall Douglas contributed an early prototype
+    of parts of this module.)
 
   - Fix the private Conftest._Have() function so it doesn't change
     non-alphanumeric characters to underscores.

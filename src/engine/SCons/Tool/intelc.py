@@ -46,6 +46,15 @@ elif is_linux:
 import SCons.Util
 import SCons.Warnings
 
+# Exceptions for this tool
+class IntelCError(SCons.Errors.InternalError):
+    pass
+class MissingRegistryError(IntelCError): # missing registry entry
+    pass
+class MissingDirError(IntelCError):     # dir not found
+    pass
+class NoRegistryModuleError(IntelCError): # can't read registry at all
+    pass
 
 def fltcmp(a, b):
     """Compare strings as floats"""
@@ -61,7 +70,7 @@ def get_intel_registry_value(valuename, version=None, abi=None):
     try:
         k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, K)
     except SCons.Util.RegError:
-        raise SCons.Errors.InternalError, \
+        raise MissingRegistryError, \
               "%s was not found in the registry, for Intel compiler version %s"%(K, version)
 
     # Get the value:
@@ -69,7 +78,7 @@ def get_intel_registry_value(valuename, version=None, abi=None):
         v = SCons.Util.RegQueryValueEx(k, valuename)[0]
         return v  # or v.encode('iso-8859-1', 'replace') to remove unicode?
     except SCons.Util.RegError:
-        raise SCons.Errors.InternalError, \
+        raise MissingRegistryError, \
               "%s\\%s was not found in the registry."%(K, value)
 
 
@@ -90,7 +99,24 @@ def get_all_compiler_versions():
         try:
             while i < 100:
                 subkey = SCons.Util.RegEnumKey(k, i) # raises EnvironmentError
-                versions.append(subkey)
+                # Check that this refers to an existing dir.
+                # This is not 100% perfect but should catch common
+                # installation issues like when the compiler was installed
+                # and then the install directory deleted or moved (rather
+                # than uninstalling properly), so the registry values
+                # are still there.
+                ok = False
+                for check_abi in ('IA32', 'IA64'):
+                    try:
+                        d = get_intel_registry_value('ProductDir', subkey, check_abi)
+                    except MissingRegistryError:
+                        continue  # not found in reg, keep going
+                    if os.path.exists(d): ok = True
+                if ok:
+                    versions.append(subkey)
+                else:
+                    # Registry points to nonexistent dir.  Ignore this version.
+                    print "Ignoring "+str(get_intel_registry_value('ProductDir', subkey, 'IA32'))
                 i = i + 1
         except EnvironmentError:
             # no more subkeys
@@ -112,21 +138,21 @@ def get_intel_compiler_top(version=None, abi=None):
 
     if is_win32:
         if not SCons.Util.can_read_reg:
-            raise SCons.Errors.InternalError, "No Windows registry module was found"
+            raise NoRegistryModuleError, "No Windows registry module was found"
         top = get_intel_registry_value('ProductDir', version, abi)
 
         if not os.path.exists(os.path.join(top, "Bin", "icl.exe")):
-            raise SCons.Errors.InternalError, \
+            raise MissingDirError, \
                   "Can't find Intel compiler in %s"%(top)
     elif is_linux:
         top = '/opt/intel_cc_%s'%version
         if not os.path.exists(os.path.join(top, "bin", "icc")):
-            raise SCons.Errors.InternalError, \
+            raise MissingDirError, \
                   "Can't find version %s Intel compiler in %s"%(version,top)
     return top
 
 
-def generate(env, version=None, abi=None, topdir=None, verbose=1):
+def generate(env, version=None, abi=None, topdir=None, verbose=0):
     """Add Builders and construction variables for Intel C/C++ compiler
     to an Environment.
     args:
@@ -164,7 +190,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=1):
     if topdir is None and version:
         try:
             topdir = get_intel_compiler_top(version, abi)
-        except (SCons.Util.RegError, SCons.Errors.InternalError):
+        except (SCons.Util.RegError, IntelCError):
             topdir = None
 
     if topdir:
@@ -189,10 +215,14 @@ def generate(env, version=None, abi=None, topdir=None, verbose=1):
             for p in paths:
                 try:
                     path=get_intel_registry_value(p[1], version, abi)
-                except SCons.Errors.InternalError:
+                    # These paths may have $(ICInstallDir)
+                    # which needs to be substituted with the topdir.
+                    path=path.replace('$(ICInstallDir)', topdir + os.sep)
+                except IntelCError:
+                    # Couldn't get it from registry: use default subdir of topdir
                     env.PrependENVPath(p[0], os.path.join(topdir, p[2]))
                 else:
-                    env.PrependENVPath(p[0], ';'.split(path))
+                    env.PrependENVPath(p[0], string.split(path, os.pathsep))
                     # print "ICL %s: %s, final=%s"%(p[0], path, str(env['ENV'][p[0]]))
 
     if is_win32:
@@ -203,6 +233,11 @@ def generate(env, version=None, abi=None, topdir=None, verbose=1):
         env['CC']        = 'icc'
         env['CXX']       = 'icpc'
         env['LINK']      = '$CC'
+    # This is not the exact (detailed) compiler version,
+    # just the major version as determined above or specified
+    # by the user.
+    if version:
+        env['INTEL_C_COMPILER_VERSION']=float(version)
 
     if is_win32:
         # Look for license file dir
@@ -241,7 +276,7 @@ def exists(env):
 
     try:
         top = get_intel_compiler_top()
-    except (SCons.Util.RegError, SCons.Errors.InternalError):
+    except (SCons.Util.RegError, IntelCError):
         top = None
     if not top:
         # try env.Detect, maybe that will work
