@@ -49,7 +49,7 @@ expect = r"""Traceback \((most recent call|innermost) last\):
   File "%s", line \d+, in \?
     main\(\)
   File "%s", line \d+, in main
-    execfile\(file\)
+    exec f
   File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
 InternalError: error inside
