@@ -38,6 +38,7 @@ import os.path
 import re
 
 import SCons.Defaults
+import SCons.Scanner
 import SCons.Tool
 import SCons.Util
 
@@ -218,6 +219,27 @@ def uicEmitter(target, source, env):
                                  env.subst('$QT_MOCHSUFFIX')))
     return target, source
 
+def uicScannerFunc(node, env, path):
+    #print "uicScannerFunc"
+    dir = node.dir
+    includes = re.findall("<include.*?>(.*?)</include>", node.get_contents())
+    res = []
+    for incFile in includes:
+        incNode = dir.File(incFile)
+        if incNode.rexists():
+            #print "uicdep: ", incNode
+            res.append(dir.File(incFile))
+        else:
+            #print "uicdep: ", incNode, "not found"
+            pass
+    return res
+
+uicScanner = SCons.Scanner.Scanner(uicScannerFunc,
+                                   name = "UicScanner", 
+                                   node_class = SCons.Node.FS.File,
+                                   node_factory = SCons.Node.FS.File,
+                                   recursive = 0)
+
 def generate(env):
     """Add Builders and construction variables for qt to an Environment."""
     CLVar = SCons.Util.CLVar
@@ -276,7 +298,8 @@ def generate(env):
                      emitter=uicEmitter,
                      src_suffix='$QT_UISUFFIX',
                      suffix='$QT_UICDECLSUFFIX',
-                     prefix='$QT_UICDECLPREFIX')
+                     prefix='$QT_UICDECLPREFIX',
+                     source_scanner=uicScanner)
     mocBld = Builder(action={}, prefix={}, suffix={})
     for h in header_extensions:
         mocBld.add_action(h, '$QT_MOCFROMHCOM')
