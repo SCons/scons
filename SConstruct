@@ -339,6 +339,7 @@ for p in [ scons ]:
     # Initialize variables with the right directories for this package.
     #
     pkg = p['pkg']
+    pkg_version = "%s-%s" % (pkg, version)
 
     src = 'src'
     if p.has_key('src_subdir'):
@@ -359,7 +360,7 @@ for p in [ scons ]:
     #
     src_files = map(lambda x: x[:-1],
                     open(os.path.join(src, 'MANIFEST.in')).readlines())
-    dst_files = map(lambda x: os.path.join(install, x), src_files)
+    dst_files = src_files[:]
 
     if p.has_key('subpkgs'):
         #
@@ -373,12 +374,8 @@ for p in [ scons ]:
             isubdir = p['subinst_dirs'][sp['pkg']]
             f = map(lambda x: x[:-1],
                     open(os.path.join(src, ssubdir, 'MANIFEST.in')).readlines())
-            src_files.extend(map(lambda x, s=sp['src_subdir']:
-                                        os.path.join(s, x),
-                                 f))
-            dst_files.extend(map(lambda x, i=install, s=isubdir:
-                                        os.path.join(i, s, x),
-                                 f))
+            src_files.extend(map(lambda x, s=ssubdir: os.path.join(s, x), f))
+            dst_files.extend(map(lambda x, i=isubdir: os.path.join(i, x), f))
             for k in sp['filemap'].keys():
                 f = sp['filemap'][k]
                 if f:
@@ -425,17 +422,17 @@ for p in [ scons ]:
     #
     # Use the Python distutils to generate the packages.
     #
-    archive = os.path.join(build,
-                           'dist',
-                           "%s-%s.%s" % (pkg, version, archsuffix))
+    archive = os.path.join(build, 'dist', "%s.%s" % (pkg_version, archsuffix))
+    platform_archive = os.path.join(build,
+                                    'dist',
+                                    "%s.%s.%s" % (pkg_version,
+                                                  platform,
+                                                  archsuffix))
+    win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
 
     src_deps.append(archive)
 
-    build_targets = [
-        os.path.join(build, 'dist', "%s-%s.%s.%s" % (pkg, version, platform, archsuffix)),
-        archive,
-        os.path.join(build, 'dist', "%s-%s.win32.exe" % (pkg, version)),
-    ]
+    build_targets = [ platform_archive, archive, win32_exe ]
     install_targets = build_targets[:]
 
     # We can get away with calling setup.py using a directory path
@@ -463,10 +460,11 @@ for p in [ scons ]:
 	SPECSdir = os.path.join(topdir, 'SPECS')
 	SRPMSdir = os.path.join(topdir, 'SRPMS')
 
-	specfile = os.path.join(SPECSdir, "%s-%s-1.spec" % (pkg, version))
-	sourcefile = os.path.join(SOURCESdir, "%s-%s.%s" % (pkg, version, archsuffix));
-	rpm = os.path.join(RPMSdir, "%s-%s-1.noarch.rpm" % (pkg, version))
-	src_rpm = os.path.join(SRPMSdir, "%s-%s-1.src.rpm" % (pkg, version))
+        specfile = os.path.join(SPECSdir, "%s-1.spec" % pkg_version)
+        sourcefile = os.path.join(SOURCESdir,
+                                  "%s.%s" % (pkg_version, archsuffix));
+        rpm = os.path.join(RPMSdir, "%s-1.noarch.rpm" % pkg_version)
+        src_rpm = os.path.join(SRPMSdir, "%s-1.src.rpm" % pkg_version)
 
         env.InstallAs(specfile, os.path.join('rpm', "%s.spec" % pkg))
         env.InstallAs(sourcefile, archive)
@@ -474,7 +472,7 @@ for p in [ scons ]:
         targets = [ rpm, src_rpm ]
         cmd = "rpm --define '_topdir $(%s$)' -ba $SOURCES" % topdir
         if not os.path.isdir(BUILDdir):
-            cmd = "$( mkdir -p " + BUILDdir + "; $)" + cmd
+            cmd = ("$( mkdir -p %s; $)" % BUILDdir) + cmd
         env.Command(targets, specfile, cmd)
         env.Depends(targets, sourcefile)
 
@@ -502,7 +500,7 @@ for p in [ scons ]:
     #
     # Unpack the archive created by the distutils into build/unpack.
     #
-    d = os.path.join(unpack_dir, "%s-%s" % (pkg, version))
+    d = os.path.join(unpack_dir, pkg_version)
     unpack_files = map(lambda x, d=d: os.path.join(d, x), src_files)
 
     # We'd like to replace the last three lines with the following:
@@ -512,7 +510,7 @@ for p in [ scons ]:
     # but that gives heartburn to Cygwin's tar, so work around it
     # with separate zcat-tar-rm commands.
     env.Command(unpack_files, archive, [
-        "rm -rf " + os.path.join(unpack_dir, '%s-%s' % (pkg, version)),
+        "rm -rf %s" % os.path.join(unpack_dir, pkg_version),
         "zcat $SOURCES > .temp",
         "tar xf .temp -C %s" % unpack_dir,
         "rm -f .temp",
@@ -530,10 +528,11 @@ for p in [ scons ]:
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
     # to the directory in which setup.py exists.
+    dst_files = map(lambda x, i=install: os.path.join(i, x), dst_files)
     env.Command(dst_files, unpack_files, [
         "rm -rf %s" % install,
         "python %s install --prefix=%s" % (os.path.join(unpack_dir,
-                                                        '%s-%s' % (pkg, version),
+                                                        pkg_version,
                                                         'setup.py'),
                                            prefix
                                           ),
@@ -559,10 +558,6 @@ SConscript('build/doc/SConscript');
 # source archive from the project files and files in the change,
 # so we can share it with helpful developers who don't use Aegis.
 #
-# First, lie and say that we've seen any files removed by this
-# change, so they don't get added to the source files list
-# that goes into the archive.
-#
 
 if change:
     df = []
@@ -581,12 +576,14 @@ if change:
         u[f] = 1
     for f in df:
         del u[f]
-    sfiles = filter(lambda x: x[-9:] != '.aeignore' and x[-7:] != '.consign',
-                       u.keys())
+    sfiles = filter(lambda x: x[-9:] != '.aeignore' 
+                              and x[-8:] != '.consign'
+                              and x[-9:] != '.sconsign',
+                    u.keys())
 
     if sfiles:
         ps = "%s-src" % project
-        psv = "%s-src-%s" % (project, version)
+        psv = "%s-%s" % (ps, version)
         b_ps = os.path.join('build', ps)
         b_psv = os.path.join('build', psv)
 
@@ -599,6 +596,7 @@ if change:
             "rm -rf %s" % b_psv,
             "cp -rp %s %s" % (b_ps, b_psv),
             "find %s -name .consign -exec rm {} \\;" % b_psv,
+            "find %s -name .sconsign -exec rm {} \\;" % b_psv,
             "tar czh -f $TARGET -C build %s" % psv,
         ]
         env.Command(os.path.join('build',
