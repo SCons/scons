@@ -91,6 +91,86 @@
 
     </para>
 
+    <section>
+    <title>Building Static Libraries Explicitly</title>
+
+      <para>
+
+      The &Library; function builds a traditional static library.
+      If you want to be explicit about the type of library being built,
+      you can use the synonym &StaticLibrary; function
+      instead of &Library;:
+
+      </para>
+
+      <programlisting>
+        StaticLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
+      </programlisting>
+
+      <para>
+
+      There is no functional difference between the
+      &StaticLibrary; and &Library; functions.
+
+      </para>
+
+    </section>
+
+    <section>
+    <title>Building Shared (DLL) Libraries</title>
+
+      <para>
+
+      If you want to build a shared library (on POSIX systems)
+      or a DLL file (on Windows systems),
+      you use the &SharedLibrary; function:
+
+      </para>
+
+      <programlisting>
+        SharedLibrary('foo', ['f1.c', 'f2.c', 'f3.c'])
+      </programlisting>
+
+      <para>
+
+      The output on POSIX:
+
+      </para>
+
+      <literallayout>
+        % <userinput>scons -Q</userinput>
+        cc -c -o f1.os f1.c
+        cc -c -o f2.os f2.c
+        cc -c -o f3.os f3.c
+        cc -shared -o libfoo.so f1.os f2.os f3.os
+      </literallayout>
+
+      <para>
+
+      And the output on Windows:
+
+      </para>
+
+      <literallayout>
+        C:\><userinput>scons -Q</userinput>
+        cl /nologo /c f1.c /Fof1.obj
+        cl /nologo /c f2.c /Fof2.obj
+        cl /nologo /c f3.c /Fof3.obj
+        link /nologo /dll /out:foo.dll /implib:foo.lib f1.obj f2.obj f3.obj
+      </literallayout>
+
+      <para>
+
+      Notice again that &SCons; takes care of
+      building the output file correctly,
+      adding the <literal>-shared</literal> option
+      for a POSIX compilation,
+      and the <literal>/dll</literal> option on Windows.
+
+      </para>
+
+    </section>
+
   </section>
 
   <section>

@@ -506,7 +506,7 @@ environment undisturbed.
    <literallayout>
       % <userinput>scons -Q</userinput>
       
-      scons: *** Two different environments were specified for the same target: foo.o
+      scons: *** Two environments with different actions were specified for the same target: foo.o
       File "SConstruct", line 6, in ?
    </literallayout>
 

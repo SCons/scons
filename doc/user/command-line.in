@@ -67,9 +67,9 @@
       def b(target, source, env):
           pass
       def s(target, source, env):
-          return "    ..."
+          return "    ... [build output] ..."
       a = Action(b, strfunction = s)
-      env = Environment(BUILDERS = {'A' : a})
+      env = Environment(BUILDERS = {'A' : Builder(action=a)})
       env.A('foo.out', 'foo.in')
       </file>
       <file name="foo.in">
@@ -80,7 +80,7 @@
     <scons_output example="SCONSFLAGS">
       <command>scons</command>
       <command>export SCONSFLAGS="-Q"</command>
-      <command>scons</command>
+      <command environment="SCONSFLAGS=-Q">scons</command>
     </scons_output>
 
     <para>
