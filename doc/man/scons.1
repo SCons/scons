@@ -4918,6 +4918,11 @@ General options passed to the TeX DVI file to PDF file converter.
 .IP DVIPDFCOM
 The command line used to convert TeX DVI files into a PDF file.
 
+.IP DVIPDFCOMSTR
+The string displayed when a TeX DVI file
+is converted into a PDF file.
+If this is not set, then $DVIPDFCOM (the command line) is displayed.
+
 .IP DVIPS
 The TeX DVI file to PostScript converter.
 
@@ -5477,6 +5482,12 @@ when converting PostScript to PDF files.
 .IP GSCOM
 The Ghostscript command line used to convert PostScript to PDF files.
 
+.IP GSCOMSTR
+The string displayed when
+Ghostscript is used to convert
+a PostScript file to a PDF file.
+If this is not set, then $GSCOM (the command line) is displayed.
+
 .IP IDLSUFFIXES
 The list of suffixes of files that will be scanned
 for IDL implicit dependencies
@@ -5838,7 +5849,12 @@ The M4 macro preprocessor.
 General options passed to the M4 macro preprocessor.
 
 .IP M4COM
-The command line used to pass files through the macro preprocessor.
+The command line used to pass files through the M4 macro preprocessor.
+
+.IP M4COMSTR
+The string displayed when
+a file is passed through the M4 macro preprocessor.
+If this is not set, then $M4COM (the command line) is displayed.
 
 .IP MAXLINELENGTH
 The maximum number of characters allowed on an external command line.
@@ -6032,6 +6048,11 @@ The Perforce executable.
 The command line used to
 fetch source files from Perforce.
 
+.IP P4COMSTR
+The string displayed when
+fetching a source file from Perforce.
+If this is not set, then $P4COM (the command line) is displayed.
+
 .IP P4FLAGS
 General options that are passed to Perforce.
 
@@ -6142,6 +6163,11 @@ The suffix used for executable file names.
 
 .IP PSCOM
 The command line used to convert TeX DVI files into a PostScript file.
+
+.IP PSCOMSTR
+The string displayed when a TeX DVI file
+is converted into a PostScript file.
+If this is not set, then $PSCOM (the command line) is displayed.
 
 .IP PSPREFIX
 The prefix used for PostScript file names.
@@ -6752,6 +6778,11 @@ construction variable.
 .IP SWIGCOM
 The command line used to call
 the scripting language wrapper and interface generator.
+
+.IP SWIGCOMSTR
+The string displayed when calling
+the scripting language wrapper and interface generator.
+If this is not set, then $SWIGCOM (the command line) is displayed.
 
 .IP SWIGCXXFILESUFFIX
 The suffix that will be used for intermediate C++

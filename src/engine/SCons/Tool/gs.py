@@ -33,6 +33,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Action
 import SCons.Defaults
 import SCons.Platform
 import SCons.Util
@@ -47,6 +48,8 @@ elif platform == 'win32':
 else:
     gs = 'gs'
 
+GhostscriptAction = SCons.Action.Action('$GSCOM', '$GSCOMSTR')
+
 def generate(env):
     """Add Builders and construction variables for Ghostscript to an
     Environment."""
@@ -56,7 +59,7 @@ def generate(env):
         bld = SCons.Defaults.PDF()
         env['BUILDERS']['PDF'] = bld
 
-    bld.add_action('.ps', '$GSCOM')
+    bld.add_action('.ps', GhostscriptAction)
 
     env['GS']      = gs
     env['GSFLAGS'] = SCons.Util.CLVar('-dNOPAUSE -dBATCH -sDEVICE=pdfwrite')

@@ -1,13 +1,4 @@
-"""SCons.Tool.m4
-
-Tool-specific initialization for m4.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -33,25 +24,48 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Action
-import SCons.Builder
-import SCons.Util
+"""
+Test that the $SWIGCOMSTR construction variable allows you to customize
+the displayed string when swig is called.
+"""
 
-def generate(env):
-    """Add Builders and construction variables for m4 to an Environment."""
-    M4Action = SCons.Action.Action('$M4COM', '$M4COMSTR')
-    bld = SCons.Builder.Builder(action = M4Action, src_suffix = '.m4')
+import TestSCons
 
-    env['BUILDERS']['M4'] = bld
+python = TestSCons.python
 
-    # .m4 files might include other files, and it would be pretty hard
-    # to write a scanner for it, so let's just cd to the dir of the m4
-    # file and run from there.
-    # The src_suffix setup is like so: file.c.m4 -> file.c,
-    # file.cpp.m4 -> file.cpp etc.
-    env['M4']      = 'm4'
-    env['M4FLAGS'] = SCons.Util.CLVar('-E')
-    env['M4COM']   = 'cd ${SOURCE.rsrcdir} && $M4 $M4FLAGS < ${SOURCE.file} > ${TARGET.abspath}'
+test = TestSCons.TestSCons()
 
-def exists(env):
-    return env.Detect('m4')
+
+
+test.write('myswig.py', """
+import sys
+outfile = open(sys.argv[1], 'wb')
+for f in sys.argv[2:]:
+    infile = open(f, 'rb')
+    for l in filter(lambda l: l != '/*swig*/\\n', infile.readlines()):
+        outfile.write(l)
+sys.exit(0)
+""")
+
+test.write('SConstruct', """
+env = Environment(tools=['default', 'swig'],
+                  SWIGCOM = r'%s myswig.py $TARGET $SOURCES',
+                  SWIGCOMSTR = 'Swigging $TARGET from $SOURCE')
+env.CFile(target = 'aaa', source = 'aaa.i')
+env.CXXFile(target = 'bbb', source = 'bbb.i', SWIGFLAGS='-c++')
+""" % python)
+
+test.write('aaa.i', "aaa.i\n/*swig*/\n")
+test.write('bbb.i', "bbb.i\n/*swig*/\n")
+
+test.run(stdout = test.wrap_stdout("""\
+Swigging aaa_wrap.c from aaa.i
+Swigging bbb_wrap.cc from bbb.i
+"""))
+
+test.must_match('aaa_wrap.c', "aaa.i\n")
+test.must_match('bbb_wrap.cc', "bbb.i\n")
+
+
+
+test.pass_test()
