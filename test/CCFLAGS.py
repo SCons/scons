@@ -24,20 +24,30 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import TestSCons
+
+if sys.platform == 'win32':
+    _obj = '.obj'
+    fooflags = '/nologo -DFOO'
+    barflags = '/nologo -DBAR'
+else:
+    _obj = '.o'
+    fooflags = '-DFOO'
+    barflags = '-DBAR'
 
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-foo = Environment(CCFLAGS = '-DFOO')
-bar = Environment(CCFLAGS = '-DBAR')
-foo.Object(target = 'foo.o', source = 'prog.c')
-bar.Object(target = 'bar.o', source = 'prog.c')
-foo.Program(target = 'foo', source = 'foo.o')
-bar.Program(target = 'bar', source = 'bar.o')
-""")
+foo = Environment(CCFLAGS = '%s')
+bar = Environment(CCFLAGS = '%s')
+foo.Object(target = 'foo%s', source = 'prog.c')
+bar.Object(target = 'bar%s', source = 'prog.c')
+foo.Program(target = 'foo', source = 'foo%s')
+bar.Program(target = 'bar', source = 'bar%s')
+""" % (fooflags, barflags, _obj, _obj, _obj, _obj))
 
-test.write('prog.c', """
+test.write('prog.c', r"""
 int
 main(int argc, char *argv[])
 {
@@ -60,11 +70,11 @@ test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
 
 test.write('SConstruct', """
 bar = Environment(CCFLAGS = '-DBAR')
-bar.Object(target = 'foo.o', source = 'prog.c')
-bar.Object(target = 'bar.o', source = 'prog.c')
-bar.Program(target = 'foo', source = 'foo.o')
-bar.Program(target = 'bar', source = 'bar.o')
-""")
+bar.Object(target = 'foo%s', source = 'prog.c')
+bar.Object(target = 'bar%s', source = 'prog.c')
+bar.Program(target = 'foo', source = 'foo%s')
+bar.Program(target = 'bar', source = 'bar%s')
+""" % (_obj, _obj, _obj, _obj))
 
 test.run(arguments = '.')
 

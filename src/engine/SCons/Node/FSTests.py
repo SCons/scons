@@ -92,22 +92,19 @@ class FSTestCase(unittest.TestCase):
             def Dir_test(lpath, path_, abspath_, up_path_, fileSys=fs, s=sep):
                 dir = fileSys.Dir(string.replace(lpath, '/', s))
 
+                if os.sep != '/':
+                    path_ = string.replace(path_, '/', os.sep)
+                    abspath_ = string.replace(abspath_, '/', os.sep)
+                    up_path_ = string.replace(up_path_, '/', os.sep)
+
                 def strip_slash(p):
-                    if p[-1] == '/' and len(p) > 1:
+                    if p[-1] == os.sep and len(p) > 1:
                         p = p[:-1]
                     return p
                 path = strip_slash(path_)
                 abspath = strip_slash(abspath_)
                 up_path = strip_slash(up_path_)
-		name = string.split(abspath, '/')[-1]
-
-		if os.sep != '/':
-                    path = string.replace(path, '/', os.sep)
-                    path_ = string.replace(path_, '/', os.sep)
-                    abspath = string.replace(abspath, '/', os.sep)
-                    abspath_ = string.replace(abspath_, '/', os.sep)
-                    up_path = string.replace(up_path, '/', os.sep)
-                    up_path_ = string.replace(up_path_, '/', os.sep)
+                name = string.split(abspath, os.sep)[-1]
 
 		assert dir.name == name, \
                        "dir.name %s != expected name %s" % \
@@ -211,53 +208,57 @@ class FSTestCase(unittest.TestCase):
         f1.build()
         assert built_it
 
+        def match(path, expect):
+            expect = string.replace(expect, '/', os.sep)
+            assert path == expect, "path %s != expected %s" % (path, expect)
+
 	e1 = fs.Entry("d1")
 	assert e1.__class__.__name__ == 'Dir'
-        assert e1.path == "d1", e1.path
-        assert e1.path_ == "d1/", e1.path_
-	assert e1.dir.path == ".", e1.dir.path
+        match(e1.path, "d1")
+        match(e1.path_, "d1/")
+        match(e1.dir.path, ".")
 
 	e2 = fs.Entry("d1/f1")
 	assert e2.__class__.__name__ == 'File'
-	assert e2.path == "d1/f1", e2.path
-        assert e2.path_ == "d1/f1", e2.path_
-	assert e2.dir.path == "d1", e2.dir.path
+        match(e2.path, "d1/f1")
+        match(e2.path_, "d1/f1")
+        match(e2.dir.path, "d1")
 
 	e3 = fs.Entry("e3")
 	assert e3.__class__.__name__ == 'Entry'
-	assert e3.path == "e3", e3.path
-        assert e3.path_ == "e3", e3.path_
-	assert e3.dir.path == ".", e3.dir.path
+        match(e3.path, "e3")
+        match(e3.path_, "e3")
+        match(e3.dir.path, ".")
 
 	e4 = fs.Entry("d1/e4")
 	assert e4.__class__.__name__ == 'Entry'
-	assert e4.path == "d1/e4", e4.path
-        assert e4.path_ == "d1/e4", e4.path_
-	assert e4.dir.path == "d1", e4.dir.path
+        match(e4.path, "d1/e4")
+        match(e4.path_, "d1/e4")
+        match(e4.dir.path, "d1")
 
 	e5 = fs.Entry("e3/e5")
 	assert e3.__class__.__name__ == 'Dir'
-        assert e3.path == "e3", e3.path
-        assert e3.path_ == "e3/", e3.path_
-	assert e3.dir.path == ".", e3.dir.path
+        match(e3.path, "e3")
+        match(e3.path_, "e3/")
+        match(e3.dir.path, ".")
 	assert e5.__class__.__name__ == 'Entry'
-	assert e5.path == "e3/e5", e5.path
-        assert e5.path_ == "e3/e5", e5.path_
-	assert e5.dir.path == "e3", e5.dir.path
+        match(e5.path, "e3/e5")
+        match(e5.path_, "e3/e5")
+        match(e5.dir.path, "e3")
 
 	e6 = fs.Dir("d1/e4")
 	assert e6 is e4
 	assert e4.__class__.__name__ == 'Dir'
-        assert e4.path == "d1/e4", e4.path
-        assert e4.path_ == "d1/e4/", e4.path_
-	assert e4.dir.path == "d1", e4.dir.path
+        match(e4.path, "d1/e4")
+        match(e4.path_, "d1/e4/")
+        match(e4.dir.path, "d1")
 
 	e7 = fs.File("e3/e5")
 	assert e7 is e5
 	assert e5.__class__.__name__ == 'File'
-	assert e5.path == "e3/e5", e5.path
-        assert e5.path_ == "e3/e5", e5.path_
-	assert e5.dir.path == "e3", e5.dir.path
+        match(e5.path, "e3/e5")
+        match(e5.path_, "e3/e5")
+        match(e5.dir.path, "e3")
 
         e8 = fs.Entry("e8")
         assert e8.get_bsig() is None, e8.get_bsig()
@@ -285,21 +286,21 @@ class FSTestCase(unittest.TestCase):
 
         fs.chdir(fs.Dir('subdir'))
         f11 = fs.File("f11")
-        assert f11.path == "subdir/f11"
+        match(f11.path, "subdir/f11")
         d12 = fs.Dir("d12")
-        assert d12.path_ == "subdir/d12/"
+        match(d12.path_, "subdir/d12/")
         e13 = fs.Entry("subdir/e13")
-        assert e13.path == "subdir/subdir/e13"
+        match(e13.path, "subdir/subdir/e13")
 
         # Test scanning
         f1.scanner = Scanner()
         f1.scan()
-        assert f1.depends[0].path_ == "d1/f1"
+        assert f1.depends[0].path_ == os.path.join("d1", "f1")
         f1.scanner = None
         f1.depends = []
         f1.scanned = 0
         f1.scan()
-        assert f1.depends[0].path_ == "d1/f1"
+        assert f1.depends[0].path_ == os.path.join("d1", "f1")
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))

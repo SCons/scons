@@ -34,7 +34,7 @@ env = Environment()
 env.Program(target = 'foo1', source = 'f1.c')
 """)
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {

@@ -47,7 +47,7 @@ foo.Program(target = 'foo', source = 'foo.c')
 bar.Program(target = 'bar', source = 'bar.c')
 """ % python)
 
-test.write('foo.c', """
+test.write('foo.c', r"""
 int
 main(int argc, char *argv[])
 {
@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('bar.c', """
+test.write('bar.c', r"""
 int
 main(int argc, char *argv[])
 {

@@ -39,7 +39,7 @@ env.Program(target = 'foo2', source = 'f2a.c f2b.c f2c.c')
 env.Program(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 """)
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('f2a.c', """
+test.write('f2a.c', r"""
 void
 f2a(void)
 {
@@ -57,7 +57,7 @@ f2a(void)
 }
 """)
 
-test.write('f2b.c', """
+test.write('f2b.c', r"""
 void
 f2b(void)
 {
@@ -65,7 +65,7 @@ f2b(void)
 }
 """)
 
-test.write('f2c.c', """
+test.write('f2c.c', r"""
 extern void f2a(void);
 extern void f2b(void);
 int
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('f3a.c', """
+test.write('f3a.c', r"""
 void
 f3a(void)
 {
@@ -87,7 +87,7 @@ f3a(void)
 }
 """)
 
-test.write('f3b.c', """
+test.write('f3b.c', r"""
 void
 f3b(void)
 {
@@ -95,7 +95,7 @@ f3b(void)
 }
 """)
 
-test.write('f3c.c', """
+test.write('f3c.c', r"""
 extern void f3a(void);
 extern void f3b(void);
 int
@@ -117,7 +117,7 @@ test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c\nf3c.c\n")
 
 test.up_to_date(arguments = '.')
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
@@ -127,7 +127,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('f3b.c', """
+test.write('f3b.c', r"""
 void
 f3b(void)
 {
@@ -156,7 +156,7 @@ test.fail_test(not (oldtime1 == os.path.getmtime(test.workpath('foo1'))))
 test.fail_test(not (oldtime2 == os.path.getmtime(test.workpath('foo2'))))
 test.fail_test(not (oldtime3 == os.path.getmtime(test.workpath('foo3'))))
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
@@ -166,7 +166,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('f3b.c', """
+test.write('f3b.c', r"""
 void
 f3b(void)
 {
@@ -182,7 +182,7 @@ test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c Y\nf3c.c\n")
 
 test.up_to_date(arguments = 'foo1 foo2 foo3')
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
@@ -192,7 +192,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('f3b.c', """
+test.write('f3b.c', r"""
 void
 f3b(void)
 {

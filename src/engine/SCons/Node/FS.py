@@ -97,13 +97,12 @@ class PathDict(UserDict):
     def __delitem__(self, key):
         del(self.data[PathName(key)])
 
-    if not hasattr(UserDict, 'setdefault'):
-        def setdefault(self, key, value):
-            try:
-                return self.data[PathName(key)]
-            except KeyError:
-                self.data[PathName(key)] = value
-                return value
+    def setdefault(self, key, value):
+        try:
+            return self.data[PathName(key)]
+        except KeyError:
+            self.data[PathName(key)] = value
+            return value
 
 class FS:
     def __init__(self, path = None):
@@ -120,7 +119,7 @@ class FS:
         self.Root = PathDict()
         self.Top = self.__doLookup(Dir, path)
         self.Top.path = '.'
-        self.Top.path_ = './'
+        self.Top.path_ = os.path.join('.', '')
         self.cwd = self.Top
 
     def __doLookup(self, fsclass, name, directory=None):
@@ -147,11 +146,16 @@ class FS:
             # None, raise an exception.
 
             drive, tail = os.path.splitdrive(head)
-            if sys.platform is 'win32' and not drive:
-                if not directory:
-                    raise OSError, 'No drive letter supplied for absolute path.'
-                return directory.root()
-            return self.Root.setdefault(drive, Dir(tail))
+            #if sys.platform is 'win32' and not drive:
+            #    if not directory:
+            #        raise OSError, 'No drive letter supplied for absolute path.'
+            #    return directory.root()
+            dir = Dir(tail)
+            dir.path = drive + dir.path
+            dir.path_ = drive + dir.path_
+            dir.abspath = drive + dir.abspath
+            dir.abspath_ = drive + dir.abspath_
+            return self.Root.setdefault(drive, dir)
         if head:
             # Recursively look up our parent directories.
             directory = self.__doLookup(Dir, head, directory)
@@ -181,7 +185,7 @@ class FS:
         usually in preparation for a call to doLookup().
 
         If the path name is prepended with a '#', then it is unconditionally
-        interpreted as replative to the top-level directory of this FS.
+        interpreted as relative to the top-level directory of this FS.
 
         If directory is None, and name is a relative path,
         then the same applies.
@@ -256,7 +260,7 @@ class Entry(SCons.Node.Node):
         if directory:
             self.abspath = os.path.join(directory.abspath, name)
             if str(directory.path) == '.':
-                self.path = os.path.join(name)
+                self.path = name
             else:
                 self.path = os.path.join(directory.path, name)
         else:
@@ -335,9 +339,8 @@ class Dir(Entry):
 
     def children(self):
 	#XXX --random:  randomize "dependencies?"
-	kids = map(lambda x, s=self: s.entries[x],
-		   filter(lambda k: k != '.' and k != '..',
-			  self.entries.keys()))
+	keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
+	kids = map(lambda x, s=self: s.entries[x], keys)
 	def c(one, two):
             if one.abspath < two.abspath:
                return -1

@@ -71,9 +71,9 @@ for dir in ['one', 'two', 'three']:
     foo_in = os.path.join(dir, 'foo.in')
     bar_in = os.path.join(dir, 'bar.in')
 
-    test.write(foo_in, foo_in + "\n");
+    test.write(foo_in, dir + "/foo.in\n");
 
-    test.write(bar_in, bar_in + "\n");
+    test.write(bar_in, dir + "/bar.in\n");
 
     test.run(chdir = dir)	# no arguments, use the Default
 

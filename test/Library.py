@@ -37,7 +37,7 @@ env.Library(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 env.Program(target = 'prog', source = 'prog.c')
 """)
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 void
 f1(void)
 {
@@ -45,7 +45,7 @@ f1(void)
 }
 """)
 
-test.write('f2a.c', """
+test.write('f2a.c', r"""
 void
 f2a(void)
 {
@@ -53,7 +53,7 @@ f2a(void)
 }
 """)
 
-test.write('f2b.c', """
+test.write('f2b.c', r"""
 void
 f2b(void)
 {
@@ -61,7 +61,7 @@ f2b(void)
 }
 """)
 
-test.write('f2c.c', """
+test.write('f2c.c', r"""
 void
 f2c(void)
 {
@@ -69,7 +69,7 @@ f2c(void)
 }
 """)
 
-test.write('f3a.c', """
+test.write('f3a.c', r"""
 void
 f3a(void)
 {
@@ -77,7 +77,7 @@ f3a(void)
 }
 """)
 
-test.write('f3b.c', """
+test.write('f3b.c', r"""
 void
 f3b(void)
 {
@@ -85,14 +85,14 @@ f3b(void)
 }
 """)
 
-test.write('f3c.c', """
+test.write('f3c.c', r"""
 f3c(void)
 {
 	printf("f3c.c\n");
 }
 """)
 
-test.write('prog.c', """
+test.write('prog.c', r"""
 void f1(void);
 void f2a(void);
 void f2b(void);
@@ -116,7 +116,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = 'prog')
+test.run(arguments = '.')
 
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.c\nprog.c\n")

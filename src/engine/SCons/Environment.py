@@ -32,6 +32,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import copy
+import os.path
 import re
 import types
 import SCons.Util
@@ -164,7 +165,7 @@ class Environment:
                 suffix =''
 
             self._dict[strVarAuto] = map(lambda x, suff=suffix, pref=prefix: \
-                                         pref + str(x) + suff,
+                                         pref + os.path.normpath(str(x)) + suff,
                                          src_var)
 
     def __cmp__(self, other):

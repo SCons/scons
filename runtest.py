@@ -56,6 +56,11 @@ printcmd = 1
 version = None
 testver = 1
 
+if sys.platform == 'win32':
+    lib_dir = os.path.join(sys.exec_prefix, "lib")
+else:
+    lib_dir = os.path.join(sys.exec_prefix, "lib", "python" + sys.version[0:3])
+
 opts, tests = getopt.getopt(sys.argv[1:], "12ab:dqv:",
 			    ['all','build=','debug','quiet','version='])
 
@@ -64,11 +69,7 @@ for o, a in opts:
     elif o == '-2': testver = 2
     elif o == '-a' or o == '--all': all = 1
     elif o == '-b' or o == '--build': build = a
-    elif o == '-d' or o == '--debug': debug = os.path.join(
-					sys.exec_prefix,
-					"lib",
-					"python" + sys.version[0:3],
-					"pdb.py")
+    elif o == '-d' or o == '--debug': debug = os.path.join(lib_dir, "pdb.py")
     elif o == '-q' or o == '--quiet': printcmd = 0
     elif o == '-v' or o == '--version': version = a
 
@@ -142,5 +143,13 @@ for path in tests:
 	print cmd
     if os.system(cmd):
 	fail.append(path)
+
+if fail and len(tests) != 1:
+    if len(fail) == 1:
+        str = "test"
+    else:
+        str = "%d tests" % len(fail)
+    print "\nFailed the following %s:" % str
+    print "\t", string.join(fail, "\n\t")
 
 sys.exit(len(fail))

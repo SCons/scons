@@ -102,6 +102,10 @@ if os.name == 'posix':
 
 elif os.name == 'nt':
 
+    MVSdir = r'C:\Program Files\Microsoft Visual Studio'
+    MVSVCdir = r'%s\VC98' % MVSdir
+    MVSCommondir = r'%s\Common' % MVSdir
+
     ConstructionEnvironment = {
         'CC'         : 'cl',
         'CCFLAGS'    : '/nologo',
@@ -111,10 +115,10 @@ elif os.name == 'nt':
         'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
         'LINK'       : 'link',
         'LINKFLAGS'  : '',
-        'LINKCOM'    : '$LINK $LINKFLAGS /out:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
+        'LINKCOM'    : '$LINK $LINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
         'AR'         : 'lib',
         'ARFLAGS'    : '/nologo',
-        'ARCOM'      : '$AR $ARFLAGS /out:$TARGET $SOURCES',
+        'ARCOM'      : '$AR $ARFLAGS /OUT:$TARGET $SOURCES',
         'BUILDERS'   : [Object, Program, Library],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
@@ -123,14 +127,21 @@ elif os.name == 'nt':
         'PROGSUFFIX' : '.exe',
         'LIBPREFIX'  : '',
         'LIBSUFFIX'  : '.lib',
-        'LIBDIRPREFIX'          : '/L',
+        'LIBDIRPREFIX'          : '/LIBPATH',
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '',
         'LIBLINKSUFFIX'         : '$LIBSUFFIX',
         'INCPREFIX'             : '/I',
         'INCSUFFIX'             : '',
         'ENV'        : {
-                        'PATH'    : r'C:\Python20;C:\WINNT\system32;C:\WINNT;C:\Program Files\Microsoft Visual Studio\VC98\Bin\;',
+                        'INCLUDE'  : r'%s\atl\include;%s\mfc\include;%s\include'
+                                     % (MVSVCdir, MVSVCdir, MVSVCdir),
+                        'LIB'      : r'%s\mvc\lib;%s\lib'
+                                     % (MVSVCdir, MVSVCdir),
+			'MSDEVDIR' : r'%s\MSDev98' % MVSCommondir,
+                        'PATH'     : r'C:\Python20;C:\WINNT\system32;C:\WINNT;%s\Tools\WinNT;%s\MSDev98\Bin;%s\Tools;%s\Bin;'
+                                     % (MVSCommondir, MVSCommondir,
+                                        MVSCommondir, MVSVCdir),
                         'PATHEXT' : '.COM;.EXE;.BAT;.CMD',
                       },
     }

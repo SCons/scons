@@ -140,7 +140,11 @@ class Taskmaster:
     """
 
     def __init__(self, targets=[], tasker=Task, calc=Calc()):
-        self.walkers = map(SCons.Node.Walker, targets)
+        def out_of_date(node):
+            return filter(lambda x: x.get_state() != SCons.Node.up_to_date,
+                          node.children())
+        self.walkers = map(lambda x, f=out_of_date: SCons.Node.Walker(x, f),
+                           targets)
         self.tasker = tasker
         self.calc = calc
         self.ready = []

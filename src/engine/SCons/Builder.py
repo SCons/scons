@@ -85,8 +85,8 @@ elif os.name == 'nt':
 	        exts = string.split(exts, os.pathsep)
 	    pairs = []
 	    for dir in path:
-	        for e in [None] + exts:
-		    pairs.append(dir, e)
+	        for e in exts:
+		    pairs.append((dir, e))
 	    for dir, ext in pairs:
 		f = os.path.join(dir, cmd)
 	        if not ext is None:
