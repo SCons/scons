@@ -721,7 +721,7 @@ class EnvironmentTestCase(unittest.TestCase):
         b1 = Environment()['BUILDERS']
         b2 = Environment()['BUILDERS']
         assert b1 == b2, diff_dict(b1, b2)
-        
+
         import UserList
         UL = UserList.UserList
         env1 = Environment(AAA = 'a',
@@ -776,6 +776,23 @@ class EnvironmentTestCase(unittest.TestCase):
         assert env1['QQQ1'] == UL(['', 'Q1']), env1['QQQ1']
         assert env1['QQQ2'] == UL(['', 'Q2']), env1['QQQ2']
         assert env1['QQQ3'] == UL(['', 'Q3']), env1['QQQ3']
+
+        class C:
+            def __init__(self, name):
+                self.name = name
+            def __str__(self):
+                return self.name
+            def __cmp__(self, other):
+                raise "should not compare"
+
+        ccc = C('ccc')
+
+        env2 = Environment(CCC1 = ['c1'], CCC2 = ccc)
+        env2.Append(CCC1 = ccc, CCC2 = ['c2'])
+        assert env2['CCC1'][0] == 'c1', env2['CCC1']
+        assert env2['CCC1'][1] is ccc, env2['CCC1']
+        assert env2['CCC2'][0] is ccc, env2['CCC2']
+        assert env2['CCC2'][1] == 'c2', env2['CCC2']
 
         env3 = Environment(X = {'x1' : 7})
         env3.Append(X = {'x1' : 8, 'x2' : 9}, Y = {'y1' : 10})

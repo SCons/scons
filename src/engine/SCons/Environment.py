@@ -427,14 +427,16 @@ class Base:
                 self._dict[key] = kw[key]
             elif SCons.Util.is_List(self._dict[key]) and not \
                  SCons.Util.is_List(kw[key]):
-                if not kw[key] is None and kw[key] != '':
+                if kw[key]:
                     self._dict[key] = self._dict[key] + [ kw[key] ]
+                #self._dict[key] = map(None, self._dict[key] + [ kw[key] ])
             elif SCons.Util.is_List(kw[key]) and not \
                  SCons.Util.is_List(self._dict[key]):
-                if self._dict[key] is None or self._dict[key] == '':
-                    self._dict[key] = kw[key]
-                else:
+                if self._dict[key]:
                     self._dict[key] = [ self._dict[key] ] + kw[key]
+                else:
+                    self._dict[key] = kw[key]
+                #self._dict[key] = map(None, self._dict[key] + [ kw[key] ])
             elif SCons.Util.is_Dict(self._dict[key]) and \
                  SCons.Util.is_Dict(kw[key]):
                 self._dict[key].update(kw[key])
