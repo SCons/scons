@@ -482,7 +482,9 @@ class OptParser(OptionParser):
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)
         self.add_option('--debug', action="callback", type="string",
                         callback=opt_debug, nargs=1, dest="debug",
-                        help="Print various types of debugging information.")
+                        metavar="TYPE",
+                        help="Print various types of debugging information: "
+                             "pdb, tree, dtree, time, or includes.")
 
         self.add_option('-f', '--file', '--makefile', '--sconstruct',
                         action="append", nargs=1,
