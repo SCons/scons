@@ -49,6 +49,14 @@ class DummyEnvironment(UserDict.UserDict):
     def get_calculator(self):
         return SCons.Sig.default_calc
 
+class DummyNode:
+    def __init__(self, name):
+        self.name = name
+    def rexists(self):
+        return None
+    def __str__(self):
+        return self.name
+    
 class FindPathDirsTestCase(unittest.TestCase):
     def test_FindPathDirs(self):
         """Test the FindPathDirs callable class"""
@@ -108,22 +116,23 @@ class BaseTestCase(unittest.TestCase):
         s = SCons.Scanner.Base(self.func, "Pos")
         env = DummyEnvironment()
         env.VARIABLE = "var1"
-        self.test(s, env, 'f1.cpp', ['f1.h', 'f1.hpp'])
+        self.test(s, env, DummyNode('f1.cpp'), ['f1.h', 'f1.hpp'])
 
         env = DummyEnvironment()
         env.VARIABLE = "i1"
-        self.test(s, env, 'i1.cpp', ['i1.h', 'i1.hpp'])
+        self.test(s, env, DummyNode('i1.cpp'), ['i1.h', 'i1.hpp'])
 
     def test_keywords(self):
         """Test the Scanner.Base class using keyword arguments"""
         s = SCons.Scanner.Base(function = self.func, name = "Key")
         env = DummyEnvironment()
         env.VARIABLE = "var2"
-        self.test(s, env, 'f2.cpp', ['f2.h', 'f2.hpp'])
+        self.test(s, env, DummyNode('f2.cpp'), ['f2.h', 'f2.hpp'])
 
         env = DummyEnvironment()
         env.VARIABLE = "i2"
-        self.test(s, env, 'i2.cpp', ['i2.h', 'i2.hpp'])
+
+        self.test(s, env, DummyNode('i2.cpp'), ['i2.h', 'i2.hpp'])
 
     def test_pos_opt(self):
         """Test the Scanner.Base class using both position and optional arguments"""
@@ -131,11 +140,11 @@ class BaseTestCase(unittest.TestCase):
         s = SCons.Scanner.Base(self.func, "PosArg", arg)
         env = DummyEnvironment()
         env.VARIABLE = "var3"
-        self.test(s, env, 'f3.cpp', ['f3.h', 'f3.hpp'], arg)
+        self.test(s, env, DummyNode('f3.cpp'), ['f3.h', 'f3.hpp'], arg)
 
         env = DummyEnvironment()
         env.VARIABLE = "i3"
-        self.test(s, env, 'i3.cpp', ['i3.h', 'i3.hpp'], arg)
+        self.test(s, env, DummyNode('i3.cpp'), ['i3.h', 'i3.hpp'], arg)
 
     def test_key_opt(self):
         """Test the Scanner.Base class using both keyword and optional arguments"""
@@ -144,11 +153,11 @@ class BaseTestCase(unittest.TestCase):
                                argument = arg)
         env = DummyEnvironment()
         env.VARIABLE = "var4"
-        self.test(s, env, 'f4.cpp', ['f4.h', 'f4.hpp'], arg)
+        self.test(s, env, DummyNode('f4.cpp'), ['f4.h', 'f4.hpp'], arg)
 
         env = DummyEnvironment()
         env.VARIABLE = "i4"
-        self.test(s, env, 'i4.cpp', ['i4.h', 'i4.hpp'], arg)
+        self.test(s, env, DummyNode('i4.cpp'), ['i4.h', 'i4.hpp'], arg)
 
     def test_hash(self):
         """Test the Scanner.Base class __hash__() method"""
@@ -163,13 +172,13 @@ class BaseTestCase(unittest.TestCase):
         def my_scan(filename, env, target, *args):
             return []
         def check(node, env, s=self):
-            s.checked[node] = 1
+            s.checked[str(node)] = 1
             return 1
         env = DummyEnvironment()
         s = SCons.Scanner.Base(my_scan, "Check", scan_check = check)
         self.checked = {}
         path = s.path(env)
-        scanned = s('x', env, path)
+        scanned = s(DummyNode('x'), env, path)
         self.failUnless(self.checked['x'] == 1,
                         "did not call check function")
 
@@ -209,12 +218,23 @@ class BaseTestCase(unittest.TestCase):
         s = scanner.select('.x')
         assert s is scanner, s
 
+    def test___str__(self):
+        """Test the Scanner.Base __str__() method"""
+        scanner = SCons.Scanner.Base(function = self.func)
+        s = str(scanner)
+        assert s == 'NONE', s
+        scanner = SCons.Scanner.Base(function = self.func, name = 'xyzzy')
+        s = str(scanner)
+        assert s == 'xyzzy', s
+
 class SelectorTestCase(unittest.TestCase):
-    class skey:
+    class skey_node:
         def __init__(self, key):
             self.key = key
         def scanner_key(self):
             return self.key
+        def rexists(self):
+            return None
 
     def test___init__(self):
         """Test creation of Scanner.Selector object"""
@@ -236,31 +256,31 @@ class SelectorTestCase(unittest.TestCase):
         s1 = SCons.Scanner.Base(s1func)
         s2 = SCons.Scanner.Base(s2func)
         selector = SCons.Scanner.Selector({'.x' : s1, '.y' : s2})
-        nx = self.skey('.x')
+        nx = self.skey_node('.x')
         selector(nx, None, [])
         assert called == ['s1func', nx], called
         del called[:]
-        ny = self.skey('.y')
+        ny = self.skey_node('.y')
         selector(ny, None, [])
         assert called == ['s2func', ny], called
 
     def test_select(self):
         """Test the Scanner.Selector select() method"""
         selector = SCons.Scanner.Selector({'.x' : 1, '.y' : 2})
-        s = selector.select(self.skey('.x'))
+        s = selector.select(self.skey_node('.x'))
         assert s == 1, s
-        s = selector.select(self.skey('.y'))
+        s = selector.select(self.skey_node('.y'))
         assert s == 2, s
-        s = selector.select(self.skey('.z'))
+        s = selector.select(self.skey_node('.z'))
         assert s is None, s
 
     def test_add_scanner(self):
         """Test the Scanner.Selector add_scanner() method"""
         selector = SCons.Scanner.Selector({'.x' : 1, '.y' : 2})
-        s = selector.select(self.skey('.z'))
+        s = selector.select(self.skey_node('.z'))
         assert s is None, s
         selector.add_scanner('.z', 3)
-        s = selector.select(self.skey('.z'))
+        s = selector.select(self.skey_node('.z'))
         assert s == 3, s
 
 class CurrentTestCase(unittest.TestCase):
@@ -271,6 +291,8 @@ class CurrentTestCase(unittest.TestCase):
                 self.called_has_builder = None
                 self.called_current = None
                 self.func_called = None
+            def rexists(self):
+                return None
         class HasNoBuilder(MyNode):
             def has_builder(self):
                 self.called_has_builder = 1

@@ -165,6 +165,8 @@ RELEASE 0.97 - XXX
   - Use the source_scanner from the target Node, not the source node
     itself.
 
+  - Enforce internally that Scanners are only passed Nodes.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

@@ -151,11 +151,13 @@ class Base:
         recursively on the implicit dependencies it returns (the
         canonical example being #include lines in C source files).
 
-        The scanner function's first argument will be the name of a file
-        that should be scanned for dependencies, the second argument will
-        be an Environment object, the third argument will be the value
-        passed into 'argument', and the returned list should contain the
-        Nodes for all the direct dependencies of the file.
+        The scanner function's first argument will be the a Node that
+        should be scanned for dependencies, the second argument will
+        be an Environment object, the third argument will be the tuple
+        of paths returned by the path_function, and the fourth
+        argument will be the value passed into 'argument', and the
+        returned list should contain the Nodes for all the direct
+        dependencies of the file.
 
         Examples:
 
@@ -219,6 +221,9 @@ class Base:
 
     def __hash__(self):
         return id(self)
+
+    def __str__(self):
+        return self.name
 
     def add_skey(self, skey):
         """Add a skey to the list of skeys"""
