@@ -190,7 +190,7 @@ class Taskmaster:
 class ParallelTestCase(unittest.TestCase):
     def runTest(self):
         "test parallel jobs"
-        
+
         try:
             import threading
         except:
@@ -225,6 +225,31 @@ class SerialTestCase(unittest.TestCase):
                         "all the tests were not iterated over")
         self.failIf(taskmaster.num_failed,
                     "some task(s) failed to execute") 
+
+class NoParallelTestCase(unittest.TestCase):
+    def runTest(self):
+        "test handling lack of parallel support"
+        def NoParallel(tm, num):
+            raise NameError
+        save_Parallel = SCons.Job.Parallel
+        SCons.Job.Parallel = NoParallel
+        try:
+            taskmaster = Taskmaster(num_tasks, self, Task)
+            jobs = SCons.Job.Jobs(2, taskmaster)
+            self.failUnless(jobs.num_jobs == 1, 
+                            "unexpected number of jobs %d" % jobs.num_jobs)
+            jobs.run()
+            self.failUnless(taskmaster.tasks_were_serial(),
+                            "the tasks were not executed in series")
+            self.failUnless(taskmaster.all_tasks_are_executed(),
+                            "all the tests were not executed")
+            self.failUnless(taskmaster.all_tasks_are_iterated(),
+                            "all the tests were not iterated over")
+            self.failIf(taskmaster.num_failed,
+                        "some task(s) failed to execute") 
+        finally:
+            SCons.Job.Parallel = save_Parallel
+
 
 class SerialExceptionTestCase(unittest.TestCase):
     def runTest(self):
@@ -261,6 +286,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(ParallelTestCase())
     suite.addTest(SerialTestCase())
+    suite.addTest(NoParallelTestCase())
     suite.addTest(SerialExceptionTestCase())
     suite.addTest(ParallelExceptionTestCase())
     return suite

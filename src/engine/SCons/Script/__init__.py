@@ -703,6 +703,7 @@ def _main(args, parser):
     SCons.Warnings._warningOut = _scons_internal_warning
     SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.CorruptSConsignWarning)
+    SCons.Warnings.enableWarningClass(SCons.Warnings.NoParallelSupportWarning)
 
     global ssoptions
     ssoptions = SConscriptSettableOptions(options)
@@ -964,7 +965,12 @@ def _main(args, parser):
     progress_display("scons: " + opening_message)
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc, order)
 
-    jobs = SCons.Job.Jobs(ssoptions.get('num_jobs'), taskmaster)
+    nj = ssoptions.get('num_jobs')
+    jobs = SCons.Job.Jobs(nj, taskmaster)
+    if nj > 1 and jobs.num_jobs == 1:
+        msg = "parallel builds are unsupported by this version of Python;\n" + \
+              "\tignoring -j or num_jobs option.\n"
+        SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
 
     try:
         jobs.run()
