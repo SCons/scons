@@ -25,6 +25,8 @@ RELEASE 0.02 -
 
   - Made Default() accept Nodes as arguments (courtesy Anthony Roach).
 
+  - Fix to setup.py so it doesn't require a sys.argv[1] argument.
+
 
 
 RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001

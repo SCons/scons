@@ -75,7 +75,10 @@ arguments = {
     'cmdclass'         : {'install_lib' : my_install_lib}
 }
 
-if sys.argv[1] == "bdist_wininst":
-    arguments['data_files'] = [('.', ["script/scons.bat"])]
+try:
+    if sys.argv[1] == "bdist_wininst":
+        arguments['data_files'] = [('.', ["script/scons.bat"])]
+except IndexError:
+    pass
 
 apply(setup, (), arguments)

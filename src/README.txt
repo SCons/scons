@@ -33,7 +33,7 @@ INSTALLATION
 To install this package, simply run the provided Python-standard setup
 script as follows:
 
-        # python setup.py
+        # python setup.py install
 
 This will install the scons script in the default script directory
 (/usr/bin or C:\Python*\Scripts, for example) and the build engine in an

@@ -9,7 +9,19 @@ Things to do to release a version of SCons:
 	Build candidate packages
 
 		test on Linux
+
 		test on Windows NT
+			1) tar zxf scons-src-{version}.tar.gz
+			   cd scons-src-{version}
+			   python runtest.py -a
+			2) tar zxf scons-{version}.tar.gz
+			   cd scons-{version}
+			   python setup.py install
+			   cd scons-src-{version}
+			   python runtest.py -a -x C:\Python15\scons.bat
+			3) scons-{verson}.win32.exe
+			   cd scons-src-{version}
+			   python runtest.py -a -x C:\Python15\scons.bat
 
 
 
