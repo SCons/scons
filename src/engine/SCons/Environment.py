@@ -250,18 +250,9 @@ class SubstitutionEnvironment:
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = kw.copy()
-        self._dict['__env__'] = self
 
     def __cmp__(self, other):
-        # Since an Environment now has an '__env__' construction variable
-        # that refers to itself, delete that variable to avoid infinite
-        # loops when comparing the underlying dictionaries in some Python
-        # versions (*cough* 1.5.2 *cough*)...
-        sdict = self._dict.copy()
-        del sdict['__env__']
-        odict = other._dict.copy()
-        del odict['__env__']
-        return cmp(sdict, odict)
+        return cmp(self._dict, other._dict)
 
     def __delitem__(self, key):
         "__cache_reset__"
@@ -299,10 +290,7 @@ class SubstitutionEnvironment:
         return self._dict.has_key(key)
 
     def items(self):
-        "Emulates the items() method of dictionaries."""
-        result = self._dict.items()
-        result = filter(lambda t: t[0] != '__env__', result)
-        return result
+        return self._dict.items()
 
     def arg2nodes(self, args, node_factory=_null, lookup_list=_null):
         if node_factory is _null:
@@ -364,6 +352,7 @@ class SubstitutionEnvironment:
         """
         gvars = self.gvars()
         lvars = self.lvars()
+        lvars['__env__'] = self
         return SCons.Util.scons_subst(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_kw(self, kw, raw=0, target=None, source=None):
@@ -380,6 +369,7 @@ class SubstitutionEnvironment:
         the documentation for that function."""
         gvars = self.gvars()
         lvars = self.lvars()
+        lvars['__env__'] = self
         return SCons.Util.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_path(self, path):
@@ -494,7 +484,6 @@ class Base(SubstitutionEnvironment):
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
 
-        self._dict['__env__'] = self
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
         if platform is None:
@@ -727,7 +716,6 @@ class Base(SubstitutionEnvironment):
         """
         clone = copy.copy(self)
         clone._dict = our_deepcopy(self._dict)
-        clone['__env__'] = clone
         try:
             cbd = clone._dict['BUILDERS']
             clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
@@ -1418,7 +1406,6 @@ class OverrideEnvironment(SubstitutionEnvironment):
         if __debug__: logInstanceCreation(self, 'OverrideEnvironment')
         self.__dict__['__subject'] = subject
         self.__dict__['overrides'] = overrides
-        self.__dict__['overrides']['__env__'] = self
 
     # Methods that make this class act like a proxy.
     def __getattr__(self, name):

@@ -155,7 +155,7 @@ class SubstitutionTestCase(unittest.TestCase):
         """Test initializing a SubstitutionEnvironment
         """
         env = SubstitutionEnvironment()
-        assert env['__env__'] is env, env['__env__']
+        assert not env.has_key('__env__')
 
     def test___cmp__(self):
         """Test comparing SubstitutionEnvironments
@@ -338,7 +338,7 @@ class SubstitutionTestCase(unittest.TestCase):
         """Test the base class gvars() method"""
         env = SubstitutionEnvironment()
         gvars = env.gvars()
-        assert gvars == {'__env__' : env}, gvars
+        assert gvars == {}, gvars
 
     def test_lvars(self):
         """Test the base class lvars() method"""
@@ -549,9 +549,6 @@ class SubstitutionTestCase(unittest.TestCase):
         assert env2['ONE'] == "won", env2['ONE']
         assert env['ONE'] == 1, env['ONE']
 
-        assert env['__env__'] is env, env['__env__']
-        assert env2['__env__'] is env2, env2['__env__']
-
 
 
 class BaseTestCase(unittest.TestCase):
@@ -566,8 +563,8 @@ class BaseTestCase(unittest.TestCase):
         env2 = Environment(XXX = 'x', YYY = 'y')
         assert env1 == env2, diff_env(env1, env2)
 
-        assert env1['__env__'] is env1, env1['__env__']
-        assert env2['__env__'] is env2, env2['__env__']
+        assert not env1.has_key('__env__')
+        assert not env2.has_key('__env__')
 
     def test_get(self):
         """Test the get() method."""
@@ -1259,10 +1256,6 @@ def exists(env):
         assert env3.Dictionary('YYY') == 'y'
         assert env3.Dictionary('ZZZ') == 'z3'
         assert env1 == env1copy
-
-        assert env1['__env__'] is env1, env1['__env__']
-        assert env2['__env__'] is env2, env2['__env__']
-        assert env3['__env__'] is env3, env3['__env__']
 
         # Ensure that lists and dictionaries are
         # deep copied, but not instances.
