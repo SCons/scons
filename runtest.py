@@ -150,9 +150,9 @@ for path in tests:
     if printcmd:
 	print cmd
     s = os.system(cmd)
-    if s == 1:
+    if s == 1 or s == 256:
         fail.append(path)
-    elif s == 2:
+    elif s == 2 or s == 512:
         no_result.append(path)
     elif s != 0:
         print "Unexpected exit status %d" % s

@@ -297,28 +297,30 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
         assert c == "act.py: 'syzygy'\nfunction2\nclass2a\nclass2b\n", c
 
-        # Test that a nonexistent command returns 127
-        builder = MyBuilder(action = python + "_XyZzY_", name="badcmd")
-        r = builder.execute(out = outfile)
-        assert r == 127, "r == %d" % r
-
         if os.name == 'nt':
             # NT treats execs of directories and non-executable files
             # as "file not found" errors
-            expect = 127
+            expect_nonexistent = 1
+            expect_nonexecutable = 1
         else:
-            expect = 126
+            expect_nonexistent = 127
+            expect_nonexecutable = 126
+
+        # Test that a nonexistent command returns 127
+        builder = MyBuilder(action = python + "_XyZzY_", name="badcmd")
+        r = builder.execute(out = outfile)
+        assert r == expect_nonexistent, "r == %d" % r
 
         # Test that trying to execute a directory returns 126
         dir, tail = os.path.split(python)
         builder = MyBuilder(action = dir, name = "dir")
         r = builder.execute(out = outfile)
-        assert r == expect, "r == %d" % r
+        assert r == expect_nonexecutable, "r == %d" % r
 
         # Test that trying to execute a non-executable file returns 126
         builder = MyBuilder(action = outfile, name = "badfile")
         r = builder.execute(out = outfile)
-        assert r == expect, "r == %d" % r
+        assert r == expect_nonexecutable, "r == %d" % r
 
     def test_get_contents(self):
         """Test returning the signature contents of a Builder

@@ -46,13 +46,18 @@ exitvalmap = {
 
 if os.name == 'posix':
 
-    def spawn(cmd, args, env):
+    def defaultSpawn(cmd, args, env):
         pid = os.fork()
         if not pid:
             # Child process.
             exitval = 127
+            args = [ 'sh', '-c' ] + \
+                   [ string.join(map(lambda x: string.replace(str(x),
+                                                              ' ',
+                                                              r'\ '),
+                                     args)) ]
             try:
-                os.execvpe(cmd, args, env)
+                os.execvpe('sh', args, env)
             except OSError, e:
                 exitval = exitvalmap[e[0]]
                 sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
@@ -77,6 +82,8 @@ elif os.name == 'nt':
                     f = cmd + e
                     if os.path.exists(f):
                         return f
+            else:
+                return cmd
         else:
             path = env['PATH']
             if not SCons.Util.is_List(path):
@@ -94,19 +101,61 @@ elif os.name == 'nt':
                     f = f + ext
                 if os.path.exists(f):
                     return f
-        return cmd
+        return None
 
-    def spawn(cmd, args, env):
+    # Attempt to find cmd.exe (for WinNT/2k/XP) or
+    # command.com for Win9x
+
+    cmd_interp = ''
+    # First see if we can look in the registry...
+    if SCons.Util.can_read_reg:
         try:
+            # Look for Windows NT system root
+            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                          'Software\\Microsoft\\Windows NT\\CurrentVersion')
+            val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
+            cmd_interp = os.path.join(val, 'System32\\cmd.exe')
+        except SCons.Util.RegError:
             try:
-                ret = os.spawnvpe(os.P_WAIT, cmd, args, env)
-            except AttributeError:
-                cmd = pathsearch(cmd, env)
-                ret = os.spawnve(os.P_WAIT, cmd, args, env)
-        except OSError, e:
-            ret = exitvalmap[e[0]]
-            sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
-        return ret
+                # Okay, try the Windows 9x system root
+                k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                              'Software\\Microsoft\\Windows\\CurrentVersion')
+                val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
+                cmd_interp = os.path.join(val, 'command.com')
+            except:
+                pass
+    if not cmd_interp:
+        cmd_interp = pathsearch('cmd', os.environ)
+        if not cmd_interp:
+            cmd_interp = pathsearch('command', os.environ)
+
+    # The upshot of all this is that, if you are using Python 1.5.2,
+    # you had better have cmd or command.com in your PATH when you run
+    # scons.
+
+    def defaultSpawn(cmd, args, env):
+        if not cmd_interp:
+            sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
+            return 127
+        else:
+            try:
+                args = [ cmd_interp, '/C' ] + args
+                ret = os.spawnve(os.P_WAIT, cmd_interp, args, env)
+            except OSError, e:
+                ret = exitvalmap[e[0]]
+                sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+            return ret
+else:
+    def defaultSpawn(cmd, args, env):
+        sys.stderr.write("scons: Unknown os '%s', cannot spawn command interpreter.\n" % os.name)
+        sys.stderr.write("scons: Set your command handler with SetCommandHandler().\n")
+        return 127
+
+spawn = defaultSpawn
+
+def SetCommandHandler(func):
+    global spawn
+    spawn = func
 
 def Action(act):
     """A factory for action objects."""

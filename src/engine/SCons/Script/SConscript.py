@@ -36,6 +36,7 @@ import SCons.Defaults
 import SCons.Node
 import SCons.Node.FS
 import SCons.Environment
+import SCons.Action
 import string
 import sys
 
@@ -176,4 +177,5 @@ def BuildDefaultGlobals():
     globals['Return'] = Return
     globals['Dir'] = SCons.Node.FS.default_fs.Dir
     globals['File'] = SCons.Node.FS.default_fs.File
+    globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
     return globals

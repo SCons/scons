@@ -16,6 +16,11 @@ RELEASE 0.03 -
 
   - Add the InstallAs() method.
 
+  - Execute commands through an external interpreter (sh, cmd.exe, or
+    command.com) to handle redirection metacharacters.
+
+  - Allow the user to supply a command handler.
+
   From Steven Knight:
 
   - Search both /usr/lib and /usr/local/lib for scons directories by

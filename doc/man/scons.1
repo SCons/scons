@@ -989,6 +989,30 @@ can be a relative or absolute path.
 is an optional directory that will be used as the parent directory. 
 
 
+.TP 
+.RI SetCommandHandler( function )
+
+This registers a user
+.I function
+as the handler
+for interpreting and executing command-line strings.
+The function must expect three arguments:
+
+.IP
+.nf
+def commandhandler(cmd, args, env):
+.PP
+.fi
+
+.I cmd
+is the path to the command to be executed.
+.I args
+is that arguments to the command.
+.I env
+is a dictionary of the environment variables
+in which the command should be executed.
+
+
 .SH EXTENDING SCONS
 .SS Builder Objects
 .B scons

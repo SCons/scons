@@ -106,7 +106,24 @@ class CommandActionTestCase(unittest.TestCase):
     def test_execute(self):
         """Test executing a command Action
         """
+        self.test_set_handler()
         pass
+
+    def test_set_handler(self):
+        """Test setting the command handler...
+        """
+        class Test:
+            def __init__(self):
+                self.executed = 0
+        t=Test()
+        def func(cmd, args, env, test=t):
+            test.executed = 1
+            return 0
+        SCons.Action.SetCommandHandler(func)
+        assert SCons.Action.spawn is func
+        a = SCons.Action.CommandAction("xyzzy")
+        a.execute()
+        assert t.executed == 1
 
     def test_get_contents(self):
         """Test fetching the contents of a command Action

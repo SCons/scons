@@ -48,9 +48,33 @@ env.bld(target = 'f1', source = 'f1.in')
 
 test.run(arguments='-f SConstruct1 .',
 	 stdout = "%s f1.in f1\n" % no_such_file,
-	 stderr = """scons: %s: No such file or directory
+         stderr = None)
+
+bad_command = "Bad command or file name\n"
+
+unrecognized = """'%s' is not recognized as an internal or external command,
+operable program or batch file.
+scons: *** [%s] Error 1
+"""
+
+unspecified = """The name specified is not recognized as an
+internal or external command, operable program or batch file.
+scons: *** [%s] Error 1
+"""
+
+test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
+if os.name == 'nt':
+    errs = [
+        bad_command,
+        unrecognized % (no_such_file, 'f1'),
+        unspecified % 'f1'
+    ]
+    test.fail_test(not test.stderr() in errs)
+else:
+    test.fail_test(test.stderr() != """sh: %s: No such file or directory
 scons: *** [f1] Error 127
 """ % no_such_file)
+
 
 test.write('SConstruct2', r"""
 bld = Builder(name = 'bld', action = '%s $SOURCES $TARGET')
@@ -58,18 +82,22 @@ env = Environment(BUILDERS = [bld])
 env.bld(target = 'f2', source = 'f2.in')
 """ % string.replace(not_executable, '\\', '\\\\'))
 
-if os.name == 'nt':
-    expect = """scons: %s: No such file or directory
-scons: *** [f2] Error 127
-""" % not_executable
-else:
-    expect = """scons: %s: Permission denied
-scons: *** [f2] Error 126
-""" % not_executable
-
 test.run(arguments='-f SConstruct2 .',
 	 stdout = "%s f2.in f2\n" % not_executable,
-	 stderr = expect)
+	 stderr = None)
+
+test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
+if os.name == 'nt':
+    errs = [
+        bad_command,
+        unrecognized % (no_such_file, 'f2'),
+        unspecified % 'f2'
+    ]
+    test.fail_test(not test.stderr() in errs)
+else:
+    test.fail_test(test.stderr() != """sh: %s: Permission denied
+scons: *** [f2] Error 126
+""" % not_executable)
 
 test.write('SConstruct3', r"""
 bld = Builder(name = 'bld', action = '%s $SOURCES $TARGET')
@@ -79,7 +107,18 @@ env.bld(target = 'f3', source = 'f3.in')
 
 test.run(arguments='-f SConstruct3 .',
 	 stdout = "%s f3.in f3\n" % test.workdir,
-	 stderr = """scons: %s: Permission denied
+	 stderr = None)
+
+test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
+if os.name == 'nt':
+    errs = [
+        bad_command,
+        unrecognized % (no_such_file, 'f3'),
+        unspecified % 'f3'
+    ]
+    test.fail_test(not test.stderr() in errs)
+else:
+    test.fail_test(test.stderr() != """sh: %s: is a directory
 scons: *** [f3] Error 126
 """ % test.workdir)
 
