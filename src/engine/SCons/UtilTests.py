@@ -32,6 +32,8 @@ import unittest
 from SCons.Util import *
 import TestCmd
 
+import SCons.Errors
+
 class OutBuffer:
     def __init__(self):
         self.buffer = ""
@@ -410,6 +412,14 @@ class UtilTestCase(unittest.TestCase):
                              env, target=MyNode('t'), source=MyNode('s'))
         assert newcom == "test foo baz s t", newcom
 
+        # Test that we handle syntax errors during expansion as expected.
+        try:
+            scons_subst('$foo.bar.3.0', env)
+        except SCons.Errors.UserError, e:
+            assert str(e) == "Syntax error trying to evaluate `$foo.bar.3.0'", e
+        else:
+            raise AssertionError, "did not catch expected UserError"
+
         # Test returning a function.
         #env = DummyEnv({'FUNCTION' : foo})
         #func = scons_subst("$FUNCTION", env, mode=SUBST_RAW, call=None)
@@ -731,6 +741,14 @@ class UtilTestCase(unittest.TestCase):
                 failed = failed + 1
             del subst_list_cases[:4]
         assert failed == 0, "%d subst() mode cases failed" % failed
+
+        # Test that we handle syntax errors during expansion as expected.
+        try:
+            scons_subst_list('$foo.bar.3.0', env)
+        except SCons.Errors.UserError, e:
+            assert str(e) == "Syntax error trying to evaluate `$foo.bar.3.0'", e
+        else:
+            raise AssertionError, "did not catch expected SyntaxError"
 
     def test_splitext(self):
         assert splitext('foo') == ('foo','')
