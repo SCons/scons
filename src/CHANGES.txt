@@ -43,6 +43,9 @@ RELEASE 0.95 - XXX
     values.  Previously, SCons would only use the values if all three
     were set in the registry.
 
+  - Make sure side-effect nodes are prepare()d before building their
+    corresponding target.
+
   From Scott Lystig Fritchie:
 
   - Fix the ability to use a custom _concat() function in the
