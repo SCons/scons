@@ -173,6 +173,11 @@ class Node:
         """Set the signature of the node's content."""
         self.csig = csig
 
+    def store_sigs(self):
+        """Make the signatures permanent (that is, store them in the
+        .sconsign file or equivalent)."""
+        pass
+
     def set_precious(self, precious = 1):
         """Set the Node's precious value."""
         self.precious = precious

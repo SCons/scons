@@ -57,25 +57,16 @@ class Task:
     def __init__(self, tm, targets, top):
         self.tm = tm
         self.targets = targets
-        self.bsig = {}
         self.top = top
 
     def execute(self):
-        if not self.targets[0].get_state() == SCons.Node.up_to_date:
+        if self.targets[0].get_state() != SCons.Node.up_to_date:
             self.targets[0].build()
 
     def get_target(self):
         """Fetch the target being built or updated by this task.
         """
         return self.targets[0]
-
-    def set_bsig(self, target, bsig):
-        """Set the task's (*not* the target's)  build signature
-        for this target.
-
-        This will be used later to update the target's actual
-        build signature *if* the build succeeds."""
-        self.bsig[target] = bsig
 
     def set_tstates(self, state):
         """Set all of the target nodes's states."""
@@ -93,7 +84,7 @@ class Task:
         if self.targets[0].get_state() == SCons.Node.executing:
             self.set_tstates(SCons.Node.executed)
             for t in self.targets:
-                t.set_bsig(self.bsig[t])
+                t.store_sigs()
             parents = {}
             for p in reduce(lambda x, y: x + y.get_parents(), self.targets, []):
                 parents[p] = 1
@@ -140,7 +131,7 @@ class Task:
         state = SCons.Node.up_to_date
         for t in self.targets:
             bsig = self.tm.calc.bsig(t)
-            self.set_bsig(t, bsig)
+            t.set_bsig(bsig)
             if not self.tm.calc.current(t, bsig):
                 state = SCons.Node.executing
         self.set_tstates(state)

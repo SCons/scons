@@ -65,6 +65,8 @@ RELEASE 0.04 -
 
   - Add a --debug=pdb option to re-run SCons under the Python debugger.
 
+  - Only compute a build signature once for each node.
+
   From Steve Leblanc:
 
   - Add var=value command-line arguments.

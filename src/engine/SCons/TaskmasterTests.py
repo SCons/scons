@@ -74,6 +74,9 @@ class Node:
 
     def set_csig(self, csig):
         self.csig = csig
+
+    def store_sigs(self):
+        pass
   
     def children_are_executed(self):
         return reduce(lambda x,y: ((y.get_state() == SCons.Node.executed

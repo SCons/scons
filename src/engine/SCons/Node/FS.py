@@ -501,19 +501,7 @@ class File(Entry):
         else:
             return 0
 
-    def set_bsig(self, bsig):
-        """Set the build signature for this file, updating the
-        .sconsign entry."""
-        Entry.set_bsig(self, bsig)
-        self.set_sconsign()
-
-    def set_csig(self, csig):
-        """Set the content signature for this file, updating the
-        .sconsign entry."""
-        Entry.set_csig(self, csig)
-        self.set_sconsign()
-
-    def set_sconsign(self):
+    def store_sigs(self):
         """Update a file's .sconsign entry with its current info."""
         self.dir.sconsign().set(self.name, self.get_timestamp(),
                                 self.get_bsig(), self.get_csig())
