@@ -18,6 +18,8 @@ RELEASE 0.97 - XXX
 
   - Package up the new Platform/darwin.py, mistakenly left out of 0.96.
 
+  - Make the scons.bat REM statements into @REM so they aren't printed.
+
 
 
 RELEASE 0.96 - Wed, 18 Aug 2004 13:36:40 +0000
