@@ -20,7 +20,7 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.12 - XXX
+RELEASE 0.12 - Thu, 27 Mar 2003 23:52:09 -0600
 
   This is the twelfth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
@@ -183,6 +183,14 @@ RELEASE 0.12 - XXX
 
     - The -c option does not clean up .sconsign files or directories
       created as part of the build.
+
+    - Switching content signatures from "MD5" to "timestamp" and back
+      again can cause unusual errors.  These errors can be cleared up by
+      removing all .sconsign files.
+
+    - On Win32, SCons does not recognize that a target specified as
+      (for example) \some\target is the same as X:\some\target (for your
+      current volume X:).
 
     - No support yet for the following planned command-line options:
 

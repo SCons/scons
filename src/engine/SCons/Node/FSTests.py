@@ -285,7 +285,9 @@ class BuildDirTestCase(unittest.TestCase):
         f11 = fs.File('src/file11')
         t, m = f11.alter_targets()
         bdt = map(lambda n: n.path, t)
-        assert bdt == ['build/var1/file11', 'build/var2/file11'], bdt
+        var1_file11 = os.path.normpath('build/var1/file11')
+        var2_file11 = os.path.normpath('build/var2/file11')
+        assert bdt == [var1_file11, var2_file11], bdt
 
         f12 = fs.File('src/file12')
         f12.builder = 1
@@ -295,7 +297,9 @@ class BuildDirTestCase(unittest.TestCase):
         d13 = fs.Dir('src/new_dir')
         t, m = d13.alter_targets()
         bdt = map(lambda n: n.path, t)
-        assert bdt == ['build/var1/new_dir', 'build/var2/new_dir'], bdt
+        var1_new_dir = os.path.normpath('build/var1/new_dir')
+        var2_new_dir = os.path.normpath('build/var2/new_dir')
+        assert bdt == [var1_new_dir, var2_new_dir], bdt
 
         save_Mkdir = SCons.Node.FS.Mkdir
         dir_made = []

@@ -867,10 +867,21 @@ msvc
 nasm
 pdflatex
 pdftex
+sgiar
+sgias
+sgicc
+sgif77
+sgilink
 tar
 tex
 yacc
+zip
 .EE
+
+Additionally, there is a "tool" named
+.B default
+which configures the
+environment with a default set of tools for the current platform.
 
 On posix and cygwin platforms
 the GNU tools (e.g. gcc) are preferred by SCons,
@@ -4678,7 +4689,7 @@ Bar.cpp:
 SConstruct:
 .ES
 env=Environment()
-env['PCHSTOP'] = StdAfx.h
+env['PCHSTOP'] = 'StdAfx.h'
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 .EE

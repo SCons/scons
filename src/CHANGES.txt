@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.12 - XXX
+RELEASE 0.12 - Thu, 27 Mar 2003 23:52:09 -0600
 
   From Charles Crain:
 
