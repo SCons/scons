@@ -128,6 +128,8 @@ class Builder:
         self.action = MyAction()
         self.source_factory = MyNode
         self.is_explicit = is_explicit
+        self.target_scanner = None
+        self.source_scanner = None
     def targets(self, t):
         return [t]
     def get_actions(self):

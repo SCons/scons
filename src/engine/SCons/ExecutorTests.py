@@ -63,6 +63,7 @@ class MyBuilder:
 class MyNode:
     def __init__(self, name=None, pre=[], post=[]):
         self.name = name
+        self.implicit = []
         self.pre_actions = pre
         self.post_actions = post
     def __str__(self):
@@ -76,13 +77,16 @@ class MyNode:
                                            [self],
                                            ['s1', 's2'])
         apply(executor, (self, errfunc), {})
+    def get_implicit_deps(self, env, scanner, path):
+        return ['dep-' + str(self)]
+    def add_to_implicit(self, deps):
+        self.implicit.extend(deps)
 
 class MyScanner:
-    def path(self, env, dir, target, source):
-        target = map(str, target)
-        source = map(str, source)
-        return "scanner: %s, %s, %s, %s" % (env['SCANNERVAL'], dir, target, source)
-        
+    def path(self, env, cwd, target, source):
+        return ()
+    def select(self, node):
+        return self
 
 class ExecutorTestCase(unittest.TestCase):
 
@@ -143,7 +147,12 @@ class ExecutorTestCase(unittest.TestCase):
                                     [t],
                                     ['s1', 's2'])
 
-        s = MyScanner()
+        class LocalScanner:
+            def path(self, env, dir, target, source):
+                target = map(str, target)
+                source = map(str, source)
+                return "scanner: %s, %s, %s, %s" % (env['SCANNERVAL'], dir, target, source)
+        s = LocalScanner()
 
         p = x.get_build_scanner_path(s)
         assert p == "scanner: sss, here, ['t'], ['s1', 's2']", p
@@ -275,6 +284,16 @@ class ExecutorTestCase(unittest.TestCase):
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         ts = x.get_timestamp()
         assert ts == 0, ts
+
+    def test_scan(self):
+        """Test scanning the sources for implicit dependencies"""
+        env = MyEnvironment(S='string', SCANNERVAL='scn')
+        targets = [MyNode('t')]
+        sources = [MyNode('s1'), MyNode('s2')]
+        x = SCons.Executor.Executor('b', env, [{}], targets, sources)
+        scanner = MyScanner()
+        deps = x.scan(scanner)
+        assert targets[0].implicit == ['dep-s1', 'dep-s2'], targets[0].implicit
 
 
 if __name__ == "__main__":
