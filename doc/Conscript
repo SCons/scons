@@ -1,5 +1,5 @@
 #
-#
+# Conscript file for building SCons documentation.
 #
 
 Import qw(
@@ -10,7 +10,17 @@ Import qw(
 );
 
 #
+#
+#
+$doc_tar_gz = "#build/dist/scons-doc-$version.tar.gz";
+
+#
+# Always create a version.sgml file containing the version information
+# for this run.  Ignore it for dependency purposes so we don't
+# rebuild all the docs every time just because the date changes.
+#
 $verfile = SourcePath("version.sgml");
+unlink($verfile);
 open(FILE, ">$verfile") || die "Cannot open '$verfile': $!";
 print FILE <<_EOF_;
 <!--
@@ -22,12 +32,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 _EOF_
 close(FILE);
 
-Ignore("#$verfile");
+Ignore("version.sgml");
 
 #
+# Each document will live in its own subdirectory.  List them here.
 #
-#
-
 @doc_dirs = qw(
     design
 );
@@ -52,26 +61,58 @@ sub scansgml {
     @includes;
 }
 
-$env->QuickScan(\&scansgml, "scons.mod");
-$env->QuickScan(\&scansgml, "copyright.sgml");
+#
+# We have to tell Cons to QuickScan the top-level SGML files which
+# get included by the document SGML files in the subdirectories.
+#
+@included_sgml = qw(
+    scons.mod
+    copyright.sgml
+);
 
+foreach $sgml (@included_sgml) {
+    $env->QuickScan(\&scansgml, $sgml);
+}
+
+#
+# For each document, build the document itself in HTML, Postscript,
+# and PDF formats.
+#
 foreach $doc (@doc_dirs) {
     my $main = "$doc/main.sgml";
     my $out = "main.out";
 
+    my $htmldir = "HTML/scons-$doc";
+    my $ps = "PS/scons-$doc.ps";
+    my $pdf = "PDF/scons-$doc.pdf";
+
     $env->QuickScan(\&scansgml, $main);
 
-    $env->Command("HTML/$doc/book1.html", $main,
+    $env->Command("$htmldir/book1.html", $main,
 	qq(jw -b html -o %>:d %<));
 
-    $env->Command("PS/$doc.ps", $main,
-	[qq(jw -b ps -o %>:d %<),
+    $env->Command($ps, $main,
+	[qq(rm -f %>:d/$out),
+	 qq(jw -b ps -o %>:d %<),
 	 qq(mv %>:d/main.ps %>),
+	 qq(rm -f %>:d/$out),
 	]);
 
-    $env->Command("PDF/$doc.pdf", $main,
-	[qq(jw -b pdf -o %>:d %<),
+    $env->Command($pdf, $main,
+	[qq(rm -f %>:d/$out),
+	 qq(jw -b pdf -o %>:d %<),
 	 qq(mv %>:d/main.pdf %>),
-#	 qq(rm -f %>:d/$out),
+	 qq(rm -f %>:d/$out),
 	]);
+
+    push(@tar_deps, "$htmldir/book1.html", $ps, $pdf);
+    push(@tar_list, "$htmldir/[A-Za-z]*", $ps, $pdf);
 }
+
+#
+# Now actually create the tar file of the documentation,
+# for easy distribution to the web site.
+#
+$env->Command($doc_tar_gz,
+	      @tar_deps,
+	      qq(cd build/doc && tar zcvf ../dist/%>:f @tar_list));
