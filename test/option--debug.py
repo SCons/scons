@@ -85,10 +85,14 @@ tree = """
       +-foo.h
 """ % (foo, obj,obj)
 
-assert string.find(test.stdout(), tree) != -1
+test.fail_test(string.find(test.stdout(), tree) == -1)
 
 test.run(arguments = "--debug=tree " + foo)
-assert string.find(test.stdout(), tree) != -1
+test.fail_test(string.find(test.stdout(), tree) == -1)
+
+test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
+test.fail_test(string.find(test.stdout(), "(Pdb)") == -1)
+test.fail_test(string.find(test.stdout(), "scons") == -1)
 
 test.pass_test()
 
