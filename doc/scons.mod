@@ -112,9 +112,12 @@
 
 -->
 
+<!ENTITY Add "<function>Add</function>">
+<!ENTITY AddOptions "<function>AddOptions</function>">
 <!ENTITY Alias "<function>Alias</function>">
 <!ENTITY Aliases "<function>Aliases</function>">
 <!ENTITY Append "<function>Append</function>">
+<!ENTITY BoolOption "<function>BoolOption</function>">
 <!ENTITY Build "<function>Build</function>">
 <!ENTITY CacheDir "<function>CacheDir</function>">
 <!ENTITY Clean "<function>Clean</function>">
@@ -124,17 +127,23 @@
 <!ENTITY Default "<function>Default</function>">
 <!ENTITY DefaultRules "<function>DefaultRules</function>">
 <!ENTITY Depends "<function>Depends</function>">
+<!ENTITY EnumOption "<function>EnumOption</function>">
 <!ENTITY Environment "<function>Environment</function>">
 <!ENTITY Export "<function>Export</function>">
+<!ENTITY GenerateHelpText "<function>GenerateHelpText</function>">
 <!ENTITY Help "<function>Help</function>">
 <!ENTITY Ignore "<function>Ignore</function>">
 <!ENTITY Import "<function>Import</function>">
 <!ENTITY Install "<function>Install</function>">
 <!ENTITY InstallAs "<function>InstallAs</function>">
 <!ENTITY Link "<function>Link</function>">
+<!ENTITY ListOption "<function>ListOption</function>">
 <!ENTITY Local "<function>Local</function>">
 <!ENTITY Module "<function>Module</function>">
 <!ENTITY Objects "<function>Objects</function>">
+<!ENTITY Options "<function>Options</function>">
+<!ENTITY PackageOption "<function>PackageOption</function>">
+<!ENTITY PathOption "<function>PathOption</function>">
 <!ENTITY Precious "<function>Precious</function>">
 <!ENTITY Prepend "<function>Prepend</function>">
 <!ENTITY Replace "<function>Replace</function>">
@@ -160,19 +169,39 @@
 
 <!--
 
+  Global variables.
+
+-->
+
+<!ENTITY ARGUMENTS "<varname>ARGUMENTS</varname>">
+
+
+
+<!--
+
   Construction variables.
 
 -->
 
 <!ENTITY BUILDERMAP "<varname>BUILDERMAP</varname>">
 <!ENTITY BUILDERS "<varname>BUILDERS</varname>">
+<!ENTITY CC "<varname>CC</varname>">
+<!ENTITY CCFLAGS "<varname>CCFLAGS</varname>">
+<!ENTITY COLOR "<varname>COLOR</varname>">
+<!ENTITY COLORS "<varname>COLORS</varname>">
+<!ENTITY CONFIG "<varname>CONFIG</varname>">
+<!ENTITY CPPDEFINES "<varname>CPPDEFINES</varname>">
 <!ENTITY LIBDIRPREFIX "<varname>LIBDIRPREFIX</varname>">
 <!ENTITY LIBDIRSUFFIX "<varname>LIBDIRSUFFIX</varname>">
 <!ENTITY LIBLINKPREFIX "<varname>LIBLINKPREFIX</varname>">
 <!ENTITY LIBLINKSUFFIX "<varname>LIBLINKSUFFIX</varname>">
+<!ENTITY LIBPATH "<varname>LIBPATH</varname>">
+<!ENTITY LIBS "<varname>LIBS</varname>">
 <!ENTITY LINK "<varname>LINK</varname>">
 <!ENTITY LINKCOM "<varname>LINKCOM</varname>">
 <!ENTITY LINKFLAGS "<varname>LINKFLAGS</varname>">
+<!ENTITY RELEASE "<varname>RELEASE</varname>">
+<!ENTITY RELEASE_BUILD "<varname>RELEASE_BUILD</varname>">
 <!ENTITY SCANNERMAP "<varname>SCANNERMAP</varname>">
 <!ENTITY SCANNERS "<varname>SCANNERS</varname>">
 <!ENTITY TARFLAGS "<varname>TARFLAGS</varname>">
@@ -186,10 +215,6 @@
 
 -->
 
-<!ENTITY CC "<varname>CC</varname>">
-<!ENTITY CCFLAGS "<varname>CCFLAGS</varname>">
-<!ENTITY LIBPATH "<varname>LIBPATH</varname>">
-<!ENTITY LIBS "<varname>LIBS</varname>">
 <!ENTITY PYTHONPATH "<varname>PYTHONPATH</varname>">
 <!ENTITY SCONSFLAGS "<varname>SCONSFLAGS</varname>">
 
@@ -201,10 +226,25 @@
 
 -->
 
+<!ENTITY allowed_values "<varname>allowed_values</varname>">
 <!ENTITY build_dir "<varname>build_dir</varname>">
+<!ENTITY map "<varname>map</varname>">
+<!ENTITY ignorecase "<varname>ignorecase</varname>">
+<!ENTITY options "<varname>options</varname>">
 <!ENTITY exports "<varname>exports</varname>">
 <!ENTITY source "<varname>source</varname>">
 <!ENTITY target "<varname>target</varname>">
+
+
+
+<!--
+
+  Values of function and method arguments.
+
+-->
+
+<!ENTITY all "<literal>all</literal>">
+<!ENTITY none "<literal>none</literal>">
 
 
 
@@ -276,6 +316,9 @@
 <!ENTITY signature "<literal>signature</literal>">
 <!ENTITY buildsignature "<literal>build signature</literal>">
 
+<!ENTITY true "<literal>true</literal>">
+<!ENTITY false "<literal>false</literal>">
+
 <!--
 
   File and program names used in examples.
@@ -285,6 +328,7 @@
 <!ENTITY bar "<application>bar</application>">
 <!ENTITY common1_c "<application>common1.c</application>">
 <!ENTITY common2_c "<application>common2.c</application>">
+<!ENTITY custom_py "<filename>custom.py</filename>">
 <!ENTITY goodbye "<application>goodbye</application>">
 <!ENTITY file_dll "<application>file.dll</application>">
 <!ENTITY file_lib "<application>file.lib</application>">

@@ -198,6 +198,7 @@ arguments = {
     'packages'         : ["SCons",
                           "SCons.Node",
                           "SCons.Optik",
+                          "SCons.Options",
                           "SCons.Platform",
                           "SCons.Scanner",
                           "SCons.Script",

@@ -10,7 +10,12 @@
 ./SCons/Node/FS.py
 ./SCons/Node/Python.py
 ./SCons/Node/__init__.py
-./SCons/Options.py
+./SCons/Options/__init__.py
+./SCons/Options/BoolOption.py
+./SCons/Options/EnumOption.py
+./SCons/Options/ListOption.py
+./SCons/Options/PackageOption.py
+./SCons/Options/PathOption.py
 ./SCons/Platform/__init__.py
 ./SCons/Platform/aix.py
 ./SCons/Platform/cygwin.py

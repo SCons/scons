@@ -60,6 +60,7 @@ def checkSave(file, expected):
     assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 class OptionsTestCase(unittest.TestCase):
+
     def test_Add(self):
         """Test adding to an Options object"""
         opts = SCons.Options.Options()
@@ -116,6 +117,30 @@ class OptionsTestCase(unittest.TestCase):
         assert save['type'] == "xyzzy", save['type']
         assert string.find(save['message'], "keyword of the Options.Add() method", save['message'] != -1), save['message']
         o = opts.options[2]
+        o.validator(o.key, o.converter(o.default), {})
+
+    def test_AddOptions(self):
+        """Test adding a list of options to an Options object"""
+        opts = SCons.Options.Options()
+
+        opts.AddOptions(('VAR2',),
+                        ('ANSWER2',
+                         'THE answer to THE question',
+                         "42",
+                         check,
+                         lambda x: int(x) + 12))
+
+        o = opts.options[0]
+        assert o.key == 'VAR2', o.key
+        assert o.help == '', o.help
+        assert o.default == None, o.default
+        assert o.validator == None, o.validator
+        assert o.converter == None, o.converter
+
+        o = opts.options[1]
+        assert o.key == 'ANSWER2', o.key
+        assert o.help == 'THE answer to THE question', o.help
+        assert o.default == "42", o.default
         o.validator(o.key, o.converter(o.default), {})
 
     def test_Update(self):

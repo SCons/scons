@@ -10,6 +10,12 @@
 
 RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
 
+  From Hartmut Goebel:
+
+  - Add several new types of canned functions to help create options:
+    BoolOption(), EnumOption(), ListOption(), PackageOption(),
+    PathOption().
+
   From Steven Knight:
 
   - Fix use of CPPDEFINES with C++ source files.
