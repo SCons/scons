@@ -304,6 +304,8 @@ RELEASE 0.97 - XXX
   - Add --debug=objects logging of creation of OverrideWarner,
     EnvironmentCopy and EnvironmentOverride objects.
 
+  - Fix command-line expansion of Python Value Nodes.
+
   From Levi Stephen:
 
   - Allow $JARCHDIR to be expanded to other construction variables.

@@ -1364,27 +1364,32 @@ class UtilTestCase(unittest.TestCase):
         assert SOURCES == ['s1', 's2'], d['SOURCES']
         assert str(d['SOURCE']) == 's1', d['SOURCE']
 
-        class N:
+        class V:
+            # Fake Value node with no rfile() method.
             def __init__(self, name):
                 self.name = name
             def __str__(self):
-                return self.name
-            def rfile(self):
-                return self.__class__('rstr-' + self.name)
+                return 'v-'+self.name
             def get_subst_proxy(self):
                 return self
 
+        class N(V):
+            def rfile(self):
+                return self.__class__('rstr-' + self.name)
+
         t3 = N('t3')
         t4 = DummyNode('t4')
+        t5 = V('t5')
         s3 = DummyNode('s3')
         s4 = N('s4')
-        d = subst_dict(target=[t3, t4], source=[s3, s4])
+        s5 = V('s5')
+        d = subst_dict(target=[t3, t4, t5], source=[s3, s4, s5])
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
-        assert TARGETS == ['t3', 't4'], d['TARGETS']
+        assert TARGETS == ['t4', 'v-t3', 'v-t5'], TARGETS
         SOURCES = map(lambda x: str(x), d['SOURCES'])
         SOURCES.sort()
-        assert SOURCES == ['rstr-s4', 's3'], d['SOURCES']
+        assert SOURCES == ['s3', 'v-rstr-s4', 'v-s5'], SOURCES
 
     def test_PrependPath(self):
         """Test prepending to a path"""
