@@ -30,12 +30,14 @@ files.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons
 import SCons.Action
 import SCons.Builder
 import SCons.Defaults
 import SCons.Environment
 import SCons.Errors
 import SCons.Node
+import SCons.Node.Alias
 import SCons.Node.FS
 import SCons.Node.Python
 import SCons.Platform
@@ -43,8 +45,6 @@ import SCons.SConf
 import SCons.Script
 import SCons.Util
 import SCons.Options
-import SCons
-import SCons.Node.Alias
 
 import os
 import os.path
@@ -52,6 +52,7 @@ import re
 import string
 import sys
 import traceback
+import types
 
 def do_nothing(text): pass
 HelpFunction = do_nothing
@@ -206,7 +207,7 @@ def GetSConscriptFilenames(ls, kw):
             else:
                 # Fast way to only get the terminal path component of a Node.
                 fname = fn.get_path(fn.dir)
-        BuildDir(build_dir, src_dir, duplicate)
+        SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)
         files = [os.path.join(str(build_dir), fname)]
 
     return (files, exports)
@@ -357,16 +358,6 @@ def annotate(node):
 def Help(text):
     HelpFunction(text)
 
-def BuildDir(build_dir, src_dir, duplicate=1):
-    SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)
-
-def GetBuildPath(files):
-    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
-    ret = map(str, nodes)
-    if len(ret) == 1:
-        return ret[0]
-    return ret
-
 def Export(*vars):
     for var in vars:
         global_exports.update(compute_exports(var))
@@ -462,12 +453,33 @@ def SetOption(name, value):
 def GetOption(name):
     return SCons.Script.ssoptions.get(name)
 
-def SConsignFile(name=".sconsign.dbm"):
-    import SCons.Sig
-    if not os.path.isabs(name):
-        sd = str(SCons.Node.FS.default_fs.SConstruct_dir)
-        name = os.path.join(sd, name)
-    SCons.Sig.SConsignFile(name)
+#
+_DefaultEnvironmentProxy = None
+
+def get_DefaultEnvironmentProxy():
+    global _DefaultEnvironmentProxy
+    if not _DefaultEnvironmentProxy:
+        class EnvironmentProxy(SCons.Environment.Environment):
+            """A proxy subclass for an environment instance that overrides
+            the subst() and subst_list() methods so they don't actually
+            actually perform construction variable substitution.  This is
+            specifically intended to be the shim layer in between global
+            function calls (which don't want want construction variable
+            substitution) and the DefaultEnvironment() (which would
+            substitute variables if left to its own devices)."""
+            def __init__(self, subject):
+                self.__dict__['__subject'] = subject
+            def __getattr__(self, name):
+                return getattr(self.__dict__['__subject'], name)
+            def __setattr__(self, name, value):
+                return setattr(self.__dict__['__subject'], name, value)
+            def subst(self, string, raw=0, target=None, source=None):
+                return string
+            def subst_list(self, string, raw=0, target=None, source=None):
+                return string
+        default_env = SCons.Defaults.DefaultEnvironment()
+        _DefaultEnvironmentProxy = EnvironmentProxy(default_env)
+    return _DefaultEnvironmentProxy
 
 def BuildDefaultGlobals():
     """
@@ -479,20 +491,15 @@ def BuildDefaultGlobals():
     globals['Action']            = SCons.Action.Action
     globals['Alias']             = Alias
     globals['ARGUMENTS']         = arguments
-    globals['BuildDir']          = BuildDir
     globals['Builder']           = SCons.Builder.Builder
-    globals['CacheDir']          = SCons.Node.FS.default_fs.CacheDir
     globals['Configure']         = SCons.SConf.SConf
     globals['CScan']             = SCons.Defaults.CScan
     globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
-    globals['Dir']               = SCons.Node.FS.default_fs.Dir
     globals['EnsurePythonVersion'] = EnsurePythonVersion
     globals['EnsureSConsVersion'] = EnsureSConsVersion
     globals['Environment']       = SCons.Environment.Environment
     globals['Exit']              = Exit
     globals['Export']            = Export
-    globals['File']              = SCons.Node.FS.default_fs.File
-    globals['GetBuildPath']      = GetBuildPath
     globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
     globals['GetJobs']           = GetJobs
     globals['GetLaunchDir']      = GetLaunchDir
@@ -503,11 +510,9 @@ def BuildDefaultGlobals():
     globals['Options']           = Options
     globals['ParseConfig']       = SCons.Util.ParseConfig
     globals['Platform']          = SCons.Platform.Platform
-    globals['Repository']        = SCons.Node.FS.default_fs.Repository
     globals['Return']            = Return
     globals['SConscript']        = SConscript
     globals['SConscriptChdir']   = SConscriptChdir
-    globals['SConsignFile']      = SConsignFile
     globals['Scanner']           = SCons.Scanner.Base
     globals['SetBuildSignatureType'] = SetBuildSignatureType
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
@@ -520,28 +525,42 @@ def BuildDefaultGlobals():
     globals['WhereIs']           = SCons.Util.WhereIs
 
     class DefaultEnvironmentCall:
-        """ """
+        """A class that implements "global function" calls of
+        Environment methods by fetching the specified method from the
+        DefaultEnvironment's class.  Note that this uses an intermediate
+        proxy class instead of calling the DefaultEnvironment method
+        directly so that the proxy can override the subst() method and
+        thereby prevent expansion of construction variables (since from
+        the user's point of view this was called as a global function,
+        with no associated construction environment)."""
         def __init__(self, method_name):
             self.method_name = method_name
         def __call__(self, *args, **kw):
-            method = getattr(SCons.Defaults.DefaultEnvironment(),
-                             self.method_name)
-            return apply(method, args, kw)
+            proxy = get_DefaultEnvironmentProxy()
+            method = getattr(proxy.__class__, self.method_name)
+            return apply(method, (proxy,) + args, kw)
 
     EnvironmentMethods = [
         'AddPostAction',
         'AddPreAction',
         'AlwaysBuild',
+        'BuildDir',
+        'CacheDir',
         'Clean',
         'Command',
         'Default',
         'Depends',
+        'Dir',
+        'File',
         'FindFile',
+        'GetBuildPath',
         'Ignore',
         'Install',
         'InstallAs',
         'Local',
         'Precious',
+        'Repository',
+        'SConsignFile',
         'SideEffect',
         'SourceCode',
         'SourceSignatures',

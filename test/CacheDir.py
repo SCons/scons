@@ -150,10 +150,11 @@ test.write(['src', 'ccc.in'], "ccc.in\n")
 
 #
 test.write('SConstruct', """\
-CacheDir(r'%s')
+env = Environment(TWO = '2')
+env.CacheDir(r'%s')
 BuildDir('build', 'src', duplicate=0)
 SConscript('build/SConscript')
-""" % test.workpath('cache2'))
+""" % test.workpath('cache${TWO}'))
 
 # Verify that a normal build works correctly, and clean up.
 # This should populate the cache with our derived files.

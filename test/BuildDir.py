@@ -69,11 +69,12 @@ var4 = Dir('build/var4')
 var5 = Dir('../build/var5')
 var6 = Dir('../build/var6')
 
+env = Environment(BUILD = 'build', SRC = 'src')
 
 BuildDir('build/var1', src)
 BuildDir(var2, src)
 BuildDir(var3, src, duplicate=0)
-BuildDir(var4, src, duplicate=0)
+env.BuildDir("$BUILD/var4", "$SRC", duplicate=0)
 BuildDir(var5, src, duplicate=0)
 BuildDir(var6, src)
 

@@ -47,6 +47,7 @@ test = TestSCons.TestSCons(match=match_normcase)
 wpath = test.workpath()
 wpath_sub = test.workpath('sub')
 wpath_sub_dir = test.workpath('sub', 'dir')
+wpath_sub_foo_bar = test.workpath('sub', 'foo', 'bar')
 
 test.subdir('sub', ['sub', 'dir'])
 
@@ -62,7 +63,8 @@ print GetBuildPath('..')
 
 test.write(['sub', 'dir', 'SConstruct'], """
 import os
-print GetBuildPath('..')
+env = Environment(FOO='foo', BAR='bar')
+print env.GetBuildPath('../$FOO/$BAR')
 """)
 
 test.run(arguments = '-C sub .',
@@ -70,7 +72,7 @@ test.run(arguments = '-C sub .',
 	                           build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '-C sub -C dir .',
-	 stdout = test.wrap_stdout(read_str = '%s\n' % wpath_sub,
+	 stdout = test.wrap_stdout(read_str = '%s\n' % wpath_sub_foo_bar,
 	                           build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = ".",
@@ -78,7 +80,7 @@ test.run(arguments = ".",
 	                           build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '--directory=sub/dir .',
-	 stdout = test.wrap_stdout(read_str = '%s\n' % wpath_sub,
+	 stdout = test.wrap_stdout(read_str = '%s\n' % wpath_sub_foo_bar,
 	                           build_str = "scons: `.' is up to date.\n"))
 
 test.run(arguments = '-C %s -C %s .' % (wpath_sub_dir, wpath_sub),
@@ -86,4 +88,3 @@ test.run(arguments = '-C %s -C %s .' % (wpath_sub_dir, wpath_sub),
 	                           build_str = "scons: `.' is up to date.\n"))
 
 test.pass_test()
- 

@@ -636,6 +636,14 @@ class Environment:
             tlist = tlist[0]
         return tlist
 
+    def BuildDir(self, build_dir, src_dir, duplicate=1):
+        build_dir = self.arg2nodes(build_dir, self.fs.Dir)[0]
+        src_dir = self.arg2nodes(src_dir, self.fs.Dir)[0]
+        self.fs.BuildDir(build_dir, src_dir, duplicate)
+
+    def CacheDir(self, path):
+        self.fs.CacheDir(self.subst(path))
+
     def Clean(self, target, files):
         global CleanTargets
 
@@ -690,10 +698,26 @@ class Environment:
             tlist = tlist[0]
         return tlist
 
+    def Dir(self, name, *args, **kw):
+        """
+        """
+        return apply(self.fs.Dir, (self.subst(name),) + args, kw)
+
+    def File(self, name, *args, **kw):
+        """
+        """
+        return apply(self.fs.File, (self.subst(name),) + args, kw)
+
     def FindFile(self, file, dirs):
         file = self.subst(file)
         nodes = self.arg2nodes(dirs, self.fs.Dir)
         return SCons.Node.FS.find_file(file, nodes, self.fs.File)
+
+    def GetBuildPath(self, files):
+        ret = map(str, self.arg2nodes(files, self.fs.Entry))
+        if len(ret) == 1:
+            return ret[0]
+        return ret
 
     def Ignore(self, target, dependency):
         """Ignore a dependency."""
@@ -762,6 +786,16 @@ class Environment:
         if len(tlist) == 1:
             tlist = tlist[0]
         return tlist
+
+    def Repository(self, *dirs, **kw):
+        dirs = self.arg2nodes(list(dirs), self.fs.Dir)
+        apply(self.fs.Repository, dirs, kw)
+
+    def SConsignFile(self, name=".sconsign.dbm"):
+        name = self.subst(name)
+        if not os.path.isabs(name):
+            name = os.path.join(str(self.fs.SConstruct_dir), name)
+        SCons.Sig.SConsignFile(name)
 
     def SideEffect(self, side_effect, target):
         """Tell scons that side_effects are built as side 

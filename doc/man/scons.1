@@ -1886,6 +1886,8 @@ env.SourceCode('.', env.BitKeeper())
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI BuildDir( build_dir ", " src_dir ", [" duplicate ])
+.TP
+.RI env.BuildDir( build_dir ", " src_dir ", [" duplicate ])
 This specifies a build directory
 .I build_dir
 in which to build all derived files
@@ -1979,6 +1981,8 @@ SConscript file.)
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
 .RI CacheDir( cache_dir )
+.TP 
+.RI env.CacheDir( cache_dir )
 Specifies that
 .B scons
 will maintain a cache of derived files in
@@ -2266,6 +2270,8 @@ cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Dir( name ", [" directory ])
+.TP
+.RI env.Dir( name ", [" directory ])
 This returns an object that represents a given directory 
 .IR name . 
 .I name
@@ -2360,6 +2366,8 @@ function, below.
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
 .RI File( name ", [" directory ])
+.TP 
+.RI env.File( name ", [" directory ])
 This returns an object that represents a given file 
 .IR name . 
 .I name
@@ -2386,9 +2394,11 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.\".TP
-.\".RI GetBuildPath( XXX )
-.\"XXX
+.TP
+.RI GetBuildPath( XXX )
+.TP
+.RI env.GetBuildPath( XXX )
+XXX
 .\"
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .\".TP
@@ -2702,6 +2712,8 @@ env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Repository( directory )
+.TP
+.RI env.Repository( directory )
 Specifies that
 .I directory
 is a repository to be searched for files.
@@ -2951,6 +2963,8 @@ SConscript('bar/SConscript')	# will chdir to bar
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI SConsignFile([ file ])
+.TP
+.RI env.SConsignFile([ file ])
 This tells
 .B scons
 to store all file signatures

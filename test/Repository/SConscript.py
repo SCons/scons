@@ -90,7 +90,8 @@ test.up_to_date(chdir = 'work', arguments = ".")
 
 #
 test.write(['rep2', 'build', 'SConstruct'], """
-Repository(r'%s')
+env = Environment(REPOSITORY = r'%s')
+env.Repository('$REPOSITORY')
 SConscript('src/SConscript')
 """ % workpath_rep2)
 

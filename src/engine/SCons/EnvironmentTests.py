@@ -1051,6 +1051,44 @@ class EnvironmentTestCase(unittest.TestCase):
         assert t[4].path == 'bbb'
         assert t[4].always_build
 
+    def test_BuildDir(self):
+        """Test the BuildDir() method"""
+        class MyFS:
+             def Dir(self, name):
+                 return name
+             def BuildDir(self, build_dir, src_dir, duplicate):
+                 self.build_dir = build_dir
+                 self.src_dir = src_dir
+                 self.duplicate = duplicate
+
+        env = Environment(FOO = 'fff', BAR = 'bbb')
+        env.fs = MyFS()
+
+        env.BuildDir('build', 'src')
+        assert env.fs.build_dir == 'build', env.fs.build_dir
+        assert env.fs.src_dir == 'src', env.fs.src_dir
+        assert env.fs.duplicate == 1, env.fs.duplicate
+
+        env.BuildDir('build${FOO}', '${BAR}src', 0)
+        assert env.fs.build_dir == 'buildfff', env.fs.build_dir
+        assert env.fs.src_dir == 'bbbsrc', env.fs.src_dir
+        assert env.fs.duplicate == 0, env.fs.duplicate
+
+    def test_CacheDir(self):
+        """Test the CacheDir() method"""
+        class MyFS:
+            def CacheDir(self, path):
+                self.CD = path
+
+        env = Environment(CD = 'CacheDir')
+        env.fs = MyFS()
+
+        env.CacheDir('foo')
+        assert env.fs.CD == 'foo', env.fs.CD
+
+        env.CacheDir('$CD')
+        assert env.fs.CD == 'CacheDir', env.fs.CD
+
     def test_Clean(self):
         """Test the Clean() method"""
         env = Environment(FOO = 'fff', BAR = 'bbb')
@@ -1143,6 +1181,42 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert d.__class__.__name__ == 'File'
 	assert d.path == 'yyy.py'
 
+    def test_Dir(self):
+        """Test the Dir() method"""
+        class MyFS:
+            def Dir(self, name):
+                return 'Dir(%s)' % name
+
+        env = Environment(FOO = 'foodir', BAR = 'bardir')
+        env.fs = MyFS()
+
+        d = env.Dir('d')
+        assert d == 'Dir(d)', d
+
+        d = env.Dir('$FOO')
+        assert d == 'Dir(foodir)', d
+
+        d = env.Dir('${BAR}_$BAR')
+        assert d == 'Dir(bardir_bardir)', d
+
+    def test_File(self):
+        """Test the File() method"""
+        class MyFS:
+            def File(self, name):
+                return 'File(%s)' % name
+
+        env = Environment(FOO = 'foofile', BAR = 'barfile')
+        env.fs = MyFS()
+
+        f = env.File('f')
+        assert f == 'File(f)', f
+
+        f = env.File('$FOO')
+        assert f == 'File(foofile)', f
+
+        f = env.File('${BAR}_$BAR')
+        assert f == 'File(barfile_barfile)', f
+
     def test_FindFile(self):
         """Test the FindFile() method"""
         env = Environment(FOO = 'fff', BAR = 'bbb')
@@ -1151,6 +1225,16 @@ class EnvironmentTestCase(unittest.TestCase):
         assert r is None, r
 
         # XXX
+
+    def test_GetBuildPath(self):
+        """Test the GetBuildPath() method."""
+        env = Environment(MAGIC = 'xyzzy')
+
+        p = env.GetBuildPath('foo')
+        assert p == 'foo', p
+
+        p = env.GetBuildPath('$MAGIC')
+        assert p == 'xyzzy', p
 
     def test_Ignore(self):
         """Test the explicit Ignore method."""
@@ -1266,6 +1350,58 @@ class EnvironmentTestCase(unittest.TestCase):
         assert t[4].__class__.__name__ == 'File'
         assert t[4].path == 'ggg'
         assert t[4].precious
+
+    def test_Repository(self):
+        """Test the Repository() method."""
+        class MyFS:
+            def __init__(self):
+                self.list = []
+            def Repository(self, *dirs):
+                self.list.extend(dirs)
+            def Dir(self, name):
+                return name
+        env = Environment(FOO='rrr', BAR='sss')
+        env.fs = MyFS()
+        env.Repository('/tmp/foo')
+        env.Repository('/tmp/$FOO', '/tmp/$BAR/foo')
+        expect = ['/tmp/foo', '/tmp/rrr', '/tmp/sss/foo']
+        assert env.fs.list == expect, env.fs.list
+
+    def test_SConsignFile(self):
+        """Test the SConsignFile() method"""
+        import SCons.Sig
+
+        class MyFS:
+            SConstruct_dir = '/dir'
+
+        env = Environment(FOO = 'SConsign',
+                          BAR = os.path.join(os.sep, 'File'))
+        env.fs = MyFS()
+
+        try:
+            save = []
+            def capture(name, save=save):
+                save.append(name)
+
+            save_Sig_SConsignFile = SCons.Sig.SConsignFile
+            SCons.Sig.SConsignFile = capture
+
+            env.SConsignFile('foo')
+            assert save[0] == os.path.join(os.sep, 'dir', 'foo'), save
+
+            env.SConsignFile('$FOO')
+            assert save[1] == os.path.join(os.sep, 'dir', 'SConsign'), save
+
+            env.SConsignFile('/$FOO')
+            assert save[2] == '/SConsign', save
+
+            env.SConsignFile('$BAR')
+            assert save[3] == os.path.join(os.sep, 'File'), save
+
+            env.SConsignFile('__$BAR')
+            assert save[4] == os.path.join(os.sep, 'dir', '__', 'File'), save
+        finally:
+            SCons.Sig.SConsignFile = save_Sig_SConsignFile
 
     def test_SideEffect(self):
         """Test the SideEffect() method"""
