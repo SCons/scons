@@ -31,8 +31,10 @@ import TestSCons
 
 if sys.platform == 'win32':
     _exe = '.exe'
+    _obj = '.obj'
 else:
     _exe = ''
+    _obj = '.o'
 
 test = TestSCons.TestSCons()
 
@@ -92,5 +94,21 @@ test.run(arguments = '.')
 
 test.fail_test(oldtime1 == os.path.getmtime(foo1))
 test.fail_test(oldtime2 != os.path.getmtime(foo2))
+
+# Verify that scons prints an error message if a target can not be unlinked before
+# building it:
+test.write('f1.c', r"""
+#include <stdio.h>
+
+int main(void)
+{
+   printf("f1.c again again\n");
+   return 0;
+}
+""")
+
+os.chmod(test.workpath('.'), 0555)
+
+test.run(arguments = foo1, stderr="scons: *** [Errno 13] Permission denied: 'f1%s'\n"%_obj, status=2)
 
 test.pass_test()

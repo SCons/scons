@@ -24,6 +24,10 @@ RELEASE 0.08 -
   - Updated README instructions and setup.py code to catch an
     installation failure from not having distutils installed.
 
+  From Jeff Petkau:
+
+  - Fix --implicit-cache if the scanner returns an empty list.
+
   From Anthony Roach:
 
   - Add a "multi" keyword argument to Builder creation that specifies
@@ -54,9 +58,8 @@ RELEASE 0.08 -
 
   - Added a --debug=time option to print SCons execution times.
 
-  From Jeff Petkau:
-
-  - Fix --implicit-cache if the scanner returns an empty list.
+  - Print an error message if a file can't be unlinked before being
+    built, rather than just silently terminating the build.
 
   From Zed Shaw:
 
