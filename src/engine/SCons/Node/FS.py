@@ -1037,9 +1037,10 @@ class FS(LocalFS):
     def Rsearch(self, path, clazz=_classEntry, cwd=None):
         if isinstance(path, SCons.Node.Node):
             return path
-        def func(node):
+        def func(node, clazz=clazz):
             if node.exists() and \
-               (isinstance(node, Dir) or not node.is_derived()):
+               (isinstance(node, clazz) or isinstance(node, Entry) \
+                or not node.is_derived()):
                    return node
             return None
         path, dir = self.__transformPath(path, cwd)
@@ -1444,7 +1445,7 @@ class Dir(Base):
         do_Rsearch = fs.do_Rsearch
 
         def func(node):
-            if isinstance(node, SCons.Node.FS.File) and \
+            if (isinstance(node, File) or isinstance(node, Entry)) and \
                (node.is_derived() or node.is_pseudo_derived() or node.exists()):
                     return node
             return None

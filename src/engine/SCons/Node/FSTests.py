@@ -1299,17 +1299,26 @@ class DirTestCase(_tempdirTestCase):
         test.subdir('src0')
         test.write(['src0', 'on-disk-f1'], "src0/on-disk-f1\n")
         test.write(['src0', 'on-disk-f2'], "src0/on-disk-f2\n")
+        test.write(['src0', 'on-disk-e1'], "src0/on-disk-e1\n")
+        test.write(['src0', 'on-disk-e2'], "src0/on-disk-e2\n")
 
         bld0 = self.fs.Dir('bld0')
         src0 = self.fs.Dir('src0')
         self.fs.BuildDir(bld0, src0, duplicate=0)
 
-        derived = src0.File('derived-f')
-        derived.is_derived = return_true
-        pseudo = src0.File('pseudo-f')
-        pseudo.is_pseudo_derived = return_true
-        exists = src0.File('exists-f')
-        exists.exists = return_true
+        derived_f = src0.File('derived-f')
+        derived_f.is_derived = return_true
+        pseudo_f = src0.File('pseudo-f')
+        pseudo_f.is_pseudo_derived = return_true
+        exists_f = src0.File('exists-f')
+        exists_f.exists = return_true
+
+        derived_e = src0.Entry('derived-e')
+        derived_e.is_derived = return_true
+        pseudo_e = src0.Entry('pseudo-e')
+        pseudo_e.is_pseudo_derived = return_true
+        exists_e = src0.Entry('exists-e')
+        exists_e.exists = return_true
 
         def check(result, expect):
 	    result = map(str, result)
@@ -1322,15 +1331,21 @@ class DirTestCase(_tempdirTestCase):
 
         n = src0.srcdir_find_file('derived-f')
         check(n, ['src0/derived-f', 'src0'])
-
         n = src0.srcdir_find_file('pseudo-f')
         check(n, ['src0/pseudo-f', 'src0'])
-
         n = src0.srcdir_find_file('exists-f')
         check(n, ['src0/exists-f', 'src0'])
-
         n = src0.srcdir_find_file('on-disk-f1')
         check(n, ['src0/on-disk-f1', 'src0'])
+
+        n = src0.srcdir_find_file('derived-e')
+        check(n, ['src0/derived-e', 'src0'])
+        n = src0.srcdir_find_file('pseudo-e')
+        check(n, ['src0/pseudo-e', 'src0'])
+        n = src0.srcdir_find_file('exists-e')
+        check(n, ['src0/exists-e', 'src0'])
+        n = src0.srcdir_find_file('on-disk-e1')
+        check(n, ['src0/on-disk-e1', 'src0'])
 
         # Now check from the build directory.
         n = bld0.srcdir_find_file('does_not_exist')
@@ -1338,31 +1353,45 @@ class DirTestCase(_tempdirTestCase):
 
         n = bld0.srcdir_find_file('derived-f')
         check(n, ['src0/derived-f', 'bld0'])
-
         n = bld0.srcdir_find_file('pseudo-f')
         check(n, ['src0/pseudo-f', 'bld0'])
-
         n = bld0.srcdir_find_file('exists-f')
         check(n, ['src0/exists-f', 'bld0'])
-
         n = bld0.srcdir_find_file('on-disk-f2')
         check(n, ['src0/on-disk-f2', 'bld0'])
 
+        n = bld0.srcdir_find_file('derived-e')
+        check(n, ['src0/derived-e', 'bld0'])
+        n = bld0.srcdir_find_file('pseudo-e')
+        check(n, ['src0/pseudo-e', 'bld0'])
+        n = bld0.srcdir_find_file('exists-e')
+        check(n, ['src0/exists-e', 'bld0'])
+        n = bld0.srcdir_find_file('on-disk-e2')
+        check(n, ['src0/on-disk-e2', 'bld0'])
 
         test.subdir('src1')
         test.write(['src1', 'on-disk-f1'], "src1/on-disk-f1\n")
         test.write(['src1', 'on-disk-f2'], "src1/on-disk-f2\n")
+        test.write(['src1', 'on-disk-e1'], "src1/on-disk-e1\n")
+        test.write(['src1', 'on-disk-e2'], "src1/on-disk-e2\n")
 
         bld1 = self.fs.Dir('bld1')
         src1 = self.fs.Dir('src1')
         self.fs.BuildDir(bld1, src1, duplicate=1)
 
-        derived = src1.File('derived-f')
-        derived.is_derived = return_true
-        pseudo = src1.File('pseudo-f')
-        pseudo.is_pseudo_derived = return_true
-        exists = src1.File('exists-f')
-        exists.exists = return_true
+        derived_f = src1.File('derived-f')
+        derived_f.is_derived = return_true
+        pseudo_f = src1.File('pseudo-f')
+        pseudo_f.is_pseudo_derived = return_true
+        exists_f = src1.File('exists-f')
+        exists_f.exists = return_true
+
+        derived_e = src1.Entry('derived-e')
+        derived_e.is_derived = return_true
+        pseudo_e = src1.Entry('pseudo-e')
+        pseudo_e.is_pseudo_derived = return_true
+        exists_e = src1.Entry('exists-e')
+        exists_e.exists = return_true
 
         # First check from the source directory.
         n = src1.srcdir_find_file('does_not_exist')
@@ -1370,15 +1399,21 @@ class DirTestCase(_tempdirTestCase):
 
         n = src1.srcdir_find_file('derived-f')
         check(n, ['src1/derived-f', 'src1'])
-
         n = src1.srcdir_find_file('pseudo-f')
         check(n, ['src1/pseudo-f', 'src1'])
-
         n = src1.srcdir_find_file('exists-f')
         check(n, ['src1/exists-f', 'src1'])
-
         n = src1.srcdir_find_file('on-disk-f1')
         check(n, ['src1/on-disk-f1', 'src1'])
+
+        n = src1.srcdir_find_file('derived-e')
+        check(n, ['src1/derived-e', 'src1'])
+        n = src1.srcdir_find_file('pseudo-e')
+        check(n, ['src1/pseudo-e', 'src1'])
+        n = src1.srcdir_find_file('exists-e')
+        check(n, ['src1/exists-e', 'src1'])
+        n = src1.srcdir_find_file('on-disk-e1')
+        check(n, ['src1/on-disk-e1', 'src1'])
 
         # Now check from the build directory.
         n = bld1.srcdir_find_file('does_not_exist')
@@ -1386,15 +1421,21 @@ class DirTestCase(_tempdirTestCase):
 
         n = bld1.srcdir_find_file('derived-f')
         check(n, ['bld1/derived-f', 'src1'])
-
         n = bld1.srcdir_find_file('pseudo-f')
         check(n, ['bld1/pseudo-f', 'src1'])
-
         n = bld1.srcdir_find_file('exists-f')
         check(n, ['bld1/exists-f', 'src1'])
-
         n = bld1.srcdir_find_file('on-disk-f2')
         check(n, ['bld1/on-disk-f2', 'bld1'])
+
+        n = bld1.srcdir_find_file('derived-e')
+        check(n, ['bld1/derived-e', 'src1'])
+        n = bld1.srcdir_find_file('pseudo-e')
+        check(n, ['bld1/pseudo-e', 'src1'])
+        n = bld1.srcdir_find_file('exists-e')
+        check(n, ['bld1/exists-e', 'src1'])
+        n = bld1.srcdir_find_file('on-disk-e2')
+        check(n, ['bld1/on-disk-e2', 'bld1'])
 
 class EntryTestCase(unittest.TestCase):
     def runTest(self):
@@ -1525,8 +1566,58 @@ class RepositoryTestCase(_tempdirTestCase):
         r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
         assert r == expect, r
 
+    def test_rdir(self):
+        """Test the Dir.rdir() method"""
+        return_true = lambda: 1
+        return_false = lambda: 0
+
+        d1 = self.fs.Dir('d1')
+        d2 = self.fs.Dir('d2')
+        d3 = self.fs.Dir('d3')
+
+        self.test.subdir([self.rep1, 'd2'])
+        self.test.write([self.rep2, 'd3'], "")
+        self.test.subdir([self.rep3, 'd3'])
+
+        r = d1.rdir()
+        assert r is d1, r
+
+        r = d2.rdir()
+        assert not r is d2, r
+        r = str(r)
+        assert r == os.path.join(self.rep1, 'd2'), r
+
+        r = d3.rdir()
+        assert not r is d3, r
+        r = str(r)
+        assert r == os.path.join(self.rep3, 'd3'), r
+
+        e1 = self.fs.Dir('e1')
+        e1.exists = return_false
+        e2 = self.fs.Dir('e2')
+        e2.exists = return_false
+
+        # Make sure we match entries in repositories,
+        # regardless of whether they're derived or not.
+
+        re1 = self.fs.Entry(os.path.join(self.rep1, 'e1'))
+        re1.exists = return_true
+        re1.is_derived = return_true
+        re2 = self.fs.Entry(os.path.join(self.rep2, 'e2'))
+        re2.exists = return_true
+        re2.is_derived = return_false
+
+        r = e1.rdir()
+        assert r is re1, r
+
+        r = e2.rdir()
+        assert r is re2, r
+
     def test_rfile(self):
         """Test the File.rfile() method"""
+        return_true = lambda: 1
+        return_false = lambda: 0
+
         f1 = self.fs.File('f1')
         f2 = self.fs.File('f2')
         f3 = self.fs.File('f3')
@@ -1535,16 +1626,39 @@ class RepositoryTestCase(_tempdirTestCase):
         self.test.subdir([self.rep2, 'f3'])
         self.test.write([self.rep3, 'f3'], "")
 
-        assert f1.rfile() is f1
+        r = f1.rfile()
+        assert r is f1, r
 
         r = f2.rfile()
         assert not r is f2, r
-        assert str(r) == os.path.join(self.rep1, 'f2'), str(r)
+        r = str(r)
+        assert r == os.path.join(self.rep1, 'f2'), r
 
         r = f3.rfile()
         assert not r is f3, r
         r = f3.rstr()
         assert r == os.path.join(self.rep3, 'f3'), r
+
+        e1 = self.fs.File('e1')
+        e1.exists = return_false
+        e2 = self.fs.File('e2')
+        e2.exists = return_false
+
+        # Make sure we match entries in repositories,
+        # regardless of whether they're derived or not.
+
+        re1 = self.fs.Entry(os.path.join(self.rep1, 'e1'))
+        re1.exists = return_true
+        re1.is_derived = return_true
+        re2 = self.fs.Entry(os.path.join(self.rep2, 'e2'))
+        re2.exists = return_true
+        re2.is_derived = return_false
+
+        r = e1.rfile()
+        assert r is re1, r
+
+        r = e2.rfile()
+        assert r is re2, r
 
     def test_Rsearches(self):
         """Test the Rsearch() methods"""
