@@ -55,6 +55,8 @@ import traceback
 #                         'lib',
 #                         'scons-%d' % SCons.__version__)] + sys.path[1:]
 
+import SCons.Defaults
+import SCons.Environment
 import SCons.Errors
 import SCons.Job
 import SCons.Node
@@ -722,6 +724,10 @@ def _main():
 
     SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
 
+    # Now that the top-level directory has been set,
+    # we can initialize the default Environment.
+    SCons.Defaults._default_env = SCons.Environment.Environment()
+
     scripts = []
     if options.file:
         scripts.extend(options.file)
@@ -742,7 +748,11 @@ def _main():
     if not scripts:
         raise SCons.Errors.UserError, "No SConstruct file found."
 
-    SCons.Node.FS.default_fs.set_SConstruct(scripts[0])
+    if scripts[0] == "-":
+        d = SCons.Node.FS.default_fs.getcwd()
+    else:
+        d = SCons.Node.FS.default_fs.File(scripts[0]).dir
+    SCons.Node.FS.default_fs.set_SConstruct_dir(d)
 
     class Unbuffered:
         def __init__(self, file):

@@ -44,7 +44,7 @@ if not ci:
     print "Could not find `ci' command, skipping test(s)."
     test.pass_test(1)
 
-# Test checkouts from local RCS files
+# Test explicit checkouts from local RCS files
 test.subdir('work1', ['work1', 'sub'])
 
 for file in ['aaa.in', 'bbb.in', 'ccc.in']:
@@ -85,7 +85,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(BUILDERS={'Cat':Builder(action=cat)},
+                  RCSFLAGS='-q')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -101,45 +102,28 @@ test.write(['work1', 'sub', 'eee.in'], "checked-out work1/sub/eee.in\n")
 test.run(chdir = 'work1',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-co sub/SConscript
+co -q sub/SConscript
 """,
                                    build_str = """\
-co aaa.in
+co -q aaa.in
 cat("aaa.out", "aaa.in")
 cat("bbb.out", "bbb.in")
-co ccc.in
+co -q ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-co sub/ddd.in
+co -q sub/ddd.in
 cat("sub/ddd.out", "sub/ddd.in")
 cat("sub/eee.out", "sub/eee.in")
-co sub/fff.in
+co -q sub/fff.in
 cat("sub/fff.out", "sub/fff.in")
 cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-"""),
-         stderr = """\
-sub/SConscript,v  -->  sub/SConscript
-revision 1.1
-done
-aaa.in,v  -->  aaa.in
-revision 1.1
-done
-ccc.in,v  -->  ccc.in
-revision 1.1
-done
-sub/ddd.in,v  -->  sub/ddd.in
-revision 1.1
-done
-sub/fff.in,v  -->  sub/fff.in
-revision 1.1
-done
-""")
+"""))
 
 test.fail_test(test.read(['work1', 'all']) != "work1/aaa.in\nchecked-out work1/bbb.in\nwork1/ccc.in\n")
 
 test.fail_test(test.read(['work1', 'sub', 'all']) != "work1/sub/ddd.in\nchecked-out work1/sub/eee.in\nwork1/sub/fff.in\n")
 
-# Test RCS checkouts from an RCS subdirectory.
+# Test transparent RCS checkouts from an RCS subdirectory.
 test.subdir('work2', ['work2', 'RCS'],
             ['work2', 'sub'], ['work2', 'sub', 'RCS'])
 
@@ -187,7 +171,6 @@ env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
 env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
-env.SourceCode('.', env.RCS())
 SConscript('sub/SConscript', "env")
 """)
 
@@ -198,22 +181,39 @@ test.write(['work2', 'sub', 'eee.in'], "checked-out work2/sub/eee.in\n")
 test.run(chdir = 'work2',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-co -q sub/SConscript
+co sub/SConscript
 """,
                                    build_str = """\
-co -q aaa.in
+co aaa.in
 cat("aaa.out", "aaa.in")
 cat("bbb.out", "bbb.in")
-co -q ccc.in
+co ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-co -q sub/ddd.in
+co sub/ddd.in
 cat("sub/ddd.out", "sub/ddd.in")
 cat("sub/eee.out", "sub/eee.in")
-co -q sub/fff.in
+co sub/fff.in
 cat("sub/fff.out", "sub/fff.in")
 cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-"""))
+"""),
+         stderr = """\
+sub/RCS/SConscript,v  -->  sub/SConscript
+revision 1.1
+done
+RCS/aaa.in,v  -->  aaa.in
+revision 1.1
+done
+RCS/ccc.in,v  -->  ccc.in
+revision 1.1
+done
+sub/RCS/ddd.in,v  -->  sub/ddd.in
+revision 1.1
+done
+sub/RCS/fff.in,v  -->  sub/fff.in
+revision 1.1
+done
+""")
 
 test.fail_test(test.read(['work2', 'all']) != "work2/aaa.in\nchecked-out work2/bbb.in\nwork2/ccc.in\n")
 

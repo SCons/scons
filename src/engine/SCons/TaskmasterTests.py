@@ -61,6 +61,9 @@ class Node:
     def has_builder(self):
         return not self.builder is None
 
+    def is_derived(self):
+        return self.has_builder or self.side_effect
+
     def built(self):
         global built_text
         built_text = built_text + " really"
@@ -532,6 +535,26 @@ class TaskmasterTestCase(unittest.TestCase):
         assert n1.prepared
         assert n2.prepared
 
+        # If the Node has had an exception recorded while it was getting
+        # prepared, then prepare() should raise that exception.
+        class MyException(Exception):
+            pass
+
+        built_text = None
+        n5 = Node("n5")
+        tm = SCons.Taskmaster.Taskmaster([n5])
+        tm.exc_type = MyException
+        tm.exc_value = "exception value"
+        t = tm.next_task()
+        exc_caught = None
+        try:
+            t.prepare()
+        except MyException, v:
+            assert str(v) == "exception value", v
+            exc_caught = 1
+        assert exc_caught, "did not catch expected MyException"
+        assert built_text is None, built_text
+
     def test_execute(self):
         """Test executing a task
 
@@ -590,27 +613,6 @@ class TaskmasterTestCase(unittest.TestCase):
             assert type(e.args[2]) == type(sys.exc_traceback), e.args[2]
         else:
             raise TestFailed, "did not catch expected BuildError"
-
-        # If the Node has had an exception recorded (during
-        # preparation), then execute() should raise that exception,
-        # not build the Node.
-        class MyException(Exception):
-            pass
-
-        built_text = None
-        n5 = Node("n5")
-        tm = SCons.Taskmaster.Taskmaster([n5])
-        tm.exc_type = MyException
-        tm.exc_value = "exception value"
-        t = tm.next_task()
-        exc_caught = None
-        try:
-            t.execute()
-        except MyException, v:
-            assert str(v) == "exception value", v
-            exc_caught = 1
-        assert exc_caught, "did not catch expected MyException"
-        assert built_text is None, built_text
 
     def test_exception(self):
         """Test generic Taskmaster exception handling

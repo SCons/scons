@@ -131,6 +131,11 @@ supports the
 ability to define new scanners for unknown input file types.
 
 .B scons
+knows how to fetch files automatically from
+SCCS or RCS subdirectories
+using SCCS, RCS or BitKeeper.
+
+.B scons
 is normally executed in a top-level directory containing a
 .I SConstruct
 file, optionally specifying
@@ -1650,6 +1655,19 @@ function:
 .ES
 env.SourceCode('.', env.RCS())
 .EE
+Note that
+.B scons
+will fetch source files
+from RCS subdirectories automatically,
+so configuring RCS
+as demonstrated in the above example
+should only be necessary if
+you are fetching from
+RCS,v
+files in the same
+directory as the source files,
+or if you need to explicitly specify RCS
+for a specific subdirectory.
 
 .TP
 .RI Replace( key = val ", [...])"
@@ -1673,6 +1691,19 @@ function:
 .ES
 env.SourceCode('.', env.SCCS())
 .EE
+Note that
+.B scons
+will fetch source files
+from SCCS subdirectories automatically,
+so configuring SCCS
+as demonstrated in the above example
+should only be necessary if
+you are fetching from
+.I s.SCCS
+files in the same
+directory as the source files,
+or if you need to explicitly specify SCCS
+for a specific subdirectory.
 
 .TP
 .RI SideEffect( side_effect , target )
@@ -1701,7 +1732,7 @@ multiple build commands.
 .TP
 .RI SourceCode( entries , builder )
 Arrange for non-existent source files to
-be fetched from a source code system
+be fetched from a source code management system
 using the specified
 .IR builder .
 The specified
@@ -1710,6 +1741,7 @@ may be a Node, string or list of both,
 and may represent either individual
 source files or directories in which
 source files can be found.
+
 For any non-existent source files,
 .B scons
 will search up the directory tree
@@ -1729,12 +1761,28 @@ even if a
 .B SourceCode
 builder has been specified
 for a directory higher up the tree.
+
+.B scons
+will, by default,
+fetch files from SCCS or RCS subdirectories
+without explicit configuration.
+This takes some extra processing time
+to search for the necessary
+source code management files on disk.
+You can avoid these extra searches
+and speed up your build a little
+by disabling these searches as follows:
+.ES
+env.SourceCode('.', None)
+.EE
+
 Note that if the specified
 .I builder
 is one you create by hand,
 it must have an associated
 construction environment to use
 when fetching a source file.
+
 .B scons
 provides a set of canned factory
 functions that return appropriate

@@ -208,7 +208,7 @@ class Node:
     def builder_set(self, builder):
         self.builder = builder
 
-    def has_builder(self, fetch = 1):
+    def has_builder(self):
         """Return whether this Node has a builder or not.
 
         In Boolean tests, this turns out to be a *lot* more efficient
@@ -227,6 +227,9 @@ class Node:
             self.builder = None
             b = self.builder
         return not b is None
+
+    def is_derived(self):
+        return self.has_builder() or self.side_effect
 
     def builder_sig_adapter(self):
         """Create an adapter for calculating a builder's signature.

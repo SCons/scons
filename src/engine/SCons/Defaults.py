@@ -50,6 +50,12 @@ import SCons.Scanner.C
 import SCons.Scanner.Fortran
 import SCons.Scanner.Prog
 
+# A placeholder for a default Environment (for fetching source files
+# from source code management systems and the like).  This must be
+# initialized later, after the top-level directory is set by the calling
+# interface.
+_default_env = None
+
 def alias_builder(env, target, source):
     pass
 

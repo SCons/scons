@@ -38,6 +38,7 @@ import SCons.Errors
 import SCons.Node
 import SCons.Node.FS
 import SCons.Platform
+import SCons.Script
 import SCons.Tool
 import SCons.Util
 import SCons.Options
@@ -184,7 +185,7 @@ def SConscript(*ls, **kw):
 
     default_fs = SCons.Node.FS.default_fs
     top = default_fs.Top
-    sd = default_fs.SConstruct.rfile().dir
+    sd = default_fs.SConstruct_dir.rdir()
 
     # evaluate each SConscript file
     results = []
@@ -210,7 +211,7 @@ def SConscript(*ls, **kw):
                 default_fs.chdir(top, change_os_dir=1)
                 if f.rexists():
                     _file_ = open(f.rstr(), "r")
-                elif f.has_builder():
+                elif f.has_src_builder():
                     # The SConscript file apparently exists in a source
                     # code management system.  Build it, but then clear
                     # the builder so that it doesn't get built *again*
@@ -364,7 +365,6 @@ def SetBuildSignatureType(type):
         raise SCons.Errors.UserError, "Unknown build signature type '%s'"%type
 
 def SetContentSignatureType(type):
-    import SCons.Script
     if type == 'MD5':
         import SCons.Sig.MD5
         SCons.Script.sig_module = SCons.Sig.MD5
@@ -448,10 +448,11 @@ def Exit(value=0):
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
-    SConscruct and SConscript files.
+    SConstruct and SConscript files.
     """
 
     globals = {}
+    globals['_default_env']      = SCons.Defaults._default_env
     globals['Action']            = SCons.Action.Action
     globals['AddPostAction']     = AddPostAction
     globals['AddPreAction']      = AddPreAction

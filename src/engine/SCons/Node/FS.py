@@ -154,6 +154,32 @@ def CachePushFunc(target, source, env):
 
 CachePush = SCons.Action.Action(CachePushFunc, None)
 
+class _Null:
+    pass
+
+_null = _Null()
+
+DefaultSCCSBuilder = None
+DefaultRCSBuilder = None
+
+def get_DefaultSCCSBuilder():
+    global DefaultSCCSBuilder
+    if DefaultSCCSBuilder is None:
+        import SCons.Builder
+        import SCons.Defaults
+        DefaultSCCSBuilder = SCons.Builder.Builder(action = '$SCCSCOM',
+                                                   env = SCons.Defaults._default_env)
+    return DefaultSCCSBuilder
+
+def get_DefaultRCSBuilder():
+    global DefaultRCSBuilder
+    if DefaultRCSBuilder is None:
+        import SCons.Builder
+        import SCons.Defaults
+        DefaultRCSBuilder = SCons.Builder.Builder(action = '$RCSCOM',
+                                                  env = SCons.Defaults._default_env)
+    return DefaultRCSBuilder
+
 #
 class ParentOfRoot:
     """
@@ -188,7 +214,7 @@ class ParentOfRoot:
         return path_elems
 
     def src_builder(self):
-        return None
+        return _null
 
 if os.path.normcase("TeSt") == os.path.normpath("TeSt"):
     def _my_normcase(x):
@@ -265,7 +291,7 @@ class Entry(SCons.Node.Node):
         try:
             return self._exists
         except AttributeError:
-            self._exists = os.path.exists(self.abspath)
+            self._exists = _existsp(self.abspath)
             return self._exists
 
     def rexists(self):
@@ -382,7 +408,7 @@ class FS:
             self.pathTop = path
         self.Root = {}
         self.Top = None
-        self.SConstruct = None
+        self.SConstruct_dir = None
         self.CachePath = None
         self.cache_force = None
         self.cache_show = None
@@ -391,8 +417,8 @@ class FS:
         assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
         self.pathTop = path
 
-    def set_SConstruct(self, path):
-        self.SConstruct = self.File(path)
+    def set_SConstruct_dir(self, dir):
+        self.SConstruct_dir = dir
         
     def __setTopLevelDir(self):
         if not self.Top:
@@ -636,7 +662,6 @@ class FS:
                 # Go up one directory
                 d = d.get_dir()
         return None
-            
 
     def Rsearchall(self, pathlist, must_exist=1, clazz=_classEntry, cwd=None):
         """Search for a list of somethings in the Repository list."""
@@ -661,16 +686,20 @@ class FS:
                     
                 d = n.get_dir()
                 name = n.name
-                # Search repositories of all directories that this file is under.
+                # Search repositories of all directories that this file
+                # is under.
                 while d:
                     for rep in d.getRepositories():
                         try:
                             rnode = self.__doLookup(clazz, name, rep)
-                            # Only find the node if it exists (or must_exist is zero)
-                            # and it is not a derived file.  If for some reason, we
-                            # are explicitly building a file IN a Repository, we don't
-                            # want it to show up in the build tree.  This is usually the
-                            # case with BuildDir().    We only want to find pre-existing files.
+                            # Only find the node if it exists (or
+                            # must_exist is zero) and it is not a
+                            # derived file.  If for some reason, we
+                            # are explicitly building a file IN a
+                            # Repository, we don't want it to show up in
+                            # the build tree.  This is usually the case
+                            # with BuildDir().  We only want to find
+                            # pre-existing files.
                             if (not must_exist or rnode.exists()) and \
                                (not rnode.has_builder() or isinstance(rnode, Dir)):
                                 ret.append(rnode)
@@ -850,6 +879,17 @@ class Dir(Entry):
             return 1
         else:
             return 0
+
+    def rdir(self):
+        try:
+            return self._rdir
+        except AttributeError:
+            self._rdir = self
+            if not self.exists():
+                n = self.fs.Rsearch(self.path, clazz=Dir, cwd=self.fs.Top)
+                if n:
+                    self._rdir = n
+            return self._rdir
 
     def sconsign(self):
         """Return the .sconsign file info for this directory,
@@ -1039,9 +1079,10 @@ class File(Entry):
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
         """
-        if not self.has_builder():
+        b = self.has_builder()
+        if not b and not self.has_src_builder():
             return
-        if self.fs.CachePath:
+        if b and self.fs.CachePath:
             if self.fs.cache_show:
                 if CacheRetrieveSilent(self, None, None) == 0:
                     def do_print(action, targets, sources, env, self=self):
@@ -1074,27 +1115,56 @@ class File(Entry):
         if self.fs.CachePath and self.fs.cache_force and os.path.exists(self.path):
             CachePush(self, None, None)
 
-    def has_builder(self, fetch = 1):
-        """Return whether this Node has a builder or not.
+    def has_src_builder(self):
+        """Return whether this Node has a source builder or not.
 
-        If this Node doesn't have an explicit builder, this is where we
-        figure out, on the fly, if there's a source code builder for it.
+        If this Node doesn't have an explicit source code builder, this
+        is where we figure out, on the fly, if there's a transparent
+        source code builder for it.
+
+        Note that if we found a source builder, we also set the
+        self.builder attribute, so that all of the methods that actually
+        *build* this file don't have to do anything different.
         """
         try:
-            b = self.builder
+            scb = self.sbuilder
         except AttributeError:
-            if fetch and not os.path.exists(self.path):
-                b = self.src_builder()
+            if self.rexists():
+                scb = None
             else:
-                b = None
-            self.builder = b
-        return not b is None
+                scb = self.dir.src_builder()
+                if scb is _null:
+                    scb = None
+                    dir = self.dir.path
+                    sccspath = os.path.join('SCCS', 's.' + self.name)
+                    if dir != '.':
+                        sccspath = os.path.join(dir, sccspath)
+                    if os.path.exists(sccspath):
+                        scb = get_DefaultSCCSBuilder()
+                    else:
+                        rcspath = os.path.join('RCS', self.name + ',v')
+                        if dir != '.':
+                            rcspath = os.path.join(dir, rcspath)
+                        if os.path.exists(rcspath):
+                            scb = get_DefaultRCSBuilder()
+                self.builder = scb
+            self.sbuilder = scb
+        return not scb is None
+
+    def is_derived(self):
+        """Return whether this file is a derived file or not.
+
+        This overrides the base class method to account for the fact
+        that a file may be derived transparently from a source code
+        builder.
+        """
+        return self.has_builder() or self.side_effect or self.has_src_builder()
 
     def prepare(self):
         """Prepare for this file to be created."""
 
         def missing(node):
-            return not node.has_builder() and not node.linked and not node.rexists()
+            return not node.has_builder() and not node.linked and not node.rexists() and not node.has_src_builder()
         missing_sources = filter(missing, self.children())
         if missing_sources:
             desc = "No Builder for target `%s', needed by `%s'." % (missing_sources[0], self)

@@ -259,20 +259,23 @@ class NodeTestCase(unittest.TestCase):
         """Test the has_builder() method
         """
         n1 = SCons.Node.Node()
+        assert n1.has_builder() == 0
+        n1.builder_set(Builder())
+        assert n1.has_builder() == 1
+
+    def test_is_derived(self):
+        """Test the is_derived() method
+        """
+        n1 = SCons.Node.Node()
         n2 = SCons.Node.Node()
         n3 = SCons.Node.Node()
 
-        assert n1.has_builder() == 0
-        assert n2.has_builder(fetch = 0) == 0
-        assert n3.has_builder(fetch = 1) == 0
-
-        n1.builder_set(Builder())
         n2.builder_set(Builder())
-        n3.builder_set(Builder())
+        n3.side_effect = 1
 
-        assert n1.has_builder() == 1
-        assert n2.has_builder(fetch = 0) == 1
-        assert n3.has_builder(fetch = 1) == 1
+        assert n1.is_derived() == 0
+        assert n2.is_derived() == 1
+        assert n3.is_derived() == 1
 
     def test_builder_sig_adapter(self):
         """Test the node's adapter for builder signatures

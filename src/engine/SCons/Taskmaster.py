@@ -63,6 +63,12 @@ class Task:
 
         This unlinks all targets and makes all directories before
         building anything."""
+
+        # Now that it's the appropriate time, give the TaskMaster a
+        # chance to raise any exceptions it encountered while preparing
+        # this task.
+        self.tm.exception_raise()
+
         if self.targets[0].get_state() != SCons.Node.up_to_date:
             for t in self.targets:
                 t.prepare()
@@ -73,11 +79,6 @@ class Task:
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here.  Do thread unsafe stuff in
         prepare(), executed() or failed()."""
-
-        # Now that it's the appropriate time, give the TaskMaster a
-        # chance to raise any exceptions it encountered while preparing
-        # this task.
-        self.tm.exception_raise()
 
         try:
             self.targets[0].build()
@@ -245,8 +246,18 @@ class Taskmaster:
             # Add derived files that have not been built
             # to the candidates list:
             def derived(node):
-                return (node.has_builder() or node.side_effect) and node.get_state() == None
-            derived = filter(derived, children)
+                return node.is_derived() and node.get_state() == None
+            try:
+                derived = filter(derived, children)
+            except:
+                # We had a problem just trying to figure out the
+                # children (like a child couldn't be linked in to a
+                # BuildDir, or a Scanner threw something).  Arrange to
+                # raise the exception when the Task is "executed."
+                self.exception_set(sys.exc_type, sys.exc_value)
+                self.candidates.pop()
+                self.ready = node
+                break
             if derived:
                 derived.reverse()
                 self.candidates.extend(self.order(derived))
