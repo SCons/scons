@@ -4,8 +4,10 @@
 # See the README file for an overview of how SCons is built and tested.
 #
 
+copyright_years = '2001, 2002, 2003'
+
 #
-# Copyright (c) 2001, 2002, 2003 Steven Knight
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -38,6 +40,7 @@ import time
 
 project = 'scons'
 default_version = '0.11'
+copyright = "Copyright (c) %s Steven Knight" % copyright_years
 
 Default('.')
 
@@ -232,9 +235,10 @@ def SCons_revision(target, source, env):
         # copied into the tree for packaging.
         line = string.replace(line, '__BUILD'     + '__', env['BUILD'])
         line = string.replace(line, '__BUILDSYS'  + '__', env['BUILDSYS'])
+        line = string.replace(line, '__COPYRIGHT' + '__', env['COPYRIGHT'])
         line = string.replace(line, '__DATE'      + '__', env['DATE'])
         line = string.replace(line, '__DEVELOPER' + '__', env['DEVELOPER'])
-        line = string.replace(line, '__FILE'      + '__', s)
+        line = string.replace(line, '__FILE'      + '__', str(source[0]))
         line = string.replace(line, '__REVISION'  + '__', env['REVISION'])
         line = string.replace(line, '__VERSION'   + '__', env['VERSION'])
         outf.write(line)
@@ -249,6 +253,7 @@ env = Environment(
  
                    BUILD               = build_id,
                    BUILDSYS            = build_system,
+                   COPYRIGHT           = copyright,
                    DATE                = date,
                    DEVELOPER           = developer,
                    REVISION            = revision,
