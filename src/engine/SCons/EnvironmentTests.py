@@ -122,6 +122,9 @@ class Scanner:
     def get_skeys(self, env):
         return self.skeys
 
+    def __str__(self):
+        return self.name
+
 
 
 class CLVar(UserList.UserList):
@@ -1231,27 +1234,31 @@ def exists(env):
         assert env['BBB3'] == ['b3', 'c', 'd'], env['BBB3']
 
     def test_Copy(self):
-	"""Test construction Environment copying
+        """Test construction Environment copying
 
-	Update the copy independently afterwards and check that
-	the original remains intact (that is, no dangling
-	references point to objects in the copied environment).
-	Copy the original with some construction variable
-	updates and check that the original remains intact
-	and the copy has the updated values.
-	"""
-	env1 = Environment(XXX = 'x', YYY = 'y')
-	env2 = env1.Copy()
-	env1copy = env1.Copy()
-	env2.Replace(YYY = 'yyy')
-	assert env1 != env2
-	assert env1 == env1copy
+        Update the copy independently afterwards and check that
+        the original remains intact (that is, no dangling
+        references point to objects in the copied environment).
+        Copy the original with some construction variable
+        updates and check that the original remains intact
+        and the copy has the updated values.
+        """
+        env1 = Environment(XXX = 'x', YYY = 'y')
+        env2 = env1.Copy()
+        env1copy = env1.Copy()
+        assert env1copy == env1copy
+        assert env2 == env2
+        env2.Replace(YYY = 'yyy')
+        assert env2 == env2
+        assert env1 != env2
+        assert env1 == env1copy
 
-	env3 = env1.Copy(XXX = 'x3', ZZZ = 'z3')
-	assert env3.Dictionary('XXX') == 'x3'
-	assert env3.Dictionary('YYY') == 'y'
-	assert env3.Dictionary('ZZZ') == 'z3'
-	assert env1 == env1copy
+        env3 = env1.Copy(XXX = 'x3', ZZZ = 'z3')
+        assert env3 == env3
+        assert env3.Dictionary('XXX') == 'x3'
+        assert env3.Dictionary('YYY') == 'y'
+        assert env3.Dictionary('ZZZ') == 'z3'
+        assert env1 == env1copy
 
         assert env1['__env__'] is env1, env1['__env__']
         assert env2['__env__'] is env2, env2['__env__']
@@ -1277,6 +1284,8 @@ def exists(env):
         assert hasattr(env1, 'b1'), "env1.b1 was not set"
         assert env1.b1.env == env1, "b1.env doesn't point to env1"
         env2 = env1.Copy(BUILDERS = {'b2' : 2})
+        assert env2 is env2
+        assert env2 == env2
         assert hasattr(env1, 'b1'), "b1 was mistakenly cleared from env1"
         assert env1.b1.env == env1, "b1.env was changed"
         assert not hasattr(env2, 'b1'), "b1 was not cleared from env2"

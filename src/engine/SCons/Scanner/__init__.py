@@ -34,7 +34,6 @@ import string
 
 import SCons.Node.FS
 import SCons.Sig
-import SCons.UserTuple
 import SCons.Util
 
 
@@ -54,57 +53,59 @@ def Scanner(function, *args, **kw):
     else:
         return apply(Base, (function,) + args, kw)
 
-# Important, important, important performance optimization:
-#
-# The paths of Nodes returned from a FindPathDirs will be used to index
-# a dictionary that caches the values, so we don't have to look up the
-# same path over and over and over.  If FindPathDir returns just a tuple,
-# though, then the time it takes to compute the hash of the tuple grows
-# proportionally to the length of the tuple itself--and some people can
-# have very, very long strings of include directories...
-#
-# The solution is to wrap the tuple in an object, a UserTuple class
-# whose *id()* our caller can use to cache the appropriate value.
-# This means we have to guarantee that these ids genuinely represent
-# unique values, which we do by maintaining our own cache that maps the
-# expensive-to-hash tuple values to the easy-to-hash UniqueUserTuple
-# values that our caller uses.
-#
-# *Major* kudos to Eric Frias and his colleagues for finding this.
-class UniqueUserTuple(SCons.UserTuple.UserTuple):
-    def __hash__(self):
-        return id(self)
 
-PathCache = {}
-
+class Binder:
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    def __init__(self, bindval):
+        self._val = bindval
+    def __call__(self):
+        return self._val
+    def __str__(self):
+        return str(self._val)
+        #debug: return 'B<%s>'%str(self._val)
+    
 class FindPathDirs:
     """A class to bind a specific *PATH variable name and the fs object
     to a function that will return all of the *path directories."""
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
     def __init__(self, variable, fs):
         self.variable = variable
         self.fs = fs
     def __call__(self, env, dir, argument=None):
+        "__cacheable__"
         try:
             path = env[self.variable]
         except KeyError:
             return ()
 
         path_tuple = tuple(self.fs.Rsearchall(env.subst_path(path),
-                                              must_exist = 0,
+                                              must_exist = 0, #kwq!
                                               clazz = SCons.Node.FS.Dir,
                                               cwd = dir))
-        try:
-            return PathCache[path_tuple]
-        except KeyError:
-            path_UserTuple = UniqueUserTuple(path_tuple)
-            PathCache[path_tuple] = path_UserTuple
-            return path_UserTuple
+        return Binder(path_tuple)
+
+if not SCons.Memoize.has_metaclass:
+    _FPD_Base = FindPathDirs
+    class FindPathDirs(SCons.Memoize.Memoizer, _FPD_Base):
+        "Cache-backed version of FindPathDirs"
+        def __init__(self, *args, **kw):
+            apply(_FPD_Base.__init__, (self,)+args, kw)
+            SCons.Memoize.Memoizer.__init__(self)
+    _BinderBase = Binder
+    class Binder(SCons.Memoize.Memoizer, _BinderBase):
+        "Cache-backed version of Binder"
+        def __init__(self, *args, **kw):
+            apply(_BinderBase.__init__, (self,)+args, kw)
+            SCons.Memoize.Memoizer.__init__(self)
+
 
 class Base:
     """
     The base class for dependency scanners.  This implements
     straightforward, single-pass scanning of a single file.
     """
+
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self,
                  function,
@@ -135,6 +136,8 @@ class Base:
         (a construction environment, optional directory, and optional
         argument for this instance) and returns a tuple of the
         directories that can be searched for implicit dependency files.
+        May also return a callable() which is called with no args and
+        returns the tuple (supporting Bindable class).
 
         'node_class' - the class of Nodes which this scan will return.
         If node_class is None, then this scanner will not enforce any
@@ -186,6 +189,7 @@ class Base:
         self.recursive = recursive
 
     def path(self, env, dir = None):
+        "__cacheable__"
         if not self.path_function:
             return ()
         if not self.argument is _null:
@@ -242,6 +246,14 @@ class Base:
     def select(self, node):
         return self
 
+if not SCons.Memoize.has_metaclass:
+    _Base = Base
+    class Base(SCons.Memoize.Memoizer, _Base):
+        "Cache-backed version of Scanner Base"
+        def __init__(self, *args, **kw):
+            apply(_Base.__init__, (self,)+args, kw)
+            SCons.Memoize.Memoizer.__init__(self)
+
 
 class Selector(Base):
     """
@@ -296,22 +308,12 @@ class Classic(Current):
 
         self.cre = re.compile(regex, re.M)
         self.fs = fs
-        self._cached = {}
 
         def _scan(node, env, path=(), self=self):
             node = node.rfile()
-
             if not node.exists():
                 return []
-
-            key = str(id(node)) + '|' + string.join(map(str, path), ':')
-            try:
-                return self._cached[key]
-            except KeyError:
-                pass
-
-            self._cached[key] = scan_result = self.scan(node, path)
-            return scan_result
+            return self.scan(node, path)
 
         kw['function'] = _scan
         kw['path_function'] = FindPathDirs(path_variable, fs)
@@ -322,6 +324,8 @@ class Classic(Current):
         apply(Current.__init__, (self,) + args, kw)
 
     def find_include(self, include, source_dir, path):
+        "__cacheable__"
+        if callable(path): path = path()
         n = SCons.Node.FS.find_file(include,
                                     (source_dir,) + tuple(path),
                                     self.fs.File)
@@ -331,6 +335,7 @@ class Classic(Current):
         return SCons.Node.FS._my_normcase(include)
 
     def scan(self, node, path=()):
+        "__cacheable__"
 
         # cache the includes list in node so we only scan it once:
         if node.includes != None:
@@ -372,14 +377,19 @@ class ClassicCPP(Classic):
     the contained filename in group 1.
     """
     def find_include(self, include, source_dir, path):
+        "__cacheable__"
+        if callable(path):
+            path = path()   #kwq: extend callable to find_file...
+
         if include[0] == '"':
-            n = SCons.Node.FS.find_file(include[1],
-                                        (source_dir,) + tuple(path),
-                                        self.fs.File)
+            paths = Binder( (source_dir,) + tuple(path) )
         else:
-            n = SCons.Node.FS.find_file(include[1],
-                                        tuple(path) + (source_dir,),
-                                        self.fs.File)
+            paths = Binder( tuple(path) + (source_dir,) )
+
+        n = SCons.Node.FS.find_file(include[1],
+                                    paths,
+                                    self.fs.File)
+
         return n, include[1]
 
     def sort_key(self, include):

@@ -419,6 +419,12 @@ class EntryProxy(SCons.Util.Proxy):
             except AttributeError:
                 entry = self.get()
                 classname = string.split(str(entry.__class__), '.')[-1]
+                if classname[-2:] == "'>":
+                    # new-style classes report their name as:
+                    #   "<class 'something'>"
+                    # instead of the classic classes:
+                    #   "something"
+                    classname = classname[:-2]
                 raise AttributeError, "%s instance '%s' has no attribute '%s'" % (classname, entry.name, name)
             return attr
 
@@ -447,7 +453,6 @@ class Base(SCons.Node.Node):
 
         self.name = name
         self.fs = fs
-        self.relpath = {self : '.'}
 
         assert directory, "A directory must be provided"
 
@@ -465,31 +470,16 @@ class Base(SCons.Node.Node):
         """Completely clear a Node.FS.Base object of all its cached
         state (so that it can be re-evaluated by interfaces that do
         continuous integration builds).
+        __cache_reset__
         """
         SCons.Node.Node.clear(self)
-        try:
-            delattr(self, '_exists')
-        except AttributeError:
-            pass
-        try:
-            delattr(self, '_rexists')
-        except AttributeError:
-            pass
-        try:
-            delattr(self, '_str_val')
-        except AttributeError:
-            pass
-        self.relpath = {self : '.'}
 
     def get_dir(self):
         return self.dir
 
     def get_suffix(self):
-        try:
-            return self.ext
-        except AttributeError:
-            self.ext = SCons.Util.splitext(self.name)[1]
-            return self.ext
+        "__cacheable__"
+        return SCons.Util.splitext(self.name)[1]
 
     def rfile(self):
         return self
@@ -497,33 +487,29 @@ class Base(SCons.Node.Node):
     def __str__(self):
         """A Node.FS.Base object's string representation is its path
         name."""
-        try:
-            return self._str_val
-        except AttributeError:
-            global Save_Strings
-            if self.duplicate or self.is_derived():
-                str_val = self.get_path()
-            else:
-                str_val = self.srcnode().get_path()
-            if Save_Strings:
-                self._str_val = str_val
-            return str_val
+        global Save_Strings
+        if Save_Strings:
+            return self._save_str()
+        return self._get_str()
+
+    def _save_str(self):
+        "__cacheable__"
+        return self._get_str()
+
+    def _get_str(self):
+        if self.duplicate or self.is_derived():
+            return self.get_path()
+        return self.srcnode().get_path()
 
     rstr = __str__
 
     def exists(self):
-        try:
-            return self._exists
-        except AttributeError:
-            self._exists = self.fs.exists(self.abspath)
-            return self._exists
+        "__cacheable__"
+        return self.fs.exists(self.abspath)
 
     def rexists(self):
-        try:
-            return self._rexists
-        except AttributeError:
-            self._rexists = self.rfile().exists()
-            return self._rexists
+        "__cacheable__"
+        return self.rfile().exists()
 
     def is_under(self, dir):
         if self is dir:
@@ -537,44 +523,40 @@ class Base(SCons.Node.Node):
     def srcnode(self):
         """If this node is in a build path, return the node
         corresponding to its source file.  Otherwise, return
-        ourself."""
-        try:
-            return self._srcnode
-        except AttributeError:
-            dir=self.dir
-            name=self.name
-            while dir:
-                if dir.srcdir:
-                    self._srcnode = self.fs.Entry(name, dir.srcdir,
-                                                  klass=self.__class__)
-                    if self._srcnode.is_under(dir):
-                        # Shouldn't source from something in the build
-                        # path: probably means build_dir is under
-                        # src_dir and we are reflecting.
-                        break
-                    return self._srcnode
-                name = dir.name + os.sep + name
-                dir=dir.get_dir()
-            self._srcnode = self
-            return self._srcnode
+        ourself.
+        __cacheable__"""
+        dir=self.dir
+        name=self.name
+        while dir:
+            if dir.srcdir:
+                srcnode = self.fs.Entry(name, dir.srcdir,
+                                        klass=self.__class__)
+                if srcnode.is_under(dir):
+                    # Shouldn't source from something in the build
+                    # path: probably means build_dir is under
+                    # src_dir and we are reflecting.
+                    break
+                return srcnode
+            name = dir.name + os.sep + name
+            dir=dir.get_dir()
+        return self
 
     def get_path(self, dir=None):
         """Return path relative to the current working directory of the
         Node.FS.Base object that owns us."""
         if not dir:
             dir = self.fs.getcwd()
-        try:
-            return self.relpath[dir]
-        except KeyError:
-            path_elems = []
-            d = self
+        path_elems = []
+        d = self
+        if d == dir:
+            path_elems.append('.')
+        else:
             while d != dir and not isinstance(d, ParentOfRoot):
                 path_elems.append(d.name)
                 d = d.dir
             path_elems.reverse()
-            ret = string.join(path_elems, os.sep)
-            self.relpath[dir] = ret
-            return ret
+        ret = string.join(path_elems, os.sep)
+        return ret
             
     def set_src_builder(self, builder):
         """Set the source code builder for this node."""
@@ -1142,7 +1124,8 @@ class Dir(Base):
 
         Set up this directory's entries and hook it into the file
         system tree.  Specify that directories (this Node) don't use
-        signatures for calculating whether they're current."""
+        signatures for calculating whether they're current.
+        __cache_reset__"""
 
         self.repositories = []
         self.srcdir = None
@@ -1166,28 +1149,9 @@ class Dir(Base):
                 if node != self and isinstance(node, Dir):
                     node.__clearRepositoryCache(duplicate)
                 else:
+                    node.clear()
                     try:
                         del node._srcreps
-                    except AttributeError:
-                        pass
-                    try:
-                        del node._rfile
-                    except AttributeError:
-                        pass
-                    try:
-                        del node._rexists
-                    except AttributeError:
-                        pass
-                    try:
-                        del node._exists
-                    except AttributeError:
-                        pass
-                    try:
-                        del node._srcnode
-                    except AttributeError:
-                        pass
-                    try:
-                        del node._str_val
                     except AttributeError:
                         pass
                     if duplicate != None:
@@ -1311,15 +1275,13 @@ class Dir(Base):
             return 0
 
     def rdir(self):
-        try:
-            return self._rdir
-        except AttributeError:
-            self._rdir = self
-            if not self.exists():
-                n = self.fs.Rsearch(self.path, clazz=Dir, cwd=self.fs.Top)
-                if n:
-                    self._rdir = n
-            return self._rdir
+        "__cacheable__"
+        rdir = self
+        if not self.exists():
+            n = self.fs.Rsearch(self.path, clazz=Dir, cwd=self.fs.Top)
+            if n:
+                rdir = n
+        return rdir
 
     def sconsign(self):
         """Return the .sconsign file info for this directory,
@@ -1420,9 +1382,8 @@ class File(Base):
                 'RDirs' : self.RDirs}
 
     def _morph(self):
-        """Turn a file system node into a File object."""
+        """Turn a file system node into a File object.  __cache_reset__"""
         self.scanner_paths = {}
-        self.found_includes = {}
         if not hasattr(self, '_local'):
             self._local = 0
 
@@ -1501,14 +1462,7 @@ class File(Base):
             path = scanner.path(env, target.cwd)
             target.scanner_paths[scanner] = path
 
-        key = str(id(env)) + '|' + str(id(scanner)) + '|' + string.join(map(str,path), ':')
-        try:
-            includes = self.found_includes[key]
-        except KeyError:
-            includes = scanner(self, env, path)
-            self.found_includes[key] = includes
-
-        return includes
+        return scanner(self, env, path)
 
     def _createDir(self):
         # ensure that the directories for this node are
@@ -1537,14 +1491,7 @@ class File(Base):
                 # created the directory, depending on whether the -n
                 # option was used or not.  Delete the _exists and
                 # _rexists attributes so they can be reevaluated.
-                try:
-                    delattr(dirnode, '_exists')
-                except AttributeError:
-                    pass
-                try:
-                    delattr(dirnode, '_rexists')
-                except AttributeError:
-                    pass
+                dirnode.clear()
             except OSError:
                 pass
 
@@ -1589,22 +1536,14 @@ class File(Base):
         return None
 
     def built(self):
-        """Called just after this node is sucessfully built."""
+        """Called just after this node is successfully built.
+        __cache_reset__"""
         # Push this file out to cache before the superclass Node.built()
         # method has a chance to clear the build signature, which it
         # will do if this file has a source scanner.
         if self.fs.CachePath and self.fs.exists(self.path):
             CachePush(self, [], None)
         SCons.Node.Node.built(self)
-        self.found_includes = {}
-        try:
-            delattr(self, '_exists')
-        except AttributeError:
-            pass
-        try:
-            delattr(self, '_rexists')
-        except AttributeError:
-            pass
 
     def visited(self):
         if self.fs.CachePath and self.fs.cache_force and self.fs.exists(self.path):
@@ -1656,7 +1595,11 @@ class File(Base):
 
     def is_pseudo_derived(self):
         return self.has_src_builder()
-    
+
+    def _rmv_existing(self):
+        '__cache_reset__'
+        Unlink(self, [], None)
+        
     def prepare(self):
         """Prepare for this file to be created."""
         SCons.Node.Node.prepare(self)
@@ -1664,11 +1607,7 @@ class File(Base):
         if self.get_state() != SCons.Node.up_to_date:
             if self.exists():
                 if self.is_derived() and not self.precious:
-                    Unlink(self, [], None)
-                    try:
-                        delattr(self, '_exists')
-                    except AttributeError:
-                        pass
+                    self._rmv_existing()
             else:
                 try:
                     self._createDir()
@@ -1684,9 +1623,13 @@ class File(Base):
         return None
 
     def exists(self):
+        "__cacheable__"
         # Duplicate from source path if we are set up to do this.
         if self.duplicate and not self.is_derived() and not self.linked:
-            src=self.srcnode().rfile()
+            src=self.srcnode()
+            if src is self:
+                return Base.exists(self)
+            src = src.rfile()
             if src.abspath != self.abspath and src.exists():
                 self._createDir()
                 try:
@@ -1703,14 +1646,7 @@ class File(Base):
                 # created the file, depending on whether the -n
                 # option was used or not.  Delete the _exists and
                 # _rexists attributes so they can be reevaluated.
-                try:
-                    delattr(self, '_exists')
-                except AttributeError:
-                    pass
-                try:
-                    delattr(self, '_rexists')
-                except AttributeError:
-                    pass
+                self.clear()
         return Base.exists(self)
 
     def new_binfo(self):
@@ -1791,23 +1727,20 @@ class File(Base):
                         LocalCopy(self, r, None)
                         self.store_info(self.binfo)
                     return 1
-            self._rfile = self
             return None
         else:
             old = self.get_stored_info()
             return (old == self.binfo)
 
     def rfile(self):
-        try:
-            return self._rfile
-        except AttributeError:
-            self._rfile = self
-            if not self.exists():
-                n = self.fs.Rsearch(self.path, clazz=File,
-                                    cwd=self.fs.Top)
-                if n:
-                    self._rfile = n
-            return self._rfile
+        "__cacheable__"
+        rfile = self
+        if not self.exists():
+            n = self.fs.Rsearch(self.path, clazz=File,
+                                cwd=self.fs.Top)
+            if n:
+                rfile = n
+        return rfile
 
     def rstr(self):
         return str(self.rfile())
@@ -1840,7 +1773,9 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
     find_file(str, [Dir()]) -> [nodes]
 
     filename - a filename to find
-    paths - a list of directory path *nodes* to search in
+    paths - a list of directory path *nodes* to search in.  Can be
+            represented as a list, a tuple, or a callable that is
+            called with no arguments and returns the list or tuple.
 
     returns - the node created from the found file.
 
@@ -1853,6 +1788,10 @@ def find_file(filename, paths, node_factory=default_fs.File, verbose=None):
     if verbose and not SCons.Util.is_String(verbose):
         verbose = "find_file"
     retval = None
+
+    if callable(paths):
+        paths = paths()
+
     for dir in paths:
         if verbose:
             sys.stdout.write("  %s: looking for '%s' in '%s' ...\n" % (verbose, filename, dir))

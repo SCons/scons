@@ -239,6 +239,9 @@ class SubstitutionEnvironment:
     environment, we'll save that for a future refactoring when this
     class actually becomes useful.)
     """
+
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+
     def __init__(self, **kw):
         """Initialization of an underlying SubstitutionEnvironment class.
         """
@@ -451,6 +454,8 @@ class Base(SubstitutionEnvironment):
     Environment.
     """
 
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+
     #######################################################################
     # This is THE class for interacting with the SCons build engine,
     # and it contains a lot of stuff, so we're going to try to keep this
@@ -530,19 +535,16 @@ class Base(SubstitutionEnvironment):
     #######################################################################
 
     def get_calculator(self):
+        "__cacheable__"
         try:
-            return self._calculator
+            module = self._calc_module
+            c = apply(SCons.Sig.Calculator, (module,), CalculatorArgs)
         except AttributeError:
-            try:
-                module = self._calc_module
-                c = apply(SCons.Sig.Calculator, (module,), CalculatorArgs)
-            except AttributeError:
-                # Note that we're calling get_calculator() here, so the
-                # DefaultEnvironment() must have a _calc_module attribute
-                # to avoid infinite recursion.
-                c = SCons.Defaults.DefaultEnvironment().get_calculator()
-            self._calculator = c
-            return c
+            # Note that we're calling get_calculator() here, so the
+            # DefaultEnvironment() must have a _calc_module attribute
+            # to avoid infinite recursion.
+            c = SCons.Defaults.DefaultEnvironment().get_calculator()
+        return c
 
     def get_builder(self, name):
         """Fetch the builder with the specified name from the environment.
@@ -552,43 +554,47 @@ class Base(SubstitutionEnvironment):
         except KeyError:
             return None
 
-    def get_scanner(self, skey):
-        """Find the appropriate scanner given a key (usually a file suffix).
-        """
+    def _gsm(self):
+        "__cacheable__"
         try:
-            sm = self.scanner_map
-        except AttributeError:
-            try:
-                scanners = self._dict['SCANNERS']
-            except KeyError:
-                self.scanner_map = {}
-                return None
-            else:
-                self.scanner_map = sm = {}
-                # Reverse the scanner list so that, if multiple scanners
-                # claim they can scan the same suffix, earlier scanners
-                # in the list will overwrite later scanners, so that
-                # the result looks like a "first match" to the user.
-                if not SCons.Util.is_List(scanners):
-                    scanners = [scanners]
-                scanners.reverse()
-                for scanner in scanners:
-                    for k in scanner.get_skeys(self):
-                        sm[k] = scanner
-        try:
-            return sm[skey]
+            scanners = self._dict['SCANNERS']
         except KeyError:
             return None
 
+        sm = {}
+        # Reverse the scanner list so that, if multiple scanners
+        # claim they can scan the same suffix, earlier scanners
+        # in the list will overwrite later scanners, so that
+        # the result looks like a "first match" to the user.
+        if not SCons.Util.is_List(scanners):
+            scanners = [scanners]
+        else:
+            scanners = scanners[:] # copy so reverse() doesn't mod original
+        scanners.reverse()
+        for scanner in scanners:
+            for k in scanner.get_skeys(self):
+                sm[k] = scanner
+        return sm
+        
+    def get_scanner(self, skey):
+        """Find the appropriate scanner given a key (usually a file suffix).
+        __cacheable__
+        """
+        sm = self._gsm()
+        if sm.has_key(skey):
+            return sm[skey]
+        return None
+
+    def _smd(self):
+        "__reset_cache__"
+        pass
+    
     def scanner_map_delete(self, kw=None):
         """Delete the cached scanner map (if we need to).
         """
         if not kw is None and not kw.has_key('SCANNERS'):
             return
-        try:
-            del self.scanner_map
-        except AttributeError:
-            pass
+        self._smd()
 
     def _update(self, dict):
         """Update an environment's values directly, bypassing the normal
@@ -1402,6 +1408,9 @@ class OverrideEnvironment(SubstitutionEnvironment):
     be proxied because they need *this* object's methods to fetch the
     values from the overrides dictionary.
     """
+
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+
     def __init__(self, subject, overrides={}):
         if __debug__: logInstanceCreation(self, 'OverrideEnvironment')
         self.__dict__['__subject'] = subject
@@ -1519,3 +1528,12 @@ def NoSubstitutionProxy(subject):
             self.raw_to_mode(nkw)
             return apply(SCons.Util.scons_subst, nargs, nkw)
     return _NoSubstitutionProxy(subject)
+
+if not SCons.Memoize.has_metaclass:
+    _Base = Base
+    class Base(SCons.Memoize.Memoizer, _Base):
+        def __init__(self, *args, **kw):
+            SCons.Memoize.Memoizer.__init__(self)
+            apply(_Base.__init__, (self,)+args, kw)
+    Environment = Base
+

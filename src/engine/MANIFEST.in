@@ -10,6 +10,7 @@ SCons/Errors.py
 SCons/Executor.py
 SCons/Job.py
 SCons/exitfuncs.py
+SCons/Memoize.py
 SCons/Node/__init__.py
 SCons/Node/Alias.py
 SCons/Node/FS.py
@@ -129,6 +130,5 @@ SCons/Tool/tex.py
 SCons/Tool/tlib.py
 SCons/Tool/yacc.py
 SCons/Tool/zip.py
-SCons/UserTuple.py
 SCons/Util.py
 SCons/Warnings.py

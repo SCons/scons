@@ -1628,12 +1628,7 @@ class ActionFactoryTestCase(unittest.TestCase):
         af = SCons.Action.ActionFactory(actfunc, strfunc)
         af(3, 6, 9)([], [], Environment())
         assert actfunc_args == [3, 6, 9], actfunc_args
-        # Note that strfunc gets evaluated twice: once when we called
-        # the actionfactory itself to get the real action
-        # (Action(ActionCaller, ...)), and once when we actually call
-        # that resulting action; since strfunc modifies the global,
-        # account for the number of times it was called.
-        assert strfunc_args == [3, 6, 9, 3, 6, 9], strfunc_args
+        assert strfunc_args == [3, 6, 9], strfunc_args
 
 
 class ActionCompareTestCase(unittest.TestCase):
@@ -1681,9 +1676,9 @@ class ActionCompareTestCase(unittest.TestCase):
                                        'BAR' : bar,
                                        'DOG' : dog} )
         
-        assert foo.get_name(env) == 'FOO'
-        assert bar.get_name(env) == 'BAR'
-        assert dog.get_name(env) == 'DOG'
+        assert foo.get_name(env) == 'FOO', foo.get_name(env)
+        assert bar.get_name(env) == 'BAR', bar.get_name(env)
+        assert dog.get_name(env) == 'DOG', dog.get_name(env)
 
 
 if __name__ == "__main__":

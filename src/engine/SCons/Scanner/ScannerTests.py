@@ -69,7 +69,7 @@ class FindPathDirsTestCase(unittest.TestCase):
 
         fpd = SCons.Scanner.FindPathDirs('LIBPATH', FS())
         result = fpd(env, dir)
-        assert result == ('xxx', 'foo'), result
+        assert str(result) == "('xxx', 'foo')", result
 
 class ScannerTestCase(unittest.TestCase):
 
@@ -434,7 +434,7 @@ class ClassicTestCase(unittest.TestCase):
         # Verify that overall scan results are cached even if individual
         # results are de-cached
         ret = s.function(n, env, ('foo2',))
-        assert ret == ['abc'], ret
+        assert ret == ['abc'], 'caching inactive; got: %s'%ret
 
         # Verify that it sorts what it finds.
         n.includes = ['xyz', 'uvw']
@@ -459,6 +459,8 @@ class ClassicCPPTestCase(unittest.TestCase):
         s = SCons.Scanner.ClassicCPP("Test", [], None, "")
 
         def _find_file(filename, paths, factory):
+            if callable(paths):
+                paths = paths()
             return paths[0]+'/'+filename
 
         save = SCons.Node.FS.find_file
@@ -474,7 +476,7 @@ class ClassicCPPTestCase(unittest.TestCase):
             assert i == 'bbb', i
 
         finally:
-            SCons.Node.FS.find_file = _find_file
+            SCons.Node.FS.find_file = save
 
 def suite():
     suite = unittest.TestSuite()

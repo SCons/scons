@@ -215,6 +215,8 @@ class ActionBase:
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
     
+    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+
     def __cmp__(self, other):
         return cmp(self.__dict__, other)
 
@@ -238,6 +240,14 @@ class ActionBase:
         lines = string.split(str(self), '\n')
         self.presub_env = None      # don't need this any more
         return lines
+
+if not SCons.Memoize.has_metaclass:
+    _Base = ActionBase
+    class ActionBase(SCons.Memoize.Memoizer, _Base):
+        "Cache-backed version of ActionBase"
+        def __init__(self, *args, **kw):
+            apply(_Base.__init__, (self,)+args, kw)
+            SCons.Memoize.Memoizer.__init__(self)
 
 
 class _ActionAction(ActionBase):
@@ -558,7 +568,10 @@ class FunctionAction(_ActionAction):
         return "%s(%s, %s)" % (name, tstr, sstr)
 
     def __str__(self):
-        return "%s(target, source, env)" % self.function_name()
+        name = self.function_name()
+        if name == 'ActionCaller':
+            return str(self.execfunction)
+        return "%s(target, source, env)" % name
 
     def execute(self, target, source, env):
         rsources = map(rfile, source)
@@ -689,6 +702,8 @@ class ActionCaller:
         args = self.subst_args(target, source, env)
         kw = self.subst_kw(target, source, env)
         return apply(self.parent.strfunc, args, kw)
+    def __str__(self):
+        return apply(self.parent.strfunc, self.args, self.kw)
 
 class ActionFactory:
     """A factory class that will wrap up an arbitrary function
@@ -705,11 +720,4 @@ class ActionFactory:
     def __call__(self, *args, **kw):
         ac = ActionCaller(self, args, kw)
         action = Action(ac, strfunction=ac.strfunction)
-        # action will be a FunctionAction; if left to its own devices,
-        # a genstr or str of this action will just show
-        # "ActionCaller(target, source, env)".  Override that with the
-        # description from strfunc.  Note that the apply is evaluated
-        # right now; __str__ is set to a (lambda) function that just
-        # returns the stored result of the evaluation whenever called.
-        action.__str__ = lambda name=apply(self.strfunc, args, kw): name
         return action

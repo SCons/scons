@@ -62,6 +62,11 @@ class F90Scanner(SCons.Scanner.Classic):
         self.fs = fs
 
         def _scan(node, env, path, self=self, fs=fs):
+            node = node.rfile()
+
+            if not node.exists():
+                return []
+
             return self.scan(node, env, path)
 
         kw['function'] = _scan
@@ -73,11 +78,8 @@ class F90Scanner(SCons.Scanner.Classic):
         apply(SCons.Scanner.Current.__init__, (self,) + args, kw)
 
     def scan(self, node, env, path=()):
-        node = node.rfile()
-
-        if not node.exists():
-            return []
-
+        "__cacheable__"
+        
         # cache the includes list in node so we only scan it once:
         if node.includes != None:
             mods_and_includes = node.includes

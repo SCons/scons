@@ -69,8 +69,8 @@ env_csig.TestDir(source='csig', target='csig.out')
 """)
 
 test.run(arguments=".", stderr=None)
-test.fail_test(test.read('bsig.out') != 'stuff\n')
-test.fail_test(test.read('csig.out') != 'stuff\n')
+test.must_match('bsig.out', 'stuff\n')
+test.must_match('csig.out', 'stuff\n')
 
 test.up_to_date(arguments='bsig.out')
 test.up_to_date(arguments='csig.out')

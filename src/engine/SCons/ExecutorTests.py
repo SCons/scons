@@ -96,10 +96,11 @@ class ExecutorTestCase(unittest.TestCase):
 
     def test_get_build_env(self):
         """Test fetching and generating a build environment"""
-        x = SCons.Executor.Executor(MyAction(), 'e', [], 't', ['s1', 's2'])
-        x.build_env = 'eee'
+        x = SCons.Executor.Executor(MyAction(), MyEnvironment(e=1), [],
+                                    't', ['s1', 's2'])
+        x.env = MyEnvironment(eee=1)
         be = x.get_build_env()
-        assert be == 'eee', be
+        assert be['eee'] == 1, be
 
         env = MyEnvironment(X='xxx')
         x = SCons.Executor.Executor(MyAction(),
@@ -171,17 +172,23 @@ class ExecutorTestCase(unittest.TestCase):
 
     def test_cleanup(self):
         """Test cleaning up an Executor"""
-        x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
+        orig_env = MyEnvironment(e=1)
+        x = SCons.Executor.Executor('b', orig_env, [{'o':1}],
+                                    't', ['s1', 's2'])
 
-        x.cleanup()
-
-        x.build_env = 'eee'
         be = x.get_build_env()
-        assert be == 'eee', be
+        assert be['e'] == 1, be['e']
+        
+        x.cleanup()
+
+        x.env = MyEnvironment(eee=1)
+        be = x.get_build_env()
+        assert be['eee'] == 1, be['eee']
 
         x.cleanup()
 
-        assert not hasattr(x, 'build_env')
+        be = x.get_build_env()
+        assert be['eee'] == 1, be['eee']
 
     def test_add_sources(self):
         """Test adding sources to an Executor"""
@@ -220,6 +227,7 @@ class ExecutorTestCase(unittest.TestCase):
         del result[:]
         x.nullify()
 
+        assert result == [], result
         x(MyNode([], []), None)
         assert result == [], result
         s = str(x)
@@ -230,13 +238,13 @@ class ExecutorTestCase(unittest.TestCase):
         env = MyEnvironment(C='contents')
 
         x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
-        x.contents = 'contents'
-        c = x.get_contents()
-        assert c == 'contents', c
-
-        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         c = x.get_contents()
         assert c == 'action1 action2 t s', c
+
+        x = SCons.Executor.Executor(MyAction(actions=['grow']), env, [],
+                                    ['t'], ['s'])
+        c = x.get_contents()
+        assert c == 'grow t s', c
 
     def test_get_timestamp(self):
         """Test fetching the "timestamp" """

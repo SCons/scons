@@ -47,6 +47,7 @@ def DScan(fs = SCons.Node.FS.default_fs):
 
 class DScanner(SCons.Scanner.Classic):
     def find_include(self, include, source_dir, path):
+        if callable(path): path=path()
         # translate dots (package separators) to slashes
         inc = string.replace(include, '.', '/')
 
