@@ -195,7 +195,7 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
             key = key[1:-1]
 	try:
             e = eval(key, globals, locals)
-            if not e:
+            if e is None:
                 s = ''
             elif is_List(e):
                 s = string.join(map(str, e), '\0')

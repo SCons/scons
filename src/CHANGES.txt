@@ -10,6 +10,11 @@
 
 RELEASE 0.06 - 
 
+  From Anthony Roach:
+
+  - Fix:  Construction variables with values of 0 were incorrectly
+    interpolated as ''. 
+
   From Charles Crain:
 
   - Fix command generators to expand construction variables.

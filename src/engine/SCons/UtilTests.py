@@ -98,6 +98,8 @@ class UtilTestCase(unittest.TestCase):
                                                           "/bar/ack.cpp",
                                                           "../foo/ack.c" ]))
         loc['xxx'] = None
+        loc['zero'] = 0
+        loc['one'] = 1
 
         if os.sep == '/':
             def cvt(str):
@@ -151,6 +153,12 @@ class UtilTestCase(unittest.TestCase):
 
         newcom = scons_subst("test $( $xxx $)", loc, {}, re.compile('\$[()]'))
         assert newcom == cvt("test"), newcom
+
+        newcom = scons_subst("test $zero", loc, {})
+        assert newcom == cvt("test 0"), newcom
+
+        newcom = scons_subst("test $one", loc, {})
+        assert newcom == cvt("test 1"), newcom
 
         newcom = scons_subst("test aXbXcXd", loc, {}, re.compile('X'))
         assert newcom == cvt("test abcd"), newcom
