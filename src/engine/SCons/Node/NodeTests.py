@@ -414,6 +414,15 @@ class NodeTestCase(unittest.TestCase):
         result = node.explain()
         assert result == None, result
 
+        class Null_BInfo:
+            def __init__(self):
+                pass
+
+        node.get_stored_info = Null_BInfo
+        node.__str__ = lambda: 'null_binfo'
+        result = node.explain()
+        assert result == "Cannot explain why `null_binfo' is being rebuilt: No previous build information found\n", result
+
         # XXX additional tests for the guts of the functionality some day
 
     def test_del_binfo(self):

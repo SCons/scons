@@ -1389,6 +1389,30 @@ class StringDirTestCase(unittest.TestCase):
         assert str(f) == os.path.join('sub', 'file')
         assert not f.exists()
 
+class stored_infoTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test how storing build information"""
+        test = TestCmd(workdir = '')
+        test.subdir('sub')
+        fs = SCons.Node.FS.FS(test.workpath(''))
+
+        d = fs.Dir('sub')
+        f = fs.File('file1', d)
+        bi = f.get_stored_info()
+        assert bi.bsig == None, bi.bsig
+
+        class MySConsign:
+            class Null:
+                def __init__(self):
+                    self.xyzzy = 7
+            def get_entry(self, name):
+                return self.Null()
+
+        f = fs.File('file2', d)
+        f.dir.sconsign = MySConsign
+        bi = f.get_stored_info()
+        assert bi.xyzzy == 7, bi
+
 class has_src_builderTestCase(unittest.TestCase):
     def runTest(self):
         """Test the has_src_builder() method"""
@@ -1954,6 +1978,7 @@ if __name__ == "__main__":
     suite.addTest(RepositoryTestCase())
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())
+    suite.addTest(stored_infoTestCase())
     suite.addTest(has_src_builderTestCase())
     suite.addTest(prepareTestCase())
     suite.addTest(get_actionsTestCase())
