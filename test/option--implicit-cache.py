@@ -354,9 +354,10 @@ test.subdir('i2')
 test.write('foo.c', """
 #include <foo.h>
 
-int foo(void)
+void foo(void)
 {
     FOO_H_DEFINED
+    ++x;  /* reference x */
 }
 """)
 
