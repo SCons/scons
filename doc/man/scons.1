@@ -6261,12 +6261,12 @@ any of the suffixes of the builder. Using this argument produces a
 multi-stage builder.
 
 .IP emitter
-A function to manipulate the target and source
+A function or list of functions to manipulate the target and source
 lists before dependencies are established
 and the target(s) are actually built.
 .B emitter
 can also be string containing a construction variable to expand
-to an emitter function,
+to an emitter function or list of functions,
 or a dictionary mapping source file suffixes
 to emitter functions.
 (Only the suffix of the first source file
@@ -6295,10 +6295,22 @@ def e(target, source, env):
 b = Builder("my_build < $TARGET > $SOURCE",
             emitter = e)
 
-# Calling an emitter through a construction variable.
+def e2(target, source, env):
+    return (target + ['bar.foo'], source + ['bar.src'])
+
+# Simple association of a list of emitter functions with a Builder.
+b = Builder("my_build < $TARGET > $SOURCE",
+            emitter = [e, e2])
+
+# Calling an emitter function through a construction variable.
 env = Environment(MY_EMITTER = e)
 b = Builder("my_build < $TARGET > $SOURCE",
             emitter = '$MY_EMITTER')
+
+# Calling a list of emitter functions through a construction variable.
+env = Environment(EMITTER_LIST = [e, e2])
+b = Builder("my_build < $TARGET > $SOURCE",
+            emitter = '$EMITTER_LIST')
 
 # Associating multiple emitters with different file
 # suffixes using a dictionary.

@@ -49,30 +49,47 @@ def emitter(target, source, env):
     target.append(str(target[0])+".foo")
     return target,source
 
-b = Builder(action=build, emitter=emitter)
+def emit1(t, s, e): return (t + ['emit.1'], s)
+def emit2(t, s, e): return (t + ['emit.2'], s)
 
-env=Environment(BUILDERS={ 'foo': b })
+foo = Builder(action=build, emitter=emitter)
+bar = Builder(action=build, emitter='$EMITTERS')
+
+env=Environment(BUILDERS={ 'foo': foo, 'bar': bar },
+                EMITTERS=[emit1, emit2])
 env.foo('f.out', 'f.in')
 env.foo(File('g.out'), 'g.in')
+env.bar('h.out', 'h.in')
 """)
 
 test.write(['src', 'f.in'], 'f.in')
 test.write(['src', 'g.in'], 'g.in')
+test.write(['src', 'h.in'], 'h.in')
 
 test.run(arguments='.')
 
-test.fail_test(not os.path.exists(test.workpath('src', 'f.out')))
-test.fail_test(not os.path.exists(test.workpath('src', 'f.out.foo')))
-test.fail_test(not os.path.exists(test.workpath('var1', 'f.out')))
-test.fail_test(not os.path.exists(test.workpath('var1', 'f.out.foo')))
-test.fail_test(not os.path.exists(test.workpath('var2', 'f.out')))
-test.fail_test(not os.path.exists(test.workpath('var2', 'f.out.foo')))
+test.must_exist(test.workpath('src', 'f.out'))
+test.must_exist(test.workpath('src', 'f.out.foo'))
+test.must_exist(test.workpath('var1', 'f.out'))
+test.must_exist(test.workpath('var1', 'f.out.foo'))
+test.must_exist(test.workpath('var2', 'f.out'))
+test.must_exist(test.workpath('var2', 'f.out.foo'))
 
-test.fail_test(not os.path.exists(test.workpath('src', 'g.out')))
-test.fail_test(not os.path.exists(test.workpath('src', 'g.out.foo')))
-test.fail_test(not os.path.exists(test.workpath('var1', 'g.out')))
-test.fail_test(not os.path.exists(test.workpath('var1', 'g.out.foo')))
-test.fail_test(not os.path.exists(test.workpath('var2', 'g.out')))
-test.fail_test(not os.path.exists(test.workpath('var2', 'g.out.foo')))
+test.must_exist(test.workpath('src', 'g.out'))
+test.must_exist(test.workpath('src', 'g.out.foo'))
+test.must_exist(test.workpath('var1', 'g.out'))
+test.must_exist(test.workpath('var1', 'g.out.foo'))
+test.must_exist(test.workpath('var2', 'g.out'))
+test.must_exist(test.workpath('var2', 'g.out.foo'))
+
+test.must_exist(test.workpath('src', 'h.out'))
+test.must_exist(test.workpath('src', 'emit.1'))
+test.must_exist(test.workpath('src', 'emit.2'))
+test.must_exist(test.workpath('var1', 'h.out'))
+test.must_exist(test.workpath('var1', 'emit.1'))
+test.must_exist(test.workpath('var1', 'emit.2'))
+test.must_exist(test.workpath('var2', 'h.out'))
+test.must_exist(test.workpath('var2', 'emit.1'))
+test.must_exist(test.workpath('var2', 'emit.2'))
 
 test.pass_test()

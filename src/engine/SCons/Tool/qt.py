@@ -93,7 +93,7 @@ class _Automoc:
             h=None
             for h_ext in header_extensions:
                 if os.path.exists(src_prefix + h_ext):
-                    h = FS.File(prefix + h_ext)
+                    h = FS.File(src_prefix + h_ext)
 
             if ui:
                 # file built from .ui file -> build also header from .ui
@@ -102,7 +102,7 @@ class _Automoc:
                 ui_h_suff = env.subst('$QT_UIHSUFFIX')
                 if os.path.exists(src_prefix + ui_h_suff):
                     # if a .ui.h file exists, we need to specify the dependecy ...
-                    ui_h = FS.File(prefix + ui_h_suff)
+                    ui_h = FS.File(src_prefix + ui_h_suff)
                     env.Depends(cpp, ui_h)
             if (h and q_object_search.search(h.get_contents())) or ui:
                 # h file with the Q_OBJECT macro found -> add moc_cpp
@@ -212,12 +212,12 @@ def generate(env):
     # We can't refer to the builders directly, we have to fetch them
     # as Environment attributes because that sets them up to be called
     # correctly later by our emitter.
-    env['PROGEMITTER'] = _Automoc('StaticObject',
-                                  uicDeclBld,mocFromHBld,mocFromCppBld)
-    env['SHLIBEMITTER'] = _Automoc('SharedObject',
-                                   uicDeclBld,mocFromHBld,mocFromCppBld)
-    env['LIBEMITTER'] = _Automoc('StaticObject',
-                                 uicDeclBld,mocFromHBld,mocFromCppBld)
+    env.Append(PROGEMITTER = [_Automoc('StaticObject',
+                                  uicDeclBld,mocFromHBld,mocFromCppBld)],
+               SHLIBEMITTER = [_Automoc('SharedObject',
+                                   uicDeclBld,mocFromHBld,mocFromCppBld)],
+               LIBEMITTER = [_Automoc('StaticObject',
+                                 uicDeclBld,mocFromHBld,mocFromCppBld)])
     # Of course, we need to link against the qt libraries
     env.AppendUnique(CPPPATH=[os.path.join('$QTDIR', 'include')])
     env.AppendUnique(LIBPATH=[os.path.join('$QTDIR', 'lib')])

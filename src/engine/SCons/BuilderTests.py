@@ -903,6 +903,42 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder4(env, source='ccc.4c')
         assert str(tgt) == 'emit4c-ccc', str(tgt)
 
+        # Test a list of emitter functions.
+        def emit5a(target, source, env):
+            source = map(str, source)
+            target = target + map(lambda x: 'emit5a-' + x[:-2], source)
+            return (target, source)
+        def emit5b(target, source, env):
+            source = map(str, source)
+            target = target + map(lambda x: 'emit5b-' + x[:-2], source)
+            return (target, source)
+        builder5 = SCons.Builder.Builder(action='foo',
+                                         emitter=[emit5a, emit5b],
+                                         node_factory=MyNode)
+
+        tgts = builder5(env, target='target-5', source='aaa.5')
+        tgts = map(str, tgts)
+        assert tgts == ['target-5', 'emit5a-aaa', 'emit5b-aaa'], tgts
+
+        # Test a list of emitter functions through the environment.
+        def emit6a(target, source, env):
+            source = map(str, source)
+            target = target + map(lambda x: 'emit6a-' + x[:-2], source)
+            return (target, source)
+        def emit6b(target, source, env):
+            source = map(str, source)
+            target = target + map(lambda x: 'emit6b-' + x[:-2], source)
+            return (target, source)
+        builder6 = SCons.Builder.Builder(action='foo',
+                                         emitter='$EMITTERLIST',
+                                         node_factory=MyNode)
+                                         
+        env = Environment(EMITTERLIST = [emit6a, emit6b])
+
+        tgts = builder6(env, target='target-6', source='aaa.6')
+        tgts = map(str, tgts)
+        assert tgts == ['target-6', 'emit6a-aaa', 'emit6b-aaa'], tgts
+
     def test_no_target(self):
         """Test deducing the target from the source."""
 
