@@ -392,6 +392,12 @@ class Base:
         the documentation for that function."""
         return SCons.Util.scons_subst_list(string, self, raw, target, source, dict)
 
+    def _update(self, dict):
+        """Update an environment's values directly, bypassing the normal
+        checks that occur when users try to set items.
+        """
+        self._dict.update(dict)
+
     def use_build_signature(self):
         try:
             return self._build_signature

@@ -113,6 +113,8 @@ class Environment:
         env = apply(Environment, (), self.d)
         env.d.update(overrides)
         return env
+    def _update(self, dict):
+        self.d.update(dict)
     def items(self):
         return self.d.items()
     def sig_dict(self):

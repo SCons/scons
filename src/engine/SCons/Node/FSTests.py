@@ -72,6 +72,8 @@ class Environment:
         return self.scanner
     def Override(self, overrides):
         return self
+    def _update(self, dict):
+        pass
 
 class Action:
     def __call__(self, targets, sources, env):

@@ -38,6 +38,8 @@ class MyEnvironment:
         d = self._dict.copy()
         d.update(overrides)
         return d
+    def _update(self, dict):
+        self._dict.update(dict)
 
 class MyAction:
     actions = ['action1', 'action2']
