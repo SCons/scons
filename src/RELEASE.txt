@@ -33,6 +33,10 @@ RELEASE 0.97 - XXX
       variable, instead of returning them (the same way it handles
       the -l option).
 
+    - By default, the ParseConfig() method now avoids adding duplicate
+      entries to construction variables.  The old behavior may be
+      specified using a new "unique=0" keyword argument.
+
     - When compiling with Microsoft Visual Studio, SCons no longer
       adds the ATL and MFC directories to the INCLUDE and LIB
       environment variables by default.  If you want these directories

@@ -3266,7 +3266,7 @@ Returns a list of the target Node or Nodes.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI env.ParseConfig( command ", [" function ])
+.RI env.ParseConfig( command ", [" function ", " unique ])
 Calls the specified
 .I function
 to modify the environment as specified by the output of
@@ -3277,15 +3277,25 @@ expects the output of a typical
 .I *-config command
 (for example,
 .BR gtk-config )
-and parses the returned
+and adds the options
+to the appropriate construction variables.
+By default, 
+duplicate values are not
+added to any construction variables;
+you can specify
+.B unique=0
+to allow duplicate
+values to be added.
+
+By default,
 .BR -L ,
 .BR -l ,
 .BR -Wa ,
 .BR -Wl ,
 .BR -Wp ,
 .B -I
-and other options
-into the
+and other options,
+are add to the
 .BR LIBPATH ,
 .BR LIBS ,
 .BR ASFLAGS ,
@@ -3294,7 +3304,7 @@ into the
 .B CPPPATH
 and
 .B CCFLAGS
-variables,
+construction variables,
 respectively.
 A returned
 .B -pthread

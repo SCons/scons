@@ -30,40 +30,49 @@ import sys
 import TestCmd
 import TestSCons
 
+python = TestSCons.python
+
 test = TestSCons.TestSCons()
 
-test_config = test.workpath('test-config')
+test_config1 = test.workpath('test-config1')
+test_config2 = test.workpath('test-config2')
 
 # 'abc' is supposed to be a static lib; it is included in LIBS as a
 # File node.
 # It used to be returned as the 'static_libs' output of ParseConfig.
-test.write('test-config', """#! /usr/bin/env python
+test.write(test_config1, """\
 print "-I/usr/include/fum -Ibar -X"
 print "-L/usr/fax -Lfoo -lxxx abc"
 """)
 
+test.write(test_config2, """\
+print "-L foo -L lib_dir"
+""")
+
 test.write('SConstruct', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
-env.ParseConfig([r"%s", r"%s", "--libs --cflags"])
+env.ParseConfig([r"%(python)s", r"%(test_config1)s", "--libs --cflags"])
+env.ParseConfig([r"%(python)s", r"%(test_config2)s", "--libs --cflags"])
 print env['CPPPATH']
 print env['LIBPATH']
 print map(lambda x: str(x), env['LIBS'])
 print env['CCFLAGS']
-""" % (TestSCons.python, test_config))
+""" % locals())
 
 test.write('SConstruct2', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '',
-                  PYTHON = '%s')
-env.ParseConfig(r"$PYTHON %s --libs --cflags")
+                  PYTHON = '%(python)s')
+env.ParseConfig(r"$PYTHON %(test_config1)s --libs --cflags")
+env.ParseConfig(r"$PYTHON %(test_config2)s --libs --cflags")
 print env['CPPPATH']
 print env['LIBPATH']
 print map(lambda x: str(x), env['LIBS'])
 print env['CCFLAGS']
-""" % (TestSCons.python, test_config))
+""" % locals())
 
 good_stdout = test.wrap_stdout(read_str = """\
 ['/usr/include/fum', 'bar']
-['/usr/fax', 'foo']
+['/usr/fax', 'foo', 'lib_dir']
 ['xxx', 'abc']
 ['-X']
 """, build_str = "scons: `.' is up to date.\n")

@@ -1216,19 +1216,26 @@ def exists(env):
                           AAA3 = 'a3',
                           BBB1 = ['b1'],
                           BBB2 = ['b2'],
-                          BBB3 = ['b3'])
+                          BBB3 = ['b3'],
+                          CCC1 = '',
+                          CCC2 = '')
         env.AppendUnique(AAA1 = 'a1',
                          AAA2 = ['a2'],
                          AAA3 = ['a3', 'b', 'c', 'a3'],
                          BBB1 = 'b1',
                          BBB2 = ['b2'],
-                         BBB3 = ['b3', 'c', 'd', 'b3'])
+                         BBB3 = ['b3', 'c', 'd', 'b3'],
+                         CCC1 = 'c1',
+                         CCC2 = ['c2'])
+
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
         assert env['AAA3'] == ['a3', 'b', 'c'], env['AAA3']
         assert env['BBB1'] == ['b1'], env['BBB1']
         assert env['BBB2'] == ['b2'], env['BBB2']
         assert env['BBB3'] == ['b3', 'c', 'd'], env['BBB3']
+        assert env['CCC1'] == 'c1', env['CCC1']
+        assert env['CCC2'] == ['c2'], env['CCC2']
 
     def test_Copy(self):
         """Test construction Environment copying
@@ -1435,20 +1442,27 @@ def exists(env):
                           LIBS='',
                           LINKFLAGS=[''],
                           CCFLAGS=[''])
-        save_command = []
         orig_popen = os.popen
-        def my_popen(command, save_command=save_command):
-            save_command.append(command)
-            class fake_file:
-                def read(self):
-                    return "-I/usr/include/fum -I bar -X\n" + \
-                           "-L/usr/fax -L foo -lxxx -l yyy " + \
-                           "-Wa,-as -Wl,-link -Wp,-cpp abc " + \
-                           "-pthread -framework Carbon " + \
-                           "-mno-cygwin -mwindows"
-            return fake_file()
+        class my_popen:
+            def __init__(self, save_command, output):
+                self.save_command = save_command
+                self.output = output
+            def __call__(self, command):
+                self.save_command.append(command)
+                class fake_file:
+                    def __init__(self, output):
+                        self.output = output
+                    def read(self):
+                        return self.output
+                return fake_file(self.output)
         try:
-            os.popen = my_popen
+            save_command = []
+            os.popen = my_popen(save_command, 
+                                 "-I/usr/include/fum -I bar -X\n" + \
+                                 "-L/usr/fax -L foo -lxxx -l yyy " + \
+                                 "-Wa,-as -Wl,-link -Wp,-cpp abc " + \
+                                 "-pthread -framework Carbon " + \
+                                 "-mno-cygwin -mwindows")
             env.ParseConfig("fake $COMMAND")
             assert save_command == ['fake command'], save_command
             assert env['ASFLAGS'] == ['assembler', '-Wa,-as'], env['ASFLAGS']
@@ -1458,6 +1472,12 @@ def exists(env):
             assert env['LIBS'] == ['xxx', 'yyy', env.File('abc')], env['LIBS']
             assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread', '-framework', 'Carbon', '-mno-cygwin', '-mwindows'], env['LINKFLAGS']
             assert env['CCFLAGS'] == ['', '-X', '-pthread', '-mno-cygwin'], env['CCFLAGS']
+
+            os.popen = my_popen([], "-Ibar")
+            env.ParseConfig("fake2")
+            assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar'], env['CPPPATH']
+            env.ParseConfig("fake2", unique=0)
+            assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar', 'bar'], env['CPPPATH']
         finally:
             os.popen = orig_popen
 
@@ -1706,19 +1726,25 @@ f5: \
                           AAA3 = 'a3',
                           BBB1 = ['b1'],
                           BBB2 = ['b2'],
-                          BBB3 = ['b3'])
+                          BBB3 = ['b3'],
+                          CCC1 = '',
+                          CCC2 = '')
         env.PrependUnique(AAA1 = 'a1',
                           AAA2 = ['a2'],
                           AAA3 = ['a3', 'b', 'c', 'a3'],
                           BBB1 = 'b1',
                           BBB2 = ['b2'],
-                          BBB3 = ['b3', 'b', 'c', 'b3'])
+                          BBB3 = ['b3', 'b', 'c', 'b3'],
+                          CCC1 = 'c1',
+                          CCC2 = ['c2'])
         assert env['AAA1'] == 'a1a1', env['AAA1']
         assert env['AAA2'] == ['a2'], env['AAA2']
         assert env['AAA3'] == ['b', 'c', 'a3'], env['AAA3']
         assert env['BBB1'] == ['b1'], env['BBB1']
         assert env['BBB2'] == ['b2'], env['BBB2']
         assert env['BBB3'] == ['b', 'c', 'b3'], env['BBB3']
+        assert env['CCC1'] == 'c1', env['CCC1']
+        assert env['CCC2'] == ['c2'], env['CCC2']
 
     def test_Replace(self):
         """Test replacing construction variables in an Environment
