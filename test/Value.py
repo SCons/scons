@@ -40,7 +40,7 @@ for source_signature in ['MD5', 'timestamp']:
     print "Testing Value node with source signatures:", source_signature
 
     test.write('SConstruct', """
-SourceSignatures(r'%s')
+SourceSignatures(r'%(source_signature)s')
 
 class Custom:
     def __init__(self, value):  self.value = value
@@ -55,10 +55,20 @@ def create(target, source, env):
 
 env = Environment()
 env['BUILDERS']['B'] = Builder(action = create)
+env['BUILDERS']['S'] = Builder(action = "%(python)s put $SOURCES into $TARGET")
 env.B('f1.out', Value(P))
 env.B('f2.out', env.Value(L))
 env.B('f3.out', Value(C))
-""" % source_signature)
+env.S('f4.out', Value(L))
+""" % {'source_signature':source_signature,
+       'python':TestSCons.python})
+
+    test.write('put', """
+import os
+import string
+import sys
+open(sys.argv[-1],'wb').write(string.join(sys.argv[1:-2]))
+""")
 
     test.run(arguments='-c')
     test.run()
@@ -74,6 +84,7 @@ env.B('f3.out', Value(C))
     test.must_match('f1.out', "/usr/local")
     test.must_match('f2.out', "10")
     test.must_match('f3.out', "C=/usr/local")
+    test.must_match('f4.out', '10')
 
     test.up_to_date(arguments='.')
 
@@ -89,6 +100,7 @@ env.B('f3.out', Value(C))
     test.must_match('f1.out', "/usr")
     test.must_match('f2.out', "4")
     test.must_match('f3.out', "C=/usr")
+    test.must_match('f4.out', '4')
 
     test.up_to_date('prefix=/usr', '.')
 
@@ -106,5 +118,6 @@ env.B('f3.out', Value(C))
     test.must_match('f1.out', "/var")
     test.must_match('f2.out', "4")
     test.must_match('f3.out', "C=/var")
+    test.must_match('f4.out', "4")
 
 test.pass_test()
