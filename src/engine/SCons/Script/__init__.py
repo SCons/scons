@@ -431,7 +431,8 @@ class OptParser(OptionParser):
                         help="Remove specified targets and dependencies.")
 
         self.add_option('-C', '--directory', type="string", action = "append",
-                        help="Change to DIRECTORY before doing anything.")
+                        metavar="DIR",
+                        help="Change to DIR before doing anything.")
 
         self.add_option('--cache-disable', '--no-cache',
                         action="store_true", dest='cache_disable', default=0,
@@ -453,7 +454,7 @@ class OptParser(OptionParser):
                         help = "Print file dependency information.")
         
         self.add_option('-D', action="store_const", const=2, dest="climb_up",
-                        help="Search up directory tree for SConstruct, "
+                        help="Search up directory tree for SConstruct,       "
                              "build all Default() targets.")
 
         def opt_debug(option, opt, value, parser):
@@ -498,8 +499,8 @@ class OptParser(OptionParser):
                         help="Ignore errors from build actions.")
 
         self.add_option('-I', '--include-dir', action="append",
-                        dest='include_dir', metavar="DIRECTORY",
-                        help="Search DIRECTORY for imported Python modules.")
+                        dest='include_dir', metavar="DIR",
+                        help="Search DIR for imported Python modules.")
 
         self.add_option('--implicit-cache', action="store_true",
                         dest='implicit_cache',
@@ -507,10 +508,10 @@ class OptParser(OptionParser):
 
         self.add_option('--implicit-deps-changed', action="store_true",
                         default=0, dest='implicit_deps_changed',
-                        help="Ignore the cached implicit deps.")
+                        help="Ignore cached implicit dependencies.")
         self.add_option('--implicit-deps-unchanged', action="store_true",
                         default=0, dest='implicit_deps_unchanged',
-                        help="Ignore changes in implicit deps.")
+                        help="Ignore changes in implicit dependencies.")
 
         def opt_j(option, opt, value, parser):
             value = int(value)
@@ -524,9 +525,8 @@ class OptParser(OptionParser):
                         help="Keep going when a target can't be made.")
 
         self.add_option('--max-drift', type="int", action="store",
-                        dest='max_drift',
-                        help="Set the maximum system clock drift to be"
-                             " MAX_DRIFT seconds.")
+                        dest='max_drift', metavar="N",
+                        help="Set maximum system clock drift to N seconds.")
 
         self.add_option('-n', '--no-exec', '--just-print', '--dry-run',
                         '--recon', action="store_true", dest='noexec',
@@ -541,14 +541,15 @@ class OptParser(OptionParser):
                 sys.exit(exit_status)
         self.add_option('--profile', nargs=1, action="callback",
                         callback=opt_profile, type="string", dest="profile",
-                        help="Profile SCons and put results in PROFILE.")
+                        metavar="FILE",
+                        help="Profile SCons and put results in FILE.")
 
         self.add_option('-q', '--question', action="store_true", default=0,
                         help="Don't build; exit status says if up to date.")
 
         self.add_option('-Q', dest='no_progress', action="store_true",
                         default=0,
-                        help="Don't print SCons progress messages.")
+                        help="Suppress \"Reading/Building\" progress messages.")
 
         self.add_option('--random', dest="random", action="store_true",
                         default=0, help="Build dependencies in random order.")
@@ -558,11 +559,11 @@ class OptParser(OptionParser):
 
         self.add_option('-u', '--up', '--search-up', action="store_const",
                         dest="climb_up", default=0, const=1,
-                        help="Search up directory tree for SConstruct, "
+                        help="Search up directory tree for SConstruct,       "
                              "build targets at or below current directory.")
         self.add_option('-U', action="store_const", dest="climb_up",
                         default=0, const=3,
-                        help="Search up directory tree for SConstruct, "
+                        help="Search up directory tree for SConstruct,       "
                              "build Default() targets from local SConscript.")
 
         self.add_option("-v", "--version",
