@@ -224,6 +224,7 @@ class Classic(Current):
         kw['path_function'] = FindPathDirs(path_variable, fs)
         kw['recursive'] = 1
         kw['skeys'] = suffixes
+        kw['name'] = name
 
         apply(Current.__init__, (self,) + args, kw)
 
