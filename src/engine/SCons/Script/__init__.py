@@ -639,6 +639,17 @@ def _main():
 	else:
 	    raise UserError, "No SConstruct file found."
 
+    class Unbuffered:
+        def __init__(self, file):
+            self.file = file
+        def write(self, arg):
+            self.file.write(arg)
+            self.file.flush()
+        def __getattr__(self, attr):
+            return getattr(self.file, attr)
+
+    sys.stdout = Unbuffered(sys.stdout)
+
     sys.path = include_dirs + sys.path
 
     for script in scripts:

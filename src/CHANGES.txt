@@ -15,6 +15,11 @@ RELEASE 0.05 -
   - Allow a library to specified as a command-line source file, not just
     in the LIBS construction variable.
 
+  From Steven Knight:
+
+  - Flush stdout after print so it intermixes correctly with stderr
+    when redirected.
+
 
 
 RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
