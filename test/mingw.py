@@ -64,7 +64,7 @@ env=Environment(tools=['mingw'])
 assert env['CC'] == 'gcc'
 env.StaticLibrary('static', 'static.cpp')
 env.SharedLibrary('shared', 'shared.cpp')
-env.SharedLibrary('cshared', 'cshared.c')
+env.SharedLibrary('cshared', ['cshared.c', 'cshared.def'])
 env.Program('test', ['test.cpp', env.RES('resource.rc', CPPPATH=['header'])], LIBS=['static', 'shared', 'cshared'], LIBPATH=['.'])
 """)
 
@@ -133,6 +133,13 @@ void cshared_func(void)
 }
 ''')
 
+test.write('cshared.def', '''
+EXPORTS
+cshared_func
+''')
+
+
+
 test.write('header/resource2.h', '''
 #define RESOURCE_RC "resource.rc"
 ''')
@@ -141,6 +148,11 @@ test.write('header/resource2.h', '''
 # we'd like for this test to pass once this bug is fixed, so match anything at all
 # that comes out of stderr:
 test.run(arguments='test.exe', stderr='.*')
+# ensure the source def for cshared.def got used, and there wasn't a target def for chshared.dll:
+test.fail_test(string.find(test.stdout(), 'cshared.def') == -1)
+test.fail_test(string.find(test.stdout(), '-Wl,--output-def,cshared.def') != -1)
+# ensure the target def got generated for the shared.dll:
+test.fail_test(not os.path.exists(test.workpath('shared.def')))
 test.run(program=test.workpath('test.exe'), stdout='test.cpp\nshared.cpp\nstatic.cpp\ncshared.c\n2001 resource.rc\n')
 
 # ensure that modifying the header causes the resource to be rebuilt:
