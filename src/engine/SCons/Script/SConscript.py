@@ -158,7 +158,10 @@ def SConscript(*ls, **kw):
             if fn == "-":
                 exec sys.stdin in stack[-1].globals
             else:
-                f = SCons.Node.FS.default_fs.File(str(fn))
+		if isinstance(fn, SCons.Node.Node):
+		    f = fn
+		else:
+		    f = SCons.Node.FS.default_fs.File(str(fn))
                 if f.exists():
                     file = open(str(f), "r")
                     SCons.Node.FS.default_fs.chdir(f.dir)

@@ -42,15 +42,20 @@ foo21 = test.workpath('build', 'var2', 'foo1' + _exe)
 foo22 = test.workpath('build', 'var2', 'foo2' + _exe)
 foo31 = test.workpath('build', 'var3', 'foo1' + _exe)
 foo32 = test.workpath('build', 'var3', 'foo2' + _exe)
+foo41 = test.workpath('build', 'var4', 'foo1' + _exe)
+foo42 = test.workpath('build', 'var4', 'foo2' + _exe)
 
 test.write('SConstruct', """
 src = Dir('src')
 var2 = Dir('build/var2')
 var3 = Dir('build/var3')
+var4 = Dir('build/var4')
+
 
 BuildDir('build/var1', src)
 BuildDir(var2, src)
 BuildDir(var3, src, duplicate=0)
+BuildDir(var4, src, duplicate=0)
 
 env = Environment(CPPPATH='#src')
 SConscript('build/var1/SConscript', "env")
@@ -58,6 +63,8 @@ SConscript('build/var2/SConscript', "env")
 
 env = Environment(CPPPATH=src)
 SConscript('build/var3/SConscript', "env")
+SConscript(File('SConscript', var4), "env")
+
 """) 
 
 test.subdir('src')
@@ -120,9 +127,16 @@ test.run(program = foo21, stdout = "f1.c\n")
 test.run(program = foo22, stdout = "f2.c\n")
 test.run(program = foo31, stdout = "f1.c\n")
 test.run(program = foo32, stdout = "f2.c\n")
+test.run(program = foo41, stdout = "f1.c\n")
+test.run(program = foo42, stdout = "f2.c\n")
 
 # Make sure we didn't duplicate the source files in build/var3.
 test.fail_test(os.path.exists(test.workpath('build', 'var3', 'f1.c')))
 test.fail_test(os.path.exists(test.workpath('build', 'var3', 'f2.in')))
+
+# Make sure we didn't duplicate the source files in build/var3.
+test.fail_test(os.path.exists(test.workpath('build', 'var4', 'f1.c')))
+test.fail_test(os.path.exists(test.workpath('build', 'var4', 'f2.in')))
+
 
 test.pass_test()

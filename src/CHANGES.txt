@@ -150,6 +150,8 @@ RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
 
   - Fix for using Aliases with the -u, -U and -D options.
 
+  - Fix so that Nodes can be passed to SConscript files.
+
   From Moshe Zadka:
   
   - Changes for official Debian packaging.
