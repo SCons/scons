@@ -8,10 +8,6 @@
 
 
 
-<!ENTITY copyright SYSTEM "copyright.sgml">
-
-
-
 <!--
 
   Other applications that we reference.

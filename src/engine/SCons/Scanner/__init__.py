@@ -109,10 +109,13 @@ class Base:
             list = self.function(node, env, self.argument)
         else:
             list = self.function(node, env)
+        kw = {}
+        if hasattr(node, 'dir'):
+            kw['directory'] = node.dir
         nodes = []
         for l in list:
             if not isinstance(l, SCons.Node.FS.Entry):
-                l = self.node_factory(l)
+                l = apply(self.node_factory, (l,), kw)
             nodes.append(l)
         return nodes
 

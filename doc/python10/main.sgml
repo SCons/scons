@@ -31,6 +31,7 @@
 
     <!ENTITY abstract SYSTEM "abstract.sgml">
     <!ENTITY acks SYSTEM "acks.sgml">
+    <!ENTITY copyright SYSTEM "copyright.sgml">
     <!ENTITY design SYSTEM "design.sgml">
     <!ENTITY future SYSTEM "future.sgml">
     <!ENTITY install SYSTEM "install.sgml">

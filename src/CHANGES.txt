@@ -33,6 +33,9 @@ RELEASE 0.05 -
   - Allow Scanners to return a list of strings, and document how to
     write your own Scanners.
 
+  - Look up implicit (scanned) dependencies relative to the directory
+    of file being scanned.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.

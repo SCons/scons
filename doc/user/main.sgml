@@ -32,24 +32,25 @@
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
 
-    <!ENTITY preface SYSTEM "preface.sgml">
-    <!ENTITY simple SYSTEM "simple.sgml">
-    <!ENTITY environments SYSTEM "environments.sgml">
-    <!ENTITY depends SYSTEM "depends.sgml">
-    <!ENTITY more SYSTEM "more.sgml">
-    <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
-    <!ENTITY variants SYSTEM "variants.sgml">
     <!ENTITY builders SYSTEM "builders.sgml">
-    <!ENTITY scanners SYSTEM "scanners.sgml">
-    <!ENTITY repositories SYSTEM "repositories.sgml">
     <!ENTITY caching SYSTEM "caching.sgml">
-    <!ENTITY run SYSTEM "run.sgml">
-    <!ENTITY troubleshoot SYSTEM "troubleshoot.sgml">
-    <!ENTITY reference SYSTEM "reference.sgml">
+    <!ENTITY cons SYSTEM "cons.sgml">
+    <!ENTITY copyright SYSTEM "copyright.sgml">
+    <!ENTITY depends SYSTEM "depends.sgml">
+    <!ENTITY environments SYSTEM "environments.sgml">
     <!ENTITY errors SYSTEM "errors.sgml">
     <!ENTITY example SYSTEM "example.sgml">
+    <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
     <!ENTITY make SYSTEM "make.sgml">
-    <!ENTITY cons SYSTEM "cons.sgml">
+    <!ENTITY more SYSTEM "more.sgml">
+    <!ENTITY preface SYSTEM "preface.sgml">
+    <!ENTITY reference SYSTEM "reference.sgml">
+    <!ENTITY repositories SYSTEM "repositories.sgml">
+    <!ENTITY run SYSTEM "run.sgml">
+    <!ENTITY scanners SYSTEM "scanners.sgml">
+    <!ENTITY simple SYSTEM "simple.sgml">
+    <!ENTITY troubleshoot SYSTEM "troubleshoot.sgml">
+    <!ENTITY variants SYSTEM "variants.sgml">
 
 ]>
 
