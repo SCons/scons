@@ -789,7 +789,7 @@ class File(Entry):
         
     def _morph(self):
         """Turn a file system node into a File object."""
-        self.created = 0
+        self.linked = 0
         if not hasattr(self, '_local'):
             self._local = 0
 
@@ -880,9 +880,16 @@ class File(Entry):
             parent = p
         listDirs.reverse()
         for dirnode in listDirs:
-            dirnode._exists = 1
             try:
                 Mkdir(dirnode, None, None)
+                # The Mkdir() action may or may not have actually
+                # created the directory, depending on whether the -n
+                # option was used or not.  Delete the _exists and
+                # _rexists attributes so they can be reevaluated.
+                if hasattr(dirnode, '_exists'):
+                    delattr(dirnode, '_exists')
+                if hasattr(dirnode, '_rexists'):
+                    delattr(dirnode, '_rexists')
             except OSError:
                 pass
 
@@ -897,7 +904,7 @@ class File(Entry):
         """Prepare for this file to be created."""
 
         def missing(node):
-            return not node.builder and not node.rexists()
+            return not node.builder and not node.linked and not node.rexists()
         missing_sources = filter(missing, self.children())
         if missing_sources:
             desc = "No Builder for target `%s', needed by `%s'." % (missing_sources[0], self)
@@ -924,7 +931,7 @@ class File(Entry):
 
     def exists(self):
         # Duplicate from source path if we are set up to do this.
-        if self.duplicate and not self.builder and not self.created:
+        if self.duplicate and not self.builder and not self.linked:
             src=self.srcnode().rfile()
             if src.exists() and src.abspath != self.abspath:
                 self._createDir()
@@ -933,12 +940,15 @@ class File(Entry):
                 except OSError:
                     pass
                 Link(self, src, None)
-                self.created = 1
-
-                # Set our exists cache accordingly
-                self._exists=1
-                self._rexists=1
-                return 1
+                self.linked = 1
+                # The Link() action may or may not have actually
+                # created the file, depending on whether the -n
+                # option was used or not.  Delete the _exists and
+                # _rexists attributes so they can be reevaluated.
+                if hasattr(self, '_exists'):
+                    delattr(self, '_exists')
+                if hasattr(self, '_rexists'):
+                    delattr(self, '_rexists')
         return Entry.exists(self)
 
     def current(self, calc):

@@ -25,6 +25,9 @@ RELEASE 0.10 - XXX
   - Fix the Install() method so that, like other actions, it prints
     what would have happened when the -n option is used.
 
+  - Don't create duplicate source files in a BuildDir when the -n
+    option is used.
+
   From Steve Leblanc:
 
   - Add a Clean() method to support removing user-specified targets

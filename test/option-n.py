@@ -135,12 +135,10 @@ test.write('f3.in', "f3.in again\n")
 test.run(arguments = '-n install', stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
 
-# This last test (duplicate BuildDir files not getting created when
-# -n is used) still fails, but it's going to take more time to
-# work out the details of the fix.  And since it's not a bug that
-# destroys anything, we're going to leave it alone for now.
-#test.run(arguments = '-n build')
-#test.fail_test(os.path.exists(test.workpath('build', 'f4.in')))
+# Make sure duplicate source files in a BuildDir aren't created
+# when the -n option is used.
+test.run(arguments = '-n build')
+test.fail_test(os.path.exists(test.workpath('build', 'f4.in')))
 
 test.pass_test()
 
