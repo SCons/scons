@@ -574,6 +574,19 @@ The command line used to compile a C source file to an object file.
 .IP CXX
 The C++ compiler.
 
+.IP CXXFLAGS 
+General options that are passed to the C++ compiler.
+
+.IP CXXCOM
+The command line used to compile a C++ source file to an object file.
+
+.IP CPPPATH
+The list of directories that the C preprocessor will search for include
+directories. The C/C++ implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in CCFLAGS or CXXFLAGS because the result will be non-portable
+and the directories will not be searched by the depedency scanner.
+
 .IP LINK
 The linker.
 
