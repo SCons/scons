@@ -24,7 +24,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
@@ -32,17 +35,17 @@ test.subdir('subdir')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'r').read() + open(sys.argv[3], 'r').read()
-file = open(sys.argv[1], 'w')
+contents = open(sys.argv[2], 'rb').read() + open(sys.argv[3], 'rb').read()
+file = open(sys.argv[1], 'wb')
 file.write(contents)
 file.close()
 """)
 
 test.write('SConstruct', """
 Foo = Builder(name = "Foo",
-	  action = "python build.py $target $sources subdir/foo.dep")
+              action = "%s build.py $target $sources subdir/foo.dep")
 Bar = Builder(name = "Bar",
-	  action = "python build.py $target $sources subdir/bar.dep")
+              action = "%s build.py $target $sources subdir/bar.dep")
 env = Environment(BUILDERS = [Foo, Bar])
 env.Depends(target = ['f1.out', 'f2.out'], dependency = 'subdir/foo.dep')
 env.Depends(target = 'f3.out', dependency = 'subdir/bar.dep')
@@ -50,7 +53,7 @@ env.Foo(target = 'f1.out', source = 'f1.in')
 env.Foo(target = 'f2.out', source = 'f2.in')
 env.Bar(target = 'f3.out', source = 'f3.in')
 Conscript('subdir/SConscript')
-""")
+""" % (python, python))
 
 test.write(['subdir', 'SConscript'], """
 env.Depends(target = 'f4.out', dependency = 'bar.dep')

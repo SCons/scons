@@ -24,10 +24,11 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import string
 import sys
+import TestSCons
 
+python = sys.executable
 
 try:
     import threading
@@ -43,7 +44,7 @@ test = TestSCons.TestSCons()
 test.write('build.py', r"""
 import time
 import sys
-file = open(sys.argv[1], 'w')
+file = open(sys.argv[1], 'wb')
 file.write(str(time.time()) + '\n')
 time.sleep(1)
 file.write(str(time.time()))
@@ -52,11 +53,11 @@ file.close()
 
 test.write('SConstruct', """
 MyBuild = Builder(name = "MyBuild",
-		  action = "python build.py $targets")
+                  action = r'%s build.py $targets')
 env = Environment(BUILDERS = [MyBuild])
 env.MyBuild(target = 'f1', source = 'f1.in')
 env.MyBuild(target = 'f2', source = 'f2.in')
-""")
+""" % python)
 
 def RunTest(args, extra):
     """extra is used to make scons rebuild the output file"""

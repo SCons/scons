@@ -25,7 +25,10 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
@@ -33,35 +36,35 @@ test.subdir('one', 'two', 'three')
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
+contents = open(sys.argv[2], 'rb').read()
+file = open(sys.argv[1], 'wb')
 file.write(contents)
 file.close()
 """)
 
 test.write(['one', 'SConstruct'], """
-B = Builder(name = 'B', action = "python ../build.py $target $sources")
+B = Builder(name = 'B', action = r'%s ../build.py $target $sources')
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out')
-""")
+""" % python)
 
 test.write(['two', 'SConstruct'], """
-B = Builder(name = 'B', action = "python ../build.py $target $sources")
+B = Builder(name = 'B', action = r'%s ../build.py $target $sources')
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out', 'bar.out')
-""")
+""" % python)
 
 test.write(['three', 'SConstruct'], """
-B = Builder(name = 'B', action = "python ../build.py $target $sources")
+B = Builder(name = 'B', action = r'%s ../build.py $target $sources')
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
 Default('foo.out bar.out')
-""")
+""" % python)
 
 for dir in ['one', 'two', 'three']:
 

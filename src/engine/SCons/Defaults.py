@@ -33,30 +33,70 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 
+import os
 import SCons.Builder
 
 
 
+if os.name == 'posix':
+
+    object_suffix = '.o'
+    program_suffix = None
+    library_prefix = 'lib'
+    library_suffix = '.a'
+
+elif os.name == 'nt':
+
+    object_suffix = '.obj'
+    program_suffix = '.exe'
+    library_prefix = None
+    library_suffix = '.lib'
+
+
+
 Object = SCons.Builder.Builder(name = 'Object',
-                               action = '$CC $CCFLAGS -c -o $target $sources',
-                               src_suffix='.c',
-                               suffix='.o')
+                               action = '$CCCOM',
+                               suffix = object_suffix,
+                               src_suffix = '.c')
 
 Program = SCons.Builder.Builder(name = 'Program',
-                                action = '$LINK $LINKFLAGS -o $target $sources',
+                                action = '$LINKCOM',
+                                suffix = program_suffix,
                                 builders = [ Object ])
 
 Library = SCons.Builder.Builder(name = 'Library',
                                 action = 'ar r $target $sources\nranlib $target',
-                                prefix = 'lib',
-                                suffix = '.a',
+                                prefix = library_prefix,
+                                suffix = library_suffix,
                                 builders = [ Object ])
 
-ConstructionEnvironment = {
-	'CC' : 'cc',
-	'CCFLAGS' : '',
-	'LINK' : '$CC',
-	'LINKFLAGS' : '',
-	'BUILDERS' : [Object, Program, Library],
-	'ENV' : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
-}
+
+
+if os.name == 'posix':
+
+    ConstructionEnvironment = {
+        'CC'        : 'cc',
+        'CCFLAGS'   : '',
+        'CCCOM'     : '$CC $CCFLAGS -c -o $target $sources',
+        'LINK'      : '$CC',
+        'LINKFLAGS' : '',
+        'LINKCOM'   : '$LINK $LINKFLAGS -o $target $sources',
+        'BUILDERS'  : [Object, Program, Library],
+        'ENV'       : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
+    }
+
+elif os.name == 'nt':
+
+    ConstructionEnvironment = {
+        'CC'        : 'cl',
+        'CCFLAGS'   : '/nologo',
+        'CCCOM'     : '$CC $CCFLAGS /c $sources /Fo$target',
+        'LINK'      : 'link',
+        'LINKFLAGS' : '',
+        'LINKCOM'   : '$LINK $LINKFLAGS /out:$target $sources',
+        'BUILDERS'  : [Object, Program, Library],
+        'ENV'       : {
+                        'PATH'    : r'C:\Python20;C:\WINNT\system32;C:\WINNT;C:\Program Files\Microsoft Visual Studio\VC98\Bin\;',
+                        'PATHEXT' : '.COM;.EXE;.BAT;.CMD'
+                      },
+    }

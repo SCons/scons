@@ -24,30 +24,32 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import os.path
 import string
 import sys
+import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-file = open(sys.argv[1], 'w')
+file = open(sys.argv[1], 'wb')
 file.write("build.py: %s\n" % sys.argv[1])
 file.close()
 """)
 
 test.write('SConstruct', """
 MyBuild = Builder(name = "MyBuild",
-		  action = "python build.py $targets")
+                  action = r'%s build.py $targets')
 env = Environment(BUILDERS = [MyBuild])
 env.MyBuild(target = 'f1.out', source = 'f1.in')
 env.MyBuild(target = 'f2.out', source = 'f2.in')
-""")
+""" % python)
 
 args = 'f1.out f2.out'
-expect = "python build.py f1.out\npython build.py f2.out\n"
+expect = "%s build.py f1.out\n%s build.py f2.out\n" % (python, python)
 
 test.run(arguments = args, stdout = expect)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))

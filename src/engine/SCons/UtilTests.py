@@ -23,8 +23,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
+import os
 import os.path
+import string
+import sys
 import unittest
 import SCons.Node
 import SCons.Node.FS
@@ -83,35 +85,43 @@ class UtilTestCase(unittest.TestCase):
                                                           "/bar/ack.cpp",
                                                           "../foo/ack.c" ]))
 
+        if os.sep == '/':
+            def cvt(str):
+                return str
+        else:
+            def cvt(str):
+                return string.replace(str, '/', os.sep)
+
+
         newcom = scons_subst("test $targets $sources", loc, {})
-	assert newcom == "test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp /bar/ack.cpp ../foo/ack.c"
+        assert newcom == cvt("test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp /bar/ack.cpp ../foo/ack.c")
 
         newcom = scons_subst("test ${targets[:]} ${sources[0]}", loc, {})
-	assert newcom == "test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp"
+        assert newcom == cvt("test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp")
 
         newcom = scons_subst("test ${targets[1:]}v", loc, {})
-	assert newcom == "test /bar/baz.obj ../foo/baz.objv"
+        assert newcom == cvt("test /bar/baz.obj ../foo/baz.objv")
 
         newcom = scons_subst("test $target", loc, {})
-	assert newcom == "test foo/bar.exe"
+        assert newcom == cvt("test foo/bar.exe")
 
         newcom = scons_subst("test $target$source[0]", loc, {})
-	assert newcom == "test foo/bar.exe[0]"
+        assert newcom == cvt("test foo/bar.exe[0]")
 
         newcom = scons_subst("test ${target.file}", loc, {})
-	assert newcom == "test bar.exe"
+        assert newcom == cvt("test bar.exe")
 
         newcom = scons_subst("test ${target.filebase}", loc, {})
-	assert newcom == "test bar"
+        assert newcom == cvt("test bar")
 
         newcom = scons_subst("test ${target.suffix}", loc, {})
-	assert newcom == "test .exe"
+        assert newcom == cvt("test .exe")
 
         newcom = scons_subst("test ${target.base}", loc, {})
-	assert newcom == "test foo/bar"
+        assert newcom == cvt("test foo/bar")
 
         newcom = scons_subst("test ${target.dir}", loc, {})
-	assert newcom == "test foo"
+        assert newcom == cvt("test foo")
 
 
 

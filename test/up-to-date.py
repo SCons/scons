@@ -24,29 +24,31 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import os.path
 import string
 import sys
+import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
+contents = open(sys.argv[2], 'rb').read()
+file = open(sys.argv[1], 'wb')
 file.write(contents)
 file.close()
 """)
 
 test.write('SConstruct', """
-B = Builder(name = "B", action = "python build.py $targets $sources")
+B = Builder(name = "B", action = r'%s build.py $targets $sources')
 env = Environment(BUILDERS = [B])
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')
 env.B(target = 'f4.out', source = 'f4.in')
-""")
+""" % python)
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
@@ -57,10 +59,10 @@ test.run(arguments = 'f1.out f3.out')
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out', stdout =
 """scons: "f1.out" is up to date.
-python build.py f2.out f2.in
+%s build.py f2.out f2.in
 scons: "f3.out" is up to date.
-python build.py f4.out f4.in
-""")
+%s build.py f4.out f4.in
+""" % (python, python))
 
 test.pass_test()
 

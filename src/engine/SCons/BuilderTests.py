@@ -111,7 +111,9 @@ class BuilderTestCase(unittest.TestCase):
 	containing one of each.
 	"""
 
-	cmd1 = "python %s %s xyzzy" % (act_py, outfile)
+	python = sys.executable
+
+	cmd1 = r'%s %s %s xyzzy' % (python, act_py, outfile)
 
 	builder = SCons.Builder.Builder(action = cmd1)
 	r = builder.execute()
@@ -119,7 +121,7 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
 	assert c == "act.py: xyzzy\n", c
 
-	cmd2 = "python %s %s $target" % (act_py, outfile)
+	cmd2 = r'%s %s %s $target' % (python, act_py, outfile)
 
 	builder = SCons.Builder.Builder(action = cmd2)
 	r = builder.execute(target = 'foo')
@@ -127,7 +129,7 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
 	assert c == "act.py: foo\n", c
 
-	cmd3 = "python %s %s ${targets}" % (act_py, outfile)
+	cmd3 = r'%s %s %s ${targets}' % (python, act_py, outfile)
 
 	builder = SCons.Builder.Builder(action = cmd3)
 	r = builder.execute(target = ['aaa', 'bbb'])
@@ -135,7 +137,7 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
 	assert c == "act.py: aaa bbb\n", c
 
-	cmd4 = "python %s %s $sources" % (act_py, outfile)
+	cmd4 = r'%s %s %s $sources' % (python, act_py, outfile)
 
 	builder = SCons.Builder.Builder(action = cmd4)
 	r = builder.execute(source = ['one', 'two'])
@@ -143,7 +145,7 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
 	assert c == "act.py: one two\n", c
 
-	cmd4 = "python %s %s ${sources[:2]}" % (act_py, outfile)
+	cmd4 = r'%s %s %s ${sources[:2]}' % (python, act_py, outfile)
 
 	builder = SCons.Builder.Builder(action = cmd4)
 	r = builder.execute(source = ['three', 'four', 'five'])
@@ -151,7 +153,7 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
 	assert c == "act.py: three four\n", c
 
-	cmd5 = "python %s %s $target XYZZY" % (act_py, outfile)
+	cmd5 = r'%s %s %s $target XYZZY' % (python, act_py, outfile)
 
 	builder = SCons.Builder.Builder(action = cmd5)
 	r = builder.execute(target = 'out5', env = {'ENV' : {'XYZZY' : 'xyzzy'}})
@@ -190,7 +192,7 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
 	assert c == "class1b\n", c
 
-	cmd2 = "python %s %s syzygy" % (act_py, outfile)
+	cmd2 = r'%s %s %s syzygy' % (python, act_py, outfile)
 
 	def function2(kw):
 	    open(kw['out'], 'a').write("function2\n")

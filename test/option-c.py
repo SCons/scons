@@ -25,25 +25,28 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
+contents = open(sys.argv[2], 'rb').read()
+file = open(sys.argv[1], 'wb')
 file.write(contents)
 file.close()
 """)
 
 test.write('SConstruct', """
-B = Builder(name = 'B', action = "python build.py $targets $sources")
+B = Builder(name = 'B', action = r'%s build.py $targets $sources')
 env = Environment(BUILDERS = [B])
 env.B(target = 'foo1.out', source = 'foo1.in')
 env.B(target = 'foo2.out', source = 'foo2.in')
 env.B(target = 'foo3.out', source = 'foo3.in')
-""")
+""" % python)
 
 test.write('foo1.in', "foo1.in\n")
 

@@ -24,14 +24,17 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
+contents = open(sys.argv[2], 'rb').read()
+file = open(sys.argv[1], 'wb')
 file.write(contents)
 file.close()
 """)
@@ -39,14 +42,14 @@ file.close()
 test.write('SConstruct', """
 env = Environment()
 env.Command(target = 'f1.out', source = 'f1.in',
-		action = "python build.py $target $sources")
+            action = r'%s build.py $target $sources')
 env.Command(target = 'f2.out', source = 'f2.in',
-		action = "python build.py temp2 $sources\\npython build.py $target temp2")
+            action = r'%s' + " build.py temp2 $sources\\n" + r'%s' + " build.py $target temp2")
 env.Command(target = 'f3.out', source = 'f3.in',
-		action = ["python build.py temp3 $sources",
-			  "python build.py $target temp3"])
+            action = [r'%s build.py temp3 $sources',
+                      r'%s build.py $target temp3'])
 # Eventually, add ability to do execute Python code.
-""")
+""" % (python, python, python, python, python))
 
 test.write('f1.in', "f1.in\n")
 

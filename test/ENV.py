@@ -50,8 +50,8 @@ bin2.Bld(target = 'bin2.out', source = 'input')
 test.write(bin1_build_py,
 """#!/usr/bin/env python
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
+contents = open(sys.argv[2], 'rb').read()
+file = open(sys.argv[1], 'wb')
 file.write("bin1/build.py\\n")
 file.write(contents)
 file.close()
@@ -61,8 +61,8 @@ os.chmod(bin1_build_py, 0755)
 test.write(bin2_build_py,
 """#!/usr/bin/env python
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
+contents = open(sys.argv[2], 'rb').read()
+file = open(sys.argv[1], 'wb')
 file.write("bin2/build.py\\n")
 file.write(contents)
 file.close()

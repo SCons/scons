@@ -25,7 +25,10 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
@@ -33,7 +36,7 @@ test.pass_test()	#XXX Short-circuit until this is supported.
 
 test.write('succeed.py', r"""
 import sys
-file = open(sys.argv[1], 'w')
+file = open(sys.argv[1], 'wb')
 file.write("succeed.py: %s\n" % sys.argv[1])
 file.close()
 sys.exit(0)
@@ -45,13 +48,13 @@ sys.exit(1)
 """)
 
 test.write('SConstruct', """
-Succeed = Builder(name = "Succeed", action = "python succeed.py $targets")
-Fail = Builder(name = "Fail", action = "python fail.py $targets")
+Succeed = Builder(name = "Succeed", action = r'%s succeed.py $targets')
+Fail = Builder(name = "Fail", action = r'%s fail.py $targets')
 env = Environment(BUILDERS = [Succeed, Fail])
 env.Fail(target = 'aaa.1', source = 'aaa.in')
 env.Succeed(target = 'aaa.out', source = 'aaa.1')
 env.Succeed(target = 'bbb.out', source = 'bbb.in')
-""")
+""" % (python, python))
 
 test.run(arguments = '.')
 

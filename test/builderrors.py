@@ -25,7 +25,10 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
@@ -35,21 +38,21 @@ test.write('build.py', r"""
 import sys
 exitval = int(sys.argv[1])
 if exitval == 0:
-    contents = open(sys.argv[3], 'r').read()
-    file = open(sys.argv[2], 'w')
+    contents = open(sys.argv[3], 'rb').read()
+    file = open(sys.argv[2], 'wb')
     file.write(contents)
     file.close()
 sys.exit(exitval)
 """)
 
 test.write(['one', 'SConstruct'], """
-B0 = Builder(name = 'B0', action = "python ../build.py 0 $target $sources")
-B1 = Builder(name = 'B1', action = "python ../build.py 1 $target $sources")
+B0 = Builder(name = 'B0', action = r'%s ../build.py 0 $target $sources')
+B1 = Builder(name = 'B1', action = r'%s ../build.py 1 $target $sources')
 env = Environment(BUILDERS = [B0, B1])
 env.B1(target = 'f1.out', source = 'f1.in')
 env.B0(target = 'f2.out', source = 'f2.in')
 env.B0(target = 'f3.out', source = 'f3.in')
-""")
+""" % (python, python))
 
 test.write(['one', 'f1.in'], "one/f1.in\n")
 test.write(['one', 'f2.in'], "one/f2.in\n")
@@ -63,13 +66,13 @@ test.fail_test(os.path.exists(test.workpath('f2.out')))
 test.fail_test(os.path.exists(test.workpath('f3.out')))
 
 test.write(['two', 'SConstruct'], """
-B0 = Builder(name = 'B0', action = "python ../build.py 0 $target $sources")
-B1 = Builder(name = 'B1', action = "python ../build.py 1 $target $sources")
+B0 = Builder(name = 'B0', action = r'%s ../build.py 0 $target $sources')
+B1 = Builder(name = 'B1', action = r'%s ../build.py 1 $target $sources')
 env = Environment(BUILDERS = [B0, B1])
 env.B0(target = 'f1.out', source = 'f1.in')
 env.B1(target = 'f2.out', source = 'f2.in')
 env.B0(target = 'f3.out', source = 'f3.in')
-""")
+""" % (python, python))
 
 test.write(['two', 'f1.in'], "two/f1.in\n")
 test.write(['two', 'f2.in'], "two/f2.in\n")
@@ -83,13 +86,13 @@ test.fail_test(os.path.exists(test.workpath('f2.out')))
 test.fail_test(os.path.exists(test.workpath('f3.out')))
 
 test.write(['three', 'SConstruct'], """
-B0 = Builder(name = 'B0', action = "python ../build.py 0 $target $sources")
-B1 = Builder(name = 'B1', action = "python ../build.py 1 $target $sources")
+B0 = Builder(name = 'B0', action = r'%s ../build.py 0 $target $sources')
+B1 = Builder(name = 'B1', action = r'%s ../build.py 1 $target $sources')
 env = Environment(BUILDERS = [B0, B1])
 env.B0(target = 'f1.out', source = 'f1.in')
 env.B0(target = 'f2.out', source = 'f2.in')
 env.B1(target = 'f3.out', source = 'f3.in')
-""")
+""" % (python, python))
 
 test.write(['three', 'f1.in'], "three/f1.in\n")
 test.write(['three', 'f2.in'], "three/f2.in\n")

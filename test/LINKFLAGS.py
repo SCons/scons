@@ -25,7 +25,10 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
@@ -33,16 +36,16 @@ test.write("ccwrapper.py",
 """import os
 import string
 import sys
-open('%s', 'w').write("ccwrapper.py\\n")
+open('%s', 'wb').write("ccwrapper.py\\n")
 os.system(string.join(["cc"] + sys.argv[1:], " "))
 """ % test.workpath('ccwrapper.out'))
 
 test.write('SConstruct', """
 foo = Environment()
-bar = Environment(LINK = '', LINKFLAGS = 'python ccwrapper.py')
+bar = Environment(LINK = '', LINKFLAGS = r'%s ccwrapper.py')
 foo.Program(target = 'foo', source = 'foo.c')
 bar.Program(target = 'bar', source = 'bar.c')
-""")
+""" % python)
 
 test.write('foo.c', """
 int

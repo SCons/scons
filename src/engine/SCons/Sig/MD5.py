@@ -30,8 +30,18 @@ utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import md5
+import imp
 import string
+
+# Force Python to load the builtin "md5" module.  If we do this with a
+# normal import statement, then case-insensitive systems (Win32) get
+# confused and thinks there's a case mismatch with *this* MD5.py module.
+file, name, desc = imp.find_module('md5')
+try:
+    md5 = imp.load_module('md5', file, name, desc)
+finally:
+    if file:
+        file.close()
 
 def current(new, old):
     """Return whether a new signature is up-to-date with

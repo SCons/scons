@@ -24,6 +24,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import string
 import sys
 import unittest
 
@@ -69,70 +70,90 @@ class FSTestCase(unittest.TestCase):
 
         fs = SCons.Node.FS.FS()
 
-        def Dir_test(lpath, path, abspath, up_path, fileSys=fs):
-            dir = fileSys.Dir(lpath)
-            assert dir.path == path, "Dir.path %s != expected path %s" % \
-                   (dir.path, path)
-            assert str(dir) == path, "str(dir) %s != expected path %s" % \
-                   (str(dir), path)
-            assert dir.abspath == abspath, "Dir.abspath %s != expected abs. path %s" % \
-                   (dir.abspath, path)
-            assert dir.up().path == up_path, "Dir.up().path %s != expected parent path %s" % \
-                   (dir.up().path, up_path)
-
-        Dir_test('foo',         'foo/',         sub_dir_foo,            '.')
-        Dir_test('foo/bar',     'foo/bar/',     sub_dir_foo_bar,        'foo/')
-        Dir_test('/foo',        '/foo/',        '/foo/',                '/')
-        Dir_test('/foo/bar',    '/foo/bar/',    '/foo/bar/',            '/foo/')
-        Dir_test('..',          sub,            sub,                    wp)
-        Dir_test('foo/..',      '.',            sub_dir,                sub)
-        Dir_test('../foo',      sub_foo,        sub_foo,                sub)
-        Dir_test('.',           '.',            sub_dir,                sub)
-        Dir_test('./.',         '.',            sub_dir,                sub)
-        Dir_test('foo/./bar',   'foo/bar/',     sub_dir_foo_bar,        'foo/')
-
         d1 = fs.Dir('d1')
 
         f1 = fs.File('f1', directory = d1)
 
-        assert d1.current() == 0
-        assert f1.current() == 0
+        d1_f1 = os.path.join('d1', 'f1')
+        assert f1.path == d1_f1, "f1.path %s != %s" % (f1.path, d1_f1)
+        assert str(f1) == d1_f1, "str(f1) %s != %s" % (str(f1), d1_f1)
 
-        assert f1.path == 'd1/f1', "f1.path %s != d1/f1" % f1.path
-        assert str(f1) == 'd1/f1', "str(f1) %s != d1/f1" % str(f1)
+        seps = [os.sep]
+        if os.sep != '/':
+            seps = seps + ['/']
 
-        try:
-            f2 = fs.File('f1/f2', directory = d1)
-        except TypeError, x:
-	    assert str(x) == "Tried to lookup File 'd1/f1' as a Dir.", x
-        except:
-            raise
+        for sep in seps:
 
-        try:
-            dir = fs.Dir('d1/f1')
-        except TypeError, x:
-	    assert str(x) == "Tried to lookup File 'd1/f1' as a Dir.", x
-        except:
-            raise
+            def Dir_test(lpath, path, abspath, up_path, fileSys=fs, s=sep):
+                dir = fileSys.Dir(string.replace(lpath, '/', s))
 
-	try:
-	    f2 = fs.File('d1')
-	except TypeError, x:
-	    assert str(x) == "Tried to lookup Dir 'd1/' as a File.", x
-	except:
-	    raise
+		if os.sep != '/':
+                    path = string.replace(path, '/', os.sep)
+                    abspath = string.replace(abspath, '/', os.sep)
+                    up_path = string.replace(up_path, '/', os.sep)
 
-	# Test Dir.children()
-	dir = fs.Dir('ddd')
-	fs.File('ddd/f1')
-	fs.File('ddd/f2')
-	fs.File('ddd/f3')
-	fs.Dir('ddd/d1')
-	fs.Dir('ddd/d1/f4')
-	fs.Dir('ddd/d1/f5')
-	kids = map(lambda x: x.path, dir.children())
-	kids.sort()
-	assert kids == ['ddd/d1/', 'ddd/f1', 'ddd/f2', 'ddd/f3']
+                assert dir.path == path, \
+                       "dir.path %s != expected path %s" % \
+                       (dir.path, path)
+                assert str(dir) == path, \
+                       "str(dir) %s != expected path %s" % \
+                       (str(dir), path)
+                assert dir.abspath == abspath, \
+                       "dir.abspath %s != expected absolute path %s" % \
+                       (dir.abspath, abspath)
+                assert dir.up().path == up_path, \
+                       "dir.up().path %s != expected parent path %s" % \
+                       (dir.up().path, up_path)
+
+            Dir_test('foo',         'foo/',        sub_dir_foo,       '.')
+            Dir_test('foo/bar',     'foo/bar/',    sub_dir_foo_bar,   'foo/')
+            Dir_test('/foo',        '/foo/',       '/foo/',           '/')
+            Dir_test('/foo/bar',    '/foo/bar/',   '/foo/bar/',       '/foo/')
+            Dir_test('..',          sub,           sub,               wp)
+            Dir_test('foo/..',      '.',           sub_dir,           sub)
+            Dir_test('../foo',      sub_foo,       sub_foo,           sub)
+            Dir_test('.',           '.',           sub_dir,           sub)
+            Dir_test('./.',         '.',           sub_dir,           sub)
+            Dir_test('foo/./bar',   'foo/bar/',    sub_dir_foo_bar,   'foo/')
+
+            try:
+                f2 = fs.File(string.join(['f1', 'f2'], sep), directory = d1)
+            except TypeError, x:
+	        assert str(x) == ("Tried to lookup File '%s' as a Dir." %
+		                  d1_f1), x
+            except:
+                raise
+
+            try:
+                dir = fs.Dir(string.join(['d1', 'f1'], sep))
+            except TypeError, x:
+	        assert str(x) == ("Tried to lookup File '%s' as a Dir." %
+		                  d1_f1), x
+            except:
+                raise
+
+            try:
+                f2 = fs.File('d1')
+            except TypeError, x:
+                assert str(x) == ("Tried to lookup Dir '%s' as a File." %
+	                          os.path.join('d1', '')), x
+            except:
+	        raise
+
+            # Test Dir.children()
+            dir = fs.Dir('ddd')
+            fs.File(string.join(['ddd', 'f1'], sep))
+            fs.File(string.join(['ddd', 'f2'], sep))
+            fs.File(string.join(['ddd', 'f3'], sep))
+            fs.Dir(string.join(['ddd', 'd1'], sep))
+            fs.Dir(string.join(['ddd', 'd1', 'f4'], sep))
+            fs.Dir(string.join(['ddd', 'd1', 'f5'], sep))
+            kids = map(lambda x: x.path, dir.children())
+            kids.sort()
+            assert kids == [os.path.join('ddd', 'd1', ''),
+	                    os.path.join('ddd', 'f1'),
+			    os.path.join('ddd', 'f2'),
+			    os.path.join('ddd', 'f3')]
 
         # Test for sub-classing of node building.
         global built_it

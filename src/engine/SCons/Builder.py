@@ -32,10 +32,67 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import os
+import os.path
 import SCons.Node.FS
 from SCons.Util import PathList, scons_str2nodes, scons_subst
 import string
 import types
+
+
+
+if os.name == 'posix':
+
+    def spawn(cmd, args, env):
+        pid = os.fork()
+        if not pid:
+            # Child process.
+            os.execvpe(cmd, args, env)
+        else:
+            # Parent process.
+            pid, stat = os.waitpid(pid, 0)
+            ret = stat >> 8
+	    return ret
+
+elif os.name == 'nt':
+
+    def pathsearch(cmd, env):
+	# In order to deal with the fact that 1.5.2 doesn't have
+	# os.spawnvpe(), roll our own PATH search.
+	if os.path.isabs(cmd):
+	    if not os.path.exists(cmd):
+	        exts = env['PATHEXT']
+		if type(exts) != type([]):
+		    exts = string.split(exts, os.pathsep)
+		for e in exts:
+		    f = cmd + e
+		    if os.path.exists(f):
+		        return f
+	else:
+	    path = env['PATH']
+	    if type(path) != type([]):
+	        path = string.split(path, os.pathsep)
+	    exts = env['PATHEXT']
+	    if type(exts) != type([]):
+	        exts = string.split(exts, os.pathsep)
+	    pairs = []
+	    for dir in path:
+	        for e in [None] + exts:
+		    pairs.append(dir, e)
+	    for dir, ext in pairs:
+		f = os.path.join(dir, cmd)
+	        if not ext is None:
+		    f = f + ext
+		if os.path.exists(f):
+		    return f
+	return cmd
+
+    def spawn(cmd, args, env):
+        try:
+	    ret = os.spawnvpe(os.P_WAIT, cmd, args, env)
+	except AttributeError:
+	    cmd = pathsearch(cmd, env)
+	    ret = os.spawnve(os.P_WAIT, cmd, args, env)
+        return ret
 
 
 
@@ -230,20 +287,13 @@ class CommandAction(ActionBase):
 	    self.show(cmd)
 	ret = 0
 	if execute_actions:
-	    pid = os.fork()
-	    if not pid:
-		# Child process.
-		args = string.split(cmd)
-		try:
-		    ENV = kw['env']['ENV']
-		except:
-		    import SCons.Defaults
-		    ENV = SCons.Defaults.ConstructionEnvironment['ENV']
-		os.execvpe(args[0], args, ENV)
-	    else:
-		# Parent process.
-		pid, stat = os.waitpid(pid, 0)
-		ret = stat >> 8
+            args = string.split(cmd)
+            try:
+                ENV = glob['ENV']
+            except:
+                import SCons.Defaults
+                ENV = SCons.Defaults.ConstructionEnvironment['ENV']
+	    ret = spawn(args[0], args, ENV)
 	return ret
 
 

@@ -33,6 +33,11 @@ import string
 import sys
 import traceback
 
+# Strip the script directory from sys.path() so on case-insensitive
+# (WIN32) systems Python doesn't think that the "scons" script is the
+# "SCons" package.
+sys.path = sys.path[1:]
+
 import SCons.Node
 import SCons.Node.FS
 import SCons.Job

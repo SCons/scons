@@ -25,28 +25,31 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-contents = open(sys.argv[2], 'r').read()
-file = open(sys.argv[1], 'w')
+contents = open(sys.argv[2], 'rb').read()
+file = open(sys.argv[1], 'wb')
 file.write(contents)
 file.close()
 sys.exit(0)
 """)
 
 test.write('SConstruct', """
-B1 = Builder(name = 'B1', action = ["python build.py .temp $sources",
-				    "python build.py $targets .temp"])
-B2 = Builder(name = 'B2', action = "python build.py .temp $sources\\npython build.py $targets .temp")
+B1 = Builder(name = 'B1', action = [r'%s build.py .temp $sources',
+                                    r'%s build.py $targets .temp'])
+B2 = Builder(name = 'B2', action = r'%s' + " build.py .temp $sources\\n" + r'%s' + " build.py $targets .temp")
 env = Environment(BUILDERS = [B1, B2])
 env.B1(target = 'foo1.out', source = 'foo1.in')
 env.B2(target = 'foo2.out', source = 'foo2.in')
 env.B1(target = 'foo3.out', source = 'foo3.in')
-""")
+""" % (python, python, python, python))
 
 test.write('foo1.in', "foo1.in\n")
 
