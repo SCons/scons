@@ -94,7 +94,9 @@ def shlib_emitter(target, source, env):
 
 shlib_action = SCons.Action.CommandGenerator(shlib_generator)
 
-res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.o')
+res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.o',
+                                    source_scanner=SCons.Defaults.ObjSourceScan)
+SCons.Defaults.ObjSourceScan.add_scanner('.rc', SCons.Defaults.CScan)
 
 def generate(env):
     mingw = find(env)
@@ -137,7 +139,6 @@ def generate(env):
     env['RCINCPREFIX'] = '--include-dir '
     env['RCINCSUFFIX'] = ''
     env['RCCOM'] = '$RC $RCINCFLAGS $RCFLAGS -i $SOURCE -o $TARGET'
-    SCons.Defaults.ObjSourceScan.add_scanner('.rc', SCons.Defaults.CScan)
     env['BUILDERS']['RES'] = res_builder
     
     # Some setting from the platform also have to be overridden:

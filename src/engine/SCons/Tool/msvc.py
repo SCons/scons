@@ -398,7 +398,9 @@ def shared_object_emitter(target, source, env):
                           SCons.Defaults.SharedObjectEmitter)
 
 pch_builder = SCons.Builder.Builder(action='$PCHCOM', suffix='.pch', emitter=pch_emitter)
-res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.res')
+res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.res',
+                                    source_scanner=SCons.Defaults.ObjSourceScan)
+SCons.Defaults.ObjSourceScan.add_scanner('.rc', SCons.Defaults.CScan)
 
 def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
@@ -438,7 +440,6 @@ def generate(env):
     env['RC'] = 'rc'
     env['RCFLAGS'] = SCons.Util.CLVar('')
     env['RCCOM'] = '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
-    SCons.Defaults.ObjSourceScan.add_scanner('.rc', SCons.Defaults.CScan)
     env['BUILDERS']['RES'] = res_builder
 
     try:
