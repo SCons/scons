@@ -614,7 +614,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                                 s = eval(key, self.gvars, lvars)
                             except AttributeError, e:
                                 raise SCons.Errors.UserError, \
-                                      "Error substituting `%s': unknown attribute `%s'" % (key, e)
+                                      "Error trying to evaluate `%s': %s" % (s, e)
                             except (IndexError, NameError, TypeError):
                                 return ''
                             except SyntaxError,e:
@@ -813,7 +813,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                             s = eval(key, self.gvars, lvars)
                         except AttributeError, e:
                             raise SCons.Errors.UserError, \
-                                  "Error substituting `%s': unknown attribute `%s'" % (key, e)
+                                  "Error trying to evaluate `%s': %s" % (s, e)
                         except (IndexError, NameError, TypeError):
                             return
                         except SyntaxError,e:

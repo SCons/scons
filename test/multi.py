@@ -28,9 +28,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test various cases where a target is "built" by multiple builder calls.
 """
 
+import os.path
+import string
+
 import TestCmd
 import TestSCons
-import os.path
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 
@@ -173,7 +175,7 @@ test.run(arguments='file4.out',
          stderr=TestSCons.re_escape("""
 scons: warning: Two different environments were specified for target file4.out,
 	but they appear to have the same action: %(python)s build.py \$foo \$TARGET \$SOURCES
-""" % {'python':TestSCons.python}) + TestSCons.file_expr)
+""" % {'python':string.replace(TestSCons.python, '\\', '\\\\')}) + TestSCons.file_expr)
 
 test.must_match('file4.out', "3\nfile4a.in\nfile4b.in\n")
 
