@@ -575,6 +575,12 @@ class ListAction(ActionBase):
             return Action(x)
         self.list = map(list_of_actions, list)
 
+    def genstring(self, target, source, env):
+        return string.join(map(lambda a, t=target, s=source, e=env:
+                                  a.genstring(t, s, e),
+                               self.list),
+                           '\n')
+
     def __str__(self):
         return string.join(map(str, self.list), '\n')
     
