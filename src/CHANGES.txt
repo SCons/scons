@@ -237,6 +237,9 @@ RELEASE 0.97 - XXX
   - Add a global name for the Entry class (which had already been
     documented).
 
+  - Fix re-scanning of generated source files for implicit dependencies
+    when the -j option is used.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
