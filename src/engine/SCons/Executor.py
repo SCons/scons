@@ -31,6 +31,9 @@ Nodes.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
+from SCons.Debug import logInstanceCreation
+
+
 class Executor:
     """A class for controlling instances of executing an action.
 
@@ -40,6 +43,7 @@ class Executor:
     """
 
     def __init__(self, builder, env, overrides, targets, sources):
+        if __debug__: logInstanceCreation(self)
         self.builder = builder
         self.env = env
         self.overrides = overrides

@@ -35,6 +35,7 @@ import re
 import string
 import sys
 
+from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Util
 
@@ -173,6 +174,7 @@ class CommandAction(ActionBase):
         # Cmd list can actually be a list or a single item...basically
         # anything that we could pass in as the first arg to
         # Environment.subst_list().
+        if __debug__: logInstanceCreation(self)
         self.cmd_list = cmd
 
     def strfunction(self, target, source, env):
@@ -289,6 +291,7 @@ class CommandAction(ActionBase):
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
     def __init__(self, generator):
+        if __debug__: logInstanceCreation(self)
         self.generator = generator
 
     def __generate(self, target, source, env, for_signature):
@@ -331,6 +334,7 @@ class LazyCmdGenerator:
     until execution time to see what type it is, then tries to
     create an Action out of it."""
     def __init__(self, var):
+        if __debug__: logInstanceCreation(self)
         self.var = SCons.Util.to_String(var)
 
     def strfunction(self, target, source, env):
@@ -354,6 +358,7 @@ class FunctionAction(ActionBase):
     """Class for Python function actions."""
 
     def __init__(self, execfunction, strfunction=_null, varlist=[]):
+        if __debug__: logInstanceCreation(self)
         self.execfunction = execfunction
         if strfunction is _null:
             def strfunction(target, source, env, execfunction=execfunction):
@@ -407,6 +412,7 @@ class FunctionAction(ActionBase):
 class ListAction(ActionBase):
     """Class for lists of other actions."""
     def __init__(self, list):
+        if __debug__: logInstanceCreation(self)
         self.list = map(lambda x: Action(x), list)
 
     def get_actions(self):

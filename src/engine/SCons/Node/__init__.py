@@ -48,6 +48,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import copy
 
+from SCons.Debug import logInstanceCreation
 import SCons.Sig
 import SCons.Util
 
@@ -89,6 +90,7 @@ class Node:
         pass
 
     def __init__(self):
+        if __debug__: logInstanceCreation(self, 'Node')
         # Note that we no longer explicitly initialize a self.builder
         # attribute to None here.  That's because the self.builder
         # attribute may be created on-the-fly later by a subclass (the
@@ -154,7 +156,7 @@ class Node:
         except AttributeError:
             if not create:
                 raise
-            import SCons.Builder
+            import SCons.Executor
             env = self.generate_build_env(self.builder.env)
             executor = SCons.Executor.Executor(self.builder,
                                                env,

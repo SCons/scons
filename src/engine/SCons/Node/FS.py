@@ -45,10 +45,11 @@ import sys
 import cStringIO
 
 import SCons.Action
+from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Node
-import SCons.Util
 import SCons.Sig.MD5
+import SCons.Util
 import SCons.Warnings
 
 #
@@ -322,6 +323,7 @@ class Base(SCons.Node.Node):
         our relative and absolute paths, identify our parent
         directory, and indicate that this node should use
         signatures."""
+        if __debug__: logInstanceCreation(self, 'Node.FS.Base')
         SCons.Node.Node.__init__(self)
 
         self.name = name
@@ -571,6 +573,7 @@ class FS:
 
         The path argument must be a valid absolute path.
         """
+        if __debug__: logInstanceCreation(self)
         if path == None:
             self.pathTop = os.getcwd()
         else:
@@ -936,6 +939,7 @@ class Dir(Base):
     """
 
     def __init__(self, name, directory, fs):
+        if __debug__: logInstanceCreation(self, 'Node.FS.Dir')
         Base.__init__(self, name, directory, fs)
         self._morph()
 
@@ -1175,6 +1179,7 @@ class File(Base):
     """A class for files in a file system.
     """
     def __init__(self, name, directory, fs):
+        if __debug__: logInstanceCreation(self, 'Node.FS.File')
         Base.__init__(self, name, directory, fs)
         self._morph()
 
@@ -1197,13 +1202,13 @@ class File(Base):
         """Search for a list of directories in the Repository list."""
         return self.fs.Rsearchall(pathlist, clazz=Dir, must_exist=0,
                                   cwd=self.cwd)
-    
+
     def generate_build_env(self, env):
         """Generate an appropriate Environment to build this File."""
         return env.Override({'Dir' : self.Dir,
                              'File' : self.File,
                              'RDirs' : self.RDirs})
-        
+
     def _morph(self):
         """Turn a file system node into a File object."""
         self.scanner_paths = {}

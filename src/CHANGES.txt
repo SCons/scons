@@ -150,6 +150,10 @@ RELEASE 0.95 - XXX
   - Fix transparent checkout of implicit dependency files from SCCS
     and RCS.
 
+  - Added new --debug=count, --debug=memory and --debug=objects options.
+    --debug=count and --debug=objects only print anything when run
+    under Python 2.1 or later.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.

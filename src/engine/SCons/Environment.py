@@ -45,6 +45,7 @@ from UserDict import UserDict
 
 import SCons.Action
 import SCons.Builder
+from SCons.Debug import logInstanceCreation
 import SCons.Defaults
 import SCons.Errors
 import SCons.Node
@@ -211,6 +212,7 @@ class Base:
                  toolpath=[],
                  options=None,
                  **kw):
+        if __debug__: logInstanceCreation(self)
         self.fs = SCons.Node.FS.default_fs
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
@@ -500,8 +502,8 @@ class Base:
         suffix - construction variable for the suffix.
         """
 
-        suffix = self.subst('$%s'%suffix)
-        prefix = self.subst('$%s'%prefix)
+        suffix = self.subst('$'+suffix)
+        prefix = self.subst('$'+prefix)
 
         for path in paths:
             dir,name = os.path.split(str(path))
@@ -643,11 +645,11 @@ class Base:
         new_prefix - construction variable for the new prefix.
         new_suffix - construction variable for the new suffix.
         """
-        old_prefix = self.subst('$%s'%old_prefix)
-        old_suffix = self.subst('$%s'%old_suffix)
+        old_prefix = self.subst('$'+old_prefix)
+        old_suffix = self.subst('$'+old_suffix)
 
-        new_prefix = self.subst('$%s'%new_prefix)
-        new_suffix = self.subst('$%s'%new_suffix)
+        new_prefix = self.subst('$'+new_prefix)
+        new_suffix = self.subst('$'+new_suffix)
 
         dir,name = os.path.split(str(path))
         if name[:len(old_prefix)] == old_prefix:
