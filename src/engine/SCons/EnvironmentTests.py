@@ -1335,7 +1335,7 @@ class EnvironmentTestCase(unittest.TestCase):
                 def read(self):
                     return "-I/usr/include/fum -Ibar -X\n" + \
                            "-L/usr/fax -Lfoo -lxxx " + \
-                           "-Wa,-as -Wl,-link -Wp,-cpp abc"
+                           "-Wa,-as -Wl,-link -Wp,-cpp abc -pthread"
             return fake_file()
         try:
             os.popen = my_popen
@@ -1347,8 +1347,8 @@ class EnvironmentTestCase(unittest.TestCase):
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
             assert env['LIBPATH'] == ['list', '/usr/fax', 'foo'], env['LIBPATH']
             assert env['LIBS'] == ['xxx'], env['LIBS']
-            assert env['LINKFLAGS'] == ['', '-Wl,-link'], env['LINKFLAGS']
-            assert env['CCFLAGS'] == ['', '-X'], env['CCFLAGS']
+            assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread'], env['LINKFLAGS']
+            assert env['CCFLAGS'] == ['', '-X', '-pthread'], env['CCFLAGS']
         finally:
             os.popen = orig_popen
 

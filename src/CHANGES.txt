@@ -217,6 +217,9 @@ RELEASE 0.96 - XXX
   - Add a section describing File and Directory Nodes and some of their
     attributes and methods.
 
+  - Have ParseConfig() add a returned -pthread flag to both $CCFLAGS
+    and $LINKFLAGS.
+
   From Simon Perkins:
 
   - Fix a bug introduced in building shared libraries under MinGW.
