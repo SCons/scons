@@ -220,7 +220,7 @@ Checking for C header no_std_c_header.h ... failed
     #     even if BuildDir is set
     reset()
 
-    test.subdir( 'sub' )
+    test.subdir( 'sub', ['sub', 'local'] )
     test.write( 'SConstruct', """
 opts = Options()
 opts.Add('chdir')
@@ -232,17 +232,27 @@ else:
 BuildDir( 'build', '.' )
 SConscript( 'build/SConscript' )
 """)
+    test.write( 'sub/local/local_header.h', "/* Hello World */" )
     test.write( 'SConscript', """
 SConscript( 'sub/SConscript' )
 """)
     test.write( 'sub/SConscript', """
+def CustomTest(context):
+  context.Message('Executing Custom Test ... ')
+  ret = context.TryCompile('#include "local_header.h"', '.c')
+  context.Result(ret)
+  return ret
+
 env = Environment()
+env.Append( CPPPATH='local' )
 import os
 env['ENV']['PATH'] = os.environ['PATH']
-conf = Configure( env )
+conf = Configure( env, custom_tests = {'CustomTest' : CustomTest} )
 if not conf.CheckCHeader( 'math.h' ):
   Exit(1)
 if conf.CheckCHeader( 'no_std_c_header.h' ):
+  Exit(1)
+if not conf.CustomTest():
   Exit(1)
 env = conf.Finish()
 env.Program( 'TestProgram', 'TestProgram.c' )
@@ -262,6 +272,7 @@ int main() {
                                        read_str=
     """Checking for C header math.h ... ok
 Checking for C header no_std_c_header.h ... failed
+Executing Custom Test ... ok
 """)
     # first with SConscriptChdir(0)
     test.run(stdout = required_stdout, arguments='chdir=no')
@@ -270,7 +281,7 @@ Checking for C header no_std_c_header.h ... failed
 
     test.run(stdout = required_stdout, arguments='chdir=no')
     checkFiles( test, [".sconf_temp/.cache", "config.log"] )
-    checkLog( test, 'config.log', 3, 1 )
+    checkLog( test, 'config.log', 5, 1 )
 
     shutil.rmtree(test.workpath(".sconf_temp"))
 
@@ -281,7 +292,7 @@ Checking for C header no_std_c_header.h ... failed
 
     test.run(stdout = required_stdout, arguments='chdir=yes')
     checkFiles( test, [".sconf_temp/.cache", "config.log"] )
-    checkLog( test, 'config.log', 3, 1 )
+    checkLog( test, 'config.log', 5, 1 )
 
     # 3.1 test custom tests
     reset()

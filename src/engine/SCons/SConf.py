@@ -186,8 +186,9 @@ class SConf:
             sys.stderr = self.logstream
 
         # the engine assumes the current path is the SConstruct directory ...
-        oldcwd = os.getcwd()
-        os.chdir(SConfFS.pathTop)
+        old_fs_dir = SConfFS.getcwd()
+        old_os_dir = os.getcwd()
+        SConfFS.chdir(SConfFS.Top, change_os_dir=1)
 
         self._setCache( nodes ) 
         ret = 1
@@ -220,7 +221,8 @@ class SConf:
                     # the node could not be built. we return 0 in this case
                     ret = 0
         finally:
-            os.chdir(oldcwd)
+            os.chdir(old_os_dir)
+            SConfFS.chdir(old_fs_dir, change_os_dir=0)
             if self.logstream != None:
                 # restore stdout / stderr
                 sys.stdout = oldStdout
