@@ -75,6 +75,9 @@ RELEASE 0.97 - XXX
   - Fix a stack trace when a suffix selection dictionary is passed
     an empty source file list.
 
+  - Allow optional names to be attached to Builders, for default
+    Builders that don't get attached to construction environments.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

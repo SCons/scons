@@ -193,7 +193,8 @@ def get_MkdirBuilder():
         # calling SCons.Defaults.DefaultEnvironment() when necessary.
         MkdirBuilder = SCons.Builder.Builder(action = Mkdir,
                                              env = None,
-                                             explain = None)
+                                             explain = None,
+                                             name = "MkdirBuilder")
     return MkdirBuilder
 
 def CacheRetrieveFunc(target, source, env):
@@ -261,7 +262,8 @@ def get_DefaultSCCSBuilder():
         # "env" will get filled in by Executor.get_build_env()
         # calling SCons.Defaults.DefaultEnvironment() when necessary.
         DefaultSCCSBuilder = SCons.Builder.Builder(action = '$SCCSCOM',
-                                                   env = None)
+                                                   env = None,
+                                                   name = "DefaultSCCSBuilder")
     return DefaultSCCSBuilder
 
 def get_DefaultRCSBuilder():
@@ -271,7 +273,8 @@ def get_DefaultRCSBuilder():
         # "env" will get filled in by Executor.get_build_env()
         # calling SCons.Defaults.DefaultEnvironment() when necessary.
         DefaultRCSBuilder = SCons.Builder.Builder(action = '$RCS_COCOM',
-                                                  env = None)
+                                                  env = None,
+                                                  name = "DefaultRCSBuilder")
     return DefaultRCSBuilder
 
 #
