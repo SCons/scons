@@ -27,6 +27,10 @@ RELEASE 0.96 - XXX
   - Fix use of $MSVS_IGNORE_IDE_PATHS, which was broken when we added
     support for $MSVS_USE_MFC_DIRS last release.
 
+  From Gary Oberbrunner:
+
+  - Add a --debug=presub option to print actions prior to substitution.
+
 
 
 RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
