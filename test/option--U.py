@@ -44,8 +44,9 @@ file.close()
 """)
 
 test.write('SConstruct', """
+import SCons.Defaults
 B = Builder(name='B', action='%s build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+env = Environment(BUILDERS = [B, SCons.Defaults.Alias])
 Default(env.B(target = 'sub1/foo.out', source = 'sub1/foo.in'))
 Export('env')
 SConscript('sub2/SConscript')
@@ -57,7 +58,9 @@ Default(env.B(target = 'sub2/xxx.out', source = 'xxx.in'))
 
 test.write(['sub2', 'SConscript'], """
 Import('env')
-Default(env.B(target = 'bar.out', source = 'bar.in'))
+bar = env.B(target = 'bar.out', source = 'bar.in')
+Default(bar)
+env.Alias('bar', bar)
 Default(env.B(target = '../bar.out', source = 'bar.in'))
 """)
 
@@ -105,6 +108,18 @@ test.fail_test(os.path.exists(test.workpath('sub2b', 'bar.out')))
 test.fail_test(not os.path.exists(test.workpath('sub3', 'baz.out')))
 test.fail_test(os.path.exists(test.workpath('bar.out')))
 test.fail_test(not os.path.exists(test.workpath('sub2/xxx.out')))
+
+test.unlink(['sub1', 'foo.out'])
+test.unlink(['sub3', 'baz.out'])
+test.unlink(['sub2', 'xxx.out'])
+
+test.run(chdir = 'sub3', arguments='-U bar')
+test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
+test.fail_test(not os.path.exists(test.workpath('sub2', 'bar.out')))
+test.fail_test(not os.path.exists(test.workpath('sub2b', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
+test.fail_test(os.path.exists(test.workpath('bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 
 
 test.pass_test()

@@ -122,6 +122,8 @@ RELEASE 0.07 -
   - Fixed use of sys.path so Python modules can be imported from
     the SConscript directory.
 
+  - Fix for using Aliases with the -u, -U and -D options.
+
   From Moshe Zadka:
   
   - Changes for official Debian packaging.

@@ -87,6 +87,12 @@ class Alias(SCons.Node.Node):
     def sconsign(self):
         """An Alias is not recorded in .sconsign files"""
         pass
+
+    def is_under(self, dir):
+	# Make Alias nodes get built regardless of 
+	# what directory scons was run from. Alias nodes
+	# are outside the filesystem:
+	return 1
         
 default_ans = AliasNameSpace()
 

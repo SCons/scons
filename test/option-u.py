@@ -44,13 +44,14 @@ file.close()
 """)
 
 test.write('SConstruct', """
+import SCons.Defaults
 B = Builder(name='B', action='%s build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+env = Environment(BUILDERS = [B, SCons.Defaults.Alias])
 env.B(target = 'sub1/foo.out', source = 'sub1/foo.in')
 Default('.')
 Export('env')
 SConscript('sub2/SConscript')
-env.B(target = 'sub3/baz.out', source = 'sub3/baz.in')
+env.Alias('baz', env.B(target = 'sub3/baz.out', source = 'sub3/baz.in'))
 """ % python)
 
 test.write(['sub2', 'SConscript'], """
@@ -72,6 +73,9 @@ test.run(chdir = 'sub2', arguments = '-u')
 
 test.fail_test(test.read(['sub2', 'bar.out']) != "sub2/bar.in")
 test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
+
+test.run(chdir = 'sub2', arguments = '-u baz')
+test.fail_test(test.read(['sub3', 'baz.out']) != "sub3/baz.in")
 
 test.pass_test()
  

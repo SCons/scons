@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 import TestSCons
+import os
 
 python = sys.executable
 
@@ -42,8 +43,9 @@ file.close()
 """)
 
 test.write('SConstruct', """
+import SCons.Defaults
 B = Builder(name='B', action='%s build.py $TARGET $SOURCES')
-env = Environment(BUILDERS = [B])
+env = Environment(BUILDERS = [B, SCons.Defaults.Alias])
 env.B(target = 'sub1/foo.out', source = 'sub1/foo.in')
 Export('env')
 SConscript('sub1/SConscript')
@@ -60,8 +62,9 @@ test.write(['sub1', 'foo.in'], "sub1/foo.in")
 
 test.write(['sub2', 'SConscript'], """
 Import('env')
-env.B(target = 'bar.out', source = 'bar.in')
+env.Alias('bar', env.B(target = 'bar.out', source = 'bar.in'))
 Default('.')
+
 """)
 
 test.write(['sub2', 'bar.in'], "sub2/bar.in")
@@ -70,6 +73,16 @@ test.run(arguments = '-D', chdir = 'sub1')
 
 test.fail_test(test.read(['sub1', 'foo.out']) != "sub1/foo.in")
 test.fail_test(test.read(['sub2', 'bar.out']) != "sub2/bar.in")
+
+test.unlink(['sub1', 'foo.out'])
+test.unlink(['sub2', 'bar.out'])
+
+test.run(arguments = '-D bar', chdir = 'sub1')
+
+test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
+test.fail_test(not os.path.exists(test.workpath('sub2', 'bar.out')))
+
+
 
 test.pass_test()
 
