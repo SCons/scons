@@ -140,7 +140,7 @@ class Node:
                     dir = self.node.getcwd()
                 except AttributeError:
                     dir = None
-                return self.node.builder.get_contents(env = env, dir = dir)
+                return self.node.builder.get_contents(env = env)
         return Adapter(self)
 
     def scanner_set(self, scanner):
