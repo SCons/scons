@@ -3,18 +3,94 @@
 Builder object subsystem.
 
 A Builder object is a callable that encapsulates information about how
-to execute actions to create a Node (file) from other Nodes (files), and
-how to create those dependencies for tracking.
+to execute actions to create a target Node (file) from source Nodes
+(files), and how to create those dependencies for tracking.
 
-The main entry point here is the Builder() factory method.  This
-provides a procedural interface that creates the right underlying
-Builder object based on the keyword arguments supplied and the types of
-the arguments.
+The main entry point here is the Builder() factory method.  This provides
+a procedural interface that creates the right underlying Builder object
+based on the keyword arguments supplied and the types of the arguments.
 
 The goal is for this external interface to be simple enough that the
 vast majority of users can create new Builders as necessary to support
 building new types of files in their configurations, without having to
 dive any deeper into this subsystem.
+
+The base class here is BuilderBase.  This is a concrete base class which
+does, in fact, represent most Builder objects that we (or users) create.
+
+There is (at present) one subclasses:
+
+    MultiStepBuilder
+
+        This is a Builder that knows how to "chain" Builders so that
+        users can specify a source file that requires multiple steps
+        to turn into a target file.  A canonical example is building a
+        program from yacc input file, which requires invoking a builder
+        to turn the .y into a .c, the .c into a .o, and the .o into an
+        executable program.
+
+There is also two proxies that look like Builders:
+
+    CompositeBuilder
+
+        This proxies for a Builder with an action that is actually a
+        dictionary that knows how to map file suffixes to a specific
+        action.  This is so that we can invoke different actions
+        (compilers, compile options) for different flavors of source
+        files.
+
+    ListBuilder
+
+        This proxies for a Builder *invocation* where the target
+        is a list of files, not a single file.
+
+Builders and their proxies have the following public interface methods
+used by other modules:
+
+    __call__()
+        THE public interface.  Calling a Builder object (with the
+        use of internal helper methods) sets up the target and source
+        dependencies, appropriate mapping to a specific action, and the
+        environment manipulation necessary for overridden construction
+        variable.  This also takes care of warning about possible mistakes
+        in keyword arguments.
+
+    targets()
+        Returns the list of targets for a specific builder instance.
+
+    add_emitter()
+        Adds an emitter for a specific file suffix, used by some Tool
+        modules to specify that (for example) a yacc invocation on a .y
+        can create a .h *and* a .c file.
+
+    add_action()
+        Adds an action for a specific file suffix, heavily used by
+        Tool modules to add their specific action(s) for turning
+        a source file into an object file to the global static
+        and shared object file Builders.
+
+There are the following methods for internal use within this module:
+
+    _execute()
+        The internal method that handles the heavily lifting when a
+        Builder is called.  This is used so that the __call__() methods
+        can set up warning about possible mistakes in keyword-argument
+        overrides, and *then* execute all of the steps necessary so that
+        the warnings only occur once.
+
+    get_name()
+        Returns the Builder's name within a specific Environment,
+        primarily used to try to return helpful information in error
+        messages.
+
+    adjust_suffix()
+    get_prefix()
+    get_suffix()
+    get_src_suffix()
+    set_src_suffix()
+        Miscellaneous stuff for handling the prefix and suffix
+        manipulation we use in turning source file names into target
+        file names.
 
 """
 
@@ -125,6 +201,40 @@ class ListEmitter(UserList.UserList):
         for e in self.data:
             target, source = e(target, source, env)
         return (target, source)
+
+# These are a common errors when calling a Builder;
+# they are similar to the 'target' and 'source' keyword args to builders,
+# so we issue warnings when we see them.  The warnings can, of course,
+# be disabled.
+misleading_keywords = {
+    'targets'   : 'target',
+    'sources'   : 'source',
+}
+
+class OverrideWarner(UserDict.UserDict):
+    """A class for warning about keyword arguments that we use as
+    overrides in a Builder call.
+
+    This class exists to handle the fact that a single MultiStepBuilder
+    call can actually invoke multiple builders as a result of a single
+    user-level Builder call.  This class only emits the warnings once,
+    no matter how many Builders are invoked.
+    """
+    def __init__(self, dict):
+        UserDict.UserDict.__init__(self, dict)
+        self.already_warned = None
+    def warn(self):
+        if self.already_warned:
+            return
+        for k in self.keys():
+            try:
+                alt = misleading_keywords[k]
+            except KeyError:
+                pass
+            else:
+                SCons.Warnings.warn(SCons.Warnings.MisleadingKeywordsWarning,
+                                    "Did you mean to use `%s' instead of `%s'?" % (alt, k))
+        self.already_warned = 1
 
 def Builder(**kw):
     """A factory for builder objects."""
@@ -333,7 +443,7 @@ class BuilderBase:
     def splitext(self, path):
         return SCons.Util.splitext(path)
 
-    def _create_nodes(self, env, overrides, target = None, source = None):
+    def _create_nodes(self, env, overwarn, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
         def _adjustixes(files, pre, suf):
@@ -349,7 +459,9 @@ class BuilderBase:
                 result.append(f)
             return result
 
-        env = env.Override(overrides)
+        overwarn.warn()
+
+        env = env.Override(overwarn.data)
 
         src_suf = self.get_src_suffix(env)
 
@@ -399,19 +511,24 @@ class BuilderBase:
 
         return tlist, slist
 
-    def __call__(self, env, target = None, source = _null, **overrides):
+    def _execute(self, env, target = None, source = _null, overwarn={}):
         if source is _null:
             source = target
             target = None
-        tlist, slist = self._create_nodes(env, overrides, target, source)
+        tlist, slist = self._create_nodes(env, overwarn, target, source)
 
         if len(tlist) == 1:
-            _init_nodes(self, env, overrides, tlist, slist)
-            tlist = tlist[0]
+            builder = self
+            result = tlist[0]
         else:
-            _init_nodes(ListBuilder(self, env, tlist), env, overrides, tlist, slist)
+            builder = ListBuilder(self, env, tlist)
+            result = tlist
+        _init_nodes(builder, env, overwarn.data, tlist, slist)
 
-        return tlist
+        return result
+
+    def __call__(self, env, target = None, source = _null, **kw):
+        return self._execute(env, target, source, OverrideWarner(kw))
 
     def adjust_suffix(self, suff):
         if suff and not suff[0] in [ '.', '_', '$' ]:
@@ -525,7 +642,7 @@ class MultiStepBuilder(BuilderBase):
         self.sdict = {}
         self.cached_src_suffixes = {} # source suffixes keyed on id(env)
 
-    def __call__(self, env, target = None, source = _null, **kw):
+    def _execute(self, env, target = None, source = _null, overwarn={}):
         if source is _null:
             source = target
             target = None
@@ -552,7 +669,7 @@ class MultiStepBuilder(BuilderBase):
         for snode in slist:
             base, ext = self.splitext(str(snode))
             if sdict.has_key(ext):
-                tgt = apply(sdict[ext], (env, None, snode), kw)
+                tgt = sdict[ext]._execute(env, None, snode, overwarn)
                 # Only supply the builder with sources it is capable
                 # of building.
                 if SCons.Util.is_List(tgt):
@@ -566,8 +683,7 @@ class MultiStepBuilder(BuilderBase):
             else:
                 final_sources.append(snode)
 
-        return apply(BuilderBase.__call__,
-                     (self, env, target, final_sources), kw)
+        return BuilderBase._execute(self, env, target, final_sources, overwarn)
 
     def get_src_builders(self, env):
         """Return all the src_builders for this Builder.

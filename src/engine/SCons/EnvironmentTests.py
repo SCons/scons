@@ -2366,6 +2366,105 @@ class EnvironmentTestCase(unittest.TestCase):
         f = env.xxx('$FOO')
         assert f == 'foo', f
 
+    def test_bad_keywords(type):
+        """Test trying to use reserved keywords in an Environment"""
+        reserved = ['TARGETS','SOURCES', 'SOURCE','TARGET']
+        added = []
+
+        env = SCons.Environment.Environment(TARGETS = 'targets',
+                                            SOURCES = 'sources',
+                                            SOURCE = 'source',
+                                            TARGET = 'target',
+                                            INIT = 'init')
+        added.append('INIT')
+        for x in reserved:
+            assert not env.has_key(x), env[x]
+        for x in added:
+            assert env.has_key(x), \
+                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+
+        env.Append(TARGETS = 'targets',
+                   SOURCES = 'sources',
+                   SOURCE = 'source',
+                   TARGET = 'target',
+                   APPEND = 'append')
+        added.append('APPEND')
+        for x in reserved:
+            assert not env.has_key(x), env[x]
+        for x in added:
+            assert env.has_key(x), \
+                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+
+        env.AppendUnique(TARGETS = 'targets',
+                         SOURCES = 'sources',
+                         SOURCE = 'source',
+                         TARGET = 'target',
+                         APPENDUNIQUE = 'appendunique')
+        added.append('APPENDUNIQUE')
+        for x in reserved:
+            assert not env.has_key(x), env[x]
+        for x in added:
+            assert env.has_key(x), \
+                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+
+        env.Prepend(TARGETS = 'targets',
+                    SOURCES = 'sources',
+                    SOURCE = 'source',
+                    TARGET = 'target',
+                    PREPEND = 'prepend')
+        added.append('PREPEND')
+        for x in reserved:
+            assert not env.has_key(x), env[x]
+        for x in added:
+            assert env.has_key(x), \
+                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+
+        env.Prepend(TARGETS = 'targets',
+                    SOURCES = 'sources',
+                    SOURCE = 'source',
+                    TARGET = 'target',
+                    PREPENDUNIQUE = 'prependunique')
+        added.append('PREPENDUNIQUE')
+        for x in reserved:
+            assert not env.has_key(x), env[x]
+        for x in added:
+            assert env.has_key(x), \
+                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+
+        env.Replace(TARGETS = 'targets',
+                    SOURCES = 'sources',
+                    SOURCE = 'source',
+                    TARGET = 'target',
+                    REPLACE = 'replace')
+        added.append('REPLACE')
+        for x in reserved:
+            assert not env.has_key(x), env[x]
+        for x in added:
+            assert env.has_key(x), \
+                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+
+        copy = env.Copy(TARGETS = 'targets',
+                        SOURCES = 'sources',
+                        SOURCE = 'source',
+                        TARGET = 'target',
+                        COPY = 'copy')
+        for x in reserved:
+            assert not copy.has_key(x), env[x]
+        for x in added + ['COPY']:
+            assert copy.has_key(x), \
+                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+
+        over = env.Override({'TARGETS' : 'targets',
+                             'SOURCES' : 'sources',
+                             'SOURCE' : 'source',
+                             'TARGET' : 'target',
+                             'OVERRIDE' : 'override'})
+        for x in reserved:
+            assert not over.has_key(x), over[x]
+        for x in added + ['OVERRIDE']:
+            assert over.has_key(x), \
+                   '%s is not reserved, but got omitted; see Environment.construction_var_name_ok'%x
+
 
 
 class NoSubstitutionProxyTestCase(unittest.TestCase):

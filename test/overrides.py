@@ -92,4 +92,41 @@ assert test.read('hello.not_exe') == 'this is not a program!'
 
 test.up_to_date(arguments='hello.not_exe')
 
+
+
+test.write('SConstruct', """\
+env = Environment()
+env.Program('goodbye', 'goodbye.c',
+            CC=r'%s mycc.py',
+            LINK=r'%s mylink.py',
+            OBJSUFFIX='.not_obj',
+            PROGSUFFIX='.not_exe',
+            targets='ttt',
+            sources='sss')
+""" % (python, python))
+
+test.write('goodbye.c',"this ain't no c file!\n")
+
+test.write('mycc.py',"""
+open('goodbye.not_obj', 'wt').write('this is no object file!')
+""")
+
+test.write('mylink.py',"""
+open('goodbye.not_exe', 'wt').write('this is not a program!')
+""")
+
+test.run(arguments='goodbye.not_exe', stderr="""\
+
+scons: warning: Did you mean to use `target' instead of `targets'?
+File "SConstruct", line 8, in ?
+
+scons: warning: Did you mean to use `source' instead of `sources'?
+File "SConstruct", line 8, in ?
+""")
+
+assert test.read('goodbye.not_obj') == 'this is no object file!'
+assert test.read('goodbye.not_exe') == 'this is not a program!'
+
+
+
 test.pass_test()

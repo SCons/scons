@@ -122,6 +122,21 @@ def apply_tools(env, tools, toolpath):
             else:
                 tool(env)
 
+# These names are controlled by SCons; users should never set or override
+# them.  This warning can optionally be turned off, but scons will still
+# ignore the illegal variable names even if it's off.
+reserved_construction_var_names = \
+    ['TARGET', 'TARGETS', 'SOURCE', 'SOURCES']
+
+def copy_non_reserved_keywords(dict):
+    result = our_deepcopy(dict)
+    for k in result.keys():
+        if k in reserved_construction_var_names:
+            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
+                                "Ignoring attempt to set reserved variable `%s'" % k)
+            del result[k]
+    return result
+
 class BuilderWrapper:
     """Wrapper class that associates an environment with a Builder at
     instantiation."""
@@ -274,7 +289,7 @@ class Base:
         return self._dict[key]
 
     def __setitem__(self, key, value):
-        if key in ['TARGET', 'TARGETS', 'SOURCE', 'SOURCES']:
+        if key in reserved_construction_var_names:
             SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
                                 "Ignoring attempt to set reserved variable `%s'" % key)
         elif key == 'BUILDERS':
@@ -473,7 +488,7 @@ class Base:
         """Append values to existing construction variables
         in an Environment.
         """
-        kw = our_deepcopy(kw)
+        kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             # It would be easier on the eyes to write this using
             # "continue" statements whenever we finish processing an item,
@@ -541,7 +556,7 @@ class Base:
         """Append values to existing construction variables
         in an Environment, if they're not already there.
         """
-        kw = our_deepcopy(kw)
+        kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             if not self._dict.has_key(key):
                 self._dict[key] = val
@@ -582,6 +597,7 @@ class Base:
         apply_tools(clone, tools, toolpath)
 
         # Apply passed-in variables after the new tools.
+        kw = copy_non_reserved_keywords(kw)
         new = {}
         for key, value in kw.items():
             new[key] = SCons.Util.scons_subst_once(value, self, key)
@@ -641,6 +657,7 @@ class Base:
             env = copy.copy(self)
             env._dict = copy.copy(self._dict)
             env['__env__'] = env
+            overrides = copy_non_reserved_keywords(overrides)
             new = {}
             for key, value in overrides.items():
                 new[key] = SCons.Util.scons_subst_once(value, self, key)
@@ -704,7 +721,7 @@ class Base:
         """Prepend values to existing construction variables
         in an Environment.
         """
-        kw = our_deepcopy(kw)
+        kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             # It would be easier on the eyes to write this using
             # "continue" statements whenever we finish processing an item,
@@ -772,7 +789,7 @@ class Base:
         """Append values to existing construction variables
         in an Environment, if they're not already there.
         """
-        kw = our_deepcopy(kw)
+        kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             if not self._dict.has_key(key):
                 self._dict[key] = val
@@ -803,6 +820,7 @@ class Base:
             self.__setitem__('BUILDERS', kwbd)
         except KeyError:
             pass
+        kw = copy_non_reserved_keywords(kw)
         self._dict.update(our_deepcopy(kw))
 
     def ReplaceIxes(self, path, old_prefix, old_suffix, new_prefix, new_suffix):
