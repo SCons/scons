@@ -37,7 +37,7 @@ import SCons.Action
 import SCons.Defaults
 import SCons.Util
 
-PDFLaTeXAction = SCons.Action.Action('$PDFLATEXCOM')
+PDFLaTeXAction = SCons.Action.Action('$PDFLATEXCOM', '$PDFLATEXCOMSTR')
 
 def generate(env):
     """Add Builders and construction variables for pdflatex to an Environment."""

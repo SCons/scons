@@ -37,7 +37,7 @@ import SCons.Action
 import SCons.Defaults
 import SCons.Util
 
-LaTeXAction = SCons.Action.Action('$LATEXCOM')
+LaTeXAction = SCons.Action.Action('$LATEXCOM', '$LATEXCOMSTR')
 
 def generate(env):
     """Add Builders and construction variables for LaTeX to an Environment."""
