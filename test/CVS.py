@@ -235,7 +235,7 @@ test.subdir(['work3'])
 test.write(['work3', 'SConstruct'], """\
 import os
 env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
-env.SourceCode('.', env.CVS(':pserver:anonymous:@cvs.sourceforge.net:/cvsroot/scons'))
+env.SourceCode('.', env.CVS(':pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons'))
 env.Install('install', 'scons/SConstruct')
 """)
 

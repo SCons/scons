@@ -28,11 +28,7 @@ import os
 import sys
 import TestSCons
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
-
+_exe = TestSCons._exe
 FTN_LIB = TestSCons.fortran_lib
 
 prog = 'prog' + _exe
@@ -49,14 +45,14 @@ if not test.detect('F77', 'g77'):
 test.subdir('include', 'subdir', ['subdir', 'include'], 'inc2')
 
 test.write('SConstruct', """
-env = Environment(F77PATH = ['$FOO'], LIBS = r'%s', FOO='include')
+env = Environment(F77PATH = ['$FOO'], LIBS = %s, FOO='include')
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(F77PATH=[include], LIBS = r'%s')
+env = Environment(F77PATH=[include], LIBS = %s)
 SConscript('variant/SConscript', "env")
 """ % (FTN_LIB, FTN_LIB))
 
@@ -161,14 +157,14 @@ test.up_to_date(arguments = args)
 
 # Change F77PATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
-env = Environment(F77PATH = Split('inc2 include'), LIBS = r'%s')
+env = Environment(F77PATH = Split('inc2 include'), LIBS = %s)
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 BuildDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(F77PATH=['inc2', include], LIBS = r'%s')
+env = Environment(F77PATH=['inc2', include], LIBS = %s)
 SConscript('variant/SConscript', "env")
 """ % (FTN_LIB, FTN_LIB))
 
@@ -196,7 +192,7 @@ test.up_to_date(arguments = args)
 
 # Check that a null-string F77PATH doesn't blow up.
 test.write('SConstruct', """
-env = Environment(F77PATH = '', LIBS = r'%s')
+env = Environment(F77PATH = '', LIBS = %s)
 env.Library('foo', source = 'empty.f')
 """ % FTN_LIB)
 

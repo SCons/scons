@@ -30,10 +30,8 @@ import sys
 import time
 import TestSCons
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
+_exe = TestSCons._exe
+fortran_runtime = TestSCons.fortran_lib
 
 test = TestSCons.TestSCons()
 
@@ -92,14 +90,6 @@ SConscript('../build/var5/SConscript', "env")
 SConscript('../build/var6/SConscript', "env")
 """)
 
-if string.find(sys.platform, 'irix') != -1:
-    fortran_runtime = 'ftn'
-
-    # f77 does NOT work on cruncher
-    test.no_result()
-else:
-    fortran_runtime = 'g2c'
-
 test.subdir(['work1', 'src'])
 test.write(['work1', 'src', 'SConscript'], """
 import os
@@ -133,8 +123,8 @@ except:
 
 if f77 and env.Detect(env['F77']):
     env.Command(target='b2.f', source='b2.in', action=buildIt)
-    env.Copy(LIBS = [r'%s']).Program(target='bar2', source='b2.f')
-    env.Copy(LIBS = [r'%s']).Program(target='bar1', source='b1.f')
+    env.Copy(LIBS = %s).Program(target='bar2', source='b2.f')
+    env.Copy(LIBS = %s).Program(target='bar1', source='b1.f')
 """ % (fortran_runtime, fortran_runtime))
 
 test.write(['work1', 'src', 'f1.c'], r"""

@@ -127,7 +127,7 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment(LIBS = r'%s')
+foo = Environment(LIBS = %s)
 shf77 = foo.Dictionary('SHF77')
 bar = foo.Copy(SHF77 = r'%s wrapper.py ' + shf77, SHF77FLAGS = '-Ix')
 foo.SharedLibrary(target = 'foo/foo', source = 'foo.f')

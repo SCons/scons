@@ -24,34 +24,57 @@ import TestCmd
 
 python = TestCmd.python_executable
 
+
+def gccFortranLibs():
+    """Test whether -lfrtbegin is required.  This can probably be done in
+    a more reliable way, but using popen3 is relatively efficient."""
+
+    libs = ['g2c']
+
+    try:
+        import popen2
+        stderr = popen2.popen3('gcc -v')[2]
+    except OSError:
+        return libs
+
+    for l in stderr.readlines():
+        list = string.split(l)
+        if len(list) > 3 and list[:2] == ['gcc', 'version']:
+            if list[2][:2] == '3.':
+                libs = ['frtbegin'] + libs
+                break
+    return libs
+
+
 if sys.platform == 'win32':
     _exe   = '.exe'
     _obj   = '.obj'
     _shobj = '.obj'
     _dll   = '.dll'
     lib_   = ''
-    fortran_lib = 'g2c'
+    fortran_lib = gccFortranLibs()
 elif sys.platform == 'cygwin':
     _exe   = '.exe'
     _obj   = '.o'
     _shobj = '.os'
     _dll   = '.dll'
     lib_   = ''
-    fortran_lib = 'g2c'
+    fortran_lib = gccFortranLibs()
 elif string.find(sys.platform, 'irix') != -1:
     _exe   = ''
     _obj   = '.o'
     _shobj = '.o'
     _dll   = '.so'
     lib_   = 'lib'
-    fortran_lib = 'ftn'
+    fortran_lib = ['ftn']
 else:
     _exe   = ''
     _obj   = '.o'
     _shobj = '.os'
     _dll   = '.so'
     lib_   = 'lib'
-    fortran_lib = 'g2c'
+    fortran_lib = gccFortranLibs()
+
 
 class TestFailed(Exception):
     def __init__(self, args=None):
