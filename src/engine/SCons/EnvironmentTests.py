@@ -855,58 +855,95 @@ class EnvironmentTestCase(unittest.TestCase):
 
         import UserList
         UL = UserList.UserList
-        env1 = Environment(AAA = 'a',
-                           AAA1 = 'a1', AAA2 = 'a2', AAA3 = 'a3',
-                           EEE = ['e'],
-                           EEE1 = ['e1'], EEE2 = ['e2'], EEE3 = ['e3'],
-                           III = UL(['i']),
-                           III1 = UL(['i1']), III2 = UL(['i2']), III3 = UL(['i3']),
-                           MMM = '',
-                           MMM1 = '', MMM2 = '', MMM3 = '',
-                           NNN = [],
-                           NNN1 = [], NNN2 = [], NNN3 = [],
-                           OOO = UL([]),
-                           OOO1 = UL([]), OOO2 = UL([]), OOO3 = UL([]),
-                           PPP = [''],
-                           PPP1 = [''], PPP2 = [''], PPP3 = [''],
-                           QQQ = UL(['']),
-                           QQQ1 = UL(['']), QQQ2 = UL(['']), QQQ3 = UL(['']))
-        env1.Append(AAA1 = 'A1', AAA2 = ['A2'], AAA3 = UL(['A3']),
-                    EEE1 = 'E1', EEE2 = ['E2'], EEE3 = UL(['E3']),
-                    III1 = 'I1', III2 = ['I2'], III3 = UL(['I3']),
-                    MMM1 = 'M1', MMM2 = ['M2'], MMM3 = UL(['M3']),
-                    NNN1 = 'N1', NNN2 = ['N2'], NNN3 = UL(['N3']),
-                    OOO1 = 'O1', OOO2 = ['O2'], OOO3 = UL(['O3']),
-                    PPP1 = 'P1', PPP2 = ['P2'], PPP3 = UL(['P3']),
-                    QQQ1 = 'Q1', QQQ2 = ['Q2'], QQQ3 = UL(['Q3']))
-        assert env1['AAA'] == 'a', env1['AAA']
-        assert env1['AAA1'] == 'a1A1', env1['AAA1']
-        assert env1['AAA2'] == ['a2', 'A2'], env1['AAA2']
-        assert env1['AAA3'] == UL(['a3', 'A3']), env1['AAA3']
-        assert env1['EEE'] == ['e'], env1['EEE']
-        assert env1['EEE1'] == ['e1', 'E1'], env1['EEE1']
-        assert env1['EEE2'] == ['e2', 'E2'], env1['EEE2']
-        assert env1['EEE3'] == UL(['e3', 'E3']), env1['EEE3']
-        assert env1['III'] == UL(['i']), env1['III']
-        assert env1['III1'] == UL(['i1', 'I1']), env1['III1']
-        assert env1['III2'] == UL(['i2', 'I2']), env1['III2']
-        assert env1['III3'] == UL(['i3', 'I3']), env1['III3']
-        assert env1['MMM'] == '', env1['MMM']
-        assert env1['MMM1'] == 'M1', env1['MMM1']
-        assert env1['MMM2'] == ['M2'], env1['MMM2']
-        assert env1['MMM3'] == UL(['M3']), env1['MMM3']
-        assert env1['NNN1'] == ['N1'], env1['NNN1']
-        assert env1['NNN2'] == ['N2'], env1['NNN2']
-        assert env1['NNN3'] == UL(['N3']), env1['NNN3']
-        assert env1['OOO1'] == ['O1'], env1['OOO1']
-        assert env1['OOO2'] == ['O2'], env1['OOO2']
-        assert env1['OOO3'] == UL(['O3']), env1['OOO3']
-        assert env1['PPP1'] == ['', 'P1'], env1['PPP1']
-        assert env1['PPP2'] == ['', 'P2'], env1['PPP2']
-        assert env1['PPP3'] == UL(['', 'P3']), env1['PPP3']
-        assert env1['QQQ1'] == UL(['', 'Q1']), env1['QQQ1']
-        assert env1['QQQ2'] == UL(['', 'Q2']), env1['QQQ2']
-        assert env1['QQQ3'] == UL(['', 'Q3']), env1['QQQ3']
+
+        cases = [
+            'a1',       'A1',           'a1A1',
+            'a2',       ['A2'],         ['a2', 'A2'],
+            'a3',       UL(['A3']),     UL(['a3', 'A3']),
+            'a4',       '',             'a4',
+            'a5',       [],             ['a5'],
+            'a6',       UL([]),         UL(['a6']),
+            'a7',       [''],           ['a7', ''],
+            'a8',       UL(['']),       UL(['a8', '']),
+
+            ['e1'],     'E1',           ['e1', 'E1'],
+            ['e2'],     ['E2'],         ['e2', 'E2'],
+            ['e3'],     UL(['E3']),     UL(['e3', 'E3']),
+            ['e4'],     '',             ['e4'],
+            ['e5'],     [],             ['e5'],
+            ['e6'],     UL([]),         UL(['e6']),
+            ['e7'],     [''],           ['e7', ''],
+            ['e8'],     UL(['']),       UL(['e8', '']),
+
+            UL(['i1']), 'I1',           UL(['i1', 'I1']),
+            UL(['i2']), ['I2'],         UL(['i2', 'I2']),
+            UL(['i3']), UL(['I3']),     UL(['i3', 'I3']),
+            UL(['i4']), '',             UL(['i4']),
+            UL(['i5']), [],             UL(['i5']),
+            UL(['i6']), UL([]),         UL(['i6']),
+            UL(['i7']), [''],           UL(['i7', '']),
+            UL(['i8']), UL(['']),       UL(['i8', '']),
+
+            '',         'M1',           'M1',
+            '',         ['M2'],         ['M2'],
+            '',         UL(['M3']),     UL(['M3']),
+            '',         '',             '',
+            '',         [],             [],
+            '',         UL([]),         UL([]),
+            '',         [''],           [''],
+            '',         UL(['']),       UL(['']),
+
+            [],         'N1',           ['N1'],
+            [],         ['N2'],         ['N2'],
+            [],         UL(['N3']),     UL(['N3']),
+            [],         '',             [],
+            [],         [],             [],
+            [],         UL([]),         UL([]),
+            [],         [''],           [''],
+            [],         UL(['']),       UL(['']),
+
+            UL([]),     'O1',           ['O1'],
+            UL([]),     ['O2'],         ['O2'],
+            UL([]),     UL(['O3']),     UL(['O3']),
+            UL([]),     '',             UL([]),
+            UL([]),     [],             UL([]),
+            UL([]),     UL([]),         UL([]),
+            UL([]),     [''],           UL(['']),
+            UL([]),     UL(['']),       UL(['']),
+
+            [''],       'P1',           ['', 'P1'],
+            [''],       ['P2'],         ['', 'P2'],
+            [''],       UL(['P3']),     UL(['', 'P3']),
+            [''],       '',             [''],
+            [''],       [],             [''],
+            [''],       UL([]),         UL(['']),
+            [''],       [''],           ['', ''],
+            [''],       UL(['']),       UL(['', '']),
+
+            UL(['']),   'Q1',           ['', 'Q1'],
+            UL(['']),   ['Q2'],         ['', 'Q2'],
+            UL(['']),   UL(['Q3']),     UL(['', 'Q3']),
+            UL(['']),   '',             UL(['']),
+            UL(['']),   [],             UL(['']),
+            UL(['']),   UL([]),         UL(['']),
+            UL(['']),   [''],           UL(['', '']),
+            UL(['']),   UL(['']),       UL(['', '']),
+        ]
+
+        env = Environment()
+        failed = 0
+        while cases:
+            input, append, expect = cases[:3]
+            env['XXX'] = input
+            env.Append(XXX = append)
+            result = env['XXX']
+            if result != expect:
+                if failed == 0: print
+                print "    %s Append %s => %s did not match %s" % \
+                      (repr(input), repr(append), repr(result), repr(expect))
+                failed = failed + 1
+            del cases[:3]
+        assert failed == 0, "%d Append() cases failed" % failed
 
         class C:
             def __init__(self, name):
@@ -1240,20 +1277,95 @@ class EnvironmentTestCase(unittest.TestCase):
         """
         import UserList
         UL = UserList.UserList
-        env1 = Environment(AAA = 'a', BBB = 'b', CCC = 'c', DDD = 'd',
-                           EEE = ['e'], FFF = ['f'], GGG = ['g'], HHH = ['h'],
-                           III = UL(['i']), JJJ = UL(['j']),
-                           KKK = UL(['k']), LLL = UL(['l']))
-        env1.Prepend(BBB = 'B', CCC = ['C'], DDD = UL(['D']),
-                    FFF = 'F', GGG = ['G'], HHH = UL(['H']),
-                    JJJ = 'J', KKK = ['K'], LLL = UL(['L']))
-        env2 = Environment(AAA = 'a', BBB = 'Bb',
-                           CCC = ['C', 'c'], DDD = UL(['D', 'd']),
-                           EEE = ['e'], FFF = ['F', 'f'],
-                           GGG = ['G', 'g'], HHH = UL(['H', 'h']),
-                           III = UL(['i']), JJJ = UL(['J', 'j']),
-                           KKK = UL(['K', 'k']), LLL = UL(['L', 'l']))
-        assert env1 == env2, diff_env(env1, env2)
+
+        cases = [
+            'a1',       'A1',           'A1a1',
+            'a2',       ['A2'],         ['A2', 'a2'],
+            'a3',       UL(['A3']),     UL(['A3', 'a3']),
+            'a4',       '',             'a4',
+            'a5',       [],             ['a5'],
+            'a6',       UL([]),         UL(['a6']),
+            'a7',       [''],           ['', 'a7'],
+            'a8',       UL(['']),       UL(['', 'a8']),
+
+            ['e1'],     'E1',           ['E1', 'e1'],
+            ['e2'],     ['E2'],         ['E2', 'e2'],
+            ['e3'],     UL(['E3']),     UL(['E3', 'e3']),
+            ['e4'],     '',             ['e4'],
+            ['e5'],     [],             ['e5'],
+            ['e6'],     UL([]),         UL(['e6']),
+            ['e7'],     [''],           ['', 'e7'],
+            ['e8'],     UL(['']),       UL(['', 'e8']),
+
+            UL(['i1']), 'I1',           UL(['I1', 'i1']),
+            UL(['i2']), ['I2'],         UL(['I2', 'i2']),
+            UL(['i3']), UL(['I3']),     UL(['I3', 'i3']),
+            UL(['i4']), '',             UL(['i4']),
+            UL(['i5']), [],             UL(['i5']),
+            UL(['i6']), UL([]),         UL(['i6']),
+            UL(['i7']), [''],           UL(['', 'i7']),
+            UL(['i8']), UL(['']),       UL(['', 'i8']),
+
+            '',         'M1',           'M1',
+            '',         ['M2'],         ['M2'],
+            '',         UL(['M3']),     UL(['M3']),
+            '',         '',             '',
+            '',         [],             [],
+            '',         UL([]),         UL([]),
+            '',         [''],           [''],
+            '',         UL(['']),       UL(['']),
+
+            [],         'N1',           ['N1'],
+            [],         ['N2'],         ['N2'],
+            [],         UL(['N3']),     UL(['N3']),
+            [],         '',             [],
+            [],         [],             [],
+            [],         UL([]),         UL([]),
+            [],         [''],           [''],
+            [],         UL(['']),       UL(['']),
+
+            UL([]),     'O1',           UL(['O1']),
+            UL([]),     ['O2'],         UL(['O2']),
+            UL([]),     UL(['O3']),     UL(['O3']),
+            UL([]),     '',             UL([]),
+            UL([]),     [],             UL([]),
+            UL([]),     UL([]),         UL([]),
+            UL([]),     [''],           UL(['']),
+            UL([]),     UL(['']),       UL(['']),
+
+            [''],       'P1',           ['P1', ''],
+            [''],       ['P2'],         ['P2', ''],
+            [''],       UL(['P3']),     UL(['P3', '']),
+            [''],       '',             [''],
+            [''],       [],             [''],
+            [''],       UL([]),         UL(['']),
+            [''],       [''],           ['', ''],
+            [''],       UL(['']),       UL(['', '']),
+
+            UL(['']),   'Q1',           UL(['Q1', '']),
+            UL(['']),   ['Q2'],         UL(['Q2', '']),
+            UL(['']),   UL(['Q3']),     UL(['Q3', '']),
+            UL(['']),   '',             UL(['']),
+            UL(['']),   [],             UL(['']),
+            UL(['']),   UL([]),         UL(['']),
+            UL(['']),   [''],           UL(['', '']),
+            UL(['']),   UL(['']),       UL(['', '']),
+        ]
+
+        env = Environment()
+        failed = 0
+        while cases:
+            input, prepend, expect = cases[:3]
+            env['XXX'] = input
+            env.Prepend(XXX = prepend)
+            result = env['XXX']
+            if result != expect:
+                if failed == 0: print
+                print "    %s Prepend %s => %s did not match %s" % \
+                      (repr(input), repr(prepend), repr(result), repr(expect))
+                failed = failed + 1
+            del cases[:3]
+        assert failed == 0, "%d subst() cases failed" % failed
 
         env3 = Environment(X = {'x1' : 7})
         env3.Prepend(X = {'x1' : 8, 'x2' : 9}, Y = {'y1' : 10})
