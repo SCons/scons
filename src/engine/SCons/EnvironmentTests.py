@@ -290,6 +290,25 @@ class EnvironmentTestCase(unittest.TestCase):
         assert hasattr(env2, 'b2'), "env2.b2 was not set"
         assert env2.b2.env == env2, "b2.env doesn't point to env2"
 
+        # Ensure that specifying new tools in a copied environment
+        # works.
+        def foo(env): env['FOO'] = 1
+        def bar(env): env['BAR'] = 2
+        def baz(env): env['BAZ'] = 3
+        env1 = Environment(tools=[foo])
+        env2 = env1.Copy()
+        env3 = env1.Copy(tools=[bar, baz])
+        
+        assert env1.get('FOO') is 1
+        assert env1.get('BAR') is None
+        assert env1.get('BAZ') is None
+        assert env2.get('FOO') is 1
+        assert env2.get('BAR') is None
+        assert env2.get('BAZ') is None
+        assert env3.get('FOO') is 1
+        assert env3.get('BAR') is 2
+        assert env3.get('BAZ') is 3
+
     def test_Dictionary(self):
 	"""Test retrieval of known construction variables
 

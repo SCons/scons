@@ -83,6 +83,13 @@ def our_deepcopy(x):
        copy = x
    return copy
 
+def apply_tools(env, tools):
+    if tools:
+        for tool in tools:
+            if SCons.Util.is_String(tool):
+                tool = SCons.Tool.Tool(tool)
+            tool(env)
+
 class BuilderWrapper:
     """Wrapper class that associates an environment with a Builder at
     instantiation."""
@@ -183,10 +190,7 @@ class Environment:
 
         if tools is None:
             tools = ['default']
-        for tool in tools:
-            if SCons.Util.is_String(tool):
-                tool = SCons.Tool.Tool(tool)
-            tool(self)
+        apply_tools(self, tools)
 
         # Reapply the passed in variables after calling the tools,
         # since they should overide anything set by the tools:
@@ -204,7 +208,7 @@ class Environment:
     def Builders(self):
 	pass	# XXX
 
-    def Copy(self, **kw):
+    def Copy(self, tools=None, **kw):
         """Return a copy of a construction Environment.  The
         copy is like a Python "deep copy"--that is, independent
         copies are made recursively of each objects--except that
@@ -219,6 +223,10 @@ class Environment:
             clone._dict['BUILDERS'] = BuilderDict(cbd, clone)
         except KeyError:
             pass
+        
+        apply_tools(clone, tools)
+
+        # Apply passed-in variables after the new tools.
         apply(clone.Replace, (), kw)
         return clone
 

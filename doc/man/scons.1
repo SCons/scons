@@ -1791,6 +1791,15 @@ env2 = env.Copy()
 env3 = env.Copy(CCFLAGS = '-g')
 .EE
 
+Additionally, a list of tools may be specified, as in the Environment
+constructor:
+
+.ES
+def MyTool(env): env['FOO'] = 'bar'
+env4 = env.Copy(tools = ['msvc', MyTool])
+.EE
+
+
 .TP
 .RI CVS( repository ", " module )
 A factory function that

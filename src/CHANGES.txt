@@ -10,6 +10,10 @@
 
 RELEASE 0.XX - XXX
 
+  From Chad Austin:
+
+  - Support specifying a list of tools when calling Environment.Copy().
+
   From Steven Knight:
 
   - Tighten up the scons -H help output.
