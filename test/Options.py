@@ -141,7 +141,14 @@ test.run(arguments='"DEBUG_BUILD=1"')
 check(['1', '1', cc, string.strip(ccflags + ' -O -g'), 'v', 'v'])
 
 test.run(arguments='-h',
-         stdout = """scons: Reading SConscript files ...
+         stdout = """\
+scons: Reading SConscript files ...
+1
+0
+%s
+%s
+v
+v
 scons: done reading SConscript files.
 Variables settable in custom.py or on the command line:
 
@@ -166,7 +173,7 @@ UNSPECIFIED: An option with no value
     actual: None
 
 Use scons -H for help about command-line options.
-"""%cc)
+"""%(cc, ccflags and ccflags + ' -O' or '-O', cc))
 
 # Test saving of options and multi loading
 #
@@ -288,7 +295,8 @@ Help('Variables settable in custom.py or on the command line:\\n' + opts.Generat
 """)
 
 test.run(arguments='-h',
-         stdout = """scons: Reading SConscript files ...
+         stdout = """\
+scons: Reading SConscript files ...
 scons: done reading SConscript files.
 Variables settable in custom.py or on the command line:
 

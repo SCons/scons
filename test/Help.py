@@ -60,4 +60,26 @@ Use scons -H for help about command-line options.
 
 test.run(arguments = '-h', stdout = expect)
 
+test.write('SConstruct', r"""
+Help('\nMulti')
+Help('line\n')
+Help('''\
+help
+text!
+''')
+""")
+
+expect = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+
+Multiline
+help
+text!
+
+Use scons -H for help about command-line options.
+"""
+
+test.run(arguments = '-h', stdout = expect)
+
 test.pass_test()

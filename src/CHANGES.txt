@@ -10,6 +10,11 @@
 
 RELEASE 0.97 - XXX
 
+  From Chad Austin:
+
+  - Allow Help() to be called multiple times, appending to the help
+    text each call.
+
   From Gary Oberbrunner:
 
   - Add an Environment.Dump() method to print the contents of a

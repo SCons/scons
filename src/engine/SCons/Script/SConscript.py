@@ -57,8 +57,14 @@ import UserList
 
 launch_dir = os.path.abspath(os.curdir)
 
-def do_nothing(text): pass
-HelpFunction = do_nothing
+help_text = None
+
+def HelpFunction(text):
+    global help_text
+    if help_text is None:
+        help_text = text
+    else:
+        help_text = help_text + text
 
 Arguments = {}
 ArgList = []

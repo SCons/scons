@@ -260,10 +260,6 @@ profiling = 0
 repositories = []
 num_jobs = 1 # this is modifed by SConscript.SetJobs()
 
-# Exceptions for this module
-class PrintHelp(Exception):
-    pass
-
 # utility functions
 
 def get_all_children(node): return node.all_children(None)
@@ -784,11 +780,6 @@ def _main(args, parser):
     global ssoptions
     ssoptions = SConscriptSettableOptions(options)
 
-    if options.help_msg:
-        def raisePrintHelp(text):
-            raise PrintHelp, text
-        SCons.Script.SConscript.HelpFunction = raisePrintHelp
-
     _set_globals(options)
     SCons.Node.implicit_cache = options.implicit_cache
     SCons.Node.implicit_deps_changed = options.implicit_deps_changed
@@ -896,28 +887,23 @@ def _main(args, parser):
     if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
 
     progress_display("scons: Reading SConscript files ...")
+
+    start_time = time.time()
     try:
-        start_time = time.time()
-        try:
-            for script in scripts:
-                SCons.Script.SConscript._SConscript(fs, script)
-        except SCons.Errors.StopError, e:
-            # We had problems reading an SConscript file, such as it
-            # couldn't be copied in to the BuildDir.  Since we're just
-            # reading SConscript files and haven't started building
-            # things yet, stop regardless of whether they used -i or -k
-            # or anything else, but don't say "Stop." on the message.
-            global exit_status
-            sys.stderr.write("scons: *** %s\n" % e)
-            exit_status = 2
-            sys.exit(exit_status)
-        global sconscript_time
-        sconscript_time = time.time() - start_time
-    except PrintHelp, text:
-        progress_display("scons: done reading SConscript files.")
-        print text
-        print "Use scons -H for help about command-line options."
-        sys.exit(0)
+        for script in scripts:
+            SCons.Script.SConscript._SConscript(fs, script)
+    except SCons.Errors.StopError, e:
+        # We had problems reading an SConscript file, such as it
+        # couldn't be copied in to the BuildDir.  Since we're just
+        # reading SConscript files and haven't started building
+        # things yet, stop regardless of whether they used -i or -k
+        # or anything else, but don't say "Stop." on the message.
+        global exit_status
+        sys.stderr.write("scons: *** %s\n" % e)
+        exit_status = 2
+        sys.exit(exit_status)
+    global sconscript_time
+    sconscript_time = time.time() - start_time
     progress_display("scons: done reading SConscript files.")
 
     # Tell the Node.FS subsystem that we're all done reading the
@@ -931,9 +917,13 @@ def _main(args, parser):
     fs.chdir(fs.Top)
 
     if options.help_msg:
-        # They specified -h, but there was no Help() inside the
-        # SConscript files.  Give them the options usage.
-        parser.print_help(sys.stdout)
+        if SCons.Script.SConscript.help_text is None:
+            # They specified -h, but there was no Help() inside the
+            # SConscript files.  Give them the options usage.
+            parser.print_help(sys.stdout)
+        else:
+            print SCons.Script.SConscript.help_text
+            print "Use scons -H for help about command-line options."
         sys.exit(0)
 
     # Now that we've read the SConscripts we can set the options

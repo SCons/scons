@@ -2929,8 +2929,12 @@ This specifies help text to be printed if the
 .B -h 
 argument is given to
 .BR scons .
-.B scons
-will exit after printing out the help text.
+If
+.BR Help
+is called multiple times, the text is appended together in the order
+that
+.BR Help
+is called.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
