@@ -150,8 +150,7 @@ class Node:
         return self.get_executor().get_build_env()
 
     def get_build_scanner_path(self, scanner):
-        """Fetch the appropriate Environment to build this node.
-        __cacheable__"""
+        """Fetch the appropriate scanner path for this node."""
         return self.get_executor().get_build_scanner_path(scanner)
 
     def set_executor(self, executor):

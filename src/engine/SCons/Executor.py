@@ -78,8 +78,8 @@ class Executor:
         return build_env
 
     def get_build_scanner_path(self, scanner):
-        """
-        __cacheable__
+        """Fetch the scanner path for this executor's targets
+        and sources.
         """
         env = self.get_build_env()
         try:
