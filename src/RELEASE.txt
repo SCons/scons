@@ -20,10 +20,42 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
+RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500
 
   This is the seventh alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following UPCOMING very important change:
+
+    - As of the next SCons release (0.08), Builder objects will no longer
+      automatically split target and source file strings on white space.
+      SCons will interpret the string arguments for the target or source
+      files as the complete name of the file, even if the name contains
+      white space.
+
+      Consequently, any builder calls that you have defined which supply
+      multiple file names in a single string, such as:
+
+          env.Program(target = 'foo', source = 'f1.c f2.c')
+
+      These calls will need to be changed by next release.  You may
+      either split up the string into an array of individual file name
+      strings by hand:
+
+          env.Program(target = 'foo', source = ['f1.c', 'f2.c'])
+
+      Or you may use the newly-provided Split() function to turn a
+      string of white-space separated file names into an array:
+
+          env.Program(target = 'foo', source = Split('f1.c f2.c'))
+
+      The Split() function preserves the functionality that the builder
+      objects currently invoke internally: if the argument is a string,
+      it will be split on white space; if the argument is already a list,
+      the list will be returned.
+
+      (You may, of course, also use the string.split() function from
+      the standard Python library to convert your strings.)
 
   Please note the following important changes since release 0.06:
 
@@ -66,38 +98,6 @@ RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
             print "Building %s from %s" % (str(target), str(source))
 	    open(str(target), 'w').write(open(str(source), 'r').read())
             return 0
-
-  Please not the following UPCOMING very important change:
-
-    - As of the next SCons release (0.08), Builder objects will no longer
-      automatically split target and source file strings on white space.
-      SCons will interpret the string arguments for the target or source
-      files as the complete name of the file, even if the name contains
-      white space.
-
-      Consequently, any builder calls that you have defined which supply
-      multiple file names in a single string, such as:
-
-          env.Program(target = 'foo', source = 'f1.c f2.c')
-
-      These calls will need to be changed by next release.  You may
-      either split up the string into an array of individual file name
-      strings by hand:
-
-          env.Program(target = 'foo', source = ['f1.c', 'f2.c'])
-
-      Or you may use the newly-provided Split() function to turn a
-      string of white-space separated file names into an array:
-
-          env.Program(target = 'foo', source = Split('f1.c f2.c'))
-
-      The Split() function preserves the functionality that the builder
-      objects currently invoke internally: if the argument is a string,
-      it will be split on white space; if the argument is already a list,
-      the list will be returned.
-
-      (You may, of course, also use the string.split() function from
-      the standard Python library to convert your strings.)
 
   Owing to an extensive test suite, the SCons team believes that this
   release is of sufficient quality that you can use it for real work,
@@ -159,16 +159,20 @@ RELEASE 0.07 - Thu, 25 Apr 2002 06:24:50 -0500
       site is currently out of date.  Take what you read there with a
       grain of salt.
 
+    - SCons does not yet support file names with quotes (" or ') in the
+      file name when an external command is used to create or process a
+      file.  Results will be unpredictable based on the interaction with
+      the shell used to execute the external command.
+
+    - If a file is specified to be built in multiple ways, the last
+      processed builder specification overwrites all other builders,
+      without any warning.
+
     - There is not yet a mechanism to configure using file timestamps
       instead of MD5 signatures to determine if a file is up-to-date.
 
-    - Executing the -u option from a source directory that has an
+    - Executing the -u or -U option from a source directory that has an
       associated BuildDir() does not build the targets in the BuildDir().
-
-    - On Windows systems using MSVC/C++, long link lines are handled
-      by writing the arguments to a temporary file.  Because the
-      temporary file name may change from invocation to invocation,
-      long link lines may be rebuilt more often than necessary.
 
     - No support yet for the following future features:
 
