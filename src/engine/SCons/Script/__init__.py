@@ -88,7 +88,10 @@ class BuildTask(SCons.Taskmaster.Task):
         # this method is serialized, but execute isn't:
         if print_tree and self.top:
             print
-            print SCons.Util.render_tree(self.targets[0], get_children)
+            print SCons.Util.render_tree(self.targets[0], get_all_children)
+	if print_dtree and self.top:
+	    print
+	    print SCons.Util.render_tree(self.targets[0], get_derived_children)
 
     def failed(self):
         global exit_status
@@ -149,13 +152,18 @@ ignore_errors = 0
 keep_going_on_error = 0
 help_option = None
 print_tree = 0
+print_dtree = 0
 climb_up = 0
 target_top = None
 exit_status = 0 # exit status, assume success by default
 
 # utility functions
 
-def get_children(node): return node.all_children(None)
+def get_all_children(node): return node.all_children(None)
+
+def get_derived_children(node): 
+    children = node.all_children(None)
+    return filter(lambda x: x.builder, children)
 
 def _scons_syntax_error(e):
     """Handle syntax errors. Print out a message and show where the error
@@ -391,6 +399,7 @@ def options_init():
 
     def opt_debug(opt, arg):
         global print_tree
+        global print_dtree
         if arg == "pdb":
             args = [ sys.executable, "pdb.py" ] + \
                      filter(lambda x: x != "--debug=pdb", sys.argv)
@@ -405,6 +414,8 @@ def options_init():
                 os.execvpe(args[0], args, os.environ)
         elif arg == "tree":
             print_tree = 1
+        elif arg == "dtree":
+            print_dtree = 1
         else:
             sys.stderr.write("Warning:  %s is not a valid debug type\n"
                              % arg)

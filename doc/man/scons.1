@@ -320,7 +320,14 @@ to the SCons invocation run by the debugger.
 .TP
 .RI --debug=tree
 Print the dependency tree
-after each top-level target is built.
+after each top-level target is built. This prints out the complete
+dependency tree including implicit dependencies and ignored
+dependencies.
+
+.TP
+.RI --debug=dtree
+Print the dependency tree
+after each top-level target is built. This prints out only derived files.
 
 .TP
 -e, --environment-overrides

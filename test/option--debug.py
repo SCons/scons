@@ -90,6 +90,16 @@ test.fail_test(string.find(test.stdout(), tree) == -1)
 test.run(arguments = "--debug=tree " + foo)
 test.fail_test(string.find(test.stdout(), tree) == -1)
 
+
+tree = """
++-%s
+  +-foo%s
+  +-bar%s
+""" % (foo, obj,obj)
+
+test.run(arguments = "--debug=dtree " + foo)
+test.fail_test(string.find(test.stdout(), tree) == -1)
+
 tree = """scons: \".\" is up to date.
 
 +-.
