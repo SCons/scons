@@ -870,7 +870,9 @@ The default suffix, of course, is
 
 .IP CPPFLAGS
 C preprocessor options.
-These will be included in the $F77PPCOM 
+These will be included in any command that uses the C preprocessor,
+inluding not just compilation of C and C++ source files,
+but also the $F77PPCOM 
 command line used to compile a Fortran source file to an object file
 after first running the file through the C preprocessor.
 

@@ -64,6 +64,9 @@ RELEASE 0.06 -
   - Add support for compiling Fortran programs from a variety of
     suffixes (a la GNU Make):  .f, .F, .for, .FOR, .fpp and .FPP
 
+  - Support a CPPFLAGS variable on all default commands that use the
+    C preprocessor.
+
   From Steve Leblanc:
 
   - Add support for the -U option.
