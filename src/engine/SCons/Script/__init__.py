@@ -125,10 +125,10 @@ class BuildTask(SCons.Taskmaster.Task):
         # this method is serialized, but execute isn't:
         if print_tree and self.top:
             print
-            print SCons.Util.render_tree(self.targets[0], get_all_children)
+            SCons.Util.print_tree(self.targets[0], get_all_children)
         if print_dtree and self.top:
             print
-            print SCons.Util.render_tree(self.targets[0], get_derived_children)
+            SCons.Util.print_tree(self.targets[0], get_derived_children)
         if print_includes and self.top:
             t = self.targets[0]
             tree = t.render_include_tree()

@@ -1018,7 +1018,9 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
        or in the whole tree if prune.
     """
 
-    if visited.has_key(root):
+    rname = str(root)
+
+    if visited.has_key(rname):
         return ""
 
     children = child_func(root)
@@ -1029,10 +1031,10 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
         else:
             retval = retval + "  "
 
-    retval = retval + "+-" + str(root) + "\n"
+    retval = retval + "+-" + rname + "\n"
     if not prune:
         visited = copy.copy(visited)
-    visited[root] = 1
+    visited[rname] = 1
 
     for i in range(len(children)):
         margin.append(i<len(children)-1)
@@ -1041,6 +1043,44 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
         margin.pop()
 
     return retval
+
+def print_tree(root, child_func, prune=0, margin=[0], visited={}):
+    """
+    Print a tree of nodes.  This is like render_tree, except it prints
+    lines directly instead of creating a string representation in memory,
+    so that huge trees can be printed.
+
+    root - the root node of the tree
+    child_func - the function called to get the children of a node
+    prune - don't visit the same node twice
+    margin - the format of the left margin to use for children of root.
+       1 results in a pipe, and 0 results in no pipe.
+    visited - a dictionary of visited nodes in the current branch if not prune,
+       or in the whole tree if prune.
+    """
+
+    rname = str(root)
+
+    if visited.has_key(rname):
+        return
+
+    def MMM(m):
+        return ["  ","| "][m]
+    print string.join(map(MMM, margin[:-1]), '') + "+-" + rname
+
+    if prune:
+        visited[rname] = 1
+        
+    children = child_func(root)
+    if children:
+        margin.append(1)
+        map(lambda C, cf=child_func, p=prune, m=margin, v=visited:
+                   print_tree(C, cf, p, m, v),
+            children[:-1])
+        margin[-1] = 0
+        print_tree(children[-1], child_func, prune, margin, visited)
+        margin.pop()
+                  
 
 def is_Dict(e):
     return type(e) is types.DictType or isinstance(e, UserDict)
