@@ -139,7 +139,7 @@ class Executor:
 
     def strfunction(self):
         try:
-            return self.string
+            return self._strfunc
         except AttributeError:
             action = self.action
             build_env = self.get_build_env()
