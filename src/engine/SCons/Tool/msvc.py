@@ -133,7 +133,7 @@ def _get_msvc7_path(path, version, platform):
     # do weird things with the $(xxx)'s
     s = re.compile('\$\(([a-zA-Z0-9_]+?)\)')
 
-    def repl(match):
+    def repl(match, paths=paths):
         key = string.upper(match.group(1))
         if paths.has_key(key):
             return paths[key]
