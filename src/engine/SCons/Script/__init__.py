@@ -120,6 +120,16 @@ class CleanTask(SCons.Taskmaster.Task):
             except IndexError:
                 pass
 
+class QuestionTask(SCons.Taskmaster.Task):
+    """An SCons task for the -q (question) option."""
+    def execute(self):
+        if self.targets[0].get_state() != SCons.Node.up_to_date:
+            global exit_status
+            exit_status = 1
+            self.tm.stop()
+
+    def executed(self):
+        pass
 
 # Global variables
 
@@ -501,7 +511,11 @@ def options_init():
 	short = 'p',
 	help = "Print internal environments/objects.")
 
-    Option(func = opt_not_yet, future = 1,
+    def opt_q(opt, arg):
+        global task_class
+        task_class = QuestionTask
+
+    Option(func = opt_q, future = 1,
 	short = 'q', long = ['question'],
 	help = "Don't build; exit status says if up to date.")
 
