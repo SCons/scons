@@ -123,7 +123,7 @@ test.write('file1b.in', 'file1b.in\n')
 test.run(arguments='file1.out', 
          stderr=r"""
 scons: warning: Two different environments were specified for target file1.out,
-	but they appear to have the same action: build\(target, source, env\)
+	but they appear to have the same action: build\(\["file1.out"\], \["file1b.in"\]\)
 """ + TestSCons.file_expr)
 
 test.must_match('file1.out', "file1a.in\nfile1b.in\n")
@@ -131,7 +131,7 @@ test.must_match('file1.out', "file1a.in\nfile1b.in\n")
 test.run(arguments='--warn=duplicate-environment file1.out', 
          stderr=r"""
 scons: warning: Two different environments were specified for target file1.out,
-	but they appear to have the same action: build\(target, source, env\)
+	but they appear to have the same action: build\(\["file1.out"\], \["file1b.in"\]\)
 """ + TestSCons.file_expr)
 
 test.run(arguments='--warn=no-duplicate-environment file1.out')
