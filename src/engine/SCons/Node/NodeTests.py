@@ -76,6 +76,12 @@ class MyAction(MyActionBase):
         self.order = built_order
         return 0
 
+class MyExecutor:
+    def get_build_scanner_path(self, scanner):
+        return 'executor would call %s' % scanner
+    def cleanup(self):
+        self.cleaned_up = 1
+
 class MyListAction(MyActionBase):
     def __init__(self, list):
         self.list = list
@@ -316,9 +322,6 @@ class NodeTestCase(unittest.TestCase):
     def test_get_build_scanner_path(self):
         """Test the get_build_scanner_path() method"""
         n = SCons.Node.Node()
-        class MyExecutor:
-            def get_build_scanner_path(self, scanner):
-                return 'executor would call %s' % scanner
         x = MyExecutor()
         n.set_executor(x)
         p = n.get_build_scanner_path('fake_scanner')
@@ -356,6 +359,14 @@ class NodeTestCase(unittest.TestCase):
         n = SCons.Node.Node()
         n.set_executor(1)
         assert n.executor == 1, n.executor
+
+    def test_executor_cleanup(self):
+        """Test letting the executor cleanup its cache"""
+        n = SCons.Node.Node()
+        x = MyExecutor()
+        n.set_executor(x)
+        n.executor_cleanup()
+        assert x.cleaned_up
 
     def test_reset_executor(self):
         """Test the reset_executor() method"""
@@ -631,6 +642,8 @@ class NodeTestCase(unittest.TestCase):
 
     def test_prepare(self):
         """Test preparing a node to be built
+
+        By extension, this also tests the missing() method.
         """
         node = SCons.Node.Node()
 
@@ -1117,6 +1130,9 @@ class NodeTestCase(unittest.TestCase):
         n.implicit = 'testimplicit'
         n.waiting_parents = ['foo', 'bar']
 
+        x = MyExecutor()
+        n.set_executor(x)
+
         n.clear()
 
         assert not hasattr(n, 'binfo'), n.bsig
@@ -1124,6 +1140,7 @@ class NodeTestCase(unittest.TestCase):
         assert n.found_includes == {}, n.found_includes
         assert n.implicit is None, n.implicit
         assert n.waiting_parents == [], n.waiting_parents
+        assert x.cleaned_up
 
     def test_get_subst_proxy(self):
         """Test the get_subst_proxy method."""

@@ -169,26 +169,7 @@ class Node:
             try:
                 act = self.builder.action
             except AttributeError:
-                # If there's no builder or action, then return a created
-                # null Executor with a null build Environment that
-                # does nothing when the rest of the methods call it.
-                # We're keeping this here for now because this module is
-                # the only one using it, and because this whole thing
-                # may go away in the next step of refactoring this to
-                # disassociate Builders from Nodes entirely.
-                class NullExecutor:
-                    def get_build_env(self):
-                        class NullEnvironment:
-                            def get_scanner(self, key):
-                                return None
-                        return NullEnvironment()
-                    def get_build_scanner_path(self):
-                        return None
-                    def __call__(self, *args, **kw):
-                        pass
-                    def cleanup(self):
-                        pass
-                executor = NullExecutor()
+                executor = SCons.Executor.Null()
             else:
                 if self.pre_actions:
                     act = self.pre_actions + act
@@ -201,6 +182,15 @@ class Node:
                                                    self.sources)
             self.executor = executor
         return executor
+
+    def executor_cleanup(self):
+        """Let the executor clean up any cached information."""
+        try:
+            executor = self.get_executor(create=None)
+        except AttributeError:
+            pass
+        else:
+            executor.cleanup()
 
     def reset_executor(self):
         "Remove cached executor; forces recompute when needed."
@@ -276,12 +266,7 @@ class Node:
     def postprocess(self):
         """Clean up anything we don't need to hang onto after we've
         been built."""
-        try:
-            executor = self.get_executor(create=None)
-        except AttributeError:
-            pass
-        else:
-            executor.cleanup()
+        self.executor_cleanup()
 
     def clear(self):
         """Completely clear a Node of all its cached state (so that it
@@ -289,6 +274,7 @@ class Node:
         builds).
         __reset_cache__
         """
+        self.executor_cleanup()
         self.del_binfo()
         self.del_cinfo()
         try:
@@ -595,28 +581,31 @@ class Node:
         if scan:
             self.scan()
 
-        sources = self.filter_ignore(self.sources)
-        depends = self.filter_ignore(self.depends)
+        executor = self.get_executor()
+
+        sourcelist = executor.get_source_binfo(calc)
+
+        sourcelist = filter(lambda t, s=self: s.do_not_ignore(t[0]), sourcelist)
+        depends = filter(self.do_not_ignore, self.depends)
         if self.implicit is None:
             implicit = []
         else:
-            implicit = self.filter_ignore(self.implicit)
+            implicit = filter(self.do_not_ignore, self.implicit)
 
         def calc_signature(node, calc=calc):
             return node.calc_signature(calc)
-        sourcesigs = map(calc_signature, sources)
+        sourcesigs = map(lambda t: t[1], sourcelist)
         dependsigs = map(calc_signature, depends)
         implicitsigs = map(calc_signature, implicit)
 
         sigs = sourcesigs + dependsigs + implicitsigs
 
         if self.has_builder():
-            executor = self.get_executor()
             binfo.bact = str(executor)
             binfo.bactsig = calc.module.signature(executor)
             sigs.append(binfo.bactsig)
 
-        binfo.bsources = map(str, sources)
+        binfo.bsources = map(lambda t: t[2], sourcelist)
         binfo.bdepends = map(str, depends)
         binfo.bimplicit = map(str, implicit)
 
@@ -677,18 +666,24 @@ class Node:
         """Does this node exist locally or in a repositiory?"""
         # There are no repositories by default:
         return self.exists()
+
+    def missing(self):
+        """__cacheable__"""
+        return not self.is_derived() and \
+               not self.is_pseudo_derived() and \
+               not self.linked and \
+               not self.rexists()
     
     def prepare(self):
         """Prepare for this Node to be created.
         The default implemenation checks that all children either exist
         or are derived.
         """
-        def missing(node):
-            return not node.is_derived() and \
-                   not node.is_pseudo_derived() and \
-                   not node.linked and \
-                   not node.rexists()
-        missing_sources = filter(missing, self.children())
+        l = self.depends
+        if not self.implicit is None:
+            l = l + self.implicit
+        missing_sources = self.get_executor().get_missing_sources() \
+                          + filter(lambda c: c.missing(), l)
         if missing_sources:
             desc = "Source `%s' not found, needed by target `%s'." % (missing_sources[0], self)
             raise SCons.Errors.StopError, desc
@@ -757,19 +752,16 @@ class Node:
 
     def _children_reset(self):
         "__cache_reset__"
-        pass
+        # We need to let the Executor clear out any calculated
+        # bsig info that it's cached so we can re-calculate it.
+        self.executor_cleanup()
 
-    def filter_ignore(self, nodelist):
-        ignore = self.ignore
-        result = []
-        for node in nodelist:
-            if node not in ignore:
-                result.append(node)
-        return result
+    def do_not_ignore(self, node):
+        return node not in self.ignore
 
     def _children_get(self):
         "__cacheable__"
-        return self.filter_ignore(self.all_children(scan=0))
+        return filter(self.do_not_ignore, self.all_children(scan=0))
         
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those

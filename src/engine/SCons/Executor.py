@@ -176,6 +176,47 @@ class Executor:
         for tgt in self.targets:
             tgt.add_to_implicit(deps)
 
+    def get_missing_sources(self):
+        """
+        __cacheable__
+        """
+        return filter(lambda s: s.missing(), self.sources)
+
+    def get_source_binfo(self, calc):
+        """
+        __cacheable__
+        """
+        calc_signature = lambda node, calc=calc: node.calc_signature(calc)
+        return map(lambda s, c=calc_signature: (s, c(s), str(s)), self.sources)
+
+
+
+class Null:
+    """A null Executor, with a null build Environment, that does
+    nothing when the rest of the methods call it.
+
+    This might be able to disapper when we refactor things to
+    disassociate Builders from Nodes entirely, so we're not
+    going to worry about unit tests for this--at least for now.
+    """
+    def get_build_env(self):
+        class NullEnvironment:
+            def get_scanner(self, key):
+                return None
+        return NullEnvironment()
+    def get_build_scanner_path(self):
+        return None
+    def __call__(self, *args, **kw):
+        pass
+    def cleanup(self):
+        pass
+    def get_missing_sources(self):
+        return []
+    def get_source_binfo(self, calc):
+        return []
+
+
+
 if not SCons.Memoize.has_metaclass:
     _Base = Executor
     class Executor(SCons.Memoize.Memoizer, _Base):
