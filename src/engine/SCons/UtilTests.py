@@ -652,6 +652,12 @@ class UtilTestCase(unittest.TestCase):
 
             # Bug reported by Christoph Wiedemann.
             cvt('$xxx/bin'),        [['/bin']],
+
+            # Test variables smooshed together with different prefixes.
+            'foo$AAA',              [['fooa']],
+            '<$AAA',                [['<', 'a']],
+            '>$AAA',                [['>', 'a']],
+            '|$AAA',                [['|', 'a']],
         ]
 
         kwargs = {'target' : target, 'source' : source}

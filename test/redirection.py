@@ -49,16 +49,21 @@ env.Command(target='foo2', source='bar2',
             action= '%s cat.py < $SOURCES > $TARGET')
 env.Command(target='foo3', source='bar3',
             action='%s cat.py $SOURCES | %s cat.py > $TARGET')
-""" % (python, python, python, python))
+env.Command(target='foo4', source='bar4',
+            action='%s cat.py <$SOURCES |%s cat.py >$TARGET')
+""" % (python, python, python, python, python, python))
 
 test.write('bar1', 'bar1\r\n')
 test.write('bar2', 'bar2\r\n')
 test.write('bar3', 'bar3\r\n')
+test.write('bar4', 'bar4\r\n')
 
 test.run(arguments='.')
+
 test.fail_test(test.read('foo1') != 'bar1\r\n')
 test.fail_test(test.read('foo2') != 'bar2\r\n')
 test.fail_test(test.read('foo3') != 'bar3\r\n')
+test.fail_test(test.read('foo4') != 'bar4\r\n')
 
 test.pass_test()
 
