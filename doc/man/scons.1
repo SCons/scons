@@ -510,8 +510,10 @@ specifies what type of debugging:
 
 .TP
 --debug=count
-Print a count of how many objects are created
-of the various classes used internally by SCons.
+Print how many objects are created
+of the various classes used internally by SCons
+before and after reading the SConscript files
+and before and after building targets.
 This only works when run under Python 2.1 or later.
 
 .TP
@@ -547,7 +549,7 @@ recomputing them each time they're needed.
 --debug=memory
 Prints how much memory SCons uses
 before and after reading the SConscript files
-and before and after building.
+and before and after building targets.
 
 .TP
 --debug=objects

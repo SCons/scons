@@ -241,7 +241,7 @@ class QuestionTask(SCons.Taskmaster.Task):
 # Global variables
 
 keep_going_on_error = 0
-print_count = 0
+count_stats = None
 print_dtree = 0
 print_explanations = 0
 print_includes = 0
@@ -407,7 +407,7 @@ def _SConstruct_exists(dirname=''):
 
 def _set_globals(options):
     global repositories, keep_going_on_error, ignore_errors
-    global print_count, print_dtree
+    global count_stats, print_dtree
     global print_explanations, print_includes, print_memoizer
     global print_objects, print_stacktrace, print_stree
     global print_time, print_tree
@@ -424,7 +424,7 @@ def _set_globals(options):
         pass
     else:
         if "count" in debug_values:
-            print_count = 1
+            count_stats = []
         if "dtree" in debug_values:
             print_dtree = 1
         if "explain" in debug_values:
@@ -918,6 +918,7 @@ def _main(args, parser):
         fs.Repository(rep)
 
     if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
+    if not count_stats is None: count_stats.append(SCons.Debug.fetchLoggedInstances())
 
     progress_display("scons: Reading SConscript files ...")
 
@@ -947,6 +948,7 @@ def _main(args, parser):
     SCons.Node.FS.save_strings(1)
 
     if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
+    if not count_stats is None: count_stats.append(SCons.Debug.fetchLoggedInstances())
 
     fs.chdir(fs.Top)
 
@@ -1076,6 +1078,7 @@ def _main(args, parser):
         SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
 
     if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
+    if not count_stats is None: count_stats.append(SCons.Debug.fetchLoggedInstances())
 
     try:
         jobs.run()
@@ -1090,16 +1093,34 @@ def _main(args, parser):
     if not memory_stats is None:
         memory_stats.append(SCons.Debug.memory())
         when = [
-            'before SConscript files',
-            'after SConscript files',
-            'before building',
-            'after building',
+            'before reading SConscript files',
+            'after reading SConscript files',
+            'before building targets',
+            'after building targets',
         ]
         for i in xrange(len(when)):
-            memory_outf.write('Memory %s:  %d\n' % (when[i], memory_stats[i]))
+            memory_outf.write('Memory %-32s %12d\n' % (when[i]+':', memory_stats[i]))
 
-    if print_count:
-        SCons.Debug.countLoggedInstances('*')
+    if not count_stats is None:
+        count_stats.append(SCons.Debug.fetchLoggedInstances())
+        stats_table = {}
+        for cs in count_stats:
+            for n in map(lambda t: t[0], cs):
+                stats_table[n] = [0, 0, 0, 0]
+        i = 0
+        for cs in count_stats:
+            for n, c in cs:
+                stats_table[n][i] = c
+            i = i + 1
+        keys = stats_table.keys()
+        keys.sort()
+        print "Object counts:"
+        fmt = "    %7s %7s %7s %7s   %s"
+        print fmt % ("pre-", "post-", "pre-", "post-", "")
+        print fmt % ("read", "read", "build", "build", "Class")
+        for k in keys:
+            r = stats_table[k]
+            print "    %7d %7d %7d %7d   %s" % (r[0], r[1], r[2], r[3], k)
 
     if print_objects:
         SCons.Debug.listLoggedInstances('*')

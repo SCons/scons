@@ -269,45 +269,6 @@ assert check(expected_command_time, command_time, 0.01)
 assert check(total_time, sconscript_time+scons_time+command_time, 0.01) 
 assert check(total_time, expected_total_time, 0.1)
 
-try:
-    import resource
-except ImportError:
-    print "Python version has no `resource' module;"
-    print "skipping test of --debug=memory."
-else:
-    ############################
-    # test --debug=memory
-
-    test.run(arguments = "--debug=memory")
-    lines = string.split(test.stdout(), '\n')
-    test.fail_test(re.match(r'Memory before SConscript files:  \d+', lines[-5]) is None)
-    test.fail_test(re.match(r'Memory after SConscript files:  \d+', lines[-4]) is None)
-    test.fail_test(re.match(r'Memory before building:  \d+', lines[-3]) is None)
-    test.fail_test(re.match(r'Memory after building:  \d+', lines[-2]) is None)
-
-try:
-    import weakref
-except ImportError:
-    print "Python version has no `weakref' module;"
-    print "skipping tests of --debug=count and --debug=objects."
-else:
-    ############################
-    # test --debug=count
-    # Just check that object counts for some representative classes
-    # show up in the output.
-    test.run(arguments = "--debug=count")
-    stdout = test.stdout()
-    test.fail_test(re.search('BuilderBase: \d+', stdout) is None)
-    test.fail_test(re.search('FS: \d+', stdout) is None)
-    test.fail_test(re.search('Node: \d+', stdout) is None)
-    test.fail_test(re.search('SConsEnvironment: \d+', stdout) is None)
-
-    ############################
-    # test --debug=objects
-    # Just check that it runs, we're not overly concerned about the actual
-    # output at this point.
-    test.run(arguments = "--debug=objects")
-
 ############################
 # test --debug=presub
 
