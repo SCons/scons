@@ -62,12 +62,22 @@ def checkMocIncluded(target, source, env):
     moc = target[0]
     cpp = source[0]
     # looks like cpp.includes is cleared before the build stage :-(
-    includes = SCons.Defaults.CScan(cpp, env)
+    # not really sure about the path transformations (moc.cwd? cpp.cwd?) :-/
+    path = SCons.Defaults.CScan.path_function(env, moc.cwd)
+    includes = SCons.Defaults.CScan(cpp, env, path)
     if not moc in includes:
         SCons.Warnings.warn(
             GeneratedMocFileNotIncluded,
             "Generated moc file '%s' is not included by '%s'" %
             (str(moc), str(cpp)))
+
+def find_file(filename, paths, node_factory):
+    retval = None
+    for dir in paths:
+        node = node_factory(filename, dir)
+        if node.rexists():
+            return node
+    return None
 
 class _Automoc:
     """
@@ -98,18 +108,14 @@ class _Automoc:
         splitext = SCons.Util.splitext
         objBuilder = getattr(env, self.objBuilderName)
   
-        # To make the following work, we assume that we stay in the
-        # root directory
-        #old_os_cwd = os.getcwd()
-        #old_fs_cwd = FS.getcwd()
-        #FS.chdir(FS.Dir('#'), change_os_dir=1)
-
         # some regular expressions:
         # Q_OBJECT detection
         q_object_search = re.compile(r'[^A-Za-z0-9]Q_OBJECT[^A-Za-z0-9]') 
         # cxx and c comment 'eater'
-        comment = re.compile(r'(//.*)|(/\*(([^*])|(\*[^/]))*\*/)')
-
+        #comment = re.compile(r'(//.*)|(/\*(([^*])|(\*[^/]))*\*/)')
+        # CW: something must be wrong with the regexp. See also bug #998222
+        #     CURRENTLY THERE IS NO TEST CASE FOR THAT
+        
         # The following is kind of hacky to get builders working properly (FIXME)
         objBuilderEnv = objBuilder.env
         objBuilder.env = env
@@ -131,19 +137,21 @@ class _Automoc:
                     print "scons: qt: '%s' is no cxx file. Discarded." % str(cpp) 
                 # c or fortran source
                 continue
-            cpp_contents = comment.sub('', cpp.get_contents())
+            #cpp_contents = comment.sub('', cpp.get_contents())
+            cpp_contents = cpp.get_contents()
             h=None
             for h_ext in header_extensions:
                 # try to find the header file in the corresponding source
                 # directory
                 hname = splitext(cpp.name)[0] + h_ext
-                h = SCons.Node.FS.find_file(hname,
-                                            (cpp.get_dir(),),
-                                            FS.File)
+                h = find_file(hname,
+                              (cpp.get_dir(),),
+                              FS.File)
                 if h:
                     if debug:
                         print "scons: qt: Scanning '%s' (header of '%s')" % (str(h), str(cpp))
-                    h_contents = comment.sub('', h.get_contents())
+                    #h_contents = comment.sub('', h.get_contents())
+                    h_contents = h.get_contents()
                     break
             if not h and debug:
                 print "scons: qt: no header for '%s'." % (str(cpp))
@@ -166,9 +174,6 @@ class _Automoc:
         # restore the original env attributes (FIXME)
         objBuilder.env = objBuilderEnv
         env.Moc.env = mocBuilderEnv
-
-        #os.chdir(old_os_cwd)
-        #FS.chdir(old_fs_cwd)
 
         return (target, out_sources)
 
@@ -233,7 +238,8 @@ def generate(env):
 
     def uicEmitter(target, source, env):
         adjustixes = SCons.Util.adjustixes
-        bs = SCons.Util.splitext(str(source[0]))[0]
+        bs = SCons.Util.splitext(str(source[0].name))[0]
+        bs = os.path.join(str(target[0].get_dir()),bs)
         # first target (header) is automatically added by builder
         if len(target) < 2:
             # second target is implementation

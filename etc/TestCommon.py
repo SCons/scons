@@ -76,8 +76,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.8.D001 2004/07/15 06:24:14 knight"
-__version__ = "0.8"
+__revision__ = "TestCommon.py 0.9.D001 2004/08/06 08:19:26 knight"
+__version__ = "0.9"
 
 import os
 import os.path
@@ -204,7 +204,7 @@ class TestCommon(TestCmd):
         pathname will be constructed by concatenating them.  Exits FAILED
         if any of the files does not exist.
         """
-        files = map(lambda x: is_List(x) and os.path.join(x) or x, files)
+        files = map(lambda x: is_List(x) and apply(os.path.join, x) or x, files)
         missing = filter(lambda x: not os.path.exists(x), files)
         if missing:
             print "Missing files: `%s'" % string.join(missing, "', `")
@@ -233,7 +233,7 @@ class TestCommon(TestCmd):
         which case the pathname will be constructed by concatenating them.
         Exits FAILED if any of the files exists.
         """
-        files = map(lambda x: is_List(x) and os.path.join(x) or x, files)
+        files = map(lambda x: is_List(x) and apply(os.path.join, x) or x, files)
         existing = filter(os.path.exists, files)
         if existing:
             print "Unexpected files exist: `%s'" % string.join(existing, "', `")

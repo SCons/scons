@@ -214,34 +214,15 @@ int main() {
 """)
 
 test.run( arguments = "mytest" + _exe )
-
-def _existAll( test, files ):
-    return reduce(lambda x,y: x and y,
-                  map(os.path.exists,map(test.workpath, files)))
                        
-createSConstruct(test, ['SConstruct'],
-                 """QT_UICIMPLFLAGS='-x',
-                    QT_UICDECLFLAGS='-y',
-                    QT_MOCFROMHFLAGS='-z',
-                    QT_MOCFROMCXXFLAGS='-i -w',
-                    QT_UICDECLPREFIX='uic-',
-                    QT_UICDECLSUFFIX='.hpp',
-                    QT_UICIMPLPREFIX='',
-                    QT_UICIMPLSUFFIX='.cxx',
-                    QT_MOCHPREFIX='mmm',
-                    QT_MOCHSUFFIX='.cxx',
-                    QT_MOCCXXPREFIX='moc',
-                    QT_MOCCXXSUFFIX=`.inl',
-                    QT_UISUFFIX='.myui',""")
-
-test.fail_test(not _existAll(test, ['mmmmocFromH.cxx',
-                                    'mocmocFromCpp.inl',
-                                    'an_ui_file.cxx',
-                                    'uic-an_ui_file.hpp',
-                                    'mmman_ui_file.cxx',
-                                    'another_ui_file.cxx',
-                                    'uic-another_ui_file.hpp',
-                                    'mmmanother_ui_file.cxx']))
+test.must_exist('mmmmocFromH.cxx',
+                'mocmocFromCpp.inl',
+                'an_ui_file.cxx',
+                'uic-an_ui_file.hpp',
+                'mmman_ui_file.cxx',
+                'another_ui_file.cxx',
+                'uic-another_ui_file.hpp',
+                'mmmanother_ui_file.cxx')
 
 def _flagTest(test,fileToContentsStart):
     import string
