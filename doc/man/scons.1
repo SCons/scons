@@ -602,13 +602,26 @@ env.Library(target = 'bar', source = 'bar.c foo.o')
 
 .IP CFile
 Builds a C source file given a lex (.l) or yacc (.y) input file.
-The hard-coded suffix .c is
-automatically added to the target
+The suffix specified by the $CFILESUFFIX construction variable
+(.c by default)
+is automatically added to the target
 if it is not already present. Example:
 
 .ES
 env.CFile(target = 'foo.c', source = 'foo.l') # builds foo.c
 env.CFile(target = 'bar', source = 'bar.y')   # builds bar.c
+.EE
+
+.IP CXXFile
+Builds a C++ source file given a lex (.ll) or yacc (.yy) input file.
+The suffix specified by the $CXXFILESUFFIX construction variable
+(.cc by default)
+is automatically added to the target
+if it is not already present. Example:
+
+.ES
+env.CXXFile(target = 'foo.cc', source = 'foo.ll') # builds foo.cc
+env.CXXFile(target = 'bar', source = 'bar.yy')   # builds bar.cc
 .EE
 .LP
 C/C++ source files are automatically scanned for dependencies by 
@@ -743,7 +756,7 @@ The command line used to generate a static library from object files.
 
 .IP BUILDERS
 A list of the available builders.
-[CFile, Object, Program, Library] by default.
+[CFile, CXXFile, Object, Program, Library] by default.
 
 .IP CC 
 The C compiler.
@@ -757,8 +770,7 @@ The command line used to compile a C source file to an object file.
 .IP CFILESUFFIX
 The suffix for C source files.
 This is used by the internal CFile builder
-when generating destination files from Lex (.l) or YACC (.y)
-input files.
+when generating C files from Lex (.l) or YACC (.y) input files.
 The default suffix, of course, is
 .IR .c .
 
@@ -789,6 +801,13 @@ env = Environment(CPPPATH=include)
 
 .IP CXX
 The C++ compiler.
+
+.IP CXXFILESUFFIX
+The suffix for C++ source files.
+This is used by the internal CXXFile builder
+when generating C++ files from Lex (.ll) or YACC (.yy) input files.
+The default suffix is
+.IR .cc .
 
 .IP CXXFLAGS 
 General options that are passed to the C++ compiler.

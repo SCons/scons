@@ -26,6 +26,9 @@ RELEASE 0.06 -
   - Add a configurable CFILESUFFIX for the Builder of .l and .y files
     into C files.
 
+  - Add a CXXFile Builder that turns .ll and .yy files into .cc files
+    (configurable via a CXXFILESUFFIX construction variable).
+
 
 
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600

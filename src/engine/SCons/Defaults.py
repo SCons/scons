@@ -70,6 +70,12 @@ CFile = SCons.Builder.Builder(name = 'CFile',
                                        },
                               suffix = '$CFILESUFFIX')
 
+CXXFile = SCons.Builder.Builder(name = 'CXXFile',
+                                action = { '.ll' : '$LEXCOM',
+                                           '.yy' : '$YACCCOM',
+                                         },
+                                suffix = '$CXXFILESUFFIX')
+
 CPlusPlusAction = SCons.Action.Action('$CXXCOM')
 
 Object = SCons.Builder.Builder(name = 'Object',
@@ -83,7 +89,7 @@ Object = SCons.Builder.Builder(name = 'Object',
                                         },
                                prefix = '$OBJPREFIX',
                                suffix = '$OBJSUFFIX',
-                               src_builder = CFile)
+                               src_builder = [CFile, CXXFile])
 
 Program = SCons.Builder.Builder(name = 'Program',
                                 action = '$LINKCOM',
@@ -209,6 +215,7 @@ def make_win32_env_from_paths(include, lib, path):
         'CXX'        : '$CC',
         'CXXFLAGS'   : '$CCFLAGS',
         'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'CXXFILESUFFIX' : '.cc',
         'LINK'       : 'link',
         'LINKFLAGS'  : '/nologo',
         'LINKCOM'    : '$LINK $LINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
@@ -221,7 +228,7 @@ def make_win32_env_from_paths(include, lib, path):
         'YACC'       : 'yacc',
         'YACCFLAGS'  : '',
         'YACCCOM'    : '$YACC $YACCFLAGS -o $TARGET $SOURCES',
-        'BUILDERS'   : [CFile, Object, Program, Library],
+        'BUILDERS'   : [CFile, CXXFile, Object, Program, Library],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.obj',
@@ -269,6 +276,7 @@ if os.name == 'posix':
         'CXX'        : 'c++',
         'CXXFLAGS'   : '$CCFLAGS',
         'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'CXXFILESUFFIX' : '.cc',
         'LINK'       : '$CXX',
         'LINKFLAGS'  : '',
         'LINKCOM'    : '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS',
@@ -283,7 +291,7 @@ if os.name == 'posix':
         'YACC'       : 'yacc',
         'YACCFLAGS'  : '',
         'YACCCOM'    : '$YACC $YACCFLAGS -o $TARGET $SOURCES',
-        'BUILDERS'   : [CFile, Object, Program, Library],
+        'BUILDERS'   : [CFile, CXXFile, Object, Program, Library],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.o',

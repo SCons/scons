@@ -326,7 +326,11 @@ class CompositeBuilder(BuilderBase):
                 'src_suffix' : last_suffix,
             }
             if self.sbuild[r]:
-                kw['src_builder'] = self.sbuild[r][0]
+                sb = filter(lambda x, e=env, s=last_suffix:
+                                   e.subst(x.suffix) == s,
+                            self.sbuild[r])
+                if sb:
+                    kw['src_builder'] = sb[0]
             # XXX We should be able to cache this
             bld = apply(Builder, (), kw)
             for tnode in tlist:
