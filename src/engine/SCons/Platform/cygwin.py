@@ -37,5 +37,9 @@ import posix
 def generate(env):
     posix.generate(env)
 
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = '.exe'
+    env['PROGPREFIX']  = ''
+    env['PROGSUFFIX']  = '.exe'
+    env['SHLIBPREFIX'] = ''
+    env['SHLIBSUFFIX'] = '.dll'
+    env['LIBPREFIXES'] = [ '$LIBPREFIX', '$SHLIBPREFIX' ]
+    env['LIBSUFFIXES'] = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]

@@ -10,6 +10,10 @@
 
 RELEASE 0.14 - XXX
 
+  From Chad Austin:
+
+  - Use .dll (not .so) for shared libraries on Cygwin.
+
   From Steven Knight:
 
   - Add support for Java (javac and jar).
