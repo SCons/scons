@@ -501,7 +501,7 @@ _separate_args = re.compile(r'(\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}|\s+|[^\s\
 # space characters in the string result from the scons_subst() function.
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=None, conv=None):
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=None, conv=None, gvars=None):
     """Expand a string containing construction variable substitutions.
 
     This is the work-horse function for substitutions in file names
@@ -516,14 +516,13 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
         source with two methods (substitute() and expand()) that handle
         the expansion.
         """
-        def __init__(self, env, mode, target, source, conv):
+        def __init__(self, env, mode, target, source, conv, gvars):
             self.env = env
             self.mode = mode
             self.target = target
             self.source = source
-
-            self.gvars = env.Dictionary()
             self.conv = conv
+            self.gvars = gvars
 
         def expand(self, s, lvars):
             """Expand a single "token" as necessary, returning an
@@ -606,8 +605,10 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
         dict = subst_dict(target, source)
     if conv is None:
         conv = _strconv[mode]
+    if gvars is None:
+        gvars = env.Dictionary()
 
-    ss = StringSubber(env, mode, target, source, conv)
+    ss = StringSubber(env, mode, target, source, conv, gvars)
     result = ss.substitute(strSubst, dict)
 
     if is_String(result):
@@ -623,7 +624,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=None, conv=None):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=None, conv=None, gvars=None):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
@@ -647,20 +648,19 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
         and the rest of the object takes care of doing the right thing
         internally.
         """
-        def __init__(self, env, mode, target, source, conv):
+        def __init__(self, env, mode, target, source, conv, gvars):
             UserList.UserList.__init__(self, [])
             self.env = env
             self.mode = mode
             self.target = target
             self.source = source
-
-            self.gvars = env.Dictionary()
+            self.conv = conv
+            self.gvars = gvars
 
             if self.mode == SUBST_RAW:
                 self.add_strip = lambda x, s=self: s.append(x)
             else:
                 self.add_strip = lambda x, s=self: None
-            self.conv = conv
             self.in_strip = None
             self.next_line()
 
@@ -793,8 +793,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
         dict = subst_dict(target, source)
     if conv is None:
         conv = _strconv[mode]
+    if gvars is None:
+        gvars = env.Dictionary()
 
-    ls = ListSubber(env, mode, target, source, conv)
+    ls = ListSubber(env, mode, target, source, conv, gvars)
     ls.substitute(strSubst, dict, 0)
 
     return ls.data

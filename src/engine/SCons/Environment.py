@@ -438,6 +438,8 @@ class Base:
             r.append(p)
         return r
 
+    subst_target_source = subst
+
     def _update(self, dict):
         """Update an environment's values directly, bypassing the normal
         checks that occur when users try to set items.
@@ -1200,12 +1202,28 @@ def NoSubstitutionProxy(subject):
             return getattr(self.__dict__['__subject'], name)
         def __setattr__(self, name, value):
             return setattr(self.__dict__['__subject'], name, value)
+        def raw_to_mode(self, dict):
+            try:
+                raw = dict['raw']
+            except KeyError:
+                pass
+            else:
+                del dict['raw']
+                dict['mode'] = raw
         def subst(self, string, *args, **kwargs):
             return string
         def subst_kw(self, kw, *args, **kwargs):
             return kw
         def subst_list(self, string, *args, **kwargs):
-            if not SCons.Util.is_List(string):
-                string = [[string]]
-            return string
+            nargs = (string, self,) + args
+            nkw = kwargs.copy()
+            nkw['gvars'] = {}
+            self.raw_to_mode(nkw)
+            return apply(SCons.Util.scons_subst_list, nargs, nkw)
+        def subst_target_source(self, string, *args, **kwargs):
+            nargs = (string, self,) + args
+            nkw = kwargs.copy()
+            nkw['gvars'] = {}
+            self.raw_to_mode(nkw)
+            return apply(SCons.Util.scons_subst, nargs, nkw)
     return _NoSubstitutionProxy(subject)

@@ -125,6 +125,18 @@ class CLVar(UserList.UserList):
 
 
 
+class DummyNode:
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return self.name
+    def rfile(self):
+        return self
+    def get_subst_proxy(self):
+        return self
+
+
+
 class EnvironmentTestCase(unittest.TestCase):
 
     def test___init__(self):
@@ -294,16 +306,6 @@ class EnvironmentTestCase(unittest.TestCase):
         mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
         assert mystr == "c cA cB c", mystr
 
-        class DummyNode:
-            def __init__(self, name):
-                self.name = name
-            def __str__(self):
-                return self.name
-            def rfile(self):
-                return self
-            def get_subst_proxy(self):
-                return self
-
         t1 = DummyNode('t1')
         t2 = DummyNode('t2')
         s1 = DummyNode('s1')
@@ -374,16 +376,6 @@ class EnvironmentTestCase(unittest.TestCase):
         env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
         lst = env.subst_list([ "$AAA", "B $CCC" ])
         assert lst == [[ "a", "b"], ["c", "B a", "b"], ["c"]], lst
-
-        class DummyNode:
-            def __init__(self, name):
-                self.name = name
-            def __str__(self):
-                return self.name
-            def rfile(self):
-                return self
-            def get_subst_proxy(self):
-                return self
 
         t1 = DummyNode('t1')
         t2 = DummyNode('t2')
@@ -2431,12 +2423,28 @@ class NoSubstitutionProxyTestCase(unittest.TestCase):
         x = env.subst_list('$XXX')
         assert x == [['x']], x
         x = proxy.subst_list('$XXX')
-        assert x == [['$XXX']], x
+        assert x == [[]], x
 
-        x = proxy.subst_list('$YYY', raw=7, target=None, source=None,
-                             dict=None, conv=None,
-                             extra_meaningless_keyword_argument=None)
-        assert x == [['$YYY']], x
+        x = proxy.subst_list('$YYY', raw=0, target=None, source=None,
+                             dict=None, conv=None)
+        assert x == [[]], x
+
+    def test_subst_target_source(self):
+        """Test the NoSubstitutionProxy.subst_target_source() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        assert env['XXX'] == 'x', env['XXX']
+        assert env['YYY'] == 'y', env['YYY']
+
+        proxy = NoSubstitutionProxy(env)
+        assert proxy['XXX'] == 'x', proxy['XXX']
+        assert proxy['YYY'] == 'y', proxy['YYY']
+
+        args = ('$XXX $TARGET $SOURCE $YYY',)
+        kw = {'target' : DummyNode('ttt'), 'source' : DummyNode('sss')}
+        x = apply(env.subst_target_source, args, kw)
+        assert x == 'x ttt sss y', x
+        x = apply(proxy.subst_target_source, args, kw)
+        assert x == ' ttt sss ', x
 
 
 
