@@ -90,7 +90,6 @@ class Task:
         if self.targets[0].get_state() == SCons.Node.executing:
             self.set_tstates(SCons.Node.executed)
             for t in self.targets:
-                t.store_bsig()
                 t.built()
 
         self.tm.executed(self.node)

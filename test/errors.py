@@ -26,8 +26,48 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestCmd
 import TestSCons
+import string
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
+
+test.write('foo.in', 'foo')
+test.write('exit.in', 'exit')
+test.write('SConstruct', """
+import sys
+
+def foo(env, target, source):
+    print str(target[0])
+    open(str(target[0]), 'wt').write('foo')
+
+def exit(env, target, source):
+    raise 'exit'
+
+env = Environment(BUILDERS = [Builder(name='foo', action=foo),
+                              Builder(name='exit', action=exit)])
+
+env.foo('foo.out', 'foo.in')
+env.exit('exit.out', 'exit.in')
+""")
+
+stderr = """scons: \*\*\* \[exit.out\] Exception
+Traceback \((most recent call|innermost) last\):
+  File ".+", line \d+, in .+
+    .+
+  File ".+", line \d+, in .+
+    .+
+  File ".+", line \d+, in .+
+    .+
+  File ".+", line \d+, in .+
+    .+
+.+
+"""
+
+test.run(arguments='foo.out exit.out', stderr=stderr, status=2)
+
+test.run(arguments='foo.out exit.out', stderr=stderr, status=2)
+assert string.find(test.stdout(), 'scons: "foo.out" is up to date.') != -1, test.stdout()
+
+
 
 test.write('SConstruct1', """
 a ! x

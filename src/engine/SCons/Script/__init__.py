@@ -827,10 +827,12 @@ def _main():
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
-    jobs.start()
-    jobs.wait()
 
-    SCons.Sig.write()
+    try:
+        jobs.start()
+        jobs.wait()
+    finally:
+        SCons.Sig.write()
 
 def main():
     try:

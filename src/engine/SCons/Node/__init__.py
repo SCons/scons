@@ -114,6 +114,8 @@ class Node:
 
     def built(self):
         """Called just after this node is sucessfully built."""
+        self.store_bsig()
+
         # Clear out the implicit dependency caches:
         # XXX this really should somehow be made more general and put
         #     under the control of the scanners.
