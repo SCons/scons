@@ -75,11 +75,10 @@ def Binder(path):
 
 
 class FindPathDirs:
-    """A class to bind a specific *PATH variable name and the fs object
-    to a function that will return all of the *path directories."""
-    def __init__(self, variable, fs):
+    """A class to bind a specific *PATH variable name to a function that
+    will return all of the *path directories."""
+    def __init__(self, variable):
         self.variable = variable
-        self.fs = fs
     def __call__(self, env, dir, target=None, source=None, argument=None):
         # The goal is that we've made caching this unnecessary
         # because the caching takes place at higher layers.
@@ -89,10 +88,10 @@ class FindPathDirs:
             return ()
 
         path = env.subst_path(path, target=target, source=source)
-        path_tuple = tuple(self.fs.Rsearchall(path,
-                                              must_exist = 0, #kwq!
-                                              clazz = SCons.Node.FS.Dir,
-                                              cwd = dir))
+        path_tuple = tuple(env.fs.Rsearchall(path,
+                                             must_exist = 0, #kwq!
+                                             clazz = SCons.Node.FS.Dir,
+                                             cwd = dir))
         return Binder(path_tuple)
 
 class Base:
@@ -110,7 +109,7 @@ class Base:
                  skeys = [],
                  path_function = None,
                  node_class = SCons.Node.FS.Entry,
-                 node_factory = SCons.Node.FS.default_fs.File,
+                 node_factory = None,
                  scan_check = None,
                  recursive = None):
         """
@@ -155,13 +154,12 @@ class Base:
         (the canonical example being only recursively scanning
         subdirectories within a directory).
 
-        The scanner function's first argument will be the a Node that
-        should be scanned for dependencies, the second argument will
-        be an Environment object, the third argument will be the tuple
-        of paths returned by the path_function, and the fourth
-        argument will be the value passed into 'argument', and the
-        returned list should contain the Nodes for all the direct
-        dependencies of the file.
+        The scanner function's first argument will be a Node that should
+        be scanned for dependencies, the second argument will be an
+        Environment object, the third argument will be the tuple of paths
+        returned by the path_function, and the fourth argument will be
+        the value passed into 'argument', and the returned list should
+        contain the Nodes for all the direct dependencies of the file.
 
         Examples:
 
@@ -218,10 +216,11 @@ class Base:
         kw = {}
         if hasattr(node, 'dir'):
             kw['directory'] = node.dir
+        node_factory = env.get_factory(self.node_factory)
         nodes = []
         for l in list:
             if self.node_class and not isinstance(l, self.node_class):
-                l = apply(self.node_factory, (l,), kw)
+                l = apply(node_factory, (l,), kw)
             nodes.append(l)
         return nodes
 
@@ -315,11 +314,9 @@ class Classic(Current):
     include file in group 0.
     """
 
-    def __init__(self, name, suffixes, path_variable, regex,
-                 fs=SCons.Node.FS.default_fs, *args, **kw):
+    def __init__(self, name, suffixes, path_variable, regex, *args, **kw):
 
         self.cre = re.compile(regex, re.M)
-        self.fs = fs
 
         def _scan(node, env, path=(), self=self):
             node = node.rfile()
@@ -328,7 +325,7 @@ class Classic(Current):
             return self.scan(node, path)
 
         kw['function'] = _scan
-        kw['path_function'] = FindPathDirs(path_variable, fs)
+        kw['path_function'] = FindPathDirs(path_variable)
         kw['recursive'] = 1
         kw['skeys'] = suffixes
         kw['name'] = name

@@ -49,6 +49,7 @@ class DummyEnvironment:
     def __init__(self, **kw):
         self._dict = {'LIBSUFFIXES' : '.lib'}
         self._dict.update(kw)
+        self.fs = SCons.Node.FS.FS(test.workpath(''))
 
     def Dictionary(self, *args):
         if not args:
@@ -83,6 +84,15 @@ class DummyEnvironment:
             path = [path]
         return map(self.subst, path)
 
+    def get_factory(self, factory):
+        return factory or self.fs.File
+
+    def Dir(self, filename):
+        return self.fs.Dir(test.workpath(filename))
+
+    def File(self, filename):
+        return self.fs.File(test.workpath(filename))
+
 class DummyNode:
     def __init__(self, name):
         self.name = name
@@ -95,9 +105,7 @@ def deps_match(deps, libs):
     deps=map(str, deps)
     deps.sort()
     libs.sort()
-    return map(os.path.normpath, deps) == \
-           map(os.path.normpath,
-               map(test.workpath, libs))
+    return map(os.path.normpath, deps) == map(os.path.normpath, libs)
 
 # define some tests:
 
@@ -117,7 +125,7 @@ class ProgramScannerTestCase1(unittest.TestCase):
         deps = s(DummyNode('dummy'), env, path)
         assert deps_match(deps, ['l1.lib']), map(str, deps)
 
-        f1 = SCons.Node.FS.default_fs.File(test.workpath('f1'))
+        f1 = env.fs.File(test.workpath('f1'))
         env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
                                LIBS=[f1])
         s = SCons.Scanner.Prog.ProgramScanner()
@@ -125,7 +133,7 @@ class ProgramScannerTestCase1(unittest.TestCase):
         deps = s(DummyNode('dummy'), env, path)
         assert deps[0] is f1, deps
 
-        f2 = SCons.Node.FS.default_fs.File(test.workpath('f1'))
+        f2 = env.fs.File(test.workpath('f1'))
         env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
                                LIBS=f2)
         s = SCons.Scanner.Prog.ProgramScanner()

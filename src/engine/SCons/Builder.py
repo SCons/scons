@@ -342,7 +342,7 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
 
     # Now set up the relevant information in the target Nodes themselves.
     for t in tlist:
-        t.cwd = SCons.Node.FS.default_fs.getcwd()
+        t.cwd = env.fs.getcwd()
         t.builder_set(builder)
         t.env_set(env)
         t.add_source(slist)
@@ -390,8 +390,8 @@ class BuilderBase:
                         prefix = '',
                         suffix = '',
                         src_suffix = '',
-                        target_factory = SCons.Node.FS.default_fs.File,
-                        source_factory = SCons.Node.FS.default_fs.File,
+                        target_factory = None,
+                        source_factory = None,
                         target_scanner = None,
                         source_scanner = None,
                         emitter = None,
@@ -498,8 +498,11 @@ class BuilderBase:
 
         src_suf = self.get_src_suffix(env)
 
+        target_factory = env.get_factory(self.target_factory)
+        source_factory = env.get_factory(self.source_factory)
+
         source = _adjustixes(source, None, src_suf)
-        slist = env.arg2nodes(source, self.source_factory)
+        slist = env.arg2nodes(source, source_factory)
 
         pre = self.get_prefix(env, slist)
         suf = self.get_suffix(env, slist)
@@ -516,7 +519,7 @@ class BuilderBase:
                 tlist = [ t_from_s(pre, suf, splitext) ]
         else:
             target = _adjustixes(target, pre, suf)
-            tlist = env.arg2nodes(target, self.target_factory)
+            tlist = env.arg2nodes(target, target_factory)
 
         if self.emitter:
             # The emitter is going to do str(node), but because we're
@@ -543,8 +546,8 @@ class BuilderBase:
 
             # Have to call arg2nodes yet again, since it is legal for
             # emitters to spit out strings as well as Node instances.
-            slist = env.arg2nodes(source, self.source_factory)
-            tlist = env.arg2nodes(target, self.target_factory)
+            slist = env.arg2nodes(source, source_factory)
+            tlist = env.arg2nodes(target, target_factory)
 
         return tlist, slist
 
@@ -693,8 +696,8 @@ class MultiStepBuilder(BuilderBase):
                         prefix = '',
                         suffix = '',
                         src_suffix = '',
-                        target_factory = SCons.Node.FS.default_fs.File,
-                        source_factory = SCons.Node.FS.default_fs.File,
+                        target_factory = None,
+                        source_factory = None,
                         target_scanner = None,
                         source_scanner = None,
                         emitter=None,
@@ -723,7 +726,8 @@ class MultiStepBuilder(BuilderBase):
         
     def _execute(self, env, target, source, overwarn={}, executor_kw={}):
         # We now assume that target and source are lists or None.
-        slist = env.arg2nodes(source, self.source_factory)
+        source_factory = env.get_factory(self.source_factory)
+        slist = env.arg2nodes(source, source_factory)
         final_sources = []
 
         sdict = self._get_sdict(env)

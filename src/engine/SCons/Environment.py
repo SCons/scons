@@ -94,7 +94,7 @@ def alias_builder(env, target, source):
 
 AliasBuilder = SCons.Builder.Builder(action = alias_builder,
                                      target_factory = SCons.Node.Alias.default_ans.Alias,
-                                     source_factory = SCons.Node.FS.default_fs.Entry,
+                                     source_factory = SCons.Node.FS.Entry,
                                      multi = 1,
                                      is_explicit = None,
                                      name='AliasBuilder')
@@ -250,7 +250,7 @@ class SubstitutionEnvironment:
         """Initialization of an underlying SubstitutionEnvironment class.
         """
         if __debug__: logInstanceCreation(self, 'Environment.SubstitutionEnvironment')
-        self.fs = SCons.Node.FS.default_fs
+        self.fs = SCons.Node.FS.default_fs or SCons.Node.FS.FS()
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = kw.copy()
@@ -483,7 +483,7 @@ class Base(SubstitutionEnvironment):
         with the much simpler base class initialization.
         """
         if __debug__: logInstanceCreation(self, 'Environment.Base')
-        self.fs = SCons.Node.FS.default_fs
+        self.fs = SCons.Node.FS.default_fs or SCons.Node.FS.FS()
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
@@ -529,6 +529,14 @@ class Base(SubstitutionEnvironment):
     # These begin with lower-case letters.
     #######################################################################
 
+    def get_builder(self, name):
+        """Fetch the builder with the specified name from the environment.
+        """
+        try:
+            return self._dict['BUILDERS'][name]
+        except KeyError:
+            return None
+
     def get_calculator(self):
         "__cacheable__"
         try:
@@ -541,13 +549,35 @@ class Base(SubstitutionEnvironment):
             c = SCons.Defaults.DefaultEnvironment().get_calculator()
         return c
 
-    def get_builder(self, name):
-        """Fetch the builder with the specified name from the environment.
+    def get_factory(self, factory, default='File'):
+        """Return a factory function for creating Nodes for this
+        construction environment.
+        __cacheable__
         """
+        name = default
         try:
-            return self._dict['BUILDERS'][name]
-        except KeyError:
-            return None
+            is_node = issubclass(factory, SCons.Node.Node)
+        except TypeError:
+            # The specified factory isn't a Node itself--it's
+            # most likely None, or possibly a callable.
+            pass
+        else:
+            if is_node:
+                # The specified factory is a Node (sub)class.  Try to
+                # return the FS method that corresponds to the Node's
+                # name--that is, we return self.fs.Dir if they want a Dir,
+                # self.fs.File for a File, etc.
+                try: name = factory.__name__
+                except AttributeError: pass
+                else: factory = None
+        if not factory:
+            # They passed us None, or we picked up a name from a specified
+            # class, so return the FS method.  (Note that we *don't*
+            # use our own self.{Dir,File} methods because that would
+            # cause env.subst() to be called twice on the file name,
+            # interfering with files that have $$ in them.)
+            factory = getattr(self.fs, name)
+        return factory
 
     def _gsm(self):
         "__cacheable__"

@@ -55,13 +55,12 @@ class F90Scanner(SCons.Scanner.Classic):
     """
 
     def __init__(self, name, suffixes, path_variable, use_regex,
-                 incl_regex, fs=SCons.Node.FS.default_fs, *args, **kw):
+                 incl_regex, *args, **kw):
 
         self.cre_use = re.compile(use_regex, re.M)
         self.cre_incl = re.compile(incl_regex, re.M)
-        self.fs = fs
 
-        def _scan(node, env, path, self=self, fs=fs):
+        def _scan(node, env, path, self=self):
             node = node.rfile()
 
             if not node.exists():
@@ -70,7 +69,7 @@ class F90Scanner(SCons.Scanner.Classic):
             return self.scan(node, env, path)
 
         kw['function'] = _scan
-        kw['path_function'] = SCons.Scanner.FindPathDirs(path_variable, fs)
+        kw['path_function'] = SCons.Scanner.FindPathDirs(path_variable)
         kw['recursive'] = 1
         kw['skeys'] = suffixes
         kw['name'] = name
@@ -117,7 +116,7 @@ class F90Scanner(SCons.Scanner.Classic):
         nodes = map(lambda pair: pair[1], nodes)
         return nodes
 
-def FortranScan(path_variable="FORTRANPATH", fs=SCons.Node.FS.default_fs):
+def FortranScan(path_variable="FORTRANPATH"):
     """Return a prototype Scanner instance for scanning source files
     for Fortran USE & INCLUDE statements"""
 
@@ -275,6 +274,5 @@ def FortranScan(path_variable="FORTRANPATH", fs=SCons.Node.FS.default_fs):
                          "$FORTRANSUFFIXES",
                          path_variable,
                          use_regex,
-                         include_regex,
-                         fs = fs)
+                         include_regex)
     return scanner

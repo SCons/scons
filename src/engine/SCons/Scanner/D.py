@@ -36,13 +36,12 @@ import string
 
 import SCons.Scanner
 
-def DScanner(fs = SCons.Node.FS.default_fs):
+def DScanner():
     """Return a prototype Scanner instance for scanning D source files"""
     ds = D(name = "DScanner",
            suffixes = '$DSUFFIXES',
            path_variable = 'DPATH',
-           regex = 'import\s+([^\;]*)\;',
-           fs = fs)
+           regex = 'import\s+([^\;]*)\;')
     return ds
 
 class D(SCons.Scanner.Classic):

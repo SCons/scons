@@ -76,7 +76,7 @@ def SetProgressDisplay(display):
     global progress_display
     progress_display = display
 
-SConfFS=SCons.Node.FS.default_fs
+SConfFS = None
 
 _ac_build_counter = 0 # incremented, whenever TryBuild is called
 _ac_config_logs = {}  # all config.log files created in this build
@@ -338,7 +338,8 @@ class SConf:
         """
         global SConfFS
         if not SConfFS:
-            SConfFS = SCons.Node.FS.FS(SCons.Node.FS.default_fs.pathTop)
+            SConfFS = SCons.Node.FS.default_fs or \
+                      SCons.Node.FS.FS(env.fs.pathTop)
         if not sconf_global is None:
             raise (SCons.Errors.UserError,
                    "Only one SConf object may be active at one time")

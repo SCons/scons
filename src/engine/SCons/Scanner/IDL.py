@@ -33,11 +33,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Node.FS
 import SCons.Scanner
 
-def IDLScan(fs = SCons.Node.FS.default_fs):
+def IDLScan():
     """Return a prototype Scanner instance for scanning IDL source files"""
     cs = SCons.Scanner.ClassicCPP("IDLScan",
                                   "$IDLSUFFIXES",
                                   "CPPPATH",
-                                  '^[ \t]*(?:#[ \t]*include|[ \t]*import)[ \t]+(<|")([^>"]+)(>|")',
-                                  fs = fs)
+                                  '^[ \t]*(?:#[ \t]*include|[ \t]*import)[ \t]+(<|")([^>"]+)(>|")')
     return cs

@@ -75,7 +75,7 @@ def generate(env):
     # calling getcwd() for itself, which is odd.  If no PWD variable
     # is present, p4 WILL call getcwd, but this seems to cause problems
     # with good ol' Win32's tilde-mangling for long file names.
-    environ['PWD'] = SCons.Node.FS.default_fs.Dir('#').get_abspath()
+    environ['PWD'] = env.Dir('#').get_abspath()
 
     for var in _import_env:
         v = os.environ.get(var)

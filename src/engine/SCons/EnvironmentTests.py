@@ -794,128 +794,81 @@ class BaseTestCase(unittest.TestCase):
     def test_autogenerate(dict):
         """Test autogenerating variables in a dictionary."""
 
-        def RDirs(pathlist):
-            return SCons.Node.FS.default_fs.Rsearchall(pathlist,
-                                                       clazz=SCons.Node.FS.Dir,
-                                                       must_exist=0,
-                                                       cwd=SCons.Node.FS.default_fs.Dir('xx'))
-
         env = Environment(LIBS = [ 'foo', 'bar', 'baz' ],
                           LIBLINKPREFIX = 'foo',
-                          LIBLINKSUFFIX = 'bar',
-                          RDirs=RDirs)
+                          LIBLINKSUFFIX = 'bar')
+
+        def RDirs(pathlist, fs=env.fs):
+            return fs.Rsearchall(pathlist,
+                                 clazz=SCons.Node.FS.Dir,
+                                 must_exist=0,
+                                 cwd=fs.Dir('xx'))
+
+        env['RDirs'] = RDirs
         flags = env.subst_list('$_LIBFLAGS', 1)[0]
-        assert len(flags) == 3, flags
-        assert flags[0] == 'foobar', \
-               flags[0]
-        assert flags[1] == 'foobar', \
-               flags[1]
-        assert flags[2] == 'foobazbar', \
-               flags[2]
+        assert flags == ['foobar', 'foobar', 'foobazbar'], flags
 
-        blat = SCons.Node.FS.default_fs.Dir('blat')
+        blat = env.fs.Dir('blat')
 
-        env = Environment(CPPPATH = [ 'foo', '$FOO/bar', blat ],
-                          INCPREFIX = 'foo ',
-                          INCSUFFIX = 'bar',
-                          FOO = 'baz',
-                          RDirs=RDirs)
+        env.Replace(CPPPATH = [ 'foo', '$FOO/bar', blat ],
+                    INCPREFIX = 'foo ',
+                    INCSUFFIX = 'bar',
+                    FOO = 'baz')
         flags = env.subst_list('$_CPPINCFLAGS', 1)[0]
-        assert len(flags) == 8, flags
-        assert flags[0] == '$(', \
-               flags[0]
-        assert flags[1] == os.path.normpath('foo'), \
-               flags[1]
-        assert flags[2] == os.path.normpath('xx/foobar'), \
-               flags[2]
-        assert flags[3] == os.path.normpath('foo'), \
-               flags[3]
-        assert flags[4] == os.path.normpath('xx/baz/bar'), \
-               flags[4]
-        assert flags[5] == os.path.normpath('foo'), \
-               flags[5]
-        assert flags[6] == os.path.normpath('blatbar'), \
-               flags[6]
-        assert flags[7] == '$)', \
-               flags[7]
+        expect = [ '$(',
+                   os.path.normpath('foo'),
+                   os.path.normpath('xx/foobar'),
+                   os.path.normpath('foo'),
+                   os.path.normpath('xx/baz/bar'),
+                   os.path.normpath('foo'),
+                   os.path.normpath('blatbar'),
+                   '$)',
+        ]
+        assert flags == expect, flags
 
-        env = Environment(F77PATH = [ 'foo', '$FOO/bar', blat ],
-                          INCPREFIX = 'foo ',
-                          INCSUFFIX = 'bar',
-                          FOO = 'baz',
-                          RDirs=RDirs)
+        env.Replace(F77PATH = [ 'foo', '$FOO/bar', blat ],
+                    INCPREFIX = 'foo ',
+                    INCSUFFIX = 'bar',
+                    FOO = 'baz')
         flags = env.subst_list('$_F77INCFLAGS', 1)[0]
-        assert len(flags) == 8, flags
-        assert flags[0] == '$(', \
-               flags[0]
-        assert flags[1] == os.path.normpath('foo'), \
-               flags[1]
-        assert flags[2] == os.path.normpath('xx/foobar'), \
-               flags[2]
-        assert flags[3] == os.path.normpath('foo'), \
-               flags[3]
-        assert flags[4] == os.path.normpath('xx/baz/bar'), \
-               flags[4]
-        assert flags[5] == os.path.normpath('foo'), \
-               flags[5]
-        assert flags[6] == os.path.normpath('blatbar'), \
-               flags[6]
-        assert flags[7] == '$)', \
-               flags[7]
+        expect = [ '$(',
+                   os.path.normpath('foo'),
+                   os.path.normpath('xx/foobar'),
+                   os.path.normpath('foo'),
+                   os.path.normpath('xx/baz/bar'),
+                   os.path.normpath('foo'),
+                   os.path.normpath('blatbar'),
+                   '$)',
+        ]
+        assert flags == expect, flags
 
-        env = Environment(CPPPATH = '', F77PATH = '', LIBPATH = '',
-                          RDirs=RDirs)
+        env.Replace(CPPPATH = '', F77PATH = '', LIBPATH = '')
         l = env.subst_list('$_CPPINCFLAGS')
-        assert len(l[0]) == 0, l[0]
+        assert l == [[]], l
         l = env.subst_list('$_F77INCFLAGS')
-        assert len(l[0]) == 0, l[0]
+        assert l == [[]], l
         l = env.subst_list('$_LIBDIRFLAGS')
-        assert len(l[0]) == 0, l[0]
+        assert l == [[]], l
 
-        SCons.Node.FS.default_fs.Repository('/rep1')
-        SCons.Node.FS.default_fs.Repository('/rep2')
-        env = Environment(CPPPATH = [ 'foo', '/a/b', '$FOO/bar', blat],
-                          INCPREFIX = '-I ',
-                          INCSUFFIX = 'XXX',
-                          FOO = 'baz',
-                          RDirs=RDirs)
+        env.fs.Repository('/rep1')
+        env.fs.Repository('/rep2')
+        env.Replace(CPPPATH = [ 'foo', '/a/b', '$FOO/bar', blat],
+                    INCPREFIX = '-I ',
+                    INCSUFFIX = 'XXX',
+                    FOO = 'baz')
         flags = env.subst_list('$_CPPINCFLAGS', 1)[0]
-        assert flags[0] == '$(', \
-               flags[0]
-        assert flags[1] == '-I', \
-               flags[1]
-        assert flags[2] == os.path.normpath('xx/fooXXX'), \
-               flags[2]
-        assert flags[3] == '-I', \
-               flags[3]
-        assert flags[4] == os.path.normpath('/rep1/xx/fooXXX'), \
-               flags[4]
-        assert flags[5] == '-I', \
-               flags[5]
-        assert flags[6] == os.path.normpath('/rep2/xx/fooXXX'), \
-               flags[6]
-        assert flags[7] == '-I', \
-               flags[7]
-        assert flags[8] == os.path.normpath('/a/bXXX'), \
-               flags[8]
-        assert flags[9] == '-I', \
-               flags[9]
-        assert flags[10] == os.path.normpath('xx/baz/barXXX'), \
-               flags[10]
-        assert flags[11] == '-I', \
-               flags[11]
-        assert flags[12] == os.path.normpath('/rep1/xx/baz/barXXX'), \
-               flags[12]
-        assert flags[13] == '-I', \
-               flags[13]
-        assert flags[14] == os.path.normpath('/rep2/xx/baz/barXXX'), \
-               flags[14]
-        assert flags[15] == '-I', \
-               flags[15]
-        assert flags[16] == os.path.normpath('blatXXX'), \
-               flags[16]
-        assert flags[17] == '$)', \
-               flags[17]
+        expect = [ '$(',
+                   '-I', os.path.normpath('xx/fooXXX'),
+                   '-I', os.path.normpath('/rep1/xx/fooXXX'),
+                   '-I', os.path.normpath('/rep2/xx/fooXXX'),
+                   '-I', os.path.normpath('/a/bXXX'),
+                   '-I', os.path.normpath('xx/baz/barXXX'),
+                   '-I', os.path.normpath('/rep1/xx/baz/barXXX'),
+                   '-I', os.path.normpath('/rep2/xx/baz/barXXX'),
+                   '-I', os.path.normpath('blatXXX'),
+                   '$)'
+        ]
+        assert flags == expect, flags
 
     def test_platform(self):
         """Test specifying a platform callable when instantiating."""
@@ -2189,7 +2142,7 @@ def generate(env):
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
-        sub = SCons.Node.FS.default_fs.Dir('sub')
+        sub = env.fs.Dir('sub')
         t = env.Command(target='bar.out', source='sub',
                         action='buildbar $target $source')[0]
         assert 'sub' in map(lambda x: x.path, t.sources)

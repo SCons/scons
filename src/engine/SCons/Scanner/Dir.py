@@ -28,14 +28,16 @@ import string
 import SCons.Node.FS
 import SCons.Scanner
 
-def DirScanner(fs = SCons.Node.FS.default_fs, **kw):
+def DirScanner(**kw):
     """Return a prototype Scanner instance for scanning
     directories for on-disk files"""
-    def only_dirs(nodes, fs=fs):
-        return filter(lambda n: isinstance(n.disambiguate(), SCons.Node.FS.Dir), nodes)
-    kw['node_factory'] = fs.Entry
+    def only_dirs(nodes):
+        return filter(lambda n: isinstance(n.disambiguate(),
+                                SCons.Node.FS.Dir),
+                      nodes)
+    kw['node_factory'] = SCons.Node.FS.Entry
     kw['recursive'] = only_dirs
-    ds = apply(SCons.Scanner.Base, [scan, "DirScanner"], kw)
+    ds = apply(SCons.Scanner.Base, (scan, "DirScanner"), kw)
     return ds
 
 skip_entry = {

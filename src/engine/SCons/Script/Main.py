@@ -241,7 +241,6 @@ class QuestionTask(SCons.Taskmaster.Task):
 # Global variables
 
 keep_going_on_error = 0
-count_stats = None
 print_dtree = 0
 print_explanations = 0
 print_includes = 0
@@ -251,7 +250,6 @@ print_stacktrace = 0
 print_stree = 0
 print_time = 0
 print_tree = 0
-memory_stats = None
 ignore_errors = 0
 sconscript_time = 0
 command_time = 0
@@ -259,6 +257,62 @@ exit_status = 0 # exit status, assume success by default
 profiling = 0
 repositories = []
 num_jobs = 1 # this is modifed by SConscript.SetJobs()
+
+#
+class Stats:
+    def __init__(self):
+        self.stats = []
+        self.labels = []
+        self.append = self.do_nothing
+        self.print_stats = self.do_nothing
+    def enable(self, outfp):
+        self.outfp = outfp
+        self.append = self.do_append
+        self.print_stats = self.do_print
+    def do_nothing(self, *args, **kw):
+        pass
+
+class CountStats(Stats):
+    def do_append(self, label):
+        self.labels.append(label)
+        self.stats.append(SCons.Debug.fetchLoggedInstances())
+    def do_print(self):
+        stats_table = {}
+        for s in self.stats:
+            for n in map(lambda t: t[0], s):
+                stats_table[n] = [0, 0, 0, 0]
+        i = 0
+        for s in self.stats:
+            for n, c in s:
+                stats_table[n][i] = c
+            i = i + 1
+        keys = stats_table.keys()
+        keys.sort()
+        self.outfp.write("Object counts:\n")
+        pre = ["   "]
+        post = ["   %s\n"]
+        l = len(self.stats)
+        fmt1 = string.join(pre + [' %7s']*l + post, '')
+        fmt2 = string.join(pre + [' %7d']*l + post, '')
+        self.labels.append(("", "Class"))
+        self.outfp.write(fmt1 % tuple(map(lambda x: x[0], self.labels)))
+        self.outfp.write(fmt1 % tuple(map(lambda x: x[1], self.labels)))
+        for k in keys:
+            r = stats_table[k]
+            self.outfp.write(fmt2 % (r[0], r[1], r[2], r[3], k))
+
+count_stats = CountStats()
+
+class MemStats(Stats):
+    def do_append(self, label):
+        self.labels.append(label)
+        self.stats.append(SCons.Debug.memory())
+    def do_print(self):
+        fmt = 'Memory %-32s %12d\n'
+        for label, stats in map(None, self.labels, self.stats):
+            self.outfp.write(fmt % (label, stats))
+
+memory_stats = MemStats()
 
 # utility functions
 
@@ -406,15 +460,13 @@ def _SConstruct_exists(dirname=''):
     return None
 
 def _set_globals(options):
-    global repositories, keep_going_on_error, ignore_errors
+    global keep_going_on_error, ignore_errors
     global count_stats, print_dtree
     global print_explanations, print_includes, print_memoizer
     global print_objects, print_stacktrace, print_stree
     global print_time, print_tree
-    global memory_outf, memory_stats
+    global memory_stats
 
-    if options.repository:
-        repositories.extend(options.repository)
     keep_going_on_error = options.keep_going
     try:
         debug_values = options.debug
@@ -424,7 +476,7 @@ def _set_globals(options):
         pass
     else:
         if "count" in debug_values:
-            count_stats = []
+            count_stats.enable(sys.stdout)
         if "dtree" in debug_values:
             print_dtree = 1
         if "explain" in debug_values:
@@ -436,8 +488,7 @@ def _set_globals(options):
         if "memoizer" in debug_values:
             print_memoizer = 1
         if "memory" in debug_values:
-            memory_stats = []
-            memory_outf = sys.stdout
+            memory_stats.enable(sys.stdout)
         if "objects" in debug_values:
             print_objects = 1
         if "presub" in debug_values:
@@ -795,19 +846,91 @@ class SConscriptSettableOptions:
     
 
 def _main(args, parser):
-    targets = []
-    fs = SCons.Node.FS.default_fs
+    # Here's where everything really happens.
 
-    # Enable deprecated warnings by default.
+    # First order of business:  set up default warnings and and then
+    # handle the user's warning options, so we can warn about anything
+    # that happens appropriately.
+    default_warnings = [ SCons.Warnings.CorruptSConsignWarning,
+                         SCons.Warnings.DeprecatedWarning,
+                         SCons.Warnings.DuplicateEnvironmentWarning,
+                         SCons.Warnings.MissingSConscriptWarning,
+                         SCons.Warnings.NoParallelSupportWarning,
+                         SCons.Warnings.MisleadingKeywordsWarning, ]
+    for warning in default_warnings:
+        SCons.Warnings.enableWarningClass(warning)
     SCons.Warnings._warningOut = _scons_internal_warning
-    SCons.Warnings.enableWarningClass(SCons.Warnings.CorruptSConsignWarning)
-    SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
-    SCons.Warnings.enableWarningClass(SCons.Warnings.DuplicateEnvironmentWarning)
-    SCons.Warnings.enableWarningClass(SCons.Warnings.MissingSConscriptWarning)
-    SCons.Warnings.enableWarningClass(SCons.Warnings.NoParallelSupportWarning)
-    # This is good for newbies, and hopefully most everyone else too.
-    SCons.Warnings.enableWarningClass(SCons.Warnings.MisleadingKeywordsWarning)
+    if options.warn:
+        _setup_warn(options.warn)
 
+    # Next, we want to create the FS object that represents the outside
+    # world's file system, as that's central to a lot of initialization.
+    # To do this, however, we need to be in the directory from which we
+    # want to start everything, which means first handling any relevant
+    # options that might cause us to chdir somewhere (-C, -D, -U, -u).
+    if options.directory:
+        cdir = _create_path(options.directory)
+        try:
+            os.chdir(cdir)
+        except OSError:
+            sys.stderr.write("Could not change directory to %s\n" % cdir)
+
+    # The SConstruct file may be in a repository, so initialize those
+    # before we start the search up our path for one.
+    global repositories
+    if options.repository:
+        repositories.extend(options.repository)
+
+    target_top = None
+    if options.climb_up:
+        target_top = '.'  # directory to prepend to targets
+        script_dir = os.getcwd()  # location of script
+        while script_dir and not _SConstruct_exists(script_dir):
+            script_dir, last_part = os.path.split(script_dir)
+            if last_part:
+                target_top = os.path.join(last_part, target_top)
+            else:
+                script_dir = ''
+        if script_dir:
+            display("scons: Entering directory `%s'" % script_dir)
+            os.chdir(script_dir)
+
+    # Now that we're in the top-level SConstruct directory, go ahead
+    # and initialize the FS object that represents the file system,
+    # and make it the build engine default.
+    fs = SCons.Node.FS.default_fs = SCons.Node.FS.FS()
+
+    for rep in repositories:
+        fs.Repository(rep)
+
+    # Now that we have the FS object, the next order of business is to
+    # check for an SConstruct file (or other specified config file).
+    # If there isn't one, we can bail before doing any more work.
+    scripts = []
+    if options.file:
+        scripts.extend(options.file)
+    if not scripts:
+        sfile = _SConstruct_exists()
+        if sfile:
+            scripts.append(sfile)
+
+    if not scripts:
+        if options.help_msg:
+            # There's no SConstruct, but they specified -h.
+            # Give them the options usage now, before we fail
+            # trying to read a non-existent SConstruct file.
+            parser.print_help()
+            sys.exit(0)
+        raise SCons.Errors.UserError, "No SConstruct file found."
+
+    if scripts[0] == "-":
+        d = fs.getcwd()
+    else:
+        d = fs.File(scripts[0]).dir
+    fs.set_SConstruct_dir(d)
+
+    # Now that we have the FS object and it's intialized, set up (most
+    # of) the rest of the options.
     global ssoptions
     ssoptions = SConscriptSettableOptions(options)
 
@@ -815,8 +938,6 @@ def _main(args, parser):
     SCons.Node.implicit_cache = options.implicit_cache
     SCons.Node.implicit_deps_changed = options.implicit_deps_changed
     SCons.Node.implicit_deps_unchanged = options.implicit_deps_unchanged
-    if options.warn:
-        _setup_warn(options.warn)
     if options.noexec:
         SCons.SConf.dryrun = 1
         SCons.Action.execute_actions = None
@@ -839,62 +960,22 @@ def _main(args, parser):
         fs.cache_force = 1
     if options.cache_show:
         fs.cache_show = 1
-    if options.directory:
-        cdir = _create_path(options.directory)
-        try:
-            os.chdir(cdir)
-        except OSError:
-            sys.stderr.write("Could not change directory to %s\n" % cdir)
 
+    if options.include_dir:
+        sys.path = options.include_dir + sys.path
+
+    # That should cover (most of) the options.  Next, set up the variables
+    # that hold command-line arguments, so the SConscript files that we
+    # read and execute have access to them.
+    targets = []
     xmit_args = []
     for a in args:
         if '=' in a:
             xmit_args.append(a)
         else:
             targets.append(a)
-    SCons.Script._Add_Arguments(xmit_args)
     SCons.Script._Add_Targets(targets)
-
-    target_top = None
-    if options.climb_up:
-        target_top = '.'  # directory to prepend to targets
-        script_dir = os.getcwd()  # location of script
-        while script_dir and not _SConstruct_exists(script_dir):
-            script_dir, last_part = os.path.split(script_dir)
-            if last_part:
-                target_top = os.path.join(last_part, target_top)
-            else:
-                script_dir = ''
-        if script_dir:
-            display("scons: Entering directory `%s'" % script_dir)
-            os.chdir(script_dir)
-
-    fs.set_toplevel_dir(os.getcwd())
-
-    scripts = []
-    if options.file:
-        scripts.extend(options.file)
-    if not scripts:
-        sfile = _SConstruct_exists()
-        if sfile:
-            scripts.append(sfile)
-
-    if options.help_msg:
-        if not scripts:
-            # There's no SConstruct, but they specified -h.
-            # Give them the options usage now, before we fail
-            # trying to read a non-existent SConstruct file.
-            parser.print_help()
-            sys.exit(0)
-
-    if not scripts:
-        raise SCons.Errors.UserError, "No SConstruct file found."
-
-    if scripts[0] == "-":
-        d = fs.getcwd()
-    else:
-        d = fs.File(scripts[0]).dir
-    fs.set_SConstruct_dir(d)
+    SCons.Script._Add_Arguments(xmit_args)
 
     class Unbuffered:
         def __init__(self, file):
@@ -907,15 +988,8 @@ def _main(args, parser):
 
     sys.stdout = Unbuffered(sys.stdout)
 
-    if options.include_dir:
-        sys.path = options.include_dir + sys.path
-
-    global repositories
-    for rep in repositories:
-        fs.Repository(rep)
-
-    if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
-    if not count_stats is None: count_stats.append(SCons.Debug.fetchLoggedInstances())
+    memory_stats.append('before reading SConscript files:')
+    count_stats.append(('pre-', 'read'))
 
     progress_display("scons: Reading SConscript files ...")
 
@@ -944,8 +1018,8 @@ def _main(args, parser):
     # file system nodes.
     SCons.Node.FS.save_strings(1)
 
-    if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
-    if not count_stats is None: count_stats.append(SCons.Debug.fetchLoggedInstances())
+    memory_stats.append('after reading SConscript files:')
+    count_stats.append(('post-', 'read'))
 
     fs.chdir(fs.Top)
 
@@ -1084,8 +1158,8 @@ def _main(args, parser):
               "\tignoring -j or num_jobs option.\n"
         SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
 
-    if not memory_stats is None: memory_stats.append(SCons.Debug.memory())
-    if not count_stats is None: count_stats.append(SCons.Debug.fetchLoggedInstances())
+    memory_stats.append('before building targets:')
+    count_stats.append(('pre-', 'build'))
 
     try:
         jobs.run()
@@ -1097,37 +1171,11 @@ def _main(args, parser):
         if not options.noexec:
             SCons.SConsign.write()
 
-    if not memory_stats is None:
-        memory_stats.append(SCons.Debug.memory())
-        when = [
-            'before reading SConscript files',
-            'after reading SConscript files',
-            'before building targets',
-            'after building targets',
-        ]
-        for i in xrange(len(when)):
-            memory_outf.write('Memory %-32s %12d\n' % (when[i]+':', memory_stats[i]))
+    memory_stats.append('after building targets:')
+    memory_stats.print_stats()
 
-    if not count_stats is None:
-        count_stats.append(SCons.Debug.fetchLoggedInstances())
-        stats_table = {}
-        for cs in count_stats:
-            for n in map(lambda t: t[0], cs):
-                stats_table[n] = [0, 0, 0, 0]
-        i = 0
-        for cs in count_stats:
-            for n, c in cs:
-                stats_table[n][i] = c
-            i = i + 1
-        keys = stats_table.keys()
-        keys.sort()
-        print "Object counts:"
-        fmt = "    %7s %7s %7s %7s   %s"
-        print fmt % ("pre-", "post-", "pre-", "post-", "")
-        print fmt % ("read", "read", "build", "build", "Class")
-        for k in keys:
-            r = stats_table[k]
-            print "    %7d %7d %7d %7d   %s" % (r[0], r[1], r[2], r[3], k)
+    count_stats.append(('post-', 'build'))
+    count_stats.print_stats()
 
     if print_objects:
         SCons.Debug.listLoggedInstances('*')
@@ -1139,8 +1187,8 @@ def _main(args, parser):
 
     # Dump any development debug info that may have been enabled.
     # These are purely for internal debugging during development, so
-    # there's no need to control the with --debug= options, they're
-    # controlled by changing the source code.)
+    # there's no need to control them with --debug= options; they're
+    # controlled by changing the source code.
     SCons.Debug.dump_caller_counts()
     SCons.Taskmaster.dump_stats()
 

@@ -44,7 +44,7 @@ tars = ['tar', 'gtar']
 TarAction = SCons.Action.Action('$TARCOM', '$TARCOMSTR')
 
 TarBuilder = SCons.Builder.Builder(action = TarAction,
-                                   source_factory = SCons.Node.FS.default_fs.Entry,
+                                   source_factory = SCons.Node.FS.Entry,
                                    source_scanner = SCons.Defaults.DirScanner,
                                    suffix = '$TARSUFFIX',
                                    multi = 1)

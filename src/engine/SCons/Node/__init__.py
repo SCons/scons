@@ -424,7 +424,8 @@ class Node:
         here is a significant performance boost.
         __cacheable__
         """
-        return self.builder.source_factory(path)
+        env = self.get_build_env()
+        return env.get_factory(self.builder.source_factory)(path)
 
     def get_scanner(self, env, kw={}):
         return env.get_scanner(self.scanner_key())

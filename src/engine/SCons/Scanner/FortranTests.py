@@ -210,6 +210,7 @@ test.write(['modules', 'use.mod'], "\n")
 class DummyEnvironment:
     def __init__(self, listCppPath):
         self.path = listCppPath
+        self.fs = SCons.Node.FS.FS(test.workpath(''))
 
     def Dictionary(self, *args):
         if not args:
@@ -244,13 +245,19 @@ class DummyEnvironment:
     def get_calculator(self):
         return None
 
+    def get_factory(self, factory):
+        return factory or self.fs.File
+
+    def Dir(self, filename):
+        return self.fs.Dir(test.workpath(filename))
+
+    def File(self, filename):
+        return self.fs.File(test.workpath(filename))
+
 def deps_match(self, deps, headers):
     scanned = map(os.path.normpath, map(str, deps))
     expect = map(os.path.normpath, headers)
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
-
-def make_node(filename, fs=SCons.Node.FS.default_fs):
-    return fs.File(test.workpath(filename))
 
 # define some tests:
 
@@ -261,10 +268,9 @@ class FortranScannerTestCase1(unittest.TestCase):
         env = DummyEnvironment([])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff1.f', fs), env, path)
+        deps = s(env.File('fff1.f'), env, path)
         headers = ['f1.f', 'f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         test.unlink('f1.f')
         test.unlink('f2.f')
 
@@ -275,10 +281,9 @@ class FortranScannerTestCase2(unittest.TestCase):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff1.f', fs), env, path)
+        deps = s(env.File('fff1.f'), env, path)
         headers = ['f1.f', 'f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         test.unlink('f1.f')
         test.unlink('f2.f')
 
@@ -287,10 +292,9 @@ class FortranScannerTestCase3(unittest.TestCase):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff1.f', fs), env, path)
+        deps = s(env.File('fff1.f'), env, path)
         headers = ['d1/f1.f', 'd1/f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
 
 class FortranScannerTestCase4(unittest.TestCase):
     def runTest(self):
@@ -298,10 +302,9 @@ class FortranScannerTestCase4(unittest.TestCase):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff1.f', fs), env, path)
+        deps = s(env.File('fff1.f'), env, path)
         headers = ['d1/f1.f', 'd1/f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         test.write(['d1', 'f2.f'], "\n")
 
 class FortranScannerTestCase5(unittest.TestCase):
@@ -309,10 +312,9 @@ class FortranScannerTestCase5(unittest.TestCase):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff2.f', fs), env, path)
+        deps = s(env.File('fff2.f'), env, path)
         headers = ['d1/f2.f', 'd1/d2/f2.f', 'd1/f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
 
 class FortranScannerTestCase6(unittest.TestCase):
     def runTest(self):
@@ -320,10 +322,9 @@ class FortranScannerTestCase6(unittest.TestCase):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff2.f', fs), env, path)
+        deps = s(env.File('fff2.f'), env, path)
         headers =  ['d1/f2.f', 'd1/d2/f2.f', 'f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         test.unlink('f2.f')
 
 class FortranScannerTestCase7(unittest.TestCase):
@@ -331,10 +332,9 @@ class FortranScannerTestCase7(unittest.TestCase):
         env = DummyEnvironment([test.workpath("d1/d2"), test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff2.f', fs), env, path)
+        deps = s(env.File('fff2.f'), env, path)
         headers =  ['d1/f2.f', 'd1/d2/f2.f', 'd1/d2/f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
 
 class FortranScannerTestCase8(unittest.TestCase):
     def runTest(self):
@@ -342,10 +342,9 @@ class FortranScannerTestCase8(unittest.TestCase):
         env = DummyEnvironment([test.workpath("d1/d2"), test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff2.f', fs), env, path)
+        deps = s(env.File('fff2.f'), env, path)
         headers =  ['d1/f2.f', 'd1/d2/f2.f', 'f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         test.unlink('f2.f')
 
 class FortranScannerTestCase9(unittest.TestCase):
@@ -355,7 +354,7 @@ class FortranScannerTestCase9(unittest.TestCase):
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
 
-        n = make_node('fff3.f')
+        n = env.File('fff3.f')
         def my_rexists(s=n):
             s.rexists_called = 1
             return s.old_rexists()
@@ -369,21 +368,20 @@ class FortranScannerTestCase9(unittest.TestCase):
         assert n.rexists_called
 
         headers =  ['d1/f3.f', 'f3.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         test.unlink('f3.f')
 
 class FortranScannerTestCase10(unittest.TestCase):
     def runTest(self):
-        fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment(["include"])
-        s = SCons.Scanner.Fortran.FortranScan(fs = fs)
+        s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        deps1 = s(fs.File('fff4.f'), env, path)
-        fs.chdir(fs.Dir('subdir'))
-        dir = fs.getcwd()
-        fs.chdir(fs.Dir('..'))
+        deps1 = s(env.File('fff4.f'), env, path)
+        env.fs.chdir(env.Dir('subdir'))
+        dir = env.fs.getcwd()
+        env.fs.chdir(env.Dir(''))
         path = s.path(env, dir)
-        deps2 = s(fs.File('#fff4.f'), env, path)
+        deps2 = s(env.File('#fff4.f'), env, path)
         headers1 =  ['include/f4.f']
         headers2 =  ['subdir/include/f4.f']
         deps_match(self, deps1, headers1)
@@ -399,11 +397,10 @@ class FortranScannerTestCase11(unittest.TestCase):
         to = TestOut()
         to.out = None
         SCons.Warnings._warningOut = to
-        fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment([])
-        s = SCons.Scanner.Fortran.FortranScan(fs=fs)
+        s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        deps = s(fs.File('fff5.f'), env, path)
+        deps = s(env.File('fff5.f'), env, path)
 
         # Did we catch the warning from not finding not_there.f?
         assert to.out
@@ -412,14 +409,13 @@ class FortranScannerTestCase11(unittest.TestCase):
 
 class FortranScannerTestCase12(unittest.TestCase):
     def runTest(self):
-        fs = SCons.Node.FS.FS(test.workpath(''))
-        fs.chdir(fs.Dir('include'))
         env = DummyEnvironment([])
-        s = SCons.Scanner.Fortran.FortranScan(fs=fs)
+        env.fs.chdir(env.Dir('include'))
+        s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         test.write('include/fff4.f', test.read('fff4.f'))
-        deps = s(fs.File('#include/fff4.f'), env, path)
-        fs.chdir(fs.Dir('..'))
+        deps = s(env.File('#include/fff4.f'), env, path)
+        env.fs.chdir(env.Dir(''))
         deps_match(self, deps, ['include/f4.f'])
         test.unlink('include/fff4.f')
 
@@ -434,7 +430,8 @@ class FortranScannerTestCase13(unittest.TestCase):
         f1=fs.File('include2/jjj.f')
         f1.builder=1
         env = DummyEnvironment(['include','include2'])
-        s = SCons.Scanner.Fortran.FortranScan(fs=fs)
+        env.fs = fs
+        s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps = s(fs.File('src/fff.f'), env, path)
         deps_match(self, deps, [test.workpath('repository/include/iii.f'), 'include2/jjj.f'])
@@ -448,7 +445,8 @@ class FortranScannerTestCase14(unittest.TestCase):
         fs.BuildDir('build2', 'src', 0)
         fs.Repository(test.workpath('repository'))
         env = DummyEnvironment([])
-        s = SCons.Scanner.Fortran.FortranScan(fs = fs)
+        env.fs = fs
+        s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps1 = s(fs.File('build1/aaa.f'), env, path)
         deps_match(self, deps1, [ 'build1/bbb.f' ])
@@ -469,10 +467,9 @@ class FortranScannerTestCase15(unittest.TestCase):
         env = SubstEnvironment(["junk"])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff1.f', fs), env, path)
+        deps = s(env.File('fff1.f'), env, path)
         headers = ['d1/f1.f', 'd1/f2.f']
-        deps_match(self, deps, map(test.workpath, headers))
+        deps_match(self, deps, headers)
         test.write(['d1', 'f2.f'], "\n")
 
 class FortranScannerTestCase16(unittest.TestCase):
@@ -490,8 +487,7 @@ class FortranScannerTestCase16(unittest.TestCase):
         env = DummyEnvironment([test.workpath('modules')])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        fs = SCons.Node.FS.FS(original)
-        deps = s(make_node('fff90a.f90', fs), env, path)
+        deps = s(env.File('fff90a.f90'), env, path)
         headers = ['f1.f', 'f2.f', 'f3.f', 'f4.f', 'f5.f', 'f6.f', 'f7.f', 'f8.f', 'f9.f']
         modules = ['mod01.mod', 'mod02.mod', 'mod03.mod', 'mod04.mod', 'mod05.mod',
                    'mod06.mod', 'mod07.mod', 'mod08.mod', 'mod09.mod', 'mod10.mod',
@@ -499,7 +495,7 @@ class FortranScannerTestCase16(unittest.TestCase):
                    'mod16.mod', 'mod17.mod', 'mod18.mod', 'mod19.mod', 'mod20.mod',
                    'mod21.mod', 'mod22.mod', 'mod23.mod', 'mod24.mod', 'mod25.mod', 'modules/use.mod']
         deps_expected = headers + modules
-        deps_match(self, deps, map(test.workpath, deps_expected))
+        deps_match(self, deps, deps_expected)
         test.unlink('f1.f')
         test.unlink('f2.f')
         test.unlink('f3.f')
