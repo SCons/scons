@@ -59,7 +59,7 @@ def escape(arg):
 
 def _get_env_command(sh, escape, cmd, args, env):
     if env:
-        s = 'env -i '
+        s = 'env - '
         for key in env.keys():
             s = s + '%s=%s '%(key, escape(env[key]))
         s = s + sh + ' -c '
