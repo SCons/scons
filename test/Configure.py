@@ -27,6 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os
 import re
 import sys
+import shutil
 
 import TestCmd
 import TestSCons
@@ -64,7 +65,7 @@ def checkLog( test, logfile, numUpToDate, numCache ):
         test.fail_test( len( re.findall( "is up to date", log ) ) != numUpToDate )
         test.fail_test( len( re.findall( "\(cached\): Building \S+ failed in a previous run.", log ) ) != numCache )
     except:
-        #print "contents of log ", test.workpath(logfile), "\n", log
+        print "contents of log ", test.workpath(logfile), "\n", log
         raise 
 
 
@@ -218,10 +219,16 @@ Checking for C header no_std_c_header.h ... failed
     # 2.3 test that Configure calls in SConscript files work
     #     even if BuildDir is set
     reset()
-    
 
     test.subdir( 'sub' )
     test.write( 'SConstruct', """
+opts = Options()
+opts.Add('chdir')
+env = Environment(options=opts)
+if env['chdir'] == 'yes':
+  SConscriptChdir(1)
+else:
+  SConscriptChdir(0)
 BuildDir( 'build', '.' )
 SConscript( 'build/SConscript' )
 """)
@@ -233,7 +240,10 @@ env = Environment()
 import os
 env['ENV']['PATH'] = os.environ['PATH']
 conf = Configure( env )
-conf.CheckCHeader( 'math.h' )
+if not conf.CheckCHeader( 'math.h' ):
+  Exit(1)
+if conf.CheckCHeader( 'no_std_c_header.h' ):
+  Exit(1)
 env = conf.Finish()
 env.Program( 'TestProgram', 'TestProgram.c' )
 """)
@@ -248,13 +258,34 @@ int main() {
   printf( "Hello\\n" );
 }
 """)
-    test.run()
+    required_stdout = test.wrap_stdout(build_str='.*',
+                                       read_str=
+    """Checking for C header math.h ... ok
+Checking for C header no_std_c_header.h ... failed
+""")
+    # first with SConscriptChdir(0)
+    test.run(stdout = required_stdout, arguments='chdir=no')
     checkFiles( test, [".sconf_temp/.cache", "config.log"] )
+    checkLog( test, 'config.log', 0, 0 )
+
+    test.run(stdout = required_stdout, arguments='chdir=no')
+    checkFiles( test, [".sconf_temp/.cache", "config.log"] )
+    checkLog( test, 'config.log', 3, 1 )
+
+    shutil.rmtree(test.workpath(".sconf_temp"))
+
+    # now with SConscriptChdir(1)
+    test.run(stdout = required_stdout, arguments='chdir=yes')
+    checkFiles( test, [".sconf_temp/.cache", "config.log"] )
+    checkLog( test, 'config.log', 0, 0 )
+
+    test.run(stdout = required_stdout, arguments='chdir=yes')
+    checkFiles( test, [".sconf_temp/.cache", "config.log"] )
+    checkLog( test, 'config.log', 3, 1 )
 
     # 3.1 test custom tests
     reset()
     
-
     compileOK = '#include <stdio.h>\\nint main() {printf("Hello");return 0;}'
     compileFAIL = "syntax error" 
     linkOK = compileOK

@@ -10,20 +10,6 @@
 
 RELEASE 0.15 - XXX
 
-  From Matt Balvin:
-
-  - Fix handling of library prefixes when the subdirectory matches
-    the prefix.
-
-  From Timothee Bessett:
-
-  - Add an M4 Builder.
-
-  From Charles Crain:
-
-  - Use '.lnk' as the suffix on the temporary file for linking long
-    command lines (necessary for the Phar Lap linkloc linker).
-
   From Steven Knight:
 
   - SCons now enforces (with an error) that construction variables
@@ -35,26 +21,9 @@ RELEASE 0.15 - XXX
   - Eliminate a dependency on the distutils.fancy_getopt module by
     copying and pasting its wrap_text() function directly.
 
-  - Make the Script.Options() subclass match the underlying base class
-    implementation.
-
-  From Steve Leblanc:
-
-  - Don't update the .sconsign files when run with -n.
-
   From David Snopek and Christoph Wiedemann
 
   - Fix use of the SConf subsystem with SConscriptChdir().
-
-  From Greg Spencer
-
-  - Check for the existence of MS Visual Studio on disk before using it,
-    to avoid getting fooled by leftover junk in the registry.
-
-  - Add support for MSVC++ .NET.
-
-  - Add support for MS Visual Studio project files (DSP, DSW,
-    SLN and VCPROJ files).
 
 
 
