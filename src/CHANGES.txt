@@ -12,7 +12,8 @@ RELEASE 0.04 -
 
   From Steven Knight:
 
-  - Fix using a directory as a Default().
+  - Fix using a directory as a Default(), and allow Default() to
+    support white space in file names for strings in arrays.
 
 
 

@@ -925,6 +925,9 @@ This specifies a list of default targets. Default targets will be built by
 if no explicit targets are given on the comamnd line. Multiple targets can
 be specified either as a space delimited string of target file names or as
 seperate arguments.
+Target names with white space may be be enclosed in an
+array to prevent the string from being split into
+separate file names.
 .BR Default ()
 will also accept the return value of any of the ccnstruction environment
 builder methods.
@@ -932,7 +935,7 @@ Example:
 
 .IP
 .nf
-Default('foo', 'bar', 'baz')
+Default('foo', 'bar', 'baz', ['file with whitespace'])
 .PP
 .fi
 

@@ -32,7 +32,7 @@ python = sys.executable
 
 test = TestSCons.TestSCons()
 
-test.subdir('one', 'two', 'three', 'four')
+test.subdir('one', 'two', 'three', 'four', 'five')
 
 test.write('build.py', r"""
 import sys
@@ -69,12 +69,21 @@ Default('foo.out bar.out')
 test.write(['four', 'SConstruct'], """
 B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = [B])
+env.B(target = ['foo bar'], source = 'foo.in')
+env.B(target = 'foo', source = 'foo.in')
+env.B(target = 'bar', source = 'bar.in')
+Default(['foo bar'])
+""" % python)
+
+test.write(['five', 'SConstruct'], """
+B = Builder(name = 'B', action = r'%s ../build.py $TARGET $SOURCES')
+env = Environment(BUILDERS = [B])
 Default(env.B(target = 'foo.out', source = 'foo.in'))
 Default(env.B(target = 'bar.out', source = 'bar.in'))
 """ % python)
 
 
-for dir in ['one', 'two', 'three', 'four']:
+for dir in ['one', 'two', 'three', 'four', 'five']:
 
     foo_in = os.path.join(dir, 'foo.in')
     bar_in = os.path.join(dir, 'bar.in')
@@ -94,8 +103,12 @@ test.fail_test(test.read(test.workpath('two', 'bar.out')) != "two/bar.in\n")
 test.fail_test(test.read(test.workpath('three', 'foo.out')) != "three/foo.in\n")
 test.fail_test(test.read(test.workpath('three', 'bar.out')) != "three/bar.in\n")
 
-test.fail_test(test.read(test.workpath('four', 'foo.out')) != "four/foo.in\n")
-test.fail_test(test.read(test.workpath('four', 'bar.out')) != "four/bar.in\n")
+test.fail_test(os.path.exists(test.workpath('four', 'foo')))
+test.fail_test(os.path.exists(test.workpath('four', 'bar')))
+test.fail_test(test.read(test.workpath('four', 'foo bar')) != "four/foo.in\n")
+
+test.fail_test(test.read(test.workpath('five', 'foo.out')) != "five/foo.in\n")
+test.fail_test(test.read(test.workpath('five', 'bar.out')) != "five/bar.in\n")
 
 
 

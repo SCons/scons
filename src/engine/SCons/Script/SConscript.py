@@ -115,8 +115,8 @@ def Default(*targets):
         if isinstance(t, SCons.Node.Node):
             default_targets.append(t)
         else:
-            for s in string.split(t):
-                default_targets.append(SCons.Node.FS.default_fs.Entry(s))
+            default_targets.extend(SCons.Util.scons_str2nodes(t,
+                                         SCons.Node.FS.default_fs.Entry))
 
 def Help(text):
     if print_help:
