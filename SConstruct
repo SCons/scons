@@ -461,9 +461,11 @@ for p in [ scons ]:
     # like this because we put a preamble in it that will chdir()
     # to the directory in which setup.py exists.
     #
+    setup_py = os.path.join(build, 'setup.py')
     env.Update(PKG = pkg,
                PKG_VERSION = pkg_version,
-               SETUP_PY = os.path.join(build, 'setup.py'))
+               SETUP_PY = setup_py)
+    Local(setup_py)
 
     #
     # Read up the list of source files from our MANIFEST.in.
@@ -540,6 +542,7 @@ for p in [ scons ]:
     # Now go through and arrange to create whatever packages we can.
     #
     build_src_files = map(lambda x, b=build: os.path.join(b, x), src_files)
+    apply(Local, build_src_files, {})
 
     distutils_formats = []
 
@@ -678,6 +681,7 @@ for p in [ scons ]:
         for d in p['debian_deps']:
             b = env.SCons_revision(os.path.join(build, d), d)
             env.Depends(deb, b)
+            Local(b)
         env.Command(deb, build_src_files, [
             "cd %s && fakeroot make -f debian/rules PYTHON=$PYTHON BUILDDEB_OPTIONS=--destdir=../../build/dist binary" % build,
                     ])
@@ -787,6 +791,8 @@ if change:
         ]
 
         env.Command(b_psv_stamp, src_deps + b_ps_files, cmds)
+
+        apply(Local, b_ps_files, {})
 
         if gzip:
 

@@ -45,14 +45,20 @@ import SCons.Warnings
 
 try:
     import os
-    file_link = os.link
+    _link = os.link
 except AttributeError:
     import shutil
     import stat
-    def file_link(src, dest):
+    def _link(src, dest):
         shutil.copy2(src, dest)
         st=os.stat(src)
         os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+
+def file_link(src, dest):
+    dir, file = os.path.split(dest)
+    if dir and not os.path.isdir(dir):
+        os.makedirs(dir)
+    _link(src, dest)
 
 class ParentOfRoot:
     """
@@ -735,7 +741,8 @@ class File(Entry):
     def _morph(self):
         """Turn a file system node into a File object."""
         self.created = 0
-        self._local = 0
+        if not hasattr(self, '_local'):
+            self._local = 0
 
     def root(self):
         return self.dir.root()
@@ -861,8 +868,7 @@ class File(Entry):
                 except OSError:
                     pass
                 self.__createDir()
-                file_link(src.abspath,
-                          self.abspath)
+                file_link(src.abspath, self.abspath)
                 self.created = 1
 
                 # Set our exists cache accordingly

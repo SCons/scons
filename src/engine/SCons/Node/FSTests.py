@@ -631,6 +631,15 @@ class FSTestCase(unittest.TestCase):
         f1.prepare()
         assert not os.path.exists(test.workpath("remove_me"))
 
+        e = fs.Entry('e_local')
+        assert not hasattr(e, '_local')
+        e.set_local()
+        assert e._local == 1
+        f = fs.File('e_local')
+        assert f._local == 1
+        f = fs.File('f_local')
+        assert f._local == 0
+
         #XXX test current() for directories
 
         #XXX test sconsign() for directories
