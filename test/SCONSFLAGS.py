@@ -2,11 +2,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import TestCmd
+import TestSCons
 import os
 import string
-import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 wpath = test.workpath()
 

@@ -2,11 +2,12 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import TestCmd
 import TestSCons
 import string
 import sys
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.write('SConstruct', "")
 
@@ -17,4 +18,3 @@ test.run(arguments = '--ZizzerZazzerZuzz',
 	 stderr = '\nSCons error: option --ZizzerZazzerZuzz not recognized\nFile "\S+", line \d+, in long_has_args\n')
 
 test.pass_test()
- 

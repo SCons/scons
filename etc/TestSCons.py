@@ -45,6 +45,7 @@ class TestSCons(TestCmd.TestCmd):
 		program = 'scons' if it exists,
 			  else 'scons.py'
 		interpreter = 'python'
+		match = TestCmd.match_exact
 		workdir = ''
 
         The workdir value means that, by default, a temporary workspace
@@ -60,6 +61,8 @@ class TestSCons(TestCmd.TestCmd):
 		kw['program'] = 'scons.py'
 	if not kw.has_key('interpreter'):
 	    kw['interpreter'] = 'python'
+	if not kw.has_key('match'):
+	    kw['match'] = TestCmd.match_exact
 	if not kw.has_key('workdir'):
 	    kw['workdir'] = ''
 	apply(TestCmd.TestCmd.__init__, [self], kw)

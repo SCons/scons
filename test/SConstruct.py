@@ -2,15 +2,18 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import TestCmd
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.run(stdout = "",
 	stderr = """
 SCons error: No SConstruct file found.
 File "\S+scons(\.py)?", line \d+, in main
 """)
+
+test.match_func = TestCmd.match_exact
 
 wpath = test.workpath()
 
