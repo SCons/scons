@@ -187,7 +187,7 @@ def CachePushFunc(target, source, env):
         return
 
     if not fs.isdir(cachedir):
-        fs.mkdir(cachedir)
+        fs.makedirs(cachedir)
 
     tempfile = cachefile+'.tmp'
     try:
@@ -515,6 +515,8 @@ class Base(SCons.Node.Node):
     def set_src_builder(self, builder):
         """Set the source code builder for this node."""
         self.sbuilder = builder
+        if not self.has_builder():
+            self.builder_set(builder)
 
     def src_builder(self):
         """Fetch the source code builder for this node.

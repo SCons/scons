@@ -1432,29 +1432,50 @@ class has_src_builderTestCase(unittest.TestCase):
         f4 = fs.File('f4', sub2)
         f5 = fs.File('f5', sub2)
         f6 = fs.File('f6', sub2)
+        f7 = fs.File('f7', sub2)
 
         h = f1.has_src_builder()
+        assert not h, h
+        h = f1.has_builder()
         assert not h, h
 
         b1 = Builder(fs.File)
         sub1.set_src_builder(b1)
 
         test.write(['sub1', 'f2'], "sub1/f2\n")
-        h = f1.has_src_builder()    # cached from previous call
+        h = f1.has_src_builder()        # cached from previous call
+        assert not h, h
+        h = f1.has_builder()            # cached from previous call
         assert not h, h
         h = f2.has_src_builder()
         assert not h, h
+        h = f2.has_builder()
+        assert not h, h
         h = f3.has_src_builder()
         assert h, h
+        h = f3.has_builder()
+        assert h, h
         assert f3.builder is b1, f3.builder
+
+        f7.set_src_builder(b1)
 
         test.write(['sub2', 'SCCS', 's.f5'], "sub2/SCCS/s.f5\n")
         test.write(['sub2', 'RCS', 'f6,v'], "sub2/RCS/f6,v\n")
         h = f4.has_src_builder()
         assert not h, h
+        h = f4.has_builder()
+        assert not h, h
         h = f5.has_src_builder()
         assert h, h
+        h = f5.has_builder()
+        assert h, h
         h = f6.has_src_builder()
+        assert h, h
+        h = f6.has_builder()
+        assert h, h
+        h = f7.has_src_builder()
+        assert h, h
+        h = f7.has_builder()
         assert h, h
 
 class prepareTestCase(unittest.TestCase):

@@ -234,19 +234,74 @@ test.fail_test(not is_writable(test.workpath('work2', 'ccc.in')))
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'ddd.in')))
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'fff.in')))
 
-# Test CVS checkouts from a remote server (SourceForge).
+# Test checking out specific file name(s), and expanding
+# the repository name with a variable.
 test.subdir(['work3'])
 
 test.write(['work3', 'SConstruct'], """\
 import os
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
+env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
+                  BUILDERS={'Cat':Builder(action=cat)},
+                  CVSROOT=r'%s')
+env.Prepend(CVSFLAGS='-q')
+env.Cat('aaa.out', 'aaa.in')
+env.Cat('bbb.out', 'bbb.in')
+env.Cat('ccc.out', 'ccc.in')
+env.Cat('all', ['aaa.out', 'bbb.out', 'ccc.out'])
+cvs = env.CVS('$CVSROOT', 'foo')
+#env.SourceCode('.', cvs)
+env.SourceCode('aaa.in', cvs)
+env.SourceCode('bbb.in', cvs)
+env.SourceCode('ccc.in', cvs)
+""" % cvsroot)
+
+test.run(chdir = 'work3',
+         arguments = '.',
+         stdout = test.wrap_stdout(build_str = """\
+cvs -q -d %s co -d . foo/aaa.in
+U ./aaa.in
+cat("aaa.out", "aaa.in")
+cvs -q -d %s co -d . foo/bbb.in
+U ./bbb.in
+cat("bbb.out", "bbb.in")
+cvs -q -d %s co -d . foo/ccc.in
+U ./ccc.in
+cat("ccc.out", "ccc.in")
+cat("all", ["aaa.out", "bbb.out", "ccc.out"])
+""" % (cvsroot,
+       cvsroot,
+       cvsroot)))
+
+test.must_match(['work3', 'aaa.out'], "import/aaa.in\n")
+test.must_match(['work3', 'bbb.out'], "import/bbb.in\n")
+test.must_match(['work3', 'ccc.out'], "import/ccc.in\n")
+test.must_match(['work3', 'all'], "import/aaa.in\nimport/bbb.in\nimport/ccc.in\n")
+
+# Test CVS checkouts from a remote server (Tigris.org).
+test.subdir(['work4'])
+
+test.write(['work4', 'SConstruct'], """\
+import os
 env = Environment(ENV = { 'PATH' : os.environ['PATH'] })
-env.SourceCode('.', env.CVS(':pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons'))
+# We used to use the SourceForge server, but SourceForge has restrictions
+# that make them deny access on occasion.  Leave the incantation here
+# in case we need to use it again some day.
+#cvs = env.CVS(':pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons')
+cvs = env.CVS(':pserver:anoncvs@cvs.tigris.org:/cvs')
+env.SourceCode('.', cvs)
 env.Install('install', 'scons/SConstruct')
 """)
 
-test.run(chdir = 'work3', arguments = '.')
+test.run(chdir = 'work4', arguments = '.')
 
-test.fail_test(not os.path.exists(test.workpath('work3', 'install', 'SConstruct')))
+test.fail_test(not os.path.exists(test.workpath('work4', 'install', 'SConstruct')))
 
 
 test.pass_test()
