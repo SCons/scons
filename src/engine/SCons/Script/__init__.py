@@ -620,10 +620,6 @@ class OptParser(OptionParser):
         self.add_option('-s', '--silent', '--quiet', action="store_true",
                         default=0, help="Don't print commands.")
 
-        self.add_option('--save-explain-info', type="int", action="store",
-                        dest='save_explain_info', metavar='0|1',
-                        help="(Don't) save --debug=explain information")
-
         self.add_option('-u', '--up', '--search-up', action="store_const",
                         dest="climb_up", default=0, const=1,
                         help="Search up directory tree for SConstruct,       "
@@ -731,8 +727,7 @@ class SConscriptSettableOptions:
                          'max_drift':SCons.Sig.default_max_drift,
                          'implicit_cache':0,
                          'clean':0,
-                         'duplicate':'hard-soft-copy',
-                         'save_explain_info':1}
+                         'duplicate':'hard-soft-copy'}
 
     def get(self, name):
         if not self.settable.has_key(name):
@@ -945,7 +940,6 @@ def _main(args, parser):
     # that are SConscript settable:
     SCons.Node.implicit_cache = ssoptions.get('implicit_cache')
     SCons.Node.FS.set_duplicate(ssoptions.get('duplicate'))
-    SCons.Node.Save_Explain_Info = ssoptions.get('save_explain_info') or print_explanations
 
     lookup_top = None
     if targets:

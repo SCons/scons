@@ -8,7 +8,10 @@ r __COPYRIGHT__
 
 
 
-RELEASE 0.96 - XXX
+RELEASE 0.95 - XXX
+
+  NOTE:  This is a pre-release of 0.96 for testing purposes.  When 0.96
+  is released, all these changes will be listed as 0.96 changes.
 
   From Chad Austin:
 
@@ -96,11 +99,6 @@ RELEASE 0.96 - XXX
 
   - Add a --debug=explain option that reports the reason(s) why SCons
     thinks it must rebuild something.
-
-  - Add --save-explain-info and SetOption('save_explain_info') options
-    to control whether the --debug=explain information is saved in
-    the .sconsign file(s).  Not saving this information can improve
-    performance and save memory usage.
 
   - Add support for functions that return platform-independent Actions
     to Chmod(), Copy(), Delete(), Mkdir(), Move() and Touch() files

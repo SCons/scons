@@ -1447,29 +1447,9 @@ class File(Base):
         # in one build (SConstruct file) is a source in a different build.
         # See test/chained-build.py for the use case.
         entry = self.get_stored_info()
-        if not SCons.Node.Save_Explain_Info and not SCons.Node.implicit_cache:
-            # If we're not saving explanation info, wipe out any that
-            # might be in the already-stored entry.
-            #
-            # XXX This is kind of bad that we're naming attributes that
-            # are really controlled in Node/__init__.py.  It would be
-            # good to find a way to move this logic there in some way
-            # that still accounts for the fact that not all Node classes
-            # need or use this information.
-            attributes = [
-                'bsources',     'bsourcesigs',
-                'bdepends',     'bdependsigs',
-                'bimplicit',    'bimplicitsigs',
-                'bact',         'bactsig',
-            ]
-            for attr in attributes:
-                try:
-                     delattr(entry, attr)
-                except AttributeError:
-                    pass
         for key, val in obj.__dict__.items():
             entry.__dict__[key] = val
-        sconsign = self.dir.sconsign().set_entry(self.name, entry)
+        self.dir.sconsign().set_entry(self.name, entry)
 
     def get_stored_info(self):
         try:
