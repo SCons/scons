@@ -231,12 +231,13 @@ class Taskmaster:
         if node is None:
             return None
 
-        self.executing.append(node)
-        self.executing.extend(node.side_effects)
         try:
             tlist = node.builder.targets(node)
         except AttributeError:
             tlist = [node]
+        self.executing.extend(tlist)
+        self.executing.extend(node.side_effects)
+        
         task = self.tasker(self, tlist, node in self.targets, node)
         task.make_ready()
         self.ready = None
@@ -255,7 +256,12 @@ class Taskmaster:
         self.pending = []
 
     def executed(self, node):
-        self.executing.remove(node)
+        try:
+            tlist = node.builder.targets(node)
+        except AttributeError:
+            tlist = [node]
+        for t in tlist:
+            self.executing.remove(t)
         for side_effect in node.side_effects:
             self.executing.remove(side_effect)
 

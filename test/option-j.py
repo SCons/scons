@@ -51,11 +51,27 @@ file.write(str(time.time()))
 file.close()
 """)
 
+test.subdir('foo')
+
+test.write(['foo','foo.in'], r"""
+foo you
+""")
+
 test.write('SConstruct', """
 MyBuild = Builder(action = r'%s build.py $TARGETS')
 env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
 env.MyBuild(target = 'f1', source = 'f1.in')
 env.MyBuild(target = 'f2', source = 'f2.in')
+
+def copyn(env, target, source):
+    import shutil
+    import time
+    time.sleep(1)
+    for t in target:
+        shutil.copy(str(source[0]), str(t))
+
+t = env.Command(target=['foo/foo1.out', 'foo/foo2.out'], source='foo/foo.in', action=copyn)
+env.Install('out', t)
 """ % python)
 
 def RunTest(args, extra):
@@ -92,6 +108,8 @@ start2, finish1 = RunTest('f1 f2', "second")
 # fail if the second file was started
 # before the first one was finished
 test.fail_test(start2 < finish1)
+
+test.run(arguments='-j 2 out')
 
 test.pass_test()
  
