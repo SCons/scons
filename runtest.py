@@ -16,6 +16,13 @@
 #
 # Options:
 #
+#	-1		Use the test configuration in build/test1
+#			(installed from the scons package)
+#
+#	-2		Use the test configuration in build/test2
+#			(installed from the python-scons and scons-script
+#			packages)
+#
 #	-a		Run all tests; does a virtual 'find' for
 #			all SCons tests under the current directory.
 #
@@ -47,12 +54,15 @@ debug = ''
 tests = []
 printcmd = 1
 version = None
+testver = 1
 
-opts, tests = getopt.getopt(sys.argv[1:], "ab:dqv:",
+opts, tests = getopt.getopt(sys.argv[1:], "12ab:dqv:",
 			    ['all','build=','debug','quiet','version='])
 
 for o, a in opts:
-    if o == '-a' or o == '--all': all = 1
+    if o == '-1': testver = 1
+    elif o == '-2': testver = 2
+    elif o == '-a' or o == '--all': all = 1
     elif o == '-b' or o == '--build': build = a
     elif o == '-d' or o == '--debug': debug = os.path.join(
 					sys.exec_prefix,
@@ -100,14 +110,15 @@ if build == 'aegis':
 
     version = aegis_to_version(version)
 
-    scons_dir = os.path.join(cwd, 'build', 'test', 'bin')
+    scons_dir = os.path.join(cwd, 'build', 'test' + str(testver), 'bin')
 
-    os.environ['PYTHONPATH'] = os.path.join(cwd,
-					    'build',
-					    'test',
-					    'lib',
-					    'python' + sys.version[0:3],
-					    'site-packages')
+    if testver == 1:
+        test_dir = os.path.join('test1', 'lib', 'scons-' + str(version))
+    elif testver == 2:
+        test_dir = os.path.join('test2', 'lib', 'python' + sys.version[0:3],
+                                'site-packages')
+
+    os.environ['PYTHONPATH'] = os.path.join(cwd, 'build', test_dir)
 
 else:
 

@@ -33,14 +33,34 @@ if head:
     os.chdir(head)
     sys.argv[0] = tail
 
+# Code to figure out the package name from the current directory.
+# May come in handy to allow this setup.py to switch-hit between
+# python-scons and python2-scons.
+#head, package = os.path.split(os.getcwd())
+#suffix = "-__VERSION__"
+#if package[-len(suffix):] == suffix:
+#    package = package[:-len(suffix)]
+
+package = 'python-scons'
+
 from distutils.core import setup
 
-setup(name = "scons-pylib",
+ver = {
+    'python-scons': '1.5',
+    'python2-scons': '2.1',
+}
+
+setup(name = package,
       version = "__VERSION__",
-      description = "scons",
+      description = "SCons Python %s extension modules" % ver[package],
+      long_description = """SCons is an Open Source software construction tool--that is, a build tool; an
+improved substitute for the classic Make utility; a better way to build
+software.""",
       author = "Steven Knight",
       author_email = "knight@baldmt.com",
       url = "http://www.scons.org/",
+      licence = "MIT, freely distributable",
+      keywords = "scons, cons, make, build tool, make tool",
       packages = ["SCons",
 		  "SCons.Node",
 		  "SCons.Scanner",

@@ -46,6 +46,14 @@ sub cons::whereis {
     return undef
 }
 
+sub cons::read_file {
+    my $file = shift;
+    open(F, "<$file") || die "cannot open $file: $!";
+    my @lines = <F>;
+    close(F);
+    return wantarray ? @lines : join('', @lines);
+}
+
 #
 # We let the presence or absence of various utilities determine
 # whether or not we bother to build certain pieces of things.
@@ -100,33 +108,30 @@ if ($platform eq "win32") {
     $archsuffix = "tar.gz"
 }
 
-
 use Cwd;
-$test_dir = File::Spec->catfile(cwd, "build", "test");
+$test1_dir = File::Spec->catfile(cwd, "build", "test1");
+$test2_dir = File::Spec->catfile(cwd, "build", "test2");
 
-%package_name = (
-    'script'	=> $project,
-    'engine'	=> "$project-pylib",
-);
+$test1_lib_dir = File::Spec->catfile($test1_dir,
+                                     "lib",
+                                     "$project-$version");
 
-$test_bin_dir = File::Spec->catfile($test_dir, "bin");
-$test_lib_dir = File::Spec->catfile($test_dir,
-				    "lib",
-				    "python${python_ver}",
-				    "site-packages"),
+$test2_lib_dir = File::Spec->catfile($test2_dir,
+                                     "lib",
+                                     "python${python_ver}",
+                                     "site-packages");
 
-%install_dir = (
-    'script'	=> $test_bin_dir,
-    'engine'	=> $test_lib_dir,
-);
+$lib_project_ver = File::Spec->catfile("lib", "$project-$version");
+
+$unpack_dir = File::Spec->catfile(cwd, "build", "unpack");
 
 $env = new cons( ENV => {
 			  AEGIS_PROJECT => $ENV{AEGIS_PROJECT},
 			  PATH => $ENV{PATH},
 			},
 
-		 TEST_BIN_DIR	=> $test_bin_dir,
-		 TEST_LIB_DIR	=> $test_lib_dir,
+                 TEST1_LIB_DIR	=> $test1_lib_dir,
+                 TEST2_LIB_DIR	=> $test2_lib_dir,
 
 		 DATE		=> $date,
 		 DEVELOPER	=> $developer,
@@ -146,29 +151,163 @@ $env = new cons( ENV => {
 
 my @src_deps;
 
-my %src_file = (
-    'scons'		=> 'scons.py',
-    'LICENSE.txt'	=> '../LICENSE.txt'
-);
+$python_scons = {
+        'pkg'		=> "python-$project",
+        'src_subdir'	=> 'engine',
+        'inst_subdir'	=> File::Spec->catfile("lib",
+                                               "python1.5",
+                                               "site-packages"),
+        'prefix'	=> $test2_dir,
 
-for $dir ('script', 'engine') {
+        'debian_deps'	=> [ qw(debian/rules debian/control
+                                debian/changelog debian/copyright
+                                debian/python-scons.postinst
+                                debian/python-scons.prerm) ],
 
-    my $pkg = $package_name{$dir};
-    my $install = $install_dir{$dir};
+        'files'		=> [ qw(LICENSE.txt README.txt setup.cfg setup.py) ],
+        'filemap'	=> {
+                                'LICENSE.txt'	=> '../LICENSE.txt',
+        }
+};
 
-    my $build = "build/$dir";
-    my $src = "src/$dir";
+# Supporting this is going to take some magic in src/engine/setup.py,
+# so comment it out for now.
+#$python2_scons = {
+#        'pkg'		=> "python2-$project",
+#        'src_subdir'	=> 'engine',
+#        'inst_subdir'	=> File::Spec->catfile("lib",
+#                                               "python2.1",
+#                                               "site-packages"),
+#        'prefix'	=> $test2_dir,
+#
+#        'debian_deps'	=> [ qw(debian/rules debian/control
+#                                debian/changelog debian/copyright
+#                                debian/python2-scons.postinst
+#                                debian/python2-scons.prerm) ],
+#
+#        'files'		=> [ qw(LICENSE.txt README.txt setup.cfg setup.py) ],
+#        'filemap'	=> {
+#                                'LICENSE.txt'	=> '../LICENSE.txt',
+#        }
+#};
 
-    my @files;
-    chomp(@files = `cat src/$dir/MANIFEST`);
+$scons_script = {
+        'pkg'		=> "$project-script",
+        'src_subdir'	=> 'script',
+        'inst_subdir'	=> 'bin',
+        'prefix'	=> $test2_dir,
+
+        'debian_deps'	=> [ qw(debian/rules debian/control
+                                debian/changelog debian/copyright
+                                debian/python-scons.postinst
+                                debian/python-scons.prerm) ],
+
+        'files'		=> [ qw(LICENSE.txt README.txt setup.cfg setup.py) ],
+        'filemap'		=> {
+                                'LICENSE.txt'	=> '../LICENSE.txt',
+                                'scons'		=> 'scons.py',
+                        }
+};
+
+$scons = {
+        'pkg'		=> $project,
+        'inst_subdir'	=> undef,
+        'prefix'	=> $test1_dir,
+
+        'debian_deps'	=> [ qw(debian/rules debian/control
+                                debian/changelog debian/copyright
+                                debian/scons.postinst
+                                debian/scons.prerm) ],
+
+        'files'		=> [ qw(LICENSE.txt README.txt setup.cfg setup.py) ],
+
+        'subpkgs'	=> [ $python_scons, $scons_script ],
+        'subinst_dirs'	=> { "python-$project" => $lib_project_ver,
+                             "$project-script" => 'bin',
+                           },
+};
+
+for $p ($scons, $python_scons, $scons_script) {
+    #
+    # Initialize variables with the right directories for this package.
+    #
+    my $pkg = $p->{'pkg'};
+
+    my $src = 'src';
+    $src = File::Spec->catfile($src, $p->{'src_subdir'}) if $p->{'src_subdir'};
+
+    my $build = File::Spec->catfile('build', $pkg);
+
+    my $prefix = $p->{'prefix'};
+    my $install = $prefix;
+    if ($p->{'inst_subdir'}) {
+        $install = File::Spec->catfile($install, $p->{'inst_subdir'});
+    }
 
     #
-    # Run everything in the MANIFEST through the sed command we concocted.
+    # Read up the list of source files from our MANIFEST.in.
+    # This list should *not* include LICENSE.txt, MANIFEST,
+    # README.txt, or setup.py.  Make a copy of the list for the
+    # destination files.
     #
-    foreach $b (@files) {
-	my $s = $src_file{$b} || $b;
+    my @src_files = cons::read_file("$src/MANIFEST.in");
+    chomp(@src_files);
+    my @dst_files = map(File::Spec->catfile($install, $_), @src_files);
+
+    if ($p->{'subpkgs'}) {
+        #
+        # This package includes some sub-packages.  Read up their
+        # MANIFEST.in files, and add them to our source and destination
+        # file lists, modifying them as appropriate to add the
+        # specified subdirs.
+        #
+        foreach $sp (@{$p->{'subpkgs'}}) {
+            my $ssubdir = $sp->{'src_subdir'};
+            my $isubdir = $p->{'subinst_dirs'}->{$sp->{'pkg'}};
+            my $manifest = File::Spec->catfile($src, $ssubdir, 'MANIFEST.in');
+            my @f = cons::read_file($manifest);
+            chomp(@f);
+            push(@src_files, map(File::Spec->catfile($sp->{'src_subdir'}, $_),
+                                 @f));
+            push(@dst_files, map(File::Spec->catfile($install, $isubdir, $_),
+                                 @f));
+            my $k;
+            foreach $k (keys %{$sp->{'filemap'}}) {
+                my $f = $sp->{'filemap'}->{$k};
+                next if ! defined $f;
+                $k = File::Spec->catfile($sp->{'src_subdir'}, $k); 
+                $p->{'filemap'}->{$k} = File::Spec->catfile($sp->{'src_subdir'},
+                                                            $f); 
+            }
+        }
+    }
+
+    #
+    # Now that we have the "normal" source files, add those files
+    # that are standard for each distribution.  Note that we don't
+    # add these to dst_files, because they don't get installed.
+    # And we still have the MANIFEST to add.
+    #
+    push(@src_files, @{$p->{'files'}});
+
+    #
+    # Now run everything in src_file through the sed command we
+    # concocted to expand __FILE__, __VERSION__, etc.
+    #
+    foreach $b (@src_files) {
+        my $s = $p->{'filemap'}->{$b} || $b;
 	$env->Command("$build/$b", "$src/$s", "%SEDCOM");
     }
+
+    #
+    # NOW, finally, we can create the MANIFEST, which we do
+    # by having Perl spit out the contents of the @src_files
+    # array we've carefully created.  After we've added
+    # MANIFEST itself to the array, of course.
+    #
+    push(@src_files, "MANIFEST");
+    $env->Command("$build/MANIFEST", "$src/MANIFEST.in",
+        qq([perl] open(F, ">%>"); print F join("\\n", sort qw(@src_files)), "\\n"; close(F)));
 
     #
     # Use the Python distutils to generate the packages.
@@ -177,54 +316,68 @@ for $dir ('script', 'engine') {
 
     push(@src_deps, $archive);
 
-    my @setup_args = ('bdist sdist');
+    my @setup_args = ('bdist', 'sdist');
 
-    my @targets = (
+    my @build_targets = (
 	"$build/dist/$pkg-$version.$platform.$archsuffix",
 	$archive,
+        "$build/dist/$pkg-$version.win32.exe",
     );
+    my @install_targets = @build_targets;
 
     if ($rpm) {
 	push(@setup_args, 'bdist_rpm');
 
 	# XXX "$build/build/bdist.$platform/rpm/SOURCES/$pkg-$version.$archsuffix",
 	# XXX "$build/build/bdist.$platform/rpm/SPECS/$pkg.spec",
-	push(@targets,
+        my @targets = (
 	    "$build/dist/$pkg-$version-1.src.rpm",
 	    "$build/dist/$pkg-$version-1.noarch.rpm",
 	);
+        push(@build_targets, @targets);
+        push(@install_targets, @targets);
     };
 
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
     # to the directory in which setup.py exists.
-    $env->Command([@targets],
-	      map("$build/$_", @files),
-	      qq(rm -rf $build/build $build/dist/*
-		 python $build/setup.py @setup_args)
-	     );
+    my $commands = qq(rm -rf $build/build $build/dist/*
+                      python $build/setup.py @setup_args
+                      python $build/setup.py bdist_wininst);
 
-    $env->Depends([@targets], "$build/MANIFEST");
+    if ($dh_builddeb && $fakeroot) {
+        # Debian builds directly into build/dist, so we don't
+        # need to add the .debs to the install_targets.
+        my $deb = "build/dist/${pkg}_$version-1_all.deb";
+        push(@build_targets, $deb);
+        $env->Depends($deb, @{$p->{'debian_deps'}});
+        $commands .= qq(
+                fakeroot make -f debian/rules DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-$pkg
+                env DH_COMPAT=$DH_COMPAT dh_clean);
+    }
 
-    $env->Install("build/dist", @targets);
+    #
+    # Now set up creation and installation of the packages.
+    #
+    $env->Command([@build_targets], map("$build/$_", @src_files), $commands);
+
+    $env->Install("build/dist", @install_targets);
 
     #
     # Unpack the archive created by the distutils into build/unpack.
     #
-    my $unpack = "build/unpack";
-
-    my @unpack_files = map("$unpack/$pkg-$version/$_", @files);
+    my @unpack_files = map("$unpack_dir/$pkg-$version/$_", @src_files);
 
     # We'd like to replace the last three lines with the following:
     #
-    #	tar zxf %< -C $unpack
+    #	tar zxf %< -C $unpack_dir
     #
     # but that gives heartburn to Cygwin's tar, so work around it
     # with separate zcat-tar-rm commands.
     Command $env [@unpack_files], $archive, qq(
-	rm -rf $unpack/$pkg-$version
+        rm -rf $unpack_dir/$pkg-$version
 	zcat %< > .temp
-	tar xf .temp -C $unpack
+        tar xf .temp -C $unpack_dir
 	rm -f .temp
     );
 
@@ -237,21 +390,18 @@ for $dir ('script', 'engine') {
     # tests pass with what we really packaged, not because of something
     # hanging around in the development directory.
     #
-    my %seen;
-    map($seen{$_}++, "LICENSE.txt", "MANIFEST", "setup.py");
-    @test_files = map(File::Spec->catfile($install, $_),
-    			grep(!$seen{$_}++ &&
-			     ($_ =~ /\.py$/ || $src_file{$_}), @files));
-
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
     # to the directory in which setup.py exists.
-    Command $env [@test_files], @unpack_files, qq(
+    Command $env [@dst_files], @unpack_files, qq(
 	rm -rf $install
-	python $unpack/$pkg-$version/setup.py install --prefix=$test_dir
+        python $unpack_dir/$pkg-$version/setup.py install --prefix=$prefix
     );
 }
 
+#
+# Arrange for supporting packages to be installed in the test directories.
+#
 Export qw( env );
 
 Build "etc/Conscript";
@@ -307,39 +457,4 @@ if ($change) {
 		tar zcf %> -C build $project-src-$version
 	));
     }
-}
-
-#
-# Build the Debian packages if debhelper and fakeroot are available
-#
-if ($dh_builddeb && $fakeroot){
-    @deb_targets = ("build/dist/scons_$version-1_all.deb", 
-		    "build/dist/python-scons_$version-1_all.deb",
-		    "build/dist/python2-scons_$version-1_all.deb"
-		   );
-    
-    @deb_deps = ("debian/rules",
-		 "debian/control",
-		 "debian/changelog",
-		 "debian/copyright",
-		 "debian/python-scons.postinst",
-		 "debian/python-scons.prerm",
-		 "debian/python2-scons.postinst",
-		 "debian/python2-scons.prerm"
-		);
-	
-    
-    
-    chomp(@engine_files = `cat src/engine/MANIFEST`);
-    chomp(@script_files = `cat src/script/MANIFEST`);
-    
-    $env->Command([@deb_targets], 
-		  @deb_deps,
-		  map("build/engine/$_", @engine_files),
-		  map("build/script/$_", @script_files),
-		  qq(rm -rf build/engine/build build/engine/dist
-		     rm -rf build/script/build build/script/dist
-		     fakeroot make -f debian/rules DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary
-		     env DH_COMPAT=$DH_COMPAT dh_clean
-    ));
 }

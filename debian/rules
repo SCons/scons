@@ -34,25 +34,36 @@ endif
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp configure-stamp
+	rm -f build-stamp configure-stamp install-common-stamp
 	rm -rf build
 	find -name .construct -exec rm "{}" ";"
 	dh_clean
 
-install: DH_OPTIONS=
-install: build
+install-common: install-common-stamp
+install-common-stamp: DH_OPTIONS=
+install-common-stamp:
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	python build/engine/setup.py install \
+	touch install-common-stamp
+
+install-scons: build install-common
+	python build/scons/setup.py install \
+--install-scripts=`pwd`/debian/scons/usr/bin \
+--install-purelib=`pwd`/debian/scons/usr/lib/scons-0.01 --no-compile
+
+install-python-scons: build install-common
+	python build/python-scons/setup.py install \
 --install-purelib=`pwd`/debian/python-scons/usr/lib/python1.5/site-packages --no-compile
 
-	python build/script/setup.py install \
---install-scripts=`pwd`/debian/scons/usr/bin --no-compile
-
-	python build/engine/setup.py install \
+install-python2-scons: build install-common
+	python build/python2-scons/setup.py install \
 --install-purelib=`pwd`/debian/python2-scons/usr/lib/python2.0/site-packages --no-compile
+
+install-scons-script: build install-common
+	python build/scons-script/setup.py install \
+--install-scripts=`pwd`/debian/scons/usr/bin --no-compile
 
 
 # This single target is used to build all the packages, all at once, or
@@ -82,17 +93,20 @@ binary-indep: build install
 binary-arch: build install
 
 # Any other binary targets build just one binary package at a time.
-binary-scons: build install
+binary-scons: build install-scons
 	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-pscons
 
-binary-python-scons: build install
+binary-python-scons: build install-python-scons
 	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-ppython-scons
 
-binary-python2-scons: build install
+binary-python2-scons: build install-python2-scons
 	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-ppython2-scons
+
+binary-scons-script: build install-scons-script
+	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-pscons-script
 
 binary: binary-indep binary-arch
 
-.PHONY: build clean binary-indep binary-arch binary install binary-scons binary-python-scons binary-python2-scons
+.PHONY: build clean binary-indep binary-arch binary install binary-scons binary-python-scons binary-python2-scons binary-scons-script install-scons install-python-scons install-python2-scons install-scons-script
 
 

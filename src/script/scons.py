@@ -35,8 +35,10 @@ import traceback
 
 # Strip the script directory from sys.path() so on case-insensitive
 # (WIN32) systems Python doesn't think that the "scons" script is the
-# "SCons" package.
-sys.path = sys.path[1:]
+# "SCons" package.  Replace it with our own version directory so, if
+# if they're there, we pick up the right version of the build engine
+# modules.
+sys.path = [os.path.join(sys.prefix, 'lib', 'scons-__VERSION__')] + sys.path[1:]
 
 import SCons.Node
 import SCons.Node.FS

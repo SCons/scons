@@ -7,8 +7,7 @@ Build-Depends: debhelper
 
 Package: scons
 Architecture: all
-Depends: python-scons|python2-scons,python-base(>=1.5.2)|python2-base
-Suggests: python-scons, python2-scons
+Depends: python-base(>=1.5.2)|python2-base
 Description: An Open Source software construction tool
  SCons is an Open Source software construction tool--that is, a build tool; an
  improved substitute for the classic Make utility; a better way to build
@@ -26,6 +25,15 @@ Package: python2-scons
 Architecture: all
 Depends: python2-base(<<2.1), python2-base(>=2.0)
 Description: SCons Python 2.0 extension modules
+ SCons is an Open Source software construction tool--that is, a build tool; an
+ improved substitute for the classic Make utility; a better way to build
+ software.
+
+Package: scons-script
+Architecture: all
+Depends: python-scons|python2-scons,python-base(>=1.5.2)|python2-base
+Suggests: python-scons, python2-scons
+Description: An Open Source software construction tool script
  SCons is an Open Source software construction tool--that is, a build tool; an
  improved substitute for the classic Make utility; a better way to build
  software.

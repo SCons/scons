@@ -34,16 +34,39 @@ if head:
     sys.argv[0] = tail
 
 from distutils.core import setup
+from distutils.command.install_lib import install_lib
 
-setup(name = "scons-script",
+class my_install_lib(install_lib):
+    def finalize_options(self):
+        install_lib.finalize_options(self)
+	head = self.install_dir
+        while head:
+	    if head == os.sep:
+		head = None
+		break
+	    else:
+	        head, tail = os.path.split(head)
+	    open("/dev/tty", 'w').write("head = " + head + "\n")
+	    if tail[:6] in ["python", "Python"]:
+	        break
+        if head:
+            self.install_dir = os.path.join(head, "scons-__VERSION__")
+
+setup(name = "scons",
       version = "__VERSION__",
-      description = "an Open Source software construction tool script",
+      description = "an Open Source software construction tool",
       long_description = """SCons is an Open Source software construction tool--that is, a build tool; an
 improved substitute for the classic Make utility; a better way to build
 software.""",
       author = "Steven Knight",
       author_email = "knight@baldmt.com",
       url = "http://www.scons.org/",
-      licence = "MIT, freely distributable",
+      license = "MIT, freely distributable",
       keywords = "scons, cons, make, build tool, make tool",
-      scripts = ["scons"])
+      packages = ["SCons",
+                  "SCons.Node",
+                  "SCons.Scanner",
+                  "SCons.Sig"],
+      package_dir = {'': 'engine'},
+      scripts = ["script/scons"],
+      cmdclass = {'install_lib': my_install_lib})

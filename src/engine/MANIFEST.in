@@ -1,5 +1,3 @@
-LICENSE.txt
-MANIFEST
 SCons/__init__.py
 SCons/Builder.py
 SCons/Defaults.py
@@ -16,4 +14,3 @@ SCons/Sig/MD5.py
 SCons/Sig/TimeStamp.py
 SCons/Taskmaster.py
 SCons/Util.py
-setup.py
