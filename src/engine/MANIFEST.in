@@ -43,6 +43,7 @@ SCons/Tool/g77.py
 SCons/Tool/gas.py
 SCons/Tool/gcc.py
 SCons/Tool/gnulink.py
+SCons/Tool/gs.py
 SCons/Tool/javac.py
 SCons/Tool/jar.py
 SCons/Tool/icc.py

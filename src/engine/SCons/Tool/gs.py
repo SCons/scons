@@ -1,6 +1,6 @@
-"""SCons.Tool.dvipdf
+"""SCons.Tool.gs
 
-Tool-specific initialization for dvipdf.
+Tool-specific initialization for Ghostscript.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -34,22 +34,36 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
+import SCons.Platform
+
+# Ghostscript goes by different names on different platforms...
+platform = SCons.Platform.platform_default()
+
+if platform == 'os2':
+    gs = 'gsos2'
+elif platform == 'cygwin' or platform == 'win32':
+    gs = 'gswin32c'
+else:
+    gs = 'gs'
 
 def generate(env):
-    """Add Builders and construction variables for dvipdf to an Environment."""
+    """Add Builders and construction variables for Ghostscript to an
+    Environment."""
     try:
         bld = env['BUILDERS']['PDF']
     except KeyError:
         bld = SCons.Defaults.PDF()
         env['BUILDERS']['PDF'] = bld
-    bld.add_action('.dvi', '$PDFCOM')
 
-    env['DVIPDF']      = 'dvipdf'
-    env['DVIPDFFLAGS'] = ''
-    env['DVIPDFCOM']   = '$DVIPDF $DVIPDFFLAGS $SOURCES $TARGET'
+    bld.add_action('.ps', '$GSCOM')
 
-    # Deprecated synonym.
-    env['PDFCOM']      = '$DVIPDFCOM'
+    env['GS']      = gs
+    env['GSFLAGS'] = '-dNOPAUSE -dBATCH -sDEVICE=pdfwrite'
+    env['GSCOM']   = '$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES'
+
 
 def exists(env):
-    return env.Detect('dvipdf')
+    if env.has_key('PS2PDF'):
+        return env.Detect(env['PS2PDF'])
+    else:
+        return env.Detect(gs) or SCons.Util.WhereIs(gs)

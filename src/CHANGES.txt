@@ -45,6 +45,10 @@ RELEASE 0.14 - XXX
     Node's state, allowing it to be re-evaluated by continuous
     integration build interfaces.
 
+  From Stefan Reichor:
+
+  - Add support for using Ghostscript to convert Postscript to PDF files.
+
 
 
 RELEASE 0.13 - Mon, 31 Mar 2003 20:22:00 -0600

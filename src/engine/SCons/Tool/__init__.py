@@ -201,7 +201,7 @@ def tool_list(platform, env):
             cxx_compiler = FindTool(['g++'], env)
         
     other_tools = FindAllTools(['BitKeeper', 'CVS',
-                                'dvipdf', 'dvips',
+                                'dvipdf', 'dvips', 'gs',
                                 'jar', 'javac',
                                 'latex', 'lex',
                                 'pdflatex', 'pdftex', 'Perforce',
