@@ -411,11 +411,11 @@ def options_init():
 	short = 'v', long = ['version'],
 	help = "Print the SCons version number and exit.")
 
-    Option(func = opt_not_yet,
+    Option(func = opt_not_yet, future = 1,
 	short = 'w', long = ['print-directory'],
 	help = "Print the current directory.")
 
-    Option(func = opt_not_yet,
+    Option(func = opt_not_yet, future = 1,
 	long = ['no-print-directory'],
 	help = "Turn off -w, even if it was turned on implicitly.")
 
