@@ -673,6 +673,17 @@ class FSTestCase(unittest.TestCase):
             except:
                 raise
 
+            # Test that just specifying the drive works to identify
+            # its root directory.
+            p = os.path.abspath(test.workpath('root_file'))
+            drive, path = os.path.splitdrive(p)
+            if drive:
+                # The assert below probably isn't correct for the
+                # general case, but it works for Win32, which covers a
+                # lot of ground...
+                dir = fs.Dir(drive)
+                assert str(dir) == drive + os.sep, str(dir)
+
             # Test Dir.children()
             dir = fs.Dir('ddd')
             fs.File(string.join(['ddd', 'f1'], sep))
