@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import copy
 import sys
 import unittest
 
@@ -407,6 +408,49 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert t.get_target() == n7
         t.executed()
+
+
+    def test_make_ready_out_of_date(self):
+        """Test the Task.make_ready() method's list of out-of-date Nodes
+        """
+        class MyCalc(SCons.Taskmaster.Calc):
+            def current(self, node, sig):
+                n = str(node)
+                return n[0] == 'c'
+
+        ood = []
+        def TaskGen(tm, targets, top, node, ood=ood):
+            class MyTask(SCons.Taskmaster.Task):
+                def make_ready(self):
+                    SCons.Taskmaster.Task.make_ready(self)
+                    self.ood.extend(self.out_of_date)
+            t = MyTask(tm, targets, top, node)
+            t.ood = ood
+            return t
+
+        n1 = Node("n1")
+        c2 = Node("c2")
+        n3 = Node("n3")
+        c4 = Node("c4")
+        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4],
+                                         tasker = TaskGen,
+                                         calc = MyCalc())
+
+        del ood[:]
+        t = tm.next_task()
+        assert ood == [n1], ood
+
+        del ood[:]
+        t = tm.next_task()
+        assert ood == [], ood
+
+        del ood[:]
+        t = tm.next_task()
+        assert ood == [n3], ood
+
+        del ood[:]
+        t = tm.next_task()
+        assert ood == [], ood
 
 
     def test_make_ready_exception(self):

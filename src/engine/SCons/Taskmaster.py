@@ -169,17 +169,26 @@ class Task:
 
     def make_ready(self):
         """Make a task ready for execution."""
-        state = SCons.Node.up_to_date
+        self.out_of_date = []
         calc = self.tm.calc
-        for t in self.targets:
-            c = calc or t.calculator()
-            if not t.current(c):
-                state = SCons.Node.executing
-        for t in self.targets:
-            if state == SCons.Node.executing:
+        if calc:
+            for t in self.targets:
+                if not t.current(calc):
+                    self.out_of_date.append(t)
+        else:
+            for t in self.targets:
+                if not t.current(t.calculator()):
+                    self.out_of_date.append(t)
+        if self.out_of_date:
+            state = SCons.Node.executing
+            for t in self.targets:
                 for side_effect in t.side_effects:
                     side_effect.set_state(state)
-            t.set_state(state)
+                t.set_state(state)
+        else:
+            state = SCons.Node.up_to_date
+            for t in self.targets:
+                t.set_state(state)
 
     def postprocess(self):
         """Post process a task after it's been executed."""
