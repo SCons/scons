@@ -68,7 +68,7 @@ executed = 4
 failed = 5
 stack = 6 # nodes that are in the current Taskmaster execution stack
 
-# controls whether implicit depedencies are cached:
+# controls whether implicit dependencies are cached:
 implicit_cache = 0
 
 # controls whether implicit dep changes are ignored:
@@ -119,9 +119,6 @@ class Node:
         self.implicit = None    # implicit (scanned) dependencies (None means not scanned yet)
         self.waiting_parents = []
         self.wkids = None       # Kids yet to walk, when it's an array
-        self.target_scanner = None      # explicit scanner from this node's Builder
-        self.source_scanner = None
-        self.backup_source_scanner = None
 
         self.env = None
         self.state = None
@@ -431,15 +428,17 @@ class Node:
         NOTE:  "self" is the target being built, "node" is
         the source file for which we want to fetch the scanner.
         """
-        if self.source_scanner:
-            return self.source_scanner
+        if not self.has_builder():
+            return None  # if not buildable, can't have sources...
         try:
             scanner = self.builder.source_scanner
             if scanner:
                 return scanner
         except AttributeError:
             pass
-        return node.backup_source_scanner or None
+
+        # No scanner specified by builder, try env['SCANNERS']
+        return self.get_build_env().get_scanner(node.scanner_key())
 
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""
@@ -481,8 +480,10 @@ class Node:
                 self._add_child(self.implicit, self.implicit_dict, deps)
 
         # scan this node itself for implicit dependencies
-        deps = self.get_implicit_deps(build_env, self.target_scanner, self)
-        self._add_child(self.implicit, self.implicit_dict, deps)
+        scanner = self.builder.target_scanner
+        if scanner:
+            deps = self.get_implicit_deps(build_env, scanner, self)
+            self._add_child(self.implicit, self.implicit_dict, deps)
 
         # XXX See note above re: --implicit-cache.
         #if implicit_cache:
