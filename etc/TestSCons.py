@@ -264,3 +264,22 @@ class TestSCons(TestCmd.TestCmd):
         kw['arguments'] = arguments
         kw['stdout'] = self.wrap_stdout(build_str = s)
         apply(self.run, [], kw)
+
+    def not_up_to_date(self, options = None, arguments = None, **kw):
+        """Asserts that none of the targets listed in arguments is
+        up to date, but does not make any assumptions on other targets.
+        This function is most useful in conjunction with the -n option.
+        """
+        s = ""
+        for  arg in string.split(arguments):
+            s = s + "(?!scons: `%s' is up to date.)" % arg
+            if options:
+                arguments = options + " " + arguments
+        kw['arguments'] = arguments
+        stdout = self.wrap_stdout(build_str="("+s+"[^\n]*\n)*")
+        stdout = string.replace(stdout,'\n','\\n')
+        stdout = string.replace(stdout,'.','\\.')
+        old_match_func = self.match_func
+        self.match_func = TestCmd.match_re_dotall
+        apply(self.run, [], kw)
+        self.match_func = old_match_func

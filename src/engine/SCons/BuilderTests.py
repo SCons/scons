@@ -73,6 +73,8 @@ class Environment:
         try:
             if s[0] == '$':
                 return self.d.get(s[1:], '')
+            if s[1] == '$':
+                return s[0] + self.d.get(s[2:], '')
         except IndexError:
             pass
         return self.d.get(s, s)
@@ -444,8 +446,12 @@ class BuilderTestCase(unittest.TestCase):
         def func_action(target, source, env):
             return 0
         
+        env['BAR_SUFFIX'] = '.BAR2'
+        env['FOO_SUFFIX'] = '.FOO2'
         builder = SCons.Builder.Builder(action={ '.foo' : func_action,
-                                                 '.bar' : func_action })
+                                                 '.bar' : func_action,
+                                                 '$BAR_SUFFIX' : func_action,
+                                                 '$FOO_SUFFIX' : func_action })
         
         assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
@@ -464,6 +470,27 @@ class BuilderTestCase(unittest.TestCase):
         assert flag, "UserError should be thrown when we build targets with files of different suffixes."
         match = str(e) == "While building `['test3']' from `test1.foo': Cannot build multiple sources with different extensions: .bar, .foo"
         assert match, e
+
+        tgt = builder(env, target='test4', source=['test4.BAR2'])
+        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
+        try:
+            tgt.build()
+            flag = 1
+        except SCons.Errors.UserError, e:
+            print e
+            flag = 0
+        assert flag, "It should be possible to define actions in composite builders using variables."
+        env['FOO_SUFFIX'] = '.BAR2'
+        builder.add_action('$NEW_SUFFIX', func_action)
+        flag = 0
+        tgt = builder(env, target='test5', source=['test5.BAR2'])
+        try:
+            tgt.build()
+        except SCons.Errors.UserError:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with ambigous suffixes."
+        del env.d['FOO_SUFFIX']
+        del env.d['BAR_SUFFIX']
 
         foo_bld = SCons.Builder.Builder(action = 'a-foo',
                                         src_suffix = '.ina',

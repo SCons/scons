@@ -68,7 +68,7 @@ RELEASE 0.XX - XXX
   - When the -debug=pdb option is specified, use pdb.Pdb().runcall() to
     call pdb directly, don't call Python recursively.
 
-  From Christoph Wiedemann
+  From Christoph Wiedemann:
 
   - Have the g++ Tool actually use g++ in preference to c++.
 
@@ -80,6 +80,8 @@ RELEASE 0.XX - XXX
     linking with any C++ objects.
 
   - Avoid SCons hanging when a piped command has a lot of output to read.
+
+  - Add QT support for preprocessing .ui files into .c files.
 
 
 

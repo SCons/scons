@@ -170,6 +170,7 @@ def SharedObject():
 ProgScan = SCons.Scanner.Prog.ProgScan()
 
 StaticLibrary = SCons.Builder.Builder(action=[ StaticCheck, "$ARCOM" ],
+                                      emitter='$LIBEMITTER',
                                       prefix = '$LIBPREFIX',
                                       suffix = '$LIBSUFFIX',
                                       src_suffix = '$OBJSUFFIX',

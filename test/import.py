@@ -89,6 +89,7 @@ tools = [
     'pdftex',
     'Perforce',
     'RCS',
+    'qt',
     'rmic',
     'SCCS',
     'sgiar',

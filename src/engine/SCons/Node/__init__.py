@@ -360,6 +360,7 @@ class Node:
             return
         self.implicit = []
         self.implicit_dict = {}
+        self._children_reset()
         if not self.has_builder():
             return
 
@@ -377,6 +378,7 @@ class Node:
                     # and the bsig:
                     self.implicit = []
                     self.implicit_dict = {}
+                    self._children_reset()
                     self.del_bsig()
 
         build_env = self.get_build_env()
@@ -594,15 +596,18 @@ class Node:
                 added = 1
             c.parents[self] = 1
         if added:
-            try:
-                delattr(self, '_children')
-            except AttributeError:
-                pass
+            self._children_reset()
 
     def add_wkid(self, wkid):
         """Add a node to the list of kids waiting to be evaluated"""
         if self.wkids != None:
             self.wkids.append(wkid)
+
+    def _children_reset(self):
+        try:
+            delattr(self, '_children')
+        except AttributeError:
+            pass
 
     def children(self, scan=1):
         """Return a list of the node's direct children, minus those

@@ -70,6 +70,7 @@
 ./SCons/Tool/nasm.py
 ./SCons/Tool/pdflatex.py
 ./SCons/Tool/pdftex.py
+./SCons/Tool/qt.py
 ./SCons/Tool/rmic.py
 ./SCons/Tool/sgiar.py
 ./SCons/Tool/sgicc.py

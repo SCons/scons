@@ -630,6 +630,44 @@ class NodeTestCase(unittest.TestCase):
         assert s.called
         assert node.implicit == [d], node.implicit
 
+        # Check that scanning a node with some stored implicit
+        # dependencies resets internal attributes appropriately
+        # if the stored dependencies need recalculation.
+        class StoredNode(MyNode):
+            def get_stored_implicit(self):
+                return ['implicit1', 'implicit2']
+
+        class NotCurrent:
+            def current(self, node, sig):
+                return None
+            def bsig(self, node):
+                return 0
+
+        import SCons.Sig
+
+        save_default_calc = SCons.Sig.default_calc
+        save_implicit_cache = SCons.Node.implicit_cache
+        save_implicit_deps_changed = SCons.Node.implicit_deps_changed
+        save_implicit_deps_unchanged = SCons.Node.implicit_deps_unchanged
+        SCons.Sig.default_calc = NotCurrent()
+        SCons.Node.implicit_cache = 1
+        SCons.Node.implicit_deps_changed = None
+        SCons.Node.implicit_deps_unchanged = None
+        try:
+            sn = StoredNode("eee")
+            sn._children = ['fake']
+            sn.target_scanner = s
+
+            sn.scan()
+
+            assert sn.implicit == [], sn.implicit
+            assert not hasattr(sn, '_children'), "unexpected _children attribute"
+        finally:
+            SCons.Sig.default_calc = save_default_calc
+            SCons.Node.implicit_cache = save_implicit_cache
+            SCons.Node.implicit_deps_changed = save_implicit_deps_changed
+            SCons.Node.implicit_deps_unchanged = save_implicit_deps_unchanged
+
     def test_scanner_key(self):
         """Test that a scanner_key() method exists"""
         assert SCons.Node.Node().scanner_key() == None

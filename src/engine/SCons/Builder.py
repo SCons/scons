@@ -89,11 +89,25 @@ class DictCmdGenerator:
         if not ext:
             raise UserError("While building `%s': Cannot deduce file extension from source files: %s" % (repr(map(str, target)), repr(map(str, source))))
         try:
-            # XXX Do we need to perform Environment substitution
-            # on the keys of action_dict before looking it up?
             return self.action_dict[ext]
         except KeyError:
-            raise UserError("While building `%s': Don't know how to build a file with suffix %s." % (repr(map(str, target)), repr(ext)))
+            # Before raising the user error, try to perform Environment
+            # substitution on the keys of action_dict.
+            s_dict = {}
+            for (k,v) in self.action_dict.items():
+                s_k = env.subst(k)
+                if s_dict.has_key(s_k):
+                    # XXX Note that we do only raise errors, when variables
+                    # point to the same suffix. If one suffix is a
+                    # literal and a variable suffix contains this literal
+                    # we don't raise an error (cause the literal 'wins')
+                    raise UserError("Ambiguous suffixes after environment substitution: %s == %s == %s" % (s_dict[s_k][0], k, s_k))
+                s_dict[s_k] = (k,v)
+            try:
+                return s_dict[ext][1]
+            except KeyError:
+                raise UserError("While building `%s': Don't know how to build a file with suffix %s." % (repr(map(str, target)), repr(ext)))
+
     def __cmp__(self, other):
         return cmp(self.action_dict, other.action_dict)
 
