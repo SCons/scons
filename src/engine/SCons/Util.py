@@ -194,64 +194,69 @@ _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 def scons_subst_list(strSubst, globals, locals, remove=None):
     """
-    This function is similar to scons_subst(), but with
-    one important difference.  Instead of returning a single
-    string, this function returns a list of lists.
+    This function serves the same purpose as scons_subst(), except
+    this function returns the interpolated list as a list of lines, where
+    each line is a list of command line arguments. In other words:
     The first (outer) list is a list of lines, where the
     substituted stirng has been broken along newline characters.
     The inner lists are lists of command line arguments, i.e.,
     the argv array that should be passed to a spawn or exec
     function.
 
-    Also, this method can accept a list of strings as input
-    to strSubst, which explicitly denotes the command line
-    arguments.  This is useful if you want to pass in
-    command line arguments with spaces or newlines in them.
-    Otheriwise, if you just passed in a string, they would
-    get split along the spaces and newlines.
-    
-    One important thing this guy does is preserve environment
-    variables that are lists.  For instance, if you have
-    an environment variable that is a Python list (or UserList-
-    derived class) that contains path names with spaces in them,
-    then the entire path will be returned as a single argument.
-    This is the only way to know where the 'split' between arguments
-    is for executing a command line."""
+    There are a few simple rules this function follows in order to
+    determine how to parse strSubst and consruction variables into lines
+    and arguments:
 
-    def repl(m, globals=globals, locals=locals):
+    1) A string is interpreted as a space delimited list of arguments.
+    2) A list is interpreted as a list of arguments. This allows arguments
+       with spaces in them to be expressed easily.
+    4) Anything that is not a list or string (e.g. a Node instance) is
+       interpreted as a single argument, and is converted to a string.
+    3) Newline (\n) characters delimit lines. The newline parsing is done
+       after all the other parsing, so it is not possible for arguments
+       (e.g. file names) to contain embedded newline characters.
+    """
+
+    def convert(x):
+        """This function is used to convert construction variable
+        values or the value of strSubst to a string for interpolation.
+        This function follows the rules outlined in the documentaion
+        for scons_subst_list()"""
+        if x is None:
+            return ''
+        elif is_String(x):
+            return _space_sep.sub('\0', x)
+        elif is_List(x):
+            return string.join(map(to_String, x), '\0')
+        else:
+            return to_String(x)
+
+    def repl(m, globals=globals, locals=locals, convert=convert):
         key = m.group(1)
         if key[0] == '{':
             key = key[1:-1]
         try:
             e = eval(key, globals, locals)
-            if e is None:
-                s = ''
-            elif is_List(e):
-                s = string.join(map(to_String, e), '\0')
-            else:
-                s = _space_sep.sub('\0', to_String(e))
+            return convert(e)
         except NameError:
-            s = ''
-        return s
+            return ''
 
-    if is_List(strSubst):
-        # This looks like our input is a list of strings,
-        # as explained in the docstring above.  Munge
-        # it into a tokenized string by concatenating
-        # the list with nulls.
-        strSubst = string.join(strSubst, '\0')
-    else:
-        # Tokenize the original string...
-        strSubst = _space_sep.sub('\0', to_String(strSubst))
+    # Convert the argument to a string:
+    strSubst = convert(strSubst)
 
-    # Now, do the substitution
+    # Do the interpolation:
     n = 1
     while n != 0:
         strSubst, n = _cv.subn(repl, strSubst)
-    # Now parse the whole list into tokens.
+        
+    # Convert the interpolated string to a list of lines:
     listLines = string.split(strSubst, '\n')
+
+    # Remove the patterns that match the remove argument: 
     if remove:
         listLines = map(lambda x,re=remove: re.sub('', x), listLines)
+
+    # Finally split each line up into a list of arguments:
     return map(lambda x: filter(lambda y: y, string.split(x, '\0')),
                listLines)
 

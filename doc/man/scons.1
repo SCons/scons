@@ -2603,6 +2603,27 @@ but the command signature added to any target files would be:
 echo Last build occurred  . > $TARGET
 .EE
 
+SCons uses the following rules when converting construction variables into
+command lines:
+
+.IP String
+When the value is a string it is interpreted as a space delimited list of
+command line arguments. 
+
+.IP List
+When the value is a list it is interpreted as a list of command line
+arguments. Each element of the list is converted to a string.
+
+.IP Other
+Anything that is not a list or string is converted to a string and
+interpreted as a single command line argument.
+
+.IP Newline
+Newline characters (\\n) delimit lines. The newline parsing is done after
+all other parsing, so it is not possible for arguments (e.g. file names) to
+contain embedded newline characters. This limitation will likely go away in
+a future version of SCons.
+
 .SS Scanner Objects
 
 You can use the

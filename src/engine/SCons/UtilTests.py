@@ -136,6 +136,13 @@ class UtilTestCase(unittest.TestCase):
 
     def test_subst_list(self):
         """Testing the scons_subst_list() method..."""
+
+        class Node:
+            def __init__(self, name):
+                self.name = name
+            def __str__(self):
+                return self.name
+        
         loc = {}
         loc['TARGETS'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
                                                           "/bar/baz with spaces.obj",
@@ -146,6 +153,11 @@ class UtilTestCase(unittest.TestCase):
                                                           "../foo/ack.c" ]))
         loc['xxx'] = None
         loc['NEWLINE'] = 'before\nafter'
+
+        loc['DO'] = Node('do something')
+        loc['FOO'] = Node('foo.in')
+        loc['BAR'] = Node('bar with spaces.out')
+        loc['CRAZY'] = Node('crazy\nfile.in')
 
         if os.sep == '/':
             def cvt(str):
@@ -167,6 +179,27 @@ class UtilTestCase(unittest.TestCase):
         assert cmd_list[1][0] == 'after', cmd_list[1][0]
         assert cmd_list[0][2] == cvt('../foo/ack.cbefore'), cmd_list[0][2]
 
+        cmd_list = scons_subst_list("$DO --in=$FOO --out=$BAR", loc, {})
+        assert len(cmd_list) == 1, cmd_list
+        assert len(cmd_list[0]) == 3, cmd_list
+        assert cmd_list[0][0] == 'do something', cmd_list[0][0]
+        assert cmd_list[0][1] == '--in=foo.in', cmd_list[0][1]
+        assert cmd_list[0][2] == '--out=bar with spaces.out', cmd_list[0][2]
+
+        # XXX: The newline in crazy really should be interpreted as
+        #      part of the file name, and not as delimiting a new command
+        #      line
+        #      In other words the following test fragment is illustrating
+        #      a bug in variable interpolation.
+        cmd_list = scons_subst_list("$DO --in=$CRAZY --out=$BAR", loc, {})
+        assert len(cmd_list) == 2, cmd_list
+        assert len(cmd_list[0]) == 2, cmd_list
+        assert len(cmd_list[1]) == 2, cmd_list
+        assert cmd_list[0][0] == 'do something', cmd_list[0][0]
+        assert cmd_list[0][1] == '--in=crazy', cmd_list[0][1]
+        assert cmd_list[1][0] == 'file.in', cmd_list[1][0]
+        assert cmd_list[1][1] == '--out=bar with spaces.out', cmd_list[1][1]
+        
         # Test inputting a list to scons_subst_list()
         cmd_list = scons_subst_list([ "$SOURCES$NEWLINE", "$TARGETS",
                                         "This is a test" ],

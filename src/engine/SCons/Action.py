@@ -50,6 +50,12 @@ exitvalmap = {
 
 default_ENV = None
 
+def quote(x):
+    if ' ' in x or '\t' in x:
+        return '"'+x+'"'
+    else:
+        return x
+
 if os.name == 'posix':
 
     def defaultSpawn(cmd, args, env):
@@ -57,11 +63,7 @@ if os.name == 'posix':
         if not pid:
             # Child process.
             exitval = 127
-            args = [ 'sh', '-c' ] + \
-                   [ string.join(map(lambda x: string.replace(str(x),
-                                                              ' ',
-                                                              r'\ '),
-                                     args)) ]
+            args = ['sh', '-c', string.join(map(quote, args))]
             try:
                 os.execvpe('sh', args, env)
             except OSError, e:
@@ -145,13 +147,8 @@ elif os.name == 'nt':
             return 127
         else:
             try:
-
-                a = [ cmd_interp, '/C', args[0] ]
-                for arg in args[1:]:
-                    if ' ' in arg or '\t' in arg:
-                        arg = '"' + arg + '"'
-                    a.append(arg)
-                ret = os.spawnve(os.P_WAIT, cmd_interp, a, env)
+                args = [cmd_interp, '/C', quote(string.join(map(quote, args)))]
+                ret = os.spawnve(os.P_WAIT, cmd_interp, args, env)
             except OSError, e:
                 ret = exitvalmap[e[0]]
                 sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
