@@ -74,10 +74,10 @@ import __builtin__
 try:
     __builtin__.zip
 except AttributeError:
-    def zip(l1, l2):
+    def zip(*lists):
         result = []
-        for i in xrange(len(l1)):
-           result.append((l1[i], l2[i]))
+        for i in xrange(len(lists[0])):
+            result.append(tuple(map(lambda l, i=i: l[i], lists)))
         return result
     __builtin__.zip = zip
 
@@ -503,6 +503,19 @@ class OptParser(OptionParser):
                         action="store_true", dest='cache_show', default=0,
                         help="Print build actions for files from CacheDir.")
 
+        config_options = ["auto", "force" ,"cache"]
+
+        def opt_config(option, opt, value, parser, c_options=config_options):
+            if value in c_options:
+                parser.values.config = value
+            else:
+                raise OptionValueError("Warning:  %s is not a valid config type" % value)
+        self.add_option('--config', action="callback", type="string",
+                        callback=opt_config, nargs=1, dest="config",
+                        metavar="MODE", default="auto",
+                        help="Controls Configure subsystem: "
+                             "%s." % string.join(config_options, ", "))
+
         def opt_not_yet(option, opt, value, parser):
             sys.stderr.write("Warning:  the %s option is not yet implemented\n" % opt)
             sys.exit(0)
@@ -792,6 +805,8 @@ def _main(args, parser):
         CleanTask.execute = CleanTask.show
     if options.question:
         SCons.SConf.dryrun = 1
+    SCons.SConf.SetCacheMode(options.config)
+    SCons.SConf.SetProgressDisplay(progress_display)
 
     if options.no_progress or options.silent:
         progress_display.set_mode(0)
@@ -904,6 +919,7 @@ def _main(args, parser):
         sys.exit(exit_status)
     global sconscript_time
     sconscript_time = time.time() - start_time
+    SCons.SConf.CreateConfigHBuilder(SCons.Defaults.DefaultEnvironment())
     progress_display("scons: done reading SConscript files.")
 
     # Tell the Node.FS subsystem that we're all done reading the
@@ -1103,8 +1119,6 @@ def main():
         _scons_internal_error()
     except SCons.Errors.UserError, e:
         _scons_user_error(e)
-    except SCons.Errors.ConfigureDryRunError, e:
-        _scons_configure_dryrun_error(e)
     except:
         # An exception here is likely a builtin Python exception Python
         # code in an SConscript file.  Show them precisely what the

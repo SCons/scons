@@ -62,6 +62,38 @@ RELEASE 0.97 - XXX
     so these can be set individually, instead of being hard-wired
     relative to $QTDIR.
 
+  - The %TEMP% and %TMP% external environment variables are now propagated
+    automatically to the command execution environment on Windows systems.
+
+  - A new --config= command-line option allows explicit control of
+    of when the Configure() tests are run:  --config=force forces all
+    checks to be run, --config=cache uses all previously cached values,
+    --config=auto (the default) runs tests only when dependency analysis
+    determines it's necessary.
+
+  - The Configure() subsystem can now write a config.h file with values
+    like HAVE_STDIO_H, HAVE_LIBM, etc.
+
+  - The Configure() subsystem now executes its checks silently when the
+    -Q option is specified.
+
+  - The Configure() subsystem now reports if a test result is being
+    taken from cache, and prints the standard output and error output
+    of tests even when cached.
+
+  - Configure() test results are now reported as "yes" or "no" instead of
+    "ok" or "failed."
+
+  - Fixed traceback printing when calling the env.Configure() method
+    instead of the Configure() global function.
+
+  - The Configure() subsystem now caches build failures in a .sconsign
+    file in the subdirectory, not a .cache file.  This may cause
+    tests to be re-executed the first time after you install 0.97.
+
+  - Additional significant internal cleanups in the Configure() subsystem
+    and its tests.
+
 
 
 RELEASE 0.96.1 - XXX

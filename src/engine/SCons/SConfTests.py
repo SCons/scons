@@ -122,7 +122,7 @@ class SConfTestCase(unittest.TestCase):
             sconf.Finish()
         # we should have exactly one one error cached 
         log = self.test.read( self.test.workpath('config.log') )
-        expr = re.compile( ".*(\(cached\))", re.DOTALL ) 
+        expr = re.compile( ".*failed in a previous run and all", re.DOTALL ) 
         firstOcc = expr.match( log )
         assert firstOcc != None 
         secondOcc = expr.match( log, firstOcc.end(0) )
@@ -191,6 +191,10 @@ class SConfTestCase(unittest.TestCase):
                         return
                     def built(self):
                         pass
+                    def get_stored_info(self):
+                        pass
+                    def calc_signature(self, calc):
+                        pass
                 return [MyNode('n1'), MyNode('n2')]
         try:
             self.scons_env.Append(BUILDERS = {'SConfActionBuilder' : MyBuilder()})
@@ -245,9 +249,9 @@ int main() {
             assert not res[1][0] and res[1][1] == ""
         finally:
             sconf.Finish()
-        # we should have exactly one one error cached 
+        # we should have exactly one error cached 
         log = self.test.read( self.test.workpath('config.log') )
-        expr = re.compile( ".*(\(cached\))", re.DOTALL )
+        expr = re.compile( ".*failed in a previous run and all", re.DOTALL )
         firstOcc = expr.match( log )
         assert firstOcc != None 
         secondOcc = expr.match( log, firstOcc.end(0) )
@@ -392,7 +396,6 @@ int main() {
                 assert got == expect, "before and after LIBS were not the same"
             finally:
                 sconf.env = env
-
         finally:
             sconf.Finish()
 
