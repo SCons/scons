@@ -910,7 +910,9 @@ if change:
             del u[f]
         except KeyError:
             pass
-    sfiles = filter(lambda x: x[-9:] != '.aeignore' and x[-9:] != '.sconsign',
+    sfiles = filter(lambda x: x[-9:] != '.aeignore' and
+                              x[-9:] != '.sconsign' and
+                              x[-10:] != '.cvsignore',
                     u.keys())
 
     if sfiles:
