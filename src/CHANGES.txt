@@ -157,6 +157,8 @@ RELEASE 0.96 - XXX
   - Add support for fetching command-line keyword=value arguments in
     order from an ARGLIST list.
 
+  - Avoid stack traces when trying to read dangling symlinks.
+
   From Simon Perkins:
 
   - Fix a bug introduced in building shared libraries under MinGW.
