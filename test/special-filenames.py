@@ -45,7 +45,7 @@ attempt_file_names = [
     "File&with&ampersand",
     "File?with?question",
     "File\twith\ttab",
-    "File$with$dollar",
+    "File$$with$$dollar",
     "Combination '\"\n\\;<>?|*\t&"
     ]
 
@@ -57,7 +57,8 @@ open(sys.argv[1], 'wb').write(open(sys.argv[2], 'rb').read())
 file_names = []
 for fn in attempt_file_names:
     try:
-        test.write(fn + '.in', fn + '\n')
+        in_name = string.replace(fn, '$$', '$') + '.in'
+        test.write(in_name, fn + '\n')
         file_names.append(fn)
     except IOError:
         # if the Python interpreter can't handle it, don't bother
@@ -76,6 +77,7 @@ env=Environment(BUILDERS = {'Build' : Builder(action = '%s cat.py $TARGET $SOURC
 test.run(arguments='.')
 
 for fn in file_names:
-    test.fail_test(test.read(fn + '.out') != fn + '\n')
+    out_name = string.replace(fn, '$$', '$') + '.out'
+    test.fail_test(test.read(out_name) != fn + '\n')
 
 test.pass_test()

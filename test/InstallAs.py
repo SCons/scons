@@ -22,45 +22,47 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
+"""
+Test the InstallAs() Environment method.
+"""
+
+import os.path
 import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('sub')
+test.subdir('install', 'subdir')
 
-test.write('SConstruct', """\
-def bfunc(target, source, env):
-    import shutil
-    shutil.copyfile('f2.in', str(target[0]))
+install = test.workpath('install')
+install_file1_out = test.workpath('install', 'file1.out')
+install_file2_out = test.workpath('install', 'file2.out')
+install_file3_out = test.workpath('install', 'file3.out')
 
-B = Builder(action=bfunc)
-env = Environment(BUILDERS = { 'B' : B }, SUBDIR='sub')
-env.B('f1.out', source='f1.in')
-env.AlwaysBuild('f1.out')
+#
+test.write('SConstruct', r"""
+env = Environment(INSTALLDIR=r'%s', SUBDIR='subdir')
+env.InstallAs(r'%s', 'file1.in')
+env.InstallAs([r'%s', r'%s'], ['file2.in', r'%s'])
+""" % (install,
+       install_file1_out,
+       os.path.join('$INSTALLDIR', 'file2.out'),
+       install_file3_out,
+       os.path.join('$SUBDIR', 'file3.in')))
 
-env.B(r'%s', source='f3.in')
-env.AlwaysBuild(r'%s')
-""" % (os.path.join('sub', 'f3.out'),
-       os.path.join('$SUBDIR', 'f3.out')
-      ))
+test.write('file1.in', "file1.in\n")
+test.write('file2.in', "file2.in\n")
+test.write(['subdir', 'file3.in'], "subdir/file3.in\n")
 
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "1")
-test.write('f3.in', "f3.in\n")
+test.run(arguments = '.')
 
-test.run(arguments = ".")
-test.fail_test(test.read('f1.out') != '1')
-test.fail_test(test.read(['sub', 'f3.out']) != '1')
+test.fail_test(test.read(install_file1_out) != "file1.in\n")
+test.fail_test(test.read(install_file2_out) != "file2.in\n")
+test.fail_test(test.read(install_file3_out) != "subdir/file3.in\n")
 
-test.write('f2.in', "2")
+test.up_to_date(arguments = '.')
 
-test.run(arguments = ".")
-test.fail_test(test.read('f1.out') != '2')
-test.fail_test(test.read(['sub', 'f3.out']) != '2')
-
+#
 test.pass_test()

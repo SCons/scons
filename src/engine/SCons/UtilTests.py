@@ -172,17 +172,23 @@ class UtilTestCase(unittest.TestCase):
         assert newcom == cvt("test foo/blah.cppblah /bar/ack.cppblah"), newcom
 
         newcom = scons_subst("test $xxx", env)
+        assert newcom == cvt("test "), newcom
+        newcom = scons_subst("test $xxx", env, mode=SUBST_CMD)
+        assert newcom == cvt("test"), newcom
+        newcom = scons_subst("test $xxx", env, mode=SUBST_SIG)
         assert newcom == cvt("test"), newcom
 
         newcom = scons_subst("test $($xxx$)", env)
         assert newcom == cvt("test $($)"), newcom
-
-        newcom = scons_subst("test $( $xxx $)", env)
-        assert newcom == cvt("test $( $)"), newcom
-
+        newcom = scons_subst("test $($xxx$)", env, mode=SUBST_CMD)
+        assert newcom == cvt("test"), newcom
         newcom = scons_subst("test $($xxx$)", env, mode=SUBST_SIG)
         assert newcom == cvt("test"), newcom
 
+        newcom = scons_subst("test $( $xxx $)", env)
+        assert newcom == cvt("test $(  $)"), newcom
+        newcom = scons_subst("test $( $xxx $)", env, mode=SUBST_CMD)
+        assert newcom == cvt("test"), newcom
         newcom = scons_subst("test $( $xxx $)", env, mode=SUBST_SIG)
         assert newcom == cvt("test"), newcom
 

@@ -35,9 +35,12 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.subdir('sub')
+
 f1_out = test.workpath('export', 'f1.out')
 f2_out = test.workpath('export', 'f2.out')
 f3_out = test.workpath('export', 'f3.out')
+f4_out = test.workpath('export', 'f4.out')
 
 test.write('SConstruct', """\
 def cat(env, source, target):
@@ -64,17 +67,23 @@ env1.Install(dir='export', source=t)
 
 t = env3.Cat(target='f3.out', source='f3.in')
 env3.Install(dir='export', source=t)
-""")
+
+env4 = env1.Copy(EXPORT='export', SUBDIR='sub')
+t = env4.Cat(target='sub/f4.out', source='sub/f4.in')
+env4.Install(dir='$EXPORT', source=r'%s')
+""" % (os.path.join('$SUBDIR', 'f4.out')))
 
 test.write('f1.in', "f1.in\n")
 test.write('f2.in', "f2.in\n")
 test.write('f3.in', "f3.in\n")
+test.write(['sub', 'f4.in'], "sub/f4.in\n")
 
 test.run(arguments = '.')
 
 test.fail_test(test.read(f1_out) != "f1.in\n")
 test.fail_test(test.read(f2_out) != "f2.in\n")
 test.fail_test(test.read(f3_out) != "f3.in\n")
+test.fail_test(test.read(f4_out) != "sub/f4.in\n")
 
 test.fail_test(test.read('my_install.out') != os.path.join('export', 'f3.out'))
 

@@ -54,6 +54,11 @@ import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 
+class _Null:
+    pass
+
+_null = _Null
+
 def installFunc(target, source, env):
     """Install a source file into a target using the function specified
     as the INSTALL construction variable."""
@@ -170,6 +175,7 @@ class Environment:
                  options=None,
                  **kw):
         self.fs = SCons.Node.FS.default_fs
+        self.lookup_list = SCons.Node.arg2nodes_lookups
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
 
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
@@ -210,6 +216,40 @@ class Environment:
 
     def __cmp__(self, other):
 	return cmp(self._dict, other._dict)
+
+    def arg2nodes(self, args, node_factory=_null, lookup_list=_null):
+        if node_factory is _null:
+            node_factory = self.fs.File
+        if lookup_list is _null:
+            lookup_list = self.lookup_list
+
+        if not args:
+            return []
+
+        if not SCons.Util.is_List(args):
+            args = [args]
+
+        nodes = []
+        for v in args:
+            if SCons.Util.is_String(v):
+                n = None
+                for l in lookup_list:
+                    n = l(v)
+                    if not n is None:
+                        break
+                if not n is None:
+                    if SCons.Util.is_String(n):
+                        n = self.subst(n, raw=1)
+                        if node_factory:
+                            n = node_factory(n)
+                    nodes.append(n)
+                elif node_factory:
+                    v = self.subst(v, raw=1)
+                    nodes.append(node_factory(v))
+            else:
+                nodes.append(v)
+    
+        return nodes
 
     def Builders(self):
 	pass	# XXX
@@ -330,21 +370,21 @@ class Environment:
         self._dict[envname][name] = nv
 
 
-    def	Depends(self, target, dependency):
-	"""Explicity specify that 'target's depend on 'dependency'."""
-        tlist = SCons.Node.arg2nodes(target, self.fs.File)
-        dlist = SCons.Node.arg2nodes(dependency, self.fs.File)
-	for t in tlist:
-	    t.add_dependency(dlist)
+    def Depends(self, target, dependency):
+        """Explicity specify that 'target's depend on 'dependency'."""
+        tlist = self.arg2nodes(target, self.fs.File)
+        dlist = self.arg2nodes(dependency, self.fs.File)
+        for t in tlist:
+            t.add_dependency(dlist)
 
-	if len(tlist) == 1:
-	    tlist = tlist[0]
-	return tlist
+        if len(tlist) == 1:
+            tlist = tlist[0]
+        return tlist
 
     def Ignore(self, target, dependency):
         """Ignore a dependency."""
-        tlist = SCons.Node.arg2nodes(target, self.fs.File)
-        dlist = SCons.Node.arg2nodes(dependency, self.fs.File)
+        tlist = self.arg2nodes(target, self.fs.File)
+        dlist = self.arg2nodes(dependency, self.fs.File)
         for t in tlist:
             t.add_ignore(dlist)
 
@@ -355,7 +395,7 @@ class Environment:
     def AlwaysBuild(self, *targets):
         tlist = []
         for t in targets:
-            tlist.extend(SCons.Node.arg2nodes(t, self.fs.File))
+            tlist.extend(self.arg2nodes(t, self.fs.File))
 
         for t in tlist:
             t.set_always_build()
@@ -367,7 +407,7 @@ class Environment:
     def Precious(self, *targets):
         tlist = []
         for t in targets:
-            tlist.extend(SCons.Node.arg2nodes(t, self.fs.File))
+            tlist.extend(self.arg2nodes(t, self.fs.File))
 
         for t in tlist:
             t.set_precious()
@@ -422,11 +462,11 @@ class Environment:
     def Install(self, dir, source):
         """Install specified files in the given directory."""
         try:
-            dnodes = SCons.Node.arg2nodes(dir, self.fs.Dir)
+            dnodes = self.arg2nodes(dir, self.fs.Dir)
         except TypeError:
             raise SCons.Errors.UserError, "Target `%s' of Install() is a file, but should be a directory.  Perhaps you have the Install() arguments backwards?" % str(dir)
         try:
-            sources = SCons.Node.arg2nodes(source, self.fs.File)
+            sources = self.arg2nodes(source, self.fs.File)
         except TypeError:
             if SCons.Util.is_List(source):
                 raise SCons.Errors.UserError, "Source `%s' of Install() contains one or more non-files.  Install() source must be one or more files." % repr(map(str, source))
@@ -443,8 +483,8 @@ class Environment:
 
     def InstallAs(self, target, source):
         """Install sources as targets."""
-        sources = SCons.Node.arg2nodes(source, self.fs.File)
-        targets = SCons.Node.arg2nodes(target, self.fs.File)
+        sources = self.arg2nodes(source, self.fs.File)
+        targets = self.arg2nodes(target, self.fs.File)
         ret = []
         for src, tgt in map(lambda x, y: (x, y), sources, targets):
             ret.append(InstallBuilder(self, tgt, src))
@@ -454,7 +494,7 @@ class Environment:
 
     def SourceCode(self, entry, builder):
         """Arrange for a source code builder for (part of) a tree."""
-        entries = SCons.Node.arg2nodes(entry, self.fs.Entry)
+        entries = self.arg2nodes(entry, self.fs.Entry)
         for entry in entries:
             entry.set_src_builder(builder)
         if len(entries) == 1:
@@ -464,8 +504,8 @@ class Environment:
     def SideEffect(self, side_effect, target):
         """Tell scons that side_effects are built as side 
         effects of building targets."""
-        side_effects = SCons.Node.arg2nodes(side_effect, self.fs.File)
-        targets = SCons.Node.arg2nodes(target, self.fs.File)
+        side_effects = self.arg2nodes(side_effect, self.fs.File)
+        targets = self.arg2nodes(target, self.fs.File)
 
         for side_effect in side_effects:
             # A builder of 1 means the node is supposed to appear

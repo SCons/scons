@@ -36,6 +36,9 @@ RELEASE X.XX - XXX
 
   - Accomodate alphanumeric version strings in EnsurePythonVersion().
 
+  - Support arbitrary expansion of construction variables within
+    file and directory arguments to Builder calls and Environment methods.
+
   From Bram Moolenaar:
 
   - Split the non-SCons-specific functionality from SConf.py to a new,

@@ -575,7 +575,9 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None):
     strSubst = string.replace(string.replace(strSubst, '\0\4', '$'),
                               '\0\5', '')
     # strip out redundant white-space
-    return string.strip(_space_sep.sub(' ', strSubst))
+    if mode != SUBST_RAW:
+        strSubst = string.strip(_space_sep.sub(' ', strSubst))
+    return strSubst
 
 def render_tree(root, child_func, prune=0, margin=[0], visited={}):
     """

@@ -24,7 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
+import os.path
+
 import TestSCons
 
 python = TestSCons.python
@@ -42,14 +43,19 @@ for arg in sys.argv[2:]:
 file.close()
 """)
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 Foo = Builder(action = r"%s build.py $TARGET $SOURCES")
 Bar = Builder(action = r"%s build.py $TARGET $SOURCES")
-env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar })
+env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
 env.Foo(target = 'f1.out', source = ['f1a.in', 'f1b.in'])
 env.Ignore(target = 'f1.out', dependency = 'f1b.in')
 SConscript('subdir/SConscript', "env")
-""" % (python, python))
+env.Foo(target = 'subdir/f3.out', source = ['subdir/f3a.in', 'subdir/f3b.in'])
+env.Ignore(target = r'%s', dependency = r'%s')
+""" % (python,
+       python,
+       os.path.join('$SUBDIR', 'f3.out'),
+       os.path.join('$SUBDIR', 'f3b.in')))
 
 test.write(['subdir', 'SConscript'], """
 Import("env")
@@ -63,31 +69,42 @@ test.write('f1b.in', "f1b.in\n")
 test.write(['subdir', 'f2a.in'], "subdir/f2a.in\n")
 test.write(['subdir', 'f2b.in'], "subdir/f2b.in\n")
 
+test.write(['subdir', 'f3a.in'], "subdir/f3a.in\n")
+test.write(['subdir', 'f3b.in'], "subdir/f3b.in\n")
+
 test.run(arguments = '.')
 
 test.fail_test(test.read('f1.out') != "f1a.in\nf1b.in\n")
 test.fail_test(test.read(['subdir', 'f2.out']) !=
                "subdir/f2a.in\nsubdir/f2b.in\n")
+test.fail_test(test.read(['subdir', 'f3.out']) !=
+               "subdir/f3a.in\nsubdir/f3b.in\n")
 
 test.up_to_date(arguments = '.')
 
 test.write('f1b.in', "f1b.in 2\n")
 test.write(['subdir', 'f2a.in'], "subdir/f2a.in 2\n")
+test.write(['subdir', 'f3b.in'], "subdir/f3b.in 2\n")
 
 test.up_to_date(arguments = '.')
 
 test.fail_test(test.read('f1.out') != "f1a.in\nf1b.in\n")
 test.fail_test(test.read(['subdir', 'f2.out']) !=
                "subdir/f2a.in\nsubdir/f2b.in\n")
+test.fail_test(test.read(['subdir', 'f3.out']) !=
+               "subdir/f3a.in\nsubdir/f3b.in\n")
 
 test.write('f1a.in', "f1a.in 2\n")
 test.write(['subdir', 'f2b.in'], "subdir/f2b.in 2\n")
+test.write(['subdir', 'f3a.in'], "subdir/f3a.in 2\n")
 
 test.run(arguments = '.')
 
 test.fail_test(test.read('f1.out') != "f1a.in 2\nf1b.in 2\n")
 test.fail_test(test.read(['subdir', 'f2.out']) !=
                "subdir/f2a.in 2\nsubdir/f2b.in 2\n")
+test.fail_test(test.read(['subdir', 'f3.out']) !=
+               "subdir/f3a.in 2\nsubdir/f3b.in 2\n")
 
 test.up_to_date(arguments = '.')
 

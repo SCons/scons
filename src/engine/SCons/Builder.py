@@ -49,7 +49,6 @@ import UserDict
 import SCons.Action
 from SCons.Errors import InternalError, UserError
 import SCons.Executor
-import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
@@ -329,7 +328,7 @@ class BuilderBase:
         src_suf = self.get_src_suffix(env)
 
         source = adjustixes(source, None, src_suf)
-        slist = SCons.Node.arg2nodes(source, self.source_factory)
+        slist = env.arg2nodes(source, self.source_factory)
 
         pre = self.get_prefix(env, slist)
         suf = self.get_suffix(env, slist)
@@ -342,7 +341,7 @@ class BuilderBase:
             tlist = [ t_from_s(pre, suf, self.splitext) ]
         else:
             target = adjustixes(target, pre, suf)
-            tlist = SCons.Node.arg2nodes(target, self.target_factory)
+            tlist = env.arg2nodes(target, self.target_factory)
 
         if self.emitter:
             # The emitter is going to do str(node), but because we're
@@ -369,8 +368,8 @@ class BuilderBase:
 
             # Have to call arg2nodes yet again, since it is legal for
             # emitters to spit out strings as well as Node instances.
-            slist = SCons.Node.arg2nodes(source, self.source_factory)
-            tlist = SCons.Node.arg2nodes(target, self.target_factory)
+            slist = env.arg2nodes(source, self.source_factory)
+            tlist = env.arg2nodes(target, self.target_factory)
 
         return tlist, slist
 
@@ -503,7 +502,7 @@ class MultiStepBuilder(BuilderBase):
             source = target
             target = None
 
-        slist = SCons.Node.arg2nodes(source, self.source_factory)
+        slist = env.arg2nodes(source, self.source_factory)
         final_sources = []
 
         try:

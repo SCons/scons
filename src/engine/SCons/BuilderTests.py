@@ -59,6 +59,8 @@ env_scanner = None
 
 scons_env = SCons.Environment.Environment()
 
+env_arg2nodes_called = None
+
 class Environment:
     def __init__(self, **kw):
         self.d = {}
@@ -67,6 +69,8 @@ class Environment:
         self.d['ESCAPE'] = scons_env['ESCAPE']
         for k, v in kw.items():
             self.d[k] = v
+        global env_arg2nodes_called
+        env_arg2nodes_called = None
     def subst(self, s):
         if not SCons.Util.is_String(s):
             return s
@@ -78,6 +82,17 @@ class Environment:
         except IndexError:
             pass
         return self.d.get(s, s)
+    def arg2nodes(self, args, factory):
+        global env_arg2nodes_called
+        env_arg2nodes_called = 1
+        if not SCons.Util.is_List(args):
+            args = [args]
+        list = []
+        for a in args:
+            if SCons.Util.is_String(a):
+                a = factory(a)
+            list.append(a)
+        return list
     def get_scanner(self, ext):
         return env_scanner
     def Dictionary(self):
@@ -108,8 +123,6 @@ class Environment:
         d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
         d['SOURCE'] = d['SOURCES'][0]
         return d
-    
-env = Environment()
 
 class MyNode_without_target_from_source:
     def __init__(self, name):
@@ -173,11 +186,13 @@ class BuilderTestCase(unittest.TestCase):
     def test__call__(self):
         """Test calling a builder to establish source dependencies
         """
+        env = Environment()
         builder = SCons.Builder.Builder(action="foo", node_factory=MyNode)
 
         n1 = MyNode("n1");
         n2 = MyNode("n2");
         builder(env, target = n1, source = n2)
+        assert env_arg2nodes_called
         assert n1.env == env, n1.env
         assert n1.builder == builder, n1.builder
         assert n1.sources == [n2], n1.sources
@@ -342,6 +357,7 @@ class BuilderTestCase(unittest.TestCase):
 
         Make sure that there is no '.' separator appended.
         """
+        env = Environment()
         builder = SCons.Builder.Builder(prefix = 'lib.')
         assert builder.get_prefix(env) == 'lib.'
         builder = SCons.Builder.Builder(prefix = 'lib')
@@ -431,6 +447,7 @@ class BuilderTestCase(unittest.TestCase):
         Make sure that the '.' separator is appended to the
         beginning if it isn't already present.
         """
+        env = Environment()
         builder = SCons.Builder.Builder(suffix = '.o')
         assert builder.get_suffix(env) == '.o', builder.get_suffix(env)
         builder = SCons.Builder.Builder(suffix = 'o')
@@ -484,6 +501,7 @@ class BuilderTestCase(unittest.TestCase):
                     open(t, 'w').write("function2\n")
             return 1
 
+        env = Environment()
         builder = SCons.Builder.Builder(action = function2)
         tgts = builder(env, target = [outfile, outfile2], source = 'foo')
         for t in tgts:
@@ -525,6 +543,7 @@ class BuilderTestCase(unittest.TestCase):
 
     def test_MultiStepBuilder(self):
         """Testing MultiStepBuilder class."""
+        env = Environment()
         builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
                                          suffix='.foo')
@@ -574,8 +593,7 @@ class BuilderTestCase(unittest.TestCase):
         def func_action(target, source, env):
             return 0
         
-        env['BAR_SUFFIX'] = '.BAR2'
-        env['FOO_SUFFIX'] = '.FOO2'
+        env = Environment(BAR_SUFFIX = '.BAR2', FOO_SUFFIX = '.FOO2')
         builder = SCons.Builder.Builder(action={ '.foo' : func_action,
                                                  '.bar' : func_action,
                                                  '$BAR_SUFFIX' : func_action,
@@ -709,6 +727,7 @@ class BuilderTestCase(unittest.TestCase):
         class TestScanner:
             pass
         scn = TestScanner()
+        env = Environment()
         builder = SCons.Builder.Builder(scanner=scn)
         tgt = builder(env, target='foo2', source='bar')
         assert tgt.target_scanner == scn, tgt.target_scanner
@@ -731,6 +750,7 @@ class BuilderTestCase(unittest.TestCase):
             def instance(self, env):
                  return self
         env_scanner = TestScanner()
+        env = Environment()
         builder = SCons.Builder.Builder(action='action')
         tgt = builder(env, target='foo.x', source='bar')
         src = tgt.sources[0]
@@ -768,6 +788,7 @@ class BuilderTestCase(unittest.TestCase):
                 source.append("baz")
             return ( target, source )
 
+        env = Environment()
         builder = SCons.Builder.Builder(action='foo',
                                         emitter=emit,
                                         node_factory=MyNode)
@@ -862,6 +883,7 @@ class BuilderTestCase(unittest.TestCase):
     def test_no_target(self):
         """Test deducing the target from the source."""
 
+        env = Environment()
         b = SCons.Builder.Builder(action='foo', suffix='.o')
 
         tgt = b(env, 'aaa')

@@ -24,7 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
+import os.path
+
 import TestSCons
 
 python = TestSCons.python
@@ -44,14 +45,17 @@ file.close()
 test.write('SConstruct', """
 Foo = Builder(action = r"%s build.py $TARGET $SOURCES subdir/foo.dep")
 Bar = Builder(action = r"%s build.py $TARGET $SOURCES subdir/bar.dep")
-env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar })
-env.Depends(target = ['f1.out', 'f2.out'], dependency = 'subdir/foo.dep')
-env.Depends(target = 'f3.out', dependency = 'subdir/bar.dep')
+env = Environment(BUILDERS = { 'Foo' : Foo, 'Bar' : Bar }, SUBDIR='subdir')
+env.Depends(target = ['f1.out', 'f2.out'], dependency = r'%s')
+env.Depends(target = r'%s', dependency = 'subdir/bar.dep')
 env.Foo(target = 'f1.out', source = 'f1.in')
 env.Foo(target = 'f2.out', source = 'f2.in')
-env.Bar(target = 'f3.out', source = 'f3.in')
+env.Bar(target = 'subdir/f3.out', source = 'f3.in')
 SConscript('subdir/SConscript', "env")
-""" % (python, python))
+""" % (python,
+       python,
+       os.path.join('$SUBDIR', 'foo.dep'),
+       os.path.join('$SUBDIR', 'f3.out')))
 
 test.write(['subdir', 'SConscript'], """
 Import("env")
@@ -71,11 +75,11 @@ test.write(['subdir', 'foo.dep'], "subdir/foo.dep 1\n")
 
 test.write(['subdir', 'bar.dep'], "subdir/bar.dep 1\n")
 
-test.run(arguments = '.')
+test.run(arguments = '--debug=dtree .')
 
 test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 1\n")
 test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 1\n")
-test.fail_test(test.read('f3.out') != "f3.in\nsubdir/bar.dep 1\n")
+test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\nsubdir/bar.dep 1\n")
 test.fail_test(test.read(['subdir', 'f4.out']) !=
                "subdir/f4.in\nsubdir/bar.dep 1\n")
 
@@ -87,7 +91,7 @@ test.run(arguments = '.')
 
 test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 2\n")
 test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 2\n")
-test.fail_test(test.read('f3.out') != "f3.in\nsubdir/bar.dep 2\n")
+test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\nsubdir/bar.dep 2\n")
 test.fail_test(test.read(['subdir', 'f4.out']) !=
                "subdir/f4.in\nsubdir/bar.dep 2\n")
 
@@ -97,7 +101,7 @@ test.run(arguments = '.')
 
 test.fail_test(test.read('f1.out') != "f1.in\nsubdir/foo.dep 2\n")
 test.fail_test(test.read('f2.out') != "f2.in\nsubdir/foo.dep 2\n")
-test.fail_test(test.read('f3.out') != "f3.in\nsubdir/bar.dep 3\n")
+test.fail_test(test.read(['subdir', 'f3.out']) != "f3.in\nsubdir/bar.dep 3\n")
 test.fail_test(test.read(['subdir', 'f4.out']) !=
                "subdir/f4.in\nsubdir/bar.dep 3\n")
 

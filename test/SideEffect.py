@@ -24,13 +24,13 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import os.path
+
+import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', 
-"""
+test.write('SConstruct', """\
 def copy(source, target):
     open(target, "wb").write(open(source, "rb").read())
 
@@ -38,20 +38,25 @@ def build(env, source, target):
     copy(str(source[0]), str(target[0]))
     if target[0].side_effects:
         side_effect = open(str(target[0].side_effects[0]), "ab")
-        side_effect.write('%s -> %s\\n'%(str(source[0]), str(target[0])))
+        side_effect.write('%%s -> %%s\\n'%%(str(source[0]), str(target[0])))
 
 Build = Builder(action=build)
-env = Environment(BUILDERS={'Build':Build})
+env = Environment(BUILDERS={'Build':Build}, SUBDIR='subdir')
 env.Build('foo.out', 'foo.in')
 env.Build('bar.out', 'bar.in')
 env.Build('blat.out', 'blat.in')
 env.SideEffect('log.txt', ['foo.out', 'bar.out', 'blat.out'])
 env.Build('log.out', 'log.txt')
-""")
+env.Build('subdir/baz.out', 'baz.in')
+env.SideEffect(r'%s', ['blat.out', r'%s'])
+env.Build('subdir/out.out', 'subdir/out.txt')
+""" % (os.path.join('$SUBDIR', 'out.txt'),
+       os.path.join('$SUBDIR', 'baz.out')))
 
 test.write('foo.in', 'foo.in\n')
 test.write('bar.in', 'bar.in\n')
 test.write('blat.in', 'blat.in\n')
+test.write('baz.in', 'baz.in\n')
 
 test.run(arguments = 'foo.out bar.out', stdout=test.wrap_stdout("""\
 build("foo.out", "foo.in")
@@ -84,7 +89,11 @@ test.write('foo.in', 'foo.in 2 \n')
 test.run(arguments = ".", stdout=test.wrap_stdout("""\
 build("foo.out", "foo.in")
 build("log.out", "log.txt")
-"""))
+build("%s", "baz.in")
+build("%s", "%s")
+""" % (os.path.join('subdir', 'baz.out'),
+       os.path.join('subdir', 'out.out'),
+       os.path.join('subdir', 'out.txt'))))
 
 expect = """\
 foo.in -> foo.out
@@ -107,7 +116,11 @@ build("bar.out", "bar.in")
 build("blat.out", "blat.in")
 build("foo.out", "foo.in")
 build("log.out", "log.txt")
-"""))
+build("%s", "baz.in")
+build("%s", "%s")
+""" % (os.path.join('subdir', 'baz.out'),
+       os.path.join('subdir', 'out.out'),
+       os.path.join('subdir', 'out.txt'))))
 
 expect = """\
 bar.in -> bar.out

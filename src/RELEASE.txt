@@ -27,6 +27,16 @@ RELEASE X.XX - XXX
 
   Please note the following important changes since release 0.92:
 
+  - Construction variables are now expanded anywhere within a
+    target or source name, as well as in the arguments to the following
+    Environment methods:  AlwaysBuild(), Depends(), Ignore(), Install(),
+    InstallAs(), Precious(), SideEffect() and SourceCode().
+
+    If you have any files or directories that actually contain one or
+    more dollar signs ($), you must now precede the dollar sign with
+    another dollar sign ($$) when referring to the file or directory
+    as part of calling a Builder, or any of the above methods.
+
   Please note the following important changes since release 0.91:
 
   - The Debian package available from the SCons web site now

@@ -128,7 +128,128 @@ class EnvironmentTestCase(unittest.TestCase):
         env2.Replace(ONE = "won")
         assert env2['ONE'] == "won"
         assert env['ONE'] == 1
-        
+
+    def test_arg2nodes(self):
+        """Test the arg2nodes method
+        """
+        env = Environment()
+        dict = {}
+        class X(SCons.Node.Node):
+            pass
+        def Factory(name, directory = None, create = 1, dict=dict, X=X):
+            if not dict.has_key(name):
+                dict[name] = X()
+                dict[name].name = name
+            return dict[name]
+
+        nodes = env.arg2nodes("Util.py UtilTests.py", Factory)
+        assert len(nodes) == 1, nodes
+        assert isinstance(nodes[0], X)
+        assert nodes[0].name == "Util.py UtilTests.py"
+
+        import types
+        if hasattr(types, 'UnicodeType'):
+            code = """if 1:
+                nodes = env.arg2nodes(u"Util.py UtilTests.py", Factory)
+                assert len(nodes) == 1, nodes
+                assert isinstance(nodes[0], X)
+                assert nodes[0].name == u"Util.py UtilTests.py"
+                \n"""
+            exec code in globals(), locals()
+
+        nodes = env.arg2nodes(["Util.py", "UtilTests.py"], Factory)
+        assert len(nodes) == 2, nodes
+        assert isinstance(nodes[0], X)
+        assert isinstance(nodes[1], X)
+        assert nodes[0].name == "Util.py"
+        assert nodes[1].name == "UtilTests.py"
+
+        n1 = Factory("Util.py")
+        nodes = env.arg2nodes([n1, "UtilTests.py"], Factory)
+        assert len(nodes) == 2, nodes
+        assert isinstance(nodes[0], X)
+        assert isinstance(nodes[1], X)
+        assert nodes[0].name == "Util.py"
+        assert nodes[1].name == "UtilTests.py"
+
+        class SConsNode(SCons.Node.Node):
+            pass
+        nodes = env.arg2nodes(SConsNode())
+        assert len(nodes) == 1, nodes
+        assert isinstance(nodes[0], SConsNode), node
+
+        class OtherNode:
+            pass
+        nodes = env.arg2nodes(OtherNode())
+        assert len(nodes) == 1, nodes
+        assert isinstance(nodes[0], OtherNode), node
+
+        def lookup_a(str, F=Factory):
+            if str[0] == 'a':
+                n = F(str)
+                n.a = 1
+                return n
+            else:
+                return None
+
+        def lookup_b(str, F=Factory):
+            if str[0] == 'b':
+                n = F(str)
+                n.b = 1
+                return n
+            else:
+                return None
+
+        env_ll = env.Copy()
+        env_ll.lookup_list = [lookup_a, lookup_b]
+
+        nodes = env_ll.arg2nodes(['aaa', 'bbb', 'ccc'], Factory)
+        assert len(nodes) == 3, nodes
+
+        assert nodes[0].name == 'aaa', nodes[0]
+        assert nodes[0].a == 1, nodes[0]
+        assert not hasattr(nodes[0], 'b'), nodes[0]
+
+        assert nodes[1].name == 'bbb'
+        assert not hasattr(nodes[1], 'a'), nodes[1]
+        assert nodes[1].b == 1, nodes[1]
+
+        assert nodes[2].name == 'ccc'
+        assert not hasattr(nodes[2], 'a'), nodes[1]
+        assert not hasattr(nodes[2], 'b'), nodes[1]
+
+        def lookup_bbbb(str, F=Factory):
+            if str == 'bbbb':
+                n = F(str)
+                n.bbbb = 1
+                return n
+            else:
+                return None
+
+        def lookup_c(str, F=Factory):
+            if str[0] == 'c':
+                n = F(str)
+                n.c = 1
+                return n
+            else:
+                return None
+
+        nodes = env.arg2nodes(['bbbb', 'ccc'], Factory,
+                                     [lookup_c, lookup_bbbb, lookup_b])
+        assert len(nodes) == 2, nodes
+
+        assert nodes[0].name == 'bbbb'
+        assert not hasattr(nodes[0], 'a'), nodes[1]
+        assert not hasattr(nodes[0], 'b'), nodes[1]
+        assert nodes[0].bbbb == 1, nodes[1]
+        assert not hasattr(nodes[0], 'c'), nodes[0]
+
+        assert nodes[1].name == 'ccc'
+        assert not hasattr(nodes[1], 'a'), nodes[1]
+        assert not hasattr(nodes[1], 'b'), nodes[1]
+        assert not hasattr(nodes[1], 'bbbb'), nodes[0]
+        assert nodes[1].c == 1, nodes[1]
+
     def test_Builder_calls(self):
         """Test Builder calls through different environments
         """
@@ -354,11 +475,20 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_Install(self):
 	"""Test Install and InstallAs methods"""
-        env=Environment()
+        env = Environment(FOO='iii', BAR='jjj')
+
         tgt = env.Install('export', [ 'build/foo1', 'build/foo2' ])
         paths = map(str, tgt)
         paths.sort()
         expect = map(os.path.normpath, [ 'export/foo1', 'export/foo2' ])
+        assert paths == expect, paths
+        for tnode in tgt:
+            assert tnode.builder == InstallBuilder
+
+        tgt = env.Install('$FOO', [ 'build/${BAR}1', 'build/${BAR}2' ])
+        paths = map(str, tgt)
+        paths.sort()
+        expect = map(os.path.normpath, [ 'iii/jjj1', 'iii/jjj2' ])
         assert paths == expect, paths
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
@@ -399,6 +529,11 @@ class EnvironmentTestCase(unittest.TestCase):
         assert paths == expect, paths
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
+
+        tgt = env.InstallAs(target='${FOO}.t', source='${BAR}.s')
+        assert tgt.path == 'iii.t'
+        assert tgt.sources[0].path == 'jjj.s'
+        assert tgt.builder == InstallBuilder
 
     def test_ReservedVariables(self):
         """Test generation of warnings when reserved variable names
@@ -570,7 +705,7 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_Depends(self):
 	"""Test the explicit Depends method."""
-	env = Environment()
+	env = Environment(FOO = 'xxx', BAR='yyy')
 	t = env.Depends(target='EnvironmentTest.py', dependency='Environment.py')
 	assert t.__class__.__name__ == 'File'
 	assert t.path == 'EnvironmentTest.py'
@@ -579,9 +714,17 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert d.__class__.__name__ == 'File'
 	assert d.path == 'Environment.py'
 
+	t = env.Depends(target='${FOO}.py', dependency='${BAR}.py')
+	assert t.__class__.__name__ == 'File'
+	assert t.path == 'xxx.py'
+	assert len(t.depends) == 1
+	d = t.depends[0]
+	assert d.__class__.__name__ == 'File'
+	assert d.path == 'yyy.py'
+
     def test_Ignore(self):
         """Test the explicit Ignore method."""
-        env = Environment()
+        env = Environment(FOO='yyy', BAR='zzz')
         t = env.Ignore(target='targ.py', dependency='dep.py')
         assert t.__class__.__name__ == 'File'
         assert t.path == 'targ.py'
@@ -589,16 +732,23 @@ class EnvironmentTestCase(unittest.TestCase):
         i = t.ignore[0]
         assert i.__class__.__name__ == 'File'
         assert i.path == 'dep.py'
+        t = env.Ignore(target='$FOO$BAR', dependency='$BAR$FOO')
+        assert t.__class__.__name__ == 'File'
+        assert t.path == 'yyyzzz'
+        assert len(t.ignore) == 1
+        i = t.ignore[0]
+        assert i.__class__.__name__ == 'File'
+        assert i.path == 'zzzyyy'
 
     def test_AlwaysBuild(self):
         """Test the AlwaysBuild() method"""
-        env = Environment()
-        t = env.AlwaysBuild('a', 'b', ['c', 'd'])
+        env = Environment(FOO='fff', BAR='bbb')
+        t = env.AlwaysBuild('a', 'b$FOO', ['c', 'd'], '$BAR')
         assert t[0].__class__.__name__ == 'File'
         assert t[0].path == 'a'
         assert t[0].always_build
         assert t[1].__class__.__name__ == 'File'
-        assert t[1].path == 'b'
+        assert t[1].path == 'bfff'
         assert t[1].always_build
         assert t[2].__class__.__name__ == 'File'
         assert t[2].path == 'c'
@@ -606,16 +756,19 @@ class EnvironmentTestCase(unittest.TestCase):
         assert t[3].__class__.__name__ == 'File'
         assert t[3].path == 'd'
         assert t[3].always_build
+        assert t[4].__class__.__name__ == 'File'
+        assert t[4].path == 'bbb'
+        assert t[4].always_build
 
     def test_Precious(self):
         """Test the Precious() method."""
-        env = Environment()
-        t = env.Precious('a', 'b', ['c', 'd'])
+        env = Environment(FOO='ggg', BAR='hhh')
+        t = env.Precious('a', '${BAR}b', ['c', 'd'], '$FOO')
         assert t[0].__class__.__name__ == 'File'
         assert t[0].path == 'a'
         assert t[0].precious
         assert t[1].__class__.__name__ == 'File'
-        assert t[1].path == 'b'
+        assert t[1].path == 'hhhb'
         assert t[1].precious
         assert t[2].__class__.__name__ == 'File'
         assert t[2].path == 'c'
@@ -623,6 +776,9 @@ class EnvironmentTestCase(unittest.TestCase):
         assert t[3].__class__.__name__ == 'File'
         assert t[3].path == 'd'
         assert t[3].precious
+        assert t[4].__class__.__name__ == 'File'
+        assert t[4].path == 'ggg'
+        assert t[4].precious
 
     def test_Command(self):
         """Test the Command() method."""
@@ -654,27 +810,46 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_SourceCode(self):
         """Test the SourceCode() method."""
-        env = Environment()
+        env = Environment(FOO='mmm', BAR='nnn')
         e = env.SourceCode('foo', None)
+        assert e.path == 'foo'
         s = e.src_builder()
         assert s is None, s
 
         b = Builder()
-        env.SourceCode(e, b)
+        e = env.SourceCode(e, b)
+        assert e.path == 'foo'
         s = e.src_builder()
         assert s is b, s
 
+        e = env.SourceCode('$BAR$FOO', None)
+        assert e.path == 'nnnmmm'
+        s = e.src_builder()
+        assert s is None, s
+
     def test_SideEffect(self):
         """Test the SideEffect() method"""
-        env = Environment()
+        env = Environment(LIB='lll', FOO='fff', BAR='bbb')
+
         foo = env.Object('foo.obj', 'foo.cpp')
         bar = env.Object('bar.obj', 'bar.cpp')
         s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])
+        assert s.path == 'mylib.pdb'
         assert s.side_effect
         assert foo.side_effects == [s]
         assert bar.side_effects == [s]
         assert s.depends_on([bar])
         assert s.depends_on([foo])
+
+        fff = env.Object('fff.obj', 'fff.cpp')
+        bbb = env.Object('bbb.obj', 'bbb.cpp')
+        s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])
+        assert s.path == 'mylll.pdb'
+        assert s.side_effect
+        assert fff.side_effects == [s], fff.side_effects
+        assert bbb.side_effects == [s], bbb.side_effects
+        assert s.depends_on([bbb])
+        assert s.depends_on([fff])
 
     def test_subst(self):
 	"""Test substituting construction variables within strings
