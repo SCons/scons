@@ -29,8 +29,10 @@ Testing the 'qt' tool, i.e. support for .ui files and automatic
 generation of qt's moc files.
 """
 
-import TestSCons
 import os.path
+import string
+
+import TestSCons
 
 python = TestSCons.python
 _exe = TestSCons._exe
@@ -123,7 +125,8 @@ QT_LIB = 'myqt'
 QT_MOC = '%s %s' % (python, test.workpath('qt','bin','mymoc.py'))
 QT_UIC = '%s %s' % (python, test.workpath('qt','bin','myuic.py'))
 
-# 3 test cases with 3 different operation modes
+##############################################################################
+# 4 test cases with 4 different operation modes
 
 def createSConstruct(test,place):
     test.write(place, """
@@ -145,8 +148,9 @@ Export("env")
 SConscript( sconscript )
 """ % (QT, QT_LIB, QT_MOC, QT_UIC))
 
-test.subdir( 'work1', 'work2', 'work3', 'work4' )
+test.subdir( 'work1', 'work2', 'work3', 'work4', 'work5' )
 
+##############################################################################
 # 1. create a moc file from a header file.
 
 aaa_exe = 'aaa' + _exe
@@ -189,6 +193,7 @@ test.run(chdir='work1',
 
 test.fail_test( not os.path.exists(test.workpath('work1', 'build', moc)) )
 
+##############################################################################
 # 2. create .cpp, .h, moc_....cpp from .ui file
 
 aaa_dll = dll_ + 'aaa' + _dll
@@ -241,6 +246,7 @@ test.fail_test(not os.path.exists(test.workpath('work2','build',moc)) or
                not os.path.exists(test.workpath('work2','build',cpp)) or
                not os.path.exists(test.workpath('work2','build',h)))
 
+##############################################################################
 # 3. create a moc file from a cpp file
 
 lib_aaa = lib_ + 'aaa' + _lib
@@ -288,6 +294,47 @@ test.run(chdir='work3',
 
 test.fail_test(not os.path.exists(test.workpath('work3', 'build', moc)))
 
+##############################################################################
+# 4. Test with a copied environment.
+
+createSConstruct(test, ['work4', 'SConstruct'])
+test.write(['work4', 'SConscript'], """\
+Import("env")
+env.Append(CPPDEFINES = ['FOOBAZ'])
+                                                                                
+copy = env.Copy()
+copy.Append(CPPDEFINES = ['MYLIB_IMPL'])
+                                                                                
+copy.SharedLibrary(
+   target = 'MyLib',
+   source = ['MyFile.cpp','MyForm.ui']
+)
+""")
+
+test.write(['work4', 'MyFile.h'], r"""
+void aaa(void);
+""")
+
+test.write(['work4', 'MyFile.cpp'], r"""
+#include "MyFile.h"
+void useit() {
+  aaa();
+}
+""")
+
+test.write(['work4', 'MyForm.ui'], r"""
+void aaa(void)
+""")
+
+test.run(chdir='work4')
+moc_MyForm = filter(lambda x: string.find(x, 'moc_MyForm') != -1,
+                    string.split(test.stdout(), '\n'))
+MYLIB_IMPL = filter(lambda x: string.find(x, 'MYLIB_IMPL') != -1, moc_MyForm)
+if not MYLIB_IMPL:
+    print "Did not find MYLIB_IMPL on moc_MyForm compilation line:"
+    print test.stdout()
+    test.fail_test()
+
 
 # look if qt is installed, and try out all builders
 
@@ -296,7 +343,7 @@ if os.environ.get('QTDIR', None):
     QTDIR=os.environ['QTDIR']
     
 
-    test.write( ['work4', 'SConstruct'],"""
+    test.write( ['work5', 'SConstruct'],"""
 import os
 dummy_env = Environment()
 ENV = dummy_env['ENV']
@@ -332,11 +379,11 @@ env.Program('test_realqt', ['mocFromCpp.cpp',
                             'main.cpp'])
 """)
 
-    test.write( ['work4', 'mocFromCpp.h'],"""
+    test.write( ['work5', 'mocFromCpp.h'],"""
 void mocFromCpp();
 """)
 
-    test.write( ['work4', 'mocFromCpp.cpp'],"""
+    test.write( ['work5', 'mocFromCpp.cpp'],"""
 #include <qobject.h>
 #include "mocFromCpp.h"
 class MyClass1 : public QObject {
@@ -352,7 +399,7 @@ void mocFromCpp() {
 #include "moc_mocFromCpp.cpp"
 """)
 
-    test.write( ['work4', 'mocFromH.h'],"""
+    test.write( ['work5', 'mocFromH.h'],"""
 #include <qobject.h>
 class MyClass2 : public QObject {
   Q_OBJECT;
@@ -364,7 +411,7 @@ class MyClass2 : public QObject {
 void mocFromH();
 """)
     
-    test.write( ['work4', 'mocFromH.cpp'],"""
+    test.write( ['work5', 'mocFromH.cpp'],"""
 #include "mocFromH.h"
     
 MyClass2::MyClass2() : QObject() {}
@@ -374,7 +421,7 @@ void mocFromH() {
 }
 """)
     
-    test.write( ['work4', 'anUiFile.ui'],"""
+    test.write( ['work5', 'anUiFile.ui'],"""
 <!DOCTYPE UI><UI>
 <class>MyWidget</class>
 <widget>
@@ -390,7 +437,7 @@ void mocFromH() {
 </UI>
 """)
 
-    test.write( ['work4', 'main.cpp'], """
+    test.write( ['work5', 'main.cpp'], """
 #include "mocFromCpp.h"
 #include "mocFromH.h"
 #include "anUiFile.h"
@@ -401,13 +448,13 @@ int main() {
 }
 """)
 
-    test.run(chdir='work4', arguments="test_realqt" + _exe)
+    test.run(chdir='work5', arguments="test_realqt" + _exe)
 
     QTDIR=os.environ['QTDIR']
     del os.environ['QTDIR']
 
-    test.run(chdir='work4', arguments="-c test_realqt" + _exe)
-    test.run(chdir='work4', arguments="PATH=%s/bin test_realqt%s"%(QTDIR,_exe))
+    test.run(chdir='work5', arguments="-c test_realqt" + _exe)
+    test.run(chdir='work5', arguments="PATH=%s/bin test_realqt%s"%(QTDIR,_exe))
     
 else:
     print "Could not find QT, skipping test(s)."
