@@ -71,7 +71,7 @@ class SConfTestCase(unittest.TestCase):
         # and we need a new environment, cause references may point to
         # old modules (well, at least this is safe ...)
         self.scons_env = self.Environment.Environment()
-        self.scons_env['ENV']['PATH'] = os.environ['PATH']
+        self.scons_env.AppendENVPath('PATH', os.environ['PATH'])
 
         # we want to do some autodetection here
         # this stuff works with

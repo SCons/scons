@@ -23,12 +23,16 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-# Define a null function for use as a builder action.
-# Where this is defined in the file seems to affect its
-# byte-code contents, so try to minimize changes by
-# defining it here, before we even import anything.
-def Func():
+# Define a null function and a null class for use as builder actions.
+# Where these are defined in the file seems to affect their byte-code
+# contents, so try to minimize changes by defining them here, before we
+# even import anything.
+def GlobalFunc():
     pass
+
+class GlobalActFunc:
+    def __call__(self):
+        pass
 
 import os
 import re
@@ -1091,17 +1095,27 @@ class FunctionActionTestCase(unittest.TestCase):
     def test_get_contents(self):
         """Test fetching the contents of a function Action
         """
-        a = SCons.Action.FunctionAction(Func)
-        c = a.get_contents(target=[], source=[], env=Environment())
-        assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
-        c = a.get_contents(target=[], source=[], env=Environment(), dict={})
-        assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
 
-        a = SCons.Action.FunctionAction(Func, varlist=['XYZ'])
+        a = SCons.Action.FunctionAction(GlobalFunc)
+
+        matches = [
+            "\177\036\000\177\037\000d\000\000S",
+            "d\x00\x00S",
+        ]
+
         c = a.get_contents(target=[], source=[], env=Environment())
-        assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
+        assert c in matches, repr(c)
+        c = a.get_contents(target=[], source=[], env=Environment(), dict={})
+        assert c in matches, repr(c)
+
+        a = SCons.Action.FunctionAction(GlobalFunc, varlist=['XYZ'])
+
+        matches_foo = map(lambda x: x + "foo", matches)
+
+        c = a.get_contents(target=[], source=[], env=Environment())
+        assert c in matches, repr(c)
         c = a.get_contents(target=[], source=[], env=Environment(XYZ = 'foo'))
-        assert c == "\177\036\000\177\037\000d\000\000Sfoo", repr(c)
+        assert c in matches_foo, repr(c)
 
         class Foo:
             def get_contents(self, target, source, env, dict=None):
@@ -1282,24 +1296,33 @@ class ActionCallerTestCase(unittest.TestCase):
 
     def test_get_contents(self):
         """Test fetching the contents of an ActionCaller"""
-        def actfunc():
-            pass
         def strfunc():
             pass
 
-        af = SCons.Action.ActionFactory(actfunc, strfunc)
+        matches = [
+            "\177\036\000\177\037\000d\000\000S",
+            "d\x00\x00S"
+        ]
+
+        af = SCons.Action.ActionFactory(GlobalFunc, strfunc)
         ac = SCons.Action.ActionCaller(af, [], {})
         c = ac.get_contents([], [], Environment())
-        assert c == "\177\005\005\177\006\005d\000\000S", repr(c)
+        assert c in matches, repr(c)
 
-        class ActFunc:
-            def __call__(self):
-                pass
+        matches = [
+            '\177"\000\177#\000d\000\000S',
+            "d\x00\x00S"
+        ]
 
-        af = SCons.Action.ActionFactory(ActFunc(), strfunc)
+        af = SCons.Action.ActionFactory(GlobalActFunc(), strfunc)
         ac = SCons.Action.ActionCaller(af, [], {})
         c = ac.get_contents([], [], Environment())
-        assert c == "\177\020\005\177\021\005d\000\000S", repr(c)
+        assert c in matches, repr(c)
+
+        matches = [
+            "<built-in function str>",
+            "<type 'str'>",
+        ]
 
         af = SCons.Action.ActionFactory(str, strfunc)
         ac = SCons.Action.ActionCaller(af, [], {})
