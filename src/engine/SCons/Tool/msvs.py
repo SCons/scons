@@ -787,6 +787,16 @@ def get_visualstudio_versions():
     if not L:
         return []
 
+    # This is a hack to get around the fact that certain Visual Studio
+    # patches place a "6.1" version in the registry, which does not have
+    # any of the keys we need to find include paths, install directories,
+    # etc.  Therefore we ignore it if it is there, since it throws all
+    # other logic off.
+    try:
+        L.remove("6.1")
+    except ValueError:
+        pass
+    
     L.sort()
     L.reverse()
 

@@ -402,7 +402,7 @@ environment undisturbed.
    Technically, a &consenv; is an object
    that has a number of associated
    &consvars;, each with a name and a value.
-   (A &consenv; also has an attached
+   (A construction environment also has an attached
    set of &Builder; methods,
    about which we'll learn more later.)
 
@@ -411,7 +411,7 @@ environment undisturbed.
  <para>
 
    A &consenv; is created by the &Environment; method.
-   When you initialize a &consenv;,
+   When you initialize a construction environment
    you can set the values of the
    environment's &consvars;
    to control how a program is built.
@@ -453,8 +453,7 @@ environment undisturbed.
    <para>
 
    The real advantage of construction environments
-   become apparent when you realize
-   that you can create as many different construction
+   is that you can create as many different construction
    environments as you need,
    each tailored to a different way to build
    some piece of software or other file.
@@ -488,7 +487,7 @@ environment undisturbed.
 
    <para>
 
-   We can even use multiple &consenvs; to build
+   We can even use multiple construction environments to build
    multiple versions of a single program.
    If you do this by simply trying to use the
    &Program; builder with both environments, though,
@@ -587,24 +586,24 @@ environment undisturbed.
 
    <para>
 
-   Sometimes you want more than one &consenv;
+   Sometimes you want more than one construction environment
    to share the same values for one or more variables.
    Rather than always having to repeat all of the common
-   variables when you create each &consenv;,
+   variables when you create each construction environment,
    you can use the &Copy; method
-   to create a copy of a &consenv;.
+   to create a copy of a construction environment.
 
    </para>
 
    <para>
 
-   Like the &Environment; call that creates a &consenv;,
+   Like the &Environment; call that creates a construction environment,
    the &Copy; method takes &consvar; assignments,
-   which will override the values in the copied &consenv;.
+   which will override the values in the copied construction environment.
    For example, suppose we want to use &gcc;
    to create three versions of a program,
    one optimized, one debug, and one with neither.
-   We could do this by creating a "base" &consenv;
+   We could do this by creating a "base" construction environment
    that sets &CC; to &gcc;,
    and then creating two copies,
    one which sets &CCFLAGS; for optimization
@@ -675,7 +674,7 @@ environment undisturbed.
 
    <para>
 
-   A &consenv;, however,
+   A construction environment, however,
    is actually a Python object with
    associated methods, etc.
    If you want to have direct access to only the
@@ -723,7 +722,7 @@ environment undisturbed.
    <para>
 
    &SCons; provides various methods that
-   support modifying existing values in a &consenv;.
+   support modifying existing values in a construction environment.
 
    </para>
 

@@ -25,9 +25,10 @@
 
   <para>
 
-  One of the more useful ways in which you can use multiple
-  construction environments is to link programs
-  with different sets of libraries.
+  It's often useful to organize large software projects
+  by collecting parts of the software into one or more libraries.
+  &SCons; makes it easy to create libraries
+  and to use them in the programs.
 
   </para>
 
@@ -109,7 +110,6 @@
     and by specifying the directory in which
     the library will be found in the 
     &LIBPATH; construction variable:
-      env = Environment(LIBS = 'foo', LIBPATH = '.')
 
     </para>
 

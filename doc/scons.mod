@@ -18,7 +18,9 @@
 <!ENTITY Ant "<application>Ant</application>">
 <!ENTITY Autoconf "<application>Autoconf</application>">
 <!ENTITY Automake "<application>Automake</application>">
+<!ENTITY cc "<application>cc</application>">
 <!ENTITY Cons "<application>Cons</application>">
+<!ENTITY csh "<application>csh</application>">
 <!ENTITY gcc "<application>gcc</application>">
 <!ENTITY Jam "<application>Jam</application>">
 <!ENTITY Make "<application>Make</application>">
@@ -194,6 +196,7 @@
 <!ENTITY COLORS "<varname>COLORS</varname>">
 <!ENTITY CONFIG "<varname>CONFIG</varname>">
 <!ENTITY CPPDEFINES "<varname>CPPDEFINES</varname>">
+<!ENTITY ENV "<varname>ENV</varname>">
 <!ENTITY LIBDIRPREFIX "<varname>LIBDIRPREFIX</varname>">
 <!ENTITY LIBDIRSUFFIX "<varname>LIBDIRSUFFIX</varname>">
 <!ENTITY LIBLINKPREFIX "<varname>LIBLINKPREFIX</varname>">
@@ -218,6 +221,7 @@
 
 -->
 
+<!ENTITY PATH "<varname>PATH</varname>">
 <!ENTITY PYTHONPATH "<varname>PYTHONPATH</varname>">
 <!ENTITY SCONSFLAGS "<varname>SCONSFLAGS</varname>">
 

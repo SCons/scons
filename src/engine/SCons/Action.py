@@ -237,6 +237,23 @@ class CommandAction(ActionBase):
                             import SCons.Environment
                             default_ENV = SCons.Environment.Environment()['ENV']
                         ENV = default_ENV
+
+                    # ensure that the ENV values are all strings:
+                    for key, value in ENV.items():
+                        if SCons.Util.is_List(value):
+                            # If the value is a list, then we assume
+                            # it is a path list, because that's a pretty
+                            # common list like value to stick in an environment
+                            # variable:
+                            ENV[key] = string.join(map(str, value), os.pathsep)
+                        elif not SCons.Util.is_String(value):
+                            # If it isn't a string or a list, then
+                            # we just coerce it to a string, which
+                            # is proper way to handle Dir and File instances
+                            # and will produce something reasonable for
+                            # just about everything else:
+                            ENV[key] = str(value)
+                    
                     # Escape the command line for the command
                     # interpreter we are using
                     map(lambda x, e=escape: x.escape(e), cmd_line)

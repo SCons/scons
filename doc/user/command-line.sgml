@@ -40,8 +40,25 @@
     the same command-line options every time
     they run &SCons;.
     For example, a user might find that it saves time
-    to always specify a value of <literal>-j 2</literal>
+    to specify a value of <literal>-j 2</literal>
     to run the builds in parallel.
+    To avoid having to type <literal>-j 2</literal> by hand
+    every time,
+    you can set the external environment variable
+    &SCONSFLAGS; to a string containing
+    command-line options that you want &SCons; to use.
+
+    </para>
+
+    <para>
+
+    If, for example,
+    and you're using a POSIX shell that's
+    compatible with the Bourne shell,
+    and you always want &SCons; to use the
+    <literal>-Q</literal> option,
+    you can set the &SCONSFLAGS;
+    environment as follows:
 
     </para>
 
@@ -66,6 +83,21 @@
     </literallayout>
 
     <para>
+
+    Users of &csh;-style shells on POSIX systems
+    can set the &SCONSFLAGS; environment as follows:
+
+    </para>
+
+    <literallayout>
+      $ setenv SCONSFLAGS "-Q"
+    </literallayout>
+
+    <para>
+
+    Windows users may typically want to set this
+    &SCONSFLAGS; in the appropriate tab of the
+    <literal>System Properties</literal> window.
 
     </para>
 
