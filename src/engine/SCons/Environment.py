@@ -105,7 +105,7 @@ def our_deepcopy(x):
        for key in x.keys():
            copy[key] = our_deepcopy(x[key])
    elif SCons.Util.is_List(x):
-       copy = map(our_deepcopy, x)
+       copy = x.__class__(map(our_deepcopy, x))
    else:
        copy = x
    return copy

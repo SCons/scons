@@ -28,28 +28,30 @@ RELEASE 0.96 - XXX
   Please note the following important changes since release 0.95:
 
     - The behavior of the env.Append() and env.Prepend() methods has
-      changed when appending a string value to a UserList.  They now
-      behave like normal Python addition of a string to a UserList.
-      Given an initialization like:
+      changed when appending a string value to a UserList, or vice versa.
+      They now behave like normal Python addition of a string to
+      a UserList.  Given an initialization and an env.Append() call like:
 
-          env = Environment(VARIABLE = UserList(['foo']))
+          env = Environment(VAR1=UserList(['foo']), VAR2='foo')
+          env.Append(VAR1='bar', VAR2=UserList(['bar'])
 
-      An Append() call like:
+      The resulting values of $VAR1 and $VAR2 will now be ['foo', 'b',
+      'a', 'r'] and ['f', 'o', 'o', 'bar'], respectively.  This is because
+      Python UserList objects treat strings as sequences of letters when
+      adding them to the value of the UserList.
 
-          env.Append(VARIABLE = 'bar')
+      The old behavior of yielding $VAR1 and $VAR2 values of ['foo',
+      'bar'] when either variable is a UserList object now requires that
+      the string variables be enclosed in a list:
 
-      Will now yield a $VARIABLE value of ['foo', 'b', 'a', 'r'].
-      This is because Python UserList objects treat added strings as
-      sequences of letters.
+          env = Environment(VAR1=UserList(['foo']), VAR2=['foo'])
+          env.Append(VAR1='bar', VAR2=UserList(['bar']))
 
-      The old behavior of yielding a $VARIABLE value of ['foo', 'bar']
-      now requires that the appended variable be a list (when the original
-      variable is a UserList object):
-
-        env.Append(VARIABLE = ['bar'])
-
-      Note that the behavior when appending to normal lists has *not*
-      changed.
+      Note that the SCons behavior when appending to normal lists has
+      *not* changed, and the behavior of all of the default values that
+      SCons uses to initialize all construction variables has *not*
+      changed.  This change *only* affects any cases where you explicitly
+      use UserList objects to initialize or append to a variable.
 
   Please note the following important changes since release 0.94:
 

@@ -28,6 +28,7 @@ import string
 import sys
 import TestCmd
 import unittest
+import UserList
 
 from SCons.Environment import *
 import SCons.Warnings
@@ -111,6 +112,16 @@ class Scanner:
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
+
+
+
+class CLVar(UserList.UserList):
+    def __init__(self, seq):
+        if type(seq) == type(''):
+            seq = string.split(seq)
+        UserList.UserList.__init__(self, seq)
+    def __coerce__(self, other):
+        return (self, CLVar(other))
 
 
 
@@ -859,12 +870,12 @@ class EnvironmentTestCase(unittest.TestCase):
         cases = [
             'a1',       'A1',           'a1A1',
             'a2',       ['A2'],         ['a2', 'A2'],
-            'a3',       UL(['A3']),     UL(['a3', 'A3']),
+            'a3',       UL(['A3']),     UL(['a', '3', 'A3']),
             'a4',       '',             'a4',
             'a5',       [],             ['a5'],
-            'a6',       UL([]),         UL(['a6']),
+            'a6',       UL([]),         UL(['a', '6']),
             'a7',       [''],           ['a7', ''],
-            'a8',       UL(['']),       UL(['a8', '']),
+            'a8',       UL(['']),       UL(['a', '8', '']),
 
             ['e1'],     'E1',           ['e1', 'E1'],
             ['e2'],     ['E2'],         ['e2', 'E2'],
@@ -944,6 +955,18 @@ class EnvironmentTestCase(unittest.TestCase):
                 failed = failed + 1
             del cases[:3]
         assert failed == 0, "%d Append() cases failed" % failed
+
+        env['UL'] = UL(['foo'])
+        env.Append(UL = 'bar')
+        result = env['UL']
+        assert isinstance(result, UL), repr(result)
+        assert result == ['foo', 'b', 'a', 'r'], result
+
+        env['CLVar'] = CLVar(['foo'])
+        env.Append(CLVar = 'bar')
+        result = env['CLVar']
+        assert isinstance(result, CLVar), repr(result)
+        assert result == ['foo', 'bar'], result
 
         class C:
             def __init__(self, name):
@@ -1090,6 +1113,16 @@ class EnvironmentTestCase(unittest.TestCase):
         assert x == '-DFOO -DBAR', x
         x = env2.get('XYZ')
         assert x == ['-DABC', 'x -DXYZ y', '-DDEF'], x
+
+        # Ensure that special properties of a class don't get
+        # lost on copying.
+        env1 = Environment(FLAGS = CLVar('flag1 flag2'))
+        x = env1.get('FLAGS')
+        assert x == ['flag1', 'flag2'], x
+        env2 = env1.Copy()
+        env2.Append(FLAGS = 'flag3 flag4')
+        x = env2.get('FLAGS')
+        assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
 
     def test_Detect(self):
         """Test Detect()ing tools"""
@@ -1281,12 +1314,12 @@ class EnvironmentTestCase(unittest.TestCase):
         cases = [
             'a1',       'A1',           'A1a1',
             'a2',       ['A2'],         ['A2', 'a2'],
-            'a3',       UL(['A3']),     UL(['A3', 'a3']),
+            'a3',       UL(['A3']),     UL(['A3', 'a', '3']),
             'a4',       '',             'a4',
             'a5',       [],             ['a5'],
-            'a6',       UL([]),         UL(['a6']),
+            'a6',       UL([]),         UL(['a', '6']),
             'a7',       [''],           ['', 'a7'],
-            'a8',       UL(['']),       UL(['', 'a8']),
+            'a8',       UL(['']),       UL(['', 'a', '8']),
 
             ['e1'],     'E1',           ['E1', 'e1'],
             ['e2'],     ['E2'],         ['E2', 'e2'],
@@ -1365,7 +1398,19 @@ class EnvironmentTestCase(unittest.TestCase):
                       (repr(input), repr(prepend), repr(result), repr(expect))
                 failed = failed + 1
             del cases[:3]
-        assert failed == 0, "%d subst() cases failed" % failed
+        assert failed == 0, "%d Prepend() cases failed" % failed
+
+        env['UL'] = UL(['foo'])
+        env.Prepend(UL = 'bar')
+        result = env['UL']
+        assert isinstance(result, UL), repr(result)
+        assert result == ['b', 'a', 'r', 'foo'], result
+
+        env['CLVar'] = CLVar(['foo'])
+        env.Prepend(CLVar = 'bar')
+        result = env['CLVar']
+        assert isinstance(result, CLVar), repr(result)
+        assert result == ['bar', 'foo'], result
 
         env3 = Environment(X = {'x1' : 7})
         env3.Prepend(X = {'x1' : 8, 'x2' : 9}, Y = {'y1' : 10})
