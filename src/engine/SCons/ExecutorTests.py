@@ -237,7 +237,7 @@ class ExecutorTestCase(unittest.TestCase):
         x(MyNode([], []), None)
         assert result == [], result
         s = str(x)
-        assert s == None, s
+        assert s == '', s
         s = x.strfunction()
         assert s == None, s
 
