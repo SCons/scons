@@ -23,6 +23,38 @@
 
 -->
 
+<!--
+
+=head2 The C<Command> method
+
+The C<Command> method is a catchall method which can be used to arrange for
+any build action to be executed to update the target. For this command, a
+target file and list of inputs is provided. In addition, a build action
+is specified as the last argument.  The build action is typically a
+command line or lines, but may also contain Perl code to be executed;
+see the section above on build actions for details.
+
+The C<Command> method is called as follows:
+
+  Command $env <target>, <inputs>, <build action>;
+
+The target is made dependent upon the list of input files specified, and the
+inputs must be built successfully or Cons will not attempt to build the
+target.
+
+To specify a command with multiple targets, you can specify a reference to a
+list of targets. In Perl, a list reference can be created by enclosing a
+list in square brackets. Hence the following command:
+
+  Command $env ['foo.h', 'foo.c'], 'foo.template', q(
+	gen %1
+  );
+
+could be used in a case where the command C<gen> creates two files, both
+F<foo.h> and F<foo.c>.
+
+-->
+
  <para>
 
    X
@@ -30,7 +62,7 @@
  </para>
 
  <section>
- <title>X</title>
+ <title>The &Command; Method</title>
 
    <para>
 

@@ -22,9 +22,93 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
+
+<!--
+
+=head2 Perl scripts
+
+Cons is Perl-based. That is, Cons scripts F<Conscript> and F<Construct>
+files, the equivalent to F<Makefile> or F<makefile> are all written in
+Perl. This provides an immediate benefit: the language for writing scripts
+is a familiar one. Even if you don't happen to be a Perl programmer, it
+helps to know that Perl is basically just a simple declarative language,
+with a well-defined flow of control, and familiar semantics. It has
+variables that behave basically the way you would expect them to,
+subroutines, flow of control, and so on. There is no special syntax
+introduced for Cons. The use of Perl as a scripting language simplifies
+the task of expressing the appropriate solution to the often complex
+requirements of a build.
+
+-->
+
  <para>
 
-   X
+ Here's how to build the famous "Hello, World!" example using &SCons;.
+ Enter the following into a file name &SConstruct;:
+
+ </para>
+
+ <programlisting>
+    int
+    main()
+    {
+        printf("Hello, world!\n");
+    }
+ </programlisting>
+
+ <programlisting>
+    env = Environment()
+    env.Program('hello.c')
+ </programlisting>
+
+ <para>
+
+ That's it.  Now run the &scons; command to build the program.
+ On a POSIX-compliant system like Linux or UNIX,
+ you'll see something like:
+
+ </para>
+
+ <literallayout>
+    % <userinput>scons .</userinput>
+    cc -c hello.c -o hello.o
+    cc -o hello hello.o
+ </literallayout>
+
+ <para>
+
+ On a Windows system with the Microsoft Visual C++ compiler,
+ you'll see something like:
+
+ </para>
+
+ <literallayout>
+    C:\><userinput>scons .</userinput>
+    cl /Fohello.obj hello.c
+    link /Fohello.exe hello.obj
+ </literallayout>
+
+ <para>
+
+ First, notice that you need to supply a '.' on the command line.
+ This tells &SCons; to build everything in the current directory
+ or its subdirectories.
+ We'll tell you later how to avoid having to use the '.'
+
+ </para>
+
+ <para>
+
+ Next, notice that the same input &SConstruct; file
+ without any special input,
+ generates the right output file names on both systems:
+ <filename>hello.o</filename> and <filename>hello</filename>
+ on POSIX systems,
+ <filename>hello.obj</filename> and <filename>hello.exe</filename>
+ on Windows systems.
+ (We won't provide side-by-side examples of POSIX
+ and Windows runs for all future examples;
+ just know that XXX.)
 
  </para>
 
@@ -33,74 +117,128 @@
 
    <para>
 
-   X
+   If you're used to build systems like &Make;
+   you've already figured out that the &SConstruct; file
+   is the &SCons; equivalent of a &Makefile;.
+   That is, the &SConstruct; file is the input file
+   that &SCons; reads to control the build.
 
    </para>
+
+   <para>
+
+   What may not be obvious, though, is that
+   there's an important difference between
+   an &SConstruct; file and a &Makefile:
+   the &SConstruct; file is actually a Python script.
+   If you're not already familiar with Python, don't worry;
+   you don't really need to know Python to be able to use
+   &SCons; effectively.
+   But you'll see that being able to use the power of a
+   real scripting language
+   can greatly simplify the solutions
+   to complex requirements of real-world builds.
+
+   </para>
+
+   <para>
+
+   For now, one ramification of using Python as the
+   scripting language means that you can put comments
+   in your &SConstruct; file using Python's commenting convention;
+   that is, everything between a '#' and the end of the line
+   will be ignored:
+
+   </para>
+
+   <programlisting>
+      env = Environment()    # Create an environment.
+      # Arrange to build the "hello" program.
+      env.Program('hello.c')
+   </programlisting>
 
  </section>
 
  <section>
- <title>The &Program; Builder</title>
+ <title>Compiling Multiple Source Files</title>
 
    <para>
 
-   X
+   If you want
 
    </para>
+
+   <programlisting>
+      env = Environment()
+      env.Program('program', ['main.c', 'file1.c', 'file2.'])
+   </programlisting>
+
+   <programlisting>
+      env = Environment()
+      env.Program('program', Split('main.c file1.c file2.'))
+   </programlisting>
+
+   <literallayout>
+      % <userinput>scons .</userinput>
+      cc -c file1.c -o file1.o
+      cc -c file2.c -o file2.o
+      cc -c main.c -o main.o
+      cc -o program main.o file1.o file2.o
+   </literallayout>
 
  </section>
 
  <section>
- <title>The &Library; Builder</title>
+ <title>Compiling Multiple Programs</title>
 
    <para>
 
-   X
+   If you want
 
    </para>
+
+   <programlisting>
+      env = Environment()
+      env.Program('foo.c')
+      env.Program('bar', ['bar1.c', 'bar2.c'])
+   </programlisting>
+
+   <literallayout>
+      % <userinput>scons .</userinput>
+      cc -c bar1.c -o bar1.o
+      cc -c bar2.c -o bar2.o
+      cc -o bar bar1.o bar2.o
+      cc -c foo.c -o foo.o
+      cc -o foo foo.o
+   </literallayout>
 
  </section>
 
  <section>
- <title>The &Install; Builder</title>
+ <title>Sharing Files Between Multiple Programs</title>
 
    <para>
 
-   X
+   If you want
 
    </para>
 
- </section>
+   <programlisting>
+      common = ['common1.c', 'common2.c']
+      env = Environment()
+      env.Program(['foo.c'] + common)
+      env.Program('bar', ['bar1.c', 'bar2.c'] + common)
+   </programlisting>
 
- <section>
- <title>Running &SCons;</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &Default; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &Help; Method</title>
-
-   <para>
-
-   X
-
-   </para>
+   <literallayout>
+      % <userinput>scons .</userinput>
+      cc -c bar1.c -o bar1.o
+      cc -c bar2.c -o bar2.o
+      cc -c common1.c -o common1.o
+      cc -c common2.c -o common2.o
+      cc -o bar bar1.o bar2.o common1.o common2.o
+      cc -c foo.c -o foo.o
+      cc -o foo foo.o common1.o common2.o
+   </literallayout>
 
  </section>

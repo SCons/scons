@@ -22,6 +22,204 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
+
+<!--
+
+=head2 A hierarchy of build scripts
+
+A larger build, in Cons, is organized by creating a hierarchy of B<build
+scripts>. At the top of the tree is a script called F<Construct>. The rest
+of the scripts, by convention, are each called F<Conscript>. These scripts
+are connected together, very simply, by the C<Build>, C<Export>, and
+C<Import> commands.
+
+
+=head2 The Build command
+
+The C<Build> command takes a list of F<Conscript> file names, and arranges
+for them to be included in the build. For example:
+
+  Build qw(
+	drivers/display/Conscript
+	drivers/mouse/Conscript
+	parser/Conscript
+	utilities/Conscript
+  );
+
+This is a simple two-level hierarchy of build scripts: all the subsidiary
+F<Conscript> files are mentioned in the top-level F<Construct> file. Notice
+that not all directories in the tree necessarily have build scripts
+associated with them.
+
+This could also be written as a multi-level script. For example, the
+F<Construct> file might contain this command:
+
+  Build qw(
+	parser/Conscript
+	drivers/Conscript
+	utilities/Conscript
+  );
+
+and the F<Conscript> file in the F<drivers> directory might contain this:
+
+  Build qw(
+	display/Conscript
+	mouse/Conscript
+  );
+
+Experience has shown that the former model is a little easier to understand,
+since the whole construction tree is laid out in front of you, at the
+top-level. Hybrid schemes are also possible. A separately maintained
+component that needs to be incorporated into a build tree, for example,
+might hook into the build tree in one place, but define its own construction
+hierarchy.
+
+By default, Cons does not change its working directory to the directory
+containing a subsidiary F<Conscript> file it is including.  This behavior
+can be enabled for a build by specifying, in the top-level F<Construct>
+file:
+
+  Conscript_chdir 1;
+
+When enabled, Cons will change to the subsidiary F<Conscript> file's
+containing directory while reading in that file, and then change back
+to the top-level directory once the file has been processed.
+
+It is expected that this behavior will become the default in some future
+version of Cons.  To prepare for this transition, builds that expect
+Cons to remain at the top of the build while it reads in a subsidiary
+F<Conscript> file should explicitly disable this feature as follows:
+
+  Conscript_chdir 0;
+
+=head2 Relative, top-relative, and absolute file names
+
+You may have noticed that the file names specified to the Build command are
+relative to the location of the script it is invoked from. This is generally
+true for other filename arguments to other commands, too, although we might
+as well mention here that if you begin a file name with a hash mark, ``#'',
+then that file is interpreted relative to the top-level directory (where the
+F<Construct> file resides). And, not surprisingly, if you begin it with ``/'',
+then it is considered to be an absolute pathname. This is true even on
+systems which use a back slash rather than a forward slash to name absolute
+paths.
+
+(There is another file prefix, ``!'', that is interpreted specially by
+Cons.  See discussion of the C<Link> command, below, for details.)
+
+
+=head2 Using modules in build scripts
+
+You may pull modules into each F<Conscript> file using the normal Perl
+C<use> or C<require> statements:
+
+  use English;
+  require My::Module;
+
+Each C<use> or C<require> only affects the one F<Conscript> file in which
+it appears.  To use a module in multiple F<Conscript> files, you must
+put a C<use> or C<require> statement in each one that needs the module.
+
+
+=head2 Scope of variables
+
+The top-level F<Construct> file and all F<Conscript> files begin life in
+a common, separate Perl package.  B<Cons> controls the symbol table for
+the package so that, the symbol table for each script is empty, except
+for the F<Construct> file, which gets some of the command line arguments.
+All of the variables that are set or used, therefore, are set by the
+script itself, not by some external script.
+
+Variables can be explicitly B<imported> by a script from its parent
+script. To import a variable, it must have been B<exported> by the parent
+and initialized (otherwise an error will occur).
+
+
+=head2 The Export command
+
+The C<Export> command is used as in the following example:
+
+  $env = new cons();
+  $INCLUDE = "#export/include";
+  $LIB = "#export/lib";
+  Export qw( env INCLUDE LIB );
+  Build qw( util/Conscript );
+
+The values of the simple variables mentioned in the C<Export> list will be
+squirreled away by any subsequent C<Build> commands. The C<Export> command
+will only export Perl B<scalar> variables, that is, variables whose name
+begins with C<$>. Other variables, objects, etc. can be exported by
+reference, but all scripts will refer to the same object, and this object
+should be considered to be read-only by the subsidiary scripts and by the
+original exporting script. It's acceptable, however, to assign a new value
+to the exported scalar variable, that won't change the underlying variable
+referenced. This sequence, for example, is OK:
+
+  $env = new cons();
+  Export qw( env INCLUDE LIB );
+  Build qw( util/Conscript );
+  $env = new cons(CFLAGS => '-O');
+  Build qw( other/Conscript );
+
+It doesn't matter whether the variable is set before or after the C<Export>
+command. The important thing is the value of the variable at the time the
+C<Build> command is executed. This is what gets squirreled away. Any
+subsequent C<Export> commands, by the way, invalidate the first: you must
+mention all the variables you wish to export on each C<Export> command.
+
+
+=head2 The Import command
+
+Variables exported by the C<Export> command can be imported into subsidiary
+scripts by the C<Import> command. The subsidiary script always imports
+variables directly from the superior script. Consider this example:
+
+  Import qw( env INCLUDE );
+
+This is only legal if the parent script exported both C<$env> and
+C<$INCLUDE>. It also must have given each of these variables values. It is
+OK for the subsidiary script to only import a subset of the exported
+variables (in this example, C<$LIB>, which was exported by the previous
+example, is not imported).
+
+All the imported variables are automatically re-exported, so the sequence:
+
+  Import qw ( env INCLUDE );
+  Build qw ( beneath-me/Conscript );
+
+will supply both C<$env> and C<$INCLUDE> to the subsidiary file. If only
+C<$env> is to be exported, then the following will suffice:
+
+  Import qw ( env INCLUDE );
+  Export qw ( env );
+  Build qw ( beneath-me/Conscript );
+
+Needless to say, the variables may be modified locally before invoking
+C<Build> on the subsidiary script.
+
+
+=head2 Build script evaluation order
+
+The only constraint on the ordering of build scripts is that superior
+scripts are evaluated before their inferior scripts. The top-level
+F<Construct> file, for instance, is evaluated first, followed by any
+inferior scripts. This is all you really need to know about the evaluation
+order, since order is generally irrelevant. Consider the following C<Build>
+command:
+
+  Build qw(
+	drivers/display/Conscript
+	drivers/mouse/Conscript
+	parser/Conscript
+	utilities/Conscript
+  );
+
+We've chosen to put the script names in alphabetical order, simply because
+that's the most convenient for maintenance purposes. Changing the order will
+make no difference to the build.
+
+-->
+
  <para>
 
    X

@@ -22,77 +22,12 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
+
  <para>
 
    X
 
  </para>
-
- <section>
- <title>The &InstallAs; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &Precious; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &Command; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &Objects; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &Program; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &Library; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
 
  <section>
  <title>The &Module; Method</title>

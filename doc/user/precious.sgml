@@ -23,6 +23,34 @@
 
 -->
 
+<!--
+
+=head2 The C<Precious> method
+
+The C<Precious> method asks cons not to delete the specified file or
+list of files before building them again.  It is invoked as:
+
+  Precious <files>;
+
+This is especially useful for allowing incremental updates to libraries
+or debug information files which are updated rather than rebuilt anew each
+time.  Cons will still delete the files when the C<-r> flag is specified.
+
+=head2 The C<AfterBuild> method
+
+The C<AfterBuild> method evaluates the specified perl string after
+building the given file or files (or finding that they are up to date).
+The eval will happen once per specified file.  C<AfterBuild> is called
+as follows:
+
+  AfterBuild $env 'foo.o', qq(print "foo.o is up to date!\n");
+
+The perl string is evaluated in the C<script> package, and has access
+to all variables and subroutines defined in the F<Conscript> file in
+which the C<AfterBuild> method is called.
+
+-->
+
  <para>
 
    X
@@ -30,7 +58,7 @@
  </para>
 
  <section>
- <title>X</title>
+ <title>The &Precious; Method</title>
 
    <para>
 

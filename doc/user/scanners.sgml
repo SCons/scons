@@ -22,6 +22,105 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -->
+
+<!--
+
+=head1 Using and writing dependency scanners
+
+QuickScan allows simple target-independent scanners to be set up for
+source files. Only one QuickScan scanner may be associated with any given
+source file and environment, although the same scanner may (and should)
+be used for multiple files of a given type.
+
+A QuickScan scanner is only ever invoked once for a given source file,
+and it is only invoked if the file is used by some target in the tree
+(i.e., there is a dependency on the source file).
+
+QuickScan is invoked as follows:
+
+  QuickScan CONSENV CODEREF, FILENAME [, PATH]
+
+The subroutine referenced by CODEREF is expected to return a list of
+filenames included directly by FILE. These filenames will, in turn, be
+scanned. The optional PATH argument supplies a lookup path for finding
+FILENAME and/or files returned by the user-supplied subroutine.  The PATH
+may be a reference to an array of lookup-directory names, or a string of
+names separated by the system's separator character (':' on UNIX systems,
+';' on Windows NT).
+
+The subroutine is called once for each line in the file, with $_ set to the
+current line. If the subroutine needs to look at additional lines, or, for
+that matter, the entire file, then it may read them itself, from the
+filehandle SCAN. It may also terminate the loop, if it knows that no further
+include information is available, by closing the filehandle.
+
+Whether or not a lookup path is provided, QuickScan first tries to lookup
+the file relative to the current directory (for the top-level file
+supplied directly to QuickScan), or from the directory containing the
+file which referenced the file. This is not very general, but seems good
+enough, especially if you have the luxury of writing your own utilities
+and can control the use of the search path in a standard way.
+
+Here's a real example, taken from a F<Construct> file here:
+
+  sub cons::SMFgen {
+      my($env, @tables) = @_;
+      foreach $t (@tables) {
+	  $env->QuickScan(sub { /\b\S*?\.smf\b/g }, "$t.smf",
+			  $env->{SMF_INCLUDE_PATH});
+	  $env->Command(["$t.smdb.cc","$t.smdb.h","$t.snmp.cc",
+			 "$t.ami.cc", "$t.http.cc"], "$t.smf",
+			q(smfgen %( %SMF_INCLUDE_OPT %) %<));
+      }
+  }
+
+The subroutine above finds all names of the form <name>.smf in the
+file. It will return the names even if they're found within comments,
+but that's OK (the mechanism is forgiving of extra files; they're just
+ignored on the assumption that the missing file will be noticed when
+the program, in this example, smfgen, is actually invoked).
+
+[NOTE that the form C<$env-E<gt>QuickScan ...>  and C<$env-E<gt>Command
+...> should not be necessary, but, for some reason, is required
+for this particular invocation. This appears to be a bug in Perl or
+a misunderstanding on my part; this invocation style does not always
+appear to be necessary.]
+
+Here is another way to build the same scanner. This one uses an
+explicit code reference, and also (unnecessarily, in this case) reads
+the whole file itself:
+
+  sub myscan {
+      my(@includes);
+      do {
+	  push(@includes, /\b\S*?\.smf\b/g);
+      } while <SCAN>;
+      @includes
+  }
+
+Note that the order of the loop is reversed, with the loop test at the
+end. This is because the first line is already read for you. This scanner
+can be attached to a source file by:
+
+  QuickScan $env \&myscan, "$_.smf";
+
+This final example, which scans a different type of input file, takes
+over the file scanning rather than being called for each input line:
+
+  $env->QuickScan(
+      sub { my(@includes) = ();
+	  do {
+	     push(@includes, $3)
+		 if /^(#include|import)\s+(\")(.+)(\")/ && $3
+	  } while <SCAN>;
+	  @includes
+      },
+      "$idlFileName",
+      "$env->{CPPPATH};$BUILD/ActiveContext/ACSCLientInterfaces"
+  );
+
+-->
+
  <para>
 
    X

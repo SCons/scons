@@ -32,22 +32,33 @@
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
 
+    <!ENTITY actions SYSTEM "actions.sgml">
+    <!ENTITY alias SYSTEM "alias.sgml">
     <!ENTITY builders SYSTEM "builders.sgml">
     <!ENTITY caching SYSTEM "caching.sgml">
+    <!ENTITY command SYSTEM "command.sgml">
     <!ENTITY cons SYSTEM "cons.sgml">
     <!ENTITY copyright SYSTEM "copyright.sgml">
+    <!ENTITY default SYSTEM "default.sgml">
     <!ENTITY depends SYSTEM "depends.sgml">
     <!ENTITY environments SYSTEM "environments.sgml">
     <!ENTITY errors SYSTEM "errors.sgml">
     <!ENTITY example SYSTEM "example.sgml">
+    <!ENTITY help SYSTEM "help.sgml">
     <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
+    <!ENTITY install SYSTEM "install.sgml">
+    <!ENTITY library SYSTEM "library.sgml">
     <!ENTITY make SYSTEM "make.sgml">
     <!ENTITY more SYSTEM "more.sgml">
+    <!ENTITY object SYSTEM "object.sgml">
+    <!ENTITY precious SYSTEM "precious.sgml">
     <!ENTITY preface SYSTEM "preface.sgml">
+    <!ENTITY program SYSTEM "program.sgml">
     <!ENTITY reference SYSTEM "reference.sgml">
     <!ENTITY repositories SYSTEM "repositories.sgml">
     <!ENTITY run SYSTEM "run.sgml">
     <!ENTITY scanners SYSTEM "scanners.sgml">
+    <!ENTITY separate SYSTEM "separate.sgml">
     <!ENTITY simple SYSTEM "simple.sgml">
     <!ENTITY troubleshoot SYSTEM "troubleshoot.sgml">
     <!ENTITY variants SYSTEM "variants.sgml">
@@ -100,17 +111,64 @@
     &depends;
   </chapter>
 
+
+
+  <chapter id="chap-default">
+    <title>Default Targets</title>
+    &default;
+  </chapter>
+
+  <chapter id="chap-help">
+    <title>Providing Build Help</title>
+    &help;
+  </chapter>
+
+  <chapter id="chap-install">
+    <title>Installing Files in Other Directories</title>
+    &install;
+  </chapter>
+
+  <chapter id="chap-program">
+    <title>The Program Builder</title>
+    &program;
+  </chapter>
+
+  <chapter id="chap-library">
+    <title>The Library Builder</title>
+    &library;
+  </chapter>
+
   <chapter id="chap-more">
     <title>More Things to Do With Builds</title>
     &more;
   </chapter>
 
+  <chapter id="chap-command">
+    <title>The Command Builder</title>
+    &command;
+  </chapter>
+
+  <chapter id="chap-object">
+    <title>The Object Builder</title>
+    &object;
+  </chapter>
+
+  <chapter id="chap-precious">
+    <title>Preventing Removal of Targets</title>
+    &precious;
+  </chapter>
+
   <chapter id="chap-hierarchical">
-    <title>Hierarchial Builds</title>
+    <title>Hierarchical Builds</title>
     &hierarchy;
   </chapter>
 
-  <chapter id="chap-variant">
+  <chapter id="chap-separate">
+    <title>Separating Source and Build Directories</title>
+    &separate;
+  </chapter>
+
+  <chapter id="chap-variants">
     <title>Variant Builds</title>
     &variants;
   </chapter>
@@ -118,6 +176,11 @@
   <chapter id="chap-builders">
     <title>Writing Builders</title>
     &builders;
+  </chapter>
+
+  <chapter id="chap-actions">
+    <title>SCons Actions</title>
+    &actions;
   </chapter>
 
   <chapter id="chap-scanners">
@@ -138,6 +201,11 @@
   <chapter id="chap-run">
     <title>How to Run &SCons;</title>
     &run;
+  </chapter>
+
+  <chapter id="chap-alias">
+    <title>Alias Targets</title>
+    &alias;
   </chapter>
 
   <chapter id="chap-troubleshooting">

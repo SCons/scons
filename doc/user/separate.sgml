@@ -1,0 +1,128 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head1 Separating source and build trees
+
+It's often desirable to keep any derived files from the build completely
+separate from the source files. This makes it much easier to keep track of
+just what is a source file, and also makes it simpler to handle B<variant>
+builds, especially if you want the variant builds to co-exist.
+
+=head2 Separating build and source directories using the Link command
+
+Cons provides a simple mechanism that handles all of these requirements. The
+C<Link> command is invoked as in this example:
+
+  Link 'build' => 'src';
+
+The specified directories are ``linked'' to the specified source
+directory. Let's suppose that you setup a source directory, F<src>, with the
+sub-directories F<world> and F<hello> below it, as in the previous
+example. You could then substitute for the original build lines the
+following:
+
+  Build qw(
+	build/world/Conscript
+	build/hello/Conscript
+  );
+
+Notice that you treat the F<Conscript> file as if it existed in the build
+directory. Now if you type the same command as before, you will get the
+following results:
+
+  % cons export
+  Install build/world/world.h as export/include/world.h
+  cc -Iexport/include -c build/hello/hello.c -o build/hello/hello.o
+  cc -Iexport/include -c build/world/world.c -o build/world/world.o
+  ar r build/world/libworld.a build/world/world.o
+  ar: creating build/world/libworld.a
+  ranlib build/world/libworld.a
+  Install build/world/libworld.a as export/lib/libworld.a
+  cc -o build/hello/hello build/hello/hello.o -Lexport/lib -lworld
+  Install build/hello/hello as export/bin/hello
+
+Again, Cons has taken care of the details for you. In particular, you will
+notice that all the builds are done using source files and object files from
+the build directory. For example, F<build/world/world.o> is compiled from
+F<build/world/world.c>, and F<export/include/world.h> is installed from
+F<build/world/world.h>. This is accomplished on most systems by the simple
+expedient of ``hard'' linking the required files from each source directory
+into the appropriate build directory.
+
+The links are maintained correctly by Cons, no matter what you do to the
+source directory. If you modify a source file, your editor may do this ``in
+place'' or it may rename it first and create a new file. In the latter case,
+any hard link will be lost. Cons will detect this condition the next time
+the source file is needed, and will relink it appropriately.
+
+You'll also notice, by the way, that B<no> changes were required to the
+underlying F<Conscript> files. And we can go further, as we shall see in the
+next section.
+
+=head2 Explicit references to the source directory
+
+When using the C<Link> command on some operating systems or with some
+tool chains, it's sometimes useful to have a command actually use
+the path name to the source directory, not the build directory.  For
+example, on systems that must copy, not "hard link," the F<src/> and
+F<build/> copies of C<Linked> files, using the F<src/> path of a file
+name might make an editor aware that a syntax error must be fixed in the
+source directory, not the build directory.
+
+You can tell Cons that you want to use the "source path" for a file by
+preceding the file name with a ``!'' (exclamation point).  For example,
+if we add a ``!'' to the beginning of a source file:
+
+  Program $env "foo", "!foo.c";	# Notice initial ! on foo.c
+
+Cons will compile the target as follows:
+
+  cc -c src/foo.c -o build/foo.o
+  cc -o build/foo build/foo.o
+
+Notice that Cons has compiled the program from the the F<src/foo.c>
+source file.  Without the initial ``!'', Cons would have compiled the
+program using the F<build/foo.c> path name.
+
+-->
+
+ <para>
+
+   X
+
+ </para>
+
+ <section>
+ <title>X</title>
+
+   <para>
+
+   X
+
+   </para>
+
+ </section>

@@ -170,3 +170,14 @@
 <!ENTITY consvars "<literal>construction variables</literal>">
 
 <!ENTITY Dictionary "<literal>Dictionary</literal>">
+
+<!--
+
+  File and program names used in examples.
+
+-->
+
+<!ENTITY hello "<application>hello</application>">
+<!ENTITY hello_c "<filename>hello.c</filename>">
+<!ENTITY hello_h "<filename>hello.h</filename>">
+<!ENTITY stdio_h "<filename>stdio.h</filename>">

@@ -23,6 +23,17 @@
 
 -->
 
+<!--
+
+=head2 The C<UseCache> method
+
+The C<UseCache> method instructs Cons to maintain a cache of derived
+files, to be shared among separate build trees of the same project.
+
+  UseCache("cache/<buildname>") || warn("cache directory not found");
+
+-->
+
  <para>
 
    X
