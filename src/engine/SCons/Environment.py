@@ -34,6 +34,7 @@ import copy
 import os
 import os.path
 import re
+import shutil
 from UserDict import UserDict
 
 import SCons.Action
@@ -47,10 +48,19 @@ import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 
+def installFunc(target, source, env):
+    """Install a source file into a target using the function specified
+    as the INSTALL construction variable."""
+    try:
+        install = env['INSTALL']
+    except KeyError:
+        raise SCons.Errors.UserError('Missing INSTALL construction variable.')
+    return install(target[0].path, source[0].path, env)
+
 def installString(target, source, env):
     return 'Install file: "%s" as "%s"' % (source[0], target[0])
 
-installAction = SCons.Action.Action(SCons.Node.FS.LinkFunc, installString)
+installAction = SCons.Action.Action(installFunc, installString)
 
 InstallBuilder = SCons.Builder.Builder(name='Install', action=installAction)
 

@@ -37,8 +37,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import os
-import string
 import os.path
+import shutil
+import stat
+import string
 
 import SCons.Action
 import SCons.Builder
@@ -183,6 +185,14 @@ Program = SCons.Builder.Builder(action=[ StaticCheck, '$LINKCOM' ],
                                 src_builder='Object',
                                 scanner = ProgScan)
 
+def copyFunc(dest, source, env):
+    """Install a source file into a destination by copying it (and its
+    permission/mode bits)."""
+    shutil.copy2(source, dest)
+    st = os.stat(source)
+    os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    return 0
+
 def _concat(prefix, list, suffix, locals, globals, f=lambda x: x):
     """Creates a new list from 'list' by first interpolating each
     element in the list using 'locals' and 'globals' and then calling f
@@ -257,6 +267,7 @@ ConstructionEnvironment = {
     'PSPREFIX'   : '',
     'PSSUFFIX'   : '.ps',
     'ENV'        : {},
+    'INSTALL'    : copyFunc,
     '_concat'     : _concat,
     '_stripixes'  : _stripixes,
     '_LIBFLAGS'    : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, locals(), globals())}',

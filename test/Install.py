@@ -24,93 +24,87 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Verify that the Install() Builder works
+"""
+
 import os.path
 import sys
 import time
 import TestSCons
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-    _obj = '.obj'
-else:
-    _exe = ''
-    _obj = '.o'
-
 test = TestSCons.TestSCons()
 
-foo1 = test.workpath('export/foo1' + _exe)
-foo2 = test.workpath('export/foo2' + _exe)
+f1_out = test.workpath('export', 'f1.out')
+f2_out = test.workpath('export', 'f2.out')
+f3_out = test.workpath('export', 'f3.out')
 
-test.write('SConstruct', """
-env=Environment()
-t=env.Program(target='foo1', source='f1.c')
-env.Install(dir='export', source=t)
-t=env.Program(target='foo2', source='f2.c')
-env.Install(dir='export', source=t)
+test.write('SConstruct', """\
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
+
+def my_install(dest, source, env):
+    import shutil
+    shutil.copy2(source, dest)
+    open('my_install.out', 'ab').write(dest)
+
+env1 = Environment()
+env1.Append(BUILDERS={'Cat':Builder(action=cat)})
+env3 = env1.Copy(INSTALL = my_install)
+
+t = env1.Cat(target='f1.out', source='f1.in')
+env1.Install(dir='export', source=t)
+t = env1.Cat(target='f2.out', source='f2.in')
+env1.Install(dir='export', source=t)
+
+t = env3.Cat(target='f3.out', source='f3.in')
+env3.Install(dir='export', source=t)
 """)
 
-test.write('f1.c', r"""
-#include <stdio.h>
-
-int main(void)
-{
-   printf("f1.c\n");
-   return 0;
-}
-""")
-
-test.write('f2.c', r"""
-#include <stdio.h>
-
-int main(void)
-{
-   printf("f2.c\n");
-   return 0;
-}
-""")
+test.write('f1.in', "f1.in\n")
+test.write('f2.in', "f2.in\n")
+test.write('f3.in', "f3.in\n")
 
 test.run(arguments = '.')
 
-test.run(program = foo1, stdout = "f1.c\n")
-test.run(program = foo2, stdout = "f2.c\n")
+test.fail_test(test.read(f1_out) != "f1.in\n")
+test.fail_test(test.read(f2_out) != "f2.in\n")
+test.fail_test(test.read(f3_out) != "f3.in\n")
+
+test.fail_test(test.read('my_install.out') != os.path.join('export', 'f3.out'))
 
 # make sure the programs didn't get rebuilt, because nothing changed:
-oldtime1 = os.path.getmtime(foo1)
-oldtime2 = os.path.getmtime(foo2)
+oldtime1 = os.path.getmtime(f1_out)
+oldtime2 = os.path.getmtime(f2_out)
 
-test.write('f1.c', r"""
-#include <stdio.h>
-
-int main(void)
-{
-   printf("f1.c again\n");
-   return 0;
-}
-""")
+test.write('f1.in', "f1.in again\n")
 
 time.sleep(2) # introduce a small delay, to make the test valid
 
 test.run(arguments = '.')
 
-test.fail_test(oldtime1 == os.path.getmtime(foo1))
-test.fail_test(oldtime2 != os.path.getmtime(foo2))
+test.fail_test(oldtime1 == os.path.getmtime(f1_out))
+test.fail_test(oldtime2 != os.path.getmtime(f2_out))
+
+# Verify that we didn't link to the Installed file.
+open(f2_out, 'wb').write("xyzzy\n")
+test.fail_test(test.read('f2.out') != "f2.in\n")
 
 # Verify that scons prints an error message
 # if a target can not be unlinked before building it:
-test.write('f1.c', r"""
-#include <stdio.h>
+test.write('f1.in', "f1.in again again\n")
 
-int main(void)
-{
-   printf("f1.c again again\n");
-   return 0;
-}
-""")
+os.chmod(test.workpath('export'), 0555)
+f = open(f1_out, 'rb')
 
-os.chmod(test.workpath('.'), 0555)
-f = open(test.workpath('f1' + _obj), 'rb')
-
-test.run(arguments = foo1, stderr="scons: *** [Errno 13] Permission denied: 'f1%s'\n"%_obj, status=2)
+test.run(arguments = f1_out,
+         stderr="scons: *** [Errno 13] Permission denied: '%s'\n" % os.path.join('export', 'f1.out'),
+         status=2)
 
 f.close()
 

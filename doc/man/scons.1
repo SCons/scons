@@ -1881,6 +1881,27 @@ in the $CPPPATH and $F77PATH construction variables
 when the $_CPPINCFLAGS and $_F77INCFLAGS
 variables are automatically generated.
 
+.IP INSTALL
+A function to be called to install a file into a
+destination file name.
+The default function copies the file into the destination
+(and sets the destination file's mode and permission bits
+to match the source file's).
+The function takes the following arguments:
+
+.ES
+def install(dest, source, env):
+.EE
+.IP
+.I dest
+is the path name of the destination file.
+.I source
+is the path name of the source file.
+.I env
+is the construction environment
+(a dictionary of construction values)
+in force for this file installation.
+
 .IP LATEX
 The LaTeX structured formatter and typesetter.
 

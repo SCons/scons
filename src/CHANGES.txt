@@ -10,6 +10,12 @@
 
 RELEASE 0.12 - XXX
 
+  From Steven Knight:
+
+  - Added an INSTALL construction variable that can be set to a function
+    to control how the Install() and InstallAs() Builders install files.
+    The default INSTALL function now copies, not links, files.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600
