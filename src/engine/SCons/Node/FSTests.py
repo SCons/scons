@@ -1654,7 +1654,7 @@ class CacheDirTestCase(unittest.TestCase):
             raise OSError
         shutil.copy2 = copy2
         save_mkdir = os.mkdir
-        def mkdir(dir):
+        def mkdir(dir, mode=0):
             pass
         os.mkdir = mkdir
         old_warn_exceptions = SCons.Warnings.warningAsException(1)

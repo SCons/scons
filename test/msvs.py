@@ -274,7 +274,10 @@ test = TestSCons.TestSCons(match = TestCmd.match_re)
 if sys.platform != 'win32':
     test.pass_test()
 
-exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-0.94'), join(sys.prefix, 'scons-0.94'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
+test.run(arguments = '-q -Q -f -', stdin = "import SCons; print SCons.__version__")
+version = test.stdout()[:-1]
+
+exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (version, version)
 exec_script_main_xml = string.replace(exec_script_main, "'", "&apos;")
 
 def substitute(input, workpath=test.workpath(), python=sys.executable):
