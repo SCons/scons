@@ -34,7 +34,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.05'
+default_version = '0.06'
 
 Default('.')
 
@@ -169,6 +169,10 @@ def SCons_revision(target, source, env):
     This is used to copy files into a tree that gets packaged up
     into the source file package.
     """
+    # Note:  We don't use $VERSION from the environment so that
+    # this routine will change when the version number changes
+    # and things will get rebuilt properly.
+    global version
     print "SCons_revision() < %s > %s" % (source[0], target)
     inf = open(source[0], 'rb')
     outf = open(target, 'wb')
@@ -180,7 +184,7 @@ def SCons_revision(target, source, env):
         line = string.replace(line, '_' + '_DEVELOPER__', env['DEVELOPER'])
         line = string.replace(line, '_' + '_FILE__', source[0])
         line = string.replace(line, '_' + '_REVISION__', env['REVISION'])
-        line = string.replace(line, '_' + '_VERSION__', env['VERSION'])
+        line = string.replace(line, '_' + '_VERSION__', version)
         outf.write(line)
     inf.close()
     outf.close()
@@ -444,8 +448,7 @@ for p in [ scons ]:
     ]
     setup_py = os.path.join(build, 'setup.py')
     commands = [
-        "rm -rf %s && python %s bdist" %
-            (string.join(map(lambda x: str(x), bdist_dirs)), setup_py),
+        "rm -rf %s && python %s bdist" % (string.join(bdist_dirs), setup_py),
         "python %s sdist" % setup_py,
         "python %s bdist_wininst" % setup_py,
     ]

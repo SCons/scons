@@ -40,6 +40,10 @@ def copy(target, source, env):
     open(target, 'wb').write(open(source[0], 'rb').read())
 
 for file in files:
-    env.Command(os.path.join('#build', 'etc', file),
-                file,
-		copy)
+    # Guarantee that real copies of these files always exist in
+    # build/etc.  If there's a symlink there, then this is an Aegis
+    # build and we blow them away now so that they'll get "built" later.
+    p = os.path.join('build', 'etc', file)
+    if os.path.islink(p):
+        os.unlink(p)
+    env.Command(os.path.join('#' + p), file, copy)

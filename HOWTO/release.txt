@@ -49,11 +49,11 @@ Things to do to release a new version of SCons:
 
 		ae_p scons.0
 
-		aede {5}
+		aede {6}
 
-		aerpass {5}
+		aerpass {6}
 
-		aeib {5}
+		aeib {6}
 
 		aeb
 
@@ -67,15 +67,15 @@ Things to do to release a new version of SCons:
 
 	START THE NEW BRANCH
 
-		aenbr -p scons.0 {6}
+		aenbr -p scons.0 {7}
 
-		aenc -p scons.0.{6}
+		aenc -p scons.0.{7}
 
                         Call it something like, "Initialize the new
                         branch."  Cause = internal_enhancement.  Exempt
                         it from all tests (*_exempt = true).
 
-		ae_p scons.0.{6}
+		ae_p scons.0.{7}
 
 		aedb 100
 
@@ -119,12 +119,12 @@ Things to do to release a new version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.05-1.noarch.rpm
-		put scons-0.05-1.src.rpm
-		put scons-0.05.tar.gz
-		put scons-0.05.win32.exe
-		put scons-src-0.05.tar.gz
-		put scons_0.05-1_all.deb
+		put scons-0.06-1.noarch.rpm
+		put scons-0.06-1.src.rpm
+		put scons-0.06.tar.gz
+		put scons-0.06.win32.exe
+		put scons-src-0.06.tar.gz
+		put scons_0.06-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
@@ -134,7 +134,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.05
+		New release name:  0.06
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -149,12 +149,12 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-0.05-1.noarch.rpm		Any	.rpm
-			scons-0.05-1.src.rpm		Any	Source .rpm
-			scons-0.05.tar.gz		Any	.gz
-			scons-0.05.win32.exe		i386	Other
-			scons-src-0.05.tar.gz		Any	Source .gz
-			scons_0.05-1_all.deb		Any	.deb
+			scons-0.06-1.noarch.rpm		Any	.rpm
+			scons-0.06-1.src.rpm		Any	Source .rpm
+			scons-0.06.tar.gz		Any	.gz
+			scons-0.06.win32.exe		i386	Other
+			scons-src-0.06.tar.gz		Any	Source .gz
+			scons_0.06-1_all.deb		Any	.deb
 
 		(This has to be done one at a time.)
 
@@ -183,7 +183,7 @@ Things to do to release a new version of SCons:
 
 
 
-	In the Bugs Tracker, add a Group for the new release (0.05)
+	In the Bugs Tracker, add a Group for the new release (0.06)
 
 
 
@@ -255,7 +255,7 @@ Version 0.XXX of SCons contains the following important changes:
 
   - XXX
 
-For a complete list of changes in version 0.05, see the CHANGES.txt
+For a complete list of changes in version 0.06, see the CHANGES.txt
 file in the release itself.
 
 

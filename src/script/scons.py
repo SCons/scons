@@ -37,6 +37,10 @@ import os
 # followed by generic) so we pick up the right version of the build
 # engine modules if they're in either directory.
 
+selfdir = os.path.abspath(sys.argv[0])
+if selfdir in sys.path:
+    sys.path.remove(selfdir)
+
 libs = []
 
 if os.environ.has_key("SCONS_LIB_DIR"):
