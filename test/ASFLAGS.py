@@ -40,6 +40,8 @@ if sys.platform == 'win32':
 
     o = ' -x'
 
+    o_c = ' -x'
+
     test.write('mylink.py', r"""
 import string
 import sys
@@ -90,6 +92,8 @@ else:
     _exe = ''
 
     o = ' -x'
+
+    o_c = ' -x -c'
 
     test.write('mylink.py', r"""
 import getopt
@@ -170,15 +174,15 @@ test.run(arguments = '.', stderr = None)
 
 test.fail_test(test.read('test1' + _exe) != "%s\nThis is a .s file.\n" % o)
 
-test.fail_test(test.read('test2' + _exe) != "%s\nThis is a .S file.\n" % o)
+test.fail_test(test.read('test2' + _exe) != "%s\nThis is a .S file.\n" % o_c)
 
 test.fail_test(test.read('test3' + _exe) != "%s\nThis is a .asm file.\n" % o)
 
 test.fail_test(test.read('test4' + _exe) != "%s\nThis is a .ASM file.\n" % o)
 
-test.fail_test(test.read('test5' + _exe) != "%s\nThis is a .spp file.\n" % o)
+test.fail_test(test.read('test5' + _exe) != "%s\nThis is a .spp file.\n" % o_c)
 
-test.fail_test(test.read('test6' + _exe) != "%s\nThis is a .SPP file.\n" % o)
+test.fail_test(test.read('test6' + _exe) != "%s\nThis is a .SPP file.\n" % o_c)
 
 
 
