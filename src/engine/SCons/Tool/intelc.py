@@ -128,10 +128,10 @@ def get_all_compiler_versions():
     versions.sort(fltcmp)
     return versions
 
-def get_intel_compiler_top(version=None, abi=None):
+def get_intel_compiler_top(version, abi):
     """
     Return the main path to the top-level dir of the Intel compiler,
-    using the given version or latest if None.
+    using the given version.
     The compiler will be in <top>/bin/icl.exe (icc on linux),
     the include dir is <top>/include, etc.
     """
@@ -275,15 +275,16 @@ def exists(env):
         return 0
 
     try:
-        top = get_intel_compiler_top()
+        versions = get_all_compiler_versions()
     except (SCons.Util.RegError, IntelCError):
-        top = None
-    if not top:
+        versions = None
+    detected = versions is not None and len(versions) > 0
+    if not detected:
         # try env.Detect, maybe that will work
         if is_win32:
             return env.Detect('icl')
         elif is_linux:
             return env.Detect('icc')
-    return top is not None
+    return detected
 
 # end of file
