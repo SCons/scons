@@ -119,6 +119,9 @@ RELEASE 0.95 - XXX
     SharedLibrary() are shared work even if the object was built in a
     previous run.
 
+  - Supply meaningful error messages, not stack traces, if we try to add
+    a non-Node as a source, dependency, or ignored dependency of a Node.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.

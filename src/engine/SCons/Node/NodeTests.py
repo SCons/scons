@@ -470,30 +470,38 @@ class NodeTestCase(unittest.TestCase):
         assert node.depends == []
 
         zero = SCons.Node.Node()
-        try:
-            node.add_dependency(zero)
-        except TypeError:
-            pass
-        else:
-            assert 0
 
         one = SCons.Node.Node()
         two = SCons.Node.Node()
         three = SCons.Node.Node()
         four = SCons.Node.Node()
+        five = SCons.Node.Node()
+        six = SCons.Node.Node()
 
+        node.add_dependency(zero)
+        assert node.depends == [zero]
         node.add_dependency([one])
-        assert node.depends == [one]
+        assert node.depends == [zero, one]
         node.add_dependency([two, three])
-        assert node.depends == [one, two, three]
+        assert node.depends == [zero, one, two, three]
         node.add_dependency([three, four, one])
-        assert node.depends == [one, two, three, four]
+        assert node.depends == [zero, one, two, three, four]
 
-        assert zero.get_parents() == []
+        assert zero.get_parents() == [node]
         assert one.get_parents() == [node]
         assert two.get_parents() == [node]
         assert three.get_parents() == [node]
         assert four.get_parents() == [node]
+
+        try:
+            node.add_depends([[five, six]])
+        except:
+            pass
+        else:
+            raise "did not catch expected exception"
+        assert node.depends == [zero, one, two, three, four]
+        assert five.get_parents() == []
+        assert six.get_parents() == []
 
 
     def test_add_source(self):
@@ -503,30 +511,37 @@ class NodeTestCase(unittest.TestCase):
         assert node.sources == []
 
         zero = SCons.Node.Node()
-        try:
-            node.add_source(zero)
-        except TypeError:
-            pass
-        else:
-            assert 0
-
         one = SCons.Node.Node()
         two = SCons.Node.Node()
         three = SCons.Node.Node()
         four = SCons.Node.Node()
+        five = SCons.Node.Node()
+        six = SCons.Node.Node()
 
+        node.add_source(zero)
+        assert node.sources == [zero]
         node.add_source([one])
-        assert node.sources == [one]
+        assert node.sources == [zero, one]
         node.add_source([two, three])
-        assert node.sources == [one, two, three]
+        assert node.sources == [zero, one, two, three]
         node.add_source([three, four, one])
-        assert node.sources == [one, two, three, four]
+        assert node.sources == [zero, one, two, three, four]
 
-        assert zero.get_parents() == []
+        assert zero.get_parents() == [node]
         assert one.get_parents() == [node]
         assert two.get_parents() == [node]
         assert three.get_parents() == [node]
         assert four.get_parents() == [node]
+
+        try:
+            node.add_source([[five, six]])
+        except:
+            pass
+        else:
+            raise "did not catch expected exception"
+        assert node.sources == [zero, one, two, three, four]
+        assert five.get_parents() == []
+        assert six.get_parents() == []
 
     def test_add_ignore(self):
         """Test adding files whose dependencies should be ignored.
@@ -535,30 +550,37 @@ class NodeTestCase(unittest.TestCase):
         assert node.ignore == []
 
         zero = SCons.Node.Node()
-        try:
-            node.add_ignore(zero)
-        except TypeError:
-            pass
-        else:
-            assert 0
-
         one = SCons.Node.Node()
         two = SCons.Node.Node()
         three = SCons.Node.Node()
         four = SCons.Node.Node()
+        five = SCons.Node.Node()
+        six = SCons.Node.Node()
 
+        node.add_ignore(zero)
+        assert node.ignore == [zero]
         node.add_ignore([one])
-        assert node.ignore == [one]
+        assert node.ignore == [zero, one]
         node.add_ignore([two, three])
-        assert node.ignore == [one, two, three]
+        assert node.ignore == [zero, one, two, three]
         node.add_ignore([three, four, one])
-        assert node.ignore == [one, two, three, four]
+        assert node.ignore == [zero, one, two, three, four]
 
-        assert zero.get_parents() == []
+        assert zero.get_parents() == [node]
         assert one.get_parents() == [node]
         assert two.get_parents() == [node]
         assert three.get_parents() == [node]
         assert four.get_parents() == [node]
+
+        try:
+            node.add_ignore([[five, six]])
+        except:
+            pass
+        else:
+            raise "did not catch expected exception"
+        assert node.ignore == [zero, one, two, three, four]
+        assert five.get_parents() == []
+        assert six.get_parents() == []
 
     def test_get_found_includes(self):
         """Test the default get_found_includes() method

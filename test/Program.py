@@ -327,4 +327,17 @@ test.fail_test(not (oldtime3 == os.path.getmtime(foo3)))
 test.fail_test(not (oldtime4 == os.path.getmtime(foo4)))
 test.fail_test(not (oldtime5 == os.path.getmtime(foo5)))
 
+# 
+test.write('SConstruct', """\
+file1 = File('file1.c')
+file2 = File('file2.c')
+Program('foo', [file1, [file2, 'file3.c']])
+""")
+
+test.run(status = 2, stderr = """
+scons: *** attempted to add a non-Node as source of foo:
+\t['file2.c', 'file3.c'] is a <type 'list'>, not a Node
+File "SConstruct", line 3, in ?
+""")
+
 test.pass_test()

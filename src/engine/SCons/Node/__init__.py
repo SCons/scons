@@ -583,22 +583,49 @@ class Node:
         return None
 
     def add_dependency(self, depend):
-        """Adds dependencies. The depend argument must be a list."""
-        self._add_child(self.depends, self.depends_dict, depend)
+        """Adds dependencies."""
+        try:
+            self._add_child(self.depends, self.depends_dict, depend)
+        except TypeError, e:
+            e = e.args[0]
+            if SCons.Util.is_List(e):
+                s = map(str, e)
+            else:
+                s = str(e)
+            raise SCons.Errors.UserError("attempted to add a non-Node dependency to %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
     def add_ignore(self, depend):
-        """Adds dependencies to ignore. The depend argument must be a list."""
-        self._add_child(self.ignore, self.ignore_dict, depend)
+        """Adds dependencies to ignore."""
+        try:
+            self._add_child(self.ignore, self.ignore_dict, depend)
+        except TypeError, e:
+            e = e.args[0]
+            if SCons.Util.is_List(e):
+                s = map(str, e)
+            else:
+                s = str(e)
+            raise SCons.Errors.UserError("attempted to ignore a non-Node dependency of %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
     def add_source(self, source):
-        """Adds sources. The source argument must be a list."""
-        self._add_child(self.sources, self.sources_dict, source)
+        """Adds sources."""
+        try:
+            self._add_child(self.sources, self.sources_dict, source)
+        except TypeError, e:
+            e = e.args[0]
+            if SCons.Util.is_List(e):
+                s = map(str, e)
+            else:
+                s = str(e)
+            raise SCons.Errors.UserError("attempted to add a non-Node as source of %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
     def _add_child(self, collection, dict, child):
-        """Adds 'child' to 'collection', first checking 'dict' to see if
-        it's already present. The 'child' argument must be a list"""
+        """Adds 'child' to 'collection', first checking 'dict' to see
+        if it's already present."""
         if type(child) is not type([]):
-            raise TypeError("child must be a list")
+            child = [child]
+        for c in child:
+            if not isinstance(c, Node):
+                raise TypeError, c
         added = None
         for c in child:
             if not dict.has_key(c):
