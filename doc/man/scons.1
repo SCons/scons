@@ -1538,7 +1538,7 @@ Installs one or more files in a destination directory.
 The file names remain the same.
 
 .ES
-env.Install(dir = '/usr/local/bin', source = 'foo bar')
+env.Install(dir = '/usr/local/bin', source = ['foo', 'bar'])
 .EE
 
 .TP
@@ -1552,8 +1552,8 @@ list different numbers of files.
 .ES
 env.InstallAs(target = '/usr/local/bin/foo',
               source = 'foo_debug')
-env.InstallAs(target = '../lib/libfoo.a ../lib/libbar.a',
-              source = 'libFOO.a libBAR.a')
+env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
+              source = ['libFOO.a', 'libBAR.a'])
 .EE
 
 .TP
@@ -2720,7 +2720,7 @@ method:
 env2 = env.Copy(CC="cl.exe")
 .EE
 
-.SS Costruction Variable Options
+.SS Construction Variable Options
 
 Often when building software, various options need to be specified at build
 time that are not known when the SConstruct/SConscript files are
@@ -4361,7 +4361,7 @@ or by specifying a dot ("scons .").
 
 .ES
 env = Environment()
-env.Program(target = 'foo', source = 'f1.c f2.c f3.c')
+env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 .EE
 
 .SS Setting a Compilation Flag
@@ -4579,18 +4579,18 @@ SConstruct:
 libA/SConscript:
 
     Import('env')
-    env.Library('a', 'a1.c a2.c a3.c')
+    env.Library('a', Split('a1.c a2.c a3.c'))
 
 libB/SConscript:                                                  
 
     Import('env')
-    env.Library('b', 'b1.c b2.c b3.c')
+    env.Library('b', Split('b1.c b2.c b3.c'))
 
 Main/SConscript:
 
     Import('env')
     e = env.Copy(LIBS = ['a', ','b'])
-    e.Program('foo', 'm1.c m2.c m3.c')
+    e.Program('foo', Split('m1.c m2.c m3.c'))
 .EE
 
 The '#' in the LIBPATH directories specify that they're relative to the

@@ -49,8 +49,9 @@ RELEASE 0.12 - XXX
   - Add support for Tar and Zip files.
 
   - Better documentation of the different ways to export variables to a
-    subsidiary SConscript file.  Fix a documentation bug in a tools
-    example.
+    subsidiary SConscript file.  Fix documentation bugs in a tools
+    example, places that still assumed SCons split strings on white
+    space, and typos.
 
   - Support fetching arbitrary files from the TARGETS or SOURCES lists
     (e.g. ${SOURCES[2]}) when calculating the build signature of a
