@@ -49,6 +49,8 @@
 <!ENTITY Makefile "<filename>Makefile</filename>">
 <!ENTITY SConscript "<filename>SConscript</filename>">
 <!ENTITY SConstruct "<filename>SConstruct</filename>">
+<!ENTITY Sconstruct "<filename>Sconstruct</filename>">
+<!ENTITY sconstruct "<filename>sconstruct</filename>">
 <!ENTITY sconsign "<filename>.consign</filename>">
 
 

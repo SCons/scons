@@ -107,11 +107,13 @@
       <para>
 
         Change to the specified <replaceable>directory</replaceable>
-        before reading <filename>SConstruct</filename> or doing
-        anything else.  Multiple <option>-C</option> options are
-        interpreted relative to the previous one.  (This is nearly
-        equivalent to <literal>-f directory/SConstruct</literal>,
-        except that it will search for <filename>SConstruct</filename>,
+        before searching for the <filename>SConstruct</filename>,
+        <filename>Sconstruct</filename> or
+        <filename>sconstruct</filename> file, or doing anything
+        else.  Multiple <option>-C</option> options are interpreted
+        relative to the previous one.  (This is nearly equivalent
+        to <literal>-f directory/SConstruct</literal>, except
+        that it will search for <filename>SConstruct</filename>,
         <filename>Sconstruct</filename>, or
         <filename>sconstruct</filename> in the directory.)
 

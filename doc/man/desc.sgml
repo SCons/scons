@@ -14,12 +14,13 @@
 
  <para>
 
-   By default, &scons; reads configuration information from the
-   file named  <filename>SConstruct</filename> in the current
-   directory.  An alternate file name may be specified via the
-    <option>-f</option> option.  If the alternate file is not in
-   the local directory, &scons; will internally change its working
-   directory (chdir) to the directory containing the file.
+   By default, &scons; searches for a file named &SConstruct;,
+   &Sconstruct; or &sconstruct (in that order) in the current directory
+   and reads its configuration from the first file found.  An alternate
+   file name may be specified via the <option>-f</option> option.  If
+   the specified file is not in the local directory, &scons; will
+   internally change its working directory (chdir) to the directory
+   containing the file.
 
  </para>
 

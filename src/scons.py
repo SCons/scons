@@ -448,9 +448,12 @@ def main():
 	opt_func[opt](opt, arg)
 
     if not Scripts:
-        Scripts.append('SConstruct')
+        for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
+            if os.path.isfile(file):
+                Scripts.append(file)
+                break
 
-    if local_help and not os.path.isfile(Scripts[0]):
+    if local_help and not Scripts:
 	# They specified -h, but there's no SConstruct.  Give them
 	# the options usage before we try to read it and fail.
 	PrintUsage()

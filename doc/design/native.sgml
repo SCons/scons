@@ -32,9 +32,11 @@
 
  <para>
 
-  By default, the &SCons; utility reads a configuration file named
-  &SConstruct; in the current directory.  A <option>-f</option>
-  command-line option exists to read a different file name.
+  By default, the &SCons; utility searches for a file named
+  &SConstruct;, &Sconstruct; or &sconstruct (in that order) in the
+  current directory, and reads its configuration from the first file
+  found.  A <option>-f</option> command-line option exists to read a
+  different file name.
 
  </para>
 
