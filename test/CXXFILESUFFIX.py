@@ -32,47 +32,39 @@ import TestSCons
 
 python = sys.executable
 
-if sys.platform == 'win32':
-    _exe = '.exe'
-else:
-    _exe = ''
-
-lex = None
-for dir in string.split(os.environ['PATH'], os.pathsep):
-    l = os.path.join(dir, 'lex' + _exe)
-    if os.path.exists(l):
-        lex = l
-        break
-
 test = TestSCons.TestSCons()
 
-test.no_result(not lex)
-
-test.write('SConstruct', """
-Environment().CXXFile(target = 'foo', source = 'foo.ll')
-Environment(CXXFILESUFFIX = '.xyz').CXXFile(target = 'bar', source = 'bar.ll')
+test.write('mylex.py', """
+import getopt
+import string
+import sys
+cmd_opts, args = getopt.getopt(sys.argv[1:], 't', [])
+for a in args:
+    contents = open(a, 'rb').read()
+    sys.stdout.write(string.replace(contents, 'LEX', 'mylex.py'))
+sys.exit(0)
 """)
 
-lex = r"""
-%%%%
-a	printf("A%sA");
-b	printf("B%sB");
-%%%%
-int
-yywrap()
-{
-    return 1;
-}
+test.write('SConstruct', """
+env = Environment(LEX = r'%s mylex.py')
+env.CXXFile(target = 'foo', source = 'foo.ll')
+env.Copy(CXXFILESUFFIX = '.xyz').CXXFile(target = 'bar', source = 'bar.ll')
+""" % python)
 
-main()
+input = r"""
+int
+main(int argc, char *argv[])
 {
-    yylex();
+	argv[argc++] = "--";
+	printf("LEX\n");
+	printf("%s\n");
+	exit (0);
 }
 """
 
-test.write('foo.ll', lex % ('foo.ll', 'foo.ll'))
+test.write('foo.ll', input % 'foo.ll')
 
-test.write('bar.ll', lex % ('bar.ll', 'bar.ll'))
+test.write('bar.ll', input % 'bar.ll')
 
 test.run(arguments = '.')
 

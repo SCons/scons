@@ -37,6 +37,49 @@ if sys.platform == 'win32':
 else:
     _exe = ''
 
+test = TestSCons.TestSCons()
+
+
+
+test.write('myyacc.py', """
+import getopt
+import string
+import sys
+cmd_opts, args = getopt.getopt(sys.argv[1:], 'o:x', [])
+output = None
+opt_string = ''
+for opt, arg in cmd_opts:
+    if opt == '-o': output = open(arg, 'wb')
+    else: opt_string = opt_string + ' ' + opt
+for a in args:
+    contents = open(a, 'rb').read()
+    output.write(string.replace(contents, 'YACCFLAGS', opt_string))
+output.close()
+sys.exit(0)
+""")
+
+test.write('SConstruct', """
+env = Environment(YACC = r'%s myyacc.py', YACCFLAGS = '-x')
+env.Program(target = 'aaa', source = 'aaa.y')
+""" % python)
+
+test.write('aaa.y', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("YACCFLAGS\n");
+	printf("aaa.y\n");
+	exit (0);
+}
+""")
+
+test.run(arguments = 'aaa' + _exe, stderr = None)
+
+test.run(program = test.workpath('aaa' + _exe), stdout = " -x\naaa.y\n")
+
+
+
 yacc = None
 for dir in string.split(os.environ['PATH'], os.pathsep):
     y = os.path.join(dir, 'yacc' + _exe)
@@ -44,18 +87,16 @@ for dir in string.split(os.environ['PATH'], os.pathsep):
         yacc = y
         break
 
-test = TestSCons.TestSCons()
+if yacc:
 
-test.no_result(not yacc)
-
-test.write('SConstruct', """
+    test.write('SConstruct', """
 foo = Environment()
 bar = Environment(YACCFLAGS = '-v')
 foo.Program(target = 'foo', source = 'foo.y')
 bar.Program(target = 'bar', source = 'bar.y')
 """)
 
-yacc = r"""
+    yacc = r"""
 %%{
 #include <stdio.h>
 
@@ -84,22 +125,22 @@ letter:  'a' | 'b';
 newline: '\n';
 """
 
-test.write('foo.y', yacc % 'foo.y')
+    test.write('foo.y', yacc % 'foo.y')
 
-test.write('bar.y', yacc % 'bar.y')
+    test.write('bar.y', yacc % 'bar.y')
 
-test.run(arguments = 'foo' + _exe, stderr = None)
+    test.run(arguments = 'foo' + _exe, stderr = None)
 
-test.fail_test(os.path.exists(test.workpath('foo.output'))
+    test.fail_test(os.path.exists(test.workpath('foo.output'))
                or os.path.exists(test.workpath('y.output')))
 
-test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "foo.y\n")
+    test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "foo.y\n")
 
-test.run(arguments = 'bar' + _exe)
+    test.run(arguments = 'bar' + _exe)
 
-test.fail_test(not os.path.exists(test.workpath('bar.output'))
+    test.fail_test(not os.path.exists(test.workpath('bar.output'))
                and not os.path.exists(test.workpath('y.output')))
 
-test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "bar.y\n")
+    test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "bar.y\n")
 
 test.pass_test()

@@ -37,6 +37,46 @@ if sys.platform == 'win32':
 else:
     _exe = ''
 
+test = TestSCons.TestSCons()
+
+
+
+test.write('mylex.py', """
+import getopt
+import string
+import sys
+cmd_opts, args = getopt.getopt(sys.argv[1:], 'tx', [])
+opt_string = ''
+for opt, arg in cmd_opts:
+    opt_string = opt_string + ' ' + opt
+for a in args:
+    contents = open(a, 'rb').read()
+    sys.stdout.write(string.replace(contents, 'LEXFLAGS', opt_string))
+sys.exit(0)
+""")
+
+test.write('SConstruct', """
+env = Environment(LEX = r'%s mylex.py', LEXFLAGS = '-x')
+env.Program(target = 'aaa', source = 'aaa.l')
+""" % python)
+
+test.write('aaa.l', r"""
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("LEXFLAGS\n");
+	printf("aaa.l\n");
+	exit (0);
+}
+""")
+
+test.run(arguments = 'aaa' + _exe, stderr = None)
+
+test.run(program = test.workpath('aaa' + _exe), stdout = " -x -t\naaa.l\n")
+
+
+
 lex = None
 for dir in string.split(os.environ['PATH'], os.pathsep):
     l = os.path.join(dir, 'lex' + _exe)
@@ -44,18 +84,16 @@ for dir in string.split(os.environ['PATH'], os.pathsep):
         lex = l
         break
 
-test = TestSCons.TestSCons()
+if lex:
 
-test.no_result(not lex)
-
-test.write('SConstruct', """
+    test.write('SConstruct', """
 foo = Environment()
 bar = Environment(LEXFLAGS = '-b')
 foo.Program(target = 'foo', source = 'foo.l')
 bar.Program(target = 'bar', source = 'bar.l')
 """)
 
-lex = r"""
+    lex = r"""
 %%%%
 a	printf("A%sA");
 b	printf("B%sB");
@@ -72,20 +110,20 @@ main()
 }
 """
 
-test.write('foo.l', lex % ('foo.l', 'foo.l'))
+    test.write('foo.l', lex % ('foo.l', 'foo.l'))
 
-test.write('bar.l', lex % ('bar.l', 'bar.l'))
+    test.write('bar.l', lex % ('bar.l', 'bar.l'))
 
-test.run(arguments = 'foo' + _exe, stderr = None)
+    test.run(arguments = 'foo' + _exe, stderr = None)
 
-test.fail_test(os.path.exists(test.workpath('lex.backup')))
+    test.fail_test(os.path.exists(test.workpath('lex.backup')))
 
-test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "Afoo.lA\n")
+    test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "Afoo.lA\n")
 
-test.run(arguments = 'bar' + _exe)
+    test.run(arguments = 'bar' + _exe)
 
-test.fail_test(not os.path.exists(test.workpath('lex.backup')))
+    test.fail_test(not os.path.exists(test.workpath('lex.backup')))
 
-test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
+    test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
 
 test.pass_test()
