@@ -277,6 +277,14 @@ class NodeTestCase(unittest.TestCase):
         assert n2.is_derived() == 1
         assert n3.is_derived() == 1
 
+    def test_alter_targets(self):
+        """Test the alter_targets() method
+        """
+        n = SCons.Node.Node()
+        t, m = n.alter_targets()
+        assert t == [], t
+        assert m == None, m
+
     def test_builder_sig_adapter(self):
         """Test the node's adapter for builder signatures
         """

@@ -58,6 +58,11 @@ class Task:
         self.top = top
         self.node = node
 
+    def display(self, message):
+        """Allow the calling interface to display a message
+        """
+        pass
+
     def prepare(self):
         """Called just before the task is executed.
 
@@ -68,6 +73,10 @@ class Task:
         # chance to raise any exceptions it encountered while preparing
         # this task.
         self.tm.exception_raise()
+
+        if self.tm.message:
+            self.display(self.tm.message)
+            self.tm.message = None
 
         if self.targets[0].get_state() != SCons.Node.up_to_date:
             for t in self.targets:
@@ -197,6 +206,7 @@ class Taskmaster:
         self.calc = calc
         self.order = order
         self.exception_set(None, None)
+        self.message = None
 
     def _find_next_ready_node(self):
         """Find the next node that is ready to be built"""
@@ -243,24 +253,39 @@ class Taskmaster:
                 desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
                 raise SCons.Errors.UserError, desc
 
-            # Add derived files that have not been built
-            # to the candidates list:
-            def derived(node):
-                return node.is_derived() and node.get_state() == None
+            # Find all of the derived dependencies (that is,
+            # children who have builders or are side effects):
             try:
-                derived = filter(derived, children)
+                def derived_nodes(node): return node.is_derived()
+                derived = filter(derived_nodes, children)
             except:
-                # We had a problem just trying to figure out the
-                # children (like a child couldn't be linked in to a
-                # BuildDir, or a Scanner threw something).  Arrange to
-                # raise the exception when the Task is "executed."
+                # We had a problem just trying to figure out if any of
+                # the kids are derived (like a child couldn't be linked
+                # from a repository).  Arrange to raise the exception
+                # when the Task is "executed."
                 self.exception_set(sys.exc_type, sys.exc_value)
                 self.candidates.pop()
                 self.ready = node
                 break
-            if derived:
-                derived.reverse()
-                self.candidates.extend(self.order(derived))
+
+            # If there aren't any children with builders and this
+            # was a top-level argument, then see if we can find any
+            # corresponding targets in linked build directories:
+            if not derived and node in self.targets:
+                alt, message = node.alter_targets()
+                if alt:
+                    self.message = message
+                    self.candidates.pop()
+                    self.candidates.extend(alt)
+                    continue
+
+            # Add derived files that have not been built
+            # to the candidates list:
+            def unbuilt_nodes(node): return node.get_state() == None
+            not_built = filter(unbuilt_nodes, derived)
+            if not_built:
+                not_built.reverse()
+                self.candidates.extend(self.order(not_built))
                 continue
 
             # Skip this node if it has side-effects that are

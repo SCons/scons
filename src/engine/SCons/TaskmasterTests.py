@@ -50,6 +50,7 @@ class Node:
         self.parents = []
         self.side_effect = 0
         self.side_effects = []
+        self.alttargets = []
 
         for kid in kids:
             kid.parents.append(self)
@@ -63,6 +64,9 @@ class Node:
 
     def is_derived(self):
         return self.has_builder or self.side_effect
+
+    def alter_targets(self):
+        return self.alttargets, None
 
     def built(self):
         global built_text
@@ -376,6 +380,18 @@ class TaskmasterTestCase(unittest.TestCase):
         assert t.get_target() == n4, t.get_target()
         t.executed()
 
+        n5 = Node("n5")
+        n6 = Node("n6")
+        n7 = Node("n7")
+        n6.alttargets = [n7]
+        tm = SCons.Taskmaster.Taskmaster([n5])
+        t = tm.next_task()
+        assert t.get_target() == n5
+        t.executed()
+        tm = SCons.Taskmaster.Taskmaster([n6])
+        t = tm.next_task()
+        assert t.get_target() == n7
+        t.executed()
 
 
     def test_make_ready_exception(self):

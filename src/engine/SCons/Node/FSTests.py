@@ -282,6 +282,21 @@ class BuildDirTestCase(unittest.TestCase):
         assert f10.exists()
         assert f10.get_contents() == 'stuff', f10.get_contents()
 
+        f11 = fs.File('src/file11')
+        t, m = f11.alter_targets()
+        bdt = map(lambda n: n.path, t)
+        assert bdt == ['build/var1/file11', 'build/var2/file11'], bdt
+
+        f12 = fs.File('src/file12')
+        f12.builder = 1
+        bdt, m = f12.alter_targets()
+        assert bdt == [], map(lambda n: n.path, bdt)
+
+        d13 = fs.Dir('src/new_dir')
+        t, m = d13.alter_targets()
+        bdt = map(lambda n: n.path, t)
+        assert bdt == ['build/var1/new_dir', 'build/var2/new_dir'], bdt
+
         save_Mkdir = SCons.Node.FS.Mkdir
         dir_made = []
         def mkdir_func(target, source, env, dir_made=dir_made):

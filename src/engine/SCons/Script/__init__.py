@@ -73,6 +73,9 @@ import SCons.Warnings
 #
 class BuildTask(SCons.Taskmaster.Task):
     """An SCons build task."""
+    def display(self, message):
+        display('scons: ' + message)
+
     def execute(self):
         target = self.targets[0]
         if target.get_state() == SCons.Node.up_to_date:

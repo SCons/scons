@@ -231,6 +231,11 @@ class Node:
     def is_derived(self):
         return self.has_builder() or self.side_effect
 
+    def alter_targets(self):
+        """Return a list of alternate targets for this Node.
+        """
+        return [], None
+
     def builder_sig_adapter(self):
         """Create an adapter for calculating a builder's signature.
 

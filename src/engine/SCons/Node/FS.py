@@ -197,6 +197,7 @@ class ParentOfRoot:
         self.name=''
         self.duplicate=0
         self.srcdir=None
+        self.build_dirs=[]
         
     def is_under(self, dir):
         return 0
@@ -714,6 +715,24 @@ class FS:
     def CacheDir(self, path):
         self.CachePath = path
 
+    def build_dir_target_climb(self, dir, tail):
+        """Create targets in corresponding build directories
+
+        Climb the directory tree, and look up path names
+        relative to any linked build directories we find.
+        """
+        targets = []
+        message = None
+        while dir:
+            for bd in dir.build_dirs:
+                p = apply(os.path.join, [bd.path] + tail)
+                targets.append(self.Entry(p))
+            tail = [dir.name] + tail
+            dir = dir.up()
+        if targets:
+            message = "building associated BuildDir targets: %s" % string.join(map(str, targets))
+        return targets, message
+
 # XXX TODO?
 # Annotate with the creator
 # rel_path
@@ -749,6 +768,7 @@ class Dir(Entry):
         self.cwd = self
         self.builder = 1
         self._sconsign = None
+        self.build_dirs = []
         
     def __clearRepositoryCache(self, duplicate=None):
         """Called when we change the repository(ies) for a directory.
@@ -801,6 +821,7 @@ class Dir(Entry):
         self.srcdir = srcdir
         self.duplicate = duplicate
         self.__clearRepositoryCache(duplicate)
+        srcdir.build_dirs.append(self)
 
     def getRepositories(self):
         """Returns a list of repositories for this directory."""
@@ -849,6 +870,11 @@ class Dir(Entry):
     def build(self):
         """A null "builder" for directories."""
         pass
+
+    def alter_targets(self):
+        """Return any corresponding targets in a build directory.
+        """
+        return self.fs.build_dir_target_climb(self, [])
 
     def calc_signature(self, calc):
         """A directory has no signature."""
@@ -1159,6 +1185,13 @@ class File(Entry):
         builder.
         """
         return self.has_builder() or self.side_effect or self.has_src_builder()
+
+    def alter_targets(self):
+        """Return any corresponding targets in a build directory.
+        """
+        if self.has_builder():
+            return [], None
+        return self.fs.build_dir_target_climb(self.dir, [self.name])
 
     def prepare(self):
         """Prepare for this file to be created."""
