@@ -67,6 +67,15 @@ RELEASE 0.96 - XXX
   - Enhance the Task.make_ready() method to create a list of the
     out-of-date Nodes for the task for use by the wrapping interface.
 
+  - Allow Scanners to pull the list of suffixes from the construction
+    environment when the "skeys" keyword argument is a string containing
+    a construction variable to be expanded.
+
+  - Support new $CPPSUFFIXES, $DSUFFIXES $FORTRANSUFFIXES, and
+    $IDLSUFFIXES.  construction variables that contain the default list
+    of suffixes to be scanned by a given type of scanner, allowing these
+    suffix lists to be easily added to or overridden.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.

@@ -384,14 +384,28 @@ class Base:
 
     def get_scanner(self, skey):
         """Find the appropriate scanner given a key (usually a file suffix).
-        Does a linear search. Could be sped up by creating a dictionary if
-        this proves too slow.
         """
-        if self._dict['SCANNERS']:
-            for scanner in self._dict['SCANNERS']:
-                if skey in scanner.skeys:
-                    return scanner
-        return None
+        try:
+            sm = self.scanner_map
+        except AttributeError:
+            try:
+                scanners = self._dict['SCANNERS']
+            except KeyError:
+                return None
+            else:
+                self.scanner_map = sm = {}
+                # Reverse the scanner list so that, if multiple scanners
+                # claim they can scan the same suffix, earlier scanners
+                # in the list will overwrite later scanners, so that
+                # the result looks like a "first match" to the user.
+                scanners.reverse()
+                for scanner in scanners:
+                    for k in scanner.get_skeys(self):
+                        sm[k] = scanner
+        try:
+            return sm[skey]
+        except KeyError:
+            return None
 
     def subst(self, string, raw=0, target=None, source=None, dict=None, conv=None):
         """Recursively interpolates construction variables from the

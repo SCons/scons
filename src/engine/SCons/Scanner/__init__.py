@@ -185,6 +185,12 @@ class Base:
         """Add a skey to the list of skeys"""
         self.skeys.append(skey)
 
+    def get_skeys(self, env=None):
+        if SCons.Util.is_String(self.skeys):
+            return env.subst_list(self.skeys)[0]
+        return self.skeys
+
+
 class Current(Base):
     """
     A class for scanning files that are source files (have no builder)

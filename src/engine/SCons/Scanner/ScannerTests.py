@@ -34,7 +34,13 @@ class DummyEnvironment(UserDict.UserDict):
         UserDict.UserDict.__init__(self, dict)
         self.data.update(kw)
     def subst(self, strSubst):
+        if strSubst[0] == '$':
+            return self.data[strSubst[1:]]
         return strSubst
+    def subst_list(self, strSubst):
+        if strSubst[0] == '$':
+            return [self.data[strSubst[1:]]]
+        return [[strSubst]]
     def subst_path(self, path):
         if type(path) != type([]):
             path = [path]
@@ -164,6 +170,24 @@ class ScannerTestCase(unittest.TestCase):
         s = SCons.Scanner.Base(function = self.func, recursive = 1)
         self.failUnless(s.recursive == 1,
                         "did not set recursive flag to 1")
+
+    def test_get_skeys(self):
+        """Test the Scanner.Base get_skeys() method"""
+        s = SCons.Scanner.Base(function = self.func)
+        sk = s.get_skeys()
+        self.failUnless(sk == [],
+                        "did not initialize to expected []")
+
+        s = SCons.Scanner.Base(function = self.func, skeys = ['.1', '.2'])
+        sk = s.get_skeys()
+        self.failUnless(sk == ['.1', '.2'],
+                        "sk was %s, not ['.1', '.2']")
+
+        s = SCons.Scanner.Base(function = self.func, skeys = '$LIST')
+        env = DummyEnvironment(LIST = ['.3', '.4'])
+        sk = s.get_skeys(env)
+        self.failUnless(sk == ['.3', '.4'],
+                        "sk was %s, not ['.3', '.4']")
 
 class CurrentTestCase(unittest.TestCase):
     def test_class(self):

@@ -36,7 +36,7 @@ import SCons.Scanner
 def IDLScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning IDL source files"""
     cs = SCons.Scanner.ClassicCPP("IDLScan",
-                                  [".idl", ".IDL"],
+                                  "$IDLSUFFIXES",
                                   "CPPPATH",
                                   '^[ \t]*(?:#[ \t]*include|[ \t]*import)[ \t]+(<|")([^>"]+)(>|")',
                                   fs = fs)

@@ -1,12 +1,4 @@
-"""SCons.Scanner.D
-
-Scanner for the Digital Mars "D" programming language.
-
-Coded by Andy Friesen
-17 Nov 2003
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -32,25 +24,45 @@ Coded by Andy Friesen
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import string
+"""
+Test that we can add filesuffixes to $DSUFFIXES.
+"""
 
-import SCons.Scanner
+import TestSCons
 
-def DScan(fs = SCons.Node.FS.default_fs):
-    """Return a prototype Scanner instance for scanning D source files"""
-    ds = DScanner(name = "DScan",
-                  suffixes = '$DSUFFIXES',
-                  path_variable = 'DPATH',
-                  regex = 'import\s+([^\;]*)\;',
-                  fs = fs)
-    return ds
+test = TestSCons.TestSCons()
 
-class DScanner(SCons.Scanner.Classic):
-    def find_include(self, include, source_dir, path):
-        # translate dots (package separators) to slashes
-        inc = string.replace(include, '.', '/')
+test.write('SConstruct', """
+env = Environment(DPATH=['.'])
+env.Append(DSUFFIXES = ['.x'])
+env.InstallAs('foo_d', 'foo.d')
+env.InstallAs('foo_x', 'foo.x')
+""")
 
-        i = SCons.Node.FS.find_file(inc + '.d',
-                                    (source_dir,) + path,
-                                    self.fs.File)
-        return i, include
+test.write('foo.d', """\
+import inc;
+""")
+
+test.write('foo.x', """\
+import inc;
+""")
+
+test.write('inc.d', "inc.d 1\n")
+
+test.run(arguments='.', stdout=test.wrap_stdout("""\
+Install file: "foo.d" as "foo_d"
+Install file: "foo.x" as "foo_x"
+"""))
+
+test.up_to_date(arguments='.')
+
+test.write('inc.d', "inc 2\n")
+
+test.run(arguments='.', stdout=test.wrap_stdout("""\
+Install file: "foo.d" as "foo_d"
+Install file: "foo.x" as "foo_x"
+"""))
+
+test.up_to_date(arguments='.')
+
+test.pass_test()

@@ -4197,6 +4197,19 @@ include $_CPPINCFLAGS:
 env = Environment(CCCOM="my_compiler $_CPPINCFLAGS -c -o $TARGET $SOURCE")
 .EE
 
+.IP CPPSUFFIXES
+The list of suffixes of files that will be scanned
+for C preprocessor implicit dependencies
+(#include lines).
+The default list is:
+
+.ES
+[".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+ ".h", ".H", ".hxx", ".hpp", ".hh",
+ ".F", ".fpp", ".FPP",
+ ".S", ".spp", ".SPP"]
+.EE
+
 .IP CVS
 The CVS executable.
 
@@ -4256,6 +4269,15 @@ depending on the specific C++ compiler being used.
 .IP Dir
 A function that converts a file name into a Dir instance relative to the
 target being built. 
+
+.IP DSUFFIXES
+The list of suffixes of files that will be scanned
+for imported D package files.
+The default list is:
+
+.ES
+['.d']
+.EE
 
 .IP DVIPDF
 The TeX DVI file to PDF file converter.
@@ -4403,6 +4425,16 @@ after first running the file through the C preprocessor.
 Any options specified in the $F77FLAGS and $CPPFLAGS construction variables
 are included on this command line.
 
+.IP FORTRANSUFFIXES
+The list of suffixes of files that will be scanned
+for Fortran implicit dependencies
+(INCLUDE lines).
+The default list is:
+
+.ES
+[".f", ".F", ".for", ".FOR"]
+.EE
+
 .IP File
 A function that converts a file name into a File instance relative to the
 target being built. 
@@ -4416,6 +4448,16 @@ when converting PostScript to PDF files.
 
 .IP GSCOM
 The Ghostscript command line used to convert PostScript to PDF files.
+
+.IP IDLSUFFIXES
+The list of suffixes of files that will be scanned
+for IDL implicit dependencies
+(#include or import lines).
+The default list is:
+
+.ES
+[".idl", ".IDL"]
+.EE
 
 .IP INCPREFIX
 The prefix used to specify an include directory on the C compiler command
@@ -5128,7 +5170,7 @@ in any way:  if you want an absolute
 path, you must make it absolute yourself.
 
 .IP SCANNERS
-A list of the available implicit dependency scanners. [CScan] by default.
+A list of the available implicit dependency scanners.
 
 .IP SCCS
 The SCCS executable.
@@ -6903,9 +6945,12 @@ An optional list that can be used to
 determine which scanner should be used for
 a given Node.
 In the usual case of scanning for file names,
-this array will be a list of suffixes
+this argument will be a list of suffixes
 for the different file types that this
 Scanner knows how to scan.
+If the argument is a string,
+then it will be expanded 
+into a list by the current environment.
 
 .IP path_function
 A Python function that takes
