@@ -109,6 +109,9 @@ RELEASE 0.97 - XXX
 
   - Fix problems with Parallel Task Exception handling.
 
+  - Build targets in an associated BuildDir even if there are targets
+    or subdirectories locally in the source directory.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

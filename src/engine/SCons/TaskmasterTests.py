@@ -421,6 +421,9 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert t.get_target() == n7
         t.executed()
+        t = tm.next_task()
+        assert t.get_target() == n6
+        t.executed()
 
         n1 = Node("n1")
         n2 = Node("n2", [n1])
