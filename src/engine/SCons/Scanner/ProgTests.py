@@ -70,7 +70,7 @@ class ProgScanTestCase1(unittest.TestCase):
         env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
                                LIBS=[ 'l1', 'l2', 'l3' ])
         s = SCons.Scanner.Prog.ProgScan()
-        deps = s.scan('dummy', env)
+        deps = s.instance(env).scan('dummy', env)
         assert deps_match(deps, ['l1.lib']), map(str, deps)
 
 class ProgScanTestCase2(unittest.TestCase):
@@ -79,7 +79,7 @@ class ProgScanTestCase2(unittest.TestCase):
                                            ["", "d1", "d1/d2" ]),
                                LIBS=[ 'l1', 'l2', 'l3' ])
         s = SCons.Scanner.Prog.ProgScan()
-        deps = s.scan('dummy', env)
+        deps = s.instance(env).scan('dummy', env)
         assert deps_match(deps, ['l1.lib', 'd1/l2.lib', 'd1/d2/l3.lib' ]), map(str, deps)
 
 class ProgScanTestCase3(unittest.TestCase):
@@ -88,7 +88,7 @@ class ProgScanTestCase3(unittest.TestCase):
                                test.workpath("d1"),
                                LIBS='l2 l3')
         s = SCons.Scanner.Prog.ProgScan()
-        deps = s.scan('dummy', env)
+        deps = s.instance(env).scan('dummy', env)
         assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
 
 def suite():
@@ -104,7 +104,7 @@ def suite():
                                            test.workpath("d1"),
                                            LIBS=u'l2 l3')
                     s = SCons.Scanner.Prog.ProgScan()
-                    deps = s.scan('dummy', env)
+                    deps = s.instance(env).scan('dummy', env)
                     assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
             suite.addTest(ProgScanTestCase4())
             \n"""
