@@ -167,6 +167,26 @@ class TestSCons(TestCmd.TestCmd):
         except KeyError:
             return None
 
+    def detect_tool(self, tool, prog=None):
+        """
+        Given a tool (i.e., tool specification that would be passed
+        to the "tools=" parameter of Environment()) and one a program that
+        corresponds to that tool, return true if and only if we can find
+        that tool using Environment.Detect().
+
+        By default, progs is set to the value passed into the tools parameter.
+        """
+
+        if not prog:
+            prog = tool
+        import SCons.Environment
+        import SCons.Errors
+        try:
+            env=SCons.Environment.Environment(tools=[tool])
+        except (SCons.Errors.UserError, SCons.Errors.InternalError):
+            return None
+        return env.Detect([prog])
+
     def wrap_stdout(self, build_str = "", read_str = ""):
         """Wraps standard output string(s) in the normal
         "Reading ... done" and "Building ... done" strings

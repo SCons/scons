@@ -145,9 +145,9 @@ def tool_list(platform, env):
     #     the tool files themselves.
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
-        linkers = ['mslink', 'gnulink', 'ilink']
-        c_compilers = ['msvc', 'mingw', 'gcc', 'icc']
-        assemblers = ['masm', 'nasm', 'gas']
+        linkers = ['mslink', 'gnulink', 'ilink', 'linkloc' ]
+        c_compilers = ['msvc', 'mingw', 'gcc', 'icc' ]
+        assemblers = ['masm', 'nasm', 'gas', '386asm' ]
         fortran_compilers = ['g77', 'ifl']
         ars = ['mslib', 'ar']
     elif str(platform) == 'os2':

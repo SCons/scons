@@ -30,6 +30,7 @@ SCons/Sig/MD5.py
 SCons/Sig/TimeStamp.py
 SCons/Taskmaster.py
 SCons/Tool/__init__.py
+SCons/Tool/386asm.py
 SCons/Tool/ar.py
 SCons/Tool/default.py
 SCons/Tool/dvipdf.py
@@ -44,6 +45,7 @@ SCons/Tool/ifl.py
 SCons/Tool/ilink.py
 SCons/Tool/latex.py
 SCons/Tool/lex.py
+SCons/Tool/linkloc.py
 SCons/Tool/masm.py
 SCons/Tool/mingw.py
 SCons/Tool/mslib.py
@@ -52,6 +54,7 @@ SCons/Tool/msvc.py
 SCons/Tool/nasm.py
 SCons/Tool/pdflatex.py
 SCons/Tool/pdftex.py
+SCons/Tool/PharLapCommon.py
 SCons/Tool/tar.py
 SCons/Tool/tex.py
 SCons/Tool/yacc.py
