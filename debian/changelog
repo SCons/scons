@@ -1,3 +1,10 @@
+scons (0.95-1) unstable; urgency=low
+
+  * Sixth beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Mon, 08 Mar 2004 06:43:20 -0600
+
+
 scons (0.94-1) unstable; urgency=low
 
   * Fifth beta release.

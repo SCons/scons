@@ -20,7 +20,7 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.95 - XXX
+RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
 
   This is the sixth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
@@ -34,14 +34,6 @@ RELEASE 0.95 - XXX
       variable to 0 (or zipfile.ZIP_STORED, if you import the
       underlying zipfile module).
 
-    - The meaning of some of the values of the "mode" argument to
-      the SCons.Util.scons_subst() and SCons.Util.scons_subst_list()
-      functions have been swapped.  The wrapper Environment.subst() and
-      Environment.subst_list() methods remain completely unchanged, so
-      this should have no external effect.  (We've listed the change here
-      because it might cause a problem if you're reaching into the SCons
-      internals and calling either of these SCons.Util functions directly.)
-
     - The "overrides" keyword argument to calls to the Builder() function
       used to create new Builder objects has been deprecated and will
       be removed in a future release.  The items in an "overrides"
@@ -54,6 +46,14 @@ RELEASE 0.95 - XXX
           # New way, items are specified as keyword arguments:
           Builder(action = 'cp $TDIR/$TARGET $SDIR/$SOURCE',
                   TDIR = dir1, SDIR = dir2)
+
+    - The meaning of some of the values of the "mode" argument to
+      the SCons.Util.scons_subst() and SCons.Util.scons_subst_list()
+      functions have been swapped.  The wrapper Environment.subst() and
+      Environment.subst_list() methods remain completely unchanged, so
+      this should have no external effect.  (We've listed the change here
+      because it might cause a problem if you're reaching into the SCons
+      internals and calling either of these SCons.Util functions directly.)
 
   Please note the following FUTURE changes that you may wish to prepare
   for:
@@ -172,17 +172,6 @@ RELEASE 0.95 - XXX
       again can cause unusual errors.  These errors can be cleared up by
       removing all .sconsign files.
 
-    - On Win32, SCons does not recognize that a target specified as
-      (for example) \some\target is the same as X:\some\target (for your
-      current volume X:).
-
-    - Using a construction variable in its own expansion can cause
-      an infinite loop.
-
-    - Appending values to construction variables may suffer from type
-      errors if, for example, you try to append a string to list or
-      vice versa.
-
     - When using multiple Repositories, changing the name of an include
       file can cause an old version of the file to be used.
 
@@ -202,6 +191,21 @@ RELEASE 0.95 - XXX
 
     - A stray source file in a BuildDir can prevent targets from being
       (re)built when they should.
+
+    - SCons does not automatically rebuild LaTeX files when the file
+      has an undefined reference on the first build.
+
+    - SideEffect() files are not retrieved properly from a CacheDir(),
+      and can lead to a stack trace.
+
+    - Use of --implicit-cache with TargetSignatures('content') can,
+      for some changes, not rebuild a file when necessary.
+
+    - SCons does not currently automatically check out SConstruct or
+      SConscript files from SCCS, RCS or BitKeeper.
+
+    - The Command() global function (specified without a construction
+      environment) is broken.
 
     - No support yet for the following planned command-line options:
 
