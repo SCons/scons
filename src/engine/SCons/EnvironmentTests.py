@@ -120,6 +120,17 @@ class EnvironmentTestCase(unittest.TestCase):
 	env2 = Environment(AAA = 'a', BBB = 'bbb', CCC = 'c')
 	assert env1 != env2
 
+    def test_Depends(self):
+	"""Test the explicit Depends method."""
+	env = Environment()
+	t = env.Depends(target='EnvironmentTest.py', dependency='Environment.py')
+	assert t.__class__.__name__ == 'File'
+	assert t.path == 'EnvironmentTest.py'
+	assert len(t.depends) == 1
+	d = t.depends[0]
+	assert d.__class__.__name__ == 'File'
+	assert d.path == 'Environment.py'
+
     def test_subst(self):
 	"""Test substituting construction variables within strings
 	

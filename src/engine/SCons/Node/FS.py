@@ -198,6 +198,8 @@ class Dir(Node):
     """
 
     def __init__(self, name, directory = None):
+        Node.__init__(self)
+
         self.entries = PathDict()
         self.entries['.'] = self
 
@@ -247,6 +249,8 @@ class File(Node):
     """
 
     def __init__(self, name, directory):
+        Node.__init__(self)
+
         self.abspath = os.path.join(directory.abspath, name)
         if str(directory.path) == '.':
             self.path = name

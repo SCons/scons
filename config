@@ -252,15 +252,15 @@ new_test_filename = "test/CHANGETHIS.py";
 file_template =
 [
 	{
-		pattern = [ "src/scons/*__init__.py" ];
+		pattern = [ "src/engine/*__init__.py" ];
 		body = "${read_file ${source template/__init__.py abs}}";
 	},
 	{
-		pattern = [ "src/scons/*Tests.py" ];
+		pattern = [ "src/engine/*Tests.py" ];
 		body = "${read_file ${source template/Tests.py abs}}";
 	},
 	{
-		pattern = [ "src/scons/*.py" ];
+		pattern = [ "src/engine/*.py" ];
 		body = "${read_file ${source template/file.py abs}}";
 	},
 	{

@@ -87,7 +87,7 @@ class FSTestCase(unittest.TestCase):
         built_it = None
         assert not built_it
         d1.path = "d"           # XXX FAKE SUBCLASS ATTRIBUTE
-        d1.sources = "d"        # XXX FAKE SUBCLASS ATTRIBUTE
+        d1.add_source(["d"])    # XXX FAKE SUBCLASS ATTRIBUTE
         d1.builder_set(Builder())
         d1.build()
         assert built_it
@@ -95,7 +95,7 @@ class FSTestCase(unittest.TestCase):
         built_it = None
         assert not built_it
         f1.path = "f"           # XXX FAKE SUBCLASS ATTRIBUTE
-        f1.sources = "f"        # XXX FAKE SUBCLASS ATTRIBUTE
+        f1.add_source(["f"])    # XXX FAKE SUBCLASS ATTRIBUTE
         f1.builder_set(Builder())
         f1.build()
         assert built_it

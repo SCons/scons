@@ -12,6 +12,12 @@ class Node:
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """
+
+    def __init__(self):
+	self.depends = []
+	self.sources = []
+	self.env = None
+
     def build(self):
 	self.builder.execute(target = self.path, source = self.sources)
 
@@ -30,3 +36,10 @@ class Node:
     def get_signature(self):
         return self.signature
 
+    def add_dependency(self, depend):
+	"""Adds dependencies. The depends argument must be a list."""
+	self.depends.extend(depend)
+
+    def add_source(self, source):
+	"""Adds sources. The source argument must be a list."""
+	self.sources.extend(source)

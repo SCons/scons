@@ -11,6 +11,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import copy
 import re
 import types
+import SCons.Util
 
 
 
@@ -26,7 +27,6 @@ def InstallAs():
 
 
 _cv = re.compile(r'%([_a-zA-Z]\w*|{[_a-zA-Z]\w*})')
-_self = None
 
 
 
@@ -109,6 +109,17 @@ class Environment:
 	"""
 	self.Dictionary.update(copy.deepcopy(kw))
 
+    def	Depends(self, target, dependency):
+	"""Explicity specify that 'target's depend on 'dependency'."""
+	tlist = SCons.Util.scons_str2nodes(target)
+	dlist = SCons.Util.scons_str2nodes(dependency)
+	for t in tlist:
+	    t.add_dependency(dlist)
+
+	if len(tlist) == 1:
+	    tlist = tlist[0]
+	return tlist
+
     def subst(self, string):
 	"""Recursively interpolates construction variables from the
 	Environment into the specified string, returning the expanded
@@ -119,9 +130,7 @@ class Environment:
 	may be surrounded by curly braces to separate the name from
 	trailing characters.
 	"""
-	global _self
-	_self = self	# XXX NOT THREAD SAFE, BUT HOW ELSE DO WE DO THIS?
-	def repl(m):
+	def repl(m, _self=self):
 	    key = m.group(1)
 	    if key[:1] == '{' and key[-1:] == '}':
 		key = key[1:-1]
