@@ -39,6 +39,13 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.a', env
 
+        p = SCons.Platform.Platform('os2')
+        assert str(p) == 'os2', p
+        env = {}
+        p(env)
+        assert env['PROGSUFFIX'] == '.exe', env
+        assert env['LIBSUFFIX'] == '.lib', env
+
         p = SCons.Platform.Platform('posix')
         assert str(p) == 'posix', p
         env = {}

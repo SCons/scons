@@ -1,0 +1,72 @@
+Adding a new Platform to the SCons distribution:
+
+    --  Add the following files (aenf):
+
+            src/engine/SCons/Platform/xxx.py
+
+	    	Use one of the other Platform files as a template.
+
+                The tool_list() function should return the list of tools
+                that will be available through the default construction
+                Environment.
+
+		The generate() function should set construction variables:
+
+		    ENV
+		    OBJPREFIX
+		    OBJSUFFIX
+		    PROGPREFIX
+		    PROGSUFFIX
+		    LIBPREFIX
+		    LIBSUFFIX
+		    SHLIBPREFIX
+		    SHLIBSUFFIX
+		    LIBPREFIXES
+		    LIBSUFFIXES
+
+    --  Modify the following files (aecp):
+
+            doc/man/scons.1
+
+		Add the new platform to the example of the platform
+		keyword when instantiating an Environment.
+
+		Add the list of default tools returned by tool_list()
+		for this platform.
+
+            rpm/scons.spec
+
+	    	Add to the list at the bottom of the file:
+		
+		    /usr/lib/scons/SCons/Platform/xxx.py
+	    	    /usr/lib/scons/SCons/Platform/xxx.pyc
+
+		[THIS LIST SHOULD BE GENERATED FROM MANIFEST.in,
+		AND WILL BE SOME DAY.]
+
+            src/CHANGES.txt
+
+	        Add mention of the new Platform specification.
+
+            src/engine/MANIFEST.in
+
+	    	Add to the list:
+
+		    SCons/Platform/xxx.py
+
+            src/engine/SCons/Platform/Platform/PlatformTests.py
+
+                Copy and paste one of the other platform tests to verify
+                the ability to initialize an environment through a call
+                to the object returned by Platform('xxx')
+
+            src/engine/SCons/Platform/__init__.py
+
+                Add logic to platform_default() (if necessary) to return
+                the appropriate platform string.
+
+    	    test/Platform.py
+
+                Add the new platform to the SConstruct and SConscript
+                files.  Add the expected output to the "expect"
+                variable.

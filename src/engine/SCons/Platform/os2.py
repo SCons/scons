@@ -1,4 +1,12 @@
-#!/usr/bin/env python
+"""SCons.Platform.os2
+
+Platform-specific initialization for OS/2 systems.
+
+There normally shouldn't be any need to import this module directly.  It
+will usually be imported through the generic SCons.Platform.Platform()
+selection method.
+"""
+
 #
 # Copyright (c) 2001, 2002 Steven Knight
 #
@@ -24,46 +32,27 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
+import SCons.Util
 
-test = TestSCons.TestSCons()
+def tool_list():
+    list = ['dvipdf', 'dvips', 'g77',
+            'latex', 'lex',
+            'pdflatex', 'pdftex', 'tex', 'yacc']
+    if SCons.Util.WhereIs('nasm'):
+        list.append('nasm')
+    return list
 
-test.write('SConstruct', """
-env = {}
-Platform('cygwin')(env)
-print "'%s'" % env['PROGSUFFIX']
-Platform('os2')(env)
-print "'%s'" % env['PROGSUFFIX']
-Platform('posix')(env)
-print "'%s'" % env['PROGSUFFIX']
-Platform('win32')(env)
-print "'%s'" % env['PROGSUFFIX']
-SConscript('SConscript')
-""")
-
-test.write('SConscript', """
-env = {}
-Platform('cygwin')(env)
-print "'%s'" % env['LIBSUFFIX']
-Platform('os2')(env)
-print "'%s'" % env['LIBSUFFIX']
-Platform('posix')(env)
-print "'%s'" % env['LIBSUFFIX']
-Platform('win32')(env)
-print "'%s'" % env['LIBSUFFIX']
-""")
-
-expect = """'.exe'
-'.exe'
-''
-'.exe'
-'.a'
-'.lib'
-'.a'
-'.lib'
-"""
-
-test.run(stdout = expect)
-
-test.pass_test()
-
+def generate(env):
+    if not env.has_key('ENV'):
+        env['ENV']        = {}
+    #env['ENV']['PATHEXT'] = '.COM;.EXE;.BAT;.CMD'
+    env['OBJPREFIX']      = ''
+    env['OBJSUFFIX']      = '.obj'
+    env['PROGPREFIX']     = ''
+    env['PROGSUFFIX']     = '.exe'
+    env['LIBPREFIX']      = ''
+    env['LIBSUFFIX']      = '.lib'
+    env['SHLIBPREFIX']    = ''
+    env['SHLIBSUFFIX']    = '.dll'
+    env['LIBPREFIXES']    = '$LIBPREFIX'
+    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]

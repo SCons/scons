@@ -77,6 +77,8 @@ RELEASE 0.08 -
 
   - Add a tar archive builder.
 
+  - Add preliminary support for OS/2.
+
   From Jeff Petkau:
 
   - Fix --implicit-cache if the scanner returns an empty list.

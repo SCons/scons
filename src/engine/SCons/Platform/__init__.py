@@ -60,7 +60,9 @@ def platform_default():
     if os.name == 'posix':
         if sys.platform == 'cygwin':
             return 'cygwin'
-	return 'posix'
+        return 'posix'
+    elif os.name == 'os2':
+        return 'os2'
     else:
         return sys.platform
 

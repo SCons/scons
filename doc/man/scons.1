@@ -655,6 +655,7 @@ be initialized for a different platform:
 
 .ES
 env = Environment(platform = 'cygwin')
+env = Environment(platform = 'os2')
 env = Environment(platform = 'posix')
 env = Environment(platform = 'win32')
 .EE
@@ -723,7 +724,24 @@ tex
 yacc
 .EE
 
-and supports the following tool specifications out of the box on
+SCons supports the following tool specifications out of the box on
+.B os2
+platforms:
+
+.ES
+dvipdf
+dvips
+g77
+latex
+lex
+nasm
+pdflatex
+pdftex
+tex
+yacc
+.EE
+
+SCons supports the following tool specifications out of the box on
 .B win32
 platforms:
 
@@ -1834,6 +1852,9 @@ The command line used to call the tar archiver.
 
 .IP TARFLAGS
 General options passed to the tar archiver.
+
+.IP TARSUFFIX 
+The suffix used for tar file names.
 
 .IP TEX
 The TeX formatter and typesetter.
