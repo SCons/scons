@@ -66,10 +66,16 @@ execute_actions = 1;
 
 def Action(act):
     """A factory for action objects."""
+    if type(act) == types.StringType:
+	l = string.split(act, "\n")
+	if len(l) > 1:
+	    act = l
     if type(act) == types.FunctionType:
 	return FunctionAction(act)
     elif type(act) == types.StringType:
 	return CommandAction(act)
+    elif type(act) == types.ListType:
+	return ListAction(act)
     else:
 	return None
 
@@ -119,3 +125,12 @@ class FunctionAction(ActionBase):
 	# XXX:  WHAT SHOULD WE PRINT HERE?
 	if execute_actions:
 	    self.function(kw)
+
+class ListAction(ActionBase):
+    """Class for lists of other actions."""
+    def __init__(self, list):
+	self.list = map(lambda x: Action(x), list)
+
+    def execute(self, **kw):
+	for l in self.list:
+	    apply(l.execute, (), kw)
