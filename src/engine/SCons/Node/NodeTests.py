@@ -218,6 +218,47 @@ class NodeTestCase(unittest.TestCase):
         assert three.get_parents() == [node]
         assert four.get_parents() == [node]
 
+    def test_add_implicit(self):
+        """Test adding implicit (scanned) dependencies to a Node's list.
+        """
+        node = SCons.Node.Node()
+        assert node.implicit == {}
+
+        zero = SCons.Node.Node()
+        try:
+            node.add_source(zero)
+        except TypeError:
+            pass
+        else:
+            assert 0
+
+        one = SCons.Node.Node()
+        two = SCons.Node.Node()
+        three = SCons.Node.Node()
+        four = SCons.Node.Node()
+
+        node.add_implicit([one], 1)
+        assert node.implicit[1] == [one]
+        node.add_implicit([two, three], 1)
+        assert node.implicit[1] == [one, two, three]
+        node.add_implicit([three, four, one], 1)
+        assert node.implicit[1] == [one, two, three, four]
+
+        assert zero.get_parents() == []
+        assert one.get_parents() == [node]
+        assert two.get_parents() == [node]
+        assert three.get_parents() == [node]
+        assert four.get_parents() == [node]
+
+        node.add_implicit([one], 2)
+        node.add_implicit([two, three], 3)
+        node.add_implicit([three, four, one], 4)
+
+        assert node.implicit[1] == [one, two, three, four]
+        assert node.implicit[2] == [one]
+        assert node.implicit[3] == [two, three]
+        assert node.implicit[4] == [three, four, one]
+
     def test_children(self):
 	"""Test fetching the "children" of a Node.
 	"""

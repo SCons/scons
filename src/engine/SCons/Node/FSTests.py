@@ -303,16 +303,13 @@ class FSTestCase(unittest.TestCase):
         # Test scanning
         f1.scanner = Scanner()
         f1.scan()
-        assert f1.depends[0].path_ == os.path.join("d1", "f1")
-	f1.scanner = None
-	f1.scanned = None
+        assert f1.implicit[f1.scanner][0].path_ == os.path.join("d1", "f1")
+        del f1.implicit[f1.scanner]
         f1.scan()
-        assert f1.depends[0].path_ == os.path.join("d1", "f1")
-	f1.scanner = None
-	f1.scanned = None
-	f1.depends = []
+        assert len(f1.implicit) == 0, f1.implicit
+        del f1.scanned[f1.scanner]
         f1.scan()
-        assert not f1.depends
+        assert f1.implicit[f1.scanner][0].path_ == os.path.join("d1", "f1")
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))

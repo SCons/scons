@@ -55,12 +55,13 @@ class Node:
     """
 
     def __init__(self):
-	self.sources = []
-	self.depends = []
+        self.sources = []       # source files used to build node
+        self.depends = []       # explicit dependencies (from Depends)
+        self.implicit = {}	# implicit (scanned) dependencies
         self.parents = []
 	self.builder = None
         self.scanner = None
-        self.scanned = 0
+        self.scanned = {}
 	self.env = None
         self.state = None
         self.bsig = None
@@ -101,7 +102,7 @@ class Node:
         self.scanner = scanner
 
     def scan(self):
-        self.scanned = 1
+        self.scanned[self.scanner] = 1
 
     def env_set(self, env, safe=0):
         if safe and self.env:
@@ -134,6 +135,13 @@ class Node:
 	"""Adds sources. The source argument must be a list."""
         self._add_child(self.sources, source)
 
+    def add_implicit(self, implicit, key):
+        """Adds implicit (scanned) dependencies. The implicit
+        argument must be a list."""
+        if not self.implicit.has_key(key):
+             self.implicit[key] = []
+        self._add_child(self.implicit[key], implicit)
+
     def _add_child(self, collection, child):
         """Adds 'child' to 'collection'. The 'child' argument must be a list"""
         if type(child) is not type([]):
@@ -151,7 +159,10 @@ class Node:
         if parent not in self.parents: self.parents.append(parent)
 
     def children(self):
-	return self.sources + self.depends
+        #XXX Need to remove duplicates from this
+        return self.sources \
+               + self.depends \
+               + reduce(lambda x, y: x + y, self.implicit.values(), [])
 
     def get_parents(self):
         return self.parents

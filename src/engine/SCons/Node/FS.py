@@ -466,10 +466,11 @@ class File(Entry):
         return self.dir.sconsign().get(self.name)
 
     def scan(self):
-        if not self.scanned and self.env:
+        if not self.scanned.has_key(self.scanner) and self.env:
             if self.scanner:
-                self.add_dependency(self.scanner.scan(self.path, self.env))
-            self.scanned = 1
+                self.add_implicit(self.scanner.scan(self.path, self.env),
+                                  self.scanner)
+            self.scanned[self.scanner] = 1
 
     def __createDir(self):
         # ensure that the directories for this node are
