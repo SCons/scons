@@ -45,11 +45,12 @@ include_re = re.compile('^[ \t]*#[ \t]*include[ \t]+(<|")([^>"]+)(>|")', re.M)
 def CScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files
     that use the C pre-processor"""
-    cs = SCons.Scanner.Recursive(scan, "CScan", fs,
-                                 [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
-                                  ".h", ".H", ".hxx", ".hpp", ".hh",
-                                  ".F", ".fpp", ".FPP"],
-                                 path_function = path)
+    cs = SCons.Scanner.Current(scan, "CScan", fs,
+                               [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+                                ".h", ".H", ".hxx", ".hpp", ".hh",
+                                ".F", ".fpp", ".FPP"],
+                               path_function = path,
+                               recursive = 1)
     return cs
 
 def path(env, dir, fs = SCons.Node.FS.default_fs):

@@ -123,8 +123,9 @@ def write_out(file, dict):
     f.close()
 
 import SCons.Scanner.C
+c_scanner = SCons.Scanner.C.CScan()
 def MyCScan(node, env, target):
-    deps = SCons.Scanner.C.scan(node, env, target)
+    deps = c_scanner(node, env, target)
 
     global Scanned
     n = str(node)
@@ -135,9 +136,10 @@ def MyCScan(node, env, target):
     write_out('MyCScan.out', Scanned)
 
     return deps
-S_MyCScan = Scanner(skeys = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+S_MyCScan = SCons.Scanner.Current(skeys = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
                              ".h", ".H", ".hxx", ".hpp", ".h++", ".hh"],
-                    function = MyCScan)
+                    function = MyCScan,
+                    recursive = 1)
 # QQQ Yes, this is manner of fixing the SCANNERS list is fragile.
 env["SCANNERS"] = [S_MyCScan] + env["SCANNERS"][1:]
 
@@ -465,9 +467,9 @@ test.fail_test(test.read("MyCScan.out", "rb") != """\
 libg_1.c: 1
 libg_2.c: 1
 libg_3.c: 1
-libg_gx.h: 2
-libg_gy.h: 2
-libg_gz.h: 2
+libg_gx.h: 1
+libg_gy.h: 1
+libg_gz.h: 1
 libg_w.h: 1
 """)
 

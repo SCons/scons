@@ -208,7 +208,7 @@ class CScannerTestCase1(unittest.TestCase):
         s = SCons.Scanner.C.CScan()
         path = s.path(env)
         deps = s(make_node('f1.cpp'), env, path)
-        headers = ['f1.h', 'f2.h', 'fi.h']
+        headers = ['f1.h', 'f2.h']
         deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase2(unittest.TestCase):
@@ -258,7 +258,7 @@ class CScannerTestCase5(unittest.TestCase):
         assert n.rexists_called
         
         headers =  ['d1/f1.h', 'd1/f2.h', 'd1/f3-test.h',
-                    'f1.h', 'f2.h', 'f3-test.h', 'fi.h', 'fj.h']
+                    'f1.h', 'f2.h', 'f3-test.h']
         deps_match(self, deps, map(test.workpath, headers))
 
 class CScannerTestCase6(unittest.TestCase):

@@ -3262,6 +3262,17 @@ calls to the scanner function when,
 for example, the underlying file
 represented by a Node does not yet exist.
 
+.IP recursive
+An optional flag that
+specifies whether this scanner should be re-invoked
+on the dependency files returned by the scanner.
+When this flag is not set,
+the Node subsystem will
+only invoke the scanner on the file being scanned,
+and not (for example) also on the files
+specified by the #include lines
+in the file being scanned.
+
 .SH SYSTEM-SPECIFIC BEHAVIOR
 SCons and its configuration files are very portable,
 due largely to its implementation in Python.

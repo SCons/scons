@@ -122,7 +122,7 @@ class ScannerHashTestCase(ScannerTestBase, unittest.TestCase):
                         "did not hash Scanner base class as expected")
 
 class ScannerCheckTestCase(unittest.TestCase):
-    "Test the Scanner.Base class __hash__() method"
+    "Test the Scanner.Base class scan_check method"
     def setUp(self):
         self.checked = {}
     def runTest(self):
@@ -138,6 +138,67 @@ class ScannerCheckTestCase(unittest.TestCase):
         self.failUnless(self.checked['x'] == 1,
                         "did not call check function")
 
+class ScannerRecursiveTestCase(ScannerTestBase, unittest.TestCase):
+    "Test the Scanner.Base class recursive flag"
+    def runTest(self):
+        s = SCons.Scanner.Base(function = self.func)
+        self.failUnless(s.recursive == None,
+                        "incorrect default recursive value")
+        s = SCons.Scanner.Base(function = self.func, recursive = None)
+        self.failUnless(s.recursive == None,
+                        "did not set recursive flag to None")
+        s = SCons.Scanner.Base(function = self.func, recursive = 1)
+        self.failUnless(s.recursive == 1,
+                        "did not set recursive flag to 1")
+
+class CurrentTestCase(ScannerTestBase, unittest.TestCase):
+    "Test the Scanner.Current class"
+    def runTest(self):
+        class MyNode:
+            def __init__(self):
+                self.called_has_builder = None
+                self.called_current = None
+                self.func_called = None
+        class HasNoBuilder(MyNode):
+            def has_builder(self):
+                self.called_has_builder = 1
+                return None
+        class IsNotCurrent(MyNode):
+            def has_builder(self):
+                self.called_has_builder = 1
+                return 1
+            def current(self, sig):
+                self.called_current = 1
+                return None
+        class IsCurrent(MyNode):
+            def has_builder(self):
+                self.called_has_builder = 1
+                return 1
+            def current(self, sig):
+                self.called_current = 1
+                return 1
+        def func(node, env, path):
+            node.func_called = 1
+            return []
+        env = DummyEnvironment()
+        s = SCons.Scanner.Current(func)
+        path = s.path(env)
+        hnb = HasNoBuilder()
+        s(hnb, env, path)
+        self.failUnless(hnb.called_has_builder, "did not call has_builder()")
+        self.failUnless(not hnb.called_current, "did call current()")
+        self.failUnless(hnb.func_called, "did not call func()")
+        inc = IsNotCurrent()
+        s(inc, env, path)
+        self.failUnless(inc.called_has_builder, "did not call has_builder()")
+        self.failUnless(inc.called_current, "did not call current()")
+        self.failUnless(not inc.func_called, "did call func()")
+        ic = IsCurrent()
+        s(ic, env, path)
+        self.failUnless(ic.called_has_builder, "did not call has_builder()")
+        self.failUnless(ic.called_current, "did not call current()")
+        self.failUnless(ic.func_called, "did not call func()")
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ScannerPositionalTestCase())
@@ -146,6 +207,8 @@ def suite():
     suite.addTest(ScannerKeywordArgumentTestCase())
     suite.addTest(ScannerHashTestCase())
     suite.addTest(ScannerCheckTestCase())
+    suite.addTest(ScannerRecursiveTestCase())
+    suite.addTest(CurrentTestCase())
     return suite
 
 if __name__ == "__main__":

@@ -857,7 +857,10 @@ class File(Entry):
     def get_stored_implicit(self):
         return self.dir.sconsign().get_implicit(self.name)
 
-    def get_implicit_deps(self, env, scanner, target):
+    def get_found_includes(self, env, scanner, target):
+        """Return the included implicit dependencies in this file.
+        Cache results so we only scan the file once regardless of
+        how many times this information is requested."""
         if not scanner:
             return []
 

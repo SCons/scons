@@ -65,14 +65,15 @@ class Builder:
 scanner_count = 0
 
 class Scanner:
-    def __init__(self):
+    def __init__(self, node=None):
         global scanner_count
         scanner_count = scanner_count + 1
         self.hash = scanner_count
+        self.node = node
     def path(self, env, target):
         return ()
     def __call__(self, node, env, path):
-        return [node]
+        return [self.node]
     def __hash__(self):
         return self.hash
 
@@ -674,45 +675,47 @@ class FSTestCase(unittest.TestCase):
         # Test scanning
         f1.builder_set(Builder(fs.File))
         f1.env_set(Environment())
-        f1.target_scanner = Scanner()
+        xyz = fs.File("xyz")
+        f1.target_scanner = Scanner(xyz)
+
         f1.scan()
-        assert f1.implicit[0].path_ == os.path.join("d1", "f1")
+        assert f1.implicit[0].path_ == "xyz"
         f1.implicit = []
         f1.scan()
         assert f1.implicit == []
         f1.implicit = None
         f1.scan()
-        assert f1.implicit[0].path_ == os.path.join("d1", "f1"), f1.implicit[0].path_
+        assert f1.implicit[0].path_ == "xyz"
         f1.store_implicit()
-        assert f1.get_stored_implicit()[0] == os.path.join("d1", "f1")
+        assert f1.get_stored_implicit()[0] == "xyz"
 
-        # Test underlying scanning functionality in get_implicit_deps()
+        # Test underlying scanning functionality in get_found_includes()
         env = Environment()
         f12 = fs.File("f12")
         t1 = fs.File("t1")
 
-        deps = f12.get_implicit_deps(env, None, t1)
+        deps = f12.get_found_includes(env, None, t1)
         assert deps == [], deps
 
         class MyScanner(Scanner):
             call_count = 0
             def __call__(self, node, env, path):
                 self.call_count = self.call_count + 1
-                return [node]
-        s = MyScanner()
+                return Scanner.__call__(self, node, env, path)
+        s = MyScanner(xyz)
 
-        deps = f12.get_implicit_deps(env, s, t1)
-        assert deps == [f12], deps
+        deps = f12.get_found_includes(env, s, t1)
+        assert deps == [xyz], deps
         assert s.call_count == 1, s.call_count
 
-        deps = f12.get_implicit_deps(env, s, t1)
-        assert deps == [f12], deps
+        deps = f12.get_found_includes(env, s, t1)
+        assert deps == [xyz], deps
         assert s.call_count == 1, s.call_count
 
         f12.built()
 
-        deps = f12.get_implicit_deps(env, s, t1)
-        assert deps == [f12], deps
+        deps = f12.get_found_includes(env, s, t1)
+        assert deps == [xyz], deps
         assert s.call_count == 2, s.call_count
 
         # Test building a file whose directory is not there yet...

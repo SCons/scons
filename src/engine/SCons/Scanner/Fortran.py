@@ -45,9 +45,10 @@ include_re = re.compile("INCLUDE[ \t]+'([\\w./\\\\]+)'", re.M)
 def FortranScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files
     for Fortran INCLUDE statements"""
-    scanner = SCons.Scanner.Recursive(scan, "FortranScan", fs,
-                                      [".f", ".F", ".for", ".FOR"],
-                                      path_function = path)
+    scanner = SCons.Scanner.Current(scan, "FortranScan", fs,
+                                    [".f", ".F", ".for", ".FOR"],
+                                    path_function = path,
+                                    recursive = 1)
     return scanner
 
 def path(env, dir, fs = SCons.Node.FS.default_fs):

@@ -92,6 +92,15 @@ test.write('fff4.f',"""
 test.write('include/f4.f', "\n")
 test.write('subdir/include/f4.f', "\n")
 
+test.write('fff5.f',"""
+      PROGRAM FOO
+      INCLUDE 'f5.f'
+      INCLUDE 'not_there.f'
+      STOP
+      END
+""")
+
+test.write('f5.f', "\n")
 
 test.subdir('repository', ['repository', 'include'],
             [ 'repository', 'src' ])
@@ -173,7 +182,7 @@ class FortranScannerTestCase1(unittest.TestCase):
         path = s.path(env)
         fs = SCons.Node.FS.FS(original)
         deps = s(make_node('fff1.f', fs), env, path)
-        headers = ['f1.f', 'f2.f', 'fi.f']
+        headers = ['f1.f', 'f2.f']
         deps_match(self, deps, map(test.workpath, headers))
         test.unlink('f1.f')
         test.unlink('f2.f')
@@ -187,7 +196,7 @@ class FortranScannerTestCase2(unittest.TestCase):
         path = s.path(env)
         fs = SCons.Node.FS.FS(original)
         deps = s(make_node('fff1.f', fs), env, path)
-        headers = ['f1.f', 'f2.f', 'fi.f']
+        headers = ['f1.f', 'f2.f']
         deps_match(self, deps, map(test.workpath, headers))
         test.unlink('f1.f')
         test.unlink('f2.f')
@@ -309,18 +318,16 @@ class FortranScannerTestCase11(unittest.TestCase):
         to = TestOut()
         to.out = None
         SCons.Warnings._warningOut = to
-        test.write('f4.f',"      INCLUDE 'not_there.f'\n")
         fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment([])
         s = SCons.Scanner.Fortran.FortranScan(fs=fs)
         path = s.path(env)
-        deps = s(fs.File('fff4.f'), env, path)
+        deps = s(fs.File('fff5.f'), env, path)
 
         # Did we catch the warning from not finding not_there.f?
         assert to.out
         
-        deps_match(self, deps, [ 'f4.f' ])
-        test.unlink('f4.f')
+        deps_match(self, deps, [ 'f5.f' ])
 
 class FortranScannerTestCase12(unittest.TestCase):
     def runTest(self):

@@ -191,9 +191,47 @@ class Node:
                 return None
         return Adapter(self)
 
-    def get_implicit_deps(self, env, scanner, target):
-        """Return a list of implicit dependencies for this node"""
+    def get_found_includes(self, env, scanner, target):
+        """Return the scanned include lines (implicit dependencies)
+        found in this node.
+
+        The default is no implicit dependencies.  We expect this method
+        to be overridden by any subclass that can be scanned for
+        implicit dependencies.
+        """
         return []
+
+    def get_implicit_deps(self, env, scanner, target):
+        """Return a list of implicit dependencies for this node.
+
+        This method exists to handle recursive invocation of the scanner
+        on the implicit dependencies returned by the scanner, if the
+        scanner's recursive flag says that we should.
+        """
+        if not scanner:
+            return []
+
+        try:
+            recurse = scanner.recursive
+        except AttributeError:
+            recurse = None
+
+        nodes = [self]
+        seen = {}
+        seen[self] = 1
+        deps = []
+        while nodes:
+           n = nodes.pop(0)
+           d = filter(lambda x, seen=seen: not seen.has_key(x),
+                      n.get_found_includes(env, scanner, target))
+           if d:
+               deps.extend(d)
+               for n in d:
+                   seen[n] = 1
+               if recurse:
+                   nodes.extend(d)
+
+        return deps
 
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""

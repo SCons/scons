@@ -31,6 +31,10 @@ RELEASE 0.10 - XXX
   - Refactor the Scanner interface to eliminate unnecessary Scanner
     calls and make it easier to write efficient scanners.
 
+  - Added a "recursive" flag to Scanner creation that specifies the
+    Scanner should be invoked recursively on dependency files returned
+    by the scanner.
+
   - Significant performance improvement from using a more efficient
     check, throughout the code, for whether a Node has a Builder.
 

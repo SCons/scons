@@ -89,6 +89,26 @@ class Environment:
     def Override(selv, overrides):
         return overrides
 
+class Scanner:
+    called = None
+    def __call__(self, node):
+        self.called = 1
+        return node.found_includes
+
+class MyNode(SCons.Node.Node):
+    """The base Node class contains a number of do-nothing methods that
+    we expect to be overridden by real, functional Node subclasses.  So
+    simulate a real, functional Node subclass.
+    """
+    def __init__(self, name):
+        SCons.Node.Node.__init__(self)
+        self.name = name
+        self.found_includes = []
+    def __str__(self):
+        return self.name
+    def get_found_includes(self, env, scanner, target):
+        return scanner(self)
+
 
 
 class NodeTestCase(unittest.TestCase):
@@ -98,27 +118,23 @@ class NodeTestCase(unittest.TestCase):
         """
         global built_it
 
-        class MyNode(SCons.Node.Node):
-            def __str__(self):
-                return self.path
         # Make sure it doesn't blow up if no builder is set.
-        node = MyNode()
+        node = MyNode("www")
         node.build()
         assert built_it == None
 
-        node = MyNode()
+        node = MyNode("xxx")
         node.builder_set(Builder())
         node.env_set(Environment())
         node.path = "xxx"
         node.sources = ["yyy", "zzz"]
         node.build()
         assert built_it
-        assert type(built_target[0]) == type(MyNode()), type(built_target[0])
-        assert str(built_target[0]) == "xxx", str(built_target[0])
+        assert built_target[0] == node, built_target[0]
         assert built_source == ["yyy", "zzz"], built_source
 
         built_it = None
-        node = MyNode()
+        node = MyNode("qqq")
         node.builder_set(NoneBuilder())
         node.env_set(Environment())
         node.path = "qqq"
@@ -126,14 +142,13 @@ class NodeTestCase(unittest.TestCase):
         node.overrides = { "foo" : 1, "bar" : 2 }
         node.build()
         assert built_it
-        assert type(built_target[0]) == type(MyNode()), type(built_target[0])
-        assert str(built_target[0]) == "qqq", str(built_target[0])
+        assert built_target[0] == node, build_target[0]
         assert built_source == ["rrr", "sss"], built_source
         assert built_args["foo"] == 1, built_args
         assert built_args["bar"] == 2, built_args
 
-        fff = MyNode()
-        ggg = MyNode()
+        fff = MyNode("fff")
+        ggg = MyNode("ggg")
         lb = ListBuilder(fff, ggg)
         e = Environment()
         fff.builder_set(lb)
@@ -146,6 +161,8 @@ class NodeTestCase(unittest.TestCase):
         ggg.sources = ["hhh", "iii"]
 
     def test_depends_on(self):
+        """Test the depends_on() method
+        """
         parent = SCons.Node.Node()
         child = SCons.Node.Node()
         parent.add_dependency([child])
@@ -348,17 +365,75 @@ class NodeTestCase(unittest.TestCase):
         assert three.get_parents() == [node]
         assert four.get_parents() == [node]
 
-    def test_scan(self):
-        """Test Scanner functionality"""
-        class DummyScanner:
-            pass
-        ds=DummyScanner()
+    def test_get_found_includes(self):
+        """Test the default get_found_includes() method
+        """
         node = SCons.Node.Node()
+        target = SCons.Node.Node()
+        e = Environment()
+        deps = node.get_found_includes(e, None, target)
+        assert deps == [], deps
+
+    def test_get_implicit_deps(self):
+        """Test get_implicit_deps()
+        """
+        node = MyNode("nnn")
+        target = MyNode("ttt")
+        env = Environment()
+
+        # No scanner at all returns []
+        deps = node.get_implicit_deps(env, None, target)
+        assert deps == [], deps
+
+        s = Scanner()
+        d = MyNode("ddd")
+        node.found_includes = [d]
+
+        # Simple return of the found includes
+        deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d], deps
+
+        # No "recursive" attribute on scanner doesn't recurse
+        e = MyNode("eee")
+        d.found_includes = [e]
+        deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d], map(str, deps)
+
+        # Explicit "recursive" attribute on scanner doesn't recurse
+        s.recursive = None
+        deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d], map(str, deps)
+
+        # Explicit "recursive" attribute on scanner which does recurse
+        s.recursive = 1
+        deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d, e], map(str, deps)
+
+        # Recursive scanning eliminates duplicates
+        f = MyNode("fff")
+        d.found_includes = [e, f]
+        e.found_includes = [f]
+        deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d, e, f], map(str, deps)
+
+    def test_scan(self):
+        """Test Scanner functionality
+        """
+        node = MyNode("nnn")
+        node.builder = 1
+        node.env_set(Environment())
+        s = Scanner()
+
+        d = MyNode("ddd")
+        node.found_includes = [d]
+
         assert node.target_scanner == None, node.target_scanner
-        node.target_scanner = ds
+        node.target_scanner = s
         assert node.implicit is None
+
         node.scan()
-        assert node.implicit == []
+        assert s.called
+        assert node.implicit == [d], node.implicit
 
     def test_scanner_key(self):
         """Test that a scanner_key() method exists"""
@@ -438,11 +513,6 @@ class NodeTestCase(unittest.TestCase):
         """Test walking a Node tree.
         """
 
-        class MyNode(SCons.Node.Node):
-            def __init__(self, name):
-                SCons.Node.Node.__init__(self)
-                self.name = name
-
         n1 = MyNode("n1")
 
         nw = SCons.Node.Walker(n1)
@@ -505,11 +575,6 @@ class NodeTestCase(unittest.TestCase):
 
     def test_rstr(self):
         """Test the rstr() method."""
-        class MyNode(SCons.Node.Node):
-            def __init__(self, name):
-                self.name = name
-            def __str__(self):
-                return self.name
         n1 = MyNode("n1")
         assert n1.rstr() == 'n1', n1.rstr()
 

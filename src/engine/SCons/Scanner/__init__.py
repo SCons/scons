@@ -31,6 +31,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import SCons.Node.FS
+import SCons.Sig
 import SCons.Util
 
 
@@ -55,7 +56,8 @@ class Base:
                  path_function = None,
                  node_class = SCons.Node.FS.Entry,
                  node_factory = SCons.Node.FS.default_fs.File,
-                 scan_check = None):
+                 scan_check = None,
+                 recursive = None):
         """
         Construct a new scanner object given a scanner function.
 
@@ -88,6 +90,10 @@ class Base:
         'scan_check' - a function to be called to first check whether
         this node really needs to be scanned.
 
+        'recursive' - specifies that this scanner should be invoked
+        recursively on the implicit dependencies it returns (the
+        canonical example being #include lines in C source files).
+
         The scanner function's first argument will be the name of a file
         that should be scanned for dependencies, the second argument will
         be an Environment object, the third argument will be the value
@@ -117,6 +123,7 @@ class Base:
         self.node_class = node_class
         self.node_factory = node_factory
         self.scan_check = scan_check
+        self.recursive = recursive
 
     def path(self, env, dir = None):
         if not self.path_function:
@@ -160,43 +167,16 @@ class Base:
         """Add a skey to the list of skeys"""
         self.skeys.append(skey)
 
-class RExists(Base):
+class Current(Base):
     """
-    Scan a node only if it exists (locally or in a Repository).
+    A class for scanning files that are source files (have no builder)
+    or are derived files and are current (which implies that they exist,
+    either locally or in a repository).
     """
+
     def __init__(self, *args, **kw):
-        def rexists_check(node):
-            return node.rexists()
-        kw['scan_check'] = rexists_check
+        def current_check(node):
+            c = not node.has_builder() or node.current(SCons.Sig.default_calc)
+            return c
+        kw['scan_check'] = current_check
         apply(Base.__init__, (self,) + args, kw)
-
-class Recursive(RExists):
-    """
-    The class for recursive dependency scanning.  This will
-    re-scan any new files returned by each call to the
-    underlying scanning function, and return the aggregate
-    list of all dependencies.
-    """
-
-    def __call__(self, node, env, path = ()):
-        """
-        This method does the actual scanning. 'node' is the node
-        that will be passed to the scanner function, and 'env' is the
-        environment that will be passed to the scanner function. An
-        aggregate list of dependency nodes for the specified filename
-        and any of its scanned dependencies will be returned.
-        """
-
-        nodes = [node]
-        seen = {node : 0}
-        deps = []
-        while nodes:
-            n = nodes.pop(0)
-            d = filter(lambda x, seen=seen: not seen.has_key(x),
-                       Base.__call__(self, n, env, path))
-            if d:
-                deps.extend(d)
-                nodes.extend(d)
-                for n in d:
-                    seen[n] = 0
-        return deps
