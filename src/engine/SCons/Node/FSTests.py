@@ -95,6 +95,18 @@ class FSTestCase(unittest.TestCase):
         except:
             raise
 
+	# Test Dir.children()
+	dir = fs.Dir('ddd')
+	fs.File('ddd/f1')
+	fs.File('ddd/f2')
+	fs.File('ddd/f3')
+	fs.Dir('ddd/d1')
+	fs.Dir('ddd/d1/f4')
+	fs.Dir('ddd/d1/f5')
+	kids = map(lambda x: x.path, dir.children())
+	kids.sort()
+	assert kids == ['ddd/d1/', 'ddd/f1', 'ddd/f2', 'ddd/f3']
+
         # Test for sub-classing of node building.
         global built_it
 

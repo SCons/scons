@@ -58,3 +58,6 @@ class Node:
         if type(source) is not type([]):
             raise TypeError("source must be a list")
 	self.sources.extend(source)
+
+    def children(self):
+	return self.sources + self.depends

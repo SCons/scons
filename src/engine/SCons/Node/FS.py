@@ -226,6 +226,11 @@ class Dir(Node):
         else:
             return self.entries['..'].root()
 
+    def children(self):
+	return map(lambda x, s=self: s.entries[x],
+		   filter(lambda k: k != '.' and k != '..',
+			  self.entries.keys()))
+
 
 # XXX TODO?
 # rfile

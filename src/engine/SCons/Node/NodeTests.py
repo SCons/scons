@@ -119,6 +119,17 @@ class NodeTestCase(unittest.TestCase):
 	node.add_source(['two', 'three'])
 	assert node.sources == ['one', 'two', 'three']
 
+    def test_children(self):
+	"""Test fetching the "children" of a Node.
+	"""
+	node = SCons.Node.Node()
+	node.add_source(['one', 'two', 'three'])
+	node.add_dependency(['four', 'five', 'six'])
+	kids = node.children()
+	kids.sort()
+	print kids
+	assert kids == ['five', 'four', 'one', 'six', 'three', 'two']
+
 
 
 if __name__ == "__main__":
