@@ -34,22 +34,27 @@ import SCons.Errors
 class Warning(SCons.Errors.UserError):
     pass
 
-class DeprecatedWarning(Warning):
-    pass
 
-class DependencyWarning(Warning):
+
+class CacheWriteErrorWarning(Warning):
     pass
 
 class CorruptSConsignWarning(Warning):
     pass
 
-class ReservedVariableWarning(Warning):
+class DependencyWarning(Warning):
     pass
 
-class CacheWriteErrorWarning(Warning):
+class DeprecatedWarning(Warning):
+    pass
+
+class MissingSConscriptWarning(Warning):
     pass
 
 class NoParallelSupportWarning(Warning):
+    pass
+
+class ReservedVariableWarning(Warning):
     pass
 
 _warningAsException = 0

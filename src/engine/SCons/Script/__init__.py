@@ -352,8 +352,12 @@ def _setup_warn(arg):
     if len(elems) == 1 and elems[0] == 'all':
         class_name = "Warning"
     else:
-        class_name = string.join(map(string.capitalize, elems), '') + \
-                     "Warning"
+        def _capitalize(s):
+            if s[:5] == "scons":
+                return "SCons" + s[5:]
+            else:
+                return string.capitalize(s)
+        class_name = string.join(map(_capitalize, elems), '') + "Warning"
     try:
         clazz = getattr(SCons.Warnings, class_name)
     except AttributeError:
@@ -703,8 +707,9 @@ def _main(args, parser):
 
     # Enable deprecated warnings by default.
     SCons.Warnings._warningOut = _scons_internal_warning
-    SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.CorruptSConsignWarning)
+    SCons.Warnings.enableWarningClass(SCons.Warnings.DeprecatedWarning)
+    SCons.Warnings.enableWarningClass(SCons.Warnings.MissingSConscriptWarning)
     SCons.Warnings.enableWarningClass(SCons.Warnings.NoParallelSupportWarning)
 
     global ssoptions

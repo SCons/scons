@@ -82,4 +82,21 @@ scons: warning: No dependency generated for file: not_there\.h \(included from: 
 File ".+", line \d+, in .+
 """)
 
+test.write("SConstruct", """\
+def build(target, source, env):
+    pass
+
+env=Environment()
+env['BUILDERS']['test'] = Builder(action=build)
+env.test(target='foo', source='foo.c')
+SConscript('no_such_file')
+""")
+
+test.run(arguments = '--warn=missing-sconscript .', stderr = r"""
+scons: warning: Ignoring missing SConscript 'no_such_file'
+File ".+", line \d+, in .+
+""")
+
+test.run(arguments = '--warn=no-missing-sconscript .', stderr = "")
+
 test.pass_test()
