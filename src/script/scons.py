@@ -68,7 +68,7 @@ class BuildTask(SCons.Taskmaster.Task):
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
     def execute(self):
-        if hasattr(self.target, "builder"):
+        if self.target.builder:
 	    os.unlink(self.target.path)
 	    print "Removed " + self.target.path
 

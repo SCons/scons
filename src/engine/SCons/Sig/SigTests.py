@@ -33,11 +33,11 @@ import sys
 
 class DummyFile:
     """A class that simulates a file for testing purposes"""
-    def __init__(self, path, contents, timestamp, derived):
+    def __init__(self, path, contents, timestamp, builder):
         self.path = path
         self.contents = contents
         self.timestamp = timestamp
-        self.derived = derived
+        self.builder = builder
 
     def modify(self, contents, timestamp):
         self.contents = contents
@@ -49,7 +49,7 @@ class DummyNode:
     def __init__(self, file):
         self.file = file
         self.path = file.path
-        self.derived = file.derived
+        self.builder = file.builder
 	self.depends = []
         
     def get_contents(self):

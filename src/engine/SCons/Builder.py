@@ -95,7 +95,6 @@ class BuilderBase:
 	for t in tlist:
 	    t.builder_set(self)
 	    t.env_set(env)
-	    t.derived = 1
 	    t.add_source(slist)
 
 	if len(tlist) == 1:

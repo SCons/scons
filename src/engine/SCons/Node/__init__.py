@@ -51,12 +51,12 @@ class Node:
     def __init__(self):
 	self.sources = []
 	self.depends = []
-	self.derived = 0
+	self.builder = None
 	self.env = None
         self.state = None
 
     def build(self):
-	if not hasattr(self, "builder"):
+	if not self.builder:
 	    return None
 	sources_str = string.join(map(lambda x: str(x), self.sources))
 	stat = self.builder.execute(env = self.env.Dictionary(),

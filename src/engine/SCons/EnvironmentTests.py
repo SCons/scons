@@ -175,7 +175,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env = Environment()
         t = env.Command(target='foo.out', source=['foo1.in', 'foo2.in'],
                         action='buildfoo $target $source')
-        assert t.derived
+        assert t.builder
         assert t.builder.action.__class__.__name__ == 'CommandAction'
         assert t.builder.action.command == 'buildfoo $target $source'
         assert 'foo1.in' in map(lambda x: x.path, t.sources)

@@ -147,7 +147,7 @@ class Calculator:
 
         if node.has_signature():
             sig = node.get_signature()
-        elif node.derived:
+        elif node.builder:
             signatures = {}
             self.collect(node, signatures)
             signatures = filter(lambda x: not x is None, signatures.values())
@@ -192,7 +192,7 @@ class Calculator:
 
         newtime = node.get_timestamp()
 
-        if not node.derived and newtime == oldtime:
+        if not node.builder and newtime == oldtime:
             newsig = oldsig
         else:
             newsig = self.signature(node)
