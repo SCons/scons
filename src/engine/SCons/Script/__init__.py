@@ -900,7 +900,7 @@ def _main(args, parser):
         sys.stderr.write("scons: *** No targets specified and no Default() targets found.  Stop.\n")
         sys.exit(2)
 
-    def Entry(x, ltop=lookup_top, ttop=target_top):
+    def Entry(x, ltop=lookup_top, ttop=target_top, fs=fs):
         if isinstance(x, SCons.Node.Node):
             node = x
         else:
