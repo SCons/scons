@@ -34,7 +34,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.07'
+default_version = '0.08'
 
 Default('.')
 

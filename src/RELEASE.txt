@@ -20,18 +20,17 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500
+RELEASE 0.08 - 
 
-  This is the seventh alpha release of SCons.  Please consult the
+  This is the eighth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
-  Please note the following UPCOMING very important change:
+  Please note the following important changes since release 0.07:
 
-    - As of the next SCons release (0.08), Builder objects will no longer
-      automatically split target and source file strings on white space.
-      SCons will interpret the string arguments for the target or source
-      files as the complete name of the file, even if the name contains
-      white space.
+    - Builder objects no longer automatically split target and source
+      file strings on white space.  SCons will interpret the string
+      arguments for the target or source files as the complete name of
+      the file, even if the name contains white space.
 
       Consequently, any builder calls that you have defined which supply
       multiple file names in a single string, such as:
@@ -85,19 +84,6 @@ RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500
     - Command generator functions now take a fourth argument,
       for_signature.  You will need to add this argument to any
       generator functions you have defined.
-
-  Please note the following important changes since release 0.05:
-
-    - Python functions as Builder actions now take Node objects, not
-      strings, as arguments.  The string representation of a Node
-      object is the file name, so you should change your function
-      actions to use the str() built-in function to fetch the file
-      name:
-
-        def build_it(target = None, source = None, env = None):
-            print "Building %s from %s" % (str(target), str(source))
-	    open(str(target), 'w').write(open(str(source), 'r').read())
-            return 0
 
   Owing to an extensive test suite, the SCons team believes that this
   release is of sufficient quality that you can use it for real work,

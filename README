@@ -139,16 +139,16 @@ more work:
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
 
-        build/dist/scons-0.07-1.noarch.rpm
-        build/dist/scons-0.07-1.src.rpm
-        build/dist/scons-0.07.linux-i686.tar.gz
-        build/dist/scons-0.07.tar.gz
-        build/dist/scons-0.07.win32.exe
-        build/dist/scons-0.07.zip
-        build/dist/scons-doc-0.07.tar.gz
-        build/dist/scons-src-0.07.tar.gz
-        build/dist/scons-src-0.07.zip
-        build/dist/scons_0.07-1_all.deb
+        build/dist/scons-0.08-1.noarch.rpm
+        build/dist/scons-0.08-1.src.rpm
+        build/dist/scons-0.08.linux-i686.tar.gz
+        build/dist/scons-0.08.tar.gz
+        build/dist/scons-0.08.win32.exe
+        build/dist/scons-0.08.zip
+        build/dist/scons-doc-0.08.tar.gz
+        build/dist/scons-src-0.08.tar.gz
+        build/dist/scons-src-0.08.zip
+        build/dist/scons_0.08-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to
 build packages for which you don't have the proper utilities installed.

@@ -83,18 +83,16 @@ Things to do to release a new version of SCons:
 
 		# Change the hard-coded package version numbers
 		# in the following files.
-		aecp README SConstruct debian/changelog debian/files rpm/scons.spec
+		aecp README SConstruct debian/changelog rpm/scons.spec
 
-		vi README SConstruct debian/changelog debian/files rpm/scons.spec
+		vi README SConstruct debian/changelog rpm/scons.spec
 
 		# Optionally, do the same in the following:
 		[optional] aecp HOWTO/change.txt
 		[optional] aecp HOWTO/release.txt
-		[optional] aecp debian/scons.postinst
 
 		[optional] vi HOWTO/change.txt
 		[optional] vi HOWTO/release.txt
-		[optional] vi debian/scons.postinst
 
 		aeb
 
@@ -119,14 +117,14 @@ Things to do to release a new version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.07-1.noarch.rpm
-		put scons-0.07-1.src.rpm
-		put scons-0.07.tar.gz
-		put scons-0.07.win32.exe
-		put scons-0.07.zip
-		put scons-src-0.07.tar.gz
-		put scons-src-0.07.zip
-		put scons_0.07-1_all.deb
+		put scons-0.08-1.noarch.rpm
+		put scons-0.08-1.src.rpm
+		put scons-0.08.tar.gz
+		put scons-0.08.win32.exe
+		put scons-0.08.zip
+		put scons-src-0.08.tar.gz
+		put scons-src-0.08.zip
+		put scons_0.08-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
@@ -138,7 +136,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.07
+		New release name:  0.08
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -155,15 +153,21 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-0.07-1.noarch.rpm		Any	.rpm
-			scons-0.07-1.src.rpm		Any	Source .rpm
-			scons-0.07.tar.gz		Any	.gz
-			scons-0.07.win32.exe		i386	.exe (32-bit Windows)
-			scons-0.07.zip			Any	.zip
-			scons_0.07-1_all.deb		Any	.deb
+			scons-0.08-1.noarch.rpm		Any	.rpm
+			scons-0.08-1.src.rpm		Any	Source .rpm
+			scons-0.08.tar.gz		Any	.gz
+			scons-0.08.win32.exe		i386	.exe (32-bit Windows)
+			scons-0.08.zip			Any	.zip
+			scons_0.08-1_all.deb		Any	.deb
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
+
+		Check "I'm sure." and click "Send Notice" in the Email
+		Release Notice section.
+
+
+		Go to the Admin page
 
 		=> Edit/Add File Releases
 
@@ -171,7 +175,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.07
+		New release name:  0.08
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -188,11 +192,56 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-src-0.07.tar.gz		Any	.gz
-			scons-src-0.07.zip   		Any	.zip
+			scons-src-0.08.tar.gz		Any	.gz
+			scons-src-0.08.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
+
+		Check "I'm sure." and click "Send Notice" in the Email
+		Release Notice section.
+
+
+	Hide release {0.06} 2 at the SourceForge download page:
+
+		Go to the Admin page
+
+		=> Edit/Add File Releases
+
+		Package Name:  scons
+
+		=> Edit Releases
+
+		Release Name: {0.06}
+
+		=> Edit This Release
+
+		Status: => Hidden
+
+		Click Submit/Refresh
+
+
+		Go to the Admin page
+
+		=> Edit/Add File Releases
+
+		Package Name:  scons-src
+
+		=> Edit Releases
+
+		Release Name: {0.06}
+
+		=> Edit This Release
+
+		Status: => Hidden
+
+		Click Submit/Refresh
+
+
+
+	In the Bugs Tracker, add a Group for the new release (0.08)
+
+
 
 	Test downloading from the SourceForge project page
 
@@ -216,10 +265,6 @@ Things to do to release a new version of SCons:
 
 
 	Add news item to the SourceForge project page
-
-
-
-	In the Bugs Tracker, add a Group for the new release (0.07)
 
 
 
@@ -267,13 +312,9 @@ Things to do to release a new version of SCons:
 
 
 =======================
-Template scons-devel announcement:
+Template describe-the-release section:
 
-SConspirators--
-
-SCons alpha release 0.07 is now available for download.
-
-IMPORTANT:  This release contains the following interface changes:
+IMPORTANT:  Release 0.08 contains the following interface changes:
   - XXX
 
 This release adds the following features:
@@ -290,14 +331,23 @@ The following changes have been made to the SCons packaging:
 
 The documentation has been improved:
   - XXX
+=======================
+Template scons-devel announcement:
 
-Thanks to XXX, XXX, and XXX for contributing to this release.
+SConspirators--
+
+SCons alpha release 0.08 is now available for download.
+
+XXX Template describe-the-release section goes here XXX
+
+Special thanks to XXX, XXX, and XXX for their contributions to this
+release.
 
 	--SK
 =======================
 Template scons-users + scons-announce announcement:
 
-Version 0.07 of SCons has been released and is available for download
+Version 0.08 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/
@@ -312,23 +362,7 @@ addition to the traditional .tar.gz and .zip files.
 
 WHAT'S NEW IN THIS RELEASE?
 
-IMPORTANT:  Version 0.07 contains the following interface changes:
-  - XXX
-
-This release adds the following features:
-  - XXX
-
-The following fixes have been added:
-  - XXX
-
-Performance has been improved as follows:
-  - XXX
-
-The following changes have been made to the SCons packaging:
-  - XXX
-
-The documentation has been improved:
-  - XXX
+XXX Template describe-the-release section goes here XXX
 
 
 ACKNOWLEDGEMENTS
@@ -342,7 +376,11 @@ On behalf of the SCons team,
 =======================
 Template python-announce, linux-announce and python-list announcement:
 
-Version 0.07 of SCons has been released and is available for download
+SCons is a software construction tool (build tool, or make tool) written
+in Python.  It is based on the design which won the Software Carpentry
+build tool competition in August 2000.
+
+Version 0.08 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/
@@ -357,48 +395,29 @@ addition to the traditional .tar.gz and .zip files.
 
 WHAT'S NEW IN THIS RELEASE?
 
-IMPORTANT:  Version 0.07 contains the following interface changes:
-  - XXX
-
-This release adds the following features:
-  - XXX
-
-The following fixes have been added:
-  - XXX
-
-Performance has been improved as follows:
-  - XXX
-
-The following changes have been made to the SCons packaging:
-  - XXX
-
-The documentation has been improved:
-  - XXX
+XXX Template describe-the-release section goes here XXX
 
 
-WHAT IS SCONS?
-
-SCons is a software construction tool (build tool, or make tool) written
-in Python.  Its design is based on the design which won the Software
-Carpentry build tool competition in August 2000 (in turn derived from
-the Perl-based Cons build tool).
+ABOUT SCONS
 
 Distinctive features of SCons include:
 
+  - a global view of all dependencies; no multiple passes to get
+    everything built properly
   - configuration files are Python scripts, allowing the full use of a
-    real scripting language to solve build problems
+    real scripting language to solve difficult build problems
   - a modular architecture allows the SCons Build Engine to be
     embedded in other Python software
-  - a global view of all dependencies; no multiple passes to get
-    everything built
   - the ability to scan files for implicit dependencies (#include files);
-  - improved parallel build (-j) support
-  - use of MD5 signatures to decide if a file has changed
+  - improved parallel build (-j) support that provides consistent
+    build speedup regardless of source tree layout
+  - use of MD5 signatures to decide if a file has really changed; no
+    need to "touch" files to fool make that something is up-to-date
   - easily extensible through user-defined Builder and Scanner objects
   - build actions can be Python code, as well as external commands
 
-An scons-users mailing list has been created for those interested in
-getting started using SCons.  You can subscribe at:
+An scons-users mailing list is available for those interested in getting
+started using SCons.  You can subscribe at:
 
 	http://lists.sourceforge.net/lists/listinfo/scons-users
 

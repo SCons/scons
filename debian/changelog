@@ -1,3 +1,10 @@
+scons (0.08-1) unstable; urgency=low
+
+  * Second post-official-Debain build cycle
+
+ -- Steven Knight <knight@baldmt.com>  Thu,  2 May 2002 13:37:16 -0500
+
+
 scons (0.07-1) unstable; urgency=low
 
   * Folding uploaded Debian build into SCons source

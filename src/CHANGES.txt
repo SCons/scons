@@ -8,6 +8,10 @@
 
 
 
+RELEASE 0.08 - 
+
+
+
 RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500
 
   From Chad Austin:
