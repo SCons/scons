@@ -20,26 +20,19 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
+RELEASE 0.95 - XXX
 
-  This is the fifth beta release of SCons.  Please consult the
+  This is the sixth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
-  Please note the following important changes since release 0.92:
+  Please note the following important changes since release 0.94:
 
-  - Construction variables are now expanded anywhere within a
-    target or source name, as well as in the arguments to the following
-    Environment methods:  AlwaysBuild(), Depends(), Ignore(), Install(),
-    InstallAs(), Precious(), SideEffect() and SourceCode().
-
-    If you have any files or directories that actually contain one or
-    more dollar signs ($), you must now precede the dollar sign with
-    another dollar sign ($$) when referring to the file or directory
-    as part of calling a Builder, or any of the above methods.
-
-  - The ParseConfig() global function has now been deprecated in favor
-    of using the env.ParseConfig() method.  The global function will be
-    removed in some future release of SCons.
+    - The internal Python function used by the Zip Builder in Python
+      releases 1.6 or later now compresses the resulting .zip file
+      by default.  The old behavior of creating an uncompressed file
+      may be preserved by setting the new ZIPCOMPRESSION construction
+      variable to 0 (or zipfile.ZIP_STORED, if you import the
+      underlying zipfile module).
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.

@@ -92,6 +92,11 @@ RELEASE 0.95 - XXX
   - When scanning for libraries to link with, don't append $LIBPREFIXES
     or $LIBSUFFIXES values to the $LIBS values if they're already present.
 
+  - Add a ZIPCOMPRESSION construction variable to control whether the
+    internal Python action for the Zip Builder compresses the file or
+    not.  The default value is zipfile.ZIP_DEFLATED, which generates
+    a compressed file.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.
