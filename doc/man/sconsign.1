@@ -31,7 +31,7 @@
 .RE
 .fi
 ..
-.TH SCONSIGN 1 "July 2003"
+.TH SCONSIGN 1 "September 2003"
 .SH NAME
 sconsign \- print SCons .sconsign file information
 .SH SYNOPSIS
@@ -66,15 +66,38 @@ is printed.
 If the entry has no implicit dependencies,
 the lines are simply omitted.
 
+By default,
+.B sconsign
+assumes that any
+.I file
+arguments that end with a
+.B .dbm
+suffix contains
+signature entries for
+more than one directory
+(that is,
+was specified by the
+.B SConsignFile ()
+function).
+Any
+.I file
+argument that does not end in
+.B .dbm
+is assumed to be a traditional
+.B .sconsign
+file containing the signature entries
+for a single directory.
+An explicit format
+may be specified using the
+.B -f
+or
+.B --file=
+options.
+
 .SH OPTIONS
 
 Various options control what information is printed
 and the format:
-
-.TP
--b
-Ignored for compatibility with non-GNU versions of
-.BR make.
 
 .TP
 -b, --bsig
@@ -87,12 +110,47 @@ Prints the content signature (csig) information
 for all entries or the specified entries.
 
 .TP
--e entry, --entry=entry
-Prints information about only the specified entry.
+-d DIRECTORY, --dir=DIRECTORY
+When the signatures are being
+read from a
+.B .dbm
+file, or the
+.B -f dbm
+or
+.B --format=dbm
+options are used,
+prints information about
+only the signatures
+for entries in the specified
+.IR DIRECTORY .
+
+.TP
+-e ENTRY, --entry=ENTRY
+Prints information about only the specified
+.IR ENTRY .
 Multiple -e options may be used,
 in which case information about each
-entry is printed in the order in which the
+.I ENTRY
+is printed in the order in which the
 options are specified on the command line.
+
+.TP
+-f FORMAT, --format=FORMAT
+The file(s) to be printed
+are in the specified
+.IR FORMAT .
+Legal values are
+.B dbm
+(the DBM format used
+when the
+.BR SConsignFile ()
+function is used)
+or
+.B sconsign
+(the default format
+used for an individual
+.B .sconsign
+file in each directory).
 
 .TP
 -h, --help

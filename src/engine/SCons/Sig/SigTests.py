@@ -424,7 +424,7 @@ class _SConsignTestCase(unittest.TestCase):
         assert f.get('foo') == (3, 1, 2)
         assert f.get_implicit('foo') == ['bar']
 
-        f = SCons.Sig._SConsign(None, DummyModule())
+        f = SCons.Sig._SConsign(DummyModule())
         f.set_bsig('foo', 1)
         assert f.get('foo') == (None, 1, None)
         f.set_csig('foo', 2)
@@ -435,7 +435,38 @@ class _SConsignTestCase(unittest.TestCase):
         assert f.get('foo') == (3, 1, 2)
         assert f.get_implicit('foo') == ['bar']
 
-class SConsignFileTestCase(unittest.TestCase):
+class SConsignDBTestCase(unittest.TestCase):
+
+    def runTest(self):
+        class DummyNode:
+            def __init__(self, path):
+                self.path = path
+        save_SConsign_db = SCons.Sig.SConsign_db
+        SCons.Sig.SConsign_db = {}
+        try:
+            d1 = SCons.Sig.SConsignDB(DummyNode('dir1'))
+            d1.set_timestamp('foo', 1)
+            d1.set_bsig('foo', 2)
+            d1.set_csig('foo', 3)
+            d1.set_timestamp('bar', 4)
+            d1.set_bsig('bar', 5)
+            d1.set_csig('bar', 6)
+            assert d1.get('foo') == (1, 2, 3)
+            assert d1.get('bar') == (4, 5, 6)
+
+            d2 = SCons.Sig.SConsignDB(DummyNode('dir1'))
+            d2.set_timestamp('foo', 7)
+            d2.set_bsig('foo', 8)
+            d2.set_csig('foo', 9)
+            d2.set_timestamp('bar', 10)
+            d2.set_bsig('bar', 11)
+            d2.set_csig('bar', 12)
+            assert d2.get('foo') == (7, 8, 9)
+            assert d2.get('bar') == (10, 11, 12)
+        finally:
+            SCons.Sig.SConsign_db = save_SConsign_db
+
+class SConsignDirFileTestCase(unittest.TestCase):
 
     def runTest(self):
         class DummyModule:
@@ -448,7 +479,7 @@ class SConsignFileTestCase(unittest.TestCase):
         class DummyNode:
             path = 'not_a_valid_path'
 
-        f = SCons.Sig.SConsignFile(DummyNode(), DummyModule())
+        f = SCons.Sig.SConsignDirFile(DummyNode(), DummyModule())
         f.set_bsig('foo', 1)
         assert f.get('foo') == (None, 1, None)
         f.set_csig('foo', 2)
@@ -467,7 +498,8 @@ def suite():
     suite.addTest(CalcTestCase())
     suite.addTest(SConsignEntryTestCase())
     suite.addTest(_SConsignTestCase())
-    suite.addTest(SConsignFileTestCase())
+    suite.addTest(SConsignDBTestCase())
+    suite.addTest(SConsignDirFileTestCase())
     return suite
 
 if __name__ == "__main__":

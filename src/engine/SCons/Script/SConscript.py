@@ -41,7 +41,6 @@ import SCons.Node.Python
 import SCons.Platform
 import SCons.SConf
 import SCons.Script
-import SCons.Tool
 import SCons.Util
 import SCons.Options
 import SCons
@@ -539,6 +538,13 @@ def SetOption(name, value):
 def GetOption(name):
     return SCons.Script.ssoptions.get(name)
 
+def SConsignFile(name=".sconsign.dbm"):
+    import SCons.Sig
+    if not os.path.isabs(name):
+        sd = str(SCons.Node.FS.default_fs.SConstruct_dir)
+        name = os.path.join(sd, name)
+    SCons.Sig.SConsignFile(name)
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -583,6 +589,7 @@ def BuildDefaultGlobals():
     globals['Return']            = Return
     globals['SConscript']        = SConscript
     globals['SConscriptChdir']   = SConscriptChdir
+    globals['SConsignFile']      = SConsignFile
     globals['Scanner']           = SCons.Scanner.Base
     globals['SetBuildSignatureType'] = SetBuildSignatureType
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler

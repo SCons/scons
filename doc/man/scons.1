@@ -31,7 +31,7 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "June 2003"
+.TH SCONS 1 "September 2003"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -4727,6 +4727,39 @@ as a list. Example:
 .ES
 Return("foo")
 Return(["foo", "bar"])
+.EE
+
+.TP
+.RI SConsignFile([ file ])
+This tells
+.B scons
+to store all file signatures
+in the specified
+.IR file .
+If the
+.I file
+is omitted,
+.B .sconsign.dbm
+is used by default.
+If
+.I file
+is not an absolute path name,
+the file is placed in the same directory as the top-level
+.B SConstruct
+file.
+Examples:
+
+.ES
+# Stores signatures in ".sconsign.dbm"
+# in the top-level SConstruct directory.
+SConsignFile()
+
+# Stores signatures in the file "etc/scons-signatures"
+# relative to the top-level SConstruct directory.
+SConsignFile("etc/scons-signatures")
+
+# Stores signatures in the specified absolute file name.
+SConsignFile("/home/me/SCons/signatures")
 .EE
 
 .TP

@@ -49,6 +49,8 @@ default_max_drift = 2*24*60*60
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
+SConsign_db = None
+
 # 1 means use build signature for derived source files
 # 0 means use content signature for derived source files
 build_signature = 1
@@ -77,10 +79,16 @@ class SConsignEntry:
     implicit = None
 
 class _SConsign:
-
-    def __init__(self, fp=None, module=None):
+    """
+    This is the controlling class for the signatures for the collection of
+    entries associated with a specific directory.  The actual directory
+    association will be maintained by a subclass that is specific to
+    the underlying storage method.  This class provides a common set of
+    methods for fetching and storing the individual bits of information
+    that make up signature entry.
+    """
+    def __init__(self, module=None):
         """
-        fp - file pointer to read entries from
         module - the signature module being used
         """
 
@@ -90,18 +98,6 @@ class _SConsign:
             self.module = module
         self.entries = {}
         self.dirty = 0
-
-        if fp:
-            try:
-                self.entries = cPickle.load(fp)
-                if type(self.entries) is not type({}):
-                    self.entries = {}
-                    raise TypeError
-            except:
-                SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                                    "Ignoring corrupt .sconsign file: %s"%self.sconsign)
-        global sig_files
-        sig_files.append(self)
 
     # A null .sconsign entry.  We define this here so that it will
     # be easy to keep this in sync if/whenever we change the type of
@@ -185,11 +181,58 @@ class _SConsign:
         entry.implicit = implicit
         self.set_entry(filename, entry)
 
-class SConsignFile(_SConsign):
+class SConsignDB(_SConsign):
     """
-    Encapsulates reading and writing a .sconsign file.
+    A _SConsign subclass that reads and writes signature information
+    from a global .sconsign.dbm file.
     """
+    def __init__(self, dir, module=None):
+        _SConsign.__init__(self, module)
 
+        self.dir = dir
+
+        try:
+            global SConsign_db
+            rawentries = SConsign_db[self.dir.path]
+        except KeyError:
+            pass
+        else:
+            try:
+                self.entries = cPickle.loads(rawentries)
+                if type(self.entries) is not type({}):
+                    self.entries = {}
+                    raise TypeError
+            except:
+                SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
+                                    "Ignoring corrupt sconsign entry : %s"%self.dir.path)
+
+        global sig_files
+        sig_files.append(self)
+
+    def write(self):
+        if self.dirty:
+            global SConsign_db
+            SConsign_db[self.dir.path] = cPickle.dumps(self.entries, 1)
+            SConsign_db.sync()
+
+class SConsignDir(_SConsign):
+    def __init__(self, fp=None, module=None):
+        """
+        fp - file pointer to read entries from
+        module - the signature module being used
+        """
+        _SConsign.__init__(self, module)
+
+        if fp:
+            self.entries = cPickle.load(fp)
+            if type(self.entries) is not type({}):
+                self.entries = {}
+                raise TypeError
+
+class SConsignDirFile(SConsignDir):
+    """
+    Encapsulates reading and writing a per-directory .sconsign file.
+    """
     def __init__(self, dir, module=None):
         """
         dir - the directory for the file
@@ -204,7 +247,14 @@ class SConsignFile(_SConsign):
         except:
             fp = None
 
-        _SConsign.__init__(self, fp, module)
+        try:
+            SConsignDir.__init__(self, fp, module)
+        except:
+            SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
+                                "Ignoring corrupt .sconsign file: %s"%self.sconsign)
+
+        global sig_files
+        sig_files.append(self)
 
     def write(self):
         """
@@ -248,6 +298,21 @@ class SConsignFile(_SConsign):
                 os.unlink(temp)
             except:
                 pass
+
+SConsignForDirectory = SConsignDirFile
+
+def SConsignFile(name):
+    """
+    Arrange for all signatures to be stored in a global .sconsign.dbm
+    file.
+    """
+    global SConsign_db
+    if SConsign_db is None:
+        import anydbm
+        SConsign_db = anydbm.open(name, "c")
+
+    global SConsignForDirectory
+    SConsignForDirectory = SConsignDB
 
 class Calculator:
     """

@@ -1100,7 +1100,7 @@ class Dir(Base):
         creating it first if necessary."""
         if not self._sconsign:
             import SCons.Sig
-            self._sconsign = SCons.Sig.SConsignFile(self)
+            self._sconsign = SCons.Sig.SConsignForDirectory(self)
         return self._sconsign
 
     def srcnode(self):

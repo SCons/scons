@@ -134,61 +134,22 @@ sys.path = libs + sys.path
 # END STANDARD SCons SCRIPT HEADER
 ##############################################################################
 
-import getopt
+PF_bsig      = 0x1
+PF_csig      = 0x2
+PF_timestamp = 0x4
+PF_implicit  = 0x8
+PF_all       = PF_bsig | PF_csig | PF_timestamp | PF_implicit
 
-helpstr = """\
-Usage: sconsign [OPTIONS] FILE [...]
-Options:
-  -b, --bsig                  Print build signature information.
-  -c, --csig                  Print content signature information.
-  -e, --entry ENTRY           Print only info about ENTRY.
-  -h, --help                  Print this message and exit.
-  -i, --implicit              Print implicit dependency information.
-  -r, --readable              Print timestamps in human-readable form.
-  -t, --timestamp             Print timestamp information.
-  -v, --verbose               Verbose, describe each field.
-"""
-
-opts, args = getopt.getopt(sys.argv[1:], "bce:hirtv",
-                            ['bsig', 'csig', 'entry=', 'help', 'implicit',
-                             'readable', 'timestamp', 'verbose'])
-
-pf_bsig      = 0x1
-pf_csig      = 0x2
-pf_timestamp = 0x4
-pf_implicit  = 0x8
-pf_all       = pf_bsig | pf_csig | pf_timestamp | pf_implicit
-
-entries = []
-printflags = 0
-verbose = 0
-readable = 0
-
-for o, a in opts:
-    if o in ('-b', '--bsig'):
-        printflags = printflags | pf_bsig
-    elif o in ('-c', '--csig'):
-        printflags = printflags | pf_csig
-    elif o in ('-e', '--entry'):
-        entries.append(a)
-    elif o in ('-h', '--help'):
-        print helpstr
-        sys.exit(0)
-    elif o in ('-i', '--implicit'):
-        printflags = printflags | pf_implicit
-    elif o in ('-r', '--readable'):
-        readable = 1
-    elif o in ('-t', '--timestamp'):
-        printflags = printflags | pf_timestamp
-    elif o in ('-v', '--verbose'):
-        verbose = 1
-
-if printflags == 0:
-    printflags = pf_all
+Do_Func = None
+Print_Directories = []
+Print_Entries = []
+Print_Flags = 0
+Verbose = 0
+Readable = 0
 
 def field(name, pf, val):
-    if printflags & pf:
-        if verbose:
+    if Print_Flags & pf:
+        if Verbose:
             sep = "\n    " + name + ": "
         else:
             sep = " "
@@ -197,36 +158,143 @@ def field(name, pf, val):
         return ""
 
 def printfield(name, entry):
-    if readable and entry.timestamp:
+    if Readable and entry.timestamp:
         ts = "'" + time.ctime(entry.timestamp) + "'"
     else:
         ts = entry.timestamp
-    timestamp = field("timestamp", pf_timestamp, ts)
-    bsig = field("bsig", pf_bsig, entry.bsig)
-    csig = field("csig", pf_csig, entry.csig)
+    timestamp = field("timestamp", PF_timestamp, ts)
+    bsig = field("bsig", PF_bsig, entry.bsig)
+    csig = field("csig", PF_csig, entry.csig)
     print name + ":" + timestamp + bsig + csig
-    if printflags & pf_implicit and entry.implicit:
-        if verbose:
+    if Print_Flags & PF_implicit and entry.implicit:
+        if Verbose:
             print "    implicit:"
         for i in entry.implicit:
             print "        %s" % i
 
-import SCons.Sig
-
-def do_sconsign(fp):
-    sconsign = SCons.Sig._SConsign(fp)
-    if entries:
-        for name in entries:
+def printentries(entries):
+    if Print_Entries:
+        for name in Print_Entries:
             try:
-                entry = sconsign.entries[name]
+                entry = entries[name]
             except KeyError:
                 sys.stderr.write("sconsign: no entry `%s' in `%s'\n" % (name, args[0]))
             else:
                 printfield(name, entry)
     else:
-        for name, e in sconsign.entries.items():
+        for name, e in entries.items():
             printfield(name, e)
-    
+
+import SCons.Sig
+
+def Do_SConsignDB(name):
+    import anydbm
+    import cPickle
+    try:
+        open(name, 'rb')
+    except (IOError, OSError), e:
+        sys.stderr.write("sconsign: %s\n" % (e))
+        return
+    try:
+        db = anydbm.open(name, "r")
+    except anydbm.error, e:
+        sys.stderr.write("sconsign: ignoring invalid .sconsign.dbm file `%s': %s\n" % (name, e))
+        return
+    if Print_Directories:
+        for dir in Print_Directories:
+            try:
+                val = db[dir]
+            except KeyError:
+                sys.stderr.write("sconsign: no dir `%s' in `%s'\n" % (dir, args[0]))
+            else:
+                entries = cPickle.loads(val)
+                print '=== ' + dir + ':'
+                printentries(entries)
+    else:
+        keys = db.keys()
+        keys.sort()
+        for dir in keys:
+            entries = cPickle.loads(db[dir])
+            print '=== ' + dir + ':'
+            printentries(entries)
+
+def Do_SConsignDir(name):
+    try:
+        fp = open(name, 'rb')
+    except (IOError, OSError), e:
+        sys.stderr.write("sconsign: %s\n" % (e))
+        return
+    try:
+        sconsign = SCons.Sig.SConsignDir(fp)
+    except:
+        sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s'\n" % name)
+        return
+    printentries(sconsign.entries)
+
+Function_Map = {'dbm'      : Do_SConsignDB,
+                'sconsign' : Do_SConsignDir}
+
+##############################################################################
+
+import getopt
+
+helpstr = """\
+Usage: sconsign [OPTIONS] FILE [...]
+Options:
+  -b, --bsig                  Print build signature information.
+  -c, --csig                  Print content signature information.
+  -d DIR, --dir=DIR           Print only info about DIR.
+  -e ENTRY, --entry=ENTRY     Print only info about ENTRY.
+  -f FORMAT, --format=FORMAT  FILE is in the specified FORMAT.
+  -h, --help                  Print this message and exit.
+  -i, --implicit              Print implicit dependency information.
+  -r, --readable              Print timestamps in human-readable form.
+  -t, --timestamp             Print timestamp information.
+  -v, --verbose               Verbose, describe each field.
+"""
+
+opts, args = getopt.getopt(sys.argv[1:], "bcd:e:f:hirtv",
+                            ['bsig', 'csig', 'dir=', 'entry=',
+                             'format=', 'help', 'implicit',
+                             'readable', 'timestamp', 'verbose'])
+
+for o, a in opts:
+    if o in ('-b', '--bsig'):
+        Print_Flags = Print_Flags | PF_bsig
+    elif o in ('-c', '--csig'):
+        Print_Flags = Print_Flags | PF_csig
+    elif o in ('-d', '--dir'):
+        Print_Directories.append(a)
+    elif o in ('-e', '--entry'):
+        Print_Entries.append(a)
+    elif o in ('-f', '--format'):
+        try:
+            Do_Func = Function_Map[a]
+        except KeyError:
+            sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
+            print helpstr
+            sys.exit(2)
+    elif o in ('-h', '--help'):
+        print helpstr
+        sys.exit(0)
+    elif o in ('-i', '--implicit'):
+        Print_Flags = Print_Flags | PF_implicit
+    elif o in ('-r', '--readable'):
+        Readable = 1
+    elif o in ('-t', '--timestamp'):
+        Print_Flags = Print_Flags | PF_timestamp
+    elif o in ('-v', '--verbose'):
+        Verbose = 1
+
+if Print_Flags == 0:
+    Print_Flags = PF_all
     
 for a in args:
-    do_sconsign(open(a, 'rb'))
+    if Do_Func:
+        Do_Func(a)
+    elif a[-4:] == '.dbm':
+        Do_SConsignDB(a)
+    else:
+        Do_SConsignDir(a)
+
+sys.exit(0)

@@ -20,6 +20,12 @@ RELEASE X.XX - XXX
   - Add support for CCVERSION and CXXVERSION variables for a number
     of C and C++ compilers.
 
+  From Stephen Kennedy:
+
+  - Add support for a configurable global .sconsign.dbm file which
+    can be used to avoid cluttering each directory with an individual
+    .sconsign file.
+
   From Steven Knight:
 
   - The -Q option suppressed too many messages; fix it so that it only
