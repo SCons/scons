@@ -41,7 +41,7 @@ work_foo = test.workpath('work', 'foo' + _exe)
 work_foo_h = test.workpath('work', 'foo.h')
 
 test.write(['work', 'SConstruct'], """
-Repository('%s')
+Repository(r'%s')
 env = Environment(CPPPATH = ['.'])
 env.Program(target = 'foo', source = 'foo.c')
 """ % repository)
