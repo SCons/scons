@@ -8,6 +8,13 @@
 
 
 
+RELEASE 0.02 - 
+
+  - Fixed the version comment in the scons.bat (the UNIX geek used
+    # instead of @rem).
+
+
+
 RELEASE 0.01 - Thu Dec 13 19:25:23 CST 2001
 
 A brief overview of important functionality available in release 0.01:
