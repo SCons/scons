@@ -34,7 +34,10 @@ RELEASE 0.15 - XXX
     must have the same form as valid Python identifiers.
 
   - Fix man page bugs: remove duplicate AddPostAction() description;
-    document no_import_lib.
+    document no_import_lib; mention that CPPFLAGS does not contain
+    $_CPPINCFLAGS; mention that F77FLAGS does not contain $_F77INCFLAGS;
+    mention that LINKFLAGS and SHLINKFLAGS contains neither $_LIBFLAGS
+    nor $_LIBDIRFLAGS.
 
   - Eliminate a dependency on the distutils.fancy_getopt module by
     copying and pasting its wrap_text() function directly.

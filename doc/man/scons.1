@@ -2195,7 +2195,7 @@ env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDir
 .EE
 
 .IP CPPFLAGS
-C preprocessor options.
+User-specified C preprocessor options.
 These will be included in any command that uses the C preprocessor,
 including not just compilation of C and C++ source files
 via the $CCCOM, $SHCCCOM, $CXXCOM and $SHCXXCOM command lines,
@@ -2204,6 +2204,16 @@ used to compile a Fortran source file,
 and the $ASPPCOM command line
 used to assemble an assembly language source file,
 after first running each file through the C preprocessor.
+Note that this variable does
+.I not
+contain
+.B -I
+(or similar) include search path options
+that scons generates automatically from $CPPPATH.
+See
+.BR _CPPINCFLAGS ,
+below,
+for the variable that expands to those options.
 
 .IP _CPPINCFLAGS
 An automatically-generated construction variable
@@ -2386,7 +2396,17 @@ The Fortran compiler.
 The command line used to compile a Fortran source file to an object file.
 
 .IP F77FLAGS
-General options that are passed to the Fortran compiler.
+General user-specified options that are passed to the Fortran compiler.
+Note that this variable does
+.I not
+contain
+.B -I
+(or similar) include search path options
+that scons generates automatically from $F77PATH.
+See
+.BR _F77INCFLAGS ,
+below,
+for the variable that expands to those options.
 
 .IP _F77INCFLAGS
 An automatically-generated construction variable
@@ -2625,7 +2645,8 @@ when the $_LIBFLAGS variable is automatically generated.
 The list of directories that will be searched for libraries.
 The implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
-arguments in LINKFLAGS because the result will be non-portable
+arguments in $LINKFLAGS or $SHLINKFLAGS
+because the result will be non-portable
 and the directories will not be searched by the dependency scanner. Note:
 directory names in LIBPATH will be looked-up relative to the SConscript
 directory when they are used in a command. To force 
@@ -2706,7 +2727,24 @@ An array of legal suffixes for library file names.
 The linker.
 
 .IP LINKFLAGS
-General options passed to the linker.
+General user options passed to the linker.
+Note that this variable should
+.I not
+contain
+.B -l
+(or similar) options for linking with the libraries listed in $LIBS,
+nor
+.B -L
+(or similar) library search path options
+that scons generates automatically from $LIBPATH.
+See
+.BR _LIBFLAGS ,
+above,
+for the variable that expands to library-link options,
+and
+.BR _LIBDIRFLAGS ,
+above,
+for the variable that expands to library search path options.
 
 .IP LINKCOM
 The command line used to link object files into an executable.
@@ -2975,7 +3013,24 @@ The suffix used for shared library file names.
 The linker for programs that use shared libraries.
 
 .IP SHLINKFLAGS
-General options passed to the linker for programs using shared libraries.
+General user options passed to the linker for programs using shared libraries.
+Note that this variable should
+.I not
+contain
+.B -l
+(or similar) options for linking with the libraries listed in $LIBS,
+nor
+.B -L
+(or similar) include search path options
+that scons generates automatically from $LIBPATH.
+See
+.BR _LIBFLAGS ,
+above,
+for the variable that expands to library-link options,
+and
+.BR _LIBDIRFLAGS ,
+above,
+for the variable that expands to library search path options.
 
 .IP SHOBJPREFIX 
 The prefix used for shared object file names.
