@@ -109,7 +109,15 @@ test.fail_test(os.path.exists(test.workpath('f2.out')))
 
 test.run(arguments = args)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
-test.fail_test(not os.path.exists(test.workpath('f2.out')))
+
+# Test that SCons does not write a modified .sconsign when -n is used.
+expect = test.wrap_stdout("""\
+%s build.py f1.out
+""" % python)
+test.unlink('.sconsign')
+test.write('f1.out', "X1.out\n")
+test.run(arguments = '-n f1.out', stdout = expect)
+test.run(arguments = '-n f1.out', stdout = expect)
 
 def wrap_clean_stdout(string):
     return "scons: Reading SConscript files ...\n" + \

@@ -959,7 +959,8 @@ def _main():
         jobs.run()
     finally:
         display("scons: " + closing_message)
-        SCons.Sig.write()
+        if not options.noexec:
+            SCons.Sig.write()
 
 def main():
     global exit_status

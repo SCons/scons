@@ -18,6 +18,17 @@ RELEASE 0.15 - XXX
   - Fix man page bugs: remove duplicate AddPostAction() description;
     document no_import_lib.
 
+  - Eliminate a dependency on the distutils.fancy_getopt module by
+    copying and pasting its wrap_text() function directly.
+
+  From Steve Leblanc:
+
+  - Don't update the .sconsign files when run with -n.
+
+  From David Snopek and Christoph Wiedemann
+
+  - Fix use of the SConf subsystem with SConscriptChdir().
+
 
 
 RELEASE 0.14 - Wed, 21 May 2003 05:16:32 -0500
