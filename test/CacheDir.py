@@ -35,7 +35,9 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('cache1', 'cache2', 'cache3', 'src', 'subdir')
+# cache2 omitted from list in order to test automatic creation of CacheDir
+# directory.
+test.subdir('cache1', 'cache3', 'src', 'subdir')
 
 test.write(['src', 'SConstruct'], """\
 CacheDir(r'%s')
