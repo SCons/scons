@@ -73,6 +73,23 @@ RELEASE 0.97 - XXX
               the elements.  This may cause rebuilds on Windows systems
               with hierarchical configurations.
 
+          --  STORED DEPENDENCY PATHS ARE NOW RELATIVE TO THE TARGET
+
+              SCons used to store the paths of all source files and
+              dependencies relative to the top-level SConstruct directory.
+              It now stores them relative to the directory of the
+              associated target file.  This makes it possible to use
+              content signatures to subdivide a dependency tree without
+              causing unnecessary rebuilds due to an intermediate file in
+              one build being treated as a source file in a nother build.
+
+              This a step towards making it possible to write a hierarchy
+              of SConstruct files that allow developers to build just
+              one portion of a tree wherever there's an SConstruct file.
+              (Note that this would still require some specific code at
+              the top of each SConstruct file, but we hope to make this
+              an easier/more naturally supported thing in the future.)
+
     --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
 
         The Configure() subsystem now stores its cached results in a

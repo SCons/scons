@@ -480,20 +480,19 @@ class Node:
         # Here's where we implement --implicit-cache.
         if implicit_cache and not implicit_deps_changed:
             implicit = self.get_stored_implicit()
-            if implicit is not None:
+            if implicit:
                 implicit = map(self.implicit_factory, implicit)
                 self._add_child(self.implicit, self.implicit_dict, implicit)
                 calc = build_env.get_calculator()
                 if implicit_deps_unchanged or self.current(calc):
                     return
-                else:
-                    # one of this node's sources has changed, so
-                    # we need to recalculate the implicit deps,
-                    # and the bsig:
-                    self.implicit = []
-                    self.implicit_dict = {}
-                    self._children_reset()
-                    self.del_binfo()
+                # one of this node's sources has changed, so
+                # we need to recalculate the implicit deps,
+                # and the bsig:
+                self.implicit = []
+                self.implicit_dict = {}
+                self._children_reset()
+                self.del_binfo()
 
         executor = self.get_executor()
 
@@ -581,8 +580,12 @@ class Node:
             self.scan()
 
         executor = self.get_executor()
+        def calc_signature(node, calc=calc):
+            return node.calc_signature(calc)
 
-        sourcelist, sourcesigs, bsources = executor.get_source_binfo(calc, self.ignore)
+        bsources = executor.process_sources(self.rel_path, self.ignore)
+        sourcesigs = executor.process_sources(calc_signature, self.ignore)
+
         depends = self.depends
         implicit = self.implicit or []
 
@@ -590,8 +593,6 @@ class Node:
             depends = filter(self.do_not_ignore, depends)
             implicit = filter(self.do_not_ignore, implicit)
 
-        def calc_signature(node, calc=calc):
-            return node.calc_signature(calc)
         dependsigs = map(calc_signature, depends)
         implicitsigs = map(calc_signature, implicit)
 
@@ -603,8 +604,8 @@ class Node:
             sigs.append(binfo.bactsig)
 
         binfo.bsources = bsources
-        binfo.bdepends = map(str, depends)
-        binfo.bimplicit = map(str, implicit)
+        binfo.bdepends = map(self.rel_path, depends)
+        binfo.bimplicit = map(self.rel_path, implicit)
 
         binfo.bsourcesigs = sourcesigs
         binfo.bdependsigs = dependsigs
@@ -613,6 +614,9 @@ class Node:
         binfo.bsig = calc.module.collect(filter(None, sigs))
 
         return binfo
+
+    def rel_path(self, other):
+        return str(other)
 
     def del_cinfo(self):
         try:
@@ -930,53 +934,63 @@ class Node:
                 result[k] = s
 
         try:
-            old_bkids = old.bsources + old.bdepends + old.bimplicit
+            osig = {}
+            dictify(osig, old.bsources, old.bsourcesigs)
+            dictify(osig, old.bdepends, old.bdependsigs)
+            dictify(osig, old.bimplicit, old.bimplicitsigs)
         except AttributeError:
             return "Cannot explain why `%s' is being rebuilt: No previous build information found\n" % self
 
-        osig = {}
-        dictify(osig, old.bsources, old.bsourcesigs)
-        dictify(osig, old.bdepends, old.bdependsigs)
-        dictify(osig, old.bimplicit, old.bimplicitsigs)
-
-        new_bsources = map(str, self.binfo.bsources)
-        new_bdepends = map(str, self.binfo.bdepends)
-        new_bimplicit = map(str, self.binfo.bimplicit)
+        new = self.binfo
 
         nsig = {}
-        dictify(nsig, new_bsources, self.binfo.bsourcesigs)
-        dictify(nsig, new_bdepends, self.binfo.bdependsigs)
-        dictify(nsig, new_bimplicit, self.binfo.bimplicitsigs)
+        dictify(nsig, new.bsources, new.bsourcesigs)
+        dictify(nsig, new.bdepends, new.bdependsigs)
+        dictify(nsig, new.bimplicit, new.bimplicitsigs)
 
-        new_bkids = new_bsources + new_bdepends + new_bimplicit
-        lines = map(lambda x: "`%s' is no longer a dependency\n" % x,
-                    filter(lambda x, nk=new_bkids: not x in nk, old_bkids))
+        old_bkids = old.bsources + old.bdepends + old.bimplicit
+        new_bkids = new.bsources + new.bdepends + new.bimplicit
+
+        # The sources and dependencies we'll want to report are all stored
+        # as relative paths to this target's directory, but we want to
+        # report them relative to the top-level SConstruct directory,
+        # so we only print them after running them through this lambda
+        # to turn them into the right relative Node and then return
+        # its string.
+        stringify = lambda s, E=self.dir.Entry: str(E(s))
+
+        lines = []
+
+        removed = filter(lambda x, nk=new_bkids: not x in nk, old_bkids)
+        if removed:
+            removed = map(stringify, removed)
+            fmt = "`%s' is no longer a dependency\n"
+            lines.extend(map(lambda s, fmt=fmt: fmt % s, removed))
 
         for k in new_bkids:
             if not k in old_bkids:
-                lines.append("`%s' is a new dependency\n" % k)
+                lines.append("`%s' is a new dependency\n" % stringify(k))
             elif osig[k] != nsig[k]:
-                lines.append("`%s' changed\n" % k)
+                lines.append("`%s' changed\n" % stringify(k))
 
         if len(lines) == 0 and old_bkids != new_bkids:
             lines.append("the dependency order changed:\n" +
-                         "%sold: %s\n" % (' '*15, old_bkids) +
-                         "%snew: %s\n" % (' '*15, new_bkids))
+                         "%sold: %s\n" % (' '*15, map(stringify, old_bkids)) +
+                         "%snew: %s\n" % (' '*15, map(stringify, new_bkids)))
 
         if len(lines) == 0:
-            newact, newactsig = self.binfo.bact, self.binfo.bactsig
             def fmt_with_title(title, strlines):
                 lines = string.split(strlines, '\n')
                 sep = '\n' + ' '*(15 + len(title))
                 return ' '*15 + title + string.join(lines, sep) + '\n'
-            if old.bactsig != newactsig:
-                if old.bact == newact:
+            if old.bactsig != new.bactsig:
+                if old.bact == new.bact:
                     lines.append("the contents of the build action changed\n" +
-                                 fmt_with_title('action: ', newact))
+                                 fmt_with_title('action: ', new.bact))
                 else:
                     lines.append("the build action changed:\n" +
                                  fmt_with_title('old: ', old.bact) +
-                                 fmt_with_title('new: ', newact))
+                                 fmt_with_title('new: ', new.bact))
 
         if len(lines) == 0:
             return "rebuilding `%s' for unknown reasons\n" % self

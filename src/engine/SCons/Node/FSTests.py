@@ -605,15 +605,16 @@ class BuildDirTestCase(unittest.TestCase):
 
         self.failIf(errors)
 
-class FSTestCase(unittest.TestCase):
-    def runTest(self):
+class FSTestCase(_tempdirTestCase):
+    def test_runTest(self):
         """Test FS (file system) Node operations
 
         This test case handles all of the file system node
         tests in one environment, so we don't have to set up a
         complicated directory structure for each test individually.
         """
-        test = TestCmd(workdir = '')
+        test = self.test
+
         test.subdir('sub', ['sub', 'dir'])
 
         wp = test.workpath('')
@@ -1184,6 +1185,74 @@ class FSTestCase(unittest.TestCase):
         t = z.target_from_source('pre-', '-suf', lambda x: x[:-1])
         assert str(t) == 'pre-z-suf', str(t)
 
+    def test_rel_path(self):
+        """Test the rel_path() method"""
+        test = self.test
+        fs = self.fs
+
+        d1 = fs.Dir('d1')
+        d1_f = d1.File('f')
+        d1_d2 = d1.Dir('d2')
+        d1_d2_f = d1_d2.File('f')
+
+        d3 = fs.Dir('d3')
+        d3_f = d3.File('f')
+        d3_d4 = d3.Dir('d4')
+        d3_d4_f = d3_d4.File('f')
+
+        cases = [
+                d1,             d1,             '.',
+                d1,             d1_f,           'f',
+                d1,             d1_d2,          'd2',
+                d1,             d1_d2_f,        'd2/f',
+                d1,             d3,             '../d3',
+                d1,             d3_f,           '../d3/f',
+                d1,             d3_d4,          '../d3/d4',
+                d1,             d3_d4_f,        '../d3/d4/f',
+
+                d1_f,           d1,             '.',
+                d1_f,           d1_f,           'f',
+                d1_f,           d1_d2,          'd2',
+                d1_f,           d1_d2_f,        'd2/f',
+                d1_f,           d3,             '../d3',
+                d1_f,           d3_f,           '../d3/f',
+                d1_f,           d3_d4,          '../d3/d4',
+                d1_f,           d3_d4_f,        '../d3/d4/f',
+
+                d1_d2,          d1,             '..',
+                d1_d2,          d1_f,           '../f',
+                d1_d2,          d1_d2,          '.',
+                d1_d2,          d1_d2_f,        'f',
+                d1_d2,          d3,             '../../d3',
+                d1_d2,          d3_f,           '../../d3/f',
+                d1_d2,          d3_d4,          '../../d3/d4',
+                d1_d2,          d3_d4_f,        '../../d3/d4/f',
+
+                d1_d2_f,        d1,             '..',
+                d1_d2_f,        d1_f,           '../f',
+                d1_d2_f,        d1_d2,          '.',
+                d1_d2_f,        d1_d2_f,        'f',
+                d1_d2_f,        d3,             '../../d3',
+                d1_d2_f,        d3_f,           '../../d3/f',
+                d1_d2_f,        d3_d4,          '../../d3/d4',
+                d1_d2_f,        d3_d4_f,        '../../d3/d4/f',
+        ]
+
+        d1.rel_path(d3)
+
+        failed = 0
+        while cases:
+            dir, other, expect = cases[:3]
+            expect = os.path.normpath(expect)
+            del cases[:3]
+            result = dir.rel_path(other)
+            if result != expect:
+                if failed == 0: print
+                fmt = "    dir_path(%(dir)s, %(other)s) => '%(result)s' did not match '%(expect)s'"
+                print fmt % locals()
+                failed = failed + 1
+        assert failed == 0, "%d rel_path() cases failed" % failed
+
 class DirTestCase(_tempdirTestCase):
 
     def test_entry_exists_on_disk(self):
@@ -1321,7 +1390,7 @@ class DirTestCase(_tempdirTestCase):
         exists_e.exists = return_true
 
         def check(result, expect):
-	    result = map(str, result)
+            result = map(str, result)
             expect = map(os.path.normpath, expect)
             assert result == expect, result
 
@@ -2531,7 +2600,6 @@ class SaveStringsTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    suite.addTest(FSTestCase())
     suite.addTest(BuildDirTestCase())
     suite.addTest(EntryTestCase())
     suite.addTest(find_fileTestCase())
@@ -2547,6 +2615,7 @@ if __name__ == "__main__":
     suite.addTest(SpecialAttrTestCase())
     suite.addTest(SaveStringsTestCase())
     tclasses = [
+        FSTestCase,
         DirTestCase,
         RepositoryTestCase,
     ]
