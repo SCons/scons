@@ -25,6 +25,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import re
 import string
 import sys
 import unittest
@@ -127,6 +128,21 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("test $xxx", loc, {})
         assert newcom == cvt("test"), newcom
 
+        newcom = scons_subst("test $($xxx$)", loc, {})
+        assert newcom == cvt("test $($)"), newcom
+
+        newcom = scons_subst("test $( $xxx $)", loc, {})
+        assert newcom == cvt("test $( $)"), newcom
+
+        newcom = scons_subst("test $($xxx$)", loc, {}, re.compile('\$[()]'))
+        assert newcom == cvt("test"), newcom
+
+        newcom = scons_subst("test $( $xxx $)", loc, {}, re.compile('\$[()]'))
+        assert newcom == cvt("test"), newcom
+
+        newcom = scons_subst("test aXbXcXd", loc, {}, re.compile('X'))
+        assert newcom == cvt("test abcd"), newcom
+
     def test_subst_list(self):
         """Testing the scons_subst_list() method..."""
         loc = {}
@@ -196,18 +212,22 @@ class UtilTestCase(unittest.TestCase):
                 'INCSUFFIX' : 'bar',
                 'FOO'       : 'baz' }
         autogenerate(dict, dir = SCons.Node.FS.default_fs.Dir('/xx'))
-        assert len(dict['_INCFLAGS']) == 5, dict['_INCFLAGS']
-        assert dict['_INCFLAGS'][0] == os.path.normpath('foo/xx/foobar'), \
+        assert len(dict['_INCFLAGS']) == 7, dict['_INCFLAGS']
+        assert dict['_INCFLAGS'][0] == '$(', \
                dict['_INCFLAGS'][0]
-        assert dict['_INCFLAGS'][1] == os.path.normpath('foo/xx/barbar'), \
+        assert dict['_INCFLAGS'][1] == os.path.normpath('foo/xx/foobar'), \
                dict['_INCFLAGS'][1]
-        assert dict['_INCFLAGS'][2] == os.path.normpath('foo/xx/bazbar'), \
+        assert dict['_INCFLAGS'][2] == os.path.normpath('foo/xx/barbar'), \
                dict['_INCFLAGS'][2]
-        assert dict['_INCFLAGS'][3] == os.path.normpath('foo/xx/baz/barbar'), \
+        assert dict['_INCFLAGS'][3] == os.path.normpath('foo/xx/bazbar'), \
                dict['_INCFLAGS'][3]
-        
-        assert dict['_INCFLAGS'][4] == os.path.normpath('fooblatbar'), \
+        assert dict['_INCFLAGS'][4] == os.path.normpath('foo/xx/baz/barbar'), \
                dict['_INCFLAGS'][4]
+        
+        assert dict['_INCFLAGS'][5] == os.path.normpath('fooblatbar'), \
+               dict['_INCFLAGS'][5]
+        assert dict['_INCFLAGS'][6] == '$)', \
+               dict['_INCFLAGS'][6]
 
     def test_render_tree(self):
         class Node:

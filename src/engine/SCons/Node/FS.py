@@ -162,6 +162,7 @@ class FS:
             except KeyError:
                 dir_temp = Dir(path_name, directory)
                 directory.entries[path_norm] = dir_temp
+                directory.add_wkid(dir_temp)
                 directory = dir_temp
         file_name = _my_normcase(path_comp[-1])
         try:
@@ -169,6 +170,7 @@ class FS:
         except KeyError:
             ret = fsclass(path_comp[-1], directory)
             directory.entries[file_name] = ret
+            directory.add_wkid(ret)
         return ret
 
     def __transformPath(self, name, directory):
@@ -431,7 +433,7 @@ class Dir(Entry):
             if s and (not state or s > state):
                 state = s
         import SCons.Node
-        if state == SCons.Node.up_to_date:
+        if state == 0 or state == SCons.Node.up_to_date:
             return 1
         else:
             return 0

@@ -161,4 +161,19 @@ test.fail_test(os.path.exists(test.workpath('variant', 'prog.c')))
 
 test.up_to_date(arguments = args)
 
+# Change CPPPATH and make sure we don't rebuild because of it.
+test.write('SConstruct', """
+env = Environment(CPPPATH = ['include'])
+obj = env.Object(target='prog', source='subdir/prog.c')
+env.Program(target='prog', source=obj)
+SConscript('subdir/SConscript', "env")
+
+BuildDir('variant', 'subdir', 0)
+include = Dir('include')
+env = Environment(CPPPATH=[include])
+SConscript('variant/SConscript', "env")
+""")
+
+test.up_to_date(arguments = args)
+
 test.pass_test()

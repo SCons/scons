@@ -145,6 +145,11 @@ class BuilderBase:
 	"""
 	return apply(self.action.execute, (), kw)
 
+    def get_raw_contents(self, **kw):
+        """Fetch the "contents" of the builder's action.
+        """
+        return apply(self.action.get_raw_contents, (), kw)
+
     def get_contents(self, **kw):
         """Fetch the "contents" of the builder's action
         (for signature calculation).

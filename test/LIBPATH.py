@@ -60,4 +60,16 @@ test.run(arguments = '.')
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nprog.c\n")
 
+test.up_to_date(arguments = '.')
+
+# Change LIBPATH and make sure we don't rebuild because of it.
+test.write('SConstruct', """
+env = Environment(LIBS = [ 'foo1' ],
+                  LIBPATH = [ './libs', './lib2' ])
+env.Program(target = 'prog', source = 'prog.c')
+env.Library(target = './libs/foo1', source = 'f1.c')
+""")
+
+test.up_to_date(arguments = '.', stderr = None)
+
 test.pass_test()

@@ -125,12 +125,19 @@ class CommandActionTestCase(unittest.TestCase):
         a.execute()
         assert t.executed == 1
 
+    def test_get_raw_contents(self):
+        """Test fetching the contents of a command Action
+        """
+        a = SCons.Action.CommandAction("| $( $foo | $bar $) |")
+        c = a.get_contents(foo = 'FFF', bar = 'BBB')
+        assert c == "| $( FFF | BBB $) |"
+
     def test_get_contents(self):
         """Test fetching the contents of a command Action
         """
-        a = SCons.Action.CommandAction("| $foo | $bar |")
+        a = SCons.Action.CommandAction("| $foo $( | $) $bar |")
         c = a.get_contents(foo = 'FFF', bar = 'BBB')
-        assert c == "| FFF | BBB |"
+        assert c == "| FFF BBB |"
 
 class FunctionActionTestCase(unittest.TestCase):
 

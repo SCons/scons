@@ -170,7 +170,7 @@ class PathList(UserList.UserList):
 _cv = re.compile(r'\$([_a-zA-Z]\w*|{[^}]*})')
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-def scons_subst_list(strSubst, locals, globals):
+def scons_subst_list(strSubst, locals, globals, remove=None):
     """
     This function is similar to scons_subst(), but with
     one important difference.  Instead of returning a single
@@ -214,10 +214,12 @@ def scons_subst_list(strSubst, locals, globals):
         strSubst, n = _cv.subn(repl, strSubst)
     # Now parse the whole list into tokens.
     listLines = string.split(strSubst, '\n')
+    if remove:
+        listLines = map(lambda x,re=remove: re.sub('', x), listLines)
     return map(lambda x: filter(lambda y: y, string.split(x, '\0')),
                listLines)
 
-def scons_subst(strSubst, locals, globals):
+def scons_subst(strSubst, locals, globals, remove=None):
     """Recursively interpolates dictionary variables into
     the specified string, returning the expanded result.
     Variables are specified by a $ prefix in the string and
@@ -227,7 +229,7 @@ def scons_subst(strSubst, locals, globals):
     surrounded by curly braces to separate the name from
     trailing characters.
     """
-    cmd_list = scons_subst_list(strSubst, locals, globals)
+    cmd_list = scons_subst_list(strSubst, locals, globals, remove)
     return string.join(map(string.join, cmd_list), '\n')
 
 def find_files(filenames, paths,
@@ -350,6 +352,11 @@ class DirVarInterp(VarInterpolator):
             ret.dir = dir
             self.dictInstCache[(dir, fs)] = ret
         return ret
+
+    def generate(self, dict):
+        VarInterpolator.generate(self, dict)
+        if dict[self.dest]:
+            dict[self.dest] = ['$('] + dict[self.dest] + ['$)']
 
 AUTO_GEN_VARS = ( VarInterpolator('_LIBFLAGS',
                                   'LIBS',

@@ -38,6 +38,10 @@ RELEASE 0.04 -
   - The C Scanner now always returns a sorted list of dependencies
     so order changes don't cause unnecessary rebuilds.
 
+  - Strip $(-$) bracketed text from command lines.  Use this to
+    surround $_INCDIRS and $_LIBDIRS so we don't rebuild in response
+    to changes to -I or -L options.
+
   From Steve Leblanc:
 
   - Add var=value command-line arguments.

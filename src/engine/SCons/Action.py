@@ -31,6 +31,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import re
 import string
 import sys
 
@@ -238,6 +239,9 @@ class ActionBase:
 
         return dict
 
+_rm = re.compile(r'\$[()]')
+_remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
+
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
     def __init__(self, string):
@@ -246,7 +250,7 @@ class CommandAction(ActionBase):
     def execute(self, **kw):
         import SCons.Util
         dict = apply(self.subst_dict, (), kw)
-        cmd_list = SCons.Util.scons_subst_list(self.command, dict, {})
+        cmd_list = SCons.Util.scons_subst_list(self.command, dict, {}, _rm)
         for cmd_line in cmd_list:
             if len(cmd_line):
                 if print_actions:
@@ -262,8 +266,8 @@ class CommandAction(ActionBase):
                         return ret
         return 0
 
-    def get_contents(self, **kw):
-        """Return the signature contents of this action's command line.
+    def _sig_dict(self, kw):
+        """Supply a dictionary for use in computing signatures.
 
         For signature purposes, it doesn't matter what targets or
         sources we use, so long as we use the same ones every time
@@ -272,8 +276,20 @@ class CommandAction(ActionBase):
         """
         kw['target'] = ['__t1__', '__t2__']
         kw['source'] = ['__s1__', '__s2__']
-        dict = apply(self.subst_dict, (), kw)
-        return SCons.Util.scons_subst(self.command, dict, {})
+        return apply(self.subst_dict, (), kw)
+
+    def get_raw_contents(self, **kw):
+        """Return the complete contents of this action's command line.
+        """
+        return SCons.Util.scons_subst(self.command, self._sig_dict(kw), {})
+
+    def get_contents(self, **kw):
+        """Return the signature contents of this action's command line.
+
+        This strips $(-$) and everything in between the string,
+        since those parts don't affect signatures.
+        """
+        return SCons.Util.scons_subst(self.command, self._sig_dict(kw), {}, _remove)
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""

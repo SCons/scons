@@ -349,8 +349,11 @@ class BuilderTestCase(unittest.TestCase):
               'INCPREFIX'     : '-I',
               'INCSUFFIX'     : ''}
 
+        contents = apply(b4.get_raw_contents, (), kw)
+        assert contents == "-ll1 -ll2 $( -LlibX $) $( -Ic -Ip $)", contents
+
         contents = apply(b4.get_contents, (), kw)
-        assert contents == "-ll1 -ll2 -LlibX -Ic -Ip", contents
+        assert contents == "-ll1 -ll2", "'%s'" % contents
 
         # SCons.Node.FS has been imported by our import of
         # SCons.Node.Builder.  It's kind of bogus that we don't
@@ -358,8 +361,13 @@ class BuilderTestCase(unittest.TestCase):
         # maybe a little cleaner than tying these tests directly
         # to the other module via a direct import.
         kw['dir'] = SCons.Node.FS.default_fs.Dir('d')
+
+        contents = apply(b4.get_raw_contents, (), kw)
+        expect = os.path.normpath("-ll1 -ll2 $( -Ld/libX $) $( -Id/c -Id/p $)")
+        assert contents == expect, contents + " != " + expect
+
         contents = apply(b4.get_contents, (), kw)
-        expect = os.path.normpath("-ll1 -ll2 -Ld/libX -Id/c -Id/p")
+        expect = os.path.normpath("-ll1 -ll2")
         assert contents == expect, contents + " != " + expect
 
     def test_node_factory(self):

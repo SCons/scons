@@ -190,6 +190,11 @@ class Node:
 
         if parent not in self.parents: self.parents.append(parent)
 
+    def add_wkid(self, wkid):
+        """Add a node to the list of kids waiting to be evaluated"""
+        if self.wkids != None:
+            self.wkids.append(wkid)
+
     def children(self):
         #XXX Need to remove duplicates from this
         return self.sources \

@@ -1255,6 +1255,48 @@ ${TARGET.filebase}   => file
 ${TARGET.suffix}     => .x
 .EE
 
+.LP
+The special pseudo-variables
+.R $(
+and
+.R $)
+may be used to surround parts of a command line
+that may change
+.I without
+causing a rebuild--that is,
+which are not included in the signature
+of target files built with this command.
+All text between
+.R $(
+and
+.R $)
+will be removed from the command line
+before it is added to file signatures,
+and the
+.R $(
+and
+.R $)
+will be removed before the command is executed.
+For example, the command line:
+
+.ES
+echo Last build occurred $( $TODAY $). > $TARGET
+.EE
+
+.LP
+would execute the command:
+
+.ES
+echo Last build occurred $TODAY. > $TARGET
+.EE
+
+.LP
+but the command signature added to any target files would be:
+
+.ES
+echo Last build occurred  . > $TARGET
+.EE
+
 .\" XXX document how to add user defined scanners. 
 
 .SH EXAMPLES
