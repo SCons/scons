@@ -85,6 +85,18 @@ else:
     fortran_lib = gccFortranLibs()
 
 
+
+file_expr = r"""File "[^"]*", line \d+, in .+
+"""
+
+# re.escape escapes too much.
+def re_escape(str):
+    for c in ['.', '[', ']', '(', ')', '*', '+', '?']:  # Not an exhaustive list.
+        str = string.replace(str, c, '\\' + c)
+    return str
+
+
+
 class TestSCons(TestCommon):
     """Class for testing SCons.
 

@@ -34,8 +34,7 @@ test.run(arguments = ".",
          stdout = "",
          stderr = r"""
 scons: \*\*\* No SConstruct file found.
-File "[^"]+", line \d+, in \S+
-""")
+""" + TestSCons.file_expr)
 
 test.match_func = TestCmd.match_exact
 
