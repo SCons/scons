@@ -34,10 +34,12 @@ class MyEnvironment:
     def __init__(self, **kw):
         self._dict = {}
         self._dict.update(kw)
+    def __getitem__(self, key):
+        return self._dict[key]
     def Override(self, overrides):
         d = self._dict.copy()
         d.update(overrides)
-        return d
+        return apply(MyEnvironment, (), d)
     def _update(self, dict):
         self._dict.update(dict)
 

@@ -788,6 +788,55 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
 
     return ls.data
 
+def scons_subst_once(strSubst, env, key):
+    """Perform single (non-recursive) substitution of a single
+    construction variable keyword.
+
+    This is used when setting a variable when copying or overriding values
+    in an Environment.  We want to capture (expand) the old value before
+    we override it, so people can do things like:
+
+        env2 = env.Copy(CCFLAGS = '$CCFLAGS -g')
+
+    We do this with some straightforward, brute-force code here...
+    """
+    matchlist = ['$' + key, '${' + key + '}']
+    if is_List(strSubst):
+        result = []
+        for arg in strSubst:
+            if is_String(arg):
+                if arg in matchlist:
+                    arg = env[key]
+                    if is_List(arg):
+                        result.extend(arg)
+                    else:
+                        result.append(arg)
+                else:
+                    r = []
+                    for a in _separate_args.findall(arg):
+                        if a in matchlist:
+                            a = env[key]
+                        if is_List(a):
+                            r.extend(string.join(map(str, a)))
+                        else:
+                            r.append(str(a))
+                    result.append(string.join(r, ''))
+            else:
+                result.append(arg)
+        return result
+    elif is_String(strSubst):
+        result = []
+        for a in _separate_args.findall(strSubst):
+            if a in matchlist:
+                a = env[key]
+            if is_List(a):
+                result.extend(string.join(map(str, a)))
+            else:
+                result.append(str(a))
+        return string.join(result, '')
+    else:
+        return strSubst
+
 def render_tree(root, child_func, prune=0, margin=[0], visited={}):
     """
     Render a tree of nodes into an ASCII tree view.
