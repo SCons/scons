@@ -20,9 +20,9 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.96 - Wed, 18 Aug 2004 13:36:40 +0000
+RELEASE 0.97 - XXX
 
-  This is a pre-release for testing the seventh beta release of SCons.
+  This is a pre-release for testing the eighth beta release of SCons.
   Please consult the CHANGES.txt file for a list of specific changes
   since last release.
 
@@ -124,36 +124,6 @@ RELEASE 0.96 - Wed, 18 Aug 2004 13:36:40 +0000
       SCons uses to initialize all construction variables has *not*
       changed.  This change *only* affects any cases where you explicitly
       use UserList objects to initialize or append to a variable.
-
-  Please note the following important changes since release 0.94:
-
-    - The internal Python function used by the Zip Builder in Python
-      releases 1.6 or later now compresses the resulting .zip file
-      by default.  The old behavior of creating an uncompressed file
-      may be preserved by setting the new ZIPCOMPRESSION construction
-      variable to 0 (or zipfile.ZIP_STORED, if you import the
-      underlying zipfile module).
-
-    - The "overrides" keyword argument to calls to the Builder() function
-      used to create new Builder objects has been deprecated and will
-      be removed in a future release.  The items in an "overrides"
-      dictionary should now be specified as keyword arguments:
-
-          # Old way, "overrides" is a dictionary:
-          Builder(action = 'cp $TDIR/$TARGET $SDIR/$SOURCE',
-                  overrides = {'TDIR' : dir1, 'SDIR' : dir2})
-
-          # New way, items are specified as keyword arguments:
-          Builder(action = 'cp $TDIR/$TARGET $SDIR/$SOURCE',
-                  TDIR = dir1, SDIR = dir2)
-
-    - The meaning of some of the values of the "mode" argument to
-      the SCons.Util.scons_subst() and SCons.Util.scons_subst_list()
-      functions have been swapped.  The wrapper Environment.subst() and
-      Environment.subst_list() methods remain completely unchanged, so
-      this should have no external effect.  (We've listed the change here
-      because it might cause a problem if you're reaching into the SCons
-      internals and calling either of these SCons.Util functions directly.)
 
   Please note the following FUTURE changes that you may wish to prepare
   for:

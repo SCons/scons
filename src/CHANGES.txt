@@ -1,10 +1,18 @@
-r __COPYRIGHT__
+# __COPYRIGHT__
 # __FILE__ __REVISION__ __DATE__ __DEVELOPER__
 
 
                  SCons - a software construction tool
 
                             Change Log
+
+
+
+RELEASE 0.97 - XXX
+
+  From Steven Knight
+
+  - XXX
 
 
 
