@@ -38,6 +38,7 @@ import SCons.Node
 import SCons.Node.FS
 import SCons.Util
 
+import os
 import string
 import sys
 
@@ -47,6 +48,13 @@ arguments = {}
 
 # global exports set by Export():
 global_exports = {}
+
+# chdir flag
+sconscript_chdir = 0
+
+def SConscriptChdir(flag):
+    global sconscript_chdir
+    sconscript_chdir = flag
 
 def _scons_add_args(alist):
     global arguments
@@ -98,6 +106,7 @@ def SConscript(script, exports=[]):
     # push:
     stack.append(Frame(exports))
 
+    old_dir = None
     try:
         # call:
         if script == "-":
@@ -108,6 +117,9 @@ def SConscript(script, exports=[]):
             if script.exists():
                 file = open(str(script), "r")
                 SCons.Node.FS.default_fs.chdir(script.dir)
+                if sconscript_chdir:
+                    old_dir = os.getcwd()
+                    os.chdir(str(script.dir))
                 exec file in stack[-1].globals
             else:
                 sys.stderr.write("Ignoring missing SConscript '%s'\n" % script.path)
@@ -115,6 +127,8 @@ def SConscript(script, exports=[]):
         # pop:
         frame = stack.pop()
         SCons.Node.FS.default_fs.chdir(frame.prev_dir)
+        if old_dir:
+            os.chdir(old_dir)
     
     return frame.retval
     
@@ -188,6 +202,7 @@ def BuildDefaultGlobals():
     globals['Return']            = Return
     globals['Scanner']           = SCons.Scanner.Base
     globals['SConscript']        = SConscript
+    globals['SConscriptChdir']   = SConscriptChdir
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
     globals['WhereIs']           = SCons.Util.WhereIs
     return globals

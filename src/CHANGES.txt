@@ -20,6 +20,10 @@ RELEASE 0.07 -
 
   - Man page:  Add a hierarchical libraries + Program example.
 
+  From Steve Leblanc:
+
+  - Add the SConscriptChdir() method.
+
   From Anthony Roach:
 
   - Fix --debug=tree when used with directory targets.

@@ -1347,6 +1347,28 @@ SConscript('dir/SConscript')
 foo = SConscript('subdir/SConscript', "env")
 .EE
 
+.TP
+.RI SConscriptChdir( value )
+When a non-negative
+.I value
+is specified,
+this instructs
+.B scons
+to change its working directory (chdir)
+to the directory in which each subsidiary
+configure (SConscript) file lives.
+Note that you may enable and disable
+this ability by calling
+.R SConscriptChdir()
+multiple times:
+
+.ES
+SConscriptChdir(1)
+SConscript('foo/SConscript')	# will chdir to foo
+SConscriptChdir(0)
+SConscript('bar/SConscript')	# will not chdir to bar
+.EE
+
 .TP 
 .RI SetCommandHandler( function )
 
