@@ -702,7 +702,7 @@ class Base:
     #######################################################################
 
     def Action(self, *args, **kw):
-        nargs = self.subst_list(args)
+        nargs = self.subst(args)
         nkw = self.subst_kw(kw)
         return apply(SCons.Action.Action, nargs, nkw)
 
