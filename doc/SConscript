@@ -31,6 +31,8 @@ import string
 
 Import('env', 'whereis')
 
+build = os.path.join('#build', 'doc')
+
 #
 #
 #
@@ -53,7 +55,7 @@ jw = whereis('jw')
 tidy = whereis('tidy')
 
 tar_deps = []
-tar_list = ""
+tar_list = []
 
 entity_re = re.compile(r'<!entity\s+(?:%\s+)?(?:\S+)\s+SYSTEM\s+"([^"]*)">', re.I)
 format_re = re.compile(r'<(?:graphic|imagedata)\s+fileref="([^"]*)"(?:\s+format="([^"]*)")?')
@@ -104,7 +106,9 @@ if jw:
     # rebuild all the docs every time just because the date changes.
     #
     date, ver, rev = env.Dictionary('DATE', 'VERSION', 'REVISION')
-    verfile = str(File("version.sgml"))
+    #version_sgml = File(os.path.join(build, "version.sgml"))
+    version_sgml = File("version.sgml")
+    verfile = str(version_sgml)
     try:
         os.unlink(verfile)
     except OSError:
@@ -174,12 +178,17 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         main = os.path.join(doc, 'main.sgml')
         out = 'main.out'
 
-        htmldir = os.path.join('HTML', 'scons-%s' % doc)
+        # Hard-coding the scons-src path is a bit of a hack.  This can
+        # be reworked when a better solution presents itself.
+        scons_src_main = os.path.join('#build', 'scons-src', 'doc', main)
+        env.Ignore(scons_src_main, version_sgml)
+
+        htmldir = os.path.join(build, 'HTML', 'scons-%s' % doc)
         htmlindex = os.path.join(htmldir, docs[doc]['htmlindex'])
-        html = os.path.join('HTML', 'scons-%s.html' % doc)
-        ps = os.path.join('PS', 'scons-%s.ps' % doc)
-        pdf = os.path.join('PDF', 'scons-%s.pdf' % doc)
-        text = os.path.join('TEXT', 'scons-%s.txt' % doc)
+        html = os.path.join(build, 'HTML', 'scons-%s.html' % doc)
+        ps = os.path.join(build, 'PS', 'scons-%s.ps' % doc)
+        pdf = os.path.join(build, 'PDF', 'scons-%s.pdf' % doc)
+        text = os.path.join(build, 'TEXT', 'scons-%s.txt' % doc)
 
         if docs[doc].get('html') and jade:
             cmds = [
@@ -202,10 +211,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             env.Command(html, main, cmds)
             Local(html)
 
-            env.Ignore([html, htmlindex], "version.sgml")
+            env.Ignore([html, htmlindex], version_sgml)
 
             tar_deps.extend([html, htmlindex])
-            tar_list = string.join([tar_list, html, htmldir], " ")
+            tar_list.extend([html, htmldir])
 
             if fig2dev:
                 for g in docs[doc].get('graphics', []):
@@ -225,15 +234,15 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             ])
             Local(ps)
 
-            env.Ignore(ps, "version.sgml")
+            env.Ignore(ps, version_sgml)
 
             tar_deps.append(ps)
-            tar_list = tar_list + " " + ps
+            tar_list.append(ps)
 
             if fig2dev:
                 for g in docs[doc].get('graphics', []):
                     fig = os.path.join(doc, '%s.fig' % g)
-                    eps = os.path.join('PS', '%s.eps' % g)
+                    eps = os.path.join(build, 'PS', '%s.eps' % g)
                     env.Command(eps, fig, "%s -L eps $SOURCES $TARGET" % fig2dev)
                     env.Depends(ps, eps)
                     Local(eps)
@@ -247,19 +256,19 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             ])
             Local(pdf)
 
-            env.Ignore(pdf, "version.sgml")
+            env.Ignore(pdf, version_sgml)
 
             tar_deps.append(pdf)
-            tar_list = tar_list + " " + pdf
+            tar_list.append(pdf)
 
         if docs[doc].get('text') and jade and lynx:
             env.Command(text, html, "lynx -dump ${SOURCE.abspath} > $TARGET")
             Local(text)
 
-            env.Ignore(text, "version.sgml")
+            env.Ignore(text, version_sgml)
 
             tar_deps.append(text)
-            tar_list = tar_list + " " + text
+            tar_list.append(text)
 
 #
 # Man page(s), in good ol' troff format.
@@ -270,8 +279,8 @@ for man in man_page_list:
     man_1 = os.path.join('man', '%s.1' % man)
 
     if groff:
-        ps = os.path.join('PS', '%s-man.ps' % man)
-        text = os.path.join('TEXT', '%s-man.txt' % man)
+        ps = os.path.join(build, 'PS', '%s-man.ps' % man)
+        text = os.path.join(build, 'TEXT', '%s-man.txt' % man)
 
         env.Command(ps, man_1, "groff -man -Tps $SOURCES > $TARGET")
         Local(ps)
@@ -280,10 +289,10 @@ for man in man_page_list:
         Local(text)
 
         tar_deps.extend([ps, text])
-        tar_list = string.join([tar_list, ps, text], " ")
+        tar_list.extend([ps, text])
 
     if man2html:
-        html = os.path.join('HTML' , '%s-man.html' % man)
+        html = os.path.join(build, 'HTML' , '%s-man.html' % man)
 
         cmds = [ "man2html $SOURCES > $TARGET" ]
         if tidy:
@@ -292,13 +301,14 @@ for man in man_page_list:
         Local(html)
 
         tar_deps.append(html)
-        tar_list = tar_list + " " + html
+        tar_list.append(html)
 
 #
 # Now actually create the tar file of the documentation,
 # for easy distribution to the web site.
 #
 if tar_deps:
+    tar_list = map(lambda x: x[11:], tar_list)
     env.Command(doc_tar_gz, tar_deps,
                 "tar cf${TAR_HFLAG} - -C build/doc %s | gzip > $TARGET" % tar_list)
     Local(doc_tar_gz)

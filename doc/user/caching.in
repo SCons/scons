@@ -1,0 +1,242 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  On multi-developer software projects,
+  you can sometimes speed up every developer's builds a lot by
+  allowing them to share the derived files that they build.
+  &SCons; makes this easy, as well as reliable.
+
+  </para>
+
+  <section>
+  <title>Specifying the Shared Cache Directory</title>
+
+    <para>
+
+    To enable sharing of derived files,
+    use the &CacheDir; function
+    in any &SConscript; file:
+
+    </para>
+
+    <scons_example name="ex1">
+       <file name="SConstruct">
+       env = Environment()
+       env.Program('hello.c')
+       CacheDir('cache')
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+       <directory name="cache">
+       </directory>
+       <file name="not_used" printme="1">
+       CacheDir('/usr/local/build_cache')
+       </file>
+    </scons_example>
+
+    <para>
+
+    Note that the directory you specify must already exist
+    and be readable and writable by all developers
+    who will be sharing derived files.
+    It should also be in some central location
+    that all builds will be able to access.
+    In environments where developers are using separate systems
+    (like individual workstations) for builds,
+    this directory would typically be
+    on a shared or NFS-mounted file system.
+
+    </para>
+
+    <para>
+
+    Here's what happens:
+    When a build has a &CacheDir; specified,
+    every time a file is built,
+    it is stored in the shared cache directory
+    along with its MD5 build signature.
+    On subsequent builds,
+    before an action is invoked to build a file,
+    &SCons; will check the shared cache directory
+    to see if a file with the exact same build
+    signature already exists.
+    If so, the derived file will not be built locally,
+    but will be copied into the local build directory
+    from the shared cache directory,
+    like so:
+
+    </para>
+
+    <scons_output example="ex1">
+      <command>scons</command>
+      <command>scons -c</command>
+      <command>scons</command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Keeping Build Output Consistent</title>
+
+    <para>
+
+    One potential drawback to using a shared cache
+    is that your build output can be inconsistent
+    from invocation to invocation,
+    because any given file may be rebuilt one time
+    and retrieved from the shared cache the next time.
+    This can make analyzing build output more difficult,
+    especially for automated scripts that
+    expect consistent output each time.
+
+    </para>
+
+    <para>
+
+    If, however, you use the <literal>--cache-show</literal> option,
+    &SCons; will print the command line that it
+    <emphasis>would</emphasis> have executed
+    to build the file,
+    even when it is retrieving the file from the shared cache.
+    This makes the build output consistent
+    every time the build is run:
+
+    </para>
+
+    <scons_output example="ex1">
+      <command>scons</command>
+      <command>scons -c</command>
+      <command>scons --cache-show</command>
+    </scons_output>
+
+    <para>
+
+    The trade-off, of course, is that you no longer
+    know whether or not &SCons;
+    has retrieved a derived file from cache
+    or has rebuilt it locally.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Not Retrieving Files From a Shared Cache</title>
+
+    <para>
+
+    Retrieving an already-built file
+    from the shared cache
+    is usually a significant time-savings
+    over rebuilding the file,
+    but how much of a savings
+    (or even whether it saves time at all)
+    can depend a great deal on your
+    system or network configuration.
+    For example, retrieving cached files
+    from a busy server over a busy network
+    might end up being slower than
+    rebuilding the files locally.
+
+    </para>
+
+    <para>
+
+    In these cases, you can specify
+    the <literal>--cache-disable</literal>
+    command-line option to tell &SCons;
+    to not retrieve already-built files from the
+    shared cache directory:
+
+    </para>
+
+    <scons_output example="ex1">
+      <command>scons</command>
+      <command>scons -c</command>
+      <command>scons</command>
+      <command>scons -c</command>
+      <command>scons --cache-disable</command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Populating a Shared Cache With Already-Built Files</title>
+
+    <para>
+
+    Sometimes, you may have one or more derived files
+    already built in your local build tree
+    that you wish to make available to other people doing builds.
+    For example, you may find it more effective to perform
+    integration builds with the cache disabled
+    (per the previous section)
+    and only populate the shared cache directory
+    with the built files after the integration build
+    has completed successfully.
+    This way, the cache will only get filled up
+    with derived files that are part of a complete, successful build
+    not with files that might be later overwritten
+    while you debug integration problems.
+
+    </para>
+
+    <para>
+
+    In this case, you can use the
+    the <literal>--cache-force</literal> option
+    to tell &SCons; to put all derived files in the cache,
+    even if the files had already been built
+    by a previous invocation:
+
+    </para>
+
+    <scons_output example="ex1">
+      <command>scons --cache-disable</command>
+      <command>scons -c</command>
+      <command>scons --cache-disable</command>
+      <command>scons --cache-force</command>
+      <command>scons -c</command>
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    Notice how the above sample run
+    demonstrates that the <literal>--cache-disable</literal>
+    option avoids putting the built
+    <filename>hello.o</filename>
+    and 
+    <filename>hello</filename> files in the cache,
+    but after using the <literal>--cache-force</literal> option,
+    the files have been put in the cache
+    for the next invocation to retrieve.
+
+    </para>
+
+  </section>

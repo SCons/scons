@@ -909,11 +909,37 @@ class EnvironmentTestCase(unittest.TestCase):
             def __call__(self, env):  env['XYZZY'] = 777
 
         def tool(env):
+            env['SET_TOOL'] = 'initialized'
             assert env['PLATFORM'] == "TestPlatform"
 
         env = Environment(platform = platform(), tools = [tool])
         assert env['XYZZY'] == 777, env
         assert env['PLATFORM'] == "TestPlatform"
+        assert env['SET_TOOL'] == "initialized"
+
+    def test_Default_PLATFORM(self):
+        """Test overriding the default PLATFORM variable"""
+        class platform:
+            def __str__(self):        return "DefaultTestPlatform"
+            def __call__(self, env):  env['XYZZY'] = 888
+
+        def tool(env):
+            env['SET_TOOL'] = 'abcde'
+            assert env['PLATFORM'] == "DefaultTestPlatform"
+
+        import SCons.Defaults
+        save = SCons.Defaults.ConstructionEnvironment.copy()
+        try:
+            import SCons.Defaults
+            SCons.Defaults.ConstructionEnvironment.update({
+                'PLATFORM' : platform(),
+            })
+            env = Environment(tools = [tool])
+            assert env['XYZZY'] == 888, env
+            assert env['PLATFORM'] == "DefaultTestPlatform"
+            assert env['SET_TOOL'] == "abcde"
+        finally:
+            SCons.Defaults.ConstructionEnvironment = save
 
     def test_tools(self):
         """Test specifying a tool callable when instantiating."""
@@ -932,6 +958,31 @@ class EnvironmentTestCase(unittest.TestCase):
         t4(env)
         assert env['TOOL4'] == 444, env
         
+    def test_Default_TOOLS(self):
+        """Test overriding the default TOOLS variable"""
+        def t5(env):
+            env['TOOL5'] = 555
+        def t6(env):
+            env['TOOL6'] = 666
+        def t7(env):
+            env['BBB'] = env['XYZ']
+        def t8(env):
+            env['TOOL8'] = 888
+
+        import SCons.Defaults
+        save = SCons.Defaults.ConstructionEnvironment.copy()
+        try:
+            SCons.Defaults.ConstructionEnvironment.update({
+                'TOOLS' : [t5, t6, t7],
+            })
+            env = Environment(XYZ = 'bbb')
+            assert env['TOOL5'] == 555, env['TOOL5']
+            assert env['TOOL6'] == 666, env
+            assert env['BBB'] == 'bbb', env        
+            t8(env)
+            assert env['TOOL8'] == 888, env
+        finally:
+            SCons.Defaults.ConstructionEnvironment = save
 
     def test_get(self):
         """Test the get() method."""

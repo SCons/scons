@@ -165,7 +165,7 @@ class Environment:
     """
 
     def __init__(self,
-                 platform=SCons.Platform.Platform(),
+                 platform=None,
                  tools=None,
                  options=None,
                  **kw):
@@ -174,6 +174,10 @@ class Environment:
 
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
+        if platform is None:
+            platform = self._dict.get('PLATFORM', None)
+            if platform is None:
+                platform = SCons.Platform.Platform()
         if SCons.Util.is_String(platform):
             platform = SCons.Platform.Platform(platform)
         self._dict['PLATFORM'] = str(platform)
@@ -189,7 +193,9 @@ class Environment:
             options.Update(self)
 
         if tools is None:
-            tools = ['default']
+            tools = self._dict.get('TOOLS', None)
+            if tools is None:
+                tools = ['default']
         apply_tools(self, tools)
 
         # Reapply the passed in variables after calling the tools,

@@ -1,0 +1,522 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+ <para>
+
+ Here's the famous "Hello, World!" program in C:
+
+ </para>
+
+ <programlisting>
+    int
+    main()
+    {
+        printf("Hello, world!\n");
+    }
+ </programlisting>
+
+ <para>
+
+ And here's how to build it using &SCons;.
+ Enter the following into a file named &SConstruct;:
+
+ </para>
+
+ <scons_example name="ex1">
+    <file name="SConstruct" printme="1">
+    env = Environment()
+    env.Program('hello.c')
+    </file>
+    <file name="hello.c">
+    int main() { printf("Hello, world!\n"); }
+    </file>
+ </scons_example>
+
+ <para>
+
+ That's it.  Now run the &scons; command to build the program.
+ On a POSIX-compliant system like Linux or UNIX,
+ you'll see something like:
+
+ </para>
+
+ <scons_output example="ex1" os="posix">
+    <command>scons</command>
+ </scons_output>
+
+ <para>
+
+ On a Windows system with the Microsoft Visual C++ compiler,
+ you'll see something like:
+
+ </para>
+
+ <scons_output example="ex1" os="win32">
+    <command>scons</command>
+ </scons_output>
+
+ <para>
+
+ First, notice that you only need
+ to specify the name of the source file,
+ and that &SCons; deduces the names of
+ the object and executable files
+ correctly from the base of the source file name.
+
+ </para>
+
+ <para>
+
+ Second, notice that the same input &SConstruct; file,
+ without any changes,
+ generates the correct output file names on both systems:
+ <filename>hello.o</filename> and <filename>hello</filename>
+ on POSIX systems,
+ <filename>hello.obj</filename> and <filename>hello.exe</filename>
+ on Windows systems.
+ This is a simple example of how &SCons;
+ makes it extremely easy to
+ write portable software builds.
+
+ </para>
+
+ <para>
+
+ (Note that we won't provide duplicate side-by-side
+ POSIX and Windows output for all of the examples in this guide;
+ just keep in mind that, unless otherwise specified,
+ any of the examples should work equally well on both types of systems.)
+
+ </para>
+
+ <section>
+ <title>The &SConstruct; File</title>
+
+   <para>
+
+   If you're used to build systems like &Make;
+   you've already figured out that the &SConstruct; file
+   is the &SCons; equivalent of a &Makefile;.
+   That is, the &SConstruct; file is the input file
+   that &SCons; reads to control the build.
+
+   </para>
+
+   <para>
+
+   There is, however, an important difference between
+   an &SConstruct; file and a &Makefile;:
+   the &SConstruct; file is actually a Python script.
+   If you're not already familiar with Python, don't worry.
+   This User's Guide will introduce you step-by-step
+   to the relatively small amount of Python you'll
+   need to know to be able to use &SCons; effectively.
+   And Python is very easy to learn.
+
+   </para>
+
+   <para>
+
+   One aspect of using Python as the
+   scripting language is that you can put comments
+   in your &SConstruct; file using Python's commenting convention;
+   that is, everything between a '#' and the end of the line
+   will be ignored:
+
+   </para>
+
+   <programlisting>
+      env = Environment()    # Create an environment.
+      # Arrange to build the "hello" program.
+      env.Program('hello.c')
+   </programlisting>
+
+   <para>
+
+   You'll see throughout the remainder of this Guide
+   that being able to use the power of a
+   real scripting language
+   can greatly simplify the solutions
+   to complex requirements of real-world builds.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Compiling Multiple Source Files</title>
+
+   <para>
+
+   You've just seen how to configure &SCons;
+   to compile a program from a single source file.
+   It's more common, of course,
+   that you'll need to build a program from
+   many input source files, not just one.
+   To do this, you need to put the
+   source files in a Python list
+   (enclosed in square brackets),
+   like so:
+
+   </para>
+
+   <scons_example name="ex2">
+      <file name="SConstruct" printme="1">
+      env = Environment()
+      env.Program(['prog.c', 'file1.c', 'file2.c'])
+      </file>
+      <file name="prog.c">
+      int main() { printf("prog.c\n"); }
+      </file>
+      <file name="file1.c">
+      void file1() { printf("file1.c\n"); }
+      </file>
+      <file name="file2.c">
+      void file2() { printf("file2.c\n"); }
+      </file>
+   </scons_example>
+
+   <para>
+
+   A build of the above example would look like:
+
+   </para>
+
+   <scons_output example="ex2">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   Notice that &SCons;
+   deduces the output program name
+   from the first source file specified
+   in the list--that is,
+   because the first source file was &prog_c;,
+   &SCons; will name the resulting program &prog;
+   (or &prog_exe; on a Windows system).
+   If you want to specify a different program name,
+   then you slide the list of source files
+   over to the right
+   to make room for the output program file name.
+   (&SCons; puts the output file name to the left
+   of the source file names
+   so that the order mimics that of an
+   assignment statement:  "program = source files".)
+   This makes our example:
+
+   </para>
+
+   <scons_example name="ex3">
+      <file name="SConstruct" printme="1">
+      env = Environment()
+      env.Program('program', ['main.c', 'file1.c', 'file2.c'])
+      </file>
+      <file name="main.c">
+      int main() { printf("prog.c\n"); }
+      </file>
+      <file name="file1.c">
+      void file1() { printf("file1.c\n"); }
+      </file>
+      <file name="file2.c">
+      void file2() { printf("file2.c\n"); }
+      </file>
+   </scons_example>
+
+   <para>
+
+   On Linux, a build of this example would look like:
+
+   </para>
+
+   <scons_output example="ex3" os="posix">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   Or on Windows:
+
+   </para>
+
+   <scons_output example="ex3" os="win32">
+      <command>scons</command>
+   </scons_output>
+
+ </section>
+
+ <section>
+ <title>Keeping &SConstruct; Files Easy to Read</title>
+
+   <para>
+
+   One drawback to the use of a Python list
+   for source files is that 
+   each file name must be enclosed in quotes
+   (either single quotes or double quotes).
+   This can get cumbersome and difficult to read
+   when the list of file names is long.
+   Fortunately, &SCons; and Python provide a number of ways
+   to make sure that
+   the &SConstruct; file stays easy to read.
+
+   </para>
+
+   <para>
+
+   To make long lists of file names
+   easier to deal with, &SCons; provides a
+   &Split; function
+   that takes a quoted list of file names,
+   with the names separated by spaces or other white-space characters,
+   and turns it into a list of separate file names.
+   Using the &Split; function turns the
+   previous example into:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      env.Program('program', Split('main.c file1.c file2.'))
+   </programlisting>
+
+   <para>
+
+   Putting the call to the &Split; function
+   inside the <function>env.Program</function> call
+   can also be a little unwieldy.
+   A more readable alternative is to
+   assign the output from the &Split; call
+   to a variable name,
+   and then use the variable when calling the
+   <function>env.Program</function> function:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      list = Split('main.c file1.c file2.')
+      env.Program('program', list)
+   </programlisting>
+
+   <para>
+
+   Lastly, the &Split; function
+   doesn't care how much white space separates
+   the file names in the quoted string.
+   This allows you to create lists of file
+   names that span multiple lines,
+   which often makes for easier editing:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      list = Split('main.c
+                    file1.c
+                    file2.c')
+      env.Program('program', list)
+   </programlisting>
+
+ </section>
+
+ <section>
+ <title>Keyword Arguments</title>
+
+   <para>
+
+   &SCons; also allows you to identify
+   the output file and input source files
+   using Python keyword arguments.
+   The output file is known as the
+   <emphasis>target</emphasis>,
+   and the source file(s) are known (logically enough) as the
+   <emphasis>source</emphasis>.
+   The Python syntax for this is:
+
+   </para>
+
+   <programlisting>
+      env = Environment()
+      list = Split('main.c file1.c file2.')
+      env.Program(target = 'program', source = list)
+   </programlisting>
+
+   <para>
+
+   Whether or not you choose to use keyword arguments
+   to identify the target and source files
+   is purely a personal choice;
+   &SCons; functions the same either way.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Compiling Multiple Programs</title>
+
+   <para>
+
+   In order to compile multiple programs
+   within the same &SConstruct; file,
+   simply call the <function>env.Program</function> method
+   multiple times,
+   once for each program you need to build:
+
+   </para>
+
+   <scons_example name="ex4">
+      <file name="SConstruct" printme="1">
+      env = Environment()
+      env.Program('foo.c')
+      env.Program('bar', ['bar1.c', 'bar2.c'])
+      </file>
+      <file name="foo.c">
+      int main() { printf("foo.c\n"); }
+      </file>
+      <file name="bar1.c">
+      int main() { printf("bar1.c\n"); }
+      </file>
+      <file name="bar2.c">
+      void bar2() { printf("bar2.c\n"); }
+      </file>
+   </scons_example>
+
+   <para>
+
+   &SCons; would then build the programs as follows:
+
+   </para>
+
+   <scons_output example="ex4">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   Notice that &SCons; does not necessarily build the
+   programs in the same order in which you specify
+   them in the &SConstruct; file.
+   &SCons; does, however, recognize that
+   the individual object files must be built
+   before the resulting program can be built.
+   We'll discuss this in greater detail in
+   the "Dependencies" section, below.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Sharing Source Files Between Multiple Programs</title>
+
+   <para>
+
+   It's common to re-use code by sharing source files
+   between multiple programs.
+   One way to do this is to create a library
+   from the common source files,
+   which can then be linked into resulting programs.
+   (Creating libraries is discussed in
+   section XXX, below.)
+
+   </para>
+
+   <para>
+
+   A more straightforward, but perhaps less convenient,
+   way to share source files between multiple programs
+   is simply to include the common files
+   in the lists of source files for each program:
+
+   </para>
+
+   <scons_example name="ex5">
+      <file name="SConstruct" printme="1">
+      env = Environment()
+      env.Program(Split('foo.c common1.c common2.c'))
+      env.Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
+      </file>
+      <file name="foo.c">
+      int main() { printf("foo.c\n"); }
+      </file>
+      <file name="bar1.c">
+      int main() { printf("bar1.c\n"); }
+      </file>
+      <file name="bar2.c">
+      int bar2() { printf("bar2.c\n"); }
+      </file>
+      <file name="common1.c">
+      void common1() { printf("common1.c\n"); }
+      </file>
+      <file name="common2.c">
+      void common22() { printf("common2.c\n"); }
+      </file>
+   </scons_example>
+
+   <para>
+
+   &SCons; recognizes that the object files for
+   the &common1_c; and &common2_c; source files
+   each only need to be built once,
+   even though the files are listed multiple times:
+
+   </para>
+
+   <scons_output example="ex5">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   If two or more programs
+   share a lot of common source files,
+   repeating the common files in the list for each program
+   can be a maintenance problem when you need to change the
+   list of common files.
+   You can simplify this by creating a separate Python list
+   to hold the common file names,
+   and concatenating it with other lists
+   using the Python &plus; operator:
+
+   </para>
+
+   <programlisting>
+      common = ['common1.c', 'common2.c']
+      foo_files = ['foo.c'] + common
+      bar_files = ['bar1.c', 'bar2.c'] + common
+      env = Environment()
+      env.Program('foo', foo_files)
+      env.Program('bar', bar_files)
+   </programlisting>
+
+   <para>
+
+   This is functionally equivalent to the previous example.
+
+   </para>
+
+ </section>

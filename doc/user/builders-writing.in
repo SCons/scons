@@ -1,0 +1,703 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head2 Adding new methods
+
+For slightly more demanding changes, you may wish to add new methods to the
+C<cons> package. Here's an example of a very simple extension,
+C<InstallScript>, which installs a tcl script in a requested location, but
+edits the script first to reflect a platform-dependent path that needs to be
+installed in the script:
+
+  # cons::InstallScript - Create a platform dependent version of a shell
+  # script by replacing string ``#!your-path-here'' with platform specific
+  # path $BIN_DIR.
+
+  sub cons::InstallScript {
+	my ($env, $dst, $src) = @_;
+	Command $env $dst, $src, qq(
+		sed s+your-path-here+$BIN_DIR+ %< > %>
+		chmod oug+x %>
+	);
+  }
+
+Notice that this method is defined directly in the C<cons> package (by
+prefixing the name with C<cons::>). A change made in this manner will be
+globally visible to all environments, and could be called as in the
+following example:
+
+  InstallScript $env "$BIN/foo", "foo.tcl";
+
+For a small improvement in generality, the C<BINDIR> variable could be
+passed in as an argument or taken from the construction environment-,-as
+C<%BINDIR>.
+
+
+=head2 Overriding methods
+
+Instead of adding the method to the C<cons> name space, you could define a
+new package which inherits existing methods from the C<cons> package and
+overrides or adds others. This can be done using Perl's inheritance
+mechanisms.
+
+The following example defines a new package C<cons::switch> which
+overrides the standard C<Library> method. The overridden method builds
+linked library modules, rather than library archives. A new
+constructor is provided. Environments created with this constructor
+will have the new library method; others won't.
+
+  package cons::switch;
+  BEGIN {@ISA = 'cons'}
+
+  sub new {
+	shift;
+	bless new cons(@_);
+  }
+
+  sub Library {
+	my($env) = shift;
+	my($lib) = shift;
+	my(@objs) = Objects $env @_;
+	Command $env $lib, @objs, q(
+		%LD -r %LDFLAGS %< -o %>
+	);
+  }
+
+This functionality could be invoked as in the following example:
+
+  $env = new cons::switch(@overrides);
+  ...
+  Library $env 'lib.o', 'foo.c', 'bar.c';
+
+-->
+
+  <para>
+
+  Although &SCons; provides many useful methods
+  for building common software products:
+  programs, libraries, documents.
+  you frequently want to be
+  able to build some other type of file
+  not supported directly by &SCons;
+  Fortunately, &SCons; makes it very easy
+  to define your own &Builder; objects
+  for any custom file types you want to build.
+  (In fact, the &SCons; interfaces for creating
+  &Builder; objects are flexible enough and easy enough to use
+  that all of the the &SCons; built-in &Builder; objects
+  are created the mechanisms described in this section.)
+
+  </para>
+
+  <section>
+  <title>Writing Builders That Execute External Commands</title>
+
+    <para>
+
+    The simplest &Builder; to create is
+    one that executes an external command.
+    For example, if we want to build
+    an output file by running the contents
+    of the input file through a command named
+    <literal>foobuild</literal>,
+    creating that &Builder; might look like:
+
+    </para>
+
+    <programlisting>
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+    </programlisting>
+
+    <para>
+
+    All the above line does is create a free-standing
+    &Builder; object.
+    The next section will show us how to actually use it.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Attaching a Builder to a &ConsEnv;</title>
+
+    <para>
+
+    A &Builder; object isn't useful
+    until it's attached to a &consenv;
+    so that we can call it to arrange
+    for files to be built.
+    This is done through the &BUILDERS;
+    &consvar; in an environment.
+    The &BUILDERS; variable is a Python dictionary
+    that maps the names by which you want to call
+    various &Builder; objects to the objects themselves.
+    For example, if we want to call the
+    &Builder; we just defined by the name
+    <function>Foo</function>,
+    our &SConstruct; file might look like:
+
+    </para>
+
+    <scons_example name="ex1">
+       <file name="SConstruct">
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+    </scons_example>
+
+    <programlisting>
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       env = Environment(BUILDERS = {'Foo' : bld})
+    </programlisting>
+
+    <para>
+
+    With the &Builder; so attached to our &consenv;
+    we can now actually call it like so:
+
+    </para>
+
+    <programlisting>
+       env.Foo('file.foo', 'file.input')
+    </programlisting>
+
+    <para>
+
+    Then when we run &SCons; it looks like:
+
+    </para>
+
+    <scons_output example="ex1">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    Note, however, that the default &BUILDERS;
+    variable in a &consenv;
+    comes with a default set of &Builder; objects
+    already defined:
+    &Program;, &Library;, etc.
+    And when we explicitly set the &BUILDERS; variable
+    when we create the &consenv;,
+    the default &Builder;s are no longer part of
+    the environment:
+
+    </para>
+
+    <scons_example name="ex2">
+       <file name="SConstruct" printme="1">
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+    </scons_example>
+
+    <!--
+      scons: Reading SConscript files ...
+      other errors
+      Traceback (most recent call last):
+        File "/usr/lib/scons/SCons/Script/__init__.py", line 901, in main
+          _main()
+        File "/usr/lib/scons/SCons/Script/__init__.py", line 762, in _main
+          SCons.Script.SConscript.SConscript(script)
+        File "/usr/lib/scons/SCons/Script/SConscript.py", line 207, in SConscript
+          exec _file_ in stack[-1].globals
+        File "SConstruct", line 4, in ?
+          env.Program('hello.c')
+      scons: Environment instance has no attribute 'Program'
+    -->
+
+    <scons_output example="ex2">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    To be able use both our own defined &Builder; objects
+    and the default &Builder; objects in the same &consenv;,
+    you can either add to the &BUILDERS; variable
+    using the &Append; function:
+
+    </para>
+
+    <scons_example name="ex3">
+       <file name="SConstruct">
+       env = Environment()
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       env.Append(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+    </scons_example>
+
+    <para>
+
+    Or you can explicitly set the appropriately-named
+    key in the &BUILDERS; dictionary:
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       bld = Builder(action = 'foobuild < $SOURCE > $TARGET')
+       env['BUILDERS']['Foo'] = bld
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+    </programlisting>
+
+    <para>
+
+    Either way, the same &consenv;
+    can then use both the newly-defined
+    <function>Foo</function> &Builder;
+    and the default &Program; &Builder;:
+
+    </para>
+
+    <scons_output example="ex3">
+      <command>scons</command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Letting &SCons; Handle The File Suffixes</title>
+
+    <para>
+
+    By supplying additional information
+    when you create a &Builder;,
+    you can let &SCons; add appropriate file
+    suffixes to the target and/or the source file.
+    For example, rather than having to specify
+    explicitly that you want the <literal>Foo</literal>
+    &Builder; to build the <literal>file.foo</literal>
+    target file from the <literal>file.input</literal> source file,
+    you can give the <literal>.foo</literal>
+    and <literal>.input</literal> suffixes to the &Builder;,
+    making for more compact and readable calls to
+    the <literal>Foo</literal> &Builder;:
+
+    </para>
+
+    <scons_example name="ex4">
+       <file name="SConstruct" printme="1">
+       bld = Builder(action = 'foobuild < $TARGET > $SOURCE',
+                     suffix = '.foo',
+                     src_suffix = '.input')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file1')
+       env.Foo('file2')
+       </file>
+       <file name="file1.input">
+       file1.input
+       </file>
+       <file name="file2.input">
+       file2.input
+       </file>
+    </scons_example>
+
+    <scons_output example="ex4">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    You can also supply a <literal>prefix</literal> keyword argument
+    if it's appropriate to have &SCons; append a prefix
+    to the beginning of target file names.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Builders That Execute Python Functions</title>
+
+    <para>
+
+    In &SCons;, you don't have to call an external command
+    to build a file.
+    You can, instead, define a Python function
+    that a &Builder; object can invoke
+    to build your target file (or files).
+    Such a &buildfunc; definition looks like:
+
+    </para>
+
+    <programlisting>
+       def build_function(target, source, env):
+           # XXX
+           return None
+    </programlisting>
+
+    <para>
+
+    The arguments of a &buildfunc; are:
+
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+      <term>target</term>
+
+      <listitem>
+      <para>
+
+      A list of Node objects representing
+      the target or targets to be
+      built by this builder function.
+      The file names of these target(s)
+      may be extracted using the Python &str; funcion.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>source</term>
+
+      <listitem>
+      <para>
+
+      A list of Node objects representing
+      the sources to be
+      used by this builder function to build the targets.
+      The file names of these source(s)
+      may be extracted using the Python &str; funcion.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+      <term>env</term>
+
+      <listitem>
+      <para>
+
+      The &consenv; used for building the target(s).
+      The builder function may use any of the
+      environment's construction variables
+      in any way to affect how it builds the targets.
+
+      </para>
+      </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <para>
+
+    The builder function must
+    return a <literal>0</literal> or <literal>None</literal> value
+    if the target(s) are built successfully.
+    The builder function
+    may raise an exception
+    or return any non-zero value
+    to indicate that the build is unsuccessful,
+
+    </para>
+
+    <para>
+
+    Once you've defined the Python function
+    that will build your target file,
+    defining a &Builder; object for it is as
+    simple as specifying the name of the function,
+    instead of an external command,
+    as the &Builder;'s
+    <literal>action</literal>
+    argument:
+
+    </para>
+
+    <scons_example name="ex5">
+       <file name="SConstruct" printme="1">
+       def build_function(target, source, env):
+           # XXX
+           return None
+       bld = Builder(action = build_function,
+                     suffix = '.foo',
+                     src_suffix = '.input')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+    </scons_example>
+
+    <para>
+
+    And notice that the output changes slightly,
+    reflecting the fact that a Python function,
+    not an external command,
+    is now called to build the target file:
+
+    </para>
+
+    <scons_output example="ex5">
+      <command>scons</command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Builders That Create Actions Using a &Generator;</title>
+
+    <para>
+
+    &SCons; Builder objects can create an action "on the fly"
+    by using a function called a &generator;.
+    This provides a great deal of flexibility XXX
+    A &generator; looks like:
+
+    </para>
+
+    <programlisting>
+       def generate_actions(source, target, env, for_signature):
+           return XXX
+    </programlisting>
+
+    <para>
+
+    The arguments of a &generator; are:
+
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+      <term>source</term>
+
+      <listitem>
+      <para>
+
+      A list of Node objects representing
+      the sources to be built
+      by the command or other action
+      generated by this function.
+      The file names of these source(s)
+      may be extracted using the Python &str; funcion.
+
+      </para>
+      </listitem>
+
+      </varlistentry>
+
+      <varlistentry>
+      <term>target</term>
+
+      <listitem>
+      <para>
+
+      A list of Node objects representing
+      the target or targets to be built
+      by the command or other action
+      generated by this function.
+      The file names of these target(s)
+      may be extracted using the Python &str; funcion.
+
+      </para>
+      </listitem>
+
+      </varlistentry>
+
+      <varlistentry>
+      <term>env</term>
+
+      <listitem>
+      <para>
+
+      The &consenv; used for building the target(s).
+      The generator may use any of the
+      environment's construction variables
+      in any way to determine what command
+      or other action to return.
+
+      </para>
+      </listitem>
+
+      </varlistentry>
+
+      <varlistentry>
+      <term>for_signature</term>
+
+      <listitem>
+      <para>
+
+      A flag that specifies whether the
+      generator is being called to contribute to a build signature,
+      as opposed to actually executing the command.
+
+      XXX
+
+      </para>
+      </listitem>
+
+      </varlistentry>
+
+    </variablelist>
+
+    <para>
+
+    The &generator; must return a
+    command string or other action that will be used to
+    build the specified target(s) from the specified source(s).
+
+    </para>
+
+    <para>
+
+    Once you've defined a &generator;,
+    you create a &Builder; to use it
+    by specifying the generator keyword argument
+    instead of <literal>action</literal>.
+
+    </para>
+
+    <scons_example name="ex6">
+       <file name="SConstruct" printme="1">
+       bld = Builder(generator = generate_actions,
+                     suffix = '.foo',
+                     src_suffix = '.input')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+    </scons_example>
+
+    <scons_output example="ex6">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    Note that it's illegal to specify both an
+    <literal>action</literal>
+    and a
+    <literal>generator</literal>
+    for a &Builder;.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Builders That Modify the Target or Source Lists Using an &Emitter;</title>
+
+    <para>
+
+    &SCons; supports the ability for a Builder to modify the
+    lists of target(s) from the specified source(s).
+
+    </para>
+
+    <scons_example name="ex7">
+       <file name="SConstruct" printme="1">
+       def modify_targets(XXX):
+           return XXX
+       bld = Builder(action = 'XXX',
+                     suffix = '.foo',
+                     src_suffix = '.input',
+                     emitter = modify_targets)
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file')
+       </file>
+       <file name="file.input">
+       file.input
+       </file>
+    </programlisting>
+
+    <scons_output example="ex7">
+      <command>scons</command>
+    </scons_output>
+
+    <programlisting>
+       bld = Builder(action = 'XXX',
+                     suffix = '.foo',
+                     src_suffix = '.input',
+                     emitter = 'MY_EMITTER')
+       def modify1(XXX):
+           return XXX
+       def modify2(XXX):
+           return XXX
+       env1 = Environment(BUILDERS = {'Foo' : bld},
+                          MY_EMITTER = modify1)
+       env2 = Environment(BUILDERS = {'Foo' : bld},
+                          MY_EMITTER = modify2)
+       env1.Foo('file1')
+       env2.Foo('file2')
+    </programlisting>
+
+  </section>
+
+  <section>
+  <title>Builders That Use Other Builders</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+    <scons_example name="ex8">
+       <file name="SConstruct" printme="1">
+       env = Environment()
+       env.SourceCode('.', env.BitKeeper('XXX'))
+       env.Program('hello.c')
+       </file>
+    </programlisting>
+
+    <scons_output example="ex8">
+      <command>scons</command>
+    </scons_output>
+
+  </section>

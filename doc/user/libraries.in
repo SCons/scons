@@ -1,0 +1,261 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  One of the more useful ways in which you can use multiple
+  construction environments is to link programs
+  with different sets of libraries.
+
+  </para>
+
+  <section>
+  <title>Building Libraries</title>
+
+    <para>
+
+    You build your own libraries by specifying &Library;
+    instead of &Program;:
+
+    </para>
+
+    <scons_example name="ex1" printme="1">
+      <file name="SConstruct" printme="1">
+      env = Environment()
+      env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="f1.c">
+      void f1() { printf("f1.c\n"); }
+      </file>
+      <file name="f2.c">
+      void f2() { printf("f2.c\n"); }
+      </file>
+      <file name="f3.c">
+      void f3() { printf("f3.c\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    &SCons; uses the appropriate library prefix and suffix for your system.
+    So on POSIX or Linux systems,
+    the above example would build as follows
+    (although &ranlib may not be called on all systems):
+
+    </para>
+
+    <scons_output example="ex1">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    On a Windows system,
+    a build of the above example would look like:
+
+    </para>
+
+    <scons_output example="ex1">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    The rules for the target name of the library
+    are similar to those for programs:
+    if you don't explicitly specify a target library name,
+    &SCons; will deduce one from the
+    name of the first source file specified,
+    and &SCons; will add an appropriate
+    file prefix and suffix if you leave them off.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Linking with Libraries</title>
+
+    <para>
+
+    Usually, you build a library
+    because you want to link it with one or more programs.
+    You link libraries with a program by specifying
+    the libraries in the &LIBS; construction variable,
+    and by specifying the directory in which
+    the library will be found in the 
+    &LIBPATH; construction variable:
+
+    </para>
+
+    <scons_example name="ex2">
+      <file name="SConstruct">
+      env = Environment(LIBS = 'foo', LIBPATH = '.')
+      env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+      env.Program('prog.c')
+      </file>
+      <file name="f1.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="f2.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="f3.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="prog.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Notice, of course, that you don't need to specify a library
+    prefix (like <literal>lib</literal>)
+    or suffix (like <literal>.a</literal> or <literal>.lib</literal>).
+    &SCons; uses the correct prefix or suffix for the current system.
+
+    </para>
+
+    <para>
+
+    On a POSIX or Linux system,
+    a build of the above example would look like:
+
+    </para>
+
+    <scons_output example="ex2">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    On a Windows system,
+    a build of the above example would look like:
+
+    </para>
+
+    <scons_output example="ex2" os="win32">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    As usual, notice that &SCons; has taken care
+    of constructing the correct command lines
+    to link with the specified library on each system.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Finding Libraries:  the &LIBPATH; Construction Variable</title>
+
+    <para>
+
+    By default, the linker will only look in
+    certain system-defined directories for libraries.
+    &SCons; knows how to look for libraries
+    in directories that you specify with the
+    &LIBPATH; construction variable.
+    &LIBPATH; consists of a list of
+    directory names, like so:
+
+    </para>
+
+    <scons_example name="ex3">
+      <file name="SConstruct" printme="1">
+      env = Environment(LIBS = 'm',
+                        LIBPATH = ['/usr/lib', '/usr/local/lib'])
+      env.Program('prog.c')
+      </file>
+      <file name="prog.c">
+      int main() { printf("prog.c\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Using a Python list is preferred because it's portable
+    across systems.  Alternatively, you could put all of
+    the directory names in a single string, separated by the
+    system-specific path separator character:
+    a colon on POSIX systems:
+
+    </para>
+
+    <sconstruct>
+      LIBPATH = '/usr/lib:/usr/local/lib'
+    </sconstruct>
+
+    <para>
+
+    or a semi-colon on Windows systems:
+
+    </para>
+
+    <sconstruct>
+      LIBPATH = 'C:\lib;D:\lib'
+    </sconstruct>
+
+    <para>
+
+    When the linker is executed,
+    &SCons; will create appropriate flags
+    so that the linker will look for
+    libraries in the same directories as &SCons;.
+    So on a POSIX or Linux system,
+    a build of the above example would look like:
+
+    </para>
+
+    <scons_output example="ex3">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    On a Windows system,
+    a build of the above example would look like:
+
+    </para>
+
+    <scons_output example="ex3" os="win32">
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    Note again that &SCons; has taken care of
+    the system-specific details of creating
+    the right command-line options.
+
+    </para>
+
+  </section>

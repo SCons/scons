@@ -1,0 +1,829 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head1 More on construction environments
+
+As previously mentioned, a B<construction environment> is an object that
+has a set of keyword/value pairs and a set of methods, and which is used
+to tell Cons how target files should be built.  This section describes
+how Cons uses and expands construction environment values to control its
+build behavior.
+
+=head2 Construction variable expansion
+
+Construction variables from a construction environment are expanded
+by preceding the keyword with a C<%> (percent sign):
+
+  Construction variables:
+	XYZZY => 'abracadabra',
+
+  The string:  "The magic word is:  %XYZZY!"
+  expands to:  "The magic word is:  abracadabra!"
+
+A construction variable name may be surrounded by C<{> and C<}> (curly
+braces), which are stripped as part of the expansion.  This can
+sometimes be necessary to separate a variable expansion from trailing
+alphanumeric characters:
+
+  Construction variables:
+	OPT    => 'value1',
+	OPTION => 'value2',
+
+  The string:  "%OPT %{OPT}ION %OPTION %{OPTION}"
+  expands to:  "value1 value1ION value2 value2"
+
+Construction variable expansion is recursive, that is, a string
+containing C<%->expansions after substitution will be re-expanded until
+no further substitutions can be made:
+
+  Construction variables:
+	STRING => 'The result is:  %FOO',
+	FOO    => '%BAR',
+	BAR    => 'final value',
+
+  The string:  "The string says:  %STRING"
+  expands to:  "The string says:  The result is:  final value"
+
+If a construction variable is not defined in an environment, then the
+null string is substituted:
+
+  Construction variables:
+	FOO => 'value1',
+	BAR => 'value2',
+
+  The string:  "%FOO <%NO_VARIABLE> %BAR"
+  expands to:  "value1 <> value2"
+
+A doubled C<%%> will be replaced by a single C<%>:
+
+  The string:  "Here is a percent sign:  %%"
+  expands to:  "Here is a percent sign: %"
+
+=head2 Default construction variables
+
+When you specify no arguments when creating a new construction
+environment:
+
+  $env = new cons();
+
+Cons creates a reference to a new, default construction
+environment. This contains a number of construction variables and some
+methods. At the present writing, the default construction variables on a
+UNIX system are:
+
+  CC            => 'cc',
+  CFLAGS        => '',
+  CCCOM         => '%CC %CFLAGS %_IFLAGS -c %< -o %>',
+  CXX           => '%CC',
+  CXXFLAGS      => '%CFLAGS',
+  CXXCOM        => '%CXX %CXXFLAGS %_IFLAGS -c %< -o %>',
+  INCDIRPREFIX  => '-I',
+  INCDIRSUFFIX  => '',
+  LINK          => '%CXX',
+  LINKCOM       => '%LINK %LDFLAGS -o %> %< %_LDIRS %LIBS',
+  LINKMODULECOM => '%LD -r -o %> %<',
+  LIBDIRPREFIX  => '-L',
+  LIBDIRSUFFIX  => '',
+  AR		=> 'ar',
+  ARFLAGS	=> 'r',
+  ARCOM		=> ['%AR %ARFLAGS %> %<', '%RANLIB %>'],
+  RANLIB	=> 'ranlib',
+  AS		=> 'as',
+  ASFLAGS	=> '',
+  ASCOM		=> '%AS %ASFLAGS %< -o %>',
+  LD		=> 'ld',
+  LDFLAGS	=> '',
+  PREFLIB	=> 'lib',
+  SUFLIB	=> '.a',
+  SUFLIBS	=> '.so:.a',
+  SUFOBJ	=> '.o',
+  SIGNATURE     => [ '*' => 'build' ],
+  ENV		=> { 'PATH' => '/bin:/usr/bin' },
+
+
+And on a Win32 system (Windows NT), the default construction variables
+are (unless the default rule style is set using the B<DefaultRules>
+method):
+
+  CC		=> 'cl',
+  CFLAGS	=> '/nologo',
+  CCCOM		=> '%CC %CFLAGS %_IFLAGS /c %< /Fo%>',
+  CXXCOM        => '%CXX %CXXFLAGS %_IFLAGS /c %< /Fo%>',
+  INCDIRPREFIX  => '/I',
+  INCDIRSUFFIX  => '',
+  LINK          => 'link',
+  LINKCOM       => '%LINK %LDFLAGS /out:%> %< %_LDIRS %LIBS',
+  LINKMODULECOM => '%LD /r /o %> %<',
+  LIBDIRPREFIX  => '/LIBPATH:',
+  LIBDIRSUFFIX  => '',
+  AR            => 'lib',
+  ARFLAGS       => '/nologo ',
+  ARCOM         => "%AR %ARFLAGS /out:%> %<",
+  RANLIB        => '',
+  LD            => 'link',
+  LDFLAGS       => '/nologo ',
+  PREFLIB       => '',
+  SUFEXE	=> '.exe',
+  SUFLIB	=> '.lib',
+  SUFLIBS	=> '.dll:.lib',
+  SUFOBJ	=> '.obj',
+  SIGNATURE     => [ '*' => 'build' ],
+
+These variables are used by the various methods associated with the
+environment. In particular, any method that ultimately invokes an external
+command will substitute these variables into the final command, as
+appropriate. For example, the C<Objects> method takes a number of source
+files and arranges to derive, if necessary, the corresponding object
+files:
+
+  Objects $env 'foo.c', 'bar.c';
+
+This will arrange to produce, if necessary, F<foo.o> and F<bar.o>. The
+command invoked is simply C<%CCCOM>, which expands, through substitution,
+to the appropriate external command required to build each object. The
+substitution rules will be discussed in detail in the next section.
+
+The construction variables are also used for other purposes. For example,
+C<CPPPATH> is used to specify a colon-separated path of include
+directories. These are intended to be passed to the C preprocessor and are
+also used by the C-file scanning machinery to determine the dependencies
+involved in a C Compilation.
+
+Variables beginning with underscore are created by various methods,
+and should normally be considered ``internal'' variables. For example,
+when a method is called which calls for the creation of an object from
+a C source, the variable C<_IFLAGS> is created: this corresponds to the
+C<-I> switches required by the C compiler to represent the directories
+specified by C<CPPPATH>.
+
+Note that, for any particular environment, the value of a variable is set
+once, and then never reset (to change a variable, you must create a new
+environment. Methods are provided for copying existing environments for this
+purpose). Some internal variables, such as C<_IFLAGS> are created on demand,
+but once set, they remain fixed for the life of the environment.
+
+The C<CFLAGS>, C<LDFLAGS>, and C<ARFLAGS> variables all supply a place
+for passing options to the compiler, loader, and archiver, respectively.
+
+The C<INCDIRPREFIX> and C<INCDIRSUFFIX> variables specify option
+strings to be appended to the beginning and end, respectively, of each
+include directory so that the compiler knows where to find F<.h> files.
+Similarly, the C<LIBDIRPREFIX> and C<LIBDIRSUFFIX> variables specify the
+option string to be appended to the beginning of and end, respectively,
+of each directory that the linker should search for libraries.
+
+Another variable, C<ENV>, is used to determine the system environment during
+the execution of an external command. By default, the only environment
+variable that is set is C<PATH>, which is the execution path for a UNIX
+command. For the utmost reproducibility, you should really arrange to set
+your own execution path, in your top-level F<Construct> file (or perhaps by
+importing an appropriate construction package with the Perl C<use>
+command). The default variables are intended to get you off the ground.
+
+=head2 Expanding variables in construction commands
+
+Within a construction command, construction variables will be expanded
+according to the rules described above.  In addition to normal variable
+expansion from the construction environment, construction commands also
+expand the following pseudo-variables to insert the specific input and
+output files in the command line that will be executed:
+
+=over 10
+
+=item %>
+
+The target file name.  In a multi-target command, this expands to the
+first target mentioned.)
+
+=item %0
+
+Same as C<%E<gt>>.
+
+=item %1, %2, ..., %9
+
+These refer to the first through ninth input file, respectively.
+
+=item %E<lt>
+
+The full set of input file names. If any of these have been used
+anywhere else in the current command line (via C<%1>, C<%2>, etc.), then
+those will be deleted from the list provided by C<%E<lt>>. Consider the
+following command found in a F<Conscript> file in the F<test> directory:
+
+  Command $env 'tgt', qw(foo bar baz), qq(
+	echo %< -i %1 > %>
+	echo %< -i %2 >> %>
+	echo %< -i %3 >> %>
+  );
+
+If F<tgt> needed to be updated, then this would result in the execution of
+the following commands, assuming that no remapping has been established for
+the F<test> directory:
+
+  echo test/bar test/baz -i test/foo > test/tgt
+  echo test/foo test/baz -i test/bar >> test/tgt
+  echo test/foo test/bar -i test/baz >> test/tgt
+
+=back
+
+Any of the above pseudo-variables may be followed immediately by one of
+the following suffixes to select a portion of the expanded path name:
+
+  :a    the absolute path to the file name
+  :b    the directory plus the file name stripped of any suffix
+  :d    the directory
+  :f    the file name
+  :s    the file name suffix
+  :F    the file name stripped of any suffix
+  :S    the absolute path path to a Linked source file
+
+Continuing with the above example, C<%E<lt>:f> would expand to C<foo bar baz>,
+and C<%E<gt>:d> would expand to C<test>.
+
+There are additional C<%> elements which affect the command line(s):
+
+=over 10
+
+=item %[ %]
+
+It is possible to programmatically rewrite part of the command by
+enclosing part of it between C<%[> and C<%]>.  This will call the
+construction variable named as the first word enclosed in the brackets
+as a Perl code reference; the results of this call will be used to
+replace the contents of the brackets in the command line.  For example,
+given an existing input file named F<tgt.in>:
+
+  @keywords = qw(foo bar baz);
+  $env = new cons(X_COMMA => sub { join(",", @_) });
+  Command $env 'tgt', 'tgt.in', qq(
+	echo '# Keywords: %[X_COMMA @keywords %]' > %>
+	cat %< >> %>
+  );
+
+This will execute:
+
+  echo '# Keywords: foo,bar,baz' > tgt
+  cat tgt.in >> tgt
+
+=item %( %)
+
+Cons includes the text of the command line in the MD5 signature for a
+build, so that targets get rebuilt if you change the command line (to
+add or remove an option, for example).  Command-line text in between
+C<%(> and C<%)>, however, will be ignored for MD5 signature calculation.
+
+Internally, Cons uses C<%(> and C<%)> around include and library
+directory options (C<-I> and C<-L> on UNIX systems, C</I> and
+C</LIBPATH> on Windows NT) to avoid rebuilds just because the directory
+list changes.  Rebuilds occur only if the changed directory list causes
+any included I<files> to change, and a changed include file is detected
+by the MD5 signature calculation on the actual file contents.
+
+=back
+
+XXX
+
+DESCRIBE THE Literal() FUNCTION, TOO
+
+XXX
+
+=head2 Expanding construction variables in file names
+
+Cons expands construction variables in the source and target file names
+passed to the various construction methods according to the expansion
+rules described above:
+
+  $env = new cons(
+	DESTDIR	=>	'programs',
+	SRCDIR	=>	'src',
+  );
+  Program $env '%DESTDIR/hello', '%SRCDIR/hello.c';
+
+This allows for flexible configuration, through the construction
+environment, of directory names, suffixes, etc.
+
+=head1 Default construction methods
+
+The list of default construction methods includes the following:
+
+
+=head2 The C<new> constructor
+
+The C<new> method is a Perl object constructor. That is, it is not invoked
+via a reference to an existing construction environment B<reference>, but,
+rather statically, using the name of the Perl B<package> where the
+constructor is defined. The method is invoked like this:
+
+  $env = new cons(<overrides>);
+
+The environment you get back is blessed into the package C<cons>, which
+means that it will have associated with it the default methods described
+below. Individual construction variables can be overridden by providing
+name/value pairs in an override list. Note that to override any command
+environment variable (i.e. anything under C<ENV>), you will have to override
+all of them. You can get around this difficulty by using the C<copy> method
+on an existing construction environment.
+
+
+=head2 The C<clone> method
+
+The C<clone> method creates a clone of an existing construction environment,
+and can be called as in the following example:
+
+  $env2 = $env1->clone(<overrides>);
+
+You can provide overrides in the usual manner to create a different
+environment from the original. If you just want a new name for the same
+environment (which may be helpful when exporting environments to existing
+components), you can just use simple assignment.
+
+
+=head2 The C<copy> method
+
+The C<copy> method extracts the externally defined construction variables
+from an environment and returns them as a list of name/value
+pairs. Overrides can also be provided, in which case, the overridden values
+will be returned, as appropriate. The returned list can be assigned to a
+hash, as shown in the prototype, below, but it can also be manipulated in
+other ways:
+
+  %env = $env1->copy(<overrides>);
+
+The value of C<ENV>, which is itself a hash, is also copied to a new hash,
+so this may be changed without fear of affecting the original
+environment. So, for example, if you really want to override just the
+C<PATH> variable in the default environment, you could do the following:
+
+  %cons = new cons()->copy();
+  $cons{ENV}{PATH} = "<your path here>";
+  $cons = new cons(%cons);
+
+This will leave anything else that might be in the default execution
+environment undisturbed.
+
+-->
+
+ <para>
+
+   It is rare that all of the software in a large,
+   complicated system needs to be built the same way.
+   For example, different source files may need different options
+   enabled on the command line,
+   or different executable programs need to be linked
+   with different libraries.
+   &SCons; accomodates these different build
+   requirements by allowing you to create and
+   configure multiple &consenvs;
+   that control how the software is built.
+   Technically, a &consenv; is an object
+   that has a number of associated
+   &consvars;, each with a name and a value.
+   (A &consenv; also has an attached
+   set of &Builder; methods,
+   about which we'll learn more later.)
+
+ </para>
+
+ <para>
+
+   A &consenv; is created by the &Environment;
+   method which you have already seen.
+   What you haven't seen, though,
+   is that when you initialize a &consenv;,
+   you can set the values of the
+   environment's &consvars;
+   to control how a program is built.
+   For example:
+
+ </para>
+
+  <scons_example name="ex1">
+    <file name="SConstruct">
+    env = Environment(CC = 'gcc',
+                      CCFLAGS = '-O2')
+
+    env.Program('foo.c')
+    </file>
+    <file name="foo.c">
+   int main() { }
+    </file>
+  </scons_example>
+
+ <para>
+   
+   This example, rather than using the default,
+   explicitly specifies use of the
+   GNU C compiler &gcc;,
+   and further specifies that the <literal>-O2</literal>
+   (optimization level two)
+   flag should be used when compiling the object file.
+   So a run from this example would look like:
+
+ </para>
+
+ <scons_output example="ex1">
+    <command>scons</command>
+ </scons_output>
+
+ <section>
+ <title>Multiple &ConsEnvs;</title>
+
+   <para>
+
+   So far,
+   all of our examples have
+   created a single &consenv; named
+   <literal>env</literal>.
+   <literal>env</literal>, however,
+   is simply a Python variable name,
+   and you can use any other variable name that you like.
+   For example:
+
+   </para>
+
+   <sconstruct>
+      my_env = Environment(CC = 'gcc',
+                           CCFLAGS = '-O2')
+
+      my_env.Program('foo.c')
+   </sconstruct>
+
+   <para>
+
+   This opens up the possibility of
+   using multiple &consenvs;,
+   each with a separate variable name.
+   We can then use these separate &consenvs;
+   to build different programs in different ways:
+
+   </para>
+
+   <scons_example name="ex2">
+     <file name="SConstruct">
+      opt = Environment(CCFLAGS = '-O2')
+      dbg = Environment(CCFLAGS = '-g')
+
+      opt.Program('foo', 'foo.c')
+
+      dbg.Program('bar', 'bar.c')
+     </file>
+     <file name="foo.c">
+     int main() { }
+     </file>
+     <file name="bar.c">
+     int main() { }
+     </file>
+   </scons_example>
+
+   <scons_output example="ex2">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   We can even use multiple &consenvs; to build
+   multiple versions of a single program.
+   If you do this by simply trying to use the
+   &Program; builder with both environments, though,
+   like this:
+
+   </para>
+
+   <scons_example name="ex3">
+     <file name="SConstruct">
+      opt = Environment(CCFLAGS = '-O2')
+      dbg = Environment(CCFLAGS = '-g')
+
+      opt.Program('foo', 'foo.c')
+
+      dbg.Program('foo', 'foo.c')
+     </file>
+     <file name="foo.c">
+     int main() { }
+     </file>
+   </scons_example>
+
+   <para>
+
+   Then &SCons; generates the following error:
+
+   </para>
+
+   <scons_output example="ex3">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   This is because the two &Program; calls have
+   each implicitly told &SCons; to generate an object file named
+   <filename>foo.o</filename>,
+   one with a &CCFLAGS; value of
+   <literal>-O2</literal>
+   and one with a &CCFLAGS; value of
+   <literal>-g</literal>.
+   To avoid this problem,
+   we must explicitly specify
+   that each environment compile
+   <filename>foo.c</filename>
+   to a separately-named object file
+   using the &Object; call, like so:
+
+   </para>
+
+   <programlisting>
+   </programlisting>
+
+   <scons_example name="ex4">
+     <file name="SConstruct">
+      opt = Environment(CCFLAGS = '-O2')
+      dbg = Environment(CCFLAGS = '-g')
+
+      o = opt.Object('foo-opt', 'foo.c')
+      opt.Program(o)
+
+      d = dbg.Object('foo-dbg', 'foo.c')
+      dbg.Program(d)
+     </file>
+     <file name="foo.c">
+     int main() { }
+     </file>
+   </scons_example>
+
+   <para>
+
+   Notice that each call to the &Object; builder
+   returns a value,
+   an internal &SCons; object that
+   represents the file that will be built.
+   We then use that object
+   as input to the &Program; builder.
+   This avoids having to specify explicitly
+   the object file name in multiple places,
+   and makes for a compact, readable
+   &SConstruct; file.
+   Our &SCons; output then looks like:
+
+   </para>
+
+   <scons_output example="ex4">
+      <command>scons</command>
+   </scons_output>
+
+ </section>
+
+ <section>
+ <title>Copying &ConsEnvs;</title>
+
+   <para>
+
+   Sometimes you want more than one &consenv;
+   to share the same values for one or more variables.
+   Rather than always having to repeat all of the common
+   variables when you create each &consenv;,
+   you can use the &Copy; method
+   to create a copy of a &consenv;.
+
+   </para>
+
+   <para>
+
+   Like the &Environment; call that creates a &consenv;,
+   the &Copy; method takes &consvar; assignments,
+   which will override the values in the copied &consenv;.
+   For example, suppose we want to use &gcc;
+   to create three versions of a program,
+   one optimized, one debug, and one with neither.
+   We could do this by creating a "base" &consenv;
+   that sets &CC; to &gcc;,
+   and then creating two copies,
+   one which sets &CCFLAGS; for optimization
+   and the other with sets &CCFLAGS; for debugging:
+
+   </para>
+
+   <scons_example name="ex5">
+     <file name="SConstruct" printme="1">
+      env = Environment(CC = 'gcc')
+      opt = env.Copy(CCFLAGS = '-O2')
+      dbg = env.Copy(CCFLAGS = '-g')
+
+      e = opt.Object('foo', 'foo.c')
+
+      o = opt.Object('foo-opt', 'foo.c')
+      opt.Program(o)
+
+      d = dbg.Object('foo-dbg', 'foo.c')
+      dbg.Program(d)
+     </file>
+     <file name="foo.c">
+     int main() { }
+     </file>
+   </scons_example>
+
+   <para>
+
+   Then our output would look like:
+
+   </para>
+
+   <scons_output example="ex5">
+      <command>scons</command>
+   </scons_output>
+
+ </section>
+
+ <section>
+ <title>Fetching Values From a &ConsEnv;</title>
+
+   <para>
+
+   You can fetch individual construction variables
+   using the normal syntax
+   for accessing individual named items in a Python dictionary:
+
+   </para>
+
+   <scons_example name="ex6">
+     <file name="SConstruct" printme="1">
+      env = Environment()
+      print "CC is:", env['CC']
+     </file>
+   </scons_example>
+
+   <para>
+
+   This example &SConstruct; file doesn't build anything,
+   but because it's actually a Python script,
+   it will print the value of &CC; for us:
+
+   </para>
+
+   <scons_output example="ex6">
+      <command>scons</command>
+      CC is: cc
+   </scons_output>
+
+   <para>
+
+   A &consenv;, however,
+   is actually a Python object with
+   associated methods, etc.
+   If you want to have direct access to only the
+   dictionary of construction variables,
+   you can fetch this using the &Dictionary; method:
+
+   </para>
+
+   <scons_example name="ex6b">
+      <file name="SConstruct" printme="1">
+      env = Environment(FOO = 'foo', BAR = 'bar')
+      dict = env.Dictionary()
+      for key, value in dict.items():
+          print "key = %s, value = %s % (key, value)
+      </file>
+   </scons_Example>
+
+   <para>
+
+   This &SConstruct; file
+   will print the dictionary items for us as follows:
+
+   </para>
+
+   <scons_output example="ex6b">
+      % <userinput>scons</userinput>
+      key = FOO, value = foo
+      key = BAR, value = bar
+   </scons_output>
+
+ </section>
+
+ <section>
+ <title>Modifying a &ConsEnv;</title>
+
+   <para>
+
+   &SCons; provides various methods that
+   support modifying existing values in a &consenv;.
+
+   </para>
+
+   <section>
+   <title>Replacing Values in a &ConsEnv;</title>
+
+     <para>
+
+     You can replace existing construction variable values
+     using the &Replace; method:
+
+     </para>
+
+     <scons_example name="ex7">
+       <file name="SConstruct" printme="1">
+        env = Environment(CCFLAGS = '-DDEFINE1')
+        env.Program('foo.c')
+        env.Replace(CCFLAGS = '-DDEFINE2')
+        env.Program('bar.c')
+       </file>
+       <file name="foo.c">
+       int main() { }
+       </file>
+       <file name="bar.c">
+       int main() { }
+       </file>
+     </scons_example>
+
+     <para>
+
+     The replaced value completely overwrites
+
+     </para>
+
+     <scons_output example="ex7">
+        <command>scons</command>
+     </scons_output>
+
+   </section>
+
+   <section>
+   <title>Appending to the End of Values in a &ConsEnv;</title>
+
+     <para>
+
+     You can append a value to
+     an existing construction variable
+     using the &Append; method:
+
+     </para>
+
+     <scons_example name="ex8">
+       <file name="SConstruct" printme="1">
+        env = Environment(CCFLAGS = '-DMY_VALUE')
+        env.Append(CCFLAGS = ' -DLAST')
+        env.Program('foo.c')
+       </file>
+       <file name="foo.c">
+       int main() { }
+       </file>
+     </scons_example>
+
+     <scons_output example="ex8">
+        <command>scons</command>
+     </scons_output>
+
+   </section>
+
+   <section>
+   <title>Appending to the Beginning of Values in a &ConsEnv;</title>
+
+     <para>
+
+     You can append a value to the beginning
+     an existing construction variable
+     using the &Prepend; method:
+
+     </para>
+
+     <scons_example name="ex9">
+       <file name="SConstruct" printme="1">
+        env = Environment(CCFLAGS = '-DMY_VALUE')
+        env.Prepend(CCFLAGS = '-DFIRST ')
+        env.Program('foo.c')
+       </file>
+       <file name="foo.c">
+       int main() { }
+       </file>
+     </scons_example>
+
+     <scons_output example="ex9">
+        <command>scons</command>
+     </scons_output>
+
+   </section>
+
+ </section>

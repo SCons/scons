@@ -1,0 +1,77 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+   <para>
+
+   It's often very useful to be able to give
+   users some help that describes the
+   specific targets, build options, etc.,
+   that can be used for the build.
+   &SCons; provides the &Help; function
+   to allow you to specify this help text:
+
+   </para>
+
+   <scons_example name="ex1">
+      <file name="SConstruct">
+      Help("""
+      Type: 'scons program' to build the production program,
+            'scons debug' to build the debug version.
+      """)
+      </file>
+   </scons_example>
+
+   <para>
+
+   (Note the above use of the Python triple-quote syntax,
+   which comes in very handy for
+   specifying multi-line strings like help text.)
+
+   </para>
+
+   <para>
+
+   When the &SConstruct; or &SConscript; files
+   contain such a call to the &Help; function,
+   the specified help text will be displayed in response to
+   the &SCons; <literal>-h</literal> option:
+
+   </para>
+
+   <scons_output example="ex1">
+      <command>scons -h</command>
+   </scons_output>
+
+   <para>
+
+   If there is no &Help; text in the &SConstruct; or
+   &SConscript; files,
+   &SCons; will revert to displaying its
+   standard list that describes the &SCons; command-line
+   options.
+   This list is also always displayed whenever
+   the <literal>-H</literal> option is used.
+
+   </para>

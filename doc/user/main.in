@@ -1,0 +1,243 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!doctype book PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+[
+
+    <!ENTITY % version SYSTEM "../version.sgml">
+    %version;
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+    <!ENTITY actions SYSTEM "actions.sgml">
+    <!ENTITY alias SYSTEM "alias.sgml">
+    <!ENTITY ant SYSTEM "ant.sgml">
+    <!ENTITY builders-built-in SYSTEM "builders-built-in.sgml">
+    <!ENTITY builders-commands SYSTEM "builders-commands.sgml">
+    <!ENTITY builders-writing SYSTEM "builders-writing.sgml">
+    <!ENTITY caching SYSTEM "caching.sgml">
+    <!ENTITY cons SYSTEM "cons.sgml">
+    <!ENTITY copyright SYSTEM "copyright.sgml">
+    <!ENTITY default SYSTEM "default.sgml">
+    <!ENTITY depends SYSTEM "depends.sgml">
+    <!ENTITY environments SYSTEM "environments.sgml">
+    <!ENTITY errors SYSTEM "errors.sgml">
+    <!ENTITY example SYSTEM "example.sgml">
+    <!ENTITY help SYSTEM "help.sgml">
+    <!ENTITY hierarchy SYSTEM "hierarchy.sgml">
+    <!ENTITY install SYSTEM "install.sgml">
+    <!ENTITY libraries SYSTEM "libraries.sgml">
+    <!ENTITY make SYSTEM "make.sgml">
+    <!ENTITY precious SYSTEM "precious.sgml">
+    <!ENTITY preface SYSTEM "preface.sgml">
+    <!ENTITY repositories SYSTEM "repositories.sgml">
+    <!ENTITY run SYSTEM "run.sgml">
+    <!ENTITY scanners SYSTEM "scanners.sgml">
+    <!ENTITY separate SYSTEM "separate.sgml">
+    <!ENTITY simple SYSTEM "simple.sgml">
+    <!ENTITY sourcecode SYSTEM "sourcecode.sgml">
+    <!ENTITY troubleshoot SYSTEM "troubleshoot.sgml">
+    <!ENTITY variants SYSTEM "variants.sgml">
+
+]>
+
+<book>
+  <bookinfo>
+    <title>SCons User Guide &buildversion;</title>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <edition>Revision &buildrevision; (&builddate;)</edition>
+
+    <pubdate>2003</pubdate>
+
+    <copyright>
+      <year>2003</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <legalnotice>
+      &copyright;
+    </legalnotice>
+
+    <releaseinfo>version &buildversion;</releaseinfo>
+
+  </bookinfo>
+
+  <chapter id="chap-preface">
+    <title>Preface</title>
+    &preface;
+  </chapter>
+
+  <chapter id="chap-simple">
+    <title>Simple Builds</title>
+    &simple;
+  </chapter>
+
+  <chapter id="chap-environments">
+    <title>Construction Environments</title>
+    &environments;
+  </chapter>
+
+  <chapter id="chap-libraries">
+    <title>Building and Linking with Libraries</title>
+    &libraries;
+  </chapter>
+
+  <chapter id="chap-depends">
+    <title>Dependencies</title>
+    &depends;
+  </chapter>
+
+  <chapter id="chap-default">
+    <title>Default Targets</title>
+    &default;
+  </chapter>
+
+  <chapter id="chap-help">
+    <title>Providing Build Help</title>
+    &help;
+  </chapter>
+
+  <chapter id="chap-install">
+    <title>Installing Files in Other Directories</title>
+    &install;
+  </chapter>
+
+  <chapter id="chap-precious">
+    <title>Preventing Removal of Targets</title>
+    &precious;
+  </chapter>
+
+  <chapter id="chap-hierarchical">
+    <title>Hierarchical Builds</title>
+    &hierarchy;
+  </chapter>
+
+  <chapter id="chap-separate">
+    <title>Separating Source and Build Directories</title>
+    &separate;
+  </chapter>
+
+  <chapter id="chap-variants">
+    <title>Variant Builds</title>
+    &variants;
+  </chapter>
+
+  <chapter id="chap-builders-built-in">
+    <title>Built-In Builders</title>
+    &builders-built-in;
+  </chapter>
+
+  <chapter id="chap-builders-writing">
+    <title>Writing Your Own Builders</title>
+    &builders-writing;
+  </chapter>
+
+  <chapter id="chap-builders-commands">
+    <title>Not Writing a Builder:  The &Command; Builder</title>
+    &builders-commands;
+  </chapter>
+
+  <chapter id="chap-actions">
+    <title>SCons Actions</title>
+    &actions;
+  </chapter>
+
+  <chapter id="chap-scanners">
+    <title>Writing Scanners</title>
+    &scanners;
+  </chapter>
+
+  <chapter id="chap-repositories">
+    <title>Building From Code Repositories</title>
+    &repositories;
+  </chapter>
+
+  <chapter id="chap-sourcecode">
+    <title>Fetching Files From Source Code Management Systems</title>
+    &sourcecode;
+  </chapter>
+
+  <chapter id="chap-caching">
+    <title>Caching Built Files</title>
+    &caching;
+  </chapter>
+
+  <chapter id="chap-alias">
+    <title>Alias Targets</title>
+    &alias;
+  </chapter>
+
+  <chapter id="chap-run">
+    <title>How to Run &SCons;</title>
+    &run;
+  </chapter>
+
+  <chapter id="chap-troubleshooting">
+    <title>Troubleshooting</title>
+    &troubleshoot;
+  </chapter>
+
+  <!--
+  AddPostAction()
+  AddPreAction()
+  Clean()
+  Dir()
+  File()
+  FindFile()
+  GetJobs()
+  SetJobs()
+  SideEffect()
+  ParseConfig()
+  Platform()
+  Tools()
+  -->
+
+  <appendix id="app-example">
+    <title>Complex &SCons; Example</title>
+    &example;
+  </appendix>
+
+  <appendix id="app-make">
+    <title>Converting From Make</title>
+    &make;
+  </appendix>
+
+  <appendix id="app-cons">
+    <title>Converting From Cons</title>
+    &cons;
+  </appendix>
+
+  <appendix id="app-ant">
+    <title>Converting From Ant</title>
+    &ant;
+  </appendix>
+
+</book>

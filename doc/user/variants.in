@@ -1,0 +1,179 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!--
+
+=head1 Variant builds
+
+
+=head2 Hello, World! for baNaNa and peAcH OS's
+
+Variant builds require just another simple extension. Let's take as an
+example a requirement to allow builds for both the baNaNa and peAcH
+operating systems. In this case, we are using a distributed file system,
+such as NFS to access the particular system, and only one or the other of
+the systems has to be compiled for any given invocation of C<cons>. Here's
+one way we could set up the F<Construct> file for our B<Hello, World!>
+application:
+
+  # Construct file for Hello, World!
+
+  die qq(OS must be specified) unless $OS = $ARG{OS};
+  die qq(OS must be "peach" or "banana")
+	if $OS ne "peach" && $OS ne "banana";
+
+  # Where to put all our shared products.
+  $EXPORT = "#export/$OS";
+
+  Export qw( CONS INCLUDE LIB BIN );
+
+  # Standard directories for sharing products.
+  $INCLUDE = "$EXPORT/include";
+  $LIB = "$EXPORT/lib";
+  $BIN = "$EXPORT/bin";
+
+  # A standard construction environment.
+  $CONS = new cons (
+	CPPPATH => $INCLUDE,	# Include path for C Compilations
+	LIBPATH => $LIB,	# Library path for linking programs
+	LIBS => '-lworld',	# List of standard libraries
+  );
+
+  # $BUILD is where we will derive everything.
+  $BUILD = "#build/$OS";
+
+  # Tell cons where the source files for $BUILD are.
+  Link $BUILD => 'src';
+
+  Build (
+	"$BUILD/hello/Conscript",
+	"$BUILD/world/Conscript",
+  );
+
+Now if we login to a peAcH system, we can build our B<Hello, World!>
+application for that platform:
+
+  % cons export OS=peach
+  Install build/peach/world/world.h as export/peach/include/world.h
+  cc -Iexport/peach/include -c build/peach/hello/hello.c -o build/peach/hello/hello.o
+  cc -Iexport/peach/include -c build/peach/world/world.c -o build/peach/world/world.o
+  ar r build/peach/world/libworld.a build/peach/world/world.o
+  ar: creating build/peach/world/libworld.a
+  ranlib build/peach/world/libworld.a
+  Install build/peach/world/libworld.a as export/peach/lib/libworld.a
+  cc -o build/peach/hello/hello build/peach/hello/hello.o -Lexport/peach/lib -lworld
+  Install build/peach/hello/hello as export/peach/bin/hello
+
+
+=head2 Variations on a theme
+
+Other variations of this model are possible. For example, you might decide
+that you want to separate out your include files into platform dependent and
+platform independent files. In this case, you'd have to define an
+alternative to C<$INCLUDE> for platform-dependent files. Most F<Conscript>
+files, generating purely platform-independent include files, would not have
+to change.
+
+You might also want to be able to compile your whole system with debugging
+or profiling, for example, enabled. You could do this with appropriate
+command line options, such as C<DEBUG=on>. This would then be translated
+into the appropriate platform-specific requirements to enable debugging
+(this might include turning off optimization, for example). You could
+optionally vary the name space for these different types of systems, but, as
+we'll see in the next section, it's not B<essential> to do this, since Cons
+is pretty smart about rebuilding things when you change options.
+
+-->
+
+  <para>
+
+  The &BuildDir; function now gives us everything
+  we need to show how easy it is to create
+  variant builds using &SCons;.
+  Suppose, for example, that we want to
+  build a program for both Windows and Linux platforms,
+  but that we want to build it in a shared directory
+  with separate side-by-side build directories
+  for the Windows and Linux versions of the program.
+
+  </para>
+
+  <scons_example name="ex_variants">
+    <file name="SConstruct" printme="1">
+    platform = ARGUMENT.get('OS', Platform())
+
+    include = "#export/$PLATFORM/include"
+    lib = "#export/$PLATFORM/lib"
+    bin = "#export/$PLATFORM/bin"
+
+    env = Environment(PLATFORM = platform,
+                      CPPPATH = [include],
+                      LIB = lib,
+                      LIBS = '-lworld')
+
+    Export('env')
+
+    SConscript('src/SConscript', build_dir='build/$PLATFORM')
+
+    #
+    #BuildDir("#build/$PLATFORM", 'src')
+    #SConscript("build/$PLATFORM/hello/SConscript")
+    #SConscript("build/$PLATFORM/world/SConscript")
+    </file>
+  </scons_example>
+
+  <para>
+
+  This SConstruct file,
+  when run on a Linux system, yields:
+
+  </para>
+
+  <scons_output example="ex_variants" os="posix">
+    <command>scons OS=linux</command>
+  </scons_output>
+
+  <para>
+
+  The same SConstruct file on Windows would build:
+
+  </para>
+
+  <scons_output example="ex_variants" os="win32">
+    <command>scons OS=windows</command>
+  </scons_output>
+
+  <scons_example name="ex_var2">
+  <programlisting>
+    <file name="SConstruct" printme="1">
+    env = Environment(OS = )
+    for os in ['newell', 'post']:
+        SConscript('src/SConscript', build_dir='build/' + os)
+    </file>
+  </scons_example>
+
+  <scons_output example="ex_var2">
+    % <userinput>scons</userinput>
+  </scons_output>

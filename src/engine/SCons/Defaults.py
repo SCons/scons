@@ -257,7 +257,7 @@ class NullCmdGenerator:
     def __init__(self, cmd):
         self.cmd = cmd
 
-    def __call__(self, target, source, env):
+    def __call__(self, target, source, env, for_signature=None):
         return self.cmd
 
 ConstructionEnvironment = {

@@ -1,0 +1,240 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  Once a program is built,
+  it is often appropriate to install it in another
+  directory for public use.
+  You use the &Install; method 
+  to arrange for a program, or any other file,
+  to be copied into a destination directory:
+
+  </para>
+
+  <scons_example name="ex1">
+     <file name="SConstruct" printme="1">
+     env = Environment()
+     hello = env.Program('hello.c')
+     env.Install('__ROOT__/usr/bin', hello)
+     </file>
+     <file name="hello.c">
+     int main() { printf("Hello, world!\n"); }
+     </file>
+  </scons_example>
+
+  <para>
+
+  Note, however, that installing a file is
+  still considered a type of file "build."
+  This is important when you remember that
+  the default behavior of &SCons; is
+  to build files in or below the current directory.
+  If, as in the example above,
+  you are installing files in a directory
+  outside of the top-level &SConstruct; file's directory tree,
+  you must specify that directory
+  (or a higher directory, such as <literal>/</literal>)
+  for it to install anything there:
+
+  </para>
+
+  <scons_output example="ex1">
+     <command>scons</command>
+     <command>scons __ROOT__/usr/bin</command>
+  </scons_output>
+
+  <para>
+
+  It can, however, be cumbersome to remember
+  (and type) the specific destination directory
+  in which the program (or any other file)
+  should be installed.
+  This is an area where the &Alias;
+  function comes in handy,
+  allowing you, for example,
+  to create a pseudo-target named <literal>install</literal>
+  that can expand to the specified destination directory:
+
+  </para>
+
+  <scons_example name="ex2">
+    <file name="SConstruct" printme="1">
+     env = Environment()
+     hello = env.Program('hello.c')
+     env.Install('__ROOT__/usr/bin', hello)
+     env.Alias('install', '__ROOT__/usr/bin')
+    </file>
+    <file name="hello.c">
+    int main() { printf("Hello, world!\n"); }
+    </file>
+  </scons_example>
+
+  <para>
+
+  This then yields the more natural
+  ability to install the program
+  in its destination as follows:
+
+  </para>
+
+  <scons_output example="ex1">
+     <command>scons</command>
+     <command>scons install</command>
+  </scons_output>
+
+  <section>
+  <title>Installing Multiple Files in a Directory</title>
+
+    <para>
+
+    You can install multiple files into a directory
+    simply by calling the &Install; function multiple times:
+
+    </para>
+
+    <scons_example name="ex3">
+      <file name="SConstruct" printme="1">
+       env = Environment()
+       hello = env.Program('hello.c')
+       goodbye = env.Program('goodbye.c')
+       env.Install('__ROOT__/usr/bin', hello)
+       env.Install('__ROOT__/usr/bin', goodbye)
+       env.Alias('install', '__ROOT__/usr/bin')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    Or, more succinctly, listing the multiple input
+    files in a list
+    (just like you can do with any other builder):
+
+    </para>
+
+    <sconstruct>
+       env = Environment()
+       hello = env.Program('hello.c')
+       goodbye = env.Program('goodbye.c')
+       env.Install('__ROOT__/usr/bin', [hello, goodbye])
+       env.Alias('install', '__ROOT__/usr/bin')
+    </sconstruct>
+
+    <para>
+
+    Either of these two examples yields:
+
+    </para>
+
+    <scons_output example="ex3">
+       <command>scons install</command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Installing a File Under a Different Name</title>
+
+    <para>
+
+    The &Install; method preserves the name
+    of the file when it is copied into the
+    destination directory.
+    If you need to change the name of the file
+    when you copy it, use the &InstallAs; function:
+
+    </para>
+
+    <scons_example name="ex4">
+      <file name="SConstruct" printme="1">
+       env = Environment()
+       hello = env.Program('hello.c')
+       env.InstallAs('__ROOT__/usr/bin/hello-new', hello)
+       env.Alias('install', '__ROOT__/usr/bin')
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    This installs the <literal>hello</literal>
+    program with the name <literal>hello-new</literal>
+    as follows:
+
+    </para>
+
+    <scons_output example="ex4">
+       <command>scons install</command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Installing Multiple Files Under Different Names</title>
+
+    <para>
+
+    Lastly, if you have multiple files that all
+    need to be installed with different file names,
+    you can either call the &InstallAs; function
+    multiple times, or as a shorthand,
+    you can supply same-length lists
+    for the both the target and source arguments:
+
+    </para>
+
+    <scons_example name="ex5">
+      <file name="SConstruct" printme="1">
+       env = Environment()
+       hello = env.Program('hello.c')
+       goodbye = env.Program('goodbye.c')
+       env.InstallAs(['__ROOT__/usr/bin/hello-new',
+                      '__ROOT__/usr/bin/goodbye-new'],
+                     [hello, goodbye])
+      </file>
+      <file name="hello.c">
+      int main() { printf("Hello, world!\n"); }
+      </file>
+    </scons_example>
+
+    <para>
+
+    In this case, the &InstallAs; function
+    loops through both lists simultaneously,
+    and copies each source file into its corresponding
+    target file name:
+
+    </para>
+
+    <scons_output example="ex5">
+       <command>scons install</command>
+    </scons_output>
+
+  </section>
