@@ -20,12 +20,10 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
+RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
 
   This is the fifth beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
-
-  Please note the following important changes since release 0.93:
 
   Please note the following important changes since release 0.92:
 
@@ -156,8 +154,10 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX -XXXX
       for directories outside the top-level SConstruct file.
 
     - The Jar() Builder will, on its second or subsequent invocation,
-      package up the .sconsign files that SCons uses to track
-      signatures.
+      package up the .sconsign files that SCons uses to track signatures.
+      You can work around this by using the SConsignFile() function
+      to collect all of the .sconsign information into a single file
+      outside of the directory being packaged by Jar().
 
     - SCons does not currently have a way to detect that an intermediate
       file has been corrupted from outside and should be rebuilt.
