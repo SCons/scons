@@ -29,20 +29,24 @@ Verify that the Install() Builder works
 """
 
 import os.path
+import string
 import sys
 import time
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('sub')
+test.subdir('outside', 'work', ['work', 'sub'])
 
-f1_out = test.workpath('export', 'f1.out')
-f2_out = test.workpath('export', 'f2.out')
-f3_out = test.workpath('export', 'f3.out')
-f4_out = test.workpath('export', 'f4.out')
+f1_out = test.workpath('work', 'export', 'f1.out')
+f2_out = test.workpath('work', 'export', 'f2.out')
+f3_out = test.workpath('work', 'export', 'f3.out')
+f4_out = test.workpath('work', 'export', 'f4.out')
+f5_txt = test.workpath('outside', 'f5.txt')
+f6_txt = test.workpath('outside', 'f6.txt')
+f6_sep = string.replace(f6_txt, os.sep, '/')
 
-test.write('SConstruct', """\
+test.write(['work', 'SConstruct'], """\
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -71,47 +75,61 @@ env3.Install(dir='export', source=t)
 env4 = env1.Copy(EXPORT='export', SUBDIR='sub')
 t = env4.Cat(target='sub/f4.out', source='sub/f4.in')
 env4.Install(dir='$EXPORT', source=r'%s')
-""" % (os.path.join('$SUBDIR', 'f4.out')))
 
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "f2.in\n")
-test.write('f3.in', "f3.in\n")
-test.write(['sub', 'f4.in'], "sub/f4.in\n")
+env1.Install('.', r'%s')
+env1.Install('export', r'%s')
+env1.Install('.', r'%s')
+env1.Install('export', r'%s')
+""" % (os.path.join('$SUBDIR', 'f4.out'),
+       f5_txt, f5_txt,
+       f6_sep, f6_sep))
 
-test.run(arguments = '.')
+test.write(['work', 'f1.in'], "f1.in\n")
+test.write(['work', 'f2.in'], "f2.in\n")
+test.write(['work', 'f3.in'], "f3.in\n")
+test.write(['work', 'sub', 'f4.in'], "sub/f4.in\n")
+test.write(f5_txt, "f5.txt\n")
+test.write(f6_txt, "f6.txt\n")
+
+test.run(chdir = 'work', arguments = '.')
 
 test.fail_test(test.read(f1_out) != "f1.in\n")
 test.fail_test(test.read(f2_out) != "f2.in\n")
 test.fail_test(test.read(f3_out) != "f3.in\n")
 test.fail_test(test.read(f4_out) != "sub/f4.in\n")
+test.fail_test(test.read(['work', 'f5.txt']) != "f5.txt\n")
+test.fail_test(test.read(['work', 'export', 'f5.txt']) != "f5.txt\n")
+test.fail_test(test.read(['work', 'f6.txt']) != "f6.txt\n")
+test.fail_test(test.read(['work', 'export', 'f6.txt']) != "f6.txt\n")
 
-test.fail_test(test.read('my_install.out') != os.path.join('export', 'f3.out'))
+test.fail_test(test.read(['work', 'my_install.out']) != os.path.join('export', 'f3.out'))
 
 # make sure the programs didn't get rebuilt, because nothing changed:
 oldtime1 = os.path.getmtime(f1_out)
 oldtime2 = os.path.getmtime(f2_out)
 
-test.write('f1.in', "f1.in again\n")
+test.write(['work', 'f1.in'], "f1.in again\n")
 
 time.sleep(2) # introduce a small delay, to make the test valid
 
-test.run(arguments = '.')
+test.run(chdir = 'work', arguments = '.')
 
 test.fail_test(oldtime1 == os.path.getmtime(f1_out))
 test.fail_test(oldtime2 != os.path.getmtime(f2_out))
 
 # Verify that we didn't link to the Installed file.
 open(f2_out, 'wb').write("xyzzy\n")
-test.fail_test(test.read('f2.out') != "f2.in\n")
+test.fail_test(test.read(['work', 'f2.out']) != "f2.in\n")
 
 # Verify that scons prints an error message
 # if a target can not be unlinked before building it:
-test.write('f1.in', "f1.in again again\n")
+test.write(['work', 'f1.in'], "f1.in again again\n")
 
-os.chmod(test.workpath('export'), 0555)
+os.chmod(test.workpath('work', 'export'), 0555)
 f = open(f1_out, 'rb')
 
-test.run(arguments = f1_out,
+test.run(chdir = 'work',
+         arguments = f1_out,
          stderr="scons: *** [%s] Permission denied\n" % os.path.join('export', 'f1.out'),
          status=2)
 
