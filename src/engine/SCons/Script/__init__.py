@@ -99,6 +99,12 @@ class BuildTask(SCons.Taskmaster.Task):
                 # don't try to walk the stack, just print the error.
                 sys.stderr.write("\nSCons error: %s\n" % e)
                 raise
+            except StopError, e:
+                s = str(e)
+                if not keep_going_on_error:
+                    s = s + '  Stop.'
+                sys.stderr.write("scons: *** %s\n" % s)
+                raise
             except:
                 sys.stderr.write("scons: *** %s\n" % sys.exc_value)
                 raise

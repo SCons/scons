@@ -48,6 +48,8 @@ assert sys.argv[3] == 'bar.in', sys.argv[3]
 assert sys.argv[4] == 'blat blat', sys.argv[4]
 """)
 
+test.write('foo.in', "foo.in\n")
+
 test.run(arguments='foo.out')
 
 test.pass_test()

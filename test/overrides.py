@@ -44,6 +44,8 @@ env['BUILDERS']['Build'] = builder
 Default(env.Build('foo', 'bar', CC='mycc', LIBS = env['LIBS']+['b']))
 """)
 
+test.write('bar', "bar\n")
+
 test.run()
 
 test.write('SConstruct', """

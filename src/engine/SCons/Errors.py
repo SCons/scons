@@ -45,3 +45,7 @@ class InternalError(Exception):
 class UserError(Exception):
     def __init__(self, args=None):
         self.args = args
+
+class StopError(Exception):
+    def __init__(self, args=None):
+        self.args = args

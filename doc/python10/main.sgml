@@ -37,7 +37,6 @@
     <!ENTITY install SYSTEM "install.sgml">
     <!ENTITY intro SYSTEM "intro.sgml">
     <!ENTITY process SYSTEM "process.sgml">
-    <!ENTITY references SYSTEM "references.sgml">
 
 ]>
 

@@ -20,9 +20,9 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
+RELEASE 0.09 - XXX
 
-  This is the eighth alpha release of SCons.  Please consult the
+  This is the ninth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.08:
@@ -30,7 +30,11 @@ RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
     - The SetCommandHandler() function has been superceded
       by the SPAWN, SHELL and ESCAPE construction variables.
 
-      XXX
+    - SCons now exits with an error message if any source files or
+      implicit dependency files for a target do not exist and have
+      no Builder.  SCons used to ignore these files, so builds that
+      formally succeeded despite the absence of a scanned file will now
+      fail unless the -k (keep going on error) flag is used.
 
   Please note the following important changes since release 0.07:
 

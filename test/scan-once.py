@@ -60,12 +60,6 @@ f3 = env.Echo(source=['file3'], target=['file4'])
 Default(f3)
 """)
 
-test.run(arguments = '.',
-         stdout = test.wrap_stdout("""create file2.s from file1.s
-create file3.s from file2.s
-create file4.s from file3.s
-"""))
-
 test.write('file1.s', 'file1.s\n')
 
 test.run(arguments = '.',

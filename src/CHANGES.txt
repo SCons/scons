@@ -54,7 +54,9 @@ RELEASE 0.09 -
   - Add separate $SHOBJPREFIX and $SHOBJSUFFIX construction variables
     (by default, the same as $OBJPREFIX and $OBJSUFFIX).
 
-  - Add a Make-like message when asked to build a source file.
+  - Add Make-like error messages when asked to build a source file,
+    and before trying to build a file that doesn't have all its source
+    files (including when an invalid drive letter is used on WIN32).
 
  From Steven Knight and Anthony Roach:
 

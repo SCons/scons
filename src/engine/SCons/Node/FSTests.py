@@ -628,6 +628,7 @@ class FSTestCase(unittest.TestCase):
         assert os.path.exists(test.workpath("remove_me"))
         f1 = fs.File(test.workpath("remove_me"))
         f1.builder = 1
+        f1.env_set(Environment())
         f1.prepare()
         assert not os.path.exists(test.workpath("remove_me"))
 

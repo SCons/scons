@@ -43,7 +43,7 @@ import types
 import SCons.Node
 from UserDict import UserDict
 import sys
-from SCons.Errors import UserError
+import SCons.Errors
 import SCons.Warnings
 
 try:
@@ -296,7 +296,7 @@ class FS:
                 directory = self.Root[drive]
             except KeyError:
                 if not create:
-                    raise UserError
+                    raise SCons.Errors.UserError
                 dir = Dir(drive, ParentOfRoot(), self)
                 dir.path = dir.path + os.sep
                 dir.abspath = dir.abspath + os.sep
@@ -314,7 +314,7 @@ class FS:
                                               Dir)
             except KeyError:
                 if not create:
-                    raise UserError
+                    raise SCons.Errors.UserError
 
                 # look at the actual filesystem and make sure there isn't
                 # a file already there
@@ -332,7 +332,7 @@ class FS:
             ret = self.__checkClass(directory.entries[file_name], fsclass)
         except KeyError:
             if not create:
-                raise UserError
+                raise SCons.Errors.UserError
 
             # make sure we don't create File nodes when there is actually
             # a directory at that path on the disk, and vice versa
@@ -436,9 +436,9 @@ class FS:
         if not isinstance(build_dir, SCons.Node.Node):
             build_dir = self.Dir(build_dir)
         if not src_dir.is_under(self.Top):
-            raise UserError, "Source directory must be under top of build tree."
+            raise SCons.Errors.UserError, "Source directory must be under top of build tree."
         if src_dir.is_under(build_dir):
-            raise UserError, "Source directory cannot be under build directory."
+            raise SCons.Errors.UserError, "Source directory cannot be under build directory."
         build_dir.link(src_dir, duplicate)
 
     def Repository(self, *dirs):
@@ -848,6 +848,14 @@ class File(Entry):
 
     def prepare(self):
         """Prepare for this file to be created."""
+
+        def missing(node):
+            return not node.builder and not node.rexists()
+        missing_sources = filter(missing, self.children())
+        if missing_sources:
+            desc = "No Builder for target `%s', needed by `%s'." % (missing_sources[0], self)
+            raise SCons.Errors.StopError, desc
+
         if self.exists():
             if self.builder and not self.precious:
                 os.unlink(self.path)
