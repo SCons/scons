@@ -65,15 +65,17 @@ class Alias(SCons.Node.Node):
 
     def set_bsig(self, bsig):
         """An alias has no signature."""
-        pass
+        self.bsig = None
 
     def set_csig(self, csig):
         """An alias has no signature."""
-        pass
+        self.csig = None
 
-    def current(self):
+    def current(self, calc):
         """If all of our children were up-to-date, then this
         Alias was up-to-date, too."""
+        # Allow the children to calculate their signatures.
+        calc.bsig(self)
         state = 0
         for kid in self.children(None):
             s = kid.get_state()
@@ -89,10 +91,10 @@ class Alias(SCons.Node.Node):
         pass
 
     def is_under(self, dir):
-	# Make Alias nodes get built regardless of 
-	# what directory scons was run from. Alias nodes
-	# are outside the filesystem:
-	return 1
+        # Make Alias nodes get built regardless of 
+        # what directory scons was run from. Alias nodes
+        # are outside the filesystem:
+        return 1
         
 default_ans = AliasNameSpace()
 

@@ -93,6 +93,12 @@ class DummyNode:
             return 0
         return None
 
+    def calc_signature(self, calc):
+        if self.builder:
+            return calc.bsig(self)
+        else:
+            return calc.csig(self)
+
     def set_bsig(self, bsig):
         self.bsig = bsig
 
@@ -170,8 +176,7 @@ def create_nodes(files):
     return nodes
 
 def current(calc, node):
-    s = calc.get_signature(node)
-    return calc.current(node, s)
+    return calc.current(node, node.calc_signature(calc))
 
 def write(calc, nodes):
     for node in nodes:
@@ -196,8 +201,6 @@ class SigTestBase:
         self.test_built()
         self.test_modify()
         self.test_modify_same_time()
-        self.test_delete()
-        self.test_cache()
 
     def test_initial(self):
 
@@ -274,42 +277,6 @@ class SigTestBase:
             self.failUnless(current(calc, node),
                             "all of the nodes should be current")
 
-    def test_delete(self):
-
-        nodes = create_nodes(self.files)
-
-        calc = SCons.Sig.Calculator(self.module)
-
-        write(calc, nodes)
-
-        #simulate the deletion of some files
-        self.files[1].modify(None, 0)
-        self.files[7].modify(None, 0)
-        self.files[9].modify(None, 0)
-
-        self.failUnless(current(calc, nodes[0]))
-        self.failUnless(not current(calc, nodes[1]), "deleted")
-        self.failUnless(current(calc, nodes[2]))
-        self.failUnless(current(calc, nodes[3]))
-        self.failUnless(current(calc, nodes[4]))
-        self.failUnless(current(calc, nodes[5]))
-        self.failUnless(current(calc, nodes[6]))
-        self.failUnless(not current(calc, nodes[7]), "deleted")
-        self.failUnless(current(calc, nodes[8]))
-        self.failUnless(not current(calc, nodes[9]), "deleted")
-        self.failUnless(current(calc, nodes[10]),
-                        "current even though its source was deleted")
-
-    def test_cache(self):
-        """Test that signatures are cached properly."""
-        nodes = create_nodes(self.files)
-
-        calc = SCons.Sig.Calculator(self.module)
-        nodes[0].set_csig(1)
-        nodes[1].set_bsig(1)
-        assert calc.csig(nodes[0]) == 1, calc.csig(nodes[0])
-        assert calc.bsig(nodes[1]) == 1, calc.bsig(nodes[1])
-
 
 class MD5TestCase(unittest.TestCase, SigTestBase):
     """Test MD5 signatures"""
@@ -353,10 +320,14 @@ class CalcTestCase(unittest.TestCase):
                 return self.bsig
             def set_bsig(self, bsig):
                 self.bsig = bsig
-            def store_sigs(self):
-                pass
             def get_csig(self):
                 return self.csig
+            def set_csig(self, csig):
+                self.csig = csig
+            def store_csig(self):
+                pass
+            def store_timestamp(self):
+                pass
             def get_prevsiginfo(self):
                 return 0, self.bsig, self.csig
             def get_stored_implicit(self):
@@ -375,7 +346,6 @@ class CalcTestCase(unittest.TestCase):
         self.nodeclass = MyNode
         self.test_Calc___init__()
         self.test_Calc_bsig()
-        self.test_Calc_get_signature()
         self.test_Calc_current()
 
     def test_Calc___init__(self):
@@ -400,57 +370,10 @@ class CalcTestCase(unittest.TestCase):
 
         assert self.calc.csig(n) == 12
 
-    def test_Calc_get_signature(self):
-        class NE(self.nodeclass):
-            def exists(self):
-                return 0
-            def cached_exists(self):
-                return 0
-            def has_signature(self):
-                return None
-        class NN(self.nodeclass):
-            def exists(self):
-                return 1
-            def has_signature(self):
-                return None
-
-        n1 = self.nodeclass('n1', 11, 12)
-        n1.use_signature = 0
-        assert self.calc.get_signature(n1) is None
-
-        n2 = self.nodeclass('n2', 22, 23)
-        assert self.calc.get_signature(n2) == 23
-
-        n3 = self.nodeclass('n3', 33, 34)
-        n4 = self.nodeclass('n4', None, None)
-        n4.builder = 1
-        n4.kids = [n2, n3]
-        assert self.calc.get_signature(n4) == 390
-
-        n5 = NE('n5', 55, 56)
-        assert self.calc.get_signature(n5) is None
-
-        n6 = NN('n6', 66, 67)
-        assert self.calc.get_signature(n6) == 67
-
     def test_Calc_current(self):
-        class N0(self.nodeclass):
-            def current(self):
-                return 0
-        class N1(self.nodeclass):
-            def current(self):
-                return 1
         class NN(self.nodeclass):
             def current(self):
                 return None
-
-        n0 = N0('n0', 11, 12)
-        assert not self.calc.current(n0, 10)
-        assert not self.calc.current(n0, 11)
-
-        n1 = N1('n1', 22, 23)
-        assert self.calc.current(n1, 20)
-        assert self.calc.current(n1, 22)
 
         nn = NN('nn', 33, 34)
         assert not self.calc.current(nn, 30)

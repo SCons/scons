@@ -301,14 +301,7 @@ class Calculator:
         already built and updated by someone else, if that's
         what's wanted.
         """
-        if not node.use_signature:
-            return None
-
-        bsig = node.get_bsig()
-        if not bsig is None:
-            return bsig
-
-        sigs = map(self.get_signature, node.children())
+        sigs = map(lambda n, c=self: n.calc_signature(c), node.children())
         if node.builder:
             sigs.append(self.module.signature(node.builder_sig_adapter()))
 
@@ -329,13 +322,6 @@ class Calculator:
         node - the node
         returns - the content signature
         """
-        if not node.use_signature:
-            return None
-
-        csig = node.get_csig()
-        if not csig is None:
-            return csig
-
         if self.max_drift >= 0:
             info = node.get_prevsiginfo()
         else:
@@ -361,32 +347,6 @@ class Calculator:
 
         return csig
 
-    def get_signature(self, node):
-        """
-        Get the appropriate build signature for a node.
-
-        node - the node
-        returns - the signature or None if the signature could not
-        be computed.
-
-        This method does not store the signature in the node or
-        in the .sconsign file.
-        """
-
-        if not node.use_signature:
-            # This node type doesn't use a signature (e.g. a
-            # directory) so bail right away.
-            return None
-        elif node.builder:
-            if build_signature:
-                return self.bsig(node)
-            else:
-                return self.csig(node)
-        elif not node.exists():
-            return None
-        else:
-            return self.csig(node)
-
     def current(self, node, newsig):
         """
         Check if a signature is up to date with respect to a node.
@@ -397,15 +357,6 @@ class Calculator:
         returns - 1 if the file is current with the specified signature,
         0 if it isn't
         """
-
-        c = node.current()
-        if not c is None:
-            # The node itself has told us whether or not it's
-            # current without checking the signature.  The
-            # canonical uses here are a "0" return for a file
-            # that doesn't exist, or a directory.
-            return c
-
         oldtime, oldbsig, oldcsig = node.get_prevsiginfo()
 
         if not node.builder and node.get_timestamp() == oldtime:

@@ -381,7 +381,6 @@ class Entry(SCons.Node.Node):
         self.path_ = self.path
         self.abspath_ = self.abspath
         self.dir = directory
-        self.use_signature = 1
         self.__doSrcpath(self.duplicate)
         self.srcpath_ = self.srcpath
         self.cwd = None # will hold the SConscript directory for target nodes
@@ -438,14 +437,15 @@ class Entry(SCons.Node.Node):
             parents.append(self.dir)
         return parents
 
-    def current(self):
+    def current(self, calc):
         """If the underlying path doesn't exist, we know the node is
         not current without even checking the signature, so return 0.
         Otherwise, return None to indicate that signature calculation
         should proceed as normal to find out if the node is current."""
+        bsig = calc.bsig(self)
         if not self.exists():
             return 0
-        return None
+        return calc.current(self, bsig)
 
     def is_under(self, dir):
         if self is dir:
@@ -489,7 +489,6 @@ class Dir(Entry):
         self.entries = {}
         self.entries['.'] = self
         self.entries['..'] = self.dir
-        self.use_signature = None
         self.builder = 1
         self._sconsign = None
 
@@ -536,19 +535,23 @@ class Dir(Entry):
         """A null "builder" for directories."""
         pass
 
+    def calc_signature(self, calc):
+        """A directory has no signature."""
+        return None
+
     def set_bsig(self, bsig):
         """A directory has no signature."""
-        pass
+        bsig = None
 
     def set_csig(self, csig):
         """A directory has no signature."""
-        pass
+        csig = None
 
     def get_contents(self):
         """Return a fixed "contents" value of a directory."""
         return ''
 
-    def current(self):
+    def current(self, calc):
         """If all of our children were up-to-date, then this
         directory was up-to-date, too."""
         state = 0
@@ -706,10 +709,10 @@ class File(Entry):
         if not hasattr(self, '_rfile'):
             self._rfile = self
             if not os.path.isabs(self.path) and not os.path.isfile(self.path):
-		def file_node(path, fs = self.fs):
-		    if os.path.isfile(path):
-		        return fs.File(path)
-		    return None
+                def file_node(path, fs = self.fs):
+                    if os.path.isfile(path):
+                        return fs.File(path)
+                    return None
                 n = self.fs.Rsearch(self.path, file_node)
                 if n:
                     self._rfile = n

@@ -121,8 +121,7 @@ class Task:
         """Make a task ready for execution."""
         state = SCons.Node.up_to_date
         for t in self.targets:
-            bsig = self.tm.calc.bsig(t)
-            if not self.tm.calc.current(t, bsig):
+            if not t.current(self.tm.calc):
                 state = SCons.Node.executing
         for t in self.targets:
             if state == SCons.Node.executing:

@@ -100,7 +100,9 @@ class Node:
 
     def store_bsig(self):
         pass
-  
+
+    def current(self, calc):
+        return calc.current(self, calc.bsig(self))
     
     def depends_on(self, nodes):
         for node in nodes:

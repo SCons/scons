@@ -84,9 +84,6 @@ class Node:
         self.target_scanner = None      # explicit scanner from this node's Builder
         self.env = None
         self.state = None
-        self.bsig = None
-        self.csig = None
-        self.use_signature = 1
         self.precious = None
         self.found_includes = {}
         self.includes = None
@@ -151,13 +148,13 @@ class Node:
             def get_parents(node, parent): return node.get_parents()
             def clear_cache(node, parent):
                 node.implicit = None
-                node.bsig = None
+                node.del_bsig()
             w = Walker(self, get_parents, ignore_cycle, clear_cache)
             while w.next(): pass
 
         # clear out the content signature, since the contents of this
         # node were presumably just changed:
-        self.csig = None
+        self.del_csig()
 
     def depends_on(self, nodes):
         """Does this node depend on any of 'nodes'?"""
@@ -217,7 +214,7 @@ class Node:
                     # we need to recalculate the implicit deps,
                     # and the bsig:
                     self.implicit = []
-                    self.bsig = None
+                    self.del_bsig()
 
         for child in self.children(scan=0):
             self._add_child(self.implicit,
@@ -242,9 +239,39 @@ class Node:
             return
         self.env = env
 
+    def calc_signature(self, calc):
+        """
+        Select and calculate the appropriate build signature for a node.
+
+        self - the node
+        calc - the signature calculation module
+        returns - the signature
+
+        This method does not store the signature in the node or
+        in the .sconsign file.
+        """
+
+        if self.builder:
+            if SCons.Sig.build_signature:
+                if not hasattr(self, 'bsig'):
+                    self.set_bsig(calc.bsig(self))
+                return self.get_bsig()
+            else:
+                if not hasattr(self, 'csig'):
+                    self.set_csig(calc.csig(self))
+                return self.get_csig()
+        elif not self.exists():
+            return None
+        else:
+            if not hasattr(self, 'csig'):
+                self.set_csig(calc.csig(self))
+            return self.get_csig()
+
     def get_bsig(self):
         """Get the node's build signature (based on the signatures
         of its dependency files and build information)."""
+        if not hasattr(self, 'bsig'):
+            return None
         return self.bsig
 
     def set_bsig(self, bsig):
@@ -257,8 +284,15 @@ class Node:
         .sconsign file or equivalent)."""
         pass
 
+    def del_bsig(self):
+        """Delete the bsig from this node."""
+        if hasattr(self, 'bsig'):
+            delattr(self, 'bsig')
+
     def get_csig(self):
         """Get the signature of the node's content."""
+        if not hasattr(self, 'csig'):
+            return None
         return self.csig
 
     def set_csig(self, csig):
@@ -269,6 +303,11 @@ class Node:
         """Make the content signature permanent (that is, store it in the
         .sconsign file or equivalent)."""
         pass
+
+    def del_csig(self):
+        """Delete the csig from this node."""
+        if hasattr(self, 'csig'):
+            delattr(self, 'csig')
 
     def get_prevsiginfo(self):
         """Fetch the previous signature information from the
