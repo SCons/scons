@@ -399,6 +399,14 @@ def options_init():
 	short = 'd',
 	help = "Print file dependency information.")
 
+    def opt_D(opt, arg):
+        global climb_up
+        climb_up = 2
+
+    Option(func = opt_D,
+        short = 'D',
+        help = "Search up directory tree for SConstruct.")
+
     def opt_debug(opt, arg):
         global print_tree
         global print_dtree
@@ -596,11 +604,11 @@ def options_init():
 
     def opt_U(opt, arg):
         global climb_up
-        climb_up = 2
+        climb_up = 3
 
     Option(func = opt_U,
-	short = 'U',
-	help = "Search up directory tree for SConstruct.")
+        short = 'U',
+        help = "Search up directory tree for SConstruct.")
 
     def option_v(opt, arg):
         import SCons
@@ -722,7 +730,7 @@ def _main():
         SCons.Script.SConscript._scons_add_args(xmit_args)
 
     if climb_up:
-        target_top = ''  # directory to prepend to targets
+        target_top = '.'  # directory to prepend to targets
         script_dir = os.getcwd()  # location of script
         while script_dir and not _SConstruct_exists(script_dir):
             script_dir, last_part = os.path.split(script_dir)
@@ -782,11 +790,18 @@ def _main():
 	sys.exit(0)
 
     if target_top:
+        target_top = SCons.Node.FS.default_fs.Dir(target_top)
+        
         if climb_up == 2 and not targets:
-            # -U with default targets
+            # -D with default targets
             target_top = None
-        else:
-            target_top = SCons.Node.FS.default_fs.Dir(target_top)
+        elif climb_up == 3 and not targets:
+            # -U with default targets
+            default_targets = SCons.Script.SConscript.default_targets
+            default_targets = filter(lambda x: x.cwd.srcpath == str(target_top),
+                                     default_targets)
+            SCons.Script.SConscript.default_targets = default_targets
+            target_top = None
 
     if not targets:
         targets = SCons.Script.SConscript.default_targets

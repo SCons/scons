@@ -301,6 +301,15 @@ in the specified directory.)
 .\" general debugging of the build process.
 
 .TP
+-D
+Works exactly the same way as the
+.B -u
+option except for the way default targets are handled.
+When this option is used and no targets are specified on the command line,
+all default targets are built, whether or not they are below the current
+directory.
+
+.TP
 .RI --debug= type
 Debug the build process.
 .I type
@@ -525,6 +534,16 @@ appear up-to-date is unnecessary when using
 .BR scons .)
 
 .TP
+-T
+Works exactly the same way as the
+.B -u
+option except for the way default targets are handled.
+When this option is used and no targets are specified on the command line,
+all default targets that are defined in the SConscript files in the current
+directory are built, regardless of what directory the resulant targets end
+up in.
+
+.TP
 -u, --up, --search-up
 Walks up the directory structure until an 
 .I SConstruct ,
@@ -541,8 +560,9 @@ Works exactly the same way as the
 .B -u
 option except for the way default targets are handled.
 When this option is used and no targets are specified on the command line,
-all default targets are built, whether or not they are below the current
-directory.
+all default targets that are defined in the SConscript(s) in the current
+directory are built, regardless of what directory the resulant targets end
+up in.
 
 .TP
 -v, --version

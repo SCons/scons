@@ -49,6 +49,9 @@ RELEASE 0.07 -
   - Write out .sconsign files on error or interrupt so intermediate
     build results are saved.
 
+  - Change the -U option to -D.  Make a new -U that builds just the
+    targets from the local SConscript file.
+
 
 
 RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600

@@ -24,14 +24,16 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
 import sys
-import TestSCons
 
-python = sys.executable
+import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('sub1', 'sub2')
+python = sys.executable
+
+test.subdir('sub1', 'sub2', 'sub3')
 
 test.write('build.py', r"""
 import sys
@@ -44,31 +46,65 @@ file.close()
 test.write('SConstruct', """
 B = Builder(name='B', action='%s build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = [B])
-env.B(target = 'sub1/foo.out', source = 'sub1/foo.in')
+Default(env.B(target = 'sub1/foo.out', source = 'sub1/foo.in'))
 Export('env')
-SConscript('sub1/SConscript')
 SConscript('sub2/SConscript')
+Default(env.B(target = 'sub3/baz.out', source = 'sub3/baz.in'))
+BuildDir('sub2b', 'sub2')
+SConscript('sub2b/SConscript')
+Default(env.B(target = 'sub2/xxx.out', source = 'xxx.in'))
 """ % python)
-
-test.write(['sub1', 'SConscript'], """
-Import('env')
-env.B(target = 'foo.out', source = 'foo.in')
-Default('.')
-""")
-
-test.write(['sub1', 'foo.in'], "sub1/foo.in")
 
 test.write(['sub2', 'SConscript'], """
 Import('env')
-env.B(target = 'bar.out', source = 'bar.in')
-Default('.')
+Default(env.B(target = 'bar.out', source = 'bar.in'))
+Default(env.B(target = '../bar.out', source = 'bar.in'))
 """)
 
-test.write(['sub2', 'bar.in'], "sub2/bar.in")
+
+test.write(['sub1', 'foo.in'], "sub1/foo.in\n")
+test.write(['sub2', 'bar.in'], "sub2/bar.in\n")
+test.write(['sub3', 'baz.in'], "sub3/baz.in\n")
+test.write('xxx.in', "xxx.in\n")
+
+test.run(arguments = '-U foo.out', chdir = 'sub1')
+
+test.fail_test(not os.path.exists(test.workpath('sub1', 'foo.out')))
+test.fail_test(os.path.exists(test.workpath('sub2', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub2b', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
+test.fail_test(os.path.exists(test.workpath('bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
+
+test.unlink(['sub1', 'foo.out'])
 
 test.run(arguments = '-U', chdir = 'sub1')
+test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
+test.fail_test(os.path.exists(test.workpath('sub2', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub2b', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
+test.fail_test(os.path.exists(test.workpath('bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 
-test.fail_test(test.read(['sub1', 'foo.out']) != "sub1/foo.in")
-test.fail_test(test.read(['sub2', 'bar.out']) != "sub2/bar.in")
+test.run(chdir = 'sub2', arguments = '-U')
+test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
+test.fail_test(not os.path.exists(test.workpath('sub2', 'bar.out')))
+test.fail_test(not os.path.exists(test.workpath('sub2b', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
+test.fail_test(not os.path.exists(test.workpath('bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
+
+test.unlink(['sub2', 'bar.out'])
+test.unlink(['sub2b', 'bar.out'])
+test.unlink('bar.out')
+
+test.run(arguments='-U')
+test.fail_test(not os.path.exists(test.workpath('sub1', 'foo.out')))
+test.fail_test(os.path.exists(test.workpath('sub2', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('sub2b', 'bar.out')))
+test.fail_test(not os.path.exists(test.workpath('sub3', 'baz.out')))
+test.fail_test(os.path.exists(test.workpath('bar.out')))
+test.fail_test(not os.path.exists(test.workpath('sub2/xxx.out')))
+
 
 test.pass_test()
