@@ -48,7 +48,7 @@ def generate(env):
     # file.cpp.m4 -> file.cpp etc.
     env['M4']      = 'm4'
     env['M4FLAGS'] = '-E'
-    env['M4COM']   = 'cd ${SOURCE.srcdir} && $M4 $M4FLAGS < ${SOURCE.file} > ${TARGET.abspath}'
+    env['M4COM']   = 'cd ${SOURCE.rsrcdir} && $M4 $M4FLAGS < ${SOURCE.file} > ${TARGET.abspath}'
 
 def exists(env):
     return env.Detect('m4')

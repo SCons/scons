@@ -1721,43 +1721,111 @@ class SpecialAttrTestCase(unittest.TestCase):
     def runTest(self):
         """Test special attributes of file nodes."""
         test=TestCmd(workdir='')
-        fs = SCons.Node.FS.FS(test.workpath(''))
+        fs = SCons.Node.FS.FS(test.workpath('work'))
 
-        f=fs.Entry('foo/bar/baz.blat').get_subst_proxy()
-        assert str(f.dir) == os.path.normpath('foo/bar'), str(f.dir)
+        f = fs.Entry('foo/bar/baz.blat').get_subst_proxy()
+
+        s = str(f.dir)
+        assert s == os.path.normpath('foo/bar'), s
         assert f.dir.is_literal(), f.dir
-        assert f.dir.for_signature() == 'bar', f.dir.for_signature()
-        
-        assert str(f.file) == 'baz.blat', str(f.file)
+        for_sig = f.dir.for_signature()
+        assert for_sig == 'bar', for_sig
+
+        s = str(f.file)
+        assert s == 'baz.blat', s
         assert f.file.is_literal(), f.file
-        assert f.file.for_signature() == 'baz.blat_file', \
-               f.file.for_signature()
-        
-        assert str(f.base) == os.path.normpath('foo/bar/baz'), str(f.base)
+        for_sig = f.file.for_signature()
+        assert for_sig == 'baz.blat_file', for_sig
+
+        s = str(f.base)
+        assert s == os.path.normpath('foo/bar/baz'), s
         assert f.base.is_literal(), f.base
-        assert f.base.for_signature() == 'baz.blat_base', \
-               f.base.for_signature()
-        
-        assert str(f.filebase) == 'baz', str(f.filebase)
+        for_sig = f.base.for_signature()
+        assert for_sig == 'baz.blat_base', for_sig
+
+        s = str(f.filebase)
+        assert s == 'baz', s
         assert f.filebase.is_literal(), f.filebase
-        assert f.filebase.for_signature() == 'baz.blat_filebase', \
-               f.filebase.for_signature()
-        
-        assert str(f.suffix) == '.blat', str(f.suffix)
+        for_sig = f.filebase.for_signature()
+        assert for_sig == 'baz.blat_filebase', for_sig
+
+        s = str(f.suffix)
+        assert s == '.blat', s
         assert f.suffix.is_literal(), f.suffix
-        assert f.suffix.for_signature() == 'baz.blat_suffix', \
-               f.suffix.for_signature()
-        
-        assert str(f.abspath) == test.workpath('foo', 'bar', 'baz.blat'), str(f.abspath)
+        for_sig = f.suffix.for_signature()
+        assert for_sig == 'baz.blat_suffix', for_sig
+
+        s = str(f.abspath)
+        assert s == test.workpath('work', 'foo', 'bar', 'baz.blat'), s
         assert f.abspath.is_literal(), f.abspath
-        assert f.abspath.for_signature() == 'baz.blat_abspath', \
-               f.abspath.for_signature()
-        
-        assert str(f.posix) == 'foo/bar/baz.blat', str(f.posix)
+        for_sig = f.abspath.for_signature()
+        assert for_sig == 'baz.blat_abspath', for_sig
+
+        s = str(f.posix)
+        assert s == 'foo/bar/baz.blat', s
         assert f.posix.is_literal(), f.posix
         if f.posix != f:
-            assert f.posix.for_signature() == 'baz.blat_posix', \
-                   f.posix.for_signature()
+            for_sig = f.posix.for_signature()
+            assert for_sig == 'baz.blat_posix', for_sig
+
+        # And now, combinations!!!
+        s = str(f.srcpath.base)
+        assert s == os.path.normpath('foo/bar/baz'), s
+        s = str(f.srcpath.dir)
+        assert s == str(f.srcdir), s
+        s = str(f.srcpath.posix)
+        assert s == 'foo/bar/baz.blat', s
+
+        # Test what happens with BuildDir()
+        fs.BuildDir('foo', 'baz')
+
+        s = str(f.srcpath)
+        assert s == os.path.normpath('baz/bar/baz.blat'), s
+        assert f.srcpath.is_literal(), f.srcpath
+        g = f.srcpath.get()
+        assert isinstance(g, SCons.Node.FS.Entry), g.__class__
+
+        s = str(f.srcdir)
+        assert s == os.path.normpath('baz/bar'), s
+        assert f.srcdir.is_literal(), f.srcdir
+        g = f.srcdir.get()
+        assert isinstance(g, SCons.Node.FS.Dir), g.__class__
+
+        # And now what happens with BuildDir() + Repository()
+        fs.Repository(test.workpath('repository'))
+
+        f = fs.Entry('foo/sub/file.suffix').get_subst_proxy()
+        test.subdir('repository',
+                    ['repository', 'baz'],
+                    ['repository', 'baz', 'sub'])
+
+        rd = test.workpath('repository', 'baz', 'sub')
+        rf = test.workpath('repository', 'baz', 'sub', 'file.suffix')
+        test.write(rf, "\n")
+
+        s = str(f.srcpath)
+        assert s == os.path.normpath('baz/sub/file.suffix'), s
+        assert f.srcpath.is_literal(), f.srcpath
+        g = f.srcpath.get()
+        assert isinstance(g, SCons.Node.FS.Entry), g.__class__
+
+        s = str(f.srcdir)
+        assert s == os.path.normpath('baz/sub'), s
+        assert f.srcdir.is_literal(), f.srcdir
+        g = f.srcdir.get()
+        assert isinstance(g, SCons.Node.FS.Dir), g.__class__
+
+        s = str(f.rsrcpath)
+        assert s == rf, s
+        assert f.rsrcpath.is_literal(), f.rsrcpath
+        g = f.rsrcpath.get()
+        assert isinstance(g, SCons.Node.FS.File), g.__class__
+
+        s = str(f.rsrcdir)
+        assert s == rd, s
+        assert f.rsrcdir.is_literal(), f.rsrcdir
+        g = f.rsrcdir.get()
+        assert isinstance(g, SCons.Node.FS.Dir), g.__class__
 
         # Check that attempts to access non-existent attributes of the
         # subst proxy generate the right exceptions and messages.
@@ -1785,22 +1853,7 @@ class SpecialAttrTestCase(unittest.TestCase):
             caught = 1
         assert caught, "did not catch expected AttributeError"
 
-        fs.BuildDir('foo', 'baz')
 
-        assert str(f.srcpath) == os.path.normpath('baz/bar/baz.blat'), str(f.srcpath)
-        assert f.srcpath.is_literal(), f.srcpath
-        assert isinstance(f.srcpath.get(), SCons.Node.FS.Entry)
-        
-        assert str(f.srcdir) == os.path.normpath('baz/bar'), str(f.srcdir)
-        assert f.srcdir.is_literal(), f.srcdir
-        assert isinstance(f.srcdir.get(), SCons.Node.FS.Dir)
-
-        # And now, combinations!!!
-        assert str(f.srcpath.base) == os.path.normpath('baz/bar/baz'), str(f.srcpath.base)
-        assert str(f.srcpath.dir) == str(f.srcdir), str(f.srcpath.dir)
-        assert str(f.srcpath.posix) == 'baz/bar/baz.blat', str(f.srcpath.posix)
-        
-        
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
