@@ -33,7 +33,7 @@ RELEASE 0.06 -
 
   - Add .zip files to the packages we build.
 
-  - Man page:  document LIBS, fix a typo.
+  - Man page:  document LIBS, fix a typo, document ARGUMENTS.
 
   - Added RANLIB and RANLIBFLAGS construction variables.  Only use them
     in ARCOM if there's a "ranlib" program on the system.
@@ -58,6 +58,8 @@ RELEASE 0.06 -
   - Add support for Aliases (phony targets).
 
   - Add a WhereIs() method for searching for path names to executables.
+
+  - Add PDF and PostScript document builders.
 
   From Steve Leblanc:
 

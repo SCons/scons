@@ -107,6 +107,20 @@ DVI = SCons.Builder.Builder(name = 'DVI',
 			    # hard-coded within TeX.
                             suffix = '.dvi')
 
+PDF = SCons.Builder.Builder(name = 'PDF',
+                            action = '$PDFCOM',
+                            prefix = '$PDFPREFIX',
+                            suffix = '$PDFSUFFIX',
+                            src_suffix = '.dvi',
+                            src_builder = DVI)
+
+PostScript = SCons.Builder.Builder(name = 'PostScript',
+                                   action = '$PSCOM',
+                                   prefix = '$PSPREFIX',
+                                   suffix = '$PSSUFFIX',
+                                   src_suffix = '.dvi',
+                                   src_builder = DVI)
+
 CScan = SCons.Scanner.C.CScan()
 
 def alias_builder(env, target, source):
@@ -243,8 +257,18 @@ def make_win32_env_from_paths(include, lib, path):
         'LATEX'      : 'latex',
         'LATEXFLAGS' : '',
         'LATEXCOM'   : '$LATEX $LATEXFLAGS $SOURCES',
-        'DVISUFFIX'  : '.dvi',
-        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Object, Program, Library],
+        'DVIPDF'     : 'dvipdf',
+        'DVIPDFFLAGS' : '',
+        'PDFCOM'     : '$DVIPDF $DVIPDFFLAGS $SOURCES $TARGET',
+        'PDFPREFIX'  : '',
+        'PDFSUFFIX'  : '.pdf',
+        'DVIPS'      : 'dvips',
+        'DVIPSFLAGS' : '',
+        'PSCOM'      : '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES',
+        'PSPREFIX'   : '',
+        'PSSUFFIX'   : '.ps',
+        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Library, Object,
+                        PDF, PostScript, Program],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.obj',
@@ -313,8 +337,16 @@ if os.name == 'posix':
         'LATEX'      : 'latex',
         'LATEXFLAGS' : '',
         'LATEXCOM'   : '$LATEX $LATEXFLAGS $SOURCES',
-        'DVISUFFIX'  : '.dvi',
-        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Object, Program, Library],
+        'DVIPDF'     : 'dvipdf',
+        'PDFCOM'     : '$DVIPDF $DVIPDFFLAGS $SOURCES $TARGET',
+        'PDFPREFIX'  : '',
+        'PDFSUFFIX'  : '.pdf',
+        'DVIPS'      : 'dvips',
+        'PSCOM'      : '$DVIPS $DVIPSFLAGS -o $TARGET $SOURCES',
+        'PSPREFIX'   : '',
+        'PSSUFFIX'   : '.ps',
+        'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Library, Object,
+                        PDF, PostScript, Program],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.o',

@@ -651,8 +651,8 @@ env.CXXFile(target = 'bar', source = 'bar.yy')   # builds bar.cc
 
 .IP DVI
 Builds a .dvi file from a .tex, .ltx or .latex input file.
-The suffix specified by the $DVISUFFIX construction variable
-(.dvi by default)
+The suffix .dvi
+(hard-coded within TeX itself)
 is automatically added to the target
 if it is not already present. Example:
 
@@ -660,6 +660,32 @@ if it is not already present. Example:
 env.DVI(target = 'aaa.dvi', source = 'aaa.tex')   # builds from aaa.tex
 env.DVI(target = 'bbb', source = 'bbb.ltx')       # builds bbb.dvi
 env.DVI(target = 'ccc.dvi', source = 'ccc.latex') # builds from ccc.latex
+.EE
+
+.IP PDF
+Builds a .pdf file from a .dvi input file
+(or, by extension, a .tex, .ltx, or .latex input file).
+The suffix specified by the $PDFSUFFIX construction variable
+(.pdf by default)
+is added automatically to the target
+if it is not already present.  Example:
+
+.ES
+env.PDF(target = 'aaa.pdf', source = 'aaa.tex')   # builds from aaa.tex
+env.PDF(target = 'bbb', source = 'bbb.dvi')       # builds bbb.dvi
+.EE
+
+.IP PostScript
+Builds a .ps file from a .dvi input file
+(or, by extension, a .tex, .ltx, or .latex input file).
+The suffix specified by the $PSSUFFIX construction variable
+(.ps by default)
+is added automatically to the target
+if it is not already present.  Example:
+
+.ES
+env.PostScript(target = 'aaa.ps', source = 'aaa.tex')   # builds from aaa.tex
+env.PostScript(target = 'bbb', source = 'bbb.dvi')      # builds bbb.dvi
 .EE
 .LP
 C/C++ source files are automatically scanned for dependencies by 
@@ -818,7 +844,7 @@ The command line used to generate a static library from object files.
 
 .IP BUILDERS
 A list of the available builders.
-[Alias, CFile, CXXFile, DVI, Library, Object, Program] by default.
+[Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, Program] by default.
 
 .IP CC 
 The C compiler.
@@ -877,6 +903,18 @@ General options that are passed to the C++ compiler.
 .IP CXXCOM
 The command line used to compile a C++ source file to an object file.
 
+.IP DVIPDF
+The TeX DVI file to PDF file converter.
+
+.IP DVIPDFFLAGS
+General options passed to the TeX DVI file to PDF file converter.
+
+.IP DVIPS
+The TeX DVI file to PostScript converter.
+
+.IP DVIPSFLAGS
+General options passed to the TeX DVI file to PostScript converter.
+
 .IP ENV
 A dictionary of environment variables
 to use when invoking commands.
@@ -930,6 +968,15 @@ line.
 .IP INCSUFFIX
 The suffix used to specify an include directory on the C compiler command
 line.
+
+.IP LATEX
+The LaTeX structured formatter and typesetter.
+
+.IP LATEXCOM
+The command line used to call the LaTeX structured formatter and typesetter.
+
+.IP LATEXFLAGS
+General options passed to the LaTeX structured formatter and typesetter.
 
 .IP LEX
 The lexical analyzer generator.
@@ -1005,11 +1052,29 @@ The prefix used for object file names.
 .IP OBJSUFFIX 
 The suffix used for object file names.
 
+.IP PDFCOM
+The command line used to convert TeX DVI files into a PDF file.
+
+.IP PDFPREFIX
+The prefix used for PDF file names.
+
+.IP PDFSUFFIX
+The suffix used for PDF file names.
+
 .IP PROGPREFIX
 The prefix used for executable file names.
 
 .IP PROGSUFFIX
 The suffix used for executable file names.
+
+.IP PSCOM
+The command line used to convert TeX DVI files into a PostScript file.
+
+.IP PSPREFIX
+The prefix used for PostScript file names.
+
+.IP PSSUFFIX
+The prefix used for PostScript file names.
 
 .IP RANLIB
 The archive indexer.
@@ -1020,15 +1085,24 @@ General options passed to the archive indexer.
 .IP SCANNERS
 A list of the available implicit dependency scanners. [CScan] by default.
 
+.IP TEX
+The TeX formatter and typesetter.
+
+.IP TEXCOM
+The command line used to call the TeX formatter and typesetter.
+
+.IP TEXFLAGS
+General options passed to the TeX formatter and typesetter.
+
 .IP YACC
 The parser generator.
-
-.IP YACCFLAGS
-General options passed to the parser generator.
 
 .IP YACCCOM
 The command line used to call the parser generator
 to generate a source file.
+
+.IP YACCFLAGS
+General options passed to the parser generator.
 
 .LP
 Construction variables can be retrieved and set using the 
