@@ -2555,6 +2555,27 @@ initialized with the specified
 pairs.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI Execute( action ", [" strfunction ", " varlist ])
+.TP
+.RI env.Execute( action ", [" strfunction ", " varlist ])
+Executes an Action object.
+The specified
+.IR action
+may be an Action object
+(see the section "Action Objects,"
+below, for a complete explanation of the arguments and behavior),
+or it may be a command-line string,
+list of commands,
+or executable Python function,
+each of which will be converted
+into an Action object
+and then executed.
+The exit value of the command
+or return value of the Python function
+will be returned.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Exit([ value ])
 .TP

@@ -920,6 +920,12 @@ class Base:
     def Environment(self, **kw):
         return apply(SCons.Environment.Environment, [], self.subst_kw(kw))
 
+    def Execute(self, action, *args, **kw):
+        """Directly execute an action through an Environment
+        """
+        action = apply(self.Action, (action,) + args, kw)
+        return action([], [], self)
+
     def File(self, name, *args, **kw):
         """
         """

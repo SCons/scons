@@ -569,6 +569,8 @@ def get_DefaultEnvironmentProxy():
             def subst_kw(self, kw, raw=0, target=None, source=None):
                 return kw
             def subst_list(self, string, raw=0, target=None, source=None):
+                if not SCons.Util.is_List(string):
+                    string = [[string]]
                 return string
         default_env = SCons.Defaults.DefaultEnvironment()
         _DefaultEnvironmentProxy = EnvironmentProxy(default_env)
@@ -619,6 +621,7 @@ GlobalDefaultEnvironmentFunctions = [
     'Command',
     'Depends',
     'Dir',
+    'Execute',
     'File',
     'FindFile',
     'GetBuildPath',
