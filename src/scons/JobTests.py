@@ -121,15 +121,9 @@ class ParallelTestCase(unittest.TestCase):
             raise NoThreadsException()
 
         taskmaster = Taskmaster(num_tasks, self)
-        jobs = []
-        for i in range(num_jobs):
-            jobs.append(scons.Job.Parallel(taskmaster))
-
-        for job in jobs:
-            job.start()
-
-        for job in jobs:
-            job.wait()
+        jobs = scons.Job.Jobs(num_jobs, taskmaster)
+        jobs.start()
+        jobs.wait()
 
         self.failUnless(not taskmaster.tasks_were_serial(),
                         "the tasks were not executed in parallel")
@@ -143,8 +137,10 @@ class SerialTestCase(unittest.TestCase):
         "test a serial job"
 
         taskmaster = Taskmaster(num_tasks, self)
-        job = scons.Job.Serial(taskmaster)
-        job.start()
+        jobs = scons.Job.Jobs(1, taskmaster)
+        jobs.start()
+        jobs.wait()
+
         self.failUnless(taskmaster.tasks_were_serial(),
                         "the tasks were not executed in series")
         self.failUnless(taskmaster.all_tasks_are_executed(),

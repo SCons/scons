@@ -1,12 +1,55 @@
 """scons.Job
 
 This module defines the Serial and Parallel classes that execute tasks to
-complete a build.
+complete a build. The Jobs class provides a higher level interface to start,
+stop, and wait on jobs.
 
 """
 
 __revision__ = "Job.py __REVISION__ __DATE__ __DEVELOPER__"
 
+class Jobs:
+    """An instance of this class initializes N jobs, and provides
+    methods for starting, stopping, and waiting on all N jobs.
+    """
+    
+    def __init__(self, num, taskmaster):
+        """
+        create 'num' jobs using the given taskmaster.
+
+        If 'num' is equal to 0, then a serial job will be used,
+        otherwise 'num' parallel jobs will be used.
+        """
+
+        if num > 1:
+            self.jobs = []
+            for i in range(num):
+                self.jobs.append(Parallel(taskmaster))
+        else:
+            self.jobs = [Serial(taskmaster)]
+
+    def start(self):
+        """start the jobs"""
+
+        for job in self.jobs:
+            job.start()
+
+    def wait(self):
+        """ wait for the jobs started with start() to finish"""
+
+        for job in self.jobs:
+            job.wait()
+
+    def stop(self):
+        """
+        stop the jobs started with start()
+
+        This function does not wait for the jobs to finish.
+        """
+
+        for job in self.jobs:
+            job.stop()
+    
 class Serial:
     """This class is used to execute tasks in series, and is more efficient
     than Parallel, but is only appropriate for non-parallel builds. Only
