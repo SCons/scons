@@ -635,6 +635,11 @@ class EnvironmentTestCase(unittest.TestCase):
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
+        sub = SCons.Node.FS.default_fs.Dir('sub')
+        t = env.Command(target='bar.out', source='sub',
+                        action='buildbar $target $source')
+        assert 'sub' in map(lambda x: x.path, t.sources)
+
         def testFunc(env, target, source):
             assert str(target[0]) == 'foo.out'
             assert 'foo1.in' in map(str, source) and 'foo2.in' in map(str, source), map(str, source)

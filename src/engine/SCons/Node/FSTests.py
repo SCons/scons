@@ -987,8 +987,18 @@ class FSTestCase(unittest.TestCase):
 
         #XXX test get_prevsiginfo()
 
-        assert fs.File('foo.x').scanner_key() == '.x'
-        assert fs.File('foo.xyz').scanner_key() == '.xyz'
+        skey = fs.Entry('eee.x').scanner_key()
+        assert skey == '.x', skey
+        skey = fs.Entry('eee.xyz').scanner_key()
+        assert skey == '.xyz', skey
+
+        skey = fs.File('fff.x').scanner_key()
+        assert skey == '.x', skey
+        skey = fs.File('fff.xyz').scanner_key()
+        assert skey == '.xyz', skey
+
+        skey = fs.Dir('ddd.x').scanner_key()
+        assert skey is None, skey
 
         d1 = fs.Dir('dir')
         f1 = fs.File('dir/file')
@@ -1063,6 +1073,85 @@ class FSTestCase(unittest.TestCase):
         assert f.get_string(0) == os.path.normpath('foo/bar/baz'), \
                f.get_string(0)
         assert f.get_string(1) == 'baz', f.get_string(1)
+
+class EntryTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test methods specific to the Entry sub-class.
+        """
+        test = TestCmd(workdir='')
+        # FS doesn't like the cwd to be something other than its root.
+        os.chdir(test.workpath(""))
+
+        fs = SCons.Node.FS.FS()
+
+        e1 = fs.Entry('e1')
+        e1.rfile()
+        assert e1.__class__ is SCons.Node.FS.File, e1.__class__
+
+        e2 = fs.Entry('e2')
+        e2.get_found_includes(None, None, None)
+        assert e2.__class__ is SCons.Node.FS.File, e2.__class__
+
+        test.subdir('e3d')
+        test.write('e3f', "e3f\n")
+
+        e3d = fs.Entry('e3d')
+        e3d.get_contents()
+        assert e3d.__class__ is SCons.Node.FS.Dir, e3d.__class__
+
+        e3f = fs.Entry('e3f')
+        e3f.get_contents()
+        assert e3f.__class__ is SCons.Node.FS.File, e3f.__class__
+
+        e3n = fs.Entry('e3n')
+        exc_caught = None
+        try:
+            e3n.get_contents()
+        except AttributeError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected AttributeError"
+
+        test.subdir('e4d')
+        test.write('e4f', "e4f\n")
+
+        e4d = fs.Entry('e4d')
+        exists = e4d.exists()
+        assert e4d.__class__ is SCons.Node.FS.Dir, e4d.__class__
+        assert exists, "e4d does not exist?"
+
+        e4f = fs.Entry('e4f')
+        exists = e4f.exists()
+        assert e4f.__class__ is SCons.Node.FS.File, e4f.__class__
+        assert exists, "e4f does not exist?"
+
+        e4n = fs.Entry('e4n')
+        exists = e4n.exists()
+        assert e4n.__class__ is SCons.Node.FS.File, e4n.__class__
+        assert not exists, "e4n exists?"
+
+        class MyCalc:
+            def __init__(self, val):
+                self.val = val
+            def csig(self, node, cache):
+                return self.val
+        test.subdir('e5d')
+        test.write('e5f', "e5f\n")
+
+        e5d = fs.Entry('e5d')
+        sig = e5d.calc_signature(MyCalc(555))
+        assert e5d.__class__ is SCons.Node.FS.Dir, e5d.__class__
+        assert sig is None, sig
+
+        e5f = fs.Entry('e5f')
+        sig = e5f.calc_signature(MyCalc(666))
+        assert e5f.__class__ is SCons.Node.FS.File, e5f.__class__
+        assert sig == 666, sig
+
+        e5n = fs.Entry('e5n')
+        sig = e5n.calc_signature(MyCalc(777))
+        assert e5n.__class__ is SCons.Node.FS.File, e5n.__class__
+        assert sig is None, sig
+
 
 
 class RepositoryTestCase(unittest.TestCase):
@@ -1613,6 +1702,7 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(FSTestCase())
     suite.addTest(BuildDirTestCase())
+    suite.addTest(EntryTestCase())
     suite.addTest(RepositoryTestCase())
     suite.addTest(find_fileTestCase())
     suite.addTest(StringDirTestCase())

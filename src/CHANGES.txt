@@ -50,6 +50,8 @@ RELEASE 0.XX - XXX
     (or using any other arbitrary action) by making sure all Action
     instances have strfunction() methods.
 
+  - Allow the source of Command() to be a directory.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

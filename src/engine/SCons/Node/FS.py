@@ -291,20 +291,21 @@ class EntryProxy(SCons.Util.Proxy):
         except KeyError:
             return SCons.Util.Proxy.__getattr__(self, name)
 
-class Entry(SCons.Node.Node):
+class Base(SCons.Node.Node):
     """A generic class for file system entries.  This class is for
     when we don't know yet whether the entry being looked up is a file
     or a directory.  Instances of this class can morph into either
     Dir or File objects by a later, more precise lookup.
 
-    Note: this class does not define __cmp__ and __hash__ for efficiency
-    reasons.  SCons does a lot of comparing of Entry objects, and so that
-    operation must be as fast as possible, which means we want to use
-    Python's built-in object identity comparison.
+    Note: this class does not define __cmp__ and __hash__ for
+    efficiency reasons.  SCons does a lot of comparing of
+    Node.FS.{Base,Entry,File,Dir} objects, so those operations must be
+    as fast as possible, which means we want to use Python's built-in
+    object identity comparisons.
     """
 
     def __init__(self, name, directory, fs):
-        """Initialize a generic file system Entry.
+        """Initialize a generic Node.FS.Base object.
         
         Call the superclass initialization, take care of setting up
         our relative and absolute paths, identify our parent
@@ -331,9 +332,9 @@ class Entry(SCons.Node.Node):
         self.duplicate = directory.duplicate
 
     def clear(self):
-        """Completely clear an Entry of all its cached state (so that it
-        can be re-evaluated by interfaces that do continuous integration
-        builds).
+        """Completely clear a Node.FS.Base object of all its cached
+        state (so that it can be re-evaluated by interfaces that do
+        continuous integration builds).
         """
         SCons.Node.Node.clear(self)
         try:
@@ -349,26 +350,11 @@ class Entry(SCons.Node.Node):
         return self.dir
 
     def __str__(self):
-        """A FS node's string representation is its path name."""
+        """A Node.FS.Base object's string representation is its path
+        name."""
         if self.duplicate or self.is_derived():
             return self.get_path()
         return self.srcnode().get_path()
-
-    def get_contents(self):
-        """Fetch the contents of the entry.
-        
-        Since this should return the real contents from the file
-        system, we check to see into what sort of subclass we should
-        morph this Entry."""
-        if os.path.isfile(self.abspath):
-            self.__class__ = File
-            self._morph()
-            return File.get_contents(self)
-        if os.path.isdir(self.abspath):
-            self.__class__ = Dir
-            self._morph()
-            return Dir.get_contents(self)
-        raise AttributeError
 
     def exists(self):
         try:
@@ -438,7 +424,7 @@ class Entry(SCons.Node.Node):
 
     def get_path(self, dir=None):
         """Return path relative to the current working directory of the
-        FS object that owns us."""
+        Node.FS.Base object that owns us."""
         if not dir:
             dir = self.fs.getcwd()
         try:
@@ -489,6 +475,75 @@ class Entry(SCons.Node.Node):
             ret = EntryProxy(self)
             self._proxy = ret
             return ret
+
+class Entry(Base):
+    """This is the class for generic Node.FS entries--that is, things
+    that could be a File or a Dir, but we're just not sure yet.
+    Consequently, the methods in this class really exist just to
+    transform their associated object into the right class when the
+    time comes, and then call the same-named method in the transformed
+    class."""
+
+    def rfile(self):
+        """We're a generic Entry, but the caller is actually looking for
+        a File at this point, so morph into one."""
+        self.__class__ = File
+        self._morph()
+        self.clear()
+        return File.rfile(self)
+
+    def get_found_includes(self, env, scanner, target):
+        """If we're looking for included files, it's because this Entry
+        is really supposed to be a File itself."""
+        node = self.rfile()
+        return node.get_found_includes(env, scanner, target)
+
+    def scanner_key(self):
+        return os.path.splitext(self.name)[1]
+
+    def get_contents(self):
+        """Fetch the contents of the entry.
+        
+        Since this should return the real contents from the file
+        system, we check to see into what sort of subclass we should
+        morph this Entry."""
+        if os.path.isfile(self.abspath):
+            self.__class__ = File
+            self._morph()
+            return File.get_contents(self)
+        if os.path.isdir(self.abspath):
+            self.__class__ = Dir
+            self._morph()
+            return Dir.get_contents(self)
+        raise AttributeError
+
+    def exists(self):
+        """Return if the Entry exists.  Check the file system to see
+        what we should turn into first.  Assume a file if there's no
+        directory."""
+        if os.path.isdir(self.abspath):
+            self.__class__ = Dir
+            self._morph()
+            return Dir.exists(self)
+        else:
+            self.__class__ = File
+            self._morph()
+            self.clear()
+            return File.exists(self)
+
+    def calc_signature(self, calc):
+        """Return the Entry's calculated signature.  Check the file
+        system to see what we should turn into first.  Assume a file if
+        there's no directory."""
+        if os.path.isdir(self.abspath):
+            self.__class__ = Dir
+            self._morph()
+            return Dir.calc_signature(self, calc)
+        else:
+            self.__class__ = File
+            self._morph()
+            self.clear()
+            return File.calc_signature(self, calc)
 
 # This is for later so we can differentiate between Entry the class and Entry
 # the method of the FS class.
@@ -680,7 +735,7 @@ class FS:
         if not klass:
             klass = Entry
 
-        if isinstance(name, Entry):
+        if isinstance(name, Base):
             return self.__checkClass(name, klass)
         else:
             if directory and not isinstance(directory, Dir):
@@ -847,18 +902,12 @@ class FS:
             message = "building associated BuildDir targets: %s" % string.join(map(str, targets))
         return targets, message
 
-# XXX TODO?
-# Annotate with the creator
-# rel_path
-# linked_targets
-# is_accessible
-
-class Dir(Entry):
+class Dir(Base):
     """A class for directories in a file system.
     """
 
     def __init__(self, name, directory, fs):
-        Entry.__init__(self, name, directory, fs)
+        Base.__init__(self, name, directory, fs)
         self._morph()
 
     def _morph(self):
@@ -883,7 +932,7 @@ class Dir(Entry):
         self.builder = 1
         self._sconsign = None
         self.build_dirs = []
-        
+
     def __clearRepositoryCache(self, duplicate=None):
         """Called when we change the repository(ies) for a directory.
         This clears any cached information that is invalidated by changing
@@ -998,6 +1047,10 @@ class Dir(Entry):
         """
         return self.fs.build_dir_target_climb(self, [])
 
+    def scanner_key(self):
+        """A directory does not get scanned."""
+        return None
+
     def calc_signature(self, calc):
         """A directory has no signature."""
         return None
@@ -1055,20 +1108,13 @@ class Dir(Entry):
         have a srcdir attribute set, then that *is* our srcnode."""
         if self.srcdir:
             return self.srcdir
-        return Entry.srcnode(self)
+        return Base.srcnode(self)
 
-# XXX TODO?
-# base_suf
-# suffix
-# addsuffix
-# accessible
-# relpath
-
-class File(Entry):
+class File(Base):
     """A class for files in a file system.
     """
     def __init__(self, name, directory, fs):
-        Entry.__init__(self, name, directory, fs)
+        Base.__init__(self, name, directory, fs)
         self._morph()
 
     def Entry(self, name):
@@ -1107,6 +1153,9 @@ class File(Entry):
     def root(self):
         return self.dir.root()
 
+    def scanner_key(self):
+        return os.path.splitext(self.name)[1]
+
     def get_contents(self):
         if not self.rexists():
             return ''
@@ -1118,29 +1167,6 @@ class File(Entry):
         else:
             return 0
 
-    def calc_signature(self, calc):
-        """
-        Select and calculate the appropriate build signature for a File.
-
-        self - the File node
-        calc - the signature calculation module
-        returns - the signature
-        """
-        try:
-            return self._calculated_sig
-        except AttributeError:
-            if self.is_derived():
-                if SCons.Sig.build_signature:
-                    sig = self.rfile().calc_bsig(calc, self)
-                else:
-                    sig = self.rfile().calc_csig(calc, self)
-            elif not self.rexists():
-                sig = None
-            else:
-                sig = self.rfile().calc_csig(calc, self)
-            self._calculated_sig = sig
-            return sig
-        
     def store_csig(self):
         self.dir.sconsign().set_csig(self.name, self.get_csig())
 
@@ -1191,9 +1217,6 @@ class File(Entry):
             self.found_includes[path] = includes
 
         return includes
-
-    def scanner_key(self):
-        return os.path.splitext(self.name)[1]
 
     def _createDir(self):
         # ensure that the directories for this node are
@@ -1328,7 +1351,6 @@ class File(Entry):
     
     def prepare(self):
         """Prepare for this file to be created."""
-
         SCons.Node.Node.prepare(self)
 
         if self.get_state() != SCons.Node.up_to_date:
@@ -1385,7 +1407,7 @@ class File(Entry):
                     delattr(self, '_rexists')
                 except AttributeError:
                     pass
-        return Entry.exists(self)
+        return Base.exists(self)
 
     def current(self, calc):
         bsig = calc.bsig(self)
@@ -1457,7 +1479,7 @@ def find_file(filename, paths, node_factory = default_fs.File):
             node = node_factory(filename, dir)
             # Return true of the node exists or is a derived node.
             if node.is_derived() or \
-               (isinstance(node, SCons.Node.FS.Entry) and node.exists()):
+               (isinstance(node, SCons.Node.FS.Base) and node.exists()):
                 retval = node
                 break
         except TypeError:

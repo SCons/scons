@@ -419,15 +419,15 @@ class Node:
         try:
             return self._calculated_sig
         except AttributeError:
-            if self.has_builder():
+            if self.is_derived():
                 if SCons.Sig.build_signature:
-                    sig = self.calc_bsig(calc)
+                    sig = self.rfile().calc_bsig(calc, self)
                 else:
-                    sig = self.calc_csig(calc)
-            elif not self.exists():
+                    sig = self.rfile().calc_csig(calc, self)
+            elif not self.rexists():
                 sig = None
             else:
-                sig = self.calc_csig(calc)
+                sig = self.rfile().calc_csig(calc, self)
             self._calculated_sig = sig
             return sig
 

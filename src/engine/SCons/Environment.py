@@ -409,7 +409,8 @@ class Environment:
         source files using the supplied action.  Action may
         be any type that the Builder constructor will accept
         for an action."""
-        bld = SCons.Builder.Builder(action=action)
+        bld = SCons.Builder.Builder(action=action,
+                                    source_factory=SCons.Node.FS.default_fs.Entry)
         return bld(self, target, source)
 
     def Install(self, dir, source):

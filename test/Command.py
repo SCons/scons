@@ -31,6 +31,8 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
+test.subdir('sub')
+
 test.write('build.py', r"""
 import sys
 contents = open(sys.argv[2], 'rb').read()
@@ -40,6 +42,8 @@ file.close()
 """)
 
 test.write('SConstruct', """
+import os
+
 def buildIt(env, target, source):
     contents = open(str(source[0]), 'rb').read()
     file = open(str(target[0]), 'wb')
@@ -47,26 +51,41 @@ def buildIt(env, target, source):
     file.close()
     return 0
 
+def sub(env, target, source):
+    target = str(target[0])
+    source = str(source[0])
+    t = open(target, 'wb')
+    files = os.listdir(source)
+    files.sort()
+    for f in files:
+        t.write(open(os.path.join(source, f), 'rb').read())
+    t.close()
+    return 0
+
 env = Environment()
 env.Command(target = 'f1.out', source = 'f1.in',
             action = buildIt)
 env.Command(target = 'f2.out', source = 'f2.in',
             action = r'%s' + " build.py temp2 $SOURCES\\n" + r'%s' + " build.py $TARGET temp2")
+
 env.Command(target = 'f3.out', source = 'f3.in',
             action = [ [ r'%s', 'build.py', 'temp3', '$SOURCES' ],
                        [ r'%s', 'build.py', '$TARGET', 'temp3'] ])
+env.Command(target = 'f4.out', source = 'sub', action = sub)
 """ % (python, python, python, python))
 
 test.write('f1.in', "f1.in\n")
-
 test.write('f2.in', "f2.in\n")
-
 test.write('f3.in', "f3.in\n")
+test.write(['sub', 'f4a'], "sub/f4a\n")
+test.write(['sub', 'f4b'], "sub/f4b\n")
+test.write(['sub', 'f4c'], "sub/f4c\n")
 
 test.run(arguments = '.')
 
 test.fail_test(test.read('f1.out') != "f1.in\n")
 test.fail_test(test.read('f2.out') != "f2.in\n")
 test.fail_test(test.read('f3.out') != "f3.in\n")
+test.fail_test(test.read('f4.out') != "sub/f4a\nsub/f4b\nsub/f4c\n")
 
 test.pass_test()
