@@ -522,11 +522,15 @@ class DefaultEnvironmentCall:
     thereby prevent expansion of construction variables (since from
     the user's point of view this was called as a global function,
     with no associated construction environment)."""
-    def __init__(self, method_name):
+    def __init__(self, method_name, subst=0):
         self.method_name = method_name
+        if subst:
+            self.factory = SCons.Defaults.DefaultEnvironment
+        else:
+            self.factory = get_DefaultEnvironmentProxy
     def __call__(self, *args, **kw):
-        proxy = get_DefaultEnvironmentProxy()
-        method = getattr(proxy, self.method_name)
+        env = self.factory()
+        method = getattr(env, self.method_name)
         return apply(method, args, kw)
 
 

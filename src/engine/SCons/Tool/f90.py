@@ -111,7 +111,7 @@ def add_to_env(env):
     env['_SHF90PPCOMG']     = ShF90PPCommandGenerator
     env['_SHF90PPCOMSTRG']  = ShF90PPCommandStrGenerator
 
-    env['_F90INCFLAGS'] = '$( ${_concat(INCPREFIX, F90PATH, INCSUFFIX, __env__, RDirs)} $)'
+    env['_F90INCFLAGS'] = '$( ${_concat(INCPREFIX, F90PATH, INCSUFFIX, __env__, RDirs, TARGET)} $)'
     env['_F90COMD']     = '$_F90G $_F90FLAGSG $_F90INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
     env['_F90PPCOMD']   = '$_F90G $_F90FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F90INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
     env['_SHF90COMD']   = '$_SHF90G $_SHF90FLAGSG $_F90INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'

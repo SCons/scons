@@ -110,7 +110,7 @@ def add_to_env(env):
     env['_SHF95PPCOMG']    = ShF95PPCommandGenerator
     env['_SHF95PPCOMSTRG'] = ShF95PPCommandStrGenerator
 
-    env['_F95INCFLAGS'] = '$( ${_concat(INCPREFIX, F95PATH, INCSUFFIX, __env__, RDirs)} $)'
+    env['_F95INCFLAGS'] = '$( ${_concat(INCPREFIX, F95PATH, INCSUFFIX, __env__, RDirs, TARGET)} $)'
 
     env['_F95COMD']     = '$_F95G $_F95FLAGSG $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'
     env['_F95PPCOMD']   = '$_F95G $_F95FLAGSG $CPPFLAGS $_CPPDEFFLAGS $_F95INCFLAGS $_FORTRANMODFLAG -c -o $TARGET $SOURCES'

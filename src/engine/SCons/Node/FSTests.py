@@ -54,7 +54,7 @@ class Scanner:
         scanner_count = scanner_count + 1
         self.hash = scanner_count
         self.node = node
-    def path(self, env, target):
+    def path(self, env, dir, target=None):
         return ()
     def __call__(self, node, env, path):
         return [self.node]

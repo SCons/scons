@@ -71,14 +71,15 @@ class FindPathDirs:
     def __init__(self, variable, fs):
         self.variable = variable
         self.fs = fs
-    def __call__(self, env, dir, argument=None):
+    def __call__(self, env, dir, target=None, argument=None):
         "__cacheable__"
         try:
             path = env[self.variable]
         except KeyError:
             return ()
 
-        path_tuple = tuple(self.fs.Rsearchall(env.subst_path(path),
+        path = env.subst_path(path, target=target)
+        path_tuple = tuple(self.fs.Rsearchall(path,
                                               must_exist = 0, #kwq!
                                               clazz = SCons.Node.FS.Dir,
                                               cwd = dir))
@@ -188,14 +189,14 @@ class Base:
         self.scan_check = scan_check
         self.recursive = recursive
 
-    def path(self, env, dir = None):
+    def path(self, env, dir=None, target=None):
         "__cacheable__"
         if not self.path_function:
             return ()
         if not self.argument is _null:
-            return self.path_function(env, dir, self.argument)
+            return self.path_function(env, dir, target, self.argument)
         else:
-            return self.path_function(env, dir)
+            return self.path_function(env, dir, target)
 
     def __call__(self, node, env, path = ()):
         """

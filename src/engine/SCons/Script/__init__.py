@@ -191,7 +191,7 @@ GlobalDefaultEnvironmentFunctions = [
     'BuildDir',
     'CacheDir',
     'Clean',
-    'Command',
+    #The Command() method is handled separately, below.
     'Depends',
     'Dir',
     'Execute',
@@ -245,3 +245,21 @@ GlobalDefaultBuilders = [
 
 for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
     exec "%s = _SConscript.DefaultEnvironmentCall(%s)" % (name, repr(name))
+
+# The global Command() function must be handled differently than the
+# global functions for other construction environment methods because
+# we want people to be able to use Actions that must expand $TARGET
+# and $SOURCE later, when (and if) the Action is invoked to build
+# the target(s).  We do this with the subst=1 argument, which creates
+# a DefaultEnvironmentCall instance that wraps up a normal default
+# construction environment that performs variable substitution, not a
+# proxy that doesn't.
+#
+# There's a flaw here, though, because any other $-variables on a command
+# line will *also* be expanded, each to a null string, but that should
+# only be a problem in the unusual case where someone was passing a '$'
+# on a command line and *expected* the $ to get through to the shell
+# because they were calling Command() and not env.Command()...  This is
+# unlikely enough that we're going to leave this as is and cross that
+# bridge if someone actually comes to it.
+Command = _SConscript.DefaultEnvironmentCall('Command', subst=1)
