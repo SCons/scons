@@ -1757,6 +1757,21 @@ class EnvironmentTestCase(unittest.TestCase):
         assert e2['X'] == 'xxx', e2['X']
         assert e2['Y'] == 'yyy', e2['Y']
 
+    def test_Execute(self):
+        """Test the Execute() method"""
+
+        class MyAction:
+            def __init__(self, *args, **kw):
+                self.args = args
+            def __call__(self, target, source, env):
+                return "%s executed" % self.args
+
+        env = Environment()
+        env.Action = MyAction
+
+        result = env.Execute("foo")
+        assert result == "foo executed", result
+
     def test_File(self):
         """Test the File() method"""
         class MyFS:
