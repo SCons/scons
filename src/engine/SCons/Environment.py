@@ -204,6 +204,17 @@ class Environment:
             tgt = tgt[0]
         return tgt
 
+    def InstallAs(self, target, source):
+        """Install sources as targets."""
+        sources = SCons.Util.scons_str2nodes(source)
+        targets = SCons.Util.scons_str2nodes(target)
+        ret = []
+        for src, tgt in map(lambda x, y: (x, y), sources, targets):
+            ret.append(InstallBuilder(self, tgt, src))
+        if len(ret) == 1:
+            ret = ret[0]
+        return ret
+  
     def subst(self, string):
 	"""Recursively interpolates construction variables from the
 	Environment into the specified string, returning the expanded

@@ -215,7 +215,7 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env1 == env2
 
     def test_Install(self):
-	"""Test Install method"""
+	"""Test Install and InstallAs methods"""
         env=Environment()
         tgt = env.Install('export', [ 'build/foo1', 'build/foo2' ])
         paths = map(str, tgt)
@@ -225,6 +225,15 @@ class EnvironmentTestCase(unittest.TestCase):
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
 
+        tgt = env.InstallAs(target='foo1 foo2', source='bar1 bar2')
+        assert len(tgt) == 2, len(tgt)
+        paths = map(lambda x: str(x.sources[0]), tgt)
+        paths.sort()
+        expect = map(os.path.normpath, [ 'bar1', 'bar2' ])
+        assert paths == expect, paths
+        for tnode in tgt:
+            assert tnode.builder == InstallBuilder
+            
     def test_InstallAs(self):
 	pass	# XXX
 

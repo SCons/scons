@@ -14,6 +14,8 @@ RELEASE 0.03 -
 
   - Performance improvements in the Node.FS and Sig.Calculator classes.
 
+  - Add the InstallAs() method.
+
   From Steven Knight:
 
   - Search both /usr/lib and /usr/local/lib for scons directories by
@@ -44,6 +46,8 @@ RELEASE 0.03 -
 
   - Use one CPlusPlusAction in the Object Builder's action dictionary,
     instead of letting it create multiple identical instances.
+
+  - Document the Install() and InstallAs() methods.
 
   From Steve Leblanc:
 

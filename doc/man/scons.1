@@ -582,6 +582,31 @@ env.Depends('foo.c', 'foo.h')
 .PP
 .fi
 
+Additional methods include:
+
+.IP Install
+Installs one or more files in a destination directory.
+The file names remain the same.
+.IP
+.nf
+env.Install(dir = '/usr/local/bin', source = 'foo bar')
+.PP
+.fi
+
+.IP InstallAs
+Installs one or more files as specific file names.
+This allows changing a file name as part of the
+installation:
+.IP
+.nf
+env.Install(dir = '/usr/local/bin/foo', source = 'foo_debug')
+env.Install(target = '../lib/libfoo.a ../lib/libbar.a',
+            source = 'libFOO.a libBAR.a')
+.PP
+.fi
+It is an error if the target and source
+list different numbers of files.
+
 .SS Construction Variables
 
 A construction environment has an associated dictionary of construction
