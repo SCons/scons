@@ -150,8 +150,49 @@ class NodeTestCase(unittest.TestCase):
 	node.add_dependency(['four', 'five', 'six'])
 	kids = node.children()
 	kids.sort()
-	print kids
 	assert kids == ['five', 'four', 'one', 'six', 'three', 'two']
+
+    def test_walker(self):
+	"""Test walking a Node tree.
+	"""
+
+	class MyNode(SCons.Node.Node):
+	    def __init__(self, name):
+		SCons.Node.Node.__init__(self)
+		self.name = name
+
+    	n1 = MyNode("n1")
+
+	nw = SCons.Node.Walker(n1)
+	assert nw.next().name ==  "n1"
+	assert nw.next() == None
+
+    	n2 = MyNode("n2")
+    	n3 = MyNode("n3")
+	n1.add_source([n2, n3])
+
+	nw = SCons.Node.Walker(n1)
+	assert nw.next().name ==  "n2"
+	assert nw.next().name ==  "n3"
+	assert nw.next().name ==  "n1"
+	assert nw.next() == None
+
+	n4 = MyNode("n4")
+	n5 = MyNode("n5")
+	n6 = MyNode("n6")
+	n7 = MyNode("n7")
+	n2.add_source([n4, n5])
+	n3.add_dependency([n6, n7])
+
+	nw = SCons.Node.Walker(n1)
+	assert nw.next().name ==  "n4"
+	assert nw.next().name ==  "n5"
+	assert nw.next().name ==  "n2"
+	assert nw.next().name ==  "n6"
+	assert nw.next().name ==  "n7"
+	assert nw.next().name ==  "n3"
+	assert nw.next().name ==  "n1"
+	assert nw.next() == None
 
 
 

@@ -84,3 +84,51 @@ class Node:
 
     def children(self):
 	return self.sources + self.depends
+
+
+
+
+class Wrapper:
+    def __init__(self, node):
+        self.node = node
+        self.kids = node.children()
+        # XXX randomize kids here, if requested
+
+class Walker:
+    """An iterator for walking a Node tree.
+    
+    This is depth-first, children are visited before the parent.
+    The Walker object can be initialized with any node, and 
+    returns the next node on the descent with each next() call.
+    """
+    def __init__(self, node):
+	self.current = Wrapper(node)
+	self.stack = []
+	self.top = self.current
+
+    def next(self):
+	"""Return the next node for this walk of the tree.
+
+	This function is intentionally iterative, not recursive,
+	to sidestep any issues of stack size limitations.
+	"""
+	if not self.current:
+	    return None
+
+	while 1:
+	    if self.current.kids:
+	    	k = Wrapper(self.current.kids[0])
+	    	self.current.kids = self.current.kids[1:]
+		if k.kids:
+		    self.stack.append(self.current)
+		    self.current = k
+		else:
+		    return k.node
+	    else:
+		n = self.current.node
+	        if self.stack:
+		    self.current = self.stack[-1]
+		    self.stack = self.stack[0:-1]
+		else:
+		    self.current = None
+		return n
