@@ -20,7 +20,7 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.08 - 
+RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
 
   This is the eighth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
@@ -139,6 +139,11 @@ RELEASE 0.08 -
 
   KNOWN PROBLEMS IN THIS RELEASE:
 
+    For a complete list of known problems, consult the SCons bug tracker
+    page at SourceForge:
+
+        http://sourceforge.net/tracker/?atid=398971&group_id=30337&func=browse
+
     - Support for parallel builds (-j) does not work on WIN32 systems
       prior to *official* Python release 2.2 (not 2.2 pre-releases).
 
@@ -174,11 +179,11 @@ RELEASE 0.08 -
 
         - Repository search paths (-Y)
 
-	- Configurable signature calculation
+        - Configurable signature calculation
 
-	- No support for caching built files.
+        - No support for caching built files.
 
-	- No support yet for the following command-line options:
+        - No support yet for the following command-line options:
 
              -d -e -l --list-actions --list-derived --list-where
              -o -p -r -R --random -w --write-filenames -W
