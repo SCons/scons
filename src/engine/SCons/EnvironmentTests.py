@@ -2245,6 +2245,10 @@ class EnvironmentTestCase(unittest.TestCase):
             env.SConsignFile('__$BAR', 7)
             assert fnames[4] == os.path.join(os.sep, 'dir', '__', 'File'), fnames
             assert dbms[4] == 7, dbms
+
+            env.SConsignFile()
+            assert fnames[5] == os.path.join(os.sep, 'dir', '.sconsign'), fnames
+            assert dbms[5] == None, dbms
         finally:
             SCons.Sig.SConsignFile = save_Sig_SConsignFile
 

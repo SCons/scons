@@ -141,13 +141,42 @@ sys.path = libs + sys.path
 # END STANDARD SCons SCRIPT HEADER
 ##############################################################################
 
+import cPickle
+import imp
+import string
+import whichdb
+
+import SCons.Sig
+
+def my_whichdb(filename):
+    try:
+        f = open(filename + ".dblite", "rb")
+        f.close()
+        return "SCons.dblite"
+    except IOError:
+        pass
+    return _orig_whichdb(filename)
+
+_orig_whichdb = whichdb.whichdb
+whichdb.whichdb = my_whichdb
+
+def my_import(mname):
+    if '.' in mname:
+        i = string.rfind(mname, '.')
+        parent = my_import(mname[:i])
+        fp, pathname, description = imp.find_module(mname[i+1:],
+                                                    parent.__path__)
+    else:
+        fp, pathname, description = imp.find_module(mname)
+    return imp.load_module(mname, fp, pathname, description)
+
 PF_bsig      = 0x1
 PF_csig      = 0x2
 PF_timestamp = 0x4
 PF_implicit  = 0x8
 PF_all       = PF_bsig | PF_csig | PF_timestamp | PF_implicit
 
-Do_Func = None
+Do_Call = None
 Print_Directories = []
 Print_Entries = []
 Print_Flags = 0
@@ -192,38 +221,63 @@ def printentries(entries):
         for name, e in entries.items():
             printfield(name, e)
 
-import SCons.Sig
+class Do_SConsignDB:
+    def __init__(self, dbm_name, dbm):
+        self.dbm_name = dbm_name
+        self.dbm = dbm
 
-def Do_SConsignDB(name):
-    import anydbm
-    import cPickle
-    try:
-        open(name, 'rb')
-    except (IOError, OSError), e:
-        sys.stderr.write("sconsign: %s\n" % (e))
-        return
-    try:
-        db = anydbm.open(name, "r")
-    except anydbm.error, e:
-        sys.stderr.write("sconsign: ignoring invalid .sconsign.dbm file `%s': %s\n" % (name, e))
-        return
-    if Print_Directories:
-        for dir in Print_Directories:
+    def __call__(self, fname):
+        # The *dbm modules stick their own file suffixes on the names
+        # that are passed in.  This is causes us to jump through some
+        # hoops here to be able to allow the user
+        try:
+            # Try opening the specified file name.  Example:
+            #   SPECIFIED                  OPENED BY self.dbm.open()
+            #   ---------                  -------------------------
+            #   .sconsign               => .sconsign.dblite
+            #   .sconsign.dblite        => .sconsign.dblite.dblite
+            db = self.dbm.open(fname, "r")
+        except (IOError, OSError), e:
+            print_e = e
             try:
-                val = db[dir]
-            except KeyError:
-                sys.stderr.write("sconsign: no dir `%s' in `%s'\n" % (dir, args[0]))
-            else:
-                entries = cPickle.loads(val)
-                print '=== ' + dir + ':'
-                printentries(entries)
-    else:
-        keys = db.keys()
-        keys.sort()
-        for dir in keys:
-            entries = cPickle.loads(db[dir])
-            print '=== ' + dir + ':'
-            printentries(entries)
+                # That didn't work, so try opening the base name,
+                # so that if the actually passed in 'sconsign.dblite'
+                # (for example), the dbm module will put the suffix back
+                # on for us and open it anyway.
+                db = self.dbm.open(os.path.splitext(fname)[0], "r")
+            except (IOError, OSError):
+                # That didn't work either.  See if the file name
+                # they specified just exists (independent of the dbm
+                # suffix-mangling).
+                try:
+                    open(fname, "r")
+                except (IOError, OSError), e:
+                    # Nope, that file doesn't even exist, so report that
+                    # fact back.
+                    print_e = e
+                sys.stderr.write("sconsign: %s\n" % (print_e))
+                return
+        except:
+            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s'\n" % (self.dbm_name, fname))
+            return
+
+        if Print_Directories:
+            for dir in Print_Directories:
+                try:
+                    val = db[dir]
+                except KeyError:
+                    sys.stderr.write("sconsign: no dir `%s' in `%s'\n" % (dir, args[0]))
+                else:
+                    self.printentries(dir, val)
+        else:
+            keys = db.keys()
+            keys.sort()
+            for dir in keys:
+                self.printentries(dir, db[dir])
+
+    def printentries(self, dir, val):
+        print '=== ' + dir + ':'
+        printentries(cPickle.loads(val))
 
 def Do_SConsignDir(name):
     try:
@@ -237,9 +291,6 @@ def Do_SConsignDir(name):
         sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s'\n" % name)
         return
     printentries(sconsign.entries)
-
-Function_Map = {'dbm'      : Do_SConsignDB,
-                'sconsign' : Do_SConsignDir}
 
 ##############################################################################
 
@@ -275,12 +326,19 @@ for o, a in opts:
     elif o in ('-e', '--entry'):
         Print_Entries.append(a)
     elif o in ('-f', '--format'):
-        try:
-            Do_Func = Function_Map[a]
-        except KeyError:
-            sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
-            print helpstr
-            sys.exit(2)
+        Module_Map = {'dblite'   : 'SCons.dblite',
+                      'sconsign' : None}
+        dbm_name = Module_Map.get(a, a)
+        if dbm_name:
+            try:
+                dbm = my_import(dbm_name)
+            except:
+                sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
+                print helpstr
+                sys.exit(2)
+            Do_Call = Do_SConsignDB(a, dbm)
+        else:
+            Do_Call = Do_SConsignDir
     elif o in ('-h', '--help'):
         print helpstr
         sys.exit(0)
@@ -295,13 +353,18 @@ for o, a in opts:
 
 if Print_Flags == 0:
     Print_Flags = PF_all
-    
-for a in args:
-    if Do_Func:
-        Do_Func(a)
-    elif a[-4:] == '.dbm':
-        Do_SConsignDB(a)
-    else:
-        Do_SConsignDir(a)
+
+if Do_Call:
+    for a in args:
+        Do_Call(a)
+else:
+    for a in args:
+        dbm_name = whichdb.whichdb(a)
+        if dbm_name:
+            Map_Module = {'SCons.dblite' : 'dblite'}
+            dbm = my_import(dbm_name)
+            Do_SConsignDB(Map_Module.get(dbm_name, dbm_name), dbm)(a)
+        else:
+            Do_SConsignDir(a)
 
 sys.exit(0)

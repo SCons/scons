@@ -326,8 +326,8 @@ def SConsignFile(name, dbm_module=None):
     global SConsign_db
     if SConsign_db is None:
         if dbm_module is None:
-            import anydbm
-            dbm_module = anydbm
+            import SCons.dblite
+            dbm_module = SCons.dblite
         SConsign_db = dbm_module.open(name, "c")
 
     global SConsignForDirectory

@@ -3368,17 +3368,11 @@ The optional
 .I dbm_module
 argument can be used to specify
 which Python database module
-The default is to use
-.B dumbdbm
-if the specified
-.I file
-does not already exist,
-and to use
-.B anydbm
-to auto-detect the database format
-if the
-.I file
-already exists.
+The default is to use a custom
+.B SCons.dblite
+module that uses pickled
+Python data structures,
+and which works on all Python versions from 1.5.2 on.
 
 Examples:
 

@@ -27,6 +27,16 @@ RELEASE 0.96 - XXX
 
   Please note the following important changes since release 0.95:
 
+    - The SConsignFile() function now uses an internally-supplied
+      SCons.dblite module as the default DB scheme for the .sconsign file.
+      If you are using the SConsignFile() function without an explicitly
+      specified dbm_module argument, this will cause all of your targets
+      to be recompiled the first time you use SCons 0.96.  To preserve the
+      previous behavior, specify the "anydbm" module explicitly:
+
+          import anydbm
+          SConsignFile('.sconsign_file_name', anydbm)
+
     - The internal Scanner.add_skey() method longer works for the default
       scanners, which now use construction variables to hold their lists
       of suffixes.  If you had a custom Tool specification that was

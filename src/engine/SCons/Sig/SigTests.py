@@ -502,7 +502,7 @@ class SConsignFileTestCase(unittest.TestCase):
 
         SCons.Sig.SConsignFile(file)
 
-        assert not SCons.Sig.SConsign_db is None, SCons.Sig.SConsign_db
+        assert not SCons.Sig.SConsign_db is SCons.dblite, SCons.Sig.SConsign_db
 
         class Fake_DBM:
             def open(self, name, mode):
