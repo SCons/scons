@@ -340,12 +340,25 @@ class ExecutorTestCase(unittest.TestCase):
     def test_get_source_binfo(self):
         """Test fetching the build signature info for the sources"""
         env = MyEnvironment()
-        targets = [MyNode('t')]
-        sources = [MyNode('s1'), MyNode('s2')]
-        x = SCons.Executor.Executor('b', env, [{}], targets, sources)
+        t1 = MyNode('t')
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+        x = SCons.Executor.Executor('b', env, [{}], [t1], [s1, s2])
+
         b = x.get_source_binfo('C')
-        assert b == [(sources[0], 'cs-C-s1', 's1'),
-                     (sources[1], 'cs-C-s2', 's2')], b
+        assert b == ([s1, s2],
+                     ['cs-C-s1', 'cs-C-s2'],
+                     ['s1', 's2']), b
+
+        b = x.get_source_binfo('C', [s1])
+        assert b == ([s2],
+                     ['cs-C-s2'],
+                     ['s2']), b
+
+        b = x.get_source_binfo('C', [s2])
+        assert b == ([s1],
+                     ['cs-C-s1'],
+                     ['s1']), b
 
 
 

@@ -578,18 +578,16 @@ class Node:
 
         executor = self.get_executor()
 
-        sourcelist = executor.get_source_binfo(calc)
+        sourcelist, sourcesigs, bsources = executor.get_source_binfo(calc, self.ignore)
         depends = self.depends
         implicit = self.implicit or []
 
         if self.ignore:
-            sourcelist = filter(lambda t, s=self: s.do_not_ignore(t[0]), sourcelist)
             depends = filter(self.do_not_ignore, depends)
             implicit = filter(self.do_not_ignore, implicit)
 
         def calc_signature(node, calc=calc):
             return node.calc_signature(calc)
-        sourcesigs = map(lambda t: t[1], sourcelist)
         dependsigs = map(calc_signature, depends)
         implicitsigs = map(calc_signature, implicit)
 
@@ -600,7 +598,7 @@ class Node:
             binfo.bactsig = calc.module.signature(executor)
             sigs.append(binfo.bactsig)
 
-        binfo.bsources = map(lambda t: t[2], sourcelist)
+        binfo.bsources = bsources
         binfo.bdepends = map(str, depends)
         binfo.bimplicit = map(str, implicit)
 
