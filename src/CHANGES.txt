@@ -143,6 +143,9 @@ RELEASE 0.97 - XXX
     dictionary to map user-specified values to legal values from the list
     (like EnumOption() already doee).
 
+  - Add specific exceptions to try:-except: blocks without any listed,
+    so that they won't catch and mask keyboard interrupts.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
@@ -363,6 +366,10 @@ RELEASE 0.97 - XXX
 
   - Have the Qt Builder make uic-generated files dependent on the .ui.h
     file, if one exists.
+
+  - Add a test to make sure that SCons source code does not contain
+    try:-except: blocks that catch all errors, which potentially catch
+    and mask keyboard interrupts.
 
   From Russell Yanofsky:
 

@@ -68,7 +68,7 @@ class Value(SCons.Node.Node):
         value contents."""
         try:
             binfo = self.binfo
-        except:
+        except AttributeError:
             binfo = self.binfo = self.new_binfo()
         try:
             return binfo.csig

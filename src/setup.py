@@ -164,9 +164,11 @@ class install_lib(_install_lib):
                 # ...and they didn't explicitly ask for the standard
                 # directory, so guess based on what's out there.
                 try:
-                    e = filter(lambda x: x[:6] == "scons-", os.listdir(prefix))
-                except:
+                    l = os.listdir(prefix)
+                except OSError:
                     e = None
+                else:
+                    e = filter(lambda x: x[:6] == "scons-", l)
                 if e:
                     # We found a path name (e.g.) /usr/lib/scons-XXX,
                     # so pick the version-specific directory.

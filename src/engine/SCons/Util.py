@@ -181,7 +181,7 @@ else:
 def to_String_for_signature(obj):
     try:
         f = obj.for_signature
-    except:
+    except AttributeError:
         return to_String(obj)
     else:
         return f()
