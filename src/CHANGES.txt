@@ -51,6 +51,9 @@ RELEASE 0.97 - XXX
     $RPCGEN, $RPCGENFLAGS, $RPCGENCLIENTFLAGS, $RPCGENHEADERFLAGS,
     $RPCGENSERVICEFLAGS, $RPCGENXDRFLAGS.
 
+  - Provide more info in the error message when a user tries to build
+    a target multiple ways.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
