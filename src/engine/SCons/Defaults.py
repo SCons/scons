@@ -39,18 +39,18 @@ import SCons.Builder
 
 Object = SCons.Builder.Builder(name = 'Object',
                                action = 'cc -c -o $target $sources',
-                               input_suffix='.c',
-                               output_suffix='.o')
-Program = SCons.Builder.MultiStepBuilder(name = 'Program',
-                                         action = 'cc -o $target $sources',
-                                         builders = [ Object ])
-Library = SCons.Builder.MultiStepBuilder(name = 'Library',
-                                         action = 'ar r $target $sources\nranlib $target',
-                                         builders = [ Object ])
-  
-Library = SCons.Builder.TargetNamingBuilder(builder = Library,
-                                            prefix='lib',
-                                            suffix='.a')
+                               src_suffix='.c',
+                               suffix='.o')
+
+Program = SCons.Builder.Builder(name = 'Program',
+                                action = 'cc -o $target $sources',
+                                builders = [ Object ])
+
+Library = SCons.Builder.Builder(name = 'Library',
+                                action = 'ar r $target $sources\nranlib $target',
+                                prefix = 'lib',
+                                suffix = '.a',
+                                builders = [ Object ])
 
 Builders = [Object, Program, Library]
 

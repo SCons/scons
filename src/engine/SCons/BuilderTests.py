@@ -59,12 +59,13 @@ class BuilderTestCase(unittest.TestCase):
     def test__call__(self):
 	"""Test calling a builder to establish source dependencies
 	"""
-	env = Environment()
 	class Node:
 	    def __init__(self, name):
 		self.name = name
 		self.sources = []
 		self.derived = 0
+	    def __str__(self):
+	        return self.name
 	    def builder_set(self, builder):
 		self.builder = builder
 	    def env_set(self, env):
@@ -91,10 +92,10 @@ class BuilderTestCase(unittest.TestCase):
     def test_cmp(self):
 	"""Test simple comparisons of Builder objects
 	"""
-	b1 = SCons.Builder.Builder(input_suffix = '.o')
-	b2 = SCons.Builder.Builder(input_suffix = '.o')
+	b1 = SCons.Builder.Builder(src_suffix = '.o')
+	b2 = SCons.Builder.Builder(src_suffix = '.o')
 	assert b1 == b2
-	b3 = SCons.Builder.Builder(input_suffix = '.x')
+	b3 = SCons.Builder.Builder(src_suffix = '.x')
 	assert b1 != b3
 	assert b2 != b3
 
@@ -198,17 +199,6 @@ class BuilderTestCase(unittest.TestCase):
 	c = test.read(outfile, 'r')
 	assert c == "act.py: syzygy\nfunction2\nclass2a\nclass2b\n", c
 
-    def test_insuffix(self):
-	"""Test Builder creation with a specified input suffix
-	
-	Make sure that the '.' separator is appended to the
-	beginning if it isn't already present.
-	"""
-	builder = SCons.Builder.Builder(input_suffix = '.c')
-	assert builder.insuffix == '.c'
-	builder = SCons.Builder.Builder(input_suffix = 'c')
-	assert builder.insuffix == '.c'
-
     def test_name(self):
 	"""Test Builder creation with a specified name
 	"""
@@ -225,33 +215,52 @@ class BuilderTestCase(unittest.TestCase):
 	builder = SCons.Builder.Builder(node_factory = FooFactory)
 	assert builder.node_factory is FooFactory
 
-    def test_outsuffix(self):
-	"""Test Builder creation with a specified output suffix
+    def test_prefix(self):
+	"""Test Builder creation with a specified target prefix
+
+	Make sure that there is no '.' separator appended.
+	"""
+	builder = SCons.Builder.Builder(prefix = 'lib.')
+	assert builder.prefix == 'lib.'
+	builder = SCons.Builder.Builder(prefix = 'lib')
+	assert builder.prefix == 'lib'
+	tgt = builder(env, target = 'tgt1', source = 'src1')
+	assert tgt.path == 'libtgt1', \
+	        "Target has unexpected name: %s" % tgt[0].path
+
+    def test_src_suffix(self):
+	"""Test Builder creation with a specified source file suffix
+	
+	Make sure that the '.' separator is appended to the
+	beginning if it isn't already present.
+	"""
+	builder = SCons.Builder.Builder(src_suffix = '.c')
+	assert builder.src_suffix == '.c'
+	builder = SCons.Builder.Builder(src_suffix = 'c')
+	assert builder.src_suffix == '.c'
+	tgt = builder(env, target = 'tgt2', source = 'src2')
+	assert tgt.sources[0].path == 'src2.c', \
+	        "Source has unexpected name: %s" % tgt.sources[0].path
+
+    def test_suffix(self):
+	"""Test Builder creation with a specified target suffix
 
 	Make sure that the '.' separator is appended to the
 	beginning if it isn't already present.
 	"""
-	builder = SCons.Builder.Builder(input_suffix = '.o')
-	assert builder.insuffix == '.o'
-	builder = SCons.Builder.Builder(input_suffix = 'o')
-	assert builder.insuffix == '.o'
-
-    def test_TargetNamingBuilder(self):
-        """Testing the TargetNamingBuilder class."""
-        builder = SCons.Builder.Builder(action='foo')
-        proxy = SCons.Builder.TargetNamingBuilder(builder=builder,
-                                                  prefix='foo',
-                                                  suffix='bar')
-        tgt = proxy(env, target='baz', source='bleh')
-        assert tgt.path == 'foobazbar', \
-               "Target has unexpected name: %s" % tgt[0].path
-        assert tgt.builder == builder
+	builder = SCons.Builder.Builder(suffix = '.o')
+	assert builder.suffix == '.o'
+	builder = SCons.Builder.Builder(suffix = 'o')
+	assert builder.suffix == '.o'
+	tgt = builder(env, target = 'tgt3', source = 'src3')
+	assert tgt.path == 'tgt3.o', \
+	        "Target has unexpected name: %s" % tgt[0].path
 
     def test_MultiStepBuilder(self):
         """Testing MultiStepBuilder class."""
         builder1 = SCons.Builder.Builder(action='foo',
-                                        input_suffix='.bar',
-                                        output_suffix='.foo')
+                                        src_suffix='.bar',
+                                        suffix='.foo')
         builder2 = SCons.Builder.MultiStepBuilder(action='foo',
                                                   builders = [ builder1 ])
         tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')

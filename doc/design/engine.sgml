@@ -691,8 +691,8 @@ Feedback?
 
 	<programlisting>
 	WebPage = Builder(command = 'htmlgen $HTMLGENFLAGS $sources > $target',
-	                input_suffix = '.in',
-	                output_suffix = '.html')
+	                  suffix = '.html',
+	                  src_suffix = '.in')
 	</programlisting>
 
   <para>
@@ -708,7 +708,7 @@ Feedback?
 	        return 1
 
 	OtherBuilder1 = Builder(function = update,
-	                input_suffix = ['.in', '.input'])
+	                        src_suffix = ['.in', '.input'])
 	</programlisting>
 
    <para>
@@ -723,8 +723,8 @@ Feedback?
 	        return 1
 
 	OtherBuilder2 = Builder(function = update_arg,
-	                function_arg = 'xyzzy',
-	                input_suffix = ['.in', '.input'])
+	                        function_arg = 'xyzzy',
+	                        src_suffix = ['.in', '.input'])
 	</programlisting>
 
   <para>
@@ -748,8 +748,8 @@ Feedback?
 
 	<programlisting>
 	WebPage = Builder(command = 'htmlgen $HTMLGENFLAGS $sources > $target',
-	                input_suffix = '.in',
-	                output_suffix = '.html')
+	                  suffix = '.html',
+	                  src_suffix = '.in')
 	env = Environment(BUILDERS = ['WebPage'])
 	env.WebPage(target = 'foo.html', source = 'foo.in')
 	# Builds 'bar.html' on UNIX, 'bar.htm' on Windows NT:
@@ -765,12 +765,42 @@ Feedback?
 
   <para>
 
-   A &Builder; object may optionally be initialized with a list of
-   the expected suffixes of input files for this object.  It may also
-   be initialized with an output suffix for the files that this
-   &Builder; object builds.  These arguments are used in automatic
-   dependency analysis and in generating output file names that don't
-   have suffixes supplied explicitly.
+   A &Builder; object may optionally be initialized with a list of:
+
+  </para>
+
+   <itemizedlist>
+     <listitem>
+     <para>
+
+       the prefix of the target file (e.g., 'lib' for libraries)
+
+     </para>
+     </listitem>
+
+     <listitem>
+     <para>
+
+       the suffix of the target file (e.g., '.a' for libraries)
+
+     </para>
+     </listitem>
+
+     <listitem>
+     <para>
+
+       the expected suffixes of the input files
+       (e.g., '.o' for object files)
+
+     </para>
+     </listitem>
+   </itemizedlist>
+
+   <para>
+
+    These arguments are used in automatic
+    dependency analysis and to generate output file names that don't
+    have suffixes supplied explicitly.
 
   </para>
  </section>
@@ -788,7 +818,7 @@ Feedback?
 
 	<programlisting>
 	build = Builder(function = my_build)
-	build_out = build.Copy(output_suffix = '.out')
+	build_out = build.Copy(suffix = '.out')
 	</programlisting>
 
   <para>
@@ -891,8 +921,8 @@ Feedback?
 <REMARK>
 Do we even need this anymore?
 Now that the individual builders
-have specified <literal>input_suffix</literal>
-and <literal>output_suffix</literal> values,
+have specified <literal>suffix</literal>
+and <literal>src_suffix</literal> values,
 all of the information we need to support
 the &MakeBuilder; builder is right there in the environment.
 I think this is a holdover from before I
@@ -1237,7 +1267,7 @@ you set it up with another environment...
 <REMARK>
 If the &BUILDERMAP; proves unnecessary,
 we could/should get rid of this one, too,
-by adding a parallel <literal>input_suffix</literal>
+by adding a parallel <literal>src_suffix</literal>
 argument to the &Scanner; factory...
 Comments?
 </REMARK>
