@@ -180,14 +180,14 @@ class TestSCons(TestCommon):
                build_str + \
                term
 
-    def up_to_date(self, options = None, arguments = None, **kw):
+    def up_to_date(self, options = None, arguments = None, read_str = "", **kw):
         s = ""
         for arg in string.split(arguments):
             s = s + "scons: `%s' is up to date.\n" % arg
             if options:
                 arguments = options + " " + arguments
         kw['arguments'] = arguments
-        kw['stdout'] = self.wrap_stdout(build_str = s)
+        kw['stdout'] = self.wrap_stdout(read_str = read_str, build_str = s)
         apply(self.run, [], kw)
 
     def not_up_to_date(self, options = None, arguments = None, **kw):

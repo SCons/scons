@@ -58,6 +58,14 @@ this module:
         pre-substitution representations, and *then* execute an action
         without worrying about the specific Actions involved.
 
+There is a related independent ActionCaller class that looks like a
+regular Action, and which serves as a wrapper for arbitrary functions
+that we want to let the user specify the arguments to now, but actually
+execute later (when an out-of-date check determines that it's needed to
+be executed, for example).  Objects of this class are returned by an
+ActionFactory class that provides a __call__() method as a convenient
+way for wrapping up the functions.
+
 """
 
 #
@@ -512,11 +520,21 @@ class FunctionAction(ActionBase):
         """
         try:
             # "self.execfunction" is a function.
-            code = self.execfunction.func_code.co_code
+            contents = str(self.execfunction.func_code.co_code)
         except AttributeError:
             # "self.execfunction" is a callable object.
-            code = self.execfunction.__call__.im_func.func_code.co_code
-        return str(code) + env.subst(string.join(map(lambda v: '${'+v+'}',
+            try:
+                contents = str(self.execfunction.__call__.im_func.func_code.co_code)
+            except AttributeError:
+                try:
+                    # See if execfunction will do the heavy lifting for us.
+                    gc = self.execfunction.get_contents
+                except AttributeError:
+                    # This is weird, just do the best we can.
+                    contents = str(self.execfunction)
+                else:
+                    contents = gc(target, source, env, dict)
+        return contents + env.subst(string.join(map(lambda v: '${'+v+'}',
                                                      self.varlist)))
 
 class ListAction(ActionBase):
@@ -565,3 +583,64 @@ class ListAction(ActionBase):
                                       x.get_contents(t, s, e, d),
                                self.list),
                            "")
+
+class ActionCaller:
+    """A class for delaying calling an Action function with specific
+    (positional and keyword) arguments until the Action is actually
+    executed.
+
+    This class looks to the rest of the world like a normal Action object,
+    but what it's really doing is hanging on to the arguments until we
+    have a target, source and env to use for the expansion.
+    """
+    def __init__(self, parent, args, kw):
+        self.parent = parent
+        self.args = args
+        self.kw = kw
+    def get_contents(self, target, source, env, dict=None):
+        actfunc = self.parent.actfunc
+        try:
+            # "self.actfunc" is a function.
+            contents = str(actfunc.func_code.co_code)
+        except AttributeError:
+            # "self.actfunc" is a callable object.
+            try:
+                contents = str(actfunc.__call__.im_func.func_code.co_code)
+            except AttributeError:
+                # No __call__() method, so it might be a builtin
+                # or something like that.  Do the best we can.
+                contents = str(actfunc)
+        return contents
+    def subst_args(self, target, source, env):
+        return map(lambda x, e=env, t=target, s=source:
+                          e.subst(x, 0, t, s),
+                   self.args)
+    def subst_kw(self, target, source, env):
+        kw = {}
+        for key in self.kw.keys():
+            kw[key] = env.subst(self.kw[key], 0, target, source)
+        return kw
+    def __call__(self, target, source, env):
+        args = self.subst_args(target, source, env)
+        kw = self.subst_kw(target, source, env)
+        return apply(self.parent.actfunc, args, kw)
+    def strfunction(self, target, source, env):
+        args = self.subst_args(target, source, env)
+        kw = self.subst_kw(target, source, env)
+        return apply(self.parent.strfunc, args, kw)
+
+class ActionFactory:
+    """A factory class that will wrap up an arbitrary function
+    as an SCons-executable Action object.
+
+    The real heavy lifting here is done by the ActionCaller class.
+    We just collect the (positional and keyword) arguments that we're
+    called with and give them to the ActionCaller object we create,
+    so it can hang onto them until it needs them.
+    """
+    def __init__(self, actfunc, strfunc):
+        self.actfunc = actfunc
+        self.strfunc = strfunc
+    def __call__(self, *args, **kw):
+        ac = ActionCaller(self, args, kw)
+        return Action(ac, strfunction=ac.strfunction)

@@ -83,6 +83,16 @@ RELEASE 0.96 - XXX
     Environments are the same object, not if their underlying dictionaries
     are equivalent.
 
+  - Add a --debug=explain option that reports the reason(s) why SCons
+    thinks it must rebuild something.
+
+  - Add support for functions that return platform-independent Actions
+    to Chmod(), Copy(), Delete(), Mkdir(), Move() and Touch() files
+    and/or directories.  Like any other Actions, the returned Action
+    object may be executed directly using the Execute() global function
+    or env.Execute() environment method, or may be used as a Builder
+    action or in an env.Command() action list.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
