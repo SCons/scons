@@ -2282,6 +2282,8 @@ is an optional directory that will be used as the parent directory.
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI EnsurePythonVersion( major ", " minor )
+.TP
+.RI env.EnsurePythonVersion( major ", " minor )
 Ensure that the Python version is at least 
 .IR major . minor . 
 This function will
@@ -2295,6 +2297,8 @@ EnsurePythonVersion(2,2)
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI EnsureSConsVersion( major ", " minor )
+.TP
+.RI env.EnsureSConsVersion( major ", " minor )
 Ensure that the SCons version is at least 
 .IR major . minor . 
 This function will
@@ -2308,6 +2312,8 @@ EnsureSConsVersion(0,9)
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Exit([ value ])
+.TP
+.RI env.Exit([ value ])
 This tells
 .B scons
 to exit immediately
@@ -2321,6 +2327,8 @@ is used if no value is specified.
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Export( vars )
+.TP
+.RI env.Export( vars )
 This tells 
 .B scons
 to export a list of variables from the current
@@ -2403,11 +2411,15 @@ XXX
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .\".TP
 .\".RI GetLaunchDir( XXX )
+.\".TP
+.\".RI env.GetLaunchDir( XXX )
 .\"XXX
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI GetOption( name )
+.TP
+.RI env.GetOption( name )
 This function provides a way to query a select subset of the scons command line
 options from a SConscript file. See 
 .IR SetOption () 
@@ -2416,6 +2428,8 @@ for a description of the options available.
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Help( text )
+.TP
+.RI env.Help( text )
 This specifies help text to be printed if the 
 .B -h 
 argument is given to
@@ -2440,6 +2454,8 @@ env.Ignore('bar', ['bar1.h', 'bar2.h'])
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
 .RI Import( vars )
+.TP 
+.RI env.Import( vars )
 This tells 
 .B scons
 to import a list of variables into the current SConscript file. This
@@ -2807,7 +2823,11 @@ for a specific subdirectory.
 .TP
 .RI SConscript( scripts ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
 .TP
+.RI env.SConscript( scripts ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
+.TP
 .RI SConscript(dirs= subdirs ", [name=" script ", " exports ", " build_dir ", " src_dir ", " duplicate ])
+.TP
+.RI env.SConscript(dirs= subdirs ", [name=" script ", " exports ", " build_dir ", " src_dir ", " duplicate ])
 This tells
 .B scons
 to execute
@@ -2999,6 +3019,8 @@ SConsignFile("/home/me/SCons/signatures")
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI SetOption( name ", " value )
+.TP
+.RI env.SetOption( name ", " value )
 This function provides a way to set a select subset of the scons command
 line options from a SConscript file. The options supported are: clean which
 cooresponds to -c, --clean, and --remove; implicit_cache which corresponds

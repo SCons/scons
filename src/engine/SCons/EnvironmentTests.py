@@ -1494,6 +1494,22 @@ class EnvironmentTestCase(unittest.TestCase):
         env.TargetSignatures('$C')
         assert env._build_signature == 0, env._build_signature
 
+    def test_Environment(type):
+        """Test setting Environment variable to an Environment.Base subclass"""
+        class MyEnv(SCons.Environment.Base):
+            def xxx(self, string):
+                return self.subst(string)
+
+        SCons.Environment.Environment = MyEnv
+
+        env = SCons.Environment.Environment(FOO = 'foo')
+
+        f = env.subst('$FOO')
+        assert f == 'foo', f
+
+        f = env.xxx('$FOO')
+        assert f == 'foo', f
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')

@@ -171,7 +171,7 @@ class BuilderDict(UserDict):
         for i, v in dict.items():
             self.__setitem__(i, v)
 
-class Environment:
+class Base:
     """Base class for construction Environments.  These are
     the primary objects used to communicate dependency and
     construction information to the build engine.
@@ -847,3 +847,11 @@ class Environment:
             self._build_signature = 0
         else:
             raise SCons.Errors.UserError, "Unknown target signature type '%s'"%type
+
+# The entry point that will be used by the external world
+# to refer to a construction environment.  This allows the wrapper
+# interface to extend a construction environment for its own purposes
+# by subclassing SCons.Environment.Base and then assigning the
+# class to SCons.Environment.Environment.
+
+Environment = Base

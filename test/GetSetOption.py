@@ -24,40 +24,30 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Test getting and setting options through global functions
+"""
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-wpath = test.workpath()
-
-test.write('SConstruct', r"""
-Help("Help text\ngoes here.\n")
+test.write('SConstruct', """
+env = Environment()
+option_list = ['clean', 'implicit_cache', 'max_drift', 'num_jobs']
+val = 1
+for option in option_list:
+    SetOption(option, val)
+    o = env.GetOption(option)
+    assert o == val, "%s %s != %s" % (option, o, val)
+    val = val + 1
+for option in option_list:
+    env.SetOption(option, val)
+    o = GetOption(option)
+    assert o == val, "%s %s != %s" % (option, o, val)
+    val = val + 1
 """)
 
-expect = """scons: Reading SConscript files ...
-scons: done reading SConscript files.
-Help text
-goes here.
-
-Use scons -H for help about command-line options.
-"""
-
-test.run(arguments = '-h', stdout = expect)
-
-test.write('SConstruct', r"""
-env = Environment(MORE='more', HELP='help')
-env.Help("\nEven $MORE\n$HELP text!\n")
-""")
-
-expect = """scons: Reading SConscript files ...
-scons: done reading SConscript files.
-
-Even more
-help text!
-
-Use scons -H for help about command-line options.
-"""
-
-test.run(arguments = '-h', stdout = expect)
+test.run(arguments = '.')
 
 test.pass_test()

@@ -363,4 +363,25 @@ test.run(arguments = ".",
          stdout = test.wrap_stdout(read_str = "`white space/SConscript'\n",
                                    build_str = "scons: `.' is up to date.\n"))
 
+# Test calling SConscript through a construction environment.
+test.subdir('sub')
+test.write("SConstruct", """\
+env = Environment(SUBDIR='sub')
+print "SConstruct"
+x = 'xxx'
+env.Export("x")
+env.SConscript('$SUBDIR/SConscript')
+""")
+
+test.write(['sub', 'SConscript'], """\
+env = Environment()
+env.Import("x")
+print "sub/SConscript"
+print "x =", x
+""")
+
+test.run(arguments = ".",
+         stdout = test.wrap_stdout(read_str = "SConstruct\nsub/SConscript\nx = xxx\n",
+                                   build_str = "scons: `.' is up to date.\n"))
+
 test.pass_test()

@@ -45,8 +45,10 @@ RELEASE X.XX - XXX
 
   - Add Environment-method versions of the following global functions:
     AddPreAction(), AddPostAction(), BuildDir(), CacheDir(), Clean(),
-    Default(), FindFile(), GetBuildPath(), Local(), Repository(),
-    SConsignFile(), SourceSignatures(), TargetSignatures().
+    Default(), EnsurePythonVersion(), EnsureSConsVersion(), Exit(),
+    Export(), FindFile(), GetBuildPath(), GetOption(), Help(),
+    Import(), Local(), Repository(), SConsignFile(), SetOption(),
+    SourceSignatures(), TargetSignatures().
 
   - Add the following global functions that correspond to the same-named
     Environment methods:  AlwaysBuild(), Command(), Depends(), Ignore(),
@@ -54,6 +56,11 @@ RELEASE X.XX - XXX
 
   - Rearrange the man page to show construction environment methods and
     global functions in the same list, and to explain the difference.
+
+  - Rename the Environment.Environment class to Enviroment.Base.
+    Allow the wrapping interface to extend an Environment by using its own
+    subclass of Environment.Base and setting a new Environment.Environment
+    variable as the calling entry point.
 
   From Bram Moolenaar:
 

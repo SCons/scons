@@ -695,6 +695,7 @@ class SConscriptSettableOptions:
 
 def _main(args, parser):
     targets = []
+    fs = SCons.Node.FS.default_fs
 
     # Enable deprecated warnings by default.
     SCons.Warnings._warningOut = _scons_internal_warning
@@ -730,11 +731,11 @@ def _main(args, parser):
         SCons.Action.print_actions = None
     if options.cache_disable:
         def disable(self): pass
-        SCons.Node.FS.default_fs.CacheDir = disable
+        fs.CacheDir = disable
     if options.cache_force:
-        SCons.Node.FS.default_fs.cache_force = 1
+        fs.cache_force = 1
     if options.cache_show:
-        SCons.Node.FS.default_fs.cache_show = 1
+        fs.cache_show = 1
     if options.directory:
         cdir = _create_path(options.directory)
         try:
@@ -766,7 +767,7 @@ def _main(args, parser):
         else:
             raise SCons.Errors.UserError, "No SConstruct file found."
 
-    SCons.Node.FS.default_fs.set_toplevel_dir(os.getcwd())
+    fs.set_toplevel_dir(os.getcwd())
 
     scripts = []
     if options.file:
@@ -789,10 +790,10 @@ def _main(args, parser):
         raise SCons.Errors.UserError, "No SConstruct file found."
 
     if scripts[0] == "-":
-        d = SCons.Node.FS.default_fs.getcwd()
+        d = fs.getcwd()
     else:
-        d = SCons.Node.FS.default_fs.File(scripts[0]).dir
-    SCons.Node.FS.default_fs.set_SConstruct_dir(d)
+        d = fs.File(scripts[0]).dir
+    fs.set_SConstruct_dir(d)
 
     class Unbuffered:
         def __init__(self, file):
@@ -810,14 +811,14 @@ def _main(args, parser):
 
     global repositories
     for rep in repositories:
-        SCons.Node.FS.default_fs.Repository(rep)
+        fs.Repository(rep)
 
     progress_display("scons: Reading SConscript files ...")
     try:
         start_time = time.time()
         try:
             for script in scripts:
-                SCons.Script.SConscript.SConscript(script)
+                SCons.Script.SConscript._SConscript(fs, script)
         except SCons.Errors.StopError, e:
             # We had problems reading an SConscript file, such as it
             # couldn't be copied in to the BuildDir.  Since we're just
@@ -837,7 +838,7 @@ def _main(args, parser):
         sys.exit(0)
     progress_display("scons: done reading SConscript files.")
 
-    SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
+    fs.chdir(fs.Top)
 
     if options.help_msg:
         # They specified -h, but there was no Help() inside the
@@ -855,7 +856,7 @@ def _main(args, parser):
         # used -u, -U or -D, we have to look up targets relative
         # to the top, but we build whatever they specified.
         if target_top:
-            lookup_top = SCons.Node.FS.default_fs.Dir(target_top)
+            lookup_top = fs.Dir(target_top)
             target_top = None
     else:
         # There are no targets specified on the command line,
@@ -864,7 +865,7 @@ def _main(args, parser):
         if target_top:
             if options.climb_up == 1:
                 # -u, local directory and below
-                target_top = SCons.Node.FS.default_fs.Dir(target_top)
+                target_top = fs.Dir(target_top)
                 lookup_top = target_top
             elif options.climb_up == 2:
                 # -D, all Default() targets
@@ -872,7 +873,7 @@ def _main(args, parser):
                 lookup_top = None
             elif options.climb_up == 3:
                 # -U, local SConscript Default() targets
-                target_top = SCons.Node.FS.default_fs.Dir(target_top)
+                target_top = fs.Dir(target_top)
                 def check_dir(x, target_top=target_top):
                     if hasattr(x, 'cwd') and not x.cwd is None:
                         cwd = x.cwd.srcnode()
@@ -893,7 +894,7 @@ def _main(args, parser):
 
         targets = SCons.Environment.DefaultTargets
         if targets is None:
-            targets = [SCons.Node.FS.default_fs.Dir('.')]
+            targets = [fs.Dir('.')]
 
     if not targets:
         sys.stderr.write("scons: *** No targets specified and no Default() targets found.  Stop.\n")
@@ -905,9 +906,7 @@ def _main(args, parser):
         else:
             node = SCons.Node.Alias.default_ans.lookup(x)
             if node is None:
-                node = SCons.Node.FS.default_fs.Entry(x,
-                                                      directory = ltop,
-                                                      create = 1)
+                node = fs.Entry(x, directory=ltop, create=1)
         if ttop and not node.is_under(ttop):
             if isinstance(node, SCons.Node.FS.Dir) and ttop.is_under(node):
                 node = ttop

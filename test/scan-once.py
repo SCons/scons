@@ -168,11 +168,10 @@ import os
 import string
 import re
 import SCons.Environment
-import SCons.Script.SConscript
 
 def Subdirs(env, dirlist):
     for file in _subconf_list(dirlist):
-        SCons.Script.SConscript.SConscript(file, "env")
+        env.SConscript(file, "env")
 
 def _subconf_list(dirlist):
     return map(lambda x: os.path.join(x, "SConscript"), string.split(dirlist))

@@ -72,7 +72,7 @@ test.write(['sub2', 'bar.in'], "sub2/bar.in\n")
 test.write(['sub3', 'baz.in'], "sub3/baz.in\n")
 test.write('xxx.in', "xxx.in\n")
 
-test.write('SConscript', """assert GetLaunchDir() == r'%s'"""%test.workpath('sub1'))
+test.write('SConscript', """assert GetLaunchDir() == r'%s'\n"""%test.workpath('sub1'))
 test.run(arguments = '-U foo.out', chdir = 'sub1')
 
 test.fail_test(not os.path.exists(test.workpath('sub1', 'foo.out')))
@@ -84,7 +84,10 @@ test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 
 test.unlink(['sub1', 'foo.out'])
 
-test.write('SConscript', """assert GetLaunchDir() == r'%s'"""%test.workpath('sub1'))
+test.write('SConscript', """\
+env = Environment()
+assert env.GetLaunchDir() == r'%s'
+"""%test.workpath('sub1'))
 test.run(arguments = '-U',
          chdir = 'sub1',
          stderr = "scons: *** No targets specified and no Default() targets found.  Stop.\n",

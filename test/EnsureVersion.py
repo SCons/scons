@@ -51,8 +51,9 @@ sys.exit(0)
 else:
     test.write('SConstruct', """
 import sys
+env = Environment()
 EnsurePythonVersion(0,0)
-EnsureSConsVersion(0,0)
+env.EnsureSConsVersion(0,0)
 sys.exit(0)
 """)
 
@@ -60,7 +61,8 @@ sys.exit(0)
 
     test.write('SConstruct', """
 import sys
-EnsurePythonVersion(0,0)
+env = Environment()
+env.EnsurePythonVersion(0,0)
 EnsureSConsVersion(2000,0)
 sys.exit(0)
 """)

@@ -40,13 +40,24 @@ subdir_foo_in = os.path.join('subdir', 'foo.in')
 subdir_foo_out = os.path.join('subdir', 'foo.out')
 
 test.write('SConstruct', """\
-print "SConstruct"
+print "SConstruct, Exit()"
 Exit()
 """)
 
 test.run(stdout = """\
 scons: Reading SConscript files ...
-SConstruct
+SConstruct, Exit()
+""")
+
+test.write('SConstruct', """\
+env = Environment()
+print "SConstruct, env.Exit()"
+env.Exit()
+""")
+
+test.run(stdout = """\
+scons: Reading SConscript files ...
+SConstruct, env.Exit()
 """)
 
 test.write('SConstruct', """\
