@@ -156,6 +156,7 @@ print_dtree = 0
 climb_up = 0
 target_top = None
 exit_status = 0 # exit status, assume success by default
+profiling = 0
 
 # utility functions
 
@@ -530,9 +531,12 @@ def options_init():
 	help = "Print internal environments/objects.")
 
     def opt_profile(opt, arg):
-        sys.argv = filter(lambda x: x[0:10] != "--profile=", sys.argv)
-        import profile
-        profile.run('SCons.Script.main()', arg)
+        global profiling
+        if not profiling:
+            profiling = 1
+            import profile
+            profile.run('SCons.Script.main()', arg)
+            sys.exit(exit_status)
 
     Option(func = opt_profile,
 	long = ['profile'], arg = 'FILE',

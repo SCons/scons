@@ -53,5 +53,27 @@ test.fail_test(string.find(s, 'option_v') == -1)
 test.fail_test(string.find(s, 'SCons.Script.main()') == -1)
 test.fail_test(string.find(s, 'getopt.py') == -1)
 
+
+scons_prof = test.workpath('scons2.prof')
+
+test.run(arguments = "--profile %s -v " % scons_prof)
+test.fail_test(string.find(test.stdout(), 'SCons by ') == -1)
+test.fail_test(string.find(test.stdout(), 'Copyright') == -1)
+
+stats = pstats.Stats(scons_prof)
+stats.sort_stats('time')
+
+sys.stdout = StringIO.StringIO()
+
+stats.strip_dirs().print_stats()
+
+s = sys.stdout.getvalue()
+
+test.fail_test(string.find(s, '__init__.py') == -1)
+test.fail_test(string.find(s, 'option_v') == -1)
+test.fail_test(string.find(s, 'SCons.Script.main()') == -1)
+test.fail_test(string.find(s, 'getopt.py') == -1)
+ 
+
 test.pass_test()
 
