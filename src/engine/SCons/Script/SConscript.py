@@ -61,7 +61,7 @@ launch_dir = os.path.abspath(os.curdir)
 global_exports = {}
 
 # chdir flag
-sconscript_chdir = 0
+sconscript_chdir = 1
 
 def SConscriptChdir(flag):
     global sconscript_chdir
@@ -232,7 +232,16 @@ def SConscript(*ls, **kw):
                     # in different Repositories.  For now, cross that
                     # bridge when someone comes to it.
                     ldir = default_fs.Dir(f.dir.get_path(sd))
-                    default_fs.chdir(ldir, change_os_dir=sconscript_chdir)
+                    try:
+                        default_fs.chdir(ldir, change_os_dir=sconscript_chdir)
+                    except OSError:
+                        # There was no local directory, so we should be
+                        # able to chdir to the Repository directory.
+                        # Note that we do this directly, not through
+                        # default_fs.chdir(), because we still need to
+                        # interpret the stuff within the SConscript file
+                        # relative to where we are logically.
+                        os.chdir(f.rfile().dir.abspath)
 
                     # Append the SConscript directory to the beginning
                     # of sys.path so Python modules in the SConscript

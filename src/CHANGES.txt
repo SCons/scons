@@ -75,6 +75,9 @@ RELEASE 0.12 - XXX
     This allows you to build in another directory by simply changing
     there and pointing at the SConstruct file in another directory.
 
+  - Change the default SConscriptChdir() behavior to change to the
+    SConscript directory while it's being read.
+
   From Lachlan O'Dea:
 
   - Add SharedObject() support to the masm tool.

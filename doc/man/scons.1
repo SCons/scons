@@ -3386,24 +3386,34 @@ SConscript('bld/SConscript', src_dir='src', exports='env')
 
 .TP
 .RI SConscriptChdir( value )
-When a non-zero
-.I value
-is specified,
-this instructs
+By default,
 .B scons
-to change its working directory (chdir)
-to the directory in which each subsidiary
-SConscript file lives.
-Note that you may enable and disable
+changes its working directory
+to the directory in which each
+subsidiary SConscript file lives.
+This behavior may be disabled
+by specifying:
+.ES
+SConscriptChdir(0)
+.EE
+in which case
+.B scons
+will stay in the top-level directory
+while reading all SConscript files.
+(This may be necessary when building from repositories,
+when all the directories in which SConscript files may be found
+don't necessarily exist locally.)
+
+You may enable and disable
 this ability by calling
 SConscriptChdir()
 multiple times:
 
 .ES
-SConscriptChdir(1)
-SConscript('foo/SConscript')	# will chdir to foo
 SConscriptChdir(0)
-SConscript('bar/SConscript')	# will not chdir to bar
+SConscript('foo/SConscript')	# will not chdir to foo
+SConscriptChdir(1)
+SConscript('bar/SConscript')	# will chdir to bar
 .EE
 
 .TP 

@@ -25,6 +25,15 @@ RELEASE 0.12 - XXX
   This is the twelfth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
+  Please note the following important changes since release 0.11:
+
+  - The default behavior of SCons is now to change to the directory in
+    which an SConscript file resides while reading the SConscript file.
+    To disable this and restore the previous behavior of staying in the
+    top-level directory, specify the following in your SConstruct file:
+
+        SConscriptChdir(0)
+
   Please note the following important changes since release 0.10:
 
     - The default suffix for shared object files when using gcc has
