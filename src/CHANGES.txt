@@ -37,6 +37,10 @@ RELEASE 0.96 - XXX
   - Fix a regression that prevented the Command() global function in
     0.95 from working with command-line strings.
 
+  - Fix checking out a file from a source code management system when
+    the env.SourceCode() method was called with an individual file name
+    or node, not a directory name or node.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
