@@ -25,6 +25,9 @@ RELEASE 0.95 - XXX
 
   - Fix a problem with the msvc tool with Python versions prior to 2.3.
 
+  - Add support for a "toolpath" Tool() and Environment keyword that
+    allows Tool modules to be found in specified local directories.
+
   From Chris Burghart:
 
   - Fix the ability to save/restore a PackageOption to a file.

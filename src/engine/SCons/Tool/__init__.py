@@ -55,9 +55,23 @@ class ToolSpec:
     def __str__(self):
         return self.name
     
-def Tool(name):
-    """Select a canned Tool specification.
-    """
+def Tool(name, toolpath=[]):
+    "Select a canned Tool specification, optionally searching in toolpath."
+
+    try:
+        file, path, desc = imp.find_module(name, toolpath)
+        try:
+            module = imp.load_module(name, file, path, desc)
+            spec = ToolSpec(name)
+            spec.generate = module.generate
+            spec.exists = module.exists
+            return spec
+        finally:
+            if file:
+                file.close()
+    except ImportError, e:
+        pass
+    
     full_name = 'SCons.Tool.' + name
     if not sys.modules.has_key(full_name):
         try:

@@ -873,6 +873,19 @@ may specified as an optional keyword argument:
 env = Environment(tools = ['msvc', 'lex'])
 .EE
 
+Non-built-in tools may be specified using the toolpath argument:
+
+.ES
+env = Environment(tools = ['foo'], toolpath = ['tools'])
+.EE
+
+This looks for a tool specification in tools/foo.py.  foo.py should
+have two functions: generate(env) and exists(env).  generate()
+modifies the passed in environment and exists() should return a true
+value if the tool is available.  Tools in the toolpath are used before
+any of the built-in ones.  For example, adding gcc.py to the toolpath
+would override the built-in gcc tool.
+
 The elements of the tools list may also
 be functions or callable objects,
 in which case the Environment() method
@@ -2293,8 +2306,8 @@ env2 = env.Copy()
 env3 = env.Copy(CCFLAGS = '-g')
 .EE
 .IP
-Additionally, a list of tools may be specified, as in the Environment
-constructor:
+Additionally, a list of tools and a toolpath may be specified, as in
+the Environment constructor:
 
 .ES
 def MyTool(env): env['FOO'] = 'bar'
@@ -3498,7 +3511,7 @@ The default is "build".
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Tool( string )
+.RI Tool( string, toolpath=[] )
 Returns a callable object
 that can be used to initialize
 a construction environment using the
@@ -3518,15 +3531,18 @@ env = Environment(tools = [ Tool('msvc') ])
 env = Environment()
 t = Tool('msvc')
 t(env)  # adds 'msvc' to the TOOLS variable
+u = Tool('opengl', toolpath = ['tools'])
+u(env)  # adds 'opengl' to the TOOLS variable
 .EE
 .TP
-.RI env.Tool( string )
+.RI env.Tool( string [, toolpath] )
 Applies the callable object for the specified tool
 .I string
 to the environment through which the method was called.
 
 .ES
 env.Tool('gcc')
+env.Tool('opengl', toolpath = ['build/tools'])
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
