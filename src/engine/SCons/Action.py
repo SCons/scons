@@ -412,7 +412,10 @@ class CommandGeneratorAction(ActionBase):
             source = [source]
         rsources = map(rfile, source)
         act = self.__generate(target, source, env, 0)
-        return act.strfunction(target, rsources, env)
+        if act.strfunction:
+            return act.strfunction(target, rsources, env)
+        else:
+            return None
 
     def __str__(self):
         try:
