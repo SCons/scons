@@ -97,5 +97,37 @@ scons: .* is up to date.
 scons: .* is up to date.
 """)
 
+test.write('SConstruct', """
+env=Environment()
+env.StaticLibrary('a', 'a.c')
+env.StaticLibrary('b', 'b.c')
+""")
+
+test.write('a.c', '''
+#include "a.h"
+#include "b.h"
+''')
+
+test.write('b.c', '''
+#include "a.h"
+#include "B.h"
+''')
+
+test.write('a.h', """
+#define A_H
+""")
+
+test.write('b.h', """
+#define B_H
+""")
+
+test.run(arguments='a.lib b.lib')
+test.run(arguments='b.lib a.lib', stdout="""\
+scons: .* is up to date.
+scons: .* is up to date.
+""")
+
+
+
 test.pass_test()
 

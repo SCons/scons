@@ -29,6 +29,9 @@ RELEASE 0.09 -
  - Fix using an alias as a dependency of a target so that if one of the
    alias' dependencies gets rebuilt, the resulting target will, too.
 
+ - Fix differently ordered targets causing unnecessary rebuilds
+   on case insensitive systems.
+
 
 
 RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500

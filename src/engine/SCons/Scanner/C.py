@@ -129,7 +129,11 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
                 return map(stripit, paired)
     
             def normalize(node):
-                return str(node)
+                # We don't want the order of includes to be 
+                # modified by case changes on case insensitive OSes, so
+                # normalize the case of the filename here:
+                # (see test/win32pathmadness.py for a test of this)
+                return SCons.Node.FS._my_normcase(str(node))
 
             node.found_includes[cpppath] = st(nodes, normalize)
 
