@@ -20,6 +20,12 @@ RELEASE 0.97 - XXX
   - When compiling with Microsoft Visual Studio, don't include the ATL and
     MFC directories in the default INCLUDE and LIB environment variables.
 
+  - Remove the following deprecated features:  the ParseConfig()
+    global function (deprecated in 0.93); the misspelled "validater"
+    keyword to the Options.Add() method (deprecated in 0.91); the
+    SetBuildSignatureType(), SetContentSignatureType(), SetJobs() and
+    GetJobs() global functions (deprecated in 0.14).
+
   From Gary Oberbrunner:
 
   - Add an Environment.Dump() method to print the contents of a
