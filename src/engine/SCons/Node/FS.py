@@ -2,6 +2,9 @@
 
 File system nodes.
 
+These Nodes represent the canonical external objects that people think
+of when they think of building software: files and directories.
+
 This initializes a "default_fs" Node with an FS at the current directory
 for its own purposes, and for use by scripts or modules looking for the
 canonical default.

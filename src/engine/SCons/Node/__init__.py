@@ -2,6 +2,21 @@
 
 The Node package for the SCons software construction utility.
 
+This is, in many ways, the heart of SCons.
+
+A Node is where we encapsulate all of the dependency information about
+any thing that SCons can build, or about any thing which SCons can use
+to build some other thing.  The canonical "thing," of course, is a file,
+but a Node can also represent something remote (like a web page) or
+something completely abstract (like an Alias).
+
+Each specific type of "thing" is specifically represented by a subclass
+of the Node base class:  Node.FS.File for files, Node.Alias for aliases,
+etc.  Dependency information is kept here in the base class, and
+information specific to files/aliases/etc. is in the subclass.  The
+goal, if we've done this correctly, is that any type of "thing" should
+be able to depend on any other type of "thing."
+
 """
 
 #

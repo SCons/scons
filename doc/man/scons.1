@@ -26,12 +26,12 @@
 .RS
 .nf
 ..
-.\" EE - Example End - ends intend and turns line fill back on
+.\" EE - Example End - ends indent and turns line fill back on
 .de EE
 .RE
 .fi
 ..
-.TH SCONS 1 "July 2002"
+.TH SCONS 1 "November 2002"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -2214,9 +2214,15 @@ is usually safe, and is always more efficient than
 
 .TP 
 .RI Default( targets )
-This specifies a list of default targets. Default targets will be built by
+This specifies a list of default targets,
+which will be built by
 .B scons
 if no explicit targets are given on the command line.
+Multiple calls to
+.BR Default ()
+are legal,
+and add to the list of default targets.
+
 Multiple targets should be specified as
 separate arguments to the
 .BR Default ()
@@ -2245,21 +2251,6 @@ This returns an object that represents a given directory
 can be a relative or absolute path. 
 .I directory
 is an optional directory that will be used as the parent directory. 
-
-.TP
-.RI FindFile( file ", " dirs )
-Search for 
-.I file 
-in the path specified by 
-.IR dirs .
-.I file
-may be a list of file names or a single file name. In addition to searching
-for files that exist in the filesytem, this function also searches for
-derived files that have not yet been built.
-
-.ES
-foo = FindFile('foo', ['dir1', 'dir2'])
-.EE
 
 .TP
 .RI EnsurePythonVersion( major ", " minor )
@@ -2312,6 +2303,33 @@ can be a relative or absolute path.
 is an optional directory that will be used as the parent directory. 
 
 .TP
+.RI FindFile( file ", " dirs )
+Search for 
+.I file 
+in the path specified by 
+.IR dirs .
+.I file
+may be a list of file names or a single file name. In addition to searching
+for files that exist in the filesytem, this function also searches for
+derived files that have not yet been built.
+
+.ES
+foo = FindFile('foo', ['dir1', 'dir2'])
+.EE
+.\"
+.\".TP
+.\".RI GetBuildPath( XXX )
+.\"XXX
+.\"
+.\".TP
+.\".RI GetCommandHandler( XXX )
+.\"XXX
+.\"
+.\".TP
+.\".RI GetLaunchDir( XXX )
+.\"XXX
+
+.TP
 .RI Help( text )
 This specifies help text to be printed if the 
 .B -h 
@@ -2343,6 +2361,21 @@ Examples:
 Import("env")
 Import("env", "variable")
 .EE
+
+.TP
+.RI Literal( string )
+The specified
+.I string
+will be preserved as-is
+and not have construction variables expanded.
+
+.TP
+.RI Local( targets )
+The specified
+.I targets
+will have copies made in the local tree,
+even if an already up-to-date copy
+exists in a repository.
 
 .TP
 .RI ParseConfig( env , command ", [" function ])
@@ -2382,6 +2415,49 @@ platform keyword of the Environment() method.
 .ES
 env = Environment(platform = Platform('win32'))
 .EE
+
+.TP
+.RI Repository( directory )
+Specifies that
+.I directory
+is a repository to be searched for files.
+Multiple calls to
+.BR Repository ()
+are legal,
+and each one adds to the list of
+repositories that will be searched.
+
+To
+.BR scons ,
+a repository is a copy of the source tree,
+from the top-level directory on down,
+which may contain
+both source files and derived files
+that can be used to build targets in
+the local source tree.
+The canonical example would be an
+official source tree maintained by an integrator.
+If the repository contains derived files,
+then the derived files should have been built using
+.BR scons ,
+so that the repository contains the necessary
+signature information to allow
+.B scons
+to figure out when it is appropriate to
+use the repository copy of a derived file,
+instead of building one locally.
+
+Note that if an up-to-date derived file
+already exists in a repository,
+.B scons
+will
+.I not
+make a copy in the local directory tree.
+In order to guarantee that a local copy
+will be made,
+use the
+.B Local()
+method.
 
 .TP
 .RI Return( vars )
@@ -3263,7 +3339,7 @@ env.Command('foo', 'foo.k', 'kprocess < $SOURCES > $TARGET')
 
 bar_in = File('bar.in')
 env.Command('bar', bar_in, 'kprocess $SOURCES > $TARGET')
-bar_in.scanner_set(kscan)
+bar_in.target_scanner = kscan
 .EE
 
 .SS Creating a Hierarchical Build

@@ -19,6 +19,10 @@ RELEASE 0.09 -
 
   - Add Repository() functionality, including the -Y option.
 
+  - Allow $$ in a string to be passed through as $.
+
+  - Support file names with odd characters in them.
+
  From Steven Knight:
 
  - Fix auto-deduction of target names so that deduced targets end
