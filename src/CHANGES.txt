@@ -35,6 +35,8 @@ RELEASE 0.06 -
   - Fixed an exception when CPPPATH or LIBPATH is a null string.
     (Bug reported by Richard Kiss.)
 
+  - Add a --profile=FILE option to make profiling SCons easier.
+
   From Steve Leblanc:
 
   - Add support for the -U option.

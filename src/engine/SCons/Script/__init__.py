@@ -511,6 +511,15 @@ def options_init():
 	short = 'p',
 	help = "Print internal environments/objects.")
 
+    def opt_profile(opt, arg):
+        sys.argv = filter(lambda x: x[0:10] != "--profile=", sys.argv)
+        import profile
+        profile.run('SCons.Script.main()', arg)
+
+    Option(func = opt_profile,
+	long = ['profile'], arg = 'FILE',
+	help = "Profile SCons and put results in FILE.")
+
     def opt_q(opt, arg):
         global task_class
         task_class = QuestionTask

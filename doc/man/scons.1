@@ -447,6 +447,13 @@ any out-of-date target files, but do not execute the commands.
 .\" .EE
 
 .TP
+.RI --profile= file
+Run SCons under the Python profile
+and save the results in the specified
+.IR file .
+The results may be analyzed using the Python
+pstats module.
+.TP
 -q, --question
 Do not run any commands, or print anything.  Just return an exit
 status that is zero if the specified targets are already up to
