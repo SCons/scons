@@ -284,7 +284,7 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
     for t in tlist:
         if t.side_effect:
             raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
-        if t.has_builder():
+        if t.has_explicit_builder():
             if not t.env is None and not t.env is env:
                 t_contents = t.builder.action.get_contents(tlist, slist, t.env)
                 contents = t.builder.action.get_contents(tlist, slist, env)
@@ -412,6 +412,7 @@ class BuilderBase:
                         single_source = 0,
                         name = None,
                         chdir = _null,
+                        is_explicit = 1,
                         **overrides):
         if __debug__: logInstanceCreation(self, 'BuilderBase')
         self.action = SCons.Action.Action(action)
@@ -453,6 +454,7 @@ class BuilderBase:
         self.executor_kw = {}
         if not chdir is _null:
             self.executor_kw['chdir'] = chdir
+        self.is_explicit = is_explicit
 
     def __nonzero__(self):
         raise InternalError, "Do not test for the Node.builder attribute directly; use Node.has_builder() instead"

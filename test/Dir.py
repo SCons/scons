@@ -55,4 +55,20 @@ bbb_bbb
 scons: `.' is up to date.
 """))
 
+
+
+test.write('SConstruct', """\
+import os
+def my_mkdir(target=None, source=None, env=None):
+    os.mkdir(str(target[0]))
+
+MDBuilder = Builder(action=my_mkdir, target_factory=Dir)
+env = Environment()
+env.Append(BUILDERS = {'MD':MDBuilder})
+env.MD(target='sub1', source=['SConstruct'])
+env.MD(target='sub2', source=['SConstruct'], OVERRIDE='foo')
+""")
+
+test.run()
+
 test.pass_test()

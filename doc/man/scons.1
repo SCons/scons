@@ -7655,7 +7655,7 @@ Example:
 MakeDirectoryBuilder = Builder(action=my_mkdir, target_factory=Dir)
 env = Environment()
 env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
-env.MakeDirectory('new_directory')
+env.MakeDirectory('new_directory', [])
 .EE
 
 .IP source_factory
