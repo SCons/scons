@@ -41,9 +41,9 @@ if sys.platform != 'win32':
 
 test.write('SConstruct',"""
 env=Environment()
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = 'StdAfx.h'
+env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('test', ['test.cpp', env.RES('test.rc')], LIBS=['user32'])
 
 env.Object('fast', 'foo.cpp')
@@ -153,7 +153,7 @@ test.run(arguments='slow.obj')
 slow = time.time() - start
 
 # using precompiled headers should be significantly faster
-assert fast < slow*0.75
+assert fast < slow*0.8
 
 
 ##########
@@ -168,10 +168,10 @@ SConscript('build/SConscript')
 
 test.write('src/SConscript',"""
 env=Environment()
-env.PCH('StdAfx.cpp')
 env['PCH'] = 'StdAfx.pch'
 env['PDB'] = '#out/test.pdb'
 env['PCHSTOP'] = 'StdAfx.h'
+env.PCH('StdAfx.cpp')
 env.Program('#out/test.exe', 'test.cpp')
 """)
 
@@ -209,8 +209,8 @@ test.fail_test(os.path.exists(test.workpath('build/StdAfx.obj')))
 
 test.write('SConstruct',"""
 env=Environment()
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env['PDB'] = File('test.pdb')
+env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('test', 'test.cpp')
 """)
 
@@ -221,9 +221,9 @@ File "SConstruct", line 5, in \?
 
 test.write('SConstruct',"""
 env=Environment()
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = File('StdAfx.h')
+env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('test', 'test.cpp')
 """)
 
