@@ -6629,11 +6629,26 @@ to \N'34').
 Returns 1 on success and 0 on failure. 
 
 .TP
-.RI Configure.CheckFunc( self ", " function_name ", [" language ])
+.RI Configure.CheckFunc( self ", " function_name ", [" header ", " language ])
 Checks if the specified
 C or C++ function is available.
 .I function_name
 is the name of the function to check for.
+The optional
+.I header
+argument is a string
+that will be
+placed at the top
+of the test file
+that will be compiled
+to check if the function exists;
+the default is:
+.ES
+#ifdef __cplusplus
+extern "C"
+#endif
+char function_name();
+.EE
 The optional
 .I language
 argument should be

@@ -49,6 +49,10 @@ RELEASE 0.97 - XXX
     "{building,cleaning} terminated because of errors" to "done
     {building,cleaning} targets (errors occurred during {build,clean})."
 
+  - Allow Configure.CheckFunc() to take an optional header argument
+    (already supported by Conftest.py) to specify text at the top of
+    the compiled test file.
+
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption
