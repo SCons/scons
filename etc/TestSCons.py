@@ -17,6 +17,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import string
 import TestCmd
 
 class TestFailed(Exception):
@@ -110,3 +111,11 @@ class TestSCons(TestCmd.TestCmd):
 	    print "Actual STDERR ============"
 	    print self.stderr()
 	    raise TestFailed
+
+    def up_to_date(self, arguments = None, **kw):
+	    kw['arguments'] = arguments
+	    s = ""
+	    for arg in string.split(arguments):
+		s = s + 'scons: "%s" is up to date.\n' % arg
+	    kw['stdout'] = s
+	    apply(self.run, [], kw)

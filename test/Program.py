@@ -95,6 +95,7 @@ test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
 #XXXtest.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c\nf3c.c\n")
 
 #XXXtest.up_to_date(arguments = '.')
+test.up_to_date(arguments = 'foo1 foo2')
 
 test.write('f1.c', """
 int
@@ -122,6 +123,7 @@ test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
 #XXXtest.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c X\nf3c.c\n")
 
 #XXXtest.up_to_date(arguments = '.')
+test.up_to_date(arguments = 'foo1 foo2')
 
 # make sure the programs don't get rebuilt, because nothing changed:
 oldtime1 = os.path.getmtime(test.workpath('foo1'))

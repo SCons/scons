@@ -547,9 +547,32 @@ def main():
     if not targets:
 	targets = default_targets
 
+    # XXX Right now, this next block prints all "up to date" messages
+    # first, and then goes through and builds the other nodes:
+    #
+    #		$ scons aaa bbb ccc ddd
+    #		scons: "aaa" is up to date.
+    #		scons: "ccc" is up to date.
+    #		cc -o bbb bbb.c
+    #		cc -o ddd ddd.c
+    #
+    # When we get the real Task and Taskmaster classes, this should
+    # be changed to interact with the engine to deal with targets in
+    # the same order as specified:
+    #
+    #		$ scons aaa bbb ccc ddd
+    #		scons: "aaa" is up to date.
+    #		cc -o bbb bbb.c
+    #		scons: "ccc" is up to date.
+    #		cc -o ddd ddd.c
+    #
     calc = SCons.Sig.Calculator(SCons.Sig.MD5)
-    nodes = map(lambda x: SCons.Node.FS.default_fs.File(x), targets)
-    nodes = filter(lambda x, calc=calc: not calc.current(x), nodes)
+    nodes = []
+    for t in map(lambda x: SCons.Node.FS.default_fs.File(x), targets):
+	if calc.current(t):
+	    print 'scons: "%s" is up to date.' % t.path
+	else:
+	    nodes.append(t)
     
     taskmaster = Taskmaster(nodes)
 
