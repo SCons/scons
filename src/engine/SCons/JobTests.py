@@ -172,9 +172,9 @@ class Taskmaster:
 
     def is_blocked(self):
         if self.stop or self.all_tasks_are_executed():
-            return False
+            return 0
         if self.all_tasks_are_iterated():
-            return True
+            return 1
         # simulate blocking tasks
         return self.num_iterated - self.num_executed >= max(num_jobs/2, 2)
 

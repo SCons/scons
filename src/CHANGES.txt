@@ -56,6 +56,9 @@ RELEASE X.XX - XXX
 
   - Accomodate anydbm modules that don't have a sync() method.
 
+  - Allow SConsignFile() to take an argument specifying the DBM
+    module to be used.
+
   From Stephen Kennedy:
 
   - Add support for a configurable global .sconsign.dbm file which
@@ -117,6 +120,11 @@ RELEASE X.XX - XXX
     pathext arguments (like the underlying SCons.Util.WhereIs() function).
 
   - Remove the long-obsolete {Get,Set}CommandHandler() functions.
+
+  - Enhance env.Append() to suppress null values when appropriate.
+
+  - Fix ParseConfig() so it works regardless of initial construction
+    variable values.
 
   From Clark McGrew:
 
