@@ -47,8 +47,9 @@ class BaseTestCase(unittest.TestCase):
 
         aaa = BuildInfo('aaa')
         bbb = BuildInfo('bbb')
+        bbb.arg1 = 'bbb arg1'
         ccc = BuildInfo('ccc')
-        ccc.arg = 'ccc arg'
+        ccc.arg2 = 'ccc arg2'
 
         f = SCons.SConsign.Base()
         f.set_entry('aaa', aaa)
@@ -61,12 +62,14 @@ class BaseTestCase(unittest.TestCase):
         e = f.get_entry('bbb')
         assert e == bbb, e
         assert e.name == 'bbb', e.name
-        assert not hasattr(e, 'arg'), e
+        assert e.arg1 == 'bbb arg1', e.arg1
+        assert not hasattr(e, 'arg2'), e
 
         f.set_entry('bbb', ccc)
         e = f.get_entry('bbb')
         assert e.name == 'ccc', e.name
-        assert e.arg == 'ccc arg', e.arg
+        assert not hasattr(e, 'arg1'), e
+        assert e.arg2 == 'ccc arg2', e.arg1
 
         ddd = BuildInfo('ddd')
         eee = BuildInfo('eee')

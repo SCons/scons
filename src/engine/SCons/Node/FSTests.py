@@ -1969,6 +1969,55 @@ class SaveStringsTestCase(unittest.TestCase):
         expect = map(os.path.normpath, ['src/f', 'd1/f', 'd0/b', 'd1/b'])
         assert s == expect, s
 
+class SaveExplainInfoTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test how we store --debug=explain info."""
+        test=TestCmd(workdir='')
+        fs = SCons.Node.FS.FS(test.workpath('fs'))
+        f = fs.File('file')
+
+        class BInfo:
+            pass
+
+        bi = BInfo()
+        bi.bact = 'file bact'
+        bi.arg1 = 'file arg1'
+        f.store_info(bi)
+
+        i = f.get_stored_info()
+        assert i.bact == 'file bact', i.arg1
+        assert i.arg1 == 'file arg1', i.arg1
+        assert not hasattr(i, 'arg2'), i.bact
+        assert not hasattr(i, 'arg3'), i.bact
+
+        save_value = SCons.Node.Save_Explain_Info
+        try:
+            SCons.Node.Save_Explain_Info = 1
+
+            bi = BInfo()
+            bi.arg2 = 'file arg2'
+            f.store_info(bi)
+
+            i = f.get_stored_info()
+            assert i.bact == 'file bact', i.arg1
+            assert i.arg1 == 'file arg1', i.arg1
+            assert i.arg2 == 'file arg2', i.arg2
+            assert not hasattr(i, 'arg3'), i.bact
+
+            SCons.Node.Save_Explain_Info = 0
+
+            bi = BInfo()
+            bi.arg3 = 'file arg3'
+            f.store_info(bi)
+
+            i = f.get_stored_info()
+            assert not hasattr(i, 'bact'), i.bact
+            assert i.arg1 == 'file arg1', i.arg1
+            assert i.arg2 == 'file arg2', i.arg2
+            assert i.arg3 == 'file arg3', i.arg2
+        finally:
+            SCons.Node.Save_Explain_Info = save_value
+
 
 
 if __name__ == "__main__":
@@ -1989,5 +2038,6 @@ if __name__ == "__main__":
     suite.addTest(postprocessTestCase())
     suite.addTest(SpecialAttrTestCase())
     suite.addTest(SaveStringsTestCase())
+    suite.addTest(SaveExplainInfoTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

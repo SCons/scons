@@ -76,6 +76,9 @@ implicit_deps_unchanged = 0
 # controls whether the cached implicit deps are ignored:
 implicit_deps_changed = 0
 
+# controls whether --debug=explain info is saved in Nodes:
+Save_Explain_Info = 1
+
 # A variable that can be set to an interface-specific function be called
 # to annotate a Node with information about its creation.
 def do_nothing(node): pass
@@ -542,21 +545,26 @@ class Node:
         dependsigs = map(calc_signature, depends)
         implicitsigs = map(calc_signature, implicit)
 
-        binfo.bsources = map(str, sources)
-        binfo.bdepends = map(str, depends)
-        binfo.bimplicit = map(str, implicit)
-
-        binfo.bsourcesigs = sourcesigs
-        binfo.bdependsigs = dependsigs
-        binfo.bimplicitsigs = implicitsigs
-
         sigs = sourcesigs + dependsigs + implicitsigs
 
-        if self.has_builder():
+        has_builder = self.has_builder()
+        if has_builder:
             executor = self.get_executor()
-            binfo.bact = str(executor)
-            binfo.bactsig = calc.module.signature(executor)
-            sigs.append(binfo.bactsig)
+            bactsig = calc.module.signature(executor)
+            sigs.append(bactsig)
+
+        if Save_Explain_Info:
+            binfo.bsources = map(str, sources)
+            binfo.bdepends = map(str, depends)
+            binfo.bimplicit = map(str, implicit)
+
+            binfo.bsourcesigs = sourcesigs
+            binfo.bdependsigs = dependsigs
+            binfo.bimplicitsigs = implicitsigs
+
+            if has_builder:
+                binfo.bact = str(executor)
+                binfo.bactsig = calc.module.signature(executor)
 
         binfo.bsig = calc.module.collect(filter(None, sigs))
 
