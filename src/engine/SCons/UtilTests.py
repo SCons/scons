@@ -298,7 +298,7 @@ class UtilTestCase(unittest.TestCase):
             '$FUNCCALL',            'a xc b',
 
             # Bug reported by Christoph Wiedemann.
-            '$xxx/bin',             '/bin',
+            cvt('$xxx/bin'),        '/bin',
         ]
 
         kwargs = {'target' : target, 'source' : source}
@@ -614,7 +614,7 @@ class UtilTestCase(unittest.TestCase):
             'foo \nmiddle\n bar',   [['foo'], ['middle'], ['bar']],
 
             # Bug reported by Christoph Wiedemann.
-            '$xxx/bin',             [['/bin']],
+            cvt('$xxx/bin'),        [['/bin']],
         ]
 
         kwargs = {'target' : target, 'source' : source}
