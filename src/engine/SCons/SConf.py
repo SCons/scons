@@ -33,7 +33,7 @@ import os
 import string
 import sys
 import traceback
-from types import *
+import types
 
 import SCons.Action
 import SCons.Builder
@@ -70,6 +70,8 @@ def _stringSource( target, source, env ):
     return (target[0].get_path() + ' <- \n  |' +
             string.replace( env['SCONF_TEXT'], "\n", "\n  |" ) )
 
+BooleanTypes = [types.IntType]
+if hasattr(types, 'BooleanType'): BooleanTypes.append(types.BooleanType)
 
 class SConf:
     """This is simply a class to represent a configure context. After
@@ -92,6 +94,9 @@ class SConf:
         Note also the conf_dir and log_file arguments (you may want to
         build tests in the BuildDir, not in the SourceDir)
         """
+        import SCons.Script.SConscript
+        if not SCons.Script.SConscript.sconscript_reading:
+            raise SCons.Errors.UserError, "Calling Configure from Builders is not supported."
         global SConfFS
         if not SConfFS:
             SConfFS = SCons.Node.FS.FS(SCons.Node.FS.default_fs.pathTop)
@@ -246,6 +251,9 @@ class SConf:
         suff = self.env.subst( builder.builder.suffix )
         target = self.confdir.File(pref + f + suff)
         self.env['SCONF_TEXT'] = text
+        self.env['PIPE_BUILD'] = 1
+        self.env['PSTDOUT'] = self.logstream
+        self.env['PSTDERR'] = self.logstream
         if text != None:
             source = self.confdir.File(f + extension)
             sourceNode = self.env.SConfSourceBuilder(target=source,
@@ -260,6 +268,10 @@ class SConf:
         nodesToBeBuilt.extend(nodes)
         ret = self.BuildNodes(nodesToBeBuilt)
 
+        # clean up environment
+        del self.env['PIPE_BUILD']
+        del self.env['PSTDOUT']
+        del self.env['PSTDERR']
         del self.env['SCONF_TEXT']
 
         _ac_build_counter = _ac_build_counter + 1
@@ -440,9 +452,6 @@ class SConf:
             # the build system not to override it with a eventually
             # existing file with the same name in the source directory
             self.logfile.dir.add_ignore( [self.logfile] )
-            self.env['PIPE_BUILD'] = 1
-            self.env['PSTDOUT'] = self.logstream
-            self.env['PSTDERR'] = self.logstream
 
             tb = traceback.extract_stack()[-3]
             
@@ -471,10 +480,6 @@ class SConf:
         if self.logstream != None:
             self.logstream.close()
             self.logstream = None
-            # clean up environment
-            del self.env['PIPE_BUILD']
-            del self.env['PSTDOUT']
-            del self.env['PSTDERR']
         # remove the SConfSourceBuilder from the environment
         blds = self.env['BUILDERS']
         del blds['SConfSourceBuilder']
@@ -529,15 +534,15 @@ class CheckContext:
         'failed'.
         The result is only displayed when self.did_show_result is not set.
         """
-        if type(res) == IntType:
+        if type(res) in BooleanTypes:
             if res:
                 text = "ok"
             else:
                 text = "failed"
-        elif type(res) == StringType:
+        elif type(res) == types.StringType:
             text = res
         else:
-            raise TypeError, "Expected string or int"
+            raise TypeError, "Expected string, int or bool, got " + str(type(res))
 
         if self.did_show_result == 0:
             if self.cached:
@@ -578,12 +583,12 @@ class CheckContext:
     def BuildProg(self, text, ext):
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
         res = self.TryBuild(self.env.Program, text, ext)
-        if type(res) == IntType:
+        if type(res) in BooleanTypes:
             if res:
                 ret = ""
             else:
                 ret = "failed to build test program"
-        elif type(res) == StringType:
+        elif type(res) == types.StringType:
             ret = res
         else:
             raise TypeError, "Expected string or int"
@@ -592,12 +597,12 @@ class CheckContext:
     def CompileProg(self, text, ext):
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
         res = self.TryBuild(self.env.Object, text, ext)
-        if type(res) == IntType:
+        if type(res) in BooleanTypes:
             if res:
                 ret = ""
             else:
                 ret = "failed to compile test program"
-        elif type(res) == StringType:
+        elif type(res) == types.StringType:
             ret = res
         else:
             raise TypeError, "Expected string or int"

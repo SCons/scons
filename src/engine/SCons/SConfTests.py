@@ -64,6 +64,8 @@ class SConfTestCase(unittest.TestCase):
         # we only use SCons.Environment and SCons.SConf for these tests.
         import SCons.Environment
         import SCons.SConf
+        import SCons.Script.SConscript
+        SCons.Script.SConscript.sconscript_reading = 1
         self.Environment = SCons.Environment
         self.SConf = SCons.SConf
         # and we need a new environment, cause references may point to

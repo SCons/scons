@@ -40,32 +40,38 @@ else:
 # to use cygwin compilers on cmd.exe -> uncomment following line
 #lib = 'm'
 
-oldPwd = os.getcwd()
+work_cnt = 0
+work_dir = None
 python = TestSCons.python
-test = None
+test = TestSCons.TestSCons()
 
-def reset(dot = 1):
-    global test, oldPwd
-    os.chdir( oldPwd )
-    TestSCons.scons = None
-    test = TestSCons.TestSCons()
-    if dot == 1:
+
+def reset(match = 1):
+    global test, work_dir, work_cnt
+    work_cnt = work_cnt + 1
+    work_dir='test%d' % work_cnt
+    test.subdir(work_dir)
+    if match == 0:
+        test.match_func = TestCmd.match_re
+    elif match == 1:
         test.match_func = TestCmd.match_re_dotall
-    
+    elif match == 2:
+        test.match_func = TestCmd.match_exact
 
 def checkFiles(test, files):
+    global work_dir
     for f in files:
-        test.fail_test( not os.path.isfile( test.workpath(f) ) )
+        test.fail_test( not os.path.isfile( test.workpath(work_dir,f) ) )
 
 
 def checkLog( test, logfile, numUpToDate, numCache ):
-    test.fail_test(not os.path.exists(test.workpath(logfile)))
-    log = test.read(test.workpath(logfile))
+    test.fail_test(not os.path.exists(test.workpath(work_dir, logfile)))
+    log = test.read(test.workpath(work_dir, logfile))
     try:
         test.fail_test( len( re.findall( "is up to date", log ) ) != numUpToDate )
         test.fail_test( len( re.findall( "\(cached\): Building \S+ failed in a previous run.", log ) ) != numCache )
     except:
-        print "contents of log ", test.workpath(logfile), "\n", log
+        print "contents of log ", test.workpath(work_dir, logfile), "\n", log
         raise 
 
 
@@ -73,9 +79,9 @@ try:
 
     # 1.1 if checks are ok, the cache mechanism should work
 
-    reset(dot=0)
+    reset(match=2)
     
-    test.write( 'SConstruct', """
+    test.write([work_dir,  'SConstruct'], """
 env = Environment()
 import os
 env['ENV']['PATH'] = os.environ['PATH']
@@ -102,17 +108,17 @@ Checking for C++ header file vector... yes
 """ % (lib, lib))
 
 
-    test.run(stdout = required_stdout)
+    test.run(chdir=work_dir, stdout = required_stdout)
     checkLog(test,'config.log', 0, 0 )
 
-    test.run(stdout = required_stdout)
+    test.run(chdir=work_dir, stdout = required_stdout)
     checkLog(test,'config.log',12, 0 )
 
     # 1.2 if checks are not ok, the cache mechanism should work as well
     #     (via explicit cache)
-    reset(dot = 0)              # match exactly, "()" is a regexp thing
+    reset(match=2)              # match exactly, "()" is a regexp thing
 
-    test.write( 'SConstruct', """
+    test.write([work_dir,  'SConstruct'], """
 env = Environment()
 import os
 env['ENV']['PATH'] = os.environ['PATH']
@@ -132,10 +138,10 @@ Checking for main() in C library no_c_library_SAFFDG... no
 """)
 
 
-    test.run(stdout = required_stdout)
+    test.run(chdir=work_dir, stdout = required_stdout)
     checkLog(test, 'config.log', 0, 0 )
     
-    test.run(stdout = required_stdout)
+    test.run(chdir=work_dir, stdout = required_stdout)
     checkLog(test, 'config.log', 2, 2 )
 
 
@@ -143,7 +149,7 @@ Checking for main() in C library no_c_library_SAFFDG... no
     reset()
     
 
-    test.write( 'SConstruct', """
+    test.write([work_dir,  'SConstruct'], """
 env = Environment()
 import os
 env['ENV']['PATH'] = os.environ['PATH']
@@ -154,11 +160,11 @@ env = conf.Finish()
 Export( 'env' )
 SConscript( 'SConscript' )
 """)
-    test.write( 'SConscript', """
+    test.write([work_dir,  'SConscript'], """
 Import( 'env' )
 env.Program( 'TestProgram', 'TestProgram.c' )
 """)
-    test.write( 'TestProgram.c', """
+    test.write([work_dir,  'TestProgram.c'], """
 #include <stdio.h>
 
 int main() {
@@ -170,10 +176,10 @@ int main() {
     """Checking for C header file math.h... yes
 Checking for C header file no_std_c_header.h... no
 """)
-    test.run( stdout = required_stdout )
+    test.run(chdir=work_dir,  stdout = required_stdout )
     checkLog( test, 'config.log', 0, 0 )
     
-    test.run( stdout = required_stdout )
+    test.run(chdir=work_dir,  stdout = required_stdout )
     checkLog( test, 'config.log', 3, 1 )
 
 
@@ -181,7 +187,7 @@ Checking for C header file no_std_c_header.h... no
     reset()
     
 
-    test.write( 'SConstruct', """
+    test.write([work_dir,  'SConstruct'], """
 env = Environment(LOGFILE='build/config.log')
 import os
 env['ENV']['PATH'] = os.environ['PATH']
@@ -194,11 +200,11 @@ Export( 'env' )
 # print open( 'build/config.log' ).readlines()
 SConscript( 'build/SConscript' )
 """)
-    test.write( 'SConscript', """
+    test.write([work_dir,  'SConscript'], """
 Import( 'env' )
 env.Program( 'TestProgram', 'TestProgram.c' )
 """)
-    test.write( 'TestProgram.c', """
+    test.write([work_dir,  'TestProgram.c'], """
 #include <stdio.h>
 
 int main() {
@@ -210,18 +216,18 @@ int main() {
     """Checking for C header file math.h... yes
 Checking for C header file no_std_c_header.h... no
 """)
-    test.run( stdout = required_stdout )
+    test.run(chdir=work_dir,  stdout = required_stdout )
     checkLog( test, 'build/config.log', 0, 0 )
     
-    test.run( stdout = required_stdout )
+    test.run(chdir=work_dir,  stdout = required_stdout )
     checkLog( test, 'build/config.log', 3, 1 )
     
     # 2.3 test that Configure calls in SConscript files work
     #     even if BuildDir is set
     reset()
 
-    test.subdir( 'sub', ['sub', 'local'] )
-    test.write( 'SConstruct', """
+    test.subdir( [work_dir, 'sub'], [work_dir, 'sub', 'local'] )
+    test.write([work_dir,  'SConstruct'], """
 opts = Options()
 opts.Add('chdir')
 env = Environment(options=opts)
@@ -232,11 +238,12 @@ else:
 BuildDir( 'build', '.' )
 SConscript( 'build/SConscript' )
 """)
-    test.write( 'sub/local/local_header.h', "/* Hello World */" )
-    test.write( 'SConscript', """
+    test.write([work_dir,  'sub', 'local', 'local_header.h'],
+               "/* Hello World */" )
+    test.write([work_dir,  'SConscript'], """
 SConscript( 'sub/SConscript' )
 """)
-    test.write( 'sub/SConscript', """
+    test.write([work_dir,  'sub', 'SConscript'], """
 def CustomTest(context):
   context.Message('Executing Custom Test ... ')
   ret = context.TryCompile('#include "local_header.h"', '.c')
@@ -261,10 +268,10 @@ if not conf.CustomTest():
 env = conf.Finish()
 env.Program( 'TestProgram', 'TestProgram.c' )
 """)
-    test.write( 'sub/TestProgram.h', """
+    test.write([work_dir, 'sub', 'TestProgram.h'], """
 /* Just a test header */
 """)
-    test.write( 'sub/TestProgram.c', """
+    test.write([work_dir, 'sub', 'TestProgram.c'], """
 #include "TestProgram.h"
 #include <stdio.h>
 
@@ -279,22 +286,22 @@ Checking for C header file no_std_c_header.h... no
 Executing Custom Test ... ok
 """)
     # first with SConscriptChdir(0)
-    test.run(stdout = required_stdout, arguments='chdir=no')
+    test.run(chdir=work_dir, stdout = required_stdout, arguments='chdir=no')
     checkFiles( test, [".sconf_temp/.cache", "config.log"] )
     checkLog( test, 'config.log', 0, 0 )
 
-    test.run(stdout = required_stdout, arguments='chdir=no')
+    test.run(chdir=work_dir, stdout = required_stdout, arguments='chdir=no')
     checkFiles( test, [".sconf_temp/.cache", "config.log"] )
     checkLog( test, 'config.log', 5, 1 )
 
-    shutil.rmtree(test.workpath(".sconf_temp"))
+    shutil.rmtree(test.workpath(work_dir, ".sconf_temp"))
 
     # now with SConscriptChdir(1)
-    test.run(stdout = required_stdout, arguments='chdir=yes')
+    test.run(chdir=work_dir, stdout = required_stdout, arguments='chdir=yes')
     checkFiles( test, [".sconf_temp/.cache", "config.log"] )
     checkLog( test, 'config.log', 0, 0 )
 
-    test.run(stdout = required_stdout, arguments='chdir=yes')
+    test.run(chdir=work_dir, stdout = required_stdout, arguments='chdir=yes')
     checkFiles( test, [".sconf_temp/.cache", "config.log"] )
     checkLog( test, 'config.log', 5, 1 )
 
@@ -307,8 +314,8 @@ Executing Custom Test ... ok
     linkFAIL = "void myFunc(); int main() { myFunc(); }"
     runOK = compileOK
     runFAIL = "int main() { return 1; }"
-    test.write('pyAct.py', 'import sys\nprint sys.argv[1]\nsys.exit(int(sys.argv[1]))\n') 
-    test.write('SConstruct', """ 
+    test.write([work_dir, 'pyAct.py'], 'import sys\nprint sys.argv[1]\nsys.exit(int(sys.argv[1]))\n') 
+    test.write([work_dir, 'SConstruct'], """ 
 def CheckCustom(test):
     test.Message( 'Executing MyTest ... ' )
     retCompileOK = test.TryCompile( '%s', '.c' )
@@ -336,12 +343,49 @@ env = conf.Finish()
        python, python ) )
     required_stdout = test.wrap_stdout(build_str='.*',
                                        read_str="Executing MyTest ... ok\n")
-    test.run(stdout = required_stdout)
+    test.run(chdir=work_dir, stdout = required_stdout)
     checkLog( test, 'config.log', 0, 0 )
 
-    test.run(stdout = required_stdout)
+    test.run(chdir=work_dir, stdout = required_stdout)
     checkLog( test, 'config.log', 12, 4 )
 
+    # 4.1 test that calling normal builders from an actual configuring
+    # environment works
+    reset()
+
+    test.write([work_dir, 'cmd.py'], r"""
+import sys
+sys.stderr.write( 'Hello World on stderr\n' )
+sys.stdout.write( 'Hello World on stdout\n' )
+open(sys.argv[1], 'w').write( 'Hello World\n' )
+""")
+
+    test.write([work_dir, 'SConstruct'], """
+env = Environment()
+def CustomTest(*args):
+    return 0
+conf = env.Configure(custom_tests = {'MyTest' : CustomTest})
+if not conf.MyTest():
+    env.Command("hello", [], "%s cmd.py $TARGET")
+env = conf.Finish()
+""" % python)
+    test.run(chdir=work_dir, stderr="Hello World on stderr\n")
+
+    # 4.2 test that calling Configure from a builder results in a
+    # readable Error
+    reset(match=2)
+    
+    test.write([work_dir, 'SConstruct'], """
+def ConfigureAction(target, source, env):
+    env.Configure()
+    return 0
+env = Environment(BUILDERS = {'MyAction' :
+                              Builder(action=Action(ConfigureAction))})
+env.MyAction('target', [])
+""")
+    test.run(chdir=work_dir, status=2,
+             stderr="scons: *** Calling Configure from Builders is not supported.\n")
+    
     test.pass_test()
     
 finally:
