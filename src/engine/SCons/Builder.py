@@ -222,6 +222,7 @@ class OverrideWarner(UserDict.UserDict):
     """
     def __init__(self, dict):
         UserDict.UserDict.__init__(self, dict)
+        if __debug__: logInstanceCreation(self)
         self.already_warned = None
     def warn(self):
         if self.already_warned:

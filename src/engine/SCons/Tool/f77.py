@@ -61,19 +61,23 @@ fVLG = fortran.VariableListGenerator
 F77Generator = fVLG('F77', 'FORTRAN', '_FORTRAND')
 F77FlagsGenerator = fVLG('F77FLAGS', 'FORTRANFLAGS')
 F77CommandGenerator = fVLG('F77COM', 'FORTRANCOM', '_F77COMD')
+F77CommandStrGenerator = fVLG('F77COMSTR', 'FORTRANCOMSTR', '_F77COMSTRD')
 F77PPCommandGenerator = fVLG('F77PPCOM', 'FORTRANPPCOM', '_F77PPCOMD')
+F77PPCommandStrGenerator = fVLG('F77PPCOMSTR', 'FORTRANPPCOMSTR', '_F77PPCOMSTRD')
 ShF77Generator = fVLG('SHF77', 'SHFORTRAN', 'F77', 'FORTRAN', '_FORTRAND')
 ShF77FlagsGenerator = fVLG('SHF77FLAGS', 'SHFORTRANFLAGS')
 ShF77CommandGenerator = fVLG('SHF77COM', 'SHFORTRANCOM', '_SHF77COMD')
+ShF77CommandStrGenerator = fVLG('SHF77COMSTR', 'SHFORTRANCOMSTR', '_SHF77COMSTRD')
 ShF77PPCommandGenerator = fVLG('SHF77PPCOM', 'SHFORTRANPPCOM', '_SHF77PPCOMD')
+ShF77PPCommandStrGenerator = fVLG('SHF77PPCOMSTR', 'SHFORTRANPPCOMSTR', '_SHF77PPCOMSTRD')
 
 del fVLG
 
 #
-F77Action = SCons.Action.Action('$_F77COMG ')
-F77PPAction = SCons.Action.Action('$_F77PPCOMG ')
-ShF77Action = SCons.Action.Action('$_SHF77COMG ')
-ShF77PPAction = SCons.Action.Action('$_SHF77PPCOMG ')
+F77Action = SCons.Action.Action('$_F77COMG ', '$_F77COMSTRG')
+F77PPAction = SCons.Action.Action('$_F77PPCOMG ', '$_F77PPCOMSTRG')
+ShF77Action = SCons.Action.Action('$_SHF77COMG ', '$_SHF77COMSTRG')
+ShF77PPAction = SCons.Action.Action('$_SHF77PPCOMG ', '$_SHF77PPCOMSTRG')
 
 def add_to_env(env):
     """Add Builders and construction variables for f77 to an Environment."""
@@ -93,15 +97,19 @@ def add_to_env(env):
         static_obj.add_emitter(suffix, fortran.FortranEmitter)
         shared_obj.add_emitter(suffix, fortran.ShFortranEmitter)
 
-    env['_F77G']        = F77Generator
-    env['_F77FLAGSG']   = F77FlagsGenerator
-    env['_F77COMG']     = F77CommandGenerator
-    env['_F77PPCOMG']   = F77PPCommandGenerator
+    env['_F77G']            = F77Generator
+    env['_F77FLAGSG']       = F77FlagsGenerator
+    env['_F77COMG']         = F77CommandGenerator
+    env['_F77PPCOMG']       = F77PPCommandGenerator
+    env['_F77COMSTRG']      = F77CommandStrGenerator
+    env['_F77PPCOMSTRG']    = F77PPCommandStrGenerator
 
-    env['_SHF77G']      = ShF77Generator
-    env['_SHF77FLAGSG'] = ShF77FlagsGenerator
-    env['_SHF77COMG']   = ShF77CommandGenerator
-    env['_SHF77PPCOMG'] = ShF77PPCommandGenerator
+    env['_SHF77G']          = ShF77Generator
+    env['_SHF77FLAGSG']     = ShF77FlagsGenerator
+    env['_SHF77COMG']       = ShF77CommandGenerator
+    env['_SHF77PPCOMG']     = ShF77PPCommandGenerator
+    env['_SHF77COMSTRG']    = ShF77CommandStrGenerator
+    env['_SHF77PPCOMSTRG']  = ShF77PPCommandStrGenerator
 
     env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs)} $)'
 

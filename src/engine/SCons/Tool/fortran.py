@@ -94,7 +94,7 @@ def ShFortranEmitter(target, source, env):
 class VariableListGenerator:
     def __init__(self, *variablelist):
         self.variablelist = variablelist
-    def __call__(self, env, target, source, for_signature):
+    def __call__(self, env, target, source, for_signature=0):
         for v in self.variablelist:
             try: return env[v]
             except KeyError: pass
@@ -104,30 +104,38 @@ class VariableListGenerator:
 FortranGenerator = VariableListGenerator('FORTRAN', 'F77', '_FORTRAND')
 FortranFlagsGenerator = VariableListGenerator('FORTRANFLAGS', 'F77FLAGS')
 FortranCommandGenerator = VariableListGenerator('FORTRANCOM', 'F77COM', '_FORTRANCOMD')
+FortranCommandStrGenerator = VariableListGenerator('FORTRANCOMSTR', 'F77COMSTR', '_FORTRANCOMSTRD')
 FortranPPCommandGenerator = VariableListGenerator('FORTRANPPCOM', 'F77PPCOM', '_FORTRANPPCOMD')
+FortranPPCommandStrGenerator = VariableListGenerator('FORTRANPPCOMSTR', 'F77PPCOMSTR', '_FORTRANPPCOMSTRD')
 ShFortranGenerator = VariableListGenerator('SHFORTRAN', 'SHF77', 'FORTRAN', 'F77', '_FORTRAND')
 ShFortranFlagsGenerator = VariableListGenerator('SHFORTRANFLAGS', 'SHF77FLAGS')
 ShFortranCommandGenerator = VariableListGenerator('SHFORTRANCOM', 'SHF77COM', '_SHFORTRANCOMD')
+ShFortranCommandStrGenerator = VariableListGenerator('SHFORTRANCOMSTR', 'SHF77COMSTR', '_SHFORTRANCOMSTRD')
 ShFortranPPCommandGenerator = VariableListGenerator('SHFORTRANPPCOM', 'SHF77PPCOM', '_SHFORTRANPPCOMD')
+ShFortranPPCommandStrGenerator = VariableListGenerator('SHFORTRANPPCOMSTR', 'SHF77PPCOMSTR', '_SHFORTRANPPCOMSTRD')
 
 #
-FortranAction = SCons.Action.Action('$_FORTRANCOMG ')
-FortranPPAction = SCons.Action.Action('$_FORTRANPPCOMG ')
-ShFortranAction = SCons.Action.Action('$_SHFORTRANCOMG ')
-ShFortranPPAction = SCons.Action.Action('$_SHFORTRANPPCOMG ')
+FortranAction = SCons.Action.Action('$_FORTRANCOMG ', '$_FORTRANCOMSTRG')
+FortranPPAction = SCons.Action.Action('$_FORTRANPPCOMG ', '$_FORTRANPPCOMSTRG')
+ShFortranAction = SCons.Action.Action('$_SHFORTRANCOMG ', '$_SHFORTRANCOMSTRG')
+ShFortranPPAction = SCons.Action.Action('$_SHFORTRANPPCOMG ', '$_SHFORTRANPPCOMSTRG')
 
 def add_to_env(env):
     """Add Builders and construction variables for Fortran to an Environment."""
 
-    env['_FORTRANG']        = FortranGenerator
-    env['_FORTRANFLAGSG']   = FortranFlagsGenerator
-    env['_FORTRANCOMG']     = FortranCommandGenerator
-    env['_FORTRANPPCOMG']   = FortranPPCommandGenerator
+    env['_FORTRANG']            = FortranGenerator
+    env['_FORTRANFLAGSG']       = FortranFlagsGenerator
+    env['_FORTRANCOMG']         = FortranCommandGenerator
+    env['_FORTRANCOMSTRG']      = FortranCommandStrGenerator
+    env['_FORTRANPPCOMG']       = FortranPPCommandGenerator
+    env['_FORTRANPPCOMSTRG']    = FortranPPCommandStrGenerator
 
-    env['_SHFORTRANG']      = ShFortranGenerator
-    env['_SHFORTRANFLAGSG'] = ShFortranFlagsGenerator
-    env['_SHFORTRANCOMG']   = ShFortranCommandGenerator
-    env['_SHFORTRANPPCOMG'] = ShFortranPPCommandGenerator
+    env['_SHFORTRANG']          = ShFortranGenerator
+    env['_SHFORTRANFLAGSG']     = ShFortranFlagsGenerator
+    env['_SHFORTRANCOMG']       = ShFortranCommandGenerator
+    env['_SHFORTRANCOMSTRG']    = ShFortranCommandStrGenerator
+    env['_SHFORTRANPPCOMG']     = ShFortranPPCommandGenerator
+    env['_SHFORTRANPPCOMSTRG']  = ShFortranPPCommandStrGenerator
 
     env['_FORTRANINCFLAGS'] = '$( ${_concat(INCPREFIX, FORTRANPATH, INCSUFFIX, __env__, RDirs)} $)'
 
