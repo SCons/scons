@@ -397,10 +397,15 @@ scons_script = {
                           ],
 
         'filemap'       : {
-                            'LICENSE.txt' : '../LICENSE.txt',
-                            'scons'       : 'scons.py',
-                            'sconsign'    : 'sconsign.py',
+                            'LICENSE.txt'       : '../LICENSE.txt',
+                            'scons'             : 'scons.py',
+                            'sconsign'          : 'sconsign.py',
                            },
+
+        'extra_rpm_files' : [
+                            'scons-' + version,
+                            'sconsign-' + version,
+                          ],
 
         'explicit_deps' : {
                             'scons'       : Version_values,
@@ -525,6 +530,9 @@ for p in [ scons ]:
                 rpm_files.append(r)
                 if f[-3:] == ".py":
                     rpm_files.append(r + 'c')
+            for f in sp.get('extra_rpm_files', []):
+                r = os.path.join(sp['rpm_dir'], f)
+                rpm_files.append(r)
             files = map(lambda x, i=isubdir: os.path.join(i, x), files)
             dst_files.extend(files)
             for k, f in sp['filemap'].items():
@@ -631,7 +639,7 @@ for p in [ scons ]:
         env.Command(dfiles, unpack_tar_gz_files, [
             Delete(os.path.join(unpack_tar_gz_dir, pkg_version, 'build')),
             Delete("$TEST_TAR_GZ_DIR"),
-            '$PYTHON "%s" install "--prefix=$TEST_TAR_GZ_DIR"' % \
+            '$PYTHON "%s" install "--prefix=$TEST_TAR_GZ_DIR" --standalone-lib' % \
                 os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
         ])
 
@@ -704,7 +712,7 @@ for p in [ scons ]:
         env.Command(dfiles, unpack_zip_files, [
             Delete(os.path.join(unpack_zip_dir, pkg_version, 'build')),
             Delete("$TEST_ZIP_DIR"),
-            '$PYTHON "%s" install "--prefix=$TEST_ZIP_DIR"' % \
+            '$PYTHON "%s" install "--prefix=$TEST_ZIP_DIR" --standalone-lib' % \
                 os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
         ])
 
@@ -823,7 +831,7 @@ for p in [ scons ]:
 
     commands = [
         Delete(local),
-        '$PYTHON $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-install-doc --no-compile' % \
+        '$PYTHON $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-install-man --no-compile --standalone-lib --no-version-script' % \
                                                 (cwd_local, cwd_local_slv),
     ]
 
@@ -1011,7 +1019,7 @@ if change:
                     (os.path.join(unpack_tar_gz_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
-                '$PYTHON "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR"' % \
+                '$PYTHON "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR" --standalone-lib' % \
                     os.path.join(unpack_tar_gz_dir,
                                  psv,
                                  'build',
@@ -1067,7 +1075,7 @@ if change:
                     (os.path.join(unpack_zip_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
-                '$PYTHON "%s" install "--prefix=$TEST_SRC_ZIP_DIR"' % \
+                '$PYTHON "%s" install "--prefix=$TEST_SRC_ZIP_DIR" --standalone-lib' % \
                     os.path.join(unpack_zip_dir,
                                  psv,
                                  'build',

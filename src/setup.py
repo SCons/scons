@@ -25,8 +25,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import stat
 import string
 import sys
+
+Version = "0.96"
 
 (head, tail) = os.path.split(sys.argv[0])
 
@@ -34,7 +37,18 @@ if head:
     os.chdir(head)
     sys.argv[0] = tail
 
+is_win32 = 0
+if not sys.platform == 'win32':
+    try:
+        if sys.argv[1] == 'bdist_wininst':
+            is_win32 = 1
+    except IndexError:
+        pass
+else:
+    is_win32 = 1
+
 try:
+    import distutils
     import distutils.core
     import distutils.command.install
     import distutils.command.install_data
@@ -57,14 +71,12 @@ _install_lib = distutils.command.install_lib.install_lib
 _install_scripts = distutils.command.install_scripts.install_scripts
 _build_scripts = distutils.command.build_scripts.build_scripts
 
-install_doc = 1
-standard_lib = 0
-standalone_lib = 0
-version_lib = 0
+class _options:
+    pass
 
-installed_lib_dir = None
-installed_man_pages_dir = None
-installed_scripts_dir = None
+Options = _options()
+
+Installed = []
 
 def set_explicitly(name, args):
     """
@@ -88,38 +100,85 @@ def set_explicitly(name, args):
 
 class install(_install):
     user_options = _install.user_options + [
-                    ('no-install-doc', None,
+                    ('no-scons-script', None,
+                     "don't install 'scons', only install 'scons-%s'" % Version),
+                    ('no-version-script', None,
+                     "don't install 'scons-%s', only install 'scons'" % Version),
+                    ('install-bat', None,
+                     "install 'scons.bat' script"),
+                    ('no-install-bat', None,
+                     "do not install 'scons.bat' script"),
+                    ('install-man', None,
+                     "install SCons man pages"),
+                    ('no-install-man', None,
                      "do not install SCons man pages"),
                     ('standard-lib', None,
                      "install SCons library in standard Python location"),
                     ('standalone-lib', None,
                      "install SCons library in separate standalone directory"),
                     ('version-lib', None,
-                     "install SCons library in version-specific directory")
+                     "install SCons library in version-numbered directory"),
                    ]
     boolean_options = _install.boolean_options + [
-                       'no-install-doc',
+                       'no-scons-script',
+                       'no-version-script',
+                       'install-bat',
+                       'no-install-bat',
+                       'install-man',
+                       'no-install-man',
                        'standard-lib',
                        'standalone-lib',
                        'version-lib'
                       ]
 
+    if hasattr(os, 'symlink'):
+        user_options.append(
+                    ('hardlink-scons', None,
+                     "hard link 'scons' to the version-numbered script, don't make a separate 'scons' copy"),
+                     )
+        boolean_options.append('hardlink-script')
+
+    if hasattr(os, 'symlink'):
+        user_options.append(
+                    ('symlink-scons', None,
+                     "make 'scons' a symbolic link to the version-numbered script, don't make a separate 'scons' copy"),
+                     )
+        boolean_options.append('symlink-script')
+
     def initialize_options(self):
         _install.initialize_options(self)
-        self.no_install_doc = 0
+        self.no_scons_script = 0
+        self.no_version_script = 0
+        self.install_bat = 0
+        self.no_install_bat = not is_win32
+        self.install_man = 0
+        self.no_install_man = is_win32
         self.standard_lib = 0
         self.standalone_lib = 0
         self.version_lib = 0
+        self.hardlink_scons = 0
+        self.symlink_scons = 0
+        # Don't warn about having to put the library directory in the
+        # search path.
         self.warn_dir = 0
 
     def finalize_options(self):
         _install.finalize_options(self)
-        global install_doc, standard_lib, standalone_lib, version_lib
-        if self.no_install_doc:
-            install_doc = 0
-        standard_lib = self.standard_lib
-        standalone_lib = self.standalone_lib
-        version_lib = self.version_lib
+        if self.install_bat:
+            Options.install_bat = 1
+        else:
+            Options.install_bat = not self.no_install_bat
+        if self.install_man:
+            Options.install_man = 1
+        else:
+            Options.install_man = not self.no_install_man
+        Options.standard_lib = self.standard_lib
+        Options.standalone_lib = self.standalone_lib
+        Options.version_lib = self.version_lib
+        Options.install_scons_script = not self.no_scons_script
+        Options.install_version_script = not self.no_version_script
+        Options.hardlink_scons = self.hardlink_scons
+        Options.symlink_scons = self.symlink_scons
 
 def get_scons_prefix(libdir, is_win32):
     """
@@ -146,13 +205,6 @@ def get_scons_prefix(libdir, is_win32):
     return libdir
 
 class install_lib(_install_lib):
-    def initialize_options(self):
-        _install_lib.initialize_options(self)
-        global standard_lib, standalone_lib, version_lib
-        self.standard_lib = standard_lib
-        self.standalone_lib = standalone_lib
-        self.version_lib = version_lib
-
     def finalize_options(self):
         _install_lib.finalize_options(self)
         args = self.distribution.script_args
@@ -161,43 +213,108 @@ class install_lib(_install_lib):
             # directory for libraries...
             is_win32 = sys.platform == "win32" or args[0] == 'bdist_wininst'
             prefix = get_scons_prefix(self.install_dir, is_win32)
-            standard_dir = os.path.join(self.install_dir, "SCons")
-            version_dir = os.path.join(prefix, "scons-__VERSION__")
-            standalone_dir = os.path.join(prefix, "scons")
-            if self.version_lib:
-                # ...but they asked for a version-specific directory.
-                self.install_dir = version_dir
-            elif self.standalone_lib:
+            if Options.standalone_lib:
                 # ...but they asked for a standalone directory.
-                self.install_dir = standalone_dir
-            elif not self.standard_lib:
-                # ...and they didn't explicitly ask for the standard
-                # directory, so guess based on what's out there.
-                try:
-                    l = os.listdir(prefix)
-                except OSError:
-                    e = None
-                else:
-                    e = filter(lambda x: x[:6] == "scons-", l)
-                if e:
-                    # We found a path name (e.g.) /usr/lib/scons-XXX,
-                    # so pick the version-specific directory.
-                    self.install_dir = version_dir
-                elif os.path.exists(standalone_dir) or \
-                     not os.path.exists(standard_dir):
-                    # There's already a standalone directory, or
-                    # there's no SCons library in the standard
-                    # directory, so go with the standalone.
-                    self.install_dir = standalone_dir
-        global installed_lib_dir
-        installed_lib_dir = self.install_dir
+                self.install_dir = os.path.join(prefix, "scons")
+            elif Options.version_lib or not Options.standard_lib:
+                # ...they asked for a version-specific directory,
+                # or they get it by default.
+                self.install_dir = os.path.join(prefix, "scons-%s" % Version)
+
+        msg = "Installed SCons library modules into %s" % self.install_dir
+        Installed.append(msg)
 
 class install_scripts(_install_scripts):
     def finalize_options(self):
         _install_scripts.finalize_options(self)
         self.build_dir = os.path.join('build', 'scripts')
-        global installed_scripts_dir
-        installed_scripts_dir = self.install_dir
+        msg = "Installed SCons scripts into %s" % self.install_dir
+        Installed.append(msg)
+
+    def do_nothing(self, *args, **kw):
+        pass
+
+    def hardlink_scons(self, src, dst, ver):
+        try: os.unlink(dst)
+        except OSError: pass
+        os.link(ver, dst)
+
+    def symlink_scons(self, src, dst, ver):
+        try: os.unlink(dst)
+        except OSError: pass
+        os.symlink(os.path.split(ver)[1], dst)
+
+    def copy_scons(self, src, dst, *args):
+        try: os.unlink(dst)
+        except OSError: pass
+        self.copy_file(src, dst)
+        self.outfiles.append(dst)
+
+    def report(self, msg, args):
+        # Wrapper around self.announce, used by older distutils versions.
+        self.announce(msg % args)
+
+    def run(self):
+        # This "skip_build/build_scripts" block is cut-and-paste from
+        # distutils.
+        if not self.skip_build:
+            self.run_command('build_scripts')
+
+        # Custom SCons installation stuff.
+        if Options.hardlink_scons:
+            create_basename_script = self.hardlink_scons
+        elif Options.symlink_scons:
+            create_basename_script = self.symlink_scons
+        elif Options.install_scons_script:
+            create_basename_script = self.copy_scons
+        else:
+            create_basename_script = self.do_nothing
+
+        if Options.install_version_script:
+            create_version_script = self.copy_scons
+        else:
+            create_version_script = self.do_nothing
+
+        inputs = self.get_inputs()
+        bat_scripts = filter(lambda x: x[-4:] == '.bat', inputs)
+        non_bat_scripts = filter(lambda x: x[-4:] != '.bat', inputs)
+
+        self.outfiles = []
+        self.mkpath(self.install_dir)
+
+        for src in non_bat_scripts:
+            base = os.path.basename(src)
+            scons = os.path.join(self.install_dir, base)
+            scons_ver = scons + '-' + Version
+            create_version_script(src, scons_ver)
+            create_basename_script(src, scons, scons_ver)
+
+        if Options.install_bat:
+            if is_win32:
+                bat_install_dir = get_scons_prefix(self.install_dir, is_win32)
+            else:
+                bat_install_dir = self.install_dir
+            for src in bat_scripts:
+                scons_bat = os.path.join(bat_install_dir, 'scons.bat')
+                scons_version_bat = os.path.join(bat_install_dir,
+                                                 'scons-' + Version + '.bat')
+                self.copy_scons(src, scons_bat)
+                self.copy_scons(src, scons_version_bat)
+
+        # This section is cut-and-paste from distutils, modulo being
+        # able 
+        if os.name == 'posix':
+            try: report = distutils.log.info
+            except AttributeError: report = self.report
+            # Set the executable bits (owner, group, and world) on
+            # all the scripts we just installed.
+            for file in self.get_outputs():
+                if self.dry_run:
+                    report("changing mode of %s", file)
+                else:
+                    mode = ((os.stat(file)[stat.ST_MODE]) | 0555) & 07777
+                    report("changing mode of %s", file)
+                    os.chmod(file, mode)
 
 class build_scripts(_build_scripts):
     def finalize_options(self):
@@ -207,19 +324,23 @@ class build_scripts(_build_scripts):
 class install_data(_install_data):
     def initialize_options(self):
         _install_data.initialize_options(self)
-        global install_doc
-        self.install_doc = install_doc
     def finalize_options(self):
         _install_data.finalize_options(self)
-        if self.install_doc:
-            global installed_man_pages_dir
-            installed_man_pages_dir = self.install_dir + '/man/man1'
+        if Options.install_man:
+            if is_win32:
+                dir = 'Doc'
+            else:
+                dir = os.path.join('man', 'man1')
+            self.data_files = [(dir, ["scons.1", "sconsign.1"])]
+            man_dir = os.path.join(self.install_dir, dir)
+            msg = "Installed SCons man pages into %s" % man_dir
+            Installed.append(msg)
         else:
             self.data_files = []
 
 arguments = {
     'name'             : "scons",
-    'version'          : "__VERSION__",
+    'version'          : Version,
     'packages'         : ["SCons",
                           "SCons.Node",
                           "SCons.Optik",
@@ -230,7 +351,10 @@ arguments = {
                           "SCons.Sig",
                           "SCons.Tool"],
     'package_dir'      : {'' : 'engine'},
-    'scripts'          : ['script/scons', 'script/sconsign'],
+    'data_files'       : [('man/man1', ["scons.1", "sconsign.1"])],
+    'scripts'          : ['script/scons',
+                          'script/sconsign',
+                          'script/scons.bat'],
     'cmdclass'         : {'install'         : install,
                           'install_lib'     : install_lib,
                           'install_data'    : install_data,
@@ -238,26 +362,7 @@ arguments = {
                           'build_scripts'   : build_scripts}
 }
 
-is_win32 = 0
-if not sys.platform == 'win32':
-    try:
-        if sys.argv[1] == 'bdist_wininst':
-            is_win32 = 1
-    except IndexError:
-        pass
-else:
-    is_win32 = 1
-
-if is_win32:
-    arguments['data_files'] = [('.', ["script/scons.bat"])]
-else:
-    arguments['data_files'] = [('man/man1', ["scons.1", "sconsign.1"])]
-
 apply(distutils.core.setup, (), arguments)
 
-if installed_lib_dir:
-    print "Installed SCons library modules into %s" % installed_lib_dir
-if installed_man_pages_dir:
-    print "Installed SCons man pages into %s" % installed_man_pages_dir
-if installed_scripts_dir:
-    print "Installed SCons scripts into %s" % installed_scripts_dir
+if Installed:
+    print string.join(Installed, '\n')
