@@ -642,7 +642,10 @@ for p in [ scons ]:
                                       os.path.join(u, pv, x),
                                src_files)
 
-        env.Command(unpack_zip_files, zip, unzipit)
+        env.Command(unpack_zip_files, zip, [
+            "rm -rf %s" % os.path.join(unpack_zip_dir, pkg_version),
+            unzipit
+        ])
 
         #
         # Run setup.py in the unpacked subdirectory to "install" everything
@@ -1013,7 +1016,10 @@ if change:
                                              os.path.join(u, psv, x),
                                       sfiles)
 
-            env.Command(unpack_zip_files, src_zip, unzipit)
+            env.Command(unpack_zip_files, src_zip, [
+                "rm -rf %s" % os.path.join(unpack_zip_dir, psv),
+                unzipit
+            ])
 
             #
             # Run setup.py in the unpacked subdirectory to "install" everything
