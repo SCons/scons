@@ -1,4 +1,4 @@
-# Copyright (c) 2001, 2002 Steven Knight
+# Copyright (c) 2001, 2002, 2003 Steven Knight
 # __FILE__ __REVISION__ __DATE__ __DEVELOPER__
 
 

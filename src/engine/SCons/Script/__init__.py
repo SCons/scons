@@ -12,7 +12,7 @@ it goes here.
 """
 
 #
-# Copyright (c) 2001, 2002 Steven Knight
+# Copyright (c) 2001, 2002, 2003 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -409,7 +409,7 @@ class OptParser(OptionParser):
                                                               SCons.__date__,
                                                               SCons.__developer__,
                                                               SCons.__buildsys__))
-        parts.append("Copyright 2001, 2002 Steven Knight")
+        parts.append("Copyright 2001, 2002, 2003 Steven Knight")
         OptionParser.__init__(self, version=string.join(parts, ''),
                               usage="usage: scons [OPTION] [TARGET] ...")
 

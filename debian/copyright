@@ -16,7 +16,7 @@ With plenty of help from the SCons Development team:
 Copyright: 
 
 The software comes with the following notice in the file LICENSE.txt:
-Copyright (c) 2001, 2002 Steven Knight
+Copyright (c) 2001, 2002, 2003 Steven Knight
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -42,7 +42,7 @@ The package source can be downloaded from http://www.scons.org/
 
 Upstream Author: Steven Knight <knight@baldmt.com>
 
-Copyright (c) 2001, 2002 Steven Knight
+Copyright (c) 2001, 2002, 2003 Steven Knight
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

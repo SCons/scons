@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2001, 2002 Steven Knight
+# Copyright (c) 2001, 2002, 2003 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -37,13 +37,13 @@ test.write('SConstruct', "")
 # depending on whether it's invoked through scons.py or scons.bat.
 expect1 = r"""SCons by Steven Knight et al.:
 \tengine: v\S+, [^,]*, by \S+ on \S+
-Copyright 2001, 2002 Steven Knight
+Copyright 2001, 2002, 2003 Steven Knight
 """
 
 expect2 = r"""SCons by Steven Knight et al.:
 \tscript: v\S+, [^,]*, by \S+ on \S+
 \tengine: v\S+, [^,]*, by \S+ on \S+
-Copyright 2001, 2002 Steven Knight
+Copyright 2001, 2002, 2003 Steven Knight
 """
 
 test.run(arguments = '-v')
