@@ -47,14 +47,20 @@ import os
 # followed by generic) so we pick up the right version of the build
 # engine modules if they're in either directory.
 
-selfdir = os.path.abspath(sys.argv[0])
-if selfdir in sys.path:
-    sys.path.remove(selfdir)
+script_dir = sys.path[0]
+
+if script_dir in sys.path:
+    sys.path.remove(script_dir)
 
 libs = []
 
 if os.environ.has_key("SCONS_LIB_DIR"):
     libs.append(os.environ["SCONS_LIB_DIR"])
+
+local = 'scons-local-' + __version__
+if script_dir:
+    local = os.path.join(script_dir, local)
+libs.append(local)
 
 if sys.platform == 'win32':
     libs.extend([ os.path.join(sys.prefix, 'SCons-%s' % __version__),
@@ -65,8 +71,6 @@ else:
     _bin = os.path.join('', 'bin')
     _usr = os.path.join('', 'usr')
     _usr_local = os.path.join('', 'usr', 'local')
-
-    script_dir = sys.path[0]
 
     if script_dir == 'bin':
         prefs.append(os.getcwd())
@@ -89,7 +93,7 @@ else:
     libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons-%s' % __version__), prefs))
     libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons'), prefs))
 
-sys.path = libs + sys.path[1:]
+sys.path = libs + sys.path
 
 import SCons.Script
 SCons.Script.main()

@@ -90,12 +90,14 @@ Options:
   -o FILE, --output FILE      Print test results to FILE (Aegis format).
   -p PACKAGE, --package PACKAGE
                               Test against the specified PACKAGE:
-                                deb         Debian
-                                rpm         Red Hat
-                                src-tar-gz  .tar.gz source package
-                                src-zip     .zip source package
-                                tar-gz      .tar.gz distribution
-                                zip         .zip distribution
+                                deb           Debian
+                                local-tar-gz  .tar.gz standalone package
+                                local-zip     .zip standalone package
+                                rpm           Red Hat
+                                src-tar-gz    .tar.gz source package
+                                src-zip       .zip source package
+                                tar-gz        .tar.gz distribution
+                                zip           .zip distribution
   -q, --quiet                 Don't print the test being executed.
   -X                          Test script is executable, don't feed to Python.
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
@@ -214,12 +216,14 @@ elif all:
 if package:
 
     dir = {
-        'deb'        : 'usr',
-        'rpm'        : 'usr',
-        'src-tar-gz' : '',
-        'src-zip'    : '',
-        'tar-gz'     : '',
-        'zip'        : '',
+        'deb'          : 'usr',
+        'local-tar-gz' : None,
+        'local-zip'    : None,
+        'rpm'          : 'usr',
+        'src-tar-gz'   : '',
+        'src-zip'      : '',
+        'tar-gz'       : '',
+        'zip'          : '',
     }
 
     # The hard-coded "python2.1" here is the library directory
@@ -234,13 +238,23 @@ if package:
 
     test_dir = os.path.join(cwd, 'build', 'test-%s' % package)
 
-    if sys.platform == 'win32':
-        scons_dir = os.path.join(test_dir, dir[package], 'Scripts')
-        lib_dir = os.path.join(test_dir, dir[package])
+    if dir[package] is None:
+        scons_script_dir = test_dir
+        globs = glob.glob(os.path.join(test_dir, 'scons-local-*'))
+        if not globs:
+            sys.stderr.write("No `scons-local-*' dir in `%s'\n" % test_dir)
+            sys.exit(2)
+        scons_lib_dir = None
+        pythonpath_dir = globs[len(globs)-1]
+    elif sys.platform == 'win32':
+        scons_script_dir = os.path.join(test_dir, dir[package], 'Scripts')
+        scons_lib_dir = os.path.join(test_dir, dir[package])
+        pythonpath_dir = scons_lib_dir
     else:
-        scons_dir = os.path.join(test_dir, dir[package], 'bin')
+        scons_script_dir = os.path.join(test_dir, dir[package], 'bin')
         l = lib.get(package, 'scons')
-        lib_dir = os.path.join(test_dir, dir[package], 'lib', l)
+        scons_lib_dir = os.path.join(test_dir, dir[package], 'lib', l)
+        pythonpath_dir = scons_lib_dir
 
 else:
     sd = None
@@ -261,30 +275,30 @@ else:
     #    spe = map(lambda x: os.path.join(x, 'src', 'engine'), spe)
     #    ld = string.join(spe, os.pathsep)
 
-    scons_dir = sd or os.path.join(cwd, 'src', 'script')
+    scons_script_dir = sd or os.path.join(cwd, 'src', 'script')
 
-    lib_dir = ld or os.path.join(cwd, 'src', 'engine')
+    scons_lib_dir = ld or os.path.join(cwd, 'src', 'engine')
 
 if scons:
     # Let the version of SCons that the -x option pointed to find
     # its own modules.
     os.environ['SCONS'] = scons
-else:
+elif scons_lib_dir:
     # Because SCons is really aggressive about finding its modules,
     # it sometimes finds SCons modules elsewhere on the system.
     # This forces SCons to use the modules that are being tested.
-    os.environ['SCONS_LIB_DIR'] = lib_dir
+    os.environ['SCONS_LIB_DIR'] = scons_lib_dir
 
 if scons_exec:
     os.environ['SCONS_EXEC'] = '1'
 
-os.environ['PYTHONPATH'] = lib_dir + \
+os.environ['PYTHONPATH'] = pythonpath_dir + \
                            os.pathsep + \
                            os.path.join(cwd, 'build', 'etc') + \
                            os.pathsep + \
                            os.path.join(cwd, 'etc')
 
-os.chdir(scons_dir)
+os.chdir(scons_script_dir)
 
 class Unbuffered:
     def __init__(self, file):

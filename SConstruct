@@ -147,15 +147,17 @@ lib_project = os.path.join("lib", project)
 
 cwd_build = os.path.join(os.getcwd(), "build")
 
-test_deb_dir        = os.path.join(cwd_build, "test-deb")
-test_rpm_dir        = os.path.join(cwd_build, "test-rpm")
-test_tar_gz_dir     = os.path.join(cwd_build, "test-tar-gz")
-test_src_tar_gz_dir = os.path.join(cwd_build, "test-src-tar-gz")
-test_zip_dir        = os.path.join(cwd_build, "test-zip")
-test_src_zip_dir    = os.path.join(cwd_build, "test-src-zip")
+test_deb_dir          = os.path.join(cwd_build, "test-deb")
+test_rpm_dir          = os.path.join(cwd_build, "test-rpm")
+test_tar_gz_dir       = os.path.join(cwd_build, "test-tar-gz")
+test_src_tar_gz_dir   = os.path.join(cwd_build, "test-src-tar-gz")
+test_local_tar_gz_dir = os.path.join(cwd_build, "test-local-tar-gz")
+test_zip_dir          = os.path.join(cwd_build, "test-zip")
+test_src_zip_dir      = os.path.join(cwd_build, "test-src-zip")
+test_local_zip_dir    = os.path.join(cwd_build, "test-local-zip")
 
-unpack_tar_gz_dir   = os.path.join(cwd_build, "unpack-tar-gz")
-unpack_zip_dir      = os.path.join(cwd_build, "unpack-zip")
+unpack_tar_gz_dir     = os.path.join(cwd_build, "unpack-tar-gz")
+unpack_zip_dir        = os.path.join(cwd_build, "unpack-zip")
 
 if platform == "win32":
     tar_hflag = ''
@@ -185,7 +187,7 @@ try:
                 if os.path.isfile(path):
                     arg.write(path)
         zf = zipfile.ZipFile(str(target[0]), 'w')
-        os.chdir('build')
+        os.chdir(env['CD'])
         os.path.walk(env['PSV'], visit, zf)
         os.chdir('..')
         zf.close()
@@ -210,7 +212,7 @@ try:
 
 except:
     if unzip and zip:
-        zipit = "cd build && $ZIP $ZIPFLAGS dist/${TARGET.file} $PSV"
+        zipit = "cd $CD && $ZIP $ZIPFLAGS $( ${TARGET.abspath} $) $PSV"
         unzipit = "$UNZIP $UNZIPFLAGS $SOURCES"
 
 def SCons_revision(target, source, env):
@@ -479,6 +481,7 @@ for p in [ scons ]:
     manifest_in = File(os.path.join(src, 'MANIFEST.in')).rstr()
     src_files = map(lambda x: x[:-1],
                     open(manifest_in).readlines())
+    raw_files = src_files[:]
     dst_files = src_files[:]
 
     MANIFEST_in_list = []
@@ -496,6 +499,7 @@ for p in [ scons ]:
             MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
             f = map(lambda x: x[:-1], open(MANIFEST_in).readlines())
+            raw_files.extend(f)
             src_files.extend(map(lambda x, s=ssubdir: os.path.join(s, x), f))
             if isubdir:
                 f = map(lambda x, i=isubdir: os.path.join(i, x), f)
@@ -531,7 +535,7 @@ for p in [ scons ]:
     src_files.append("MANIFEST")
     MANIFEST_in_list.append(os.path.join(src, 'MANIFEST.in'))
 
-    def copy(target, source, **kw):
+    def write_src_files(target, source, **kw):
         global src_files
 	src_files.sort()
         f = open(str(target[0]), 'wb')
@@ -539,7 +543,9 @@ for p in [ scons ]:
             f.write(file + "\n")
         f.close()
         return 0
-    env.Command(os.path.join(build, 'MANIFEST'), MANIFEST_in_list, copy)
+    env.Command(os.path.join(build, 'MANIFEST'),
+                MANIFEST_in_list,
+                write_src_files)
 
     #
     # Now go through and arrange to create whatever packages we can.
@@ -725,6 +731,70 @@ for p in [ scons ]:
     env.Command(distutils_targets, build_src_files, commands)
 
     #
+    # Now create local packages for people who want to let people
+    # build their SCons-buildable packages without having to
+    # install SCons.
+    #
+    s_l_v = '%s-local-%s' % (pkg, version)
+
+    local = os.path.join('build', pkg + '-local')
+    cwd_local = os.path.join(os.getcwd(), local)
+    cwd_local_slv = os.path.join(os.getcwd(), local, s_l_v)
+
+    local_tar_gz = os.path.join('build', 'dist', "%s.tar.gz" % s_l_v)
+    local_zip = os.path.join('build', 'dist', "%s.zip" % s_l_v)
+
+    commands = [
+        "rm -rf %s" % local,
+        "$PYTHON $SETUP_PY install --install-script=%s --install-lib=%s" % \
+                                                (cwd_local, cwd_local_slv),
+        "mv %s/scons %s/scons.py" % (local, local),
+    ]
+
+    rf = filter(lambda x: x != "scons", raw_files)
+    rf = map(lambda x, slv=s_l_v: os.path.join(slv, x), rf)
+    rf.append("scons.py")
+    local_targets = map(lambda x, s=local: os.path.join(s, x), rf)
+
+    env.Command(local_targets, build_src_files, commands)
+
+    scons_LICENSE = os.path.join(local, 'scons-LICENSE')
+    env.SCons_revision(scons_LICENSE, 'LICENSE-local')
+    local_targets.append(scons_LICENSE)
+
+    scons_README = os.path.join(local, 'scons-README')
+    env.SCons_revision(scons_README, 'README-local')
+    local_targets.append(scons_README)
+
+    if gzip:
+        env.Command(local_tar_gz,
+                    local_targets,
+                    "cd %s && tar czf $( ${TARGET.abspath} $) *" % local)
+
+        unpack_targets = map(lambda x, d=test_local_tar_gz_dir:
+                                    os.path.join(d, x),
+                             rf)
+        commands = ["rm -rf %s" % test_local_tar_gz_dir,
+                    "mkdir %s" % test_local_tar_gz_dir,
+                    "cd %s && tar xzf $( ${SOURCE.abspath} $)" % test_local_tar_gz_dir]
+
+        env.Command(unpack_targets, local_tar_gz, commands)
+
+    if zipit:
+        zipenv = env.Copy(CD = local, PSV = '.')
+        zipenv.Command(local_zip, local_targets, zipit)
+
+        unpack_targets = map(lambda x, d=test_local_zip_dir:
+                                    os.path.join(d, x),
+                             rf)
+        commands = ["rm -rf %s" % test_local_zip_dir,
+                    "mkdir %s" % test_local_zip_dir,
+                    unzipit]
+
+        zipenv = env.Copy(UNPACK_ZIP_DIR = test_local_zip_dir)
+        zipenv.Command(unpack_targets, local_zip, unzipit)
+
+    #
     # And, lastly, install the appropriate packages in the
     # appropriate subdirectory.
     #
@@ -865,7 +935,8 @@ if change:
 
         if zipit:
 
-            env.Copy(PSV = psv).Command(src_zip, b_psv_stamp, zipit)
+            zipenv = env.Copy(CD = 'build', PSV = psv)
+            zipenv.Command(src_zip, b_psv_stamp, zipit)
     
             #
             # Unpack the archive into build/unpack/scons-{version}.

@@ -20,6 +20,13 @@ Things to do to release a new version of SCons:
 			   cd scons-src-{version}
 			   python runtest.py -a -X -x C:\Python20\scons.bat
 
+			4) mkdir temporary_directory
+			   cd temporary_directory
+			   tar zxf scons-local-{version}.tar.gz
+			   cd scons-src-{version}
+			   ptyhon runtest.py -a -x C:\temporary_directory\scons.py
+
+
 	Read through the README and src/README.txt files for any updates
 
 	Prepare src/CHANGES.txt
@@ -49,11 +56,11 @@ Things to do to release a new version of SCons:
 
 		ae_p scons.0
 
-		aede {7}
+		aede {9}
 
-		aerpass {7}
+		aerpass {9}
 
-		aeib {7}
+		aeib {9}
 
 		aeb
 
@@ -67,15 +74,15 @@ Things to do to release a new version of SCons:
 
 	START THE NEW BRANCH
 
-		aenbr -p scons.0 {8}
+		aenbr -p scons.0 {10}
 
-		aenc -p scons.0.{8}
+		aenc -p scons.0.{10}
 
                         Call it something like, "Initialize the new
                         branch."  Cause = internal_enhancement.  Exempt
                         it from all tests (*_exempt = true).
 
-		ae_p scons.0.{8}
+		ae_p scons.0.{10}
 
 		aedb 100
 
@@ -117,14 +124,16 @@ Things to do to release a new version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.08-1.noarch.rpm
-		put scons-0.08-1.src.rpm
-		put scons-0.08.tar.gz
-		put scons-0.08.win32.exe
-		put scons-0.08.zip
-		put scons-src-0.08.tar.gz
-		put scons-src-0.08.zip
-		put scons_0.08-1_all.deb
+		put scons-0.09-1.noarch.rpm
+		put scons-0.09-1.src.rpm
+		put scons-0.09.tar.gz
+		put scons-0.09.win32.exe
+		put scons-0.09.zip
+		put scons-local-0.09.tar.gz
+		put scons-local-0.09.zip
+		put scons-src-0.09.tar.gz
+		put scons-src-0.09.zip
+		put scons_0.09-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
@@ -136,7 +145,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.08
+		New release name:  0.09
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -153,12 +162,12 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-0.08-1.noarch.rpm		Any	.rpm
-			scons-0.08-1.src.rpm		Any	Source .rpm
-			scons-0.08.tar.gz		Any	.gz
-			scons-0.08.win32.exe		i386	.exe (32-bit Windows)
-			scons-0.08.zip			Any	.zip
-			scons_0.08-1_all.deb		Any	.deb
+			scons-0.09-1.noarch.rpm		Any	.rpm
+			scons-0.09-1.src.rpm		Any	Source .rpm
+			scons-0.09.tar.gz		Any	.gz
+			scons-0.09.win32.exe		i386	.exe (32-bit Windows)
+			scons-0.09.zip			Any	.zip
+			scons_0.09-1_all.deb		Any	.deb
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -175,7 +184,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.08
+		New release name:  0.09
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -192,8 +201,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-src-0.08.tar.gz		Any	.gz
-			scons-src-0.08.zip   		Any	.zip
+			scons-src-0.09.tar.gz		Any	.gz
+			scons-src-0.09.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -202,7 +211,42 @@ Things to do to release a new version of SCons:
 		Release Notice section.
 
 
-	Hide release {0.06} 2 at the SourceForge download page:
+		Go to the Admin page
+
+		=> Edit/Add File Releases
+
+		Package Name:  scons-local
+
+		=> Add Release
+
+		New release name:  0.09
+
+		Cut-and-paste or upload the RELEASE.txt file.
+
+		Cut-and-paste or upload the CHANGES.txt file.
+
+		(If you cut-and-paste, check the "Preserve my
+		pre-formatted text." box!)
+
+		Click "Submit/Refresh"  (IMPORTANT!)
+
+		Check the SCons files you uploaded
+
+		Click "Add Files and/or Refresh View"
+
+		Edit the file info:
+
+			scons-local-0.09.tar.gz		Any	.gz
+			scons-local-0.09.zip   		Any	.zip
+
+                Click "Update/Refresh" for each file; this must be done
+                one at a time.
+
+		Check "I'm sure." and click "Send Notice" in the Email
+		Release Notice section.
+
+
+	Hide release {0.07} 2 at the SourceForge download page:
 
 		Go to the Admin page
 
@@ -212,7 +256,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: {0.06}
+		Release Name: {0.07}
 
 		=> Edit This Release
 
@@ -229,7 +273,24 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: {0.06}
+		Release Name: {0.07}
+
+		=> Edit This Release
+
+		Status: => Hidden
+
+		Click Submit/Refresh
+
+
+		Go to the Admin page
+
+		=> Edit/Add File Releases
+
+		Package Name:  scons-local
+
+		=> Edit Releases
+
+		Release Name: {0.07}
 
 		=> Edit This Release
 
@@ -239,7 +300,7 @@ Things to do to release a new version of SCons:
 
 
 
-	In the Bugs Tracker, add a Group for the new release (0.08)
+	In the Bugs Tracker, add a Group for the new release (0.10)
 
 
 
@@ -314,7 +375,7 @@ Things to do to release a new version of SCons:
 =======================
 Template describe-the-release section:
 
-IMPORTANT:  Release 0.08 contains the following interface changes:
+IMPORTANT:  Release 0.09 contains the following interface changes:
   - XXX
 
 This release adds the following features:
@@ -336,7 +397,7 @@ Template scons-devel announcement:
 
 SConspirators--
 
-SCons alpha release 0.08 is now available for download.
+SCons alpha release 0.09 is now available for download.
 
 XXX Template describe-the-release section goes here XXX
 
@@ -347,7 +408,7 @@ release.
 =======================
 Template scons-users + scons-announce announcement:
 
-Version 0.08 of SCons has been released and is available for download
+Version 0.09 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/
@@ -380,7 +441,7 @@ SCons is a software construction tool (build tool, or make tool) written
 in Python.  It is based on the design which won the Software Carpentry
 build tool competition in August 2000.
 
-Version 0.08 of SCons has been released and is available for download
+Version 0.09 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/

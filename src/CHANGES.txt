@@ -66,6 +66,10 @@ RELEASE 0.09 -
     and before trying to build a file that doesn't have all its source
     files (including when an invalid drive letter is used on WIN32).
 
+  - Add an scons-local-{version} package (in both .tar.gz and .zip
+    flavors) to help people who want to ship SCons as a stand-alone
+    build tool in their software packages.
+
  From Steven Knight and Anthony Roach:
 
   - Man page:  document the fact that Builder calls return Node objects.
