@@ -43,6 +43,7 @@ import SCons.Scanner.C
 import SCons.Scanner.Prog
 import string
 import SCons.Errors
+import SCons.Util
 
 CFile = SCons.Builder.Builder(name = 'CFile',
                               action = { '.l'    : '$LEXCOM',
@@ -82,40 +83,6 @@ Library = SCons.Builder.Builder(name = 'Library',
 
 CScan = SCons.Scanner.C.CScan()
 
-# attempt to load the windows registry module:
-_can_read_reg = 0
-try:
-    import _winreg
-
-    _can_read_reg = 1
-    hkey_mod = _winreg
-
-    RegOpenKeyEx = _winreg.OpenKeyEx
-    RegEnumKey = _winreg.EnumKey
-    RegEnumValue = _winreg.EnumValue
-    RegError = _winreg.error
-
-except ImportError:
-    try:
-        import win32api
-        import win32con
-        _can_read_reg = 1
-        hkey_mod = win32con
-
-        RegOpenKeyEx = win32api.RegOpenKeyEx
-        RegEnumKey = win32api.RegEnumKey
-        RegEnumValue = win32api.RegEnumValue
-        RegError = win32api.error
-
-    except ImportError:
-        pass
-
-if _can_read_reg:
-    HKEY_CLASSES_ROOT = hkey_mod.HKEY_CLASSES_ROOT
-    HKEY_LOCAL_MACHINE = hkey_mod.HKEY_LOCAL_MACHINE
-    HKEY_CURRENT_USER = hkey_mod.HKEY_CURRENT_USER
-    HKEY_USERS = hkey_mod.HKEY_USERS
-
 def get_devstudio_versions ():
     """
     Get list of devstudio versions from the Windows registry.  Return a
@@ -125,27 +92,27 @@ def get_devstudio_versions ():
     found.
     """
 
-    if not _can_read_reg:
+    if not SCons.Util.can_read_reg:
         raise InternalError, "No Windows registry module was found"
 
     K = 'Software\\Microsoft\\Devstudio'
     L = []
-    for base in (HKEY_CLASSES_ROOT,
-                 HKEY_LOCAL_MACHINE,
-                 HKEY_CURRENT_USER,
-                 HKEY_USERS):
+    for base in (SCons.Util.HKEY_CLASSES_ROOT,
+                 SCons.Util.HKEY_LOCAL_MACHINE,
+                 SCons.Util.HKEY_CURRENT_USER,
+                 SCons.Util.HKEY_USERS):
         try:
-            k = RegOpenKeyEx(base,K)
+            k = SCons.Util.RegOpenKeyEx(base,K)
             i = 0
             while 1:
                 try:
-                    p = RegEnumKey(k,i)
+                    p = SCons.Util.RegEnumKey(k,i)
                     if p[0] in '123456789' and p not in L:
                         L.append(p)
-                except RegError:
+                except SCons.Util.RegError:
                     break
                 i = i + 1
-        except RegError:
+        except SCons.Util.RegError:
             pass
     
     if not L:
@@ -171,22 +138,22 @@ def get_msvc_path (path, version, platform='x86'):
     K = ('Software\\Microsoft\\Devstudio\\%s\\' +
          'Build System\\Components\\Platforms\\Win32 (%s)\\Directories') % \
         (version,platform)
-    for base in (HKEY_CLASSES_ROOT,
-                 HKEY_LOCAL_MACHINE,
-                 HKEY_CURRENT_USER,
-                 HKEY_USERS):
+    for base in (SCons.Util.HKEY_CLASSES_ROOT,
+                 SCons.Util.HKEY_LOCAL_MACHINE,
+                 SCons.Util.HKEY_CURRENT_USER,
+                 SCons.Util.HKEY_USERS):
         try:
-            k = RegOpenKeyEx(base,K)
+            k = SCons.Util.RegOpenKeyEx(base,K)
             i = 0
             while 1:
                 try:
-                    (p,v,t) = RegEnumValue(k,i)
+                    (p,v,t) = SCons.Util.RegEnumValue(k,i)
                     if string.upper(p) == path:
                         return v
                     i = i + 1
-                except RegError:
+                except SCons.Util.RegError:
                     break
-        except RegError:
+        except SCons.Util.RegError:
             pass
 
     # if we got here, then we didn't find the registry entries:

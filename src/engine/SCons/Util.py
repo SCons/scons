@@ -425,3 +425,39 @@ def is_List(e):
 
 def is_String(e):
     return type(e) is types.StringType or isinstance(e, UserString)
+
+# attempt to load the windows registry module:
+can_read_reg = 0
+try:
+    import _winreg
+
+    can_read_reg = 1
+    hkey_mod = _winreg
+
+    RegOpenKeyEx = _winreg.OpenKeyEx
+    RegEnumKey = _winreg.EnumKey
+    RegEnumValue = _winreg.EnumValue
+    RegQueryValueEx = _winreg.QueryValueEx
+    RegError = _winreg.error
+
+except ImportError:
+    try:
+        import win32api
+        import win32con
+        can_read_reg = 1
+        hkey_mod = win32con
+
+        RegOpenKeyEx = win32api.RegOpenKeyEx
+        RegEnumKey = win32api.RegEnumKey
+        RegEnumValue = win32api.RegEnumValue
+        RegQueryValueEx = win32api.RegQueryValueEx
+        RegError = win32api.error
+
+    except ImportError:
+        pass
+
+if can_read_reg:
+    HKEY_CLASSES_ROOT = hkey_mod.HKEY_CLASSES_ROOT
+    HKEY_LOCAL_MACHINE = hkey_mod.HKEY_LOCAL_MACHINE
+    HKEY_CURRENT_USER = hkey_mod.HKEY_CURRENT_USER
+    HKEY_USERS = hkey_mod.HKEY_USERS
