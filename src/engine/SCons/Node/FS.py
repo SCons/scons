@@ -938,6 +938,8 @@ class DummyExecutor:
     """Dummy executor class returned by Dir nodes to bamboozle SCons
     into thinking we are an actual derived node, where our sources are
     our directory entries."""
+    def cleanup(self):
+        pass
     def get_raw_contents(self):
         return ''
     def get_contents(self):
@@ -1214,11 +1216,12 @@ class File(Base):
         return self.fs.Rsearchall(pathlist, clazz=Dir, must_exist=0,
                                   cwd=self.cwd)
 
-    def generate_build_env(self, env):
-        """Generate an appropriate Environment to build this File."""
-        return env.Override({'Dir' : self.Dir,
-                             'File' : self.File,
-                             'RDirs' : self.RDirs})
+    def generate_build_dict(self):
+        """Return an appropriate dictionary of values for building
+        this File."""
+        return {'Dir' : self.Dir,
+                'File' : self.File,
+                'RDirs' : self.RDirs}
 
     def _morph(self):
         """Turn a file system node into a File object."""
@@ -1343,9 +1346,9 @@ class File(Base):
         if b and self.fs.CachePath:
             if self.fs.cache_show:
                 if CacheRetrieveSilent(self, None, None) == 0:
-                    def do_print(action, targets, sources, env, self=self):
+                    def do_print(action, targets, sources, env, s=self):
                         if action.strfunction:
-                            al = action.strfunction(targets, self.sources, env)
+                            al = action.strfunction(targets, s.sources, env)
                             if not SCons.Util.is_List(al):
                                 al = [al]
                             for a in al:

@@ -32,6 +32,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 from SCons.Debug import logInstanceCreation
+import SCons.Util
 
 
 class Executor:
@@ -71,6 +72,13 @@ class Executor:
             overrides = {}
             overrides.update(self.builder.overrides)
             overrides.update(self.overrides)
+            try:
+                generate_build_dict = self.targets[0].generate_build_dict
+            except AttributeError:
+                pass
+            else:
+                overrides.update(generate_build_dict())
+            overrides.update(SCons.Util.subst_dict(self.targets, self.sources))
             self.build_env = env.Override(overrides)
             return self.build_env
 
@@ -100,6 +108,12 @@ class Executor:
         env = self.get_build_env()
         for action in action_list:
             func(action, self.targets, self.sources, env)
+
+    def cleanup(self):
+        try:
+            del self.build_env
+        except AttributeError:
+            pass
 
     def add_sources(self, sources):
         """Add source files to this Executor's list.  This is necessary

@@ -90,7 +90,8 @@ class ExecutorTestCase(unittest.TestCase):
                                     't',
                                     ['s1', 's2'])
         be = x.get_build_env()
-        assert be == {'O':'o2', 'X':'xxx'}, be
+        assert be['O'] == 'o2', be['O']
+        assert be['X'] == 'xxx', be['X']
 
         env = MyEnvironment(Y='yyy')
         x = SCons.Executor.Executor(MyBuilder(env, {'O':'ob3'}),
@@ -99,14 +100,16 @@ class ExecutorTestCase(unittest.TestCase):
                                     't',
                                     's')
         be = x.get_build_env()
-        assert be == {'O':'oo3', 'Y':'yyy'}, be
+        assert be['O'] == 'oo3', be['O']
+        assert be['Y'] == 'yyy', be['Y']
         x = SCons.Executor.Executor(MyBuilder(env, {'O':'ob3'}),
                                     None,
                                     {},
                                     't',
                                     's')
         be = x.get_build_env()
-        assert be == {'O':'ob3', 'Y':'yyy'}, be
+        assert be['O'] == 'ob3', be['O']
+        assert be['Y'] == 'yyy', be['Y']
 
     def test_get_action_list(self):
         """Test fetching and generating an action list"""
@@ -131,9 +134,23 @@ class ExecutorTestCase(unittest.TestCase):
             a.append(action)
             assert target == ['t1', 't2'], target
             assert source == ['s1', 's2'], source
-            assert env == {'CALL':'call'}, env
+            assert env['CALL'] == 'call', env['CALL']
         x(MyNode(['pre'], ['post']), func)
         assert actions == ['pre', 'action1', 'action2', 'post'], actions
+
+    def test_cleanup(self):
+        """Test cleaning up an Executor"""
+        x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
+
+        x.cleanup()
+
+        x.build_env = 'eee'
+        be = x.get_build_env()
+        assert be == 'eee', be
+
+        x.cleanup()
+
+        assert not hasattr(x, 'build_env')
 
     def test_add_sources(self):
         """Test adding sources to an Executor"""

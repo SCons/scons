@@ -53,6 +53,7 @@ class Node:
         self.side_effect = 0
         self.side_effects = []
         self.alttargets = []
+        self.postprocessed = None
 
         for kid in kids:
             kid.parents.append(self)
@@ -136,6 +137,9 @@ class Node:
 
     def __str__(self):
         return self.name
+
+    def postprocess(self):
+        self.postprocessed = 1
 
 
 class OtherError(Exception):
@@ -790,6 +794,33 @@ class TaskmasterTestCase(unittest.TestCase):
             assert sys.exc_value == "xyzzy", sys.exc_value
         else:
             assert 0, "did not catch expected exception"
+
+    def test_postprocess(self):
+        """Test postprocessing targets to give them a chance to clean up
+        
+        """
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster([n1])
+
+        t = tm.next_task()
+        assert not n1.postprocessed
+        t.postprocess()
+        assert n1.postprocessed
+
+        n2 = Node("n2")
+        n3 = Node("n3")
+        tm = SCons.Taskmaster.Taskmaster([n2, n3])
+
+        assert not n2.postprocessed
+        assert not n3.postprocessed
+        t = tm.next_task()
+        t.postprocess()
+        assert n2.postprocessed
+        assert not n3.postprocessed
+        t = tm.next_task()
+        t.postprocess()
+        assert n2.postprocessed
+        assert n3.postprocessed
 
 
 

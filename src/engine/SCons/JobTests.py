@@ -100,6 +100,9 @@ class Task:
         self.taskmaster.test_case.failUnless(self.was_prepared,
                                   "the task wasn't prepared")
 
+    def postprocess(self):
+        self.taskmaster.num_postprocessed = self.taskmaster.num_postprocessed + 1
+
 
 class ExceptionTask:
     """A dummy task class for testing purposes."""
@@ -130,6 +133,9 @@ class ExceptionTask:
         self.taskmaster.test_case.failUnless(self.was_prepared,
                                   "the task wasn't prepared")
 
+    def postprocess(self):
+        self.taskmaster.num_postprocessed = self.taskmaster.num_postprocessed + 1
+
 class Taskmaster:
     """A dummy taskmaster class for testing the job classes."""
 
@@ -142,6 +148,7 @@ class Taskmaster:
         self.num_iterated = 0
         self.num_executed = 0
         self.num_failed = 0
+        self.num_postprocessed = 0
         self.Task = Task
         # 'guard' guards 'task_begin_list' and 'task_end_list'
         try:
@@ -169,6 +176,9 @@ class Taskmaster:
 
     def all_tasks_are_iterated(self):
         return self.num_iterated == self.num_tasks
+
+    def all_tasks_are_postprocessed(self):
+        return self.num_postprocessed == self.num_tasks
 
     def is_blocked(self):
         if self.stop or self.all_tasks_are_executed():
@@ -206,6 +216,8 @@ class ParallelTestCase(unittest.TestCase):
                         "all the tests were not executed")
         self.failUnless(taskmaster.all_tasks_are_iterated(),
                         "all the tests were not iterated over")
+        self.failUnless(taskmaster.all_tasks_are_postprocessed(),
+                        "all the tests were not postprocessed")
         self.failIf(taskmaster.num_failed,
                     "some task(s) failed to execute") 
 
@@ -223,6 +235,8 @@ class SerialTestCase(unittest.TestCase):
                         "all the tests were not executed")
         self.failUnless(taskmaster.all_tasks_are_iterated(),
                         "all the tests were not iterated over")
+        self.failUnless(taskmaster.all_tasks_are_postprocessed(),
+                        "all the tests were not postprocessed")
         self.failIf(taskmaster.num_failed,
                     "some task(s) failed to execute") 
 
@@ -245,6 +259,8 @@ class NoParallelTestCase(unittest.TestCase):
                             "all the tests were not executed")
             self.failUnless(taskmaster.all_tasks_are_iterated(),
                             "all the tests were not iterated over")
+            self.failUnless(taskmaster.all_tasks_are_postprocessed(),
+                            "all the tests were not postprocessed")
             self.failIf(taskmaster.num_failed,
                         "some task(s) failed to execute") 
         finally:
@@ -265,6 +281,8 @@ class SerialExceptionTestCase(unittest.TestCase):
                     "exactly one task should have been iterated")
         self.failUnless(taskmaster.num_failed == 1,
                     "exactly one task should have failed")
+        self.failUnless(taskmaster.num_postprocessed == 1,
+                    "exactly one task should have been postprocessed")
 
 class ParallelExceptionTestCase(unittest.TestCase):
     def runTest(self):
@@ -280,6 +298,8 @@ class ParallelExceptionTestCase(unittest.TestCase):
                     "one or more task should have been iterated")
         self.failUnless(taskmaster.num_failed >= 1,
                     "one or more tasks should have failed") 
+        self.failUnless(taskmaster.num_postprocessed >= 1,
+                    "one or more tasks should have been postprocessed")
 
 
 def suite():
