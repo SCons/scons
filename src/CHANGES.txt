@@ -51,6 +51,10 @@ RELEASE 0.95 - XXX
   - Allow the LIBS construction variable to be a single string or File
     node, not a list, when only one library is needed.
 
+  From Vincent Risi:
+
+  - Add support for the bcc32, ilink32 and tlib Borland tools.
+
   From Anthony Roach:
 
   - Supply an error message if the user tries to configure a BuildDir
