@@ -48,6 +48,9 @@ fig2dev = whereis('fig2dev')
 groff = whereis('groff')
 lynx = whereis('lynx')
 man2html = whereis('man2html')
+jade = whereis('jade')
+jadetex = whereis('jadetex')
+pdfjadetex = whereis('pdfjadetex')
 jw = whereis('jw')
 tidy = whereis('tidy')
 
@@ -176,7 +179,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         if s:
             File(main).scanner_set(s)
 
-        if docs[doc].get('html'):
+        if docs[doc].get('html') and jade:
             cmds = [
                 "rm -f ${TARGET.dir}/*.html",
                 "jw -b html -o ${TARGET.dir} $SOURCES",
@@ -208,7 +211,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                                 "%s -L jpeg -q 100 $SOURCES $TARGET" % fig2dev)
                     env.Depends(ps, jpg)
 
-        if docs[doc].get('ps'):
+        if docs[doc].get('ps') and jadetex:
             env.Command(ps, main, [
                 "rm -f ${TARGET.dir}/%s" % out,
                 "jw -b ps -o ${TARGET.dir} $SOURCES",
@@ -228,7 +231,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                     env.Command(eps, fig, "%s -L eps $SOURCES $TARGET" % fig2dev)
                     env.Depends(ps, eps)
 
-        if docs[doc].get('pdf'):
+        if docs[doc].get('pdf') and pdfjadetex:
             env.Command(pdf, main, [
                 "rm -f ${TARGET.dir}/%s" % out,
                 "jw -b pdf -o ${TARGET.dir} $SOURCES",
@@ -241,7 +244,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             tar_deps.append(pdf)
             tar_list = tar_list + " " + pdf
 
-        if docs[doc].get('text') and lynx:
+        if docs[doc].get('text') and jade and lynx:
             env.Command(text, html, "lynx -dump ${SOURCE.abspath} > $TARGET")
 
             env.Ignore(text, "version.sgml")
