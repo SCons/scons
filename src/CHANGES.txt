@@ -15,6 +15,10 @@ RELEASE 0.97 - XXX
   - Allow Help() to be called multiple times, appending to the help
     text each call.
 
+  From Steve Christensen:
+
+  - Handle exceptions from Python functions a build actions.
+
   From Steven Knight:
 
   - When compiling with Microsoft Visual Studio, don't include the ATL and
@@ -53,6 +57,11 @@ RELEASE 0.97 - XXX
 
   - Provide more info in the error message when a user tries to build
     a target multiple ways.
+
+  - Fix Delete() when a file doesn't exist and must_exist=1.  (We were
+    unintentionally dependent on a bug in versions of the Python shutil.py
+    module prior to Python 2.3, which would generate an exception for
+    a nonexistent file even when ignore_errors was set.)
 
   From Christoph Wiedemann:
 
