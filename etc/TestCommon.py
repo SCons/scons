@@ -76,8 +76,8 @@ The TestCommon module also provides the following variables
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommon.py 0.9.D001 2004/08/06 08:19:26 knight"
-__version__ = "0.9"
+__revision__ = "TestCommon.py 0.10.D001 2004/08/17 17:39:41 knight"
+__version__ = "0.10"
 
 import os
 import os.path
@@ -124,6 +124,14 @@ elif string.find(sys.platform, 'irix') != -1:
     lib_suffix   = '.a'
     dll_prefix   = 'lib'
     dll_suffix   = '.so'
+elif string.find(sys.platform, 'darwin') != -1:
+    exe_suffix   = ''
+    obj_suffix   = '.o'
+    shobj_suffix = '.os'
+    lib_prefix   = 'lib'
+    lib_suffix   = '.a'
+    dll_prefix   = 'lib'
+    dll_suffix   = '.dylib'
 else:
     exe_suffix   = ''
     obj_suffix   = '.o'

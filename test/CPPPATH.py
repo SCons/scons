@@ -205,9 +205,9 @@ env = Environment(CPPPATH = [''])
 env.Library('three', source = 'empty3.c')
 """)
 
-test.write('empty1.c', "\n")
-test.write('empty2.c', "\n")
-test.write('empty3.c', "\n")
+test.write('empty1.c', "int a=0;\n")
+test.write('empty2.c', "int b=0;\n")
+test.write('empty3.c', "int c=0;\n")
 
 test.run(arguments = '.',
          stderr=TestSCons.noisy_ar,

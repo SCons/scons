@@ -217,4 +217,4 @@ class TestSCons(TestCommon):
 # <file>" messages to be successful executions of the test (see
 # test/AR.py for sample usage).
 
-noisy_ar=r'(ar: creating \S+\n?)*'
+noisy_ar=r'(ar: creating( archive)? \S+\n?)*'

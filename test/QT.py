@@ -376,7 +376,9 @@ test.fail_test(not os.path.exists(test.workpath('work3', 'build', moc)))
 
 test.run(chdir='work3',
          arguments = "build_dir=1 dup=0 " +
-                     test.workpath('work3', 'build_dup0', lib_aaa) )
+                     test.workpath('work3', 'build_dup0', lib_aaa),
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
 test.must_exist(['work3', 'build_dup0', moc])
 
 ##############################################################################

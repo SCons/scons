@@ -152,7 +152,7 @@ test.up_to_date(arguments = '.')
 
 # We need at least one file for some implementations of the Library
 # builder, notably the SGI one.
-test.write('empty.c', '')
+test.write('empty.c', 'int a=0;\n')
 
 # Check that a null-string LIBPATH doesn't blow up.
 test.write('SConstruct', """
