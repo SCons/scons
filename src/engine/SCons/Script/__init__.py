@@ -997,9 +997,8 @@ def _main():
             # -U with default targets
             default_targets = SCons.Script.SConscript.default_targets
             def check_dir(x):
-                reps = SCons.Node.FS.default_fs.Rsearchall(str(x.cwd), must_exist=0,
-                                                           clazz=SCons.Node.FS.Dir)
-                return target_top in reps
+                cwd = x.cwd.srcnode()
+                return cwd == target_top
             default_targets = filter(check_dir, default_targets)
             SCons.Script.SConscript.default_targets = default_targets
             target_top = None

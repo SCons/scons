@@ -80,11 +80,11 @@ var6 = Dir('../build/var6')
 
 
 BuildDir('build/var1', src)
-BuildDir(var2, src, duplicate=0)
-BuildDir(var3, src)
+BuildDir(var2, src)
+BuildDir(var3, src, duplicate=0)
 BuildDir(var4, src, duplicate=0)
-BuildDir(var5, src)
-BuildDir(var6, src, duplicate=0)
+BuildDir(var5, src, duplicate=0)
+BuildDir(var6, src)
 
 env = Environment(CPPPATH='#src', F77PATH='#src')
 SConscript('build/var1/SConscript', "env")
@@ -255,6 +255,31 @@ def equal_stats(x,y):
     y = os.stat(y)
     return (stat.S_IMODE(x[stat.ST_MODE]) == stat.S_IMODE(y[stat.ST_MODE]) and
             x[stat.ST_MTIME] ==  y[stat.ST_MTIME])
+
+# Make sure we did duplicate the source files in build/var2,
+# and that their stats are the same:
+test.fail_test(not os.path.exists(test.workpath('test', 'build', 'var2', 'f1.c')))
+test.fail_test(not os.path.exists(test.workpath('test', 'build', 'var2', 'f2.in')))
+test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', 'f1.c'), test.workpath('test', 'src', 'f1.c')))
+test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', 'f2.in'), test.workpath('test', 'src', 'f2.in')))
+ 
+# Make sure we didn't duplicate the source files in build/var3.
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f1.c')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f2.in')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'b1.f')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'b2.in')))
+
+# Make sure we didn't duplicate the source files in build/var4.
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'f1.c')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'f2.in')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'b1.f')))
+test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'b2.in')))
+
+# Make sure we didn't duplicate the source files in build/var5.
+test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f1.c')))
+test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f2.in')))
+test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b1.f')))
+test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b2.in')))
 
 # verify that header files in the source directory are scanned properly:
 test.write(['test', 'src', 'f1.h'], r"""

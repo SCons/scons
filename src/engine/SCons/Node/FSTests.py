@@ -82,15 +82,19 @@ class BuildDirTestCase(unittest.TestCase):
         f1 = fs.File('build/test1')
         fs.BuildDir('build', 'src')
         f2 = fs.File('build/test2')
+        d1 = fs.Dir('build')
         assert f1.srcnode().path == os.path.normpath('src/test1'), f1.srcnode().path
         assert f2.srcnode().path == os.path.normpath('src/test2'), f2.srcnode().path
+        assert d1.srcnode().path == 'src', d1.srcnode().path
 
         fs = SCons.Node.FS.FS()
         f1 = fs.File('build/test1')
         fs.BuildDir('build', '.')
         f2 = fs.File('build/test2')
+        d1 = fs.Dir('build')
         assert f1.srcnode().path == 'test1', f1.srcnode().path
         assert f2.srcnode().path == 'test2', f2.srcnode().path
+        assert d1.srcnode().path == '.', d1.srcnode().path
 
         fs = SCons.Node.FS.FS()
         fs.BuildDir('build/var1', 'src')

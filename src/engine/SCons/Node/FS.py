@@ -688,6 +688,13 @@ class Dir(Entry):
             self._sconsign = SCons.Sig.SConsignFile(self)
         return self._sconsign
 
+    def srcnode(self):
+        """Dir has a special need for srcnode()...if we
+        have a srcdir attribute set, then that *is* our srcnode."""
+        if self.srcdir:
+            return self.srcdir
+        return Entry.srcnode(self)
+
 # XXX TODO?
 # base_suf
 # suffix
