@@ -1797,6 +1797,7 @@ f5: \
         tgt = env.Alias('new_alias')[0]
         assert str(tgt) == 'new_alias', tgt
         assert tgt.sources == [], tgt.sources
+        assert not hasattr(tgt, 'builder'), tgt.builder
 
         tgt = env.Alias('None_alias', None)[0]
         assert str(tgt) == 'None_alias', tgt
@@ -1832,6 +1833,24 @@ f5: \
         assert len(t2.sources) == 2, map(str, t2.sources)
         assert str(t2.sources[0]) == 'asrc6', map(str, t2.sources)
         assert str(t2.sources[1]) == 'asrc7', map(str, t2.sources)
+
+        tgt = env.Alias('add', 's1')
+        tgt = env.Alias('add', 's2')[0]
+        s = map(str, tgt.sources)
+        assert s == ['s1', 's2'], s
+        tgt = env.Alias(tgt, 's3')[0]
+        s = map(str, tgt.sources)
+        assert s == ['s1', 's2', 's3'], s
+
+        tgt = env.Alias('act', None, "action1")[0]
+        s = str(tgt.builder.action)
+        assert s == "action1", s
+        tgt = env.Alias('act', None, "action2")[0]
+        s = str(tgt.builder.action)
+        assert s == "action1\naction2", s
+        tgt = env.Alias(tgt, None, "action3")[0]
+        s = str(tgt.builder.action)
+        assert s == "action1\naction2\naction3", s
 
     def test_AlwaysBuild(self):
         """Test the AlwaysBuild() method"""

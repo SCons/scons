@@ -2266,11 +2266,17 @@ can be converted into an Action object
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Alias( alias ", [" targets ])
+.RI Alias( alias ", [" targets ", [" action ]])
 .TP
-.RI env.Alias( alias ", [" targets ])
+.RI env.Alias( alias ", [" targets ", [" action ]])
 Creates one or more phony targets that
 expand to one or more other targets.
+An optional
+.I action
+(command)
+or list of actions
+can be specified that will be executed
+whenever the any of the alias targets are out-of-date.
 Returns the Node object representing the alias,
 which exists outside of any file system.
 This Node object, or the alias name,
@@ -2278,7 +2284,8 @@ may be used as a dependency of any other target,
 including another alias.
 .B Alias
 can be called multiple times for the same
-alias to add additional targets to the alias.
+alias to add additional targets to the alias,
+or additional actions to the list for this alias.
 
 .ES
 Alias('install')
@@ -2287,6 +2294,8 @@ Alias(['install', 'install-lib'], '/usr/local/lib')
 
 env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
 env.Alias('install', ['/usr/local/man'])
+
+env.Alias('update', ['file1', 'file2'], "update_database $SOURCES")
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

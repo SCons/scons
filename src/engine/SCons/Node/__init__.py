@@ -329,6 +329,13 @@ class Node:
         directories)."""
         return self.has_builder() and self.builder.is_explicit
 
+    def get_builder(self, default_builder=None):
+        """Return the set builder, or a specified default value"""
+        try:
+            return self.builder
+        except AttributeError:
+            return default_builder
+
     multiple_side_effect_has_builder = has_builder
 
     def is_derived(self):
