@@ -94,6 +94,7 @@ class Builder:
         self.overrides = {}
         self.action = action
         self.target_scanner = None
+        self.source_scanner = None
 
     def targets(self, t):
         return [t]

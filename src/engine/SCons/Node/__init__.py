@@ -467,6 +467,13 @@ class Node:
             scanner = scanner.select(node)
         return scanner
 
+    def add_to_implicit(self, deps):
+        if not hasattr(self, 'implicit') or self.implicit is None:
+            self.implicit = []
+            self.implicit_dict = {}
+            self._children_reset()
+        self._add_child(self.implicit, self.implicit_dict, deps)
+
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""
         # Don't bother scanning non-derived files, because we don't
@@ -500,18 +507,8 @@ class Node:
                     self._children_reset()
                     self.del_binfo()
 
-        # Potential optimization for the N^2 problem if we can tie
-        # scanning to the Executor in some way so that we can scan
-        # source files onces and then spread the implicit dependencies
-        # to all of the targets at once.
-        #kids = self.children(scan=0)
-        #for child in filter(lambda n: n.implicit is None, kids):
-        for child in self.children(scan=0):
-            scanner = self.get_source_scanner(child)
-            if scanner:
-                path = self.get_build_scanner_path(scanner)
-                deps = child.get_implicit_deps(build_env, scanner, path)
-                self._add_child(self.implicit, self.implicit_dict, deps)
+        scanner = self.builder.source_scanner
+        self.get_executor().scan(scanner)
 
         # scan this node itself for implicit dependencies
         scanner = self.builder.target_scanner
