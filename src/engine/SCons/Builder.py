@@ -430,6 +430,11 @@ class BuilderBase:
                 "\tspecify the items as keyword arguments to the Builder() call instead.")
             overrides.update(overrides['overrides'])
             del overrides['overrides']
+        if overrides.has_key('scanner'):
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                                "The \"scanner\" keyword to Builder() creation has been deprecated;\n"
+                                "\tuse: source_scanner or target_scanner as appropriate.")
+            del overrides['scanner']
         self.overrides = overrides
 
         self.set_src_suffix(src_suffix)

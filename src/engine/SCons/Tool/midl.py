@@ -57,7 +57,7 @@ midl_builder = SCons.Builder.Builder(action='$MIDLCOM',
                                      src_suffix = '.idl',
                                      suffix='.tlb',
                                      emitter = midl_emitter,
-                                     scanner = idl_scanner)
+                                     source_scanner = idl_scanner)
 
 def generate(env):
     """Add Builders and construction variables for midl to an Environment."""
