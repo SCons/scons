@@ -79,6 +79,9 @@ RELEASE 0.97 - XXX
   - Fix handling of Action ojects (and other callables that don't match
     our calling arguments) in construction variable expansions.
 
+  - On Win32, install scons.bat in the Python directory when installing
+    from setup.py.  (The bdist_wininst installer was already doing this.)
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and

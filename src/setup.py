@@ -213,7 +213,7 @@ arguments = {
 }
 
 try:
-    if sys.argv[1] == "bdist_wininst":
+    if sys.platform == 'win32' or sys.argv[1] == "bdist_wininst":
         arguments['data_files'] = [('.', ["script/scons.bat"])]
 except IndexError:
     pass
