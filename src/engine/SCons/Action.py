@@ -227,6 +227,11 @@ class CommandAction(ActionBase):
     def __init__(self, cmd):
         self.cmd_list = cmd
 
+    def strfunction(self, target, source, env):
+        dict = self.subst_dict(target, source, env)
+        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, dict, {}, _rm)
+        return map(_string_from_cmd_list, cmd_list)
+
     def __call__(self, target, source, env):
         """Execute a command action.
 
@@ -352,9 +357,11 @@ class FunctionAction(ActionBase):
     def __init__(self, execfunction, strfunction=_null, varlist=[]):
         self.execfunction = execfunction
         if strfunction is _null:
-            def strfunction(target, source, execfunction=execfunction):
+            def strfunction(target, source, env, execfunction=execfunction):
                 def quote(s):
                     return '"' + str(s) + '"'
+                def array(a, q=quote):
+                    return '[' + string.join(map(lambda x, q=q: q(x), a), ", ") + ']'
                 try:
                     name = execfunction.__name__
                 except AttributeError:
@@ -362,14 +369,8 @@ class FunctionAction(ActionBase):
                         name = execfunction.__class__.__name__
                     except AttributeError:
                         name = "unknown_python_function"
-                if len(target) == 1:
-                    tstr = quote(target[0])
-                else:
-                    tstr = str(map(lambda x, q=quote: q(x), target))
-                if len(source) == 1:
-                    sstr = quote(source[0])
-                else:
-                    sstr = str(map(lambda x, q=quote: q(x), source))
+                tstr = len(target) == 1 and quote(target[0]) or array(target)
+                sstr = len(source) == 1 and quote(source[0]) or array(source)
                 return "%s(%s, %s)" % (name, tstr, sstr)
         self.strfunction = strfunction
         self.varlist = varlist
@@ -381,7 +382,7 @@ class FunctionAction(ActionBase):
         if not SCons.Util.is_List(source):
             source = [source]
         if print_actions and self.strfunction:
-            s = self.strfunction(target, source)
+            s = self.strfunction(target, source, env)
             if s:
                 self.show(s)
         if execute_actions:

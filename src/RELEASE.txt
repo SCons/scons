@@ -56,6 +56,22 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
         env['BUILDERS']['newbuilder'] = foo
 
+  - An "env" argument has been added to the calls to all functions that
+    return a string for a Python function Action.  This makes the string
+    function and build function calls take the same arguments:
+
+        def build_it(target, source, env):
+            # build the target from the source
+            return 0
+
+        def string_it(target, source, env):
+            return "building '%s' from '%s'" % (target[0], source[0])
+
+        a = Action(build_it, string_it)
+
+    If you have defined a strfunction() for a Python function Action,
+    you will need to add a third "env" argument to your function call.
+
   Please note the following important changes since release 0.09:
 
     - The Scanner interface has been changed to make it easier to

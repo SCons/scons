@@ -31,6 +31,7 @@ def Func():
     pass
 
 import os
+import StringIO
 import sys
 import types
 import unittest
@@ -69,6 +70,10 @@ outfile = test.workpath('outfile')
 outfile2 = test.workpath('outfile2')
 
 scons_env = SCons.Environment.Environment()
+
+# Capture all the stuff the Actions will print,
+# so it doesn't clutter the output.
+sys.stdout = StringIO.StringIO()
 
 class Environment:
     def __init__(self, **kw):
@@ -318,6 +323,35 @@ class CommandActionTestCase(unittest.TestCase):
         """
         a = SCons.Action.CommandAction(["xyzzy"])
         assert a.cmd_list == [ "xyzzy" ], a.cmd_list
+
+    def test_strfunction(self):
+        """Test fetching the string representation of command Actions
+        """
+        act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE')
+        s = act.strfunction([], [], Environment())
+        assert s == ['xyzzy'], s
+        s = act.strfunction(['target'], ['source'], Environment())
+        assert s == ['xyzzy target source'], s
+        s = act.strfunction(['t1', 't2'], ['s1', 's2'], Environment())
+        assert s == ['xyzzy t1 s1'], s
+
+        act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES')
+        s = act.strfunction([], [], Environment())
+        assert s == ['xyzzy'], s
+        s = act.strfunction(['target'], ['source'], Environment())
+        assert s == ['xyzzy target source'], s
+        s = act.strfunction(['t1', 't2'], ['s1', 's2'], Environment())
+        assert s == ['xyzzy t1 t2 s1 s2'], s
+
+        act = SCons.Action.CommandAction(['xyzzy',
+                                          '$TARGET', '$SOURCE',
+                                          '$TARGETS', '$SOURCES'])
+        s = act.strfunction([], [], Environment())
+        assert s == ['xyzzy'], s
+        s = act.strfunction(['target'], ['source'], Environment())
+        assert s == ['xyzzy target source target source'], s
+        s = act.strfunction(['t1', 't2'], ['s1', 's2'], Environment())
+        assert s == ['xyzzy t1 s1 t1 t2 s1 s2'], s
 
     def test_execute(self):
         """Test execution of command Actions
@@ -663,7 +697,7 @@ class FunctionActionTestCase(unittest.TestCase):
         def build_it(target, source, env, self=self):
             self.build_it = 1
             return 0
-        def string_it(target, source, self=self):
+        def string_it(target, source, env, self=self):
             self.string_it = 1
             return None
         act = SCons.Action.FunctionAction(build_it, string_it)

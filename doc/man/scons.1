@@ -2993,7 +2993,7 @@ The Python function takes three keyword arguments,
 .B source
 (a Node object representing the source file)
 and
-.BR env
+.B env
 (the construction environment
 used for building the target file).
 The
@@ -3029,17 +3029,30 @@ a = Action(build_it)
 
 The second, optional argument
 is a Python function that returns
-a string to be printed describing the action being executed.
-This function takes two arguments,
-an array of targets to be created by the function action,
-and an array of sources used to create the target(s):
+a string to be printed to describe the action being executed.
+Like the function to build a file,
+this function takes three arguments:
+.B target
+(a Node object representing the target file),
+.B source
+(a Node object representing the source file)
+and
+.BR env
+(a construction environment).
+The
+.B target
+and
+.B source
+arguments may be lists of Node objects if there is
+more than one target file or source file.
+Examples:
 
 .ES
 def build_it(target, source, env):
     # build the target from the source
     return 0
 
-def string_it(target, source):
+def string_it(target, source, env):
     return "building '%s' from '%s'" % (target[0], source[0])
 
 # Use a positional argument.
@@ -3056,7 +3069,7 @@ in the signature of the Action
 when deciding whether a target should
 be rebuilt because the action changed.
 This is necessary whenever you want a target to
-be rebuilt by an action when a specific
+be rebuilt when a specific
 construction variable changes,
 because the underlying Python code for a function
 will not change when the value of the construction variable does.

@@ -89,7 +89,7 @@ def LinkFunc(target, source, env):
 
 Link = SCons.Action.Action(LinkFunc, None)
 
-def LocalString(target, source):
+def LocalString(target, source, env):
     return 'Local copy of %s from %s' % (target[0], source[0])
 
 LocalCopy = SCons.Action.Action(LinkFunc, LocalString)

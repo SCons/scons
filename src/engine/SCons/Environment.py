@@ -47,7 +47,7 @@ import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 
-def installString(target, source):
+def installString(target, source, env):
     return 'Install file: "%s" as "%s"' % (source[0], target[0])
 
 installAction = SCons.Action.Action(SCons.Node.FS.LinkFunc, installString)

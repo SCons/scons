@@ -49,6 +49,11 @@ RELEASE 0.11 - XXX
   - Clean up error messages from problems duplicating into read-only
     BuildDir directories or into read-only files.
 
+  - Add a CommandAction.strfunction() method, and add an "env" argument
+    to the FunctionAction.strfunction() method, so that all Action
+    objects have strfunction() methods, and the functions for building
+    and returning a string both take the same arguments.
+
   From Steve Leblanc:
 
   - Fix the output of -c -n when directories are involved, so it
