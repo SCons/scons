@@ -148,6 +148,8 @@ RELEASE 0.08 -
   - Use a $PYTHON construction variable, initialized to sys.executable,
     when using Python to build parts of the SCons packages.
 
+  - Use sys.prefix, not sys.exec_prefix, to find pdb.py.
+
 
 
 RELEASE 0.07 - Thu,  2 May 2002 13:37:16 -0500

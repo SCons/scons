@@ -475,10 +475,10 @@ def options_init():
             args = [ sys.executable, "pdb.py" ] + \
                      filter(lambda x: x != "--debug=pdb", sys.argv)
             if sys.platform == 'win32':
-                args[1] = os.path.join(sys.exec_prefix, "lib", "pdb.py")
+                args[1] = os.path.join(sys.prefix, "lib", "pdb.py")
                 sys.exit(os.spawnve(os.P_WAIT, args[0], args, os.environ))
             else:
-                args[1] = os.path.join(sys.exec_prefix,
+                args[1] = os.path.join(sys.prefix,
                                        "lib",
                                        "python" + sys.version[0:3],
 				       "pdb.py")
