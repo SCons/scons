@@ -1,8 +1,6 @@
 #
 # SConscript file for building SCons documentation.
 #
-# THIS IS NOT READY YET.  DO NOT TRY TO BUILD SCons WITH ITSELF YET.
-#
 
 #
 # Copyright (c) 2001, 2002 Steven Knight
@@ -109,8 +107,13 @@ if jw:
     verfile = str(File("version.sgml"))
     try:
         os.unlink(verfile)
-    except:
-        pass
+    except OSError:
+        pass    # okay if the file didn't exist
+    dir, f = os.path.split(verfile)
+    try:
+        os.makedirs(dir)
+    except OSError:
+        pass	# okay if the directory already exists
     open(verfile, "w").write("""<!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
