@@ -43,7 +43,7 @@ Object = SCons.Builder.Builder(name = 'Object',
                                suffix='.o')
 
 Program = SCons.Builder.Builder(name = 'Program',
-                                action = '$CC -o $target $sources',
+                                action = '$LINK $LINKFLAGS -o $target $sources',
                                 builders = [ Object ])
 
 Library = SCons.Builder.Builder(name = 'Library',
@@ -55,6 +55,8 @@ Library = SCons.Builder.Builder(name = 'Library',
 ConstructionEnvironment = {
 	'CC' : 'cc',
 	'CCFLAGS' : '',
+	'LINK' : '$CC',
+	'LINKFLAGS' : '',
 	'BUILDERS' : [Object, Program, Library],
 	'ENV' : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
 }

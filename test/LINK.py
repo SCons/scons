@@ -24,15 +24,53 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is implemented.
+test.write("ccwrapper.py",
+"""import os
+import string
+import sys
+open('%s', 'w').write("ccwrapper.py\\n")
+os.system(string.join(["cc"] + sys.argv[1:], " "))
+""" % test.workpath('ccwrapper.out'))
 
 test.write('SConstruct', """
+foo = Environment()
+bar = Environment(LINK = 'python ccwrapper.py')
+foo.Program(target = 'foo', source = 'foo.c')
+bar.Program(target = 'bar', source = 'bar.c')
 """)
 
-test.run(arguments = '.')
+test.write('foo.c', """
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("foo.c\n");
+	exit (0);
+}
+""")
+
+test.write('bar.c', """
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf("foo.c\n");
+	exit (0);
+}
+""")
+
+
+test.run(arguments = 'foo')
+
+test.fail_test(os.path.exists(test.workpath('ccwrapper.out')))
+
+test.run(arguments = 'bar')
+
+test.fail_test(test.read('ccwrapper.out') != "ccwrapper.py\n")
 
 test.pass_test()
