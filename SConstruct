@@ -37,7 +37,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.08'
+default_version = '0.09'
 
 Default('.')
 
@@ -172,6 +172,8 @@ zcat = 'gzip -d -c'
 #
 # Figure out if we can handle .zip files.
 #
+zipit = None
+unzipit = None
 try:
     import zipfile
 
