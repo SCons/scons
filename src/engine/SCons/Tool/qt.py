@@ -53,8 +53,8 @@ class _Automoc:
     StaticLibraries.
     """
 
-    def __init__(self, objBuilder,uicDeclBuild,mocFromHBld,mocFromCppBld):
-        self.objBuilder = objBuilder
+    def __init__(self, objBuilderName,uicDeclBuild,mocFromHBld,mocFromCppBld):
+        self.objBuilderName = objBuilderName
         self.uicDeclBld = uicDeclBuild
         self.mocFromHBld = mocFromHBld
         self.mocFromCppBld = mocFromCppBld
@@ -108,9 +108,10 @@ class _Automoc:
                 src_ext = SCons.Util.splitext(str(h))[1]
                 moc_cpp = SCons.Node.FS.default_fs.File(os.path.join(dir, 
                     env['QT_MOCNAMEGENERATOR'](base, src_ext, env)))
-                moc_o = self.objBuilder(source=moc_cpp)
+                objBuilder = getattr(env, self.objBuilderName)
+                moc_o = objBuilder(source=moc_cpp)
                 out_sources.append(moc_o)
-                self.objBuilder(moc_o, moc_cpp)
+                objBuilder(moc_o, moc_cpp)
                 self.mocFromHBld(env, moc_cpp, h)
                 moc_cpp.target_scanner = SCons.Defaults.CScan
             if cpp and q_object_search.search(cpp.get_contents()):
@@ -202,11 +203,11 @@ def generate(env):
     # We can't refer to the builders directly, we have to fetch them
     # as Environment attributes because that sets them up to be called
     # correctly later by our emitter.
-    env['PROGEMITTER'] = _Automoc(env.StaticObject,
+    env['PROGEMITTER'] = _Automoc('StaticObject',
                                   uicDeclBld,mocFromHBld,mocFromCppBld)
-    env['SHLIBEMITTER'] = _Automoc(env.SharedObject,
+    env['SHLIBEMITTER'] = _Automoc('SharedObject',
                                    uicDeclBld,mocFromHBld,mocFromCppBld)
-    env['LIBEMITTER'] = _Automoc(env.StaticObject,
+    env['LIBEMITTER'] = _Automoc('StaticObject',
                                  uicDeclBld,mocFromHBld,mocFromCppBld)
     # Of course, we need to link against the qt libraries
     env.Append(CPPPATH=os.path.join('$QTDIR', 'include'))

@@ -162,6 +162,12 @@ RELEASE 0.95 - XXX
   - Evaluate $MSVSPROJECTSUFFIX and $MSVSSOLUTIONSUFFIX when the Builder
     is invoked, not when the tool is initialized.
 
+  From Christoph Wiedemann:
+
+  - When compiling Qt, make sure the moc_*.cc files are compiled using
+    the flags from the environment used to specify the target, not
+    the environment that first has the Qt Builders attached.
+
 
 
 RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600
