@@ -65,11 +65,11 @@ Things to do to release a new version of SCons:
 
 		ae_p scons.0
 
-		aede {11}
+		aede {12}
 
-		aerpass {11}
+		aerpass {12}
 
-		aeib {11}
+		aeib {12}
 
 		aeb
 
@@ -94,16 +94,16 @@ Things to do to release a new version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.11-1.noarch.rpm
-		put scons-0.11-1.src.rpm
-		put scons-0.11.tar.gz
-		put scons-0.11.win32.exe
-		put scons-0.11.zip
-		put scons-local-0.11.tar.gz
-		put scons-local-0.11.zip
-		put scons-src-0.11.tar.gz
-		put scons-src-0.11.zip
-		put scons_0.11-1_all.deb
+		put scons-0.12-1.noarch.rpm
+		put scons-0.12-1.src.rpm
+		put scons-0.12.tar.gz
+		put scons-0.12.win32.exe
+		put scons-0.12.zip
+		put scons-local-0.12.tar.gz
+		put scons-local-0.12.zip
+		put scons-src-0.12.tar.gz
+		put scons-src-0.12.zip
+		put scons_0.12-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
@@ -115,7 +115,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.11
+		New release name:  0.12
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -132,12 +132,12 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-0.11-1.noarch.rpm		Any	.rpm
-			scons-0.11-1.src.rpm		Any	Source .rpm
-			scons-0.11.tar.gz		Any	.gz
-			scons-0.11.win32.exe		i386	.exe (32-bit Windows)
-			scons-0.11.zip			Any	.zip
-			scons_0.11-1_all.deb		Any	.deb
+			scons-0.12-1.noarch.rpm		Any	.rpm
+			scons-0.12-1.src.rpm		Any	Source .rpm
+			scons-0.12.tar.gz		Any	.gz
+			scons-0.12.win32.exe		i386	.exe (32-bit Windows)
+			scons-0.12.zip			Any	.zip
+			scons_0.12-1_all.deb		Any	.deb
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -154,7 +154,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.11
+		New release name:  0.12
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -171,8 +171,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-local-0.11.tar.gz		Any	.gz
-			scons-local-0.11.zip   		Any	.zip
+			scons-local-0.12.tar.gz		Any	.gz
+			scons-local-0.12.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -189,7 +189,7 @@ Things to do to release a new version of SCons:
 
 		=> Add Release
 
-		New release name:  0.11
+		New release name:  0.12
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -206,8 +206,8 @@ Things to do to release a new version of SCons:
 
 		Edit the file info:
 
-			scons-src-0.11.tar.gz		Any	.gz
-			scons-src-0.11.zip   		Any	.zip
+			scons-src-0.12.tar.gz		Any	.gz
+			scons-src-0.12.zip   		Any	.zip
 
                 Click "Update/Refresh" for each file; this must be done
                 one at a time.
@@ -216,7 +216,7 @@ Things to do to release a new version of SCons:
 		Release Notice section.
 
 
-	Hide release {0.08} 2 at the SourceForge download page:
+	Hide release {0.10} 2 at the SourceForge download page:
 
 		Go to the Admin page
 
@@ -226,7 +226,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: {0.08}
+		Release Name: {0.10}
 
 		=> Edit This Release
 
@@ -243,7 +243,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: {0.08}
+		Release Name: {0.10}
 
 		=> Edit This Release
 
@@ -260,7 +260,7 @@ Things to do to release a new version of SCons:
 
 		=> Edit Releases
 
-		Release Name: {0.08}
+		Release Name: {0.10}
 
 		=> Edit This Release
 
@@ -270,7 +270,7 @@ Things to do to release a new version of SCons:
 
 
 
-	In the Bugs Tracker, add a Group for the new release (0.11)
+	In the Bugs Tracker, add a Group for the new release (0.12)
 
 
 
@@ -359,8 +359,8 @@ Things to do to release a new version of SCons:
 
 		# Change the hard-coded package version numbers
 		# in the following files.
-		aecp README SConstruct debian/changelog rpm/scons.spec
-		vi README SConstruct debian/changelog rpm/scons.spec
+		aecp README SConstruct debian/changelog rpm/scons.spec.in
+		vi README SConstruct debian/changelog rpm/scons.spec.in
 
 		# Optionally, do the same in the following:
 		[optional] aecp HOWTO/change.txt
@@ -390,7 +390,7 @@ Things to do to release a new version of SCons:
 =======================
 Template describe-the-release section:
 
-IMPORTANT:  Release 0.11 contains the following interface changes:
+IMPORTANT:  Release 0.12 contains the following interface changes:
   - XXX
 
   See the release notes for more information about these changes.
@@ -414,7 +414,7 @@ Template scons-devel announcement:
 
 SConspirators--
 
-SCons alpha release 0.11 is now available for download.
+SCons alpha release 0.12 is now available for download.
 
 XXX Template describe-the-release section goes here XXX
 
@@ -425,7 +425,7 @@ release.
 =======================
 Template scons-users + scons-announce announcement:
 
-Version 0.11 of SCons has been released and is available for download
+Version 0.12 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/
@@ -458,7 +458,7 @@ SCons is a software construction tool (build tool, or make tool) written
 in Python.  It is based on the design which won the Software Carpentry
 build tool competition in August 2000.
 
-Version 0.11 of SCons has been released and is available for download
+Version 0.12 of SCons has been released and is available for download
 from the SCons web site:
 
 	http://www.scons.org/

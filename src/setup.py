@@ -149,7 +149,7 @@ class install_lib(_install_lib):
             is_win32 = sys.platform == "win32" or args[0] == 'bdist_wininst'
             prefix = get_scons_prefix(self.install_dir, is_win32)
             standard_dir = os.path.join(self.install_dir, "SCons")
-            version_dir = os.path.join(prefix, "scons-0.11")
+            version_dir = os.path.join(prefix, "scons-__VERSION__")
             standalone_dir = os.path.join(prefix, "scons")
             if self.version_lib:
                 # ...but they asked for a version-specific directory.
@@ -185,7 +185,7 @@ class install_scripts(_install_scripts):
 
 arguments = {
     'name'             : "scons",
-    'version'          : "0.11",
+    'version'          : "__VERSION__",
     'packages'         : ["SCons",
                           "SCons.Node",
                           "SCons.Optik",

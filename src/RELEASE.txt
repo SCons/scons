@@ -20,9 +20,9 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600
+RELEASE 0.12 - XXX
 
-  This is the eleventh alpha release of SCons.  Please consult the
+  This is the twelfth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since release 0.10:
@@ -77,48 +77,6 @@ RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600
 
     If you have defined a strfunction() for a Python function Action,
     you will need to add a third "env" argument to your function call.
-
-  Please note the following important changes since release 0.09:
-
-    - The Scanner interface has been changed to make it easier to
-
-      write user-defined Scanners and to eliminate unnecessary Scanner
-      calls.  This required changing the meaning of the third argument
-      passed to your user-defined scanner functions.  The third argument
-      was formerly the target node whose build was causing a scan of the
-      current node specified as the first argument:
-
-        def scanner_function(node, env, target):
-
-      The third argument is now the path of directories that can be
-      searched for files found during the scan of the current node:
-
-        def scanner_function(node, env, path):
-
-      If you did not actually use the third argument in your scanner
-      function, which should be the case for most definitions, you do
-      not need to change your scanner function.  (You may, however, wish
-      to change the name of the third argument from "target" to "path"
-      to reflect the changed meaning and avoid misleading anyone who
-      looks at your SConscript files.)
-
-    - The .sconsign file format has been changed from ASCII to a pickled
-      Python data structure.  This improves performance and future
-      extensibility, but means that the first time you execute SCons
-      0.10 on an already-existing source tree built with SCons 0.09 or
-      earlier, SCons will report for every .sconsign file in the tree:
-
-      	SCons warning: Ignoring corrupt .sconsign file: xxx
-
-      These warnings are normal in this situation and can be safely
-      ignored.
-
-    - The format of all error and warning messages has been made
-      consistent.  All error messages now begin with "scons: ***"
-      and all warning messages now begin with "scons: warning:".
-
-    - SCons now prints a description of Python functions that are
-      invoked to build a target.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.

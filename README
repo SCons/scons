@@ -66,12 +66,12 @@ In this case, your options are:
     --  (Optional.)  Install from a pre-packaged SCons package that
         does not require distutils:
 
-            Red Hat Linux       scons-0.11-1.noarch.rpm
+            Red Hat Linux       scons-0.12-1.noarch.rpm
 
-            Debian GNU/Linux    scons_0.11-1_all.deb
+            Debian GNU/Linux    scons_0.12-1_all.deb
                                 (or use apt-get)
 
-            Windows             scons-0.11.win32.exe
+            Windows             scons-0.12.win32.exe
 
     --  (Recommended.)  Download the latest distutils package from the
         following URL:
@@ -218,18 +218,18 @@ more typing:
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
 
-        build/dist/scons-0.11-1.noarch.rpm
-        build/dist/scons-0.11-1.src.rpm
-        build/dist/scons-0.11.linux-i686.tar.gz
-        build/dist/scons-0.11.tar.gz
-        build/dist/scons-0.11.win32.exe
-        build/dist/scons-0.11.zip
-        build/dist/scons-doc-0.11.tar.gz
-        build/dist/scons-local-0.11.tar.gz
-        build/dist/scons-local-0.11.zip
-        build/dist/scons-src-0.11.tar.gz
-        build/dist/scons-src-0.11.zip
-        build/dist/scons_0.11-1_all.deb
+        build/dist/scons-0.12-1.noarch.rpm
+        build/dist/scons-0.12-1.src.rpm
+        build/dist/scons-0.12.linux-i686.tar.gz
+        build/dist/scons-0.12.tar.gz
+        build/dist/scons-0.12.win32.exe
+        build/dist/scons-0.12.zip
+        build/dist/scons-doc-0.12.tar.gz
+        build/dist/scons-local-0.12.tar.gz
+        build/dist/scons-local-0.12.zip
+        build/dist/scons-src-0.12.tar.gz
+        build/dist/scons-src-0.12.zip
+        build/dist/scons_0.12-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to
 build packages for which you don't have the proper utilities installed.
