@@ -93,8 +93,13 @@ class Options:
         values.update(args)
 
         # put the variables in the environment:
-        for key in values.keys():
-            env[key] = values[key]
+        # (don't copy over variables that are not declared
+        #  as options)
+        for option in self.options:
+            try:
+                env[option.key] = values[option.key]
+            except KeyError:
+                pass
 
         # Call the convert functions:
         for option in self.options:
@@ -103,7 +108,7 @@ class Options:
                 try:
                     env[option.key] = option.converter(value)
                 except ValueError, x:
-                    raise SCons.Errors.UserError, 'Error converting option: %s\n%s'%(options.key, x)
+                    raise SCons.Errors.UserError, 'Error converting option: %s\n%s'%(option.key, x)
 
 
         # Finally validate the values:
@@ -122,7 +127,11 @@ class Options:
         help_text = ""
 
         for option in self.options:
-            help_text = help_text + '\n%s: %s\n    default: %s\n    actual: %s\n'%(option.key, option.help, option.default, env.subst('${%s}'%option.key))
+            help_text = help_text + '\n%s: %s\n    default: %s\n'%(option.key, option.help, option.default)
+            if env.has_key(option.key):
+                help_text = help_text + '    actual: %s\n'%env.subst('${%s}'%option.key)
+            else:
+                help_text = help_text + '    actual: None\n'
 
         return help_text
 

@@ -55,6 +55,9 @@ opts.Add('DEBUG_BUILD',
 opts.Add('CC',
          'The C compiler')
 
+opts.Add('UNSPECIFIED',
+         'An option with no value')
+
 def test_tool(env, platform):
     if env['RELEASE_BUILD']:
         env['CCFLAGS'] = env['CCFLAGS'] + ' -O'
@@ -70,6 +73,19 @@ print env['RELEASE_BUILD']
 print env['DEBUG_BUILD']
 print env['CC']
 print env['CCFLAGS']
+
+# unspecified options should not be set:
+assert not env.has_key('UNSPECIFIED')
+
+# undeclared options should be ignored:
+assert not env.has_key('UNDECLARED')
+
+# calling Update() should not effect options that
+# are not declared on the options object:
+r = env['RELEASE_BUILD']
+opts = Options()
+opts.Update(env)
+assert env['RELEASE_BUILD'] == r
 
 Default(env.Alias('dummy'))
         
@@ -90,6 +106,12 @@ check(['1', '0', cc, ccflags + ' -O'])
 
 test.run(arguments='"CC=not_a_c_compiler"')
 check(['0', '1', 'not_a_c_compiler', ccflags + ' -g'])
+
+test.run(arguments='"UNDECLARED=foo"')
+check(['0', '1', cc, ccflags + ' -g'])
+
+test.run(arguments='"CCFLAGS=--taco"')
+check(['0', '1', cc, ccflags + ' -g'])
 
 test.write('custom.py', """
 DEBUG_BUILD=0
@@ -118,6 +140,10 @@ DEBUG_BUILD: Set to 1 to build a debug build
 CC: The C compiler
     default: None
     actual: %s
+
+UNSPECIFIED: An option with no value
+    default: None
+    actual: None
 
 Use scons -H for help about command-line options.
 """%cc)

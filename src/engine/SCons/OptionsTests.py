@@ -38,6 +38,8 @@ class Environment:
         self.dict[key] = value
     def __getitem__(self, key):
         return self.dict[key]
+    def has_key(self, key):
+        return self.dict.has_key(key)
 
 
 def check(key,value):
