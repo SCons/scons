@@ -612,6 +612,7 @@ GlobalDefaultEnvironmentFunctions = [
     'Execute',
     'File',
     'FindFile',
+    'Flatten',
     'GetBuildPath',
     'Ignore',
     'Install',

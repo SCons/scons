@@ -2044,6 +2044,14 @@ class EnvironmentTestCase(unittest.TestCase):
 
         # XXX
 
+    def test_Flatten(self):
+        """Test the Flatten() method"""
+        env = Environment()
+        l = env.Flatten([1])
+        assert l == [1]
+        l = env.Flatten([1, [2, [3, [4]]]])
+        assert l == [1, 2, 3, 4], l
+
     def test_GetBuildPath(self):
         """Test the GetBuildPath() method."""
         env = Environment(MAGIC = 'xyzzy')

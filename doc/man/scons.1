@@ -1191,11 +1191,36 @@ by avoiding having to specify
 a platform-specific object suffix
 when calling the Program() builder method.
 
-(Note that Builder calls will "flatten" the lists
-the source and target file list,
+Note that Builder calls will automatically "flatten"
+the source and target file lists,
 so it's all right to have the bar_obj list
 return by the StaticObject() call
-in the middle of the source file list.)
+in the middle of the source file list.
+If you need to manipulate a list of lists returned by Builders
+directly using Python,
+you can either build the list by hand:
+
+.ES
+foo = Object('foo.c')
+bar = Object('bar.c')
+objects = ['begin.o'] + foo + ['middle.o'] + bar + ['end.o']
+for object in objects:
+    print str(object)
+.EE
+
+Or you can use the
+.BR Flatten ()
+supplied by scons
+to create a list containing just the Nodes,
+which may be more convenient:
+
+.ES
+foo = Object('foo.c')
+bar = Object('bar.c')
+objects = Flatten(['begin.o', foo, 'middle.o', bar, 'end.o'])
+for object in objects:
+    print str(object)
+.EE
 
 The path name for a Node's file may be used
 by passing the Node to the Python-builtin
@@ -2751,6 +2776,40 @@ derived files that have not yet been built.
 
 .ES
 foo = env.FindFile('foo', ['dir1', 'dir2'])
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI Flatten( sequence )
+.TP
+.RI env.Flatten( sequence )
+Takes a sequence (that is, a Python list or tuple)
+that may contain nested sequences
+and returns a flattened list containing
+all of the individual elements in any sequence.
+This can be helpful for collecting
+the lists returned by calls to Builders;
+other Builders will automatically
+flatten lists specified as input,
+but direct Python manipulation of
+these lists does not:
+
+.ES
+foo = Object('foo.c')
+bar = Object('bar.c')
+
+# Because `foo' and `bar' are lists returned by the Object() Builder,
+# `objects' will be a list containing nested lists:
+objects = ['f1.o', foo, 'f2.o', bar, 'f3.o']
+
+# Passing such a list to another Builder is all right because
+# the Builder will flatten the list automatically:
+Program(source = objects)
+
+# If you need to manipulate the list directly using Python, you need to
+# call Flatten() yourself, or otherwise handle nested lists:
+for object in Flatten(objects):
+    print str(object)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
