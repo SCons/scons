@@ -83,6 +83,14 @@ class DummyEnvironment:
             path = [path]
         return map(self.subst, path)
 
+class DummyNode:
+    def __init__(self, name):
+        self.name = name
+    def rexists(self):
+        return 1
+    def __str__(self):
+        return self.name
+    
 def deps_match(deps, libs):
     deps=map(str, deps)
     deps.sort()
@@ -99,14 +107,14 @@ class ProgScanTestCase1(unittest.TestCase):
                                LIBS=[ 'l1', 'l2', 'l3' ])
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps_match(deps, ['l1.lib']), map(str, deps)
 
         env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
                                LIBS='l1')
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps_match(deps, ['l1.lib']), map(str, deps)
 
         f1 = SCons.Node.FS.default_fs.File(test.workpath('f1'))
@@ -114,7 +122,7 @@ class ProgScanTestCase1(unittest.TestCase):
                                LIBS=[f1])
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps[0] is f1, deps
 
         f2 = SCons.Node.FS.default_fs.File(test.workpath('f1'))
@@ -122,7 +130,7 @@ class ProgScanTestCase1(unittest.TestCase):
                                LIBS=f2)
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps[0] is f2, deps
 
 
@@ -133,7 +141,7 @@ class ProgScanTestCase2(unittest.TestCase):
                                LIBS=[ 'l1', 'l2', 'l3' ])
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps_match(deps, ['l1.lib', 'd1/l2.lib', 'd1/d2/l3.lib' ]), map(str, deps)
 
 class ProgScanTestCase3(unittest.TestCase):
@@ -143,7 +151,7 @@ class ProgScanTestCase3(unittest.TestCase):
                                LIBS=string.split('l2 l3'))
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
 
 class ProgScanTestCase5(unittest.TestCase):
@@ -158,7 +166,7 @@ class ProgScanTestCase5(unittest.TestCase):
                                LIBS=string.split('l2 l3'))
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps_match(deps, [ 'd1/l2.lib' ]), map(str, deps)
 
 class ProgScanTestCase6(unittest.TestCase):
@@ -169,7 +177,7 @@ class ProgScanTestCase6(unittest.TestCase):
                                LIBSUFFIXES=['.a'])
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), map(str, deps)
 
 class ProgScanTestCase7(unittest.TestCase):
@@ -182,33 +190,30 @@ class ProgScanTestCase7(unittest.TestCase):
                                XYZ='xyz.other')
         s = SCons.Scanner.Prog.ProgScan()
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), map(str, deps)
 
 class ProgScanTestCase8(unittest.TestCase):
     def runTest(self):
         
-        class DummyNode:
-            pass
-
-        n1 = DummyNode()
+        n1 = DummyNode('n1')
         env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
                                LIBS=[n1],
                                LIBPREFIXES=['p1-', 'p2-'],
                                LIBSUFFIXES=['.1', '2'])
         s = SCons.Scanner.Prog.ProgScan(node_class = DummyNode)
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps == [n1], deps
 
-        n2 = DummyNode()
+        n2 = DummyNode('n2')
         env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
                                LIBS=[n1, [n2]],
                                LIBPREFIXES=['p1-', 'p2-'],
                                LIBSUFFIXES=['.1', '2'])
         s = SCons.Scanner.Prog.ProgScan(node_class = DummyNode)
         path = s.path(env)
-        deps = s('dummy', env, path)
+        deps = s(DummyNode('dummy'), env, path)
         assert deps == [n1, n2], deps
 
 def suite():
@@ -229,7 +234,7 @@ def suite():
                                            LIBS=string.split(u'l2 l3'))
                     s = SCons.Scanner.Prog.ProgScan()
                     path = s.path(env)
-                    deps = s('dummy', env, path)
+                    deps = s(DummyNode('dummy'), env, path)
                     assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
             suite.addTest(ProgScanTestCase4())
             \n"""
