@@ -74,6 +74,13 @@ class Task:
         so only do thread safe stuff here.  Do thread unsafe stuff in
         prepare(), executed() or failed()."""
         try:
+            # We recorded an exception while getting this Task ready
+            # for execution.  Raise it now.
+            raise self.node.exc_type, self.node.exc_value
+        except AttributeError:
+            # The normal case:  no exception to raise.
+            pass
+        try:
             self.targets[0].build()
         except KeyboardInterrupt:
             raise
@@ -198,7 +205,18 @@ class Taskmaster:
             # keep track of which nodes are in the execution stack:
             node.set_state(SCons.Node.stack)
 
-            children = node.children()
+            try:
+                children = node.children()
+            except:
+                # We had a problem just trying to figure out the
+                # children (like a child couldn't be linked in to a
+                # BuildDir).  Arrange to raise the exception when the
+                # Task is "executed."
+                node.exc_type = sys.exc_type
+                node.exc_value = sys.exc_value
+                self.candidates.pop()
+                self.ready = node
+                break
 
             # detect dependency cycles:
             def in_stack(node): return node.get_state() == SCons.Node.stack
@@ -236,10 +254,11 @@ class Taskmaster:
                 node.set_state(SCons.Node.pending)
                 self.candidates.pop()
                 continue
-            else:
-                self.candidates.pop()
-                self.ready = node
-                break
+
+            # The default when we've gotten through all of the checks above.
+            self.candidates.pop()
+            self.ready = node
+            break
 
     def next_task(self):
         """Return the next task to be executed."""
@@ -259,7 +278,15 @@ class Taskmaster:
         self.executing.extend(node.side_effects)
         
         task = self.tasker(self, tlist, node in self.targets, node)
-        task.make_ready()
+        try:
+            task.make_ready()
+        except:
+            # We had a problem just trying to get this task ready (like
+            # a child couldn't be linked in to a BuildDir when deciding
+            # whether this node is current).  Arrange to raise the
+            # exception when the Task is "executed."
+            node.exc_type = sys.exc_type
+            node.exc_value = sys.exc_value
         self.ready = None
 
         return task

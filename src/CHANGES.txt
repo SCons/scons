@@ -42,6 +42,9 @@ RELEASE 0.11 - XXX
   - Fix adding a prefix to a file when the target isn't specified.
     (Bug reported by Esa Ilari Vuokko.)
 
+  - Clean up error messages from problems duplicating into read-only
+    BuildDir directories or into read-only files.
+
   From Steve Leblanc:
 
   - Fix the output of -c -n when directories are involved, so it

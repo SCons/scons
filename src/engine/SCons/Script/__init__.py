@@ -65,7 +65,6 @@ import SCons.Taskmaster
 from SCons.Util import display
 import SCons.Warnings
 
-
 #
 # Task control.
 #
@@ -642,8 +641,6 @@ class OptParser(OptionParser):
 
 
 def _main():
-    import SCons.Node
-
     targets = []
 
     # Enable deprecated warnings by default.
@@ -753,8 +750,19 @@ def _main():
     display("scons: Reading SConscript files ...")
     try:
         start_time = time.time()
-        for script in scripts:
-            SCons.Script.SConscript.SConscript(script)
+        try:
+            for script in scripts:
+                SCons.Script.SConscript.SConscript(script)
+        except SCons.Errors.StopError, e:
+            # We had problems reading an SConscript file, such as it
+            # couldn't be copied in to the BuildDir.  Since we're just
+            # reading SConscript files and haven't started building
+            # things yet, stop regardless of whether they used -i or -k
+            # or anything else, but don't say "Stop." on the message.
+            global exit_status
+            sys.stderr.write("scons: *** %s\n" % e)
+            exit_status = 2
+            sys.exit(exit_status)
         global sconscript_time
         sconscript_time = time.time() - start_time
     except PrintHelp, text:

@@ -971,7 +971,11 @@ class File(Entry):
                     Unlink(self, None, None)
                 except OSError:
                     pass
-                Link(self, src, None)
+                try:
+                    Link(self, src, None)
+                except IOError, e:
+                    desc = "Cannot duplicate `%s' in `%s': %s." % (src, self.dir, e.strerror)
+                    raise SCons.Errors.StopError, desc
                 self.linked = 1
                 # The Link() action may or may not have actually
                 # created the file, depending on whether the -n

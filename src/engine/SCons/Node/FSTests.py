@@ -288,6 +288,28 @@ class BuildDirTestCase(unittest.TestCase):
         finally:
             SCons.Node.FS.Mkdir = save_Mkdir
             SCons.Node.FS.Link = save_Link
+
+        # Test that an IOError trying to Link a src file
+        # into a BuildDir ends up throwing a StopError.
+        fIO = fs.File("build/var2/IOError")
+
+        save_Link = SCons.Node.FS.Link
+        def Link_IOError(target, source, env):
+            raise IOError, "Link_IOError"
+        SCons.Node.FS.Link = Link_IOError
+
+        test.write(['work', 'src', 'IOError'], "work/src/IOError\n")
+
+        try:
+            exc_caught = 0
+            try:
+                fIO.exists()
+            except SCons.Errors.StopError:
+                exc_caught = 1
+            assert exc_caught, "Should have caught a StopError"
+
+        finally:
+            SCons.Node.FS.Link = save_Link
         
         # Test to see if Link() works...
         test.subdir('src','build')

@@ -121,6 +121,9 @@ class Node:
 class OtherError(Exception):
     pass
 
+class MyException(Exception):
+    pass
+
 
 class TaskmasterTestCase(unittest.TestCase):
 
@@ -344,6 +347,32 @@ class TaskmasterTestCase(unittest.TestCase):
         assert not tm.next_task()
         t.executed()
 
+    def test_make_ready_exception(self):
+        """Test handling exceptions from Task.make_ready()
+        """
+        class MyTask(SCons.Taskmaster.Task):
+            def make_ready(self):
+                raise MyException, "from make_ready()"
+
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster(targets = [n1], tasker = MyTask)
+        t = tm.next_task()
+        assert n1.exc_type == MyException, n1.exc_type
+        assert str(n1.exc_value) == "from make_ready()", n1.exc_value
+
+
+    def test_children_errors(self):
+        """Test errors when fetching the children of a node.
+        """
+        class MyNode(Node):
+            def children(self):
+                raise SCons.Errors.StopError, "stop!"
+        n1 = MyNode("n1")
+        tm = SCons.Taskmaster.Taskmaster([n1])
+        t = tm.next_task()
+        assert n1.exc_type == SCons.Errors.StopError, "Did not record StopError on node"
+        assert str(n1.exc_value) == "stop!", "Unexpected exc_value `%s'" % n1.exc_value
+
     def test_cycle_detection(self):
         """Test detecting dependency cycles
 
@@ -479,6 +508,9 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             raise TestFailed, "did not catch expected BuildError"
 
+        # On a generic (non-BuildError) exception from a Builder,
+        # the target should throw a BuildError exception with the
+        # args set to the exception value, instance, and traceback.
         def raise_OtherError():
             raise OtherError
         n4 = Node("n4")
@@ -488,9 +520,6 @@ class TaskmasterTestCase(unittest.TestCase):
         try:
             t.execute()
         except SCons.Errors.BuildError, e:
-            # On a generic (non-BuildError) exception from a Builder,
-            # the target should throw a BuildError exception with the
-            # args set to the exception value, instance, and traceback.
             assert e.node == n4, e.node
             assert e.errstr == "Exception", e.errstr
             assert len(e.args) == 3, `e.args`
@@ -500,6 +529,26 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             raise TestFailed, "did not catch expected BuildError"
 
+        # If the Node has had an exception recorded (during
+        # preparation), then execute() should raise that exception,
+        # not build the Node.
+        class MyException(Exception):
+            pass
+
+        built_text = None
+        n5 = Node("n5")
+        n5.exc_type = MyException
+        n5.exc_value = "exception value"
+        tm = SCons.Taskmaster.Taskmaster([n5])
+        t = tm.next_task()
+        exc_caught = None
+        try:
+            t.execute()
+        except MyException, v:
+            assert str(v) == "exception value", v
+            exc_caught = 1
+        assert exc_caught, "did not catch expected MyException"
+        assert built_text is None, built_text
 
 
 
