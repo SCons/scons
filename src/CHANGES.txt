@@ -116,6 +116,9 @@ RELEASE 0.97 - XXX
   - Add a --debug=findlibs option to print what's happening when
     the scanner is searching for libraries.
 
+  - Allow Tool specifications to be passed a dictionary of keyword
+    arguments.
+
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft

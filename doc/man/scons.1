@@ -31,7 +31,7 @@
 .fi
 .RE
 ..
-.TH SCONS 1 "August 2004"
+.TH SCONS 1 "October 2004"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -991,9 +991,21 @@ env = Environment(tools = ['default', 'foo'], toolpath = ['tools'])
 
 This looks for a tool specification in tools/foo.py (as well as
 using the ordinary default tools for the platform).  foo.py should
-have two functions: generate(env) and exists(env).  generate()
-modifies the passed in environment and exists() should return a true
-value if the tool is available.  Tools in the toolpath are used before
+have two functions: generate(env, **kw) and exists(env).
+The
+.B generate()
+function
+modifies the passed in environment
+to set up variables so that the tool
+can be executed;
+it may use any keyword arguments
+that the user supplies (see below)
+to vary its initialization.
+The
+.B exists()
+function should return a true
+value if the tool is available.
+Tools in the toolpath are used before
 any of the built-in ones.  For example, adding gcc.py to the toolpath
 would override the built-in gcc tool.
 
@@ -1008,6 +1020,36 @@ def my_tool(env):
     env['XYZZY'] = 'xyzzy'
 
 env = Environment(tools = [my_tool])
+.EE
+
+The individual elements of the tools list
+may also themselves be two-element lists of the form
+.RI ( toolname ", " kw_dict ).
+SCons searches for the
+.I toolname
+specification file as described above, and
+passes
+.IR kw_dict ,
+which must be a dictionary, as keyword arguments to the tool's
+.B generate
+function.
+The
+.B generate
+function can use the arguments to modify the tool's behavior
+by setting up the environment in different ways
+or otherwise changing its initialization.
+
+.ES
+# in tools/my_tool.py:
+def generate(env, **kw):
+  # Sets MY_TOOL to the value of keyword argument 'arg1' or 1.
+  env['MY_TOOL'] = kw.get('arg1', '1')
+def exists(env):
+  return 1
+
+# in SConstruct:
+env = Environment(tools = ['default', ('my_tool', {'arg1': 'abc'})],
+                  toolpath=['tools'])
 .EE
 
 The tool definition (i.e. my_tool()) can use the PLATFORM variable from
@@ -4072,19 +4114,23 @@ The default is "build".
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Tool( string, toolpath=[] )
+.RI Tool( string [, toolpath ", " **kw ])
 Returns a callable object
 that can be used to initialize
 a construction environment using the
 tools keyword of the Environment() method.
 The object may be called with a construction
 environment as an argument,
-in which case the object will be
+in which case the object will
 add the necessary variables
 to the construction environment
 and the name of the tool will be added to the
 .B $TOOLS
 construction variable.
+
+Additional keyword arguments are passed to the tool's
+.B generate()
+method.
 
 .ES
 env = Environment(tools = [ Tool('msvc') ])
@@ -4096,10 +4142,14 @@ u = Tool('opengl', toolpath = ['tools'])
 u(env)  # adds 'opengl' to the TOOLS variable
 .EE
 .TP
-.RI env.Tool( string [, toolpath] )
+.RI env.Tool( string [, toolpath ", " **kw ])
 Applies the callable object for the specified tool
 .I string
 to the environment through which the method was called.
+
+Additional keyword arguments are passed to the tool's
+.B generate()
+method.
 
 .ES
 env.Tool('gcc')

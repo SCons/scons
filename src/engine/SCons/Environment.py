@@ -116,14 +116,16 @@ def our_deepcopy(x):
    return copy
 
 def apply_tools(env, tools, toolpath):
-    if tools:
-        # Filter out null tools from the list.
-        tools = filter(None, tools)
-        for tool in tools:
-            if SCons.Util.is_String(tool):
-                env.Tool(tool, toolpath)
-            else:
-                tool(env)
+    if not tools:
+        return
+    # Filter out null tools from the list.
+    for tool in filter(None, tools):
+        if SCons.Util.is_List(tool) or type(tool)==type(()):
+            toolname = tool[0]
+            toolargs = tool[1] # should be a dict of kw args
+            tool = apply(env.Tool, (toolname, toolpath), toolargs)
+        else:
+            env.Tool(tool, toolpath)
 
 # These names are controlled by SCons; users should never set or override
 # them.  This warning can optionally be turned off, but scons will still
@@ -620,7 +622,7 @@ class Base:
                     self._dict[key] = self._dict[key] + val
         self.scanner_map_delete(kw)
 
-    def Copy(self, tools=None, toolpath=[], **kw):
+    def Copy(self, tools=[], toolpath=[], **kw):
         """Return a copy of a construction Environment.  The
         copy is like a Python "deep copy"--that is, independent
         copies are made recursively of each objects--except that
@@ -963,9 +965,12 @@ class Base:
                 del kw[k]
         apply(self.Replace, (), kw)
 
-    def Tool(self, tool, toolpath=[]):
-        tool = self.subst(tool)
-        return SCons.Tool.Tool(tool, map(self.subst, toolpath))(self)
+    def Tool(self, tool, toolpath=[], **kw):
+        if SCons.Util.is_String(tool):
+            tool = self.subst(tool)
+            toolpath = map(self.subst, toolpath)
+            tool = apply(SCons.Tool.Tool, (tool, toolpath), kw)
+        tool(self)
 
     def WhereIs(self, prog, path=None, pathext=None, reject=[]):
         """Find prog in the path.  
