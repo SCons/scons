@@ -46,11 +46,11 @@ Things to do to release a version of SCons:
 
 		ae_p scons.0
 
-		aede scons {2}
+		aede {4}
 
-		aerpass {2}
+		aerpass {4}
 
-		aeib {2}
+		aeib {4}
 
 		aeb
 
@@ -64,15 +64,15 @@ Things to do to release a version of SCons:
 
 	START THE NEW BRANCH
 
-		aenbr -p scons.0 {3}
+		aenbr -p scons.0 {5}
 
-		aenc -p {scons.0.3}
+		aenc -p {scons.0.5}
 
                         Call it something like, "Initialize the new
                         branch."  Cause = internal_enhancement.  Exempt
                         it from all tests (*_exempt = true).
 
-		ae_p scons.0.3
+		ae_p scons.0.5
 
 		aedb 100
 
@@ -112,14 +112,22 @@ Things to do to release a version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.02-1.noarch.rpm
-		put scons-0.02-1.src.rpm
-		put scons-0.02.tar.gz
-		put scons-0.01.win32.exe
-		put scons-src-0.01.tar.gz
-		put scons_0.01-1_all.deb
+		put scons-0.04-1.noarch.rpm
+		put scons-0.04-1.src.rpm
+		put scons-0.04.tar.gz
+		put scons-0.04.win32.exe
+		put scons-src-0.04.tar.gz
+		put scons_0.04-1_all.deb
 
 	Create the new release at the SourceForge project page:
+
+		Go to the Admin page
+
+		=> Edit/Add File Releases
+
+		=> Add Release
+
+		New release name:  0.04
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -132,14 +140,14 @@ Things to do to release a version of SCons:
 
 		Click "Submit/Refresh"
 
-		Edit the files
+		Edit the file info:
 
-			scons-0.02-1.noarch.rpm		Any	.rpm
-			scons-0.02-1.src.rpm		Any	Source .rpm
-			scons-0.02.tar.gz		Any	.gz
-			scons-0.01.win32.exe		i386	Other
-			scons-src-0.01.tar.gz		Any	Source .gz
-			scons_0.01-1_all.deb		Any	.deb
+			scons-0.04-1.noarch.rpm		Any	.rpm
+			scons-0.04-1.src.rpm		Any	Source .rpm
+			scons-0.04.tar.gz		Any	.gz
+			scons-0.04.win32.exe		i386	Other
+			scons-src-0.04.tar.gz		Any	Source .gz
+			scons_0.04-1_all.deb		Any	.deb
 
 		(This has to be done one at a time.)
 
@@ -168,19 +176,37 @@ Things to do to release a version of SCons:
 
 
 
+	In the Bugs Tracker, add a Group for the new release (0.04)
+
+
+
 	Announce to the following mailing lists (template below):
 
 		scons-announce@lists.sourceforge.net
 		scons-users@lists.sourceforge.net
 		scons-devel@lists.sourceforge.net
 
-		python-list@python.org
+			[right away]
 
 		python-announce@python.org
 
-		[optional] cons-discuss@gnu.org
+			[right away, it's moderated and will take
+			some time to get through]
 
 		linux-announce@news.ornl.gov
+
+			[right away, it's moderated and will take
+			some time to get through]
+
+		[optional] cons-discuss@gnu.org
+
+			[only if it's a really big announcement,
+			I said we wouldn't bug this list]
+
+		python-list@python.org
+
+                        [wait until business hours so the announcemnt
+			hits mailboxes while U.S. workers are active]
 
 	Notify www.cmtoday.com/contribute.html
 
@@ -189,6 +215,10 @@ Things to do to release a version of SCons:
                 been too soon since the previous one.]
 
 	Notify freshmeat.net
+
+                [Wait until the morning so the announcement hits the
+                main freshmeat.net page while people in the U.S. are
+                awake and working]
 
 
 
