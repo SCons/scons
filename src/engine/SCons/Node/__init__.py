@@ -628,7 +628,7 @@ class Node:
         generator is being called to generate a signature for the
         command line, which determines if we should rebuild or not.
 
-        Such command generators should use this method in preference
+        Such command generators shoud use this method in preference
         to str(Node) when converting a Node to a string, passing
         in the for_signature parameter, such that we will call
         Node.for_signature() or str(Node) properly, depending on whether
@@ -637,6 +637,21 @@ class Node:
         if for_signature:
             return self.for_signature()
         return str(self)
+
+    def get_subst_proxy(self):
+        """
+        This method is expected to return an object that will function
+        exactly like this Node, except that it implements any additional
+        special features that we would like to be in effect for
+        Environment variable substitution.  The principle use is that
+        some Nodes would like to implement a __getattr__() method,
+        but putting that in the Node type itself has a tendency to kill
+        performance.  We instead put it in a proxy and return it from
+        this method.  It is legal for this method to return self
+        if no new functionality is needed for Environment substitution.
+        """
+        return self
+        
 
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass

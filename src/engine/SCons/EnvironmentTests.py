@@ -574,6 +574,8 @@ class EnvironmentTestCase(unittest.TestCase):
                 return self.name
             def rfile(self):
                 return self
+            def get_subst_proxy(self):
+                return self
 
         # Test callables in the Environment
         def foo(target, source, env, for_signature):

@@ -190,7 +190,7 @@ class ParentOfRoot:
     This class is an instance of the Null object pattern.
     """
     def __init__(self):
-        self.abspath_str = ''
+        self.abspath = ''
         self.path = ''
         self.abspath_ = ''
         self.path_ = ''
@@ -224,6 +224,61 @@ else:
     def _my_normcase(x):
         return string.upper(x)
 
+class EntryProxy(SCons.Util.Proxy):
+    def __init__(self, entry):
+        SCons.Util.Proxy.__init__(self, entry)
+        self.abspath = SCons.Util.SpecialAttrWrapper(entry.abspath,
+                                                     entry.name + "_abspath")
+        filebase, suffix = os.path.splitext(entry.name)
+        self.filebase = SCons.Util.SpecialAttrWrapper(filebase,
+                                                      entry.name + "_filebase")
+        self.suffix = SCons.Util.SpecialAttrWrapper(suffix,
+                                                    entry.name + "_suffix")
+        self.file = SCons.Util.SpecialAttrWrapper(entry.name,
+                                                  entry.name + "_file")
+
+    def __get_base_path(self):
+        """Return the file's directory and file name, with the
+        suffix stripped."""
+        return SCons.Util.SpecialAttrWrapper(os.path.splitext(self.get().get_path())[0],
+                                             self.get().name + "_base")
+
+    def __get_posix_path(self):
+        """Return the path with / as the path separator, regardless
+        of platform."""
+        if os.sep == '/':
+            return self
+        else:
+            return SCons.Util.SpecialAttrWrapper(string.replace(self.get().get_path(),
+                                                                os.sep, '/'),
+                                                 self.get().name + "_posix")
+
+    def __get_srcnode(self):
+        return EntryProxy(self.get().srcnode())
+
+    def __get_srcdir(self):
+        """Returns the directory containing the source node linked to this
+        node via BuildDir(), or the directory of this node if not linked."""
+        return EntryProxy(self.get().srcnode().dir)
+
+    def __get_dir(self):
+        return EntryProxy(self.get().dir)
+
+    dictSpecialAttrs = { "base" : __get_base_path,
+                         "posix" : __get_posix_path,
+                         "srcpath" : __get_srcnode,
+                         "srcdir" : __get_srcdir,
+                         "dir" : __get_dir }
+
+    def __getattr__(self, name):
+        # This is how we implement the "special" attributes
+        # such as base, posix, srcdir, etc.
+        try:
+            return self.dictSpecialAttrs[name](self)
+        except KeyError:
+            return SCons.Util.Proxy.__getattr__(self, name)
+        
+
 class Entry(SCons.Node.Node):
     """A generic class for file system entries.  This class is for
     when we don't know yet whether the entry being looked up is a file
@@ -251,14 +306,14 @@ class Entry(SCons.Node.Node):
 
         assert directory, "A directory must be provided"
 
-        self.abspath_str = directory.abspath_ + name
+        self.abspath = directory.abspath_ + name
         if directory.path == '.':
             self.path = name
         else:
             self.path = directory.path_ + name
 
         self.path_ = self.path
-        self.abspath_ = self.abspath_str
+        self.abspath_ = self.abspath
         self.dir = directory
         self.cwd = None # will hold the SConscript directory for target nodes
         self.duplicate = directory.duplicate
@@ -293,11 +348,11 @@ class Entry(SCons.Node.Node):
         Since this should return the real contents from the file
         system, we check to see into what sort of subclass we should
         morph this Entry."""
-        if os.path.isfile(self.abspath_str):
+        if os.path.isfile(self.abspath):
             self.__class__ = File
             self._morph()
             return File.get_contents(self)
-        if os.path.isdir(self.abspath_str):
+        if os.path.isdir(self.abspath):
             self.__class__ = Dir
             self._morph()
             return Dir.get_contents(self)
@@ -307,7 +362,7 @@ class Entry(SCons.Node.Node):
         try:
             return self._exists
         except AttributeError:
-            self._exists = _existsp(self.abspath_str)
+            self._exists = _existsp(self.abspath)
             return self._exists
 
     def rexists(self):
@@ -403,70 +458,23 @@ class Entry(SCons.Node.Node):
             self.sbuilder = scb
         return scb
 
-    def get_base_path(self):
-        """Return the file's directory and file name, with the
-        suffix stripped."""
-        return os.path.splitext(self.get_path())[0]
-
-    def get_suffix(self):
-        """Return the file's suffix."""
-        return os.path.splitext(self.get_path())[1]
-
-    def get_file_name(self):
-        """Return the file's name without the path."""
-        return self.name
-
-    def get_file_base(self):
-        """Return the file name with path and suffix stripped."""
-        return os.path.splitext(self.name)[0]
-
-    def get_posix_path(self):
-        """Return the path with / as the path separator, regardless
-        of platform."""
-        if os.sep == '/':
-            return str(self)
-        else:
-            return string.replace(self.get_path(), os.sep, '/')
-
     def get_abspath(self):
         """Get the absolute path of the file."""
-        return self.abspath_str
-
-    def get_srcdir(self):
-        """Returns the directory containing the source node linked to this
-        node via BuildDir(), or the directory of this node if not linked."""
-        return self.srcnode().dir
-
-    dictSpecialAttrs = { "file" : get_file_name,
-                         "base" : get_base_path,
-                         "filebase" : get_file_base,
-                         "suffix" : get_suffix,
-                         "posix" : get_posix_path,
-                         "abspath" : get_abspath,
-                         "srcpath" : srcnode,
-                         "srcdir" : get_srcdir }
-
-    def __getattr__(self, name):
-        # This is how we implement the "special" attributes
-        # such as base, suffix, basepath, etc.
-        #
-        # Note that we enclose values in a SCons.Util.Literal instance,
-        # so they will retain special characters during Environment variable
-        # substitution.
-        try:
-            attr = self.dictSpecialAttrs[name](self)
-        except KeyError:
-            raise AttributeError, '%s has no attribute: %s' % (self.__class__, name)
-        if SCons.Util.is_String(attr):
-            return SCons.Util.SpecialAttrWrapper(attr, self.name +
-                                                 "_%s" % name)
-        return attr
+        return self.abspath
 
     def for_signature(self):
         # Return just our name.  Even an absolute path would not work,
         # because that can change thanks to symlinks or remapped network
         # paths.
         return self.name
+
+    def get_subst_proxy(self):
+        try:
+            return self._proxy
+        except AttributeError:
+            ret = EntryProxy(self)
+            self._proxy = ret
+            return ret
 
 # This is for later so we can differentiate between Entry the class and Entry
 # the method of the FS class.
@@ -556,7 +564,7 @@ class FS:
                     raise SCons.Errors.UserError
                 dir = Dir(drive, ParentOfRoot(), self)
                 dir.path = dir.path + os.sep
-                dir.abspath_str = dir.abspath_str + os.sep
+                dir.abspath = dir.abspath + os.sep
                 self.Root[drive] = dir
                 directory = dir
             path_comp = path_comp[1:]
@@ -642,7 +650,7 @@ class FS:
             if not dir is None:
                 self._cwd = dir
                 if change_os_dir:
-                    os.chdir(dir.abspath_str)
+                    os.chdir(dir.abspath)
         except:
             self._cwd = curr
             raise
@@ -850,7 +858,7 @@ class Dir(Entry):
         node) don't use signatures for currency calculation."""
 
         self.path_ = self.path + os.sep
-        self.abspath_ = self.abspath_str + os.sep
+        self.abspath_ = self.abspath + os.sep
         self.repositories = []
         self.srcdir = None
         
@@ -951,9 +959,9 @@ class Dir(Entry):
         keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
         kids = map(lambda x, s=self: s.entries[x], keys)
         def c(one, two):
-            if one.abspath_str < two.abspath_str:
+            if one.abspath < two.abspath:
                return -1
-            if one.abspath_str > two.abspath_str:
+            if one.abspath > two.abspath:
                return 1
             return 0
         kids.sort(c)
@@ -1085,11 +1093,11 @@ class File(Entry):
     def get_contents(self):
         if not self.rexists():
             return ''
-        return open(self.rfile().abspath_str, "rb").read()
+        return open(self.rfile().abspath, "rb").read()
 
     def get_timestamp(self):
         if self.rexists():
-            return os.path.getmtime(self.rfile().abspath_str)
+            return os.path.getmtime(self.rfile().abspath)
         else:
             return 0
 
@@ -1328,7 +1336,7 @@ class File(Entry):
         # Duplicate from source path if we are set up to do this.
         if self.duplicate and not self.has_builder() and not self.linked:
             src=self.srcnode().rfile()
-            if src.exists() and src.abspath_str != self.abspath_str:
+            if src.exists() and src.abspath != self.abspath:
                 self._createDir()
                 try:
                     Unlink(self, None, None)

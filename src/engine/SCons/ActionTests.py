@@ -134,6 +134,8 @@ class DummyNode:
         return self.name
     def rfile(self):
         return self
+    def get_subst_proxy(self):
+        return self
 
 if os.name == 'java':
     python = os.path.join(sys.prefix, 'jython')
@@ -392,7 +394,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd2 = r'%s %s %s $TARGET' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd2)
-        r = act('foo', [], env.Copy())
+        r = act(DummyNode('foo'), [], env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'foo'\n", c
@@ -400,7 +402,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd3 = r'%s %s %s ${TARGETS}' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd3)
-        r = act(['aaa', 'bbb'], [], env.Copy())
+        r = act(map(DummyNode, ['aaa', 'bbb']), [], env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'aaa' 'bbb'\n", c
@@ -437,13 +439,13 @@ class CommandActionTestCase(unittest.TestCase):
             PATH = ''
         
         env5['ENV']['XYZZY'] = 'xyzzy'
-        r = act(target = 'out5', source = [], env = env5)
+        r = act(target = DummyNode('out5'), source = [], env = env5)
 
         act = SCons.Action.CommandAction(cmd5)
         r = act(target = DummyNode('out5'),
-                        source = [],
-                        env = env.Copy(ENV = {'XYZZY' : 'xyzzy',
-                                              'PATH' : PATH}))
+                source = [],
+                env = env.Copy(ENV = {'XYZZY' : 'xyzzy',
+                                      'PATH' : PATH}))
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy'\n", c
@@ -454,6 +456,8 @@ class CommandActionTestCase(unittest.TestCase):
             def __str__(self):
                 return self._str
             def rfile(self):
+                return self
+            def get_subst_proxy(self):
                 return self
 
         cmd6 = r'%s %s %s ${TARGETS[1]} $TARGET ${SOURCES[:2]}' % (python, act_py, outfile)
@@ -748,6 +752,8 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
                 self.t = t
             def rfile(self):
                 self.t.rfile_called = 1
+                return self
+            def get_subst_proxy(self):
                 return self
         def f3(target, source, env, for_signature):
             return ''

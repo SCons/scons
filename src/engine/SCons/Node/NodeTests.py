@@ -949,6 +949,12 @@ class NodeTestCase(unittest.TestCase):
         assert n.found_includes == {}, n.found_includes
         assert n.implicit is None, n.implicit
 
+    def test_get_subst_proxy(self):
+        """Test the get_subst_proxy method."""
+        n = MyNode("test")
+
+        assert n.get_subst_proxy() == n, n.get_subst_proxy()
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(NodeTestCase, 'test_')

@@ -262,8 +262,10 @@ class CommandAction(ActionBase):
         if not SCons.Util.is_List(cmd):
             cmd = [ cmd ]
         return SCons.Util.scons_subst(string.join(map(str, cmd)),
-                                      env, SCons.Util.SUBST_RAW,
-                                      target, source)
+                                      env,
+                                      SCons.Util.SUBST_RAW,
+                                      SCons.Util.target_prep(target),
+                                      SCons.Util.source_prep(source))
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
@@ -277,7 +279,8 @@ class CommandAction(ActionBase):
         return SCons.Util.scons_subst(string.join(map(str, cmd)),
                                       env,
                                       SCons.Util.SUBST_SIG,
-                                      target, source)
+                                      SCons.Util.target_prep(target),
+                                      SCons.Util.source_prep(source))
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
@@ -403,6 +406,8 @@ class ListAction(ActionBase):
 
         Simple concatenation of the signatures of the elements.
         """
+        target = SCons.Util.target_prep(target)
+        source = SCons.Util.source_prep(source)
         return string.join(map(lambda x, t=target, s=source, e=env:
                                       x.get_contents(t, s, e),
                                self.list),

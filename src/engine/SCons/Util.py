@@ -341,16 +341,25 @@ class DisplayEngine:
         else:
             self.__call__ = self.dont_print
 
+def target_prep(target):
+    if target and not isinstance(target, NodeList):
+        if not is_List(target):
+            target = [target]
+        target = NodeList(map(lambda x: x.get_subst_proxy(), target))
+    return target
+
+def source_prep(source):
+    if source and not isinstance(source, NodeList):
+        if not is_List(source):
+            source = [source]
+        source = NodeList(map(lambda x: x.rfile().get_subst_proxy(), source))
+    return source
 
 def subst_dict(target, source, env):
-    """Create a dictionary for substitution of construction
-    variables.
+    """Create a dictionary for substitution of special
+    construction variables.
 
     This translates the following special arguments:
-
-    env    - the construction environment itself,
-             the values of which (CC, CCFLAGS, etc.)
-             are copied straight into the dictionary
 
     target - the target (object or array of objects),
              used to generate the TARGET and TARGETS
@@ -359,20 +368,20 @@ def subst_dict(target, source, env):
     source - the source (object or array of objects),
              used to generate the SOURCES and SOURCE
              construction variables
+
+    env    - the construction Environment used for this
+             build, which is made available as the __env__
+             construction variable
     """
+    dict = { '__env__' : env }
 
-    dict = env.Dictionary().copy()
-
-    if not is_List(target):
-        target = [target]
-
-    dict['TARGETS'] = NodeList(target)
+    target = target_prep(target)
+    dict['TARGETS'] = target
     if dict['TARGETS']:
         dict['TARGET'] = dict['TARGETS'][0]
 
-    if not is_List(source):
-        source = [source]
-    dict['SOURCES'] = NodeList(map(lambda x: x.rfile(), source))
+    source = source_prep(source)
+    dict['SOURCES'] = source
     if dict['SOURCES']:
         dict['SOURCE'] = dict['SOURCES'][0]
 
@@ -406,8 +415,7 @@ def _canonicalize(obj):
 _regex_remove = [ None, _rm, _remove ]
 _strconv = [ to_String, to_String, _canonicalize ]
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None,
-                     source=None):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None):
     """
     This function serves the same purpose as scons_subst(), except
     this function returns the interpolated list as a list of lines, where
@@ -434,18 +442,13 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None,
 
     remove = _regex_remove[mode]
     strconv = _strconv[mode]
-    
-    if target != None:
-        dict = subst_dict(target, source, env)
-    else:
-        dict = env.Dictionary()
 
     def repl(m,
              target=target,
              source=source,
              env=env,
-             local_vars = dict,
-             global_vars = { "__env__" : env },
+             local_vars = subst_dict(target, source, env),
+             global_vars = env.Dictionary(),
              strconv=strconv,
              sig=(mode != SUBST_CMD)):
         key = m.group(1)
@@ -492,8 +495,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None,
     return map(lambda x: map(CmdStringHolder, filter(lambda y:y, string.split(x, '\0\1'))),
                listLines)
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None,
-                source=None):
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None):
     """Recursively interpolates dictionary variables into
     the specified string, returning the expanded result.
     Variables are specified by a $ prefix in the string and
@@ -506,11 +508,6 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None,
 
     # This function needs to be fast, so don't call scons_subst_list
 
-    if target != None:
-        dict = subst_dict(target, source, env)
-    else:
-        dict = env.Dictionary()
-
     remove = _regex_remove[mode]
     strconv = _strconv[mode]
 
@@ -518,8 +515,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None,
              target=target,
              source=source,
              env=env,
-             local_vars = dict,
-             global_vars = { '__env__' : env },
+             local_vars = subst_dict(target, source, env),
+             global_vars = env.Dictionary(),
              strconv=strconv,
              sig=(mode != SUBST_CMD)):
         key = m.group(1)
@@ -530,7 +527,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None,
         except NameError:
             return '\0\5'
         if callable(e):
-            e = e(target=target, source=source, env=env, for_signature=sig)
+            e = e(target=target, source=source, env=env,
+                  for_signature = sig)
 
         def conv(arg, strconv=strconv):
             literal = 0
@@ -690,6 +688,9 @@ class Proxy:
         
     def __getattr__(self, name):
         return getattr(self.__subject, name)
+
+    def get(self):
+        return self.__subject
 
 # attempt to load the windows registry module:
 can_read_reg = 0

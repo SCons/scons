@@ -255,6 +255,8 @@ class BuilderTestCase(unittest.TestCase):
                 return self.name
             def rfile(self):
                 return self
+            def get_subst_proxy(self):
+                return self
 
         target = map(DummyNode, map(lambda x: "__t%d__" % x, range(1, 7)))
         source = map(DummyNode, map(lambda x: "__s%d__" % x, range(1, 7)))

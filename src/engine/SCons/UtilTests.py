@@ -95,6 +95,9 @@ class UtilTestCase(unittest.TestCase):
             def rfile(self):
                 return self
 
+            def get_subst_proxy(self):
+                return self
+
             foo = 1
         
         target = [ N("./foo/bar.exe"),
@@ -240,6 +243,8 @@ class UtilTestCase(unittest.TestCase):
             def is_literal(self):
                 return 1
             def rfile(self):
+                return self
+            def get_subst_proxy(self):
                 return self
         
         loc = {}
@@ -589,6 +594,7 @@ class UtilTestCase(unittest.TestCase):
         s.baz = 6
 
         assert p.baz == 5, p.baz
+        assert p.get() == s, p.get()
 
     def test_Literal(self):
         """Test the Literal() function."""
@@ -710,9 +716,9 @@ class UtilTestCase(unittest.TestCase):
     def test_subst_dict(self):
         """Test substituting dictionary values in an Action
         """
-        d = subst_dict([], [], DummyEnv({'a' : 'A', 'b' : 'B'}))
-        assert d['a'] == 'A', d
-        assert d['b'] == 'B', d
+        env = DummyEnv({'a' : 'A', 'b' : 'B'})
+        d = subst_dict([], [], env)
+        assert d['__env__'] is env, d['__env__']
 
         class SimpleNode:
             def __init__(self, data):
@@ -723,6 +729,8 @@ class UtilTestCase(unittest.TestCase):
                 return self
             def is_literal(self):
                 return 1
+            def get_subst_proxy(self):
+                return self
             
         d = subst_dict(target = SimpleNode('t'), source = SimpleNode('s'), env=DummyEnv())
         assert str(d['TARGETS'][0]) == 't', d['TARGETS']
@@ -749,6 +757,8 @@ class UtilTestCase(unittest.TestCase):
                 return self.name
             def rfile(self):
                 return self.__class__('rstr-' + self.name)
+            def get_subst_proxy(self):
+                return self
 
         d = subst_dict(target = [N('t3'), SimpleNode('t4')],
                        source = [SimpleNode('s3'), N('s4')],

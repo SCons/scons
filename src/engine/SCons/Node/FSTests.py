@@ -1524,7 +1524,7 @@ class SpecialAttrTestCase(unittest.TestCase):
         test=TestCmd(workdir='')
         fs = SCons.Node.FS.FS(test.workpath(''))
 
-        f=fs.Entry('foo/bar/baz.blat')
+        f=fs.Entry('foo/bar/baz.blat').get_subst_proxy()
         assert str(f.dir) == os.path.normpath('foo/bar'), str(f.dir)
         assert f.dir.is_literal()
         assert f.dir.for_signature() == 'bar', f.dir.for_signature()
@@ -1564,11 +1564,11 @@ class SpecialAttrTestCase(unittest.TestCase):
 
         assert str(f.srcpath) == os.path.normpath('baz/bar/baz.blat'), str(f.srcpath)
         assert f.srcpath.is_literal()
-        assert isinstance(f.srcpath, SCons.Node.FS.Entry)
+        assert isinstance(f.srcpath.get(), SCons.Node.FS.Entry)
         
         assert str(f.srcdir) == os.path.normpath('baz/bar'), str(f.srcdir)
         assert f.srcdir.is_literal()
-        assert isinstance(f.srcdir, SCons.Node.FS.Dir)
+        assert isinstance(f.srcdir.get(), SCons.Node.FS.Dir)
 
         # And now, combinations!!!
         assert str(f.srcpath.base) == os.path.normpath('baz/bar/baz'), str(f.srcpath.base)
