@@ -60,10 +60,10 @@ _default_env = None
 
 # Lazily instantiate the default environment so the overhead of creating
 # it doesn't apply when it's not needed.
-def DefaultEnvironment():
+def DefaultEnvironment(*args, **kw):
     global _default_env
     if not _default_env:
-        _default_env = SCons.Environment.Environment()
+        _default_env = apply(SCons.Environment.Environment, args, kw)
     return _default_env
 
 

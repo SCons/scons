@@ -46,7 +46,7 @@ def is_writable(file):
 
 try:
     login = os.getlogin()
-except AttributeError:
+except (AttributeError, OSError):
     try:
         login = os.environ['USER']
     except KeyError:
@@ -298,7 +298,7 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-DefaultEnvironment()['SCCS'] = r'%s'
+DefaultEnvironment(tools=['SCCS'])['SCCS'] = r'%s'
 env = Environment(BUILDERS={'Cat':Builder(action=cat)})
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')

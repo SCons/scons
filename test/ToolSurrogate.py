@@ -80,22 +80,22 @@ ToolList = {
 platform = ARGUMENTS['platform']
 tools = map(lambda t: apply(ToolSurrogate, t), ToolList[platform])
 
-env = Environment(tools = tools)
+env = Environment(tools=tools, PROGSUFFIX='.exe', OBJSUFFIX='.obj')
 env.Program('foo.c')
 """)
 
 test.write('foo.c', "foo.c posix\n")
 
 test.run(arguments = '. platform=posix', stdout = test.wrap_stdout("""\
-cc -c -o foo.o foo.c
-c++ -o foo foo.o
+cc -c -o foo.obj foo.c
+c++ -o foo.exe foo.obj
 """))
 
 test.write('foo.c', "foo.c win32\n")
 
 test.run(arguments = '. platform=win32', stdout = test.wrap_stdout("""\
-cl /nologo /c foo.c /Fofoo.o
-link /nologo /OUT:foo foo.o
+cl /nologo /c foo.c /Fofoo.obj
+link /nologo /OUT:foo.exe foo.obj
 """))
 
 test.pass_test()

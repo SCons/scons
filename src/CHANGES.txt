@@ -18,6 +18,9 @@ RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX XXXXX
 
   - Refactor the DictCmdGenerator class to be a Selector subclass.
 
+  - Allow the DefaultEnvironment() function to take arguments and pass
+    them to instantiation of the default construction environment.
+
   From Gerard Patel
 
   - When the yacc -d flag is used, take the .h file base name from the
