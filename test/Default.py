@@ -9,61 +9,56 @@ test = TestSCons.TestSCons()
 
 test.subdir('one', 'two', 'three')
 
+test.write('build.py', r"""
+import sys
+contents = open(sys.argv[2], 'r').read()
+file = open(sys.argv[1], 'w')
+file.write(contents)
+file.close()
+""")
+
 test.write(['one', 'SConstruct'], """
-env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
-env.Program(target = 'bar', source = 'bar.c')
-Default('foo')
+B = Builder(name = 'B', action = "python ../build.py %(target)s %(source)s")
+env = Environment(BUILDERS = [B])
+env.B(target = 'foo.out', source = 'foo.in')
+env.B(target = 'bar.out', source = 'bar.in')
+Default('foo.out')
 """)
 
 test.write(['two', 'SConstruct'], """
-env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
-env.Program(target = 'bar', source = 'bar.c')
-Default('foo', 'bar')
+B = Builder(name = 'B', action = "python ../build.py %(target)s %(source)s")
+env = Environment(BUILDERS = [B])
+env.B(target = 'foo.out', source = 'foo.in')
+env.B(target = 'bar.out', source = 'bar.in')
+Default('foo.out', 'bar.out')
 """)
 
 test.write(['three', 'SConstruct'], """
-env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
-env.Program(target = 'bar', source = 'bar.c')
-Default('foo bar')
+B = Builder(name = 'B', action = "python ../build.py %(target)s %(source)s")
+env = Environment(BUILDERS = [B])
+env.B(target = 'foo.out', source = 'foo.in')
+env.B(target = 'bar.out', source = 'bar.in')
+Default('foo.out bar.out')
 """)
 
 for dir in ['one', 'two', 'three']:
 
-    foo_c = os.path.join(dir, 'foo.c')
-    bar_c = os.path.join(dir, 'bar.c')
+    foo_in = os.path.join(dir, 'foo.in')
+    bar_in = os.path.join(dir, 'bar.in')
 
-    test.write(foo_c, """
-int
-main(int argc, char *argv[])
-{
-	argv[argc++] = "--";
-	printf("%s\n");
-	exit (0);
-}
-""" % foo_c)
+    test.write(foo_in, foo_in + "\n");
 
-    test.write(bar_c, """
-int
-main(int argc, char *argv[])
-{
-	argv[argc++] = "--";
-	printf("%s\n");
-	exit (0);
-}
-""" % bar_c)
+    test.write(bar_in, bar_in + "\n");
 
     test.run(chdir = dir)	# no arguments, use the Default
 
-test.run(program = test.workpath('one', 'foo'), stdout = "one/foo.c\n")
+test.fail_test(test.read(test.workpath('one', 'foo.out')) != "one/foo.in\n")
 test.fail_test(os.path.exists(test.workpath('one', 'bar')))
 
-test.run(program = test.workpath('two', 'foo'), stdout = "two/foo.c\n")
-test.run(program = test.workpath('two', 'bar'), stdout = "two/bar.c\n")
+test.fail_test(test.read(test.workpath('two', 'foo.out')) != "two/foo.in\n")
+test.fail_test(test.read(test.workpath('two', 'bar.out')) != "two/bar.in\n")
 
-test.run(program = test.workpath('three', 'foo'), stdout = "three/foo.c\n")
-test.run(program = test.workpath('three', 'bar'), stdout = "three/bar.c\n")
+test.fail_test(test.read(test.workpath('three', 'foo.out')) != "three/foo.in\n")
+test.fail_test(test.read(test.workpath('three', 'bar.out')) != "three/bar.in\n")
 
 test.pass_test()
