@@ -34,7 +34,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.06'
+default_version = '0.07'
 
 Default('.')
 
@@ -198,6 +198,10 @@ try:
             except:
                 pass
             print dest,name
+            # if the file exists, then delete it before writing
+            # to it so that we don't end up trying to write to a symlink:
+            if os.path.exists(dest):
+                os.unlink(dest)
             open(dest, 'w').write(zf.read(name))
 
 except:
@@ -489,7 +493,7 @@ for p in [ scons ]:
     # concocted to expand __FILE__, __VERSION__, etc.
     #
     for b in src_files:
-	s = p['filemap'].get(b, b)
+        s = p['filemap'].get(b, b)
         env.SCons_revision(os.path.join(build, b), os.path.join(src, s))
 
     #
@@ -666,11 +670,15 @@ for p in [ scons ]:
     # Use the Python distutils to generate the appropriate packages.
     #
     commands = [
-        "rm -rf %s %s" % (os.path.join(build, 'build', 'lib'),
-                          os.path.join(build, 'build', 'scripts'))
+        "rm -rf %s" % os.path.join(build, 'build', 'lib'),
+        "rm -rf %s" % os.path.join(build, 'build', 'scripts'),
     ]
 
     if distutils_formats:
+        commands.append("rm -rf %s" % os.path.join(build,
+                                                   'build',
+                                                   'bdist.' + platform,
+                                                   'dumb'))
         for format in distutils_formats:
             commands.append("python $SETUP_PY bdist_dumb -f %s" % format)
 

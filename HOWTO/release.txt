@@ -49,11 +49,11 @@ Things to do to release a new version of SCons:
 
 		ae_p scons.0
 
-		aede {6}
+		aede {7}
 
-		aerpass {6}
+		aerpass {7}
 
-		aeib {6}
+		aeib {7}
 
 		aeb
 
@@ -67,15 +67,15 @@ Things to do to release a new version of SCons:
 
 	START THE NEW BRANCH
 
-		aenbr -p scons.0 {7}
+		aenbr -p scons.0 {8}
 
-		aenc -p scons.0.{7}
+		aenc -p scons.0.{8}
 
                         Call it something like, "Initialize the new
                         branch."  Cause = internal_enhancement.  Exempt
                         it from all tests (*_exempt = true).
 
-		ae_p scons.0.{7}
+		ae_p scons.0.{8}
 
 		aedb 100
 
@@ -119,14 +119,14 @@ Things to do to release a new version of SCons:
 		<your email>
 		cd incoming
 		bin
-		put scons-0.06-1.noarch.rpm
-		put scons-0.06-1.src.rpm
-		put scons-0.06.tar.gz
-		put scons-0.06.win32.exe
-		put scons-0.06.zip
-		put scons-src-0.06.tar.gz
-		put scons-src-0.06.zip
-		put scons_0.06-1_all.deb
+		put scons-0.07-1.noarch.rpm
+		put scons-0.07-1.src.rpm
+		put scons-0.07.tar.gz
+		put scons-0.07.win32.exe
+		put scons-0.07.zip
+		put scons-src-0.07.tar.gz
+		put scons-src-0.07.zip
+		put scons_0.07-1_all.deb
 
 	Create the new release at the SourceForge project page:
 
@@ -134,9 +134,11 @@ Things to do to release a new version of SCons:
 
 		=> Edit/Add File Releases
 
+		Package Name:  scons
+
 		=> Add Release
 
-		New release name:  0.06
+		New release name:  0.07
 
 		Cut-and-paste or upload the RELEASE.txt file.
 
@@ -145,27 +147,57 @@ Things to do to release a new version of SCons:
 		(If you cut-and-paste, check the "Preserve my
 		pre-formatted text." box!)
 
+		Click "Submit/Refresh"  (IMPORTANT!)
+
 		Check the SCons files you uploaded
 
-		Click "Submit/Refresh"
+		Click "Add Files and/or Refresh View"
 
 		Edit the file info:
 
-			scons-0.06-1.noarch.rpm		Any	.rpm
-			scons-0.06-1.src.rpm		Any	Source .rpm
-			scons-0.06.tar.gz		Any	.gz
-			scons-0.06.win32.exe		i386	Other
-			scons-0.06.zip			Any	.zip
-			scons-src-0.06.tar.gz		Any	Source .gz
-			scons-src-0.06.zip   		Any	Source .zip
-			scons_0.06-1_all.deb		Any	.deb
+			scons-0.07-1.noarch.rpm		Any	.rpm
+			scons-0.07-1.src.rpm		Any	Source .rpm
+			scons-0.07.tar.gz		Any	.gz
+			scons-0.07.win32.exe		i386	.exe (32-bit Windows)
+			scons-0.07.zip			Any	.zip
+			scons_0.07-1_all.deb		Any	.deb
 
-		(This has to be done one at a time.)
+                Click "Update/Refresh" for each file; this must be done
+                one at a time.
+
+		=> Edit/Add File Releases
+
+		Package Name:  scons-src
+
+		=> Add Release
+
+		New release name:  0.07
+
+		Cut-and-paste or upload the RELEASE.txt file.
+
+		Cut-and-paste or upload the CHANGES.txt file.
+
+		(If you cut-and-paste, check the "Preserve my
+		pre-formatted text." box!)
+
+		Click "Submit/Refresh"  (IMPORTANT!)
+
+		Check the SCons files you uploaded
+
+		Click "Add Files and/or Refresh View"
+
+		Edit the file info:
+
+			scons-src-0.07.tar.gz		Any	.gz
+			scons-src-0.07.zip   		Any	.zip
+
+                Click "Update/Refresh" for each file; this must be done
+                one at a time.
 
 	Test downloading from the SourceForge project page
 
-                You'll need to wait a good bit; they update this on, at
-                best, half-hour cycles.
+                You may need to wait a good bit; they seem to update
+                this on half-hour cycles.
 
 
 
@@ -187,7 +219,7 @@ Things to do to release a new version of SCons:
 
 
 
-	In the Bugs Tracker, add a Group for the new release (0.06)
+	In the Bugs Tracker, add a Group for the new release (0.07)
 
 
 
@@ -216,7 +248,7 @@ Things to do to release a new version of SCons:
 
 		python-list@python.org
 
-                        [wait until business hours so the announcemnt
+                        [wait until business hours so the announcement
 			hits mailboxes while U.S. workers are active]
 
 	Notify www.cmtoday.com/contribute.html
@@ -235,19 +267,44 @@ Things to do to release a new version of SCons:
 
 
 =======================
+Template scons-devel announcement:
 
-Template release announcement:
+SConspirators--
 
+SCons alpha release 0.07 is now available for download.
 
+IMPORTANT:  This release contains the following interface changes:
+  - XXX
 
-Version 0.XXX of SCons has been released and is available for download
+This release adds the following features:
+  - XXX
+
+The following fixes have been added:
+  - XXX
+
+Performance has been improved as follows:
+  - XXX
+
+The following changes have been made to the SCons packaging:
+  - XXX
+
+The documentation has been improved:
+  - XXX
+
+Thanks to XXX, XXX, and XXX for contributing to this release.
+
+	--SK
+=======================
+Template scons-users + scons-announce announcement:
+
+Version 0.07 of SCons has been released and is available for download
 from the SCons web site:
 
-        http://www.scons.org/
+	http://www.scons.org/
 
 Or through the download link at the SCons project page at SourceForge:
 
-        http://sourceforge.net/projects/scons/
+	http://sourceforge.net/projects/scons/
 
 RPM and Debian packages and a Win32 installer are all available, in
 addition to the traditional .tar.gz and .zip files.
@@ -255,17 +312,73 @@ addition to the traditional .tar.gz and .zip files.
 
 WHAT'S NEW IN THIS RELEASE?
 
-Version 0.XXX of SCons contains the following important changes:
-
+IMPORTANT:  Version 0.07 contains the following interface changes:
   - XXX
 
-For a complete list of changes in version 0.06, see the CHANGES.txt
-file in the release itself.
+This release adds the following features:
+  - XXX
+
+The following fixes have been added:
+  - XXX
+
+Performance has been improved as follows:
+  - XXX
+
+The following changes have been made to the SCons packaging:
+  - XXX
+
+The documentation has been improved:
+  - XXX
+
+
+ACKNOWLEDGEMENTS
+
+Special thanks to XXX, XXX, and XXX for their contributions to this
+release.
+
+On behalf of the SCons team,
+
+	--SK
+=======================
+Template python-announce, linux-announce and python-list announcement:
+
+Version 0.07 of SCons has been released and is available for download
+from the SCons web site:
+
+	http://www.scons.org/
+
+Or through the download link at the SCons project page at SourceForge:
+
+	http://sourceforge.net/projects/scons/
+
+RPM and Debian packages and a Win32 installer are all available, in
+addition to the traditional .tar.gz and .zip files.
+
+
+WHAT'S NEW IN THIS RELEASE?
+
+IMPORTANT:  Version 0.07 contains the following interface changes:
+  - XXX
+
+This release adds the following features:
+  - XXX
+
+The following fixes have been added:
+  - XXX
+
+Performance has been improved as follows:
+  - XXX
+
+The following changes have been made to the SCons packaging:
+  - XXX
+
+The documentation has been improved:
+  - XXX
 
 
 WHAT IS SCONS?
 
-SCons is a software construction tool (build tool, make tool) written
+SCons is a software construction tool (build tool, or make tool) written
 in Python.  Its design is based on the design which won the Software
 Carpentry build tool competition in August 2000 (in turn derived from
 the Perl-based Cons build tool).
@@ -282,23 +395,24 @@ Distinctive features of SCons include:
   - improved parallel build (-j) support
   - use of MD5 signatures to decide if a file has changed
   - easily extensible through user-defined Builder and Scanner objects
-  - build actions can be external commands OR internal Python code
+  - build actions can be Python code, as well as external commands
 
 An scons-users mailing list has been created for those interested in
 getting started using SCons.  You can subscribe at:
 
-        http://lists.sourceforge.net/lists/listinfo/scons-users
+	http://lists.sourceforge.net/lists/listinfo/scons-users
 
 Alternatively, we invite you to subscribe to the low-volume
 scons-announce mailing list to receive notification when new versions of
 SCons become available:
 
-        http://lists.sourceforge.net/lists/listinfo/scons-announce
+	http://lists.sourceforge.net/lists/listinfo/scons-announce
 
 
 ACKNOWLEDGEMENTS
 
-Special thanks to XXX for his/her/their contributions to this release.
+Special thanks to XXX, XXX, and XXX for their contributions to this
+release.
 
 On behalf of the SCons team,
 
