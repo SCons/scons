@@ -78,6 +78,8 @@ RELEASE 0.97 - XXX
   - Allow optional names to be attached to Builders, for default
     Builders that don't get attached to construction environments.
 
+  - Test enhancements in SourceCode.py and option-n.py.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

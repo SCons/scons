@@ -33,7 +33,7 @@ This test verifies:
     4)  that source files don't get duplicated in a BuildDir
         when -n is used.
     5)  that Configure calls don't build any files. If a file
-        needs to be build (i.e. is not up-to-date), a ConfigureError
+        needs to be built (i.e. is not up-to-date), a ConfigureError
         is raised.
 """
 
@@ -158,6 +158,20 @@ test.fail_test(not os.path.exists(test.workpath('install', 'f3.in')))
 
 # Make sure duplicate source files in a BuildDir aren't created
 # when the -n option is used.
+
+# First, make sure none of the previous non-dryrun invocations caused
+# the build directory to be populated.  Processing of the
+# src/SConscript (actually build/SConscript) will reference f4.in as a
+# source, causing a Node object to be built for "build/f4.in".
+# Creating the node won't cause "build/f4.in" to be created from
+# "src/f4.in", but that *is* a side-effect of calling the exists()
+# method on that node, which may happen via other processing.
+# Therefore add this conditional removal to ensure  a clean setting
+# before running this test.
+    
+if os.path.exists(test.workpath('build', 'f4.in')):
+    test.unlink(test.workpath('build', 'f4.in'))
+
 test.run(arguments = '-n build')
 test.fail_test(os.path.exists(test.workpath('build', 'f4.in')))
 
