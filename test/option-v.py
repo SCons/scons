@@ -37,13 +37,13 @@ test.write('SConstruct', "")
 # depending on whether it's invoked through scons.py or scons.bat.
 expect1 = r"""SCons by Steven Knight et al.:
 \tengine: v\S+, [^,]*, by \S+ on \S+
-(__COPYRIGHT__|Copyright \(c\) 2001, 2002, 2003, 2004 Steven Knight)
+(__COPYRIGHT__|Copyright \(c\) 2001, 2002, 2003, 2004 The SCons Foundation)
 """
 
 expect2 = r"""SCons by Steven Knight et al.:
 \tscript: v\S+, [^,]*, by \S+ on \S+
 \tengine: v\S+, [^,]*, by \S+ on \S+
-(__COPYRIGHT__|Copyright \(c\) 2001, 2002, 2003, 2004 Steven Knight)
+(__COPYRIGHT__|Copyright \(c\) 2001, 2002, 2003, 2004 The SCons Foundation)
 """
 
 test.run(arguments = '-v')
