@@ -34,6 +34,7 @@ SCons/Tool/gas.py
 SCons/Tool/gcc.py
 SCons/Tool/gnulink.py
 SCons/Tool/icc.py
+SCons/Tool/ifl.py
 SCons/Tool/ilink.py
 SCons/Tool/latex.py
 SCons/Tool/lex.py

@@ -121,13 +121,15 @@ class Environment:
 
     def __init__(self,
                  platform=SCons.Platform.Platform(),
-                 tools=SCons.Platform.DefaultToolList(),
+                 tools=None,
                  **kw):
         self.fs = SCons.Node.FS.default_fs
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
         if SCons.Util.is_String(platform):
             platform = SCons.Platform.Platform(platform)
         platform(self)
+        if tools is None:
+            tools = SCons.Platform.DefaultToolList(platform)
         for tool in tools:
             if SCons.Util.is_String(tool):
                 tool = SCons.Tool.Tool(tool)

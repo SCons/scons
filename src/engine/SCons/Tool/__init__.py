@@ -125,16 +125,6 @@ def createCFileBuilders(env):
 
     return (c_file, cxx_file)
 
-linkers = ['gnulink', 'mslink', 'ilink']
-c_compilers = ['gcc', 'msvc', 'icc']
-cxx_compilers = ['g++'] # only those that are seperate from the c compiler
-fortran_compilers = ['g77', 'ifl']
-assemblers = ['gas', 'nasm', 'masm']
-other_tools = ['ar', 'dvipdf', 'dvips',
-               'latex', 'lex', 'lib',
-               'pdflatex', 'pdftex',
-               'tar', 'tex', 'yacc']
-
 def FindTool(tools):
     for tool in tools:
         t = Tool(tool)
@@ -148,11 +138,48 @@ def _ToolExists(tool):
 def FindAllTools(tools):
     return filter (_ToolExists, tools)
              
-def tool_list():
-    tools = [FindTool(linkers),
-             FindTool(c_compilers),
-             FindTool(cxx_compilers),
-             FindTool(fortran_compilers),
-             FindTool(assemblers)
-            ] + FindAllTools(other_tools)
+def tool_list(platform):
+    if str(platform) == 'win32':
+        "prefer Microsoft tools on Windows"
+        linkers = ['mslink', 'gnulink', 'ilink']
+        c_compilers = ['msvc', 'gcc', 'icc']
+        assemblers = ['nasm', 'masm', 'gas']
+        fortran_compilers = ['g77', 'ifl']
+        ars = ['lib', 'ar']
+    elif str(platform) == 'os2':
+        "prefer IBM tools on OS/2"
+        linkers = ['ilink', 'gnulink', 'mslink']
+        c_compilers = ['icc', 'gcc', 'msvc']
+        assemblers = ['nasm', 'masm', 'gas']
+        fortran_compilers = ['ifl', 'g77']
+        ars = ['ar', 'lib']
+    else:
+        "prefer GNU tools on all other platforms"
+        linkers = ['gnulink', 'mslink', 'ilink']
+        c_compilers = ['gcc', 'msvc', 'icc']
+        assemblers = ['gas', 'nasm', 'masm']
+        fortran_compilers = ['g77', 'ifl']
+        ars = ['ar', 'lib']
+
+    linker = FindTool(linkers)
+    c_compiler = FindTool(c_compilers)
+    assembler = FindTool(assemblers)
+    fortran_compiler = FindTool(fortran_compilers)
+    ar = FindTool(ars)
+
+    # Don't use g++ if the C compiler has built-in C++ support:
+    if c_compiler and (c_compiler == 'msvc' or c_compiler == 'icc'):
+        cxx_compiler = None
+    else:
+        cxx_compiler = FindTool(['g++'])
+        
+    other_tools = FindAllTools(['dvipdf', 'dvips',
+                                'latex', 'lex',
+                                'pdflatex', 'pdftex',
+                                'tar', 'tex', 'yacc'])
+
+    tools = ([linker, c_compiler, cxx_compiler,
+              fortran_compiler, assembler, ar]
+             + other_tools)
+    
     return filter(lambda x: x, tools)

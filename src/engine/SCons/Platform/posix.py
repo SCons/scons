@@ -34,19 +34,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
-def tool_list():
-    as = SCons.Util.WhereIs('as')
-    nasm =  SCons.Util.WhereIs('nasm')
-    if nasm and not as:
-        assembler = 'nasm'
-    else:
-        assembler = 'gas'
-    return ['ar', 'dvipdf', 'dvips',
-            'g++', 'g77', 'gcc', 'gnulink',
-            'latex', 'lex',
-            'pdflatex', 'pdftex', 'tar', 'tex', 'yacc',
-            assembler]
-
 def generate(env):
     if not env.has_key('ENV'):
         env['ENV']        = {}

@@ -34,14 +34,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Util
 
-def tool_list():
-    list = ['dvipdf', 'dvips', 'g77',
-            'icc', 'ilink', 'latex', 'lex',
-            'pdflatex', 'pdftex', 'tex', 'yacc']
-    if SCons.Util.WhereIs('nasm'):
-        list.append('nasm')
-    return list
-
 def generate(env):
     if not env.has_key('ENV'):
         env['ENV']        = {}
