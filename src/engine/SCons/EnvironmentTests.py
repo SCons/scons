@@ -117,14 +117,17 @@ class Scanner:
 class EnvironmentTestCase(unittest.TestCase):
 
     def test___init__(self):
-	"""Test construction Environments creation
-	
-	Create two with identical arguments and check that
-	they compare the same.
-	"""
-	env1 = Environment(XXX = 'x', YYY = 'y')
-	env2 = Environment(XXX = 'x', YYY = 'y')
-	assert env1 == env2, diff_env(env1, env2)
+        """Test construction Environment creation
+
+        Create two with identical arguments and check that
+        they compare the same.
+        """
+        env1 = Environment(XXX = 'x', YYY = 'y')
+        env2 = Environment(XXX = 'x', YYY = 'y')
+        assert env1 == env2, diff_env(env1, env2)
+
+        assert env1['__env__'] is env1, env1['__env__']
+        assert env2['__env__'] is env2, env2['__env__']
 
     def test_get(self):
         """Test the get() method."""
@@ -947,6 +950,10 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert env3.Dictionary('ZZZ') == 'z3'
 	assert env1 == env1copy
 
+        assert env1['__env__'] is env1, env1['__env__']
+        assert env2['__env__'] is env2, env2['__env__']
+        assert env3['__env__'] is env3, env3['__env__']
+
         # Ensure that lists and dictionaries are
         # deep copied, but not instances.
         class TestA:
@@ -1105,6 +1112,9 @@ class EnvironmentTestCase(unittest.TestCase):
         env2.Replace(ONE = "won")
         assert env2['ONE'] == "won"
         assert env['ONE'] == 1
+
+        assert env['__env__'] is env, env['__env__']
+        assert env2['__env__'] is env2, env2['__env__']
 
     def test_ParseConfig(self):
         """Test the ParseConfig() method"""
