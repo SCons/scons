@@ -40,6 +40,9 @@ scons \- software constructor
 .IR options ...
 ]
 [
+.IR name = val ...
+]
+[
 .IR targets ...
 ]
 .SH DESCRIPTION
@@ -169,16 +172,16 @@ scons -j 4
 
 builds four targets in parallel, for example.
 
-.\" Values of variables to be passed to the configuration file(s)
-.\" may be specified on the command line:
-.\" 
-.\" .ES
-.\" scons debug=1 .
-.\" .EE
-.\" 
-.\" These variables can be used in the configuration file(s) to modify
-.\" the build in any way.
-.\" 
+Values of variables to be passed to the configuration file(s)
+may be specified on the command line:
+
+.ES
+scons debug=1 .
+.EE
+
+These variables can be used in the configuration file(s) to modify
+the build in any way.
+
 .\" .B scons
 .\" can maintain a cache of target (derived) files that can
 .\" be shared between multiple builds.  When caching is enabled in a

@@ -35,6 +35,10 @@ RELEASE 0.04 -
 
   - Add examples using Library, LIBS, and LIBPATH.
 
+  From Steve Leblanc:
+
+  - Add var=value command-line arguments.
+
 
 
 RELEASE 0.03 - Fri, 11 Jan 2002 01:09:30 -0600

@@ -36,16 +36,21 @@ import SCons.Defaults
 import SCons.Node
 import SCons.Node.FS
 import SCons.Environment
-import SCons.Scanner
-import SCons.Action
 import string
 import sys
 
 default_targets = []
 print_help = 0
+arguments = {}
 
 # global exports set by Export():
 global_exports = {}
+
+def _scons_add_args(alist):
+    global arguments
+    for arg in alist:
+        a, b = string.split(arg, '=', 2)
+        arguments[a] = b
 
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
@@ -163,6 +168,7 @@ def BuildDefaultGlobals():
 
     globals = {}
     globals['Action']            = SCons.Action.Action
+    globals['ARGUMENTS']         = arguments
     globals['BuildDir']          = BuildDir
     globals['Builder']           = SCons.Builder.Builder
     globals['CScan']             = SCons.Defaults.CScan

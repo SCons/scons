@@ -584,12 +584,19 @@ def _main():
 	    opt_func[opt](opt, arg)
 
     try:
-	cmd_opts, targets = getopt.getopt(sys.argv[1:], short_opts, long_opts)
+        cmd_opts, args = getopt.getopt(sys.argv[1:], short_opts, long_opts)
     except getopt_err, x:
 	_scons_user_error(x)
     else:
 	for opt, arg in cmd_opts:
 	    opt_func[opt](opt, arg)
+        xmit_args = []
+        for a in args:
+            if '=' in a:
+                xmit_args.append(a)
+            else:
+                targets.append(a)
+        SCons.Script.SConscript._scons_add_args(xmit_args)
 
     if not scripts:
         for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
