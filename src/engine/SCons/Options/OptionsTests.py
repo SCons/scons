@@ -37,15 +37,13 @@ class Environment:
     def __init__(self):
         self.dict = {}
     def subst(self, x):
-        return SCons.Util.scons_subst(x, self)
+        return SCons.Util.scons_subst(x, self, gvars=self.dict)
     def __setitem__(self, key, value):
         self.dict[key] = value
     def __getitem__(self, key):
         return self.dict[key]
     def has_key(self, key):
         return self.dict.has_key(key)
-    def Dictionary(self):
-        return self.dict
 
 
 def check(key, value, env):

@@ -47,9 +47,8 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
     for libraries specified in the LIBS variable, returning any
     files it finds as dependencies.
     """
-
     try:
-        libs = env.Dictionary('LIBS')
+        libs = env['LIBS']
     except KeyError:
         # There are no LIBS in this environment, so just return a null list:
         return []
@@ -61,14 +60,14 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
         libs = [libs]
 
     try:
-        prefix = env.Dictionary('LIBPREFIXES')
+        prefix = env['LIBPREFIXES']
         if not SCons.Util.is_List(prefix):
             prefix = [ prefix ]
     except KeyError:
         prefix = [ '' ]
 
     try:
-        suffix = env.Dictionary('LIBSUFFIXES')
+        suffix = env['LIBSUFFIXES']
         if not SCons.Util.is_List(suffix):
             suffix = [ suffix ]
     except KeyError:

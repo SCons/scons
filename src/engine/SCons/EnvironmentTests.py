@@ -146,38 +146,74 @@ class DummyNode:
 
 
 
-class EnvironmentTestCase(unittest.TestCase):
+class SubstitutionTestCase(unittest.TestCase):
 
     def test___init__(self):
-        """Test construction Environment creation
-
-        Create two with identical arguments and check that
-        they compare the same.
+        """Test initializing a SubstitutionEnvironment
         """
-        env1 = Environment(XXX = 'x', YYY = 'y')
-        env2 = Environment(XXX = 'x', YYY = 'y')
-        assert env1 == env2, diff_env(env1, env2)
+        env = SubstitutionEnvironment()
+        assert env['__env__'] is env, env['__env__']
 
-        assert env1['__env__'] is env1, env1['__env__']
-        assert env2['__env__'] is env2, env2['__env__']
+    def test___cmp__(self):
+        """Test comparing SubstitutionEnvironments
+        """
+
+        env1 = SubstitutionEnvironment(XXX = 'x')
+        env2 = SubstitutionEnvironment(XXX = 'x')
+        env3 = SubstitutionEnvironment(XXX = 'xxx')
+        env4 = SubstitutionEnvironment(XXX = 'x', YYY = 'x')
+
+        assert env1 == env2
+        assert env1 != env3
+        assert env1 != env4
+
+    def test___delitem__(self):
+        """Test deleting a variable from a SubstitutionEnvironment
+        """
+        env1 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
+        env2 = SubstitutionEnvironment(XXX = 'x')
+        del env1['YYY']
+        assert env1 == env2
+
+    def test___getitem__(self):
+        """Test deleting a variable from a SubstitutionEnvironment
+        """
+        env = SubstitutionEnvironment(XXX = 'x')
+        assert env['XXX'] == 'x', env['XXX']
+
+    def test___setitem__(self):
+        """Test deleting a variable from a SubstitutionEnvironment
+        """
+        env1 = SubstitutionEnvironment(XXX = 'x')
+        env2 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
+        env1['YYY'] = 'y'
+        assert env1 == env2
 
     def test_get(self):
-        """Test the get() method."""
-        env = Environment(aaa = 'AAA')
+        """Test the SubstitutionEnvironment get() method
+        """
+        env = SubstitutionEnvironment(XXX = 'x')
+        assert env.get('XXX') == 'x', env.get('XXX')
+        assert env.get('YYY') is None, env.get('YYY')
 
-        x = env.get('aaa')
-        assert x == 'AAA', x
-        x = env.get('aaa', 'XXX')
-        assert x == 'AAA', x
-        x = env.get('bbb')
-        assert x is None, x
-        x = env.get('bbb', 'XXX')
-        assert x == 'XXX', x
+    def test_has_key(self):
+        """Test the SubstitutionEnvironment has_key() method
+        """
+        env = SubstitutionEnvironment(XXX = 'x')
+        assert env.has_key('XXX')
+        assert not env.has_key('YYY')
+
+    def test_items(self):
+        """Test the SubstitutionEnvironment items() method
+        """
+        env = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
+        items = env.items()
+        assert items == [('XXX','x'), ('YYY','y')], items
 
     def test_arg2nodes(self):
         """Test the arg2nodes method
         """
-        env = Environment()
+        env = SubstitutionEnvironment()
         dict = {}
         class X(SCons.Node.Node):
             pass
@@ -245,7 +281,7 @@ class EnvironmentTestCase(unittest.TestCase):
             else:
                 return None
 
-        env_ll = env.Copy()
+        env_ll = SubstitutionEnvironment()
         env_ll.lookup_list = [lookup_a, lookup_b]
 
         nodes = env_ll.arg2nodes(['aaa', 'bbb', 'ccc'], Factory)
@@ -295,23 +331,35 @@ class EnvironmentTestCase(unittest.TestCase):
         assert not hasattr(nodes[1], 'bbbb'), nodes[0]
         assert nodes[1].c == 1, nodes[1]
 
+    def test_gvars(self):
+        """Test the base class gvars() method"""
+        env = SubstitutionEnvironment()
+        gvars = env.gvars()
+        assert gvars == {'__env__' : env}, gvars
+
+    def test_lvars(self):
+        """Test the base class lvars() method"""
+        env = SubstitutionEnvironment()
+        lvars = env.lvars()
+        assert lvars == {}, lvars
+
     def test_subst(self):
         """Test substituting construction variables within strings
 
         Check various combinations, including recursive expansion
         of variables into other variables.
         """
-        env = Environment(AAA = 'a', BBB = 'b')
+        env = SubstitutionEnvironment(AAA = 'a', BBB = 'b')
         mystr = env.subst("$AAA ${AAA}A $BBBB $BBB")
         assert mystr == "a aA b", mystr
 
         # Changed the tests below to reflect a bug fix in
         # subst()
-        env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
+        env = SubstitutionEnvironment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
         mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
         assert mystr == "b bA bB b", mystr
 
-        env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
+        env = SubstitutionEnvironment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
         mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
         assert mystr == "c cA cB c", mystr
 
@@ -320,28 +368,26 @@ class EnvironmentTestCase(unittest.TestCase):
         s1 = DummyNode('s1')
         s2 = DummyNode('s2')
 
-        env = Environment(AAA = 'aaa')
+        env = SubstitutionEnvironment(AAA = 'aaa')
         s = env.subst('$AAA $TARGET $SOURCES', target=[t1, t2], source=[s1, s2])
         assert s == "aaa t1 s1 s2", s
         s = env.subst('$AAA $TARGETS $SOURCE', target=[t1, t2], source=[s1, s2])
         assert s == "aaa t1 t2 s1", s
-        s = env.subst('$AAA $TARGETS $SOURCE', target=[t1, t2], source=[s1, s2], dict={})
-        assert s == "aaa", s
 
-        # Test callables in the Environment
+        # Test callables in the SubstitutionEnvironment
         def foo(target, source, env, for_signature):
             assert str(target) == 't', target
             assert str(source) == 's', source
             return env["FOO"]
 
-        env = Environment(BAR=foo, FOO='baz')
+        env = SubstitutionEnvironment(BAR=foo, FOO='baz')
         t = DummyNode('t')
         s = DummyNode('s')
 
         subst = env.subst('test $BAR', target=t, source=s)
         assert subst == 'test baz', subst
 
-        # Test not calling callables in the Environment
+        # Test not calling callables in the SubstitutionEnvironment
         if 0:
             # This will take some serious surgery to subst() and
             # subst_list(), so just leave these tests out until we can
@@ -349,7 +395,7 @@ class EnvironmentTestCase(unittest.TestCase):
             def bar(arg):
                 pass
 
-            env = Environment(BAR=bar, FOO='$BAR')
+            env = SubstitutionEnvironment(BAR=bar, FOO='$BAR')
 
             subst = env.subst('$BAR', call=None)
             assert subst is bar, subst
@@ -358,8 +404,8 @@ class EnvironmentTestCase(unittest.TestCase):
             assert subst is bar, subst
 
     def test_subst_kw(self):
-	"""Test substituting construction variables within dictionaries"""
-	env = Environment(AAA = 'a', BBB = 'b')
+        """Test substituting construction variables within dictionaries"""
+        env = SubstitutionEnvironment(AAA = 'a', BBB = 'b')
         kw = env.subst_kw({'$AAA' : 'aaa', 'bbb' : '$BBB'})
         assert len(kw) == 2, kw
         assert kw['a'] == 'aaa', kw['a']
@@ -368,21 +414,21 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_subst_list(self):
         """Test substituting construction variables in command lists
         """
-        env = Environment(AAA = 'a', BBB = 'b')
+        env = SubstitutionEnvironment(AAA = 'a', BBB = 'b')
         l = env.subst_list("$AAA ${AAA}A $BBBB $BBB")
         assert l == [["a", "aA", "b"]], l
 
         # Changed the tests below to reflect a bug fix in
         # subst()
-        env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
+        env = SubstitutionEnvironment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
         l = env.subst_list("$AAA ${AAA}A ${AAA}B $BBB")
         assert l == [["b", "bA", "bB", "b"]], l
 
-        env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
+        env = SubstitutionEnvironment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
         l = env.subst_list("$AAA ${AAA}A ${AAA}B $BBB")
         assert l == [["c", "cA", "cB", "c"]], mystr
 
-        env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
+        env = SubstitutionEnvironment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
         lst = env.subst_list([ "$AAA", "B $CCC" ])
         assert lst == [[ "a", "b"], ["c", "B a", "b"], ["c"]], lst
 
@@ -391,28 +437,26 @@ class EnvironmentTestCase(unittest.TestCase):
         s1 = DummyNode('s1')
         s2 = DummyNode('s2')
 
-        env = Environment(AAA = 'aaa')
+        env = SubstitutionEnvironment(AAA = 'aaa')
         s = env.subst_list('$AAA $TARGET $SOURCES', target=[t1, t2], source=[s1, s2])
         assert s == [["aaa", "t1", "s1", "s2"]], s
         s = env.subst_list('$AAA $TARGETS $SOURCE', target=[t1, t2], source=[s1, s2])
         assert s == [["aaa", "t1", "t2", "s1"]], s
-        s = env.subst_list('$AAA $TARGETS $SOURCE', target=[t1, t2], source=[s1, s2], dict={})
-        assert s == [["aaa"]], s
 
-        # Test callables in the Environment
+        # Test callables in the SubstitutionEnvironment
         def foo(target, source, env, for_signature):
             assert str(target) == 't', target
             assert str(source) == 's', source
             return env["FOO"]
 
-        env = Environment(BAR=foo, FOO='baz')
+        env = SubstitutionEnvironment(BAR=foo, FOO='baz')
         t = DummyNode('t')
         s = DummyNode('s')
 
         lst = env.subst_list('test $BAR', target=t, source=s)
         assert lst == [['test', 'baz']], lst
 
-        # Test not calling callables in the Environment
+        # Test not calling callables in the SubstitutionEnvironment
         if 0:
             # This will take some serious surgery to subst() and
             # subst_list(), so just leave these tests out until we can
@@ -420,7 +464,7 @@ class EnvironmentTestCase(unittest.TestCase):
             def bar(arg):
                 pass
 
-            env = Environment(BAR=bar, FOO='$BAR')
+            env = SubstitutionEnvironment(BAR=bar, FOO='$BAR')
 
             subst = env.subst_list('$BAR', call=None)
             assert subst is bar, subst
@@ -440,7 +484,7 @@ class EnvironmentTestCase(unittest.TestCase):
         class MyObj:
             pass
 
-        env = Environment(FOO='foo', BAR='bar', PROXY=MyProxy('my1'))
+        env = SubstitutionEnvironment(FOO='foo', BAR='bar', PROXY=MyProxy('my1'))
 
         r = env.subst_path('$FOO')
         assert r == ['foo'], r
@@ -459,7 +503,7 @@ class EnvironmentTestCase(unittest.TestCase):
             def __str__(self):
                 return self.s
 
-        env = Environment(FOO=StringableObj("foo"),
+        env = SubstitutionEnvironment(FOO=StringableObj("foo"),
                           BAR=StringableObj("bar"))
 
         r = env.subst_path([ "${FOO}/bar", "${BAR}/baz" ])
@@ -470,6 +514,70 @@ class EnvironmentTestCase(unittest.TestCase):
 
         r = env.subst_path([ "bar/${FOO}/bar", "baz/${BAR}/baz" ])
         assert r == [ "bar/foo/bar", "baz/bar/baz" ]
+
+    def test_subst_target_source(self):
+        """Test the base environment subst_target_source() method"""
+        env = SubstitutionEnvironment(AAA = 'a', BBB = 'b')
+        mystr = env.subst_target_source("$AAA ${AAA}A $BBBB $BBB")
+        assert mystr == "a aA b", mystr
+
+    def test_Override(self):
+        "Test overriding construction variables"
+        env = SubstitutionEnvironment(ONE=1, TWO=2, THREE=3, FOUR=4)
+        assert env['ONE'] == 1, env['ONE']
+        assert env['TWO'] == 2, env['TWO']
+        assert env['THREE'] == 3, env['THREE']
+        assert env['FOUR'] == 4, env['FOUR']
+
+        env2 = env.Override({'TWO'   : '10',
+                             'THREE' :'x $THREE y',
+                             'FOUR'  : ['x', '$FOUR', 'y']})
+        assert env2['ONE'] == 1, env2['ONE']
+        assert env2['TWO'] == '10', env2['TWO']
+        assert env2['THREE'] == 'x 3 y', env2['THREE']
+        assert env2['FOUR'] == ['x', 4, 'y'], env2['FOUR']
+
+        assert env['ONE'] == 1, env['ONE']
+        assert env['TWO'] == 2, env['TWO']
+        assert env['THREE'] == 3, env['THREE']
+        assert env['FOUR'] == 4, env['FOUR']
+
+        env2.Replace(ONE = "won")
+        assert env2['ONE'] == "won", env2['ONE']
+        assert env['ONE'] == 1, env['ONE']
+
+        assert env['__env__'] is env, env['__env__']
+        assert env2['__env__'] is env2, env2['__env__']
+
+
+
+class BaseTestCase(unittest.TestCase):
+
+    def test___init__(self):
+        """Test construction Environment creation
+
+        Create two with identical arguments and check that
+        they compare the same.
+        """
+        env1 = Environment(XXX = 'x', YYY = 'y')
+        env2 = Environment(XXX = 'x', YYY = 'y')
+        assert env1 == env2, diff_env(env1, env2)
+
+        assert env1['__env__'] is env1, env1['__env__']
+        assert env2['__env__'] is env2, env2['__env__']
+
+    def test_get(self):
+        """Test the get() method."""
+        env = Environment(aaa = 'AAA')
+
+        x = env.get('aaa')
+        assert x == 'AAA', x
+        x = env.get('aaa', 'XXX')
+        assert x == 'AAA', x
+        x = env.get('bbb')
+        assert x is None, x
+        x = env.get('bbb', 'XXX')
+        assert x == 'XXX', x
 
     def test_Builder_calls(self):
         """Test Builder calls through different environments
@@ -916,6 +1024,14 @@ def exists(env):
         x = s("${_concat(PRE, LIST, SUF, __env__)}")
         assert x == 'preasuf prebsuf', x
 
+    def test_gvars(self):
+        """Test the Environment gvars() method"""
+        env = Environment(XXX = 'x', YYY = 'y', ZZZ = 'z')
+        gvars = env.gvars()
+        assert gvars['XXX'] == 'x', gvars['XXX']
+        assert gvars['YYY'] == 'y', gvars['YYY']
+        assert gvars['ZZZ'] == 'z', gvars['ZZZ']
+
     def test__update(self):
         """Test the _update() method"""
         env = Environment(X = 'x', Y = 'y', Z = 'z')
@@ -1306,34 +1422,6 @@ def exists(env):
         assert paths[0] == env.FindIxes(paths, 'LIBPREFIX', 'LIBSUFFIX')
         assert None == env.FindIxes(paths, 'SHLIBPREFIX', 'SHLIBSUFFIX')
         assert paths[1] == env.FindIxes(paths, 'PREFIX', 'SUFFIX')
-
-    def test_Override(self):
-        "Test overriding construction variables"
-        env = Environment(ONE=1, TWO=2, THREE=3, FOUR=4)
-        assert env['ONE'] == 1, env['ONE']
-        assert env['TWO'] == 2, env['TWO']
-        assert env['THREE'] == 3, env['THREE']
-        assert env['FOUR'] == 4, env['FOUR']
-
-        env2 = env.Override({'TWO'   : '10',
-                             'THREE' :'x $THREE y',
-                             'FOUR'  : ['x', '$FOUR', 'y']})
-        assert env2['ONE'] == 1, env2['ONE']
-        assert env2['TWO'] == '10', env2['TWO']
-        assert env2['THREE'] == 'x 3 y', env2['THREE']
-        assert env2['FOUR'] == ['x', 4, 'y'], env2['FOUR']
-
-        assert env['ONE'] == 1, env['ONE']
-        assert env['TWO'] == 2, env['TWO']
-        assert env['THREE'] == 3, env['THREE']
-        assert env['FOUR'] == 4, env['FOUR']
-
-        env2.Replace(ONE = "won")
-        assert env2['ONE'] == "won", env2['ONE']
-        assert env['ONE'] == 1, env['ONE']
-
-        assert env['__env__'] is env, env['__env__']
-        assert env2['__env__'] is env2, env2['__env__']
 
     def test_ParseConfig(self):
         """Test the ParseConfig() method"""
@@ -2634,6 +2722,110 @@ f5: \
 
 
 
+class OverrideEnvironmentTestCase(unittest.TestCase):
+
+    def test___init__(self):
+        """Test OverrideEnvironment initialization"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
+        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3'})
+        assert env['XXX'] == 'x', env['XXX']
+        assert env2['XXX'] == 'x2', env2['XXX']
+        assert env3['XXX'] == 'x3', env3['XXX']
+        assert env['YYY'] == 'y', env['YYY']
+        assert env2['YYY'] == 'y', env2['YYY']
+        assert env3['YYY'] == 'y3', env3['YYY']
+
+    def test_get(self):
+        """Test the OverrideEnvironment get() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
+        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
+        assert env.get('XXX') == 'x', env.get('XXX')
+        assert env2.get('XXX') == 'x2', env2.get('XXX')
+        assert env3.get('XXX') == 'x3', env3.get('XXX')
+        assert env.get('YYY') == 'y', env.get('YYY')
+        assert env2.get('YYY') == 'y', env2.get('YYY')
+        assert env3.get('YYY') == 'y3', env3.get('YYY')
+        assert env.get('ZZZ') == None, env.get('ZZZ')
+        assert env2.get('ZZZ') == None, env2.get('ZZZ')
+        assert env3.get('ZZZ') == 'z3', env3.get('ZZZ')
+
+    def test_has_key(self):
+        """Test the OverrideEnvironment has_key() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
+        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
+        assert env.has_key('XXX'), env.has_key('XXX')
+        assert env2.has_key('XXX'), env2.has_key('XXX')
+        assert env3.has_key('XXX'), env3.has_key('XXX')
+        assert env.has_key('YYY'), env.has_key('YYY')
+        assert env2.has_key('YYY'), env2.has_key('YYY')
+        assert env3.has_key('YYY'), env3.has_key('YYY')
+        assert not env.has_key('ZZZ'), env.has_key('ZZZ')
+        assert not env2.has_key('ZZZ'), env2.has_key('ZZZ')
+        assert env3.has_key('ZZZ'), env3.has_key('ZZZ')
+
+    def test_items(self):
+        """Test the OverrideEnvironment items() method"""
+        env = Environment(WWW = 'w', XXX = 'x', YYY = 'y')
+        env2 = OverrideEnvironment(env, {'XXX' : 'x2'})
+        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'})
+        items = env.items()
+        assert items == {'WWW' : 'w', 'XXX' : 'x', 'YYY' : 'y'}, items
+        items = env2.items()
+        assert items == {'WWW' : 'w', 'XXX' : 'x2', 'YYY' : 'y'}, items
+        items = env3.items()
+        assert items == {'WWW' : 'w', 'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'}, items
+
+    def test_gvars(self):
+        """Test the OverrideEnvironment gvars() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        env2 = OverrideEnvironment(env, {'xxx' : 'x2'})
+        env3 = OverrideEnvironment(env2, {'XXX' : 'x3', 'YYY' : 'y3'})
+        gvars = env.gvars()
+        assert gvars == {'XXX' : 'x', 'YYY' : 'y'}, gvars
+        gvars = env2.gvars()
+        assert gvars == {'XXX' : 'x2', 'YYY' : 'y'}, gvars
+        gvars = env3.gvars()
+        assert gvars == {'XXX' : 'x3', 'YYY' : 'y3'}, gvars
+
+    def test_lvars(self):
+        """Test the OverrideEnvironment lvars() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        env2 = OverrideEnvironment(env, {'xxx' : 'x2'})
+        env3 = OverrideEnvironment(env2, {'xxx' : 'x3', 'YYY' : 'y3'})
+        lvars = env.lvars()
+        assert lvars == {}, lvars
+        lvars = env2.lvars()
+        assert lvars == {'XXX' : 'x2', 'YYY' : 'y'}, lvars
+        lvars = env3.lvars()
+        assert lvars == {'XXX' : 'x3', 'YYY' : 'y3'}, lvars
+
+    def test_Replace(self):
+        """Test the OverrideEnvironment Replace() method"""
+        env = Environment(XXX = 'x', YYY = 'y')
+        env2 = OverrideEnvironment(env, {'xxx' : 'x2'})
+        env3 = OverrideEnvironment(env2, {'xxx' : 'x3', 'YYY' : 'y3'})
+        assert env['XXX'] == 'x', env['XXX']
+        assert env2['XXX'] == 'x2', env2['XXX']
+        assert env3['XXX'] == 'x3', env3['XXX']
+        assert env['YYY'] == 'y', env['YYY']
+        assert env2['YYY'] == 'y', env2['YYY']
+        assert env3['YYY'] == 'y3', env3['YYY']
+
+        env.Replace(YYY = 'y4')
+
+        assert env['XXX'] == 'x', env['XXX']
+        assert env2['XXX'] == 'x2', env2['XXX']
+        assert env3['XXX'] == 'x3', env3['XXX']
+        assert env['YYY'] == 'y4', env['YYY']
+        assert env2['YYY'] == 'y4', env2['YYY']
+        assert env3['YYY'] == 'y3', env3['YYY']
+
+
+
+
 class NoSubstitutionProxyTestCase(unittest.TestCase):
 
     def test___init__(self):
@@ -2680,7 +2872,7 @@ class NoSubstitutionProxyTestCase(unittest.TestCase):
         assert x == '$XXX', x
 
         x = proxy.subst('$YYY', raw=7, target=None, source=None,
-                        dict=None, conv=None,
+                        conv=None,
                         extra_meaningless_keyword_argument=None)
         assert x == '$YYY', x
 
@@ -2714,8 +2906,7 @@ class NoSubstitutionProxyTestCase(unittest.TestCase):
         x = proxy.subst_list('$XXX')
         assert x == [[]], x
 
-        x = proxy.subst_list('$YYY', raw=0, target=None, source=None,
-                             dict=None, conv=None)
+        x = proxy.subst_list('$YYY', raw=0, target=None, source=None, conv=None)
         assert x == [[]], x
 
     def test_subst_target_source(self):
@@ -2739,7 +2930,8 @@ class NoSubstitutionProxyTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    tclasses = [ EnvironmentTestCase,
+    tclasses = [ SubstitutionTestCase,
+                 BaseTestCase,
                  NoSubstitutionProxyTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')

@@ -128,11 +128,11 @@ class Environment:
         for k, v in kw.items():
             self.d[k] = v
     # Just use the underlying scons_subst*() utility methods.
-    def subst(self, strSubst, raw=0, target=[], source=[], dict=None):
-        return SCons.Util.scons_subst(strSubst, self, raw, target, source, dict)
+    def subst(self, strSubst, raw=0, target=[], source=[]):
+        return SCons.Util.scons_subst(strSubst, self, raw, target, source, self.d)
     subst_target_source = subst
-    def subst_list(self, strSubst, raw=0, target=[], source=[], dict=None):
-        return SCons.Util.scons_subst_list(strSubst, self, raw, target, source, dict)
+    def subst_list(self, strSubst, raw=0, target=[], source=[]):
+        return SCons.Util.scons_subst_list(strSubst, self, raw, target, source, self.d)
     def __getitem__(self, item):
         return self.d[item]
     def __setitem__(self, item, value):
@@ -1088,7 +1088,7 @@ class CommandActionTestCase(unittest.TestCase):
         # Make sure that CommandActions use an Environment's
         # subst_target_source() method for substitution.
         class SpecialEnvironment(Environment):
-            def subst_target_source(self, strSubst, raw=0, target=[], source=[], dict=None):
+            def subst_target_source(self, strSubst, raw=0, target=[], source=[]):
                 return 'subst_target_source: ' + strSubst
 
         c = a.get_contents(target=DummyNode('ttt'), source = DummyNode('sss'),
@@ -1112,14 +1112,10 @@ class CommandActionTestCase(unittest.TestCase):
         a = SCons.Action.CommandAction(["$TARGET"])
         c = a.get_contents(target=t, source=s, env=env)
         assert c == "t1", c
-        c = a.get_contents(target=t, source=s, env=env, dict={})
-        assert c == "", c
 
         a = SCons.Action.CommandAction(["$TARGETS"])
         c = a.get_contents(target=t, source=s, env=env)
         assert c == "t1 t2 t3 t4 t5 t6", c
-        c = a.get_contents(target=t, source=s, env=env, dict={})
-        assert c == "", c
 
         a = SCons.Action.CommandAction(["${TARGETS[2]}"])
         c = a.get_contents(target=t, source=s, env=env)
@@ -1132,14 +1128,10 @@ class CommandActionTestCase(unittest.TestCase):
         a = SCons.Action.CommandAction(["$SOURCE"])
         c = a.get_contents(target=t, source=s, env=env)
         assert c == "s1", c
-        c = a.get_contents(target=t, source=s, env=env, dict={})
-        assert c == "", c
 
         a = SCons.Action.CommandAction(["$SOURCES"])
         c = a.get_contents(target=t, source=s, env=env)
         assert c == "s1 s2 s3 s4 s5 s6", c
-        c = a.get_contents(target=t, source=s, env=env, dict={})
-        assert c == "", c
 
         a = SCons.Action.CommandAction(["${SOURCES[2]}"])
         c = a.get_contents(target=t, source=s, env=env)
@@ -1252,8 +1244,6 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
                           ignore = 'foo', test=test)
         a = SCons.Action.CommandGeneratorAction(f)
         c = a.get_contents(target=[], source=[], env=env)
-        assert c == "guux FFF BBB test", c
-        c = a.get_contents(target=[], source=[], env=env, dict={})
         assert c == "guux FFF BBB test", c
 
 
@@ -1381,8 +1371,6 @@ class FunctionActionTestCase(unittest.TestCase):
 
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in matches, repr(c)
-        c = a.get_contents(target=[], source=[], env=Environment(), dict={})
-        assert c in matches, repr(c)
 
         a = SCons.Action.FunctionAction(GlobalFunc, varlist=['XYZ'])
 
@@ -1394,7 +1382,7 @@ class FunctionActionTestCase(unittest.TestCase):
         assert c in matches_foo, repr(c)
 
         class Foo:
-            def get_contents(self, target, source, env, dict=None):
+            def get_contents(self, target, source, env):
                 return 'xyzzy'
         a = SCons.Action.FunctionAction(Foo())
         c = a.get_contents(target=[], source=[], env=Environment())
@@ -1481,9 +1469,6 @@ class ListActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=Environment(s = self))
         assert self.foo==1, self.foo
         assert c == "xyz", c
-        c = a.get_contents(target=[], source=[], env=Environment(s = self), dict={})
-        assert self.foo==1, self.foo
-        assert c == "xyz", c
 
 class LazyActionTestCase(unittest.TestCase):
     def test___init__(self):
@@ -1532,8 +1517,6 @@ class LazyActionTestCase(unittest.TestCase):
         a = SCons.Action.Action("${FOO}")
         env = Environment(FOO = [["This", "is", "a", "test"]])
         c = a.get_contents(target=[], source=[], env=env)
-        assert c == "This is a test", c
-        c = a.get_contents(target=[], source=[], env=env, dict={})
         assert c == "This is a test", c
 
 class ActionCallerTestCase(unittest.TestCase):

@@ -415,7 +415,7 @@ class CommandAction(_ActionAction):
                 return result
         return 0
 
-    def get_contents(self, target, source, env, dict=None):
+    def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
 
         This strips $(-$) and everything in between the string,
@@ -426,7 +426,7 @@ class CommandAction(_ActionAction):
             cmd = string.join(map(str, cmd))
         else:
             cmd = str(cmd)
-        return env.subst_target_source(cmd, SCons.Util.SUBST_SIG, target, source, dict)
+        return env.subst_target_source(cmd, SCons.Util.SUBST_SIG, target, source)
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
@@ -464,13 +464,13 @@ class CommandGeneratorAction(ActionBase):
         return act(target, source, env, errfunc, presub,
                    show, execute, chdir)
 
-    def get_contents(self, target, source, env, dict=None):
+    def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
 
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        return self._generate(target, source, env, 1).get_contents(target, source, env, dict=None)
+        return self._generate(target, source, env, 1).get_contents(target, source, env)
 
 # Ooh, polymorphism -- pretty scary, eh, kids?
 #
@@ -516,9 +516,9 @@ class LazyAction(CommandGeneratorAction, CommandAction):
         c = self.get_parent_class(env)
         return apply(c.__call__, args, kw)
 
-    def get_contents(self, target, source, env, dict=None):
+    def get_contents(self, target, source, env):
         c = self.get_parent_class(env)
-        return c.get_contents(self, target, source, env, dict)
+        return c.get_contents(self, target, source, env)
 
 class FunctionAction(_ActionAction):
     """Class for Python function actions."""
@@ -569,7 +569,7 @@ class FunctionAction(_ActionAction):
             raise SCons.Errors.BuildError(node=target, errstr=e.strerror)
         return result
 
-    def get_contents(self, target, source, env, dict=None):
+    def get_contents(self, target, source, env):
         """Return the signature contents of this callable action.
 
         By providing direct access to the code object of the
@@ -590,7 +590,7 @@ class FunctionAction(_ActionAction):
                     # This is weird, just do the best we can.
                     contents = str(self.execfunction)
                 else:
-                    contents = gc(target, source, env, dict)
+                    contents = gc(target, source, env)
         return contents + env.subst(string.join(map(lambda v: '${'+v+'}',
                                                      self.varlist)))
 
@@ -618,14 +618,13 @@ class ListAction(ActionBase):
                                       a.presub_lines(env),
                                       self.list))
 
-    def get_contents(self, target, source, env, dict=None):
+    def get_contents(self, target, source, env):
         """Return the signature contents of this action list.
 
         Simple concatenation of the signatures of the elements.
         """
-        dict = SCons.Util.subst_dict(target, source)
-        return string.join(map(lambda x, t=target, s=source, e=env, d=dict:
-                                      x.get_contents(t, s, e, d),
+        return string.join(map(lambda x, t=target, s=source, e=env:
+                                      x.get_contents(t, s, e),
                                self.list),
                            "")
 
@@ -651,7 +650,7 @@ class ActionCaller:
         self.parent = parent
         self.args = args
         self.kw = kw
-    def get_contents(self, target, source, env, dict=None):
+    def get_contents(self, target, source, env):
         actfunc = self.parent.actfunc
         try:
             # "self.actfunc" is a function.

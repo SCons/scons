@@ -327,7 +327,8 @@ class UtilTestCase(unittest.TestCase):
             '$CALLABLE',            'callable-1',
         ]
 
-        kwargs = {'target' : target, 'source' : source}
+        kwargs = {'target' : target, 'source' : source,
+                  'gvars' : env.Dictionary()}
 
         failed = 0
         while cases:
@@ -340,6 +341,11 @@ class UtilTestCase(unittest.TestCase):
                 failed = failed + 1
             del cases[:2]
         assert failed == 0, "%d subst() cases failed" % failed
+
+        # The expansion dictionary no longer comes from the construction
+        # environment automatically.
+        s = scons_subst('$AAA', env)
+        assert s == '', s
 
         # Tests of the various SUBST_* modes of substitution.
         subst_cases = [
@@ -396,20 +402,22 @@ class UtilTestCase(unittest.TestCase):
                 "| | c 1",
         ]
 
+        gvars = env.Dictionary()
+
         failed = 0
         while subst_cases:
             input, eraw, ecmd, esig = subst_cases[:4]
-            result = scons_subst(input, env, mode=SUBST_RAW)
+            result = scons_subst(input, env, mode=SUBST_RAW, gvars=gvars)
             if result != eraw:
                 if failed == 0: print
                 print "    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw))
                 failed = failed + 1
-            result = scons_subst(input, env, mode=SUBST_CMD)
+            result = scons_subst(input, env, mode=SUBST_CMD, gvars=gvars)
             if result != ecmd:
                 if failed == 0: print
                 print "    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd))
                 failed = failed + 1
-            result = scons_subst(input, env, mode=SUBST_SIG)
+            result = scons_subst(input, env, mode=SUBST_SIG, gvars=gvars)
             if result != esig:
                 if failed == 0: print
                 print "    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig))
@@ -428,8 +436,8 @@ class UtilTestCase(unittest.TestCase):
         result = scons_subst("$TARGET $SOURCES", env,
                                   target=[t1, t2],
                                   source=[s1, s2],
-                                  dict={})
-        assert result == " ", result
+                                  gvars={})
+        assert result == "t1 s1 s2", result
 
         result = scons_subst("$TARGET $SOURCES", env, target=[], source=[])
         assert result == " ", result
@@ -438,7 +446,8 @@ class UtilTestCase(unittest.TestCase):
 
         # Test interpolating a callable.
         newcom = scons_subst("test $CMDGEN1 $SOURCES $TARGETS",
-                             env, target=MyNode('t'), source=MyNode('s'))
+                             env, target=MyNode('t'), source=MyNode('s'),
+                             gvars=gvars)
         assert newcom == "test foo baz s t", newcom
 
         # Test that we handle syntax errors during expansion as expected.
@@ -457,25 +466,27 @@ class UtilTestCase(unittest.TestCase):
 
         n1 = MyNode('n1')
         env = DummyEnv({'NODE' : n1})
-        node = scons_subst("$NODE", env, mode=SUBST_RAW, conv=s)
+        gvars = env.Dictionary()
+        node = scons_subst("$NODE", env, mode=SUBST_RAW, conv=s, gvars=gvars)
         assert node is n1, node
-        node = scons_subst("$NODE", env, mode=SUBST_CMD, conv=s)
+        node = scons_subst("$NODE", env, mode=SUBST_CMD, conv=s, gvars=gvars)
         assert node is n1, node
-        node = scons_subst("$NODE", env, mode=SUBST_SIG, conv=s)
+        node = scons_subst("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
         assert node is n1, node
 
         # Test returning a function.
         #env = DummyEnv({'FUNCTION' : foo})
-        #func = scons_subst("$FUNCTION", env, mode=SUBST_RAW, call=None)
+        #gvars = env.Dictionary()
+        #func = scons_subst("$FUNCTION", env, mode=SUBST_RAW, call=None, gvars=gvars)
         #assert func is function_foo, func
-        #func = scons_subst("$FUNCTION", env, mode=SUBST_CMD, call=None)
+        #func = scons_subst("$FUNCTION", env, mode=SUBST_CMD, call=None, gvars=gvars)
         #assert func is function_foo, func
-        #func = scons_subst("$FUNCTION", env, mode=SUBST_SIG, call=None)
+        #func = scons_subst("$FUNCTION", env, mode=SUBST_SIG, call=None, gvars=gvars)
         #assert func is function_foo, func
 
         # Test supplying an overriding gvars dictionary.
         env = DummyEnv({'XXX' : 'xxx'})
-        result = scons_subst('$XXX', env)
+        result = scons_subst('$XXX', env, gvars=env.Dictionary())
         assert result == 'xxx', result
         result = scons_subst('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == 'yyy', result
@@ -694,7 +705,9 @@ class UtilTestCase(unittest.TestCase):
             '$CALLABLE',            [['callable-2']],
         ]
 
-        kwargs = {'target' : target, 'source' : source}
+        gvars = env.Dictionary()
+
+        kwargs = {'target' : target, 'source' : source, 'gvars' : gvars}
 
         failed = 0
         while cases:
@@ -708,31 +721,38 @@ class UtilTestCase(unittest.TestCase):
             del cases[:2]
         assert failed == 0, "%d subst_list() cases failed" % failed
 
+        # The expansion dictionary no longer comes from the construction
+        # environment automatically.
+        s = scons_subst_list('$AAA', env)
+        assert s == [[]], s
+
         t1 = MyNode('t1')
         t2 = MyNode('t2')
         s1 = MyNode('s1')
         s2 = MyNode('s2')
         result = scons_subst_list("$TARGET $SOURCES", env,
                                   target=[t1, t2],
-                                  source=[s1, s2])
+                                  source=[s1, s2],
+                                  gvars=gvars)
         assert result == [['t1', 's1', 's2']], result
         result = scons_subst_list("$TARGET $SOURCES", env,
                                   target=[t1, t2],
                                   source=[s1, s2],
-                                  dict={})
-        assert result == [[]], result
+                                  gvars={})
+        assert result == [['t1', 's1', 's2']], result
 
         # Test interpolating a callable.
         _t = DummyNode('t')
         _s = DummyNode('s')
         cmd_list = scons_subst_list("testing $CMDGEN1 $TARGETS $SOURCES",
-                                    env, target=_t, source=_s)
+                                    env, target=_t, source=_s,
+                                    gvars=gvars)
         assert cmd_list == [['testing', 'foo', 'bar with spaces.out', 't', 's']], cmd_list
 
         # Test escape functionality.
         def escape_func(foo):
             return '**' + foo + '**'
-        cmd_list = scons_subst_list("abc $LITERALS xyz", env)
+        cmd_list = scons_subst_list("abc $LITERALS xyz", env, gvars=gvars)
         assert cmd_list == [['abc',
                              'foo\nwith\nnewlines',
                              'bar\nwith\nnewlines',
@@ -746,7 +766,7 @@ class UtilTestCase(unittest.TestCase):
         c = cmd_list[0][3].escape(escape_func)
         assert c == 'xyz', c
 
-        cmd_list = scons_subst_list("abc${LITERALS}xyz", env)
+        cmd_list = scons_subst_list("abc${LITERALS}xyz", env, gvars=gvars)
         c = cmd_list[0][0].escape(escape_func)
         assert c == '**abcfoo\nwith\nnewlines**', c
         c = cmd_list[0][1].escape(escape_func)
@@ -807,23 +827,25 @@ class UtilTestCase(unittest.TestCase):
                 [["|", "|", "c", "1"]],
         ]
 
-        r = scons_subst_list("$TARGET $SOURCES", env, mode=SUBST_RAW)
+        gvars = env.Dictionary()
+
+        r = scons_subst_list("$TARGET $SOURCES", env, mode=SUBST_RAW, gvars=gvars)
         assert r == [[]], r
 
         failed = 0
         while subst_list_cases:
             input, eraw, ecmd, esig = subst_list_cases[:4]
-            result = scons_subst_list(input, env, mode=SUBST_RAW)
+            result = scons_subst_list(input, env, mode=SUBST_RAW, gvars=gvars)
             if result != eraw:
                 if failed == 0: print
                 print "    input %s => RAW %s did not match %s" % (repr(input), repr(result), repr(eraw))
                 failed = failed + 1
-            result = scons_subst_list(input, env, mode=SUBST_CMD)
+            result = scons_subst_list(input, env, mode=SUBST_CMD, gvars=gvars)
             if result != ecmd:
                 if failed == 0: print
                 print "    input %s => CMD %s did not match %s" % (repr(input), repr(result), repr(ecmd))
                 failed = failed + 1
-            result = scons_subst_list(input, env, mode=SUBST_SIG)
+            result = scons_subst_list(input, env, mode=SUBST_SIG, gvars=gvars)
             if result != esig:
                 if failed == 0: print
                 print "    input %s => SIG %s did not match %s" % (repr(input), repr(result), repr(esig))
@@ -847,16 +869,17 @@ class UtilTestCase(unittest.TestCase):
 
         n1 = MyNode('n1')
         env = DummyEnv({'NODE' : n1})
-        node = scons_subst_list("$NODE", env, mode=SUBST_RAW, conv=s)
+        gvars=env.Dictionary()
+        node = scons_subst_list("$NODE", env, mode=SUBST_RAW, conv=s, gvars=gvars)
         assert node == [[n1]], node
-        node = scons_subst_list("$NODE", env, mode=SUBST_CMD, conv=s)
+        node = scons_subst_list("$NODE", env, mode=SUBST_CMD, conv=s, gvars=gvars)
         assert node == [[n1]], node
-        node = scons_subst_list("$NODE", env, mode=SUBST_SIG, conv=s)
+        node = scons_subst_list("$NODE", env, mode=SUBST_SIG, conv=s, gvars=gvars)
         assert node == [[n1]], node
 
         # Test supplying an overriding gvars dictionary.
         env = DummyEnv({'XXX' : 'xxx'})
-        result = scons_subst_list('$XXX', env)
+        result = scons_subst_list('$XXX', env, gvars=env.Dictionary())
         assert result == [['xxx']], result
         result = scons_subst_list('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == [['yyy']], result
@@ -1290,28 +1313,28 @@ class UtilTestCase(unittest.TestCase):
     def test_Literal(self):
         """Test the Literal() function."""
         input_list = [ '$FOO', Literal('$BAR') ]
-        dummy_env = DummyEnv({ 'FOO' : 'BAZ', 'BAR' : 'BLAT' })
+        gvars = { 'FOO' : 'BAZ', 'BAR' : 'BLAT' }
 
         def escape_func(cmd):
             return '**' + cmd + '**'
 
-        cmd_list = scons_subst_list(input_list, dummy_env)
+        cmd_list = scons_subst_list(input_list, None, gvars=gvars)
         cmd_list = SCons.Util.escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
     def test_SpecialAttrWrapper(self):
         """Test the SpecialAttrWrapper() function."""
         input_list = [ '$FOO', SpecialAttrWrapper('$BAR', 'BLEH') ]
-        dummy_env = DummyEnv({ 'FOO' : 'BAZ', 'BAR' : 'BLAT' })
+        gvars = { 'FOO' : 'BAZ', 'BAR' : 'BLAT' }
 
         def escape_func(cmd):
             return '**' + cmd + '**'
 
-        cmd_list = scons_subst_list(input_list, dummy_env)
+        cmd_list = scons_subst_list(input_list, None, gvars=gvars)
         cmd_list = SCons.Util.escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**$BAR**'], cmd_list
 
-        cmd_list = scons_subst_list(input_list, dummy_env, mode=SUBST_SIG)
+        cmd_list = scons_subst_list(input_list, None, mode=SUBST_SIG, gvars=gvars)
         cmd_list = SCons.Util.escape_list(cmd_list[0], escape_func)
         assert cmd_list == ['BAZ', '**BLEH**'], cmd_list
 
@@ -1584,10 +1607,10 @@ class UtilTestCase(unittest.TestCase):
 
         cmd = SCons.Util.CLVar("test $FOO $BAR $CALL test")
 
-        newcmd = scons_subst(cmd, env)
+        newcmd = scons_subst(cmd, env, gvars=env.Dictionary())
         assert newcmd == 'test foo bar call test', newcmd
 
-        cmd_list = scons_subst_list(cmd, env)
+        cmd_list = scons_subst_list(cmd, env, gvars=env.Dictionary())
         assert len(cmd_list) == 1, cmd_list
         assert cmd_list[0][0] == "test", cmd_list[0][0]
         assert cmd_list[0][1] == "foo", cmd_list[0][1]

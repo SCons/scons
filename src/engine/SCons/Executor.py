@@ -81,9 +81,14 @@ class Executor:
             env = self.env or SCons.Defaults.DefaultEnvironment()
             self.build_env = env.Override(overrides)
 
-            # Now update the build environment with the things that we
-            # don't want expanded against the current construction
-            # variables.
+            # Update the overrides with the $TARGET/$SOURCE variables for
+            # this target+source pair, so that evaluations of arbitrary
+            # Python functions have them in the __env__ environment
+            # they're passed.  Note that the underlying substitution
+            # functions also override these with their own $TARGET/$SOURCE
+            # expansions, which is *usually* duplicated effort, but covers
+            # a corner case where an Action is called directly from within
+            # a function action with different target and source lists.
             self.build_env._update(SCons.Util.subst_dict(self.targets,
                                                          self.sources))
             return self.build_env

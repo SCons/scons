@@ -214,18 +214,91 @@ class BuilderDict(UserDict):
         for i, v in dict.items():
             self.__setitem__(i, v)
 
-class _Environment:
-    """Abstract base class for different flavors of construction
-    environment objects.
+class SubstitutionEnvironment:
+    """Base class for different flavors of construction environments.
 
-    This collects common methods that need to be used by all types of
-    construction environment (proxies as well as "real" environments)
-    so that construction variable substitution and translation from
-    strings into Nodes happen in accordance with the object's other
-    rules--in other words, for the case of proxies, wherever we need to
-    do something like env.subst(), env.arg2nodes() and fetch attributes or
-    values like the wrapper proxy, not the underlying wrapped environment.
+    This class contains a minimal set of methods that handle contruction
+    variable expansion and conversion of strings to Nodes, which may or
+    may not be actually useful as a stand-alone class.  Which methods
+    ended up in this class is pretty arbitrary right now.  They're
+    basically the ones which we've empirically determined are common to
+    the different construction environment subclasses, and most of the
+    others that use or touch the underlying dictionary of construction
+    variables.
+
+    Eventually, this class should contain all the methods that we
+    determine are necessary for a "minimal" interface to the build engine.
+    A full "native Python" SCons environment has gotten pretty heavyweight
+    with all of the methods and Tools and construction variables we've
+    jammed in there, so it would be nice to have a lighter weight
+    alternative for interfaces that don't need all of the bells and
+    whistles.  (At some point, we'll also probably rename this class
+    "Base," since that more reflects what we want this class to become,
+    but because we've released comments that tell people to subclass
+    Environment.Base to create their own flavors of construction
+    environment, we'll save that for a future refactoring when this
+    class actually becomes useful.)
     """
+    def __init__(self, **kw):
+        """Initialization of an underlying SubstitutionEnvironment class.
+        """
+        if __debug__: logInstanceCreation(self)
+        self.fs = SCons.Node.FS.default_fs
+        self.ans = SCons.Node.Alias.default_ans
+        self.lookup_list = SCons.Node.arg2nodes_lookups
+        self._dict = kw.copy()
+        self._dict['__env__'] = self
+
+    def __cmp__(self, other):
+        # Since an Environment now has an '__env__' construction variable
+        # that refers to itself, delete that variable to avoid infinite
+        # loops when comparing the underlying dictionaries in some Python
+        # versions (*cough* 1.5.2 *cough*)...
+        sdict = self._dict.copy()
+        del sdict['__env__']
+        odict = other._dict.copy()
+        del odict['__env__']
+        return cmp(sdict, odict)
+
+    def __delitem__(self, key):
+        del self._dict[key]
+
+    def __getitem__(self, key):
+        return self._dict[key]
+
+    def __setitem__(self, key, value):
+        if key in reserved_construction_var_names:
+            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
+                                "Ignoring attempt to set reserved variable `%s'" % key)
+        elif key == 'BUILDERS':
+            try:
+                bd = self._dict[key]
+                for k in bd.keys():
+                    del bd[k]
+            except KeyError:
+                self._dict[key] = BuilderDict(kwbd, self)
+            self._dict[key].update(value)
+        elif key == 'SCANNERS':
+            self._dict[key] = value
+            self.scanner_map_delete()
+        else:
+            if not SCons.Util.is_valid_construction_var(key):
+                raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
+            self._dict[key] = value
+
+    def get(self, key, default=None):
+        "Emulates the get() method of dictionaries."""
+        return self._dict.get(key, default)
+
+    def has_key(self, key):
+        return self._dict.has_key(key)
+
+    def items(self):
+        "Emulates the items() method of dictionaries."""
+        result = self._dict.items()
+        result = filter(lambda t: t[0] != '__env__', result)
+        return result
+
     def arg2nodes(self, args, node_factory=_null, lookup_list=_null):
         if node_factory is _null:
             node_factory = self.fs.File
@@ -268,7 +341,13 @@ class _Environment:
     
         return nodes
 
-    def subst(self, string, raw=0, target=None, source=None, dict=None, conv=None):
+    def gvars(self):
+        return self._dict
+
+    def lvars(self):
+        return {}
+
+    def subst(self, string, raw=0, target=None, source=None, conv=None):
         """Recursively interpolates construction variables from the
         Environment into the specified string, returning the expanded
         result.  Construction variables are specified by a $ prefix
@@ -278,21 +357,25 @@ class _Environment:
         may be surrounded by curly braces to separate the name from
         trailing characters.
         """
-        return SCons.Util.scons_subst(string, self, raw, target, source, dict, conv)
+        gvars = self.gvars()
+        lvars = self.lvars()
+        return SCons.Util.scons_subst(string, self, raw, target, source, gvars, lvars, conv)
 
-    def subst_kw(self, kw, raw=0, target=None, source=None, dict=None):
+    def subst_kw(self, kw, raw=0, target=None, source=None):
         nkw = {}
         for k, v in kw.items():
-            k = self.subst(k, raw, target, source, dict)
+            k = self.subst(k, raw, target, source)
             if SCons.Util.is_String(v):
-                v = self.subst(v, raw, target, source, dict)
+                v = self.subst(v, raw, target, source)
             nkw[k] = v
         return nkw
 
-    def subst_list(self, string, raw=0, target=None, source=None, dict=None, conv=None):
+    def subst_list(self, string, raw=0, target=None, source=None, conv=None):
         """Calls through to SCons.Util.scons_subst_list().  See
         the documentation for that function."""
-        return SCons.Util.scons_subst_list(string, self, raw, target, source, dict, conv)
+        gvars = self.gvars()
+        lvars = self.lvars()
+        return SCons.Util.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_path(self, path):
         """Substitute a path list, turning EntryProxies into Nodes
@@ -335,7 +418,30 @@ class _Environment:
 
     subst_target_source = subst
 
-class Base(_Environment):
+    def Override(self, overrides):
+        """
+        Produce a modified environment whose variables are overriden by
+        the overrides dictionaries.  "overrides" is a dictionary that
+        will override the variables of this environment.
+
+        This function is much more efficient than Copy() or creating
+        a new Environment because it doesn't copy the construction
+        environment dictionary, it just wraps the underlying construction
+        environment, and doesn't even create a wrapper object if there
+        are no overrides.
+        """
+        if overrides:
+            o = copy_non_reserved_keywords(overrides)
+            overrides = {}
+            for key, value in o.items():
+                overrides[key] = SCons.Util.scons_subst_once(value, self, key)
+        if overrides:
+            env = OverrideEnvironment(self, overrides)
+            return env
+        else:
+            return self
+
+class Base(SubstitutionEnvironment):
     """Base class for "real" construction Environments.  These are the
     primary objects used to communicate dependency and construction
     information to the build engine.
@@ -365,6 +471,16 @@ class Base(_Environment):
                  toolpath=[],
                  options=None,
                  **kw):
+        """
+        Initialization of a basic SCons construction environment,
+        including setting up special construction variables like BUILDER,
+        PLATFORM, etc., and searching for and applying available Tools.
+
+        Note that we do *not* call the underlying base class
+        (SubsitutionEnvironment) initialization, because we need to
+        initialize things in a very specific order that doesn't work
+        with the much simpler base class initialization.
+        """
         if __debug__: logInstanceCreation(self)
         self.fs = SCons.Node.FS.default_fs
         self.ans = SCons.Node.Alias.default_ans
@@ -408,58 +524,9 @@ class Base(_Environment):
         if options:
             options.Update(self)
 
-    def __cmp__(self, other):
-        # Since an Environment now has an '__env__' construction variable
-        # that refers to itself, delete that variable to avoid infinite
-        # loops when comparing the underlying dictionaries in some Python
-        # versions (*cough* 1.5.2 *cough*)...
-        sdict = self._dict.copy()
-        del sdict['__env__']
-        odict = other._dict.copy()
-        del odict['__env__']
-        return cmp(sdict, odict)
-
-    def __getitem__(self, key):
-        return self._dict[key]
-
-    def __setitem__(self, key, value):
-        if key in reserved_construction_var_names:
-            SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning,
-                                "Ignoring attempt to set reserved variable `%s'" % key)
-        elif key == 'BUILDERS':
-            try:
-                bd = self._dict[key]
-                for k in bd.keys():
-                    del bd[k]
-            except KeyError:
-                self._dict[key] = BuilderDict(kwbd, self)
-            self._dict[key].update(value)
-        elif key == 'SCANNERS':
-            self._dict[key] = value
-            self.scanner_map_delete()
-        else:
-            if not SCons.Util.is_valid_construction_var(key):
-                raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
-            self._dict[key] = value
-
-    def __delitem__(self, key):
-        del self._dict[key]
-
-    def items(self):
-        "Emulates the items() method of dictionaries."""
-        return self._dict.items()
-
-    def has_key(self, key):
-        return self._dict.has_key(key)
-
-    def get(self, key, default=None):
-        "Emulates the get() method of dictionaries."""
-        return self._dict.get(key, default)
-
     #######################################################################
     # Utility methods that are primarily for internal use by SCons.
-    # These begin with lower-case letters.  Note that the subst() method
-    # is actually already out of the closet and used by people.
+    # These begin with lower-case letters.
     #######################################################################
 
     def get_calculator(self):
@@ -721,31 +788,6 @@ class Base(_Environment):
             dir,name = os.path.split(str(path))
             if name[:len(prefix)] == prefix and name[-len(suffix):] == suffix: 
                 return path
-
-    def Override(self, overrides):
-        """
-        Produce a modified environment whose variables
-        are overriden by the overrides dictionaries.
-
-        overrides - a dictionary that will override
-        the variables of this environment.
-
-        This function is much more efficient than Copy()
-        or creating a new Environment because it doesn't do
-        a deep copy of the dictionary, and doesn't do a copy
-        at all if there are no overrides.
-        """
-
-        if overrides:
-            o = copy_non_reserved_keywords(overrides)
-            overrides = {}
-            for key, value in o.items():
-                overrides[key] = SCons.Util.scons_subst_once(value, self, key)
-        if overrides:
-            env = OverrideEnvironment(self, overrides)
-            return env
-        else:
-            return self
 
     def ParseConfig(self, command, function=None):
         """
@@ -1340,21 +1382,25 @@ class Base(_Environment):
         """
         return SCons.Node.Python.Value(value)
 
-class OverrideEnvironment(_Environment):
-    """A proxy that overrides variables in a wrapped "real"
-    (Environment.Base) construction environment by returning values from
-    an overrides dictionary in preference to values from the underlying
-    subject environment.
+class OverrideEnvironment(SubstitutionEnvironment):
+    """A proxy that overrides variables in a wrapped construction
+    environment by returning values from an overrides dictionary in
+    preference to values from the underlying subject environment.
 
     This is a lightweight (I hope) proxy that passes through most use of
     attributes to the underlying Environment.Base class, but has just
     enough additional methods defined to act like a real construction
-    environment with overridden values.
+    environment with overridden values.  It can wrap either a Base
+    construction environment, or another OverrideEnvironment, which
+    can in turn nest arbitrary OverrideEnvironments...
 
-    Note that because we subclass _Environment, this class also has
-    inherited arg2nodes() and subst*() methods.  Those methods can't
+    Note that we do *not* call the underlying base class
+    (SubsitutionEnvironment) initialization, because we get most of those
+    from proxying the attributes of the subject construction environment.
+    But because we subclass SubstitutionEnvironment, this class also
+    has inherited arg2nodes() and subst*() methods; those methods can't
     be proxied because they need *this* object's methods to fetch the
-    overridden values.
+    values from the overrides dictionary.
     """
     def __init__(self, subject, overrides={}):
         if __debug__: logInstanceCreation(self, 'OverrideEnvironment')
@@ -1385,7 +1431,7 @@ class OverrideEnvironment(_Environment):
             pass
         return self.__dict__['__subject'].__delitem__(key)
     def get(self, key, default=None):
-        "Emulates the get() method of dictionaries."""
+        """Emulates the get() method of dictionaries."""
         try:
             return self.__dict__['overrides'][key]
         except KeyError:
@@ -1397,7 +1443,7 @@ class OverrideEnvironment(_Environment):
         except KeyError:
             return self.__dict__['__subject'].has_key(key)
     def items(self):
-        "Emulates the items() method of dictionaries."""
+        """Emulates the items() method of dictionaries."""
         return self.Dictionary().items()
 
     # Overridden private construction environment methods.
@@ -1407,20 +1453,15 @@ class OverrideEnvironment(_Environment):
         """
         self.__dict__['overrides'].update(dict)
 
+    def gvars(self):
+        return self.__dict__['__subject'].gvars()
+
+    def lvars(self):
+        lvars = self.__dict__['__subject'].lvars()
+        lvars.update(self.__dict__['overrides'])
+        return lvars
+
     # Overridden public construction environment methods.
-    def Dictionary(self, *args):
-	if not args:
-            result = self.__dict__['__subject'].Dictionary().copy()
-            result.update(self.__dict__['overrides'])
-	    return result
-	dlist = map(lambda k, s=self: s.__getitem__(k), args)
-	if len(dlist) == 1:
-	    dlist = dlist[0]
-	return dlist
-    def Override(self, overrides):
-        kw = copy_non_reserved_keywords(overrides)
-        self.__dict__['overrides'].update(our_deepcopy(kw))
-        return self
     def Replace(self, **kw):
         kw = copy_non_reserved_keywords(kw)
         self.__dict__['overrides'].update(our_deepcopy(kw))
