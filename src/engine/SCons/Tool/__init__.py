@@ -166,7 +166,7 @@ def tool_list(platform, env):
         c_compilers = ['sgicc', 'gcc']
         assemblers = ['sgias', 'gas']
         fortran_compilers = ['sgif77', 'g77']
-        ars = ['ar']
+        ars = ['sgiar']
     else:
         "prefer GNU tools on all other platforms"
         linkers = ['gnulink', 'mslink', 'ilink']

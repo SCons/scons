@@ -68,6 +68,7 @@ tools = [
     'nasm',
     'pdflatex',
     'pdftex',
+    'sgiar',
     'sgias',
     'sgicc',
     'sgif77',

@@ -41,7 +41,7 @@ import SCons.Util
 
 compilers = ['f77']
 
-F77Suffixes = ['.f', '.for', '.FOR']
+F77Suffixes = ['.f', '.for', '.F', '.FOR']
 F77PPSuffixes = ['.fpp', '.FPP']
 
 def generate(env, platform):

@@ -1,6 +1,8 @@
-"""SCons.Tool.ar
+"""SCons.Tool.sgiar
 
-Tool-specific initialization for ar (library archive).
+Tool-specific initialization for SGI ar (library archive).  If CC
+exists, static libraries should be built with it, so the prelinker has
+a chance to resolve C++ template instantiations.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -41,19 +43,18 @@ def generate(env, platform):
     env['BUILDERS']['Library'] = bld
     env['BUILDERS']['StaticLibrary'] = bld
     
-    arcom = '$AR $ARFLAGS $TARGET $SOURCES'
-    ranlib = 'ranlib'
-    if env.Detect(ranlib):
-        arcom = arcom + '\n$RANLIB $RANLIBFLAGS $TARGET'
-
-    env['AR']          = 'ar'
-    env['ARFLAGS']     = 'r'
-    env['RANLIB']      = ranlib
-    env['RANLIBFLAGS'] = ''
-    env['ARCOM']       = arcom
+    if env.Detect('CC'):
+        env['AR']          = 'CC'
+        env['ARFLAGS']     = '-ar'
+        env['ARCOM']       = '$AR $ARFLAGS -o $TARGET $SOURCES'
+    else:
+        env['AR']          = 'ar'
+        env['ARFLAGS']     = 'r'
+        env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
+        
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
     env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
 def exists(env):
-    return env.Detect('ar')
+    return env.Detect('CC') or env.Detect('ar')
