@@ -499,6 +499,21 @@ class Dir(Entry):
             self._sconsign = SCons.Sig.SConsignFile(self)
         return self._sconsign
 
+    def __str__(self):
+        # Reimplemented from Entry since, unlike for
+        # Entry and File, we want to return the source
+        # path *even if* the builder is non-zero
+        # (which it always is for a directory)
+        if self.duplicate:
+            return self.path
+        else:
+            return self.srcpath
+
+    def exists(self):
+        # Again, directories are special...we don't care if their
+        # source path exists, we only care about the path.
+        return os.path.exists(self.path)
+
 
 
 # XXX TODO?

@@ -108,6 +108,12 @@ class BuildDirTestCase(unittest.TestCase):
         assert f2.srcpath == os.path.normpath('src/test1'), str(f2)
         assert str(f2) == os.path.normpath('build/var2/test1'), str(f2)
 
+        d1 = fs.Dir('build/var1')
+        d2 = fs.Dir('build/var2')
+
+        assert str(d1) == 'src', str(d1)
+        assert str(d2) == os.path.normpath('build/var2'), str(d2)
+
         # Test to see if file_link() works...
         test=TestCmd(workdir='')
         test.subdir('src','build')

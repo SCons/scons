@@ -10,6 +10,11 @@
 
 RELEASE 0.08 - 
 
+  From Charles Crain:
+
+  - Fixed a bug with relative CPPPATH dirs when using BuildDir().
+    (Bug reported by Bob Summerwill.)
+
   From Steven Knight:
 
   - Add a "platform=" keyword argument to Environment instantiation,
