@@ -130,6 +130,9 @@ RELEASE 0.96 - XXX
     .h file changes.  This eliminates incorrect circular dependencies
     with .h files generated from other source files.
 
+  - Slim down the internal Sig.Calculator class by eliminating methods
+    whose functionality is now covered by Node methods.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
@@ -141,6 +144,9 @@ RELEASE 0.96 - XXX
 
   - Try to find the ICL license file path name in the external environment
     and the registry before resorting to the hard-coded path name.
+
+  - Add support for fetching command-line keyword=value arguments in
+    order from an ARGLIST list.
 
   From Simon Perkins:
 

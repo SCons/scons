@@ -1045,7 +1045,7 @@ def _main(args, parser):
             return dependencies
 
     progress_display("scons: " + opening_message)
-    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, None, order)
+    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order)
 
     nj = ssoptions.get('num_jobs')
     jobs = SCons.Job.Jobs(nj, taskmaster)

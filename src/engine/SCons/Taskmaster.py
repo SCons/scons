@@ -165,6 +165,16 @@ class Task:
 
         self.tm.executed(self.node)
 
+    def mark_targets(self, state):
+        for t in self.targets:
+            t.set_state(state)
+
+    def mark_targets_and_side_effects(self, state):
+        for t in self.targets:
+            for side_effect in t.side_effects:
+                side_effect.set_state(state)
+            t.set_state(state)
+
     def make_ready_all(self):
         """Mark all targets in a task ready for execution.
 
@@ -172,11 +182,7 @@ class Task:
         visited--the canonical example being the "scons -c" option.
         """
         self.out_of_date = self.targets[:]
-        state = SCons.Node.executing
-        for t in self.targets:
-            for side_effect in t.side_effects:
-                side_effect.set_state(state)
-            t.set_state(state)
+        self.mark_targets_and_side_effects(SCons.Node.executing)
 
     def make_ready_current(self):
         """Mark all targets in a task ready for execution if any target
@@ -185,25 +191,13 @@ class Task:
         This is the default behavior for building only what's necessary.
         """
         self.out_of_date = []
-        calc = self.tm.calc
-        if calc:
-            for t in self.targets:
-                if not t.current(calc):
-                    self.out_of_date.append(t)
-        else:
-            for t in self.targets:
-                if not t.current(t.calculator()):
-                    self.out_of_date.append(t)
+        for t in self.targets:
+            if not t.current(t.calculator()):
+                self.out_of_date.append(t)
         if self.out_of_date:
-            state = SCons.Node.executing
-            for t in self.targets:
-                for side_effect in t.side_effects:
-                    side_effect.set_state(state)
-                t.set_state(state)
+            self.mark_targets_and_side_effects(SCons.Node.executing)
         else:
-            state = SCons.Node.up_to_date
-            for t in self.targets:
-                t.set_state(state)
+            self.mark_targets(SCons.Node.up_to_date)
 
     make_ready = make_ready_current
 
@@ -218,19 +212,6 @@ def order(dependencies):
     """Re-order a list of dependencies (if we need to)."""
     return dependencies
 
-class Calc:
-    def bsig(self, node):
-        """
-        """
-        return None
-
-    def current(self, node, sig):
-        """Default SCons build engine is-it-current function.
-
-        This returns "always out of date," so every node is always
-        built/visited.
-        """
-        return 0
 
 class Taskmaster:
     """A generic Taskmaster for handling a bunch of targets.
@@ -239,7 +220,7 @@ class Taskmaster:
     the base class method, so this class can do its thing.
     """
 
-    def __init__(self, targets=[], tasker=Task, calc=Calc(), order=order):
+    def __init__(self, targets=[], tasker=Task, order=order):
         self.targets = targets # top level targets
         self.candidates = targets[:] # nodes that might be ready to be executed
         self.candidates.reverse()
@@ -247,7 +228,6 @@ class Taskmaster:
         self.pending = [] # nodes that depend on a currently executing node
         self.tasker = tasker
         self.ready = None # the next task that is ready to be executed
-        self.calc = calc
         self.order = order
         self.exception_set(None, None)
         self.message = None
