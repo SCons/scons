@@ -276,9 +276,12 @@ test.fail_test(os.path.exists(test.workpath('cache3', 'N', 'None')))
 test.subdir('multiple', 'cache4')
 
 test.write(['multiple', 'SConstruct'], """\
+def touch(env, source, target):
+    open('foo', 'w').write("")
+    open('bar', 'w').write("")
 CacheDir(r'%s')
 env = Environment()
-env.Command(['foo', 'bar'], ['input'], 'touch foo bar')
+env.Command(['foo', 'bar'], ['input'], touch)
 """ % (test.workpath('cache4')))
 
 test.write(['multiple', 'input'], "multiple/input\n")
