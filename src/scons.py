@@ -1,4 +1,9 @@
 #! /usr/bin/env python
+#
+# SCons
+#
+
+__revision__ = "scons.py __REVISION__ __DATE__ __DEVELOPER__"
 
 import getopt
 import os.path
@@ -363,7 +368,12 @@ Option(func = opt_not_yet, future = 1,
 	short = 'u', long = ['up', 'search-up'],
 	help = "Search up directory tree for SConstruct.")
 
-Option(func = opt_not_yet,
+def option_v(opt, arg):
+    print "SCons version __VERSION__, by Steven Knight et al."
+    print "Copyright 2001 Steven Knight"
+    sys.exit(0)
+
+Option(func = option_v,
 	short = 'v', long = ['version'],
 	help = "Print the SCons version number and exit.")
 
@@ -483,6 +493,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+    except SystemExit:
+        pass
     except KeyboardInterrupt:
         print "Build interrupted."
     except SyntaxError, e:

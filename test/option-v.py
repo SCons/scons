@@ -14,13 +14,17 @@ test.write('SConstruct', "")
 
 test.run(chdir = '.', arguments = '-v')
 
-test.fail_test(test.stderr() !=
-		"Warning:  the -v option is not yet implemented\n")
+expect = r"""SCons version \S+, by Steven Knight et al.
+Copyright 2001 Steven Knight
+"""
+
+test.fail_test(not test.match_re(test.stdout(), expect))
+test.fail_test(test.stderr() != "")
 
 test.run(chdir = '.', arguments = '--version')
 
-test.fail_test(test.stderr() !=
-		"Warning:  the --version option is not yet implemented\n")
+test.fail_test(not test.match_re(test.stdout(), expect))
+test.fail_test(test.stderr() != "")
 
 test.pass_test()
  
