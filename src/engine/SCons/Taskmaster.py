@@ -83,6 +83,8 @@ class Task:
             self.targets[0].build()
         except KeyboardInterrupt:
             raise
+        except SystemExit:
+            raise SCons.Errors.ExplicitExit(self.targets[0], sys.exc_value.code)
         except SCons.Errors.UserError:
             raise
         except SCons.Errors.BuildError:
@@ -215,6 +217,12 @@ class Taskmaster:
 
             try:
                 children = node.children()
+            except SystemExit:
+                e = SCons.Errors.ExplicitExit(node, sys.exc_value.code)
+                self.exception_set(SCons.Errors.ExplicitExit, e)
+                self.candidates.pop()
+                self.ready = node
+                break
             except:
                 # We had a problem just trying to figure out the
                 # children (like a child couldn't be linked in to a

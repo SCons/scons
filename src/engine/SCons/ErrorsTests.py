@@ -51,6 +51,13 @@ class ErrorsTestCase(unittest.TestCase):
         except SCons.Errors.UserError, e:
             assert e.args == "test user error"
 
+    def test_ExplicitExit(self):
+	"""Test the ExplicitExit exception."""
+        try:
+            raise SCons.Errors.ExplicitExit, "node"
+        except SCons.Errors.ExplicitExit, e:
+            assert e.node == "node"
+
 
 
 if __name__ == "__main__":

@@ -49,3 +49,9 @@ class UserError(Exception):
 class StopError(Exception):
     def __init__(self, args=None):
         self.args = args
+
+class ExplicitExit(Exception):
+    def __init__(self, node=None, status=None, *args):
+        self.node = node
+        self.status = status
+        self.args = args

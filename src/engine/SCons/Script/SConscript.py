@@ -418,6 +418,9 @@ def AddPostAction(files, action):
     for n in nodes:
         n.add_post_action(SCons.Action.Action(action))
 
+def Exit(value=0):
+    sys.exit(value)
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -439,6 +442,7 @@ def BuildDefaultGlobals():
     globals['EnsurePythonVersion'] = EnsurePythonVersion
     globals['EnsureSConsVersion'] = EnsureSConsVersion
     globals['Environment']       = SCons.Environment.Environment
+    globals['Exit']              = Exit
     globals['Export']            = Export
     globals['File']              = SCons.Node.FS.default_fs.File
     globals['FindFile']          = FindFile

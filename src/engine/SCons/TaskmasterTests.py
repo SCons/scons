@@ -392,14 +392,23 @@ class TaskmasterTestCase(unittest.TestCase):
     def test_children_errors(self):
         """Test errors when fetching the children of a node.
         """
-        class MyNode(Node):
+        class StopNode(Node):
             def children(self):
                 raise SCons.Errors.StopError, "stop!"
-        n1 = MyNode("n1")
+        class ExitNode(Node):
+            def children(self):
+                sys.exit(77)
+        n1 = StopNode("n1")
         tm = SCons.Taskmaster.Taskmaster([n1])
         t = tm.next_task()
         assert tm.exc_type == SCons.Errors.StopError, "Did not record StopError on node"
         assert str(tm.exc_value) == "stop!", "Unexpected exc_value `%s'" % tm.exc_value
+        n2 = ExitNode("n2")
+        tm = SCons.Taskmaster.Taskmaster([n2])
+        t = tm.next_task()
+        assert tm.exc_type == SCons.Errors.ExplicitExit, "Did not record ExplicitExit on node"
+        assert tm.exc_value.node == n2, tm.exc_value.node
+        assert tm.exc_value.status == 77, tm.exc_value.status
 
     def test_cycle_detection(self):
         """Test detecting dependency cycles

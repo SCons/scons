@@ -62,6 +62,8 @@ RELEASE 0.12 - XXX
   - Raise an internal error if we attempt to push a file to CacheDir()
     with a build signature of None.
 
+  - Add an explicit Exit() function for terminating early.
+
   From Lachlan O'Dea:
 
   - Add SharedObject() support to the masm tool.

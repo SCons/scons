@@ -86,16 +86,16 @@ class BuildTask(SCons.Taskmaster.Task):
                 command_time = command_time+finish_time-start_time
                 print "Command execution time: %f seconds"%(finish_time-start_time)
 
-    def do_failed(self):
+    def do_failed(self, status=2):
         global exit_status
         if ignore_errors:
             SCons.Taskmaster.Task.executed(self)
         elif keep_going_on_error:
             SCons.Taskmaster.Task.fail_continue(self)
-            exit_status = 2
+            exit_status = status
         else:
             SCons.Taskmaster.Task.fail_stop(self)
-            exit_status = 2
+            exit_status = status
             
     def executed(self):
         t = self.targets[0]
@@ -129,6 +129,7 @@ class BuildTask(SCons.Taskmaster.Task):
 
     def failed(self):
         e = sys.exc_value
+        status = 2
         if sys.exc_type == SCons.Errors.BuildError:
             sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
             if e.errstr == 'Exception':
@@ -142,12 +143,15 @@ class BuildTask(SCons.Taskmaster.Task):
             if not keep_going_on_error:
                 s = s + '  Stop.'
             sys.stderr.write("scons: *** %s\n" % s)
+        elif sys.exc_type == SCons.Errors.ExplicitExit:
+            status = e.status
+            sys.stderr.write("scons: *** [%s] Explicit exit, status %s\n" % (e.node, e.status))
         else:
             if e is None:
                 e = sys.exc_type
             sys.stderr.write("scons: *** %s\n" % e)
 
-        self.do_failed()
+        self.do_failed(status)
 
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""

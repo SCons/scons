@@ -3078,6 +3078,18 @@ EnsureSConsVersion(0,9)
 .EE
 
 .TP
+.RI Exit([ value ])
+This tells
+.B scons
+to exit immediately
+with the specified
+.IR value .
+A default exit value of
+.B 0
+(zero)
+is used if no value is specified.
+
+.TP
 .RI Export( vars )
 This tells 
 .B scons
