@@ -48,6 +48,8 @@ exitvalmap = {
     13 : 126,
 }
 
+default_ENV = None
+
 if os.name == 'posix':
 
     def defaultSpawn(cmd, args, env):
@@ -356,8 +358,11 @@ class CommandAction(ActionBase):
                     try:
                         ENV = kw['env']['ENV']
                     except:
-                        import SCons.Defaults
-                        ENV = SCons.Defaults.ConstructionEnvironment['ENV']
+                        global default_ENV
+                        if not default_ENV:
+                            import SCons.Environment
+                            default_ENV = SCons.Environment.Environment()['ENV']
+                        ENV = default_ENV
                     ret = spawn(cmd_line[0], cmd_line, ENV)
                     if ret:
                         return ret

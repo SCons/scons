@@ -628,8 +628,42 @@ function:
 env = Environment()
 .EE
 
-Build rules are specified by calling builder methods on a construction
-environment. The arguments to the builder methods are target (a list of
+By default, a new construction environment is
+initialized with a set of builder methods
+and construction variables that are appropriate
+for the current platform.
+An optional platform keyword argument may be
+used to specify that an environment should
+be initialized for a different platform:
+
+.ES
+env = Environment(platform = 'cygwin')
+env = Environment(platform = 'posix')
+env = Environment(platform = 'win32')
+.EE
+
+Specifying a platform initializes the appropriate
+construction variables in the environment
+to use and generate file names with prefixes
+and suffixes appropriate for the platform.
+
+The platform argument may be function or callable object,
+in which case the Environment() method
+will call the specified argument to update
+the new construction environment:
+
+.ES
+def my_platform(env):
+    env['VAR'] = 'xyzzy'
+
+env = Environment(platform = my_platform)
+.EE
+
+.SS Builder Methods
+
+Build rules are specified by calling a construction
+environment's builder methods.
+The arguments to the builder methods are target (a list of
 target files) and source (a list of source files).
 If a string is given
 for target or source, then 
@@ -645,7 +679,7 @@ you must change them by next release.
 See the discussion of the Split() function
 for more information.
 
-The following are examples of calling a builder:
+The following are examples of calling the Program builder:
 
 .ES
 # The recommended ways to call a builder
@@ -860,7 +894,43 @@ be specified using the
 .B Depends 
 method of a construction environment (see below).
 
-Additional Environment methods include:
+.SS Other Construction Environment Methods
+Additional construction environment methods include:
+
+.TP
+.RI Alias( alias ", " targets )
+Creates a phony target that
+expands to one or more other targets.
+Returns the Node object representing the alias,
+which exists outside of any file system.
+This Node object, or the alias name,
+may be used as a dependency of any other target,
+including another alias. Alias can be called multiple times for the same
+alias to add additional targets to the alias.
+
+.ES
+env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
+env.Alias('install', ['/usr/local/man'])
+.EE
+
+.TP
+.RI Append( key = val ", [...])"
+Appends the specified keyword arguments
+to the construction variables in the environment.
+If the Environment does not have
+the specified construction variable,
+it is simply added to the environment.
+If the values of the construction variable
+and the keyword argument are the same type,
+then the two values will be simply added together.
+Otherwise, the construction variable
+and the value of the keyword argument
+are both coerced to lists,
+and the lists are added together.
+
+.ES
+env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
+.EE
 
 .TP
 .RI Command( target ", " source ", " commands )
@@ -981,22 +1051,6 @@ Multiple targets can be passed in to a single call to
 .BR Precious ().
 
 .TP
-.RI Alias( alias ", " targets )
-Creates a phony target that
-expands to one or more other targets.
-Returns the Node object representing the alias,
-which exists outside of any file system.
-This Node object, or the alias name,
-may be used as a dependency of any other target,
-including another alias. Alias can be called multiple times for the same
-alias to add additional targets to the alias.
-
-.ES
-env.Alias('install', ['/usr/local/bin', '/usr/local/lib'])
-env.Alias('install', ['/usr/local/man'])
-.EE
-
-.TP
 .RI Replace( key = val ", [...])"
 Replaces construction variables in the Environment
 with the specified keyword arguments.
@@ -1004,25 +1058,6 @@ with the specified keyword arguments.
 
 .ES
 env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
-.EE
-
-.TP
-.RI Append( key = val ", [...])"
-Appends the specified keyword arguments
-to the construction variables in the environment.
-If the Environment does not have
-the specified construction variable,
-it is simply added to the environment.
-If the values of the construction variable
-and the keyword argument are the same type,
-then the two values will be simply added together.
-Otherwise, the construction variable
-and the value of the keyword argument
-are both coerced to lists,
-and the lists are added together.
-
-.ES
-env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 .EE
 
 .SS Construction Variables
@@ -1591,6 +1626,17 @@ Examples:
 .ES
 Import("env")
 Import("env", "variable")
+.EE
+
+.TP
+.RI Platform( string )
+Returns a callable object
+that can be used to initialize
+a construction environment using the
+platform keyword of the Environment() method.
+
+.ES
+env = Environment(platform = Platform('win32'))
 .EE
 
 .TP

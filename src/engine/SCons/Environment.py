@@ -92,9 +92,12 @@ class Environment:
     Environment.
     """
 
-    def __init__(self, **kw):
+    def __init__(self, platform=SCons.Platform.Platform(), **kw):
         self.fs = SCons.Node.FS.default_fs
         self._dict = our_deepcopy(SCons.Defaults.ConstructionEnvironment)
+        if SCons.Util.is_String(platform):
+            platform = SCons.Platform.Platform(platform)
+        platform(self)
         apply(self.Replace, (), kw)
 
         #

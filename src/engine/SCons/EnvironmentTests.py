@@ -403,6 +403,13 @@ class EnvironmentTestCase(unittest.TestCase):
         assert len(dict['_INCFLAGS']) == 0, dict['_INCFLAGS']
         assert len(dict['_LIBDIRFLAGS']) == 0, dict['_LIBDIRFLAGS']
 
+    def test_platform(self):
+        """Test specifying a platform callable when instantiating."""
+        def p(env):
+            env['XYZZY'] = 777
+        env = Environment(platform = p)
+        assert env['XYZZY'] == 777, env
+
 
 
 if __name__ == "__main__":

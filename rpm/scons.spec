@@ -68,6 +68,14 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Node/FS.pyc
 /usr/lib/scons/SCons/Node/__init__.py
 /usr/lib/scons/SCons/Node/__init__.pyc
+/usr/lib/scons/SCons/Platform/cygwin.py
+/usr/lib/scons/SCons/Platform/cygwin.pyc
+/usr/lib/scons/SCons/Platform/posix.py
+/usr/lib/scons/SCons/Platform/posix.pyc
+/usr/lib/scons/SCons/Platform/win32.py
+/usr/lib/scons/SCons/Platform/win32.pyc
+/usr/lib/scons/SCons/Platform/__init__.py
+/usr/lib/scons/SCons/Platform/__init__.pyc
 /usr/lib/scons/SCons/Scanner/C.py
 /usr/lib/scons/SCons/Scanner/C.pyc
 /usr/lib/scons/SCons/Scanner/Prog.py

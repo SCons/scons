@@ -47,6 +47,7 @@ import SCons.Builder
 import SCons.Errors
 import SCons.Node.Alias
 import SCons.Node.FS
+import SCons.Platform
 import SCons.Scanner.C
 import SCons.Scanner.Prog
 import SCons.Util
@@ -452,8 +453,6 @@ def make_win32_env_from_paths(include, lib, path):
         'AR'         : 'lib',
         'ARFLAGS'    : '/nologo',
         'ARCOM'      : '$AR $ARFLAGS /OUT:$TARGET $SOURCES',
-        'SHLIBPREFIX': '',
-        'SHLIBSUFFIX': '.dll',
         'LEX'        : 'lex',
         'LEXFLAGS'   : '',
         'LEXCOM'     : '$LEX $LEXFLAGS -t $SOURCES > $TARGET',
@@ -485,14 +484,6 @@ def make_win32_env_from_paths(include, lib, path):
         'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Library, Object,
                         PDF, PostScript, Program],
         'SCANNERS'   : [CScan],
-        'OBJPREFIX'  : '',
-        'OBJSUFFIX'  : '.obj',
-        'PROGPREFIX' : '',
-        'PROGSUFFIX' : '.exe',
-        'LIBPREFIX'  : '',
-        'LIBPREFIXES': '$LIBPREFIX',
-        'LIBSUFFIX'  : '.lib',
-        'LIBSUFFIXES': '$LIBSUFFIX',
         'LIBDIRPREFIX'          : '/LIBPATH:',
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '',
@@ -509,7 +500,6 @@ def make_win32_env_from_paths(include, lib, path):
             'INCLUDE'  : include,
             'LIB'      : lib,
             'PATH'     : path,
-                'PATHEXT' : '.COM;.EXE;.BAT;.CMD',
             },
         }
 
@@ -567,8 +557,6 @@ if os.name == 'posix':
         'RANLIB'     : ranlib,
         'RANLIBFLAGS' : '',
         'ARCOM'      : arcom,
-        'SHLIBPREFIX': '$LIBPREFIX',
-        'SHLIBSUFFIX': '.so',
         'LEX'        : 'lex',
         'LEXFLAGS'   : '',
         'LEXCOM'     : '$LEX $LEXFLAGS -t $SOURCES > $TARGET',
@@ -598,21 +586,12 @@ if os.name == 'posix':
         'BUILDERS'   : [Alias, CFile, CXXFile, DVI, Library, Object,
                         PDF, PostScript, Program],
         'SCANNERS'   : [CScan],
-        'OBJPREFIX'  : '',
-        'OBJSUFFIX'  : '.o',
-        'PROGPREFIX' : '',
-        'PROGSUFFIX' : (sys.platform == 'cygwin') and '.exe' or '',
-        'LIBPREFIX'  : 'lib',
-        'LIBPREFIXES': '$LIBPREFIX',
-        'LIBSUFFIX'  : '.a',
-        'LIBSUFFIXES': [ '$LIBSUFFIX', '$SHLIBSUFFIX' ],
         'LIBDIRPREFIX'          : '-L',
         'LIBDIRSUFFIX'          : '',
         'LIBLINKPREFIX'         : '-l',
         'LIBLINKSUFFIX'         : '',
         'INCPREFIX'             : '-I',
         'INCSUFFIX'             : '',
-        'ENV'        : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
     }
 
 elif os.name == 'nt':
@@ -662,4 +641,3 @@ elif os.name == 'nt':
                 include_path,
                 lib_path,
                 exe_path)
-

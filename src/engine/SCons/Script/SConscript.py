@@ -36,6 +36,7 @@ import SCons.Environment
 import SCons.Errors
 import SCons.Node
 import SCons.Node.FS
+import SCons.Platform
 import SCons.Util
 
 import os
@@ -260,6 +261,7 @@ def BuildDefaultGlobals():
     globals['Import']            = Import
     globals['Library']           = SCons.Defaults.Library
     globals['Object']            = SCons.Defaults.Object
+    globals['Platform']          = SCons.Platform.Platform
     globals['Program']           = SCons.Defaults.Program
     globals['Return']            = Return
     globals['Scanner']           = SCons.Scanner.Base

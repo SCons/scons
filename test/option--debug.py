@@ -65,8 +65,6 @@ test.write('bar.h', """
 
 test.run(arguments = "--debug=tree foo.xxx")
 
-import SCons.Defaults
-obj = SCons.Defaults.ConstructionEnvironment['OBJSUFFIX']
 tree = """
 +-foo.xxx
   +-foo.ooo

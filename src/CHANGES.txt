@@ -10,6 +10,12 @@
 
 RELEASE 0.08 - 
 
+  From Steven Knight:
+
+  - Add a "platform=" keyword argument to Environment instantiation,
+    and a separate Platform() method, for more flexible specification
+    of platform-specific environment changes.
+
   From Anthony Roach:
 
   - Add a "multi" keyword argument to Builder creation that specifies

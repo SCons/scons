@@ -9,6 +9,10 @@ SCons/exitfuncs.py
 SCons/Node/__init__.py
 SCons/Node/Alias.py
 SCons/Node/FS.py
+SCons/Platform/__init__.py
+SCons/Platform/cygwin.py
+SCons/Platform/posix.py
+SCons/Platform/win32.py
 SCons/Scanner/__init__.py
 SCons/Scanner/C.py
 SCons/Scanner/Prog.py
