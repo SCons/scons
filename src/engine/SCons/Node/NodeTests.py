@@ -346,73 +346,96 @@ class NodeTestCase(unittest.TestCase):
         a = node.builder.get_actions()
         assert isinstance(a[0], MyAction), a[0]
 
-    def test_set_binfo(self):
-        """Test setting a Node's build information
+    def test_calc_bsig(self):
+        """Test generic build signature calculation
+        """
+        class Calculator:
+            def __init__(self, val):
+                self.max_drift = 0
+                class M:
+                    def __init__(self, val):
+                        self.val = val
+                    def collect(self, args):
+                        return reduce(lambda x, y: x+y, args, self.val)
+                self.module = M(val)
+        node = SCons.Node.Node()
+        result = node.calc_bsig(Calculator(222))
+        assert result == 222, result
+        result = node.calc_bsig(Calculator(333))
+        assert result == 222, result
+
+    def test_calc_csig(self):
+        """Test generic content signature calculation
+        """
+        class Calculator:
+            def __init__(self, val):
+                self.max_drift = 0
+                class M:
+                    def __init__(self, val):
+                        self.val = val
+                    def signature(self, args):
+                        return self.val
+                self.module = M(val)
+        node = SCons.Node.Node()
+        result = node.calc_csig(Calculator(444))
+        assert result == 444, result
+        result = node.calc_csig(Calculator(555))
+        assert result == 444, result
+
+    def test_gen_binfo(self):
+        """Test generating a build information structure
+        """
+        class Calculator:
+            def __init__(self, val):
+                self.max_drift = 0
+                class M:
+                    def __init__(self, val):
+                        self.val = val
+                    def collect(self, args):
+                        return reduce(lambda x, y: x+y, args, self.val)
+                self.module = M(val)
+        node = SCons.Node.Node()
+        binfo = node.gen_binfo(Calculator(666))
+        assert isinstance(binfo, SCons.Node.BuildInfo), binfo
+        assert binfo.bsig == 666, binfo.bsig
+
+    def test_explain(self):
+        """Test explaining why a Node must be rebuilt
         """
         node = SCons.Node.Node()
-        node.set_binfo('www', ['w1'], ['w2'], 'w act', 'w actsig')
-        assert node.bsig == 'www', node.bsig
-        assert node.bkids == ['w1'], node.bkdids
-        assert node.bkidsigs == ['w2'], node.bkidsigs
-        assert node.bact == 'w act', node.bkdid
-        assert node.bactsig == 'w actsig', node.bkidsig
+        node.exists = lambda: None
+        node.__str__ = lambda: 'xyzzy'
+        result = node.explain()
+        assert result == "building `xyzzy' because it doesn't exist\n", result
 
-    def test_get_binfo(self):
-        """Test fetching a Node's build information
+        node = SCons.Node.Node()
+        result = node.explain()
+        assert result == None, result
+
+        # XXX additional tests for the guts of the functionality some day
+
+    def test_del_binfo(self):
+        """Test deleting the build information from a Node
         """
         node = SCons.Node.Node()
-        node.set_binfo('yyy', ['y1'], ['y2'], 'y act', 'y actsig')
-        bsig, bkids, bkidsigs, bact, bactsig = node.get_binfo()
-        assert bsig == 'yyy', bsig
-        assert bkids == ['y1'], bkdids
-        assert bkidsigs == ['y2'], bkidsigs
-        assert bact == 'y act', bkdid
-        assert bactsig == 'y actsig', bkidsig
+        node.binfo = None
+        node.del_binfo()
+        assert not hasattr(node, 'binfo'), node
 
-    def test_get_bsig(self):
-        """Test fetching a Node's signature
-        """
-        node = SCons.Node.Node()
-        node.set_binfo('xxx', ['x1'], ['x2'], 'x act', 'x actsig')
-        assert node.get_bsig() == 'xxx'
-
-    def test_set_csig(self):
-        """Test setting a Node's signature
-        """
-        node = SCons.Node.Node()
-        node.set_csig('yyy')
-        assert node.csig == 'yyy'
-
-    def test_get_csig(self):
-        """Test fetching a Node's signature
-        """
-        node = SCons.Node.Node()
-        node.set_csig('zzz')
-        assert node.get_csig() == 'zzz'
-
-    def test_store_binfo(self):
+    def test_store_info(self):
         """Test calling the method to store build information
         """
+        class Entry:
+            pass
         node = SCons.Node.Node()
-        node.store_binfo()
+        node.store_info(Entry())
 
-    def test_store_csig(self):
-        """Test calling the method to store a content signature
+    def test_get_stored_info(self):
+        """Test calling the method to fetch stored build information
         """
         node = SCons.Node.Node()
-        node.store_csig()
-
-    def test_get_timestamp(self):
-        """Test calling the method to fetch a Node's timestamp
-        """
-        node = SCons.Node.Node()
-        assert node.get_timestamp() == 0
-
-    def test_store_timestamp(self):
-        """Test calling the method to store a timestamp
-        """
-        node = SCons.Node.Node()
-        node.store_timestamp()
+        result = node.get_stored_info()
+        assert result is None, result
 
     def test_set_always_build(self):
         """Test setting a Node's always_build value
@@ -867,11 +890,6 @@ class NodeTestCase(unittest.TestCase):
         n = nw.next()
         assert nw.next() == None
 
-    def test_rstr(self):
-        """Test the rstr() method."""
-        n1 = MyNode("n1")
-        assert n1.rstr() == 'n1', n1.rstr()
-
     def test_abspath(self):
         """Test the get_abspath() method."""
         n = MyNode("foo")
@@ -925,8 +943,7 @@ class NodeTestCase(unittest.TestCase):
         n = SCons.Node.Node()
 
         n.set_state(3)
-        n.set_binfo('bbb', ['b1'], ['b2'], 'b act', 'b actsig')
-        n.set_csig('csig')
+        n.binfo = 'xyz'
         n.includes = 'testincludes'
         n.found_include = {'testkey':'testvalue'}
         n.implicit = 'testimplicit'
@@ -934,12 +951,7 @@ class NodeTestCase(unittest.TestCase):
         n.clear()
 
         assert n.get_state() is None, n.get_state()
-        assert not hasattr(n, 'bsig'), n.bsig
-        assert not hasattr(n, 'bkids'), n.bkids
-        assert not hasattr(n, 'bkidsigs'), n.bkidsigs
-        assert not hasattr(n, 'bact'), n.bact
-        assert not hasattr(n, 'bactsig'), n.bactsig
-        assert not hasattr(n, 'csig'), n.csig
+        assert not hasattr(n, 'binfo'), n.bsig
         assert n.includes is None, n.includes
         assert n.found_includes == {}, n.found_includes
         assert n.implicit is None, n.implicit
@@ -950,11 +962,11 @@ class NodeTestCase(unittest.TestCase):
 
         assert n.get_subst_proxy() == n, n.get_subst_proxy()
 
-    def test_get_prevsiginfo(self):
-        """Test the base Node get_prevsiginfo() method"""
+    def test_new_binfo(self):
+        """Test the new_binfo() method"""
         n = SCons.Node.Node()
-        siginfo = n.get_prevsiginfo()
-        assert siginfo == (None, None, None), siginfo
+        result = n.new_binfo()
+        assert isinstance(result, SCons.Node.BuildInfo), result
 
     def test_get_suffix(self):
         """Test the base Node get_suffix() method"""

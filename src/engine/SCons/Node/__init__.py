@@ -47,6 +47,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import copy
+import string
 
 from SCons.Debug import logInstanceCreation
 import SCons.SConsign
@@ -80,6 +81,10 @@ implicit_deps_changed = 0
 def do_nothing(node): pass
 
 Annotate = do_nothing
+
+class BuildInfo:
+    def __cmp__(self, other):
+        return cmp(self.__dict__, other.__dict__)
 
 class Node:
     """The base Node class, for entities that we know how to
@@ -196,7 +201,12 @@ class Node:
 
     def built(self):
         """Called just after this node is sucessfully built."""
-        self.store_binfo()
+        try:
+            new_binfo = self.binfo
+        except AttributeError:
+            pass
+        else:
+            self.store_info(new_binfo)
 
         # Clear out the implicit dependency caches:
         # XXX this really should somehow be made more general and put
@@ -212,9 +222,9 @@ class Node:
             w = Walker(self, get_parents, ignore_cycle, clear_cache)
             while w.next(): pass
 
-        # clear out the content signature, since the contents of this
-        # node were presumably just changed:
-        self.del_csig()
+        # The content just changed, delete any cached info
+        # so it will get recalculated.
+        self.del_cinfo()
 
     def postprocess(self):
         """Clean up anything we don't need to hang onto after we've
@@ -233,13 +243,9 @@ class Node:
         """
         self.set_state(None)
         self.del_binfo()
-        self.del_csig()
+        self.del_cinfo()
         try:
             delattr(self, '_calculated_sig')
-        except AttributeError:
-            pass
-        try:
-            delattr(self, '_tempbsig')
         except AttributeError:
             pass
         self.includes = None
@@ -380,22 +386,27 @@ class Node:
 
         build_env = self.get_build_env()
 
-        if implicit_cache and not implicit_deps_changed:
-            implicit = self.get_stored_implicit()
-            if implicit is not None:
-                implicit = map(self.implicit_factory, implicit)
-                self._add_child(self.implicit, self.implicit_dict, implicit)
-                calc = build_env.get_calculator()
-                if implicit_deps_unchanged or calc.current(self, calc.bsig(self)):
-                    return
-                else:
-                    # one of this node's sources has changed, so
-                    # we need to recalculate the implicit deps,
-                    # and the bsig:
-                    self.implicit = []
-                    self.implicit_dict = {}
-                    self._children_reset()
-                    self.del_binfo()
+        # XXX Here's where we implement --implicit-cache.  This doesn't
+        # do anything right now, but we're probably going to re-implement
+        # as a way to cache #include lines from source files, so I want
+        # to keep this code around for now.
+        #
+        #if implicit_cache and not implicit_deps_changed:
+        #    implicit = self.get_stored_implicit()
+        #    if implicit is not None:
+        #        implicit = map(self.implicit_factory, implicit)
+        #        self._add_child(self.implicit, self.implicit_dict, implicit)
+        #        calc = build_env.get_calculator()
+        #        if implicit_deps_unchanged or calc.current(self, calc.bsig(self)):
+        #            return
+        #        else:
+        #            # one of this node's sources has changed, so
+        #            # we need to recalculate the implicit deps,
+        #            # and the bsig:
+        #            self.implicit = []
+        #            self.implicit_dict = {}
+        #            self._children_reset()
+        #            self.del_binfo()
 
         for child in self.children(scan=0):
             scanner = child.source_scanner
@@ -413,8 +424,9 @@ class Node:
                                                self.target_scanner,
                                                self))
 
-        if implicit_cache:
-            self.store_implicit()
+        # XXX See note above re: --implicit-cache.
+        #if implicit_cache:
+        #    self.store_implicit()
 
     def scanner_key(self):
         return None
@@ -446,139 +458,92 @@ class Node:
                 
                 env = self.env or SCons.Defaults.DefaultEnvironment()
                 if env.use_build_signature():
-                    sig = self.rfile().calc_bsig(calc, self)
+                    sig = self.calc_bsig(calc)
                 else:
-                    sig = self.rfile().calc_csig(calc, self)
+                    sig = self.calc_csig(calc)
             elif not self.rexists():
                 sig = None
             else:
-                sig = self.rfile().calc_csig(calc, self)
+                sig = self.calc_csig(calc)
             self._calculated_sig = sig
             return sig
 
-    def calc_bsig(self, calc, cache=None):
-        """Return the node's build signature, calculating it first
-        if necessary.
+    def new_binfo(self):
+        return BuildInfo()
 
-        Note that we don't save it in the "real" build signature
-        attribute if we have to calculate it here; the "real" build
-        signature only gets updated after a file is actually built.
-        """
-        if cache is None: cache = self
+    def del_binfo(self):
+        """Delete the bsig from this node."""
         try:
-            return cache.bsig
-        except AttributeError:
-            try:
-                return cache._tempbsig
-            except AttributeError:
-                cache._tempbsig = calc.bsig(self, cache)
-                return cache._tempbsig
-
-    def get_bsig(self):
-        """Get the node's build signature (based on the signatures
-        of its dependency files and build information)."""
-        try:
-            return self.bsig
-        except AttributeError:
-            return None
-
-    def set_bsig(self, bsig):
-        """Set the node's build signature (based on the signatures
-        of its dependency files and build information)."""
-        self.bsig = bsig
-
-    def get_binfo(self):
-        """Get the node's build signature (based on the signatures
-        of its dependency files and build information)."""
-        result = []
-        for attr in ['bsig', 'bkids', 'bkidsigs', 'bact', 'bactsig']:
-            try:
-                r = getattr(self, attr)
-            except AttributeError:
-                r = None
-            result.append(r)
-        return tuple(result)
-
-    def set_binfo(self, bsig, bkids, bkidsigs, bact, bactsig):
-        """Set the node's build signature (based on the signatures
-        of its dependency files and build information)."""
-        self.bsig = bsig
-        self.bkids = bkids
-        self.bkidsigs = bkidsigs
-        self.bact = bact
-        self.bactsig = bactsig
-        try:
-            delattr(self, '_tempbsig')
+            delattr(self, 'binfo')
         except AttributeError:
             pass
 
-    def store_binfo(self):
+    def calc_bsig(self, calc):
+        try:
+            return self.binfo.bsig
+        except AttributeError:
+            self.binfo = self.gen_binfo(calc)
+            return self.binfo.bsig
+
+    def gen_binfo(self, calc):
+        """
+        Generate a node's build signature, the digested signatures
+        of its dependency files and build information.
+
+        node - the node whose sources will be collected
+        cache - alternate node to use for the signature cache
+        returns - the build signature
+
+        This no longer handles the recursive descent of the
+        node's children's signatures.  We expect that they're
+        already built and updated by someone else, if that's
+        what's wanted.
+        """
+
+        binfo = self.new_binfo()
+
+        children = self.children()
+
+        sigs = map(lambda n, c=calc: n.calc_signature(c), children)
+
+        binfo.bkids = map(str, children)
+        binfo.bkidsigs = sigs[:]
+
+        if self.has_builder():
+            executor = self.get_executor()
+            binfo.bact = str(executor)
+            binfo.bactsig = calc.module.signature(executor)
+            sigs.append(binfo.bactsig)
+
+        binfo.bsig = calc.module.collect(filter(None, sigs))
+
+        return binfo
+
+    def del_cinfo(self):
+        try:
+            del self.binfo.csig
+        except AttributeError:
+            pass
+
+    def calc_csig(self, calc):
+        try:
+            self.binfo
+        except:
+            self.binfo = self.new_binfo()
+        try:
+            return self.binfo.csig
+        except AttributeError:
+            self.binfo.csig = calc.module.signature(self)
+            self.store_info(self.binfo)
+            return self.binfo.csig
+
+    def store_info(self, obj):
         """Make the build signature permanent (that is, store it in the
         .sconsign file or equivalent)."""
         pass
 
-    def get_stored_binfo(self):
-        return (None, None, None, None, None)
-
-    def del_binfo(self):
-        """Delete the bsig from this node."""
-        for attr in ['bsig', 'bkids', 'bkidsigs', 'bact', 'bactsig']:
-            try:
-                delattr(self, attr)
-            except AttributeError:
-                pass
-
-    def get_csig(self):
-        """Get the signature of the node's content."""
-        try:
-            return self.csig
-        except AttributeError:
-            return None
-
-    def calc_csig(self, calc, cache=None):
-        """Return the node's content signature, calculating it first
-        if necessary.
-        """
-        if cache is None: cache = self
-        try:
-            return cache.csig
-        except AttributeError:
-            cache.csig = calc.csig(self, cache)
-            return cache.csig
-
-    def set_csig(self, csig):
-        """Set the signature of the node's content."""
-        self.csig = csig
-
-    def store_csig(self):
-        """Make the content signature permanent (that is, store it in the
-        .sconsign file or equivalent)."""
-        pass
-
-    def del_csig(self):
-        """Delete the csig from this node."""
-        try:
-            delattr(self, 'csig')
-        except AttributeError:
-            pass
-
-    def get_prevsiginfo(self):
-        """Fetch the previous signature information from the
-        .sconsign entry."""
-        return SCons.SConsign.Base.null_siginfo
-
-    def get_timestamp(self):
-        return 0
-
-    def store_timestamp(self):
-        """Make the timestamp permanent (that is, store it in the
-        .sconsign file or equivalent)."""
-        pass
-
-    def store_implicit(self):
-        """Make the implicit deps permanent (that is, store them in the
-        .sconsign file or equivalent)."""
-        pass
+    def get_stored_info(self):
+        return None
 
     def get_stored_implicit(self):
         """Fetch the stored implicit dependencies"""
@@ -735,13 +700,24 @@ class Node:
         return self.state
 
     def current(self, calc=None):
+        """Default check for whether the Node is current: unknown Node
+        subtypes are always out of date, so they will always get built."""
         return None
 
-    def rfile(self):
-        return self
+    def children_are_up_to_date(self, calc):
+        """Alternate check for whether the Node is current:  If all of
+        our children were up-to-date, then this Node was up-to-date, too.
 
-    def rstr(self):
-        return str(self)
+        The SCons.Node.Alias and SCons.Node.Python.Value subclasses
+        rebind their current() method to this method."""
+        # Allow the children to calculate their signatures.
+        self.binfo = self.gen_binfo(calc)
+        state = 0
+        for kid in self.children(None):
+            s = kid.get_state()
+            if s and (not state or s > state):
+                state = s
+        return (state == 0 or state == SCons.Node.up_to_date)
 
     def is_literal(self):
         """Always pass the string representation of a Node to
@@ -826,7 +802,53 @@ class Node:
         if no new functionality is needed for Environment substitution.
         """
         return self
-        
+
+    def explain(self):
+        if not self.exists():
+            return "building `%s' because it doesn't exist\n" % self
+
+        old = self.get_stored_info()
+        if old is None:
+            return None
+
+        def dictify(kids, sigs):
+            result = {}
+            for k, s in zip(kids, sigs):
+                result[k] = s
+            return result
+
+        osig = dictify(old.bkids, old.bkidsigs)
+
+        newkids = map(str, self.binfo.bkids)
+        nsig = dictify(newkids, self.binfo.bkidsigs)
+
+        lines = map(lambda x: "`%s' is no longer a dependency\n" % x,
+                    filter(lambda x, nk=newkids: not x in nk, old.bkids))
+
+        for k in newkids:
+            if not k in old.bkids:
+                lines.append("`%s' is a new dependency\n" % k)
+            elif osig[k] != nsig[k]:
+                lines.append("`%s' changed\n" % k)
+
+        if len(lines) == 0:
+            newact, newactsig = self.binfo.bact, self.binfo.bactsig
+            if old.bact != newact:
+                lines.append("the build action changed:\n" +
+                             "%sold: %s\n" % (' '*15, old.bact) +
+                             "%snew: %s\n" % (' '*15, newact))
+
+        if len(lines) == 0:
+            lines.append("the dependency order changed:\n" +
+                         "%sold: %s\n" % (' '*15, old.bkids) +
+                         "%snew: %s\n" % (' '*15, newkids))
+
+        preamble = "rebuilding `%s' because" % self
+        if len(lines) == 1:
+            return "%s %s"  % (preamble, lines[0])
+        else:
+            lines = ["%s:\n" % preamble] + lines
+            return string.join(lines, ' '*11)
 
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass

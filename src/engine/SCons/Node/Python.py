@@ -30,7 +30,6 @@ Python nodes.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Node
-import time
 
 class Value(SCons.Node.Node):
     """A class for Python variables, typically passed on the command line 
@@ -39,7 +38,6 @@ class Value(SCons.Node.Node):
     def __init__(self, value):
         SCons.Node.Node.__init__(self)
         self.value = value
-        self.timestamp = time.time()
 
     def __str__(self):
         return repr(self.value)
@@ -48,20 +46,7 @@ class Value(SCons.Node.Node):
         """A "builder" for Values."""
         pass
 
-    def current(self, calc):
-        """If all of our children were up-to-date, then this
-        Value was up-to-date, too."""
-        # Allow the children to calculate their signatures.
-        calc.bsig(self)
-        state = 0
-        for kid in self.children(None):
-            s = kid.get_state()
-            if s and (not state or s > state):
-                state = s
-        if state == 0 or state == SCons.Node.up_to_date:
-            return 1
-        else:
-            return 0
+    current = SCons.Node.Node.children_are_up_to_date
 
     def is_under(self, dir):
         # Make Value nodes get built regardless of 
@@ -77,5 +62,17 @@ class Value(SCons.Node.Node):
             contents = contents + kid.get_contents()
         return contents
 
-    def get_timestamp(self):
-        return self.timestamp
+    def calc_csig(self, calc):
+        """Because we're a Python value node and don't have a real
+        timestamp, we get to ignore the calculator and just use the
+        value contents."""
+        try:
+            self.binfo
+        except:
+            self.binfo = self.new_binfo()
+        try:
+            return self.binfo.csig
+        except AttributeError:
+            self.binfo.csig = self.get_contents()
+            self.store_info(self.binfo)
+            return self.binfo.csig

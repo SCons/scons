@@ -100,7 +100,7 @@ class Builder:
 
     def targets(self, t):
         return [t]
-    
+
     def source_factory(self, name):
         return self.factory(name)
 
@@ -161,7 +161,7 @@ class BuildDirTestCase(unittest.TestCase):
 
         # A source file in the repository
         test.write([ 'rep1', 'src', 'test2.in' ], 'test2.in')
-        
+
         # Some source files in the build directory
         test.write([ 'work', 'build', 'var2', 'test.in' ], 'test.old')
         test.write([ 'work', 'build', 'var2', 'test2.in' ], 'test2.old')
@@ -173,7 +173,7 @@ class BuildDirTestCase(unittest.TestCase):
         # And just in case we are weird, a derived file in the source
         # dir.
         test.write([ 'work', 'src', 'test.out' ], 'test.out.src')
-        
+
         # A derived file in the repository
         test.write([ 'rep1', 'build', 'var1', 'test2.out' ], 'test2.out_rep')
         test.write([ 'rep1', 'build', 'var2', 'test2.out' ], 'test2.out_rep')
@@ -194,7 +194,7 @@ class BuildDirTestCase(unittest.TestCase):
         f2out_2 = fs.File('build/var2/test2.out')
         f2out_2.builder = 1
         fs.Repository(test.workpath('rep1'))
-        
+
         assert f1.srcnode().path == os.path.normpath('src/test.in'),\
                f1.srcnode().path
         # str(node) returns source path for duplicate = 0
@@ -354,7 +354,7 @@ class BuildDirTestCase(unittest.TestCase):
 
         finally:
             SCons.Node.FS.Link = save_Link
-        
+
         # Test to see if Link() works...
         test.subdir('src','build')
         test.write('src/foo', 'src/foo\n')
@@ -472,7 +472,7 @@ class BuildDirTestCase(unittest.TestCase):
             assert 0, "Expected exception when passing an invalid duplicate to set_duplicate"
         except SCons.Errors.InternalError:
             pass
-            
+
         for duplicate in SCons.Node.FS.Valid_Duplicates:
             simulator = LinkSimulator(duplicate)
 
@@ -526,7 +526,7 @@ class BuildDirTestCase(unittest.TestCase):
 class FSTestCase(unittest.TestCase):
     def runTest(self):
         """Test FS (file system) Node operations
-        
+
         This test case handles all of the file system node
         tests in one environment, so we don't have to set up a
         complicated directory structure for each test individually.
@@ -813,30 +813,6 @@ class FSTestCase(unittest.TestCase):
         match(e5.path_, "e3/e5")
         match(e5.dir.path, "e3")
 
-        e8 = fs.Entry("e8")
-        assert e8.get_bsig() is None, e8.get_bsig()
-        assert e8.get_csig() is None, e8.get_csig()
-        e8.set_binfo('xxx', [], [], [], [])
-        e8.set_csig('yyy')
-        assert e8.get_bsig() == 'xxx', e8.get_bsig()
-        assert e8.get_csig() == 'yyy', e8.get_csig()
-
-        f9 = fs.File("f9")
-        assert f9.get_bsig() is None, f9.get_bsig()
-        assert f9.get_csig() is None, f9.get_csig()
-        f9.set_binfo('xxx', [], [], [], [])
-        f9.set_csig('yyy')
-        assert f9.get_bsig() == 'xxx', f9.get_bsig()
-        assert f9.get_csig() == 'yyy', f9.get_csig()
-
-        d10 = fs.Dir("d10")
-        assert d10.get_bsig() is None, d10.get_bsig()
-        assert d10.get_csig() is None, d10.get_csig()
-        d10.set_binfo('xxx', [], [], [], [])
-        d10.set_csig('yyy')
-        assert d10.get_bsig() is None, d10.get_bsig()
-        assert d10.get_csig() is None, d10.get_csig()
-
         fs.chdir(fs.Dir('subdir'))
         f11 = fs.File("f11")
         match(f11.path, "subdir/f11")
@@ -860,8 +836,6 @@ class FSTestCase(unittest.TestCase):
         f1.implicit = None
         f1.scan()
         assert f1.implicit[0].path_ == "xyz"
-        f1.store_implicit()
-        assert f1.get_stored_implicit()[0] == "xyz"
 
         # Test underlying scanning functionality in get_found_includes()
         env = Environment()
@@ -918,7 +892,7 @@ class FSTestCase(unittest.TestCase):
         assert fs.getcwd().path == 'subdir', fs.getcwd().path
         fs.chdir(fs.Dir('../..'))
         assert fs.getcwd().path == test.workdir, fs.getcwd().path
-        
+
         f1 = fs.File(test.workpath("do_i_exist"))
         assert not f1.exists()
         test.write("do_i_exist","\n")
@@ -1047,8 +1021,6 @@ class FSTestCase(unittest.TestCase):
         t = d.get_timestamp()
         assert t == t2, "expected %f, got %f" % (t2, t)
 
-        #XXX test get_prevsiginfo()
-
         skey = fs.Entry('eee.x').scanner_key()
         assert skey == '.x', skey
         skey = fs.Entry('eee.xyz').scanner_key()
@@ -1070,7 +1042,7 @@ class FSTestCase(unittest.TestCase):
 
         test.write("i_am_not_a_directory", "\n")
         try:
-            exc_caught = 0        
+            exc_caught = 0
             try:
                 fs.Dir(test.workpath("i_am_not_a_directory"))
             except TypeError:
@@ -1120,7 +1092,7 @@ class FSTestCase(unittest.TestCase):
         fp = open(test.workpath('can_not_remove'))
 
         f = fs.File('can_not_remove')
-        exc_caught = 0 
+        exc_caught = 0
         try:
             r = f.remove()
         except OSError:
@@ -1205,11 +1177,16 @@ class EntryTestCase(unittest.TestCase):
 
         class MyCalc:
             def __init__(self, val):
-                self.val = val
-            def csig(self, node, cache):
-                return self.val
-            def bsig(self, node, cache):
-                return self.val + 222
+                self.max_drift = 0
+                class M:
+                    def __init__(self, val):
+                        self.val = val
+                    def collect(self, args):
+                        return reduce(lambda x, y: x+y, args)
+                    def signature(self, executor):
+                        return self.val + 222
+                self.module = M(val)
+
         test.subdir('e5d')
         test.write('e5f', "e5f\n")
 
@@ -1221,7 +1198,7 @@ class EntryTestCase(unittest.TestCase):
         e5f = fs.Entry('e5f')
         sig = e5f.calc_signature(MyCalc(666))
         assert e5f.__class__ is SCons.Node.FS.File, e5f.__class__
-        assert sig == 666, sig
+        assert sig == 888, sig
 
         e5n = fs.Entry('e5n')
         sig = e5n.calc_signature(MyCalc(777))
@@ -1334,14 +1311,14 @@ class RepositoryTestCase(unittest.TestCase):
         assert list == ['d3', str(work_d4)], list
 
         fs.BuildDir('build', '.')
-        
+
         f = fs.File(test.workpath("work", "i_do_not_exist"))
         assert not f.rexists()
-        
+
         test.write(["rep2", "i_exist"], "\n")
         f = fs.File(test.workpath("work", "i_exist"))
         assert f.rexists()
-        
+
         test.write(["work", "i_exist_too"], "\n")
         f = fs.File(test.workpath("work", "i_exist_too"))
         assert f.rexists()
@@ -1391,9 +1368,9 @@ class find_fileTestCase(unittest.TestCase):
         node_pseudo = fs.File(test.workpath('pseudo'))
         node_pseudo.set_src_builder(1) # Any non-zero value.
         paths = map(fs.Dir, ['.', './bar'])
-        nodes = [SCons.Node.FS.find_file('foo', paths, fs.File), 
+        nodes = [SCons.Node.FS.find_file('foo', paths, fs.File),
                  SCons.Node.FS.find_file('baz', paths, fs.File),
-                 SCons.Node.FS.find_file('pseudo', paths, fs.File)] 
+                 SCons.Node.FS.find_file('pseudo', paths, fs.File)]
         file_names = map(str, nodes)
         file_names = map(os.path.normpath, file_names)
         assert os.path.normpath('./foo') in file_names, file_names
@@ -1652,7 +1629,8 @@ class CacheDirTestCase(unittest.TestCase):
         SCons.Sig.MD5.collect = my_collect
         try:
             f5 = fs.File("cd.f5")
-            f5.set_binfo('a_fake_bsig', [], [], [], [])
+            f5.binfo = f5.new_binfo()
+            f5.binfo.bsig = 'a_fake_bsig'
             cp = f5.cachepath()
             dirname = os.path.join('cache', 'A')
             filename = os.path.join(dirname, 'a_fake_bsig')
@@ -1662,7 +1640,7 @@ class CacheDirTestCase(unittest.TestCase):
 
         # Verify that no bsig raises an InternalERror
         f6 = fs.File("cd.f6")
-        f6.set_binfo(None, [], [], [], [])
+        f6.binfo = f6.new_binfo()
         exc_caught = 0
         try:
             cp = f6.cachepath()
@@ -1686,7 +1664,8 @@ class CacheDirTestCase(unittest.TestCase):
             cd_f7 = test.workpath("cd.f7")
             test.write(cd_f7, "cd.f7\n")
             f7 = fs.File(cd_f7)
-            f7.set_bsig('f7_bsig')
+            f7.binfo = f7.new_binfo()
+            f7.binfo.bsig = 'f7_bsig'
 
             warn_caught = 0
             try:

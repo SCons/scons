@@ -191,53 +191,9 @@ class BuildTask(SCons.Taskmaster.Task):
         """Make a task ready for execution"""
         SCons.Taskmaster.Task.make_ready(self)
         if self.out_of_date and print_explanations:
-            node = self.out_of_date[0]
-            if not node.exists():
-                sys.stdout.write("scons: building `%s' because it doesn't exist\n" % node)
-                return
-
-            oldbsig, oldkids, oldsigs, oldact, oldactsig = node.get_stored_binfo()
-            if oldkids is None:
-                return
-
-            def dictify(kids, sigs):
-                result = {}
-                for k, s in zip(kids, sigs):
-                    result[k] = s
-                return result
-
-            osig = dictify(oldkids, oldsigs)
-
-            newkids, newsigs = map(str, node.bkids), node.bkidsigs
-            nsig = dictify(newkids, newsigs)
-
-            lines = map(lambda x: "`%s' is no longer a dependency\n" % x,
-                        filter(lambda x, nk=newkids: not x in nk, oldkids))
-
-            for k in newkids:
-                if not k in oldkids:
-                    lines.append("`%s' is a new dependency\n" % k)
-                elif osig[k] != nsig[k]:
-                    lines.append("`%s' changed\n" % k)
-
-            if len(lines) == 0:
-                newact, newactsig = node.bact, node.bactsig
-                if oldact != newact:
-                    lines.append("the build action changed:\n" +
-                                 "%sold: %s\n" % (' '*15, oldact) +
-                                 "%snew: %s\n" % (' '*15, newact))
-
-            if len(lines) == 0:
-                lines.append("the dependency order changed:\n" +
-                             "%sold: %s\n" % (' '*15, oldkids) +
-                             "%snew: %s\n" % (' '*15, newkids))
-
-            preamble = "scons: rebuilding `%s' because" % node
-            if len(lines) == 1:
-                sys.stdout.write("%s %s"  % (preamble, lines[0]))
-            else:
-                lines = ["%s:\n" % preamble] + lines
-                sys.stdout.write(string.join(lines, ' '*11))
+            explanation = self.out_of_date[0].explain()
+            if explanation:
+                sys.stdout.write("scons: " + explanation)
 
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""

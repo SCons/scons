@@ -3584,8 +3584,10 @@ about whether targets are up-to-date.
 is the MD5 checksum of its contents.
 "timestamp" means the signature of a source file
 is its timestamp (modification time).
-When using "timestamp" signatures,
-changes in the command line will not cause files to be rebuilt.
+There is no different between the two behaviors
+for Python
+.BR Value ()
+node objects.
 "MD5" signatures take longer to compute,
 but are more accurate than "timestamp" signatures.
 The default is "MD5".
