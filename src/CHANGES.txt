@@ -264,6 +264,10 @@ RELEASE 0.97 - XXX
   - Python Function actions now have their calling signature (target,
     source, env) reported correctly when displayed.
 
+  - Fix BuildDir()/build_dir handling when the build_dir is underneath
+    the source directory and trying to use entries from the build_dir
+    as sources for other targets in the build-dir.
+
   From Levi Stephen:
 
   - Allow $JARCHDIR to be expanded to other construction variables.
