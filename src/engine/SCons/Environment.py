@@ -245,7 +245,7 @@ class SubstitutionEnvironment:
     def __init__(self, **kw):
         """Initialization of an underlying SubstitutionEnvironment class.
         """
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Environment.SubstitutionEnvironment')
         self.fs = SCons.Node.FS.default_fs
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
@@ -478,7 +478,7 @@ class Base(SubstitutionEnvironment):
         initialize things in a very specific order that doesn't work
         with the much simpler base class initialization.
         """
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Environment.Base')
         self.fs = SCons.Node.FS.default_fs
         self.ans = SCons.Node.Alias.default_ans
         self.lookup_list = SCons.Node.arg2nodes_lookups
@@ -730,7 +730,7 @@ class Base(SubstitutionEnvironment):
         for key, value in kw.items():
             new[key] = SCons.Util.scons_subst_once(value, self, key)
         apply(clone.Replace, (), new)
-        if __debug__: logInstanceCreation(self, 'EnvironmentCopy')
+        if __debug__: logInstanceCreation(self, 'Environment.EnvironmentCopy')
         return clone
 
     def Detect(self, progs):
@@ -1423,7 +1423,7 @@ class OverrideEnvironment(SubstitutionEnvironment):
     __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self, subject, overrides={}):
-        if __debug__: logInstanceCreation(self, 'OverrideEnvironment')
+        if __debug__: logInstanceCreation(self, 'Environment.OverrideEnvironment')
         self.__dict__['__subject'] = subject
         self.__dict__['overrides'] = overrides
 

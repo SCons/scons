@@ -51,7 +51,19 @@ for k in c1.keys():
     try:
         common[k] = (c1[k], c2[k])
     except KeyError:
-        pass
+        # Transition:  we added the module to the names of a bunch of
+        # the logged objects.  Assume that c1 might be from an older log
+        # without the modules in the names, and look for an equivalent
+        # in c2.
+        if not '.' in k:
+            s = '.'+k
+            l = len(s)
+            for k2 in c2.keys():
+                if k2[-l:] == s:
+                    common[k2] = (c1[k], c2[k2])
+                    del c1[k]
+                    del c2[k2]
+                    break
     else:
         del c1[k]
         del c2[k]

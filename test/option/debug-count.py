@@ -59,11 +59,28 @@ test.write('file.in', "file.in\n")
 test.run(arguments = "--debug=count")
 stdout = test.stdout()
 
-test.fail_test(re.search('\d+ +\d+ +\d+ +\d+   BuilderBase', stdout) is None)
-test.fail_test(re.search('\d+ +\d+ +\d+ +\d+   FS', stdout) is None)
-test.fail_test(re.search('\d+ +\d+ +\d+ +\d+   Node', stdout) is None)
-test.fail_test(re.search('\d+ +\d+ +\d+ +\d+   SConsEnvironment', stdout) is None)
+def find_object_count(s, stdout):
+    re_string = '\d+ +\d+ +\d+ +\d+   %s' % re.escape(s)
+    return re.search(re_string, stdout)
 
+objects = [
+    'Action.CommandAction',
+    'Builder.BuilderBase',
+    'Environment.Base',
+    'Executor.Executor',
+    'Node.FS',
+    'Node.FS.Base',
+    'Node.Node',
+]
+
+missing = filter(lambda o: find_object_count(o, stdout) is None, objects)
+
+if missing:
+    print "Missing the following object lines:"
+    print "\t", string.join(missing)
+    print "STDOUT =========="
+    print stdout
+    test.fail_test(1)
 
 
 test.pass_test()

@@ -222,7 +222,7 @@ class OverrideWarner(UserDict.UserDict):
     """
     def __init__(self, dict):
         UserDict.UserDict.__init__(self, dict)
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Builder.OverrideWarner')
         self.already_warned = None
     def warn(self):
         if self.already_warned:
@@ -396,7 +396,7 @@ class BuilderBase:
                         chdir = _null,
                         is_explicit = 1,
                         **overrides):
-        if __debug__: logInstanceCreation(self, 'BuilderBase')
+        if __debug__: logInstanceCreation(self, 'Builder.BuilderBase')
         self.action = SCons.Action.Action(action)
         self.multi = multi
         if SCons.Util.is_Dict(prefix):
@@ -648,7 +648,7 @@ class ListBuilder(SCons.Util.Proxy):
     """
 
     def __init__(self, builder, env, tlist):
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Builder.ListBuilder')
         SCons.Util.Proxy.__init__(self, builder)
         self.builder = builder
         self.target_scanner = builder.target_scanner
@@ -690,7 +690,7 @@ class MultiStepBuilder(BuilderBase):
                         source_scanner = None,
                         emitter=None,
                         single_source=0):
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Builder.MultiStepBuilder')
         BuilderBase.__init__(self, action, prefix, suffix, src_suffix,
                              target_factory, source_factory,
                              target_scanner, source_scanner, emitter,
@@ -774,7 +774,7 @@ class CompositeBuilder(SCons.Util.Proxy):
     """
 
     def __init__(self, builder, cmdgen):
-        if __debug__: logInstanceCreation(self)
+        if __debug__: logInstanceCreation(self, 'Builder.CompositeBuilder')
         SCons.Util.Proxy.__init__(self, builder)
 
         # cmdgen should always be an instance of DictCmdGenerator.
