@@ -179,7 +179,7 @@ def createLoadableModuleBuilder(env):
     """
 
     try:
-        loadable_module = env['BUILDERS']['LoadableModule']
+        ld_module = env['BUILDERS']['LoadableModule']
     except KeyError:
         action_list = [ SCons.Defaults.SharedCheck,
                         SCons.Defaults.LdModuleLinkAction ]

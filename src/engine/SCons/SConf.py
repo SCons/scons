@@ -326,17 +326,13 @@ class SConf:
     """
 
     def __init__(self, env, custom_tests = {}, conf_dir='#/.sconf_temp',
-                 log_file='#/config.log', config_h = None,
-                 called_from_env_method = 0): 
+                 log_file='#/config.log', config_h = None, _depth = 0): 
         """Constructor. Pass additional tests in the custom_tests-dictinary,
         e.g. custom_tests={'CheckPrivate':MyPrivateTest}, where MyPrivateTest
         defines a custom test.
         Note also the conf_dir and log_file arguments (you may want to
         build tests in the BuildDir, not in the SourceDir)
         """
-        import SCons.Script.SConscript
-        if not SCons.Script.SConscript.sconscript_reading:
-            raise SCons.Errors.UserError, "Calling Configure from Builders is not supported."
         global SConfFS
         if not SConfFS:
             SConfFS = SCons.Node.FS.FS(SCons.Node.FS.default_fs.pathTop)
@@ -350,7 +346,7 @@ class SConf:
             self.logfile = None
         self.logstream = None
         self.lastTarget = None
-        self.called_from_env_method = called_from_env_method
+        self.depth = _depth
         self.cached = 0 # will be set, if all test results are cached
 
         # add default tests
@@ -603,7 +599,7 @@ class SConf:
             # existing file with the same name in the source directory
             self.logfile.dir.add_ignore( [self.logfile] )
 
-            tb = traceback.extract_stack()[-3-self.called_from_env_method]
+            tb = traceback.extract_stack()[-3-self.depth]
             old_fs_dir = SConfFS.getcwd()
             SConfFS.chdir(SConfFS.Top, change_os_dir=0)
             self.logstream.write('file %s,line %d:\n\tConfigure(confdir = %s)\n' %
@@ -870,5 +866,3 @@ def CheckLibWithHeader(context, libs, header, language,
             call = call, language = language, autoadd = autoadd)
     context.did_show_result = 1
     return not res
-
-    

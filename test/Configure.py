@@ -85,6 +85,10 @@ def checklib(lang, name, up_to_date):
     elif lang == 'C++':
         return (".cc", _obj, _exe)
 
+class NoMatch:
+    def __init__(self, p):
+        self.pos = p
+
 NCR = 0 # non-cached rebuild
 CR  = 1 # cached rebuild (up to date)
 NCF = 2 # non-cached build failure
@@ -93,10 +97,6 @@ CF  = 3 # cached build failure
 def checkLogAndStdout(checks, results, cached,
                       test, logfile, sconf_dir, sconstruct,
                       doCheckLog=1, doCheckStdout=1):
-    class NoMatch:
-        def __init__(self, p):
-            self.pos = p
-            
     def matchPart(log, logfile, lastEnd):
         m = re.match(log, logfile[lastEnd:])
         if not m:
