@@ -32,7 +32,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--list-actions',
+test.run(arguments = '--list-actions .',
 	 stderr = "Warning:  the --list-actions option is not yet implemented\n")
 
 test.pass_test()

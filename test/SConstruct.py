@@ -29,11 +29,13 @@ import TestSCons
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
-test.run(stdout = "",
-	stderr = r"""
+test.run(arguments = ".",
+         status = 2,
+         stdout = "",
+         stderr = r"""
 SCons error: No SConstruct file found.
 File "\S+", line \d+, in \S+
-""", status=2)
+""")
 
 test.match_func = TestCmd.match_exact
 
@@ -44,20 +46,21 @@ import os
 print "sconstruct", os.getcwd()
 """)
 
-test.run(stdout = "sconstruct %s\n" % wpath)
+test.run(arguments = ".", stdout = 'sconstruct %s\nscons: "." is up to date.\n' % wpath)
+
 
 test.write('Sconstruct', """
 import os
 print "Sconstruct", os.getcwd()
 """)
 
-test.run(stdout = "Sconstruct %s\n" % wpath)
+test.run(arguments = ".", stdout = 'Sconstruct %s\nscons: "." is up to date.\n' % wpath)
 
 test.write('SConstruct', """
 import os
 print "SConstruct", os.getcwd()
 """)
 
-test.run(stdout = "SConstruct %s\n" % wpath)
+test.run(arguments = ".", stdout = 'SConstruct %s\nscons: "." is up to date.\n' % wpath)
 
 test.pass_test()

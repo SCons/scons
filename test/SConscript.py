@@ -208,6 +208,8 @@ Return("result")
 
 wpath = test.workpath()
 
-test.run(stdout = "SConstruct %s\nSConscript %s\n" % (wpath, wpath))
+test.run(arguments = ".",
+         stdout = 'SConstruct %s\nSConscript %s\nscons: "." is up to date.\n' % (wpath, wpath))
+
 
 test.pass_test()

@@ -32,7 +32,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--no-print-directory',
+test.run(arguments = '--no-print-directory .',
 	 stderr = "Warning:  the --no-print-directory option is not yet implemented\n")
 
 test.pass_test()

@@ -36,16 +36,16 @@ test.write("SConstruct","""
 b=Builder(name='b', action='foo')
 """)
 
-test.run(arguments='', stderr=r"""
+test.run(arguments='.', stderr=r"""
 SCons warning: The use of the 'name' parameter to Builder\(\) is deprecated\.
 File "SConstruct", line 2, in \?
 """)
 
-test.run(arguments='--warn=no-deprecated', stderr='')
+test.run(arguments='--warn=no-deprecated .', stderr='')
 
-test.run(arguments='--warn=no-all', stderr='')
+test.run(arguments='--warn=no-all .', stderr='')
 
-test.run(arguments='--warn=no-all --warn=deprecated', stderr=r"""
+test.run(arguments='--warn=no-all --warn=deprecated .', stderr=r"""
 SCons warning: The use of the 'name' parameter to Builder\(\) is deprecated\.
 File "SConstruct", line 2, in \?
 """)

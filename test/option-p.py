@@ -32,7 +32,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-p',
+test.run(arguments = '-p .',
 	 stderr = "Warning:  the -p option is not yet implemented\n")
 
 test.pass_test()

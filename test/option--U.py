@@ -85,7 +85,7 @@ test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 test.unlink(['sub1', 'foo.out'])
 
 test.write('SConscript', """assert GetLaunchDir() == r'%s'"""%test.workpath('sub1'))
-test.run(arguments = '-U', chdir = 'sub1')
+test.run(arguments = '-U', chdir = 'sub1', stderr = None, status = 2)
 test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
 test.fail_test(os.path.exists(test.workpath('sub2', 'bar.out')))
 test.fail_test(os.path.exists(test.workpath('sub2b', 'bar.out')))

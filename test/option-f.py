@@ -45,38 +45,39 @@ print "subdir/BuildThis", os.getcwd()
 
 wpath = test.workpath()
 
-test.run(arguments = '-f SConscript',
-	 stdout = "SConscript %s\n" % wpath)
+test.run(arguments = '-f SConscript .',
+	 stdout = 'SConscript %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '-f ' + subdir_BuildThis,
-	 stdout = "subdir/BuildThis %s\n" % wpath)
 
-test.run(arguments = '--file=SConscript',
-	 stdout = "SConscript %s\n" % wpath)
+test.run(arguments = '-f %s .' % subdir_BuildThis,
+	 stdout = 'subdir/BuildThis %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '--file=' + subdir_BuildThis,
-	 stdout = "subdir/BuildThis %s\n" % wpath)
+test.run(arguments = '--file=SConscript .',
+	 stdout = 'SConscript %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '--makefile=SConscript',
-	 stdout = "SConscript %s\n" % wpath)
+test.run(arguments = '--file=%s .' % subdir_BuildThis,
+	 stdout = 'subdir/BuildThis %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '--makefile=' + subdir_BuildThis,
-	 stdout = "subdir/BuildThis %s\n" % wpath)
+test.run(arguments = '--makefile=SConscript .',
+	 stdout = 'SConscript %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '--sconstruct=SConscript',
-	 stdout = "SConscript %s\n" % wpath)
+test.run(arguments = '--makefile=%s .' % subdir_BuildThis,
+	 stdout = 'subdir/BuildThis %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '--sconstruct=' + subdir_BuildThis,
-	 stdout = "subdir/BuildThis %s\n" % wpath)
+test.run(arguments = '--sconstruct=SConscript .',
+	 stdout = 'SConscript %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '-f -', stdin = """
+test.run(arguments = '--sconstruct=%s .' % subdir_BuildThis,
+	 stdout = 'subdir/BuildThis %s\nscons: "." is up to date.\n' % wpath)
+
+test.run(arguments = '-f - .', stdin = """
 import os
 print "STDIN " + os.getcwd()
 """,
-	 stdout = "STDIN %s\n" % wpath)
+	 stdout = 'STDIN %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '-f no_such_file',
-	 stdout = "",
+test.run(arguments = '-f no_such_file .',
+	 stdout = 'scons: "." is up to date.\n',
 	 stderr = "Ignoring missing SConscript 'no_such_file'\n")
 
 test.pass_test()

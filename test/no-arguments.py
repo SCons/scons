@@ -24,22 +24,36 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
+
 import TestSCons
-import string
-import sys
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', "")
+test.write('SConstruct', r"""
+def cat(env, source, target):
+    target = str(target[0])
+    source = map(str, source)
+    print 'cat(%s) > %s' % (source, target)
+    f = open(target, "wb")
+    for src in source:
+        f.write(open(src, "rb").read())
+    f.close()
 
-test.run(arguments = '-l 1 .',
-	 stderr = "Warning:  the -l option is not yet implemented\n")
+env = Environment(BUILDERS={'Build':Builder(action=cat)})
+env.Build('aaa.out', 'aaa.in')
+""")
 
-test.run(arguments = '--load-average=1 .',
-	 stderr = "Warning:  the --load-average option is not yet implemented\n")
+test.write('aaa.in', "aaa.in\n")
 
-test.run(arguments = '--max-load=1 .',
-	 stderr = "Warning:  the --max-load option is not yet implemented\n")
+#
+test.run(arguments = '.')
 
+test.fail_test(test.read('aaa.out') != "aaa.in\n")
+
+#
+test.run(status = 2, stderr =
+"scons: *** No targets specified and no Default() targets found.  Stop.\n")
+
+#
 test.pass_test()
- 

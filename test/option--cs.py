@@ -32,7 +32,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--cache-show',
+test.run(arguments = '--cache-show .',
 	 stderr = "Warning:  the --cache-show option is not yet implemented\n")
 
 test.pass_test()

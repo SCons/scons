@@ -32,10 +32,10 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-r',
+test.run(arguments = '-r .',
 	 stderr = "Warning:  the -r option is not yet implemented\n")
 
-test.run(arguments = '--no-builtin-rules',
+test.run(arguments = '--no-builtin-rules .',
 	 stderr = "Warning:  the --no-builtin-rules option is not yet implemented\n")
 
 test.pass_test()

@@ -56,9 +56,10 @@ test 2
 
 test 4
 
+scons: "." is up to date.
 """
 
-test.run(stdout = expect)
+test.run(arguments = ".", stdout = expect)
 
 test.pass_test()
 

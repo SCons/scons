@@ -26,6 +26,9 @@ RELEASE 0.09 -
 
  - Suport the Intel Fortran Compiler (ifl.exe).
 
+ - Supply an error message if there are no command-line or
+   Default() targets specified.
+
  From Anthony Roach:
 
  - Fixed use of command lines with spaces in their arguments,

@@ -42,7 +42,7 @@ try:
 except:
     print 'There is no fortran compiler.'
 """)
-test.run()
+test.run(arguments = ".")
 f77 = test.where_is(test.stdout()[:-1])
 test.unlink('SConstruct')
 

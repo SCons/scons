@@ -32,10 +32,10 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-t',
+test.run(arguments = '-t .',
 	 stderr = "Warning:  ignoring -t option\n")
 
-test.run(arguments = '--touch',
+test.run(arguments = '--touch .',
 	 stderr = "Warning:  ignoring --touch option\n")
 
 test.pass_test()

@@ -32,7 +32,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--random',
+test.run(arguments = '--random .',
 	 stderr = "Warning:  the --random option is not yet implemented\n")
 
 test.pass_test()

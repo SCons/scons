@@ -980,6 +980,10 @@ def _main():
     if not targets:
         targets = SCons.Script.SConscript.default_targets
 
+    if not targets:
+        sys.stderr.write("scons: *** No targets specified and no Default() targets found.  Stop.\n")
+        sys.exit(2)
+
     def Entry(x, top = target_top):
         if isinstance(x, SCons.Node.Node):
             node = x

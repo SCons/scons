@@ -32,10 +32,10 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '-e',
+test.run(arguments = '-e .',
 	 stderr = "Warning:  the -e option is not yet implemented\n")
 
-test.run(arguments = '--environment-overrides',
+test.run(arguments = '--environment-overrides .',
 	 stderr = "Warning:  the --environment-overrides option is not yet implemented\n")
 
 test.pass_test()

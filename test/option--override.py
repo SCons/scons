@@ -32,7 +32,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', "")
 
-test.run(arguments = '--override=foo',
+test.run(arguments = '--override=foo .',
 	 stderr = "Warning:  the --override option is not yet implemented\n")
 
 test.pass_test()

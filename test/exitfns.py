@@ -46,7 +46,8 @@ register(x3, "no kwd args")
 
 """
 
-expected_output = """running x3('no kwd args', kwd=None)
+expected_output = """scons: "." is up to date.
+running x3('no kwd args', kwd=None)
 running x3(5, kwd='bar')
 running x2(12)
 running x1
@@ -55,7 +56,7 @@ running x3('no kwd args', kwd=None)
 
 test.write('SConstruct', sconstruct)
 
-test.run(arguments='-f SConstruct', stdout = expected_output)
+test.run(arguments='-f SConstruct .', stdout = expected_output)
 
 test.write('SConstruct', """import sys
 def f():
@@ -64,6 +65,6 @@ def f():
 sys.exitfunc = f
 """ + sconstruct)
 
-test.run(arguments='-f SConstruct', stdout = expected_output)
+test.run(arguments='-f SConstruct .', stdout = expected_output)
 
 test.pass_test()

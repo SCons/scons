@@ -61,9 +61,10 @@ expect = """'.exe'
 '.lib'
 '.a'
 '.lib'
+scons: "." is up to date.
 """
 
-test.run(stdout = expect)
+test.run(arguments = ".", stdout = expect)
 
 test.pass_test()
 

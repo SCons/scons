@@ -65,19 +65,20 @@ import os
 print GetBuildPath('..')
 """)
 
-test.run(arguments = '-C sub',
-	 stdout = "%s\n" % wpath)
+test.run(arguments = '-C sub .',
+	 stdout = '%s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '-C sub -C dir',
-	 stdout = "%s\n" % wpath_sub)
+test.run(arguments = '-C sub -C dir .',
+	 stdout = '%s\nscons: "." is up to date.\n' % wpath_sub)
 
-test.run(stdout = "SConstruct %s\n" % wpath)
+test.run(arguments = ".",
+         stdout = 'SConstruct %s\nscons: "." is up to date.\n' % wpath)
 
-test.run(arguments = '--directory=sub/dir',
-	 stdout = "%s\n" % wpath_sub)
+test.run(arguments = '--directory=sub/dir .',
+	 stdout = '%s\nscons: "." is up to date.\n' % wpath_sub)
 
-test.run(arguments = '-C %s -C %s' % (wpath_sub_dir, wpath_sub),
-	 stdout = "%s\n" % wpath)
+test.run(arguments = '-C %s -C %s .' % (wpath_sub_dir, wpath_sub),
+	 stdout = '%s\nscons: "." is up to date.\n' % wpath)
 
 test.pass_test()
  
