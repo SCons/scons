@@ -186,12 +186,17 @@ def _concat(prefix, list, suffix, env, f=lambda x: x):
 
     return ret
 
-def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=_concat):
+def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=None):
     """This is a wrapper around _concat() that checks for the existence
     of prefixes or suffixes on list elements and strips them where it
     finds them.  This is used by tools (like the GNU linker) that need
     to turn something like 'libfoo.a' into '-lfoo'."""
     
+    if not callable(c):
+        if callable(env["_concat"]):
+            c = env["_concat"]
+        else:
+            c = _concat
     def f(list, sp=stripprefix, ss=stripsuffix):
         ret = []
         for l in list:
