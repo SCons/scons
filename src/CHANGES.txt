@@ -10,6 +10,11 @@
 
 RELEASE 0.11 - XXX
 
+  From Charles Crain:
+
+  - Added new AddPreAction() and AddPostAction() functions that support
+    taking additional actions before or after building specific targets.
+
   From Steven Knight:
 
   - Allow Python function Actions to specify a list of construction

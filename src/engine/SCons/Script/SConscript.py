@@ -30,6 +30,7 @@ files.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Action
 import SCons.Builder
 import SCons.Defaults
 import SCons.Environment
@@ -336,6 +337,16 @@ def Clean(target, files):
     else:
         clean_targets[s] = nodes
 
+def AddPreAction(files, action):
+    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
+    for n in nodes:
+        n.add_pre_action(SCons.Action.Action(action))
+
+def AddPostAction(files, action):
+    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
+    for n in nodes:
+        n.add_post_action(SCons.Action.Action(action))
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -344,6 +355,8 @@ def BuildDefaultGlobals():
 
     globals = {}
     globals['Action']            = SCons.Action.Action
+    globals['AddPostAction']     = AddPostAction
+    globals['AddPreAction']      = AddPreAction
     globals['ARGUMENTS']         = arguments
     globals['BuildDir']          = BuildDir
     globals['Builder']           = SCons.Builder.Builder

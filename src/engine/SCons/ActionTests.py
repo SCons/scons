@@ -234,6 +234,83 @@ class ActionBaseTestCase(unittest.TestCase):
         SOURCES.sort()
         assert SOURCES == ['rstr-s4', 's3'], d['SOURCES']
 
+    def test_add(self):
+        """Test adding Actions to stuff."""
+        # Adding actions to other Actions or to stuff that can
+        # be converted into an Action should produce a ListAction
+        # containing all the Actions.
+        def bar():
+            return None
+        baz = SCons.Action.CommandGenerator(bar)
+        act1 = SCons.Action.Action('foo bar')
+        act2 = SCons.Action.Action([ 'foo', bar ])
+
+        sum = act1 + act2
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 3, len(sum.list)
+        assert map(lambda x: isinstance(x, SCons.Action.ActionBase),
+                   sum.list) == [ 1, 1, 1 ]
+
+        sum = act1 + act1
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 2, len(sum.list)
+
+        sum = act2 + act2
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 4, len(sum.list)
+
+        # Should also be able to add command generators to each other
+        # or to actions
+        sum = baz + baz
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 2, len(sum.list)
+
+        sum = baz + act1
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 2, len(sum.list)
+
+        sum = act2 + baz
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 3, len(sum.list)
+
+        # Also should be able to add Actions to anything that can
+        # be converted into an action.
+        sum = act1 + bar
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 2, len(sum.list)
+        assert isinstance(sum.list[1], SCons.Action.FunctionAction)
+
+        sum = 'foo bar' + act2
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 3, len(sum.list)
+        assert isinstance(sum.list[0], SCons.Action.CommandAction)
+
+        sum = [ 'foo', 'bar' ] + act1
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 3, sum.list
+        assert isinstance(sum.list[0], SCons.Action.CommandAction)
+        assert isinstance(sum.list[1], SCons.Action.CommandAction)
+
+        sum = act2 + [ baz, bar ]
+        assert isinstance(sum, SCons.Action.ListAction), str(sum)
+        assert len(sum.list) == 4, len(sum.list)
+        assert isinstance(sum.list[2], SCons.Action.CommandGeneratorAction)
+        assert isinstance(sum.list[3], SCons.Action.FunctionAction)
+
+        try:
+            sum = act2 + 1
+        except TypeError:
+            pass
+        else:
+            assert 0, "Should have thrown a TypeError adding to an int."
+
+        try:
+            sum = 1 + act2
+        except TypeError:
+            pass
+        else:
+            assert 0, "Should have thrown a TypeError adding to an int."
+        
 class CommandActionTestCase(unittest.TestCase):
 
     def test_init(self):

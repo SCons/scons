@@ -31,7 +31,7 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "November 2002"
+.TH SCONS 1 "February 2003"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -2322,6 +2322,32 @@ build).
 .IR duplicate =0
 is usually safe, and is always more efficient than 
 .IR duplicate =1.
+
+.TP 
+.RI AddPostAction ( target, action )
+Arranges for the specified
+.I action
+to be performed
+after the specified
+.I target
+has been built.
+The specified action(s) may be
+an Action object, or anything that
+can be converted into an Action object
+(see below).
+
+.TP 
+.RI AddPreAction ( target, action )
+Arranges for the specified
+.I action
+to be performed
+before the specified
+.I target
+is built.
+The specified action(s) may be
+an Action object, or anything that
+can be converted into an Action object
+(see below).
 
 .TP 
 .RI Clean ( target, files_or_dirs )

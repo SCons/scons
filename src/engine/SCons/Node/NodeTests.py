@@ -37,14 +37,38 @@ built_it = None
 built_target =  None
 built_source =  None
 cycle_detected = None
+built_order = 0
 
 class MyAction:
+    def __init__(self):
+        self.order = 0
+        
     def __call__(self, target, source, env):
-        global built_it, built_target, built_source, built_args
+        global built_it, built_target, built_source, built_args, built_order
         built_it = 1
         built_target = target
         built_source = source
         built_args = env
+        built_order = built_order + 1
+        self.order = built_order
+        return 0
+
+class MyNonGlobalAction:
+    def __init__(self):
+        self.order = 0
+        self.built_it = None
+        self.built_target =  None
+        self.built_source =  None
+
+    def __call__(self, target, source, env):
+        # Okay, so not ENTIRELY non-global...
+        global built_order
+        self.built_it = 1
+        self.built_target = target
+        self.built_source = source
+        self.built_args = env
+        built_order = built_order + 1
+        self.order = built_order
         return 0
 
 class Builder:
@@ -116,7 +140,7 @@ class NodeTestCase(unittest.TestCase):
     def test_build(self):
         """Test building a node
         """
-        global built_it
+        global built_it, built_order
 
         # Make sure it doesn't blow up if no builder is set.
         node = MyNode("www")
@@ -159,7 +183,39 @@ class NodeTestCase(unittest.TestCase):
         ggg.path = "ggg"
         fff.sources = ["hhh", "iii"]
         ggg.sources = ["hhh", "iii"]
+        # [Charles C. 1/7/2002] Uhhh, why are there no asserts here?
 
+        built_it = None
+        built_order = 0
+        node = MyNode("xxx")
+        node.builder_set(Builder())
+        node.env_set(Environment())
+        node.sources = ["yyy", "zzz"]
+        pre1 = MyNonGlobalAction()
+        pre2 = MyNonGlobalAction()
+        post1 = MyNonGlobalAction()
+        post2 = MyNonGlobalAction()
+        node.add_pre_action(pre1)
+        node.add_pre_action(pre2)
+        node.add_post_action(post1)
+        node.add_post_action(post2)
+        node.build()
+        assert built_it
+        assert pre1.built_it
+        assert pre2.built_it
+        assert post1.built_it
+        assert post2.built_it
+        assert pre1.order == 1, pre1.order
+        assert pre2.order == 2, pre1.order
+        # The action of the builder itself is order 3...
+        assert post1.order == 4, pre1.order
+        assert post2.order == 5, pre1.order
+
+        for act in [ pre1, pre2, post1, post2 ]:
+            assert type(act.built_target[0]) == type(MyNode("bar")), type(act.built_target[0])
+            assert str(act.built_target[0]) == "xxx", str(act.built_target[0])
+            assert act.built_source == ["yyy", "zzz"], act.built_source
+            
     def test_depends_on(self):
         """Test the depends_on() method
         """

@@ -102,6 +102,8 @@ class Node:
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
         self.side_effect = 0 # true iff this node is a side effect
         self.side_effects = [] # the side effects of building this target
+        self.pre_actions = []
+        self.post_actions = []
 
     def generate_build_env(self):
         return self.env.Override(self.overrides)
@@ -115,7 +117,8 @@ class Node:
         """
         if not self.has_builder():
             return None
-        action_list = self.builder.get_actions()
+        action_list = self.pre_actions + self.builder.get_actions() + \
+                      self.post_actions
         if not action_list:
             return
         targets = self.builder.targets(self)
@@ -469,6 +472,16 @@ class Node:
         """Always pass the string representation of a Node to
         the command interpreter literally."""
         return 1
+
+    def add_pre_action(self, act):
+        """Adds an Action performed on this Node only before
+        building it."""
+        self.pre_actions.append(act)
+
+    def add_post_action(self, act):
+        """Adds and Action performed on this Node only after
+        building it."""
+        self.post_actions.append(act)
 
     def render_include_tree(self):
         """

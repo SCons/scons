@@ -64,6 +64,25 @@ def SetCommandHandler(func, escape = lambda x: x):
 def GetCommandHandler():
     raise SCons.Errors.UserError("GetCommandHandler() is no longer supported, use the SPAWN construction variable.")
 
+def _actionAppend(act1, act2):
+    # This function knows how to slap two actions together.
+    # Mainly, it handles ListActions by concatenating into
+    # a single ListAction.
+    a1 = Action(act1)
+    a2 = Action(act2)
+    if a1 is None or a2 is None:
+        raise TypeError, "Cannot append %s to %s" % (type(act1), type(act2))
+    if isinstance(a1, ListAction):
+        if isinstance(a2, ListAction):
+            return ListAction(a1.list + a2.list)
+        else:
+            return ListAction(a1.list + [ a2 ])
+    else:
+        if isinstance(a2, ListAction):
+            return ListAction([ a1 ] + a2.list)
+        else:
+            return ListAction([ a1, a2 ])
+
 class CommandGenerator:
     """
     Wraps a command generator function so the Action() factory
@@ -71,6 +90,12 @@ class CommandGenerator:
     """
     def __init__(self, generator):
         self.generator = generator
+
+    def __add__(self, other):
+        return _actionAppend(self, other)
+
+    def __radd__(self, other):
+        return _actionAppend(other, self)
 
 def _do_create_action(act, strfunction=_null, varlist=[]):
     """This is the actual "implementation" for the
@@ -177,6 +202,12 @@ class ActionBase:
             dict['SOURCE'] = dict['SOURCES'][0]
 
         return dict
+
+    def __add__(self, other):
+        return _actionAppend(self, other)
+
+    def __radd__(self, other):
+        return _actionAppend(other, self)
 
 def _string_from_cmd_list(cmd_list):
     """Takes a list of command line arguments and returns a pretty
