@@ -172,7 +172,7 @@ def win32LibGenerator(target, source, env, shared=1):
         else:
             # Just treat it as a generic source file.
             listCmd.append(str(src))
-    return listCmd
+    return [ listCmd ]
 
 def win32LibEmitter(target, source, env, shared=0):
     if shared:
