@@ -80,7 +80,6 @@ class Options:
         option.default = default
         option.validater = validater
         option.converter = converter
-        option.should_save = 0
 
         self.options.append(option)
 
@@ -108,18 +107,6 @@ class Options:
         if args is None:
             args = self.args
         values.update(args)
-        
-        # Update should save state.
-        # This will mark options that have either been set on
-        # the command line or in a loaded option file.
-        # KeyError occurs when an option has default of None
-        # and has not been set.
-        for option in self.options:
-            try:
-                if values[option.key] != option.default:
-                    option.should_save = 1
-            except KeyError:
-                pass
 
         # put the variables in the environment:
         # (don't copy over variables that are not declared
@@ -132,7 +119,7 @@ class Options:
 
         # Call the convert functions:
         for option in self.options:
-            if option.converter:
+            if option.converter and values.has_key(option.key):
                 value = env.subst('${%s}'%option.key)
                 try:
                     env[option.key] = option.converter(value)
@@ -144,8 +131,6 @@ class Options:
         for option in self.options:
             if option.validater:
                 option.validater(option.key, env.subst('${%s}'%option.key), env)
-                
-    
 
     def Save(self, filename, env):
         """
@@ -161,17 +146,25 @@ class Options:
         try:
             fh = open(filename, 'w')
 
-            # Make an assignment in the file for each option within the environment
-            # that was assigned a value other than the default.
-            for option in self.options:
-                try:
-                    value = env[option.key]
-                    if option.should_save:
-                        fh.write('%s = \'%s\'\n' % (option.key, value))
-                except KeyError:
-                    pass
-
-            fh.close()
+            try:
+                # Make an assignment in the file for each option within the environment
+                # that was assigned a value other than the default.
+                for option in self.options:
+                    try:
+                        value = env[option.key]
+                        try:
+                            eval(repr(value))
+                        except:
+                            # Convert stuff that has a repr() that
+                            # cannot be evaluated into a string
+                            value = SCons.Util.to_String(value)
+                        if env.subst('${%s}' % option.key) != \
+                           env.subst(SCons.Util.to_String(option.default)):
+                            fh.write('%s = %s\n' % (option.key, repr(value)))
+                    except KeyError:
+                        pass
+            finally:
+                fh.close()
 
         except IOError, x:
             raise SCons.Errors.UserError, 'Error writing options to file: %s\n%s' % (filename, x)

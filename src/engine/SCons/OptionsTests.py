@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import unittest
 import TestSCons
 import SCons.Options
+import SCons.Util
 import sys
 import string
 
@@ -34,17 +35,19 @@ class Environment:
     def __init__(self):
         self.dict = {}
     def subst(self, x):
-        return self.dict[x[2:-1]]
+        return SCons.Util.scons_subst(x, self)
     def __setitem__(self, key, value):
         self.dict[key] = value
     def __getitem__(self, key):
         return self.dict[key]
     def has_key(self, key):
         return self.dict.has_key(key)
+    def Dictionary(self):
+        return self.dict
 
 
 def check(key, value, env):
-    assert value == 6 * 9, "key %s = %s" % (key, value)
+    assert int(value) == 6 * 9, "key %s = %s" % (key, repr(value))
     
 # Check saved option file by executing and comparing against
 # the expected dictionary
@@ -52,7 +55,7 @@ def checkSave(file, expected):
     gdict = {}
     ldict = {}
     execfile(file, gdict, ldict)
-    assert expected == ldict
+    assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 class OptionsTestCase(unittest.TestCase):
     def test_Add(self):
@@ -72,7 +75,6 @@ class OptionsTestCase(unittest.TestCase):
         assert o.default == None
         assert o.validater == None
         assert o.converter == None
-        assert o.should_save == 0
 
         o = opts.options[1]
         assert o.key == 'ANSWER'
@@ -200,6 +202,22 @@ class OptionsTestCase(unittest.TestCase):
         opts.Update(env, {'ANSWER':'42'})
         assert env['ANSWER'] == 54
 
+        # Test against a former bug.  If we supply a converter,
+        # but no default, the value should *not* appear in the
+        # Environment if no value is specified in the options file
+        # or args.
+        test = TestSCons.TestSCons()
+        file = test.workpath('custom.py')
+        opts = SCons.Options.Options(file)
+        
+        opts.Add('ANSWER',
+                 help='THE answer to THE question',
+                 converter=str)
+
+        env = Environment()
+        opts.Update(env, {})
+        assert not env.has_key('ANSWER')
+        
     def test_args(self):
         """Test updating an Environment with arguments overridden"""
 
@@ -270,13 +288,52 @@ class OptionsTestCase(unittest.TestCase):
                  21,
                  None,
                  None)
+        opts.Add('OPT_VAL_2',
+                 default='foo')
+        opts.Add('OPT_VAL_3',
+                 default=1)
 
         env = Environment()
-        opts.Update(env, {})
+        opts.Update(env, {'OPT_VAL_3' : 2})
         assert env['OPT_VAL'] == 21
+        assert env['OPT_VAL_2'] == 'foo'
+        assert env['OPT_VAL_3'] == 2
+        env['OPT_VAL_2'] = 'bar'
         opts.Save(cache_file, env)
-        checkSave(cache_file, {})
+        checkSave(cache_file, { 'OPT_VAL_2' : 'bar',
+                                'OPT_VAL_3' : 2 })
 
+        # Test against some old bugs
+        class Foo:
+            def __init__(self, x):
+                self.x = x
+            def __str__(self):
+                return self.x
+            
+        test = TestSCons.TestSCons()
+        cache_file = test.workpath('cached.options')
+        opts = SCons.Options.Options()
+        
+        opts.Add('THIS_USED_TO_BREAK',
+                 'An option to test',
+                 "Default")
+
+        opts.Add('THIS_ALSO_BROKE',
+                 'An option to test',
+                 "Default2")
+        
+        opts.Add('THIS_SHOULD_WORK',
+                 'An option to test',
+                 Foo('bar'))
+        
+        env = Environment()
+        opts.Update(env, { 'THIS_USED_TO_BREAK' : "Single'Quotes'In'String",
+                           'THIS_ALSO_BROKE' : "\\Escape\nSequences\t",
+                           'THIS_SHOULD_WORK' : Foo('baz') })
+        opts.Save(cache_file, env)
+        checkSave(cache_file, { 'THIS_USED_TO_BREAK' : "Single'Quotes'In'String",
+                                'THIS_ALSO_BROKE' : "\\Escape\nSequences\t",
+                                'THIS_SHOULD_WORK' : 'baz' })
 
     def test_GenerateHelpText(self):
         opts = SCons.Options.Options()

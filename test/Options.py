@@ -198,23 +198,23 @@ def checkSave(file, expected):
     gdict = {}
     ldict = {}
     execfile(file, gdict, ldict)
-    assert expected == ldict
+    assert expected == ldict, "%s\n...not equal to...\n%s" % (expected, ldict)
 
 # First test with no command line options
 # This should just leave the custom.py settings
 test.run()
 check(['1','0'])
-checkSave('options.saved', { 'RELEASE_BUILD':'1', 'DEBUG_BUILD':'0'})
+checkSave('options.saved', { 'RELEASE_BUILD':1, 'DEBUG_BUILD':0})
 
 # Override with command line arguments
 test.run(arguments='"DEBUG_BUILD=3"')
 check(['1','3'])
-checkSave('options.saved', {'RELEASE_BUILD':'1', 'DEBUG_BUILD':'3'})
+checkSave('options.saved', {'RELEASE_BUILD':1, 'DEBUG_BUILD':3})
 
 # Now make sure that saved options are overridding the custom.py
 test.run()
 check(['1','3'])
-checkSave('options.saved', {'DEBUG_BUILD':'3', 'RELEASE_BUILD':'1'})
+checkSave('options.saved', {'DEBUG_BUILD':3, 'RELEASE_BUILD':1})
 
 # Load no options from file(s)
 # Used to test for correct output in save option file
@@ -256,7 +256,7 @@ checkSave('options.saved', {})
 # Now specify same option non-default and make sure only it is written out
 test.run(arguments='"DEBUG_BUILD=0"')
 check(['0','0'])
-checkSave('options.saved',{'DEBUG_BUILD':'0'})
+checkSave('options.saved',{'DEBUG_BUILD':0})
 
 test.write('SConstruct', """
 opts = Options('custom.py')
