@@ -3202,6 +3202,13 @@ quote and the second character denotes the closing quote (both default
 to \N'34')
 Returns 1 on success and 0 on failure. 
 
+.TP
+.RI Configure.CheckFunc( self ", " function_name )
+Checks if the specified
+C or C+++ function is available.
+.I function_name
+is the name of the function to check for.
+
 .TP 
 .RI Configure.CheckLib( self ", [" library ", " symbol ", " autoadd ])
 Checks if 
@@ -3248,6 +3255,18 @@ can be any valid expression (with a trailing ';'). The default is 'main();'.
 .I autoadd
 specifies whether to add the library to the environment (only if the check 
 succeeds). This method returns 1 on success and 0 on error.
+
+.TP
+.RI Configure.CheckType( self ", " type_name ", [" includes ])
+Checks for the existence of a type defined by
+.BR typedef .
+.I type_name
+specifies the typedef name to check for.
+.I includes
+is a string containing one or more
+.B #include
+lines that will be inserted into the program
+that will be run to test for the existence of the type.
 
 .EE
 Example of a typical Configure usage:

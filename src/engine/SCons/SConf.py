@@ -104,6 +104,8 @@ class SConf:
 
         # add default tests
         default_tests = {
+                 'CheckFunc'          : CheckFunc,
+                 'CheckType'          : CheckType,
                  'CheckCHeader'       : CheckCHeader,
                  'CheckCXXHeader'     : CheckCXXHeader,
                  'CheckLib'           : CheckLib,
@@ -224,15 +226,17 @@ class SConf:
         else:
             source = None
 
-        node = builder(target = target, source = source)
-        nodesToBeBuilt.append(node)
+        nodes = builder(target = target, source = source)
+        if not SCons.Util.is_List(nodes):
+            nodes = [nodes]
+        nodesToBeBuilt.extend(nodes)
         ret = self.BuildNodes(nodesToBeBuilt)
 
         del self.env['SCONF_TEXT']
 
         _ac_build_counter = _ac_build_counter + 1
         if ret:
-            self.lastTarget = node
+            self.lastTarget = nodes[0]
         else:
             self.lastTarget = None
 
@@ -279,7 +283,7 @@ class SConf:
         if( ok ):
             prog = self.lastTarget
             output = SConfFS.File(prog.get_path()+'.out')
-            node = self.env.Command(output, prog, "%s > $TARGET" % (prog.get_path()))
+            node = self.env.Command(output, prog, [ [ prog.get_path(), ">", "${TARGET}"] ])
             ok = self.BuildNodes([node])
             if ok:
                 outputStr = output.get_contents()
@@ -530,6 +534,46 @@ def _header_prog( header, include_quotes ):
     return "#include %s%s%s\n\n" % (include_quotes[0],
                                     header,
                                     include_quotes[1])
+
+def CheckFunc(context, function_name):
+    context.Message("Checking for %s... " % function_name)
+
+    ret = context.TryBuild(context.env.Program, """
+		#include <assert.h>
+
+		#ifdef __cplusplus
+		extern "C"
+		#endif
+		char %(name)s();
+
+		int main() {
+			#if defined (__stub_%(name)s) || defined (__stub___%(name)s)
+			fail fail fail
+			#else
+			%(name)s();
+			#endif
+
+			return 0;
+		}\n\n""" % { 'name': function_name }, ".cpp")
+    context.Result(ret)
+
+    return ret
+
+def CheckType(context, type_name, includes = ""):
+    context.Message("Checking for %s..." % type_name)
+
+    ret = context.TryBuild(context.env.Program, """
+		%(includes)s
+
+		int main() {
+			if ((%(name)s *) 0)
+				return 0;
+			if (sizeof (%(name)s))
+				return 0;
+		}\n\n""" % { 'name': type_name, 'includes': includes }, ".cpp")
+    context.Result(ret)
+
+    return ret
 
 def CheckCHeader(test, header, include_quotes='""'):
     """

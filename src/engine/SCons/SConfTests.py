@@ -146,6 +146,44 @@ class SConfTestCase(unittest.TestCase):
         finally:
             sconf.Finish()
 
+    def test_TryBuild(self):
+        """Test SConf.TryBuild
+        """
+        # 1 test that we can try a builder that returns a list of nodes
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+        class MyBuilder:
+            def __init__(self):
+                self.prefix = ''
+                self.suffix = ''
+            def __call__(self, env, target, source):
+                class MyNode:
+                    def __init__(self, name):
+                        self.name = name
+                        self.state = None
+                        self.side_effects = []
+                    def has_builder(self):
+                        return 1
+                    def add_pre_action(self, *actions):
+                        pass
+                    def add_post_action(self, *actions):
+                        pass
+                    def children(self):
+                        return []
+                    def get_state(self):
+                        return self.state
+                    def set_state(self, state):
+                        self.state = state
+                    def alter_targets(self):
+                        return [], None
+                    def depends_on(self, nodes):
+                        return None
+                return [MyNode('n1'), MyNode('n2')]
+        self.scons_env.Append(BUILDERS = {'SConfActionBuilder' : MyBuilder()})
+        sconf.TryBuild(self.scons_env.SConfActionBuilder)
+
     def test_TryCompile(self):
         """Test SConf.TryCompile
         """
@@ -277,6 +315,16 @@ int main() {
             sconf.env = env.Copy()
             return ((res1, libs1), (res2, libs2))
 
+        def FuncChecks(sconf):
+            res1 = sconf.CheckFunc('strcpy')
+            res2 = sconf.CheckFunc('hopefullynofunction')
+            return (res1, res2)
+
+        def TypeChecks(sconf):
+            res1 = sconf.CheckType('u_int', '#include <sys/types.h>\n')
+            res2 = sconf.CheckType('hopefullynotypedef_not')
+            return (res1, res2)
+
         self._resetSConfState()
         sconf = self.SConf.SConf(self.scons_env,
                                  conf_dir=self.test.workpath('config.tests'),
@@ -298,6 +346,10 @@ int main() {
             assert res1 and res2 
             assert len(libs1[1]) - 1 == len(libs1[0]) and libs1[1][-1] == existing_lib
             assert len(libs2[1]) == len(libs2[0]) 
+            (res1, res2) = FuncChecks(sconf)
+            assert res1 and not res2 
+            (res1, res2) = TypeChecks(sconf)
+            assert res1 and not res2 
         finally:
             sconf.Finish()
 
