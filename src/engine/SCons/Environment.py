@@ -773,6 +773,11 @@ class Base:
                 elif arg == '-framework':
                     dict['LINKFLAGS'].append(arg)
                     append_next_arg_to='LINKFLAGS'
+                elif arg == '-mno-cygwin':
+                    dict['CCFLAGS'].append(arg)
+                    dict['LINKFLAGS'].append(arg)
+                elif arg == '-mwindows':
+                    dict['LINKFLAGS'].append(arg)
                 elif arg == '-pthread':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
