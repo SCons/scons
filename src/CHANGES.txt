@@ -88,6 +88,17 @@ RELEASE 0.14 - XXX
 
   - Support the C preprocessor #import statement.
 
+  - Allow the SharedLibrary() Builder on Win32 systems to be able to
+    register a newly-built dll using regsvr32.
+
+  - Add a Builder for Windows type library (.tlb) files from IDL files.
+
+  - Add an IDL scanner.
+
+  - Refactor the Fortran, C and IDL scanners to share common logic.
+
+  - Add .srcpath and .srcdir attributes to $TARGET and $SOURCE.
+
   From Christoph Wiedemann:
 
   - Integrate David Snopek's "Autoscons" code as the new SConf

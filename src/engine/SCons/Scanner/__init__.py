@@ -29,6 +29,7 @@ The Scanner package for the SCons software construction utility.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import re
 
 import SCons.Node.FS
 import SCons.Sig
@@ -180,3 +181,110 @@ class Current(Base):
             return c
         kw['scan_check'] = current_check
         apply(Base.__init__, (self,) + args, kw)
+
+class Classic(Current):
+    """
+    A Scanner subclass to contain the common logic for classic CPP-style
+    include scanning, but which can be customized to use different
+    regular expressions to find the includes.
+
+    Note that in order for this to work "out of the box" (without
+    overriding the find_include() method), the regular expression passed
+    to the constructor must return the name of the include file in group
+    0.
+    """
+
+    def __init__(self, name, suffixes, path_variable, regex,
+                 fs=SCons.Node.FS.default_fs, *args, **kw):
+
+        self.cre = re.compile(regex, re.M)
+        self.fs = fs
+
+        def _path(env, dir, pv=path_variable, fs=fs):
+            try:
+                path = env[pv]
+            except KeyError:
+                return ()
+            return tuple(fs.Rsearchall(SCons.Util.mapPaths(path, dir, env),
+                                       clazz = SCons.Node.FS.Dir,
+                                       must_exist = 0))
+
+        def _scan(node, env, path, self=self, fs=fs):
+            return self.scan(node, env, path)
+
+        kw['function'] = _scan
+        kw['path_function'] = _path
+        kw['recursive'] = 1
+        kw['skeys'] = suffixes
+
+        apply(Current.__init__, (self,) + args, kw)
+
+    def find_include(self, include, source_dir, path):
+        n = SCons.Node.FS.find_file(include, (source_dir,) + path, self.fs.File)
+        return n, include
+
+    def scan(self, node, env, path=()):
+        node = node.rfile()
+
+        if not node.exists():
+            return []
+
+        # cache the includes list in node so we only scan it once:
+        if node.includes != None:
+            includes = node.includes
+        else:
+            includes = self.cre.findall(node.get_contents())
+            node.includes = includes
+
+        nodes = []
+        source_dir = node.get_dir()
+        for include in includes:
+            n, i = self.find_include(include, source_dir, path)
+
+            if not n is None:
+                nodes.append(n)
+            else:
+                SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
+                                    "No dependency generated for file: %s (included from: %s) -- file not found" % (i, node))
+
+        # Schwartzian transform from the Python FAQ Wizard
+        def st(List, Metric):
+            def pairing(element, M = Metric):
+                return (M(element), element)
+            def stripit(pair):
+                return pair[1]
+            paired = map(pairing, List)
+            paired.sort()
+            return map(stripit, paired)
+
+        def normalize(node):
+            # We don't want the order of includes to be
+            # modified by case changes on case insensitive OSes, so
+            # normalize the case of the filename here:
+            # (see test/win32pathmadness.py for a test of this)
+            return SCons.Node.FS._my_normcase(str(node))
+
+        transformed = st(nodes, normalize)
+        # print "Classic: " + str(node) + " => " + str(map(lambda x: str(x),list(transformed)))
+        return transformed
+
+class ClassicCPP(Classic):
+    """
+    A Classic Scanner subclass which takes into account the type of
+    bracketing used to include the file, and uses classic CPP rules
+    for searching for the files based on the bracketing.
+
+    Note that in order for this to work, the regular expression passed
+    to the constructor must return the leading bracket in group 0, and
+    the contained filename in group 1.
+    """
+    def find_include(self, include, source_dir, path):
+        if include[0] == '"':
+            n = SCons.Node.FS.find_file(include[1],
+                                        (source_dir,) + path,
+                                        self.fs.File)
+        else:
+            n = SCons.Node.FS.find_file(include[1],
+                                        path + (source_dir,),
+                                        self.fs.File)
+        return n, include[1]

@@ -41,6 +41,7 @@ import SCons.Tool
 import SCons.Errors
 import SCons.Builder
 import SCons.Util
+import SCons.Platform.win32
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -172,7 +173,8 @@ def get_msdev_paths(version=None):
         else:
             # The DevStudio environment variables don't exist,
             # so just use the variables from the source environment.
-            MVSdir = r'C:\Program Files\Microsoft Visual Studio'
+            progfiles = SCons.Platform.win32.get_program_files_dir()
+            MVSdir = os.path.join(progfiles,r'Microsoft Visual Studio')
             MVSVCdir = r'%s\VC98' % MVSdir
             MVSCommondir = r'%s\Common' % MVSdir
             try:

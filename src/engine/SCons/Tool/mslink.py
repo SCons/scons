@@ -106,6 +106,10 @@ def win32LibEmitter(target, source, env):
         target.append(env.ReplaceIxes(dll, 
                                       "SHLIBPREFIX", "SHLIBSUFFIX",
                                       "LIBPREFIX", "LIBSUFFIX"))
+        # and .exp file is created if there are exports from a DLL
+        target.append(env.ReplaceIxes(dll, 
+                                      "SHLIBPREFIX", "SHLIBSUFFIX",
+                                      "WIN32EXPPREFIX", "WIN32EXPSUFFIX"))
 
     return (target, source)
 
@@ -118,6 +122,21 @@ def prog_emitter(target, source, env):
         
     return (target,source)
 
+def RegServerFunc(target, source, env):
+    if env.has_key('register') and env['register']:
+        ret = regServerAction([target[0]], [source[0]], env)
+        if ret:
+            raise SCons.Errors.UserError, "Unable to register %s" % target[0]
+        else:
+            print "Registered %s sucessfully" % target[0]
+        return ret
+    return 0
+
+regServerAction = SCons.Action.Action("$REGSVRCOM")
+regServerCheck = SCons.Action.Action(RegServerFunc, None)
+shlibLinkAction = SCons.Action.Action('${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $_SHLINK_SOURCES")}')
+compositeLinkAction = shlibLinkAction + regServerCheck
+
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
@@ -127,7 +146,7 @@ def generate(env):
     env['SHLINKFLAGS'] = '$LINKFLAGS /dll'
     env['_SHLINK_TARGETS'] = win32ShlinkTargets
     env['_SHLINK_SOURCES'] = win32ShlinkSources
-    env['SHLINKCOM']   = '${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $_SHLINK_SOURCES")}'
+    env['SHLINKCOM']   =  compositeLinkAction
     env['SHLIBEMITTER']= win32LibEmitter
     env['LINK']        = 'link'
     env['LINKFLAGS']   = '/nologo'
@@ -142,6 +161,14 @@ def generate(env):
     env['WIN32DEFPREFIX']        = ''
     env['WIN32DEFSUFFIX']        = '.def'
     env['WIN32_INSERT_DEF']      = 0
+
+    env['WIN32EXPPREFIX']        = ''
+    env['WIN32EXPSUFFIX']        = '.exp'
+
+    env['REGSVRACTION'] = regServerCheck
+    env['REGSVR'] = 'regsvr32'
+    env['REGSVRFLAGS'] = '/s '
+    env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS $TARGET'
 
     if SCons.Util.can_read_reg:
         include_path, lib_path, exe_path = get_msdev_paths()

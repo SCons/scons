@@ -163,6 +163,18 @@ class UtilTestCase(unittest.TestCase):
                              target=target, source=source)
         assert newcom == "test foo/bar.exe foo/blah.cpp", newcom
 
+        SCons.Node.FS.default_fs.BuildDir("#baz","#foo")
+
+        newcom = scons_subst("test ${SOURCE.srcdir}", env,
+                             target=target, source=['baz/bar.c'])
+
+        assert newcom == cvt("test foo"), newcom
+
+        newcom = scons_subst("test ${SOURCE.srcpath}", env,
+                             target=target, source=['baz/bar.c'])
+
+        assert newcom == cvt("test foo/bar.c"), newcom
+
         newcom = scons_subst("test $xxx", env)
         assert newcom == cvt("test"), newcom
 

@@ -22,6 +22,7 @@ SCons/Platform/posix.py
 SCons/Platform/win32.py
 SCons/Scanner/__init__.py
 SCons/Scanner/C.py
+SCons/Scanner/IDL.py
 SCons/Scanner/Fortran.py
 SCons/Scanner/Prog.py
 SCons/SConf.py
@@ -54,6 +55,7 @@ SCons/Tool/latex.py
 SCons/Tool/lex.py
 SCons/Tool/linkloc.py
 SCons/Tool/masm.py
+SCons/Tool/midl.py
 SCons/Tool/mingw.py
 SCons/Tool/mslib.py
 SCons/Tool/mslink.py

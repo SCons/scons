@@ -40,6 +40,7 @@ import sys
 import types
 import UserDict
 import UserList
+import SCons.Node
 
 try:
     from UserString import UserString
@@ -166,6 +167,31 @@ class PathList(UserList.UserList):
         # available even if this object is a Lister, not a PathList.
         return PathList(map(lambda x: updrive(os.path.abspath(x)), self.data))
 
+    def __getSrcDir(self):
+        """Return the directory containing the linked
+           source file, or this file path, if not linked"""
+        sp = self.__splitPath()[0]
+        rv = []
+        for dir in sp:
+            dn = SCons.Node.FS.default_fs.Dir(str(dir))
+            if (dn == None):
+                rv = rv + ['']
+            else:
+                rv = rv + [str(dn.srcnode())]
+        return PathList(rv)
+
+    def __getSrcPath(self):
+        """Return the path to the linked source file,
+           or this file path, if not linked"""
+        rv = []
+        for dir in self.data:
+            fn = SCons.Node.FS.default_fs.File(str(dir))
+            if (fn == None):
+                rv = rv + ['']
+            else:
+                rv = rv + [str(fn.srcnode())]
+        return PathList(rv)
+
     def __posix(self):
         if os.sep == '/':
             return self
@@ -178,11 +204,14 @@ class PathList(UserList.UserList):
                          "dir" : __getDir,
                          "suffix" : __getSuffix,
                          "abspath" : __getAbsPath,
-                         "posix" : __posix}
+                         "srcpath" : __getSrcPath,
+                         "srcdir" : __getSrcDir,
+                         "posix" : __posix
+                       }
 
     def is_literal(self):
         return 1
-    
+
     def __str__(self):
         return string.join(self.data)
 

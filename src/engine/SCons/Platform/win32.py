@@ -34,7 +34,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import popen2
 import string
 import sys
 import tempfile
@@ -126,7 +125,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
                 # What went wrong here ??
                 pass
         return ret
-        
+
 def spawn(sh, escape, cmd, args, env):
     if not sh:
         sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
@@ -145,8 +144,54 @@ def spawn(sh, escape, cmd, args, env):
 # the arg.
 escape = lambda x: '"' + x + '"'
 
-def generate(env):
+# Get the windows system directory name
+def get_system_root():
+    # A resonable default if we can't read the registry
+    try:
+        val = os.environ['SYSTEMROOT']
+    except:
+        val = "C:/WINDOWS"
+        pass
 
+    # First see if we can look in the registry...
+    if SCons.Util.can_read_reg:
+        try:
+            # Look for Windows NT system root
+            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                      'Software\\Microsoft\\Windows NT\\CurrentVersion')
+            val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
+        except SCons.Util.RegError:
+            try:
+                # Okay, try the Windows 9x system root
+                k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                          'Software\\Microsoft\\Windows\\CurrentVersion')
+                val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
+            except:
+                pass
+    return val
+
+# Get the location of the program files directory
+def get_program_files_dir():
+    # Now see if we can look in the registry...
+    val = ''
+    if SCons.Util.can_read_reg:
+        try:
+            # Look for Windows Program Files directory
+            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                      'Software\\Microsoft\\Windows\\CurrentVersion')
+            val, tok = SCons.Util.RegQueryValueEx(k, 'ProgramFilesDir')
+        except SCons.Util.RegError:
+            val = ''
+            pass
+
+    if val == '':
+        # A reasonable default if we can't read the registry
+        # (Actually, it's pretty reasonable even if we can :-)
+        val = os.path.join(os.path.dirname(get_system_root()),"Program Files")
+        
+    return val
+
+def generate(env):
     # Attempt to find cmd.exe (for WinNT/2k/XP) or
     # command.com for Win9x
     cmd_interp = ''

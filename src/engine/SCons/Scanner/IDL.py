@@ -1,11 +1,12 @@
-"""SCons.Scanner.Fortran
+"""SCons.Scanner.IDL
 
-This module implements the dependency scanner for Fortran code. 
+This module implements the depenency scanner for IDL (Interface
+Definition Language) files.
 
 """
 
 #
-# __COPYRIGHT__
+# Copyright (c) 2001, 2002, 2003 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,23 +28,16 @@ This module implements the dependency scanner for Fortran code.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "src/engine/SCons/Scanner/IDL.py 0.D013 2003/03/31 21:46:41 software"
 
-
-import re
-
-import SCons.Node
 import SCons.Node.FS
 import SCons.Scanner
-import SCons.Util
-import SCons.Warnings
 
-def FortranScan(fs = SCons.Node.FS.default_fs):
-    """Return a prototype Scanner instance for scanning source files
-    for Fortran INCLUDE statements"""
-    scanner = SCons.Scanner.Classic("FortranScan",
-                                    [".f", ".F", ".for", ".FOR"],
-                                    "F77PATH",
-                                    "INCLUDE[ \t]+'([\\w./\\\\]+)'",
-                                    fs = fs)
-    return scanner
+def IDLScan(fs = SCons.Node.FS.default_fs):
+    """Return a prototype Scanner instance for scanning IDL source files"""
+    cs = SCons.Scanner.ClassicCPP("IDLScan",
+                                  [".idl", ".IDL"],
+                                  "CPPPATH",
+                                  '^[ \t]*(?:#[ \t]*include|[ \t]*import)[ \t]+(<|")([^>"]+)(>|")',
+                                  fs = fs)
+    return cs

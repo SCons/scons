@@ -881,6 +881,7 @@ latex
 lex
 linkloc
 masm
+midl
 mingw
 mslib
 mslink
@@ -1231,6 +1232,23 @@ must have been built for a shared library
 builder).
 .B scons
 will raise an error if there is any mismatch.
+.IP
+On WIN32 systems, specifying "register=1" will cause the dll to be
+registered after it is built using REGSVR32.  The command that is run
+("regsvr32" by default) is determined by $REGSVR construction
+variable, and the flags passed are determined by $REGSVRFLAGS.  By
+default, $REGSVRFLAGS includes "/s", to prevent dialogs from popping
+up and requiring user attention when it is run.  If you change
+$REGSVRFLAGS, be sure to include "/s".  For example,
+
+.ES
+env.SharedLibrary(target = 'bar',
+                  source = ['bar.cxx', 'foo.obj'],
+                  register=1)
+.EE
+
+.IP
+will register "bar.dll" as a COM object when it is done linking it.
 
 .IP Library
 A synonym for the
@@ -1309,6 +1327,19 @@ Example:
 .ES
 env.Java(target = 'classes', source = 'src')
 .EE
+
+.IP TypeLibrary
+Builds a Windows type library (.tlb) file from and input IDL file
+(.idl).  In addition, it will build the associated inteface stub and
+proxy source files.  It names them according to the base name of the .idl file.
+.IP
+For example,
+
+.ES
+env.TypeLibrary(source="foo.idl")
+.EE
+.IP
+Will create foo.tlb, foo.h, foo_i.c, foo_p.c, and foo_data.c.
 
 .IP DVI
 Builds a .dvi file from a .tex, .ltx or .latex input file.
@@ -4453,6 +4484,16 @@ not backslashes.
 This is sometimes necessary on Win32 systems
 when a path references a file on other (POSIX) systems.
 
+.IP srcpath
+The directory and file name to the source file linked to this file
+through BuildDir.  If this file isn't linked, it just returns the
+directory and filename unchanged.
+
+.IP srcdir
+The directory containing the source file linked to this file
+through BuildDir.  If this file isn't linked, it just returns the
+directory part of the filename.
+
 .LP
 For example, the specified target will
 expand as follows for the corresponding modifiers:
@@ -4465,6 +4506,11 @@ ${TARGET.file}       => file.x
 ${TARGET.filebase}   => file
 ${TARGET.suffix}     => .x
 ${TARGET.abspath}    => /top/dir/sub/dir/file.x
+
+BuildDir('sub/dir','src')
+$SOURCE              => sub/dir/file.x
+${SOURCE.srcpath}    => src/file.x
+${SOURCE.srcdir}     => src
 .EE
 
 Lastly, a variable name
