@@ -236,8 +236,8 @@ def _SConscript(fs, *files, **kw):
                     # number that creates a node.
                     exec _file_ in stack[-1].globals
                 else:
-                    sys.stderr.write("Ignoring missing SConscript '%s'\n" %
-                                     f.path)
+                    SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning,
+                             "Ignoring missing SConscript '%s'" % f.path)
                 
         finally:
             sconscript_reading = 0
@@ -316,20 +316,19 @@ class SConsEnvironment(SCons.Environment.Base):
     #
     # Private methods of an SConsEnvironment.
     #
+    def _exceeds_version(self, major, minor, v_major, v_minor):
+        """Return 1 if 'major' and 'minor' are greater than the version
+        in 'v_major' and 'v_minor', and 0 otherwise."""
+        return (major > v_major or (major == v_major and minor > v_minor))
 
-    def _check_version(self, major, minor, version_string):
-        """Return 0 if 'major' and 'minor' are greater than the version
-        in 'version_string', and 1 otherwise."""
-        try:
-            v_major, v_minor, v_micro, release, serial = sys.version_info
-        except AttributeError:
-            version = string.split(string.split(version_string, ' ')[0], '.')
-            v_major = int(version[0])
-            v_minor = int(re.match('\d+', version[1]).group())
-        if major > v_major or (major == v_major and minor > v_minor):
-            return 0
-        else:
-            return 1
+    def _get_major_minor(self, version_string):
+        """Split a version string into major and minor parts.  This
+        is complicated by the fact that a version string can be something
+        like 3.2b1."""
+        version = string.split(string.split(version_string, ' ')[0], '.')
+        v_major = int(version[0])
+        v_minor = int(re.match('\d+', version[1]).group())
+        return v_major, v_minor
 
     def _get_SConscript_filenames(self, ls, kw):
         """
@@ -429,13 +428,18 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def EnsureSConsVersion(self, major, minor):
         """Exit abnormally if the SCons version is not late enough."""
-        if not self._check_version(major,minor,SCons.__version__):
+        v_major, v_minor = self._get_major_minor(SCons.__version__)
+        if self._exceeds_version(major, minor, v_major, v_minor):
             print "SCons %d.%d or greater required, but you have SCons %s" %(major,minor,SCons.__version__)
             sys.exit(2)
 
     def EnsurePythonVersion(self, major, minor):
         """Exit abnormally if the Python version is not late enough."""
-        if not self._check_version(major,minor,sys.version):
+        try:
+            v_major, v_minor, v_micro, release, serial = sys.version_info
+        except AttributeError:
+            v_major, v_minor = self._get_major_minor(sys.version)
+        if self._exceeds_version(major, minor, v_major, v_minor):
             v = string.split(sys.version, " ", 1)[0]
             print "Python %d.%d or greater required, but you have Python %s" %(major,minor,v)
             sys.exit(2)

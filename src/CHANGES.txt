@@ -39,6 +39,9 @@ RELEASE 0.95 - XXX
   - Fix the ability to use a custom _concat() function in the
     construction environment when calling _stripixes().
 
+  - Make the message about ignoring a missing SConscript file into a
+    suppressable Warning, not a hard-coded sys.stderr.write().
+
   From Steven Knight:
 
   - Fix EnsureSConsVersion() so it checks against the SCons version,
