@@ -269,6 +269,24 @@ class Environment:
                 self._dict[key] = self._dict[key] + kw[key]
         self.__updateBuildersAndScanners()
 
+    def Prepend(self, **kw):
+        """Prepend values to existing construction variables
+        in an Environment.
+        """
+        kw = our_deepcopy(kw)
+        for key in kw.keys():
+            if not self._dict.has_key(key):
+                self._dict[key] = kw[key]
+            elif SCons.Util.is_List(self._dict[key]) and not \
+                 SCons.Util.is_List(kw[key]):
+                self._dict[key] = [ kw[key] ] + self._dict[key]
+            elif SCons.Util.is_List(kw[key]) and not \
+                 SCons.Util.is_List(self._dict[key]):
+                self._dict[key] = kw[key] + [ self._dict[key] ]
+            else:
+                self._dict[key] = kw[key] + self._dict[key]
+        self.__updateBuildersAndScanners()
+
     def	Depends(self, target, dependency):
 	"""Explicity specify that 'target's depend on 'dependency'."""
         tlist = SCons.Node.arg2nodes(target, self.fs.File)

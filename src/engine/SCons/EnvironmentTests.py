@@ -345,6 +345,34 @@ class EnvironmentTestCase(unittest.TestCase):
         except:
             raise
 
+    def test_Prepend(self):
+        """Test prepending to construction variables in an Environment
+        """
+        import UserList
+        UL = UserList.UserList
+        env1 = Environment(AAA = 'a', BBB = 'b', CCC = 'c', DDD = 'd',
+                           EEE = ['e'], FFF = ['f'], GGG = ['g'], HHH = ['h'],
+                           III = UL(['i']), JJJ = UL(['j']),
+                           KKK = UL(['k']), LLL = UL(['l']))
+        env1.Prepend(BBB = 'B', CCC = ['C'], DDD = UL(['D']),
+                    FFF = 'F', GGG = ['G'], HHH = UL(['H']),
+                    JJJ = 'J', KKK = ['K'], LLL = UL(['L']))
+        env2 = Environment(AAA = 'a', BBB = 'Bb',
+                           CCC = ['C', 'c'], DDD = UL(['D', 'd']),
+                           EEE = ['e'], FFF = ['F', 'f'],
+                           GGG = ['G', 'g'], HHH = UL(['H', 'h']),
+                           III = UL(['i']), JJJ = UL(['J', 'j']),
+                           KKK = UL(['K', 'k']), LLL = UL(['L', 'l']))
+        assert env1 == env2, diff_env(env1, env2)
+
+        env3 = Environment(X = {'x' : 7})
+        try:
+            env3.Prepend(X = {'x' : 8})
+        except TypeError:
+            pass
+        except:
+            raise
+
     def test_Depends(self):
 	"""Test the explicit Depends method."""
 	env = Environment()

@@ -10,6 +10,11 @@
 
 RELEASE 0.09 - 
 
+ From Chad Austin:
+
+  - Add a Prepend() method to Environments, to append values to
+    the beginning of construction variables.
+
  From Steven Knight:
 
  - Add Repository() functionality.

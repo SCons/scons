@@ -1136,7 +1136,7 @@ env.Alias('install', ['/usr/local/man'])
 .TP
 .RI Append( key = val ", [...])"
 Appends the specified keyword arguments
-to the construction variables in the environment.
+to the end of construction variables in the environment.
 If the Environment does not have
 the specified construction variable,
 it is simply added to the environment.
@@ -1147,6 +1147,7 @@ Otherwise, the construction variable
 and the value of the keyword argument
 are both coerced to lists,
 and the lists are added together.
+(See also the Prepend method, below.)
 
 .ES
 env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
@@ -1269,6 +1270,26 @@ as precious so it is not deleted before it is rebuilt. Normally
 deletes a target before building it.
 Multiple targets can be passed in to a single call to
 .BR Precious ().
+
+.TP
+.RI Prepend( key = val ", [...])"
+Appends the specified keyword arguments
+to the beginning of construction variables in the environment.
+If the Environment does not have
+the specified construction variable,
+it is simply added to the environment.
+If the values of the construction variable
+and the keyword argument are the same type,
+then the two values will be simply added together.
+Otherwise, the construction variable
+and the value of the keyword argument
+are both coerced to lists,
+and the lists are added together.
+(See also the Append method, above.)
+
+.ES
+env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
+.EE
 
 .TP
 .RI Replace( key = val ", [...])"
