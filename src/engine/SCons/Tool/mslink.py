@@ -180,13 +180,8 @@ def generate(env):
         pass
 
 def exists(env):
-    try:
-        v = SCons.Tool.msvs.get_visualstudio_versions()
-    except (SCons.Util.RegError, SCons.Errors.InternalError):
-        pass
-    
-    if not v:
-        return env.Detect('link')
-    else:
+    if SCons.Tool.msvs.is_msvs_installed():
         # there's at least one version of MSVS installed.
         return 1
+    else:
+        return env.Detect('link')

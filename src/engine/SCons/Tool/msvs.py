@@ -846,6 +846,16 @@ def get_visualstudio_versions():
 
     return L
 
+def is_msvs_installed():
+    """
+    Check the registry for an installed visual studio.
+    """
+    try:
+        v = SCons.Tool.msvs.get_visualstudio_versions()
+        return v
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        return 0
+
 def get_msvs_install_dirs(version = None):
     """
     Get installed locations for various msvc-related products, like the .NET SDK
