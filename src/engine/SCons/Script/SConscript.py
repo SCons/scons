@@ -30,21 +30,21 @@ files.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons
 import SCons.Action
 import SCons.Builder
 import SCons.Defaults
 import SCons.Environment
 import SCons.Errors
 import SCons.Node
+import SCons.Node.Alias
 import SCons.Node.FS
-import SCons.Node.Python
+import SCons.Options
 import SCons.Platform
 import SCons.SConf
 import SCons.Script
+import SCons.Tool
 import SCons.Util
-import SCons.Options
-import SCons
-import SCons.Node.Alias
 
 import os
 import os.path
@@ -52,13 +52,13 @@ import re
 import string
 import sys
 import traceback
+import types
 
 def do_nothing(text): pass
 HelpFunction = do_nothing
 
-default_targets = None
-clean_targets = {}
 arguments = {}
+GlobalDict = {}
 launch_dir = os.path.abspath(os.curdir)
 
 # global exports set by Export():
@@ -67,9 +67,8 @@ global_exports = {}
 # chdir flag
 sconscript_chdir = 1
 
-def SConscriptChdir(flag):
-    global sconscript_chdir
-    sconscript_chdir = flag
+# will be set to 1, if we are reading a SConscript
+sconscript_reading = 0
 
 def _scons_add_args(alist):
     global arguments
@@ -81,7 +80,7 @@ def get_calling_namespaces():
     """Return the locals and globals for the function that called
     into this module in the current callstack."""
     try: 1/0
-    except: frame = sys.exc_info()[2].tb_frame
+    except ZeroDivisionError: frame = sys.exc_info()[2].tb_frame
     
     while frame.f_globals.get("__name__") == __name__: frame = frame.f_back
 
@@ -92,7 +91,6 @@ def compute_exports(exports):
     """Compute a dictionary of exports given one of the parameters
     to the Export() function or the exports argument to SConscript()."""
 
-    exports = SCons.Util.Split(exports)
     loc, glob = get_calling_namespaces()
 
     retval = {}
@@ -143,82 +141,12 @@ def Return(*vars):
     else:
         stack[-1].retval = tuple(retval)
 
-# This function is responsible for converting the parameters passed to
-# SConscript() calls into a list of files and export variables.  If the
-# parameters are invalid, throws SCons.Errors.UserError. Returns a tuple
-# (l, e) where l is a list of SConscript filenames and e is a list of
-# exports.
-
-def GetSConscriptFilenames(ls, kw):
-    exports = []
-
-    if len(ls) == 0:
-        try:
-            dirs = kw["dirs"]
-        except KeyError:
-            raise SCons.Errors.UserError, \
-                  "Invalid SConscript usage - no parameters"
-
-        if not SCons.Util.is_List(dirs):
-            dirs = [ dirs ]
-        dirs = map(str, dirs)
-
-        name = kw.get('name', 'SConscript')
-
-        files = map(lambda n, name = name: os.path.join(n, name), dirs)
-
-    elif len(ls) == 1:
-
-        files = ls[0]
-
-    elif len(ls) == 2:
-
-        files   = ls[0]
-        exports = SCons.Util.Split(ls[1])
-
-    else:
-
-        raise SCons.Errors.UserError, \
-              "Invalid SConscript() usage - too many arguments"
-
-    if not SCons.Util.is_List(files):
-        files = [ files ]
-
-    if kw.get('exports'):
-        exports.extend(SCons.Util.Split(kw['exports']))
-
-    build_dir = kw.get('build_dir')
-    if build_dir:
-        if len(files) != 1:
-            raise SCons.Errors.UserError, \
-                "Invalid SConscript() usage - can only specify one SConscript with a build_dir"
-        duplicate = kw.get('duplicate', 1)
-        src_dir = kw.get('src_dir')
-        if not src_dir:
-            src_dir, fname = os.path.split(str(files[0]))
-        else:
-            if not isinstance(src_dir, SCons.Node.Node):
-                src_dir = SCons.Node.FS.default_fs.Dir(src_dir)
-            fn = files[0]
-            if not isinstance(fn, SCons.Node.Node):
-                fn = SCons.Node.FS.default_fs.File(fn)
-            if fn.is_under(src_dir):
-                # Get path relative to the source directory.
-                fname = fn.get_path(src_dir)
-            else:
-                # Fast way to only get the terminal path component of a Node.
-                fname = fn.get_path(fn.dir)
-        BuildDir(build_dir, src_dir, duplicate)
-        files = [os.path.join(str(build_dir), fname)]
-
-    return (files, exports)
-
-def SConscript(*ls, **kw):
-    files, exports = GetSConscriptFilenames(ls, kw)
-
-    default_fs = SCons.Node.FS.default_fs
-    top = default_fs.Top
-    sd = default_fs.SConstruct_dir.rdir()
+def _SConscript(fs, *files, **kw):
+    global sconscript_reading
+    sconscript_reading = 1
+    top = fs.Top
+    sd = fs.SConstruct_dir.rdir()
+    exports = kw.get('exports', [])
 
     # evaluate each SConscript file
     results = []
@@ -232,14 +160,13 @@ def SConscript(*ls, **kw):
                 if isinstance(fn, SCons.Node.Node):
                     f = fn
                 else:
-                    f = default_fs.File(str(fn))
+                    f = fs.File(str(fn))
                 _file_ = None
 
                 # Change directory to the top of the source
                 # tree to make sure the os's cwd and the cwd of
-                # SCons.Node.FS.default_fs match so we can open the
-                # SConscript.
-                default_fs.chdir(top, change_os_dir=1)
+                # fs match so we can open the SConscript.
+                fs.chdir(top, change_os_dir=1)
                 if f.rexists():
                     _file_ = open(f.rstr(), "r")
                 elif f.has_src_builder():
@@ -263,17 +190,17 @@ def SConscript(*ls, **kw):
                     # where the SConstruct and SConscript files might be
                     # in different Repositories.  For now, cross that
                     # bridge when someone comes to it.
-                    ldir = default_fs.Dir(f.dir.get_path(sd))
+                    ldir = fs.Dir(f.dir.get_path(sd))
                     try:
-                        default_fs.chdir(ldir, change_os_dir=sconscript_chdir)
+                        fs.chdir(ldir, change_os_dir=sconscript_chdir)
                     except OSError:
                         # There was no local directory, so we should be
                         # able to chdir to the Repository directory.
                         # Note that we do this directly, not through
-                        # default_fs.chdir(), because we still need to
+                        # fs.chdir(), because we still need to
                         # interpret the stuff within the SConscript file
                         # relative to where we are logically.
-                        default_fs.chdir(ldir, change_os_dir=0)
+                        fs.chdir(ldir, change_os_dir=0)
                         os.chdir(f.rfile().dir.get_abspath())
 
                     # Append the SConscript directory to the beginning
@@ -293,15 +220,16 @@ def SConscript(*ls, **kw):
                                      f.path)
                 
         finally:
+            sconscript_reading = 0
             sys.path = old_sys_path
             frame = stack.pop()
             try:
-                default_fs.chdir(frame.prev_dir, change_os_dir=sconscript_chdir)
+                fs.chdir(frame.prev_dir, change_os_dir=sconscript_chdir)
             except OSError:
                 # There was no local directory, so chdir to the
                 # Repository directory.  Like above, we do this
                 # directly.
-                default_fs.chdir(frame.prev_dir, change_os_dir=0)
+                fs.chdir(frame.prev_dir, change_os_dir=0)
                 os.chdir(frame.prev_dir.rdir().get_abspath())
 
             results.append(frame.retval)
@@ -356,129 +284,196 @@ def annotate(node):
 # leave this disabled until we find a more efficient mechanism.
 #SCons.Node.Annotate = annotate
 
-def Default(*targets):
-    global default_targets
-    if default_targets is None:
-        default_targets = []
-    for t in targets:
-        if t is None:
-            default_targets = []
-        elif isinstance(t, SCons.Node.Node):
-            default_targets.append(t)
+class SConsEnvironment(SCons.Environment.Base):
+    """An Environment subclass that contains all of the methods that
+    are particular to the wrapper SCons interface and which aren't
+    (or shouldn't be) part of the build engine itself.
+
+    Note that not all of the methods of this class have corresponding
+    global functions, there are some private methods.
+    """
+
+    #
+    # Private methods of an SConsEnvironment.
+    #
+
+    def _check_version(self, major, minor, version_string):
+        """Return 0 if 'major' and 'minor' are greater than the version
+        in 'version_string', and 1 otherwise."""
+        try:
+            v_major, v_minor, v_micro, release, serial = sys.version_info
+        except AttributeError:
+            version = string.split(string.split(version_string, ' ')[0], '.')
+            v_major = int(version[0])
+            v_minor = int(re.match('\d+', version[1]).group())
+        if major > v_major or (major == v_major and minor > v_minor):
+            return 0
         else:
-            default_targets.extend(SCons.Node.arg2nodes(t,
-                                         SCons.Node.FS.default_fs.Entry))
+            return 1
 
-def Local(*targets):
-    for targ in targets:
-        if isinstance(targ, SCons.Node.Node):
-            targ.set_local()
+    def _get_SConscript_filenames(self, ls, kw):
+        """
+        Convert the parameters passed to # SConscript() calls into a list
+        of files and export variables.  If the parameters are invalid,
+        throws SCons.Errors.UserError. Returns a tuple (l, e) where l
+        is a list of SConscript filenames and e is a list of exports.
+        """
+        exports = []
+
+        if len(ls) == 0:
+            try:
+                dirs = kw["dirs"]
+            except KeyError:
+                raise SCons.Errors.UserError, \
+                      "Invalid SConscript usage - no parameters"
+
+            if not SCons.Util.is_List(dirs):
+                dirs = [ dirs ]
+            dirs = map(str, dirs)
+
+            name = kw.get('name', 'SConscript')
+
+            files = map(lambda n, name = name: os.path.join(n, name), dirs)
+
+        elif len(ls) == 1:
+
+            files = ls[0]
+
+        elif len(ls) == 2:
+
+            files   = ls[0]
+            exports = self.Split(ls[1])
+
         else:
-            for t in SCons.Node.arg2nodes(targ, SCons.Node.FS.default_fs.Entry):
-               t.set_local()
 
-def Help(text):
-    HelpFunction(text)
+            raise SCons.Errors.UserError, \
+                  "Invalid SConscript() usage - too many arguments"
 
-def BuildDir(build_dir, src_dir, duplicate=1):
-    SCons.Node.FS.default_fs.BuildDir(build_dir, src_dir, duplicate)
+        if not SCons.Util.is_List(files):
+            files = [ files ]
 
-def GetBuildPath(files):
-    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
-    ret = map(str, nodes)
-    if len(ret) == 1:
-        return ret[0]
-    return ret
+        if kw.get('exports'):
+            exports.extend(self.Split(kw['exports']))
 
-def FindFile(file, dirs):
-    nodes = SCons.Node.arg2nodes(dirs, SCons.Node.FS.default_fs.Dir)
-    return SCons.Node.FS.find_file(file, nodes)
-
-def Export(*vars):
-    for var in vars:
-        global_exports.update(compute_exports(var))
-
-def Import(*vars):
-    try:
-        for var in vars:
-            var = SCons.Util.Split(var)
-            for v in var:
-                if v == '*':
-                    stack[-1].globals.update(global_exports)
-                    stack[-1].globals.update(stack[-1].exports)
+        build_dir = kw.get('build_dir')
+        if build_dir:
+            if len(files) != 1:
+                raise SCons.Errors.UserError, \
+                    "Invalid SConscript() usage - can only specify one SConscript with a build_dir"
+            duplicate = kw.get('duplicate', 1)
+            src_dir = kw.get('src_dir')
+            if not src_dir:
+                src_dir, fname = os.path.split(str(files[0]))
+            else:
+                if not isinstance(src_dir, SCons.Node.Node):
+                    src_dir = self.fs.Dir(src_dir)
+                fn = files[0]
+                if not isinstance(fn, SCons.Node.Node):
+                    fn = self.fs.File(fn)
+                if fn.is_under(src_dir):
+                    # Get path relative to the source directory.
+                    fname = fn.get_path(src_dir)
                 else:
-                    if stack[-1].exports.has_key(v):
-                        stack[-1].globals[v] = stack[-1].exports[v]
-                    else:
-                        stack[-1].globals[v] = global_exports[v]
-    except KeyError,x:
-        raise SCons.Errors.UserError, "Import of non-existant variable '%s'"%x
+                    # Fast way to only get the terminal path component of a Node.
+                    fname = fn.get_path(fn.dir)
+            self.fs.BuildDir(build_dir, src_dir, duplicate)
+            files = [os.path.join(str(build_dir), fname)]
 
-def GetLaunchDir():
-    return launch_dir
+        return (files, exports)
+
+    #
+    # Public methods of an SConsEnvironment.  These get
+    # entry points in the global name space so they can be called
+    # as global functions.
+    #
+
+    def EnsureSConsVersion(self, major, minor):
+        """Exit abnormally if the SCons version is not late enough."""
+        if not self._check_version(major,minor,SCons.__version__):
+            print "SCons %d.%d or greater required, but you have SCons %s" %(major,minor,SCons.__version__)
+            sys.exit(2)
+
+    def EnsurePythonVersion(self, major, minor):
+        """Exit abnormally if the Python version is not late enough."""
+        if not self._check_version(major,minor,sys.version):
+            v = string.split(sys.version, " ", 1)[0]
+            print "Python %d.%d or greater required, but you have Python %s" %(major,minor,v)
+            sys.exit(2)
+
+    def Exit(self, value=0):
+        sys.exit(value)
+
+    def Export(self, *vars):
+        for var in vars:
+            global_exports.update(compute_exports(self.Split(var)))
+
+    def GetLaunchDir(self):
+        global launch_dir
+        return launch_dir
+
+    def GetOption(self, name):
+        name = self.subst(name)
+        return SCons.Script.ssoptions.get(name)
+
+    def Help(self, text):
+        text = self.subst(text, raw=1)
+        HelpFunction(text)
+
+    def Import(self, *vars):
+        try:
+            for var in vars:
+                var = self.Split(var)
+                for v in var:
+                    if v == '*':
+                        stack[-1].globals.update(global_exports)
+                        stack[-1].globals.update(stack[-1].exports)
+                    else:
+                        if stack[-1].exports.has_key(v):
+                            stack[-1].globals[v] = stack[-1].exports[v]
+                        else:
+                            stack[-1].globals[v] = global_exports[v]
+        except KeyError,x:
+            raise SCons.Errors.UserError, "Import of non-existant variable '%s'"%x
+
+    def SConscript(self, *ls, **kw):
+        ls = map(lambda l, self=self: self.subst(l), ls)
+        subst_kw = {}
+        for key, val in kw.items():
+            if SCons.Util.is_String(val):
+                val = self.subst(val)
+            subst_kw[key] = val
+
+        files, exports = self._get_SConscript_filenames(ls, subst_kw)
+
+        return apply(_SConscript, [self.fs,] + files, {'exports' : exports})
+
+    def SConscriptChdir(self, flag):
+        global sconscript_chdir
+        sconscript_chdir = flag
+
+    def SetOption(self, name, value):
+        name = self.subst(name)
+        SCons.Script.ssoptions.set(name, value)
+
+#
+#
+#
+SCons.Environment.Environment = SConsEnvironment
+
+def Options(files=None, args=arguments):
+    return SCons.Options.Options(files, args)
 
 def SetBuildSignatureType(type):
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                         "The SetBuildSignatureType() function has been deprecated;\n" +\
                         "\tuse the TargetSignatures() function instead.")
-    TargetSignatures(type)
-
-def TargetSignatures(type):
-    import SCons.Sig
-    if type == 'build':
-        SCons.Sig.build_signature = 1
-    elif type == 'content':
-        SCons.Sig.build_signature = 0
-    else:
-        raise SCons.Errors.UserError, "Unknown build signature type '%s'"%type
+    SCons.Defaults.DefaultEnvironment().TargetSignatures(type)
 
 def SetContentSignatureType(type):
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                         "The SetContentSignatureType() function has been deprecated;\n" +\
                         "\tuse the SourceSignatures() function instead.")
-    SourceSignatures(type)
-
-def SourceSignatures(type):
-    if type == 'MD5':
-        import SCons.Sig.MD5
-        SCons.Script.sig_module = SCons.Sig.MD5
-    elif type == 'timestamp':
-        import SCons.Sig.TimeStamp
-        SCons.Script.sig_module = SCons.Sig.TimeStamp
-    else:
-        raise SCons.Errors.UserError, "Unknown content signature type '%s'"%type
-
-
-class Options(SCons.Options.Options):
-    def __init__(self, files=None, args=arguments):
-        SCons.Options.Options.__init__(self, files, args)
-
-def CheckVersion(major, minor, version_string):
-    """Return 0 if 'major' and 'minor' are greater than the version
-    in 'version_string', and 1 otherwise."""
-    try:
-        v_major, v_minor, v_micro, release, serial = sys.version_info
-    except AttributeError:
-        version = string.split(string.split(version_string, ' ')[0], '.')
-        v_major = int(version[0])
-        v_minor = int(re.match('\d+', version[1]).group())
-    if major > v_major or (major == v_major and minor > v_minor):
-        return 0
-    else:
-        return 1
-
-def EnsureSConsVersion(major, minor):
-    """Exit abnormally if the SCons version is not late enough."""
-    if not CheckVersion(major,minor,SCons.__version__):
-        print "SCons %d.%d or greater required, but you have SCons %s" %(major,minor,SCons.__version__)
-        sys.exit(2)
-
-def EnsurePythonVersion(major, minor):
-    """Exit abnormally if the Python version is not late enough."""
-    if not CheckVersion(major,minor,sys.version):
-	v = string.split(sys.version, " ", 1)[0]
-        print "Python %d.%d or greater required, but you have Python %s" %(major,minor,v)
-        sys.exit(2)
+    SCons.Defaults.DefaultEnvironment().SourceSignatures(type)
 
 def GetJobs():
     SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
@@ -492,58 +487,136 @@ def SetJobs(num):
                         "The SetJobs() function has been deprecated;\n" +\
                         "\tuse SetOption('num_jobs', num) instead.")
     SetOption('num_jobs', num)
+ 
+def ParseConfig(env, command, function=None):
+    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                        "The ParseConfig() function has been deprecated;\n" +\
+                        "\tuse the env.ParseConfig() method instead.")
+    return env.ParseConfig(command, function)
 
-def Clean(target, files):
-    if not isinstance(target, SCons.Node.Node):
-        target = SCons.Node.FS.default_fs.Entry(target, create=1)
+#
+_DefaultEnvironmentProxy = None
 
-    if not SCons.Util.is_List(files):
-        files = [files]
+def get_DefaultEnvironmentProxy():
+    global _DefaultEnvironmentProxy
+    if not _DefaultEnvironmentProxy:
+        class EnvironmentProxy(SCons.Environment.Environment):
+            """A proxy subclass for an environment instance that overrides
+            the subst() and subst_list() methods so they don't actually
+            actually perform construction variable substitution.  This is
+            specifically intended to be the shim layer in between global
+            function calls (which don't want want construction variable
+            substitution) and the DefaultEnvironment() (which would
+            substitute variables if left to its own devices)."""
+            def __init__(self, subject):
+                self.__dict__['__subject'] = subject
+            def __getattr__(self, name):
+                return getattr(self.__dict__['__subject'], name)
+            def __setattr__(self, name, value):
+                return setattr(self.__dict__['__subject'], name, value)
+            def subst(self, string, raw=0, target=None, source=None):
+                return string
+            def subst_kw(self, kw, raw=0, target=None, source=None):
+                return kw
+            def subst_list(self, string, raw=0, target=None, source=None):
+                return string
+        default_env = SCons.Defaults.DefaultEnvironment()
+        _DefaultEnvironmentProxy = EnvironmentProxy(default_env)
+    return _DefaultEnvironmentProxy
 
-    nodes = []
-    for f in files:
-        if isinstance(f, SCons.Node.Node):
-            nodes.append(f)
-        else:
-            nodes.extend(SCons.Node.arg2nodes(f, SCons.Node.FS.default_fs.Entry))
+class DefaultEnvironmentCall:
+    """A class that implements "global function" calls of
+    Environment methods by fetching the specified method from the
+    DefaultEnvironment's class.  Note that this uses an intermediate
+    proxy class instead of calling the DefaultEnvironment method
+    directly so that the proxy can override the subst() method and
+    thereby prevent expansion of construction variables (since from
+    the user's point of view this was called as a global function,
+    with no associated construction environment)."""
+    def __init__(self, method_name):
+        self.method_name = method_name
+    def __call__(self, *args, **kw):
+        proxy = get_DefaultEnvironmentProxy()
+        method = getattr(proxy, self.method_name)
+        return apply(method, args, kw)
 
-    try:
-        clean_targets[target].extend(nodes)
-    except KeyError:
-        clean_targets[target] = nodes
+# The list of global functions to add to the SConscript name space
+# that end up calling corresponding methods or Builders in the
+# DefaultEnvironment().
+GlobalDefaultEnvironmentFunctions = [
+    # Methods from the SConsEnvironment class, above.
+    'EnsurePythonVersion',
+    'EnsureSConsVersion',
+    'Exit',
+    'Export',
+    'GetLaunchDir',
+    'GetOption',
+    'Help',
+    'Import',
+    'SConscript',
+    'SConscriptChdir',
+    'SetOption',
 
-def AddPreAction(files, action):
-    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
-    for n in nodes:
-        n.add_pre_action(SCons.Action.Action(action))
+    # Methods from the Environment.Base class.
+    'AddPostAction',
+    'AddPreAction',
+    'Alias',
+    'AlwaysBuild',
+    'BuildDir',
+    'CacheDir',
+    'Clean',
+    'Command',
+    'Default',
+    'Depends',
+    'Dir',
+    'File',
+    'FindFile',
+    'GetBuildPath',
+    'Ignore',
+    'Install',
+    'InstallAs',
+    'Literal',
+    'Local',
+    'Precious',
+    'Repository',
+    'SConsignFile',
+    'SideEffect',
+    'SourceCode',
+    'SourceSignatures',
+    'Split',
+    'TargetSignatures',
+    'Value',
+]
 
-def AddPostAction(files, action):
-    nodes = SCons.Node.arg2nodes(files, SCons.Node.FS.default_fs.Entry)
-    for n in nodes:
-        n.add_post_action(SCons.Action.Action(action))
+GlobalDefaultBuilders = [
+    # Supported builders.
+    'CFile',
+    'CXXFile',
+    'DVI',
+    'Jar',
+    'Java',
+    'JavaH',
+    'Library',
+    'M4',
+    'MSVSProject',
+    'Object',
+    'PCH',
+    'PDF',
+    'PostScript',
+    'Program',
+    'RES',
+    'RMIC',
+    'SharedLibrary',
+    'SharedObject',
+    'StaticLibrary',
+    'StaticObject',
+    'Tar',
+    'TypeLibrary',
+    'Zip',
+]
 
-def Exit(value=0):
-    sys.exit(value)
-
-
-def Alias(name):
-    alias = SCons.Node.Alias.default_ans.lookup(name)
-    if alias is None:
-        alias = SCons.Node.Alias.default_ans.Alias(name)
-    return alias
-
-def SetOption(name, value):
-    SCons.Script.ssoptions.set(name, value)
-
-def GetOption(name):
-    return SCons.Script.ssoptions.get(name)
-
-def SConsignFile(name=".sconsign.dbm"):
-    import SCons.Sig
-    if not os.path.isabs(name):
-        sd = str(SCons.Node.FS.default_fs.SConstruct_dir)
-        name = os.path.join(sd, name)
-    SCons.Sig.SConsignFile(name)
+for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
+    GlobalDict[name] = DefaultEnvironmentCall(name)
 
 def BuildDefaultGlobals():
     """
@@ -553,53 +626,28 @@ def BuildDefaultGlobals():
 
     globals = {}
     globals['Action']            = SCons.Action.Action
-    globals['AddPostAction']     = AddPostAction
-    globals['AddPreAction']      = AddPreAction
-    globals['Alias']             = Alias
     globals['ARGUMENTS']         = arguments
-    globals['BuildDir']          = BuildDir
     globals['Builder']           = SCons.Builder.Builder
-    globals['CacheDir']          = SCons.Node.FS.default_fs.CacheDir
-    globals['Clean']             = Clean
     globals['Configure']         = SCons.SConf.SConf
-    globals['CScan']             = SCons.Defaults.CScan
-    globals['Default']           = Default
-    globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
-    globals['Dir']               = SCons.Node.FS.default_fs.Dir
-    globals['EnsurePythonVersion'] = EnsurePythonVersion
-    globals['EnsureSConsVersion'] = EnsureSConsVersion
     globals['Environment']       = SCons.Environment.Environment
-    globals['Exit']              = Exit
-    globals['Export']            = Export
-    globals['File']              = SCons.Node.FS.default_fs.File
-    globals['FindFile']          = FindFile
-    globals['GetBuildPath']      = GetBuildPath
-    globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
-    globals['GetJobs']           = GetJobs
-    globals['GetLaunchDir']      = GetLaunchDir
-    globals['GetOption']         = GetOption    
-    globals['Help']              = Help
-    globals['Import']            = Import
-    globals['Literal']           = SCons.Util.Literal
-    globals['Local']             = Local
     globals['Options']           = Options
-    globals['ParseConfig']       = SCons.Util.ParseConfig
     globals['Platform']          = SCons.Platform.Platform
-    globals['Repository']        = SCons.Node.FS.default_fs.Repository
     globals['Return']            = Return
-    globals['SConscript']        = SConscript
-    globals['SConscriptChdir']   = SConscriptChdir
-    globals['SConsignFile']      = SConsignFile
     globals['Scanner']           = SCons.Scanner.Base
+    globals['Tool']              = SCons.Tool.Tool
+    globals['WhereIs']           = SCons.Util.WhereIs
+
+    # Functions we're in the process of converting to Environment methods.
+    globals['CScan']             = SCons.Defaults.CScan
+    globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
+
+    # Deprecated functions, leave these here for now.
+    globals['GetJobs']           = GetJobs
+    globals['ParseConfig']       = ParseConfig
     globals['SetBuildSignatureType'] = SetBuildSignatureType
-    globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
     globals['SetContentSignatureType'] = SetContentSignatureType
     globals['SetJobs']           = SetJobs
-    globals['SetOption']         = SetOption
-    globals['SourceSignatures']  = SourceSignatures
-    globals['Split']             = SCons.Util.Split
-    globals['TargetSignatures']  = TargetSignatures
-    globals['Tool']              = SCons.Tool.Tool
-    globals['Value']             = SCons.Node.Python.Value
-    globals['WhereIs']           = SCons.Util.WhereIs
+
+    globals.update(GlobalDict)
+
     return globals
