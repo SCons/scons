@@ -188,10 +188,10 @@ def get_MkdirBuilder():
     global MkdirBuilder
     if MkdirBuilder is None:
         import SCons.Builder
-        import SCons.Defaults
-        env = SCons.Defaults.DefaultEnvironment()
+        # "env" will get filled in by Executor.get_build_env()
+        # calling SCons.Defaults.DefaultEnvironment() when necessary.
         MkdirBuilder = SCons.Builder.Builder(action = Mkdir,
-                                             env = env,
+                                             env = None,
                                              explain = None)
     return MkdirBuilder
 
@@ -257,18 +257,20 @@ def get_DefaultSCCSBuilder():
     global DefaultSCCSBuilder
     if DefaultSCCSBuilder is None:
         import SCons.Builder
-        import SCons.Defaults
+        # "env" will get filled in by Executor.get_build_env()
+        # calling SCons.Defaults.DefaultEnvironment() when necessary.
         DefaultSCCSBuilder = SCons.Builder.Builder(action = '$SCCSCOM',
-                                                   env = SCons.Defaults.DefaultEnvironment())
+                                                   env = None)
     return DefaultSCCSBuilder
 
 def get_DefaultRCSBuilder():
     global DefaultRCSBuilder
     if DefaultRCSBuilder is None:
         import SCons.Builder
-        import SCons.Defaults
+        # "env" will get filled in by Executor.get_build_env()
+        # calling SCons.Defaults.DefaultEnvironment() when necessary.
         DefaultRCSBuilder = SCons.Builder.Builder(action = '$RCS_COCOM',
-                                                  env = SCons.Defaults.DefaultEnvironment())
+                                                  env = None)
     return DefaultRCSBuilder
 
 #
