@@ -384,6 +384,21 @@ class BuildDirTestCase(unittest.TestCase):
             test.unlink( "src/foo" )
             test.unlink( "build/foo" )
 
+        fs = SCons.Node.FS.FS()
+        fs.BuildDir('build', 'src1')
+
+        # Calling the same BuildDir twice should work fine.
+        fs.BuildDir('build', 'src1')
+
+        # Trying to move a build dir to a second source dir
+        # should blow up
+        try:
+            fs.BuildDir('build', 'src2')
+        except SCons.Errors.UserError:
+            pass
+        else:
+            assert 0, "Should have caught a UserError."
+
         # Test against a former bug.  Make sure we can get a repository
         # path for the build directory itself!
         fs=SCons.Node.FS.FS(test.workpath('work'))

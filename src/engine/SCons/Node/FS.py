@@ -793,6 +793,8 @@ class FS:
         if src_dir.is_under(build_dir):
             raise SCons.Errors.UserError, "Source directory cannot be under build directory."
         if build_dir.srcdir:
+            if build_dir.srcdir == src_dir:
+                return # We already did this.
             raise SCons.Errors.UserError, "'%s' already has a source directory: '%s'."%(build_dir, build_dir.srcdir)
         build_dir.link(src_dir, duplicate)
 
