@@ -870,6 +870,16 @@ class File(Entry):
 
         try:
             path = target.scanner_paths[scanner]
+        except AttributeError:
+            # The target had no scanner_paths attribute, which means
+            # it's an Alias or some other node that's not actually a
+            # file.  In that case, back off and use the path for this
+            # node itself.
+            try:
+                path = self.scanner_paths[scanner]
+            except KeyError:
+                path = scanner.path(env, self.cwd)
+                self.scanner_paths[scanner] = path
         except KeyError:
             path = scanner.path(env, target.cwd)
             target.scanner_paths[scanner] = path

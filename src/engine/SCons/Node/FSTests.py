@@ -754,6 +754,14 @@ class FSTestCase(unittest.TestCase):
         assert deps == [xyz], deps
         assert s.call_count == 2, s.call_count
 
+        # Make sure we can scan this file even if the target isn't
+        # a file that has a scanner (it might be an Alias, e.g.).
+        class DummyNode:
+            pass
+
+        deps = f12.get_found_includes(env, s, DummyNode())
+        assert deps == [xyz], deps
+
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))
         assert not f1.dir.exists()
