@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import stat
 import string
 import sys
 import TestSCons
@@ -82,6 +83,7 @@ test.fail_test(test.read('bbb.zip') != "sub1/file5\nsub1/file6\nfile4\n")
 
 try:
     import zipfile
+    internal_zip = 1
     zip = 1
 
     def files(fname):
@@ -89,6 +91,7 @@ try:
         return map(lambda x: x.filename, zf.infolist())
 
 except ImportError:
+    internal_zip = 0
     zip = test.detect('ZIP', 'zip')
     unzip = test.where_is('unzip')
 
@@ -119,6 +122,16 @@ f2.Zip(target = 'f2.zip', source = ['file13', 'file14'])
 f2.Zip(target = 'f2.zip', source = 'file15')
 f3.Zip(target = 'f3', source = 'file16')
 f3.Zip(target = 'f3', source = ['file17', 'file18'])
+try:
+    import zipfile
+    sources = ['file10', 'file11', 'file12', 'file13', 'file14', 'file15']
+    f1.Zip(target = 'f4.zip', source = sources)
+    f1.Zip(target = 'f4stored.zip', source = sources,
+           ZIPCOMPRESSION = zipfile.ZIP_STORED)
+    f1.Zip(target = 'f4deflated.zip', source = sources,
+           ZIPCOMPRESSION = zipfile.ZIP_DEFLATED)
+except ImportError:
+    pass
 """ % marker_out)
 
     for f in ['file10', 'file11', 'file12',
@@ -148,5 +161,13 @@ f3.Zip(target = 'f3', source = ['file17', 'file18'])
     test.fail_test(files("f2.zip") != ['file13', 'file14', 'file15'])
 
     test.fail_test(files("f3.xyzzy") != ['file16', 'file17', 'file18'])
+
+    if internal_zip:
+        f4_size = os.stat('f4.zip')[stat.ST_SIZE]
+        f4stored_size = os.stat('f4stored.zip')[stat.ST_SIZE]
+        f4deflated_size = os.stat('f4deflated.zip')[stat.ST_SIZE]
+
+        test.fail_test(f4_size != f4deflated_size)
+        test.fail_test(f4stored_size == f4deflated_size)
 
 test.pass_test()

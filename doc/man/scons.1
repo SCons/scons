@@ -5168,7 +5168,26 @@ or a .hpp file
 The zip compression and file packaging utility.
 
 .IP ZIPCOM
-The command line used to call the zip utility.
+The command line used to call the zip utility,
+or the internal Python function used to create a
+zip archive.
+
+.IP ZIPCOMPRESSION
+The
+.I compression
+flag
+from the Python
+.B zipfile
+module used by the internal Python function
+to control whether the zip archive
+is compressed or not.
+The default value is
+.BR zipfile.ZIP_DEFLATED ,
+which creates a compressed zip archive.
+This value has no effect when using Python 1.5.2
+or if the
+.B zipfile
+module is otherwise unavailable.
 
 .IP ZIPFLAGS
 General options passed to the zip utility.
