@@ -456,8 +456,7 @@ def _Have(context, key, have):
     elif type(have) == IntType:
         line = "#define %s %d\n" % (key_up, have)
     else:
-        line = "#define %s %s\n" % (key_up,
-                                    re.sub('[^A-Za-z0-9_]', '_', str(have)))
+        line = "#define %s %s\n" % (key_up, str(have))
     
     if context.headerfilename:
         f = open(context.headerfilename, "a")

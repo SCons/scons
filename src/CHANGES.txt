@@ -206,6 +206,9 @@ RELEASE 0.97 - XXX
     and Linux, where it's named icc.  (Niall Douglas contributed an
     early prototype of parts of this module.)
 
+  - Fix the private Conftest._Have() function so it doesn't change
+    non-alphanumeric characters to underscores.
+
   From Chris Pawling:
 
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
