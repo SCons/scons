@@ -86,7 +86,7 @@ sconscript_reading = 0
 
 def _scons_add_args(alist):
     for arg in alist:
-        a, b = string.split(arg, '=', 2)
+        a, b = string.split(arg, '=', 1)
         Arguments[a] = b
 
 def _scons_add_targets(tlist):

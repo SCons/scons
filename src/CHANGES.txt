@@ -84,6 +84,10 @@ RELEASE 0.95 - XXX
     of them from cache, not just the first target, and exec the build
     command if any of the targets isn't present in the cache.
 
+  From Zephaniah Hull:
+
+  - Fix command-line ARGUMENTS with multiple = in them.
+
   From Steven Knight:
 
   - Fix EnsureSConsVersion() so it checks against the SCons version,
