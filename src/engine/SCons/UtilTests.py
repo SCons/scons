@@ -243,6 +243,31 @@ class UtilTestCase(unittest.TestCase):
         actual = render_tree(foo, get_children)
         assert expect == actual, (expect, actual)
 
+    def test_is_Dict(self):
+        assert is_Dict({})
+        import UserDict
+        assert is_Dict(UserDict.UserDict())
+        assert not is_Dict([])
+        assert not is_Dict("")
+
+    def test_is_List(self):
+        assert is_List([])
+        import UserList
+        assert is_List(UserList.UserList())
+        assert not is_List({})
+        assert not is_List("")
+
+    def test_is_String(self):
+        assert is_String("")
+        try:
+            import UserString
+        except:
+            pass
+        else:
+            assert is_String(UserString.UserString())
+        assert not is_String({})
+        assert not is_String([])
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():

@@ -33,21 +33,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import SCons.Node.FS
-from SCons.Util import PathList, scons_str2nodes, scons_subst, scons_subst_list, autogenerate
 import string
 import sys
 import types
-from UserList import UserList
-from UserDict import UserDict
 from Errors import UserError
 
-try:
-    from UserString import UserString
-except ImportError:
-    class UserString:
-        pass
-
+import SCons.Node.FS
+import SCons.Util
 
 exitvalmap = {
     2 : 127,
@@ -81,7 +73,7 @@ elif os.name == 'nt':
 	if os.path.isabs(cmd):
 	    if not os.path.exists(cmd):
 	        exts = env['PATHEXT']
-		if type(exts) != type([]):
+		if not SCons.Util.is_List(exts):
 		    exts = string.split(exts, os.pathsep)
 		for e in exts:
 		    f = cmd + e
@@ -89,10 +81,10 @@ elif os.name == 'nt':
 		        return f
 	else:
 	    path = env['PATH']
-	    if type(path) != type([]):
+	    if not SCons.Util.is_List(path):
 	        path = string.split(path, os.pathsep)
 	    exts = env['PATHEXT']
-	    if type(exts) != type([]):
+	    if not SCons.Util.is_List(exts):
 	        exts = string.split(exts, os.pathsep)
 	    pairs = []
 	    for dir in path:
@@ -122,8 +114,7 @@ elif os.name == 'nt':
 
 def Builder(**kw):
     """A factory for builder objects."""
-    if kw.has_key('action') and (type(kw['action']) is types.DictType or
-                                 isinstance(kw['action'], UserDict)):
+    if kw.has_key('action') and SCons.Util.is_Dict(kw['action']):
         return apply(CompositeBuilder, (), kw)
     elif kw.has_key('src_builder'):
         return apply(MultiStepBuilder, (), kw)
@@ -165,12 +156,12 @@ class BuilderBase:
         """
 	def adjustixes(files, pre, suf):
 	    ret = []
-            if type(files) is types.StringType or isinstance(files, UserString):
+            if SCons.Util.is_String(files):
                 files = string.split(files)
-	    if not type(files) is type([]):
+            if not SCons.Util.is_List(files):
 	        files = [files]
 	    for f in files:
-                if type(f) is types.StringType or isinstance(f, UserString):
+                if SCons.Util.is_String(f):
 		    if pre and f[:len(pre)] != pre:
                         path, fn = os.path.split(os.path.normpath(f))
                         f = os.path.join(path, pre + fn)
@@ -180,15 +171,15 @@ class BuilderBase:
 		ret.append(f)
 	    return ret
 
-	tlist = scons_str2nodes(adjustixes(target,
-                                           env.subst(self.prefix),
-                                           env.subst(self.suffix)),
-                                self.node_factory)
+        tlist = SCons.Util.scons_str2nodes(adjustixes(target,
+                                                      env.subst(self.prefix),
+                                                      env.subst(self.suffix)),
+                                           self.node_factory)
 
-        slist = scons_str2nodes(adjustixes(source,
-                                           None,
-                                           env.subst(self.src_suffix)),
-                                self.node_factory)
+        slist = SCons.Util.scons_str2nodes(adjustixes(source,
+                                                      None,
+                                                      env.subst(self.src_suffix)),
+                                           self.node_factory)
         return tlist, slist
 
     def _init_nodes(self, env, tlist, slist):
@@ -258,7 +249,7 @@ class MultiStepBuilder(BuilderBase):
         self.src_builder = src_builder
 
     def __call__(self, env, target = None, source = None):
-        slist = scons_str2nodes(source, self.node_factory)
+        slist = SCons.Util.scons_str2nodes(source, self.node_factory)
         final_sources = []
         src_suffix = env.subst(self.src_suffix)
         for snode in slist:
@@ -266,7 +257,7 @@ class MultiStepBuilder(BuilderBase):
             if not src_suffix or ext != src_suffix:
                 tgt = self.src_builder(env, target = [ path ],
                                      source=snode)
-                if not type(tgt) is types.ListType:
+                if not SCons.Util.is_List(tgt):
                     final_sources.append(tgt)
                 else:
                     final_sources.extend(tgt)
@@ -292,7 +283,7 @@ class CompositeBuilder(BuilderBase):
                         src_builder = []):
         BuilderBase.__init__(self, name=name, prefix=prefix,
                              suffix=suffix)
-        if src_builder and not type(src_builder) is types.ListType:
+        if src_builder and not SCons.Util.is_List(src_builder):
             src_builder = [src_builder]
         self.src_builder = src_builder
         self.builder_dict = {}
@@ -353,9 +344,9 @@ def Action(act):
     """A factory for action objects."""
     if callable(act):
 	return FunctionAction(act)
-    elif type(act) == types.StringType or isinstance(act, UserString):
+    elif SCons.Util.is_String(act):
 	return CommandAction(act)
-    elif type(act) == types.ListType or isinstance(act, UserList):
+    elif SCons.Util.is_List(act):
 	return ListAction(act)
     else:
 	return None
@@ -407,27 +398,27 @@ class ActionBase:
         if kw.has_key('target'):
             t = kw['target']
             del kw['target']
-            if not type(t) is types.ListType and not isinstance(t, UserList):
+            if not SCons.Util.is_List(t):
                 t = [t]
             try:
                 cwd = t[0].cwd
             except AttributeError:
                 pass
-            dict['TARGETS'] = PathList(map(os.path.normpath, map(str, t)))
+            dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(str, t)))
             if dict['TARGETS']:
                 dict['TARGET'] = dict['TARGETS'][0]
 
         if kw.has_key('source'):
             s = kw['source']
             del kw['source']
-            if not type(s) is types.ListType:
+            if not SCons.Util.is_List(s):
                 s = [s]
-            dict['SOURCES'] = PathList(map(os.path.normpath, map(str, s)))
+            dict['SOURCES'] = SCons.Util.PathList(map(os.path.normpath, map(str, s)))
 
         dict.update(kw)
 
         # Autogenerate necessary construction variables.
-        autogenerate(dict, dir = cwd)
+        SCons.Util.autogenerate(dict, dir = cwd)
 
         return dict
 
@@ -437,8 +428,9 @@ class CommandAction(ActionBase):
         self.command = string
 
     def execute(self, **kw):
+        import SCons.Util
         dict = apply(self.subst_dict, (), kw)
-        cmd_list = scons_subst_list(self.command, dict, {})
+        cmd_list = SCons.Util.scons_subst_list(self.command, dict, {})
         for cmd_line in cmd_list:
             if len(cmd_line):
                 if print_actions:
@@ -465,7 +457,7 @@ class CommandAction(ActionBase):
         kw['target'] = ['__t1__', '__t2__']
         kw['source'] = ['__s1__', '__s2__']
         dict = apply(self.subst_dict, (), kw)
-        return scons_subst(self.command, dict, {})
+        return SCons.Util.scons_subst(self.command, dict, {})
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""
@@ -477,7 +469,7 @@ class FunctionAction(ActionBase):
 	# XXX:  WHAT SHOULD WE PRINT HERE?
 	if execute_actions:
             if kw.has_key('target'):
-                if type(kw['target']) is types.ListType:
+                if SCons.Util.is_List(kw['target']):
                     kw['target'] = map(str, kw['target'])
                 else:
                     kw['target'] = str(kw['target'])

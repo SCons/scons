@@ -30,14 +30,22 @@ Various utility functions go here.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
-import os.path
-import types
-import string
-import re
-from UserList import UserList
-import SCons.Node.FS
 import copy
+import os.path
+import re
+import string
+import types
+import UserDict
+import UserList
+
+try:
+    from UserString import UserString
+except ImportError:
+    class UserString:
+        pass
+
 import SCons.Node
+import SCons.Node.FS
 
 def scons_str2nodes(arg, node_factory=SCons.Node.FS.default_fs.File):
     """This function converts a string or list into a list of Node instances.
@@ -51,14 +59,14 @@ def scons_str2nodes(arg, node_factory=SCons.Node.FS.default_fs.File):
     In all cases, the function returns a list of Node instances."""
 
     narg = arg
-    if type(arg) is types.StringType:
+    if is_String(arg):
 	narg = string.split(arg)
-    elif type(arg) is not types.ListType:
+    elif not is_List(arg):
 	narg = [arg]
 
     nodes = []
     for v in narg:
-	if type(v) is types.StringType:
+	if is_String(v):
 	    nodes.append(node_factory(v))
 	# Do we enforce the following restriction?  Maybe, but it
 	# also restricts what we can do for allowing people to
@@ -74,7 +82,7 @@ def scons_str2nodes(arg, node_factory=SCons.Node.FS.default_fs.File):
     return nodes
 
 
-class PathList(UserList):
+class PathList(UserList.UserList):
     """This class emulates the behavior of a list, but also implements
     the special "path dissection" attributes we can use to find
     suffixes, base names, etc. of the paths in the list.
@@ -91,7 +99,7 @@ class PathList(UserList):
     'bar foo'
     """
     def __init__(self, seq = []):
-        UserList.__init__(self, seq)
+        UserList.UserList.__init__(self, seq)
 
     def __getattr__(self, name):
         # This is how we implement the "special" attributes
@@ -157,7 +165,7 @@ class PathList(UserList):
         # We must do this to ensure that single items returned
         # by index access have the special attributes such as
         # suffix and basepath.
-        return self.__class__([ UserList.__getitem__(self, item), ])
+        return self.__class__([ UserList.UserList.__getitem__(self, item), ])
 
 _cv = re.compile(r'\$([_a-zA-Z]\w*|{[^}]*})')
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
@@ -189,8 +197,7 @@ def scons_subst_list(strSubst, locals, globals):
             e = eval(key, locals, globals)
             if not e:
                 s = ''
-            elif type(e) is types.ListType or \
-                 isinstance(e, UserList):
+            elif is_List(e):
                 s = string.join(map(str, e), '\0')
             else:
                 s = _space_sep.sub('\0', str(e))
@@ -282,7 +289,7 @@ class VarInterpolator:
 
     def prepareSrc(self, dict):
         src = dict[self.src]
-        if not type(src) is types.ListType and not isinstance(src, UserList):
+        if not is_List(src):
             src = [ src ]
 
         def prepare(x, dict=dict):
@@ -409,3 +416,12 @@ def render_tree(root, child_func, margin=[0], visited={}):
         margin.pop()
 
     return retval
+
+def is_Dict(e):
+    return type(e) is types.DictType or isinstance(e, UserDict.UserDict)
+
+def is_List(e):
+    return type(e) is types.ListType or isinstance(e, UserList.UserList)
+
+def is_String(e):
+    return type(e) is types.StringType or isinstance(e, UserString)

@@ -39,7 +39,6 @@ import SCons.Util
 import SCons.Builder
 import SCons.Defaults
 from SCons.Errors import UserError
-from UserList import UserList
 import SCons.Node.FS
 import sys
 import shutil
@@ -73,11 +72,11 @@ def InstallAs():
 def our_deepcopy(x):
    """deepcopy lists and dictionaries, and just copy the reference 
    for everything else.""" 
-   if type(x) is type({}):
+   if SCons.Util.is_Dict(x):
        copy = {}
        for key in x.keys():
            copy[key] = our_deepcopy(x[key])
-   elif type(x) is type([]):
+   elif SCons.Util.is_List(x):
        copy = map(our_deepcopy, x)
    else:
        copy = x
@@ -130,10 +129,10 @@ class Environment:
 	"""
 	self._dict.update(our_deepcopy(kw))
         if self._dict.has_key('BUILDERS') and \
-           type(self._dict['BUILDERS']) != type([]):
+           not SCons.Util.is_List(self._dict['BUILDERS']):
             self._dict['BUILDERS'] = [self._dict['BUILDERS']]
         if self._dict.has_key('SCANNERS') and \
-           type(self._dict['SCANNERS']) != type([]):
+           not SCons.Util.is_List(self._dict['SCANNERS']):
             self._dict['SCANNERS'] = [self._dict['SCANNERS']]
 
         class BuilderWrapper:

@@ -37,6 +37,9 @@ RELEASE 0.03 -
     the user's environment variables to executed commands; how to
     build variants in multiple BuildDirs.
 
+  - Collect String, Dict, and List type-checking in common utility
+    routines so we can accept User{String,Dict,List}s all over.
+
   From Anthony Roach:
 
   - Add a "duplicate" keyword argument to BuildDir() that can be set
