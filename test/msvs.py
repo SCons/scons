@@ -68,8 +68,8 @@ CFG=Test - Win32 Release
 # PROP BASE Use_Debug_Libraries 0
 # PROP BASE Output_Dir "<WORKPATH>"
 # PROP BASE Intermediate_Dir "<WORKPATH>"
-# PROP BASE Cmd_Line "<PYTHON> -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-# PROP BASE Rebuild_Opt "-c && <PYTHON> -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
+# PROP BASE Cmd_Line ""<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
+# PROP BASE Rebuild_Opt "-c && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
 # PROP BASE Target_File "<WORKPATH>\Test.exe"
 # PROP BASE Bsc_Name ""
 # PROP BASE Target_Dir ""
@@ -77,8 +77,8 @@ CFG=Test - Win32 Release
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "<WORKPATH>"
 # PROP Intermediate_Dir "<WORKPATH>"
-# PROP Cmd_Line "<PYTHON> -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
-# PROP Rebuild_Opt "-c && <PYTHON> -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
+# PROP Cmd_Line ""<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
+# PROP Rebuild_Opt "-c && "<PYTHON>" -c "<SCONS_SCRIPT_MAIN>" -C <WORKPATH> -f SConstruct <WORKPATH>\Test.exe"
 # PROP Target_File "<WORKPATH>\Test.exe"
 # PROP Bsc_Name ""
 # PROP Target_Dir ""

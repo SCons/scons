@@ -160,6 +160,7 @@ class SConfTestCase(unittest.TestCase):
                         self.name = name
                         self.state = None
                         self.side_effects = []
+                        self.builder = None
                     def has_builder(self):
                         return 1
                     def add_pre_action(self, *actions):
@@ -180,9 +181,22 @@ class SConfTestCase(unittest.TestCase):
                         pass
                     def clear(self):
                         pass
+                    def current(self, calc=None):
+                        return None
+                    def prepare(self):
+                        pass
+                    def retrieve_from_cache(self):
+                        return 0
+                    def build(self, **kw):
+                        return
+                    def built(self):
+                        pass
                 return [MyNode('n1'), MyNode('n2')]
-        self.scons_env.Append(BUILDERS = {'SConfActionBuilder' : MyBuilder()})
-        sconf.TryBuild(self.scons_env.SConfActionBuilder)
+        try:
+            self.scons_env.Append(BUILDERS = {'SConfActionBuilder' : MyBuilder()})
+            sconf.TryBuild(self.scons_env.SConfActionBuilder)
+        finally:
+            sconf.Finish()
 
     def test_TryCompile(self):
         """Test SConf.TryCompile

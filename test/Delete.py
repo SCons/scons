@@ -161,6 +161,8 @@ test.write('f14.in', "f14.in\n")
 
 test.run(status=2, stderr=None)
 
-test.fail_test(string.find(test.stderr(), "No such file or directory") == -1)
+stderr = test.stderr()
+test.fail_test(string.find(stderr, "No such file or directory") == -1 and
+               string.find(stderr, "The system cannot find the path specified") == -1)
 
 test.pass_test()
