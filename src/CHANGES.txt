@@ -238,6 +238,23 @@ RELEASE 0.97 - XXX
     Command() and Scanner test coverage.  Improved test infrastructure
     for -c output.
 
+  - Refactor the interface between Action and Executor objects to treat
+    Actions atomically.
+
+  - The --debug=presub option will now report the pre-substitution
+    each action seprately, instead of reporting the entire list before
+    executing the actions one by one.
+
+  - The --debug=explain option explaining a changed action will now
+    (more correctly) show pre-substitution action strings, instead of
+    the commands with substituted file names.
+
+  - A Node (file) will now be rebuilt if its PreAction or PostAction
+    actions change.
+
+  - Python Function actions now have their calling signature (target,
+    source, env) reported correctly when displayed.
+
   From Levi Stephen:
 
   - Allow $JARCHDIR to be expanded to other construction variables.

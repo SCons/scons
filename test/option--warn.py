@@ -72,20 +72,17 @@ test.write("foo.c","""
 
 test.run(arguments='--warn=dependency .', stderr=r"""
 scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
-File ".+", line \d+, in .+
-""")
+""" + TestSCons.file_expr)
 
 test.run(arguments='--warn=all .', stderr=r"""
 scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
-File ".+", line \d+, in .+
-""")
+""" + TestSCons.file_expr)
 
 test.run(arguments='--warn=all --warn=no-dependency .', stderr="")
 
 test.run(arguments='--warn=no-dependency --warn=all .', stderr=r"""
 scons: warning: No dependency generated for file: not_there\.h \(included from: foo\.c\) \-\- file not found
-File ".+", line \d+, in .+
-""")
+""" + TestSCons.file_expr)
 
 
 
@@ -101,8 +98,7 @@ SConscript('no_such_file')
 
 test.run(arguments = '--warn=missing-sconscript .', stderr = r"""
 scons: warning: Ignoring missing SConscript 'no_such_file'
-File ".+", line \d+, in .+
-""")
+""" + TestSCons.file_expr)
 
 test.run(arguments = '--warn=no-missing-sconscript .', stderr = "")
 
@@ -127,18 +123,16 @@ test.write('file1b.in', 'file1b.in\n')
 test.run(arguments='file1.out', 
          stderr=r"""
 scons: warning: Two different environments were specified for target file1.out,
-	but they appear to have the same action: build\(\["file1.out"\], \["file1b.in"\]\)
-File "SConstruct", line \d+, in .+
-""")
+	but they appear to have the same action: build\(target, source, env\)
+""" + TestSCons.file_expr)
 
 test.must_match('file1.out', "file1a.in\nfile1b.in\n")
 
 test.run(arguments='--warn=duplicate-environment file1.out', 
          stderr=r"""
 scons: warning: Two different environments were specified for target file1.out,
-	but they appear to have the same action: build\(\["file1.out"\], \["file1b.in"\]\)
-File "SConstruct", line \d+, in .+
-""")
+	but they appear to have the same action: build\(target, source, env\)
+""" + TestSCons.file_expr)
 
 test.run(arguments='--warn=no-duplicate-environment file1.out')
 
@@ -162,11 +156,9 @@ test.write('file3b.out', 'file3b.out\n')
 test.run(arguments='.', 
          stderr=r"""
 scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
-File "SConstruct", line \d+, in .+
-
+""" + TestSCons.file_expr + r"""
 scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
-File "SConstruct", line \d+, in .+
-""")
+""" + TestSCons.file_expr)
 
 test.must_match(['file3a'], 'file3a.in\n')
 test.must_match(['file3b'], 'file3b.out\n')
@@ -174,11 +166,9 @@ test.must_match(['file3b'], 'file3b.out\n')
 test.run(arguments='--warn=misleading-keywords .', 
          stderr=r"""
 scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
-File "SConstruct", line \d+, in .+
-
+""" + TestSCons.file_expr + r"""\
 scons: warning: Did you mean to use `(target|source)' instead of `(targets|sources)'\?
-File "SConstruct", line \d+, in .+
-""")
+""" + TestSCons.file_expr)
 
 test.run(arguments='--warn=no-misleading-keywords .')
 

@@ -28,10 +28,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test various cases where a target is "built" by multiple builder calls.
 """
 
+import TestCmd
 import TestSCons
 import os.path
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestCmd.match_re)
 
 
 #
@@ -80,10 +81,9 @@ test.write('file2b.in', 'file2b.in\n')
 
 test.run(arguments='file2.out', 
          status=2, 
-         stderr="""
+         stderr=TestSCons.re_escape("""
 scons: *** Multiple ways to build the same target were specified for: file2.out  (from ['file2a.in'] and from ['file2b.in'])
-File "SConstruct", line 10, in ?
-""")
+""") + TestSCons.file_expr)
 
 
 #
@@ -108,10 +108,9 @@ test.write('file3b.in', 'file3b.in\n')
 
 test.run(arguments='file3.out', 
          status=2, 
-         stderr="""
+         stderr=TestSCons.re_escape("""
 scons: *** Two different sets of overrides were specified for the same target: file3.out
-File "SConstruct", line 10, in ?
-""")
+""") + TestSCons.file_expr)
 
 
 #
@@ -160,11 +159,10 @@ test.write('file5a.in', 'file5a.in\n')
 test.write('file5b.in', 'file5b.in\n')
 
 test.run(arguments='file5.out', 
-         stderr="""
+         stderr=TestSCons.re_escape("""
 scons: warning: Two different environments were specified for target file5.out,
-	but they appear to have the same action: build(["file5.out"], ["file5b.in"])
-File "SConstruct", line 11, in ?
-""")
+	but they appear to have the same action: build(target, source, env)
+""") + TestSCons.file_expr)
 
 test.must_match('file5.out', "file5a.in\nfile5b.in\n")
 
@@ -192,10 +190,9 @@ test.write('file6b.in', 'file6b.in\n')
 
 test.run(arguments='file6.out', 
          status=2,
-         stderr="""
+         stderr=TestSCons.re_escape("""
 scons: *** Two environments with different actions were specified for the same target: file6.out
-File "SConstruct", line 11, in ?
-""")
+""") + TestSCons.file_expr)
 
 
 #
@@ -248,10 +245,9 @@ test.write('file8b.in', 'file8b.in\n')
 
 test.run(arguments='file8.out', 
          status=2, 
-         stderr="""
+         stderr=TestSCons.re_escape("""
 scons: *** Two different builders (B and C) were specified for the same target: file8.out
-File "SConstruct", line 14, in ?
-""")
+""") + TestSCons.file_expr)
 
 
 #
@@ -305,10 +301,9 @@ test.write('file10.in', 'file10.in\n')
 
 test.run(arguments='file10.out', 
          status=2, 
-         stderr="""
+         stderr=TestSCons.re_escape("""
 scons: *** Two different target sets have a target in common: file10b.out
-File "SConstruct", line 11, in ?
-""")
+""") + TestSCons.file_expr)
 
 
 #
@@ -340,10 +335,9 @@ test.write('file11b.in', 'file11b.in\n')
 
 test.run(arguments='file11.out', 
          status=2, 
-         stderr="""
+         stderr=TestSCons.re_escape("""
 scons: *** Two different target sets have a target in common: file11b.out
-File "SConstruct", line 11, in ?
-""")
+""") + TestSCons.file_expr)
 
 
 #
@@ -368,10 +362,9 @@ test.write('file12b.in', 'file12b.in\n')
 
 test.run(arguments='file12.out', 
          status=2, 
-         stderr="""
+         stderr=TestSCons.re_escape("""
 scons: *** Cannot build same target `file12a.out' as singular and list
-File "SConstruct", line 11, in ?
-""")
+""") + TestSCons.file_expr)
 
 
 

@@ -88,36 +88,15 @@ class Executor:
                                                          self.sources))
             return self.build_env
 
-    def get_action_list(self, target):
-        """Fetch or create the appropriate action list (for this target).
-
-        There is an architectural mistake here: we cache the action list
-        for the Executor and re-use it regardless of which target is
-        being asked for.  In practice, this doesn't seem to be a problem
-        because executing the action list will update all of the targets
-        involved, so only one target's pre- and post-actions will win,
-        anyway.  This is probably a bug we should fix...
-        """
-        al = [self.action]
-        try:
-            # XXX shouldn't reach into node attributes like this
-            return target.pre_actions + al + target.post_actions
-        except AttributeError:
-            return al
-
     def do_nothing(self, target, errfunc, **kw):
         pass
 
     def __call__(self, target, errfunc, **kw):
         """Actually execute the action list."""
-        action_list = self.get_action_list(target)
-        if not action_list:
-            return
-        env = self.get_build_env()
         kw = kw.copy()
         kw.update(self.builder_kw)
-        for action in action_list:
-            apply(action, (self.targets, self.sources, env, errfunc), kw)
+        apply(self.action, (self.targets, self.sources,
+                            self.get_build_env(), errfunc), kw)
 
     def cleanup(self):
         try:
@@ -142,45 +121,9 @@ class Executor:
                                            self.get_build_env())
             return self.string
 
-    def strfunction(self):
-        try:
-            return self._strfunc
-        except AttributeError:
-            action = self.action
-            build_env = self.get_build_env()
-            if action.strfunction is None:
-                # This instance has strfunction set to None to suppress
-                # printing of the action.  Call the method directly
-                # through the class instead.
-                self._strfunc = action.__class__.strfunction(action,
-                                                             self.targets,
-                                                             self.sources,
-                                                             build_env)
-            else:
-                self._strfunc = action.strfunction(self.targets,
-                                                   self.sources,
-                                                   build_env)
-            return self._strfunc
-
     def nullify(self):
         self.__call__ = self.do_nothing
         self.string = ''
-        self._strfunc = None
-
-    def get_raw_contents(self):
-        """Fetch the raw signature contents.  This, along with
-        get_contents(), is the real reason this class exists, so we can
-        compute this once and cache it regardless of how many target or
-        source Nodes there are.
-        """
-        try:
-            return self.raw_contents
-        except AttributeError:
-            action = self.action
-            self.raw_contents = action.get_raw_contents(self.targets,
-                                                        self.sources,
-                                                        self.get_build_env())
-            return self.raw_contents
 
     def get_contents(self):
         """Fetch the signature contents.  This, along with

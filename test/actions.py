@@ -124,7 +124,7 @@ print env.subst('$L')
 
 test.run(arguments = '-Q .', stdout = """\
 foo
-func(env, target, source)
+func(target, source, env)
 arg1
 arg2
 scons: `.' is up to date.

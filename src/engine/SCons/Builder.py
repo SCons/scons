@@ -291,7 +291,7 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
 
                 if t_contents == contents:
                     SCons.Warnings.warn(SCons.Warnings.DuplicateEnvironmentWarning,
-                                        "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s"%(str(t), t.builder.action.strfunction(tlist, slist, t.env)))
+                                        "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s"%(str(t), t.builder.action.genstring(tlist, slist, t.env)))
 
                 else:
                     raise UserError, "Two environments with different actions were specified for the same target: %s"%str(t)

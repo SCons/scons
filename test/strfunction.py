@@ -128,12 +128,14 @@ Building dict6.out from dict6.lazystr
 %s cat.py dict7.list .temp
 %s cat.py .temp dict7.out
 Building dict8.out from dict8.liststr
+Building dict8.out from dict8.liststr
 func(["func.out"], ["func.in"])
 Building funcstr.out from funcstr.in
 %s cat.py lazy.in lazy.out
 Building lazystr.out from lazystr.in
 %s cat.py list.in .temp
 %s cat.py .temp list.out
+Building liststr.out from liststr.in
 Building liststr.out from liststr.in
 """) % (python, python, python, python, python, python, python, python))
 
