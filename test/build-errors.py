@@ -189,7 +189,7 @@ else:
 
 test.write('SConstruct4', r"""
 env = Environment()
-env.Command('test.out', 'test.in', 'cp $SOURCE $TARGET')
+env.Command('test.out', 'test.in', Copy('$TARGET', '$SOURCE'))
 env.InstallAs('test2.out', 'test.out')
 # Mark test2.out as precious so we'll handle the exception in
 # FunctionAction() rather than when the target is cleaned before building.
