@@ -2359,18 +2359,20 @@ or retrieved from the cache.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
-.RI Clean( target ", " files_or_dirs )
+.RI Clean( targets ", " files_or_dirs )
 .TP 
-.RI env.Clean( target ", " files_or_dirs )
+.RI env.Clean( targets ", " files_or_dirs )
 This specifies a list of files or directories which should be removed
-whenever the target is specified with the
+whenever the targets are specified with the
 .B -c
 command line option.
+The specified targets may be a list
+or an individual target.
 Multiple calls to
 .BR Clean ()
 are legal,
-and create a new target or add files and directories to the
-clean list for the specified target.
+and create new targets or add files and directories to the
+clean list for the specified targets.
 
 Multiple files or directories should be specified
 either as separate arguments to the
@@ -2384,6 +2386,7 @@ Examples:
 .ES
 Clean('foo', ['bar', 'baz'])
 Clean('dist', env.Program('hello', 'hello.c'))
+Clean(['foo', 'bar'], 'something_else_to_clean')
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
