@@ -992,6 +992,8 @@ def _main():
                     sys.stderr.write(string + "  Stop.\n")
                     sys.exit(2)
                 sys.stderr.write(string + "\n")
+                global exit_status
+                exit_status = 2
                 node = None
         if top and not node.is_under(top):
             if isinstance(node, SCons.Node.FS.Dir) and top.is_under(node):

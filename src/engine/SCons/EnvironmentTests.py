@@ -586,27 +586,52 @@ class EnvironmentTestCase(unittest.TestCase):
         """Test Detect()ing tools"""
         test = TestCmd.TestCmd(workdir = '')
         test.subdir('sub1', 'sub2')
-        test.write(['sub1', 'xxx.exe'], "sub1/xxx.exe\n")
-        test.write(['sub2', 'xxx.exe'], "sub2/xxx.exe\n")
-
         sub1 = test.workpath('sub1')
         sub2 = test.workpath('sub2')
-        env = Environment(ENV = { 'PATH' : [sub1, sub2] })
-        x = env.Detect('xxx.exe')
-        assert x is None, x
 
-        sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
-        os.chmod(sub2_xxx_exe, 0755)
+        if sys.platform == 'win32':
+            test.write(['sub1', 'xxx'], "sub1/xxx\n")
+            test.write(['sub2', 'xxx'], "sub2/xxx\n")
 
-        env = Environment(ENV = { 'PATH' : [sub1, sub2] })
-        x = env.Detect('xxx.exe')
-        assert x == 'xxx.exe'
+            env = Environment(ENV = { 'PATH' : [sub1, sub2] })
 
-        sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
-        os.chmod(sub1_xxx_exe, 0755)
+            x = env.Detect('xxx.exe')
+            assert x is None, x
 
-        x = env.Detect('xxx.exe')
-        assert x == 'xxx.exe'
+            test.write(['sub2', 'xxx.exe'], "sub2/xxx.exe\n")
+
+            env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+
+            x = env.Detect('xxx.exe')
+            assert x == 'xxx.exe', x
+
+            test.write(['sub1', 'xxx.exe'], "sub1/xxx.exe\n")
+
+            x = env.Detect('xxx.exe')
+            assert x == 'xxx.exe', x
+
+        else:
+            test.write(['sub1', 'xxx.exe'], "sub1/xxx.exe\n")
+            test.write(['sub2', 'xxx.exe'], "sub2/xxx.exe\n")
+
+            env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+
+            x = env.Detect('xxx.exe')
+            assert x is None, x
+
+            sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
+            os.chmod(sub2_xxx_exe, 0755)
+
+            env = Environment(ENV = { 'PATH' : [sub1, sub2] })
+
+            x = env.Detect('xxx.exe')
+            assert x == 'xxx.exe', x
+
+            sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
+            os.chmod(sub1_xxx_exe, 0755)
+
+            x = env.Detect('xxx.exe')
+            assert x == 'xxx.exe', x
 
         env = Environment(ENV = { 'PATH' : [] })
         x = env.Detect('xxx.exe')

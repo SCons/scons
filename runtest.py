@@ -41,6 +41,7 @@
 #
 
 import getopt
+import glob
 import os
 import os.path
 import re
@@ -62,7 +63,7 @@ else:
     # not an executable, so it's all right.
     lib_dir = os.path.join(sys.exec_prefix, "lib", "python" + sys.version[0:3])
 
-opts, tests = getopt.getopt(sys.argv[1:], "adqp:Xx:",
+opts, args = getopt.getopt(sys.argv[1:], "adqp:Xx:",
 			    ['all', 'debug', 'exec=', 'quiet', 'package='])
 
 for o, a in opts:
@@ -75,8 +76,9 @@ for o, a in opts:
 
 cwd = os.getcwd()
 
-if tests:
-    map(os.path.abspath, tests)
+if args:
+    for a in args:
+        tests.extend(glob.glob(os.path.abspath(a)))
 elif all:
     def find_Test_py(arg, dirname, names):
 	global tests

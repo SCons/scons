@@ -62,7 +62,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(TAR = r'%s mytar.py', TARFLAGS = '-x')
+env = Environment(tools = ['tar'], TAR = r'%s mytar.py', TARFLAGS = '-x')
 env.Tar(target = 'aaa.tar', source = ['file1', 'file2'])
 env.Tar(target = 'aaa.tar', source = 'file3')
 env.Tar(target = 'bbb', source = 'sub1')
@@ -99,9 +99,11 @@ os.system(string.join(sys.argv[1:], " "))
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment()
+foo = Environment(tools = ['tar'])
 tar = foo['TAR']
-bar = Environment(TAR = '', TARFLAGS = '%s wrapper.py ' + tar + ' -c -b 1')
+bar = Environment(tools = ['tar'],
+                  TAR = '',
+		  TARFLAGS = '%s wrapper.py ' + tar + ' -c -b 1')
 foo.Tar(target = 'foo.tar', source = ['file10', 'file11'])
 foo.Tar(target = 'foo.tar', source = 'file12')
 bar.Tar(target = 'bar.tar', source = ['file13', 'file14'])

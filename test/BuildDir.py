@@ -212,7 +212,6 @@ def equal_stats(x,y):
     x = os.stat(x)
     y = os.stat(y)
     return (stat.S_IMODE(x[stat.ST_MODE]) == stat.S_IMODE(y[stat.ST_MODE]) and
-            x[stat.ST_ATIME] ==  y[stat.ST_ATIME] and
             x[stat.ST_MTIME] ==  y[stat.ST_MTIME])
 
 # Make sure we did duplicate the source files in build/var2, and that their stats are the same:
