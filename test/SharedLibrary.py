@@ -35,7 +35,7 @@ env=Environment(WIN32_INSERT_DEF=1)
 env2 = Environment(LIBS = [ 'foo1', 'foo2', 'foo3' ],
                    LIBPATH = [ '.' ])
 env.Library(target = 'foo1', source = 'f1.c', shared=1)
-env.Library(target = 'foo2', source = 'f2a.c f2b.c f2c.c', shared=1)
+env.Library(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'), shared=1)
 env.Library(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'], shared=1)
 env2.Program(target = 'prog', source = 'prog.c')
 """)

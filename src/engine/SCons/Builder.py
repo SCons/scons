@@ -256,11 +256,11 @@ class BuilderBase:
         """Create and return lists of target and source nodes.
         """
         def adjustixes(files, pre, suf):
+            if not files:
+                return []
             ret = []
-            # FOR RELEASE 0.08:
-            #if not SCons.Util.is_List(files):
-            #    files = [files]
-            files = SCons.Util.argmunge(files)
+            if not SCons.Util.is_List(files):
+                files = [files]
 
             for f in files:
                 if SCons.Util.is_String(f):

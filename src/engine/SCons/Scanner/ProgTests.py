@@ -24,6 +24,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import string
 import sys
 import types
 import unittest
@@ -99,9 +100,9 @@ class ProgScanTestCase2(unittest.TestCase):
 
 class ProgScanTestCase3(unittest.TestCase):
     def runTest(self):
-        env = DummyEnvironment(LIBPATH=test.workpath("d1/d2") + ' ' +\
-                               test.workpath("d1"),
-                               LIBS='l2 l3')
+        env = DummyEnvironment(LIBPATH=[test.workpath("d1/d2"),
+                                        test.workpath("d1")],
+                               LIBS=string.split('l2 l3'))
         s = SCons.Scanner.Prog.ProgScan()
         deps = s.scan('dummy', env, DummyTarget())
         assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
@@ -115,9 +116,9 @@ def suite():
         code = """if 1:
             class ProgScanTestCase4(unittest.TestCase):
                 def runTest(self):
-                    env = DummyEnvironment(LIBPATH=test.workpath("d1/d2") + ' ' +\
-                                           test.workpath("d1"),
-                                           LIBS=u'l2 l3')
+                    env = DummyEnvironment(LIBPATH=[test.workpath("d1/d2"),
+                                                    test.workpath("d1")],
+                                           LIBS=string.split(u'l2 l3'))
                     s = SCons.Scanner.Prog.ProgScan()
                     deps = s.scan('dummy', env, DummyTarget())
                     assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)

@@ -163,7 +163,7 @@ test.up_to_date(arguments = args)
 
 # Change CPPPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
-env = Environment(CPPPATH = 'inc2 include')
+env = Environment(CPPPATH = Split('inc2 include'))
 obj = env.Object(target='foobar/prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")

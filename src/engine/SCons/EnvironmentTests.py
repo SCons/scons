@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
 import sys
 import unittest
 
@@ -273,7 +274,8 @@ class EnvironmentTestCase(unittest.TestCase):
         for tnode in tgt:
             assert tnode.builder == InstallBuilder
 
-        tgt = env.InstallAs(target='foo1 foo2', source='bar1 bar2')
+        tgt = env.InstallAs(target=string.split('foo1 foo2'),
+                            source=string.split('bar1 bar2'))
         assert len(tgt) == 2, len(tgt)
         paths = map(lambda x: str(x.sources[0]), tgt)
         paths.sort()

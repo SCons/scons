@@ -118,7 +118,7 @@ env1.Program(target = 'prog', source = prog)
 env1.Library(target = './lib1/foo1', source = f1)
 
 env2 = Environment(LIBS = 'foo2',
-                   LIBPATH = '. ./lib2')
+                   LIBPATH = Split('. ./lib2'))
 env2.Program(target = 'prog2', source = prog)
 env2.Library(target = 'foo2', source = f1)
 """)

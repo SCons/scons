@@ -567,20 +567,16 @@ class NodeTestCase(unittest.TestCase):
             return dict[name]
 
         nodes = SCons.Node.arg2nodes("Util.py UtilTests.py", Factory)
-        assert len(nodes) == 2, nodes
+        assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], X)
-        assert isinstance(nodes[1], X)
-        assert nodes[0].name == "Util.py"
-        assert nodes[1].name == "UtilTests.py"
+        assert nodes[0].name == "Util.py UtilTests.py"
 
         if hasattr(types, 'UnicodeType'):
             code = """if 1:
                 nodes = SCons.Node.arg2nodes(u"Util.py UtilTests.py", Factory)
-                assert len(nodes) == 2, nodes
+                assert len(nodes) == 1, nodes
                 assert isinstance(nodes[0], X)
-                assert isinstance(nodes[1], X)
-                assert nodes[0].name == u"Util.py"
-                assert nodes[1].name == u"UtilTests.py"
+                assert nodes[0].name == u"Util.py UtilTests.py"
                 \n"""
             exec code in globals(), locals()
 

@@ -63,7 +63,7 @@ B = Builder(action = r'%s ../build.py $TARGET $SOURCES')
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
-Default('foo.out bar.out')
+Default(Split('foo.out bar.out'))
 """ % python)
 
 test.write(['four', 'SConstruct'], """

@@ -44,7 +44,7 @@ foo_args = 'foo1%s foo2%s foo3%s' % (_exe, _exe, _exe)
 test.write('SConstruct', """
 env = Environment()
 env.Program(target = 'foo1', source = 'f1.c')
-env.Program(target = 'foo2', source = 'f2a.c f2b.c f2c.c')
+env.Program(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
 env.Program(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 """)
 

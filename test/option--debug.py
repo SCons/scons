@@ -34,7 +34,7 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
-env.Program('foo', 'foo.c bar.c')
+env.Program('foo', Split('foo.c bar.c'))
 """)
 
 test.write('foo.c', r"""

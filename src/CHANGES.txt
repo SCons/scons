@@ -38,6 +38,9 @@ RELEASE 0.08 -
   - Add descriptions to the -H help text for -D, -u and -U so
     people can tell them apart.
 
+  - Remove the old feature of automatically splitting strings
+    of file names on white space.
+
   From Jeff Petkau:
 
   - Fix --implicit-cache if the scanner returns an empty list.

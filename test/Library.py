@@ -32,7 +32,7 @@ test.write('SConstruct', """
 env = Environment(LIBS = [ 'foo1', 'foo2' ],
                   LIBPATH = [ '.' ])
 env.Library(target = 'foo1', source = 'f1.c')
-env.Library(target = 'foo2', source = 'f2a.c f2b.c f2c.c')
+env.Library(target = 'foo2', source = Split('f2a.c f2b.c f2c.c'))
 libtgt=env.Library(target = 'foo3', source = ['f3a.c', 'f3b.c', 'f3c.c'])
 env.Program(target = 'prog', source = [ 'prog.c', libtgt ])
 """)

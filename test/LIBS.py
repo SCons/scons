@@ -47,7 +47,7 @@ SConscript('sub2/SConscript', 'env')
 
 test.write(['sub1', 'SConscript'], r"""
 Import('env')
-lib = env.Library(target='bar', source='bar.c baz.c')
+lib = env.Library(target='bar', source=Split('bar.c baz.c'))
 env.Install('..', lib)
 """)
 

@@ -409,28 +409,22 @@ class Walker:
 
 arg2nodes_lookups = []
 
-
-def arg2nodes(arg, node_factory=None):
-    # FOR RELEASE 0.08:
-    #"""This function converts a string or list into a list of Node
-    #instances."""
-    """This function converts a string or list into a list of Node instances.
-    It follows the rules outlined in the SCons design document by accepting
-    any of the following inputs:
-        - A single string containing names separated by spaces. These will be
-          split apart at the spaces.
+def arg2nodes(args, node_factory=None):
+    """This function converts a string or list into a list of Node
+    instances.  It accepts the following inputs:
+        - A single string,
         - A single Node instance,
-        - A list containingg either strings or Node instances. Any strings
-          in the list are not split at spaces.
-    In all cases, the function returns a list of Node instances."""
+        - A list containing either strings or Node instances.
+    In all cases, strings are converted to Node instances, and the
+    function returns a list of Node instances."""
 
-    # FOR RELEASE 0.08:
-    #if not SCons.Util.is_List(arg):
-    #    arg = [arg]
-    narg = SCons.Util.argmunge(arg)
+    if not args:
+        return []
+    if not SCons.Util.is_List(args):
+        args = [args]
 
     nodes = []
-    for v in narg:
+    for v in args:
         if SCons.Util.is_String(v):
             n = None
             for l in arg2nodes_lookups:

@@ -129,34 +129,28 @@ class BuilderTestCase(unittest.TestCase):
         assert target.name == 'n3'
         assert target.sources[0].name == 'n4'
 
-        targets = builder(env, target = 'n4 n5', source = ['n6 n7'])
-        assert targets[0].name == 'n4'
-        assert targets[0].sources[0].name == 'n6 n7'
-        assert targets[1].name == 'n5'
-        assert targets[1].sources[0].name == 'n6 n7'
+        target = builder(env, target = 'n4 n5', source = ['n6 n7'])
+        assert target.name == 'n4 n5'
+        assert target.sources[0].name == 'n6 n7'
 
         target = builder(env, target = ['n8 n9'], source = 'n10 n11')
         assert target.name == 'n8 n9'
-        assert target.sources[0].name == 'n10'
-        assert target.sources[1].name == 'n11'
+        assert target.sources[0].name == 'n10 n11'
 
         if not hasattr(types, 'UnicodeType'):
             uni = str
         else:
             uni = unicode
 
-        targets = builder(env, target = uni('n12 n13'),
+        target = builder(env, target = uni('n12 n13'),
                           source = [uni('n14 n15')])
-        assert targets[0].name == uni('n12')
-        assert targets[0].sources[0].name == uni('n14 n15')
-        assert targets[1].name == uni('n13')
-        assert targets[1].sources[0].name == uni('n14 n15')
+        assert target.name == uni('n12 n13')
+        assert target.sources[0].name == uni('n14 n15')
 
         target = builder(env, target = [uni('n16 n17')],
                          source = uni('n18 n19'))
         assert target.name == uni('n16 n17')
-        assert target.sources[0].name == uni('n18')
-        assert target.sources[1].name == uni('n19')
+        assert target.sources[0].name == uni('n18 n19')
 
     def test_noname(self):
         """Test deprecated warning for Builder name.
@@ -458,11 +452,9 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, target = 'tgt1', source = 'src1')
         assert tgt.path == 'libtgt1', \
                 "Target has unexpected name: %s" % tgt.path
-        tgts = builder(env, target = 'tgt2a tgt2b', source = 'src2')
-        assert tgts[0].path == 'libtgt2a', \
-                "Target has unexpected name: %s" % tgts[0].path
-        assert tgts[1].path == 'libtgt2b', \
-                "Target has unexpected name: %s" % tgts[1].path
+        tgt = builder(env, target = 'tgt2a tgt2b', source = 'src2')
+        assert tgt.path == 'libtgt2a tgt2b', \
+                "Target has unexpected name: %s" % tgt.path
 
     def test_src_suffix(self):
         """Test Builder creation with a specified source file suffix
@@ -480,10 +472,9 @@ class BuilderTestCase(unittest.TestCase):
                 "Source has unexpected name: %s" % tgt.sources[0].path
 
         tgt = b1(env, target = 'tgt3', source = 'src3a src3b')
-        assert tgt.sources[0].path == 'src3a.c', \
+	assert len(tgt.sources) == 1
+        assert tgt.sources[0].path == 'src3a src3b.c', \
                 "Unexpected tgt.sources[0] name: %s" % tgt.sources[0].path
-        assert tgt.sources[1].path == 'src3b.c', \
-                "Unexpected tgt.sources[1] name: %s" % tgt.sources[1].path
 
         b2 = SCons.Builder.Builder(name = "b2",
                                    src_suffix = '.2',
@@ -514,13 +505,10 @@ class BuilderTestCase(unittest.TestCase):
         assert builder.get_suffix(env,{}) == '.o', builder.get_suffix(env,{})
         tgt = builder(env, target = 'tgt3', source = 'src3')
         assert tgt.path == 'tgt3.o', \
-                "Target has unexpected name: %s" % tgt[0].path
-        tgts = builder(env, target = 'tgt4a tgt4b', source = 'src4')
-        assert tgts[0].path == 'tgt4a.o', \
-                "Target has unexpected name: %s" % tgts[0].path
-        tgts = builder(env, target = 'tgt4a tgt4b', source = 'src4')
-        assert tgts[1].path == 'tgt4b.o', \
-                "Target has unexpected name: %s" % tgts[1].path
+                "Target has unexpected name: %s" % tgt.path
+        tgt = builder(env, target = 'tgt4a tgt4b', source = 'src4')
+        assert tgt.path == 'tgt4a tgt4b.o', \
+                "Target has unexpected name: %s" % tgt.path
 
     def test_ListBuilder(self):
         """Testing ListBuilder class."""
@@ -588,7 +576,7 @@ class BuilderTestCase(unittest.TestCase):
                                                   action='bar',
                                                   src_builder = builder1,
                                                   src_suffix = '.foo')
-        tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
+        tgt = builder2(env, target='baz', source=['test.bar', 'test2.foo', 'test3.txt'])
         assert str(tgt.sources[0]) == 'test.foo', str(tgt.sources[0])
         assert str(tgt.sources[0].sources[0]) == 'test.bar', \
                str(tgt.sources[0].sources[0])
@@ -610,7 +598,7 @@ class BuilderTestCase(unittest.TestCase):
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
         assert isinstance(tgt.builder.action.generator, SCons.Builder.DictCmdGenerator)
         flag = 0
-        tgt = builder(env, target='test2', source='test2.bar test1.foo')
+        tgt = builder(env, target='test2', source=['test2.bar', 'test1.foo'])
         try:
             tgt.build()
         except SCons.Errors.BuildError, e:
