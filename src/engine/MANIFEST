@@ -14,5 +14,6 @@ SCons/Scanner/C.py
 SCons/Sig/__init__.py
 SCons/Sig/MD5.py
 SCons/Sig/TimeStamp.py
+SCons/Taskmaster.py
 SCons/Util.py
 setup.py

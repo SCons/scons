@@ -68,6 +68,11 @@ class NodeTestCase(unittest.TestCase):
     def test_build(self):
 	"""Test building a node
 	"""
+	# Make sure it doesn't blow up if no builder is set.
+	node = SCons.Node.Node()
+	node.build()
+	assert built_it == None
+
 	node = SCons.Node.Node()
 	node.builder_set(Builder())
 	node.env_set(Environment())

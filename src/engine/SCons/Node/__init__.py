@@ -48,6 +48,8 @@ class Node:
 	self.env = None
 
     def build(self):
+	if not hasattr(self, "builder"):
+	    return None
 	sources_str = string.join(map(lambda x: str(x), self.sources))
 	stat = self.builder.execute(ENV = self.env.Dictionary('ENV'),
 				    target = str(self), source = sources_str)

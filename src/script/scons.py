@@ -33,11 +33,13 @@ import string
 import sys
 import traceback
 
+import SCons.Node
 import SCons.Node.FS
 import SCons.Job
 from SCons.Errors import *
 import SCons.Sig
 import SCons.Sig.MD5
+from SCons.Taskmaster import Taskmaster
 
 #
 # Modules and classes that we don't use directly in this script, but
@@ -46,8 +48,13 @@ import SCons.Sig.MD5
 from SCons.Environment import Environment
 from SCons.Builder import Builder
 
+
+
+#
+# Task control.
+#
 class Task:
-    "XXX: this is here only until the build engine is implemented"
+    """An SCons build task."""
 
     def __init__(self, target):
         self.target = target
@@ -59,35 +66,23 @@ class Task:
             sys.stderr.write("scons: *** [%s] Error %d\n" % (e.node, e.stat))
             raise
 
-
-
-class Taskmaster:
-    "XXX: this is here only until the build engine is implemented"
-
-    def __init__(self, targets, calc):
-        self.targets = targets
-        self.calc = calc
-        self.num_iterated = 0
-
-
+class ScriptTaskmaster(SCons.Taskmaster.Taskmaster):
+    """Controlling logic for tasks.
+    
+    This is the stock Taskmaster from the build engine, except
+    that we override the next_task() method to provide our
+    script-specific up-to-date message for command-line targets.
+    """
     def next_task(self):
-        while self.num_iterated < len(self.targets):
-            t = self.targets[self.num_iterated]
-            self.num_iterated = self.num_iterated + 1
-            if self.calc.current(t):
+        t, top = SCons.Taskmaster.Taskmaster.next_node(self)
+        while t != None:
+            if not self.current(t):
+                return self.tasker(t)
+            elif top:
                 print 'scons: "%s" is up to date.' % t
-            else:
-                return Task(t)
+            t, top = SCons.Taskmaster.Taskmaster.next_node(self)
         return None
 
-    def is_blocked(self):
-        return 0
-
-    def executed(self, task):
-        pass
-
-    def failed(self, task):
-        self.num_iterated = len(self.targets)
 
 
 # Global variables
@@ -614,7 +609,7 @@ def main():
     nodes = map(lambda x: SCons.Node.FS.default_fs.File(x), targets)
     calc = SCons.Sig.Calculator(SCons.Sig.MD5)
 
-    taskmaster = Taskmaster(nodes, calc)
+    taskmaster = ScriptTaskmaster(nodes, Task, calc.current)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     jobs.start()
