@@ -1671,6 +1671,17 @@ class EnvironmentTestCase(unittest.TestCase):
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
+        x = []
+        def test2(baz, x=x):
+            x.append(baz)
+        env = Environment(TEST2 = test2)
+        t = env.Command(target='baz.out', source='baz.in',
+                        action='${TEST2(XYZ)}',
+                        XYZ='magic word')
+        assert not t.builder is None
+        t.build()
+        assert x[0] == 'magic word', x
+
     def test_Configure(self):
         """Test the Configure() method"""
         # Configure() will write to a local temporary file.

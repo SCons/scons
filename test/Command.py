@@ -47,6 +47,9 @@ import os
 def buildIt(env, target, source):
     contents = open(str(source[0]), 'rb').read()
     file = open(str(target[0]), 'wb')
+    xyzzy = env.get('XYZZY', '')
+    if xyzzy:
+        file.write(xyzzy + '\\n')
     file.write(contents)
     file.close()
     return 0
@@ -72,6 +75,8 @@ env.Command(target = 'f3.out', source = 'f3.in',
             action = [ [ r'%s', 'build.py', 'temp3', '$SOURCES' ],
                        [ r'%s', 'build.py', '$TARGET', 'temp3'] ])
 Command(target = 'f4.out', source = 'sub', action = sub)
+env.Command(target = 'f5.out', source = 'f5.in', action = buildIt,
+            XYZZY="XYZZY is set")
 """ % (python, python, python, python))
 
 test.write('f1.in', "f1.in\n")
@@ -80,6 +85,7 @@ test.write('f3.in', "f3.in\n")
 test.write(['sub', 'f4a'], "sub/f4a\n")
 test.write(['sub', 'f4b'], "sub/f4b\n")
 test.write(['sub', 'f4c'], "sub/f4c\n")
+test.write('f5.in', "f5.in\n")
 
 test.run(arguments = '.')
 
@@ -87,5 +93,6 @@ test.fail_test(test.read('f1.out') != "f1.in\n")
 test.fail_test(test.read('f2.out') != "f2.in\n")
 test.fail_test(test.read('f3.out') != "f3.in\n")
 test.fail_test(test.read('f4.out') != "sub/f4a\nsub/f4b\nsub/f4c\n")
+test.fail_test(test.read('f5.out') != "XYZZY is set\nf5.in\n")
 
 test.pass_test()

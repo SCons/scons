@@ -892,13 +892,15 @@ class Base:
             pass
         return apply(SCons.SConf.SConf, nargs, nkw)
 
-    def Command(self, target, source, action):
+    def Command(self, target, source, action, **kw):
         """Builds the supplied target files from the supplied
         source files using the supplied action.  Action may
         be any type that the Builder constructor will accept
         for an action."""
-        bld = SCons.Builder.Builder(action=action,
-                                    source_factory=self.fs.Entry)
+        nkw = self.subst_kw(kw)
+        nkw['action'] = action
+        nkw['source_factory'] = self.fs.Entry
+        bld = apply(SCons.Builder.Builder, (), nkw)
         return bld(self, target, source)
 
     def Depends(self, target, dependency):
