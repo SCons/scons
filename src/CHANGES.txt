@@ -19,6 +19,12 @@ RELEASE 0.97 - XXX
 
   - Handle exceptions from Python functions a build actions.
 
+  From Eric Frias:
+
+  - Huge performance improvement:  wrap the tuples representing an
+    include path in an object, so that the time it takes to hash the
+    path doesn't grow porportionally to the length of the path.
+
   From Gottfried Ganssauge:
 
   - Fix SCons on SuSE/AMD-64 Linux by having the wrapper script also

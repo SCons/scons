@@ -33,6 +33,7 @@ import re
 
 import SCons.Node.FS
 import SCons.Sig
+import SCons.UserTuple
 import SCons.Util
 
 
@@ -52,6 +53,29 @@ def Scanner(function, *args, **kw):
     else:
         return apply(Base, (function,) + args, kw)
 
+# Important, important, important performance optimization:
+#
+# The paths of Nodes returned from a FindPathDirs will be used to index
+# a dictionary that caches the values, so we don't have to look up the
+# same path over and over and over.  If FindPathDir returns just a tuple,
+# though, then the time it takes to compute the hash of the tuple grows
+# proportionally to the length of the tuple itself--and some people can
+# have very, very long strings of include directories...
+#
+# The solution is to wrap the tuple in an object, a UserTuple class
+# whose *id()* our caller can use to cache the appropriate value.
+# This means we have to guarantee that these ids genuinely represent
+# unique values, which we do by maintaining our own cache that maps the
+# expensive-to-hash tuple values to the easy-to-hash UniqueUserTuple
+# values that our caller uses.
+#
+# *Major* kudos to Eric Frias and his colleagues for finding this.
+class UniqueUserTuple(SCons.UserTuple.UserTuple):
+    def __hash__(self):
+        return id(self)
+
+PathCache = {}
+
 class FindPathDirs:
     """A class to bind a specific *PATH variable name and the fs object
     to a function that will return all of the *path directories."""
@@ -64,10 +88,16 @@ class FindPathDirs:
         except KeyError:
             return ()
 
-        return tuple(self.fs.Rsearchall(env.subst_path(path),
-                                        must_exist = 0,
-                                        clazz = SCons.Node.FS.Dir,
-                                        cwd = dir))
+        path_tuple = tuple(self.fs.Rsearchall(env.subst_path(path),
+                                              must_exist = 0,
+                                              clazz = SCons.Node.FS.Dir,
+                                              cwd = dir))
+        try:
+            return PathCache[path_tuple]
+        except KeyError:
+            path_UserTuple = UniqueUserTuple(path_tuple)
+            PathCache[path_tuple] = path_UserTuple
+            return path_UserTuple
 
 class Base:
     """
@@ -188,7 +218,7 @@ class Base:
         return cmp(self.__dict__, other.__dict__)
 
     def __hash__(self):
-        return hash(repr(self))
+        return id(self)
 
     def add_skey(self, skey):
         """Add a skey to the list of skeys"""
@@ -269,7 +299,9 @@ class Classic(Current):
         apply(Current.__init__, (self,) + args, kw)
 
     def find_include(self, include, source_dir, path):
-        n = SCons.Node.FS.find_file(include, (source_dir,) + path, self.fs.File)
+        n = SCons.Node.FS.find_file(include,
+                                    (source_dir,) + tuple(path),
+                                    self.fs.File)
         return n, include
 
     def scan(self, node, env, path=()):
@@ -330,10 +362,10 @@ class ClassicCPP(Classic):
     def find_include(self, include, source_dir, path):
         if include[0] == '"':
             n = SCons.Node.FS.find_file(include[1],
-                                        (source_dir,) + path,
+                                        (source_dir,) + tuple(path),
                                         self.fs.File)
         else:
             n = SCons.Node.FS.find_file(include[1],
-                                        path + (source_dir,),
+                                        tuple(path) + (source_dir,),
                                         self.fs.File)
         return n, include[1]
