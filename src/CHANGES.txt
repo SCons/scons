@@ -116,6 +116,10 @@ RELEASE 0.97 - XXX
   - Build targets in an associated BuildDir even if there are targets
     or subdirectories locally in the source directory.
 
+  - If a FunctionAction has a callable class as its underlying Python
+    function, use its strfunction() method (if any) to display the
+    action.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
