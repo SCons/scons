@@ -121,7 +121,41 @@ test.fail_test(start2 < finish1)
 test.run(arguments='-j 2 out')
 
 
-# Test that a failed build with -j works properly.
+# Test that we fall back and warn properly if there's no threading.py
+# module (simulated), which is the case if this version of Python wasn't
+# built with threading support.
+
+test.subdir('pythonlib')
+
+test.write(['pythonlib', 'threading.py'], """\
+raise ImportError
+""")
+
+save_pythonpath = os.environ.get('PYTHONPATH', '')
+os.environ['PYTHONPATH'] = test.workpath('pythonlib')
+
+#start2, finish1 = RunTest('-j 2 f1, f2', "fifth")
+
+test.write('f1.in', 'f1.in pythonlib\n')
+test.write('f2.in', 'f2.in pythonlib\n')
+
+test.run(arguments = "-j 2 f1 f2", stderr=None)
+
+warn = \
+"""scons: warning: parallel builds are unsupported by this version of Python;
+\tignoring -j or num_jobs option.
+"""
+test.fail_test(string.find(test.stderr(), warn) == -1)
+
+str = test.read("f1")
+start1,finish1 = map(float, string.split(str, "\n"))
+
+str = test.read("f2")
+start2,finish2 = map(float, string.split(str, "\n"))
+
+test.fail_test(start2 < finish1)
+
+os.environ['PYTHONPATH'] = save_pythonpath
 
 
 # Test SetJobs() with no -j:

@@ -49,6 +49,9 @@ class ReservedVariableWarning(Warning):
 class CacheWriteErrorWarning(Warning):
     pass
 
+class NoParallelSupportWarning(Warning):
+    pass
+
 _warningAsException = 0
 
 # The below is a list of 2-tuples.  The first element is a class object.

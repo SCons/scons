@@ -132,6 +132,9 @@ RELEASE X.XX - XXX
     the one being checked for.  (Prototype code contributed by Gerard
     Patel and Niall Douglas).
 
+  - Supply a warning when -j is used and threading isn't built in to
+    the current version of Python.
+
   From Clark McGrew:
 
   - Generalize the action for .tex files so that it will decide whether
