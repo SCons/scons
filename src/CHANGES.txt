@@ -90,6 +90,8 @@ RELEASE 0.09 -
 
   - Fix dependency scans when $LIBS is overridden.
 
+  - Add EnsurePythonVersion() and EnsureSConsVersion() functions.
+
   From sam th:
 
   - Dynamically check for the existence of utilities with which to

@@ -41,6 +41,7 @@ import SCons.Tool
 import SCons.Util
 import SCons.Sig
 import SCons.Options
+import SCons
 
 import os
 import os.path
@@ -268,6 +269,28 @@ class Options(SCons.Options.Options):
     def Update(self, env):
         return SCons.Options.Options.Update(self, env, arguments)
 
+def CheckVersion(major,minor,version_string):
+    """Return 0 if 'major' and 'minor' are greater than the version
+    in 'version_string', and 1 otherwise."""
+    version = string.split(string.split(version_string, ' ')[0], '.')
+    if major > int(version[0]) or (major == int(version[0]) and minor > int(version[1])):
+        return 0
+    else:
+        return 1
+
+def EnsureSConsVersion(major, minor):
+    """Exit abnormally if the SCons version is not late enough."""
+    if not CheckVersion(major,minor,SCons.__version__):
+        print "SCons %d.%d or greater required, but you have SCons %s" %(major,minor,SCons.__version__)
+        sys.exit(2)
+
+def EnsurePythonVersion(major, minor):
+    """Exit abnormally if the Python version is not late enough."""
+    if not CheckVersion(major,minor,sys.version):
+	v = string.split(sys.version, " ", 1)[0]
+        print "Python %d.%d or greater required, but you have Python %s" %(major,minor,v)
+        sys.exit(2)
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -282,6 +305,8 @@ def BuildDefaultGlobals():
     globals['CScan']             = SCons.Defaults.CScan
     globals['Default']           = Default
     globals['Dir']               = SCons.Node.FS.default_fs.Dir
+    globals['EnsurePythonVersion'] = EnsurePythonVersion
+    globals['EnsureSConsVersion'] = EnsureSConsVersion
     globals['Environment']       = SCons.Environment.Environment
     globals['Export']            = Export
     globals['File']              = SCons.Node.FS.default_fs.File

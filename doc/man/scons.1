@@ -2188,7 +2188,43 @@ can be a relative or absolute path.
 is an optional directory that will be used as the parent directory. 
 
 .TP
-.RI FindFile( file ", "
+.RI FindFile( file ", " dirs )
+Search for 
+.I file 
+in the path specified by 
+.IR dirs .
+.I file
+may be a list of file names or a single file name. In addition to searching
+for files that exist in the filesytem, this function also searches for
+derived files that have not yet been built.
+
+.ES
+foo = FindFile('foo', ['dir1', 'dir2'])
+.EE
+
+.TP
+.RI EnsurePythonVersion( major ", " minor )
+Ensure that the Python version is at least 
+.IR major . minor . 
+This function will
+print out an error message and exit SCons with a non-zero exit code if the
+actual Python version is not late enough.
+
+.ES
+EnsurePythonVersion(2,2)
+.EE
+
+.TP
+.RI EnsureSConsVersion( major ", " minor )
+Ensure that the SCons version is at least 
+.IR major . minor . 
+This function will
+print out an error message and exit SCons with a non-zero exit code if the
+actual SCons version is not late enough.
+
+.ES
+EnsureSConsVersion(0,9)
+.EE
 
 .TP
 .RI Export( vars )
