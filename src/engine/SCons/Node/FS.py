@@ -790,6 +790,8 @@ class File(Entry):
     def _morph(self):
         """Turn a file system node into a File object."""
         self.linked = 0
+        self.scanner_paths = {}
+        self.found_includes = {}
         if not hasattr(self, '_local'):
             self._local = 0
 
@@ -856,11 +858,23 @@ class File(Entry):
         return self.dir.sconsign().get_implicit(self.name)
 
     def get_implicit_deps(self, env, scanner, target):
-        if scanner:
-            return scanner.scan(self, env, target)
-        else:
+        if not scanner:
             return []
-        
+
+        try:
+            path = target.scanner_paths[scanner]
+        except KeyError:
+            path = scanner.path(env, target.cwd)
+            target.scanner_paths[scanner] = path
+
+        try:
+            includes = self.found_includes[path]
+        except KeyError:
+            includes = scanner(self, env, path)
+            self.found_includes[path] = includes
+
+        return includes
+
     def scanner_key(self):
         return os.path.splitext(self.name)[1]
 
@@ -895,6 +909,7 @@ class File(Entry):
 
     def built(self):
         SCons.Node.Node.built(self)
+        self.found_includes = {}
         if hasattr(self, '_exists'):
             delattr(self, '_exists')
         if hasattr(self, '_rexists'):

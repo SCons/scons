@@ -69,7 +69,9 @@ class Scanner:
         global scanner_count
         scanner_count = scanner_count + 1
         self.hash = scanner_count
-    def scan(self, node, env, target):
+    def path(self, env, target):
+        return ()
+    def __call__(self, node, env, path):
         return [node]
     def __hash__(self):
         return self.hash
@@ -668,6 +670,35 @@ class FSTestCase(unittest.TestCase):
         assert f1.implicit[0].path_ == os.path.join("d1", "f1"), f1.implicit[0].path_
         f1.store_implicit()
         assert f1.get_stored_implicit()[0] == os.path.join("d1", "f1")
+
+        # Test underlying scanning functionality in get_implicit_deps()
+        env = Environment()
+        f12 = fs.File("f12")
+        t1 = fs.File("t1")
+
+        deps = f12.get_implicit_deps(env, None, t1)
+        assert deps == [], deps
+
+        class MyScanner(Scanner):
+            call_count = 0
+            def __call__(self, node, env, path):
+                self.call_count = self.call_count + 1
+                return [node]
+        s = MyScanner()
+
+        deps = f12.get_implicit_deps(env, s, t1)
+        assert deps == [f12], deps
+        assert s.call_count == 1, s.call_count
+
+        deps = f12.get_implicit_deps(env, s, t1)
+        assert deps == [f12], deps
+        assert s.call_count == 1, s.call_count
+
+        f12.built()
+
+        deps = f12.get_implicit_deps(env, s, t1)
+        assert deps == [f12], deps
+        assert s.call_count == 2, s.call_count
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))

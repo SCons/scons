@@ -34,27 +34,25 @@ import SCons.Util
 def ProgScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning executable
     files for static-lib dependencies"""
-    ps = SCons.Scanner.Base(scan, "ProgScan", fs)
+    ps = SCons.Scanner.Base(scan, "ProgScan", fs, path_function = path)
     return ps
 
-def scan(node, env, target, fs):
+def path(env, dir, fs = SCons.Node.FS.default_fs):
+    try:
+        libpath = env['LIBPATH']
+    except KeyError:
+        return ()
+    return tuple(fs.Rsearchall(SCons.Util.mapPaths(libpath, dir, env),
+                               clazz = SCons.Node.FS.Dir,
+                               must_exist = 0))
+
+def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
     """
     This scanner scans program files for static-library
     dependencies.  It will search the LIBPATH environment variable
     for libraries specified in the LIBS variable, returning any
     files it finds as dependencies.
     """
-
-    # This function caches information in target:
-    # target.libpath - env['LIBPATH'] converted to nodes
-
-    if not hasattr(target, 'libpath'):
-        try:
-            target.libpath = tuple(fs.Rsearchall(SCons.Util.mapPaths(env['LIBPATH'], target.cwd, env), clazz=SCons.Node.FS.Dir, must_exist=0))
-        except KeyError:
-            target.libpath = ()
- 
-    libpath = target.libpath
 
     try:
         libs = env.Dictionary('LIBS')

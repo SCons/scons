@@ -3144,24 +3144,6 @@ objects to scan
 new file types for implicit dependencies.
 Scanner accepts the following arguments:
 
-.IP name
-The name of the Scanner.
-This is mainly used
-to identify the Scanner internally.
-
-.IP argument
-An optional argument that, if specified,
-will be passed to the scanner function.
-
-.IP skeys
-An optional list that can be used to
-determine which scanner should be used for
-a given Node.
-In the usual case of scanning for file names,
-this array can be a list of suffixes
-for the different file types that this
-Scanner knows how to scan.
-
 .IP function
 A Python function that will process
 the Node (file)
@@ -3170,9 +3152,9 @@ representing the implicit
 dependencies found in the contents.
 The function takes three or four arguments:
 
-    def scanner_function(node, env, target):
+    def scanner_function(node, env, path):
 
-    def scanner_function(node, env, target, arg):
+    def scanner_function(node, env, path, arg):
 
 The
 .B node
@@ -3192,14 +3174,67 @@ Fetch values from it using the
 method.
 
 The
-.B target
-argument is the internal
-SCons node representing the target file.
+.B path
+argument is a tuple (or list)
+of directories that can be searched
+for files.
+This will usually be the tuple returned by the
+.B path_function
+argument (see below).
 
 The
 .B arg
 argument is the argument supplied
 when the scanner was created, if any.
+
+.IP name
+The name of the Scanner.
+This is mainly used
+to identify the Scanner internally.
+
+.IP argument
+An optional argument that, if specified,
+will be passed to the scanner function
+(described above)
+and the path function
+(specified below).
+
+.IP skeys
+An optional list that can be used to
+determine which scanner should be used for
+a given Node.
+In the usual case of scanning for file names,
+this array will be a list of suffixes
+for the different file types that this
+Scanner knows how to scan.
+
+.IP path_function
+A Python function that takes
+two or three arguments:
+a construction environment, directory Node,
+and optional argument supplied
+when the scanner was created.
+The
+.B path_function
+returns a tuple of directories
+that can be searched for files to be returned
+by this Scanner object.
+
+.IP node_class
+The class of Node that should be returned
+by this Scanner object.
+Any strings or other objects returned
+by the scanner function
+that are not of this class
+will be run through the
+.B node_factory
+function.
+
+.IP node_factory
+A Python function that will take a string
+or other object
+and turn it into the appropriate class of Node
+to be returned by this Scanner object.
 
 .IP scan_check
 An optional Python function that takes a Node (file)
@@ -3429,7 +3464,7 @@ import re
 
 include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
 
-def kfile_scan(node, env, target, arg):
+def kfile_scan(node, env, path, arg):
     contents = node.get_contents()
     includes = include_re.findall(contents)
     return includes
@@ -3595,7 +3630,7 @@ CC = 'my_cc'
 or get documentation on the options:
 
 .ES
-> scons -h
+$ scons -h
 
 CC: The C compiler.
     default: None

@@ -28,8 +28,8 @@ RELEASE 0.10 - XXX
   - Don't create duplicate source files in a BuildDir when the -n
     option is used.
 
-  - Fix SCons not exiting with the appropriate status on build errors
-    (and probably in other situations).
+  - Refactor the Scanner interface to eliminate unnecessary Scanner
+    calls and make it easier to write efficient scanners.
 
   - Significant performance improvement from using a more efficient
     check, throughout the code, for whether a Node has a Builder.

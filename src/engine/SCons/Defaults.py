@@ -111,10 +111,10 @@ class SharedFlagChecker:
                 elif not self.shared and src.attributes.shared:
                     raise SCons.Errors.UserError, "Source file: %s is shared and is not compatible with static target: %s" % (src, target[0])
 
-SharedCheck = SCons.Action.Action(SharedFlagChecker(1, 0))
-StaticCheck = SCons.Action.Action(SharedFlagChecker(0, 0))
-SharedCheckSet = SCons.Action.Action(SharedFlagChecker(1, 1))
-StaticCheckSet = SCons.Action.Action(SharedFlagChecker(0, 1))
+SharedCheck = SCons.Action.Action(SharedFlagChecker(1, 0), None)
+StaticCheck = SCons.Action.Action(SharedFlagChecker(0, 0), None)
+SharedCheckSet = SCons.Action.Action(SharedFlagChecker(1, 1), None)
+StaticCheckSet = SCons.Action.Action(SharedFlagChecker(0, 1), None)
 
 CAction = SCons.Action.Action([ StaticCheckSet, "$CCCOM" ])
 ShCAction = SCons.Action.Action([ SharedCheckSet, "$SHCCCOM" ])

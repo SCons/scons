@@ -84,7 +84,7 @@ class Scanner:
         self.name = name
         self.skeys = skeys
 
-    def scan(self, filename):
+    def __call__(self, filename):
         scanned_it[filename] = 1
 
     def __cmp__(self, other):
@@ -195,20 +195,20 @@ class EnvironmentTestCase(unittest.TestCase):
 
 	scanned_it = {}
 	env1 = Environment(SCANNERS = s1)
-	env1.scanner1.scan(filename = 'out1')
+        env1.scanner1(filename = 'out1')
 	assert scanned_it['out1']
 
 	scanned_it = {}
 	env2 = Environment(SCANNERS = [s1])
-	env1.scanner1.scan(filename = 'out1')
+        env1.scanner1(filename = 'out1')
 	assert scanned_it['out1']
 
 	scanned_it = {}
         env3 = Environment()
         env3.Replace(SCANNERS = [s1, s2])
-	env3.scanner1.scan(filename = 'out1')
-	env3.scanner2.scan(filename = 'out2')
-	env3.scanner1.scan(filename = 'out3')
+        env3.scanner1(filename = 'out1')
+        env3.scanner2(filename = 'out2')
+        env3.scanner1(filename = 'out3')
 	assert scanned_it['out1']
 	assert scanned_it['out2']
 	assert scanned_it['out3']

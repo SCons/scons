@@ -46,71 +46,53 @@ def FortranScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files
     for Fortran INCLUDE statements"""
     scanner = SCons.Scanner.Recursive(scan, "FortranScan", fs,
-                                      [".f", ".F", ".for", ".FOR"])
+                                      [".f", ".F", ".for", ".FOR"],
+                                      path_function = path)
     return scanner
 
-def scan(node, env, target, fs = SCons.Node.FS.default_fs):
+def path(env, dir, fs = SCons.Node.FS.default_fs):
+    try:
+        f77path = env['F77PATH']
+    except KeyError:
+        return ()
+    return tuple(fs.Rsearchall(SCons.Util.mapPaths(f77path, dir, env),
+                               clazz = SCons.Node.FS.Dir,
+                               must_exist = 0))
+
+def scan(node, env, f77path = (), fs = SCons.Node.FS.default_fs):
     """
     scan(node, Environment) -> [node]
 
     the Fortran dependency scanner function
-
-    This function is intentionally simple. There are two rules it
-    follows:
-    
-    1) #include <foo.h> - search for foo.h in F77PATH followed by the
-        directory 'filename' is in
-    2) #include \"foo.h\" - search for foo.h in the directory 'filename' is
-       in followed by F77PATH
-
-    These rules approximate the behaviour of most C/C++ compilers.
-
-    This scanner also ignores #ifdef and other preprocessor conditionals, so
-    it may find more depencies than there really are, but it never misses
-    dependencies.
     """
 
-    # This function caches various information in node and target:
-    # target.f77path - env['F77PATH'] converted to nodes
-    # node.found_includes - include files found by previous call to scan, 
-    #     keyed on f77path
+    node = node.rfile()
+
+    # This function caches the following information:
     # node.includes - the result of include_re.findall()
 
-    if not hasattr(target, 'f77path'):
-        try:
-            target.f77path = tuple(fs.Rsearchall(SCons.Util.mapPaths(env['F77PATH'], target.cwd, env), clazz=SCons.Node.FS.Dir, must_exist=0))
-        except KeyError:
-            target.f77path = ()
+    if not node.exists():
+        return []
 
-    f77path = target.f77path
+    # cache the includes list in node so we only scan it once:
+    if node.includes != None:
+        includes = node.includes
+    else:
+        includes = include_re.findall(node.get_contents())
+        node.includes = includes
 
+    source_dir = node.get_dir()
+    
     nodes = []
-
-    node = node.rfile()
-    try:
-        nodes = node.found_includes[f77path]
-    except KeyError:
-        if node.rexists():
-
-            # cache the includes list in node so we only scan it once:
-            if node.includes != None:
-                includes = node.includes
-            else:
-                includes = include_re.findall(node.get_contents())
-                node.includes = includes
-
-            source_dir = node.get_dir()
-            
-            for include in includes:
-                n = SCons.Node.FS.find_file(include,
-                                            (source_dir,) + f77path,
-                                            fs.File)
-                if not n is None:
-                    nodes.append(n)
-                else:
-                    SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
-                                        "No dependency generated for file: %s (included from: %s) -- file not found" % (include, node))
-        node.found_includes[f77path] = nodes
+    for include in includes:
+        n = SCons.Node.FS.find_file(include,
+                                    (source_dir,) + f77path,
+                                    fs.File)
+        if not n is None:
+            nodes.append(n)
+        else:
+            SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
+                                "No dependency generated for file: %s (included from: %s) -- file not found" % (include, node))
 
     # Schwartzian transform from the Python FAQ Wizard
     def st(List, Metric):

@@ -52,22 +52,41 @@ class Base:
                  name = "NONE",
                  argument = _null,
                  skeys = [],
+                 path_function = None,
+                 node_class = SCons.Node.FS.Entry,
                  node_factory = SCons.Node.FS.default_fs.File,
                  scan_check = None):
         """
         Construct a new scanner object given a scanner function.
 
-        'function' - a scanner function taking two or three arguments and
-        returning a list of strings.
+        'function' - a scanner function taking two or three
+        arguments and returning a list of strings.
 
         'name' - a name for identifying this scanner object.
 
-        'argument' - an optional argument that will be passed to the
-        scanner function if it is given.
+        'argument' - an optional argument that, if specified, will be
+        passed to both the scanner function and the path_function.
 
-        'skeys; - an optional list argument that can be used to determine
+        'skeys' - an optional list argument that can be used to determine
         which scanner should be used for a given Node. In the case of File
         nodes, for example, the 'skeys' would be file suffixes.
+
+        'path_function' - a function that takes one to three arguments
+        (a construction environment, optional directory, and optional
+        argument for this instance) and returns a tuple of the
+        directories that can be searched for implicit dependency files.
+
+        'node_class' - the class of Nodes which this scan will return.
+        If node_class is None, then this scanner will not enforce any
+        Node conversion and will return the raw results from the
+        underlying scanner function.
+
+        'node_factory' - the factory function to be called to translate
+        the raw results returned by the scanner function into the
+        expected node_class objects.
+
+        'scan_check' - a function to be called to first check whether
+        this node really needs to be scanned.
 
         The scanner function's first argument will be the name of a file
         that should be scanned for dependencies, the second argument will
@@ -91,13 +110,23 @@ class Base:
         # would need to be changed is the documentation.
 
         self.function = function
+        self.path_function = path_function
         self.name = name
         self.argument = argument
         self.skeys = skeys
+        self.node_class = node_class
         self.node_factory = node_factory
         self.scan_check = scan_check
 
-    def scan(self, node, env, target):
+    def path(self, env, dir = None):
+        if not self.path_function:
+            return ()
+        if not self.argument is _null:
+            return self.path_function(env, dir, self.argument)
+        else:
+            return self.path_function(env, dir)
+
+    def __call__(self, node, env, path = ()):
         """
         This method scans a single object. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
@@ -108,15 +137,15 @@ class Base:
             return []
 
         if not self.argument is _null:
-            list = self.function(node, env, target, self.argument)
+            list = self.function(node, env, path, self.argument)
         else:
-            list = self.function(node, env, target)
+            list = self.function(node, env, path)
         kw = {}
         if hasattr(node, 'dir'):
             kw['directory'] = node.dir
         nodes = []
         for l in list:
-            if not isinstance(l, SCons.Node.FS.Entry):
+            if self.node_class and not isinstance(l, self.node_class):
                 l = apply(self.node_factory, (l,), kw)
             nodes.append(l)
         return nodes
@@ -125,7 +154,7 @@ class Base:
         return cmp(self.__dict__, other.__dict__)
 
     def __hash__(self):
-        return hash(None)
+        return hash(repr(self))
 
     def add_skey(self, skey):
         """Add a skey to the list of skeys"""
@@ -149,7 +178,7 @@ class Recursive(RExists):
     list of all dependencies.
     """
 
-    def scan(self, node, env, target):
+    def __call__(self, node, env, path = ()):
         """
         This method does the actual scanning. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
@@ -164,7 +193,7 @@ class Recursive(RExists):
         while nodes:
             n = nodes.pop(0)
             d = filter(lambda x, seen=seen: not seen.has_key(x),
-                       Base.scan(self, n, env, target))
+                       Base.__call__(self, n, env, path))
             if d:
                 deps.extend(d)
                 nodes.extend(d)

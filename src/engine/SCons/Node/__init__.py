@@ -221,15 +221,17 @@ class Node:
                     self.implicit = []
                     self.del_bsig()
 
+        build_env = self.generate_build_env()
+
         for child in self.children(scan=0):
             self._add_child(self.implicit,
-                            child.get_implicit_deps(self.generate_build_env(),
+                            child.get_implicit_deps(build_env,
                                                     child.source_scanner,
                                                     self))
 
         # scan this node itself for implicit dependencies
         self._add_child(self.implicit,
-                        self.get_implicit_deps(self.generate_build_env(),
+                        self.get_implicit_deps(build_env,
                                                self.target_scanner,
                                                self))
 
@@ -384,7 +386,23 @@ class Node:
 
     def all_children(self, scan=1):
         """Return a list of all the node's direct children."""
-        #XXX Need to remove duplicates from this
+        # The return list may contain duplicate Nodes, especially in
+        # source trees where there are a lot of repeated #includes
+        # of a tangle of .h files.  Profiling shows, however, that
+        # eliminating the duplicates with a brute-force approach that
+        # preserves the order (that is, something like:
+        #
+        #       u = []
+        #       for n in list:
+        #           if n not in u:
+        #               u.append(n)"
+        #
+        # takes more cycles than just letting the underlying methods
+        # hand back cached values if a Node's information is requested
+        # multiple times.  (Other methods of removing duplicates, like
+        # using dictionary keys, lose the order, and the only ordered
+        # dictionary patterns I found all ended up using "not in"
+        # internally anyway...)
         if scan:
             self.scan()
         if self.implicit is None:

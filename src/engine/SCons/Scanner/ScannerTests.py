@@ -27,10 +27,6 @@ import unittest
 import SCons.Scanner
 import sys
 
-class DummyTarget:
-    cwd = None
-    
-
 class ScannerTestBase:
     
     def func(self, filename, env, target, *args):
@@ -46,7 +42,8 @@ class ScannerTestBase:
 
     def test(self, scanner, env, filename, deps, *args):
         self.deps = deps
-        scanned = scanner.scan(filename, env, DummyTarget())
+        path = scanner.path(env)
+        scanned = scanner(filename, env, path)
         scanned_strs = map(lambda x: str(x), scanned)
 
         self.failUnless(self.filename == filename, "the filename was passed incorrectly")
@@ -121,7 +118,7 @@ class ScannerHashTestCase(ScannerTestBase, unittest.TestCase):
         s = SCons.Scanner.Base(self.func, "Hash")
         dict = {}
         dict[s] = 777
-        self.failUnless(hash(dict.keys()[0]) == hash(None),
+        self.failUnless(hash(dict.keys()[0]) == hash(repr(s)),
                         "did not hash Scanner base class as expected")
 
 class ScannerCheckTestCase(unittest.TestCase):
@@ -134,8 +131,10 @@ class ScannerCheckTestCase(unittest.TestCase):
         def check(node, s=self):
             s.checked[node] = 1
             return 1
+        env = DummyEnvironment()
         s = SCons.Scanner.Base(my_scan, "Check", scan_check = check)
-        scanned = s.scan('x', DummyEnvironment(), DummyTarget())
+        path = s.path(env)
+        scanned = s('x', env, path)
         self.failUnless(self.checked['x'] == 1,
                         "did not call check function")
 
