@@ -84,11 +84,12 @@ k2scan = env.Scanner(name = 'k2',
 
 env = Environment()
 env.Append(SCANNERS = kscan)
-env.Append(SCANNERS = [k2scan])
 
 env.Command('foo', 'foo.k', r'%s build.py $SOURCES $TARGET')
 
-env.Command('junk', 'junk.k2', r'%s build.py $SOURCES $TARGET')
+env2 = env.Copy()
+env2.Append(SCANNERS = [k2scan])
+env2.Command('junk', 'junk.k2', r'%s build.py $SOURCES $TARGET')
 
 bar_in = File('bar.in')
 env.Command('bar', bar_in, r'%s build.py $SOURCES  $TARGET')
@@ -117,18 +118,14 @@ include zzz
 """)
 
 test.write('xxx', "xxx 1\n")
-
 test.write('yyy', "yyy 1\n")
-
 test.write('zzz', "zzz 1\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n")
-
-test.fail_test(test.read('bar') != "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
-
-test.fail_test(test.read('junk') != "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+test.must_match('foo', "foo.k 1 line 1\nxxx 1\nyyy 1\nfoo.k 1 line 4\n")
+test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
+test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
 
 test.up_to_date(arguments = '.')
 
@@ -136,31 +133,25 @@ test.write('xxx', "xxx 2\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n")
-
-test.fail_test(test.read('bar') != "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
-
-test.fail_test(test.read('junk') != "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 1\nfoo.k 1 line 4\n")
+test.must_match('bar', "yyy 1\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
+test.must_match('junk', "yyy 1\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
 
 test.write('yyy', "yyy 2\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
-
-test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
-
-test.fail_test(test.read('junk') != "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
+test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
+test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 1\n")
+test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 1\n")
 
 test.write('zzz', "zzz 2\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
-
-test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
-
-test.fail_test(test.read('junk') != "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n")
+test.must_match('foo', "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
+test.must_match('bar', "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
+test.must_match('junk', "yyy 2\njunk.k2 1 line 2\njunk.k2 1 line 3\nzzz 2\n")
 
 test.up_to_date(arguments = 'foo')
 

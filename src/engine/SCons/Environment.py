@@ -300,6 +300,9 @@ class Base:
             except KeyError:
                 self._dict[key] = BuilderDict(kwbd, self)
             self._dict[key].update(value)
+        elif key == 'SCANNERS':
+            self._dict[key] = value
+            self.scanner_map_delete()
         else:
             if not SCons.Util.is_valid_construction_var(key):
                 raise SCons.Errors.UserError, "Illegal construction variable `%s'" % key
@@ -406,6 +409,19 @@ class Base:
             return sm[skey]
         except KeyError:
             return None
+
+    def scanner_map_delete(self, kw=None):
+        """Delete the cached scanner map (if we need to).
+        """
+        if not kw is None:
+            try:
+                kw['SCANNERS']
+            except KeyError:
+                return
+        try:
+            del self.scanner_map
+        except AttributeError:
+            pass
 
     def subst(self, string, raw=0, target=None, source=None, dict=None, conv=None):
         """Recursively interpolates construction variables from the
@@ -546,6 +562,7 @@ class Base:
                             # value to it (if there's a value to append).
                             if val:
                                 add_to_orig(val)
+        self.scanner_map_delete(kw)
 
     def AppendENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
         """Append path elements to the path 'name' in the 'ENV'
@@ -590,6 +607,7 @@ class Base:
                         self._dict[key] = dk + val
                 else:
                     self._dict[key] = self._dict[key] + val
+        self.scanner_map_delete(kw)
 
     def Copy(self, tools=None, toolpath=[], **kw):
         """Return a copy of a construction Environment.  The
@@ -779,6 +797,7 @@ class Base:
                             if orig:
                                 add_to_val(orig)
                             self._dict[key] = val
+        self.scanner_map_delete(kw)
 
     def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep):
         """Prepend path elements to the path 'name' in the 'ENV'
@@ -823,6 +842,7 @@ class Base:
                         self._dict[key] = val + dk
                 else:
                     self._dict[key] = val + dk
+        self.scanner_map_delete(kw)
 
     def Replace(self, **kw):
         """Replace existing construction variables in an Environment
@@ -836,6 +856,7 @@ class Base:
             pass
         kw = copy_non_reserved_keywords(kw)
         self._dict.update(our_deepcopy(kw))
+        self.scanner_map_delete(kw)
 
     def ReplaceIxes(self, path, old_prefix, old_suffix, new_prefix, new_suffix):
         """

@@ -108,10 +108,17 @@ class Scanner:
         self.skeys = skeys
 
     def __call__(self, filename):
+        global scanned_it
         scanned_it[filename] = 1
 
     def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
+        try:
+            return cmp(self.__dict__, other.__dict__)
+        except AttributeError:
+            return 1
+
+    def get_skeys(self, env):
+        return self.skeys
 
 
 
@@ -538,43 +545,73 @@ class EnvironmentTestCase(unittest.TestCase):
         assert built_it['out2']
 
     def test_Scanners(self):
-        """Test Scanner execution through different environments
+        """Test setting SCANNERS in various ways
 
         One environment is initialized with a single
         Scanner object, one with a list of a single Scanner
         object, and one with a list of two Scanner objects.
         """
-#        global scanned_it
-#
-#	s1 = Scanner(name = 'scanner1', skeys = [".c", ".cc"])
-#	s2 = Scanner(name = 'scanner2', skeys = [".m4"])
-#
-#	scanned_it = {}
-#	env1 = Environment(SCANNERS = s1)
+        global scanned_it
+
+        s1 = Scanner(name = 'scanner1', skeys = [".c", ".cc"])
+        s2 = Scanner(name = 'scanner2', skeys = [".m4"])
+        s3 = Scanner(name = 'scanner3', skeys = [".m4", ".m5"])
+
+#        XXX Tests for scanner execution through different environments,
+#        XXX if we ever want to do that some day
+#        scanned_it = {}
+#        env1 = Environment(SCANNERS = s1)
 #        env1.scanner1(filename = 'out1')
-#	assert scanned_it['out1']
+#        assert scanned_it['out1']
 #
-#	scanned_it = {}
-#	env2 = Environment(SCANNERS = [s1])
+#        scanned_it = {}
+#        env2 = Environment(SCANNERS = [s1])
 #        env1.scanner1(filename = 'out1')
-#	assert scanned_it['out1']
+#        assert scanned_it['out1']
 #
-#	scanned_it = {}
+#        scanned_it = {}
 #        env3 = Environment()
-#        env3.Replace(SCANNERS = [s1, s2])
+#        env3.Replace(SCANNERS = [s1])
 #        env3.scanner1(filename = 'out1')
 #        env3.scanner2(filename = 'out2')
 #        env3.scanner1(filename = 'out3')
-#	assert scanned_it['out1']
-#	assert scanned_it['out2']
-#	assert scanned_it['out3']
-#
-#	s = env3.get_scanner(".c")
-#	assert s == s1, s
-#	s = env3.get_scanner(skey=".m4")
-#	assert s == s2, s
-#	s = env3.get_scanner(".cxx")
-#	assert s == None, s
+#        assert scanned_it['out1']
+#        assert scanned_it['out2']
+#        assert scanned_it['out3']
+
+        suffixes = [".c", ".cc", ".cxx", ".m4", ".m5"]
+
+        env = Environment(SCANNERS = [])
+        s = map(env.get_scanner, suffixes)
+        assert s == [None, None, None, None, None], s
+
+        env.Replace(SCANNERS = [s1])
+        s = map(env.get_scanner, suffixes)
+        assert s == [s1, s1, None, None, None], s
+
+        env.Append(SCANNERS = [s2])
+        s = map(env.get_scanner, suffixes)
+        assert s == [s1, s1, None, s2, None], s
+
+        env.AppendUnique(SCANNERS = [s3])
+        s = map(env.get_scanner, suffixes)
+        assert s == [s1, s1, None, s2, s3], s
+
+        env = env.Copy(SCANNERS = [s2])
+        s = map(env.get_scanner, suffixes)
+        assert s == [None, None, None, s2, None], s
+
+        env['SCANNERS'] = [s1]
+        s = map(env.get_scanner, suffixes)
+        assert s == [s1, s1, None, None, None], s
+
+        env.PrependUnique(SCANNERS = [s2, s1])
+        s = map(env.get_scanner, suffixes)
+        assert s == [s1, s1, None, s2, None], s
+
+        env.Prepend(SCANNERS = [s3])
+        s = map(env.get_scanner, suffixes)
+        assert s == [s1, s1, None, s3, s3], s
 
     def test_ENV(self):
 	"""Test setting the external ENV in Environments
