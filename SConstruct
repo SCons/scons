@@ -140,8 +140,9 @@ python_ver = sys.version[0:3]
 platform = distutils.util.get_platform()
 
 ENV = { 'PATH' : os.environ['PATH'] }
-if os.environ.has_key('AEGIS_PROJECT'):
-    ENV['AEGIS_PROJECT'] = os.environ['AEGIS_PROJECT']
+for key in ['AEGIS_PROJECT', 'PYTHONPATH']:
+    if os.environ.has_key(key):
+        ENV[key] = os.environ[key]
 
 lib_project = os.path.join("lib", project)
 
