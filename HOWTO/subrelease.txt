@@ -1,0 +1,112 @@
+__COPYRIGHT__
+
+This document covers how to prepare subreleases of SCons--that is,
+releases numbered with X.Y.Z format, such as 0.94.1, 1.0.1, etc.
+
+If you need to prepare a release (X.Y, such as 0.93, 1.0, etc.), then
+see the document HOWTO/release.txt.
+
+Things to do to release a new X.Y.Z version of SCons:
+
+	START THE NEW SUB-BRANCH FOR SUBRELEASE
+
+		aenbr -p scons.0{94} {1}
+
+		aenc -p scons.0.{94}.{1}
+
+                        Call it something like,
+                        "Prepare a new sub-release for XYZ."
+                        Cause = internal_enhancement.
+                        Exempt it from all tests (*_exempt = true).
+
+		ae_p scons.0.{94}.{1}
+
+		aedb 100
+
+		aecd
+
+		# Change the hard-coded package version numbers
+		# in the following files.
+		aecp README
+		vi README
+
+                aecp SConstruct
+                vi SConstruct
+
+                aecp rpm/scons.spec.in
+                vi rpm/scons.spec.in
+
+                aecp src/copyrightTests.py
+                vi src/copyrightTests.py
+
+                aecp src/setupTests.py
+                vi src/setupTests.py
+
+                # Read through and update the README files if necessary
+		[optional] aecp README
+		[optional] vi README
+
+		[optional] aecp src/README.txt
+		[optional] vi src/README.txt
+
+                # Prepare src/CHANGES.txt
+		aecp src/CHANGES.txt
+		vi src/CHANGES.txt
+
+                        change the release line to reflect
+                        the new subrelease
+
+		        date -R the new subrelease
+
+                        add an explanatory not after the subrelease line:
+
+                                NOTE:  This is a pre-release of 0.{95}
+                                for testing purposes.  When 0.{95} is
+                                released, all these changes will show
+                                up as 0.95 changes.
+
+	        # Prepare src/RELEASE.txt
+                aecp src/RELEASE.txt
+                vi src/RELEASE.txt
+
+		        date -R the release only if necessary
+
+		        Read through and edit appropriately.
+
+		        Can probably keep most of the existing text
+
+		        Add any new known problems
+
+	        # Prepare debian/changelog
+                aecp debian/changelog
+                vi debian/changelog
+
+                        add the new subrelease
+
+		        date -R the new subrelease
+
+                # Now build and prepare the release itself.
+                aeb
+
+		aet -reg
+
+		aed
+
+		aede
+
+		etc.
+
+
+
+	Make the relevant packages available for by-hand pickup directly
+	off the web site:
+
+		scp scons-0.{94}.{1}.tar.gz stevenknight@scons.sourceforge.net:/home/groups/s/sc/scons/htdocs
+		scp scons-0.{94}.{1}.zip stevenknight@scons.sourceforge.net:/home/groups/s/sc/scons/htdocs
+
+
+	Test downloading from the web site.
+
+
+
+	Announce to scons-devel.
