@@ -91,8 +91,7 @@ def win32LibEmitter(target, source, env):
                                       "WIN32DEFPREFIX", "WIN32DEFSUFFIX"))
 
     if env.has_key('PDB') and env['PDB']:
-        env.SideEffect(env['PDB'], target)
-        env.Precious(env['PDB'])
+        target.append(env['PDB'])
 
     if not no_import_lib and \
        not env.FindIxes(target, "LIBPREFIX", "LIBSUFFIX"):
@@ -111,8 +110,7 @@ def prog_emitter(target, source, env):
     SCons.Tool.msvc.validate_vars(env)
     
     if env.has_key('PDB') and env['PDB']:
-        env.SideEffect(env['PDB'], target)
-        env.Precious(env['PDB'])
+        target.append(env['PDB'])
         
     return (target,source)
 

@@ -140,9 +140,21 @@ test.fail_test(os.path.exists(test.workpath('StdAfx.obj')))
 
 test.run(arguments='StdAfx.pch')
 
-test.fail_test(not os.path.exists(test.workpath('test.pdb')))
+test.fail_test(os.path.exists(test.workpath('test.pdb')))
 test.fail_test(not os.path.exists(test.workpath('StdAfx.pch')))
 test.fail_test(not os.path.exists(test.workpath('StdAfx.obj')))
+
+test.run(arguments='-c test.exe')
+test.fail_test(os.path.exists(test.workpath('test.exe')))
+test.fail_test(os.path.exists(test.workpath('test.obj')))
+test.fail_test(os.path.exists(test.workpath('test.pdb')))
+test.fail_test(os.path.exists(test.workpath('StdAfx.pch')))
+test.fail_test(os.path.exists(test.workpath('StdAfx.obj')))
+
+test.run(arguments='test.obj')
+test.fail_test(os.path.exists(test.workpath('test.pdb')))
+test.fail_test(not os.path.exists(test.workpath('test.obj')))
+
 
 start = time.time()
 test.run(arguments='fast.obj')

@@ -162,6 +162,9 @@ RELEASE 0.96 - XXX
   - Better error messages when evaluating a construction variable
     expansion yields a Python syntax error.
 
+  - Change the generation of PDB files when using Visual Studio from
+    compile time to link time.
+
   From sam th:
 
   - Allow SConf.CheckLib() to search a list of libraries, like the
