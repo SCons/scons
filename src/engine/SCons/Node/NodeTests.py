@@ -423,8 +423,8 @@ class NodeTestCase(unittest.TestCase):
         assert node.scanned[ds] == 1, node.scanned
 
     def test_children(self):
-	"""Test fetching the "children" of a Node.
-	"""
+        """Test fetching the non-ignored "children" of a Node.
+        """
 	node = SCons.Node.Node()
         one = SCons.Node.Node()
         two = SCons.Node.Node()
@@ -435,7 +435,31 @@ class NodeTestCase(unittest.TestCase):
 
         node.add_source([one, two, three])
         node.add_dependency([four, five, six])
+        node.add_ignore([two, five])
         kids = node.children()
+        assert len(kids) == 4
+        assert one in kids
+        assert not two in kids
+        assert three in kids
+        assert four in kids
+        assert not five in kids
+        assert six in kids
+
+    def test_all_children(self):
+        """Test fetching all the "children" of a Node.
+        """
+        node = SCons.Node.Node()
+        one = SCons.Node.Node()
+        two = SCons.Node.Node()
+        three = SCons.Node.Node()
+        four = SCons.Node.Node()
+        five = SCons.Node.Node()
+        six = SCons.Node.Node()
+
+        node.add_source([one, two, three])
+        node.add_dependency([four, five, six])
+        node.add_ignore([two, five])
+        kids = node.all_children()
         assert len(kids) == 6
         assert one in kids
         assert two in kids

@@ -56,6 +56,9 @@ RELEASE 0.05 -
   - Document the overlooked LIBPATH construction variable.
     (Bug reported by Eicke Godehardt.)
 
+  - Fix so that Ignore() ignores indirect, implicit dependencies
+    (included files), not just direct dependencies.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.

@@ -51,6 +51,7 @@ class DummyNode:
         self.path = file.path
         self.builder = file.builder
 	self.depends = []
+        self.ignore = []
         self.use_signature = 1
         self.bsig = None
         self.csig = None
@@ -81,6 +82,10 @@ class DummyNode:
             return self.exists_cache
         
     def children(self):
+        return filter(lambda x, i=self.ignore: x not in i,
+                      self.sources + self.depends)
+        
+    def all_children(self):
         return self.sources + self.depends
 
     def current(self):
@@ -288,9 +293,12 @@ class CalcTestCase(unittest.TestCase):
                 self.bsig = bsig
                 self.csig = csig
                 self.kids = []
+                self.ignore = []
                 self.builder = None
                 self.use_signature = 1
             def children(self):
+                return filter(lambda x, i=self.ignore: x not in i, self.kids)
+            def all_children(self):
                 return self.kids
             def exists(self):
                 return 1
@@ -331,6 +339,10 @@ class CalcTestCase(unittest.TestCase):
         n1.kids = [n2, n3]
 
         assert self.calc.bsig(n1) == 55
+
+        n1.ignore = [n2]
+
+        assert self.calc.bsig(n1) == 33
 
     def test_Calc_bsig(self):
         n = self.nodeclass('n', 11, 12)

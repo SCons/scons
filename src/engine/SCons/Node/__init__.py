@@ -228,11 +228,16 @@ class Node:
             self.wkids.append(wkid)
 
     def children(self):
+        """Return a list of the node's direct children, minus those
+        that are ignored by this node."""
+        return filter(lambda x, i=self.ignore: x not in i, self.all_children())
+
+    def all_children(self):
+        """Return a list of all the node's direct children."""
         #XXX Need to remove duplicates from this
-        return filter(lambda x, i=self.ignore: x not in i,
-                      self.sources \
-                      + self.depends \
-                      + reduce(lambda x, y: x + y, self.implicit.values(), []))
+        return self.sources \
+               + self.depends \
+               + reduce(lambda x, y: x + y, self.implicit.values(), [])
 
     def get_parents(self):
         return self.parents

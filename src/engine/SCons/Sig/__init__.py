@@ -199,7 +199,8 @@ class Calculator:
         # for us.  Hence:
         def walk_non_derived(n, myself=node):
             if not n.builder or n is myself:
-                return n.children()
+                return filter(lambda x, i=myself.ignore: x not in i,
+                              n.all_children())
             return []
         walker = SCons.Node.Walker(node, walk_non_derived)
         sigs = []
