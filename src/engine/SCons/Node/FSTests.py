@@ -101,22 +101,23 @@ class FSTestCase(unittest.TestCase):
         try:
             f2 = fs.File('f1/f2', directory = d1)
         except TypeError, x:
-            node = x.args[0]
-            assert node.path == 'd1/f1', "node.path %s != d1/f1" % node.path
-            assert str(node) == 'd1/f1', "str(node) %s != d1/f1" % str(node)
-            assert node.__class__.__name__ == 'File'
+	    assert str(x) == "Tried to lookup File 'd1/f1' as a Dir.", x
         except:
             raise
 
         try:
             dir = fs.Dir('d1/f1')
         except TypeError, x:
-            node = x.args[0]
-            assert node.path == 'd1/f1', "node.path %s != d1/f1" % node.path
-            assert str(node) == 'd1/f1', "str(node) %s != d1/f1" % str(node)
-            assert node.__class__.__name__ == 'File'
+	    assert str(x) == "Tried to lookup File 'd1/f1' as a Dir.", x
         except:
             raise
+
+	try:
+	    f2 = fs.File('d1')
+	except TypeError, x:
+	    assert str(x) == "Tried to lookup Dir 'd1/' as a File.", x
+	except:
+	    raise
 
 	# Test Dir.children()
 	dir = fs.Dir('ddd')
@@ -135,7 +136,6 @@ class FSTestCase(unittest.TestCase):
 
         built_it = None
         assert not built_it
-        d1.path = "d"           # XXX FAKE SUBCLASS ATTRIBUTE
         d1.add_source(["d"])    # XXX FAKE SUBCLASS ATTRIBUTE
         d1.builder_set(Builder())
         d1.env_set(Environment())
@@ -144,12 +144,44 @@ class FSTestCase(unittest.TestCase):
 
         built_it = None
         assert not built_it
-        f1.path = "f"           # XXX FAKE SUBCLASS ATTRIBUTE
         f1.add_source(["f"])    # XXX FAKE SUBCLASS ATTRIBUTE
         f1.builder_set(Builder())
         f1.env_set(Environment())
         f1.build()
         assert built_it
+
+	e1 = fs.Entry("d1")
+	assert e1.__class__.__name__ == 'Dir'
+	assert e1.path == "d1/", e1.path
+
+	e2 = fs.Entry("d1/f1")
+	assert e2.__class__.__name__ == 'File'
+	assert e2.path == "d1/f1", e2.path
+
+	e3 = fs.Entry("e3")
+	assert e3.__class__.__name__ == 'Entry'
+	assert e3.path == "e3", e3.path
+
+	e4 = fs.Entry("d1/e4")
+	assert e4.__class__.__name__ == 'Entry'
+	assert e4.path == "d1/e4", e4.path
+
+	e5 = fs.Entry("e3/e5")
+	assert e3.__class__.__name__ == 'Dir'
+	assert e3.path == "e3/", e3.path
+	assert e5.__class__.__name__ == 'Entry'
+	assert e5.path == "e3/e5", e5.path
+
+	e6 = fs.Dir("d1/e4")
+	assert e6 is e4
+	assert e4.__class__.__name__ == 'Dir'
+	assert e4.path == "d1/e4/", e4.path
+
+	e7 = fs.File("e3/e5")
+	assert e7 is e5
+	assert e5.__class__.__name__ == 'File'
+	assert e5.path == "e3/e5", e5.path
+
 
 
 if __name__ == "__main__":

@@ -158,8 +158,19 @@ class FS:
 	    # supplied top-level directory.
 	    assert directory, "Tried to lookup a node by relative path with no top-level directory supplied."
         ret = directory.entries.setdefault(tail, fsclass(tail, directory))
+	if fsclass.__name__ == 'Entry':
+            # If they were looking up a generic entry, then
+	    # whatever came back is all right.
+	    return ret
+	if ret.__class__.__name__ == 'Entry':
+	    # They were looking up a File or Dir but found a
+	    # generic entry.  Transform the node.
+	    ret.__class__ = fsclass
+	    ret._morph()
+	    return ret
         if not isinstance(ret, fsclass):
-            raise TypeError, ret
+            raise TypeError, "Tried to lookup %s '%s' as a %s." % \
+    			(ret.__class__.__name__, str(ret), fsclass.__name__)
         return ret
 
     def __transformPath(self, name, directory):
@@ -178,6 +189,16 @@ class FS:
         elif not directory:
             directory = self.Top
         return (name, directory)
+
+    def Entry(self, name, directory = None):
+        """Lookup or create a generic Entry node with the specified name.
+        If the name is a relative path (begins with ./, ../, or a file
+        name), then it is looked up relative to the supplied directory
+        node, or to the top level directory of the FS (supplied at
+        construction time) if no directory is supplied.
+        """
+        name, directory = self.__transformPath(name, directory)
+        return self.__doLookup(Entry, name, directory)
     
     def File(self, name, directory = None):
         """Lookup or create a File node with the specified name.  If
@@ -205,6 +226,41 @@ class FS:
         name, directory = self.__transformPath(name, directory)
         return self.__doLookup(Dir, name, directory)
 
+
+
+class Entry(Node):
+    """A generic class for file system entries.  This class if for
+    when we don't know yet whether the entry being looked up is a file
+    or a directory.  Instances of this class can morph into either
+    Dir or File objects by a later, more precise lookup."""
+
+    def __init__(self, name, directory):
+	"""Initialize a generic file system Entry.
+	
+	Call the superclass initialization, take care of setting up
+	our relative and absolute paths, identify our parent
+	directory, and indicate that this node should use
+	signatures."""
+        Node.__init__(self)
+
+        if directory:
+            self.abspath = os.path.join(directory.abspath, name)
+            if str(directory.path) == '.':
+                self.path = os.path.join(name)
+            else:
+                self.path = os.path.join(directory.path, name)
+        else:
+            self.abspath = self.path = name
+	self.parent = directory
+	self.uses_signature = 1
+
+    def __str__(self):
+	"""A FS node's string representation is its path name."""
+	return self.path
+
+    def exists(self):
+        return os.path.exists(self.path)
+
     
 
 # XXX TODO?
@@ -216,29 +272,35 @@ class FS:
 # linked_targets
 # is_accessible
 
-class Dir(Node):
+class Dir(Entry):
     """A class for directories in a file system.
     """
 
     def __init__(self, name, directory = None):
-        Node.__init__(self)
+        Entry.__init__(self, name, directory)
+	self._morph()
+
+    def _morph(self):
+	"""Turn a file system node (either a freshly initialized
+	directory object or a separate Entry object) into a
+	proper directory object.
+	
+	Modify our paths to add the trailing slash that indicates
+	a directory.  Set up this directory's entries and hook it
+	into the file system tree.  Specify that directories (this
+	node) don't use signatures for currency calculation."""
+
+        self.path = os.path.join(self.path, '')
+        self.abspath = os.path.join(self.abspath, '')
 
         self.entries = PathDict()
         self.entries['.'] = self
-
-        if directory:
-            self.entries['..'] = directory
-            self.abspath = os.path.join(directory.abspath, name, '')
-            if str(directory.path) == '.':
-                self.path = os.path.join(name, '')
-            else:
-                self.path = os.path.join(directory.path, name, '')
-        else:
-            self.abspath = self.path = name
-            self.entries['..'] = None
-
-    def __str__(self):
-	return self.path
+	if hasattr(self, 'parent'):
+            self.entries['..'] = self.parent
+	    delattr(self, 'parent')
+	else:
+	    self.entries['..'] = None
+        self.uses_signature = None
 
     def up(self):
         return self.entries['..']
@@ -275,22 +337,14 @@ class Dir(Node):
 # is_under
 # relpath
 
-class File(Node):
+class File(Entry):
     """A class for files in a file system.
     """
-
-    def __init__(self, name, directory):
-        Node.__init__(self)
-
-        self.abspath = os.path.join(directory.abspath, name)
-        if str(directory.path) == '.':
-            self.path = name
-        else:
-            self.path = os.path.join(directory.path, name)
-        self.parent = directory
-
-    def __str__(self):
-	return self.path
+    def _morph(self):
+	"""Turn a file system node into a File object.  Nothing
+	to be done, actually, because all of the info we need
+	is handled by our base Entry class initialization."""
+        pass
 
     def root(self):
         return self.parent.root()
@@ -300,9 +354,6 @@ class File(Node):
 
     def get_timestamp(self):
         return os.path.getmtime(self.path)
-
-    def exists(self):
-        return os.path.exists(self.path)
 
 
 default_fs = FS()
