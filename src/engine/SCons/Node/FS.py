@@ -236,12 +236,12 @@ class EntryProxy(SCons.Util.Proxy):
                                              name + "_filebase")
 
     def __get_suffix(self):
-        entry.name = self.get().name
+        name = self.get().name
         return SCons.Util.SpecialAttrWrapper(os.path.splitext(name)[1],
                                              name + "_suffix")
 
     def __get_file(self):
-        entry.name = self.get().name
+        name = self.get().name
         return SCons.Util.SpecialAttrWrapper(name, name + "_file")
 
     def __get_base_path(self):

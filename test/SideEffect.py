@@ -143,12 +143,12 @@ test.run(arguments='foo.out')
 
 test.fail_test(not os.path.exists(test.workpath('foo.out')))
 test.fail_test(not os.path.exists(test.workpath('log/foo.out')))
-test.fail_test(os.path.exists(test.workpath('log/bar.out')))
-test.fail_test(os.path.exists(test.workpath('log/blat.out')))
+test.fail_test(os.path.exists(test.workpath('log', 'bar.out')))
+test.fail_test(os.path.exists(test.workpath('log', 'blat.out')))
 
 test.run(arguments='log')
-test.fail_test(not os.path.exists(test.workpath('log/bar.out')))
-test.fail_test(not os.path.exists(test.workpath('log/blat.out')))
+test.fail_test(not os.path.exists(test.workpath('log', 'bar.out')))
+test.fail_test(not os.path.exists(test.workpath('log', 'blat.out')))
 
 test.write('SConstruct', 
 """
@@ -177,12 +177,15 @@ env.SideEffect('log.txt', ['foo.out', 'bar.out', 'blat.out'])
 test.write('foo.in', 'foo.in\n')
 test.write('bar.in', 'bar.in\n')
 
-test.run(arguments = 'build/foo.out build/bar.out')
+build_foo_out = os.path.join('build', 'foo.out')
+build_bar_out = os.path.join('build', 'bar.out')
+
+test.run(arguments = '%s %s' % (build_foo_out, build_bar_out))
 
 expect = """\
-foo.in -> build/foo.out
-bar.in -> build/bar.out
-"""
+foo.in -> %s
+bar.in -> %s
+""" % (build_foo_out, build_bar_out)
 
 assert test.read('build/log.txt') == expect
 
