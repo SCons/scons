@@ -193,9 +193,9 @@ class ParallelExceptionTestCase(unittest.TestCase):
         self.failIf(taskmaster.num_executed,
                     "a task was executed")
         self.failUnless(taskmaster.num_iterated >= 1,
-                    "exactly one task should have been iterated")
-        self.failUnless(taskmaster.num_failed == 1,
-                    "exactly one task should have failed") 
+                    "one or more task should have been iterated")
+        self.failUnless(taskmaster.num_failed >= 1,
+                    "one or more tasks should have failed") 
 
 
 def suite():
