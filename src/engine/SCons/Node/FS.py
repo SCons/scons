@@ -1769,7 +1769,7 @@ class File(Base):
 
         return csig
 
-    def current(self, calc=None, scan=1):
+    def current(self, calc=None):
         self.binfo = self.gen_binfo(calc)
         if self.always_build:
             return None

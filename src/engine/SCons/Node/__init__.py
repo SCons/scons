@@ -463,7 +463,7 @@ class Node:
                 implicit = map(self.implicit_factory, implicit)
                 self._add_child(self.implicit, self.implicit_dict, implicit)
                 calc = build_env.get_calculator()
-                if implicit_deps_unchanged or self.current(calc, scan=0):
+                if implicit_deps_unchanged or self.current(calc):
                     return
                 else:
                     # one of this node's sources has changed, so

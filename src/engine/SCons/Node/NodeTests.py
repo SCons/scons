@@ -115,12 +115,15 @@ class Environment:
         return apply(Environment, (), d)
     def _update(self, dict):
         self._dict.update(dict)
+    def get_calculator(self):
+        return SCons.Sig.default_calc
 
 class Builder:
     def __init__(self, is_explicit=1):
         self.env = Environment()
         self.overrides = {}
         self.action = MyAction()
+        self.source_factory = MyNode
         self.is_explicit = is_explicit
     def targets(self, t):
         return [t]
@@ -862,12 +865,14 @@ class NodeTestCase(unittest.TestCase):
         try:
             sn = StoredNode("eee")
             sn._children = ['fake']
+            sn.builder_set(Builder())
             sn.target_scanner = s
 
             sn.scan()
 
             assert sn.implicit == [], sn.implicit
-            assert not hasattr(sn, '_children'), "unexpected _children attribute"
+            assert sn._children == [], sn._children
+
         finally:
             SCons.Sig.default_calc = save_default_calc
             SCons.Node.implicit_cache = save_implicit_cache
