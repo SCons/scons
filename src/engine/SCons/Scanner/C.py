@@ -32,10 +32,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Node.FS
 import SCons.Scanner
 
-def CScan(fs = SCons.Node.FS.default_fs):
+def CScanner(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files
     that use the C pre-processor"""
-    cs = SCons.Scanner.ClassicCPP("CScan",
+    cs = SCons.Scanner.ClassicCPP("CScanner",
                                   "$CPPSUFFIXES",
                                   "CPPPATH",
                                   '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")',

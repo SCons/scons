@@ -39,7 +39,7 @@ import fortran
 
 def generate(env):
     """Add Builders and construction variables for ifl to an Environment."""
-    SCons.Defaults.ObjSourceScan.add_scanner('.i90', fortran.FortranScan)
+    SCons.Tool.SourceFileScanner.add_scanner('.i90', fortran.FortranScan)
     fortran.FortranSuffixes.extend(['.i90'])
     fortran.generate(env)
 

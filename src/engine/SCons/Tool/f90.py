@@ -53,7 +53,7 @@ else:
 F90Scan = SCons.Scanner.Fortran.FortranScan("F90PATH")
 
 for suffix in F90Suffixes + F90PPSuffixes:
-    SCons.Defaults.ObjSourceScan.add_scanner(suffix, F90Scan)
+    SCons.Tool.SourceFileScanner.add_scanner(suffix, F90Scan)
 
 #
 fVLG = fortran.VariableListGenerator

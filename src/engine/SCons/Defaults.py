@@ -48,9 +48,7 @@ import sys
 import SCons.Action
 import SCons.Builder
 import SCons.Environment
-import SCons.Scanner.C
-import SCons.Scanner.D
-import SCons.Scanner.Prog
+import SCons.Tool
 import SCons.Sig
 
 # A placeholder for a default Environment (for fetching source files
@@ -95,30 +93,14 @@ def SharedFlagChecker(source, target, env):
 
 SharedCheck = SCons.Action.Action(SharedFlagChecker, None)
 
-# Scanners and suffixes for common languages.
-ObjSourceScan = SCons.Scanner.Scanner({}, name='ObjSrcScanner')
-
-CScan = SCons.Scanner.C.CScan()
-
-CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
-             ".h", ".H", ".hxx", ".hpp", ".hh",
-             ".F", ".fpp", ".FPP",
-             ".S", ".spp", ".SPP"]
-
-for suffix in CSuffixes:
-    ObjSourceScan.add_scanner(suffix, CScan)
-
-DScan = SCons.Scanner.D.DScan()
-
-DSuffixes = ['.d']
-
-for suffix in DSuffixes:
-    ObjSourceScan.add_scanner(suffix, DScan)
-
-IDLSuffixes = [".idl", ".IDL"]
-
-# cleanup
-del suffix
+# Some people were using these variable name before we made
+# SourceFileScanner part of the public interface.  Don't break their
+# SConscript files until we've given them some fair warning and a
+# transition period.
+CScan = SCons.Tool.CScanner
+DScan = SCons.Tool.DScanner
+ObjSourceScan = SCons.Tool.SourceFileScanner
+ProgScan = SCons.Tool.ProgramScanner
 
 # Actions for common languages.
 CAction = SCons.Action.Action("$CCCOM", "$CCCOMSTR")
@@ -137,8 +119,6 @@ ArAction = SCons.Action.Action("$ARCOM", "$ARCOMSTR")
 
 LexAction = SCons.Action.Action("$LEXCOM", "$LEXCOMSTR")
 YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
-
-ProgScan = SCons.Scanner.Prog.ProgScan()
 
 def DVI():
     """Common function to generate a DVI file Builder."""
@@ -364,9 +344,9 @@ class Variable_Method_Caller:
 ConstructionEnvironment = {
     'BUILDERS'      : {},
     'SCANNERS'      : [],
-    'CPPSUFFIXES'   : CSuffixes,
-    'DSUFFIXES'     : DSuffixes,
-    'IDLSUFFIXES'   : IDLSuffixes,
+    'CPPSUFFIXES'   : SCons.Tool.CSuffixes,
+    'DSUFFIXES'     : SCons.Tool.DSuffixes,
+    'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
     'PDFPREFIX'     : '',
     'PDFSUFFIX'     : '.pdf',
     'PSPREFIX'      : '',

@@ -164,6 +164,27 @@ RELEASE 0.97 - XXX
       changed.  This change *only* affects any cases where you explicitly
       use UserList objects to initialize or append to a variable.
 
+  Please note the following planned, future changes:
+
+    - Several internal variable names in SCons.Defaults for various
+      pre-made default Scanner objects have been deprecated and will
+      be removed in a future revision.  In their place are several new
+      global variable names that are now part of the publicly-supported
+      interface:
+
+          NEW NAME              DEPRECATED NAME
+          --------              ----------------------------
+          CScanner              SCons.Defaults.CScan
+          DSCanner              SCons.Defaults.DScan
+          SourceFileScanner     SCons.Defaults.ObjSourceScan
+          ProgramScanner        SCons.Defaults.ProgScan
+
+      Of these, only ObjSourceScan was probably used at all, to add
+      new mappings of file suffixes to other scanners for use by the
+      Object() Builder.  This should now be done as follows:
+
+          SourceFileScanner.add_scanner('.x', XScanner)
+
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
   Because of this, SCons is of sufficient quality that you can use it

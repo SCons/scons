@@ -62,7 +62,7 @@ else:
 FortranScan = SCons.Scanner.Fortran.FortranScan("FORTRANPATH")
 
 for suffix in FortranSuffixes + FortranPPSuffixes:
-    SCons.Defaults.ObjSourceScan.add_scanner(suffix, FortranScan)
+    SCons.Tool.SourceFileScanner.add_scanner(suffix, FortranScan)
 
 #
 def _fortranEmitter(target, source, env):

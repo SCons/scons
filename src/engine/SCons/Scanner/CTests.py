@@ -215,7 +215,7 @@ def make_node(filename, fs=SCons.Node.FS.default_fs):
 class CScannerTestCase1(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment(CPPPATH=[])
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         path = s.path(env)
         deps = s(make_node('f1.cpp'), env, path)
         headers = ['f1.h', 'f2.h']
@@ -224,7 +224,7 @@ class CScannerTestCase1(unittest.TestCase):
 class CScannerTestCase2(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment(CPPPATH=[test.workpath("d1")])
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         path = s.path(env)
         deps = s(make_node('f1.cpp'), env, path)
         headers = ['f1.h', 'd1/f2.h']
@@ -233,7 +233,7 @@ class CScannerTestCase2(unittest.TestCase):
 class CScannerTestCase3(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment(CPPPATH=[test.workpath("d1")])
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         path = s.path(env)
         deps = s(make_node('f2.cpp'), env, path)
         headers = ['d1/f1.h', 'f1.h', 'd1/d2/f1.h']
@@ -242,7 +242,7 @@ class CScannerTestCase3(unittest.TestCase):
 class CScannerTestCase4(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment(CPPPATH=[test.workpath("d1"), test.workpath("d1/d2")])
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         path = s.path(env)
         deps = s(make_node('f2.cpp'), env, path)
         headers =  ['d1/f1.h', 'f1.h', 'd1/d2/f1.h', 'd1/d2/f4.h']
@@ -251,7 +251,7 @@ class CScannerTestCase4(unittest.TestCase):
 class CScannerTestCase5(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment(CPPPATH=[])
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         path = s.path(env)
 
         n = make_node('f3.cpp')
@@ -275,7 +275,7 @@ class CScannerTestCase6(unittest.TestCase):
     def runTest(self):
         env1 = DummyEnvironment(CPPPATH=[test.workpath("d1")])
         env2 = DummyEnvironment(CPPPATH=[test.workpath("d1/d2")])
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         path1 = s.path(env1)
         path2 = s.path(env2)
         deps1 = s(make_node('f1.cpp'), env1, path1)
@@ -289,7 +289,7 @@ class CScannerTestCase8(unittest.TestCase):
     def runTest(self):
         fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment(CPPPATH=["include"])
-        s = SCons.Scanner.C.CScan(fs = fs)
+        s = SCons.Scanner.C.CScanner(fs = fs)
         path = s.path(env)
         deps1 = s(fs.File('fa.cpp'), env, path)
         fs.chdir(fs.Dir('subdir'))
@@ -315,7 +315,7 @@ class CScannerTestCase9(unittest.TestCase):
         test.write('fa.h','\n')
         fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment(CPPPATH=[])
-        s = SCons.Scanner.C.CScan(fs=fs)
+        s = SCons.Scanner.C.CScanner(fs=fs)
         path = s.path(env)
         deps = s(fs.File('fa.cpp'), env, path)
 
@@ -330,7 +330,7 @@ class CScannerTestCase10(unittest.TestCase):
         fs = SCons.Node.FS.FS(test.workpath(''))
         fs.chdir(fs.Dir('include'))
         env = DummyEnvironment(CPPPATH=[])
-        s = SCons.Scanner.C.CScan(fs=fs)
+        s = SCons.Scanner.C.CScanner(fs=fs)
         path = s.path(env)
         test.write('include/fa.cpp', test.read('fa.cpp'))
         fs.chdir(fs.Dir('..'))
@@ -349,7 +349,7 @@ class CScannerTestCase11(unittest.TestCase):
         f1=fs.File('include2/jjj.h')
         f1.builder=1
         env = DummyEnvironment(CPPPATH=['include', 'include2'])
-        s = SCons.Scanner.C.CScan(fs=fs)
+        s = SCons.Scanner.C.CScanner(fs=fs)
         path = s.path(env)
         deps = s(fs.File('src/fff.c'), env, path)
         deps_match(self, deps, [ test.workpath('repository/include/iii.h'), 'include2/jjj.h' ])
@@ -363,7 +363,7 @@ class CScannerTestCase12(unittest.TestCase):
         fs.BuildDir('build2', 'src', 0)
         fs.Repository(test.workpath('repository'))
         env = DummyEnvironment(CPPPATH=[])
-        s = SCons.Scanner.C.CScan(fs = fs)
+        s = SCons.Scanner.C.CScanner(fs = fs)
         path = s.path(env)
         deps1 = s(fs.File('build1/aaa.c'), env, path)
         deps_match(self, deps1, [ 'build1/bbb.h' ])
@@ -381,7 +381,7 @@ class CScannerTestCase13(unittest.TestCase):
             def subst(self, arg, test=test):
                 return test.workpath("d1")
         env = SubstEnvironment(CPPPATH=["blah"])
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         path = s.path(env)
         deps = s(make_node('f1.cpp'), env, path)
         headers = ['f1.h', 'd1/f2.h']
@@ -390,7 +390,7 @@ class CScannerTestCase13(unittest.TestCase):
 class CScannerTestCase14(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment(CPPPATH=[])
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         path = s.path(env)
         deps = s(make_node('f5.c'), env, path)
         headers = ['f5a.h', 'f5b.h']
@@ -403,7 +403,7 @@ class CScannerTestCase15(unittest.TestCase):
                     ".F", ".fpp", ".FPP",
                     ".S", ".spp", ".SPP"]
         env = DummyEnvironment(CPPSUFFIXES = suffixes)
-        s = SCons.Scanner.C.CScan()
+        s = SCons.Scanner.C.CScanner()
         for suffix in suffixes:
             assert suffix in s.get_skeys(env), "%s not in skeys" % suffix
 

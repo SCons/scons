@@ -193,6 +193,11 @@ RELEASE 0.97 - XXX
   - When scanning, don't create Nodes for include files that don't
     actually exist on disk.
 
+  - Make supported global variables CScanner, DScanner, ProgramScanner and
+    SourceFileScanner.  Make SourceFileScanner.add_scanner() a supported
+    part of the public interface.  Keep the old SCons.Defaults.*Scan names
+    around for a while longer since some people were already using them.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
