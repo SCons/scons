@@ -219,8 +219,6 @@ class SConf:
                 sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
                 if e.errstr == 'Exception':
                     traceback.print_exception(e.args[0], e.args[1], e.args[2])
-            except:
-                raise
 
             for n in nodes:
                 state = n.get_state()
@@ -401,6 +399,8 @@ class SConf:
             if cacheDesc['scons_version'] != SCons.__version__:
                 raise Exception, "version mismatch"
             self.cache = cacheDesc['data']
+        except KeyboardInterrupt:
+            raise
         except:
             self.cache = {}
 

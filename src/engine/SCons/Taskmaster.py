@@ -237,6 +237,8 @@ class Taskmaster:
                 self.candidates.pop()
                 self.ready = node
                 break
+            except KeyboardInterrupt:
+                raise
             except:
                 # We had a problem just trying to figure out the
                 # children (like a child couldn't be linked in to a
@@ -264,6 +266,8 @@ class Taskmaster:
             try:
                 def derived_nodes(node): return node.is_derived() or node.is_pseudo_derived()
                 derived = filter(derived_nodes, children)
+            except KeyboardInterrupt:
+                raise
             except:
                 # We had a problem just trying to figure out if any of
                 # the kids are derived (like a child couldn't be linked
@@ -343,6 +347,8 @@ class Taskmaster:
         task = self.tasker(self, tlist, node in self.targets, node)
         try:
             task.make_ready()
+        except KeyboardInterrupt:
+            raise
         except:
             # We had a problem just trying to get this task ready (like
             # a child couldn't be linked in to a BuildDir when deciding

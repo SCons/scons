@@ -43,7 +43,7 @@ ccLinker = None
 
 try:
     dirs = os.listdir('/opt')
-except:
+except OSError:
     dirs = []
 
 for dir in dirs:

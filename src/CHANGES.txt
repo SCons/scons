@@ -175,6 +175,9 @@ RELEASE X.XX - XXX
 
   - Support calling a Builder when a Configure context is still open.
 
+  - Handle interrupts better by eliminating all try:-except: blocks
+    which caught any and all exceptions, including KeyboardInterrupt.
+
 
 
 RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500

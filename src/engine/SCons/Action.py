@@ -388,7 +388,7 @@ class FunctionAction(ActionBase):
         try:
             # "self.execfunction" is a function.
             code = self.execfunction.func_code.co_code
-        except:
+        except AttributeError:
             # "self.execfunction" is a callable object.
             code = self.execfunction.__call__.im_func.func_code.co_code
         return str(code) + env.subst(string.join(map(lambda v: '${'+v+'}',

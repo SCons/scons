@@ -721,7 +721,7 @@ class FS:
                 self._cwd = dir
                 if change_os_dir:
                     os.chdir(dir.abspath)
-        except:
+        except OSError:
             self._cwd = curr
             raise
 
@@ -1476,7 +1476,7 @@ class File(Base):
     def rfile(self):
         try:
             return self._rfile
-        except:
+        except AttributeError:
             self._rfile = self
             if not self.exists():
                 n = self.fs.Rsearch(self.path, clazz=File,

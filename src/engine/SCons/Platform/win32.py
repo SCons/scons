@@ -166,15 +166,15 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
             try:
                 stdout.write(open( tmpFileStdout, "r" ).read())
                 os.remove( tmpFileStdout )
-            except:
+            except (IOError, OSError):
                 pass
 
         if stderr != None and stderrRedirected == 0:
             try:
                 stderr.write(open( tmpFileStderr, "r" ).read())
                 os.remove( tmpFileStderr )
-            except:
-                    pass
+            except (IOError, OSError):
+                pass
         return ret
 
 def spawn(sh, escape, cmd, args, env):
@@ -199,7 +199,7 @@ def get_system_root():
     # A resonable default if we can't read the registry
     try:
         val = os.environ['SYSTEMROOT']
-    except:
+    except KeyError:
         val = "C:/WINDOWS"
         pass
 
@@ -216,6 +216,8 @@ def get_system_root():
                 k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
                                           'Software\\Microsoft\\Windows\\CurrentVersion')
                 val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
+            except KeyboardInterrupt:
+                raise
             except:
                 pass
     return val
@@ -260,6 +262,8 @@ def generate(env):
                                               'Software\\Microsoft\\Windows\\CurrentVersion')
                 val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
                 cmd_interp = os.path.join(val, 'command.com')
+            except KeyboardInterrupt:
+                raise
             except:
                 pass
 

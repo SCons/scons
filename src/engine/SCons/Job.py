@@ -135,6 +135,9 @@ class Worker(threading.Thread):
 
             try:
                 task.execute()
+            except KeyboardInterrupt:
+                # be explicit here for test/interrupts.py
+                ok = False
             except:
                 ok = 0
             else:

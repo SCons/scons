@@ -301,6 +301,8 @@ def get_msvc_default_paths(version = None):
     try:
         if not version:
             version = SCons.Tool.msvs.get_visualstudio_versions()[0] #use highest version
+    except KeyboardInterrupt:
+        raise
     except:
         pass
 

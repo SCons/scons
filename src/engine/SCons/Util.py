@@ -804,7 +804,7 @@ else:
             if os.path.isfile(f):
                 try:
                     st = os.stat(f)
-                except:
+                except OSError:
                     continue
                 if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
                     return os.path.normpath(f)

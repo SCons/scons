@@ -163,6 +163,8 @@ class Options:
                         value = env[option.key]
                         try:
                             eval(repr(value))
+                        except KeyboardInterrupt:
+                            raise
                         except:
                             # Convert stuff that has a repr() that
                             # cannot be evaluated into a string
