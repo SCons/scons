@@ -44,7 +44,7 @@ import SCons.Errors
 import SCons.Tool
 import SCons.Util
 
-from SCons.Tool.msvc import get_msdev_paths
+from SCons.Tool.msvc import get_msvc_paths
 from SCons.Tool.PharLapCommon import addPharLapPaths
 
 _re_linker_command = re.compile(r'(\s)@\s*([^\s]+)')
@@ -95,7 +95,7 @@ def generate(env):
     env['LIBLINKPREFIX']='-lib '
     env['LIBLINKSUFFIX']='$LIBSUFFIX'
 
-    include_path, lib_path, exe_path = get_msdev_paths()
+    include_path, lib_path, exe_path = get_msvc_paths()
     env['ENV']['LIB']            = lib_path
     env['ENV']['PATH']           = exe_path
 

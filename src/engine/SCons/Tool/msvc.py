@@ -266,7 +266,7 @@ def get_msvc_paths(version=None):
             
     try:
         if not version:
-            version = get_visualstudio_versions()[0] #use highest version
+            version = SCons.Tool.msvs.get_visualstudio_versions()[0] #use highest version
 
         include_path = get_msvc_path("include", version)
         lib_path = get_msvc_path("lib", version)
@@ -300,7 +300,7 @@ def get_msvc_default_paths(version = None):
 
     try:
         if not version:
-            version = get_visualstudio_versions()[0] #use highest version
+            version = SCons.Tool.msvs.get_visualstudio_versions()[0] #use highest version
     except:
         pass
 

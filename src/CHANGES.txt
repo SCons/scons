@@ -10,7 +10,9 @@
 
 RELEASE X.XX - XXX, XX XXX XXXX XX:XX:XX XXXXX
 
-  From Steven Knight
+  From Charles Crain and Gary Oberbrunner:
+
+  - Fix Tool import problems with the Intel and PharLap linkers.
 
   From Gerard Patel
 
