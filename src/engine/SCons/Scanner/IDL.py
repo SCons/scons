@@ -28,7 +28,7 @@ Definition Language) files.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Scanner/IDL.py 0.D013 2003/03/31 21:46:41 software"
+__revision__ = "__REVISION__"
 
 import SCons.Node.FS
 import SCons.Scanner

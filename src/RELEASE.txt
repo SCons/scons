@@ -20,10 +20,12 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.90 - Wed, 25 Jun 2003 14:24:52 -0500
+RELEASE 0.XX - XXX
 
-  This is the first beta release of SCons.  Please consult the
+  This is the second beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.90:
 
   Please note the following important changes since release 0.14:
 
@@ -33,46 +35,6 @@ RELEASE 0.90 - Wed, 25 Jun 2003 14:24:52 -0500
     Visual Studio, it is probably because it installed itself itself in
     a default directory that we have not seen before.  If this is the
     case, please let us know so that we can update future versions.
-
-  Please note the following important changes since release 0.13:
-
-  - Tool specifications no longer take a "platform" argument.  You
-    will need to remove this argument if you define any local Tool
-    specifications.  The new env['PLATFORM'] construction variable can
-    now be used to find the string that used to be passed in as the
-    "platform" argument.
-
-  - Emitter functions in Builders are now passed Node objects, not
-    strings, for all targets and sources.  Your emitter may need to
-    use the str() function to examine the names of specified files.
-
-  - The SetBuildSignatureType() and SetContentSignatureType() functions
-    have been deprecated.  The new names are TargetSignatures() and
-    SourceSignatures().
-
-  - The Export() function and the exported variables argument of
-    SConscript() now search for variables using the same rules as
-    Python: local first, then global.  If you are calling Export() or
-    SConscript() from a module imported directly into an SConscript
-    file, you may need to modify the module to make the previously
-    global variables available to your Export() or SConscript() call.
-
-  - The SetJobs() and GetJobs() functions have been deprecated.
-    Their new equivalents are:
-
-        SetOption('num_jobs', num)
-        GetOption('num_jobs')
-
-  - Callable expansions of construction variables in a command line
-    now take a fourth "for_signature" argument that is set when the
-    expansion is being called to generate a build signature.
-
-  - Construction variables for building a target are now frozen when the
-    Builder is called; later changes to the Environment do not
-    necessarily affect how the target is build.  You may need to
-    re-order statements in your SConscript files to make sure
-    construction variables are set before calling the Builders that will
-    use them.
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
