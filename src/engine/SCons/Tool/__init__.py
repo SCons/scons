@@ -248,7 +248,7 @@ def tool_list(platform, env):
         "prefer MIPSPro on IRIX"
         linkers = ['sgilink', 'gnulink']
         c_compilers = ['sgicc', 'gcc', 'cc']
-        cxx_compilers = ['sgicc', 'g++', 'c++']
+        cxx_compilers = ['sgic++', 'g++', 'c++']
         assemblers = ['as', 'gas']
         fortran_compilers = ['f77', 'g77']
         ars = ['sgiar']
@@ -299,7 +299,7 @@ def tool_list(platform, env):
         ar = None
     else:
         # Don't use g++ if the C compiler has built-in C++ support:
-        if c_compiler in ('msvc', 'icc', 'sgicc'):
+        if c_compiler in ('msvc', 'icc'):
             cxx_compiler = None
         else:
             cxx_compiler = FindTool(cxx_compilers, env) or cxx_compilers[0]

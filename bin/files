@@ -77,6 +77,7 @@
 ./SCons/Tool/qt.py
 ./SCons/Tool/rmic.py
 ./SCons/Tool/sgiar.py
+./SCons/Tool/sgic++.py
 ./SCons/Tool/sgicc.py
 ./SCons/Tool/sgilink.py
 ./SCons/Tool/sunar.py

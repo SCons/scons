@@ -1,6 +1,6 @@
 """SCons.Tool.sgicc
 
-Tool-specific initialization for MIPSPro CC and cc.
+Tool-specific initialization for MIPSPro cc on SGI.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -38,11 +38,10 @@ import cc
 def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
     cc.generate(env)
-        
+
     env['CXX']        = 'CC'
-    env['CXXFLAGS']   = ['$CCFLAGS', '-LANG:std']
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
 def exists(env):
-    return env.Detect('CC')
+    return env.Detect('cc')
