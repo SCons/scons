@@ -16,6 +16,12 @@ RELEASE 0.96 - XXX
 
   - Allow construction variable substitutions in $LIBS specifications.
 
+  From Charles Crain:
+
+  - Restore the ability to do construction variable substitutions in all
+    kinds of *PATH variables, even when the substitution returns a Node
+    or other object.
+
   From Tom Epperly:
 
   - Allow the Java() Builder to take more than one source directory.

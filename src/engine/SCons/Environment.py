@@ -432,7 +432,13 @@ class Base:
             if SCons.Util.is_String(p):
                 p = self.subst(p, conv=s)
                 if SCons.Util.is_List(p):
-                    p = p[0]
+                    if len(p) == 1:
+                        p = p[0]
+                    else:
+                        # We have an object plus a string, or multiple
+                        # objects that we need to smush together.  No choice
+                        # but to make them into a string.
+                        p = string.join(map(SCons.Util.to_String, p), '')
             else:
                 p = s(p)
             r.append(p)

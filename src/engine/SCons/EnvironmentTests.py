@@ -444,6 +444,24 @@ class EnvironmentTestCase(unittest.TestCase):
         r = env.subst_path(['$PROXY', MyProxy('my2'), n])
         assert r == ['my1-proxy', 'my2-proxy', n], r
 
+        class StringableObj:
+            def __init__(self, s):
+                self.s = s
+            def __str__(self):
+                return self.s
+
+        env = Environment(FOO=StringableObj("foo"),
+                          BAR=StringableObj("bar"))
+
+        r = env.subst_path([ "${FOO}/bar", "${BAR}/baz" ])
+        assert r == [ "foo/bar", "bar/baz" ]
+
+        r = env.subst_path([ "bar/${FOO}", "baz/${BAR}" ])
+        assert r == [ "bar/foo", "baz/bar" ]
+
+        r = env.subst_path([ "bar/${FOO}/bar", "baz/${BAR}/baz" ])
+        assert r == [ "bar/foo/bar", "baz/bar/baz" ]
+
     def test_Builder_calls(self):
         """Test Builder calls through different environments
         """
