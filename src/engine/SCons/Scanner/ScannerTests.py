@@ -233,6 +233,11 @@ class ClassicTestCase(unittest.TestCase):
         finally:
             SCons.Node.FS.find_file = save
 
+    def test_name(self):
+        """Test setting the Scanner.Classic name"""
+        s = SCons.Scanner.Classic("my_name", ['.s'], 'MYPATH', '^my_inc (\S+)')
+        assert s.name == "my_name", s.name
+
     def test_scan(self):
         """Test the Scanner.Classic scan() method"""
         class MyNode:

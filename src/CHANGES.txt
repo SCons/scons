@@ -10,6 +10,14 @@ r __COPYRIGHT__
 
 RELEASE 0.96 - XXX
 
+  From Chad Austin:
+
+  - Make the CacheDir() directory if it doesn't already exist.
+
+  From Chris Hoeppler:
+
+  - Initialize the name of a Scanner.Classic scanner correctly.
+
   From Steven Knight:
 
   - Add an Execute() method for executing actions directly.
