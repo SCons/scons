@@ -28,6 +28,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import os.path
 import stat
 import sys
 import TestSCons
@@ -162,8 +163,8 @@ env.Command('dir/file', [], build)
 test.run(chdir = 'work3', arguments = 'dir/file', stdout=test.wrap_stdout("""\
 pre(["dir"], [])
 post(["dir"], [])
-build(["dir/file"], [])
-"""))
+build(["%s"], [])
+""" % os.path.join('dir', 'file')))
 
 test.must_match(['work3', 'dir', 'file'], "build()\n")
 

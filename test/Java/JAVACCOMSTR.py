@@ -29,6 +29,8 @@ Test that the $JAVACCOMSTR construction variable allows you to configure
 the javac output.
 """
 
+import os.path
+
 import TestSCons
 
 python = TestSCons.python
@@ -60,9 +62,14 @@ test.write(['src', 'file1.java'], "file1.java\n/*javac*/\n")
 test.write(['src', 'file2.java'], "file2.java\n/*javac*/\n")
 test.write(['src', 'file3.java'], "file3.java\n/*javac*/\n")
 
+classes_src_file1_class = os.path.join('classes', 'src', 'file1.class')
+src_file1_java= os.path.join('src', 'file1.java')
+src_file2_java= os.path.join('src', 'file2.java')
+src_file3_java= os.path.join('src', 'file3.java')
+
 test.run(stdout = test.wrap_stdout("""\
-Compiling class(es) classes/src/file1.class from src/file1.java src/file2.java src/file3.java
-"""))
+Compiling class(es) %(classes_src_file1_class)s from %(src_file1_java)s %(src_file2_java)s %(src_file3_java)s
+""" % locals()))
 
 test.must_match(['classes', 'src', 'file1.class'],
                 "file1.java\nfile2.java\nfile3.java\n")

@@ -42,6 +42,11 @@ if not ci:
     print "Could not find `ci' command, skipping test(s)."
     test.pass_test(1)
 
+co = test.where_is('co')
+if not co:
+    print "Could not find `co' command, skipping test(s)."
+    test.pass_test(1)
+
 
 
 test.subdir('RCS')
@@ -66,9 +71,10 @@ test.run(program = ci,
          stderr = None)
 
 test.write('SConstruct', """
+DefaultEnvironment(RCS_CO = r'%s')
 env = Environment()
 env.Program('foo.c')
-""")
+""" % co)
 
 test.run(stderr="""\
 RCS/foo.c,v  -->  foo.c

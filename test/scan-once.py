@@ -96,7 +96,7 @@ test.write(['SLF', 'SConscript'], """\
 ### don't seem to work well!  ARRGH!!!!
 ###
 
-experimenttop = "%s"
+experimenttop = r"%s"
 
 import os
 import os.path
@@ -287,7 +287,7 @@ static_hdrs = "libg_w.h"
 #exported_hdrs = generated_hdrs + " " + static_hdrs
 exported_hdrs = static_hdrs
 lib_name = "g"
-lib_fullname = "libg.a"
+lib_fullname = env.subst("${LIBPREFIX}g${LIBSUFFIX}")
 lib_srcs = string.split("libg_1.c libg_2.c libg_3.c")
 import re
 lib_objs = map(lambda x: re.sub("\.c$", ".o", x), lib_srcs)

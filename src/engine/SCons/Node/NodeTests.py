@@ -1179,7 +1179,7 @@ class NodeListTestCase(unittest.TestCase):
             assert s == "['n3', 'n2', 'n1']", s
 
         r = repr(nl)
-        r = re.sub('at (0x)?[0-9a-z]+', 'at 0x', r)
+        r = re.sub('at (0[xX])?[0-9a-fA-F]+', 'at 0x', r)
         # Don't care about ancestry: just leaf value of MyNode
         r = re.sub('<.*?\.MyNode', '<MyNode', r)
         # New-style classes report as "object"; classic classes report

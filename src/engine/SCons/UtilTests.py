@@ -456,8 +456,11 @@ class UtilTestCase(unittest.TestCase):
                 pass
             scons_subst('${foo.bar}', env, gvars={'foo':Foo()})
         except SCons.Errors.UserError, e:
-            expect = "Error substituting `foo.bar': unknown attribute `bar'"
-            assert str(e) == expect, e
+            expect = [
+                "Error trying to evaluate `${foo.bar}': bar",
+                "Error trying to evaluate `${foo.bar}': Foo instance has no attribute 'bar'",
+            ]
+            assert str(e) in expect, e
         else:
             raise AssertionError, "did not catch expected UserError"
 
@@ -870,8 +873,11 @@ class UtilTestCase(unittest.TestCase):
                 pass
             scons_subst_list('${foo.bar}', env, gvars={'foo':Foo()})
         except SCons.Errors.UserError, e:
-            expect = "Error substituting `foo.bar': unknown attribute `bar'"
-            assert str(e) == expect, e
+            expect = [
+                "Error trying to evaluate `${foo.bar}': bar",
+                "Error trying to evaluate `${foo.bar}': Foo instance has no attribute 'bar'",
+            ]
+            assert str(e) in expect, e
         else:
             raise AssertionError, "did not catch expected UserError"
 
