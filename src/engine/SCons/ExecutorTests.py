@@ -46,8 +46,9 @@ class MyEnvironment:
 class MyAction:
     def __init__(self, actions=['action1', 'action2']):
         self.actions = actions
-    def get_actions(self):
-        return self.actions
+    def __call__(self, target, source, env, errfunc, **kw):
+        for action in self.actions:
+            action(target, source, env, errfunc)
     def strfunction(self, target, source, env):
         return string.join(['STRFUNCTION'] + self.actions + target + source)
     def genstring(self, target, source, env):
@@ -120,15 +121,15 @@ class ExecutorTestCase(unittest.TestCase):
     def test_get_action_list(self):
         """Test fetching and generating an action list"""
         x = SCons.Executor.Executor('b', 'e', 'o', 't', 's')
-        x.action_list = ['aaa']
         al = x.get_action_list(MyNode([], []))
-        assert al == ['aaa'], al
+        assert al == ['b'], al
         al = x.get_action_list(MyNode(['PRE'], ['POST']))
-        assert al == ['PRE', 'aaa', 'POST'], al
+        assert al == ['PRE', 'b', 'POST'], al
 
-        x = SCons.Executor.Executor(MyAction(), None, {}, 't', 's')
+        a = MyAction()
+        x = SCons.Executor.Executor(a, None, {}, 't', 's')
         al = x.get_action_list(MyNode(['pre'], ['post']))
-        assert al == ['pre', 'action1', 'action2', 'post'], al
+        assert al == ['pre', a, 'post'], al
 
     def test__call__(self):
         """Test calling an Executor"""

@@ -1263,10 +1263,6 @@ class Dir(Base):
         kids.sort(c)
         self._add_child(self.implicit, self.implicit_dict, kids)
 
-    def get_actions(self):
-        """A null "builder" for directories."""
-        return []
-
     def build(self, **kw):
         """A null "builder" for directories."""
         global MkdirBuilder

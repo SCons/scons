@@ -87,18 +87,12 @@ class Action:
         pass
     def strfunction(self, targets, sources, env):
         return ""
-    def get_actions(self):
-        return [self]
-
 class Builder:
     def __init__(self, factory, action=Action()):
         self.factory = factory
         self.env = Environment()
         self.overrides = {}
         self.action = action
-
-    def get_actions(self):
-        return [self]
 
     def targets(self, t):
         return [t]
@@ -1541,15 +1535,6 @@ class prepareTestCase(unittest.TestCase):
         dir = fs.Dir("dir")
         dir.prepare()
 
-class get_actionsTestCase(unittest.TestCase):
-    def runTest(self):
-        """Test the Dir's get_action() method"""
-
-        fs = SCons.Node.FS.FS()
-        dir = fs.Dir('.')
-        a = dir.get_actions()
-        assert a == [], a
-
 class SConstruct_dirTestCase(unittest.TestCase):
     def runTest(self):
         """Test setting the SConstruct directory"""
@@ -2013,7 +1998,6 @@ if __name__ == "__main__":
     suite.addTest(stored_infoTestCase())
     suite.addTest(has_src_builderTestCase())
     suite.addTest(prepareTestCase())
-    suite.addTest(get_actionsTestCase())
     suite.addTest(SConstruct_dirTestCase())
     suite.addTest(CacheDirTestCase())
     suite.addTest(clearTestCase())

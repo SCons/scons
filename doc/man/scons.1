@@ -1281,6 +1281,64 @@ we have to access the first element in the list
 to get at the Node that actually represents
 the object file.
 
+Builder calls support a
+.B chdir
+keyword argument that
+specifies that the Builder's action(s)
+should be executed
+after changing directory.
+If the
+.B chdir
+argument is
+a string or a directory Node,
+scons will change to the specified directory.
+If the
+.B chdir
+is not a string or Node
+and is non-zero,
+then scons will change to the
+target file's directory.
+
+.ES
+# scons will change to the "sub" subdirectory
+# before executing the "cp" command.
+env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
+            "cp dir/foo.in dir/foo.out",
+            chdir='sub')
+
+# Because chdir is not a string, scons will change to the
+# target's directory ("sub/dir") before executing the
+# "cp" command.
+env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
+            "cp foo.in foo.out",
+            chdir=1)
+.EE
+
+Note that scons will
+.I not
+automatically modify
+its expansion of
+construction variables like
+.B $TARGET
+and
+.B $SOURCE
+when using the chdir
+keyword argument--that is,
+the expanded file names
+will still be relative to
+the top-level SConstruct directory,
+and consequently incorrect
+relative to the chdir directory.
+If you use the chdir keyword argument,
+you will typically need to supply a different
+command line using
+expansions like
+.B ${TARGET.file}
+and
+.B ${SOURCE.file}
+to use just the filename portion of the
+targets and source.
+
 .B scons
 provides the following builder methods:
 
@@ -7724,6 +7782,54 @@ env = Environment(BUILDERS = {'MyBuild' : b})
 env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
 .EE
 
+.IP chdir
+A directory from which scons
+will execute the
+action(s) specified
+for this Builder.
+If the
+.B chdir
+argument is
+a string or a directory Node,
+scons will change to the specified directory.
+If the
+.B chdir
+is not a string or Node
+and is non-zero,
+then scons will change to the
+target file's directory.
+
+Note that scons will
+.I not
+automatically modify
+its expansion of
+construction variables like
+.B $TARGET
+and
+.B $SOURCE
+when using the chdir
+keyword argument--that is,
+the expanded file names
+will still be relative to
+the top-level SConstruct directory,
+and consequently incorrect
+relative to the chdir directory.
+Builders created using chdir keyword argument,
+will need to use construction variable
+expansions like
+.B ${TARGET.file}
+and
+.B ${SOURCE.file}
+to use just the filename portion of the
+targets and source.
+
+.ES
+b = Builder(action="build < ${SOURCE.file} > ${TARGET.file}",
+            chdir=1)
+env = Environment(BUILDERS = {'MyBuild' : b})
+env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
+.EE
+
 .RE
 Any additional keyword arguments supplied
 when a Builder object is created
@@ -7863,6 +7969,9 @@ def build_it(target = None, source = None, env = None):
 a = Action(build_it)
 .EE
 
+If the action argument is not one of the above,
+None is returned.
+
 The second, optional argument
 is a Python function that returns
 a string to be printed to describe the action being executed.
@@ -7926,8 +8035,53 @@ a = Action(build_it, string_it, ['XXX'])
 a = Action(build_it, varlist=['XXX'])
 .EE
 .PP
-If the action argument is not one of the above,
-None is returned.
+
+The
+.BR Action ()
+global function
+also takes a
+.B chdir
+keyword argument
+which specifies that
+scons will execute the action
+after changing to the specified directory.
+If the chdir argument is
+a string or a directory Node,
+scons will change to the specified directory.
+If the chdir argument
+is not a string or Node
+and is non-zero,
+then scons will change to the
+target file's directory.
+
+Note that scons will
+.I not
+automatically modify
+its expansion of
+construction variables like
+.B $TARGET
+and
+.B $SOURCE
+when using the chdir
+keyword argument--that is,
+the expanded file names
+will still be relative to
+the top-level SConstruct directory,
+and consequently incorrect
+relative to the chdir directory.
+Builders created using chdir keyword argument,
+will need to use construction variable
+expansions like
+.B ${TARGET.file}
+and
+.B ${SOURCE.file}
+to use just the filename portion of the
+targets and source.
+
+.ES
+a = Action("build < ${SOURCE.file} > ${TARGET.file}",
+           chdir=1)
+.EE
 
 .SS Miscellaneous Action Functions
 

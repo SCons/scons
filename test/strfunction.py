@@ -135,9 +135,6 @@ Building lazystr.out from lazystr.in
 %s cat.py list.in .temp
 %s cat.py .temp list.out
 Building liststr.out from liststr.in
-Building liststr.out from liststr.in
 """) % (python, python, python, python, python, python, python, python))
-# XXX The duplication of "Buiding liststr.out" above is WRONG!
-# A follow-on fix should take care of this.
 
 test.pass_test()

@@ -191,29 +191,29 @@ def _do_create_action(act, *args, **kw):
             return apply(ListAction, (listCmdActions,)+args, kw)
     return None
 
-def Action(act, strfunction=_null, varlist=[], presub=_null):
+def Action(act, *args, **kw):
     """A factory for action objects."""
     if SCons.Util.is_List(act):
-        acts = map(lambda x, s=strfunction, v=varlist, ps=presub:
-                          _do_create_action(x, strfunction=s, varlist=v, presub=ps),
+        acts = map(lambda a, args=args, kw=kw:
+                          apply(_do_create_action, (a,)+args, kw),
                    act)
-        acts = filter(lambda x: not x is None, acts)
+        acts = filter(None, acts)
         if len(acts) == 1:
             return acts[0]
         else:
-            return ListAction(acts, strfunction=strfunction, varlist=varlist, presub=presub)
+            return apply(ListAction, (acts,)+args, kw)
     else:
-        return _do_create_action(act, strfunction=strfunction, varlist=varlist, presub=presub)
+        return apply(_do_create_action, (act,)+args, kw)
 
 class ActionBase:
     """Base class for actions that create output objects."""
-    def __init__(self, strfunction=_null, presub=_null, **kw):
+    def __init__(self, strfunction=_null, presub=_null, chdir=None, **kw):
         if not strfunction is _null:
             self.strfunction = strfunction
         if presub is _null:
-            self.presub = print_actions_presub
-        else:
-            self.presub = presub
+            presub = print_actions_presub
+        self.presub = presub
+        self.chdir = chdir
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other)
@@ -225,7 +225,8 @@ class ActionBase:
                                errfunc=None,
                                presub=_null,
                                show=_null,
-                               execute=_null):
+                               execute=_null,
+                               chdir=_null):
         if not SCons.Util.is_List(target):
             target = [target]
         if not SCons.Util.is_List(source):
@@ -233,14 +234,26 @@ class ActionBase:
         if presub is _null:  presub = self.presub
         if show is _null:  show = print_actions
         if execute is _null:  execute = execute_actions
+        if chdir is _null: chdir = self.chdir
+        save_cwd = None
+        if chdir:
+            save_cwd = os.getcwd()
+            try:
+                chdir = str(chdir.abspath)
+            except AttributeError:
+                if not SCons.Util.is_String(chdir):
+                    chdir = str(target[0].dir)
         if presub:
             t = string.join(map(str, target), 'and')
             l = string.join(self.presub_lines(env), '\n  ')
             out = "Building %s with action(s):\n  %s\n" % (t, l)
             sys.stdout.write(out)
+        s = None
         if show and self.strfunction:
             s = self.strfunction(target, source, env)
             if s:
+                if chdir:
+                    s = ('os.chdir(%s)\n' % repr(chdir)) + s
                 try:
                     get = env.get
                 except AttributeError:
@@ -250,13 +263,20 @@ class ActionBase:
                     if not print_func:
                         print_func = self.print_cmd_line
                 print_func(s, target, source, env)
+        stat = 0
         if execute:
-            stat = self.execute(target, source, env)
-            if stat and errfunc:
-                errfunc(stat)
-            return stat
-        else:
-            return 0
+            if chdir:
+                os.chdir(chdir)
+            try:
+                stat = self.execute(target, source, env)
+                if stat and errfunc:
+                    errfunc(stat)
+            finally:
+                if save_cwd:
+                    os.chdir(save_cwd)
+        if s and save_cwd:
+            print_func('os.chdir(%s)' % repr(save_cwd), target, source, env)
+        return stat
 
     def presub_lines(self, env):
         # CommandGeneratorAction needs a real environment
@@ -272,9 +292,6 @@ class ActionBase:
 
     def genstring(self, target, source, env):
         return str(self)
-
-    def get_actions(self):
-        return [self]
 
     def __add__(self, other):
         return _actionAppend(self, other)
@@ -294,12 +311,12 @@ def _string_from_cmd_list(cmd_list):
 
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
-    def __init__(self, cmd, **kw):
+    def __init__(self, cmd, *args, **kw):
         # Cmd list can actually be a list or a single item...basically
         # anything that we could pass in as the first arg to
         # Environment.subst_list().
         if __debug__: logInstanceCreation(self)
-        apply(ActionBase.__init__, (self,), kw)
+        apply(ActionBase.__init__, (self,)+args, kw)
         self.cmd_list = cmd
 
     def __str__(self):
@@ -383,9 +400,9 @@ class CommandAction(ActionBase):
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""
-    def __init__(self, generator, **kw):
+    def __init__(self, generator, *args, **kw):
         if __debug__: logInstanceCreation(self)
-        apply(ActionBase.__init__, (self,), kw)
+        apply(ActionBase.__init__, (self,)+args, kw)
         self.generator = generator
 
     def __generate(self, target, source, env, for_signature):
@@ -467,10 +484,10 @@ class LazyCmdGenerator:
 class FunctionAction(ActionBase):
     """Class for Python function actions."""
 
-    def __init__(self, execfunction, **kw):
+    def __init__(self, execfunction, *args, **kw):
         if __debug__: logInstanceCreation(self)
         self.execfunction = execfunction
-        apply(ActionBase.__init__, (self,), kw)
+        apply(ActionBase.__init__, (self,)+args, kw)
         self.varlist = kw.get('varlist', [])
 
     def function_name(self):
@@ -540,13 +557,10 @@ class FunctionAction(ActionBase):
 
 class ListAction(ActionBase):
     """Class for lists of other actions."""
-    def __init__(self, list, **kw):
+    def __init__(self, list, *args, **kw):
         if __debug__: logInstanceCreation(self)
-        apply(ActionBase.__init__, (self,), kw)
+        apply(ActionBase.__init__, (self,)+args, kw)
         self.list = map(lambda x: Action(x), list)
-
-    def get_actions(self):
-        return self.list
 
     def __str__(self):
         s = []
