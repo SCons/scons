@@ -220,7 +220,7 @@ def SCons_revision(target, source, env):
     into the source file package.
     """
     t = str(target[0])
-    s = str(source[0])
+    s = source[0].rstr()
     # Note:  We don't use $VERSION from the environment so that
     # this routine will change when the version number changes
     # and things will get rebuilt properly.
@@ -471,8 +471,9 @@ for p in [ scons ]:
     # README.txt, or setup.py.  Make a copy of the list for the
     # destination files.
     #
+    manifest_in = File(os.path.join(src, 'MANIFEST.in')).rstr()
     src_files = map(lambda x: x[:-1],
-                    open(os.path.join(src, 'MANIFEST.in')).readlines())
+                    open(manifest_in).readlines())
     dst_files = src_files[:]
 
     MANIFEST_in_list = []
@@ -487,7 +488,7 @@ for p in [ scons ]:
         for sp in p['subpkgs']:
             ssubdir = sp['src_subdir']
             isubdir = p['subinst_dirs'][sp['pkg']]
-            MANIFEST_in = os.path.join(src, ssubdir, 'MANIFEST.in')
+            MANIFEST_in = File(os.path.join(src, ssubdir, 'MANIFEST.in')).rstr()
             MANIFEST_in_list.append(MANIFEST_in)
             f = map(lambda x: x[:-1], open(MANIFEST_in).readlines())
             src_files.extend(map(lambda x, s=ssubdir: os.path.join(s, x), f))

@@ -6,12 +6,19 @@
 # directories to test the SCons modules.
 #
 # By default, it directly uses the modules in the local tree:
-# ./src/ (source files we ship) and ./etc/ (other modules we don't)
+# ./src/ (source files we ship) and ./etc/ (other modules we don't).
 #
-# When any -p option is specified, it assumes it's in a directory
-# in which a build has been performed, and sets PYTHONPATH so that it
-# *only* references the modules that have unpacked from the specified
-# built package, to test whether the packages are good.
+# HOWEVER, now that SCons has Repository support, we don't have
+# Aegis copy all of the files into the local tree.  So if you're
+# using Aegis and want to run tests by hand using this script, you
+# must "aecp ." the entire source tree into your local directory
+# structure.  When you're done with your change, you can then
+# "aecpu -unch ." to un-copy any files that you haven't changed.
+#
+# When any -p option is specified, this script assumes it's in a
+# directory in which a build has been performed, and sets PYTHONPATH
+# so that it *only* references the modules that have unpacked from
+# the specified built package, to test whether the packages are good.
 #
 # Options:
 #
@@ -52,6 +59,7 @@ import glob
 import os
 import os.path
 import re
+import stat
 import string
 import sys
 
@@ -118,28 +126,90 @@ for o, a in opts:
     elif o == '-x' or o == '--exec':
         scons = a
 
+def whereis(file):
+    for dir in string.split(os.environ['PATH'], os.pathsep):
+        f = os.path.join(dir, file)
+        if os.path.isfile(f):
+            try:
+                st = os.stat(f)
+            except:
+                continue
+            if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                return f
+    return None
+
+aegis = whereis('aegis')
+
+spe = None
+if aegis:
+    spe = os.popen("aesub '$spe' 2>/dev/null", "r").read()[:-1]
+    spe = string.split(spe, os.pathsep)
+
 class Test:
-    def __init__(self, path):
+    def __init__(self, path, spe=None):
         self.path = path
         self.abspath = os.path.abspath(path)
+        if spe:
+            for dir in spe:
+                f = os.path.join(dir, path)
+                if os.path.isfile(f):
+                    self.abspath = f
+                    break
         self.status = None
 
 if args:
-    for a in args:
-        for g in glob.glob(a):
-            tests.append(Test(g))
+    if spe:
+        for a in args:
+            if os.path.isabs(a):
+                for g in glob.glob(a):
+                    tests.append(Test(g))
+            else:
+                for dir in spe:
+                    x = os.path.join(dir, a)
+                    globs = glob.glob(x)
+                    if globs:
+                        for g in globs:
+                            tests.append(Test(g))
+                        break
+    else:
+        for a in args:
+            for g in glob.glob(a):
+                tests.append(Test(g))
 elif all:
-    def find_Test_py(arg, dirname, names, t=tests):
+    tdict = {}
+
+    def find_Test_py(arg, dirname, names, tdict=tdict):
         for n in filter(lambda n: n[-8:] == "Tests.py", names):
-            t.append(Test(os.path.join(dirname, n)))
+            t = os.path.join(dirname, n)
+            if not tdict.has_key(t):
+                tdict[t] = Test(t)
     os.path.walk('src', find_Test_py, 0)
 
-    def find_py(arg, dirname, names, t=tests):
+    def find_py(arg, dirname, names, tdict=tdict):
         for n in filter(lambda n: n[-3:] == ".py", names):
-            t.append(Test(os.path.join(dirname, n)))
+            t = os.path.join(dirname, n)
+            if not tdict.has_key(t):
+                tdict[t] = Test(t)
     os.path.walk('test', find_py, 0)
 
-    tests.sort(lambda a, b: cmp(a.path, b.path))
+    if aegis:
+        cmd = "aegis -list -unf pf 2>/dev/null"
+        for line in os.popen(cmd, "r").readlines():
+            a = string.split(line)
+            if a[0] == "test" and not tdict.has_key(a[-1]):
+                tdict[a[-1]] = Test(a[-1], spe)
+        cmd = "aegis -list -unf cf 2>/dev/null"
+        for line in os.popen(cmd, "r").readlines():
+            a = string.split(line)
+            if a[0] == "test":
+                if a[1] == "remove":
+                    del tdict[a[-1]]
+                elif not tdict.has_key(a[-1]):
+                    tdict[a[-1]] = Test(a[-1], spe)
+
+    keys = tdict.keys()
+    keys.sort()
+    tests = map(tdict.get, keys)
 
 if package:
 
@@ -173,10 +243,22 @@ if package:
         lib_dir = os.path.join(test_dir, dir[package], 'lib', l)
 
 else:
+    sd = None
+    ld = None
+    if spe:
+        if not scons:
+            for dir in spe:
+                d = os.path.join(dir, 'src', 'script')
+                f = os.path.join(d, 'scons.py')
+                if os.path.isfile(f):
+                    sd = d
+                    scons = f
+        spe = map(lambda x: os.path.join(x, 'src', 'engine'), spe)
+        ld = string.join(spe, os.pathsep)
 
-    scons_dir = os.path.join(cwd, 'src', 'script')
+    scons_dir = sd or os.path.join(cwd, 'src', 'script')
 
-    lib_dir = os.path.join(cwd, 'src', 'engine')
+    lib_dir = ld or os.path.join(cwd, 'src', 'engine')
 
 if scons:
     # Let the version of SCons that the -x option pointed to find
@@ -230,13 +312,15 @@ if len(tests) != 1:
             sys.stdout.write("\nFailed the following test:\n")
         else:
             sys.stdout.write("\nFailed the following %d tests:\n" % len(fail))
-        sys.stdout.write("\t" + string.join(fail, "\n\t") + "\n")
+        paths = map(lambda x: x.path, no_result)
+        sys.stdout.write("\t" + string.join(paths, "\n\t") + "\n")
     if no_result:
         if len(no_result) == 1:
             sys.stdout.write("\nNO RESULT from the following test:\n")
         else:
             sys.stdout.write("\nNO RESULT from the following %d tests:\n" % len(no_result))
-        sys.stdout.write("\t" + string.join(no_result, "\n\t") + "\n")
+        paths = map(lambda x: x.path, no_result)
+        sys.stdout.write("\t" + string.join(paths, "\n\t") + "\n")
 
 if output:
     f = open(output, 'w')
