@@ -102,6 +102,7 @@ test.write(['repository', 'include', 'iii.f'], "\n")
 test.write(['work', 'src', 'fff.f'], """
       PROGRAM FOO
       INCLUDE 'iii.f'
+      INCLUDE 'jjj.f'
       STOP
       END
 """)
@@ -323,10 +324,15 @@ class FortranScannerTestCase13(unittest.TestCase):
         os.chdir(test.workpath('work'))
         fs = SCons.Node.FS.FS(test.workpath('work'))
         fs.Repository(test.workpath('repository'))
+
+        # Create a derived file in a directory that does not exist yet.
+        # This was a bug at one time.
+        f1=fs.File('include2/jjj.f')
+        f1.builder=1
         s = SCons.Scanner.Fortran.FortranScan(fs=fs)
-        env = DummyEnvironment(['include'])
+        env = DummyEnvironment(['include','include2'])
         deps = s.scan(fs.File('src/fff.f'), env, DummyTarget())
-        deps_match(self, deps, [test.workpath('repository/include/iii.f')])
+        deps_match(self, deps, [test.workpath('repository/include/iii.f'), 'include2/jjj.f'])
         os.chdir(test.workpath(''))
 
 class FortranScannerTestCase14(unittest.TestCase):

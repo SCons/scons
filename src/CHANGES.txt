@@ -17,7 +17,7 @@ RELEASE 0.09 -
 
  From Charles Crain and Steven Knight:
 
-  - Add Repository() functionality.
+  - Add Repository() functionality, including the -Y option.
 
  From Steven Knight:
 

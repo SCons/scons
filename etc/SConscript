@@ -48,4 +48,6 @@ for file in files:
     p = os.path.join('build', 'etc', file)
     if os.path.islink(p):
         os.unlink(p)
-    env.Command(os.path.join('#' + p), file, copy)
+    sp = '#' + p
+    env.Command(sp, file, copy)
+    Local(sp)
