@@ -30,6 +30,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import cPickle
 import os
+import string
 import sys
 import traceback
 from types import *
@@ -109,6 +110,7 @@ class SConf:
         default_tests = {
                  'CheckFunc'          : CheckFunc,
                  'CheckType'          : CheckType,
+                 'CheckHeader'        : CheckHeader,
                  'CheckCHeader'       : CheckCHeader,
                  'CheckCXXHeader'     : CheckCXXHeader,
                  'CheckLib'           : CheckLib,
@@ -643,9 +645,14 @@ def CheckHeader(context, header, include_quotes = '<>', language = None):
     """
     A test for a C or C++ header file.
     """
-    # ToDo: Support also system header files (i.e. #include <header.h>)
-    res = SCons.Conftest.CheckHeader(context, header, language = language,
-                                               include_quotes = include_quotes)
+    if not SCons.Util.is_List(header):
+        header = [header]
+    l = []
+    for s in header[:-1]:
+        l.append("#include %s%s%s\n" % (include_quotes[0], s, include_quotes[1]))
+    res = SCons.Conftest.CheckHeader(context, header[-1], string.join(l, ''),
+                                     language = language,
+                                     include_quotes = include_quotes)
     context.did_show_result = 1
     if not res:
         return 1        # Ok
@@ -700,8 +707,13 @@ def CheckLibWithHeader(context, library, header, language,
     without extra link flags.
     """
 
-    res = SCons.Conftest.CheckLib(context, library, "main",
-            header = '#include "%s"' % header,
+    if not SCons.Util.is_List(header):
+        header = [header]
+    l = []
+    for s in header:
+        l.append('#include "%s"\n' % (s))
+
+    res = SCons.Conftest.CheckLib(context, library, "main", string.join(l, ''),
             call = call, language = language, autoadd = autoadd)
     context.did_show_result = 1
     if not res:

@@ -5112,6 +5112,15 @@ goes by and developers contribute new useful tests.)
 Checks if 
 .I header
 is usable in the specified language.
+.I header
+may be a list,
+in which case the last item in the list
+is the header file to be checked,
+and the previous list items are
+header files whose
+.B #include
+lines should precede the
+header line being checked for.
 The optional argument 
 .I include_quotes 
 must be
@@ -5133,7 +5142,17 @@ This is a wrapper around
 .B Configure.CheckHeader
 which checks if 
 .I header
-is usable in the C language. The optional argument 
+is usable in the C language.
+.I header
+may be a list,
+in which case the last item in the list
+is the header file to be checked,
+and the previous list items are
+header files whose
+.B #include
+lines should precede the
+header line being checked for.
+The optional argument 
 .I include_quotes 
 must be
 a two character string, where the first character denotes the opening
@@ -5147,7 +5166,17 @@ This is a wrapper around
 .B Configure.CheckHeader
 which checks if 
 .I header
-is usable in the C++ language. The optional argument 
+is usable in the C++ language.
+.I header
+may be a list,
+in which case the last item in the list
+is the header file to be checked,
+and the previous list items are
+header files whose
+.B #include
+lines should precede the
+header line being checked for.
+The optional argument 
 .I include_quotes 
 must be
 a two character string, where the first character denotes the opening
@@ -5217,6 +5246,15 @@ Again,
 specifies the library to check. 
 .I header
 specifies a header to check for.
+.I header
+may be a list,
+in which case the last item in the list
+is the header file to be checked,
+and the previous list items are
+header files whose
+.B #include
+lines should precede the
+header line being checked for.
 .I language
 may be one of 'C','c','CXX','cxx','C++' and 'c++'.
 .I call
