@@ -55,6 +55,16 @@ import traceback
 import types
 import UserList
 
+# The following variables used to live in this module.  Some
+# SConscript files out there may have referred to them directly as
+# SCons.Script.SConscript.*.  This is now supported by some special
+# handling towards the bottom of the SConscript.__init__.py module.
+#Arguments = {}
+#ArgList = []
+#BuildTargets = TargetList()
+#CommandLineTargets = []
+#DefaultTargets = []
+
 launch_dir = os.path.abspath(os.curdir)
 
 GlobalDict = None
