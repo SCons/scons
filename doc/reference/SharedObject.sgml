@@ -30,29 +30,7 @@
  </para>
 
  <section>
- <title>The &Module; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &RuleSet; Method</title>
-
-   <para>
-
-   X
-
-   </para>
-
- </section>
-
- <section>
- <title>The &DefaultRules; Method</title>
+ <title>The &SharedObject; Method</title>
 
    <para>
 

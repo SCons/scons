@@ -23,75 +23,211 @@
 
 -->
 
-<!--
+  <para>
 
-=head2 The C<Install> method
+  Once a program is built,
+  it is often appropriate to install it in another
+  directory for public use.
+  You use the &Install; method 
+  to arrange for a program, or any other file,
+  to be copied into a destination directory:
 
-The C<Install> method arranges for the specified files to be installed in
-the specified directory. The installation is optimized: the file is not
-copied if it can be linked. If this is not the desired behavior, you will
-need to use a different method to install the file. It is called as follows:
+  </para>
 
-  Install $env <directory>, <names>;
+  <programlisting>
+     env = Environment()
+     hello = env.Program('hello.c')
+     env.Install('/usr/bin', hello)
+  </programlisting>
 
-Note that, while the files to be installed may be arbitrarily named,
-only the last component of each name is used for the installed target
-name. So, for example, if you arrange to install F<foo/bar> in F<baz>,
-this will create a F<bar> file in the F<baz> directory (not F<foo/bar>).
+  <para>
 
+  Note, however, that installing a file is
+  still considered a type of file "build."
+  This is important when you remember that
+  the default behavior of &SCons; is
+  to build files in or below the current directory.
+  If, as in the example above,
+  you are installing files in a directory
+  outside of the top-level &SConstruct; file's directory tree,
+  you must specify that directory
+  (or a higher directory, such as <literal>/</literal>)
+  for it to install anything there:
 
-=head2 The C<InstallAs> method
+  </para>
 
-The C<InstallAs> method arranges for the specified source file(s) to be
-installed as the specified target file(s). Multiple files should be
-specified as a file list. The installation is optimized: the file is not
-copied if it can be linked. If this is not the desired behavior, you will
-need to use a different method to install the file. It is called as follows:
+  <literallayout>
+     % <userinput>scons</userinput>
+     cc -c hello.c -o hello.o
+     cc -o hello hello.o
+     % <userinput>scons /usr/bin</userinput>
+     Install file: "hello" as "/usr/bin/hello"
+  </literallayout>
 
-C<InstallAs> works in two ways:
+  <para>
 
-Single file install:
+  It can, however, be cumbersome to remember
+  (and type) the specific destination directory
+  in which the program (or any other file)
+  should be installed.
+  This is an area where the &Alias;
+  function comes in handy,
+  allowing you, if you wish,
+  to create a pseudo-target named <literal>install</literal>
+  that can expand to the specified destination directory:
 
-  InstallAs $env TgtFile, SrcFile;
+  </para>
 
-Multiple file install:
+  <programlisting>
+     env = Environment()
+     hello = env.Program('hello.c')
+     env.Install('/usr/bin', hello)
+     env.Alias('install', '/usr/bin')
+  </programlisting>
 
-  InstallAs $env ['tgt1', 'tgt2'], ['src1', 'src2'];
+  <para>
 
-Or, even as:
+  This then yields the more natural
+  ability to install the program
+  in its destination as follows:
 
-  @srcs = qw(src1 src2 src3);
-  @tgts = qw(tgt1 tgt2 tgt3);
-  InstallAs $env [@tgts], [@srcs];
+  </para>
 
-Both the target and the sources lists should be of the same length.
+  <literallayout>
+     % <userinput>scons install</userinput>
+     Install file: "hello" as "/usr/bin/hello"
+  </literallayout>
 
--->
+  <section>
+  <title>Installing Multiple Files in a Directory</title>
 
- <para>
+    <para>
 
-   X
+    You can install multiple files into a directory
+    simploy by calling the &Install; function multiple times:
 
- </para>
+    </para>
 
- <section>
- <title>The &Install; Builder</title>
+    <programlisting>
+       env = Environment()
+       hello = env.Program('hello.c')
+       goodbye = env.Program('goodbye.c')
+       env.Install('/usr/bin', hello)
+       env.Install('/usr/bin', goodbye])
+       env.Alias('install', '/usr/bin')
+    </programlisting>
 
-   <para>
+    <para>
 
-   X
+    Or, more succinctly, listing the multiple input
+    files in a list
+    (just like you can do with any other builder):
 
-   </para>
+    </para>
 
- </section>
+    <programlisting>
+       env = Environment()
+       hello = env.Program('hello.c')
+       goodbye = env.Program('goodbye.c')
+       env.Install('/usr/bin', [hello, goodbye])
+       env.Alias('install', '/usr/bin')
+    </programlisting>
 
- <section>
- <title>The &InstallAs; Method</title>
+    <para>
 
-   <para>
+    Either of these two examples yields:
 
-   X
+    </para>
 
-   </para>
+    <literallayout>
+       % <userinput>scons install</userinput>
+       cc -c goodbye.c -o goodbye.o
+       cc -o goodbye goodbye.o
+       cc -c hello.c -o hello.o
+       cc -o hello hello.o
+       Install file: "goodbye" as "/usr/bin/goodbye"
+       Install file: "hello" as "/usr/bin/hello"
+    </literallayout>
 
- </section>
+  </section>
+
+  <section>
+  <title>Installing a File Under a Different Name</title>
+
+    <para>
+
+    The &Install; method preserves the name
+    of the file when it is copied into the
+    destination directory.
+    If you need to change the name of the file
+    when you copy it, use the &InstallAs; function:
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       hello = env.Program('hello.c')
+       env.InstallAs('/usr/bin/hello-new', hello)
+       env.Alias('install', '/usr/bin')
+    </programlisting>
+
+    <para>
+
+    This installs the <literal>hello</literal>
+    program with the name <literal>hello-new</literal>
+    as follows:
+
+    </para>
+
+    <literallayout>
+       % <userinput>scons install</userinput>
+       cc -c hello.c -o hello.o
+       cc -o hello hello.o
+       Install file: "hello" as "/usr/bin/hello-new"
+    </literallayout>
+
+  </section>
+
+  <section>
+  <title>Installing Multiple Files Under Different Names</title>
+
+    <para>
+
+    Lastly, if you have multiple files that all
+    need to be installed with different file names,
+    you can either call the &InstallAs; function
+    multiple times, or as a shorthand,
+    you can supply same-length lists
+    for the both the target and source arguments:
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       hello = env.Program('hello.c')
+       goodbye = env.Program('goodbye.c')
+       env.InstallAs(['/usr/bin/hello-new',
+                      '/usr/bin/goodbye-new',
+                     [hello, goodbye])
+    </programlisting>
+
+    <para>
+
+    In this case, the &InstallAs; function
+    loops through both lists simultaneously,
+    and copies each source file into its corresponding
+    target file name:
+
+    </para>
+
+    <literallayout>
+       % <userinput>scons install</userinput>
+       cc -c goodbye.c -o goodbye.o
+       cc -o goodbye goodbye.o
+       cc -c hello.c -o hello.o
+       cc -o hello hello.o
+       Install file: "goodbye" as "/usr/bin/goodbye-new"
+       Install file: "hello" as "/usr/bin/hello-new"
+    </literallayout>
+
+  </section>

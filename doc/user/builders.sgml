@@ -95,30 +95,375 @@ This functionality could be invoked as in the following example:
 
 -->
 
- <para>
+  <para>
 
-   X
+    &SCons; provides many useful methods
+    for building common software products:
+    programs, libraries, documents.
+    Frequently, however, you want to be
+    able to build some other type of file
+    not supported directly by &SCons;
+    Fortunately, &SCons; makes it very easy
+    to define your own &Builder; objects
+    for any custom file types you want to build.
 
- </para>
+  </para>
 
- <section>
- <title>Builders That Execute External Commands</title>
+  <section>
+  <title>Builders That Execute External Commands</title>
 
-   <para>
+    <para>
 
-   X
+    The simplest &Builder; to create is
+    one that executes an external command.
+    For example, if we want to build
+    an output file by running the contents
+    of the input file through a command named
+    <literal>foobuild</literal>,
+    creating that &Builder; might look like:
 
-   </para>
+    </para>
 
- </section>
+    <programlisting>
+       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+    </programlisting>
 
- <section>
- <title>Builders That Execute Python Functions</title>
+  </section>
 
-   <para>
+  <section>
+  <title>Attaching a Builder to a &ConsEnv;</title>
 
-   X
+    <para>
 
-   </para>
+    A &Builder; object by itself, though,
+    isn't useful until it's attached to a &consenv;
+    so that we can call it to arrange
+    for files to be built.
+    This is done through the &BUILDERS;
+    &consvar; in an environment.
+    The &BUILDERS; variable is a Python dictionary
+    that maps the names by which you want to call various &Builder;
+    to the &Builder; objects themselves.
+    For example, if we want to call the
+    &Builder; we defined by the name
+    <function>Foo</function>,
+    our &SConstruct; file might look like:
 
- </section>
+    </para>
+
+    <programlisting>
+       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+    </programlisting>
+
+    <para>
+
+    Then when we run &SCons; it looks like:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      foobuild < file.input > file.foo
+    </literallayout>
+
+    <para>
+
+    Note, however, that the default &BUILDERS;
+    variable in a &consenv;
+    comes with a default set of &Builder; objects
+    already defined:
+    &Program;, &Library;, etc.
+    And when we explicitly set the &BUILDERS; variable
+    when we create the &consenv;,
+    the default &Builder;s are no longer part of
+    the environment:
+
+    </para>
+
+    <programlisting>
+       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+    </programlisting>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      scons: Reading SConscript files ...
+      other errors
+      Traceback (most recent call last):
+        File "/usr/lib/scons/SCons/Script/__init__.py", line 901, in main
+          _main()
+        File "/usr/lib/scons/SCons/Script/__init__.py", line 762, in _main
+          SCons.Script.SConscript.SConscript(script)
+        File "/usr/lib/scons/SCons/Script/SConscript.py", line 207, in SConscript
+          exec _file_ in stack[-1].globals
+        File "SConstruct", line 4, in ?
+          env.Program('hello.c')
+      scons: Environment instance has no attribute 'Program'
+    </literallayout>
+
+    <para>
+
+    To be able use both our own defined &Builder; objects
+    and the default &Builder; objects in the same &consenv;,
+    you can either add to the &BUILDERS; variable
+    using the &Append; function:
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       env.Append(BUILDERS = {'Foo' : bld})
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+    </programlisting>
+
+    <para>
+
+    Or you can explicitly set the appropriately-named
+    key in the &BUILDERS; dictionary:
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       bld = Builder(action = 'foobuild < $TARGET > $SOURCE')
+       env['BUILDERS']['Foo'] = bld
+       env.Foo('file.foo', 'file.input')
+       env.Program('hello.c')
+    </programlisting>
+
+    <para>
+
+    Either way, the same &consenv;
+    can then use both the newly-defined
+    <function>Foo</function> &Builder;
+    and the default &Program; &Builder;:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      foobuild < file.input > file.foo
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+    </literallayout>
+
+  </section>
+
+  <section>
+  <title>Letting &SCons; Handle The File Suffixes</title>
+
+    <para>
+
+    By supplying additional information
+    when you create a &Builder;,
+    you can let &SCons; add appropriate file
+    suffixes to the target and/or the source file.
+    For example, rather than having to specify
+    explicitly that you want the <literal>Foo</literal>
+    &Builder; to build the <literal>file.foo</literal>
+    target file from the <literal>file.input</literal> source file,
+    you can give the <literal>.foo</literal>
+    and <literal>.input</literal> suffixes to the &Builder;,
+    making for more compact and readable calls to
+    the <literal>Foo</literal> &Builder;:
+
+    </para>
+
+    <programlisting>
+       bld = Builder(action = 'foobuild < $TARGET > $SOURCE',
+                     suffix = '.foo',
+                     src_suffix = '.input')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file1')
+       env.Foo('file2')
+    </programlisting>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      foobuild < file1.input > file1.foo
+      foobuild < file2.input > file2.foo
+    </literallayout>
+
+    <para>
+
+    You can also supply a <literal>prefix</literal> keyword argument
+    if it's appropriate to have &SCons; append a prefix
+    to the beginning of target file names.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Builders That Execute Python Functions</title>
+
+    <para>
+
+    In &SCons;, you don't have to call an external command
+    to build a file.
+    You can, instead, define a Python function
+    that a &Builder; object can invoke
+    to build your target file (or files).
+
+    </para>
+
+    <programlisting>
+       def build_function(target, source, env):
+           # XXX
+           return None
+    </programlisting>
+
+    <para>
+
+    XXX explain the function
+    XXX define the arguments
+
+    </para>
+
+    <para>
+
+    Once you've defined the Python function
+    that will build your target file,
+    defining a &Builder; object for it is as
+    simple as specifying the name of the function,
+    instead of an external command,
+    as the &Builder;'s
+    <literal>action</literal>
+    argument:
+
+    </para>
+
+    <programlisting>
+       def build_function(target, source, env):
+           # XXX
+           return None
+       bld = Builder(action = build_function,
+                     suffix = '.foo',
+                     src_suffix = '.input')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file')
+    </programlisting>
+
+    <para>
+
+    And notice that the output changes slightly,
+    reflecting the fact that a Python function,
+    not an external command,
+    is now called to build the target file:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      build_function("file.foo", "file.input")
+    </literallayout>
+
+  </section>
+
+  <section>
+  <title>Builders That Generate Actions</title>
+
+    <para>
+
+    X
+
+    </para>
+
+    <programlisting>
+       def generate_actions(XXX):
+           return XXX
+       bld = Builder(generator = generate_actions,
+                     suffix = '.foo',
+                     src_suffix = '.input')
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file')
+    </programlisting>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      XXX
+    </literallayout>
+
+    <para>
+
+    Note that it's illegal to specify both an
+    <literal>action</literal>
+    and a
+    <literal>generator</literal>
+    for a &Builder;.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Builders That Modify the Target List</title>
+
+    <para>
+
+    X
+
+    </para>
+
+    <programlisting>
+       def modify_targets(XXX):
+           return XXX
+       bld = Builder(action = 'XXX',
+                     suffix = '.foo',
+                     src_suffix = '.input',
+                     emitter = modify_targets)
+       env = Environment(BUILDERS = {'Foo' : bld})
+       env.Foo('file')
+    </programlisting>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      XXX
+    </literallayout>
+
+    <programlisting>
+       bld = Builder(action = 'XXX',
+                     suffix = '.foo',
+                     src_suffix = '.input',
+                     emitter = 'MY_EMITTER')
+       def modify1(XXX):
+           return XXX
+       def modify2(XXX):
+           return XXX
+       env1 = Environment(BUILDERS = {'Foo' : bld},
+                          MY_EMITTER = modify1)
+       env2 = Environment(BUILDERS = {'Foo' : bld},
+                          MY_EMITTER = modify2)
+       env1.Foo('file1')
+       env2.Foo('file2')
+    </programlisting>
+
+  </section>
+
+  <section>
+  <title>Builders That Use Other Builders</title>
+
+    <para>
+
+    X
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       env.SourceCode('.', env.BitKeeper('XXX')
+       env.Program('hello.c')
+    </programlisting>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      XXX
+    </literallayout>
+
+  </section>

@@ -1,0 +1,204 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+<!doctype book PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+[
+
+    <!ENTITY % version SYSTEM "../version.sgml">
+    %version;
+
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+    <!-- Builders -->
+    <!ENTITY Alias_file SYSTEM "Alias.sgml">
+    <!ENTITY CFile_file SYSTEM "CFile.sgml">
+    <!ENTITY CXXFile_file SYSTEM "CXXFile.sgml">
+    <!ENTITY Command_file SYSTEM "Command.sgml">
+    <!ENTITY Install_file SYSTEM "Install.sgml">
+    <!ENTITY InstallAs_file SYSTEM "InstallAs.sgml">
+    <!ENTITY Library_file SYSTEM "Library.sgml">
+    <!ENTITY Object_file SYSTEM "Object.sgml">
+    <!ENTITY PCH_file SYSTEM "PCH.sgml">
+    <!ENTITY PDF_file SYSTEM "PDF.sgml">
+    <!ENTITY PostScript_file SYSTEM "PostScript.sgml">
+    <!ENTITY Program_file SYSTEM "Program.sgml">
+    <!ENTITY RES_file SYSTEM "RES.sgml">
+    <!ENTITY SharedLibrary_file SYSTEM "SharedLibrary.sgml">
+    <!ENTITY SharedObject_file SYSTEM "SharedObject.sgml">
+    <!ENTITY StaticLibrary_file SYSTEM "StaticLibrary.sgml">
+    <!ENTITY StaticObject_file SYSTEM "StaticObject.sgml">
+
+    <!-- Construction Variables -->
+
+    <!ENTITY copyright SYSTEM "copyright.sgml">
+    <!ENTITY errors SYSTEM "errors.sgml">
+    <!ENTITY preface SYSTEM "preface.sgml">
+
+]>
+
+<book>
+  <bookinfo>
+    <title>SCons Reference Manual &buildversion;</title>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <edition>Revision &buildrevision; (&builddate;)</edition>
+
+    <pubdate>2003</pubdate>
+
+    <copyright>
+      <year>2003</year>
+      <holder>Steven Knight</holder>
+    </copyright>
+
+    <legalnotice>
+      &copyright;
+    </legalnotice>
+
+    <releaseinfo>version &buildversion;</releaseinfo>
+
+  </bookinfo>
+
+  <chapter id="chap-preface">
+    <title>Preface</title>
+    &preface;
+  </chapter>
+
+  <chapter id="chap-builders">
+    <title>Builder Reference</title>
+
+    <section id="sect-Alias">
+      <title>The Alias Builder</title>
+      &Alias_file;
+    </section>
+
+    <section id="sect-CFile">
+      <title>The CFile Builder</title>
+      &CFile_file;
+    </section>
+
+    <section id="sect-Command">
+      <title>The Command Builder</title>
+      &Command_file;
+    </section>
+
+    <section id="sect-CXXFile">
+      <title>The CXXFile Builder</title>
+      &CXXFile_file;
+    </section>
+
+    <section id="sect-Install">
+      <title>The Install Builder</title>
+      &Install_file;
+    </section>
+
+    <section id="sect-InstallAs">
+      <title>The InstallAs Builder</title>
+      &InstallAs_file;
+    </section>
+
+    <section id="sect-Library">
+      <title>The Library Builder</title>
+      &Library_file;
+    </section>
+
+    <section id="sect-Object">
+      <title>The Object Builder</title>
+      &Object_file;
+    </section>
+
+    <section id="sect-PCH">
+      <title>The PCH Builder</title>
+      &PCH_file;
+    </section>
+
+    <section id="sect-PDF">
+      <title>The PDF Builder</title>
+      &PDF_file;
+    </section>
+
+    <section id="sect-PostScript">
+      <title>The PDF Builder</title>
+      &PostScript_file;
+    </section>
+
+    <section id="sect-Program">
+      <title>The Program Builder</title>
+      &Program_file;
+    </section>
+
+    <section id="sect-RES">
+      <title>The RES Builder</title>
+      &RES_file;
+    </section>
+
+    <section id="sect-SharedLibrary">
+      <title>The SharedLibrary Builder</title>
+      &SharedLibrary_file;
+    </section>
+
+    <section id="sect-SharedObject">
+      <title>The SharedObject Builder</title>
+      &SharedObject_file;
+    </section>
+
+    <section id="sect-StaticLibrary">
+      <title>The StaticLibrary Builder</title>
+      &StaticLibrary_file;
+    </section>
+
+    <section id="sect-StaticObject">
+      <title>The StaticObject Builder</title>
+      &StaticObject_file;
+    </section>
+
+  </chapter>
+
+  <chapter id="chap-variables">
+    <title>&ConsVar; Reference</title>
+
+    <section id="sect-AR">
+      <title>AR</title>
+
+      <para>
+
+      X
+
+      </para>
+
+    </section>
+
+  </chapter>
+
+  <appendix id="chap-errors">
+    <title>Errors Generated by &SCons;</title>
+    &errors;
+  </appendix>
+
+</book>

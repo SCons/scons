@@ -27,6 +27,12 @@
 
 =head2 The C<Command> method
 
+The C<Command> method is a catchall method which can be used to arrange for
+any build action to be executed to update the target. For this command, a
+target file and list of inputs is provided. In addition, a build action
+is specified as the last argument.  The build action is typically a
+command line or lines, but may also contain Perl code to be executed;
+see the section above on build actions for details.
 
 The C<Command> method is called as follows:
 
@@ -49,60 +55,19 @@ F<foo.h> and F<foo.c>.
 
 -->
 
-  <para>
+ <para>
 
-  Creating a &Builder; and attaching it to a &consenv;
-  allows for a lot of flexibility when you
-  want to re-use the same actions
-  to build multiple files of the same type.
-  This can, however, be cumbersome
-  if you only need to execute one specific command
-  to build a single file (or single group of files).
-  For these situations, &SCons; supports a
-  &Command; &Builder; that arranges
-  for a specific action to be executed
-  to build a specific file or files.
-  This looks a lot like the other builders
-  (like &Program;, &Object;, etc.),
-  but takes as an additional argument
-  the command to be executed to build the file:
+   X
 
-  </para>
+ </para>
 
-  <programlisting>
-     env = Environment()
-     env.Command('foo.out', 'foo.in', "sed 's/x/y/' < $TARGET > $SOURCE")
-  </programlisting>
+ <section>
+ <title>The &Command; Method</title>
 
-  <literallayout>
-    % <userinput>scons .</userinput>
-    sed 's/x/y' < foo.in > foo.out
-  </literallayout>
+   <para>
 
-  <para>
+   X
 
-  This is often more convenient than
-  creating a &Builder; object
-  and adding it to the &BUILDERS; variable
-  of a &consenv;
+   </para>
 
-  </para>
-
-  <para>
-
-  Note that the action you
-
-  </para>
-
-  <programlisting>
-     env = Environment()
-     def build(target, source, env)
-         XXX
-         return None
-     env.Command('foo.out', 'foo.in', build)
-  </programlisting>
-
-  <literallayout>
-    % <userinput>scons .</userinput>
-    build("foo.out", "foo.in")
-  </literallayout>
+ </section>

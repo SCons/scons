@@ -63,11 +63,82 @@ be generated (the rest will disappear!).
 
 -->
 
- <para>
+ <section>
+ <title>Linking With a Library</title>
 
-   X
+   <programlisting>
+      env = Environment(CC = 'gcc',
+                        LIBS = 'world')
+      env.Program('hello.c')
+   </programlisting>
 
- </para>
+   <literallayout>
+      % <userinput>scons</userinput>
+      gcc -c hello.c -o hello.o
+      gcc -c world.c -o world.o
+      gcc -o hello hello.o -lworld
+   </literallayout>
+
+ </section>
+
+ <section>
+ <title>Creating a Library</title>
+
+   <programlisting>
+      env = Environment(CC = 'gcc',
+                        LIBS = 'world')
+      env.Program('hello.c')
+      env.Library('world.c')
+   </programlisting>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      gcc -c hello.c -o hello.o
+      gcc -c world.c -o world.o
+      ar r libworld.a world.o
+      ar: creating libworld.a
+      ranlib libworld.a
+      gcc -o hello hello.o libworld.a
+   </literallayout>
+
+ </section>
+
+<!--
+
+A key simplification of Cons is the idea of a B<construction environment>. A
+construction environment is an B<object> characterized by a set of key/value
+pairs and a set of B<methods>. In order to tell Cons how to build something,
+you invoke the appropriate method via an appropriate construction
+environment. Consider the following example:
+
+
+
+  $env = new cons(
+	CC	=>	'gcc',
+	LIBS	=>	'libworld.a'
+  );
+
+  Program $env 'hello', 'hello.c';
+
+In this case, rather than using the default construction environment, as is,
+we have overridden the value of C<CC> so that the GNU C Compiler equivalent
+is used, instead. Since this version of B<Hello, World!> requires a library,
+F<libworld.a>, we have specified that any program linked in this environment
+should be linked with that library. If the library exists already, well and
+good, but if not, then we'll also have to include the statement:
+
+
+
+  Library $env 'libworld', 'world.c';
+
+Now if you type C<cons hello>, the library will be built before the program
+is linked, and, of course, C<gcc> will be used to compile both modules:
+
+
+
+  % cons hello
+
+-->
 
  <section>
  <title>The &Library; Builder</title>

@@ -3,7 +3,7 @@
 #
 
 #
-# __COPYRIGHT__
+# Copyright (c) 2001, 2002, 2003 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -140,6 +140,13 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 'pdf'       : 0,
                 'text'      : 0,
                 'graphics'  : [ 'arch', 'builder', 'job-task', 'node', 'scanner', 'sig' ],
+        },
+        'reference' : {
+                'htmlindex' : 'book1.html',
+                'html'      : 1,
+                'ps'        : 1,
+                'pdf'       : 1,
+                'text'      : 0,
         },
         'user' : {
                 'htmlindex' : 'book1.html',

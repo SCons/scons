@@ -69,9 +69,9 @@ default list.
    explicitly specify one or more targets
    on the command line.
    Sometimes, however, you may want
-   to explicitly specify that only
-   certain programs should be built by default,
-   which you do using the &Default; function:
+   to specify explicitly that only
+   certain programs should be built by default.
+   You do this with the &Default; function:
 
    </para>
 
@@ -84,7 +84,7 @@ default list.
 
    <para>
 
-   This &SConstruct; file builds two programs,
+   This &SConstruct; file knows how to build two programs,
    &hello; and &goodbye;,
    but only builds the
    &hello program by default:
@@ -162,7 +162,7 @@ default list.
    <application>prog1</application>
    and
    <application>prog3</application>
-   programs:
+   programs by default:
 
    </para>
 

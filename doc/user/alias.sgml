@@ -23,23 +23,72 @@
 
 -->
 
-<!--
+  <para>
 
--->
+  We've already seen how you can use the &Alias;
+  function to create a target named <literal>install</literal>:
 
- <para>
+  </para>
 
-   X
+  <programlisting>
+     env = Environment()
+     hello = env.Program('hello.c')
+     env.Install('/usr/bin', hello)
+     env.Alias('install', '/usr/bin')
+  </programlisting>
 
- </para>
+  <para>
 
- <section>
- <title>Alias Targets</title>
+  You can then use this alias on the command line
+  to tell &SCons; more naturally that you want to install files:
 
-   <para>
+  </para>
 
-   X
+  <literallayout>
+     % <userinput>scons install</userinput>
+     Install file: "hello" as "/usr/bin/hello"
+  </literallayout>
 
-   </para>
+  <para>
 
- </section>
+  Like other &Builder; methods, though,
+  the &Alias; method returns an object
+  representing the alias being built.
+  You can then use this object as input to anothother &Builder;.
+  This is especially useful if you use such an object
+  as input to another call to the &Alias; &Builder;,
+  allowing you to create a hierarchy
+  of nested aliases:
+
+  </para>
+
+  <programlisting>
+     env = Environment()
+     p = env.Program('hello.c')
+     l = env.Library('hello.c')
+     env.Install('/usr/bin', p)
+     env.Install('/usr/lib', l)
+     ib = env.Alias('install-bin', '/usr/bin')
+     il = env.Alias('install-lib', '/usr/lib')
+     env.Alias('install', [ib, il])
+  </programlisting>
+
+  <para>
+
+  This example defines separate <literal>install</literal>,
+  <literal>install-bin</literal>,
+  and <literal>install-lib</literal> aliases,
+  allowing you finer control over what gets installed:
+
+  </para>
+
+  <literallayout>
+     % <userinput>scons install-bin</userinput>
+     Install file: "hello" as "/usr/bin/hello"
+     % <userinput>scons install-lib</userinput>
+     Install file: "libhello.a" as "/usr/lib/libhello.a"
+     % <userinput>scons -c /</userinput>
+     % <userinput>scons install</userinput>
+     Install file: "hello" as "/usr/bin/hello"
+     Install file: "libhello.a" as "/usr/lib/libhello.a"
+  </literallayout>

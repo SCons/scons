@@ -135,314 +135,326 @@ subdirectories under the repository tree.
 
 -->
 
- <para>
-
- Often, a software project will have
- one or more central repositories,
- directory trees that contain
- source code, or derived files, or both.
- You can eliminate additional unnecessary
- rebuilds of files by having &SCons;
- use files from one or more code repositories
- to build files in your local build tree.
+  <para>
+
+  Often, a software project will have
+  one or more central repositories,
+  directory trees that contain
+  source code, or derived files, or both.
+  You can eliminate additional unnecessary
+  rebuilds of files by having &SCons;
+  use files from one or more code repositories
+  to build files in your local build tree.
+
+  </para>
+
+  <section>
+  <title>The &Repository; Method</title>
+
+ <!--
+
+ The repository directories specified may contain source files, derived files
+ (objects, libraries and executables), or both.  If there is no local file
+ (source or derived) under the directory in which Cons is executed, then the
+ first copy of a same-named file found under a repository directory will be
+ used to build any local derived files.
+
+ -->
+
+    <para>
+
+    It's often useful to allow multiple programmers working
+    on a project to build software from
+    source files and/or derived files that
+    are stored in a centrally-accessible repository,
+    a directory copy of the source code tree.
+    (Note that this is not the sort of repository
+    maintained by a source code management system
+    like BitKeeper, CVS, or Subversion.
+    For information about using &SCons;
+    with these systems, see the section,
+    "Fetching Files From Source Code Management Systems,"
+    below.)
+    You use the &Repository; method
+    to tell &SCons; to search one or more
+    central code repositories (in order)
+    for any source files and derived files
+    that are not present in the local build tree:
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       env.Program('hello.c')
+       Repository('/usr/repository1', '/usr/repository2')
+    </programlisting>
+
+    <para>
+
+    Multiple calls to the &Repository; method
+    will simply add repositories to the global list
+    that &SCons; maintains,
+    with the exception that &SCons; will automatically eliminate
+    the current directory and any non-existent
+    directories from the list.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Finding source files in repositories</title>
+
+    <para>
+
+    The above example
+    specifies that &SCons;
+    will first search for files under
+    the <filename>/usr/repository1</filename> tree
+    and next under the <filename>/usr/repository2</filename> tree.
+    &SCons; expects that any files it searches
+    for will be found in the same position
+    relative to the top-level directory XXX
+    In the above example, if the &hello_c; file is not
+    found in the local build tree,
+    &SCons; will search first for
+    a <filename>/usr/repository1/hello.c</filename> file
+    and then for a <filename>/usr/repository1/hello.c</filename> file
+    to use in its place.
+
+    </para>
+
+    <para>
+
+    So given the &SConstruct; file above,
+    if the &hello_c; file exists in the local
+    build directory,
+    &SCons; will rebuild the &hello; program
+    as normal:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      gcc -c hello.c -o hello.o
+      gcc -o hello hello.o
+    </literallayout>
 
- </para>
+    <para>
 
- <section>
- <title>The &Repository; Method</title>
+    If, however, there is no local &hello_c; file,
+    but one exists in <filename>/usr/repository1</filename>,
+    &SCons; will recompile the &hello; program
+    from the source file it finds in the repository:
 
-<!--
+    </para>
 
-The repository directories specified may contain source files, derived files
-(objects, libraries and executables), or both.  If there is no local file
-(source or derived) under the directory in which Cons is executed, then the
-first copy of a same-named file found under a repository directory will be
-used to build any local derived files.
+    <literallayout>
+      % <userinput>scons</userinput>
+      gcc -c /usr/repository1/hello.c -o hello.o
+      gcc -o hello hello.o
+    </literallayout>
 
--->
+    <para>
 
-   <para>
+    And similarly, if there is no local &hello_c; file
+    and no <filename>/usr/repository1/hello.c</filename>,
+    but one exists in <filename>/usr/repository2</filename>:
 
-   The &Repository; method
-   tells &SCons; to search one or more
-   central code repositories (in order)
-   for any source files and derived files
-   that are not present in the local build tree:
+    </para>
 
-   </para>
+    <literallayout>
+      % <userinput>scons</userinput>
+      gcc -c /usr/repository2/hello.c -o hello.o
+      gcc -o hello hello.o
+    </literallayout>
 
-   <programlisting>
-      env = Environment()
-      env.Program('hello.c')
-      Repository('/usr/repository1', '/usr/repository2')
-   </programlisting>
+    <para>
 
-   <para>
+    </para>
 
-   (Note that multiple calls to the &Repository; method
-   will simply add repositories to the global list
-   that &SCons; maintains,
-   with the exception that &SCons; will automatically eliminate
-   the current directory and any non-existent
-   directories from the list.)
+  </section>
 
-   </para>
+  <section>
+  <title>Finding the &SConstruct; file in repositories</title>
 
- </section>
+    <para>
 
- <section>
- <title>Finding source files in repositories</title>
+    &SCons; will also search in repositories
+    for the &SConstruct; file and any specified &SConscript; files.
+    This poses a problem, though:  how can &SCons; search a
+    repository tree for an &SConstruct; file
+    if the &SConstruct; file itself contains the information
+    about the pathname of the repository?
+    To solve this problem, &SCons; allows you
+    to specify repository directories
+    on the command line using the <literal>-Y</literal>:
 
-   <para>
+    </para>
 
-   The above example
-   specifies that &SCons;
-   will first search for files under
-   the <filename>/usr/repository1</filename> tree
-   and next under the <filename>/usr/repository2</filename> tree.
-   &SCons; expects that any files it searches
-   for will be found in the same position
-   relative to the top-level directory XXX
-   In the above example, if the &hello_c; file is not
-   found in the local build tree,
-   &SCons; will search first for
-   a <filename>/usr/repository1/hello.c</filename> file
-   and then for a <filename>/usr/repository1/hello.c</filename> file
-   to use in its place.
+    <literallayout>
+      % <userinput>scons -Y /usr/repository1 -Y /usr/repository2</userinput>
+    </literallayout>
 
-   </para>
+    <para>
 
-   <para>
+    When looking for source or derived files,
+    &SCons; will first search the repositories
+    specified on the command line,
+    and then search the repositories
+    specified in the &SConstruct; or &SConscript; files.
 
-   So given the &SConstruct; file above,
-   if the &hello_c; file exists in the local
-   build directory,
-   &SCons; will rebuild the &hello; program
-   as normal:
+    </para>
 
-   </para>
+  </section>
 
-   <literallayout>
-     % <userinput>scons</userinput>
-     gcc -c hello.c -o hello.o
-     gcc -o hello hello.o
-   </literallayout>
+  <section>
+  <title>Finding derived files in repositories</title>
 
-   <para>
+    <para>
 
-   If, however, there is no local &hello_c; file,
-   but one exists in <filename>/usr/repository1</filename>,
-   &SCons; will recompile the &hello; program
-   from the source file it finds in the repository:
+    If a repository contains not only source files,
+    but also derived files (such as object files,
+    libraries, or executables), &SCons; will perform
+    its normal MD5 signature calculation to
+    decide if a derived file in a repository is up-to-date,
+    or the derived file must be rebuilt in the local build directory.
+    For the &SCons; signature calculation to work correctly,
+    a repository tree must contain the &sconsign; files
+    that &SCons; uses to keep track of signature information.
 
-   </para>
+    </para>
 
-   <literallayout>
-     % <userinput>scons</userinput>
-     gcc -c /usr/repository1/hello.c -o hello.o
-     gcc -o hello hello.o
-   </literallayout>
+    <para>
 
-   <para>
+    Usually, this would be done by a build integrator
+    who would run &SCons; in the repository
+    to create all of its derived files and &sconsign; files,
+    or who would &SCons; in a separate build directory
+    and copying the resulting tree to the desired repository:
 
-   And similarly, if there is no local &hello_c; file
-   and no <filename>/usr/repository1/hello.c</filename>,
-   but one exists in <filename>/usr/repository2</filename>:
+    </para>
 
-   </para>
+    <literallayout>
+      % <userinput>cd /usr/repository1</userinput>
+      % <userinput>scons</userinput>
+      gcc -c hello.c -o hello.o
+      gcc -o hello hello.o
+    </literallayout>
 
-   <literallayout>
-     % <userinput>scons</userinput>
-     gcc -c /usr/repository2/hello.c -o hello.o
-     gcc -o hello hello.o
-   </literallayout>
+    <para>
+    
+    (Note that this is safe even if the &SConstruct; file
+    lists <filename>/usr/repository1</filename> as a repository,
+    because &SCons; will remove the current build directory
+    from its repository list for that invocation.)
 
-   <para>
+    </para>
 
-   </para>
+    <para>
 
- </section>
+    Now, with the repository populated,
+    we only need to create the one local source file
+    we're interested in working with at the moment,
+    and use the <literal>-Y</literal> option to
+    tell &SCons; to fetch any other files it needs
+    from the repository:
 
- <section>
- <title>Finding the &SConstruct; file in repositories</title>
+    </para>
 
-   <para>
+    <literallayout>
+      % <userinput>cd $HOME/build</userinput>
+      % <userinput>edit hello.c</userinput>
+      % <userinput>scons -Y /usr/repository1</userinput>
+      gcc -c hello.c -o hello.o
+      gcc -o hello hello.o
+      XXXXXXX
+    </literallayout>
 
-   &SCons; will also search in repositories
-   for the &SConstruct; file and any specified &SConscript; files.
-   This poses a problem, though:  how can &SCons; search a
-   repository tree for an &SConstruct; file
-   if the &SConstruct; file itself contains the information
-   about the pathname of the repository?
-   To solve this problem, &SCons; allows you
-   to specify repository directories
-   on the command line using the <literal>-Y</literal>:
+    <para>
 
-   </para>
+    Notice that &SCons; realizes that it does not need to
+    rebuild a local XXX.o file,
+    but instead uses the already-compiled XXX.o file
+    from the repository.
 
-   <literallayout>
-     % <userinput>scons -Y /usr/repository1 -Y /usr/repository2</userinput>
-   </literallayout>
+    </para>
 
-   <para>
+  </section>
 
-   When looking for source or derived files,
-   &SCons; will first search the repositories
-   specified on the command line,
-   and then search the repositories
-   specified in the &SConstruct; or &SConscript; files.
+  <section>
+  <title>Guaranteeing local copies of files</title>
 
-   </para>
+    <para>
 
- </section>
+    If the repository tree contains the complete results of a build,
+    and we try to build from the repository
+    without any files in our local tree,
+    something moderately surprising happens:
 
- <section>
- <title>Finding derived files in repositories</title>
+    </para>
 
-   <para>
+    <literallayout>
+      % <userinput>mkdir $HOME/build2</userinput>
+      % <userinput>cd $HOME/build2</userinput>
+      % <userinput>scons -Y /usr/all/repository hello</userinput>
+      scons: `hello' is up-to-date.
+    </literallayout>
 
-   If a repository contains not only source files,
-   but also derived files (such as object files,
-   libraries, or executables), &SCons; will perform
-   its normal MD5 signature calculation to
-   decide if a derived file in a repository is up-to-date,
-   or the derived file must be rebuilt in the local build directory.
-   For the &SCons; signature calculation to work correctly,
-   a repository tree must contain the &sconsign; files
-   that &SCons; uses to keep track of signature information.
+    <para>
 
-   </para>
+    Why does &SCons; say that the &hello; program
+    is up-to-date when there is no &hello; program
+    in the local build directory?
+    Because the repository (not the local directory)
+    contains the up-to-date &hello; program,
+    and &SCons; correctly determines that nothing
+    needs to be done to rebuild that
+    up-to-date copy of the file.
 
-   <para>
+    </para>
 
-   Usually, this would be done by a build integrator
-   who would run &SCons; in the repository
-   to create all of its derived files and &sconsign; files,
-   or who would &SCons; in a separate build directory
-   and copying the resulting tree to the desired repository:
+    <para>
 
-   </para>
+    There are, however, many times when you want to ensure that a
+    local copy of a file always exists.
+    A packaging or testing script, for example,
+    may assume that certain generated files exist locally.
+    To tell &SCons; to make a copy of any up-to-date repository
+    file in the local build directory,
+    use the &Local; function:
 
-   <literallayout>
-     % <userinput>cd /usr/repository1</userinput>
-     % <userinput>scons</userinput>
-     gcc -c hello.c -o hello.o
-     gcc -o hello hello.o
-   </literallayout>
+    </para>
 
-   <para>
-   
-   (Note that this is safe even if the &SConstruct; file
-   lists <filename>/usr/repository1</filename> as a repository,
-   because &SCons; will remove the current build directory
-   from its repository list for that invocation.)
+    <programlisting>
+       env = Environment()
+       hello = env.Program('hello.c')
+       Local(hello)
+    </programlisting>
 
-   </para>
+    <para>
 
-   <para>
+    If we then run the same command,
+    &SCons; will make a local copy of the program
+    from the repository copy,
+    and tell you that it is doing so:
 
-   Now, with the repository populated,
-   we only need to create the one local source file
-   we're interested in working with at the moment,
-   and use the <literal>-Y</literal> option to
-   tell &SCons; to fetch any other files it needs
-   from the repository:
+    </para>
 
-   </para>
+    <literallayout>
+      % scons -Y /usr/all/repository hello
+      Local copy of hello from /usr/all/repository/hello
+      scons: `hello' is up-to-date.
+      XXXXXX DO WE REALLY REPORT up-to-date, TOO?
+    </literallayout>
 
-   <literallayout>
-     % <userinput>cd $HOME/build</userinput>
-     % <userinput>edit hello.c</userinput>
-     % <userinput>scons -Y /usr/repository1</userinput>
-     gcc -c hello.c -o hello.o
-     gcc -o hello hello.o
-     XXXXXXX
-   </literallayout>
+    <para>
 
-   <para>
+    (Notice that, because the act of making the local copy
+    is not considered a "build" of the &hello; file,
+    &SCons; still reports that it is up-to-date.)
+    XXXXXX DO WE REALLY REPORT up-to-date, TOO?
 
-   Notice that &SCons; realizes that it does not need to
-   rebuild a local XXX.o file,
-   but instead uses the already-compiled XXX.o file
-   from the repository.
+    </para>
 
-   </para>
-
- </section>
-
- <section>
- <title>Guaranteeing local copies of files</title>
-
-   <para>
-
-   If the repository tree contains the complete results of a build,
-   and we try to build from the repository
-   without any files in our local tree,
-   something moderately surprising happens:
-
-   </para>
-
-   <literallayout>
-     % <userinput>mkdir $HOME/build2</userinput>
-     % <userinput>cd $HOME/build2</userinput>
-     % <userinput>scons -Y /usr/all/repository hello</userinput>
-     scons: `hello' is up-to-date.
-   </literallayout>
-
-   <para>
-
-   Why does &SCons; say that the &hello; program
-   is up-to-date when there is no &hello; program
-   in the local build directory?
-   Because the repository (not the local directory)
-   contains the up-to-date &hello; program,
-   and &SCons; correctly determines that nothing
-   needs to be done to rebuild that
-   up-to-date copy of the file.
-
-   </para>
-
-   <para>
-
-   There are, however, many times when you want to ensure that a
-   local copy of a file always exists.
-   A packaging or testing script, for example,
-   may assume that certain generated files exist locally.
-   To tell &SCons; to make a copy of any up-to-date repository
-   file in the local build directory,
-   use the &Local; function:
-
-   </para>
-
-   <programlisting>
-      env = Environment()
-      hello = env.Program('hello.c')
-      Local(hello)
-   </programlisting>
-
-   <para>
-
-   If we then run the same command,
-   &SCons; will make a local copy of the program
-   from the repository copy,
-   and tell you that it is doing so:
-
-   </para>
-
-   <literallayout>
-     % cons -R /usr/all/repository hello
-     Local copy of hello from /usr/all/repository/hello
-     scons: `hello' is up-to-date.
-     XXXXXX DO WE REALLY REPORT up-to-date, TOO?
-   </literallayout>
-
-   <para>
-
-   (Notice that, because the act of making the local copy
-   is not considered a "build" of the &hello; file,
-   &SCons; still reports that it is up-to-date.)
-   XXXXXX DO WE REALLY REPORT up-to-date, TOO?
-
-   </para>
-
- </section>
+  </section>

@@ -25,47 +25,6 @@
 
 <!--
 
-=head2 Construction environments
-
-A key simplification of Cons is the idea of a B<construction environment>. A
-construction environment is an B<object> characterized by a set of key/value
-pairs and a set of B<methods>. In order to tell Cons how to build something,
-you invoke the appropriate method via an appropriate construction
-environment. Consider the following example:
-
-
-
-  $env = new cons(
-	CC	=>	'gcc',
-	LIBS	=>	'libworld.a'
-  );
-
-  Program $env 'hello', 'hello.c';
-
-In this case, rather than using the default construction environment, as is,
-we have overridden the value of C<CC> so that the GNU C Compiler equivalent
-is used, instead. Since this version of B<Hello, World!> requires a library,
-F<libworld.a>, we have specified that any program linked in this environment
-should be linked with that library. If the library exists already, well and
-good, but if not, then we'll also have to include the statement:
-
-
-
-  Library $env 'libworld', 'world.c';
-
-Now if you type C<cons hello>, the library will be built before the program
-is linked, and, of course, C<gcc> will be used to compile both modules:
-
-
-
-  % cons hello
-  gcc -c hello.c -o hello.o
-  gcc -c world.c -o world.o
-  ar r libworld.a world.o
-  ar: creating libworld.a
-  ranlib libworld.a
-  gcc -o hello hello.o libworld.a
-
 =head1 More on construction environments
 
 As previously mentioned, a B<construction environment> is an object that
@@ -346,6 +305,12 @@ by the MD5 signature calculation on the actual file contents.
 
 =back
 
+XXX
+
+DESCRIBE THE Literal() FUNCTION, TOO
+
+XXX
+
 =head2 Expanding construction variables in file names
 
 Cons expands construction variables in the source and target file names
@@ -420,106 +385,336 @@ C<PATH> variable in the default environment, you could do the following:
 This will leave anything else that might be in the default execution
 environment undisturbed.
 
-
-
-=head2 Overriding construction variables
-
-There are several ways of extending Cons, which vary in degree of
-difficulty. The simplest method is to define your own construction
-environment, based on the default environment, but modified to reflect your
-particular needs. This will often suffice for C-based applications. You can
-use the C<new> constructor, and the C<clone> and C<copy> methods to create
-hybrid environments. These changes can be entirely transparent to the
-underlying F<Conscript> files.
-
 -->
 
  <para>
 
-   X
+   It is rare that all of the software in a large,
+   complicated system needs to be built the same way.
+   Different source files need different options
+   enabled on the command line;
+   different executable programs need to be linked
+   with different libraries (shared or static);
+   XXX
+   &SCons; accomodates these different build
+   requirements by allowing you to create and
+   configure multiple &consenvs;
+   that control how the software is built.
+   Technically, a &consenv; is an object
+   that has a number of associated
+   &consvars;, each with a name and a value.
+   (A &consenv; also has an attached
+   set of &Builder; methods,
+   about which we'll learn more later.)
 
-<!--
+ </para>
 
-A key simplification of Cons is the idea of a B<construction environment>. A
-construction environment is an B<object> characterized by a set of key/value
-pairs and a set of B<methods>. In order to tell Cons how to build something,
-you invoke the appropriate method via an appropriate construction
-environment. Consider the following example:
+ <para>
 
-
-
-  $env = new cons(
-	CC	=>	'gcc',
-	LIBS	=>	'libworld.a'
-  );
-
-  Program $env 'hello', 'hello.c';
-
-In this case, rather than using the default construction environment, as is,
-we have overridden the value of C<CC> so that the GNU C Compiler equivalent
-is used, instead. Since this version of B<Hello, World!> requires a library,
-F<libworld.a>, we have specified that any program linked in this environment
-should be linked with that library. If the library exists already, well and
-good, but if not, then we'll also have to include the statement:
-
-
-
-  Library $env 'libworld', 'world.c';
-
-Now if you type C<cons hello>, the library will be built before the program
-is linked, and, of course, C<gcc> will be used to compile both modules:
-
-
-
-  % cons hello
-  gcc -c hello.c -o hello.o
-  gcc -c world.c -o world.o
-  ar r libworld.a world.o
-  ar: creating libworld.a
-  ranlib libworld.a
-  gcc -o hello hello.o libworld.a
-
--->
+   A &consenv; is created by the &Environment;
+   method which you have already seen.
+   What you haven't seen, though,
+   is that when you initialize a &consenv;,
+   you can set the values of the
+   environment's &consvars;
+   to control how a program is built.
+   For example:
 
  </para>
 
  <programlisting>
-    optimize = Environment(CCFLAGS = '-O2')
-    debug = Environment(CCFLAGS = '-g')
+    env = Environment(CC = 'gcc',
+                      CCFLAGS = '-O2')
 
-    o = optimize.Object('foo-opt', 'foo.c')
-    optimize.Program(o)
-
-    d = debug.Object('foo-debug', 'foo.c')
-    debug.Program(d)
+    env.Program('foo.c')
  </programlisting>
 
+ <para>
+   
+   This example, rather than using the default,
+   explicitly specifies use of the
+   GNU C compiler &gcc;,
+   and further specifies that the <literal>-O2</literal>
+   (optimization level two)
+   flag should be used when compiling the object file.
+   So a run from this example would look like:
+
+ </para>
+
  <literallayout>
-    % <userinput>scons .</userinput>
-    cc -c -g foo.c -o foo-debug.o
-    cc -o foo-debug foo-debug.o
-    cc -c -O2 foo.c -o foo-opt.o
-    cc -o foo-opt foo-opt.o
+    % <userinput>scons</userinput>
+    gcc -c -O2 foo.c -o foo.o
+    gcc -o foo foo.o
  </literallayout>
 
  <section>
- <title>The &Environment; Constructor</title>
+ <title>Multiple &ConsEnvs;</title>
 
    <para>
 
-   X
+   So far, we've always created a &consenv; named
+   <literal>env</literal>.
+   <literal>env</literal>, however,
+   is simply a Python variable name,
+   and you can use any other variable name that we like.
+   For example:
 
    </para>
+
+   <programlisting>
+      my_env = Environment(CC = 'gcc',
+                        CCFLAGS = '-O2')
+
+      my_env.Program('foo.c')
+   </programlisting>
+
+   <para>
+
+   This opens up the possibility of
+   using multiple &consenvs;,
+   each with a separate variable name.
+   We can then use these separate &consenvs;
+   to build different programs in different ways:
+
+   </para>
+
+   <programlisting>
+      opt = Environment(CCFLAGS = '-O2')
+      dbg = Environment(CCFLAGS = '-g')
+
+      opt.Program('foo', 'foo.c')
+
+      dbg.Program('bar', 'bar.c')
+   </programlisting>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      cc -c -O2 bar.c -o bar.o
+      cc -o bar bar.o
+      cc -c -g foo.c -o foo.o
+      cc -o foo foo.o
+   </literallayout>
+
+   <para>
+
+   We can even use multiple &consenvs; to build
+   multiple versions of a single program.
+   If you do this by simply trying to use the
+   &Program; builder with both environments, though,
+   like this:
+
+   </para>
+
+   <programlisting>
+      opt = Environment(CCFLAGS = '-O2')
+      dbg = Environment(CCFLAGS = '-g')
+
+      opt.Program('foo', 'foo.c')
+
+      dbg.Program('foo', 'foo.c')
+   </programlisting>
+
+   <para>
+
+   Then &SCons; generates the following error:
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      scons: *** Two different environments were specified for the same target:  foo.o
+      File "SConstruct", line 6, in ?
+   </literallayout>
+
+   <para>
+
+   This is because the two &Program; calls have
+   each implicitly told &SCons; to generate an object file named
+   <filename>foo.o</filename>,
+   one with a &CCFLAGS; value of
+   <literal>-O2</literal>
+   and one with a &CCFLAGS; value of
+   <literal>-g</literal>.
+   To work around this,
+   we must explicitly specify
+   that each environment compile
+   <filename>foo.c</filename>
+   to a separately-named object file
+   using the &Object; call, like so:
+
+   </para>
+
+   <programlisting>
+      opt = Environment(CCFLAGS = '-O2')
+      dbg = Environment(CCFLAGS = '-g')
+
+      o = opt.Object('foo-opt', 'foo.c')
+      opt.Program(o)
+
+      d = dbg.Object('foo-dbg', 'foo.c')
+      dbg.Program(d)
+   </programlisting>
+
+   <para>
+
+   Notice that each call to the &Object; builder
+   returns a value,
+   an internal &SCons; object that
+   represents the file that will be built.
+   We then use that object
+   as input to the &Program; builder.
+   This avoids having to specify explicitly
+   the object file name in multiple places,
+   and makes for a compact, readable
+   &SConstruct file.
+   Our &SCons; output then looks like:
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      cc -c -g foo.c -o foo-dbg.o
+      cc -o foo-dbg foo-dbg.o
+      cc -c -O2 foo.c -o foo-opt.o
+      cc -o foo-opt foo-opt.o
+   </literallayout>
 
  </section>
 
  <section>
- <title>The &Copy; Method</title>
+ <title>Copying &ConsEnvs;</title>
+
+   <para>
+
+   Sometimes you want to more than one &consenv;
+   to use the same values for one or more variables.
+   Rather than always having to repeat all of the common
+   variables when you create each &consenv;,
+   you can use the &Copy; method
+   to create a copy of a &consenv;.
+   Like the &Environment; call that creates a &consenv;,
+   the &Copy; method takes &consvar; assignments,
+   which will override the values in the copied &consenv;.
+   For example, suppose we want to use &gcc;
+   to create three versions of a program,
+   one optimized, one debug, and one with neither.
+   We could do this by creating a "base" &consenv;
+   that sets &CC; to &gcc;,
+   and then creating two copies,
+   one which sets &CCFLAGS; for optimization
+   and the other with sets &CCFLAGS; for debugging:
+
+   </para>
+
+   <programlisting>
+      env = Environment(CC = 'gcc')
+      opt = env.Copy(CCFLAGS = '-O2')
+      dbg = env.Copy(CCFLAGS = '-g')
+
+      e = opt.Object('foo', 'foo.c')
+
+      o = opt.Object('foo-opt', 'foo.c')
+      opt.Program(o)
+
+      d = dbg.Object('foo-dbg', 'foo.c')
+      dbg.Program(d)
+   </programlisting>
+
+   <para>
+
+   Then our output would look like:
+
+   </para>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+      gcc -c foo.c -o foo.o
+      gcc -o foo foo.o
+      gcc -c -g foo.c -o foo-dbg.o
+      gcc -o foo-dbg foo-dbg.o
+      gcc -c -O2 foo.c -o foo-opt.o
+      gcc -o foo-opt foo-opt.o
+   </literallayout>
+
+ </section>
+
+ <section>
+ <title>Fetching Values From a &ConsEnv;</title>
 
    <para>
 
    X
 
    </para>
+
+   <programlisting>
+      env = Environment()
+   </programlisting>
+
+   <literallayout>
+      % <userinput>scons</userinput>
+   </literallayout>
+
+ </section>
+
+ <section>
+ <title>Modifying a &ConsEnv;</title>
+
+   <section>
+   <title>Replacing Values in a &ConsEnv;</title>
+
+     <para>
+
+     X
+
+     </para>
+
+     <programlisting>
+        env = Environment()
+     </programlisting>
+
+     <literallayout>
+        % <userinput>scons</userinput>
+     </literallayout>
+
+   </section>
+
+   <section>
+   <title>Appending to the End of Values in a &ConsEnv;</title>
+
+     <para>
+
+     X
+
+     </para>
+
+     <programlisting>
+        env = Environment()
+     </programlisting>
+
+     <literallayout>
+        % <userinput>scons</userinput>
+     </literallayout>
+
+   </section>
+
+   <section>
+   <title>Appending to the Beginning of Values in a &ConsEnv;</title>
+
+     <para>
+
+     X
+
+     </para>
+
+     <programlisting>
+        env = Environment()
+     </programlisting>
+
+     <literallayout>
+        % <userinput>scons</userinput>
+     </literallayout>
+
+   </section>
 
  </section>

@@ -122,4 +122,25 @@ is pretty smart about rebuilding things when you change options.
 
    </para>
 
+   <programlisting>
+     env = Environment(OS = ARGUMENT['os'])
+     SConscript('src/SConscript', build_dir='build/$OS')
+   </programlisting>
+
+   <para>
+
+   X
+
+   </para>
+
+   <programlisting>
+     env = Environment(OS = )
+     for os in ['newell', 'post']:
+         SConscript('src/SConscript', build_dir='build/' + os)
+   </programlisting>
+
+   <literallayout>
+     % <userinput>scons</userinput>
+   </literallayout>
+
  </section>

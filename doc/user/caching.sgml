@@ -23,30 +23,242 @@
 
 -->
 
-<!--
+  <para>
 
-=head2 The C<UseCache> method
+  On multi-developer software projects,
+  you can sometimes speed up every developer's builds a lot by
+  allowing them to share the derived files that they build.
+  &SCons; makes this easy, as well as reliable.
 
-The C<UseCache> method instructs Cons to maintain a cache of derived
-files, to be shared among separate build trees of the same project.
+  </para>
 
-  UseCache("cache/<buildname>") || warn("cache directory not found");
+  <section>
+  <title>Specifying the Shared Cache Directory</title>
 
--->
+    <para>
 
- <para>
+    To enable sharing of derived files,
+    use the &CacheDir; function
+    in any &SConscript; file:
 
-   X
+    </para>
 
- </para>
+    <programlisting>
+       CacheDir('/usr/local/build_cache')
+    </programlisting>
 
- <section>
- <title>The &Cache; Method</title>
+    <para>
 
-   <para>
+    Note that the directory you specify must already exist
+    and be readable and writable by all developers
+    who will be sharing derived files.
+    It should also be in some central location
+    that all builds will be able to access.
+    In environments where developers are using separate systems
+    (like individual workstations) for builds,
+    this directory would typically be
+    on a shared or NFS-mounted file system.
 
-   X
+    </para>
 
-   </para>
+    <para>
 
- </section>
+    Here's what happens:
+    When a build has a &CacheDir; specified,
+    every time a file is built,
+    it is stored in the shared cache directory
+    along with its MD5 build signature.
+    On subsequent builds,
+    before an action is invoked to build a file,
+    &SCons; will check the shared cache directory
+    to see if a file with the exact same build
+    signature already exists.
+    If so, the derived file will not be built locally,
+    but will be copied into the local build directory
+    from the shared cache directory,
+    like so:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      % <userinput>scons -c</userinput>
+      % <userinput>scons</userinput>
+      Retrieved `hello.o' from cache
+      Retrieved `hello' from cache
+      %
+    </literallayout>
+
+  </section>
+
+  <section>
+  <title>Keeping Build Output Consistent</title>
+
+    <para>
+
+    One potential drawback to using a shared cache
+    is that your build output can be inconsistent
+    from invocation to invocation,
+    because any given file may be rebuilt one time
+    and retrieved from the shared cache the next time.
+    This can make analyzing build output more difficult,
+    especially for automated scripts that
+    expect consistent output each time.
+
+    </para>
+
+    <para>
+
+    If, however, you use the <literal>--cache-show</literal> option,
+    &SCons; will print the command line that it
+    <emphasis>would</emphasis> have executed
+    to build the file,
+    even when it is retrieving the file from the shared cache.
+    This makes the build output consistent
+    every time the build is run:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      % <userinput>scons -c</userinput>
+      Removed hello.o
+      Removed hello
+      % <userinput>scons --cache-show</userinput>
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      %
+    </literallayout>
+
+    <para>
+
+    The trade-off, of course, is that you no longer
+    know whether or not &SCons;
+    has retrieved a derived file from cache
+    or has rebuilt it locally.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Not Retrieving Files From a Shared Cache</title>
+
+    <para>
+
+    Retrieving an already-built file
+    from the shared cache
+    is usually a significant time-savings
+    over rebuilding the file,
+    but how much of a savings
+    (or even whether it saves time at all)
+    can depend a great deal on your
+    system or network configuration.
+    For example, retrieving cached files
+    from a busy server over a busy network
+    might end up being slower than
+    rebuilding the files locally.
+
+    </para>
+
+    <para>
+
+    In these cases, you can specify
+    the <literal>--cache-disable</literal>
+    command-line option to tell &SCons;
+    to not retrieve already-built files from the
+    shared cache directory:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons</userinput>
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      % <userinput>scons -c</userinput>
+      Removed hello.o
+      Removed hello
+      % <userinput>scons</userinput>
+      Retrieved `hello.o' from cache
+      Retrieved `hello' from cache
+      % <userinput>scons -c</userinput>
+      Removed hello.o
+      Removed hello
+      % <userinput>scons --cache-disable</userinput>
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      %
+    </literallayout>
+
+  </section>
+
+  <section>
+  <title>Populating a Shared Cache With Already-Built Files</title>
+
+    <para>
+
+    Sometimes, you may have one or more derived files
+    already built in your local build tree
+    that you wish to make available to other people doing builds.
+    For example, you may find it more effective to perform
+    integration builds with the cache disabled
+    (per the previous section)
+    and only populate the shared cache directory
+    with the built files after the integration build
+    has completed successfully.
+    This way, the cache will only get filled up
+    with derived files that are part of a complete, successful build
+    not with files that might be later overwritten
+    while you debug integration problems.
+
+    </para>
+
+    <para>
+
+    In this case, you can use the
+    the <literal>--cache-force</literal> option
+    to tell &SCons; to put all derived files in the cache,
+    even if the files had already been built
+    by a previous invocation:
+
+    </para>
+
+    <literallayout>
+      % <userinput>scons --cache-disable</userinput>
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      % <userinput>scons -c</userinput>
+      Removed hello.o
+      Removed hello
+      % <userinput>scons --cache-disable</userinput>
+      cc -c hello.c -o hello.o
+      cc -o hello hello.o
+      % <userinput>scons --cache-force</userinput>
+      % <userinput>scons -c</userinput>
+      Removed hello.o
+      Removed hello
+      % <userinput>scons</userinput>
+      Retrieved `hello.o' from cache
+      Retrieved `hello' from cache
+      %
+    </literallayout>
+
+    <para>
+
+    Notice how the above sample run
+    demonstrates that the <literal>--cache-disable</literal>
+    option avoids putting the built
+    <filename>hello.o</filename>
+    and 
+    <filename>hello</filename> files in the cache,
+    but after using the <literal>--cache-force</literal> option,
+    the files have been put in the cache
+    for the next invocation to retrieve.
+
+    </para>
+
+  </section>

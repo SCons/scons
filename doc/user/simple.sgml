@@ -147,10 +147,10 @@ requirements of a build.
    an &SConstruct; file and a &Makefile:
    the &SConstruct; file is actually a Python script.
    If you're not already familiar with Python, don't worry;
-   Python is extremely easy to learn,
+   Python is very easy to learn,
    and this User's Guide will introduce you step-by-step
    to the relatively small amount of Python you'll
-   neede to know to be able to use &SCons; effectively.
+   need to know to be able to use &SCons; effectively.
 
    </para>
 
@@ -254,7 +254,7 @@ requirements of a build.
 
    <para>
 
-   One minor drawback to the use of a Python list
+   One drawback to the use of a Python list
    for source files is that 
    each file name must be enclosed in quotes
    (either single quotes or double quotes).

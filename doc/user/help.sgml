@@ -69,7 +69,7 @@
    If there is no &Help; text in the &SConstruct; or
    &SConscript; files,
    &SCons; will revert to displaying its
-   standard list and description of available command-line
+   standard list that describes the &SCons; command-line
    options.
    This list is also always displayed whenever
    the <literal>-H</literal> option is used.

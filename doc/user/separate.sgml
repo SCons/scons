@@ -112,17 +112,224 @@ program using the F<build/foo.c> path name.
 
  <para>
 
-   X
+ It's often useful to keep any built files completely
+ separate from the source files.
+ This is usually done by creating one or more separate
+ <emphasis>build directories</emphasis>
+ that are used to hold the built objects files, libraries,
+ and executable programs, etc.
+ for a specific flavor of build.
+ &SCons; provides two ways of doing this,
+ one with a little more flexibility.
 
  </para>
 
  <section>
- <title>X</title>
+ <title>The &BuildDir; Function</title>
 
    <para>
 
    X
 
    </para>
+
+   <programlisting>
+     BuildDir('build', 'src')
+     env = Environment()
+     env.Program('build/hello.c')
+   </programlisting>
+
+   <para>
+
+   X
+
+   </para>
+
+   <literallayout>
+     % <userinput>ls src</userinput>
+     hello.c
+     % <userinput>scons</userinput>
+     cc -c build/hello.c -o build/hello.o
+     cc -o build/hello build/hello.o
+     % <userinput>ls -1 build</userinput>
+     hello
+     hello.c
+     hello.o
+   </literallayout>
+
+ </section>
+
+ <section>
+ <title>Avoiding Duplicate Source Files in the Build Directory</title>
+
+   <para>
+
+   X
+
+   </para>
+
+   <programlisting>
+     BuildDir('build', 'src', duplicate=0)
+     env = Environment()
+     env.Program('build/hello.c')
+   </programlisting>
+
+   <para>
+
+   X
+
+   </para>
+
+   <literallayout>
+     % <userinput>ls -1 src</userinput>
+     hello.c
+     % <userinput>scons</userinput>
+     cc -c src/hello.c -o build/hello.o
+     cc -o build/hello build/hello.o
+     % <userinput>ls -1 build</userinput>
+     hello
+     hello.o
+   </literallayout>
+
+   <para>
+
+   X
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Why &SCons; Duplicates Source Files by Default</title>
+
+   <para>
+
+   X
+
+   </para>
+
+   <programlisting>
+     env = Environmnet()
+   </programlisting>
+
+   <para>
+
+   X
+
+   </para>
+
+   <literallayout>
+     % <userinput>scons</userinput>
+     cc -c build/hello.c -o build/hello.o
+     cc -o build/hello build/hello.o
+   </literallayout>
+
+ </section>
+
+ <section>
+ <title>Using &BuildDir; With an &SConscript; File</title>
+
+   <para>
+
+   X
+
+   </para>
+
+   <programlisting>
+     env = Environment()
+     env.Program('hello.c')
+   </programlisting>
+
+   <para>
+
+   X
+
+   </para>
+
+   <programlisting>
+     BuildDir('build', 'src')
+     SConscript('build/SConscript')
+   </programlisting>
+
+   <para>
+
+   X
+
+   </para>
+
+   <literallayout>
+     % <userinput>ls -1 src</userinput>
+     SConscript
+     hello.c
+     % <userinput>scons</userinput>
+     cc -c build/hello.c -o build/hello.o
+     cc -o build/hello build/hello.o
+     % <userinput>ls -1 build</userinput>
+     hello
+     hello.c
+     hello.o
+   </literallayout>
+
+ </section>
+
+ <section>
+ <title>Specifying a Build Directory as Part of an &SConscript; Call</title>
+
+   <para>
+
+   X
+
+   </para>
+
+   <programlisting>
+     SConscript('src/SConscript', build_dir='build')
+   </programlisting>
+
+   <para>
+
+   X
+
+   </para>
+
+   <literallayout>
+     % <userinput>ls -1 src</userinput>
+     SConscript
+     hello.c
+     % <userinput>scons</userinput>
+     cc -c build/hello.c -o build/hello.o
+     cc -o build/hello build/hello.o
+     % <userinput>ls -1 build</userinput>
+     hello
+     hello.c
+     hello.o
+   </literallayout>
+
+   <para>
+
+   X
+
+   </para>
+
+   <programlisting>
+     SConscript('src/SConscript', build_dir='build', duplicate=0)
+   </programlisting>
+
+   <para>
+
+   X
+
+   </para>
+
+   <literallayout>
+     % <userinput>ls -1 src</userinput>
+     SConscript
+     hello.c
+     % <userinput>scons</userinput>
+     cc -c src/hello.c -o build/hello.o
+     cc -o build/hello build/hello.o
+     % <userinput>ls -1 build</userinput>
+     hello
+     hello.o
+   </literallayout>
 
  </section>

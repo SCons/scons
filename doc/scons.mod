@@ -16,6 +16,7 @@
 
 <!ENTITY Autoconf "<application>Autoconf</application>">
 <!ENTITY Cons "<application>Cons</application>">
+<!ENTITY gcc "<application>gcc</application>">
 <!ENTITY Make "<application>Make</application>">
 <!ENTITY Makepp "<application>Make++</application>">
 <!ENTITY SCons "<application>SCons</application>">
@@ -79,8 +80,9 @@
 
 <!ENTITY Alias "<function>Alias</function>">
 <!ENTITY Aliases "<function>Aliases</function>">
+<!ENTITY Append "<function>Append</function>">
 <!ENTITY Build "<function>Build</function>">
-<!ENTITY Cache "<function>Cache</function>">
+<!ENTITY CacheDir "<function>CacheDir</function>">
 <!ENTITY Clean "<function>Clean</function>">
 <!ENTITY Clone "<function>Clone</function>">
 <!ENTITY Command "<function>Command</function>">
@@ -106,6 +108,9 @@
 <!ENTITY Split "<function>Split</function>">
 <!ENTITY Task "<function>Task</function>">
 
+<!-- Obsolete, but referenced in old documents.  -->
+<!ENTITY Cache "<function>Cache</function>">
+
 
 
 <!--
@@ -127,6 +132,7 @@
 
 -->
 
+<!ENTITY CC "<varname>CC</varname>">
 <!ENTITY CCFLAGS "<varname>CCFLAGS</varname>">
 <!ENTITY LIBPATH "<varname>LIBPATH</varname>">
 <!ENTITY PYTHONPATH "<varname>PYTHONPATH</varname>">
@@ -140,12 +146,23 @@
 
 -->
 
-<!ENTITY Object "<function>Object</function>">
-<!ENTITY Library "<function>Library</function>">
-<!ENTITY SharedLibrary "<function>SharedLibrary</function>">
-<!ENTITY Program "<function>Program</function>">
-<!ENTITY MakeBuilder "<function>Make</function>">
 <!ENTITY BuildDir "<function>BuildDir</function>">
+<!ENTITY CFile "<function>CFile</function>">
+<!ENTITY CXXFile "<function>CXXFile</function>">
+<!ENTITY Library "<function>Library</function>">
+<!ENTITY Object "<function>Object</function>">
+<!ENTITY PCH "<function>PCH</function>">
+<!ENTITY PDF "<function>PDF</function>">
+<!ENTITY PostScript "<function>PostScript</function>">
+<!ENTITY Program "<function>Program</function>">
+<!ENTITY RES "<function>RES</function>">
+<!ENTITY SharedLibrary "<function>SharedLibrary</function>">
+<!ENTITY SharedObject "<function>SharedObject</function>">
+<!ENTITY StaticLibrary "<function>StaticLibrary</function>">
+<!ENTITY StaticObject "<function>StaticObject</function>">
+
+<!-- Obsolete, but referenced in old documents.  -->
+<!ENTITY MakeBuilder "<function>Make</function>">
 
 
 

@@ -36,44 +36,6 @@ C<Import> commands.
 
 =head2 The Build command
 
-The C<Build> command takes a list of F<Conscript> file names, and arranges
-for them to be included in the build. For example:
-
-  Build qw(
-	drivers/display/Conscript
-	drivers/mouse/Conscript
-	parser/Conscript
-	utilities/Conscript
-  );
-
-This is a simple two-level hierarchy of build scripts: all the subsidiary
-F<Conscript> files are mentioned in the top-level F<Construct> file. Notice
-that not all directories in the tree necessarily have build scripts
-associated with them.
-
-This could also be written as a multi-level script. For example, the
-F<Construct> file might contain this command:
-
-  Build qw(
-	parser/Conscript
-	drivers/Conscript
-	utilities/Conscript
-  );
-
-and the F<Conscript> file in the F<drivers> directory might contain this:
-
-  Build qw(
-	display/Conscript
-	mouse/Conscript
-  );
-
-Experience has shown that the former model is a little easier to understand,
-since the whole construction tree is laid out in front of you, at the
-top-level. Hybrid schemes are also possible. A separately maintained
-component that needs to be incorporated into a build tree, for example,
-might hook into the build tree in one place, but define its own construction
-hierarchy.
-
 By default, Cons does not change its working directory to the directory
 containing a subsidiary F<Conscript> file it is including.  This behavior
 can be enabled for a build by specifying, in the top-level F<Construct>
@@ -220,30 +182,169 @@ make no difference to the build.
 
 -->
 
- <para>
+  <para>
 
-   X
+  The source code for large software projects
+  rarely stays in a single directory,
+  but is nearly always divided into a
+  hierarchy of directories.
+  Organizing a large software build using &SCons;
+  involves creating a hierarchy of build scripts
+  using the &SConscript; function.
 
- </para>
+  </para>
 
- <section>
- <title>&SConscript; Files</title>
+  <section>
+  <title>&SConscript; Files</title>
 
-   <para>
+    <para>
 
-   X
+    As we've already seen,
+    the build script at the top of the tree is called &SConstruct;.
+    The top-level &SConstruct; file can
+    use the &SConscript; function to
+    include other subsidiary scripts in the build.
+    These subsidiary scripts can, in turn,
+    use the &SConscript; function
+    to include still other scripts in the build.
+    By convention, these subsidiary scripts are usually
+    named &SConscript;.
+    For example, a top-level &SConstruct; file might
+    arrange for four subsidiary scripts to be included
+    in the build as follows:
 
-   </para>
+    </para>
 
- </section>
+    <programlisting>
+      SConscript(['drivers/display/SConscript',
+                  'drivers/mouse/SConscript',
+                  'parser/SConscript',
+                  'utilities/SConscript'])
+    </programlisting>
 
- <section>
- <title>X</title>
+    <para>
 
-   <para>
+    In this case, the &SConstruct; file
+    lists all of the &SConscript; files in the build explicitly.
+    (Note, however, that not every directory in the tree
+    necessarily has an &SConscript; file.)
+    Alternatively, the <literal>drivers</literal>
+    subdirectory might contain an intermediate
+    &SConscript; file,
+    in which case the &SConscript; call in
+    the top-level &SConstruct; file
+    would look like:
 
-   X
+    </para>
 
-   </para>
+    <programlisting>
+      SConscript(['drivers/SConscript',
+                  'parser/SConscript',
+                  'utilities/SConscript'])
+    </programlisting>
 
- </section>
+    <para>
+
+    And the subsidiary &SConscript; file in the
+    <literal>drivers</literal> subdirectory
+    would look like:
+
+    </para>
+
+    <programlisting>
+      SConscript(['display/SConscript',
+                  'mouse/SConscript'])
+    </programlisting>
+
+    <para>
+
+    Whether you list all of the &SConscript; files in the
+    top-level &SConstruct; file,
+    or place a subsidiary &SConscript; file in
+    intervening directories,
+    or use some mix of the two schemes,
+    is up to you and the needs of your software.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Path Names Are Relative to the &SConscript; Directory</title>
+
+    <para>
+
+    X
+
+    </para>
+
+    <programlisting>
+      SConscript(['display/SConscript',
+                  'mouse/SConscript'])
+    </programlisting>
+
+  </section>
+
+  <section>
+  <title>Sharing Environments (and Other Variables) Between &SConscript; Files</title>
+
+    <para>
+
+    X
+
+    </para>
+
+    <programlisting>
+      SConscript(['display/SConscript',
+                  'mouse/SConscript'])
+    </programlisting>
+
+    <section>
+    <title>Exporting Variables</title>
+
+      <para>
+
+      X
+
+      </para>
+
+      <programlisting>
+        SConscript(['display/SConscript',
+                    'mouse/SConscript'])
+      </programlisting>
+
+    </section>
+
+    <section>
+    <title>Importing Variables</title>
+
+      <para>
+
+      X
+
+      </para>
+
+      <programlisting>
+        SConscript(['display/SConscript',
+                   'mouse/SConscript'])
+      </programlisting>
+
+    </section>
+
+    <section>
+    <title>Returning Values</title>
+
+      <para>
+
+      X
+
+      </para>
+
+      <programlisting>
+        SConscript(['display/SConscript',
+                    'mouse/SConscript'])
+      </programlisting>
+
+    </section>
+
+  </section>
