@@ -15,6 +15,9 @@ RELEASE 0.02 -
 
   - Fix to setup.py so it doesn't require a sys.argv[1] argument.
 
+  - Provide make-like warning message for "command not found" and
+    similar errors.
+
   From Charles Crain:
 
   - Added support for the Install method.

@@ -36,6 +36,7 @@ import os.path
 import SCons.Node.FS
 from SCons.Util import PathList, scons_str2nodes, scons_subst, scons_subst_list, autogenerate
 import string
+import sys
 import types
 from UserList import UserList
 from UserDict import UserDict
@@ -48,6 +49,10 @@ except ImportError:
         pass
 
 
+exitvalmap = {
+    2 : 127,
+    13 : 126,
+}
 
 if os.name == 'posix':
 
@@ -55,7 +60,13 @@ if os.name == 'posix':
         pid = os.fork()
         if not pid:
             # Child process.
-            os.execvpe(cmd, args, env)
+            exitval = 127
+            try:
+                os.execvpe(cmd, args, env)
+            except OSError, e:
+                exitval = exitvalmap[e[0]]
+                sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+            os._exit(exitval)
         else:
             # Parent process.
             pid, stat = os.waitpid(pid, 0)
@@ -97,10 +108,14 @@ elif os.name == 'nt':
 
     def spawn(cmd, args, env):
         try:
-	    ret = os.spawnvpe(os.P_WAIT, cmd, args, env)
-	except AttributeError:
-	    cmd = pathsearch(cmd, env)
-	    ret = os.spawnve(os.P_WAIT, cmd, args, env)
+            try:
+                ret = os.spawnvpe(os.P_WAIT, cmd, args, env)
+            except AttributeError:
+                cmd = pathsearch(cmd, env)
+                ret = os.spawnve(os.P_WAIT, cmd, args, env)
+        except OSError, e:
+            ret = exitvalmap[e[0]]
+            sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
         return ret
 
 

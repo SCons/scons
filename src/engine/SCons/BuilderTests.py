@@ -36,6 +36,7 @@ import unittest
 
 import TestCmd
 import SCons.Builder
+import SCons.Errors
 
 # Initial setup of the common environment for all tests,
 # a temporary working directory containing a
@@ -125,11 +126,18 @@ class BuilderTestCase(unittest.TestCase):
 	containing one of each.
 	"""
 
+        def MyBuilder(**kw):
+            builder = apply(SCons.Builder.Builder, (), kw)
+            def no_show(str):
+                pass
+            builder.action.show = no_show
+            return builder
+
 	python = sys.executable
 
 	cmd1 = r'%s %s %s xyzzy' % (python, act_py, outfile)
 
-	builder = SCons.Builder.Builder(action = cmd1)
+        builder = MyBuilder(action = cmd1)
 	r = builder.execute()
 	assert r == 0
 	c = test.read(outfile, 'r')
@@ -137,7 +145,7 @@ class BuilderTestCase(unittest.TestCase):
 
 	cmd2 = r'%s %s %s $TARGET' % (python, act_py, outfile)
 
-	builder = SCons.Builder.Builder(action = cmd2)
+        builder = MyBuilder(action = cmd2)
 	r = builder.execute(target = 'foo')
 	assert r == 0
 	c = test.read(outfile, 'r')
@@ -145,7 +153,7 @@ class BuilderTestCase(unittest.TestCase):
 
 	cmd3 = r'%s %s %s ${TARGETS}' % (python, act_py, outfile)
 
-	builder = SCons.Builder.Builder(action = cmd3)
+        builder = MyBuilder(action = cmd3)
 	r = builder.execute(target = ['aaa', 'bbb'])
 	assert r == 0
 	c = test.read(outfile, 'r')
@@ -153,7 +161,7 @@ class BuilderTestCase(unittest.TestCase):
 
 	cmd4 = r'%s %s %s $SOURCES' % (python, act_py, outfile)
 
-	builder = SCons.Builder.Builder(action = cmd4)
+        builder = MyBuilder(action = cmd4)
 	r = builder.execute(source = ['one', 'two'])
 	assert r == 0
 	c = test.read(outfile, 'r')
@@ -161,7 +169,7 @@ class BuilderTestCase(unittest.TestCase):
 
 	cmd4 = r'%s %s %s ${SOURCES[:2]}' % (python, act_py, outfile)
 
-	builder = SCons.Builder.Builder(action = cmd4)
+        builder = MyBuilder(action = cmd4)
 	r = builder.execute(source = ['three', 'four', 'five'])
 	assert r == 0
 	c = test.read(outfile, 'r')
@@ -169,7 +177,7 @@ class BuilderTestCase(unittest.TestCase):
 
 	cmd5 = r'%s %s %s $TARGET XYZZY' % (python, act_py, outfile)
 
-	builder = SCons.Builder.Builder(action = cmd5)
+        builder = MyBuilder(action = cmd5)
 	r = builder.execute(target = 'out5', env = {'ENV' : {'XYZZY' : 'xyzzy'}})
 	assert r == 0
 	c = test.read(outfile, 'r')
@@ -183,7 +191,7 @@ class BuilderTestCase(unittest.TestCase):
 
         cmd6 = r'%s %s %s ${TARGETS[1]} $TARGET ${SOURCES[:2]}' % (python, act_py, outfile)
 
-        builder = SCons.Builder.Builder(action = cmd6)
+        builder = MyBuilder(action = cmd6)
         r = builder.execute(target = [Obj('111'), Obj('222')],
                             source = [Obj('333'), Obj('444'), Obj('555')])
         assert r == 0
@@ -195,7 +203,7 @@ class BuilderTestCase(unittest.TestCase):
         expect7 = '%s %s %s one\n%s %s %s two\n' % (python, act_py, outfile,
                                                     python, act_py, outfile)
 
-        builder = SCons.Builder.Builder(action = cmd7)
+        builder = MyBuilder(action = cmd7)
 
         global show_string
         show_string = ""
@@ -212,7 +220,7 @@ class BuilderTestCase(unittest.TestCase):
 	    open(kw['target'], 'w').write("function1\n")
 	    return 1
 
-	builder = SCons.Builder.Builder(action = function1)
+	builder = MyBuilder(action = function1)
 	r = builder.execute(target = outfile)
 	assert r == 1
 	c = test.read(outfile, 'r')
@@ -222,7 +230,7 @@ class BuilderTestCase(unittest.TestCase):
 	    def __init__(self, **kw):
 		open(kw['out'], 'w').write("class1a\n")
 
-	builder = SCons.Builder.Builder(action = class1a)
+	builder = MyBuilder(action = class1a)
 	r = builder.execute(out = outfile)
 	assert r.__class__ == class1a
 	c = test.read(outfile, 'r')
@@ -233,7 +241,7 @@ class BuilderTestCase(unittest.TestCase):
 		open(kw['out'], 'w').write("class1b\n")
 		return 2
 
-	builder = SCons.Builder.Builder(action = class1b())
+	builder = MyBuilder(action = class1b())
 	r = builder.execute(out = outfile)
 	assert r == 2
 	c = test.read(outfile, 'r')
@@ -254,11 +262,34 @@ class BuilderTestCase(unittest.TestCase):
 	    def __init__(self, **kw):
 		open(kw['out'], 'a').write("class2b\n")
 
-	builder = SCons.Builder.Builder(action = [cmd2, function2, class2a(), class2b])
+	builder = MyBuilder(action = [cmd2, function2, class2a(), class2b])
 	r = builder.execute(out = outfile)
 	assert r.__class__ == class2b
 	c = test.read(outfile, 'r')
         assert c == "act.py: 'syzygy'\nfunction2\nclass2a\nclass2b\n", c
+
+        # Test that a nonexistent command returns 127
+        builder = MyBuilder(action = python + "_XyZzY_")
+        r = builder.execute(out = outfile)
+        assert r == 127, "r == %d" % r
+
+        if os.name == 'nt':
+            # NT treats execs of directories and non-executable files
+            # as "file not found" errors
+            expect = 127
+        else:
+            expect = 126
+
+        # Test that trying to execute a directory returns 126
+        dir, tail = os.path.split(python)
+        builder = MyBuilder(action = dir)
+        r = builder.execute(out = outfile)
+        assert r == expect, "r == %d" % r
+
+        # Test that trying to execute a non-executable file returns 126
+        builder = MyBuilder(action = outfile)
+        r = builder.execute(out = outfile)
+        assert r == expect, "r == %d" % r
 
     def test_get_contents(self):
         """Test returning the signature contents of a Builder
