@@ -476,7 +476,7 @@ class BuildDirTestCase(unittest.TestCase):
                 SCons.Node.FS.Link(fs.File(test.workpath('build/foo')),
                                    fs.File(test.workpath('src/foo')),
                                    None)
-                os.chmod(test.workpath('src/foo'), ~stat.S_IRUSR)
+                os.chmod(test.workpath('src/foo'), stat.S_IRUSR | stat.S_IWRITE)
             finally:
                 test.unlink( "src/foo" )
                 test.unlink( "build/foo" )
@@ -1080,7 +1080,7 @@ class FSTestCase(unittest.TestCase):
 
         y = fs.File('dir/y')
         t = y.target_from_source('pre-', '-suf')
-        assert str(t) == 'dir/pre-y-suf', str(t)
+        assert str(t) == os.path.join('dir', 'pre-y-suf'), str(t)
 
         z = fs.File('zz')
         t = z.target_from_source('pre-', '-suf', lambda x: x[:-1])

@@ -330,6 +330,19 @@ nasm = test.where_is('nasm')
 
 if nasm:
 
+    # Allow flexibility about the type of object/executable format
+    # needed on different systems.  Format_map is a dict that maps
+    # sys.platform substrings to the correct argument for the nasm -f
+    # option.  The default is "elf," which seems to be a reasonable
+    # lowest common denominator (works on both Linux and FreeBSD,
+    # anyway...).
+    nasm_format = 'elf'
+    format_map = {}
+    for k, v in format_map.items():
+        if string.find(sys.platform, k) != -1:
+            nasm_format = v
+            break
+
     test.write("wrapper.py",
 """import os
 import string
@@ -340,11 +353,11 @@ os.system(string.join(sys.argv[1:], " "))
 
     test.write('SConstruct', """
 eee = Environment(tools = ['gcc', 'gnulink', 'nasm'],
-                  ASFLAGS = '-f aout')
+                  ASFLAGS = '-f %s')
 fff = eee.Copy(AS = r'%s wrapper.py ' + WhereIs('nasm'))
 eee.Program(target = 'eee', source = ['eee.asm', 'eee_main.c'])
 fff.Program(target = 'fff', source = ['fff.asm', 'fff_main.c'])
-""" % python)
+""" % (nasm_format, python))
 
     test.write('eee.asm', 
 """

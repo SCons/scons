@@ -213,7 +213,21 @@ test.write(['work1', 'src', 'b2.for'], r"""
       PRINT *, 'b2.for'
 """)
 
-test.run(chdir='work1', arguments = '. ../build')
+# Some releases of freeBSD seem to have library complaints about
+# tempnam().  Filter out these annoying messages before checking for
+# error output.
+def blank_output(err):
+    if not err:
+        return 1
+    stderrlines = filter(lambda l: l, string.split(err, '\n'))
+    msg = "warning: tempnam() possibly used unsafely"
+    stderrlines = filter(lambda l, msg=msg: string.find(l, msg) == -1,
+                         stderrlines)
+    return len(stderrlines) == 0
+
+test.run(chdir='work1', arguments = '. ../build', stderr=None)
+
+test.fail_test(not blank_output(test.stderr()))
 
 test.run(program = foo11, stdout = "f1.c\n")
 test.run(program = foo12, stdout = "f2.c\n")
@@ -289,7 +303,9 @@ test.write(['work1', 'src', 'f4h.in'], r"""
 #define F4_STR "f4.c 2\n"
 """)
 
-test.run(chdir='work1', arguments = '../build/var5')
+test.run(chdir='work1', arguments = '../build/var5', stderr=None)
+
+test.fail_test(not blank_output(test.stderr()))
 
 test.run(program = foo51, stdout = "f1.c 2\n")
 test.run(program = test.workpath('build', 'var5', 'foo3' + _exe),
@@ -334,7 +350,9 @@ Import('env')
 env.Program('prog.c')
 """)
 
-test.run(chdir='work2', arguments='.')
+test.run(chdir='work2', arguments='.', stderr=None)
+
+test.fail_test(not blank_output(test.stderr()))
 
 test.up_to_date(chdir='work2', arguments='.')
 
@@ -365,4 +383,3 @@ non_existing.h:
 """)
 
 test.pass_test()
-

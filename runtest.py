@@ -234,6 +234,13 @@ elif all:
     keys = tdict.keys()
     keys.sort()
     tests = map(tdict.get, keys)
+else:
+    sys.stderr.write("""\
+runtest.py:  No tests were specified on the command line.
+             List one or more tests, or use the -a option
+             to find and run all tests.
+""")
+
 
 if package:
 

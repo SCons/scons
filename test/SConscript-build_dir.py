@@ -217,7 +217,7 @@ bar(void) {
 }
 """)
 
-test.write(['test2', 'foo.c'], """\
+test.write(['test2', 'foo.c'], r"""
 int
 main(int argc, char *argv[]) {
         bar();

@@ -52,16 +52,55 @@ test.run(arguments='-f SConstruct1 .',
          stderr = None,
          status = 2)
 
-bad_command = "Bad command or file name\n"
+bad_command = """\
+Bad command or file name
+"""
 
-unrecognized = """'%s' is not recognized as an internal or external command,
+unrecognized = """\
+'%s' is not recognized as an internal or external command,
 operable program or batch file.
 scons: *** [%s] Error 1
 """
 
-unspecified = """The name specified is not recognized as an
+unspecified = """\
+The name specified is not recognized as an
 internal or external command, operable program or batch file.
 scons: *** [%s] Error 1
+"""
+
+not_found_1 = """
+sh: %s: not found
+scons: *** [%s] Error 1
+"""
+
+not_found_2 = """
+sh: %s:  not found
+scons: *** [%s] Error 1
+"""
+
+No_such = """\
+%s: No such file or directory
+scons: *** [%s] Error 127
+"""
+
+cannot_execute = """\
+%s: cannot execute
+scons *** [%s] Error 126
+"""
+
+Permission_denied = """\
+%s: Permission denied
+scons: *** [%s] Error 126
+"""
+
+permission_denied = """\
+%s: permission denied
+scons: *** [%s] Error 126
+"""
+
+is_a_directory = """\
+%s: is a directory
+scons: *** [%s] Error 126
 """
 
 test.description_set("Incorrect STDERR:\n%s\n" % test.stderr())
@@ -72,15 +111,18 @@ if os.name == 'nt':
         unspecified % 'f1'
     ]
     test.fail_test(not test.stderr() in errs)
-elif string.find(sys.platform, 'irix') != -1:
-    test.fail_test(test.stderr() != """sh: %s:  not found
-scons: *** [f1] Error 127
-""" % no_such_file)
 else:
-    test.fail_test(string.find(test.stderr(), """%s: No such file or directory
-scons: *** [f1] Error 127
-""" % no_such_file) == -1)
-
+    errs = [
+        not_found_1 % (no_such_file, 'f1'),
+        not_found_2 % (no_such_file, 'f1'),
+        No_such % (no_such_file, 'f1'),
+    ]
+    error_message_not_found = 1
+    for err in errs:
+        if string.find(test.stderr(), err) != -1:
+            error_message_not_found = None
+            break
+    test.fail_test(error_message_not_found)
 
 test.write('SConstruct2', r"""
 bld = Builder(action = '%s $SOURCES $TARGET')
@@ -101,14 +143,18 @@ if os.name == 'nt':
         unspecified % 'f2'
     ]
     test.fail_test(not test.stderr() in errs)
-elif string.find(sys.platform, 'irix') != -1:
-    test.fail_test(test.stderr() != """sh: %s: cannot execute
-scons: *** [f2] Error 126
-""" % not_executable)
 else:
-    test.fail_test(string.find(test.stderr(), """%s: Permission denied
-scons: *** [f2] Error 126
-""" % not_executable) == -1)
+    errs = [
+        cannot_execute % (not_executable, 'f2'),
+        Permission_denied % (not_executable, 'f2'),
+        permission_denied % (not_executable, 'f2'),
+    ]
+    error_message_not_found = 1
+    for err in errs:
+        if string.find(test.stderr(), err) != -1:
+            error_message_not_found = None
+            break
+    test.fail_test(error_message_not_found)
 
 test.write('SConstruct3', r"""
 bld = Builder(action = '%s $SOURCES $TARGET')
@@ -129,13 +175,16 @@ if os.name == 'nt':
         unspecified % 'f3'
     ]
     test.fail_test(not test.stderr() in errs)
-elif string.find(sys.platform, 'irix') != -1:
-    test.fail_test(test.stderr() != """sh: %s: cannot execute
-scons: *** [f3] Error 126
-""" % test.workdir)
 else:
-    test.fail_test(string.find(test.stderr(), """%s: is a directory
-scons: *** [f3] Error 126
-""" % test.workdir) == -1)
+    errs = [
+        cannot_execute % (not_executable, 'f3'),
+        is_a_directory % (test.workdir, 'f3'),
+    ]
+    error_message_not_found = 1
+    for err in errs:
+        if string.find(test.stderr(), err) != -1:
+            error_message_not_found = None
+            break
+    test.fail_test(error_message_not_found)
 
 test.pass_test()
