@@ -81,16 +81,15 @@
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      cc -c hello.c -o hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      % <userinput>scons -c</userinput>
+      % <userinput>scons -Q -c</userinput>
       Removed hello.o
       Removed hello
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       Retrieved `hello.o' from cache
       Retrieved `hello' from cache
-      %
     </literallayout>
 
   </section>
@@ -124,16 +123,15 @@
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      cc -c hello.c -o hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      % <userinput>scons -c</userinput>
+      % <userinput>scons -Q -c</userinput>
       Removed hello.o
       Removed hello
-      % <userinput>scons --cache-show</userinput>
-      cc -c hello.c -o hello.o
+      % <userinput>scons -Q --cache-show</userinput>
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      %
     </literallayout>
 
     <para>
@@ -178,22 +176,21 @@
     </para>
 
     <literallayout>
-      % <userinput>scons</userinput>
-      cc -c hello.c -o hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      % <userinput>scons -c</userinput>
+      % <userinput>scons -Q -c</userinput>
       Removed hello.o
       Removed hello
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       Retrieved `hello.o' from cache
       Retrieved `hello' from cache
-      % <userinput>scons -c</userinput>
+      % <userinput>scons -Q -c</userinput>
       Removed hello.o
       Removed hello
-      % <userinput>scons --cache-disable</userinput>
-      cc -c hello.c -o hello.o
+      % <userinput>scons -Q --cache-disable</userinput>
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      %
     </literallayout>
 
   </section>
@@ -230,23 +227,23 @@
     </para>
 
     <literallayout>
-      % <userinput>scons --cache-disable</userinput>
-      cc -c hello.c -o hello.o
+      % <userinput>scons -Q --cache-disable</userinput>
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      % <userinput>scons -c</userinput>
+      % <userinput>scons -Q -c</userinput>
       Removed hello.o
       Removed hello
-      % <userinput>scons --cache-disable</userinput>
-      cc -c hello.c -o hello.o
+      % <userinput>scons -Q --cache-disable</userinput>
+      cc -c -o hello.o hello.c
       cc -o hello hello.o
-      % <userinput>scons --cache-force</userinput>
-      % <userinput>scons -c</userinput>
+      % <userinput>scons -Q --cache-force</userinput>
+      scons: `.' is up to date.
+      % <userinput>scons -Q -c</userinput>
       Removed hello.o
       Removed hello
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       Retrieved `hello.o' from cache
       Retrieved `hello' from cache
-      %
     </literallayout>
 
     <para>

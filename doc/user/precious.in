@@ -55,8 +55,7 @@ which the C<AfterBuild> method is called.
 
  <scons_example name="ex1">
    <file name="SConstruct" printme="1">
-    env = Environment(XXX NEED LIBRARY FLAGS
-                      LIBFLAGS = '-r')
+    env = Environment()
     lib = env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
     env.Precious(lib)
    </file>
@@ -73,17 +72,19 @@ which the C<AfterBuild> method is called.
 
  <para>
 
- XXX:
+ Although the output doesn't look any different,
+ &SCons; does not, in fact,
+ delete the target library before rebuilding it:
 
  </para>
 
  <scons_output example="ex1">
-    <command>scons</command>
+    <command>scons -Q</command>
  </scons_output>
 
  <para>
 
- &SCons; will still delete files marked as &Precious;
+ &SCons; will, however, still delete files marked as &Precious;
  when the <literal>-c</literal> option is used.
 
  </para>

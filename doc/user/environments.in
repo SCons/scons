@@ -410,10 +410,8 @@ environment undisturbed.
 
  <para>
 
-   A &consenv; is created by the &Environment;
-   method which you have already seen.
-   What you haven't seen, though,
-   is that when you initialize a &consenv;,
+   A &consenv; is created by the &Environment; method.
+   When you initialize a &consenv;,
    you can set the values of the
    environment's &consvars;
    to control how a program is built.
@@ -422,7 +420,7 @@ environment undisturbed.
  </para>
 
   <scons_example name="ex1">
-    <file name="SConstruct">
+    <file name="SConstruct" printme="1">
     env = Environment(CC = 'gcc',
                       CCFLAGS = '-O2')
 
@@ -446,7 +444,7 @@ environment undisturbed.
  </para>
 
  <scons_output example="ex1">
-    <command>scons</command>
+    <command>scons -Q</command>
  </scons_output>
 
  <section>
@@ -454,36 +452,21 @@ environment undisturbed.
 
    <para>
 
-   So far,
-   all of our examples have
-   created a single &consenv; named
-   <literal>env</literal>.
-   <literal>env</literal>, however,
-   is simply a Python variable name,
-   and you can use any other variable name that you like.
-   For example:
-
-   </para>
-
-   <sconstruct>
-      my_env = Environment(CC = 'gcc',
-                           CCFLAGS = '-O2')
-
-      my_env.Program('foo.c')
-   </sconstruct>
-
-   <para>
-
-   This opens up the possibility of
-   using multiple &consenvs;,
-   each with a separate variable name.
-   We can then use these separate &consenvs;
-   to build different programs in different ways:
+   The real advantage of construction environments
+   become apparent when you realize
+   that you can create as many different construction
+   environments as you need,
+   each tailored to a different way to build
+   some piece of software or other file.
+   If, for example, we need to build
+   one program with the <literal>-O2</literal> flag
+   and another with the <literal>-g</literal> (debug) flag,
+   we would do this like so:
 
    </para>
 
    <scons_example name="ex2">
-     <file name="SConstruct">
+     <file name="SConstruct" printme="1">
       opt = Environment(CCFLAGS = '-O2')
       dbg = Environment(CCFLAGS = '-g')
 
@@ -500,7 +483,7 @@ environment undisturbed.
    </scons_example>
 
    <scons_output example="ex2">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
    <para>
@@ -514,7 +497,7 @@ environment undisturbed.
    </para>
 
    <scons_example name="ex3">
-     <file name="SConstruct">
+     <file name="SConstruct" printme="1">
       opt = Environment(CCFLAGS = '-O2')
       dbg = Environment(CCFLAGS = '-g')
 
@@ -534,7 +517,7 @@ environment undisturbed.
    </para>
 
    <scons_output example="ex3">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
    <para>
@@ -546,6 +529,9 @@ environment undisturbed.
    <literal>-O2</literal>
    and one with a &CCFLAGS; value of
    <literal>-g</literal>.
+   &SCons; can't just decide that one of them
+   should take precedence over the other,
+   so it generates the error.
    To avoid this problem,
    we must explicitly specify
    that each environment compile
@@ -559,7 +545,7 @@ environment undisturbed.
    </programlisting>
 
    <scons_example name="ex4">
-     <file name="SConstruct">
+     <file name="SConstruct" printme="1">
       opt = Environment(CCFLAGS = '-O2')
       dbg = Environment(CCFLAGS = '-g')
 
@@ -579,7 +565,7 @@ environment undisturbed.
    Notice that each call to the &Object; builder
    returns a value,
    an internal &SCons; object that
-   represents the file that will be built.
+   represents the object file that will be built.
    We then use that object
    as input to the &Program; builder.
    This avoids having to specify explicitly
@@ -591,7 +577,7 @@ environment undisturbed.
    </para>
 
    <scons_output example="ex4">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
  </section>
@@ -622,7 +608,7 @@ environment undisturbed.
    that sets &CC; to &gcc;,
    and then creating two copies,
    one which sets &CCFLAGS; for optimization
-   and the other with sets &CCFLAGS; for debugging:
+   and the other which sets &CCFLAGS; for debugging:
 
    </para>
 
@@ -632,7 +618,7 @@ environment undisturbed.
       opt = env.Copy(CCFLAGS = '-O2')
       dbg = env.Copy(CCFLAGS = '-g')
 
-      e = opt.Object('foo', 'foo.c')
+      env.Program('foo', 'foo.c')
 
       o = opt.Object('foo-opt', 'foo.c')
       opt.Program(o)
@@ -652,7 +638,7 @@ environment undisturbed.
    </para>
 
    <scons_output example="ex5">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
  </section>
@@ -684,8 +670,7 @@ environment undisturbed.
    </para>
 
    <scons_output example="ex6">
-      <command>scons</command>
-      CC is: cc
+      <command>scons -Q</command>
    </scons_output>
 
    <para>
@@ -703,22 +688,31 @@ environment undisturbed.
       <file name="SConstruct" printme="1">
       env = Environment(FOO = 'foo', BAR = 'bar')
       dict = env.Dictionary()
-      for key, value in dict.items():
-          print "key = %s, value = %s % (key, value)
+      for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
+          print "key = %s, value = %s" % (key, dict[key])
       </file>
    </scons_Example>
 
    <para>
 
    This &SConstruct; file
-   will print the dictionary items for us as follows:
+   will print the specified dictionary items for us on POSIX
+   systems as follows:
 
    </para>
 
-   <scons_output example="ex6b">
-      % <userinput>scons</userinput>
-      key = FOO, value = foo
-      key = BAR, value = bar
+   <scons_output example="ex6b" os="posix">
+      <command>scons -Q</command>
+   </scons_output>
+
+   <para>
+
+   And on Win32:
+
+   </para>
+
+   <scons_output example="ex6b" os="win32">
+      <command>scons -Q</command>
    </scons_output>
 
  </section>
@@ -765,7 +759,7 @@ environment undisturbed.
      </para>
 
      <scons_output example="ex7">
-        <command>scons</command>
+        <command>scons -Q</command>
      </scons_output>
 
    </section>
@@ -793,7 +787,7 @@ environment undisturbed.
      </scons_example>
 
      <scons_output example="ex8">
-        <command>scons</command>
+        <command>scons -Q</command>
      </scons_output>
 
    </section>
@@ -821,7 +815,7 @@ environment undisturbed.
      </scons_example>
 
      <scons_output example="ex9">
-        <command>scons</command>
+        <command>scons -Q</command>
      </scons_output>
 
    </section>

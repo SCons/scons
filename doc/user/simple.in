@@ -46,8 +46,7 @@
 
  <scons_example name="ex1">
     <file name="SConstruct" printme="1">
-    env = Environment()
-    env.Program('hello.c')
+    Program('hello.c')
     </file>
     <file name="hello.c">
     int main() { printf("Hello, world!\n"); }
@@ -148,9 +147,8 @@
    </para>
 
    <programlisting>
-      env = Environment()    # Create an environment.
       # Arrange to build the "hello" program.
-      env.Program('hello.c')
+      Program('hello.c')    # "hello.c" is the source file.
    </programlisting>
 
    <para>
@@ -160,6 +158,59 @@
    real scripting language
    can greatly simplify the solutions
    to complex requirements of real-world builds.
+
+   </para>
+
+ </section>
+
+ <section>
+ <title>Making the Output Less Verbose</title>
+
+   <para>
+
+   You've already seen how &SCons; prints
+   some messages about what it's doing,
+   surrounding the actual commands used to build the software:
+
+   </para>
+
+   <scons_output example="ex1" os="win32">
+      <command>scons</command>
+   </scons_output>
+
+   <para>
+
+   These messages emphasize the
+   order in which &SCons; does its work:
+   the configuration files
+   (generically referred to as &SConscript; files)
+   are read and executed first,
+   and only then are the target files built.
+   Among other benefits, these messages help to distinguish between
+   errors that occur while the configuration files are read,
+   and errors that occur while targets are being built.
+
+   </para>
+
+   <para>
+
+   The drawback, of course, is that these messages clutter the output.
+   Fortunately, they're easily disabled by using
+   the &Q; option when invoking &SCons;:
+
+   </para>
+
+   <scons_output example="ex1" os="win32">
+      <command>scons -Q</command>
+   </scons_output>
+
+   <para>
+
+   Because we want this User's Guide to focus
+   on what &SCons; is actually doing,
+   we're going use the &Q; option
+   to remove these messages from the
+   output of all the remaining examples in this Guide.
 
    </para>
 
@@ -184,8 +235,7 @@
 
    <scons_example name="ex2">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.Program(['prog.c', 'file1.c', 'file2.c'])
+      Program(['prog.c', 'file1.c', 'file2.c'])
       </file>
       <file name="prog.c">
       int main() { printf("prog.c\n"); }
@@ -205,7 +255,7 @@
    </para>
 
    <scons_output example="ex2">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
    <para>
@@ -231,8 +281,7 @@
 
    <scons_example name="ex3">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.Program('program', ['main.c', 'file1.c', 'file2.c'])
+      Program('program', ['main.c', 'file1.c', 'file2.c'])
       </file>
       <file name="main.c">
       int main() { printf("prog.c\n"); }
@@ -252,7 +301,7 @@
    </para>
 
    <scons_output example="ex3" os="posix">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
    <para>
@@ -262,7 +311,7 @@
    </para>
 
    <scons_output example="ex3" os="win32">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
  </section>
@@ -298,27 +347,42 @@
    </para>
 
    <programlisting>
-      env = Environment()
-      env.Program('program', Split('main.c file1.c file2.'))
+      Program('program', Split('main.c file1.c file2.'))
    </programlisting>
 
    <para>
 
+   (If you're already familiar with Python,
+   you'll have realized that this is similar to the
+   <function>split()</function> method
+   in the Python standard <function>string</function> module.
+   Unlike the <function>string.split()</function> method,
+   however, the &Split; function
+   does not require a string as input
+   and will wrap up a single non-string object in a list,
+   or return its argument untouched if it's already a list.
+   This comes in handy as a way to make sure
+   arbitrary values can be passed to &SCons; functions
+   without having to check the type of the variable by hand.)
+
+   </para>
+
+   <para>
+
    Putting the call to the &Split; function
-   inside the <function>env.Program</function> call
+   inside the <function>Program</function> call
    can also be a little unwieldy.
    A more readable alternative is to
    assign the output from the &Split; call
    to a variable name,
    and then use the variable when calling the
-   <function>env.Program</function> function:
+   <function>Program</function> function:
 
    </para>
 
    <programlisting>
-      env = Environment()
       list = Split('main.c file1.c file2.')
-      env.Program('program', list)
+      Program('program', list)
    </programlisting>
 
    <para>
@@ -333,11 +397,10 @@
    </para>
 
    <programlisting>
-      env = Environment()
       list = Split('main.c
                     file1.c
                     file2.c')
-      env.Program('program', list)
+      Program('program', list)
    </programlisting>
 
  </section>
@@ -359,17 +422,31 @@
    </para>
 
    <programlisting>
-      env = Environment()
       list = Split('main.c file1.c file2.')
-      env.Program(target = 'program', source = list)
+      Program(target = 'program', source = list)
+   </programlisting>
+
+   <para>
+
+   Because the keywords explicitly identify
+   what each argument is,
+   you can actually reverse the order if you prefer:
+
+   </para>
+
+   <programlisting>
+      list = Split('main.c file1.c file2.')
+      Program(source = list, target = 'program')
    </programlisting>
 
    <para>
 
    Whether or not you choose to use keyword arguments
-   to identify the target and source files
-   is purely a personal choice;
-   &SCons; functions the same either way.
+   to identify the target and source files,
+   and the order in which you specify them
+   when using keywords,
+   are purely personal choices;
+   &SCons; functions the same regardless.
 
    </para>
 
@@ -382,7 +459,7 @@
 
    In order to compile multiple programs
    within the same &SConstruct; file,
-   simply call the <function>env.Program</function> method
+   simply call the <function>Program</function> method
    multiple times,
    once for each program you need to build:
 
@@ -390,9 +467,8 @@
 
    <scons_example name="ex4">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.Program('foo.c')
-      env.Program('bar', ['bar1.c', 'bar2.c'])
+      Program('foo.c')
+      Program('bar', ['bar1.c', 'bar2.c'])
       </file>
       <file name="foo.c">
       int main() { printf("foo.c\n"); }
@@ -412,7 +488,7 @@
    </para>
 
    <scons_output example="ex4">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
    <para>
@@ -456,9 +532,8 @@
 
    <scons_example name="ex5">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.Program(Split('foo.c common1.c common2.c'))
-      env.Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
+      Program(Split('foo.c common1.c common2.c'))
+      Program('bar', Split('bar1.c bar2.c common1.c common2.c'))
       </file>
       <file name="foo.c">
       int main() { printf("foo.c\n"); }
@@ -482,12 +557,13 @@
    &SCons; recognizes that the object files for
    the &common1_c; and &common2_c; source files
    each only need to be built once,
-   even though the files are listed multiple times:
+   even though the resulting object files are
+   each linked in to both of the resulting executable programs:
 
    </para>
 
    <scons_output example="ex5">
-      <command>scons</command>
+      <command>scons -Q</command>
    </scons_output>
 
    <para>
@@ -508,9 +584,8 @@
       common = ['common1.c', 'common2.c']
       foo_files = ['foo.c'] + common
       bar_files = ['bar1.c', 'bar2.c'] + common
-      env = Environment()
-      env.Program('foo', foo_files)
-      env.Program('bar', bar_files)
+      Program('foo', foo_files)
+      Program('bar', bar_files)
    </programlisting>
 
    <para>

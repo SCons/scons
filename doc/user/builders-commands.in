@@ -80,7 +80,7 @@
   </scons_example>
 
   <scons_output example="ex1">
-    <command>scons .</command>
+    <command>scons -Q</command>
   </scons_output>
 
   <para>
@@ -112,5 +112,5 @@
   </scons_example>
 
   <scons_output example="ex2">
-    <command>scons .</command>
+    <command>scons -Q</command>
   </scons_output>

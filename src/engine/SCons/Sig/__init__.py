@@ -51,10 +51,6 @@ sig_files = []
 
 SConsign_db = None
 
-# 1 means use build signature for derived source files
-# 0 means use content signature for derived source files
-build_signature = 1
-
 def write():
     global sig_files
     for sig_file in sig_files:
@@ -121,7 +117,7 @@ class _SConsign:
         """
         try:
             return self.entries[filename]
-        except:
+        except (KeyError, AttributeError):
             return SConsignEntry()
 
     def set_entry(self, filename, entry):
@@ -202,6 +198,8 @@ class SConsignDB(_SConsign):
                 if type(self.entries) is not type({}):
                     self.entries = {}
                     raise TypeError
+            except KeyboardInterrupt:
+                raise
             except:
                 SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                                     "Ignoring corrupt sconsign entry : %s"%self.dir.path)
@@ -213,7 +211,11 @@ class SConsignDB(_SConsign):
         if self.dirty:
             global SConsign_db
             SConsign_db[self.dir.path] = cPickle.dumps(self.entries, 1)
-            SConsign_db.sync()
+            try:
+                SConsign_db.sync()
+            except AttributeError:
+                # Not all anydbm modules have sync() methods.
+                pass
 
 class SConsignDir(_SConsign):
     def __init__(self, fp=None, module=None):
@@ -244,11 +246,13 @@ class SConsignDirFile(SConsignDir):
 
         try:
             fp = open(self.sconsign, 'rb')
-        except:
+        except IOError:
             fp = None
 
         try:
             SConsignDir.__init__(self, fp, module)
+        except KeyboardInterrupt:
+            raise
         except:
             SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                                 "Ignoring corrupt .sconsign file: %s"%self.sconsign)
@@ -274,11 +278,11 @@ class SConsignDirFile(SConsignDir):
             try:
                 file = open(temp, 'wb')
                 fname = temp
-            except:
+            except IOError:
                 try:
                     file = open(self.sconsign, 'wb')
                     fname = self.sconsign
-                except:
+                except IOError:
                     return
             cPickle.dump(self.entries, file, 1)
             file.close()
@@ -287,29 +291,31 @@ class SConsignDirFile(SConsignDir):
                     mode = os.stat(self.sconsign)[0]
                     os.chmod(self.sconsign, 0666)
                     os.unlink(self.sconsign)
-                except:
+                except OSError:
                     pass
                 try:
                     os.rename(fname, self.sconsign)
-                except:
+                except OSError:
                     open(self.sconsign, 'wb').write(open(fname, 'rb').read())
                     os.chmod(self.sconsign, mode)
             try:
                 os.unlink(temp)
-            except:
+            except OSError:
                 pass
 
 SConsignForDirectory = SConsignDirFile
 
-def SConsignFile(name):
+def SConsignFile(name, dbm_module=None):
     """
     Arrange for all signatures to be stored in a global .sconsign.dbm
     file.
     """
     global SConsign_db
     if SConsign_db is None:
-        import anydbm
-        SConsign_db = anydbm.open(name, "c")
+        if dbm_module is None:
+            import anydbm
+            dbm_module = anydbm
+        SConsign_db = dbm_module.open(name, "c")
 
     global SConsignForDirectory
     SConsignForDirectory = SConsignDB

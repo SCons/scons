@@ -62,8 +62,8 @@
   </para>
 
   <scons_output example="ex1">
-     <command>scons</command>
-     <command>scons __ROOT__/usr/bin</command>
+     <command>scons -Q</command>
+     <command>scons -Q __ROOT__/usr/bin</command>
   </scons_output>
 
   <para>
@@ -100,9 +100,9 @@
 
   </para>
 
-  <scons_output example="ex1">
-     <command>scons</command>
-     <command>scons install</command>
+  <scons_output example="ex2">
+     <command>scons -Q</command>
+     <command>scons -Q install</command>
   </scons_output>
 
   <section>
@@ -126,6 +126,9 @@
       </file>
       <file name="hello.c">
       int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="goodbye.c">
+      int main() { printf("Goodbye, world!\n"); }
       </file>
     </scons_example>
 
@@ -152,7 +155,7 @@
     </para>
 
     <scons_output example="ex3">
-       <command>scons install</command>
+       <command>scons -Q install</command>
     </scons_output>
 
   </section>
@@ -191,7 +194,7 @@
     </para>
 
     <scons_output example="ex4">
-       <command>scons install</command>
+       <command>scons -Q install</command>
     </scons_output>
 
   </section>
@@ -218,9 +221,13 @@
        env.InstallAs(['__ROOT__/usr/bin/hello-new',
                       '__ROOT__/usr/bin/goodbye-new'],
                      [hello, goodbye])
+       env.Alias('install', '__ROOT__/usr/bin')
       </file>
       <file name="hello.c">
       int main() { printf("Hello, world!\n"); }
+      </file>
+      <file name="goodbye.c">
+      int main() { printf("Goodbye, world!\n"); }
       </file>
     </scons_example>
 
@@ -234,7 +241,7 @@
     </para>
 
     <scons_output example="ex5">
-       <command>scons install</command>
+       <command>scons -Q install</command>
     </scons_output>
 
   </section>

@@ -71,12 +71,12 @@
 
   <programlisting>
      env = Environment()
-     env.Command('foo.out', 'foo.in', "sed 's/x/y/' < $TARGET > $SOURCE")
+     env.Command('foo.out', 'foo.in', "sed 's/x/y/' < $SOURCE > $TARGET")
   </programlisting>
 
   <literallayout>
-    % <userinput>scons .</userinput>
-    sed 's/x/y' < foo.in > foo.out
+    % <userinput>scons -Q</userinput>
+    sed 's/x/y/' < foo.in > foo.out
   </literallayout>
 
   <para>
@@ -96,13 +96,13 @@
 
   <programlisting>
      env = Environment()
-     def build(target, source, env)
-         XXX
+     def build(target, source, env):
+         # Whatever it takes to build
          return None
      env.Command('foo.out', 'foo.in', build)
   </programlisting>
 
   <literallayout>
-    % <userinput>scons .</userinput>
+    % <userinput>scons -Q</userinput>
     build("foo.out", "foo.in")
   </literallayout>

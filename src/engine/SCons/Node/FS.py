@@ -41,6 +41,7 @@ import os.path
 import shutil
 import stat
 import string
+import cStringIO
 
 import SCons.Action
 import SCons.Errors
@@ -720,7 +721,7 @@ class FS:
                 self._cwd = dir
                 if change_os_dir:
                     os.chdir(dir.abspath)
-        except:
+        except OSError:
             self._cwd = curr
             raise
 
@@ -902,6 +903,17 @@ class FS:
             message = "building associated BuildDir targets: %s" % string.join(map(str, targets))
         return targets, message
 
+class DummyExecutor:
+    """Dummy executor class returned by Dir nodes to bamboozle SCons
+    into thinking we are an actual derived node, where our sources are
+    our directory entries."""
+    def get_raw_contents(self):
+        return ''
+    def get_contents(self):
+        return ''
+    def get_timestamp(self):
+        return 0
+
 class Dir(Base):
     """A class for directories in a file system.
     """
@@ -924,12 +936,14 @@ class Dir(Base):
         self.abspath_ = self.abspath + os.sep
         self.repositories = []
         self.srcdir = None
+        self.source_scanner = None
         
         self.entries = {}
         self.entries['.'] = self
         self.entries['..'] = self.dir
         self.cwd = self
         self.builder = 1
+        self.searched = 0
         self._sconsign = None
         self.build_dirs = []
 
@@ -1023,6 +1037,19 @@ class Dir(Base):
                              self.all_children(scan))
 
     def all_children(self, scan=1):
+        # Before we traverse our children, make sure we have created Nodes
+        # for any files that this directory contains.  We need to do this
+        # so any change in a file in this directory will cause it to
+        # be out of date.
+        if not self.searched:
+            try:
+                for filename in os.listdir(self.abspath):
+                    if filename != '.sconsign':
+                        self.Entry(filename)
+            except OSError:
+                # Directory does not exist.  No big deal
+                pass
+            self.searched = 1
         keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
         kids = map(lambda x, s=self: s.entries[x], keys)
         def c(one, two):
@@ -1051,10 +1078,6 @@ class Dir(Base):
         """A directory does not get scanned."""
         return None
 
-    def calc_signature(self, calc):
-        """A directory has no signature."""
-        return None
-
     def set_bsig(self, bsig):
         """A directory has no signature."""
         bsig = None
@@ -1064,9 +1087,12 @@ class Dir(Base):
         csig = None
 
     def get_contents(self):
-        """Return a fixed "contents" value of a directory."""
-        return ''
-
+        """Return aggregate contents of all our children."""
+        contents = cStringIO.StringIO()
+        for kid in self.children(None):
+            contents.write(kid.get_contents())
+        return contents.getvalue()
+    
     def prepare(self):
         pass
 
@@ -1109,6 +1135,24 @@ class Dir(Base):
         if self.srcdir:
             return self.srcdir
         return Base.srcnode(self)
+
+    def get_executor(self, create=1):
+        """Fetch the action executor for this node.  Create one if
+        there isn't already one, and requested to do so."""
+        try:
+            executor = self.executor
+        except AttributeError:
+            executor = DummyExecutor()
+            self.executor = executor
+        return executor
+
+    def get_timestamp(self):
+        """Return the latest timestamp from among our children"""
+        stamp = 0
+        for kid in self.children(None):
+            if kid.get_timestamp() > stamp:
+                stamp = kid.get_timestamp()
+        return stamp
 
 class File(Base):
     """A class for files in a file system.
@@ -1432,7 +1476,7 @@ class File(Base):
     def rfile(self):
         try:
             return self._rfile
-        except:
+        except AttributeError:
             self._rfile = self
             if not self.exists():
                 n = self.fs.Rsearch(self.path, clazz=File,

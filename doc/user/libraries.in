@@ -43,8 +43,7 @@
 
     <scons_example name="ex1" printme="1">
       <file name="SConstruct" printme="1">
-      env = Environment()
-      env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+      Library('foo', ['f1.c', 'f2.c', 'f3.c'])
       </file>
       <file name="hello.c">
       int main() { printf("Hello, world!\n"); }
@@ -69,8 +68,8 @@
 
     </para>
 
-    <scons_output example="ex1">
-      <command>scons</command>
+    <scons_output example="ex1" os="posix">
+      <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -80,8 +79,8 @@
 
     </para>
 
-    <scons_output example="ex1">
-      <command>scons</command>
+    <scons_output example="ex1" os="win32">
+      <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -110,14 +109,14 @@
     and by specifying the directory in which
     the library will be found in the 
     &LIBPATH; construction variable:
+      env = Environment(LIBS = 'foo', LIBPATH = '.')
 
     </para>
 
     <scons_example name="ex2">
-      <file name="SConstruct">
-      env = Environment(LIBS = 'foo', LIBPATH = '.')
-      env.Library('foo', ['f1.c', 'f2.c', 'f3.c'])
-      env.Program('prog.c')
+      <file name="SConstruct" printme="1">
+      Library('foo', ['f1.c', 'f2.c', 'f3.c'])
+      Program('prog.c', LIBS='foo', LIBPATH='.')
       </file>
       <file name="f1.c">
       int main() { printf("Hello, world!\n"); }
@@ -149,8 +148,8 @@
 
     </para>
 
-    <scons_output example="ex2">
-      <command>scons</command>
+    <scons_output example="ex2" os="posix">
+      <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -161,7 +160,7 @@
     </para>
 
     <scons_output example="ex2" os="win32">
-      <command>scons</command>
+      <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -191,9 +190,8 @@
 
     <scons_example name="ex3">
       <file name="SConstruct" printme="1">
-      env = Environment(LIBS = 'm',
+      Program('prog.c', LIBS = 'm',
                         LIBPATH = ['/usr/lib', '/usr/local/lib'])
-      env.Program('prog.c')
       </file>
       <file name="prog.c">
       int main() { printf("prog.c\n"); }
@@ -235,8 +233,8 @@
 
     </para>
 
-    <scons_output example="ex3">
-      <command>scons</command>
+    <scons_output example="ex3" os="posix">
+      <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -247,7 +245,7 @@
     </para>
 
     <scons_output example="ex3" os="win32">
-      <command>scons</command>
+      <command>scons -Q</command>
     </scons_output>
 
     <para>

@@ -410,10 +410,8 @@ environment undisturbed.
 
  <para>
 
-   A &consenv; is created by the &Environment;
-   method which you have already seen.
-   What you haven't seen, though,
-   is that when you initialize a &consenv;,
+   A &consenv; is created by the &Environment; method.
+   When you initialize a &consenv;,
    you can set the values of the
    environment's &consvars;
    to control how a program is built.
@@ -421,12 +419,12 @@ environment undisturbed.
 
  </para>
 
- <programlisting>
+  <programlisting>
     env = Environment(CC = 'gcc',
                       CCFLAGS = '-O2')
 
     env.Program('foo.c')
- </programlisting>
+  </programlisting>
 
  <para>
    
@@ -441,8 +439,8 @@ environment undisturbed.
  </para>
 
  <literallayout>
-    % <userinput>scons</userinput>
-    gcc -c -O2 foo.c -o foo.o
+    % <userinput>scons -Q</userinput>
+    gcc -O2 -c -o foo.o foo.c
     gcc -o foo foo.o
  </literallayout>
 
@@ -451,31 +449,16 @@ environment undisturbed.
 
    <para>
 
-   So far,
-   all of our examples have
-   created a single &consenv; named
-   <literal>env</literal>.
-   <literal>env</literal>, however,
-   is simply a Python variable name,
-   and you can use any other variable name that you like.
-   For example:
-
-   </para>
-
-   <programlisting>
-      my_env = Environment(CC = 'gcc',
-                           CCFLAGS = '-O2')
-
-      my_env.Program('foo.c')
-   </programlisting>
-
-   <para>
-
-   This opens up the possibility of
-   using multiple &consenvs;,
-   each with a separate variable name.
-   We can then use these separate &consenvs;
-   to build different programs in different ways:
+   The real advantage of construction environments
+   become apparent when you realize
+   that you can create as many different construction
+   environments as you need,
+   each tailored to a different way to build
+   some piece of software or other file.
+   If, for example, we need to build
+   one program with the <literal>-O2</literal> flag
+   and another with the <literal>-g</literal> (debug) flag,
+   we would do this like so:
 
    </para>
 
@@ -489,10 +472,10 @@ environment undisturbed.
    </programlisting>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c -O2 bar.c -o bar.o
+      % <userinput>scons -Q</userinput>
+      cc -g -c -o bar.o bar.c
       cc -o bar bar.o
-      cc -c -g foo.c -o foo.o
+      cc -O2 -c -o foo.o foo.c
       cc -o foo foo.o
    </literallayout>
 
@@ -522,8 +505,9 @@ environment undisturbed.
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      scons: *** Two different environments were specified for the same target:  foo.o
+      % <userinput>scons -Q</userinput>
+      
+      scons: *** Two different environments were specified for the same target: foo.o
       File "SConstruct", line 6, in ?
    </literallayout>
 
@@ -536,6 +520,9 @@ environment undisturbed.
    <literal>-O2</literal>
    and one with a &CCFLAGS; value of
    <literal>-g</literal>.
+   &SCons; can't just decide that one of them
+   should take precedence over the other,
+   so it generates the error.
    To avoid this problem,
    we must explicitly specify
    that each environment compile
@@ -544,6 +531,9 @@ environment undisturbed.
    using the &Object; call, like so:
 
    </para>
+
+   <programlisting>
+   </programlisting>
 
    <programlisting>
       opt = Environment(CCFLAGS = '-O2')
@@ -561,7 +551,7 @@ environment undisturbed.
    Notice that each call to the &Object; builder
    returns a value,
    an internal &SCons; object that
-   represents the file that will be built.
+   represents the object file that will be built.
    We then use that object
    as input to the &Program; builder.
    This avoids having to specify explicitly
@@ -573,10 +563,10 @@ environment undisturbed.
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c -g foo.c -o foo-dbg.o
+      % <userinput>scons -Q</userinput>
+      cc -g -c -o foo-dbg.o foo.c
       cc -o foo-dbg foo-dbg.o
-      cc -c -O2 foo.c -o foo-opt.o
+      cc -O2 -c -o foo-opt.o foo.c
       cc -o foo-opt foo-opt.o
    </literallayout>
 
@@ -608,7 +598,7 @@ environment undisturbed.
    that sets &CC; to &gcc;,
    and then creating two copies,
    one which sets &CCFLAGS; for optimization
-   and the other with sets &CCFLAGS; for debugging:
+   and the other which sets &CCFLAGS; for debugging:
 
    </para>
 
@@ -617,7 +607,7 @@ environment undisturbed.
       opt = env.Copy(CCFLAGS = '-O2')
       dbg = env.Copy(CCFLAGS = '-g')
 
-      e = opt.Object('foo', 'foo.c')
+      env.Program('foo', 'foo.c')
 
       o = opt.Object('foo-opt', 'foo.c')
       opt.Program(o)
@@ -633,12 +623,12 @@ environment undisturbed.
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      gcc -c foo.c -o foo.o
+      % <userinput>scons -Q</userinput>
+      gcc -c -o foo.o foo.c
       gcc -o foo foo.o
-      gcc -c -g foo.c -o foo-dbg.o
+      gcc -g -c -o foo-dbg.o foo.c
       gcc -o foo-dbg foo-dbg.o
-      gcc -c -O2 foo.c -o foo-opt.o
+      gcc -O2 -c -o foo-opt.o foo.c
       gcc -o foo-opt foo-opt.o
    </literallayout>
 
@@ -669,8 +659,9 @@ environment undisturbed.
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       CC is: cc
+      scons: `.' is up to date.
    </literallayout>
 
    <para>
@@ -687,21 +678,38 @@ environment undisturbed.
    <programlisting>
       env = Environment(FOO = 'foo', BAR = 'bar')
       dict = env.Dictionary()
-      for key, value in dict.items():
-          print "key = %s, value = %s % (key, value)
+      for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
+          print "key = %s, value = %s" % (key, dict[key])
    </programlisting>
 
    <para>
 
    This &SConstruct; file
-   will print the dictionary items for us as follows:
+   will print the specified dictionary items for us on POSIX
+   systems as follows:
 
    </para>
 
    <literallayout>
-      % <userinput>scons</userinput>
-      key = FOO, value = foo
-      key = BAR, value = bar
+      % <userinput>scons -Q</userinput>
+      key = OBJSUFFIX, value = .o
+      key = LIBSUFFIX, value = .a
+      key = PROGSUFFIX, value = 
+      scons: `.' is up to date.
+   </literallayout>
+
+   <para>
+
+   And on Win32:
+
+   </para>
+
+   <literallayout>
+      C:\><userinput>scons -Q</userinput>
+      key = OBJSUFFIX, value = .obj
+      key = LIBSUFFIX, value = .lib
+      key = PROGSUFFIX, value = .exe
+      scons: `.' is up to date.
    </literallayout>
 
  </section>
@@ -727,7 +735,7 @@ environment undisturbed.
      </para>
 
      <programlisting>
-        env = Environment(CCFLAGS = '-DDEFINE1)
+        env = Environment(CCFLAGS = '-DDEFINE1')
         env.Program('foo.c')
         env.Replace(CCFLAGS = '-DDEFINE2')
         env.Program('bar.c')
@@ -740,11 +748,11 @@ environment undisturbed.
      </para>
 
      <literallayout>
-        % <userinput>scons</userinput>
-        gcc -DDEFINE2 -c bar.c -o bar.o
-        gcc -o bar bar.o
-        gcc -DDEFINE2 -c foo.c -o foo.o
-        gcc -o foo foo.o
+        % <userinput>scons -Q</userinput>
+        cc -DDEFINE2 -c -o bar.o bar.c
+        cc -o bar bar.o
+        cc -DDEFINE1 -c -o foo.o foo.c
+        cc -o foo foo.o
      </literallayout>
 
    </section>
@@ -767,9 +775,9 @@ environment undisturbed.
      </programlisting>
 
      <literallayout>
-        % <userinput>scons</userinput>
-        gcc -DMY_VALUE -DLAST -c foo.c -o foo.o
-        gcc -o foo foo.o
+        % <userinput>scons -Q</userinput>
+        cc -DMY_VALUE -DLAST -c -o foo.o foo.c
+        cc -o foo foo.o
      </literallayout>
 
    </section>
@@ -792,9 +800,9 @@ environment undisturbed.
      </programlisting>
 
      <literallayout>
-        % <userinput>scons</userinput>
-        gcc -DFIRST -DMY_VALUE -c foo.c -o foo.o
-        gcc -o foo foo.o
+        % <userinput>scons -Q</userinput>
+        cc -DFIRST -DMY_VALUE -c -o foo.o foo.c
+        cc -o foo foo.o
      </literallayout>
 
    </section>
