@@ -3924,6 +3924,55 @@ ${TARGET.suffix}     => .x
 ${TARGET.abspath}    => /top/dir/sub/dir/file.x
 .EE
 
+Lastly, a variable name
+may be a callable Python function
+associated with a
+construction variable in the environment.
+The function should
+take three arguments:
+.I target
+- a list of target nodes,
+.I source 
+- a list of source nodes, 
+.I env
+- the construction environment.
+SCons will insert whatever
+the called function returns
+into the expanded string:
+
+.ES
+def foo(target, source, env):
+    return "bar"
+
+# Will expand to $BAR to "bar baz"
+env=Environment(FOO=foo, BAR="$FOO baz")
+.EE
+
+You can use this feature to pass arguments to a
+Python function by creating a callable class
+that stores one or more arguments in an object,
+and then uses them when the
+.B __call__()
+method is called.
+Note that in this case,
+the entire variable expansion must
+be enclosed by curly braces
+so that the arguments will
+be associated with the
+instantiation of the class:
+
+.ES
+class foo:
+    def __init__(self, arg):
+        self.arg = arg
+
+    def __call__(self, target, source, env):
+        return arg + " bar"
+
+# Will expand $BAR to "my argument bar baz"
+env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
+.EE
+
 .LP
 The special pseudo-variables
 .R $(

@@ -199,7 +199,7 @@ class BuilderTestCase(unittest.TestCase):
         Verify that we can retrieve the supplied action attribute.
         """
         builder = SCons.Builder.Builder(action="foo")
-        assert builder.action.cmd_list == ["foo"]
+        assert builder.action.cmd_list == "foo"
 
         def func():
             pass

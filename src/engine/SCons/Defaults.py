@@ -193,23 +193,23 @@ def copyFunc(dest, source, env):
     os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
-def _concat(prefix, list, suffix, locals, globals, f=lambda x: x):
+def _concat(prefix, list, suffix, env, f=lambda x: x):
     """Creates a new list from 'list' by first interpolating each
     element in the list using 'locals' and 'globals' and then calling f
     on the list, and finally concatenating 'prefix' and 'suffix' onto
     each element of the list. A trailing space on 'prefix' or leading
     space on 'suffix' will cause them to be put into seperate list
     elements rather than being concatenated."""
-
+    
     if not list:
         return list
 
     if not SCons.Util.is_List(list):
         list = [list]
 
-    def subst(x, locals=locals, globals=globals):
+    def subst(x, env = env):
         if SCons.Util.is_String(x):
-            return SCons.Util.scons_subst(x, locals, globals)
+            return SCons.Util.scons_subst(x, env)
         else:
             return x
 
@@ -239,11 +239,12 @@ def _concat(prefix, list, suffix, locals, globals, f=lambda x: x):
 
     return ret
 
-def _stripixes(prefix, list, suffix, locals, globals, stripprefix, stripsuffix, c=_concat):
+def _stripixes(prefix, list, suffix, stripprefix, stripsuffix, env, c=_concat):
     """This is a wrapper around _concat() that checks for the existence
     of prefixes or suffixes on list elements and strips them where it
     finds them.  This is used by tools (like the GNU linker) that need
     to turn something like 'libfoo.a' into '-lfoo'."""
+    
     def f(list, sp=stripprefix, ss=stripsuffix):
         ret = []
         for l in list:
@@ -253,7 +254,25 @@ def _stripixes(prefix, list, suffix, locals, globals, stripprefix, stripsuffix, 
                 l = l[:-len(ss)]
             ret.append(l)
         return ret
-    return c(prefix, list, suffix, locals, globals, f)
+    return c(prefix, list, suffix, env, f)
+
+class NullCmdGenerator:
+    """This is a callable class that can be used in place of other
+    command generators if you don't want them to do anything.
+
+    The __call__ method for this class simply returns the thing
+    you instantiated it with.
+
+    Example usage:
+    env["DO_NOTHING"] = NullCmdGenerator
+    env["LINKCOM"] = "${DO_NOTHING('$LINK $SOURCES $TARGET')}"
+    """
+
+    def __init__(self, cmd):
+        self.cmd = cmd
+
+    def __call__(self, target, source, env):
+        return self.cmd
 
 ConstructionEnvironment = {
     'BUILDERS'   : { 'SharedLibrary'  : SharedLibrary,
@@ -270,8 +289,9 @@ ConstructionEnvironment = {
     'INSTALL'    : copyFunc,
     '_concat'     : _concat,
     '_stripixes'  : _stripixes,
-    '_LIBFLAGS'    : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, locals(), globals())}',
-    '_LIBDIRFLAGS' : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, locals(), globals(), RDirs)} $)',
-    '_CPPINCFLAGS' : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, locals(), globals(), RDirs)} $)',
-    '_F77INCFLAGS' : '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, locals(), globals(), RDirs)} $)'
+    '_LIBFLAGS'    : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
+    '_LIBDIRFLAGS' : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs)} $)',
+    '_CPPINCFLAGS' : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
+    '_F77INCFLAGS' : '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs)} $)',
+    'TEMPFILE'     : NullCmdGenerator
     }

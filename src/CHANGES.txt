@@ -21,6 +21,9 @@ RELEASE 0.12 - XXX
     that allows explicit specification of where the source files
     for an SConscript file can be found.
 
+  - Support more easily re-usable flavors of command generators by
+    calling callable variables when strings are expanded.
+
   From Steven Knight:
 
   - Added an INSTALL construction variable that can be set to a function

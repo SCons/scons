@@ -35,15 +35,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
 
-from SCons.Platform.win32 import TempFileMunge
-
-def win32ArGenerator(env, target, source, for_signature, **kw):
-    args = [ '$AR', '$ARFLAGS', '/OUT:%s' % target[0]]
-    args.extend(map(SCons.Util.to_String, source))
-    return TempFileMunge(env, args, for_signature)
-
-ArAction = SCons.Action.CommandGenerator(win32ArGenerator)
-
 def generate(env, platform):
     """Add Builders and construction variables for lib to an Environment."""
     env['BUILDERS']['Library'] = SCons.Defaults.StaticLibrary
@@ -51,7 +42,7 @@ def generate(env, platform):
     
     env['AR']          = 'lib'
     env['ARFLAGS']     = '/nologo'
-    env['ARCOM']       = ArAction
+    env['ARCOM']       = "${TEMPFILE('$AR $ARFLAGS /OUT:$TARGET $SOURCES')}"
 
 def exists(env):
     return env.Detect('lib')

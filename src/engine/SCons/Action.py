@@ -126,8 +126,7 @@ def _do_create_action(act, strfunction=_null, varlist=[]):
             # like a function or a CommandGenerator in that variable
             # instead of a string.
             return CommandGeneratorAction(LazyCmdGenerator(var))
-        listCmds = map(lambda x: CommandAction(string.split(x)),
-                       string.split(act, '\n'))
+        listCmds = map(lambda x: CommandAction(x), string.split(act, '\n'))
         if len(listCmds) == 1:
             return listCmds[0]
         else:
@@ -161,49 +160,6 @@ class ActionBase:
     def get_actions(self):
         return [self]
 
-    def subst_dict(self, target, source, env):
-        """Create a dictionary for substitution of construction
-        variables.
-
-        This translates the following special arguments:
-
-            env    - the construction environment itself,
-                     the values of which (CC, CCFLAGS, etc.)
-                     are copied straight into the dictionary
-
-            target - the target (object or array of objects),
-                     used to generate the TARGET and TARGETS
-                     construction variables
-
-            source - the source (object or array of objects),
-                     used to generate the SOURCES and SOURCE
-                     construction variables
-        """
-
-        dict = {}
-
-        for k,v in env.items(): dict[k] = v
-
-        if not SCons.Util.is_List(target):
-            target = [target]
-
-        dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(str, target)))
-        if dict['TARGETS']:
-            dict['TARGET'] = dict['TARGETS'][0]
-
-        def rstr(x):
-            try:
-                return x.rstr()
-            except AttributeError:
-                return str(x)
-        if not SCons.Util.is_List(source):
-            source = [source]
-        dict['SOURCES'] = SCons.Util.PathList(map(os.path.normpath, map(rstr, source)))
-        if dict['SOURCES']:
-            dict['SOURCE'] = dict['SOURCES'][0]
-
-        return dict
-
     def __add__(self, other):
         return _actionAppend(self, other)
 
@@ -226,11 +182,14 @@ _remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
     def __init__(self, cmd):
+        # Cmd list can actually be a list or a single item...basically
+        # anything that we could pass in as the first arg to
+        # scons_subst_list().
         self.cmd_list = cmd
 
     def strfunction(self, target, source, env):
-        dict = self.subst_dict(target, source, env)
-        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, dict, {}, _rm)
+        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env, _rm,
+                                               target, source)
         return map(_string_from_cmd_list, cmd_list)
 
     def __call__(self, target, source, env):
@@ -256,15 +215,15 @@ class CommandAction(ActionBase):
         else:
             raise SCons.Errors.UserError('Missing SPAWN construction variable.')
 
-        dict = self.subst_dict(target, source, env)
-        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, dict, {}, _rm)
+        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env, _rm,
+                                               target, source)
         for cmd_line in cmd_list:
             if len(cmd_line):
                 if print_actions:
                     self.show(_string_from_cmd_list(cmd_line))
                 if execute_actions:
                     try:
-                        ENV = dict['ENV']
+                        ENV = env['ENV']
                     except KeyError:
                         global default_ENV
                         if not default_ENV:
@@ -280,16 +239,6 @@ class CommandAction(ActionBase):
                         return ret
         return 0
 
-    def _sig_dict(self, target, source, env):
-        """Supply a dictionary for use in computing signatures.
-
-        For signature purposes, it doesn't matter what targets or
-        sources we use, so long as we use the same ones every time
-        so the signature stays the same.  We supply an array of two
-        of each to allow for distinction between TARGET and TARGETS.
-        """
-        return self.subst_dict(['__t1__', '__t2__'], ['__s1__', '__s2__'], env)
-
     def get_raw_contents(self, target, source, env):
         """Return the complete contents of this action's command line.
         """
@@ -303,9 +252,11 @@ class CommandAction(ActionBase):
         #return SCons.Util.scons_subst(string.join(self.cmd_list),
         #                              self.subst_dict(target, source, env),
         #                              {})
-        return SCons.Util.scons_subst(string.join(self.cmd_list),
-                                      env.sig_dict(),
-                                      {})
+        cmd = self.cmd_list
+        if not SCons.Util.is_List(cmd):
+            cmd = [ cmd ]
+        return SCons.Util.scons_subst(string.join(map(str, cmd)),
+                                      env)
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
@@ -324,9 +275,11 @@ class CommandAction(ActionBase):
         #                              self.subst_dict(target, source, env),
         #                              {},
         #                              _remove)
-        return SCons.Util.scons_subst(string.join(map(str, self.cmd_list)),
-                                      env.sig_dict(),
-                                      {},
+        cmd = self.cmd_list
+        if not SCons.Util.is_List(cmd):
+            cmd = [ cmd ]
+        return SCons.Util.scons_subst(string.join(map(str, cmd)),
+                                      env,
                                       _remove)
 
 class CommandGeneratorAction(ActionBase):

@@ -477,7 +477,7 @@ class EnvironmentTestCase(unittest.TestCase):
                         action='buildfoo $target $source')
         assert not t.builder is None
         assert t.builder.action.__class__.__name__ == 'CommandAction'
-        assert t.builder.action.cmd_list == ['buildfoo', '$target', '$source']
+        assert t.builder.action.cmd_list == 'buildfoo $target $source'
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
         assert 'foo2.in' in map(lambda x: x.path, t.sources)
 
@@ -539,6 +539,21 @@ class EnvironmentTestCase(unittest.TestCase):
         env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
         lst = env.subst_list([ "$AAA", "B $CCC" ])
         assert lst == [ [ "a", "b" ], [ "c", "B a", "b" ], [ "c" ] ], lst
+
+        # Test callables in the Environment
+        def foo(target, source, env):
+            assert target == 1, target
+            assert source == 2, source
+            return env["FOO"]
+
+        env = Environment(BAR=foo, FOO='baz')
+
+        subst = env.subst('test $BAR', target=1, source=2)
+        assert subst == 'test baz', subst
+
+        lst = env.subst_list('test $BAR', target=1, source=2)
+        assert lst[0][0] == 'test', lst[0][0]
+        assert lst[0][1] == 'baz', lst[0][1]
 
     def test_autogenerate(dict):
         """Test autogenerating variables in a dictionary."""
@@ -816,6 +831,9 @@ class EnvironmentTestCase(unittest.TestCase):
         assert s == '', s
         s = map(str, d['TARGETS'][3:5])
         assert s == ['__t4__', '__t5__'], s
+        s = map(lambda x: os.path.normcase(str(x)), d['TARGETS'].abspath)
+        assert s == map(os.path.normcase, [ os.path.join(os.getcwd(), '__t1__'),
+                                            os.path.join(os.getcwd(), '__t2__') ])
 
         s = str(d['SOURCE'])
         assert s == '__s1__', s
@@ -833,6 +851,9 @@ class EnvironmentTestCase(unittest.TestCase):
         assert s == '', s
         s = map(str, d['SOURCES'][3:5])
         assert s == ['__s4__', '__s5__'], s
+        s = map(lambda x: os.path.normcase(str(x)), d['SOURCES'].abspath)
+        assert s == map(os.path.normcase, [ os.path.join(os.getcwd(), '__s1__'),
+                                            os.path.join(os.getcwd(), '__s2__') ])
 
         
 if __name__ == "__main__":

@@ -43,7 +43,6 @@ import SCons.Defaults
 import SCons.Errors
 import SCons.Util
 
-from SCons.Platform.win32 import TempFileMunge
 from SCons.Tool.msvc import get_msdev_paths
 from SCons.Tool.PharLapCommon import addPharLapPaths
 
@@ -66,8 +65,8 @@ class LinklocGenerator:
     def __init__(self, cmdline):
         self.cmdline = cmdline
 
-    def __call__(self, env, target, source, for_signature):
-        if for_signature:
+    def __call__(self, env, target, source):
+        if target is None:
             # Expand the contents of any linker command files recursively
             subs = 1
             strsub = env.subst(self.cmdline)
@@ -75,23 +74,21 @@ class LinklocGenerator:
                 strsub, subs = _re_linker_command.subn(repl_linker_command, strsub)
             return strsub
         else:
-            return TempFileMunge(env, string.split(self.cmdline), 0)
-
-_linklocLinkAction = SCons.Action.Action(SCons.Action.CommandGenerator(LinklocGenerator("$LINK $LINKFLAGS $( $_LIBDIRFLAGS $) $_LIBFLAGS -exe $TARGET $SOURCES")))
-_linklocShLinkAction = SCons.Action.Action(SCons.Action.CommandGenerator(LinklocGenerator("$SHLINK $SHLINKFLAGS $( $_LIBDIRFLAGS $) $_LIBFLAGS -dll $TARGET $SOURCES")))
+            return "${TEMPFILE('" + self.cmdline + "')}"
 
 def generate(env, platform):
     """Add Builders and construction variables for ar to an Environment."""
     env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
     env['BUILDERS']['Program'] = SCons.Defaults.Program
 
+    env['SUBST_CMD_FILE'] = LinklocGenerator
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = '$LINKFLAGS'
-    env['SHLINKCOM']   = _linklocShLinkAction
+    env['SHLINKCOM']   = '${SUBST_CMD_FILE("$SHLINK $SHLINKFLAGS $( $_LIBDIRFLAGS $) $_LIBFLAGS -dll $TARGET $SOURCES")}'
     env['SHLIBEMITTER']= None
     env['LINK']        = "linkloc"
     env['LINKFLAGS']   = ''
-    env['LINKCOM']     = _linklocLinkAction
+    env['LINKCOM']     = '${SUBST_CMD_FILE("$LINK $LINKFLAGS $( $_LIBDIRFLAGS $) $_LIBFLAGS -exe $TARGET $SOURCES")}'
     env['LIBDIRPREFIX']='-libpath '
     env['LIBDIRSUFFIX']=''
     env['LIBLINKPREFIX']='-lib '

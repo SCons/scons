@@ -303,7 +303,7 @@ import re
 for k in fromdict.keys():
     if k != "ENV" and k != "SCANNERS" and k != "CFLAGS" and k != "CXXFLAGS" \
     and not SCons.Util.is_Dict(fromdict[k]):
-        todict[k] = SCons.Util.scons_subst(str(fromdict[k]), fromdict, {})
+        todict[k] = env.subst(str(fromdict[k]))
 todict["CFLAGS"] = fromdict["CPPFLAGS"] + " " + \
     string.join(map(lambda x: "-I" + x, env["CPPPATH"])) + " " + \
     string.join(map(lambda x: "-L" + x, env["LIBPATH"])) 

@@ -42,44 +42,42 @@ import SCons.Errors
 import SCons.Util
 import msvc
 
-from SCons.Platform.win32 import TempFileMunge
 from SCons.Tool.msvc import get_msdev_paths
-    
-def win32LinkGenerator(env, target, source, for_signature):
-    args = [ '$LINK', '$LINKFLAGS', '/OUT:%s' % target[0],
-             '$(', '$_LIBDIRFLAGS', '$)', '$_LIBFLAGS' ]
-    
-    if env.has_key('PDB') and env['PDB']:
-        args.extend(['/PDB:%s'%target[0].File(env['PDB']), '/DEBUG'])
 
-    args.extend(map(SCons.Util.to_String, source))
-    return TempFileMunge(env, args, for_signature)
+def pdbGenerator(env, target, source):
+    if target and env.has_key('PDB') and env['PDB']:
+        return ['/PDB:%s'%target[0].File(env['PDB']), '/DEBUG']
 
-def win32LibGenerator(target, source, env, for_signature):
-    listCmd = [ "$SHLINK", "$SHLINKFLAGS" ]
+def win32ShlinkTargets(target, source, env):
+    if target:
+        listCmd = []
+        dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
+        if dll: listCmd.append("/out:%s"%dll)
 
-    if env.has_key('PDB') and env['PDB']:
-        listCmd.extend(['/PDB:%s'%target[0].File(env['PDB']), '/DEBUG'])
+        implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
+        if implib: listCmd.append("/implib:%s"%implib)
 
-    dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
-    if dll: listCmd.append("/out:%s"%dll)
+        return listCmd
+    else:
+        # For signature calculation
+        return '/out:$TARGET'
 
-    implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
-    if implib: listCmd.append("/implib:%s"%implib)
-    
-    listCmd.extend([ '$_LIBDIRFLAGS', '$_LIBFLAGS' ])
+def win32ShlinkSources(target, source, env):
+    if target:
+        listCmd = []
 
-    deffile = env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX")
-    
-    for src in source:
-        if src == deffile:
-            # Treat this source as a .def file.
-            listCmd.append("/def:%s" % src)
-        else:
-            # Just treat it as a generic source file.
-            listCmd.append(str(src))
-
-    return TempFileMunge(env, listCmd, for_signature)
+        deffile = env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX")
+        for src in source:
+            if src == deffile:
+                # Treat this source as a .def file.
+                listCmd.append("/def:%s" % src)
+            else:
+                # Just treat it as a generic source file.
+                listCmd.append(str(src))
+        return listCmd
+    else:
+        # For signature calculation
+        return "$SOURCES"
 
 def win32LibEmitter(target, source, env):
     msvc.validate_vars(env)
@@ -120,9 +118,6 @@ def prog_emitter(target, source, env):
         
     return (target,source)
 
-ShLibAction = SCons.Action.CommandGenerator(win32LibGenerator)
-LinkAction = SCons.Action.CommandGenerator(win32LinkGenerator)
-
 def generate(env, platform):
     """Add Builders and construction variables for ar to an Environment."""
     env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
@@ -130,14 +125,14 @@ def generate(env, platform):
     
     env['SHLINK']      = '$LINK'
     env['SHLINKFLAGS'] = '$LINKFLAGS /dll'
-    env['SHLINKCOM']   = ShLibAction
+    env['_SHLINK_TARGETS'] = win32ShlinkTargets
+    env['_SHLINK_SOURCES'] = win32ShlinkSources
+    env['SHLINKCOM']   = '${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $_SHLINK_SOURCES")}'
     env['SHLIBEMITTER']= win32LibEmitter
     env['LINK']        = 'link'
     env['LINKFLAGS']   = '/nologo'
-    if str(platform) == 'cygwin':
-        env['LINKCOM'] = '$LINK $LINKFLAGS /OUT:$TARGET $( $_LIBDIRFLAGS $) $_LIBFLAGS $SOURCES'
-    else:
-        env['LINKCOM'] = LinkAction
+    env['_PDB'] = pdbGenerator
+    env['LINKCOM'] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET $( $_LIBDIRFLAGS $) $_LIBFLAGS $_PDB $SOURCES")}'
     env['PROGEMITTER'] = prog_emitter
     env['LIBDIRPREFIX']='/LIBPATH:'
     env['LIBDIRSUFFIX']=''

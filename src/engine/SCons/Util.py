@@ -194,50 +194,7 @@ class PathList(UserList.UserList):
         # suffix and basepath.
         return self.__class__([ UserList.UserList.__getitem__(self, item), ])
 
-class Lister(PathList):
-    """A special breed of fake list that not only supports the inherited
-    "path dissection" attributes of PathList, but also uses a supplied
-    format string to generate arbitrary (slices of) individually-named
-    elements on the fly.
-    """
-    def __init__(self, fmt):
-        self.fmt = fmt
-        PathList.__init__(self, [ self._element(0), self._element(1) ])
-    def __getitem__(self, index):
-        return PathList([self._element(index)])
-    def _element(self, index):
-        """Generate the index'th element in this list."""
-        # For some reason, I originally made the fake names of
-        # the targets and sources 1-based (['__t1__, '__t2__']),
-        # not 0-based.  We preserve this behavior by adding one
-        # to the returned item names, so everyone's targets
-        # won't get recompiled if they were using an old version.
-        return self.fmt % (index + 1)
-    def __iter__(self):
-        """Return an iterator object for Python 2.2."""
-        class Lister_iter:
-            def __init__(self, data):
-                self.data = data
-                self.index = 0
-            def __iter__(self):
-                return self
-            def next(self):
-                try:
-                    element = self.data[self.index]
-                except IndexError:
-                    raise StopIteration
-                self.index = self.index + 1
-                return element
-        return Lister_iter(self.data)
-    def __getslice__(self, i, j):
-        slice = []
-        if j == sys.maxint:
-            j = i + 2
-        for x in range(i, j):
-            slice.append(self._element(x))
-        return PathList(slice)
-
-_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[^}]*})$')
+_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 
 def get_environment_var(varstr):
     """Given a string, first determine if it looks like a reference
@@ -272,7 +229,7 @@ def quote_spaces(arg):
 #               a command line.
 #
 # \0\2          signifies a division between multiple distinct
-#               commands
+#               commands, i.e., a newline
 #
 # \0\3          This string should be interpreted literally.
 #               This code occurring anywhere in the string means
@@ -282,7 +239,7 @@ def quote_spaces(arg):
 # \0\4          A literal dollar sign '$'
 #
 # \0\5          Placed before and after interpolated variables
-#               so that we do not accidentally smush to variables
+#               so that we do not accidentally smush two variables
 #               together during the recursive interpolation process.
 
 _cv = re.compile(r'\$([_a-zA-Z]\w*|{[^}]*})')
@@ -397,7 +354,49 @@ class DisplayEngine:
             self.__call__ = self.dont_print
 
 
-def scons_subst_list(strSubst, globals, locals, remove=None):
+def subst_dict(target, source, env):
+    """Create a dictionary for substitution of construction
+    variables.
+
+    This translates the following special arguments:
+
+    env    - the construction environment itself,
+             the values of which (CC, CCFLAGS, etc.)
+             are copied straight into the dictionary
+
+    target - the target (object or array of objects),
+             used to generate the TARGET and TARGETS
+             construction variables
+
+    source - the source (object or array of objects),
+             used to generate the SOURCES and SOURCE
+             construction variables
+    """
+
+    dict = env.Dictionary().copy()
+
+    if not is_List(target):
+        target = [target]
+
+    dict['TARGETS'] = PathList(map(os.path.normpath, map(str, target)))
+    if dict['TARGETS']:
+        dict['TARGET'] = dict['TARGETS'][0]
+
+    def rstr(x):
+        try:
+            return x.rstr()
+        except AttributeError:
+            return str(x)
+    if not is_List(source):
+        source = [source]
+    dict['SOURCES'] = PathList(map(os.path.normpath, map(rstr, source)))
+    if dict['SOURCES']:
+        dict['SOURCE'] = dict['SOURCES'][0]
+
+    return dict
+
+def scons_subst_list(strSubst, env, remove=None, target=None,
+                     source=None):
     """
     This function serves the same purpose as scons_subst(), except
     this function returns the interpolated list as a list of lines, where
@@ -409,7 +408,7 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
     function.
 
     There are a few simple rules this function follows in order to
-    determine how to parse strSubst and consruction variables into lines
+    determine how to parse strSubst and construction variables into lines
     and arguments:
 
     1) A string is interpreted as a space delimited list of arguments.
@@ -422,33 +421,34 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
        (e.g. file names) to contain embedded newline characters.
     """
 
-    def convert(x):
-        """This function is used to convert construction variable
-        values or the value of strSubst to a string for interpolation.
-        This function follows the rules outlined in the documentaion
-        for scons_subst_list()"""
-        if x is None:
-            return ''
-        elif is_String(x):
-            return _space_sep.sub('\0', x)
-        elif is_List(x):
-            try:
-                return x.to_String()
-            except AttributeError:
-                return string.join(map(to_String, x), '\0')
-        else:
-            return to_String(x)
+    if target != None:
+        dict = subst_dict(target, source, env)
+    else:
+        dict = env.sig_dict()
 
-    def repl(m, globals=globals, locals=locals):
+    def repl(m,
+             target=target,
+             source=source,
+             env=env,
+             local_vars = dict,
+             global_vars = { "__env__" : env }):
         key = m.group(1)
         if key[0] == '{':
             key = key[1:-1]
         try:
-            e = eval(key, globals, locals)
-            # The \0\5 escape code keeps us from smushing two or more
-            # variables together during recusrive substitution, i.e.
-            # foo=$bar bar=baz barbaz=blat => $foo$bar->blat (bad)
-            return "\0\5" + _convert(e) + "\0\5"
+            e = eval(key, global_vars, local_vars)
+            if callable(e):
+                # We wait to evaluate callables until the end of everything
+                # else.  For now, we instert a special escape sequence
+                # that we will look for later.
+                return '\0\5' + _convert(e(target=target,
+                                           source=source,
+                                           env=env)) + '\0\5'
+            else:
+                # The \0\5 escape code keeps us from smushing two or more
+                # variables together during recusrive substitution, i.e.
+                # foo=$bar bar=baz barbaz=blat => $foo$bar->blat (bad)
+                return "\0\5" + _convert(e) + "\0\5"
         except NameError:
             return '\0\5'
 
@@ -474,7 +474,8 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
     return map(lambda x: map(CmdStringHolder, filter(lambda y:y, string.split(x, '\0\1'))),
                listLines)
 
-def scons_subst(strSubst, globals, locals, remove=None):
+def scons_subst(strSubst, env, remove=None, target=None,
+                source=None):
     """Recursively interpolates dictionary variables into
     the specified string, returning the expanded result.
     Variables are specified by a $ prefix in the string and
@@ -487,12 +488,24 @@ def scons_subst(strSubst, globals, locals, remove=None):
 
     # This function needs to be fast, so don't call scons_subst_list
 
-    def repl(m, globals=globals, locals=locals):
+    if target != None:
+        dict = subst_dict(target, source, env)
+    else:
+        dict = env.sig_dict()
+
+    def repl(m,
+             target=target,
+             source=source,
+             env=env,
+             local_vars = dict,
+             global_vars = { '__env__' : env }):
         key = m.group(1)
         if key[0] == '{':
             key = key[1:-1]
         try:
-            e = eval(key, globals, locals)
+            e = eval(key, global_vars, local_vars)
+            if callable(e):
+                e = e(target=target, source=source, env=env)
             if e is None:
                 s = ''
             elif is_List(e):

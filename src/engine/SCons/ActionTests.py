@@ -100,6 +100,8 @@ class Environment:
         return self.d.get(key, value)
     def items(self):
         return self.d.items()
+    def Dictionary(self):
+        return self.d
     def sig_dict(self):
         d = {}
         for k,v in self.items(): d[k] = v
@@ -129,7 +131,7 @@ class ActionTestCase(unittest.TestCase):
 
         a2 = SCons.Action.Action("string")
         assert isinstance(a2, SCons.Action.CommandAction), a2
-        assert a2.cmd_list == ["string"], a2.cmd_list
+        assert a2.cmd_list == "string", a2.cmd_list
 
         if hasattr(types, 'UnicodeType'):
             exec "a3 = SCons.Action.Action(u'string')"
@@ -138,11 +140,11 @@ class ActionTestCase(unittest.TestCase):
         a4 = SCons.Action.Action(["x", "y", "z", [ "a", "b", "c"]])
         assert isinstance(a4, SCons.Action.ListAction), a4
         assert isinstance(a4.list[0], SCons.Action.CommandAction), a4.list[0]
-        assert a4.list[0].cmd_list == ["x"], a4.list[0].cmd_list
+        assert a4.list[0].cmd_list == "x", a4.list[0].cmd_list
         assert isinstance(a4.list[1], SCons.Action.CommandAction), a4.list[1]
-        assert a4.list[1].cmd_list == ["y"], a4.list[1].cmd_list
+        assert a4.list[1].cmd_list == "y", a4.list[1].cmd_list
         assert isinstance(a4.list[2], SCons.Action.CommandAction), a4.list[2]
-        assert a4.list[2].cmd_list == ["z"], a4.list[2].cmd_list
+        assert a4.list[2].cmd_list == "z", a4.list[2].cmd_list
         assert isinstance(a4.list[3], SCons.Action.CommandAction), a4.list[3]
         assert a4.list[3].cmd_list == [ "a", "b", "c" ], a4.list[3].cmd_list
 
@@ -158,25 +160,25 @@ class ActionTestCase(unittest.TestCase):
 
         a8 = SCons.Action.Action(["a8"])
         assert isinstance(a8, SCons.Action.CommandAction), a8
-        assert a8.cmd_list == [ "a8" ], a8.cmd_list
+        assert a8.cmd_list == "a8", a8.cmd_list
 
         a9 = SCons.Action.Action("x\ny\nz")
         assert isinstance(a9, SCons.Action.ListAction), a9
         assert isinstance(a9.list[0], SCons.Action.CommandAction), a9.list[0]
-        assert a9.list[0].cmd_list == ["x"], a9.list[0].cmd_list
+        assert a9.list[0].cmd_list == "x", a9.list[0].cmd_list
         assert isinstance(a9.list[1], SCons.Action.CommandAction), a9.list[1]
-        assert a9.list[1].cmd_list == ["y"], a9.list[1].cmd_list
+        assert a9.list[1].cmd_list == "y", a9.list[1].cmd_list
         assert isinstance(a9.list[2], SCons.Action.CommandAction), a9.list[2]
-        assert a9.list[2].cmd_list == ["z"], a9.list[2].cmd_list
+        assert a9.list[2].cmd_list == "z", a9.list[2].cmd_list
 
         a10 = SCons.Action.Action(["x", foo, "z"])
         assert isinstance(a10, SCons.Action.ListAction), a10
         assert isinstance(a10.list[0], SCons.Action.CommandAction), a10.list[0]
-        assert a10.list[0].cmd_list == ["x"], a10.list[0].cmd_list
+        assert a10.list[0].cmd_list == "x", a10.list[0].cmd_list
         assert isinstance(a10.list[1], SCons.Action.FunctionAction), a10.list[1]
         assert a10.list[1].execfunction == foo, a10.list[1].execfunction
         assert isinstance(a10.list[2], SCons.Action.CommandAction), a10.list[2]
-        assert a10.list[2].cmd_list == ["z"], a10.list[2].cmd_list
+        assert a10.list[2].cmd_list == "z", a10.list[2].cmd_list
 
         a11 = SCons.Action.Action(foo, strfunction=bar)
         assert isinstance(a11, SCons.Action.FunctionAction), a11
@@ -227,51 +229,6 @@ class ActionBaseTestCase(unittest.TestCase):
         a = SCons.Action.Action("x")
         l = a.get_actions()
         assert l == [a], l
-
-    def test_subst_dict(self):
-        """Test substituting dictionary values in an Action
-        """
-        a = SCons.Action.Action("x")
-
-        d = a.subst_dict([], [], Environment(a = 'A', b = 'B'))
-        assert d['a'] == 'A', d
-        assert d['b'] == 'B', d
-
-        d = a.subst_dict(target = 't', source = 's', env = Environment())
-        assert str(d['TARGETS']) == 't', d['TARGETS']
-        assert str(d['TARGET']) == 't', d['TARGET']
-        assert str(d['SOURCES']) == 's', d['SOURCES']
-        assert str(d['SOURCE']) == 's', d['SOURCE']
-
-        d = a.subst_dict(target = ['t1', 't2'],
-                         source = ['s1', 's2'],
-                         env = Environment())
-        TARGETS = map(lambda x: str(x), d['TARGETS'])
-        TARGETS.sort()
-        assert TARGETS == ['t1', 't2'], d['TARGETS']
-        assert str(d['TARGET']) == 't1', d['TARGET']
-        SOURCES = map(lambda x: str(x), d['SOURCES'])
-        SOURCES.sort()
-        assert SOURCES == ['s1', 's2'], d['SOURCES']
-        assert str(d['SOURCE']) == 's1', d['SOURCE']
-
-        class N:
-            def __init__(self, name):
-                self.name = name
-            def __str__(self):
-                return self.name
-            def rstr(self):
-                return 'rstr-' + self.name
-
-        d = a.subst_dict(target = [N('t3'), 't4'],
-                         source = ['s3', N('s4')],
-                         env = Environment())
-        TARGETS = map(lambda x: str(x), d['TARGETS'])
-        TARGETS.sort()
-        assert TARGETS == ['t3', 't4'], d['TARGETS']
-        SOURCES = map(lambda x: str(x), d['SOURCES'])
-        SOURCES.sort()
-        assert SOURCES == ['rstr-s4', 's3'], d['SOURCES']
 
     def test_add(self):
         """Test adding Actions to stuff."""
@@ -547,11 +504,18 @@ class CommandActionTestCase(unittest.TestCase):
     def test_get_raw_contents(self):
         """Test fetching the contents of a command Action
         """
+        def CmdGen(target, source, env):
+            assert target is None, target
+            return "%s %s" % \
+                   (env["foo"], env["bar"])
+
+        # The number 1 is there to make sure all args get converted to strings.
         a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
-                                        "$)", "|"])
+                                        "$)", "|", "$baz", 1])
         c = a.get_raw_contents(target=[], source=[],
-                               env=Environment(foo = 'FFF', bar = 'BBB'))
-        assert c == "| $( FFF | BBB $) |", c
+                               env=Environment(foo = 'FFF', bar = 'BBB',
+                                               baz = CmdGen))
+        assert c == "| $( FFF | BBB $) | FFF BBB 1", c
 
         # We've discusssed using the real target and source names in a
         # CommandAction's signature contents.  This would have have the
@@ -601,11 +565,18 @@ class CommandActionTestCase(unittest.TestCase):
     def test_get_contents(self):
         """Test fetching the contents of a command Action
         """
+        def CmdGen(target, source, env):
+            assert target is None, target
+            return "%s %s" % \
+                   (env["foo"], env["bar"])
+
+        # The number 1 is there to make sure all args get converted to strings.
         a = SCons.Action.CommandAction(["|", "$(", "$foo", "|", "$bar",
-                                        "$)", "|"])
+                                        "$)", "|", "$baz", 1])
         c = a.get_contents(target=[], source=[],
-                           env=Environment(foo = 'FFF', bar = 'BBB'))
-        assert c == "| |", c
+                           env=Environment(foo = 'FFF', bar = 'BBB',
+                                           baz = CmdGen))
+        assert c == "| | FFF BBB 1", c
 
         # We've discusssed using the real target and source names in a
         # CommandAction's signature contents.  This would have have the
@@ -848,7 +819,7 @@ class ListActionTestCase(unittest.TestCase):
         assert isinstance(a.list[0], SCons.Action.CommandAction)
         assert isinstance(a.list[1], SCons.Action.FunctionAction)
         assert isinstance(a.list[2], SCons.Action.ListAction)
-        assert a.list[2].list[0].cmd_list == [ 'y' ]
+        assert a.list[2].list[0].cmd_list == 'y'
 
     def test_get_actions(self):
         """Test the get_actions() method for ListActions

@@ -43,22 +43,57 @@ class OutBuffer:
     def write(self, str):
         self.buffer = self.buffer + str
 
+class DummyEnv:
+    def __init__(self, dict={}):
+        self.dict = dict
+
+    def Dictionary(self, key = None):
+        if not key:
+            return self.dict
+        return self.dict[key]
+
+    def sig_dict(self):
+        dict = self.dict.copy()
+        dict["TARGETS"] = 'tsig'
+        dict["SOURCES"] = 'ssig'
+        return dict
+
+def CmdGen1(target, source, env):
+    # Nifty trick...since Environment references are interpolated,
+    # instantiate an instance of a callable class with this one,
+    # which will then get evaluated.
+    assert target == 't', target
+    assert source == 's', source
+    return "${CMDGEN2('foo')}"
+
+class CmdGen2:
+    def __init__(self, mystr):
+        self.mystr = mystr
+
+    def __call__(self, target, source, env):
+        assert target == 't', target
+        assert source == 's', source
+        return [ self.mystr, env.Dictionary('BAR') ]
 
 class UtilTestCase(unittest.TestCase):
-    def test_subst_PathList(self):
-        """Test the subst function with PathLists"""
+    def test_subst(self):
+        """Test the subst function"""
         loc = {}
-        loc['TARGETS'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
-                                                          "/bar/baz.obj",
-                                                          "../foo/baz.obj" ]))
-        loc['TARGET'] = loc['TARGETS'][0]
-        loc['SOURCES'] = PathList(map(os.path.normpath, [ "./foo/blah.cpp",
-                                                          "/bar/ack.cpp",
-                                                          "../foo/ack.c" ]))
-        loc['SOURCE'] = loc['SOURCES'][0]
+        target = [ "./foo/bar.exe",
+                   "/bar/baz.obj",
+                   "../foo/baz.obj" ]
+        source = [ "./foo/blah.cpp",
+                   "/bar/ack.cpp",
+                   "../foo/ack.c" ]
         loc['xxx'] = None
         loc['zero'] = 0
         loc['one'] = 1
+        loc['BAR'] = 'baz'
+
+        loc['CMDGEN1'] = CmdGen1
+        loc['CMDGEN2'] = CmdGen2
+
+        env = DummyEnv(loc)
 
         if os.sep == '/':
             def cvt(str):
@@ -67,150 +102,101 @@ class UtilTestCase(unittest.TestCase):
             def cvt(str):
                 return string.replace(str, '/', os.sep)
 
-        newcom = scons_subst("test $TARGETS $SOURCES", loc, {})
+        newcom = scons_subst("test $TARGETS $SOURCES", env,
+                             target=target, source=source)
         assert newcom == cvt("test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp /bar/ack.cpp ../foo/ack.c")
 
-        newcom = scons_subst("test ${TARGETS[:]} ${SOURCES[0]}", loc, {})
+        newcom = scons_subst("test ${TARGETS[:]} ${SOURCES[0]}", env,
+                             target=target, source=source)
         assert newcom == cvt("test foo/bar.exe /bar/baz.obj ../foo/baz.obj foo/blah.cpp")
 
-        newcom = scons_subst("test ${TARGETS[1:]}v", loc, {})
+        newcom = scons_subst("test ${TARGETS[1:]}v", env,
+                             target=target, source=source)
         assert newcom == cvt("test /bar/baz.obj ../foo/baz.objv")
 
-        newcom = scons_subst("test $TARGET", loc, {})
+        newcom = scons_subst("test $TARGET", env,
+                             target=target, source=source)
         assert newcom == cvt("test foo/bar.exe")
 
-        newcom = scons_subst("test $TARGET$FOO[0]", loc, {})
+        newcom = scons_subst("test $TARGET$FOO[0]", env,
+                             target=target, source=source)
         assert newcom == cvt("test foo/bar.exe[0]")
 
-        newcom = scons_subst("test ${TARGET.file}", loc, {})
+        newcom = scons_subst("test ${TARGET.file}", env,
+                             target=target, source=source)
         assert newcom == cvt("test bar.exe")
 
-        newcom = scons_subst("test ${TARGET.filebase}", loc, {})
+        newcom = scons_subst("test ${TARGET.filebase}", env,
+                             target=target, source=source)
         assert newcom == cvt("test bar")
 
-        newcom = scons_subst("test ${TARGET.suffix}", loc, {})
+        newcom = scons_subst("test ${TARGET.suffix}", env,
+                             target=target, source=source)
         assert newcom == cvt("test .exe")
 
-        newcom = scons_subst("test ${TARGET.base}", loc, {})
+        newcom = scons_subst("test ${TARGET.base}", env,
+                             target=target, source=source)
         assert newcom == cvt("test foo/bar")
 
-        newcom = scons_subst("test ${TARGET.dir}", loc, {})
+        newcom = scons_subst("test ${TARGET.dir}", env,
+                             target=target, source=source)
         assert newcom == cvt("test foo")
 
-        cwd = SCons.Util.updrive(os.getcwd())
+        newcom = scons_subst("test ${TARGET.abspath}", env,
+                             target=target, source=source)
+        assert newcom == cvt("test %s/foo/bar.exe"%SCons.Util.updrive(os.getcwd())), newcom
 
-        newcom = scons_subst("test ${TARGET.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/bar.exe" % (cwd)), newcom
-
-        newcom = scons_subst("test ${SOURCES.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/blah.cpp %s %s/foo/ack.c"%(cwd,
+        newcom = scons_subst("test ${SOURCES.abspath}", env,
+                             target=target, source=source)
+        assert newcom == cvt("test %s/foo/blah.cpp %s %s/foo/ack.c"%(SCons.Util.updrive(os.getcwd()),
                                                                      SCons.Util.updrive(os.path.abspath(os.path.normpath("/bar/ack.cpp"))),
                                                                      SCons.Util.updrive(os.path.normpath(os.getcwd()+"/..")))), newcom
 
-        newcom = scons_subst("test ${SOURCE.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/blah.cpp" % (cwd)), newcom
+        newcom = scons_subst("test ${SOURCE.abspath}", env,
+                             target=target, source=source)
+        assert newcom == cvt("test %s/foo/blah.cpp"%SCons.Util.updrive(os.getcwd())), newcom
 
-        newcom = scons_subst("test $xxx", loc, {})
+        newcom = scons_subst("test $xxx", env)
         assert newcom == cvt("test"), newcom
 
-        newcom = scons_subst("test $($xxx$)", loc, {})
+        newcom = scons_subst("test $($xxx$)", env)
         assert newcom == cvt("test $($)"), newcom
 
-        newcom = scons_subst("test $( $xxx $)", loc, {})
+        newcom = scons_subst("test $( $xxx $)", env)
         assert newcom == cvt("test $( $)"), newcom
 
-        newcom = scons_subst("test $($xxx$)", loc, {}, re.compile('\$[()]'))
+        newcom = scons_subst("test $($xxx$)", env, re.compile('\$[()]'))
         assert newcom == cvt("test"), newcom
 
-        newcom = scons_subst("test $( $xxx $)", loc, {}, re.compile('\$[()]'))
+        newcom = scons_subst("test $( $xxx $)", env, re.compile('\$[()]'))
         assert newcom == cvt("test"), newcom
 
-        newcom = scons_subst("test $zero", loc, {})
+        newcom = scons_subst("test $zero", env)
         assert newcom == cvt("test 0"), newcom
 
-        newcom = scons_subst("test $one", loc, {})
+        newcom = scons_subst("test $one", env)
         assert newcom == cvt("test 1"), newcom
 
-        newcom = scons_subst("test aXbXcXd", loc, {}, re.compile('X'))
+        newcom = scons_subst("test aXbXcXd", env, re.compile('X'))
         assert newcom == cvt("test abcd"), newcom
 
-        glob = { 'a' : 1, 'b' : 2 }
-        loc = {'a' : 3, 'c' : 4 }
-        newcom = scons_subst("test $a $b $c $d test", glob, loc)
-        assert newcom == "test 3 2 4 test", newcom
+        newcom = scons_subst("test $CMDGEN1 $SOURCES $TARGETS",
+                             env, target='t', source='s')
+        assert newcom == cvt("test foo baz s t"), newcom
 
         # Test against a former bug in scons_subst_list()
         glob = { "FOO" : "$BAR",
                  "BAR" : "BAZ",
                  "BLAT" : "XYX",
                  "BARXYX" : "BADNEWS" }
-        newcom = scons_subst("$FOO$BLAT", glob, {})
+        newcom = scons_subst("$FOO$BLAT", DummyEnv(glob))
         assert newcom == "BAZXYX", newcom
 
         # Test for double-dollar-sign behavior
         glob = { "FOO" : "BAR",
                  "BAZ" : "BLAT" }
-        newcom = scons_subst("$$FOO$BAZ", glob, {})
+        newcom = scons_subst("$$FOO$BAZ", DummyEnv(glob))
         assert newcom == "$FOOBLAT", newcom
-
-    def test_subst_Lister(self):
-        """Test the subst function with Listers"""
-        loc = {}
-        loc['TARGETS'] = Lister('t%d')
-        loc['TARGET'] = loc['TARGETS'][0]
-        loc['SOURCES'] = Lister('s%d')
-        loc['SOURCE'] = loc['SOURCES'][0]
-        loc['xxx'] = None
-        loc['zero'] = 0
-        loc['one'] = 1
-
-        if os.sep == '/':
-            def cvt(str):
-                return str
-        else:
-            def cvt(str):
-                return string.replace(str, '/', os.sep)
-
-        newcom = scons_subst("test $TARGETS $SOURCES", loc, {})
-        assert newcom == cvt("test t1 t2 s1 s2"), newcom
-
-        newcom = scons_subst("test ${TARGETS[:]} ${SOURCES[0]}", loc, {})
-        assert newcom == cvt("test t1 t2 s1"), newcom
-
-        newcom = scons_subst("test ${TARGETS[1:]}v", loc, {})
-        assert newcom == cvt("test t2 t3v"), newcom
-
-        newcom = scons_subst("test $TARGET", loc, {})
-        assert newcom == cvt("test t1"), newcom
-
-        newcom = scons_subst("test $TARGET$FOO[0]", loc, {})
-        assert newcom == cvt("test t1[0]"), newcom
-
-        newcom = scons_subst("test ${TARGET.file}", loc, {})
-        assert newcom == cvt("test t1"), newcom
-
-        newcom = scons_subst("test ${TARGET.filebase}", loc, {})
-        assert newcom == cvt("test t1"), newcom
-
-        newcom = scons_subst("test ${TARGET.suffix}", loc, {})
-        assert newcom == cvt("test"), newcom
-
-        newcom = scons_subst("test ${TARGET.base}", loc, {})
-        assert newcom == cvt("test t1"), newcom
-
-        newcom = scons_subst("test ${TARGET.dir}", loc, {})
-        assert newcom == cvt("test"), newcom
-
-        cwd = SCons.Util.updrive(os.getcwd())
-
-        newcom = scons_subst("test ${TARGET.abspath}", loc, {})
-        assert newcom == cvt("test %s/t1" % (cwd)), newcom
-
-        newcom = scons_subst("test ${SOURCES.abspath}", loc, {})
-        assert newcom == cvt("test %s/s1 %s/s2" % (cwd, cwd)), newcom
-
-        newcom = scons_subst("test ${SOURCE.abspath}", loc, {})
-        assert newcom == cvt("test %s/s1" % cwd), newcom
 
     def test_splitext(self):
         assert splitext('foo') == ('foo','')
@@ -229,13 +215,12 @@ class UtilTestCase(unittest.TestCase):
                 return 1
         
         loc = {}
-        loc['TARGETS'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
-                                                          "/bar/baz with spaces.obj",
-                                                          "../foo/baz.obj" ]))
-        loc['TARGET'] = loc['TARGETS'][0]
-        loc['SOURCES'] = PathList(map(os.path.normpath, [ "./foo/blah with spaces.cpp",
-                                                          "/bar/ack.cpp",
-                                                          "../foo/ack.c" ]))
+        target = [ "./foo/bar.exe",
+                   "/bar/baz with spaces.obj",
+                   "../foo/baz.obj" ]
+        source = [ "./foo/blah with spaces.cpp",
+                   "/bar/ack.cpp",
+                   "../foo/ack.c" ]
         loc['xxx'] = None
         loc['NEWLINE'] = 'before\nafter'
 
@@ -244,6 +229,11 @@ class UtilTestCase(unittest.TestCase):
         loc['BAR'] = Node('bar with spaces.out')
         loc['CRAZY'] = Node('crazy\nfile.in')
 
+        loc['CMDGEN1'] = CmdGen1
+        loc['CMDGEN2'] = CmdGen2
+
+        env = DummyEnv(loc)
+
         if os.sep == '/':
             def cvt(str):
                 return str
@@ -251,20 +241,26 @@ class UtilTestCase(unittest.TestCase):
             def cvt(str):
                 return string.replace(str, '/', os.sep)
 
-        cmd_list = scons_subst_list("$TARGETS", loc, {})
+        cmd_list = scons_subst_list("$TARGETS", env,
+                                    target=target,
+                                    source=source)
         assert cmd_list[0][1] == cvt("/bar/baz with spaces.obj"), cmd_list[0][1]
 
-        cmd_list = scons_subst_list("$SOURCES $NEWLINE $TARGETS", loc, {})
+        cmd_list = scons_subst_list("$SOURCES $NEWLINE $TARGETS", env,
+                                    target=target,
+                                    source=source)
         assert len(cmd_list) == 2, cmd_list
         assert cmd_list[0][0] == cvt('foo/blah with spaces.cpp'), cmd_list[0][0]
         assert cmd_list[1][2] == cvt("/bar/baz with spaces.obj"), cmd_list[1]
 
-        cmd_list = scons_subst_list("$SOURCES$NEWLINE", loc, {})
+        cmd_list = scons_subst_list("$SOURCES$NEWLINE", env,
+                                    target=target,
+                                    source=source)
         assert len(cmd_list) == 2, cmd_list
         assert cmd_list[1][0] == 'after', cmd_list[1][0]
         assert cmd_list[0][2] == cvt('../foo/ack.cbefore'), cmd_list[0][2]
 
-        cmd_list = scons_subst_list("$DO --in=$FOO --out=$BAR", loc, {})
+        cmd_list = scons_subst_list("$DO --in=$FOO --out=$BAR", env)
         assert len(cmd_list) == 1, cmd_list
         assert len(cmd_list[0]) == 3, cmd_list
         assert cmd_list[0][0] == 'do something', cmd_list[0][0]
@@ -272,7 +268,7 @@ class UtilTestCase(unittest.TestCase):
         assert cmd_list[0][2] == '--out=bar with spaces.out', cmd_list[0][2]
 
         # This test is now fixed, and works like it should.
-        cmd_list = scons_subst_list("$DO --in=$CRAZY --out=$BAR", loc, {})
+        cmd_list = scons_subst_list("$DO --in=$CRAZY --out=$BAR", env)
         assert len(cmd_list) == 1, map(str, cmd_list[0])
         assert len(cmd_list[0]) == 3, cmd_list
         assert cmd_list[0][0] == 'do something', cmd_list[0][0]
@@ -282,30 +278,37 @@ class UtilTestCase(unittest.TestCase):
         # Test inputting a list to scons_subst_list()
         cmd_list = scons_subst_list([ "$SOURCES$NEWLINE", "$TARGETS",
                                         "This is a test" ],
-                                    loc, {})
+                                    env,
+                                    target=target,
+                                    source=source)
         assert len(cmd_list) == 2, len(cmd_list)
         assert cmd_list[0][0] == cvt('foo/blah with spaces.cpp'), cmd_list[0][0]
         assert cmd_list[1][0] == cvt("after"), cmd_list[1]
         assert cmd_list[1][4] == "This is a test", cmd_list[1]
 
-        glob = { 'a' : 1, 'b' : 2 }
-        loc = {'a' : 3, 'c' : 4 }
-        cmd_list = scons_subst_list("test $a $b $c $d test", glob, loc)
-        assert len(cmd_list) == 1, cmd_list
-        assert map(str, cmd_list[0]) == ['test', '3', '2', '4', 'test'], map(str, cmd_list[0])
+        # Test interpolating a callable.
+        cmd_list = scons_subst_list("testing $CMDGEN1 $TARGETS $SOURCES", env,
+                                    target='t', source='s')
+        assert len(cmd_list) == 1, len(cmd_list)
+        assert cmd_list[0][0] == 'testing', cmd_list[0][0]
+        assert cmd_list[0][1] == 'foo', cmd_list[0][1]
+        assert cmd_list[0][2] == 'bar with spaces.out', cmd_list[0][2]
+        assert cmd_list[0][3] == 't', cmd_list[0][3]
+        assert cmd_list[0][4] == 's', cmd_list[0][4]
+
 
         # Test against a former bug in scons_subst_list()
         glob = { "FOO" : "$BAR",
                  "BAR" : "BAZ",
                  "BLAT" : "XYX",
                  "BARXYX" : "BADNEWS" }
-        cmd_list = scons_subst_list("$FOO$BLAT", glob, {})
+        cmd_list = scons_subst_list("$FOO$BLAT", DummyEnv(glob))
         assert cmd_list[0][0] == "BAZXYX", cmd_list[0][0]
 
         # Test for double-dollar-sign behavior
         glob = { "FOO" : "BAR",
                  "BAZ" : "BLAT" }
-        cmd_list = scons_subst_list("$$FOO$BAZ", glob, {})
+        cmd_list = scons_subst_list("$$FOO$BAZ", DummyEnv(glob))
         assert cmd_list[0][0] == "$FOOBLAT", cmd_list[0][0]
 
         # Now test escape functionality
@@ -315,7 +318,7 @@ class UtilTestCase(unittest.TestCase):
             return foo
         glob = { "FOO" : PathList([ 'foo\nwith\nnewlines',
                                     'bar\nwith\nnewlines' ]) }
-        cmd_list = scons_subst_list("$FOO", glob, {})
+        cmd_list = scons_subst_list("$FOO", DummyEnv(glob))
         assert cmd_list[0][0] == 'foo\nwith\nnewlines', cmd_list[0][0]
         cmd_list[0][0].escape(escape_func)
         assert cmd_list[0][0] == '**foo\nwith\nnewlines**', cmd_list[0][0]
@@ -519,9 +522,13 @@ class UtilTestCase(unittest.TestCase):
         """Testing get_environment_var()."""
         assert get_environment_var("$FOO") == "FOO", get_environment_var("$FOO")
         assert get_environment_var("${BAR}") == "BAR", get_environment_var("${BAR}")
+        assert get_environment_var("$FOO_BAR1234") == "FOO_BAR1234", get_environment_var("$FOO_BAR1234")
+        assert get_environment_var("${BAR_FOO1234}") == "BAR_FOO1234", get_environment_var("${BAR_FOO1234}")
         assert get_environment_var("${BAR}FOO") == None, get_environment_var("${BAR}FOO")
         assert get_environment_var("$BAR ") == None, get_environment_var("$BAR ")
         assert get_environment_var("FOO$BAR") == None, get_environment_var("FOO$BAR")
+        assert get_environment_var("$FOO[0]") == None, get_environment_var("$FOO[0]")
+        assert get_environment_var("${some('complex expression')}") == None, get_environment_var("${some('complex expression')}")
 
     def test_Proxy(self):
         """Test generic Proxy class."""
@@ -553,8 +560,8 @@ class UtilTestCase(unittest.TestCase):
         """Test the Literal() function."""
         cmd_list = [ '$FOO', Literal('$BAR') ]
         cmd_list = scons_subst_list(cmd_list,
-                                    { 'FOO' : 'BAZ',
-                                      'BAR' : 'BLAT' }, {})
+                                    DummyEnv({ 'FOO' : 'BAZ',
+                                               'BAR' : 'BLAT' }))
         def escape_func(cmd):
             return '**' + cmd + '**'
 
@@ -623,6 +630,49 @@ class UtilTestCase(unittest.TestCase):
 
         test._dirlist = None
         sys.stdout = old_stdout
+
+    def test_subst_dict(self):
+        """Test substituting dictionary values in an Action
+        """
+        d = subst_dict([], [], DummyEnv({'a' : 'A', 'b' : 'B'}))
+        assert d['a'] == 'A', d
+        assert d['b'] == 'B', d
+
+        d = subst_dict(target = 't', source = 's', env=DummyEnv())
+        assert str(d['TARGETS']) == 't', d['TARGETS']
+        assert str(d['TARGET']) == 't', d['TARGET']
+        assert str(d['SOURCES']) == 's', d['SOURCES']
+        assert str(d['SOURCE']) == 's', d['SOURCE']
+
+        d = subst_dict(target = ['t1', 't2'],
+                       source = ['s1', 's2'],
+                       env = DummyEnv())
+        TARGETS = map(lambda x: str(x), d['TARGETS'])
+        TARGETS.sort()
+        assert TARGETS == ['t1', 't2'], d['TARGETS']
+        assert str(d['TARGET']) == 't1', d['TARGET']
+        SOURCES = map(lambda x: str(x), d['SOURCES'])
+        SOURCES.sort()
+        assert SOURCES == ['s1', 's2'], d['SOURCES']
+        assert str(d['SOURCE']) == 's1', d['SOURCE']
+
+        class N:
+            def __init__(self, name):
+                self.name = name
+            def __str__(self):
+                return self.name
+            def rstr(self):
+                return 'rstr-' + self.name
+
+        d = subst_dict(target = [N('t3'), 't4'],
+                       source = ['s3', N('s4')],
+                       env = DummyEnv())
+        TARGETS = map(lambda x: str(x), d['TARGETS'])
+        TARGETS.sort()
+        assert TARGETS == ['t3', 't4'], d['TARGETS']
+        SOURCES = map(lambda x: str(x), d['SOURCES'])
+        SOURCES.sort()
+        assert SOURCES == ['rstr-s4', 's3'], d['SOURCES']
 
 
 if __name__ == "__main__":

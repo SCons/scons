@@ -143,6 +143,32 @@ class BuilderDict(UserDict):
 
 _rm = re.compile(r'\$[()]')
 
+class _lister:
+    """This class is used to implement dummy targets and sources
+    for signature calculation."""
+    def __init__(self, fmt):
+        self.fmt = fmt
+    def _format(self, index):
+        # For some reason, I originally made the fake names of
+        # the targets and sources 1-based (['__t1__, '__t2__']),
+        # not 0-based.  We preserve this behavior by adding one
+        # to the returned item names, so everyone's targets
+        # won't get recompiled if they were using an old
+        # version.
+        return self.fmt % (index + 1)
+    def __getitem__(self, index):
+        return SCons.Util.PathList([self._format(index)])[0]
+    def __getslice__(self, i, j):
+        slice = []
+        for x in range(i, j):
+            slice.append(self._format(x))
+        return SCons.Util.PathList(slice)
+    def __getattr__(self, name):
+        # If we don't find an attribute in this class, let's
+        # look in PathList.  self[0:2] returns a PathList instance
+        # via __getslice__
+        return getattr(self[0:2], name)
+
 class Environment:
     """Base class for construction Environments.  These are
     the primary objects used to communicate dependency and
@@ -404,7 +430,7 @@ class Environment:
         else:
             return side_effects
 
-    def subst(self, string, raw=0):
+    def subst(self, string, raw=0, target=None, source=None):
 	"""Recursively interpolates construction variables from the
 	Environment into the specified string, returning the expanded
 	result.  Construction variables are specified by a $ prefix
@@ -418,16 +444,18 @@ class Environment:
             regex_remove = None
         else:
             regex_remove = _rm
-        return SCons.Util.scons_subst(string, self._dict, {}, regex_remove)
+        return SCons.Util.scons_subst(string, self, regex_remove,
+                                      target, source)
     
-    def subst_list(self, string, raw=0):
+    def subst_list(self, string, raw=0, target=None, source=None):
         """Calls through to SCons.Util.scons_subst_list().  See
         the documentation for that function."""
         if raw:
             regex_remove = None
         else:
             regex_remove = _rm
-        return SCons.Util.scons_subst_list(string, self._dict, {}, regex_remove)
+        return SCons.Util.scons_subst_list(string, self, regex_remove,
+                                           target, source)
 
     def get_scanner(self, skey):
         """Find the appropriate scanner given a key (usually a file suffix).
@@ -549,10 +577,9 @@ class Environment:
         This fills in static TARGET, TARGETS, SOURCE and SOURCES
         variables so that signatures stay the same every time.
         """
-        dict = {}
-        for k,v in self.items(): dict[k] = v
-        dict['TARGETS'] = SCons.Util.Lister('__t%d__')
+        dict = self._dict.copy()
+        dict['TARGETS'] = _lister('__t%d__')
         dict['TARGET'] = dict['TARGETS'][0]
-        dict['SOURCES'] = SCons.Util.Lister('__s%d__')
+        dict['SOURCES'] = _lister('__s%d__')
         dict['SOURCE'] = dict['SOURCES'][0]
         return dict

@@ -38,29 +38,34 @@ import os.path
 import string
 import sys
 
-#
+class TempFileMunge:
+    """A callable class.  You can set an Environment variable to this,
+    then call it with a string argument, then it will perform temporary
+    file substitution on it.  This is used to circumvent the win32 long command
+    line limitation.
 
-def TempFileMunge(env, cmd_list, for_signature): 
-    """Given a list of command line arguments, see if it is too
-    long to pass to the win32 command line interpreter.  If so,
-    create a temp file, then pass "@tempfile" as the sole argument
-    to the supplied command (which is the first element of cmd_list).
-    Otherwise, just return [cmd_list]."""
-    cmd = env.subst_list(cmd_list)[0]
-    if for_signature or \
-       (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= 2048:
-        return [cmd_list]
-    else:
-        import tempfile
-        # We do a normpath because mktemp() has what appears to be
-        # a bug in Win32 that will use a forward slash as a path
-        # delimiter.  Win32's link mistakes that for a command line
-        # switch and barfs.
-        tmp = os.path.normpath(tempfile.mktemp())
-        args = map(SCons.Util.quote_spaces, cmd[1:])
-        open(tmp, 'w').write(string.join(args, " ") + "\n")
-        return [ [cmd[0], '@' + tmp],
-                 ['del', tmp] ]
+    Example usage:
+    env["TEMPFILE"] = TempFileMunge
+    env["LINKCOM"] = "${TEMPFILE('$LINK $TARGET $SOURCES')}"
+    """
+    def __init__(self, cmd):
+        self.cmd = cmd
+
+    def __call__(self, target, source, env):
+        cmd = env.subst_list(self.cmd, 0, target, source)[0]
+        if target is None or \
+           (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= 2048:
+            return self.cmd
+        else:
+            import tempfile
+            # We do a normpath because mktemp() has what appears to be
+            # a bug in Win32 that will use a forward slash as a path
+            # delimiter.  Win32's link mistakes that for a command line
+            # switch and barfs.
+            tmp = os.path.normpath(tempfile.mktemp())
+            args = map(SCons.Util.quote_spaces, cmd[1:])
+            open(tmp, 'w').write(string.join(args, " ") + "\n")
+            return [ cmd[0], '@' + tmp + '\ndel', tmp ]
 
 # The upshot of all this is that, if you are using Python 1.5.2,
 # you had better have cmd or command.com in your PATH when you run
@@ -128,4 +133,5 @@ def generate(env):
     env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
     env['SPAWN']          = spawn
     env['SHELL']          = cmd_interp
+    env['TEMPFILE']       = TempFileMunge
     env['ESCAPE']         = escape
