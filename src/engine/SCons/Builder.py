@@ -342,10 +342,7 @@ class ListBuilder:
 
     def __init__(self, builder, env, tlist):
         self.builder = builder
-        self.scanner = builder.scanner
-        self.env = env
 	self.tlist = tlist
-        self.multi = builder.multi
         self.name = "ListBuilder(%s)"%builder.name
 
     def execute(self, **kw):
@@ -362,15 +359,6 @@ class ListBuilder:
                 t.build()
         return self.status
 
-    def get_raw_contents(self, **kw):
-        return apply(self.builder.get_raw_contents, (), kw)
-
-    def get_contents(self, **kw):
-        return apply(self.builder.get_contents, (), kw)
-
-    def src_suffixes(self, env, args):
-        return self.builder.src_suffixes(env, args)
-
     def targets(self, node):
         """Return the list of targets for this builder instance.
         """
@@ -378,6 +366,9 @@ class ListBuilder:
 
     def __cmp__(self, other):
 	return cmp(self.__dict__, other.__dict__)
+
+    def __getattr__(self, name):
+	return getattr(self.builder, name)
 
 class MultiStepBuilder(BuilderBase):
     """This is a builder subclass that can build targets in

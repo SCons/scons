@@ -30,8 +30,10 @@ import TestSCons
 
 if sys.platform == 'win32':
     _exe = '.exe'
+    _obj = '.obj'
 else:
     _exe = ''
+    _obj = '.o'
 
 prog = 'prog' + _exe
 subdir_prog = os.path.join('subdir', 'prog' + _exe)
@@ -58,6 +60,8 @@ def copy(target, source, env):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
 nodep = env.Command('nodeps.c', 'nodeps.in', action=copy)
 env.Program('nodeps', 'nodeps.c')
+
+env.Object(['one', 'two'], ['one.c'])
 """)
 
 test.write(['subdir', 'SConscript'],
@@ -120,7 +124,12 @@ r"""
 #define BAR_STRING "subdir/include/bar.h 1\n"
 """)
 
+test.write('one.c' ,
+r"""
+#include <foo.h>
 
+void one(void) { }
+""")
 
 test.run(arguments = "--implicit-cache " + args)
 
@@ -242,5 +251,19 @@ test.run(program = test.workpath(variant_prog),
 # test in the face of a file with no dependencies where the source file is generated:
 test.run(arguments = "--implicit-cache nodeps%s"%_exe)
 
+test.write('nodeps.in', 
+r"""
+#include <foo.h>
+
+int
+main(int argc, char *argv[])
+{
+    argv[argc++] = "--";
+    return 0;
+}
+""")
+
+test.run(arguments = "--implicit-cache one%s"%_obj)
+test.run(arguments = "--implicit-cache one%s"%_obj)
 
 test.pass_test()
