@@ -140,4 +140,18 @@ test.fail_test(test.read(['subdir', 'f4.out']) !=
 test.fail_test(test.read('f5.out') != "f5.in\nsubdir/foo.dep 3\n")
 test.fail_test(test.read(['sub2', 'f6.out']) != "f6.in 3\nsubdir/bar.dep 3\n")
 
+#
+test.write('SConstruct', """\
+env = Environment()
+file1 = File('file1')
+file2 = File('file2')
+env.Depends(file1, [[file2, 'file3']])
+""")
+
+test.run(status = 2, stderr = """
+scons: *** attempted to add a non-Node dependency to file1:
+\t['file2', 'file3'] is a <type 'list'>, not a Node
+File "SConstruct", line 4, in ?
+""")
+
 test.pass_test()

@@ -108,4 +108,18 @@ test.fail_test(test.read(['subdir', 'f3.out']) !=
 
 test.up_to_date(arguments = '.')
 
+#
+test.write('SConstruct', """\
+env = Environment()
+file1 = File('file1')
+file2 = File('file2')
+env.Ignore(file1, [[file2, 'file3']])
+""")
+
+test.run(status = 2, stderr = """
+scons: *** attempted to ignore a non-Node dependency of file1:
+\t['file2', 'file3'] is a <type 'list'>, not a Node
+File "SConstruct", line 4, in ?
+""")
+
 test.pass_test()
