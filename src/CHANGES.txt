@@ -180,6 +180,19 @@ RELEASE 0.97 - XXX
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and
     $CCFLAGS, and -mwindows to $LINKFLAGS.
 
+  From Michael McCracken:
+
+  - Add a new "applelink" tool to handle the things like Frameworks and
+    bundles that Apple has added to gcc for linking.
+
+  - Use more appropriate default search lists of linkers, compilers and
+    and other tools for the 'darwin' platform.
+
+  - Add a LoadableModule Builder that builds a bundle on Mac OS X (Darwin)
+    and a shared library on other systems.
+
+  - Improve SWIG tests for use on Mac OS X (Darwin).
+
   From Elliot Murphy:
 
   - Enhance the tests to guarantee persistence of ListOption

@@ -171,6 +171,29 @@ def createSharedLibBuilder(env):
 
     return shared_lib
 
+def createLoadableModuleBuilder(env):
+    """This is a utility function that creates the LoadableModule
+    Builder in an Environment if it is not there already.
+
+    If it is already there, we return the existing one.
+    """
+
+    try:
+        loadable_module = env['BUILDERS']['LoadableModule']
+    except KeyError:
+        action_list = [ SCons.Defaults.SharedCheck,
+                        SCons.Defaults.LdModuleLinkAction ]
+        ld_module = SCons.Builder.Builder(action = action_list,
+                                          emitter = "$SHLIBEMITTER",
+                                          prefix = '$LDMODULEPREFIX',
+                                          suffix = '$LDMODULESUFFIX',
+                                          target_scanner = SCons.Defaults.ProgScan,
+                                          src_suffix = '$SHOBJSUFFIX',
+                                          src_builder = 'SharedObject')
+        env['BUILDERS']['LoadableModule'] = ld_module
+
+    return ld_module
+
 def createObjBuilders(env):
     """This is a utility function that creates the StaticObject
     and SharedObject Builders in an Environment if they
@@ -308,6 +331,14 @@ def tool_list(platform, env):
         cxx_compilers = ['aixc++', 'g++', 'c++']
         assemblers = ['as', 'gas']
         fortran_compilers = ['aixf77', 'g77', 'fortran']
+        ars = ['ar']
+    elif str(platform) == 'darwin':
+        "prefer GNU tools on Mac OS X, except for some linkers and IBM tools"
+        linkers = ['applelink', 'gnulink']
+        c_compilers = ['gcc', 'cc']
+        cxx_compilers = ['g++', 'c++']
+        assemblers = ['as']
+        fortran_compilers = ['g77']
         ars = ['ar']
     else:
         "prefer GNU tools on all other platforms"

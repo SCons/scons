@@ -29,10 +29,24 @@ import string
 import sys
 import TestSCons
 
-python = TestSCons.python
+if sys.platform =='darwin':
+    # change to make it work with stock OS X python framework
+    # we can't link to static libpython because there isn't one on OS X
+    # so we link to a framework version. However, testing must also
+    # use the same version, or else you get interpreter errors.
+    python = "/System/Library/Frameworks/Python.framework/Versions/Current/bin/python"
+else:
+    python = TestSCons.python
+    
 _exe   = TestSCons._exe
 _obj   = TestSCons._obj
-_dll   = TestSCons._dll
+
+# swig-python expects specific filenames.
+# the platform specific suffix won't necessarily work.
+if sys.platform == 'win32':
+    _dll = '.dll'
+else:
+    _dll   = '.so' 
 
 test = TestSCons.TestSCons()
 
@@ -106,6 +120,18 @@ if swig:
 
     version = sys.version[:3] # see also sys.prefix documentation
 
+    # handle testing on other platforms:
+    frameworks = ''
+    ldmodule_prefix = ''
+    platform_sys_prefix = sys.prefix
+    if sys.platform == 'darwin':
+        # OS X has a built-in Python but no static libpython
+        # so you should link to it using apple's 'framework' scheme.
+        # (see top of file for further explanation)
+        frameworks = '-framework Python'
+        ldmodule_prefix = '_'
+        platform_sys_prefix = '/System/Library/Frameworks/Python.framework/Versions/%s/' % version
+    
     test.write("wrapper.py",
 """import os
 import string
@@ -116,15 +142,18 @@ os.system(string.join(sys.argv[1:], " "))
 
     test.write('SConstruct', """
 foo = Environment(SWIGFLAGS='-python',
-                  CPPPATH='%s/include/python%s/',
+                  CPPPATH='%(platform_sys_prefix)s/include/python%(version)s/',
                   SHCCFLAGS='',
-                  SHOBJSUFFIX='.o',
-                  SHLIBPREFIX='')
+                  LDMODULEPREFIX='%(ldmodule_prefix)s',
+                  LDMODULESUFFIX='%(_dll)s',
+                  FRAMEWORKSFLAGS='%(frameworks)s',
+                  )
+
 swig = foo.Dictionary('SWIG')
-bar = foo.Copy(SWIG = r'%s wrapper.py ' + swig)
-foo.SharedLibrary(target = 'foo', source = ['foo.c', 'foo.i'])
-bar.SharedLibrary(target = 'bar', source = ['bar.c', 'bar.i'])
-""" % (sys.prefix, version, python))
+bar = foo.Copy(SWIG = r'%(python)s wrapper.py ' + swig)
+foo.LoadableModule(target = 'foo', source = ['foo.c', 'foo.i'])
+bar.LoadableModule(target = 'bar', source = ['bar.c', 'bar.i'])
+""" % locals())
 
     test.write("foo.c", """\
 char *
@@ -160,7 +189,7 @@ bar_string()
 extern char *bar_string();
 """)
 
-    test.run(arguments = 'foo' + _dll)
+    test.run(arguments = ldmodule_prefix+'foo' + _dll)
 
     test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
@@ -171,9 +200,9 @@ print foo.foo_string()
 This is foo.c!
 """)
 
-    test.up_to_date(arguments = 'foo' + _dll)
+    test.up_to_date(arguments = ldmodule_prefix+'foo' + _dll)
 
-    test.run(arguments = 'bar' + _dll)
+    test.run(arguments = ldmodule_prefix+'bar' + _dll)
 
     test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 

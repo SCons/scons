@@ -59,6 +59,7 @@ tools = [
     'aixcc',
     'aixf77',
     'aixlink',
+    'applelink',
     'ar',
     'as',
     'bcc32',

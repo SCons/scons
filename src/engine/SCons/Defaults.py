@@ -131,6 +131,7 @@ ASPPAction = SCons.Action.Action("$ASPPCOM", "$ASPPCOMSTR")
 LinkAction = SCons.Action.Action("$LINKCOM", "$LINKCOMSTR")
 ShLinkAction = SCons.Action.Action("$SHLINKCOM", "$SHLINKCOMSTR")
 
+LdModuleLinkAction = SCons.Action.Action("$LDMODULECOM", "$LDMODULECOMSTR")
 ArAction = SCons.Action.Action("$ARCOM", "$ARCOMSTR")
 
 LexAction = SCons.Action.Action("$LEXCOM", "$LEXCOMSTR")

@@ -55,6 +55,7 @@ SCons/Tool/aixc++.py
 SCons/Tool/aixcc.py
 SCons/Tool/aixf77.py
 SCons/Tool/aixlink.py
+SCons/Tool/applelink.py
 SCons/Tool/ar.py
 SCons/Tool/as.py
 SCons/Tool/bcc32.py
