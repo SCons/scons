@@ -969,8 +969,10 @@ def _main():
         elif climb_up == 3 and not targets:
             # -U with default targets
             default_targets = SCons.Script.SConscript.default_targets
-            default_targets = filter(lambda x: x.cwd.srcpath == str(target_top),
-                                     default_targets)
+            def check_dir(x):
+                cwd = SCons.Node.FS.default_fs.Dir(x.cwd.srcpath)
+                return cwd == target_top
+            default_targets = filter(check_dir, default_targets)
             SCons.Script.SConscript.default_targets = default_targets
             target_top = None
 

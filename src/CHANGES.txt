@@ -8,6 +8,20 @@
 
 
 
+RELEASE 0.09 - 
+
+ From Anthony Roach:
+
+ - Fixed use of command lines with spaces in their arguments,
+   and use of Nodes with spaces in their string representation.
+
+ - Make access and modification times of files in a BuildDir match
+   the source file, even when hard linking isn't available.
+
+ - Make -U be case insensitive on Win32 systems.
+
+
+
 RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
 
   From Charles Crain:

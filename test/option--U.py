@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import os.path
 import sys
 
@@ -43,10 +44,10 @@ file.write(contents)
 file.close()
 """)
 
-test.write('SConstruct', """
+test.write('SConstruct', r"""
 import SCons.Defaults
 env = Environment()
-env['BUILDERS']['B'] = Builder(action='%s build.py $TARGET $SOURCES', multi=1)
+env['BUILDERS']['B'] = Builder(action=r'%s build.py $TARGET $SOURCES', multi=1)
 Default(env.B(target = 'sub1/foo.out', source = 'sub1/foo.in'))
 Export('env')
 SConscript('sub2/SConscript')
@@ -92,8 +93,13 @@ test.fail_test(os.path.exists(test.workpath('sub3', 'baz.out')))
 test.fail_test(os.path.exists(test.workpath('bar.out')))
 test.fail_test(os.path.exists(test.workpath('sub2/xxx.out')))
 
-test.write('SConscript', """assert GetLaunchDir() == r'%s'"""%test.workpath('sub2'))
-test.run(chdir = 'sub2', arguments = '-U')
+
+if sys.platform == 'win32':
+    test.write('SConscript', """assert GetLaunchDir() == r'%s'"""%test.workpath('SUB2'))
+    test.run(chdir = 'SUB2', arguments = '-U')
+else:
+    test.write('SConscript', """assert GetLaunchDir() == r'%s'"""%test.workpath('sub2'))
+    test.run(chdir = 'sub2', arguments = '-U')
 test.fail_test(os.path.exists(test.workpath('sub1', 'foo.out')))
 test.fail_test(not os.path.exists(test.workpath('sub2', 'bar.out')))
 test.fail_test(not os.path.exists(test.workpath('sub2b', 'bar.out')))
