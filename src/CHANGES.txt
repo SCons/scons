@@ -8,6 +8,15 @@
 
 
 
+RELEASE 0.03 - 
+
+  From Steven Knight:
+
+  - Search both /usr/lib and /usr/local/lib for scons directories by
+    adding them both to sys.path, with whichever is in sys.prefix first.
+
+
+
 RELEASE 0.02 - Sun, 23 Dec 2001 19:05:09 -0600
 
   From Charles Crain:

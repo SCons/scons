@@ -46,8 +46,17 @@ if sys.platform == 'win32':
     libs.extend([ os.path.join(sys.prefix, 'SCons-__VERSION__'),
                   os.path.join(sys.prefix, 'SCons') ])
 else:
-    libs.extend([ os.path.join(sys.prefix, 'lib', 'scons-__VERSION__'),
-                  os.path.join(sys.prefix, 'lib', 'scons') ])
+    _usr = os.path.join('', 'usr')
+    _usr_local = os.path.join('', 'usr', 'local')
+    if sys.prefix[-len(_usr):] == _usr:
+        prefs = [sys.prefix, os.path.join(sys.prefix, "local")]
+    elif sys.prefix[-len(_usr_local)] == _usr_local:
+        _local = os.path.join('', 'local')
+        prefs = [sys.prefix[:-len(_local)], sys.prefix]
+    else:
+        prefs = [sys.prefix]
+    libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons-__VERSION__'), prefs))
+    libs.extend(map(lambda x: os.path.join(x, 'lib', 'scons'), prefs))
 
 sys.path = libs + sys.path[1:]
 
