@@ -1267,10 +1267,17 @@ class prepareTestCase(unittest.TestCase):
 
         file = fs.File(os.path.join("new_dir", "xyz"))
         try:
+            file.set_state(SCons.Node.up_to_date)
+            file.prepare()
+            assert dir_made == [], dir_made
+            file.set_state(0)
             file.prepare()
             assert dir_made[0].path == "new_dir", dir_made[0].path
         finally:
             SCons.Node.FS.Mkdir = save_Mkdir
+
+        dir = fs.Dir("dir")
+        dir.prepare()
 
 class get_actionsTestCase(unittest.TestCase):
     def runTest(self):

@@ -551,6 +551,17 @@ class TaskmasterTestCase(unittest.TestCase):
         assert n1.prepared
         assert n2.prepared
 
+        n3 = Node("n3")
+        n4 = Node("n4")
+        tm = SCons.Taskmaster.Taskmaster([n3, n4])
+        t = tm.next_task()
+        # More bogus reaching in and setting the targets.
+        n3.set_state(SCons.Node.up_to_date)
+        t.targets = [n3, n4]
+        t.prepare()
+        assert n3.prepared
+        assert n4.prepared
+
         # If the Node has had an exception recorded while it was getting
         # prepared, then prepare() should raise that exception.
         class MyException(Exception):

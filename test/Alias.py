@@ -155,5 +155,16 @@ test.run(arguments = 'f1.out',
 
 test.up_to_date(arguments = 'f1.out')
 
+test.write('SConstruct', """
+env=Environment()
+SetBuildSignatureType('content')
+env.Alias('C', 'D')
+env.Alias('B', 'C')
+env.Alias('A', 'B')
+""")
+
+test.run(arguments='A',
+         stderr="scons: \\*\\*\\* No Builder for target `D', needed by `C'.  Stop.\n",
+         status=2)
 
 test.pass_test()

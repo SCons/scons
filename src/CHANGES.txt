@@ -100,6 +100,11 @@ RELEASE 0.12 - XXX
   - Avoid partial copies of built files in a CacheDir() by copying
     to a temporary file and renaming.
 
+  From Anthony Roach:
+
+  - Fix incorrect dependency-cycle errors when an Aliased source doesn't
+    exist.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600

@@ -892,6 +892,9 @@ class Dir(Entry):
         """Return a fixed "contents" value of a directory."""
         return ''
 
+    def prepare(self):
+        pass
+
     def current(self, calc):
         """If all of our children were up-to-date, then this
         directory was up-to-date, too."""
@@ -971,7 +974,6 @@ class File(Entry):
         
     def _morph(self):
         """Turn a file system node into a File object."""
-        self.linked = 0
         self.scanner_paths = {}
         self.found_includes = {}
         if not hasattr(self, '_local'):
@@ -1196,28 +1198,24 @@ class File(Entry):
     def prepare(self):
         """Prepare for this file to be created."""
 
-        def missing(node):
-            return not node.has_builder() and not node.linked and not node.rexists() and not node.has_src_builder()
-        missing_sources = filter(missing, self.children())
-        if missing_sources:
-            desc = "No Builder for target `%s', needed by `%s'." % (missing_sources[0], self)
-            raise SCons.Errors.StopError, desc
+        SCons.Node.Node.prepare(self)
 
-        if self.exists():
-            if self.has_builder() and not self.precious:
+        if self.get_state() != SCons.Node.up_to_date:
+            if self.exists():
+                if self.has_builder() and not self.precious:
+                    try:
+                        Unlink(self, None, None)
+                    except OSError, e:
+                        raise SCons.Errors.BuildError(node = self,
+                                                      errstr = e.strerror)
+                    if hasattr(self, '_exists'):
+                        delattr(self, '_exists')
+            else:
                 try:
-                    Unlink(self, None, None)
-                except OSError, e:
-                    raise SCons.Errors.BuildError(node = self,
-                                                  errstr = e.strerror)
-                if hasattr(self, '_exists'):
-                    delattr(self, '_exists')
-        else:
-            try:
-                self._createDir()
-            except SCons.Errors.StopError, drive:
-                desc = "No drive `%s' for target `%s'." % (drive, self)
-                raise SCons.Errors.StopError, desc
+                    self._createDir()
+                except SCons.Errors.StopError, drive:
+                    desc = "No drive `%s' for target `%s'." % (drive, self)
+                    raise SCons.Errors.StopError, desc
 
     def remove(self):
         """Remove this file."""

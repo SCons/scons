@@ -78,9 +78,8 @@ class Task:
             self.display(self.tm.message)
             self.tm.message = None
 
-        if self.targets[0].get_state() != SCons.Node.up_to_date:
-            for t in self.targets:
-                t.prepare()
+        for t in self.targets:
+            t.prepare()
 
     def execute(self):
         """Called to execute the task.

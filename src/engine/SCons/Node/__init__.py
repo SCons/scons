@@ -115,6 +115,7 @@ class Node:
         self.side_effects = [] # the side effects of building this target
         self.pre_actions = []
         self.post_actions = []
+        self.linked = 0 # is this node linked to the build directory? 
 
         # Let the interface in which the build engine is embedded
         # annotate this Node with its own info (like a description of
@@ -451,9 +452,27 @@ class Node:
         """Set the Node's precious value."""
         self.precious = precious
 
+    def exists(self):
+        """Does this node exists?"""
+        # All node exist by default:
+        return 1
+    
+    def rexists(self):
+        """Does this node exist locally or in a repositiory?"""
+        # There are no repositories by default:
+        return self.exists()
+    
     def prepare(self):
-        """Prepare for this Node to be created:  no-op by default."""
-        pass
+        """Prepare for this Node to be created.
+        The default implemenation checks that all children either exist
+        or are derived.
+        """
+        def missing(node):
+            return not node.is_derived() and not node.linked and not node.rexists()
+        missing_sources = filter(missing, self.children())
+        if missing_sources:
+            desc = "No Builder for target `%s', needed by `%s'." % (missing_sources[0], self)
+            raise SCons.Errors.StopError, desc
 
     def remove(self):
         """Remove this Node:  no-op by default."""

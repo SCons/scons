@@ -33,7 +33,7 @@ test.write('SConstruct', """
 env = Environment()
 print env['CC']
 print env['CCFLAGS']
-Default(env.Alias('dummy'))
+Default(env.Alias('dummy', None))
 """)
 test.run()
 cc, ccflags = string.split(test.stdout(), '\n')[1:3]
@@ -87,7 +87,7 @@ opts = Options()
 opts.Update(env)
 assert env['RELEASE_BUILD'] == r
 
-Default(env.Alias('dummy'))
+Default(env.Alias('dummy', None))
         
 """)
 

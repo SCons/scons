@@ -377,6 +377,66 @@ class NodeTestCase(unittest.TestCase):
         node.set_precious(7)
         assert node.precious == 7
 
+    def test_exists(self):
+        """Test evaluating whether a Node exists.
+        """
+        node = SCons.Node.Node()
+        e = node.exists()
+        assert e == 1, e
+
+    def test_exists(self):
+        """Test evaluating whether a Node exists locally or in a repository.
+        """
+        node = SCons.Node.Node()
+        e = node.rexists()
+        assert e == 1, e
+
+        class MyNode(SCons.Node.Node):
+            def exists(self):
+                return 'xyz'
+
+        node = MyNode()
+        e = node.rexists()
+        assert e == 'xyz', e
+
+    def test_prepare(self):
+        """Test preparing a node to be built
+        """
+        node = SCons.Node.Node()
+
+        n1 = SCons.Node.Node()
+        n1.builder_set(Builder())
+        node.implicit = []
+        node._add_child(node.implicit, [n1])
+
+        node.prepare()  # should not throw an exception
+
+        n2 = SCons.Node.Node()
+        n2.linked = 1
+        node.implicit = []
+        node._add_child(node.implicit, [n2])
+
+        node.prepare()  # should not throw an exception
+
+        n3 = SCons.Node.Node()
+        node.implicit = []
+        node._add_child(node.implicit, [n3])
+
+        node.prepare()  # should not throw an exception
+
+        class MyNode(SCons.Node.Node):
+            def rexists(self):
+                return None
+        n4 = MyNode()
+        node.implicit = []
+        node._add_child(node.implicit, [n4]) 
+        exc_caught = 0
+        try:
+            node.prepare()
+        except SCons.Errors.StopError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected StopError"
+
     def test_add_dependency(self):
         """Test adding dependencies to a Node's list.
         """
