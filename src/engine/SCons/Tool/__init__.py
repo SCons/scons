@@ -143,6 +143,8 @@ def tool_list(platform, env):
     # XXX this logic about what tool to prefer on which platform
     #     should be moved into either the platform files or
     #     the tool files themselves.
+    # The search orders here are described in the man page.  If you
+    # change these search orders, update the man page as well.
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
         linkers = ['mslink', 'gnulink', 'ilink', 'linkloc' ]

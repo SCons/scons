@@ -119,7 +119,9 @@ scons: done building targets.
 $
 .EE
 
-These status messages may be suppressed using the
+The status messages
+(everything except the line that reads "cp foo.in foo.out")
+may be suppressed using the
 .B -Q
 option.
 
@@ -288,16 +290,37 @@ requires Python version 1.5.2 or later.
 There should be no other dependencies or requirements to run
 .B scons.
 
-The default
+.\" The following paragraph reflects the default tool search orders
+.\" currently in SCons/Tool/__init__.py.  If any of those search orders
+.\" change, this documentation should change, too.
+By default,
 .B scons
-configuration assumes
-use of the Microsoft Visual C++ compiler suite on WIN32 systems,
-and assumes a C compiler named
-.B cc
-and a C++ compiler named
-.B c++
-(such as found in the GNU C compiler suite)
-on any other type of system.
+knows how to search for available programming tools
+on various systems.
+On WIN32 systems,
+.B scons
+searches in order for the
+Microsoft Visual C++ tools,
+the MinGW tool chain,
+the Intel compiler tools,
+and the PharLap ETS compiler.
+On OS/2 systems,
+.B scons
+searches in order for the 
+OS/2 compiler,
+the GCC tool chain,
+and the Microsoft Visual C++ tools,
+On SGI IRIX systems,
+.B
+searches for the MIPSPro compiler tools
+and the GCC tool chain.
+And on all other platforms,
+including POSIX (Linux and UNIX) platforms,
+.B scons
+searches in order
+for the GCC tool chain,
+the Microsoft Visual C++ tools,
+and the Intel compiler tools.
 You may, of course, override these default values
 by appropriate configuration of
 Environment construction variables.
