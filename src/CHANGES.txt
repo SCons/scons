@@ -29,6 +29,9 @@ RELEASE 0.06 -
   - Add a CXXFile Builder that turns .ll and .yy files into .cc files
     (configurable via a CXXFILESUFFIX construction variable).
 
+  - Use the POSIX-standard lex -t flag, not the GNU-specific -o flag.
+    (Bug reported by Russell Christensen.)
+
 
 
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
