@@ -73,6 +73,7 @@
 <!ENTITY implicit-cache "<literal>--implicit-cache</literal>">
 <!ENTITY implicit-deps-changed "<literal>--implicit-deps-changed</literal>">
 <!ENTITY implicit-deps-unchanged "<literal>--implicit-deps-unchanged</literal>">
+<!ENTITY Q "<literal>-Q</literal>">
 
 <!--
 
@@ -127,6 +128,7 @@
 <!ENTITY Export "<function>Export</function>">
 <!ENTITY Help "<function>Help</function>">
 <!ENTITY Ignore "<function>Ignore</function>">
+<!ENTITY Import "<function>Import</function>">
 <!ENTITY Install "<function>Install</function>">
 <!ENTITY InstallAs "<function>InstallAs</function>">
 <!ENTITY Link "<function>Link</function>">
@@ -137,6 +139,7 @@
 <!ENTITY Prepend "<function>Prepend</function>">
 <!ENTITY Replace "<function>Replace</function>">
 <!ENTITY Repository "<function>Repository</function>">
+<!ENTITY Return "<function>Return</function>">
 <!ENTITY RuleSet "<function>RuleSet</function>">
 <!ENTITY Salt "<function>Salt</function>">
 <!ENTITY SetBuildSignatureType "<function>SetBuildSignatureType</function>">
@@ -163,6 +166,13 @@
 
 <!ENTITY BUILDERMAP "<varname>BUILDERMAP</varname>">
 <!ENTITY BUILDERS "<varname>BUILDERS</varname>">
+<!ENTITY LIBDIRPREFIX "<varname>LIBDIRPREFIX</varname>">
+<!ENTITY LIBDIRSUFFIX "<varname>LIBDIRSUFFIX</varname>">
+<!ENTITY LIBLINKPREFIX "<varname>LIBLINKPREFIX</varname>">
+<!ENTITY LIBLINKSUFFIX "<varname>LIBLINKSUFFIX</varname>">
+<!ENTITY LINK "<varname>LINK</varname>">
+<!ENTITY LINKCOM "<varname>LINKCOM</varname>">
+<!ENTITY LINKFLAGS "<varname>LINKFLAGS</varname>">
 <!ENTITY SCANNERMAP "<varname>SCANNERMAP</varname>">
 <!ENTITY SCANNERS "<varname>SCANNERS</varname>">
 <!ENTITY TARFLAGS "<varname>TARFLAGS</varname>">
@@ -272,14 +282,22 @@
 
 -->
 
+<!ENTITY bar "<application>bar</application>">
 <!ENTITY common1_c "<application>common1.c</application>">
 <!ENTITY common2_c "<application>common2.c</application>">
 <!ENTITY goodbye "<application>goodbye</application>">
+<!ENTITY file_dll "<application>file.dll</application>">
+<!ENTITY file_lib "<application>file.lib</application>">
+<!ENTITY file_o "<application>file.o</application>">
+<!ENTITY file_obj "<application>file.obj</application>">
+<!ENTITY foo "<application>foo</application>">
 <!ENTITY hello "<application>hello</application>">
 <!ENTITY hello_c "<filename>hello.c</filename>">
 <!ENTITY hello_exe "<filename>hello.exe</filename>">
 <!ENTITY hello_h "<filename>hello.h</filename>">
 <!ENTITY hello_o "<filename>hello.o</filename>">
+<!ENTITY libfile_a "<filename>libfile_a</filename>">
+<!ENTITY libfile_so "<filename>libfile_so</filename>">
 <!ENTITY prog "<filename>prog</filename>">
 <!ENTITY prog1 "<filename>prog1</filename>">
 <!ENTITY prog2 "<filename>prog2</filename>">

@@ -8,7 +8,7 @@
 
 
 
-RELEASE X.XX - XXX
+RELEASE 0.93 - Thu, 23 Oct 2003 07:26:55 -0500
 
   From J.T. Conklin:
 
@@ -134,6 +134,9 @@ RELEASE X.XX - XXX
 
   - Supply a warning when -j is used and threading isn't built in to
     the current version of Python.
+
+  - First release of the User's Guide (finally, and despite a lot
+    of things still missing from it...).
 
   From Clark McGrew:
 

@@ -60,8 +60,8 @@
   <emphasis>easier</emphasis>
   for non-programmers to learn
   than the cryptic languages of other build tools,
-  which are usally invented by programmers for other programmers.
-  This is in no small part to the
+  which are usually invented by programmers for other programmers.
+  This is in no small part due to the
   consistency and readability that are built in to Python.
   It just so happens that making a real, live
   scripting language the basis for the
@@ -71,6 +71,8 @@
   as necessary.
 
   </para>
+
+  <!--
 
   <section>
   <title>Why &SCons;?</title>
@@ -93,6 +95,8 @@
     </para>
 
   </section>
+
+  -->
 
   <section>
   <title>&SCons; Principles</title>
@@ -137,7 +141,8 @@
       down the default &SCons; behavior to guarantee a correct build,
       we also try to make it easy to speed up &SCons;
       through optimization options that let you trade off
-      guaranteed correctness for speed.
+      guaranteed correctness in all end cases for
+      a speedier build in the usual cases.
 
       </para>
       </listitem>
@@ -169,6 +174,8 @@
 
   </section>
 
+  <!--
+
   <section>
   <title>History</title>
 
@@ -196,6 +203,8 @@
     </para>
 
   </section>
+
+  -->
 
   <!--
 
@@ -265,7 +274,7 @@
     and time people have contributed over the past few years.
     The "core team"
     of Chad Austin, Anthony Roach, Charles Crain,
-    Steve Leblanc, Greg Spencer and Christoph Wiedemann
+    Steve Leblanc, Gary Oerbrunner, Greg Spencer and Christoph Wiedemann
     have been great about reviewing my (and other) changes
     and catching problems before they get in the code base.
     Of particular technical note:
@@ -282,7 +291,7 @@
     <para>
 
     Special thanks to David Snopek for contributing
-    his underlying "Autocons" code that formed
+    his underlying "Autoscons" code that formed
     the basis of Christoph's work with the Configure functionality.
     David was extremely generous in making
     this code available to &SCons;,
@@ -290,6 +299,8 @@
     and &SCons; is released under a less-restrictive MIT-style license.
 
     </para>
+
+    <!--
 
     <para>
 
@@ -308,11 +319,13 @@
     Jeff Petkau (significant fixes for CacheDir and other areas),
     Stefan Reichor (Ghostscript support),
     Zed Shaw (Append() and Replace() environment methods),
-    Terrel Shumway (build and test fixes, as well as the SCons Wiki),
-    sam th (dynamic checks for utilities)
-    and Moshe Zadke (Debian packaging).
+    Terrel Shumway (build and test fixes, as well as the SCons Wiki)
+    and
+    sam th (dynamic checks for utilities).
 
     </para>
+
+    -->
 
     <para>
 

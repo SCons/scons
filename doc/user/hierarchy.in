@@ -340,7 +340,7 @@ make no difference to the build.
     </para>
 
     <scons_output example="ex1">
-       <command>scons</command>
+       <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -351,8 +351,11 @@ make no difference to the build.
     in multiple directories, like main.c in the above example.
 
     Second, unlike standard recursive use of &Make;,
-    &SCons; stays in the top-level directory and
-    issues commands
+    &SCons; stays in the top-level directory
+    (where the &SConstruct; file lives)
+    and issues commands that use the path names
+    from the top-level directory to the
+    target and source files within the hierarchy.
 
     </para>
 
@@ -374,7 +377,6 @@ make no difference to the build.
     not the local directory of the &SConscript; file,
     by appending a &hash; (hash mark)
     to the beginning of the path name:
-
 
     </para>
 
@@ -409,7 +411,7 @@ make no difference to the build.
     </para>
 
     <scons_output example="ex2">
-       <command>scons</command>
+       <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -460,7 +462,7 @@ make no difference to the build.
     </para>
 
     <scons_output example="ex3">
-       <command>scons</command>
+       <command>scons -Q</command>
     </scons_output>
 
     <para>
@@ -512,7 +514,7 @@ make no difference to the build.
 
       There are two ways to export a variable,
       such as a construction environment,
-      from one &SConscript; file,
+      from an &SConscript; file,
       so that it may be used by other &SConscript; files.
       First, you can call the &Export;
       function with a list of variables,
@@ -531,7 +533,7 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      You may export more than one variable name at a time:
 
       </para>
 
@@ -543,7 +545,9 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      Because white space is not legal in Python variable names,
+      the &Export; function will even automatically split
+      a string into separate names for you:
 
       </para>
 
@@ -603,7 +607,10 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      Once a variable has been exported from a calling
+      &SConscript; file,
+      it may be used in other &SConscript; files
+      by calling the &Import; function:
 
       </para>
 
@@ -614,7 +621,18 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      The &Import; call makes the <literal>env</literal> construction
+      environment available to the &SConscript; file,
+      after which the variable can be used to build
+      programs, libraries, etc.
+
+      </para>
+
+      <para>
+
+      Like the &Export; function,
+      the &Import; function can be used
+      with multiple variable names:
 
       </para>
 
@@ -626,7 +644,9 @@ make no difference to the build.
 
       <para>
 
-      Which is exactly equivalent to:
+      And the &Import; function will similarly
+      split a string along white-space
+      into separate variable names:
 
       </para>
 
@@ -638,7 +658,24 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      Lastly, as a special case,
+      you may import all of the variables that
+      have been exported by supplying an asterisk
+      to the &Import; function:
+
+      </para>
+
+      <sconstruct>
+        Import('*')
+        env = env.Copy(DEBUG = debug)
+        env.Program('prog', ['prog.c'])
+      </sconstruct>
+
+      <para>
+
+      If you're dealing with a lot of &SConscript; files,
+      this can be a lot simpler than keeping
+      arbitrary lists of imported variables in each file.
 
       </para>
 
@@ -649,34 +686,89 @@ make no difference to the build.
 
       <para>
 
-      XXX
+      Sometimes, you would like to be able to
+      use information from a subsidiary
+      &SConscript file in some way.
+      For example,
+      suppose that you want to create one
+      library from source files
+      scattered throughout a number
+      of subsidiary &SConscript; files.
+      You can do this by using the &Return;
+      function to return values
+      from the subsidiary &SConscript; files
+      to the calling file.
 
       </para>
-
-      <sconstruct>
-        obj = env.Object('foo.c')
-        Return('obj')
-      </sconstruct>
 
       <para>
 
-      XXX
+      If, for example, we have two subdirectories
+      &foo; and &bar;
+      that should each contribute a source
+      file to a Library,
+      what we'd like to be able to do is
+      collect the object files
+      from the subsidiary &SConscript; calls
+      like this:
 
       </para>
 
-      <sconstruct>
-        objs = []
-        for subdir in ['foo', 'bar']:
-            o = SConscript('%s/SConscript' % subdir)
-            objs.append(o)
-        env.Library('prog', objs)
-      </sconstruct>
+      <scons_example name="Return">
+        <file name="SConstruct" printme="1">
+          env = Environment()
+          Export('env')
+          objs = []
+          for subdir in ['foo', 'bar']:
+              o = SConscript('%s/SConscript' % subdir)
+              objs.append(o)
+          env.Library('prog', objs)
+        </file>
+        <directory name="foo"></directory>
+        <directory name="bar"></directory>
+        <file name="foo/SConscript">
+          Import('env')
+          obj = env.Object('foo.c')
+          Return('obj')
+        </file>
+        <file name="bar/SConscript">
+          Import('env')
+          obj = env.Object('bar.c')
+          Return('obj')
+        </file>
+        <file name="foo/foo.c">
+          void foo(void) { printf("foo/foo.c\n"); }
+        </file>
+        <file name="bar/bar.c">
+          void bar(void) { printf("bar/bar.c\n"); }
+        </file>
+      </scons_example>
 
       <para>
 
-      XXX
+      We can do this by using the &Return;
+      function in the
+      <literal>foo/SConscript</literal> file like this:
 
       </para>
+
+      <scons_example_file example="Return" name="foo/SConscript">
+      </scons_example_file>
+
+      <para>
+
+      (The corresponding
+      <literal>bar/SConscript</literal>
+      file should be pretty obvious.)
+      Then when we run &SCons;,
+      the object files from the subsidiary subdirectories
+      are all correctly archived in the desired library:
+
+      </para>
+
+      <scons_output example="Return">
+        <command>scons -Q</command>
+      </scons_output>
 
     </section>
 

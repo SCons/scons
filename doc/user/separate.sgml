@@ -132,7 +132,7 @@ program using the F<build/foo.c> path name.
 
     The most straightforward way to establish a build directory
     uses the fact that the usual way to
-    set up a build hierarcy is to have an
+    set up a build hierarchy is to have an
     &SConscript; file in the source subdirectory.
     If you then pass a &build_dir; argument to the
     &SConscript; function call:
@@ -151,16 +151,13 @@ program using the F<build/foo.c> path name.
     </para>
 
     <literallayout>
-      % <userinput>ls -1 src</userinput>
-      SConscript
-      hello.c
-      % <userinput>scons</userinput>
-      cc -c build/hello.c -o build/hello.o
+      % <userinput>ls src</userinput>
+      SConscript  hello.c
+      % <userinput>scons -Q</userinput>
+      cc -c -o build/hello.o build/hello.c
       cc -o build/hello build/hello.o
-      % <userinput>ls -1 build</userinput>
-      hello
-      hello.c
-      hello.o
+      % <userinput>ls build</userinput>
+      SConscript  hello  hello.c  hello.o
     </literallayout>
 
     <para>
@@ -196,48 +193,88 @@ program using the F<build/foo.c> path name.
 
     &SCons; duplicates source files in build directories
     because it's the most straightforward way to guarantee a correct build
-     <emphasis>regardless of include-file directory paths</emphasis>,
+    <emphasis>regardless of include-file directory paths,
+    relative references between files,
+    or tool support for putting files in different locations</emphasis>,
     and the &SCons; philosophy is to, by default,
     guarantee a correct build in all cases.
-    Here is an example of an end case where duplicating
-    source files in a build directory
-    is necessary for a correct build:
 
     </para>
 
     <para>
 
-    XXX
+    The most direct reason to duplicate source files
+    in build directories
+    is simply that some tools (mostly older vesions)
+    are written to only build their output files
+    in the same directory as the source files.
+    In this case, the choices are either
+    to build the output file in the source directory
+    and move it to the build directory,
+    or to duplicate the source files in the build directory.
+
+    </para>
+
+    <para>
+
+    Additionally,
+    relative references between files
+    can cause problems if we don't
+    just duplicate the hierarchy of source files
+    in the build directory.
+    You can see this at work in
+    use of the C preprocessor <literal>#include</literal>
+    mechanism with double quotes, not angle brackets:
 
     </para>
 
     <programlisting>
-      env = Environmnet()
+      #include "file.h"
     </programlisting>
 
     <para>
 
-    XXX
+    The <emphasis>de facto</emphasis> standard behavior
+    for most C compilers in this case
+    is to first look in the same directory
+    as the source file that contains the <literal>#include</literal> line,
+    then to look in the directories in the preprocessor search path.
+    Add to this that the &SCons; implementation of
+    support for code repositories
+    (described below)
+    means not all of the files
+    will be found in the same directory hierarchy,
+    and the simplest way to make sure
+    that the right include file is found
+    is to duplicate the source files into the build directory,
+    which provides a correct build
+    regardless of the original location(s) of the source files.
 
     </para>
 
-    <literallayout>
-      % <userinput>scons</userinput>
-      cc -c build/hello.c -o build/hello.o
-      cc -o build/hello build/hello.o
-    </literallayout>
+    <para>
 
-  </section>
+    Although source-file duplication guarantees a correct build
+    even in these end-cases,
+    it <emphasis>can</emphasis> usually be safely disabled.
+    The next section describes
+    how you can disable the duplication of source files
+    in the build directory.
+
+    </para>
+
+  </section> 
 
   <section>
   <title>Telling &SCons; to Not Duplicate Source Files in the Build Directory</title>
 
     <para>
 
-    In most cases, however,
-    having &SCons; place its target files in a build subdirectory
+    In most cases and with most tool sets,
+    &SCons; can place its target files in a build subdirectory
     <emphasis>without</emphasis>
-    duplicating the source files works just fine.
+    duplicating the source files
+    and everything will work just fine.
     You can disable the default &SCons; behavior
     by specifying <literal>duplicate=0</literal>
     when you call the &SConscript; function:
@@ -259,13 +296,13 @@ program using the F<build/foo.c> path name.
     </para>
 
     <literallayout>
-      % <userinput>ls -1 src</userinput>
+      % <userinput>ls src</userinput>
       SConscript
       hello.c
-      % <userinput>scons</userinput>
+      % <userinput>scons -Q</userinput>
       cc -c src/hello.c -o build/hello.o
       cc -o build/hello build/hello.o
-      % <userinput>ls -1 build</userinput>
+      % <userinput>ls build</userinput>
       hello
       hello.o
     </literallayout>
@@ -303,12 +340,6 @@ program using the F<build/foo.c> path name.
 
     <para>
 
-    XXX
-
-    </para>
-
-    <para>
-
     When using the &BuildDir; function directly,
     &SCons; still duplicates the source files
     in the build directory by default:
@@ -318,13 +349,11 @@ program using the F<build/foo.c> path name.
     <literallayout>
       % <userinput>ls src</userinput>
       hello.c
-      % <userinput>scons</userinput>
-      cc -c build/hello.c -o build/hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o build/hello.o build/hello.c
       cc -o build/hello build/hello.o
-      % <userinput>ls -1 build</userinput>
-      hello
-      hello.c
-      hello.o
+      % <userinput>ls build</userinput>
+      hello  hello.c  hello.o
     </literallayout>
 
     <para>
@@ -350,12 +379,11 @@ program using the F<build/foo.c> path name.
     <literallayout>
       % <userinput>ls src</userinput>
       hello.c
-      % <userinput>scons</userinput>
-      cc -c src/hello.c -o build/hello.o
+      % <userinput>scons -Q</userinput>
+      cc -c -o build/hello.o src/hello.c
       cc -o build/hello build/hello.o
-      % <userinput>ls -1 build</userinput>
-      hello
-      hello.o
+      % <userinput>ls build</userinput>
+      hello  hello.o
     </literallayout>
 
   </section>
@@ -381,14 +409,15 @@ program using the F<build/foo.c> path name.
 
     <para>
 
-    Then our &SConscript; file could look like:
+    Then our &SConstruct; file could look like:
 
     </para>
 
+    
     <programlisting>
       BuildDir('build', 'src')
       SConscript('build/SConscript')
-    </programlisting>
+      </programlisting>
 
     <para>
 
@@ -397,16 +426,13 @@ program using the F<build/foo.c> path name.
     </para>
 
     <literallayout>
-      % <userinput>ls -1 src</userinput>
-      SConscript
-      hello.c
-      % <userinput>scons</userinput>
-      cc -c build/hello.c -o build/hello.o
+      % <userinput>ls src</userinput>
+      SConscript  hello.c
+      % <userinput>scons -Q</userinput>
+      cc -c -o build/hello.o build/hello.c
       cc -o build/hello build/hello.o
-      % <userinput>ls -1 build</userinput>
-      hello
-      hello.c
-      hello.o
+      % <userinput>ls build</userinput>
+      SConscript  hello  hello.c  hello.o
     </literallayout>
 
     <para>
@@ -419,6 +445,8 @@ program using the F<build/foo.c> path name.
 
   </section>
 
+  <!--
+
   <section>
   <title>Why You'd Want to Call &BuildDir; Instead of &SConscript;</title>
 
@@ -429,3 +457,5 @@ program using the F<build/foo.c> path name.
     </para>
 
   </section>
+
+  -->

@@ -29,7 +29,7 @@
 
  <para>
 
-   X
+   XXX
 
  </para>
 
@@ -38,19 +38,22 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
    <programlisting>
       env = Environment()
-      env.SourceCode('.', env.BitKeeper('XXX'))
+      env.SourceCode('.', env.BitKeeper())
       env.Program('hello.c')
    </programlisting>
 
    <literallayout>
-     % <userinput>scons</userinput>
-     XXX
+     % <userinput>scons -Q</userinput>
+     bk get -
+     bk get hello.c
+     cc -c -o hello.o hello.c
+     cc -o hello hello.o
    </literallayout>
 
  </section>
@@ -60,19 +63,22 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
    <programlisting>
       env = Environment()
-      env.SourceCode('.', env.CVS('XXX'))
+      env.SourceCode('.', env.CVS('/usr/local/CVS'))
       env.Program('hello.c')
    </programlisting>
 
    <literallayout>
-     % <userinput>scons</userinput>
-     XXX
+     % <userinput>scons -Q</userinput>
+     cvs -d /usr/local/CVS co -
+     cvs -d /usr/local/CVS co hello.c
+     cc -c -o hello.o hello.c
+     cc -o hello hello.o
    </literallayout>
 
  </section>
@@ -82,7 +88,7 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
@@ -93,8 +99,11 @@
    </programlisting>
 
    <literallayout>
-     % <userinput>scons</userinput>
-     XXX
+     % <userinput>scons -Q</userinput>
+     co -
+     co hello.c
+     cc -c -o hello.o hello.c
+     cc -o hello hello.o
    </literallayout>
 
  </section>
@@ -104,7 +113,7 @@
 
    <para>
 
-   X
+   XXX
 
    </para>
 
@@ -115,30 +124,38 @@
    </programlisting>
 
    <literallayout>
-     % <userinput>scons</userinput>
-     XXX
+     % <userinput>scons -Q</userinput>
+     sccs get -
+     sccs get hello.c
+     cc -c -o hello.o hello.c
+     cc -o hello hello.o
    </literallayout>
 
  </section>
+
+ <!--
 
  <section>
  <title>Fetching Source Code From Subversion</title>
 
    <para>
 
-   X
+   XXX
 
    </para>
 
-   <programlisting>
+   <scons_example name="ex_subversion">
+      <file name="SConstruct" printme="1">
       env = Environment()
       env.SourceCode('.', env.Subversion('XXX'))
       env.Program('hello.c')
-   </programlisting>
+      </file>
+   </scons_example>
 
-   <literallayout>
-     % <userinput>scons</userinput>
-     XXX
-   </literallayout>
+   <scons_output example="ex_subversion">
+     <command>scons -Q</command>
+   </scons_output>
 
  </section>
+
+ -->

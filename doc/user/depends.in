@@ -59,8 +59,7 @@ operating system on which the build is performed (as reported by C<uname
 
   <scons_example name="ex1">
     <file name="SConstruct">
-    env = Environment()
-    env.Program('hello.c')
+    Program('hello.c')
     </file>
     <file name="hello.c">
     int main() { printf("Hello, world!\n"); }
@@ -68,8 +67,8 @@ operating system on which the build is performed (as reported by C<uname
   </scons_example>
 
   <scons_output example="ex1" os="posix">
-     <command>scons</command>
-     <command>scons</command>
+     <command>scons -Q</command>
+     <command>scons -Q</command>
   </scons_output>
 
   <para>
@@ -84,8 +83,8 @@ operating system on which the build is performed (as reported by C<uname
   </para>
 
   <scons_output example="ex1" os="posix">
-     <command>scons hello</command>
-     <command>scons hello</command>
+     <command>scons -Q hello</command>
+     <command>scons -Q hello</command>
   </scons_output>
 
   <para>
@@ -133,9 +132,9 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex1" os="posix">
-         <command>scons hello</command>
+         <command>scons -Q hello</command>
          <command>touch hello.c</command>
-         <command>scons hello</command>
+         <command>scons -Q hello</command>
       </scons_output>
 
       <para>
@@ -155,26 +154,10 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex1" os="posix">
-         <command>scons hello</command>
-         <command output="[CHANGE THE CONTENTS OF hello.c]">edit hello.c</command>
-         <command>scons hello</command>
-      </scons>
-
-      <!--
-
-      <literallayout>
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
-         cc -o hello hello.o
-         % <userinput>edit hello.c</userinput>
-             [CHANGE THE CONTENTS OF hello.c]
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
-         cc -o hello hello.o
-         %
-      </literallayout>
-
-      -->
+         <command>scons -Q hello</command>
+         <command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</command>
+         <command>scons -Q hello</command>
+      </scons_output>
 
       <para>
 
@@ -186,8 +169,7 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <sconstruct>
-        env = Environment()
-        env.Program('hello.c')
+        Program('hello.c')
         SourceSignatures('MD5')
       </sconstruct>
 
@@ -210,8 +192,7 @@ operating system on which the build is performed (as reported by C<uname
 
       <scons_example name="ex2">
         <file name="SConstruct" printme="1">
-        env = Environment()
-        env.Program('hello.c')
+        Program('hello.c')
         SourceSignatures('timestamp')
         </file>
         <file name="hello.c">
@@ -227,11 +208,11 @@ operating system on which the build is performed (as reported by C<uname
 
       </para>
 
-      <scons_output example="ex1" os="posix">
-         <command>scons hello</command>
+      <scons_output example="ex2" os="posix">
+         <command>scons -Q hello</command>
          <command>touch hello.c</command>
-         <command>scons hello</command>
-      </scons>
+         <command>scons -Q hello</command>
+      </scons_output>
 
     </section>
 
@@ -247,8 +228,8 @@ operating system on which the build is performed (as reported by C<uname
     target file is up to date or must be rebuilt.
     When a target file depends on another target file,
     &SCons; allows you to separately configure
-    how the signatures of an "intermediate" target file
-    is used when deciding if a dependent target file
+    how the signatures of "intermediate" target files
+    are used when deciding if a dependent target file
     must be rebuilt.
 
     </para>
@@ -271,26 +252,10 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex1" os="posix">
-         <command>scons hello</command>
-         <command output="[CHANGE THE CONTENTS OF hello.c]">edit hello.c</command>
-         <command>scons hello</command>
-      </scons>
-
-      <!--
-
-      <literallayout>
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
-         cc -o hello hello.o
-         % <userinput>edit hello.c</userinput>
-           [CHANGE THE CONTENTS OF hello.c]
-         % <userinput>scons hello</userinput>
-         cc -c hello.c -o hello.o
-         cc -o hello hello.o
-         %
-      </literallayout>
-
-      -->
+         <command>scons -Q hello</command>
+         <command output="    [CHANGE THE CONTENTS OF hello.c]">edit hello.c</command>
+         <command>scons -Q hello</command>
+      </scons_output>
 
       <para>
 
@@ -324,8 +289,7 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <sconstruct>
-        env = Environment()
-        env.Program('hello.c')
+        Program('hello.c')
         TargetSignatures('build')
       </sconstruct>
 
@@ -344,17 +308,16 @@ operating system on which the build is performed (as reported by C<uname
       If so, then any other target files
       that depend on such a built-but-not-changed target
       file actually need not be rebuilt.
-      You can have &SCons;
-      realize that a dependent target file
-      need not be rebuilt in this situation
+      You can make &SCons;
+      realize that it does not need to rebuild
+      a dependent target file in this situation
       using the &TargetSignatures; function as follows:
 
       </para>
 
       <scons_example name="ex3">
         <file name="SConstruct" printme="1">
-        env = Environment()
-        env.Program('hello.c')
+        Program('hello.c')
         TargetSignatures('content')
         </file>
         <file name="hello.c">
@@ -376,10 +339,10 @@ operating system on which the build is performed (as reported by C<uname
       </para>
 
       <scons_output example="ex3" os="posix">
-         <command>scons hello</command>
-         <command output="[CHANGE A COMMENT IN hello.c]">edit hello.c</command>
-         <command>scons hello</command>
-      </scons>
+         <command>scons -Q hello</command>
+         <command output="  [CHANGE A COMMENT IN hello.c]" edit="STRIP CCCOM line">edit hello.c</command>
+         <command>scons -Q hello</command>
+      </scons_output>
 
       <para>
 
@@ -413,19 +376,18 @@ operating system on which the build is performed (as reported by C<uname
 
     <scons_example name="ex4">
       <file name="SConstruct">
-      env = Environment(CPPPATH = '.')
-      hello = env.Program('hello.c')
+       Program('hello.c', CPPPATH = '.')
       </file>
       <file name="hello.c" printme="1">
-      #include "hello.h" 
-      int
-      main()
-      {
-          printf("Hello, %s!\n", string);
-      }
+       #include "hello.h" 
+       int
+       main()
+       {
+           printf("Hello, %s!\n", string);
+       }
       </file>
       <file name="hello.h">
-      #define string    "world"
+       #define string    "world"
       </file>
     </scons_example>
 
@@ -453,7 +415,7 @@ operating system on which the build is performed (as reported by C<uname
 
     <para>
 
-    The &CPPPATH; assignment in the &Environment; call
+    The &CPPPATH; value
     tells &SCons; to look in the current directory
     (<literal>'.'</literal>)
     for any files included by C source files
@@ -463,11 +425,11 @@ operating system on which the build is performed (as reported by C<uname
     </para>
 
     <scons_output example="ex4" os="posix">
-       <command>scons hello</command>
-       <command>scons hello</command>
-       <command output="[CHANGE THE CONTENTS IN hello.h]">edit hello.h</command>
-       <command>scons hello</command>
-    </scons>
+       <command>scons -Q hello</command>
+       <command>scons -Q hello</command>
+       <command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</command>
+       <command>scons -Q hello</command>
+    </scons_output>
 
     <para>
 
@@ -512,13 +474,9 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
-    <programlisting>
-    </programlisting>
-
     <scons_example name="ex5">
-      <file name="SConstruct">
-      env = Environment(CPPPATH = ['include', '/home/project/inc'])
-      hello = env.Program('hello.c')
+      <file name="SConstruct" printme="1">
+       Program('hello.c', CPPPATH = ['include', '/home/project/inc'])
       </file>
       <file name="hello.c">
       int main() { printf("Hello, world!\n"); }
@@ -531,8 +489,8 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
-    <scons_output example="ex4" os="posix">
-       <command>scons hello</command>
+    <scons_output example="ex5" os="posix">
+       <command>scons -Q hello</command>
     </scons_output>
 
     <para>
@@ -541,8 +499,8 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
-    <scons_output example="ex4" os="win32">
-       <command>scons hello</command>
+    <scons_output example="ex5" os="win32">
+       <command>scons -Q hello.exe</command>
     </scons_output>
 
   </section>
@@ -590,19 +548,22 @@ operating system on which the build is performed (as reported by C<uname
     the implicit dependencies
     that its scanners find,
     for use by later builds.
-    You do this either by specifying the
+    You can do this by specifying the
     &implicit-cache; option on the command line:
 
     </para>
 
-    <scons_output example="ex1" os="win32">
-       <command>scons --implicit-cache hello</command>
-       <command>scons hello</command>
+    <scons_output example="ex1">
+       <command>scons -Q --implicit-cache hello</command>
+       <command>scons -Q hello</command>
     </scons_output>
 
     <para>
 
-    Or by setting the &implicit_cache; option
+    If you don't want to specify &implicit-cache;
+    on the command line each time,
+    you can make it the default behavior for your build
+    by setting the &implicit_cache; option
     in an &SConscript; file:
 
     </para>
@@ -611,12 +572,7 @@ operating system on which the build is performed (as reported by C<uname
        SetOption('implicit_cache', 1)
     </sconstruct>
 
-    <para>
-
-    &SCons; does not cache implicit dependencies like this by default
-    because XXX
-    
-    </para>
+    <!--
 
     <para>
     
@@ -624,12 +580,44 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
+    <para>
+
+    &SCons; does not cache implicit dependencies like this by default
+    because XXX
+    
+    </para>
+
+    -->
+
     <section>
     <title>The &implicit-deps-changed; Option</title>
 
       <para>
 
-      XXX
+      When using cached implicit dependencies,
+      sometimes you want to "start fresh"
+      and have &SCons; re-scan the files
+      for which it previously cached the dependencies.
+      For example,
+      if you have recently installed a new version of
+      external code that you use for compilation,
+      the external header files will have changed
+      and the previously-cached implicit dependencies
+      will be out of date.
+      You can update them by
+      running &SCons; with the &implicit-deps-changed; option:
+
+      </para>
+
+      <scons_output example="ex1">
+         <command>scons -Q --implicit-deps-changed hello</command>
+         <command>scons -Q hello</command>
+      </scons_output>
+
+      <para>
+
+      In this case, &SCons; will re-scan all of the implicit dependencies
+      and cache updated copies of the information.
 
       </para>
 
@@ -640,7 +628,38 @@ operating system on which the build is performed (as reported by C<uname
 
       <para>
 
-      XXX
+      By default when caching dependencies,
+      &SCons; notices when a file has been modified
+      and re-scans the file for any updated
+      implicit dependency information.
+      Sometimes, however, you may want
+      to force &SCons; to use the cached implicit dependencies, 
+      even if the source files changed.
+      This can speed up a build for example,
+      when you have changed your source files
+      but know that you haven't changed
+      any <literal>#include</literal> lines.
+      In this case,
+      you can use the &implicit-deps-unchanged; option:
+
+      </para>
+
+      <scons_output example="ex1">
+         <command>scons -Q --implicit-deps-unchanged hello</command>
+         <command>scons -Q hello</command>
+      </scons_output>
+
+      <para>
+
+      In this case,
+      &SCons; will assume that the cached implicit
+      dependencies are correct and
+      will not bother to re-scan changed files.
+      For typical builds after small,
+      incremental changes to source files,
+      the savings may not be very big,
+      but sometimes every bit of
+      improved performance counts.
 
       </para>
 
@@ -662,24 +681,42 @@ operating system on which the build is performed (as reported by C<uname
 
     </para>
 
-    <programlisting>
-       env = Environment()
-       hello = env.Program('hello.c')
-       env.Ignore(hello, 'hello.h')
-    </programlisting>
+    <scons_example name="ignore">
+      <file name="SConstruct" printme="1">
+      hello = Program('hello.c')
+      Ignore(hello, 'hello.h')
+      </file>
+      <file name="hello.c">
+      #include "hello.h" 
+      int main() { printf("Hello, %s!\n", string); }
+      </file>
+      <file name="hello.h">
+      #define string    "world"
+      </file>
+    </scons_example>
 
     <!-- XXX mention that you can use arrays for target and source? -->
 
+    <!--
+    <scons_output example="ignore">
+      <command>scons -Q hello</command>
+      <command>scons -Q hello</command>
+      <command output="    [CHANGE THE CONTENTS OF hello.h]">edit hello.h</command>
+      <command>scons -Q hello</command>
+      XXX THIS EXAMPLE SHOULD BE UP-TO-DATE! XXX
+    </scons_output>
+    -->
+
     <literallayout>
-       % <userinput>scons hello</userinput>
-       cc -c hello.c -o hello.o
-       cc -o hello hello.o
-       % <userinput>scons hello</userinput>
-       scons: `hello' is up to date.
-       % <userinput>edit hello.h</userinput>
-           [CHANGE THE CONTENTS OF hello.h]
-       % <userinput>scons hello</userinput>
-       scons: `hello' is up to date.
+      % <userinput>scons -Q hello</userinput>
+      cc -c -o hello.o hello.c
+      cc -o hello hello.o
+      % <userinput>scons -Q hello</userinput>
+      scons: `hello' is up to date.
+      % <userinput>edit hello.h</userinput>
+        [CHANGE THE CONTENTS OF hello.h]
+      % <userinput>scons -Q hello</userinput>
+      scons: `hello' is up to date.
     </literallayout>
 
     <para>
@@ -718,7 +755,7 @@ operating system on which the build is performed (as reported by C<uname
 
     On the other hand,
     sometimes a file depends on another file
-    that has no &SCons; scanner will detect.
+    that is not detected by an &SCons; scanner.
     For this situation,
     &SCons; allows you to specific explicitly that one file
     depends on another file,
@@ -736,14 +773,14 @@ operating system on which the build is performed (as reported by C<uname
     <!-- XXX mention that you can use arrays for target and source? -->
 
     <literallayout>
-       % <userinput>scons hello</userinput>
+       % <userinput>scons -Q hello</userinput>
        cc -c hello.c -o hello.o
        cc -o hello hello.o
-       % <userinput>scons hello</userinput>
+       % <userinput>scons -Q hello</userinput>
        scons: `hello' is up to date.
        % <userinput>edit other_file</userinput>
            [CHANGE THE CONTENTS OF other_file]
-       % <userinput>scons hello</userinput>
+       % <userinput>scons -Q hello</userinput>
        cc -c hello.c -o hello.o
        cc -o hello hello.o
     </literallayout>
