@@ -25,6 +25,9 @@ RELEASE 0.97 - XXX
   - Allow Tools found on a toolpath to import Python modules from
     their local directory.
 
+  - Have the environment store the toolpath and re-use it to find Tools
+    modules during later Copy() or Tool() calls (unless overridden).
+
   From Stanislav Baranov:
 
   - Make it possible to support with custom Alias (sub-)classes.

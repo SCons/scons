@@ -117,6 +117,10 @@ def our_deepcopy(x):
    return copy
 
 def apply_tools(env, tools, toolpath):
+    # Store the toolpath in the Environment.
+    if toolpath is not None:
+        env['toolpath'] = toolpath
+
     if not tools:
         return
     # Filter out null tools from the list.
@@ -124,9 +128,9 @@ def apply_tools(env, tools, toolpath):
         if SCons.Util.is_List(tool) or type(tool)==type(()):
             toolname = tool[0]
             toolargs = tool[1] # should be a dict of kw args
-            tool = apply(env.Tool, (toolname, toolpath), toolargs)
+            tool = apply(env.Tool, [toolname], toolargs)
         else:
-            env.Tool(tool, toolpath)
+            env.Tool(tool)
 
 # These names are controlled by SCons; users should never set or override
 # them.  This warning can optionally be turned off, but scons will still
@@ -465,7 +469,7 @@ class Base(SubstitutionEnvironment):
     def __init__(self,
                  platform=None,
                  tools=None,
-                 toolpath=[],
+                 toolpath=None,
                  options=None,
                  **kw):
         """
@@ -704,7 +708,7 @@ class Base(SubstitutionEnvironment):
                     self._dict[key] = self._dict[key] + val
         self.scanner_map_delete(kw)
 
-    def Copy(self, tools=[], toolpath=[], **kw):
+    def Copy(self, tools=[], toolpath=None, **kw):
         """Return a copy of a construction Environment.  The
         copy is like a Python "deep copy"--that is, independent
         copies are made recursively of each objects--except that
@@ -1045,9 +1049,11 @@ class Base(SubstitutionEnvironment):
                 del kw[k]
         apply(self.Replace, (), kw)
 
-    def Tool(self, tool, toolpath=[], **kw):
+    def Tool(self, tool, toolpath=None, **kw):
         if SCons.Util.is_String(tool):
             tool = self.subst(tool)
+            if toolpath is None:
+                toolpath = self.get('toolpath', [])
             toolpath = map(self.subst, toolpath)
             tool = apply(SCons.Tool.Tool, (tool, toolpath), kw)
         tool(self)

@@ -1023,6 +1023,19 @@ value if the tool is available.
 Tools in the toolpath are used before
 any of the built-in ones.  For example, adding gcc.py to the toolpath
 would override the built-in gcc tool.
+Also note that the toolpath is
+stored in the environment for use
+by later calls to
+.BR Copy ()
+and
+.BR Tool ()
+methods:
+
+.ES
+base = Environment(toolpath=['custom_path'])
+derived = base.Copy(tools=['custom_tool'])
+derived.CustomBuilder()
+.EE
 
 The elements of the tools list may also
 be functions or callable objects,
@@ -7382,7 +7395,7 @@ and selects the compiler to be used for the check;
 the default is "C".
 
 .TP 
-.RI Configure.CheckLib( self ", [" library ", " symbol ", " header ", " language ", " autoadd ])
+.RI Configure.CheckLib( self ", [" library ", " symbol ", " header ", " language ", " autoadd=1 ])
 Checks if 
 .I library 
 provides 
