@@ -23,17 +23,16 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
 import re
+import string
 import StringIO
 import sys
+from types import *
 import unittest
 
 import TestCmd
 
-import SCons.Environment
-import SCons.SConf
-
-scons_env = SCons.Environment.Environment()
 sys.stdout = StringIO.StringIO()
 
 if sys.platform == 'win32':
@@ -41,84 +40,125 @@ if sys.platform == 'win32':
 else:
     existing_lib = "m"
 
-def clearFileCache(dir):
-    # mostly from FS.Dir.__clearRepositoryCache, but set also state
-    # of nodes to None
-    for node in dir.entries.values():
-        if node != dir.dir:
-            if node != dir and isinstance(node, SCons.Node.FS.Dir):
-                clearFileCache(node)
-            else:
-                node._srcreps = None
-                del node._srcreps
-                node._rfile = None
-                del node._rfile
-                node._rexists = None
-                del node._rexists
-                node._exists = None
-                del node._exists
-                node._srcnode = None
-                del node._srcnode
-                node.set_state(None)
-
 class SConfTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.test = TestCmd.TestCmd(workdir = '')
+        # we always want to start with a clean directory
+        self.test = TestCmd.TestCmd(workdir = '') 
 
     def tearDown(self):
         self.test.cleanup()
 
     def _resetSConfState(self):
-                        
-        clearFileCache( SCons.Node.FS.default_fs.Dir(self.test.workpath()) )
-        SCons.SConf._ac_config_counter = 0
-        SCons.SConf._ac_build_counter = 0
-            
+        # Ok, this is tricky, and i do not know, if everything is sane.
+        # We try to reset scons' state (including all global variables)
+        import SCons.Sig
+        SCons.Sig.write() # simulate normal scons-finish
+        for n in sys.modules.keys():
+            if string.split(n, '.')[0] == 'SCons':
+                m = sys.modules[n]
+                if type(m) is ModuleType:
+                    # if this is really a scons module, clear its namespace
+                    del sys.modules[n]
+                    m.__dict__.clear()
+        # we only use SCons.Environment and SCons.SConf for these tests.
+        import SCons.Environment
+        import SCons.SConf
+        self.Environment = SCons.Environment
+        self.SConf = SCons.SConf
+        # and we need a new environment, cause references may point to
+        # old modules (well, at least this is safe ...)
+        self.scons_env = self.Environment.Environment()
+        self.scons_env['ENV']['PATH'] = os.environ['PATH']
+
+        # we want to do some autodetection here
+        # this stuff works with
+        #    - cygwin on win32 (using cmd.exe, not bash)
+        #    - posix
+        #    - msvc on win32 (hopefully)
+        if self.scons_env.subst('$CXX') == 'c++':
+            # better use g++ (which is normally no symbolic link
+            # --> the c++ call fails on cygwin
+            self.scons_env['CXX'] = 'g++'
+        if self.scons_env.subst('$LINK') == 'c++':
+            self.scons_env['LINK'] = 'g++'
+        if (not self.scons_env.Detect( self.scons_env.subst('$CXX') ) or
+            not self.scons_env.Detect( self.scons_env.subst('$CC') ) or
+            not self.scons_env.Detect( self.scons_env.subst('$LINK') )):
+            raise Exception, "This test needs an installed compiler!"
+        if self.scons_env['LINK'] == 'g++':
+            global existing_lib
+            existing_lib = 'm'
         
     def _baseTryXXX(self, TryFunc):
-        def checks(sconf, TryFunc):
-            res1 = TryFunc( sconf, "int main() { return 0; }", ".c" )
-            res2 = TryFunc( sconf, "not a c program", ".c" )
-            return (res1,res2)
+        # TryCompile and TryLink are much the same, so we can test them
+        # in one method, we pass the function as a string ('TryCompile',
+        # 'TryLink'), so we are aware of reloading modules.
         
+        def checks(self, sconf, TryFuncString):
+            TryFunc = self.SConf.SConf.__dict__[TryFuncString]
+            res1 = TryFunc( sconf, "int main() { return 0; }", ".c" )
+            res2 = TryFunc( sconf,
+                            '#include "no_std_header.h"\nint main() {return 0; }',
+                            '.c' )
+            return (res1,res2)
+
+        # 1. test initial behaviour (check ok / failed)
         self._resetSConfState()
-        sconf = SCons.SConf.SConf(scons_env,
-                                  conf_dir=self.test.workpath('config.tests'),
-                                  log_file=self.test.workpath('config.log'))
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
         try:
-            res = checks( sconf, TryFunc )
+            res = checks( self, sconf, TryFunc )
             assert res[0] and not res[1] 
         finally:
             sconf.Finish()
-
-        # test the caching mechanism
+            
+        # 2.1 test the error caching mechanism (no dependencies have changed)
         self._resetSConfState()
-
-        sconf = SCons.SConf.SConf(scons_env,
-                                  conf_dir=self.test.workpath('config.tests'),
-                                  log_file=self.test.workpath('config.log'))
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
         try:
-            res = checks( sconf, TryFunc )
+            res = checks( self, sconf, TryFunc )
             assert res[0] and not res[1] 
         finally:
             sconf.Finish()
-
         # we should have exactly one one error cached 
         log = self.test.read( self.test.workpath('config.log') )
         expr = re.compile( ".*(\(cached\))", re.DOTALL ) 
         firstOcc = expr.match( log )
         assert firstOcc != None 
         secondOcc = expr.match( log, firstOcc.end(0) )
-        assert secondOcc == None 
+        assert secondOcc == None
+
+        # 2.2 test the error caching mechanism (dependencies have changed)
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+        test_h = self.test.write( self.test.workpath('config.tests', 'no_std_header.h'),
+                                  "/* we are changing a dependency now */" );
+        try:
+            res = checks( self, sconf, TryFunc )
+            log = self.test.read( self.test.workpath('config.log') )
+            assert res[0] and res[1] 
+        finally:
+            sconf.Finish()
 
     def test_TryCompile(self):
-        self._baseTryXXX( SCons.SConf.SConf.TryCompile )
+        """Test SConf.TryCompile
+        """
+        self._baseTryXXX( "TryCompile" ) #self.SConf.SConf.TryCompile )
         
     def test_TryLink(self):
-        self._baseTryXXX( SCons.SConf.SConf.TryLink )
+        """Test SConf.TryLink
+        """
+        self._baseTryXXX( "TryLink" ) #self.SConf.SConf.TryLink ) 
 
     def test_TryRun(self):
+        """Test SConf.TryRun
+        """
         def checks(sconf):
             prog = """
 #include <stdio.h>
@@ -132,9 +172,9 @@ int main() {
             return (res1, res2)
         
         self._resetSConfState()
-        sconf = SCons.SConf.SConf(scons_env,
-                                  conf_dir=self.test.workpath('config.tests'),
-                                  log_file=self.test.workpath('config.log'))
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
         try:
             res = checks(sconf)
             assert res[0][0] and res[0][1] == "Hello" 
@@ -144,17 +184,15 @@ int main() {
 
         # test the caching mechanism
         self._resetSConfState()
-
-        sconf = SCons.SConf.SConf(scons_env,
-                                  conf_dir=self.test.workpath('config.tests'),
-                                  log_file=self.test.workpath('config.log'))
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
         try:
             res = checks(sconf)
             assert res[0][0] and res[0][1] == "Hello" 
             assert not res[1][0] and res[1][1] == ""
         finally:
             sconf.Finish()
-
         # we should have exactly one one error cached 
         log = self.test.read( self.test.workpath('config.log') )
         expr = re.compile( ".*(\(cached\))", re.DOTALL )
@@ -165,13 +203,15 @@ int main() {
 
 
     def test_TryAction(self):
+        """Test SConf.TryAction
+        """
         def actionOK(target, source, env):
             open(str(target[0]), "w").write( "RUN OK" )
             return None
         def actionFAIL(target, source, env):
             return 1
         self._resetSConfState()
-        sconf = SCons.SConf.SConf(scons_env,
+        sconf = self.SConf.SConf(self.scons_env,
                                   conf_dir=self.test.workpath('config.tests'),
                                   log_file=self.test.workpath('config.log'))
         try:
@@ -185,13 +225,15 @@ int main() {
         
 
     def test_StandardTests(self):
+        """Test standard checks
+        """
         def CHeaderChecks( sconf ):
-            res1 = sconf.CheckCHeader( "stdio.h" )
+            res1 = sconf.CheckCHeader( "stdio.h", include_quotes="<>" )
             res2 = sconf.CheckCHeader( "HopefullyNotCHeader.noh" )
             return (res1,res2)
 
         def CXXHeaderChecks(sconf):
-            res1 = sconf.CheckCXXHeader( "vector" )
+            res1 = sconf.CheckCXXHeader( "vector", include_quotes="<>" )
             res2 = sconf.CheckCXXHeader( "HopefullyNotCXXHeader.noh" )
             return (res1,res2)
 
@@ -236,9 +278,9 @@ int main() {
             return ((res1, libs1), (res2, libs2))
 
         self._resetSConfState()
-        sconf = SCons.SConf.SConf(scons_env,
-                                  conf_dir=self.test.workpath('config.tests'),
-                                  log_file=self.test.workpath('config.log'))
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
         try:
             (res1, res2) = CHeaderChecks(sconf)
             assert res1 and not res2 
@@ -260,7 +302,8 @@ int main() {
             sconf.Finish()
 
     def test_CustomChecks(self):
-
+        """Test Custom Checks
+        """
         def CheckCustom(test):
             test.Message( "Checking UserTest ... " )
             prog = """
@@ -278,10 +321,10 @@ int main() {
         
 
         self._resetSConfState()
-        sconf = SCons.SConf.SConf(scons_env,
-                                  custom_tests={'CheckCustom': CheckCustom},
-                                  conf_dir=self.test.workpath('config.tests'),
-                                  log_file=self.test.workpath('config.log'))
+        sconf = self.SConf.SConf(self.scons_env,
+                                 custom_tests={'CheckCustom': CheckCustom},
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
         try:
             ret = sconf.CheckCustom()
             assert ret 
@@ -291,6 +334,7 @@ int main() {
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SConfTestCase, 'test_')
-    if not unittest.TextTestRunner().run(suite).wasSuccessful ():
+    res = unittest.TextTestRunner().run(suite)
+    if not res.wasSuccessful():
         sys.exit(1)
-        
+

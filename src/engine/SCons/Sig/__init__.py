@@ -47,7 +47,7 @@ except ImportError:
 default_max_drift = 2*24*60*60
 
 #XXX Get rid of the global array so this becomes re-entrant.
-sig_files = []
+sig_files = {}
 
 # 1 means use build signature for derived source files
 # 0 means use content signature for derived source files
@@ -55,8 +55,17 @@ build_signature = 1
 
 def write():
     global sig_files
-    for sig_file in sig_files:
+    for sig_file in sig_files.values():
         sig_file.write()
+
+
+def SConsignFileFactory( dir, module=None):
+    try:
+        return sig_files[dir.path]
+    except KeyError:
+        sig_files[dir.path] = SConsignFile(dir, module)
+        return sig_files[dir.path]
+
 
 class SConsignEntry:
 
@@ -109,9 +118,6 @@ class SConsignFile:
             except:
                 SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                                     "Ignoring corrupt .sconsign file: %s"%self.sconsign)
-
-        global sig_files
-        sig_files.append(self)
 
     def get(self, filename):
         """
@@ -279,7 +285,7 @@ class Calculator:
         bsig = cache.get_bsig()
         if bsig is not None:
             return bsig
-        
+
         sigs = map(lambda n, c=self: n.calc_signature(c), children)
         if node.has_builder():
             sigs.append(self.module.signature(node.get_executor()))

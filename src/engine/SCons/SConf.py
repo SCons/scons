@@ -32,6 +32,7 @@ import cPickle
 import os
 import shutil
 import sys
+import traceback
 from types import *
 
 import SCons.Action
@@ -42,6 +43,10 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 
+# First i thought of using a different filesystem as the default_fs,
+# but it showed up that there are too many side effects in doing that.
+SConfFS=SCons.Node.FS.default_fs
+
 _ac_build_counter = 0
 _ac_config_counter = 0
 _activeSConfObjects = {}
@@ -50,11 +55,16 @@ class SConfWarning(SCons.Warnings.Warning):
     pass
 SCons.Warnings.enableWarningClass( SConfWarning )
 
-
+# action to create the source
 def _createSource( target, source, env ):
-    fd = open(str(target[0]), "w")
+    fd = open(target[0].get_path(), "w")
     fd.write(env['SCONF_TEXT'])
     fd.close()
+
+def _stringSource( target, source, env ):
+    import string
+    return (target[0].get_path() + ' <- \n  |' +
+            string.replace( env['SCONF_TEXT'], "\n", "\n  |" ) )
 
 
 class SConf:
@@ -71,19 +81,22 @@ class SConf:
     """
 
     def __init__(self, env, custom_tests = {}, conf_dir='#/.sconf_temp',
-                 log_file='#config.log'):
+                 log_file='#/config.log'): 
         """Constructor. Pass additional tests in the custom_tests-dictinary,
         e.g. custom_tests={'CheckPrivate':MyPrivateTest}, where MyPrivateTest
         defines a custom test.
         Note also the conf_dir and log_file arguments (you may want to
         build tests in the BuildDir, not in the SourceDir)
         """
+        global SConfFS
+        if not SConfFS:
+            SConfFS = SCons.Node.FS.FS(SCons.Node.FS.default_fs.pathTop)
         if len(_activeSConfObjects.keys()) > 0:
             raise (SCons.Errors.UserError,
                    "Only one SConf object may be active at one time")
         self.env = env
         if log_file != None:
-            self.logfile = SCons.Node.FS.default_fs.File(log_file)
+            self.logfile = SConfFS.File(log_file)
         else:
             self.logfile = None
         self.logstream = None
@@ -98,7 +111,8 @@ class SConf:
                }
         self.AddTests(default_tests)
         self.AddTests(custom_tests)
-        self.confdir = SCons.Node.FS.default_fs.Dir(conf_dir)
+        self.confdir = SConfFS.Dir(conf_dir)
+        self.calc = None
         self.cache = {}
         self._startup()
 
@@ -110,7 +124,7 @@ class SConf:
         self._shutdown()
         return self.env
 
-    def setCache(self, nodes, already_done = []):
+    def _setCache(self, nodes, already_done = []):
         # Set up actions used for caching errors
         # Caching positive tests should not be necessary, cause
         # the build system knows, if test objects/programs/outputs
@@ -122,10 +136,12 @@ class SConf:
             # tests
             if (n.has_builder() and
                 not n in already_done):
-                    n.add_pre_action(SCons.Action.Action(self._preCache))
-                    n.add_post_action(SCons.Action.Action(self._postCache))
-                    already_done.append( n )
-            self.setCache(n.children())
+                n.add_pre_action(SCons.Action.Action(self._preCache,
+                                                     self._stringCache))
+                n.add_post_action(SCons.Action.Action(self._postCache,
+                                                      self._stringCache))
+                already_done.append( n )
+            self._setCache(n.children())
 
     def BuildNodes(self, nodes):
         """
@@ -147,24 +163,25 @@ class SConf:
             sys.stdout = self.logstream
             oldStderr = sys.stderr
             sys.stderr = self.logstream
-
-        self.setCache( nodes )
+        self._setCache( nodes ) 
         ret = 1
 
         try:
-            oldPwd = SCons.Node.FS.default_fs.getcwd()
-            SCons.Node.FS.default_fs.chdir(SCons.Node.FS.default_fs.Top)
             # ToDo: use user options for calc
-            calc = SCons.Sig.Calculator(max_drift=0)
+            self.calc = SCons.Sig.Calculator(max_drift=0)
             tm = SCons.Taskmaster.Taskmaster( nodes,
                                               SConfBuildTask,
-                                              calc )
+                                              self.calc )
             # we don't want to build tests in parallel
             jobs = SCons.Job.Jobs(1, tm )
             try:
                 jobs.run()
+            except SCons.Errors.BuildError, e:
+                sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
+                if e.errstr == 'Exception':
+                    traceback.print_exception(e.args[0], e.args[1], e.args[2])
             except:
-                pass
+                raise
 
             for n in nodes:
                 state = n.get_state()
@@ -172,7 +189,6 @@ class SConf:
                     state != SCons.Node.up_to_date):
                     # the node could not be built. we return 0 in this case
                     ret = 0
-            SCons.Node.FS.default_fs.chdir(oldPwd)
         finally:
             if self.logstream != None:
                 # restore stdout / stderr
@@ -189,9 +205,10 @@ class SConf:
 
         nodesToBeBuilt = []
 
-        #target = self.confdir.File("conftest_" + str(_ac_build_counter))
         f = "conftest_" + str(_ac_build_counter)
-        target = os.path.join(str(self.confdir), f)
+        pref = self.env.subst( builder.builder.prefix )
+        suff = self.env.subst( builder.builder.suffix )
+        target = self.confdir.File(pref + f + suff)
         self.env['SCONF_TEXT'] = text
         if text != None:
             source = self.confdir.File(f + extension)
@@ -244,11 +261,7 @@ class SConf:
         compilation was successful, 0 otherwise. The target is saved in
         self.lastTarget (for further processing).
         """
-        #ok = self.TryCompile( text, extension)
-        #if( ok ):
         return self.TryBuild(self.env.Program, text, extension )
-        #else:
-        #    return 0
 
     def TryRun(self, text, extension ):
         """Compiles and runs the program given in text, using extension
@@ -259,9 +272,8 @@ class SConf:
         ok = self.TryLink(text, extension)
         if( ok ):
             prog = self.lastTarget
-            output = SCons.Node.FS.default_fs.File(str(prog)+'.out')
-            node = self.no_pipe_env.Command(output, prog, "%s >%s" % (str(prog),
-                                                              str(output)))
+            output = SConfFS.File(prog.get_path()+'.out')
+            node = self.env.Command(output, prog, "%s > $TARGET" % (prog.get_path()))
             ok = self.BuildNodes([node])
             if ok:
                 outputStr = output.get_contents()
@@ -300,26 +312,26 @@ class SConf:
         # We record errors in the cache. Only non-exisiting targets may
         # have recorded errors
         needs_rebuild = target[0].exists()
-        buildSig = target[0].builder.action.get_contents(target, source, env)
+        buildSig = target[0].calc_signature(self.calc)
         for node in source:
             if node.get_state() != SCons.Node.up_to_date:
                 # if any of the sources has changed, we cannot use our cache
                 needs_rebuild = 1
-        if not self.cache.has_key( str(target[0]) ):
+        if not self.cache.has_key( target[0].get_path() ):
             # We have no recorded error, so we try to build the target
             needs_rebuild = 1
         else:
-            lastBuildSig = self.cache[str(target[0])]['builder']
+            lastBuildSig = self.cache[target[0].get_path()]['builder']
             if lastBuildSig != buildSig:
                 needs_rebuild = 1
         if not needs_rebuild:
             # When we are here, we can savely pass the recorded error
             print ('(cached): Building "%s" failed in a previous run.' %
-                   str(target[0]))
+                   target[0].get_path())
             return 1
         else:
             # Otherwise, we try to record an error
-            self.cache[str(target[0])] = {
+            self.cache[target[0].get_path()] = {
                'builder' :  buildSig
             }
 
@@ -327,35 +339,36 @@ class SConf:
         # Action after target is successfully built
         #
         # No error during build -> remove the recorded error
-        del self.cache[str(target[0])]
+        del self.cache[target[0].get_path()]
+
+    def _stringCache(self, target, source, env):
+        return None
 
     def _loadCache(self):
         # try to load build-error cache
         try:
-            cacheDesc = cPickle.load(open(str(self.confdir.File(".cache"))))
+            cacheDesc = cPickle.load(open(self.confdir.File(".cache").get_path()))
             if cacheDesc['scons_version'] != SCons.__version__:
                 raise Exception, "version mismatch"
             self.cache = cacheDesc['data']
         except:
             self.cache = {}
-            #SCons.Warnings.warn( SConfWarning,
-            #                     "Couldn't load SConf cache (assuming empty)" )
 
     def _dumpCache(self):
         # try to dump build-error cache
         try:
             cacheDesc = {'scons_version' : SCons.__version__,
                          'data'          : self.cache }
-            cPickle.dump(cacheDesc, open(str(self.confdir.File(".cache")),"w"))
-        except:
-            SCons.Warnings.warn( SConfWarning,
-                                 "Couldn't dump SConf cache" )
+            cPickle.dump(cacheDesc, open(self.confdir.File(".cache").get_path(),"w"))
+        except Exception, e:
+            # this is most likely not only an IO error, but an error
+            # inside SConf ...
+            SCons.Warnings.warn( SConfWarning, "Couldn't dump SConf cache" )
 
-    def createDir(self, node):
-        if not node.up().exists():
-            self.createDir( node.up() )
-        if not node.exists():
-            SCons.Node.FS.Mkdir(node, None, self.env)
+    def _createDir( self, node ):
+        dirName = node.get_path()
+        if not os.path.isdir( dirName ):
+            os.makedirs( dirName )
             node._exists = 1
 
     def _startup(self):
@@ -364,23 +377,13 @@ class SConf:
         """
         global _ac_config_counter
         global _activeSConfObjects
-
-        #def createDir( node, self = self ):
-        #    if not node.up().exists():
-        #        createDir( node.up() )
-        #    if not node.exists():
-        #        SCons.Node.FS.Mkdir(node, None, self.env)
-        #        node._exists = 1
-        self.createDir(self.confdir)
-        # we don't want scons to build targets confdir automatically
-        # cause we are doing it 'by hand'
+        global SConfFS
+        
+        self.lastEnvFs = self.env.fs
+        self.env.fs = SConfFS
+        self._createDir(self.confdir)
         self.confdir.up().add_ignore( [self.confdir] )
-        self.confdir.set_state( SCons.Node.up_to_date )
 
-        self.no_pipe_env = self.env.Copy()
-
-        # piped spawn will print its own actions (CHANGE THIS!)
-        SCons.Action.print_actions = 0
         if self.logfile != None:
             # truncate logfile, if SConf.Configure is called for the first time
             # in a build
@@ -388,7 +391,7 @@ class SConf:
                 log_mode = "w"
             else:
                 log_mode = "a"
-            self.logstream = open(str(self.logfile), log_mode)
+            self.logstream = open(self.logfile.get_path(), log_mode)
             # logfile may stay in a build directory, so we tell
             # the build system not to override it with a eventually
             # existing file with the same name in the source directory
@@ -396,10 +399,17 @@ class SConf:
             self.env['PIPE_BUILD'] = 1
             self.env['PSTDOUT'] = self.logstream
             self.env['PSTDERR'] = self.logstream
-        else:
+
+            tb = traceback.extract_stack()[-3]
+            
+            self.logstream.write( '\nfile %s,line %d:\n\tConfigure( confdir = %s )\n\n' %
+                                  (tb[0], tb[1], self.confdir.get_path()) )
+        else: 
             self.logstream = None
         # we use a special builder to create source files from TEXT
-        action = SCons.Action.Action(_createSource,varlist=['SCONF_TEXT'])
+        action = SCons.Action.Action(_createSource,
+                                     _stringSource,
+                                     varlist=['SCONF_TEXT'])
         sconfSrcBld = SCons.Builder.Builder(action=action)
         self.env.Append( BUILDERS={'SConfSourceBuilder':sconfSrcBld} )
         self.active = 1
@@ -414,8 +424,6 @@ class SConf:
 
         if not self.active:
             raise SCons.Errors.UserError, "Finish may be called only once!"
-        # Piped Spawn print its own actions. CHANGE THIS!
-        SCons.Action.print_actions = 1
         if self.logstream != None:
             self.logstream.close()
             self.logstream = None
@@ -430,7 +438,7 @@ class SConf:
         self.active = 0
         del _activeSConfObjects[self]
         self._dumpCache()
-
+        self.env.fs = self.lastEnvFs
 
 class CheckContext:
     """Provides a context for configure tests. Defines how a test writes to the
@@ -507,27 +515,34 @@ class CheckContext:
     def __getattr__( self, attr ):
         if( attr == 'env' ):
             return self.sconf.env
+        elif( attr == 'lastTarget' ):
+            return self.sconf.lastTarget
         else:
             raise AttributeError, "CheckContext instance has no attribute '%s'" % attr
 
-def CheckCHeader(test, header):
+def _header_prog( header, include_quotes ):
+    return "#include %s%s%s\n\n" % (include_quotes[0],
+                                    header,
+                                    include_quotes[1])
+
+def CheckCHeader(test, header, include_quotes='""'):
     """
     A test for a c header file.
     """
     # ToDo: Support also system header files (i.e. #include <header.h>)
-    test.Message("Checking for C header %s... " % header)
-    ret = test.TryCompile("#include \"%s\"\n\n" % header, ".c")
+    test.Message("Checking for C header %s ... " % header)
+    ret = test.TryCompile(_header_prog(header, include_quotes), ".c")
     test.Result( ret )
     return ret
 
 
-def CheckCXXHeader(test, header):
+def CheckCXXHeader(test, header, include_quotes='""'):
     """
     A test for a c++ header file.
     """
     # ToDo: Support also system header files (i.e. #include <header.h>)
-    test.Message("Checking for C header %s... " % header)
-    ret = test.TryCompile("#include \"%s\"\n\n" % header, ".cpp")
+    test.Message("Checking for C++ header %s ... " % header)
+    ret = test.TryCompile(_header_prog(header, include_quotes), ".cpp")
     test.Result( ret )
     return ret
 
@@ -538,7 +553,7 @@ def CheckLib(test, library=None, symbol="main", autoadd=1):
     compiles without flags.
     """
     # ToDo: accept path for the library
-    test.Message("Checking for %s in library %s... " % (symbol, library))
+    test.Message("Checking for %s in library %s ... " % (symbol, library))
     oldLIBS = test.env.get( 'LIBS', [] )
 
     # NOTE: we allow this at in the case that we don't know what the
@@ -590,6 +605,7 @@ def CheckLibWithHeader(test, library, header, language, call="main();", autoadd=
 #include "%s"
 int main() {
   %s
+  return 0;
 }
 """ % (header, call)
 

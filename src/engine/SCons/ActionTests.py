@@ -72,6 +72,7 @@ act_py = test.workpath('act.py')
 
 outfile = test.workpath('outfile')
 outfile2 = test.workpath('outfile2')
+pipe_file = test.workpath('pipe.out')
 
 scons_env = SCons.Environment.Environment()
 
@@ -520,19 +521,46 @@ class CommandActionTestCase(unittest.TestCase):
     def test_pipe_execute(self):
         """Test capturing piped output from an action
         """
-        pipe_file = open( test.workpath('pipe.out'), "w" )
+        pipe = open( pipe_file, "w" )
         self.env = Environment(ENV = {'ACTPY_PIPE' : '1'}, PIPE_BUILD = 1,
-                               PSTDOUT = pipe_file, PSTDERR = pipe_file)
+                               PSTDOUT = pipe, PSTDERR = pipe)
         # everything should also work when piping output
         self.test_execute()
         self.env['PSTDOUT'].close()
-        pipe_out = test.read( test.workpath('pipe.out') )
+        pipe_out = test.read( pipe_file )
         if sys.platform == 'win32':
             cr = '\r'
         else:
             cr = ''
-        found = re.findall( "act.py: stdout: executed act.py%s\nact.py: stderr: executed act.py%s\n" % (cr, cr), pipe_out )
+        act_out = "act.py: stdout: executed act.py"
+        act_err = "act.py: stderr: executed act.py"
+        found = re.findall( "%s%s\n%s%s\n" % (act_out, cr, act_err, cr),
+                            pipe_out )
         assert len(found) == 8, found
+
+        # test redirection operators
+        def test_redirect(self, redir):
+            cmd = r'%s %s %s xyzzy %s' % (python, act_py, outfile, redir)
+            pipe = open( pipe_file, "w" )
+            act = SCons.Action.CommandAction(cmd)
+            r = act([], [], self.env.Copy(PSTDOUT = pipe, PSTDERR = pipe))
+            pipe.close()
+            assert r == 0
+            return (test.read(outfile2, 'r'), test.read(pipe_file, 'r'))
+        
+        (redirected, pipe_out) = test_redirect(self,'> %s' % outfile2 )
+        assert redirected == "%s\n" % act_out
+        assert pipe_out == "%s\n" % act_err
+
+        (redirected, pipe_out) = test_redirect(self,'2> %s' % outfile2 )
+        assert redirected == "%s\n" % act_err
+        assert pipe_out == "%s\n" % act_out
+
+        (redirected, pipe_out) = test_redirect(self,'> %s 2>&1' % outfile2 )
+        assert (redirected == "%s\n%s\n" % (act_out, act_err) or
+                redirected == "%s\n%s\n" % (act_err, act_out))
+        assert pipe_out == "" 
+        
 
     def test_set_handler(self):
         """Test setting the command handler...

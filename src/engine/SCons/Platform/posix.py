@@ -98,33 +98,18 @@ def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # the command name and the command's stdout is written to stdout
     # the command's stderr is written to stderr
     s = _get_env_command( sh, escape, cmd, args, env)
-    # write the command line out
-    if stdout != None:
-        stdout.write(string.join(args) + '\n')
     proc = popen2.Popen3(s, 1)
     # process stdout
     if stdout != None:
-        #for line in proc.fromchild.xreadlines():
-        #    stdout.write(line)
-        while 1:
-            line = proc.fromchild.readline()
-            if not line:
-                break
-            stdout.write(line)
+        stdout.write(proc.fromchild.read())
     # process stderr
     if stderr != None:
-        #for line in proc.childerr.xreadlines():
-        #    stderr.write(line)
-        while 1:
-            line = proc.childerr.readline()
-            if not line:
-                break
-            stderr.write(line)
+        stderr.write(proc.childerr.read())
     stat = proc.wait()
     if stat & 0xff:
         return stat | 0x80
     return stat >> 8
-    
+
 def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # spawn using fork / exec and providing a pipe for the command's
     # stdout / stderr stream
@@ -135,9 +120,6 @@ def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
         (rFdOut, wFdOut) = os.pipe()
         rFdErr = rFdOut
         wFdErr = wFdOut
-    # write the command line out
-    if stdout != None:
-        stdout.write(string.join(args) + '\n')
     # do the fork
     pid = os.fork()
     if not pid:
@@ -163,7 +145,7 @@ def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
         pid, stat = os.waitpid(pid, 0)
         os.close( wFdOut )
         if stdout != stderr:
-            os.close( wFdErr )        
+            os.close( wFdErr )
         childOut = os.fdopen( rFdOut )
         if stdout != stderr:
             childErr = os.fdopen( rFdErr )
@@ -171,22 +153,10 @@ def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
             childErr = childOut
         # process stdout
         if stdout != None:
-            #for line in childOut.xreadlines():
-            #    stdout.write(line)
-            while 1:
-                line = childOut.readline()
-                if not line:
-                    break
-                stdout.write(line)
+            stdout.write( childOut.read() )
         # process stderr
         if stderr != None:
-            #for line in childErr.xreadlines():
-            #    stderr.write(line)
-            while 1:
-                line = childErr.readline()
-                if not line:
-                    break
-                stdout.write(line)
+            stderr.write( childErr.read() )
         os.close( rFdOut )
         if stdout != stderr:
             os.close( rFdErr )
@@ -194,8 +164,8 @@ def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
             return stat | 0x80
         return stat >> 8
 
-           
-    
+
+
 def generate(env):
 
     # If the env command exists, then we can use os.system()

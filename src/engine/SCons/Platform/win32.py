@@ -85,45 +85,62 @@ class TempFileMunge:
 # scons.
 
 def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
+    # There is no direct way to do that in python. What we do
+    # here should work for most cases:
+    #   In case stdout (stderr) is not redirected to a file,
+    #   we redirect it into a temporary file tmpFileStdout
+    #   (tmpFileStderr) and copy the contents of this file
+    #   to stdout (stderr) given in the argument
     if not sh:
         sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
         return 127
     else:
-        # NOTE: This is just a big, big hack.  What we do is simply pipe the
-        # output to a temporary file and then write it to the streams.
-        # I DO NOT know the effect of adding these to a command line that
-        # already has indirection symbols.
-        tmpFile = os.path.normpath(tempfile.mktemp())
-        args.append(">" + str(tmpFile))
-        args.append("2>&1")
-        if stdout != None:
-            # ToDo: use the printaction instead of that
-            stdout.write(string.join(args) + "\n")
+        # one temporary file for stdout and stderr
+        tmpFileStdout = os.path.normpath(tempfile.mktemp())
+        tmpFileStderr = os.path.normpath(tempfile.mktemp())
+
+        # check if output is redirected
+        stdoutRedirected = 0
+        stderrRedirected = 0
+        for arg in args:
+            # are there more possibilities to redirect stdout ?
+            if (string.find( arg, ">", 0, 1 ) != -1 or
+                string.find( arg, "1>", 0, 2 ) != -1):
+                stdoutRedirected = 1
+            # are there more possibilities to redirect stderr ?
+            if string.find( arg, "2>", 0, 2 ) != -1:
+                stderrRedirected = 1
+
+        # redirect output of non-redirected streams to our tempfiles
+        if stdoutRedirected == 0:
+            args.append(">" + str(tmpFileStdout))
+        if stderrRedirected == 0:
+            args.append("2>" + str(tmpFileStderr))
+
+        # actually do the spawn
         try:
-            try:
-                args = [sh, '/C', escape(string.join(args)) ]
-                ret = os.spawnve(os.P_WAIT, sh, args, env)
-            except OSError, e:
-                ret = exitvalmap[e[0]]
+            args = [sh, '/C', escape(string.join(args)) ]
+            ret = os.spawnve(os.P_WAIT, sh, args, env)
+        except OSError, e:
+            # catch any error
+            ret = exitvalmap[e[0]]
+            if stderr != None:
                 stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+        # copy child output from tempfiles to our streams
+        # and do clean up stuff
+        if stdout != None and stdoutRedirected == 0:
             try:
-                input = open( tmpFile, "r" )
-                while 1:
-                    line = input.readline()
-                    if not line:
-                        break
-                    if stdout != None:
-                        stdout.write(line)
-                    if stderr != None and stderr != stdout:
-                        stderr.write(line)
-            finally:
-                input.close()
-        finally:
-            try:
-                os.remove( tmpFile )
-            except OSError:
-                # What went wrong here ??
+                stdout.write(open( tmpFileStdout, "r" ).read())
+                os.remove( tmpFileStdout )
+            except:
                 pass
+
+        if stderr != None and stderrRedirected == 0:
+            try:
+                stderr.write(open( tmpFileStderr, "r" ).read())
+                os.remove( tmpFileStderr )
+            except:
+                    pass
         return ret
 
 def spawn(sh, escape, cmd, args, env):
