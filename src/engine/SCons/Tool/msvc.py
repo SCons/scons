@@ -217,9 +217,9 @@ def generate(env, platform):
     include_path, lib_path, exe_path = get_msdev_paths()
     env['ENV']['INCLUDE'] = include_path
     env['ENV']['PATH']    = exe_path
-    
+
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
-    
-def exists():
-    return SCons.Util.WhereIs('cl')
+
+def exists(env):
+    return SCons.Util.Detect(['cl'], env)

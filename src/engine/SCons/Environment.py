@@ -129,7 +129,7 @@ class Environment:
             platform = SCons.Platform.Platform(platform)
         platform(self)
         if tools is None:
-            tools = SCons.Platform.DefaultToolList(platform)
+            tools = ['default']
         for tool in tools:
             if SCons.Util.is_String(tool):
                 tool = SCons.Tool.Tool(tool)

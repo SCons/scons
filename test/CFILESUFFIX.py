@@ -46,7 +46,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LEX = r'%s mylex.py')
+env = Environment(LEX = r'%s mylex.py', tools = ['lex'])
 env.CFile(target = 'foo', source = 'foo.l')
 env.Copy(CFILESUFFIX = '.xyz').CFile(target = 'bar', source = 'bar.l')
 """ % python)

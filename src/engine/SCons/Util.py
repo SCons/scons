@@ -489,3 +489,17 @@ else:
                 if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
                     return f
         return None
+
+def Detect(progs, env=None):
+    "Return the first available program in progs"
+    path = None
+    pathext = None
+    if env and env.has_key('ENV'):
+        if env['ENV'].has_key('PATH'):
+            path = env['ENV']['PATH']
+        if env['ENV'].has_key('PATHEXT'):
+            pathext = env['ENV']['PATHEXT']
+    for prog in progs:
+        path = WhereIs(prog, path, pathext)
+        if path: return prog
+    return None

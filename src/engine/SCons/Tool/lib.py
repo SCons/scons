@@ -44,5 +44,5 @@ def generate(env, platform):
     env['ARFLAGS']     = '/nologo'
     env['ARCOM']       = '$AR $ARFLAGS /OUT:$TARGET $SOURCES'
 
-def exists():
-    return SCons.Util.WhereIs('lib')
+def exists(env):
+    return SCons.Util.Detect(['lib'], env)

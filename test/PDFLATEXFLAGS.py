@@ -55,7 +55,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(PDFLATEX = r'%s mypdflatex.py', PDFLATEXFLAGS = '-x')
+env = Environment(PDFLATEX = r'%s mypdflatex.py', PDFLATEXFLAGS = '-x', tools=['pdflatex'])
 env.PDF(target = 'test1.pdf', source = 'test1.ltx')
 env.Copy(PDFLATEXFLAGS = '-t').PDF(target = 'test2.pdf', source = 'test2.latex')
 """ % python)

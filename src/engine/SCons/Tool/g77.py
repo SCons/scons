@@ -40,12 +40,6 @@ import SCons.Tool
 import SCons.Util
 
 compilers = ['g77', 'f77']
-for i in compilers:
-    if SCons.Util.WhereIs(i):
-        compiler = i
-        break
-    compiler = None
-
 
 F77Suffixes = ['.f', '.for', '.FOR']
 F77PPSuffixes = ['.fpp', '.FPP']
@@ -66,7 +60,7 @@ def generate(env, platform):
         static_obj.add_action(suffix, SCons.Defaults.F77PPAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShF77PPAction)
 
-    env['F77']        = 'g77'
+    env['F77']        = SCons.Util.Detect(compilers, env) or 'g77'
     env['F77FLAGS']   = ''
     env['F77COM']     = '$F77 $F77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['F77PPCOM']   = '$F77 $F77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
@@ -75,5 +69,5 @@ def generate(env, platform):
     env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
 
-def exists():
-    return compiler
+def exists(env):
+    return SCons.Util.Detect(compilers, env)

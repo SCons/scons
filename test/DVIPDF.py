@@ -74,7 +74,8 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(TEX = r'%s mytex.py',
                   LATEX = r'%s mylatex.py',
-                  DVIPDF = r'%s mydvipdf.py')
+                  DVIPDF = r'%s mydvipdf.py',
+                  tools=['latex', 'tex', 'dvipdf'])
 dvi = env.DVI(target = 'test1.dvi', source = 'test1.tex')
 env.DVI(target = 'test2.dvi', source = 'test2.tex')
 env.PDF(target = 'test1.pdf', source = dvi)

@@ -34,7 +34,6 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
-import string
 
 import SCons.Action
 import SCons.Tool
@@ -68,5 +67,5 @@ def generate(env, platform):
     env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET'
     env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS /c $SOURCES /Fo$TARGET'
 
-def exists():
-    return SCons.Util.WhereIs('ifl')
+def exists(env):
+    return SCons.Util.Detect(['ifl'], env)

@@ -63,9 +63,9 @@ def generate(env, platform):
     env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
     env['INCPREFIX']  = '/I'
     env['INCSUFFIX']  = '' 
-    
+
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
-    
-def exists():
-    return SCons.Util.WhereIs('icc')
+
+def exists(env):
+    return SCons.Util.Detect(['icc'], env)

@@ -48,5 +48,5 @@ def generate(env, platform):
     env['DVIPDFFLAGS'] = ''
     env['PDFCOM']      = '$DVIPDF $DVIPDFFLAGS $SOURCES $TARGET'
 
-def exists():
-    return SCons.Util.WhereIs('dvipdf')
+def exists(env):
+    return SCons.Util.Detect(['dvipdf'], env)

@@ -116,29 +116,30 @@ def createCFileBuilders(env):
     except KeyError:
         c_file = SCons.Defaults.CFile()
         env['BUILDERS']['CFile'] = c_file
+        env['CFILESUFFIX'] = '.c'
 
     try:
         cxx_file = env['BUILDERS']['CXXFile']
     except KeyError:
         cxx_file = SCons.Defaults.CXXFile()
         env['BUILDERS']['CXXFile'] = cxx_file
+        env['CXXFILESUFFIX'] = '.cc'
 
     return (c_file, cxx_file)
 
-def FindTool(tools):
+def FindTool(tools, env):
     for tool in tools:
         t = Tool(tool)
-        if t.exists():
+        if t.exists(env):
             return tool
     return None
 
-def _ToolExists(tool):
-    return Tool(tool).exists()
-
-def FindAllTools(tools):
-    return filter (_ToolExists, tools)
+def FindAllTools(tools, env):
+    def ToolExists(tool, env=env):
+        return Tool(tool).exists(env)
+    return filter (ToolExists, tools)
              
-def tool_list(platform):
+def tool_list(platform, env):
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
         linkers = ['mslink', 'gnulink', 'ilink']
@@ -161,22 +162,22 @@ def tool_list(platform):
         fortran_compilers = ['g77', 'ifl']
         ars = ['ar', 'lib']
 
-    linker = FindTool(linkers)
-    c_compiler = FindTool(c_compilers)
-    assembler = FindTool(assemblers)
-    fortran_compiler = FindTool(fortran_compilers)
-    ar = FindTool(ars)
+    linker = FindTool(linkers, env) or linkers[0]
+    c_compiler = FindTool(c_compilers, env) or c_compilers[0]
+    assembler = FindTool(assemblers, env) or assemblers[0]
+    fortran_compiler = FindTool(fortran_compilers, env) or fortran_compilers[0]
+    ar = FindTool(ars, env) or ars[0]
 
     # Don't use g++ if the C compiler has built-in C++ support:
     if c_compiler and (c_compiler == 'msvc' or c_compiler == 'icc'):
         cxx_compiler = None
     else:
-        cxx_compiler = FindTool(['g++'])
+        cxx_compiler = FindTool(['g++'], env)
         
     other_tools = FindAllTools(['dvipdf', 'dvips',
                                 'latex', 'lex',
                                 'pdflatex', 'pdftex',
-                                'tar', 'tex', 'yacc'])
+                                'tar', 'tex', 'yacc'], env)
 
     tools = ([linker, c_compiler, cxx_compiler,
               fortran_compiler, assembler, ar]

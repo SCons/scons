@@ -1,6 +1,6 @@
-"""SCons.Tool.ar
+"""SCons.Tool.default
 
-Tool-specific initialization for ar (library archive).
+Initialization with a default tool list.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -33,28 +33,12 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Defaults
-import SCons.Util
+import SCons.Tool
 
 def generate(env, platform):
-    """Add Builders and construction variables for ar to an Environment."""
-    bld = SCons.Defaults.StaticLibrary
-    env['BUILDERS']['Library'] = bld
-    env['BUILDERS']['StaticLibrary'] = bld
-    
-    arcom = '$AR $ARFLAGS $TARGET $SOURCES'
-    ranlib = 'ranlib'
-    if SCons.Util.Detect([ranlib], env):
-        arcom = arcom + '\n$RANLIB $RANLIBFLAGS $TARGET'
-
-    env['AR']          = 'ar'
-    env['ARFLAGS']     = 'r'
-    env['RANLIB']      = ranlib
-    env['RANLIBFLAGS'] = ''
-    env['ARCOM']       = arcom
-    env['SHLINK']      = '$LINK'
-    env['SHLINKFLAGS'] = '$LINKFLAGS -shared'
-    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    """Add default tools."""
+    for t in SCons.Tool.tool_list(platform, env):
+        SCons.Tool.Tool(t, platform)(env, platform)
 
 def exists(env):
-    return SCons.Util.Detect(['ar'], env)
+    return 1

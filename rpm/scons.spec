@@ -1,5 +1,5 @@
 %define name scons
-%define version 0.08
+%define version 0.09
 %define release 1
 
 Summary: an Open Source software construction tool
@@ -102,6 +102,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Tool/__init__.pyc
 /usr/lib/scons/SCons/Tool/ar.py
 /usr/lib/scons/SCons/Tool/ar.pyc
+/usr/lib/scons/SCons/Tool/default.py
+/usr/lib/scons/SCons/Tool/default.pyc
 /usr/lib/scons/SCons/Tool/dvipdf.py
 /usr/lib/scons/SCons/Tool/dvipdf.pyc
 /usr/lib/scons/SCons/Tool/dvips.py
@@ -118,6 +120,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Tool/gnulink.pyc
 /usr/lib/scons/SCons/Tool/icc.py
 /usr/lib/scons/SCons/Tool/icc.pyc
+/usr/lib/scons/SCons/Tool/ifl.py
+/usr/lib/scons/SCons/Tool/ifl.pyc
 /usr/lib/scons/SCons/Tool/ilink.py
 /usr/lib/scons/SCons/Tool/ilink.pyc
 /usr/lib/scons/SCons/Tool/latex.py

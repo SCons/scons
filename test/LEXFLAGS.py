@@ -56,7 +56,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LEX = r'%s mylex.py', LEXFLAGS = '-x')
+env = Environment(LEX = r'%s mylex.py', LEXFLAGS = '-x', tools=['default', 'lex'])
 env.Program(target = 'aaa', source = 'aaa.l')
 """ % python)
 

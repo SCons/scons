@@ -34,8 +34,12 @@ python = sys.executable
 
 if sys.platform == 'win32':
     _exe = '.exe'
+    compiler = 'msvc'
+    linker = 'mslink'
 else:
     _exe = ''
+    compiler = 'gcc'
+    linker = 'gnulink'
 
 test = TestSCons.TestSCons()
 
@@ -59,9 +63,9 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(YACC = r'%s myyacc.py', YACCFLAGS = '-x')
+env = Environment(YACC = r'%s myyacc.py', YACCFLAGS = '-x', tools=['yacc', '%s', '%s'])
 env.Program(target = 'aaa', source = 'aaa.y')
-""" % python)
+""" % (python, linker, compiler))
 
 test.write('aaa.y', r"""
 int

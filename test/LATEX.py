@@ -49,7 +49,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(LATEX = r'%s mylatex.py')
+env = Environment(LATEX = r'%s mylatex.py', tools=['latex'])
 env.DVI(target = 'test1.dvi', source = 'test1.ltx')
 env.DVI(target = 'test2.dvi', source = 'test2.latex')
 """ % python)

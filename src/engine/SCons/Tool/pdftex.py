@@ -49,5 +49,5 @@ def generate(env, platform):
     env['PDFTEXFLAGS'] = ''
     env['PDFTEXCOM']   = '$PDFTEX $PDFTEXFLAGS $SOURCES $TARGET'
 
-def exists():
-    return SCons.Util.WhereIs('pdftex')
+def exists(env):
+    return SCons.Util.Detect(['pdftex'], env)

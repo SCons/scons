@@ -39,12 +39,6 @@ import SCons.Util
 
 tars = ['gtar', 'tar']
 
-for i in tars:
-    if SCons.Util.WhereIs(i):
-        tar = i
-        break
-    tar = None
-
 TarBuilder = SCons.Builder.Builder(action = '$TARCOM',
                                    source_factory = SCons.Node.FS.default_fs.Entry,
 				   suffix = '$TARSUFFIX',
@@ -59,10 +53,10 @@ def generate(env, platform):
         bld = TarBuilder
         env['BUILDERS']['Tar'] = bld
 
-    env['TAR']        = tar
+    env['TAR']        = SCons.Util.Detect(tars, env) or 'gtar'
     env['TARFLAGS']   = '-c'
     env['TARCOM']     = '$TAR $TARFLAGS -f $TARGET $SOURCES'
     env['TARSUFFIX']  = '.tar'
 
-def exists():
-    return tar
+def exists(env):
+    return SCons.Util.Detect(tars, env)

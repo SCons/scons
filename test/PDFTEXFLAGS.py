@@ -55,7 +55,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(PDFTEX = r'%s mypdftex.py', PDFTEXFLAGS = '-x')
+env = Environment(PDFTEX = r'%s mypdftex.py', PDFTEXFLAGS = '-x', tools=['pdftex'])
 env.PDF(target = 'test.pdf', source = 'test.tex')
 """ % python)
 

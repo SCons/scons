@@ -49,7 +49,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(TEX = r'%s mytex.py')
+env = Environment(TEX = r'%s mytex.py', tools=['tex'])
 env.DVI(target = 'test.dvi', source = 'test.tex')
 """ % python)
 

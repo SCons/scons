@@ -81,7 +81,8 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(TEX = r'%s mytex.py',
                   LATEX = r'%s mylatex.py',
-                  DVIPS = r'%s mydvips.py', DVIPSFLAGS = '-x')
+                  DVIPS = r'%s mydvips.py', DVIPSFLAGS = '-x',
+                  tools=['tex', 'latex', 'dvips'])
 dvi = env.DVI(target = 'test1.dvi', source = 'test1.tex')
 env.PostScript(target = 'test1.ps', source = dvi)
 env.PostScript(target = 'test2.ps', source = 'test2.tex')

@@ -26,6 +26,7 @@ SCons/Sig/TimeStamp.py
 SCons/Taskmaster.py
 SCons/Tool/__init__.py
 SCons/Tool/ar.py
+SCons/Tool/default.py
 SCons/Tool/dvipdf.py
 SCons/Tool/dvips.py
 SCons/Tool/g++.py

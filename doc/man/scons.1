@@ -711,69 +711,31 @@ def my_tool(env):
 env = Environment(tools = [my_tool])
 .EE
 
-SCons supports the following tool specifications
-out of the box on 
-.B cygwin
-and
-.B posix
-platforms:
+If no tool list is specified, then SCons will auto-detect the installed
+tools using the PATH variable in the ENV construction variable and the
+platform name when the Environment is constructed. Changing the PATH
+variable after the Environment is constructed will not cause the tools to
+be redetected.
 
+SCons supports the following tool specifications
+out of the box on all platforms:
 .ES
 ar
 dvipdf
 dvips
 g++
 g77
-gas (if the GNU assembler is available)
+icc
+ifl
+ilink
+gas
 gcc
 gnulink
 latex
 lex
-nasm (if the GNU assembler is not available)
-pdflatex
-pdftex
-tar
-tex
-yacc
-.EE
-
-SCons supports the following tool specifications out of the box on
-.B os2
-platforms:
-
-.ES
-dvipdf
-dvips
-g77
-icc
-ifl
-ilink
-latex
-lex
-nasm
-pdflatex
-pdftex
-tex
-yacc
-.EE
-
-SCons supports the following tool specifications out of the box on
-.B win32
-platforms:
-
-.ES
-dvipdf
-dvips
-g77
-icc
-ifl
-ilink
-latex
-lex
-lib
+masm
 mslink
 msvc
-masm
 nasm
 pdflatex
 pdftex
@@ -781,6 +743,10 @@ tar
 tex
 yacc
 .EE
+
+On posix and cygwin platforms the GNU tools (e.g. gcc) are preferred by SCons, 
+on win32 the Microsoft tools (e.g. msvc) are preferred by SCons, and in OS/2 the IBM
+tools (e.g. icc) are preferred by SCons.
 
 .SS Builder Methods
 

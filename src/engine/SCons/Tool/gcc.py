@@ -41,13 +41,6 @@ import SCons.Util
 
 compilers = ['cc', 'gcc']
 
-for i in compilers:
-    if SCons.Util.WhereIs(i):
-        cc = i
-        break
-    cc = None
-
-
 CSuffixes = ['.c']
 if os.path.normcase('.c') == os.path.normcase('.C'):
     CSuffixes.append('.C')
@@ -60,7 +53,7 @@ def generate(env, platform):
         static_obj.add_action(suffix, SCons.Defaults.CAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCAction)
 
-    env['CC']        = cc
+    env['CC']        = SCons.Util.Detect(compilers, env) or 'cc'
     env['CCFLAGS']   = ''
     env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCC']      = '$CC'
@@ -72,5 +65,5 @@ def generate(env, platform):
 
     env['CFILESUFFIX'] = '.c'
 
-def exists():
-    return cc
+def exists(env):
+    return SCons.Util.Detect(compilers, env)

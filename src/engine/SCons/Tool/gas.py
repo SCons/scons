@@ -41,13 +41,6 @@ import SCons.Util
 
 assemblers = ['as', 'gas']
 
-for i in assemblers:
-    if SCons.Util.WhereIs(i):
-        as = i
-        break
-    as = None
-
-
 ASSuffixes = ['.s', '.asm', '.ASM']
 ASPPSuffixes = ['.spp', '.SPP']
 if os.path.normcase('.s') == os.path.normcase('.S'):
@@ -65,10 +58,10 @@ def generate(env, platform):
     for suffix in ASPPSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.ASPPAction)
 
-    env['AS']        = as
+    env['AS']        = SCons.Util.Detect(assemblers, env) or 'as'
     env['ASFLAGS']   = ''
     env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
     env['ASPPCOM']   = '$CC $ASFLAGS $CPPFLAGS -o $TARGET $SOURCES'
 
-def exists():
-    return as
+def exists(env):
+    return SCons.Util.Detect(assemblers, env)

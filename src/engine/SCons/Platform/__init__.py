@@ -85,10 +85,10 @@ def platform_module(name = platform_default()):
             file.close()
     return sys.modules[full_name]
 
-def DefaultToolList(platform):
+def DefaultToolList(platform, env):
     """Select a default tool list for the specified platform.
     """
-    return SCons.Tool.tool_list(platform)
+    return SCons.Tool.tool_list(platform, env)
 
 class PlatformSpec:
     def __init__(self, name):
