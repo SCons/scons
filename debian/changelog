@@ -1,3 +1,10 @@
+scons (0.91-1) unstable; urgency=low
+
+  * Second beta release.
+
+ -- Steven Knight <knight@baldmt.com>  Thu, 14 Aug 2003 13:00:44 -0500
+
+
 scons (0.90-1) unstable; urgency=low
 
   * First beta release.

@@ -66,12 +66,12 @@ In this case, your options are:
     --  (Optional.)  Install from a pre-packaged SCons package that
         does not require distutils:
 
-            Red Hat Linux       scons-0.90-1.noarch.rpm
+            Red Hat Linux       scons-0.91-1.noarch.rpm
 
-            Debian GNU/Linux    scons_0.90-1_all.deb
+            Debian GNU/Linux    scons_0.91-1_all.deb
                                 (or use apt-get)
 
-            Windows             scons-0.90.win32.exe
+            Windows             scons-0.91.win32.exe
 
     --  (Recommended.)  Download the latest distutils package from the
         following URL:
@@ -218,18 +218,18 @@ more typing:
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
 
-        build/dist/scons-0.90-1.noarch.rpm
-        build/dist/scons-0.90-1.src.rpm
-        build/dist/scons-0.90.linux-i686.tar.gz
-        build/dist/scons-0.90.tar.gz
-        build/dist/scons-0.90.win32.exe
-        build/dist/scons-0.90.zip
-        build/dist/scons-doc-0.90.tar.gz
-        build/dist/scons-local-0.90.tar.gz
-        build/dist/scons-local-0.90.zip
-        build/dist/scons-src-0.90.tar.gz
-        build/dist/scons-src-0.90.zip
-        build/dist/scons_0.90-1_all.deb
+        build/dist/scons-0.91-1.noarch.rpm
+        build/dist/scons-0.91-1.src.rpm
+        build/dist/scons-0.91.linux-i686.tar.gz
+        build/dist/scons-0.91.tar.gz
+        build/dist/scons-0.91.win32.exe
+        build/dist/scons-0.91.zip
+        build/dist/scons-doc-0.91.tar.gz
+        build/dist/scons-local-0.91.tar.gz
+        build/dist/scons-local-0.91.zip
+        build/dist/scons-src-0.91.tar.gz
+        build/dist/scons-src-0.91.zip
+        build/dist/scons_0.91-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to
 build packages for which you don't have the proper utilities installed.
@@ -281,8 +281,20 @@ Not guaranteed to be up-to-date (but better than nothing):
 
 bin/
         Miscellaneous utilities used in SCons development.  Right now,
-        there's a copy of the script we use to translate an Aegis change
-        into a CVS checkin.
+        some of the stuff here includes:
+
+            --  a copy of the script we use to translate an Aegis change
+                into a CVS checkin
+            --  a script that runs pychecker on our source tree
+            --  a script that counts source and test files and numbers
+                of lines in each
+            --  a script for synchronizing the Aegis tree to SourceForge
+            --  a prototype script for capturing sample SCons output
+                in sgml files
+            --  a script that can profile and time a packaging build of
+                SCons itself
+            --  a copy of xml_export, which can retrieve project data
+                from SourceForge
 
 bootstrap.py
         A build script for use with Aegis.  This collects a current copy
@@ -439,6 +451,16 @@ refused list membership right now, but we reserve the right to limit
 membership in the future and/or weed out lurkers.
 
 
+DONATIONS
+=========
+
+If you find SCons helpful, please consider making a donation (of cash,
+software, or hardware) to support continued work on the project.
+Information is available at:
+
+        http://www.scons.org/donate.html
+
+
 FOR MORE INFORMATION
 ====================
 
@@ -458,6 +480,8 @@ With plenty of help from the SCons Development team:
         Chad Austin
         Charles Crain
         Steve Leblanc
+        Gary Oberbrunner
         Anthony Roach
-        Terrel Shumway
+        Greg Spencer
+        Christoph Wiedemann
 

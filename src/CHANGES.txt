@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.XX - XXX
+RELEASE 0.91 - Thu, 14 Aug 2003 13:00:44 -0500
 
   From Chad Austin:
 
@@ -93,6 +93,10 @@ RELEASE 0.XX - XXX
     arg2nodes().
 
   - Add support for SWIG.
+
+  From Bram Moolenaar:
+
+  - Test portability fixes for FreeBSD.
 
   From Gary Oberbrunner:
 

@@ -7,11 +7,11 @@
                          Version __VERSION__
 
 
-This is an alpha release of SCons, a tool for building software (and
-other files).  SCons is implemented in Python, and its "configuration
-files" are actually Python scripts, allowing you to use the full power
-of a real scripting language to solve build problems.  You do not,
-however, need to know Python to use SCons effectively.
+This is a beta release of SCons, a tool for building software (and other
+files).  SCons is implemented in Python, and its "configuration files"
+are actually Python scripts, allowing you to use the full power of a
+real scripting language to solve build problems.  You do not, however,
+need to know Python to use SCons effectively.
 
 See the RELEASE.txt file for notes about this specific release,
 including known problems.  See the CHANGES.txt file for a list of
@@ -198,6 +198,16 @@ about SCons.  Subscribe at:
         http://lists.sourceforge.net/lists/listinfo/scons-announce
 
 
+DONATIONS
+=========
+
+If you find SCons helpful, please consider making a donation (of cash,
+software, or hardware) to support continued work on the project.
+Information is available at:
+
+        http://www.scons.org/donate.html
+
+
 FOR MORE INFORMATION
 ====================
 
@@ -217,6 +227,8 @@ With plenty of help from the SCons Development team:
         Chad Austin
         Charles Crain
         Steve Leblanc
+        Gary Oberbrunner
         Anthony Roach
-        Terrel Shumway
+        Greg Spencer
+        Christoph Wiedemann
 

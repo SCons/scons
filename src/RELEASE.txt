@@ -7,11 +7,11 @@
                             Release Notes
 
 
-This is an beta release of SCons, a tool for building software (and
-other files).  SCons is implemented in Python, and its "configuration
-files" are actually Python scripts, allowing you to use the full power
-of a real scripting language to solve build problems.  You do not,
-however, need to know Python to use SCons effectively.
+This is a beta release of SCons, a tool for building software (and other
+files).  SCons is implemented in Python, and its "configuration files"
+are actually Python scripts, allowing you to use the full power of a
+real scripting language to solve build problems.  You do not, however,
+need to know Python to use SCons effectively.
 
 So that everyone using SCons can help each other learn how to use it
 more effectively, please sign up for the scons-users mailing list at:
@@ -20,7 +20,7 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.XX - XXX
+RELEASE 0.91 - Thu, 14 Aug 2003 13:00:44 -0500
 
   This is the second beta release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
@@ -142,7 +142,8 @@ RELEASE 0.XX - XXX
     - MSVC .res files are not rebuilt when icons change.
 
     - The -c option does not clean up .sconsign files or directories
-      created as part of the build.
+      created as part of the build, and also does not clean up
+      SideEffect files (for example, Visual Studio .pdb files).
 
     - Switching content signatures from "MD5" to "timestamp" and back
       again can cause unusual errors.  These errors can be cleared up by
@@ -155,8 +156,27 @@ RELEASE 0.XX - XXX
     - Using a construction variable in its own expansion can cause
       an infinite loop.
 
-    - When using SourceSignatures('timestamp'), changes to Python
-      Value() Nodes do not cause rebuilds.
+    - Appending values to construction variables may suffer from type
+      errors if, for example, you try to append a string to list or
+      vice versa.
+
+    - When using multiple Repositories, changing the name of an include
+      file can cause an old version of the file to be used.
+
+    - There is currently no way to force use of a relative path (../*)
+      for directories outside the top-level SConstruct file.
+
+    - The Jar() Builder will, on its second or subsequent invocation,
+      package up the .sconsign files that SCons uses to track
+      signatures.
+
+    - SCons does not currently have a way to detect that an intermediate
+      file has been corrupted from outside and should be rebuilt.
+
+    - Unicode characters in path names do not work in all circumstances.
+
+    - A stray source file in a BuildDir can prevent targets from being
+      (re)built when they should.
 
     - No support yet for the following planned command-line options:
 
