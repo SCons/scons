@@ -397,7 +397,8 @@ def shared_object_emitter(target, source, env):
     return object_emitter(target, source, env,
                           SCons.Defaults.SharedObjectEmitter)
 
-pch_builder = SCons.Builder.Builder(action='$PCHCOM', suffix='.pch', emitter=pch_emitter)
+pch_builder = SCons.Builder.Builder(action='$PCHCOM', suffix='.pch', emitter=pch_emitter,
+                                    source_scanner=SCons.Defaults.ObjSourceScan)
 res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.res',
                                     source_scanner=SCons.Defaults.ObjSourceScan)
 SCons.Defaults.ObjSourceScan.add_scanner('.rc', SCons.Defaults.CScan)

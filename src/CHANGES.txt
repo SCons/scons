@@ -10,7 +10,7 @@
 
 RELEASE 0.97 - XXX
 
-  From Steven Knight
+  From Steven Knight:
 
   - Add a must_exist flag to Delete() to let the user control whether
     it's an error if the specified entry doesn't exist.  The default
@@ -19,6 +19,11 @@ RELEASE 0.97 - XXX
   - Package up the new Platform/darwin.py, mistakenly left out of 0.96.
 
   - Make the scons.bat REM statements into @REM so they aren't printed.
+
+  From Anthony Roach:
+
+  - Fix scanning of pre-compiled header (.pch) files for #includes,
+    broken in 0.96.
 
 
 
