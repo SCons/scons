@@ -30,6 +30,7 @@ import types
 import unittest
 
 import TestCmd
+import SCons.Node.FS
 import SCons.Scanner.Prog
 
 test = TestCmd.TestCmd(workdir = '')
@@ -89,6 +90,30 @@ class ProgScanTestCase1(unittest.TestCase):
         path = s.path(env)
         deps = s('dummy', env, path)
         assert deps_match(deps, ['l1.lib']), map(str, deps)
+
+        env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
+                               LIBS='l1')
+        s = SCons.Scanner.Prog.ProgScan()
+        path = s.path(env)
+        deps = s('dummy', env, path)
+        assert deps_match(deps, ['l1.lib']), map(str, deps)
+
+        f1 = SCons.Node.FS.default_fs.File(test.workpath('f1'))
+        env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
+                               LIBS=[f1])
+        s = SCons.Scanner.Prog.ProgScan()
+        path = s.path(env)
+        deps = s('dummy', env, path)
+        assert deps[0] is f1, deps
+
+        f2 = SCons.Node.FS.default_fs.File(test.workpath('f1'))
+        env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
+                               LIBS=f2)
+        s = SCons.Scanner.Prog.ProgScan()
+        path = s.path(env)
+        deps = s('dummy', env, path)
+        assert deps[0] is f2, deps
+
 
 class ProgScanTestCase2(unittest.TestCase):
     def runTest(self):

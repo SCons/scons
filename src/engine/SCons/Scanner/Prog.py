@@ -60,6 +60,8 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
         return []
     if SCons.Util.is_String(libs):
         libs = string.split(libs)
+    elif not SCons.Util.is_List(libs):
+        libs = [libs]
 
     try:
         prefix = env.Dictionary('LIBPREFIXES')
@@ -75,8 +77,15 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
     except KeyError:
         suffix = [ '' ]
 
+    find_file = SCons.Node.FS.find_file
     ret = []
     for suf in map(env.subst, suffix):
         for pref in map(env.subst, prefix):
-            ret.extend(map(lambda x, s=suf, p=pref: p + x + s, libs))
-    return SCons.Node.FS.find_files(ret, libpath, fs.File)
+            for lib in libs:
+                if SCons.Util.is_String(lib):
+                    f = find_file(pref + lib + suf, libpath, fs.File)
+                    if f:
+                        ret.append(f)
+                else:
+                    ret.append(lib)
+    return ret
