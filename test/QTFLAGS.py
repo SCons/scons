@@ -244,14 +244,17 @@ env1 = Environment(tools=['qt'],
                    QT_LIBPATH='$QTDIR/lib64',
                    QT_CPPPATH='$QTDIR/h64')
 
-if not env1.subst('$CPPPATH') == os.path.join(r'%(QTDIR)s', 'h64'):
-    print env1.subst('$CPPPATH')
+cpppath = env1.subst('$CPPPATH')
+if os.path.normpath(cpppath) != os.path.join(r'%(QTDIR)s', 'h64'):
+    print cpppath
     Exit(1)
-if not env1.subst('$LIBPATH') == os.path.join(r'%(QTDIR)s', 'lib64'):
-    print env1.subst('$LIBPATH')
+libpath = env1.subst('$LIBPATH')
+if os.path.normpath(libpath) != os.path.join(r'%(QTDIR)s', 'lib64'):
+    print libpath
     Exit(2)
-if not env1.subst('$QT_MOC') == os.path.join(r'%(QTDIR)s', 'bin64', 'moc'):
-    print env1.subst('$QT_MOC')
+qt_moc = env1.subst('$QT_MOC')
+if os.path.normpath(qt_moc) != os.path.join(r'%(QTDIR)s', 'bin64', 'moc'):
+    print qt_moc
     Exit(3)
 
 env2 = Environment(tools=['default', 'qt'],

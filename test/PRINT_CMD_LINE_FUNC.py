@@ -28,9 +28,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the PRINT_CMD_LINE_FUNC construction variable.
 """
 
+import string
 import sys
 import TestCmd
 import TestSCons
+
+_exe = TestSCons._exe
+_obj = TestSCons._obj
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
@@ -49,10 +53,21 @@ test.write('prog.c', r"""
 int main(int argc, char *argv[]) { return 0; }
 """)
 
-test.run(arguments = '-Q .', stdout = """\
-BUILDING prog.o from prog.c with .*
-BUILDING prog from prog.o with .*
-""")
+test.run(arguments = '-Q .')
+
+expected_lines = [
+    "BUILDING prog%s from prog.c with" % (_obj,),
+    "BUILDING prog%s from prog%s with" % (_exe, _obj),
+]
+
+missing_lines = filter(lambda l: string.find(test.stdout(), l) == -1,
+                       expected_lines)
+if missing_lines:
+    print "Expected the following lines in STDOUT:"
+    print "\t" + string.join(expected_lines, "\n\t")
+    print "ACTUAL STDOUT =========="
+    print test.stdout()
+    test.fail_test(1)
 
 test.run(arguments = '-c .')
 
