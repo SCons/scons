@@ -507,6 +507,54 @@ class EnvironmentTestCase(unittest.TestCase):
         assert len(dict['_F77INCFLAGS']) == 0, dict['_F77INCFLAGS']
         assert len(dict['_LIBDIRFLAGS']) == 0, dict['_LIBDIRFLAGS']
 
+        blat = SCons.Node.FS.default_fs.File('blat')
+        SCons.Node.FS.default_fs.Repository('/rep1')
+        SCons.Node.FS.default_fs.Repository('/rep2')
+        env = Environment(CPPPATH = [ 'foo', '/a/b', '$FOO/bar', blat],
+                          INCPREFIX = '-I ',
+                          INCSUFFIX = 'XXX',
+                          FOO = 'baz')
+        dict = env.autogenerate(dir = SCons.Node.FS.default_fs.Dir('/xx'))
+        assert len(dict['_CPPINCFLAGS']) == 18, dict['_CPPINCFLAGS']
+        assert dict['_CPPINCFLAGS'][0] == '$(', \
+               dict['_CPPINCFLAGS'][0]
+        assert dict['_CPPINCFLAGS'][1] == '-I', \
+               dict['_CPPINCFLAGS'][1]
+        assert dict['_CPPINCFLAGS'][2] == os.path.normpath('/xx/fooXXX'), \
+               dict['_CPPINCFLAGS'][2]
+        assert dict['_CPPINCFLAGS'][3] == '-I', \
+               dict['_CPPINCFLAGS'][3]
+        assert dict['_CPPINCFLAGS'][4] == os.path.normpath('/rep1/fooXXX'), \
+               dict['_CPPINCFLAGS'][4]
+        assert dict['_CPPINCFLAGS'][5] == '-I', \
+               dict['_CPPINCFLAGS'][5]
+        assert dict['_CPPINCFLAGS'][6] == os.path.normpath('/rep2/fooXXX'), \
+               dict['_CPPINCFLAGS'][6]
+        assert dict['_CPPINCFLAGS'][7] == '-I', \
+               dict['_CPPINCFLAGS'][7]
+        assert dict['_CPPINCFLAGS'][8] == os.path.normpath('/a/bXXX'), \
+               dict['_CPPINCFLAGS'][8]
+        assert dict['_CPPINCFLAGS'][9] == '-I', \
+               dict['_CPPINCFLAGS'][9]
+        assert dict['_CPPINCFLAGS'][10] == os.path.normpath('/xx/baz/barXXX'), \
+               dict['_CPPINCFLAGS'][10]
+        assert dict['_CPPINCFLAGS'][11] == '-I', \
+               dict['_CPPINCFLAGS'][11]
+        assert dict['_CPPINCFLAGS'][12] == os.path.normpath('/rep1/baz/barXXX'), \
+               dict['_CPPINCFLAGS'][12]
+        assert dict['_CPPINCFLAGS'][13] == '-I', \
+               dict['_CPPINCFLAGS'][13]
+        assert dict['_CPPINCFLAGS'][14] == os.path.normpath('/rep2/baz/barXXX'), \
+               dict['_CPPINCFLAGS'][14]
+        assert dict['_CPPINCFLAGS'][15] == '-I', \
+               dict['_CPPINCFLAGS'][15]
+        assert dict['_CPPINCFLAGS'][16] == os.path.normpath('blatXXX'), \
+               dict['_CPPINCFLAGS'][16]
+        assert dict['_CPPINCFLAGS'][17] == '$)', \
+               dict['_CPPINCFLAGS'][17]
+
+
+
     def test_platform(self):
         """Test specifying a platform callable when instantiating."""
         def p(env):

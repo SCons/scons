@@ -266,10 +266,16 @@ class ActionBase:
 
         try:
             cwd = kw['dir']
-        except:
+        except KeyError:
             cwd = None
         else:
             del kw['dir']
+
+        def rstr(x):
+            try:
+                return x.rstr()
+            except AttributeError:
+                return str(x)
 
         if kw.has_key('target'):
             t = kw['target']
@@ -280,7 +286,7 @@ class ActionBase:
                 cwd = t[0].cwd
             except (IndexError, AttributeError):
                 pass
-            dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(str, t)))
+            dict['TARGETS'] = SCons.Util.PathList(map(os.path.normpath, map(rstr, t)))
             if dict['TARGETS']:
                 dict['TARGET'] = dict['TARGETS'][0]
 
@@ -289,7 +295,7 @@ class ActionBase:
             del kw['source']
             if not SCons.Util.is_List(s):
                 s = [s]
-            dict['SOURCES'] = SCons.Util.PathList(map(os.path.normpath, map(str, s)))
+            dict['SOURCES'] = SCons.Util.PathList(map(os.path.normpath, map(rstr, s)))
             if dict['SOURCES']:
                 dict['SOURCE'] = dict['SOURCES'][0]
 
@@ -357,7 +363,7 @@ class CommandAction(ActionBase):
                 if execute_actions:
                     try:
                         ENV = kw['env']['ENV']
-                    except:
+                    except KeyError:
                         global default_ENV
                         if not default_ENV:
                             import SCons.Environment

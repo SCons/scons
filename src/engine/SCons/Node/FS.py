@@ -99,6 +99,7 @@ class FS:
             self.pathTop = path
         self.Root = {}
         self.Top = None
+        self.Repositories = []
 
     def set_toplevel_dir(self, path):
         assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
@@ -152,9 +153,9 @@ class FS:
         drive, path_first = os.path.splitdrive(path_comp[0])
         if not path_first:
             # Absolute path
-            drive = _my_normcase(drive)
+            drive_path = _my_normcase(drive)
             try:
-                directory = self.Root[drive]
+                directory = self.Root[drive_path]
             except KeyError:
                 if not create:
                     raise UserError
@@ -162,7 +163,7 @@ class FS:
                 dir.path = dir.path + os.sep
                 dir.abspath = dir.abspath + os.sep
                 dir.srcpath = dir.srcpath + os.sep
-                self.Root[drive] = dir
+                self.Root[drive_path] = dir
                 directory = dir
             path_comp = path_comp[1:]
         else:
@@ -209,6 +210,7 @@ class FS:
                           "File %s found where directory expected." % path
             
             ret = fsclass(path_comp[-1], directory)
+            ret.fs = self
             directory.entries[file_name] = ret
             directory.add_wkid(ret)
         return ret
@@ -295,6 +297,20 @@ class FS:
             raise UserError, "Source directory cannot be under build directory."
         build_dir.link(src_dir, duplicate)
 
+    def Repository(self, *dirs):
+        """Specify repository directories to search."""
+        for d in dirs:
+            self.Repositories.append(self.Dir(d))
+
+    def Rsearch(self, path, func = os.path.exists):
+        """Search for something in a repository."""
+        for dir in self.Repositories:
+            t = os.path.join(dir.path, path)
+            if func(t):
+                return t
+        return None
+
+
 class Entry(SCons.Node.Node):
     """A generic class for file system entries.  This class if for
     when we don't know yet whether the entry being looked up is a file
@@ -334,6 +350,7 @@ class Entry(SCons.Node.Node):
         self.__doSrcpath(self.duplicate)
         self.srcpath_ = self.srcpath
         self.cwd = None # will hold the SConscript directory for target nodes
+        self._rfile = None
 
     def get_dir(self):
         return self.dir
@@ -372,7 +389,7 @@ class Entry(SCons.Node.Node):
         raise AttributeError
 
     def exists(self):
-        return os.path.exists(str(self))
+        return os.path.exists(self.rstr())
 
     def cached_exists(self):
         try:
@@ -420,6 +437,7 @@ class Dir(Entry):
     def __init__(self, name, directory):
         Entry.__init__(self, name, directory)
         self._morph()
+        self._rfile = None
 
     def _morph(self):
         """Turn a file system node (either a freshly initialized
@@ -573,11 +591,11 @@ class File(Entry):
     def get_contents(self):
         if not self.exists():
             return ''
-        return open(str(self), "rb").read()
+        return open(self.rstr(), "rb").read()
 
     def get_timestamp(self):
         if self.exists():
-            return os.path.getmtime(str(self))
+            return os.path.getmtime(self.rstr())
         else:
             return 0
 
@@ -594,6 +612,8 @@ class File(Entry):
         self.dir.sconsign().set_timestamp(self.name, self.get_timestamp())
 
     def get_prevsiginfo(self):
+        """Fetch the previous signature information from the
+        .sconsign entry."""
         return self.dir.sconsign().get(self.name)
 
     def get_stored_implicit(self):
@@ -649,6 +669,18 @@ class File(Entry):
                 os.unlink(self.path)
         else:
             self.__createDir()
+
+    def rfile(self):
+        if not self._rfile:
+            self._rfile = self
+            if not os.path.isabs(self.path) and not os.path.isfile(self.path):
+                t = self.fs.Rsearch(self.path, os.path.isfile)
+                if t:
+                    self._rfile = self.fs.File(t)
+        return self._rfile
+
+    def rstr(self):
+        return os.path.normpath(str(self.rfile()))
 
 
 default_fs = FS()

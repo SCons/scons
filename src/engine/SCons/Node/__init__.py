@@ -356,6 +356,9 @@ class Node:
     def current(self):
         return None
 
+    def rstr(self):
+        return str(self)
+
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass
 def do_nothing(node, parent): pass

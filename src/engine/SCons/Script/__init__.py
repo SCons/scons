@@ -185,6 +185,7 @@ target_top = None
 exit_status = 0 # exit status, assume success by default
 profiling = 0
 max_drift = None
+repositories = []
 
 
 # utility functions
@@ -792,7 +793,11 @@ def options_init():
     #    long = ['warn-undefined-variables'],
     #    help = "Warn when an undefined variable is referenced.")
 
-    Option(func = opt_not_yet, future = 1,
+    def opt_Y(opt, arg):
+        global repositories
+        repositories.append(arg)
+
+    Option(func = opt_Y,
 	short = 'Y', long = ['repository'], arg = 'REPOSITORY',
 	help = "Search REPOSITORY for source and target files.")
 
@@ -825,10 +830,15 @@ def _SConstruct_exists(dirname=''):
     If so, it returns the path of the file. By default, it checks the
     current directory.
     """
+    global repositories
     for file in ['SConstruct', 'Sconstruct', 'sconstruct']:
         sfile = os.path.join(dirname, file)
         if os.path.isfile(sfile):
             return sfile
+        if not os.path.isabs(file):
+            for rep in repositories:
+                if os.path.isfile(os.path.join(rep, sfile)):
+                    return sfile
     return None
 
 
@@ -931,6 +941,10 @@ def _main():
     sys.stdout = Unbuffered(sys.stdout)
 
     sys.path = include_dirs + sys.path
+
+    global repositories
+    for rep in repositories:
+        SCons.Node.FS.default_fs.Repository(rep)
 
     start_time = time.time()
     for script in scripts:

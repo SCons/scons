@@ -41,7 +41,7 @@ cycle_detected = None
 class Builder:
     def execute(self, **kw):
         global built_it, built_target, built_source, built_args
-	built_it = 1
+        built_it = 1
         built_target = kw['target']
         built_source = kw['source']
         built_args = kw
@@ -554,6 +554,16 @@ class NodeTestCase(unittest.TestCase):
         assert n.name == "n7", n.name
         n = nw.next()
         assert nw.next() == None
+
+    def test_rstr(self):
+        """Test the rstr() method."""
+        class MyNode(SCons.Node.Node):
+            def __init__(self, name):
+                self.name = name
+            def __str__(self):
+                return self.name
+        n1 = MyNode("n1")
+        assert n1.rstr() == 'n1', n1.rstr()
 
     def test_arg2nodes(self):
         """Test the arg2nodes function."""

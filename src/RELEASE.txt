@@ -177,8 +177,6 @@ RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500
 
     - No support yet for the following future features:
 
-        - Repository search paths (-Y)
-
         - Configurable signature calculation
 
         - No support for caching built files.

@@ -530,6 +530,55 @@ class FSTestCase(unittest.TestCase):
             exc_caught = 1
         assert exc_caught, "Should have caught a TypeError"
 
+class RepositoryTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test FS (file system) Repository operations
+
+        """
+        fs = SCons.Node.FS.FS()
+
+        fs.Repository('foo')
+        fs.Repository(os.path.join('foo', 'bar'))
+        fs.Repository(os.path.join('bar', 'foo'))
+        fs.Repository('bar')
+
+        assert len(fs.Repositories) == 4, fs.Repositories
+        r = map(lambda x, np=os.path.normpath: np(str(x)), fs.Repositories)
+        assert r == ['foo', 'foo/bar', 'bar/foo', 'bar'], r
+
+        test = TestCmd(workdir = '')
+        test.subdir('rep1', 'rep2', 'rep3', 'work')
+
+        rep1 = test.workpath('rep1')
+        rep2 = test.workpath('rep2')
+        rep3 = test.workpath('rep3')
+
+        os.chdir(test.workpath('work'))
+
+        fs = SCons.Node.FS.FS()
+        fs.Repository(rep1, rep2, rep3)
+
+        wf = fs.File(os.path.join('f1'))
+        assert wf.rfile() is wf
+
+        test.write([rep1, 'f2'], "")
+
+        wf = fs.File('f2')
+        assert not wf.rfile() is wf, wf.rfile()
+        assert str(wf.rfile()) == os.path.join(rep1, 'f2'), str(wf.rfile())
+
+        test.subdir([rep2, 'f3'])
+        test.write([rep3, 'f3'], "")
+
+        wf = fs.File('f3')
+        assert not wf.rfile() is wf, wf.rfile()
+        assert wf.rstr() == os.path.join(rep3, 'f3'), wf.rstr()
+
+        assert not fs.Rsearch('f1', os.path.exists)
+        assert fs.Rsearch('f2', os.path.exists)
+        assert fs.Rsearch('f3', os.path.exists)
+
+
 class find_fileTestCase(unittest.TestCase):
     def runTest(self):
         """Testing find_file function"""
@@ -553,6 +602,7 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(FSTestCase())
     suite.addTest(BuildDirTestCase())
+    suite.addTest(RepositoryTestCase())
     suite.addTest(find_fileTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

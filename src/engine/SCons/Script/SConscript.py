@@ -167,7 +167,7 @@ def SConscript(*ls, **kw):
 		else:
 		    f = SCons.Node.FS.default_fs.File(str(fn))
                 if f.exists():
-                    file = open(str(f), "r")
+                    file = open(f.rstr(), "r")
                     SCons.Node.FS.default_fs.chdir(f.dir)
                     if sconscript_chdir:
                         old_dir = os.getcwd()
@@ -276,10 +276,13 @@ def BuildDefaultGlobals():
     globals['FindFile']          = FindFile
     globals['GetBuildPath']      = GetBuildPath
     globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
+    globals['GetLaunchDir']      = GetLaunchDir
     globals['Help']              = Help
     globals['Import']            = Import
     globals['Library']           = SCons.Defaults.StaticLibrary
     globals['Object']            = SCons.Defaults.StaticObject
+    globals['Repository']        = SCons.Node.FS.default_fs.Repository
+    globals['SetBuildSignatureType'] = SetBuildSignatureType
     globals['StaticLibrary']     = SCons.Defaults.StaticLibrary
     globals['StaticObject']      = SCons.Defaults.StaticObject
     globals['SharedLibrary']     = SCons.Defaults.SharedLibrary
@@ -294,6 +297,4 @@ def BuildDefaultGlobals():
     globals['Split']             = SCons.Util.Split
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
-    globals['GetLaunchDir']      = GetLaunchDir
-    globals['SetBuildSignatureType'] = SetBuildSignatureType
     return globals

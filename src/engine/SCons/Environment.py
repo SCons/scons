@@ -492,13 +492,18 @@ class DirVarInterp(VarInterpolator):
 
         def prepare(x, self=self):
             if isinstance(x, SCons.Node.Node):
-                return x
+                return [x]
             elif str(x):
-                return self.fs.Dir(str(x), directory=self.dir)
+                if os.path.isabs(str(x)):
+                    return [self.fs.Dir(str(x), directory=self.dir)]
+                else:
+                    return map(lambda d, s=str(x), fs=self.fs:
+                                      fs.Dir(s, directory=d),
+                               [self.dir] + self.fs.Repositories)
             else:
-                return None
+                return []
 
-        return map(prepare, src)
+        return reduce(lambda x, y: x+y, map(prepare, src), [])
 
     def instance(self, dir, fs):
         try:

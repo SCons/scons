@@ -114,6 +114,20 @@ class ActionBaseTestCase(unittest.TestCase):
         assert SOURCES == ['s1', 's2'], d['SOURCES']
         assert str(d['SOURCE']) == 's1', d['SOURCE']
 
+        class N:
+            def __init__(self, name):
+                self.name = name
+            def rstr(self):
+                return 'rstr-' + self.name
+
+        d = a.subst_dict(target = [N('t3'), 't4'], source = ['s3', N('s4')])
+        TARGETS = map(lambda x: str(x), d['TARGETS'])
+        TARGETS.sort()
+        assert TARGETS == ['rstr-t3', 't4'], d['TARGETS']
+        SOURCES = map(lambda x: str(x), d['SOURCES'])
+        SOURCES.sort()
+        assert SOURCES == ['rstr-s4', 's3'], d['SOURCES']
+
 class CommandActionTestCase(unittest.TestCase):
 
     def test_init(self):
