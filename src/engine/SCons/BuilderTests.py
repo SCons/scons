@@ -265,6 +265,15 @@ class BuilderTestCase(unittest.TestCase):
         target = builder(env, source='n21')[0]
         assert target.name == 'p-n21.s', target
 
+        builder = SCons.Builder.Builder(misspelled_action="foo",
+                                        suffix = '.s')
+        try:
+            builder(env, target = 'n22', source = 'n22')
+        except SCons.Errors.UserError, e:
+            pass
+        else:
+            raise "Did not catch expected UserError."
+
     def test_mistaken_variables(self):
         """Test keyword arguments that are often mistakes
         """
@@ -393,7 +402,7 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment()
         builder = SCons.Builder.Builder(prefix = 'lib.')
         assert builder.get_prefix(env) == 'lib.'
-        builder = SCons.Builder.Builder(prefix = 'lib')
+        builder = SCons.Builder.Builder(prefix = 'lib', action='')
         assert builder.get_prefix(env) == 'lib'
         tgt = builder(env, target = 'tgt1', source = 'src1')[0]
         assert tgt.path == 'libtgt1', \
@@ -426,7 +435,8 @@ class BuilderTestCase(unittest.TestCase):
                                                   '.in'  : 'out-',
                                                   '.x'   : 'y-',
                                                   '$FOO' : 'foo-',
-                                                  '.zzz' : my_emit})
+                                                  '.zzz' : my_emit},
+                                        action = '')
         tgt = builder(my_env, source = 'f1')[0]
         assert tgt.path == 'default-f1', tgt.path
         tgt = builder(my_env, source = 'f2.c')[0]
@@ -448,7 +458,7 @@ class BuilderTestCase(unittest.TestCase):
         """
         env = Environment(XSUFFIX = '.x', YSUFFIX = '.y')
 
-        b1 = SCons.Builder.Builder(src_suffix = '.c')
+        b1 = SCons.Builder.Builder(src_suffix = '.c', action='')
         assert b1.src_suffixes(env) == ['.c'], b1.src_suffixes(env)
 
         tgt = b1(env, target = 'tgt2', source = 'src2')[0]
@@ -483,7 +493,7 @@ class BuilderTestCase(unittest.TestCase):
         env = Environment()
         builder = SCons.Builder.Builder(suffix = '.o')
         assert builder.get_suffix(env) == '.o', builder.get_suffix(env)
-        builder = SCons.Builder.Builder(suffix = 'o')
+        builder = SCons.Builder.Builder(suffix = 'o', action='')
         assert builder.get_suffix(env) == '.o', builder.get_suffix(env)
         tgt = builder(env, target = 'tgt3', source = 'src3')[0]
         assert tgt.path == 'tgt3.o', \
@@ -510,7 +520,8 @@ class BuilderTestCase(unittest.TestCase):
                                                   '.in'  : '.out',
                                                   '.x'   : '.y',
                                                   '$BAR' : '.new',
-                                                  '.zzz' : my_emit})
+                                                  '.zzz' : my_emit},
+                                        action='')
         tgt = builder(my_env, source = 'f1')[0]
         assert tgt.path == 'f1.default', tgt.path
         tgt = builder(my_env, source = 'f2.c')[0]
@@ -809,7 +820,8 @@ class BuilderTestCase(unittest.TestCase):
         sscan = TestScanner()
         env = Environment()
         builder = SCons.Builder.Builder(target_scanner=tscan,
-                                        source_scanner=sscan)
+                                        source_scanner=sscan,
+                                        action='')
         tgt = builder(env, target='foo2', source='bar')[0]
         assert tgt.target_scanner == tscan, tgt.target_scanner
         assert tgt.source_scanner == sscan, tgt.source_scanner

@@ -81,6 +81,12 @@ class ExecutorTestCase(unittest.TestCase):
         assert x.targets == 't', x.targets
         source_list.append('s3')
         assert x.sources == ['s1', 's2'], x.sources
+        try:
+            x = SCons.Executor.Executor(None, 'e', ['o'], 't', source_list)
+        except SCons.Errors.UserError:
+            pass
+        else:
+            raise "Did not catch expected UserError"
 
     def test_get_build_env(self):
         """Test fetching and generating a build environment"""
