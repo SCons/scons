@@ -332,7 +332,7 @@ python_scons = {
                           },
 
         'explicit_deps' : {
-                            'SCons/Script/__init__.py' : Version_values,
+                            'SCons/__init__.py' : Version_values,
                           },
 }
 
