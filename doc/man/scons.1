@@ -397,6 +397,16 @@ executing build commands, the total time spent executing SConstruct and
 SConscript files, and the total time spent executing SCons itself.
 
 .TP
+.RI --debug=includes
+Print the include tree after each top-level target is built. 
+This is generally used to find out what files are included by the sources
+of a given derived file:
+
+.ES
+$ scons --debug=includes foo.o
+.EE
+
+.TP
 -e, --environment-overrides
 Variables from the execution environment override construction
 variables from the SConscript files.

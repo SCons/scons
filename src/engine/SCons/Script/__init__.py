@@ -120,6 +120,12 @@ class BuildTask(SCons.Taskmaster.Task):
         if print_dtree and self.top:
             print
             print SCons.Util.render_tree(self.targets[0], get_derived_children)
+        if print_includes and self.top:
+            t = self.targets[0]
+            tree = t.render_include_tree()
+            if tree:
+                print
+                print tree
 
     def failed(self):
         e = sys.exc_value
@@ -191,6 +197,7 @@ keep_going_on_error = 0
 print_tree = 0
 print_dtree = 0
 print_time = 0
+print_includes = 0
 ignore_errors = 0
 sconscript_time = 0
 command_time = 0
@@ -353,7 +360,7 @@ def _SConstruct_exists(dirname=''):
 
 def _set_globals(options):
     global repositories, keep_going_on_error, print_tree, print_dtree
-    global print_time, ignore_errors
+    global print_time, ignore_errors, print_includes
 
     if options.repository:
         repositories.extend(options.repository)
@@ -366,6 +373,8 @@ def _set_globals(options):
                 print_dtree = 1
             elif options.debug == "time":
                 print_time = 1
+            elif options.debug == "includes":
+                print_includes = 1
     except AttributeError:
         pass
     ignore_errors = options.ignore_errors
@@ -442,7 +451,7 @@ class OptParser(OptionParser):
                                            "python" + sys.version[0:3],
                                            "pdb.py")
                 os.execvpe(args[0], args, os.environ)
-            elif value in ["tree", "dtree", "time"]:
+            elif value in ["tree", "dtree", "time", "includes"]:
                 setattr(parser.values, 'debug', value)
             else:
                 raise OptionValueError("Warning:  %s is not a valid debug type" % value)

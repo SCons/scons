@@ -470,6 +470,20 @@ class Node:
         the command interpreter literally."""
         return 1
 
+    def render_include_tree(self):
+        """
+        Return a text representation, suitable for displaying to the
+        user, of the include tree for the sources of this node.
+        """
+        if self.has_builder() and self.env:
+            env = self.generate_build_env()
+            for s in self.sources:
+                def f(node, env=env, scanner=s.source_scanner, target=self):
+                    return node.get_found_includes(env, scanner, target)
+                return SCons.Util.render_tree(s, f, 1)
+        else:
+            return None
+
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass
 def do_nothing(node, parent): pass

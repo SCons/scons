@@ -464,14 +464,16 @@ def scons_subst(strSubst, globals, locals, remove=None):
     # strip out redundant white-space
     return string.strip(_space_sep.sub(' ', strSubst))
 
-def render_tree(root, child_func, margin=[0], visited={}):
+def render_tree(root, child_func, prune=0, margin=[0], visited={}):
     """
     Render a tree of nodes into an ASCII tree view.
     root - the root node of the tree
     child_func - the function called to get the children of a node
+    prune - don't visit the same node twice
     margin - the format of the left margin to use for children of root.
        1 results in a pipe, and 0 results in no pipe.
-    visited - a dictionart of visited nodes in the current branch
+    visited - a dictionary of visited nodes in the current branch if not prune,
+       or in the whole tree if prune.
     """
 
     if visited.has_key(root):
@@ -486,12 +488,13 @@ def render_tree(root, child_func, margin=[0], visited={}):
             retval = retval + "  "
 
     retval = retval + "+-" + str(root) + "\n"
-    visited = copy.copy(visited)
+    if not prune:
+        visited = copy.copy(visited)
     visited[root] = 1
 
     for i in range(len(children)):
         margin.append(i<len(children)-1)
-        retval = retval + render_tree(children[i], child_func, margin, visited
+        retval = retval + render_tree(children[i], child_func, prune, margin, visited
 )
         margin.pop()
 

@@ -85,6 +85,8 @@ RELEASE 0.10 - XXX
 
   - Added support for the MinGW tool chain.
 
+  - Added a --debug=inclues option.
+
 
 
 RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600

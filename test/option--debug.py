@@ -94,6 +94,19 @@ tree = """
 test.run(arguments = "--debug=dtree foo.xxx")
 test.fail_test(string.find(test.stdout(), tree) == -1)
 
+tree = """
++-foo.c
+  +-foo.h
+    +-bar.h
+"""
+test.run(arguments = "--debug=includes foo.ooo")
+test.fail_test(string.find(test.stdout(), tree) == -1)
+
+# these shouldn't print out anything in particular, but
+# they shouldn't crash either:
+test.run(arguments = "--debug=includes .")
+test.run(arguments = "--debug=includes foo.c")
+
 tree = """scons: \".\" is up to date.
 
 +-.

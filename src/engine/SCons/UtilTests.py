@@ -306,6 +306,22 @@ class UtilTestCase(unittest.TestCase):
 
         actual = render_tree(foo, get_children)
         assert expect == actual, (expect, actual)
+        
+        bar_h = Node('bar.h', [stdlib_h])
+        blat_h = Node('blat.h', [stdlib_h])
+        blat_c = Node('blat.c', [blat_h, bar_h])
+        blat_o = Node('blat.o', [blat_c])
+
+        expect = """\
++-blat.o
+  +-blat.c
+    +-blat.h
+    | +-stdlib.h
+    +-bar.h
+"""
+
+        actual = render_tree(blat_o, get_children, 1)
+        assert expect == actual, (expect, actual)        
 
     def test_is_Dict(self):
         assert is_Dict({})
