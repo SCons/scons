@@ -33,6 +33,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Action
 import SCons.Builder
 import SCons.Util
 
@@ -77,8 +78,10 @@ def jarChdir(target, source, env, for_signature):
     if env.has_key('JARCHDIR'):
         return [ '-C', '$JARCHDIR' ]
     return []
-        
-JarBuilder = SCons.Builder.Builder(action = '$JARCOM',
+
+JarAction = SCons.Action.Action('$JARCOM', '$JARCOMSTR')
+
+JarBuilder = SCons.Builder.Builder(action = JarAction,
                                    source_factory = SCons.Node.FS.default_fs.Entry,
                                    suffix = '$JARSUFFIX')
 
