@@ -47,6 +47,16 @@ env.B(target = 'foo1.out', source = 'foo1.in')
 env.B(target = 'foo2.out', source = 'foo2.xxx')
 env.B(target = 'foo2.xxx', source = 'foo2.in')
 env.B(target = 'foo3.out', source = 'foo3.in')
+import os
+if hasattr(os, 'symlink'):
+    def symlink1(env, target, source):
+        # symlink to a file that exists
+        os.symlink(str(source[0]), str(target[0]))
+    env.Command(target = 'symlink1', source = 'foo1.in', action = symlink1)
+    def symlink2(env, target, source):
+        # force symlink to a file that doesn't exist
+        os.symlink('does_not_exist', str(target[0]))
+    env.Command(target = 'symlink2', source = 'foo1.in', action = symlink2)
 """ % python)
 
 test.write('foo1.in', "foo1.in\n")
@@ -93,6 +103,10 @@ test.fail_test(test.read(test.workpath('foo2.xxx')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
+if hasattr(os, 'symlink'):
+    test.fail_test(not os.path.islink(test.workpath('symlink1')))
+    test.fail_test(not os.path.islink(test.workpath('symlink2')))
+
 test.run(arguments = '-c foo2.xxx',
          stdout = test.wrap_stdout("Removed foo2.xxx\n"))
 
@@ -101,12 +115,15 @@ test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
-test.run(arguments = '-c .',
-         stdout = test.wrap_stdout("Removed foo1.out\nRemoved foo2.out\nRemoved foo3.out\n"))
+test.run(arguments = '-c .')
 
 test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(os.path.exists(test.workpath('foo2.out')))
 test.fail_test(os.path.exists(test.workpath('foo3.out')))
+
+if hasattr(os, 'symlink'):
+    test.fail_test(os.path.islink(test.workpath('symlink1')))
+    test.fail_test(os.path.islink(test.workpath('symlink2')))
 
 test.run(arguments = 'foo1.out foo2.out foo3.out')
 

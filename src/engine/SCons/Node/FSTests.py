@@ -923,6 +923,18 @@ class FSTestCase(unittest.TestCase):
         f = fs.File('exists')
         r = f.remove()
         assert r, r
+        assert not os.path.exists(test.workpath('exists')), "exists was not removed"
+
+        symlink = test.workpath('symlink')
+        try:
+            os.symlink(test.workpath('does_not_exist'), symlink)
+            assert os.path.islink(symlink)
+            f = fs.File('symlink')
+            r = f.remove()
+            assert r, r
+            assert not os.path.islink(symlink), "symlink was not removed"
+        except AttributeError:
+            pass
 
         test.write('can_not_remove', "can_not_remove\n")
         test.writable(test.workpath('.'), 0)

@@ -51,6 +51,10 @@ RELEASE 0.10 - XXX
   - Documentation fixes: better initial explanation of SConscript files;
     fix a misformatted "table" in the StaticObject explanation.
 
+  From Steven Knight and Steve Leblanc:
+
+  - Fix the -c option so it will remove symlinks.
+
   From Steve Leblanc:
 
   - Add a Clean() method to support removing user-specified targets

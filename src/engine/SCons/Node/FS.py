@@ -60,6 +60,12 @@ import SCons.Warnings
 # there should be *no* changes to the external file system(s)...
 #
 
+if hasattr(os, 'symlink'):
+    def _existsp(p):
+        return os.path.exists(p) or os.path.islink(p)
+else:
+    _existsp = os.path.exists
+
 def LinkFunc(target, source, env):
     src = source[0].path
     dest = target[0].path
@@ -940,7 +946,7 @@ class File(Entry):
 
     def remove(self):
         """Remove this file."""
-        if os.path.exists(self.path):
+        if _existsp(self.path):
             os.unlink(self.path)
             return 1
         return None
