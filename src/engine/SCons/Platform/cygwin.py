@@ -33,7 +33,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import posix
-import win32
+from SCons.Platform import TempFileMunge
 
 def generate(env):
     posix.generate(env)
@@ -44,4 +44,5 @@ def generate(env):
     env['SHLIBSUFFIX'] = '.dll'
     env['LIBPREFIXES'] = [ '$LIBPREFIX', '$SHLIBPREFIX' ]
     env['LIBSUFFIXES'] = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
-    env['TEMPFILE']    = win32.TempFileMunge
+    env['TEMPFILE']    = TempFileMunge
+    env['MAXLINELENGTH']  = 2048

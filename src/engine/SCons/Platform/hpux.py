@@ -36,3 +36,5 @@ import posix
 
 def generate(env):
     posix.generate(env)
+    #Based on HP-UX11i: ARG_MAX=2048000 - 3000 for environment expansion
+    env['MAXLINELENGTH']  = 2045000

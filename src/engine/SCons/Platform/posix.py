@@ -40,6 +40,7 @@ import sys
 import select
 
 import SCons.Util
+from SCons.Platform import TempFileMunge
 
 exitvalmap = {
     2 : 127,
@@ -240,6 +241,10 @@ def generate(env):
     env['SPAWN']          = spawn
     env['SHELL']          = 'sh'
     env['ESCAPE']         = escape
+    env['TEMPFILE']       = TempFileMunge
+    #Based on LINUX: ARG_MAX=ARG_MAX=131072 - 3000 for environment expansion
+    #Note: specific platforms might rise or lower this value
+    env['MAXLINELENGTH']  = 128072
 
     # This platform supports RPATH specifications.
     env['__RPATH'] = '$_RPATH'
