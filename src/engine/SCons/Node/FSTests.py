@@ -82,23 +82,23 @@ class BuildDirTestCase(unittest.TestCase):
         f1 = fs.File('build/test1')
         fs.BuildDir('build', 'src')
         f2 = fs.File('build/test2')
-        assert f1.srcpath == os.path.normpath('src/test1'), f1.srcpath
-        assert f2.srcpath == os.path.normpath('src/test2'), f2.srcpath
+        assert f1.srcnode().path == os.path.normpath('src/test1'), f1.srcnode().path
+        assert f2.srcnode().path == os.path.normpath('src/test2'), f2.srcnode().path
 
         fs = SCons.Node.FS.FS()
         f1 = fs.File('build/test1')
         fs.BuildDir('build', '.')
         f2 = fs.File('build/test2')
-        assert f1.srcpath == 'test1', f1.srcpath
-        assert f2.srcpath == 'test2', f2.srcpath
+        assert f1.srcnode().path == 'test1', f1.srcnode().path
+        assert f2.srcnode().path == 'test2', f2.srcnode().path
 
         fs = SCons.Node.FS.FS()
         fs.BuildDir('build/var1', 'src')
         fs.BuildDir('build/var2', 'src')
         f1 = fs.File('build/var1/test1')
         f2 = fs.File('build/var2/test1')
-        assert f1.srcpath == os.path.normpath('src/test1'), f1.srcpath
-        assert f2.srcpath == os.path.normpath('src/test1'), f2.srcpath
+        assert f1.srcnode().path == os.path.normpath('src/test1'), f1.srcnode().path
+        assert f2.srcnode().path == os.path.normpath('src/test1'), f2.srcnode().path
 
         fs = SCons.Node.FS.FS()
         fs.BuildDir('../var1', 'src')
@@ -106,56 +106,136 @@ class BuildDirTestCase(unittest.TestCase):
         f1 = fs.File('../var1/test1')
         f2 = fs.File('../var2/test1')
         assert hasattr(f1, 'overrides')
-        assert f1.srcpath == os.path.normpath('src/test1'), f1.srcpath
-        assert f2.srcpath == os.path.normpath('src/test1'), f2.srcpath
+        assert f1.srcnode().path == os.path.normpath('src/test1'), f1.srcnode().path
+        assert f2.srcnode().path == os.path.normpath('src/test1'), f2.srcnode().path
 
-        fs = SCons.Node.FS.FS()
+        # Set up some files
+        test.subdir('work', ['work', 'src'])
+        test.subdir(['work', 'build'], ['work', 'build', 'var1'])
+        test.subdir(['work', 'build', 'var2'])
+        test.subdir('rep1', ['rep1', 'src'])
+        test.subdir(['rep1', 'build'], ['rep1', 'build', 'var1'])
+        test.subdir(['rep1', 'build', 'var2'])
+
+        # A source file in the source directory
+        test.write([ 'work', 'src', 'test.in' ], 'test.in')
+
+        # A source file in the repository
+        test.write([ 'rep1', 'src', 'test2.in' ], 'test2.in')
+        
+        # Some source files in the build directory
+        test.write([ 'work', 'build', 'var2', 'test.in' ], 'test.old')
+        test.write([ 'work', 'build', 'var2', 'test2.in' ], 'test2.old')
+
+        # An old derived file in the build directories
+        test.write([ 'work', 'build', 'var1', 'test.out' ], 'test.old')
+        test.write([ 'work', 'build', 'var2', 'test.out' ], 'test.old')
+
+        # And just in case we are weird, a derived file in the source
+        # dir.
+        test.write([ 'work', 'src', 'test.out' ], 'test.out.src')
+        
+        # A derived file in the repository
+        test.write([ 'rep1', 'build', 'var1', 'test2.out' ], 'test2.out_rep')
+        test.write([ 'rep1', 'build', 'var2', 'test2.out' ], 'test2.out_rep')
+
+        fs = SCons.Node.FS.FS(test.workpath('work'))
         fs.BuildDir('build/var1', 'src', duplicate=0)
         fs.BuildDir('build/var2', 'src')
-        f1 = fs.File('build/var1/test')
+        f1 = fs.File('build/var1/test.in')
         f1out = fs.File('build/var1/test.out')
         f1out.builder = 1
-        f2 = fs.File('build/var2/test')
+        f1out_2 = fs.File('build/var1/test2.out')
+        f1out_2.builder = 1
+        f2 = fs.File('build/var2/test.in')
         f2out = fs.File('build/var2/test.out')
         f2out.builder = 1
-
-        assert f1.srcpath == os.path.normpath('src/test'), f1.srcpath
-        assert f1out.srcpath == os.path.normpath('src/test.out'), f1out.srcpath
-        assert str(f1) == os.path.normpath('src/test'), str(f1)
-        assert str(f1out) == os.path.normpath('build/var1/test.out'), str(f1out)
-        assert f2.srcpath == os.path.normpath('src/test'), f2.srcpath
-        assert f2out.srcpath == os.path.normpath('src/test.out'), f2out.srcpath
-        assert str(f2) == os.path.normpath('build/var2/test'), str(f2)
-        assert str(f2out) == os.path.normpath('build/var2/test.out'), str(f2out)
-
+        f2out_2 = fs.File('build/var2/test2.out')
+        f2out_2.builder = 1
+        fs.Repository(test.workpath('rep1'))
+        
+        assert f1.srcnode().path == os.path.normpath('src/test.in'),\
+               f1.srcnode().path
+        # str(node) returns source path for duplicate = 0
+        assert str(f1) == os.path.normpath('src/test.in'), str(f1)
+        # Build path does not exist
         assert not f1.exists()
-        assert not f1out.exists()
-        assert not f2.exists()
-        assert not f2out.exists()
+        # But source path does
+        assert f1.srcnode().exists()
+        # And duplicate=0 should also work just like a Repository
+        assert f1.rexists()
+        # rfile() should point to the source path
+        assert f1.rfile().path == os.path.normpath('src/test.in'),\
+               f1.rfile().path
 
-        test.subdir('src')
-        test.write(['src', 'test'], "src/test\n")
-        test.write(['src', 'test'], "src/test.out\n")
+        assert f2.srcnode().path == os.path.normpath('src/test.in'),\
+               f2.srcnode().path
+        # str(node) returns build path for duplicate = 1
+        assert str(f2) == os.path.normpath('build/var2/test.in'), str(f2)
+        # Build path exists
+        assert f2.exists()
+        # ...and should copy the file from src to build path
+        assert test.read(['work', 'build', 'var2', 'test.in']) == 'test.in',\
+               test.read(['work', 'build', 'var2', 'test.in'])
+        # Since exists() is true, so should rexists() be
+        assert f2.rexists()
 
-        assert not f1.exists()
-        assert not f1out.exists()
-        assert not f2.exists()
-        assert not f2out.exists()
+        f3 = fs.File('build/var1/test2.in')
+        f4 = fs.File('build/var2/test2.in')
 
-        f1.built()
-        f2.built()
+        assert f3.srcnode().path == os.path.normpath('src/test2.in'),\
+               f3.srcnode().path
+        # str(node) returns source path for duplicate = 0
+        assert str(f3) == os.path.normpath('src/test2.in'), str(f3)
+        # Build path does not exist
+        assert not f3.exists()
+        # Source path does not either
+        assert not f3.srcnode().exists()
+        # But we do have a file in the Repository
+        assert f3.rexists()
+        # rfile() should point to the source path
+        assert f3.rfile().path == test.workpath('rep1/src/test2.in'),\
+               f3.rfile().path
 
-        assert f1.exists()
-        assert not f1out.exists()
-        assert not f2.exists()
-        assert not f2out.exists()
+        assert f4.srcnode().path == os.path.normpath('src/test2.in'),\
+               f4.srcnode().path
+        # str(node) returns build path for duplicate = 1
+        assert str(f4) == os.path.normpath('build/var2/test2.in'), str(f4)
+        # Build path should exist
+        assert f4.exists()
+        # ...and copy over the file into the local build path
+        assert test.read(['work', 'build', 'var2', 'test2.in']) == 'test2.in'
+        # should exist in repository, since exists() is true
+        assert f4.rexists()
+        # rfile() should point to ourselves
+        assert f4.rfile().path == os.path.normpath('build/var2/test2.in'),\
+               f4.rfile().path
 
-        d1 = fs.Dir('build/var1')
-        d2 = fs.Dir('build/var2')
+        f5 = fs.File('build/var1/test.out')
+        f6 = fs.File('build/var2/test.out')
 
-        assert str(d1) == 'src', str(d1)
-        assert str(d2) == os.path.normpath('build/var2'), str(d2)
+        assert f5.exists()
+        # We should not copy the file from the source dir, since this is
+        # a derived file.
+        assert test.read(['work', 'build', 'var1', 'test.out']) == 'test.old'
 
+        assert f6.exists()
+        # We should not copy the file from the source dir, since this is
+        # a derived file.
+        assert test.read(['work', 'build', 'var2', 'test.out']) == 'test.old'
+        f7 = fs.File('build/var1/test2.out')
+        f8 = fs.File('build/var2/test2.out')
+
+        assert not f7.exists()
+        assert f7.rexists()
+        assert f7.rfile().path == test.workpath('rep1/build/var1/test2.out'),\
+               f7.rfile().path
+
+        assert not f8.exists()
+        assert f8.rexists()
+        assert f8.rfile().path == test.workpath('rep1/build/var2/test2.out'),\
+               f8.rfile().path
+        
         # Test to see if file_link() works...
         test.subdir('src','build')
         test.write('src/foo', 'foo\n')
@@ -664,8 +744,9 @@ class RepositoryTestCase(unittest.TestCase):
         fs.Repository(os.path.join('bar', 'foo'))
         fs.Repository('bar')
 
-        assert len(fs.Repositories) == 4, fs.Repositories
-        r = map(lambda x, np=os.path.normpath: np(str(x)), fs.Repositories)
+        rep = fs.Dir('#').getRepositories()
+        assert len(rep) == 4, map(str, rep)
+        r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
         assert r == ['foo',
                      os.path.join('foo', 'bar'),
                      os.path.join('bar', 'foo'),
@@ -703,15 +784,6 @@ class RepositoryTestCase(unittest.TestCase):
         assert fs.Rsearch('f2')
         assert fs.Rsearch(f3) is f3
 
-        def my_exists(rep, path):
-            if rep:
-                path = os.path.join(rep, path)
-            return os.path.exists(path)
-
-        assert not fs.Rsearch('f1', my_exists)
-        assert fs.Rsearch('f2', my_exists)
-        assert fs.Rsearch('f3', my_exists)
-
         list = fs.Rsearchall(fs.Dir('d1'))
         assert len(list) == 1, list
         assert list[0].path == 'd1', list[0].path
@@ -727,36 +799,41 @@ class RepositoryTestCase(unittest.TestCase):
         assert list == [], list
 
         test.subdir(['work', 'd2'])
+        fs.File('d2').built() # Clear exists cache
         list = fs.Rsearchall('d2')
-        assert list == ['d2'], list
+        assert map(str, list) == ['d2'], list
 
         test.subdir(['rep2', 'd2'])
+        fs.File('../rep2/d2').built() # Clear exists cache
         list = fs.Rsearchall('d2')
-        assert list == ['d2', test.workpath('rep2', 'd2')], list
+        assert map(str, list) == ['d2', test.workpath('rep2', 'd2')], list
 
         test.subdir(['rep1', 'd2'])
+        fs.File('../rep1/d2').built() # Clear exists cache
         list = fs.Rsearchall('d2')
-        assert list == ['d2',
-                         test.workpath('rep1', 'd2'),
-                         test.workpath('rep2', 'd2')], list
+        assert map(str, list) == ['d2',
+                                  test.workpath('rep1', 'd2'),
+                                  test.workpath('rep2', 'd2')], list
 
         list = fs.Rsearchall(['d3', 'd4'])
         assert list == [], list
 
         test.subdir(['work', 'd3'])
-        list = fs.Rsearchall(['d3', 'd4'])
+        fs.File('d3').built() # Clear exists cache
+        list = map(str, fs.Rsearchall(['d3', 'd4']))
         assert list == ['d3'], list
 
         test.subdir(['rep3', 'd4'])
-        list = fs.Rsearchall(['d3', 'd4'])
+        fs.File('../rep3/d4').built() # Clear exists cache
+        list = map(str, fs.Rsearchall(['d3', 'd4']))
         assert list == ['d3', test.workpath('rep3', 'd4')], list
 
-        list = fs.Rsearchall(string.join(['d3', 'd4'], os.pathsep))
+        list = map(str, fs.Rsearchall(string.join(['d3', 'd4'], os.pathsep)))
         assert list == ['d3', test.workpath('rep3', 'd4')], list
 
         work_d4 = fs.File(os.path.join('work', 'd4'))
-        list = fs.Rsearchall(['d3', work_d4])
-        assert list == ['d3', work_d4], list
+        list = map(str, fs.Rsearchall(['d3', work_d4]))
+        assert list == ['d3', str(work_d4)], list
 
         fs.BuildDir('build', '.')
         

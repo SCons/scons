@@ -485,26 +485,16 @@ class EnvironmentTestCase(unittest.TestCase):
     def test_autogenerate(dict):
         """Test autogenerating variables in a dictionary."""
 
-        def Dir(name):
-            dir = SCons.Node.FS.default_fs.Dir('/xx')
-            return SCons.Node.FS.default_fs.Dir(name, dir)
-
-        def File(name):
-            dir = SCons.Node.FS.default_fs.Dir('/xx')
-            return SCons.Node.FS.default_fs.File(name, dir)
-
-        def RDirs(pathlist, Dir=Dir):
-            def path_dirs(rep, path, Dir=Dir):
-                if rep:
-                    path = os.path.join(rep, path)
-                return Dir(path)
-
-            return SCons.Node.FS.default_fs.Rsearchall(pathlist, path_dirs)
+        def RDirs(pathlist):
+            return SCons.Node.FS.default_fs.Rsearchall(pathlist,
+                                                       clazz=SCons.Node.FS.Dir,
+                                                       must_exist=0,
+                                                       cwd=SCons.Node.FS.default_fs.Dir('xx'))
         
         env = Environment(LIBS = [ 'foo', 'bar', 'baz' ],
                           LIBLINKPREFIX = 'foo',
                           LIBLINKSUFFIX = 'bar',
-                          Dir=Dir, File=File, RDirs=RDirs)
+                          RDirs=RDirs)
         flags = env.subst_list('$_LIBFLAGS', 1)[0]
         assert len(flags) == 3, flags
         assert flags[0] == 'foofoobar', \
@@ -520,18 +510,18 @@ class EnvironmentTestCase(unittest.TestCase):
                           INCPREFIX = 'foo ',
                           INCSUFFIX = 'bar',
                           FOO = 'baz',
-                          Dir=Dir, File=File, RDirs=RDirs)
+                          RDirs=RDirs)
         flags = env.subst_list('$_CPPINCFLAGS', 1)[0]
         assert len(flags) == 8, flags
         assert flags[0] == '$(', \
                flags[0]
         assert flags[1] == os.path.normpath('foo'), \
                flags[1]
-        assert flags[2] == os.path.normpath('/xx/foobar'), \
+        assert flags[2] == os.path.normpath('xx/foobar'), \
                flags[2]
         assert flags[3] == os.path.normpath('foo'), \
                flags[3]
-        assert flags[4] == os.path.normpath('/xx/baz/barbar'), \
+        assert flags[4] == os.path.normpath('xx/baz/barbar'), \
                flags[4]
         assert flags[5] == os.path.normpath('foo'), \
                flags[5]
@@ -544,18 +534,18 @@ class EnvironmentTestCase(unittest.TestCase):
                           INCPREFIX = 'foo ',
                           INCSUFFIX = 'bar',
                           FOO = 'baz',
-                          Dir=Dir, File=File, RDirs=RDirs)
+                          RDirs=RDirs)
         flags = env.subst_list('$_F77INCFLAGS', 1)[0]
         assert len(flags) == 8, flags
         assert flags[0] == '$(', \
                flags[0]
         assert flags[1] == os.path.normpath('foo'), \
                flags[1]
-        assert flags[2] == os.path.normpath('/xx/foobar'), \
+        assert flags[2] == os.path.normpath('xx/foobar'), \
                flags[2]
         assert flags[3] == os.path.normpath('foo'), \
                flags[3]
-        assert flags[4] == os.path.normpath('/xx/baz/barbar'), \
+        assert flags[4] == os.path.normpath('xx/baz/barbar'), \
                flags[4]
         assert flags[5] == os.path.normpath('foo'), \
                flags[5]
@@ -565,7 +555,7 @@ class EnvironmentTestCase(unittest.TestCase):
                flags[7]
 
         env = Environment(CPPPATH = '', F77PATH = '', LIBPATH = '',
-                          Dir=Dir, File=File, RDirs=RDirs)
+                          RDirs=RDirs)
         assert len(env.subst_list('$_CPPINCFLAGS')[0]) == 0
         assert len(env.subst_list('$_F77INCFLAGS')[0]) == 0
         assert len(env.subst_list('$_LIBDIRFLAGS')[0]) == 0
@@ -576,21 +566,21 @@ class EnvironmentTestCase(unittest.TestCase):
                           INCPREFIX = '-I ',
                           INCSUFFIX = 'XXX',
                           FOO = 'baz',
-                          Dir=Dir, File=File, RDirs=RDirs)
+                          RDirs=RDirs)
         flags = env.subst_list('$_CPPINCFLAGS', 1)[0]
         assert flags[0] == '$(', \
                flags[0]
         assert flags[1] == '-I', \
                flags[1]
-        assert flags[2] == os.path.normpath('/xx/fooXXX'), \
+        assert flags[2] == os.path.normpath('xx/fooXXX'), \
                flags[2]
         assert flags[3] == '-I', \
                flags[3]
-        assert flags[4] == os.path.normpath('/rep1/fooXXX'), \
+        assert flags[4] == os.path.normpath('/rep1/xx/fooXXX'), \
                flags[4]
         assert flags[5] == '-I', \
                flags[5]
-        assert flags[6] == os.path.normpath('/rep2/fooXXX'), \
+        assert flags[6] == os.path.normpath('/rep2/xx/fooXXX'), \
                flags[6]
         assert flags[7] == '-I', \
                flags[7]
@@ -598,15 +588,15 @@ class EnvironmentTestCase(unittest.TestCase):
                flags[8]
         assert flags[9] == '-I', \
                flags[9]
-        assert flags[10] == os.path.normpath('/xx/baz/barXXX'), \
+        assert flags[10] == os.path.normpath('xx/baz/barXXX'), \
                flags[10]
         assert flags[11] == '-I', \
                flags[11]
-        assert flags[12] == os.path.normpath('/rep1/baz/barXXX'), \
+        assert flags[12] == os.path.normpath('/rep1/xx/baz/barXXX'), \
                flags[12]
         assert flags[13] == '-I', \
                flags[13]
-        assert flags[14] == os.path.normpath('/rep2/baz/barXXX'), \
+        assert flags[14] == os.path.normpath('/rep2/xx/baz/barXXX'), \
                flags[14]
         assert flags[15] == '-I', \
                flags[15]

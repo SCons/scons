@@ -76,13 +76,15 @@ var2 = Dir('build/var2')
 var3 = Dir('build/var3')
 var4 = Dir('build/var4')
 var5 = Dir('../build/var5')
+var6 = Dir('../build/var6')
 
 
 BuildDir('build/var1', src)
-BuildDir(var2, src)
-BuildDir(var3, src, duplicate=0)
+BuildDir(var2, src, duplicate=0)
+BuildDir(var3, src)
 BuildDir(var4, src, duplicate=0)
-BuildDir(var5, src, duplicate=0)
+BuildDir(var5, src)
+BuildDir(var6, src, duplicate=0)
 
 env = Environment(CPPPATH='#src', F77PATH='#src')
 SConscript('build/var1/SConscript', "env")
@@ -94,6 +96,7 @@ SConscript(File('SConscript', var4), "env")
 
 env = Environment(CPPPATH='.', F77PATH='.')
 SConscript('../build/var5/SConscript', "env")
+SConscript('../build/var6/SConscript', "env")
 """) 
 
 test.subdir(['test', 'src'])
@@ -114,6 +117,13 @@ Import("env")
 env.Command(target='f2.c', source='f2.in', action=buildIt)
 env.Program(target='foo2', source='f2.c')
 env.Program(target='foo1', source='f1.c')
+env.Command(target='f3.h', source='f3h.in', action=buildIt)
+env.Command(target='f4.h', source='f4h.in', action=buildIt)
+env.Command(target='f4.c', source='f4.in', action=buildIt)
+
+env2=env.Copy(CPPPATH='.')
+env2.Program(target='foo3', source='f3.c')
+env2.Program(target='foo4', source='f4.c')
 
 try:
     f77 = env['F77']
@@ -122,8 +132,8 @@ except:
 
 if f77 and WhereIs(env['F77']):
     env.Command(target='b2.f', source='b2.in', action=buildIt)
-    env.Copy(LIBS = 'g2c').Program(target='bar2', source='b2.f')
-    env.Copy(LIBS = 'g2c').Program(target='bar1', source='b1.f')
+    env.Copy(LIBS = ['g2c']).Program(target='bar2', source='b2.f')
+    env.Copy(LIBS = ['g2c']).Program(target='bar1', source='b1.f')
 """)
 
 test.write('test/src/f1.c', r"""
@@ -150,12 +160,44 @@ main(int argc, char *argv[])
 }
 """)
 
+test.write('test/src/f3.c', r"""
+#include "f3.h"
+
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf(F3_STR);
+	exit (0);
+}
+""")
+
+test.write('test/src/f4.in', r"""
+#include "f4.h"
+
+int
+main(int argc, char *argv[])
+{
+	argv[argc++] = "--";
+	printf(F4_STR);
+	exit (0);
+}
+""")
+
 test.write('test/src/f1.h', r"""
 #define F1_STR "f1.c\n"
 """)
 
 test.write('test/src/f2.h', r"""
 #define F2_STR "f2.c\n"
+""")
+
+test.write('test/src/f3h.in', r"""
+#define F3_STR "f3.c\n"
+""")
+
+test.write('test/src/f4h.in', r"""
+#define F4_STR "f4.c\n"
 """)
 
 test.write(['test', 'src', 'b1.f'], r"""
@@ -214,37 +256,25 @@ def equal_stats(x,y):
     return (stat.S_IMODE(x[stat.ST_MODE]) == stat.S_IMODE(y[stat.ST_MODE]) and
             x[stat.ST_MTIME] ==  y[stat.ST_MTIME])
 
-# Make sure we did duplicate the source files in build/var2, and that their stats are the same:
-test.fail_test(not os.path.exists(test.workpath('test', 'build', 'var2', 'f1.c')))
-test.fail_test(not os.path.exists(test.workpath('test', 'build', 'var2', 'f2.in')))
-test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', 'f1.c'), test.workpath('test', 'src', 'f1.c')))
-test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', 'f2.in'), test.workpath('test', 'src', 'f2.in')))
-
-# Make sure we didn't duplicate the source files in build/var3.
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f1.c')))
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f2.in')))
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'b1.f')))
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'b2.in')))
-
-# Make sure we didn't duplicate the source files in build/var4.
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'f1.c')))
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'f2.in')))
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'b1.f')))
-test.fail_test(os.path.exists(test.workpath('test', 'build', 'var4', 'b2.in')))
-
-# Make sure we didn't duplicate the source files in build/var5.
-test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f1.c')))
-test.fail_test(os.path.exists(test.workpath('build', 'var5', 'f2.in')))
-test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b1.f')))
-test.fail_test(os.path.exists(test.workpath('build', 'var5', 'b2.in')))
-
 # verify that header files in the source directory are scanned properly:
 test.write(['test', 'src', 'f1.h'], r"""
 #define F1_STR "f1.c 2\n"
 """)
 
+test.write(['test', 'src', 'f3h.in'], r"""
+#define F3_STR "f3.c 2\n"
+""")
+
+test.write(['test', 'src', 'f4h.in'], r"""
+#define F4_STR "f4.c 2\n"
+""")
+
 test.run(chdir='test', arguments = '../build/var5')
 
 test.run(program = foo51, stdout = "f1.c 2\n")
+test.run(program = test.workpath('build', 'var5', 'foo3' + _exe),
+                                 stdout = "f3.c 2\n")
+test.run(program = test.workpath('build', 'var5', 'foo4' + _exe),
+                                 stdout = "f4.c 2\n")
 
 test.pass_test()

@@ -41,6 +41,7 @@ import SCons.Node
 from UserDict import UserDict
 import sys
 from SCons.Errors import UserError
+import SCons.Warnings
 
 try:
     import os
@@ -62,18 +63,24 @@ class ParentOfRoot:
     This class is an instance of the Null object pattern.
     """
     def __init__(self):
-        self.duplicate = 1
         self.abspath = ''
         self.path = ''
-        self.srcpath = ''
         self.abspath_ = ''
         self.path_ = ''
-        self.srcpath_ = ''
-
+        self.name=''
+        self.duplicate=0
+        self.srcdir=None
+        
     def is_under(self, dir):
         return 0
 
     def up(self):
+        return None
+
+    def getRepositories(self):
+        return []
+
+    def get_dir(self):
         return None
 
 if os.path.normcase("TeSt") == os.path.normpath("TeSt"):
@@ -83,15 +90,128 @@ else:
     def _my_normcase(x):
         return string.upper(x)
 
+class Entry(SCons.Node.Node):
+    """A generic class for file system entries.  This class is for
+    when we don't know yet whether the entry being looked up is a file
+    or a directory.  Instances of this class can morph into either
+    Dir or File objects by a later, more precise lookup.
 
-def exists_path(rep, path):
-    """Return a path if it's already a Node or it exists in the
-    real filesystem."""
-    if rep:
-        path = os.path.join(rep, path)
-    if os.path.exists(path):
-        return path
-    return None
+    Note: this class does not define __cmp__ and __hash__ for efficiency
+    reasons.  SCons does a lot of comparing of Entry objects, and so that
+    operation must be as fast as possible, which means we want to use
+    Python's built-in object identity comparison.
+    """
+
+    def __init__(self, name, directory, fs):
+        """Initialize a generic file system Entry.
+        
+        Call the superclass initialization, take care of setting up
+        our relative and absolute paths, identify our parent
+        directory, and indicate that this node should use
+        signatures."""
+        SCons.Node.Node.__init__(self)
+
+        self.name = name
+        self.fs = fs
+
+        assert directory, "A directory must be provided"
+
+        self.abspath = directory.abspath_ + name
+        if directory.path == '.':
+            self.path = name
+        else:
+            self.path = directory.path_ + name
+
+        self.path_ = self.path
+        self.abspath_ = self.abspath
+        self.dir = directory
+        self.cwd = None # will hold the SConscript directory for target nodes
+        self.duplicate = directory.duplicate
+
+    def get_dir(self):
+        return self.dir
+
+    def __str__(self):
+        """A FS node's string representation is its path name."""
+        if self.duplicate or self.builder:
+            return self.path
+        return self.srcnode().path
+
+    def get_contents(self):
+        """Fetch the contents of the entry.
+        
+        Since this should return the real contents from the file
+        system, we check to see into what sort of subclass we should
+        morph this Entry."""
+        if os.path.isfile(self.abspath):
+            self.__class__ = File
+            self._morph()
+            return File.get_contents(self)
+        if os.path.isdir(self.abspath):
+            self.__class__ = Dir
+            self._morph()
+            return Dir.get_contents(self)
+        raise AttributeError
+
+    def exists(self):
+        try:
+            return self._exists
+        except AttributeError:
+            self._exists = os.path.exists(self.abspath)
+            return self._exists
+
+    def rexists(self):
+        if not hasattr(self, '_rexists'):
+            self._rexists = self.rfile().exists()
+        return self._rexists
+
+    def get_parents(self):
+        parents = SCons.Node.Node.get_parents(self)
+        if self.dir and not isinstance(self.dir, ParentOfRoot):
+            parents.append(self.dir)
+        return parents
+
+    def current(self, calc):
+        """If the underlying path doesn't exist, we know the node is
+        not current without even checking the signature, so return 0.
+        Otherwise, return None to indicate that signature calculation
+        should proceed as normal to find out if the node is current."""
+        bsig = calc.bsig(self)
+        if not self.exists():
+            return 0
+        return calc.current(self, bsig)
+
+    def is_under(self, dir):
+        if self is dir:
+            return 1
+        else:
+            return self.dir.is_under(dir)
+
+    def set_local(self):
+        self._local = 1
+
+    def srcnode(self):
+        """If this node is in a build path, return the node
+        corresponding to its source file.  Otherwise, return
+        ourself."""
+        try:
+            return self._srcnode
+        except AttributeError:
+            dir=self.dir
+            name=self.name
+            while dir:
+                if dir.srcdir:
+                    self._srcnode = self.fs.Entry(name, dir.srcdir,
+                                                  klass=self.__class__)
+                    return self._srcnode
+                name = dir.name + os.sep + name
+                dir=dir.get_dir()
+            self._srcnode = self
+            return self._srcnode
+
+# This is for later so we can differentiate between Entry the class and Entry
+# the method of the FS class.
+_classEntry = Entry
 
 
 class FS:
@@ -110,7 +230,6 @@ class FS:
             self.pathTop = path
         self.Root = {}
         self.Top = None
-        self.Repositories = []
 
     def set_toplevel_dir(self, path):
         assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
@@ -120,7 +239,6 @@ class FS:
         if not self.Top:
             self.Top = self.__doLookup(Dir, os.path.normpath(self.pathTop))
             self.Top.path = '.'
-            self.Top.srcpath = '.'
             self.Top.path_ = '.' + os.sep
             self._cwd = self.Top
         
@@ -137,7 +255,7 @@ class FS:
             return node
         if not isinstance(node, klass):
             raise TypeError, "Tried to lookup %s '%s' as a %s." % \
-                  (node.__class__.__name__, str(node), klass.__name__)
+                  (node.__class__.__name__, node.path, klass.__name__)
         return node
         
     def __doLookup(self, fsclass, name, directory = None, create = 1):
@@ -173,7 +291,6 @@ class FS:
                 dir = Dir(drive, ParentOfRoot(), self)
                 dir.path = dir.path + os.sep
                 dir.abspath = dir.abspath + os.sep
-                dir.srcpath = dir.srcpath + os.sep
                 self.Root[drive] = dir
                 directory = dir
             path_comp = path_comp[1:]
@@ -192,7 +309,7 @@ class FS:
 
                 # look at the actual filesystem and make sure there isn't
                 # a file already there
-                path = os.path.join(str(directory), path_name)
+                path = directory.path_ + path_name
                 if os.path.isfile(path):
                     raise TypeError, \
                           "File %s found where directory expected." % path
@@ -210,7 +327,7 @@ class FS:
 
             # make sure we don't create File nodes when there is actually
             # a directory at that path on the disk, and vice versa
-            path = os.path.join(str(directory), path_comp[-1])
+            path = directory.path_ + path_comp[-1]
             if fsclass == File:
                 if os.path.isdir(path):
                     raise TypeError, \
@@ -301,12 +418,12 @@ class FS:
     def BuildDir(self, build_dir, src_dir, duplicate=1):
         """Link the supplied build directory to the source directory
         for purposes of building files."""
+        
         self.__setTopLevelDir()
         if not isinstance(src_dir, SCons.Node.Node):
             src_dir = self.Dir(src_dir)
         if not isinstance(build_dir, SCons.Node.Node):
             build_dir = self.Dir(build_dir)
-        build_dir.duplicate = duplicate
         if not src_dir.is_under(self.Top):
             raise UserError, "Source directory must be under top of build tree."
         if src_dir.is_under(build_dir):
@@ -316,24 +433,47 @@ class FS:
     def Repository(self, *dirs):
         """Specify Repository directories to search."""
         for d in dirs:
-            self.Repositories.append(self.Dir(d))
+            if not isinstance(d, SCons.Node.Node):
+                d = self.Dir(d)
+            self.__setTopLevelDir()
+            self.Top.addRepository(d)
 
-    def Rsearch(self, path, func = exists_path):
+    def Rsearch(self, path, clazz=_classEntry, cwd=None):
         """Search for something in a Repository.  Returns the first
         one found in the list, or None if there isn't one."""
         if isinstance(path, SCons.Node.Node):
             return path
         else:
-            n = func(None, path)
-            if n:
+            name, d = self.__transformPath(path, cwd)
+            n = self.__doLookup(clazz, name, d)
+            if n.exists():
                 return n
-            for rep in self.Repositories:
-                n = func(rep.path, path)
-                if n:
-                    return n
+            d = n.get_dir()
+            name = n.name
+            # Search repositories of all directories that this file is under.
+            while d:
+                for rep in d.getRepositories():
+                    try:
+                        rnode = self.__doLookup(clazz, name, rep)
+                        # Only find the node if it exists and it is not
+			# a derived file.  If for some reason, we are
+			# explicitly building a file IN a Repository, we
+			# don't want it to show up in the build tree.
+			# This is usually the case with BuildDir().
+			# We only want to find pre-existing files.
+                        if rnode.exists() and \
+                           (isinstance(rnode, Dir) or not rnode.builder):
+                            return rnode
+                    except TypeError:
+                        pass # Wrong type of node.
+                # Prepend directory name
+                name = d.name + os.sep + name
+                # Go up one directory
+                d = d.get_dir()
         return None
+            
 
-    def Rsearchall(self, pathlist, func = exists_path):
+    def Rsearchall(self, pathlist, must_exist=1, clazz=_classEntry, cwd=None):
         """Search for a list of somethings in the Repository list."""
         ret = []
         if SCons.Util.is_String(pathlist):
@@ -344,132 +484,38 @@ class FS:
             if isinstance(path, SCons.Node.Node):
                 ret.append(path)
             else:
-                n = func(None, path)
-                if n:
+                name, d = self.__transformPath(path, cwd)
+                n = self.__doLookup(clazz, name, d)
+                if not must_exist or n.exists():
                     ret.append(n)
-                if not os.path.isabs(path):
-                    if path[0] == '#':
-                        path = path[1:]
-                    for rep in self.Repositories:
-                        n = func(rep.path, path)
-                        if n:
-                            ret.append(n)
+                if isinstance(n, Dir):
+                    # If this node is a directory, then any repositories
+                    # attached to this node can be repository paths.
+                    ret.extend(filter(lambda x, me=must_exist, clazz=clazz: isinstance(x, clazz) and (not me or x.exists()),
+                                      n.getRepositories()))
+                    
+                d = n.get_dir()
+                name = n.name
+                # Search repositories of all directories that this file is under.
+                while d:
+                    for rep in d.getRepositories():
+                        try:
+                            rnode = self.__doLookup(clazz, name, rep)
+                            # Only find the node if it exists (or must_exist is zero)
+                            # and it is not a derived file.  If for some reason, we
+                            # are explicitly building a file IN a Repository, we don't
+                            # want it to show up in the build tree.  This is usually the
+                            # case with BuildDir().    We only want to find pre-existing files.
+                            if (not must_exist or rnode.exists()) and \
+                               (not rnode.builder or isinstance(rnode, Dir)):
+                                ret.append(rnode)
+                        except TypeError:
+                            pass # Wrong type of node.
+                    # Prepend directory name
+                    name = d.name + os.sep + name
+                    # Go up one directory
+                    d = d.get_dir()
         return ret
-
-
-class Entry(SCons.Node.Node):
-    """A generic class for file system entries.  This class if for
-    when we don't know yet whether the entry being looked up is a file
-    or a directory.  Instances of this class can morph into either
-    Dir or File objects by a later, more precise lookup.
-
-    Note: this class does not define __cmp__ and __hash__ for efficiency
-    reasons.  SCons does a lot of comparing of Entry objects, and so that
-    operation must be as fast as possible, which means we want to use
-    Python's built-in object identity comparison.
-    """
-
-    def __init__(self, name, directory, fs):
-        """Initialize a generic file system Entry.
-        
-        Call the superclass initialization, take care of setting up
-        our relative and absolute paths, identify our parent
-        directory, and indicate that this node should use
-        signatures."""
-        SCons.Node.Node.__init__(self)
-
-        self.name = name
-
-        assert directory, "A directory must be provided"
-
-        self.duplicate = directory.duplicate
-        self.abspath = directory.abspath_ + name
-        if str(directory.path) == '.':
-            self.path = name
-        else:
-            self.path = directory.path_ + name
-
-        self.path_ = self.path
-        self.abspath_ = self.abspath
-        self.dir = directory
-        self.__doSrcpath(self.duplicate)
-        self.srcpath_ = self.srcpath
-        self.cwd = None # will hold the SConscript directory for target nodes
-        self._local = None
-        self.fs = fs # The filesystem that this entry is part of
- 
-    def get_dir(self):
-        return self.dir
-
-    def adjust_srcpath(self, duplicate):
-        self.__doSrcpath(duplicate)
-        
-    def __doSrcpath(self, duplicate):
-        self.duplicate = duplicate
-        if str(self.dir.srcpath) == '.':
-            self.srcpath = self.name
-        else:
-            self.srcpath = self.dir.srcpath_ + self.name
-
-    def __str__(self):
-        """A FS node's string representation is its path name."""
-        if self.duplicate or self.builder:
-            return self.path
-        else:
-            return self.srcpath
-
-    def get_contents(self):
-        """Fetch the contents of the entry.
-        
-        Since this should return the real contents from the file
-        system, we check to see into what sort of subclass we should
-        morph this Entry."""
-        if os.path.isfile(self.abspath):
-            self.__class__ = File
-            self._morph()
-            return File.get_contents(self)
-        if os.path.isdir(self.abspath):
-            self.__class__ = Dir
-            self._morph()
-            return Dir.get_contents(self)
-        raise AttributeError
-
-    def exists(self):
-        if not hasattr(self, '_exists'):
-            self._exists = os.path.exists(str(self))
-        return self._exists
-
-    def rexists(self):
-        if not hasattr(self, '_rexists'):
-            self._rexists = os.path.exists(self.rstr())
-        return self._rexists
-
-    def get_parents(self):
-        parents = SCons.Node.Node.get_parents(self)
-        if self.dir and not isinstance(self.dir, ParentOfRoot):
-            parents.append(self.dir)
-        return parents
-
-    def current(self, calc):
-        """If the underlying path doesn't exist, we know the node is
-        not current without even checking the signature, so return 0.
-        Otherwise, return None to indicate that signature calculation
-        should proceed as normal to find out if the node is current."""
-        bsig = calc.bsig(self)
-        if not self.exists():
-            return 0
-        return calc.current(self, bsig)
-
-    def is_under(self, dir):
-        if self is dir:
-            return 1
-        else:
-            return self.dir.is_under(dir)
-
-    def set_local(self):
-        self._local = 1
-
-
 
 # XXX TODO?
 # Annotate with the creator
@@ -497,15 +543,53 @@ class Dir(Entry):
 
         self.path_ = self.path + os.sep
         self.abspath_ = self.abspath + os.sep
-        self.srcpath_ = self.srcpath + os.sep
-
+        self.repositories = []
+        self.srcdir = None
+        
         self.entries = {}
         self.entries['.'] = self
         self.entries['..'] = self.dir
         self.cwd = self
         self.builder = 1
         self._sconsign = None
+        
+    def __clearRepositoryCache(self, duplicate=None):
+        """Called when we change the repository(ies) for a directory.
+        This clears any cached information that is invalidated by changing
+        the repository."""
 
+        for node in self.entries.values():
+            if node != self.dir:
+                if node != self and isinstance(node, Dir):
+                    node.__clearRepositoryCache(duplicate)
+                else:
+                    try:
+                        del node._srcreps
+                    except AttributeError:
+                        pass
+                    try:
+                        del node._rfile
+                    except AttributeError:
+                        pass
+                    try:
+                        del node._rexists
+                    except AttributeError:
+                        pass
+                    try:
+                        del node._exists
+                    except AttributeError:
+                        pass
+                    try:
+                        del node._srcnode
+                    except AttributeError:
+                        pass
+                    if duplicate != None:
+                        node.duplicate=duplicate
+    
+    def __resetDuplicate(self, node):
+        if node != self:
+            node.duplicate = node.get_dir().duplicate
+        
     def Dir(self, name):
         """Create a directory node named 'name' relative to this directory."""
         return self.fs.Dir(name, self)
@@ -513,23 +597,32 @@ class Dir(Entry):
     def File(self, name):
         """Create  file node named 'name' relatove to this directory."""
         return self.fs.File(name, self)
-
-    def __doReparent(self, duplicate):
-        for ent in self.entries.values():
-            if not ent is self and not ent is self.dir:
-                ent.adjust_srcpath(duplicate)
-
-    def adjust_srcpath(self, duplicate):
-        Entry.adjust_srcpath(self, duplicate)
-        self.srcpath_ = self.srcpath + os.sep
-        self.__doReparent(duplicate)
                 
     def link(self, srcdir, duplicate):
         """Set this directory as the build directory for the
         supplied source directory."""
-        self.srcpath = srcdir.path
-        self.srcpath_ = srcdir.path_
-        self.__doReparent(duplicate)
+        self.srcdir = srcdir
+        self.duplicate = duplicate
+        self.__clearRepositoryCache(duplicate)
+
+    def getRepositories(self):
+        """Returns a list of repositories for this directory."""
+        if self.srcdir and not self.duplicate:
+            try:
+                return self._srcreps
+            except AttributeError:
+                self._srcreps = self.fs.Rsearchall(self.srcdir.path,
+                                                   clazz=Dir,
+                                                   must_exist=0,
+                                                   cwd=self.fs.Top) \
+                                + self.repositories
+                return self._srcreps
+        return self.repositories
+
+    def addRepository(self, dir):
+        if not dir in self.repositories and dir != self:
+            self.repositories.append(dir)
+            self.__clearRepositoryCache()
 
     def up(self):
         return self.entries['..']
@@ -595,32 +688,6 @@ class Dir(Entry):
             self._sconsign = SCons.Sig.SConsignFile(self)
         return self._sconsign
 
-    def __str__(self):
-        # Reimplemented from Entry since, unlike for
-        # Entry and File, we want to return the source
-        # path *even if* the builder is non-zero
-        # (which it always is for a directory)
-        if self.duplicate:
-            return self.path
-        else:
-            return self.srcpath
-
-    def exists(self):
-        # Again, directories are special...we don't care if their
-        # source path exists, we only care about the path.
-        if not hasattr(self, '_exists'):
-            self._exists = os.path.exists(self.path)
-        return self._exists
-
-    def rexists(self):
-        # Again, directories are special...we don't care if their
-        # source path exists, we only care about the path.
-        if not hasattr(self, '_rexists'):
-            self._rexists = os.path.exists(self.rstr())
-        return self._rexists
-
-
-
 # XXX TODO?
 # base_suf
 # suffix
@@ -648,12 +715,8 @@ class File(Entry):
 
     def RDirs(self, pathlist):
         """Search for a list of directories in the Repository list."""
-        def path_dirs(rep, path, Dir=self.Dir):
-            if rep:
-                path = os.path.join(rep, path)
-            return Dir(path)
-
-        return self.fs.Rsearchall(pathlist, path_dirs)
+        return self.fs.Rsearchall(pathlist, clazz=Dir, must_exist=0,
+                                  cwd=self.cwd)
     
     def generate_build_env(self):
         env = SCons.Node.Node.generate_build_env(self)
@@ -665,6 +728,7 @@ class File(Entry):
     def _morph(self):
         """Turn a file system node into a File object."""
         self.created = 0
+        self._local = 0
 
     def root(self):
         return self.dir.root()
@@ -733,56 +797,7 @@ class File(Entry):
             return scanner.scan(self, env, target)
         else:
             return []
-
-    def exists(self):
-        if not hasattr(self, '_exists'):
-            if self.duplicate and not self.created:
-                self.created = 1
-                if self.srcpath != self.path and \
-                   os.path.exists(self.srcpath):
-                    if os.path.exists(self.path):
-                        os.unlink(self.path)
-                    self.__createDir()
-                    file_link(self.srcpath, self.path)
-            self._exists = os.path.exists(str(self))
-        return self._exists
-
-    def rexists(self):
-        if not hasattr(self, '_rexists'):
-            if self.path != self.srcpath:
-                if os.path.exists(self.srcpath):
-                    if self.duplicate and not self.created:
-                        self.created = 1
-                        if os.path.exists(self.path):
-                            os.unlink(self.path)
-                        self.__createDir()
-                        file_link(self.srcpath, self.path)
-                    self._rexists = 1
-                    return self._rexists
-                for rep in self.fs.Repositories:
-                    if not os.path.isabs(self.path):
-                        f = os.path.join(rep.path, self.path)
-                        if os.path.exists(f):
-                            self._rexists = 1
-                            return self._rexists
-                    f = os.path.join(rep.path, self.srcpath)
-                    if os.path.exists(f):
-                        if self.duplicate and not self.created:
-                            self.created = 1
-                            if os.path.exists(self.path):
-                                os.unlink(self.path)
-                            self.__createDir()
-                            file_link(f, self.path)
-                        else:
-                            self.srcpath = f
-                            self.srcpath_ = f + os.sep
-                        self._rexists = 1
-                        return self._rexists
-                self._rexists = None
-            else:
-                self._rexists = Entry.rexists(self)
-        return self._rexists
-
+        
     def scanner_key(self):
         return os.path.splitext(self.name)[1]
 
@@ -829,6 +844,26 @@ class File(Entry):
             return 1
         return None
 
+    def exists(self):
+        # Duplicate from source path if we are set up to do this.
+        if self.duplicate and not self.builder and not self.created:
+            src=self.srcnode().rfile()
+            if src.exists() and src.abspath != self.abspath:
+                try:
+                    os.unlink(self.abspath)
+                except OSError:
+                    pass
+                self.__createDir()
+                file_link(src.abspath,
+                          self.abspath)
+                self.created = 1
+
+                # Set our exists cache accordingly
+                self._exists=1
+                self._rexists=1
+                return 1
+        return Entry.exists(self)
+
     def current(self, calc):
         bsig = calc.bsig(self)
         if not self.exists():
@@ -853,20 +888,15 @@ class File(Entry):
     def rfile(self):
         if not hasattr(self, '_rfile'):
             self._rfile = self
-            if not os.path.isabs(self.path) and not os.path.isfile(self.path):
-                def file_node(dir, path, fs=self.fs):
-                    if dir:
-                        path = os.path.join(dir, path)
-                    if os.path.isfile(path):
-                        return fs.File(path)
-                    return None
-                n = self.fs.Rsearch(self.path, file_node)
+            if not self.exists():
+                n = self.fs.Rsearch(self.path, clazz=File,
+                                    cwd=self.fs.Top)
                 if n:
                     self._rfile = n
         return self._rfile
 
     def rstr(self):
-        return os.path.normpath(str(self.rfile()))
+        return str(self.rfile())
 
 
 default_fs = FS()

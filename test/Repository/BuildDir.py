@@ -38,8 +38,8 @@ opts = "-Y " + test.workpath('repository')
 
 #
 test.write(['repository', 'SConstruct'], r"""
-BuildDir('build0', 'src', duplicate=0)
-BuildDir('build1', 'src', duplicate=1)
+BuildDir('build0', 'src')
+BuildDir('build1', 'src', duplicate=0)
 SConscript('build0/SConscript')
 SConscript('build1/SConscript')
 """)
@@ -78,9 +78,9 @@ repository/src/bbb.in
 repository/src/ccc.in
 """)
 
-test.fail_test(os.path.exists('work1/build0/aaa.in'))
-test.fail_test(os.path.exists('work1/build0/bbb.in'))
-test.fail_test(os.path.exists('work1/build0/ccc.in'))
+test.fail_test(not os.path.exists('work1/build0/aaa.in'))
+test.fail_test(not os.path.exists('work1/build0/bbb.in'))
+test.fail_test(not os.path.exists('work1/build0/ccc.in'))
 test.fail_test(not os.path.exists('work1/build0/aaa.mid'))
 test.fail_test(not os.path.exists('work1/build0/bbb.mid'))
 test.fail_test(not os.path.exists('work1/build0/ccc.mid'))
@@ -91,9 +91,9 @@ repository/src/bbb.in
 repository/src/ccc.in
 """)
 
-test.fail_test(not os.path.exists('work1/build1/aaa.in'))
-test.fail_test(not os.path.exists('work1/build1/bbb.in'))
-test.fail_test(not os.path.exists('work1/build1/ccc.in'))
+test.fail_test(os.path.exists('work1/build1/aaa.in'))
+test.fail_test(os.path.exists('work1/build1/bbb.in'))
+test.fail_test(os.path.exists('work1/build1/ccc.in'))
 test.fail_test(not os.path.exists('work1/build1/aaa.mid'))
 test.fail_test(not os.path.exists('work1/build1/bbb.mid'))
 test.fail_test(not os.path.exists('work1/build1/ccc.mid'))
@@ -111,9 +111,9 @@ work1/src/bbb.in
 repository/src/ccc.in
 """)
 
-test.fail_test(os.path.exists('work1/build0/aaa.in'))
-test.fail_test(os.path.exists('work1/build0/bbb.in'))
-test.fail_test(os.path.exists('work1/build0/ccc.in'))
+test.fail_test(not os.path.exists('work1/build0/aaa.in'))
+test.fail_test(not os.path.exists('work1/build0/bbb.in'))
+test.fail_test(not os.path.exists('work1/build0/ccc.in'))
 test.fail_test(not os.path.exists('work1/build0/aaa.mid'))
 test.fail_test(not os.path.exists('work1/build0/bbb.mid'))
 test.fail_test(not os.path.exists('work1/build0/ccc.mid'))
@@ -124,9 +124,9 @@ work1/src/bbb.in
 repository/src/ccc.in
 """)
 
-test.fail_test(not os.path.exists('work1/build1/aaa.in'))
-test.fail_test(not os.path.exists('work1/build1/bbb.in'))
-test.fail_test(not os.path.exists('work1/build1/ccc.in'))
+test.fail_test(os.path.exists('work1/build1/aaa.in'))
+test.fail_test(os.path.exists('work1/build1/bbb.in'))
+test.fail_test(os.path.exists('work1/build1/ccc.in'))
 test.fail_test(not os.path.exists('work1/build1/aaa.mid'))
 test.fail_test(not os.path.exists('work1/build1/bbb.mid'))
 test.fail_test(not os.path.exists('work1/build1/ccc.mid'))
@@ -144,9 +144,9 @@ test.writable('repository', 0)
 #
 test.run(chdir = 'work2', options = opts, arguments = '.')
 
-test.fail_test(os.path.exists('work2/build0/aaa.in'))
-test.fail_test(os.path.exists('work2/build0/bbb.in'))
-test.fail_test(os.path.exists('work2/build0/ccc.in'))
+test.fail_test(not os.path.exists('work2/build0/aaa.in'))
+test.fail_test(not os.path.exists('work2/build0/bbb.in'))
+test.fail_test(not os.path.exists('work2/build0/ccc.in'))
 test.fail_test(os.path.exists('work2/build0/aaa.mid'))
 test.fail_test(os.path.exists('work2/build0/bbb.mid'))
 test.fail_test(os.path.exists('work2/build0/ccc.mid'))
@@ -173,9 +173,9 @@ work2/src/bbb.in
 repository/src/ccc.in
 """)
 
-test.fail_test(os.path.exists('work2/build0/aaa.in'))
-test.fail_test(os.path.exists('work2/build0/bbb.in'))
-test.fail_test(os.path.exists('work2/build0/ccc.in'))
+test.fail_test(not os.path.exists('work2/build0/aaa.in'))
+test.fail_test(not os.path.exists('work2/build0/bbb.in'))
+test.fail_test(not os.path.exists('work2/build0/ccc.in'))
 test.fail_test(os.path.exists('work2/build0/aaa.mid'))
 test.fail_test(not os.path.exists('work2/build0/bbb.mid'))
 test.fail_test(os.path.exists('work2/build0/ccc.mid'))
@@ -187,7 +187,7 @@ repository/src/ccc.in
 """)
 
 test.fail_test(os.path.exists('work2/build1/aaa.in'))
-test.fail_test(not os.path.exists('work2/build1/bbb.in'))
+test.fail_test(os.path.exists('work2/build1/bbb.in'))
 test.fail_test(os.path.exists('work2/build1/ccc.in'))
 test.fail_test(os.path.exists('work2/build1/aaa.mid'))
 test.fail_test(not os.path.exists('work2/build1/bbb.mid'))

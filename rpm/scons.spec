@@ -68,6 +68,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Node/FS.pyc
 /usr/lib/scons/SCons/Node/__init__.py
 /usr/lib/scons/SCons/Node/__init__.pyc
+/usr/lib/scons/SCons/Options.py
+/usr/lib/scons/SCons/Options.pyc
 /usr/lib/scons/SCons/Platform/cygwin.py
 /usr/lib/scons/SCons/Platform/cygwin.pyc
 /usr/lib/scons/SCons/Platform/os2.py

@@ -15,9 +15,11 @@ RELEASE 0.09 -
   - Add a Prepend() method to Environments, to append values to
     the beginning of construction variables.
 
- From Steven Knight:
+ From Charles Crain and Steven Knight:
 
- - Add Repository() functionality.
+  - Add Repository() functionality.
+
+ From Steven Knight:
 
  - Fix auto-deduction of target names so that deduced targets end
    up in the same subdirectory as the source.

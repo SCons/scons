@@ -79,12 +79,8 @@ def scan(node, env, target, fs = SCons.Node.FS.default_fs):
     # node.includes - the result of include_re.findall()
 
     if not hasattr(target, 'cpppath'):
-        def Dir(rep, path, dir=target.cwd, fs=fs):
-            if rep:
-                path = os.path.join(rep, path)
-            return fs.Dir(path, dir)
         try:
-            target.cpppath = tuple(fs.Rsearchall(env['CPPPATH'], Dir))
+            target.cpppath = tuple(fs.Rsearchall(SCons.Util.mapPaths(env['CPPPATH'], target.cwd), clazz=SCons.Node.FS.Dir))
         except KeyError:
             target.cpppath = ()
 

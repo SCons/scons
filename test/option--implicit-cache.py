@@ -52,7 +52,7 @@ obj = env.Object(target='prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
-BuildDir('variant', 'subdir', 0)
+BuildDir('variant', 'subdir')
 include = Dir('include')
 env = Environment(CPPPATH=['inc2', include])
 SConscript('variant/SConscript', "env")
