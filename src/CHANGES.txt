@@ -8,16 +8,7 @@
 
 
 
-RELEASE 0.06 - 
-
-  From Anthony Roach:
-
-  - Fix:  Construction variables with values of 0 were incorrectly
-    interpolated as ''. 
-
-  - Support env['VAR'] to fetch construction variable values.
-
-  - Man page:  document Precious().
+RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600
 
   From Charles Crain:
 
@@ -75,6 +66,15 @@ RELEASE 0.06 -
     separated strings.
 
   - Add a document builder to create .dvi files from TeX (.tex) files.
+
+  From Anthony Roach:
+
+  - Fix:  Construction variables with values of 0 were incorrectly
+    interpolated as ''. 
+
+  - Support env['VAR'] to fetch construction variable values.
+
+  - Man page:  document Precious().
 
 
 

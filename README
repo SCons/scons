@@ -15,8 +15,8 @@ be packaged.
 
 Note that if all you want to do is install and run SCons, it
 will probably be easier for you to download and install the
-scons-{version}.tar.gz package rather than to work with the packaging
-logic in this tree.
+scons-{version}.tar.gz or scons-{version}.zip package rather than to
+work with the packaging logic in this tree.
 
 
 LATEST VERSION
@@ -35,11 +35,11 @@ SCons requires Python version 1.5.2 or later.  There should be no
 other dependencies or requirements to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
-compiler suite on WIN32 systems, and assumes a C compiler named 'cc'
-and a C++ compiler named 'c++' (such as found in the GNU C compiler
-suite) on any other type of system.  You may, of course, override these
-default values by appropriate configuration of Environment construction
-variables.
+compiler suite on WIN32 systems, and assumes a C compiler named 'cc',
+a C++ compiler named 'c++', and a Fortran compiler named 'g77' (such
+as found in the GNU C compiler suite) on any other type of system.
+You may, of course, override these default values by appropriate
+configuration of Environment construction variables.
 
 
 INSTALLATION
@@ -48,7 +48,7 @@ INSTALLATION
 To install SCons from this package, you must first populate the
 build/scons/ directory.  (For an easier way to install SCons, without
 having to populate this directory, use the scons-{version}.tar.gz
-package.)
+or scons-{version}.zip package.)
 
 If you already have an appropriate version of SCons installed on your
 system, populate the build/scons/ directory by running:

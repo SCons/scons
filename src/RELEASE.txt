@@ -20,7 +20,7 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.06 - 
+RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600
 
   This is the sixth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
@@ -95,11 +95,10 @@ RELEASE 0.06 -
 
     - Even on officialy Python release 2.2., values greater than 1 for
       the -j option on Windows seemingly hang SCons.  This problem is
-      being investigated and is expected to be fixed for next release.
+      being investigated.
 
     - Extremely long command lines (thousands of characters) can
-      reportedly crash Python.  This problem is being investigated
-      and is expected to be fixed for next release.
+      reportedly crash Python.  This problem is being investigated.
 
     - Again, the "SCons Design" documentation on the SCons web
       site is currently out of date.  Take what you read there with a

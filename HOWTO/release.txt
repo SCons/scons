@@ -250,7 +250,7 @@ Or through the download link at the SCons project page at SourceForge:
         http://sourceforge.net/projects/scons/
 
 RPM and Debian packages and a Win32 installer are all available, in
-addition to the traditional .tar.gz files.
+addition to the traditional .tar.gz and .zip files.
 
 
 WHAT'S NEW IN THIS RELEASE?
@@ -282,6 +282,7 @@ Distinctive features of SCons include:
   - improved parallel build (-j) support
   - use of MD5 signatures to decide if a file has changed
   - easily extensible through user-defined Builder and Scanner objects
+  - build actions can be external commands OR internal Python code
 
 An scons-users mailing list has been created for those interested in
 getting started using SCons.  You can subscribe at:
