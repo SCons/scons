@@ -65,6 +65,12 @@ foo = SConscript(script)
 assert foo == "subdir/SConscript foo"
 
 SConscript('SConscript5')
+
+import UserList
+x7 = "SConstruct x7"
+x8 = "SConstruct x8"
+x9 = SConscript('SConscript6', UserList.UserList(["x7", "x8"]))
+assert x9 == "SConscript6 x9"
 """)
 
 test.write('SConscript', """
@@ -85,7 +91,6 @@ x3 = "SConscript1 x3"
 x4 = "SConscript1 x4"
 Return("x3 x4")
 """)
-
 
 
 test.write('SConscript2', """
@@ -147,6 +152,15 @@ def scan():
     pass
 S = Scanner(name = 'S', function = scan)
 A = Action("A")
+""")
+
+
+test.write('SConscript6', """
+Import("x7 x8")
+assert x7 == "SConstruct x7"
+assert x8 == "SConstruct x8"
+x9 = "SConscript6 x9"
+Return("x9")
 """)
 
 wpath = test.workpath()

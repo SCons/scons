@@ -28,14 +28,16 @@ files.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/SConscript.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Errors
 import SCons.Builder
 import SCons.Defaults
+import SCons.Environment
+import SCons.Errors
 import SCons.Node
 import SCons.Node.FS
-import SCons.Environment
+import SCons.Util
+
 import string
 import sys
 
@@ -61,7 +63,7 @@ class Frame:
         self.exports = {} # exports from the calling SConscript
 
         try:
-            if type(exports) == type([]):
+            if SCons.Util.is_List(exports):
                 for export in exports:
                     self.exports[export] = stack[-1].globals[export]
             else:

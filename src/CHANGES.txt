@@ -50,6 +50,9 @@ RELEASE 0.05 -
 
   - WIN32 portability fixes in tests.
 
+  - Allow the list of variables exported to an SConscript file to be
+    a UserList, too.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.
