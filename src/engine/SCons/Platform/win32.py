@@ -58,14 +58,27 @@ class TempFileMunge:
             return self.cmd
         else:
             import tempfile
+
+            # In Cygwin, we want to use rm to delete the temporary file,
+            # because del does not exist in the sh shell.
+            rm = env.Detect('rm') or 'del'
+
             # We do a normpath because mktemp() has what appears to be
             # a bug in Win32 that will use a forward slash as a path
             # delimiter.  Win32's link mistakes that for a command line
             # switch and barfs.
             tmp = os.path.normpath(tempfile.mktemp())
+            native_tmp = SCons.Util.get_native_path(tmp)
+
+            # The sh shell will try to escape the backslashes in the
+            # path, so unescape them.
+            if env['SHELL'] and env['SHELL'] == 'sh':
+                native_tmp = string.replace(native_tmp, '\\', r'\\\\')
+
+
             args = map(SCons.Util.quote_spaces, cmd[1:])
             open(tmp, 'w').write(string.join(args, " ") + "\n")
-            return [ cmd[0], '@' + tmp + '\ndel', tmp ]
+            return [ cmd[0], '@' + native_tmp + '\n' + rm, native_tmp ]
 
 # The upshot of all this is that, if you are using Python 1.5.2,
 # you had better have cmd or command.com in your PATH when you run

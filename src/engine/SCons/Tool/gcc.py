@@ -57,7 +57,10 @@ def generate(env):
     env['CCFLAGS']   = ''
     env['CCCOM']     = '$CC $CCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCC']      = '$CC'
-    env['SHCCFLAGS'] = '$CCFLAGS -fPIC'
+    if env['PLATFORM'] == 'cygwin':
+        env['SHCCFLAGS'] = '$CCFLAGS'
+    else:
+        env['SHCCFLAGS'] = '$CCFLAGS -fPIC'
     env['SHCCCOM']   = '$SHCC $SHCCFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHOBJSUFFIX'] = '.os'
     env['INCPREFIX']  = '-I'

@@ -12,7 +12,10 @@ RELEASE 0.14 - XXX
 
   From Chad Austin:
 
-  - Use .dll (not .so) for shared libraries on Cygwin.
+  - Use .dll (not .so) for shared libraries on Cygwin; use -fPIC
+    when compiling them.
+
+  - Use 'rm' to remove files under Cygwin.
 
   - Add a PLATFORM variable to construction environments.
 

@@ -46,6 +46,7 @@ class ToolTestCase(unittest.TestCase):
         env = Environment()
         env['BUILDERS'] = {}
         env['ENV'] = {}
+        env['PLATFORM'] = 'test'
         t = SCons.Tool.Tool('g++')
         t(env)
         assert (env['CXX'] == 'c++' or env['CXX'] == 'g++'), env['CXX']

@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform == 'win32':
+if sys.platform in ['win32', 'cygwin']:
     lib_static_lib = 'static.lib'
     lib_shared_dll ='shared.dll'
     arflag_init = '/LIBPATH:' + test.workpath()

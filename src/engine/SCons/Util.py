@@ -854,4 +854,15 @@ def fs_delete(path, remove=1):
     except OSError, e:
         print "scons: Could not remove '%s':" % str(path), e.strerror
 
+if sys.platform == 'cygwin':
+    def get_native_path(path):
+        """Transforms an absolute path into a native path for the system.  In
+        Cygwin, this converts from a Cygwin path to a Win32 one."""
+        return string.replace(os.popen('cygpath -w ' + path).read(), '\n', '')
+else:
+    def get_native_path(path):
+        """Transforms an absolute path into a native path for the system.
+        Non-Cygwin version, just leave the path alone."""
+        return path
+
 display = DisplayEngine()

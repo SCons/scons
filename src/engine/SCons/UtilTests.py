@@ -644,6 +644,14 @@ class UtilTestCase(unittest.TestCase):
         test._dirlist = None
         sys.stdout = old_stdout
 
+    def test_get_native_path(self):
+        """Test the get_native_path() function."""
+        import tempfile
+        filename = tempfile.mktemp()
+        str = '1234567890 ' + filename
+        open(filename, 'w').write(str)
+        assert open(SCons.Util.get_native_path(filename)).read() == str
+
     def test_subst_dict(self):
         """Test substituting dictionary values in an Action
         """
