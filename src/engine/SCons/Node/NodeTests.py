@@ -971,6 +971,13 @@ class NodeTestCase(unittest.TestCase):
 
         assert n.get_subst_proxy() == n, n.get_subst_proxy()
 
+    def test_get_prevsiginfo(self):
+        """Test the base Node get_prevsiginfo() method"""
+        n = SCons.Node.Node()
+        siginfo = n.get_prevsiginfo()
+        assert siginfo == (None, None, None), siginfo
+
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(NodeTestCase, 'test_')

@@ -513,7 +513,7 @@ class Node:
     def get_prevsiginfo(self):
         """Fetch the previous signature information from the
         .sconsign entry."""
-        return None
+        return SCons.Sig._SConsign.null_siginfo
 
     def get_timestamp(self):
         return 0

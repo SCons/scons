@@ -103,6 +103,11 @@ class _SConsign:
         global sig_files
         sig_files.append(self)
 
+    # A null .sconsign entry.  We define this here so that it will
+    # be easy to keep this in sync if/whenever we change the type of
+    # information returned by the get() method, below.
+    null_siginfo = (None, None, None)
+
     def get(self, filename):
         """
         Get the .sconsign entry for a file
@@ -321,15 +326,15 @@ class Calculator:
             return csig
         
         if self.max_drift >= 0:
-            info = node.get_prevsiginfo()
+            oldtime, oldbsig, oldcsig = node.get_prevsiginfo()
         else:
-            info = None
+            oldtime, oldbsig, oldcsig = _SConsign.null_siginfo
 
         mtime = node.get_timestamp()
 
-        if (info and info[0] and info[2] and info[0] == mtime):
+        if (oldtime and oldcsig and oldtime == mtime):
             # use the signature stored in the .sconsign file
-            csig = info[2]
+            csig = oldcsig
             # Set the csig here so it doesn't get recalculated unnecessarily
             # and so it's set when the .sconsign file gets written
             cache.set_csig(csig)

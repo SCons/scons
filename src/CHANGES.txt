@@ -44,6 +44,9 @@ RELEASE 0.XX - XXX
   - Provide helpful error messages when the arguments to env.Install()
     are incorrect.
 
+  - Fix the value returned by the Node.prevsiginfo() method to conform
+    to a previous change when checking whether a node is current.
+
   From Christoph Wiedemann
 
   - Have the g++ Tool actually use g++ in preference to c++.
