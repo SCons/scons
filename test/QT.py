@@ -291,9 +291,39 @@ test.fail_test(not os.path.exists(test.workpath('work3', 'build', moc)))
 
 if os.environ.get('QTDIR', None):
 
+    QTDIR=os.environ['QTDIR']
+    
+
     test.write( ['work4', 'SConstruct'],"""
 import os
-env = Environment(tools=['default','qt'], CXXFILESUFFIX=".cpp")
+dummy_env = Environment()
+ENV = dummy_env['ENV']
+try:
+    PATH=ARGUMENTS['PATH']
+    if ENV.has_key('PATH'):
+        ENV_PATH = PATH + ':' + ENV['PATH']
+    else:
+        Exit(0) # this is certainly a weird system :-)
+except KeyError:
+    if ENV.has_key('PATH'):
+        ENV_PATH=dummy_env['ENV']['PATH']
+    else:
+        ENV_PATH=''
+    pass
+
+env = Environment(tools=['default','qt'],
+                  ENV={'PATH':ENV_PATH,
+                       'HOME':os.getcwd()},
+                       # moc / uic want to write stuff in ~/.qt
+                  CXXFILESUFFIX=".cpp")
+
+conf = env.Configure()
+if not conf.CheckLib(env.subst("$QT_LIB")):
+    conf.env['QT_LIB'] = 'qt-mt'
+    if not conf.CheckLib(env.subst("$QT_LIB")):
+         Exit(0)
+env = conf.Finish()
+
 env.Program('test_realqt', ['mocFromCpp.cpp',
                             'mocFromH.cpp',
                             'anUiFile.ui',
@@ -370,6 +400,13 @@ int main() {
 """)
 
     test.run(chdir='work4', arguments="test_realqt" + _exe)
+
+    QTDIR=os.environ['QTDIR']
+    del os.environ['QTDIR']
+
+    test.run(chdir='work4', arguments="-c test_realqt" + _exe)
+    test.run(chdir='work4', arguments="PATH=%s/bin test_realqt%s"%(QTDIR,_exe))
+    
 else:
     print "Could not find QT, skipping test(s)."
 

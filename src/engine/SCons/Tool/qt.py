@@ -133,7 +133,7 @@ def _detect(env):
     if not QTDIR:
         moc = env.Detect('moc')
         if moc:
-            QTDIR = dirname(dirname(moc))
+            QTDIR = os.path.dirname(os.path.dirname(moc))
         else:
             QTDIR = None
     env['QTDIR'] = QTDIR
