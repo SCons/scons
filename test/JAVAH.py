@@ -39,6 +39,12 @@ args = sys.argv[1:]
 while args:
     a = args[0]
     if a == '-d':
+        outdir = args[1]
+        args = args[1:]
+    elif a == '-o':
+        outfile = open(args[1], 'wb')
+        args = args[1:]
+    elif a == '-classpath':
         args = args[1:]
     elif a == '-sourcepath':
         args = args[1:]
@@ -47,7 +53,6 @@ while args:
     args = args[1:]
 for file in args:
     infile = open(file, 'rb')
-    outfile = open(file[:-5] + '.class', 'wb')
     for l in infile.readlines():
         if l[:9] != '/*javah*/':
             outfile.write(l)
@@ -57,7 +62,7 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(tools = ['javah'],
                   JAVAH = r'%s myjavah.py')
-env.JavaH(target = 'test1.class', source = 'test1.java')
+env.JavaH(target = File('test1.h'), source = 'test1.java')
 """ % (python))
 
 test.write('test1.java', """\
@@ -66,16 +71,16 @@ test1.java
 line 3
 """)
 
-#test.run(arguments = '.', stderr = None)
+test.run(arguments = '.', stderr = None)
 
-#test.fail_test(test.read('test1.class') != "test1.java\nline 3\n")
+test.fail_test(test.read('test1.h') != "test1.java\nline 3\n")
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
     test.write('SConstruct', """\
 env = Environment(tools = ['javah'],
                   JAVAH = r'%s myjavah.py')
-env.Java(target = 'test2.class', source = 'test2.JAVA')
+env.JavaH(target = File('test2.h'), source = 'test2.JAVA')
 """ % python)
 
     test.write('test2.JAVA', """\
@@ -86,7 +91,7 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test2.class') != "test2.JAVA\nline 3\n")
+    test.fail_test(test.read('test2.h') != "test2.JAVA\nline 3\n")
 
 
 if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javah'):

@@ -23,6 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
 import sys
 import unittest
 
@@ -46,7 +47,7 @@ public class Foo
 
 }
 """)
-        assert pkg_dir == 'com/sub/bar', pkg_dir
+        assert pkg_dir == os.path.join('com', 'sub', 'bar'), pkg_dir
         assert classes == ['Foo'], classes
 
     def test_inner_classes(self):
@@ -164,7 +165,7 @@ public class Example1 extends UnicastRemoteObject implements Hello {
 }
 """)
 
-        assert pkg_dir == 'com/sub/foo', pkg_dir
+        assert pkg_dir == os.path.join('com', 'sub', 'foo'), pkg_dir
         assert classes == ['Example1'], classes
 
 if __name__ == "__main__":

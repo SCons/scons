@@ -56,7 +56,7 @@ def emit_java_headers(target, source, env):
             try:
                 classdir = s.attributes.java_classdir
             except:
-                pass
+                classdir = '.'
     classdir = SCons.Node.FS.default_fs.Dir(classdir).rdir()
     if str(classdir) == '.':
         c_ = None

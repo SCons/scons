@@ -79,7 +79,7 @@ if os.path.normcase('.java') == os.path.normcase('.JAVA'):
     test.write('SConstruct', """\
 env = Environment(tools = ['rmic'],
                   RMIC = r'%s myrmic.py')
-env.Java(target = 'outdir', source = 'test2.JAVA')
+env.RMIC(target = 'outdir', source = 'test2.JAVA')
 """ % python)
 
     test.write('test2.JAVA', """\
@@ -90,7 +90,7 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test2.class') != "test2.JAVA\nline 3\n")
+    test.fail_test(test.read(['outdir', 'test2.class']) != "test2.JAVA\nline 3\n")
 
 
 if not os.path.exists('/usr/local/j2sdk1.3.1/bin/rmic'):
