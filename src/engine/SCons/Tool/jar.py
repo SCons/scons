@@ -38,17 +38,17 @@ import SCons.Util
 
 def jarSources(target, source, env, for_signature):
     """Only include sources that are not a manifest file."""
-    ret = []
+    jarchdir = env.subst('$JARCHDIR')
+    result = []
     for src in source:
         contents = src.get_contents()
         if contents[:16] != "Manifest-Version":
-            if env.has_key('JARCHDIR'):
+            if jarchdir:
                 # If we are changing the dir with -C, then sources should
                 # be relative to that directory.
-                ret.append(src.get_path(src.fs.Dir(env['JARCHDIR'])))
-            else:
-                ret.append(src)
-    return ret
+                src = src.get_path(src.fs.Dir(jarchdir))
+            result.append(src)
+    return result
 
 def jarManifest(target, source, env, for_signature):
     """Look in sources for a manifest file, if any."""
