@@ -58,6 +58,9 @@ RELEASE 0.XX - XXX
     distutils warning message about adding the (incorrect) library
     directory to your search path.
 
+  - Correct the spelling of the "validater" option to "validator."
+    Add a DeprecatedWarning when the old spelling is used.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

@@ -23,12 +23,14 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
+import sys
 import unittest
 import TestSCons
+
 import SCons.Options
 import SCons.Util
-import sys
-import string
+import SCons.Warnings
 
 
 class Environment:
@@ -73,14 +75,14 @@ class OptionsTestCase(unittest.TestCase):
         assert o.key == 'VAR'
         assert o.help == ''
         assert o.default == None
-        assert o.validater == None
+        assert o.validator == None
         assert o.converter == None
 
         o = opts.options[1]
         assert o.key == 'ANSWER'
         assert o.help == 'THE answer to THE question'
         assert o.default == "42"
-        o.validater(o.key, o.converter(o.default), {})
+        o.validator(o.key, o.converter(o.default), {})
 
         def test_it(var, opts=opts):
             exc_caught = None
@@ -92,6 +94,29 @@ class OptionsTestCase(unittest.TestCase):
         test_it('foo/bar')
         test_it('foo-bar')
         test_it('foo.bar')
+
+        save = {}
+        save['warn'] = SCons.Warnings.warn
+        save['DeprecatedWarning'] = SCons.Warnings.DeprecatedWarning
+        def warn(type, message, save=save):
+            save['type'] = type
+            save['message'] = message
+        SCons.Warnings.warn = warn
+        SCons.Warnings.DeprecatedWarning = "xyzzy"
+
+        try:
+            opts.Add('MISSPELLED',
+                     'test using the old validater keyword',
+                     "42",
+                     validater=check,
+                     converter=lambda x: int(x) + 12)
+        finally:
+            SCons.Warnings.DeprecatedWarning = save['DeprecatedWarning']
+            SCons.Warnings.warn = save['warn']
+        assert save['type'] == "xyzzy", save['type']
+        assert string.find(save['message'], "keyword of the Options.Add() method", save['message'] != -1), save['message']
+        o = opts.options[2]
+        o.validator(o.key, o.converter(o.default), {})
 
     def test_Update(self):
         """Test updating an Environment"""

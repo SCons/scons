@@ -29,9 +29,11 @@ variables to a scons build.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
+
 import SCons.Errors
 import SCons.Util
-import os.path
+import SCons.Warnings
 
 
 class Options:
@@ -55,14 +57,14 @@ class Options:
            self.files = files
 
 
-    def Add(self, key, help="", default=None, validater=None, converter=None):
+    def Add(self, key, help="", default=None, validator=None, converter=None, **kw):
         """
         Add an option.
 
         key - the name of the variable
         help - optional help text for the options
         default - optional default value
-        validater - optional function that is called to validate the option's value
+        validator - optional function that is called to validate the option's value
                     Called with (key, value, environment)
         converter - optional function that is called to convert the option's value before
                     putting it in the environment.
@@ -71,6 +73,13 @@ class Options:
         if not SCons.Util.is_valid_construction_var(key):
             raise SCons.Errors.UserError, "Illegal Options.Add() key `%s'" % key
 
+        if kw.has_key('validater'):
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                                "The 'validater' keyword of the Options.Add() method is deprecated\n" +\
+                                "and should be changed to 'validator'.")
+            if validator is None:
+                validator = kw['validater']
+
         class Option:
             pass
 
@@ -78,7 +87,7 @@ class Options:
         option.key = key
         option.help = help
         option.default = default
-        option.validater = validater
+        option.validator = validator
         option.converter = converter
 
         self.options.append(option)
@@ -129,8 +138,8 @@ class Options:
 
         # Finally validate the values:
         for option in self.options:
-            if option.validater:
-                option.validater(option.key, env.subst('${%s}'%option.key), env)
+            if option.validator:
+                option.validator(option.key, env.subst('${%s}'%option.key), env)
 
     def Save(self, filename, env):
         """

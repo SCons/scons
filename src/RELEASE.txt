@@ -27,6 +27,11 @@ RELEASE 0.XX - XXX
 
   Please note the following important changes since release 0.90:
 
+  - The spelling of the 'validater' keyword argument to the
+    Options.Add() method has been corrected to 'validator'.  The old
+    spelling still works but has been deprecated and generates a
+    warning.
+
   Please note the following important changes since release 0.14:
 
   - SCons now tries to verify that Microsoft Visual Studio (including

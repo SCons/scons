@@ -3819,7 +3819,7 @@ opts = Options(None, {FOO:'expansion', BAR:7})
 Options objects have the following methods:
 
 .TP
-.RI Add( key ", [" help ", " default ", " validater ", " converter ])
+.RI Add( key ", [" help ", " default ", " validator ", " converter ])
 This adds a customizable construction variable to the Options object. 
 .I key
 is the name of the variable. 
@@ -3827,7 +3827,7 @@ is the name of the variable.
 is the help text for the variable.
 .I default 
 is the default value of the variable.
-.I validater
+.I validator
 is called to validate the value of the variable, and should take three
 arguments: key, value, and environment
 .I converter
