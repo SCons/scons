@@ -346,8 +346,16 @@ class BuildDirTestCase(unittest.TestCase):
         simulator = LinkSimulator()
 
         # save the real functions for later restoration
-        real_link = os.link
-        real_symlink = os.symlink
+        real_link = None
+        real_symlink = None
+        try:
+            real_link = os.link
+        except AttributeError:
+            pass
+        try:
+            real_symlink = os.symlink
+        except AttributeError:
+            pass
         real_copy = shutil.copy2
         simulator._real_copy = real_copy # the simulator needs the real one
 
@@ -361,12 +369,19 @@ class BuildDirTestCase(unittest.TestCase):
         SCons.Node.FS.Link(fs.File(test.workpath('build/foo')),
                            fs.File(test.workpath('src/foo')),
                            None)
+        os.chmod(test.workpath('src/foo'), ~stat.S_IRUSR)
         test.unlink( "src/foo" )
         test.unlink( "build/foo" )
 
         # restore the real functions
-        os.link = real_link
-        os.symlink = real_symlink
+        if real_link:
+            os.link = real_link
+        else:
+            delattr(os, 'link')
+        if real_symlink:
+            os.symlink = real_symlink
+        else:
+            delattr(os, 'symlink')
         shutil.copy2 = real_copy
 
 
