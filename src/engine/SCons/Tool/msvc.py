@@ -65,7 +65,7 @@ def _parse_msvc7_overrides(version):
     except SCons.Util.RegError:
         raise SCons.Errors.InternalError, "The Local AppData directory was not found in the registry."
 
-    comps = comps + '\\Microsoft\\VisualStudio\\' + version + '\\VSComponents.dat'
+    comps = comps + '\\Microsoft\\VisualStudio\\' + version + '\\VCComponents.dat'
     dirs = {}
 
     if os.path.exists(comps):
