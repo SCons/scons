@@ -59,8 +59,15 @@ class Task:
         self.i = i
         self.taskmaster = taskmaster
         self.was_executed = 0
+        self.was_prepared = 0
+        
+    def prepare(self):
+        self.was_prepared = 1
         
     def execute(self):
+        self.taskmaster.test_case.failUnless(self.was_prepared,
+                                  "the task wasn't prepared")
+        
         self.taskmaster.guard.acquire()
         self.taskmaster.begin_list.append(self.i)
         self.taskmaster.guard.release()
@@ -78,6 +85,8 @@ class Task:
     def executed(self):
         self.taskmaster.num_executed = self.taskmaster.num_executed + 1
 
+        self.taskmaster.test_case.failUnless(self.was_prepared,
+                                  "the task wasn't prepared")
         self.taskmaster.test_case.failUnless(self.was_executed,
                                   "the task wasn't really executed")
         self.taskmaster.test_case.failUnless(self.__class__ is Task,
@@ -86,12 +95,19 @@ class Task:
     def failed(self):
         self.taskmaster.num_failed = self.taskmaster.num_failed + 1
         self.taskmaster.stop = 1
+        self.taskmaster.test_case.failUnless(self.was_prepared,
+                                  "the task wasn't prepared")
+
 
 class ExceptionTask:
     """A dummy task class for testing purposes."""
 
     def __init__(self, i, taskmaster):
         self.taskmaster = taskmaster
+        self.was_prepared = 0
+
+    def prepare(self):
+        self.was_prepared = 1
         
     def execute(self):
         raise "exception"
@@ -99,6 +115,8 @@ class ExceptionTask:
     def executed(self):
         self.taskmaster.num_executed = self.taskmaster.num_executed + 1
 
+        self.taskmaster.test_case.failUnless(self.was_prepared,
+                                  "the task wasn't prepared")
         self.taskmaster.test_case.failUnless(self.was_executed,
                                   "the task wasn't really executed")
         self.taskmaster.test_case.failUnless(self.__class__ is Task,
@@ -107,6 +125,8 @@ class ExceptionTask:
     def failed(self):
         self.taskmaster.num_failed = self.taskmaster.num_failed + 1
         self.taskmaster.stop = 1
+        self.taskmaster.test_case.failUnless(self.was_prepared,
+                                  "the task wasn't prepared")
 
 class Taskmaster:
     """A dummy taskmaster class for testing the job classes."""
@@ -147,7 +167,7 @@ class Taskmaster:
 
     def all_tasks_are_iterated(self):
         return self.num_iterated == self.num_tasks
-    
+
     def is_blocked(self):
         # simulate blocking tasks
         return self.num_iterated - self.num_executed >= max(num_jobs/2, 2)

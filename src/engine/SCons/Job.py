@@ -123,6 +123,7 @@ class Serial:
                 break
 
             try:
+                task.prepare()
                 task.execute()
             except KeyboardInterrupt:
                 raise
@@ -243,8 +244,9 @@ class Parallel:
                 if task == None:
                     break
 
-                cv.release()
                 try:
+                    task.prepare()
+                    cv.release()
                     try:
                         task.execute()
                     finally:

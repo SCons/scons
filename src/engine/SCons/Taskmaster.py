@@ -60,12 +60,19 @@ class Task:
         self.top = top
         self.node = node
 
-    def execute(self):
-        # This methods is called from multiple threads in
-        # a parallel build, so only do thread safe stuff here.
-        # Do thread unsafe stuff in executed() or failed().
+
+    def prepare(self):
+        """Called just before the task is executed."""
         if self.targets[0].get_state() != SCons.Node.up_to_date:
             self.targets[0].prepare()
+
+    def execute(self):
+        """Called to execute the task.
+        
+        This methods is called from multiple threads in
+        a parallel build, so only do thread safe stuff here.
+        Do thread unsafe stuff in prepare(), executed() or failed()."""
+        if self.targets[0].get_state() != SCons.Node.up_to_date:
             self.targets[0].build()
 
     def get_target(self):

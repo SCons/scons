@@ -124,6 +124,7 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster([n1, n1])
         t = tm.next_task()
+        t.prepare()
         t.execute()
         t = tm.next_task()
         assert t == None
@@ -135,16 +136,19 @@ class TaskmasterTestCase(unittest.TestCase):
         tm = SCons.Taskmaster.Taskmaster([n3])
 
         t = tm.next_task()
+        t.prepare()
         t.execute()
         assert built_text == "n1 built", built_text
         t.executed()
 
         t = tm.next_task()
+        t.prepare()
         t.execute()
         assert built_text == "n2 built", built_text
         t.executed()
 
         t = tm.next_task()
+        t.prepare()
         t.execute()
         assert built_text == "n3 built", built_text
         t.executed()
@@ -176,16 +180,19 @@ class TaskmasterTestCase(unittest.TestCase):
                                          tasker = MyTask, calc = MyCalc())
 
         t = tm.next_task()
+        t.prepare()
         t.execute()
         assert built_text == "n1 up-to-date", built_text
         t.executed()
 
         t = tm.next_task()
+        t.prepare()
         t.execute()
         assert built_text == "n2 up-to-date", built_text
         t.executed()
 
         t = tm.next_task()
+        t.prepare()
         t.execute()
         assert built_text == "n3 up-to-date top", built_text
         t.executed()
@@ -372,6 +379,7 @@ class TaskmasterTestCase(unittest.TestCase):
         
         tm = SCons.Taskmaster.Taskmaster([n3])
         t = tm.next_task()
+        t.prepare()
         t.execute()
         assert built_text == "n1 built", built_text
         t.executed()

@@ -77,37 +77,14 @@ class BuildTask(SCons.Taskmaster.Task):
             if self.top:
                 display('scons: "%s" is up to date.' % str(self.targets[0]))
         else:
-            try:
-                self.targets[0].prepare()
-                if print_time:
-                    start_time = time.time()
-                self.targets[0].build()
-                if print_time:
-                    finish_time = time.time()
-                    global command_time
-                    command_time = command_time+finish_time-start_time
-                    print "Command execution time: %f seconds"%(finish_time-start_time)
-   
-            except BuildError, e:
-                sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
-                if e.errstr == 'Exception':
-                    traceback.print_exception(e.args[0], e.args[1],
-                                              e.args[2])
-                raise
-            except UserError, e:
-                # We aren't being called out of a user frame, so
-                # don't try to walk the stack, just print the error.
-                sys.stderr.write("\nSCons error: %s\n" % e)
-                raise
-            except StopError, e:
-                s = str(e)
-                if not keep_going_on_error:
-                    s = s + '  Stop.'
-                sys.stderr.write("scons: *** %s\n" % s)
-                raise
-            except:
-                sys.stderr.write("scons: *** %s\n" % sys.exc_value)
-                raise
+            if print_time:
+                start_time = time.time()
+            self.targets[0].build()
+            if print_time:
+                finish_time = time.time()
+                global command_time
+                command_time = command_time+finish_time-start_time
+                print "Command execution time: %f seconds"%(finish_time-start_time)
 
     def executed(self):
         SCons.Taskmaster.Task.executed(self)
@@ -124,6 +101,25 @@ class BuildTask(SCons.Taskmaster.Task):
 
     def failed(self):
         global exit_status
+
+        e = sys.exc_value
+        if sys.exc_type == BuildError:
+            sys.stderr.write("scons: *** [%s] %s\n" % (e.node, e.errstr))
+            if e.errstr == 'Exception':
+                traceback.print_exception(e.args[0], e.args[1],
+                                          e.args[2])
+        elif sys.exc_type == UserError:
+            # We aren't being called out of a user frame, so
+            # don't try to walk the stack, just print the error.
+            sys.stderr.write("\nSCons error: %s\n" % e)
+        elif sys.exc_type == StopError:
+            s = str(e)
+            if not keep_going_on_error:
+                s = s + '  Stop.'
+            sys.stderr.write("scons: *** %s\n" % s)
+        else:
+            sys.stderr.write("scons: *** %s\n" % e)
+        
         if ignore_errors:
             SCons.Taskmaster.Task.executed(self)
         elif keep_going_on_error:
@@ -152,8 +148,14 @@ class CleanTask(SCons.Taskmaster.Task):
 
     execute = remove
 
+    def prepare(self):
+        pass
+
 class QuestionTask(SCons.Taskmaster.Task):
     """An SCons task for the -q (question) option."""
+    def prepare(self):
+        pass
+    
     def execute(self):
         if self.targets[0].get_state() != SCons.Node.up_to_date:
             global exit_status
