@@ -165,7 +165,7 @@ class Options:
 
         # Finally validate the values:
         for option in self.options:
-            if option.validator:
+            if option.validator and values.has_key(option.key):
                 option.validator(option.key, env.subst('${%s}'%option.key), env)
 
     def Save(self, filename, env):
