@@ -84,9 +84,10 @@ RELEASE 0.96 - XXX
           DScan.add_skey('.x')       => env.Append(DSUFFIXES = ['.x'])
           FortranScan.add_skey('.x') => env.Append(FORTRANSUFFIXES = ['.x'])
 
-    - The internal "node_factory" keyword argument has been removed;
-      the separate and more flexible "target_factory" and "source_factory"
-      keywords should be used instead.
+    - The "node_factory" and "scanner" keyword arguments to the Builder()
+      function have been removed.  In their place, the separate and more
+      flexible "target_factory," "source_factory," "target_scanner" and
+      "source scanner" keywords should be used instead.
 
     - SCons now treats file "extensions" that contain all digits (for
       example, "file.123") as part of the file basename, for easier

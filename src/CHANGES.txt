@@ -253,6 +253,17 @@ RELEASE 0.96 - XXX
   - Allow the env.WhereIs() method to take a "reject" argument to
     let it weed out specific path names.
 
+  From Christoph Wiedemann:
+
+  - Add new Moc() and Uic() Builders for more explicit control over
+    Qt builds, plus new construction variables to control them:
+    $QT_AUTOSCAN, $QT_DEBUG, $QT_MOCCXXPREFIX, $QT_MOCCXXSUFFIX,
+    $QT_MOCHPREFIX, $QT_MOCHSUFFIX, $QT_UICDECLPREFIX, $QT_UICDECLSUFFIX,
+    $QT_UICIMPLPREFIX, $QT_UICIMPLSUFFIX and $QT_UISUFFIX.
+
+  - Add a new single_source keyword argument for Builders that enforces
+    a single source file on calls to the Builder.
+
 
 
 RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
@@ -488,12 +499,6 @@ RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
   - When compiling Qt, make sure the moc_*.cc files are compiled using
     the flags from the environment used to specify the target, not
     the environment that first has the Qt Builders attached.
-
-  - Add new Moc() and Uic() Builders for Qt, and a slew of $QT_*
-    construction variables to control them.
-
-  - Add a new single_source keyword argument for Builders that enforces
-    a single source file on calls to the Builder.
 
 
 

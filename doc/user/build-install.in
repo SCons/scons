@@ -256,7 +256,7 @@
       Download the <filename>scons-0.95.win32.exe</filename>
       file from the &SCons; download page at
       <ulink url="http://www.scons.org/download.html">http://www.scons.org/download.html</ulink>.
-      Then all you need to is execute the file
+      Then all you need to do is execute the file
       (usually by clicking on its icon in Windows Explorer).
       These will take you through a small
       sequence of windows that will install
@@ -302,6 +302,46 @@
         </para>
 
       </section>
+
+      -->
+
+      <!--
+
+      XXX - don't have the kinks worked out on how to
+      get these to display properly in all formats,
+      so comment them out for now.
+
+      <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="SCons-win32-install-1.jpg" format="jpg" align="center">
+        </imageobject>
+      </mediaobject>
+      </screenshot>
+
+      <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="SCons-win32-install-2.jpg" format="jpg" align="center">
+        </imageobject>
+      </mediaobject>
+      </screenshot>
+
+      <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="SCons-win32-install-3.jpg" format="jpg" align="center">
+        </imageobject>
+      </mediaobject>
+      </screenshot>
+
+      <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="SCons-win32-install-4.jpg" format="jpg" align="center">
+        </imageobject>
+      </mediaobject>
+      </screenshot>
 
       -->
 

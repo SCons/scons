@@ -184,7 +184,8 @@
 <!ENTITY CheckCXXHeader "<function>CheckCXXHeader</function>">
 <!ENTITY CheckFunc "<function>CheckFunc</function>">
 <!ENTITY CheckHeader "<function>CheckHeader</function>">
-<!ENTITY CheckLibrary "<function>CheckLibrary</function>">
+<!ENTITY CheckLib "<function>CheckLib</function>">
+<!ENTITY CheckLibWithHeader "<function>CheckLibWithHeader</function>">
 <!ENTITY CheckType "<function>CheckType</function>">
 <!ENTITY TryAction "<function>TryAction</function>">
 <!ENTITY TryBuild "<function>TryBuild</function>">
