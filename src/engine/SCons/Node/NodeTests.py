@@ -186,6 +186,18 @@ class MyNode(SCons.Node.Node):
     def get_found_includes(self, env, scanner, target):
         return scanner(self)
 
+class Calculator:
+    def __init__(self, val):
+        self.max_drift = 0
+        class M:
+            def __init__(self, val):
+                self.val = val
+            def signature(self, args):
+                return self.val
+            def collect(self, args):
+                return reduce(lambda x, y: x+y, args, self.val)
+        self.module = M(val)
+
 
 
 class NodeTestCase(unittest.TestCase):
@@ -445,6 +457,23 @@ class NodeTestCase(unittest.TestCase):
         node = SCons.Node.Node()
         assert node.current() is None
 
+    def test_children_are_up_to_date(self):
+        """Test the children_are_up_to_date() method used by subclasses
+        """
+        n1 = SCons.Node.Node()
+        n2 = SCons.Node.Node()
+
+        calc = Calculator(111)
+
+        n1.add_source(n2)
+        assert n1.children_are_up_to_date(calc), "expected up to date"
+        n2.set_state(SCons.Node.executed)
+        assert not n1.children_are_up_to_date(calc), "expected not up to date"
+        n2.set_state(SCons.Node.up_to_date)
+        assert n1.children_are_up_to_date(calc), "expected up to date"
+        n1.always_build = 1
+        assert not n1.children_are_up_to_date(calc), "expected not up to date"
+
     def test_env_set(self):
         """Test setting a Node's Environment
         """
@@ -464,15 +493,6 @@ class NodeTestCase(unittest.TestCase):
     def test_calc_bsig(self):
         """Test generic build signature calculation
         """
-        class Calculator:
-            def __init__(self, val):
-                self.max_drift = 0
-                class M:
-                    def __init__(self, val):
-                        self.val = val
-                    def collect(self, args):
-                        return reduce(lambda x, y: x+y, args, self.val)
-                self.module = M(val)
         node = SCons.Node.Node()
         result = node.calc_bsig(Calculator(222))
         assert result == 222, result
@@ -482,15 +502,6 @@ class NodeTestCase(unittest.TestCase):
     def test_calc_csig(self):
         """Test generic content signature calculation
         """
-        class Calculator:
-            def __init__(self, val):
-                self.max_drift = 0
-                class M:
-                    def __init__(self, val):
-                        self.val = val
-                    def signature(self, args):
-                        return self.val
-                self.module = M(val)
         node = SCons.Node.Node()
         result = node.calc_csig(Calculator(444))
         assert result == 444, result
@@ -500,16 +511,6 @@ class NodeTestCase(unittest.TestCase):
     def test_gen_binfo(self):
         """Test generating a build information structure
         """
-        class Calculator:
-            def __init__(self, val):
-                self.max_drift = 0
-                class M:
-                    def __init__(self, val):
-                        self.val = val
-                    def collect(self, args):
-                        return reduce(lambda x, y: x+y, args, self.val)
-                self.module = M(val)
-
         node = SCons.Node.Node()
         binfo = node.gen_binfo(Calculator(666))
         assert isinstance(binfo, SCons.Node.BuildInfo), binfo

@@ -839,6 +839,8 @@ class Node:
         rebind their current() method to this method."""
         # Allow the children to calculate their signatures.
         self.binfo = self.gen_binfo(calc)
+        if self.always_build:
+            return None
         state = 0
         for kid in self.children(None):
             s = kid.get_state()

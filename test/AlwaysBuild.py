@@ -45,6 +45,11 @@ AlwaysBuild('f1.out')
 
 env.B(r'%s', source='f3.in')
 env.AlwaysBuild(r'%s')
+
+env.Alias('clean1', [], Delete('clean1-target'))
+env.AlwaysBuild('clean1')
+c2 = env.Alias('clean2', [], [Delete('clean2-t1'), Delete('clean2-t2')])
+env.AlwaysBuild(c2)
 """ % (os.path.join('sub', 'f3.out'),
        os.path.join('$SUBDIR', 'f3.out')
       ))
@@ -62,5 +67,14 @@ test.write('f2.in', "2")
 test.run(arguments = ".")
 test.fail_test(test.read('f1.out') != '2')
 test.fail_test(test.read(['sub', 'f3.out']) != '2')
+
+test.run(arguments = 'clean1', stdout=test.wrap_stdout("""\
+Delete("clean1-target")
+"""))
+
+test.run(arguments = 'clean2', stdout=test.wrap_stdout("""\
+Delete("clean2-t1")
+Delete("clean2-t2")
+"""))
 
 test.pass_test()
