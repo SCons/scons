@@ -129,7 +129,7 @@ def get_msvc_path (path, version, platform='x86'):
     access the registry or appropriate registry keys not found.
     """
        
-    if not _can_read_reg:
+    if not SCons.Util.can_read_reg:
         raise InternalError, "No Windows registry module was found"
 
     if path=='lib':
@@ -272,8 +272,9 @@ elif os.name == 'nt':
             # so fall back to a reasonable default:
             MVSdir = r'C:\Program Files\Microsoft Visual Studio'
             MVSVCdir = r'%s\VC98' % MVSdir
+            MVSCommondir = r'%s\Common' % MVSdir
             ConstructionEnvironment = make_win32_env_from_paths(
                 r'%s\atl\include;%s\mfc\include;%s\include' % (MVSVCdir, MVSVCdir, MVSVCdir),
                 r'%s\mvc\lib;%s\lib' % (MVSVCdir, MVSVCdir),
-        	os.environ["PATH"])
+                (r'%s\MSDev98\Bin' % MVSCommondir) + os.pathsep + os.environ["PATH"])
 

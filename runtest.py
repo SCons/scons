@@ -139,6 +139,7 @@ else:
 os.chdir(scons_dir)
 
 fail = []
+no_result = []
 
 for path in tests:
     if os.path.isabs(path):
@@ -148,15 +149,28 @@ for path in tests:
     cmd = string.join(["python", debug, abs], " ")
     if printcmd:
 	print cmd
-    if os.system(cmd):
-	fail.append(path)
+    s = os.system(cmd)
+    if s == 1:
+        fail.append(path)
+    elif s == 2:
+        no_result.append(path)
+    elif s != 0:
+        print "Unexpected exit status %d" % s
 
-if fail and len(tests) != 1:
-    if len(fail) == 1:
-        str = "test"
-    else:
-        str = "%d tests" % len(fail)
-    print "\nFailed the following %s:" % str
-    print "\t", string.join(fail, "\n\t")
+if len(tests) != 1:
+    if fail:
+        if len(fail) == 1:
+            str = "test"
+        else:
+            str = "%d tests" % len(fail)
+        print "\nFailed the following %s:" % str
+        print "\t", string.join(fail, "\n\t")
+    if no_result:
+        if len(no_result) == 1:
+            str = "test"
+        else:
+            str = "%d tests" % len(no_result)
+        print "\nNO RESULT from the following %s:" % str
+        print "\t", string.join(no_result, "\n\t")
 
-sys.exit(len(fail))
+sys.exit(len(fail) + len(no_result))

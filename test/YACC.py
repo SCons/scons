@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import os.path
 import string
 import sys
 import TestSCons
@@ -36,7 +37,16 @@ if sys.platform == 'win32':
 else:
     _exe = ''
 
+yacc = None
+for dir in string.split(os.environ['PATH'], os.pathsep):
+    y = os.path.join(dir, 'yacc' + _exe)
+    if os.path.exists(y):
+        yacc = y
+        break
+
 test = TestSCons.TestSCons()
+
+test.no_result(not yacc)
 
 test.write("wrapper.py",
 """import os
