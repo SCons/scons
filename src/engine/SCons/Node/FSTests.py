@@ -140,6 +140,10 @@ class BuildDirTestCase(unittest.TestCase):
         # A source file in the source directory
         test.write([ 'work', 'src', 'test.in' ], 'test.in')
 
+        # A source file in a subdir of the source directory
+        test.subdir([ 'work', 'src', 'new_dir' ])
+        test.write([ 'work', 'src', 'new_dir', 'test9.out' ], 'test9.out\n')
+
         # A source file in the repository
         test.write([ 'rep1', 'src', 'test2.in' ], 'test2.in')
         
@@ -245,6 +249,7 @@ class BuildDirTestCase(unittest.TestCase):
         # We should not copy the file from the source dir, since this is
         # a derived file.
         assert test.read(['work', 'build', 'var2', 'test.out']) == 'test.old'
+
         f7 = fs.File('build/var1/test2.out')
         f8 = fs.File('build/var2/test2.out')
 
@@ -257,6 +262,32 @@ class BuildDirTestCase(unittest.TestCase):
         assert f8.rexists()
         assert f8.rfile().path == os.path.normpath(test.workpath('rep1/build/var2/test2.out')),\
                f8.rfile().path
+
+        # Verify the Mkdir and Link actions are called
+        f9 = fs.File('build/var2/new_dir/test9.out')
+
+        save_Mkdir = SCons.Node.FS.Mkdir
+        dir_made = []
+        def mkdir_func(target, source, env, dir_made=dir_made):
+            dir_made.append(target)
+        SCons.Node.FS.Mkdir = mkdir_func
+
+        save_Link = SCons.Node.FS.Link
+        link_made = []
+        def link_func(target, source, env, link_made=link_made):
+            link_made.append(target)
+        SCons.Node.FS.Link = link_func
+
+        try:
+            f9.exists()
+            expect = os.path.join('build', 'var2', 'new_dir')
+            assert dir_made[0].path == expect, dir_made[0].path
+            expect = os.path.join('build', 'var2', 'new_dir', 'test9.out')
+            assert link_made[0].path == expect, link_made[0].path
+            assert f9.linked
+        finally:
+            SCons.Node.FS.Mkdir = save_Mkdir
+            SCons.Node.FS.Link = save_Link
         
         # Test to see if Link() works...
         test.subdir('src','build')
@@ -280,13 +311,15 @@ class BuildDirTestCase(unittest.TestCase):
 
         exc_caught = 0
         try:
-            fs = SCons.Node.FS.FS()
-            fs.BuildDir('build', 'build/src')
-        except SCons.Errors.UserError:
-            exc_caught = 1
-        assert exc_caught, "Should have caught a UserError."
-        test.unlink( "src/foo" )
-        test.unlink( "build/foo" )
+            try:
+                fs = SCons.Node.FS.FS()
+                fs.BuildDir('build', 'build/src')
+            except SCons.Errors.UserError:
+                exc_caught = 1
+            assert exc_caught, "Should have caught a UserError."
+        finally:
+            test.unlink( "src/foo" )
+            test.unlink( "build/foo" )
 
         # verify the link creation attempts in file_link()
         class LinkSimulator :
@@ -365,26 +398,29 @@ class BuildDirTestCase(unittest.TestCase):
         os.symlink = simulator.symlink_fail
         shutil.copy2 = simulator.copy
 
-        test.write('src/foo', 'src/foo\n')
-        os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
-        SCons.Node.FS.Link(fs.File(test.workpath('build/foo')),
-                           fs.File(test.workpath('src/foo')),
-                           None)
-        os.chmod(test.workpath('src/foo'), ~stat.S_IRUSR)
-        test.unlink( "src/foo" )
-        test.unlink( "build/foo" )
+        try:
+            test.write('src/foo', 'src/foo\n')
+            try:
+                os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
+                SCons.Node.FS.Link(fs.File(test.workpath('build/foo')),
+                                   fs.File(test.workpath('src/foo')),
+                                   None)
+                os.chmod(test.workpath('src/foo'), ~stat.S_IRUSR)
+            finally:
+                test.unlink( "src/foo" )
+                test.unlink( "build/foo" )
 
-        # restore the real functions
-        if real_link:
-            os.link = real_link
-        else:
-            delattr(os, 'link')
-        if real_symlink:
-            os.symlink = real_symlink
-        else:
-            delattr(os, 'symlink')
-        shutil.copy2 = real_copy
-
+        finally:
+            # restore the real functions
+            if real_link:
+                os.link = real_link
+            else:
+                delattr(os, 'link')
+            if real_symlink:
+                os.symlink = real_symlink
+            else:
+                delattr(os, 'symlink')
+            shutil.copy2 = real_copy
 
 class FSTestCase(unittest.TestCase):
     def runTest(self):
@@ -813,11 +849,13 @@ class FSTestCase(unittest.TestCase):
         assert exc_caught, "Should have caught an AttributError"
 
         test.write("file", "file\n")
-        e = fs.Entry('file')
-        c = e.get_contents()
-        assert c == "file\n", c
-        assert e.__class__ == SCons.Node.FS.File
-        test.unlink("file")
+        try:
+            e = fs.Entry('file')
+            c = e.get_contents()
+            assert c == "file\n", c
+            assert e.__class__ == SCons.Node.FS.File
+        finally:
+            test.unlink("file")
 
         test.subdir("dir")
         e = fs.Entry('dir')
@@ -826,17 +864,19 @@ class FSTestCase(unittest.TestCase):
         assert e.__class__ == SCons.Node.FS.Dir
 
         test.write("tstamp", "tstamp\n")
-        # Okay, *this* manipulation accomodates Windows FAT file systems
-        # that only have two-second granularity on their timestamps.
-        # We round down the current time to the nearest even integer
-        # value, subtract two to make sure the timestamp is not "now,"
-        # and then convert it back to a float.
-        tstamp = float(int(time.time() / 2) * 2) - 2
-        os.utime(test.workpath("tstamp"), (tstamp - 2.0, tstamp))
-        f = fs.File("tstamp")
-        t = f.get_timestamp()
-        assert t == tstamp, "expected %f, got %f" % (tstamp, t)
-        test.unlink("tstamp")
+        try:
+            # Okay, *this* manipulation accomodates Windows FAT file systems
+            # that only have two-second granularity on their timestamps.
+            # We round down the current time to the nearest even integer
+            # value, subtract two to make sure the timestamp is not "now,"
+            # and then convert it back to a float.
+            tstamp = float(int(time.time() / 2) * 2) - 2
+            os.utime(test.workpath("tstamp"), (tstamp - 2.0, tstamp))
+            f = fs.File("tstamp")
+            t = f.get_timestamp()
+            assert t == tstamp, "expected %f, got %f" % (tstamp, t)
+        finally:
+            test.unlink("tstamp")
 
         #XXX test get_prevsiginfo()
 
@@ -850,13 +890,15 @@ class FSTestCase(unittest.TestCase):
         assert parents == [ d1 ], parents
 
         test.write("i_am_not_a_directory", "\n")
-        exc_caught = 0        
         try:
-            fs.Dir(test.workpath("i_am_not_a_directory"))
-        except TypeError:
-            exc_caught = 1
-        assert exc_caught, "Should have caught a TypeError"
-        test.unlink("i_am_not_a_directory")
+            exc_caught = 0        
+            try:
+                fs.Dir(test.workpath("i_am_not_a_directory"))
+            except TypeError:
+                exc_caught = 1
+            assert exc_caught, "Should have caught a TypeError"
+        finally:
+            test.unlink("i_am_not_a_directory")
 
         exc_caught = 0
         try:
@@ -1021,23 +1063,27 @@ class RepositoryTestCase(unittest.TestCase):
         assert f2.rexists()
 
         test.write(["rep2", "tstamp"], "tstamp\n")
-        # Okay, *this* manipulation accomodates Windows FAT file systems
-        # that only have two-second granularity on their timestamps.
-        # We round down the current time to the nearest even integer
-        # value, subtract two to make sure the timestamp is not "now,"
-        # and then convert it back to a float.
-        tstamp = float(int(time.time() / 2) * 2) - 2
-        os.utime(test.workpath("rep2", "tstamp"), (tstamp - 2.0, tstamp))
-        f = fs.File("tstamp")
-        t = f.get_timestamp()
-        assert t == tstamp, "expected %f, got %f" % (tstamp, t)
-        test.unlink(["rep2", "tstamp"])
+        try:
+            # Okay, *this* manipulation accomodates Windows FAT file systems
+            # that only have two-second granularity on their timestamps.
+            # We round down the current time to the nearest even integer
+            # value, subtract two to make sure the timestamp is not "now,"
+            # and then convert it back to a float.
+            tstamp = float(int(time.time() / 2) * 2) - 2
+            os.utime(test.workpath("rep2", "tstamp"), (tstamp - 2.0, tstamp))
+            f = fs.File("tstamp")
+            t = f.get_timestamp()
+            assert t == tstamp, "expected %f, got %f" % (tstamp, t)
+        finally:
+            test.unlink(["rep2", "tstamp"])
 
         # Make sure get_contents() returns the binary contents.
         test.write(["rep3", "contents"], "Con\x1aTents\n")
-        c = fs.File("contents").get_contents()
-        assert c == "Con\x1aTents\n", "got '%s'" % c
-        test.unlink(["rep3", "contents"])
+        try:
+            c = fs.File("contents").get_contents()
+            assert c == "Con\x1aTents\n", "got '%s'" % c
+        finally:
+            test.unlink(["rep3", "contents"])
 
         # XXX test calc_signature()
 
@@ -1095,6 +1141,19 @@ class prepareTestCase(unittest.TestCase):
         except SCons.Errors.StopError:
             exc_caught = 1
         assert exc_caught, "Should have caught a StopError."
+
+        save_Mkdir = SCons.Node.FS.Mkdir
+        dir_made = []
+        def mkdir_func(target, source, env, dir_made=dir_made):
+            dir_made.append(target)
+        SCons.Node.FS.Mkdir = mkdir_func
+
+        file = fs.File(os.path.join("new_dir", "xyz"))
+        try:
+            file.prepare()
+            assert dir_made[0].path == "new_dir", dir_made[0].path
+        finally:
+            SCons.Node.FS.Mkdir = save_Mkdir
 
 class get_actionsTestCase(unittest.TestCase):
     def runTest(self):

@@ -46,7 +46,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import os.path
-from SCons.Errors import UserError
+from SCons.Errors import InternalError, UserError
 
 import SCons.Action
 import SCons.Node
@@ -233,6 +233,9 @@ class BuilderBase:
         self.scanner = scanner
 
         self.emitter = emitter
+
+    def __nonzero__(self):
+        raise InternalError, "Do not test for the Node.builder attribute directly; use Node.has_builder() instead"
 
     def get_name(self, env):
         """Attempts to get the name of the Builder.

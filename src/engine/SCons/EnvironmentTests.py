@@ -432,7 +432,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env = Environment()
         t = env.Command(target='foo.out', source=['foo1.in', 'foo2.in'],
                         action='buildfoo $target $source')
-        assert t.builder
+        assert not t.builder is None
         assert t.builder.action.__class__.__name__ == 'CommandAction'
         assert t.builder.action.cmd_list == ['buildfoo', '$target', '$source']
         assert 'foo1.in' in map(lambda x: x.path, t.sources)
@@ -444,7 +444,7 @@ class EnvironmentTestCase(unittest.TestCase):
             return 0
         t = env.Command(target='foo.out', source=['foo1.in','foo2.in'],
                         action=testFunc)
-        assert t.builder
+        assert not t.builder is None
         assert t.builder.action.__class__.__name__ == 'FunctionAction'
         t.build()
         assert 'foo1.in' in map(lambda x: x.path, t.sources)

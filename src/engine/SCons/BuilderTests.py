@@ -103,6 +103,30 @@ env = Environment()
 
 class BuilderTestCase(unittest.TestCase):
 
+    def test__nonzero__(self):
+        """Test a builder raising an exception when __nonzero__ is called
+        """
+        builder = SCons.Builder.Builder(action="foo")
+        exc_caught = None
+        try:
+            builder.__nonzero__()
+        except SCons.Errors.InternalError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected InternalError exception"
+
+        class Node:
+             pass
+
+        n = Node()
+        n.builder = builder
+        exc_caught = None
+        try:
+            if n.builder:
+                pass
+        except SCons.Errors.InternalError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected InternalError exception"
+
     def test__call__(self):
         """Test calling a builder to establish source dependencies
         """
