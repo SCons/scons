@@ -450,7 +450,7 @@ def options_init():
 	help = "Don't build; list files and where defined.")
 
     def opt_n(opt, arg):
-	SCons.Builder.execute_actions = None
+	SCons.Action.execute_actions = None
 
     Option(func = opt_n,
 	short = 'n', long = ['no-exec', 'just-print', 'dry-run', 'recon'],
@@ -481,7 +481,7 @@ def options_init():
 	help = "Build dependencies in random order.")
 
     def opt_s(opt, arg):
-	SCons.Builder.print_actions = None
+	SCons.Action.print_actions = None
 
     Option(func = opt_s,
 	short = 's', long = ['silent', 'quiet'],

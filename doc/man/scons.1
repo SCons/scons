@@ -582,7 +582,7 @@ env.Depends('foo.c', 'foo.h')
 .PP
 .fi
 
-.SH Construction Variables
+.SS Construction Variables
 
 A construction environment has an associated dictionary of construction
 variables that are used by built-in or user-supplied build rules. A number
@@ -964,7 +964,8 @@ can be a relative or absolute path.
 is an optional directory that will be used as the parent directory. 
 
 
-.SH EXTENDING
+.SH EXTENDING SCONS
+.SS Builder Objects
 .B scons
 can be extended by adding new builders to a construction
 environment using the 
@@ -979,8 +980,12 @@ method used to create an instance of the builder.
 .IP action
 The command line string used to build the target from the source. 
 .B action
-can also be a dictionary mapping source file name suffixes to command line string,
-if the builder can accept multiple source file extensions.
+can also be a dictionary
+mapping source file name suffixes to command line string
+(if the builder should accept multiple source file extensions),
+a Python function,
+or an Action object
+(see the next section).
 
 .IP prefix 
 The prefix that will be prepended to the target file name.
@@ -996,8 +1001,41 @@ Specifies a builder to use when a source file name suffix does not match
 any of the suffixes of the builder. Using this argument produces a
 multi-stage builder.
 
-.LP
+.SS Action Objects
 
+The Builder function will turn its
+.B action
+keyword argument into an appropriate
+internal Action object.
+Occasionally, it may be more efficient
+to create an explicit Action object
+and use it to initialize multiple
+Builder objects,
+rather than let each separate Builder object
+create a separate Action.
+
+The Action function takes a single argument
+and returns an appropriate object for the action
+represented by the type of the argument:
+
+.IP Action
+If the argument is already an Action object,
+the object is simply returned.
+.IP String
+If the argument is a string,
+a command-line Action is returned.
+.IP Function
+If the argument is a Python function,
+a function Action is returned.
+.IP List
+If the argument is a list,
+then a list of Action objects is returned.
+An Action object is created as necessary
+for each element in the list.
+.PP
+If the action argument is not one of the above,
+None is returned.
+.SS Variable Substitution
 .B scons
 performs construction variable interpolation on the strings that make up
 the command line of builders before executing the command.
@@ -1006,57 +1044,44 @@ Variables are introduced by a
 prefix.
 Besides construction variables, scons provides the following
 variables for each command execution:
-
 .IP TARGET
 The file name of the target being built, or the file name of the first 
 target if multiple targets are being built.
-
 .IP TARGETS
-The file names of the targets being built.
-
+The file names of all targets being built.
 .IP SOURCES
 The file names of the sources of the build command.
-
 .LP 
-
 For example, given the construction variable CC='cc', targets=['foo'], and
 sources=['foo.c', 'bar.c']:
-
 .IP
 .nf
 action='$CC -c -o $TARGET $SOURCES'
 .PP
 .fi
-
 would produce the command line:
-
 .IP
 .nf
 cc -c -o foo foo.c bar.c
 .PP
 .fi
-
 Variable names may be surrounded by curly braces ({})
 to separate the name from the trailing characters.
 Within the curly braces, a variable name may have
 a Python slice subscript appended to select one
 or more items from a list.
 In the previous example, the string:
-
 .IP
 .nf
 ${SOURCES[1]}
 .PP
 .fi
-
 would produce:
-
 .IP
 .nf
 bar.c
 .PP
 .fi
-
 Additionally, a variable name may
 have the following special
 modifiers appended within the enclosing curly braces
@@ -1102,10 +1127,8 @@ ${TARGET.suffix}     => .x
 
 .SH EXAMPLES
 
-To help you get started using SCons
-(in lieu of a complete user guide),
-here is a
-brief overview of how to perform some common tasks:
+To help you get started using SCons,
+here is a brief overview of some common tasks:
 
 .SS Basic Compilation From a Single Source File
 
