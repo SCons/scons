@@ -783,8 +783,15 @@ class CommandActionTestCase(unittest.TestCase):
         r = act([], [], env.Copy(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
-    def test_pipe_execute(self):
+    def _DO_NOT_EXECUTE_test_pipe_execute(self):
         """Test capturing piped output from an action
+
+        We used to have PIPE_BUILD support built right into
+        Action.execute() for the benefit of the SConf subsystem, but we've
+        moved that logic back into SConf itself.  We'll leave this code
+        here, just in case we ever want to resurrect this functionality
+        in the future, but change the name of the test so it doesn't
+        get executed as part of the normal test suite.
         """
         pipe = open( pipe_file, "w" )
         self.env = Environment(ENV = {'ACTPY_PIPE' : '1'}, PIPE_BUILD = 1,

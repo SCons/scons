@@ -6177,7 +6177,7 @@ that may not be set or used in a construction environment.
 
 .IP SPAWN
 A command interpreter function that will be called to execute command line
-strings. The function must expect 4 arguments:
+strings. The function must expect the following arguments:
 
 .ES
 def spawn(shell, escape, cmd, args, env):
@@ -6191,7 +6191,7 @@ the command line.
 .I cmd
 is the path to the command to be executed.
 .I args
-is that arguments to the command.
+is the arguments to the command.
 .I env
 is a dictionary of the environment variables
 in which the command should be executed.

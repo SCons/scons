@@ -247,6 +247,18 @@ class SConf:
                 sys.stderr = oldStderr
         return ret
 
+    def pspawn_wrapper(self, sh, escape, cmd, args, env):
+        """Wrapper function for handling piped spawns.
+
+        This looks to the calling interface (in Action.py) like a "normal"
+        spawn, but associates the call with the PSPAWN variable from
+        the construction environment and with the streams to which we
+        want the output logged.  This gets slid into the construction
+        environment as the SPAWN variable so Action.py doesn't have to
+        know or care whether it's spawning a piped command or not.
+        """
+        return self.pspawn(sh, escape, cmd, args, env, self.logstream, self.logstream)
+
 
     def TryBuild(self, builder, text = None, extension = ""):
         """Low level TryBuild implementation. Normally you don't need to
@@ -254,43 +266,56 @@ class SConf:
         """
         global _ac_build_counter
 
+        # Make sure we have a PSPAWN value, and save the current
+        # SPAWN value.
+        try:
+            self.pspawn = self.env['PSPAWN']
+        except KeyError:
+            raise SCons.Errors.UserError('Missing PSPAWN construction variable.')
+        try:
+            save_spawn = self.env['SPAWN']
+        except KeyError:
+            raise SCons.Errors.UserError('Missing SPAWN construction variable.')
+
         nodesToBeBuilt = []
 
         f = "conftest_" + str(_ac_build_counter)
         pref = self.env.subst( builder.builder.prefix )
         suff = self.env.subst( builder.builder.suffix )
         target = self.confdir.File(pref + f + suff)
-        self.env['SCONF_TEXT'] = text
-        self.env['PIPE_BUILD'] = 1
-        self.env['PSTDOUT'] = self.logstream
-        self.env['PSTDERR'] = self.logstream
-        if text != None:
-            source = self.confdir.File(f + extension)
-            sourceNode = self.env.SConfSourceBuilder(target=source,
-                                                     source=None)
-            nodesToBeBuilt.extend(sourceNode)
-        else:
-            source = None
 
-        nodes = builder(target = target, source = source)
-        if not SCons.Util.is_List(nodes):
-            nodes = [nodes]
-        nodesToBeBuilt.extend(nodes)
-        ret = self.BuildNodes(nodesToBeBuilt)
+        try:
+            # Slide our wrapper into the construction environment as
+            # the SPAWN function.
+            self.env['SPAWN'] = self.pspawn_wrapper
+            self.env['SCONF_TEXT'] = text
 
-        # clean up environment
-        del self.env['PIPE_BUILD']
-        del self.env['PSTDOUT']
-        del self.env['PSTDERR']
-        del self.env['SCONF_TEXT']
+            if text != None:
+                source = self.confdir.File(f + extension)
+                sourceNode = self.env.SConfSourceBuilder(target=source,
+                                                         source=None)
+                nodesToBeBuilt.extend(sourceNode)
+            else:
+                source = None
+
+            nodes = builder(target = target, source = source)
+            if not SCons.Util.is_List(nodes):
+                nodes = [nodes]
+            nodesToBeBuilt.extend(nodes)
+            result = self.BuildNodes(nodesToBeBuilt)
+
+        finally:
+            # Clean up the environment, restoring the SPAWN value.
+            self.env['SPAWN'] = save_spawn
+            del self.env['SCONF_TEXT']
 
         _ac_build_counter = _ac_build_counter + 1
-        if ret:
+        if result:
             self.lastTarget = nodes[0]
         else:
             self.lastTarget = None
 
-        return ret
+        return result
 
     def TryAction(self, action, text = None, extension = ""):
         """Tries to execute the given action with optional source file
