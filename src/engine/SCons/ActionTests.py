@@ -93,7 +93,10 @@ class Environment:
             return s
         try:
             if s[0] == '$':
-                return self.d.get(s[1:], '')
+                if s[1] == '{':
+                    return self.d.get(s[2:-1], '')
+                else:
+                    return self.d.get(s[1:], '')
         except IndexError:
             pass
         return self.d.get(s, s)
@@ -843,6 +846,12 @@ class FunctionActionTestCase(unittest.TestCase):
         a = SCons.Action.FunctionAction(Func)
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
+
+        a = SCons.Action.FunctionAction(Func, varlist=['XYZ'])
+        c = a.get_contents(target=[], source=[], env=Environment())
+        assert c == "\177\036\000\177\037\000d\000\000S", repr(c)
+        c = a.get_contents(target=[], source=[], env=Environment(XYZ = 'foo'))
+        assert c == "\177\036\000\177\037\000d\000\000Sfoo", repr(c)
 
 class ListActionTestCase(unittest.TestCase):
 

@@ -38,6 +38,9 @@ RELEASE 0.14 - XXX
   - Add an optional sort function argument to the GenerateHelpText()
     Options function.
 
+  - Evaluate the "varlist" variables when computing the signature of a
+    function action.
+
   From Charles Crain:
 
   - Parse the source .java files for class names (including inner class

@@ -402,8 +402,8 @@ class FunctionAction(ActionBase):
         except:
             # "self.execfunction" is a callable object.
             code = self.execfunction.__call__.im_func.func_code.co_code
-        return str(code) + string.join(map(lambda v, e=env: str(e[v]),
-                                       self.varlist))
+        return str(code) + env.subst(string.join(map(lambda v: '${'+v+'}',
+                                                     self.varlist)))
 
 class ListAction(ActionBase):
     """Class for lists of other actions."""
