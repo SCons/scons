@@ -24,7 +24,18 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import TestSCons
+
+if sys.platform == 'win32':
+    _exe = '.exe'
+else:
+    _exe = ''
+
+f1 = 'f1' + _exe
+f2 = 'f2' + _exe
+f3 = 'f3' + _exe
+f4 = 'f4' + _exe
 
 test = TestSCons.TestSCons()
 
@@ -36,49 +47,49 @@ env.Program(target = 'f3', source = 'f3.c')
 env.Program(target = 'f4', source = 'f4.c')
 """)
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 int
 main(int argc, char *argv[])
 {
     argv[argc++] = "--";
-    printf(\"f1.c\n\");
+    printf("f1.c\n");
     exit (0);
 }
 """)
 
-test.write('f2.c', """
+test.write('f2.c', r"""
 int
 main(int argc, char *argv[])
 {
     argv[argc++] = "--";
-    printf(\"f2.c\n\");
-    exit (0);
-}
-""")
-
-
-test.write('f3.c', """
-int
-main(int argc, char *argv[])
-{
-    argv[argc++] = "--";
-    printf(\"f3.c\n\");
-    exit (0);
-}
-""")
-
-test.write('f4.c', """
-int
-main(int argc, char *argv[])
-{
-    argv[argc++] = "--";
-    printf(\"f4.c\n\");
+    printf("f2.c\n");
     exit (0);
 }
 """)
 
 
-test.run(arguments = '-j 3 f1 f2 f3 f4')
+test.write('f3.c', r"""
+int
+main(int argc, char *argv[])
+{
+    argv[argc++] = "--";
+    printf("f3.c\n");
+    exit (0);
+}
+""")
+
+test.write('f4.c', r"""
+int
+main(int argc, char *argv[])
+{
+    argv[argc++] = "--";
+    printf("f4.c\n");
+    exit (0);
+}
+""")
+
+
+test.run(arguments = '-j 3 %s %s %s %s' % (f1, f2, f3, f4))
 
 test.run(program = test.workpath('f1'), stdout = "f1.c\n")
 

@@ -24,13 +24,22 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import TestSCons
 import os.path
+import sys
 import time
+import TestSCons
 
-#XXX Future:  be able to interpolate
+if sys.platform == 'win32':
+    _exe = '.exe'
+else:
+    _exe = ''
 
 test = TestSCons.TestSCons()
+
+foo1 = test.workpath('foo1' + _exe)
+foo2 = test.workpath('foo2' + _exe)
+foo3 = test.workpath('foo3' + _exe)
+foo_args = 'foo1%s foo2%s foo3%s' % (_exe, _exe, _exe)
 
 test.write('SConstruct', """
 env = Environment()
@@ -111,9 +120,9 @@ main(int argc, char *argv[])
 
 test.run(arguments = '.')
 
-test.run(program = test.workpath('foo1'), stdout = "f1.c\n")
-test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
-test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c\nf3c.c\n")
+test.run(program = foo1, stdout = "f1.c\n")
+test.run(program = foo2, stdout = "f2a.c\nf2b.c\nf2c.c\n")
+test.run(program = foo3, stdout = "f3a.c\nf3b.c\nf3c.c\n")
 
 test.up_to_date(arguments = '.')
 
@@ -137,24 +146,24 @@ f3b(void)
 
 test.run(arguments = '.')
 
-test.run(program = test.workpath('foo1'), stdout = "f1.c X\n")
-test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
-test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c X\nf3c.c\n")
+test.run(program = foo1, stdout = "f1.c X\n")
+test.run(program = foo2, stdout = "f2a.c\nf2b.c\nf2c.c\n")
+test.run(program = foo3, stdout = "f3a.c\nf3b.c X\nf3c.c\n")
 
 test.up_to_date(arguments = '.')
 
 # make sure the programs didn't get rebuilt, because nothing changed:
-oldtime1 = os.path.getmtime(test.workpath('foo1'))
-oldtime2 = os.path.getmtime(test.workpath('foo2'))
-oldtime3 = os.path.getmtime(test.workpath('foo3'))
+oldtime1 = os.path.getmtime(foo1)
+oldtime2 = os.path.getmtime(foo2)
+oldtime3 = os.path.getmtime(foo3)
 
 time.sleep(2) # introduce a small delay, to make the test valid
 
-test.run(arguments = 'foo1 foo2 foo3')
+test.run(arguments = foo_args)
 
-test.fail_test(not (oldtime1 == os.path.getmtime(test.workpath('foo1'))))
-test.fail_test(not (oldtime2 == os.path.getmtime(test.workpath('foo2'))))
-test.fail_test(not (oldtime3 == os.path.getmtime(test.workpath('foo3'))))
+test.fail_test(oldtime1 != os.path.getmtime(foo1))
+test.fail_test(oldtime2 != os.path.getmtime(foo2))
+test.fail_test(oldtime3 != os.path.getmtime(foo3))
 
 test.write('f1.c', r"""
 int
@@ -174,13 +183,13 @@ f3b(void)
 }
 """)
 
-test.run(arguments = 'foo1 foo2 foo3')
+test.run(arguments = foo_args)
 
-test.run(program = test.workpath('foo1'), stdout = "f1.c Y\n")
-test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
-test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c Y\nf3c.c\n")
+test.run(program = foo1, stdout = "f1.c Y\n")
+test.run(program = foo2, stdout = "f2a.c\nf2b.c\nf2c.c\n")
+test.run(program = foo3, stdout = "f3a.c\nf3b.c Y\nf3c.c\n")
 
-test.up_to_date(arguments = 'foo1 foo2 foo3')
+test.up_to_date(arguments = foo_args)
 
 test.write('f1.c', r"""
 int
@@ -200,25 +209,25 @@ f3b(void)
 }
 """)
 
-test.run(arguments = 'foo1 foo2 foo3')
+test.run(arguments = foo_args)
 
-test.run(program = test.workpath('foo1'), stdout = "f1.c Z\n")
-test.run(program = test.workpath('foo2'), stdout = "f2a.c\nf2b.c\nf2c.c\n")
-test.run(program = test.workpath('foo3'), stdout = "f3a.c\nf3b.c Z\nf3c.c\n")
+test.run(program = foo1, stdout = "f1.c Z\n")
+test.run(program = foo2, stdout = "f2a.c\nf2b.c\nf2c.c\n")
+test.run(program = foo3, stdout = "f3a.c\nf3b.c Z\nf3c.c\n")
 
-test.up_to_date(arguments = 'foo1 foo2 foo3')
+test.up_to_date(arguments = foo_args)
 
 # make sure the programs didn't get rebuilt, because nothing changed:
-oldtime1 = os.path.getmtime(test.workpath('foo1'))
-oldtime2 = os.path.getmtime(test.workpath('foo2'))
-oldtime3 = os.path.getmtime(test.workpath('foo3'))
+oldtime1 = os.path.getmtime(foo1)
+oldtime2 = os.path.getmtime(foo2)
+oldtime3 = os.path.getmtime(foo3)
 
 time.sleep(2) # introduce a small delay, to make the test valid
 
-test.run(arguments = 'foo1 foo2 foo3')
+test.run(arguments = foo_args)
 
-test.fail_test(not (oldtime1 == os.path.getmtime(test.workpath('foo1'))))
-test.fail_test(not (oldtime2 == os.path.getmtime(test.workpath('foo2'))))
-test.fail_test(not (oldtime3 == os.path.getmtime(test.workpath('foo3'))))
+test.fail_test(not (oldtime1 == os.path.getmtime(foo1)))
+test.fail_test(not (oldtime2 == os.path.getmtime(foo2)))
+test.fail_test(not (oldtime3 == os.path.getmtime(foo3)))
 
 test.pass_test()

@@ -25,29 +25,36 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import string
 import sys
 import TestSCons
 
 python = sys.executable
 
+if sys.platform == 'win32':
+    _exe = '.exe'
+else:
+    _exe = ''
+
 test = TestSCons.TestSCons()
 
-test.write("ccwrapper.py",
+test.write("wrapper.py",
 """import os
 import string
 import sys
-open('%s', 'wb').write("ccwrapper.py\\n")
-os.system(string.join(["cc"] + sys.argv[1:], " "))
-""" % test.workpath('ccwrapper.out'))
+open('%s', 'wb').write("wrapper.py\\n")
+os.system(string.join(sys.argv[1:], " "))
+""" % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
 test.write('SConstruct', """
 foo = Environment()
-bar = Environment(LINK = r'%s ccwrapper.py')
+link = foo.Dictionary('LINK')
+bar = Environment(LINK = r'%s wrapper.py ' + link)
 foo.Program(target = 'foo', source = 'foo.c')
 bar.Program(target = 'bar', source = 'bar.c')
 """ % python)
 
-test.write('foo.c', """
+test.write('foo.c', r"""
 int
 main(int argc, char *argv[])
 {
@@ -57,7 +64,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('bar.c', """
+test.write('bar.c', r"""
 int
 main(int argc, char *argv[])
 {
@@ -68,12 +75,12 @@ main(int argc, char *argv[])
 """)
 
 
-test.run(arguments = 'foo')
+test.run(arguments = 'foo' + _exe)
 
-test.fail_test(os.path.exists(test.workpath('ccwrapper.out')))
+test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
-test.run(arguments = 'bar')
+test.run(arguments = 'bar' + _exe)
 
-test.fail_test(test.read('ccwrapper.out') != "ccwrapper.py\n")
+test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 
 test.pass_test()

@@ -24,7 +24,15 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import TestSCons
+
+if sys.platform == 'win32':
+    _exe = '.exe'
+else:
+    _exe = ''
+
+prog = 'prog' + _exe
 
 test = TestSCons.TestSCons()
 
@@ -43,13 +51,13 @@ int main(void)
 test.subdir('include')
 
 test.write('include/foo.h',
-"""
+r"""
 #define	FOO_STRING "foo.h 1\n"
 #include "bar.h"
 """)
 
 test.write('include/bar.h',
-"""
+r"""
 #define BAR_STRING "bar.h 1\n"
 """)
 
@@ -58,38 +66,38 @@ env = Environment(CPPPATH = ['include'])
 env.Program(target='prog', source='foo.c')
 """)
 
-test.run(arguments = 'prog')
+test.run(arguments = prog)
 
-test.run(program = test.workpath('prog'),
+test.run(program = test.workpath(prog),
          stdout = "foo.h 1\nbar.h 1\n")
 
-test.up_to_date(arguments = 'prog')
+test.up_to_date(arguments = prog)
 
 test.unlink('include/foo.h')
 test.write('include/foo.h',
-"""
+r"""
 #define	FOO_STRING "foo.h 2\n"
 #include "bar.h"
 """)
 
-test.run(arguments = 'prog')
+test.run(arguments = prog)
 
-test.run(program = test.workpath('prog'),
+test.run(program = test.workpath(prog),
          stdout = "foo.h 2\nbar.h 1\n")
 
-test.up_to_date(arguments = 'prog')
+test.up_to_date(arguments = prog)
 
 test.unlink('include/bar.h')
 test.write('include/bar.h',
-"""
+r"""
 #define BAR_STRING "bar.h 2\n"
 """)
 
-test.run(arguments = 'prog')
+test.run(arguments = prog)
 
-test.run(program = test.workpath('prog'),
+test.run(program = test.workpath(prog),
          stdout = "foo.h 2\nbar.h 2\n")
 
-test.up_to_date(arguments = 'prog')
+test.up_to_date(arguments = prog)
 
 test.pass_test()

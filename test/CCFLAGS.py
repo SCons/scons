@@ -69,12 +69,12 @@ test.run(program = test.workpath('foo'), stdout = "prog.c:  FOO\n")
 test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
 
 test.write('SConstruct', """
-bar = Environment(CCFLAGS = '-DBAR')
+bar = Environment(CCFLAGS = '%s')
 bar.Object(target = 'foo%s', source = 'prog.c')
 bar.Object(target = 'bar%s', source = 'prog.c')
 bar.Program(target = 'foo', source = 'foo%s')
 bar.Program(target = 'bar', source = 'bar%s')
-""" % (_obj, _obj, _obj, _obj))
+""" % (barflags, _obj, _obj, _obj, _obj))
 
 test.run(arguments = '.')
 

@@ -24,56 +24,38 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
+import sys
 import TestSCons
+
+python = sys.executable
 
 test = TestSCons.TestSCons()
 
-test.subdir('bin1', 'bin2')
-
-bin1 = test.workpath('bin1')
-bin2 = test.workpath('bin2')
 bin1_build_py = test.workpath('bin1', 'build.py')
 bin2_build_py = test.workpath('bin2', 'build.py')
 
 test.write('SConstruct', """
 import os
-bin1_path = r'%s' + os.pathsep + os.environ['PATH']
-bin2_path = r'%s' + os.pathsep + os.environ['PATH']
-Bld = Builder(name = 'Bld', action = "build.py $TARGET $SOURCES")
-bin1 = Environment(ENV = {'PATH' : bin1_path}, BUILDERS = [Bld])
-bin2 = Environment(ENV = {'PATH' : bin2_path}, BUILDERS = [Bld])
-bin1.Bld(target = 'bin1.out', source = 'input')
-bin2.Bld(target = 'bin2.out', source = 'input')
-""" % (bin1, bin2))
+Bld = Builder(name = 'Bld', action = "%s build.py $TARGET $SOURCES")
+env1 = Environment(ENV = {'X' : 'env1'}, BUILDERS = [Bld])
+env2 = Environment(ENV = {'X' : 'env2'}, BUILDERS = [Bld])
+env1.Bld(target = 'env1.out', source = 'input')
+env2.Bld(target = 'env2.out', source = 'input')
+""" % python)
 
-test.write(bin1_build_py,
-"""#!/usr/bin/env python
+test.write('build.py',
+r"""#!/usr/bin/env python
+import os
 import sys
 contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write("bin1/build.py\\n")
-file.write(contents)
-file.close()
+open(sys.argv[1], 'wb').write("build.py %s\n%s" % (os.environ['X'], contents))
 """)
-os.chmod(bin1_build_py, 0755)
-
-test.write(bin2_build_py,
-"""#!/usr/bin/env python
-import sys
-contents = open(sys.argv[2], 'rb').read()
-file = open(sys.argv[1], 'wb')
-file.write("bin2/build.py\\n")
-file.write(contents)
-file.close()
-""")
-os.chmod(bin2_build_py, 0755)
 
 test.write('input', "input file\n")
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('bin1.out') != "bin1/build.py\ninput file\n")
-test.fail_test(test.read('bin2.out') != "bin2/build.py\ninput file\n")
+test.fail_test(test.read('env1.out') != "build.py env1\ninput file\n")
+test.fail_test(test.read('env2.out') != "build.py env2\ninput file\n")
 
 test.pass_test()

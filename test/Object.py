@@ -44,7 +44,7 @@ env.Program(target = 'prog2', source = [f1, f2, f3, 'prog.cpp'])
 env.Program(target = 'prog3', source = ['f1%s', f2, 'f3%s', 'prog.cpp'])
 """ % (_obj, _obj, _obj, _obj, _obj))
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 void
 f1(void)
 {
@@ -52,7 +52,7 @@ f1(void)
 }
 """)
 
-test.write('f2.cpp', """
+test.write('f2.cpp', r"""
 #include <stdio.h>
 
 void
@@ -62,7 +62,7 @@ f2(void)
 }
 """)
 
-test.write('f3.c', """
+test.write('f3.c', r"""
 void
 f3(void)
 {
@@ -70,7 +70,7 @@ f3(void)
 }
 """)
 
-test.write('prog.cpp', """
+test.write('prog.cpp', r"""
 #include <stdio.h>
 
 extern "C" void f1(void);
@@ -90,7 +90,7 @@ main(int argc, char *argv[])
 
 stdout = "f1.c\nf2.c\nf3.c\nprog.c\n"
 
-test.run(arguments = 'prog1 prog2 prog3')
+test.run(arguments = '.')
 
 test.run(program = test.workpath('prog1'), stdout = stdout)
 

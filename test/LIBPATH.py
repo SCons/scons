@@ -35,7 +35,7 @@ env.Program(target = 'prog', source = 'prog.c')
 env.Library(target = './libs/foo1', source = 'f1.c')
 """)
 
-test.write('f1.c', """
+test.write('f1.c', r"""
 void
 f1(void)
 {
@@ -43,7 +43,7 @@ f1(void)
 }
 """)
 
-test.write('prog.c', """
+test.write('prog.c', r"""
 void f1(void);
 int
 main(int argc, char *argv[])
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = 'prog')
+test.run(arguments = '.')
 
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nprog.c\n")
