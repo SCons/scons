@@ -39,6 +39,7 @@ __developer__ = "__DEVELOPER__"
 import os
 import os.path
 import sys
+import time
 
 ##############################################################################
 # BEGIN STANDARD SCons SCRIPT HEADER
@@ -143,13 +144,14 @@ Options:
   -e, --entry ENTRY           Print only info about ENTRY.
   -h, --help                  Print this message and exit.
   -i, --implicit              Print implicit dependency information.
+  -r, --readable              Print timestamps in human-readable form.
   -t, --timestamp             Print timestamp information.
   -v, --verbose               Verbose, describe each field.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "bce:hitv",
+opts, args = getopt.getopt(sys.argv[1:], "bce:hirtv",
                             ['bsig', 'csig', 'entry=', 'help', 'implicit',
-                             'timestamp', 'verbose'])
+                             'readable', 'timestamp', 'verbose'])
 
 pf_bsig      = 0x1
 pf_csig      = 0x2
@@ -160,6 +162,7 @@ pf_all       = pf_bsig | pf_csig | pf_timestamp | pf_implicit
 entries = []
 printflags = 0
 verbose = 0
+readable = 0
 
 for o, a in opts:
     if o in ('-b', '--bsig'):
@@ -168,11 +171,13 @@ for o, a in opts:
         printflags = printflags | pf_csig
     elif o in ('-e', '--entry'):
         entries.append(a)
-    elif o in ('-h', o == '--help'):
+    elif o in ('-h', '--help'):
         print helpstr
         sys.exit(0)
     elif o in ('-i', '--implicit'):
         printflags = printflags | pf_implicit
+    elif o in ('-r', '--readable'):
+        readable = 1
     elif o in ('-t', '--timestamp'):
         printflags = printflags | pf_timestamp
     elif o in ('-v', '--verbose'):
@@ -187,12 +192,16 @@ def field(name, pf, val):
             sep = "\n    " + name + ": "
         else:
             sep = " "
-        return sep + (val or '-')
+        return sep + str(val)
     else:
         return ""
 
 def printfield(name, entry):
-    timestamp = field("timestamp", pf_timestamp, entry.timestamp)
+    if readable and entry.timestamp:
+        ts = "'" + time.ctime(entry.timestamp) + "'"
+    else:
+        ts = entry.timestamp
+    timestamp = field("timestamp", pf_timestamp, ts)
     bsig = field("bsig", pf_bsig, entry.bsig)
     csig = field("csig", pf_csig, entry.csig)
     print name + ":" + timestamp + bsig + csig

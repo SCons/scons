@@ -61,7 +61,8 @@ Each entry is printed in the following format:
             implicit_dependency_2
 
 If the entry has no timestamp, bsig, or csig, a dash
-(\fR\-\fP) is printed instead.
+.B None
+is printed.
 If the entry has no implicit dependencies,
 the lines are simply omitted.
 
@@ -101,6 +102,11 @@ Prints a help message and exits.
 -i, --implicit
 Prints the list of cached implicit dependencies
 for all entries or the the specified entries.
+
+.TP
+-r, --readable
+Prints timestamps in a human-readable string,
+enclosed in single quotes.
 
 .TP
 -t, --timestamp

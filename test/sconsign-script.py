@@ -77,8 +77,8 @@ test.run(interpreter = TestSCons.python,
          program = "sconsign",
          arguments = "sub1/.sconsign",
          stdout = """\
-hello.exe: - \S+ -
-hello.obj: - \S+ -
+hello.exe: None \S+ None
+hello.obj: None \S+ None
 """)
 
 test.run(interpreter = TestSCons.python,
@@ -86,13 +86,13 @@ test.run(interpreter = TestSCons.python,
          arguments = "-v sub1/.sconsign",
          stdout = """\
 hello.exe:
-    timestamp: -
+    timestamp: None
     bsig: \S+
-    csig: -
+    csig: None
 hello.obj:
-    timestamp: -
+    timestamp: None
     bsig: \S+
-    csig: -
+    csig: None
 """)
 
 test.run(interpreter = TestSCons.python,
@@ -110,33 +110,33 @@ test.run(interpreter = TestSCons.python,
          arguments = "-c -v sub1/.sconsign",
          stdout = """\
 hello.exe:
-    csig: -
+    csig: None
 hello.obj:
-    csig: -
+    csig: None
 """)
 
 test.run(interpreter = TestSCons.python,
          program = "sconsign",
          arguments = "-e hello.obj sub1/.sconsign",
          stdout = """\
-hello.obj: - \S+ -
+hello.obj: None \S+ None
 """)
 
 test.run(interpreter = TestSCons.python,
          program = "sconsign",
          arguments = "-e hello.obj -e hello.exe -e hello.obj sub1/.sconsign",
          stdout = """\
-hello.obj: - \S+ -
-hello.exe: - \S+ -
-hello.obj: - \S+ -
+hello.obj: None \S+ None
+hello.exe: None \S+ None
+hello.obj: None \S+ None
 """)
 
 test.run(interpreter = TestSCons.python,
          program = "sconsign",
          arguments = "sub2/.sconsign",
          stdout = """\
-hello.exe: - \S+ -
-hello.obj: - \S+ -
+hello.exe: None \S+ None
+hello.obj: None \S+ None
         %s
         %s
 """ % (string.replace(os.path.join('sub2', 'inc1.h'), '\\', '\\\\'),
@@ -154,17 +154,49 @@ hello.obj:
 """ % (string.replace(os.path.join('sub2', 'inc1.h'), '\\', '\\\\'),
        string.replace(os.path.join('sub2', 'inc2.h'), '\\', '\\\\')))
 
-test.pass_test()
-
 test.run(interpreter = TestSCons.python,
          program = "sconsign",
          arguments = "-e hello.obj sub2/.sconsign sub1/.sconsign",
          stdout = """\
-hello.obj: - \S+ -
+hello.obj: None \S+ None
         %s
         %s
-hello.obj: - \S+ -
+hello.obj: None \S+ None
 """ % (string.replace(os.path.join('sub2', 'inc1.h'), '\\', '\\\\'),
        string.replace(os.path.join('sub2', 'inc2.h'), '\\', '\\\\')))
+
+test.run(arguments = '--clean .')
+
+test.write('SConstruct', """
+SourceSignatures('timestamp')
+TargetSignatures('content')
+env1 = Environment(PROGSUFFIX = '.exe', OBJSUFFIX = '.obj')
+env1.Program('sub1/hello.c')
+env2 = env1.Copy(CPPPATH = ['sub2'])
+env2.Program('sub2/hello.c')
+""")
+
+import time
+time.sleep(1)
+
+test.run(arguments = '. --max-drift=1')
+
+test.run(interpreter = TestSCons.python,
+         program = "sconsign",
+         arguments = "sub1/.sconsign",
+         stdout = """\
+hello.exe: None \S+ None
+hello.c: \d+ None \d+
+hello.obj: None \S+ None
+""")
+
+test.run(interpreter = TestSCons.python,
+         program = "sconsign",
+         arguments = "-r sub1/.sconsign",
+         stdout = """\
+hello.exe: None \S+ None
+hello.c: '\S+ \S+ \d+ \d\d:\d\d:\d\d \d\d\d\d' None \d+
+hello.obj: None \S+ None
+""")
 
 test.pass_test()
