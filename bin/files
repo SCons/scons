@@ -27,6 +27,7 @@
 ./SCons/Platform/sunos.py
 ./SCons/Platform/win32.py
 ./SCons/Scanner/C.py
+./SCons/Scanner/D.py
 ./SCons/Scanner/Fortran.py
 ./SCons/Scanner/IDL.py
 ./SCons/Scanner/Prog.py
@@ -47,6 +48,8 @@
 ./SCons/Tool/bcc32.py
 ./SCons/Tool/c++.py
 ./SCons/Tool/cc.py
+./SCons/Tool/CVS.py
+./SCons/Tool/dmd.py
 ./SCons/Tool/default.py
 ./SCons/Tool/dvipdf.py
 ./SCons/Tool/dvips.py

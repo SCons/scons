@@ -958,6 +958,7 @@ as
 bcc32
 c++
 cc
+dmd
 dvipdf
 dvips
 f77
@@ -1506,9 +1507,9 @@ env.PostScript(target = 'bbb', source = 'bbb.dvi')
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .IP Program()
 .IP env.Program()
-Builds an executable given one or more object files or C, C++
-or Fortran source files.
-If any C, C++ or Fortran source files are specified,
+Builds an executable given one or more object files
+or C, C++, D, or Fortran source files.
+If any C, C++, D or Fortran source files are specified,
 then they will be automatically
 compiled to object files using the
 .B Object
@@ -1586,7 +1587,7 @@ env.RMIC(target = 'outdir3',
 Builds a shared library
 (.so on a POSIX system, .dll on WIN32)
 given one or more object files
-or C, C++ or Fortran source files.
+or C, C++, D or Fortran source files.
 If any source files are given,
 then they will be automatically
 compiled to object files.
@@ -1676,7 +1677,7 @@ env.SharedObject(target = 'fff.obj', source = 'fff.for')
 .IP StaticLibrary()
 .IP env.StaticLibrary()
 Builds a static library given one or more object files
-or C, C++ or Fortran source files.
+or C, C++, D or Fortran source files.
 If any source files are given,
 then they will be automatically
 compiled to object files.
@@ -1709,7 +1710,7 @@ will raise an error if there is any mismatch.
 .IP StaticObject()
 .IP env.StaticObject()
 Builds a static object file
-from one or more C, C++, or Fortran source files.
+from one or more C, C++, D, or Fortran source files.
 Source files must have one of the following extensions:
 
 .ES
@@ -1724,6 +1725,7 @@ Source files must have one of the following extensions:
   .cxx    C++ file
   .c++    C++ file
   .C++    C++ file
+  .d      D file
   .f      Fortran file
   .F      WIN32:  Fortran file
           POSIX:  Fortran file + C pre-processor

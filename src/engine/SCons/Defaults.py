@@ -47,6 +47,7 @@ import SCons.Action
 import SCons.Builder
 import SCons.Environment
 import SCons.Scanner.C
+import SCons.Scanner.D
 import SCons.Scanner.Fortran
 import SCons.Scanner.Prog
 import SCons.Sig
@@ -95,10 +96,12 @@ SharedCheck = SCons.Action.Action(SharedFlagChecker, None)
 
 # Scanners and actions for common language(s).
 CScan = SCons.Scanner.C.CScan()
+DScan = SCons.Scanner.D.DScan()
 
 FortranScan = SCons.Scanner.Fortran.FortranScan()
 
 CAction = SCons.Action.Action("$CCCOM")
+DAction = SCons.Action.Action("$DCOM")
 ShCAction = SCons.Action.Action("$SHCCCOM")
 CXXAction = SCons.Action.Action("$CXXCOM")
 ShCXXAction = SCons.Action.Action("$SHCXXCOM")
@@ -249,7 +252,7 @@ class NullCmdGenerator:
 
 ConstructionEnvironment = {
     'BUILDERS'   : {},
-    'SCANNERS'   : [CScan, FortranScan],
+    'SCANNERS'   : [CScan, FortranScan, DScan],
     'PDFPREFIX'  : '',
     'PDFSUFFIX'  : '.pdf',
     'PSPREFIX'   : '',
