@@ -445,6 +445,10 @@ def generate(env):
     env['RCFLAGS'] = SCons.Util.CLVar('')
     env['RCCOM'] = '$RC $_CPPDEFFLAGS $_CPPINCFLAGS $RCFLAGS /fo$TARGET $SOURCES'
     env['BUILDERS']['RES'] = res_builder
+    env['OBJPREFIX']      = ''
+    env['OBJSUFFIX']      = '.obj'
+    env['SHOBJPREFIX']    = '$OBJPREFIX'
+    env['SHOBJSUFFIX']    = '$OBJSUFFIX'
 
     try:
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)

@@ -5143,6 +5143,11 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 
 .IP LIBPREFIX
 The prefix used for (static) library file names.
+A default value is set for each platform
+(posix, win32, os2, etc.),
+but the value is overridden by individual tools
+(ar, mslib, sgiar, sunar, tlib, etc.)
+to reflect the names of the libraries they create.
 
 .IP LIBPREFIXES
 An array of legal prefixes for library file names.
@@ -5174,6 +5179,11 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 
 .IP LIBSUFFIX 
 The suffix used for (static) library file names.
+A default value is set for each platform
+(posix, win32, os2, etc.),
+but the value is overridden by individual tools
+(ar, mslib, sgiar, sunar, tlib, etc.)
+to reflect the names of the libraries they create.
 
 .IP LIBSUFFIXES
 An array of legal suffixes for library file names.
