@@ -24,6 +24,8 @@ RELEASE 0.14 - XXX
   - Propogate PYTHONPATH when running the regression tests so distutils
     can be found in non-standard locations.
 
+  - Using MSVC long command-line linking when running Cygwin.
+
   From Allen Bierbaum:
 
   - Pass an Environment to the Options validator method, and
