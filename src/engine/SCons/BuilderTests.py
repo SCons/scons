@@ -70,8 +70,17 @@ env_scanner = None
 count = 0
 
 class Environment:
+    def __init__(self, **kw):
+        self.d = {}
+        for k, v in kw.items():
+            self.d[k] = v
     def subst(self, s):
-        return s
+        try:
+            if s[0] == '$':
+                return self.d.get(s[1:], '')
+        except IndexError:
+            pass
+        return self.d.get(s, s)
     def get_scanner(self, ext):
         return env_scanner
 env = Environment()
@@ -440,31 +449,42 @@ class BuilderTestCase(unittest.TestCase):
                 "Target has unexpected name: %s" % tgts[1].path
 
     def test_src_suffix(self):
-	"""Test Builder creation with a specified source file suffix
-	
-	Make sure that the '.' separator is appended to the
-	beginning if it isn't already present.
-	"""
-	builder = SCons.Builder.Builder(name = "builder", src_suffix = '.c')
-        assert builder.src_suffixes() == ['.c'], builder.src_suffixes()
+        """Test Builder creation with a specified source file suffix
+        
+        Make sure that the '.' separator is appended to the
+        beginning if it isn't already present.
+        """
+        env = Environment(XSUFFIX = '.x', YSUFFIX = '.y')
 
-	tgt = builder(env, target = 'tgt2', source = 'src2')
-	assert tgt.sources[0].path == 'src2.c', \
-	        "Source has unexpected name: %s" % tgt.sources[0].path
+        b1 = SCons.Builder.Builder(name = "builder", src_suffix = '.c')
+        assert b1.src_suffixes(env) == ['.c'], b1.src_suffixes(env)
 
-        tgt = builder(env, target = 'tgt3', source = 'src3a src3b')
+        tgt = b1(env, target = 'tgt2', source = 'src2')
+        assert tgt.sources[0].path == 'src2.c', \
+                "Source has unexpected name: %s" % tgt.sources[0].path
+
+        tgt = b1(env, target = 'tgt3', source = 'src3a src3b')
         assert tgt.sources[0].path == 'src3a.c', \
-                "Sources[0] has unexpected name: %s" % tgt.sources[0].path
+                "Unexpected tgt.sources[0] name: %s" % tgt.sources[0].path
         assert tgt.sources[1].path == 'src3b.c', \
-                "Sources[1] has unexpected name: %s" % tgt.sources[1].path
+                "Unexpected tgt.sources[1] name: %s" % tgt.sources[1].path
 
-        b2 = SCons.Builder.Builder(name = "b2", src_suffix = '.2', src_builder = builder)
-        assert b2.src_suffixes() == ['.2', '.c'], b2.src_suffixes()
+        b2 = SCons.Builder.Builder(name = "b2",
+                                   src_suffix = '.2',
+                                   src_builder = b1)
+        assert b2.src_suffixes(env) == ['.2', '.c'], b2.src_suffixes(env)
 
-        b3 = SCons.Builder.Builder(name = "b2", action = {'.3a' : '', '.3b' : ''})
-        s = b3.src_suffixes()
+        b3 = SCons.Builder.Builder(name = "b3",
+                                   action = {'.3a' : '', '.3b' : ''})
+        s = b3.src_suffixes(env)
         s.sort()
         assert s == ['.3a', '.3b'], s
+
+        b4 = SCons.Builder.Builder(name = "b4", src_suffix = '$XSUFFIX')
+        assert b4.src_suffixes(env) == ['.x'], b4.src_suffixes(env)
+
+        b5 = SCons.Builder.Builder(name = "b5", action = {'$YSUFFIX' : ''})
+        assert b5.src_suffixes(env) == ['.y'], b5.src_suffixes(env)
 
     def test_suffix(self):
 	"""Test Builder creation with a specified target suffix

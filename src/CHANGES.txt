@@ -23,6 +23,9 @@ RELEASE 0.06 -
   - Added RANLIB and RANLIBFLAGS construction variables.  Only use them
     in ARCOM if there's a "ranlib" program on the system.
 
+  - Add a configurable CFILESUFFIX for the Builder of .l and .y files
+    into C files.
+
 
 
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600

@@ -168,9 +168,9 @@ class BuilderBase:
         """
         return apply(self.action.get_contents, (), kw)
 
-    def src_suffixes(self):
+    def src_suffixes(self, env):
         if self.src_suffix != '':
-            return [self.src_suffix]
+            return [env.subst(self.src_suffix)]
         return []
 
     def targets(self, node):
@@ -213,8 +213,8 @@ class ListBuilder:
     def get_contents(self, **kw):
         return apply(self.builder.get_contents, (), kw)
 
-    def src_suffixes(self):
-        return self.builder.src_suffixes()
+    def src_suffixes(self, env):
+        return self.builder.src_suffixes(env)
 
     def targets(self, node):
         """Return the list of targets for this builder instance.
@@ -243,19 +243,18 @@ class MultiStepBuilder(BuilderBase):
         BuilderBase.__init__(self, name, action, prefix, suffix, src_suffix,
                              node_factory, scanner)
         self.src_builder = src_builder
-        self.dictSrcSuffix = {}
-        for suff in self.src_builder.src_suffixes():
-            self.dictSrcSuffix[suff] = None
 
     def __call__(self, env, target = None, source = None):
         slist = SCons.Util.scons_str2nodes(source, self.node_factory)
         final_sources = []
         src_suffix = env.subst(self.src_suffix)
+        sdict = {}
+        for suff in self.src_builder.src_suffixes(env):
+            sdict[suff] = None
         for snode in slist:
             path, ext = os.path.splitext(snode.abspath)
-            if self.dictSrcSuffix.has_key(ext):
-                tgt = self.src_builder(env, target = [ path ],
-                                     source=snode)
+            if sdict.has_key(ext):
+                tgt = self.src_builder(env, target = [ path ], source = snode)
                 if not SCons.Util.is_List(tgt):
                     final_sources.append(tgt)
                 else:
@@ -265,8 +264,9 @@ class MultiStepBuilder(BuilderBase):
         return BuilderBase.__call__(self, env, target=target,
                                     source=final_sources)
 
-    def src_suffixes(self):
-        return BuilderBase.src_suffixes(self) + self.src_builder.src_suffixes()
+    def src_suffixes(self, env):
+        return BuilderBase.src_suffixes(self, env) + \
+               self.src_builder.src_suffixes(env)
 
 class CompositeBuilder(BuilderBase):
     """This is a convenient Builder subclass that can build different
@@ -285,53 +285,61 @@ class CompositeBuilder(BuilderBase):
         if src_builder and not SCons.Util.is_List(src_builder):
             src_builder = [src_builder]
         self.src_builder = src_builder
-        self.builder_dict = {}
-        for suff, act in action.items():
-             # Create subsidiary builders for every suffix in the
-             # action dictionary.  If there's a src_builder that
-             # matches the suffix, add that to the initializing
-             # keywords so that a MultiStepBuilder will get created.
-             kw = {'name' : name, 'action' : act, 'src_suffix' : suff}
-             src_bld = filter(lambda x, s=suff: x.suffix == s, self.src_builder)
-             if src_bld:
-                 kw['src_builder'] = src_bld[0]
-             self.builder_dict[suff] = apply(Builder, (), kw)
+        self.action_dict = action
+        self.sdict = {}
+        self.sbuild = {}
 
     def __call__(self, env, target = None, source = None):
         tlist, slist = BuilderBase._create_nodes(self, env,
                                                  target=target, source=source)
 
-        # XXX These [bs]dict tables are invariant for each unique
-        # CompositeBuilder + Environment pair, so we should cache them.
-        bdict = {}
-        sdict = {}
-        for suffix, bld in self.builder_dict.items():
-            bdict[env.subst(bld.src_suffix)] = bld
-            sdict[suffix] = suffix
-            for s in bld.src_suffixes():
-                bdict[s] = bld
-                sdict[s] = suffix
+        r = repr(env)
+        if not self.sdict.has_key(r):
+            self.sdict[r] = {}
+            self.sbuild[r] = []
+            for suff in self.src_suffixes(env):
+                suff = env.subst(suff)
+                self.sdict[r][suff] = suff
+                self.sbuild[r].extend(filter(lambda x, e=env, s=suff:
+                                                    e.subst(x.suffix) == s,
+                                             self.src_builder))
+            for sb in self.sbuild[r]:
+                suff = env.subst(sb.suffix)
+                for s in sb.src_suffixes(env):
+                     self.sdict[r][env.subst(s)] = suff
 
-        for tnode in tlist:
-            suflist = map(lambda x, s=sdict: s[os.path.splitext(x.path)[1]],
-                          slist)
-            last_suffix=''
-            for suffix in suflist:
-                if last_suffix and last_suffix != suffix:
-                    raise UserError, "The builder for %s can only build source files of identical suffixes:  %s." % (tnode.path, str(map(lambda t: str(t.path), tnode.sources)))
-                last_suffix = suffix
-            if last_suffix:
-                try:
-                    bdict[last_suffix].__call__(env, target = tnode,
-                                                source = slist)
-                except KeyError:
-                    raise UserError, "The builder for %s can not build files with suffix: %s" % (tnode.path, suffix)
+        sufflist = map(lambda x, s=self.sdict[r]:
+                              s[os.path.splitext(x.path)[1]],
+                       slist)
+        last_suffix = ''
+        for suff in sufflist:
+            if last_suffix and last_suffix != suff:
+                raise UserError, "The builder for %s can only build source files of identical suffixes:  %s." % \
+                      (tlist[0].path,
+                       str(map(lambda t: str(t.path), tlist[0].sources)))
+            last_suffix = suff
+
+        if last_suffix:
+            kw = {
+                'name' : self.name,
+                'action' : self.action_dict[last_suffix],
+                'src_suffix' : last_suffix,
+            }
+            if self.sbuild[r]:
+                kw['src_builder'] = self.sbuild[r][0]
+            # XXX We should be able to cache this
+            bld = apply(Builder, (), kw)
+            for tnode in tlist:
+                bld.__call__(env, target = tnode, source = slist)
 
         if len(tlist) == 1:
             tlist = tlist[0]
         return tlist
 
-    def src_suffixes(self):
-        return reduce(lambda x, y: x + y,
-                      map(lambda b: b.src_suffixes(),
-                          self.builder_dict.values()))
+    def src_suffixes(self, env):
+        suffixes = map(lambda k, e=env: e.subst(k), self.action_dict.keys()) + \
+                   reduce(lambda x, y: x + y,
+                          map(lambda b, e=env: b.src_suffixes(e),
+                              self.src_builder),
+                          [])
+        return suffixes

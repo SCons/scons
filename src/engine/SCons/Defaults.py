@@ -68,7 +68,7 @@ CFile = SCons.Builder.Builder(name = 'CFile',
                               action = { '.l'    : '$LEXCOM',
                                          '.y'    : '$YACCCOM',
                                        },
-                              suffix = '.c')
+                              suffix = '$CFILESUFFIX')
 
 CPlusPlusAction = SCons.Action.Action('$CXXCOM')
 
@@ -205,6 +205,7 @@ def make_win32_env_from_paths(include, lib, path):
         'CC'         : 'cl',
         'CCFLAGS'    : '/nologo',
         'CCCOM'      : '$CC $CCFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'CFILESUFFIX' : '.c',
         'CXX'        : '$CC',
         'CXXFLAGS'   : '$CCFLAGS',
         'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
@@ -264,6 +265,7 @@ if os.name == 'posix':
         'CC'         : 'cc',
         'CCFLAGS'    : '',
         'CCCOM'      : '$CC $CCFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',
+        'CFILESUFFIX' : '.c',
         'CXX'        : 'c++',
         'CXXFLAGS'   : '$CCFLAGS',
         'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS -c -o $TARGET $SOURCES',

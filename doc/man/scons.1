@@ -754,6 +754,14 @@ General options that are passed to the C compiler.
 .IP CCCOM 
 The command line used to compile a C source file to an object file.
 
+.IP CFILESUFFIX
+The suffix for C source files.
+This is used by the internal CFile builder
+when generating destination files from Lex (.l) or YACC (.y)
+input files.
+The default suffix, of course, is
+.IR .c .
+
 .IP CPPPATH
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
