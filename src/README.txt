@@ -145,7 +145,7 @@ Steven Knight
 knight at baldmt dot com
 http://www.baldmt.com/~knight/
 
-With more than a little help from the SCons Development team:
+With plenty of help from the SCons Development team:
         Chad Austin
         Charles Crain
         Steve Leblanc

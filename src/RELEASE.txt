@@ -20,9 +20,9 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
+RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
 
-  This is the fourth alpha release of SCons.  Please consult the
+  This is the fifth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Owing to an extensive test suite, the SCons team believes that this
@@ -56,10 +56,10 @@ RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
       portions of the interface as we figured out what worked and what
       didn't during implementation.L
 
-    - There may be performance issues.  This release has many performance
-      improvements.  If you still find the performance unacceptable, we
-      would very much like to hear from you and learn more about your
-      configuration so we can optimize the right things.
+    - There may be performance issues.  This release has still more
+      performance improvements.  If you still find the performance
+      unacceptable, we would very much like to hear from you and learn
+      more about your configuration so we can optimize the right things.
 
     - Error messages don't always exist where they'd be helpful.
       Please let us know about any errors you ran into that would
@@ -78,6 +78,14 @@ RELEASE 0.04 - Wed, 30 Jan 2002 11:09:42 -0600
       We have included a patch file, os_spawnv_fix.diff, that you can
       use if you you want to fix your version of Python to support
       parallel builds in SCons.
+
+    - Even on officialy Python release 2.2., values greater than 1 for
+      the -j option on Windows seemingly hang SCons.  This problem is
+      being investigated and is expected to be fixed for next release.
+
+    - Extremely long command lines (thousands of characters) can
+      reportedly crash Python.  This problem is being investigated
+      and is expected to be fixed for next release.
 
     - Again, the "SCons Design" documentation on the SCons web
       site is currently out of date.  Take what you read there with a

@@ -109,7 +109,9 @@ else:
 
 os.environ['PYTHONPATH'] = lib_dir + \
                            os.pathsep + \
-                           os.path.join(cwd, 'build', 'etc')
+                           os.path.join(cwd, 'build', 'etc') + \
+                           os.pathsep + \
+                           os.path.join(cwd, 'etc')
 
 os.chdir(scons_dir)
 

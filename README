@@ -195,7 +195,7 @@ build/
         where, believe it or not, we *build* everything.
 
 Construct
-        The old "Makefile" Cons-based for the SCons distribution.  This
+        The old Cons-based "Makefile" for the SCons distribution.  This
         is obsolete as of version 0.04, but it's being left around for a
         little while, just in case...
 
@@ -225,6 +225,10 @@ HOWTO/
         change, releasing a new version).  Maybe other administrative
         stuff in the future.
 
+LICENSE
+        A copy of the copyright and terms under which SCons is
+        distributed (the Open Source Initiative-approved MIT license).
+
 README
         What you're looking at right now.
 
@@ -232,7 +236,7 @@ rpm/
         The .spec file for building our RPM packages.
 
 runtest.py
-        Script for running our tests.  By default, this will run a
+        Script for running SCons tests.  By default, this will run a
         test against the code in the local src/ tree, so you don't
         have to do a build before testing your changes.  Aegis uses
         it with an option that requires that you've done a build
@@ -273,7 +277,7 @@ LICENSING
 =========
 
 SCons is distributed under the MIT license, a full copy of which is
-available in the LICENSE.txt file. The MIT license is an approved Open
+available in the LICENSE file. The MIT license is an approved Open
 Source license, which means:
 
         This software is OSI Certified Open Source Software.  OSI
@@ -330,7 +334,7 @@ Steven Knight
 knight at baldmt dot com
 http://www.baldmt.com/~knight/
 
-With more than a little help from the SCons Development team:
+With plenty of help from the SCons Development team:
         Chad Austin
         Charles Crain
         Steve Leblanc

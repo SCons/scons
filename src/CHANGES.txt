@@ -8,7 +8,7 @@
 
 
 
-RELEASE 0.05 - 
+RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
 
   From Chad Austin:
 
@@ -43,7 +43,7 @@ RELEASE 0.05 -
     of file being scanned.
 
   - Make writing .sconsign files more robust by first trying to write
-    to a temp file that we rename.
+    to a temp file that gets renamed.
 
   - Create all of the directories for a list of targets before trying
     to build any of the targets.
@@ -70,8 +70,10 @@ RELEASE 0.05 -
 
   - Fix the -c option so it doesn't stop removing targets if one doesn't
     already exist.
+    (Bug reported by Paul Connell.)
 
   - Fix the --debug=pdb option when run on Windows NT.
+    (Bug reported by Paul Connell.)
 
   - Add support for the -q option.
 
