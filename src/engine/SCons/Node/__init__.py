@@ -411,6 +411,8 @@ class Node:
         self.env = env
 
     def calculator(self):
+        import SCons.Defaults
+        
         env = self.env or SCons.Defaults.DefaultEnvironment()
         return env.get_calculator()
 
@@ -426,6 +428,8 @@ class Node:
             return self._calculated_sig
         except AttributeError:
             if self.is_derived():
+                import SCons.Defaults
+                
                 env = self.env or SCons.Defaults.DefaultEnvironment()
                 if env.use_build_signature():
                     sig = self.rfile().calc_bsig(calc, self)

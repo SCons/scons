@@ -31,6 +31,9 @@ RELEASE X.XX - XXX
 
   - Fix some Python 2.2 specific things in various tool modules.
 
+  - Support directories as build sources, so that a rebuild of a target
+    can be triggered if anything underneath the directory changes.
+
   From Christian Engel:
 
   - Support more flexible inclusion of separate C and C++ compilers.

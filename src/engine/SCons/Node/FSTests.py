@@ -1146,13 +1146,15 @@ class EntryTestCase(unittest.TestCase):
                 self.val = val
             def csig(self, node, cache):
                 return self.val
+            def bsig(self, node, cache):
+                return self.val + 222
         test.subdir('e5d')
         test.write('e5f', "e5f\n")
 
         e5d = fs.Entry('e5d')
         sig = e5d.calc_signature(MyCalc(555))
         assert e5d.__class__ is SCons.Node.FS.Dir, e5d.__class__
-        assert sig is None, sig
+        assert sig == 777, sig
 
         e5f = fs.Entry('e5f')
         sig = e5f.calc_signature(MyCalc(666))

@@ -126,12 +126,14 @@ output = test.stdout()
 for line in build_lines:
     test.fail_test(string.find(output, line) == -1)
 
-expect = """\
-bar.in -> bar.out
-blat.in -> blat.out
-foo.in -> foo.out
-"""
-assert test.read('log.txt') == expect
+log_lines = [
+    'bar.in -> bar.out',
+    'blat.in -> blat.out',
+    'foo.in -> foo.out',
+]
+log = test.read('log.txt')
+for line in log_lines:
+    test.fail_test(string.find(log, line) == -1)
 
 test.write('SConstruct', 
 """

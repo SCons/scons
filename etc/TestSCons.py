@@ -280,9 +280,9 @@ class TestSCons(TestCmd.TestCmd):
             if options:
                 arguments = options + " " + arguments
         kw['arguments'] = arguments
-        stdout = self.wrap_stdout(build_str="("+s+"[^\n]*\n)*")
-        stdout = string.replace(stdout,'\n','\\n')
-        stdout = string.replace(stdout,'.','\\.')
+        kw['stdout'] = self.wrap_stdout(build_str="("+s+"[^\n]*\n)*")
+        kw['stdout'] = string.replace(kw['stdout'],'\n','\\n')
+        kw['stdout'] = string.replace(kw['stdout'],'.','\\.')
         old_match_func = self.match_func
         self.match_func = TestCmd.match_re_dotall
         apply(self.run, [], kw)
