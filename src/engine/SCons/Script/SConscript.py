@@ -594,6 +594,7 @@ GlobalDefaultEnvironmentFunctions = [
     'InstallAs',
     'Literal',
     'Local',
+    'ParseDepends',
     'Precious',
     'Repository',
     'SConsignFile',

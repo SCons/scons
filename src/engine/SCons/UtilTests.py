@@ -1552,6 +1552,29 @@ class UtilTestCase(unittest.TestCase):
         assert containsOnly('.83', '0123456789.')
         assert not containsOnly('43221', '123')
 
+    def test_LogicalLines(self):
+        """Test the LogicalLines class"""
+        import StringIO
+
+        fobj = StringIO.StringIO(r"""
+foo \
+bar \
+baz
+foo
+bling \
+bling \ bling
+bling
+""")
+
+        lines = LogicalLines(fobj).readlines()
+        assert lines == [
+            '\n',
+            'foo bar baz\n',
+            'foo\n',
+            'bling bling \\ bling\n',
+            'bling\n',
+        ], lines
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
