@@ -359,8 +359,8 @@ Things to do to release a new version of SCons:
 
 		# Change the hard-coded package version numbers
 		# in the following files.
-		aecp README SConstruct debian/changelog rpm/scons.spec.in
-		vi README SConstruct debian/changelog rpm/scons.spec.in
+		aecp README SConstruct debian/changelog rpm/scons.spec.in src/setupTests.py
+		vi README SConstruct debian/changelog rpm/scons.spec.in src/setupTests.py
 
 		# Optionally, do the same in the following:
 		[optional] aecp HOWTO/change.txt
