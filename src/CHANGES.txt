@@ -54,6 +54,8 @@ RELEASE 0.09 -
   - Add separate $SHOBJPREFIX and $SHOBJSUFFIX construction variables
     (by default, the same as $OBJPREFIX and $OBJSUFFIX).
 
+  - Man page:  document the fact that Builder calls return Node objects.
+
  From Steve LeBlanc:
 
   - Refactor option processing to use our own version of Greg Ward's

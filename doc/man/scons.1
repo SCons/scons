@@ -867,6 +867,28 @@ or generate a shared library with a nonstandard suffix:
 env.SharedLibrary('word', 'word.cpp', SHLIBSUFFIX='.ocx')
 .EE
 
+All builders return an object
+representing the target that will be created.
+This object may be used as a source for
+another build,
+or in any other context in
+which a file name would otherwise be specified.
+For example, if it were necessary
+to add a specific
+.B -D
+flag when compiling one specific object file:
+
+.ES
+bar_obj = env.StaticObject('bar.c', CCFLAGS='-DBAR')
+env.Program(source = ['foo.c', bar_obj, 'main.c'])
+.EE
+
+Using an object in this way
+makes for a more portable build
+by avoiding having to specify
+a platform-specific object suffix
+when calling the Program() builder.
+
 .B scons
 provides the following builders:
 
