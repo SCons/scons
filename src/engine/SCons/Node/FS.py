@@ -1098,7 +1098,7 @@ class FS(LocalFS):
     def CacheDir(self, path):
         self.CachePath = path
 
-    def build_dir_target_climb(self, dir, tail):
+    def build_dir_target_climb(self, orig, dir, tail):
         """Create targets in corresponding build directories
 
         Climb the directory tree, and look up path names
@@ -1106,23 +1106,19 @@ class FS(LocalFS):
         """
         targets = []
         message = None
+        fmt = "building associated BuildDir targets: %s"
         start_dir = dir
-        start_tail = tail[:]
         while dir:
             for bd in dir.build_dirs:
                 if start_dir.is_under(bd):
                     # If already in the build-dir location, don't reflect
-                    e = start_dir
-                    if start_tail:
-                        e = e.Entry(start_tail[0])
-                    targets.append(e)
-                    continue
+                    return [orig], fmt % str(orig)
                 p = apply(os.path.join, [bd.path] + tail)
                 targets.append(self.Entry(p))
             tail = [dir.name] + tail
             dir = dir.up()
         if targets:
-            message = "building associated BuildDir targets: %s" % string.join(map(str, targets))
+            message = fmt % string.join(map(str, targets))
         return targets, message
 
 class Dir(Base):
@@ -1276,7 +1272,7 @@ class Dir(Base):
     def alter_targets(self):
         """Return any corresponding targets in a build directory.
         """
-        return self.fs.build_dir_target_climb(self, [])
+        return self.fs.build_dir_target_climb(self, self, [])
 
     def scanner_key(self):
         """A directory does not get scanned."""
@@ -1648,7 +1644,7 @@ class File(Base):
         """
         if self.is_derived():
             return [], None
-        return self.fs.build_dir_target_climb(self.dir, [self.name])
+        return self.fs.build_dir_target_climb(self, self.dir, [self.name])
 
     def is_pseudo_derived(self):
         return self.has_src_builder()
