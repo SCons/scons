@@ -30,6 +30,7 @@ The Scanner package for the SCons software construction utility.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
+import string
 
 import SCons.Node.FS
 import SCons.Sig
@@ -285,9 +286,9 @@ class Classic(Current):
     regular expressions to find the includes.
 
     Note that in order for this to work "out of the box" (without
-    overriding the find_include() method), the regular expression passed
-    to the constructor must return the name of the include file in group
-    0.
+    overriding the find_include() and sort_key() methods), the regular
+    expression passed to the constructor must return the name of the
+    include file in group 0.
     """
 
     def __init__(self, name, suffixes, path_variable, regex,
@@ -296,10 +297,7 @@ class Classic(Current):
         self.cre = re.compile(regex, re.M)
         self.fs = fs
 
-        def _scan(node, env, path, self=self, fs=fs):
-            return self.scan(node, env, path)
-
-        kw['function'] = _scan
+        kw['function'] = self.scan
         kw['path_function'] = FindPathDirs(path_variable, fs)
         kw['recursive'] = 1
         kw['skeys'] = suffixes
@@ -312,6 +310,9 @@ class Classic(Current):
                                     (source_dir,) + tuple(path),
                                     self.fs.File)
         return n, include
+
+    def sort_key(self, include):
+        return SCons.Node.FS._my_normcase(include)
 
     def scan(self, node, env, path=()):
         node = node.rfile()
@@ -326,37 +327,27 @@ class Classic(Current):
             includes = self.cre.findall(node.get_contents())
             node.includes = includes
 
+        # This is a hand-coded DSU (decorate-sort-undecorate, or
+        # Schwartzian transform) pattern.  The sort key is the raw name
+        # of the file as specifed on the #include line (including the
+        # " or <, since that may affect what file is found), which lets
+        # us keep the sort order constant regardless of whether the file
+        # is actually found in a Repository or locally.
         nodes = []
         source_dir = node.get_dir()
         for include in includes:
             n, i = self.find_include(include, source_dir, path)
 
-            if not n is None:
-                nodes.append(n)
-            else:
+            if n is None:
                 SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
                                     "No dependency generated for file: %s (included from: %s) -- file not found" % (i, node))
+            else:
+                sortkey = self.sort_key(include)
+                nodes.append((sortkey, n))
 
-        # Schwartzian transform from the Python FAQ Wizard
-        def st(List, Metric):
-            def pairing(element, M = Metric):
-                return (M(element), element)
-            def stripit(pair):
-                return pair[1]
-            paired = map(pairing, List)
-            paired.sort()
-            return map(stripit, paired)
-
-        def normalize(node):
-            # We don't want the order of includes to be
-            # modified by case changes on case insensitive OSes, so
-            # normalize the case of the filename here:
-            # (see test/win32pathmadness.py for a test of this)
-            return SCons.Node.FS._my_normcase(str(node))
-
-        transformed = st(nodes, normalize)
-        # print "Classic: " + str(node) + " => " + str(map(lambda x: str(x),list(transformed)))
-        return transformed
+        nodes.sort()
+        nodes = map(lambda pair: pair[1], nodes)
+        return nodes
 
 class ClassicCPP(Classic):
     """
@@ -378,3 +369,6 @@ class ClassicCPP(Classic):
                                         tuple(path) + (source_dir,),
                                         self.fs.File)
         return n, include[1]
+
+    def sort_key(self, include):
+        return SCons.Node.FS._my_normcase(string.join(include))
