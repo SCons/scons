@@ -242,7 +242,7 @@ diff_command =
  * written to conform to Perl conventions) and Aegis' expectations.
  * See the comments in the test.pl script itself for details.
  */
-test_command = "python runtest.py -v ${VERsion} ${File_Name}";
+test_command = "python runtest.py -b aegis -v ${VERsion} ${File_Name}";
 
 new_test_filename = "test/CHANGETHIS.py";
 

@@ -1,51 +1,73 @@
 #!/usr/bin/env python
 
-import getopt, os, os.path, re, string, sys
+import getopt
+import os
+import os.path
+import re
+import string
+import sys
 
-opts, tests = getopt.getopt(sys.argv[1:], "dv:")
-
+build = None
 debug = ''
 version = None
 
+opts, tests = getopt.getopt(sys.argv[1:], "b:dv:",
+			    ['build=','debug','version='])
+
 for o, a in opts:
-    if o == '-d': debug = "/usr/lib/python1.5/pdb.py"
-    if o == '-v': version = a
-
-if not version:
-    version = os.popen("aesub '$version'").read()[:-1]
-
-match = re.compile(r'^[CD]0*')
-
-def aegis_to_version(aever):
-    arr = string.split(aever, '.')
-    end = max(len(arr) - 1, 2)
-    arr = map(lambda e: match.sub('', e), arr[:end])
-    def rep(e):
-    	if len(e) == 1:
-	    e = '0' + e
-	return e
-    arr[1:] = map(rep, arr[1:])
-    return string.join(arr, '.')
-
-version = aegis_to_version(version)
+    if o == '-b' or o == '-build': build = a
+    elif o == '-d' or o == '--debug': debug = "/usr/lib/python1.5/pdb.py"
+    elif o == '-v' or o == '--version': version = a
 
 cwd = os.getcwd()
 
 map(os.path.abspath, tests)
 
-build_test = os.path.join(cwd, "build", "test")
-scons_ver = os.path.join(build_test, "scons-" + version)
+if build == 'aegis':
+    if not version:
+	version = os.popen("aesub '$version'").read()[:-1]
 
-os.chdir(scons_ver)
+    match = re.compile(r'^[CD]0*')
 
-os.environ['PYTHONPATH']  = scons_ver + ':' + build_test
+    def aegis_to_version(aever):
+	arr = string.split(aever, '.')
+	end = max(len(arr) - 1, 2)
+	arr = map(lambda e: match.sub('', e), arr[:end])
+	def rep(e):
+	    if len(e) == 1:
+		e = '0' + e
+	    return e
+	arr[1:] = map(rep, arr[1:])
+	return string.join(arr, '.')
 
-exit = 0
+    version = aegis_to_version(version)
+
+    build_test = os.path.join(cwd, "build", "test")
+    scons_dir = os.path.join(build_test, "scons-" + version)
+
+    os.environ['PYTHONPATH'] = string.join([scons_dir,
+					    build_test],
+					   os.pathsep)
+
+else:
+
+    scons_dir = os.path.join(cwd, 'src')
+
+    os.environ['PYTHONPATH'] = string.join([os.path.join(cwd, 'src'),
+					    os.path.join(cwd, 'etc')],
+					   os.pathsep)
+
+os.chdir(scons_dir)
+
+fail = []
 
 for path in tests:
-    if not os.path.isabs(path):
-	path = os.path.join(cwd, path)
-    if os.system("python " + debug + " " + path):
-	exit = 1
+    if os.path.isabs(path):
+	abs = path
+    else:
+	abs = os.path.join(cwd, path)
+    cmd = string.join(["python", debug, abs], " ")
+    if os.system(cmd):
+	fail.append(path)
 
-sys.exit(exit)
+sys.exit(len(fail))
