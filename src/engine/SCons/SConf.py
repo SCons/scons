@@ -30,7 +30,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import cPickle
 import os
-import shutil
 import sys
 import traceback
 from types import *
@@ -42,6 +41,7 @@ import SCons.Node.FS
 import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
+import SCons.Conftest
 
 # First i thought of using a different filesystem as the default_fs,
 # but it showed up that there are too many side effects in doing that.
@@ -503,7 +503,12 @@ class CheckContext:
         """Constructor. Pass the corresponding SConf instance."""
         self.sconf = sconf
         self.cached = 0
-        self.show_result = 0
+        self.did_show_result = 0
+
+        # for Conftest.py:
+        self.vardict = {}
+        self.havedict = {}
+        self.headerfilename = None      # XXX may cause trouble!
 
     def Message(self, text):
         """Inform about what we are doing right now, e.g.
@@ -513,29 +518,33 @@ class CheckContext:
         if self.sconf.logstream != None:
             self.sconf.logstream.write(text + '\n')
         sys.stdout.write(text)
-        self.show_result = 0
+        self.did_show_result = 0
 
-    def Result(self, res ):
+    def Result(self, res):
         """Inform about the result of the test. res may be an integer or a
         string. In case of an integer, the written text will be 'ok' or
         'failed'.
+        The result is only displayed when self.did_show_result is not set.
         """
-        if( type(res) == IntType ):
+        if type(res) == IntType:
             if res:
                 text = "ok"
             else:
                 text = "failed"
-        elif( type(res) == StringType ):
+        elif type(res) == StringType:
             text = res
         else:
             raise TypeError, "Expected string or int"
-        if( self.cached ):
-            text = text + " (cached)"
-        if self.show_result == 0:
+
+        if self.did_show_result == 0:
+            if self.cached:
+                text = text + " (cached)"
+
+            # Didn't show result yet, do it now.
             if self.sconf.logstream != None:
                 self.sconf.logstream.write("Result: " + text + "\n\n")
             sys.stdout.write(text + "\n")
-            self.show_result = 1
+            self.did_show_result = 1
 
 
     def TryBuild(self, *args, **kw):
@@ -561,110 +570,126 @@ class CheckContext:
         else:
             raise AttributeError, "CheckContext instance has no attribute '%s'" % attr
 
-def _header_prog( header, include_quotes ):
-    return "#include %s%s%s\n\n" % (include_quotes[0],
-                                    header,
-                                    include_quotes[1])
+    #### Stuff used by Conftest.py (look there for explanations).
 
-def CheckFunc(context, function_name):
-    context.Message("Checking for %s... " % function_name)
+    def BuildProg(self, text, ext):
+        # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
+        res = self.TryBuild(self.env.Program, text, ext)
+        if type(res) == IntType:
+            if res:
+                ret = ""
+            else:
+                ret = "failed to build test program"
+        elif type(res) == StringType:
+            ret = res
+        else:
+            raise TypeError, "Expected string or int"
+        return ret
 
-    ret = context.TryBuild(context.env.Program, """
-		#include <assert.h>
+    def CompileProg(self, text, ext):
+        # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
+        res = self.TryBuild(self.env.Object, text, ext)
+        if type(res) == IntType:
+            if res:
+                ret = ""
+            else:
+                ret = "failed to compile test program"
+        elif type(res) == StringType:
+            ret = res
+        else:
+            raise TypeError, "Expected string or int"
+        return ret
 
-		#ifdef __cplusplus
-		extern "C"
-		#endif
-		char %(name)s();
+    def AppendLIBS(self, lib_name_list):
+        oldLIBS = self.env.get( 'LIBS', [] )
+        self.env.Append(LIBS = lib_name_list)
+        return oldLIBS
 
-		int main() {
-			#if defined (__stub_%(name)s) || defined (__stub___%(name)s)
-			fail fail fail
-			#else
-			%(name)s();
-			#endif
+    def SetLIBS(self, val):
+        oldLIBS = self.env.get( 'LIBS', [] )
+        self.env.Replace(LIBS = val)
+        return oldLIBS
 
-			return 0;
-		}\n\n""" % { 'name': function_name }, ".cpp")
-    context.Result(ret)
+    def Display(self, msg):
+        sys.stdout.write(msg)
+        self.Log(msg)
 
-    return ret
+    def Log(self, msg):
+        if self.sconf.logstream != None:
+            self.sconf.logstream.write(msg)
 
-def CheckType(context, type_name, includes = ""):
-    context.Message("Checking for %s..." % type_name)
+    #### End of stuff used by Conftest.py.
 
-    ret = context.TryBuild(context.env.Program, """
-		%(includes)s
 
-		int main() {
-			if ((%(name)s *) 0)
-				return 0;
-			if (sizeof (%(name)s))
-				return 0;
-		}\n\n""" % { 'name': type_name, 'includes': includes }, ".cpp")
-    context.Result(ret)
+def CheckFunc(context, function_name, language = None):
+    res = SCons.Conftest.CheckFunc(context, function_name, language = language)
+    context.did_show_result = 1
+    if not res:
+        return 1        # Ok
+    return 0            # Failed
 
-    return ret
 
-def CheckCHeader(test, header, include_quotes='""'):
+def CheckType(context, type_name, includes = "", language = None):
+    res = SCons.Conftest.CheckType(context, type_name,
+                                        header = includes, language = language)
+    context.did_show_result = 1
+    if not res:
+        return 1        # Ok
+    return 0            # Failed
+
+
+def CheckHeader(context, header, include_quotes = '<>', language = None):
     """
-    A test for a c header file.
+    A test for a C or C++ header file.
     """
     # ToDo: Support also system header files (i.e. #include <header.h>)
-    test.Message("Checking for C header %s ... " % header)
-    ret = test.TryCompile(_header_prog(header, include_quotes), ".c")
-    test.Result( ret )
-    return ret
+    res = SCons.Conftest.CheckHeader(context, header, language = language,
+                                               include_quotes = include_quotes)
+    context.did_show_result = 1
+    if not res:
+        return 1        # Ok
+    return 0            # Failed
 
 
-def CheckCXXHeader(test, header, include_quotes='""'):
+# Bram: Make this function obsolete?  CheckHeader() is more generic.
+
+def CheckCHeader(context, header, include_quotes = '""'):
     """
-    A test for a c++ header file.
+    A test for a C header file.
     """
-    # ToDo: Support also system header files (i.e. #include <header.h>)
-    test.Message("Checking for C++ header %s ... " % header)
-    ret = test.TryCompile(_header_prog(header, include_quotes), ".cpp")
-    test.Result( ret )
-    return ret
+    return CheckHeader(context, header, include_quotes, language = "C")
 
-def CheckLib(test, library=None, symbol="main", autoadd=1):
+
+# Bram: Make this function obsolete?  CheckHeader() is more generic.
+
+def CheckCXXHeader(context, header, include_quotes = '""'):
+    """
+    A test for a C++ header file.
+    """
+    return CheckHeader(context, header, include_quotes, language = "C++")
+
+
+def CheckLib(context, library = None, symbol = "main", autoadd = 1,
+                                               header = None, language = None):
     """
     A test for a library. See also CheckLibWithHeader.
     Note that library may also be None to test whether the given symbol
     compiles without flags.
     """
     # ToDo: accept path for the library
-    test.Message("Checking for %s in library %s ... " % (symbol, library))
-    oldLIBS = test.env.get( 'LIBS', [] )
+    res = SCons.Conftest.CheckLib(context, library, symbol, header = header,
+                                        language = language, autoadd = autoadd)
+    context.did_show_result = 1
+    if not res:
+        return 1        # Ok
+    return 0            # Failed
 
-    # NOTE: we allow this at in the case that we don't know what the
-    # library is called like when we get --libs from a configure script
-    if library != None:
-        test.env.Append(LIBS = [ library ])
 
-    text = ""
-    if symbol != "main":
-        text = text + """
-#ifdef __cplusplus
-extern "C"
-#endif
-char %s();""" % symbol
-    text = text + """
-int
-main() {
-%s();
-return 0;
-}
-\n\n""" % symbol
+# XXX
+# Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
 
-    ret = test.TryLink( text, ".c" )
-    if not autoadd or not ret:
-        test.env.Replace(LIBS=oldLIBS)
-
-    test.Result(ret)
-    return ret
-
-def CheckLibWithHeader(test, library, header, language, call="main();", autoadd=1):
+def CheckLibWithHeader(context, library, header, language,
+                                                call = "main();", autoadd = 1):
     # ToDo: accept path for library. Support system header files.
     """
     Another (more sophisticated) test for a library.
@@ -673,33 +698,12 @@ def CheckLibWithHeader(test, library, header, language, call="main();", autoadd=
     As in CheckLib, we support library=None, to test if the call compiles
     without extra link flags.
     """
-    test.Message("Checking for %s in library %s (header %s) ... " %
-                 (call, library, header))
-    oldLIBS= test.env.get( 'LIBS', [] )
 
-    # NOTE: we allow this at in the case that we don't know what the
-    # library is called like when we get --libs from a configure script
-    if library != None:
-        test.env.Append(LIBS = [ library ])
+    res = SCons.Conftest.CheckLib(context, library, "main",
+            header = '#include "%s"' % header,
+            call = call, language = language, autoadd = autoadd)
+    context.did_show_result = 1
+    if not res:
+        return 1        # Ok
+    return 0            # Failed
 
-    text  = """\
-#include "%s"
-int main() {
-  %s
-  return 0;
-}
-""" % (header, call)
-
-    if language in ["C", "c"]:
-        extension=".c"
-    elif language in ["CXX", "cxx", "C++", "c++"]:
-        extension=".cpp"
-    else:
-        raise SCons.Errors.UserError, "Unknown language!"
-
-    ret = test.TryLink( text, extension)
-    if not autoadd or not ret:
-        test.env.Replace( LIBS = oldLIBS )
-
-    test.Result(ret)
-    return ret

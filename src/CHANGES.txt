@@ -30,6 +30,11 @@ RELEASE X.XX - XXX
 
   - Accomodate alphanumeric version strings in EnsurePythonVersion().
 
+  From Bram Moolenaar:
+
+  - Split the non-SCons-specific functionality from SConf.py to a new,
+    re-usable Conftest.py module.
+
 
 
 RELEASE 0.92 - Wed, 20 Aug 2003 03:45:28 -0500

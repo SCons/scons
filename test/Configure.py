@@ -93,13 +93,14 @@ if not (r1 and r2 and r3 and r4 and r5 and r6):
 
     required_stdout = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
                                        read_str=
-    """Checking for main(); in library %s (header math.h) ... ok
-Checking for main(); in library None (header math.h) ... ok
-Checking for main in library %s ... ok
-Checking for main in library None ... ok
-Checking for C header math.h ... ok
-Checking for C++ header vector ... ok
+    """Checking for main() in C library %s... yes
+Checking for main() in C library None... yes
+Checking for main() in C library %s... yes
+Checking for main() in C library None... yes
+Checking for C header file math.h... yes
+Checking for C++ header file vector... yes
 """ % (lib, lib))
+
 
     test.run(stdout = required_stdout)
     checkLog(test,'config.log', 0, 0 )
@@ -109,8 +110,7 @@ Checking for C++ header vector ... ok
 
     # 1.2 if checks are not ok, the cache mechanism should work as well
     #     (via explicit cache)
-    reset()
-    
+    reset(dot = 0)              # match exactly, "()" is a regexp thing
 
     test.write( 'SConstruct', """
 env = Environment()
@@ -127,9 +127,10 @@ if not (not r1 and not r2):
 
     required_stdout = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
                                        read_str=
-    """Checking for C header no_std_c_header.h ... failed
-Checking for main in library no_c_library_SAFFDG ... failed
+    """Checking for C header file no_std_c_header.h... no
+Checking for main() in C library no_c_library_SAFFDG... no
 """)
+
 
     test.run(stdout = required_stdout)
     checkLog(test, 'config.log', 0, 0 )
@@ -164,11 +165,10 @@ int main() {
   printf( "Hello\\n" );
 }
 """)
-    test.match_func = TestCmd.match_re_dotall
     required_stdout = test.wrap_stdout(build_str='.*',
                                        read_str=
-    """Checking for C header math.h ... ok
-Checking for C header no_std_c_header.h ... failed
+    """Checking for C header file math.h... yes
+Checking for C header file no_std_c_header.h... no
 """)
     test.run( stdout = required_stdout )
     checkLog( test, 'config.log', 0, 0 )
@@ -207,8 +207,8 @@ int main() {
 """)
     required_stdout = test.wrap_stdout(build_str='.*',
                                        read_str=
-    """Checking for C header math.h ... ok
-Checking for C header no_std_c_header.h ... failed
+    """Checking for C header file math.h... yes
+Checking for C header file no_std_c_header.h... no
 """)
     test.run( stdout = required_stdout )
     checkLog( test, 'build/config.log', 0, 0 )
@@ -270,8 +270,8 @@ int main() {
 """)
     required_stdout = test.wrap_stdout(build_str='.*',
                                        read_str=
-    """Checking for C header math.h ... ok
-Checking for C header no_std_c_header.h ... failed
+    """Checking for C header file math.h... yes
+Checking for C header file no_std_c_header.h... no
 Executing Custom Test ... ok
 """)
     # first with SConscriptChdir(0)

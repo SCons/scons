@@ -3739,38 +3739,70 @@ The following Checks are predefined.
 goes by and developers contribute new useful tests.)
 
 .TP
-.RI Configure.CheckCHeader( self ", " header ", [" include_quotes ])
+.RI Configure.CheckHeader( self ", " header ", [" include_quotes ", " language ])
 Checks if 
 .I header
-is usable in the C-language. The optional argument 
+is usable in the specified language.
+The optional argument 
 .I include_quotes 
 must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote (both default
 to \N'34')
+The optional argument
+.I language
+should be either
+.B C
+or
+.B C++
+and selects the compiler to be used for the check.
+Returns 1 on success and 0 on failure.
+
+.TP
+.RI Configure.CheckCHeader( self ", " header ", [" include_quotes ])
+This is a wrapper around
+.B Configure.CheckHeader
+which checks if 
+.I header
+is usable in the C language. The optional argument 
+.I include_quotes 
+must be
+a two character string, where the first character denotes the opening
+quote and the second character denotes the closing quote (both default
+to \N'34').
 Returns 1 on success and 0 on failure.
 
 .TP
 .RI Configure.CheckCXXHeader( self ", " header ", [" include_quotes ])
-Checks if 
+This is a wrapper around
+.B Configure.CheckHeader
+which checks if 
 .I header
 is usable in the C++ language. The optional argument 
 .I include_quotes 
 must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote (both default
-to \N'34')
+to \N'34').
 Returns 1 on success and 0 on failure. 
 
 .TP
-.RI Configure.CheckFunc( self ", " function_name )
+.RI Configure.CheckFunc( self ", " function_name ", [" language ])
 Checks if the specified
 C or C+++ function is available.
 .I function_name
 is the name of the function to check for.
+The optional
+.I language
+argument should be
+.B C
+or
+.B C++
+and selects the compiler to be used for the check;
+the default is "C".
 
 .TP 
-.RI Configure.CheckLib( self ", [" library ", " symbol ", " autoadd ])
+.RI Configure.CheckLib( self ", [" library ", " symbol ", " header ", " language ", " autoadd ])
 Checks if 
 .I library 
 provides 
@@ -3791,6 +3823,14 @@ is "main",
 which just check if
 you can link against the specified
 .IR library .
+The optional
+.I language
+argument should be
+.B C
+or
+.B C++
+and selects the compiler to be used for the check;
+the default is "C".
 The default value for
 .I autoadd
 is 1.
@@ -3817,7 +3857,7 @@ specifies whether to add the library to the environment (only if the check
 succeeds). This method returns 1 on success and 0 on error.
 
 .TP
-.RI Configure.CheckType( self ", " type_name ", [" includes ])
+.RI Configure.CheckType( self ", " type_name ", [" includes ", " language ])
 Checks for the existence of a type defined by
 .BR typedef .
 .I type_name
@@ -3827,6 +3867,14 @@ is a string containing one or more
 .B #include
 lines that will be inserted into the program
 that will be run to test for the existence of the type.
+The optional
+.I language
+argument should be
+.B C
+or
+.B C++
+and selects the compiler to be used for the check;
+the default is "C".
 
 .EE
 Example of a typical Configure usage:

@@ -1,6 +1,7 @@
 SCons/__init__.py
 SCons/Action.py
 SCons/Builder.py
+SCons/Conftest.py
 SCons/Defaults.py
 SCons/Environment.py
 SCons/Errors.py
