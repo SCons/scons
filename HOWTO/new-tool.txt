@@ -1,0 +1,79 @@
+Adding a new Tool to the SCons distribution:
+
+    --  Add the following files (aenf):
+
+            src/engine/SCons/Tool/xxx.py
+
+	    	Use one of the other Tool files as a template.
+
+		The tool should set and use construction variables:
+
+		    XXX		(specific tool)
+		    XXXCOM	(the command line)
+		    XXXFLAGS	(flags for the command line)
+
+    --  Modify the following files (aecp):
+
+            doc/man/scons.1
+
+		Add the new tool to the default Platform lists
+		(if appropriate).
+
+		If this creates object files from a new source
+		file type, add the new file suffixes.
+
+		Document the new construction variables.
+
+            rpm/scons.spec
+
+	    	Add to the list at the bottom of the file:
+		
+		    /usr/lib/scons/SCons/Tool/xxx.py
+	    	    /usr/lib/scons/SCons/Tool/xxx.pyc
+
+		[THIS LIST SHOULD BE GENERATED FROM MANIFEST.in,
+		AND WILL BE SOME DAY.]
+
+            src/CHANGES.txt
+
+	        Add mention of the new Tool specification.
+
+            src/engine/MANIFEST.in
+
+	    	Add to the list:
+
+		    SCons/Tool/xxx.py
+
+            src/engine/SCons/Defaults.py
+
+                If there are any new Actions for the Tool, add them
+                here.
+
+            src/engine/SCons/Platform/*.py
+
+	        Add the Tool to the list(s) returned by tool_list().
+
+    --  Add the following tests (aent):
+
+    	    test/XXX.py
+
+	        Use one of the other tests as a template.
+
+                The first part should be a platform-independent test
+                using dummy 'myxxx.py' utilities to test if $XXX is set.
+
+                Remaining parts of the test can check to see if the
+                specific tool is installed on the system, and test
+                actually executing the tool.
+
+    	    test/XXXFLAGS.py
+
+	        Use one of the other tests as a template.
+
+                The first part should be a platform-independent test
+                using dummy 'myxxx.py' utilities to test if $XXXFLAGS is
+                set.
+
+                Optionally, remaining parts of the test can check to see
+                if the specific tool is installed on the system, and
+                test actually executing the tool.

@@ -29,13 +29,16 @@ SCons/Tool/dvipdf.py
 SCons/Tool/dvips.py
 SCons/Tool/g++.py
 SCons/Tool/g77.py
+SCons/Tool/gas.py
 SCons/Tool/gcc.py
 SCons/Tool/gnulink.py
 SCons/Tool/latex.py
 SCons/Tool/lex.py
 SCons/Tool/lib.py
+SCons/Tool/masm.py
 SCons/Tool/mslink.py
 SCons/Tool/msvc.py
+SCons/Tool/nasm.py
 SCons/Tool/pdflatex.py
 SCons/Tool/pdftex.py
 SCons/Tool/tex.py

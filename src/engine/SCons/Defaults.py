@@ -116,10 +116,14 @@ CAction = SCons.Action.Action([ StaticCheck, "$CCCOM" ])
 ShCAction = SCons.Action.Action([ SharedCheck, "$SHCCCOM" ])
 CXXAction = SCons.Action.Action([ StaticCheck, "$CXXCOM" ])
 ShCXXAction = SCons.Action.Action([ SharedCheck, "$SHCXXCOM" ])
+
 F77Action = SCons.Action.Action([ StaticCheck, "$F77COM" ])
 ShF77Action = SCons.Action.Action([ SharedCheck, "$SHF77COM" ])
 F77PPAction = SCons.Action.Action([ StaticCheck, "$F77PPCOM" ])
 ShF77PPAction = SCons.Action.Action([ SharedCheck, "$SHF77PPCOM" ])
+
+ASAction = SCons.Action.Action([ StaticCheck, "$ASCOM" ])
+ASPPAction = SCons.Action.Action([ StaticCheck, "$ASPPCOM" ])
 
 
 def StaticObject():

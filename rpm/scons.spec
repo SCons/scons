@@ -108,6 +108,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Tool/g++.pyc
 /usr/lib/scons/SCons/Tool/g77.py
 /usr/lib/scons/SCons/Tool/g77.pyc
+/usr/lib/scons/SCons/Tool/gas.py
+/usr/lib/scons/SCons/Tool/gas.pyc
 /usr/lib/scons/SCons/Tool/gcc.py
 /usr/lib/scons/SCons/Tool/gcc.pyc
 /usr/lib/scons/SCons/Tool/gnulink.py
@@ -118,10 +120,14 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/scons/SCons/Tool/lex.pyc
 /usr/lib/scons/SCons/Tool/lib.py
 /usr/lib/scons/SCons/Tool/lib.pyc
+/usr/lib/scons/SCons/Tool/masm.py
+/usr/lib/scons/SCons/Tool/masm.pyc
 /usr/lib/scons/SCons/Tool/mslink.py
 /usr/lib/scons/SCons/Tool/mslink.pyc
 /usr/lib/scons/SCons/Tool/msvc.py
 /usr/lib/scons/SCons/Tool/msvc.pyc
+/usr/lib/scons/SCons/Tool/nasm.py
+/usr/lib/scons/SCons/Tool/nasm.pyc
 /usr/lib/scons/SCons/Tool/pdflatex.py
 /usr/lib/scons/SCons/Tool/pdflatex.pyc
 /usr/lib/scons/SCons/Tool/pdftex.py

@@ -32,9 +32,19 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Util
+
 def tool_list():
-    return ['dvipdf', 'latex', 'dvips', 'g77', 'lex', 'lib', 'msvc',
-            'pdflatex', 'pdftex', 'tex', 'yacc', 'mslink' ]
+    masm = SCons.Util.WhereIs('ml')
+    nasm =  SCons.Util.WhereIs('nasm')
+    if nasm and not masm:
+        assembler = 'nasm'
+    else:
+        assembler = 'masm'
+    return ['dvipdf', 'dvips', 'g77',
+            'latex', 'lex', 'lib', 'mslink', 'msvc',
+            'pdflatex', 'pdftex', 'tex', 'yacc',
+            assembler]
 
 def generate(env):
     if not env.has_key('ENV'):

@@ -720,10 +720,12 @@ dvipdf
 dvips
 g++
 g77
+gas (if the GNU assembler is available)
 gcc
 gnulink
 latex
 lex
+nasm (if the GNU assembler is not available)
 pdflatex
 pdftex
 tex
@@ -743,6 +745,8 @@ lex
 lib
 mslink
 msvc
+masm
+nasm
 pdflatex
 pdftex
 tex
@@ -791,6 +795,8 @@ Builds a static object file
 from one or more C, C++, or Fortran source files.
 Source files must have one of the following extensions:
 .ES
+  .asm    assembly language file
+  .ASM    assembly language file
   .c      C file
   .C      WIN32:  C file
           POSIX:  C++ file
@@ -807,6 +813,11 @@ Source files must have one of the following extensions:
   .FOR    Fortran file
   .fpp    Fortran file + C pre-processor
   .FPP    Fortran file + C pre-processor
+  .s      assembly language file
+  .S      WIN32:  assembly language file
+          POSIX:  assembly language file + C pre-processor
+  .spp    assembly language file + C pre-processor
+  .SPP    assembly language file + C pre-processor
 .EE
 .IP
 The target object file prefix and suffix (if any) are automatically
@@ -994,14 +1005,21 @@ env.PostScript(target = 'bbb', source = 'bbb.dvi')
 .LP
 .B scons
 automatically scans
-C source files, C++ source files, and
+C source files, C++ source files,
 Fortran source files with
 .B .F
 (POSIX systems only),
 .B .fpp,
 or
 .B .FPP
-file extensions
+file extensions,
+and assembly language files with
+.B .S
+(POSIX systems only),
+.B .spp,
+or
+.B .SPP
+files extensions
 for C preprocessor dependencies,
 so the dependencies do not need to be specified explicitly.
 In addition, all builder
@@ -1177,6 +1195,30 @@ with the specified keyword arguments.
 env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
 .EE
 
+.TP
+.RI SideEffect( side_effect , target )
+Declares
+.I side_effect
+as a side effect of building
+.IR target . 
+Both 
+.I side_effect 
+and
+.I target
+can be a list, a file name, or a node.
+A side effect is a target that is created
+as a side effect of building other targets.
+For example, a Windows PDB
+file is created as a side effect of building the .obj
+files for a static library.
+If a target is a side effect of multiple build commands,
+.B scons
+will ensure that only one set of commands
+is executed at a time.
+Consequently, you only need to use this method
+for side-effect targets that are built as a result of
+multiple build commands.
+
 .SS Construction Variables
 .\" XXX From Gary Ruben, 23 April 2002:
 .\" I think it would be good to have an example with each construction
@@ -1204,11 +1246,28 @@ variables:
 .IP AR
 The static library archiver.
 
+.IP ARCOM
+The command line used to generate a static library from object files.
+
 .IP ARFLAGS
 General options passed to the static library archiver.
 
-.IP ARCOM
-The command line used to generate a static library from object files.
+.IP AS
+The assembler.
+
+.IP ASCOM
+The command line used to generate an object file
+from an assembly-language source file.
+
+.IP ASFLAGS
+General options passed to the assembler.
+
+.IP ASPPCOM
+The command line used to assemble an assembly-language
+source file into an object file
+after first running the file through the C preprocessor.
+Any options specified in the $CPPFLAGS construction variable
+are included on this command line.
 
 .IP BUILDERS
 A dictionary mapping the names of the builders
@@ -1244,9 +1303,11 @@ as C files.
 C preprocessor options.
 These will be included in any command that uses the C preprocessor,
 inluding not just compilation of C and C++ source files,
-but also the $F77PPCOM 
-command line used to compile a Fortran source file to an object file
-after first running the file through the C preprocessor.
+but also the $F77PPCOM command line
+used to compile a Fortran source file,
+and the $ASPPCOM command line
+used to assemble an assembly language source file,
+after first running each file through the C preprocessor.
 
 .IP CPPPATH
 The list of directories that the C preprocessor will search for include

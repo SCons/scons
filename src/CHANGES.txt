@@ -69,6 +69,8 @@ RELEASE 0.08 -
 
   - Add more specific version / build output to the -v option.
 
+  - Add support for the GNU as, Microsoft masm, and nasm assemblers.
+
   From Jeff Petkau:
 
   - Fix --implicit-cache if the scanner returns an empty list.
@@ -105,6 +107,12 @@ RELEASE 0.08 -
 
   - Print an error message if a file can't be unlinked before being
     built, rather than just silently terminating the build.
+
+  - Add a SideEffect() method that can be used to tell the build
+    engine that a given file is created as a side effect of building
+    a target.  A file can be specified as a side effect of more than
+    one build comand, in which case the commands will not be executed
+    simultaneously.
 
   From Zed Shaw:
 
