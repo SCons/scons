@@ -31,7 +31,7 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "December 2001"
+.TH SCONS 1 "January 2002"
 .SH NAME
 scons \- software constructor
 .SH SYNOPSIS
@@ -274,13 +274,25 @@ in the specified directory.)
 
 .TP
 .RI --debug= type
-Print debugging information durring the build process.
+Debug the build process.
 .I type
-specifies what type of of debugging information to print. Currently the
-only supported type is
-.I tree
-which causes the dependency tree to be printed after each top-level
-target is built.
+specifies what type of debugging:
+
+.TP
+.RI --debug=pdb
+Re-run SCons under the control of the
+.RI pdb
+Python debugger.
+The
+.RI --debug=pdb
+argument will be stripped from the command-line,
+but all other arguments will be passed in-order
+to the SCons invocation run by the debugger.
+
+.TP
+.RI --debug=tree
+Print the dependency tree
+after each top-level target is built.
 
 .TP
 -e, --environment-overrides
@@ -727,7 +739,7 @@ The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
 arguments in CCFLAGS or CXXFLAGS because the result will be non-portable
-and the directories will not be searched by the depedency scanner. Note:
+and the directories will not be searched by the dependency scanner. Note:
 directory names in CPPPATH will be looked-up relative to the SConscript
 directory when they are used in a command. To force 
 .B scons
@@ -763,7 +775,7 @@ Note that, by default,
 .B scons
 does
 .I not
-propogate the environment in force when you
+propagate the environment in force when you
 execute
 .B scons
 to the commands used to build target files.
@@ -773,11 +785,11 @@ variables set at the time
 .B scons
 is invoked.
 
-If you want to propogate your
+If you want to propagate your
 environment variables
 to the commands executed
 to build target files,
-you must do so explictly:
+you must do so explicitly:
 
 .ES
 import os
@@ -785,7 +797,7 @@ env = Environment(ENV = os.environ)
 .EE
 
 .RS
-Note that you can choose only to propogate
+Note that you can choose only to propagate
 certain environment variables.
 A common example is
 the system
@@ -932,14 +944,14 @@ is usually safe, and is always more efficient than
 .RI Default( targets )
 This specifies a list of default targets. Default targets will be built by
 .B scons
-if no explicit targets are given on the comamnd line. Multiple targets can
+if no explicit targets are given on the command line. Multiple targets can
 be specified either as a space delimited string of target file names or as
-seperate arguments.
+separate arguments.
 Target names with white space may be be enclosed in an
 array to prevent the string from being split into
 separate file names.
 .BR Default ()
-will also accept the return value of any of the ccnstruction environment
+will also accept the return value of any of the construction environment
 builder methods.
 Example:
 

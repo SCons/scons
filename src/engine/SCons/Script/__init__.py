@@ -361,7 +361,21 @@ def options_init():
 
     def opt_debug(opt, arg):
         global print_tree
-        if arg == "tree":
+        if arg == "pdb":
+            if sys.platform == 'win32':
+                lib_dir = os.path.join(sys.exec_prefix, "lib")
+            else:
+                lib_dir = os.path.join(sys.exec_prefix,
+                                       "lib",
+                                       "python" + sys.version[0:3])
+            args = [ sys.executable, os.path.join(lib_dir, "pdb.py") ] + \
+                     filter(lambda x: x != "--debug=pdb", sys.argv)
+            if sys.platform == 'win32':
+                ret = os.spawnve(os.P_WAIT, cmd_interp, args, env)
+                sys.exit(ret)
+            else:
+                os.execvpe(args[0], args, os.environ)
+        elif arg == "tree":
             print_tree = 1
         else:
             sys.stderr.write("Warning:  %s is not a valid debug type\n"

@@ -63,6 +63,8 @@ RELEASE 0.04 -
     and updating multiple targets in a single Task.  Simplify the
     interface between Task and Taskmaster.
 
+  - Add a --debug=pdb option to re-run SCons under the Python debugger.
+
   From Steve Leblanc:
 
   - Add var=value command-line arguments.
