@@ -244,8 +244,14 @@ class Calculator:
           content signatures. (defaults to 2 days)
         """
         if module is None:
-            import MD5
-            self.module = MD5
+            try:
+                import MD5
+                self.module = MD5
+            except ImportError:
+                # fallback on timestamp signatures if MD5 is not available
+                # XXX add a warning message here
+                import TimeStamp
+                self.module = TimeStamp
         else:
             self.module = module
         self.max_drift = max_drift

@@ -172,6 +172,8 @@ class Node:
             def get_contents(self):
                 return apply(self.node.builder.get_contents, (),
                              self.node.generate_build_args())
+            def get_timestamp(self):
+                return None
         return Adapter(self)
 
     def get_implicit_deps(self, env, scanner, target):
