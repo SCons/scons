@@ -129,6 +129,23 @@ else:
                            prefs))
     prefs = temp
 
+    # Add the parent directory of the current python's library to the
+    # preferences.  On SuSE-91/AMD64, for example, this is /usr/lib64,
+    # not /usr/lib.
+    try:
+        libpath = os.__file__
+    except AttributeError:
+        pass
+    else:
+        while libpath:
+            libpath, tail = os.path.split(libpath)
+            if tail[:6] == "python":
+                break
+        if libpath:
+            # Python library is in /usr/libfoo/python*;
+            # check /usr/libfoo/scons*.
+            prefs.append(libpath)
+
 # Look first for 'scons-__version__' in all of our preference libs,
 # then for 'scons'.
 libs.extend(map(lambda x: os.path.join(x, scons_version), prefs))
