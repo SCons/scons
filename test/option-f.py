@@ -89,7 +89,7 @@ test.run(arguments = '-f no_such_file .',
          stderr = None)
 test.fail_test(not test.match_re(test.stderr(), """
 scons: warning: Ignoring missing SConscript 'no_such_file'
-File "\S+", line \d+, in .*
+File "[^"]+", line \d+, in .*
 """))
 
 test.pass_test()

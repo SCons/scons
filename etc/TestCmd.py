@@ -173,7 +173,7 @@ version.
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 __author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmd.py 0.04.D009 2003/07/18 17:37:29 knight"
+__revision__ = "TestCmd.py 0.04.D010 2004/01/27 00:11:44 knight"
 __version__ = "0.04"
 
 import os
@@ -636,7 +636,7 @@ class TestCmd:
             if interpreter:
                 cmd = interpreter + " " + cmd
         else:
-            cmd = self.program
+            cmd = escape_cmd(self.program)
             if self.interpreter:
                 cmd =  self.interpreter + " " + cmd
         if arguments:

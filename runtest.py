@@ -354,8 +354,15 @@ class Unbuffered:
 
 sys.stdout = Unbuffered(sys.stdout)
 
+_ws = re.compile('\s')
+
+def escape(s):
+    if _ws.search(s):
+        s = '"' + s + '"'
+    return s
+
 for t in tests:
-    cmd = string.join([python, debug, t.abspath], " ")
+    cmd = string.join(map(escape, [python, debug, t.abspath]), " ")
     if printcmd:
         sys.stdout.write(cmd + "\n")
     s = os.system(cmd)

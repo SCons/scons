@@ -337,8 +337,16 @@ Mylib.ExportLib(env, lib_fullname)
 #cmd_generated = "cd %s ; sh MAKE-HEADER.sh" % Dir(".")
 #cmd_justlib = "cd %s ; make" % Dir(".")
 
-cmd_generated = "%s $SOURCE" % (sys.executable,)
-cmd_justlib = "%s %s -C ${SOURCES[0].dir}" % (sys.executable, sys.argv[0])
+_ws = re.compile('\s')
+
+def escape(s):
+    if _ws.search(s):
+        s = '"' + s + '"'
+    return s
+
+cmd_generated = "%s $SOURCE" % (escape(sys.executable),)
+cmd_justlib = "%s %s -C ${SOURCES[0].dir}" % ((sys.executable),
+                                              escape(sys.argv[0]))
 
 ##### Deps appear correct ... but wacky scanning?
 # Why?
