@@ -184,9 +184,17 @@ for $dir ('script', 'engine') {
 
     my @unpack_files = map("$unpack/$pkg-$version/$_", @files);
 
+    # We'd like to replace the last three lines with the following:
+    #
+    #	tar zxf %< -C $unpack
+    #
+    # but that gives heartburn to Cygwin's tar, so work around it
+    # with separate zcat-tar-rm commands.
     Command $env [@unpack_files], $archive, qq(
 	rm -rf $unpack/$pkg-$version
-	tar zxf %< -C $unpack
+	zcat %< > .temp
+	tar xf .temp -C $unpack
+	rm -f .temp
     );
 
     #
