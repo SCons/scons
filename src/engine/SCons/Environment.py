@@ -86,7 +86,8 @@ def installString(target, source, env):
 
 installAction = SCons.Action.Action(installFunc, installString)
 
-InstallBuilder = SCons.Builder.Builder(action=installAction)
+InstallBuilder = SCons.Builder.Builder(action=installAction,
+                                       name='InstallBuilder')
 
 def alias_builder(env, target, source):
     pass
@@ -94,7 +95,8 @@ def alias_builder(env, target, source):
 AliasBuilder = SCons.Builder.Builder(action = alias_builder,
                                      target_factory = SCons.Node.Alias.default_ans.Alias,
                                      source_factory = SCons.Node.FS.default_fs.Entry,
-                                     multi = 1)
+                                     multi = 1,
+                                     name='AliasBuilder')
 
 def our_deepcopy(x):
    """deepcopy lists and dictionaries, and just copy the reference
