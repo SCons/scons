@@ -111,11 +111,14 @@ javac = foo.Dictionary('JAVAC')
 bar = foo.Copy(JAVAC = r'%s wrapper.py ' + javac)
 foo.Java(target = 'classes', source = 'com/sub/foo')
 bar.Java(target = 'classes', source = 'com/sub/bar')
+foo.Java(target = 'classes', source = 'src')
 """ % python)
 
-test.subdir('com', ['com', 'sub'],
+test.subdir('com',
+            ['com', 'sub'],
             ['com', 'sub', 'foo'],
-            ['com', 'sub', 'bar'])
+            ['com', 'sub', 'bar'],
+            'src')
 
 test.write(['com', 'sub', 'foo', 'Example1.java'], """\
 package com.sub.foo;
@@ -201,6 +204,65 @@ public class Example6
 }
 """)
 
+# Acid-test file for parsing inner Java classes, courtesy Chad Austin.
+test.write(['src', 'Test.java'], """\
+class Empty {
+}
+
+interface Listener {
+  public void execute();
+}
+
+public
+class
+Test {
+  class Inner {
+    void go() {
+      use(new Listener() {
+        public void execute() {
+          System.out.println("In Inner");
+        }
+      });
+    }
+    String s1 = "class A";
+    String s2 = "new Listener() { }";
+    /* class B */
+    /* new Listener() { } */
+  }
+
+  public static void main(String[] args) {
+    new Test().run();
+  }
+
+  void run() {
+    use(new Listener() {
+      public void execute() {
+        use(new Listener( ) {
+          public void execute() {
+            System.out.println("Inside execute()");
+          }
+        });
+      }
+    });
+
+    new Inner().go();
+  }
+
+  void use(Listener l) {
+    l.execute();
+  }
+}
+
+class Private {
+  void run() {
+    new Listener() {
+      public void execute() {
+      }
+    };
+  }
+}
+""")
+
 test.run(arguments = '.')
 
 test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin/javac -d classes -sourcepath com/sub/bar com/sub/bar/Example4.java com/sub/bar/Example5.java com/sub/bar/Example6.java\n")
@@ -208,9 +270,20 @@ test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'foo', 'Example1.class')))
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'other', 'Example2.class')))
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'foo', 'Example3.class')))
+
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'bar', 'Example4.class')))
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'other', 'Example5.class')))
 test.fail_test(not os.path.exists(test.workpath('classes', 'com', 'sub', 'bar', 'Example6.class')))
+
+test.fail_test(not os.path.exists(test.workpath('classes', 'Empty.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'Listener.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'Private.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'Private$1.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'Test.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'Test$1.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'Test$2.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'Test$3.class')))
+test.fail_test(not os.path.exists(test.workpath('classes', 'Test$Inner.class')))
 
 test.up_to_date(arguments = '.')
 

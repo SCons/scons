@@ -34,6 +34,11 @@ RELEASE 0.14 - XXX
   - Add an optional sort function argument to the GenerateHelpText()
     Options function.
 
+  From Charles Crain:
+
+  - Parse the source .java files for class names (including inner class
+    names) to figure out the target .class files that will be created.
+
   From Steven Knight:
 
   - Add support for Java (javac and jar).

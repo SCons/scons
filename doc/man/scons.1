@@ -31,7 +31,7 @@
 .RE
 .fi
 ..
-.TH SCONS 1 "February 2003"
+.TH SCONS 1 "April 2003"
 .SH NAME
 scons \- a software construction tool
 .SH SYNOPSIS
@@ -1277,26 +1277,28 @@ Builds one or more Java class files
 from a source tree of .java files.
 The class files will be placed underneath
 the specified target directory.
-SCons assumes that each .java file
-contains a single public class
-with the same name as the basename of the file;
-that is, the file
-.I Foo.java
-contains a single public class named
-.IR Foo .
-SCons will search each Java file
+SCons will parse each source .java file
+to find the classes
+(including inner classes)
+defined within that file,
+and from that figure out the
+target .class files that will be created.
+SCons will also search each Java file
 for the Java package name,
 which it assumes can be found on a line
 beginning with the string
 .B package
-in the first column.
-The resulting .class file
+in the first column;
+the resulting .class files
 will be placed in a directory reflecting
-the specified package name;
-that is,
+the specified package name.
+For example,
 the file
 .I Foo.java
-with a package name of
+defining a single public
+.I Foo
+class and
+containing a package name of
 .I sub.dir
 will generate a corresponding
 .IR sub/dir/Foo.class
