@@ -341,6 +341,7 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
         t.env_set(env)
         t.add_source(slist)
         t.set_executor(executor)
+        t.set_explicit(builder.is_explicit)
 
 class EmitterProxy:
     """This is a callable class that can act as a

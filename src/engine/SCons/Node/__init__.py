@@ -51,6 +51,7 @@ import string
 import UserList
 
 from SCons.Debug import logInstanceCreation
+import SCons.Executor
 import SCons.SConsign
 import SCons.Util
 
@@ -165,17 +166,39 @@ class Node:
         except AttributeError:
             if not create:
                 raise
-            import SCons.Executor
-            act = self.builder.action
-            if self.pre_actions:
-                act = self.pre_actions + act
-            if self.post_actions:
-                act = act + self.post_actions
-            executor = SCons.Executor.Executor(act,
-                                               self.env or self.builder.env,
-                                               [self.builder.overrides],
-                                               [self],
-                                               self.sources)
+            try:
+                act = self.builder.action
+            except AttributeError:
+                # If there's no builder or action, then return a created
+                # null Executor with a null build Environment that
+                # does nothing when the rest of the methods call it.
+                # We're keeping this here for now because this module is
+                # the only one using it, and because this whole thing
+                # may go away in the next step of refactoring this to
+                # disassociate Builders from Nodes entirely.
+                class NullExecutor:
+                    def get_build_env(self):
+                        class NullEnvironment:
+                            def get_scanner(self, key):
+                                return None
+                        return NullEnvironment()
+                    def get_build_scanner_path(self):
+                        return None
+                    def __call__(self, *args, **kw):
+                        pass
+                    def cleanup(self):
+                        pass
+                executor = NullExecutor()
+            else:
+                if self.pre_actions:
+                    act = self.pre_actions + act
+                if self.post_actions:
+                    act = act + self.post_actions
+                executor = SCons.Executor.Executor(act,
+                                                   self.env or self.builder.env,
+                                                   [self.builder.overrides],
+                                                   [self],
+                                                   self.sources)
             self.executor = executor
         return executor
 
@@ -204,8 +227,6 @@ class Node:
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
         """
-        if not self.has_builder():
-            return
         def errfunc(stat, node=self):
             raise SCons.Errors.BuildError(node=node, errstr="Error %d" % stat)
         executor = self.get_executor()
@@ -303,7 +324,6 @@ class Node:
         and __nonzero__ attributes on instances of our Builder Proxy
         class(es), generating a bazillion extra calls and slowing
         things down immensely.
-        __cacheable__
         """
         try:
             b = self.builder
@@ -314,6 +334,9 @@ class Node:
             b = self.builder
         return not b is None
 
+    def set_explicit(self, is_explicit):
+        self.is_explicit = is_explicit
+
     def has_explicit_builder(self):
         """Return whether this Node has an explicit builder
 
@@ -321,7 +344,11 @@ class Node:
         non-explicit, so that it can be overridden by an explicit
         builder that the user supplies (the canonical example being
         directories)."""
-        return self.has_builder() and self.builder.is_explicit
+        try:
+            return self.is_explicit
+        except AttributeError:
+            self.is_explicit = None
+            return self.is_explicit
 
     def get_builder(self, default_builder=None):
         """Return the set builder, or a specified default value"""
@@ -426,28 +453,15 @@ class Node:
         This function may be called very often; it attempts to cache
         the scanner found to improve performance.
         """
-        # Called from scan() for each child (node) of this node
-        # (self).  The scan() may be called multiple times, so this
-        # gets called a multiple of those times; caching results is
-        # good.  Index results based on the id of the child; can
-        # ignore build_env parameter for the index because it's passed
-        # as an optimization of an already-determined value, not as a
-        # changing parameter.
-
-        if not self.has_builder():
-            return None
-        
         scanner = None
         try:
             scanner = self.builder.source_scanner
         except AttributeError:
             pass
-
-        # Not cached, so go look up a scanner from env['SCANNERS']
-        # based on the node's scanner key (usually the file
-        # extension).
-        
         if not scanner:
+            # The builder didn't have an explicit scanner, so go look up
+            # a scanner from env['SCANNERS'] based on the node's scanner
+            # key (usually the file extension).
             scanner = self.get_build_env().get_scanner(node.scanner_key())
         if scanner:
             scanner = scanner.select(node)
