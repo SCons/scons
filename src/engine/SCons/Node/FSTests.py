@@ -521,6 +521,73 @@ class BuildDirTestCase(unittest.TestCase):
                     delattr(os, 'symlink')
                 shutil.copy2 = real_copy
 
+        # Test BuildDir "reflection," where a same-named subdirectory
+        # exists underneath a build_dir.
+        fs = SCons.Node.FS.FS()
+        fs.BuildDir('work/src/b1/b2', 'work/src')
+
+        dir_list = [
+                'work/src',
+                'work/src/b1',
+                'work/src/b1/b2',
+                'work/src/b1/b2/b1',
+                'work/src/b1/b2/b1/b2',
+        ]
+
+        srcnode_map = {
+                'work/src/b1/b2' : 'work/src',
+                'work/src/b1/b2/f' : 'work/src/f',
+                'work/src/b1/b2/b1' : 'work/src/b1/',
+                'work/src/b1/b2/b1/f' : 'work/src/b1/f',
+        }
+
+        alter_map = {
+                'work/src' : 'work/src/b1/b2',
+                'work/src/f' : 'work/src/b1/b2/f',
+                'work/src/b1' : 'work/src/b1/b2/b1',
+                'work/src/b1/f' : 'work/src/b1/b2/b1/f',
+        }
+
+        errors = 0
+
+        for dir in dir_list:
+            dnode = fs.Dir(dir)
+            f = dir + '/f'
+            fnode = fs.File(dir + '/f')
+
+            dp = dnode.srcnode().path
+            expect = os.path.normpath(srcnode_map.get(dir, dir))
+            if dp != expect:
+                print "Dir `%s' srcnode() `%s' != expected `%s'" % (dir, dp, expect)
+                errors = errors + 1
+
+            fp = fnode.srcnode().path
+            expect = os.path.normpath(srcnode_map.get(f, f))
+            if fp != expect:
+                print "File `%s' srcnode() `%s' != expected `%s'" % (f, fp, expect)
+                errors = errors + 1
+
+        for dir in dir_list:
+            dnode = fs.Dir(dir)
+            f = dir + '/f'
+            fnode = fs.File(dir + '/f')
+
+            t, m = dnode.alter_targets()
+            tp = t[0].path
+            expect = os.path.normpath(alter_map.get(dir, dir))
+            if tp != expect:
+                print "Dir `%s' alter_targets() `%s' != expected `%s'" % (dir, tp, expect)
+                errors = errors + 1
+
+            t, m = fnode.alter_targets()
+            tp = t[0].path
+            expect = os.path.normpath(alter_map.get(f, f))
+            if tp != expect:
+                print "File `%s' alter_targets() `%s' != expected `%s'" % (f, tp, expect)
+                errors = errors + 1
+
+        self.failIf(errors)
+
 class FSTestCase(unittest.TestCase):
     def runTest(self):
         """Test FS (file system) Node operations

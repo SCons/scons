@@ -541,6 +541,11 @@ class Base(SCons.Node.Node):
                 if dir.srcdir:
                     self._srcnode = self.fs.Entry(name, dir.srcdir,
                                                   klass=self.__class__)
+                    if self._srcnode.is_under(dir):
+                        # Shouldn't source from something in the build
+                        # path: probably means build_dir is under
+                        # src_dir and we are reflecting.
+                        break
                     return self._srcnode
                 name = dir.name + os.sep + name
                 dir=dir.get_dir()
@@ -1101,8 +1106,17 @@ class FS(LocalFS):
         """
         targets = []
         message = None
+        start_dir = dir
+        start_tail = tail[:]
         while dir:
             for bd in dir.build_dirs:
+                if start_dir.is_under(bd):
+                    # If already in the build-dir location, don't reflect
+                    e = start_dir
+                    if start_tail:
+                        e = e.Entry(start_tail[0])
+                    targets.append(e)
+                    continue
                 p = apply(os.path.join, [bd.path] + tail)
                 targets.append(self.Entry(p))
             tail = [dir.name] + tail
@@ -1669,7 +1683,7 @@ class File(Base):
         # Duplicate from source path if we are set up to do this.
         if self.duplicate and not self.is_derived() and not self.linked:
             src=self.srcnode().rfile()
-            if src.exists() and src.abspath != self.abspath:
+            if src.abspath != self.abspath and src.exists():
                 self._createDir()
                 try:
                     Unlink(self, None, None)
