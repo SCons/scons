@@ -28,11 +28,11 @@ latest version at the SCons download page:
         http://www.scons.org/download.html
 
 
-REQUIREMENTS
-============
+EXECUTION REQUIREMENTS
+======================
 
-SCons requires Python version 1.5.2 or later.  There should be no
-other dependencies or requirements to run SCons.
+Running SCons requires Python version 1.5.2 or later.  There should be
+no other dependencies or requirements to run SCons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on WIN32 systems, and assumes a C compiler named 'cc',
@@ -42,13 +42,49 @@ You may, of course, override these default values by appropriate
 configuration of Environment construction variables.
 
 
+INSTALLATION REQUIREMENTS
+=========================
+
+Building and installing SCons from this package requires the Python
+distutils package.  The distutils package was not shipped as a standard
+part of Python until Python version 1.6, so if your system is running
+Python 1.5.2, you may not have distutils installed.  If you are running
+Python version 1.6 or later, you should be fine.
+
+NOTE TO RED HAT USERS:  All Red Hat Linux versions as late as 7.3
+still ship Python 1.5.2 as the default, so you probably do *not* have
+distutils installed, unless you have already done so manually.
+
+In this case, your options are:
+
+    --  (Optional.)  Install from a pre-packaged SCons package that
+        does not require distutils:
+
+            Red Hat Linux       scons-0.08-1.noarch.rpm
+
+            Debian GNU/Linux    scons_0.08-1_all.deb
+                                (or use apt-get)
+
+            Windows             scons-0.08.win32.exe
+
+    --  (Recommended.)  Download the latest distutils package from the
+        following URL:
+
+            http://www.python.org/sigs/distutils-sig/download.html
+
+        Install the distutils according to the instructions on the page.
+        You can then proceed to the next section to install SCons from
+        this package.
+
+
 INSTALLATION
 ============
 
-To install SCons from this package, you must first populate the
-build/scons/ directory.  (For an easier way to install SCons, without
-having to populate this directory, use the scons-{version}.tar.gz
-or scons-{version}.zip package.)
+Assuming your system satisfies the installation requirements in
+the previous section, install SCons from this package by first
+populating the build/scons/ directory.  (For an easier way to
+install SCons, without having to populate this directory, use the
+scons-{version}.tar.gz or scons-{version}.zip package.)
 
 If you already have an appropriate version of SCons installed on your
 system, populate the build/scons/ directory by running:

@@ -33,8 +33,18 @@ if head:
     os.chdir(head)
     sys.argv[0] = tail
 
-from distutils.core import setup
-from distutils.command.install_lib import install_lib
+try:
+    from distutils.core import setup
+    from distutils.command.install_lib import install_lib
+except ImportError:
+    sys.stderr.write("""Could not import distutils.
+
+Building or installing SCons from this package requires that the Python
+distutils be installed.  See the README or README.txt file from this
+package for instructions on where to find distutils for installation on
+your system, or on how to install SCons from a different package.
+""")
+    sys.exit(1)
 
 class my_install_lib(install_lib):
     def finalize_options(self):
