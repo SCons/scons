@@ -73,7 +73,7 @@ line 3
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1.h') != "test1.java\nline 3\n")
+test.must_match('test1.h', "test1.java\nline 3\n")
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
 
@@ -91,12 +91,32 @@ line 3
 
     test.run(arguments = '.', stderr = None)
 
-    test.fail_test(test.read('test2.h') != "test2.JAVA\nline 3\n")
+    test.must_match('test2.h', "test2.JAVA\nline 3\n")
 
 
-if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javah'):
-    print "Could not find Java, skipping test(s)."
-    test.pass_test(1)
+if test.detect_tool('javac'):
+    where_javac = test.detect('JAVAC', 'javac')
+else:
+    import SCons.Environment
+    env = SCons.Environment.Environment()
+    where_javac = env.WhereIs('javac', os.environ['PATH'])
+    if not where_javac:
+        where_javac = env.WhereIs('javac', '/usr/local/j2sdk1.3.1/bin')
+        if not where_javac:
+            print "Could not find Java javac, skipping test(s)."
+            test.pass_test(1)
+
+if test.detect_tool('javah'):
+    where_javah = test.detect('JAVAH', 'javah')
+else:
+    import SCons.Environment
+    env = SCons.Environment.Environment()
+    where_javah = env.WhereIs('javah', os.environ['PATH'])
+    if not where_javah:
+        where_javah = env.WhereIs('javah', '/usr/local/j2sdk1.3.1/bin')
+        if not where_javah:
+            print "Could not find Java javah, skipping test(s)."
+            test.pass_test(1)
 
 
 
@@ -110,10 +130,10 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment(tools = ['javac', 'javah'],
-                  JAVAC = '/usr/local/j2sdk1.3.1/bin/javac',
-                  JAVAH = '/usr/local/j2sdk1.3.1/bin/javah')
+                  JAVAC = '%(where_javac)s',
+                  JAVAH = '%(where_javah)s')
 javah = foo.Dictionary('JAVAH')
-bar = foo.Copy(JAVAH = r'%s wrapper.py ' + javah)
+bar = foo.Copy(JAVAH = r'%(python)s wrapper.py ' + javah)
 foo.Java(target = 'class1', source = 'com/sub/foo')
 bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
 foo_classes = foo.Java(target = 'class3', source = 'src')
@@ -128,7 +148,7 @@ foo.Install('class4/com/sub/foo', 'class1/com/sub/foo/Example1.class')
 foo.JavaH(target = 'outdir4',
           source = ['class4/com/sub/foo/Example1.class'],
           JAVACLASSDIR = 'class4')
-""" % python)
+""" % locals())
 
 test.subdir('com',
             ['com', 'sub'],
@@ -280,15 +300,15 @@ class Private {
 
 test.run(arguments = '.')
 
-test.fail_test(test.read('wrapper.out') != "wrapper.py /usr/local/j2sdk1.3.1/bin/javah -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n")
+test.fail_test(test.read('wrapper.out') != "wrapper.py %(where_javah)s -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n" % locals())
 
-test.fail_test(not os.path.exists(test.workpath('outdir1', 'com_sub_foo_Example1.h')))
-test.fail_test(not os.path.exists(test.workpath('outdir1', 'com_other_Example2.h')))
-test.fail_test(not os.path.exists(test.workpath('outdir1', 'com_sub_foo_Example3.h')))
+test.must_exist(['outdir1', 'com_sub_foo_Example1.h'])
+test.must_exist(['outdir1', 'com_other_Example2.h'])
+test.must_exist(['outdir1', 'com_sub_foo_Example3.h'])
 
-test.fail_test(not os.path.exists(test.workpath('outdir2', 'com_sub_bar_Example4.h')))
-test.fail_test(not os.path.exists(test.workpath('outdir2', 'com_other_Example5.h')))
-test.fail_test(not os.path.exists(test.workpath('outdir2', 'com_sub_bar_Example6.h')))
+test.must_exist(['outdir2', 'com_sub_bar_Example4.h'])
+test.must_exist(['outdir2', 'com_other_Example5.h'])
+test.must_exist(['outdir2', 'com_sub_bar_Example6.h'])
 
 test.up_to_date(arguments = '.')
 
