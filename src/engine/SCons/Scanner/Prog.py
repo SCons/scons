@@ -32,7 +32,7 @@ def ProgScan():
     files for static-lib dependencies"""
     return SCons.Scanner.Base(scan, "ProgScan", SCons.Node.FS.default_fs.File)
 
-def scan(filename, env, node_factory):
+def scan(node, env, node_factory):
     """
     This scanner scans program files for static-library
     dependencies.  It will search the LIBPATH environment variable

@@ -52,6 +52,23 @@ except AttributeError:
         st=os.stat(src)
         os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
 
+class ParentOfRoot:
+    """
+    An instance of this class is used as the parent of the root of a
+    filesystem (POSIX) or drive (Win32). This isn't actually a node,
+    but it looks enough like one so that we don't have to have
+    special purpose code everywhere to deal with dir being None. 
+    This class is an instance of the Null object pattern.
+    """
+    def __init__(self):
+        self.abspath = ""
+        self.duplicate = 1
+        self.path = ""
+        self.srcpath = ""
+
+    def is_under(self, dir):
+        return 0
+
 class PathName:
     """This is a string like object with limited capabilities (i.e.,
     cannot always be used interchangeably with strings).  This class
@@ -145,16 +162,6 @@ class FS:
             self.Top.path_ = os.path.join('.', '')
             self._cwd = self.Top
         
-    def __hash__(self):
-        self.__setTopLevelDir()
-        return hash(self.Top)
-
-    def __cmp__(self, other):
-        self.__setTopLevelDir()
-        if isinstance(other, FS):
-            other.__setTopLevelDir()
-	return cmp(self.__dict__, other.__dict__)
-
     def getcwd(self):
         self.__setTopLevelDir()
 	return self._cwd
@@ -187,7 +194,7 @@ class FS:
             #    if not directory:
             #        raise OSError, 'No drive letter supplied for absolute path.'
             #    return directory.root()
-            dir = Dir(tail)
+            dir = Dir(tail, ParentOfRoot())
             dir.path = drive + dir.path
             dir.path_ = drive + dir.path_
             dir.abspath = drive + dir.abspath
@@ -298,7 +305,13 @@ class Entry(SCons.Node.Node):
     """A generic class for file system entries.  This class if for
     when we don't know yet whether the entry being looked up is a file
     or a directory.  Instances of this class can morph into either
-    Dir or File objects by a later, more precise lookup."""
+    Dir or File objects by a later, more precise lookup.
+
+    Note: this class does not define __cmp__ and __hash__ for efficiency
+    reasons.  SCons does a lot of comparing of Entry objects, and so that
+    operation must be as fast as possible, which means we want to use
+    Python's built-in object identity comparison.
+    """
 
     def __init__(self, name, directory):
 	"""Initialize a generic file system Entry.
@@ -310,34 +323,35 @@ class Entry(SCons.Node.Node):
         SCons.Node.Node.__init__(self)
 
         self.name = name
-        if directory:
-            self.duplicate = directory.duplicate
-            self.abspath = os.path.join(directory.abspath, name)
-            if str(directory.path) == '.':
-                self.path = name
-            else:
-                self.path = os.path.join(directory.path, name)
+
+        assert directory, "A directory must be provided"
+
+        self.duplicate = directory.duplicate
+        self.abspath = os.path.join(directory.abspath, name)
+
+        if str(directory.path) == '.':
+            self.path = name
         else:
-            self.abspath = self.path = name
-            self.duplicate = 1
+            self.path = os.path.join(directory.path, name)
+
         self.path_ = self.path
         self.abspath_ = self.abspath
         self.dir = directory
 	self.use_signature = 1
         self.__doSrcpath(self.duplicate)
 
+    def get_dir(self):
+        return self.dir
+
     def adjust_srcpath(self, duplicate):
         self.__doSrcpath(duplicate)
         
     def __doSrcpath(self, duplicate):
         self.duplicate = duplicate
-        if self.dir:
-            if str(self.dir.srcpath) == '.':
-                self.srcpath = self.name
-            else:
-                self.srcpath = os.path.join(self.dir.srcpath, self.name)
-        else:
+        if str(self.dir.srcpath) == '.':
             self.srcpath = self.name
+        else:
+            self.srcpath = os.path.join(self.dir.srcpath, self.name)
 
     def __str__(self):
 	"""A FS node's string representation is its path name."""
@@ -345,18 +359,6 @@ class Entry(SCons.Node.Node):
             return self.path
         else:
             return self.srcpath
-
-    def __cmp__(self, other):
-	if type(self) != types.StringType and type(other) != types.StringType:
-            try:
-                if self.__class__ != other.__class__:
-                    return 1
-            except:
-                return 1
-        return cmp(str(self), str(other))
-
-    def __hash__(self):
-	return hash(self.abspath_)
 
     def exists(self):
         return os.path.exists(str(self))
@@ -373,9 +375,8 @@ class Entry(SCons.Node.Node):
     def is_under(self, dir):
         if self is dir:
             return 1
-        if not self.dir:
-            return 0
-        return self.dir.is_under(dir)
+        else:
+            return self.dir.is_under(dir)
 
 
 
@@ -392,7 +393,7 @@ class Dir(Entry):
     """A class for directories in a file system.
     """
 
-    def __init__(self, name, directory = None):
+    def __init__(self, name, directory):
         Entry.__init__(self, name, directory)
 	self._morph()
 
@@ -564,7 +565,7 @@ class File(Entry):
         if self.env:
             for scn in self.scanners:
                 if not self.scanned.has_key(scn):
-                    deps = scn.scan(str(self), self.env)
+                    deps = scn.scan(self, self.env)
                     self.add_implicit(deps,scn)
                     self.scanned[scn] = 1
                     

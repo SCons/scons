@@ -90,18 +90,18 @@ class Base:
         self.argument = argument
         self.skeys = skeys
 
-    def scan(self, filename, env):
+    def scan(self, node, env):
         """
-        This method scans a single object. 'filename' is the filename
+        This method scans a single object. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
         environment that will be passed to the scanner function. A list of
         direct dependency nodes for the specified filename will be returned.
         """
 
         if not self.argument is _null:
-            return self.function(filename, env, self.argument)
+            return self.function(node, env, self.argument)
         else:
-            return self.function(filename, env)
+            return self.function(node, env)
 
     def instance(self, env):
         """
@@ -127,28 +127,27 @@ class Recursive(Base):
     list of all dependencies.
     """
 
-    def scan(self, filename, env):
+    def scan(self, node, env):
         """
-        This method does the actual scanning. 'filename' is the filename
+        This method does the actual scanning. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
         environment that will be passed to the scanner function. An
         aggregate list of dependency nodes for the specified filename
         and any of its scanned dependencies will be returned.
         """
 
-        files = [filename]
-        seen = [filename]
+        nodes = [node]
+        seen = [node]
         deps = []
-        while files:
-            f = files.pop(0)
+        while nodes:
+            n = nodes.pop(0)
             if not self.argument is _null:
-                d = self.function(f, env, self.argument)
+                d = self.function(n, env, self.argument)
             else:
-                d = self.function(f, env)
-            d = filter(lambda x, seen=seen: str(x) not in seen, d)
+                d = self.function(n, env)
+            d = filter(lambda x, seen=seen: x not in seen, d)
             if d:
                 deps.extend(d)
-                s = map(str, d)
-                seen.extend(s)
-                files.extend(s)
+                seen.extend(d)
+                nodes.extend(d)
         return deps

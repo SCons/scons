@@ -36,8 +36,7 @@ import re
 import SCons.Scanner
 import SCons.Util
 
-angle_re = re.compile('^[ \t]*#[ \t]*include[ \t]+<([\\w./\\\\]+)>', re.M)
-quote_re = re.compile('^[ \t]*#[ \t]*include[ \t]+"([\\w./\\\\]+)"', re.M)
+include_re = re.compile('^[ \t]*#[ \t]*include[ \t]+(<|")([\\w./\\\\]+)(>|")', re.M)
 
 def CScan(fs = SCons.Node.FS.default_fs):
     "Return a prototype Scanner instance for scanning C/C++ source files"
@@ -73,9 +72,9 @@ class CScanner(SCons.Scanner.Recursive):
     def __hash__(self):
         return hash(self.hash)
 
-def scan(filename, env, args = [SCons.Node.FS.default_fs, ()]):
+def scan(node, env, args = [SCons.Node.FS.default_fs, ()]):
     """
-    scan(str, Environment) -> [str]
+    scan(node, Environment) -> [node]
 
     the C/C++ dependency scanner function
 
@@ -95,23 +94,29 @@ def scan(filename, env, args = [SCons.Node.FS.default_fs, ()]):
     """
 
     fs, cpppath = args
+    nodes = []
 
-    if fs.File(filename, fs.Top).exists():
-        file = open(filename)
-        contents = file.read()
-        file.close()
+    if node.exists():
 
-        angle_includes = angle_re.findall(contents)
-        quote_includes = quote_re.findall(contents)
-
-        dir = os.path.dirname(filename)
-        if dir:
-            source_dir = (fs.Dir(dir, fs.Top),)
+        # cache the includes list in node so we only scan it once:
+        if hasattr(node, 'includes'):
+            includes = node.includes
         else:
-            source_dir = ( fs.Top, )
+            includes = include_re.findall(node.get_contents())
+            node.includes = includes
 
-        return (SCons.Util.find_files(angle_includes, cpppath + source_dir,
-                                      fs.File)
-                + SCons.Util.find_files(quote_includes, source_dir + cpppath,
-                                        fs.File))
-    return []
+        source_dir = node.get_dir()
+
+        for include in includes:
+            if include[0] == '"':
+                node = SCons.Util.find_file(include[1], (source_dir,) + cpppath,
+                                            fs.File)
+            else:
+                node = SCons.Util.find_file(include[1], cpppath + (source_dir,),
+                                            fs.File)
+
+            if not node is None:
+                nodes.append(node)
+
+    return nodes
+

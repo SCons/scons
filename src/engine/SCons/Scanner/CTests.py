@@ -138,13 +138,16 @@ def deps_match(self, deps, headers):
     expect.sort()
     self.failUnless(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
+def make_node(filename):
+    return SCons.Node.FS.default_fs.File(test.workpath(filename))
+
 # define some tests:
 
 class CScannerTestCase1(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
-        deps = s.instance(env).scan(test.workpath('f1.cpp'), env)
+        deps = s.instance(env).scan(make_node('f1.cpp'), env)
 	headers = ['f1.h', 'f2.h', 'fi.h']
         deps_match(self, deps, map(test.workpath, headers))
 
@@ -152,7 +155,7 @@ class CScannerTestCase2(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.C.CScan()
-        deps = s.instance(env).scan(test.workpath('f1.cpp'), env)
+        deps = s.instance(env).scan(make_node('f1.cpp'), env)
         headers = ['f1.h', 'd1/f2.h']
         deps_match(self, deps, map(test.workpath, headers))
 
@@ -160,7 +163,7 @@ class CScannerTestCase3(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.C.CScan()
-        deps = s.instance(env).scan(test.workpath('f2.cpp'), env)
+        deps = s.instance(env).scan(make_node('f2.cpp'), env)
         headers = ['f1.h', 'd1/f1.h', 'd1/d2/f1.h']
         deps_match(self, deps, map(test.workpath, headers))
 
@@ -168,7 +171,7 @@ class CScannerTestCase4(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1"), test.workpath("d1/d2")])
         s = SCons.Scanner.C.CScan()
-        deps = s.instance(env).scan(test.workpath('f2.cpp'), env)
+        deps = s.instance(env).scan(make_node('f2.cpp'), env)
         headers =  ['f1.h', 'd1/f1.h', 'd1/d2/f1.h', 'd1/d2/f4.h']
         deps_match(self, deps, map(test.workpath, headers))
         
@@ -176,7 +179,7 @@ class CScannerTestCase5(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
-        deps = s.instance(env).scan(test.workpath('f3.cpp'), env)
+        deps = s.instance(env).scan(make_node('f3.cpp'), env)
         
         # Make sure exists() gets called on the file node being
         # scanned, essential for cooperation with BuildDir functionality.
@@ -197,8 +200,8 @@ class CScannerTestCase6(unittest.TestCase):
         s3 = s.instance(env3)
         assert not s1 is s2
         assert s1 is s3
-        deps1 = s1.scan(test.workpath('f1.cpp'), None)
-        deps2 = s2.scan(test.workpath('f1.cpp'), None)
+        deps1 = s1.scan(make_node('f1.cpp'), None)
+        deps2 = s2.scan(make_node('f1.cpp'), None)
         headers1 =  ['f1.h', 'd1/f2.h']
         headers2 =  ['f1.h', 'd1/d2/f2.h']
         deps_match(self, deps1, map(test.workpath, headers1))
@@ -218,9 +221,9 @@ class CScannerTestCase8(unittest.TestCase):
         fs = SCons.Node.FS.FS(test.workpath(''))
         env = DummyEnvironment(["include"])
         s = SCons.Scanner.C.CScan(fs = fs)
-        deps1 = s.instance(env).scan(test.workpath('fa.cpp'), None)
+        deps1 = s.instance(env).scan(make_node('fa.cpp'), None)
         fs.chdir(fs.Dir('subdir'))
-        deps2 = s.instance(env).scan(test.workpath('fa.cpp'), None)
+        deps2 = s.instance(env).scan(make_node('fa.cpp'), None)
         headers1 =  ['include/fa.h', 'include/fb.h']
         headers2 =  ['subdir/include/fa.h', 'subdir/include/fb.h']
         deps_match(self, deps1, headers1)
@@ -232,8 +235,8 @@ class CScannerTestCase9(unittest.TestCase):
         s = SCons.Scanner.C.CScan(fs=fs)
         env = DummyEnvironment([])
         test.write('fa.h','\n')
-        deps = s.instance(env).scan('fa.cpp', None)
-        deps_match(self, deps, [ 'fa.h' ])
+        deps = s.instance(env).scan(make_node('fa.cpp'), None)
+        deps_match(self, deps, [ test.workpath('fa.h') ])
         test.unlink('fa.h')
 
 class CScannerTestCase10(unittest.TestCase):
@@ -243,8 +246,8 @@ class CScannerTestCase10(unittest.TestCase):
         s = SCons.Scanner.C.CScan(fs=fs)
         env = DummyEnvironment([])
         test.write('include/fa.cpp', test.read('fa.cpp'))
-        deps = s.instance(env).scan('include/fa.cpp', None)
-        deps_match(self, deps, [ 'include/fa.h', 'include/fb.h' ])
+        deps = s.instance(env).scan(make_node('include/fa.cpp'), None)
+        deps_match(self, deps, [ test.workpath('include/fa.h'), test.workpath('include/fb.h') ])
         test.unlink('include/fa.cpp')
 
 def suite():
