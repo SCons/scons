@@ -163,21 +163,29 @@ def generate(env):
     env['REGSVRFLAGS'] = '/s '
     env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS $TARGET'
 
-    version = SCons.Tool.msvs.get_default_visualstudio_version(env)
-    
-    if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
-        include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_default_paths(version)
-    else:
-        include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_paths(version)
+    try:
+        version = SCons.Tool.msvs.get_default_visualstudio_version(env)
 
-    # since other tools can set these, we just make sure that the
-    # relevant stuff from MSVS is in there somewhere.
-    env.PrependENVPath('INCLUDE', include_path)
-    env.PrependENVPath('LIB', lib_path)
-    env.PrependENVPath('PATH', exe_path)
+        if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
+            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_default_paths(version)
+        else:
+            include_path, lib_path, exe_path = SCons.Tool.msvc.get_msvc_paths(version)
+
+        # since other tools can set these, we just make sure that the
+        # relevant stuff from MSVS is in there somewhere.
+        env.PrependENVPath('INCLUDE', include_path)
+        env.PrependENVPath('LIB', lib_path)
+        env.PrependENVPath('PATH', exe_path)
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        pass
 
 def exists(env):
-    if not SCons.Util.can_read_reg or not SCons.Tool.msvs.get_visualstudio_versions():
+    try:
+        v = SCons.Tool.msvs.get_visualstudio_versions()
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        pass
+    
+    if not v:
         return env.Detect('link')
     else:
         # there's at least one version of MSVS installed.

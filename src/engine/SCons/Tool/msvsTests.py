@@ -228,6 +228,7 @@ regdata_67 = string.split(r'''
 "MediaPath"="C:\WINDOWS\Media"
 ''','\n')
 
+regdata_none = []
 
 class DummyEnv:
     def __init__(self, dict=None):
@@ -411,7 +412,7 @@ class msvsTestCase(unittest.TestCase):
     def test_get_visual_studio_versions(self):
         """Test retrieval of the list of visual studio versions"""
         v1 = get_visualstudio_versions()
-        assert v1[0] == highest_version
+        assert not v1 or v1[0] == highest_version
         assert len(v1) == number_of_versions
 
     def test_get_msvs_install_dirs(self):
@@ -441,6 +442,7 @@ if __name__ == "__main__":
     number_of_versions = 1
     install_location1 = {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio\\VC98'}
     install_location2 = {}
+    print "Test MSVS 6 Registry"
     # print str(registry.root)
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
 	sys.exit(1)
@@ -451,6 +453,7 @@ if __name__ == "__main__":
     number_of_versions = 1
     install_location1 = {'VSINSTALLDIR': 'C:\\VS6', 'VCINSTALLDIR': 'C:\\VS6\\VC98'}
     install_location2 = {}        
+    print "Test Other MSVS 6 Registry"
     # print str(registry.root)
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
 	sys.exit(1)
@@ -462,6 +465,7 @@ if __name__ == "__main__":
     install_location1 = {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Vc7\\'}
     install_location2 = {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Vc7\\'}
     # print str(registry.root)
+    print "Test MSVS 6 & 7 Registry"
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
 	sys.exit(1)
 
@@ -472,5 +476,17 @@ if __name__ == "__main__":
     install_location1 = {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Vc7\\'}
     install_location2 = {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Vc7\\'}
     # print str(registry.root)
+    print "Test MSVS 7 Registry"
+    if not unittest.TextTestRunner().run(suite).wasSuccessful():
+	sys.exit(1)
+
+    registry = DummyRegistry(regdata_none)
+    default_version = '6.0'
+    highest_version = None
+    number_of_versions = 0
+    install_location1 = {}
+    install_location2 = {}
+    # print str(registry.root)
+    print "Test Empty Registry"
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
 	sys.exit(1)

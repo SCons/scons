@@ -701,7 +701,8 @@ def get_default_visualstudio_version(env):
     else:
         if SCons.Util.can_read_reg:
             versions = get_visualstudio_versions()
-            version = versions[0] #use highest version by default
+            if versions:
+                version = versions[0] #use highest version by default
 
     env['MSVS_VERSION'] = version
     env['MSVS']['VERSIONS'] = versions
@@ -719,7 +720,7 @@ def get_visualstudio_versions():
     """
 
     if not SCons.Util.can_read_reg:
-        raise SCons.Errors.InternalError, "No Windows registry module was found"
+        return []
 
     HLM = SCons.Util.HKEY_LOCAL_MACHINE
     K = r'Software\Microsoft\VisualStudio'
@@ -774,7 +775,7 @@ def get_visualstudio_versions():
         pass
 
     if not L:
-        raise SCons.Errors.InternalError, "Microsoft Visual Studio was not found."
+        return []
 
     L.sort()
     L.reverse()
@@ -788,10 +789,14 @@ def get_msvs_install_dirs(version = None):
     """
 
     if not SCons.Util.can_read_reg:
-        raise SCons.Errors.InternalError, "No Windows registry module was found"
+        return {}
 
     if not version:
-        version = get_visualstudio_versions()[0] #use highest version by default
+        versions = get_visualstudio_versions()
+        if versions:
+            version = versions[0] #use highest version by default
+        else:
+            return {}
 
     K = 'Software\\Microsoft\\VisualStudio\\' + version
 
@@ -996,12 +1001,11 @@ def generate(env):
     except KeyError:
         env['BUILDERS']['MSVSProject'] = projectBuilder
 
-    env['MSVSPROJECTCOM']     = projectGeneratorAction
+    env['MSVSPROJECTCOM'] = projectGeneratorAction
 
-    version = get_default_visualstudio_version(env)
-
-    # keep a record of some of the MSVS info so the user can use it.
     try:
+        version = get_default_visualstudio_version(env)
+        # keep a record of some of the MSVS info so the user can use it.
         dirs = get_msvs_install_dirs(version)
         env['MSVS'].update(dirs)
     except (SCons.Util.RegError, SCons.Errors.InternalError):
@@ -1019,7 +1023,12 @@ def generate(env):
         env['MSVSSOLUTIONSUFFIX'] = '.sln'
 
 def exists(env):
-    if not SCons.Util.can_read_reg or not get_visualstudio_versions():
+    try:
+        v = SCons.Tool.msvs.get_visualstudio_versions()
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        pass
+    
+    if not v:
         if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
             return env.Detect('devenv')
         else:

@@ -738,8 +738,24 @@ if can_read_reg:
     HKEY_USERS = hkey_mod.HKEY_USERS
 
     def RegGetValue(root, key):
-        """Returns a value in the registry without
-        having to open the key first."""
+        """This utility function returns a value in the registry
+        without having to open the key first.  Only available on
+        Windows platforms with a version of Python that can read the
+        registry.  Returns the same thing as
+        SCons.Util.RegQueryValueEx, except you just specify the entire
+        path to the value, and don't have to bother opening the key
+        first.  So:
+
+        Instead of:
+          k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
+                r'SOFTWARE\Microsoft\Windows\CurrentVersion')
+          out = SCons.Util.RegQueryValueEx(k,
+                'ProgramFilesDir')
+
+        You can write:
+          out = SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE,
+                r'SOFTWARE\Microsoft\Windows\CurrentVersion\ProgramFilesDir')
+        """
         # I would use os.path.split here, but it's not a filesystem
         # path...
         p = key.rfind('\\') + 1
@@ -814,12 +830,18 @@ else:
         return None
 
 def PrependPath(oldpath, newpath, sep = os.pathsep):
-    """Prepend newpath elements to the given oldpath.  Will only add
-    any particular path once (leaving the first one it encounters and
-    ignoring the rest, to preserve path order), and will normpath and
-    normcase all paths to help assure this.  This can also handle the
-    case where the given oldpath variable is a list instead of a
-    string, in which case a list will be returned instead of a string.
+    """This prepends newpath elements to the given oldpath.  Will only
+    add any particular path once (leaving the first one it encounters
+    and ignoring the rest, to preserve path order), and will
+    os.path.normpath and os.path.normcase all paths to help assure
+    this.  This can also handle the case where the given old path
+    variable is a list instead of a string, in which case a list will
+    be returned instead of a string.
+
+    Example:
+      Old Path: "/foo/bar:/foo"
+      New Path: "/biz/boom:/foo"
+      Result:   "/biz/boom:/foo:/foo/bar"
     """
 
     orig = oldpath
@@ -851,12 +873,18 @@ def PrependPath(oldpath, newpath, sep = os.pathsep):
         return string.join(paths, sep)
 
 def AppendPath(oldpath, newpath, sep = os.pathsep):
-    """Append newpath elements to the given oldpath.  Will only add
-    any particular path once (leaving the first one it encounters and
-    ignoring the rest, to preserve path order), and will normpath and
-    normcase all paths to help assure this.  This can also handle the
-    case where the given oldpath variable is a list instead of a
-    string, in which case a list will be returned instead of a string.
+    """This appends new path elements to the given old path.  Will
+    only add any particular path once (leaving the last one it
+    encounters and ignoring the rest, to preserve path order), and
+    will os.path.normpath and os.path.normcase all paths to help
+    assure this.  This can also handle the case where the given old
+    path variable is a list instead of a string, in which case a list
+    will be returned instead of a string.
+
+    Example:
+      Old Path: "/foo/bar:/foo"
+      New Path: "/biz/boom:/foo"
+      Result:   "/foo/bar:/biz/boom:/foo"
     """
 
     orig = oldpath

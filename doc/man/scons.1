@@ -181,7 +181,7 @@ or the path name(s) of the volume(s) in which all the targets
 should be built (on Windows systems):
 
 .ES
-scons C:\ D:\
+scons C:\\ D:\\
 .EE
 
 To build only specific targets,
@@ -429,37 +429,37 @@ Debug the build process.
 specifies what type of debugging:
 
 .TP
-.RI --debug=pdb
+--debug=pdb
 Re-run SCons under the control of the
 .RI pdb
 Python debugger.
 The
-.RI --debug=pdb
+--debug=pdb
 argument will be stripped from the command-line,
 but all other arguments will be passed in-order
 to the SCons invocation run by the debugger.
 
 .TP
-.RI --debug=tree
+--debug=tree
 Print the dependency tree
 after each top-level target is built. This prints out the complete
 dependency tree including implicit dependencies and ignored
 dependencies.
 
 .TP
-.RI --debug=dtree
+--debug=dtree
 Print the dependency tree
 after each top-level target is built. This prints out only derived files.
 
 .TP
-.RI --debug=time
+--debug=time
 Prints various time profiling information: the time spent
 executing each build command, the total build time, the total time spent
 executing build commands, the total time spent executing SConstruct and
 SConscript files, and the total time spent executing SCons itself.
 
 .TP
-.RI --debug=includes
+--debug=includes
 Print the include tree after each top-level target is built. 
 This is generally used to find out what files are included by the sources
 of a given derived file:
@@ -721,16 +721,16 @@ Enable or disable warnings.
 specifies the type of warnings to be enabled or disabled:
 
 .TP
-.RI --warn=all ", " --warn=no-all
+--warn=all, --warn=no-all
 Enables or disables all warnings.
 
 .TP
-.RI --warn=dependency ", " --warn=no-dependency
+--warn=dependency, --warn=no-dependency
 Enables or disables warnings about dependencies.
 These warnings are disabled by default.
 
 .TP
-.RI --warn=deprecated ", " --warn=no-deprecated
+--warn=deprecated, --warn=no-deprecated
 Enables or disables warnings about use of deprecated features.
 These warnings are enabled by default.
 
@@ -815,7 +815,7 @@ This is so that any executed commands
 that use sockets to connect with other systems
 (such as fetching source files from
 external CVS repository specifications like 
-.BR :pserver:anonymous:@cvs.sourceforge.net:/cvsroot/scons )
+.BR :pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons )
 will work on Win32 systems.
 
 The platform argument may be function or callable object,
@@ -1154,45 +1154,75 @@ env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
 
 .IP MSVSProject
 Builds Microsoft Visual Studio project files.
-.B scons
-will detect installed versions of Visual Studio
-up to and including versions 7.x (.NET).
-When one is detected,
-this builder will generate the correct
-project file
-.RI ( .vcproj
-or
-.IR .dsp )
-and solution file
-.RI ( .sln
-or
-.IR .dsw ).
-This builder takes a number of additional
-keyword arguments that supply information
-necessary to build the proper project files.
-Examples:
+This builds a Visual Studio project file, based on the version of
+Visual Studio that is configured (either the latest installed version,
+or the version set by 
+.B MSVS_VERSION
+in the Environment constructor).
+For VS 6, it will generate 
+.B .dsp
+and
+.B .dsw
+files, for VS 7, it will
+generate
+.B .vcproj
+and
+.B .sln
+files.
+
+It takes several lists of filenames to be placed into the project
+file, currently these are limited to 
+.B srcs, incs, localincs, resources,
+and
+.B misc.
+These are pretty self explanatory, but it
+should be noted that the 'srcs' list is NOT added to the $SOURCES
+environment variable.  This is because it represents a list of files
+to be added to the project file, not the source used to build the
+project file (in this case, the 'source' is the SConscript file used
+to call MSVSProject).
+
+In addition to these values (which are all optional, although not
+specifying any of them results in an empty project file), the
+following values must be specified:
+
+target: The name of the target .dsp or .vcproj file.  The correct
+suffix for the version of Visual Studio must be used, but the value
+
+env['MSVSPROJECTSUFFIX']
+
+will be defined to the correct value (see example below).
+
+variant: The name of this particular variant.  These are typically
+things like "Debug" or "Release", but really can be anything you want.
+Multiple calls to MSVSProject with different variants are allowed: all
+variants will be added to the project file with their appropriate
+build targets and sources.
+
+buildtarget: A list of SCons.Node.FS objects which is returned from
+the command which builds the target.  This is used to tell SCons what
+to build when the 'build' button is pressed inside of the IDE.
+
+Example Usage:
 
 .ES
-# For Visual Studio 7.0 or later (.NET).
-env.MSVSProject(target = 'Foo.vcproj',
-                slnguid = '{SLNGUID}',
-                srcs = ['foo.cpp'],
-                incs = ['sdk.h'],
-                localincs = ['foo.h'],
-                resources = ['foo.rc'],
-                misc = ['readme.txt'],
-                buildtarget = 'Foo.exe',
-                variant = 'Release')
+        barsrcs = ['bar.cpp'],
+        barincs = ['bar.h'],
+        barlocalincs = ['StdAfx.h']
+        barresources = ['bar.rc','resource.h']
+        barmisc = ['bar_readme.txt']
 
-# For earlier Visual Studio versions.
-env.MSVSProject(target = 'Foo.dsp',
-                srcs = ['foo.cpp'],
-                incs = ['sdk.h'],
-                localincs = ['foo.h'],
-                resources = ['foo.rc'],
-                misc = ['readme.txt'],
-                buildtarget = 'Foo.exe',
-                variant = 'Release')
+        dll = local.SharedLibrary(target = 'bar.dll',
+                                  source = barsrcs)
+
+        local.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
+                          srcs = barsrcs,
+                          incs = barincs,
+                          localincs = barlocalincs,
+                          resources = barresources,
+                          misc = barmisc,
+                          buildtarget = dll,
+                          variant = 'Release')
 .EE
 
 .IP RES
@@ -1519,32 +1549,6 @@ env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
 # builds bbb.ps from bbb.dvi
 env.PostScript(target = 'bbb', source = 'bbb.dvi')
 .EE
-.LP
-.B scons
-automatically scans
-C source files, C++ source files,
-Fortran source files with
-.B .F
-(POSIX systems only),
-.B .fpp,
-or
-.B .FPP
-file extensions,
-and assembly language files with
-.B .S
-(POSIX systems only),
-.B .spp,
-or
-.B .SPP
-files extensions
-for C preprocessor dependencies,
-so the dependencies do not need to be specified explicitly.
-In addition, all builder
-targets automatically depend on their sources.
-An explicit dependency can
-be specified using the 
-.B Depends 
-method of a construction environment (see below).
 
 .IP Tar
 Builds a tar archive of the specified files
@@ -1597,6 +1601,32 @@ env.Zip('stuff', ['subdir1', 'subdir2'])
 env.Zip('stuff', 'another')
 .EE
 
+.B scons
+automatically scans
+C source files, C++ source files,
+Fortran source files with
+.B .F
+(POSIX systems only),
+.B .fpp,
+or
+.B .FPP
+file extensions,
+and assembly language files with
+.B .S
+(POSIX systems only),
+.B .spp,
+or
+.B .SPP
+files extensions
+for C preprocessor dependencies,
+so the dependencies do not need to be specified explicitly.
+In addition, all builder
+targets automatically depend on their sources.
+An explicit dependency can
+be specified using the 
+.B Depends 
+method of a construction environment (see below).
+
 .SS Other Construction Environment Methods
 Additional construction environment methods include:
 
@@ -1639,7 +1669,67 @@ env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
 .EE
 
 .TP
-.RI BitKeeper( )
+.RI PrependENVPath( name ", " newpath ", [" envname ", " sep ])
+This appends new path elements to the given path in the
+specified external environment
+.RB ( ENV
+by default).
+This will only add
+any particular path once (leaving the first one it encounters and
+ignoring the rest, to preserve path order),
+and to help assure this,
+will normalize all paths (using
+.B os.path.normpath
+and
+.BR os.path.normcase ).
+This can also handle the
+case where the given old path variable is a list instead of a
+string, in which case a list will be returned instead of a string.
+Example:
+
+.ES
+print 'before:',env['ENV']['INCLUDE']
+include_path = '/foo/bar:/foo'
+env.PrependENVPath('INCLUDE', include_path)
+print 'after:',env['ENV']['INCLUDE']
+
+yields:
+before: /biz:/foo
+after: /foo/bar:/foo:/biz
+.EE
+
+.TP
+.RI AppendENVPath( name ", " newpath ", [" envname ", " sep ])
+This appends new path elements to the given path in the
+specified external environment
+.RB ( ENV
+by default).
+This will only add
+any particular path once (leaving the last one it encounters and
+ignoring the rest, to preserve path order),
+and to help assure this,
+will normalize all paths (using
+.B os.path.normpath
+and
+.BR os.path.normcase ).
+This can also handle the
+case where the given old path variable is a list instead of a
+string, in which case a list will be returned instead of a string.
+Example:
+
+.ES
+print 'before:',env['ENV']['INCLUDE']
+include_path = '/foo/bar:/foo'
+env.PrependENVPath('INCLUDE', include_path)
+print 'after:',env['ENV']['INCLUDE']
+
+yields:
+before: /foo:/biz
+after: /biz:/foo/bar:/foo
+.EE
+
+.TP
+BitKeeper()
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -1800,7 +1890,7 @@ env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
 .EE
 
 .TP
-.RI Perforce( )
+Perforce()
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -1869,7 +1959,7 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 .EE
 
 .TP
-.RI RCS( )
+RCS()
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -1881,6 +1971,7 @@ function:
 .ES
 env.SourceCode('.', env.RCS())
 .EE
+.IP
 Note that
 .B scons
 will fetch source files
@@ -1905,7 +1996,7 @@ env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
 .EE
 
 .TP
-.RI SCCS( )
+SCCS()
 A factory function that
 returns a Builder object
 to be used to fetch source files
@@ -1917,6 +2008,7 @@ function:
 .ES
 env.SourceCode('.', env.SCCS())
 .EE
+.IP
 Note that
 .B scons
 will fetch source files
@@ -1932,7 +2024,7 @@ or if you need to explicitly specify SCCS
 for a specific subdirectory.
 
 .TP
-.RI SideEffect( side_effect , target )
+.RI SideEffect( side_effect ", " target )
 Declares
 .I side_effect
 as a side effect of building
@@ -1956,7 +2048,7 @@ for side-effect targets that are built as a result of
 multiple build commands.
 
 .TP
-.RI SourceCode( entries , builder )
+.RI SourceCode( entries ", " builder )
 Arrange for non-existent source files to
 be fetched from a source code management system
 using the specified
@@ -2002,6 +2094,7 @@ by disabling these searches as follows:
 env.SourceCode('.', None)
 .EE
 
+.IP
 Note that if the specified
 .I builder
 is one you create by hand,
@@ -2146,6 +2239,7 @@ Environment is created:
 .ES
 env = Environment(BUILDERS = {'NewBuilder' : foo})
 .EE
+.IP
 the default Builders will no longer be available.
 To use a new Builder object in addition to the default Builders,
 add your new Builder object like this:
@@ -2153,6 +2247,7 @@ add your new Builder object like this:
 env = Environment()
 env.Append(BUILDERS = {'NewBuilder' : foo})
 .EE
+.IP
 or this:
 .ES
 env = Environment()
@@ -2757,6 +2852,85 @@ General options passed to the M4 macro preprocessor.
 
 .IP M4COM
 The command line used to pass files through the macro preprocessor.
+
+.IP MSVS
+When the Microsoft Visual Studio tools are initialized, they set up
+this dictionary with the following keys:
+
+.B VERSION:
+the version of MSVS being used (can be set via
+MSVS_VERSION)
+
+.B VERSIONS:
+the available versions of MSVS installed
+
+.B VCINSTALLDIR:
+installed directory of Visual C++
+
+.B VSINSTALLDIR:
+installed directory of Visual Studio
+
+.B FRAMEWORKDIR:
+installed directory of the .NET framework
+
+.B FRAMEWORKVERSIONS:
+list of installed versions of the .NET framework, sorted latest to oldest.
+
+.B FRAMEWORKVERSION:
+latest installed version of the .NET framework
+
+.B FRAMEWORKSDKDIR:
+installed location of the .NET SDK.
+
+.B PLATFORMSDKDIR:
+installed location of the Platform SDK.
+
+.B PLATFORMSDK_MODULES:
+dictionary of installed Platform SDK modules,
+where the dictionary keys are keywords for the various modules, and
+the values are 2-tuples where the first is the release date, and the
+second is the version number.
+
+If a value isn't set, it wasn't available in the registry.
+
+.IP MSVS_IGNORE_IDE_PATHS
+Tells the MS Visual Studio tools to use minimal INCLUDE, LIB, and PATH settings,
+instead of the settings from the IDE.
+
+For Visual Studio, SCons will (by default) automatically determine
+where MSVS is installed, and use the LIB, INCLUDE, and PATH variables
+set by the IDE.  You can override this behavior by setting these
+variables after Environment initialization, or by setting
+.B MSVS_IGNORE_IDE_PATHS = 1
+in the Environment initialization.
+Specifying this will not leave these unset, but will set them to a
+minimal set of paths needed to run the tools successfully.
+
+.ES
+For VS6, the mininimal set is:
+   INCLUDE:'<VSDir>\\VC98\\ATL\\include;<VSDir>\\VC98\\MFC\\include;<VSDir>\\VC98\\include'
+   LIB:'<VSDir>\\VC98\\MFC\\lib;<VSDir>\\VC98\\lib'
+   PATH:'<VSDir>\\Common\\MSDev98\\bin;<VSDir>\\VC98\\bin'
+For VS7, it is:
+   INCLUDE:'<VSDir>\\Vc7\\atlmfc\\include;<VSDir>\\Vc7\\include'
+   LIB:'<VSDir>\\Vc7\\atlmfc\\lib;<VSDir>\\Vc7\\lib'
+   PATH:'<VSDir>\\Common7\\Tools\\bin;<VSDir>\\Common7\\Tools;<VSDir>\\Vc7\\bin'
+.EE
+
+.IP
+Where '<VSDir>' is the installed location of Visual Studio.
+
+.IP MSVS_VERSION
+Sets the preferred version of MSVS to use.
+
+SCons will (by default) select the latest version of MSVS
+installed on your machine.  So, if you have version 6 and version 7
+(MSVS .NET) installed, it will prefer version 7.  You can override this by
+specifying the 
+.B MSVS_VERSION
+variable in the Environment initialization, setting it to the
+appropriate version ('6.0' or '7.0', for example).
+If the given version isn't installed, tool initialization will fail.
 
 .IP MSVSPROJECTCOM
 The action used to generate Microsoft Visual Studio
@@ -3616,7 +3790,7 @@ not associated with a construction environment,
 that SConscript files can use:
 
 .TP 
-.RI AddPostAction ( target, action )
+.RI AddPostAction( target ", " action )
 Arranges for the specified
 .I action
 to be performed
@@ -3629,7 +3803,7 @@ can be converted into an Action object
 (see below).
 
 .TP 
-.RI AddPreAction ( target, action )
+.RI AddPreAction( target ", " action )
 Arranges for the specified
 .I action
 to be performed
@@ -3642,7 +3816,7 @@ can be converted into an Action object
 (see below).
 
 .TP
-.RI Alias ( name )
+.RI Alias( name )
 Creates or references an alias independent of the construction environment.
 
 .ES
@@ -3732,6 +3906,7 @@ BuildDir('build-variant2', 'src')
 SConscript('build-variant2/SConscript')
 .EE
 
+.IP
 See also the
 .BR SConscript ()
 function, described below,
@@ -3741,7 +3916,7 @@ in conjunction with calling a subsidiary
 SConscript file.)
 
 .TP 
-.RI CacheDir ( cache_dir )
+.RI CacheDir( cache_dir )
 Specifies that
 .B scons
 will maintain a cache of derived files in
@@ -3819,7 +3994,7 @@ a given derived file has been built in-place
 or retrieved from the cache.
 
 .TP 
-.RI Clean ( target, files_or_dirs )
+.RI Clean( target ", " files_or_dirs )
 This specifies a list of files or directories which should be removed
 whenever the target is specified with the
 .B -c
@@ -3871,7 +4046,7 @@ Default(['a', 'b', 'c'])
 hello = env.Program('hello', 'hello.c')
 Default(hello)
 .EE
-
+.IP
 An argument to
 .BR Default ()
 of
@@ -4062,7 +4237,7 @@ even if an already up-to-date copy
 exists in a repository.
 
 .TP
-.RI ParseConfig( env , command ", [" function ])
+.RI ParseConfig( env ", " command ", [" function ])
 Calls the specified
 .I function
 to modify the specified environment
@@ -4112,7 +4287,7 @@ This is so that any executed commands
 that use sockets to connect with other systems
 (such as fetching source files from
 external CVS repository specifications like 
-.BR :pserver:anonymous:@cvs.sourceforge.net:/cvsroot/scons )
+.BR :pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons )
 will work on Win32 systems.
 
 .TP
@@ -4176,7 +4351,7 @@ Return(["foo", "bar"])
 .EE
 
 .TP
-.RI SetOption( name , value )
+.RI SetOption( name ", " value )
 This function provides a way to set a select subset of the scons command
 line options from a SConscript file. The options supported are: clean which
 cooresponds to -c, --clean, and --remove; implicit_cache which corresponds
@@ -4185,9 +4360,9 @@ num_jobs which corresponds to -j and --jobs. See the documentation for the
 corresponding command line object for information about each specific
 option. Example:
 
-.EE
-SetOption('max_drift', 1)
 .ES
+SetOption('max_drift', 1)
+.EE
 
 .TP
 .RI SConscript( script ", [" exports ", " build_dir ", " src_dir ", " duplicate ])
@@ -4285,6 +4460,7 @@ by specifying:
 .ES
 SConscriptChdir(0)
 .EE
+.IP
 in which case
 .B scons
 will stay in the top-level directory
@@ -4306,26 +4482,7 @@ SConscript('bar/SConscript')	# will chdir to bar
 .EE
 
 .TP
-.RI TargetSignatures( type )
-
-This function tells SCons what type of signatures to use
-for target files:
-.B "build"
-or
-.BR "content" .
-"build" means the signature of a target file
-is made by concatenating all of the
-signatures of all its source files.
-"content" means the signature of a target
-file is an MD5 checksum of its contents.
-"build" signatures are usually faster to compute,
-but "content" signatures can prevent unnecessary rebuilds
-when a target file is rebuilt to the exact same contents as last time.
-The default is "build".
-
-.TP
 .RI SourceSignatures( type )
-
 This function tells SCons what type of signature to use for source files:
 .B "MD5"
 or
@@ -4363,6 +4520,23 @@ files = Split("""
 .EE
 
 .TP
+.RI TargetSignatures( type )
+This function tells SCons what type of signatures to use
+for target files:
+.B "build"
+or
+.BR "content" .
+"build" means the signature of a target file
+is made by concatenating all of the
+signatures of all its source files.
+"content" means the signature of a target
+file is an MD5 checksum of its contents.
+"build" signatures are usually faster to compute,
+but "content" signatures can prevent unnecessary rebuilds
+when a target file is rebuilt to the exact same contents as last time.
+The default is "build".
+
+.TP
 .RI Tool( string )
 Returns a callable object
 that can be used to initialize
@@ -4372,7 +4546,7 @@ tools keyword of the Environment() method.
 .ES
 env = Environment(tools = [ Tool('msvc') ])
 .EE
-
+.IP
 The object may be called with a construction
 environment as an argument,
 in which case the object will be
@@ -4934,9 +5108,9 @@ env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
 
 .LP
 The special pseudo-variables
-.R $(
+.B "$("
 and
-.R $)
+.B "$)"
 may be used to surround parts of a command line
 that may change
 .I without
@@ -4944,15 +5118,15 @@ causing a rebuild--that is,
 which are not included in the signature
 of target files built with this command.
 All text between
-.R $(
+.B "$("
 and
-.R $)
+.B "$)"
 will be removed from the command line
 before it is added to file signatures,
 and the
-.R $(
+.B "$("
 and
-.R $)
+.B "$)"
 will be removed before the command is executed.
 For example, the command line:
 

@@ -156,18 +156,9 @@ def spawn(sh, escape, cmd, args, env):
             sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
         return ret
 
-# We just quote the arg here, but since the escape for a double
-# quote in the command processor (I hesitate to call it a shell :-) is
-# to double it (i.e. '""' => '"' in the command processor), we have to
-# make sure not to double any double quotes on the ends.
-def escape(x):
-    first = '"'
-    last = '"'
-    if x and x[0] == '"':
-        first = '" '
-    if x and x[-1] == '"':
-        last = ' "'
-    return first + x + last
+# Windows does not allow special characters in file names anyway, so
+# no need for a complex escape function, we will just quote the arg.
+escape = lambda x: '"' + x + '"'
 
 # Get the windows system directory name
 def get_system_root():

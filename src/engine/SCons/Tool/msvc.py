@@ -203,7 +203,7 @@ def _get_msvc6_default_paths(version):
     try:
         paths = SCons.Tool.msvs.get_msvs_install_dirs(version)
         MVSdir = paths['VSINSTALLDIR']
-    except (SCons.Util.RegError, SCons.Errors.InternalError):
+    except (SCons.Util.RegError, SCons.Errors.InternalError, KeyError):
         if os.environ.has_key('MSDEVDIR'):
             MVSdir = os.path.normpath(os.path.join(os.environ['MSDEVDIR'],'..','..'))
         else:
@@ -400,18 +400,21 @@ def generate(env):
         CScan.add_skey('.rc')
     env['BUILDERS']['RES'] = res_builder
 
-    version = SCons.Tool.msvs.get_default_visualstudio_version(env)
+    try:
+        version = SCons.Tool.msvs.get_default_visualstudio_version(env)
 
-    if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
-        include_path, lib_path, exe_path = get_msvc_default_paths(version)
-    else:
-        include_path, lib_path, exe_path = get_msvc_paths(version)
+        if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
+            include_path, lib_path, exe_path = get_msvc_default_paths(version)
+        else:
+            include_path, lib_path, exe_path = get_msvc_paths(version)
 
-    # since other tools can set these, we just make sure that the
-    # relevant stuff from MSVS is in there somewhere.
-    env.PrependENVPath('INCLUDE', include_path)
-    env.PrependENVPath('LIB', lib_path)
-    env.PrependENVPath('PATH', exe_path)
+        # since other tools can set these, we just make sure that the
+        # relevant stuff from MSVS is in there somewhere.
+        env.PrependENVPath('INCLUDE', include_path)
+        env.PrependENVPath('LIB', lib_path)
+        env.PrependENVPath('PATH', exe_path)
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        pass
 
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
@@ -420,7 +423,12 @@ def generate(env):
     env['BUILDERS']['PCH'] = pch_builder
 
 def exists(env):
-    if not SCons.Util.can_read_reg or not SCons.Tool.msvs.get_visualstudio_versions():
+    try:
+        v = SCons.Tool.msvs.get_visualstudio_versions()
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        pass
+    
+    if not v:
         return env.Detect('cl')
     else:
         # there's at least one version of MSVS installed.
