@@ -796,7 +796,7 @@ else:
                 import inspect # It's OK, can't get here for Python < 2.1
                 superinitcode = compile(
                     "lambda self, *args, **kw: MPI(self, cls, args, kw)",
-                    inspect.getsourcefile(_MeMoIZeR_superinit),
+                    inspect.getsourcefile(_MeMoIZeR_superinit) or '<unknown>',
                     "eval")
                 superinit = eval(superinitcode,
                                  {'cls':cls,
