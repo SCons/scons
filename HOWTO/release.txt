@@ -1,12 +1,6 @@
 Things to do to release a version of SCons:
 
-	Prepare CHANGES text
-
-	Prepare RELEASE notes
-
-	Read through the README.txt file for any updates
-
-	Build candidate packages
+	Build and test candidate packages
 
 		test on Linux
 
@@ -25,6 +19,22 @@ Things to do to release a version of SCons:
 			3) scons-{verson}.win32.exe
 			   cd scons-src-{version}
 			   python runtest.py -a -x C:\Python15\scons.bat
+
+	Read through the README.txt file for any updates
+
+	Prepare src/CHANGES.txt
+
+		date -R the latest release
+
+		should be current if this has been updated as each
+		change went in.
+
+	Prepare src/RELEASE.txt
+
+		date -R the latest release
+
+		Can probably keep a lot of the existing text, read
+		it through to make sure it's okay and edit appropriately.
 
 
 

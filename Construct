@@ -87,15 +87,21 @@ $revision = $ARG{version};
 chomp($revision = `$aesub '\$version' 2>/dev/null`) if $aesub && ! $revision;
 $revision = '0.02' if ! $revision;
 
-$change = $ARG{change};
-chomp($change = `$aesub '\$change' 2>/dev/null`) if $aesub && ! $change;
-
 @arr = split(/\./, $revision);
 @arr = ($arr[0], map {length($_) == 1 ? "0$_" : $_} @arr[1 .. $#arr]);
 $revision = join('.', @arr);
-pop @arr if $#arr >= 2;
-map {s/^[CD]//, s/^0*(\d\d)$/$1/} @arr;
-$version = join('.', @arr);
+
+# Here's how we'd turn the calculated $revision into our package $version.
+# This makes it difficult to coordinate with other files (debian/changelog
+# and rpm/scons.spec) that hard-code the version number, so just go with
+# the flow for now.
+#pop @arr if $#arr >= 2;
+#map {s/^[CD]//, s/^0*(\d\d)$/$1/} @arr;
+#$version = join('.', @arr);
+$version = '0.02';
+
+$change = $ARG{change};
+chomp($change = `$aesub '\$change' 2>/dev/null`) if $aesub && ! $change;
 
 chomp($python_ver = `python -c "import sys; print sys.version[0:3]"`);
 
@@ -379,8 +385,20 @@ for $p ($scons) {
 	$rpm = "$RPMSdir/$pkg-$version-1.noarch.rpm";
 	$src_rpm = "$SRPMSdir/$pkg-$version-1.src.rpm";
 
-	$env->InstallAs($specfile, "rpm/$pkg.spec");
-	$env->InstallAs($sourcefile, $archive);
+	# We'd like to use the following here:
+	#
+	#	$env->InstallAs($specfile, "rpm/$pkg.spec");
+	#	$env->InstallAs($sourcefile, $archive);
+	#
+	# but it looks like InstallAs doesn't propogate the
+	# signatures correctly, which means that the RPM file
+	# wouldn't always get rebuilt when it should.  Work
+	# around it.
+	use File::Copy;
+	$env->Command($specfile, "rpm/$pkg.spec",
+		      "[perl] File::Copy::copy('%<', '%>')");
+	$env->Command($sourcefile, $archive,
+		      "[perl] File::Copy::copy('%<', '%>')");
 
 	if (! -d $BUILDdir) {
 	    $cmd = "mkdir -p $BUILDdir; ";
@@ -400,7 +418,6 @@ for $p ($scons) {
         # need to add the .debs to the install_targets.
         my $deb = "build/dist/${pkg}_$version-1_all.deb";
 	$env->Command($deb, @build_src_files, qq(
-		rm -f %>
                 fakeroot make -f debian/rules VERSION=%VERSION DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-$pkg
                 env DH_COMPAT=$DH_COMPAT dh_clean));
         $env->Depends($deb, @{$p->{'debian_deps'}});

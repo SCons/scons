@@ -60,12 +60,9 @@ class my_install_lib(install_lib):
                 self.install_dir = os.path.join(head, tail)
                 return
 
-keywords = "scons, cons, make, build tool, make tool, software build tool, software construction tool"
-
 arguments = {
     'name'             : "scons",
     'version'          : "__VERSION__",
-    'keywords'         : keywords,
     'packages'         : ["SCons",
                           "SCons.Node",
                           "SCons.Scanner",

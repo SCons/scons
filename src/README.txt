@@ -51,7 +51,8 @@ See the RELEASE.txt file for notes about this specific release,
 including known problems.  See the CHANGES.txt file for a list of
 changes since the previous release.
 
-The scons.1 man page is included in this package.
+The scons.1 man page is included in this package, and contains a section
+of small examples for getting started using SCons.
 
 Additional documentation for SCons is available at:
 
