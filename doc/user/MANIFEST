@@ -10,6 +10,7 @@ cons.pl
 cons.sgml
 copyright.sgml
 depends.sgml
+ENV.sgml
 environments.sgml
 errors.sgml
 example.sgml

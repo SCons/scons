@@ -261,29 +261,38 @@ def get_msvc_paths(version=None):
     lib_path = ''
     include_path = ''
 
-    if not version and not SCons.Util.can_read_reg:
-        version = '6.0'
-            
-    try:
-        if not version:
-            version = SCons.Tool.msvs.get_visualstudio_versions()[0] #use highest version
-
-        include_path = get_msvc_path("include", version)
-        lib_path = get_msvc_path("lib", version)
-        exe_path = get_msvc_path("path", version)
-
-    except (SCons.Util.RegError, SCons.Errors.InternalError):
-        # Could not get all the configured directories from the
-        # registry.  However, some of the configured directories only
-        # appear if the user changes them from the default.
-        # Therefore, we'll see if we can get the path to the MSDev
-        # base installation from the registry and deduce the default
-        # directories.
-        if float(version) >= 7.0:
-            return _get_msvc7_default_paths(version)
+    if not version:
+        versions = SCons.Tool.msvs.get_visualstudio_versions()
+        if versions:
+            version = versions[0] #use highest version by default
         else:
-            return _get_msvc6_default_paths(version)
-            
+            version = '6.0'
+
+    # Some of the configured directories only
+    # appear if the user changes them from the default.
+    # Therefore, we'll see if we can get the path to the MSDev
+    # base installation from the registry and deduce the default
+    # directories.
+    if float(version) >= 7.0:
+        defpaths = _get_msvc7_default_paths(version)
+    else:
+        defpaths = _get_msvc6_default_paths(version)
+    
+    try:
+        include_path = get_msvc_path("include", version)
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        include_path = defpaths[0]
+
+    try:
+        lib_path = get_msvc_path("lib", version)
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        lib_path = defpaths[1]
+
+    try:
+        exe_path = get_msvc_path("path", version)
+    except (SCons.Util.RegError, SCons.Errors.InternalError):
+        exe_path = defpaths[2]
+    
     return (include_path, lib_path, exe_path)
 
 def get_msvc_default_paths(version = None):

@@ -4107,7 +4107,9 @@ General options passed to the TeX DVI file to PostScript converter.
 
 .IP ENV
 A dictionary of environment variables
-to use when invoking commands.
+to use when invoking commands. When ENV is used in a command all list
+values will be joined using the path separator and any other non-string
+values will simply be coerced to a string.
 Note that, by default,
 .B scons
 does
@@ -4744,7 +4746,8 @@ The qt tool tries to take this from os.environ.
 It also initializes all QT_*
 construction variables listed below.
 (Note that all paths are constructed
-with python's os.path.join() method, but listed here with the '/' seperator
+with python's os.path.join() method,
+but are listed here with the '/' separator
 for easier reading.)
 In addition, the construction environment
 variables CPPPATH, LIBPATH, LIBS, PROGEMITTER, SHLIBEMITTER and LIBEMITTER

@@ -24,6 +24,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+import string
 import sys
 import TestSCons
 
@@ -59,5 +61,25 @@ test.run(arguments = '.')
 
 test.fail_test(test.read('env1.out') != "build.py env1\ninput file\n")
 test.fail_test(test.read('env2.out') != "build.py env2\ninput file\n")
+
+
+test.write('SConstruct', """
+env = Environment()
+foo = env.Command('foo', [], r'%s build.py $TARGET')
+env['ENV']['LIST'] = [foo, 'bar']
+env['ENV']['FOO'] = foo
+"""%python)
+
+test.write('build.py',
+r"""
+import os
+print 'LIST:', os.environ['LIST']
+print 'FOO:', os.environ['FOO']
+""")
+
+test.run()
+
+test.fail_test(string.find(test.stdout(), "LIST: foo%sbar"%os.pathsep) == -1)
+test.fail_test(string.find(test.stdout(), "FOO: foo") == -1)
 
 test.pass_test()
