@@ -240,7 +240,7 @@ class BuilderTestCase(unittest.TestCase):
 	assert builder.prefix == 'lib'
 	tgt = builder(env, target = 'tgt1', source = 'src1')
 	assert tgt.path == 'libtgt1', \
-	        "Target has unexpected name: %s" % tgt[0].path
+	        "Target has unexpected name: %s" % tgt.path
 
     def test_src_suffix(self):
 	"""Test Builder creation with a specified source file suffix
@@ -276,7 +276,7 @@ class BuilderTestCase(unittest.TestCase):
                                         src_suffix='.bar',
                                         suffix='.foo')
         builder2 = SCons.Builder.MultiStepBuilder(action='foo',
-                                                  builders = [ builder1 ])
+                                                  src_builder = builder1)
         tgt = builder2(env, target='baz', source='test.bar test2.foo test3.txt')
         flag = 0
         for snode in tgt.sources:
@@ -284,6 +284,24 @@ class BuilderTestCase(unittest.TestCase):
                 flag = 1
                 assert snode.sources[0].path == 'test.bar'
         assert flag
+
+    def test_CompositeBuilder(self):
+        """Testing CompositeBuilder class."""
+        builder = SCons.Builder.Builder(action={ '.foo' : 'foo',
+                                                 '.bar' : 'bar' })
+        
+        assert isinstance(builder, SCons.Builder.CompositeBuilder)
+        tgt = builder(env, target='test1', source='test1.foo')
+        assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
+        assert tgt.builder.action.command == 'foo'
+        tgt = builder(env, target='test2', source='test2.bar')
+        assert tgt.builder.action.command == 'bar'
+        flag = 0
+        try:
+            tgt = builder(env, target='test2', source='test2.bar test1.foo')
+        except SCons.Errors.UserError:
+            flag = 1
+        assert flag, "UserError should be thrown when we build targets with files of different suffixes."
 
 
 if __name__ == "__main__":

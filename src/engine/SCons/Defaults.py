@@ -38,65 +38,83 @@ import SCons.Builder
 
 
 
-if os.name == 'posix':
-
-    object_suffix = '.o'
-    program_suffix = None
-    library_prefix = 'lib'
-    library_suffix = '.a'
-
-elif os.name == 'nt':
-
-    object_suffix = '.obj'
-    program_suffix = '.exe'
-    library_prefix = None
-    library_suffix = '.lib'
-
-
-
 Object = SCons.Builder.Builder(name = 'Object',
-                               action = '$CCCOM',
-                               suffix = object_suffix,
-                               src_suffix = '.c')
+                               action = { '.c'   : '$CCCOM',
+                                          '.C'   : '$CXXCOM',
+                                          '.cc'  : '$CXXCOM',
+                                          '.cpp' : '$CXXCOM',
+                                          '.cxx' : '$CXXCOM',
+                                          '.c++' : '$CXXCOM',
+                                          '.C++' : '$CXXCOM',
+                                        },
+                               prefix = '$OBJPREFIX',
+                               suffix = '$OBJSUFFIX')
 
 Program = SCons.Builder.Builder(name = 'Program',
                                 action = '$LINKCOM',
-                                suffix = program_suffix,
-                                builders = [ Object ])
+                                prefix = '$PROGPREFIX',
+                                suffix = '$PROGSUFFIX',
+                                src_suffix = '$OBJSUFFIX',
+                                src_builder = Object)
 
 Library = SCons.Builder.Builder(name = 'Library',
-                                action = 'ar r $target $sources\nranlib $target',
-                                prefix = library_prefix,
-                                suffix = library_suffix,
-                                builders = [ Object ])
+                                action = '$ARCOM',
+                                prefix = '$LIBPREFIX',
+                                suffix = '$LIBSUFFIX',
+                                src_suffix = '$OBJSUFFIX',
+                                src_builder = Object)
 
 
 
 if os.name == 'posix':
 
     ConstructionEnvironment = {
-        'CC'        : 'cc',
-        'CCFLAGS'   : '',
-        'CCCOM'     : '$CC $CCFLAGS -c -o $target $sources',
-        'LINK'      : '$CC',
-        'LINKFLAGS' : '',
-        'LINKCOM'   : '$LINK $LINKFLAGS -o $target $sources',
-        'BUILDERS'  : [Object, Program, Library],
-        'ENV'       : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
+        'CC'         : 'cc',
+        'CCFLAGS'    : '',
+        'CCCOM'      : '$CC $CCFLAGS -c -o $target $sources',
+        'CXX'        : 'c++',
+        'CXXFLAGS'   : '$CCFLAGS',
+        'CXXCOM'     : '$CXX $CXXFLAGS -c -o $target $sources',
+        'LINK'       : '$CXX',
+        'LINKFLAGS'  : '',
+        'LINKCOM'    : '$LINK $LINKFLAGS -o $target $sources',
+        'AR'         : 'ar',
+        'ARFLAGS'    : 'r',
+        'ARCOM'      : '$AR $ARFLAGS $target $sources\nranlib $target',
+        'BUILDERS'   : [Object, Program, Library],
+        'OBJPREFIX'  : '',
+        'OBJSUFFIX'  : '.o',
+        'PROGPREFIX' : '',
+        'PROGSUFFIX' : '',
+        'LIBPREFIX'  : 'lib',
+        'LIBSUFFIX'  : '.a',
+        'ENV'        : { 'PATH' : '/usr/local/bin:/bin:/usr/bin' },
     }
 
 elif os.name == 'nt':
 
     ConstructionEnvironment = {
-        'CC'        : 'cl',
-        'CCFLAGS'   : '/nologo',
-        'CCCOM'     : '$CC $CCFLAGS /c $sources /Fo$target',
-        'LINK'      : 'link',
-        'LINKFLAGS' : '',
-        'LINKCOM'   : '$LINK $LINKFLAGS /out:$target $sources',
-        'BUILDERS'  : [Object, Program, Library],
-        'ENV'       : {
+        'CC'         : 'cl',
+        'CCFLAGS'    : '/nologo',
+        'CCCOM'      : '$CC $CCFLAGS /c $sources /Fo$target',
+        'CXX'        : '$CC',
+        'CXXFLAGS'   : '$CCFLAGS',
+        'CXXCOM'     : '$CXX $CXXFLAGS /c $sources /Fo$target',
+        'LINK'       : 'link',
+        'LINKFLAGS'  : '',
+        'LINKCOM'    : '$LINK $LINKFLAGS /out:$target $sources',
+        'AR'         : 'lib',
+        'ARFLAGS'    : '/nologo',
+        'ARCOM'      : '$AR $ARFLAGS /out:$target $sources',
+        'BUILDERS'   : [Object, Program, Library],
+        'OBJPREFIX'  : '',
+        'OBJSUFFIX'  : '.obj',
+        'PROGPREFIX' : '',
+        'PROGSUFFIX' : '.exe',
+        'LIBPREFIX'  : '',
+        'LIBSUFFIX'  : '.lib',
+        'ENV'        : {
                         'PATH'    : r'C:\Python20;C:\WINNT\system32;C:\WINNT;C:\Program Files\Microsoft Visual Studio\VC98\Bin\;',
-                        'PATHEXT' : '.COM;.EXE;.BAT;.CMD'
+                        'PATHEXT' : '.COM;.EXE;.BAT;.CMD',
                       },
     }

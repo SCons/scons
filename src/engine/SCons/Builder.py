@@ -37,6 +37,15 @@ import SCons.Node.FS
 from SCons.Util import PathList, scons_str2nodes, scons_subst
 import string
 import types
+from UserList import UserList
+from UserDict import UserDict
+from Errors import UserError
+
+try:
+    from UserString import UserString
+except ImportError:
+    class UserString:
+        pass
 
 
 
@@ -98,8 +107,20 @@ elif os.name == 'nt':
 
 def Builder(**kw):
     """A factory for builder objects."""
-    if kw.has_key('builders'):
+    if kw.has_key('src_builder'):
         return apply(MultiStepBuilder, (), kw)
+    elif kw.has_key('action') and (type(kw['action']) is types.DictType or
+                                   isinstance(kw['action'], UserDict)):
+        action_dict = kw['action']
+        builders = []
+        for suffix, action in action_dict.items():
+            bld_kw = kw.copy()
+            bld_kw['action'] = action
+            bld_kw['src_suffix'] = suffix
+            builders.append(apply(BuilderBase, (), bld_kw))
+        del kw['action']
+        kw['builders'] = builders
+        return apply(CompositeBuilder, (), kw)
     else:
         return apply(BuilderBase, (), kw)
 
@@ -112,19 +133,20 @@ class BuilderBase:
 
     def __init__(self,	name = None,
 			action = None,
-			prefix = None,
-			suffix = None,
-			src_suffix = None,
+			prefix = '',
+			suffix = '',
+			src_suffix = '',
 			node_factory = SCons.Node.FS.default_fs.File):
 	self.name = name
 	self.action = Action(action)
+
 	self.prefix = prefix
 	self.suffix = suffix
 	self.src_suffix = src_suffix
 	self.node_factory = node_factory
-	if not self.suffix is None and self.suffix[0] != '.':
+        if self.suffix and self.suffix[0] not in '.$':
 	    self.suffix = '.' + self.suffix
-	if not self.src_suffix is None and self.src_suffix[0] != '.':
+        if self.src_suffix and self.src_suffix[0] not in '.$':
 	    self.src_suffix = '.' + self.src_suffix
 
     def __cmp__(self, other):
@@ -145,9 +167,12 @@ class BuilderBase:
 		ret.append(f)
 	    return ret
 
-	tlist = scons_str2nodes(adjustixes(target, self.prefix, self.suffix),
+	tlist = scons_str2nodes(adjustixes(target,
+                                           env.subst(self.prefix),
+                                           env.subst(self.suffix)),
                                 self.node_factory)
-	slist = scons_str2nodes(adjustixes(source, None, self.src_suffix),
+	slist = scons_str2nodes(adjustixes(source, None,
+                                           env.subst(self.src_suffix)),
                                 self.node_factory)
 	for t in tlist:
 	    t.builder_set(self)
@@ -163,62 +188,37 @@ class BuilderBase:
 	"""
 	return apply(self.action.execute, (), kw)
 
-class BuilderProxy:
-    """This base class serves as a proxy to a builder object,
-    exposing the same interface, but just forwarding calls to
-    the underlying object.  Use it for subclass Builders that
-    need to wrap or decorate another Builder class."""
-    def __init__(self, builder):
-        self.subject = builder
-
-    def __call__(self, env, target = None, source = None):
-        return self.subject.__call__(env, target, source)
-
-    def execute(self, **kw):
-        return apply(self.subject.execute, (), kw)
-    
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other.__dict__)
-
-    def __getattr__(self, name):
-        assert 'subject' in self.__dict__.keys(), \
-               "You must call __init__() on the BuilderProxy base."
-        return getattr(self.subject, name)
-
 class MultiStepBuilder(BuilderBase):
     """This is a builder subclass that can build targets in
-    multiple steps according to the suffixes of the source files.
-    Given one or more "subordinate" builders in its constructor,
-    this class will apply those builders to any files matching
-    the builder's src_suffix, using a file of the same name
-    as the source, but with src_suffix changed to suffix.
-    The targets of these builders then become sources for this
-    builder.
+    multiple steps.  The src_builder parameter to the constructor
+    accepts a builder that is called to build sources supplied to
+    this builder.  The targets of that first build then become
+    the sources of this builder.
+
+    If this builder has a src_suffix supplied, then the src_builder
+    builder is NOT invoked if the suffix of a source file matches
+    src_suffix.
     """
-    def __init__(self,  name = None,
+    def __init__(self,  src_builder,
+                        name = None,
 			action = None,
-			prefix = None,
-			suffix = None,
-			src_suffix = None,
-                        node_factory = SCons.Node.FS.default_fs.File,
-                        builders = []):
+			prefix = '',
+			suffix = '',
+			src_suffix = '',
+			node_factory = SCons.Node.FS.default_fs.File):
         BuilderBase.__init__(self, name, action, prefix, suffix, src_suffix,
                              node_factory)
-        self.builder_dict = {}
-        for bld in builders:
-            if bld.suffix and bld.src_suffix:
-                self.builder_dict[bld.src_suffix] = bld
+        self.src_builder = src_builder
 
     def __call__(self, env, target = None, source = None):
         slist = scons_str2nodes(source, self.node_factory)
         final_sources = []
+        src_suffix = env.subst(self.src_suffix)
         for snode in slist:
             path, ext = os.path.splitext(snode.path)
-            if self.builder_dict.has_key(ext):
-                bld = self.builder_dict[ext]
-                tgt = bld(env,
-                          target=[ path+bld.suffix, ],
-                          source=snode)
+            if not src_suffix or ext != src_suffix:
+                tgt = self.src_builder(env, target = [ path ],
+                                     source=snode)
                 if not type(tgt) is types.ListType:
                     final_sources.append(tgt)
                 else:
@@ -228,26 +228,68 @@ class MultiStepBuilder(BuilderBase):
         return BuilderBase.__call__(self, env, target=target,
                                     source=final_sources)
 
+class CompositeBuilder(BuilderBase):
+    """This is a convenient Builder subclass that can build different
+    files based on their suffixes.  For each target, this builder
+    will examine the target's sources.  If they are all the same
+    suffix, and that suffix is equal to one of the child builders'
+    src_suffix, then that child builder will be used.  Otherwise,
+    UserError is thrown.
+
+    Child builders are supplied via the builders arg to the
+    constructor.  Each must have its src_suffix set."""
+    def __init__(self,  name = None,
+                        prefix='',
+                        suffix='',
+                        builders=[]):
+        BuilderBase.__init__(self, name=name, prefix=prefix,
+                             suffix=suffix)
+        self.builder_dict = {}
+        for bld in builders:
+            if not bld.src_suffix:
+                raise InternalError, "All builders supplied to CompositeBuilder class must have a src_suffix."
+            self.builder_dict[bld.src_suffix] = bld
+
+    def __call__(self, env, target = None, source = None):
+        ret = BuilderBase.__call__(self, env, target=target, source=source)
+
+        builder_dict = {}
+        for suffix, bld in self.builder_dict.items():
+            builder_dict[env.subst(bld.src_suffix)] = bld
+
+        if type(ret) is types.ListType:
+            tlist = ret
+        else:
+            tlist = [ ret ]
+        for tnode in tlist:
+            suflist = map(lambda x: os.path.splitext(x.path)[1],
+                          tnode.sources)
+            last_suffix=''
+            for suffix in suflist:
+                if last_suffix and last_suffix != suffix:
+                    raise UserError, "The builder for %s is only capable of building source files of identical suffixes." % tnode.path
+                last_suffix = suffix
+            if last_suffix:
+                try:
+                    tnode.builder_set(builder_dict[last_suffix])
+                except KeyError:
+                    raise UserError, "Builder not capable of building files with suffix: %s" % suffix
+        return ret
+
 print_actions = 1;
 execute_actions = 1;
 
-
-
 def Action(act):
     """A factory for action objects."""
-    if type(act) == types.StringType:
-	l = string.split(act, "\n")
-	if len(l) > 1:
-	    act = l
     if callable(act):
 	return FunctionAction(act)
-    elif type(act) == types.StringType:
+    elif type(act) == types.StringType or isinstance(act, UserString):
 	return CommandAction(act)
-    elif type(act) == types.ListType:
+    elif type(act) == types.ListType or isinstance(act, UserList):
 	return ListAction(act)
     else:
 	return None
-
+    
 class ActionBase:
     """Base class for actions that create output objects.
     
@@ -282,19 +324,22 @@ class CommandAction(ActionBase):
 	if kw.has_key('env'):
 	    glob = kw['env']
 
-	cmd = scons_subst(self.command, loc, glob)
-	if print_actions:
-	    self.show(cmd)
-	ret = 0
-	if execute_actions:
-            args = string.split(cmd)
-            try:
-                ENV = glob['ENV']
-            except:
-                import SCons.Defaults
-                ENV = SCons.Defaults.ConstructionEnvironment['ENV']
-	    ret = spawn(args[0], args, ENV)
-	return ret
+	cmd_str = scons_subst(self.command, loc, glob)
+        for cmd in string.split(cmd_str, '\n'):
+            if print_actions:
+                self.show(cmd)
+            if execute_actions:
+                args = string.split(cmd)
+                try:
+                    ENV = glob['ENV']
+                except:
+                    import SCons.Defaults
+                    ENV = SCons.Defaults.ConstructionEnvironment['ENV']
+                ret = spawn(args[0], args, ENV)
+                if ret:
+                    #XXX This doesn't account for ignoring errors (-i)
+                    return ret
+        return 0
 
 
 

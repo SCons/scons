@@ -28,15 +28,14 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is supported.
-
 test.write('SConstruct', """
+env = Environment()
 f1 = env.Object(target = 'f1', source = 'f1.c')
-f2 = env.Object(target = 'f2', source = 'f2.c')
+f2 = env.Object(target = 'f2', source = 'f2.cpp')
 f3 = env.Object(target = 'f3', source = 'f3.c')
-env.Program(target = 'prog1', source = 'f1.o f2.o f3.o prog.c')
-env.Program(target = 'prog2', source = [f1, f2, f3, 'prog.c'])
-env.Program(target = 'prog3', source = ['f1.o', f2, 'f3.o prog.c'])
+env.Program(target = 'prog1', source = 'f1.o f2.o f3.o prog.cpp')
+env.Program(target = 'prog2', source = [f1, f2, f3, 'prog.cpp'])
+env.Program(target = 'prog3', source = ['f1.o', f2, 'f3.o', 'prog.cpp'])
 """)
 
 test.write('f1.c', """
@@ -47,7 +46,9 @@ f1(void)
 }
 """)
 
-test.write('f2.c', """
+test.write('f2.cpp', """
+#include <stdio.h>
+
 void
 f2(void)
 {
@@ -63,10 +64,12 @@ f3(void)
 }
 """)
 
-test.write('prog.c', """
-extern void f1(void);
+test.write('prog.cpp', """
+#include <stdio.h>
+
+extern "C" void f1(void);
 extern void f2(void);
-extern void f3(void);
+extern "C" void f3(void);
 int
 main(int argc, char *argv[])
 {
@@ -75,6 +78,7 @@ main(int argc, char *argv[])
 	f2();
 	f3();
 	printf("prog.c\n");
+	return 0;
 }
 """)
 
