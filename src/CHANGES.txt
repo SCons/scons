@@ -130,10 +130,12 @@ RELEASE 0.97 - XXX
   - Fix expansion of env.Command() overrides within target and
     source file names.
 
-  - Support easier configurability of what's displayed by various default
-    actions by adding new construction variables:  $ARCOMSTR, $ASCOMSTR,
-    $ASPPCOMSTR, $CCCOMSTR, $CXXCOMSTR, $LEXCOMSTR, $LINKCOMSTR,
-    $SHCCCOMSTR, $SHCXXCOMSTR, $SHLINKCOMSTR and $YACCCOMSTR.
+  - Support easier customization of what's displayed by various
+    default actions by adding new construction variables:  $ARCOMSTR,
+    $ASCOMSTR, $ASPPCOMSTR, $CCCOMSTR, $CXXCOMSTR, $F77COMSTR,
+    $F90COMSTR, $F95COMSTR, $FORTRANCOMSTR, $LEXCOMSTR, $LINKCOMSTR,
+    $SHCCCOMSTR, $SHCXXCOMSTR, $SHF77COMSTR, $SHF90COMSTR, $SHF95COMSTR,
+    $SHFORTRANCOMSTR, $SHLINKCOMSTR and $YACCCOMSTR.
 
   From Wayne Lee:
 
@@ -297,6 +299,9 @@ RELEASE 0.97 - XXX
     frame, by default) even if the Python source code isn't available.
 
   - Improve the performance of the --debug={tree,dtree} options.
+
+  - Add --debug=objects logging of creation of OverrideWarner,
+    EnvironmentCopy and EnvironmentOverride objects.
 
   From Levi Stephen:
 

@@ -655,6 +655,7 @@ class Base:
         for key, value in kw.items():
             new[key] = SCons.Util.scons_subst_once(value, self, key)
         apply(clone.Replace, (), new)
+        if __debug__: logInstanceCreation(self, 'EnvironmentCopy')
         return clone
 
     def Detect(self, progs):
@@ -733,6 +734,7 @@ class Base:
             for key, value in overrides.items():
                 new[key] = SCons.Util.scons_subst_once(value, self, key)
             env._dict.update(new)
+            if __debug__: logInstanceCreation(self, 'EnvironmentOverride')
             return env
         else:
             return self

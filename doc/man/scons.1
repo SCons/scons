@@ -4933,6 +4933,11 @@ You should normally set the $FORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
 
+.IP F77COMSTR
+The string displayed when a Fortran 77 source file
+is compiled to an object file.
+If this is not set, then $F77COM or $FORTRANCOM (the command line) is displayed.
+
 .IP F77FLAGS
 General user-specified options that are passed to the Fortran 77 compiler.
 Note that this variable does
@@ -5037,6 +5042,12 @@ command line for Fortran 90 files.
 You should normally set the $FORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
+
+.IP F90COMSTR
+The string displayed when a Fortran 90 source file
+is compiled to an object file.
+If this is not set, then $F90COM or $FORTRANCOM
+(the command line) is displayed.
 
 .IP F90FLAGS
 General user-specified options that are passed to the Fortran 90 compiler.
@@ -5143,6 +5154,12 @@ You should normally set the $FORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
 
+.IP F95COMSTR
+The string displayed when a Fortran 95 source file
+is compiled to an object file.
+If this is not set, then $F95COM or $FORTRANCOM
+(the command line) is displayed.
+
 .IP F95FLAGS
 General user-specified options that are passed to the Fortran 95 compiler.
 Note that this variable does
@@ -5242,6 +5259,12 @@ By default, any options specified
 in the $FORTRANFLAGS, $CPPFLAGS, $_CPPDEFFLAGS, 
 $_FORTRANMODFLAG, and $_FORTRANINCFLAGS construction variables
 are included on this command line.
+
+.IP FORTRANCOMSTR
+The string displayed when a Fortran source file
+is compiled to an object file.
+If this is not set, then $FORTRANCOM
+(the command line) is displayed.
 
 .IP FORTRANFLAGS
 General user-specified options that are passed to the Fortran compiler.
@@ -6354,6 +6377,12 @@ You should normally set the $SHFORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
 
+.IP SHF77COMSTR
+The string displayed when a Fortran 77 source file
+is compiled to a shared-library object file.
+If this is not set, then $SHF77COM or $SHFORTRANCOM
+(the command line) is displayed.
+
 .IP SHF77FLAGS
 Options that are passed to the Fortran 77 compiler
 to generated shared-library objects.
@@ -6392,6 +6421,12 @@ command line for Fortran 90 files.
 You should normally set the $SHFORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
+
+.IP SHF90COMSTR
+The string displayed when a Fortran 90 source file
+is compiled to a shared-library object file.
+If this is not set, then $SHF90COM or $SHFORTRANCOM
+(the command line) is displayed.
 
 .IP SHF90FLAGS
 Options that are passed to the Fortran 90 compiler
@@ -6432,6 +6467,12 @@ You should normally set the $SHFORTRANCOM variable,
 which specifies the default command line
 for all Fortran versions.
 
+.IP SHF95COMSTR
+The string displayed when a Fortran 95 source file
+is compiled to a shared-library object file.
+If this is not set, then $SHF95COM or $SHFORTRANCOM
+(the command line) is displayed.
+
 .IP SHF95FLAGS
 Options that are passed to the Fortran 95 compiler
 to generated shared-library objects.
@@ -6460,6 +6501,12 @@ The default Fortran compiler used for generating shared-library objects.
 .IP SHFORTRANCOM
 The command line used to compile a Fortran source file
 to a shared-library object file.
+
+.IP FORTRANCOMSTR
+The string displayed when a Fortran source file
+is compiled to a shared-library object file.
+If this is not set, then $SHFORTRANCOM
+(the command line) is displayed.
 
 .IP SHFORTRANFLAGS
 Options that are passed to the Fortran compiler
