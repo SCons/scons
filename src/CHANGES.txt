@@ -25,6 +25,9 @@ RELEASE 0.12 - XXX
 
   - Make the internal to_String() function more efficient.
 
+  - Make the error message the same as other build errors when there's a
+    problem unlinking a target file in preparation for it being built.
+
 
 
 RELEASE 0.11 - Tue, 11 Feb 2003 05:24:33 -0600

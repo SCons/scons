@@ -1044,7 +1044,11 @@ class File(Entry):
 
         if self.exists():
             if self.has_builder() and not self.precious:
-                Unlink(self, None, None)
+                try:
+                    Unlink(self, None, None)
+                except OSError, e:
+                    raise SCons.Errors.BuildError(node = self,
+                                                  errstr = e.strerror)
                 if hasattr(self, '_exists'):
                     delattr(self, '_exists')
         else:

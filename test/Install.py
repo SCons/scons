@@ -103,7 +103,7 @@ os.chmod(test.workpath('export'), 0555)
 f = open(f1_out, 'rb')
 
 test.run(arguments = f1_out,
-         stderr="scons: *** [Errno 13] Permission denied: '%s'\n" % os.path.join('export', 'f1.out'),
+         stderr="scons: *** [%s] Permission denied\n" % os.path.join('export', 'f1.out'),
          status=2)
 
 f.close()
