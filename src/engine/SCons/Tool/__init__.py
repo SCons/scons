@@ -149,9 +149,10 @@ def FindAllTools(tools):
     return filter (_ToolExists, tools)
              
 def tool_list():
-    return [FindTool(linkers),
-            FindTool(c_compilers),
-            FindTool(cxx_compilers),
-            FindTool(fortran_compilers),
-            FindTool(assemblers)
-           ] + FindAllTools(other_tools)
+    tools = [FindTool(linkers),
+             FindTool(c_compilers),
+             FindTool(cxx_compilers),
+             FindTool(fortran_compilers),
+             FindTool(assemblers)
+            ] + FindAllTools(other_tools)
+    return filter(lambda x: x, tools)
