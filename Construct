@@ -60,7 +60,15 @@ pop @arr if $#arr >= 2;
 map {s/^[CD]//, s/^0*(\d\d)$/$1/} @arr;
 $version = join('.', @arr);
 
-chomp($python_ver = `python -c 'import sys; print sys.version[0:3]'`);
+chomp($python_ver = `python -c "import sys; print sys.version[0:3]"`);
+
+chomp($platform = `python -c "from distutils.util import get_platform; print get_platform()"`);
+
+if ($platform eq "win32") {
+    $archsuffix = "zip"
+} else {
+    $archsuffix = "tar.gz"
+}
 
 
 use Cwd;
@@ -130,32 +138,35 @@ for $dir ('script', 'engine') {
     #
     # Use the Python distutils to generate the packages.
     #
-    my $tar_gz = "$build/dist/$pkg-$version.tar.gz";
+    my $archive = "$build/dist/$pkg-$version.$archsuffix";
 
-    push(@src_deps, $tar_gz);
+    push(@src_deps, $archive);
 
     my @setup_args = ('bdist sdist');
 
     my @targets = (
-	"$build/dist/$pkg-$version.linux-i686.tar.gz",
-	$tar_gz,
+	"$build/dist/$pkg-$version.$platform.$archsuffix",
+	$archive,
     );
 
     if ($rpm) {
 	push(@setup_args, 'bdist_rpm');
 
-	# XXX "$build/build/bdist.linux-i686/rpm/SOURCES/$pkg-$version.tar.gz",
-	# XXX "$build/build/bdist.linux-i686/rpm/SPECS/$pkg.spec",
+	# XXX "$build/build/bdist.$platform/rpm/SOURCES/$pkg-$version.$archsuffix",
+	# XXX "$build/build/bdist.$platform/rpm/SPECS/$pkg.spec",
 	push(@targets,
 	    "$build/dist/$pkg-$version-1.src.rpm",
 	    "$build/dist/$pkg-$version-1.noarch.rpm",
 	);
     };
 
+    # We can get away with calling setup.py using a directory path
+    # like this because we put a preamble in it that will chdir()
+    # to the directory in which setup.py exists.
     $env->Command([@targets],
 	      map("$build/$_", @files),
 	      qq(rm -rf $build/build $build/dist/*
-		 cd $build && python setup.py @setup_args)
+		 python $build/setup.py @setup_args)
 	     );
 
     $env->Depends([@targets], "$build/MANIFEST");
@@ -163,13 +174,13 @@ for $dir ('script', 'engine') {
     $env->Install("build/dist", @targets);
 
     #
-    # Unpack the .tar.gz created by the distutils into build/unpack.
+    # Unpack the archive created by the distutils into build/unpack.
     #
     my $unpack = "build/unpack";
 
     my @unpack_files = map("$unpack/$pkg-$version/$_", @files);
 
-    Command $env [@unpack_files], $tar_gz, qq(
+    Command $env [@unpack_files], $archive, qq(
 	rm -rf $unpack/$pkg-$version
 	tar zxf %< -C $unpack
     );
@@ -188,9 +199,12 @@ for $dir ('script', 'engine') {
     @test_files = map(File::Spec->catfile($install, $_),
     			grep($_ =~ /\.py$/ && ! $seen{$_}++, @files));
 
+    # We can get away with calling setup.py using a directory path
+    # like this because we put a preamble in it that will chdir()
+    # to the directory in which setup.py exists.
     Command $env [@test_files], @unpack_files, qq(
 	rm -rf $install
-	cd $unpack/$pkg-$version && python setup.py install --prefix=$test_dir
+	python $unpack/$pkg-$version/setup.py install --prefix=$test_dir
     );
 }
 
@@ -209,7 +223,7 @@ if ($jw) {
 
 #
 # If we're running in the actual Aegis project, pack up a complete
-# source .tar.gz from the project files and files in the change,
+# source archive from the project files and files in the change,
 # so we can share it with helpful developers who don't use Aegis.
 #
 # First, lie and say that we've seen any files removed by this
@@ -242,7 +256,7 @@ if ($change) {
 		rm -rf build/$project-src-$version
 		cp -r build/$project-src build/$project-src-$version
 		find build/$project-src-$version -name .consign -exec rm {} \\;
-		cd build && tar zcf dist/%>:f $project-src-$version
+		tar zcf %> -C build $project-src-$version
 	));
     }
 }
