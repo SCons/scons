@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import string
 
+import SCons.Action
 import SCons.Builder
 import SCons.Node.FS
 import SCons.Tool.javac
@@ -105,7 +106,9 @@ def JavaHOutFlagGenerator(target, source, env, for_signature):
     except AttributeError:
         return '-o ' + str(t)
 
-JavaHBuilder = SCons.Builder.Builder(action = '$JAVAHCOM',
+JavaHAction = SCons.Action.Action('$JAVAHCOM', '$JAVAHCOMSTR')
+
+JavaHBuilder = SCons.Builder.Builder(action = JavaHAction,
                      emitter = emit_java_headers,
                      src_suffix = '$JAVACLASSSUFFIX',
                      target_factory = SCons.Node.FS.default_fs.Entry,

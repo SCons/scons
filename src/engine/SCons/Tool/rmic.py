@@ -36,6 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import os.path
 import string
 
+import SCons.Action
 import SCons.Builder
 import SCons.Node.FS
 import SCons.Util
@@ -89,7 +90,9 @@ def emit_rmic_classes(target, source, env):
 
     return tlist, source
 
-RMICBuilder = SCons.Builder.Builder(action = '$RMICCOM',
+RMICAction = SCons.Action.Action('$RMICCOM', '$RMICCOMSTR')
+
+RMICBuilder = SCons.Builder.Builder(action = RMICAction,
                      emitter = emit_rmic_classes,
                      src_suffix = '$JAVACLASSSUFFIX',
                      target_factory = SCons.Node.FS.default_fs.Dir,

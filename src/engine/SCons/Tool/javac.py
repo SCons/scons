@@ -37,6 +37,7 @@ import os
 import os.path
 import string
 
+import SCons.Action
 import SCons.Builder
 from SCons.Node.FS import _my_normcase
 from SCons.Tool.JavaCommon import parse_java_file
@@ -91,7 +92,9 @@ def emit_java_classes(target, source, env):
 
     return tlist, slist
 
-JavaBuilder = SCons.Builder.Builder(action = '$JAVACCOM',
+JavaAction = SCons.Action.Action('$JAVACCOM', '$JAVACCOMSTR')
+
+JavaBuilder = SCons.Builder.Builder(action = JavaAction,
                     emitter = emit_java_classes,
                     target_factory = SCons.Node.FS.default_fs.Dir,
                     source_factory = SCons.Node.FS.default_fs.Dir)

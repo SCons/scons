@@ -5494,6 +5494,15 @@ option).
 .IP JARCOM
 The command line used to call the Java archive tool.
 
+.IP JARCOMSTR
+The string displayed when the Java archive tool
+is called
+If this is not set, then $JARCOM (the command line) is displayed.
+
+.ES
+env = Environment(JARCOMSTR = "JARchiving $SOURCES into $TARGET")
+.EE
+
 .IP JARFLAGS
 General options passed to the Java archive tool.
 By default this is set to
@@ -5516,6 +5525,16 @@ Java source files to
 corresponding Java class files.
 Any options specified in the $JAVACFLAGS construction variable
 are included on this command line.
+
+.IP JAVACCOMSTR
+The string displayed when compiling
+a directory tree of Java source files to
+corresponding Java class files.
+If this is not set, then $JAVACCOM (the command line) is displayed.
+
+.ES
+env = Environment(JAVACCOMSTR = "Compiling class files $TARGETS from $SOURCES")
+.EE
 
 .IP JAVACFLAGS
 General options that are passed to the Java compiler.
@@ -5540,6 +5559,15 @@ The command line used to generate C header and stub files
 from Java classes.
 Any options specified in the $JAVAHFLAGS construction variable
 are included on this command line.
+
+.IP JAVAHCOMSTR
+The string displayed when C header and stub files
+are generated from Java classes.
+If this is not set, then $JAVAHCOM (the command line) is displayed.
+
+.ES
+env = Environment(JAVAHCOMSTR = "Generating header/stub file(s) $TARGETS from $SOURCES")
+.EE
 
 .IP JAVAHFLAGS
 General options passed to the C header and stub file generator
@@ -6257,6 +6285,16 @@ and skeleton class files
 from Java classes that contain RMI implementations.
 Any options specified in the $RMICFLAGS construction variable
 are included on this command line.
+
+.IP RMICCOMSTR
+The string displayed when compiling
+stub and skeleton class files
+from Java classes that contain RMI implementations.
+If this is not set, then $RMICCOM (the command line) is displayed.
+
+.ES
+env = Environment(RMICCOMSTR = "Generating stub/skeleton class files $TARGETS from $SOURCES")
+.EE
 
 .IP RMICFLAGS
 General options passed to the Java RMI stub compiler.
