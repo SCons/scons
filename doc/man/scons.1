@@ -4997,6 +4997,10 @@ The implementation files generated from .ui files are handled much the same
 as yacc or lex files. Because there are also generated headers, you may
 need to specify duplicate=1 in calls to BuildDir.
 
+.IP QT_AUTOBUILD_MOC_SOURCES
+If true, moc-generated sources are automatically compiled into the
+program or library that uses them.  Defaults to 1.
+
 .IP QT_LIB
 Default value is 'qt'. You may want to set this to 'qt-mt'
 
