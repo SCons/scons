@@ -49,7 +49,7 @@ except AttributeError:
     import shutil
     import stat
     def file_link(src, dest):
-        shutil.copyfile(src, dest)
+        shutil.copy2(src, dest)
         st=os.stat(src)
         os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
 

@@ -195,6 +195,22 @@ if f77:
     test.run(program = bar51, stdout = " b1.for\n")
     test.run(program = bar52, stdout = " b2.for\n")
 
+
+import os
+import stat
+def equal_stats(x,y):
+    x = os.stat(x)
+    y = os.stat(y)
+    return (stat.S_IMODE(x[stat.ST_MODE]) == stat.S_IMODE(y[stat.ST_MODE]) and
+            x[stat.ST_ATIME] ==  y[stat.ST_ATIME] and
+            x[stat.ST_MTIME] ==  y[stat.ST_MTIME])
+
+# Make sure we did duplicate the source files in build/var2, and that their stats are the same:
+test.fail_test(not os.path.exists(test.workpath('test', 'build', 'var2', 'f1.c')))
+test.fail_test(not os.path.exists(test.workpath('test', 'build', 'var2', 'f2.in')))
+test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', 'f1.c'), test.workpath('test', 'src', 'f1.c')))
+test.fail_test(not equal_stats(test.workpath('test', 'build', 'var2', 'f2.in'), test.workpath('test', 'src', 'f2.in')))
+
 # Make sure we didn't duplicate the source files in build/var3.
 test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f1.c')))
 test.fail_test(os.path.exists(test.workpath('test', 'build', 'var3', 'f2.in')))
