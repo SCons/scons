@@ -73,6 +73,8 @@ def platform_default():
             return 'hpux'
         elif string.find(sys.platform, 'aix') != -1:
             return 'aix'
+        elif string.find(sys.platform, 'darwin') != -1:
+            return 'darwin'
         else:
             return 'posix'
     elif os.name == 'os2':

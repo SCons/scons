@@ -1,15 +1,14 @@
-"""SCons.Tool.gnulink
+"""engine.SCons.Platform.darwin
 
-Tool-specific initialization for the gnu linker.
+Platform-specific initialization for Mac OS X systems.
 
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
+There normally shouldn't be any need to import this module directly.  It
+will usually be imported through the generic SCons.Platform.Platform()
 selection method.
-
 """
 
 #
-# __COPYRIGHT__
+# Copyright (c) 2001, 2002, 2003, 2004 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,29 +30,9 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import SCons.Util
-
-import link
-
-linkers = ['g++', 'gcc']
+import posix
+import os
 
 def generate(env):
-    """Add Builders and construction variables for gnulink to an Environment."""
-    link.generate(env)
-
-    if env['PLATFORM'] == 'hpux':
-        env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared -fPIC')
-    elif env['PLATFORM'] == 'darwin':
-        env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -dynamiclib')
-
-    # __RPATH is set to $_RPATH in the platform specification if that
-    # platform supports it.
-    env.Append(LINKFLAGS=['$__RPATH'])
-    env['RPATHPREFIX'] = '-Wl,--rpath='
-    env['RPATHSUFFIX'] = ''
-    env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
-    
-def exists(env):
-    return env.Detect(linkers)
+    posix.generate(env)
+    env['SHLIBSUFFIX'] = '.dylib'
