@@ -2646,6 +2646,16 @@ General options passed to the linker.
 .IP LINKCOM
 The command line used to link object files into an executable.
 
+.IP no_import_lib
+When set to non-zero,
+suppresses creation of a corresponding Win32 static import lib by the
+.B SharedLibrary
+builder when used with
+MinGW or Microsoft Visual Studio.
+This also suppresses creation
+of an export (.exp) file
+when using Microsoft Visual Studio.
+
 .IP OBJPREFIX 
 The prefix used for (static) object file names.
 
@@ -3543,19 +3553,6 @@ for another way to
 specify a build directory
 in conjunction with calling a subsidiary
 SConscript file.)
-
-.TP 
-.RI AddPostAction ( target, action )
-Arranges for the specified
-.I action
-to be performed
-after the specified
-.I target
-has been built.
-The specified action(s) may be
-an Action object, or anything that
-can be converted into an Action object
-(see below).
 
 .TP 
 .RI CacheDir ( cache_dir )
