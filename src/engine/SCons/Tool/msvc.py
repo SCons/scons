@@ -324,7 +324,7 @@ def get_msvc_paths(version=None, use_mfc_dirs=0):
 
     return (include_path, lib_path, exe_path)
 
-def get_msvc_default_paths(version = None):
+def get_msvc_default_paths(version=None, use_mfc_dirs=0):
     """Return a 3-tuple of (INCLUDE, LIB, PATH) as the values of those
     three environment variables that should be set in order to execute
     the MSVC tools properly.  This will only return the default
@@ -345,9 +345,9 @@ def get_msvc_default_paths(version = None):
         pass
 
     if float(version) >= 7.0:
-        return _get_msvc7_default_paths(version)
+        return _get_msvc7_default_paths(version, use_mfc_dirs)
     else:
-        return _get_msvc6_default_paths(version)
+        return _get_msvc6_default_paths(version, use_mfc_dirs)
 
 def validate_vars(env):
     """Validate the PDB, PCH, and PCHSTOP construction variables."""
@@ -456,13 +456,14 @@ def generate(env):
     try:
         version = SCons.Tool.msvs.get_default_visualstudio_version(env)
 
-        if env.has_key('MSVS_IGNORE_IDE_PATHS') and env['MSVS_IGNORE_IDE_PATHS']:
-            include_path, lib_path, exe_path = get_msvc_default_paths(version)
+        # By default, add the MFC directories, because this is what
+        # we've been doing for a long time.  We may change this.
+        use_mfc_dirs = env.get('MSVS_USE_MFC_DIRS', 1)
+        if env.get('MSVS_IGNORE_IDE_PATHS', 0):
+            _get_paths = get_msvc_default_paths
         else:
-            # By default, add the MFC directories, because this is what
-            # we've been doing for a long time.  We may change this.
-            use_mfc_dirs = env.get('MSVS_USE_MFC_DIRS', 1)
-            include_path, lib_path, exe_path = get_msvc_paths(version, use_mfc_dirs)
+            _get_paths = get_msvc_paths
+        include_path, lib_path, exe_path = _get_paths(version, use_mfc_dirs)
 
         # since other tools can set these, we just make sure that the
         # relevant stuff from MSVS is in there somewhere.

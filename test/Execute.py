@@ -34,7 +34,7 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-test.write('copy.py', """\
+test.write('my_copy.py', """\
 import sys
 open(sys.argv[2], 'wb').write(open(sys.argv[1], 'rb').read())
 try:
@@ -45,11 +45,11 @@ sys.exit(exitval)
 """)
 
 test.write('SConstruct', """\
-Execute("%s copy.py a.in a.out")
-Execute(Action("%s copy.py b.in b.out"))
-env = Environment(COPY = 'copy.py')
-env.Execute("%s copy.py c.in c.out")
-env.Execute(Action("%s copy.py d.in d.out"))
+Execute("%s my_copy.py a.in a.out")
+Execute(Action("%s my_copy.py b.in b.out"))
+env = Environment(COPY = 'my_copy.py')
+env.Execute("%s my_copy.py c.in c.out")
+env.Execute(Action("%s my_copy.py d.in d.out"))
 v = env.Execute("%s $COPY e.in e.out")
 assert v == 0, v
 v = env.Execute(Action("%s $COPY f.in f.out"))
