@@ -16,6 +16,9 @@ RELEASE 0.96 - XXX
 
   - Allow construction variable substitutions in $LIBS specifications.
 
+  - Add a $QT_AUTOBUILD_MOC_SOURCES construction variable that controls
+    whether moc-generated .cpp files get compiled.
+
   From Charles Crain:
 
   - Restore the ability to do construction variable substitutions in all

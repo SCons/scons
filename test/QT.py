@@ -148,7 +148,8 @@ Export("env")
 SConscript( sconscript )
 """ % (QT, QT_LIB, QT_MOC, QT_UIC))
 
-test.subdir( 'work1', 'work2', 'work3', 'work4', 'work5', 'work6', 'work7' )
+test.subdir( 'work1', 'work2', 'work3', 'work4',
+             'work5', 'work6', 'work7', 'work8' )
 
 ##############################################################################
 # 1. create a moc file from a header file.
@@ -526,6 +527,45 @@ int main() {
     
 else:
     print "Could not find QT, skipping test(s)."
+
+##############################################################################
+# 8. test the $QT_AUTOBUUILD_MOC_SOURCES variable
+
+aaa_dll = dll_ + 'aaa' + _dll
+moc = 'moc_aaa.cc'
+
+createSConstruct(test, ['work8', 'SConstruct'])
+
+test.write(['work8', 'SConscript'], """
+Import("env")
+env = env.Copy(QT_AUTOBUILD_MOC_SOURCES = 0)
+env.SharedLibrary(target = 'aaa', source = ['aaa.ui', 'useit.cpp'])
+""")
+
+test.write(['work8', 'aaa.ui'], r"""
+void aaa(void)
+""")
+
+test.write(['work8', 'useit.cpp'], r"""
+#include "aaa.h"
+void useit() {
+  aaa();
+}
+""")
+
+test.run(chdir='work8', arguments = aaa_dll)
+
+test.must_not_exist(test.workpath('work8', moc))
+
+test.write(['work8', 'SConscript'], """
+Import("env")
+env = env.Copy(QT_AUTOBUILD_MOC_SOURCES = 1)
+env.SharedLibrary(target = 'aaa', source = ['aaa.ui', 'useit.cpp'])
+""")
+
+test.run(chdir='work8', arguments = aaa_dll)
+
+test.must_exist(test.workpath('work8', moc))
 
 
 test.pass_test()
