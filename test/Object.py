@@ -39,10 +39,11 @@ env = Environment()
 f1 = env.Object(target = 'f1', source = 'f1.c')
 f2 = Object(target = 'f2', source = 'f2.cpp')
 f3 = env.Object(target = 'f3', source = 'f3.c')
-env.Program(target = 'prog1', source = Split('f1%s f2%s f3%s prog.cpp'))
-env.Program(target = 'prog2', source = [f1, f2, f3, 'prog.cpp'])
+mult_o = env.Object(['f4.c', 'f5.c'])
+env.Program(target = 'prog1', source = Split('f1%s f2%s f3%s f4%s prog.cpp'))
+env.Program(target = 'prog2', source = mult_o + [f1, f2, f3, 'prog.cpp'])
 env.Program(target = 'prog3', source = ['f1%s', f2, 'f3%s', 'prog.cpp'])
-""" % (_obj, _obj, _obj, _obj, _obj))
+""" % (_obj, _obj, _obj, _obj, _obj, _obj))
 
 test.write('f1.c', r"""
 void
@@ -67,6 +68,22 @@ void
 f3(void)
 {
 	printf("f3.c\n");
+}
+""")
+
+test.write('f4.c', r"""
+void
+f4(void)
+{
+	printf("f4.c\n");
+}
+""")
+
+test.write('f5.c', r"""
+void
+f5(void)
+{
+	printf("f5.c\n");
 }
 """)
 

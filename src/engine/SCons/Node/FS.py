@@ -169,15 +169,16 @@ LocalCopy = SCons.Action.Action(LinkFunc, LocalString)
 
 def UnlinkFunc(target, source, env):
     t = target[0]
-    t.fs.unlink(t.path)
+    t.fs.unlink(t.abspath)
     return 0
 
 Unlink = SCons.Action.Action(UnlinkFunc, None)
 
 def MkdirFunc(target, source, env):
     t = target[0]
-    if not t.fs.exists(t.path):
-        t.fs.mkdir(t.path)
+    p = t.abspath
+    if not t.fs.exists(p):
+        t.fs.mkdir(p)
     return 0
 
 Mkdir = SCons.Action.Action(MkdirFunc, None, presub=None)

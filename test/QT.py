@@ -30,6 +30,7 @@ generation of qt's moc files.
 """
 
 import os.path
+import re
 import string
 
 import TestSCons
@@ -40,6 +41,7 @@ lib_ = TestSCons.lib_
 _lib = TestSCons._lib
 dll_ = TestSCons.dll_
 _dll = TestSCons._dll
+_shobj = TestSCons._shobj
 
 test = TestSCons.TestSCons()
 
@@ -72,6 +74,7 @@ sys.exit(0)
 
 test.write(['qt', 'bin', 'myuic.py'], """
 import sys
+import os.path
 import string
 output_arg = 0
 impl_arg = 0
@@ -92,8 +95,13 @@ for arg in sys.argv[1:]:
         if source:
             sys.exit(1)
         source = open(arg, 'rb')
+        sourceFile = arg
 if impl:
     output.write( '#include "' + impl + '"\\n' )
+    if string.find(source.read(), '// ui.h') != -1:
+        output.write(
+           '#include "' +
+           os.path.basename(os.path.splitext(sourceFile)[0]) + '.ui.h"\\n')
 else:
     output.write( '#include "my_qobject.h"\\n' + source.read() + " Q_OBJECT \\n" )
 output.close()
@@ -130,7 +138,9 @@ QT_UIC = '%s %s' % (python, test.workpath('qt','bin','myuic.py'))
 
 def createSConstruct(test,place):
     test.write(place, """
-env = Environment(QTDIR = r'%s',
+if ARGUMENTS.get('noqtdir', 0): QTDIR=None
+else: QTDIR=r'%s'
+env = Environment(QTDIR = QTDIR,
                   QT_LIB = r'%s',
                   QT_MOC = r'%s',
                   QT_UIC = r'%s',
@@ -149,7 +159,11 @@ SConscript( sconscript )
 """ % (QT, QT_LIB, QT_MOC, QT_UIC))
 
 test.subdir( 'work1', 'work2', 'work3', 'work4',
-             'work5', 'work6', 'work7', 'work8' )
+             'work5', 'work6', 'work7', 'work8',
+             'work9', ['work9', 'local_include'],
+             'work10', ['work10', 'sub'], ['work10', 'sub', 'local_include'],
+             'work11', ['work11', 'include'], ['work11', 'ui'],
+             'work12')
 
 ##############################################################################
 # 1. create a moc file from a header file.
@@ -199,7 +213,8 @@ test.fail_test( not os.path.exists(test.workpath('work1', 'build', moc)) )
 
 aaa_dll = dll_ + 'aaa' + _dll
 moc = 'moc_aaa.cc'
-cpp = 'aaa.cc'
+cpp = 'uic_aaa.cc'
+obj = os.path.splitext(cpp)[0] + _shobj
 h = 'aaa.h'
 
 createSConstruct(test, ['work2', 'SConstruct'])
@@ -209,7 +224,12 @@ env.SharedLibrary(target = 'aaa', source = ['aaa.ui', 'useit.cpp'])
 """)
 
 test.write(['work2', 'aaa.ui'], r"""
-void aaa(void)
+#if defined (_WIN32) || defined(__CYGWIN__)
+#define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT
+#endif
+DLLEXPORT void aaa(void)
 """)
 
 test.write(['work2', 'useit.cpp'], r"""
@@ -223,7 +243,12 @@ test.run(chdir='work2', arguments = aaa_dll)
 test.up_to_date(chdir='work2', options='-n',arguments = aaa_dll)
 test.write(['work2', 'aaa.ui'], r"""
 /* a change */
-void aaa(void)
+#if defined (_WIN32) || defined(__CYGWIN__)
+#define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT
+#endif
+DLLEXPORT void aaa(void)
 """)
 test.not_up_to_date(chdir='work2', options = '-n', arguments = moc)
 test.not_up_to_date(chdir='work2', options = '-n', arguments = cpp)
@@ -232,7 +257,16 @@ test.run(chdir='work2', arguments = aaa_dll)
 test.write(['work2', 'aaa.ui.h'], r"""
 /* test dependency to .ui.h */
 """)
-test.not_up_to_date(chdir='work2', options = '-n', arguments = cpp)
+test.write(['work2', 'aaa.ui'], r"""
+void aaa(void)
+// ui.h
+""")
+test.run(chdir='work2', arguments = aaa_dll)
+test.write(['work2', 'aaa.ui.h'], r"""
+/* changed */
+""")
+test.not_up_to_date(chdir='work2', options = '-n', arguments = obj)
+test.up_to_date(chdir='work2', options = '-n', arguments = cpp)
 test.up_to_date(chdir='work2', options = '-n', arguments = h)
 test.up_to_date(chdir='work2', options = '-n', arguments = moc)
 
@@ -251,7 +285,7 @@ test.fail_test(not os.path.exists(test.workpath('work2','build',moc)) or
 # 3. create a moc file from a cpp file
 
 lib_aaa = lib_ + 'aaa' + _lib
-moc = 'moc_aaa.cc'
+moc = 'aaa.moc'
 
 createSConstruct(test, ['work3', 'SConstruct'])
 test.write(['work3', 'SConscript'], """
@@ -398,10 +432,13 @@ foo6(void)
 }
 """)
 
-test.run(chdir='work6')
+# we can receive warnings about a non detected qt (empty QTDIR)
+# these are not critical, but maybe annoying
+test.run(chdir='work6', stderr=None)
 
 main_exe = 'main' + _exe
 test.run(program = test.workpath('work6', main_exe),
+         stderr = None,
          stdout = 'qt/include/foo6.h\n')
 
 ##############################################################################
@@ -465,7 +502,7 @@ class MyClass1 : public QObject {
 void mocFromCpp() {
   MyClass1 myclass;
 }
-#include "moc_mocFromCpp.cpp"
+#include "mocFromCpp.moc"
 """)
 
     test.write( ['work7', 'mocFromH.h'],"""
@@ -522,50 +559,287 @@ int main() {
     QTDIR=os.environ['QTDIR']
     del os.environ['QTDIR']
 
-    test.run(chdir='work7', arguments="-c test_realqt" + _exe)
-    test.run(chdir='work7', arguments="PATH=%s/bin test_realqt%s"%(QTDIR,_exe))
+    test.run(chdir='work7', stderr=None, arguments="-c test_realqt" + _exe)
+    test.fail_test(not test.match_re(test.stderr(), r"""
+scons: warning: Could not detect qt, using empty QTDIR
+File "SConstruct", line \d+, in .+
+"""))
+
+    test.run(chdir='work7', stderr=None,
+             arguments="PATH=%s/bin test_realqt%s"%(QTDIR,_exe))
+    
+    test.fail_test(not test.match_re(test.stderr(), r"""
+scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
+File "SConstruct", line \d+, in .+
+""" % (re.escape(QTDIR))))
+
     
 else:
     print "Could not find QT, skipping test(s)."
 
 ##############################################################################
-# 8. test the $QT_AUTOBUUILD_MOC_SOURCES variable
+# 8. test the $QT_AUTOBUILD_MOC_SOURCES variable
+#
+# This has been removed, but I'm leaving the test here, commented out,
+# in case we ever resurrect this functionality again in the future.
+#
+#aaa_dll = dll_ + 'aaa' + _dll
+#moc = 'moc_aaa.cc'
+#
+#createSConstruct(test, ['work8', 'SConstruct'])
+#
+#test.write(['work8', 'SConscript'], """
+#Import("env")
+#env = env.Copy(QT_AUTOBUILD_MOC_SOURCES = 0)
+#env.SharedLibrary(target = 'aaa', source = ['aaa.ui', 'useit.cpp', 'aaa_function.cpp'])
+#""")
+#
+#test.write(['work8', 'aaa.ui'], r"""
+##if defined (_WIN32) || defined(__CYGWIN__)
+##define DLLEXPORT __declspec(dllexport)
+##else
+##define DLLEXPORT
+##endif
+#DLLEXPORT void aaa(void)
+#""")
+#
+#test.write(['work8', 'useit.cpp'], r"""
+##include "aaa.h"
+#void useit() {
+#  aaa();
+#}
+#""")
+#
+#test.write(['work8', 'aaa_function.cpp'], r"""
+##include "my_qobject.h"
+##if defined (_WIN32) || defined(__CYGWIN__)
+##define DLLEXPORT __declspec(dllexport)
+##else
+##define DLLEXPORT
+##endif
+#DLLEXPORT void aaa(void)
+# { my_qt_symbol( "aaa_function.cpp\n" ); }
+#""")
+#
+#test.run(chdir='work8', arguments = aaa_dll)
+#
+#test.must_not_exist(test.workpath('work8', moc))
+#
+#test.write(['work8', 'SConscript'], """
+#Import("env")
+#env = env.Copy(QT_AUTOBUILD_MOC_SOURCES = 1)
+#env.SharedLibrary(target = 'aaa', source = ['aaa.ui', 'useit.cpp'])
+#""")
+#
+#test.run(chdir='work8', arguments = aaa_dll)
+#
+#test.must_exist(test.workpath('work8', moc))
 
-aaa_dll = dll_ + 'aaa' + _dll
-moc = 'moc_aaa.cc'
+##############################################################################
+# 9. test that an overwritten CPPPATH is working with generated files
 
-createSConstruct(test, ['work8', 'SConstruct'])
+# this is basically test 1, but with an additional include
+aaa_exe = 'aaa' + _exe
 
-test.write(['work8', 'SConscript'], """
+createSConstruct(test, ['work9', 'SConstruct'])
+test.write( ['work9', 'SConscript'], """
 Import("env")
-env = env.Copy(QT_AUTOBUILD_MOC_SOURCES = 0)
-env.SharedLibrary(target = 'aaa', source = ['aaa.ui', 'useit.cpp'])
+env.Program(target = 'aaa', source = 'aaa.cpp', CPPPATH=['$CPPPATH', './local_include'])
 """)
 
-test.write(['work8', 'aaa.ui'], r"""
-void aaa(void)
-""")
-
-test.write(['work8', 'useit.cpp'], r"""
+test.write(['work9', 'aaa.cpp'], r"""
 #include "aaa.h"
-void useit() {
-  aaa();
+int main() { aaa(); return 0; }
+""")
+
+test.write(['work9', 'aaa.h'], r"""
+#include "my_qobject.h"
+#include "local_include.h"
+void aaa(void) Q_OBJECT;
+""")
+
+test.write(['work9', 'local_include', 'local_include.h'], r"""
+/* empty; just needs to be found */
+""")
+
+test.run(chdir='work9', arguments = aaa_exe)
+
+##############################################################################
+# 10. test that an appended relative CPPPATH is working with generated files
+
+# this is basically test 9, but the include path is env.Append-ed and
+# everything goes into sub directory "sub"
+aaa_exe = os.path.join('sub', 'aaa' + _exe)
+
+createSConstruct(test, ['work10', 'SConstruct'])
+test.write( ['work10', 'SConscript'], r"""
+SConscript('sub/SConscript')
+""")
+
+test.write( ['work10', 'sub', 'SConscript'], r"""
+Import("env")
+env.Append(CPPPATH=['./local_include'])
+env.Program(target = 'aaa', source = 'aaa.cpp')
+""")
+
+test.write(['work10', 'sub', 'aaa.cpp'], r"""
+#include "aaa.h"
+int main() { aaa(); return 0; }
+""")
+
+test.write(['work10', 'sub', 'aaa.h'], r"""
+#include "my_qobject.h"
+#include "local_include.h"
+void aaa(void) Q_OBJECT;
+""")
+
+test.write(['work10', 'sub', 'local_include', 'local_include.h'], r"""
+/* empty; just needs to be found */
+""")
+
+test.run(chdir='work10', arguments = aaa_exe)
+
+###############################################################################
+# 11. test the manual QT builder calls
+
+aaa_exe = 'aaa' + _exe
+
+createSConstruct(test, ['work11', 'SConstruct'])
+test.write( ['work11', 'SConscript'], r"""
+Import("env")
+sources = ['aaa.cpp', 'bbb.cpp', 'ddd.cpp', 'eee.cpp', 'main.cpp']
+
+# normal invocation
+sources.append(env.Moc('include/aaa.h'))
+env.Moc('bbb.cpp')
+sources.extend(env.Uic('ui/ccc.ui')[1:])
+
+# manual target specification
+sources.append(env.Moc('moc-ddd.cpp', 'include/ddd.h',
+               QT_MOCHPREFIX='')) # Watch out !
+env.Moc('moc_eee.cpp', 'eee.cpp')
+sources.extend(env.Uic(['include/uic_fff.hpp', 'fff.cpp', 'fff.moc.cpp'],
+                       'ui/fff.ui')[1:])
+
+print map(str,sources)
+env.Program(target='aaa',
+            source=sources,
+            CPPPATH=['$CPPPATH', './include'],
+            QT_AUTOSCAN=0)
+""")
+
+test.write(['work11', 'aaa.cpp'], r"""
+#include "aaa.h"
+""")
+                     
+test.write(['work11', 'include', 'aaa.h'], r"""
+#include "my_qobject.h"
+void aaa(void) Q_OBJECT;
+""")
+
+test.write(['work11', 'bbb.h'], r"""
+void bbb(void);
+""")
+
+test.write(['work11', 'bbb.cpp'], r"""
+#include "my_qobject.h"
+void bbb(void) Q_OBJECT
+#include "bbb.moc"
+""")
+
+test.write(['work11', 'ui', 'ccc.ui'], r"""
+void ccc(void)
+""")
+
+test.write(['work11', 'ddd.cpp'], r"""
+#include "ddd.h"
+""")
+                     
+test.write(['work11', 'include', 'ddd.h'], r"""
+#include "my_qobject.h"
+void ddd(void) Q_OBJECT;
+""")
+
+test.write(['work11', 'eee.h'], r"""
+void eee(void);
+""")
+
+test.write(['work11', 'eee.cpp'], r"""
+#include "my_qobject.h"
+void eee(void) Q_OBJECT
+#include "moc_eee.cpp"
+""")
+
+test.write(['work11', 'ui', 'fff.ui'], r"""
+void fff(void)
+""")
+
+test.write(['work11', 'main.cpp'], r"""
+#include "aaa.h"
+#include "bbb.h"
+#include "ui/ccc.h"
+#include "ddd.h"
+#include "eee.h"
+#include "uic_fff.hpp"
+
+int main() {
+  aaa(); bbb(); ccc(); ddd(); eee(); fff(); return 0;
 }
 """)
 
-test.run(chdir='work8', arguments = aaa_dll)
+test.run(chdir='work11', arguments = aaa_exe)
 
-test.must_not_exist(test.workpath('work8', moc))
+# normal invocation
+test.must_exist(test.workpath('work11', 'include', 'moc_aaa.cc'))
+test.must_exist(test.workpath('work11', 'bbb.moc'))
+test.must_exist(test.workpath('work11', 'ui', 'ccc.h'))
+test.must_exist(test.workpath('work11', 'ui', 'uic_ccc.cc'))
+test.must_exist(test.workpath('work11', 'ui', 'moc_ccc.cc'))
 
-test.write(['work8', 'SConscript'], """
-Import("env")
-env = env.Copy(QT_AUTOBUILD_MOC_SOURCES = 1)
-env.SharedLibrary(target = 'aaa', source = ['aaa.ui', 'useit.cpp'])
+# manual target spec.
+test.must_exist(test.workpath('work11', 'moc-ddd.cpp'))
+test.must_exist(test.workpath('work11', 'moc_eee.cpp'))
+test.must_exist(test.workpath('work11', 'include', 'uic_fff.hpp'))
+test.must_exist(test.workpath('work11', 'fff.cpp'))
+test.must_exist(test.workpath('work11', 'fff.moc.cpp'))
+
+
+##############################################################################
+# 12. test the tool warings
+createSConstruct(test, ['work12', 'SConstruct'])
+
+test.write(['work12', 'aaa.cpp'], r"""
+#include "my_qobject.h"
+void aaa(void) Q_OBJECT
 """)
 
-test.run(chdir='work8', arguments = aaa_dll)
+test.write(['work12', 'SConscript'], r"""
+Import("env")
+import os
+env.StaticLibrary('aaa.cpp')
+""")
 
-test.must_exist(test.workpath('work8', moc))
+test.run(chdir='work12', stderr=None)
+test.fail_test(not test.match_re(test.stderr(), r"""
+scons: warning: Generated moc file 'aaa.moc' is not included by 'aaa.cpp'
+File .+
+"""))
 
+os.environ['QTDIR'] = QT
+test.run(chdir='work12', arguments='-n noqtdir=1')
+
+# We'd like to eliminate $QTDIR from the environment as follows:
+#       del os.environ['QTDIR']
+# But unfortunately, in at least some versions of Python, the Environment
+# class doesn't implement a __delitem__() method to make the library
+# call to actually remove the deleted variable from the *external*
+# environment, so it only gets removed from the Python dictionary.
+# Consequently, we need to just wipe out its value as follows>
+os.environ['QTDIR'] = ''
+test.run(chdir='work12', stderr=None, arguments='-n noqtdir=1')
+test.fail_test(not test.match_re(test.stderr(), r"""
+scons: warning: Could not detect qt, using empty QTDIR
+File "SConstruct", line \d+, in .+
+"""))
 
 test.pass_test()

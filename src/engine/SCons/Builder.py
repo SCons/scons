@@ -311,6 +311,10 @@ def _init_nodes(builder, env, overrides, tlist, slist):
             elif t.sources != slist:
                 raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
 
+    if builder.single_source:
+        if len(slist) > 1:
+            raise UserError, "More than one source given for single-source builder: targets=%s sources=%s" % (map(str,tlist), map(str,slist))
+
     # The targets are fine, so find or make the appropriate Executor to
     # build this particular list of targets from this particular list of
     # sources.
@@ -400,6 +404,7 @@ class BuilderBase:
                         emitter = None,
                         multi = 0,
                         env = None,
+                        single_source = 0,
                         **overrides):
         if __debug__: logInstanceCreation(self, 'BuilderBase')
         self.action = SCons.Action.Action(action)
@@ -411,6 +416,7 @@ class BuilderBase:
             suffix = CallableSelector(suffix)
         self.suffix = suffix
         self.env = env
+        self.single_source = single_source
         if overrides.has_key('overrides'):
             SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                 "The \"overrides\" keyword to Builder() creation has been deprecated;\n" +\
@@ -522,6 +528,21 @@ class BuilderBase:
         if source is _null:
             source = target
             target = None
+
+        if(self.single_source and
+           SCons.Util.is_List(source) and
+           len(source) > 1 and
+           target is None):
+            result = []
+            if target is None: target = [None]*len(source)
+            for k in range(len(source)):
+                t = self._execute(env, target[k], source[k], overwarn)
+                if SCons.Util.is_List(t):
+                    result.extend(t)
+                else:
+                    result.append(t)
+            return result
+        
         tlist, slist = self._create_nodes(env, overwarn, target, source)
 
         if len(tlist) == 1:
@@ -605,6 +626,7 @@ class ListBuilder(SCons.Util.Proxy):
         self.env = env
         self.tlist = tlist
         self.multi = builder.multi
+        self.single_source = builder.single_source
 
     def targets(self, node):
         """Return the list of targets for this builder instance.
@@ -639,11 +661,13 @@ class MultiStepBuilder(BuilderBase):
                         source_factory = SCons.Node.FS.default_fs.File,
                         target_scanner = None,
                         source_scanner = None,
-                        emitter=None):
+                        emitter=None,
+                        single_source=0):
         if __debug__: logInstanceCreation(self)
         BuilderBase.__init__(self, action, prefix, suffix, src_suffix,
                              target_factory, source_factory,
-                             target_scanner, source_scanner, emitter)
+                             target_scanner, source_scanner, emitter,
+                             single_source = single_source)
         if not SCons.Util.is_List(src_builder):
             src_builder = [ src_builder ]
         self.src_builder = src_builder

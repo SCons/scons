@@ -119,7 +119,11 @@ error_output = {
     'icl' : """
 scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
 File "SConstruct", line 1, in ?
-"""
+""",
+    'qt' : """
+scons: warning: Could not detect qt, using empty QTDIR
+File "SConstruct", line 1, in ?
+""",
 }
 
 # An SConstruct for importing Tool names that have illegal characters
@@ -138,6 +142,7 @@ import SCons.Tool.%s
 x = SCons.Tool.%s.generate
 """
 
+failures = []
 for tool in tools:
     if tool[0] in '0123456789' or '+' in tool:
         test.write('SConstruct', indirect_import % (tool, tool, tool))
@@ -148,6 +153,8 @@ for tool in tools:
     if stderr != '' and stderr != error_output.get(tool, ''):
         print "Failed importing '%s', stderr:" % tool
         print stderr
-        test.fail_test(1)
+        failures.append[tool]
+
+test.fail_test(len(failures))
 
 test.pass_test()

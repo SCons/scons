@@ -16,9 +16,6 @@ RELEASE 0.96 - XXX
 
   - Allow construction variable substitutions in $LIBS specifications.
 
-  - Add a $QT_AUTOBUILD_MOC_SOURCES construction variable that controls
-    whether moc-generated .cpp files get compiled.
-
   - Allow the emitter argument to a Builder() to be or expand to a list
     of emitter functions, which will be called in sequence.
 
@@ -419,6 +416,12 @@ RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600
   - When compiling Qt, make sure the moc_*.cc files are compiled using
     the flags from the environment used to specify the target, not
     the environment that first has the Qt Builders attached.
+
+  - Add new Moc() and Uic() Builders for Qt, and a slew of $QT_*
+    construction variables to control them.
+
+  - Add a new single_source keyword argument for Builders that enforces
+    a single source file on calls to the Builder.
 
 
 
