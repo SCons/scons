@@ -37,9 +37,13 @@ RELEASE 0.96 - XXX
           import anydbm
           SConsignFile('.sconsign_file_name', anydbm)
 
-    - The internal Scanner.add_skey() method longer works for the default
-      scanners, which now use construction variables to hold their lists
-      of suffixes.  If you had a custom Tool specification that was
+    - The scan_check function that can be supplied to a custom Scanner now
+      must take two arguments, the Node to be checked and a construction
+      environment.  It previously only used the Node as an argument.
+
+    - The internal Scanner.add_skey() method no longer works for the
+      default scanners, which now use construction variables to hold their
+      lists of suffixes.  If you had a custom Tool specification that was
       reaching into the internals in this way to add a suffix to one of
       the following scanner, you must now add the suffix to a construction
       environment through which you plan to call the scanner, as follows:

@@ -26,6 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import unittest
 import UserDict
+import SCons.Sig
 
 import SCons.Scanner
 
@@ -45,6 +46,8 @@ class DummyEnvironment(UserDict.UserDict):
         if type(path) != type([]):
             path = [path]
         return map(self.subst, path)
+    def get_calculator(self):
+        return SCons.Sig.default_calc
 
 class FindPathDirsTestCase(unittest.TestCase):
     def test_FindPathDirs(self):
@@ -61,7 +64,7 @@ class FindPathDirsTestCase(unittest.TestCase):
         assert result == ('xxx', 'foo'), result
 
 class ScannerTestCase(unittest.TestCase):
-    
+
     def func(self, filename, env, target, *args):
         self.filename = filename
         self.env = env
@@ -69,7 +72,7 @@ class ScannerTestCase(unittest.TestCase):
 
         if len(args) > 0:
             self.arg = args[0]
-        
+
         return self.deps
 
     def test(self, scanner, env, filename, deps, *args):
@@ -148,7 +151,7 @@ class ScannerTestCase(unittest.TestCase):
         """Test the Scanner.Base class scan_check() method"""
         def my_scan(filename, env, target, *args):
             return []
-        def check(node, s=self):
+        def check(node, env, s=self):
             s.checked[node] = 1
             return 1
         env = DummyEnvironment()

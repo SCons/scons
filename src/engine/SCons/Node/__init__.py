@@ -390,12 +390,14 @@ class Node:
         if not self.has_builder():
             return
 
+        build_env = self.get_build_env()
+
         if implicit_cache and not implicit_deps_changed:
             implicit = self.get_stored_implicit()
             if implicit is not None:
                 implicit = map(self.implicit_factory, implicit)
                 self._add_child(self.implicit, self.implicit_dict, implicit)
-                calc = SCons.Sig.default_calc
+                calc = build_env.get_calculator()
                 if implicit_deps_unchanged or calc.current(self, calc.bsig(self)):
                     return
                 else:
@@ -406,8 +408,6 @@ class Node:
                     self.implicit_dict = {}
                     self._children_reset()
                     self.del_binfo()
-
-        build_env = self.get_build_env()
 
         for child in self.children(scan=0):
             scanner = child.source_scanner
