@@ -1491,9 +1491,11 @@ class LazyActionTestCase(unittest.TestCase):
         def f(target, source, env):
             pass
         a = SCons.Action.Action('$BAR')
-        s = a.genstring([], [], env=Environment(BAR=f, s=self))
+        env1 = Environment(BAR=f, s=self)
+        env2 = Environment(BAR='xxx', s=self)
+        s = a.genstring([], [], env=env1)
         assert s == "f(target, source, env)", s
-        s = a.genstring([], [], env=Environment(BAR='xxx', s=self))
+        s = a.genstring([], [], env=env2)
         assert s == 'xxx', s
 
     def test_execute(self):

@@ -187,6 +187,9 @@ RELEASE 0.97 - XXX
   - Speed things up when there are lists of targets and/or sources by
     getting rid of some N^2 walks of the lists involved.
 
+  - Cache evaluation of LazyActions so we don't create a new object
+    for each invocation.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
