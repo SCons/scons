@@ -28,187 +28,255 @@ RELEASE 0.97 - XXX
 
   Please note the following important changes since release 0.96:
 
-    - The ParseConfig() method now adds library file names returned
-      by the specified *-config command to the $LIBS construction
-      variable, instead of returning them (the same way it handles
-      the -l option).
+    --  DIRECTORY TREES ARE NO LONGER AUTOMATICALLY SCANNED FOR CHANGES
 
-    - By default, the ParseConfig() method now avoids adding duplicate
-      entries to construction variables.  The old behavior may be
-      specified using a new "unique=0" keyword argument.
+        Custom builders and Command() calls that accept directories as
+        source arguments no longer scan entire on-disk directory trees
+        by default.  This means that their targets will not be
+        automatically rebuilt if a file changes on disk, and SCons does
+        *not* already know about.  Note that the targets will still be
+        rebuilt correctly if a file changes that SCons already knows
+        about due to a Builder or other call.
 
-    - Custom builders that accept directories as source arguments no
-      longer scan entire directory trees by default.  This means that
-      their targets will not be automatically rebuilt if a file that
-      SCons does *not* already know about changes on disk.  Note that
-      the targets *will* still be rebuilt correctly if a file changes
-      that SCons already knows about due to a Builder or other call.
+        The existing behavior of scanning on-disk directory trees for
+        any changed file can be maintained by passing the new DirScanner
+        global directory scanner as the source_scanner keyword argument
+        to the Builder call:
 
-      The existing behavior of scanning directory trees for any changed
-      file on-disk can be maintained by passing the new DirScanner global
-      directory scanner as the source_scanner keyword argument to the
-      Builder call:
+            bld = Builder("build < $SOURCE > $TARGET",
+                          source_scanner = DirScanner)
 
-          bld = Builder("build < $SOURCE > $TARGET",
+        The same keyword argument can also be supplied to any Command()
+        calls that need to scan directory trees on-disk for changed files:
+
+            env.Command("archive.out", "directory",
+                        "archiver -o $TARGET $SOURCE",
                         source_scanner = DirScanner)
 
-      The same keyword argument can also be supplied to any Command()
-      calls that need to scan directory trees on-disk for changed files:
+        This change was made because scanning directories by default
+        could cause huge slowdowns if a configurable directory like /usr
+        or /usr/local was passed as the source to a Builder or Command()
+        call, in which case SCons would scan the entire directory tree.
 
-          env.Command("archive.out", "directory",
-                      "archiver -o $TARGET $SOURCE",
-                      source_scanner = DirScanner)
+    --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
 
-    - When compiling with Microsoft Visual Studio, SCons no longer
-      adds the ATL and MFC directories to the INCLUDE and LIB
-      environment variables by default.  If you want these directories
-      included in your environment variables, you should now set the
-      $MSVS_USE_MFC_DIRS *construction* variable when initializing
-      your environment:
+        The Configure() subsystem now stores its cached results in a
+        different file.  This may cause configuration tests to be re-run
+        the first time after you install 0.97.
 
-          env = Environment(MSVS_USE_MFC_DIRS = 1)
+    --  setup.py NOW INSTALLS MAN PAGES ON UNIX AND Linux SYSTEMS
 
-    - The following deprecated global functions have been removed:
-      ParseConfig(), SetBuildSignatureType(), SetContentSignatureType(),
-      SetJobs() and GetJobs().
+        The SCons setup.py script now installs the "scons.1" and
+        "sconsign.1" man pages on UNIX and Linux systems.  A
+        new --no-install-man
 
-    - The deprecated "validater" keyword to the Options.Add() method
-      has been removed.
+    --  ParseConfig() METHOD ADDS LIBRARY FILE NAMES TO THE $LIBS VARIABLE
 
-    - The %TEMP% and %TMP% external environment variables are now
-      propagated automatically to the command execution environment on
-      Windows systems.
+        The ParseConfig() method now adds library file names returned
+        by the specified *-config command to the $LIBS construction
+        variable, instead of returning them (the same way it handles
+        the -l option).
 
-    - The Configure() subsystem now reports tests results as "yes" and
-      "no" instead of "ok" and "failed."  This might interfere with any
-      scripts that automatically parse the Configure() output from SCons.
+    --  ParseConfig() METHOD DOESN'T ADD DUPLICATES TO CONSTRUCTION VARIABLES
 
-    - The Configure() subsystem now stores its cached results in a
-      different file.  This may cause configuration tests to be re-run
-      the first time after you install 0.97.
+        By default, the ParseConfig() method now avoids adding duplicate
+        entries to construction variables.  The old behavior may be
+        specified using a new "unique=0" keyword argument.
 
-    - The SCons setup.py script now installs the "scons.1" and
-      "sconsign.1" man pages on UNIX and Linux systems.
+    --  WINDOWS %TEMP% and %TMP% VARIABLES ARE PROPAGATED AUTOMATICALLY
+
+        The %TEMP% and %TMP% external environment variables are now
+        propagated automatically to the command execution environment on
+        Windows systems.
+
+    --  VISUAL STUDIO ATL AND MFC DIRECTORIES NOT ADDED BY DEFAULT
+
+        When compiling with Microsoft Visual Studio, SCons no longer
+        adds the ATL and MFC directories to the INCLUDE and LIB
+        environment variables by default.  If you want these directories
+        included in your environment variables, you should now set the
+        $MSVS_USE_MFC_DIRS *construction* variable when initializing
+        your environment:
+
+            env = Environment(MSVS_USE_MFC_DIRS = 1)
+
+    --  BUILDERS RETURN A LIST-LIKE OBJECT, NOT A REGULAR LIST
+
+        Builders calls now return an object that behaves like a list
+        (and which provides some other functionality), not an underlying
+        Python list.  In general, this should not cause any problems,
+        although it introduces a subtle change in the following behavior:
+
+                obj += env.Object('foo.c')
+
+        If "obj" is a list, Python will no longer update the "obj" in
+        place, because the return value from env.Object() is no longer
+        the same type.  Python will instead allocate a new object and
+        assign the local variable "obj" to it.  If "obj" is defined in
+        an SConscript file that calls another SConscript file containing
+        the above code, "obj" in the first SConscript file will not
+        contain the objects.
+
+        You can guarantee that a list will be updated in place regardless
+        of which SConscript file defines it and which adds to it by
+        using the list append() method as follows:
+
+                obj.append(env.Object('foo.c'))
+
+    --  OUTPUT OF Configure() SUBSYSTEM CHANGED SLIGHTLY
+
+        The Configure() subsystem now reports tests results as "yes" and
+        "no" instead of "ok" and "failed."  This might interfere with any
+        scripts that automatically parse the Configure() output from SCons.
+
+    --  DEPRECATED GLOBAL FUNCTIONS HAVE BEEN REMOVED
+
+        The following deprecated global functions have been removed:
+        ParseConfig(), SetBuildSignatureType(), SetContentSignatureType(),
+        SetJobs() and GetJobs().
+
+    --  DEPRECATED "validater" KEYWORD HAS BEEN REMOVED
+
+        The deprecated "validater" keyword to the Options.Add() method
+        has been removed.
 
   Please note the following important changes since release 0.95:
 
-    - All Builder calls (both built-in like Program(), Library(),
-      etc. and customer Builders) now always return a list of target
-      Nodes.   If the Builder only builds one target, the Builder
-      call will now return a list containing that target Node, not
-      the target Node itself as it used to do.
+    --  BUILDERS NOW ALWAYS RETURN A LIST OF TARGETS
 
-      This change should be invisibile to most normal uses of the
-      return values from Builder calls.  It will cause an error if the
-      SConscript file was performing some direct manipulation of the
-      returned Node value.  For example, an attempt to print the name
-      of a target returned by the Object() Builder:
+        All Builder calls (both built-in like Program(), Library(),
+        etc. and customer Builders) now always return a list of target
+        Nodes.   If the Builder only builds one target, the Builder
+        call will now return a list containing that target Node, not
+        the target Node itself as it used to do.
 
-            target = Object('foo.c')
-            # OLD WAY
-            print target
+        This change should be invisibile to most normal uses of the
+        return values from Builder calls.  It will cause an error if the
+        SConscript file was performing some direct manipulation of the
+        returned Node value.  For example, an attempt to print the name
+        of a target returned by the Object() Builder:
 
-      Will now need to access the first element in the list returned by
-      the Object() call:
+              target = Object('foo.c')
+              # OLD WAY
+              print target
 
-            target = Object('foo.c')
-            # NEW AY
-            print target[0]
+        Will now need to access the first element in the list returned by
+        the Object() call:
 
-      This change was introduced to make the data type returned by Builder
-      calls consistent (always a list), regardless of platform or number
-      of returned targets.
+              target = Object('foo.c')
+              # NEW AY
+              print target[0]
 
-    - The SConsignFile() function now uses an internally-supplied
-      SCons.dblite module as the default DB scheme for the .sconsign file.
-      If you are using the SConsignFile() function without an explicitly
-      specified dbm_module argument, this will cause all of your targets
-      to be recompiled the first time you use SCons 0.96.  To preserve the
-      previous behavior, specify the "anydbm" module explicitly:
+        This change was introduced to make the data type returned by Builder
+        calls consistent (always a list), regardless of platform or number
+        of returned targets.
 
-          import anydbm
-          SConsignFile('.sconsign_file_name', anydbm)
+    --  DEFAULT SConsignFile() DATABASE SCHEME HAS CHANGED
 
-    - The internal format of .sconsign files has been changed.  This might
-      cause warnings about "ignoring corrupt .sconsign files" and rebuilds
-      when you use SCons 0.96 for the first time in a tree that was
-      previously built with SCons 0.95 or earlier.
+        The SConsignFile() function now uses an internally-supplied
+        SCons.dblite module as the default DB scheme for the .sconsign file.
+        If you are using the SConsignFile() function without an explicitly
+        specified dbm_module argument, this will cause all of your targets
+        to be recompiled the first time you use SCons 0.96.  To preserve the
+        previous behavior, specify the "anydbm" module explicitly:
 
-    - The scan_check function that can be supplied to a custom Scanner now
-      must take two arguments, the Node to be checked and a construction
-      environment.  It previously only used the Node as an argument.
+            import anydbm
+            SConsignFile('.sconsign_file_name', anydbm)
 
-    - The internal Scanner.add_skey() method no longer works for the
-      default scanners, which now use construction variables to hold their
-      lists of suffixes.  If you had a custom Tool specification that was
-      reaching into the internals in this way to add a suffix to one of
-      the following scanner, you must now add the suffix to a construction
-      environment through which you plan to call the scanner, as follows:
+    --  INTERNAL .sconsign FILE FORMAT HAS CHANGED
 
-          CScan.add_skey('.x')       => env.Append(CPPSUFFIXES = ['.x'])
-          DScan.add_skey('.x')       => env.Append(DSUFFIXES = ['.x'])
-          FortranScan.add_skey('.x') => env.Append(FORTRANSUFFIXES = ['.x'])
+        The internal format of .sconsign files has been changed.  This might
+        cause warnings about "ignoring corrupt .sconsign files" and rebuilds
+        when you use SCons 0.96 for the first time in a tree that was
+        previously built with SCons 0.95 or earlier.
 
-    - The "node_factory" and "scanner" keyword arguments to the Builder()
-      function have been removed.  In their place, the separate and more
-      flexible "target_factory," "source_factory," "target_scanner" and
-      "source scanner" keywords should be used instead.
+    --  INTERFACE CHANGE OF scan_check FUNCTION TO CUSTOM SCANNERS
 
-    - SCons now treats file "extensions" that contain all digits (for
-      example, "file.123") as part of the file basename, for easier
-      handling of version numbers in the names of shared libraries
-      and other files.  Builders will now add their file extensions to
-      file names specified with all-digit extensions.  If you need to
-      generate a file with an all-digit extension using a Builder that
-      adds a file extension, you can preserve the previous behavior by
-      wrapping the file name in a File() call.
+        The scan_check function that can be supplied to a custom Scanner now
+        must take two arguments, the Node to be checked and a construction
+        environment.  It previously only used the Node as an argument.
 
-    - The behavior of the env.Append() and env.Prepend() methods has
-      changed when appending a string value to a UserList, or vice versa.
-      They now behave like normal Python addition of a string to
-      a UserList.  Given an initialization and an env.Append() call like:
+    --  DEFAULT SCANNERS NO LONGER HEED INTERNAL Scanner.add_skey() METHOD
 
-          env = Environment(VAR1=UserList(['foo']), VAR2='foo')
-          env.Append(VAR1='bar', VAR2=UserList(['bar'])
+        The internal Scanner.add_skey() method no longer works for the
+        default scanners, which now use construction variables to hold their
+        lists of suffixes.  If you had a custom Tool specification that was
+        reaching into the internals in this way to add a suffix to one of
+        the following scanner, you must now add the suffix to a construction
+        environment through which you plan to call the scanner, as follows:
 
-      The resulting values of $VAR1 and $VAR2 will now be ['foo', 'b',
-      'a', 'r'] and ['f', 'o', 'o', 'bar'], respectively.  This is because
-      Python UserList objects treat strings as sequences of letters when
-      adding them to the value of the UserList.
+            CScan.add_skey('.x')       => env.Append(CPPSUFFIXES = ['.x'])
+            DScan.add_skey('.x')       => env.Append(DSUFFIXES = ['.x'])
+            FortranScan.add_skey('.x') => env.Append(FORTRANSUFFIXES = ['.x'])
 
-      The old behavior of yielding $VAR1 and $VAR2 values of ['foo',
-      'bar'] when either variable is a UserList object now requires that
-      the string variables be enclosed in a list:
+    --  KEYWORD ARGUMENTS TO Builder() HAVE BEEN REMOVED
 
-          env = Environment(VAR1=UserList(['foo']), VAR2=['foo'])
-          env.Append(VAR1='bar', VAR2=UserList(['bar']))
+        The "node_factory" and "scanner" keyword arguments to the Builder()
+        function have been removed.  In their place, the separate and more
+        flexible "target_factory," "source_factory," "target_scanner" and
+        "source scanner" keywords should be used instead.
 
-      Note that the SCons behavior when appending to normal lists has
-      *not* changed, and the behavior of all of the default values that
-      SCons uses to initialize all construction variables has *not*
-      changed.  This change *only* affects any cases where you explicitly
-      use UserList objects to initialize or append to a variable.
+    --  ALL-DIGIT FILE "EXTENSIONS" ARE NOW PART OF THE FILE BASENAME
+
+        SCons now treats file "extensions" that contain all digits (for
+        example, "file.123") as part of the file basename, for easier
+        handling of version numbers in the names of shared libraries
+        and other files.  Builders will now add their file extensions to
+        file names specified with all-digit extensions.  If you need to
+        generate a file with an all-digit extension using a Builder that
+        adds a file extension, you can preserve the previous behavior by
+        wrapping the file name in a File() call.
+
+    --  Append()/Prepend() METHODS CHANGED WHEN USING UserList OBJECTS
+
+        The behavior of the env.Append() and env.Prepend() methods has
+        changed when appending a string value to a UserList, or vice versa.
+        They now behave like normal Python addition of a string to
+        a UserList.  Given an initialization and an env.Append() call like:
+
+            env = Environment(VAR1=UserList(['foo']), VAR2='foo')
+            env.Append(VAR1='bar', VAR2=UserList(['bar'])
+
+        The resulting values of $VAR1 and $VAR2 will now be ['foo', 'b',
+        'a', 'r'] and ['f', 'o', 'o', 'bar'], respectively.  This is because
+        Python UserList objects treat strings as sequences of letters when
+        adding them to the value of the UserList.
+
+        The old behavior of yielding $VAR1 and $VAR2 values of ['foo',
+        'bar'] when either variable is a UserList object now requires that
+        the string variables be enclosed in a list:
+
+            env = Environment(VAR1=UserList(['foo']), VAR2=['foo'])
+            env.Append(VAR1='bar', VAR2=UserList(['bar']))
+
+        Note that the SCons behavior when appending to normal lists has
+        *not* changed, and the behavior of all of the default values that
+        SCons uses to initialize all construction variables has *not*
+        changed.  This change *only* affects any cases where you explicitly
+        use UserList objects to initialize or append to a variable.
 
   Please note the following planned, future changes:
 
-    - Several internal variable names in SCons.Defaults for various
-      pre-made default Scanner objects have been deprecated and will
-      be removed in a future revision.  In their place are several new
-      global variable names that are now part of the publicly-supported
-      interface:
+    --  SCANNER NAMES HAVE BEEN DEPRECATED AND WILL BE REMOVED
 
-          NEW NAME              DEPRECATED NAME
-          --------              ----------------------------
-          CScanner              SCons.Defaults.CScan
-          DSCanner              SCons.Defaults.DScan
-          SourceFileScanner     SCons.Defaults.ObjSourceScan
-          ProgramScanner        SCons.Defaults.ProgScan
+        Several internal variable names in SCons.Defaults for various
+        pre-made default Scanner objects have been deprecated and will
+        be removed in a future revision.  In their place are several new
+        global variable names that are now part of the publicly-supported
+        interface:
 
-      Of these, only ObjSourceScan was probably used at all, to add
-      new mappings of file suffixes to other scanners for use by the
-      Object() Builder.  This should now be done as follows:
+            NEW NAME              DEPRECATED NAME
+            --------              ----------------------------
+            CScanner              SCons.Defaults.CScan
+            DSCanner              SCons.Defaults.DScan
+            SourceFileScanner     SCons.Defaults.ObjSourceScan
+            ProgramScanner        SCons.Defaults.ProgScan
 
-          SourceFileScanner.add_scanner('.x', XScanner)
+        Of these, only ObjSourceScan was probably used at all, to add
+        new mappings of file suffixes to other scanners for use by the
+        Object() Builder.  This should now be done as follows:
+
+            SourceFileScanner.add_scanner('.x', XScanner)
 
   SCons is developed with an extensive regression test suite, and a
   rigorous development methodology for continually improving that suite.
