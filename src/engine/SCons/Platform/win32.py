@@ -68,10 +68,6 @@ class TempFileMunge:
         if (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= maxline:
             return self.cmd
         else:
-            # In Cygwin, we want to use rm to delete the temporary file,
-            # because del does not exist in the sh shell.
-            rm = env.Detect('rm') or 'del'
-
             # We do a normpath because mktemp() has what appears to be
             # a bug in Win32 that will use a forward slash as a path
             # delimiter.  Win32's link mistakes that for a command line
@@ -83,10 +79,18 @@ class TempFileMunge:
             tmp = os.path.normpath(tempfile.mktemp('.lnk'))
             native_tmp = SCons.Util.get_native_path(tmp)
 
-            # The sh shell will try to escape the backslashes in the
-            # path, so unescape them.
             if env['SHELL'] and env['SHELL'] == 'sh':
+                # The sh shell will try to escape the backslashes in the
+                # path, so unescape them.
                 native_tmp = string.replace(native_tmp, '\\', r'\\\\')
+                # In Cygwin, we want to use rm to delete the temporary
+                # file, because del does not exist in the sh shell.
+                rm = env.Detect('rm') or 'del'
+            else:
+                # Don't use 'rm' if the shell is not sh, because rm won't
+                # work with the win32 shells (cmd.exe or command.com) or
+                # win32 path names.
+                rm = 'del'
 
             args = map(SCons.Util.quote_spaces, cmd[1:])
             open(tmp, 'w').write(string.join(args, " ") + "\n")

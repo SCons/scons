@@ -128,6 +128,11 @@ RELEASE X.XX - XXX
   - Have the closing message say "...terminated because of errors" if
     there were any.
 
+  From Anthony Roach:
+
+  - On Win32 systems, only use "rm" to delete files if Cygwin is being
+    used.   ("rm" doesn't understand Win32-format path names.)
+
   From Christoph Wiedemann:
   
   - Fix test/SWIG.py to find the Python include directory in all cases.

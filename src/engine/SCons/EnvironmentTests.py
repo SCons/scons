@@ -1568,7 +1568,7 @@ class EnvironmentTestCase(unittest.TestCase):
         import SCons.Sig
 
         class MyFS:
-            SConstruct_dir = '/dir'
+            SConstruct_dir = os.sep + 'dir'
 
         env = Environment(FOO = 'SConsign',
                           BAR = os.path.join(os.sep, 'File'))
