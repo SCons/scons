@@ -111,7 +111,14 @@ test.run(arguments = args)
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
-expect = test.wrap_stdout("Removed f1.out\nRemoved f2.out\n")
+def wrap_clean_stdout(string):
+    return "scons: Reading SConscript files ...\n" + \
+           "scons: done reading SConscript files.\n" + \
+           "scons: Cleaning targets ...\n" + \
+           string + \
+           "scons: done cleaning targets.\n"
+
+expect = wrap_clean_stdout("Removed f1.out\nRemoved f2.out\n")
 
 test.run(arguments = '-n -c ' + args, stdout = expect)
 

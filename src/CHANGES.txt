@@ -90,6 +90,9 @@ RELEASE 0.14 - XXX
 
   - Optimize out calling hasattr() before accessing attributes.
 
+  - Say "Cleaning targets" (not "Building...") when the -c option is
+    used.
+
   From Damyan Pepper:
 
   - Quote the "Entering directory" message like Make.

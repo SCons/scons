@@ -908,6 +908,8 @@ def _main():
 
     calc = None
     task_class = BuildTask	# default action is to build targets
+    opening_message = "Building targets ..."
+    closing_message = "done building targets."
     if options.question:
         task_class = QuestionTask
     try:
@@ -923,6 +925,8 @@ def _main():
                 def write(self):
                     pass
             calc = CleanCalculator()
+            opening_message = "Cleaning targets ..."
+            closing_message = "done cleaning targets."
     except AttributeError:
         pass
 
@@ -946,7 +950,7 @@ def _main():
             """Leave the order of dependencies alone."""
             return dependencies
 
-    display("scons: Building targets ...")
+    display("scons: " + opening_message)
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, calc, order)
 
     jobs = SCons.Job.Jobs(ssoptions.get('num_jobs'), taskmaster)
@@ -954,7 +958,7 @@ def _main():
     try:
         jobs.run()
     finally:
-        display("scons: done building targets.")
+        display("scons: " + closing_message)
         SCons.Sig.write()
 
 def main():
