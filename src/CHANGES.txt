@@ -19,6 +19,12 @@ RELEASE 0.97 - XXX
 
   - Handle exceptions from Python functions a build actions.
 
+  From Gottfried Ganssauge:
+
+  - Fix SCons on SuSE/AMD-64 Linux by having the wrapper script also
+    check for the build engine in the parent directory of the Python
+    library directory (/usr/lib64 instead of /usr/lib).
+
   From Steven Knight:
 
   - When compiling with Microsoft Visual Studio, don't include the ATL and
