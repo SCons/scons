@@ -1349,8 +1349,8 @@ def exists(env):
             save_command.append(command)
             class fake_file:
                 def read(self):
-                    return "-I/usr/include/fum -Ibar -X\n" + \
-                           "-L/usr/fax -Lfoo -lxxx " + \
+                    return "-I/usr/include/fum -I bar -X\n" + \
+                           "-L/usr/fax -L foo -lxxx -l yyy " + \
                            "-Wa,-as -Wl,-link -Wp,-cpp abc " + \
                            "-pthread -framework Carbon " + \
                            "-mno-cygwin -mwindows"
@@ -1363,7 +1363,7 @@ def exists(env):
             assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar'], env['CPPPATH']
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
             assert env['LIBPATH'] == ['list', '/usr/fax', 'foo'], env['LIBPATH']
-            assert env['LIBS'] == ['xxx', env.File('abc')], env['LIBS']
+            assert env['LIBS'] == ['xxx', 'yyy', env.File('abc')], env['LIBS']
             assert env['LINKFLAGS'] == ['', '-Wl,-link', '-pthread', '-framework', 'Carbon', '-mno-cygwin', '-mwindows'], env['LINKFLAGS']
             assert env['CCFLAGS'] == ['', '-X', '-pthread', '-mno-cygwin'], env['CCFLAGS']
         finally:
