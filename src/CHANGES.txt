@@ -137,6 +137,9 @@ RELEASE 0.97 - XXX
 
   - Better test infrastructure for -c output.
 
+  - Fix handling of src_suffix values that aren't extensions (don't
+    begin with a '.').
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

@@ -484,6 +484,33 @@ class BuilderTestCase(unittest.TestCase):
         b5 = SCons.Builder.Builder(action = { '.y' : ''})
         assert b5.src_suffixes(env) == ['.y'], b5.src_suffixes(env)
 
+    def test_srcsuffix_nonext(self):
+        "Test target generation from non-extension source suffixes"
+        env = Environment()
+        b6 = SCons.Builder.Builder(action = '',
+                                   src_suffix='_src.a',
+                                   suffix='.b')
+        tgt = b6(env, source='foo_src.a')
+        assert str(tgt[0]) == 'foo.b', str(tgt[0])
+
+        b7 = SCons.Builder.Builder(action = '',
+                                   src_suffix='_source.a',
+                                   suffix='_obj.b')
+        b8 = SCons.Builder.Builder(action = '',
+                                   src_builder=b7,
+                                   suffix='.c')
+        tgt = b8(env, source='foo_source.a')
+        assert str(tgt[0]) == 'foo_obj.c', str(tgt[0])
+        src = SCons.Node.FS.default_fs.File('foo_source.a')
+        tgt = b8(env, source=src)
+        assert str(tgt[0]) == 'foo_obj.c', str(tgt[0])
+
+        b9 = SCons.Builder.Builder(action={'_src.a' : 'srcaction'},
+                                   suffix='.c')
+        b9.add_action('_altsrc.b', 'altaction')
+        tgt = b9(env, source='foo_altsrc.b')
+        assert str(tgt[0]) == 'foo.c', str(tgt[0])
+
     def test_suffix(self):
         """Test Builder creation with a specified target suffix
 
