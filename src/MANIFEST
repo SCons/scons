@@ -3,6 +3,7 @@ scons/__init__.py
 scons/Builder.py
 scons/Defaults.py
 scons/Environment.py
+scons/Job.py
 scons/Node/__init__.py
 scons/Node/FS.py
 scons/Sig/__init__.py
