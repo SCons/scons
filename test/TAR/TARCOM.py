@@ -1,13 +1,4 @@
-"""SCons.Tool.tar
-
-Tool-specific initialization for tar.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+#!/usr/bin/env python
 #
 # __COPYRIGHT__
 #
@@ -33,33 +24,45 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import SCons.Action
-import SCons.Builder
-import SCons.Node.FS
-import SCons.Util
+"""
+Test the ability to configure the $TARCOM construction variable.
+"""
 
-tars = ['tar', 'gtar']
+import os
+import string
+import sys
+import TestSCons
 
-TarAction = SCons.Action.Action('$TARCOM', '$TARCOMSTR')
+python = TestSCons.python
 
-TarBuilder = SCons.Builder.Builder(action = TarAction,
-                                   source_factory = SCons.Node.FS.default_fs.Entry,
-				   suffix = '$TARSUFFIX',
-                                   multi = 1)
+test = TestSCons.TestSCons()
 
 
-def generate(env):
-    """Add Builders and construction variables for tar to an Environment."""
-    try:
-        bld = env['BUILDERS']['Tar']
-    except KeyError:
-        bld = TarBuilder
-        env['BUILDERS']['Tar'] = bld
 
-    env['TAR']        = env.Detect(tars) or 'gtar'
-    env['TARFLAGS']   = SCons.Util.CLVar('-c')
-    env['TARCOM']     = '$TAR $TARFLAGS -f $TARGET $SOURCES'
-    env['TARSUFFIX']  = '.tar'
+test.write('mytar.py', r"""
+import sys
+outfile = open(sys.argv[1], 'wb')
+infile = open(sys.argv[2], 'rb')
+for l in filter(lambda l: l != '/*tar*/\n', infile.readlines()):
+    outfile.write(l)
+sys.exit(0)
+""")
 
-def exists(env):
-    return env.Detect(tars)
+test.write('SConstruct', """
+env = Environment(TOOLS = ['tar'],
+                  TARCOM = r'%(python)s mytar.py $TARGET $SOURCE')
+env.Tar('test1.tar', 'test1.in')
+""" % locals())
+
+test.write('test1.in', """\
+test1.in
+/*tar*/
+""")
+
+test.run()
+
+test.must_match('test1.tar', "test1.in\n")
+
+
+
+test.pass_test()

@@ -6733,6 +6733,15 @@ The tar archiver.
 .IP TARCOM
 The command line used to call the tar archiver.
 
+.IP TARCOMSTR
+The string displayed when archiving files
+using the tar archiver.
+If this is not set, then $TARCOM (the command line) is displayed.
+
+.ES
+env = Environment(TARCOMSTR = "Archiving $TARGET")
+.EE
+
 .IP TARFLAGS
 General options passed to the tar archiver.
 
@@ -6806,6 +6815,16 @@ The zip compression and file packaging utility.
 The command line used to call the zip utility,
 or the internal Python function used to create a
 zip archive.
+
+.IP ZIPCOMSTR
+The string displayed when archiving files
+using the zip utility.
+If this is not set, then $ZIPCOM
+(the command line or internal Python function) is displayed.
+
+.ES
+env = Environment(ZIPCOMSTR = "Zipping $TARGET")
+.EE
 
 .IP ZIPCOMPRESSION
 The
