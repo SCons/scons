@@ -139,6 +139,9 @@ RELEASE 0.97 - XXX
     $SHF90COMSTR, $SHF95COMSTR, $SHFORTRANCOMSTR, $SHLINKCOMSTR and
     $YACCCOMSTR.
 
+  - Add an optional "map" keyword argument to ListOption() that takes a
+    dictionary to map user-specified values to legal values from the list
+    (like EnumOption() already doee).
 
   From Wayne Lee:
 

@@ -89,7 +89,7 @@ class _ListOption(UserList.UserList):
     def __repr__(self):
         return self.__str__()
     
-def _converter(val, allowedElems):
+def _converter(val, allowedElems, mapdict):
     """
     """
     if val == 'none':
@@ -98,10 +98,8 @@ def _converter(val, allowedElems):
         val = allowedElems
     else:
         val = filter(None, string.split(val, ','))
-        notAllowed = []
-        for v in val:
-            if not v in allowedElems:
-                notAllowed.append(v)
+        val = map(lambda v, m=mapdict: m.get(v, v), val)
+        notAllowed = filter(lambda v, aE=allowedElems: not v in aE, val)
         if notAllowed:
             raise ValueError("Invalid value(s) for option: %s" %
                              string.join(notAllowed, ','))
@@ -115,7 +113,7 @@ def _converter(val, allowedElems):
 ##     return 1
 
 
-def ListOption(key, help, default, names):
+def ListOption(key, help, default, names, map={}):
     """
     The input parameters describe a 'package list' option, thus they
     are returned with the correct converter and validater appended. The
@@ -132,4 +130,4 @@ def ListOption(key, help, default, names):
         '\n    ')
     return (key, help, default,
             None, #_validator,
-            lambda val, elems=names: _converter(val, elems))
+            lambda val, elems=names, m=map: _converter(val, elems, m))
