@@ -33,7 +33,7 @@ test.run(stdout = "",
 	stderr = r"""
 SCons error: No SConstruct file found.
 File "\S+", line \d+, in \S+
-""")
+""", status=2)
 
 test.match_func = TestCmd.match_exact
 

@@ -43,7 +43,7 @@ test.run(arguments='-f SConstruct1',
 
 SyntaxError: invalid syntax
 
-""")
+""", status=2)
 
 
 test.write('SConstruct2', """
@@ -57,7 +57,7 @@ test.run(arguments='-f SConstruct2',
 	 stderr = """
 SCons error: Depends\(\) require both sources and targets.
 File "SConstruct2", line 4, in \?
-""")
+""", status=2)
 
 test.write('SConstruct3', """
 assert not globals().has_key("InternalError")
@@ -77,6 +77,6 @@ test.run(arguments='-f SConstruct3',
   File "SConstruct3", line \d+, in \?
     raise InternalError, 'error inside'
 InternalError: error inside
-""")
+""", status=2)
 
 test.pass_test()

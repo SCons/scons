@@ -136,6 +136,7 @@ def _scons_syntax_error(e):
     lines = traceback.format_exception_only(etype, value)
     for line in lines:
         sys.stderr.write(line+'\n')
+    sys.exit(2)
 
 def _scons_user_error(e):
     """Handle user errors. Print out a message and a description of the
@@ -149,6 +150,7 @@ def _scons_user_error(e):
     routine = tb.tb_frame.f_code.co_name
     sys.stderr.write("\nSCons error: %s\n" % value)
     sys.stderr.write('File "%s", line %d, in %s\n' % (filename, lineno, routine))
+    sys.exit(2)
 
 def _scons_user_warning(e):
     """Handle user warnings. Print out a message and a description of
@@ -169,7 +171,7 @@ def _scons_other_errors():
     """
     print 'other errors'
     traceback.print_exc()
-
+    sys.exit(2)
 
 
 #
@@ -700,6 +702,7 @@ def main():
         pass
     except KeyboardInterrupt:
         print "Build interrupted."
+        sys.exit(1)
     except SyntaxError, e:
         _scons_syntax_error(e)
     except UserError, e:

@@ -68,7 +68,7 @@ class TestSCons(TestCmd.TestCmd):
 	apply(TestCmd.TestCmd.__init__, [self], kw)
 	os.chdir(self.workdir)
 
-    def run(self, stdout = None, stderr = '', **kw):
+    def run(self, stdout = None, stderr = '', status = 0, **kw):
 	"""Runs SCons.
 
 	This is the same as the base TestCmd.run() method, with
@@ -82,6 +82,10 @@ class TestSCons(TestCmd.TestCmd):
 			the command.  A value of None means
 			don't test error output.
 
+                status  The expected exit status from the 
+                        command. 
+    
+
         By default, this does not test standard output (stdout = None),
         and expects that error output is empty (stderr = "").
 	"""
@@ -93,7 +97,7 @@ class TestSCons(TestCmd.TestCmd):
 	    print "STDERR ============"
 	    print self.stderr()
 	    raise
-	if self.status:
+	if self.status>>8 != status:
 	    print "%s returned %d" % (self.program, self.status >> 8)
 	    print "STDERR ============"
 	    print self.stderr()
