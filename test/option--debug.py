@@ -31,7 +31,7 @@ import string
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = Environment()
+env = Environment(OBJSUFFIX = '.ooo', PROGSUFFIX = '.xxx')
 env.Program('foo', 'foo.c bar.c')
 """)
 
@@ -63,41 +63,35 @@ test.write('bar.h', """
 #endif
 """)
 
-
-if sys.platform == 'win32':
-    foo = 'foo.exe'
-else:
-    foo = 'foo'
-
-test.run(arguments = "--debug=tree " + foo)
+test.run(arguments = "--debug=tree foo.xxx")
 
 import SCons.Defaults
 obj = SCons.Defaults.ConstructionEnvironment['OBJSUFFIX']
 tree = """
-+-%s
-  +-foo%s
++-foo.xxx
+  +-foo.ooo
   | +-foo.c
   | +-foo.h
   | +-bar.h
-  +-bar%s
+  +-bar.ooo
     +-bar.c
     +-bar.h
     +-foo.h
-""" % (foo, obj,obj)
+"""
 
 test.fail_test(string.find(test.stdout(), tree) == -1)
 
-test.run(arguments = "--debug=tree " + foo)
+test.run(arguments = "--debug=tree foo.xxx")
 test.fail_test(string.find(test.stdout(), tree) == -1)
 
 
 tree = """
-+-%s
-  +-foo%s
-  +-bar%s
-""" % (foo, obj,obj)
++-foo.xxx
+  +-foo.ooo
+  +-bar.ooo
+"""
 
-test.run(arguments = "--debug=dtree " + foo)
+test.run(arguments = "--debug=dtree foo.xxx")
 test.fail_test(string.find(test.stdout(), tree) == -1)
 
 tree = """scons: \".\" is up to date.
@@ -106,26 +100,26 @@ tree = """scons: \".\" is up to date.
   +-SConstruct
   +-bar.c
   +-bar.h
-  +-bar%(obj)s
+  +-bar.ooo
   | +-bar.c
   | +-bar.h
   | +-foo.h
-  +-%(foo)s
-  | +-foo%(obj)s
-  | | +-foo.c
-  | | +-foo.h
-  | | +-bar.h
-  | +-bar%(obj)s
-  |   +-bar.c
-  |   +-bar.h
-  |   +-foo.h
   +-foo.c
   +-foo.h
-  +-foo%(obj)s
-    +-foo.c
-    +-foo.h
-    +-bar.h
-""" % globals()
+  +-foo.ooo
+  | +-foo.c
+  | +-foo.h
+  | +-bar.h
+  +-foo.xxx
+    +-foo.ooo
+    | +-foo.c
+    | +-foo.h
+    | +-bar.h
+    +-bar.ooo
+      +-bar.c
+      +-bar.h
+      +-foo.h
+"""
 test.run(arguments = "--debug=tree .")
 test.fail_test(string.find(test.stdout(), tree) != 0)
 
