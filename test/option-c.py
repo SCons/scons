@@ -182,8 +182,7 @@ test.fail_test(os.path.exists(test.workpath('foo2.xxx')))
 test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
 test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
 
-expect = test.wrap_stdout("""Removed subd/foox.in
-""")
+expect = test.wrap_stdout("Removed %s\n" % os.path.join('subd', 'foox.in'))
 test.run(arguments = '-c subd', stdout=expect)
 test.fail_test(os.path.exists(test.workpath('foox.in')))
 
@@ -191,9 +190,9 @@ expect = test.wrap_stdout("""Removed foo1.out
 Removed foo2.out
 Removed foo3.out
 Removed %s
-Removed subd/SConscript
+Removed %s
 Removed directory subd
-""" % os.path.join('subd','foon.in'))
+""" % (os.path.join('subd','foon.in'), os.path.join('subd', 'SConscript')))
 test.run(arguments = '-c .', stdout=expect)
 test.fail_test(os.path.exists(test.workpath('subdir', 'foon.in')))
 test.fail_test(os.path.exists(test.workpath('subdir')))
