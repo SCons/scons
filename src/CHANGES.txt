@@ -84,6 +84,11 @@ RELEASE 0.95 - XXX
   - Allow the LIBS construction variable to be a single string or File
     node, not a list, when only one library is needed.
 
+  - Fix typos in the man page:  JAVACHDIR => JARCHDIR; add "for_signature"
+    to the __call__() example in the "Variable Substitution" section.
+
+  - Correct error message spellings of "non-existant" to "non-existent."
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.

@@ -1199,7 +1199,7 @@ env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
 .IP env.Jar()
 Builds a Java archive (.jar) file
 from a source tree of .class files.
-If the $JAVACHDIR value is set, the
+If the $JARCHDIR value is set, the
 .B jar
 command will change to the specified directory using the
 .B \-C
@@ -6484,7 +6484,7 @@ class foo:
     def __init__(self, arg):
         self.arg = arg
 
-    def __call__(self, target, source, env):
+    def __call__(self, target, source, env, for_signature):
         return arg + " bar"
 
 # Will expand $BAR to "my argument bar baz"
