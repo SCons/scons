@@ -8,6 +8,10 @@
 
 
 
+RELEASE 0.10 - XXX
+
+
+
 RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
 
   From Chad Austin:
@@ -145,6 +149,9 @@ RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
 
   - Allow the command handler to be selected via the SPAWN, SHELL
     and ESCAPE construction variables.
+
+  - Allow construction variables to be overridden when a Builder
+    is called.
 
   From sam th:
 

@@ -20,10 +20,14 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
+RELEASE 0.10 - XXX
 
-  This is the ninth alpha release of SCons.  Please consult the
+  This is the tenth alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
+
+  Please note the following important changes since release 0.09:
+
+    - XXX
 
   Please note the following important changes since release 0.08:
 
@@ -55,45 +59,10 @@ RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
       These message might interfere with scripts that examine SCons
       output.  These messages may be suppressed with the new -Q option.
 
-  Please note the following important changes since release 0.07:
-
-    - Builder objects no longer automatically split target and source
-      file strings on white space.  SCons will interpret the string
-      arguments for the target or source files as the complete name of
-      the file, even if the name contains white space.
-
-      Consequently, any builder calls that you have defined which supply
-      multiple file names in a single string, such as:
-
-          env.Program(target = 'foo', source = 'f1.c f2.c')
-
-      These calls must be changed.  You may either split up the string
-      into an array of individual file name strings by hand:
-
-          env.Program(target = 'foo', source = ['f1.c', 'f2.c'])
-
-      Or you may use the newly-provided Split() function to turn a
-      string of white-space separated file names into an array:
-
-          env.Program(target = 'foo', source = Split('f1.c f2.c'))
-
-      The Split() function preserves the functionality that the builder
-      objects currently invoke internally: if the argument is a string,
-      it will be split on white space; if the argument is already a list,
-      the list will be returned.
-
-      (You may, of course, also use the string.split() function from
-      the standard Python library to convert your strings.)
-
-    - The Object and Library builders no longer use the "shared" keyword
-      argument to specify if the target object or library is a
-      shared library.  Instead, separate StaticObject, SharedObject,
-      StaticLibrary and SharedLibrary builders exist to build the
-      appropriate target explicitly.  The Object and Library builders
-      are now synonyms for StaticObject and StaticLibrary, respecitvely.
-
-    - The prefix, suffix, and src_suffix keyword arguments to the
-      Builder() function may no longer be callable functions.
+    - User defined build arguments passed into builder calls are no
+      longer given to emitters, generators, and function actions as
+      keyword arguments, but are instead passed as construction 
+      variables.
 
   Owing to an extensive test suite, the SCons team believes that this
   release is of sufficient quality that you can use it for real work,
@@ -108,8 +77,8 @@ RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
 
       http://sourceforge.net/tracker/?func=add&group_id=30337&atid=398971
 
-      We have a reliable bug-fixing methodology already in place and aim
-      to respond to problems relatively quickly.
+      We have a reliable bug-fixing methodology already in place and
+      strive to respond to problems relatively quickly.
 
     - It is possible that interfaces will change in future releases.  We
       will strive to hold this to a minimum, but you may need to modify
@@ -126,7 +95,7 @@ RELEASE 0.09 - Thu,  5 Dec 2002 04:48:25 -0600
       In particular, the "SCons Design" documentation on the SCons web
       site is currently out of date, as we made significant changes to
       portions of the interface as we figured out what worked and what
-      didn't during implementation.L
+      didn't during implementation.
 
     - There may be performance issues.  Improving SCons performance
       is an ongoing priority.  If you still find the performance

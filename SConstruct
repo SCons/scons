@@ -37,7 +37,7 @@ import sys
 import time
 
 project = 'scons'
-default_version = '0.09'
+default_version = '0.10'
 
 Default('.')
 
@@ -187,9 +187,10 @@ try:
                 if os.path.isfile(path):
                     arg.write(path)
         zf = zipfile.ZipFile(str(target[0]), 'w')
+        olddir = os.getcwd()
         os.chdir(env['CD'])
-        os.path.walk(env['PSV'], visit, zf)
-        os.chdir('..')
+        try: os.path.walk(env['PSV'], visit, zf)
+        finally: os.chdir(olddir)
         zf.close()
 
     def unzipit(env, target, source):
