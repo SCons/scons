@@ -34,7 +34,7 @@
  * if the file is not in the change.  Look in aesub(5) for more information
  * about command substitutions.
  */
-build_command = "SCONS_LIB_DIR=${Development_Directory}/src/engine python ${Source src/script/scons.py} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+build_command = "SCONS_LIB_DIR=src/engine python ${Source src/script/scons.py} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * The rules used in the User Guide all remove their targets before
@@ -53,10 +53,7 @@ link_integration_directory = true;
  */
 create_symlinks_before_build = true;
 
-/*
- * NOT UNTIL AEGIS 3.23; we may not need it anyway.
 remove_symlinks_after_build = false;
- */
 
 /*
 integrate_begin_command =
