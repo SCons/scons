@@ -434,7 +434,6 @@ def _set_globals(options):
         if "includes" in debug_values:
             print_includes = 1
         if "memoizer" in debug_values:
-            SCons.Memoize.EnableCounting()
             print_memoizer = 1
         if "memory" in debug_values:
             memory_stats = []

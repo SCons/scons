@@ -39,8 +39,27 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import time
 start_time = time.time()
 
+import os
 import string
+import sys
 import UserList
+
+# Special chicken-and-egg handling of the "--debug=memoizer" flags:
+# SCons.Memoize contains a metaclass implementation that affects how
+# the other classes are instantiated.  The Memoizer handles optional
+# counting of the hits and misses by using a different, parallel set of
+# functions, so we don't slow down normal operation any more than we
+# have to.  But if we wait to enable the counting until we've parsed
+# the command line options normally, it will be too late, because the
+# Memoizer will have already analyzed the classes that it's Memoizing
+# and bound the non-counting versions of the functions.  So we have to
+# use a special-case, up-front check for the "--debug=memoizer" flag
+# and turn on Memoizer counting, if desired, before we import any of
+# the other modules that use it.
+sconsflags = string.split(os.environ.get('SCONSFLAGS', ''))
+if "--debug=memoizer" in sys.argv + sconsflags:
+    import SCons.Memoize
+    SCons.Memoize.EnableCounting()
 
 import SCons.Action
 import SCons.Builder
