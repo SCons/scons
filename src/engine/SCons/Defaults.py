@@ -4,6 +4,9 @@ Builders and other things for the local site.  Here's where we'll
 duplicate the functionality of autoconf until we move it into the
 installation procedure or use something like qmconf.
 
+The code that reads the registry to find MSVC components was borrowed 
+from distutils.msvccompiler.
+
 """
 
 #
@@ -37,6 +40,8 @@ import os
 import SCons.Builder
 import SCons.Scanner.C
 import SCons.Scanner.Prog
+import string
+import SCons.Errors
 
 Object = SCons.Builder.Builder(name = 'Object',
                                action = { '.c'   : '$CCCOM',
@@ -67,6 +72,168 @@ Library = SCons.Builder.Builder(name = 'Library',
 
 CScan = SCons.Scanner.C.CScan()
 
+# attempt to load the windows registry module:
+_can_read_reg = 0
+try:
+    import _winreg
+
+    _can_read_reg = 1
+    hkey_mod = _winreg
+
+    RegOpenKeyEx = _winreg.OpenKeyEx
+    RegEnumKey = _winreg.EnumKey
+    RegEnumValue = _winreg.EnumValue
+    RegError = _winreg.error
+
+except ImportError:
+    try:
+        import win32api
+        import win32con
+        _can_read_reg = 1
+        hkey_mod = win32con
+
+        RegOpenKeyEx = win32api.RegOpenKeyEx
+        RegEnumKey = win32api.RegEnumKey
+        RegEnumValue = win32api.RegEnumValue
+        RegError = win32api.error
+
+    except ImportError:
+        pass
+
+if _can_read_reg:
+    HKEY_CLASSES_ROOT = hkey_mod.HKEY_CLASSES_ROOT
+    HKEY_LOCAL_MACHINE = hkey_mod.HKEY_LOCAL_MACHINE
+    HKEY_CURRENT_USER = hkey_mod.HKEY_CURRENT_USER
+    HKEY_USERS = hkey_mod.HKEY_USERS
+
+def get_devstudio_versions ():
+    """
+    Get list of devstudio versions from the Windows registry.  Return a
+    list of strings containing version numbers; an exception will be raised
+    if we were unable to access the registry (eg. couldn't import
+    a registry-access module) or the appropriate registry keys weren't
+    found.
+    """
+
+    if not _can_read_reg:
+        raise InternalError, "No Windows registry module was found"
+
+    K = 'Software\\Microsoft\\Devstudio'
+    L = []
+    for base in (HKEY_CLASSES_ROOT,
+                 HKEY_LOCAL_MACHINE,
+                 HKEY_CURRENT_USER,
+                 HKEY_USERS):
+        try:
+            k = RegOpenKeyEx(base,K)
+            i = 0
+            while 1:
+                try:
+                    p = RegEnumKey(k,i)
+                    if p[0] in '123456789' and p not in L:
+                        L.append(p)
+                except RegError:
+                    break
+                i = i + 1
+        except RegError:
+            pass
+    
+    if not L:
+        raise InternalError, "DevStudio was not found."
+    
+    L.sort()
+    L.reverse()
+    return L
+
+def get_msvc_path (path, version, platform='x86'):
+    """
+    Get a list of devstudio directories (include, lib or path).  Return
+    a string delimited by ';'. An exception will be raised if unable to 
+    access the registry or appropriate registry keys not found.
+    """
+       
+    if not _can_read_reg:
+        raise InternalError, "No Windows registry module was found"
+
+    if path=='lib':
+        path= 'Library'
+    path = string.upper(path + ' Dirs')
+    K = ('Software\\Microsoft\\Devstudio\\%s\\' +
+         'Build System\\Components\\Platforms\\Win32 (%s)\\Directories') % \
+        (version,platform)
+    for base in (HKEY_CLASSES_ROOT,
+                 HKEY_LOCAL_MACHINE,
+                 HKEY_CURRENT_USER,
+                 HKEY_USERS):
+        try:
+            k = RegOpenKeyEx(base,K)
+            i = 0
+            while 1:
+                try:
+                    (p,v,t) = RegEnumValue(k,i)
+                    if string.upper(p) == path:
+                        return v
+                    i = i + 1
+                except RegError:
+                    break
+        except RegError:
+            pass
+
+    # if we got here, then we didn't find the registry entries:
+    raise InternalError, "%s was not found in the registry."%path
+
+def make_win32_env_from_paths(include, lib, path):
+    """
+    Build a dictionary of construction variables for a win32 platform. 
+    include - include path
+    lib - library path
+    path - executable path
+    """
+    return {
+        'CC'         : 'cl',
+        'CCFLAGS'    : '/nologo',
+        'CCCOM'      : '$CC $CCFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'CXX'        : '$CC',
+        'CXXFLAGS'   : '$CCFLAGS',
+        'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
+        'LINK'       : 'link',
+        'LINKFLAGS'  : '/nologo',
+        'LINKCOM'    : '$LINK $LINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
+        'AR'         : 'lib',
+        'ARFLAGS'    : '/nologo',
+        'ARCOM'      : '$AR $ARFLAGS /OUT:$TARGET $SOURCES',
+        'BUILDERS'   : [Object, Program, Library],
+        'SCANNERS'   : [CScan],
+        'OBJPREFIX'  : '',
+        'OBJSUFFIX'  : '.obj',
+        'PROGPREFIX' : '',
+        'PROGSUFFIX' : '.exe',
+        'LIBPREFIX'  : '',
+        'LIBSUFFIX'  : '.lib',
+        'LIBDIRPREFIX'          : '/LIBPATH:',
+        'LIBDIRSUFFIX'          : '',
+        'LIBLINKPREFIX'         : '',
+        'LIBLINKSUFFIX'         : '$LIBSUFFIX',
+        'INCPREFIX'             : '/I',
+        'INCSUFFIX'             : '',
+        'ENV'        : {
+            'INCLUDE'  : include,
+            'LIB'      : lib,
+            'PATH'     : path,
+                'PATHEXT' : '.COM;.EXE;.BAT;.CMD',
+            },
+        }
+    
+def make_win32_env(version):
+    """
+    Build a dictionary of construction variables for a win32 platform. 
+    ver - the version string of DevStudio to use (e.g. "6.0")
+    """
+    return make_win32_env_from_paths(get_msvc_path("include", version),
+                                     get_msvc_path("lib", version),
+                                     get_msvc_path("path", version) 
+                                     + ";" + os.environ[PATH])
+    
 
 if os.name == 'posix':
 
@@ -101,47 +268,23 @@ if os.name == 'posix':
     }
 
 elif os.name == 'nt':
+    
+    try:
+        versions = get_devstudio_versions()
+        ConstructionEnvironment = make_win32_env(versions[0]) #use highest version
+    except:
+        try:
+            # We failed to detect DevStudio, so fall back to the
+	    # DevStudio environment variables:
+            ConstructionEnvironment = make_win32_env_from_paths(
+                os.environ["INCLUDE"], os.environ["LIB"], os.environ["PATH"])
+        except KeyError:
+            # The DevStudio environment variables don't exists,
+	    # so fall back to a reasonable default:
+            MVSdir = r'C:\Program Files\Microsoft Visual Studio'
+            MVSVCdir = r'%s\VC98' % MVSdir
+            ConstructionEnvironment = make_win32_env_from_paths(
+                r'%s\atl\include;%s\mfc\include;%s\include' % (MVSVCdir, MVSVCdir, MVSVCdir),
+                r'%s\mvc\lib;%s\lib' % (MVSVCdir, MVSVCdir),
+        	os.environ["PATH"])
 
-    MVSdir = r'C:\Program Files\Microsoft Visual Studio'
-    MVSVCdir = r'%s\VC98' % MVSdir
-    MVSCommondir = r'%s\Common' % MVSdir
-
-    ConstructionEnvironment = {
-        'CC'         : 'cl',
-        'CCFLAGS'    : '/nologo',
-        'CCCOM'      : '$CC $CCFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
-        'CXX'        : '$CC',
-        'CXXFLAGS'   : '$CCFLAGS',
-        'CXXCOM'     : '$CXX $CXXFLAGS $_INCFLAGS /c $SOURCES /Fo$TARGET',
-        'LINK'       : 'link',
-        'LINKFLAGS'  : '/nologo',
-        'LINKCOM'    : '$LINK $LINKFLAGS /OUT:$TARGET $_LIBDIRFLAGS $_LIBFLAGS $SOURCES',
-        'AR'         : 'lib',
-        'ARFLAGS'    : '/nologo',
-        'ARCOM'      : '$AR $ARFLAGS /OUT:$TARGET $SOURCES',
-        'BUILDERS'   : [Object, Program, Library],
-        'SCANNERS'   : [CScan],
-        'OBJPREFIX'  : '',
-        'OBJSUFFIX'  : '.obj',
-        'PROGPREFIX' : '',
-        'PROGSUFFIX' : '.exe',
-        'LIBPREFIX'  : '',
-        'LIBSUFFIX'  : '.lib',
-        'LIBDIRPREFIX'          : '/LIBPATH:',
-        'LIBDIRSUFFIX'          : '',
-        'LIBLINKPREFIX'         : '',
-        'LIBLINKSUFFIX'         : '$LIBSUFFIX',
-        'INCPREFIX'             : '/I',
-        'INCSUFFIX'             : '',
-        'ENV'        : {
-                        'INCLUDE'  : r'%s\atl\include;%s\mfc\include;%s\include'
-                                     % (MVSVCdir, MVSVCdir, MVSVCdir),
-                        'LIB'      : r'%s\mvc\lib;%s\lib'
-                                     % (MVSVCdir, MVSVCdir),
-			'MSDEVDIR' : r'%s\MSDev98' % MVSCommondir,
-                        'PATH'     : r'C:\Python20;C:\WINNT\system32;C:\WINNT;%s\Tools\WinNT;%s\MSDev98\Bin;%s\Tools;%s\Bin;'
-                                     % (MVSCommondir, MVSCommondir,
-                                        MVSCommondir, MVSVCdir),
-                        'PATHEXT' : '.COM;.EXE;.BAT;.CMD',
-                      },
-    }

@@ -22,6 +22,9 @@ RELEASE 0.03 -
 
   - Add a "--debug=tree" option to print an ASCII dependency tree.
 
+  - Fetch the location of the Microsoft Visual C++ compiler(s) from
+    the Registry, instead of hard-coding the location.
+
 
 
 RELEASE 0.02 - Sun, 23 Dec 2001 19:05:09 -0600
