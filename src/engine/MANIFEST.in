@@ -38,6 +38,7 @@ SCons/Platform/win32.py
 SCons/Scanner/__init__.py
 SCons/Scanner/C.py
 SCons/Scanner/D.py
+SCons/Scanner/Dir.py
 SCons/Scanner/Fortran.py
 SCons/Scanner/IDL.py
 SCons/Scanner/Prog.py

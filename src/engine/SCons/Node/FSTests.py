@@ -62,6 +62,8 @@ class Scanner:
         return self.hash
     def select(self, node):
         return self
+    def recurse_nodes(self, nodes):
+        return nodes
 
 class Environment:
     def __init__(self):
@@ -1876,6 +1878,32 @@ class clearTestCase(unittest.TestCase):
         assert not f.rexists()
         assert str(f) == test.workpath('f'), str(f)
 
+class disambiguateTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test calling the disambiguate() method."""
+        test = TestCmd(workdir='')
+
+        fs = SCons.Node.FS.FS()
+
+        ddd = fs.Dir('ddd')
+        d = ddd.disambiguate()
+        assert d is ddd, d
+
+        fff = fs.File('fff')
+        f = fff.disambiguate()
+        assert f is fff, f
+
+        test.subdir('edir')
+        test.write('efile', "efile\n")
+
+        edir = fs.Entry(test.workpath('edir'))
+        d = edir.disambiguate()
+        assert d.__class__ is ddd.__class__, d.__class__
+
+        efile = fs.Entry(test.workpath('efile'))
+        f = efile.disambiguate()
+        assert f.__class__ is fff.__class__, f.__class__
+
 class postprocessTestCase(unittest.TestCase):
     def runTest(self):
         """Test calling the postprocess() method."""
@@ -2108,6 +2136,7 @@ if __name__ == "__main__":
     suite.addTest(SConstruct_dirTestCase())
     suite.addTest(CacheDirTestCase())
     suite.addTest(clearTestCase())
+    suite.addTest(disambiguateTestCase())
     suite.addTest(postprocessTestCase())
     suite.addTest(SpecialAttrTestCase())
     suite.addTest(SaveStringsTestCase())

@@ -37,6 +37,28 @@ RELEASE 0.97 - XXX
       entries to construction variables.  The old behavior may be
       specified using a new "unique=0" keyword argument.
 
+    - Custom builders that accept directories as source arguments no
+      longer scan entire directory trees by default.  This means that
+      their targets will not be automatically rebuilt if a file that
+      SCons does *not* already know about changes on disk.  Note that
+      the targets *will* still be rebuilt correctly if a file changes
+      that SCons already knows about due to a Builder or other call.
+
+      The existing behavior of scanning directory trees for any changed
+      file on-disk can be maintained by passing the new DirScanner global
+      directory scanner as the source_scanner keyword argument to the
+      Builder call:
+
+          bld = Builder("build < $SOURCE > $TARGET",
+                        source_scanner = DirScanner)
+
+      The same keyword argument can also be supplied to any Command()
+      calls that need to scan directory trees on-disk for changed files:
+
+          env.Command("archive.out", "directory",
+                      "archiver -o $TARGET $SOURCE",
+                      source_scanner = DirScanner)
+
     - When compiling with Microsoft Visual Studio, SCons no longer
       adds the ATL and MFC directories to the INCLUDE and LIB
       environment variables by default.  If you want these directories

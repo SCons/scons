@@ -64,6 +64,7 @@ if "--debug=memoizer" in sys.argv + sconsflags:
 import SCons.Action
 import SCons.Builder
 import SCons.Environment
+import SCons.Node.FS
 import SCons.Options
 import SCons.Platform
 import SCons.Scanner
@@ -108,6 +109,7 @@ Touch                   = SCons.Defaults.Touch
 # Pre-made, public scanners.
 CScanner                = SCons.Tool.CScanner
 DScanner                = SCons.Tool.DScanner
+DirScanner              = SCons.Defaults.DirScanner
 ProgramScanner          = SCons.Tool.ProgramScanner
 SourceFileScanner       = SCons.Tool.SourceFileScanner
 

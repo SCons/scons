@@ -1202,8 +1202,14 @@ class Base(SubstitutionEnvironment):
         source files using the supplied action.  Action may
         be any type that the Builder constructor will accept
         for an action."""
-        bld = SCons.Builder.Builder(action = action,
-                                    source_factory = self.fs.Entry)
+        bkw = {
+            'action' : action,
+            'source_factory' : self.fs.Entry,
+        }
+        try: bkw['source_scanner'] = kw['source_scanner']
+        except KeyError: pass
+        else: del kw['source_scanner']
+        bld = apply(SCons.Builder.Builder, (), bkw)
         return apply(bld, (self, target, source), kw)
 
     def Depends(self, target, dependency):

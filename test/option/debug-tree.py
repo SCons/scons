@@ -89,13 +89,11 @@ tree2 = """
 +-.
   +-SConstruct
   +-bar.c
-  +-bar.h
   +-bar.ooo
   | +-bar.c
   | +-bar.h
   | +-foo.h
   +-foo.c
-  +-foo.h
   +-foo.ooo
   | +-foo.c
   | +-foo.h

@@ -102,6 +102,12 @@ DScan = SCons.Tool.DScanner
 ObjSourceScan = SCons.Tool.SourceFileScanner
 ProgScan = SCons.Tool.ProgramScanner
 
+# This isn't really a tool scanner, so it doesn't quite belong with
+# the rest of those in Tool/__init__.py, but I'm not sure where else it
+# should go.  Leave it here for now.
+import SCons.Scanner.Dir
+DirScanner = SCons.Scanner.Dir.DirScanner()
+
 # Actions for common languages.
 CAction = SCons.Action.Action("$CCCOM", "$CCCOMSTR")
 ShCAction = SCons.Action.Action("$SHCCCOM", "$SHCCCOMSTR")

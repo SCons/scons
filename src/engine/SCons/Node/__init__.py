@@ -394,25 +394,19 @@ class Node:
         # for this Node.
         scanner = scanner.select(self)
 
-        try:
-            recurse = scanner.recursive
-        except AttributeError:
-            recurse = None
-
         nodes = [self]
         seen = {}
         seen[self] = 1
         deps = []
         while nodes:
-           n = nodes.pop(0)
-           d = filter(lambda x, seen=seen: not seen.has_key(x),
-                      n.get_found_includes(env, scanner, path))
-           if d:
-               deps.extend(d)
-               for n in d:
-                   seen[n] = 1
-               if recurse:
-                   nodes.extend(d)
+            n = nodes.pop(0)
+            d = filter(lambda x, seen=seen: not seen.has_key(x),
+                       n.get_found_includes(env, scanner, path))
+            if d:
+                deps.extend(d)
+                for n in d:
+                    seen[n] = 1
+                nodes.extend(scanner.recurse_nodes(d))
 
         return deps
 

@@ -2171,6 +2171,12 @@ f5: \
         assert str(t) == 'xxx.out', str(t)
         assert 'xxx.in' in map(lambda x: x.path, t.sources)
 
+        env = Environment(source_scanner = 'should_not_find_this')
+        t = env.Command(target='file.out', source='file.in',
+                        action = 'foo',
+                        source_scanner = 'fake')[0]
+        assert t.builder.source_scanner == 'fake', t.builder.source_scanner
+
     def test_Configure(self):
         """Test the Configure() method"""
         # Configure() will write to a local temporary file.

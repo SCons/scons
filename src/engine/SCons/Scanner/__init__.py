@@ -148,8 +148,12 @@ class Base:
         this node really needs to be scanned.
 
         'recursive' - specifies that this scanner should be invoked
-        recursively on the implicit dependencies it returns (the
-        canonical example being #include lines in C source files).
+        recursively on all of the implicit dependencies it returns
+        (the canonical example being #include lines in C source files).
+        May be a callable, which will be called to filter the list
+        of nodes found to select a subset for recursive scanning
+        (the canonical example being only recursively scanning
+        subdirectories within a directory).
 
         The scanner function's first argument will be the a Node that
         should be scanned for dependencies, the second argument will
@@ -182,7 +186,12 @@ class Base:
         self.node_class = node_class
         self.node_factory = node_factory
         self.scan_check = scan_check
-        self.recursive = recursive
+        if callable(recursive):
+            self.recurse_nodes = recursive
+        elif recursive:
+            self.recurse_nodes = self._recurse_all_nodes
+        else:
+            self.recurse_nodes = self._recurse_no_nodes
 
     def path(self, env, dir=None, target=None, source=None):
         if not self.path_function:
@@ -240,6 +249,14 @@ class Base:
 
     def select(self, node):
         return self
+
+    def _recurse_all_nodes(self, nodes):
+        return nodes
+
+    def _recurse_no_nodes(self, nodes):
+        return []
+
+    recurse_nodes = _recurse_no_nodes
 
 if not SCons.Memoize.has_metaclass:
     _Base = Base
