@@ -83,7 +83,7 @@ def LinkFunc(target, source, env):
             os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
-LinkAction = SCons.Action.Action(LinkFunc, None)
+Link = SCons.Action.Action(LinkFunc, None)
 
 def LocalString(target, source):
     return 'Local copy of %s from %s' % (target[0], source[0])
@@ -94,13 +94,13 @@ def UnlinkFunc(target, source, env):
     os.unlink(target[0].path)
     return 0
 
-UnlinkAction = SCons.Action.Action(UnlinkFunc, None)
+Unlink = SCons.Action.Action(UnlinkFunc, None)
 
 def MkdirFunc(target, source, env):
     os.mkdir(target[0].path)
     return 0
 
-MkdirAction = SCons.Action.Action(MkdirFunc, None)
+Mkdir = SCons.Action.Action(MkdirFunc, None)
 
 #
 class ParentOfRoot:
@@ -882,7 +882,7 @@ class File(Entry):
         for dirnode in listDirs:
             dirnode._exists = 1
             try:
-                MkdirAction.execute(dirnode, None, None)
+                Mkdir(dirnode, None, None)
             except OSError:
                 pass
 
@@ -905,7 +905,7 @@ class File(Entry):
 
         if self.exists():
             if self.builder and not self.precious:
-                UnlinkAction.execute(self, None, None)
+                Unlink(self, None, None)
                 if hasattr(self, '_exists'):
                     delattr(self, '_exists')
         else:
@@ -929,10 +929,10 @@ class File(Entry):
             if src.exists() and src.abspath != self.abspath:
                 self._createDir()
                 try:
-                    UnlinkAction.execute(self, None, None)
+                    Unlink(self, None, None)
                 except OSError:
                     pass
-                LinkAction.execute(self, src, None)
+                Link(self, src, None)
                 self.created = 1
 
                 # Set our exists cache accordingly
@@ -952,7 +952,7 @@ class File(Entry):
                     # ...and it's even up-to-date...
                     if self._local:
                         # ...and they'd like a local copy.
-                        LocalCopy.execute(self, r, None)
+                        LocalCopy(self, r, None)
                         self.set_bsig(bsig)
                         self.store_bsig()
                     return 1

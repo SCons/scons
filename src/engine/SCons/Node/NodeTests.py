@@ -39,7 +39,7 @@ built_source =  None
 cycle_detected = None
 
 class MyAction:
-    def execute(self, target, source, env):
+    def __call__(self, target, source, env):
         global built_it, built_target, built_source, built_args
         built_it = 1
         built_target = target

@@ -50,7 +50,7 @@ class Builder:
 
     def get_actions(self):
         class Action:
-            def execute(self, targets, sources, env):
+            def __call__(self, targets, sources, env):
                 global built_it
                 built_it = 1
                 return 0
@@ -255,13 +255,13 @@ class BuildDirTestCase(unittest.TestCase):
         assert f8.rfile().path == os.path.normpath(test.workpath('rep1/build/var2/test2.out')),\
                f8.rfile().path
         
-        # Test to see if LinkAction() works...
+        # Test to see if Link() works...
         test.subdir('src','build')
         test.write('src/foo', 'src/foo\n')
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
-        SCons.Node.FS.LinkAction.execute(fs.File(test.workpath('build/foo')),
-                                         fs.File(test.workpath('src/foo')),
-                                         None)
+        SCons.Node.FS.Link(fs.File(test.workpath('build/foo')),
+                           fs.File(test.workpath('src/foo')),
+                           None)
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR | stat.S_IWRITE)
         st=os.stat(test.workpath('build/foo'))
         assert (stat.S_IMODE(st[stat.ST_MODE]) & stat.S_IWRITE), \
@@ -356,9 +356,9 @@ class BuildDirTestCase(unittest.TestCase):
 
         test.write('src/foo', 'src/foo\n')
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR)
-        SCons.Node.FS.LinkAction.execute(fs.File(test.workpath('build/foo')),
-                                         fs.File(test.workpath('src/foo')),
-                                         None)
+        SCons.Node.FS.Link(fs.File(test.workpath('build/foo')),
+                           fs.File(test.workpath('src/foo')),
+                           None)
         test.unlink( "src/foo" )
         test.unlink( "build/foo" )
 

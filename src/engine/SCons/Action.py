@@ -197,7 +197,7 @@ class CommandAction(ActionBase):
     def __init__(self, cmd):
         self.cmd_list = cmd
 
-    def execute(self, target, source, env):
+    def __call__(self, target, source, env):
         """Execute a command action.
 
         This will handle lists of commands as well as individual commands,
@@ -286,11 +286,12 @@ class CommandGeneratorAction(ActionBase):
             raise SCons.Errors.UserError("Object returned from command generator: %s cannot be used to create an Action." % repr(ret))
         return gen_cmd
 
-    def execute(self, target, source, env):
+    def __call__(self, target, source, env):
         if not SCons.Util.is_List(source):
             source = [source]
         rsources = map(rfile, source)
-        return self.__generate(target, source, env, 0).execute(target, rsources, env)
+        act = self.__generate(target, source, env, 0)
+        return act(target, rsources, env)
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
@@ -342,7 +343,7 @@ class FunctionAction(ActionBase):
                 return "%s(%s, %s)" % (name, tstr, sstr)
         self.strfunction = strfunction
 
-    def execute(self, target, source, env):
+    def __call__(self, target, source, env):
         r = 0
         if not SCons.Util.is_List(target):
             target = [target]
@@ -381,9 +382,9 @@ class ListAction(ActionBase):
     def get_actions(self):
         return self.list
 
-    def execute(self, target, source, env):
+    def __call__(self, target, source, env):
         for l in self.list:
-            r = l.execute(target, source, env)
+            r = l(target, source, env)
             if r:
                 return r
         return 0

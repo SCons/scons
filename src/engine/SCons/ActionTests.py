@@ -246,7 +246,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd1 = r'%s %s %s xyzzy' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd1)
-        r = act.execute([], [], Environment())
+        r = act([], [], Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'xyzzy'\n", c
@@ -254,7 +254,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd2 = r'%s %s %s $TARGET' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd2)
-        r = act.execute('foo', [], Environment())
+        r = act('foo', [], Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'foo'\n", c
@@ -262,7 +262,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd3 = r'%s %s %s ${TARGETS}' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd3)
-        r = act.execute(['aaa', 'bbb'], [], Environment())
+        r = act(['aaa', 'bbb'], [], Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'aaa' 'bbb'\n", c
@@ -270,7 +270,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd4 = r'%s %s %s $SOURCES' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd4)
-        r = act.execute([], ['one', 'two'], Environment())
+        r = act([], ['one', 'two'], Environment())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'one' 'two'\n", c
@@ -278,7 +278,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd4 = r'%s %s %s ${SOURCES[:2]}' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd4)
-        r = act.execute([],
+        r = act([],
                         source = ['three', 'four', 'five'],
                         env = Environment())
         assert r == 0
@@ -288,7 +288,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd5 = r'%s %s %s $TARGET XYZZY' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd5)
-        r = act.execute(target = 'out5',
+        r = act(target = 'out5',
                         source = [],
                         env = Environment(ENV = {'XYZZY' : 'xyzzy'}))
         assert r == 0
@@ -304,7 +304,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd6 = r'%s %s %s ${TARGETS[1]} $TARGET ${SOURCES[:2]}' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd6)
-        r = act.execute(target = [Obj('111'), Obj('222')],
+        r = act(target = [Obj('111'), Obj('222')],
                         source = [Obj('333'), Obj('444'), Obj('555')],
                         env = Environment())
         assert r == 0
@@ -325,7 +325,7 @@ class CommandActionTestCase(unittest.TestCase):
             show_string = show_string + string + "\n"
         act.show = my_show
 
-        r = act.execute([], [], Environment())
+        r = act([], [], Environment())
         assert r == 0
         assert show_string == expect7, show_string
 
@@ -340,18 +340,18 @@ class CommandActionTestCase(unittest.TestCase):
 
         # Test that a nonexistent command returns 127
         act = SCons.Action.CommandAction(python + "_XyZzY_")
-        r = act.execute([], [], Environment(out = outfile))
+        r = act([], [], Environment(out = outfile))
         assert r == expect_nonexistent, "r == %d" % r
 
         # Test that trying to execute a directory returns 126
         dir, tail = os.path.split(python)
         act = SCons.Action.CommandAction(dir)
-        r = act.execute([], [], Environment(out = outfile))
+        r = act([], [], Environment(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
         # Test that trying to execute a non-executable file returns 126
         act = SCons.Action.CommandAction(outfile)
-        r = act.execute([], [], Environment(out = outfile))
+        r = act([], [], Environment(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
 
     def test_set_handler(self):
@@ -384,16 +384,16 @@ class CommandActionTestCase(unittest.TestCase):
             assert 0, "should have gotten user error"
             
         a = SCons.Action.CommandAction(["xyzzy"])
-        a.execute([], [], Environment(SPAWN = func))
+        a([], [], Environment(SPAWN = func))
         assert t.executed == [ 'xyzzy' ]
 
         a = SCons.Action.CommandAction(["xyzzy"])
-        a.execute([], [], Environment(SPAWN = func, SHELL = 'fake shell'))
+        a([], [], Environment(SPAWN = func, SHELL = 'fake shell'))
         assert t.executed == [ 'xyzzy' ]
         assert t.shell == 'fake shell'
 
         a = SCons.Action.CommandAction([ LiteralStr("xyzzy") ])
-        a.execute([], [], Environment(SPAWN = func, ESCAPE = escape_func))
+        a([], [], Environment(SPAWN = func, ESCAPE = escape_func))
         assert t.executed == [ '**xyzzy**' ], t.executed
 
     def test_get_raw_contents(self):
@@ -449,7 +449,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         self.dummy = 0
         self.cmd = []
         self.args = []
-        a.execute([], [], env=Environment(FOO = 'foo baz\nbar ack',
+        a([], [], env=Environment(FOO = 'foo baz\nbar ack',
                                           dummy = 1,
                                           SPAWN = ch))
         assert self.dummy == 1, self.dummy
@@ -458,7 +458,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         b = SCons.Action.CommandGeneratorAction(f2)
         self.dummy = 0
-        b.execute(target=[], source=[], env=Environment(foo =  'bar',
+        b(target=[], source=[], env=Environment(foo =  'bar',
                                                         dummy =  2 ))
         assert self.dummy==2, self.dummy
         del self.dummy
@@ -471,7 +471,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def f3(target, source, env, for_signature):
             return ''
         c = SCons.Action.CommandGeneratorAction(f3)
-        c.execute(target=[], source=DummyFile(self), env=Environment())
+        c(target=[], source=DummyFile(self), env=Environment())
         assert self.rfile_called
 
     def test_get_contents(self):
@@ -531,7 +531,7 @@ class FunctionActionTestCase(unittest.TestCase):
             assert env.subst("$BAR") == 'foo bar', env.subst("$BAR")
             return 0
         a = SCons.Action.FunctionAction(f)
-        a.execute(target=1, source=2, env=Environment(BAR = 'foo bar',
+        a(target=1, source=2, env=Environment(BAR = 'foo bar',
                                                       s = self))
         assert self.inc == 1, self.inc
         assert self.source == [2], self.source
@@ -549,9 +549,7 @@ class FunctionActionTestCase(unittest.TestCase):
         act = SCons.Action.FunctionAction(function1)
         r = None
         try:
-            r = act.execute(target = [outfile, outfile2],
-                            source=[],
-                            env=Environment())
+            r = act(target = [outfile, outfile2], source=[], env=Environment())
         except SCons.Errors.BuildError:
             pass
         assert r == 1
@@ -566,7 +564,7 @@ class FunctionActionTestCase(unittest.TestCase):
                 open(env['out'], 'w').write("class1a\n")
 
         act = SCons.Action.FunctionAction(class1a)
-        r = act.execute([], [], Environment(out = outfile))
+        r = act([], [], Environment(out = outfile))
         assert r.__class__ == class1a
         c = test.read(outfile, 'r')
         assert c == "class1a\n", c
@@ -577,7 +575,7 @@ class FunctionActionTestCase(unittest.TestCase):
                 return 2
 
         act = SCons.Action.FunctionAction(class1b())
-        r = act.execute([], [], Environment(out = outfile))
+        r = act([], [], Environment(out = outfile))
         assert r == 2
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
@@ -589,7 +587,7 @@ class FunctionActionTestCase(unittest.TestCase):
             self.string_it = 1
             return None
         act = SCons.Action.FunctionAction(build_it, string_it)
-        r = act.execute([], [], Environment())
+        r = act([], [], Environment())
         assert r == 0, r
         assert self.build_it
         assert self.string_it
@@ -635,7 +633,7 @@ class ListActionTestCase(unittest.TestCase):
             s = env['s']
             s.inc = s.inc + 1
         a = SCons.Action.ListAction([f, f, f])
-        a.execute([], [], Environment(s = self))
+        a([], [], Environment(s = self))
         assert self.inc == 3, self.inc
 
         cmd2 = r'%s %s %s syzygy' % (python, act_py, outfile)
@@ -653,7 +651,7 @@ class ListActionTestCase(unittest.TestCase):
             def __init__(self, target, source, env):
                 open(env['out'], 'a').write("class2b\n")
         act = SCons.Action.ListAction([cmd2, function2, class2a(), class2b])
-        r = act.execute([], [], Environment(out = outfile))
+        r = act([], [], Environment(out = outfile))
         assert r.__class__ == class2b
         c = test.read(outfile, 'r')
         assert c == "act.py: 'syzygy'\nfunction2\nclass2a\nclass2b\n", c
@@ -696,7 +694,7 @@ class LazyActionTestCase(unittest.TestCase):
             s.test=1
             return 0
         a = SCons.Action.Action('$BAR')
-        a.execute([], [], env=Environment(BAR = f, s = self))
+        a([], [], env=Environment(BAR = f, s = self))
         assert self.test == 1, self.test
 
     def test_get_contents(self):

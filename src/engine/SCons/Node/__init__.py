@@ -122,7 +122,7 @@ class Node:
         targets = self.builder.targets(self)
         env = self.generate_build_env()
         for action in action_list:
-            stat = action.execute(targets, self.sources, env)
+            stat = action(targets, self.sources, env)
             if stat:
                 raise SCons.Errors.BuildError(node = self,
                                               errstr = "Error %d" % stat)
