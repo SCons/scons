@@ -91,5 +91,5 @@ def scan(filename, env, node_factory):
                                       node_factory)
                 + SCons.Util.find_files(quote_includes, source_dir + paths,
                                         node_factory))
-    except OSError:
+    except (IOError, OSError):
         return []
