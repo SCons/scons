@@ -262,7 +262,7 @@ class Node:
             def __init__(self, node):
                 self.node = node
             def get_contents(self):
-                return self.node.builder.get_contents(self.node, self.node.sources, self.node.generate_build_env())
+                return self.node.builder.get_contents(self.node.builder.targets(self.node), self.node.sources, self.node.generate_build_env())
             def get_timestamp(self):
                 return None
         return Adapter(self)
@@ -596,6 +596,47 @@ class Node:
                 return SCons.Util.render_tree(s, f, 1)
         else:
             return None
+
+    def get_abspath(self):
+        """
+        Return an absolute path to the Node.  This will return simply
+        str(Node) by default, but for Node types that have a concept of
+        relative path, this might return something different.
+        """
+        return str(self)
+
+    def for_signature(self):
+        """
+        Return a string representation of the Node that will always
+        be the same for this particular Node, no matter what.  This
+        is by contrast to the __str__() method, which might, for
+        instance, return a relative path for a file Node.  The purpose
+        of this method is to generate a value to be used in signature
+        calculation for the command line used to build a target, and
+        we use this method instead of str() to avoid unnecessary
+        rebuilds.  This method does not need to return something that
+        would actually work in a command line; it can return any kind of
+        nonsense, so long as it does not change.
+        """
+        return str(self)
+
+    def get_string(self, for_signature):
+        """This is a convenience function designed primarily to be
+        used in command generators (i.e., CommandGeneratorActions or
+        Environment variables that are callable), which are called
+        with a for_signature argument that is nonzero if the command
+        generator is being called to generate a signature for the
+        command line, which determines if we should rebuild or not.
+
+        Such command generators should use this method in preference
+        to str(Node) when converting a Node to a string, passing
+        in the for_signature parameter, such that we will call
+        Node.for_signature() or str(Node) properly, depending on whether
+        we are calculating a signature or actually constructing a
+        command line."""
+        if for_signature:
+            return self.for_signature()
+        return str(self)
 
 def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass

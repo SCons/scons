@@ -127,6 +127,14 @@ class Environment:
         d['SOURCE'] = d['SOURCES'][0]
         return d
 
+class DummyNode:
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return self.name
+    def rfile(self):
+        return self
+
 if os.name == 'java':
     python = os.path.join(sys.prefix, 'jython')
 else:
@@ -334,20 +342,23 @@ class CommandActionTestCase(unittest.TestCase):
     def test_strfunction(self):
         """Test fetching the string representation of command Actions
         """
+            
         act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE')
         s = act.strfunction([], [], Environment())
         assert s == ['xyzzy'], s
-        s = act.strfunction(['target'], ['source'], Environment())
+        s = act.strfunction([DummyNode('target')], [DummyNode('source')], Environment())
         assert s == ['xyzzy target source'], s
-        s = act.strfunction(['t1', 't2'], ['s1', 's2'], Environment())
+        s = act.strfunction([DummyNode('t1'), DummyNode('t2')],
+                            [DummyNode('s1'), DummyNode('s2')], Environment())
         assert s == ['xyzzy t1 s1'], s
 
         act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES')
         s = act.strfunction([], [], Environment())
         assert s == ['xyzzy'], s
-        s = act.strfunction(['target'], ['source'], Environment())
+        s = act.strfunction([DummyNode('target')], [DummyNode('source')], Environment())
         assert s == ['xyzzy target source'], s
-        s = act.strfunction(['t1', 't2'], ['s1', 's2'], Environment())
+        s = act.strfunction([DummyNode('t1'), DummyNode('t2')],
+                            [DummyNode('s1'), DummyNode('s2')], Environment())
         assert s == ['xyzzy t1 t2 s1 s2'], s
 
         act = SCons.Action.CommandAction(['xyzzy',
@@ -355,9 +366,10 @@ class CommandActionTestCase(unittest.TestCase):
                                           '$TARGETS', '$SOURCES'])
         s = act.strfunction([], [], Environment())
         assert s == ['xyzzy'], s
-        s = act.strfunction(['target'], ['source'], Environment())
+        s = act.strfunction([DummyNode('target')], [DummyNode('source')], Environment())
         assert s == ['xyzzy target source target source'], s
-        s = act.strfunction(['t1', 't2'], ['s1', 's2'], Environment())
+        s = act.strfunction([DummyNode('t1'), DummyNode('t2')],
+                            [DummyNode('s1'), DummyNode('s2')], Environment())
         assert s == ['xyzzy t1 s1 t1 t2 s1 s2'], s
 
     def test_execute(self):
@@ -396,7 +408,7 @@ class CommandActionTestCase(unittest.TestCase):
         cmd4 = r'%s %s %s $SOURCES' % (python, act_py, outfile)
 
         act = SCons.Action.CommandAction(cmd4)
-        r = act([], ['one', 'two'], env.Copy())
+        r = act([], [DummyNode('one'), DummyNode('two')], env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'one' 'two'\n", c
@@ -405,8 +417,10 @@ class CommandActionTestCase(unittest.TestCase):
 
         act = SCons.Action.CommandAction(cmd4)
         r = act([],
-                        source = ['three', 'four', 'five'],
-                        env = env.Copy())
+                source = [DummyNode('three'),
+                          DummyNode('four'),
+                          DummyNode('five')],
+                env = env.Copy())
         assert r == 0
         c = test.read(outfile, 'r')
         assert c == "act.py: 'three' 'four'\n", c
@@ -426,7 +440,7 @@ class CommandActionTestCase(unittest.TestCase):
         r = act(target = 'out5', source = [], env = env5)
 
         act = SCons.Action.CommandAction(cmd5)
-        r = act(target = 'out5',
+        r = act(target = DummyNode('out5'),
                         source = [],
                         env = env.Copy(ENV = {'XYZZY' : 'xyzzy',
                                               'PATH' : PATH}))
@@ -439,6 +453,8 @@ class CommandActionTestCase(unittest.TestCase):
                 self._str = str
             def __str__(self):
                 return self._str
+            def rfile(self):
+                return self
 
         cmd6 = r'%s %s %s ${TARGETS[1]} $TARGET ${SOURCES[:2]}' % (python, act_py, outfile)
 
@@ -559,8 +575,8 @@ class CommandActionTestCase(unittest.TestCase):
     def test_get_raw_contents(self):
         """Test fetching the contents of a command Action
         """
-        def CmdGen(target, source, env):
-            assert target is None, target
+        def CmdGen(target, source, env, for_signature):
+            assert for_signature
             return "%s %s" % \
                    (env["foo"], env["bar"])
 
@@ -581,47 +597,47 @@ class CommandActionTestCase(unittest.TestCase):
         # that scheme, then all of the '__t1__' and '__s6__' file names
         # in the asserts below would change to 't1' and 's6' and the
         # like.
-        t = ['t1', 't2', 't3', 't4', 't5', 't6']
-        s = ['s1', 's2', 's3', 's4', 's5', 's6']
+        t = map(DummyNode, ['t1', 't2', 't3', 't4', 't5', 't6'])
+        s = map(DummyNode, ['s1', 's2', 's3', 's4', 's5', 's6'])
         env = Environment()
 
         a = SCons.Action.CommandAction(["$TARGET"])
         c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "__t1__", c
+        assert c == "t1", c
 
         a = SCons.Action.CommandAction(["$TARGETS"])
         c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "__t1__ __t2__ __t3__ __t4__ __t5__ __t6__", c
+        assert c == "t1 t2 t3 t4 t5 t6", c
 
         a = SCons.Action.CommandAction(["${TARGETS[2]}"])
         c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "__t3__", c
+        assert c == "t3", c
 
         a = SCons.Action.CommandAction(["${TARGETS[3:5]}"])
         c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "__t4__ __t5__", c
+        assert c == "t4 t5", c
 
         a = SCons.Action.CommandAction(["$SOURCE"])
         c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "__s1__", c
+        assert c == "s1", c
 
         a = SCons.Action.CommandAction(["$SOURCES"])
         c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "__s1__ __s2__ __s3__ __s4__ __s5__ __s6__", c
+        assert c == "s1 s2 s3 s4 s5 s6", c
 
         a = SCons.Action.CommandAction(["${SOURCES[2]}"])
         c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "__s3__", c
+        assert c == "s3", c
 
         a = SCons.Action.CommandAction(["${SOURCES[3:5]}"])
         c = a.get_raw_contents(target=t, source=s, env=env)
-        assert c == "__s4__ __s5__", c
+        assert c == "s4 s5", c
 
     def test_get_contents(self):
         """Test fetching the contents of a command Action
         """
-        def CmdGen(target, source, env):
-            assert target is None, target
+        def CmdGen(target, source, env, for_signature):
+            assert for_signature
             return "%s %s" % \
                    (env["foo"], env["bar"])
 
@@ -642,41 +658,41 @@ class CommandActionTestCase(unittest.TestCase):
         # that scheme, then all of the '__t1__' and '__s6__' file names
         # in the asserts below would change to 't1' and 's6' and the
         # like.
-        t = ['t1', 't2', 't3', 't4', 't5', 't6']
-        s = ['s1', 's2', 's3', 's4', 's5', 's6']
+        t = map(DummyNode, ['t1', 't2', 't3', 't4', 't5', 't6'])
+        s = map(DummyNode, ['s1', 's2', 's3', 's4', 's5', 's6'])
         env = Environment()
 
         a = SCons.Action.CommandAction(["$TARGET"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "__t1__", c
+        assert c == "t1", c
 
         a = SCons.Action.CommandAction(["$TARGETS"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "__t1__ __t2__ __t3__ __t4__ __t5__ __t6__", c
+        assert c == "t1 t2 t3 t4 t5 t6", c
 
         a = SCons.Action.CommandAction(["${TARGETS[2]}"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "__t3__", c
+        assert c == "t3", c
 
         a = SCons.Action.CommandAction(["${TARGETS[3:5]}"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "__t4__ __t5__", c
+        assert c == "t4 t5", c
 
         a = SCons.Action.CommandAction(["$SOURCE"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "__s1__", c
+        assert c == "s1", c
 
         a = SCons.Action.CommandAction(["$SOURCES"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "__s1__ __s2__ __s3__ __s4__ __s5__ __s6__", c
+        assert c == "s1 s2 s3 s4 s5 s6", c
 
         a = SCons.Action.CommandAction(["${SOURCES[2]}"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "__s3__", c
+        assert c == "s3", c
 
         a = SCons.Action.CommandAction(["${SOURCES[3:5]}"])
         c = a.get_contents(target=t, source=s, env=env)
-        assert c == "__s4__ __s5__", c
+        assert c == "s4 s5", c
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
 
@@ -732,6 +748,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
                 self.t = t
             def rfile(self):
                 self.t.rfile_called = 1
+                return self
         def f3(target, source, env, for_signature):
             return ''
         c = SCons.Action.CommandGeneratorAction(f3)
@@ -745,12 +762,18 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             foo = env['foo']
             bar = env['bar']
             assert for_signature, for_signature
-            return [["guux", foo, "$(", "ignore", "$)", bar]]
+            return [["guux", foo, "$(", "$ignore", "$)", bar,
+                     '${test("$( foo $bar $)")}' ]]
+
+        def test(mystr):
+            assert mystr == "$( foo $bar $)", mystr
+            return "test"
 
         a = SCons.Action.CommandGeneratorAction(f)
         c = a.get_contents(target=[], source=[],
-                           env=Environment(foo = 'FFF', bar =  'BBB'))
-        assert c == "guux FFF BBB", c
+                           env=Environment(foo = 'FFF', bar =  'BBB',
+                                           ignore = 'foo', test=test))
+        assert c == "guux FFF BBB test", c
 
 
 class FunctionActionTestCase(unittest.TestCase):
@@ -972,7 +995,7 @@ class LazyActionTestCase(unittest.TestCase):
         """
         a = SCons.Action.Action("${FOO}")
         c = a.get_contents(target=[], source=[],
-                           env = Environment(FOO = [["This", "is", "$(", "a", "$)", "test"]]))
+                           env = Environment(FOO = [["This", "is", "$(", "$a", "$)", "test"]]))
         assert c == "This is test", c
 
 

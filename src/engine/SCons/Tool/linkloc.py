@@ -65,8 +65,8 @@ class LinklocGenerator:
     def __init__(self, cmdline):
         self.cmdline = cmdline
 
-    def __call__(self, env, target, source):
-        if target is None:
+    def __call__(self, env, target, source, for_signature):
+        if for_signature:
             # Expand the contents of any linker command files recursively
             subs = 1
             strsub = env.subst(self.cmdline)

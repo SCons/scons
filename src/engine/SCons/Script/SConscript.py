@@ -266,12 +266,12 @@ def SConscript(*ls, **kw):
                         # interpret the stuff within the SConscript file
                         # relative to where we are logically.
                         default_fs.chdir(ldir, change_os_dir=0)
-                        os.chdir(f.rfile().dir.abspath)
+                        os.chdir(f.rfile().dir.get_abspath())
 
                     # Append the SConscript directory to the beginning
                     # of sys.path so Python modules in the SConscript
                     # directory can be easily imported.
-                    sys.path = [ f.dir.abspath ] + sys.path
+                    sys.path = [ f.dir.get_abspath() ] + sys.path
 
                     # This is the magic line that actually reads up and
                     # executes the stuff in the SConscript file.  We
@@ -294,7 +294,7 @@ def SConscript(*ls, **kw):
                 # Repository directory.  Like above, we do this
                 # directly.
                 default_fs.chdir(frame.prev_dir, change_os_dir=0)
-                os.chdir(frame.prev_dir.rdir().abspath)
+                os.chdir(frame.prev_dir.rdir().get_abspath())
 
             results.append(frame.retval)
 

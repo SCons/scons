@@ -59,7 +59,7 @@ try:
     internal_zip = 1
 
 except ImportError:
-    zip = "$ZIP $ZIPFLAGS $( ${TARGET.abspath} $) $SOURCES"
+    zip = "$ZIP $ZIPFLAGS ${TARGET.abspath} $SOURCES"
 
     internal_zip = 0
 

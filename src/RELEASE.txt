@@ -51,6 +51,10 @@ RELEASE 0.14 - XXX
         SetOption('num_jobs', num)
         GetOption('num_jobs')
 
+  - Callable expansions of construction variables in a command line
+    now take a fourth "for_signature" argument that is set when the
+    expansion is being called to generate a build signature.
+
   Please note the following important changes since release 0.11:
 
   - The default behavior of SCons is now to change to the directory in

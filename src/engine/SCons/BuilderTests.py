@@ -248,20 +248,30 @@ class BuilderTestCase(unittest.TestCase):
         """Test returning the signature contents of a Builder
         """
 
+        class DummyNode:
+            def __init__(self, name):
+                self.name = name
+            def __str__(self):
+                return self.name
+            def rfile(self):
+                return self
+
+        target = map(DummyNode, map(lambda x: "__t%d__" % x, range(1, 7)))
+        source = map(DummyNode, map(lambda x: "__s%d__" % x, range(1, 7)))
         b1 = SCons.Builder.Builder(action = "foo ${TARGETS[5]}")
-        contents = b1.get_contents([],[],Environment())
+        contents = b1.get_contents(target,source,Environment())
         assert contents == "foo __t6__", contents
 
         b1 = SCons.Builder.Builder(action = "bar ${SOURCES[3:5]}")
-        contents = b1.get_contents([],[],Environment())
+        contents = b1.get_contents(target,source,Environment())
         assert contents == "bar __s4__ __s5__", contents
 
         b2 = SCons.Builder.Builder(action = Func)
-        contents = b2.get_contents([],[],Environment())
+        contents = b2.get_contents(target,source,Environment())
         assert contents == "\177\036\000\177\037\000d\000\000S", repr(contents)
 
         b3 = SCons.Builder.Builder(action = SCons.Action.ListAction(["foo", Func, "bar"]))
-        contents = b3.get_contents([],[],Environment())
+        contents = b3.get_contents(target,source,Environment())
         assert contents == "foo\177\036\000\177\037\000d\000\000Sbar", repr(contents)
 
     def test_node_factory(self):

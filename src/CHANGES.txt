@@ -52,6 +52,9 @@ RELEASE 0.14 - XXX
 
   - Pass Nodes, not strings, to Builder emitter functions.
 
+  - Refactor command-line interpolation and signature calculation
+    so we can use real Node attributes.
+
   From Steven Knight:
 
   - Add support for Java (javac and jar).

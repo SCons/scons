@@ -38,15 +38,15 @@ import os.path
 
 import SCons.Builder
 
+JarBuilder = SCons.Builder.Builder(action = '$JARCOM',
+                                   source_factory = SCons.Node.FS.default_fs.Entry,
+                                   suffix = '$JARSUFFIX')
+
 def generate(env):
     """Add Builders and construction variables for jar to an Environment."""
     try:
         bld = env['BUILDERS']['Jar']
     except KeyError:
-        JarBuilder = SCons.Builder.Builder(action = '$JARCOM',
-                            source_factory = SCons.Node.FS.default_fs.Entry,
-                            suffix = '$JARSUFFIX')
-
         env['BUILDERS']['Jar'] = JarBuilder
 
     env['JAR']        = 'jar'

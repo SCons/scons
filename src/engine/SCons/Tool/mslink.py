@@ -44,41 +44,34 @@ import msvc
 
 from SCons.Tool.msvc import get_msdev_paths
 
-def pdbGenerator(env, target, source):
+def pdbGenerator(env, target, source, for_signature):
     if target and env.has_key('PDB') and env['PDB']:
-        return ['/PDB:%s'%target[0].File(env['PDB']), '/DEBUG']
+        return ['/PDB:%s'%target[0].File(env['PDB']).get_string(for_signature),
+                '/DEBUG']
 
-def win32ShlinkTargets(target, source, env):
-    if target:
-        listCmd = []
-        dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
-        if dll: listCmd.append("/out:%s"%dll)
+def win32ShlinkTargets(target, source, env, for_signature):
+    listCmd = []
+    dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
+    if dll: listCmd.append("/out:%s"%dll.get_string(for_signature))
 
-        implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
-        if implib: listCmd.append("/implib:%s"%implib)
+    implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
+    if implib: listCmd.append("/implib:%s"%implib.get_string(for_signature))
 
-        return listCmd
-    else:
-        # For signature calculation
-        return '/out:$TARGET'
+    return listCmd
 
-def win32ShlinkSources(target, source, env):
-    if target:
-        listCmd = []
+def win32ShlinkSources(target, source, env, for_signature):
+    listCmd = []
 
-        deffile = env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX")
-        for src in source:
-            if src == deffile:
-                # Treat this source as a .def file.
-                listCmd.append("/def:%s" % src)
-            else:
-                # Just treat it as a generic source file.
-                listCmd.append(str(src))
-        return listCmd
-    else:
-        # For signature calculation
-        return "$SOURCES"
-
+    deffile = env.FindIxes(source, "WIN32DEFPREFIX", "WIN32DEFSUFFIX")
+    for src in source:
+        if src == deffile:
+            # Treat this source as a .def file.
+            listCmd.append("/def:%s" % src.get_string(for_signature))
+        else:
+            # Just treat it as a generic source file.
+            listCmd.append(src)
+    return listCmd
+    
 def win32LibEmitter(target, source, env):
     msvc.validate_vars(env)
     

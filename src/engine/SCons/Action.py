@@ -171,9 +171,6 @@ def _string_from_cmd_list(cmd_list):
         cl.append(arg)
     return string.join(cl)
 
-_rm = re.compile(r'\$[()]')
-_remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
-
 class CommandAction(ActionBase):
     """Class for command-execution actions."""
     def __init__(self, cmd):
@@ -183,7 +180,8 @@ class CommandAction(ActionBase):
         self.cmd_list = cmd
 
     def strfunction(self, target, source, env):
-        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env, _rm,
+        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env,
+                                               SCons.Util.SUBST_CMD,
                                                target, source)
         return map(_string_from_cmd_list, cmd_list)
 
@@ -228,7 +226,8 @@ class CommandAction(ActionBase):
             else:
                 raise SCons.Errors.UserError('Missing SPAWN construction variable.')
 
-        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env, _rm,
+        cmd_list = SCons.Util.scons_subst_list(self.cmd_list, env,
+                                               SCons.Util.SUBST_CMD,
                                                target, source)
         for cmd_line in cmd_list:
             if len(cmd_line):
@@ -259,21 +258,12 @@ class CommandAction(ActionBase):
     def get_raw_contents(self, target, source, env):
         """Return the complete contents of this action's command line.
         """
-        # We've discusssed using the real target and source names in
-        # a CommandAction's signature contents.  This would have the
-        # advantage of recompiling when a file's name changes (keeping
-        # debug info current), but it would currently break repository
-        # logic that will change the file name based on whether the
-        # files come from a repository or locally.  If we ever move to
-        # that scheme, though, here's how we'd do it:
-        #return SCons.Util.scons_subst(string.join(self.cmd_list),
-        #                              self.subst_dict(target, source, env),
-        #                              {})
         cmd = self.cmd_list
         if not SCons.Util.is_List(cmd):
             cmd = [ cmd ]
         return SCons.Util.scons_subst(string.join(map(str, cmd)),
-                                      env)
+                                      env, SCons.Util.SUBST_RAW,
+                                      target, source)
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
@@ -281,23 +271,13 @@ class CommandAction(ActionBase):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        # We've discusssed using the real target and source names in
-        # a CommandAction's signature contents.  This would have the
-        # advantage of recompiling when a file's name changes (keeping
-        # debug info current), but it would currently break repository
-        # logic that will change the file name based on whether the
-        # files come from a repository or locally.  If we ever move to
-        # that scheme, though, here's how we'd do it:
-        #return SCons.Util.scons_subst(string.join(map(str, self.cmd_list)),
-        #                              self.subst_dict(target, source, env),
-        #                              {},
-        #                              _remove)
         cmd = self.cmd_list
         if not SCons.Util.is_List(cmd):
             cmd = [ cmd ]
         return SCons.Util.scons_subst(string.join(map(str, cmd)),
                                       env,
-                                      _remove)
+                                      SCons.Util.SUBST_SIG,
+                                      target, source)
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""

@@ -462,7 +462,7 @@ class MultiStepBuilder(BuilderBase):
         src_suffixes = self.src_suffixes(env)
 
         for snode in slist:
-            path, ext = SCons.Util.splitext(snode.abspath)
+            path, ext = SCons.Util.splitext(snode.get_abspath())
             if sdict.has_key(ext):
                 src_bld = sdict[ext]
                 tgt = apply(src_bld, (env, path, snode), kw)

@@ -551,34 +551,42 @@ class EnvironmentTestCase(unittest.TestCase):
 	of variables into other variables.
 	"""
 	env = Environment(AAA = 'a', BBB = 'b')
-	str = env.subst("$AAA ${AAA}A $BBBB $BBB")
-	assert str == "a aA b", str
+	mystr = env.subst("$AAA ${AAA}A $BBBB $BBB")
+	assert mystr == "a aA b", str
 
         # Changed the tests below to reflect a bug fix in
         # subst()
         env = Environment(AAA = '$BBB', BBB = 'b', BBBA = 'foo')
-	str = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
-	assert str == "b bA bB b", str
+	mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
+	assert mystr == "b bA bB b", str
 	env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = 'c')
-	str = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
-	assert str == "c cA cB c", str
+	mystr = env.subst("$AAA ${AAA}A ${AAA}B $BBB")
+	assert mystr == "c cA cB c", str
 
         env = Environment(AAA = '$BBB', BBB = '$CCC', CCC = [ 'a', 'b\nc' ])
         lst = env.subst_list([ "$AAA", "B $CCC" ])
         assert lst == [ [ "a", "b" ], [ "c", "B a", "b" ], [ "c" ] ], lst
 
+        class DummyNode:
+            def __init__(self, name):
+                self.name = name
+            def __str__(self):
+                return self.name
+            def rfile(self):
+                return self
+
         # Test callables in the Environment
-        def foo(target, source, env):
-            assert target == 1, target
-            assert source == 2, source
+        def foo(target, source, env, for_signature):
+            assert str(target) == 't', target
+            assert str(source) == 's', source
             return env["FOO"]
 
         env = Environment(BAR=foo, FOO='baz')
 
-        subst = env.subst('test $BAR', target=1, source=2)
+        subst = env.subst('test $BAR', target=DummyNode('t'), source=DummyNode('s'))
         assert subst == 'test baz', subst
 
-        lst = env.subst_list('test $BAR', target=1, source=2)
+        lst = env.subst_list('test $BAR', target=DummyNode('t'), source=DummyNode('s'))
         assert lst[0][0] == 'test', lst[0][0]
         assert lst[0][1] == 'baz', lst[0][1]
 
@@ -846,52 +854,6 @@ class EnvironmentTestCase(unittest.TestCase):
         assert 'libfoo.a' == env.ReplaceIxes('prefoopost', 
                                              'PREFIX', 'SUFFIX',
                                              'LIBPREFIX', 'LIBSUFFIX')
-
-    def test_sig_dict(self):
-        """Test the sig_dict() method"""
-        d = Environment(XYZZY = 'foo').sig_dict()
-
-        assert d['XYZZY'] == 'foo'
-
-        s = str(d['TARGET'])
-        assert s == '__t1__', s
-        s = str(d['TARGET'].dir)
-        assert s == '', s
-        s = str(d['TARGETS'])
-        assert s == '__t1__ __t2__', s
-        s = str(d['TARGETS'][1])
-        assert s == '__t2__', s
-        s = str(d['TARGETS'][2])
-        assert s == '__t3__', s
-        s = str(d['TARGETS'][87])
-        assert s == '__t88__', s
-        s = str(d['TARGETS'][87].dir)
-        assert s == '', s
-        s = map(str, d['TARGETS'][3:5])
-        assert s == ['__t4__', '__t5__'], s
-        s = map(lambda x: os.path.normcase(str(x)), d['TARGETS'].abspath)
-        assert s == map(os.path.normcase, [ os.path.join(os.getcwd(), '__t1__'),
-                                            os.path.join(os.getcwd(), '__t2__') ])
-
-        s = str(d['SOURCE'])
-        assert s == '__s1__', s
-        s = str(d['SOURCE'].dir)
-        assert s == '', s
-        s = str(d['SOURCES'])
-        assert s == '__s1__ __s2__', s
-        s = str(d['SOURCES'][1])
-        assert s == '__s2__', s
-        s = str(d['SOURCES'][2])
-        assert s == '__s3__', s
-        s = str(d['SOURCES'][87])
-        assert s == '__s88__', s
-        s = str(d['SOURCES'][87].dir)
-        assert s == '', s
-        s = map(str, d['SOURCES'][3:5])
-        assert s == ['__s4__', '__s5__'], s
-        s = map(lambda x: os.path.normcase(str(x)), d['SOURCES'].abspath)
-        assert s == map(os.path.normcase, [ os.path.join(os.getcwd(), '__s1__'),
-                                            os.path.join(os.getcwd(), '__s2__') ])
 
         
 if __name__ == "__main__":

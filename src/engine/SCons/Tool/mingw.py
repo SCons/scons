@@ -55,10 +55,10 @@ def shlib_generator(target, source, env, for_signature):
     cmd.extend(['$SOURCES', '$_LIBDIRFLAGS', '$_LIBFLAGS'])
 
     implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
-    if implib: cmd.append('-Wl,--out-implib,'+str(implib))
+    if implib: cmd.append('-Wl,--out-implib,'+implib.get_string(for_signature))
 
     def_target = env.FindIxes(target, 'WIN32DEFPREFIX', 'WIN32DEFSUFFIX')
-    if def_target: cmd.append('-Wl,--output-def,'+str(def_target))
+    if def_target: cmd.append('-Wl,--output-def,'+def_target.get_string(for_signature))
 
     return [cmd]
 

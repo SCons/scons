@@ -54,9 +54,9 @@ class TempFileMunge:
     def __init__(self, cmd):
         self.cmd = cmd
 
-    def __call__(self, target, source, env):
+    def __call__(self, target, source, env, for_signature):
         cmd = env.subst_list(self.cmd, 0, target, source)[0]
-        if target is None or \
+        if for_signature or \
            (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= 2048:
             return self.cmd
         else:
@@ -75,7 +75,6 @@ class TempFileMunge:
             # path, so unescape them.
             if env['SHELL'] and env['SHELL'] == 'sh':
                 native_tmp = string.replace(native_tmp, '\\', r'\\\\')
-
 
             args = map(SCons.Util.quote_spaces, cmd[1:])
             open(tmp, 'w').write(string.join(args, " ") + "\n")

@@ -4205,7 +4205,7 @@ takes four arguments:
 .I target
 - a list of target nodes,
 .I env
-- the construction environment.
+- the construction environment,
 .I for_signature
 - a Boolean value that specifies
 whether the generator is being called
@@ -4559,19 +4559,23 @@ may be a callable Python function
 associated with a
 construction variable in the environment.
 The function should
-take three arguments:
+take four arguments:
 .I target
 - a list of target nodes,
 .I source 
 - a list of source nodes, 
 .I env
-- the construction environment.
+- the construction environment,
+.I for_signature
+- a Boolean value that specifies
+whether the function is being called
+for generating a build signature.
 SCons will insert whatever
 the called function returns
 into the expanded string:
 
 .ES
-def foo(target, source, env):
+def foo(target, source, env, for_signature):
     return "bar"
 
 # Will expand $BAR to "bar baz"

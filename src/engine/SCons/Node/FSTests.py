@@ -193,7 +193,7 @@ class BuildDirTestCase(unittest.TestCase):
         # Build path does not exist
         assert not f1.exists()
         # ...but the actual file is not there...
-        assert not os.path.exists(f1.abspath)
+        assert not os.path.exists(f1.get_abspath())
         # And duplicate=0 should also work just like a Repository
         assert f1.rexists()
         # rfile() should point to the source path
@@ -614,9 +614,9 @@ class FSTestCase(unittest.TestCase):
                 assert dir.path_ == path_, \
                        "dir.path_ %s != expected path_ %s" % \
                        (dir.path_, path_)
-                assert dir.abspath == abspath, \
+                assert dir.get_abspath() == abspath, \
                        "dir.abspath %s != expected absolute path %s" % \
-                       (dir.abspath, abspath)
+                       (dir.get_abspath(), abspath)
                 assert dir.abspath_ == abspath_, \
                        "dir.abspath_ %s != expected absolute path_ %s" % \
                        (dir.abspath_, abspath_)
@@ -1051,6 +1051,12 @@ class FSTestCase(unittest.TestCase):
         fp.close()
 
         assert exc_caught, "Should have caught an OSError, r = " + str(r)
+
+        f = fs.Entry('foo/bar/baz')
+        assert f.for_signature() == 'baz', f.for_signature()
+        assert f.get_string(0) == os.path.normpath('foo/bar/baz'), \
+               f.get_string(0)
+        assert f.get_string(1) == 'baz', f.get_string(1)
 
 
 class RepositoryTestCase(unittest.TestCase):
@@ -1512,7 +1518,64 @@ class clearTestCase(unittest.TestCase):
         assert not hasattr(f, '_exists')
         assert not hasattr(f, '_rexists')
 
+class SpecialAttrTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test special attributes of file nodes."""
+        test=TestCmd(workdir='')
+        fs = SCons.Node.FS.FS(test.workpath(''))
 
+        f=fs.Entry('foo/bar/baz.blat')
+        assert str(f.dir) == os.path.normpath('foo/bar'), str(f.dir)
+        assert f.dir.is_literal()
+        assert f.dir.for_signature() == 'bar', f.dir.for_signature()
+        
+        assert str(f.file) == 'baz.blat', str(f.file)
+        assert f.file.is_literal()
+        assert f.file.for_signature() == 'baz.blat_file', \
+               f.file.for_signature()
+        
+        assert str(f.base) == os.path.normpath('foo/bar/baz'), str(f.base)
+        assert f.base.is_literal()
+        assert f.base.for_signature() == 'baz.blat_base', \
+               f.base.for_signature()
+        
+        assert str(f.filebase) == 'baz', str(f.filebase)
+        assert f.filebase.is_literal()
+        assert f.filebase.for_signature() == 'baz.blat_filebase', \
+               f.filebase.for_signature()
+        
+        assert str(f.suffix) == '.blat', str(f.suffix)
+        assert f.suffix.is_literal()
+        assert f.suffix.for_signature() == 'baz.blat_suffix', \
+               f.suffix.for_signature()
+        
+        assert str(f.abspath) == test.workpath('foo', 'bar', 'baz.blat'), str(f.abspath)
+        assert f.abspath.is_literal()
+        assert f.abspath.for_signature() == 'baz.blat_abspath', \
+               f.abspath.for_signature()
+        
+        assert str(f.posix) == 'foo/bar/baz.blat', str(f.posix)
+        assert f.posix.is_literal()
+        if f.posix != f:
+            assert f.posix.for_signature() == 'baz.blat_posix', \
+                   f.posix.for_signature()
+
+        fs.BuildDir('foo', 'baz')
+
+        assert str(f.srcpath) == os.path.normpath('baz/bar/baz.blat'), str(f.srcpath)
+        assert f.srcpath.is_literal()
+        assert isinstance(f.srcpath, SCons.Node.FS.Entry)
+        
+        assert str(f.srcdir) == os.path.normpath('baz/bar'), str(f.srcdir)
+        assert f.srcdir.is_literal()
+        assert isinstance(f.srcdir, SCons.Node.FS.Dir)
+
+        # And now, combinations!!!
+        assert str(f.srcpath.base) == os.path.normpath('baz/bar/baz'), str(f.srcpath.base)
+        assert str(f.srcpath.dir) == str(f.srcdir), str(f.srcpath.dir)
+        assert str(f.srcpath.posix) == 'baz/bar/baz.blat', str(f.srcpath.posix)
+        
+        
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -1527,5 +1590,6 @@ if __name__ == "__main__":
     suite.addTest(SConstruct_dirTestCase())
     suite.addTest(CacheDirTestCase())
     suite.addTest(clearTestCase())
+    suite.addTest(SpecialAttrTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

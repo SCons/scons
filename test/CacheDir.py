@@ -239,7 +239,7 @@ CacheDir(r'%s')
 
 def docopy(target,source,env):
     data = source[0].get_contents()
-    f = open(target[0].rfile().abspath, "wb")
+    f = open(target[0].rfile().get_abspath(), "wb")
     f.write(data)
     f.close()
 

@@ -294,6 +294,22 @@ class NodeTestCase(unittest.TestCase):
         c = node.builder_sig_adapter().get_contents()
         assert c == 7, c
 
+        class ListBuilder:
+            def __init__(self, targets):
+                self.tgt = targets
+            def targets(self, t):
+                return self.tgt
+            def get_contents(self, target, source, env):
+                assert target == self.tgt
+                return 8
+
+        node1 = SCons.Node.Node()
+        node2 = SCons.Node.Node()
+        node.builder_set(ListBuilder([node1, node2]))
+        node.env_set(Environment())
+        c = node.builder_sig_adapter().get_contents()
+        assert c == 8, c
+
     def test_current(self):
         """Test the default current() method
         """
@@ -746,6 +762,30 @@ class NodeTestCase(unittest.TestCase):
         """Test the rstr() method."""
         n1 = MyNode("n1")
         assert n1.rstr() == 'n1', n1.rstr()
+
+    def test_abspath(self):
+        """Test the get_abspath() method."""
+        n = MyNode("foo")
+        assert n.get_abspath() == str(n), n.get_abspath()
+
+    def test_for_signature(self):
+        """Test the for_signature() method."""
+        n = MyNode("foo")
+        assert n.for_signature() == str(n), n.get_abspath()
+
+    def test_get_string(self):
+        """Test the get_string() method."""
+        class TestNode(MyNode):
+            def __init__(self, name, sig):
+                MyNode.__init__(self, name)
+                self.sig = sig
+
+            def for_signature(self):
+                return self.sig
+            
+        n = TestNode("foo", "bar")
+        assert n.get_string(0) == "foo", n.get_string(0)
+        assert n.get_string(1) == "bar", n.get_string(1)
 
     def test_arg2nodes(self):
         """Test the arg2nodes function."""

@@ -77,6 +77,19 @@ def updrive(path):
         path = string.upper(drive) + rest
     return path
 
+if hasattr(types, 'UnicodeType'):
+    def to_String(s):
+        if isinstance(s, UserString):
+            t = type(s.data)
+        else:
+            t = type(s)
+        if t is types.UnicodeType:
+            return unicode(s)
+        else:
+            return str(s)
+else:
+    to_String = str
+
 class Literal:
     """A wrapper for a string.  If you use this object wrapped
     around a string, then it will be interpreted as literal.
@@ -91,144 +104,82 @@ class Literal:
     def is_literal(self):
         return 1
 
-class PathList(UserList.UserList):
-    """This class emulates the behavior of a list, but also implements
-    the special "path dissection" attributes we can use to find
-    suffixes, base names, etc. of the paths in the list.
+class SpecialAttrWrapper(Literal):
+    """This is a wrapper for what we call a 'Node special attribute.'
+    This is any of the attributes of a Node that we can reference from
+    Environment variable substitution, such as $TARGET.abspath or
+    $SOURCES[1].filebase.  We inherit from Literal so we can handle
+    special characters, plus we implement a for_signature method,
+    such that we can return some canonical string during signatutre
+    calculation to avoid unnecessary rebuilds."""
 
-    One other special attribute of this class is that, by
-    overriding the __str__ and __repr__ methods, this class
-    represents itself as a space-concatenated string of
-    the list elements, as in:
+    def __init__(self, lstr, for_signature=None):
+        """The for_signature parameter, if supplied, will be the
+        canonical string we return from for_signature().  Else
+        we will simply return lstr."""
+        Literal.__init__(self, lstr)
+        if for_signature:
+            self.forsig = for_signature
+        else:
+            self.forsig = lstr
 
-    >>> pl=PathList(["/foo/bar.txt", "/baz/foo.txt"])
-    >>> pl
-    '/foo/bar.txt /baz/foo.txt'
-    >>> pl.base
-    'bar foo'
+    def for_signature(self):
+        return self.forsig
+
+class CallableComposite(UserList.UserList):
+    """A simple composite callable class that, when called, will invoke all
+    of its contained callables with the same arguments."""
+    def __init__(self, seq = []):
+        UserList.UserList.__init__(self, seq)
+
+    def __call__(self, *args, **kwargs):
+        retvals = map(lambda x, args=args, kwargs=kwargs: apply(x,
+                                                                args,
+                                                                kwargs),
+                      self.data)
+        if self.data and (len(self.data) == len(filter(callable, retvals))):
+            return self.__class__(retvals)
+        return NodeList(retvals)
+
+class NodeList(UserList.UserList):
+    """This class is almost exactly like a regular list of Nodes
+    (actually it can hold any object), with one important difference.
+    If you try to get an attribute from this list, it will return that
+    attribute from every item in the list.  For example:
+
+    >>> someList = NodeList([ '  foo  ', '  bar  ' ])
+    >>> someList.strip()
+    [ 'foo', 'bar' ]
     """
     def __init__(self, seq = []):
         UserList.UserList.__init__(self, seq)
 
+    def __nonzero__(self):
+        return len(self.data) != 0
+
+    def __str__(self):
+        return string.join(map(str, self.data))
+
     def __getattr__(self, name):
-        # This is how we implement the "special" attributes
-        # such as base, suffix, basepath, etc.
-        try:
-            return self.dictSpecialAttrs[name](self)
-        except KeyError:
-            raise AttributeError, 'PathList has no attribute: %s' % name
+        if not self.data:
+            # If there is nothing in the list, then we have no attributes to
+            # pass through, so raise AttributeError for everything.
+            raise AttributeError, "NodeList has no attribute: %s" % name
+        
+        # Return a list of the attribute, gotten from every element
+        # in the list
+        attrList = map(lambda x, n=name: getattr(x, n), self.data)
 
-    def __splitPath(self, split_func=os.path.split):
-        """This method calls the supplied split_func on each element
-        in the contained list.  We expect split_func to return a
-        2-tuple, usually representing two elements of a split file path,
-        such as those returned by os.path.split().
-
-        We return a 2-tuple of lists, each equal in length to the contained
-        list.  The first list represents all the elements from the
-        first part of the split operation, the second represents
-        all elements from the second part."""
-        list1 = []
-        list2 = []
-        for strPath in self.data:
-            first_part, second_part = split_func(strPath)
-            list1.append(first_part)
-            list2.append(second_part)
-        # Note that we return explicit PathList() instances, not
-        # self.__class__().  This makes sure the right attributes are
-        # available even if this object is a Lister, not a PathList.
-        return (PathList(list1), PathList(list2))
-
-    def __getBasePath(self):
-        """Return the file's directory and file name, with the
-        suffix stripped."""
-        return self.__splitPath(splitext)[0]
-
-    def __getSuffix(self):
-        """Return the file's suffix."""
-        return self.__splitPath(splitext)[1]
-
-    def __getFileName(self):
-        """Return the file's name without the path."""
-        return self.__splitPath()[1]
-
-    def __getDir(self):
-        """Return the file's path."""
-        return self.__splitPath()[0]
-
-    def __getBase(self):
-        """Return the file name with path and suffix stripped."""
-        return self.__getFileName().__splitPath(splitext)[0]
-
-    def __getAbsPath(self):
-        """Return the absolute path"""
-        # Note that we return an explicit PathList() instance, not
-        # self.__class__().  This makes sure the right attributes are
-        # available even if this object is a Lister, not a PathList.
-        return PathList(map(lambda x: updrive(os.path.abspath(x)), self.data))
-
-    def __getSrcDir(self):
-        """Return the directory containing the linked
-           source file, or this file path, if not linked"""
-        sp = self.__splitPath()[0]
-        rv = []
-        for dir in sp:
-            dn = SCons.Node.FS.default_fs.Dir(str(dir))
-            if (dn == None):
-                rv = rv + ['']
-            else:
-                rv = rv + [str(dn.srcnode())]
-        return PathList(rv)
-
-    def __getSrcPath(self):
-        """Return the path to the linked source file,
-           or this file path, if not linked"""
-        rv = []
-        for dir in self.data:
-            fn = SCons.Node.FS.default_fs.File(str(dir))
-            if (fn == None):
-                rv = rv + ['']
-            else:
-                rv = rv + [str(fn.srcnode())]
-        return PathList(rv)
-
-    def __posix(self):
-        if os.sep == '/':
-            return self
-        else:
-            return PathList(map(lambda x: string.replace(x, os.sep, '/'), self.data))
-
-    dictSpecialAttrs = { "file" : __getFileName,
-                         "base" : __getBasePath,
-                         "filebase" : __getBase,
-                         "dir" : __getDir,
-                         "suffix" : __getSuffix,
-                         "abspath" : __getAbsPath,
-                         "srcpath" : __getSrcPath,
-                         "srcdir" : __getSrcDir,
-                         "posix" : __posix
-                       }
+        # Special case.  If the attribute is callable, we do not want
+        # to return a list of callables.  Rather, we want to return a
+        # single callable that, when called, will invoke the function on
+        # all elements of this list.
+        if self.data and (len(self.data) == len(filter(callable, attrList))):
+            return CallableComposite(attrList)
+        return self.__class__(attrList)
 
     def is_literal(self):
         return 1
-
-    def __str__(self):
-        return string.join(self.data)
-
-    def to_String(self):
-        # Used by our variable-interpolation to interpolate a string.
-        # The interpolation doesn't use __str__() for this because then
-        # it interpolates other lists as "['x', 'y']".
-        return string.join(self.data)
-
-    def __repr__(self):
-        return repr(string.join(self.data))
-
-    def __getitem__(self, item):
-        # We must do this to ensure that single items returned
-        # by index access have the special attributes such as
-        # suffix and basepath.
-        return self.__class__([ UserList.UserList.__getitem__(self, item), ])
 
 _env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 
@@ -278,11 +229,11 @@ def quote_spaces(arg):
 #               so that we do not accidentally smush two variables
 #               together during the recursive interpolation process.
 
-_cv = re.compile(r'\$([_a-zA-Z]\w*|{[^}]*})')
+_cv = re.compile(r'\$([_a-zA-Z][\.\w]*|{[^}]*})')
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 _newline = re.compile(r'[\r\n]+')
 
-def _convertArg(x):
+def _convertArg(x, strconv=to_String):
     """This function converts an individual argument.  If the
     argument is to be interpreted literally, with all special
     characters escaped, then we insert a special code in front
@@ -298,16 +249,16 @@ def _convertArg(x):
     if not literal:
         # escape newlines as '\0\2', '\0\1' denotes an argument split
         # Also escape double-dollar signs to mean the literal dollar sign.
-        return string.replace(_newline.sub('\0\2', to_String(x)), '$$', '\0\4')
+        return string.replace(_newline.sub('\0\2', strconv(x)), '$$', '\0\4')
     else:
         # Interpret non-string args as literals.
         # The special \0\3 code will tell us to encase this string
         # in a Literal instance when we are all done
         # Also escape out any $ signs because we don't want
         # to continue interpolating a literal.
-        return '\0\3' + string.replace(str(x), '$', '\0\4')
+        return '\0\3' + string.replace(strconv(x), '$', '\0\4')
 
-def _convert(x):
+def _convert(x, strconv = to_String):
     """This function is used to convert construction variable
     values or the value of strSubst to a string for interpolation.
     This function follows the rules outlined in the documentaion
@@ -316,12 +267,13 @@ def _convert(x):
         return ''
     elif is_String(x):
         # escape newlines as '\0\2', '\0\1' denotes an argument split
-        return _convertArg(_space_sep.sub('\0\1', x))
+        return _convertArg(_space_sep.sub('\0\1', x), strconv)
     elif is_List(x):
         # '\0\1' denotes an argument split
-        return string.join(map(_convertArg, x), '\0\1')
+        return string.join(map(lambda x, s=strconv: _convertArg(x, s), x),
+                           '\0\1')
     else:
-        return _convertArg(x)
+        return _convertArg(x, strconv)
 
 class CmdStringHolder:
     """This is a special class used to hold strings generated
@@ -414,24 +366,47 @@ def subst_dict(target, source, env):
     if not is_List(target):
         target = [target]
 
-    dict['TARGETS'] = PathList(map(os.path.normpath, map(str, target)))
+    dict['TARGETS'] = NodeList(target)
     if dict['TARGETS']:
         dict['TARGET'] = dict['TARGETS'][0]
 
-    def rstr(x):
-        try:
-            return x.rstr()
-        except AttributeError:
-            return str(x)
     if not is_List(source):
         source = [source]
-    dict['SOURCES'] = PathList(map(os.path.normpath, map(rstr, source)))
+    dict['SOURCES'] = NodeList(map(lambda x: x.rfile(), source))
     if dict['SOURCES']:
         dict['SOURCE'] = dict['SOURCES'][0]
 
     return dict
 
-def scons_subst_list(strSubst, env, remove=None, target=None,
+# Constants for the "mode" parameter to scons_subst_list() and
+# scons_subst().  SUBST_RAW gives the raw command line.  SUBST_CMD
+# gives a command line suitable for passing to a shell.  SUBST_SIG
+# gives a command line appropriate for calculating the signature
+# of a command line...if this changes, we should rebuild.
+SUBST_RAW = 0
+SUBST_CMD = 1
+SUBST_SIG = 2
+
+_rm = re.compile(r'\$[()]')
+_remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
+
+def _canonicalize(obj):
+    """Attempt to call the object's for_signature method,
+    which is expected to return a string suitable for use in calculating
+    a command line signature (i.e., it only changes when we should
+    rebuild the target).  For instance, file Nodes will report only
+    their file name (with no path), so changing Repository settings
+    will not cause a rebuild."""
+    try:
+        return obj.for_signature()
+    except AttributeError:
+        return to_String(obj)
+
+# Indexed by the SUBST_* constants above.
+_regex_remove = [ None, _rm, _remove ]
+_strconv = [ to_String, to_String, _canonicalize ]
+
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None,
                      source=None):
     """
     This function serves the same purpose as scons_subst(), except
@@ -457,39 +432,46 @@ def scons_subst_list(strSubst, env, remove=None, target=None,
        (e.g. file names) to contain embedded newline characters.
     """
 
+    remove = _regex_remove[mode]
+    strconv = _strconv[mode]
+    
     if target != None:
         dict = subst_dict(target, source, env)
     else:
-        dict = env.sig_dict()
+        dict = env.Dictionary()
 
     def repl(m,
              target=target,
              source=source,
              env=env,
              local_vars = dict,
-             global_vars = { "__env__" : env }):
+             global_vars = { "__env__" : env },
+             strconv=strconv,
+             sig=(mode != SUBST_CMD)):
         key = m.group(1)
         if key[0] == '{':
             key = key[1:-1]
         try:
             e = eval(key, global_vars, local_vars)
-            if callable(e):
-                # We wait to evaluate callables until the end of everything
-                # else.  For now, we instert a special escape sequence
-                # that we will look for later.
-                return '\0\5' + _convert(e(target=target,
-                                           source=source,
-                                           env=env)) + '\0\5'
-            else:
-                # The \0\5 escape code keeps us from smushing two or more
-                # variables together during recusrive substitution, i.e.
-                # foo=$bar bar=baz barbaz=blat => $foo$bar->blat (bad)
-                return "\0\5" + _convert(e) + "\0\5"
         except NameError:
             return '\0\5'
+        if callable(e):
+            # We wait to evaluate callables until the end of everything
+            # else.  For now, we instert a special escape sequence
+            # that we will look for later.
+            return '\0\5' + _convert(e(target=target,
+                                       source=source,
+                                       env=env,
+                                       for_signature=sig),
+                                     strconv) + '\0\5'
+        else:
+            # The \0\5 escape code keeps us from smushing two or more
+            # variables together during recusrive substitution, i.e.
+            # foo=$bar bar=baz barbaz=blat => $foo$bar->blat (bad)
+            return "\0\5" + _convert(e, strconv) + "\0\5"
 
     # Convert the argument to a string:
-    strSubst = _convert(strSubst)
+    strSubst = _convert(strSubst, strconv)
 
     # Do the interpolation:
     n = 1
@@ -510,7 +492,7 @@ def scons_subst_list(strSubst, env, remove=None, target=None,
     return map(lambda x: map(CmdStringHolder, filter(lambda y:y, string.split(x, '\0\1'))),
                listLines)
 
-def scons_subst(strSubst, env, remove=None, target=None,
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None,
                 source=None):
     """Recursively interpolates dictionary variables into
     the specified string, returning the expanded result.
@@ -527,32 +509,48 @@ def scons_subst(strSubst, env, remove=None, target=None,
     if target != None:
         dict = subst_dict(target, source, env)
     else:
-        dict = env.sig_dict()
+        dict = env.Dictionary()
+
+    remove = _regex_remove[mode]
+    strconv = _strconv[mode]
 
     def repl(m,
              target=target,
              source=source,
              env=env,
              local_vars = dict,
-             global_vars = { '__env__' : env }):
+             global_vars = { '__env__' : env },
+             strconv=strconv,
+             sig=(mode != SUBST_CMD)):
         key = m.group(1)
         if key[0] == '{':
             key = key[1:-1]
         try:
             e = eval(key, global_vars, local_vars)
-            if callable(e):
-                e = e(target=target, source=source, env=env)
-            if e is None:
-                s = ''
-            elif is_List(e):
-                try:
-                    s = e.to_String()
-                except AttributeError:
-                    s = string.join(map(to_String, e), ' ')
-            else:
-                s = to_String(e)
         except NameError:
+            return '\0\5'
+        if callable(e):
+            e = e(target=target, source=source, env=env, for_signature=sig)
+
+        def conv(arg, strconv=strconv):
+            literal = 0
+            try:
+                if arg.is_literal():
+                    literal = 1
+            except AttributeError:
+                pass
+            ret = strconv(arg)
+            if literal:
+                # Escape dollar signs to prevent further
+                # substitution on literals.
+                ret = string.replace(ret, '$', '\0\4')
+            return ret
+        if e is None:
             s = ''
+        elif is_List(e):
+            s = string.join(map(conv, e), ' ')
+        else:
+            s = conv(e)
         # Insert placeholders to avoid accidentally smushing
         # separate variables together.
         return "\0\5" + s + "\0\5"
@@ -563,7 +561,8 @@ def scons_subst(strSubst, env, remove=None, target=None,
         # escape double dollar signs
         strSubst = string.replace(strSubst, '$$', '\0\4')
         strSubst,n = _cv.subn(repl, strSubst)
-    # and then remove remove
+
+    # remove the remove regex
     if remove:
         strSubst = remove.sub('', strSubst)
 
@@ -615,19 +614,6 @@ def is_Dict(e):
 def is_List(e):
     return type(e) is types.ListType or isinstance(e, UserList.UserList)
 
-if hasattr(types, 'UnicodeType'):
-    def to_String(s):
-        if isinstance(s, UserString):
-            t = type(s.data)
-        else:
-            t = type(s)
-        if t is types.UnicodeType:
-            return unicode(s)
-        else:
-            return str(s)
-else:
-    to_String = str
-
 def argmunge(arg):
     return Split(arg)
 
@@ -678,7 +664,7 @@ def mapPaths(paths, dir, env=None):
                     return str(dir)
                 if os.path.isabs(path) or path[0] == '#':
                     return path
-                return dir.path_ + path
+                return str(dir) + os.sep + path
         return path
 
     if not is_List(paths):

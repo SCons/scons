@@ -25,16 +25,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
-import re
 import string
 import sys
 import types
 import unittest
-import SCons.Node
-import SCons.Node.FS
 from SCons.Util import *
 import TestCmd
-
 
 class OutBuffer:
     def __init__(self):
@@ -58,33 +54,55 @@ class DummyEnv:
         dict["SOURCES"] = 'ssig'
         return dict
 
-def CmdGen1(target, source, env):
+def CmdGen1(target, source, env, for_signature):
     # Nifty trick...since Environment references are interpolated,
     # instantiate an instance of a callable class with this one,
     # which will then get evaluated.
-    assert target == 't', target
-    assert source == 's', source
-    return "${CMDGEN2('foo')}"
+    assert str(target) == 't', target
+    assert str(source) == 's', source
+    return "${CMDGEN2('foo', %d)}" % for_signature
 
 class CmdGen2:
-    def __init__(self, mystr):
+    def __init__(self, mystr, forsig):
         self.mystr = mystr
+        self.expect_for_signature = forsig
 
-    def __call__(self, target, source, env):
-        assert target == 't', target
-        assert source == 's', source
+    def __call__(self, target, source, env, for_signature):
+        assert str(target) == 't', target
+        assert str(source) == 's', source
+        assert for_signature == self.expect_for_signature, for_signature
         return [ self.mystr, env.Dictionary('BAR') ]
 
 class UtilTestCase(unittest.TestCase):
     def test_subst(self):
         """Test the subst function"""
         loc = {}
-        target = [ "./foo/bar.exe",
-                   "/bar/baz.obj",
-                   "../foo/baz.obj" ]
-        source = [ "./foo/blah.cpp",
-                   "/bar/ack.cpp",
-                   "../foo/ack.c" ]
+
+        class N:
+            """Simple node work-alike with some extra stuff for testing."""
+            def __init__(self, data):
+                self.data = os.path.normpath(data)
+
+            def __str__(self):
+                return self.data
+
+            def is_literal(self):
+                return 1
+
+            def get_stuff(self, extra):
+                return self.data + extra
+
+            def rfile(self):
+                return self
+
+            foo = 1
+        
+        target = [ N("./foo/bar.exe"),
+                   N("/bar/baz.obj"),
+                   N("../foo/baz.obj") ]
+        source = [ N("./foo/blah.cpp"),
+                   N("/bar/ack.cpp"),
+                   N("../foo/ack.c") ]
         loc['xxx'] = None
         loc['zero'] = 0
         loc['one'] = 1
@@ -122,58 +140,33 @@ class UtilTestCase(unittest.TestCase):
                              target=target, source=source)
         assert newcom == cvt("test foo/bar.exe[0]")
 
-        newcom = scons_subst("test ${TARGET.file}", env,
+        newcom = scons_subst("test $TARGETS.foo", env,
                              target=target, source=source)
-        assert newcom == cvt("test bar.exe")
+        assert newcom == "test 1 1 1", newcom
 
-        newcom = scons_subst("test ${TARGET.filebase}", env,
+        newcom = scons_subst("test ${SOURCES[0:2].foo}", env,
                              target=target, source=source)
-        assert newcom == cvt("test bar")
+        assert newcom == "test 1 1", newcom
 
-        newcom = scons_subst("test ${TARGET.suffix}", env,
+        newcom = scons_subst("test $SOURCE.foo", env,
                              target=target, source=source)
-        assert newcom == cvt("test .exe")
+        assert newcom == "test 1", newcom
 
-        newcom = scons_subst("test ${TARGET.base}", env,
+        newcom = scons_subst("test ${TARGET.get_stuff('blah')}", env,
                              target=target, source=source)
-        assert newcom == cvt("test foo/bar")
+        assert newcom == cvt("test foo/bar.exeblah"), newcom
 
-        newcom = scons_subst("test ${TARGET.dir}", env,
+        newcom = scons_subst("test ${SOURCES.get_stuff('blah')}", env,
                              target=target, source=source)
-        assert newcom == cvt("test foo")
+        assert newcom == cvt("test foo/blah.cppblah /bar/ack.cppblah ../foo/ack.cblah"), newcom
 
-        newcom = scons_subst("test ${TARGET.abspath}", env,
+        newcom = scons_subst("test ${SOURCES[0:2].get_stuff('blah')}", env,
                              target=target, source=source)
-        assert newcom == cvt("test %s/foo/bar.exe"%SCons.Util.updrive(os.getcwd())), newcom
+        assert newcom == cvt("test foo/blah.cppblah /bar/ack.cppblah"), newcom
 
-        newcom = scons_subst("test ${SOURCES.abspath}", env,
+        newcom = scons_subst("test ${SOURCES[0:2].get_stuff('blah')}", env,
                              target=target, source=source)
-        assert newcom == cvt("test %s/foo/blah.cpp %s %s/foo/ack.c"%(SCons.Util.updrive(os.getcwd()),
-                                                                     SCons.Util.updrive(os.path.abspath(os.path.normpath("/bar/ack.cpp"))),
-                                                                     SCons.Util.updrive(os.path.normpath(os.getcwd()+"/..")))), newcom
-
-        newcom = scons_subst("test ${SOURCE.abspath}", env,
-                             target=target, source=source)
-        assert newcom == cvt("test %s/foo/blah.cpp"%SCons.Util.updrive(os.getcwd())), newcom
-
-        # Note that we don't use the cvt() helper function here,
-        # because we're testing that the .posix attribute does its own
-        # conversion of the path name backslashes to slashes.
-        newcom = scons_subst("test ${TARGET.posix} ${SOURCE.posix}", env,
-                             target=target, source=source)
-        assert newcom == "test foo/bar.exe foo/blah.cpp", newcom
-
-        SCons.Node.FS.default_fs.BuildDir("#baz","#foo")
-
-        newcom = scons_subst("test ${SOURCE.srcdir}", env,
-                             target=target, source=['baz/bar.c'])
-
-        assert newcom == cvt("test foo"), newcom
-
-        newcom = scons_subst("test ${SOURCE.srcpath}", env,
-                             target=target, source=['baz/bar.c'])
-
-        assert newcom == cvt("test foo/bar.c"), newcom
+        assert newcom == cvt("test foo/blah.cppblah /bar/ack.cppblah"), newcom
 
         newcom = scons_subst("test $xxx", env)
         assert newcom == cvt("test"), newcom
@@ -184,10 +177,10 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("test $( $xxx $)", env)
         assert newcom == cvt("test $( $)"), newcom
 
-        newcom = scons_subst("test $($xxx$)", env, re.compile('\$[()]'))
+        newcom = scons_subst("test $($xxx$)", env, mode=SUBST_SIG)
         assert newcom == cvt("test"), newcom
 
-        newcom = scons_subst("test $( $xxx $)", env, re.compile('\$[()]'))
+        newcom = scons_subst("test $( $xxx $)", env, mode=SUBST_SIG)
         assert newcom == cvt("test"), newcom
 
         newcom = scons_subst("test $zero", env)
@@ -196,11 +189,8 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("test $one", env)
         assert newcom == cvt("test 1"), newcom
 
-        newcom = scons_subst("test aXbXcXd", env, re.compile('X'))
-        assert newcom == cvt("test abcd"), newcom
-
         newcom = scons_subst("test $CMDGEN1 $SOURCES $TARGETS",
-                             env, target='t', source='s')
+                             env, target=N('t'), source=N('s'))
         assert newcom == cvt("test foo baz s t"), newcom
 
         # Test against a former bug in scons_subst_list()
@@ -217,6 +207,23 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("$$FOO$BAZ", DummyEnv(glob))
         assert newcom == "$FOOBLAT", newcom
 
+        class TestLiteral:
+            def __init__(self, literal):
+                self.literal = literal
+
+            def __str__(self):
+                return self.literal
+
+            def is_literal(self):
+                return 1
+
+        # Test that a literal will stop dollar-sign substitution
+        glob = { "FOO" : "BAR",
+                 "BAZ" : TestLiteral("$FOO"),
+                 "BAR" : "$FOO" }
+        newcom = scons_subst("$FOO $BAZ $BAR", DummyEnv(glob))
+        assert newcom == "BAR $FOO BAR", newcom
+
     def test_splitext(self):
         assert splitext('foo') == ('foo','')
         assert splitext('foo.bar') == ('foo','.bar')
@@ -227,19 +234,21 @@ class UtilTestCase(unittest.TestCase):
 
         class Node:
             def __init__(self, name):
-                self.name = name
+                self.name = os.path.normpath(name)
             def __str__(self):
                 return self.name
             def is_literal(self):
                 return 1
+            def rfile(self):
+                return self
         
         loc = {}
-        target = [ "./foo/bar.exe",
-                   "/bar/baz with spaces.obj",
-                   "../foo/baz.obj" ]
-        source = [ "./foo/blah with spaces.cpp",
-                   "/bar/ack.cpp",
-                   "../foo/ack.c" ]
+        target = [ Node("./foo/bar.exe"),
+                   Node("/bar/baz with spaces.obj"),
+                   Node("../foo/baz.obj") ]
+        source = [ Node("./foo/blah with spaces.cpp"),
+                   Node("/bar/ack.cpp"),
+                   Node("../foo/ack.c") ]
         loc['xxx'] = None
         loc['NEWLINE'] = 'before\nafter'
 
@@ -307,7 +316,7 @@ class UtilTestCase(unittest.TestCase):
 
         # Test interpolating a callable.
         cmd_list = scons_subst_list("testing $CMDGEN1 $TARGETS $SOURCES", env,
-                                    target='t', source='s')
+                                    target=Node('t'), source=Node('s'))
         assert len(cmd_list) == 1, len(cmd_list)
         assert cmd_list[0][0] == 'testing', cmd_list[0][0]
         assert cmd_list[0][1] == 'foo', cmd_list[0][1]
@@ -335,8 +344,8 @@ class UtilTestCase(unittest.TestCase):
             return '**' + foo + '**'
         def quote_func(foo):
             return foo
-        glob = { "FOO" : PathList([ 'foo\nwith\nnewlines',
-                                    'bar\nwith\nnewlines' ]) }
+        glob = { "FOO" : [ Literal('foo\nwith\nnewlines'),
+                           Literal('bar\nwith\nnewlines') ] }
         cmd_list = scons_subst_list("$FOO", DummyEnv(glob))
         assert cmd_list[0][0] == 'foo\nwith\nnewlines', cmd_list[0][0]
         cmd_list[0][0].escape(escape_func)
@@ -595,11 +604,41 @@ class UtilTestCase(unittest.TestCase):
         assert cmd_list[0] == 'BAZ', cmd_list[0]
         assert cmd_list[1] == '**$BAR**', cmd_list[1]
 
+    def test_SpecialAttrWrapper(self):
+        """Test the SpecialAttrWrapper() function."""
+        input_list = [ '$FOO', SpecialAttrWrapper('$BAR', 'BLEH') ]
+        
+        def escape_func(cmd):
+            return '**' + cmd + '**'
+
+        
+        cmd_list = scons_subst_list(input_list,
+                                    DummyEnv({ 'FOO' : 'BAZ',
+                                               'BAR' : 'BLAT' }))
+        map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
+        cmd_list = map(str, cmd_list[0])
+        assert cmd_list[0] == 'BAZ', cmd_list[0]
+        assert cmd_list[1] == '**$BAR**', cmd_list[1]
+
+        cmd_list = scons_subst_list(input_list,
+                                    DummyEnv({ 'FOO' : 'BAZ',
+                                               'BAR' : 'BLAT' }),
+                                    mode=SUBST_SIG)
+        map(lambda x, e=escape_func: x.escape(e), cmd_list[0])
+        cmd_list = map(str, cmd_list[0])
+        assert cmd_list[0] == 'BAZ', cmd_list[0]
+        assert cmd_list[1] == '**BLEH**', cmd_list[1]
+
     def test_mapPaths(self):
         """Test the mapPaths function"""
-        fs = SCons.Node.FS.FS()
-        dir=fs.Dir('foo')
-        file=fs.File('bar/file')
+        class MyFileNode:
+            def __init__(self, path):
+                self.path = path
+            def __str__(self):
+                return self.path
+            
+        dir=MyFileNode('foo')
+        file=MyFileNode('bar/file')
         
         class DummyEnv:
             def subst(self, arg):
@@ -618,11 +657,11 @@ class UtilTestCase(unittest.TestCase):
     def test_display(self):
         old_stdout = sys.stdout
         sys.stdout = OutBuffer()
-        SCons.Util.display("line1")
+        display("line1")
         display.set_mode(0)
-        SCons.Util.display("line2")
+        display("line2")
         display.set_mode(1)
-        SCons.Util.display("line3")
+        display("line3")
 
         assert sys.stdout.buffer == "line1\nline3\n"
         sys.stdout = old_stdout
@@ -648,12 +687,12 @@ class UtilTestCase(unittest.TestCase):
               "Removed " + os.path.join(base, xxx) + '\n' + \
               "Removed directory " + base + '\n'
 
-        SCons.Util.fs_delete(base, remove=0)
+        fs_delete(base, remove=0)
         assert sys.stdout.buffer == exp, sys.stdout.buffer
         assert os.path.exists(sub1_yyy)
 
         sys.stdout.buffer = ""
-        SCons.Util.fs_delete(base, remove=1)
+        fs_delete(base, remove=1)
         assert sys.stdout.buffer == exp
         assert not os.path.exists(base)
 
@@ -666,7 +705,7 @@ class UtilTestCase(unittest.TestCase):
         filename = tempfile.mktemp()
         str = '1234567890 ' + filename
         open(filename, 'w').write(str)
-        assert open(SCons.Util.get_native_path(filename)).read() == str
+        assert open(get_native_path(filename)).read() == str
 
     def test_subst_dict(self):
         """Test substituting dictionary values in an Action
@@ -675,14 +714,24 @@ class UtilTestCase(unittest.TestCase):
         assert d['a'] == 'A', d
         assert d['b'] == 'B', d
 
-        d = subst_dict(target = 't', source = 's', env=DummyEnv())
-        assert str(d['TARGETS']) == 't', d['TARGETS']
+        class SimpleNode:
+            def __init__(self, data):
+                self.data = data
+            def __str__(self):
+                return self.data
+            def rfile(self):
+                return self
+            def is_literal(self):
+                return 1
+            
+        d = subst_dict(target = SimpleNode('t'), source = SimpleNode('s'), env=DummyEnv())
+        assert str(d['TARGETS'][0]) == 't', d['TARGETS']
         assert str(d['TARGET']) == 't', d['TARGET']
-        assert str(d['SOURCES']) == 's', d['SOURCES']
+        assert str(d['SOURCES'][0]) == 's', d['SOURCES']
         assert str(d['SOURCE']) == 's', d['SOURCE']
 
-        d = subst_dict(target = ['t1', 't2'],
-                       source = ['s1', 's2'],
+        d = subst_dict(target = [SimpleNode('t1'), SimpleNode('t2')],
+                       source = [SimpleNode('s1'), SimpleNode('s2')],
                        env = DummyEnv())
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
@@ -698,11 +747,11 @@ class UtilTestCase(unittest.TestCase):
                 self.name = name
             def __str__(self):
                 return self.name
-            def rstr(self):
-                return 'rstr-' + self.name
+            def rfile(self):
+                return self.__class__('rstr-' + self.name)
 
-        d = subst_dict(target = [N('t3'), 't4'],
-                       source = ['s3', N('s4')],
+        d = subst_dict(target = [N('t3'), SimpleNode('t4')],
+                       source = [SimpleNode('s3'), N('s4')],
                        env = DummyEnv())
         TARGETS = map(lambda x: str(x), d['TARGETS'])
         TARGETS.sort()
@@ -711,6 +760,29 @@ class UtilTestCase(unittest.TestCase):
         SOURCES.sort()
         assert SOURCES == ['rstr-s4', 's3'], d['SOURCES']
 
+    def test_NodeList(self):
+        """Test NodeList class"""
+        class TestClass:
+            def __init__(self, name, child=None):
+                self.child = child
+                self.bar = name
+            def foo(self):
+                return self.bar + "foo"
+            def getself(self):
+                return self
+
+        t1 = TestClass('t1', TestClass('t1child'))
+        t2 = TestClass('t2', TestClass('t2child'))
+        t3 = TestClass('t3')
+
+        nl = NodeList([t1, t2, t3])
+        assert nl.foo() == [ 't1foo', 't2foo', 't3foo' ], nl.foo()
+        assert nl.bar == [ 't1', 't2', 't3' ], nl.bar
+        assert nl.getself().bar == [ 't1', 't2', 't3' ], nl.getself().bar
+        assert nl[0:2].child.foo() == [ 't1childfoo', 't2childfoo' ], \
+               nl[0:2].child.foo()
+        assert nl[0:2].child.bar == [ 't1child', 't2child' ], \
+               nl[0:2].child.bar
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
