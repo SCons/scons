@@ -331,10 +331,14 @@ RELEASE 0.97 - XXX
   - Fix command-line expansion of Python Value Nodes.
 
   - Internal cleanups:  Remove an unnecessary scan argument.  Associate
-    Scanners only with Builders, not nodes.  Apply overrides once when a
-    Builder is called, not in multiple places.  Cache results from
-    the Node.FS.get_suffix() and Node.get_build_env() methods.  Use
-    the Python md5 modules' hexdigest() method, if there is one.
+    Scanners only with Builders, not nodes.  Apply overrides once when
+    a Builder is called, not in multiple places.  Cache results from the
+    Node.FS.get_suffix() and Node.get_build_env() methods.  Use the Python
+    md5 modules' hexdigest() method, if there is one.  Have Taskmaster
+    call get_stat() once for each Node and re-use the value instead of
+    calling it each time it needs the value.  Have Node.depends_on()
+    re-use the list from the children() method instead of calling it
+    multiple times.
 
   - Use the correct scanner if the same source file is used for targets in
     two different environments with the same path but different scanners.
