@@ -67,9 +67,10 @@ pathdirs_1243 = [ test.workpath('sub1'),
 
 test.write('SConstruct', """
 SConscript('%s')
+env = Environment()
 print WhereIs('xxx.exe')
 print WhereIs('xxx.exe', %s)
-print WhereIs('xxx.exe', %s)
+print env.WhereIs('xxx.exe', %s)
 print WhereIs('xxx.exe', %s)
 print WhereIs('xxx.exe', %s)
 """ % (subdir_SConscript,
@@ -80,9 +81,10 @@ print WhereIs('xxx.exe', %s)
       ))
 
 test.write(subdir_SConscript, """
+env = Environment()
 print WhereIs('xxx.exe')
 print WhereIs('xxx.exe', %s)
-print WhereIs('xxx.exe', %s)
+print env.WhereIs('xxx.exe', %s)
 print WhereIs('xxx.exe', %s)
 print WhereIs('xxx.exe', %s)
 """ % (repr(string.join(pathdirs_1234, os.pathsep)),

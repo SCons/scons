@@ -979,13 +979,15 @@ can lead to a lot of quoting,
 .B scons
 supplies a
 .B Split()
-function that splits a single string
+global function
+and a same-named environment method
+that split a single string
 into a list, separated on
 strings of white-space characters.
-(This is similar to the
+(These are similar to the
 string.split() method
 from the standard Python library,
-but it works even if the input isn't a string.)
+but work even if the input isn't a string.)
 
 Like all Python arguments,
 the target and source arguments to a builder method
@@ -999,8 +1001,10 @@ The following are equivalent examples of calling the Program builder method:
 .ES
 env.Program('bar', ['bar.c', 'foo.c'])
 env.Program('bar', Split('bar.c foo.c'))
+env.Program('bar', env.Split('bar.c foo.c'))
 env.Program(source =  ['bar.c', 'foo.c'], target = 'bar')
 env.Program(target = 'bar', Split('bar.c foo.c'))
+env.Program(target = 'bar', env.Split('bar.c foo.c'))
 env.Program('bar', source = string.split('bar.c foo.c'))
 .EE
 
@@ -1850,6 +1854,17 @@ include:
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
+.RI Action( action ", [" strfunction ", " varlist ])
+.TP
+.RI env.Action( action ", [" strfunction ", " varlist ])
+Creates an Action object for
+the specified
+.IR action .
+See the section "Action Objects,"
+below, for a complete explanation of the arguments and behavior.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
 .RI AddPostAction( target ", " action )
 .TP
 .RI env.AddPostAction( target ", " action )
@@ -2084,6 +2099,17 @@ for another way to
 specify a build directory
 in conjunction with calling a subsidiary
 SConscript file.)
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP 
+.RI Builder( action ", [" multi ", " prefix ", " suffix ", " src_suffix ", " src_builder ", " emitter ])
+.TP 
+.RI env.Builder( action ", [" multi ", " prefix ", " suffix ", " src_suffix ", " src_builder ", " emitter ])
+Creates a Builder object for
+the specified
+.IR action .
+See the section "Builder Objects,"
+below, for a complete explanation of the arguments and behavior.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP 
@@ -2418,6 +2444,16 @@ EnsureSConsVersion(0,9)
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI Environment([ key = value ", ...])"
+.TP
+.RI env.Environment([ key = value ", ...])"
+Return a new construction environment
+initialized with the specified
+.IR key = value
+pairs.
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI Exit([ value ])
 .TP
 .RI env.Exit([ value ])
@@ -2643,6 +2679,8 @@ env.InstallAs(target = ['../lib/libfoo.a', '../lib/libbar.a'],
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Literal( string )
+.TP
+.RI env.Literal( string )
 The specified
 .I string
 will be preserved as-is
@@ -2662,12 +2700,10 @@ Returns a list of the target Node or Nodes.
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI ParseConfig( env ", " command ", [" function ])
+.RI env.ParseConfig( command ", [" function ])
 Calls the specified
 .I function
-to modify the specified environment
-.I env
-as specified by the output of
+to modify the environment as specified by the output of
 .I command .
 The default
 .I function
@@ -2728,10 +2764,19 @@ USERNAME.
 Returns a callable object
 that can be used to initialize
 a construction environment using the
-platform keyword of the Environment() method.
+platform keyword of the Environment() method:
 
 .ES
 env = Environment(platform = Platform('win32'))
+.EE
+.TP
+.RI env.Platform( string )
+Applies the callable object for the specified platform
+.I string
+to the environment through which the method was called.
+
+.ES
+env.Platform('posix')
 .EE
 .IP
 Note that the
@@ -3334,6 +3379,8 @@ The default is "MD5".
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI Split( arg )
+.TP
+.RI env.Split( arg )
 Returns a list of file names or other objects.
 If arg is a string,
 it will be split on strings of white-space characters
@@ -3347,10 +3394,11 @@ containing just the object.
 
 .ES
 files = Split("f1.c f2.c f3.c")
+files = env.Split("f4.c f5.c f6.c")
 files = Split("""
-	f4.c
-	f5.c
-	f6.c
+	f7.c
+	f8.c
+	f9.c
 """)
 .EE
 
@@ -3391,11 +3439,6 @@ Returns a callable object
 that can be used to initialize
 a construction environment using the
 tools keyword of the Environment() method.
-
-.ES
-env = Environment(tools = [ Tool('msvc') ])
-.EE
-.IP
 The object may be called with a construction
 environment as an argument,
 in which case the object will be
@@ -3406,9 +3449,20 @@ and the name of the tool will be added to the
 construction variable.
 
 .ES
+env = Environment(tools = [ Tool('msvc') ])
+
 env = Environment()
 t = Tool('msvc')
 t(env)  # adds 'msvc' to the TOOLS variable
+.EE
+.TP
+.RI env.Tool( string )
+Applies the callable object for the specified tool
+.I string
+to the environment through which the method was called.
+
+.ES
+env.Tool('gcc')
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -3437,6 +3491,8 @@ env.Config(target = 'package-config', source = Value(prefix))
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
 .RI WhereIs( program ", [" path  ", [" pathext ]])
+.TP
+.RI env.WhereIs( program ", [" path  ", [" pathext ]])
 
 Searches for the specified executable
 .I program,
@@ -3445,13 +3501,17 @@ if it is found,
 and returning None if not.
 Searches the specified
 .I path,
-or the user's current PATH
+the value of the calling environment's PATH
+(env['ENV']['PATH']),
+or the user's current external PATH
 (os.environ['PATH'])
 by default.
 On Win32 systems, searches for executable
 programs with any of the file extensions
 listed in the specified
 .I pathext,
+the calling environment's PATHEXT
+(env['ENV']['PATHEXT'])
 or the user's current PATHEXT
 (os.environ['PATHEXT'])
 by default.

@@ -58,12 +58,13 @@ RELEASE X.XX - XXX
   - Support arbitrary expansion of construction variables within
     file and directory arguments to Builder calls and Environment methods.
 
-  - Add Environment-method versions of the following global functions:
-    AddPreAction(), AddPostAction(), BuildDir(), CacheDir(), Clean(),
-    Default(), EnsurePythonVersion(), EnsureSConsVersion(), Exit(),
-    Export(), FindFile(), GetBuildPath(), GetOption(), Help(),
-    Import(), Local(), Repository(), SConsignFile(), SetOption(),
-    SourceSignatures(), TargetSignatures().
+  - Add Environment-method versions of the following global
+    functions: Action(), AddPostAction(), AddPreAction(), Builder(),
+    BuildDir(), CacheDir(), Clean(), Default(), EnsurePythonVersion(),
+    EnsureSConsVersion(), Environment(), Exit(), Export(), FindFile(),
+    GetBuildPath(), GetOption(), Help(), Import(), Literal(),
+    Local(), Platform(), Repository(), SConsignFile(), SetOption(),
+    SourceSignatures(), Split(), TargetSignatures(), Tool().
 
   - Add the following global functions that correspond to the same-named
     Environment methods:  AlwaysBuild(), Command(), Depends(), Ignore(),
@@ -85,6 +86,12 @@ RELEASE X.XX - XXX
     Allow the wrapping interface to extend an Environment by using its own
     subclass of Environment.Base and setting a new Environment.Environment
     variable as the calling entry point.
+
+  - Deprecate the ParseConfig() global function in favor of a same-named
+    construction environment method.
+
+  - Allow the Environment.WhereIs() method to take explicit path and
+    pathext arguments (like the underlying SCons.Util.WhereIs() function).
 
   From Clark McGrew:
 

@@ -35,7 +35,7 @@ print "'%s'" % env['PROGSUFFIX']
 assert env['SHELL'] == 'sh'
 Platform('os2')(env)
 print "'%s'" % env['PROGSUFFIX']
-Platform('posix')(env)
+env.Platform('posix')
 print "'%s'" % env['PROGSUFFIX']
 Platform('win32')(env)
 print "'%s'" % env['PROGSUFFIX']
@@ -48,7 +48,7 @@ Platform('cygwin')(env)
 print "'%s'" % env['LIBSUFFIX']
 Platform('os2')(env)
 print "'%s'" % env['LIBSUFFIX']
-Platform('posix')(env)
+env.Platform('posix')
 print "'%s'" % env['LIBSUFFIX']
 Platform('win32')(env)
 print "'%s'" % env['LIBSUFFIX']

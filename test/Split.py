@@ -29,22 +29,29 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
+env = Environment(BBB = 'bbb', CCC = 'ccc')
 print Split('aaa')
-print Split('bbb ccc')
+print Split('aaa $BBB')
+print env.Split('bbb $CCC')
+print env.Split('$BBB ccc')
 print Split(['ddd', 'eee'])
 SConscript('SConscript')
 """)
 
 test.write('SConscript', """
-print Split('fff')
+env = Environment(FFF='fff', JJJ='jjj')
+print env.Split('${FFF}.f')
 print Split('ggg hhh')
-print Split(['iii', 'jjj'])
+print env.Split(['iii', '$JJJ'])
 """)
 
-expect = """['aaa']
+expect = """\
+['aaa']
+['aaa', '$BBB']
+['bbb', 'ccc']
 ['bbb', 'ccc']
 ['ddd', 'eee']
-['fff']
+['fff.f']
 ['ggg', 'hhh']
 ['iii', 'jjj']
 """

@@ -40,7 +40,7 @@ print "-L/usr/fax -Lfoo -lxxx abc"
 
 test.write('SConstruct', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
-static_libs = ParseConfig(env, [r"%s", r"%s", "--libs --cflags"])
+static_libs = env.ParseConfig([r"%s", r"%s", "--libs --cflags"])
 print env['CPPPATH']
 print env['LIBPATH']
 print env['LIBS']
@@ -49,6 +49,17 @@ print static_libs
 """ % (TestSCons.python, test_config))
 
 test.write('SConstruct2', """
+env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '',
+                  PYTHON = '%s')
+static_libs = env.ParseConfig(r"$PYTHON %s --libs --cflags")
+print env['CPPPATH']
+print env['LIBPATH']
+print env['LIBS']
+print env['CCFLAGS']
+print static_libs
+""" % (TestSCons.python, test_config))
+
+test.write('SConstruct3', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
 static_libs = ParseConfig(env, r"%s %s --libs --cflags")
 print env['CPPPATH']
@@ -69,5 +80,13 @@ good_stdout = test.wrap_stdout(read_str = """\
 test.run(arguments = ".", stdout = good_stdout)
 
 test.run(arguments = "-f SConstruct2 .", stdout = good_stdout)
+
+test.run(arguments = "-f SConstruct3 .",
+         stdout = good_stdout,
+         stderr = """
+scons: warning: The ParseConfig() function has been deprecated;
+	use the env.ParseConfig() method instead.
+File "SConstruct3", line 3, in ?
+""")
 
 test.pass_test()

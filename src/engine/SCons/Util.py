@@ -621,24 +621,6 @@ def is_Dict(e):
 def is_List(e):
     return type(e) is types.ListType or isinstance(e, UserList.UserList)
 
-def Split(arg):
-    """This function converts a string or list into a list of strings
-    or Nodes.  This makes things easier for users by allowing files to
-    be specified as a white-space separated list to be split.
-    The input rules are:
-        - A single string containing names separated by spaces. These will be
-          split apart at the spaces.
-        - A single Node instance
-        - A list containing either strings or Node instances. Any strings
-          in the list are not split at spaces.
-    In all cases, the function returns a list of Nodes and strings."""
-    if is_List(arg):
-        return arg
-    elif is_String(arg):
-        return string.split(arg)
-    else:
-        return [arg]
-
 def mapPaths(paths, dir, env=None):
     """Takes a single node or string, or a list of nodes and/or
     strings.  We leave the nodes untouched, but we put the strings
@@ -917,53 +899,6 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
     else:
         return string.join(paths, sep)
 
-
-def ParseConfig(env, command, function=None):
-    """Use the specified function to parse the output of the command in order
-    to modify the specified environment. The 'command' can be a string or a
-    list of strings representing a command and it's arguments. 'Function' is
-    an optional argument that takes the environment and the output of the
-    command. If no function is specified, the output will be treated as the
-    output of a typical 'X-config' command (i.e. gtk-config) and used to set
-    the CPPPATH, LIBPATH, LIBS, and CCFLAGS variables.
-    """
-    # the default parse function
-    def parse_conf(env, output):
-        env_dict = env.Dictionary()
-        static_libs = []
-
-        # setup all the dictionary options
-        if not env_dict.has_key('CPPPATH'):
-            env_dict['CPPPATH'] = []
-        if not env_dict.has_key('LIBPATH'):
-            env_dict['LIBPATH'] = []
-        if not env_dict.has_key('LIBS'):
-            env_dict['LIBS'] = []
-        if not env_dict.has_key('CCFLAGS') or env_dict['CCFLAGS'] == "":
-            env_dict['CCFLAGS'] = []
-
-        params = string.split(output)
-        for arg in params:
-            switch = arg[0:1]
-            opt = arg[1:2]
-            if switch == '-':
-                if opt == 'L':
-                    env_dict['LIBPATH'].append(arg[2:])
-                elif opt == 'l':
-                    env_dict['LIBS'].append(arg[2:])
-                elif opt == 'I':
-                    env_dict['CPPPATH'].append(arg[2:])
-                else:
-                    env_dict['CCFLAGS'].append(arg)
-            else:
-                static_libs.append(arg)
-        return static_libs
-
-    if function is None:
-        function = parse_conf
-    if type(command) is type([]):
-        command = string.join(command)
-    return function(env, os.popen(command).read())
 
 def dir_index(directory):
     files = []

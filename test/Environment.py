@@ -33,11 +33,17 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 env=Environment(BAR='#bar.in', BLAT='subdir/../blat blat')
-target = env.Command('foo.out', 'foo.in', r'%s build.py $SOURCE $TARGET ${File(BAR)} ${Dir(BLAT)}')
+target = env.Command('foo.out',
+                     'foo.in',
+                     r'%s build.py $SOURCE $TARGET ${File(BAR)} ${Dir(BLAT)}')
 
 assert target == Dir('.').File('foo.out')
 assert Dir('.') == Dir('.').Dir('.')
 assert target == target.File('foo.out')
+
+e2 = env.Environment(XXX='$BAR', YYY='$BLAT')
+print e2['XXX']
+print e2['YYY']
 """%python)
 
 test.write('build.py', """

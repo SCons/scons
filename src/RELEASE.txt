@@ -37,6 +37,10 @@ RELEASE X.XX - XXX
     another dollar sign ($$) when referring to the file or directory
     as part of calling a Builder, or any of the above methods.
 
+  - The ParseConfig() global function has now been deprecated in favor
+    of using the env.ParseConfig() method.  The global function will be
+    removed in some future release of SCons.
+
   Please note the following important changes since release 0.91:
 
   - The Debian package available from the SCons web site now

@@ -365,8 +365,19 @@ class Base:
             mode = SCons.Util.SUBST_RAW
         else:
             mode = SCons.Util.SUBST_CMD
-        return SCons.Util.scons_subst(string, self, mode,
-                                      target, source)
+        return SCons.Util.scons_subst(string, self, mode, target, source)
+    
+    def subst_kw(self, kw, raw=0, target=None, source=None):
+        if raw:
+            mode = SCons.Util.SUBST_RAW
+        else:
+            mode = SCons.Util.SUBST_CMD
+        nkw = {}
+        for k, v in kw.items():
+            if SCons.Util.is_String(v):
+                v = SCons.Util.scons_subst(v, self, mode, target, source)
+            nkw[k] = v
+        return nkw
     
     def subst_list(self, string, raw=0, target=None, source=None):
         """Calls through to SCons.Util.scons_subst_list().  See
@@ -375,8 +386,7 @@ class Base:
             mode = SCons.Util.SUBST_RAW
         else:
             mode = SCons.Util.SUBST_CMD
-        return SCons.Util.scons_subst_list(string, self, mode,
-                                           target, source)
+        return SCons.Util.scons_subst_list(string, self, mode, target, source)
 
     def use_build_signature(self):
         try:
@@ -513,6 +523,61 @@ class Base:
         else:
             return self
 
+    def ParseConfig(self, command, function=None):
+        """
+        Use the specified function to parse the output of the command
+        in order to modify the current environment. The 'command'
+        can be a string or a list of strings representing a command and
+        it's arguments. 'Function' is an optional argument that takes
+        the environment and the output of the command. If no function is
+        specified, the output will be treated as the output of a typical
+        'X-config' command (i.e. gtk-config) and used to set the CPPPATH,
+        LIBPATH, LIBS, and CCFLAGS variables.
+        """
+
+        # the default parse function
+        def parse_conf(env, output):
+            env_dict = env.Dictionary()
+            static_libs = []
+    
+            # setup all the dictionary options
+            if not env_dict.has_key('CPPPATH'):
+                env_dict['CPPPATH'] = []
+            if not env_dict.has_key('LIBPATH'):
+                env_dict['LIBPATH'] = []
+            if not env_dict.has_key('LIBS'):
+                env_dict['LIBS'] = []
+            if not env_dict.has_key('CCFLAGS') or env_dict['CCFLAGS'] == "":
+                env_dict['CCFLAGS'] = []
+    
+            params = string.split(output)
+            for arg in params:
+                switch = arg[0:1]
+                opt = arg[1:2]
+                if switch == '-':
+                    if opt == 'L':
+                        env_dict['LIBPATH'].append(arg[2:])
+                    elif opt == 'l':
+                        env_dict['LIBS'].append(arg[2:])
+                    elif opt == 'I':
+                        env_dict['CPPPATH'].append(arg[2:])
+                    else:
+                        env_dict['CCFLAGS'].append(arg)
+                else:
+                    static_libs.append(arg)
+            return static_libs
+    
+        if function is None:
+            function = parse_conf
+        if type(command) is type([]):
+            command = string.join(command)
+        command = self.subst(command)
+        return function(self, os.popen(command).read())
+
+    def Platform(self, platform):
+        platform = self.subst(platform)
+        return SCons.Platform.Platform(platform)(self)
+
     def Prepend(self, **kw):
         """Prepend values to existing construction variables
         in an Environment.
@@ -588,16 +653,27 @@ class Base:
             name = name[:-len(old_suffix)]
         return os.path.join(dir, new_prefix+name+new_suffix)
 
-    def WhereIs(self, prog):
+    def Tool(self, tool):
+        tool = self.subst(tool)
+        return SCons.Tool.Tool(tool)(self)
+
+    def WhereIs(self, prog, path=None, pathext=None):
         """Find prog in the path.  
         """
-        path = None
-        pathext = None
-        if self.has_key('ENV'):
-            if self['ENV'].has_key('PATH'):
+        if path is None:
+            try:
                 path = self['ENV']['PATH']
-            if self['ENV'].has_key('PATHEXT'):
+            except KeyError:
+                pass
+        elif SCons.Util.is_String(path):
+            path = self.subst(path)
+        if pathext is None:
+            try:
                 pathext = self['ENV']['PATHEXT']
+            except KeyError:
+                pass
+        elif SCons.Util.is_String(pathext):
+            pathext = self.subst(pathext)
         path = SCons.Util.WhereIs(prog, path, pathext)
         if path: return path
         return None
@@ -609,6 +685,11 @@ class Base:
     # in this section is that they all *should* have corresponding
     # same-named global functions.
     #######################################################################
+
+    def Action(self, *args, **kw):
+        nargs = self.subst_list(args)
+        nkw = self.subst_kw(kw)
+        return apply(SCons.Action.Action, nargs, nkw)
 
     def AddPreAction(self, files, action):
         nodes = self.arg2nodes(files, self.fs.Entry)
@@ -640,6 +721,10 @@ class Base:
         build_dir = self.arg2nodes(build_dir, self.fs.Dir)[0]
         src_dir = self.arg2nodes(src_dir, self.fs.Dir)[0]
         self.fs.BuildDir(build_dir, src_dir, duplicate)
+
+    def Builder(self, **kw):
+        nkw = self.subst_kw(kw)
+        return apply(SCons.Builder.Builder, [], nkw)
 
     def CacheDir(self, path):
         self.fs.CacheDir(self.subst(path))
@@ -703,6 +788,9 @@ class Base:
         """
         return apply(self.fs.Dir, (self.subst(name),) + args, kw)
 
+    def Environment(self, **kw):
+        return apply(SCons.Environment.Environment, [], self.subst_kw(kw))
+
     def File(self, name, *args, **kw):
         """
         """
@@ -762,6 +850,9 @@ class Base:
         if len(ret) == 1:
             ret = ret[0]
         return ret
+
+    def Literal(self, string):
+        return SCons.Util.Literal(string)
 
     def Local(self, *targets):
         ret = []
@@ -838,6 +929,24 @@ class Base:
             self._calc_module = SCons.Sig.TimeStamp
         else:
             raise UserError, "Unknown source signature type '%s'"%type
+
+    def Split(self, arg):
+        """This function converts a string or list into a list of strings
+        or Nodes.  This makes things easier for users by allowing files to
+        be specified as a white-space separated list to be split.
+        The input rules are:
+            - A single string containing names separated by spaces. These will be
+              split apart at the spaces.
+            - A single Node instance
+            - A list containing either strings or Node instances. Any strings
+              in the list are not split at spaces.
+        In all cases, the function returns a list of Nodes and strings."""
+        if SCons.Util.is_List(arg):
+            return map(self.subst, arg)
+        elif SCons.Util.is_String(arg):
+            return string.split(self.subst(arg))
+        else:
+            return [self.subst(arg)]
 
     def TargetSignatures(self, type):
         type = self.subst(type)

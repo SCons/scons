@@ -43,6 +43,7 @@ import SCons.Node.Python
 import SCons.Platform
 import SCons.SConf
 import SCons.Script
+import SCons.Tool
 import SCons.Util
 import SCons.Options
 
@@ -58,6 +59,7 @@ def do_nothing(text): pass
 HelpFunction = do_nothing
 
 arguments = {}
+GlobalDict = {}
 launch_dir = os.path.abspath(os.curdir)
 
 # global exports set by Export():
@@ -285,10 +287,13 @@ class SConsEnvironment(SCons.Environment.Base):
     """An Environment subclass that contains all of the methods that
     are particular to the wrapper SCons interface and which aren't
     (or shouldn't be) part of the build engine itself.
+
+    Note that not all of the methods of this class have corresponding
+    global functions, there are some private methods.
     """
 
     #
-    # Private functions of an SConsEnvironment.
+    # Private methods of an SConsEnvironment.
     #
 
     def _check_version(self, major, minor, version_string):
@@ -336,7 +341,7 @@ class SConsEnvironment(SCons.Environment.Base):
         elif len(ls) == 2:
 
             files   = ls[0]
-            exports = SCons.Util.Split(ls[1])
+            exports = self.Split(ls[1])
 
         else:
 
@@ -347,7 +352,7 @@ class SConsEnvironment(SCons.Environment.Base):
             files = [ files ]
 
         if kw.get('exports'):
-            exports.extend(SCons.Util.Split(kw['exports']))
+            exports.extend(self.Split(kw['exports']))
 
         build_dir = kw.get('build_dir')
         if build_dir:
@@ -376,7 +381,7 @@ class SConsEnvironment(SCons.Environment.Base):
         return (files, exports)
 
     #
-    # Public functions of an SConsEnvironment.  These get
+    # Public methods of an SConsEnvironment.  These get
     # entry points in the global name space so they can be called
     # as global functions.
     #
@@ -399,7 +404,7 @@ class SConsEnvironment(SCons.Environment.Base):
 
     def Export(self, *vars):
         for var in vars:
-            global_exports.update(compute_exports(SCons.Util.Split(var)))
+            global_exports.update(compute_exports(self.Split(var)))
 
     def GetLaunchDir(self):
         global launch_dir
@@ -416,7 +421,7 @@ class SConsEnvironment(SCons.Environment.Base):
     def Import(self, *vars):
         try:
             for var in vars:
-                var = SCons.Util.Split(var)
+                var = self.Split(var)
                 for v in var:
                     if v == '*':
                         stack[-1].globals.update(global_exports)
@@ -478,6 +483,12 @@ def SetJobs(num):
                         "The SetJobs() function has been deprecated;\n" +\
                         "\tuse SetOption('num_jobs', num) instead.")
     SetOption('num_jobs', num)
+ 
+def ParseConfig(env, command, function=None):
+    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                        "The ParseConfig() function has been deprecated;\n" +\
+                        "\tuse the env.ParseConfig() method instead.")
+    return env.ParseConfig(command, function)
 
 
 def Alias(name):
@@ -508,6 +519,8 @@ def get_DefaultEnvironmentProxy():
                 return setattr(self.__dict__['__subject'], name, value)
             def subst(self, string, raw=0, target=None, source=None):
                 return string
+            def subst_kw(self, kw, raw=0, target=None, source=None):
+                return kw
             def subst_list(self, string, raw=0, target=None, source=None):
                 return string
         default_env = SCons.Defaults.DefaultEnvironment()
@@ -547,22 +560,26 @@ GlobalDefaultEnvironmentFunctions = [
     'SetOption',
 
     # Methods from the Environment.Base class.
+    'Action',
     'AddPostAction',
     'AddPreAction',
     'AlwaysBuild',
     'BuildDir',
+    'Builder',
     'CacheDir',
     'Clean',
     'Command',
     'Default',
     'Depends',
     'Dir',
+    'Environment',
     'File',
     'FindFile',
     'GetBuildPath',
     'Ignore',
     'Install',
     'InstallAs',
+    'Literal',
     'Local',
     'Precious',
     'Repository',
@@ -570,6 +587,7 @@ GlobalDefaultEnvironmentFunctions = [
     'SideEffect',
     'SourceCode',
     'SourceSignatures',
+    'Split',
     'TargetSignatures',
 
     # Supported builders.
@@ -598,10 +616,8 @@ GlobalDefaultEnvironmentFunctions = [
     'Zip',
 ]
 
-GlobalFunctionDict = {}
-
 for name in GlobalDefaultEnvironmentFunctions:
-    GlobalFunctionDict[name] = DefaultEnvironmentCall(name)
+    GlobalDict[name] = DefaultEnvironmentCall(name)
 
 def BuildDefaultGlobals():
     """
@@ -610,34 +626,31 @@ def BuildDefaultGlobals():
     """
 
     globals = {}
-    globals['Action']            = SCons.Action.Action
+    globals['Platform']          = SCons.Platform.Platform
+    globals['Tool']              = SCons.Tool.Tool
+    globals['WhereIs']           = SCons.Util.WhereIs
+
+    # Functions we're in the process of converting to Environment methods.
     globals['Alias']             = Alias
     globals['ARGUMENTS']         = arguments
-    globals['Builder']           = SCons.Builder.Builder
     globals['Configure']         = SCons.SConf.SConf
     globals['CScan']             = SCons.Defaults.CScan
     globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
-    globals['Environment']       = SCons.Environment.Environment
     globals['GetCommandHandler'] = SCons.Action.GetCommandHandler
-    globals['Literal']           = SCons.Util.Literal
     globals['Options']           = Options
-    globals['ParseConfig']       = SCons.Util.ParseConfig
-    globals['Platform']          = SCons.Platform.Platform
     globals['Return']            = Return
     globals['SConscriptChdir']   = SConscriptChdir
     globals['Scanner']           = SCons.Scanner.Base
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
-    globals['Split']             = SCons.Util.Split
-    globals['Tool']              = SCons.Tool.Tool
     globals['Value']             = SCons.Node.Python.Value
-    globals['WhereIs']           = SCons.Util.WhereIs
 
     # Deprecated functions, leave these here for now.
     globals['GetJobs']           = GetJobs
+    globals['ParseConfig']       = ParseConfig
     globals['SetBuildSignatureType'] = SetBuildSignatureType
     globals['SetContentSignatureType'] = SetContentSignatureType
     globals['SetJobs']           = SetJobs
 
-    globals.update(GlobalFunctionDict)
+    globals.update(GlobalDict)
 
     return globals

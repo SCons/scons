@@ -914,6 +914,54 @@ class EnvironmentTestCase(unittest.TestCase):
         assert env2['ONE'] == "won"
         assert env['ONE'] == 1
 
+    def test_ParseConfig(self):
+        """Test the ParseConfig() method"""
+        env = Environment(COMMAND='command')
+        save_command = []
+        orig_popen = os.popen
+        def my_popen(command, save_command=save_command):
+            save_command.append(command)
+            class fake_file:
+                def read(self):
+                    return "-I/usr/include/fum -Ibar -X\n" + \
+                           "-L/usr/fax -Lfoo -lxxx abc"
+            return fake_file()
+        try:
+            os.popen = my_popen
+            libs = env.ParseConfig("fake $COMMAND")
+            assert save_command == ['fake command'], save_command
+            assert libs == ['abc'], libs
+            assert env['CPPPATH'] == ['/usr/include/fum', 'bar'], env['CPPPATH']
+            assert env['LIBPATH'] == ['/usr/fax', 'foo'], env['LIBPATH']
+            assert env['LIBS'] == ['xxx'], env['LIBS']
+            assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        finally:
+            os.popen = orig_popen
+
+    def test_Platform(self):
+        """Test the Platform() method"""
+        env = Environment(WIN32='win32', NONE='no-such-platform')
+
+        exc_caught = None
+        try:
+            env.Platform('does_not_exist')
+        except SCons.Errors.UserError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
+
+        exc_caught = None
+        try:
+            env.Platform('$NONE')
+        except SCons.Errors.UserError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
+
+        env.Platform('posix')
+        assert env['OBJSUFFIX'] == '.o', env['OBJSUFFIX']
+
+        env.Platform('$WIN32')
+        assert env['OBJSUFFIX'] == '.obj', env['OBJSUFFIX']
+
     def test_Prepend(self):
         """Test prepending to construction variables in an Environment
         """
@@ -1007,7 +1055,119 @@ class EnvironmentTestCase(unittest.TestCase):
                                              'PREFIX', 'SUFFIX',
                                              'LIBPREFIX', 'LIBSUFFIX')
 
+    def test_Tool(self):
+        """Test the Tool() method"""
+        env = Environment(LINK='link', NONE='no-such-tool')
 
+        exc_caught = None
+        try:
+            env.Tool('does_not_exist')
+        except SCons.Errors.UserError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
+
+        exc_caught = None
+        try:
+            env.Tool('$NONE')
+        except SCons.Errors.UserError:
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
+
+        env.Tool('cc')
+        assert env['CC'] == 'cc', env['CC']
+
+        env.Tool('$LINK')
+        assert env['LINK'] == '$SMARTLINK', env['LINK']
+
+    def test_WhereIs(self):
+        """Test the WhereIs() method"""
+        test = TestCmd.TestCmd(workdir = '')
+
+        sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
+        sub2_xxx_exe = test.workpath('sub2', 'xxx.exe')
+        sub3_xxx_exe = test.workpath('sub3', 'xxx.exe')
+        sub4_xxx_exe = test.workpath('sub4', 'xxx.exe')
+
+        test.subdir('subdir', 'sub1', 'sub2', 'sub3', 'sub4')
+
+        if sys.platform != 'win32':
+            test.write(sub1_xxx_exe, "\n")
+
+        os.mkdir(sub2_xxx_exe)
+
+        test.write(sub3_xxx_exe, "\n")
+        os.chmod(sub3_xxx_exe, 0777)
+
+        test.write(sub4_xxx_exe, "\n")
+        os.chmod(sub4_xxx_exe, 0777)
+
+        env_path = os.environ['PATH']
+
+        pathdirs_1234 = [ test.workpath('sub1'),
+                          test.workpath('sub2'),
+                          test.workpath('sub3'),
+                          test.workpath('sub4'),
+                        ] + string.split(env_path, os.pathsep)
+
+        pathdirs_1243 = [ test.workpath('sub1'),
+                          test.workpath('sub2'),
+                          test.workpath('sub4'),
+                          test.workpath('sub3'),
+                        ] + string.split(env_path, os.pathsep)
+
+        path = string.join(pathdirs_1234, os.pathsep)
+        env = Environment(ENV = {'PATH' : path})
+        wi = env.WhereIs('xxx.exe')
+        assert wi == test.workpath(sub3_xxx_exe), wi
+        wi = env.WhereIs('xxx.exe', pathdirs_1243)
+        assert wi == test.workpath(sub4_xxx_exe), wi
+        wi = env.WhereIs('xxx.exe', string.join(pathdirs_1243, os.pathsep))
+        assert wi == test.workpath(sub4_xxx_exe), wi
+
+        path = string.join(pathdirs_1243, os.pathsep)
+        env = Environment(ENV = {'PATH' : path})
+        wi = env.WhereIs('xxx.exe')
+        assert wi == test.workpath(sub4_xxx_exe), wi
+        wi = env.WhereIs('xxx.exe', pathdirs_1234)
+        assert wi == test.workpath(sub3_xxx_exe), wi
+        wi = env.WhereIs('xxx.exe', string.join(pathdirs_1234, os.pathsep))
+        assert wi == test.workpath(sub3_xxx_exe), wi
+
+        if sys.platform == 'win32':
+            wi = env.WhereIs('xxx', pathext = '')
+            assert wi is None, wi
+
+            wi = env.WhereIs('xxx', pathext = '.exe')
+            assert wi == test.workpath(sub4_xxx_exe), wi
+
+            wi = env.WhereIs('xxx', path = pathdirs_1234, pathext = '.BAT;.EXE')
+            assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+
+            # Test that we return a normalized path even when
+            # the path contains forward slashes.
+            forward_slash = test.workpath('') + '/sub3'
+            wi = env.WhereIs('xxx', path = forward_slash, pathext = '.EXE')
+            assert string.lower(wi) == string.lower(test.workpath(sub3_xxx_exe)), wi
+
+
+
+    def test_Action(self):
+        """Test the Action() method"""
+        env = Environment(FOO = 'xyzzy')
+
+        a = env.Action('foo')
+        assert a, a
+
+        a = env.Action('$FOO')
+        assert a, a
+
+        a = env.Action(['$FOO', 'foo'])
+        assert a, a
+
+        def func(arg):
+            pass
+        a = env.Action(func)
+        assert a, a
 
     def test_AddPostAction(self):
         """Test the AddPostAction() method"""
@@ -1073,6 +1233,26 @@ class EnvironmentTestCase(unittest.TestCase):
         assert env.fs.build_dir == 'buildfff', env.fs.build_dir
         assert env.fs.src_dir == 'bbbsrc', env.fs.src_dir
         assert env.fs.duplicate == 0, env.fs.duplicate
+
+    def test_Builder(self):
+        """Test the Builder() method"""
+        env = Environment(FOO = 'xyzzy')
+
+        b = env.Builder(action = 'foo')
+        assert not b is None, b
+
+        b = env.Builder(action = '$FOO')
+        assert not b is None, b
+
+        b = env.Builder(action = ['$FOO', 'foo'])
+        assert not b is None, b
+
+        def func(arg):
+            pass
+        b = env.Builder(action = func)
+        assert not b is None, b
+        b = env.Builder(generator = func)
+        assert not b is None, b
 
     def test_CacheDir(self):
         """Test the CacheDir() method"""
@@ -1199,6 +1379,14 @@ class EnvironmentTestCase(unittest.TestCase):
         d = env.Dir('${BAR}_$BAR')
         assert d == 'Dir(bardir_bardir)', d
 
+    def test_Environment(self):
+        """Test the Environment() method"""
+        env = Environment(FOO = 'xxx', BAR = 'yyy')
+
+        e2 = env.Environment(X = '$FOO', Y = '$BAR')
+        assert e2['X'] == 'xxx', e2['X']
+        assert e2['Y'] == 'yyy', e2['Y']
+
     def test_File(self):
         """Test the File() method"""
         class MyFS:
@@ -1320,6 +1508,14 @@ class EnvironmentTestCase(unittest.TestCase):
         assert tgt.sources[0].path == 'jjj.s'
         assert tgt.builder == InstallBuilder
 
+    def test_Literal(self):
+        """Test the Literal() method"""
+        env = Environment(FOO='fff', BAR='bbb')
+        list = env.subst_list([env.Literal('$FOO'), '$BAR'])[0]
+        assert list == ['$FOO', 'bbb'], list
+        list = env.subst_list(['$FOO', env.Literal('$BAR')])[0]
+        assert list == ['fff', '$BAR'], list
+
     def test_Local(self):
         """Test the Local() method."""
         env = Environment(FOO='lll')
@@ -1332,7 +1528,7 @@ class EnvironmentTestCase(unittest.TestCase):
         assert str(l[1]) == 'lll', l[1]
 
     def test_Precious(self):
-        """Test the Precious() method."""
+        """Test the Precious() method"""
         env = Environment(FOO='ggg', BAR='hhh')
         t = env.Precious('a', '${BAR}b', ['c', 'd'], '$FOO')
         assert t[0].__class__.__name__ == 'File'
@@ -1470,6 +1666,22 @@ class EnvironmentTestCase(unittest.TestCase):
         env.SourceSignatures('$T')
         assert env._calc_module is t
 
+    def test_Split(self):
+        """Test the Split() method"""
+        env = Environment(FOO='fff', BAR='bbb')
+        s = env.Split("foo bar")
+        assert s == ["foo", "bar"], s
+        s = env.Split("$FOO bar")
+        assert s == ["fff", "bar"], s
+        s = env.Split(["foo", "bar"])
+        assert s == ["foo", "bar"], s
+        s = env.Split(["foo", "${BAR}-bbb"])
+        assert s == ["foo", "bbb-bbb"], s
+        s = env.Split("foo")
+        assert s == ["foo"], s
+        s = env.Split("$FOO$BAR")
+        assert s == ["fffbbb"], s
+
     def test_TargetSignatures(type):
         """Test the TargetSignatures() method"""
         env = Environment(B = 'build', C = 'content')
@@ -1494,7 +1706,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env.TargetSignatures('$C')
         assert env._build_signature == 0, env._build_signature
 
-    def test_Environment(type):
+    def test_Environment_global_variable(type):
         """Test setting Environment variable to an Environment.Base subclass"""
         class MyEnv(SCons.Environment.Base):
             def xxx(self, string):
