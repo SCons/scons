@@ -187,21 +187,17 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
 
         command < $SOURCE > $TARGET
 
-      If you don't put space (for example, "<$SOURCE"), SCons will not
-      recognize the redirection.
+      If you don't supply a space (for example, "<$SOURCE"), SCons will
+      not recognize the redirection.
 
     - Executing the -u or -U option from a source directory that has an
       associated BuildDir() does not build the targets in the BuildDir().
 
-    - No support yet for the following future features:
+    - No support yet for the following planned command-line options:
 
-        - No support for caching built files.
-
-        - No support yet for the following command-line options:
-
-             -d -e -l --list-actions --list-derived --list-where
-             -o --override -p -r -R --random -w --write-filenames
-             -W --warn-undefined-variables
+         -d -e -l --list-actions --list-derived --list-where
+         -o --override -p -r -R --random -w --write-filenames
+         -W --warn-undefined-variables
 
 
 

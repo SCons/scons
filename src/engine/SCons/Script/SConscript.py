@@ -360,6 +360,7 @@ def BuildDefaultGlobals():
     globals['ARGUMENTS']         = arguments
     globals['BuildDir']          = BuildDir
     globals['Builder']           = SCons.Builder.Builder
+    globals['CacheDir']          = SCons.Node.FS.default_fs.CacheDir
     globals['Clean']             = Clean
     globals['CScan']             = SCons.Defaults.CScan
     globals['Default']           = Default

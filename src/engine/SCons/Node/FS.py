@@ -38,6 +38,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
+import shutil
+import stat
 import string
 from UserDict import UserDict
 
@@ -80,8 +82,6 @@ def LinkFunc(target, source, env):
         try :
             os.symlink(src, dest)
         except (AttributeError, OSError):
-            import shutil
-            import stat
             shutil.copy2(src, dest)
             st=os.stat(src)
             os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
@@ -105,6 +105,38 @@ def MkdirFunc(target, source, env):
     return 0
 
 Mkdir = SCons.Action.Action(MkdirFunc, None)
+
+def CacheRetrieveFunc(target, source, env):
+    t = target[0]
+    cachedir, cachefile = t.cachepath()
+    if os.path.exists(cachefile):
+        shutil.copy2(cachefile, t.path)
+        st = os.stat(cachefile)
+        os.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        return 0
+    return 1
+
+def CacheRetrieveString(target, source, env):
+    t = target[0]
+    cachedir, cachefile = t.cachepath()
+    if os.path.exists(cachefile):
+        return "Retrieved `%s' from cache" % t.path
+    return None
+
+CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
+
+CacheRetrieveSilent = SCons.Action.Action(CacheRetrieveFunc, None)
+
+def CachePushFunc(target, source, env):
+    t = target[0]
+    cachedir, cachefile = t.cachepath()
+    if not os.path.isdir(cachedir):
+        os.mkdir(cachedir)
+    shutil.copy2(t.path, cachefile)
+    st = os.stat(t.path)
+    os.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+
+CachePush = SCons.Action.Action(CachePushFunc, None)
 
 #
 class ParentOfRoot:
@@ -283,6 +315,9 @@ class FS:
             self.pathTop = path
         self.Root = {}
         self.Top = None
+        self.CachePath = None
+        self.cache_force = None
+        self.cache_show = None
 
     def set_toplevel_dir(self, path):
         assert not self.Top, "You can only set the top-level path on an FS object that has not had its File, Dir, or Entry methods called yet."
@@ -571,6 +606,9 @@ class FS:
                     # Go up one directory
                     d = d.get_dir()
         return ret
+
+    def CacheDir(self, path):
+        self.CachePath = path
 
 # XXX TODO?
 # Annotate with the creator
@@ -924,13 +962,47 @@ class File(Entry):
             except OSError:
                 pass
 
+    def build(self):
+        """Actually build the file.
+
+        This overrides the base class build() method to check for the
+        existence of derived files in a CacheDir before going ahead and
+        building them.
+
+        This method is called from multiple threads in a parallel build,
+        so only do thread safe stuff here. Do thread unsafe stuff in
+        built().
+        """
+        if not self.has_builder():
+            return
+        if self.fs.CachePath:
+            if self.fs.cache_show:
+                if CacheRetrieveSilent(self, None, None) == 0:
+                    def do_print(action, targets, sources, env, self=self):
+                        al = action.strfunction(targets, self.sources, env)
+                        if not SCons.Util.is_List(al):
+                            al = [al]
+                        for a in al:
+                            action.show(a)
+                    self._for_each_action(do_print)
+                    return
+            elif CacheRetrieve(self, None, None) == 0:
+                return
+        SCons.Node.Node.build(self)
+
     def built(self):
         SCons.Node.Node.built(self)
+        if self.fs.CachePath and os.path.exists(self.path):
+            CachePush(self, None, None)
         self.found_includes = {}
         if hasattr(self, '_exists'):
             delattr(self, '_exists')
         if hasattr(self, '_rexists'):
             delattr(self, '_rexists')
+
+    def visited(self):
+        if self.fs.CachePath and self.fs.cache_force and os.path.exists(self.path):
+            CachePush(self, None, None)
 
     def prepare(self):
         """Prepare for this file to be created."""
@@ -1020,6 +1092,13 @@ class File(Entry):
     def rstr(self):
         return str(self.rfile())
 
+    def cachepath(self):
+        if self.fs.CachePath:
+            bsig = str(self.get_bsig())
+            subdir = string.upper(bsig[0])
+            dir = os.path.join(self.fs.CachePath, subdir)
+            return dir, os.path.join(dir, bsig)
+        return None, None
 
 default_fs = FS()
 

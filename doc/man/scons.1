@@ -297,28 +297,40 @@ command is specified.
 Also remove any files or directories associated to the construction command
 using the Clean() function.
 
-.\" .TP
-.\" --cache-disable, --no-cache
-.\" Disable caching.  Will neither retrieve files from cache nor flush
-.\" files to cache.  Has no effect if use of caching is not specified
-.\" in an SConscript file.
-.\"
-.\" .TP
-.\" --cache-force, --cache-populate
-.\" Populate a cache by forcing any already-existing up-to-date
-.\" target files to the cache, in addition to files built by this
-.\" invocation.  This is useful to populate a new cache with
-.\" appropriate target files, or to make available in the cache
-.\" any target files recently built with caching disabled via the
-.\" .B --cache-disable
-.\" option.
-.\"
-.\" .TP
-.\" --cache-show
-.\" When retrieving a target file from a cache, show the command
-.\" that would have been executed to build the file.  This produces
-.\" consistent output for build logs, regardless of whether a target
-.\" file was rebuilt or retrieved from cache.
+.TP
+--cache-disable, --no-cache
+Disable the derived-file caching specified by
+.BR CacheDir ().
+.B scons
+will neither retrieve files from the cache
+nor copy files to the cache.
+
+.TP
+--cache-force, --cache-populate
+When using
+.BR CacheDir (),
+populate a cache by copying any already-existing, up-to-date
+derived files to the cache,
+in addition to files built by this invocation.
+This is useful to populate a new cache with
+all the current derived files,
+or to add to the cache any derived files
+recently built with caching disabled via the
+.B --cache-disable
+option.
+
+.TP
+--cache-show
+When using
+.BR CacheDir ()
+and retrieving a derived file from the cache,
+show the command
+that would have been executed to build the file,
+instead of the usual report,
+"Retrieved `file' from cache."
+This will produce consistent output for build logs,
+regardless of whether a target
+file was rebuilt or retrieved from the cache.
 
 .TP 
 .RI "-C" " directory" ",  --directory=" directory
@@ -2311,6 +2323,32 @@ also provides various additional functions,
 not associated with a construction environment,
 that SConscript files can use:
 
+.TP 
+.RI AddPostAction ( target, action )
+Arranges for the specified
+.I action
+to be performed
+after the specified
+.I target
+has been built.
+The specified action(s) may be
+an Action object, or anything that
+can be converted into an Action object
+(see below).
+
+.TP 
+.RI AddPreAction ( target, action )
+Arranges for the specified
+.I action
+to be performed
+before the specified
+.I target
+is built.
+The specified action(s) may be
+an Action object, or anything that
+can be converted into an Action object
+(see below).
+
 .TP
 .RI BuildDir( build_dir ", " src_dir ", [" duplicate ])
 This specifies a build directory to use for all derived files.  
@@ -2356,17 +2394,82 @@ can be converted into an Action object
 (see below).
 
 .TP 
-.RI AddPreAction ( target, action )
-Arranges for the specified
-.I action
-to be performed
-before the specified
-.I target
-is built.
-The specified action(s) may be
-an Action object, or anything that
-can be converted into an Action object
-(see below).
+.RI CacheDir ( cache_dir )
+Specifies that
+.B scons
+will maintain a cache of derived files in
+.I cache_dir .
+The derived files in the cache will be shared
+among all the builds using the same
+.BR CacheDir ()
+call.
+
+When a
+.BR CacheDir ()
+is being used and
+.B scons
+finds a derived file that needs to be rebuilt,
+it will first look in the cache to see if a
+derived file has already been built
+from identical input files and an identical build action
+(as incorporated into the MD5 build signature).
+If so,
+.B scons
+will retrieve the file from the cache.
+If the derived file is not present in the cache,
+.B scons
+will rebuild it and
+then place a copy of the built file in the cache
+(identified by its MD5 build signature),
+so that it may be retrieved by other
+builds that need to build the same derived file
+from identical inputs.
+
+Use of a specified
+.BR CacheDir()
+may be disabled for any invocation
+by using the
+.B --cache-disable
+option.
+
+If the
+.B --cache-force
+option is used,
+.B scons
+will place a copy of
+.I all
+derived files in the cache,
+even if they already existed
+and were not built by this invocation.
+This is useful to populate a cache
+the first time
+.BR CacheDir ()
+is added to a build,
+or after using the
+.B --cache-disable
+option.
+
+When using
+.BR CacheDir (),
+.B scons
+will report,
+"Retrieved `file' from cache,"
+unless the
+.B --cache-show
+option is being used.
+When the
+.B --cache-show
+option is used,
+.B scons
+will print the action that
+.I would
+have been used to build the file,
+without any indication that
+the file was actually retrieved from the cache.
+This is useful to generate build logs
+that are equivalent regardless of whether
+a given derived file has been built in-place
+or retrieved from the cache.
 
 .TP 
 .RI Clean ( target, files_or_dirs )

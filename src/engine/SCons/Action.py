@@ -155,7 +155,8 @@ class ActionBase:
         return cmp(self.__dict__, other.__dict__)
 
     def show(self, string):
-        print string
+        if print_actions:
+            print string
 
     def get_actions(self):
         return [self]

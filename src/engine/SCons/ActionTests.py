@@ -187,6 +187,30 @@ class ActionBaseTestCase(unittest.TestCase):
         assert a1 != a3
         assert a2 != a3
 
+    def test_show(self):
+        """Test the show() method
+        """
+        save = SCons.Action.print_actions
+        SCons.Action.print_actions = 0
+
+        sio = StringIO.StringIO()
+        sys.stdout = sio
+        a = SCons.Action.Action("x")
+        a.show("xyzzy")
+        s = sio.getvalue()
+        assert s == "", s
+
+        SCons.Action.print_actions = 1
+
+        sio = StringIO.StringIO()
+        sys.stdout = sio
+        a.show("foobar")
+        s = sio.getvalue()
+        assert s == "foobar\n", s
+
+        SCons.Action.print_actions = save
+        sys.stdout = StringIO.StringIO()
+
     def test_get_actions(self):
         """Test the get_actions() method
         """

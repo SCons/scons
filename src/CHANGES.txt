@@ -54,6 +54,10 @@ RELEASE 0.11 - XXX
     objects have strfunction() methods, and the functions for building
     and returning a string both take the same arguments.
 
+  - Add support for new CacheDir() functionality to share derived files
+    between builds, with related options --cache-disable, --cache-force,
+    and --cache-show.
+
   From Steve Leblanc:
 
   - Fix the output of -c -n when directories are involved, so it

@@ -108,13 +108,7 @@ class Node:
     def generate_build_env(self):
         return self.env.Override(self.overrides)
 
-    def build(self):
-        """Actually build the node.
-
-        This method is called from multiple threads in a parallel build,
-        so only do thread safe stuff here. Do thread unsafe stuff in
-        built().
-        """
+    def _for_each_action(self, func):
         if not self.has_builder():
             return None
         action_list = self.pre_actions + self.builder.get_actions() + \
@@ -124,10 +118,21 @@ class Node:
         targets = self.builder.targets(self)
         env = self.generate_build_env()
         for action in action_list:
-            stat = action(targets, self.sources, env)
+            func(action, targets, self.sources, env)
+
+    def build(self):
+        """Actually build the node.
+
+        This method is called from multiple threads in a parallel build,
+        so only do thread safe stuff here. Do thread unsafe stuff in
+        built().
+        """
+        def do_action(action, targets, sources, env, self=self):
+            stat = action(targets, sources, env)
             if stat:
                 raise SCons.Errors.BuildError(node = self,
                                               errstr = "Error %d" % stat)
+        self._for_each_action(do_action)
 
     def built(self):
         """Called just after this node is sucessfully built."""
@@ -150,6 +155,11 @@ class Node:
         # clear out the content signature, since the contents of this
         # node were presumably just changed:
         self.del_csig()
+
+    def visited(self):
+        """Called just after this node has been visited
+        without requiring a build.."""
+        pass
 
     def depends_on(self, nodes):
         """Does this node depend on any of 'nodes'?"""

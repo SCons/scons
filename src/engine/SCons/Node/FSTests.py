@@ -54,6 +54,10 @@ class Builder:
                 global built_it
                 built_it = 1
                 return 0
+            def show(self, string):
+                pass
+            def strfunction(self, targets, sources, env):
+                return ""
         return [Action()]
 
     def targets(self, t):
@@ -1206,6 +1210,116 @@ class get_actionsTestCase(unittest.TestCase):
         a = dir.get_actions()
         assert a == [], a
 
+class CacheDirTestCase(unittest.TestCase):
+    def runTest(self):
+        """Test CacheDir functionality"""
+        global built_it
+
+        fs = SCons.Node.FS.FS()
+        assert fs.CachePath is None, fs.CachePath
+        assert fs.cache_force is None, fs.cache_force
+        assert fs.cache_show is None, fs.cache_show
+
+        fs.CacheDir('cache')
+        assert fs.CachePath == 'cache', fs.CachePath
+
+        save_CacheRetrieve = SCons.Node.FS.CacheRetrieve
+        self.retrieved = []
+        def retrieve_succeed(target, source, env, self=self):
+            self.retrieved.append(target)
+            return 0
+        def retrieve_fail(target, source, env, self=self):
+            self.retrieved.append(target)
+            return 1
+
+        f1 = fs.File("cd.f1")
+        f1.builder_set(Builder(fs.File))
+        f1.env_set(Environment())
+        try:
+            SCons.Node.FS.CacheRetrieve = retrieve_succeed
+            self.retrieved = []
+            built_it = None
+
+            f1.build()
+            assert self.retrieved == [f1], self.retrieved
+            assert built_it is None, built_it
+
+            SCons.Node.FS.CacheRetrieve = retrieve_fail
+            self.retrieved = []
+            built_it = None
+
+            f1.build()
+            assert self.retrieved == [f1], self.retrieved
+            assert built_it, built_it
+        finally:
+            SCons.Node.FS.CacheRetrieve = save_CacheRetrieve
+
+        save_CacheRetrieveSilent = SCons.Node.FS.CacheRetrieveSilent
+
+        fs.cache_show = 1
+
+        f2 = fs.File("cd.f2")
+        f2.builder_set(Builder(fs.File))
+        f2.env_set(Environment())
+        try:
+            SCons.Node.FS.CacheRetrieveSilent = retrieve_succeed
+            self.retrieved = []
+            built_it = None
+
+            f2.build()
+            assert self.retrieved == [f2], self.retrieved
+            assert built_it is None, built_it
+
+            SCons.Node.FS.CacheRetrieveSilent = retrieve_fail
+            self.retrieved = []
+            built_it = None
+
+            f2.build()
+            assert self.retrieved == [f2], self.retrieved
+            assert built_it, built_it
+        finally:
+            SCons.Node.FS.CacheRetrieveSilent = save_CacheRetrieveSilent
+
+        save_CachePush = SCons.Node.FS.CachePush
+        self.pushed = []
+        def push(target, source, env, self=self):
+            self.pushed.append(target)
+            return 0
+        SCons.Node.FS.CachePush = push
+
+        try:
+            test = TestCmd(workdir='')
+
+            cd_f3 = test.workpath("cd.f3")
+            f3 = fs.File(cd_f3)
+            f3.built()
+            assert self.pushed == [], self.pushed
+            test.write(cd_f3, "cd.f3\n")
+            f3.built()
+            assert self.pushed == [f3], self.pushed
+
+            self.pushed = []
+
+            cd_f4 = test.workpath("cd.f4")
+            f4 = fs.File(cd_f4)
+            f4.visited()
+            assert self.pushed == [], self.pushed
+            test.write(cd_f4, "cd.f4\n")
+            f4.visited()
+            assert self.pushed == [], self.pushed
+            fs.cache_force = 1
+            f4.visited()
+            assert self.pushed == [f4], self.pushed
+        finally:
+            SCons.Node.FS.CachePush = save_CachePush
+
+        f5 = fs.File("cd.f5")
+        f5.set_bsig('a_fake_bsig')
+        cp = f5.cachepath()
+        dirname = os.path.join('cache', 'A')
+        filename = os.path.join(dirname, 'a_fake_bsig')
+        assert cp == (dirname, filename), cp
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -1216,5 +1330,6 @@ if __name__ == "__main__":
     suite.addTest(StringDirTestCase())
     suite.addTest(prepareTestCase())
     suite.addTest(get_actionsTestCase())
+    suite.addTest(CacheDirTestCase())
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)

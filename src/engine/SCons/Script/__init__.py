@@ -427,6 +427,18 @@ class OptParser(OptionParser):
         self.add_option('-C', '--directory', type="string", action = "append",
                         help="Change to DIRECTORY before doing anything.")
 
+        self.add_option('--cache-disable', '--no-cache',
+                        action="store_true", dest='cache_disable', default=0,
+                        help="Do not retrieve built targets from CacheDir.")
+
+        self.add_option('--cache-force', '--cache-populate',
+                        action="store_true", dest='cache_force', default=0,
+                        help="Copy already-built targets into the CacheDir.")
+
+        self.add_option('--cache-show',
+                        action="store_true", dest='cache_show', default=0,
+                        help="Print build actions for files from CacheDir.")
+
         def opt_not_yet(option, opt, value, parser):
             sys.stderr.write("Warning:  the %s option is not yet implemented\n" % opt)
             sys.exit(0)
@@ -555,18 +567,6 @@ class OptParser(OptionParser):
         self.add_option('-Y', '--repository', nargs=1, action="append",
                         help="Search REPOSITORY for source and target files.")
 
-        self.add_option('--cache-disable', '--no-cache', action="callback",
-                        callback=opt_not_yet,
-                        # help = "Do not retrieve built targets from Cache."
-                        help=SUPPRESS_HELP)
-        self.add_option('--cache-force', '--cache-populate', action="callback",
-                        callback=opt_not_yet,
-                        # help = "Copy already-built targets into the Cache."
-                        help=SUPPRESS_HELP)
-        self.add_option('--cache-show', action="callback",
-                        callback=opt_not_yet,
-                        # help = "Print what would have built Cached targets.",
-                        help=SUPPRESS_HELP)
         self.add_option('-e', '--environment-overrides', action="callback",
                         callback=opt_not_yet,
                         # help="Environment variables override makefiles."
@@ -676,6 +676,13 @@ def _main():
         display.set_mode(0)
     if options.silent:
         SCons.Action.print_actions = None
+    if options.cache_disable:
+        def disable(self): pass
+        SCons.Node.FS.default_fs.CacheDir = disable
+    if options.cache_force:
+        SCons.Node.FS.default_fs.cache_force = 1
+    if options.cache_show:
+        SCons.Node.FS.default_fs.cache_show = 1
     if options.directory:
         cdir = _create_path(options.directory)
         try:

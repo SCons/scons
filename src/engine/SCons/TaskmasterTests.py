@@ -31,6 +31,7 @@ import SCons.Errors
 
 
 built_text = None
+visited_nodes = []
 executed = None
 scan_called = 0
 
@@ -63,6 +64,10 @@ class Node:
     def built(self):
         global built_text
         built_text = built_text + " really"
+
+    def visited(self):
+        global visited_nodes
+        visited_nodes.append(self.name)
 
     def prepare(self):
         self.prepared = 1
@@ -449,7 +454,32 @@ class TaskmasterTestCase(unittest.TestCase):
     def test_executed(self):
         """Test when a task has been executed
         """
-        pass
+        global built_text
+        global visited_nodes
+
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster([n1])
+        t = tm.next_task()
+        built_text = "xxx"
+        visited_nodes = []
+        n1.set_state(SCons.Node.executing)
+        t.executed()
+        s = n1.get_state()
+        assert s == SCons.Node.executed, s
+        assert built_text == "xxx really", built_text
+        assert visited_nodes == [], visited_nodes
+
+        n2 = Node("n2")
+        tm = SCons.Taskmaster.Taskmaster([n2])
+        t = tm.next_task()
+        built_text = "should_not_change"
+        visited_nodes = []
+        n2.set_state(None)
+        t.executed()
+        s = n1.get_state()
+        assert s == SCons.Node.executed, s
+        assert built_text == "should_not_change", built_text
+        assert visited_nodes == ["n2"], visited_nodes
 
     def test_prepare(self):
         """Test preparation of multiple Nodes for a task

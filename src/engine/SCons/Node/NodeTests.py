@@ -215,6 +215,14 @@ class NodeTestCase(unittest.TestCase):
             assert type(act.built_target[0]) == type(MyNode("bar")), type(act.built_target[0])
             assert str(act.built_target[0]) == "xxx", str(act.built_target[0])
             assert act.built_source == ["yyy", "zzz"], act.built_source
+
+    def test_visited(self):
+        """Test the base visited() method
+
+        Just make sure it's there and we can call it.
+        """
+        n = SCons.Node.Node()
+        n.visited()
             
     def test_depends_on(self):
         """Test the depends_on() method

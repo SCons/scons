@@ -25,7 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test populating a CacheDir with the --cache-force option.
+Test retrieving derived files from a CacheDir.
 """
 
 import os.path
@@ -71,7 +71,7 @@ test.run(chdir = 'src', arguments = '-c .')
 test.unlink(['src', 'cat.out'])
 
 # Verify that we now retrieve the derived files from cache,
-# not rebuild them.  DO NOT CLEAN UP.
+# not rebuild them.  Then clean up.
 test.run(chdir = 'src', arguments = '.', stdout = test.wrap_stdout("""\
 Retrieved `aaa.out' from cache
 Retrieved `bbb.out' from cache
@@ -83,41 +83,48 @@ test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
 
 test.up_to_date(chdir = 'src', arguments = '.')
 
-# Blow away and recreate the CacheDir, then verify that --cache-force
-# repopulates the cache with the local built targets.  DO NOT CLEAN UP.
-shutil.rmtree(test.workpath('cache'))
-test.subdir('cache')
-
-test.run(chdir = 'src', arguments = '--cache-force .')
-
 test.run(chdir = 'src', arguments = '-c .')
 
-test.run(chdir = 'src', arguments = '.', stdout = test.wrap_stdout("""\
+# Verify that rebuilding with -n reports that everything was retrieved
+# from the cache, but that nothing really was.
+test.run(chdir = 'src', arguments = '-n .', stdout = test.wrap_stdout("""\
 Retrieved `aaa.out' from cache
 Retrieved `bbb.out' from cache
 Retrieved `ccc.out' from cache
 Retrieved `all' from cache
 """))
 
+test.fail_test(os.path.exists(test.workpath('src', 'aaa.out')))
+test.fail_test(os.path.exists(test.workpath('src', 'bbb.out')))
+test.fail_test(os.path.exists(test.workpath('src', 'ccc.out')))
+test.fail_test(os.path.exists(test.workpath('src', 'all')))
+
+# Verify that rebuilding with -s retrieves everything from the cache
+# even though it doesn't report anything.
+test.run(chdir = 'src', arguments = '-s .', stdout = "")
+
+test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in\nccc.in\n")
 test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
 
-# Blow away and recreate the CacheDir, then verify that --cache-populate
-# repopulates the cache with the local built targets.  DO NOT CLEAN UP.
-shutil.rmtree(test.workpath('cache'))
-test.subdir('cache')
-
-test.run(chdir = 'src', arguments = '--cache-populate .')
+test.up_to_date(chdir = 'src', arguments = '.')
 
 test.run(chdir = 'src', arguments = '-c .')
 
+# Verify that updating one input file builds its derived file and
+# dependency but that the other files are retrieved from cache.
+test.write(['src', 'bbb.in'], "bbb.in 2\n")
+
 test.run(chdir = 'src', arguments = '.', stdout = test.wrap_stdout("""\
 Retrieved `aaa.out' from cache
-Retrieved `bbb.out' from cache
+cat("bbb.out", "bbb.in")
 Retrieved `ccc.out' from cache
-Retrieved `all' from cache
+cat("all", ["aaa.out", "bbb.out", "ccc.out"])
 """))
 
-test.fail_test(os.path.exists(test.workpath('src', 'cat.out')))
+test.fail_test(test.read(['src', 'all']) != "aaa.in\nbbb.in 2\nccc.in\n")
+test.fail_test(test.read(['src', 'cat.out']) != "bbb.out\nall\n")
+
+test.up_to_date(chdir = 'src', arguments = '.')
 
 # All done.
 test.pass_test()

@@ -115,6 +115,9 @@ class Task:
                     side_effect.set_state(None)
                 t.set_state(SCons.Node.executed)
                 t.built()
+        else:
+            for t in self.targets:
+                t.visited()
 
         self.tm.executed(self.node)
 
