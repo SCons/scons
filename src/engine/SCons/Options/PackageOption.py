@@ -1,4 +1,4 @@
-"""engine.SCons.Options
+"""engine.SCons.Options.PackageOption
 
 This file defines the option type for SCons implementing 'package
 activation'.
@@ -59,8 +59,8 @@ import string
 from BoolOption import True, False
 import SCons.Errors
 
-__enable_strings  = ('yes', 'true',  'on', 'enable', 'search')
-__disable_strings = ('no',  'false', 'off', 'disable')
+__enable_strings  = (str(True), 'yes', 'true',  'on', 'enable', 'search')
+__disable_strings = (str(False), 'no',  'false', 'off', 'disable')
 
 def _converter(val):
     """
