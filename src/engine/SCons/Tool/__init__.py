@@ -230,12 +230,12 @@ def tool_list(platform, env):
     # change these search orders, update the man page as well.
     if str(platform) == 'win32':
         "prefer Microsoft tools on Windows"
-        linkers = ['mslink', 'gnulink', 'ilink', 'linkloc' ]
-        c_compilers = ['msvc', 'mingw', 'gcc', 'icl', 'icc', 'cc' ]
-        cxx_compilers = ['msvc', 'icc', 'g++', 'c++']
+        linkers = ['mslink', 'gnulink', 'ilink', 'linkloc', 'ilink32' ]
+        c_compilers = ['msvc', 'mingw', 'gcc', 'icl', 'icc', 'cc', 'bcc32' ]
+        cxx_compilers = ['msvc', 'icc', 'g++', 'c++', 'bcc32' ]
         assemblers = ['masm', 'nasm', 'gas', '386asm' ]
         fortran_compilers = ['g77', 'ifl']
-        ars = ['mslib', 'ar']
+        ars = ['mslib', 'ar', 'tlib']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', 'mslink']

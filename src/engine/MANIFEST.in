@@ -51,6 +51,7 @@ SCons/Tool/aixf77.py
 SCons/Tool/aixlink.py
 SCons/Tool/ar.py
 SCons/Tool/as.py
+SCons/Tool/bcc32.py
 SCons/Tool/BitKeeper.py
 SCons/Tool/c++.py
 SCons/Tool/cc.py
@@ -76,6 +77,7 @@ SCons/Tool/icc.py
 SCons/Tool/icl.py
 SCons/Tool/ifl.py
 SCons/Tool/ilink.py
+SCons/Tool/ilink32.py
 SCons/Tool/latex.py
 SCons/Tool/lex.py
 SCons/Tool/link.py
@@ -109,6 +111,7 @@ SCons/Tool/Subversion.py
 SCons/Tool/swig.py
 SCons/Tool/tar.py
 SCons/Tool/tex.py
+SCons/Tool/tlib.py
 SCons/Tool/yacc.py
 SCons/Tool/zip.py
 SCons/Util.py

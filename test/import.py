@@ -51,6 +51,7 @@ tools = [
     'aixlink',
     'ar',
     'as',
+    'bcc32',
     'BitKeeper',
     'c++',
     'cc',
@@ -72,6 +73,7 @@ tools = [
     'icl',
     'ifl',
     'ilink',
+    'ilink32',
     'jar',
     'javac',
     'javah',
@@ -107,6 +109,7 @@ tools = [
     'swig',
     'tar',
     'tex',
+    'tlib',
     'yacc',
     'zip',
 ]
