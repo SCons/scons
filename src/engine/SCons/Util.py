@@ -40,7 +40,8 @@ import sys
 import types
 import UserDict
 import UserList
-import SCons.Node
+
+import SCons.Errors
 
 try:
     from UserString import UserString
@@ -556,6 +557,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
                             s = eval(key, self.gvars, lvars)
                         except (IndexError, NameError, TypeError):
                             return ''
+                        except (SyntaxError):
+                            raise SCons.Errors.UserError, "Syntax error trying to evaluate `%s'" % s
                         else:
                             # Before re-expanding the result, handle
                             # recursive expansion by copying the local
@@ -690,6 +693,8 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
                             s = eval(key, self.gvars, lvars)
                         except (IndexError, NameError, TypeError):
                             return
+                        except (SyntaxError):
+                            raise SCons.Errors.UserError, "Syntax error trying to evaluate `%s'" % s
                         else:
                             # Before re-expanding the result, handle
                             # recursive expansion by copying the local
