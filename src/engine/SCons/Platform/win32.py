@@ -68,7 +68,11 @@ class TempFileMunge:
             # a bug in Win32 that will use a forward slash as a path
             # delimiter.  Win32's link mistakes that for a command line
             # switch and barfs.
-            tmp = os.path.normpath(tempfile.mktemp())
+            #
+            # We use the .lnk suffix for the benefit of the Phar Lap
+            # linkloc linker, which likes to append an .lnk suffix if
+            # none is given.
+            tmp = os.path.normpath(tempfile.mktemp('.lnk'))
             native_tmp = SCons.Util.get_native_path(tmp)
 
             # The sh shell will try to escape the backslashes in the
