@@ -286,7 +286,8 @@ class BuilderBase:
 
         source = adjustixes(source, None, src_suf)
         if target is None:
-            target = map(lambda x, s=suf: os.path.splitext(x)[0] + s,
+            target = map(lambda x, s=suf:
+                                os.path.splitext(os.path.split(str(x))[1])[0] + s,
                          source)
         else:
             target = adjustixes(target, pre, suf)

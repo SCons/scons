@@ -833,6 +833,19 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt[1].sources[0]) == 'h0.c', map(str, tgt[1].sources)
         assert str(tgt[1].sources[1]) == 'h1.c', map(str, tgt[1].sources)
 
+        w = b(env, target='i0.w', source=['i0.x'])
+        y = b(env, target='i1.y', source=['i1.z'])
+        tgt = b(env, source=[w, y])
+        assert len(tgt) == 2, map(str, tgt)
+        assert str(tgt[0]) == 'i0.o'
+        assert str(tgt[1]) == 'i1.o'
+        assert len(tgt[0].sources) == 2, map(str, tgt[0].sources)
+        assert str(tgt[0].sources[0]) == 'i0.w', map(str, tgt[0].sources)
+        assert str(tgt[0].sources[1]) == 'i1.y', map(str, tgt[0].sources)
+        assert len(tgt[1].sources) == 2, map(str, tgt[1].sources)
+        assert str(tgt[1].sources[0]) == 'i0.w', map(str, tgt[1].sources)
+        assert str(tgt[1].sources[1]) == 'i1.y', map(str, tgt[1].sources)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(BuilderTestCase, 'test_')

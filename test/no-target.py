@@ -51,14 +51,18 @@ def cat(env, source, target):
 b = Builder(action=cat, suffix='.out', src_suffix='.in')
 env = Environment(BUILDERS={'Build':b})
 env.Build('aaa.in')
+n = env.Build('bbb.in', 'bbb.input')
+env.Build(n)
 """)
 
 test.write(['subdir', 'aaa.in'], "subdir/aaa.in\n")
+test.write(['subdir', 'bbb.input'], "subdir/bbb.input\n")
 
 #
 test.run(arguments = '.')
 
 test.fail_test(test.read(['subdir', 'aaa.out']) != "subdir/aaa.in\n")
+test.fail_test(test.read(['subdir', 'bbb.out']) != "subdir/bbb.input\n")
 
 #
 test.pass_test()
