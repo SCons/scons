@@ -1452,13 +1452,13 @@ in the build directories:
 .ES
 SConstruct:
 
-    Export("ccflags")
-
     ccflags = '-DFOO'
+    Export("ccflags")
     BuildDir('foo', 'src')
     SConscript('foo/SConscript')
 
     ccflags = '-DBAR'
+    Export("ccflags")
     BuildDir('bar', 'src')
     SConscript('bar/SConscript')
 

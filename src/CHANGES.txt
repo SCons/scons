@@ -29,7 +29,8 @@ RELEASE 0.04 -
   - Man page updates:  corrected some mistakes, documented various
     missing Environment methods, alphabetized the construction
     variables and other functions, defined begin and end macros for
-    the example sections, regularized white space separation.
+    the example sections, regularized white space separation, fixed
+    the use of Export() in the Multiple Variants example.
 
   - Function action fixes:  None is now a successful return value.
     Exceptions are now reported.  Document function actions.
