@@ -1396,7 +1396,18 @@ class File(Base):
 
     def get_stored_info(self):
         try:
-            return self.dir.sconsign().get_entry(self.name)
+            stored = self.dir.sconsign().get_entry(self.name)
+            if isinstance(stored, BuildInfo):
+                return stored
+            # The stored build information isn't a BuildInfo object.
+            # This probably means it's an old SConsignEntry from SCons
+            # 0.95 or before.  The relevant attribute names are the same,
+            # though, so just copy the attributes over to an object of
+            # the correct type.
+            binfo = BuildInfo()
+            for key, val in stored.__dict__.items():
+                setattr(binfo, key, val)
+            return binfo
         except:
             return BuildInfo()
 
