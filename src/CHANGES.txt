@@ -27,6 +27,9 @@ RELEASE 0.96 - XXX
   - Fix use of $MSVS_IGNORE_IDE_PATHS, which was broken when we added
     support for $MSVS_USE_MFC_DIRS last release.
 
+  - Make env.Append() and env.Prepend() act like the underlying Python
+    behavior when the variable being appended to is a UserList object.
+
   From Gary Oberbrunner:
 
   - Add a --debug=presub option to print actions prior to substitution.
