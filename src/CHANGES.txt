@@ -59,6 +59,8 @@ RELEASE 0.05 -
   - Fix so that Ignore() ignores indirect, implicit dependencies
     (included files), not just direct dependencies.
 
+  - Put the man page in the Debian distribution.
+
   From Anthony Roach:
 
   - Make the scons script return an error code on failures.

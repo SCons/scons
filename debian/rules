@@ -77,7 +77,7 @@ binary-common:
 	dh_testroot
 	dh_installdocs
 	dh_installexamples
-	dh_installmanpages build/doc/man/scons.1
+	dh_installmanpages
 	dh_installchangelogs 
 	dh_compress
 	dh_fixperms
