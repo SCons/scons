@@ -27,6 +27,18 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+print <<_EOF_;
+
+	Using Cons to build the SCons packages is no longer supported,
+	and this Construct file is deprecated.
+
+	Use SCons to build its own packages instead.
+
+	See the README file for details.
+
+_EOF_
+exit 0;
+
 $project = 'scons';
 
 Default qw( . );

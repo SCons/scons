@@ -34,6 +34,7 @@ import sys
 import time
 
 project = 'scons'
+default_version = '0.05'
 
 Default('.')
 
@@ -96,7 +97,7 @@ except:
     if aesub:
         revision = os.popen(aesub + " \\$version", "r").read()[:-1]
     else:
-        revision = '0.04'
+        revision = default_version
 
 a = string.split(revision, '.')
 arr = [a[0]]
@@ -120,7 +121,7 @@ revision = string.join(arr, '.')
 #    return str
 #arr = map(lambda x, xxx=xxx: xxx(x), arr)
 #version = string.join(arr, '.')
-version = '0.04'
+version = default_version
 
 try:
     change = ARGUMENTS['change']
@@ -128,7 +129,7 @@ except:
     if aesub:
         change = os.popen(aesub + " \\$change", "r").read()[:-1]
     else:
-        change = '0.04'
+        change = default_version
 
 python_ver = sys.version[0:3]
 

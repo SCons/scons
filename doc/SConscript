@@ -53,7 +53,7 @@ jw = whereis('jw')
 tar_deps = []
 tar_list = ""
 
-entity_re = re.compile(r'<!entity\s+(?:%\s+)?(?:\S+)\s+SYSTEM\s+"([^"]*)">/', re.I)
+entity_re = re.compile(r'<!entity\s+(?:%\s+)?(?:\S+)\s+SYSTEM\s+"([^"]*)">', re.I)
 format_re = re.compile(r'<(?:graphic|imagedata)\s+fileref="([^"]*)"(?:\s+format="([^"]*)")?')
 
 #
@@ -67,12 +67,12 @@ format_re = re.compile(r'<(?:graphic|imagedata)\s+fileref="([^"]*)"(?:\s+format=
 # defined as a SYSTEM entity is, in fact, a file included
 # somewhere in the document.
 #
-def scansgml(contents, argument = None):
+def scansgml(node, env, argument = None):
     includes = []
 
-    matches = entity_re.findall(contents)
-    for m in matches:
-        includes.append(m[0])
+    contents = node.get_contents()
+
+    includes.extend(entity_re.findall(contents))
 
     matches = format_re.findall(contents)
     for m in matches:
@@ -173,7 +173,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
         s = docs[doc].get('scan')
         if s:
-            File(os.path.join('build', 'doc', main)).scanner_set(s)
+            File(main).scanner_set(s)
 
         if docs[doc].get('html'):
             env.Command(htmlindex, main, [

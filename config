@@ -34,7 +34,7 @@
  * if the file is not in the change.  Look in aesub(5) for more information
  * about command substitutions.
  */
-build_command = "cons date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
+build_command = "SCONS_LIB_DIR=${Development_Directory}/src/engine python ${Source src/script/scons.py} date='${DAte %Y/%m/%d %H:%M:%S}' developer=${DEVeloper} version=${VERsion} change=${Change}";
 
 /*
  * The rules used in the User Guide all remove their targets before
