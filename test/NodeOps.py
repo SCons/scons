@@ -57,7 +57,7 @@ if string.find(sys.platform, 'irix') > -1:
 
 test = TestSCons.TestSCons()
 
-test.subdir('bld', 'src')
+test.subdir('bld', 'src', ['src', 'subsrcdir'])
 
 sconstruct = r"""
 foo = Environment(SHCXXFLAGS = '%(fooflags)s', WIN32_INSERT_DEF=1)
@@ -126,46 +126,72 @@ doIt()
 }
 """)
 
-test.write(['src', 'SConscript'], r"""
+sconscript = r"""
 import os
 Import('*')
 
-# Interoperability with old Python versions.
-True, False = 1, 0
+import __builtin__
+try:
+    __builtin__.True
+except AttributeError:
+    __builtin__.True = 1
+    __builtin__.False = 0
 
 def mycopy(env, source, target):
     open(str(target[0]),'w').write(open(str(source[0]),'r').read())
+
+def exists_test(node):
+    before = os.path.exists(str(node))  # doesn't exist yet in BuildDir
+    via_node = node.exists()            # side effect causes copy from src
+    after = os.path.exists(str(node))
+    node.is_derived()
+    node.is_pseudo_derived()
+    import SCons.Script
+    if SCons.Script.options.noexec:
+        if (before,via_node,after) != (False,False,False):
+            import sys
+            sys.stderr.write('BuildDir exits() populated during dryrun!\n')
+            sys.exit(-2)
+    else:
+        if (before,via_node,after) != (False,True,True):
+            import sys
+            sys.stderr.write('BuildDir exists() population did not occur! (%%s:%%s,%%s,%%s)\n'%%(str(node),before,via_node,after))
+            sys.exit(-2)
     
 goo = Environment(CPPFLAGS = '%(fooflags)s')
-Nodes.append(File('goof.in'))
-before = os.path.exists('goof.in')  # doesn't exist yet in BuildDir
-via_node = Nodes[-1].exists()       # side effect causes copy from src
-after = os.path.exists('goof.in')
-import SCons.Script
-if SCons.Script.options.noexec:
-    if (before,via_node,after) != (False,False,False):
-        import sys
-        sys.stderr.write('BuildDir exits() populated during dryrun!\n')
-        sys.exit(-2)
-else:
-    if (before,via_node,after) != (False,True,True):
-        import sys
-        sys.stderr.write('BuildDir exists() population did not occur!\n'%%(before,via_node,after))
-        sys.exit(-2)
+goof_in = File('goof.in')
+if %(_E)s:
+    exists_test(goof_in)
+Nodes.append(goof_in)
 Nodes.extend(goo.Command(target='goof.c', source='goof.in', action=mycopy))
+boo_src = File('subsrcdir/boo.c')
+if %(_E)s:
+    exists_test(boo_src)
+boo_objs = goo.Object(target='subsrcdir/boo%(_obj)s', source = boo_src)
+Nodes.extend(boo_objs)
 Nodes.extend(goo.Object(target='goo%(_obj)s',source='goof.c'))
-goo.Library(target = 'goo', source = 'goo%(_obj)s')
-""" % locals() )
+goo.Library(target = 'goo', source = ['goo%(_obj)s'] + boo_objs)
+"""
 
 test.write(['src', 'goof.in'], r"""
 #include <stdio.h>
+
+extern char *boo_sub();
 
 void
 doIt()
 {
 #ifdef FOO
-	printf("prog.cpp:  GOO\n");
+	printf("prog.cpp:  %s\n", boo_sub());
 #endif
+}
+""")
+
+test.write(['src', 'subsrcdir', 'boo.c'], r"""
+char *
+boo_sub()
+{
+    return "GOO";
 }
 """)
 
@@ -181,23 +207,42 @@ main(int argc, char* argv[])
 }
 """)
 
+builddir_srcnodes = [ os.path.join('bld', 'goof.in'),
+                      os.path.join('bld', 'subsrcdir', 'boo.c'),
+                    ]
+
+sub_build_nodes = [ os.path.join('bld','subsrcdir','boo.o'),
+                    os.path.join('bld','goo.o'),
+                    os.path.join('bld','goof.c'),
+                    os.path.join('bld','libgoo.a'),
+]
+
 build_nodes = ['fooprog', 'libfoo.so', 'foo.o',
                'barprog', 'libbar.so', 'bar.o',
 
                'gooprog',
-               os.path.join('bld','goo.o'),
-               os.path.join('bld','goof.c'),
-               os.path.join('bld','goof.in'),
 
-               ]
+               ] + builddir_srcnodes + sub_build_nodes
+
+def cleanup_test():
+    "cleanup after running a test"
+    for F in builddir_srcnodes:
+        test.unlink(F)  # will be repopulated during clean operation
+    test.run(arguments = '-c')
+    for F in builddir_srcnodes:
+        test.unlink(F)
+    for name in build_nodes:
+        test.must_not_exist(test.workpath(name))
+
 
 ### First pass, make sure everything goes quietly
 
 for name in build_nodes:
-    test.fail_test(os.path.exists(test.workpath(name)))
+    test.must_not_exist(test.workpath(name))
 
 _E=0
 test.write('SConstruct', sconstruct % locals() )
+test.write(['src', 'SConscript'], sconscript % locals() )
 
 test.run(arguments = '.',
          stderr=TestSCons.noisy_ar,
@@ -208,22 +253,19 @@ test.run(program = test.workpath('barprog'), stdout = "prog.cpp:  BAR\n")
 test.run(program = test.workpath('gooprog'), stdout = "prog.cpp:  GOO\n")
 
 for name in build_nodes:
-    test.fail_test(not os.path.exists(test.workpath(name)))
+    test.must_exist(test.workpath(name))
 
-test.unlink('bld/goof.in')  # will be repopulated during clean operation
-test.run(arguments = '-c')
-test.unlink('bld/goof.in')
-for name in build_nodes:
-    test.fail_test(os.path.exists(test.workpath(name)))
+cleanup_test()
 
 ### Next pass: add internal Node ops that may have side effects to
 ### ensure that those side-effects don't interfere with building
 
 for name in build_nodes:
-    test.fail_test(os.path.exists(test.workpath(name)))
+    test.must_not_exist(test.workpath(name))
 
 _E=1
 test.write('SConstruct', sconstruct % locals() )
+test.write(['src', 'SConscript'], sconscript % locals() )
 
 test.run(arguments = '.',
          stderr=TestSCons.noisy_ar,
@@ -234,29 +276,26 @@ test.run(program = test.workpath('barprog'), stdout = "prog.cpp:  BAR\n")
 test.run(program = test.workpath('gooprog'), stdout = "prog.cpp:  GOO\n")
 
 for name in build_nodes:
-    test.fail_test(not os.path.exists(test.workpath(name)))
+    test.must_exist(test.workpath(name))
 
-test.unlink('bld/goof.in')  # will be repopulated during clean operation
-test.run(arguments = '-c')
-test.unlink('bld/goof.in')
-for name in build_nodes:
-    test.fail_test(os.path.exists(test.workpath(name)))
+cleanup_test()
 
 ### Next pass: try a dry-run first and verify that it doesn't change
 ### the buildability.
 
 for name in build_nodes:
-    test.fail_test(os.path.exists(test.workpath(name)))
+    test.must_not_exist(test.workpath(name))
 
 _E=1
 test.write('SConstruct', sconstruct % locals() )
+test.write(['src', 'SConscript'], sconscript % locals() )
 
 test.run(arguments = '-n .',
          stderr=TestSCons.noisy_ar,
          match=TestSCons.match_re_dotall)
 
 for name in build_nodes:
-    test.fail_test(os.path.exists(test.workpath(name)))
+    test.must_not_exist(test.workpath(name))
 
 test.run(arguments = '.',
          stderr=TestSCons.noisy_ar,
@@ -267,13 +306,52 @@ test.run(program = test.workpath('barprog'), stdout = "prog.cpp:  BAR\n")
 test.run(program = test.workpath('gooprog'), stdout = "prog.cpp:  GOO\n")
 
 for name in build_nodes:
-    test.fail_test(not os.path.exists(test.workpath(name)))
+    test.must_exist(test.workpath(name))
 
-test.unlink('bld/goof.in')  # will be repopulated during clean operation
-test.run(arguments = '-c')
-test.unlink('bld/goof.in')
+cleanup_test()
+
+### Next pass: do an up-build from a BuildDir src
+
+
 for name in build_nodes:
-    test.fail_test(os.path.exists(test.workpath(name)))
+    test.must_not_exist(test.workpath(name))
 
+_E=0
+test.write('SConstruct', sconstruct % locals() )
+test.write(['src', 'SConscript'], sconscript % locals() )
+
+test.run(chdir='src', arguments = '-u',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
+
+for name in build_nodes:
+    if name in sub_build_nodes or name in builddir_srcnodes:
+        test.must_exist(test.workpath(name))
+    else:
+        test.must_not_exist(test.workpath(name))
+
+cleanup_test()
+
+### Next pass: do an up-build from a BuildDir src with Node Ops
+### side-effects
+
+for name in build_nodes:
+    test.must_not_exist(test.workpath(name))
+
+_E=1
+test.write('SConstruct', sconstruct % locals() )
+test.write(['src', 'SConscript'], sconscript % locals() )
+
+test.run(chdir='src', arguments = '-u',
+         stderr=TestSCons.noisy_ar,
+         match=TestSCons.match_re_dotall)
+
+for name in build_nodes:
+    if name in sub_build_nodes or name in builddir_srcnodes:
+        test.must_exist(test.workpath(name))
+    else:
+        test.must_not_exist(test.workpath(name))
+
+cleanup_test()
 
 test.pass_test()

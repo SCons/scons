@@ -70,7 +70,11 @@ env.Cat(target = 'dir/f2b.out', source = 'dir/f2b.in')
 test.write(['sub4', 'SConscript'], """
 Import('env')
 env.Cat(target = 'f4a.out', source = 'f4a.in')
-env.Cat(target = 'dir/f4b.out', source = 'dir/f4b.in')
+f4b_in = File('dir/f4b.in')
+f4b_in.exists()
+f4b_in.is_derived()
+f4b_in.is_pseudo_derived()
+env.Cat(target = 'dir/f4b.out', source = f4b_in)
 """)
 
 test.write(['sub1', 'f1a.in'], "sub1/f1a.in")
@@ -128,6 +132,7 @@ test.run(chdir = 'sub4',
 scons: building associated BuildDir targets: build
 cat(["%s"], ["%s"])
 cat(["%s"], ["%s"])
+scons: `sub4' is up to date.
 """ % (f4b_out, f4b_in, f4a_out, f4a_in)))
 
 test.must_not_exist(test.workpath('sub1', 'sub1/f1b.out'))

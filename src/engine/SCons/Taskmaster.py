@@ -253,6 +253,7 @@ class Taskmaster:
         self.ready = None # the next task that is ready to be executed
         self.order = order
         self.message = None
+        self.altered = []
 
     def _find_next_ready_node(self):
         """Find the next node that is ready to be built"""
@@ -331,15 +332,15 @@ class Taskmaster:
                 self.ready = node
                 break
 
-            # If there aren't any children with builders and this
-            # was a top-level argument, then see if we can find any
+            # If this was a top-level argument and we haven't already
+            # done so, see if we can alter the target list to find any
             # corresponding targets in linked build directories:
-            if not derived and node in self.targets:
+            if node in self.targets and node not in self.altered:
                 alt, message = node.alter_targets()
                 if alt:
                     self.message = message
-                    self.candidates.pop()
-                    self.candidates.extend(alt)
+                    self.candidates.extend(self.order(alt))
+                    self.altered.append(node)
                     continue
 
             # Add derived files that have not been built

@@ -355,7 +355,11 @@ test.run(chdir='work2', arguments='.', stderr=None)
 
 test.fail_test(not blank_output(test.stderr()))
 
-test.up_to_date(chdir='work2', arguments='.')
+test.run(chdir='work2', arguments='.',
+         stdout=test.wrap_stdout("""\
+scons: building associated BuildDir targets: build
+scons: `.' is up to date.
+"""))
 
 test.write( ['work3', 'SConstruct'], """\
 SConscriptChdir(0)
@@ -377,7 +381,10 @@ test.write( ['work3', 'existing.h'], """\
 """)
 
 test.run(chdir='work3',
-         stdout=test.wrap_stdout("scons: `.' is up to date.\n"),
+         stdout=test.wrap_stdout("""\
+scons: building associated BuildDir targets: build
+scons: `.' is up to date.
+"""),
          stderr="""\
 existing.h:/* a header file */
 non_existing.h:
