@@ -28,6 +28,7 @@ import unittest
 
 import SCons.Errors
 import SCons.Options
+from SCons.Options.BoolOption import True, False
 
 import TestCmd
 
@@ -75,6 +76,15 @@ class PackageOptionTestCase(unittest.TestCase):
 
         x = o.converter('/explicit/path')
         assert x == '/explicit/path', x
+
+        # Make sure the converter returns True if we give it str(True) and
+        # False when we give it str(False).  This assures consistent operation
+        # through a cycle of Options.Save(<file>) -> Options(<file>).
+        x = o.converter(str(True))
+        assert x == True, "converter returned a string when given str(True)"
+
+        x = o.converter(str(False))
+        assert x == False, "converter returned a string when given str(False)"
 
     def test_validator(self):
         """Test the PackageOption validator"""

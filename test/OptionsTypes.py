@@ -224,13 +224,8 @@ Default(env.Alias('dummy', None))
 test.run()
 check(['1'])
 test.run(arguments='x11=no'); check(['0'])
+test.run(arguments='x11=0'); check(['0'])
 test.run(arguments='"x11=%s"' % test.workpath()); check([test.workpath()])
-
-test.run(arguments='x11=0',
-         stderr = """
-scons: *** Path does not exist for option x11: 0
-File "SConstruct", line 11, in ?
-""", status=2)
 
 test.run(arguments='x11=/non/existing/path/',
          stderr = """
@@ -249,12 +244,12 @@ libpath = os.path.join(workpath, 'lib')
 test.write('SConstruct', """
 from SCons.Options import PathOption
 
-qtdir = '%s'
+qtdir = r'%s'
 
 opts = Options(args=ARGUMENTS)
 opts.AddOptions(
     PathOption('qtdir', 'where the root of Qt is installed', qtdir),
-    PathOption('qt_libraries', 'where the Qt library is installed', '%s'),
+    PathOption('qt_libraries', 'where the Qt library is installed', r'%s'),
     )
 
 env = Environment(options=opts)
@@ -313,7 +308,7 @@ from SCons.Options import BoolOption, EnumOption, ListOption, \
    PackageOption, PathOption
 
 list_of_libs = Split('x11 gl qt ical')
-qtdir = '%(qtdir)s'
+qtdir = r'%(qtdir)s'
 
 opts = Options(args=ARGUMENTS)
 opts.AddOptions(
@@ -337,7 +332,7 @@ opts.AddOptions(
                   'yes'), PathOption('qtdir', 'where the root of Qt is installed', qtdir),
     PathOption('qt_libraries',
                'where the Qt library is installed',
-               '%(libdirvar)s'),
+               r'%(libdirvar)s'),
     )
 
 env = Environment(options=opts)
@@ -390,11 +385,12 @@ qtdir: where the root of Qt is installed ( /path/to/qtdir )
     actual: %(qtdir)s
 
 qt_libraries: where the Qt library is installed ( /path/to/qt_libraries )
-    default: $qtdir/lib
+    default: %(qtdir_lib)s
     actual: %(libdir)s
 
 Use scons -H for help about command-line options.
-""" % {'qtdir': qtpath, 'libdirvar': libdirvar, 'libdir': libpath})
+""" % {'qtdir': qtpath, 'qtdir_lib' : os.path.join('$qtdir', 'lib'),
+       'libdirvar': libdirvar, 'libdir': libpath})
 
 
 test.pass_test()

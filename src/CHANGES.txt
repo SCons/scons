@@ -25,6 +25,10 @@ RELEASE 0.95 - XXX
 
   - Fix a problem with the msvc tool with Python versions prior to 2.3.
 
+  From Chris Burghart:
+
+  - Fix the ability to save/restore a PackageOption to a file.
+
   From David M. Cooke:
 
   - Make the Fortran scanner case-insensitive for the INCLUDE string.
