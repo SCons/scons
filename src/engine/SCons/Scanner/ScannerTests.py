@@ -35,6 +35,10 @@ class DummyEnvironment(UserDict.UserDict):
         self.data.update(kw)
     def subst(self, strSubst):
         return strSubst
+    def subst_path(self, path):
+        if type(path) != type([]):
+            path = [path]
+        return map(self.subst, path)
 
 class FindPathDirsTestCase(unittest.TestCase):
     def test_FindPathDirs(self):

@@ -147,38 +147,30 @@ def _concat(prefix, list, suffix, env, f=lambda x: x):
     if not list:
         return list
 
-    if not SCons.Util.is_List(list):
-        list = [list]
-
-    def subst(x, env = env):
-        if SCons.Util.is_String(x):
-            return env.subst(x)
-        else:
-            return x
-
-    list = map(subst, list)
-
-    list = f(list)
+    list = f(env.subst_path(list))
 
     ret = []
 
     # ensure that prefix and suffix are strings
-    prefix = str(prefix)
-    suffix = str(suffix)
+    prefix = str(env.subst(prefix, SCons.Util.SUBST_RAW))
+    suffix = str(env.subst(suffix, SCons.Util.SUBST_RAW))
 
     for x in list:
         x = str(x)
 
-        if prefix and prefix[-1] == ' ':
-            ret.append(prefix[:-1])
-            ret.append(x)
-        else:
-            ret.append(prefix+x)
+        if prefix:
+            if prefix[-1] == ' ':
+                ret.append(prefix[:-1])
+            elif x[:len(prefix)] != prefix:
+                x = prefix + x
 
-        if suffix and suffix[0] == ' ':
-            ret.append(suffix[1:])
-        else:
-            ret[-1] = ret[-1]+suffix
+        ret.append(x)
+
+        if suffix:
+            if suffix[0] == ' ':
+                ret.append(suffix[1:])
+            elif x[-len(suffix):] != suffix:
+                ret[-1] = ret[-1]+suffix
 
     return ret
 
