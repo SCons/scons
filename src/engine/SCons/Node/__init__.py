@@ -74,6 +74,11 @@ implicit_deps_unchanged = 0
 # controls whether the cached implicit deps are ignored:
 implicit_deps_changed = 0
 
+# A variable that can be set to an interface-specific function be called
+# to annotate a Node with information about its creation.
+def do_nothing(node): pass
+
+Annotate = do_nothing
 
 class Node:
     """The base Node class, for entities that we know how to
@@ -104,6 +109,11 @@ class Node:
         self.side_effects = [] # the side effects of building this target
         self.pre_actions = []
         self.post_actions = []
+
+        # Let the interface in which the build engine is embedded
+        # annotate this Node with its own info (like a description of
+        # what line in what file created the node, for example).
+        Annotate(self)
 
     def generate_build_env(self):
         return self.env.Override(self.overrides)

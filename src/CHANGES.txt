@@ -77,6 +77,9 @@ RELEASE 0.11 - XXX
   - Fix the ability to directly import and use Platform and Tool modules
     that have been implicitly imported into an Environment().
 
+  - Add support for allowing an embedding interface to annotate a node
+    when it's created.
+
   From Steve Leblanc:
 
   - Fix the output of -c -n when directories are involved, so it

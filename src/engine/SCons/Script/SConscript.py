@@ -47,6 +47,7 @@ import os
 import os.path
 import string
 import sys
+import traceback
 
 def do_nothing(text): pass
 HelpFunction = do_nothing
@@ -172,7 +173,7 @@ def SConscript(*ls, **kw):
                 else:
                     f = SCons.Node.FS.default_fs.File(str(fn))
                 if f.rexists():
-                    file = open(f.rstr(), "r")
+                    _file_ = open(f.rstr(), "r")
                     SCons.Node.FS.default_fs.chdir(f.dir)
                     if sconscript_chdir:
                         old_dir = os.getcwd()
@@ -183,7 +184,13 @@ def SConscript(*ls, **kw):
                     # be easily imported
                     sys.path = [os.path.abspath(str(f.dir))] + sys.path
 
-                    exec file in stack[-1].globals
+                    # This is the magic line that actually reads up and
+                    # executes the stuff in the SConscript file.  We
+                    # look for the "exec _file_ " from the beginning
+                    # of this line to find the right stack frame (the
+                    # next one) describing the SConscript file and line
+                    # number that creates a node.
+                    exec _file_ in stack[-1].globals
                 else:
                     sys.stderr.write("Ignoring missing SConscript '%s'\n" %
                                      f.path)
@@ -202,6 +209,23 @@ def SConscript(*ls, **kw):
         return results[0]
     else:
         return tuple(results)
+
+def annotate(node):
+    """Annotate a node with the stack frame describing the
+    SConscript file and line number that created it."""
+    stack = traceback.extract_stack()
+    last_text = ""
+    for frame in stack:
+        # If the script text of the previous frame begins with the
+        # magic "exec _file_ " string, then this frame describes the
+        # SConscript file and line number that caused this node to be
+        # created.  Record the tuple and carry on.
+        if not last_text is None and last_text[:12] == "exec _file_ ":
+            node.creator = frame
+            return
+        last_text = frame[3]
+
+SCons.Node.Annotate = annotate
     
 def Default(*targets):
     global default_targets

@@ -764,6 +764,25 @@ class NodeTestCase(unittest.TestCase):
         """Test the is_literal() function."""
         n=SCons.Node.Node()
         assert n.is_literal()
+        
+    def test_Annotate(self):
+        """Test using an interface-specific Annotate function."""
+        def my_annotate(node, self=self):
+            node.annotation = self.node_string
+
+        save_Annotate = SCons.Node.Annotate
+        SCons.Node.Annotate = my_annotate
+
+        try:
+            self.node_string = '#1'
+            n = SCons.Node.Node()
+            assert n.annotation == '#1', n.annotation
+
+            self.node_string = '#2'
+            n = SCons.Node.Node()
+            assert n.annotation == '#2', n.annotation
+        finally:
+            SCons.Node.Annotate = save_Annotate
 
 
 if __name__ == "__main__":
