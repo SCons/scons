@@ -3589,6 +3589,19 @@ SConsignFile("/home/me/SCons/signatures")
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
+.RI env.SetDefault(key = val ", [...])"
+Sets construction variables to default values specified with the keyword
+arguments if (and only if) the variables are not already set.
+The following statements are equivalent:
+
+.ES
+env.SetDefault(FOO = 'foo')
+
+if not env.has_key('FOO'): env['FOO'] = 'foo'
+.EE
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
 .RI SetOption( name ", " value )
 .TP
 .RI env.SetOption( name ", " value )
@@ -5624,14 +5637,16 @@ with python's os.path.join() method,
 but are listed here with the '/' separator
 for easier reading.)
 In addition, the construction environment
-variables CPPPATH, LIBPATH, LIBS, PROGEMITTER, SHLIBEMITTER and LIBEMITTER
+variables CPPPATH, LIBPATH and LIBS may be modified
+and the variables
+PROGEMITTER, SHLIBEMITTER and LIBEMITTER
 are modified. Because the build-performance is affected when using this tool,
 you have to explicitly specify it at Environment creation:
 
 .ES
 Environment(tools=['default','qt'])
 .EE
-
+.IP
 The qt tool supports the following operations:
 
 .B Automatic moc file generation from header files.
@@ -5665,14 +5680,31 @@ you may need to specify duplicate=1 in calls to BuildDir. See also the correspon
 Turn off scanning for mocable files. Use the Moc Builder to explicitely 
 specify files to run moc on.
 
+.IP QT_BINPATH
+The path where the qt binaries are installed.
+The default value is '$QTDIR/bin'.
+
+.IP QT_CPPPATH
+The path where the qt header files are installed.
+The default value is '$QTDIR/include'.
+Note: If you set this variable to None, the tool won't change the CPPPATH
+construction variable.
+
 .IP QT_DEBUG 
 Prints lots of debugging information while scanning for moc files.
 
+.IP QT_LIBPATH
+The path where the qt libraries are installed.
+The default value is '$QTDIR/lib'. 
+Note: If you set this variable to None, the tool won't change the LIBPATH
+construction variable.
+
 .IP QT_LIB
-Default value is 'qt'. You may want to set this to 'qt-mt'.
+Default value is 'qt'. You may want to set this to 'qt-mt'. Note: If you set
+this variable to None, the tool won't change the LIBS variable.
 
 .IP QT_MOC
-Default value is '$QTDIR/bin/moc'.
+Default value is '$QT_BINPATH/moc'.
 
 .IP QT_MOCCXXPREFIX
 Default value is ''. Prefix for moc output files, when source is a cxx file.
@@ -5703,7 +5735,7 @@ Default value is '$CXXFILESUFFIX'. Suffix for moc output files, when source is
 a header.
 
 .IP QT_UIC
-Default value is '$QTDIR/bin/uic'.
+Default value is '$QT_BINPATH/uic'.
 
 .IP QT_UICDECLCOM
 Command to generate header files from .ui files.

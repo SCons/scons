@@ -201,6 +201,22 @@ def _detect(env):
                 "Could not detect qt, using empty QTDIR")
     return QTDIR
 
+def uicEmitter(target, source, env):
+    adjustixes = SCons.Util.adjustixes
+    bs = SCons.Util.splitext(str(source[0].name))[0]
+    bs = os.path.join(str(target[0].get_dir()),bs)
+    # first target (header) is automatically added by builder
+    if len(target) < 2:
+        # second target is implementation
+        target.append(adjustixes(bs,
+                                 env.subst('$QT_UICIMPLPREFIX'),
+                                 env.subst('$QT_UICIMPLSUFFIX')))
+    if len(target) < 3:
+        # third target is moc file
+        target.append(adjustixes(bs,
+                                 env.subst('$QT_MOCHPREFIX'),
+                                 env.subst('$QT_MOCHSUFFIX')))
+    return target, source
 
 def generate(env):
     """Add Builders and construction variables for qt to an Environment."""
@@ -209,66 +225,52 @@ def generate(env):
     Builder = SCons.Builder.Builder
     splitext = SCons.Util.splitext
 
-    # the basics
-    env['QTDIR']  = _detect(env)
-    env['QT_MOC'] = os.path.join('$QTDIR','bin','moc')
-    env['QT_UIC'] = os.path.join('$QTDIR','bin','uic')
-    env['QT_LIB'] = 'qt' # may be set to qt-mt
+    env.SetDefault(QTDIR  = _detect(env),
+                   QT_BINPATH = os.path.join('$QTDIR', 'bin'),
+                   QT_CPPPATH = os.path.join('$QTDIR', 'include'),
+                   QT_LIBPATH = os.path.join('$QTDIR', 'lib'),
+                   QT_MOC = os.path.join('$QT_BINPATH','moc'),
+                   QT_UIC = os.path.join('$QT_BINPATH','uic'),
+                   QT_LIB = 'qt', # may be set to qt-mt
 
-    # Should the qt tool try to figure out, which sources are to be moc'ed ?
-    env['QT_AUTOSCAN'] = 1
+                   QT_AUTOSCAN = 1, # scan for moc'able sources
 
-    # Some QT specific flags. I don't expect someone wants to
-    # manipulate those ...
-    env['QT_UICIMPLFLAGS'] = CLVar('')
-    env['QT_UICDECLFLAGS'] = CLVar('')
-    env['QT_MOCFROMHFLAGS'] = CLVar('')
-    env['QT_MOCFROMCXXFLAGS'] = CLVar('-i')
+                   # Some QT specific flags. I don't expect someone wants to
+                   # manipulate those ...
+                   QT_UICIMPLFLAGS = CLVar(''),
+                   QT_UICDECLFLAGS = CLVar(''),
+                   QT_MOCFROMHFLAGS = CLVar(''),
+                   QT_MOCFROMCXXFLAGS = CLVar('-i'),
 
-    # suffixes/prefixes for the headers / sources to generate
-    env['QT_UICDECLPREFIX'] = ''
-    env['QT_UICDECLSUFFIX'] = '.h'
-    env['QT_UICIMPLPREFIX'] = 'uic_'
-    env['QT_UICIMPLSUFFIX'] = '$CXXFILESUFFIX'
-    env['QT_MOCHPREFIX'] = 'moc_'
-    env['QT_MOCHSUFFIX'] = '$CXXFILESUFFIX'
-    env['QT_MOCCXXPREFIX'] = ''
-    env['QT_MOCCXXSUFFIX'] = '.moc'
-    env['QT_UISUFFIX'] = '.ui'
+                   # suffixes/prefixes for the headers / sources to generate
+                   QT_UICDECLPREFIX = '',
+                   QT_UICDECLSUFFIX = '.h',
+                   QT_UICIMPLPREFIX = 'uic_',
+                   QT_UICIMPLSUFFIX = '$CXXFILESUFFIX',
+                   QT_MOCHPREFIX = 'moc_',
+                   QT_MOCHSUFFIX = '$CXXFILESUFFIX',
+                   QT_MOCCXXPREFIX = '',
+                   QT_MOCCXXSUFFIX = '.moc',
+                   QT_UISUFFIX = '.ui',
 
-    def uicEmitter(target, source, env):
-        adjustixes = SCons.Util.adjustixes
-        bs = SCons.Util.splitext(str(source[0].name))[0]
-        bs = os.path.join(str(target[0].get_dir()),bs)
-        # first target (header) is automatically added by builder
-        if len(target) < 2:
-            # second target is implementation
-            target.append(adjustixes(bs,
-                                     env.subst('$QT_UICIMPLPREFIX'),
-                                     env.subst('$QT_UICIMPLSUFFIX')))
-        if len(target) < 3:
-            # third target is moc file
-            target.append(adjustixes(bs,
-                                     env.subst('$QT_MOCHPREFIX'),
-                                     env.subst('$QT_MOCHSUFFIX')))
-        return target, source
+                   # Commands for the qt support ...
+                   # command to generate header, implementation and moc-file
+                   # from a .ui file
+                   QT_UICCOM = [
+                    CLVar('$QT_UIC $QT_UICDECLFLAGS -o ${TARGETS[0]} $SOURCE'),
+                    CLVar('$QT_UIC $QT_UICIMPLFLAGS -impl ${TARGETS[0].file} '
+                          '-o ${TARGETS[1]} $SOURCE'),
+                    CLVar('$QT_MOC $QT_MOCFROMHFLAGS -o ${TARGETS[2]} ${TARGETS[0]}')],
+                   # command to generate meta object information for a class
+                   # declarated in a header
+                   QT_MOCFROMHCOM = (
+                          '$QT_MOC $QT_MOCFROMHFLAGS -o ${TARGETS[0]} $SOURCE'),
+                   # command to generate meta object information for a class
+                   # declarated in a cpp file
+                   QT_MOCFROMCXXCOM = [
+                    CLVar('$QT_MOC $QT_MOCFROMCXXFLAGS -o ${TARGETS[0]} $SOURCE'),
+                    Action(checkMocIncluded,None)])
 
-    # Commands for the qt support ...
-    # command to generate header, implementation and moc-file from a .ui file
-    env['QT_UICCOM'] = [
-        CLVar('$QT_UIC $QT_UICDECLFLAGS -o ${TARGETS[0]} $SOURCE'),
-        CLVar('$QT_UIC $QT_UICIMPLFLAGS -impl ${TARGETS[0].file} '
-              '-o ${TARGETS[1]} $SOURCE'),
-        CLVar('$QT_MOC $QT_MOCFROMHFLAGS -o ${TARGETS[2]} ${TARGETS[0]}')]
-    # command to generate meta object information for a class declarated
-    # in a header
-    env['QT_MOCFROMHCOM'] = (
-        '$QT_MOC $QT_MOCFROMHFLAGS -o ${TARGETS[0]} $SOURCE')
-    # command to generate meta object information for a class declarated
-    # in a cpp file
-    env['QT_MOCFROMCXXCOM'] = [
-        CLVar('$QT_MOC $QT_MOCFROMCXXFLAGS -o ${TARGETS[0]} $SOURCE'),
-        Action(checkMocIncluded,None)]
     # ... and the corresponding builders
     uicBld = Builder(action='$QT_UICCOM',
                      emitter=uicEmitter,
@@ -301,8 +303,8 @@ def generate(env):
                      SHLIBEMITTER=[AutomocShared],
                      LIBEMITTER  =[AutomocStatic],
                      # Of course, we need to link against the qt libraries
-                     CPPPATH=[os.path.join('$QTDIR', 'include')],
-                     LIBPATH=[os.path.join('$QTDIR', 'lib')],
+                     CPPPATH=["$QT_CPPPATH"],
+                     LIBPATH=["$QT_LIBPATH"],
                      LIBS=['$QT_LIB'])
 
 def exists(env):

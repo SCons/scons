@@ -25,6 +25,17 @@ RELEASE 0.97 - XXX
   - Fix the Builder name returned from ListBuilders and other instances
     of subclasses of the BuilderBase class.
 
+  From Christoph Wiedemann:
+
+  - Add an Environment.SetDefault() method that only sets values if
+    they aren't already set.
+
+  - Have the qt.py Tool not override variables already set by the user.
+
+  - Add separate $QT_BINPATH, $QT_CPPPATH and $QT_LIBPATH variables
+    so these can be set individually, instead of being hard-wired
+    relative to $QTDIR.
+
 
 
 RELEASE 0.96.1 - XXX

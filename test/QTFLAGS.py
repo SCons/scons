@@ -36,7 +36,8 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.subdir( 'qt', ['qt', 'bin'], ['qt', 'include'], ['qt', 'lib'] )
+test.subdir( 'qt', ['qt', 'bin'], ['qt', 'include'], ['qt', 'lib'],
+             'work1', 'work2')
 
 # create a dummy qt installation
 
@@ -125,8 +126,6 @@ QT_LIB = 'myqt'
 QT_MOC = '%s %s' % (python, test.workpath('qt','bin','mymoc.py'))
 QT_UIC = '%s %s' % (python, test.workpath('qt','bin','myuic.py'))
 
-# 3 test cases with 3 different operation modes
-
 def createSConstruct(test,place,overrides):
     test.write(place, """
 env = Environment(QTDIR = r'%s',
@@ -149,7 +148,7 @@ SConscript( sconscript )
 """ % (QT, QT_LIB, QT_MOC, QT_UIC, overrides))
 
 
-createSConstruct(test, ['SConstruct'],
+createSConstruct(test, ['work1', 'SConstruct'],
                  """QT_UICIMPLFLAGS='-x',
                     QT_UICDECLFLAGS='-y',
                     QT_MOCFROMHFLAGS='-z',
@@ -163,7 +162,7 @@ createSConstruct(test, ['SConstruct'],
                     QT_MOCCXXPREFIX='moc',
                     QT_MOCCXXSUFFIX='.inl',
                     QT_UISUFFIX='.myui',""")
-test.write('SConscript',"""
+test.write(['work1', 'SConscript'],"""
 Import("env")
 env.Program('mytest', ['mocFromH.cpp',
                        'mocFromCpp.cpp',
@@ -172,34 +171,34 @@ env.Program('mytest', ['mocFromH.cpp',
                        'main.cpp'])
 """)
 
-test.write('mocFromH.hpp', """
+test.write(['work1', 'mocFromH.hpp'], """
 #include "my_qobject.h"
 void mocFromH() Q_OBJECT
 """)
 
-test.write('mocFromH.cpp', """
+test.write(['work1', 'mocFromH.cpp'], """
 #include "mocFromH.hpp"
 """)
 
-test.write('mocFromCpp.cpp', """
+test.write(['work1', 'mocFromCpp.cpp'], """
 #include "my_qobject.h"
 void mocFromCpp() Q_OBJECT
 #include "mocmocFromCpp.inl"
 """)
 
-test.write('an_ui_file.myui', """
+test.write(['work1', 'an_ui_file.myui'], """
 void an_ui_file()
 """)
 
-test.write('another_ui_file.myui', """
+test.write(['work1', 'another_ui_file.myui'], """
 void another_ui_file()
 """)
 
-test.write('another_ui_file.desc.hpp', """
+test.write(['work1', 'another_ui_file.desc.hpp'], """
 /* just a dependency checker */
 """)
 
-test.write('main.cpp', """
+test.write(['work1', 'main.cpp'], """
 #include "mocFromH.hpp"
 #include "uic-an_ui_file.hpp"
 #include "uic-another_ui_file.hpp"
@@ -213,21 +212,21 @@ int main() {
 }
 """)
 
-test.run( arguments = "mytest" + _exe )
+test.run(chdir = 'work1', arguments = "mytest" + _exe)
                        
-test.must_exist('mmmmocFromH.cxx',
-                'mocmocFromCpp.inl',
-                'an_ui_file.cxx',
-                'uic-an_ui_file.hpp',
-                'mmman_ui_file.cxx',
-                'another_ui_file.cxx',
-                'uic-another_ui_file.hpp',
-                'mmmanother_ui_file.cxx')
+test.must_exist(['work1', 'mmmmocFromH.cxx'],
+                ['work1', 'mocmocFromCpp.inl'],
+                ['work1', 'an_ui_file.cxx'],
+                ['work1', 'uic-an_ui_file.hpp'],
+                ['work1', 'mmman_ui_file.cxx'],
+                ['work1', 'another_ui_file.cxx'],
+                ['work1', 'uic-another_ui_file.hpp'],
+                ['work1', 'mmmanother_ui_file.cxx'])
 
 def _flagTest(test,fileToContentsStart):
     import string
     for f,c in fileToContentsStart.items():
-        if string.find(test.read(f), c) != 0:
+        if string.find(test.read(test.workpath('work1', f)), c) != 0:
             return 1
     return 0
 
@@ -236,5 +235,42 @@ test.fail_test(_flagTest(test, {'mmmmocFromH.cxx':'/* mymoc.py -z */',
                                 'an_ui_file.cxx':'/* myuic.py -x */',
                                 'uic-an_ui_file.hpp':'/* myuic.py -y */',
                                 'mmman_ui_file.cxx':'/* mymoc.py -z */'}))
+
+test.write(['work2', 'SConstruct'], """
+import os.path
+env1 = Environment(tools=['qt'],
+                   QTDIR = r'%(QTDIR)s',
+                   QT_BINPATH='$QTDIR/bin64',
+                   QT_LIBPATH='$QTDIR/lib64',
+                   QT_CPPPATH='$QTDIR/h64')
+
+if not env1.subst('$CPPPATH') == os.path.join(r'%(QTDIR)s', 'h64'):
+    print env1.subst('$CPPPATH')
+    Exit(1)
+if not env1.subst('$LIBPATH') == os.path.join(r'%(QTDIR)s', 'lib64'):
+    print env1.subst('$LIBPATH')
+    Exit(2)
+if not env1.subst('$QT_MOC') == os.path.join(r'%(QTDIR)s', 'bin64', 'moc'):
+    print env1.subst('$QT_MOC')
+    Exit(3)
+
+env2 = Environment(tools=['default', 'qt'],
+                   QTDIR = None,
+                   QT_LIB = None,
+                   QT_CPPPATH = None,
+                   QT_LIBPATH = None)
+
+env2.Program('main.cpp')
+""" % {'QTDIR':QT})
+
+test.write(['work2', 'main.cpp'], """
+int main() { return 0; }
+""")
+
+# Ignore stderr, because if Qt is not installed,
+# there may be a warning about an empty QTDIR on stderr.
+test.run(chdir='work2', stderr=None)
+
+test.must_exist(['work2', 'main' + _exe])
 
 test.pass_test()

@@ -919,6 +919,12 @@ class Base:
             name = name[:-len(old_suffix)]
         return os.path.join(dir, new_prefix+name+new_suffix)
 
+    def SetDefault(self, **kw):
+        for k in kw.keys():
+            if self._dict.has_key(k):
+                del kw[k]
+        apply(self.Replace, (), kw)
+
     def Tool(self, tool, toolpath=[]):
         tool = self.subst(tool)
         return SCons.Tool.Tool(tool, map(self.subst, toolpath))(self)
