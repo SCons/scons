@@ -1,15 +1,30 @@
 # dblite.py module contributed by Ralf W. Grosse-Kunstleve.
+# Extended for Unicode by Steven Knight.
 
 import cPickle
 import time
 import shutil
 import os
+import types
 import __builtin__
 
 _open = __builtin__.open # avoid name clash
 
 keep_all_files = 00000
 ignore_corrupt_dbfiles = 0
+
+if hasattr(types, 'UnicodeType'):
+    def is_string(s):
+        t = type(s)
+        return t is types.StringType or t is types.UnicodeType
+else:
+    def is_string(s):
+        return type(s) is types.StringType
+
+try:
+    unicode('a')
+except NameError:
+    def unicode(s): return s
 
 class dblite:
 
@@ -66,10 +81,10 @@ class dblite:
 
   def __setitem__(self, key, value):
     self._check_writable()
-    if (type(key) != type("")):
-      raise TypeError, "key must be a string"
-    if (type(value) != type("")):
-      raise TypeError, "value must be a string"
+    if (not is_string(key)):
+      raise TypeError, "key `%s' must be a string but is %s" % (key, type(key))
+    if (not is_string(value)):
+      raise TypeError, "value `%s' must be a string but is %s" % (value, type(value))
     self._dict[key] = value
     self._needs_sync = 0001
 
@@ -98,17 +113,23 @@ def _exercise():
   assert len(db) == 0
   db["foo"] = "bar"
   assert db["foo"] == "bar"
+  db[unicode("ufoo")] = unicode("ubar")
+  assert db[unicode("ufoo")] == unicode("ubar")
   db.sync()
   db = open("tmp", "c")
-  assert len(db) == 1
+  assert len(db) == 2, len(db)
   assert db["foo"] == "bar"
   db["bar"] = "foo"
   assert db["bar"] == "foo"
+  db[unicode("ubar")] = unicode("ufoo")
+  assert db[unicode("ubar")] == unicode("ufoo")
   db.sync()
   db = open("tmp", "r")
-  assert len(db) == 2
+  assert len(db) == 4, len(db)
   assert db["foo"] == "bar"
   assert db["bar"] == "foo"
+  assert db[unicode("ufoo")] == unicode("ubar")
+  assert db[unicode("ubar")] == unicode("ufoo")
   try:
     db.sync()
   except IOError, e:
@@ -116,11 +137,23 @@ def _exercise():
   else:
     raise RuntimeError, "IOError expected."
   db = open("tmp", "w")
-  assert len(db) == 2
+  assert len(db) == 4
   db["ping"] = "pong"
   db.sync()
+  try:
+    db[(1,2)] = "tuple"
+  except TypeError, e:
+    assert str(e) == "key `(1, 2)' must be a string but is <type 'tuple'>", str(e)
+  else:
+    raise RuntimeError, "TypeError exception expected"
+  try:
+    db["list"] = [1,2]
+  except TypeError, e:
+    assert str(e) == "value `[1, 2]' must be a string but is <type 'list'>", str(e)
+  else:
+    raise RuntimeError, "TypeError exception expected"
   db = open("tmp", "r")
-  assert len(db) == 3
+  assert len(db) == 5
   db = open("tmp", "n")
   assert len(db) == 0
   _open("tmp.dblite", "w")
@@ -140,7 +173,7 @@ def _exercise():
   try:
     db = open("tmp", "w")
   except IOError, e:
-    assert str(e) == "Database does not exist: tmp.dblite"
+    assert str(e) == "[Errno 2] No such file or directory: 'tmp.dblite'", str(e)
   else:
     raise RuntimeError, "IOError expected."
   print "OK"
