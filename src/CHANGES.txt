@@ -54,6 +54,10 @@ RELEASE 0.XX - XXX
 
   - Better error handling of things like raw TypeErrors in SConscripts.
 
+  - When installing using "setup.py install --prefix=", suppress the
+    distutils warning message about adding the (incorrect) library
+    directory to your search path.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

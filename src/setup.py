@@ -100,6 +100,7 @@ class install(_install):
         self.standard_lib = 0
         self.standalone_lib = 0
         self.version_lib = 0
+        self.warn_dir = 0
 
     def finalize_options(self):
         _install.finalize_options(self)

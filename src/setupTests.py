@@ -65,17 +65,15 @@ if not os.path.isfile(tar_gz):
     print "Cannot test package installation."
     test.no_result(1)
 
-test.subdir('root')
+test.subdir('root', 'prefix')
 
 root = test.workpath('root')
+prefix = test.workpath('prefix')
 
 v = string.split(string.split(sys.version)[0], '.')
 standard_lib = '%s/usr/lib/python%s.%s/site-packages/' % (root, v[0], v[1])
 standalone_lib = '%s/usr/lib/scons' % root
 version_lib = '%s/usr/lib/%s' % (root, scons_version)
-
-def installed(lib):
-    return 'Installed SCons library modules into %s' % lib
 
 os.system("gunzip -c %s | tar xf -" % tar_gz)
 
@@ -135,6 +133,16 @@ test.run(chdir = scons_version,
          arguments = 'setup.py install --root=%s' % root,
          stderr = None)
 test.fail_test(not test.installed(standard_lib))
+
+# Verify that we're not warning about the directory in which
+# we've installed the modules when using a non-standard prefix.
+test.run(chdir = scons_version,
+         program = python,
+         arguments = 'setup.py install --prefix=%s' % prefix,
+         stderr = None)
+test.fail_test(string.find(test.stderr(),
+                           "you'll have to change the search path yourself")
+               != -1)
 
 # All done.
 test.pass_test()
