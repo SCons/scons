@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if test $# -eq 0; then
+    for f in doc/user/*.in; do
+        sgml=doc/user/`basename $f .in`.sgml
+        echo $f:
+        python bin/sconsoutput.py $f > $sgml
+    done
+else
+    for a in $*; do
+        f=doc/user/$a.in
+        sgml=doc/user/$a.sgml
+        echo $f:
+        python bin/sconsoutput.py $f > $sgml
+    done
+fi
