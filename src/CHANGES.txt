@@ -76,6 +76,9 @@ RELEASE 0.97 - XXX
     through "chdir" keyword arguments to Action and Builder creation
     and calls.
 
+  - Fix handling of Action ojects (and other callables that don't match
+    our calling arguments) in construction variable expansions.
+
   From Clive Levinson:
 
   - Make ParseConfig() recognize and add -mno-cygwin to $LINKFLAGS and

@@ -606,10 +606,16 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, dict=No
                     r.append(self.conv(self.substitute(l, lvars)))
                 return string.join(r)
             elif callable(s):
-                s = s(target=self.target,
-                     source=self.source,
-                     env=self.env,
-                     for_signature=(self.mode != SUBST_CMD))
+                try:
+                    s = s(target=self.target,
+                         source=self.source,
+                         env=self.env,
+                         for_signature=(self.mode != SUBST_CMD))
+                except TypeError:
+                    # This probably indicates that it's a callable
+                    # object that doesn't match our calling arguments
+                    # (like an Action).
+                    s = str(s)
                 return self.substitute(s, lvars)
             elif s is None:
                 return ''
@@ -753,10 +759,16 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, di
                     self.substitute(a, lvars, 1)
                     self.next_word()
             elif callable(s):
-                s = s(target=self.target,
-                     source=self.source,
-                     env=self.env,
-                     for_signature=(self.mode != SUBST_CMD))
+                try:
+                    s = s(target=self.target,
+                         source=self.source,
+                         env=self.env,
+                         for_signature=(self.mode != SUBST_CMD))
+                except TypeError:
+                    # This probably indicates that it's a callable
+                    # object that doesn't match our calling arguments
+                    # (like an Action).
+                    s = str(s)
                 self.substitute(s, lvars, within_list)
             elif s is None:
                 self.this_word()
