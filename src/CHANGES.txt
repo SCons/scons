@@ -113,6 +113,10 @@ RELEASE 0.97 - XXX
     for another target, to avoid trying to build it again when it comes
     up in the target list.
 
+  - Allow a function with the right calling signature to be put directly
+    in an Environment's BUILDERS dictionary, making for easier creation
+    and use of wrappers (pseudo-Builders) that call other Builders.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

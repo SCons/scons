@@ -87,8 +87,10 @@ class Builder:
     def __init__(self, name = None):
         self.name = name
 
-    def __call__(self, env, **kw):
+    def __call__(self, env, target=None, source=None, **kw):
         global called_it
+        called_it['target'] = target
+        called_it['source'] = source
         called_it.update(kw)
 
     def execute(self, target = None, **kw):
@@ -481,21 +483,21 @@ class EnvironmentTestCase(unittest.TestCase):
         env.Replace(BUILDERS = { 'builder1' : b1,
                                  'builder2' : b2 })
         called_it = {}
-        env.builder1(target = 'out1')
-        assert called_it['target'] == 'out1', called_it
-        assert not called_it.has_key('source')
+        env.builder1('in1')
+        assert called_it['target'] == None, called_it
+        assert called_it['source'] == ['in1'], called_it
 
         called_it = {}
-        env.builder2(target = 'out2', xyzzy = 1)
-        assert called_it['target'] == 'out2', called_it
+        env.builder2(source = 'in2', xyzzy = 1)
+        assert called_it['target'] == None, called_it
+        assert called_it['source'] == ['in2'], called_it
         assert called_it['xyzzy'] == 1, called_it
-        assert not called_it.has_key('source')
 
         called_it = {}
         env.builder1(foo = 'bar')
         assert called_it['foo'] == 'bar', called_it
-        assert not called_it.has_key('target')
-        assert not called_it.has_key('source')
+        assert called_it['target'] == None, called_it
+        assert called_it['source'] == None, called_it
 
 
 

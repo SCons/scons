@@ -149,8 +149,15 @@ class BuilderWrapper:
         self.env = env
         self.builder = builder
 
-    def __call__(self, *args, **kw):
-        return apply(self.builder, (self.env,) + args, kw)
+    def __call__(self, target=None, source=_null, *args, **kw):
+        if source is _null:
+            source = target
+            target = None
+        if not target is None and not SCons.Util.is_List(target):
+            target = [target]
+        if not source is None and not SCons.Util.is_List(source):
+            source = [source]
+        return apply(self.builder, (self.env, target, source) + args, kw)
 
     # This allows a Builder to be executed directly
     # through the Environment to which it's attached.
