@@ -8,11 +8,10 @@
 # By default, it directly uses the modules in the local tree:
 # ./src/ (source files we ship) and ./etc/ (other modules we don't)
 #
-# When "-b aegis" is specified, it assumes it's in a directory
-# in which an Aegis build (aeb) has been performed, and sets
-# PYTHONPATH so that it *only* references the modules that have
-# unpacked from the built packages, to test whether the packages
-# are good.
+# When any -p option is specified, it assumes it's in a directory
+# in which a build has been performed, and sets PYTHONPATH so that it
+# *only* references the modules that have unpacked from the specified
+# built package, to test whether the packages are good.
 #
 # Options:
 #
@@ -59,6 +58,8 @@ scons_exec = None
 if sys.platform == 'win32':
     lib_dir = os.path.join(sys.exec_prefix, "lib")
 else:
+    # The hard-coded "python" here is the directory name,
+    # not an executable, so it's all right.
     lib_dir = os.path.join(sys.exec_prefix, "lib", "python" + sys.version[0:3])
 
 opts, tests = getopt.getopt(sys.argv[1:], "adqp:Xx:",
@@ -102,6 +103,8 @@ if package:
         'zip'        : '',
     }
 
+    # The hard-coded "python2.1" here is the library directory
+    # name on Debian systems, not an executable, so it's all right.
     lib = {
         'deb'        : os.path.join('python2.1', 'site-packages')
     }
@@ -155,7 +158,7 @@ for path in tests:
 	abs = path
     else:
 	abs = os.path.join(cwd, path)
-    cmd = string.join(["python", debug, abs], " ")
+    cmd = string.join([sys.executable, debug, abs], " ")
     if printcmd:
 	print cmd
     s = os.system(cmd)
