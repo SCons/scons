@@ -60,7 +60,7 @@ class Node:
         self.depends = []       # explicit dependencies (from Depends)
         self.implicit = {}	# implicit (scanned) dependencies
         self.ignore = []	# dependencies to ignore
-        self.parents = []
+        self.parents = {}
         self.wkids = None       # Kids yet to walk, when it's an array
 	self.builder = None
         self.scanners = []
@@ -215,12 +215,7 @@ class Node:
 	    collection.extend(child)
 
         for c in child:
-            c._add_parent(self)
-
-    def _add_parent(self, parent):
-        """Adds 'parent' to the list of parents of this node"""
-
-        if parent not in self.parents: self.parents.append(parent)
+            c.parents[self] = 1
 
     def add_wkid(self, wkid):
         """Add a node to the list of kids waiting to be evaluated"""
@@ -240,7 +235,7 @@ class Node:
                + reduce(lambda x, y: x + y, self.implicit.values(), [])
 
     def get_parents(self):
-        return self.parents
+        return self.parents.keys()
 
     def set_state(self, state):
         self.state = state

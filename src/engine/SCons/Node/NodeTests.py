@@ -468,15 +468,6 @@ class NodeTestCase(unittest.TestCase):
         assert five in kids
         assert six in kids
 
-    def test_add_parent(self):
-        """Test adding parents to a Node."""
-        node = SCons.Node.Node()
-        parent = SCons.Node.Node()
-        node._add_parent(parent)
-        assert node.get_parents() == [parent]
-        node._add_parent(parent)
-        assert node.get_parents() == [parent]
-
     def test_state(self):
 	"""Test setting and getting the state of a node
 	"""

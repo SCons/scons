@@ -10,6 +10,10 @@
 
 RELEASE 0.06 - 
 
+  From Stephen Kennedy:
+
+  - Performance:  Use a dictionary, not a list, for a Node's parents.
+
   From Steven Knight:
 
   - Add .zip files to the packages we build.
