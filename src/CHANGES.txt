@@ -14,6 +14,7 @@ RELEASE 0.96 - XXX
 
   - Add an Execute() method for executing actions directly.
 
+  - Support passing environment override keyword arguments to Command().
 
 
 RELEASE 0.95 - Mon, 08 Mar 2004 06:43:20 -0600

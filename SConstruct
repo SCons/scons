@@ -848,8 +848,8 @@ for p in [ scons ]:
         env.Command(unpack_targets, local_tar_gz, commands)
 
     if zipit:
-        zipenv = env.Copy(CD = local, PSV = '.')
-        zipenv.Command(local_zip, local_targets, zipit)
+        env.Command(local_zip, local_targets, zipit,
+                    CD = local, PSV = '.')
 
         unpack_targets = map(lambda x, d=test_local_zip_dir:
                                     os.path.join(d, x),
@@ -858,8 +858,8 @@ for p in [ scons ]:
                     "mkdir %s" % test_local_zip_dir,
                     unzipit]
 
-        zipenv = env.Copy(UNPACK_ZIP_DIR = test_local_zip_dir)
-        zipenv.Command(unpack_targets, local_zip, unzipit)
+        env.Command(unpack_targets, local_zip, unzipit,
+                    UNPACK_ZIP_DIR = test_local_zip_dir)
 
     #
     # And, lastly, install the appropriate packages in the
@@ -979,10 +979,12 @@ if change:
             #
             dfiles = map(lambda x, d=test_src_tar_gz_dir: os.path.join(d, x),
                             dst_files)
-            ENV = env.Dictionary('ENV')
-            ENV['SCONS_LIB_DIR'] = os.path.join(unpack_tar_gz_dir, psv, 'src', 'engine')
+            scons_lib_dir = os.path.join(unpack_tar_gz_dir, psv, 'src', 'engine')
+            ENV = env.Dictionary('ENV').copy()
+            ENV['SCONS_LIB_DIR'] = scons_lib_dir
             ENV['USERNAME'] = developer
-            env.Copy(ENV = ENV).Command(dfiles, unpack_tar_gz_files, [
+            env.Command(dfiles, unpack_tar_gz_files,
+                [
                 "rm -rf %s" % os.path.join(unpack_tar_gz_dir,
                                            psv,
                                            'build',
@@ -999,12 +1001,12 @@ if change:
                                  'build',
                                  'scons',
                                  'setup.py'),
-            ])
+                ],
+                ENV = ENV)
 
         if zipit:
 
-            zipenv = env.Copy(CD = 'build', PSV = psv)
-            zipenv.Command(src_zip, b_psv_stamp, zipit)
+            env.Command(src_zip, b_psv_stamp, zipit, CD = 'build', PSV = psv)
 
             #
             # Unpack the archive into build/unpack/scons-{version}.
@@ -1033,10 +1035,12 @@ if change:
             #
             dfiles = map(lambda x, d=test_src_zip_dir: os.path.join(d, x),
                             dst_files)
-            ENV = env.Dictionary('ENV')
-            ENV['SCONS_LIB_DIR'] = os.path.join(unpack_zip_dir, psv, 'src', 'engine')
+            scons_lib_dir = os.path.join(unpack_zip_dir, psv, 'src', 'engine')
+            ENV = env.Dictionary('ENV').copy()
+            ENV['SCONS_LIB_DIR'] = scons_lib_dir
             ENV['USERNAME'] = developer
-            env.Copy(ENV = ENV).Command(dfiles, unpack_zip_files, [
+            env.Command(dfiles, unpack_zip_files,
+                [
                 "rm -rf %s" % os.path.join(unpack_zip_dir,
                                            psv,
                                            'build',
@@ -1053,4 +1057,5 @@ if change:
                                  'build',
                                  'scons',
                                  'setup.py'),
-            ])
+                ],
+                ENV = ENV)

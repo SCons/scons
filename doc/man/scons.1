@@ -2308,15 +2308,17 @@ Clean('dist', env.Program('hello', 'hello.c'))
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .TP
-.RI Command( target ", " source ", " commands )
+.RI Command( target ", " source ", " commands ", [" key = val ", ...])"
 .TP
-.RI env.Command( target ", " source ", " commands )
+.RI env.Command( target ", " source ", " commands ", [" key = val ", ...])"
 Executes a specific action
 (or list of actions)
 to build a target file or files.
 This is more convenient
 than defining a separate Builder object
 for a single special-case build.
+Any keyword arguments specified override any
+same-named existing construction variables.
 
 Note that an action can be an external command,
 specified as a string,
@@ -2330,7 +2332,8 @@ env.Command('foo.out', 'foo.in',
 
 env.Command('bar.out', 'bar.in',
             ["rm -f $TARGET",
-             "$BAR_BUILD < $SOURCES > $TARGET"])
+             "$BAR_BUILD < $SOURCES > $TARGET"],
+            ENV = {'PATH' : '/usr/local/bin/'})
 
 def rename(env, target, source):
     import os
