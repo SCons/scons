@@ -38,7 +38,7 @@ import stat
 import string
 import sys
 import types
-import UserDict
+from UserDict import UserDict
 import UserList
 
 import SCons.Errors
@@ -93,6 +93,18 @@ except ImportError:
         def __mul__(self, n):
             return self.__class__(self.data*n)
         __rmul__ = __mul__
+
+#
+import __builtin__
+try:
+    __builtin__.zip
+except AttributeError:
+    def zip(*lists):
+        result = []
+        for i in xrange(len(lists[0])):
+            result.append(tuple(map(lambda l, i=i: l[i], lists)))
+        return result
+    __builtin__.zip = zip
 
 _altsep = os.altsep
 if _altsep is None and sys.platform == 'win32':
@@ -952,7 +964,7 @@ def render_tree(root, child_func, prune=0, margin=[0], visited={}):
     return retval
 
 def is_Dict(e):
-    return type(e) is types.DictType or isinstance(e, UserDict.UserDict)
+    return type(e) is types.DictType or isinstance(e, UserDict)
 
 def is_List(e):
     return type(e) is types.ListType or isinstance(e, UserList.UserList)
@@ -1333,16 +1345,74 @@ class CLVar(UserList.UserList):
     def __str__(self):
         return string.join(self.data)
 
-class Selector(UserDict.UserDict):
-    """A callable dictionary that maps file suffixes to dictionary
-    values."""
+# A dictionary that preserves the order in which items are added.
+# Submitted by David Benjamin to ActiveState's Python Cookbook web site:
+#     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/107747
+# Including fixes/enhancements from the follow-on discussions.
+class OrderedDict(UserDict):
+    def __init__(self, dict = None):
+        self._keys = []
+        UserDict.__init__(self, dict)
+
+    def __delitem__(self, key):
+        UserDict.__delitem__(self, key)
+        self._keys.remove(key)
+
+    def __setitem__(self, key, item):
+        UserDict.__setitem__(self, key, item)
+        if key not in self._keys: self._keys.append(key)
+
+    def clear(self):
+        UserDict.clear(self)
+        self._keys = []
+
+    def copy(self):
+        dict = OrderedDict()
+        dict.update(self)
+        return dict
+
+    def items(self):
+        return zip(self._keys, self.values())
+
+    def keys(self):
+        return self._keys[:]
+
+    def popitem(self):
+        try:
+            key = self._keys[-1]
+        except IndexError:
+            raise KeyError('dictionary is empty')
+
+        val = self[key]
+        del self[key]
+
+        return (key, val)
+
+    def setdefault(self, key, failobj = None):
+        UserDict.setdefault(self, key, failobj)
+        if key not in self._keys: self._keys.append(key)
+
+    def update(self, dict):
+        for (key, val) in dict.items():
+            self.__setitem__(key, val)
+
+    def values(self):
+        return map(self.get, self._keys)
+
+class Selector(OrderedDict):
+    """A callable ordered dictionary that maps file suffixes to
+    dictionary values.  We preserve the order in which items are added
+    so that get_suffix() calls always return the first suffix added."""
     def __call__(self, env, source):
-        ext = splitext(str(source[0]))[1]
+        try:
+            ext = splitext(str(source[0]))[1]
+        except IndexError:
+            ext = ""
         try:
             return self[ext]
         except KeyError:
             # Try to perform Environment substitution on the keys of
-            # emitter_dict before giving up.
+            # the dictionary before giving up.
             s_dict = {}
             for (k,v) in self.items():
                 if not k is None:
@@ -1450,5 +1520,3 @@ def unique(s):
         if x not in u:
             u.append(x)
     return u
-
-

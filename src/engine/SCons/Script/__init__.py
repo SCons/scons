@@ -70,18 +70,6 @@ import SCons.Util
 import SCons.Warnings
 
 #
-import __builtin__
-try:
-    __builtin__.zip
-except AttributeError:
-    def zip(*lists):
-        result = []
-        for i in xrange(len(lists[0])):
-            result.append(tuple(map(lambda l, i=i: l[i], lists)))
-        return result
-    __builtin__.zip = zip
-
-#
 display = SCons.Util.display
 progress_display = SCons.Util.DisplayEngine()
 
