@@ -356,15 +356,15 @@ class Base:
                         n = self.subst(n, raw=1)
                         if node_factory:
                             n = node_factory(n)
-                    try:
+                    if SCons.Util.is_List(n):
                         nodes.extend(n)
-                    except TypeError:
+                    else:
                         nodes.append(n)
                 elif node_factory:
                     v = node_factory(self.subst(v, raw=1))
-                    try:
+                    if SCons.Util.is_List(v):
                         nodes.extend(v)
-                    except TypeError:
+                    else:
                         nodes.append(v)
             else:
                 nodes.append(v)
@@ -994,27 +994,15 @@ class Base:
     def CacheDir(self, path):
         self.fs.CacheDir(self.subst(path))
 
-    def Clean(self, target, files):
+    def Clean(self, targets, files):
         global CleanTargets
-
-        if not isinstance(target, SCons.Node.Node):
-            target = self.subst(target)
-            target = self.fs.Entry(target, create=1)
-    
-        if not SCons.Util.is_List(files):
-            files = [files]
-    
-        nodes = []
-        for f in files:
-            if isinstance(f, SCons.Node.Node):
-                nodes.append(f)
-            else:
-                nodes.extend(self.arg2nodes(f, self.fs.Entry))
-    
-        try:
-            CleanTargets[target].extend(nodes)
-        except KeyError:
-            CleanTargets[target] = nodes
+        tlist = self.arg2nodes(targets, self.fs.Entry)
+        flist = self.arg2nodes(files, self.fs.Entry)
+        for t in tlist:
+            try:
+                CleanTargets[t].extend(flist)
+            except KeyError:
+                CleanTargets[t] = flist
 
     def Configure(self, *args, **kw):
         nargs = [self]
