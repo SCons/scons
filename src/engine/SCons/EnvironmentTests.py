@@ -16,7 +16,7 @@ class Builder:
     def __init__(self, name = None):
     	self.name = name
 
-    def execute(self, target = None, source = None):
+    def execute(self, target = None, **kw):
 	built_it[target] = 1
 
 
@@ -94,6 +94,16 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert xxx == 'x'
 	assert zzz == 'z'
 	assert env.Dictionary().has_key('BUILDERS')
+	assert env.Dictionary().has_key('ENV')
+
+    def test_ENV(self):
+	"""Test setting the external ENV in Environments
+	"""
+	env = Environment()
+	assert env.Dictionary().has_key('ENV')
+
+	env = Environment(ENV = { 'PATH' : '/foo:/bar' })
+	assert env.Dictionary('ENV')['PATH'] == '/foo:/bar'
 
     def test_Environment(self):
 	"""Test construction Environments creation

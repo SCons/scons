@@ -94,7 +94,20 @@ class CommandAction(ActionBase):
 	if print_actions:
 	    self.show(cmd)
 	if execute_actions:
-	    os.system(cmd)
+	    pid = os.fork()
+	    if not pid:
+		# Child process.
+		args = string.split(cmd)
+		try:
+		    ENV = kw['ENV']
+		except:
+		    import SCons.Defaults
+		    ENV = SCons.Defaults.ENV
+		os.execvpe(args[0], args, ENV)
+	    else:
+		# Parent process.
+		os.waitpid(pid, 0)
+
 
 class FunctionAction(ActionBase):
     """Class for Python function actions."""

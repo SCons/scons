@@ -61,6 +61,9 @@ class Environment:
 	else:
 	    import SCons.Defaults
 	    kw['BUILDERS'] = SCons.Defaults.Builders[:]
+	if not kw.has_key('ENV'):
+	    import SCons.Defaults
+	    kw['ENV'] = SCons.Defaults.ENV.copy()
 	self._dict.update(copy.deepcopy(kw))
 
 	class BuilderWrapper:
@@ -74,8 +77,16 @@ class Environment:
 	    def __call__(self, target = None, source = None):
 		return self.builder(self.env, target, source)
 
+	    # This allows a Builder to be executed directly
+	    # through the Environment to which it's attached.
+	    # In practice, we shouldn't need this, because
+	    # builders actually get executed through a Node.
+	    # But we do have a unit test for this, and can't
+	    # yet rule out that it would be useful in the
+	    # future, so leave it for now.
 	    def execute(self, **kw):
-		apply(self.builder.execute, (), kw)
+	    	kw['env'] = self
+	    	apply(self.builder.execute, (), kw)
 
 	for b in kw['BUILDERS']:
 	    setattr(self, b.name, BuilderWrapper(self, b))

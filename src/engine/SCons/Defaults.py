@@ -20,3 +20,5 @@ Program = SCons.Builder.Builder(name = 'Program',
 				action = 'cc -o %(target)s %(source)s')
 
 Builders = [Object, Program]
+
+ENV = { 'PATH' : '/usr/local/bin:/bin:/usr/bin' }

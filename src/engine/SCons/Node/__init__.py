@@ -25,7 +25,8 @@ class Node:
 
     def build(self):
 	sources_str = string.join(map(lambda x: str(x), self.sources))
-	self.builder.execute(target = str(self), source = sources_str)
+	self.builder.execute(ENV = self.env.Dictionary('ENV'),
+			     target = str(self), source = sources_str)
 
     def builder_set(self, builder):
 	self.builder = builder
