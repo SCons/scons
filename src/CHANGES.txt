@@ -32,6 +32,10 @@ RELEASE 0.09 -
  - Fix differently ordered targets causing unnecessary rebuilds
    on case insensitive systems.
 
+ - Use os.system() to execute external commands whenever the "env"
+   utility is available, which is much faster than fork()/exec(),
+   and fixes the -j option on several platforms.
+
 
 
 RELEASE 0.08 - Mon, 15 Jul 2002 12:08:51 -0500

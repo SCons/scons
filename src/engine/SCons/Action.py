@@ -58,23 +58,51 @@ def quote(x):
 
 if os.name == 'posix':
 
-    def defaultSpawn(cmd, args, env):
-        pid = os.fork()
-        if not pid:
-            # Child process.
-            exitval = 127
-            args = ['sh', '-c', string.join(map(quote, args))]
-            try:
-                os.execvpe('sh', args, env)
-            except OSError, e:
-                exitval = exitvalmap[e[0]]
-                sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
-            os._exit(exitval)
-        else:
-            # Parent process.
-            pid, stat = os.waitpid(pid, 0)
-            ret = stat >> 8
-            return ret
+    def escape(arg):
+        "escape shell special characters"
+        slash = '\\'
+        special = '"\'`&;><| \t#()*?$~!'
+
+        arg = string.replace(arg, slash, slash+slash)
+        for c in special:
+            arg = string.replace(arg, c, slash+c)
+
+        return arg
+
+    # If the env command exists, then we can use os.system()
+    # to spawn commands, otherwise we fall back on os.fork()/os.exec().
+    # os.system() is prefered because it seems to work better with
+    # threads (i.e. -j) and is more efficient than forking Python.
+    if SCons.Util.WhereIs('env'):
+        def defaultSpawn(cmd, args, env):
+            if env:
+                s = 'env -i '
+                for key in env.keys():
+                    s = s + '%s=%s '%(key, escape(env[key]))
+                s = s + 'sh -c '
+                s = s + escape(string.join(map(quote, args)))
+            else:
+                s = string.join(map(quote, args))
+
+            return os.system(s) >> 8
+    else:
+        def defaultSpawn(cmd, args, env):
+            pid = os.fork()
+            if not pid:
+                # Child process.
+                exitval = 127
+                args = ['sh', '-c', string.join(map(quote, args))]
+                try:
+                    os.execvpe('sh', args, env)
+                except OSError, e:
+                    exitval = exitvalmap[e[0]]
+                    sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
+                os._exit(exitval)
+            else:
+                # Parent process.
+                pid, stat = os.waitpid(pid, 0)
+                ret = stat >> 8
+                return ret
 
 elif os.name == 'nt':
 

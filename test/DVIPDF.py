@@ -100,8 +100,9 @@ test.fail_test(test.read('test2.pdf') != "This is a .tex test.\n")
 
 
 dvipdf = test.where_is('dvipdf')
+tex = test.where_is('tex')
 
-if dvipdf:
+if dvipdf and tex:
 
     test.write("wrapper.py", """import os
 import string
