@@ -60,22 +60,11 @@ class my_install_lib(install_lib):
                 self.install_dir = os.path.join(head, tail)
                 return
 
-description = \
-"""SCons is an Open Source software construction tool--that is, a build tool; an
-improved substitute for the classic Make utility; a better way to build
-software."""
-
 keywords = "scons, cons, make, build tool, make tool, software build tool, software construction tool"
 
 arguments = {
     'name'             : "scons",
     'version'          : "__VERSION__",
-    'description'      : "an Open Source software construction tool",
-    'long_description' : description,
-    'author'           : "Steven Knight",
-    'author_email'     : "knight@scons.org",
-    'url'              : "http://www.scons.org/",
-    'license'          : "MIT, freely distributable",
     'keywords'         : keywords,
     'packages'         : ["SCons",
                           "SCons.Node",

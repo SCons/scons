@@ -244,8 +244,11 @@ $scons = {
                                 debian/scons.postinst
                                 debian/scons.prerm) ],
 
-        'files'		=> [ qw(LICENSE.txt README.txt script/scons.bat
-                                setup.cfg setup.py) ],
+        'files'		=> [ qw(LICENSE.txt README.txt os_spawnv_fix.diff
+				scons.1 script/scons.bat setup.cfg setup.py) ],
+        'filemap'		=> {
+                                'scons.1'	=> '../doc/man/scons.1',
+                        },
 
         'subpkgs'	=> [ $python_scons, $scons_script ],
         'subinst_dirs'	=> { "python-$project" => $lib_project,
@@ -353,25 +356,40 @@ for $p ($scons) {
     );
     my @install_targets = @build_targets;
 
-    if ($rpm) {
-	push(@setup_args, 'bdist_rpm');
-
-	# XXX "$build/build/bdist.$platform/rpm/SOURCES/$pkg-$version.$archsuffix",
-	# XXX "$build/build/bdist.$platform/rpm/SPECS/$pkg.spec",
-        my @targets = (
-	    "$build/dist/$pkg-$version-1.src.rpm",
-	    "$build/dist/$pkg-$version-1.noarch.rpm",
-	);
-        push(@build_targets, @targets);
-        push(@install_targets, @targets);
-    };
-
     # We can get away with calling setup.py using a directory path
     # like this because we put a preamble in it that will chdir()
     # to the directory in which setup.py exists.
-    my $commands = qq(rm -rf $build/build $build/dist/* $build/dist/$project-$version
-                      python $build/setup.py @setup_args
+    my $commands = qq(python $build/setup.py @setup_args
                       python $build/setup.py bdist_wininst);
+
+    if ($rpm) {
+	chomp($cwd = `pwd`);
+	$topdir = "$cwd/$build/build/bdist.$platform/rpm";
+
+	$BUILDdir = "$topdir/BUILD/$pkg-$version";
+	$RPMSdir = "$topdir/RPMS/noarch";
+	$SOURCESdir = "$topdir/SOURCES";
+	$SPECSdir = "$topdir/SPECS";
+	$SRPMSdir = "$topdir/SRPMS";
+
+	$specfile = "$SPECSdir/$pkg-$version-1.spec";
+	$sourcefile = "$SOURCESdir/$pkg-$version.$archsuffix";
+	$rpm = "$RPMSdir/$pkg-$version-1.noarch.rpm";
+	$src_rpm = "$SRPMSdir/$pkg-$version-1.src.rpm";
+
+	$env->InstallAs($specfile, "rpm/$pkg.spec");
+	$env->InstallAs($sourcefile, $archive);
+
+	if (! -d $BUILDdir) {
+	    $cmd = "mkdir -p $BUILDdir; ";
+	}
+        my @targets = ( $rpm, $src_rpm );
+	$env->Command(\@targets, $specfile,
+			"${cmd}rpm --define '_topdir $topdir' -ba %<");
+	$env->Depends(\@targets, $sourcefile);
+
+        push(@install_targets, @targets);
+    };
 
     if ($dh_builddeb && $fakeroot) {
         # Debian builds directly into build/dist, so we don't
