@@ -651,21 +651,12 @@ class FSTestCase(unittest.TestCase):
                 assert str(dir) == path, \
                        "str(dir) %s != expected path %s" % \
                        (str(dir), path)
-                assert dir.path_ == path_, \
-                       "dir.path_ %s != expected path_ %s" % \
-                       (dir.path_, path_)
                 assert dir.get_abspath() == abspath, \
                        "dir.abspath %s != expected absolute path %s" % \
                        (dir.get_abspath(), abspath)
-                assert dir.abspath_ == abspath_, \
-                       "dir.abspath_ %s != expected absolute path_ %s" % \
-                       (dir.abspath_, abspath_)
                 assert dir.up().path == up_path, \
                        "dir.up().path %s != expected parent path %s" % \
                        (dir.up().path, up_path)
-                assert dir.up().path_ == up_path_, \
-                       "dir.up().path_ %s != expected parent path_ %s" % \
-                       (dir.up().path_, up_path_)
 
             Dir_test('foo',         'foo/',        sub_dir_foo,       './')
             Dir_test('foo/bar',     'foo/bar/',    sub_dir_foo_bar,   'foo/')
@@ -733,19 +724,13 @@ class FSTestCase(unittest.TestCase):
                             os.path.join('ddd', 'f1'),
                             os.path.join('ddd', 'f2'),
                             os.path.join('ddd', 'f3')], kids
-            kids = map(lambda x: x.path_, dir.children(None))
-            kids.sort()
-            assert kids == [os.path.join('ddd', 'd1', ''),
-                            os.path.join('ddd', 'f1'),
-                            os.path.join('ddd', 'f2'),
-                            os.path.join('ddd', 'f3')], kids
 
         # Test for a bug in 0.04 that did not like looking up
         # dirs with a trailing slash on Win32.
         d=fs.Dir('./')
-        assert d.path_ == '.' + os.sep, d.abspath_
+        assert d.path == '.', d.abspath
         d=fs.Dir('foo/')
-        assert d.path_ == 'foo' + os.sep, d.path_
+        assert d.path == 'foo', d.abspath
 
         # Test for sub-classing of node building.
         global built_it
@@ -773,56 +758,47 @@ class FSTestCase(unittest.TestCase):
         e1 = fs.Entry("d1")
         assert e1.__class__.__name__ == 'Dir'
         match(e1.path, "d1")
-        match(e1.path_, "d1/")
         match(e1.dir.path, ".")
 
         e2 = fs.Entry("d1/f1")
         assert e2.__class__.__name__ == 'File'
         match(e2.path, "d1/f1")
-        match(e2.path_, "d1/f1")
         match(e2.dir.path, "d1")
 
         e3 = fs.Entry("e3")
         assert e3.__class__.__name__ == 'Entry'
         match(e3.path, "e3")
-        match(e3.path_, "e3")
         match(e3.dir.path, ".")
 
         e4 = fs.Entry("d1/e4")
         assert e4.__class__.__name__ == 'Entry'
         match(e4.path, "d1/e4")
-        match(e4.path_, "d1/e4")
         match(e4.dir.path, "d1")
 
         e5 = fs.Entry("e3/e5")
         assert e3.__class__.__name__ == 'Dir'
         match(e3.path, "e3")
-        match(e3.path_, "e3/")
         match(e3.dir.path, ".")
         assert e5.__class__.__name__ == 'Entry'
         match(e5.path, "e3/e5")
-        match(e5.path_, "e3/e5")
         match(e5.dir.path, "e3")
 
         e6 = fs.Dir("d1/e4")
         assert e6 is e4
         assert e4.__class__.__name__ == 'Dir'
         match(e4.path, "d1/e4")
-        match(e4.path_, "d1/e4/")
         match(e4.dir.path, "d1")
 
         e7 = fs.File("e3/e5")
         assert e7 is e5
         assert e5.__class__.__name__ == 'File'
         match(e5.path, "e3/e5")
-        match(e5.path_, "e3/e5")
         match(e5.dir.path, "e3")
 
         fs.chdir(fs.Dir('subdir'))
         f11 = fs.File("f11")
         match(f11.path, "subdir/f11")
         d12 = fs.Dir("d12")
-        match(d12.path_, "subdir/d12/")
         e13 = fs.Entry("subdir/e13")
         match(e13.path, "subdir/subdir/e13")
         fs.chdir(fs.Dir('..'))
@@ -834,13 +810,13 @@ class FSTestCase(unittest.TestCase):
         f1.target_scanner = Scanner(xyz)
 
         f1.scan()
-        assert f1.implicit[0].path_ == "xyz"
+        assert f1.implicit[0].path == "xyz"
         f1.implicit = []
         f1.scan()
         assert f1.implicit == []
         f1.implicit = None
         f1.scan()
-        assert f1.implicit[0].path_ == "xyz"
+        assert f1.implicit[0].path == "xyz"
 
         # Test underlying scanning functionality in get_found_includes()
         env = Environment()

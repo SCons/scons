@@ -61,13 +61,13 @@ SCons.Warnings.enableWarningClass( SConfWarning )
 
 # action to create the source
 def _createSource( target, source, env ):
-    fd = open(target[0].get_path(), "w")
+    fd = open(str(target[0]), "w")
     fd.write(env['SCONF_TEXT'])
     fd.close()
 
 def _stringSource( target, source, env ):
     import string
-    return (target[0].get_path() + ' <- \n  |' +
+    return (str(target[0]) + ' <- \n  |' +
             string.replace( env['SCONF_TEXT'], "\n", "\n  |" ) )
 
 BooleanTypes = [types.IntType]
@@ -332,8 +332,9 @@ class SConf:
         ok = self.TryLink(text, extension)
         if( ok ):
             prog = self.lastTarget
-            output = SConfFS.File(prog.get_path()+'.out')
-            node = self.env.Command(output, prog, [ [ prog.get_path(), ">", "${TARGET}"] ])
+            pname = str(prog)
+            output = SConfFS.File(pname+'.out')
+            node = self.env.Command(output, prog, [ [ pname, ">", "${TARGET}"] ])
             ok = self.BuildNodes([node])
             if ok:
                 outputStr = output.get_contents()
@@ -377,21 +378,22 @@ class SConf:
             if node.get_state() != SCons.Node.up_to_date:
                 # if any of the sources has changed, we cannot use our cache
                 needs_rebuild = 1
-        if not self.cache.has_key( target[0].get_path() ):
+        tname = str(target[0])
+        if not self.cache.has_key( tname ):
             # We have no recorded error, so we try to build the target
             needs_rebuild = 1
         else:
-            lastBuildSig = self.cache[target[0].get_path()]['builder']
+            lastBuildSig = self.cache[tname]['builder']
             if lastBuildSig != buildSig:
                 needs_rebuild = 1
         if not needs_rebuild:
             # When we are here, we can savely pass the recorded error
             print ('(cached): Building "%s" failed in a previous run.' %
-                   target[0].get_path())
+                   target[0])
             return 1
         else:
             # Otherwise, we try to record an error
-            self.cache[target[0].get_path()] = {
+            self.cache[tname] = {
                'builder' :  buildSig
             }
 
@@ -399,7 +401,7 @@ class SConf:
         # Action after target is successfully built
         #
         # No error during build -> remove the recorded error
-        del self.cache[target[0].get_path()]
+        del self.cache[str(target[0])]
 
     def _stringCache(self, target, source, env):
         return None
@@ -407,7 +409,7 @@ class SConf:
     def _loadCache(self):
         # try to load build-error cache
         try:
-            cacheDesc = cPickle.load(open(self.confdir.File(".cache").get_path()))
+            cacheDesc = cPickle.load(open(str(self.confdir.File(".cache"))))
             if cacheDesc['scons_version'] != SCons.__version__:
                 raise Exception, "version mismatch"
             self.cache = cacheDesc['data']
@@ -423,14 +425,14 @@ class SConf:
         try:
             cacheDesc = {'scons_version' : SCons.__version__,
                          'data'          : self.cache }
-            cPickle.dump(cacheDesc, open(self.confdir.File(".cache").get_path(),"w"))
+            cPickle.dump(cacheDesc, open(str(self.confdir.File(".cache")),"w"))
         except Exception, e:
             # this is most likely not only an IO error, but an error
             # inside SConf ...
             SCons.Warnings.warn( SConfWarning, "Couldn't dump SConf cache" )
 
     def _createDir( self, node ):
-        dirName = node.get_path()
+        dirName = str(node)
         if dryrun:
             if not os.path.isdir( dirName ):
                 raise SCons.Errors.ConfigureDryRunError(dirName)
@@ -459,7 +461,7 @@ class SConf:
                 log_mode = "w"
             else:
                 log_mode = "a"
-            self.logstream = open(self.logfile.get_path(), log_mode)
+            self.logstream = open(str(self.logfile), log_mode)
             # logfile may stay in a build directory, so we tell
             # the build system not to override it with a eventually
             # existing file with the same name in the source directory
@@ -468,7 +470,7 @@ class SConf:
             tb = traceback.extract_stack()[-3]
             
             self.logstream.write( '\nfile %s,line %d:\n\tConfigure( confdir = %s )\n\n' %
-                                  (tb[0], tb[1], self.confdir.get_path()) )
+                                  (tb[0], tb[1], str(self.confdir)) )
         else: 
             self.logstream = None
         # we use a special builder to create source files from TEXT

@@ -286,8 +286,6 @@ class ParentOfRoot:
     def __init__(self):
         self.abspath = ''
         self.path = ''
-        self.abspath_ = ''
-        self.path_ = ''
         self.name=''
         self.duplicate=0
         self.srcdir=None
@@ -305,11 +303,14 @@ class ParentOfRoot:
     def get_dir(self):
         return None
 
-    def recurse_get_path(self, dir, path_elems):
-        return path_elems
-
     def src_builder(self):
         return _null
+
+    def entry_abspath(self, name):
+        return name
+
+    def entry_path(self, name):
+        return name
 
 # Cygwin's os.path.normcase pretends it's on a case-sensitive filesystem.
 _is_cygwin = sys.platform == "cygwin"
@@ -439,18 +440,16 @@ class Base(SCons.Node.Node):
 
         self.name = name
         self.fs = fs
-        self.relpath = {}
+        self.relpath = {self : '.'}
 
         assert directory, "A directory must be provided"
 
-        self.abspath = directory.abspath_ + name
+        self.abspath = directory.entry_abspath(name)
         if directory.path == '.':
             self.path = name
         else:
-            self.path = directory.path_ + name
+            self.path = directory.entry_path(name)
 
-        self.path_ = self.path
-        self.abspath_ = self.abspath
         self.dir = directory
         self.cwd = None # will hold the SConscript directory for target nodes
         self.duplicate = directory.duplicate
@@ -473,7 +472,7 @@ class Base(SCons.Node.Node):
             delattr(self, '_str_val')
         except AttributeError:
             pass
-        self.relpath = {}
+        self.relpath = {self : '.'}
 
     def get_dir(self):
         return self.dir
@@ -543,14 +542,6 @@ class Base(SCons.Node.Node):
             self._srcnode = self
             return self._srcnode
 
-    def recurse_get_path(self, dir, path_elems):
-        """Recursively build a path relative to a supplied directory
-        node."""
-        if self != dir:
-            path_elems.append(self.name)
-            path_elems = self.dir.recurse_get_path(dir, path_elems)
-        return path_elems
-
     def get_path(self, dir=None):
         """Return path relative to the current working directory of the
         Node.FS.Base object that owns us."""
@@ -559,13 +550,13 @@ class Base(SCons.Node.Node):
         try:
             return self.relpath[dir]
         except KeyError:
-            if self == dir:
-                # Special case, return "." as the path
-                ret = '.'
-            else:
-                path_elems = self.recurse_get_path(dir, [])
-                path_elems.reverse()
-                ret = string.join(path_elems, os.sep)
+            path_elems = []
+            d = self
+            while d != dir and not isinstance(d, ParentOfRoot):
+                path_elems.append(d.name)
+                d = d.dir
+            path_elems.reverse()
+            ret = string.join(path_elems, os.sep)
             self.relpath[dir] = ret
             return ret
             
@@ -783,7 +774,6 @@ class FS(LocalFS):
         if not self.Top:
             self.Top = self.__doLookup(Dir, os.path.normpath(self.pathTop))
             self.Top.path = '.'
-            self.Top.path_ = '.' + os.sep
             self._cwd = self.Top
         
     def getcwd(self):
@@ -832,11 +822,8 @@ class FS(LocalFS):
             except KeyError:
                 if not create:
                     raise SCons.Errors.UserError
-                dir = Dir(drive, ParentOfRoot(), self)
-                dir.path = dir.path + os.sep
-                dir.abspath = dir.abspath + os.sep
-                self.Root[drive] = dir
-                directory = dir
+                directory = RootDir(drive, ParentOfRoot(), self)
+                self.Root[drive] = directory
             path_comp = path_comp[1:]
         else:
             path_comp = [ path_first, ] + path_comp[1:]
@@ -856,7 +843,7 @@ class FS(LocalFS):
 
                 # look at the actual filesystem and make sure there isn't
                 # a file already there
-                path = directory.path_ + path_name
+                path = directory.entry_path(path_name)
                 if self.isfile(path):
                     raise TypeError, \
                           "File %s found where directory expected." % path
@@ -874,7 +861,7 @@ class FS(LocalFS):
 
             # make sure we don't create File nodes when there is actually
             # a directory at that path on the disk, and vice versa
-            path = directory.path_ + path_comp[-1]
+            path = directory.entry_path(path_comp[-1])
             if fsclass == File:
                 if self.isdir(path):
                     raise TypeError, \
@@ -1142,8 +1129,6 @@ class Dir(Base):
         system tree.  Specify that directories (this Node) don't use
         signatures for calculating whether they're current."""
 
-        self.path_ = self.path + os.sep
-        self.abspath_ = self.abspath + os.sep
         self.repositories = []
         self.srcdir = None
 
@@ -1347,6 +1332,33 @@ class Dir(Base):
             if kid.get_timestamp() > stamp:
                 stamp = kid.get_timestamp()
         return stamp
+
+    def entry_abspath(self, name):
+        return self.abspath + os.sep + name
+
+    def entry_path(self, name):
+        return self.path + os.sep + name
+
+class RootDir(Dir):
+    """A class for the root directory of a file system.
+
+    This is the same as a Dir class, except that the path separator
+    ('/' or '\\') is actually part of the name, so we don't need to
+    add a separator when creating the path names of entries within
+    this directory.
+    """
+    def __init__(self, name, directory, fs):
+        if __debug__: logInstanceCreation(self, 'Node.FS.RootDir')
+        Base.__init__(self, name, directory, fs)
+        self.path = self.path + os.sep
+        self.abspath = self.abspath + os.sep
+        self._morph()
+
+    def entry_abspath(self, name):
+        return self.abspath + name
+
+    def entry_path(self, name):
+        return self.path + name
 
 class BuildInfo:
     bsig = None
