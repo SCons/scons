@@ -147,6 +147,9 @@ RELEASE 0.97 - XXX
   - Add specific exceptions to try:-except: blocks without any listed,
     so that they won't catch and mask keyboard interrupts.
 
+  - Make --debug={tree,dtree,stree} print something even when there's
+    a build failure.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
