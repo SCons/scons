@@ -10,6 +10,11 @@
 
 RELEASE X.XX - XXX
 
+  From J.T. Conklin:
+
+  - On POSIX, execute commands with the more modern os.spawnvpe()
+    function, if it's available.
+
   From Charles Crain:
 
   - Add support for a JARCHDIR variable to control changing to a

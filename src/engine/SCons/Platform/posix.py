@@ -75,6 +75,13 @@ def env_spawn(sh, escape, cmd, args, env):
         return stat | 0x80
     return stat >> 8
 
+def spawn_spawn(sh, escape, cmd, args, env):
+    args = [sh, '-c', string.join(args)]
+    stat = os.spawnvpe(os.P_WAIT, sh, args, env)
+    # os.spawnvpe() returns the actual exit code, not the encoding
+    # returned by os.waitpid() or os.system().
+    return stat
+
 def fork_spawn(sh, escape, cmd, args, env):
     pid = os.fork()
     if not pid:
@@ -178,16 +185,29 @@ def piped_fork_spawn(sh, escape, cmd, args, env, stdout, stderr):
 
 
 def generate(env):
+    # If os.spawnvpe() exists, we use it to spawn commands.  Otherwise
+    # if the env utility exists, we use os.system() to spawn commands,
+    # finally we fall back on os.fork()/os.exec().  
+    #
+    # os.spawnvpe() is prefered because it is the most efficient.  But
+    # for Python versions without it, os.system() is prefered because it
+    # is claimed that it works better with threads (i.e. -j) and is more
+    # efficient than forking Python.
+    #
+    # NB: Other people on the scons-users mailing list have claimed that
+    # os.fork()/os.exec() works better than os.system().  There may just
+    # not be a default that works best for all users.
 
-    # If the env command exists, then we can use os.system()
-    # to spawn commands, otherwise we fall back on os.fork()/os.exec().
-    # os.system() is prefered because it seems to work better with
-    # threads (i.e. -j) and is more efficient than forking Python.
-    if env.Detect('env'):
+    if os.__dict__.has_key('spawnvpe'):
+        spawn = spawn_spawn
+    elif env.Detect('env'):
         spawn = env_spawn
-        pspawn = piped_env_spawn
     else:
         spawn = fork_spawn
+
+    if env.Detect('env'):
+        pspawn = piped_env_spawn
+    else:
         pspawn = piped_fork_spawn
 
     if not env.has_key('ENV'):
