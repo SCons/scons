@@ -303,8 +303,11 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, source = 'src3')
         assert tgt.path == 'libsrc3', \
                 "Target has unexpected name: %s" % tgt.path
-        tgt = builder(env, target = 'lib/tgt4', source = 'lib/src4')
-        assert tgt.path == os.path.join('lib', 'libtgt4'), \
+        tgt = builder(env, source = 'lib/src4')
+        assert tgt.path == os.path.join('lib', 'libsrc4'), \
+                "Target has unexpected name: %s" % tgt.path
+        tgt = builder(env, target = 'lib/tgt5', source = 'lib/src5')
+        assert tgt.path == os.path.join('lib', 'libtgt5'), \
                 "Target has unexpected name: %s" % tgt.path
 
     def test_src_suffix(self):

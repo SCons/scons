@@ -3315,6 +3315,11 @@ to generate a source file.
 
 .IP YACCFLAGS
 General options passed to the parser generator.
+If $YACCFLAGS contains a \-d option,
+SCons assumes that the call will also create a .h file
+(if the yacc source file ends in a .y suffix)
+or a .hpp file
+(if the yacc source file ends in a .yy suffix)
 
 .IP ZIP
 The zip compression and file packaging utility.
@@ -5549,7 +5554,7 @@ to the BUILDERS construction variable, such as:
 
 .ES
 env = Environment()
-env.['BUILDERS]['PDFBuilder'] = bld
+env['BUILDERS]['PDFBuilder'] = bld
 .EE
 
 .SS Defining Your Own Scanner Object

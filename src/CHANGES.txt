@@ -17,6 +17,11 @@ RELEASE 0.XX - XXX
   - When the input yacc file ends in .yy and the -d flag is specified,
     recognize that a .hpp file (not a .h file) will be created.
 
+  - Make builder prefixes work correctly when deducing a target
+    from a source file name in another directory.
+
+  - Documentation fixes:  typo in the man page.
+
 
 
 RELEASE 0.90 - Wed, 25 Jun 2003 14:24:52 -0500

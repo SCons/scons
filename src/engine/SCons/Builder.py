@@ -311,8 +311,11 @@ class BuilderBase:
         if target is None:
             s = source[0]
             if isinstance(s, SCons.Node.Node):
-                s = os.path.split(str(s))[1]
-            target = [ pre + os.path.splitext(s)[0] + suf ]
+                s = str(s)
+            dir, s = os.path.split(s)
+            target = pre + os.path.splitext(s)[0] + suf
+            if dir:
+                target = [ os.path.join(dir, target) ]
         else:
             target = adjustixes(target, pre, suf)
 
