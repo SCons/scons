@@ -209,6 +209,14 @@ class Node:
         self.set_state(None)
         self.del_bsig()
         self.del_csig()
+        try:
+            delattr(self, '_calculated_sig')
+        except AttributeError:
+            pass
+        try:
+            delattr(self, '_tempbsig')
+        except AttributeError:
+            pass
         self.includes = None
         self.found_includes = {}
         self.implicit = None
@@ -383,37 +391,63 @@ class Node:
             return
         self.env = env
 
-    def calc_signature(self, calc, cache=None):
+    def calc_signature(self, calc):
         """
         Select and calculate the appropriate build signature for a node.
 
         self - the node
         calc - the signature calculation module
-        cache - alternate node to use for the signature cache
         returns - the signature
         """
-
-        if self.has_builder():
-            if SCons.Sig.build_signature:
-                return calc.bsig(self, cache)
+        try:
+            return self._calculated_sig
+        except AttributeError:
+            if self.has_builder():
+                if SCons.Sig.build_signature:
+                    sig = self.calc_bsig(calc)
+                else:
+                    sig = self.calc_csig(calc)
+            elif not self.exists():
+                sig = None
             else:
-                return calc.csig(self, cache)
-        elif not self.exists():
-            return None
-        else:
-            return calc.csig(self, cache)
+                sig = self.calc_csig(calc)
+            self._calculated_sig = sig
+            return sig
+
+    def calc_bsig(self, calc, cache=None):
+        """Return the node's build signature, calculating it first
+        if necessary.
+
+        Note that we don't save it in the "real" build signature
+        attribute if we have to calculate it here; the "real" build
+        signature only gets updated after a file is actually built.
+        """
+        if cache is None: cache = self
+        try:
+            return cache.bsig
+        except AttributeError:
+            try:
+                return cache._tempbsig
+            except AttributeError:
+                cache._tempbsig = calc.bsig(self, cache)
+                return cache._tempbsig
 
     def get_bsig(self):
         """Get the node's build signature (based on the signatures
         of its dependency files and build information)."""
-        if not hasattr(self, 'bsig'):
+        try:
+            return self.bsig
+        except AttributeError:
             return None
-        return self.bsig
 
     def set_bsig(self, bsig):
         """Set the node's build signature (based on the signatures
         of its dependency files and build information)."""
         self.bsig = bsig
+        try:
+            delattr(self, '_tempbsig')
+        except AttributeError:
+            pass
 
     def store_bsig(self):
         """Make the build signature permanent (that is, store it in the
@@ -422,14 +456,28 @@ class Node:
 
     def del_bsig(self):
         """Delete the bsig from this node."""
-        if hasattr(self, 'bsig'):
+        try:
             delattr(self, 'bsig')
+        except AttributeError:
+            pass
 
     def get_csig(self):
         """Get the signature of the node's content."""
-        if not hasattr(self, 'csig'):
+        try:
+            return self.csig
+        except AttributeError:
             return None
-        return self.csig
+
+    def calc_csig(self, calc, cache=None):
+        """Return the node's content signature, calculating it first
+        if necessary.
+        """
+        if cache is None: cache = self
+        try:
+            return cache.csig
+        except AttributeError:
+            cache.csig = calc.csig(self, cache)
+            return cache.csig
 
     def set_csig(self, csig):
         """Set the signature of the node's content."""
@@ -442,8 +490,10 @@ class Node:
 
     def del_csig(self):
         """Delete the csig from this node."""
-        if hasattr(self, 'csig'):
+        try:
             delattr(self, 'csig')
+        except AttributeError:
+            pass
 
     def get_prevsiginfo(self):
         """Fetch the previous signature information from the

@@ -378,9 +378,11 @@ class Entry(SCons.Node.Node):
             return self._exists
 
     def rexists(self):
-        if not hasattr(self, '_rexists'):
+        try:
+            return self._rexists
+        except AttributeError:
             self._rexists = self.rfile().exists()
-        return self._rexists
+            return self._rexists
 
     def get_parents(self):
         parents = SCons.Node.Node.get_parents(self)
@@ -1112,25 +1114,28 @@ class File(Entry):
         else:
             return 0
 
-    def calc_signature(self, calc, cache=None):
+    def calc_signature(self, calc):
         """
         Select and calculate the appropriate build signature for a File.
 
         self - the File node
         calc - the signature calculation module
-        cache - alternate node to use for the signature cache
         returns - the signature
         """
-
-        if self.is_derived():
-            if SCons.Sig.build_signature:
-                return calc.bsig(self.rfile(), self)
+        try:
+            return self._calculated_sig
+        except AttributeError:
+            if self.is_derived():
+                if SCons.Sig.build_signature:
+                    sig = self.rfile().calc_bsig(calc, self)
+                else:
+                    sig = self.rfile().calc_csig(calc, self)
+            elif not self.rexists():
+                sig = None
             else:
-                return calc.csig(self.rfile(), self)
-        elif not self.rexists():
-            return None
-        else:
-            return calc.csig(self.rfile(), self)
+                sig = self.rfile().calc_csig(calc, self)
+            self._calculated_sig = sig
+            return sig
         
     def store_csig(self):
         self.dir.sconsign().set_csig(self.name, self.get_csig())
@@ -1208,10 +1213,14 @@ class File(Entry):
                 # created the directory, depending on whether the -n
                 # option was used or not.  Delete the _exists and
                 # _rexists attributes so they can be reevaluated.
-                if hasattr(dirnode, '_exists'):
+                try:
                     delattr(dirnode, '_exists')
-                if hasattr(dirnode, '_rexists'):
+                except AttributeError:
+                    pass
+                try:
                     delattr(dirnode, '_rexists')
+                except AttributeError:
+                    pass
             except OSError:
                 pass
 
@@ -1253,10 +1262,14 @@ class File(Entry):
             CachePush(self, None, None)
         SCons.Node.Node.built(self)
         self.found_includes = {}
-        if hasattr(self, '_exists'):
+        try:
             delattr(self, '_exists')
-        if hasattr(self, '_rexists'):
+        except AttributeError:
+            pass
+        try:
             delattr(self, '_rexists')
+        except AttributeError:
+            pass
 
     def visited(self):
         if self.fs.CachePath and self.fs.cache_force and os.path.exists(self.path):
@@ -1321,8 +1334,10 @@ class File(Entry):
                     except OSError, e:
                         raise SCons.Errors.BuildError(node = self,
                                                       errstr = e.strerror)
-                    if hasattr(self, '_exists'):
+                    try:
                         delattr(self, '_exists')
+                    except AttributeError:
+                        pass
             else:
                 try:
                     self._createDir()
@@ -1357,10 +1372,14 @@ class File(Entry):
                 # created the file, depending on whether the -n
                 # option was used or not.  Delete the _exists and
                 # _rexists attributes so they can be reevaluated.
-                if hasattr(self, '_exists'):
+                try:
                     delattr(self, '_exists')
-                if hasattr(self, '_rexists'):
+                except AttributeError:
+                    pass
+                try:
                     delattr(self, '_rexists')
+                except AttributeError:
+                    pass
         return Entry.exists(self)
 
     def current(self, calc):
@@ -1384,14 +1403,16 @@ class File(Entry):
             return calc.current(self, bsig)
 
     def rfile(self):
-        if not hasattr(self, '_rfile'):
+        try:
+            return self._rfile
+        except:
             self._rfile = self
             if not self.exists():
                 n = self.fs.Rsearch(self.path, clazz=File,
                                     cwd=self.fs.Top)
                 if n:
                     self._rfile = n
-        return self._rfile
+            return self._rfile
 
     def rstr(self):
         return str(self.rfile())

@@ -86,6 +86,10 @@ RELEASE 0.14 - XXX
   - Refactor the internal representation of a single execution instance
     of an action to eliminate redundant signature calculations.
 
+  - Eliminate redundant signature calculations for Nodes.
+
+  - Optimize out calling hasattr() before accessing attributes.
+
   From Damyan Pepper:
 
   - Quote the "Entering directory" message like Make.
