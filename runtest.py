@@ -7,21 +7,39 @@ import re
 import string
 import sys
 
+all = 0
 build = None
 debug = ''
+tests = []
 version = None
 
-opts, tests = getopt.getopt(sys.argv[1:], "b:dv:",
-			    ['build=','debug','version='])
+opts, tests = getopt.getopt(sys.argv[1:], "ab:dv:",
+			    ['all','build=','debug','version='])
 
 for o, a in opts:
-    if o == '-b' or o == '-build': build = a
+    if o == '-a' or o == '--all': all = 1
+    elif o == '-b' or o == '-build': build = a
     elif o == '-d' or o == '--debug': debug = "/usr/lib/python1.5/pdb.py"
     elif o == '-v' or o == '--version': version = a
 
 cwd = os.getcwd()
 
-map(os.path.abspath, tests)
+if tests:
+    map(os.path.abspath, tests)
+elif all:
+    def find_Test_py(arg, dirname, names):
+	global tests
+        n = filter(lambda n: n[-8:] == "Tests.py", names)
+	n = map(lambda x,d=dirname: os.path.join(d, x), n)
+	tests = tests + n
+    os.path.walk('src', find_Test_py, 0)
+
+    def find_py(arg, dirname, names):
+	global tests
+        n = filter(lambda n: n[-3:] == ".py", names)
+	n = map(lambda x,d=dirname: os.path.join(d, x), n)
+	tests = tests + n
+    os.path.walk('test', find_py, 0)
 
 if build == 'aegis':
     if not version:
@@ -67,6 +85,8 @@ for path in tests:
     else:
 	abs = os.path.join(cwd, path)
     cmd = string.join(["python", debug, abs], " ")
+    if all:
+	print cmd
     if os.system(cmd):
 	fail.append(path)
 
