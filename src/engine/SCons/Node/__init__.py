@@ -59,6 +59,7 @@ class Node:
         self.sources = []       # source files used to build node
         self.depends = []       # explicit dependencies (from Depends)
         self.implicit = {}	# implicit (scanned) dependencies
+        self.ignore = []	# dependencies to ignore
         self.parents = []
         self.wkids = None       # Kids yet to walk, when it's an array
 	self.builder = None
@@ -167,6 +168,10 @@ class Node:
 	"""Adds dependencies. The depend argument must be a list."""
         self._add_child(self.depends, depend)
 
+    def add_ignore(self, depend):
+        """Adds dependencies to ignore. The depend argument must be a list."""
+        self._add_child(self.ignore, depend)
+
     def add_source(self, source):
 	"""Adds sources. The source argument must be a list."""
         self._add_child(self.sources, source)
@@ -201,9 +206,10 @@ class Node:
 
     def children(self):
         #XXX Need to remove duplicates from this
-        return self.sources \
-               + self.depends \
-               + reduce(lambda x, y: x + y, self.implicit.values(), [])
+        return filter(lambda x, i=self.ignore: x not in i,
+                      self.sources \
+                      + self.depends \
+                      + reduce(lambda x, y: x + y, self.implicit.values(), []))
 
     def get_parents(self):
         return self.parents

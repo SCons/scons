@@ -19,6 +19,8 @@ RELEASE 0.04 -
 
   - Allow LIBS and LIBPATH to be strings, not just arrays.
 
+  - Print a traceback if a Python-function builder throws an exception.
+
   From Steven Knight:
 
   - Fix using a directory as a Default(), and allow Default() to
@@ -45,6 +47,8 @@ RELEASE 0.04 -
   - Strip $(-$) bracketed text from command lines.  Use this to
     surround $_INCDIRS and $_LIBDIRS so we don't rebuild in response
     to changes to -I or -L options.
+
+  - Add the Ignore() method to ignore dependencies.
 
   From Steve Leblanc:
 

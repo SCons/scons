@@ -258,6 +258,17 @@ class EnvironmentTestCase(unittest.TestCase):
 	assert d.__class__.__name__ == 'File'
 	assert d.path == 'Environment.py'
 
+    def test_Ignore(self):
+        """Test the explicit Ignore method."""
+        env = Environment()
+        t = env.Ignore(target='targ.py', dependency='dep.py')
+        assert t.__class__.__name__ == 'File'
+        assert t.path == 'targ.py'
+        assert len(t.ignore) == 1
+        i = t.ignore[0]
+        assert i.__class__.__name__ == 'File'
+        assert i.path == 'dep.py'
+
     def test_Command(self):
         """Test the Command() method."""
         env = Environment()

@@ -312,6 +312,38 @@ class NodeTestCase(unittest.TestCase):
         assert node.implicit[3] == [two, three]
         assert node.implicit[4] == [three, four, one]
 
+    def test_add_ignore(self):
+        """Test adding files whose dependencies should be ignored.
+        """
+        node = SCons.Node.Node()
+        assert node.ignore == []
+
+        zero = SCons.Node.Node()
+        try:
+            node.add_ignore(zero)
+        except TypeError:
+            pass
+        else:
+            assert 0
+
+        one = SCons.Node.Node()
+        two = SCons.Node.Node()
+        three = SCons.Node.Node()
+        four = SCons.Node.Node()
+
+        node.add_ignore([one])
+        assert node.ignore == [one]
+        node.add_ignore([two, three])
+        assert node.ignore == [one, two, three]
+        node.add_ignore([three, four, one])
+        assert node.ignore == [one, two, three, four]
+
+        assert zero.get_parents() == []
+        assert one.get_parents() == [node]
+        assert two.get_parents() == [node]
+        assert three.get_parents() == [node]
+        assert four.get_parents() == [node]
+
     def test_scan(self):
         """Test Scanner functionality"""
         class DummyScanner:

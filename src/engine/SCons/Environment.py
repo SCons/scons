@@ -174,6 +174,17 @@ class Environment:
 	    tlist = tlist[0]
 	return tlist
 
+    def Ignore(self, target, dependency):
+        """Ignore a dependency."""
+        tlist = SCons.Util.scons_str2nodes(target)
+        dlist = SCons.Util.scons_str2nodes(dependency)
+        for t in tlist:
+            t.add_ignore(dlist)
+
+        if len(tlist) == 1:
+            tlist = tlist[0]
+        return tlist
+
     def Dictionary(self, *args):
 	if not args:
 	    return self._dict

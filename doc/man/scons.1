@@ -648,6 +648,17 @@ cc_dict = env.Dictionary('CC', 'CCFLAGS', 'CCCOM')
 .EE
 
 .TP
+.RI Ignore( target ", " dependency )
+The specified dependency file(s)
+will be ignored when deciding if
+the target file(s) need to be rebuilt.
+
+.ES
+env.Ignore('foo', 'foo.c')
+env.Ignore('bar', ['bar1.h', 'bar2.h'])
+.EE
+
+.TP
 .RI Install( dir ", " source )
 Installs one or more files in a destination directory.
 The file names remain the same.
