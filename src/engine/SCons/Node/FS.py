@@ -635,7 +635,7 @@ class Entry(Base):
             self.clear()
             return File.exists(self)
 
-    def calc_signature(self, calc):
+    def calc_signature(self, calc=None):
         """Return the Entry's calculated signature.  Check the file
         system to see what we should turn into first.  Assume a file if
         there's no directory."""
@@ -1259,7 +1259,7 @@ class Dir(Base):
     def prepare(self):
         pass
 
-    def current(self, calc):
+    def current(self, calc=None):
         """If all of our children were up-to-date, then this
         directory was up-to-date, too."""
         state = 0
@@ -1633,7 +1633,7 @@ class File(Base):
         except AttributeError:
             pass
 
-    def calc_csig(self, calc):
+    def calc_csig(self, calc=None):
         """
         Generate a node's content signature, the digested signature
         of its content.
@@ -1642,6 +1642,8 @@ class File(Base):
         cache - alternate node to use for the signature cache
         returns - the content signature
         """
+        if calc is None:
+            calc = self.calculator()
 
         try:
             return self.binfo.csig
@@ -1675,7 +1677,7 @@ class File(Base):
 
         return csig
 
-    def current(self, calc):
+    def current(self, calc=None):
         self.binfo = self.gen_binfo(calc)
         if self.always_build:
             return None

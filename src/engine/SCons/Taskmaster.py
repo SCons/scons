@@ -192,7 +192,7 @@ class Task:
         """
         self.out_of_date = []
         for t in self.targets:
-            if not t.current(t.calculator()):
+            if not t.current():
                 self.out_of_date.append(t)
         if self.out_of_date:
             self.mark_targets_and_side_effects(SCons.Node.executing)
