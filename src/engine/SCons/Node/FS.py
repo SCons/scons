@@ -1455,6 +1455,10 @@ class File(Base):
             return dir, os.path.join(dir, bsig)
         return None, None
 
+    def target_from_source(self, prefix, suffix, splitext=SCons.Util.splitext):
+        return self.dir.File(prefix + splitext(self.name)[0] + suffix)
+
+
 default_fs = FS()
 
 

@@ -349,19 +349,17 @@ class BuilderBase:
         src_suf = self.get_src_suffix(env)
 
         source = adjustixes(source, None, src_suf)
+        slist = SCons.Node.arg2nodes(source, self.source_factory)
+
         if target is None:
-            s = source[0]
-            if isinstance(s, SCons.Node.Node):
-                s = str(s)
-            dir, s = os.path.split(s)
-            target = pre + self.splitext(s)[0] + suf
-            if dir:
-                target = [ os.path.join(dir, target) ]
+            try:
+                t_from_s = slist[0].target_from_source
+            except AttributeError:
+                raise UserError("Do not know how to create a target from source `%s'" % slist[0])
+            tlist = [ t_from_s(pre, suf, self.splitext) ]
         else:
             target = adjustixes(target, pre, suf)
-
-        slist = SCons.Node.arg2nodes(source, self.source_factory)
-        tlist = SCons.Node.arg2nodes(target, self.target_factory)
+            tlist = SCons.Node.arg2nodes(target, self.target_factory)
 
         if self.emitter:
             # The emitter is going to do str(node), but because we're

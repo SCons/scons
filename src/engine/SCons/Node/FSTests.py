@@ -1074,6 +1074,18 @@ class FSTestCase(unittest.TestCase):
                f.get_string(0)
         assert f.get_string(1) == 'baz', f.get_string(1)
 
+        x = fs.File('x.c')
+        t = x.target_from_source('pre-', '-suf')
+        assert str(t) == 'pre-x-suf', str(t)
+
+        y = fs.File('dir/y')
+        t = y.target_from_source('pre-', '-suf')
+        assert str(t) == 'dir/pre-y-suf', str(t)
+
+        z = fs.File('zz')
+        t = z.target_from_source('pre-', '-suf', lambda x: x[:-1])
+        assert str(t) == 'pre-z-suf', str(t)
+
 class EntryTestCase(unittest.TestCase):
     def runTest(self):
         """Test methods specific to the Entry sub-class.

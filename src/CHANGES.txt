@@ -86,6 +86,10 @@ RELEASE 0.XX - XXX
   - Make how we build .rpm packages not depend on the installation
     locations from the distutils being used.
 
+  - When deducing a target Node, create it directly from the first
+    source Node, not by trying to create the right string to pass to
+    arg2nodes().
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building

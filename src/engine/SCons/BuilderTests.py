@@ -111,7 +111,7 @@ class Environment:
     
 env = Environment()
 
-class MyNode:
+class MyNode_without_target_from_source:
     def __init__(self, name):
         self.name = name
         self.sources = []
@@ -139,6 +139,10 @@ class MyNode:
         self.executor = executor
     def get_executor(self, create=1):
         return self.executor
+
+class MyNode(MyNode_without_target_from_source):
+    def target_from_source(self, prefix, suffix, stripext):
+        return MyNode(prefix + stripext(str(self))[0] + suffix)
 
 class BuilderTestCase(unittest.TestCase):
 
@@ -214,6 +218,21 @@ class BuilderTestCase(unittest.TestCase):
                          source = uni('n18 n19'))
         assert target.name == uni('n16 n17')
         assert target.sources[0].name == uni('n18 n19')
+
+        n20 = MyNode_without_target_from_source('n20')
+        flag = 0
+        try:
+            target = builder(env, source=n20)
+        except SCons.Errors.UserError, e:
+            flag = 1
+        assert flag, "UserError should be thrown if a source node can't create a target."
+
+        builder = SCons.Builder.Builder(action="foo",
+                                        node_factory=MyNode,
+                                        prefix='p-',
+                                        suffix='.s')
+        target = builder(env, source='n21')
+        assert target.name == 'p-n21.s', target
 
     def test_action(self):
         """Test Builder creation

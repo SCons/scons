@@ -197,4 +197,41 @@ test.fail_test(os.path.exists(test.workpath('build', 'var8', 'aaa.in')))
 test.fail_test(os.path.exists(test.workpath('build', 'var8', 'bbb.in')))
 test.fail_test(os.path.exists(test.workpath('build', 'var8', 'ccc.in')))
 
+###################
+test.subdir('test2')
+
+test.write(['test2', 'SConstruct'], """\
+SConscript('SConscript', build_dir='Build', src_dir='.', duplicate=0)
+""")
+
+test.write(['test2', 'SConscript'], """\
+env = Environment()
+foo_obj = env.Object('foo.c')
+env.Program('foo', [foo_obj, 'bar.c'])
+""")
+
+test.write(['test2', 'bar.c'], r"""
+void
+bar(void) {
+        printf("bar.c\n");
+}
+""")
+
+test.write(['test2', 'foo.c'], """\
+int
+main(int argc, char *argv[]) {
+        bar();
+        printf("foo.c\n");
+}
+""")
+
+test.run(chdir="test2")
+
+_obj = TestSCons._obj
+
+test.fail_test(os.path.exists(test.workpath('test2', 'foo' + _obj)))
+test.fail_test(os.path.exists(test.workpath('test2', 'bar' + _obj)))
+test.fail_test(not os.path.exists(test.workpath('test2', 'Build', 'foo' + _obj)))
+test.fail_test(not os.path.exists(test.workpath('test2', 'Build', 'bar' + _obj)))
+
 test.pass_test()
