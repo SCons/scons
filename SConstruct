@@ -823,7 +823,7 @@ for p in [ scons ]:
 
     commands = [
         Delete(local),
-        '$PYTHON $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-compile' % \
+        '$PYTHON $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-install-doc --no-compile' % \
                                                 (cwd_local, cwd_local_slv),
     ]
 

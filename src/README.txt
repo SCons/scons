@@ -87,10 +87,18 @@ provided Python-standard setup script as follows:
         # python setup.py install
 
 If this is the first time you are installing SCons on your system,
-the above command will install the scons script in the default system
-script directory (/usr/bin or C:\Python*\Scripts, for example) and the
-build engine in an appropriate stand-alone SCons library directory
-(/usr/lib/scons or C:\Python*\scons, for example).
+the above command will install:
+
+    --  the scons script in the default system script directory (/usr/bin
+        or C:\Python*\Scripts, for example);
+
+    --  the build engine in an appropriate stand-alone SCons library
+        directory (/usr/lib/scons or C:\Python*\scons, for example);
+
+    --  on UNIX or Linux systems, the troff-formatted man pages in an
+        appropriate directory (/usr/share/man/man1 or /usr/man/man1,
+        for example).  This can be disabled by specifying the
+        "--no-install-doc" option on the command line.
 
 Note that, by default, SCons does not install its library in the
 standard Python library directories.  If you want to be able to use the
