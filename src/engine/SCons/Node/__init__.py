@@ -8,18 +8,24 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 
+import string
+
+
+
 class Node:
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """
 
     def __init__(self):
-	self.depends = []
 	self.sources = []
+	self.depends = []
+	self.derived = 0
 	self.env = None
 
     def build(self):
-	self.builder.execute(target = self.path, source = self.sources)
+	sources_str = string.join(map(lambda x: str(x), self.sources))
+	self.builder.execute(target = str(self), source = sources_str)
 
     def builder_set(self, builder):
 	self.builder = builder

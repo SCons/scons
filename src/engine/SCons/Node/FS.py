@@ -214,6 +214,9 @@ class Dir(Node):
             self.abspath = self.path = name
             self.entries['..'] = None
 
+    def __str__(self):
+	return self.path
+
     def up(self):
         return self.entries['..']
 
@@ -257,6 +260,9 @@ class File(Node):
         else:
             self.path = os.path.join(directory.path, name)
         self.parent = directory
+
+    def __str__(self):
+	return self.path
 
     def root(self):
         return self.parent.root()

@@ -29,6 +29,32 @@ outfile = test.workpath('outfile')
 
 class BuilderTestCase(unittest.TestCase):
 
+    def test__call__(self):
+	"""Test calling a builder to establish source dependencies
+	"""
+	class Environment:
+	    pass
+	env = Environment()
+	class Node:
+	    def __init__(self, name):
+		self.name = name
+		self.sources = []
+		self.derived = 0
+	    def builder_set(self, builder):
+		self.builder = builder
+	    def env_set(self, env):
+		self.env = env
+	    def add_source(self, source):
+		self.sources.extend(source)
+	builder = SCons.Builder.Builder(action = "foo")
+	n1 = Node("n1");
+	n2 = Node("n2");
+	builder(env, target = n1, source = n2)
+	assert n1.env == env
+	assert n1.builder == builder
+	assert n1.sources == [n2]
+	assert n1.derived == 1
+
     def test_action(self):
 	"""Test Builder creation
 

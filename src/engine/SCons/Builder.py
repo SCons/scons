@@ -10,6 +10,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import SCons.Node.FS
+import SCons.Util
 import string
 import types
 
@@ -39,25 +40,17 @@ class Builder:
 	return cmp(self.__dict__, other.__dict__)
 
     def __call__(self, env, target = None, source = None):
-	node = self.node_factory(target)
-	node.builder_set(self)
-	node.env_set(self)
+	tlist = SCons.Util.scons_str2nodes(target)
+	slist = SCons.Util.scons_str2nodes(source)
+	for t in tlist:
+	    t.builder_set(self)
+	    t.env_set(env)
+	    t.derived = 1
+	    t.add_source(slist)
 
-        # XXX REACHING INTO ANOTHER OBJECT (this is only temporary):
-        assert type(source) is type("")
-        node.sources = source
-        node.derived = 1
-        sources = string.split(source, " ")
-        sources = filter(lambda x: x, sources)
-        source_nodes = []
-        for source in sources:
-            source_node = self.node_factory(source)
-            source_node.derived = 0
-            source_node.source_nodes = []
-            source_nodes.append(source_node)
-        node.source_nodes = source_nodes
-        
-	return node
+	if len(tlist) == 1:
+	    tlist = tlist[0]
+	return tlist
 
     def execute(self, **kw):
 	"""Execute a builder's action to create an output object.

@@ -91,7 +91,7 @@ class Calculator:
         signatures - the dictionary that the signatures will be
         gathered into.
         """
-        for source_node in node.source_nodes:
+        for source_node in node.sources + node.depends:
             if not signatures.has_key(source_node):
                 signature = self.signature(source_node)
                 signatures[source_node] = signature

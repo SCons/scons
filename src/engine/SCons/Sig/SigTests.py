@@ -27,6 +27,7 @@ class DummyNode:
         self.file = file
         self.path = file.path
         self.derived = file.derived
+	self.depends = []
         
     def get_contents(self):
         # a file that doesn't exist has no contents:
@@ -73,17 +74,17 @@ def create_files(test):
 def create_nodes(files):
     nodes = map(DummyNode, files)
 
-    nodes[0].source_nodes = []
-    nodes[1].source_nodes = [nodes[0]]
-    nodes[2].source_nodes = [nodes[3]]
-    nodes[3].source_nodes = []
-    nodes[4].source_nodes = [nodes[5]]
-    nodes[5].source_nodes = [nodes[6]]
-    nodes[6].source_nodes = [nodes[5]]
-    nodes[7].source_nodes = [nodes[2], nodes[4]]
-    nodes[8].source_nodes = []
-    nodes[9].source_nodes = [nodes[8]]
-    nodes[10].source_nodes = [nodes[9]]
+    nodes[0].sources = []
+    nodes[1].sources = [nodes[0]]
+    nodes[2].sources = [nodes[3]]
+    nodes[3].sources = []
+    nodes[4].sources = [nodes[5]]
+    nodes[5].sources = [nodes[6]]
+    nodes[6].sources = [nodes[5]]
+    nodes[7].sources = [nodes[2], nodes[4]]
+    nodes[8].sources = []
+    nodes[9].sources = [nodes[8]]
+    nodes[10].sources = [nodes[9]]
 
     return nodes
         

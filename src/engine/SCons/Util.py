@@ -32,9 +32,15 @@ def scons_str2nodes(arg, fs=SCons.Node.FS.default_fs):
     for v in narg:
 	if type(v) is types.StringType:
 	    nodes.append(fs.File(v))
-	elif issubclass(v.__class__, SCons.Node.Node):
-	    nodes.append(v)
+	# Do we enforce the following restriction?  Maybe, but it
+	# also restricts what we can do for allowing people to
+	# use the engine with alternate Node implementations...
+	# Perhaps this should be split in two, with the SCons.Node
+	# logic in a wrapper somewhere under SCons.Node, and the
+	# string-parsing logic here...?
+	#elif not issubclass(v.__class__, SCons.Node.Node):
+	#    raise TypeError
 	else:
-	    raise TypeError
+	    nodes.append(v)
 
     return nodes

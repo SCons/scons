@@ -2,6 +2,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 import unittest
+import SCons.Node
 import SCons.Node.FS
 from SCons.Util import scons_str2nodes
 
@@ -37,6 +38,14 @@ class UtilTestCase(unittest.TestCase):
 	assert isinstance(nodes[1], SCons.Node.FS.File)
 	assert nodes[0].path == "Util.py"
 	assert nodes[1].path == "UtilTests.py"
+
+	class SConsNode(SCons.Node.Node):
+	    pass
+	node = scons_str2nodes(SConsNode())
+
+	class OtherNode:
+	    pass
+	node = scons_str2nodes(OtherNode())
 
 
 if __name__ == "__main__":

@@ -41,6 +41,8 @@ class FSTestCase(unittest.TestCase):
             dir = fileSys.Dir(lpath)
             assert dir.path == path, "Dir.path %s != expected path %s" % \
                    (dir.path, path)
+            assert str(dir) == path, "str(dir) %s != expected path %s" % \
+                   (str(dir), path)
             assert dir.abspath == abspath, "Dir.abspath %s != expected abs. path %s" % \
                    (dir.abspath, path)
             assert dir.up().path == up_path, "Dir.up().path %s != expected parent path %s" % \
@@ -62,12 +64,14 @@ class FSTestCase(unittest.TestCase):
         f1 = fs.File('f1', directory = d1)
 
         assert f1.path == 'd1/f1', "f1.path %s != d1/f1" % f1.path
+        assert str(f1) == 'd1/f1', "str(f1) %s != d1/f1" % str(f1)
 
         try:
             f2 = fs.File('f1/f2', directory = d1)
         except TypeError, x:
             node = x.args[0]
             assert node.path == 'd1/f1', "node.path %s != d1/f1" % node.path
+            assert str(node) == 'd1/f1', "str(node) %s != d1/f1" % str(node)
             assert node.__class__.__name__ == 'File'
         except:
             raise
@@ -77,6 +81,7 @@ class FSTestCase(unittest.TestCase):
         except TypeError, x:
             node = x.args[0]
             assert node.path == 'd1/f1', "node.path %s != d1/f1" % node.path
+            assert str(node) == 'd1/f1', "str(node) %s != d1/f1" % str(node)
             assert node.__class__.__name__ == 'File'
         except:
             raise
