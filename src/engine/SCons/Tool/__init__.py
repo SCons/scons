@@ -98,7 +98,7 @@ def createProgBuilder(env):
     try:
         program = env['BUILDERS']['Program']
     except KeyError:
-        program = SCons.Builder.Builder(action = '$LINKCOM',
+        program = SCons.Builder.Builder(action = SCons.Defaults.LinkAction,
                                         emitter = '$PROGEMITTER',
                                         prefix = '$PROGPREFIX',
                                         suffix = '$PROGSUFFIX',
@@ -119,7 +119,7 @@ def createStaticLibBuilder(env):
     try:
         static_lib = env['BUILDERS']['StaticLibrary']
     except KeyError:
-        static_lib = SCons.Builder.Builder(action = "$ARCOM",
+        static_lib = SCons.Builder.Builder(action = SCons.Defaults.ArAction,
                                            emitter = '$LIBEMITTER',
                                            prefix = '$LIBPREFIX',
                                            suffix = '$LIBSUFFIX',
@@ -140,7 +140,8 @@ def createSharedLibBuilder(env):
     try:
         shared_lib = env['BUILDERS']['SharedLibrary']
     except KeyError:
-        action_list = [ SCons.Defaults.SharedCheck, "$SHLINKCOM" ]
+        action_list = [ SCons.Defaults.SharedCheck,
+                        SCons.Defaults.ShLinkAction ]
         shared_lib = SCons.Builder.Builder(action = action_list,
                                            emitter = "$SHLIBEMITTER",
                                            prefix = '$SHLIBPREFIX',

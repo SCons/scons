@@ -41,8 +41,8 @@ def generate(env):
     """Add Builders and construction variables for lex to an Environment."""
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
 
-    c_file.add_action('.l', '$LEXCOM')
-    cxx_file.add_action('.ll', '$LEXCOM')
+    c_file.add_action('.l', SCons.Defaults.LexAction)
+    cxx_file.add_action('.ll', SCons.Defaults.LexAction)
 
     env['LEX']      = env.Detect('flex') or 'lex'
     env['LEXFLAGS'] = SCons.Util.CLVar('')
