@@ -202,27 +202,38 @@ class Node:
 
     def built(self):
         """Called just after this node is sucessfully built."""
-        try:
-            new_binfo = self.binfo
-        except AttributeError:
-            pass
-        else:
-            self.store_info(new_binfo)
-
-        # Clear our scanned included files.
-        self.found_includes = {}
-        self.includes = None
 
         # Clear the implicit dependency caches of any Nodes
         # waiting for this Node to be built.
         for parent in self.waiting_parents:
             parent.implicit = None
             parent.del_binfo()
-        self.waiting_parents = []
+        
+        try:
+            new_binfo = self.binfo
+        except AttributeError:
+            # Node arrived here without build info; apparently it
+            # doesn't need it, so don't bother calculating or storing
+            # it.
+            new_binfo = None
 
-        # The content just changed, delete any cached info
-        # so it will get recalculated.
-        self.del_cinfo()
+        # Reset this Node's cached state since it was just built and
+        # various state has changed.
+        save_state = self.get_state()
+        self.clear()
+        self.set_state(save_state)
+
+        # Had build info, so it should be stored in the signature
+        # cache.  However, if the build info included a content
+        # signature then it should be recalculated before being
+        # stored.
+        
+        if new_binfo:
+            if hasattr(new_binfo, 'csig'):
+                new_binfo = self.gen_binfo()  # sets self.binfo
+            else:
+                self.binfo = new_binfo
+            self.store_info(new_binfo)
 
     def add_to_waiting_parents(self, node):
         self.waiting_parents.append(node)

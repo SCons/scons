@@ -188,6 +188,8 @@ RELEASE 0.97 - XXX
 
   - Improve the --debug=explain message when the build action changes.
 
+  - Properly reset cached state when a Node subclass has been built.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if

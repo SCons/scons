@@ -1169,16 +1169,21 @@ class EntryTestCase(unittest.TestCase):
         e5d = fs.Entry('e5d')
         sig = e5d.calc_signature(MyCalc(555))
         assert e5d.__class__ is SCons.Node.FS.Dir, e5d.__class__
+        # Node has builder (MkDirBuilder), so executor will calculate
+        # the build signature.
         assert sig == 777, sig
 
         e5f = fs.Entry('e5f')
         sig = e5f.calc_signature(MyCalc(666))
         assert e5f.__class__ is SCons.Node.FS.File, e5f.__class__
+        # This node has no builder, so it just calculates the
+        # signature once: the source content signature.
         assert sig == 888, sig
 
         e5n = fs.Entry('e5n')
         sig = e5n.calc_signature(MyCalc(777))
         assert e5n.__class__ is SCons.Node.FS.File, e5n.__class__
+        # Doesn't exist, no sources, and no builder: no sig
         assert sig is None, sig
 
 
