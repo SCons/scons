@@ -90,7 +90,8 @@ class TestSCons(TestCmd.TestCmd):
 	apply(TestCmd.TestCmd.__init__, [self], kw)
 	os.chdir(self.workdir)
 
-    def run(self, stdout = None, stderr = '', status = 0, **kw):
+    def run(self, options = None, arguments = None,
+                  stdout = None, stderr = '', status = 0, **kw):
 	"""Runs SCons.
 
         This is the same as the base TestCmd.run() method, with
@@ -110,6 +111,9 @@ class TestSCons(TestCmd.TestCmd):
         By default, this does not test standard output (stdout = None),
         and expects that error output is empty (stderr = "").
 	"""
+        if options:
+            arguments = options + " " + arguments
+        kw['arguments'] = arguments
 	try:
 	    apply(TestCmd.TestCmd.run, [self], kw)
 	except:
@@ -147,10 +151,12 @@ class TestSCons(TestCmd.TestCmd):
 	    print self.stderr()
 	    raise TestFailed
 
-    def up_to_date(self, arguments = None, **kw):
-	    kw['arguments'] = arguments
+    def up_to_date(self, options = None, arguments = None, **kw):
 	    s = ""
 	    for arg in string.split(arguments):
 		s = s + 'scons: "%s" is up to date.\n' % arg
+                if options:
+                    arguments = options + " " + arguments
+	    kw['arguments'] = arguments
 	    kw['stdout'] = s
 	    apply(self.run, [], kw)
