@@ -29,7 +29,7 @@ import TestSCons
 import string
 import sys
 
-python = sys.executable
+python = TestSCons.python
 
 test = TestSCons.TestSCons(match = TestCmd.match_re_dotall)
 

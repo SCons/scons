@@ -22,6 +22,8 @@ import sys
 
 import TestCmd
 
+python = TestCmd.python_executable
+
 class TestFailed(Exception):
     def __init__(self, args=None):
         self.args = args
@@ -82,7 +84,7 @@ class TestSCons(TestCmd.TestCmd):
                 else:
                     kw['program'] = 'scons.py'
 	if not kw.has_key('interpreter') and not os.environ.get('SCONS_EXEC'):
-	    kw['interpreter'] = sys.executable
+	    kw['interpreter'] = python
 	if not kw.has_key('match'):
 	    kw['match'] = TestCmd.match_exact
 	if not kw.has_key('workdir'):

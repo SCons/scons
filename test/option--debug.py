@@ -163,7 +163,7 @@ def num(match, line):
     return float(re.match(match, line).group(1))
 
 start_time = time.time()
-test.run(program=sys.executable, arguments='-c pass')
+test.run(program=TestSCons.python, arguments='-c pass')
 overhead = time.time() - start_time 
 
 start_time = time.time()

@@ -57,7 +57,10 @@ def platform_default():
     files.  Since we're architecture independent, though, we don't
     care about the machine architecture.
     """
-    if os.name == 'posix':
+    osname = os.name
+    if osname == 'java':
+        osname = os._osType
+    if osname == 'posix':
         if sys.platform == 'cygwin':
             return 'cygwin'
         return 'posix'
@@ -75,14 +78,17 @@ def platform_module(name = platform_default()):
     """
     full_name = 'SCons.Platform.' + name
     if not sys.modules.has_key(full_name):
-        try:
-            file, path, desc = imp.find_module(name,
+        if os.name == 'java':
+            eval(full_name)
+        else:
+            try:
+                file, path, desc = imp.find_module(name,
                                         sys.modules['SCons.Platform'].__path__)
-            imp.load_module(full_name, file, path, desc)
-        except ImportError:
-            raise SCons.Errors.UserError, "No platform named '%s'" % name
-        if file:
-            file.close()
+                imp.load_module(full_name, file, path, desc)
+            except ImportError:
+                raise SCons.Errors.UserError, "No platform named '%s'" % name
+            if file:
+                file.close()
     return sys.modules[full_name]
 
 def DefaultToolList(platform, env):

@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-python = sys.executable
+python = TestSCons.python
 
 test.subdir('sub1', 'sub2', 'sub3')
 

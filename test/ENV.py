@@ -27,7 +27,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import TestSCons
 
-python = sys.executable
+python = TestSCons.python
 
 test = TestSCons.TestSCons()
 

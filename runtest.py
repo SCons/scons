@@ -36,6 +36,8 @@
 #                       is intended for use in the batch_test_command
 #                       field in the Aegis project config file.
 #
+#	-P Python	Use the specified Python interpreter.
+#
 #	-p package	Test against the specified package.
 #
 #	-q		Quiet.  By default, runtest.py prints the
@@ -72,10 +74,15 @@ scons = None
 scons_exec = None
 output = None
 
+if os.name == 'java':
+    python = os.path.join(sys.prefix, 'jython')
+else:
+    python = sys.executable
+
 cwd = os.getcwd()
 
-if sys.platform == 'win32':
-    lib_dir = os.path.join(sys.exec_prefix, "lib")
+if sys.platform == 'win32' or os.name == 'java':
+    lib_dir = os.path.join(sys.exec_prefix, "Lib")
 else:
     # The hard-coded "python" here is the directory name,
     # not an executable, so it's all right.
@@ -88,6 +95,7 @@ Options:
   -d, --debug                 Run test scripts under the Python debugger.
   -h, --help                  Print this message and exit.
   -o FILE, --output FILE      Print test results to FILE (Aegis format).
+  -P Python                   Use the specified Python interpreter.
   -p PACKAGE, --package PACKAGE
                               Test against the specified PACKAGE:
                                 deb           Debian
@@ -103,9 +111,9 @@ Options:
   -x SCRIPT, --exec SCRIPT    Test SCRIPT.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "adho:p:qXx:",
+opts, args = getopt.getopt(sys.argv[1:], "adho:P:p:qXx:",
                             ['all', 'debug', 'help', 'output=',
-                             'package=', 'quiet', 'exec='])
+                             'package=', 'python=', 'quiet', 'exec='])
 
 for o, a in opts:
     if o == '-a' or o == '--all':
@@ -119,6 +127,8 @@ for o, a in opts:
         if not os.path.isabs(a):
             a = os.path.join(cwd, a)
         output = a
+    elif o == '-P' or o == '--python':
+        python = a
     elif o == '-p' or o == '--package':
         package = a
     elif o == '-q' or o == '--quiet':
@@ -314,7 +324,7 @@ class Unbuffered:
 sys.stdout = Unbuffered(sys.stdout)
 
 for t in tests:
-    cmd = string.join([sys.executable, debug, t.abspath], " ")
+    cmd = string.join([python, debug, t.abspath], " ")
     if printcmd:
         sys.stdout.write(cmd + "\n")
     s = os.system(cmd)

@@ -96,7 +96,10 @@ class Environment:
     def items(self):
         return self.d.items()
 
-python = sys.executable
+if os.name == 'java':
+    python = os.path.join(sys.prefix, 'jython')
+else:
+    python = sys.executable
 
 class ActionTestCase(unittest.TestCase):
 

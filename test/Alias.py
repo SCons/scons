@@ -29,7 +29,7 @@ import sys
 import TestSCons
 import TestCmd
 
-python = sys.executable
+python = TestSCons.python
 
 test = TestSCons.TestSCons(match=TestCmd.match_re)
 

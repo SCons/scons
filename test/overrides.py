@@ -31,7 +31,7 @@ import sys
 test = TestSCons.TestSCons()
 
 
-python = sys.executable
+python = TestSCons.python
 
 test.write('SConstruct', """
 env = Environment(LIBS=['a'])

@@ -46,7 +46,7 @@ print env['LIBPATH']
 print env['LIBS']
 print env['CCFLAGS']
 print static_libs
-""" % (sys.executable, test_config))
+""" % (TestSCons.python, test_config))
 
 test.write('SConstruct2', """
 env = Environment(CPPPATH = [], LIBPATH = [], LIBS = [], CCFLAGS = '')
@@ -56,7 +56,7 @@ print env['LIBPATH']
 print env['LIBS']
 print env['CCFLAGS']
 print static_libs
-""" % (sys.executable, test_config))
+""" % (TestSCons.python, test_config))
 
 good_stdout = test.wrap_stdout(read_str = """\
 ['/usr/include/fum', 'bar']

@@ -28,7 +28,7 @@ import sys
 import TestSCons
 import os
 
-python = sys.executable
+python = TestSCons.python
 
 test = TestSCons.TestSCons()
 

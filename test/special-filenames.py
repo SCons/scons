@@ -68,7 +68,7 @@ test.write("SConstruct", """
 env=Environment(BUILDERS = {'Build' : Builder(action = '%s cat.py $TARGET $SOURCE')})
 
 %s
-""" % (sys.executable, string.join(map(buildFileStr, file_names), '\n')))
+""" % (TestSCons.python, string.join(map(buildFileStr, file_names), '\n')))
 
 test.run(arguments='.')
 

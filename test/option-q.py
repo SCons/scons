@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-python = sys.executable
+python = TestSCons.python
 
 test.write('build.py', r"""
 import sys

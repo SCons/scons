@@ -32,7 +32,7 @@ import string
 import sys
 import TestSCons
 
-python = sys.executable
+python = TestSCons.python
 
 test = TestSCons.TestSCons()
 

@@ -440,7 +440,11 @@ class OptParser(OptionParser):
 
         def opt_debug(option, opt, value, parser):
             if value == "pdb":
-                args = [ sys.executable, "pdb.py" ] + \
+                if os.name == 'java':
+                    python = os.path.join(sys.prefix, 'jython')
+                else:
+                    python = sys.executable
+                args = [ python, "pdb.py" ] + \
                        filter(lambda x: x != "--debug=pdb", sys.argv)
                 if sys.platform == 'win32':
                     args[1] = os.path.join(sys.prefix, "lib", "pdb.py")

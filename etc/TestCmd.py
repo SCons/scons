@@ -229,6 +229,14 @@ def match_re_dotall(lines = None, res = None):
     if re.compile("^" + res + "$", re.DOTALL).match(lines):
         return 1
 
+if os.name == 'java':
+
+    python_executable = os.path.join(sys.prefix, 'jython')
+
+else:
+
+    python_executable = sys.executable
+
 if sys.platform == 'win32':
 
     def where_is(file, path=None, pathext=None):

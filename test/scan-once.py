@@ -43,7 +43,6 @@ import sys
 import TestCmd
 import TestSCons
 
-#test = TestSCons.TestSCons(match = TestCmd.match_re)
 test = TestSCons.TestSCons()
 
 test.subdir('simple',
