@@ -152,6 +152,9 @@ class DictCmdGenerator(SCons.Util.Selector):
         self[suffix] = action
 
     def __call__(self, target, source, env, for_signature):
+        if not source:
+            return []
+
         ext = None
         for src in map(str, source):
             my_ext = SCons.Util.splitext(src)[1]
@@ -506,8 +509,11 @@ class BuilderBase:
                 t_from_s = slist[0].target_from_source
             except AttributeError:
                 raise UserError("Do not know how to create a target from source `%s'" % slist[0])
-            splitext = lambda S,self=self,env=env: self.splitext(S,env)
-            tlist = [ t_from_s(pre, suf, splitext) ]
+            except IndexError:
+                tlist = []
+            else:
+                splitext = lambda S,self=self,env=env: self.splitext(S,env)
+                tlist = [ t_from_s(pre, suf, splitext) ]
         else:
             target = _adjustixes(target, pre, suf)
             tlist = env.arg2nodes(target, self.target_factory)
