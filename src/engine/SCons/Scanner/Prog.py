@@ -76,6 +76,7 @@ def scan(node, env, libpath = (), fs = SCons.Node.FS.default_fs):
         for pref in map(env.subst, prefix):
             for lib in libs:
                 if SCons.Util.is_String(lib):
+                    lib = env.subst(lib)
                     lib = adjustixes(lib, pref, suf)
                     lib = find_file(lib, libpath, fs.File)
                     if lib:

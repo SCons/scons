@@ -126,4 +126,32 @@ test.run(arguments = '.')
 test.run(program = test.workpath('prog'),
          stdout = "f1.c\nf2a.c\nf2b.c\nf2c.c\nf3a.c\nf3b.c\nf3c.cpp\nprog.c\n")
 
+# Tests whether you can reference libraries with substitutions.
+
+test.write('SConstruct', r"""
+# nrd = not referenced directly :)
+Library('nrd', 'nrd.c')
+p = Program('uses-nrd', 'uses-nrd.c', NRD='nrd', LIBPATH=['.'], LIBS=['$NRD'])
+Default(p)
+""")
+
+test.write('nrd.c', r"""
+#include <stdio.h>
+void nrd() {
+    puts("nrd");
+}
+""")
+
+test.write('uses-nrd.c', r"""
+void nrd();
+int main() {
+    nrd();
+    return 0;
+}
+""")
+
+test.run()
+test.run(program = test.workpath('uses-nrd'),
+         stdout = "nrd\n")
+
 test.pass_test()
