@@ -223,9 +223,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
         if docs[doc].get('html') and jade:
             cmds = [
-                "rm -f ${TARGET.dir}/*.html",
+                Delete("${TARGET.dir}/*.html"),
                 "jw -b html -o ${TARGET.dir} $SOURCES",
-                "mv -v ${TARGET.dir}/index.html $TARGET || true",
             ]
             if tidy:
                 cmds.append("tidy -m -q $TARGET || true")
@@ -233,9 +232,9 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
             Local(htmlindex)
 
             cmds = [
-                "rm -f ${TARGET.dir}/main.html",
+                Delete("${TARGET.dir}/main.html"),
                 "jw -u -b html -o ${TARGET.dir} $SOURCES",
-                "mv -v ${TARGET.dir}/main.html $TARGET || true",
+                Move("$TARGET", "${TARGET.dir}/main.html"),
             ]
             if tidy:
                 cmds.append("tidy -m -q $TARGET || true")
@@ -261,10 +260,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
         if docs[doc].get('ps') and jadetex:
             env.Command(ps, main, [
-                "rm -f ${TARGET.dir}/%s" % out,
+                Delete("${TARGET.dir}/%s" % out),
                 "jw -b ps -o ${TARGET.dir} $SOURCES",
                 "mv ${TARGET.dir}/main.ps $TARGET",
-                "rm -f ${TARGET.dir}/%s" % out,
+                Delete("${TARGET.dir}/%s" % out),
             ])
             Local(ps)
 
@@ -286,10 +285,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
         if docs[doc].get('pdf') and pdfjadetex:
             env.Command(pdf, main, [
-                "rm -f ${TARGET.dir}/%s" % out,
+                Delete("${TARGET.dir}/%s" % out),
                 "jw -b pdf -o ${TARGET.dir} $SOURCES",
                 "mv ${TARGET.dir}/main.pdf $TARGET",
-                "rm -f ${TARGET.dir}/out",
+                Delete("${TARGET.dir}/out"),
             ])
             Local(pdf)
 

@@ -44,6 +44,8 @@ copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 Default('.')
 
+SConsignFile()
+
 #
 # An internal "whereis" routine to figure out if a given program
 # is available on this system.
@@ -147,8 +149,6 @@ for key in ['AEGIS_PROJECT', 'LOGNAME', 'PYTHONPATH']:
     if os.environ.has_key(key):
         ENV[key] = os.environ[key]
 
-lib_project = os.path.join("lib", project)
-
 cwd_build = os.path.join(os.getcwd(), "build")
 
 test_deb_dir          = os.path.join(cwd_build, "test-deb")
@@ -165,11 +165,11 @@ unpack_zip_dir        = os.path.join(cwd_build, "unpack-zip")
 
 if platform == "win32":
     tar_hflag = ''
-    python_project_subinst_dir = None
+    python_project_subinst_dir = os.path.join("Lib", "site-packages", project)
     project_script_subinst_dir = 'Scripts'
 else:
     tar_hflag = 'h'
-    python_project_subinst_dir = lib_project
+    python_project_subinst_dir = os.path.join("lib", project)
     project_script_subinst_dir = 'bin'
 
 
@@ -292,9 +292,9 @@ env = Environment(
 # In the original, more complicated packaging scheme, we were going
 # to have separate packages for:
 #
-#	python-scons	only the build engine
-#	scons-script	only the script
-#	scons		the script plus the build engine
+#       python-scons    only the build engine
+#       scons-script    only the script
+#       scons           the script plus the build engine
 #
 # We're now only delivering a single "scons" package, but this is still
 # "built" as two sub-packages (the build engine and the script), so
@@ -429,9 +429,9 @@ scons = {
                             'sconsign.1' : '../doc/man/sconsign.1',
                           },
 
-        'subpkgs'	: [ python_scons, scons_script ],
+        'subpkgs'       : [ python_scons, scons_script ],
 
-        'subinst_dirs'	: {
+        'subinst_dirs'  : {
                              'python-' + project : python_project_subinst_dir,
                              project + '-script' : project_script_subinst_dir,
                            },
@@ -514,8 +514,7 @@ for p in [ scons ]:
                 rpm_files.append(r)
                 if f[-3:] == ".py":
                     rpm_files.append(r + 'c')
-            if isubdir:
-                files = map(lambda x, i=isubdir: os.path.join(i, x), files)
+            files = map(lambda x, i=isubdir: os.path.join(i, x), files)
             dst_files.extend(files)
             for k in sp['filemap'].keys():
                 f = sp['filemap'][k]
@@ -550,7 +549,7 @@ for p in [ scons ]:
 
     def write_src_files(target, source, **kw):
         global src_files
-	src_files.sort()
+        src_files.sort()
         f = open(str(target[0]), 'wb')
         for file in src_files:
             f.write(file + "\n")
@@ -587,7 +586,7 @@ for p in [ scons ]:
         #
         # We'd like to replace the last three lines with the following:
         #
-        #	tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
+        #       tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
         #
         # but that gives heartburn to Cygwin's tar, so work around it
         # with separate zcat-tar-rm commands.
@@ -596,10 +595,10 @@ for p in [ scons ]:
                                          os.path.join(u, pv, x),
                                   src_files)
         env.Command(unpack_tar_gz_files, tar_gz, [
-                    "rm -rf %s" % os.path.join(unpack_tar_gz_dir, pkg_version),
+                    Delete(os.path.join(unpack_tar_gz_dir, pkg_version)),
                     "$ZCAT $SOURCES > .temp",
                     "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
-                    "rm -f .temp",
+                    Delete(".temp"),
         ])
 
         #
@@ -617,11 +616,41 @@ for p in [ scons ]:
         #
         dfiles = map(lambda x, d=test_tar_gz_dir: os.path.join(d, x), dst_files)
         env.Command(dfiles, unpack_tar_gz_files, [
-            "rm -rf %s" % os.path.join(unpack_tar_gz_dir, pkg_version, 'build'),
-            "rm -rf $TEST_TAR_GZ_DIR",
-            "$PYTHON %s install --prefix=$TEST_TAR_GZ_DIR" % \
+            Delete(os.path.join(unpack_tar_gz_dir, pkg_version, 'build')),
+            Delete("$TEST_TAR_GZ_DIR"),
+            '$PYTHON "%s" install "--prefix=$TEST_TAR_GZ_DIR"' % \
                 os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
         ])
+
+        #
+        # Generate portage files for submission to Gentoo Linux.
+        #
+        gentoo = os.path.join('build', 'gentoo')
+        ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % version)
+        digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % version)
+        env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
+        def Digestify(target, source, env):
+            import md5
+            def hexdigest(s):
+                """Return a signature as a string of hex characters.
+                """
+                # NOTE:  This routine is a method in the Python 2.0 interface
+                # of the native md5 module, but we want SCons to operate all
+                # the way back to at least Python 1.5.2, which doesn't have it.
+                h = string.hexdigits
+                r = ''
+                for c in s:
+                    i = ord(c)
+                    r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
+                return r
+            src = source[0].rfile()
+            contents = open(str(src)).read()
+            sig = hexdigest(md5.new(contents).digest())
+            bytes = os.stat(str(src))[6]
+            open(str(target[0]), 'w').write("MD5 %s %s %d\n" % (sig,
+                                                                src.name,
+                                                                bytes))
+        env.Command(digest, tar_gz, Digestify)
 
     if zipit:
 
@@ -641,8 +670,8 @@ for p in [ scons ]:
                                src_files)
 
         env.Command(unpack_zip_files, zip, [
-            "rm -rf %s" % os.path.join(unpack_zip_dir, pkg_version),
-            unzipit
+            Delete(os.path.join(unpack_zip_dir, pkg_version)),
+            unzipit,
         ])
 
         #
@@ -660,9 +689,9 @@ for p in [ scons ]:
         #
         dfiles = map(lambda x, d=test_zip_dir: os.path.join(d, x), dst_files)
         env.Command(dfiles, unpack_zip_files, [
-            "rm -rf %s" % os.path.join(unpack_zip_dir, pkg_version, 'build'),
-            "rm -rf $TEST_ZIP_DIR",
-            "$PYTHON %s install --prefix=$TEST_ZIP_DIR" % \
+            Delete(os.path.join(unpack_zip_dir, pkg_version, 'build')),
+            Delete("$TEST_ZIP_DIR"),
+            '$PYTHON "%s" install "--prefix=$TEST_ZIP_DIR"' % \
                 os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
         ])
 
@@ -743,48 +772,18 @@ for p in [ scons ]:
 
 
     #
-    # Generate portage files for submission to Gentoo Linux.
-    #
-    gentoo = os.path.join('build', 'gentoo')
-    ebuild = os.path.join(gentoo, 'scons-%s.ebuild' % version)
-    digest = os.path.join(gentoo, 'files', 'digest-scons-%s' % version)
-    env.Command(ebuild, os.path.join('gentoo', 'scons.ebuild.in'), SCons_revision)
-    def Digestify(target, source, env):
-        import md5
-	def hexdigest(s):
-	    """Return a signature as a string of hex characters.
-	    """
-	    # NOTE:  This routine is a method in the Python 2.0 interface
-	    # of the native md5 module, but we want SCons to operate all
-	    # the way back to at least Python 1.5.2, which doesn't have it.
-	    h = string.hexdigits
-	    r = ''
-	    for c in s:
-	        i = ord(c)
-	        r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
-	    return r
-        src = source[0].rfile()
-        contents = open(str(src)).read()
-        sig = hexdigest(md5.new(contents).digest())
-        bytes = os.stat(str(src))[6]
-        open(str(target[0]), 'w').write("MD5 %s %s %d\n" % (sig,
-                                                            src.name,
-                                                            bytes))
-    env.Command(digest, tar_gz, Digestify)
-
-    #
     # Use the Python distutils to generate the appropriate packages.
     #
     commands = [
-        "rm -rf %s" % os.path.join(build, 'build', 'lib'),
-        "rm -rf %s" % os.path.join(build, 'build', 'scripts'),
+        Delete(os.path.join(build, 'build', 'lib')),
+        Delete(os.path.join(build, 'build', 'scripts')),
     ]
 
     if distutils_formats:
-        commands.append("rm -rf %s" % os.path.join(build,
-                                                   'build',
-                                                   'bdist.' + platform,
-                                                   'dumb'))
+        commands.append(Delete(os.path.join(build,
+                                            'build',
+                                            'bdist.' + platform,
+                                            'dumb')))
         for format in distutils_formats:
             commands.append("$PYTHON $SETUP_PY bdist_dumb -f %s" % format)
 
@@ -810,13 +809,15 @@ for p in [ scons ]:
     local_zip = os.path.join('build', 'dist', "%s.zip" % s_l_v)
 
     commands = [
-        "rm -rf %s" % local,
-        "$PYTHON $SETUP_PY install --install-script=%s --install-lib=%s --no-compile" % \
+        Delete(local),
+        '$PYTHON $SETUP_PY install "--install-script=%s" "--install-lib=%s" --no-compile' % \
                                                 (cwd_local, cwd_local_slv),
     ]
 
     for script in scripts:
-        commands.append("mv %s/%s %s/%s.py" % (local, script, local, script))
+        #commands.append("mv %s/%s %s/%s.py" % (local, script, local, script))
+        local_script = os.path.join(local, script)
+        commands.append(Move(local_script + '.py', local_script))
 
     rf = filter(lambda x: not x in scripts, raw_files)
     rf = map(lambda x, slv=s_l_v: os.path.join(slv, x), rf)
@@ -842,8 +843,8 @@ for p in [ scons ]:
         unpack_targets = map(lambda x, d=test_local_tar_gz_dir:
                                     os.path.join(d, x),
                              rf)
-        commands = ["rm -rf %s" % test_local_tar_gz_dir,
-                    "mkdir %s" % test_local_tar_gz_dir,
+        commands = [Delete(test_local_tar_gz_dir),
+                    Mkdir(test_local_tar_gz_dir),
                     "cd %s && tar xzf $( ${SOURCE.abspath} $)" % test_local_tar_gz_dir]
 
         env.Command(unpack_targets, local_tar_gz, commands)
@@ -855,8 +856,8 @@ for p in [ scons ]:
         unpack_targets = map(lambda x, d=test_local_zip_dir:
                                     os.path.join(d, x),
                              rf)
-        commands = ["rm -rf %s" % test_local_zip_dir,
-                    "mkdir %s" % test_local_zip_dir,
+        commands = [Delete(test_local_zip_dir),
+                    Mkdir(test_local_zip_dir),
                     unzipit]
 
         env.Command(unpack_targets, local_zip, unzipit,
@@ -929,10 +930,9 @@ if change:
 
         b_ps_files = map(lambda x, d=b_ps: os.path.join(d, x), sfiles)
         cmds = [
-            "rm -rf %s" % b_psv,
-            "cp -rp %s %s" % (b_ps, b_psv),
-            "find %s -name .sconsign -exec rm {} \\;" % b_psv,
-            "touch $TARGET",
+            Delete(b_psv),
+            Copy(b_psv, b_ps),
+            Touch("$TARGET"),
         ]
 
         env.Command(b_psv_stamp, src_deps + b_ps_files, cmds)
@@ -954,15 +954,15 @@ if change:
             #
             # We'd like to replace the last three lines with the following:
             #
-            #	tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
+            #   tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
             #
             # but that gives heartburn to Cygwin's tar, so work around it
             # with separate zcat-tar-rm commands.
             env.Command(unpack_tar_gz_files, src_tar_gz, [
-                "rm -rf %s" % os.path.join(unpack_tar_gz_dir, psv),
+                Delete(os.path.join(unpack_tar_gz_dir, psv)),
                 "$ZCAT $SOURCES > .temp",
                 "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
-                "rm -f .temp",
+                Delete(".temp"),
             ])
 
             #
@@ -986,17 +986,17 @@ if change:
             ENV['USERNAME'] = developer
             env.Command(dfiles, unpack_tar_gz_files,
                 [
-                "rm -rf %s" % os.path.join(unpack_tar_gz_dir,
-                                           psv,
-                                           'build',
-                                           'scons',
-                                           'build'),
-                "rm -rf $TEST_SRC_TAR_GZ_DIR",
-                "cd %s && $PYTHON %s %s" % \
+                Delete(os.path.join(unpack_tar_gz_dir,
+                                    psv,
+                                    'build',
+                                    'scons',
+                                    'build')),
+                Delete("$TEST_SRC_TAR_GZ_DIR"),
+                'cd "%s" && $PYTHON "%s" "%s"' % \
                     (os.path.join(unpack_tar_gz_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
-                "$PYTHON %s install --prefix=$TEST_SRC_TAR_GZ_DIR" % \
+                '$PYTHON "%s" install "--prefix=$TEST_SRC_TAR_GZ_DIR"' % \
                     os.path.join(unpack_tar_gz_dir,
                                  psv,
                                  'build',
@@ -1017,7 +1017,7 @@ if change:
                                       sfiles)
 
             env.Command(unpack_zip_files, src_zip, [
-                "rm -rf %s" % os.path.join(unpack_zip_dir, psv),
+                Delete(os.path.join(unpack_zip_dir, psv)),
                 unzipit
             ])
 
@@ -1042,17 +1042,17 @@ if change:
             ENV['USERNAME'] = developer
             env.Command(dfiles, unpack_zip_files,
                 [
-                "rm -rf %s" % os.path.join(unpack_zip_dir,
-                                           psv,
-                                           'build',
-                                           'scons',
-                                           'build'),
-                "rm -rf $TEST_SRC_ZIP_DIR",
-                "cd %s && $PYTHON %s %s" % \
+                Delete(os.path.join(unpack_zip_dir,
+                                    psv,
+                                    'build',
+                                    'scons',
+                                    'build')),
+                Delete("$TEST_SRC_ZIP_DIR"),
+                'cd "%s" && $PYTHON "%s" "%s"' % \
                     (os.path.join(unpack_zip_dir, psv),
                      os.path.join('src', 'script', 'scons.py'),
                      os.path.join('build', 'scons')),
-                "$PYTHON %s install --prefix=$TEST_SRC_ZIP_DIR" % \
+                '$PYTHON "%s" install "--prefix=$TEST_SRC_ZIP_DIR"' % \
                     os.path.join(unpack_zip_dir,
                                  psv,
                                  'build',

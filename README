@@ -86,11 +86,11 @@ In this case, your options are:
 INSTALLATION
 ============
 
-Assuming your system satisfies the installation requirements in
-the previous section, install SCons from this package by first
-populating the build/scons/ directory.  (For an easier way to
-install SCons, without having to populate this directory, use the
-scons-{version}.tar.gz or scons-{version}.zip package.)
+Assuming your system satisfies the installation requirements in the
+previous section, install SCons from this package by first populating
+the build/scons/ subdirectory.  (For an easier way to install SCons,
+without having to populate this directory, use the scons-{version}.tar.gz
+or scons-{version}.zip package.)
 
 If you already have an appropriate version of SCons installed on your
 system, populate the build/scons/ directory by running:
@@ -99,21 +99,36 @@ system, populate the build/scons/ directory by running:
 
 If you don't have SCons version 0.96 or later already installed on your
 system, you can use SCons itself to populate the build/scons/ directory
-with a little more typing:
+with a little more typing.  You must first set the SCONS_LIB_DIR
+environment variable to the local src/engine subdirectory, and then
+execute the local src/script/scons.py script to populate the build/scons/
+subdirectory.  You would do this as follows on a Linux or UNIX system
+(using sh or a derivative like bash or ksh):
 
-        $ SCONS_LIB_DIR=`pwd`/src/engine python src/script/scons.py build/scons
+        $ export SCONS_LIB_DIR=`pwd`/src/engine
+        $ python src/script/scons.py build/scons
 
-Either command will populate the build/scons/ directory with the
-necessary files and directory structure to use the Python-standard setup
-script as follows:
+Or as follows on Windows:
+        
+        C:\scons\>set SCONS_LIB_DIR=%cd%\src\engine
+        C:\scons\>python src/script/scons.py build/scons
+
+Either command will populate the build/scons/ directory with the necessary
+files and directory structure to use the Python-standard setup script
+as follows on Linux or UNIX:
 
         # cd build/scons
         # python setup.py install
 
+And on Windows:
+
+        C:\scons\>cd build\scons
+        C:\scons\build\scons>python setup.py install
+
 If this is the first time you are installing SCons on your system,
 the above command will install the scons script in the default system
-script directory (/usr/bin or C:\Python*\Scripts, for example) and the
-build engine in an appropriate stand-alone SCons library directory
+script directory (/usr/bin or C:\Python*\Scripts, for example) and
+the build engine in an appropriate stand-alone SCons library directory
 (/usr/lib/scons or C:\Python*\scons, for example).
 
 Note that, by default, SCons does not install its library in the

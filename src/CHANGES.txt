@@ -28,6 +28,8 @@ RELEASE 0.97 - XXX
 
   - Make the scons.bat REM statements into @REM so they aren't printed.
 
+  - Make the SCons packaging SConscript files platform independent.
+
   From Anthony Roach:
 
   - Fix scanning of pre-compiled header (.pch) files for #includes,
