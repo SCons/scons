@@ -307,6 +307,145 @@ class ParallelExceptionTestCase(unittest.TestCase):
         self.failUnless(taskmaster.num_postprocessed >= 1,
                     "one or more tasks should have been postprocessed")
 
+#---------------------------------------------------------------------
+# Above tested Job object with contrived Task and Taskmaster objects.
+# Now test Job object with actual Task and Taskmaster objects.
+
+import SCons.Taskmaster
+import SCons.Node
+import time
+
+
+class testnode (SCons.Node.Node):
+    def __init__(self):
+        SCons.Node.Node.__init__(self)
+        self.expect_to_be = SCons.Node.executed
+
+class goodnode (testnode):
+    pass
+
+class slowgoodnode (goodnode):
+    def prepare(self):
+        # Delay to allow scheduled Jobs to run while the dispatcher
+        # sleeps.  Keep this short because it affects the time taken
+        # by this test.
+        time.sleep(0.15)
+        goodnode.prepare(self)
+        
+class badnode (goodnode):
+    def __init__(self):
+        goodnode.__init__(self)
+        self.expect_to_be = SCons.Node.failed
+    def build(self, **kw):
+        raise 'badnode exception'
+
+class slowbadnode (badnode):
+    def build(self, **kw):
+        # Appears to take a while to build, allowing faster builds to
+        # overlap.  Time duration is not especially important, but if
+        # it is faster than slowgoodnode then these could complete
+        # while the scheduler is sleeping.
+        time.sleep(0.05)
+        raise 'slowbadnode exception'
+
+class badpreparenode (badnode):
+    def prepare(self):
+        raise 'badpreparenode exception'
+
+class _SConsTaskTest(unittest.TestCase):
+
+    def _test_seq(self, num_jobs):
+        for node_seq in [
+            [goodnode],
+            [badnode],
+            [slowbadnode],
+            [slowgoodnode],
+            [badpreparenode],
+            [goodnode, badnode],
+            [slowgoodnode, badnode],
+            [goodnode, slowbadnode],
+            [goodnode, goodnode, goodnode, slowbadnode],
+            [goodnode, slowbadnode, badpreparenode, slowgoodnode],
+            [goodnode, slowbadnode, slowgoodnode, badnode]
+            ]:
+
+            self._do_test(num_jobs, node_seq)
+
+    def _do_test(self, num_jobs, node_seq):
+
+        testnodes = []
+        for tnum in range(num_tasks):
+            testnodes.append(node_seq[tnum % len(node_seq)]())
+
+        taskmaster = SCons.Taskmaster.Taskmaster(testnodes)
+        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+
+        # Exceptions thrown by tasks are not actually propagated to
+        # this level, but are instead stored in the Taskmaster.
+        
+        jobs.run()
+
+        # Now figure out if tests proceeded correctly.  The first test
+        # that fails will shutdown the initiation of subsequent tests,
+        # but any tests currently queued for execution will still be
+        # processed, and any tests that completed before the failure
+        # would have resulted in new tests being queued for execution.
+
+        # Apply the following operational heuristics of Job.py:
+        #  0) An initial jobset of tasks will be queued before any
+        #     good/bad results are obtained (from "execute" of task in
+        #     thread).
+        #  1) A goodnode will complete immediately on its thread and
+        #     allow another node to be queued for execution.
+        #  2) A badnode will complete immediately and suppress any
+        #     subsequent execution queuing, but all currently queued
+        #     tasks will still be processed.
+        #  3) A slowbadnode will fail later.  It will block slots in
+        #     the job queue.  Nodes that complete immediately will
+        #     allow other nodes to be queued in their place, and this
+        #     will continue until either (#2) above or until all job
+        #     slots are filled with slowbadnode entries.
+
+        # One approach to validating this test would be to try to
+        # determine exactly how many nodes executed, how many didn't,
+        # and the results of each, and then to assert failure on any
+        # mismatch (including the total number of built nodes).
+        # However, while this is possible to do for a single-processor
+        # system, it is nearly impossible to predict correctly for a
+        # multi-processor system and still test the characteristics of
+        # delayed execution nodes.  Stated another way, multithreading
+        # is inherently non-deterministic unless you can completely
+        # characterize the entire system, and since that's not
+        # possible here, we shouldn't try.
+
+        # Therefore, this test will simply scan the set of nodes to
+        # see if the node was executed or not and if it was executed
+        # that it obtained the expected value for that node
+        # (i.e. verifying we don't get failure crossovers or
+        # mislabelling of results).
+
+        for N in testnodes:
+            self.failUnless(N.get_state() in [None, N.expect_to_be],
+                            "node ran but got unexpected result")
+
+        self.failUnless(filter(lambda N: N.get_state(), testnodes),
+                        "no nodes ran at all.")
+
+
+class SerialTaskTest(_SConsTaskTest):
+    def runTest(self):
+        "test serial jobs with actual Taskmaster and Task"
+        self._test_seq(1)
+
+
+class ParallelTaskTest(_SConsTaskTest):
+    def runTest(self):
+        "test parallel jobs with actual Taskmaster and Task"
+        self._test_seq(num_jobs)
+
+
+
+#---------------------------------------------------------------------
 
 def suite():
     suite = unittest.TestSuite()
@@ -315,6 +454,8 @@ def suite():
     suite.addTest(NoParallelTestCase())
     suite.addTest(SerialExceptionTestCase())
     suite.addTest(ParallelExceptionTestCase())
+    suite.addTest(SerialTaskTest())
+    suite.addTest(ParallelTaskTest())
     return suite
 
 if __name__ == "__main__":

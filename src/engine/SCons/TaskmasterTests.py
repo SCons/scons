@@ -478,7 +478,7 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster(targets = [n1], tasker = MyTask)
         t = tm.next_task()
-        exc_type, exc_value, exc_tb = tm.exception
+        exc_type, exc_value, exc_tb = t.exception
         assert exc_type == MyException, repr(exc_type)
         assert str(exc_value) == "from make_ready()", exc_value
 
@@ -557,14 +557,14 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = StopNode("n1")
         tm = SCons.Taskmaster.Taskmaster([n1])
         t = tm.next_task()
-        exc_type, exc_value, exc_tb = tm.exception
+        exc_type, exc_value, exc_tb = t.exception
         assert exc_type == SCons.Errors.StopError, repr(exc_type)
         assert str(exc_value) == "stop!", exc_value
 
         n2 = ExitNode("n2")
         tm = SCons.Taskmaster.Taskmaster([n2])
         t = tm.next_task()
-        exc_type, exc_value = tm.exception
+        exc_type, exc_value = t.exception
         assert exc_type == SCons.Errors.ExplicitExit, repr(exc_type)
         assert exc_value.node == n2, exc_value.node
         assert exc_value.status == 77, exc_value.status
@@ -741,8 +741,8 @@ class TaskmasterTestCase(unittest.TestCase):
         built_text = None
         n5 = Node("n5")
         tm = SCons.Taskmaster.Taskmaster([n5])
-        tm.exception_set((MyException, "exception value"))
         t = tm.next_task()
+        t.exception_set((MyException, "exception value"))
         exc_caught = None
         try:
             t.prepare()
@@ -880,19 +880,20 @@ class TaskmasterTestCase(unittest.TestCase):
         """
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster([n1])
+        t  = tm.next_task()
 
-        tm.exception_set((1, 2))
-        exc_type, exc_value = tm.exception
+        t.exception_set((1, 2))
+        exc_type, exc_value = t.exception
         assert exc_type == 1, exc_type
         assert exc_value == 2, exc_value
 
-        tm.exception_set(3)
-        assert tm.exception == 3
+        t.exception_set(3)
+        assert t.exception == 3
 
         try: 1/0
         except: pass
-        tm.exception_set(None)
-        exc_type, exc_value, exc_tb = tm.exception
+        t.exception_set(None)
+        exc_type, exc_value, exc_tb = t.exception
         assert exc_type is ZeroDivisionError, exc_type
         exception_values = [
             "integer division or modulo",
@@ -900,9 +901,9 @@ class TaskmasterTestCase(unittest.TestCase):
         ]
         assert str(exc_value) in exception_values, exc_value
 
-        tm.exception_set(("exception 1", None))
+        t.exception_set(("exception 1", None))
         try:
-            tm.exception_raise()
+            t.exception_raise()
         except:
             exc_type, exc_value = sys.exc_info()[:2]
             assert exc_type == "exception 1", exc_type
@@ -910,13 +911,27 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             assert 0, "did not catch expected exception"
 
-        tm.exception_set(("exception 2", "xyzzy"))
+        t.exception_set(("exception 2", "xyzzy"))
         try:
-            tm.exception_raise()
+            t.exception_raise()
         except:
             exc_type, exc_value = sys.exc_info()[:2]
             assert exc_type == "exception 2", exc_type
             assert exc_value == "xyzzy", exc_value
+        else:
+            assert 0, "did not catch expected exception"
+
+        t.exception_set(("exception 3", "XYZZY"))
+        def fw_exc(exc):
+            raise 'exception_forwarded', exc
+        tm.exception_raise = fw_exc 
+        try:
+            t.exception_raise()
+        except:
+            exc_type, exc_value = sys.exc_info()[:2]
+            assert exc_type == 'exception_forwarded', exc_type
+            assert exc_value[0] == "exception 3", exc_value[0]
+            assert exc_value[1] == "XYZZY", exc_value[1]
         else:
             assert 0, "did not catch expected exception"
 

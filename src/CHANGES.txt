@@ -100,6 +100,8 @@ RELEASE 0.97 - XXX
 
   - Test enhancements in SourceCode.py and option-n.py.
 
+  - Fix problems with Parallel Task Exception handling.
+
   From Christoph Wiedemann:
 
   - Add an Environment.SetDefault() method that only sets values if
