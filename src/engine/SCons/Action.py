@@ -293,8 +293,19 @@ class CommandAction(ActionBase):
     def get_raw_contents(self, target, source, env):
         """Return the complete contents of this action's command line.
         """
+        # We've discusssed using the real target and source names in
+        # a CommandAction's signature contents.  This would have the
+        # advantage of recompiling when a file's name changes (keeping
+        # debug info current), but it would currently break repository
+        # logic that will change the file name based on whether the
+        # files come from a repository or locally.  If we ever move to
+        # that scheme, though, here's how we'd do it:
+        #return SCons.Util.scons_subst(string.join(self.cmd_list),
+        #                              self.subst_dict(target, source, env),
+        #                              {})
         return SCons.Util.scons_subst(string.join(self.cmd_list),
-                                      self._sig_dict(target, source, env), {})
+                                      env.sig_dict(),
+                                      {})
 
     def get_contents(self, target, source, env):
         """Return the signature contents of this action's command line.
@@ -302,8 +313,21 @@ class CommandAction(ActionBase):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
+        # We've discusssed using the real target and source names in
+        # a CommandAction's signature contents.  This would have the
+        # advantage of recompiling when a file's name changes (keeping
+        # debug info current), but it would currently break repository
+        # logic that will change the file name based on whether the
+        # files come from a repository or locally.  If we ever move to
+        # that scheme, though, here's how we'd do it:
+        #return SCons.Util.scons_subst(string.join(map(str, self.cmd_list)),
+        #                              self.subst_dict(target, source, env),
+        #                              {},
+        #                              _remove)
         return SCons.Util.scons_subst(string.join(map(str, self.cmd_list)),
-                                      self._sig_dict(target, source, env), {}, _remove)
+                                      env.sig_dict(),
+                                      {},
+                                      _remove)
 
 class CommandGeneratorAction(ActionBase):
     """Class for command-generator actions."""

@@ -98,6 +98,14 @@ class Environment:
         return env
     def items(self):
         return self.d.items()
+    def sig_dict(self):
+        d = {}
+        for k,v in self.items(): d[k] = v
+        d['TARGETS'] = ['__t1__', '__t2__', '__t3__', '__t4__', '__t5__', '__t6__']
+        d['TARGET'] = d['TARGETS'][0]
+        d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
+        d['SOURCE'] = d['SOURCES'][0]
+        return d
     
 env = Environment()
 
@@ -239,9 +247,13 @@ class BuilderTestCase(unittest.TestCase):
         """Test returning the signature contents of a Builder
         """
 
-        b1 = SCons.Builder.Builder(action = "foo")
+        b1 = SCons.Builder.Builder(action = "foo ${TARGETS[5]}")
         contents = b1.get_contents([],[],Environment())
-        assert contents == "foo", contents
+        assert contents == "foo __t6__", contents
+
+        b1 = SCons.Builder.Builder(action = "bar ${SOURCES[3:5]}")
+        contents = b1.get_contents([],[],Environment())
+        assert contents == "bar __s4__ __s5__", contents
 
         b2 = SCons.Builder.Builder(action = Func)
         contents = b2.get_contents([],[],Environment())

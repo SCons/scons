@@ -47,6 +47,10 @@ RELEASE 0.12 - XXX
   - Better documentation of the different ways to export variables to a
     subsidiary SConscript file.
 
+  - Support fetching arbitrary files from the TARGETS or SOURCES lists
+    (e.g. ${SOURCES[2]}) when calculating the build signature of a
+    command.
+
   From Lachlan O'Dea:
 
   - Add SharedObject() support to the masm tool.

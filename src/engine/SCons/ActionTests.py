@@ -100,6 +100,14 @@ class Environment:
         return self.d.get(key, value)
     def items(self):
         return self.d.items()
+    def sig_dict(self):
+        d = {}
+        for k,v in self.items(): d[k] = v
+        d['TARGETS'] = ['__t1__', '__t2__', '__t3__', '__t4__', '__t5__', '__t6__']
+        d['TARGET'] = d['TARGETS'][0]
+        d['SOURCES'] = ['__s1__', '__s2__', '__s3__', '__s4__', '__s5__', '__s6__']
+        d['SOURCE'] = d['SOURCES'][0]
+        return d
 
 if os.name == 'java':
     python = os.path.join(sys.prefix, 'jython')
@@ -190,6 +198,8 @@ class ActionBaseTestCase(unittest.TestCase):
     def test_show(self):
         """Test the show() method
         """
+        save_stdout = sys.stdout
+
         save = SCons.Action.print_actions
         SCons.Action.print_actions = 0
 
@@ -209,7 +219,7 @@ class ActionBaseTestCase(unittest.TestCase):
         assert s == "foobar\n", s
 
         SCons.Action.print_actions = save
-        sys.stdout = StringIO.StringIO()
+        sys.stdout = save_stdout
 
     def test_get_actions(self):
         """Test the get_actions() method
@@ -543,6 +553,51 @@ class CommandActionTestCase(unittest.TestCase):
                                env=Environment(foo = 'FFF', bar = 'BBB'))
         assert c == "| $( FFF | BBB $) |", c
 
+        # We've discusssed using the real target and source names in a
+        # CommandAction's signature contents.  This would have have the
+        # advantage of recompiling when a file's name changes (keeping
+        # debug info current), but it would currently break repository
+        # logic that will change the file name based on whether the
+        # files come from a repository or locally.  If we ever move to
+        # that scheme, then all of the '__t1__' and '__s6__' file names
+        # in the asserts below would change to 't1' and 's6' and the
+        # like.
+        t = ['t1', 't2', 't3', 't4', 't5', 't6']
+        s = ['s1', 's2', 's3', 's4', 's5', 's6']
+        env = Environment()
+
+        a = SCons.Action.CommandAction(["$TARGET"])
+        c = a.get_raw_contents(target=t, source=s, env=env)
+        assert c == "__t1__", c
+
+        a = SCons.Action.CommandAction(["$TARGETS"])
+        c = a.get_raw_contents(target=t, source=s, env=env)
+        assert c == "__t1__ __t2__ __t3__ __t4__ __t5__ __t6__", c
+
+        a = SCons.Action.CommandAction(["${TARGETS[2]}"])
+        c = a.get_raw_contents(target=t, source=s, env=env)
+        assert c == "__t3__", c
+
+        a = SCons.Action.CommandAction(["${TARGETS[3:5]}"])
+        c = a.get_raw_contents(target=t, source=s, env=env)
+        assert c == "__t4__ __t5__", c
+
+        a = SCons.Action.CommandAction(["$SOURCE"])
+        c = a.get_raw_contents(target=t, source=s, env=env)
+        assert c == "__s1__", c
+
+        a = SCons.Action.CommandAction(["$SOURCES"])
+        c = a.get_raw_contents(target=t, source=s, env=env)
+        assert c == "__s1__ __s2__ __s3__ __s4__ __s5__ __s6__", c
+
+        a = SCons.Action.CommandAction(["${SOURCES[2]}"])
+        c = a.get_raw_contents(target=t, source=s, env=env)
+        assert c == "__s3__", c
+
+        a = SCons.Action.CommandAction(["${SOURCES[3:5]}"])
+        c = a.get_raw_contents(target=t, source=s, env=env)
+        assert c == "__s4__ __s5__", c
+
     def test_get_contents(self):
         """Test fetching the contents of a command Action
         """
@@ -551,6 +606,51 @@ class CommandActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[],
                            env=Environment(foo = 'FFF', bar = 'BBB'))
         assert c == "| |", c
+
+        # We've discusssed using the real target and source names in a
+        # CommandAction's signature contents.  This would have have the
+        # advantage of recompiling when a file's name changes (keeping
+        # debug info current), but it would currently break repository
+        # logic that will change the file name based on whether the
+        # files come from a repository or locally.  If we ever move to
+        # that scheme, then all of the '__t1__' and '__s6__' file names
+        # in the asserts below would change to 't1' and 's6' and the
+        # like.
+        t = ['t1', 't2', 't3', 't4', 't5', 't6']
+        s = ['s1', 's2', 's3', 's4', 's5', 's6']
+        env = Environment()
+
+        a = SCons.Action.CommandAction(["$TARGET"])
+        c = a.get_contents(target=t, source=s, env=env)
+        assert c == "__t1__", c
+
+        a = SCons.Action.CommandAction(["$TARGETS"])
+        c = a.get_contents(target=t, source=s, env=env)
+        assert c == "__t1__ __t2__ __t3__ __t4__ __t5__ __t6__", c
+
+        a = SCons.Action.CommandAction(["${TARGETS[2]}"])
+        c = a.get_contents(target=t, source=s, env=env)
+        assert c == "__t3__", c
+
+        a = SCons.Action.CommandAction(["${TARGETS[3:5]}"])
+        c = a.get_contents(target=t, source=s, env=env)
+        assert c == "__t4__ __t5__", c
+
+        a = SCons.Action.CommandAction(["$SOURCE"])
+        c = a.get_contents(target=t, source=s, env=env)
+        assert c == "__s1__", c
+
+        a = SCons.Action.CommandAction(["$SOURCES"])
+        c = a.get_contents(target=t, source=s, env=env)
+        assert c == "__s1__ __s2__ __s3__ __s4__ __s5__ __s6__", c
+
+        a = SCons.Action.CommandAction(["${SOURCES[2]}"])
+        c = a.get_contents(target=t, source=s, env=env)
+        assert c == "__s3__", c
+
+        a = SCons.Action.CommandAction(["${SOURCES[3:5]}"])
+        c = a.get_contents(target=t, source=s, env=env)
+        assert c == "__s4__ __s5__", c
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
 

@@ -794,6 +794,46 @@ class EnvironmentTestCase(unittest.TestCase):
                                              'PREFIX', 'SUFFIX',
                                              'LIBPREFIX', 'LIBSUFFIX')
 
+    def test_sig_dict(self):
+        """Test the sig_dict() method"""
+        d = Environment(XYZZY = 'foo').sig_dict()
+
+        assert d['XYZZY'] == 'foo'
+
+        s = str(d['TARGET'])
+        assert s == '__t1__', s
+        s = str(d['TARGET'].dir)
+        assert s == '', s
+        s = str(d['TARGETS'])
+        assert s == '__t1__ __t2__', s
+        s = str(d['TARGETS'][1])
+        assert s == '__t2__', s
+        s = str(d['TARGETS'][2])
+        assert s == '__t3__', s
+        s = str(d['TARGETS'][87])
+        assert s == '__t88__', s
+        s = str(d['TARGETS'][87].dir)
+        assert s == '', s
+        s = map(str, d['TARGETS'][3:5])
+        assert s == ['__t4__', '__t5__'], s
+
+        s = str(d['SOURCE'])
+        assert s == '__s1__', s
+        s = str(d['SOURCE'].dir)
+        assert s == '', s
+        s = str(d['SOURCES'])
+        assert s == '__s1__ __s2__', s
+        s = str(d['SOURCES'][1])
+        assert s == '__s2__', s
+        s = str(d['SOURCES'][2])
+        assert s == '__s3__', s
+        s = str(d['SOURCES'][87])
+        assert s == '__s88__', s
+        s = str(d['SOURCES'][87].dir)
+        assert s == '', s
+        s = map(str, d['SOURCES'][3:5])
+        assert s == ['__s4__', '__s5__'], s
+
         
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')
