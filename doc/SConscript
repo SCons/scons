@@ -182,7 +182,13 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 "mv -v ${TARGET.dir}/index.html $TARGET || true",
             ])
 
-            env.Command(html, main, "jw -u -b html $SOURCES > $TARGET")
+            env.Command(html, main, [
+                "rm -f ${TARGET.dir}/main.html",
+                "jw -u -b html -o ${TARGET.dir} $SOURCES",
+                "mv -v ${TARGET.dir}/main.html $TARGET || true",
+            ])
+
+            env.Ignore([html, htmlindex], "version.sgml")
 
             tar_deps.extend([html, htmlindex])
             tar_list = string.join([tar_list, html, htmldir], " ")
@@ -202,8 +208,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 "mv ${TARGET.dir}/main.ps $TARGET",
                 "rm -f ${TARGET.dir}/%s" % out,
             ])
+
+            env.Ignore(ps, "version.sgml")
+
             tar_deps.append(ps)
             tar_list = tar_list + " " + ps
+
             if fig2dev:
                 for g in docs[doc].get('graphics', []):
                     fig = os.path.join(doc, '%s.fig' % g)
@@ -218,11 +228,17 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 "mv ${TARGET.dir}/main.pdf $TARGET",
                 "rm -f ${TARGET.dir}/out",
             ])
+
+            env.Ignore(pdf, "version.sgml")
+
             tar_deps.append(pdf)
             tar_list = tar_list + " " + pdf
 
         if docs[doc].get('text') and lynx:
             env.Command(text, html, "lynx -dump ${SOURCE.abspath} > $TARGET")
+
+            env.Ignore(text, "version.sgml")
+
             tar_deps.append(text)
             tar_list = tar_list + " " + text
 
@@ -255,4 +271,4 @@ if man2html:
 # for easy distribution to the web site.
 #
 env.Command(doc_tar_gz, tar_deps,
-            "tar zchv -f $TARGET -C build/doc %s" % tar_list)
+            "tar zch -f $TARGET -C build/doc %s" % tar_list)
