@@ -50,6 +50,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 /usr/bin/scons
+/usr/lib/scons/SCons/Action.py
+/usr/lib/scons/SCons/Action.pyc
 /usr/lib/scons/SCons/Builder.py
 /usr/lib/scons/SCons/Builder.pyc
 /usr/lib/scons/SCons/Defaults.py
