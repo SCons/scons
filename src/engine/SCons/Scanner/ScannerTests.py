@@ -53,7 +53,7 @@ class DummyNode:
     def __init__(self, name):
         self.name = name
     def rexists(self):
-        return None
+        return 1
     def __str__(self):
         return self.name
     
@@ -252,7 +252,7 @@ class SelectorTestCase(unittest.TestCase):
         def scanner_key(self):
             return self.key
         def rexists(self):
-            return None
+            return 1
 
     def test___init__(self):
         """Test creation of Scanner.Selector object"""
@@ -310,7 +310,7 @@ class CurrentTestCase(unittest.TestCase):
                 self.called_current = None
                 self.func_called = None
             def rexists(self):
-                return None
+                return 1
         class HasNoBuilder(MyNode):
             def has_builder(self):
                 self.called_has_builder = 1
