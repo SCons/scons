@@ -264,7 +264,7 @@ class UtilTestCase(unittest.TestCase):
         except:
             pass
         else:
-            assert is_String(UserString.UserString())
+            assert is_String(UserString.UserString(''))
         assert not is_String({})
         assert not is_String([])
 
