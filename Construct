@@ -63,7 +63,6 @@ sub cons::read_file {
 $aegis = cons::whereis('aegis');
 $aesub = cons::whereis('aesub');
 $rpm = cons::whereis('rpm');
-$jw = cons::whereis('jw');
 $dh_builddeb = cons::whereis('dh_builddeb');
 $fakeroot = cons::whereis('fakeroot');
 
@@ -438,11 +437,10 @@ Build "etc/Conscript";
 #
 # Documentation.
 #
-if ($jw) {
-    Link 'build/doc' => 'doc';
+Link 'build/doc' => 'doc';
 
-    Build 'build/doc/Conscript';
-}
+Build 'build/doc/Conscript';
+
 
 #
 # If we're running in the actual Aegis project, pack up a complete

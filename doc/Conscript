@@ -39,17 +39,19 @@ $doc_tar_gz = "#build/dist/scons-doc-${\$env->{VERSION}}.tar.gz";
 $groff = cons::whereis('groff');
 $lynx = cons::whereis('lynx');
 $man2html = cons::whereis('man2html');
+$jw = cons::whereis('jw');
 
-#
-# Always create a version.sgml file containing the version information
-# for this run.  Ignore it for dependency purposes so we don't
-# rebuild all the docs every time just because the date changes.
-#
-$verfile = SourcePath("version.sgml");
-unlink($verfile);
-chmod(0664, $verfile);
-open(FILE, ">$verfile") || die "Cannot open '$verfile': $!";
-print FILE <<_EOF_;
+if ($jw) {
+    #
+    # Always create a version.sgml file containing the version information
+    # for this run.  Ignore it for dependency purposes so we don't
+    # rebuild all the docs every time just because the date changes.
+    #
+    $verfile = SourcePath("version.sgml");
+    unlink($verfile);
+    chmod(0664, $verfile);
+    open(FILE, ">$verfile") || die "Cannot open '$verfile': $!";
+    print FILE <<_EOF_;
 <!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
@@ -57,98 +59,99 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY buildversion "${\$env->{VERSION}}">
 <!ENTITY buildrevision "${\$env->{REVISION}}">
 _EOF_
-close(FILE);
+    close(FILE);
 
-Ignore("version.sgml");
+    Ignore("version.sgml");
 
-#
-# Each document will live in its own subdirectory.  List them here
-# as hash keys, with a hash of the info to control its build.
-#
-%doc_dirs = (
-    'design' => {
-    		'html'	=> 'book1.html',
-	},
-    'user' => {
-    		'html'	=> 'book1.html',
-	},
-);
+    #
+    # Each document will live in its own subdirectory.  List them here
+    # as hash keys, with a hash of the info to control its build.
+    #
+    %doc_dirs = (
+        'design' => {
+                'html'	=> 'book1.html',
+    	},
+        'user' => {
+                'html'	=> 'book1.html',
+  	},
+    );
 
-# Find internal dependencies in .sgml files:
-#
-#	<!entity bground SYSTEM "bground.sgml">
-#	<graphic fileref="file.jpg">
-#
-# This only finds one per line, and assumes that anything
-# defined as a SYSTEM entity is, in fact, a file included
-# somewhere in the document.
-sub scansgml {
-    my @includes = ();
-    do {
-	if (/<!entity\s+(?:%\s+)?(?:\S+)\s+SYSTEM\s+"([^"]*)">/i) {
-	    push(@includes, $1);
-  	} elsif (/<graphic[^>]*\sfileref="([^"]*)"/) {
-	    push(@includes, "design/$1");
+	# Find internal dependencies in .sgml files:
+	#
+	#	<!entity bground SYSTEM "bground.sgml">
+	#	<graphic fileref="file.jpg">
+	#
+	# This only finds one per line, and assumes that anything
+	# defined as a SYSTEM entity is, in fact, a file included
+	# somewhere in the document.
+	sub scansgml {
+    	my @includes = ();
+    	do {
+		if (/<!entity\s+(?:%\s+)?(?:\S+)\s+SYSTEM\s+"([^"]*)">/i) {
+		    push(@includes, $1);
+	  	} elsif (/<graphic[^>]*\sfileref="([^"]*)"/) {
+		    push(@includes, "design/$1");
+		}
+	    } while (<scan::quickscan::SCAN>);
+	    @includes;
 	}
-    } while (<scan::quickscan::SCAN>);
-    @includes;
-}
 
-#
-# We have to tell Cons to QuickScan the top-level SGML files which
-# get included by the document SGML files in the subdirectories.
-#
-@included_sgml = qw(
-    scons.mod
-    copyright.sgml
-);
+	#
+	# We have to tell Cons to QuickScan the top-level SGML files which
+	# get included by the document SGML files in the subdirectories.
+	#	
+	@included_sgml = qw(
+		scons.mod
+		copyright.sgml
+	);
 
-foreach $sgml (@included_sgml) {
-    $env->QuickScan(\&scansgml, $sgml);
-}
+	foreach $sgml (@included_sgml) {
+		$env->QuickScan(\&scansgml, $sgml);
+	}
 
-#
-# For each document, build the document itself in HTML, Postscript,
-# and PDF formats.
-#
-foreach $doc (keys %doc_dirs) {
-    my $main = "$doc/main.sgml";
-    my $out = "main.out";
+	#
+	# For each document, build the document itself in HTML, Postscript,
+	# and PDF formats.
+	#
+	foreach $doc (keys %doc_dirs) {
+		my $main = "$doc/main.sgml";
+		my $out = "main.out";
 
-    my $htmldir = "HTML/scons-$doc";
-    my $html = "$htmldir/" . $doc_dirs{$doc}->{'html'};
-    my $ps = "PS/scons-$doc.ps";
-    my $pdf = "PDF/scons-$doc.pdf";
-    my $text = "TEXT/scons-$doc.txt";
+		my $htmldir = "HTML/scons-$doc";
+		my $html = "$htmldir/" . $doc_dirs{$doc}->{'html'};
+		my $ps = "PS/scons-$doc.ps";
+		my $pdf = "PDF/scons-$doc.pdf";
+		my $text = "TEXT/scons-$doc.txt";
 
-    $env->QuickScan(\&scansgml, $main);
+		$env->QuickScan(\&scansgml, $main);
 
-    $env->Command($html, $main,
-	qq(rm -f %>:d/*.html
-	   jw -b html -o %>:d %<
-	   mv -v %>:d/index.html %> || true
-	));
+		$env->Command($html, $main,
+		qq(rm -f %>:d/*.html
+		   jw -b html -o %>:d %<
+		   mv -v %>:d/index.html %> || true
+		));
 
-    $env->Command($ps, $main,
-	qq(rm -f %>:d/$out
-	   jw -b ps -o %>:d %<
-	   mv %>:d/main.ps %>
-	   rm -f %>:d/$out
-	));
+		$env->Command($ps, $main,
+		qq(rm -f %>:d/$out
+		   jw -b ps -o %>:d %<
+		   mv %>:d/main.ps %>
+		   rm -f %>:d/$out
+		));
 
-    $env->Command($pdf, $main,
-	qq(rm -f %>:d/$out
-	   jw -b pdf -o %>:d %<
-	   mv %>:d/main.pdf %>
-	   rm -f %>:d/$out
-	));
+		$env->Command($pdf, $main,
+		qq(rm -f %>:d/$out
+		   jw -b pdf -o %>:d %<
+		   mv %>:d/main.pdf %>
+		   rm -f %>:d/$out
+		));
 
-    if ($doc_dirs{$doc}->{'text'} && $lynx) {
-	$env->Command($text, $html, qq(lynx -dump %<:a > %>));
-    }
+		if ($doc_dirs{$doc}->{'text'} && $lynx) {
+		$env->Command($text, $html, qq(lynx -dump %<:a > %>));
+		}
 
-    push(@tar_deps, $html, $ps, $pdf);
-    push(@tar_list, $htmldir, $ps, $pdf);
+		push(@tar_deps, $html, $ps, $pdf);
+		push(@tar_list, $htmldir, $ps, $pdf);
+	}
 }
 
 #

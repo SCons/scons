@@ -504,7 +504,7 @@ env.Object(target = 'bar', source = 'bar.c')
 .IP Program
 Builds an executable given one or more object files or C/C++ source
 files. If any C/C++ source files are given, then they will be automatically
-compiled to object files. The exeuctable prefix and suffix (if any) are
+compiled to object files. The executable prefix and suffix (if any) are
 automatically added to the target. Example:
 
 .RS
@@ -699,6 +699,41 @@ Specifies a builder to use when a source file name suffix does not match
 any of the suffixes of the builder. Using this argument produces a
 multi-stage builder.
 
+.LP
+
+.B scons
+performs construction variable interpolation on the strings that make up
+the command line of builders before executing the command.
+Variables are specified by a $ prefix and the variable name may be
+surrounded by curly braces ({}) to separate the name from the trailing
+characters. Besides construction variables, scons provides the following
+variables for each command execution:
+
+.IP TARGET
+The file name of the target being built, or the file name of the first 
+target if multiple targets are being built.
+
+.IP TARGETS
+The file names of the targets being built.
+
+.IP SOURCES
+The file names of the sources of the build command.
+
+.LP 
+
+For example, given the construction variable CC='cc', targets=['foo'], and
+sources=['foo.c', 'bar.c']:
+
+.RS
+action='$CC -c -o $TARGET $SOURCES'
+.RE
+
+would produce the command line:
+
+.RS
+cc -c -o foo foo.c bar.c
+.RE
+
 .\" XXX document how to add user defined scanners. 
 
 .SH ENVIRONMENT
@@ -721,3 +756,4 @@ source code.
 
 .SH AUTHOR
 Steven Knight <knight@baldmt.com>, et. al.
+
