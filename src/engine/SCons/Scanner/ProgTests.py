@@ -71,6 +71,11 @@ class DummyEnvironment:
         del self.Dictionary()[key]
 
     def subst(self, s):
+        try:
+            if s[0] == '$':
+                return self._dict[s[1:]]
+        except IndexError:
+            return ''
         return s
 
     def subst_path(self, path):
@@ -167,6 +172,19 @@ class ProgScanTestCase6(unittest.TestCase):
         deps = s('dummy', env, path)
         assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), map(str, deps)
 
+class ProgScanTestCase7(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
+                               LIBS=['foo', '$LIBBAR', '$XYZ'],
+                               LIBPREFIXES=['lib'],
+                               LIBSUFFIXES=['.a'],
+                               LIBBAR='sub/libbar',
+                               XYZ='xyz.other')
+        s = SCons.Scanner.Prog.ProgScan()
+        path = s.path(env)
+        deps = s('dummy', env, path)
+        assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), map(str, deps)
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ProgScanTestCase1())
@@ -174,6 +192,7 @@ def suite():
     suite.addTest(ProgScanTestCase3())
     suite.addTest(ProgScanTestCase5())
     suite.addTest(ProgScanTestCase6())
+    suite.addTest(ProgScanTestCase7())
     if hasattr(types, 'UnicodeType'):
         code = """if 1:
             class ProgScanTestCase4(unittest.TestCase):
