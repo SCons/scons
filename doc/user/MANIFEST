@@ -5,10 +5,10 @@ builders-built-in.sgml
 builders-commands.sgml
 builders-writing.sgml
 caching.sgml
+command-line.sgml
 cons.pl
 cons.sgml
 copyright.sgml
-default.sgml
 depends.sgml
 environments.sgml
 errors.sgml

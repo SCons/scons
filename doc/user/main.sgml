@@ -39,9 +39,9 @@
     <!ENTITY builders-commands SYSTEM "builders-commands.sgml">
     <!ENTITY builders-writing SYSTEM "builders-writing.sgml">
     <!ENTITY caching SYSTEM "caching.sgml">
+    <!ENTITY command-line SYSTEM "command-line.sgml">
     <!ENTITY cons SYSTEM "cons.sgml">
     <!ENTITY copyright SYSTEM "copyright.sgml">
-    <!ENTITY default SYSTEM "default.sgml">
     <!ENTITY depends SYSTEM "depends.sgml">
     <!ENTITY environments SYSTEM "environments.sgml">
     <!ENTITY errors SYSTEM "errors.sgml">
@@ -115,9 +115,9 @@
     &environments;
   </chapter>
 
-  <chapter id="chap-default">
-    <title>Default Targets</title>
-    &default;
+  <chapter id="chap-command-line">
+    <title>Controlling a Build From the Command Line</title>
+    &command-line;
   </chapter>
 
   <chapter id="chap-help">

@@ -627,17 +627,22 @@ def BuildDefaultGlobals():
     globals = {}
     globals['Action']            = SCons.Action.Action
     globals['ARGUMENTS']         = arguments
+    globals['BoolOption']        = SCons.Options.BoolOption
     globals['Builder']           = SCons.Builder.Builder
     globals['Configure']         = SCons.SConf.SConf
+    globals['EnumOption']        = SCons.Options.EnumOption
     globals['Environment']       = SCons.Environment.Environment
+    globals['ListOption']        = SCons.Options.ListOption
     globals['Options']           = Options
+    globals['PackageOption']     = SCons.Options.PackageOption
+    globals['PathOption']        = SCons.Options.PathOption
     globals['Platform']          = SCons.Platform.Platform
     globals['Return']            = Return
     globals['Scanner']           = SCons.Scanner.Base
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
 
-    # Functions we're in the process of converting to Environment methods.
+    # Functions we might still convert to Environment methods.
     globals['CScan']             = SCons.Defaults.CScan
     globals['DefaultEnvironment'] = SCons.Defaults.DefaultEnvironment
 

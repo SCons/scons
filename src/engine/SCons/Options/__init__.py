@@ -1,7 +1,7 @@
 """engine.SCons.Options
 
-This file defines the Options class that is used to add user-friendly customizable
-variables to a scons build.
+This file defines the Options class that is used to add user-friendly
+customizable variables to an SCons build.
 """
 
 #
@@ -35,6 +35,12 @@ import SCons.Errors
 import SCons.Util
 import SCons.Warnings
 
+from BoolOption import BoolOption, True, False  # okay
+from EnumOption import EnumOption  # okay
+from ListOption import ListOption  # naja
+from PackageOption import PackageOption # naja
+from PathOption import PathOption # okay
+
 
 class Options:
     """
@@ -56,30 +62,7 @@ class Options:
         elif files:
            self.files = files
 
-
-    def Add(self, key, help="", default=None, validator=None, converter=None, **kw):
-        """
-        Add an option.
-
-        key - the name of the variable
-        help - optional help text for the options
-        default - optional default value
-        validator - optional function that is called to validate the option's value
-                    Called with (key, value, environment)
-        converter - optional function that is called to convert the option's value before
-                    putting it in the environment.
-        """
-
-        if not SCons.Util.is_valid_construction_var(key):
-            raise SCons.Errors.UserError, "Illegal Options.Add() key `%s'" % key
-
-        if kw.has_key('validater'):
-            SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                                "The 'validater' keyword of the Options.Add() method is deprecated\n" +\
-                                "and should be changed to 'validator'.")
-            if validator is None:
-                validator = kw['validater']
-
+    def _do_add(self, key, help="", default=None, validator=None, converter=None):
         class Option:
             pass
 
@@ -91,6 +74,57 @@ class Options:
         option.converter = converter
 
         self.options.append(option)
+
+
+    def Add(self, key, help="", default=None, validator=None, converter=None, **kw):
+        """
+        Add an option.
+
+        key - the name of the variable, or a list or tuple of arguments
+        help - optional help text for the options
+        default - optional default value
+        validator - optional function that is called to validate the option's value
+                    Called with (key, value, environment)
+        converter - optional function that is called to convert the option's value before
+                    putting it in the environment.
+        """
+
+        if SCons.Util.is_List(key) or type(key) == type(()):
+            apply(self._do_add, key)
+            return
+
+        if not SCons.Util.is_String(key) or \
+           not SCons.Util.is_valid_construction_var(key):
+            raise SCons.Errors.UserError, "Illegal Options.Add() key `%s'" % str(key)
+
+        if kw.has_key('validater'):
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                                "The 'validater' keyword of the Options.Add() method is deprecated\n" +\
+                                "and should be changed to 'validator'.")
+            if validator is None:
+                validator = kw['validater']
+
+        self._do_add(key, help, default, validator, converter)
+
+
+    def AddOptions(self, *optlist):
+        """
+        Add a list of options.
+
+        Each list element is a tuple/list of arguments to be passed on
+        to the underlying method for adding options.
+        
+        Example:
+          opt.AddOptions(
+            ('debug', '', 0),
+            ('CC', 'The C compiler'),
+            ('VALIDATE', 'An option for testing validation', 'notset',
+             validator, None),
+            )
+        """
+        for o in optlist:
+            apply(self._do_add, o)
+
 
     def Update(self, env, args=None):
         """

@@ -5500,6 +5500,27 @@ opts.Add('CC', 'The C compiler')
 .EE
 
 .TP
+.RI AddOptions( list )
+A wrapper script that adds
+multiple customizable construction variables
+to an Options object.
+.I list
+is a list of tuple or list objects
+that contain the arguments
+for an individual call to the
+.B Add
+method.
+
+.ES
+opt.AddOptions(
+       ('debug', '', 0),
+       ('CC', 'The C compiler'),
+       ('VALIDATE', 'An option for testing validation',
+        'notset', validator, None),
+    )
+.EE
+
+.TP
 .RI Update( env ", [" args ])
 This updates a construction environment
 .I env
@@ -5560,6 +5581,192 @@ variables. Example:
 
 .ES
 CC = 'my_cc'
+.EE
+
+To make it more convenient to work with customizable Options,
+.B scons
+provides a number of functions
+that make it easy to set up
+various types of Options:
+
+.TP
+.RI BoolOption( key ", " help ", " default )
+Return a tuple of arguments
+to set up a Boolean option.
+The option will use
+the specified name
+.IR key ,
+have a default value of
+.IR default ,
+and display the specified
+.I help
+text.
+The option will interpret the values
+.BR y ,
+.BR yes ,
+.BR t ,
+.BR true ,
+.BR 1 ,
+.B on
+and
+.B all
+as true,
+and the values
+.BR n ,
+.BR no ,
+.BR f ,
+.BR false ,
+.BR 0 ,
+.B off
+and
+.B none
+as false.
+
+.TP
+.RI EnumOption( key ", " help ", " default ", " allowed_values ", [" map ", " ignorecase ])
+Return a tuple of arguments
+to set up an option
+whose value may be one
+of a specified list of legal enumerated values.
+The option will use
+the specified name
+.IR key ,
+have a default value of
+.IR default ,
+and display the specified
+.I help
+text.
+The option will only support those
+values in the
+.I allowed_values
+list.
+The optional
+.I map
+argument is a dictionary
+that can be used to convert
+input values into specific legal values
+in the
+.I allowed_values
+list.
+If the value of
+.I ignore_case
+is
+.B 0
+(the default),
+then the values are case-sensitive.
+If the value of
+.I ignore_case
+is
+.BR 1 ,
+then values will be matched
+case-insensitive.
+If the value of
+.I ignore_case
+is
+.BR 1 ,
+then values will be matched
+case-insensitive,
+and all input values will be
+converted to lower case.
+
+.TP
+.RI ListOption( key ", " help ", " default ", " names )
+Return a tuple of arguments
+to set up an option
+whose value may be one or more
+of a specified list of legal enumerated values.
+The option will use
+the specified name
+.IR key ,
+have a default value of
+.IR default ,
+and display the specified
+.I help
+text.
+The option will only support the values
+.BR all ,
+.BR none ,
+or the values in the
+.I names
+list.
+More than one value may be specified,
+with all values separated by commas.
+
+.TP
+.RI PackageOption( key ", " help ", " default )
+Return a tuple of arguments
+to set up an option
+whose value is a path name
+of a package that may be
+enabled, disabled or 
+given an explicit path name.
+The option will use
+the specified name
+.IR key ,
+have a default value of
+.IR default ,
+and display the specified
+.I help
+text.
+The option will support the values
+.BR yes ,
+.BR true ,
+.BR on ,
+.BR enable
+or
+.BR search ,
+in which case the specified
+.I default
+will be used,
+or the option may be set to an
+arbitrary string
+(typically the path name to a package
+that is being enabled).
+The option will also support the values
+.BR no ,
+.BR flase ,
+.BR off
+or
+.BR disable
+to disable use of the specified option.
+
+.TP
+.RI PathOption( key ", " help ", " default )
+Return a tuple of arguments
+to set up an option
+whose value is expected to be a path name.
+The option will use
+the specified name
+.IR key ,
+have a default value of
+.IR default ,
+and display the specified
+.I help
+text.
+
+.RE
+These functions make it
+convenient to create a number
+of options with consistent behavior
+in a single call to the
+.B AddOptions
+method:
+
+.ES
+opts.AddOptions(
+    BoolOption('warnings', 'compilation with -Wall and similiar', 1),
+    EnumOption('debug', 'debug output and symbols', 'no'
+               allowed_values=('yes', 'no', 'full'),
+               map={}, ignorecase=0),  # case sensitive
+    ListOption('shared',
+               'libraries to build as shared libraries',
+               'all',
+               names = list_of_libs),
+    PackageOption('x11',
+                  'use X11 installed here (yes = search some places)',
+                  'yes'),
+    PathOption('qtdir', 'where the root of Qt is installed', qtdir),
+)
 .EE
 
 .SH EXTENDING SCONS

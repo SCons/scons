@@ -1,0 +1,1182 @@
+<!--
+
+  Copyright (c) 2001, 2002, 2003 Steven Knight
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  &SCons; provides a number of ways that
+  allow the writer of the &SConscript; files
+  to give users a great deal of control over how to run the builds.
+
+  </para>
+
+  <section>
+  <title>Not Having to Specify Command-Line Options Each Time:  the &SCONSFLAGS; Environment Variable</title>
+
+    <para>
+
+    Users may find themselves supplying
+    the same command-line options every time
+    they run &SCons;.
+    For example, a user might find that it saves time
+    to always specify a value of <literal>-j 2</literal>
+    to run the builds in parallel.
+
+    </para>
+
+    <scons_example name="SCONSFLAGS">
+      <file name="SConstruct">
+      def b(target, source, env):
+          pass
+      def s(target, source, env):
+          return "    ..."
+      a = Action(b, strfunction = s)
+      env = Environment(BUILDERS = {'A' : a})
+      env.A('foo.out', 'foo.in')
+      </file>
+      <file name="foo.in">
+      foo.in
+      </file>
+    </scons_example>
+
+    <scons_output example="SCONSFLAGS">
+      <command>scons</command>
+      <command>export SCONSFLAGS="-Q"</command>
+      <command>scons</command>
+    </scons_output>
+
+    <para>
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Controlling the Default Targets</title>
+
+    <para>
+
+    One of the most basic things you can control
+    is which targets &SCons; will build by default.
+    As mentioned previously,
+    &SCons; will normally build every target
+    in or below the current directory
+    by default--that is, when you don't
+    explicitly specify one or more targets
+    on the command line.
+    Sometimes, however, you may want
+    to specify explicitly that only
+    certain programs, or programs in certain directories,
+    should be built by default.
+    You do this with the &Default; function:
+
+    </para>
+
+    <scons_example name="Default1">
+       <file name="SConstruct" printme="1">
+       env = Environment()
+       hello = env.Program('hello.c')
+       env.Program('goodbye.c')
+       Default(hello)
+       </file>
+       <file name="hello.c">
+       hello.c
+       </file>
+       <file name="goodbye.c">
+       goodbye.c
+       </file>
+    </scons_example>
+
+    <para>
+
+    This &SConstruct; file knows how to build two programs,
+    &hello; and &goodbye;,
+    but only builds the
+    &hello; program by default:
+
+    </para>
+
+    <scons_output example="Default1">
+       <command>scons -Q</command>
+       <command>scons -Q</command>
+       <command>scons -Q goodbye</command>
+    </scons_output>
+
+    <para>
+
+    Note that, even when you use the &Default;
+    function in your &SConstruct; file,
+    you can still explicitly specify the current directory
+    (<literal>.</literal>) on the command line
+    to tell &SCons; to build
+    everything in (or below) the current directory:
+
+    </para>
+
+    <scons_output example="Default1">
+       <command>scons -Q .</command>
+    </scons_output>
+
+    <para>
+
+    You can also call the &Default;
+    function more than once,
+    in which case each call
+    adds to the list of targets to be built by default:
+
+    </para>
+
+    <scons_example name="Default2">
+       <file name="SConstruct" printme="1">
+       env = Environment()
+       prog1 = env.Program('prog1.c')
+       Default(prog1)
+       prog2 = env.Program('prog2.c')
+       prog3 = env.Program('prog3.c')
+       Default(prog3)
+       </file>
+       <file name="prog1.c">
+       prog1.c
+       </file>
+       <file name="prog2.c">
+       prog2.c
+       </file>
+       <file name="prog3.c">
+       prog3.c
+       </file>
+    </scons_example>
+
+    <para>
+
+    Or you can specify more than one target
+    in a single call to the &Default; function:
+
+    </para>
+
+    <programlisting>
+       env = Environment()
+       prog1 = env.Program('prog1.c')
+       prog2 = env.Program('prog2.c')
+       prog3 = env.Program('prog3.c')
+       Default(prog1, prog3)
+    </programlisting>
+
+    <para>
+
+    Either of these last two examples
+    will build only the
+    <application>prog1</application>
+    and
+    <application>prog3</application>
+    programs by default:
+
+    </para>
+
+    <scons_output example="Default2">
+       <command>scons -Q</command>
+       <command>scons -Q .</command>
+    </scons_output>
+
+    <para>
+
+    You can list a directory as
+    an argument to &Default;:
+
+    </para>
+
+    <scons_example name="Default3">
+       <file name="SConstruct" printme="1">
+       env = Environment()
+       env.Program(['prog1/main.c', 'prog1/foo.c'])
+       env.Program(['prog2/main.c', 'prog2/bar.c'])
+       Default('prog1')
+       </file>
+       <directory name="prog1"></directory>
+       <directory name="prog2"></directory>
+       <file name="prog1/main.c">
+       int main() { printf("prog1/main.c\n"); }
+       </file>
+       <file name="prog1/foo.c">
+       int foo() { printf("prog1/foo.c\n"); }
+       </file>
+       <file name="prog2/main.c">
+       int main() { printf("prog2/main.c\n"); }
+       </file>
+       <file name="prog2/bar.c">
+       int bar() { printf("prog2/bar.c\n"); }
+       </file>
+    </scons_example>
+
+    <para>
+
+    In which case only the target(s) in that
+    directory will be built by default:
+
+    </para>
+
+    <scons_output example="Default3">
+       <command>scons -Q</command>
+       <command>scons -Q</command>
+       <command>scons -Q .</command>
+    </scons_output>
+
+    <para>
+
+    Lastly, if for some reason you don't want
+    any targets built by default,
+    you can use the Python <literal>None</literal>
+    variable:
+
+    </para>
+
+    <scons_example name="Default4">
+       <file name="SConstruct" printme="1">
+       env = Environment()
+       prog1 = env.Program('prog1.c')
+       prog2 = env.Program('prog2.c')
+       Default(None)
+       </file>
+       <file name="prog1.c">
+       prog1.c
+       </file>
+       <file name="prog2.c">
+       prog2.c
+       </file>
+    </scons_example>
+
+    <para>
+
+    Which would produce build output like:
+
+    </para>
+
+    <scons_output example="Default4">
+       <command>scons -Q</command>
+       <command>scons -Q .</command>
+    </scons_output>
+
+  </section>
+
+  <!--
+
+  <section>
+  <title>Getting at Command-Line Targets</title>
+
+    <para>
+
+    XXX
+
+    </para>
+
+  </section>
+
+  -->
+
+  <section>
+  <title>Command-Line <varname>variable</varname>=<varname>value</varname> Build Options</title>
+
+    <para>
+
+    You may want to control various aspects
+    of your build by allowing the user
+    to specify <varname>variable</varname>=<varname>value</varname>
+    values on the command line.
+    For example, suppose you
+    want users to be able to
+    build a debug version of a program
+    by running &SCons; as follows:
+
+    </para>
+
+    <literallayout>
+      % scons -Q debug=1
+    </literallayout>
+
+    <para>
+
+    &SCons; provides an &ARGUMENTS; dictionary
+    that stores all of the
+    <varname>variable</varname>=<varname>value</varname>
+    assignments from the command line.
+    This allows you to modify
+    aspects of your build in response
+    to specifications on the command line.
+    (Note that unless you want to require
+    that users <emphasis>always</emphasis>
+    specify an option,
+    you probably want to use
+    the Python
+    <literal>ARGUMENTS.get()</literal> function,
+    which allows you to specify a default value
+    to be used if there is no specification
+    on the command line.)
+
+    </para>
+
+    <para>
+
+    The following code sets the &CCFLAGS; construction
+    variable in response to the <varname>debug</varname>
+    flag being set in the &ARGUMENTS; dictionary:
+
+    </para>
+
+    <scons_example name="ARGUMENTS">
+       <file name="SConstruct" printme="1">
+       env = Environment()
+       debug = ARGUMENTS.get('debug', 0)
+       if int(debug):
+           env.Append(CCFLAGS = '-g')
+       env.Program('prog.c')
+       </file>
+       <file name="prog.c">
+       prog.c
+       </file>
+    </scons_example>
+
+    <para>
+
+    This results in the <varname>-g</varname>
+    compiler option being used when
+    <literal>debug=1</literal>
+    is used on the command line:
+
+    </para>
+
+    <scons_output example="ARGUMENTS">
+       <command>scons -Q debug=0</command>
+       <command>scons -Q debug=0</command>
+       <command>scons -Q debug=1</command>
+       <command>scons -Q debug=1</command>
+    </scons_output>
+
+    <para>
+
+    Notice that &SCons; keeps track of
+    the last values used to build the object files,
+    and as a result correctly rebuilds
+    the object and executable files
+    only when the value of the <literal>debug</literal>
+    argument has changed.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Controlling Command-Line Build Options</title>
+
+    <para>
+
+    Being able to use a command-line build option like
+    <literal>debug=1</literal> is handy,
+    but it can be a chore to write specific Python code
+    to recognize each such option
+    and apply the values to a construction variable.
+    To help with this,
+    &SCons; supports a class to
+    define such build options easily,
+    and a mechanism to apply the
+    build options to a construction environment.
+    This allows you to control how the build options affect
+    construction environments.
+
+    </para>
+
+    <para>
+
+    For example, suppose that you want users to set
+    a &RELEASE; construction variable on the
+    command line whenever the time comes to build
+    a program for release,
+    and that the value of this variable
+    should be added to the command line
+    with the appropriate <literal>-D</literal> option
+    (or other command line option)
+    to pass the value to the C compiler.
+    Here's how you might do that by setting
+    the appropriate value in a dictionary for the
+    &CPPDEFINES; construction variable:
+
+    </para>
+
+    <scons_example name="Options1">
+      <file name="SConstruct" printme="1">
+         opts = Options()
+         opts.Add('RELEASE', 'Set to 1 to build for release', 0)
+         env = Environment(options = opts,
+                           CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+         env.Program(['foo.c', 'bar.c'])
+      </file>
+      <file name="foo.c">
+      foo.c
+      </file>
+      <file name="bar.c">
+      bar.c
+      </file>
+    </scons_example>
+
+    <para>
+
+    This &SConstruct; file first creates an
+    &Options; object
+    (the <literal>opts = Options()</literal> call),
+    and then uses the object's &Add;
+    method to indicate that the &RELEASE;
+    option can be set on the command line,
+    and that it's default value will be <literal>0</literal>
+    (the third argument to the &Add; method).
+    The second argument is a line of help text;
+    we'll learn how to use it in the next section.
+
+    </para>
+
+    <para>
+
+    We then pass the created &Options;
+    object as an &options; keyword argument
+    to the &Environment; call
+    used to create the construction environment.
+    This then allows a user to set the
+    &RELEASE; build option on the command line
+    and have the variable show up in
+    the command line used to build each object from
+    a C source file:
+
+    </para>
+
+    <scons_output example="Options1">
+      <command>scons -Q RELEASE=1</command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Providing Help for Command-Line Build Options</title>
+
+    <para>
+
+    To make command-line build options most useful,
+    you ideally want to provide
+    some help text that will describe
+    the available options
+    when the user runs <literal>scons -h</literal>.
+    You could write this text by hand,
+    but &SCons; provides an easier way.
+    &Options; objects support a
+    &GenerateHelpText; method
+    that will, as its name indicates,
+    generate text that describes
+    the various options that
+    have been added to it.
+    You then pass the output from this method to
+    the &Help; function:
+
+    </para>
+
+    <scons_example name="Options_Help">
+      <file name="SConstruct" printme="1">
+         opts = Options('custom.py')
+         opts.Add('RELEASE', 'Set to 1 to build for release', 0)
+         env = Environment(options = opts)
+         Help(opts.GenerateHelpText(env))
+      </file>
+    </scons_example>
+
+    <para>
+
+    &SCons; will now display some useful text
+    when the <literal>-h</literal> option is used:
+
+    </para>
+
+    <scons_output example="Options_Help">
+      <command>scons -Q -h</command>
+    </scons_output>
+
+    <para>
+
+    Notice that the help output shows the default value,
+    and the current actual value of the build option.
+
+    </para>
+
+  </section>
+
+  <section>
+  <title>Reading Build Options From a File</title>
+
+    <para>
+
+    Being able to use a command-line build option like
+    <literal>debug=1</literal> is handy,
+    but it can be a chore to write specific Python code
+    to recognize each such option
+    and apply the values to a construction variable.
+    To help with this,
+    &SCons; supports a class to
+    define such build options easily
+    and to read build option values from a file.
+    This allows you to control how the build options affect
+    construction environments.
+    The way you do this is by specifying
+    a file name when you call &Options;,
+    like &custom_py; in the following example:
+
+    </para>
+
+    <scons_example name="Options_custom_py_1">
+      <file name="SConstruct" printme="1">
+         opts = Options('custom.py')
+         opts.Add('RELEASE', 'Set to 1 to build for release', 0)
+         env = Environment(options = opts,
+                           CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+         env.Program(['foo.c', 'bar.c'])
+         Help(opts.GenerateHelpText(env))
+      </file>
+      <file name="foo.c">
+      foo.c
+      </file>
+      <file name="bar.c">
+      bar.c
+      </file>
+      <file name="custom.py">
+      RELEASE = 1
+      </file>
+    </scons_example>
+
+    <para>
+
+    This then allows us to control the &RELEASE;
+    variable by setting it in the &custom_py; file:
+
+    </para>
+
+    <scons_example_file example="Options_custom_py_1" name="custom.py"></scons_example_file>
+
+    <para>
+
+    Note that this file is actually executed
+    like a Python script.
+    Now when we run &SCons;:
+
+    </para>
+
+    <scons_output example="Options_custom_py_1">
+      <command>scons -Q</command>
+    </scons_output>
+
+    <para>
+
+    And if we change the contents of &custom_py; to:
+
+    </para>
+
+    <scons_example name="Options_custom_py_2">
+      <file name="SConstruct">
+         opts = Options('custom.py')
+         opts.Add('RELEASE', 'Set to 1 to build for release', 0)
+         env = Environment(options = opts,
+                           CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+         env.Program(['foo.c', 'bar.c'])
+         Help(opts.GenerateHelpText(env))
+      </file>
+      <file name="foo.c">
+      foo.c
+      </file>
+      <file name="bar.c">
+      bar.c
+      </file>
+      <file name="custom.py" printme="1">
+      RELEASE = 0
+      </file>
+    </scons_example>
+
+    <para>
+
+    The object files are rebuilt appropriately
+    with the new option:
+
+    </para>
+
+    <scons_output example="Options_custom_py_2">
+      <command>scons -Q</command>
+    </scons_output>
+
+  </section>
+
+  <section>
+  <title>Canned Build Options</title>
+
+    <para>
+
+    &SCons; provides a number of functions
+    that provide ready-made behaviors
+    for various types of command-line build options.
+
+    </para>
+
+    <section>
+    <title>True/False Values:  the &BoolOption; Build Option</title>
+
+      <para>
+
+      It's often handy to be able to specify an
+      option that controls a simple Boolean variable
+      with a &true; or &false; value.
+      It would be even more handy to accomodate
+      users who have different preferences for how to represent
+      &true; or &false; values.
+      The &BoolOption; function
+      makes it easy to accomodate a variety of
+      common values that represent
+      &true; or &false;.
+
+      </para>
+
+      <para>
+
+      The &BoolOption; function takes three arguments:
+      the name of the build option,
+      the default value of the build option,
+      and the help string for the option.
+      It then returns appropriate information for
+      passing to the &Add; method of an &Options; object, like so:
+
+      </para>
+
+      <scons_example name="BoolOption">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(BoolOption('RELEASE', 0, 'Set to build for release'))
+           env = Environment(options = opts,
+                             CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+      </scons_example>
+
+      <para>
+
+      With this build option,
+      the &RELEASE; variable can now be enabled by
+      setting it to the value <literal>yes</literal>
+      or <literal>t</literal>:
+
+      </para>
+
+      <scons_output example="BoolOption">
+        <command>scons -Q RELEASE=yes foo.o</command>
+      </scons_output>
+
+      <scons_output example="BoolOption">
+        <command>scons -Q RELEASE=t foo.o</command>
+      </scons_output>
+
+      <para>
+
+      Other values that equate to &true; include
+      <literal>y</literal>,
+      <literal>1</literal>,
+      <literal>on</literal>
+      and
+      <literal>all</literal>.
+
+      </para>
+
+      <para>
+
+      Conversely, &RELEASE; may now be given a &false;
+      value by setting it to
+      <literal>no</literal>
+      or
+      <literal>f</literal>:
+
+      </para>
+
+      <scons_output example="BoolOption">
+        <command>scons -Q RELEASE=no foo.o</command>
+      </scons_output>
+
+      <scons_output example="BoolOption">
+        <command>scons -Q RELEASE=f foo.o</command>
+      </scons_output>
+
+      <para>
+
+      Other values that equate to &true; include
+      <literal>n</literal>,
+      <literal>0</literal>,
+      <literal>off</literal>
+      and
+      <literal>none</literal>.
+
+      </para>
+
+      <para>
+
+      Lastly, if a user tries to specify
+      any other value,
+      &SCons; supplies an appropriate error message:
+
+      </para>
+
+      <scons_output example="BoolOption">
+        <command>scons -Q RELEASE=bad_value foo.o</command>
+      </scons_output>
+
+    </section>
+
+    <section>
+    <title>Single Value From a List:  the &EnumOption; Build Option</title>
+
+      <para>
+
+      Suppose that we want a user to be able to
+      set a &COLOR; option
+      that selects a background color to be
+      displayed by an application,
+      but that we want to restrict the
+      choices to a specific set of allowed colors.
+      This can be set up quite easily
+      using the &EnumOption;,
+      which takes a list of &allowed_values
+      in addition to the variable name,
+      default value,
+      and help text arguments:
+
+      </para>
+
+      <scons_example name="EnumOption">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+                               allowed_values=('red', 'green', 'blue')))
+           env = Environment(options = opts,
+                             CPPDEFINES={'COLOR' : '"${COLOR}"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+      </scons_example>
+
+      <para>
+
+      The user can now explicity set the &COLOR; build option
+      to any of the specified allowed values:
+
+      </para>
+
+      <scons_output example="EnumOption">
+        <command>scons -Q COLOR=red foo.o</command>
+        <command>scons -Q COLOR=blue foo.o</command>
+        <command>scons -Q COLOR=green foo.o</command>
+      </scons_output>
+
+      <para>
+
+      But, almost more importantly,
+      an attempt to set &COLOR;
+      to a value that's not in the list
+      generates an error message:
+
+      </para>
+
+      <scons_output example="EnumOption">
+        <command>scons -Q COLOR=magenta foo.o</command>
+      </scons_output>
+
+      <para>
+
+      The &EnumOption; function also supports a way
+      to map alternate names to allowed values.
+      Suppose, for example,
+      that we want to allow the user
+      to use the word <literal>navy</literal> as a synonym for
+      <literal>blue</literal>.
+      We do this by adding a &map; dictionary
+      that will map its key values
+      to the desired legal value:
+
+      </para>
+
+      <scons_example name="EnumOption_map">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+                               allowed_values=('red', 'green', 'blue'),
+                               map={'navy':'blue'}))
+           env = Environment(options = opts,
+                             CPPDEFINES={'COLOR' : '"${COLOR}"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+      </scons_example>
+
+      <para>
+
+      As desired, the user can then use
+      <literal>navy</literal> on the command line,
+      and &SCons; will translate it into <literal>blue</literal>
+      when it comes time to use the &COLOR;
+      option to build a target:
+
+      </para>
+
+      <scons_output example="EnumOption_map">
+        <command>scons -Q COLOR=navy foo.o</command>
+      </scons_output>
+
+      <para>
+
+      By default, when using the &EnumOption; function,
+      arguments that differ
+      from the legal values
+      only in case
+      are treated as illegal values:
+
+      </para>
+
+      <scons_output example="EnumOption">
+        <command>scons -Q COLOR=Red foo.o</command>
+        <command>scons -Q COLOR=BLUE foo.o</command>
+        <command>scons -Q COLOR=nAvY foo.o</command>
+      </scons_output>
+
+      <para>
+
+      The &EnumOption; function can take an additional
+      &ignorecase; keyword argument that,
+      when set to <literal>1</literal>,
+      tells &SCons; to allow case differences
+      when the values are specified:
+
+      </para>
+
+      <scons_example name="EnumOption_ic1">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+                               allowed_values=('red', 'green', 'blue'),
+                               map={'navy':'blue'},
+                               ignorecase=1))
+           env = Environment(options = opts,
+                             CPPDEFINES={'COLOR' : '"${COLOR}"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+      </scons_example>
+
+      <para>
+
+      Which yields the output:
+
+      </para>
+
+      <scons_output example="EnumOption_ic1">
+        <command>scons -Q COLOR=Red foo.o</command>
+        <command>scons -Q COLOR=BLUE foo.o</command>
+        <command>scons -Q COLOR=nAvY foo.o</command>
+        <command>scons -Q COLOR=green foo.o</command>
+      </scons_output>
+
+      <para>
+
+      Notice that an &ignorecase; value of <literal>1</literal>
+      preserves the case-spelling that the user supplied.
+      If you want &SCons; to translate the names
+      into lower-case,
+      regardless of the case used by the user,
+      specify an &ignorecase; value of <literal>2</literal>:
+
+      </para>
+
+      <scons_example name="EnumOption_ic2">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(EnumOption('COLOR', 'red', 'Set background color',
+                               allowed_values=('red', 'green', 'blue'),
+                               map={'navy':'blue'},
+                               ignorecase=2))
+           env = Environment(options = opts,
+                             CPPDEFINES={'COLOR' : '"${COLOR}"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+      </scons_example>
+
+      <para>
+
+      Now &SCons; will use values of
+      <literal>red</literal>,
+      <literal>green</literal> or
+      <literal>blue</literal>
+      regardless of how the user spells
+      those values on the command line:
+
+      </para>
+
+      <scons_output example="EnumOption_ic2">
+        <command>scons -Q COLOR=Red foo.o</command>
+        <command>scons -Q COLOR=nAvY foo.o</command>
+        <command>scons -Q COLOR=GREEN foo.o</command>
+      </scons_output>
+
+    </section>
+
+    <section>
+    <title>Multiple Values From a List:  the &ListOption; Build Option</title>
+
+      <para>
+
+      Another way in which you might want to allow users
+      to control build option is to
+      specify a list of one or more legal values.
+      &SCons; supports this through the &ListOption; function.
+      If, for example, we want a user to be able to set a
+      &COLORS; option to one or more of the legal list of values:
+
+      </para>
+
+      <scons_example name="ListOption">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(ListOption('COLORS', 0, 'List of colors',
+                               ['red', 'green', 'blue']))
+           env = Environment(options = opts,
+                             CPPDEFINES={'COLORS' : '"${COLORS}"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+      </scons_example>
+
+      <para>
+
+      A user can now specify a comma-separated list
+      of legal values,
+      which will get translated into a space-separated
+      list for passing to the any build commands:
+
+      </para>
+
+      <scons_output example="ListOption">
+        <command>scons -Q COLORS=red,blue foo.o</command>
+        <command>scons -Q COLORS=blue,green,red foo.o</command>
+      </scons_output>
+
+      <para>
+
+      In addition, the &ListOption; function
+      allows the user to specify explicit keywords of
+      &all; or &none;
+      to select all of the legal values,
+      or none of them, respectively:
+
+      </para>
+
+      <scons_output example="ListOption">
+        <command>scons -Q COLORS=all foo.o</command>
+        <command>scons -Q COLORS=none foo.o</command>
+      </scons_output>
+
+      <para>
+
+      And, of course, an illegal value
+      still generates an error message:
+
+      </para>
+
+      <scons_output example="ListOption">
+        <command>scons -Q COLORS=magenta foo.o</command>
+      </scons_output>
+
+    </section>
+
+    <section>
+    <title>Path Names:  the &PathOption; Build Option</title>
+
+      <para>
+
+      &SCons; supports a &PathOption; function
+      to make it easy to create a build option
+      to control an expected path name.
+      If, for example, you need to
+      define a variable in the preprocessor
+      that control the location of a
+      configuration file:
+
+      </para>
+
+      <scons_example name="PathOption">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(PathOption('CONFIG', '__ROOT__/etc/my_config', 'Path to configuration file'))
+           env = Environment(options = opts,
+                             CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="__ROOT__/etc/my_config">
+        /opt/location
+        </file>
+        <file name="__ROOT__/usr/local/etc/other_config">
+        /opt/location
+        </file>
+      </scons_example>
+
+      <para>
+
+      This then allows the user to
+      override the &CONFIG; build option
+      on the command line as necessary:
+
+      </para>
+
+      <scons_output example="PathOption">
+        <command>scons -Q foo.o</command>
+        <command>scons -Q CONFIG=__ROOT__/usr/local/etc/other_config foo.o</command>
+      </scons_output>
+
+    </section>
+
+    <section>
+    <title>Enabled/Disabled Path Names: the &PackageOption; Build Option</title>
+
+      <para>
+
+      Sometimes you want to give users
+      even more control over a path name variable,
+      allowing them to explicitly enable or
+      disable the path name
+      by using <literal>yes</literal> or <literal>no</literal> keywords,
+      in addition to allow them
+      to supply an explicit path name.
+      &SCons; supports the &PackageOption;
+      function to support this:
+
+      </para>
+
+      <scons_example name="PackageOption">
+        <file name="SConstruct" printme="1">
+           opts = Options('custom.py')
+           opts.Add(PackageOption('PACKAGE', '__ROOT__/opt/location', 'Location package'))
+           env = Environment(options = opts,
+                             CPPDEFINES={'PACKAGE' : '"$PACKAGE"'})
+           env.Program('foo.c')
+        </file>
+        <file name="foo.c">
+        foo.c
+        </file>
+        <file name="__ROOT__/opt/location">
+        /opt/location
+        </file>
+        <file name="__ROOT__/usr/local/location">
+        /opt/location
+        </file>
+      </scons_example>
+
+      <para>
+
+      When the &SConscript; file uses the &PackageOption; funciton,
+      user can now still use the default
+      or supply an overriding path name,
+      but can now explicitly set the
+      specified variable to a value
+      that indicates the package should be enabled
+      (in which case the default should be used)
+      or disabled:
+
+      </para>
+
+      <scons_output example="PackageOption">
+        <command>scons -Q foo.o</command>
+        <command>scons -Q PACKAGE=__ROOT__/usr/local/location foo.o</command>
+        <command>scons -Q PACKAGE=yes foo.o</command>
+        <command>scons -Q PACKAGE=no foo.o</command>
+      </scons_output>
+
+    </section>
+
+  </section>
+
+  <section>
+  <title>Adding Multiple Command-Line Build Options at Once</title>
+
+    <para>
+
+    Lastly, &SCons; provides a way to add
+    multiple build options to an &Options object at once.
+    Instead of having to call the &Add; method
+    multiple times,
+    you can call the &AddOptions;
+    method with a list of build options
+    to be added to the object.
+    Each build option is specified
+    as either a tuple of arguments,
+    just like you'd pass to the &Add; method itself,
+    or as a call to one of the canned
+    functions for pre-packaged command-line build options.
+    in any order:
+
+    </para>
+
+    <scons_example name="AddOptions_1">
+      <file name="SConstruct" printme="1">
+        opts = Options()
+        opts.AddOptions(
+            ('RELEASE', 'Set to 1 to build for release', 0),
+            ('CONFIG', 'Configuration file', '/etc/my_config'),
+            BoolOption('warnings', 'compilation with -Wall and similiar', 1),
+            EnumOption('debug', 'debug output and symbols', 'no',
+                       allowed_values=('yes', 'no', 'full'),
+                       map={}, ignorecase=0),  # case sensitive
+            ListOption('shared',
+                       'libraries to build as shared libraries',
+                       'all',
+                       names = list_of_libs),
+            PackageOption('x11',
+                          'use X11 installed here (yes = search some places)',
+                          'yes'),
+            PathOption('qtdir', 'where the root of Qt is installed', qtdir),
+        )
+      </file>
+    </scons_example>
+
+    <para>
+    </para>
+
+  </section>
