@@ -32,6 +32,10 @@ python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
+test.subdir('work1', 'work2')
+
+
+
 test.write('succeed.py', r"""
 import sys
 file = open(sys.argv[1], 'wb')
@@ -45,43 +49,81 @@ import sys
 sys.exit(1)
 """)
 
-test.write('SConstruct', """
-Succeed = Builder(action = r'%s succeed.py $TARGETS')
-Fail = Builder(action = r'%s fail.py $TARGETS')
+test.write(['work1', 'SConstruct'], """\
+Succeed = Builder(action = r'%s ../succeed.py $TARGETS')
+Fail = Builder(action = r'%s ../fail.py $TARGETS')
 env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
 env.Fail(target = 'aaa.1', source = 'aaa.in')
 env.Succeed(target = 'aaa.out', source = 'aaa.1')
 env.Succeed(target = 'bbb.out', source = 'bbb.in')
 """ % (python, python))
 
-test.write('aaa.in', "aaa.in\n")
-test.write('bbb.in', "bbb.in\n")
+test.write(['work1', 'aaa.in'], "aaa.in\n")
+test.write(['work1', 'bbb.in'], "bbb.in\n")
 
-test.run(arguments = 'aaa.out bbb.out',
+test.run(chdir = 'work1',
+         arguments = 'aaa.out bbb.out',
          stderr = 'scons: *** [aaa.1] Error 1\n',
          status = 2)
 
-test.fail_test(os.path.exists(test.workpath('aaa.1')))
-test.fail_test(os.path.exists(test.workpath('aaa.out')))
-test.fail_test(os.path.exists(test.workpath('bbb.out')))
+test.must_not_exist(test.workpath('work1', 'aaa.1'))
+test.must_not_exist(test.workpath('work1', 'aaa.out'))
+test.must_not_exist(test.workpath('work1', 'bbb.out'))
 
-test.run(arguments = '-k aaa.out bbb.out',
+test.run(chdir = 'work1',
+         arguments = '-k aaa.out bbb.out',
          stderr = 'scons: *** [aaa.1] Error 1\n',
          status = 2)
 
-test.fail_test(os.path.exists(test.workpath('aaa.1')))
-test.fail_test(os.path.exists(test.workpath('aaa.out')))
-test.fail_test(test.read('bbb.out') != "succeed.py: bbb.out\n")
+test.must_not_exist(test.workpath('work1', 'aaa.1'))
+test.must_not_exist(test.workpath('work1', 'aaa.out'))
+test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n")
 
-test.unlink("bbb.out")
+test.unlink(['work1', 'bbb.out'])
 
-test.run(arguments = '--keep-going aaa.out bbb.out',
+test.run(chdir = 'work1',
+         arguments = '--keep-going aaa.out bbb.out',
          stderr = 'scons: *** [aaa.1] Error 1\n',
          status = 2)
 
-test.fail_test(os.path.exists(test.workpath('aaa.1')))
-test.fail_test(os.path.exists(test.workpath('aaa.out')))
-test.fail_test(test.read('bbb.out') != "succeed.py: bbb.out\n")
+test.must_not_exist(test.workpath('work1', 'aaa.1'))
+test.must_not_exist(test.workpath('work1', 'aaa.out'))
+test.must_match(['work1', 'bbb.out'], "succeed.py: bbb.out\n")
+
+
+
+test.write(['work2', 'SConstruct'], """\
+Succeed = Builder(action = r'%s ../succeed.py $TARGETS')
+Fail = Builder(action = r'%s ../fail.py $TARGETS')
+env = Environment(BUILDERS = { 'Succeed' : Succeed, 'Fail' : Fail })
+env.Fail('aaa.out', 'aaa.in')
+env.Succeed('bbb.out', 'aaa.out')
+env.Succeed('ccc.out', 'ccc.in')
+env.Succeed('ddd.out', 'ccc.in')
+""" % (python, python))
+
+test.write(['work2', 'aaa.in'], "aaa.in\n")
+test.write(['work2', 'ccc.in'], "ccc.in\n")
+
+test.run(chdir = 'work2',
+         arguments = '-k .',
+         status = 2,
+         stderr = None,
+         stdout = """\
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+%s ../fail.py aaa.out
+%s ../succeed.py ccc.out
+%s ../succeed.py ddd.out
+scons: done building targets (errors occurred during build).
+""" % (python, python, python))
+
+test.must_not_exist(['work2', 'aaa.out'])
+test.must_not_exist(['work2', 'bbb.out'])
+test.must_match(['work2', 'ccc.out'], "succeed.py: ccc.out\n")
+test.must_match(['work2', 'ddd.out'], "succeed.py: ddd.out\n")
+
+
 
 test.pass_test()
- 
