@@ -20,6 +20,13 @@ config
         The Aegis configuration, governing much of how we use Aegis to
         build, test, control source, etc.
 
+debian/
+	Files needed to construct a Debian package. The contents of this
+	directory are dictated by the Debian Policy Manual
+	(http://www.debian.org/doc/debian-policy). The package will not be
+	accepted into the Debian distribution unless the contents of this
+	directory satisfy the relevant Debian policies.
+
 etc/
         A subdirectory for miscellaneous things that we need.  Right
         now, it has copies of Python modules that we use for testing,

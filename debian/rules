@@ -1,0 +1,94 @@
+#!/usr/bin/make -f
+
+#
+# This file is more complex than it needs to be to just build binary packages,
+# because it satisfies the relevant Debian policies. See ../README for more
+# information.
+#
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=3
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+ifeq ($(ENVOKED_BY_CONSTRUCT),1)
+BUILDDEB_OPTIONS=--destdir=build/dist
+endif
+
+build: build-stamp
+build-stamp:
+ifneq ($(ENVOKED_BY_CONSTRUCT),1)
+	dh_testdir
+	cons
+	touch build-stamp
+endif
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	rm -rf build
+	find -name .construct -exec rm "{}" ";"
+	dh_clean
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	python build/engine/setup.py install \
+--install-purelib=`pwd`/debian/python-scons/usr/lib/python1.5/site-packages --no-compile
+
+	python build/script/setup.py install \
+--install-scripts=`pwd`/debian/scons/usr/bin --no-compile
+
+	python build/engine/setup.py install \
+--install-purelib=`pwd`/debian/python2-scons/usr/lib/python2.0/site-packages --no-compile
+
+
+# This single target is used to build all the packages, all at once, or
+# one at a time. So keep in mind: any options passed to commands here will
+# affect _all_ packages. Anything you want to only affect one package
+# should be put in another target, such as the install target.
+binary-common:
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+# uncomment the following line once there is a man page:
+#	dh_installman build/doc/MAN/scons.1]
+	dh_installchangelogs 
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb $(BUILDDEB_OPTIONS)
+
+# Build architecture independant packages using the common target.
+binary-indep: build install
+	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules DH_OPTIONS=-i binary-common
+
+# Build architecture dependant packages using the common target.
+binary-arch: build install
+
+# Any other binary targets build just one binary package at a time.
+binary-scons: build install
+	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-pscons
+
+binary-python-scons: build install
+	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-ppython-scons
+
+binary-python2-scons: build install
+	$(MAKE) ENVOKED_BY_CONSTRUCT=$(ENVOKED_BY_CONSTRUCT) -f debian/rules binary-common DH_OPTIONS=-ppython2-scons
+
+binary: binary-indep binary-arch
+
+.PHONY: build clean binary-indep binary-arch binary install binary-scons binary-python-scons binary-python2-scons
+
+

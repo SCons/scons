@@ -1,0 +1,27 @@
+#! /bin/sh -e
+#
+# postinst script for Debian python2 packages.
+# Written 1998 by Gregor Hoffleit <flight@debian.org>.
+# Modified for SCons 2001 by Anthony Roach <aroach@electriceyeball.com>.
+#
+
+PACKAGE=python-scons
+DIRLIST="/usr/lib/python1.5/site-packages/SCons"
+
+case "$1" in
+    configure|abort-upgrade|abort-remove|abort-deconfigure)
+        for i in $DIRLIST ; do
+            python2 -O /usr/lib/python1.5/compileall.py -q $i
+            python2 /usr/lib/python1.5/compileall.py -q $i
+        done
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

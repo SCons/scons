@@ -56,6 +56,8 @@ $aegis = cons::whereis('aegis');
 $aesub = cons::whereis('aesub');
 $rpm = cons::whereis('rpm');
 $jw = cons::whereis('jw');
+$dh_builddeb = cons::whereis('dh_builddeb');
+$fakeroot = cons::whereis('fakeroot');
 
 #
 # Now grab the information that we "build" into the files (using sed).
@@ -284,7 +286,11 @@ if ($change) {
 	chomp(@src_files);
 
 	foreach $file (@src_files) {
-	    $env->Command("build/$project-src/$file", $file, "%SEDCOM");
+	    $env->Command("build/$project-src/$file", 
+			  $file, 
+	                  qq(%SEDCOM
+                             chmod --reference=%< %>)
+            );
 	}
 
 	$env->Command("build/dist/$project-src-$version.tar.gz",
@@ -292,9 +298,42 @@ if ($change) {
 		      map("build/$project-src/$_", @src_files),
 		      qq(
 		rm -rf build/$project-src-$version
-		cp -r build/$project-src build/$project-src-$version
+		cp -rp build/$project-src build/$project-src-$version
 		find build/$project-src-$version -name .consign -exec rm {} \\;
 		tar zcf %> -C build $project-src-$version
 	));
     }
+}
+
+#
+# Build the Debian packages if debhelper and fakeroot are available
+#
+if ($dh_builddeb && $fakeroot){
+    @deb_targets = ("build/dist/scons_$version-1_all.deb", 
+		    "build/dist/python-scons_$version-1_all.deb",
+		    "build/dist/python2-scons_$version-1_all.deb"
+		   );
+    
+    @deb_deps = ("debian/rules",
+		 "debian/control",
+		 "debian/changelog",
+		 "debian/copyright",
+		 "debian/python-scons.postinst",
+		 "debian/python-scons.prerm",
+		 "debian/python2-scons.postinst",
+		 "debian/python2-scons.prerm"
+		);
+    
+    chomp(@engine_files = `cat src/engine/MANIFEST`);
+    chomp(@script_files = `cat src/script/MANIFEST`);
+    
+    $env->Command([@deb_targets], 
+		  @deb_deps,
+		  map("build/engine/$_", @engine_files),
+		  map("build/script/$_", @script_files),
+		  qq(rm -rf build/engine/build build/engine/dist
+		     rm -rf build/script/build build/script/dist
+		     fakeroot debian/rules ENVOKED_BY_CONSTRUCT=1 binary
+		     env DH_COMPAT=3 dh_clean
+    ));
 }
