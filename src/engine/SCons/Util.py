@@ -326,6 +326,22 @@ class CmdStringHolder:
     def __cmp__(self, rhs):
         return cmp(self.flatdata, str(rhs))
         
+class DisplayEngine:
+    def __init__(self):
+        self.__call__ = self.print_it
+
+    def print_it(self, text):
+        print text
+
+    def dont_print(self, text):
+        pass
+
+    def set_mode(self, mode):
+        if mode:
+            self.__call__ = self.print_it
+        else:
+            self.__call__ = self.dont_print
+
 
 def scons_subst_list(strSubst, globals, locals, remove=None):
     """
@@ -722,3 +738,32 @@ def ParseConfig(env, command, function=None):
     if type(command) is type([]):
         command = string.join(command)
     return function(env, os.popen(command).read())
+
+def dir_index(directory):
+    files = []
+    for file in os.listdir(directory):
+        fullname = os.path.join(directory, file)
+        files.append(fullname)
+    return files
+
+def fs_delete(path, remove=1):
+    try:
+        if os.path.exists(path):
+            if os.path.isfile(path):
+                if remove: os.unlink(path)
+                display("Removed " + path)
+            elif os.path.isdir(path) and not os.path.islink(path):
+                # delete everything in the dir
+                for p in dir_index(path):
+                    if os.path.isfile(p):
+                        if remove: os.unlink(p)
+                        display("Removed " + p)
+                    else:
+                        fs_delete(p, remove)
+                # then delete dir itself
+                if remove: os.rmdir(path)
+                display("Removed directory " + path)
+    except OSError, e:
+        print "scons: Could not remove '%s':" % str(t), e.strerror
+
+display = DisplayEngine()

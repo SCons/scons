@@ -65,6 +65,7 @@ import SCons.Builder
 import SCons.Script.SConscript
 import SCons.Warnings
 from SCons.Optik import OptionParser, SUPPRESS_HELP, OptionValueError
+from SCons.Util import display
 
 
 #
@@ -146,6 +147,10 @@ class CleanTask(SCons.Taskmaster.Task):
     def show(self):
         if self.targets[0].builder or self.targets[0].side_effect:
             display("Removed " + str(self.targets[0]))
+        if SCons.Script.SConscript.clean_targets.has_key(str(self.targets[0])):
+            files = SCons.Script.SConscript.clean_targets[str(self.targets[0])]
+            for f in files:
+                SCons.Utils.fs_delete(str(f), 0)
 
     def remove(self):
         if self.targets[0].builder or self.targets[0].side_effect:
@@ -157,6 +162,10 @@ class CleanTask(SCons.Taskmaster.Task):
                 else:
                     if removed:
                         display("Removed " + str(t))
+        if SCons.Script.SConscript.clean_targets.has_key(str(self.targets[0])):
+            files = SCons.Script.SConscript.clean_targets[str(self.targets[0])]
+            for f in files:
+                SCons.Util.fs_delete(str(f))
 
     execute = remove
 
@@ -191,11 +200,6 @@ profiling = 0
 repositories = []
 sig_module = None
 num_jobs = 1 # this is modifed by SConscript.SetJobs()
-
-def print_it(text):
-    print text
-
-display = print_it
 
 # Exceptions for this module
 class PrintHelp(Exception):
@@ -408,10 +412,8 @@ class OptParser(OptionParser):
                         "--touch", action="callback", callback=opt_ignore,
                         help="Ignored for compatibility.")
 
-        def opt_c(option, opt, value, parser):
-            setattr(parser.values, 'clean', 1)
-        self.add_option('-c', '--clean', '--remove', action="callback",
-                        callback=opt_c,
+        self.add_option('-c', '--clean', '--remove', action="store_true",
+                        default=0, dest="clean",
                         help="Remove specified targets and dependencies.")
 
         self.add_option('-C', '--directory', type="string", action = "append",
@@ -662,10 +664,7 @@ def _main():
         SCons.Node.FS.execute_actions = None
         CleanTask.execute = CleanTask.show
     if options.no_progress or options.silent:
-        global display
-        def dont_print_it(text):
-            pass
-        display = dont_print_it
+        display.set_mode(0)
     if options.silent:
         SCons.Action.print_actions = None
     if options.directory:

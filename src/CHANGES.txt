@@ -19,6 +19,11 @@ RELEASE 0.10 - XXX
 
   - Remove Python bytecode (*.pyc) files from the scons-local packages.
 
+  From Steve Leblanc:
+
+  - Add a Clean() method to support removing user-specified targets
+    when using the -c option.
+
   From Anthony Roach:
 
   - Add SetJobs() and GetJobs() methods to allow configuration of the

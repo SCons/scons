@@ -51,6 +51,7 @@ def do_nothing(text): pass
 HelpFunction = do_nothing
 
 default_targets = []
+clean_targets = {}
 arguments = {}
 launch_dir = os.path.abspath(os.curdir)
 
@@ -315,6 +316,21 @@ def SetJobs(num):
     except ValueError, x:
         raise SCons.Errors.UserError, "A positive integer is required: %s"%repr(num)
     
+def Clean(target, files):
+    target = str(target)
+    if not SCons.Util.is_List(files):
+        files = [files]
+    nodes = []
+    for f in files:
+        if isinstance(f, SCons.Node.Node):
+            nodes.append(f)
+        else:
+            nodes.extend(SCons.Node.arg2nodes(f, SCons.Node.FS.default_fs.Entry))
+    if clean_targets.has_key(target):
+        clean_targets[target].extend(nodes)
+    else:
+        clean_targets[target] = nodes
+
 def BuildDefaultGlobals():
     """
     Create a dictionary containing all the default globals for 
@@ -326,6 +342,7 @@ def BuildDefaultGlobals():
     globals['ARGUMENTS']         = arguments
     globals['BuildDir']          = BuildDir
     globals['Builder']           = SCons.Builder.Builder
+    globals['Clean']             = Clean
     globals['CScan']             = SCons.Defaults.CScan
     globals['Default']           = Default
     globals['Dir']               = SCons.Node.FS.default_fs.Dir

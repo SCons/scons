@@ -168,6 +168,8 @@ scons -c build export
 .EE
 
 to remove target files under build and export.
+Additional files or directories to remove can be specified using the
+Clean() function.
 
 A subset of a hierarchical tree may be built by
 remaining at the top-level directory (where the 
@@ -277,6 +279,8 @@ Ignored for compatibility with non-GNU versions of
 -c, --clean, --remove
 Clean up by removing all target files for which a construction
 command is specified.
+Also remove any files or directories associated to the construction command
+using the Clean() function.
 
 .\" .TP
 .\" --cache-disable, --no-cache
@@ -2285,6 +2289,32 @@ build).
 .IR duplicate =0
 is usually safe, and is always more efficient than 
 .IR duplicate =1.
+
+.TP 
+.RI Clean ( target, files_or_dirs )
+This specifies a list of files or directories which should be removed
+whenever the target is specified with the
+.B -c
+command line option.
+Multiple calls to
+.BR Clean ()
+are legal,
+and create a new target or add files and directories to the
+clean list for the specified target.
+
+Multiple files or directories should be specified
+either as separate arguments to the
+.BR Clean ()
+method, or as a list.
+.BR Clean ()
+will also accept the return value of any of the construction environment
+Builder methods.
+Examples:
+
+.ES
+Clean('foo', ['bar', 'baz'])
+Clean('dist', env.Program('hello', 'hello.c'))
+.EE
 
 .TP 
 .RI Default( targets )

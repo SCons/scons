@@ -35,6 +35,15 @@ import SCons.Node.FS
 from SCons.Util import *
 import TestCmd
 
+
+class OutBuffer:
+    def __init__(self):
+        self.buffer = ""
+
+    def write(self, str):
+        self.buffer = self.buffer + str
+
+
 class UtilTestCase(unittest.TestCase):
     def test_subst(self):
 	"""Test the subst function."""
@@ -496,7 +505,48 @@ class UtilTestCase(unittest.TestCase):
         env=DummyEnv()
         res=mapPaths('bleh', dir, env)
         assert res[0] == os.path.normpath('foo/bar'), res[1]
-        
+
+    def test_display(self):
+        old_stdout = sys.stdout
+        sys.stdout = OutBuffer()
+        SCons.Util.display("line1")
+        display.set_mode(0)
+        SCons.Util.display("line2")
+        display.set_mode(1)
+        SCons.Util.display("line3")
+
+        assert sys.stdout.buffer == "line1\nline3\n"
+        sys.stdout = old_stdout
+
+    def test_fs_delete(self):
+        test = TestCmd.TestCmd(workdir = '')
+        base = test.workpath('')
+        xxx = test.workpath('xxx.xxx')
+        sub1_yyy = test.workpath('sub1', 'yyy.yyy')
+        test.subdir('sub1')
+        test.write(xxx, "\n")
+        test.write(sub1_yyy, "\n")
+
+        old_stdout = sys.stdout
+        sys.stdout = OutBuffer()
+
+        exp = "Removed " + os.path.join(base, sub1_yyy) + '\n' + \
+              "Removed directory " + os.path.join(base, 'sub1') + '\n' + \
+              "Removed " + os.path.join(base, xxx) + '\n' + \
+              "Removed directory " + base + '\n'
+
+        SCons.Util.fs_delete(base, remove=0)
+        assert sys.stdout.buffer == exp
+        assert os.path.exists(sub1_yyy)
+
+        sys.stdout.buffer = ""
+        SCons.Util.fs_delete(base, remove=1)
+        assert sys.stdout.buffer == exp
+        assert not os.path.exists(base)
+
+        test._dirlist = None
+        sys.stdout = old_stdout
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(UtilTestCase, 'test_')
