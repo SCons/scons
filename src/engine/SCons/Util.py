@@ -133,8 +133,10 @@ class PathList(UserList.UserList):
             first_part, second_part = split_func(strPath)
             list1.append(first_part)
             list2.append(second_part)
-        return (self.__class__(list1),
-                self.__class__(list2))
+        # Note that we return explicit PathList() instances, not
+        # self.__class__().  This makes sure the right attributes are
+        # available even if this object is a Lister, not a PathList.
+        return (PathList(list1), PathList(list2))
 
     def __getBasePath(self):
         """Return the file's directory and file name, with the
@@ -159,7 +161,10 @@ class PathList(UserList.UserList):
 
     def __getAbsPath(self):
         """Return the absolute path"""
-        return map(lambda x: updrive(os.path.abspath(x)), self.data)
+        # Note that we return an explicit PathList() instance, not
+        # self.__class__().  This makes sure the right attributes are
+        # available even if this object is a Lister, not a PathList.
+        return PathList(map(lambda x: updrive(os.path.abspath(x)), self.data))
 
     dictSpecialAttrs = { "file" : __getFileName,
                          "base" : __getBasePath,
@@ -174,6 +179,12 @@ class PathList(UserList.UserList):
     def __str__(self):
         return string.join(self.data)
 
+    def to_String(self):
+        # Used by our variable-interpolation to interpolate a string.
+        # The interpolation doesn't use __str__() for this because then
+        # it interpolates other lists as "['x', 'y']".
+        return string.join(self.data)
+
     def __repr__(self):
         return repr(string.join(self.data))
 
@@ -182,6 +193,49 @@ class PathList(UserList.UserList):
         # by index access have the special attributes such as
         # suffix and basepath.
         return self.__class__([ UserList.UserList.__getitem__(self, item), ])
+
+class Lister(PathList):
+    """A special breed of fake list that not only supports the inherited
+    "path dissection" attributes of PathList, but also uses a supplied
+    format string to generate arbitrary (slices of) individually-named
+    elements on the fly.
+    """
+    def __init__(self, fmt):
+        self.fmt = fmt
+        PathList.__init__(self, [ self._element(0), self._element(1) ])
+    def __getitem__(self, index):
+        return PathList([self._element(index)])
+    def _element(self, index):
+        """Generate the index'th element in this list."""
+        # For some reason, I originally made the fake names of
+        # the targets and sources 1-based (['__t1__, '__t2__']),
+        # not 0-based.  We preserve this behavior by adding one
+        # to the returned item names, so everyone's targets
+        # won't get recompiled if they were using an old version.
+        return self.fmt % (index + 1)
+    def __iter__(self):
+        """Return an iterator object for Python 2.2."""
+        class Lister_iter:
+            def __init__(self, data):
+                self.data = data
+                self.index = 0
+            def __iter__(self):
+                return self
+            def next(self):
+                try:
+                    element = self.data[self.index]
+                except IndexError:
+                    raise StopIteration
+                self.index = self.index + 1
+                return element
+        return Lister_iter(self.data)
+    def __getslice__(self, i, j):
+        slice = []
+        if j == sys.maxint:
+            j = i + 2
+        for x in range(i, j):
+            slice.append(self._element(x))
+        return PathList(slice)
 
 _env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[^}]*})$')
 
@@ -378,7 +432,10 @@ def scons_subst_list(strSubst, globals, locals, remove=None):
         elif is_String(x):
             return _space_sep.sub('\0', x)
         elif is_List(x):
-            return string.join(map(to_String, x), '\0')
+            try:
+                return x.to_String()
+            except AttributeError:
+                return string.join(map(to_String, x), '\0')
         else:
             return to_String(x)
 
@@ -439,7 +496,10 @@ def scons_subst(strSubst, globals, locals, remove=None):
             if e is None:
                 s = ''
             elif is_List(e):
-                s = string.join(map(to_String, e), ' ')
+                try:
+                    s = e.to_String()
+                except AttributeError:
+                    s = string.join(map(to_String, e), ' ')
             else:
                 s = to_String(e)
         except NameError:

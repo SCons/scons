@@ -45,9 +45,9 @@ class OutBuffer:
 
 
 class UtilTestCase(unittest.TestCase):
-    def test_subst(self):
-	"""Test the subst function."""
-	loc = {}
+    def test_subst_PathList(self):
+        """Test the subst function with PathLists"""
+        loc = {}
         loc['TARGETS'] = PathList(map(os.path.normpath, [ "./foo/bar.exe",
                                                           "/bar/baz.obj",
                                                           "../foo/baz.obj" ]))
@@ -97,16 +97,18 @@ class UtilTestCase(unittest.TestCase):
         newcom = scons_subst("test ${TARGET.dir}", loc, {})
         assert newcom == cvt("test foo")
 
+        cwd = SCons.Util.updrive(os.getcwd())
+
         newcom = scons_subst("test ${TARGET.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/bar.exe"%SCons.Util.updrive(os.getcwd())), newcom
+        assert newcom == cvt("test %s/foo/bar.exe" % (cwd)), newcom
 
         newcom = scons_subst("test ${SOURCES.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/blah.cpp %s %s/foo/ack.c"%(SCons.Util.updrive(os.getcwd()),
+        assert newcom == cvt("test %s/foo/blah.cpp %s %s/foo/ack.c"%(cwd,
                                                                      SCons.Util.updrive(os.path.abspath(os.path.normpath("/bar/ack.cpp"))),
                                                                      SCons.Util.updrive(os.path.normpath(os.getcwd()+"/..")))), newcom
 
         newcom = scons_subst("test ${SOURCE.abspath}", loc, {})
-        assert newcom == cvt("test %s/foo/blah.cpp"%SCons.Util.updrive(os.getcwd())), newcom
+        assert newcom == cvt("test %s/foo/blah.cpp" % (cwd)), newcom
 
         newcom = scons_subst("test $xxx", loc, {})
         assert newcom == cvt("test"), newcom
@@ -150,6 +152,65 @@ class UtilTestCase(unittest.TestCase):
                  "BAZ" : "BLAT" }
         newcom = scons_subst("$$FOO$BAZ", glob, {})
         assert newcom == "$FOOBLAT", newcom
+
+    def test_subst_Lister(self):
+        """Test the subst function with Listers"""
+        loc = {}
+        loc['TARGETS'] = Lister('t%d')
+        loc['TARGET'] = loc['TARGETS'][0]
+        loc['SOURCES'] = Lister('s%d')
+        loc['SOURCE'] = loc['SOURCES'][0]
+        loc['xxx'] = None
+        loc['zero'] = 0
+        loc['one'] = 1
+
+        if os.sep == '/':
+            def cvt(str):
+                return str
+        else:
+            def cvt(str):
+                return string.replace(str, '/', os.sep)
+
+        newcom = scons_subst("test $TARGETS $SOURCES", loc, {})
+        assert newcom == cvt("test t1 t2 s1 s2"), newcom
+
+        newcom = scons_subst("test ${TARGETS[:]} ${SOURCES[0]}", loc, {})
+        assert newcom == cvt("test t1 t2 s1"), newcom
+
+        newcom = scons_subst("test ${TARGETS[1:]}v", loc, {})
+        assert newcom == cvt("test t2 t3v"), newcom
+
+        newcom = scons_subst("test $TARGET", loc, {})
+        assert newcom == cvt("test t1"), newcom
+
+        newcom = scons_subst("test $TARGET$FOO[0]", loc, {})
+        assert newcom == cvt("test t1[0]"), newcom
+
+        newcom = scons_subst("test ${TARGET.file}", loc, {})
+        assert newcom == cvt("test t1"), newcom
+
+        newcom = scons_subst("test ${TARGET.filebase}", loc, {})
+        assert newcom == cvt("test t1"), newcom
+
+        newcom = scons_subst("test ${TARGET.suffix}", loc, {})
+        assert newcom == cvt("test"), newcom
+
+        newcom = scons_subst("test ${TARGET.base}", loc, {})
+        assert newcom == cvt("test t1"), newcom
+
+        newcom = scons_subst("test ${TARGET.dir}", loc, {})
+        assert newcom == cvt("test"), newcom
+
+        cwd = SCons.Util.updrive(os.getcwd())
+
+        newcom = scons_subst("test ${TARGET.abspath}", loc, {})
+        assert newcom == cvt("test %s/t1" % (cwd)), newcom
+
+        newcom = scons_subst("test ${SOURCES.abspath}", loc, {})
+        assert newcom == cvt("test %s/s1 %s/s2" % (cwd, cwd)), newcom
+
+        newcom = scons_subst("test ${SOURCE.abspath}", loc, {})
+        assert newcom == cvt("test %s/s1" % cwd), newcom
 
     def test_splitext(self):
         assert splitext('foo') == ('foo','')

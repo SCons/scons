@@ -549,31 +549,10 @@ class Environment:
         This fills in static TARGET, TARGETS, SOURCE and SOURCES
         variables so that signatures stay the same every time.
         """
-        class lister:
-            def __init__(self, fmt):
-                self.fmt = fmt
-            def _format(self, index):
-                # For some reason, I originally made the fake names of
-                # the targets and sources 1-based (['__t1__, '__t2__']),
-                # not 0-based.  We preserve this behavior by adding one
-                # to the returned item names, so everyone's targets
-                # won't get recompiled if they were using an old
-                # version.
-                return self.fmt % (index + 1)
-            def __str__(self):
-                return self._format(0) + " " + self._format(1)
-            def __getitem__(self, index):
-                return SCons.Util.PathList([self._format(index)])[0]
-            def __getslice__(self, i, j):
-                slice = []
-                for x in range(i, j):
-                    slice.append(self._format(x))
-                return SCons.Util.PathList(slice)
-
         dict = {}
         for k,v in self.items(): dict[k] = v
-        dict['TARGETS'] = lister('__t%d__')
+        dict['TARGETS'] = SCons.Util.Lister('__t%d__')
         dict['TARGET'] = dict['TARGETS'][0]
-        dict['SOURCES'] = lister('__s%d__')
+        dict['SOURCES'] = SCons.Util.Lister('__s%d__')
         dict['SOURCE'] = dict['SOURCES'][0]
         return dict
