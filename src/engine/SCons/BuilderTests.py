@@ -637,6 +637,25 @@ class BuilderTestCase(unittest.TestCase):
                                         node_factory=MyNode)
         assert builder2 == builder2a, repr(builder2.__dict__) + "\n" + repr(builder2a.__dict__)
 
+        # Test that, if an emitter sets a builder on the passed-in
+        # targets and passes back new targets, the new builder doesn't
+        # get overwritten.
+        new_builder = SCons.Builder.Builder(action='new')
+        node = MyNode('foo8')
+        new_node = MyNode('foo8.new')
+        def emit3(target, source, env, nb=new_builder, nn=new_node):
+            for t in target:
+                t.builder = nb
+            return [nn], source
+            
+        builder3=SCons.Builder.Builder(action='foo',
+                                       emitter=emit3,
+                                       node_factory=MyNode)
+        tgt = builder3(env, target=node, source='bar')
+        assert tgt is new_node, tgt
+        assert tgt.builder is builder3, tgt.builder
+        assert node.builder is new_builder, node.builder
+
     def test_no_target(self):
         """Test deducing the target from the source."""
 

@@ -306,11 +306,14 @@ class BuilderBase:
         
             target, source = self.emitter(target=tlist, source=slist, env=env)
 
-            # Now delete the temporary builders that we attached to the
+            # Now delete the temporary builders that we attached to any
             # new targets, so that _init_nodes() doesn't do weird stuff
             # to them because it thinks they already have builders.
             for t in new_targets:
-                t.builder = None
+                if t.builder is self:
+                    # Only delete the temporary builder if the emitter
+                    # didn't change it on us.
+                    t.builder = None
 
             # Have to call arg2nodes yet again, since it is legal for
             # emitters to spit out strings as well as Node instances.
