@@ -131,8 +131,9 @@ RELEASE 0.97 - XXX
     source file names.
 
   - Support easier configurability of what's displayed by various default
-    actions through new construction variables:  $ASCOMSTR, $CCCOMSTR,
-    $CXXCOMSTR, $LINKCOMSTR, $SHCCCOMSTR and $SHCXXCOMSTR, $SHLINKCOMSTR.
+    actions by adding new construction variables:  $ASCOMSTR, $CCCOMSTR,
+    $CXXCOMSTR, $LEXCOMSTR, $LINKCOMSTR, $SHCCCOMSTR, $SHCXXCOMSTR,
+    $SHLINKCOMSTR and $YACCCOMSTR.
 
   From Wayne Lee:
 
