@@ -3,7 +3,7 @@
 # SCons
 #
 
-__revision__ = "scons.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import getopt
 import os.path

@@ -4,7 +4,7 @@ File system nodes.
 
 """
 
-__revision__ = "Node/FS.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 

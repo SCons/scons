@@ -100,6 +100,7 @@ $env = new cons( ENV => {
 				   # changes don't cause rebuilds.
 		 SEDFLAGS	=> " %( -e 's+__DATE__+%DATE+' %)" .
 				   " -e 's+__DEVELOPER__+%DEVELOPER+'" .
+				   " -e 's+__FILE__+%<+'" .
 				   " -e 's+__REVISION__+%REVISION+'" .
 				   " -e 's+__VERSION__+%VERSION+'",
 		 SEDCOM		=> "%SED %SEDFLAGS %< > %>",

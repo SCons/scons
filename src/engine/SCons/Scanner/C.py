@@ -4,7 +4,7 @@ This module implements the depenency scanner for C/C++ code.
 
 """
 
-__revision__ = "Scanner/C.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import SCons.Scanner

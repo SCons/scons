@@ -6,7 +6,7 @@ stop, and wait on jobs.
 
 """
 
-__revision__ = "Job.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 class Jobs:
     """An instance of this class initializes N jobs, and provides

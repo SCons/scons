@@ -13,7 +13,7 @@ or attributes defined in this subclass.
 
 # Copyright 2001 Steven Knight
 
-__revision__ = "TestSCons.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import TestCmd

@@ -8,4 +8,7 @@ Import qw( env );
 
 @modules = qw(TestCmd.py TestSCons.py unittest.py);
 
-$env->Install($env->{TEST_LIB_DIR}, @modules);
+foreach $module (@modules) {
+    $env->Command(File::Spec->catfile($env->{TEST_LIB_DIR}, $module),
+		  $module, "%SEDCOM");
+}

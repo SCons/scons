@@ -1,4 +1,4 @@
-__revision__ = "setup.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 from string import join, split
 

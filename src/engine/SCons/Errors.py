@@ -5,7 +5,7 @@ and user errors in SCons.
 
 """
 
-__revision__ = "Errors.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 
