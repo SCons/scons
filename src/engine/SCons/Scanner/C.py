@@ -30,22 +30,45 @@ This module implements the depenency scanner for C/C++ code.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
-import SCons.Scanner
-import re
+import copy
 import os.path
+import re
+import SCons.Scanner
 import SCons.Util
 
 angle_re = re.compile('^[ \t]*#[ \t]*include[ \t]+<([\\w./\\\\]+)>', re.M)
 quote_re = re.compile('^[ \t]*#[ \t]*include[ \t]+"([\\w./\\\\]+)"', re.M)
 
-def CScan():
+def CScan(fs = SCons.Node.FS.default_fs):
     "Return a prototype Scanner instance for scanning C/C++ source files"
-    return SCons.Scanner.Recursive(scan, "CScan",
-                                   SCons.Node.FS.default_fs.File,
-                                   [".c", ".C", ".cxx", ".cpp", ".c++",
-                                    ".h", ".H", ".hxx", ".hpp"])
+    cs = CScanner(scan, "CScan", [fs, ()],
+                  [".c", ".C", ".cxx", ".cpp", ".c++",
+                   ".h", ".H", ".hxx", ".hpp"])
+    cs.fs = fs
+    return cs
 
-def scan(filename, env, node_factory):
+class CScanner(SCons.Scanner.Recursive):
+    def __init__(self, *args, **kw):
+        apply(SCons.Scanner.Recursive.__init__, (self,) + args, kw)
+        self.pathscanners = {}
+
+    def instance(self, env):
+        """
+        Return a unique instance of a C scanner object for a
+        given environment.
+        """
+        try:
+            dirs = tuple(SCons.Util.scons_str2nodes(env.Dictionary('CPPPATH'),
+                                                    self.fs.Dir))
+        except:
+            dirs = ()
+        if not self.pathscanners.has_key(dirs):
+            clone = copy.copy(self)
+	    clone.argument = [self.fs, dirs]	# XXX reaching into object
+            self.pathscanners[dirs] = clone
+        return self.pathscanners[dirs]
+
+def scan(filename, env, args = [SCons.Node.FS.default_fs, ()]):
     """
     scan(str, Environment) -> [str]
 
@@ -66,12 +89,7 @@ def scan(filename, env, node_factory):
     dependencies.
     """
 
-    fs = SCons.Node.FS.default_fs
-    try:
-        paths = map(lambda x, dir=fs.Dir: dir(x),
-                    env.Dictionary("CPPPATH"))
-    except KeyError:
-        paths = []
+    fs, cpppath = args
 
     try:
         file = open(filename)
@@ -83,13 +101,13 @@ def scan(filename, env, node_factory):
 
         dir = os.path.dirname(filename)
         if dir:
-            source_dir = [fs.Dir(dir)]
+            source_dir = (fs.Dir(dir),)
         else:
-            source_dir = []
+            source_dir = ()
         
-        return (SCons.Util.find_files(angle_includes, paths + source_dir,
-                                      node_factory)
-                + SCons.Util.find_files(quote_includes, source_dir + paths,
-                                        node_factory))
+        return (SCons.Util.find_files(angle_includes, cpppath + source_dir,
+                                      fs.File)
+                + SCons.Util.find_files(quote_includes, source_dir + cpppath,
+                                        fs.File))
     except (IOError, OSError):
         return []

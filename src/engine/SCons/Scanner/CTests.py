@@ -27,9 +27,12 @@ import TestCmd
 import SCons.Scanner.C
 import unittest
 import sys
+import os
 import os.path
 
 test = TestCmd.TestCmd(workdir = '')
+
+os.chdir(test.workpath(''))
 
 # create some source files and headers:
 
@@ -122,7 +125,7 @@ class CScannerTestCase1(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
-        deps = s.scan(test.workpath('f1.cpp'), env)
+        deps = s.instance(env).scan(test.workpath('f1.cpp'), env)
 	headers = ['f1.h', 'f2.h', 'fi.h']
         deps_match(self, deps, headers)
 
@@ -130,7 +133,7 @@ class CScannerTestCase2(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.C.CScan()
-        deps = s.scan(test.workpath('f1.cpp'), env)
+        deps = s.instance(env).scan(test.workpath('f1.cpp'), env)
         headers = ['f1.h', 'd1/f2.h']
         deps_match(self, deps, headers)
 
@@ -138,7 +141,7 @@ class CScannerTestCase3(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.C.CScan()
-        deps = s.scan(test.workpath('f2.cpp'), env)
+        deps = s.instance(env).scan(test.workpath('f2.cpp'), env)
         headers = ['f1.h', 'd1/f1.h', 'd1/d2/f1.h']
         deps_match(self, deps, headers)
 
@@ -146,7 +149,7 @@ class CScannerTestCase4(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([test.workpath("d1"), test.workpath("d1/d2")])
         s = SCons.Scanner.C.CScan()
-        deps = s.scan(test.workpath('f2.cpp'), env)
+        deps = s.instance(env).scan(test.workpath('f2.cpp'), env)
         headers =  ['f1.h', 'd1/f1.h', 'd1/d2/f1.h', 'd1/d2/f4.h']
         deps_match(self, deps, headers)
         
@@ -154,10 +157,27 @@ class CScannerTestCase5(unittest.TestCase):
     def runTest(self):
         env = DummyEnvironment([])
         s = SCons.Scanner.C.CScan()
-        deps = s.scan(test.workpath('f3.cpp'), env)
+        deps = s.instance(env).scan(test.workpath('f3.cpp'), env)
         headers =  ['f1.h', 'f2.h', 'f3.h', 'fi.h', 'fj.h',
                     'd1/f1.h', 'd1/f2.h', 'd1/f3.h']
         deps_match(self, deps, headers)
+
+class CScannerTestCase6(unittest.TestCase):
+    def runTest(self):
+        env1 = DummyEnvironment([test.workpath("d1")])
+        env2 = DummyEnvironment([test.workpath("d1/d2")])
+        s = SCons.Scanner.C.CScan()
+	s1 = s.instance(env1)
+	s2 = s.instance(env2)
+	s3 = s.instance(env1)
+	assert not s1 is s2
+	assert s1 is s3
+        deps1 = s1.scan(test.workpath('f1.cpp'), None)
+        deps2 = s2.scan(test.workpath('f1.cpp'), None)
+        headers1 =  ['f1.h', 'd1/f2.h']
+        headers2 =  ['f1.h', 'd1/d2/f2.h']
+        deps_match(self, deps1, headers1)
+        deps_match(self, deps2, headers2)
 
 def suite():
     suite = unittest.TestSuite()
@@ -166,6 +186,7 @@ def suite():
     suite.addTest(CScannerTestCase3())
     suite.addTest(CScannerTestCase4())
     suite.addTest(CScannerTestCase5())
+    suite.addTest(CScannerTestCase6())
     return suite
 
 if __name__ == "__main__":
