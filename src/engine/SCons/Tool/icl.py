@@ -69,6 +69,7 @@ def generate(env):
 
     if icltop:
         env.PrependENVPath('INCLUDE', os.path.join(icltop, 'Include'))
+        env.PrependENVPath('LIB', os.path.join(icltop, 'Lib'))
         env.PrependENVPath('PATH', os.path.join(icltop, 'Bin'))
 
     env['CC']        = 'icl'

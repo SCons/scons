@@ -102,6 +102,9 @@ RELEASE 0.XX - XXX
     (also) print the command line that is being executed through the
     temporary file.
 
+  - Initialize the LIB environment variable when using the Intel
+    compiler (icl).
+
   From Laurent Pelecq:
 
   - When the -debug=pdb option is specified, use pdb.Pdb().runcall() to
