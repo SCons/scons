@@ -103,6 +103,8 @@ yacc = foo.Dictionary('YACC')
 bar = Environment(YACC = r'%s wrapper.py ' + yacc)
 foo.Program(target = 'foo', source = 'foo.y')
 bar.Program(target = 'bar', source = 'bar.y')
+foo.Program(target = 'hello', source = ['hello.cpp']) 
+foo.CXXFile(target = 'file.cpp', source = ['file.yy'], YACCFLAGS='-d')
 """ % python)
 
     yacc = r"""
@@ -135,6 +137,26 @@ letter:  'a' | 'b';
 newline: '\n';
 """
 
+    test.write("file.yy", """\
+%token   GRAPH_T NODE_T EDGE_T DIGRAPH_T EDGEOP_T SUBGRAPH_T
+
+%pure_parser
+
+%%
+graph:        GRAPH_T
+              ;
+
+%%
+""")
+
+    test.write("hello.cpp", """\
+#include "file.hpp"
+
+int main()
+{
+}
+""")
+
     test.write('foo.y', yacc % 'foo.y')
 
     test.write('bar.y', yacc % 'bar.y')
@@ -160,5 +182,9 @@ newline: '\n';
     test.run(arguments = '-c .')
 
     test.fail_test(os.path.exists(test.workpath('foo.h')))
+
+    test.run(arguments = '.')
+
+    test.up_to_date(arguments = '.')
 
 test.pass_test()

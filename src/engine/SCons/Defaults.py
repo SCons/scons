@@ -69,14 +69,19 @@ CScan = SCons.Scanner.C.CScan()
 FortranScan = SCons.Scanner.Fortran.FortranScan()
 
 def yaccEmitter(target, source, env, **kw):
-    # Yacc can be configured to emit a .h file as well
-    # as a .c file, if -d is specified on the command line.
-    if len(source) and \
-       os.path.splitext(SCons.Util.to_String(source[0]))[1] in \
-       [ '.y', '.yy'] and \
-       '-d' in string.split(env.subst("$YACCFLAGS")):
-        target.append(os.path.splitext(SCons.Util.to_String(target[0]))[0] + \
-                      '.h')
+    # If -d is specified on the command line, yacc will emit a .h
+    # or .hpp file as well as a .c or .cpp file, depending on whether
+    # the input file is a .y or .yy, respectively.
+    if len(source) and '-d' in string.split(env.subst("$YACCFLAGS")):
+        suff = os.path.splitext(SCons.Util.to_String(source[0]))[1]
+        h = None
+        if suff == '.y':
+            h = '.h'
+        elif suff == '.yy':
+            h = '.hpp'
+        if h:
+            base = os.path.splitext(SCons.Util.to_String(target[0]))[0]
+            target.append(base + h)
     return (target, source)
 
 def CFile():
