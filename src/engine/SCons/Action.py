@@ -140,8 +140,13 @@ elif os.name == 'nt':
             return 127
         else:
             try:
-                args = [ cmd_interp, '/C' ] + args
-                ret = os.spawnve(os.P_WAIT, cmd_interp, args, env)
+
+                a = [ cmd_interp, '/C', args[0] ]
+                for arg in args[1:]:
+                    if ' ' in arg or '\t' in arg:
+                        arg = '"' + arg + '"'
+                    a.append(arg)
+                ret = os.spawnve(os.P_WAIT, cmd_interp, a, env)
             except OSError, e:
                 ret = exitvalmap[e[0]]
                 sys.stderr.write("scons: %s: %s\n" % (cmd, e[1]))
@@ -254,7 +259,12 @@ class CommandAction(ActionBase):
         for cmd_line in cmd_list:
             if len(cmd_line):
                 if print_actions:
-                    self.show(string.join(cmd_line))
+                    cl = []
+                    for arg in cmd_line:
+                        if ' ' in arg or '\t' in arg:
+                            arg = '"' + arg + '"'
+                        cl.append(arg)
+                    self.show(string.join(cl))
                 if execute_actions:
                     try:
                         ENV = kw['env']['ENV']
