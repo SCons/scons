@@ -625,9 +625,12 @@ class EnvironmentTestCase(unittest.TestCase):
             env['TOOL1'] = 111
         def t2(env, platform):
             env['TOOL2'] = 222
-        env = Environment(tools = [t1, t2])
+        def t3(env, platform):
+            env['AAA'] = env['XYZ']
+        env = Environment(tools = [t1, t2, t3], XYZ = 'aaa')
         assert env['TOOL1'] == 111, env['TOOL1']
         assert env['TOOL2'] == 222, env
+        assert env['AAA'] == 'aaa', env
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(EnvironmentTestCase, 'test_')

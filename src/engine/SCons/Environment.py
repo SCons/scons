@@ -130,6 +130,7 @@ class Environment:
         platform(self)
         if tools is None:
             tools = ['default']
+        apply(self.Replace, (), kw)
         for tool in tools:
             if SCons.Util.is_String(tool):
                 tool = SCons.Tool.Tool(tool)
