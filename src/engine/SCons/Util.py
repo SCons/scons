@@ -166,12 +166,19 @@ class PathList(UserList.UserList):
         # available even if this object is a Lister, not a PathList.
         return PathList(map(lambda x: updrive(os.path.abspath(x)), self.data))
 
+    def __posix(self):
+        if os.sep == '/':
+            return self
+        else:
+            return PathList(map(lambda x: string.replace(x, os.sep, '/'), self.data))
+
     dictSpecialAttrs = { "file" : __getFileName,
                          "base" : __getBasePath,
                          "filebase" : __getBase,
                          "dir" : __getDir,
                          "suffix" : __getSuffix,
-                         "abspath" : __getAbsPath}
+                         "abspath" : __getAbsPath,
+                         "posix" : __posix}
 
     def is_literal(self):
         return 1

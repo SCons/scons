@@ -45,8 +45,10 @@ def generate(env, platform):
         """ """
         # fail if repos is not an absolute path name?
         if module != '':
-           module = os.path.join(module, '')
-           env['CVSCOM']   = '$CVS $CVSFLAGS co $CVSCOFLAGS -p $CVSMODULE$TARGET > $TARGET'
+           # Don't use os.path.join() because the name we fetch might
+           # be across a network and must use POSIX slashes as separators.
+           module = module + '/'
+           env['CVSCOM']   = '$CVS $CVSFLAGS co $CVSCOFLAGS -p $CVSMODULE${TARGET.posix} > $TARGET'
         return SCons.Builder.Builder(action = '$CVSCOM',
                                      env = env,
                                      overrides = {'CVSREPOSITORY':repos,
@@ -57,7 +59,7 @@ def generate(env, platform):
     env['CVS']        = 'cvs'
     env['CVSFLAGS']   = '-d $CVSREPOSITORY'
     env['CVSCOFLAGS'] = ''
-    env['CVSCOM']     = '$CVS $CVSFLAGS co $CVSCOFLAGS $TARGET'
+    env['CVSCOM']     = '$CVS $CVSFLAGS co $CVSCOFLAGS ${TARGET.posix}'
 
 def exists(env):
     return env.Detect('cvs')

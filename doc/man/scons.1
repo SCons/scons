@@ -802,6 +802,21 @@ construction variables in the environment
 to use and generate file names with prefixes
 and suffixes appropriate for the platform.
 
+Note that the
+.B win32
+platform adds the
+.B SYSTEMROOT
+variable from the user's external environment
+to the construction environment's
+.B ENV
+dictionary.
+This is so that any executed commands
+that use sockets to connect with other systems
+(such as fetching source files from
+external CVS repository specifications like 
+.BR :pserver:anonymous:@cvs.sourceforge.net:/cvsroot/scons )
+will work on Win32 systems.
+
 The platform argument may be function or callable object,
 in which case the Environment() method
 will call the specified argument to update
@@ -3379,6 +3394,21 @@ platform keyword of the Environment() method.
 .ES
 env = Environment(platform = Platform('win32'))
 .EE
+.IP
+Note that the
+.B win32
+platform adds the
+.B SYSTEMROOT
+variable from the user's external environment
+to the construction environment's
+.B ENV
+dictionary.
+This is so that any executed commands
+that use sockets to connect with other systems
+(such as fetching source files from
+external CVS repository specifications like 
+.BR :pserver:anonymous:@cvs.sourceforge.net:/cvsroot/scons )
+will work on Win32 systems.
 
 .TP
 .RI Repository( directory )
@@ -4049,6 +4079,15 @@ Just the file suffix.
 
 .IP abspath
 The absolute path name of the file.
+
+.IP posix
+The POSIX form of the path,
+with directories separated by
+.B /
+(forward slashes)
+not backslashes.
+This is sometimes necessary on Win32 systems
+when a path references a file on other (POSIX) systems.
 
 .LP
 For example, the specified target will

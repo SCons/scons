@@ -118,6 +118,19 @@ def generate(env):
     
     if not env.has_key('ENV'):
         env['ENV']        = {}
+
+    # Import things from the external environment to the construction
+    # environment's ENV.  This is a potential slippery slope, because we
+    # *don't* want to make builds dependent on the user's environment by
+    # default.  We're doing this for SYSTEMROOT, though, because it's
+    # needed for anything that uses sockets, and seldom changes.  Weigh
+    # the impact carefully before adding other variables to this list.
+    import_env = [ 'SYSTEMROOT' ]
+    for var in import_env:
+        v = os.environ.get(var)
+        if v:
+            env['ENV'][var] = v
+
     env['ENV']['PATHEXT'] = '.COM;.EXE;.BAT;.CMD'
     env['OBJPREFIX']      = ''
     env['OBJSUFFIX']      = '.obj'

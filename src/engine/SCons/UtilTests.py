@@ -156,6 +156,13 @@ class UtilTestCase(unittest.TestCase):
                              target=target, source=source)
         assert newcom == cvt("test %s/foo/blah.cpp"%SCons.Util.updrive(os.getcwd())), newcom
 
+        # Note that we don't use the cvt() helper function here,
+        # because we're testing that the .posix attribute does its own
+        # conversion of the path name backslashes to slashes.
+        newcom = scons_subst("test ${TARGET.posix} ${SOURCE.posix}", env,
+                             target=target, source=source)
+        assert newcom == "test foo/bar.exe foo/blah.cpp", newcom
+
         newcom = scons_subst("test $xxx", env)
         assert newcom == cvt("test"), newcom
 

@@ -14,6 +14,14 @@ RELEASE 0.14 - XXX
 
   - Add support for Java (javac and jar).
 
+  - Propagate the external SYSTEMROOT environment variable into ENV on
+    Win32 systems, so external commands that use sockets will work.
+
+  - Add a .posix attribute to PathList expansions.
+
+  - Check out CVS source files using POSIX path names (forward slashes
+    as separators) even on Win32.
+
 
 
 RELEASE 0.13 - Mon, 31 Mar 2003 20:22:00 -0600

@@ -29,6 +29,7 @@ Test fetching source files from CVS.
 """
 
 import os
+import os.path
 import stat
 
 import TestSCons
@@ -45,6 +46,26 @@ def is_writable(file):
     return mode & stat.S_IWUSR
 
 test.subdir('CVS', 'import', ['import', 'sub'], 'work1', 'work2')
+
+foo_aaa_in = os.path.join('foo', 'aaa.in')
+foo_bbb_in = os.path.join('foo', 'bbb.in')
+foo_ccc_in = os.path.join('foo', 'ccc.in')
+foo_sub_ddd_in = os.path.join('foo', 'sub', 'ddd.in')
+foo_sub_ddd_out = os.path.join('foo', 'sub', 'ddd.out')
+foo_sub_eee_in = os.path.join('foo', 'sub', 'eee.in')
+foo_sub_eee_out = os.path.join('foo', 'sub', 'eee.out')
+foo_sub_fff_in = os.path.join('foo', 'sub', 'fff.in')
+foo_sub_fff_out = os.path.join('foo', 'sub', 'fff.out')
+foo_sub_all = os.path.join('foo', 'sub', 'all')
+
+sub_SConscript = os.path.join('sub', 'SConscript')
+sub_ddd_in = os.path.join('sub', 'ddd.in')
+sub_ddd_out = os.path.join('sub', 'ddd.out')
+sub_eee_in = os.path.join('sub', 'eee.in')
+sub_eee_out = os.path.join('sub', 'eee.out')
+sub_fff_in = os.path.join('sub', 'fff.in')
+sub_fff_out = os.path.join('sub', 'fff.out')
+sub_all = os.path.join('sub', 'all')
 
 # Set up the CVS repository.
 cvsroot = test.workpath('CVS')
@@ -70,7 +91,7 @@ test.write(['import', 'sub', 'fff.in'], "import/sub/fff.in\n")
 
 test.run(chdir = 'import',
          program = cvs,
-         arguments = '-q import -m "import" foo v v-r')
+         arguments = '-q import -m import foo v v-r')
 
 # Test the most straightforward CVS checkouts, using the module name.
 test.write(['work1', 'SConstruct'], """
@@ -104,22 +125,35 @@ cvs -Q -d %s co foo/sub/SConscript
 """ % (cvsroot),
                                    build_str = """\
 cvs -Q -d %s co foo/aaa.in
-cat("aaa.out", "foo/aaa.in")
-cat("bbb.out", "foo/bbb.in")
+cat("aaa.out", "%s")
+cat("bbb.out", "%s")
 cvs -Q -d %s co foo/ccc.in
-cat("ccc.out", "foo/ccc.in")
+cat("ccc.out", "%s")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
 cvs -Q -d %s co foo/sub/ddd.in
-cat("foo/sub/ddd.out", "foo/sub/ddd.in")
-cat("foo/sub/eee.out", "foo/sub/eee.in")
+cat("%s", "%s")
+cat("%s", "%s")
 cvs -Q -d %s co foo/sub/fff.in
-cat("foo/sub/fff.out", "foo/sub/fff.in")
-cat("foo/sub/all", ["foo/sub/ddd.out", "foo/sub/eee.out", "foo/sub/fff.out"])
-""" % (cvsroot, cvsroot, cvsroot, cvsroot)))
+cat("%s", "%s")
+cat("%s", ["%s", "%s", "%s"])
+""" % (cvsroot,
+       foo_aaa_in,
+       foo_bbb_in,
+       cvsroot,
+       foo_ccc_in,
+       cvsroot,
+       foo_sub_ddd_out, foo_sub_ddd_in,
+       foo_sub_eee_out, foo_sub_eee_in,
+       cvsroot,
+       foo_sub_fff_out, foo_sub_fff_in,
+       foo_sub_all, foo_sub_ddd_out, foo_sub_eee_out, foo_sub_fff_out)))
 
-test.fail_test(test.read(['work1', 'all']) != "import/aaa.in\nwork1/foo/bbb.in\nimport/ccc.in\n")
+# Checking things back out of CVS apparently messes with the line
+# endings, so read the result files in non-binary mode.
 
-test.fail_test(test.read(['work1', 'foo', 'sub', 'all']) != "import/sub/ddd.in\nwork1/foo/sub/eee.in\nimport/sub/fff.in\n")
+test.fail_test(test.read(['work1', 'all'], 'r') != "import/aaa.in\nwork1/foo/bbb.in\nimport/ccc.in\n")
+
+test.fail_test(test.read(['work1', 'foo', 'sub', 'all'], 'r') != "import/sub/ddd.in\nwork1/foo/sub/eee.in\nimport/sub/fff.in\n")
 
 test.fail_test(not is_writable(test.workpath('work1', 'foo', 'sub', 'SConscript')))
 test.fail_test(not is_writable(test.workpath('work1', 'foo', 'aaa.in')))
@@ -154,8 +188,8 @@ test.write(['work2', 'sub', 'eee.in'], "work2/sub/eee.in\n")
 test.run(chdir = 'work2',
          arguments = '.',
          stdout = test.wrap_stdout(read_str = """\
-cvs -q -d %s co -p foo/sub/SConscript > sub/SConscript
-""" % (cvsroot),
+cvs -q -d %s co -p foo/sub/SConscript > %s
+""" % (cvsroot, sub_SConscript),
                                    build_str = """\
 cvs -q -d %s co -p foo/aaa.in > aaa.in
 cat("aaa.out", "aaa.in")
@@ -163,22 +197,46 @@ cat("bbb.out", "bbb.in")
 cvs -q -d %s co -p foo/ccc.in > ccc.in
 cat("ccc.out", "ccc.in")
 cat("all", ["aaa.out", "bbb.out", "ccc.out"])
-cvs -q -d %s co -p foo/sub/ddd.in > sub/ddd.in
-cat("sub/ddd.out", "sub/ddd.in")
-cat("sub/eee.out", "sub/eee.in")
-cvs -q -d %s co -p foo/sub/fff.in > sub/fff.in
-cat("sub/fff.out", "sub/fff.in")
-cat("sub/all", ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-""" % (cvsroot, cvsroot, cvsroot, cvsroot)))
+cvs -q -d %s co -p foo/sub/ddd.in > %s
+cat("%s", "%s")
+cat("%s", "%s")
+cvs -q -d %s co -p foo/sub/fff.in > %s
+cat("%s", "%s")
+cat("%s", ["%s", "%s", "%s"])
+""" % (cvsroot,
+       cvsroot,
+       cvsroot, sub_ddd_in,
+       sub_ddd_out, sub_ddd_in,
+       sub_eee_out, sub_eee_in,
+       cvsroot, sub_fff_in,
+       sub_fff_out, sub_fff_in,
+       sub_all, sub_ddd_out, sub_eee_out, sub_fff_out)))
 
-test.fail_test(test.read(['work2', 'all']) != "import/aaa.in\nwork2/bbb.in\nimport/ccc.in\n")
+# Checking things back out of CVS apparently messes with the line
+# endings, so read the result files in non-binary mode.
 
-test.fail_test(test.read(['work2', 'sub', 'all']) != "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n")
+test.fail_test(test.read(['work2', 'all'], 'r') != "import/aaa.in\nwork2/bbb.in\nimport/ccc.in\n")
+
+test.fail_test(test.read(['work2', 'sub', 'all'], 'r') != "import/sub/ddd.in\nwork2/sub/eee.in\nimport/sub/fff.in\n")
 
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'SConscript')))
 test.fail_test(not is_writable(test.workpath('work2', 'aaa.in')))
 test.fail_test(not is_writable(test.workpath('work2', 'ccc.in')))
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'ddd.in')))
 test.fail_test(not is_writable(test.workpath('work2', 'sub', 'fff.in')))
+
+# Test CVS checkouts from a remote server (SourceForge).
+test.subdir(['work3'])
+
+test.write(['work3', 'SConstruct'], """\
+env = Environment()
+env.SourceCode('.', env.CVS(':pserver:anonymous:@cvs.sourceforge.net:/cvsroot/scons'))
+env.Install('install', 'scons/SConstruct')
+""")
+
+test.run(chdir = 'work3', arguments = '.')
+
+test.fail_test(not os.path.exists(test.workpath('work3', 'install', 'SConstruct')))
+
 
 test.pass_test()
