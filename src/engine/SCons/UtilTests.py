@@ -429,6 +429,19 @@ class UtilTestCase(unittest.TestCase):
         else:
             raise AssertionError, "did not catch expected UserError"
 
+        # Test we handle overriding the internal conversion routines.
+        def s(obj):
+            return obj
+
+        n1 = MyNode('n1')
+        env = DummyEnv({'NODE' : n1})
+        node = scons_subst("$NODE", env, mode=SUBST_RAW, conv=s)
+        assert node == [n1], node
+        node = scons_subst("$NODE", env, mode=SUBST_CMD, conv=s)
+        assert node == [n1], node
+        node = scons_subst("$NODE", env, mode=SUBST_SIG, conv=s)
+        assert node == [n1], node
+
         # Test returning a function.
         #env = DummyEnv({'FUNCTION' : foo})
         #func = scons_subst("$FUNCTION", env, mode=SUBST_RAW, call=None)
@@ -770,6 +783,19 @@ class UtilTestCase(unittest.TestCase):
             assert str(e) == "Syntax error trying to evaluate `$foo.bar.3.0'", e
         else:
             raise AssertionError, "did not catch expected SyntaxError"
+
+        # Test we handle overriding the internal conversion routines.
+        def s(obj):
+            return obj
+
+        n1 = MyNode('n1')
+        env = DummyEnv({'NODE' : n1})
+        node = scons_subst_list("$NODE", env, mode=SUBST_RAW, conv=s)
+        assert node == [[n1]], node
+        node = scons_subst_list("$NODE", env, mode=SUBST_CMD, conv=s)
+        assert node == [[n1]], node
+        node = scons_subst_list("$NODE", env, mode=SUBST_SIG, conv=s)
+        assert node == [[n1]], node
 
     def test_subst_once(self):
         """Testing the scons_subst_once() method"""
