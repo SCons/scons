@@ -51,6 +51,11 @@ env.Command('f5.out', 'f5.in', [Mkdir("$DIR"), Cat])
 env.Command('f6.out', 'f6.in', [Cat,
                                 Mkdir("Mkdir-$SOURCE"),
                                 Mkdir("$TARGET-Mkdir")])
+# Make sure that a user-defined Mkdir builder on a directory
+# doesn't get executed twice if it has to get called to create
+# directory for another target.
+env.Command(Dir('hello'), None, [Mkdir('$TARGET')])
+env.Command('hello/world', None, [Touch('$TARGET')])
 """)
 
 test.write('f2.in', "f2.in\n")
@@ -66,7 +71,9 @@ cat(["f5.out"], ["f5.in"])
 cat(["f6.out"], ["f6.in"])
 Mkdir("Mkdir-f6.in")
 Mkdir("f6.out-Mkdir")
-""")
+Mkdir("hello")
+Touch("%s")
+""" % (os.path.join('hello', 'world')))
 test.run(options = '-n', arguments = '.', stdout = expect)
 
 test.must_not_exist('d1')
@@ -88,10 +95,13 @@ test.must_match('f5.out', "f5.in\n")
 test.must_exist('f6.out')
 test.must_exist('Mkdir-f6.in')
 test.must_exist('f6.out-Mkdir')
+test.must_exist('hello')
+test.must_exist('hello/world')
 
 test.write(['d1', 'file'], "d1/file\n")
 test.write(['d3', 'file'], "d3/file\n")
 test.write(['Mkdir-f6.in', 'file'], "Mkdir-f6.in/file\n")
 test.write(['f6.out-Mkdir', 'file'], "f6.out-Mkdir/file\n")
+test.write(['hello', 'file'], "hello/file\n")
 
 test.pass_test()
