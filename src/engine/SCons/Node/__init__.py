@@ -419,27 +419,23 @@ class Node:
 
         build_env = self.get_build_env()
 
-        # XXX Here's where we implement --implicit-cache.  This doesn't
-        # do anything right now, but we're probably going to re-implement
-        # as a way to cache #include lines from source files, so I want
-        # to keep this code around for now.
-        #
-        #if implicit_cache and not implicit_deps_changed:
-        #    implicit = self.get_stored_implicit()
-        #    if implicit is not None:
-        #        implicit = map(self.implicit_factory, implicit)
-        #        self._add_child(self.implicit, self.implicit_dict, implicit)
-        #        calc = build_env.get_calculator()
-        #        if implicit_deps_unchanged or calc.current(self, calc.bsig(self)):
-        #            return
-        #        else:
-        #            # one of this node's sources has changed, so
-        #            # we need to recalculate the implicit deps,
-        #            # and the bsig:
-        #            self.implicit = []
-        #            self.implicit_dict = {}
-        #            self._children_reset()
-        #            self.del_binfo()
+        # Here's where we implement --implicit-cache.
+        if implicit_cache and not implicit_deps_changed:
+            implicit = self.get_stored_implicit()
+            if implicit is not None:
+                implicit = map(self.implicit_factory, implicit)
+                self._add_child(self.implicit, self.implicit_dict, implicit)
+                calc = build_env.get_calculator()
+                if implicit_deps_unchanged or self.current(calc, scan=0):
+                    return
+                else:
+                    # one of this node's sources has changed, so
+                    # we need to recalculate the implicit deps,
+                    # and the bsig:
+                    self.implicit = []
+                    self.implicit_dict = {}
+                    self._children_reset()
+                    self.del_binfo()
 
         for child in self.children(scan=0):
             scanner = self.get_source_scanner(child)
@@ -512,7 +508,7 @@ class Node:
             self.binfo = self.gen_binfo(calc)
             return self.binfo.bsig
 
-    def gen_binfo(self, calc=None):
+    def gen_binfo(self, calc=None, scan=1):
         """
         Generate a node's build signature, the digested signatures
         of its dependency files and build information.
@@ -532,7 +528,8 @@ class Node:
 
         binfo = self.new_binfo()
 
-        self.scan()
+        if scan:
+            self.scan()
 
         sources = self.filter_ignore(self.sources)
         depends = self.filter_ignore(self.depends)
@@ -555,7 +552,7 @@ class Node:
             bactsig = calc.module.signature(executor)
             sigs.append(bactsig)
 
-        if Save_Explain_Info:
+        if Save_Explain_Info or implicit_cache:
             binfo.bsources = map(str, sources)
             binfo.bdepends = map(str, depends)
             binfo.bimplicit = map(str, implicit)
