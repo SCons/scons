@@ -487,6 +487,15 @@ class FunctionAction(ActionBase):
             def quote(s):
                 return '"' + str(s) + '"'
             return '[' + string.join(map(quote, a), ", ") + ']'
+        try:
+            strfunc = self.execfunction.strfunction
+        except AttributeError:
+            pass
+        else:
+            if strfunc is None:
+                return None
+            if callable(strfunc):
+                return strfunc(target, source, env)
         name = self.function_name()
         tstr = array(target)
         sstr = array(source)

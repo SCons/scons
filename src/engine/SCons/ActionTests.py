@@ -688,6 +688,47 @@ class CommandActionTestCase(unittest.TestCase):
         s = act.strfunction([], [], env)
         assert s == "sf was called", s
 
+        class actclass1:
+            def __init__(self, targets, sources, env):
+                pass
+            def __call__(self):
+                return 1
+        class actclass2:
+            def __init__(self, targets, sources, env):
+                self.strfunction = 5
+            def __call__(self):
+                return 2
+        class actclass3:
+            def __init__(self, targets, sources, env):
+                pass
+            def __call__(self):
+                return 3
+            def strfunction(self, targets, sources, env):
+                return 'actclass3 on %s to get %s'%(str(sources[0]),
+                                                    str(targets[0]))
+        class actclass4:
+            def __init__(self, targets, sources, env):
+                pass
+            def __call__(self):
+                return 4
+            strfunction = None
+
+        act1 = SCons.Action.Action(actclass1([t1], [s1], env))
+        s = act1.strfunction([t1], [s1], env)
+        assert s == 'actclass1(["t1"], ["s1"])', s
+
+        act2 = SCons.Action.Action(actclass2([t1], [s1], env))
+        s = act2.strfunction([t1], [s1], env)
+        assert s == 'actclass2(["t1"], ["s1"])', s
+
+        act3 = SCons.Action.Action(actclass3([t1], [s1], env))
+        s = act3.strfunction([t1], [s1], env)
+        assert s == 'actclass3 on s1 to get t1', s
+
+        act4 = SCons.Action.Action(actclass4([t1], [s1], env))
+        s = act4.strfunction([t1], [s1], env)
+        assert s is None, s
+
     def test_execute(self):
         """Test execution of command Actions
 
