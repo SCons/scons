@@ -89,15 +89,8 @@ class ScriptTaskmaster(SCons.Taskmaster.Taskmaster):
         if top:
             print 'scons: "%s" is up to date.' % node
         SCons.Taskmaster.Taskmaster.up_to_date(self, node)
-        
-    def failed(self, task):
-        if self.ignore_errors:
-            SCons.Taskmaster.Taskmaster.executed(self, task)
-        else:
-            SCons.Taskmaster.Taskmaster.failed(self, task)
 
-    ignore_errors = 0
-    
+
 # Global variables
 
 default_targets = []
@@ -107,6 +100,8 @@ num_jobs = 1
 scripts = []
 task_class = BuildTask	# default action is to build targets
 current_func = None
+ignore_errors = 0
+keep_going_on_error = 0
 
 # utility functions
 
@@ -382,7 +377,8 @@ def options_init():
 	help = "Print this message and exit.")
 
     def opt_i(opt, arg):
-        ScriptTaskmaster.ignore_errors = 1
+        global ignore_errors
+        ignore_errors = 1
 
     Option(func = opt_i,
 	short = 'i', long = ['ignore-errors'],
@@ -412,7 +408,11 @@ def options_init():
 	short = 'j', long = ['jobs'], arg = 'N',
 	help = "Allow N jobs at once.")
 
-    Option(func = opt_not_yet,
+    def opt_k(opt, arg):
+        global keep_going_on_error
+        keep_going_on_error = 1
+
+    Option(func = opt_k,
 	short = 'k', long = ['keep-going'],
 	help = "Keep going when a target can't be made.")
 
@@ -636,7 +636,11 @@ def main():
     if not current_func:
         current_func = calc.current
 
-    taskmaster = ScriptTaskmaster(nodes, task_class, current_func)
+    taskmaster = ScriptTaskmaster(nodes,
+                                  task_class,
+                                  current_func,
+                                  ignore_errors,
+                                  keep_going_on_error)
 
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     jobs.start()

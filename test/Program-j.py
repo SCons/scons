@@ -28,8 +28,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.pass_test()	#XXX Short-circuit until this is supported.
-
 test.write('SConstruct', """
 env = Environment()
 env.Program(target = 'f1', source = 'f1.c')

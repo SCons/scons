@@ -160,15 +160,17 @@ class FSTestCase(unittest.TestCase):
 
         built_it = None
         assert not built_it
-        d1.add_source(["d"])    # XXX FAKE SUBCLASS ATTRIBUTE
+        d1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
         d1.builder_set(Builder())
         d1.env_set(Environment())
         d1.build()
         assert built_it
 
+        assert d1.get_parents() == [] 
+
         built_it = None
         assert not built_it
-        f1.add_source(["f"])    # XXX FAKE SUBCLASS ATTRIBUTE
+        f1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
         f1.builder_set(Builder())
         f1.env_set(Environment())
         f1.build()

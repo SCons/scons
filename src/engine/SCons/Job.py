@@ -249,9 +249,12 @@ class Parallel:
                     self.taskmaster.failed(task)
                 else:
                     self.taskmaster.executed(task)
-                    
-                    if not self.taskmaster.is_blocked():
-                        cv.notifyAll()
+
+                # signal the cv whether the task failed or not,
+                # or otherwise the other Jobs might
+                # remain blocked:
+                if not self.taskmaster.is_blocked():
+                    cv.notifyAll()
                     
         finally:
             cv.release()

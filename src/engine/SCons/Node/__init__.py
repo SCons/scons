@@ -41,7 +41,7 @@ executing = 1
 executed = 2
 up_to_date = 3
 failed = 4
-
+pending = 5
 
 class Node:
     """The base Node class, for entities that we know how to
@@ -51,6 +51,7 @@ class Node:
     def __init__(self):
 	self.sources = []
 	self.depends = []
+        self.parents = []
 	self.builder = None
 	self.env = None
         self.state = None
@@ -82,23 +83,34 @@ class Node:
         return self.signature
 
     def add_dependency(self, depend):
-	"""Adds dependencies. The depends argument must be a list."""
-        if type(depend) is not type([]):
-            raise TypeError("depend must be a list")
-	depend = filter(lambda x, d=self.depends: x not in d, depend)
-	if len(depend):
-	    self.depends.extend(depend)
+	"""Adds dependencies. The depend argument must be a list."""
+        self._add_child(self.depends, depend)
 
     def add_source(self, source):
 	"""Adds sources. The source argument must be a list."""
-        if type(source) is not type([]):
-            raise TypeError("source must be a list")
-	source = filter(lambda x, s=self.sources: x not in s, source)
-	if len(source):
-	    self.sources.extend(source)
+        self._add_child(self.sources, source)
+
+    def _add_child(self, collection, child):
+        """Adds 'child' to 'collection'. The 'child' argument must be a list"""
+        if type(child) is not type([]):
+            raise TypeError("child must be a list")
+	child = filter(lambda x, s=collection: x not in s, child)
+	if child:
+	    collection.extend(child)
+
+        for c in child:
+            c._add_parent(self)
+
+    def _add_parent(self, parent):
+        """Adds 'parent' to the list of parents of this node"""
+
+        if parent not in self.parents: self.parents.append(parent)
 
     def children(self):
 	return self.sources + self.depends
+
+    def get_parents(self):
+        return self.parents
 
     def set_state(self, state):
         self.state = state
@@ -109,10 +121,20 @@ class Node:
     def current(self):
         return None
 
+    def children_are_executed(self):
+        return reduce(lambda x,y: ((y.get_state() == executed
+                                   or y.get_state() == up_to_date)
+                                   and x),
+                      self.children(),
+                      1)
+
+def get_children(node): return node.children()
+
 class Wrapper:
-    def __init__(self, node):
+    def __init__(self, node, kids_func):
         self.node = node
-        self.kids = copy.copy(node.children())
+        self.kids = copy.copy(kids_func(node))
+
         # XXX randomize kids here, if requested
 
 class Walker:
@@ -121,9 +143,12 @@ class Walker:
     This is depth-first, children are visited before the parent.
     The Walker object can be initialized with any node, and
     returns the next node on the descent with each next() call.
+    'kids_func' is an optional function that will be called to
+    get the children of a node instead of calling 'children'.
     """
-    def __init__(self, node):
-        self.stack = [Wrapper(node)]
+    def __init__(self, node, kids_func=get_children):
+        self.kids_func = kids_func
+        self.stack = [Wrapper(node, self.kids_func)]
 
     def next(self):
 	"""Return the next node for this walk of the tree.
@@ -134,7 +159,8 @@ class Walker:
 
 	while self.stack:
 	    if self.stack[-1].kids:
-	    	self.stack.append(Wrapper(self.stack[-1].kids.pop(0)))
+	    	self.stack.append(Wrapper(self.stack[-1].kids.pop(0),
+                                          self.kids_func))
             else:
                 return self.stack.pop().node
 

@@ -128,42 +128,96 @@ class NodeTestCase(unittest.TestCase):
 	"""
 	node = SCons.Node.Node()
 	assert node.depends == []
-	try:
-	    node.add_dependency('zero')
+
+        zero = SCons.Node.Node()
+        try:
+	    node.add_dependency(zero)
 	except TypeError:
 	    pass
-	node.add_dependency(['one'])
-	assert node.depends == ['one']
-	node.add_dependency(['two', 'three'])
-	assert node.depends == ['one', 'two', 'three']
-	node.add_dependency(['three', 'four', 'one'])
-	assert node.depends == ['one', 'two', 'three', 'four']
+        else:
+            assert 0
+
+        one = SCons.Node.Node()
+        two = SCons.Node.Node()
+        three = SCons.Node.Node()
+        four = SCons.Node.Node()
+
+        node.add_dependency([one])
+        assert node.depends == [one]
+        node.add_dependency([two, three])
+        assert node.depends == [one, two, three]
+        node.add_dependency([three, four, one])
+        assert node.depends == [one, two, three, four]
+
+        assert zero.get_parents() == []
+        assert one.get_parents() == [node]
+        assert two.get_parents() == [node]
+        assert three.get_parents() == [node]
+        assert four.get_parents() == [node]
+
 
     def test_add_source(self):
 	"""Test adding sources to a Node's list.
 	"""
 	node = SCons.Node.Node()
 	assert node.sources == []
+
+        zero = SCons.Node.Node()
 	try:
-	    node.add_source('zero')
+	    node.add_source(zero)
 	except TypeError:
 	    pass
-	node.add_source(['one'])
-	assert node.sources == ['one']
-	node.add_source(['two', 'three'])
-	assert node.sources == ['one', 'two', 'three']
-	node.add_source(['three', 'four', 'one'])
-	assert node.sources == ['one', 'two', 'three', 'four']
+        else:
+            assert 0
+
+        one = SCons.Node.Node()
+        two = SCons.Node.Node()
+        three = SCons.Node.Node()
+        four = SCons.Node.Node()
+
+        node.add_source([one])
+        assert node.sources == [one]
+        node.add_source([two, three])
+        assert node.sources == [one, two, three]
+        node.add_source([three, four, one])
+        assert node.sources == [one, two, three, four]
+
+        assert zero.get_parents() == []
+        assert one.get_parents() == [node]
+        assert two.get_parents() == [node]
+        assert three.get_parents() == [node]
+        assert four.get_parents() == [node]
 
     def test_children(self):
 	"""Test fetching the "children" of a Node.
 	"""
 	node = SCons.Node.Node()
-	node.add_source(['one', 'two', 'three'])
-	node.add_dependency(['four', 'five', 'six'])
-	kids = node.children()
-	kids.sort()
-	assert kids == ['five', 'four', 'one', 'six', 'three', 'two']
+        one = SCons.Node.Node()
+        two = SCons.Node.Node()
+        three = SCons.Node.Node()
+        four = SCons.Node.Node()
+        five = SCons.Node.Node()
+        six = SCons.Node.Node()
+
+        node.add_source([one, two, three])
+        node.add_dependency([four, five, six])
+        kids = node.children()
+        assert len(kids) == 6
+        assert one in kids
+        assert two in kids
+        assert three in kids
+        assert four in kids
+        assert five in kids
+        assert six in kids
+
+    def test_add_parent(self):
+        """Test adding parents to a Node."""
+        node = SCons.Node.Node()
+        parent = SCons.Node.Node()
+        node._add_parent(parent)
+        assert node.get_parents() == [parent]
+        node._add_parent(parent)
+        assert node.get_parents() == [parent]
 
     def test_state(self):
 	"""Test setting and getting the state of a node
@@ -216,6 +270,39 @@ class NodeTestCase(unittest.TestCase):
 	assert nw.next().name ==  "n3"
 	assert nw.next().name ==  "n1"
 	assert nw.next() == None
+
+    def test_children_are_executed(self):
+        n1 = SCons.Node.Node()
+        n2 = SCons.Node.Node()
+        n3 = SCons.Node.Node()
+        n4 = SCons.Node.Node()
+
+        n4.add_source([n3])
+        n3.add_source([n1, n2])
+
+        assert not n4.children_are_executed()
+        assert not n3.children_are_executed()
+        assert n2.children_are_executed()
+        assert n1.children_are_executed()
+
+        n1.set_state(SCons.Node.executed)
+        assert not n4.children_are_executed()
+        assert not n3.children_are_executed()
+        assert n2.children_are_executed()
+        assert n1.children_are_executed()
+
+        n2.set_state(SCons.Node.executed)
+        assert not n4.children_are_executed()
+        assert n3.children_are_executed()
+        assert n2.children_are_executed()
+        assert n1.children_are_executed()
+
+        n3.set_state(SCons.Node.executed)
+        assert n4.children_are_executed()
+        assert n3.children_are_executed()
+        assert n2.children_are_executed()
+        assert n1.children_are_executed()
+
 
 
 
