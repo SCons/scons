@@ -4506,7 +4506,13 @@ The BitKeeper executable.
 
 .IP BITKEEPERCOM
 The command line for
-fetching source files using BitKEeper.
+fetching source files using BitKeeper.
+
+.IP BITKEEPERCOMSTR
+The string displayed when fetching
+a source file using BitKeeper.
+If this is not set, then $BITKEEPERCOM
+(the command line) is displayed.
 
 .IP BITKEEPERGET
 The command ($BITKEEPER) and subcommand
@@ -4780,6 +4786,12 @@ Options that are passed to the CVS checkout subcommand.
 .IP CVSCOM
 The command line used to
 fetch source files from a CVS repository.
+
+.IP CVSCOMSTR
+The string displayed when fetching
+a source file from a CVS repository.
+If this is not set, then $CVSCOM
+(the command line) is displayed.
 
 .IP CVSFLAGS
 General options that are passed to CVS.
@@ -6217,6 +6229,12 @@ used to fetch source files from RCS.
 The command line used to
 fetch (checkout) source files from RCS.
 
+.IP RCS_COCOMSTR
+The string displayed when fetching
+a source file from RCS.
+If this is not set, then $RCS_COCOM
+(the command line) is displayed.
+
 .IP RCS_COFLAGS
 Options that are passed to the $RCS_CO command.
 
@@ -6298,6 +6316,12 @@ The SCCS executable.
 .IP SCCSCOM
 The command line used to
 fetch source files from SCCS.
+
+.IP SCCSCOMSTR
+The string displayed when fetching
+a source file from a CVS repository.
+If this is not set, then $SCCSCOM
+(the command line) is displayed.
 
 .IP SCCSFLAGS
 General options that are passed to SCCS.

@@ -33,6 +33,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Action
 import SCons.Builder
 import SCons.Util
 
@@ -48,7 +49,8 @@ def generate(env):
            # be across a network and must use POSIX slashes as separators.
            module = module + '/'
            env['CVSCOM']   = '$CVS $CVSFLAGS co $CVSCOFLAGS -d ${TARGET.dir} $CVSMODULE${TARGET.posix}'
-        return SCons.Builder.Builder(action = '$CVSCOM',
+        act = SCons.Action.Action('$CVSCOM', '$CVSCOMSTR')
+        return SCons.Builder.Builder(action = act,
                                      env = env,
                                      CVSREPOSITORY = repos,
                                      CVSMODULE = module)

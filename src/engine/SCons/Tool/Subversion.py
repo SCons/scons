@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
+import SCons.Action
 import SCons.Builder
 import SCons.Util
 
@@ -47,7 +48,8 @@ def generate(env):
         # fail if repos is not an absolute path name?
         if module != '':
             module = os.path.join(module, '')
-        return SCons.Builder.Builder(action = '$SVNCOM',
+        act = SCons.Action.Action('$SVNCOM', '$SVNCOMSTR')
+        return SCons.Builder.Builder(action = act,
                                      env = env,
                                      SVNREPOSITORY = repos,
                                      SVNMODULE = module)

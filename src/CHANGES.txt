@@ -130,12 +130,13 @@ RELEASE 0.97 - XXX
   - Fix expansion of env.Command() overrides within target and
     source file names.
 
-  - Support easier customization of what's displayed by various
-    default actions by adding new construction variables:  $ARCOMSTR,
-    $ASCOMSTR, $ASPPCOMSTR, $CCCOMSTR, $CXXCOMSTR, $F77COMSTR,
-    $F90COMSTR, $F95COMSTR, $FORTRANCOMSTR, $LEXCOMSTR, $LINKCOMSTR,
-    $SHCCCOMSTR, $SHCXXCOMSTR, $SHF77COMSTR, $SHF90COMSTR, $SHF95COMSTR,
-    $SHFORTRANCOMSTR, $SHLINKCOMSTR and $YACCCOMSTR.
+  - Support easier customization of what's displayed by various default
+    actions by adding new construction variables:  $ARCOMSTR, $ASCOMSTR,
+    $ASPPCOMSTR, $BITKEEPERCOMSTR, $CCCOMSTR, $CVSCOMSTR, $CXXCOMSTR,
+    $F77COMSTR, $F90COMSTR, $F95COMSTR, $FORTRANCOMSTR, $LEXCOMSTR,
+    $LINKCOMSTR, $RCSCOMSTR, $SCCSCOMSTR, $SHCCCOMSTR, $SHCXXCOMSTR,
+    $SHF77COMSTR, $SHF90COMSTR, $SHF95COMSTR, $SHFORTRANCOMSTR,
+    $SHLINKCOMSTR and $YACCCOMSTR.
 
   From Wayne Lee:
 
