@@ -280,5 +280,6 @@ if man2html:
 # Now actually create the tar file of the documentation,
 # for easy distribution to the web site.
 #
-env.Command(doc_tar_gz, tar_deps,
-            "tar zch -f $TARGET -C build/doc %s" % tar_list)
+if tar_deps:
+    env.Command(doc_tar_gz, tar_deps,
+                "tar zc${TAR_HFLAG} -f $TARGET -C build/doc %s" % tar_list)

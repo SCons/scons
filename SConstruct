@@ -64,9 +64,11 @@ def whereis(file):
 #
 aegis = whereis('aegis')
 aesub = whereis('aesub')
-rpm = whereis('rpm')
 dh_builddeb = whereis('dh_builddeb')
 fakeroot = whereis('fakeroot')
+gzip = whereis('gzip')
+rpm = whereis('rpm')
+unzip = whereis('unzip')
 
 # My installation on Red Hat doesn't like any debhelper version
 # beyond 2, so let's use 2 as the default on any non-Debian build.
@@ -136,32 +138,62 @@ python_ver = sys.version[0:3]
 
 platform = distutils.util.get_platform()
 
-if platform == "win32":
-    archsuffix = "zip"
-else:
-    archsuffix = "tar.gz"
-
 ENV = { 'PATH' : os.environ['PATH'] }
 if os.environ.has_key('AEGIS_PROJECT'):
     ENV['AEGIS_PROJECT'] = os.environ['AEGIS_PROJECT']
 
 lib_project = os.path.join("lib", project)
 
-unpack_dir = os.path.join(os.getcwd(), "build", "unpack")
+unpack_tar_gz_dir = os.path.join(os.getcwd(), "build", "unpack-tar-gz")
 
-test_arch_dir = os.path.join(os.getcwd(),
-                             "build",
-                             "test-%s" % string.replace(archsuffix, '.', '-'))
+unpack_zip_dir = os.path.join(os.getcwd(), "build", "unpack-zip")
 
-test_src_arch_dir = os.path.join(os.getcwd(),
-                                 "build",
-                                 "test-src-%s" % string.replace(archsuffix,
-                                                                '.',
-                                                                '-'))
+test_tar_gz_dir = os.path.join(os.getcwd(), "build", "test-tar-gz")
+test_src_tar_gz_dir = os.path.join(os.getcwd(), "build", "test-src-tar-gz")
+
+test_zip_dir = os.path.join(os.getcwd(), "build", "test-zip")
+test_src_zip_dir = os.path.join(os.getcwd(), "build", "test-src-zip")
 
 test_rpm_dir = os.path.join(os.getcwd(), "build", "test-rpm")
 
 test_deb_dir = os.path.join(os.getcwd(), "build", "test-deb")
+
+if platform == "win32":
+    tar_hflag = ''
+    python_project_subinst_dir = None
+    project_script_subinst_dir = 'Scripts'
+else:
+    tar_hflag = 'h'
+    python_project_subinst_dir = lib_project
+    project_script_subinst_dir = 'bin'
+
+#
+# Figure out if we can handle .zip files.
+#
+try:
+    import zipfile
+
+    def zipit(env, target, source):
+        print "Zipping %s:" % target
+        def visit(arg, dirname, names):
+            for name in names:
+                arg.write(os.path.join(dirname, name))
+        os.chdir('build')
+        zf = zipfile.ZipFile(target, 'w')
+        os.path.walk(env['PSV'], visit, zf)
+        os.chdir('..')
+
+    def unzipit(env, target, source):
+        print "Unzipping %s:" % source[0]
+        zf = zipfile.ZipFile(source[0], 'r')
+        for name in zf.namelist():
+            dest = os.path.join(env['UNPACK_ZIP_DIR'], name)
+            open(dest, 'w').write(zf.read(name))
+
+except:
+    if unzip:
+        zipit = "cd build && $ZIP $ZIPFLAGS dist/${TARGET.file} $PSV"
+        unzipit = "$UNZIP $UNZIPFLAGS $SOURCES"
 
 def SCons_revision(target, source, env):
     """Interpolate specific values from the environment into a file.
@@ -193,15 +225,32 @@ def SCons_revision(target, source, env):
 revbuilder = Builder(name = 'SCons_revision', action = SCons_revision)
 
 env = Environment(
-                   ENV           = ENV,
+                   ENV                 = ENV,
  
-                   DATE          = date,
-                   DEVELOPER     = developer,
-                   REVISION      = revision,
-                   VERSION       = version,
-                   DH_COMPAT     = dh_compat,
+                   DATE                = date,
+                   DEVELOPER           = developer,
+                   REVISION            = revision,
+                   VERSION             = version,
+                   DH_COMPAT           = dh_compat,
 
-                   BUILDERS      = [ revbuilder ],
+                   TAR_HFLAG           = tar_hflag,
+
+                   ZIP                 = whereis('zip'),
+                   ZIPFLAGS            = '-r',
+                   UNZIP               = unzip,
+                   UNZIPFLAGS          = '-o -d $UNPACK_ZIP_DIR',
+
+                   TEST_DEB_DIR        = test_deb_dir,
+                   TEST_RPM_DIR        = test_rpm_dir,
+                   TEST_SRC_TAR_GZ_DIR = test_src_tar_gz_dir,
+                   TEST_SRC_ZIP_DIR    = test_src_zip_dir,
+                   TEST_TAR_GZ_DIR     = test_tar_gz_dir,
+                   TEST_ZIP_DIR        = test_zip_dir,
+
+                   UNPACK_TAR_GZ_DIR   = unpack_tar_gz_dir,
+                   UNPACK_ZIP_DIR      = unpack_zip_dir,
+
+                   BUILDERS            = [ revbuilder ],
                  )
 
 #
@@ -337,8 +386,8 @@ scons = {
         'subpkgs'	: [ python_scons, scons_script ],
 
         'subinst_dirs'	: {
-                             'python-' + project : lib_project,
-                             project + '-script' : 'bin',
+                             'python-' + project : python_project_subinst_dir,
+                             project + '-script' : project_script_subinst_dir,
                            },
 }
 
@@ -357,6 +406,28 @@ for p in [ scons ]:
         src = os.path.join(src, p['src_subdir'])
 
     build = os.path.join('build', pkg)
+
+    tar_gz = os.path.join(build, 'dist', "%s.tar.gz" % pkg_version)
+    platform_tar_gz = os.path.join(build,
+                                   'dist',
+                                   "%s.%s.tar.gz" % (pkg_version, platform))
+    zip = os.path.join(build, 'dist', "%s.zip" % pkg_version)
+    platform_zip = os.path.join(build,
+                                'dist',
+                                "%s.%s.zip" % (pkg_version, platform))
+    win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
+
+    #
+    # Update the environment with the relevant information
+    # for this package.
+    #
+    # We can get away with calling setup.py using a directory path
+    # like this because we put a preamble in it that will chdir()
+    # to the directory in which setup.py exists.
+    #
+    env.Update(PKG = pkg,
+               PKG_VERSION = pkg_version,
+               SETUP_PY = os.path.join(build, 'setup.py'))
 
     #
     # Read up the list of source files from our MANIFEST.in.
@@ -381,7 +452,9 @@ for p in [ scons ]:
             f = map(lambda x: x[:-1],
                     open(os.path.join(src, ssubdir, 'MANIFEST.in')).readlines())
             src_files.extend(map(lambda x, s=ssubdir: os.path.join(s, x), f))
-            dst_files.extend(map(lambda x, i=isubdir: os.path.join(i, x), f))
+            if isubdir:
+                f = map(lambda x, i=isubdir: os.path.join(i, x), f)
+            dst_files.extend(f)
             for k in sp['filemap'].keys():
                 f = sp['filemap'][k]
                 if f:
@@ -411,6 +484,7 @@ for p in [ scons ]:
     # MANIFEST itself to the array, of course.
     #
     src_files.append("MANIFEST")
+
     def copy(target, source, **kw):
         global src_files
 	src_files.sort()
@@ -424,34 +498,106 @@ for p in [ scons ]:
                 copy)
 
     #
-    # Use the Python distutils to generate the packages.
+    # Now go through and arrange to create whatever packages we can.
     #
-    archive = os.path.join(build, 'dist', "%s.%s" % (pkg_version, archsuffix))
-    platform_archive = os.path.join(build,
-                                    'dist',
-                                    "%s.%s.%s" % (pkg_version,
-                                                  platform,
-                                                  archsuffix))
-    win32_exe = os.path.join(build, 'dist', "%s.win32.exe" % pkg_version)
+    build_src_files = map(lambda x, b=build: os.path.join(b, x), src_files)
 
-    src_deps.append(archive)
+    distutils_formats = []
 
-    build_targets = [ platform_archive, archive, win32_exe ]
-    install_targets = build_targets[:]
+    distutils_targets = [ win32_exe ]
 
-    # We can get away with calling setup.py using a directory path
-    # like this because we put a preamble in it that will chdir()
-    # to the directory in which setup.py exists.
-    bdist_dirs = [
-        os.path.join(build, 'build', 'lib'),
-        os.path.join(build, 'build', 'scripts'),
-    ]
-    setup_py = os.path.join(build, 'setup.py')
-    commands = [
-        "rm -rf %s && python %s bdist" % (string.join(bdist_dirs), setup_py),
-        "python %s sdist" % setup_py,
-        "python %s bdist_wininst" % setup_py,
-    ]
+    install_targets = distutils_targets[:]
+
+    if gzip:
+
+        distutils_formats.append('gztar')
+
+        src_deps.append(tar_gz)
+
+        distutils_targets.extend([ tar_gz, platform_tar_gz ])
+        install_targets.extend([ tar_gz, platform_tar_gz ])
+
+        #
+        # Unpack the tar.gz archive created by the distutils into
+        # build/unpack-tar-gz/scons-{version}.
+        #
+        # We'd like to replace the last three lines with the following:
+        #
+        #	tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
+        #
+        # but that gives heartburn to Cygwin's tar, so work around it
+        # with separate zcat-tar-rm commands.
+        #
+        unpack_tar_gz_files = map(lambda x, u=unpack_tar_gz_dir, pv=pkg_version:
+                                         os.path.join(u, pv, x),
+                                  src_files)
+        env.Command(unpack_tar_gz_files, tar_gz, [
+                    "rm -rf %s" % os.path.join(unpack_tar_gz_dir, pkg_version),
+                    "zcat $SOURCES > .temp",
+                    "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
+                    "rm -f .temp",
+        ])
+    
+        #
+        # Run setup.py in the unpacked subdirectory to "install" everything
+        # into our build/test subdirectory.  The runtest.py script will set
+        # PYTHONPATH so that the tests only look under build/test-{package},
+        # and under etc (for the testing modules TestCmd.py, TestSCons.py,
+        # and unittest.py).  This makes sure that our tests pass with what
+        # we really packaged, not because of something hanging around in
+        # the development directory.
+        #
+        # We can get away with calling setup.py using a directory path
+        # like this because we put a preamble in it that will chdir()
+        # to the directory in which setup.py exists.
+        #
+        dfiles = map(lambda x, d=test_tar_gz_dir: os.path.join(d, x), dst_files)
+        env.Command(dfiles, unpack_tar_gz_files, [
+            "rm -rf %s" % os.path.join(unpack_tar_gz_dir, pkg_version, 'build'),
+            "rm -rf $TEST_TAR_GZ_DIR",
+            "python %s install --prefix=$TEST_TAR_GZ_DIR" % \
+                os.path.join(unpack_tar_gz_dir, pkg_version, 'setup.py'),
+        ])
+
+    if zipit:
+
+        distutils_formats.append('zip')
+
+        src_deps.append(zip)
+
+        distutils_targets.extend([ zip, platform_zip ])
+        install_targets.extend([ zip, platform_zip ])
+
+        #
+        # Unpack the zip archive created by the distutils into
+        # build/unpack-zip/scons-{version}.
+        #
+        unpack_zip_files = map(lambda x, u=unpack_zip_dir, pv=pkg_version:
+                                      os.path.join(u, pv, x),
+                               src_files)
+
+        env.Command(unpack_zip_files, zip, unzipit)
+
+        #
+        # Run setup.py in the unpacked subdirectory to "install" everything
+        # into our build/test subdirectory.  The runtest.py script will set
+        # PYTHONPATH so that the tests only look under build/test-{package},
+        # and under etc (for the testing modules TestCmd.py, TestSCons.py,
+        # and unittest.py).  This makes sure that our tests pass with what
+        # we really packaged, not because of something hanging around in
+        # the development directory.
+        #
+        # We can get away with calling setup.py using a directory path
+        # like this because we put a preamble in it that will chdir()
+        # to the directory in which setup.py exists.
+        #
+        dfiles = map(lambda x, d=test_zip_dir: os.path.join(d, x), dst_files)
+        env.Command(dfiles, unpack_zip_files, [
+            "rm -rf %s" % os.path.join(unpack_zip_dir, pkg_version, 'build'),
+            "rm -rf $TEST_ZIP_DIR",
+            "python %s install --prefix=$TEST_ZIP_DIR" % \
+                os.path.join(unpack_zip_dir, pkg_version, 'setup.py'),
+        ])
 
     if rpm:
         topdir = os.path.join(os.getcwd(), build, 'build',
@@ -464,13 +610,12 @@ for p in [ scons ]:
 	SRPMSdir = os.path.join(topdir, 'SRPMS')
 
         specfile = os.path.join(SPECSdir, "%s-1.spec" % pkg_version)
-        sourcefile = os.path.join(SOURCESdir,
-                                  "%s.%s" % (pkg_version, archsuffix));
+        sourcefile = os.path.join(SOURCESdir, "%s.tar.gz" % pkg_version);
         rpm = os.path.join(RPMSdir, "%s-1.noarch.rpm" % pkg_version)
         src_rpm = os.path.join(SRPMSdir, "%s-1.src.rpm" % pkg_version)
 
         env.InstallAs(specfile, os.path.join('rpm', "%s.spec" % pkg))
-        env.InstallAs(sourcefile, archive)
+        env.InstallAs(sourcefile, tar_gz)
 
         targets = [ rpm, src_rpm ]
         cmd = "rpm --define '_topdir $(%s$)' -ba $SOURCES" % topdir
@@ -485,16 +630,14 @@ for p in [ scons ]:
                      dst_files)
         env.Command(dfiles,
                     rpm,
-                    "rpm2cpio $SOURCES | (cd %s && cpio -id)" % test_rpm_dir)
-
-    build_src_files = map(lambda x, b=build: os.path.join(b, x), src_files)
+                    "rpm2cpio $SOURCES | (cd $TEST_RPM_DIR && cpio -id)")
 
     if dh_builddeb and fakeroot:
-        # Debian builds directly into build/dist, so we don't
-        # need to add the .debs to the install_targets.
+        # Our Debian packaging builds directly into build/dist,
+        # so we don't need to add the .debs to install_targets.
         deb = os.path.join('build', 'dist', "%s_%s-1_all.deb" % (pkg, version))
         env.Command(deb, build_src_files, [
-            "fakeroot make -f debian/rules VERSION=$VERSION DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-%s" % pkg,
+            "fakeroot make -f debian/rules VERSION=$VERSION DH_COMPAT=$DH_COMPAT ENVOKED_BY_CONSTRUCT=1 binary-$PKG",
             "env DH_COMPAT=$DH_COMPAT dh_clean"
                     ])
         env.Depends(deb, p['debian_deps'])
@@ -503,58 +646,32 @@ for p in [ scons ]:
                      dst_files)
         env.Command(dfiles,
                     deb,
-                    "dpkg --fsys-tarfile $SOURCES | (cd %s && tar -xf -)" % test_deb_dir)
+                    "dpkg --fsys-tarfile $SOURCES | (cd $TEST_DEB_DIR && tar -xf -)")
 
     #
-    # Now set up creation and installation of the packages.
+    # Use the Python distutils to generate the appropriate packages.
     #
-    env.Command(build_targets, build_src_files, commands)
+    commands = [
+        "rm -rf %s %s" % (os.path.join(build, 'build', 'lib'),
+                          os.path.join(build, 'build', 'scripts'))
+    ]
+
+    if distutils_formats:
+        for format in distutils_formats:
+            commands.append("python $SETUP_PY bdist_dumb -f %s" % format)
+
+        commands.append("python $SETUP_PY sdist --formats=%s" %  \
+                            string.join(distutils_formats, ','))
+
+    commands.append("python $SETUP_PY bdist_wininst")
+
+    env.Command(distutils_targets, build_src_files, commands)
+
+    #
+    # And, lastly, install the appropriate packages in the
+    # appropriate subdirectory.
+    #
     env.Install(os.path.join('build', 'dist'), install_targets)
-
-    #
-    # Unpack the archive created by the distutils into
-    # build/unpack/scons-{version}.
-    #
-    unpack_files = map(lambda x, u=unpack_dir, pv=pkg_version:
-                              os.path.join(u, pv, x),
-                       src_files)
-
-    #
-    # We'd like to replace the last three lines with the following:
-    #
-    #	tar zxf %< -C $unpack_dir
-    #
-    # but that gives heartburn to Cygwin's tar, so work around it
-    # with separate zcat-tar-rm commands.
-    env.Command(unpack_files, archive, [
-        "rm -rf %s" % os.path.join(unpack_dir, pkg_version),
-        "zcat $SOURCES > .temp",
-        "tar xf .temp -C %s" % unpack_dir,
-        "rm -f .temp",
-    ])
-
-    #
-    # Run setup.py in the unpacked subdirectory to "install" everything
-    # into our build/test subdirectory.  The runtest.py script will set
-    # PYTHONPATH so that the tests only look under build/test-{package},
-    # and under etc (for the testing modules TestCmd.py, TestSCons.py,
-    # and unittest.py).  This makes sure that our tests pass with what
-    # we really packaged, not because of something hanging around in
-    # the development directory.
-    #
-    # We can get away with calling setup.py using a directory path
-    # like this because we put a preamble in it that will chdir()
-    # to the directory in which setup.py exists.
-    dfiles = map(lambda x, d=test_arch_dir: os.path.join(d, x), dst_files)
-    env.Command(dfiles, unpack_files, [
-        "rm -rf %s" % os.path.join(unpack_dir, pkg_version, 'build'),
-        "rm -rf %s" % test_arch_dir,
-        "python %s install --prefix=%s" % (os.path.join(unpack_dir,
-                                                        pkg_version,
-                                                        'setup.py'),
-                                           test_arch_dir
-                                          ),
-    ])
 
 #
 #
@@ -598,9 +715,7 @@ if change:
         u[f] = 1
     for f in df:
         del u[f]
-    sfiles = filter(lambda x: x[-9:] != '.aeignore' 
-                              and x[-8:] != '.consign'
-                              and x[-9:] != '.sconsign',
+    sfiles = filter(lambda x: x[-9:] != '.aeignore' and x[-9:] != '.sconsign',
                     u.keys())
 
     if sfiles:
@@ -608,8 +723,10 @@ if change:
         psv = "%s-%s" % (ps, version)
         b_ps = os.path.join('build', ps)
         b_psv = os.path.join('build', psv)
+        b_psv_stamp = b_psv + '-stamp'
 
-        src_archive = os.path.join('build', 'dist', '%s.tar.gz' % psv)
+        src_tar_gz = os.path.join('build', 'dist', '%s.tar.gz' % psv)
+        src_zip = os.path.join('build', 'dist', '%s.zip' % psv)
 
         for file in sfiles:
             env.SCons_revision(os.path.join(b_ps, file), file)
@@ -618,68 +735,121 @@ if change:
         cmds = [
             "rm -rf %s" % b_psv,
             "cp -rp %s %s" % (b_ps, b_psv),
-            "find %s -name .consign -exec rm {} \\;" % b_psv,
             "find %s -name .sconsign -exec rm {} \\;" % b_psv,
-            "tar czh -f $TARGET -C build %s" % psv,
+            "touch $TARGET",
         ]
 
-        env.Command(src_archive, src_deps + b_ps_files, cmds)
+        env.Command(b_psv_stamp, src_deps + b_ps_files, cmds)
 
-        #
-        # Unpack the archive created by the distutils into
-        # build/unpack/scons-{version}.
-        #
-        unpack_files = map(lambda x, u=unpack_dir, psv=psv:
-                                  os.path.join(u, psv, x),
-                           sfiles)
+        if gzip:
 
-        #
-        # We'd like to replace the last three lines with the following:
-        #
-        #	tar zxf %< -C $unpack_dir
-        #
-        # but that gives heartburn to Cygwin's tar, so work around it
-        # with separate zcat-tar-rm commands.
-        env.Command(unpack_files, src_archive, [
-            "rm -rf %s" % os.path.join(unpack_dir, psv),
-            "zcat $SOURCES > .temp",
-            "tar xf .temp -C %s" % unpack_dir,
-            "rm -f .temp",
-        ])
+            env.Command(src_tar_gz, b_psv_stamp,
+                        "tar cz${TAR_HFLAG} -f $TARGET -C build %s" % psv)
+    
+            #
+            # Unpack the archive into build/unpack/scons-{version}.
+            #
+            unpack_tar_gz_files = map(lambda x, u=unpack_tar_gz_dir, psv=psv:
+                                             os.path.join(u, psv, x),
+                                      sfiles)
+    
+            #
+            # We'd like to replace the last three lines with the following:
+            #
+            #	tar zxf $SOURCES -C $UNPACK_TAR_GZ_DIR
+            #
+            # but that gives heartburn to Cygwin's tar, so work around it
+            # with separate zcat-tar-rm commands.
+            env.Command(unpack_tar_gz_files, src_tar_gz, [
+                "rm -rf %s" % os.path.join(unpack_tar_gz_dir, psv),
+                "zcat $SOURCES > .temp",
+                "tar xf .temp -C $UNPACK_TAR_GZ_DIR",
+                "rm -f .temp",
+            ])
+    
+            #
+            # Run setup.py in the unpacked subdirectory to "install" everything
+            # into our build/test subdirectory.  The runtest.py script will set
+            # PYTHONPATH so that the tests only look under build/test-{package},
+            # and under etc (for the testing modules TestCmd.py, TestSCons.py,
+            # and unittest.py).  This makes sure that our tests pass with what
+            # we really packaged, not because of something hanging around in
+            # the development directory.
+            #
+            # We can get away with calling setup.py using a directory path
+            # like this because we put a preamble in it that will chdir()
+            # to the directory in which setup.py exists.
+            #
+            dfiles = map(lambda x, d=test_src_tar_gz_dir: os.path.join(d, x),
+                            dst_files)
+            ENV = env.Dictionary('ENV')
+            ENV['SCONS_LIB_DIR'] = os.path.join(unpack_tar_gz_dir, psv, 'src', 'engine')
+            ENV['USERNAME'] = developer
+            env.Copy(ENV = ENV).Command(dfiles, unpack_tar_gz_files, [
+                "rm -rf %s" % os.path.join(unpack_tar_gz_dir,
+                                           psv,
+                                           'build',
+                                           'scons',
+                                           'build'),
+                "rm -rf $TEST_SRC_TAR_GZ_DIR",
+                "cd %s && python %s %s" % \
+                    (os.path.join(unpack_tar_gz_dir, psv),
+                     os.path.join('src', 'script', 'scons.py'),
+                     os.path.join('build', 'scons')),
+                "python %s install --prefix=$TEST_SRC_TAR_GZ_DIR" % \
+                    os.path.join(unpack_tar_gz_dir,
+                                 psv,
+                                 'build',
+                                 'scons',
+                                 'setup.py'),
+            ])
 
-        #
-        # Run setup.py in the unpacked subdirectory to "install" everything
-        # into our build/test subdirectory.  The runtest.py script will set
-        # PYTHONPATH so that the tests only look under build/test-{package},
-        # and under etc (for the testing modules TestCmd.py, TestSCons.py,
-        # and unittest.py).  This makes sure that our tests pass with what
-        # we really packaged, not because of something hanging around in
-        # the development directory.
-        #
-        # We can get away with calling setup.py using a directory path
-        # like this because we put a preamble in it that will chdir()
-        # to the directory in which setup.py exists.
-        dfiles = map(lambda x, d=test_src_arch_dir: os.path.join(d, x),
-                        dst_files)
-        ENV = env.Dictionary('ENV')
-        ENV['SCONS_LIB_DIR'] = os.path.join(unpack_dir, psv, 'src', 'engine')
-        ENV['USERNAME'] = developer
-        env.Copy(ENV = ENV).Command(dfiles, unpack_files, [
-            "rm -rf %s" % os.path.join(unpack_dir,
-                                       psv,
-                                       'build',
-                                       'scons',
-                                       'build'),
-            "rm -rf %s" % test_src_arch_dir,
-            "cd %s && python %s %s" % \
-                (os.path.join(unpack_dir, psv),
-                 os.path.join('src', 'script', 'scons.py'),
-                 os.path.join('build', 'scons')),
-            "python %s install --prefix=%s" % (os.path.join(unpack_dir,
-                                                            psv,
-                                                            'build',
-                                                            'scons',
-                                                            'setup.py'),
-                                               test_src_arch_dir
-                                              ),
-        ])
+        if zipit:
+
+            env.Copy(PSV = psv).Command(src_zip, b_psv_stamp, zipit)
+    
+            #
+            # Unpack the archive into build/unpack/scons-{version}.
+            #
+            unpack_zip_files = map(lambda x, u=unpack_zip_dir, psv=psv:
+                                             os.path.join(u, psv, x),
+                                      sfiles)
+    
+            env.Command(unpack_zip_files, src_zip, unzipit)
+    
+            #
+            # Run setup.py in the unpacked subdirectory to "install" everything
+            # into our build/test subdirectory.  The runtest.py script will set
+            # PYTHONPATH so that the tests only look under build/test-{package},
+            # and under etc (for the testing modules TestCmd.py, TestSCons.py,
+            # and unittest.py).  This makes sure that our tests pass with what
+            # we really packaged, not because of something hanging around in
+            # the development directory.
+            #
+            # We can get away with calling setup.py using a directory path
+            # like this because we put a preamble in it that will chdir()
+            # to the directory in which setup.py exists.
+            #
+            dfiles = map(lambda x, d=test_src_zip_dir: os.path.join(d, x),
+                            dst_files)
+            ENV = env.Dictionary('ENV')
+            ENV['SCONS_LIB_DIR'] = os.path.join(unpack_zip_dir, psv, 'src', 'engine')
+            ENV['USERNAME'] = developer
+            env.Copy(ENV = ENV).Command(dfiles, unpack_zip_files, [
+                "rm -rf %s" % os.path.join(unpack_zip_dir,
+                                           psv,
+                                           'build',
+                                           'scons',
+                                           'build'),
+                "rm -rf $TEST_SRC_ZIP_DIR",
+                "cd %s && python %s %s" % \
+                    (os.path.join(unpack_zip_dir, psv),
+                     os.path.join('src', 'script', 'scons.py'),
+                     os.path.join('build', 'scons')),
+                "python %s install --prefix=$TEST_SRC_ZIP_DIR" % \
+                    os.path.join(unpack_zip_dir,
+                                 psv,
+                                 'build',
+                                 'scons',
+                                 'setup.py'),
+            ])

@@ -88,7 +88,9 @@ if package:
         'deb'        : 'usr',
         'rpm'        : 'usr',
         'src-tar-gz' : '',
+        'src-zip'    : '',
         'tar-gz'     : '',
+        'zip'        : '',
     }
 
     if not dir.has_key(package):
@@ -97,9 +99,12 @@ if package:
 
     test_dir = os.path.join(cwd, 'build', 'test-%s' % package)
 
-    scons_dir = os.path.join(test_dir, dir[package], 'bin')
-
-    lib_dir = os.path.join(test_dir, dir[package], 'lib', 'scons')
+    if sys.platform == 'win32':
+        scons_dir = os.path.join(test_dir, dir[package], 'Scripts')
+        lib_dir = os.path.join(test_dir, dir[package])
+    else:
+        scons_dir = os.path.join(test_dir, dir[package], 'bin')
+        lib_dir = os.path.join(test_dir, dir[package], 'lib', 'scons')
 
 else:
 

@@ -40,6 +40,7 @@ class my_install_lib(install_lib):
     def finalize_options(self):
         install_lib.finalize_options(self)
 	head = self.install_dir
+        drive, head = os.path.splitdrive(self.install_dir)
         while head:
 	    if head == os.sep:
 		head = None
@@ -47,17 +48,17 @@ class my_install_lib(install_lib):
 	    else:
 	        head, tail = os.path.split(head)
             if tail[:6] == "python":
-                self.install_dir = os.path.join(head, "scons")
+                self.install_dir = os.path.join(drive + head, "scons")
                 # Our original packaging scheme placed the build engine
                 # in a private library directory that contained the SCons
                 # version number in the directory name.  Here's how this
                 # was supported here.  See the Construct file for details
                 # on other files that would need to be changed to support
                 # this as well.
-                #self.install_dir = os.path.join(head, "scons-__VERSION__")
+                #self.install_dir = os.path.join(drive + head, "scons-__VERSION__")
                 return
             elif tail[:6] == "Python":
-                self.install_dir = os.path.join(head, tail)
+                self.install_dir = os.path.join(drive + head, tail)
                 return
 
 arguments = {

@@ -8,6 +8,14 @@
 
 
 
+RELEASE 0.06 - 
+
+  From Steven Knight:
+
+  - Add .zip files to the packages we build.
+
+
+
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
 
   From Chad Austin:

@@ -2,9 +2,9 @@
 
                  SCons - a software construction tool
 
-Welcome to the SCons development tree.  The purpose of this tree is
-not just to hack SCons code, but to package SCons for production
-distribution.
+Welcome to the SCons development tree.  The real purpose of this tree is
+to package SCons for production distribution in a variety of formats,
+not just to hack SCons code.
 
 To that extent, the normal development cycle (enforced by Aegis) is not
 to test the code directly, but to package SCons, unpack the package,
@@ -139,14 +139,16 @@ more work:
 Depending on the utilities installed on your system, any or all of the
 following packages will be built:
 
-        build/dist/scons-0.04-1.noarch.rpm
-        build/dist/scons-0.04-1.src.rpm
-        build/dist/scons-0.04.linux-i686.tar.gz
-        build/dist/scons-0.04.tar.gz
-        build/dist/scons-0.04.win32.exe
-        build/dist/scons-doc-0.04.tar.gz
-        build/dist/scons-src-0.04.tar.gz
-        build/dist/scons_0.04-1_all.deb
+        build/dist/scons-0.06-1.noarch.rpm
+        build/dist/scons-0.06-1.src.rpm
+        build/dist/scons-0.06.linux-i686.tar.gz
+        build/dist/scons-0.06.tar.gz
+        build/dist/scons-0.06.win32.exe
+        build/dist/scons-0.06.zip
+        build/dist/scons-doc-0.06.tar.gz
+        build/dist/scons-src-0.06.tar.gz
+        build/dist/scons-src-0.06.zip
+        build/dist/scons_0.06-1_all.deb
 
 The SConstruct file is supposed to be smart enough to avoid trying to
 build packages for which you don't have the proper utilities installed.
@@ -164,19 +166,26 @@ TESTING PACKAGES
 ================
 
 A full build will unpack and/or install any .deb, .rpm., .src.tar.gz,
-and .tar.gz packages into separate build/test-*/ subdirectories.  (Of
-course, if a package was not built on your system, it should not try to
-install it.)  The runtest.py script supports a -p option that will run
-the specified tests (individually or collectively via the -a option)
-against the unpacked build/test-/* subdirectory:
+.src.zip, .tar.gz, and .zip packages into separate build/test-*/
+subdirectories.  (Of course, if a package was not built on your system,
+it should not try to install it.)  The runtest.py script supports a -p
+option that will run the specified tests (individually or collectively
+via the -a option) against the unpacked build/test-/* subdirectory:
 
-        $ python runtest.py -p tar-gz
-
-        $ python runtest.py -p src-tar-gz
+        $ python runtest.py -p deb
 
         $ python runtest.py -p rpm
 
-        $ python runtest.py -p deb
+        $ python runtest.py -p src-tar-gz
+
+        $ python runtest.py -p src-zip
+
+        $ python runtest.py -p tar-gz
+
+        $ python runtest.py -p zip
+
+(The canonical invocation is to specify the runtest.py -a option so that
+all tests are run against the specified package.)
 
 
 CONTENTS OF THIS PACKAGE

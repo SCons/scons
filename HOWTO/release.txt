@@ -83,9 +83,9 @@ Things to do to release a new version of SCons:
 
 		# Change the hard-coded package version numbers
 		# in the following files.
-		aecp SConstruct debian/changelog rpm/scons.spec
+		aecp README SConstruct debian/changelog rpm/scons.spec
 
-		vi SConstruct debian/changelog rpm/scons.spec
+		vi README SConstruct debian/changelog rpm/scons.spec
 
 		# Optionally, do the same in the following:
 		[optional] aecp HOWTO/change.txt
@@ -123,7 +123,9 @@ Things to do to release a new version of SCons:
 		put scons-0.06-1.src.rpm
 		put scons-0.06.tar.gz
 		put scons-0.06.win32.exe
+		put scons-0.06.zip
 		put scons-src-0.06.tar.gz
+		put scons-src-0.06.zip
 		put scons_0.06-1_all.deb
 
 	Create the new release at the SourceForge project page:
@@ -153,7 +155,9 @@ Things to do to release a new version of SCons:
 			scons-0.06-1.src.rpm		Any	Source .rpm
 			scons-0.06.tar.gz		Any	.gz
 			scons-0.06.win32.exe		i386	Other
+			scons-0.06.zip			Any	.zip
 			scons-src-0.06.tar.gz		Any	Source .gz
+			scons-src-0.06.zip   		Any	Source .zip
 			scons_0.06-1_all.deb		Any	.deb
 
 		(This has to be done one at a time.)
