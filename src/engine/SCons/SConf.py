@@ -47,6 +47,9 @@ import SCons.Warnings
 # but it showed up that there are too many side effects in doing that.
 SConfFS=SCons.Node.FS.default_fs
 
+# to be set, if we are in dry-run mode
+dryrun = 0
+
 _ac_build_counter = 0
 _ac_config_counter = 0
 _activeSConfObjects = {}
@@ -159,6 +162,22 @@ class SConf:
             def do_failed(self, status=2):
                 pass
 
+        class SConfDryRunTask(SConfBuildTask):
+            """Raise ConfiugreDryRunErrors whenever a target is to
+            be built. Pass these Errors to the main script."""
+            def execute(self):
+                target = self.targets[0]
+                if (target.get_state() != SCons.Node.up_to_date and
+                    target.has_builder() and
+                    not hasattr(target.builder, 'status')):
+                    
+                    raise SCons.Errors.ConfigureDryRunError(target)
+                
+            def failed(self):
+                if sys.exc_type == SCons.Errors.ConfigureDryRunError:
+                    raise
+                SConfBuildTask.failed(self)
+
         if self.logstream != None:
             # override stdout / stderr to write in log file
             oldStdout = sys.stdout
@@ -176,8 +195,12 @@ class SConf:
         try:
             # ToDo: use user options for calc
             self.calc = SCons.Sig.Calculator(max_drift=0)
+            if dryrun:
+                buildTask = SConfDryRunTask
+            else:
+                buildTask = SConfBuildTask
             tm = SCons.Taskmaster.Taskmaster( nodes,
-                                              SConfBuildTask,
+                                              buildTask,
                                               self.calc )
             # we don't want to build tests in parallel
             jobs = SCons.Job.Jobs(1, tm )
@@ -365,6 +388,8 @@ class SConf:
             self.cache = {}
 
     def _dumpCache(self):
+        if dryrun:
+            return
         # try to dump build-error cache
         try:
             cacheDesc = {'scons_version' : SCons.__version__,
@@ -377,9 +402,13 @@ class SConf:
 
     def _createDir( self, node ):
         dirName = node.get_path()
-        if not os.path.isdir( dirName ):
-            os.makedirs( dirName )
-            node._exists = 1
+        if dryrun:
+            if not os.path.isdir( dirName ):
+                raise SCons.Errors.ConfigureDryRunError(dirName)
+        else:
+            if not os.path.isdir( dirName ):
+                os.makedirs( dirName )
+                node._exists = 1
 
     def _startup(self):
         """Private method. Set up logstream, and set the environment
@@ -394,7 +423,7 @@ class SConf:
         self._createDir(self.confdir)
         self.confdir.up().add_ignore( [self.confdir] )
 
-        if self.logfile != None:
+        if self.logfile != None and not dryrun:
             # truncate logfile, if SConf.Configure is called for the first time
             # in a build
             if _ac_config_counter == 0:

@@ -723,8 +723,12 @@ def _main():
     if options.warn:
         _setup_warn(options.warn)
     if options.noexec:
+        SCons.SConf.dryrun = 1
         SCons.Action.execute_actions = None
         CleanTask.execute = CleanTask.show
+    if options.question:
+        SCons.SConf.dryrun = 1
+        
     if options.no_progress or options.silent:
         display.set_mode(0)
     if options.silent:
@@ -977,6 +981,8 @@ def main():
         _scons_syntax_error(e)
     except SCons.Errors.UserError, e:
         _scons_user_error(e)
+    except SCons.Errors.ConfigureDryRunError, e:
+        _scons_configure_dryrun_error(e)
     except:
         _scons_other_errors()
 
