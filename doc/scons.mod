@@ -57,7 +57,7 @@
 
 <!--
 
-  Methods and functions.  This includes both functions from both
+  Methods and functions.  This includes functions from both
   the Build Engine and the Native Python Interface.
 
 -->
@@ -65,17 +65,29 @@
 <!ENTITY Alias "<function>Alias</function>">
 <!ENTITY Aliases "<function>Aliases</function>">
 <!ENTITY Build "<function>Build</function>">
+<!ENTITY Cache "<function>Cache</function>">
 <!ENTITY Clean "<function>Clean</function>">
+<!ENTITY Clone "<function>Clone</function>">
 <!ENTITY Command "<function>Command</function>">
 <!ENTITY Copy "<function>Copy</function>">
 <!ENTITY Default "<function>Default</function>">
+<!ENTITY DefaultRules "<function>DefaultRules</function>">
+<!ENTITY Depends "<function>Depends</function>">
 <!ENTITY Environment "<function>Environment</function>">
 <!ENTITY Export "<function>Export</function>">
 <!ENTITY Help "<function>Help</function>">
+<!ENTITY Ignore "<function>Ignore</function>">
+<!ENTITY Install "<function>Install</function>">
+<!ENTITY InstallAs "<function>InstallAs</function>">
 <!ENTITY Link "<function>Link</function>">
 <!ENTITY Local "<function>Local</function>">
+<!ENTITY Module "<function>Module</function>">
+<!ENTITY Objects "<function>Objects</function>">
 <!ENTITY Precious "<function>Precious</function>">
 <!ENTITY Repository "<function>Repository</function>">
+<!ENTITY RuleSet "<function>RuleSet</function>">
+<!ENTITY Salt "<function>Salt</function>">
+<!ENTITY SourceSignature "<function>SourceSignature</function>">
 <!ENTITY Task "<function>Task</function>">
 
 
@@ -90,6 +102,16 @@
 <!ENTITY BUILDERS "<varname>BUILDERMAP</varname>">
 <!ENTITY SCANNERMAP "<varname>SCANNERMAP</varname>">
 <!ENTITY SCANNERS "<varname>SCANNERMAP</varname>">
+
+
+
+<!--
+
+  Environment variables.
+
+-->
+
+<!ENTITY SCONSFLAGS "<varname>SCONSFLAGS</varname>">
 
 
 

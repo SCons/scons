@@ -48,6 +48,9 @@ Ignore("version.sgml");
     		'html'	=> 'scons.html',
 		'text'	=> 1,
 	},
+    'user' => {
+    		'html'	=> 'book1.html',
+	},
 );
 
 # Find internal dependencies in .sgml files:
