@@ -33,13 +33,41 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import cc
 import link
+import os.path
+import SCons.Action
+import SCons.Builder
+import SCons.Errors
+import SCons.Util
 
-linkers = ['c++', 'cc', 'g++', 'gcc']
+linkers = ['g++', 'gcc', 'c++', 'cc']
 
+def cxxSource(sources):
+    for s in sources:
+        if os.path.splitext(str(s))[1] in cc.CXXSuffixes:
+            return 1
+        if cxxSource(s.sources):
+            return 1
+    return 0
+
+def smart_link(source, target, env, for_signature):
+    cppSource = 0
+    if source is None:
+        # may occur, when env.subst('$LINK') is called
+        return '$CXX'
+    if not SCons.Util.is_List(source):
+        source = [source]
+        
+    if cxxSource(source):
+        return '$CXX'
+    else:
+        return '$CC'
+        
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
     link.generate(env)
-
+    env['LINK'] = smart_link
+    
 def exists(env):
     return env.Detect(linkers)

@@ -22,4 +22,5 @@ src_install () {
         python setup.py install --root=${D}
         dodoc *.txt PKG-INFO MANIFEST
         doman scons.1
+        doman sconsign.1
 }

@@ -26,6 +26,8 @@ RELEASE 0.XX - XXX
     from CVS with a specified module name.  This avoids zero-length
     files when there is a checkout error.
 
+  - Add an "sconsign" script to print the contents of .sconsign files.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building
@@ -35,6 +37,17 @@ RELEASE 0.XX - XXX
 
   - Provide helpful error messages when the arguments to env.Install()
     are incorrect.
+
+  From Christoph Wiedemann
+
+  - Have the g++ Tool actually use g++ in preference to c++.
+
+  - Have the gcc Tool actually use gcc in preference to cc.
+
+  - Add a gnutools.py test of the GNU tool chain.
+
+  - Be smarter about linking: use $CC by default and $CXX only if we're
+    linking with any C++ objects.
 
 
 

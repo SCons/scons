@@ -35,25 +35,22 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
+import cc
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-compilers = ['c++', 'g++']
-
-CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
-if os.path.normcase('.c') != os.path.normcase('.C'):
-    CXXSuffixes.append('.C')
+compilers = ['g++', 'c++']
 
 def generate(env):
     """Add Builders and construction variables for g++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    for suffix in CXXSuffixes:
+    for suffix in cc.CXXSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
 
-    env['CXX']        = env.Detect(compilers) or 'c++'
+    env['CXX']        = env.Detect(compilers) or 'g++'
     env['CXXFLAGS']   = '$CCFLAGS'
     env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
     env['SHCXX']      = '$CXX'

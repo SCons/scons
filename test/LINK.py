@@ -44,7 +44,7 @@ os.system(string.join(sys.argv[1:], " "))
 
 test.write('SConstruct', """
 foo = Environment()
-link = foo.Dictionary('LINK')
+link = foo.subst("$LINK")
 bar = Environment(LINK = r'%s wrapper.py ' + link)
 foo.Program(target = 'foo', source = 'foo.c')
 bar.Program(target = 'bar', source = 'bar.c')

@@ -35,13 +35,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import cc
 
-compilers = ['cc', 'gcc']
+compilers = ['gcc', 'cc']
 
 def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
     cc.generate(env)
 
-    env['CC'] = env.Detect(compilers) or 'cc'
+    env['CC'] = env.Detect(compilers) or 'gcc'
     if env['PLATFORM'] == 'cygwin':
         env['SHCCFLAGS'] = '$CCFLAGS'
     else:

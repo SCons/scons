@@ -254,6 +254,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
         if docs[doc].get('text') and jade and lynx:
             env.Command(text, html, "lynx -dump ${SOURCE.abspath} > $TARGET")
+            Local(text)
 
             env.Ignore(text, "version.sgml")
 
@@ -263,29 +264,35 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 #
 # Man page(s), in good ol' troff format.
 #
-scons_1 = os.path.join('man', 'scons.1')
+man_page_list = ['scons', 'sconsign']
 
-if groff:
-    ps = os.path.join('PS', 'scons-man.ps')
-    text = os.path.join('TEXT', 'scons-man.txt')
+for man in man_page_list:
+    man_1 = os.path.join('man', '%s.1' % man)
 
-    env.Command(ps, scons_1, "groff -man -Tps $SOURCES > $TARGET")
+    if groff:
+        ps = os.path.join('PS', '%s-man.ps' % man)
+        text = os.path.join('TEXT', '%s-man.txt' % man)
 
-    env.Command(text, scons_1, "groff -man -Tascii $SOURCES > $TARGET")
+        env.Command(ps, man_1, "groff -man -Tps $SOURCES > $TARGET")
+        Local(ps)
 
-    tar_deps.extend([ps, text])
-    tar_list = string.join([tar_list, ps, text], " ")
+        env.Command(text, man_1, "groff -man -Tascii $SOURCES > $TARGET")
+        Local(text)
 
-if man2html:
-    html = os.path.join('HTML' , 'scons-man.html')
+        tar_deps.extend([ps, text])
+        tar_list = string.join([tar_list, ps, text], " ")
 
-    cmds = [ "man2html $SOURCES > $TARGET" ]
-    if tidy:
-        cmds.append("tidy -m -q $TARGET || true")
-    env.Command(html, scons_1, cmds)
+    if man2html:
+        html = os.path.join('HTML' , '%s-man.html' % man)
 
-    tar_deps.append(html)
-    tar_list = tar_list + " " + html
+        cmds = [ "man2html $SOURCES > $TARGET" ]
+        if tidy:
+            cmds.append("tidy -m -q $TARGET || true")
+        env.Command(html, man_1, cmds)
+        Local(html)
+
+        tar_deps.append(html)
+        tar_list = tar_list + " " + html
 
 #
 # Now actually create the tar file of the documentation,
@@ -294,3 +301,4 @@ if man2html:
 if tar_deps:
     env.Command(doc_tar_gz, tar_deps,
                 "tar cf${TAR_HFLAG} - -C build/doc %s | gzip > $TARGET" % tar_list)
+    Local(doc_tar_gz)

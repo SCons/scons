@@ -2,7 +2,7 @@
 #
 # SCons - a Software Constructor
 #
-# __COPYRIGHT__
+# Copyright (c) 2001, 2002, 2003 Steven Knight
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__REVISION__"
 
 __version__ = "__VERSION__"
 
@@ -133,5 +133,91 @@ sys.path = libs + sys.path
 # END STANDARD SCons SCRIPT HEADER
 ##############################################################################
 
-import SCons.Script
-SCons.Script.main()
+import getopt
+
+helpstr = """\
+Usage: sconsign [OPTIONS] FILE [...]
+Options:
+  -b, --bsig                  Print build signature information.
+  -c, --csig                  Print content signature information.
+  -e, --entry ENTRY           Print only info about ENTRY.
+  -h, --help                  Print this message and exit.
+  -i, --implicit              Print implicit dependency information.
+  -t, --timestamp             Print timestamp information.
+  -v, --verbose               Verbose, describe each field.
+"""
+
+opts, args = getopt.getopt(sys.argv[1:], "bce:hitv",
+                            ['bsig', 'csig', 'entry=', 'help', 'implicit',
+                             'timestamp', 'verbose'])
+
+pf_bsig      = 0x1
+pf_csig      = 0x2
+pf_timestamp = 0x4
+pf_implicit  = 0x8
+pf_all       = pf_bsig | pf_csig | pf_timestamp | pf_implicit
+
+entries = []
+printflags = 0
+verbose = 0
+
+for o, a in opts:
+    if o in ('-b', '--bsig'):
+        printflags = printflags | pf_bsig
+    elif o in ('-c', '--csig'):
+        printflags = printflags | pf_csig
+    elif o in ('-e', '--entry'):
+        entries.append(a)
+    elif o in ('-h', o == '--help'):
+        print helpstr
+        sys.exit(0)
+    elif o in ('-i', '--implicit'):
+        printflags = printflags | pf_implicit
+    elif o in ('-t', '--timestamp'):
+        printflags = printflags | pf_timestamp
+    elif o in ('-v', '--verbose'):
+        verbose = 1
+
+if printflags == 0:
+    printflags = pf_all
+
+def field(name, pf, val):
+    if printflags & pf:
+        if verbose:
+            sep = "\n    " + name + ": "
+        else:
+            sep = " "
+        return sep + (val or '-')
+    else:
+        return ""
+
+def printfield(name, entry):
+    timestamp = field("timestamp", pf_timestamp, entry.timestamp)
+    bsig = field("bsig", pf_bsig, entry.bsig)
+    csig = field("csig", pf_csig, entry.csig)
+    print name + ":" + timestamp + bsig + csig
+    if printflags & pf_implicit and entry.implicit:
+        if verbose:
+            print "    implicit:"
+        for i in entry.implicit:
+            print "        %s" % i
+
+import SCons.Sig
+
+def do_sconsign(fp):
+    sconsign = SCons.Sig._SConsign(fp)
+    if entries:
+        for name in entries:
+            try:
+                entry = sconsign.entries[name]
+            except KeyError:
+                sys.stderr.write("sconsign: no entry `%s' in `%s'\n" % (name, args[0]))
+            else:
+                printfield(name, entry)
+    else:
+        for name, e in sconsign.entries.items():
+            printfield(name, e)
+    
+    
+for a in args:
+    do_sconsign(open(a, 'rb'))

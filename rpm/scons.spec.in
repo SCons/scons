@@ -43,6 +43,7 @@ python setup.py build
 python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 mkdir -p $RPM_BUILD_ROOT/usr/man/man1
 gzip -c scons.1 > $RPM_BUILD_ROOT/usr/man/man1/scons.1.gz
+gzip -c sconsign.1 > $RPM_BUILD_ROOT/usr/man/man1/sconsign.1.gz
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -51,3 +52,4 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 __RPM_FILES__
 %doc /usr/man/man1/scons.1.gz
+%doc /usr/man/man1/sconsign.1.gz

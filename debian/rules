@@ -57,16 +57,22 @@ install: build
 
 	mkdir -p debian/scons/usr/bin/
 	rm -f debian/scons/usr/bin/scons
+	rm -f debian/scons/usr/bin/sconsign
 ifeq ($(PYTHON),python)
 	cp build/scripts/scons debian/scons/usr/bin/scons
+	cp build/scripts/sconsign debian/scons/usr/bin/sconsign
 else
 	sed '1s|.*|#!/usr/bin/python2.1|' build/scripts/scons > debian/scons/usr/bin/scons
+	sed '1s|.*|#!/usr/bin/python2.1|' build/scripts/sconsign > debian/scons/usr/bin/sconsign
 endif
 	chmod +x debian/scons/usr/bin/scons
+	chmod +x debian/scons/usr/bin/sconsign
 
 	mkdir -p debian/scons/usr/share/man/man1/
 	rm -f debian/scons/usr/share/man/man1/scons.1
+	rm -f debian/scons/usr/share/man/man1/sconsign.1
 	cp scons.1 debian/scons/usr/share/man/man1/
+	cp sconsign.1 debian/scons/usr/share/man/man1/
 
 	mkdir -p debian/scons/usr/share/doc/scons
 	rm -f debian/scons/usr/share/doc/scons/changelog

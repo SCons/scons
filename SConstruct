@@ -395,6 +395,7 @@ scons_script = {
         'filemap'       : {
                             'LICENSE.txt' : '../LICENSE.txt',
                             'scons'       : 'scons.py',
+                            'sconsign'    : 'sconsign.py',
                            }
 }
 
@@ -419,6 +420,7 @@ scons = {
                             'RELEASE.txt',
                             'os_spawnv_fix.diff',
                             'scons.1',
+                            'sconsign.1',
                             'script/scons.bat',
                             'setup.cfg',
                             'setup.py',
@@ -426,6 +428,7 @@ scons = {
 
         'filemap'       : {
                             'scons.1' : '../doc/man/scons.1',
+                            'sconsign.1' : '../doc/man/sconsign.1',
                           },
 
         'subpkgs'	: [ python_scons, scons_script ],
@@ -435,6 +438,8 @@ scons = {
                              project + '-script' : project_script_subinst_dir,
                            },
 }
+
+scripts = ['scons', 'sconsign']
 
 src_deps = []
 src_files = []
@@ -806,12 +811,15 @@ for p in [ scons ]:
         "rm -rf %s" % local,
         "$PYTHON $SETUP_PY install --install-script=%s --install-lib=%s --no-compile" % \
                                                 (cwd_local, cwd_local_slv),
-        "mv %s/scons %s/scons.py" % (local, local),
     ]
 
-    rf = filter(lambda x: x != "scons", raw_files)
+    for script in scripts:
+        commands.append("mv %s/%s %s/%s.py" % (local, script, local, script))
+
+    rf = filter(lambda x: not x in scripts, raw_files)
     rf = map(lambda x, slv=s_l_v: os.path.join(slv, x), rf)
-    rf.append("scons.py")
+    for script in scripts:
+        rf.append("%s.py" % script)
     local_targets = map(lambda x, s=local: os.path.join(s, x), rf)
 
     env.Command(local_targets, build_src_files, commands)

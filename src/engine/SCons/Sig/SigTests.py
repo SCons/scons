@@ -400,6 +400,41 @@ class SConsignEntryTestCase(unittest.TestCase):
         assert e.bsig == None
         assert e.implicit == None
 
+class _SConsignTestCase(unittest.TestCase):
+
+    def runTest(self):
+        class DummyModule:
+            def to_string(self, sig):
+                return str(sig)
+
+            def from_string(self, sig):
+                return int(sig)
+            
+        class DummyNode:
+            path = 'not_a_valid_path'
+
+        f = SCons.Sig._SConsign()
+        f.set_bsig('foo', 1)
+        assert f.get('foo') == (None, 1, None)
+        f.set_csig('foo', 2)
+        assert f.get('foo') == (None, 1, 2)
+        f.set_timestamp('foo', 3)
+        assert f.get('foo') == (3, 1, 2)
+        f.set_implicit('foo', ['bar'])
+        assert f.get('foo') == (3, 1, 2)
+        assert f.get_implicit('foo') == ['bar']
+
+        f = SCons.Sig._SConsign(None, DummyModule())
+        f.set_bsig('foo', 1)
+        assert f.get('foo') == (None, 1, None)
+        f.set_csig('foo', 2)
+        assert f.get('foo') == (None, 1, 2)
+        f.set_timestamp('foo', 3)
+        assert f.get('foo') == (3, 1, 2)
+        f.set_implicit('foo', ['bar'])
+        assert f.get('foo') == (3, 1, 2)
+        assert f.get_implicit('foo') == ['bar']
+
 class SConsignFileTestCase(unittest.TestCase):
 
     def runTest(self):
@@ -431,6 +466,7 @@ def suite():
     suite.addTest(TimeStampTestCase())
     suite.addTest(CalcTestCase())
     suite.addTest(SConsignEntryTestCase())
+    suite.addTest(_SConsignTestCase())
     suite.addTest(SConsignFileTestCase())
     return suite
 

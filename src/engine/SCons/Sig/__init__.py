@@ -76,34 +76,24 @@ class SConsignEntry:
     csig = None
     implicit = None
 
-class SConsignFile:
-    """
-    Encapsulates reading and writing a .sconsign file.
-    """
+class _SConsign:
 
-    def __init__(self, dir, module=None):
+    def __init__(self, fp=None, module=None):
         """
-        dir - the directory for the file
+        fp - file pointer to read entries from
         module - the signature module being used
         """
-
-        self.dir = dir
 
         if module is None:
             self.module = default_calc.module
         else:
             self.module = module
-        self.sconsign = os.path.join(dir.path, '.sconsign')
         self.entries = {}
         self.dirty = 0
 
-        try:
-            file = open(self.sconsign, 'rb')
-        except:
-            pass
-        else:
+        if fp:
             try:
-                self.entries = cPickle.load(file)
+                self.entries = cPickle.load(fp)
                 if type(self.entries) is not type({}):
                     self.entries = {}
                     raise TypeError
@@ -189,6 +179,27 @@ class SConsignFile:
         implicit = map(str, implicit)
         entry.implicit = implicit
         self.set_entry(filename, entry)
+
+class SConsignFile(_SConsign):
+    """
+    Encapsulates reading and writing a .sconsign file.
+    """
+
+    def __init__(self, dir, module=None):
+        """
+        dir - the directory for the file
+        module - the signature module being used
+        """
+
+        self.dir = dir
+        self.sconsign = os.path.join(dir.path, '.sconsign')
+
+        try:
+            fp = open(self.sconsign, 'rb')
+        except:
+            fp = None
+
+        _SConsign.__init__(self, fp, module)
 
     def write(self):
         """

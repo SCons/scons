@@ -1,0 +1,73 @@
+Steps for adding a new script/utility to the SCons packages.  Assume
+that you're creating a new man page, too.  In the template steps
+below, "newscript" is the name of the new script/utility being added.
+
+    New files:
+
+        doc/man/newscript.1
+
+            New man page; use an existing one as a template.
+
+        src/script/newscript.py
+
+            The new script itself.
+
+        test/*.py
+
+            Appropriate tests for the new script.
+
+    Modified files:
+
+        SConstruct
+
+            In the "scons_script" package description:
+
+                Add "newscript" : "newscript.py" to the "filemap"
+                dictionary.
+
+            In the "scons" package description:
+
+                Add "newscript.1" to the "files" list.
+
+                Add "newscript.1" : "../doc/man/newscript.1" to the
+                "filemap" dictionary.
+
+            Add "newscript" to the scripts[] list
+
+        debian/rules
+
+            Add:
+
+                rm -f debian/scons/usr/bin/newscript
+                cp build/scripts/newscript debian/scons/user/bin/newscript
+                sed '1s|.*|#!/usr/bin/python2.1|' build/scripts/newscript > debian/scons/user/bin/newscript
+                chmod +x debian/scons/user/bin/newscript
+
+                rm -f debian/scons/usr/share/man/man1/newscript.1
+                cp newscript.1 debian/scons/user/share/man/man1/
+
+        doc/SConscript
+
+            Add "newscript" to man_page_list[]
+
+        gentoo/scons.ebuild.in
+
+            Add "doman newscript.1"
+
+        rpm/scons.spec.in
+
+            Add "gzip -c newscript.1" > $RPM_BUILD_ROOT/usr/man/man1/newscript.1.gz
+
+            Add "%doc /usr/man/man1/newscript.1.gz"
+
+        src/CHANGES.txt
+
+            Document the addition of the new script.
+
+        src/script/MANIFEST.in
+
+            Add a line:  "newscript"
+
+        src/setup.py
+
+            Add "script/newscript" to the 'scripts' list.

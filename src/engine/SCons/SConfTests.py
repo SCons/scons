@@ -76,17 +76,11 @@ class SConfTestCase(unittest.TestCase):
         #    - cygwin on win32 (using cmd.exe, not bash)
         #    - posix
         #    - msvc on win32 (hopefully)
-        if self.scons_env.subst('$CXX') == 'c++':
-            # better use g++ (which is normally no symbolic link
-            # --> the c++ call fails on cygwin
-            self.scons_env['CXX'] = 'g++'
-        if self.scons_env.subst('$LINK') == 'c++':
-            self.scons_env['LINK'] = 'g++'
         if (not self.scons_env.Detect( self.scons_env.subst('$CXX') ) or
             not self.scons_env.Detect( self.scons_env.subst('$CC') ) or
             not self.scons_env.Detect( self.scons_env.subst('$LINK') )):
             raise Exception, "This test needs an installed compiler!"
-        if self.scons_env['LINK'] == 'g++':
+        if self.scons_env['CXX'] == 'g++':
             global existing_lib
             existing_lib = 'm'
         

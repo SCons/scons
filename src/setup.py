@@ -195,7 +195,7 @@ arguments = {
                           "SCons.Sig",
                           "SCons.Tool"],
     'package_dir'      : {'' : 'engine'},
-    'scripts'          : ["script/scons"],
+    'scripts'          : ['script/scons', 'script/sconsign'],
     'cmdclass'         : {'install'         : install,
                           'install_lib'     : install_lib,
                           'install_scripts' : install_scripts}
