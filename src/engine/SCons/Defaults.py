@@ -441,7 +441,7 @@ def make_win32_env_from_paths(include, lib, path):
         'WIN32DEFSUFFIX'        : '.def',
         'WIN32DLLPREFIX'        : '/out:',
         'WIN32IMPLIBPREFIX'     : '/implib:',
-        'WIN32_INSERT_DEF'      : 1,
+        'WIN32_INSERT_DEF'      : 0,
         'ENV'        : {
             'INCLUDE'  : include,
             'LIB'      : lib,

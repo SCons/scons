@@ -42,13 +42,13 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 foo = Environment(SHCXXFLAGS = '%s')
 bar = Environment(SHCXXFLAGS = '%s')
-foo.Object(target = 'foo%s', source = 'prog.cc', shared = 1)
-bar.Object(target = 'bar%s', source = 'prog.cc', shared = 1)
+foo.Object(target = 'foo%s', source = 'prog.cpp', shared = 1)
+bar.Object(target = 'bar%s', source = 'prog.cpp', shared = 1)
 foo.Program(target = 'foo', source = 'foo%s', shared = 1)
 bar.Program(target = 'bar', source = 'bar%s', shared = 1)
 """ % (fooflags, barflags, _obj, _obj, _obj, _obj))
 
-test.write('prog.cc', r"""
+test.write('prog.cpp', r"""
 #include <stdio.h>
 #include <stdlib.h>
 int
@@ -73,8 +73,8 @@ test.run(program = test.workpath('bar'), stdout = "prog.c:  BAR\n")
 
 test.write('SConstruct', """
 bar = Environment(SHCXXFLAGS = '%s')
-bar.Object(target = 'foo%s', source = 'prog.cc', shared = 1)
-bar.Object(target = 'bar%s', source = 'prog.cc', shared = 1)
+bar.Object(target = 'foo%s', source = 'prog.cpp', shared = 1)
+bar.Object(target = 'bar%s', source = 'prog.cpp', shared = 1)
 bar.Program(target = 'foo', source = 'foo%s', shared = 1)
 bar.Program(target = 'bar', source = 'bar%s', shared = 1)
 """ % (barflags, _obj, _obj, _obj, _obj))

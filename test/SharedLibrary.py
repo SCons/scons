@@ -30,7 +30,7 @@ import os
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env=Environment()
+env=Environment(WIN32_INSERT_DEF=1)
 env2 = Environment(LIBS = [ 'foo1', 'foo2', 'foo3' ],
                    LIBPATH = [ '.' ])
 env.Library(target = 'foo1', source = 'f1.c', shared=1)

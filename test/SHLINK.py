@@ -32,13 +32,13 @@ import TestSCons
 python = sys.executable
 
 if sys.platform == 'win32':
-    _exe = '.exe'
+    lib_ = ''
+    _shlib='.dll'
 else:
-    _exe = ''
-
+    lib_ = 'lib'
+    _shlib='.so'
+    
 test = TestSCons.TestSCons()
-
-test.pass_test()	#XXX Until someone can take a look and fix this.
 
 test.write("wrapper.py",
 """import os
@@ -52,36 +52,37 @@ test.write('SConstruct', """
 foo = Environment()
 shlink = foo.Dictionary('SHLINK')
 bar = Environment(SHLINK = r'%s wrapper.py ' + shlink)
-foo.Program(target = 'foo', source = 'foo.c', shared = 1)
-bar.Program(target = 'bar', source = 'bar.c', shared = 1)
+foo.Library(target = 'foo', source = 'foo.c', shared = 1)
+bar.Library(target = 'bar', source = 'bar.c', shared = 1)
 """ % python)
 
 test.write('foo.c', r"""
-int
-main(int argc, char *argv[])
+#include <stdio.h>
+
+void
+test()
 {
-	argv[argc++] = "--";
 	printf("foo.c\n");
-	exit (0);
+	fflush(stdout);
 }
 """)
 
 test.write('bar.c', r"""
-int
-main(int argc, char *argv[])
+#include <stdio.h>
+
+void
+test()
 {
-	argv[argc++] = "--";
 	printf("foo.c\n");
-	exit (0);
+	fflush(stdout);
 }
 """)
 
-
-test.run(arguments = 'foo' + _exe)
+test.run(arguments = lib_ + 'foo' + _shlib)
 
 test.fail_test(os.path.exists(test.workpath('wrapper.out')))
 
-test.run(arguments = 'bar' + _exe)
+test.run(arguments = lib_ + 'bar' + _shlib)
 
 test.fail_test(test.read('wrapper.out') != "wrapper.py\n")
 

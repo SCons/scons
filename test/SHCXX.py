@@ -50,11 +50,11 @@ test.write('SConstruct', """
 foo = Environment()
 shcxx = foo.Dictionary('SHCXX')
 bar = Environment(SHCXX = r'%s wrapper.py ' + shcxx)
-foo.Program(target = 'foo', source = 'foo.cc', shared = 1)
-bar.Program(target = 'bar', source = 'bar.cc', shared = 1)
+foo.Program(target = 'foo', source = 'foo.cpp', shared = 1)
+bar.Program(target = 'bar', source = 'bar.cpp', shared = 1)
 """ % python)
 
-test.write('foo.cc', r"""
+test.write('foo.cpp', r"""
 #include <stdio.h>
 #include <stdlib.h>
 int
@@ -66,7 +66,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write('bar.cc', r"""
+test.write('bar.cpp', r"""
 #include <stdio.h>
 #include <stdlib.h>
 int
