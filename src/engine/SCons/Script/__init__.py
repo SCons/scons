@@ -920,6 +920,7 @@ def _main(args, parser):
     task_class = BuildTask	# default action is to build targets
     opening_message = "Building targets ..."
     closing_message = "done building targets."
+    failure_message = "building terminated because of errors."
     if options.question:
         task_class = QuestionTask
     try:
@@ -937,6 +938,7 @@ def _main(args, parser):
             calc = CleanCalculator()
             opening_message = "Cleaning targets ..."
             closing_message = "done cleaning targets."
+            failure_message = "cleaning terminated because of errors."
     except AttributeError:
         pass
 
@@ -965,7 +967,10 @@ def _main(args, parser):
     try:
         jobs.run()
     finally:
-        progress_display("scons: " + closing_message)
+        if exit_status:
+            progress_display("scons: " + failure_message)
+        else:
+            progress_display("scons: " + closing_message)
         if not options.noexec:
             SCons.Sig.write()
 

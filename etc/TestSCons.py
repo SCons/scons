@@ -244,16 +244,20 @@ class TestSCons(TestCmd.TestCmd):
             return None
         return env.Detect([prog])
 
-    def wrap_stdout(self, build_str = "", read_str = ""):
+    def wrap_stdout(self, build_str = "", read_str = "", error = 0):
         """Wraps standard output string(s) in the normal
         "Reading ... done" and "Building ... done" strings
         """
+        if error:
+            term = "scons: building terminated because of errors.\n"
+        else:
+            term = "scons: done building targets.\n"
         return "scons: Reading SConscript files ...\n" + \
                read_str + \
                "scons: done reading SConscript files.\n" + \
                "scons: Building targets ...\n" + \
                build_str + \
-               "scons: done building targets.\n"
+               term
 
     def up_to_date(self, options = None, arguments = None, **kw):
         s = ""

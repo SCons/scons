@@ -82,6 +82,11 @@ RELEASE X.XX - XXX
   - Split the non-SCons-specific functionality from SConf.py to a new,
     re-usable Conftest.py module.
 
+  From Marko Rauhamaa:
+
+  - Have the closing message say "...terminated because of errors" if
+    there were any.
+
   From Christoph Wiedemann:
   
   - Fix test/SWIG.py to find the Python include directory in all cases.

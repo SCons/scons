@@ -119,7 +119,7 @@ test.write(['subdir', 'foo.in'], "subdir/foo.in\n")
 test.run(status = 27,
          stdout = test.wrap_stdout("""\
 exit_builder("%s", "%s")
-""" % (subdir_foo_out, subdir_foo_in)),
+""" % (subdir_foo_out, subdir_foo_in), error=1),
          stderr = """\
 scons: *** [%s] Explicit exit, status 27
 """ % (subdir_foo_out))
@@ -150,7 +150,7 @@ env.Cat('foo', 'foo.k')
 test.write('foo.k', "foo.k\n")
 
 test.run(status = 37,
-         stdout = test.wrap_stdout(""),
+         stdout = test.wrap_stdout("", error=1),
          stderr = "scons: *** [foo] Explicit exit, status 37\n")
 
 #
