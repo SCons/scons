@@ -50,29 +50,37 @@ if sys.platform == 'win32':
     _exe   = '.exe'
     _obj   = '.obj'
     _shobj = '.obj'
-    _dll   = '.dll'
     lib_   = ''
+    _lib   = '.lib'
+    dll_   = ''
+    _dll   = '.dll'
     fortran_lib = gccFortranLibs()
 elif sys.platform == 'cygwin':
     _exe   = '.exe'
     _obj   = '.o'
     _shobj = '.os'
+    lib_   = 'lib'
+    _lib   = '.a'
+    dll_   = ''
     _dll   = '.dll'
-    lib_   = ''
     fortran_lib = gccFortranLibs()
 elif string.find(sys.platform, 'irix') != -1:
     _exe   = ''
     _obj   = '.o'
     _shobj = '.o'
-    _dll   = '.so'
     lib_   = 'lib'
+    _lib   = '.a'
+    dll_   = 'lib'
+    _dll   = '.so'
     fortran_lib = ['ftn']
 else:
     _exe   = ''
     _obj   = '.o'
     _shobj = '.os'
-    _dll   = '.so'
     lib_   = 'lib'
+    _lib   = '.a'
+    dll_   = 'lib'
+    _dll   = '.so'
     fortran_lib = gccFortranLibs()
 
 

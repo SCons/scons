@@ -40,10 +40,10 @@ import SCons.Tool
 
 ASSuffixes = ['.s', '.asm', '.ASM']
 ASPPSuffixes = ['.spp', '.SPP']
-if os.path.normcase('.s') == os.path.normcase('.S'):
-    ASSuffixes.extend(['.S'])
-else:
+if SCons.Util.case_sensitive_suffixes('.s', '.S'):
     ASPPSuffixes.extend(['.S'])
+else:
+    ASSuffixes.extend(['.S'])
 
 def generate(env):
     """Add Builders and construction variables for masm to an Environment."""

@@ -297,7 +297,7 @@ class _GenerateV6DSP(_DSPGenerator):
 
     def Parse(self):
         try:
-            dspfile = file(self.dspfile,'r')
+            dspfile = open(self.dspfile,'r')
         except IOError:
             return # doesn't exist yet, so can't add anything to configs.
 
@@ -345,7 +345,7 @@ class _GenerateV6DSP(_DSPGenerator):
     
     def Build(self):
         try:
-            self.file = file(self.dspfile,'w')
+            self.file = open(self.dspfile,'w')
         except IOError, detail:
             raise SCons.Errors.InternalError, 'Unable to open "' + self.dspfile + '" for writing:' + str(detail)
         else:
@@ -458,7 +458,7 @@ class _GenerateV7DSP(_DSPGenerator):
 
     def Parse(self):
         try:
-            dspfile = file(self.dspfile,'r')
+            dspfile = open(self.dspfile,'r')
         except IOError:
             return # doesn't exist yet, so can't add anything to configs.
 
@@ -505,7 +505,7 @@ class _GenerateV7DSP(_DSPGenerator):
     
     def Build(self):
         try:
-            self.file = file(self.dspfile,'w')
+            self.file = open(self.dspfile,'w')
         except IOError, detail:
             raise SCons.Errors.InternalError, 'Unable to open "' + self.dspfile + '" for writing:' + str(detail)
         else:
@@ -555,7 +555,7 @@ class _GenerateV7DSW(_DSWGenerator):
 
     def Parse(self):
         try:
-            dswfile = file(self.dswfile,'r')
+            dswfile = open(self.dswfile,'r')
         except IOError:
             return # doesn't exist yet, so can't add anything to configs.
 
@@ -617,7 +617,7 @@ class _GenerateV7DSW(_DSWGenerator):
 
     def Build(self):
         try:
-            self.file = file(self.dswfile,'w')
+            self.file = open(self.dswfile,'w')
         except IOError, detail:
             raise SCons.Errors.InternalError, 'Unable to open "' + self.dswfile + '" for writing:' + str(detail)
         else:
@@ -661,7 +661,7 @@ class _GenerateV6DSW(_DSWGenerator):
 
     def Build(self):
         try:
-            self.file = file(self.dswfile,'w')
+            self.file = open(self.dswfile,'w')
         except IOError, detail:
             raise SCons.Errors.InternalError, 'Unable to open "' + self.dswfile + '" for writing:' + str(detail)
         else:
@@ -946,7 +946,7 @@ def GenerateProject(target, source, env):
     if os.path.abspath(os.path.normcase(str(dspfile))) != \
            os.path.abspath(os.path.normcase(str(builddspfile))):
         try:
-            bdsp = file(str(builddspfile), "w+")
+            bdsp = open(str(builddspfile), "w+")
         except IOError, detail:
             print 'Unable to open "' + str(dspfile) + '" for writing:',detail,'\n'
             raise
@@ -954,7 +954,7 @@ def GenerateProject(target, source, env):
         bdsp.write("This is just a placeholder file.\nThe real project file is here:\n%s\n" % dspfile.get_abspath())
 
         try:
-            bdsw = file(str(builddswfile), "w+")
+            bdsw = open(str(builddswfile), "w+")
         except IOError, detail:
             print 'Unable to open "' + str(dspfile) + '" for writing:',detail,'\n'
             raise

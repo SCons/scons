@@ -45,7 +45,7 @@ def generate(env):
     if env['PLATFORM'] == 'cygwin':
         env['SHCCFLAGS'] = '$CCFLAGS'
     else:
-        env['SHCCFLAGS'] = '$CCFLAGS -fPIC'
+        env['SHCCFLAGS'] = ['$CCFLAGS', '-fPIC']
 
 def exists(env):
     return env.Detect(compilers)

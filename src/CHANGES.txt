@@ -10,6 +10,16 @@
 
 RELEASE 0.95 - XXX
 
+  From Chad Austin:
+
+  - Replace print statements with calls to sys.stdout.write() so output
+    lines stay together when -j is used.
+
+  - Add portability fixes for a number of tests.
+
+  - Accomodate the fact that Cygwin's os.path.normcase() lies about
+    the underlying system being case-sensitive.
+
   From Steven Knight:
 
   - Fix EnsureSConsVersion() so it checks against the SCons version,

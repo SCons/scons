@@ -39,7 +39,7 @@ import SCons.Defaults
 import SCons.Util
 
 CSuffixes = ['.c']
-if os.path.normcase('.c') == os.path.normcase('.C'):
+if not SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CSuffixes.append('.C')
 
 def generate(env):

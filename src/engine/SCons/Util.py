@@ -337,7 +337,7 @@ class DisplayEngine:
         self.__call__ = self.print_it
 
     def print_it(self, text):
-        print text
+        sys.stdout.write(text + '\n')
 
     def dont_print(self, text):
         pass
@@ -972,3 +972,13 @@ class Selector(UserDict.UserDict):
                     return self[None]
                 except KeyError:
                     return None
+
+
+if sys.platform == 'cygwin':
+    # On Cygwin, os.path.normcase() lies, so just report back the
+    # fact that the underlying Win32 OS is case-insensitive.
+    def case_sensitive_suffixes(s1, s2):
+        return 0
+else:
+    def case_sensitive_suffixes(s1, s2):
+        return (os.path.normcase(s1) != os.path.normcase(s2))

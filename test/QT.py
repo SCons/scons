@@ -34,8 +34,10 @@ import os.path
 
 python = TestSCons.python
 _exe = TestSCons._exe
-_dll = TestSCons._dll
 lib_ = TestSCons.lib_
+_lib = TestSCons._lib
+dll_ = TestSCons.dll_
+_dll = TestSCons._dll
 
 test = TestSCons.TestSCons()
 
@@ -189,7 +191,7 @@ test.fail_test( not os.path.exists(test.workpath('work1', 'build', moc)) )
 
 # 2. create .cpp, .h, moc_....cpp from .ui file
 
-aaa_dll = lib_ + 'aaa' + _dll
+aaa_dll = dll_ + 'aaa' + _dll
 moc = 'moc_aaa.cc'
 cpp = 'aaa.cc'
 h = 'aaa.h'
@@ -241,7 +243,7 @@ test.fail_test(not os.path.exists(test.workpath('work2','build',moc)) or
 
 # 3. create a moc file from a cpp file
 
-lib_aaa = lib_ + 'aaa.a'
+lib_aaa = lib_ + 'aaa' + _lib
 moc = 'moc_aaa.cc'
 
 createSConstruct(test, ['work3', 'SConstruct'])

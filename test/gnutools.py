@@ -30,10 +30,11 @@ Testing the gnu tool chain, i.e. the tools 'gcc', 'g++' and 'gnulink'.
 
 import TestSCons
 import string
+import sys
 python = TestSCons.python
 _exe = TestSCons._exe
 _dll = TestSCons._dll
-lib_ = TestSCons.lib_
+dll_ = TestSCons.dll_
 test = TestSCons.TestSCons()
 
 test.subdir('gnutools')
@@ -124,19 +125,24 @@ def testObject(test, obj, command, flags):
     if not res: print "'"+obj+command+flags+"'"+"!='"+str(line1)+"'"
     return res
 
+if sys.platform == 'cygwin':
+    fpic = ''
+else:
+    fpic = '-fPIC '
+
 test.fail_test(not testObject(test, 'cfile1.o', 'gcc', '-c') or
                not testObject(test, 'cfile2.o', 'gcc', '-c') or
                not testObject(test, 'cppfile1.o', 'g++', '-c') or
                not testObject(test, 'cppfile2.o', 'g++', '-c') or
-               not testObject(test, 'cfile1.os', 'gcc', '-fPIC -c') or
-               not testObject(test, 'cfile2.os', 'gcc', '-fPIC -c') or
-               not testObject(test, 'cppfile1.os', 'g++', '-fPIC -c') or
-               not testObject(test, 'cppfile2.os', 'g++', '-fPIC -c') or
+               not testObject(test, 'cfile1.os', 'gcc', fpic + '-c') or
+               not testObject(test, 'cfile2.os', 'gcc', fpic + '-c') or
+               not testObject(test, 'cppfile1.os', 'g++', fpic + '-c') or
+               not testObject(test, 'cppfile2.os', 'g++', fpic + '-c') or
                not testObject(test, 'c-only' + _exe, 'gcc', '') or
                not testObject(test, 'cpp-only' + _exe, 'g++', '') or
                not testObject(test, 'c-and-cpp' + _exe, 'g++', '') or
-               not testObject(test, lib_ + 'c-only' + _dll, 'gcc', '-shared') or
-               not testObject(test, lib_ + 'cpp-only' + _dll, 'g++', '-shared') or
-               not testObject(test, lib_ + 'c-and-cpp' + _dll, 'g++', '-shared'))
+               not testObject(test, dll_ + 'c-only' + _dll, 'gcc', '-shared') or
+               not testObject(test, dll_ + 'cpp-only' + _dll, 'g++', '-shared') or
+               not testObject(test, dll_ + 'c-and-cpp' + _dll, 'g++', '-shared'))
 
 test.pass_test()

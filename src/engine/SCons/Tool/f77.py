@@ -43,10 +43,10 @@ compilers = ['f77']
 
 F77Suffixes = ['.f', '.for', '.FOR']
 F77PPSuffixes = ['.fpp', '.FPP']
-if os.path.normcase('.f') == os.path.normcase('.F'):
-    F77Suffixes.append('.F')
-else:
+if SCons.Util.case_sensitive_suffixes('.f', '.F'):
     F77PPSuffixes.append('.F')
+else:
+    F77Suffixes.append('.F')
 
 def generate(env):
     """Add Builders and construction variables for f77 to an Environment."""

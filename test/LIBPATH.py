@@ -31,14 +31,14 @@ import time
 
 _exe = TestSCons._exe
 _dll = TestSCons._dll
-lib_ = TestSCons.lib_
+dll_ = TestSCons.dll_
     
 test = TestSCons.TestSCons()
 
 test.subdir('lib1', 'lib2')
 
 prog1 = test.workpath('prog') + _exe
-prog2 = test.workpath(lib_ + 'shlib') + _dll
+prog2 = test.workpath(dll_ + 'shlib') + _dll
 
 test.write('SConstruct', """
 env1 = Environment(LIBS = [ 'foo1' ],
