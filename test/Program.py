@@ -334,10 +334,12 @@ file2 = File('file2.c')
 Program('foo', [file1, [file2, 'file3.c']])
 """)
 
+foo_exe = 'foo'+_exe
+
 test.run(status = 2, stderr = """
-scons: *** attempted to add a non-Node as source of foo:
+scons: *** attempted to add a non-Node as source of %s:
 \t['file2.c', 'file3.c'] is a <type 'list'>, not a Node
 File "SConstruct", line 3, in ?
-""")
+""" % foo_exe)
 
 test.pass_test()
