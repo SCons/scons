@@ -112,9 +112,9 @@ def Return(*vars):
         stack[-1].retval = tuple(retval)
 
 # This function is responsible for converting the parameters passed to
-# SConscript() calls into a list of files and export variables.  If
-# the parameters are invalid, throws SCons.Errors.UserError. Returns a
-# tuple (l, e) where l is a list of filenames and e is a list of
+# SConscript() calls into a list of files and export variables.  If the
+# parameters are invalid, throws SCons.Errors.UserError. Returns a tuple
+# (l, e) where l is a list of SConscript filenames and e is a list of
 # exports.
 
 def GetSConscriptFilenames(ls, kw):
@@ -147,11 +147,25 @@ def GetSConscriptFilenames(ls, kw):
         exports = SCons.Util.argmunge(ls[1])
 
         if kw.get('exports'):
-            exports.extend(SCons.Util.argmunge(kw.get('exports')))
+            exports.extend(SCons.Util.argmunge(kw['exports']))
 
     else:
         raise SCons.Errors.UserError, \
               "Invalid SConscript() usage - too many arguments"
+
+    build_dir = kw.get('build_dir')
+    if build_dir:
+        if len(files) != 1:
+            raise SCons.Errors.UserError, \
+                "Invalid SConscript() usage - can only specify one SConscript with a build_dir"
+        duplicate = kw.get('duplicate', 1)
+        src_dir = kw.get('src_dir')
+        if not src_dir:
+            src_dir, fname = os.path.split(str(files[0]))
+        else:
+            fname = os.path.split(files[0])[1]
+        BuildDir(build_dir, src_dir, duplicate)
+        files = [os.path.join(str(build_dir), fname)]
 
     return (files, exports)
 

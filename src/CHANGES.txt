@@ -80,6 +80,9 @@ RELEASE 0.11 - XXX
   - Add support for allowing an embedding interface to annotate a node
     when it's created.
 
+  - Extend the SConscript() function to accept build_dir and duplicate
+    keyword arguments that function like a BuildDir() call.
+
   From Steve Leblanc:
 
   - Fix the output of -c -n when directories are involved, so it
