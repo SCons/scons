@@ -128,15 +128,14 @@ test.write('test3.F', r"""test3.F
 
 test.run(arguments = '.', stderr=None)
 
-test.fail_test(test.read('test1' + _obj) != "test1.c\n#link\n")
-
-test.fail_test(test.read('test2' + _obj) != "test2.cpp\n#link\n")
-
-test.fail_test(test.read('test3' + _obj) != "test3.F\n#link\n")
-
-test.fail_test(test.read('foo' + _exe) != "test1.c\ntest2.cpp\ntest3.F\n")
-
-test.fail_test(test.read('mygcc.out') != "cc\nc++\ng77\n")
+test.must_match('test1' + _obj, "test1.c\n#link\n")
+test.must_match('test2' + _obj, "test2.cpp\n#link\n")
+test.must_match('test3' + _obj, "test3.F\n#link\n")
+test.must_match('foo' + _exe,   "test1.c\ntest2.cpp\ntest3.F\n")
+if TestSCons.case_sensitive_suffixes('.F', '.f'):
+    test.must_match('mygcc.out', "cc\nc++\ng77\n")
+else:
+    test.must_match('mygcc.out', "cc\nc++\n")   
 
 test.write('SConstruct', """
 env = Environment(CPPFLAGS = '-x',
@@ -172,14 +171,13 @@ test.unlink('test3' + _obj)
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _shobj) != "test1.c\n#link\n")
-
-test.fail_test(test.read('test2' + _shobj) != "test2.cpp\n#link\n")
-
-test.fail_test(test.read('test3' + _shobj) != "test3.F\n#link\n")
-
-test.fail_test(test.read('foo.bar') != "test1.c\ntest2.cpp\ntest3.F\n")
-
-test.fail_test(test.read('mygcc.out') != "cc\nc++\ng77\n")
+test.must_match('test1' + _shobj, "test1.c\n#link\n")
+test.must_match('test2' + _shobj, "test2.cpp\n#link\n")
+test.must_match('test3' + _shobj, "test3.F\n#link\n")
+test.must_match('foo.bar',        "test1.c\ntest2.cpp\ntest3.F\n")
+if TestSCons.case_sensitive_suffixes('.F', '.f'):
+    test.must_match('mygcc.out', "cc\nc++\ng77\n")
+else:
+    test.must_match('mygcc.out', "cc\nc++\n")   
 
 test.pass_test()
