@@ -36,6 +36,7 @@ import SCons.Defaults
 import SCons.Node
 import SCons.Node.FS
 import SCons.Environment
+import SCons.Scanner
 import SCons.Action
 import string
 import sys
@@ -161,21 +162,23 @@ def BuildDefaultGlobals():
     """
 
     globals = {}
-    globals['Builder'] = SCons.Builder.Builder
-    globals['Environment'] = SCons.Environment.Environment
-    globals['Object'] = SCons.Defaults.Object
-    globals['Program'] = SCons.Defaults.Program
-    globals['Library'] = SCons.Defaults.Library
-    globals['CScan'] = SCons.Defaults.CScan
-    globals['SConscript'] = SConscript
-    globals['Default'] = Default
-    globals['Help'] = Help
-    globals['BuildDir'] = BuildDir
-    globals['GetBuildPath'] = GetBuildPath
-    globals['Export'] = Export
-    globals['Import'] = Import
-    globals['Return'] = Return
-    globals['Dir'] = SCons.Node.FS.default_fs.Dir
-    globals['File'] = SCons.Node.FS.default_fs.File
+    globals['Action']            = SCons.Action.Action
+    globals['BuildDir']          = BuildDir
+    globals['Builder']           = SCons.Builder.Builder
+    globals['CScan']             = SCons.Defaults.CScan
+    globals['Default']           = Default
+    globals['Dir']               = SCons.Node.FS.default_fs.Dir
+    globals['Environment']       = SCons.Environment.Environment
+    globals['Export']            = Export
+    globals['File']              = SCons.Node.FS.default_fs.File
+    globals['GetBuildPath']      = GetBuildPath
+    globals['Help']              = Help
+    globals['Import']            = Import
+    globals['Library']           = SCons.Defaults.Library
+    globals['Object']            = SCons.Defaults.Object
+    globals['Program']           = SCons.Defaults.Program
+    globals['Return']            = Return
+    globals['Scanner']           = SCons.Scanner.Base
+    globals['SConscript']        = SConscript
     globals['SetCommandHandler'] = SCons.Action.SetCommandHandler
     return globals

@@ -63,6 +63,8 @@ subdir = Dir('subdir')
 script = File('SConscript', subdir)
 foo = SConscript(script)
 assert foo == "subdir/SConscript foo"
+
+SConscript('SConscript5')
 """)
 
 test.write('SConscript', """
@@ -136,6 +138,15 @@ test.subdir('subdir')
 test.write(['subdir', 'SConscript'], """
 foo = 'subdir/SConscript foo'
 Return('foo')
+""")
+
+
+test.write('SConscript5', """
+B = Builder(name = 'B', action = 'B')
+def scan():
+    pass
+S = Scanner(name = 'S', function = scan)
+A = Action("A")
 """)
 
 wpath = test.workpath()
