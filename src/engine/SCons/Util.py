@@ -45,8 +45,53 @@ import SCons.Node
 try:
     from UserString import UserString
 except ImportError:
+    # "Borrowed" from the Python 2.2 UserString module
+    # and modified slightly for use with SCons.
     class UserString:
-        pass
+        def __init__(self, seq):
+            if is_String(seq):
+                self.data = seq
+            elif isinstance(seq, UserString):
+                self.data = seq.data[:]
+            else:
+                self.data = str(seq)
+        def __str__(self): return str(self.data)
+        def __repr__(self): return repr(self.data)
+        def __int__(self): return int(self.data)
+        def __long__(self): return long(self.data)
+        def __float__(self): return float(self.data)
+        def __complex__(self): return complex(self.data)
+        def __hash__(self): return hash(self.data)
+
+        def __cmp__(self, string):
+            if isinstance(string, UserString):
+                return cmp(self.data, string.data)
+            else:
+                return cmp(self.data, string)
+        def __contains__(self, char):
+            return char in self.data
+
+        def __len__(self): return len(self.data)
+        def __getitem__(self, index): return self.__class__(self.data[index])
+        def __getslice__(self, start, end):
+            start = max(start, 0); end = max(end, 0)
+            return self.__class__(self.data[start:end])
+
+        def __add__(self, other):
+            if isinstance(other, UserString):
+                return self.__class__(self.data + other.data)
+            elif is_String(other):
+                return self.__class__(self.data + other)
+            else:
+                return self.__class__(self.data + str(other))
+        def __radd__(self, other):
+            if is_String(other):
+                return self.__class__(other + self.data)
+            else:
+                return self.__class__(str(other) + self.data)
+        def __mul__(self, n):
+            return self.__class__(self.data*n)
+        __rmul__ = __mul__
 
 _altsep = os.altsep
 if _altsep is None and sys.platform == 'win32':
@@ -77,6 +122,12 @@ def updrive(path):
         path = string.upper(drive) + rest
     return path
 
+#
+# Generic convert-to-string functions that abstract away whether or
+# not the Python we're executing has Unicode support.  The wrapper
+# to_String_for_signature() will use a for_signature() method if the
+# specified object has one.
+#
 if hasattr(types, 'UnicodeType'):
     def to_String(s):
         if isinstance(s, UserString):
@@ -90,6 +141,17 @@ if hasattr(types, 'UnicodeType'):
 else:
     to_String = str
 
+def to_String_for_signature(obj):
+    try:
+        f = obj.for_signature
+    except:
+        return to_String(obj)
+    else:
+        return f()
+
+# Indexed by the SUBST_* constants below.
+_strconv = [to_String, to_String, to_String_for_signature]
+
 class Literal:
     """A wrapper for a string.  If you use this object wrapped
     around a string, then it will be interpreted as literal.
@@ -101,30 +163,45 @@ class Literal:
     def __str__(self):
         return self.lstr
 
+    def escape(self, escape_func):
+        return escape_func(self.lstr)
+
+    def for_signature(self):
+        return self.lstr
+
     def is_literal(self):
         return 1
 
-class SpecialAttrWrapper(Literal):
+class SpecialAttrWrapper:
     """This is a wrapper for what we call a 'Node special attribute.'
     This is any of the attributes of a Node that we can reference from
     Environment variable substitution, such as $TARGET.abspath or
-    $SOURCES[1].filebase.  We inherit from Literal so we can handle
-    special characters, plus we implement a for_signature method,
-    such that we can return some canonical string during signatutre
+    $SOURCES[1].filebase.  We implement the same methods as Literal
+    so we can handle special characters, plus a for_signature method,
+    such that we can return some canonical string during signature
     calculation to avoid unnecessary rebuilds."""
 
     def __init__(self, lstr, for_signature=None):
         """The for_signature parameter, if supplied, will be the
         canonical string we return from for_signature().  Else
         we will simply return lstr."""
-        Literal.__init__(self, lstr)
+        self.lstr = lstr
         if for_signature:
             self.forsig = for_signature
         else:
             self.forsig = lstr
 
+    def __str__(self):
+        return self.lstr
+
+    def escape(self, escape_func):
+        return escape_func(self.lstr)
+
     def for_signature(self):
         return self.forsig
+
+    def is_literal(self):
+        return 1
 
 class CallableComposite(UserList.UserList):
     """A simple composite callable class that, when called, will invoke all
@@ -165,7 +242,7 @@ class NodeList(UserList.UserList):
             # If there is nothing in the list, then we have no attributes to
             # pass through, so raise AttributeError for everything.
             raise AttributeError, "NodeList has no attribute: %s" % name
-        
+
         # Return a list of the attribute, gotten from every element
         # in the list
         attrList = map(lambda x, n=name: getattr(x, n), self.data)
@@ -177,9 +254,6 @@ class NodeList(UserList.UserList):
         if self.data and (len(self.data) == len(filter(callable, attrList))):
             return CallableComposite(attrList)
         return self.__class__(attrList)
-
-    def is_literal(self):
-        return 1
 
 _valid_var = re.compile(r'[_a-zA-Z]\w*$')
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
@@ -206,111 +280,28 @@ def get_environment_var(varstr):
         return None
 
 def quote_spaces(arg):
+    """Generic function for putting double quotes around any string that
+    has white space in it."""
     if ' ' in arg or '\t' in arg:
         return '"%s"' % arg
     else:
         return str(arg)
 
-# Several functions below deal with Environment variable
-# substitution.  Part of this process involves inserting
-# a bunch of special escape sequences into the string
-# so that when we are all done, we know things like
-# where to split command line args, what strings to
-# interpret literally, etc.  A dictionary of these
-# sequences follows:
-#
-# \0\1          signifies a division between arguments in
-#               a command line.
-#
-# \0\2          signifies a division between multiple distinct
-#               commands, i.e., a newline
-#
-# \0\3          This string should be interpreted literally.
-#               This code occurring anywhere in the string means
-#               the whole string should have all special characters
-#               escaped.
-#
-# \0\4          A literal dollar sign '$'
-#
-# \0\5          Placed before and after interpolated variables
-#               so that we do not accidentally smush two variables
-#               together during the recursive interpolation process.
+class CmdStringHolder(UserString):
+    """This is a special class used to hold strings generated by
+    scons_subst() and scons_subst_list().  It defines a special method
+    escape().  When passed a function with an escape algorithm for a
+    particular platform, it will return the contained string with the
+    proper escape sequences inserted.
 
-_cv = re.compile(r'\$([_a-zA-Z][\.\w]*|{[^}]*})')
-_space_sep = re.compile(r'[\t ]+(?![^{]*})')
-_newline = re.compile(r'[\r\n]+')
+    This should really be a subclass of UserString, but that module
+    doesn't exist in Python 1.5.2."""
+    def __init__(self, cmd, literal=None):
+        UserString.__init__(self, cmd)
+        self.literal = literal
 
-def _convertArg(x, strconv=to_String):
-    """This function converts an individual argument.  If the
-    argument is to be interpreted literally, with all special
-    characters escaped, then we insert a special code in front
-    of it, so that the command interpreter will know this."""
-    literal = 0
-
-    try:
-        if x.is_literal():
-            literal = 1
-    except AttributeError:
-        pass
-    
-    if not literal:
-        # escape newlines as '\0\2', '\0\1' denotes an argument split
-        # Also escape double-dollar signs to mean the literal dollar sign.
-        return string.replace(_newline.sub('\0\2', strconv(x)), '$$', '\0\4')
-    else:
-        # Interpret non-string args as literals.
-        # The special \0\3 code will tell us to encase this string
-        # in a Literal instance when we are all done
-        # Also escape out any $ signs because we don't want
-        # to continue interpolating a literal.
-        return '\0\3' + string.replace(strconv(x), '$', '\0\4')
-
-def _convert(x, strconv = to_String):
-    """This function is used to convert construction variable
-    values or the value of strSubst to a string for interpolation.
-    This function follows the rules outlined in the documentaion
-    for scons_subst_list()"""
-    if x is None:
-        return ''
-    elif is_String(x):
-        # escape newlines as '\0\2', '\0\1' denotes an argument split
-        return _convertArg(_space_sep.sub('\0\1', x), strconv)
-    elif is_List(x):
-        # '\0\1' denotes an argument split
-        return string.join(map(lambda x, s=strconv: _convertArg(x, s), x),
-                           '\0\1')
-    else:
-        return _convertArg(x, strconv)
-
-class CmdStringHolder:
-    """This is a special class used to hold strings generated
-    by scons_subst_list().  It defines a special method escape().
-    When passed a function with an escape algorithm for a
-    particular platform, it will return the contained string
-    with the proper escape sequences inserted."""
-
-    def __init__(self, cmd):
-        """This constructor receives a string.  The string
-        can contain the escape sequence \0\3.
-        If it does, then we will escape all special characters
-        in the string before passing it to the command interpreter."""
-        self.data = cmd
-        
-        # Populate flatdata (the thing returned by str()) with the
-        # non-escaped string
-        self.escape(lambda x: x, lambda x: x)
-
-    def __str__(self):
-        """Return the string in its current state."""
-        return self.flatdata
-
-    def __len__(self):
-        """Return the length of the string in its current state."""
-        return len(self.flatdata)
-
-    def __getitem__(self, index):
-        """Return the index'th element of the string in its current state."""
-        return self.flatdata[index]
+    def is_literal(self):
+        return self.literal
 
     def escape(self, escape_func, quote_func=quote_spaces):
         """Escape the string with the supplied function.  The
@@ -322,16 +313,13 @@ class CmdStringHolder:
         return the escaped string.
         """
 
-        if string.find(self.data, '\0\3') >= 0:
-            self.flatdata = escape_func(string.replace(self.data, '\0\3', ''))
+        if self.is_literal():
+            return escape_func(self.data)
         elif ' ' in self.data or '\t' in self.data:
-            self.flatdata = quote_func(self.data)
+            return quote_func(self.data)
         else:
-            self.flatdata = self.data
+            return self.data
 
-    def __cmp__(self, rhs):
-        return cmp(self.flatdata, str(rhs))
-        
 class DisplayEngine:
     def __init__(self):
         self.__call__ = self.print_it
@@ -347,6 +335,18 @@ class DisplayEngine:
             self.__call__ = self.print_it
         else:
             self.__call__ = self.dont_print
+
+def escape_list(list, escape_func):
+    """Escape a list of arguments by running the specified escape_func
+    on every object in the list that has an escape() method."""
+    def escape(obj, escape_func=escape_func):
+        try:
+            e = obj.escape
+        except AttributeError:
+            return obj
+        else:
+            return e(escape_func)
+    return map(escape, list)
 
 def target_prep(target):
     if target and not isinstance(target, NodeList):
@@ -406,178 +406,298 @@ SUBST_SIG = 2
 _rm = re.compile(r'\$[()]')
 _remove = re.compile(r'\$\(([^\$]|\$[^\(])*?\$\)')
 
-def _canonicalize(obj):
-    """Attempt to call the object's for_signature method,
-    which is expected to return a string suitable for use in calculating
-    a command line signature (i.e., it only changes when we should
-    rebuild the target).  For instance, file Nodes will report only
-    their file name (with no path), so changing Repository settings
-    will not cause a rebuild."""
-    try:
-        return obj.for_signature()
-    except AttributeError:
-        return to_String(obj)
-
 # Indexed by the SUBST_* constants above.
 _regex_remove = [ None, _rm, _remove ]
-_strconv = [ to_String, to_String, _canonicalize ]
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None):
-    """
-    This function serves the same purpose as scons_subst(), except
-    this function returns the interpolated list as a list of lines, where
-    each line is a list of command line arguments. In other words:
-    The first (outer) list is a list of lines, where the
-    substituted stirng has been broken along newline characters.
-    The inner lists are lists of command line arguments, i.e.,
-    the argv array that should be passed to a spawn or exec
-    function.
+# This regular expression splits a string into the following types of
+# arguments for use by the scons_subst() and scons_subst_list() functions:
+#
+#       "$$"
+#       "$("
+#       "$)"
+#       "$variable"             [must begin with alphabetic or underscore]
+#       "${any stuff}"
+#       "   "                   [white space]
+#       "non-white-space"       [without any dollar signs]
+#       "$"                     [single dollar sign]
+#
+_separate_args = re.compile(r'(\$[\$\(\)]|\$[_a-zA-Z][\.\w]*|\${[^}]*}|\s+|[^\s\$]+|\$)')
 
-    There are a few simple rules this function follows in order to
-    determine how to parse strSubst and construction variables into lines
-    and arguments:
-
-    1) A string is interpreted as a space delimited list of arguments.
-    2) A list is interpreted as a list of arguments. This allows arguments
-       with spaces in them to be expressed easily.
-    4) Anything that is not a list or string (e.g. a Node instance) is
-       interpreted as a single argument, and is converted to a string.
-    3) Newline (\n) characters delimit lines. The newline parsing is done
-       after all the other parsing, so it is not possible for arguments
-       (e.g. file names) to contain embedded newline characters.
-    """
-
-    remove = _regex_remove[mode]
-    strconv = _strconv[mode]
-
-    def repl(m,
-             target=target,
-             source=source,
-             env=env,
-             local_vars = subst_dict(target, source, env),
-             global_vars = env.Dictionary(),
-             strconv=strconv,
-             sig=(mode != SUBST_CMD)):
-        key = m.group(1)
-        if key[0] == '{':
-            key = key[1:-1]
-        try:
-            e = eval(key, global_vars, local_vars)
-        except (IndexError, NameError, TypeError):
-            return '\0\5'
-        if callable(e):
-            # We wait to evaluate callables until the end of everything
-            # else.  For now, we instert a special escape sequence
-            # that we will look for later.
-            return '\0\5' + _convert(e(target=target,
-                                       source=source,
-                                       env=env,
-                                       for_signature=sig),
-                                     strconv) + '\0\5'
-        else:
-            # The \0\5 escape code keeps us from smushing two or more
-            # variables together during recusrive substitution, i.e.
-            # foo=$bar bar=baz barbaz=blat => $foo$bar->blat (bad)
-            return "\0\5" + _convert(e, strconv) + "\0\5"
-
-    # Convert the argument to a string:
-    strSubst = _convert(strSubst, strconv)
-
-    # Do the interpolation:
-    n = 1
-    while n != 0:
-        strSubst, n = _cv.subn(repl, strSubst)
-        
-    # Convert the interpolated string to a list of lines:
-    listLines = string.split(strSubst, '\0\2')
-
-    # Remove the patterns that match the remove argument: 
-    if remove:
-        listLines = map(lambda x,re=remove: re.sub('', x), listLines)
-
-    # Process escaped $'s and remove placeholder \0\5's
-    listLines = map(lambda x: string.replace(string.replace(x, '\0\4', '$'), '\0\5', ''), listLines)
-
-    # Finally split each line up into a list of arguments:
-    return map(lambda x: map(CmdStringHolder, filter(lambda y:y, string.split(x, '\0\1'))),
-               listLines)
+# This regular expression is used to replace strings of multiple white
+# space characters in the string result from the scons_subst() function.
+_space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None):
-    """Recursively interpolates dictionary variables into
-    the specified string, returning the expanded result.
-    Variables are specified by a $ prefix in the string and
-    begin with an initial underscore or alphabetic character
-    followed by any number of underscores or alphanumeric
-    characters.  The construction variable names may be
-    surrounded by curly braces to separate the name from
-    trailing characters.
+    """Expand a string containing construction variable substitutions.
+
+    This is the work-horse function for substitutions in file names
+    and the like.  The companion scons_subst_list() function (below)
+    handles separating command lines into lists of arguments, so see
+    that function if that's what you're looking for.
     """
+    class StringSubber:
+        """A class to construct the results of a scons_subst() call.
 
-    # This function needs to be fast, so don't call scons_subst_list
+        This binds a specific construction environment, mode, target and
+        source with two methods (substitute() and expand()) that handle
+        the expansion.
+        """
+        def __init__(self, env, mode, target, source):
+            self.env = env
+            self.mode = mode
+            self.target = target
+            self.source = source
 
-    remove = _regex_remove[mode]
-    strconv = _strconv[mode]
+            self.gvars = env.Dictionary()
+            self.str = _strconv[mode]
 
-    def repl(m,
-             target=target,
-             source=source,
-             env=env,
-             local_vars = subst_dict(target, source, env),
-             global_vars = env.Dictionary(),
-             strconv=strconv,
-             sig=(mode != SUBST_CMD)):
-        key = m.group(1)
-        if key[0] == '{':
-            key = key[1:-1]
-        try:
-            e = eval(key, global_vars, local_vars)
-        except (IndexError, NameError, TypeError):
-            return '\0\5'
-        if callable(e):
-            e = e(target=target, source=source, env=env,
-                  for_signature = sig)
+        def expand(self, s, lvars):
+            """Expand a single "token" as necessary, returning an
+            appropriate string containing the expansion.
 
-        def conv(arg, strconv=strconv):
-            literal = 0
-            try:
-                if arg.is_literal():
-                    literal = 1
-            except AttributeError:
-                pass
-            ret = strconv(arg)
-            if literal:
-                # Escape dollar signs to prevent further
-                # substitution on literals.
-                ret = string.replace(ret, '$', '\0\4')
-            return ret
-        if e is None:
-            s = ''
-        elif is_List(e):
-            s = string.join(map(conv, e), ' ')
-        else:
-            s = conv(e)
-        # Insert placeholders to avoid accidentally smushing
-        # separate variables together.
-        return "\0\5" + s + "\0\5"
+            This handles expanding different types of things (strings,
+            lists, callables) appropriately.  It calls the wrapper
+            substitute() method to re-expand things as necessary, so that
+            the results of expansions of side-by-side strings still get
+            re-evaluated separately, not smushed together.
+            """
+            if is_String(s):
+                try:
+                    s0, s1 = s[:2]
+                except (IndexError, ValueError):
+                    return s
+                if s0 == '$':
+                    if s1 == '$':
+                        return '$'
+                    elif s1 in '()':
+                        return s
+                    else:
+                        key = s[1:]
+                        if key[0] == '{':
+                            key = key[1:-1]
+                        try:
+                            s = eval(key, self.gvars, lvars)
+                        except (IndexError, NameError, TypeError):
+                            return ''
+                        else:
+                            # Before re-expanding the result, handle
+                            # recursive expansion by copying the local
+                            # variable dictionary and overwriting a null
+                            # string for the value of the variable name
+                            # we just expanded.
+                            lv = lvars.copy()
+                            var = string.split(key, '.')[0]
+                            lv[var] = ''
+                            return self.substitute(s, lv)
+                else:
+                    return s
+            elif is_List(s):
+                r = []
+                for l in s:
+                    r.append(self.str(self.substitute(l, lvars)))
+                return string.join(r)
+            elif callable(s):
+                s = s(target=self.target,
+                     source=self.source,
+                     env=self.env,
+                     for_signature=(self.mode != SUBST_CMD))
+                return self.substitute(s, lvars)
+            elif s is None:
+                return ''
+            else:
+                return s
 
-    # Now, do the substitution
-    n = 1
-    while n != 0:
-        # escape double dollar signs
-        strSubst = string.replace(strSubst, '$$', '\0\4')
-        strSubst,n = _cv.subn(repl, strSubst)
+        def substitute(self, args, lvars):
+            """Substitute expansions in an argument or list of arguments.
 
-    # remove the remove regex
-    if remove:
-        strSubst = remove.sub('', strSubst)
+            This serves as a wrapper for splitting up a string into
+            separate tokens.
+            """
+            if is_String(args) and not isinstance(args, CmdStringHolder):
+                args = _separate_args.findall(args)
+                result = []
+                for a in args:
+                    result.append(self.str(self.expand(a, lvars)))
+                return string.join(result, '')
+            else:
+                return self.expand(args, lvars)
 
-    # Un-escape the string
-    strSubst = string.replace(string.replace(strSubst, '\0\4', '$'),
-                              '\0\5', '')
-    # strip out redundant white-space
-    if mode != SUBST_RAW:
-        strSubst = string.strip(_space_sep.sub(' ', strSubst))
-    return strSubst
+    ss = StringSubber(env, mode, target, source)
+    result = ss.substitute(strSubst, subst_dict(target, source, env))
+
+    if is_String(result):
+        # Remove $(-$) pairs and any stuff in between,
+        # if that's appropriate.
+        remove = _regex_remove[mode]
+        if remove:
+            result = remove.sub('', result)
+        if mode != SUBST_RAW:
+            # Compress strings of white space characters into
+            # a single space.
+            result = string.strip(_space_sep.sub(' ', result))
+
+    return result
+
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None):
+    """Substitute construction variables in a string (or list or other
+    object) and separate the arguments into a command list.
+
+    The companion scons_subst() function (above) handles basic
+    substitutions within strings, so see that function instead
+    if that's what you're looking for.
+    """
+    class ListSubber(UserList.UserList):
+        """A class to construct the results of a scons_subst_list() call.
+
+        Like StringSubber, this class binds a specific binds a specific
+        construction environment, mode, target and source with two methods
+        (substitute() and expand()) that handle the expansion.
+
+        In addition, however, this class is used to track the state of
+        the result(s) we're gathering so we can do the appropriate thing
+        whenever we have to append another word to the result--start a new
+        line, start a new word, append to the current word, etc.  We do
+        this by setting the "append" attribute to the right method so
+        that our wrapper methods only need ever call ListSubber.append(),
+        and the rest of the object takes care of doing the right thing
+        internally.
+        """
+        def __init__(self, env, mode, target, source):
+            UserList.UserList.__init__(self, [])
+            self.env = env
+            self.mode = mode
+            self.target = target
+            self.source = source
+
+            self.gvars = env.Dictionary()
+
+            if self.mode == SUBST_RAW:
+                self.add_strip = lambda x, s=self: s.append(x)
+            else:
+                self.add_strip = lambda x, s=self: None
+            self.str = _strconv[mode]
+            self.in_strip = None
+            self.next_line()
+
+        def expand(self, s, lvars, within_list):
+            """Expand a single "token" as necessary, appending the
+            expansion to the current result.
+
+            This handles expanding different types of things (strings,
+            lists, callables) appropriately.  It calls the wrapper
+            substitute() method to re-expand things as necessary, so that
+            the results of expansions of side-by-side strings still get
+            re-evaluated separately, not smushed together.
+            """
+            if is_String(s):
+                try:
+                    s0, s1 = s[:2]
+                except (IndexError, ValueError):
+                    self.append(s)
+                    return
+                if s0 == '$':
+                    if s1 == '$':
+                        self.append('$')
+                    elif s1 == '(':
+                        self.open_strip('$(')
+                    elif s1 == ')':
+                        self.close_strip('$)')
+                    else:
+                        key = s[1:]
+                        if key[0] == '{':
+                            key = key[1:-1]
+                        try:
+                            s = eval(key, self.gvars, lvars)
+                        except (IndexError, NameError, TypeError):
+                            return
+                        else:
+                            # Before re-expanding the result, handle
+                            # recursive expansion by copying the local
+                            # variable dictionary and overwriting a null
+                            # string for the value of the variable name
+                            # we just expanded.
+                            lv = lvars.copy()
+                            var = string.split(key, '.')[0]
+                            lv[var] = ''
+                            self.substitute(s, lv, 0)
+                            self.this_word()
+                else:
+                    self.append(s)
+            elif is_List(s):
+                for a in s:
+                    self.substitute(a, lvars, 1)
+                    self.next_word()
+            elif callable(s):
+                s = s(target=self.target,
+                     source=self.source,
+                     env=self.env,
+                     for_signature=(self.mode != SUBST_CMD))
+                self.substitute(s, lvars, within_list)
+            elif not s is None:
+                self.append(s)
+
+        def substitute(self, args, lvars, within_list):
+            """Substitute expansions in an argument or list of arguments.
+
+            This serves as a wrapper for splitting up a string into
+            separate tokens.
+            """
+            if is_String(args) and not isinstance(args, CmdStringHolder):
+                args = _separate_args.findall(args)
+                for a in args:
+                    if a[0] in ' \t\n\r\f\v':
+                        if '\n' in a:
+                            self.next_line()
+                        elif within_list:
+                            self.append(a)
+                        else:
+                            self.next_word()
+                    else:
+                        self.expand(a, lvars, within_list)
+            else:
+                self.expand(args, lvars, within_list)
+
+        def next_line(self):
+            """Arrange for the next word to start a new line.  This
+            is like starting a new word, except that we have to append
+            another line to the result."""
+            UserList.UserList.append(self, [])
+            self.next_word()
+        def this_word(self):
+            """Arrange for the next word to append to the end of the
+            current last word in the result."""
+            self.append = self.add_to_current_word
+        def next_word(self):
+            """Arrange for the next word to start a new word."""
+            self.append = self.add_new_word
+
+        def add_to_current_word(self, x):
+            if not self.in_strip or self.mode != SUBST_SIG:
+                self[-1][-1] = self[-1][-1] + x
+        def add_new_word(self, x):
+            if not self.in_strip or self.mode != SUBST_SIG:
+                try:
+                    l = x.is_literal
+                except AttributeError:
+                    literal = None
+                else:
+                    literal = l()
+                self[-1].append(CmdStringHolder(self.str(x), literal))
+            self.append = self.add_to_current_word
+
+        def open_strip(self, x):
+            """Handle the "open strip" $( token."""
+            self.add_strip(x)
+            self.in_strip = 1
+        def close_strip(self, x):
+            """Handle the "close strip" $) token."""
+            self.add_strip(x)
+            self.in_strip = None
+
+    ls = ListSubber(env, mode, target, source)
+    ls.substitute(strSubst, subst_dict(target, source, env), 0)
+
+    return ls.data
 
 def render_tree(root, child_func, prune=0, margin=[0], visited={}):
     """
@@ -657,7 +777,7 @@ def mapPaths(paths, dir, env=None):
         paths = [ paths ]
     ret = map(mapPathFunc, paths)
     return ret
-    
+
 
 if hasattr(types, 'UnicodeType'):
     def is_String(e):
@@ -673,7 +793,7 @@ class Proxy:
     subject.  Inherit from this class to create a Proxy."""
     def __init__(self, subject):
         self.__subject = subject
-        
+
     def __getattr__(self, name):
         return getattr(self.__subject, name)
 
@@ -882,7 +1002,7 @@ def AppendPath(oldpath, newpath, sep = os.pathsep):
 
     newpaths = paths + newpaths # append new paths
     newpaths.reverse()
-    
+
     normpaths = []
     paths = []
     # now we add them only of they are unique

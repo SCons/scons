@@ -103,6 +103,10 @@ RELEASE 0.95 - XXX
     not.  The default value is zipfile.ZIP_DEFLATED, which generates
     a compressed file.
 
+  - Refactor construction variable expansion to support recursive
+    expansion of variables (e.g. CCFLAGS = "$CCFLAGS -g") without going
+    into an infinite loop.
+
   From Vincent Risi:
 
   - Add support for the bcc32, ilink32 and tlib Borland tools.
