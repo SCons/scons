@@ -599,6 +599,16 @@ class Entry(Base):
     time comes, and then call the same-named method in the transformed
     class."""
 
+    def disambiguate(self):
+        if self.fs.isdir(self.abspath):
+            self.__class__ = Dir
+            self._morph()
+        else:
+            self.__class__ = File
+            self._morph()
+            self.clear()
+        return self
+
     def rfile(self):
         """We're a generic Entry, but the caller is actually looking for
         a File at this point, so morph into one."""
@@ -610,8 +620,7 @@ class Entry(Base):
     def get_found_includes(self, env, scanner, path):
         """If we're looking for included files, it's because this Entry
         is really supposed to be a File itself."""
-        node = self.rfile()
-        return node.get_found_includes(env, scanner, path)
+        return self.disambiguate().get_found_includes(env, scanner, path)
 
     def scanner_key(self):
         return self.get_suffix()
@@ -638,29 +647,13 @@ class Entry(Base):
         """Return if the Entry exists.  Check the file system to see
         what we should turn into first.  Assume a file if there's no
         directory."""
-        if self.fs.isdir(self.abspath):
-            self.__class__ = Dir
-            self._morph()
-            return Dir.exists(self)
-        else:
-            self.__class__ = File
-            self._morph()
-            self.clear()
-            return File.exists(self)
+        return self.disambiguate().exists()
 
     def calc_signature(self, calc=None):
         """Return the Entry's calculated signature.  Check the file
         system to see what we should turn into first.  Assume a file if
         there's no directory."""
-        if self.fs.isdir(self.abspath):
-            self.__class__ = Dir
-            self._morph()
-            return Dir.calc_signature(self, calc)
-        else:
-            self.__class__ = File
-            self._morph()
-            self.clear()
-            return File.calc_signature(self, calc)
+        return self.disambiguate().calc_signature(calc)
 
     def must_be_a_Dir(self):
         """Called to make sure a Node is a Dir.  Since we're an
@@ -1180,6 +1173,9 @@ class Dir(Base):
         self._sconsign = None
         self.build_dirs = []
 
+    def disambiguate(self):
+        return self
+
     def __clearRepositoryCache(self, duplicate=None):
         """Called when we change the repository(ies) for a directory.
         This clears any cached information that is invalidated by changing
@@ -1256,19 +1252,33 @@ class Dir(Base):
         self.implicit = []
         self.implicit_dict = {}
         self._children_reset()
-        try:
-            for filename in self.fs.listdir(self.abspath):
-                if filename != '.sconsign':
-                    self.Entry(filename)
-        except OSError:
-            # Directory does not exist.  No big deal
-            pass
-        keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
-        kids = map(lambda x, s=self: s.entries[x], keys)
-        def c(one, two):
-            return cmp(one.abspath, two.abspath)
-        kids.sort(c)
-        self._add_child(self.implicit, self.implicit_dict, kids)
+
+        dont_scan = lambda k: k not in ['.', '..', '.sconsign']
+        deps = filter(dont_scan, self.entries.keys())
+        # keys() is going to give back the entries in an internal,
+        # unsorted order.  Sort 'em so the order is deterministic.
+        deps.sort()
+        entries = map(lambda n, e=self.entries: e[n], deps)
+
+        self._add_child(self.implicit, self.implicit_dict, entries)
+
+    def get_found_includes(self, env, scanner, path):
+        """Return the included implicit dependencies in this file.
+        Cache results so we only scan the file once per path
+        regardless of how many times this information is requested.
+        __cacheable__"""
+        if not scanner:
+            return []
+        # Clear cached info for this Node.  If we already visited this
+        # directory on our walk down the tree (because we didn't know at
+        # that point it was being used as the source for another Node)
+        # then we may have calculated build signature before realizing
+        # we had to scan the disk.  Now that we have to, though, we need
+        # to invalidate the old calculated signature so that any node
+        # dependent on our directory structure gets one that includes
+        # info about everything on disk.
+        self.clear()
+        return scanner(self, env, path)
 
     def build(self, **kw):
         """A null "builder" for directories."""
@@ -1295,7 +1305,7 @@ class Dir(Base):
         for kid in self.children():
             contents.write(kid.get_contents())
         return contents.getvalue()
-    
+
     def prepare(self):
         pass
 
@@ -1463,6 +1473,9 @@ class File(Base):
         self.scanner_paths = {}
         if not hasattr(self, '_local'):
             self._local = 0
+
+    def disambiguate(self):
+        return self
 
     def root(self):
         return self.dir.root()

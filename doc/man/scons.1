@@ -2107,6 +2107,12 @@ for a given target;
 each additional call
 adds to the list of entries
 that will be built into the archive.
+Any source directories will
+be scanned for changes to
+any on-disk files,
+regardless of whether or not
+.B scons
+knows about them from other Builder or function calls.
 
 .ES
 env.Tar('src.tar', 'src')
@@ -2173,6 +2179,12 @@ for a given target;
 each additional call
 adds to the list of entries
 that will be built into the archive.
+Any source directories will
+be scanned for changes to
+any on-disk files,
+regardless of whether or not
+.B scons
+knows about them from other Builder or function calls.
 
 .ES
 env.Zip('src.zip', 'src')
@@ -2720,7 +2732,22 @@ to build a target file or files.
 This is more convenient
 than defining a separate Builder object
 for a single special-case build.
-Any keyword arguments specified override any
+
+As a special case, the
+.B source_scanner
+keyword argument can
+be used to specify
+a Scanner object
+that will be used to scan the sources.
+(The global
+.B DirScanner
+object can be used
+if any of the sources will be directories
+that must be scanned on-disk for
+changes to files that aren't
+already specified in other Builder of function calls.)
+
+Any other keyword arguments specified override any
 same-named existing construction variables.
 
 Note that an action can be an external command,
@@ -8157,8 +8184,17 @@ specify a scanner to
 find things like
 .B #include
 lines in source files.
+The pre-built
+.B DirScanner
+Scanner object may be used to
+indicate that this Builder
+should scan directory trees
+for on-disk changes to files
+that
+.B scons
+does not know about from other Builder or function calls.
 (See the section "Scanner Objects," below,
-for information about creating Scanner objects.)
+for information about creating your own Scanner objects.)
 
 .IP target_factory
 A factory function that the Builder will use
@@ -9222,6 +9258,14 @@ only invoke the scanner on the file being scanned,
 and not (for example) also on the files
 specified by the #include lines
 in the file being scanned.
+.I recursive
+may be a callable function,
+in which case it will be called with a list of
+Nodes found and
+should return a list of Nodes
+that should be scanned recursively;
+this can be used to select a specific subset of
+Nodes for additional scanning.
 
 Note that
 .B scons

@@ -35,6 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Action
 import SCons.Builder
+import SCons.Defaults
 import SCons.Node.FS
 import SCons.Util
 
@@ -44,7 +45,8 @@ TarAction = SCons.Action.Action('$TARCOM', '$TARCOMSTR')
 
 TarBuilder = SCons.Builder.Builder(action = TarAction,
                                    source_factory = SCons.Node.FS.default_fs.Entry,
-				   suffix = '$TARSUFFIX',
+                                   source_scanner = SCons.Defaults.DirScanner,
+                                   suffix = '$TARSUFFIX',
                                    multi = 1)
 
 

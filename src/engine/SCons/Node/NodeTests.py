@@ -181,6 +181,8 @@ class Scanner:
         return ()
     def select(self, node):
         return self
+    def recurse_nodes(self, nodes):
+        return nodes
 
 class MyNode(SCons.Node.Node):
     """The base Node class contains a number of do-nothing methods that
@@ -807,28 +809,31 @@ class NodeTestCase(unittest.TestCase):
         deps = node.get_implicit_deps(env, s, target)
         assert deps == [d], deps
 
-        # No "recursive" attribute on scanner doesn't recurse
+        # By default, our fake scanner recurses
         e = MyNode("eee")
-        d.found_includes = [e]
+        f = MyNode("fff")
+        g = MyNode("ggg")
+        d.found_includes = [e, f]
+        f.found_includes = [g]
         deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d], map(str, deps)
-
-        # Explicit "recursive" attribute on scanner doesn't recurse
-        s.recursive = None
-        deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d], map(str, deps)
-
-        # Explicit "recursive" attribute on scanner which does recurse
-        s.recursive = 1
-        deps = node.get_implicit_deps(env, s, target)
-        assert deps == [d, e], map(str, deps)
+        assert deps == [d, e, f, g], map(str, deps)
 
         # Recursive scanning eliminates duplicates
-        f = MyNode("fff")
-        d.found_includes = [e, f]
         e.found_includes = [f]
         deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d, e, f, g], map(str, deps)
+
+        # Scanner method can select specific nodes to recurse
+        def no_fff(nodes):
+            return filter(lambda n: str(n)[0] != 'f', nodes)
+        s.recurse_nodes = no_fff
+        deps = node.get_implicit_deps(env, s, target)
         assert deps == [d, e, f], map(str, deps)
+
+        # Scanner method can short-circuit recursing entirely
+        s.recurse_nodes = lambda nodes: []
+        deps = node.get_implicit_deps(env, s, target)
+        assert deps == [d], map(str, deps)
 
     def test_get_scanner(self):
         """Test fetching the environment scanner for a Node

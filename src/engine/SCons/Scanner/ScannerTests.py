@@ -221,15 +221,29 @@ class BaseTestCase(unittest.TestCase):
 
     def test_recursive(self):
         """Test the Scanner.Base class recursive flag"""
+        nodes = [1, 2, 3, 4]
+
         s = SCons.Scanner.Base(function = self.func)
-        self.failUnless(s.recursive == None,
-                        "incorrect default recursive value")
+        n = s.recurse_nodes(nodes)
+        self.failUnless(n == [],
+                        "default behavior returned nodes: %s" % n)
+
         s = SCons.Scanner.Base(function = self.func, recursive = None)
-        self.failUnless(s.recursive == None,
-                        "did not set recursive flag to None")
+        n = s.recurse_nodes(nodes)
+        self.failUnless(n == [],
+                        "recursive = None returned nodes: %s" % n)
+
         s = SCons.Scanner.Base(function = self.func, recursive = 1)
-        self.failUnless(s.recursive == 1,
-                        "did not set recursive flag to 1")
+        n = s.recurse_nodes(nodes)
+        self.failUnless(n == n,
+                        "recursive = 1 didn't return all nodes: %s" % n)
+
+        def odd_only(nodes):
+            return filter(lambda n: n % 2, nodes)
+        s = SCons.Scanner.Base(function = self.func, recursive = odd_only)
+        n = s.recurse_nodes(nodes)
+        self.failUnless(n == [1, 3],
+                        "recursive = 1 didn't return all nodes: %s" % n)
 
     def test_get_skeys(self):
         """Test the Scanner.Base get_skeys() method"""

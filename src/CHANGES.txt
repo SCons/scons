@@ -198,6 +198,15 @@ RELEASE 0.97 - XXX
     part of the public interface.  Keep the old SCons.Defaults.*Scan names
     around for a while longer since some people were already using them.
 
+  - By default, don't scan directories for on-disk files.  Add a
+    DirScanner global scanner that can be used in Builders or Command()
+    calls that want source directory trees scanned for on-disk changes.
+    Have the Tar() and Zip() Builders use the new DirScanner to preserve
+    the behavior of rebuilding a .tar or .zip file if any file or
+    directory under a source tree changes.  Add Command() support for
+    a source_scanner keyword argument to Command() that can be set to
+    DirScanner to get this behavior.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
