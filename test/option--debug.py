@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "test/option--test.py __REVISION__ __DATE__ __DEVELOPER__"
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 import sys
@@ -35,7 +35,7 @@ env = Environment()
 env.Program('foo', 'foo.c bar.c')
 """)
 
-test.write('foo.c', """
+test.write('foo.c', r"""
 #include "foo.h"
 int main(int argc, char *argv[])
 {
@@ -71,17 +71,19 @@ else:
 
 test.run(arguments = "--debug=tree " + foo)
 
+import SCons.Defaults
+obj = SCons.Defaults.ConstructionEnvironment['OBJSUFFIX']
 tree = """
-+-foo
-  +-foo.o
++-%s
+  +-foo%s
   | +-foo.c
   |   +-foo.h
   |   +-bar.h
-  +-bar.o
+  +-bar%s
     +-bar.c
       +-bar.h
       +-foo.h
-"""
+""" % (foo, obj,obj)
 
 assert string.find(test.stdout(), tree) != -1
 
