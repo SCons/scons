@@ -41,10 +41,10 @@ import SCons.Util
 
 compilers = ['f77']
 
-F77Suffixes = ['.f', '.for', '.F', '.FOR']
-F77PPSuffixes = ['.fpp', '.FPP']
+F77Suffixes = ['.f', '.for', '.FOR']
+F77PPSuffixes = ['.F', '.fpp', '.FPP']
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for g77 to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
@@ -61,7 +61,7 @@ def generate(env, platform):
     env['F77COM']     = '$F77 $F77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['F77PPCOM']   = '$F77 $F77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['SHF77']      = '$F77'
-    env['SHF77FLAGS'] = '$F77FLAGS -fPIC'
+    env['SHF77FLAGS'] = '$F77FLAGS'
     env['SHF77COM']   = '$SHF77 $SHF77FLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
     env['SHF77PPCOM'] = '$SHF77 $SHF77FLAGS $CPPFLAGS $_F77INCFLAGS -c -o $TARGET $SOURCES'
 

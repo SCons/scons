@@ -51,7 +51,7 @@ if os.path.normcase('.s') == os.path.normcase('.S'):
 else:
     ASPPSuffixes.extend(['.S'])
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

@@ -35,7 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Builder
 
-def generate(env, platform):
+def generate(env):
     """Add a Builder factory function and construction variables for
     RCS to an Environment."""
 

@@ -114,9 +114,11 @@ os.system(cmd)
 """ % string.replace(test.workpath('wrapper.out'), '\\', '\\\\'))
 
     test.write('SConstruct', """
-foo = Environment()
+import os
+foo = Environment(ENV = { 'PATH' : os.environ['PATH'] })
 dvipdf = foo.Dictionary('DVIPDF')
-bar = Environment(DVIPDF = r'%s wrapper.py ' + dvipdf)
+bar = Environment(ENV = { 'PATH' : os.environ['PATH'] },
+                  DVIPDF = r'%s wrapper.py ' + dvipdf)
 foo.PDF(target = 'foo.pdf',
         source = foo.DVI(target = 'foo.dvi', source = 'foo.tex'))
 bar.PDF(target = 'bar.pdf',

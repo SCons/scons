@@ -46,7 +46,7 @@ if os.path.normcase('.f') == os.path.normcase('.F'):
 else:
     F77PPSuffixes.append('.F')
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for ifl to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

@@ -36,7 +36,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.Defaults
 import SCons.Tool
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for lex to an Environment."""
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
 

@@ -51,7 +51,7 @@ class ToolSpec:
     def __str__(self):
         return self.name
     
-def Tool(name, platform = None):
+def Tool(name):
     """Select a canned Tool specification.
     """
     full_name = 'SCons.Tool.' + name

@@ -95,8 +95,7 @@ shlib_action = SCons.Action.CommandGenerator(shlib_generator)
 
 res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.o')
 
-def generate(env, platform):
-    
+def generate(env):
     mingw = find(env)
     if mingw:
         dir = os.path.dirname(mingw)
@@ -114,7 +113,7 @@ def generate(env, platform):
     # Most of mingw is the same as gcc and friends...
     gnu_tools = ['gcc', 'g++', 'gnulink', 'ar', 'gas']
     for tool in gnu_tools:
-        SCons.Tool.Tool(tool, platform)(env,platform)
+        SCons.Tool.Tool(tool)(env)
 
     #... but a few things differ:
     env['CC'] = 'gcc'

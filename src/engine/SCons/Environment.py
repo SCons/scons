@@ -191,6 +191,7 @@ class Environment:
 
         if SCons.Util.is_String(platform):
             platform = SCons.Platform.Platform(platform)
+        self._dict['PLATFORM'] = str(platform)
         platform(self)
 
         # Apply the passed-in variables before calling the tools,
@@ -207,7 +208,7 @@ class Environment:
         for tool in tools:
             if SCons.Util.is_String(tool):
                 tool = SCons.Tool.Tool(tool)
-            tool(self, platform)
+            tool(self)
 
         # Reapply the passed in variables after calling the tools,
         # since they should overide anything set by the tools:

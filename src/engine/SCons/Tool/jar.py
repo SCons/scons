@@ -38,7 +38,7 @@ import os.path
 
 import SCons.Builder
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for jar to an Environment."""
     try:
         bld = env['BUILDERS']['Jar']

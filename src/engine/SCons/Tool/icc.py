@@ -40,7 +40,7 @@ import SCons.Errors
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

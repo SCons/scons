@@ -34,9 +34,11 @@ python = TestSCons.python
 if sys.platform == 'win32':
     _exe = '.exe'
     _obj = '.obj'
+    _shobj = '.obj'
 else:
     _exe = ''
     _obj = '.o'
+    _shobj = '.os'
 
 test = TestSCons.TestSCons()
 
@@ -107,8 +109,10 @@ sys.exit(0)
 test.write('SConstruct', """
 env = Environment(CPPFLAGS = '-x',
                   LINK = r'%s mylink.py',
+                  LINKFLAGS = [],
                   CC = r'%s mygcc.py cc',
                   CXX = r'%s mygcc.py c++',
+                  CXXFLAGS = [],
                   F77 = r'%s mygcc.py g77')
 env.Program(target = 'foo', source = Split('test1.c test2.cpp test3.F'))
 """ % (python, python, python, python))
@@ -128,7 +132,7 @@ test.write('test3.F', r"""test3.F
 #link
 """)
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments = '.', stderr=None)
 
 test.fail_test(test.read('test1' + _obj) != "test1.c\n#link\n")
 
@@ -143,8 +147,10 @@ test.fail_test(test.read('mygcc.out') != "cc\nc++\ng77\n")
 test.write('SConstruct', """
 env = Environment(CPPFLAGS = '-x',
                   SHLINK = r'%s mylink.py',
+                  SHLINKFLAGS = [],
                   CC = r'%s mygcc.py cc',
                   CXX = r'%s mygcc.py c++',
+                  CXXFLAGS = [],
                   F77 = r'%s mygcc.py g77')
 env.SharedLibrary(target = File('foo.bar'),
                   source = Split('test1.c test2.cpp test3.F'))
@@ -166,14 +172,17 @@ test.write('test3.F', r"""test3.F
 """)
 
 test.unlink('mygcc.out')
+test.unlink('test1' + _obj)
+test.unlink('test2' + _obj)
+test.unlink('test3' + _obj)
 
 test.run(arguments = '.', stderr = None)
 
-test.fail_test(test.read('test1' + _obj) != "test1.c\n#link\n")
+test.fail_test(test.read('test1' + _shobj) != "test1.c\n#link\n")
 
-test.fail_test(test.read('test2' + _obj) != "test2.cpp\n#link\n")
+test.fail_test(test.read('test2' + _shobj) != "test2.cpp\n#link\n")
 
-test.fail_test(test.read('test3' + _obj) != "test3.F\n#link\n")
+test.fail_test(test.read('test3' + _shobj) != "test3.F\n#link\n")
 
 test.fail_test(test.read('foo.bar') != "test1.c\ntest2.cpp\ntest3.F\n")
 

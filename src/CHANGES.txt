@@ -14,6 +14,10 @@ RELEASE 0.14 - XXX
 
   - Use .dll (not .so) for shared libraries on Cygwin.
 
+  - Add a PLATFORM variable to construction environments.
+
+  - Remove the "platform" argument from tool specifications.
+
   From Steven Knight:
 
   - Add support for Java (javac and jar).

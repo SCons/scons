@@ -46,7 +46,7 @@ from SCons.Tool.PharLapCommon import addPathIfNotExists
 _import_env = [ 'P4PORT', 'P4CLIENT', 'P4USER', 'USER', 'USERNAME', 'P4PASSWD',
                 'P4CHARSET', 'P4LANGUAGE', 'SYSTEMROOT' ]
 
-def generate(env, platform):
+def generate(env):
     """Add a Builder factory function and construction variables for
     Perforce to an Environment."""
 

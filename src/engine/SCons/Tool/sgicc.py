@@ -40,9 +40,9 @@ import SCons.Defaults
 import SCons.Util
 
 CSuffixes = ['.c']
-CXXSuffixes = ['.C', '.cpp', '.cc', '.cxx']
+CXXSuffixes = ['.C', '.cpp', '.cc', '.cxx', '.c++', '.C++']
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

@@ -56,6 +56,10 @@ public class Example1
 }
 """)
 
+if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
+    print "Could not find Java, skipping test(s)."
+    test.pass_test(1)
+
 test.run(arguments = '.',
          stdout = test.wrap_stdout("""\
 /usr/local/j2sdk1.3.1/bin/javac -d classes -sourcepath src src/Example1.java

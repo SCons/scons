@@ -76,7 +76,7 @@ class LinklocGenerator:
         else:
             return "${TEMPFILE('" + self.cmdline + "')}"
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
     env['BUILDERS']['Program'] = SCons.Defaults.Program

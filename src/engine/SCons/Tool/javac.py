@@ -133,7 +133,7 @@ elif java_parsing == 2:
         f.close()
         return pkg_dir, classes
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for javac to an Environment."""
     def emit_java_files(target, source, env):
         """Create and return lists of source java files

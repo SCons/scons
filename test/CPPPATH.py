@@ -200,7 +200,10 @@ test.up_to_date(arguments = args)
 # Check that a null-string CPPPATH doesn't blow up.
 test.write('SConstruct', """
 env = Environment(CPPPATH = '')
-env.Library('foo', source = '')
+env.Library('foo', source = 'empty.c')
+""")
+
+test.write('empty.c', """
 """)
 
 test.run(arguments = '.')

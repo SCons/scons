@@ -71,7 +71,7 @@ ZipBuilder = SCons.Builder.Builder(action = '$ZIPCOM',
                                    multi = 1)
 
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for zip to an Environment."""
     try:
         bld = env['BUILDERS']['Zip']

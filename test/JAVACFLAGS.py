@@ -30,6 +30,10 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
+    print "Could not find Java, skipping test(s)."
+    test.pass_test(1)
+
 test.subdir('src')
 
 test.write('SConstruct', """

@@ -112,6 +112,7 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%s mylink.py',
+                  LINKFLAGS = [],
                   AS = r'%s myas.py',
                   CC = r'%s myas.py')
 env.Program(target = 'test1', source = 'test1.s')
@@ -168,8 +169,9 @@ test.fail_test(test.read('test6' + _exe) != "This is a .SPP file.\n")
 
 
 as = test.detect('AS', 'as')
+x86 = (sys.platform == 'win32' or string.find(sys.platform, 'linux') != -1)
 
-if as:
+if as and x86:
 
     test.write("wrapper.py",
 """import os
@@ -248,7 +250,7 @@ main(int argc, char *argv[])
 
 ml = test.where_is('ml')
 
-if ml:
+if ml and sys.platform == 'win32':
 
     test.write("wrapper.py",
 """import os

@@ -95,6 +95,7 @@ test.run(chdir = 'import',
 
 # Test the most straightforward CVS checkouts, using the module name.
 test.write(['work1', 'SConstruct'], """
+import os
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -102,7 +103,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
+                  BUILDERS={'Cat':Builder(action=cat)})
 env.Prepend(CVSFLAGS='-Q ')
 env.Cat('aaa.out', 'foo/aaa.in')
 env.Cat('bbb.out', 'foo/bbb.in')
@@ -163,6 +165,7 @@ test.fail_test(not is_writable(test.workpath('work1', 'foo', 'sub', 'fff.in')))
 
 # Test CVS checkouts when the module name is specified.
 test.write(['work2', 'SConstruct'], """
+import os
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -170,7 +173,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(ENV = { 'PATH' : os.environ['PATH'] },
+                  BUILDERS={'Cat':Builder(action=cat)})
 env.Prepend(CVSFLAGS='-q ')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')

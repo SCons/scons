@@ -91,6 +91,9 @@ line 3
     test.fail_test(test.read('test2.class') != "test2.JAVA\nline3\n")
 
 
+if not os.path.exists('/usr/local/j2sdk1.3.1/bin/javac'):
+    print "Could not find Java, skipping test(s)."
+    test.pass_test(1)
 
 
 test.write("wrapper.py", """\

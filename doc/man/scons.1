@@ -844,11 +844,14 @@ will call the specified elements
 to update the new construction environment:
 
 .ES
-def my_tool(env, platform):
+def my_tool(env):
     env['XYZZY'] = 'xyzzy'
 
 env = Environment(tools = [my_tool])
 .EE
+
+The tool definition (i.e. my_tool()) can use the PLATFORM variable from
+the environment it receives to customize the tool for different platforms.
 
 If no tool list is specified, then SCons will auto-detect the installed
 tools using the PATH variable in the ENV construction variable and the
@@ -2554,6 +2557,20 @@ The prefix used for PDF file names.
 
 .IP PDFSUFFIX
 The suffix used for PDF file names.
+
+.IP PLATFORM
+The name of the platform used to create the Environment.  If no platform is
+specified when the Environment is created,
+.B SCons
+autodetects the platform.
+
+.ES
+env = Environment(tools = [])
+if env['PLATFORM'] == 'cygwin':
+    Tool('mingw')(env)
+else:
+    Tool('msvc')(env)
+.EE
 
 .IP PROGPREFIX
 The prefix used for executable file names.

@@ -45,7 +45,7 @@ CSuffixes = ['.c']
 if os.path.normcase('.c') == os.path.normcase('.C'):
     CSuffixes.append('.C')
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

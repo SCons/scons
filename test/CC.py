@@ -113,8 +113,10 @@ sys.exit(0)
 test.write('SConstruct', """
 cc = Environment().Dictionary('CC')
 env = Environment(LINK = r'%s mylink.py',
+                  LINKFLAGS = [],
                   CC = r'%s mycc.py',
-		  CXX = cc)
+                  CXX = cc,
+                  CXXFLAGS = [])
 env.Program(target = 'test1', source = 'test1.c')
 """ % (python, python))
 

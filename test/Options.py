@@ -58,7 +58,7 @@ opts.Add('CC',
 opts.Add('UNSPECIFIED',
          'An option with no value')
 
-def test_tool(env, platform):
+def test_tool(env):
     if env['RELEASE_BUILD']:
         env['CCFLAGS'] = env['CCFLAGS'] + ' -O'
     if env['DEBUG_BUILD']:

@@ -38,7 +38,7 @@ import os.path
 
 import SCons.Builder
 
-def generate(env, platform):
+def generate(env):
     """Add a Builder factory function and construction variables for
     BitKeeper to an Environment."""
 

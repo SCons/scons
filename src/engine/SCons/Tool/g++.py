@@ -45,7 +45,7 @@ CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
 if os.path.normcase('.c') != os.path.normcase('.C'):
     CXXSuffixes.append('.C')
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for g++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

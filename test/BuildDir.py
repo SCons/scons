@@ -25,6 +25,7 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
+import string
 import sys
 import time
 import TestSCons
@@ -97,7 +98,12 @@ SConscript(File('SConscript', var4), "env")
 env = Environment(CPPPATH='.', F77PATH='.')
 SConscript('../build/var5/SConscript', "env")
 SConscript('../build/var6/SConscript', "env")
-""") 
+""")
+
+if string.find(sys.platform, 'irix') != -1:
+    fortran_runtime = 'ftn'
+else:
+    fortran_runtime = 'g2c'
 
 test.subdir(['test', 'src'])
 test.write(['test', 'src', 'SConscript'], """
@@ -132,9 +138,9 @@ except:
 
 if f77 and WhereIs(env['F77']):
     env.Command(target='b2.f', source='b2.in', action=buildIt)
-    env.Copy(LIBS = ['g2c']).Program(target='bar2', source='b2.f')
-    env.Copy(LIBS = ['g2c']).Program(target='bar1', source='b1.f')
-""")
+    env.Copy(LIBS = [r'%s']).Program(target='bar2', source='b2.f')
+    env.Copy(LIBS = [r'%s']).Program(target='bar1', source='b1.f')
+""" % (fortran_runtime, fortran_runtime))
 
 test.write('test/src/f1.c', r"""
 #include "f1.h"

@@ -27,7 +27,8 @@ RELEASE 0.14 - XXX
 
   Please note the following important changes since release 0.13:
 
-  -
+  - Tool specifications no longer take a "platform" argument.
+    XXX
 
   Please note the following important changes since release 0.11:
 

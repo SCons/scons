@@ -112,7 +112,9 @@ sys.exit(0)
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%s mylink.py',
-                  CXX = r'%s myc++.py')
+                  LINKFLAGS = [],
+                  CXX = r'%s myc++.py',
+                  CXXFLAGS = [])
 env.Program(target = 'test1', source = 'test1.cc')
 env.Program(target = 'test2', source = 'test2.cpp')
 env.Program(target = 'test3', source = 'test3.cxx')
@@ -161,7 +163,9 @@ if os.path.normcase('.c') != os.path.normcase('.C'):
 
     test.write('SConstruct', """
 env = Environment(LINK = r'%s mylink.py',
-                  CXX = r'%s myc++.py')
+                  LINKFLAGS = [],
+                  CXX = r'%s myc++.py',
+                  CXXFLAGS = [])
 env.Program(target = 'test6', source = 'test6.C')
 """ % (python, python))
 

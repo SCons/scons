@@ -42,9 +42,9 @@ import SCons.Util
 assemblers = ['as']
 
 ASSuffixes = ['.s', '.asm', '.ASM']
-ASPPSuffixes = ['.spp', '.SPP']
+ASPPSuffixes = ['.S', '.spp', '.SPP']
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for as to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

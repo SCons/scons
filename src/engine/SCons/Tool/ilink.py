@@ -35,7 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Defaults
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for ilink to an Environment."""
     env['BUILDERS']['Program'] = SCons.Defaults.Program
     

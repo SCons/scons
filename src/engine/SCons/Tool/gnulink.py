@@ -38,7 +38,7 @@ import SCons.Util
 
 linkers = ['c++', 'cc', 'g++', 'gcc']
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
     env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
     env['BUILDERS']['Program'] = SCons.Defaults.Program

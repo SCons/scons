@@ -38,7 +38,7 @@ import SCons.Defaults
 
 LaTeXAction = SCons.Action.Action('$LATEXCOM')
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for LaTeX to an Environment."""
 
     try:

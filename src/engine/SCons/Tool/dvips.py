@@ -42,7 +42,7 @@ PostScript = SCons.Builder.Builder(action = '$PSCOM',
                                    src_suffix = '.dvi',
                                    src_builder = 'DVI')
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for dvips to an Environment."""
     env['BUILDERS']['PostScript'] = PostScript
     

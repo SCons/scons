@@ -240,7 +240,7 @@ def object_emitter(target, source, env):
 pch_builder = SCons.Builder.Builder(action='$PCHCOM', suffix='.pch', emitter=pch_emitter)
 res_builder = SCons.Builder.Builder(action='$RCCOM', suffix='.res')
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

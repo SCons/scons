@@ -38,7 +38,7 @@ import SCons.Defaults
 
 PDFLaTeXAction = SCons.Action.Action('$PDFLATEXCOM')
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for pdflatex to an Environment."""
     try:
         bld = env['BUILDERS']['PDF']

@@ -118,7 +118,7 @@ def prog_emitter(target, source, env):
         
     return (target,source)
 
-def generate(env, platform):
+def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     env['BUILDERS']['SharedLibrary'] = SCons.Defaults.SharedLibrary
     env['BUILDERS']['Program'] = SCons.Defaults.Program

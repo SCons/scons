@@ -735,23 +735,34 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_platform(self):
         """Test specifying a platform callable when instantiating."""
-        def p(env):
-            env['XYZZY'] = 777
-        env = Environment(platform = p)
+        class platform:
+            def __str__(self):        return "TestPlatform"
+            def __call__(self, env):  env['XYZZY'] = 777
+
+        def tool(env):
+            assert env['PLATFORM'] == "TestPlatform"
+
+        env = Environment(platform = platform(), tools = [tool])
         assert env['XYZZY'] == 777, env
+        assert env['PLATFORM'] == "TestPlatform"
 
     def test_tools(self):
         """Test specifying a tool callable when instantiating."""
-        def t1(env, platform):
+        def t1(env):
             env['TOOL1'] = 111
-        def t2(env, platform):
+        def t2(env):
             env['TOOL2'] = 222
-        def t3(env, platform):
+        def t3(env):
             env['AAA'] = env['XYZ']
+        def t4(env):
+            env['TOOL4'] = 444
         env = Environment(tools = [t1, t2, t3], XYZ = 'aaa')
         assert env['TOOL1'] == 111, env['TOOL1']
         assert env['TOOL2'] == 222, env
-        assert env['AAA'] == 'aaa', env
+        assert env['AAA'] == 'aaa', env        
+        t4(env)
+        assert env['TOOL4'] == 444, env
+        
 
     def test_get(self):
         """Test the get() method."""
