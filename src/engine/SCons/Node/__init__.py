@@ -836,7 +836,11 @@ class Node:
                 result[k] = s
             return result
 
-        osig = dictify(old.bkids, old.bkidsigs)
+        try:
+            osig = dictify(old.bkids, old.bkidsigs)
+        except AttributeError:
+            return "Cannot explain why `%s' is being rebuilt: No previous build information found\n" % self
+
 
         newkids = map(str, self.binfo.bkids)
         nsig = dictify(newkids, self.binfo.bkidsigs)
