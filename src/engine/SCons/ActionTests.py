@@ -674,6 +674,11 @@ class CommandActionTestCase(unittest.TestCase):
         """
         a = SCons.Action.CommandAction(["xyzzy"])
         assert a.cmd_list == [ "xyzzy" ], a.cmd_list
+        assert a.cmdstr is None, a.cmdstr
+
+        a = SCons.Action.CommandAction(["abra"], "cadabra")
+        assert a.cmd_list == [ "abra" ], a.cmd_list
+        assert a.cmdstr == "cadabra", a.cmdstr
 
     def test___str__(self):
         """Test fetching the pre-substitution string for command Actions
@@ -744,6 +749,15 @@ class CommandActionTestCase(unittest.TestCase):
         s = act.strfunction([t1, t2], [s1, s2], env)
         assert s == 'xyzzy t1 s1', s
 
+        act = SCons.Action.CommandAction('xyzzy $TARGET $SOURCE',
+                                         'cmdstr - $SOURCE - $TARGET -')
+        s = act.strfunction([], [], env)
+        assert s == 'cmdstr - - -', s
+        s = act.strfunction([t1], [s1], env)
+        assert s == 'cmdstr - s1 - t1 -', s
+        s = act.strfunction([t1, t2], [s1, s2], env)
+        assert s == 'cmdstr - s1 - t1 -', s
+
         act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES')
         s = act.strfunction([], [], env)
         assert s == 'xyzzy', s
@@ -751,6 +765,15 @@ class CommandActionTestCase(unittest.TestCase):
         assert s == 'xyzzy t1 s1', s
         s = act.strfunction([t1, t2], [s1, s2], env)
         assert s == 'xyzzy t1 t2 s1 s2', s
+
+        act = SCons.Action.CommandAction('xyzzy $TARGETS $SOURCES',
+                                         'cmdstr = $SOURCES = $TARGETS =')
+        s = act.strfunction([], [], env)
+        assert s == 'cmdstr = = =', s
+        s = act.strfunction([t1], [s1], env)
+        assert s == 'cmdstr = s1 = t1 =', s
+        s = act.strfunction([t1, t2], [s1, s2], env)
+        assert s == 'cmdstr = s1 s2 = t1 t2 =', s
 
         act = SCons.Action.CommandAction(['xyzzy',
                                           '$TARGET', '$SOURCE',

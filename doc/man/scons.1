@@ -4441,6 +4441,15 @@ The assembler.
 The command line used to generate an object file
 from an assembly-language source file.
 
+.IP ASCOMSTR
+The string displayed when an object file
+is generated from an assembly-language source file.
+If this is not set, then $ASCOM (the command line) is displayed.
+
+.ES
+env = Environment(ASCOMSTR = "Assembling $TARGET")
+.EE
+
 .IP ASFLAGS
 General options passed to the assembler.
 
@@ -4517,6 +4526,15 @@ The C compiler.
 The command line used to compile a C source file to a (static) object file.
 Any options specified in the $CCFLAGS and $CPPFLAGS construction variables
 are included on this command line.
+
+.IP CCCOMSTR
+The string displayed when a C source file
+is compiled to a (static) object file.
+If this is not set, then $CCCOM (the command line) is displayed.
+
+.ES
+env = Environment(CCCOMSTR = "Compiling $TARGET")
+.EE
 
 .IP CCFLAGS 
 General options that are passed to the C compiler.
@@ -4772,6 +4790,15 @@ as C++ files.
 The command line used to compile a C++ source file to an object file.
 Any options specified in the $CXXFLAGS and $CPPFLAGS construction variables
 are included on this command line.
+
+.IP CXXCOMSTR
+The string displayed when a C++ source file
+is compiled to a (static) object file.
+If this is not set, then $CXXCOM (the command line) is displayed.
+
+.ES
+env = Environment(CXXCOMSTR = "Compiling $TARGET")
+.EE
 
 .IP CXXFLAGS 
 General options that are passed to the C++ compiler.

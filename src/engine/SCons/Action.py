@@ -323,7 +323,7 @@ def _string_from_cmd_list(cmd_list):
 
 class CommandAction(_ActionAction):
     """Class for command-execution actions."""
-    def __init__(self, cmd, *args, **kw):
+    def __init__(self, cmd, cmdstr=None, *args, **kw):
         # Cmd can actually be a list or a single item; if it's a
         # single item it should be the command string to execute; if a
         # list then it should be the words of the command string to
@@ -340,6 +340,7 @@ class CommandAction(_ActionAction):
                 raise TypeError, "CommandAction should be given only " \
                       "a single command"
         self.cmd_list = cmd
+        self.cmdstr = cmdstr
 
     def __str__(self):
         if SCons.Util.is_List(self.cmd_list):
@@ -347,6 +348,10 @@ class CommandAction(_ActionAction):
         return str(self.cmd_list)
 
     def strfunction(self, target, source, env):
+        if not self.cmdstr is None:
+            c = env.subst(self.cmdstr, 0, target, source)
+            if c:
+                return c
         cmd_list = env.subst_list(self.cmd_list, 0, target, source)
         return _string_from_cmd_list(cmd_list[0])
 
