@@ -4,7 +4,7 @@ Builders and other things for the local site.  Here's where we'll
 duplicate the functionality of autoconf until we move it into the
 installation procedure or use something like qmconf.
 
-The code that reads the registry to find MSVC components was borrowed 
+The code that reads the registry to find MSVC components was borrowed
 from distutils.msvccompiler.
 
 """
@@ -37,6 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import os
+import stat
 import string
 import sys
 
@@ -46,6 +47,22 @@ import SCons.Scanner.C
 import SCons.Scanner.Prog
 import SCons.Errors
 import SCons.Util
+
+
+
+def whereis(file):
+    for dir in string.split(os.environ['PATH'], os.pathsep):
+        f = os.path.join(dir, file)
+        if os.path.isfile(f):
+            try:
+                st = os.stat(f)
+            except:
+                continue
+            if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+                return f
+    return None
+
+
 
 CFile = SCons.Builder.Builder(name = 'CFile',
                               action = { '.l'    : '$LEXCOM',
@@ -116,10 +133,10 @@ def get_devstudio_versions ():
                 i = i + 1
         except SCons.Util.RegError:
             pass
-    
+
     if not L:
         raise SCons.Errors.InternalError, "DevStudio was not found."
-    
+
     L.sort()
     L.reverse()
     return L
@@ -127,10 +144,10 @@ def get_devstudio_versions ():
 def get_msvc_path (path, version, platform='x86'):
     """
     Get a list of devstudio directories (include, lib or path).  Return
-    a string delimited by ';'. An exception will be raised if unable to 
+    a string delimited by ';'. An exception will be raised if unable to
     access the registry or appropriate registry keys not found.
     """
-       
+
     if not SCons.Util.can_read_reg:
         raise SCons.Errors.InternalError, "No Windows registry module was found"
 
@@ -164,7 +181,7 @@ def get_msvc_path (path, version, platform='x86'):
 def get_msdev_dir(version):
     """Returns the root directory of the MSDev installation from the
     registry if it can be found, otherwise we guess."""
-    if SCons.Util.can_read_reg:  
+    if SCons.Util.can_read_reg:
         K = ('Software\\Microsoft\\Devstudio\\%s\\' +
              'Products\\Microsoft Visual C++') % \
              version
@@ -176,10 +193,10 @@ def get_msdev_dir(version):
                 return os.path.split(val)[0]
             except SCons.Util.RegError:
                 pass
-    
+
 def make_win32_env_from_paths(include, lib, path):
     """
-    Build a dictionary of construction variables for a win32 platform. 
+    Build a dictionary of construction variables for a win32 platform.
     include - include path
     lib - library path
     path - executable path
@@ -224,19 +241,24 @@ def make_win32_env_from_paths(include, lib, path):
                 'PATHEXT' : '.COM;.EXE;.BAT;.CMD',
             },
         }
-    
+
 def make_win32_env(version):
     """
-    Build a dictionary of construction variables for a win32 platform. 
+    Build a dictionary of construction variables for a win32 platform.
     ver - the version string of DevStudio to use (e.g. "6.0")
     """
     return make_win32_env_from_paths(get_msvc_path("include", version),
                                      get_msvc_path("lib", version),
-                                     get_msvc_path("path", version) 
+                                     get_msvc_path("path", version)
                                      + ";" + os.environ['PATH'])
-    
+
 
 if os.name == 'posix':
+
+    arcom = '$AR $ARFLAGS $TARGET $SOURCES'
+    ranlib = 'ranlib'
+    if whereis(ranlib):
+        arcom = arcom + '\n$RANLIB $RANLIBFLAGS $TARGET'
 
     ConstructionEnvironment = {
         'CC'         : 'cc',
@@ -250,7 +272,9 @@ if os.name == 'posix':
         'LINKCOM'    : '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS',
         'AR'         : 'ar',
         'ARFLAGS'    : 'r',
-        'ARCOM'      : '$AR $ARFLAGS $TARGET $SOURCES\nranlib $TARGET',
+        'RANLIB'     : ranlib,
+        'RANLIBFLAGS' : '',
+        'ARCOM'      : arcom,
         'LEX'        : 'lex',
         'LEXFLAGS'   : '',
         'LEXCOM'     : '$LEX $LEXFLAGS -o$TARGET $SOURCES',

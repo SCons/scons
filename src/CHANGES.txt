@@ -20,6 +20,9 @@ RELEASE 0.06 -
 
   - Man page:  document LIBS, fix a typo.
 
+  - Added RANLIB and RANLIBFLAGS construction variables.  Only use them
+    in ARCOM if there's a "ranlib" program on the system.
+
 
 
 RELEASE 0.05 - Thu, 21 Feb 2002 16:50:03 -0600
