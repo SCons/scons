@@ -196,6 +196,13 @@ RELEASE 0.10 - Thu, 16 Jan 2003 04:11:46 -0600
       If you don't supply a space (for example, "<$SOURCE"), SCons will
       not recognize the redirection.
 
+    - People have reported problems with SCons not stopping a build when
+      an interrupt (CTRL+C) is received.  A fix was checked in to 0.11
+      that should fix this behavior on many systems, but there are
+      issues with the underlying Python os.system() call that suggest
+      this fix does not work on all systems or in all circumstances.
+      We're working to try to find a universal solution.
+
     - Executing the -u or -U option from a source directory that has an
       associated BuildDir() does not build the targets in the BuildDir().
 

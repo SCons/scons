@@ -16,6 +16,11 @@ RELEASE 0.11 - XXX
 
   - Support using the MSVC tool chain when running Cygwin Python.
 
+  From Michael Cook:
+
+  - Avoid losing signal bits in the exit status from a command,
+    helping terminate builds on interrupt (CTRL+C).
+
   From Charles Crain:
 
   - Added new AddPreAction() and AddPostAction() functions that support

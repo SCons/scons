@@ -59,7 +59,10 @@ def env_spawn(sh, escape, cmd, args, env):
     else:
         s = string.join(args)
 
-    return os.system(s) >> 8
+    stat = os.system(s)
+    if stat & 0xff:
+        return stat | 0x80
+    return stat >> 8
 
 def fork_spawn(sh, escape, cmd, args, env):
     pid = os.fork()
@@ -76,8 +79,9 @@ def fork_spawn(sh, escape, cmd, args, env):
     else:
         # Parent process.
         pid, stat = os.waitpid(pid, 0)
-        ret = stat >> 8
-        return ret
+        if stat & 0xff:
+            return stat | 0x80
+        return stat >> 8
             
 def generate(env):
 
