@@ -46,7 +46,14 @@ database = None
 def write():
     global sig_files
     for sig_file in sig_files:
-        sig_file.write()
+        sig_file.write(sync=0)
+    if database:
+        try:
+            syncmethod = database.sync
+        except AttributeError:
+            pass # Not all anydbm modules have sync() methods.
+        else:
+            syncmethod()
 
 class Base:
     """
@@ -109,15 +116,18 @@ class DB(Base):
         global sig_files
         sig_files.append(self)
 
-    def write(self):
+    def write(self, sync=1):
         if self.dirty:
             global database
             database[self.dir.path] = cPickle.dumps(self.entries, 1)
-            try:
-                database.sync()
-            except AttributeError:
-                # Not all anydbm modules have sync() methods.
-                pass
+            if sync:
+                try:
+                    syncmethod = database.sync
+                except AttributeError:
+                    # Not all anydbm modules have sync() methods.
+                    pass
+                else:
+                    syncmethod()
 
 class Dir(Base):
     def __init__(self, fp=None, module=None):
@@ -162,7 +172,7 @@ class DirFile(Dir):
         global sig_files
         sig_files.append(self)
 
-    def write(self):
+    def write(self, sync=1):
         """
         Write the .sconsign file to disk.
 

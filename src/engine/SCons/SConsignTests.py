@@ -32,16 +32,16 @@ class BuildInfo:
     def __init__(self, name):
         self.name = name
 
+class DummyModule:
+    def to_string(self, sig):
+        return str(sig)
+
+    def from_string(self, sig):
+        return int(sig)
+
 class BaseTestCase(unittest.TestCase):
 
     def runTest(self):
-        class DummyModule:
-            def to_string(self, sig):
-                return str(sig)
-
-            def from_string(self, sig):
-                return int(sig)
-            
         class DummyNode:
             path = 'not_a_valid_path'
 
@@ -124,13 +124,6 @@ class SConsignDBTestCase(unittest.TestCase):
 class SConsignDirFileTestCase(unittest.TestCase):
 
     def runTest(self):
-        class DummyModule:
-            def to_string(self, sig):
-                return str(sig)
-
-            def from_string(self, sig):
-                return int(sig)
-            
         class DummyNode:
             path = 'not_a_valid_path'
 
@@ -193,6 +186,39 @@ class SConsignFileTestCase(unittest.TestCase):
         assert fake_dbm.mode == "c", fake_dbm.mode
 
 
+class writeTestCase(unittest.TestCase):
+
+    def runTest(self):
+
+        class DummyNode:
+            path = 'not_a_valid_path'
+
+        test = TestCmd.TestCmd(workdir = '')
+        file = test.workpath('sconsign_file')
+
+        class Fake_DBM:
+            def __setitem__(self, key, value):
+                pass
+            def open(self, name, mode):
+                self.sync_count = 0
+                return self
+            def sync(self):
+                self.sync_count = self.sync_count + 1
+
+        fake_dbm = Fake_DBM()
+
+        SCons.SConsign.database = None
+        SCons.SConsign.File(file, fake_dbm)
+
+        f = SCons.SConsign.DirFile(DummyNode(), DummyModule())
+
+        f.set_entry('foo', BuildInfo('foo'))
+        f.set_entry('bar', BuildInfo('bar'))
+
+        SCons.SConsign.write()
+
+        assert fake_dbm.sync_count == 1, fake_dbm.sync_count
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -200,6 +226,7 @@ def suite():
     suite.addTest(SConsignDBTestCase())
     suite.addTest(SConsignDirFileTestCase())
     suite.addTest(SConsignFileTestCase())
+    suite.addTest(writeTestCase())
     return suite
 
 if __name__ == "__main__":

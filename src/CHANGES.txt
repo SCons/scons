@@ -41,6 +41,11 @@ RELEASE 0.97 - XXX
     check for the build engine in the parent directory of the Python
     library directory (/usr/lib64 instead of /usr/lib).
 
+  From Stephen Kennedy:
+
+  - Speed up writing the .sconsign file at the end of a run by only
+    calling sync() once at the end, not after every entry.
+
   From Steven Knight:
 
   - When compiling with Microsoft Visual Studio, don't include the ATL and
