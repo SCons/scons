@@ -37,11 +37,13 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import os
+import string
+import sys
+
 import SCons.Action
 import SCons.Builder
 import SCons.Scanner.C
 import SCons.Scanner.Prog
-import string
 import SCons.Errors
 import SCons.Util
 
@@ -244,7 +246,7 @@ if os.name == 'posix':
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.o',
         'PROGPREFIX' : '',
-        'PROGSUFFIX' : '',
+        'PROGSUFFIX' : (sys.platform == 'cygwin') and '.exe' or '',
         'LIBPREFIX'  : 'lib',
         'LIBSUFFIX'  : '.a',
         'LIBDIRPREFIX'          : '-L',
