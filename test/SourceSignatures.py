@@ -32,13 +32,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-warning = """\
-
-scons: warning: The SetContentSignatureType() function has been deprecated;
-	use the SourceSignatures() function instead.
-File "SConstruct", line %d, in ?
-"""
-
 test.write('SConstruct', """
 def build(env, target, source):
     open(str(target[0]), 'wt').write(open(str(source[0]), 'rt').read())
@@ -49,7 +42,7 @@ env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')
 env.B(target = 'f4.out', source = 'f4.in')
 
-SetContentSignatureType('timestamp')
+SourceSignatures('timestamp')
 """)
 
 test.write('f1.in', "f1.in\n")
@@ -57,8 +50,7 @@ test.write('f2.in', "f2.in\n")
 test.write('f3.in', "f3.in\n")
 test.write('f4.in', "f4.in\n")
 
-test.run(arguments = 'f1.out f3.out',
-         stderr = warning%11)
+test.run(arguments = 'f1.out f3.out')
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
          stdout = test.wrap_stdout("""\
@@ -66,8 +58,7 @@ scons: "f1.out" is up to date.
 build("f2.out", "f2.in")
 scons: "f3.out" is up to date.
 build("f4.out", "f4.in")
-"""),
-         stderr = warning%11)
+"""))
 
 os.utime(test.workpath('f1.in'), 
          (os.path.getatime(test.workpath('f1.in')),
@@ -82,8 +73,7 @@ build("f1.out", "f1.in")
 scons: "f2.out" is up to date.
 build("f3.out", "f3.in")
 scons: "f4.out" is up to date.
-"""),
-         stderr = warning%11)
+"""))
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -95,7 +85,7 @@ env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')
 env.B(target = 'f4.out', source = 'f4.in')
 
-SetContentSignatureType('MD5')
+SourceSignatures('MD5')
 """)
 
 test.write('f1.in', "f1.in\n")
@@ -103,8 +93,7 @@ test.write('f2.in', "f2.in\n")
 test.write('f3.in', "f3.in\n")
 test.write('f4.in', "f4.in\n")
 
-test.run(arguments = 'f1.out f3.out',
-         stderr = warning%11)
+test.run(arguments = 'f1.out f3.out')
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
          stdout = test.wrap_stdout("""\
@@ -112,8 +101,7 @@ scons: "f1.out" is up to date.
 build("f2.out", "f2.in")
 scons: "f3.out" is up to date.
 build("f4.out", "f4.in")
-"""),
-         stderr = warning%11)
+"""))
 
 os.utime(test.workpath('f1.in'), 
          (os.path.getatime(test.workpath('f1.in')),
@@ -123,8 +111,7 @@ os.utime(test.workpath('f3.in'),
           os.path.getmtime(test.workpath('f3.in'))+10))
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
-         stdout = test.wrap_stdout('scons: "f1.out" is up to date.\nscons: "f2.out" is up to date.\nscons: "f3.out" is up to date.\nscons: "f4.out" is up to date.\n'),
-         stderr = warning%11)
+         stdout = test.wrap_stdout('scons: "f1.out" is up to date.\nscons: "f2.out" is up to date.\nscons: "f3.out" is up to date.\nscons: "f4.out" is up to date.\n'))
 
 test.write('SConstruct', """
 def build(env, target, source):
@@ -157,9 +144,8 @@ env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'f3.out', source = 'f3.in')
 env.B(target = 'f4.out', source = 'f4.in')
 
-SetContentSignatureType('timestamp')
+SourceSignatures('timestamp')
 """)
 
 test.run(arguments = 'f1.out f2.out f3.out f4.out',
-         stdout = test.wrap_stdout(''),
-         stderr = warning%11)
+         stdout = test.wrap_stdout(''))

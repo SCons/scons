@@ -28,13 +28,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-warning = """\
-
-scons: warning: The SetBuildSignatureType() function has been deprecated;
-	use the TargetSignatures() function instead.
-File "SConstruct", line %d, in ?
-"""
-
 test.write('SConstruct', """
 env = Environment()
 
@@ -50,7 +43,7 @@ env['BUILDERS']['Copy2'] = Builder(action=copy2)
 env.Copy2('foo.out', 'foo.in')
 env.Copy1('foo.out.out', 'foo.out')
 
-SetBuildSignatureType('content')
+TargetSignatures('content')
 """)
 
 test.write('foo.in', 'foo.in')
@@ -59,12 +52,10 @@ test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
 copy2("foo.out", "foo.in")
 copy1("foo.out.out", "foo.out")
-"""),
-         stderr=warning%16)
+"""))
 
 test.run(arguments='foo.out.out',
-         stdout=test.wrap_stdout('scons: "foo.out.out" is up to date.\n'),
-         stderr=warning%16)
+         stdout=test.wrap_stdout('scons: "foo.out.out" is up to date.\n'))
 
 test.write('SConstruct', """
 env = Environment()
@@ -82,15 +73,14 @@ env['BUILDERS']['Copy2'] = Builder(action=copy2)
 env.Copy2('foo.out', 'foo.in')
 env.Copy1('foo.out.out', 'foo.out')
 
-SetBuildSignatureType('content')
+TargetSignatures('content')
 """)
 
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
 copy2("foo.out", "foo.in")
 scons: "foo.out.out" is up to date.
-"""),
-         stderr=warning%17)
+"""))
 
 test.write('SConstruct', """
 env = Environment()
@@ -108,14 +98,13 @@ env['BUILDERS']['Copy2'] = Builder(action=copy2)
 env.Copy2('foo.out', 'foo.in')
 env.Copy1('foo.out.out', 'foo.out')
 
-SetBuildSignatureType('build')
+TargetSignatures('build')
 """)
 
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
 copy1("foo.out.out", "foo.out")
-"""),
-         stderr=warning%17)
+"""))
 
 test.write('SConstruct', """
 env = Environment()
@@ -132,15 +121,14 @@ env['BUILDERS']['Copy2'] = Builder(action=copy2)
 env.Copy2('foo.out', 'foo.in')
 env.Copy1('foo.out.out', 'foo.out')
 
-SetBuildSignatureType('build')
+TargetSignatures('build')
 """)
 
 test.run(arguments='foo.out.out',
          stdout=test.wrap_stdout("""\
 copy2("foo.out", "foo.in")
 copy1("foo.out.out", "foo.out")
-"""),
-         stderr=warning%16)
+"""))
 
 
 test.pass_test()

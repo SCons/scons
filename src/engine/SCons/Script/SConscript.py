@@ -360,6 +360,12 @@ def GetLaunchDir():
     return launch_dir
 
 def SetBuildSignatureType(type):
+    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                        "The SetBuildSignatureType() function has been deprecated;\n" +\
+                        "\tuse the TargetSignatures() function instead.")
+    TargetSignatures(type)
+
+def TargetSignatures(type):
     import SCons.Sig
     if type == 'build':
         SCons.Sig.build_signature = 1
@@ -369,6 +375,12 @@ def SetBuildSignatureType(type):
         raise SCons.Errors.UserError, "Unknown build signature type '%s'"%type
 
 def SetContentSignatureType(type):
+    SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                        "The SetContentSignatureType() function has been deprecated;\n" +\
+                        "\tuse the SourceSignatures() function instead.")
+    SourceSignatures(type)
+
+def SourceSignatures(type):
     if type == 'MD5':
         import SCons.Sig.MD5
         SCons.Script.sig_module = SCons.Sig.MD5
@@ -500,9 +512,11 @@ def BuildDefaultGlobals():
     globals['SetJobs']           = SetJobs
     globals['SharedLibrary']     = SCons.Defaults.SharedLibrary
     globals['SharedObject']      = SCons.Defaults.SharedObject
+    globals['SourceSignatures']  = SourceSignatures
     globals['Split']             = SCons.Util.Split
     globals['StaticLibrary']     = SCons.Defaults.StaticLibrary
     globals['StaticObject']      = SCons.Defaults.StaticObject
+    globals['TargetSignatures']  = TargetSignatures
     globals['Tool']              = SCons.Tool.Tool
     globals['WhereIs']           = SCons.Util.WhereIs
     return globals

@@ -30,6 +30,10 @@ RELEASE 0.14 - XXX
   - Tool specifications no longer take a "platform" argument.
     XXX
 
+  - The SetBuildSignatureType() and SetContentSignatureType() functions
+    have been deprecated.  The new names are TargetSignatures() and
+    SourceSignatures().
+
   Please note the following important changes since release 0.11:
 
   - The default behavior of SCons is now to change to the directory in

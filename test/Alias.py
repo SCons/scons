@@ -126,7 +126,7 @@ test.run(arguments = 'f1.out',
 test.up_to_date(arguments = 'f1.out')
 
 test.write('SConstruct', """
-SetBuildSignatureType('content')
+TargetSignatures('content')
 B = Builder(action = r"%s build.py $TARGET $SOURCES")
 env = Environment()
 env['BUILDERS']['B'] = B
@@ -157,7 +157,7 @@ test.up_to_date(arguments = 'f1.out')
 
 test.write('SConstruct', """
 env=Environment()
-SetBuildSignatureType('content')
+TargetSignatures('content')
 env.Alias('C', 'D')
 env.Alias('B', 'C')
 env.Alias('A', 'B')
