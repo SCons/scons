@@ -23,13 +23,14 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import unittest
 
 import SCons.Tool.JavaCommon
 
 class parse_javaTestCase(unittest.TestCase):
 
-    def test_empty(self):
+    def test_bare_bones(self):
         """Test a bare-bones class"""
 
         pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
@@ -122,6 +123,49 @@ class Private {
                    'Private',
                  ]
         assert classes == expect, classes
+
+    def test_comments(self):
+        """Test a class with comments"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+package com.sub.foo;
+
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.RMISecurityManager;
+import java.rmi.server.UnicastRemoteObject;
+
+public class Example1 extends UnicastRemoteObject implements Hello {
+
+    public Example1() throws RemoteException {
+        super();
+    }
+
+    public String sayHello() {
+        return "Hello World!";
+    }
+
+    public static void main(String args[]) {
+        if (System.getSecurityManager() == null) {
+            System.setSecurityManager(new RMISecurityManager());
+        }
+        // a comment
+        try {
+            Example1 obj = new Example1();
+
+            Naming.rebind("//myhost/HelloServer", obj);
+
+            System.out.println("HelloServer bound in registry");
+        } catch (Exception e) {
+            System.out.println("Example1 err: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+""")
+
+        assert pkg_dir == 'com/sub/foo', pkg_dir
+        assert classes == ['Example1'], classes
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

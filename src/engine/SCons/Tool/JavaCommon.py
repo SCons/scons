@@ -42,12 +42,12 @@ if java_parsing:
     # This is a really cool parser from Charles Crain
     # that finds appropriate class names in Java source.
 
-    # A regular expression that will find, in a java file,
+    # A regular expression that will find, in a java file:  newlines;
     # any alphanumeric token (keyword, class name, specifier); open or
     # close brackets; a single-line comment "//"; the multi-line comment
     # begin and end tokens /* and */; single or double quotes; and
     # single or double quotes preceeded by a backslash.
-    _reToken = re.compile(r'(//[^\r\n]*|\\[\'"]|[\'"\{\}]|[A-Za-z_][\w\.]*|' +
+    _reToken = re.compile(r'(\n|//|\\[\'"]|[\'"\{\}]|[A-Za-z_][\w\.]*|' +
                           r'/\*|\*/)')
 
     class OuterState:
@@ -95,7 +95,7 @@ if java_parsing:
 
         def parseToken(self, token):
             if token[:2] == '//':
-                pass # ignore comment
+                return IgnoreState('\n', self)
             elif token == '/*':
                 return IgnoreState('*/', self)
             elif token == '{':
@@ -163,7 +163,9 @@ if java_parsing:
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
         def parseToken(self, token):
-            # the only token we get should be the name of the class.
+            # the next non-whitespace token should be the name of the class
+            if token == '\n':
+                return self
             self.outer_state.listClasses.append(token)
             return self.outer_state
 
