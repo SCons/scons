@@ -298,12 +298,10 @@ class ActionTestCase(unittest.TestCase):
             pass
 
         a1 = SCons.Action.Action("$FOO")
-        assert isinstance(a1, SCons.Action.CommandGeneratorAction), a1
-        assert isinstance(a1.generator, SCons.Action.LazyCmdGenerator), a1.generator
+        assert isinstance(a1, SCons.Action.LazyAction), a1
 
         a2 = SCons.Action.Action("$FOO", strfunction=foo)
-        assert isinstance(a2, SCons.Action.CommandGeneratorAction), a2
-        assert isinstance(a2.generator, SCons.Action.LazyCmdGenerator), a2.generator
+        assert isinstance(a2, SCons.Action.LazyAction), a2
 
     def test_no_action(self):
         """Test when the Action() factory can't create an action object
@@ -1468,16 +1466,16 @@ class LazyActionTestCase(unittest.TestCase):
     def test___init__(self):
         """Test creation of a lazy-evaluation Action
         """
-        # Environment variable references should create a special
-        # type of CommandGeneratorAction that lazily evaluates the
-        # variable.
+        # Environment variable references should create a special type
+        # of LazyAction that lazily evaluates the variable for whether
+        # it's a string or something else before doing anything.
         a9 = SCons.Action.Action('$FOO')
-        assert isinstance(a9, SCons.Action.CommandGeneratorAction), a9
-        assert a9.generator.var == 'FOO', a9.generator.var
+        assert isinstance(a9, SCons.Action.LazyAction), a9
+        assert a9.var == 'FOO', a9.var
 
         a10 = SCons.Action.Action('${FOO}')
-        assert isinstance(a9, SCons.Action.CommandGeneratorAction), a10
-        assert a10.generator.var == 'FOO', a10.generator.var
+        assert isinstance(a10, SCons.Action.LazyAction), a10
+        assert a10.var == 'FOO', a10.var
 
     def test_genstring(self):
         """Test the lazy-evaluation Action genstring() method
@@ -1487,6 +1485,8 @@ class LazyActionTestCase(unittest.TestCase):
         a = SCons.Action.Action('$BAR')
         s = a.genstring([], [], env=Environment(BAR=f, s=self))
         assert s == "f(target, source, env)", s
+        s = a.genstring([], [], env=Environment(BAR='xxx', s=self))
+        assert s == 'xxx', s
 
     def test_execute(self):
         """Test executing a lazy-evaluation Action
@@ -1498,6 +1498,10 @@ class LazyActionTestCase(unittest.TestCase):
         a = SCons.Action.Action('$BAR')
         a([], [], env=Environment(BAR = f, s = self))
         assert self.test == 1, self.test
+        cmd = r'%s %s %s lazy' % (python, act_py, outfile)
+        a([], [], env=Environment(BAR = cmd, s = self))
+        c = test.read(outfile, 'r')
+        assert c == "act.py: 'lazy'\n", c
 
     def test_get_contents(self):
         """Test fetching the contents of a lazy-evaluation Action

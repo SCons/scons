@@ -185,8 +185,7 @@ def _do_create_action(act, *args, **kw):
             # of that Environment variable, so a user could put something
             # like a function or a CommandGenerator in that variable
             # instead of a string.
-            lcg = LazyCmdGenerator(var)
-            return apply(CommandGeneratorAction, (lcg,)+args, kw)
+            return apply(LazyAction, (var,)+args, kw)
         commands = string.split(str(act), '\n')
         if len(commands) == 1:
             return apply(CommandAction, (commands[0],)+args, kw)
@@ -234,7 +233,7 @@ class ActionBase:
         # it may call LazyCmdGenerator, which looks up a key
         # in that env.  So we temporarily remember the env here,
         # and CommandGeneratorAction will use this env
-        # when it calls its __generate method.
+        # when it calls its _generate method.
         self.presub_env = env
         lines = string.split(str(self), '\n')
         self.presub_env = None      # don't need this any more
@@ -431,7 +430,7 @@ class CommandGeneratorAction(ActionBase):
         self.generator = generator
         self.gen_kw = kw
 
-    def __generate(self, target, source, env, for_signature):
+    def _generate(self, target, source, env, for_signature):
         # ensure that target is a list, to make it easier to write
         # generator functions:
         if not SCons.Util.is_List(target):
@@ -448,15 +447,15 @@ class CommandGeneratorAction(ActionBase):
             env = self.presub_env or {}
         except AttributeError:
             env = {}
-        act = self.__generate([], [], env, 1)
+        act = self._generate([], [], env, 1)
         return str(act)
 
     def genstring(self, target, source, env):
-        return self.__generate(target, source, env, 1).genstring(target, source, env)
+        return self._generate(target, source, env, 1).genstring(target, source, env)
 
     def __call__(self, target, source, env, errfunc=None, presub=_null,
                  show=_null, execute=_null, chdir=_null):
-        act = self.__generate(target, source, env, 0)
+        act = self._generate(target, source, env, 0)
         return act(target, source, env, errfunc, presub,
                    show, execute, chdir)
 
@@ -466,30 +465,55 @@ class CommandGeneratorAction(ActionBase):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        return self.__generate(target, source, env, 1).get_contents(target, source, env, dict=None)
+        return self._generate(target, source, env, 1).get_contents(target, source, env, dict=None)
 
-class LazyCmdGenerator:
-    """This is not really an Action, although it kind of looks like one.
-    This is really a simple callable class that acts as a command
-    generator.  It holds on to a key into an Environment dictionary,
-    then waits until execution time to see what type it is, then tries
-    to create an Action out of it."""
-    def __init__(self, var):
+# Ooh, polymorphism -- pretty scary, eh, kids?
+#
+# A LazyCmdAction is a kind of hybrid generator and command action for
+# strings of the form "$VAR".  These strings normally expand to other
+# strings (think "$CCCOM" to "$CC -c -o $TARGET $SOURCE"), but we also
+# want to be able to replace them with functions in the construction
+# environment.  Consequently, we want lazy evaluation and creation of
+# an Action in the case of the function, but that's overkill in the more
+# normal case of expansion to other strings.
+#
+# So we do this with a subclass that's both a generator *and*
+# a command action.  The overridden methods all do a quick check
+# of the construction variable, and if it's a string we just call
+# the corresponding CommandAction method to do the heavy lifting.
+# If not, then we call the same-named CommandGeneratorAction method.
+# The CommandGeneratorAction methods work by using the overridden
+# _generate() method, uses our own way of handling "generation" of an
+# action based on what's in the construction variable.
+
+class LazyAction(CommandGeneratorAction, CommandAction):
+    def __init__(self, var, *args, **kw):
         if __debug__: logInstanceCreation(self)
+        apply(CommandAction.__init__, (self, '$'+var)+args, kw)
         self.var = SCons.Util.to_String(var)
+        self.gen_kw = kw
 
-    def __str__(self):
-        return 'LazyCmdGenerator: %s'%str(self.var)
+    def get_parent_class(self, env):
+        c = env.get(self.var)
+        if SCons.Util.is_String(c) and not '\n' in c:
+            return CommandAction
+        return CommandGeneratorAction
 
-    def __call__(self, target, source, env, for_signature):
-        try:
-            return env[self.var]
-        except KeyError:
-            # The variable reference substitutes to nothing.
-            return ''
+    def _generate(self, target, source, env, for_signature):
+        c = env.get(self.var, '')
+        gen_cmd = apply(Action, (c,), self.gen_kw)
+        if not gen_cmd:
+            raise SCons.Errors.UserError("$%s value %s cannot be used to create an Action." % (self.var, repr(c)))
+        return gen_cmd
 
-    def __cmp__(self, other):
-        return cmp(self.__dict__, other)
+    def __call__(self, target, source, env, *args, **kw):
+        args = (self, target, source, env) + args
+        c = self.get_parent_class(env)
+        return apply(c.__call__, args, kw)
+
+    def get_contents(self, target, source, env, dict=None):
+        c = self.get_parent_class(env)
+        return c.get_contents(self, target, source, env, dict)
 
 class FunctionAction(_ActionAction):
     """Class for Python function actions."""
