@@ -80,6 +80,9 @@ RELEASE 0.XX - XXX
   - Allow the "prefix" and "suffix" attributes of a Builder to be
     callable objects that return generated strings.
 
+  - Support a MAXLINELINELENGTH construction variable on Win32 systems
+    to control when a temporary file is used for long command lines.
+
   From Gary Oberbrunner:
 
   - Report the target being built in error messages when building
@@ -94,6 +97,10 @@ RELEASE 0.XX - XXX
     to a previous change when checking whether a node is current.
 
   - Supply a stack trace if the Taskmaster catches an exception.
+
+  - When using a temporary file for a long link line on Win32 systems,
+    (also) print the command line that is being executed through the
+    temporary file.
 
   From Laurent Pelecq:
 

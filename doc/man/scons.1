@@ -2954,6 +2954,12 @@ General options passed to the M4 macro preprocessor.
 .IP M4COM
 The command line used to pass files through the macro preprocessor.
 
+.IP MAXLINELENGTH
+The maximum number of characters allowed on an external command line.
+On Win32 systems,
+link lines longer than this many characters
+are linke via a temporary file name.
+
 .IP MSVS
 When the Microsoft Visual Studio tools are initialized, they set up
 this dictionary with the following keys:

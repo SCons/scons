@@ -39,6 +39,9 @@ import sys
 import tempfile
 from SCons.Platform.posix import exitvalmap
 
+# XXX See note below about why importing SCons.Action should be
+# eventually refactored.
+import SCons.Action
 import SCons.Util
 
 class TempFileMunge:
@@ -55,9 +58,14 @@ class TempFileMunge:
         self.cmd = cmd
 
     def __call__(self, target, source, env, for_signature):
+        if for_signature:
+            return self.cmd
         cmd = env.subst_list(self.cmd, 0, target, source)[0]
-        if for_signature or \
-           (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= 2048:
+        try:
+            maxline = int(env.subst('$MAXLINELENGTH'))
+        except ValueError:
+            maxline = 2048
+        if (reduce(lambda x, y: x + len(y), cmd, 0) + len(cmd)) <= maxline:
             return self.cmd
         else:
             # In Cygwin, we want to use rm to delete the temporary file,
@@ -82,6 +90,24 @@ class TempFileMunge:
 
             args = map(SCons.Util.quote_spaces, cmd[1:])
             open(tmp, 'w').write(string.join(args, " ") + "\n")
+            # XXX Using the SCons.Action.print_actions value directly
+            # like this is bogus, but expedient.  This class should
+            # really be rewritten as an Action that defines the
+            # __call__() and strfunction() methods and lets the
+            # normal action-execution logic handle whether or not to
+            # print/execute the action.  The problem, though, is all
+            # of that is decided before we execute this method as
+            # part of expanding the $TEMPFILE construction variable.
+            # Consequently, refactoring this will have to wait until
+            # we get more flexible with allowing Actions to exist
+            # independently and get strung together arbitrarily like
+            # Ant tasks.  In the meantime, it's going to be more
+            # user-friendly to not let obsession with architectural
+            # purity get in the way of just being helpful, so we'll
+            # reach into SCons.Action directly.
+            if SCons.Action.print_actions:
+                print("Using tempfile "+native_tmp+" for command line:\n"+
+                      str(cmd[0]) + " " + string.join(args," "))
             return [ cmd[0], '@' + native_tmp + '\n' + rm, native_tmp ]
 
 # The upshot of all this is that, if you are using Python 1.5.2,
@@ -289,4 +315,5 @@ def generate(env):
     env['SPAWN']          = spawn
     env['SHELL']          = cmd_interp
     env['TEMPFILE']       = TempFileMunge
+    env['MAXLINELENGTH']  = 2048
     env['ESCAPE']         = escape
