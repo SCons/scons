@@ -1,0 +1,505 @@
+#! /usr/bin/env perl
+#
+# Copyright 2001 Steven Knight.  All rights reserved.  This program
+# is free software; you can redistribute and/or modify under the
+# same terms as Perl itself.
+#
+
+$revision = "src/ae2cvs.pl 0.D002 2001/10/03 09:36:49 software";
+
+use strict;
+use File::Find;
+use File::Spec;
+use Pod::Usage ();
+
+use vars qw( @add_list @args @cleanup @copy_list @libraries
+	     @mkdir_list @remove_list
+	     %seen_dir
+	     $ae_copy $aedir $aedist $cnum $commit $common $cvsmod
+	     $delta $description $exec $help $indent $infile
+	     $proj $pwd $quiet
+	     $summary $usedir $usepath );
+
+$aedist = 1;
+$exec = undef;
+$indent = "";
+
+{
+    use Getopt::Long;
+
+    Getopt::Long::Configure('no_ignore_case');
+
+    my $ret = GetOptions (
+	"aedist" => sub { $aedist = 1 },
+	"aegis" => sub { $aedist = 0 },
+	"change=i" => \$cnum,
+	"file=s" => \$infile,
+	"help|?" => \$help,
+	"library=s" => \@libraries,
+	"module=s" => \$cvsmod,
+	"noexecute" => sub { $exec = 0 },
+	"project=s" => \$proj,
+	"quiet" => \$quiet,
+	"usedir=s" => \$usedir,
+	"x|execute" => sub { $exec++ if ! defined $exec || $exec != 0 },
+	"X|EXECUTE" => sub { $exec = 2 if ! defined $exec || $exec != 0 },
+    );
+
+    Pod::Usage::pod2usage(-verbose => 0) if $help || ! $ret;
+
+    $exec = 0 if ! defined $exec;
+}
+
+#
+# Wrap up the $quiet logic in one place.
+#
+sub printit {
+    return if $quiet;
+    my $string = join('', @_);
+    $string =~ s/^/$indent/msg if $indent;
+    print $string;
+}
+
+#
+# Wrappers for executing various builtin Perl functions in
+# accordance with the -n, -q and -x options.
+#
+sub execute {
+    my $cmd = shift;
+    printit "$cmd\n";
+    if (! $exec) {
+	return 1;
+    }
+    ! system($cmd);
+}
+
+sub _copy {
+    my ($source, $dest) = @_;
+    printit "cp $source $dest\n";
+    if ($exec) {
+	use File::Copy;
+	copy($source, $dest);
+    }
+}
+
+sub _chdir {
+    my $dir = shift;
+    printit "cd $dir\n";
+    if ($exec) {
+	chdir($dir) || die "ae2cvs:  could not chdir($dir): $!";
+    }
+}
+
+sub _mkdir {
+    my $dir = shift;
+    printit "mkdir $dir\n";
+    if ($exec) {
+	mkdir($dir);
+    }
+}
+
+#
+# Put some input data through an external filter and capture the output.
+#
+sub filter {
+    my ($cmd, $input) = @_;
+
+    use FileHandle;
+    use IPC::Open2;
+
+    my $pid = open2(*READ, *WRITE, $cmd) || die "Cannot exec '$cmd':  $!\n";
+    print WRITE $input;
+    close(WRITE);
+    my $output = join('', <READ>);
+    close(READ);
+    return $output;
+}
+
+#
+#
+#
+$pwd = Cwd::cwd();
+
+#
+# Fetch the file list either from our aedist input
+# or directly from the project itself.
+#
+my @filelines;
+if ($aedist) {
+    local ($/);
+    undef $/;
+    my $infile_redir = "";
+    my $contents;
+    if (! $infile || $infile eq "-") {
+	$contents = join('', <STDIN>);
+    } else {
+	open(FILE, "<$infile") || die "Cannot open '$infile': $!\n";
+	binmode(FILE);
+	$contents = join('', <FILE>);
+	close(FILE);
+	if (! File::Spec->file_name_is_absolute($infile)) {
+	    $infile = File::Spec->catfile($pwd, $infile);
+	}
+	$infile_redir = " < $infile";
+    }
+
+    my $output = filter("aedist -l -unf", $contents);
+
+    my $filesection;
+    if (! defined $proj) {
+	($proj = $output) =~ s/PROJECT\n([^\n]*)\n.*/$1/ms;
+    }
+    ($summary = $output) =~ s/.*\nSUMMARY\n([^\n]*)\n.*/$1/ms;
+    ($description = $output) =~ s/.*\nDESCRIPTION\n([^\n]*)\nCAUSE\n.*/$1/ms;
+    ($filesection = $output) =~ s/.*\nFILES\n//ms;
+    @filelines = split(/\n/, $filesection);
+
+    if (! $exec) {
+	printit qq(MYTMP="/tmp/ae2cvs-ae.\$\$"\n),
+		qq(mkdir \$MYTMP\n),
+		qq(cd \$MYTMP\n);
+	printit q(perl -MMIME::Base64 -e 'undef $/; ($c = <>) =~ s/.*\n\n//ms; print decode_base64($c)'),
+		$infile_redir,
+		qq( | zcat),
+		qq( | cpio -i -d --quiet\n);
+	$aedir = '$MYTMP';
+	push(@cleanup, $aedir);
+    } else {
+	$aedir = File::Spec->catfile(File::Spec->tmpdir, "ae2cvs-ae.$$");
+	_mkdir($aedir);
+	push(@cleanup, $aedir);
+	_chdir($aedir);
+
+	use MIME::Base64;
+
+	$contents =~ s/.*\n\n//ms;
+	$contents = filter("zcat", decode_base64($contents));
+
+	open(CPIO, "|cpio -i -d --quiet");
+	print CPIO $contents;
+	close(CPIO);
+    }
+
+    $ae_copy = sub {
+	my $dest = shift;
+	my $source = File::Spec->catfile($aedir, "src", $dest);
+	execute(qq(cp $source $dest));
+    }
+} else {
+    $cnum = $ENV{AEGIS_CHANGE} if ! defined $cnum;
+    $proj = $ENV{AEGIS_PROJECT} if ! defined $proj;
+
+    $common = "-lib " . join(" -lib ", @libraries) if @libraries;
+    $common = "$common -proj $proj" if $proj;
+
+    foreach (`aegis -l ph -unf $common`) {
+	chomp;
+	if (/^(\d+) .{24} $cnum\s*(.*)/) {
+	    $delta = $1;
+	    $summary = $2;
+	    last;
+	}
+    }
+    if (! $delta) {
+	print STDERR "ae2cvs:  No change $cnum for project $proj.\n";
+	exit 1;
+    }
+
+    @filelines = `aegis -l cf -unf -c $cnum $common`;
+
+    $ae_copy = sub {
+	my $file = shift;
+	execute(qq(aegis -cp -ind -delta $delta $common $file));
+    }
+}
+
+if (! $usedir) {
+    $usedir = File::Spec->catfile(File::Spec->tmpdir, "ae2cvs.$$");
+    _mkdir($usedir);
+    push(@cleanup, $usedir);
+}
+
+_chdir($usedir);
+
+$usepath = $usedir;
+if (! File::Spec->file_name_is_absolute($usepath)) {
+    $usepath = File::Spec->catfile($pwd, $usepath);
+}
+
+if (! -d File::Spec->catfile($usedir, "CVS")) {
+    $cvsmod = (split(/\./, $proj))[0] if ! defined $cvsmod;
+
+    execute(qq(cvs -Q co $cvsmod));
+
+    _chdir($cvsmod);
+
+    $usepath = File::Spec->catfile($usepath, $cvsmod);
+}
+
+#
+# Figure out what we have to do to accomplish everything.
+#
+foreach (@filelines) {
+    my @arr = split(/\s+/, $_);
+    my $type = shift @arr;	# source / test
+    my $act = shift @arr;	# modify / create
+    my $file = pop @arr;
+
+    if ($act eq "create" or $act eq "modify") {
+	# XXX Do we really only need to do this for
+	#     ($act eq "create") files?
+	my (undef, $dirs, undef) = File::Spec->splitpath($file);
+	my $absdir = $usepath;
+	my $reldir;
+	my $d;
+	foreach $d (File::Spec->splitdir($dirs)) {
+	    next if ! $d;
+	    $absdir = File::Spec->catdir($absdir, $d);
+	    $reldir = $reldir ? File::Spec->catdir($reldir, $d) : $d;
+	    if (! -d $absdir && ! $seen_dir{$reldir}) {
+		$seen_dir{$reldir} = 1;
+		push(@mkdir_list, $reldir);
+	    }
+	}
+
+	push(@copy_list, $file);
+
+	if ($act eq "create") {
+	    push(@add_list, $file);
+	}
+    } elsif ($act eq "remove") {
+	push(@remove_list, $file);
+    } else {
+	print STDERR "Unsure how to '$act' the '$file' file.\n";
+    }
+}
+
+# Now go through and mkdir() the directories,
+# adding them to the CVS tree as we do.
+if (@mkdir_list) {
+    if (! $exec) {
+	printit qq(# The following "mkdir" and "cvs -Q add" calls are not\n),
+		qq(# necessary for any directories that already exist in the\n),
+		qq(# CVS tree but which aren't present locally.\n);
+    }
+    foreach (@mkdir_list) {
+	if (! $exec) {
+	    printit qq(if test ! -d $_; then\n);
+	    $indent = "  ";
+	}
+	_mkdir($_);
+	execute(qq(cvs -Q add $_));
+	if (! $exec) {
+	    $indent = "";
+	    printit qq(fi\n);
+	}
+    }
+    if (! $exec) {
+	printit qq(# End of directory creation.\n);
+    }
+}
+
+# Copy in any files in the change, before we try to "cvs add" them.
+for (@copy_list) {
+    $ae_copy->($_);
+}
+
+if (@add_list) {
+    execute(qq(cvs -Q add @add_list));
+}
+
+if (@remove_list) {
+    execute(qq(rm -f @remove_list));
+    execute(qq(cvs -Q remove @remove_list));
+}
+
+# Last, commit the whole bunch.
+$commit = qq(cvs -Q commit -m "$summary" .);
+if ($exec == 1) {
+    printit qq(# Execute the following to commit the changes:\n),
+	    qq(# $commit\n);
+} else {
+    execute($commit);
+}
+
+_chdir($pwd);
+
+#
+# Directory cleanup.
+#
+sub END {
+    my $dir;
+    foreach $dir (@cleanup) {
+	printit "rm -rf $dir\n";
+	if ($exec) {
+	    finddepth(sub {
+		# print STDERR "unlink($_)\n" if (!-d $_);
+		# print STDERR "rmdir($_)\n" if (-d $_ && $_ ne ".");
+		unlink($_) if (!-d $_);
+		rmdir($_) if (-d $_ && $_ ne ".");
+		1;
+	    }, $dir);
+	    rmdir($dir) || print STDERR "Could not remove $dir:  $!\n";
+	}
+    }
+}
+
+__END__;
+
+=head1 NAME
+
+ae2cvs - convert an Aegis change set to CVS commands
+
+=head1 SYNOPSIS
+
+ae2cvs [-aedist|-aegis] [-c change] [-f file] [-l lib]
+	[-m module] [-n] [-p proj] [-q] [-u dir] [-x] [-X]
+
+	-aedist		use aedist format from input (default)
+	-aegis		query aegis repository directly
+	-c change	change number
+	-f file		read aedist from file ('-' == stdin)
+	-l lib		Aegis library directory
+	-m module	CVS module
+	-n		no execute
+	-p proj		project name
+	-q		quiet, don't print commands
+	-u dir		use dir for CVS checkin
+	-x		execute the commands, but don't commit;
+			two or more -x options commit changes
+	-X		execute the commands and commit changes
+
+=head1 DESCRIPTION
+
+The C<ae2cvs> utility can convert an Aegis change into a set of CVS (and
+other) commands to make the corresponding change(s) to a carbon-copy CVS
+repository.  This can be used to keep a front-end CVS repository in sync
+with changes made to an Aegis project, either manually or automatically
+using the C<integrate_pass_notify_command> attribute of the Aegis
+project.
+
+By default, C<ae2cvs> makes no changes to any software, and only prints
+out the necessary commands.  These commands can be examined first for
+safety, and then fed to any Bourne shell variant (sh, ksh, or bash) to
+make the actual CVS changes.
+
+An option exists to have C<ae2cvs> execute the commands directly.
+
+=head1 OPTIONS
+
+The C<ae2cvs> utility supports the following options:
+
+=over 4
+
+=item -aedist
+
+Reads an aedist change set.
+By default, the change set is read from standard input,
+or a file specified with the C<-f> option.
+
+=item -aegis
+
+Reads the change directly from the Aegis repository
+by executing the proper C<aegis> commands.
+
+=item -c change
+
+Specify the Aegis change number to be used.
+The value of the C<AEGIS_CHANGE> environment variable
+is used by default.
+
+=item -f file
+
+Reads the aedist change set from the specified C<file>,
+or from standard input if C<file> is C<'-'>.
+
+=item -l lib
+
+Specifies an Aegis library directory to be searched for global states
+files and user state files.
+
+=item -m module
+
+Specifies the name of the CVS module to be brought up-to-date.
+The default is to use the Aegis project name,
+minus any branch numbers;
+for example, given an Aegis project name of C<foo-cmd.0.1>,
+the default CVS module name is C<foo-cmd>.
+
+=item -n
+
+No execute.  Commands are printed (including a command for a final
+commit of changes), but not executed.  This is the default.
+
+=item -p proj
+
+Specifies the name of the Aegis project from which this change is taken.
+The value of the C<AEGIS_PROJECT> environment variable
+is used by default.
+
+=item -q
+
+Quiet.  Commands are not printed.
+
+=item -u dir
+
+Use the already checked-out CVS tree that exists at C<dir>
+for the checkins and commits.
+The default is to use a separately-created temporary directory.
+
+=item -x
+
+Execute the commands to bring the CVS repository up to date,
+except for the final commit of the changes.  Two or more
+C<-x> options will cause the change to be committed.
+
+=item -X
+
+Execute the commands to bring the CVS repository up to date,
+including the final commit of the changes.
+
+=back
+
+=head1 ENVIRONMENT VARIABLES
+
+=over 4
+
+=item AE2CVS_FLAGS
+
+Specifies any options to be used to initialize
+the C<ae2cvs> utility.
+Options on the command line override these values.
+
+=back
+
+=head1 AUTHOR
+
+Steven Knight (knight at baldmt dot com)
+
+=head1 BUGS
+
+If errors occur during the execution of the Aegis or CVS commands, and
+the -X option is used, a partial change (consisting of those files for
+which the command(s) succeeded) will be committed.  It would be safer to
+generate code to detect the error and print a warning.
+
+When a file has been deleted in Aegis, the standard whiteout file can
+cause a regex failure in this script.  It doesn't necessarily happen all
+the time, though, so this needs more investigation.
+
+=head1 TODO
+
+Add support for the CVS -d option to allow use of a specified
+CVS repository.
+
+Add an explicit test for using ae2cvs in the Aegis
+integrate_pass_notify_command field to support fully keeping a
+repository in sync automatically.
+
+=head1 COPYRIGHT
+
+Copyright 2001 Steven Knight.
+
+=head1 SEE ALSO
+
+aegis(1), cvs(1)

@@ -31,7 +31,7 @@ Handling a change set:
     --	Distribute the change to scons-aedist:
 
 		aedist -s -p scons.0.1 {cnum} > scons.0.1.C{cnum}.ae
-		pine -attach scons.0.1C{cnum}.ae scons-aedist@lists.sourceforge.net
+		pine -attach scons.0.1.C{cnum}.ae scons-aedist@lists.sourceforge.net
 			Subject: scons.0.1 - {SUMMARY}
 			Body:  aegis -l -p scons.0.1 -c {cnum} cd
 
@@ -51,6 +51,9 @@ Handling a change set:
 
 		export CVS_RSH=ssh
     		ae2cvs -n -aegis -p scons.0.1 -c {cnum} -u ~/SCons/scons
-    		ae2cvs -x -aegis -p scons.0.1 -c {cnum} -u ~/SCons/scons
+    		ae2cvs -X -aegis -p scons.0.1 -c {cnum} -u ~/SCons/scons
+
+        If you need the "ae2cvs" Perl script, you can find a copy
+        checked in to the bin/subdirectory.
 
 	[This may eventually be automated.]
