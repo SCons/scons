@@ -43,7 +43,7 @@ dll_ = TestSCons.dll_
 _dll = TestSCons._dll
 _shobj = TestSCons._shobj
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
 
 test.subdir( 'qt', ['qt', 'bin'], ['qt', 'include'], ['qt', 'lib'] )
 
@@ -126,7 +126,8 @@ env = Environment()
 env.StaticLibrary( 'myqt', 'my_qobject.cpp' )
 """)
 
-test.run(chdir=test.workpath('qt','lib'), arguments = '.')
+test.run(chdir=test.workpath('qt','lib'), arguments = '.',
+         stderr=TestSCons.noisy_ar)
 
 QT = test.workpath('qt')
 QT_LIB = 'myqt'
@@ -310,7 +311,7 @@ void useit() {
 }
 """)
 
-test.run(chdir='work3', arguments = lib_aaa)
+test.run(chdir='work3', arguments = lib_aaa, stderr=TestSCons.noisy_ar)
 test.up_to_date(chdir='work3', options = '-n', arguments = lib_aaa)
 test.write(['work3', 'aaa.cpp'], r"""
 #include "my_qobject.h"
@@ -322,7 +323,8 @@ test.not_up_to_date(chdir='work3', options = '-n', arguments = moc)
 
 test.run(chdir='work3',
          arguments = "build_dir=1 " +
-                     test.workpath('work3', 'build', lib_aaa) )
+                     test.workpath('work3', 'build', lib_aaa),
+         stderr=TestSCons.noisy_ar )
 test.run(chdir='work3',
          arguments = "build_dir=1 chdir=1 " +
                      test.workpath('work3', 'build', lib_aaa) )

@@ -33,7 +33,7 @@ _exe = TestSCons._exe
 _dll = TestSCons._dll
 dll_ = TestSCons.dll_
     
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
 
 test.subdir('lib1', 'lib2')
 
@@ -86,7 +86,7 @@ main(int argc, char *argv[])
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments = '.', stderr=TestSCons.noisy_ar)
 
 test.run(program = prog1,
          stdout = "f1.c\nprog.c\n")
@@ -107,7 +107,7 @@ f1(void)
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments = '.', stderr=TestSCons.noisy_ar)
 test.run(program = prog1,
          stdout = "f1.c 1\nprog.c\n")
 test.fail_test(oldtime2 == os.path.getmtime(prog2))
@@ -138,7 +138,7 @@ f1(void)
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments = '.', stderr=TestSCons.noisy_ar)
 test.run(program = prog1,
          stdout = "f1.c 2\nprog.c\n")
 
@@ -154,6 +154,6 @@ env = Environment(LIBPATH = '')
 env.Library('foo', source = 'empty.c')
 """)
 
-test.run(arguments = '.')
+test.run(arguments = '.', stderr=TestSCons.noisy_ar)
 
 test.pass_test()

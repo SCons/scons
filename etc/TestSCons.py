@@ -208,3 +208,14 @@ class TestSCons(TestCommon):
         self.match_func = match_re_dotall
         apply(self.run, [], kw)
         self.match_func = old_match_func
+
+# In some environments, $AR will generate a warning message to stderr
+# if the library doesn't previously exist and is being created.  One
+# way to fix this is to tell AR to be quiet (sometimes the 'c' flag),
+# but this is difficult to do in a platform-/implementation-specific
+# method.  Instead, we will use the following as a stderr match for
+# tests that use AR so that we will view zero or more "ar: creating
+# <file>" messages to be successful executions of the test (see
+# test/AR.py for sample usage).
+
+noisy_ar=r'(ar: creating \S+\n?)*'

@@ -34,7 +34,7 @@ else:
     _exe = ''
     bar_lib = 'libbar.a'
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match=TestSCons.match_re_dotall)
 
 test.subdir('sub1', 'sub2')
 
@@ -145,11 +145,11 @@ SConscript('sub1/SConscript', 'env')
 SConscript('sub2/SConscript', 'env')
 """)
 
-test.run(arguments = '.', stderr=None)
 
 # on IRIX, ld32 prints out a warning saying that libbaz.a isn't used
 sw = 'ld32: WARNING 84 : ./libbaz.a is not used for resolving any symbol.\n'
-test.fail_test(not test.stderr() in ['', sw])
+test.run(arguments = '.', stderr='(%s|%s'%(sw, TestSCons.noisy_ar[1:]))
+#test.fail_test(not test.stderr() in ['', sw])
 
 test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
@@ -174,8 +174,8 @@ void baz()
 }
 """)
 
-test.run(arguments = '.', stderr=None)
-test.fail_test(not test.stderr() in ['', sw])
+test.run(arguments = '.', stderr='(%s|%s'%(sw, TestSCons.noisy_ar[1:]))
+#test.fail_test(not test.stderr() in ['', sw, TestSCons.noisy_ar])
 
 test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c 2\n')
 
@@ -251,7 +251,7 @@ int DisplayMessage2 (void)
 }
 """)
 
-test.run(arguments = '.')
+test.run(arguments = '.', stderr=TestSCons.noisy_ar)
 
 test.run(program=blender_exe,
          stdout='src/component1/message.c\nsrc/component2/hello.c\n')

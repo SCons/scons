@@ -162,7 +162,11 @@ RELEASE 0.96 - XXX
 
   From Kevin Quick:
 
+  - Handling SCons exceptions according to Pythonic standards.
+
   - Fix test/chained-build.py on systems that execute within one second.
+
+  - Fix tests on systems where 'ar' warns about archive creation.
 
   From Anthony Roach:
 
