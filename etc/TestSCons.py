@@ -165,18 +165,20 @@ class TestSCons(TestCommon):
             return None
         return env.Detect([prog])
 
-    def wrap_stdout(self, build_str = "", read_str = "", error = 0):
+    def wrap_stdout(self, build_str = "", read_str = "", error = 0, cleaning = 0):
         """Wraps standard output string(s) in the normal
         "Reading ... done" and "Building ... done" strings
         """
+        cap,lc = [ ('Build','build'),
+                   ('Clean','clean') ][cleaning]
         if error:
-            term = "scons: building terminated because of errors.\n"
+            term = "scons: %sing terminated because of errors.\n" % lc
         else:
-            term = "scons: done building targets.\n"
+            term = "scons: done %sing targets.\n" % lc
         return "scons: Reading SConscript files ...\n" + \
                read_str + \
                "scons: done reading SConscript files.\n" + \
-               "scons: Building targets ...\n" + \
+               "scons: %sing targets ...\n" % cap + \
                build_str + \
                term
 

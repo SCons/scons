@@ -125,14 +125,7 @@ test.write('f1.out', "X1.out\n")
 test.run(arguments = '-n f1.out', stdout = expect)
 test.run(arguments = '-n f1.out', stdout = expect)
 
-def wrap_clean_stdout(string):
-    return "scons: Reading SConscript files ...\n" + \
-           "scons: done reading SConscript files.\n" + \
-           "scons: Cleaning targets ...\n" + \
-           string + \
-           "scons: done cleaning targets.\n"
-
-expect = wrap_clean_stdout("Removed f1.out\nRemoved f2.out\n")
+expect = test.wrap_stdout("Removed f1.out\nRemoved f2.out\n", cleaning=1)
 
 test.run(arguments = '-n -c ' + args, stdout = expect)
 
