@@ -870,6 +870,139 @@ cc -c -o foo foo.c bar.c
 
 .\" XXX document how to add user defined scanners. 
 
+.SH EXAMPLES
+
+To help you get started using SCons
+(in lieu of a complete user guide),
+here is a
+brief overview of how to perform some common tasks:
+
+.SS Basic Compilation From a Single Source File
+
+.RS
+.nf
+env = Environment()
+env.Program(target = 'foo', source = 'foo.c')
+.RE
+.fi
+
+.SS Basic Compilation From Multiple Source Files
+
+.RS
+.nf
+env = Environment()
+env.Program(target = 'foo', source = 'f1.c f2.c f3.c')
+.RE
+.fi
+
+.SS Setting a Compilation Flag
+
+.RS
+.nf
+env = Environment(CCFLAGS = '-g')
+env.Program(target = 'foo', source = 'foo.c')
+.RE
+.fi
+
+.SS Search The Local Directory For .h Files
+
+Note:  You do
+.I not
+need to specify -I options by hand.
+SCons will construct the right -I options from CPPPATH.
+
+.RS
+.nf
+env = Environment(CPPPATH = ['.'])
+env.Program(target = 'foo', source = 'foo.c')
+.RE
+.fi
+
+.SS Search Multiple Directories For .h Files
+
+.RS
+.nf
+env = Environment(CPPPATH = ['include1', 'include2'])
+env.Program(target = 'foo', source = 'foo.c')
+.RE
+.fi
+
+.SS Defining Your Own Builder Object
+
+You
+.I must
+specify a "name" keyword argument for the builder,
+as that becomes the Environment method name
+you use to call the builder.
+Notice also that you can leave off the suffixes,
+and the builder will add them automatically.
+
+.RS
+.nf
+bld = Builder(name = 'PDFBuilder',
+              action = 'pdftex < $SOURCES > $TARGET'
+              suffix = '.pdf',
+              src_suffix = '.tex')
+env = Environment(BUILDERS = [bld])
+env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
+
+# The following creates "bar.bdf" from "bar.text"
+env.PDFBuilder(target = 'bar', source = 'bar')
+.RE
+.fi
+
+.SS Creating a Hierarchical Build
+
+Notice that the file names specified in a subdirectory
+are relative to that subdirectory.
+
+.RS
+.nf
+SConstruct:
+
+    env = Environment()
+    env.Program(target = 'foo', source = 'foo.c')
+
+    SConscript('sub/SConscript')
+
+sub/SConscript:
+
+    env = Environment()
+    # Builds sub/foo from sub/foo.c
+    env.Program(target = 'foo', source = 'foo.c')
+
+    SConscript('dir/SConscript')
+
+sub/dir/SConscript:
+
+    env = Environment()
+    # Builds sub/dir/foo from sub/dir/foo.c
+    env.Program(target = 'foo', source = 'foo.c')
+.RE
+.fi
+
+.SS Sharing Variables Between SConscript Files
+
+You must explicitly Export() and Import() variables that
+you want to share between SConscript files.
+
+.RS
+.nf
+SConstruct:
+
+    env = Environment()
+    env.Program(target = 'foo', source = 'foo.c')
+
+    Export("env")
+    SConscript('subdirectory/SConscript')
+
+subdirectory/SConscript:
+
+    Import("env")
+    env.Program(target = 'foo', source = 'foo.c')
+.RE
+.fi
+
 .SH ENVIRONMENT
 
 .IP SCONS_LIB_DIR
