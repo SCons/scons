@@ -147,12 +147,7 @@ class ThreadPool:
 
     def __init__(self, num):
         """Create the request and reply queues, and 'num' worker threads."""
-        # Ideally we wouldn't have to artificially limit the number of
-        # tasks that can be posted to the request queue.  But this can
-        # result in a large number of pending tasks, which at the time
-        # of this writing causes the taskmaster's next_task method to
-        # take a very long time.
-        self.requestQueue = Queue.Queue(num)
+        self.requestQueue = Queue.Queue()
         self.resultsQueue = Queue.Queue()
 
         # Create worker threads
@@ -200,6 +195,9 @@ class Parallel:
         self.taskmaster = taskmaster
         self.tp = ThreadPool(num)
 
+        self.jobs = 0
+        self.maxjobs = num
+
     def start(self):
         """Start the job. This will begin pulling tasks from the
         taskmaster and executing them, and return when there are no
@@ -207,31 +205,34 @@ class Parallel:
         an exception), then the job will stop."""
 
         while 1:
-            task = self.taskmaster.next_task()
-            if task is None:
-                break
+            if self.jobs < self.maxjobs:
+                task = self.taskmaster.next_task()
+                if task is None:
+                    break
 
-            # prepare task for execution
-            try:
-                task.prepare()
-            except KeyboardInterrupt:
-                raise
-            except:
-                # Let the failed() callback function arrange for the
-                # build to stop if that's appropriate.
-                task.failed()
+                # prepare task for execution
+                try:
+                    task.prepare()
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    # Let the failed() callback function arrange for the
+                    # build to stop if that's appropriate.
+                    task.failed()
 
-            # dispatch task
-            self.tp.put(task)
+                # dispatch task
+                self.tp.put(task)
+                self.jobs = self.jobs + 1
 
             while 1:
                 try:
                     task, ok = self.tp.get_nowait()
                 except Queue.Empty:
-                    if not self.taskmaster.is_blocked():
+                    if not (self.jobs is self.maxjobs or self.taskmaster.is_blocked()):
                         break
                     task, ok = self.tp.get()
 
+                self.jobs = self.jobs - 1
                 if ok:
                     task.executed()
                 else:

@@ -535,6 +535,16 @@ class TaskmasterTestCase(unittest.TestCase):
         assert built_text == "MyTM.stop()"
         assert tm.next_task() is None
 
+    def test_failed(self):
+        """Test when a task has failed
+        """
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster([n1])
+        t = tm.next_task()
+        assert tm.executing == [n1], tm.executing
+        tm.failed(n1)
+        assert tm.executing == [], tm.executing
+
     def test_executed(self):
         """Test when a task has been executed
         """

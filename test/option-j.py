@@ -29,6 +29,7 @@ SConscript settable option.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os.path
 import string
 import sys
 import TestSCons
@@ -75,7 +76,9 @@ def copyn(env, target, source):
     for t in target:
         shutil.copy(str(source[0]), str(t))
 
-t = env.Command(target=['foo/foo1.out', 'foo/foo2.out'], source='foo/foo.in', action=copyn)
+t = env.Command(target=['foo/foo1.out', 'foo/foo2.out'],
+                source='foo/foo.in',
+                action=copyn)
 env.Install('out', t)
 """ % python)
 
@@ -114,8 +117,12 @@ start2, finish1 = RunTest('f1 f2', "second")
 test.fail_test(start2 < finish1)
 
 # Make sure that a parallel build using a list builder
-# succeedes.
+# succeeds.
 test.run(arguments='-j 2 out')
+
+
+# Test that a failed build with -j works properly.
+
 
 # Test SetJobs() with no -j:
 test.write('SConstruct', """
@@ -174,5 +181,42 @@ start2, finish1 = RunTest('-j 1 f1 f2', "fourth")
 test.fail_test(start2 < finish1)
 
 
+# Test that a failed build with -j works properly.
+
+test.write('copy.py', r"""\
+import sys
+import time
+time.sleep(1)
+open(sys.argv[1], 'w').write(open(sys.argv[2], 'r').read())
+""")
+
+test.write('fail.py', r"""\
+import sys
+sys.exit(1)
+""")
+
+test.write('SConstruct', """
+MyCopy = Builder(action = r'%s copy.py $TARGET $SOURCE')
+Fail = Builder(action = r'%s fail.py $TARGETS $SOURCE')
+env = Environment(BUILDERS = { 'MyCopy' : MyCopy, 'Fail' : Fail })
+env.Fail(target = 'f3', source = 'f3.in')
+env.MyCopy(target = 'f4', source = 'f4.in')
+env.MyCopy(target = 'f5', source = 'f5.in')
+env.MyCopy(target = 'f6', source = 'f6.in')
+""" % (python, python))
+
+test.write('f3.in', "f3.in\n")
+test.write('f4.in', "f4.in\n")
+test.write('f5.in', "f5.in\n")
+test.write('f6.in', "f6.in\n")
+
+test.run(arguments = '-j 2 .',
+         status = 2,
+         stderr = "scons: *** [f3] Error 1\n")
+
+test.fail_test(os.path.exists(test.workpath('f3')))
+test.fail_test(test.read(test.workpath('f4')) != 'f4.in\n')
+test.fail_test(os.path.exists(test.workpath('f5'))) 
+test.fail_test(os.path.exists(test.workpath('f6'))) 
+
 test.pass_test()
- 

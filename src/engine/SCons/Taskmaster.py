@@ -140,6 +140,7 @@ class Task:
         """Explicit stop-the-build failure."""
         for t in self.targets:
             t.set_state(SCons.Node.failed)
+        self.tm.failed(self.node)
         self.tm.stop()
 
     def fail_continue(self):
@@ -365,6 +366,16 @@ class Taskmaster:
         self.candidates = []
         self.ready = None
         self.pending = []
+
+    def failed(self, node):
+        try:
+            tlist = node.builder.targets(node)
+        except AttributeError:
+            tlist = [node]
+        for t in tlist:
+            self.executing.remove(t)
+        for side_effect in node.side_effects:
+            self.executing.remove(side_effect)
 
     def executed(self, node):
         try:
