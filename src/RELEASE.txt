@@ -58,6 +58,21 @@ RELEASE 0.97 - XXX
         or /usr/local was passed as the source to a Builder or Command()
         call, in which case SCons would scan the entire directory tree.
 
+    --  SIGNATURE CHANGES WILL CAUSE LIKELY REBUILDS AFTER UPGRADE
+
+        This release adds several changes to the signature mechanism that
+        will cause SCons to rebuild most configurations after upgrading
+        (and if switching back from 0.97 to an earlier release).
+        These changes are:
+
+          --  NORMALIZED PATHS IN SConsignFile() DATABASES ON WINDOWS
+
+              When using an SConsignFile() database, instead of individual
+              .sconsign files in each directory, the path names are
+              stored in normalized form with / (forward slash) separating
+              the elements.  This may cause rebuilds on Windows systems
+              with hierarchical configurations.
+
     --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
 
         The Configure() subsystem now stores its cached results in a

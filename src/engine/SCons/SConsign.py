@@ -32,6 +32,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import cPickle
 import os
 import os.path
+import string
 import time
 
 import SCons.Node
@@ -41,7 +42,14 @@ import SCons.Warnings
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
+# Handle to open database object if using the DB SConsign implementation.
 database = None
+
+if os.sep == '/':
+    norm_entry = lambda s: s
+else:
+    def norm_entry(str):
+        return string.replace(str, os.sep, '/')
 
 def write():
     global sig_files
@@ -98,7 +106,7 @@ class DB(Base):
 
         try:
             global database
-            rawentries = database[self.dir.path]
+            rawentries = database[norm_entry(self.dir.path)]
         except KeyError:
             pass
         else:
@@ -119,7 +127,7 @@ class DB(Base):
     def write(self, sync=1):
         if self.dirty:
             global database
-            database[self.dir.path] = cPickle.dumps(self.entries, 1)
+            database[norm_entry(self.dir.path)] = cPickle.dumps(self.entries, 1)
             if sync:
                 try:
                     syncmethod = database.sync
