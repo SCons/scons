@@ -69,19 +69,26 @@ class ToolSpec:
 def Tool(name, toolpath=[], **kw):
     "Select a canned Tool specification, optionally searching in toolpath."
 
+    oldpythonpath = sys.path
+    sys.path = toolpath + sys.path
+
     try:
-        file, path, desc = imp.find_module(name, toolpath)
         try:
-            module = imp.load_module(name, file, path, desc)
-            spec = apply(ToolSpec, (name,), kw)
-            spec.generate = module.generate
-            spec.exists = module.exists
-            return spec
-        finally:
-            if file:
-                file.close()
-    except ImportError, e:
-        pass
+            file, path, desc = imp.find_module(name, toolpath)
+            try:
+                module = imp.load_module(name, file, path, desc)
+                spec = apply(ToolSpec, (name,), kw)
+                spec.generate = module.generate
+                spec.exists = module.exists
+                return spec
+            finally:
+                if file:
+                    file.close()
+        except ImportError, e:
+            pass
+    finally:
+        sys.path = oldpythonpath
+
     
     full_name = 'SCons.Tool.' + name
     if not sys.modules.has_key(full_name):
