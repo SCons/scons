@@ -149,6 +149,13 @@ RELEASE 0.95 - XXX
   - Build Type Libraries in the target directory, not the source
     directory.
 
+  From Greg Spencer:
+
+  - Add support for Microsoft Visual Studio 2003 (version 7.1).
+
+  - Evaluate $MSVSPROJECTSUFFIX and $MSVSSOLUTIONSUFFIX when the Builder
+    is invoked, not when the tool is initialized.
+
 
 
 RELEASE 0.94 - Fri, 07 Nov 2003 05:29:48 -0600

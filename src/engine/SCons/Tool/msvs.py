@@ -381,10 +381,12 @@ class _GenerateV6DSP(_DSPGenerator):
 class _GenerateV7DSP(_DSPGenerator):
     """Generates a Project file for MSVS .NET"""
 
-    def __init__(self, dspfile, source, env, version):
+    def __init__(self, dspfile, source, env):
         _DSPGenerator.__init__(self, dspfile, source, env)
-        if version==7.0: self.version="7.00"
-        else: self.version="7.10"
+        self.version = float(env['MSVS_VERSION'])
+        self.versionstr = '7.00'
+        if self.version >= 7.1:
+            self.versionstr = '7.10'
 
     def PrintHeader(self):
         self.file.write('<?xml version="1.0" encoding = "Windows-1252"?>\n'
@@ -398,7 +400,7 @@ class _GenerateV7DSP(_DSPGenerator):
                         '	<Platforms>\n'
                         '		<Platform\n'
                         '			Name="Win32"/>\n'
-                        '	</Platforms>\n' % (self.version, self.name))
+                        '	</Platforms>\n' % (self.versionstr, self.name))
 
     def PrintProject(self):
         
@@ -438,6 +440,9 @@ class _GenerateV7DSP(_DSPGenerator):
                                                                cmd,cleancmd,cmd,buildtarget))
             
         self.file.write('	</Configurations>\n')
+        if self.version >= 7.1:
+            self.file.write('	<References>\n')
+            self.file.write('	</References>\n')
 
         self.PrintSourceFiles()
 
@@ -560,11 +565,13 @@ class _DSWGenerator:
 
 class _GenerateV7DSW(_DSWGenerator):
     """Generates a Solution file for MSVS .NET"""
-    def __init__(self, dswfile, dspfile, source, env, version):
+    def __init__(self, dswfile, dspfile, source, env):
         _DSWGenerator.__init__(self, dswfile, dspfile, source, env)
 
-        if version==7.0: self.version="7.00"
-        else: self.version="8.00"
+        self.version = float(self.env['MSVS_VERSION'])
+        self.versionstr = '7.00'
+        if self.version >= 7.1:
+            self.versionstr = '8.00'
 
         if env.has_key('slnguid') and env['slnguid']:
             self.slnguid = env['slnguid']
@@ -618,22 +625,26 @@ class _GenerateV7DSW(_DSWGenerator):
     def PrintSolution(self):
         """Writes a solution file"""
         self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n'
-        # the next line has the GUID for an external makefile project.
+                        # the next line has the GUID for an external makefile project.
                         'Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%s", "%s", "%s"\n'
-                        'EndProject\n'
+                        % (self.versionstr, self.name, os.path.basename(self.dspfile), self.slnguid))
+        if self.version >= 7.1:
+            self.file.write('	ProjectSection(ProjectDependencies) = postProject\n'
+                            '	EndProjectSection\n')
+        self.file.write('EndProject\n'
                         'Global\n'
-                        '	GlobalSection(SolutionConfiguration) = preSolution\n'\
-                         % (self.version, self.name, os.path.basename(self.dspfile), self.slnguid))
+                        '	GlobalSection(SolutionConfiguration) = preSolution\n')
         confkeys = self.configs.keys()
         confkeys.sort()
         cnt = 0
         for name in confkeys:
             self.file.write('		ConfigName.%d = %s\n' % (cnt, name.capitalize()))
             cnt = cnt + 1
-        self.file.write('	EndGlobalSection\n'
-                        '	GlobalSection(ProjectDependencies) = postSolution\n'
-                        '	EndGlobalSection\n'
-                        '	GlobalSection(ProjectConfiguration) = postSolution\n')
+        self.file.write('	EndGlobalSection\n')
+        if self.version < 7.1:
+            self.file.write('	GlobalSection(ProjectDependencies) = postSolution\n'
+                            '	EndGlobalSection\n')
+        self.file.write('	GlobalSection(ProjectConfiguration) = postSolution\n')
         for name in confkeys:
             name = name.capitalize()
             self.file.write('		%s.%s.ActiveCfg = %s|Win32\n'
@@ -706,7 +717,7 @@ def GenerateDSP(dspfile, source, env):
     """Generates a Project file based on the version of MSVS that is being used"""
 
     if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
-        g = _GenerateV7DSP(dspfile, source, env, float(env['MSVS_VERSION']))
+        g = _GenerateV7DSP(dspfile, source, env)
         g.Build()
     else:
         g = _GenerateV6DSP(dspfile, source, env)
@@ -716,7 +727,7 @@ def GenerateDSW(dswfile, dspfile, source, env):
     """Generates a Solution/Workspace file based on the version of MSVS that is being used"""
     
     if env.has_key('MSVS_VERSION') and float(env['MSVS_VERSION']) >= 7.0:
-        g = _GenerateV7DSW(dswfile, dspfile, source, env, float(env['MSVS_VERSION']))
+        g = _GenerateV7DSW(dswfile, dspfile, source, env)
         g.Build()
     else:
         g = _GenerateV6DSW(dswfile, dspfile, source, env)
@@ -972,6 +983,12 @@ def get_msvs_install_dirs(version = None):
 
     return rv;
 
+def GetMSVSProjectSuffix(target, source, env, for_signature):
+     return env['MSVS']['PROJECTSUFFIX'];
+
+def GetMSVSSolutionSuffix(target, source, env, for_signature):
+     return env['MSVS']['SOLUTIONSUFFIX'];
+
 def GenerateProject(target, source, env):
     # generate the dsp file, according to the version of MSVS.
     builddspfile = target[0]
@@ -1015,18 +1032,18 @@ def projectEmitter(target, source, env):
 
     # make sure the suffix is correct for the version of MSVS we're running.
     (base, suff) = SCons.Util.splitext(str(target[0]))
-    suff = env['MSVSPROJECTSUFFIX']
+    suff = env.subst('$MSVSPROJECTSUFFIX')
     target[0] = base + suff
 
     dspfile = SCons.Node.FS.default_fs.File(target[0]).srcnode()
-    dswfile = SCons.Node.FS.default_fs.File(SCons.Util.splitext(str(dspfile))[0] + env['MSVSSOLUTIONSUFFIX'])
+    dswfile = SCons.Node.FS.default_fs.File(SCons.Util.splitext(str(dspfile))[0] + env.subst('$MSVSSOLUTIONSUFFIX'))
 
     if not source:
         source = [SCons.Script.SConscript.stack[-1].sconscript.srcnode()]
 
     source[0].attributes.sconstruct = SCons.Script.SConscript.stack[0].sconscript
 
-    bdswpath = SCons.Util.splitext(str(target[0]))[0] + env['MSVSSOLUTIONSUFFIX']
+    bdswpath = SCons.Util.splitext(str(target[0]))[0] + env.subst('$MSVSSOLUTIONSUFFIX')
     bdswfile = SCons.Node.FS.default_fs.File(bdswpath)
 
     # only make these side effects if they're
@@ -1069,11 +1086,16 @@ def generate(env):
         pass
 
     if (float(env['MSVS_VERSION']) < 7.0):
-        env['MSVSPROJECTSUFFIX']  = '.dsp'
-        env['MSVSSOLUTIONSUFFIX'] = '.dsw'
+        env['MSVS']['PROJECTSUFFIX']  = '.dsp'
+        env['MSVS']['SOLUTIONSUFFIX'] = '.dsw'
     else:
-        env['MSVSPROJECTSUFFIX']  = '.vcproj'
-        env['MSVSSOLUTIONSUFFIX'] = '.sln'
+        env['MSVS']['PROJECTSUFFIX']  = '.vcproj'
+        env['MSVS']['SOLUTIONSUFFIX'] = '.sln'
+
+    env['GET_MSVSPROJECTSUFFIX']  = GetMSVSProjectSuffix
+    env['GET_MSVSSOLUTIONSUFFIX']  = GetMSVSSolutionSuffix
+    env['MSVSPROJECTSUFFIX']  = '${GET_MSVSPROJECTSUFFIX}'
+    env['MSVSSOLUTIONSUFFIX']  = '${GET_MSVSSOLUTIONSUFFIX}'
 
 def exists(env):
     try:
