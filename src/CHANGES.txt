@@ -15,6 +15,10 @@ RELEASE 0.06 -
   - Fix:  Construction variables with values of 0 were incorrectly
     interpolated as ''. 
 
+  - Support env['VAR'] to fetch construction variable values.
+
+  - Man page:  document Precious().
+
   From Charles Crain:
 
   - Fix command generators to expand construction variables.
@@ -48,12 +52,17 @@ RELEASE 0.06 -
 
   - Add a --profile=FILE option to make profiling SCons easier.
 
+  - Modify the new DVI builder to create .dvi files from LaTeX (.ltx
+    and .latex) files.
+
   From Steve Leblanc:
 
   - Add support for the -U option.
 
   - Allow CPPPATH, LIBPATH and LIBS to be specified as white-space
     separated strings.
+
+  - Add a document builder to create .dvi files from TeX (.tex) files.
 
 
 

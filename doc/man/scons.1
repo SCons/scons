@@ -639,6 +639,19 @@ if it is not already present. Example:
 env.CXXFile(target = 'foo.cc', source = 'foo.ll') # builds foo.cc
 env.CXXFile(target = 'bar', source = 'bar.yy')   # builds bar.cc
 .EE
+
+.IP DVI
+Builds a .dvi file from a .tex, .ltx or .latex input file.
+The suffix specified by the $DVISUFFIX construction variable
+(.dvi by default)
+is automatically added to the target
+if it is not already present. Example:
+
+.ES
+env.DVI(target = 'aaa.dvi', source = 'aaa.tex')   # builds from aaa.tex
+env.DVI(target = 'bbb', source = 'bbb.ltx')       # builds bbb.dvi
+env.DVI(target = 'ccc.dvi', source = 'ccc.latex') # builds from ccc.latex
+.EE
 .LP
 C/C++ source files are automatically scanned for dependencies by 
 .B scons
@@ -742,6 +755,16 @@ env.InstallAs(target = '/usr/local/bin/foo',
 env.InstallAs(target = '../lib/libfoo.a ../lib/libbar.a',
               source = 'libFOO.a libBAR.a')
 .EE
+
+.TP
+.RI Precious( target ", ...)"
+Marks each given
+.I target
+as precious so it is not deleted before it is rebuilt. Normally
+.B scons
+deletes a target before building it.
+Multiple targets can be passed in to a single call to
+.BR Precious ().
 
 .TP
 .RI Update( key = val ", [...])"

@@ -106,6 +106,19 @@ Library = SCons.Builder.Builder(name = 'Library',
                                 src_suffix = '$OBJSUFFIX',
                                 src_builder = Object)
 
+LaTeXAction = SCons.Action.Action('$LATEXCOM')
+
+DVI = SCons.Builder.Builder(name = 'DVI',
+                            action = { '.tex'   : '$TEXCOM',
+                                       '.ltx'   : LaTeXAction,
+                                       '.latex' : LaTeXAction,
+                                     },
+			    # The suffix is not configurable via a
+			    # construction variable like $DVISUFFIX
+			    # because the output file name is
+			    # hard-coded within TeX.
+                            suffix = '.dvi')
+
 CScan = SCons.Scanner.C.CScan()
 
 def get_devstudio_versions ():
@@ -228,7 +241,14 @@ def make_win32_env_from_paths(include, lib, path):
         'YACC'       : 'yacc',
         'YACCFLAGS'  : '',
         'YACCCOM'    : '$YACC $YACCFLAGS -o $TARGET $SOURCES',
-        'BUILDERS'   : [CFile, CXXFile, Object, Program, Library],
+        'TEX'        : 'tex',
+        'TEXFLAGS'   : '',
+        'TEXCOM'     : '$TEX $TEXFLAGS $SOURCES',
+        'LATEX'      : 'latex',
+        'LATEXFLAGS' : '',
+        'LATEXCOM'   : '$LATEX $LATEXFLAGS $SOURCES',
+        'DVISUFFIX'  : '.dvi',
+        'BUILDERS'   : [CFile, CXXFile, Object, Program, Library, DVI],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.obj',
@@ -291,7 +311,14 @@ if os.name == 'posix':
         'YACC'       : 'yacc',
         'YACCFLAGS'  : '',
         'YACCCOM'    : '$YACC $YACCFLAGS -o $TARGET $SOURCES',
-        'BUILDERS'   : [CFile, CXXFile, Object, Program, Library],
+        'TEX'        : 'tex',
+        'TEXFLAGS'   : '',
+        'TEXCOM'     : '$TEX $TEXFLAGS $SOURCES',
+        'LATEX'      : 'latex',
+        'LATEXFLAGS' : '',
+        'LATEXCOM'   : '$LATEX $LATEXFLAGS $SOURCES',
+        'DVISUFFIX'  : '.dvi',
+        'BUILDERS'   : [CFile, CXXFile, Object, Program, Library, DVI],
         'SCANNERS'   : [CScan],
         'OBJPREFIX'  : '',
         'OBJSUFFIX'  : '.o',
