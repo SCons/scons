@@ -42,6 +42,10 @@ for h in libs:
 
 # define some helpers:
 
+class DummyTarget:
+    def __init__(self, cwd=None):
+        self.cwd = cwd
+
 class DummyEnvironment:
     def __init__(self, **kw):
         self._dict = kw
@@ -54,6 +58,14 @@ class DummyEnvironment:
             return self._dict[args[0]]
         else:
             return map(lambda x, s=self: s._dict[x], args)
+    def __getitem__(self,key):
+        return self.Dictionary()[key]
+
+    def __setitem__(self,key,value):
+        self.Dictionary()[key] = value
+
+    def __delitem__(self,key):
+        del self.Dictionary()[key]
 
 def deps_match(deps, libs):
     deps=map(str, deps)
@@ -70,7 +82,7 @@ class ProgScanTestCase1(unittest.TestCase):
         env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
                                LIBS=[ 'l1', 'l2', 'l3' ])
         s = SCons.Scanner.Prog.ProgScan()
-        deps = s.instance(env).scan('dummy', env)
+        deps = s.scan('dummy', env, DummyTarget())
         assert deps_match(deps, ['l1.lib']), map(str, deps)
 
 class ProgScanTestCase2(unittest.TestCase):
@@ -79,7 +91,7 @@ class ProgScanTestCase2(unittest.TestCase):
                                            ["", "d1", "d1/d2" ]),
                                LIBS=[ 'l1', 'l2', 'l3' ])
         s = SCons.Scanner.Prog.ProgScan()
-        deps = s.instance(env).scan('dummy', env)
+        deps = s.scan('dummy', env, DummyTarget())
         assert deps_match(deps, ['l1.lib', 'd1/l2.lib', 'd1/d2/l3.lib' ]), map(str, deps)
 
 class ProgScanTestCase3(unittest.TestCase):
@@ -88,7 +100,7 @@ class ProgScanTestCase3(unittest.TestCase):
                                test.workpath("d1"),
                                LIBS='l2 l3')
         s = SCons.Scanner.Prog.ProgScan()
-        deps = s.instance(env).scan('dummy', env)
+        deps = s.scan('dummy', env, DummyTarget())
         assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
 
 def suite():
@@ -104,7 +116,7 @@ def suite():
                                            test.workpath("d1"),
                                            LIBS=u'l2 l3')
                     s = SCons.Scanner.Prog.ProgScan()
-                    deps = s.instance(env).scan('dummy', env)
+                    deps = s.scan('dummy', env, DummyTarget())
                     assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), map(str, deps)
             suite.addTest(ProgScanTestCase4())
             \n"""

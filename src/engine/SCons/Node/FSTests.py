@@ -48,7 +48,7 @@ class Scanner:
         global scanner_count
         scanner_count = scanner_count + 1
         self.hash = scanner_count
-    def scan(self, node, env):
+    def scan(self, node, env, target):
         return [node]
     def __hash__(self):
         return self.hash
@@ -191,7 +191,7 @@ class FSTestCase(unittest.TestCase):
                 up_path = strip_slash(up_path_)
                 name = string.split(abspath, os.sep)[-1]
 
-		assert dir.name == name, \
+                assert dir.name == name, \
                        "dir.name %s != expected name %s" % \
                        (dir.name, name)
                 assert dir.path == path, \
@@ -230,16 +230,16 @@ class FSTestCase(unittest.TestCase):
             try:
                 f2 = fs.File(string.join(['f1', 'f2'], sep), directory = d1)
             except TypeError, x:
-	        assert str(x) == ("Tried to lookup File '%s' as a Dir." %
-		                  d1_f1), x
+                assert str(x) == ("Tried to lookup File '%s' as a Dir." %
+                                  d1_f1), x
             except:
                 raise
 
             try:
                 dir = fs.Dir(string.join(['d1', 'f1'], sep))
             except TypeError, x:
-	        assert str(x) == ("Tried to lookup File '%s' as a Dir." %
-		                  d1_f1), x
+                assert str(x) == ("Tried to lookup File '%s' as a Dir." %
+                                  d1_f1), x
             except:
                 raise
 
@@ -249,7 +249,7 @@ class FSTestCase(unittest.TestCase):
                 assert str(x) == ("Tried to lookup Dir '%s' as a File." %
                                   'd1'), x
             except:
-	        raise
+                raise
 
             # Test Dir.children()
             dir = fs.Dir('ddd')
@@ -262,9 +262,9 @@ class FSTestCase(unittest.TestCase):
             kids = map(lambda x: x.path, dir.children(None))
             kids.sort()
             assert kids == [os.path.join('ddd', 'd1'),
-	                    os.path.join('ddd', 'f1'),
-			    os.path.join('ddd', 'f2'),
-			    os.path.join('ddd', 'f3')]
+                            os.path.join('ddd', 'f1'),
+                            os.path.join('ddd', 'f2'),
+                            os.path.join('ddd', 'f3')]
             kids = map(lambda x: x.path_, dir.children(None))
             kids.sort()
             assert kids == [os.path.join('ddd', 'd1', ''),
@@ -302,50 +302,50 @@ class FSTestCase(unittest.TestCase):
             expect = string.replace(expect, '/', os.sep)
             assert path == expect, "path %s != expected %s" % (path, expect)
 
-	e1 = fs.Entry("d1")
-	assert e1.__class__.__name__ == 'Dir'
+        e1 = fs.Entry("d1")
+        assert e1.__class__.__name__ == 'Dir'
         match(e1.path, "d1")
         match(e1.path_, "d1/")
         match(e1.dir.path, ".")
 
-	e2 = fs.Entry("d1/f1")
-	assert e2.__class__.__name__ == 'File'
+        e2 = fs.Entry("d1/f1")
+        assert e2.__class__.__name__ == 'File'
         match(e2.path, "d1/f1")
         match(e2.path_, "d1/f1")
         match(e2.dir.path, "d1")
 
-	e3 = fs.Entry("e3")
-	assert e3.__class__.__name__ == 'Entry'
+        e3 = fs.Entry("e3")
+        assert e3.__class__.__name__ == 'Entry'
         match(e3.path, "e3")
         match(e3.path_, "e3")
         match(e3.dir.path, ".")
 
-	e4 = fs.Entry("d1/e4")
-	assert e4.__class__.__name__ == 'Entry'
+        e4 = fs.Entry("d1/e4")
+        assert e4.__class__.__name__ == 'Entry'
         match(e4.path, "d1/e4")
         match(e4.path_, "d1/e4")
         match(e4.dir.path, "d1")
 
-	e5 = fs.Entry("e3/e5")
-	assert e3.__class__.__name__ == 'Dir'
+        e5 = fs.Entry("e3/e5")
+        assert e3.__class__.__name__ == 'Dir'
         match(e3.path, "e3")
         match(e3.path_, "e3/")
         match(e3.dir.path, ".")
-	assert e5.__class__.__name__ == 'Entry'
+        assert e5.__class__.__name__ == 'Entry'
         match(e5.path, "e3/e5")
         match(e5.path_, "e3/e5")
         match(e5.dir.path, "e3")
 
-	e6 = fs.Dir("d1/e4")
-	assert e6 is e4
-	assert e4.__class__.__name__ == 'Dir'
+        e6 = fs.Dir("d1/e4")
+        assert e6 is e4
+        assert e4.__class__.__name__ == 'Dir'
         match(e4.path, "d1/e4")
         match(e4.path_, "d1/e4/")
         match(e4.dir.path, "d1")
 
-	e7 = fs.File("e3/e5")
-	assert e7 is e5
-	assert e5.__class__.__name__ == 'File'
+        e7 = fs.File("e3/e5")
+        assert e7 is e5
+        assert e5.__class__.__name__ == 'File'
         match(e5.path, "e3/e5")
         match(e5.path_, "e3/e5")
         match(e5.dir.path, "e3")
@@ -383,23 +383,12 @@ class FSTestCase(unittest.TestCase):
         match(e13.path, "subdir/subdir/e13")
 
         # Test scanning
-        scn1 = Scanner()
-        f1.scan(scn1)
-        assert f1.implicit[scn1][0].path_ == os.path.join("d1", "f1")
-        del f1.implicit[scn1]
-        f1.scan(scn1)
-        assert len(f1.implicit) == 0, f1.implicit
-        del f1.scanned[scn1]
-        f1.scan(scn1)
-        assert f1.implicit[scn1][0].path_ == os.path.join("d1", "f1")
-
-        # Test multiple scanners
-        scn2 = Scanner()
-        f2 = fs.File("f2")
-        f2.scan(scn1)
-        f2.scan(scn2)
-        match(f2.implicit[scn1][0].path_, 'subdir/f2')
-        match(f2.implicit[scn2][0].path_, 'subdir/f2')
+        f1.target_scanner = Scanner()
+        f1.scan()
+        assert f1.implicit[0].path_ == os.path.join("d1", "f1")
+        f1.implicit = []
+        f1.scan()
+        assert f1.implicit[0].path_ == os.path.join("d1", "f1")
 
         # Test building a file whose directory is not there yet...
         f1 = fs.File(test.workpath("foo/bar/baz/ack"))
@@ -410,13 +399,13 @@ class FSTestCase(unittest.TestCase):
 
         os.chdir('..')
 
-	# Test getcwd()
+        # Test getcwd()
         fs = SCons.Node.FS.FS()
-	assert str(fs.getcwd()) == ".", str(fs.getcwd())
-	fs.chdir(fs.Dir('subdir'))
-	assert str(fs.getcwd()) == "subdir", str(fs.getcwd())
-	fs.chdir(fs.Dir('../..'))
-	assert str(fs.getcwd()) == test.workdir, str(fs.getcwd())
+        assert str(fs.getcwd()) == ".", str(fs.getcwd())
+        fs.chdir(fs.Dir('subdir'))
+        assert str(fs.getcwd()) == "subdir", str(fs.getcwd())
+        fs.chdir(fs.Dir('../..'))
+        assert str(fs.getcwd()) == test.workdir, str(fs.getcwd())
         
         f1 = fs.File(test.workpath("do_i_exist"))
         assert not f1.exists()

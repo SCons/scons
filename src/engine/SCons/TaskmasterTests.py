@@ -30,7 +30,7 @@ import SCons.Taskmaster
 import SCons.Errors
 
 
-built = None
+built_text = None
 executed = None
 scan_called = 0
 
@@ -39,8 +39,8 @@ class Node:
         self.name = name
         self.kids = kids
         self.scans = scans
-        self.scanned = {}
-        self.src_scanners = {}
+        self.scanned = 0
+        self.scanner = None
         self.builder = Node.build
         self.bsig = None
         self.csig = None
@@ -51,31 +51,29 @@ class Node:
             kid.parents.append(self)
 
     def build(self):
-        global built
-        built = self.name + " built"
+        global built_text
+        built_text = self.name + " built"
+
+    def built(self):
+        global built_text
+        built_text = built_text + " really"
 
     def prepare(self):
         pass
 
-    def children(self, scanner):
-        if not self.scanned.get(scanner, None):
-            self.scan(scanner)
-            self.scanned[scanner] = 1
+    def children(self):
+        if not self.scanned:
+            self.scan()
+            self.scanned = 1
         return self.kids
 
-    def scan(self, scanner):
-	global scan_called
-	scan_called = scan_called + 1
+    def scan(self):
+        global scan_called
+        scan_called = scan_called + 1
         self.kids = self.kids + self.scans
         for scan in self.scans:
             scan.parents.append(self)
         self.scans = []
-
-    def src_scanner_set(self, key, scanner):
-        self.src_scanners[key] = scanner
-
-    def src_scanner_get(self, key):
-        return self.src_scanners.get(key, None)
 
     def scanner_key(self):
         return self.name
@@ -98,12 +96,13 @@ class Node:
     def store_sigs(self):
         pass
   
-    def children_are_executed(self, scanner):
-        return reduce(lambda x,y: ((y.get_state() == SCons.Node.executed
-                                   or y.get_state() == SCons.Node.up_to_date)
-                                   and x),
-                      self.children(scanner),
-                      1)
+    
+    def depends_on(self, nodes):
+        for node in nodes:
+            if node in self.kids:
+                return 1
+        return 0
+
     def __str__(self):
         return self.name
 
@@ -111,14 +110,14 @@ class Node:
 class TaskmasterTestCase(unittest.TestCase):
 
     def test_next_task(self):
-	"""Test fetching the next task
-	"""
-	global built
+        """Test fetching the next task
+        """
+        global built_text
         
-	n1 = Node("n1")
+        n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster([n1, n1])
         t = tm.next_task()
-        t.executed()
+        t.execute()
         t = tm.next_task()
         assert t == None
 
@@ -126,26 +125,26 @@ class TaskmasterTestCase(unittest.TestCase):
         n2 = Node("n2")
         n3 = Node("n3", [n1, n2])
         
-	tm = SCons.Taskmaster.Taskmaster([n3])
+        tm = SCons.Taskmaster.Taskmaster([n3])
 
         t = tm.next_task()
         t.execute()
-        assert built == "n1 built"
+        assert built_text == "n1 built", built_text
         t.executed()
 
         t = tm.next_task()
         t.execute()
-        assert built == "n2 built"
+        assert built_text == "n2 built", built_text
         t.executed()
 
         t = tm.next_task()
         t.execute()
-        assert built == "n3 built"
+        assert built_text == "n3 built", built_text
         t.executed()
 
         assert tm.next_task() == None
 
-        built = "up to date: "
+        built_text = "up to date: "
         top_node = n3
 
         class MyCalc(SCons.Taskmaster.Calc):
@@ -154,12 +153,12 @@ class TaskmasterTestCase(unittest.TestCase):
 
         class MyTask(SCons.Taskmaster.Task):
             def execute(self):
-                global built
+                global built_text
                 if self.targets[0].get_state() == SCons.Node.up_to_date:
                     if self.top:
-                        built = self.targets[0].name + " up-to-date top"
+                        built_text = self.targets[0].name + " up-to-date top"
                     else:
-                        built = self.targets[0].name + " up-to-date"
+                        built_text = self.targets[0].name + " up-to-date"
                 else:
                     self.targets[0].build()
 
@@ -171,24 +170,24 @@ class TaskmasterTestCase(unittest.TestCase):
 
         t = tm.next_task()
         t.execute()
-        assert built == "n1 up-to-date"
+        assert built_text == "n1 up-to-date", built_text
         t.executed()
 
         t = tm.next_task()
         t.execute()
-        assert built == "n2 up-to-date"
+        assert built_text == "n2 up-to-date", built_text
         t.executed()
 
         t = tm.next_task()
         t.execute()
-        assert built == "n3 up-to-date top"
+        assert built_text == "n3 up-to-date top", built_text
         t.executed()
 
-	assert tm.next_task() == None
+        assert tm.next_task() == None
 
 
         n1 = Node("n1")
-	n2 = Node("n2")
+        n2 = Node("n2")
         n3 = Node("n3", [n1, n2])
         n4 = Node("n4")
         n5 = Node("n5", [n3, n4])
@@ -221,7 +220,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t3.executed()
         assert not tm.is_blocked()
         t5 = tm.next_task()
-        assert t5.get_target() == n5
+        assert t5.get_target() == n5, t5.get_target()
         assert not tm.is_blocked()
 
         assert tm.next_task() == None
@@ -261,35 +260,35 @@ class TaskmasterTestCase(unittest.TestCase):
         t.executed()
         assert tm.next_task() == None
 
-	n1 = Node("n1")
-	n2 = Node("n2")
-	n3 = Node("n3", [n1, n2])
-	n4 = Node("n4", [n3])
-	n5 = Node("n5", [n3])
-	global scan_called
-	scan_called = 0
-	tm = SCons.Taskmaster.Taskmaster([n4])
-	t = tm.next_task()
+        n1 = Node("n1")
+        n2 = Node("n2")
+        n3 = Node("n3", [n1, n2])
+        n4 = Node("n4", [n3])
+        n5 = Node("n5", [n3])
+        global scan_called
+        scan_called = 0
+        tm = SCons.Taskmaster.Taskmaster([n4])
+        t = tm.next_task()
         assert t.get_target() == n1
-	t.executed()
-	t = tm.next_task()
+        t.executed()
+        t = tm.next_task()
         assert t.get_target() == n2
-	t.executed()
-	t = tm.next_task()
+        t.executed()
+        t = tm.next_task()
         assert t.get_target() == n3
-	t.executed()
-	t = tm.next_task()
+        t.executed()
+        t = tm.next_task()
         assert t.get_target() == n4
-	t.executed()
-	assert tm.next_task() == None
-	assert scan_called == 4, scan_called
+        t.executed()
+        assert tm.next_task() == None
+        assert scan_called == 4, scan_called
 
-	tm = SCons.Taskmaster.Taskmaster([n5])
-	t = tm.next_task()
+        tm = SCons.Taskmaster.Taskmaster([n5])
+        t = tm.next_task()
         assert t.get_target() == n5, t.get_target()
-	t.executed()
-	assert tm.next_task() == None
-	assert scan_called == 5, scan_called
+        t.executed()
+        assert tm.next_task() == None
+        assert scan_called == 5, scan_called
     
     def test_cycle_detection(self):
         n1 = Node("n1")
@@ -302,30 +301,30 @@ class TaskmasterTestCase(unittest.TestCase):
             tm = SCons.Taskmaster.Taskmaster([n3])
             t = tm.next_task()
         except SCons.Errors.UserError, e:
-            assert str(e) == "Dependency cycle: n3 -> n1 -> n2 -> n3"
+            assert str(e) == "Dependency cycle: n3 -> n1 -> n2 -> n3", str(e)
         else:
             assert 0
         
     def test_is_blocked(self):
         """Test whether a task is blocked
 
-	Both default and overridden in a subclass.
-	"""
-	tm = SCons.Taskmaster.Taskmaster()
-	assert not tm.is_blocked()
+        Both default and overridden in a subclass.
+        """
+        tm = SCons.Taskmaster.Taskmaster()
+        assert not tm.is_blocked()
 
-	class MyTM(SCons.Taskmaster.Taskmaster):
-	    def is_blocked(self):
-	        return 1
-	tm = MyTM()
-	assert tm.is_blocked() == 1
+        class MyTM(SCons.Taskmaster.Taskmaster):
+            def is_blocked(self):
+                return 1
+        tm = MyTM()
+        assert tm.is_blocked() == 1
 
     def test_stop(self):
         """Test the stop() method
 
         Both default and overridden in a subclass.
         """
-        global built
+        global built_text
 
         n1 = Node("n1")
         n2 = Node("n2")
@@ -334,48 +333,33 @@ class TaskmasterTestCase(unittest.TestCase):
         tm = SCons.Taskmaster.Taskmaster([n3])
         t = tm.next_task()
         t.execute()
-        assert built == "n1 built"
+        assert built_text == "n1 built", built_text
         t.executed()
+        assert built_text == "n1 built really", built_text
 
         tm.stop()
         assert tm.next_task() is None
 
         class MyTM(SCons.Taskmaster.Taskmaster):
             def stop(self):
-                global built
-                built = "MyTM.stop()"
+                global built_text
+                built_text = "MyTM.stop()"
                 SCons.Taskmaster.Taskmaster.stop(self)
 
         n1 = Node("n1")
         n2 = Node("n2")
         n3 = Node("n3", [n1, n2])
 
-        built = None
+        built_text = None
         tm = MyTM([n3])
         tm.next_task().execute()
-        assert built == "n1 built"
+        assert built_text == "n1 built"
 
         tm.stop()
-        assert built == "MyTM.stop()"
+        assert built_text == "MyTM.stop()"
         assert tm.next_task() is None
 
-    def test_add_ready(self):
-        """Test adding a task to the ready queue"""
-        class MyTask:
-            def __init__(self, tm, tlist, top, scanner):
-                pass
-            def make_ready(self):
-                pass
-        n1 = Node("n1")
-        tm = SCons.Taskmaster.Taskmaster([n1], tasker = MyTask)
-        task = MyTask(tm, [], 0, None)
-        tm.add_ready(task)
-        assert tm.ready == [ task ], tm.ready
-
-    def test_pending_to_ready(self):
-        pass
-    
-    def test_pending_remove(self):
+    def test_executed(self):
         pass
 
 
@@ -383,4 +367,4 @@ class TaskmasterTestCase(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.makeSuite(TaskmasterTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)

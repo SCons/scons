@@ -50,7 +50,7 @@ class DummyNode:
         self.file = file
         self.path = file.path
         self.builder = file.builder
-	self.depends = []
+        self.depends = []
         self.ignore = []
         self.use_signature = 1
         self.bsig = None
@@ -81,11 +81,11 @@ class DummyNode:
             self.exists_cache = self.exists()
             return self.exists_cache
         
-    def children(self, scanner):
+    def children(self):
         return filter(lambda x, i=self.ignore: x not in i,
                       self.sources + self.depends)
         
-    def all_children(self, scanner):
+    def all_children(self):
         return self.sources + self.depends
 
     def current(self):
@@ -139,12 +139,12 @@ def create_nodes(files):
 
     nodes[0].sources = []
     nodes[1].sources = [nodes[0]]
-    nodes[2].sources = [nodes[3]]
+    nodes[2].sources = []
     nodes[3].sources = []
-    nodes[4].sources = [nodes[5]]
+    nodes[4].sources = []
     nodes[5].sources = [nodes[6]]
     nodes[6].sources = [nodes[5]]
-    nodes[7].sources = [nodes[2], nodes[4]]
+    nodes[7].sources = [nodes[2], nodes[4], nodes[3], nodes[5]]
     nodes[8].sources = []
     nodes[9].sources = [nodes[8]]
     nodes[10].sources = [nodes[9]]
@@ -296,9 +296,9 @@ class CalcTestCase(unittest.TestCase):
                 self.ignore = []
                 self.builder = None
                 self.use_signature = 1
-            def children(self, scanner):
+            def children(self):
                 return filter(lambda x, i=self.ignore: x not in i, self.kids)
-            def all_children(self, scanner):
+            def all_children(self):
                 return self.kids
             def exists(self):
                 return 1

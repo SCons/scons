@@ -97,7 +97,7 @@ class Base:
         self.skeys = skeys
         self.node_factory = node_factory
 
-    def scan(self, node, env):
+    def scan(self, node, env, target):
         """
         This method scans a single object. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
@@ -106,9 +106,9 @@ class Base:
         """
 
         if not self.argument is _null:
-            list = self.function(node, env, self.argument)
+            list = self.function(node, env, target, self.argument)
         else:
-            list = self.function(node, env)
+            list = self.function(node, env, target)
         kw = {}
         if hasattr(node, 'dir'):
             kw['directory'] = node.dir
@@ -118,16 +118,6 @@ class Base:
                 l = apply(self.node_factory, (l,), kw)
             nodes.append(l)
         return nodes
-
-    def instance(self, env):
-        """
-        Return an instance of a Scanner object for use in scanning.
-
-        In the base class, we just return the scanner itself.
-        Other Scanner classes may use this to clone copies and/or
-        return unique instances as needed.
-        """
-        return self
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
@@ -143,7 +133,7 @@ class Recursive(Base):
     list of all dependencies.
     """
 
-    def scan(self, node, env):
+    def scan(self, node, env, target):
         """
         This method does the actual scanning. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
@@ -158,7 +148,7 @@ class Recursive(Base):
         while nodes:
             n = nodes.pop(0)
             d = filter(lambda x, seen=seen: not seen.has_key(x),
-                       Base.scan(self, n, env))
+                       Base.scan(self, n, env, target))
             if d:
                 deps.extend(d)
                 nodes.extend(d)

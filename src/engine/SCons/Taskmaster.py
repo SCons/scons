@@ -54,13 +54,16 @@ class Task:
     Note that it's generally a good idea for sub-classes to call
     these methods explicitly to update state, etc., rather than
     roll their own interaction with Taskmaster from scratch."""
-    def __init__(self, tm, targets, top, scanner = None):
+    def __init__(self, tm, targets, top, node):
         self.tm = tm
         self.targets = targets
         self.top = top
-        self.scanner = scanner
+        self.node = node
 
     def execute(self):
+        # This methods is called from multiple threads in
+        # a parallel build, so only do thread safe stuff here.
+        # Do thread unsafe stuff in executed() or failed().
         if self.targets[0].get_state() != SCons.Node.up_to_date:
             self.targets[0].prepare()
             self.targets[0].build()
@@ -68,7 +71,7 @@ class Task:
     def get_target(self):
         """Fetch the target being built or updated by this task.
         """
-        return self.targets[0]
+        return self.node
 
     def set_tstates(self, state):
         """Set all of the target nodes's states."""
@@ -83,21 +86,14 @@ class Task:
         things.  Most importantly, this calls back to the
         Taskmaster to put any node tasks waiting on this one
         back on the pending list."""
+
         if self.targets[0].get_state() == SCons.Node.executing:
             self.set_tstates(SCons.Node.executed)
             for t in self.targets:
                 t.store_sigs()
-            parents = {}
-            for p in reduce(lambda x, y: x + y.get_parents(), self.targets, []):
-                parents[p] = 1
-            ready = filter(lambda x, s=self.scanner:
-                                  (x.get_state() == SCons.Node.pending
-                                   and x.children_are_executed(s)),
-                           parents.keys())
-            tasks = {}
-            for t in map(lambda r: r.task, ready):
-                tasks[t] = 1
-            self.tm.pending_to_ready(tasks.keys())
+                t.built()
+
+        self.tm.executed(self.node)
 
     def failed(self):
         """Default action when a task fails:  stop the build."""
@@ -114,20 +110,15 @@ class Task:
         This sets failure status on the target nodes and all of
         their dependent parent nodes.
         """
-        nodes = {}
         for t in self.targets:
             def get_parents(node, parent): return node.get_parents()
-	    def set_nodes(node, parent, nodes=nodes): nodes[node] = 1
-            walker = SCons.Node.Walker(t, get_parents, eval_func=set_nodes)
+            def set_state(node, parent): node.set_state(SCons.Node.failed)
+            walker = SCons.Node.Walker(t, get_parents, eval_func=set_state)
             n = walker.next()
             while n:
                 n = walker.next()
-        pending = filter(lambda x: x.get_state() == SCons.Node.pending,
-                         nodes.keys())
-        tasks = {}
-        for t in map(lambda r: r.task, pending):
-            tasks[t] = 1
-        self.tm.pending_remove(tasks.keys())
+        
+        self.tm.executed(self.node)
 
     def make_ready(self):
         """Make a task ready for execution."""
@@ -138,9 +129,6 @@ class Task:
             if not self.tm.calc.current(t, bsig):
                 state = SCons.Node.executing
         self.set_tstates(state)
-        self.tm.add_ready(self)
-
-
 
 class Calc:
     def bsig(self, node):
@@ -156,8 +144,6 @@ class Calc:
         """
         return 0
 
-
-
 class Taskmaster:
     """A generic Taskmaster for handling a bunch of targets.
 
@@ -166,118 +152,113 @@ class Taskmaster:
     """
 
     def __init__(self, targets=[], tasker=Task, calc=Calc()):
-        
-        def out_of_date(node, parent):
-            if node.get_state():
-                # The state is set, so someone has already been here
-                # (finished or currently executing).  Find another one.
-                return []
-            # Scan the file before fetching its children().
-            if parent:
-                scanner = parent.src_scanner_get(node.scanner_key())
-            else:
-                scanner = None
-            return filter(lambda x: x.get_state() != SCons.Node.up_to_date,
-                          node.children(scanner))
+        self.targets = targets # top level targets
+        self.candidates = targets[:] # nodes that might be ready to be executed
+        self.candidates.reverse()
+        self.executing = [] # nodes that are currently executing
+        self.pending = [] # nodes that depend on a currently executing node
+        self.tasker = tasker
+        self.ready = None # the next task that is ready to be executed
+        self.calc = calc
 
-        def cycle_error(node, stack):
-            if node.builder:
-                nodes = stack + [node]
+    def _find_next_ready_node(self):
+        """Find the next node that is ready to be built"""
+
+        if self.ready:
+            return
+        
+        while self.candidates:
+            node = self.candidates[-1]
+            state = node.get_state()
+            
+            # Skip nodes that have already been executed:
+            if state != None and state != SCons.Node.stack:
+                self.candidates.pop()
+                continue
+
+            # keep track of which nodes are in the execution stack:
+            node.set_state(SCons.Node.stack)
+
+            children = node.children()
+
+            # detect dependency cycles:
+            def in_stack(node): return node.get_state() == SCons.Node.stack
+            cycle = filter(in_stack, children)
+            if cycle:
+                nodes = filter(in_stack, self.candidates) + cycle
                 nodes.reverse()
                 desc = "Dependency cycle: " + string.join(map(str, nodes), " -> ")
                 raise SCons.Errors.UserError, desc
 
-        def eval_node(node, parent, self=self):
-            if node.get_state():
-                # The state is set, so someone has already been here
-                # (finished or currently executing).  Find another one.
-                return
-            if not node.builder:
-                # It's a source file, we don't need to build it,
-                # but mark it as "up to date" so targets won't
-                # wait for it.
-                node.set_state(SCons.Node.up_to_date)
-                # set the signature for non-derived files
-                # here so they don't get recalculated over
-                # and over again:
-                node.set_csig(self.calc.csig(node))
-                return
-            try:
-                tlist = node.builder.targets(node)
-            except AttributeError:
-                tlist = [ node ]
-            if parent:
-                scanner = parent.src_scanner_get(node.scanner_key())
-            else:
-                scanner = None
-            task = self.tasker(self, tlist, self.walkers[0].is_done(), scanner)
-            if not tlist[0].children_are_executed(scanner):
-                for t in tlist:
-                    t.set_state(SCons.Node.pending)
-                    t.task = task
-                self.pending = self.pending + 1
-                return
-            task.make_ready()
+            for child in children:
+                if not child.builder:
+                    # set the signature for non-derived files
+                    # here so they don't get recalculated over
+                    # and over again:
+                    child.set_csig(self.calc.csig(child))
 
-        #XXX In Python 2.2 we can get rid of f1, f2 and f3:
-        self.walkers = map(lambda x, f1=out_of_date,
-                                     f2=cycle_error,
-                                     f3=eval_node:
-                                  SCons.Node.Walker(x, f1, f2, f3),
-                           targets)
-        self.tasker = tasker
-        self.calc = calc
-        self.ready = []
-        self.pending = 0
-        
-        self._find_next_ready_node()
+            # Add non-derived files that have not been built
+            # to the candidates list:
+            def derived(node):
+                return node.builder and node.get_state() == None
+            derived = filter(derived, children)
+            if derived:
+                derived.reverse()
+                self.candidates.extend(derived)
+                continue
+
+            # Skip nodes that are pending on a currently executing node:
+            if node.depends_on(self.executing) or node.depends_on(self.pending):
+                self.pending.append(node)
+                node.set_state(SCons.Node.pending)
+                self.candidates.pop()
+                continue
+            else:
+                self.candidates.pop()
+                self.ready = node
+                break
 
     def next_task(self):
         """Return the next task to be executed."""
-        if self.ready:
-            task = self.ready.pop()
-            if not self.ready:
-                self._find_next_ready_node()
-            return task
-        else:
-            return None
+        
+        self._find_next_ready_node()
 
-    def _find_next_ready_node(self):
-        """Find the next node that is ready to be built"""
-        while self.walkers:
-            n = self.walkers[0].next()
-            if n == None:
-                self.walkers.pop(0)
-                continue
-            if self.ready:
-                return
+        node = self.ready
+        
+        if node is None:
+            return None
+        
+        self.executing.append(node)
+        try:
+            tlist = node.builder.targets(node)
+        except AttributeError:
+            tlist = [node]
+        task = self.tasker(self, tlist, node in self.targets, node) 
+        task.make_ready()
+        self.ready = None
+        
+        return task
             
     def is_blocked(self):
+        self._find_next_ready_node()
+
         return not self.ready and self.pending
 
     def stop(self):
         """Stop the current build completely."""
-        self.walkers = []
-        self.pending = 0
-        self.ready = []
+        self.candidates = []
+        self.ready = None
+        self.pending = []
 
-    def add_ready(self, task):
-        """Add a task to the ready queue.
-        """
-        self.ready.append(task)
-
-    def pending_to_ready(self, tasks):
-        """Move the specified tasks from the pending count
-        to the 'ready' queue.
-        """
-        self.pending_remove(tasks)
-        for t in tasks:
-            t.make_ready()
-
-    def pending_remove(self, tasks):
-        """Remove tasks from the pending count.
+    def executed(self, node):
+        self.executing.remove(node)
         
-        We assume that the caller has already confirmed that
-        the nodes in this task are in pending state.
-        """
-        self.pending = self.pending - len(tasks)
+        # move the current pending nodes to the candidates list:
+        # (they may not all be ready to build, but _find_next_ready_node()
+        #  will figure out which ones are really ready)
+        for node in self.pending:
+            node.set_state(None)
+        self.pending.reverse()
+        self.candidates.extend(self.pending)
+        self.pending = []
+

@@ -41,7 +41,6 @@ import SCons.Node.FS
 import SCons.Util
 
 
-
 def Builder(**kw):
     """A factory for builder objects."""
     
@@ -64,77 +63,72 @@ def _init_nodes(builder, env, tlist, slist):
     """Initialize lists of target and source nodes with all of
     the proper Builder information.
     """
-    src_scanner = None
-    if slist:
-        src_key = slist[0].scanner_key()	# the file suffix
-        src_scanner = env.get_scanner(src_key)
-        if src_scanner:
-            src_scanner = src_scanner.instance(env)
-
+    for s in slist:
+        src_key = slist[0].scanner_key()        # the file suffix
+        scanner = env.get_scanner(src_key)
+        if scanner:
+            s.source_scanner = scanner
+            
     for t in tlist:
-        t.cwd = SCons.Node.FS.default_fs.getcwd()	# XXX
+        t.cwd = SCons.Node.FS.default_fs.getcwd()       # XXX
         t.builder_set(builder)
         t.env_set(env)
         t.add_source(slist)
         if builder.scanner:
-            t.scanner_set(builder.scanner.instance(env))
-        if src_scanner:
-            t.src_scanner_set(src_key, src_scanner)
-
-
+            t.target_scanner = builder.scanner
 
 class BuilderBase:
     """Base class for Builders, objects that create output
     nodes (files) from input nodes (files).
     """
 
-    def __init__(self,	name = None,
-			action = None,
-			prefix = '',
-			suffix = '',
-			src_suffix = '',
+    def __init__(self,  name = None,
+                        action = None,
+                        prefix = '',
+                        suffix = '',
+                        src_suffix = '',
                         node_factory = SCons.Node.FS.default_fs.File,
                         target_factory = None,
                         source_factory = None,
                         scanner = None):
         if name is None:
             raise UserError, "You must specify a name for the builder."
-	self.name = name
-	self.action = SCons.Action.Action(action)
+        self.name = name
+        self.action = SCons.Action.Action(action)
 
-	self.prefix = prefix
-	self.suffix = suffix
-	self.src_suffix = src_suffix
+        self.prefix = prefix
+        self.suffix = suffix
+        self.src_suffix = src_suffix
         self.target_factory = target_factory or node_factory
         self.source_factory = source_factory or node_factory
         self.scanner = scanner
         if self.suffix and self.suffix[0] not in '.$':
-	    self.suffix = '.' + self.suffix
+            self.suffix = '.' + self.suffix
         if self.src_suffix and self.src_suffix[0] not in '.$':
-	    self.src_suffix = '.' + self.src_suffix
+            self.src_suffix = '.' + self.src_suffix
 
     def __cmp__(self, other):
-	return cmp(self.__dict__, other.__dict__)
+        return cmp(self.__dict__, other.__dict__)
 
     def _create_nodes(self, env, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
-	def adjustixes(files, pre, suf):
-	    ret = []
+        def adjustixes(files, pre, suf):
+            ret = []
             if SCons.Util.is_String(files):
                 files = string.split(files)
             if not SCons.Util.is_List(files):
-	        files = [files]
-	    for f in files:
+                files = [files]
+            for f in files:
                 if SCons.Util.is_String(f):
-		    if pre and f[:len(pre)] != pre:
+                    if pre and f[:len(pre)] != pre:
                         path, fn = os.path.split(os.path.normpath(f))
                         f = os.path.join(path, pre + fn)
-		    if suf:
-		        if f[-len(suf):] != suf:
-		            f = f + suf
-		ret.append(f)
-	    return ret
+                    if suf:
+                        if f[-len(suf):] != suf:
+                            f = f + suf
+                ret.append(f)
+            return ret
 
         tlist = SCons.Node.arg2nodes(adjustixes(target,
                                                 env.subst(self.prefix),
@@ -160,9 +154,9 @@ class BuilderBase:
 
 
     def execute(self, **kw):
-	"""Execute a builder's action to create an output object.
-	"""
-	return apply(self.action.execute, (), kw)
+        """Execute a builder's action to create an output object.
+        """
+        return apply(self.action.execute, (), kw)
 
     def get_raw_contents(self, **kw):
         """Fetch the "contents" of the builder's action.
@@ -241,10 +235,10 @@ class MultiStepBuilder(BuilderBase):
     """
     def __init__(self,  src_builder,
                         name = None,
-			action = None,
-			prefix = '',
-			suffix = '',
-			src_suffix = '',
+                        action = None,
+                        prefix = '',
+                        suffix = '',
+                        src_suffix = '',
                         node_factory = SCons.Node.FS.default_fs.File,
                         target_factory = None,
                         source_factory = None,

@@ -51,6 +51,7 @@ executing = 2
 up_to_date = 3
 executed = 4
 failed = 5
+stack = 6 # nodes that are in the current Taskmaster execution stack
 
 class Node:
     """The base Node class, for entities that we know how to
@@ -60,14 +61,13 @@ class Node:
     def __init__(self):
         self.sources = []       # source files used to build node
         self.depends = []       # explicit dependencies (from Depends)
-        self.implicit = {}	# implicit (scanned) dependencies
-        self.ignore = []	# dependencies to ignore
+        self.implicit = []      # implicit (scanned) dependencies
+        self.ignore = []        # dependencies to ignore
         self.parents = {}
         self.wkids = None       # Kids yet to walk, when it's an array
         self.builder = None
-        self.scanner = None     # explicit scanner from this node's Builder
-        self.scanned = {}       # cached scanned values
-        self.src_scanners = {}  # scanners for this node's source files
+        self.source_scanner = None      # implicit scanner from scanner map
+        self.target_scanner = None      # explicit scanner from this node's Builder
         self.env = None
         self.state = None
         self.bsig = None
@@ -75,11 +75,14 @@ class Node:
         self.use_signature = 1
         self.precious = None
         self.found_includes = {}
+        self.includes = None
 
     def build(self):
         """Actually build the node.   Return the status from the build."""
-	if not self.builder:
-	    return None
+        # This method is called from multiple threads in a parallel build,
+        # so only do thread safe stuff here. Do thread unsafe stuff in built().
+        if not self.builder:
+            return None
         try:
             # If this Builder instance has already been called,
             # there will already be an associated status.
@@ -103,16 +106,33 @@ class Node:
         if stat:
             raise BuildError(node = self, errstr = "Error %d" % stat)
 
-        self.found_includes = {}
-
-        # If we successfully build a node, then we need to rescan for
-        # implicit dependencies, since it might have changed on us.
-        self.scanned = {}
-
         return stat
 
+    def built(self):
+        """Called just after this node is sucessfully built."""
+        # Clear out the implicit dependency caches:
+        # XXX this really should somehow be made more general and put
+        #     under the control of the scanners.
+        if self.source_scanner:
+            self.found_includes = {}
+            self.includes = None
+            
+            def get_parents(node, parent): return node.get_parents()
+            def clear_cache(node, parent): 
+                node.implicit = []
+            w = Walker(self, get_parents, ignore_cycle, clear_cache)
+            while w.next(): pass
+
+    def depends_on(self, nodes):
+        """Does this node depend on any of 'nodes'?"""
+        for node in nodes:
+            if node in self.children():
+                return 1
+
+        return 0
+
     def builder_set(self, builder):
-	self.builder = builder
+        self.builder = builder
 
     def builder_sig_adapter(self):
         """Create an adapter for calculating a builder's signature.
@@ -136,19 +156,21 @@ class Node:
                 return self.node.builder.get_contents(env = dict)
         return Adapter(self)
 
-    def scanner_set(self, scanner):
-        self.scanner = scanner
+    def get_implicit_deps(self, env, scanner, target):
+        """Return a list of implicit dependencies for this node"""
+        return []
 
-    def src_scanner_set(self, key, scanner):
-        self.src_scanners[key] = scanner
-
-    def src_scanner_get(self, key):
-        return self.src_scanners.get(key, None)
-
-    def scan(self, scanner = None):
-        if not scanner:
-            scanner = self.scanner
-        self.scanned[scanner] = 1
+    def scan(self):
+        """Scan this node's dependents for implicit dependencies."""
+        # Don't bother scanning non-derived files, because we don't
+	# care what their dependencies are.
+        # Don't scan again, if we already have scanned.
+        if self.builder and not self.implicit: 
+            for child in self.children(scan=0):
+                self._add_child(self.implicit, child.get_implicit_deps(self.env, child.source_scanner, self))
+            
+            # scan this node itself for implicit dependencies
+            self._add_child(self.implicit, self.get_implicit_deps(self.env, self.target_scanner, self))
 
     def scanner_key(self):
         return None
@@ -156,7 +178,7 @@ class Node:
     def env_set(self, env, safe=0):
         if safe and self.env:
             return
-	self.env = env
+        self.env = env
 
     def get_bsig(self):
         """Get the node's build signature (based on the signatures
@@ -190,7 +212,7 @@ class Node:
         pass
 
     def add_dependency(self, depend):
-	"""Adds dependencies. The depend argument must be a list."""
+        """Adds dependencies. The depend argument must be a list."""
         self._add_child(self.depends, depend)
 
     def add_ignore(self, depend):
@@ -198,23 +220,16 @@ class Node:
         self._add_child(self.ignore, depend)
 
     def add_source(self, source):
-	"""Adds sources. The source argument must be a list."""
+        """Adds sources. The source argument must be a list."""
         self._add_child(self.sources, source)
-
-    def add_implicit(self, implicit, key):
-        """Adds implicit (scanned) dependencies. The implicit
-        argument must be a list."""
-        if not self.implicit.has_key(key):
-             self.implicit[key] = []
-        self._add_child(self.implicit[key], implicit)
 
     def _add_child(self, collection, child):
         """Adds 'child' to 'collection'. The 'child' argument must be a list"""
         if type(child) is not type([]):
             raise TypeError("child must be a list")
-	child = filter(lambda x, s=collection: x not in s, child)
-	if child:
-	    collection.extend(child)
+        child = filter(lambda x, s=collection: x not in s, child)
+        if child:
+            collection.extend(child)
 
         for c in child:
             c.parents[self] = 1
@@ -224,22 +239,18 @@ class Node:
         if self.wkids != None:
             self.wkids.append(wkid)
 
-    def children(self, scanner):
+    def children(self, scan=1):
         """Return a list of the node's direct children, minus those
         that are ignored by this node."""
         return filter(lambda x, i=self.ignore: x not in i,
-                      self.all_children(scanner))
+                      self.all_children(scan))
 
-    def all_children(self, scanner):
+    def all_children(self, scan=1):
         """Return a list of all the node's direct children."""
         #XXX Need to remove duplicates from this
-        if not self.implicit.has_key(scanner):
-            self.scan(scanner)
-        if scanner:
-            implicit = self.implicit[scanner]
-        else:
-            implicit = reduce(lambda x, y: x + y, self.implicit.values(), [])
-        return self.sources + self.depends + implicit
+        if scan and not self.implicit:
+            self.scan()
+        return self.sources + self.depends + self.implicit
 
     def get_parents(self):
         return self.parents.keys()
@@ -253,14 +264,7 @@ class Node:
     def current(self):
         return None
 
-    def children_are_executed(self, scanner):
-        return reduce(lambda x,y: ((y.get_state() == executed
-                                   or y.get_state() == up_to_date)
-                                   and x),
-                      self.children(scanner),
-                      1)
-
-def get_children(node, parent): return node.children(None)
+def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass
 def do_nothing(node, parent): pass
 
@@ -290,13 +294,13 @@ class Walker:
         self.history[node] = None
 
     def next(self):
-	"""Return the next node for this walk of the tree.
+        """Return the next node for this walk of the tree.
 
-	This function is intentionally iterative, not recursive,
-	to sidestep any issues of stack size limitations.
-	"""
+        This function is intentionally iterative, not recursive,
+        to sidestep any issues of stack size limitations.
+        """
 
-	while self.stack:
+        while self.stack:
             if self.stack[-1].wkids:
                 node = self.stack[-1].wkids.pop(0)
                 if not self.stack[-1].wkids:

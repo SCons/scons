@@ -1665,9 +1665,11 @@ the Node (file)
 and return a list of strings (file names)
 representing the implicit
 dependencies found in the contents.
-The function takes three arguments:
+The function takes three or four arguments:
 
-    def scanner_function(node, env, arg):
+    def scanner_function(node, env, target):
+
+    def scanner_function(node, env, target, arg):
 
 The
 .B node
@@ -1687,9 +1689,14 @@ Fetch values from it using the
 method.
 
 The
+.B target
+argument is the internal
+SCons node representing the target file.
+
+The
 .B arg
 argument is the argument supplied
-when the scanner was created.
+when the scanner was created, if any.
 
 .SH EXAMPLES
 
@@ -1780,7 +1787,7 @@ import re
 
 include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
 
-def kfile_scan(node, env, arg):
+def kfile_scan(node, env, target, arg):
     contents = node.get_contents()
     includes = include_re.findall(contents)
     return includes

@@ -20,15 +20,16 @@ more effectively, please sign up for the scons-users mailing list at:
 
 
 
-RELEASE 0.06 - Thu, 28 Mar 2002 01:24:29 -0600
+RELEASE 0.07 - 
 
-  This is the sixth alpha release of SCons.  Please consult the
+  This is the seventh alpha release of SCons.  Please consult the
   CHANGES.txt file for a list of specific changes since last release.
 
   Please note the following important changes since the previous
   release:
 
-    - Python functions as Builder actions now take Node objects, not
+    - Scanner functions now take four arguments.
+
       strings, as arguments.  The string representation of a Node
       object is the file name, so you should change your function
       actions to use the str() built-in function to fetch the file

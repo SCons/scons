@@ -77,18 +77,47 @@ tree = """
 +-%s
   +-foo%s
   | +-foo.c
-  |   +-foo.h
-  |   +-bar.h
+  | +-foo.h
+  | +-bar.h
   +-bar%s
     +-bar.c
-      +-bar.h
-      +-foo.h
+    +-bar.h
+    +-foo.h
 """ % (foo, obj,obj)
 
 test.fail_test(string.find(test.stdout(), tree) == -1)
 
 test.run(arguments = "--debug=tree " + foo)
 test.fail_test(string.find(test.stdout(), tree) == -1)
+
+tree = """scons: \".\" is up to date.
+
++-.
+  +-SConstruct
+  +-bar.c
+  +-bar.h
+  +-bar%(obj)s
+  | +-bar.c
+  | +-bar.h
+  | +-foo.h
+  +-%(foo)s
+  | +-foo%(obj)s
+  | | +-foo.c
+  | | +-foo.h
+  | | +-bar.h
+  | +-bar%(obj)s
+  |   +-bar.c
+  |   +-bar.h
+  |   +-foo.h
+  +-foo.c
+  +-foo.h
+  +-foo%(obj)s
+    +-foo.c
+    +-foo.h
+    +-bar.h
+""" % globals()
+test.run(arguments = "--debug=tree .")
+test.fail_test(string.find(test.stdout(), tree) != 0)
 
 test.run(arguments = "--debug=pdb", stdin = "n\ns\nq\n")
 test.fail_test(string.find(test.stdout(), "(Pdb)") == -1)

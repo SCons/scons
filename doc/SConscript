@@ -71,7 +71,7 @@ format_re = re.compile(r'<(?:graphic|imagedata)\s+fileref="([^"]*)"(?:\s+format=
 # defined as a SYSTEM entity is, in fact, a file included
 # somewhere in the document.
 #
-def scansgml(node, env, argument = None):
+def scansgml(node, env, target):
     includes = []
 
     contents = node.get_contents()
@@ -83,11 +83,21 @@ def scansgml(node, env, argument = None):
         file, format = m
         if format and file[-len(format):] != format:
             file = file + format
-        if argument and not os.path.isabs(file):
-            file = os.path.join(argument, file)
+        if not os.path.isabs(file):
+            a = []
+            f = file
+            while 1:
+                f, tail = os.path.split(f)
+                if tail == 'doc':
+                    break
+                a = [tail] + a
+            file = apply(os.path.join, a, {})
         includes.append(file)
 
     return includes
+
+s = Scanner(name = 'sgml', function = scansgml, skeys = ['.sgml', '.mod'])
+env = env.Copy(SCANNERS = [s])
 
 if jw:
     #
@@ -119,9 +129,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 'ps'        : 1,
                 'pdf'       : 1,
                 'text'      : 0,
-                'scan'      : Scanner(name = 'design',
-                                      function = scansgml,
-                                      argument = 'design'),
         },
         'python10' : {
                 'htmlindex' : 't1.html',
@@ -130,19 +137,13 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
                 'pdf'       : 0,
                 'text'      : 0,
                 'graphics'  : [ 'arch', 'builder', 'job-task', 'node', 'scanner', 'sig' ],
-                'scan'      : Scanner(name = 'python10',
-                                      function = scansgml,
-                                      argument = 'python10'),
         },
         'user' : {
                 'htmlindex' : 'book1.html',
-                'html'      : 0,
-                'ps'        : 0,
-                'pdf'       : 0,
+                'html'      : 1,
+                'ps'        : 1,
+                'pdf'       : 1,
                 'text'      : 0,
-                'scan'      : Scanner(name = 'user',
-                                      function = scansgml,
-                                      argument = 'user'),
         },
     }
 
@@ -154,11 +155,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         'scons.mod',
         'copyright.sgml',
     ]
-
-    s = Scanner(name = 'sgml', function = scansgml)
-
-    for sgml in included_sgml:
-        File(sgml).scanner_set(s)
 
     #
     # For each document, build the document itself in HTML, Postscript,
@@ -174,10 +170,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
         ps = os.path.join('PS', 'scons-%s.ps' % doc)
         pdf = os.path.join('PDF', 'scons-%s.pdf' % doc)
         text = os.path.join('TEXT', 'scons-%s.txt' % doc)
-
-        s = docs[doc].get('scan')
-        if s:
-            File(main).scanner_set(s)
 
         if docs[doc].get('html') and jade:
             cmds = [

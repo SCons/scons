@@ -192,36 +192,14 @@ class Calculator:
         if not bsig is None:
             return bsig
 
-        # Collect the signatures for ALL the nodes that this
-        # node depends on. Just collecting the direct
-        # dependants is not good enough, because
-        # the signature of a non-derived file does
-        # not include the signatures of its psuedo-sources
-        # (e.g. the signature for a .c file does not include
-        # the signatures of the .h files that it includes).
-
-        # However, we do NOT want to walk dependencies of non-
-        # derived files, because calling get_signature() on the
-        # derived nodes will in turn call bsig() again and do that
-        # for us.  Hence:
         sigs = []
-        def non_derived(n, parent, myself=node):
-            if not n.builder or n is myself:
-                return filter(lambda x, i=myself.ignore: x not in i,
-                              n.all_children(None))
-            return []
-        def get_sig(n, parent, self=self, myself=node, sigs=sigs):
-            if not n is myself:
-                sigs.append(self.get_signature(n))
-        walker = SCons.Node.Walker(node, non_derived, eval_func=get_sig)
-        child = walker.next()
-        while child:
-            child = walker.next()
-
+        for child in node.children():
+            sigs.append(self.get_signature(child))
         if node.builder:
             sigs.append(self.module.signature(node.builder_sig_adapter()))
-        return self.module.collect(filter(lambda x: not x is None, sigs))
 
+        return self.module.collect(filter(lambda x: not x is None, sigs))
+        
     def csig(self, node):
         """
         Generate a node's content signature, the digested signature
@@ -239,7 +217,7 @@ class Calculator:
             return csig
         
         return self.module.signature(node)
-
+        
     def get_signature(self, node):
         """
         Get the appropriate signature for a node.

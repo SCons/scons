@@ -114,7 +114,7 @@ class FS:
         
     def getcwd(self):
         self.__setTopLevelDir()
-	return self._cwd
+        return self._cwd
 
     def __checkClass(self, node, klass):
         if klass == Entry:
@@ -132,9 +132,9 @@ class FS:
         """This method differs from the File and Dir factory methods in
         one important way: the meaning of the directory parameter.
         In this method, if directory is None or not supplied, the supplied
-	name is expected to be an absolute path.  If you try to look up a
-	relative path with directory=None, then an AssertionError will be
-	raised."""
+        name is expected to be an absolute path.  If you try to look up a
+        relative path with directory=None, then an AssertionError will be
+        raised."""
 
         if not name:
             # This is a stupid hack to compensate for the fact
@@ -280,12 +280,12 @@ class Entry(SCons.Node.Node):
     """
 
     def __init__(self, name, directory):
-	"""Initialize a generic file system Entry.
-	
-	Call the superclass initialization, take care of setting up
-	our relative and absolute paths, identify our parent
-	directory, and indicate that this node should use
-	signatures."""
+        """Initialize a generic file system Entry.
+        
+        Call the superclass initialization, take care of setting up
+        our relative and absolute paths, identify our parent
+        directory, and indicate that this node should use
+        signatures."""
         SCons.Node.Node.__init__(self)
 
         self.name = name
@@ -302,9 +302,10 @@ class Entry(SCons.Node.Node):
         self.path_ = self.path
         self.abspath_ = self.abspath
         self.dir = directory
-	self.use_signature = 1
+        self.use_signature = 1
         self.__doSrcpath(self.duplicate)
         self.srcpath_ = self.srcpath
+        self.cwd = None # will hold the SConscript directory for target nodes
 
     def get_dir(self):
         return self.dir
@@ -320,7 +321,7 @@ class Entry(SCons.Node.Node):
             self.srcpath = self.dir.srcpath_ + self.name
 
     def __str__(self):
-	"""A FS node's string representation is its path name."""
+        """A FS node's string representation is its path name."""
         if self.duplicate or self.builder:
             return self.path
         else:
@@ -374,17 +375,17 @@ class Dir(Entry):
 
     def __init__(self, name, directory):
         Entry.__init__(self, name, directory)
-	self._morph()
+        self._morph()
 
     def _morph(self):
-	"""Turn a file system node (either a freshly initialized
-	directory object or a separate Entry object) into a
-	proper directory object.
-	
-	Modify our paths to add the trailing slash that indicates
-	a directory.  Set up this directory's entries and hook it
-	into the file system tree.  Specify that directories (this
-	node) don't use signatures for currency calculation."""
+        """Turn a file system node (either a freshly initialized
+        directory object or a separate Entry object) into a
+        proper directory object.
+        
+        Modify our paths to add the trailing slash that indicates
+        a directory.  Set up this directory's entries and hook it
+        into the file system tree.  Specify that directories (this
+        node) don't use signatures for currency calculation."""
 
         self.path_ = self.path + os.sep
         self.abspath_ = self.abspath + os.sep
@@ -423,18 +424,18 @@ class Dir(Entry):
         else:
             return self.entries['..'].root()
 
-    def children(self, scanner):
-	#XXX --random:  randomize "dependencies?"
-	keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
-	kids = map(lambda x, s=self: s.entries[x], keys)
-	def c(one, two):
+    def all_children(self, scanner):
+        #XXX --random:  randomize "dependencies?"
+        keys = filter(lambda k: k != '.' and k != '..', self.entries.keys())
+        kids = map(lambda x, s=self: s.entries[x], keys)
+        def c(one, two):
             if one.abspath < two.abspath:
                return -1
             if one.abspath > two.abspath:
                return 1
             return 0
-	kids.sort(c)
-	return kids
+        kids.sort(c)
+        return kids
 
     def build(self):
         """A null "builder" for directories."""
@@ -529,14 +530,12 @@ class File(Entry):
         .sconsign entry."""
         return self.dir.sconsign().get(self.name)
 
-    def scan(self, scanner = None):
-        if not scanner:
-            scanner = self.scanner
-        if scanner and not self.scanned.has_key(scanner):
-            deps = scanner.scan(self, self.env)
-            self.add_implicit(deps, scanner)
-            self.scanned[scanner] = 1
-                    
+    def get_implicit_deps(self, env, scanner, target):
+        if scanner:
+            return scanner.scan(self, env, target)
+        else:
+            return []
+
     def exists(self):
         if self.duplicate and not self.created:
             self.created = 1

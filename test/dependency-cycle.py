@@ -43,14 +43,16 @@ test.write('f1.c', r"""
 void
 f1(void)
 {
-	printf("f1.c\n");
-}
+        printf("f1.c\n");
+} 
 """)
 
-test.run(arguments = ".", stdout = "", stderr=r"""
+test.run(arguments = ".", stderr=r"""
 SCons error: Dependency cycle: .*foo1.* -> .*foo3.* -> .*foo2.* -> .*foo1.* -> \.
 .*
 """, status=2)
+
+test.fail_test(test.stdout() == "")
 
 
 test.pass_test()

@@ -41,7 +41,7 @@ cycle_detected = None
 class Builder:
     def execute(self, **kw):
         global built_it, built_target, built_source
-	built_it = 1
+        built_it = 1
         built_target = kw['target']
         built_source = kw['source']
         return 0
@@ -87,17 +87,17 @@ class Environment:
 class NodeTestCase(unittest.TestCase):
 
     def test_BuildException(self):
-	"""Test throwing an exception on build failure.
-	"""
-	node = SCons.Node.Node()
-	node.builder_set(FailBuilder())
-	node.env_set(Environment())
-	try:
-	    node.build()
-	except SCons.Errors.BuildError:
-	    pass
-	else:
-	    raise TestFailed, "did not catch expected BuildError"
+        """Test throwing an exception on build failure.
+        """
+        node = SCons.Node.Node()
+        node.builder_set(FailBuilder())
+        node.env_set(Environment())
+        try:
+            node.build()
+        except SCons.Errors.BuildError:
+            pass
+        else:
+            raise TestFailed, "did not catch expected BuildError"
 
         node = SCons.Node.Node()
         node.builder_set(ExceptBuilder())
@@ -126,8 +126,8 @@ class NodeTestCase(unittest.TestCase):
             raise TestFailed, "did not catch expected BuildError"
 
     def test_build(self):
-	"""Test building a node
-	"""
+        """Test building a node
+        """
         global built_it
 
         class MyNode(SCons.Node.Node):
@@ -138,18 +138,18 @@ class NodeTestCase(unittest.TestCase):
                 return self.path
             def prepare(self):
                 self.prepare_count = self.prepare_count+ 1
-	# Make sure it doesn't blow up if no builder is set.
+        # Make sure it doesn't blow up if no builder is set.
         node = MyNode()
-	node.build()
-	assert built_it == None
+        node.build()
+        assert built_it == None
 
         node = MyNode()
-	node.builder_set(Builder())
-	node.env_set(Environment())
+        node.builder_set(Builder())
+        node.env_set(Environment())
         node.path = "xxx"
         node.sources = ["yyy", "zzz"]
-	node.build()
-	assert built_it
+        node.build()
+        assert built_it
         assert type(built_target) == type(MyNode()), type(built_target)
         assert str(built_target) == "xxx", str(built_target)
         assert built_source == ["yyy", "zzz"], built_source
@@ -201,13 +201,19 @@ class NodeTestCase(unittest.TestCase):
         assert str(built_target) == "fff", str(built_target)
         assert built_source == ["hhh", "iii"], built_source
 
+    def test_depends_on(self):
+        parent = SCons.Node.Node()
+        child = SCons.Node.Node()
+        parent.add_dependency([child])
+        assert parent.depends_on([child])
+        
     def test_builder_set(self):
-	"""Test setting a Node's Builder
-	"""
-	node = SCons.Node.Node()
-	b = Builder()
-	node.builder_set(b)
-	assert node.builder == b
+        """Test setting a Node's Builder
+        """
+        node = SCons.Node.Node()
+        b = Builder()
+        node.builder_set(b)
+        assert node.builder == b
 
     def test_builder_sig_adapter(self):
         """Test the node's adapter for builder signatures
@@ -225,12 +231,12 @@ class NodeTestCase(unittest.TestCase):
         assert node.current() is None
 
     def test_env_set(self):
-	"""Test setting a Node's Environment
-	"""
-	node = SCons.Node.Node()
-	e = Environment()
-	node.env_set(e)
-	assert node.env == e
+        """Test setting a Node's Environment
+        """
+        node = SCons.Node.Node()
+        e = Environment()
+        node.env_set(e)
+        assert node.env == e
 
     def test_set_bsig(self):
         """Test setting a Node's signature
@@ -276,16 +282,16 @@ class NodeTestCase(unittest.TestCase):
         assert node.precious == 7
 
     def test_add_dependency(self):
-	"""Test adding dependencies to a Node's list.
-	"""
-	node = SCons.Node.Node()
-	assert node.depends == []
+        """Test adding dependencies to a Node's list.
+        """
+        node = SCons.Node.Node()
+        assert node.depends == []
 
         zero = SCons.Node.Node()
         try:
-	    node.add_dependency(zero)
-	except TypeError:
-	    pass
+            node.add_dependency(zero)
+        except TypeError:
+            pass
         else:
             assert 0
 
@@ -309,16 +315,16 @@ class NodeTestCase(unittest.TestCase):
 
 
     def test_add_source(self):
-	"""Test adding sources to a Node's list.
-	"""
-	node = SCons.Node.Node()
-	assert node.sources == []
+        """Test adding sources to a Node's list.
+        """
+        node = SCons.Node.Node()
+        assert node.sources == []
 
         zero = SCons.Node.Node()
-	try:
-	    node.add_source(zero)
-	except TypeError:
-	    pass
+        try:
+            node.add_source(zero)
+        except TypeError:
+            pass
         else:
             assert 0
 
@@ -339,47 +345,6 @@ class NodeTestCase(unittest.TestCase):
         assert two.get_parents() == [node]
         assert three.get_parents() == [node]
         assert four.get_parents() == [node]
-
-    def test_add_implicit(self):
-        """Test adding implicit (scanned) dependencies to a Node's list.
-        """
-        node = SCons.Node.Node()
-        assert node.implicit == {}
-
-        zero = SCons.Node.Node()
-        try:
-            node.add_source(zero)
-        except TypeError:
-            pass
-        else:
-            assert 0
-
-        one = SCons.Node.Node()
-        two = SCons.Node.Node()
-        three = SCons.Node.Node()
-        four = SCons.Node.Node()
-
-        node.add_implicit([one], 1)
-        assert node.implicit[1] == [one]
-        node.add_implicit([two, three], 1)
-        assert node.implicit[1] == [one, two, three]
-        node.add_implicit([three, four, one], 1)
-        assert node.implicit[1] == [one, two, three, four]
-
-        assert zero.get_parents() == []
-        assert one.get_parents() == [node]
-        assert two.get_parents() == [node]
-        assert three.get_parents() == [node]
-        assert four.get_parents() == [node]
-
-        node.add_implicit([one], 2)
-        node.add_implicit([two, three], 3)
-        node.add_implicit([three, four, one], 4)
-
-        assert node.implicit[1] == [one, two, three, four]
-        assert node.implicit[2] == [one]
-        assert node.implicit[3] == [two, three]
-        assert node.implicit[4] == [three, four, one]
 
     def test_add_ignore(self):
         """Test adding files whose dependencies should be ignored.
@@ -419,42 +384,9 @@ class NodeTestCase(unittest.TestCase):
             pass
         ds=DummyScanner()
         node = SCons.Node.Node()
-        assert node.scanner == None, node.scanner
-        node.scanner_set(ds)
-        assert node.scanner == ds, node.scanner
-        node.scan(ds)
-        assert node.scanned[ds] == 1, node.scanned
-
-    def test_src_scanner_set(self):
-        """Test setting source-file Scanners"""
-        class DummyScanner:
-            pass
-        ds1=DummyScanner()
-        ds2=DummyScanner()
-        node = SCons.Node.Node()
-        assert node.src_scanners == {}, node.src_scanners
-        node.src_scanner_set('a', ds1)
-        assert node.src_scanners['a'] == ds1, node.src_scanners
-        node.src_scanner_set('b', ds2)
-        assert node.src_scanners['b'] == ds2, node.src_scanners
-
-    def test_src_scanner_set(self):
-        """Test setting source-file Scanners"""
-        class DummyScanner:
-            pass
-        ds1=DummyScanner()
-        ds2=DummyScanner()
-        node = SCons.Node.Node()
-        node.src_scanner_set('a', ds1)
-        node.src_scanner_set('b', ds2)
-        s = node.src_scanner_get(None)
-        assert s == None, s
-        s = node.src_scanner_get('a')
-        assert s == ds1, s
-        s = node.src_scanner_get('b')
-        assert s == ds2, s
-        s = node.src_scanner_get('c')
-        assert s == None, s
+        assert node.target_scanner == None, node.target_scanner
+        node.target_scanner = ds
+        node.scan()
 
     def test_scanner_key(self):
         """Test that a scanner_key() method exists"""
@@ -463,7 +395,7 @@ class NodeTestCase(unittest.TestCase):
     def test_children(self):
         """Test fetching the non-ignored "children" of a Node.
         """
-	node = SCons.Node.Node()
+        node = SCons.Node.Node()
         n1 = SCons.Node.Node()
         n2 = SCons.Node.Node()
         n3 = SCons.Node.Node()
@@ -479,26 +411,14 @@ class NodeTestCase(unittest.TestCase):
 
         node.add_source([n1, n2, n3])
         node.add_dependency([n4, n5, n6])
-        node.add_implicit([n7, n8, n9], 'key1')
-        node.add_implicit([n10, n11, n12], 'key2')
+        node._add_child(node.implicit, [n7, n8, n9])
+        node._add_child(node.implicit, [n10, n11, n12])
         node.add_ignore([n2, n5, n8, n11])
 
-        kids = node.children(None)
+        kids = node.children()
         for kid in [n1, n3, n4, n6, n7, n9, n10, n12]:
             assert kid in kids, kid
         for kid in [n2, n5, n8, n11]:
-            assert not kid in kids, kid
-
-        kids = node.children('key1')
-        for kid in [n1, n3, n4, n6, n7, n9]:
-            assert kid in kids, kid
-        for kid in [n2, n5, n8, n10, n11, n12]:
-            assert not kid in kids, kid
-
-        kids = node.children('key2')
-        for kid in [n1, n3, n4, n6, n10, n12]:
-            assert kid in kids, kid
-        for kid in [n2, n5, n7, n8, n9, n11]:
             assert not kid in kids, kid
 
     def test_all_children(self):
@@ -520,29 +440,17 @@ class NodeTestCase(unittest.TestCase):
 
         node.add_source([n1, n2, n3])
         node.add_dependency([n4, n5, n6])
-        node.add_implicit([n7, n8, n9], 'key1')
-        node.add_implicit([n10, n11, n12], 'key2')
+        node._add_child(node.implicit, [n7, n8, n9])
+        node._add_child(node.implicit, [n10, n11, n12])
         node.add_ignore([n2, n5, n8, n11])
 
-        kids = node.all_children(None)
+        kids = node.all_children()
         for kid in [n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12]:
             assert kid in kids
 
-        kids = node.all_children('key1')
-        for kid in [n1, n2, n3, n4, n5, n6, n7, n8, n9]:
-            assert kid in kids
-        for kid in [n10, n11, n12]:
-            assert not kid in kids
-
-        kids = node.all_children('key2')
-        for kid in [n1, n2, n3, n4, n5, n6, n10, n11, n12]:
-            assert kid in kids
-        for kid in [n7, n8, n9]:
-            assert not kid in kids
-
     def test_state(self):
-	"""Test setting and getting the state of a node
-	"""
+        """Test setting and getting the state of a node
+        """
         node = SCons.Node.Node()
         assert node.get_state() == None
         node.set_state(SCons.Node.executing)
@@ -553,51 +461,51 @@ class NodeTestCase(unittest.TestCase):
         assert SCons.Node.executed < SCons.Node.failed
 
     def test_walker(self):
-	"""Test walking a Node tree.
-	"""
+        """Test walking a Node tree.
+        """
 
-	class MyNode(SCons.Node.Node):
-	    def __init__(self, name):
-		SCons.Node.Node.__init__(self)
-		self.name = name
+        class MyNode(SCons.Node.Node):
+            def __init__(self, name):
+                SCons.Node.Node.__init__(self)
+                self.name = name
 
-    	n1 = MyNode("n1")
+        n1 = MyNode("n1")
 
-	nw = SCons.Node.Walker(n1)
+        nw = SCons.Node.Walker(n1)
         assert not nw.is_done()
-	assert nw.next().name ==  "n1"
+        assert nw.next().name ==  "n1"
         assert nw.is_done()
-	assert nw.next() == None
+        assert nw.next() == None
 
-    	n2 = MyNode("n2")
-    	n3 = MyNode("n3")
-	n1.add_source([n2, n3])
+        n2 = MyNode("n2")
+        n3 = MyNode("n3")
+        n1.add_source([n2, n3])
 
-	nw = SCons.Node.Walker(n1)
-	assert nw.next().name ==  "n2"
-	assert nw.next().name ==  "n3"
-	assert nw.next().name ==  "n1"
-	assert nw.next() == None
+        nw = SCons.Node.Walker(n1)
+        assert nw.next().name ==  "n2"
+        assert nw.next().name ==  "n3"
+        assert nw.next().name ==  "n1"
+        assert nw.next() == None
 
-	n4 = MyNode("n4")
-	n5 = MyNode("n5")
-	n6 = MyNode("n6")
-	n7 = MyNode("n7")
-	n2.add_source([n4, n5])
-	n3.add_dependency([n6, n7])
+        n4 = MyNode("n4")
+        n5 = MyNode("n5")
+        n6 = MyNode("n6")
+        n7 = MyNode("n7")
+        n2.add_source([n4, n5])
+        n3.add_dependency([n6, n7])
 
-	nw = SCons.Node.Walker(n1)
-	assert nw.next().name ==  "n4"
-	assert nw.next().name ==  "n5"
+        nw = SCons.Node.Walker(n1)
+        assert nw.next().name ==  "n4"
+        assert nw.next().name ==  "n5"
         assert nw.history.has_key(n2)
-	assert nw.next().name ==  "n2"
-	assert nw.next().name ==  "n6"
-	assert nw.next().name ==  "n7"
+        assert nw.next().name ==  "n2"
+        assert nw.next().name ==  "n6"
+        assert nw.next().name ==  "n7"
         assert nw.history.has_key(n3)
-	assert nw.next().name ==  "n3"
+        assert nw.next().name ==  "n3"
         assert nw.history.has_key(n1)
-	assert nw.next().name ==  "n1"
-	assert nw.next() == None
+        assert nw.next().name ==  "n1"
+        assert nw.next() == None
 
         n8 = MyNode("n8")
         n8.add_dependency([n3])
@@ -620,69 +528,6 @@ class NodeTestCase(unittest.TestCase):
         assert n.name == "n7", n.name
         n = nw.next()
         assert nw.next() == None
-
-    def test_children_are_executed(self):
-        n1 = SCons.Node.Node()
-        n2 = SCons.Node.Node()
-        n3 = SCons.Node.Node()
-        n4 = SCons.Node.Node()
-
-        n4.add_source([n3])
-        n3.add_source([n1, n2])
-
-        assert not n4.children_are_executed(None)
-        assert not n3.children_are_executed(None)
-        assert n2.children_are_executed(None)
-        assert n1.children_are_executed(None)
-
-        n1.set_state(SCons.Node.executed)
-        assert not n4.children_are_executed(None)
-        assert not n3.children_are_executed(None)
-        assert n2.children_are_executed(None)
-        assert n1.children_are_executed(None)
-
-        n2.set_state(SCons.Node.executed)
-        assert not n4.children_are_executed(None)
-        assert n3.children_are_executed(None)
-        assert n2.children_are_executed(None)
-        assert n1.children_are_executed(None)
-
-        n3.set_state(SCons.Node.executed)
-        assert n4.children_are_executed(None)
-        assert n3.children_are_executed(None)
-        assert n2.children_are_executed(None)
-        assert n1.children_are_executed(None)
-
-    def test_rescan(self):
-        """Test that built node implicit dependencies are cleared
-	to be rescanned."""
-        class DummyScanner:
-            pass
-        
-        class TestNode(SCons.Node.Node):
-            def scan(self, scanner):
-                if not self.scanned.has_key(scanner):
-                    n=SCons.Node.Node()
-                    n.scanner_set(scanner)
-                    self.add_implicit([ n ], scanner)
-                self.scanned[scanner] = 1
-        tn=TestNode()
-        tn.builder_set(Builder())
-        tn.env_set(Environment())
-        ds = DummyScanner()
-        tn.scan(ds)
-        map(lambda x: x.scan(), tn.depends)
-        assert tn.scanned[ds]
-        assert len(tn.implicit[ds]) == 1, tn.implicit
-        tn.scan(ds)
-        assert tn.scanned[ds]
-        assert len(tn.implicit[ds]) == 1, tn.implicit
-        tn.build()
-        assert not tn.scanned.has_key(ds)
-        assert len(tn.implicit[ds]) == 1, tn.implicit
-        tn.scan(ds)
-        assert tn.scanned[ds]
-        assert len(tn.implicit[ds]) == 2, tn.implicit
 
     def test_arg2nodes(self):
         """Test the arg2nodes function."""
@@ -779,4 +624,4 @@ class NodeTestCase(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.makeSuite(NodeTestCase, 'test_')
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
-	sys.exit(1)
+        sys.exit(1)

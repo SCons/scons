@@ -61,7 +61,7 @@ import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
-def kfile_scan(node, env, arg):
+def kfile_scan(node, env, target, arg):
     contents = node.get_contents()
     includes = include_re.findall(contents)
     return includes
@@ -77,7 +77,7 @@ env.Command('foo', 'foo.k', '%s build.py $SOURCES $TARGET')
 
 bar_in = File('bar.in')
 env.Command('bar', bar_in, '%s build.py $SOURCES  $TARGET')
-bar_in.scanner_set(kscan)
+bar_in.source_scanner = kscan
 """ % (python, python))
 
 test.write('foo.k', 
@@ -131,5 +131,7 @@ test.run(arguments = '.')
 test.fail_test(test.read('foo') != "foo.k 1 line 1\nxxx 2\nyyy 2\nfoo.k 1 line 4\n")
 
 test.fail_test(test.read('bar') != "yyy 2\nbar.in 1 line 2\nbar.in 1 line 3\nzzz 2\n")
+
+test.run(arguments = 'foo', stdout='scons: "foo" is up to date.\n')
 
 test.pass_test()

@@ -41,45 +41,16 @@ import SCons.Util
 
 include_re = re.compile('^[ \t]*#[ \t]*include[ \t]+(<|")([\\w./\\\\]+)(>|")', re.M)
 
-include_cache = {}
-
 def CScan(fs = SCons.Node.FS.default_fs):
     """Return a prototype Scanner instance for scanning source files
     that use the C pre-processor"""
-    cs = CScanner(scan, "CScan", [fs, ()],
-                  [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
-                   ".h", ".H", ".hxx", ".hpp", ".hh",
-                   ".F", ".fpp", ".FPP"])
-    cs.fs = fs
+    cs = SCons.Scanner.Recursive(scan, "CScan", fs,
+                                 [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+                                  ".h", ".H", ".hxx", ".hpp", ".hh",
+                                  ".F", ".fpp", ".FPP"])
     return cs
 
-class CScanner(SCons.Scanner.Recursive):
-    def __init__(self, *args, **kw):
-        apply(SCons.Scanner.Recursive.__init__, (self,) + args, kw)
-        self.hash = None
-        self.pathscanners = {}
-
-    def instance(self, env):
-        """
-        Return a unique instance of a C scanner object for a
-        given environment.
-        """
-        try:
-            dirs = tuple(SCons.Node.arg2nodes(env.Dictionary('CPPPATH'),
-                                              self.fs.Dir))
-        except:
-            dirs = ()
-        if not self.pathscanners.has_key(dirs):
-            clone = copy.copy(self)
-            clone.hash = dirs
-            clone.argument = [self.fs, dirs]	# XXX reaching into object
-            self.pathscanners[dirs] = clone
-        return self.pathscanners[dirs]
-
-    def __hash__(self):
-        return hash(self.hash)
-
-def scan(node, env, args = [SCons.Node.FS.default_fs, ()]):
+def scan(node, env, target, fs = SCons.Node.FS.default_fs):
     """
     scan(node, Environment) -> [node]
 
@@ -100,7 +71,21 @@ def scan(node, env, args = [SCons.Node.FS.default_fs, ()]):
     dependencies.
     """
 
-    fs, cpppath = args
+    # This function caches various information in node and target:
+    # target.cpppath - env['CPPPATH'] converted to nodes
+    # node.found_includes - include files found by previous call to scan, 
+    #     keyed on cpppath
+    # node.includes - the result of include_re.findall()
+
+    if not hasattr(target, 'cpppath'):
+        def Dir(x, dir=target.cwd, fs=fs): return fs.Dir(x,dir)
+        try:
+            target.cpppath = tuple(SCons.Node.arg2nodes(env['CPPPATH'],Dir))
+        except KeyError:
+            target.cpppath = ()
+
+    cpppath = target.cpppath
+
     nodes = []
 
     try:
@@ -109,7 +94,7 @@ def scan(node, env, args = [SCons.Node.FS.default_fs, ()]):
         if node.exists():
 
             # cache the includes list in node so we only scan it once:
-            if hasattr(node, 'includes'):
+            if node.includes != None:
                 includes = node.includes
             else:
                 includes = include_re.findall(node.get_contents())

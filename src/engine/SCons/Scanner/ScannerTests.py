@@ -27,11 +27,16 @@ import unittest
 import SCons.Scanner
 import sys
 
+class DummyTarget:
+    cwd = None
+    
+
 class ScannerTestBase:
     
-    def func(self, filename, env, *args):
+    def func(self, filename, env, target, *args):
         self.filename = filename
         self.env = env
+        self.target = target
 
         if len(args) > 0:
             self.arg = args[0]
@@ -41,7 +46,7 @@ class ScannerTestBase:
 
     def test(self, scanner, env, filename, deps, *args):
         self.deps = deps
-        scanned = scanner.scan(filename, env)
+        scanned = scanner.scan(filename, env, DummyTarget())
         scanned_strs = map(lambda x: str(x), scanned)
 
         self.failUnless(self.filename == filename, "the filename was passed incorrectly")
@@ -67,10 +72,9 @@ class ScannerPositionalTestCase(ScannerTestBase, unittest.TestCase):
         env.VARIABLE = "var1"
         self.test(s, env, 'f1.cpp', ['f1.h', 'f1.hpp'])
 
-	env = DummyEnvironment()
-	env.VARIABLE = "i1"
-	i = s.instance(env)
-	self.test(i, env, 'i1.cpp', ['i1.h', 'i1.hpp'])
+        env = DummyEnvironment()
+        env.VARIABLE = "i1"
+        self.test(s, env, 'i1.cpp', ['i1.h', 'i1.hpp'])
 
 class ScannerKeywordTestCase(ScannerTestBase, unittest.TestCase):
     "Test the Scanner.Base class using the keyword argument"
@@ -80,10 +84,9 @@ class ScannerKeywordTestCase(ScannerTestBase, unittest.TestCase):
         env.VARIABLE = "var2"
         self.test(s, env, 'f2.cpp', ['f2.h', 'f2.hpp'])
 
-	env = DummyEnvironment()
-	env.VARIABLE = "i2"
-	i = s.instance(env)
-	self.test(i, env, 'i2.cpp', ['i2.h', 'i2.hpp'])
+        env = DummyEnvironment()
+        env.VARIABLE = "i2"
+        self.test(s, env, 'i2.cpp', ['i2.h', 'i2.hpp'])
 
 class ScannerPositionalArgumentTestCase(ScannerTestBase, unittest.TestCase):
     "Test the Scanner.Base class using both position and optional arguments"
@@ -94,10 +97,9 @@ class ScannerPositionalArgumentTestCase(ScannerTestBase, unittest.TestCase):
         env.VARIABLE = "var3"
         self.test(s, env, 'f3.cpp', ['f3.h', 'f3.hpp'], arg)
 
-	env = DummyEnvironment()
-	env.VARIABLE = "i3"
-	i = s.instance(env)
-	self.test(i, env, 'i3.cpp', ['i3.h', 'i3.hpp'], arg)
+        env = DummyEnvironment()
+        env.VARIABLE = "i3"
+        self.test(s, env, 'i3.cpp', ['i3.h', 'i3.hpp'], arg)
 
 class ScannerKeywordArgumentTestCase(ScannerTestBase, unittest.TestCase):
     "Test the Scanner.Base class using both keyword and optional arguments"
@@ -109,10 +111,9 @@ class ScannerKeywordArgumentTestCase(ScannerTestBase, unittest.TestCase):
         env.VARIABLE = "var4"
         self.test(s, env, 'f4.cpp', ['f4.h', 'f4.hpp'], arg)
 
-	env = DummyEnvironment()
-	env.VARIABLE = "i4"
-	i = s.instance(env)
-	self.test(i, env, 'i4.cpp', ['i4.h', 'i4.hpp'], arg)
+        env = DummyEnvironment()
+        env.VARIABLE = "i4"
+        self.test(s, env, 'i4.cpp', ['i4.h', 'i4.hpp'], arg)
 
 class ScannerHashTestCase(ScannerTestBase, unittest.TestCase):
     "Test the Scanner.Base class __hash__() method"
