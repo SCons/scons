@@ -81,5 +81,18 @@ test.run(arguments = '--recon ' + args, stdout = expect)
 test.fail_test(os.path.exists(test.workpath('f1.out')))
 test.fail_test(os.path.exists(test.workpath('f2.out')))
 
+test.run(arguments = args)
+test.fail_test(not os.path.exists(test.workpath('f1.out')))
+test.fail_test(not os.path.exists(test.workpath('f2.out')))
+
+expect = "Removed f1.out\nRemoved f2.out\n"
+
+test.run(arguments = '-n -c ' + args, stdout = expect)
+
+test.run(arguments = '-c -n ' + args, stdout = expect)
+
+test.fail_test(not os.path.exists(test.workpath('f1.out')))
+test.fail_test(not os.path.exists(test.workpath('f2.out')))
+
 test.pass_test()
 

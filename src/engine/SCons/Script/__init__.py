@@ -103,7 +103,11 @@ class BuildTask(SCons.Taskmaster.Task):
 
 class CleanTask(SCons.Taskmaster.Task):
     """An SCons clean task."""
-    def execute(self):
+    def show(self):
+        if self.targets[0].builder:
+            print "Removed " + self.targets[0].path
+
+    def remove(self):
         if self.targets[0].builder:
             try:
                 os.unlink(self.targets[0].path)
@@ -119,6 +123,8 @@ class CleanTask(SCons.Taskmaster.Task):
                         pass
             except IndexError:
                 pass
+
+    execute = remove
 
 class QuestionTask(SCons.Taskmaster.Task):
     """An SCons task for the -q (question) option."""
@@ -494,6 +500,7 @@ def options_init():
 
     def opt_n(opt, arg):
 	SCons.Action.execute_actions = None
+	CleanTask.execute = CleanTask.show
 
     Option(func = opt_n,
 	short = 'n', long = ['no-exec', 'just-print', 'dry-run', 'recon'],

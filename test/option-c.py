@@ -104,5 +104,22 @@ test.fail_test(os.path.exists(test.workpath('foo1.out')))
 test.fail_test(os.path.exists(test.workpath('foo2.out')))
 test.fail_test(os.path.exists(test.workpath('foo3.out')))
 
+test.run(arguments = 'foo1.out foo2.out foo3.out')
+
+expect = """Removed foo1.out
+Removed foo2.xxx
+Removed foo2.out
+Removed foo3.out
+"""
+
+test.run(arguments = '-c -n foo1.out foo2.out foo3.out', stdout = expect)
+
+test.run(arguments = '-n -c foo1.out foo2.out foo3.out', stdout = expect)
+
+test.fail_test(test.read(test.workpath('foo1.out')) != "foo1.in\n")
+test.fail_test(test.read(test.workpath('foo2.xxx')) != "foo2.in\n")
+test.fail_test(test.read(test.workpath('foo2.out')) != "foo2.in\n")
+test.fail_test(test.read(test.workpath('foo3.out')) != "foo3.in\n")
+
 test.pass_test()
  
