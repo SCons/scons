@@ -14,6 +14,10 @@ RELEASE 0.96 - XXX
 
   - Make the CacheDir() directory if it doesn't already exist.
 
+  From Bob Halley:
+
+  - Make the new *FLAGS variable type work with copied Environments.
+
   From Chris Hoeppler:
 
   - Initialize the name of a Scanner.Classic scanner correctly.

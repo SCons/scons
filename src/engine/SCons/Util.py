@@ -1196,9 +1196,7 @@ class CLVar(UserList.UserList):
     def __init__(self, seq = []):
         UserList.UserList.__init__(self, Split(seq))
     def __coerce__(self, other):
-        if is_String(other):
-            other = Split(other)
-        return (self, other)
+        return (self, CLVar(other))
     def __str__(self):
         return string.join(self.data)
 
