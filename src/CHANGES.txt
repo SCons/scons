@@ -10,6 +10,10 @@
 
 RELEASE 0.03 - 
 
+  From Charles Crain:
+
+  - Performance improvements in the Node.FS and Sig.Calculator classes.
+
   From Steven Knight:
 
   - Search both /usr/lib and /usr/local/lib for scons directories by

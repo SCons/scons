@@ -91,7 +91,7 @@ class DummyNode:
         self.csig = csig
 
     def get_csig(self):
-        return self.bsig
+        return self.csig
 
     def get_prevsiginfo(self):
         return (self.oldtime, self.oldbsig, self.oldcsig)
@@ -162,6 +162,7 @@ class SigTestBase:
         self.test_built()
         self.test_modify()
         self.test_delete()
+        self.test_cache()
         
     def test_initial(self):
         
@@ -240,7 +241,18 @@ class SigTestBase:
         self.failUnless(current(calc, nodes[8]))
         self.failUnless(not current(calc, nodes[9]), "deleted")
         self.failUnless(current(calc, nodes[10]),
-                        "current even though its source was deleted") 
+                        "current even though its source was deleted")
+
+    def test_cache(self):
+        """Test that signatures are cached properly."""
+        nodes = create_nodes(self.files)
+        
+        calc = SCons.Sig.Calculator(self.module)
+        nodes[0].set_csig(1)
+        nodes[1].set_bsig(1)
+        assert calc.csig(nodes[0]) == 1, calc.csig(nodes[0])
+        assert calc.bsig(nodes[1]) == 1, calc.bsig(nodes[1])
+        
 
 class MD5TestCase(unittest.TestCase, SigTestBase):
     """Test MD5 signatures"""

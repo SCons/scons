@@ -159,6 +159,10 @@ class Calculator:
         #XXX If configured, use the content signatures from the
         #XXX .sconsign file if the timestamps match.
 
+        bsig = node.get_bsig()
+        if not bsig is None:
+            return bsig
+
         # Collect the signatures for ALL the nodes that this
         # node depends on. Just collecting the direct
         # dependants is not good enough, because
@@ -166,7 +170,16 @@ class Calculator:
         # not include the signatures of its psuedo-sources
         # (e.g. the signature for a .c file does not include
         # the signatures of the .h files that it includes).
-        walker = SCons.Node.Walker(node)
+
+        # However, we do NOT want to walk dependencies of non-
+        # derived files, because calling get_signature() on the
+        # derived nodes will in turn call bsig() again and do that
+        # for us.  Hence:
+        def walk_non_derived(n, myself=node):
+            if not n.builder or n is myself:
+                return n.children()
+            return []
+        walker = SCons.Node.Walker(node, walk_non_derived)
         sigs = []
         while 1:
             child = walker.next()
@@ -190,6 +203,10 @@ class Calculator:
             return None
         #XXX If configured, use the content signatures from the
         #XXX .sconsign file if the timestamps match.
+        csig = node.get_csig()
+        if not csig is None:
+            return csig
+        
         return self.module.signature(node)
 
     def get_signature(self, node):
