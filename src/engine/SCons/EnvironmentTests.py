@@ -262,7 +262,7 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_subst(self):
         """Test substituting construction variables within strings
-        
+
         Check various combinations, including recursive expansion
         of variables into other variables.
         """
@@ -505,7 +505,7 @@ class EnvironmentTestCase(unittest.TestCase):
                                                        clazz=SCons.Node.FS.Dir,
                                                        must_exist=0,
                                                        cwd=SCons.Node.FS.default_fs.Dir('xx'))
-        
+
         env = Environment(LIBS = [ 'foo', 'bar', 'baz' ],
                           LIBLINKPREFIX = 'foo',
                           LIBLINKSUFFIX = 'bar',
@@ -675,10 +675,10 @@ class EnvironmentTestCase(unittest.TestCase):
         env = Environment(tools = [t1, t2, t3], XYZ = 'aaa')
         assert env['TOOL1'] == 111, env['TOOL1']
         assert env['TOOL2'] == 222, env
-        assert env['AAA'] == 'aaa', env        
+        assert env['AAA'] == 'aaa', env
         t4(env)
         assert env['TOOL4'] == 444, env
-        
+
     def test_Default_TOOLS(self):
         """Test overriding the default TOOLS variable"""
         def t5(env):
@@ -699,7 +699,7 @@ class EnvironmentTestCase(unittest.TestCase):
             env = Environment(XYZ = 'bbb')
             assert env['TOOL5'] == 555, env['TOOL5']
             assert env['TOOL6'] == 666, env
-            assert env['BBB'] == 'bbb', env        
+            assert env['BBB'] == 'bbb', env
             t8(env)
             assert env['TOOL8'] == 888, env
         finally:
@@ -882,7 +882,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env1 = Environment(tools=[foo])
         env2 = env1.Copy()
         env3 = env1.Copy(tools=[bar, baz])
-        
+
         assert env1.get('FOO') is 1
         assert env1.get('BAR') is None
         assert env1.get('BAZ') is None
@@ -974,9 +974,9 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_FindIxes(self):
         "Test FindIxes()"
-        env = Environment(LIBPREFIX='lib', 
+        env = Environment(LIBPREFIX='lib',
                           LIBSUFFIX='.a',
-                          SHLIBPREFIX='lib', 
+                          SHLIBPREFIX='lib',
                           SHLIBSUFFIX='.so',
                           PREFIX='pre',
                           SUFFIX='post')
@@ -1095,7 +1095,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
                            MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
         # have to include the pathsep here so that the test will work on UNIX too.
-        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';') 
+        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';')
         env1.PrependENVPath('PATH',r'C:\dir\num\three',sep = ';')
         env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV',sep = ';')
         env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
@@ -1107,7 +1107,7 @@ class EnvironmentTestCase(unittest.TestCase):
         env1 = Environment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
                            MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
         # have to include the pathsep here so that the test will work on UNIX too.
-        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';') 
+        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';')
         env1.PrependENVPath('PATH',r'C:\dir\num\three',sep = ';')
         env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV',sep = ';')
         env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
@@ -1133,22 +1133,22 @@ class EnvironmentTestCase(unittest.TestCase):
 
     def test_ReplaceIxes(self):
         "Test ReplaceIxes()"
-        env = Environment(LIBPREFIX='lib', 
+        env = Environment(LIBPREFIX='lib',
                           LIBSUFFIX='.a',
-                          SHLIBPREFIX='lib', 
+                          SHLIBPREFIX='lib',
                           SHLIBSUFFIX='.so',
                           PREFIX='pre',
                           SUFFIX='post')
-        
-        assert 'libfoo.a' == env.ReplaceIxes('libfoo.so', 
+
+        assert 'libfoo.a' == env.ReplaceIxes('libfoo.so',
                                              'SHLIBPREFIX', 'SHLIBSUFFIX',
                                              'LIBPREFIX', 'LIBSUFFIX')
-        
+
         assert os.path.join('dir', 'libfoo.a') == env.ReplaceIxes(os.path.join('dir', 'libfoo.so'),
                                                                    'SHLIBPREFIX', 'SHLIBSUFFIX',
                                                                    'LIBPREFIX', 'LIBSUFFIX')
 
-        assert 'libfoo.a' == env.ReplaceIxes('prefoopost', 
+        assert 'libfoo.a' == env.ReplaceIxes('prefoopost',
                                              'PREFIX', 'SUFFIX',
                                              'LIBPREFIX', 'LIBSUFFIX')
 

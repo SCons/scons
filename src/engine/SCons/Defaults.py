@@ -156,7 +156,7 @@ def _concat(prefix, list, suffix, env, f=lambda x: x):
 
     def subst(x, env = env):
         if SCons.Util.is_String(x):
-            return SCons.Util.scons_subst(x, env)
+            return env.subst(x)
         else:
             return x
 
