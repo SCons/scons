@@ -47,16 +47,16 @@ def _yaccEmitter(target, source, env, ysuf, hsuf):
     # the input file is a .y or .yy, respectively.
     if len(source) and '-d' in SCons.Util.CLVar(env.subst("$YACCFLAGS")):
         base, ext = os.path.splitext(SCons.Util.to_String(source[0]))
-        if ext == ysuf:
+        if ext in ysuf:
             base, ext = os.path.splitext(SCons.Util.to_String(target[0]))
-            target.append(base + hsuf)
+            target.append(base + env.subst(hsuf))
     return (target, source)
 
 def yEmitter(target, source, env):
-    return _yaccEmitter(target, source, env, '.y', '.h')
+    return _yaccEmitter(target, source, env, ['.y', '.yacc'], '$YACCHFILESUFFIX')
 
 def yyEmitter(target, source, env):
-    return _yaccEmitter(target, source, env, '.yy', '.hpp')
+    return _yaccEmitter(target, source, env, ['.yy'], '$YACCHXXFILESUFFIX')
 
 def generate(env):
     """Add Builders and construction variables for yacc to an Environment."""
@@ -72,6 +72,8 @@ def generate(env):
     env['YACC']      = env.Detect('bison') or 'yacc'
     env['YACCFLAGS'] = SCons.Util.CLVar('')
     env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
+    env['YACCHFILESUFFIX'] = '.h'
+    env['YACCHXXFILESUFFIX'] = '.hpp'
 
 def exists(env):
     return env.Detect(['bison', 'yacc'])
