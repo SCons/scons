@@ -262,6 +262,10 @@ RELEASE 0.97 - XXX
     subdivide the dependency tree arbitrarily by putting an SConstruct
     file in every directory and using content signatures.
 
+  - Add support for $YACCHFILESUFFIX and $YACCHXXFILESUFFIX variables
+    that accomodate parser generators that write header files to a
+    different suffix than the hard-coded .hpp when the -d option is used.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
