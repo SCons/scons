@@ -88,10 +88,7 @@ class FindPathDirs:
             return ()
 
         path = env.subst_path(path, target=target, source=source)
-        path_tuple = tuple(env.fs.Rsearchall(path,
-                                             must_exist = 0, #kwq!
-                                             clazz = SCons.Node.FS.Dir,
-                                             cwd = dir))
+        path_tuple = tuple(env.fs.Rfindalldirs(path, dir))
         return Binder(path_tuple)
 
 class Base:

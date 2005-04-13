@@ -201,10 +201,10 @@ class DummyEnvironment(UserDict.UserDict):
         return factory or self.fs.File
 
     def Dir(self, filename):
-        return self.fs.Dir(test.workpath(filename))
+        return self.fs.Dir(filename)
 
     def File(self, filename):
-        return self.fs.File(test.workpath(filename))
+        return self.fs.File(filename)
 
 if os.path.normcase('foo') == os.path.normcase('FOO'):
     my_normpath = os.path.normcase
@@ -303,8 +303,8 @@ class CScannerTestCase8(unittest.TestCase):
         env.fs.chdir(env.Dir(''))
         path = s.path(env, dir)
         deps2 = s(env.File('#fa.cpp'), env, path)
-        headers1 =  ['include/fa.h', 'include/fb.h']
-        headers2 =  ['subdir/include/fa.h', 'subdir/include/fb.h']
+        headers1 =  map(test.workpath, ['include/fa.h', 'include/fb.h'])
+        headers2 =  ['include/fa.h', 'include/fb.h']
         deps_match(self, deps1, headers1)
         deps_match(self, deps2, headers2)
 

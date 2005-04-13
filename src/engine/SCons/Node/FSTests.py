@@ -1335,11 +1335,11 @@ class DirTestCase(_tempdirTestCase):
         src0 = self.fs.Dir('src0')
         self.fs.BuildDir(bld0, src0, duplicate=0)
 
-        n = bld0.srcdir_duplicate('does_not_exist', SCons.Node.FS.File)
+        n = bld0.srcdir_duplicate('does_not_exist')
         assert n is None, n
         assert not os.path.exists(test.workpath('bld0', 'does_not_exist'))
 
-        n = bld0.srcdir_duplicate('exists', SCons.Node.FS.File)
+        n = bld0.srcdir_duplicate('exists')
         assert str(n) == os.path.normpath('src0/exists'), str(n)
         assert not os.path.exists(test.workpath('bld0', 'exists'))
 
@@ -1350,11 +1350,11 @@ class DirTestCase(_tempdirTestCase):
         src1 = self.fs.Dir('src1')
         self.fs.BuildDir(bld1, src1, duplicate=1)
 
-        n = bld1.srcdir_duplicate('does_not_exist', SCons.Node.FS.File)
+        n = bld1.srcdir_duplicate('does_not_exist')
         assert n is None, n
         assert not os.path.exists(test.workpath('bld1', 'does_not_exist'))
 
-        n = bld1.srcdir_duplicate('exists', SCons.Node.FS.File)
+        n = bld1.srcdir_duplicate('exists')
         assert str(n) == os.path.normpath('bld1/exists'), str(n)
         assert os.path.exists(test.workpath('bld1', 'exists'))
 
@@ -1506,6 +1506,36 @@ class DirTestCase(_tempdirTestCase):
         n = bld1.srcdir_find_file('on-disk-e2')
         check(n, ['bld1/on-disk-e2', 'bld1'])
 
+    def test_dir_on_disk(self):
+        """Test the Dir.dir_on_disk() method"""
+        self.test.subdir('sub', ['sub', 'exists'])
+        self.test.write(['sub', 'file'], "self/file\n")
+        sub = self.fs.Dir('sub')
+
+        r = sub.dir_on_disk('does_not_exist')
+        assert not r, r
+
+        r = sub.dir_on_disk('exists')
+        assert r, r
+
+        r = sub.dir_on_disk('file')
+        assert not r, r
+
+    def test_file_on_disk(self):
+        """Test the Dir.file_on_disk() method"""
+        self.test.subdir('sub', ['sub', 'dir'])
+        self.test.write(['sub', 'exists'], "self/exists\n")
+        sub = self.fs.Dir('sub')
+
+        r = sub.file_on_disk('does_not_exist')
+        assert not r, r
+
+        r = sub.file_on_disk('exists')
+        assert r, r
+
+        r = sub.file_on_disk('dir')
+        assert not r, r
+
 class EntryTestCase(unittest.TestCase):
     def runTest(self):
         """Test methods specific to the Entry sub-class.
@@ -1635,6 +1665,28 @@ class RepositoryTestCase(_tempdirTestCase):
         r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
         assert r == expect, r
 
+    def test_get_all_rdirs(self):
+        """Test the Dir.get_all_rdirs() method"""
+        self.fs.Repository('foo')
+        self.fs.Repository(os.path.join('foo', 'bar'))
+        self.fs.Repository('bar/foo')
+        self.fs.Repository('bar')
+
+        expect = [
+            '.',
+            self.rep1,
+            self.rep2,
+            self.rep3,
+            'foo',
+            os.path.join('foo', 'bar'),
+            os.path.join('bar', 'foo'),
+            'bar'
+        ]
+
+        rep = self.fs.Dir('#').get_all_rdirs()
+        r = map(lambda x, np=os.path.normpath: np(str(x)), rep)
+        assert r == expect, r
+
     def test_rdir(self):
         """Test the Dir.rdir() method"""
         return_true = lambda: 1
@@ -1729,95 +1781,42 @@ class RepositoryTestCase(_tempdirTestCase):
         r = e2.rfile()
         assert r is re2, r
 
-    def test_Rsearches(self):
-        """Test the Rsearch() methods"""
+    def test_Rfindalldirs(self):
+        """Test the Rfindalldirs() methods"""
         fs = self.fs
         test = self.test
 
-        test.write([self.rep1, 'f2'], "")
-        test.subdir([self.rep2, 'f3'])
-        test.write([self.rep3, 'f3'], "")
+        d1 = fs.Dir('d1')
+        d2 = fs.Dir('d2')
+        rep1_d1 = fs.Dir(test.workpath('rep1', 'd1'))
+        rep2_d1 = fs.Dir(test.workpath('rep2', 'd1'))
+        rep3_d1 = fs.Dir(test.workpath('rep3', 'd1'))
+        sub = fs.Dir('sub')
+        sub_d1 = sub.Dir('d1')
+        rep1_sub_d1 = fs.Dir(test.workpath('rep1', 'sub', 'd1'))
+        rep2_sub_d1 = fs.Dir(test.workpath('rep2', 'sub', 'd1'))
+        rep3_sub_d1 = fs.Dir(test.workpath('rep3', 'sub', 'd1'))
 
-        r = fs.Rsearch('f1')
-        assert r is None, r
+        r = fs.Rfindalldirs(d1, fs.Top)
+        assert r == [d1], map(str, r)
 
-        r = fs.Rsearch('f2')
-        assert r, r
+        r = fs.Rfindalldirs([d1, d2], fs.Top)
+        assert r == [d1, d2], map(str, r)
 
-        f3 = fs.File('f3')
-        r = fs.Rsearch(f3)
-        assert r is f3, r
+        r = fs.Rfindalldirs('d1', fs.Top)
+        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
 
-    def test_Rsearchall(self):
-        """Test the Rsearchall() methods"""
-        fs = self.fs
-        test = self.test
+        r = fs.Rfindalldirs('#d1', fs.Top)
+        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
 
-        list = fs.Rsearchall(fs.Dir('d1'))
-        assert len(list) == 1, list
-        assert list[0].path == 'd1', list[0].path
+        r = fs.Rfindalldirs('d1', sub)
+        assert r == [sub_d1, rep1_sub_d1, rep2_sub_d1, rep3_sub_d1], map(str, r)
 
-        list = fs.Rsearchall([fs.Dir('d1')])
-        assert len(list) == 1, list
-        assert list[0].path == 'd1', list[0].path
+        r = fs.Rfindalldirs('#d1', sub)
+        assert r == [d1, rep1_d1, rep2_d1, rep3_d1], map(str, r)
 
-        list = fs.Rsearchall('d2')
-        assert list == [], list
-
-        list = fs.Rsearchall('#d2')
-        assert list == [], list
-
-        fs.File('d2').built() # Clear exists cache
-        test.subdir(['work', 'd2'])
-
-        list = fs.Rsearchall('d2')
-        assert map(str, list) == ['d2'], list
-
-        fs.File('../rep2/d2').built() # Clear exists cache
-        test.subdir(['rep2', 'd2'])
-
-        list = fs.Rsearchall('d2')
-        assert map(str, list) == ['d2', test.workpath('rep2', 'd2')], list
-
-        fs.File('../rep1/d2').built() # Clear exists cache
-        test.subdir(['rep1', 'd2'])
-
-        list = fs.Rsearchall('d2')
-        assert map(str, list) == ['d2',
-                                  test.workpath('rep1', 'd2'),
-                                  test.workpath('rep2', 'd2')], list
-
-        list = fs.Rsearchall(['d3', 'd4'])
-        assert list == [], list
-
-        fs.File('d3').built() # Clear exists cache
-        test.subdir(['work', 'd3'])
-
-        list = map(str, fs.Rsearchall(['d3', 'd4']))
-        assert list == ['d3'], list
-
-        fs.File('../rep3/d4').built() # Clear exists cache
-        test.subdir(['rep3', 'd4'])
-
-        list = map(str, fs.Rsearchall(['d3', 'd4']))
-        assert list == ['d3', test.workpath('rep3', 'd4')], list
-
-        list = map(str, fs.Rsearchall(string.join(['d3', 'd4'], os.pathsep)))
-        assert list == ['d3', test.workpath('rep3', 'd4')], list
-
-        work_d4 = fs.File(os.path.join('work', 'd4'))
-
-        list = map(str, fs.Rsearchall(['d3', work_d4]))
-        assert list == ['d3', str(work_d4)], list
-
-        list = fs.Rsearchall('')
-        assert list == [], list
-
-        list = fs.Rsearchall([None])
-        assert list == [], list
-
-        list = fs.Rsearchall([''])
-        assert list == [], list
+        r = fs.Rfindalldirs(['d1', d2], fs.Top)
+        assert r == [d1, rep1_d1, rep2_d1, rep3_d1, d2], map(str, r)
 
     def test_rexists(self):
         """Test the Entry.rexists() method"""

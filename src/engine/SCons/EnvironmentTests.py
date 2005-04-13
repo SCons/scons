@@ -799,10 +799,7 @@ class BaseTestCase(unittest.TestCase):
                           LIBLINKSUFFIX = 'bar')
 
         def RDirs(pathlist, fs=env.fs):
-            return fs.Rsearchall(pathlist,
-                                 clazz=SCons.Node.FS.Dir,
-                                 must_exist=0,
-                                 cwd=fs.Dir('xx'))
+            return fs.Rfindalldirs(pathlist, fs.Dir('xx'))
 
         env['RDirs'] = RDirs
         flags = env.subst_list('$_LIBFLAGS', 1)[0]
