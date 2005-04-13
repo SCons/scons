@@ -226,10 +226,10 @@ class DummyEnvironment:
         return factory or self.fs.File
 
     def Dir(self, filename):
-        return self.fs.Dir(test.workpath(filename))
+        return self.fs.Dir(filename)
 
     def File(self, filename):
-        return self.fs.File(test.workpath(filename))
+        return self.fs.File(filename)
 
 global my_normpath
 my_normpath = os.path.normpath
@@ -329,8 +329,8 @@ class IDLScannerTestCase7(unittest.TestCase):
         env.fs.chdir(env.Dir(''))
         path = s.path(env, dir)
         deps2 = s(env.File('#t4.idl'), env, path)
-        headers1 =  ['include/fa.idl', 'include/fb.idl']
-        headers2 =  ['subdir/include/fa.idl', 'subdir/include/fb.idl']
+        headers1 =  map(test.workpath, ['include/fa.idl', 'include/fb.idl'])
+        headers2 =  ['include/fa.idl', 'include/fb.idl']
         deps_match(self, deps1, headers1)
         deps_match(self, deps2, headers2)
 
@@ -365,7 +365,7 @@ class IDLScannerTestCase9(unittest.TestCase):
         test.write('include/t4.idl', test.read('t4.idl'))
         deps = s(env.File('#include/t4.idl'), env, path)
         env.fs.chdir(env.Dir(''))
-        deps_match(self, deps, [ 'include/fa.idl', 'include/fb.idl' ])
+        deps_match(self, deps, [ 'fa.idl', 'fb.idl' ])
         test.unlink('include/t4.idl')
 
 class IDLScannerTestCase10(unittest.TestCase):

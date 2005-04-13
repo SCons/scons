@@ -249,10 +249,10 @@ class DummyEnvironment:
         return factory or self.fs.File
 
     def Dir(self, filename):
-        return self.fs.Dir(test.workpath(filename))
+        return self.fs.Dir(filename)
 
     def File(self, filename):
-        return self.fs.File(test.workpath(filename))
+        return self.fs.File(filename)
 
 def deps_match(self, deps, headers):
     scanned = map(os.path.normpath, map(str, deps))
@@ -382,8 +382,8 @@ class FortranScannerTestCase10(unittest.TestCase):
         env.fs.chdir(env.Dir(''))
         path = s.path(env, dir)
         deps2 = s(env.File('#fff4.f'), env, path)
-        headers1 =  ['include/f4.f']
-        headers2 =  ['subdir/include/f4.f']
+        headers1 =  map(test.workpath, ['include/f4.f'])
+        headers2 =  ['include/f4.f']
         deps_match(self, deps1, headers1)
         deps_match(self, deps2, headers2)
 
@@ -416,7 +416,7 @@ class FortranScannerTestCase12(unittest.TestCase):
         test.write('include/fff4.f', test.read('fff4.f'))
         deps = s(env.File('#include/fff4.f'), env, path)
         env.fs.chdir(env.Dir(''))
-        deps_match(self, deps, ['include/f4.f'])
+        deps_match(self, deps, ['f4.f'])
         test.unlink('include/fff4.f')
 
 class FortranScannerTestCase13(unittest.TestCase):

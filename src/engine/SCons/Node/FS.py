@@ -894,7 +894,7 @@ class FS(LocalFS):
             result = self.__checkClass(e, fsclass)
         return result 
 
-    def __transformPath(self, name, directory):
+    def _transformPath(self, name, directory):
         """Take care of setting up the correct top-level directory,
         usually in preparation for a call to doLookup().
 
@@ -947,7 +947,7 @@ class FS(LocalFS):
         else:
             if directory and not isinstance(directory, Dir):
                 directory = self.Dir(directory)
-            name, directory = self.__transformPath(name, directory)
+            name, directory = self._transformPath(name, directory)
             return self._doLookup(klass, name, directory, create)
     
     def File(self, name, directory = None, create = 1):
@@ -1001,115 +1001,21 @@ class FS(LocalFS):
                 d = self.Dir(d)
             self.Top.addRepository(d)
 
-    def do_Rsearch(self, path, dir, func, clazz=_classEntry):
-        """Search for something in a Repository.  Returns the first
-        one found in the list, or None if there isn't one.
-        __cacheable__
-        """
-        d, name = os.path.split(path)
-        norm_name = _my_normcase(name)
-        if d:
-            dir = dir.Dir(d)
-        try:
-            node = dir.entries[norm_name]
-        except KeyError:
-            node = dir.node_on_disk(name, clazz)
-        else:
-            node = func(node)
-            if node:
-                dir = node.get_dir()
-        if node:
-            return node, dir
-        fname = '.'
-        while dir:
-            for rep in dir.getRepositories():
-                rdir = rep.Dir(fname)
-                try:
-                    node = rdir.entries[norm_name]
-                except KeyError:
-                    node = rdir.node_on_disk(name, clazz)
-                else:
-                    node = func(node)
-                if node:
-                    return node, dir
-            fname = dir.name + os.sep + fname
-            dir = dir.get_dir()
-        return None, None
-
-    def Rsearch(self, path, clazz=_classEntry, cwd=None):
-        if isinstance(path, SCons.Node.Node):
-            return path
-        def func(node, clazz=clazz):
-            if node.exists() and \
-               (isinstance(node, clazz) or isinstance(node, Entry) \
-                or not node.is_derived()):
-                   return node
-            return None
-        path, dir = self.__transformPath(path, cwd)
-        return self.do_Rsearch(path, dir, func, clazz)[0]
-
-    def Rsearchall(self, pathlist, must_exist=1, clazz=_classEntry, cwd=None):
-        """Search for a list of somethings in the Repository list.
-        __cacheable__
-        """
-        result = []
+    def Rfindalldirs(self, pathlist, cwd):
+        """__cacheable__"""
         if SCons.Util.is_String(pathlist):
             pathlist = string.split(pathlist, os.pathsep)
         if not SCons.Util.is_List(pathlist):
             pathlist = [pathlist]
-
-        if must_exist:
-            select = lambda x, clazz=clazz: isinstance(x, clazz) and x.exists()
-        else:
-            select = lambda x, clazz=clazz: isinstance(x, clazz)
-
+        result = []
         for path in filter(None, pathlist):
             if isinstance(path, SCons.Node.Node):
                 result.append(path)
                 continue
-
-            path, dir = self.__transformPath(path, cwd)
-            d, name = os.path.split(path)
-            norm_name = _my_normcase(name)
-            if d:
-                dir = dir.Dir(d)
-            try:
-                node = dir.entries[norm_name]
-            except KeyError:
-                # If there's no Node on disk, we'll filter
-                # out the returned None below.
-                if must_exist:
-                    n = dir.node_on_disk(name, clazz)
-                else:
-                    n = self._doLookup(clazz, name, dir)
-                    dir.srcdir_duplicate(name, clazz)
-                result.append(n)
-            else:
-                if not must_exist or node.exists():
-                    result.append(node)
-            fname = '.'
-            while dir:
-                for rep in dir.getRepositories():
-                    rdir = rep.Dir(fname)
-                    try:
-                        node = rdir.entries[norm_name]
-                    except KeyError:
-                        # If there's no Node on disk, we'll filter
-                        # out the returned None below.
-                        if must_exist:
-                            n = rdir.node_on_disk(name, clazz)
-                        else:
-                            n = self._doLookup(clazz, name, rdir)
-                            rdir.srcdir_duplicate(name, clazz)
-                        result.append(n)
-                    else:
-                        if (not must_exist or node.exists()) and \
-                           (isinstance(node, Dir) or not node.is_derived()):
-                            result.append(node)
-                fname = dir.name + os.sep + fname
-                dir = dir.get_dir()
-
-        return filter(None, result)
+            path, dir = self._transformPath(path, cwd)
+            dir = dir.Dir(path)
+            result.extend(dir.get_all_rdirs())
+        return result
 
     def CacheDir(self, path):
         self.CachePath = path
@@ -1214,21 +1120,26 @@ class Dir(Base):
         srcdir.build_dirs.append(self)
 
     def getRepositories(self):
-        """Returns a list of repositories for this directory."""
+        """Returns a list of repositories for this directory.
+        __cacheable__"""
         if self.srcdir and not self.duplicate:
-            try:
-                return self._srcreps
-            except AttributeError:
-                self._srcreps = self.fs.Rsearchall(self.srcdir.path,
-                                                   clazz=Dir,
-                                                   must_exist=0,
-                                                   cwd=self.fs.Top) \
-                                + self.repositories
-                return self._srcreps
+            return self.srcdir.get_all_rdirs() + self.repositories
         return self.repositories
 
+    def get_all_rdirs(self):
+        """__cacheable__"""
+        result = [self]
+        fname = '.'
+        dir = self
+        while dir:
+            for rep in dir.getRepositories():
+                result.append(rep.Dir(fname))
+            fname = dir.name + os.sep + fname
+            dir = dir.get_dir()
+        return result
+
     def addRepository(self, dir):
-        if not dir in self.repositories and dir != self:
+        if dir != self and not dir in self.repositories:
             self.repositories.append(dir)
             self.__clearRepositoryCache()
 
@@ -1378,12 +1289,15 @@ class Dir(Base):
 
     def rdir(self):
         "__cacheable__"
-        rdir = self
         if not self.exists():
-            n = self.fs.Rsearch(self.path, clazz=Dir, cwd=self.fs.Top)
-            if n:
-                rdir = n
-        return rdir
+            norm_name = _my_normcase(self.name)
+            for dir in self.dir.get_all_rdirs():
+                try: node = dir.entries[norm_name]
+                except KeyError: node = dir.dir_on_disk(self.name)
+                if node and node.exists() and \
+                    (isinstance(dir, Dir) or isinstance(dir, Entry)):
+                        return node
+        return self
 
     def sconsign(self):
         """Return the .sconsign file info for this directory,
@@ -1451,12 +1365,12 @@ class Dir(Base):
 
         return result
 
-    def srcdir_duplicate(self, name, clazz):
+    def srcdir_duplicate(self, name):
         for dir in self.srcdir_list():
             if dir.entry_exists_on_disk(name):
-                srcnode = self.fs._doLookup(clazz, name, dir)
+                srcnode = dir.File(name)
                 if self.duplicate:
-                    node = self.fs._doLookup(clazz, name, self)
+                    node = self.File(name)
                     node.do_duplicate(srcnode)
                     return node
                 else:
@@ -1465,34 +1379,44 @@ class Dir(Base):
 
     def srcdir_find_file(self, filename):
         """__cacheable__"""
-        fs = self.fs
-        do_Rsearch = fs.do_Rsearch
-
         def func(node):
             if (isinstance(node, File) or isinstance(node, Entry)) and \
                (node.is_derived() or node.is_pseudo_derived() or node.exists()):
                     return node
             return None
 
-        node, d = do_Rsearch(filename, self, func, File)
-        if node:
-            return node, d
+        norm_name = _my_normcase(filename)
 
-        for dir in self.srcdir_list():
-            node, d = do_Rsearch(filename, dir, func, File)
+        for rdir in self.get_all_rdirs():
+            try: node = rdir.entries[norm_name]
+            except KeyError: node = rdir.file_on_disk(filename)
+            else: node = func(node)
             if node:
-                return File(filename, self, fs), d
+                return node, self
+
+        for srcdir in self.srcdir_list():
+            for rdir in srcdir.get_all_rdirs():
+                try: node = rdir.entries[norm_name]
+                except KeyError: node = rdir.file_on_disk(filename)
+                else: node = func(node)
+                if node:
+                    return File(filename, self, self.fs), srcdir
+
         return None, None
 
-    def node_on_disk(self, name, clazz):
+    def dir_on_disk(self, name):
+        if self.entry_exists_on_disk(name):
+            try: return self.Dir(name)
+            except TypeError: pass
+        return None
+
+    def file_on_disk(self, name):
         if self.entry_exists_on_disk(name) or \
            self.sccs_on_disk(name) or \
            self.rcs_on_disk(name):
-            try:
-                return self.fs._doLookup(clazz, name, self)
-            except TypeError:
-                pass
-        return self.srcdir_duplicate(name, clazz)
+            try: return self.File(name)
+            except TypeError: pass
+        return self.srcdir_duplicate(name)
 
 class RootDir(Dir):
     """A class for the root directory of a file system.
@@ -1548,8 +1472,7 @@ class File(Base):
 
     def RDirs(self, pathlist):
         """Search for a list of directories in the Repository list."""
-        return self.fs.Rsearchall(pathlist, clazz=Dir, must_exist=0,
-                                  cwd=self.cwd)
+        return self.fs.Rfindalldirs(pathlist, self.cwd)
 
     def _morph(self):
         """Turn a file system node into a File object.  __cache_reset__"""
@@ -1869,13 +1792,16 @@ class File(Base):
 
     def rfile(self):
         "__cacheable__"
-        rfile = self
         if not self.exists():
-            n = self.fs.Rsearch(self.path, clazz=File,
-                                cwd=self.fs.Top)
-            if n:
-                rfile = n
-        return rfile
+            norm_name = _my_normcase(self.name)
+            for dir in self.dir.get_all_rdirs():
+                try: node = dir.entries[norm_name]
+                except KeyError: node = dir.file_on_disk(self.name)
+                if node and node.exists() and \
+                   (isinstance(node, File) or isinstance(node, Entry) \
+                    or not node.is_derived()):
+                        return node
+        return self
 
     def rstr(self):
         return str(self.rfile())

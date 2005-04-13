@@ -35,8 +35,8 @@ class DummyFS:
         self.search_result = search_result
     def File(self, name):
         return DummyNode(name)
-    def Rsearchall(self, nodes, must_exist=0, clazz=None, cwd=dir):
-        return self.search_result + nodes
+    def Rfindalldirs(self, pathlist, cwd):
+        return self.search_result + pathlist
 
 class DummyEnvironment(UserDict.UserDict):
     def __init__(self, dict=None, **kw):
