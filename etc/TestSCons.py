@@ -269,6 +269,132 @@ class TestSCons(TestCommon):
         env['ENV']['PATH'] = string.join(java_path, os.pathsep)
         return env['ENV']
 
+    def Qt_dummy_installation(self, dir='qt'):
+        # create a dummy qt installation
+
+        self.subdir( dir, [dir, 'bin'], [dir, 'include'], [dir, 'lib'] )
+
+        self.write([dir, 'bin', 'mymoc.py'], """\
+import getopt
+import sys
+import string
+import re
+cmd_opts, args = getopt.getopt(sys.argv[1:], 'io:', [])
+output = None
+impl = 0
+opt_string = ''
+for opt, arg in cmd_opts:
+    if opt == '-o': output = open(arg, 'wb')
+    elif opt == '-i': impl = 1
+    else: opt_string = opt_string + ' ' + opt
+for a in args:
+    contents = open(a, 'rb').read()
+    subst = r'{ my_qt_symbol( "' + a + '\\\\n" ); }'
+    if impl:
+        contents = re.sub( r'#include.*', '', contents )
+    output.write(string.replace(contents, 'Q_OBJECT', subst))
+output.close()
+sys.exit(0)
+""")
+
+        self.write([dir, 'bin', 'myuic.py'], """\
+import os.path
+import re
+import sys
+import string
+output_arg = 0
+impl_arg = 0
+impl = None
+source = None
+for arg in sys.argv[1:]:
+    if output_arg:
+        output = open(arg, 'wb')
+        output_arg = 0
+    elif impl_arg:
+        impl = arg
+        impl_arg = 0
+    elif arg == "-o":
+        output_arg = 1
+    elif arg == "-impl":
+        impl_arg = 1
+    else:
+        if source:
+            sys.exit(1)
+        source = open(arg, 'rb')
+        sourceFile = arg
+if impl:
+    output.write( '#include "' + impl + '"\\n' )
+    includes = re.findall('<include.*?>(.*?)</include>', source.read())
+    for incFile in includes:
+        # this is valid for ui.h files, at least
+        if os.path.exists(incFile):
+            output.write('#include "' + incFile + '"\\n')
+else:
+    output.write( '#include "my_qobject.h"\\n' + source.read() + " Q_OBJECT \\n" )
+output.close()
+sys.exit(0)
+""" )
+
+        self.write([dir, 'include', 'my_qobject.h'], r"""
+#define Q_OBJECT ;
+void my_qt_symbol(const char *arg);
+""")
+
+        self.write([dir, 'lib', 'my_qobject.cpp'], r"""
+#include "../include/my_qobject.h"
+#include <stdio.h>
+void my_qt_symbol(const char *arg) {
+  printf( arg );
+}
+""")
+
+        self.write(['qt', 'lib', 'SConstruct'], r"""
+env = Environment()
+env.StaticLibrary( 'myqt', 'my_qobject.cpp' )
+""")
+
+        self.run(chdir = self.workpath('qt', 'lib'),
+                 arguments = '.',
+                 stderr = noisy_ar,
+                 match = self.match_re_dotall)
+
+        self.QT = self.workpath(dir)
+        self.QT_LIB = 'myqt'
+        self.QT_MOC = '%s %s' % (python, self.workpath(dir, 'bin', 'mymoc.py'))
+        self.QT_UIC = '%s %s' % (python, self.workpath(dir, 'bin', 'myuic.py'))
+
+    def Qt_create_SConstruct(self, place):
+        if type(place) is type([]):
+            place = apply(test.workpath, place)
+        self.write(place, """\
+if ARGUMENTS.get('noqtdir', 0): QTDIR=None
+else: QTDIR=r'%s'
+env = Environment(QTDIR = QTDIR,
+                  QT_LIB = r'%s',
+                  QT_MOC = r'%s',
+                  QT_UIC = r'%s',
+                  tools=['default','qt'])
+dup = 1
+if ARGUMENTS.get('build_dir', 0):
+    if ARGUMENTS.get('chdir', 0):
+        SConscriptChdir(1)
+    else:
+        SConscriptChdir(0)
+    dup=int(ARGUMENTS.get('dup', 1))
+    if dup == 0:
+        builddir = 'build_dup0'
+        env['QT_DEBUG'] = 1
+    else:
+        builddir = 'build'
+    BuildDir(builddir, '.', duplicate=dup)
+    print builddir, dup
+    sconscript = Dir(builddir).File('SConscript')
+else:
+    sconscript = File('SConscript')
+Export("env dup")
+SConscript( sconscript )
+""" % (self.QT, self.QT_LIB, self.QT_MOC, self.QT_UIC))
+
 # In some environments, $AR will generate a warning message to stderr
 # if the library doesn't previously exist and is being created.  One
 # way to fix this is to tell AR to be quiet (sometimes the 'c' flag),
