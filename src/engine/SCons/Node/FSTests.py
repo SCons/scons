@@ -1185,6 +1185,17 @@ class FSTestCase(_tempdirTestCase):
         t = z.target_from_source('pre-', '-suf', lambda x: x[:-1])
         assert str(t) == 'pre-z-suf', str(t)
 
+    def test_above_root(self):
+        """Testing looking up a path above the root directory"""
+        test = self.test
+        fs = self.fs
+
+        d1 = fs.Dir('d1')
+        d2 = d1.Dir('d2')
+        dirs = string.split(os.path.normpath(d2.abspath), os.sep)
+        above_path = apply(os.path.join, ['..']*len(dirs) + ['above'])
+        above = d2.Dir(above_path)
+
     def test_rel_path(self):
         """Test the rel_path() method"""
         test = self.test

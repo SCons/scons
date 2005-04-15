@@ -280,45 +280,6 @@ def get_DefaultRCSBuilder():
                                                   name = "DefaultRCSBuilder")
     return DefaultRCSBuilder
 
-#
-class ParentOfRoot:
-    """
-    An instance of this class is used as the parent of the root of a
-    filesystem (POSIX) or drive (Win32). This isn't actually a node,
-    but it looks enough like one so that we don't have to have
-    special purpose code everywhere to deal with dir being None. 
-    This class is an instance of the Null object pattern.
-    """
-    def __init__(self):
-        self.abspath = ''
-        self.path = ''
-        self.name=''
-        self.duplicate=0
-        self.srcdir=None
-        self.build_dirs=[]
-        self.path_elements=[]
-        
-    def is_under(self, dir):
-        return 0
-
-    def up(self):
-        return None
-
-    def getRepositories(self):
-        return []
-
-    def get_dir(self):
-        return None
-
-    def src_builder(self):
-        return _null
-
-    def entry_abspath(self, name):
-        return name
-
-    def entry_path(self, name):
-        return name
-
 # Cygwin's os.path.normcase pretends it's on a case-sensitive filesystem.
 _is_cygwin = sys.platform == "cygwin"
 if os.path.normcase("TeSt") == os.path.normpath("TeSt") and not _is_cygwin:
@@ -534,7 +495,7 @@ class Base(SCons.Node.Node):
                                         klass=self.__class__)
                 return srcnode
             name = dir.name + os.sep + name
-            dir=dir.get_dir()
+            dir = dir.up()
         return self
 
     def get_path(self, dir=None):
@@ -832,7 +793,7 @@ class FS(LocalFS):
             except KeyError:
                 if not create:
                     raise SCons.Errors.UserError
-                directory = RootDir(drive, ParentOfRoot(), self)
+                directory = RootDir(drive, self)
                 self.Root[drive] = directory
 
         if not path_orig:
@@ -1135,7 +1096,7 @@ class Dir(Base):
             for rep in dir.getRepositories():
                 result.append(rep.Dir(fname))
             fname = dir.name + os.sep + fname
-            dir = dir.get_dir()
+            dir = dir.up()
         return result
 
     def addRepository(self, dir):
@@ -1145,12 +1106,6 @@ class Dir(Base):
 
     def up(self):
         return self.entries['..']
-
-    def root(self):
-        if not self.entries['..']:
-            return self
-        else:
-            return self.entries['..'].root()
 
     def rel_path(self, other):
         """Return a path to "other" relative to this directory."""
@@ -1225,7 +1180,7 @@ class Dir(Base):
                 break
             listDirs.append(parent)
             p = parent.up()
-            if isinstance(p, ParentOfRoot):
+            if p is None:
                 raise SCons.Errors.StopError, parent.path
             parent = p
         listDirs.reverse()
@@ -1361,7 +1316,7 @@ class Dir(Base):
                     break
                 result.append(d)
             dirname = dir.name + os.sep + dirname
-            dir = dir.get_dir()
+            dir = dir.up()
 
         return result
 
@@ -1426,11 +1381,21 @@ class RootDir(Dir):
     add a separator when creating the path names of entries within
     this directory.
     """
-    def __init__(self, name, directory, fs):
+    def __init__(self, name, fs):
         if __debug__: logInstanceCreation(self, 'Node.FS.RootDir')
-        Base.__init__(self, name, directory, fs)
-        self.path = self.path + os.sep
-        self.abspath = self.abspath + os.sep
+        # We're going to be our own parent directory (".." entry and .dir
+        # attribute) so we have to set up some values so Base.__init__()
+        # won't gag won't it calls some of our methods.
+        self.abspath = ''
+        self.path = ''
+        self.path_elements = []
+        self.duplicate = 0
+        Base.__init__(self, name, self, fs)
+
+        # Now set our paths to what we really want them to be: the
+        # initial drive letter (the name) plus the directory separator.
+        self.abspath = name + os.sep
+        self.path = name + os.sep
         self._morph()
 
     def entry_abspath(self, name):
@@ -1438,6 +1403,21 @@ class RootDir(Dir):
 
     def entry_path(self, name):
         return self.path + name
+
+    def is_under(self, dir):
+        if self is dir:
+            return 1
+        else:
+            return 0
+
+    def up(self):
+        return None
+
+    def get_dir(self):
+        return None
+
+    def src_builder(self):
+        return _null
 
 class BuildInfo:
     bsig = None
@@ -1482,9 +1462,6 @@ class File(Base):
 
     def disambiguate(self):
         return self
-
-    def root(self):
-        return self.dir.root()
 
     def scanner_key(self):
         return self.get_suffix()
