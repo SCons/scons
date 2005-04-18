@@ -1108,7 +1108,8 @@ class Dir(Base):
         return self.entries['..']
 
     def rel_path(self, other):
-        """Return a path to "other" relative to this directory."""
+        """Return a path to "other" relative to this directory.
+        __cacheable__"""
         if isinstance(other, Dir):
             name = []
         else:
