@@ -608,7 +608,10 @@ class Node:
         return binfo
 
     def rel_path(self, other):
-        return str(other)
+        # Using other.__str__() instead of str(other) lets the Memoizer
+        # get the right method for the underlying Node object, not the
+        # __str__() method for the Memoizer wrapper object.
+        return other.__str__()
 
     def del_cinfo(self):
         try:
