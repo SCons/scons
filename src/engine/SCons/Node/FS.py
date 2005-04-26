@@ -1399,6 +1399,9 @@ class RootDir(Dir):
         self.path = name + os.sep
         self._morph()
 
+    def __str__(self):
+        return self.abspath
+
     def entry_abspath(self, name):
         return self.abspath + name
 
