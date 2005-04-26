@@ -58,7 +58,8 @@ import TestCmd
 # for each test, they can just use the one.
 test = TestCmd.TestCmd(workdir = '')
 
-test.write('act.py', """import os, string, sys
+test.write('act.py', """\
+import os, string, sys
 f = open(sys.argv[1], 'w')
 f.write("act.py: '" + string.join(sys.argv[2:], "' '") + "'\\n")
 try:
@@ -81,7 +82,13 @@ if os.environ.has_key( 'ACTPY_PIPE' ):
 sys.exit(0)
 """)
 
+test.write('exit.py', """\
+import sys
+sys.exit(int(sys.argv[1]))
+""")
+
 act_py = test.workpath('act.py')
+exit_py = test.workpath('exit.py')
 
 outfile = test.workpath('outfile')
 outfile2 = test.workpath('outfile2')
@@ -319,7 +326,6 @@ class ActionBaseTestCase(unittest.TestCase):
     pass
  
 class _ActionActionTestCase(unittest.TestCase):
-    
 
     def test__init__(self):
         """Test creation of _ActionAction objects
@@ -527,18 +533,19 @@ class _ActionActionTestCase(unittest.TestCase):
             assert s == '', s
 
             sys.stdout = save_stdout
-            errfunc_result = []
+            exitstatfunc_result = []
 
-            def errfunc(stat, result=errfunc_result):
+            def exitstatfunc(stat, result=exitstatfunc_result):
                 result.append(stat)
+		return stat
 
-            result = a("out", "in", env, errfunc=errfunc)
+            result = a("out", "in", env, exitstatfunc=exitstatfunc)
             assert result == 0, result
-            assert errfunc_result == [], errfunc_result
+            assert exitstatfunc_result == [], exitstatfunc_result
 
-            result = a("out", "in", env, execute=1, errfunc=errfunc)
+            result = a("out", "in", env, execute=1, exitstatfunc=exitstatfunc)
             assert result == 7, result
-            assert errfunc_result == [7], errfunc_result
+            assert exitstatfunc_result == [7], exitstatfunc_result
 
             SCons.Action.execute_actions = 1
 
@@ -830,6 +837,38 @@ class CommandActionTestCase(unittest.TestCase):
         s = act4.strfunction([t1], [s1], env)
         assert s is None, s
 
+	act = SCons.Action.CommandAction("@foo bar")
+	s = act.strfunction([], [], env)
+	assert s == "", s
+
+	act = SCons.Action.CommandAction("@-foo bar")
+	s = act.strfunction([], [], env)
+	assert s == "", s
+
+	act = SCons.Action.CommandAction("-@foo bar")
+	s = act.strfunction([], [], env)
+	assert s == "", s
+
+	act = SCons.Action.CommandAction("-foo bar")
+	s = act.strfunction([], [], env)
+	assert s == "foo bar", s
+
+	act = SCons.Action.CommandAction("@ foo bar")
+	s = act.strfunction([], [], env)
+	assert s == "", s
+
+	act = SCons.Action.CommandAction("@- foo bar")
+	s = act.strfunction([], [], env)
+	assert s == "", s
+
+	act = SCons.Action.CommandAction("-@ foo bar")
+	s = act.strfunction([], [], env)
+	assert s == "", s
+
+	act = SCons.Action.CommandAction("- foo bar")
+	s = act.strfunction([], [], env)
+	assert s == "foo bar", s
+
     def test_execute(self):
         """Test execution of command Actions
 
@@ -951,6 +990,34 @@ class CommandActionTestCase(unittest.TestCase):
         act = SCons.Action.CommandAction(outfile)
         r = act([], [], env.Copy(out = outfile))
         assert r == expect_nonexecutable, "r == %d" % r
+
+	act = SCons.Action.CommandAction('%s %s 1' % (python, exit_py))
+	r = act([], [], env)
+	assert r == 1, r
+
+	act = SCons.Action.CommandAction('@%s %s 1' % (python, exit_py))
+	r = act([], [], env)
+	assert r == 1, r
+
+	act = SCons.Action.CommandAction('@-%s %s 1' % (python, exit_py))
+	r = act([], [], env)
+	assert r == 0, r
+
+	act = SCons.Action.CommandAction('-%s %s 1' % (python, exit_py))
+	r = act([], [], env)
+	assert r == 0, r
+
+	act = SCons.Action.CommandAction('@ %s %s 1' % (python, exit_py))
+	r = act([], [], env)
+	assert r == 1, r
+
+	act = SCons.Action.CommandAction('@- %s %s 1' % (python, exit_py))
+	r = act([], [], env)
+	assert r == 0, r
+
+	act = SCons.Action.CommandAction('- %s %s 1' % (python, exit_py))
+	r = act([], [], env)
+	assert r == 0, r
 
     def _DO_NOT_EXECUTE_test_pipe_execute(self):
         """Test capturing piped output from an action

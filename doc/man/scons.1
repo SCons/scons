@@ -2765,10 +2765,20 @@ already specified in other Builder of function calls.)
 Any other keyword arguments specified override any
 same-named existing construction variables.
 
-Note that an action can be an external command,
+An action can be an external command,
 specified as a string,
 or a callable Python object;
-see "Action Objects," below.
+see "Action Objects," below,
+for more complete information.
+Also note that a string specifying an external command
+may be preceded by an
+.B @
+(at-sign)
+to suppress printing the command in question,
+or by a
+.B \-
+(hyphen)
+to ignore the exit status of the external command.
 Examples:
 
 .ES
@@ -8613,9 +8623,27 @@ the object is simply returned.
 .IP String
 If the first argument is a string,
 a command-line Action is returned.
+Note that the command line string
+may be preceded by an
+.B @
+(at-sign)
+to suppress printing of the
+specified command line,
+or by a
+.B \-
+(hyphen)
+to ignore the exit status from
+the specified command.
+Examples:
 
 .ES
 Action('$CC -c -o $TARGET $SOURCES')
+
+# Doesn't print the line being executed.
+Action('@build $TARGET $SOURCES')
+
+# Ignores
+Action('-build $TARGET $SOURCES')
 .EE
 
 .\" XXX From Gary Ruben, 23 April 2002:
@@ -8803,6 +8831,32 @@ targets and source.
 .ES
 a = Action("build < ${SOURCE.file} > ${TARGET.file}",
            chdir=1)
+.EE
+
+The
+.BR Action ()
+global function
+also takes an
+.B exitstatfunc
+keyword argument
+which specifies a function
+that is passed the exit status
+(or return value)
+from the specified action
+and can return an arbitrary
+or modified value.
+This can be used, for example,
+to specify that an Action object's
+return value should be ignored
+and SCons should, therefore,
+consider that the action always suceeds:
+
+.ES
+def always_succeed(s):
+    # Always return 0, which indicates success.
+    return 0
+a = Action("build < ${SOURCE.file} > ${TARGET.file}",
+           exitstatfunc=always_succeed)
 .EE
 
 .SS Miscellaneous Action Functions
