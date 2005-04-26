@@ -124,6 +124,9 @@ def rfile(n):
     except AttributeError:
         return n
 
+def default_exitstatfunc(s):
+    return s
+
 def _actionAppend(act1, act2):
     # This function knows how to slap two actions together.
     # Mainly, it handles ListActions by concatenating into
@@ -245,19 +248,22 @@ if not SCons.Memoize.has_metaclass:
 
 class _ActionAction(ActionBase):
     """Base class for actions that create output objects."""
-    def __init__(self, strfunction=_null, presub=_null, chdir=None, **kw):
+    def __init__(self, strfunction=_null, presub=_null, chdir=None, exitstatfunc=None, **kw):
         if not strfunction is _null:
             self.strfunction = strfunction
         if presub is _null:
             presub = print_actions_presub
         self.presub = presub
         self.chdir = chdir
+        if not exitstatfunc:
+            exitstatfunc = default_exitstatfunc
+        self.exitstatfunc = exitstatfunc
 
     def print_cmd_line(self, s, target, source, env):
         sys.stdout.write(s + "\n")
 
     def __call__(self, target, source, env,
-                               errfunc=None,
+                               exitstatfunc=_null,
                                presub=_null,
                                show=_null,
                                execute=_null,
@@ -266,6 +272,7 @@ class _ActionAction(ActionBase):
             target = [target]
         if not SCons.Util.is_List(source):
             source = [source]
+        if exitstatfunc is _null: exitstatfunc = self.exitstatfunc
         if presub is _null:  presub = self.presub
         if show is _null:  show = print_actions
         if execute is _null:  execute = execute_actions
@@ -304,8 +311,7 @@ class _ActionAction(ActionBase):
                 os.chdir(chdir)
             try:
                 stat = self.execute(target, source, env)
-                if stat and errfunc:
-                    errfunc(stat)
+                stat = exitstatfunc(stat)
             finally:
                 if save_cwd:
                     os.chdir(save_cwd)
@@ -350,12 +356,32 @@ class CommandAction(_ActionAction):
             return string.join(map(str, self.cmd_list), ' ')
         return str(self.cmd_list)
 
+    def process(self, target, source, env):
+        result = env.subst_list(self.cmd_list, 0, target, source)
+        silent = None
+        ignore = None
+        while 1:
+            try: c = result[0][0][0]
+            except IndexError: c = None
+            if c == '@': silent = 1
+            elif c == '-': ignore = 1
+            else: break
+            result[0][0] = result[0][0][1:]
+        try:
+            if not result[0][0]:
+                result[0] = result[0][1:]
+        except IndexError:
+            pass
+        return result, ignore, silent
+
     def strfunction(self, target, source, env):
         if not self.cmdstr is None:
             c = env.subst(self.cmdstr, 0, target, source)
             if c:
                 return c
-        cmd_list = env.subst_list(self.cmd_list, 0, target, source)
+        cmd_list, ignore, silent = self.process(target, source, env)
+	if silent:
+	    return ''
         return _string_from_cmd_list(cmd_list[0])
 
     def execute(self, target, source, env):
@@ -406,15 +432,14 @@ class CommandAction(_ActionAction):
                     # reasonable for just about everything else:
                     ENV[key] = str(value)
 
-        cmd_list = env.subst_list(self.cmd_list, 0, target,
-                                  map(rfile, source))
+	cmd_list, ignore, silent = self.process(target, map(rfile, source), env)
 
         # Use len() to filter out any "command" that's zero-length.
         for cmd_line in filter(len, cmd_list):
             # Escape the command line for the interpreter we are using.
             cmd_line = escape_list(cmd_line, escape)
             result = spawn(shell, escape, cmd_line[0], cmd_line, ENV)
-            if result:
+            if not ignore and result:
                 return result
         return 0
 
@@ -461,10 +486,10 @@ class CommandGeneratorAction(ActionBase):
     def genstring(self, target, source, env):
         return self._generate(target, source, env, 1).genstring(target, source, env)
 
-    def __call__(self, target, source, env, errfunc=None, presub=_null,
+    def __call__(self, target, source, env, exitstatfunc=_null, presub=_null,
                  show=_null, execute=_null, chdir=_null):
         act = self._generate(target, source, env, 0)
-        return act(target, source, env, errfunc, presub,
+        return act(target, source, env, exitstatfunc, presub,
                    show, execute, chdir)
 
     def get_contents(self, target, source, env):
@@ -650,10 +675,10 @@ class ListAction(ActionBase):
                                self.list),
                            "")
 
-    def __call__(self, target, source, env, errfunc=None, presub=_null,
+    def __call__(self, target, source, env, exitstatfunc=_null, presub=_null,
                  show=_null, execute=_null, chdir=_null):
         for act in self.list:
-            stat = act(target, source, env, errfunc, presub,
+            stat = act(target, source, env, exitstatfunc, presub,
                        show, execute, chdir)
             if stat:
                 return stat

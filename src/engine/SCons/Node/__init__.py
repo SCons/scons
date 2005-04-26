@@ -227,10 +227,12 @@ class Node:
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
         """
-        def errfunc(stat, node=self):
-            raise SCons.Errors.BuildError(node=node, errstr="Error %d" % stat)
+        def exitstatfunc(stat, node=self):
+            if stat:
+                msg = "Error %d" % stat
+                raise SCons.Errors.BuildError(node=node, errstr=msg)
         executor = self.get_executor()
-        apply(executor, (self, errfunc), kw)
+        apply(executor, (self, exitstatfunc), kw)
 
     def built(self):
         """Called just after this node is successfully built."""
