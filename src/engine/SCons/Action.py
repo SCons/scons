@@ -237,6 +237,11 @@ class ActionBase:
         self.presub_env = None      # don't need this any more
         return lines
 
+    def get_executor(self, env, overrides, tlist, slist, executor_kw):
+        """Return the Executor for this Action."""
+        return SCons.Executor.Executor(self, env, overrides,
+                                       tlist, slist, executor_kw)
+
 if not SCons.Memoize.has_metaclass:
     _Base = ActionBase
     class ActionBase(SCons.Memoize.Memoizer, _Base):

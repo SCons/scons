@@ -282,9 +282,10 @@ def Builder(**kw):
 
     return ret
 
-def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
-    """Initialize lists of target and source nodes with all of
-    the proper Builder information.
+def _node_errors(builder, env, tlist, slist):
+    """Validate that the lists of target and source nodes are
+    legal for this builder and environment.  Raise errors or
+    issue warnings as appropriate.
     """
 
     # First, figure out if there are any errors in the way the targets
@@ -294,12 +295,13 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
             raise UserError, "Multiple ways to build the same target were specified for: %s" % str(t)
         if t.has_explicit_builder():
             if not t.env is None and not t.env is env:
-                t_contents = t.builder.action.get_contents(tlist, slist, t.env)
-                contents = t.builder.action.get_contents(tlist, slist, env)
+                action = t.builder.action
+                t_contents = action.get_contents(tlist, slist, t.env)
+                contents = action.get_contents(tlist, slist, env)
 
                 if t_contents == contents:
                     SCons.Warnings.warn(SCons.Warnings.DuplicateEnvironmentWarning,
-                                        "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s"%(str(t), t.builder.action.genstring(tlist, slist, t.env)))
+                                        "Two different environments were specified for target %s,\n\tbut they appear to have the same action: %s"%(str(t), action.genstring(tlist, slist, t.env)))
 
                 else:
                     raise UserError, "Two environments with different actions were specified for the same target: %s"%str(t)
@@ -318,36 +320,6 @@ def _init_nodes(builder, env, overrides, executor_kw, tlist, slist):
     if builder.single_source:
         if len(slist) > 1:
             raise UserError, "More than one source given for single-source builder: targets=%s sources=%s" % (map(str,tlist), map(str,slist))
-
-    # The targets are fine, so find or make the appropriate Executor to
-    # build this particular list of targets from this particular list of
-    # sources.
-    executor = None
-    if builder.multi:
-        try:
-            executor = tlist[0].get_executor(create = 0)
-        except AttributeError:
-            pass
-        else:
-            executor.add_sources(slist)
-    if executor is None:
-        if not builder.action:
-            raise UserError, "Builder %s must have an action to build %s."%(builder.get_name(env or builder.env), map(str,tlist))
-        executor = SCons.Executor.Executor(builder.action,
-                                           env or builder.env,
-                                           [],  # env already has overrides
-                                           tlist,
-                                           slist,
-                                           executor_kw)
-
-    # Now set up the relevant information in the target Nodes themselves.
-    for t in tlist:
-        t.cwd = env.fs.getcwd()
-        t.builder_set(builder)
-        t.env_set(env)
-        t.add_source(slist)
-        t.set_executor(executor)
-        t.set_explicit(builder.is_explicit)
 
 class EmitterProxy:
     """This is a callable class that can act as a
@@ -458,7 +430,7 @@ class BuilderBase:
         try:
             index = env['BUILDERS'].values().index(self)
             return env['BUILDERS'].keys()[index]
-        except (AttributeError, KeyError, ValueError):
+        except (AttributeError, KeyError, TypeError, ValueError):
             try:
                 return self.name
             except AttributeError:
@@ -478,7 +450,25 @@ class BuilderBase:
                 return [path[:-len(suf)], path[-len(suf):]]
         return SCons.Util.splitext(path)
 
-    def _create_nodes(self, env, overwarn, target = None, source = None):
+    def get_single_executor(self, env, tlist, slist, executor_kw):
+        if not self.action:
+            raise UserError, "Builder %s must have an action to build %s."%(self.get_name(env or self.env), map(str,tlist))
+        return self.action.get_executor(env or self.env,
+                                        [],  # env already has overrides
+                                        tlist,
+                                        slist,
+                                        executor_kw)
+
+    def get_multi_executor(self, env, tlist, slist, executor_kw):
+        try:
+            executor = tlist[0].get_executor(create = 0)
+        except (AttributeError, IndexError):
+            return self.get_single_executor(env, tlist, slist, executor_kw)
+        else:
+            executor.add_sources(slist)
+            return executor
+
+    def _create_nodes(self, env, target = None, source = None):
         """Create and return lists of target and source nodes.
         """
         def _adjustixes(files, pre, suf):
@@ -493,8 +483,6 @@ class BuilderBase:
                     f = SCons.Util.adjustixes(f, pre, suf)
                 result.append(f)
             return result
-
-        overwarn.warn()
 
         src_suf = self.get_src_suffix(env)
 
@@ -536,7 +524,7 @@ class BuilderBase:
             target, source = self.emitter(target=tlist, source=slist, env=env)
 
             # Now delete the temporary builders that we attached to any
-            # new targets, so that _init_nodes() doesn't do weird stuff
+            # new targets, so that _node_errors() doesn't do weird stuff
             # to them because it thinks they already have builders.
             for t in new_targets:
                 if t.builder is self:
@@ -561,14 +549,36 @@ class BuilderBase:
                 if not src is None: src = [src]
                 result.extend(self._execute(env, tgt, src, overwarn))
             return result
+
+        overwarn.warn()
         
-        tlist, slist = self._create_nodes(env, overwarn, target, source)
+        tlist, slist = self._create_nodes(env, target, source)
 
         if len(tlist) == 1:
             builder = self
         else:
             builder = ListBuilder(self, env, tlist)
-        _init_nodes(builder, env, overwarn.data, executor_kw, tlist, slist)
+
+        # Check for errors with the specified target/source lists.
+        _node_errors(builder, env, tlist, slist)
+
+        # The targets are fine, so find or make the appropriate Executor to
+        # build this particular list of targets from this particular list of
+        # sources.
+        if builder.multi:
+            get_executor = builder.get_multi_executor
+        else:
+            get_executor = builder.get_single_executor
+        executor = get_executor(env, tlist, slist, executor_kw)
+
+        # Now set up the relevant information in the target Nodes themselves.
+        for t in tlist:
+            t.cwd = env.fs.getcwd()
+            t.builder_set(builder)
+            t.env_set(env)
+            t.add_source(slist)
+            t.set_executor(executor)
+            t.set_explicit(builder.is_explicit)
 
         return SCons.Node.NodeList(tlist)
 

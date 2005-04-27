@@ -144,6 +144,12 @@ class Environment:
     def __cmp__(self, other):
         return cmp(self.scanner, other.scanner) or cmp(self.d, other.d)
 
+class MyAction:
+    def __init__(self, action):
+        self.action = action
+    def get_executor(self, env, overrides, tlist, slist, executor_kw):
+        return ['executor'] + [self.action]
+
 class MyNode_without_target_from_source:
     def __init__(self, name):
         self.name = name
@@ -385,6 +391,29 @@ class BuilderTestCase(unittest.TestCase):
 
         builder = SCons.Builder.Builder(generator=generator)
         assert builder.action.generator == generator
+
+    def test_get_name(self):
+        """Test the get_name() method
+        """
+
+    def test_get_single_executor(self):
+        """Test the get_single_executor() method
+        """
+        b = SCons.Builder.Builder(action='foo')
+        x = b.get_single_executor({}, [], [], {})
+        assert not x is None, x
+
+    def test_get_multi_executor(self):
+        """Test the get_multi_executor() method
+        """
+        b = SCons.Builder.Builder(action='foo', multi=1)
+        t1 = MyNode('t1')
+        s1 = MyNode('s1')
+        s2 = MyNode('s2')
+        x1 = b.get_multi_executor({}, [t1], [s1], {})
+        t1.executor = x1
+        x2 = b.get_multi_executor({}, [t1], [s2], {})
+        assert x1 is x2, "%s is not %s" % (repr(x1), repr(x2))
 
     def test_cmp(self):
         """Test simple comparisons of Builder objects
@@ -724,7 +753,7 @@ class BuilderTestCase(unittest.TestCase):
         builder1 = SCons.Builder.Builder(action='foo',
                                          src_suffix='.bar',
                                          suffix='.foo')
-        builder2 = SCons.Builder.MultiStepBuilder(action='bar',
+        builder2 = SCons.Builder.MultiStepBuilder(action=MyAction('act'),
                                                   src_builder = builder1,
                                                   src_suffix = '.foo')
 
@@ -733,17 +762,20 @@ class BuilderTestCase(unittest.TestCase):
 
         tgt = builder2(env, target='baz',
                        source=['test.bar', 'test2.foo', 'test3.txt'])[0]
-        assert str(tgt.sources[0]) == 'test.foo', str(tgt.sources[0])
-        assert str(tgt.sources[0].sources[0]) == 'test.bar', \
-               str(tgt.sources[0].sources[0])
-        assert str(tgt.sources[1]) == 'test2.foo', str(tgt.sources[1])
-        assert str(tgt.sources[2]) == 'test3.txt', str(tgt.sources[2])
+	s = str(tgt)
+	assert s == 'baz', s
+	s = map(str, tgt.sources)
+	assert s == ['test.foo', 'test2.foo', 'test3.txt'], s
+	s = map(str, tgt.sources[0].sources)
+	assert s == ['test.bar'], s
 
         tgt = builder2(env, None, 'aaa.bar')[0]
-        assert str(tgt) == 'aaa', str(tgt)
-        assert str(tgt.sources[0]) == 'aaa.foo', str(tgt.sources[0])
-        assert str(tgt.sources[0].sources[0]) == 'aaa.bar', \
-               str(tgt.sources[0].sources[0])
+	s = str(tgt)
+	assert s == 'aaa', s
+	s = map(str, tgt.sources)
+	assert s == ['aaa.foo'], s
+	s = map(str, tgt.sources[0].sources)
+	assert s == ['aaa.bar'], s
 
         builder3 = SCons.Builder.MultiStepBuilder(action = 'foo',
                                                   src_builder = 'xyzzy',
@@ -753,21 +785,23 @@ class BuilderTestCase(unittest.TestCase):
         builder4 = SCons.Builder.Builder(action='bld4',
                                          src_suffix='.i',
                                          suffix='_wrap.c')
-        builder5 = SCons.Builder.MultiStepBuilder(action='bld5',
+        builder5 = SCons.Builder.MultiStepBuilder(action=MyAction('act'),
                                                   src_builder=builder4,
                                                   suffix='.obj',
                                                   src_suffix='.c')
-        builder6 = SCons.Builder.MultiStepBuilder(action='bld6',
+        builder6 = SCons.Builder.MultiStepBuilder(action=MyAction('act'),
                                                   src_builder=builder5,
                                                   suffix='.exe',
                                                   src_suffix='.obj')
         tgt = builder6(env, 'test', 'test.i')[0]
-        assert str(tgt) == 'test.exe', str(tgt)
-        assert str(tgt.sources[0]) == 'test_wrap.obj', str(tgt.sources[0])
-        assert str(tgt.sources[0].sources[0]) == 'test_wrap.c', \
-               str(tgt.sources[0].sources[0])
-        assert str(tgt.sources[0].sources[0].sources[0]) == 'test.i', \
-               str(tgt.sources[0].sources[0].sources[0])
+	s = str(tgt)
+        assert s == 'test.exe', s
+	s = map(str, tgt.sources)
+	assert s == ['test_wrap.obj'], s
+	s = map(str, tgt.sources[0].sources)
+	assert s == ['test_wrap.c'], s
+	s = map(str, tgt.sources[0].sources[0].sources)
+	assert s == ['test.i'], s
         
     def test_CompositeBuilder(self):
         """Testing CompositeBuilder class."""
@@ -1440,30 +1474,31 @@ class BuilderTestCase(unittest.TestCase):
                                      'B2': b2,
                                      'B3': b3,
                                      'B4': b4})
+        # With no name, get_name will return the class.  Allow
+        # for caching...
+        b6_names = [
+            'SCons.Builder.BuilderBase',
+            "<class 'SCons.Builder.BuilderBase'>",
+            'SCons.Memoize.BuilderBase',
+            "<class 'SCons.Memoize.BuilderBase'>",
+        ]
+
         assert b1.get_name(env) == 'bldr1', b1.get_name(env)
         assert b2.get_name(env) == 'bldr2', b2.get_name(env)
         assert b3.get_name(env) == 'bldr3', b3.get_name(env)
         assert b4.get_name(env) == 'bldr4', b4.get_name(env)
         assert b5.get_name(env) == 'builder5', b5.get_name(env)
-        # With no name, get_name will return the class.  Allow
-        # for caching...
-        assert b6.get_name(env) in [
-            'SCons.Builder.BuilderBase',
-            "<class 'SCons.Builder.BuilderBase'>",
-            'SCons.Memoize.BuilderBase',
-            "<class 'SCons.Memoize.BuilderBase'>",
-            ], b6.get_name(env)
+        assert b6.get_name(env) in b6_names, b6.get_name(env)
+
         assert b1.get_name(env2) == 'B1', b1.get_name(env2)
         assert b2.get_name(env2) == 'B2', b2.get_name(env2)
         assert b3.get_name(env2) == 'B3', b3.get_name(env2)
         assert b4.get_name(env2) == 'B4', b4.get_name(env2)
         assert b5.get_name(env2) == 'builder5', b5.get_name(env2)
-        assert b6.get_name(env2) in [
-            'SCons.Builder.BuilderBase',
-            "<class 'SCons.Builder.BuilderBase'>",
-            'SCons.Memoize.BuilderBase',
-            "<class 'SCons.Memoize.BuilderBase'>",
-            ], b6.get_name(env2)
+        assert b6.get_name(env2) in b6_names, b6.get_name(env2)
+
+        assert b5.get_name(None) == 'builder5', b5.get_name(None)
+        assert b6.get_name(None) in b6_names, b6.get_name(None)
 
         for B in b3.get_src_builders(env):
             assert B.get_name(env) == 'bldr1'
@@ -1472,7 +1507,8 @@ class BuilderTestCase(unittest.TestCase):
 
         tgts = b1(env, target = [outfile, outfile2], source='moo')
         for t in tgts:
-            assert t.builder.get_name(env) == 'ListBuilder(bldr1)'
+            name = t.builder.get_name(env)
+            assert name == 'ListBuilder(bldr1)', name
             # The following are not symbolically correct, because the
             # ListBuilder was only created on behalf of env, so it
             # would probably be OK if better correctness
