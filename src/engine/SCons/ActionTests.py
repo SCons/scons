@@ -322,8 +322,11 @@ class ActionTestCase(unittest.TestCase):
         assert a2 is a1, a2
 
 class ActionBaseTestCase(unittest.TestCase):
-    # Maybe write this in the future...
-    pass
+    def test_get_executor(self):
+        """Test the ActionBase.get_executor() method"""
+        a = SCons.Action.Action('foo')
+        x = a.get_executor({}, {}, [], [], {})
+        assert not x is None, x
  
 class _ActionActionTestCase(unittest.TestCase):
 
