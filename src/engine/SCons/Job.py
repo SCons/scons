@@ -222,21 +222,8 @@ else:
             jobs = 0
             
             while 1:
-
-                # There's a concern here that the while-loop test below
-                # might delay reporting status back about failed build
-                # tasks until the entire build is done if tasks execute
-                # fast enough, or self.maxjobs is big enough.  It looks
-                # like that's enough of a corner case that we'll wait to
-                # see if it's an issue in practice.  If so, one possible
-                # fix might be:
-                #
-                #       while jobs < self.maxjobs and \
-                #             self.tp.resultsQueue.empty():
-                #
-                # but that's somewhat unattractive because the
-                # resultsQueue.empty() check might introduce some
-                # significant overhead involving mutex locking.
+                # Start up as many available tasks as we're
+                # allowed to.
                 while jobs < self.maxjobs:
                     task = self.taskmaster.next_task()
                     if task is None:
@@ -261,12 +248,18 @@ else:
 
                 if not task and not jobs: break
 
-                task, ok = self.tp.get()
+                # Let any/all completed tasks finish up before we go
+                # back and put the next batch of tasks on the queue.
+                while 1:
+                    task, ok = self.tp.get()
 
-                jobs = jobs - 1
-                if ok:
-                    task.executed()
-                else:
-                    task.failed()
+                    jobs = jobs - 1
+                    if ok:
+                        task.executed()
+                    else:
+                        task.failed()
 
-                task.postprocess()
+                    task.postprocess()
+
+                    if self.tp.resultsQueue.empty():
+                        break
