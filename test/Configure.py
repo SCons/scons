@@ -509,6 +509,7 @@ int main() {
                         os.path.join("build", "sub", "SConscript"))
 
     shutil.rmtree(test.workpath(work_dir, ".sconf_temp"))
+    os.unlink(test.workpath(work_dir, ".sconsign.dblite"))
 
     # now with SConscriptChdir(1)
     test.run(chdir=work_dir, arguments='chdir=yes')

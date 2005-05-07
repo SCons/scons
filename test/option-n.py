@@ -120,7 +120,7 @@ test.fail_test(not os.path.exists(test.workpath('f1.out')))
 expect = test.wrap_stdout("""\
 %s build.py f1.out
 """ % python)
-test.unlink('.sconsign')
+test.unlink('.sconsign.dblite')
 test.write('f1.out', "X1.out\n")
 test.run(arguments = '-n f1.out', stdout = expect)
 test.run(arguments = '-n f1.out', stdout = expect)

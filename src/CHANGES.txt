@@ -266,6 +266,11 @@ RELEASE 0.97 - XXX
     that accomodate parser generators that write header files to a
     different suffix than the hard-coded .hpp when the -d option is used.
 
+  - The default behavior is now to store signature information in a
+    single .sconsign.dblite file in the top-level SConstruct directory.
+    The old behavior of a separate .sconsign file in each directory can
+    be specified by calling SConsignFile(None).
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

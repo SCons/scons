@@ -25,8 +25,9 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that rebuilds do not occur when TargetSignatures()
-content is used to subdivide a dependency tree.
+Verify that rebuilds do not occur when SConsignFile(None) is used to
+put a .sconsign file in each directory, and TargetSignatures('content')
+is used to subdivide a dependency tree.
 """
 
 import os.path
@@ -46,6 +47,7 @@ test = TestSCons.TestSCons()
 test.subdir('src', ['src', 'sub'])
 
 test.write('SConstruct', """\
+SConsignFile(None)
 TargetSignatures('content')
 env = Environment()
 env.SConscript('src/SConstruct', exports=['env'])
@@ -53,6 +55,7 @@ env.Object('foo.c')
 """)
 
 test.write(['src', 'SConstruct'], """\
+SConsignFile(None)
 TargetSignatures('content')
 env = Environment()
 p = env.Program('prog', ['main.c', '../foo%s', 'sub/bar.c'])

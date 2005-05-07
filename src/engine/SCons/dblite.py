@@ -14,6 +14,9 @@ _open = __builtin__.open # avoid name clash
 keep_all_files = 00000
 ignore_corrupt_dbfiles = 0
 
+def corruption_warning(filename):
+    print "Warning: Discarding corrupt database:", filename
+
 if hasattr(types, 'UnicodeType'):
     def is_string(s):
         t = type(s)
@@ -64,7 +67,7 @@ class dblite:
           except cPickle.UnpicklingError:
             if (ignore_corrupt_dbfiles == 0): raise
             if (ignore_corrupt_dbfiles == 1):
-              print "Warning: Discarding corrupt database:", self._file_name
+              corruption_warning(self._file_name)
 
   def __del__(self):
     if (self._needs_sync):

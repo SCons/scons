@@ -74,6 +74,7 @@ test.subdir('work1', ['work1', 'sub1'], ['work1', 'sub2'],
             'work2', ['work2', 'sub1'], ['work2', 'sub2'])
 
 test.write(['work1', 'SConstruct'], """
+SConsignFile(None)
 env1 = Environment(PROGSUFFIX = '.exe', OBJSUFFIX = '.obj')
 env1.Program('sub1/hello.c')
 env2 = env1.Copy(CPPPATH = ['sub2'])
@@ -221,18 +222,18 @@ test.run(chdir = 'work1', arguments = '. --max-drift=1 --debug=stacktrace')
 
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj work1/sub1/.sconsign",
          stdout = """\
-hello.exe: None \d+ None
-        hello.obj: \d+
-hello.obj: None \d+ None
-        hello.c: \d+
+hello.exe: None \S+ None
+        hello.obj: \S+
+hello.obj: None \S+ None
+        hello.c: \S+
 """)
 
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r work1/sub1/.sconsign",
          stdout = """\
-hello.exe: None \d+ None
-        hello.obj: \d+
-hello.obj: None \d+ None
-        hello.c: \d+
+hello.exe: None \S+ None
+        hello.obj: \S+
+hello.obj: None \S+ None
+        hello.c: \S+
 """)
 
 
