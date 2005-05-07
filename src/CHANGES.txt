@@ -512,6 +512,11 @@ RELEASE 0.97 - XXX
 
   - Allow $JARCHDIR to be expanded to other construction variables.
 
+  From Amir Szekely:
+
+  - When calling the resource compiler on MinGW, add --include-dir and
+    the source directory so it finds the source file.
+
   From Greg Ward:
 
   - Fix a misplaced line in the man page.
