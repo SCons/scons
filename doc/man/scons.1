@@ -9737,6 +9737,8 @@ env['BUILDERS]['PDFBuilder'] = bld
 .ES
 import re
 
+'\" Note:  the \\ in the following are for the benefit of nroff/troff,
+'\" not inappropriate doubled escape characters within the r'' raw string.
 include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
 
 def kfile_scan(node, env, path, arg):
