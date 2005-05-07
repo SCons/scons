@@ -167,7 +167,7 @@ over the file scanning rather than being called for each input line:
     <programlisting>
       import re
       
-      include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
+      include_re = re.compile(r'^include\s+(\S+)$', re.M)
       
       def kfile_scan(node, env, path, arg):
           contents = node.get_contents()
@@ -277,7 +277,7 @@ over the file scanning rather than being called for each input line:
     <programlisting>
         import re
 
-        include_re = re.compile(r'^include\\s+(\\S+)$', re.M)
+        include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
         def kfile_scan(node, env, path):
             contents = node.get_contents()

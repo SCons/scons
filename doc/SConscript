@@ -158,12 +158,20 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
     variables_gen = os.path.join(build, 'user', 'variables.gen')
     variables_mod = os.path.join(build, 'user', 'variables.mod')
 
+    # We put $( - $) around $SOURCES in the command line below because
+    # the path names will change when a given input file is found in
+    # a repository one run and locally the next, and we don't want
+    # to rebuild documentation just because it's found in one location
+    # vs. the other.  The *.gen and *.mod targets will still be dependent
+    # on the list of the files themselves.
     b = env.Command([builders_gen, builders_mod,
                      tools_gen, tools_mod,
                      variables_gen, variables_mod],
                     scons_doc_files,
-                    "python $SCONS_PROC_PY -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $SOURCES")
+                    "python $SCONS_PROC_PY -b ${TARGETS[0]},${TARGETS[1]} -t ${TARGETS[2]},${TARGETS[3]} -v ${TARGETS[4]},${TARGETS[5]} $( $SOURCES $)")
     env.Depends(b, "$SCONS_PROC_PY")
+
+    env.Local(b)
 
     #
     # Each document will live in its own subdirectory.  List them here

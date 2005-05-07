@@ -720,6 +720,8 @@ for p in [ scons ]:
         topdir = os.path.join(os.getcwd(), build, 'build',
                               'bdist.' + platform, 'rpm')
 
+        buildroot = os.path.join(os.getcwd(), 'build', 'rpm-buildroot')
+
         BUILDdir = os.path.join(topdir, 'BUILD', pkg + '-' + version)
         RPMSdir = os.path.join(topdir, 'RPMS', 'noarch')
         SOURCESdir = os.path.join(topdir, 'SOURCES')
@@ -753,7 +755,7 @@ for p in [ scons ]:
         Local(sourcefile)
 
         targets = [ noarch_rpm, src_rpm ]
-        cmd = "$RPMBUILD --define '_topdir $(%s$)' -ba $SOURCES" % topdir
+        cmd = "$RPMBUILD --define '_topdir $(%s$)' --buildroot %s -ba $SOURCES" % (topdir, buildroot)
         if not os.path.isdir(BUILDdir):
             cmd = ("$( mkdir -p %s; $)" % BUILDdir) + cmd
         env.Command(targets, specfile, cmd)

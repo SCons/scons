@@ -283,7 +283,8 @@ RELEASE 0.97 - XXX
 
   From Sanjoy Mahajan:
 
-  - Fix a bad use of Copy() in an example in the man page.
+  - Fix a bad use of Copy() in an example in the man page, and a
+    bad regular expression example in the man page and User's Guide.
 
   From Michael McCracken:
 
