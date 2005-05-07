@@ -1367,9 +1367,10 @@ class Base(SubstitutionEnvironment):
         return apply(SCons.Scanner.Scanner, nargs, nkw)
 
     def SConsignFile(self, name=".sconsign", dbm_module=None):
-        name = self.subst(name)
-        if not os.path.isabs(name):
-            name = os.path.join(str(self.fs.SConstruct_dir), name)
+        if not name is None:
+            name = self.subst(name)
+            if not os.path.isabs(name):
+                name = os.path.join(str(self.fs.SConstruct_dir), name)
         SCons.SConsign.File(name, dbm_module)
 
     def SideEffect(self, side_effect, target):

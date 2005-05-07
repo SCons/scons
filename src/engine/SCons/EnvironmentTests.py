@@ -2568,6 +2568,10 @@ def generate(env):
             env.SConsignFile()
             assert fnames[5] == os.path.join(os.sep, 'dir', '.sconsign'), fnames
             assert dbms[5] == None, dbms
+
+            env.SConsignFile(None)
+            assert fnames[6] == None, fnames
+            assert dbms[6] == None, dbms
         finally:
             SCons.SConsign.File = save_SConsign_File
 

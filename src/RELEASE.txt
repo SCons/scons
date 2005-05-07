@@ -58,7 +58,33 @@ RELEASE 0.97 - XXX
         or /usr/local was passed as the source to a Builder or Command()
         call, in which case SCons would scan the entire directory tree.
 
-    --  SIGNATURE CHANGES WILL CAUSE LIKELY REBUILDS AFTER UPGRADE
+    --  SIGNATURES ARE NOW STORED IN AN SConsignFile() BY DEFAULT,
+        CAUSING LIKELY REBUILDS; SPECIAL NOTE CONCERNING INTERACTION
+        WITH REPOSITORIES
+
+        The default behavior has been changed to store signature
+        information in a single .sconsign.dblite file in the top-level
+        SConstruct file.  This will cause rebuilds on upgrade to 0.97,
+        unless you were already calling the SConsignFile() function in
+        your SConscript files.
+
+        The previous default behavior was to store signature information
+        in a .sconsign file in each directory that contained target
+        files that SCons knew about.  The old behavior may be preserved
+        by specifying:
+
+              SConsignFile(None)
+
+        in any SConscript file.
+
+        If you are using the Repository feature, are not already using
+        the SConsignFile() function in your build, you *must* add
+        SConsignFile(None) to your build to keep interoperating with an
+        existing Repository that uses the old behavior of a .sconsign
+        file in each directory.  Alternatively, you can rebuild the
+        Repository with the new default behavior.
+
+    --  OTHER SIGNATURE CHANGES WILL CAUSE LIKELY REBUILDS AFTER UPGRADE
 
         This release adds several changes to the signature mechanism that
         will cause SCons to rebuild most configurations after upgrading

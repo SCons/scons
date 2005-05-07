@@ -3983,19 +3983,37 @@ SConscript('bar/SConscript')	# will chdir to bar
 This tells
 .B scons
 to store all file signatures
-in the specified
+in the specified database
 .IR file .
 If the
 .I file
-is omitted,
-.B .sconsign.dbm
+name is omitted,
+.B .sconsign
 is used by default.
+(The actual file name(s) stored on disk
+may have an appropriated suffix appended
+by the
+.IR  dbm_module .)
 If
 .I file
 is not an absolute path name,
 the file is placed in the same directory as the top-level
 .B SConstruct
 file.
+
+If
+.I file
+is
+.BR None ,
+then
+.B scons
+will store file signatures
+in a separate
+.B .sconsign
+file in each directory,
+not in one global database file.
+(This was the default behavior
+prior to SCons 0.96.91 and 0.97.)
 
 The optional
 .I dbm_module
@@ -4010,8 +4028,9 @@ and which works on all Python versions from 1.5.2 on.
 Examples:
 
 .ES
-# Stores signatures in ".sconsign.dbm"
-# in the top-level SConstruct directory.
+# Explicitly stores signatures in ".sconsign.dblite"
+# in the top-level SConstruct directory (the
+# default behavior).
 SConsignFile()
 
 # Stores signatures in the file "etc/scons-signatures"
@@ -4020,6 +4039,10 @@ SConsignFile("etc/scons-signatures")
 
 # Stores signatures in the specified absolute file name.
 SConsignFile("/home/me/SCons/signatures")
+
+# Stores signatures in a separate .sconsign file
+# in each directory.
+SConsignFile(None)
 .EE
 
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

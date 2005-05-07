@@ -44,10 +44,15 @@ class SConfTestCase(unittest.TestCase):
 
     def setUp(self):
         # we always want to start with a clean directory
+        self.save_cwd = os.getcwd()
         self.test = TestCmd.TestCmd(workdir = '') 
+        os.chdir(self.test.workpath(''))
 
     def tearDown(self):
         self.test.cleanup()
+        import SCons.SConsign
+        SCons.SConsign.Reset()
+        os.chdir(self.save_cwd)
 
     def _resetSConfState(self):
         # Ok, this is tricky, and i do not know, if everything is sane.
@@ -104,7 +109,7 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         try:
             res = checks( self, sconf, TryFunc )
-            assert res[0] and not res[1] 
+            assert res[0] and not res[1], res
         finally:
             sconf.Finish()
             
@@ -115,7 +120,7 @@ class SConfTestCase(unittest.TestCase):
                                  log_file=self.test.workpath('config.log'))
         try:
             res = checks( self, sconf, TryFunc )
-            assert res[0] and not res[1] 
+            assert res[0] and not res[1], res
         finally:
             sconf.Finish()
         # we should have exactly one one error cached 
@@ -136,7 +141,7 @@ class SConfTestCase(unittest.TestCase):
         try:
             res = checks( self, sconf, TryFunc )
             log = self.test.read( self.test.workpath('config.log') )
-            assert res[0] and res[1] 
+            assert res[0] and res[1], res
         finally:
             sconf.Finish()
 
@@ -231,8 +236,8 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
         try:
             res = checks(sconf)
-            assert res[0][0] and res[0][1] == "Hello" 
-            assert not res[1][0] and res[1][1] == ""
+            assert res[0][0] and res[0][1] == "Hello", res
+            assert not res[1][0] and res[1][1] == "", res
         finally:
             sconf.Finish()
         log = self.test.read( self.test.workpath('config.log') )
@@ -244,8 +249,8 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
         try:
             res = checks(sconf)
-            assert res[0][0] and res[0][1] == "Hello" 
-            assert not res[1][0] and res[1][1] == ""
+            assert res[0][0] and res[0][1] == "Hello", res
+            assert not res[1][0] and res[1][1] == "", res
         finally:
             sconf.Finish()
         # we should have exactly one error cached 
@@ -271,9 +276,9 @@ int main() {
                                   log_file=self.test.workpath('config.log'))
         try:
             (ret, output) = sconf.TryAction(action=actionOK)
-            assert ret and output == "RUN OK"
+            assert ret and output == "RUN OK", (ret, output)
             (ret, output) = sconf.TryAction(action=actionFAIL)
-            assert not ret and output == ""
+            assert not ret and output == "", (ret, output)
         finally:
             sconf.Finish()
 
@@ -514,7 +519,7 @@ int main() {
 """
             (ret, output) = test.TryRun( prog, ".c" )
             test.Result( ret )
-            assert ret and output == "Hello" 
+            assert ret and output == "Hello", (ret, output)
             return ret
         
 
@@ -525,7 +530,7 @@ int main() {
                                  log_file=self.test.workpath('config.log'))
         try:
             ret = sconf.CheckCustom()
-            assert ret 
+            assert ret, ret
         finally:
             sconf.Finish()
             

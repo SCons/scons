@@ -422,6 +422,10 @@ class Base(SCons.Node.Node):
             self.path = name
         else:
             self.path = directory.entry_path(name)
+        if directory.tpath == '.':
+            self.tpath = name
+        else:
+            self.tpath = directory.entry_tpath(name)
         self.path_elements = directory.path_elements + [self]
 
         self.dir = directory
@@ -732,6 +736,7 @@ class FS(LocalFS):
 
         self.Top = self._doLookup(Dir, os.path.normpath(self.pathTop))
         self.Top.path = '.'
+        self.Top.tpath = '.'
         self._cwd = self.Top
 
     def clear_cache(self):
@@ -1102,6 +1107,7 @@ class Dir(Base):
     def addRepository(self, dir):
         if dir != self and not dir in self.repositories:
             self.repositories.append(dir)
+            dir.tpath = '.'
             self.__clearRepositoryCache()
 
     def up(self):
@@ -1284,6 +1290,9 @@ class Dir(Base):
     def entry_path(self, name):
         return self.path + os.sep + name
 
+    def entry_tpath(self, name):
+        return self.tpath + os.sep + name
+
     def must_be_a_Dir(self):
         """Called to make sure a Node is a Dir.  Since we're already
         one, this is a no-op for us."""
@@ -1389,6 +1398,7 @@ class RootDir(Dir):
         # won't gag won't it calls some of our methods.
         self.abspath = ''
         self.path = ''
+        self.tpath = ''
         self.path_elements = []
         self.duplicate = 0
         Base.__init__(self, name, self, fs)
@@ -1397,6 +1407,7 @@ class RootDir(Dir):
         # initial drive letter (the name) plus the directory separator.
         self.abspath = name + os.sep
         self.path = name + os.sep
+        self.tpath = name + os.sep
         self._morph()
 
     def __str__(self):
@@ -1407,6 +1418,9 @@ class RootDir(Dir):
 
     def entry_path(self, name):
         return self.path + name
+
+    def entry_tpath(self, name):
+        return self.tpath + name
 
     def is_under(self, dir):
         if self is dir:

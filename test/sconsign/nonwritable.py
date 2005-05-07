@@ -24,6 +24,10 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""
+Test that things still work when a .sconsign* file is not writable.
+"""
+
 import os
 import TestSCons
 import TestCmd
@@ -31,9 +35,21 @@ import cPickle
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
-test.subdir('sub1', 'sub2', 'sub3')
+test.subdir('work1',
+            ['work1', 'sub1'],
+            ['work1', 'sub2'],
+            ['work1', 'sub3'],
+            'work2',
+            ['work2', 'sub1'],
+            ['work2', 'sub2'],
+            ['work2', 'sub3'])
 
-test.write('SConstruct', """
+work1__sconsign_dblite = test.workpath('work1', '.sconsign.dblite')
+work2_sub1__sconsign = test.workpath('work2', 'sub1', '.sconsign')
+work2_sub2__sconsign = test.workpath('work2', 'sub2', '.sconsign')
+work2_sub3__sconsign = test.workpath('work2', 'sub3', '.sconsign')
+
+SConstruct_contents = """\
 def build1(target, source, env):
     open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
     return None
@@ -52,48 +68,37 @@ env = Environment(BUILDERS = { 'B1' : B1, 'B2' : B2 })
 env.B1(target = 'sub1/foo.out', source = 'foo.in')
 env.B2(target = 'sub2/foo.out', source = 'foo.in')
 env.B2(target = 'sub3/foo.out', source = 'foo.in')
-""")
+"""
 
-test.write('foo.in', "foo.in\n")
 
-sub1__sconsign = test.workpath('sub1', '.sconsign')
-sub2__sconsign = test.workpath('sub2', '.sconsign')
-sub3__sconsign = test.workpath('sub3', '.sconsign')
 
-cPickle.dump({}, open(sub1__sconsign, 'wb'), 1)
-cPickle.dump({}, open(sub2__sconsign, 'wb'), 1)
+test.write(['work1', 'SConstruct'], SConstruct_contents)
 
-os.chmod(sub1__sconsign, 0444)
+test.write(['work1', 'foo.in'], "work1/foo.in\n")
 
-test.run(arguments = '.')
+test.write(work1__sconsign_dblite, "")
 
-test.fail_test(test.read(sub1__sconsign) == "")
-test.fail_test(test.read(sub2__sconsign) == "")
+os.chmod(work1__sconsign_dblite, 0444)
 
-os.chmod(sub1__sconsign, 0666)
+test.run(chdir='work1', arguments='.')
 
-test.write('SConstruct', """
-def build1(target, source, env):
-    open(str(target[0]), 'wb').write(open(str(source[0]), 'rb').read())
-    return None
 
-B1 = Builder(action = build1)
-env = Environment(BUILDERS = { 'B1' : B1})
-env.B1(target = 'sub1/foo.out', source = 'foo.in')
-""")
 
-stderr = '''
-scons: warning: Ignoring corrupt .sconsign file: sub1.\.sconsign
-.*
-'''
+SConstruct_contents = """\
+SConsignFile(None)
+""" + SConstruct_contents
 
-stdout = test.wrap_stdout('build1\(\["sub1.foo\.out"\], \["foo\.in"\]\)\n')
+test.write(['work2', 'SConstruct'], SConstruct_contents)
 
-test.write(sub1__sconsign, 'not:a:sconsign:file')
-test.run(arguments = '.', stderr=stderr, stdout=stdout)
+test.write(['work2', 'foo.in'], "work2/foo.in\n")
 
-test.write(sub1__sconsign, '\0\0\0\0\0\0\0\0\0\0\0\0\0\0')
-test.run(arguments = '.', stderr=stderr, stdout=stdout)
+cPickle.dump({}, open(work2_sub1__sconsign, 'wb'), 1)
+cPickle.dump({}, open(work2_sub2__sconsign, 'wb'), 1)
+
+os.chmod(work2_sub1__sconsign, 0444)
+
+test.run(chdir='work2', arguments='.')
+
 
 
 test.pass_test()

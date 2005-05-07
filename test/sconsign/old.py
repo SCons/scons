@@ -113,8 +113,11 @@ for key, val in old_db.items():
 db.sync()
 """)
 
+
+
 # Now generate a simple .sconsign file for a simple build.
 test.write(['src1', 'SConstruct'], """\
+SConsignFile(None)
 import os
 def cat(env, source, target):
     target = str(target[0])
@@ -154,10 +157,10 @@ for sconsign in sconsign_list:
 
 test.up_to_date(chdir='src1', arguments='.')
 
+
+
 # Now do the same with SConsignFile().
 test.write(['src2', 'SConstruct'], """\
-SConsignFile()
-
 import os
 def cat(env, source, target):
     target = str(target[0])
@@ -188,5 +191,7 @@ for sconsign in sconsign_list:
     test.run(interpreter=python, program=convert_dblite, arguments=sconsign)
 
 test.up_to_date(chdir='src2', arguments='.')
+
+
 
 test.pass_test()

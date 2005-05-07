@@ -35,15 +35,68 @@ import os.path
 import string
 import time
 
+import SCons.dblite
 import SCons.Node
 import SCons.Sig
 import SCons.Warnings
 
+from SCons.Debug import Trace
+
+def corrupt_dblite_warning(filename):
+    SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
+                        "Ignoring corrupt .sconsign file: %s"%filename)
+
+SCons.dblite.ignore_corrupt_dbfiles = 1
+SCons.dblite.corruption_warning = corrupt_dblite_warning
+
 #XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
-# Handle to open database object if using the DB SConsign implementation.
-database = None
+# Info for the database SConsign implementation (now the default):
+# "DataBase" is a dictionary that maps top-level SConstruct directories
+# to open database handles.
+# "DB_Module" is the Python database module to create the handles.
+# "DB_Name" is the base name of the database file (minus any
+# extension the underlying DB module will add).
+DataBase = {}
+DB_Module = SCons.dblite
+DB_Name = ".sconsign"
+DB_sync_list = []
+
+def Get_DataBase(dir):
+    global DataBase, DB_Module, DB_Name
+    top = dir.fs.Top
+    if not os.path.isabs(DB_Name) and top.repositories:
+        mode = "c"
+        for d in [top] + top.repositories:
+            if dir.is_under(d):
+                try:
+                    return DataBase[d], mode
+                except KeyError:
+                    path = d.entry_abspath(DB_Name)
+                    try: db = DataBase[d] = DB_Module.open(path, mode)
+                    except (IOError, OSError): pass
+                    else:
+                        if mode != "r":
+                            DB_sync_list.append(db)
+                        return db, mode
+            mode = "r"
+    try:
+        return DataBase[top], "c"
+    except KeyError:
+        db = DataBase[top] = DB_Module.open(DB_Name, "c")
+        DB_sync_list.append(db)
+        return db, "c"
+    except TypeError:
+        print "DataBase =", DataBase
+        raise
+
+def Reset():
+    """Reset global state.  Used by unit tests that end up using
+    SConsign multiple times to get a clean slate for each test."""
+    global sig_files, DB_sync_list
+    sig_files = []
+    DB_sync_list = []
 
 if os.sep == '/':
     norm_entry = lambda s: s
@@ -55,9 +108,9 @@ def write():
     global sig_files
     for sig_file in sig_files:
         sig_file.write(sync=0)
-    if database:
+    for db in DB_sync_list:
         try:
-            syncmethod = database.sync
+            syncmethod = db.sync
         except AttributeError:
             pass # Not all anydbm modules have sync() methods.
         else:
@@ -94,19 +147,25 @@ class Base:
         self.entries[filename] = obj
         self.dirty = 1
 
+    def do_not_set_entry(self, filename, obj):
+        pass
+
 class DB(Base):
     """
     A Base subclass that reads and writes signature information
-    from a global .sconsign.dbm file.
+    from a global .sconsign.db* file--the actual file suffix is
+    determined by the specified database module.
     """
     def __init__(self, dir, module=None):
         Base.__init__(self, module)
 
         self.dir = dir
 
+        db, mode = Get_DataBase(dir)
+
+        tpath = norm_entry(dir.tpath)
         try:
-            global database
-            rawentries = database[norm_entry(self.dir.path)]
+            rawentries = db[tpath]
         except KeyError:
             pass
         else:
@@ -119,18 +178,25 @@ class DB(Base):
                 raise
             except:
                 SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                                    "Ignoring corrupt sconsign entry : %s"%self.dir.path)
+                                    "Ignoring corrupt sconsign entry : %s"%self.dir.tpath)
+
+        if mode == "r":
+            # This directory is actually under a repository, which means
+            # likely they're reaching in directly for a dependency on
+            # a file there.  Don't actually set any entry info, so we
+            # won't try to write to that .sconsign.dblite file.
+            self.set_entry = self.do_not_set_entry
 
         global sig_files
         sig_files.append(self)
 
     def write(self, sync=1):
         if self.dirty:
-            global database
-            database[norm_entry(self.dir.path)] = cPickle.dumps(self.entries, 1)
+            db, mode = Get_DataBase(self.dir)
+            db[norm_entry(self.dir.tpath)] = cPickle.dumps(self.entries, 1)
             if sync:
                 try:
-                    syncmethod = database.sync
+                    syncmethod = db.sync
                 except AttributeError:
                     # Not all anydbm modules have sync() methods.
                     pass
@@ -223,19 +289,19 @@ class DirFile(Dir):
             except OSError:
                 pass
 
-ForDirectory = DirFile
+ForDirectory = DB
 
 def File(name, dbm_module=None):
     """
-    Arrange for all signatures to be stored in a global .sconsign.dbm
+    Arrange for all signatures to be stored in a global .sconsign.db*
     file.
     """
-    global database
-    if database is None:
-        if dbm_module is None:
-            import SCons.dblite
-            dbm_module = SCons.dblite
-        database = dbm_module.open(name, "c")
-
-    global ForDirectory
-    ForDirectory = DB
+    global ForDirectory, DB_Name, DB_Module
+    if name is None:
+        ForDirectory = DirFile
+        DB_Module = None
+    else:
+        ForDirectory = DB
+        DB_Name = name
+        if not dbm_module is None:
+            DB_Module = dbm_module

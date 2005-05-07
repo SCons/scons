@@ -28,6 +28,8 @@ import sys
 import TestCmd
 import unittest
 
+import SCons.dblite
+
 import SCons.SConsign
 
 class BuildInfo:
@@ -41,12 +43,30 @@ class DummyModule:
     def from_string(self, sig):
         return int(sig)
 
-class BaseTestCase(unittest.TestCase):
+class FS:
+    def __init__(self, top):
+        self.Top = top
+        self.Top.repositories = []
+
+class DummyNode:
+    def __init__(self, path='not_a_valid_path'):
+        self.path = path
+        self.tpath = path
+        self.fs = FS(self)
+
+class SConsignTestCase(unittest.TestCase):
+    def setUp(self):
+        self.save_cwd = os.getcwd()
+        self.test = TestCmd.TestCmd(workdir = '')
+        os.chdir(self.test.workpath(''))
+    def tearDown(self):
+        self.test.cleanup()
+        SCons.SConsign.Reset()
+        os.chdir(self.save_cwd)
+
+class BaseTestCase(SConsignTestCase):
 
     def runTest(self):
-        class DummyNode:
-            path = 'not_a_valid_path'
-
         aaa = BuildInfo('aaa')
         bbb = BuildInfo('bbb')
         bbb.arg1 = 'bbb arg1'
@@ -96,14 +116,11 @@ class BaseTestCase(unittest.TestCase):
         assert e.name == 'fff', e.name
         assert e.arg == 'fff arg', e.arg
 
-class SConsignDBTestCase(unittest.TestCase):
+class SConsignDBTestCase(SConsignTestCase):
 
     def runTest(self):
-        class DummyNode:
-            def __init__(self, path):
-                self.path = path
-        save_database = SCons.SConsign.database
-        SCons.SConsign.database = {}
+        save_DataBase = SCons.SConsign.DataBase
+        SCons.SConsign.DataBase = {}
         try:
             d1 = SCons.SConsign.DB(DummyNode('dir1'))
             d1.set_entry('aaa', BuildInfo('aaa name'))
@@ -137,14 +154,11 @@ class SConsignDBTestCase(unittest.TestCase):
             hhh = d32.get_entry('hhh')
             assert hhh.name == 'hhh name'
         finally:
-            SCons.SConsign.database = save_database
+            SCons.SConsign.DataBase = save_DataBase
 
-class SConsignDirFileTestCase(unittest.TestCase):
+class SConsignDirFileTestCase(SConsignTestCase):
 
     def runTest(self):
-        class DummyNode:
-            path = 'not_a_valid_path'
-
         foo = BuildInfo('foo')
         bar = BuildInfo('bar')
 
@@ -169,52 +183,65 @@ class SConsignDirFileTestCase(unittest.TestCase):
         assert e.arg == 'bbb arg', e.arg
 
 
-class SConsignFileTestCase(unittest.TestCase):
+class SConsignFileTestCase(SConsignTestCase):
 
     def runTest(self):
-        test = TestCmd.TestCmd(workdir = '')
+        test = self.test
         file = test.workpath('sconsign_file')
 
-        assert SCons.SConsign.database is None, SCons.SConsign.database
+        assert SCons.SConsign.DataBase == {}, SCons.SConsign.DataBase
+        assert SCons.SConsign.DB_Name == ".sconsign", SCons.SConsign.DB_Name
+        assert SCons.SConsign.DB_Module is SCons.dblite, SCons.SConsign.DB_Module
 
         SCons.SConsign.File(file)
 
-        assert not SCons.SConsign.database is SCons.dblite, SCons.SConsign.database
+        assert SCons.SConsign.DataBase == {}, SCons.SConsign.DataBase
+        assert SCons.SConsign.DB_Name is file, SCons.SConsign.DB_Name
+        assert SCons.SConsign.DB_Module is SCons.dblite, SCons.SConsign.DB_Module
+
+        SCons.SConsign.File(None)
+
+        assert SCons.SConsign.DataBase == {}, SCons.SConsign.DataBase
+        assert SCons.SConsign.DB_Name is file, SCons.SConsign.DB_Name
+        assert SCons.SConsign.DB_Module is None, SCons.SConsign.DB_Module
 
         class Fake_DBM:
             def open(self, name, mode):
                 self.name = name
                 self.mode = mode
                 return self
+            def __getitem__(self, key):
+                pass
+            def __setitem__(self, key, value):
+                pass
 
         fake_dbm = Fake_DBM()
 
         SCons.SConsign.File(file, fake_dbm)
 
-        assert not SCons.SConsign.database is None, SCons.SConsign.database
+        assert SCons.SConsign.DataBase == {}, SCons.SConsign.DataBase
+        assert SCons.SConsign.DB_Name is file, SCons.SConsign.DB_Name
+        assert SCons.SConsign.DB_Module is fake_dbm, SCons.SConsign.DB_Module
         assert not hasattr(fake_dbm, 'name'), fake_dbm
         assert not hasattr(fake_dbm, 'mode'), fake_dbm
 
-        SCons.SConsign.database = None
+        SCons.SConsign.ForDirectory(DummyNode(test.workpath('dir')))
 
-        SCons.SConsign.File(file, fake_dbm)
-
-        assert not SCons.SConsign.database is None, SCons.SConsign.database
+        assert not SCons.SConsign.DataBase is None, SCons.SConsign.DataBase
         assert fake_dbm.name == file, fake_dbm.name
         assert fake_dbm.mode == "c", fake_dbm.mode
 
 
-class writeTestCase(unittest.TestCase):
+class writeTestCase(SConsignTestCase):
 
     def runTest(self):
 
-        class DummyNode:
-            path = 'not_a_valid_path'
-
-        test = TestCmd.TestCmd(workdir = '')
+        test = self.test
         file = test.workpath('sconsign_file')
 
         class Fake_DBM:
+            def __getitem__(self, key):
+                return None
             def __setitem__(self, key, value):
                 pass
             def open(self, name, mode):
@@ -225,10 +252,10 @@ class writeTestCase(unittest.TestCase):
 
         fake_dbm = Fake_DBM()
 
-        SCons.SConsign.database = None
+        SCons.SConsign.DataBase = {}
         SCons.SConsign.File(file, fake_dbm)
 
-        f = SCons.SConsign.DirFile(DummyNode(), DummyModule())
+        f = SCons.SConsign.DB(DummyNode(), DummyModule())
 
         f.set_entry('foo', BuildInfo('foo'))
         f.set_entry('bar', BuildInfo('bar'))
