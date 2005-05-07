@@ -378,6 +378,10 @@ RELEASE 0.97 - XXX
   - Have the linkloc tool use $MSVS_VERSION to select the Microsoft
     Visual Studio version to use.
 
+  From Karol Pietrzak:
+
+  - Add $RPATH (-R) support to the Sun linker Tool (sunlink).
+
   From Kevin Quick:
 
   - Fix the Builder name returned from ListBuilders and other instances
