@@ -135,10 +135,23 @@ tools = [
     'zip',
 ]
 
-intel_license_warning = """
+intel_warnings = [
+        # License warning.
+        """
 scons: warning: Intel license dir was not found.  Tried using the INTEL_LICENSE_FILE environment variable (), the registry () and the default path (C:\Program Files\Common Files\Intel\Licenses).  Using the default path as a last resort.
 File "SConstruct", line 1, in ?
-"""
+""",
+        # No top dir warning, 32 bit version.
+        """
+scons: warning: Can't find Intel compiler top dir for version='None', abi='ia32'
+File "SConstruct", line 1, in ?
+""",
+        # No top dir warning, 64 bit version.
+        """
+scons: warning: Can't find Intel compiler top dir for version='None', abi='x86_64'
+File "SConstruct", line 1, in ?
+""",
+]
 
 moc = test.where_is('moc')
 if moc:
@@ -154,9 +167,9 @@ File "SConstruct", line 1, in ?
 """
 
 error_output = {
-    'icl' : intel_license_warning,
-    'intelc' : intel_license_warning,
-    'qt' : qt_err,
+    'icl' : intel_warnings,
+    'intelc' : intel_warnings,
+    'qt' : [qt_err],
 }
 
 # An SConstruct for importing Tool names that have illegal characters
@@ -183,7 +196,7 @@ for tool in tools:
         test.write('SConstruct', direct_import % (tool, tool, tool))
     test.run(stderr=None)
     stderr = test.stderr()
-    if stderr != '' and stderr != error_output.get(tool, ''):
+    if not stderr in [''] + error_output.get(tool, []):
         print "Failed importing '%s', stderr:" % tool
         print stderr
         failures.append(tool)
