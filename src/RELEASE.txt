@@ -88,7 +88,7 @@ RELEASE 0.97 - XXX
 
         This release adds several changes to the signature mechanism that
         will cause SCons to rebuild most configurations after upgrading
-        (and if switching back from 0.97 to an earlier release).
+        (and when switching back to an earlier release from 0.97).
         These changes are:
 
           --  NORMALIZED PATHS IN SConsignFile() DATABASES ON WINDOWS
@@ -115,6 +115,20 @@ RELEASE 0.97 - XXX
               (Note that this would still require some specific code at
               the top of each SConstruct file, but we hope to make this
               an easier/more naturally supported thing in the future.)
+
+          --  PYTHON FUNCTION ACTION SIGNATURES HAVE CHANGED TO AVOID
+              FUTURE REBUILDS AND REBUILDS BETWEEN PYTHON VERSIONS
+
+              SCons Actions for Python functions use the functions byte
+              code to generate their signature.  The byte code in older
+              versions of Python includes indications of the line numbers
+              at which the function's code appeared in its original
+              source file, which means that changes in the location of
+              an otherwise unmodified Python function would trigger
+              rebuilds.  The line number byte codes are now removed
+              from the signature, which will cause any targets built by
+              Python function Actions (including various pre-supplied
+              SCons Actions) be rebuilt.
 
     --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
 
