@@ -1430,13 +1430,19 @@ class FunctionActionTestCase(unittest.TestCase):
         """Test fetching the contents of a function Action
         """
 
-        a = SCons.Action.FunctionAction(GlobalFunc)
+        def LocalFunc():
+            pass
 
         matches = [
-            "\177\036\000\177\037\000d\000\000S",
+            "d\000\000S",
             "d\x00\x00S",
         ]
 
+        a = SCons.Action.FunctionAction(GlobalFunc)
+        c = a.get_contents(target=[], source=[], env=Environment())
+        assert c in matches, repr(c)
+
+        a = SCons.Action.FunctionAction(LocalFunc)
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c in matches, repr(c)
 
@@ -1602,8 +1608,11 @@ class ActionCallerTestCase(unittest.TestCase):
         def strfunc():
             pass
 
+        def LocalFunc():
+            pass
+
         matches = [
-            "\177\036\000\177\037\000d\000\000S",
+            "d\000\000S",
             "d\x00\x00S"
         ]
 
@@ -1612,12 +1621,26 @@ class ActionCallerTestCase(unittest.TestCase):
         c = ac.get_contents([], [], Environment())
         assert c in matches, repr(c)
 
+        af = SCons.Action.ActionFactory(LocalFunc, strfunc)
+        ac = SCons.Action.ActionCaller(af, [], {})
+        c = ac.get_contents([], [], Environment())
+        assert c in matches, repr(c)
+
         matches = [
-            '\177"\000\177#\000d\000\000S',
+            'd\000\000S',
             "d\x00\x00S"
         ]
 
+        class LocalActFunc:
+            def __call__(self):
+                pass
+
         af = SCons.Action.ActionFactory(GlobalActFunc(), strfunc)
+        ac = SCons.Action.ActionCaller(af, [], {})
+        c = ac.get_contents([], [], Environment())
+        assert c in matches, repr(c)
+
+        af = SCons.Action.ActionFactory(LocalActFunc(), strfunc)
         ac = SCons.Action.ActionCaller(af, [], {})
         c = ac.get_contents([], [], Environment())
         assert c in matches, repr(c)

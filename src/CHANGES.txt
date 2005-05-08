@@ -271,6 +271,10 @@ RELEASE 0.97 - XXX
     The old behavior of a separate .sconsign file in each directory can
     be specified by calling SConsignFile(None).
 
+  - Remove line number byte codes within the signature calculation
+    of Python function actions, so that changing the location of an
+    otherwise unmodified Python function doesn't cause rebuilds.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

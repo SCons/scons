@@ -97,6 +97,7 @@ way for wrapping up the functions.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import dis
 import os
 import os.path
 import re
@@ -126,6 +127,28 @@ def rfile(n):
 
 def default_exitstatfunc(s):
     return s
+
+try:
+    SET_LINENO = dis.SET_LINENO
+    HAVE_ARGUMENT = dis.HAVE_ARGUMENT
+except AttributeError:
+    remove_set_lineno_codes = lambda x: x
+else:
+    def remove_set_lineno_codes(code):
+        result = []
+        n = len(code)
+        i = 0
+        while i < n:
+            c = code[i]
+            op = ord(c)
+            if op >= HAVE_ARGUMENT:
+                if op != SET_LINENO:
+                    result.append(code[i:i+3])
+                i = i+3
+            else:
+                result.append(c)
+                i = i+1
+        return string.join(result, '')
 
 def _actionAppend(act1, act2):
     # This function knows how to slap two actions together.
@@ -626,6 +649,11 @@ class FunctionAction(_ActionAction):
 
         By providing direct access to the code object of the
         function, Python makes this extremely easy.  Hooray!
+
+        Unfortunately, older versions of Python include line
+        number indications in the compiled byte code.  Boo!
+        So we remove the line number byte codes to prevent
+        recompilations from moving a Python function.
         """
         try:
             # "self.execfunction" is a function.
@@ -643,6 +671,7 @@ class FunctionAction(_ActionAction):
                     contents = str(self.execfunction)
                 else:
                     contents = gc(target, source, env)
+        contents = remove_set_lineno_codes(contents)
         return contents + env.subst(string.join(map(lambda v: '${'+v+'}',
                                                      self.varlist)))
 
@@ -715,6 +744,7 @@ class ActionCaller:
                 # No __call__() method, so it might be a builtin
                 # or something like that.  Do the best we can.
                 contents = str(actfunc)
+        contents = remove_set_lineno_codes(contents)
         return contents
     def subst(self, s, target, source, env):
         # Special-case hack:  Let a custom function wrapped in an
