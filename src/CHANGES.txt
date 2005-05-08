@@ -372,7 +372,7 @@ RELEASE 0.97 - XXX
   - Documentation changes:  Update the man page to describe use of
     filenames or Nodes in $LIBS.
 
-  - Add support for Intel C++ version 9.0.
+  - Add support for Intel C++ beta 9.0 (both 32 and 64 bit versions).
 
   From Chris Pawling:
 

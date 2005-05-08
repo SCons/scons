@@ -56,6 +56,15 @@ class MissingDirError(IntelCError):     # dir not found
 class NoRegistryModuleError(IntelCError): # can't read registry at all
     pass
 
+def uniquify(s):
+    """Return a sequence containing only one copy of each unique element from input sequence s.
+    Does not preserve order.
+    Input sequence must be hashable (i.e. must be usable as a dictionary key)."""
+    u = {}
+    for x in s:
+        u[x] = 1
+    return u.keys()
+
 def linux_ver_normalize(vstr):
     """Normalize a Linux compiler version number.
     Intel changed from "80" to "9.0" in 2005, so we assume if the number
@@ -68,6 +77,27 @@ def linux_ver_normalize(vstr):
     else:
         if f < 60: return f * 10.0
         else: return f
+
+def check_abi(abi):
+    """Check for valid ABI (application binary interface) name,
+    and map into canonical one"""
+    if not abi:
+        return None
+    abi = abi.lower()
+    # valid_abis maps input name to canonical name
+    if is_win32:
+        valid_abis = {'ia32':'ia32', 'x86':'ia32',
+                      'ia64':'ia64'}
+    if is_linux:
+        valid_abis = {'ia32':'ia32', 'x86':'ia32',
+                      'x86_64':'x86_64', 'em64t':'x86_64', 'amd64':'x86_64'}
+    try:
+        abi = valid_abis[abi]
+    except KeyError:
+        raise SCons.Errors.UserError, \
+              "Intel compiler: Invalid ABI %s, valid values are %s"% \
+              (abi, valid_abis.keys())
+    return abi
 
 def vercmp(a, b):
     """Compare strings as floats,
@@ -137,9 +167,9 @@ def get_all_compiler_versions():
                 # than uninstalling properly), so the registry values
                 # are still there.
                 ok = False
-                for check_abi in ('IA32', 'IA64'):
+                for try_abi in ('IA32', 'IA64'):
                     try:
-                        d = get_intel_registry_value('ProductDir', subkey, check_abi)
+                        d = get_intel_registry_value('ProductDir', subkey, try_abi)
                     except MissingRegistryError:
                         continue  # not found in reg, keep going
                     if os.path.exists(d): ok = True
@@ -156,9 +186,11 @@ def get_all_compiler_versions():
         for d in glob.glob('/opt/intel_cc_*'):
             # Typical dir here is /opt/intel_cc_80.
             versions.append(re.search(r'cc_(.*)$', d).group(1))
-        for d in glob.glob('/opt/intel/cc/*'):
-            # Typical dir here is /opt/intel/cc/9.0.
+        for d in glob.glob('/opt/intel/cc*/*'):
+            # Typical dir here is /opt/intel/cc/9.0 for IA32,
+            # /opt/intel/cce/9.0 for EMT64 (AMD64)
             versions.append(re.search(r'([0-9.]+)$', d).group(1))
+    versions = uniquify(versions)       # remove dups
     versions.sort(vercmp)
     return versions
 
@@ -181,13 +213,16 @@ def get_intel_compiler_top(version, abi):
     elif is_linux:
         # first dir is new (>=9.0) style, second is old (8.0) style.
         dirs=('/opt/intel/cc/%s', '/opt/intel_cc_%s')
+        if abi == 'x86_64':
+            dirs=('/opt/intel/cce/%s',)  # 'e' stands for 'em64t', aka x86_64 aka amd64
         top=None
         for d in dirs:
-            top = d%version
-            if os.path.exists(os.path.join(top, "bin", "icc")): break
+            if os.path.exists(os.path.join(d%version, "bin", "icc")):
+                top = d%version
+                break
         if not top:
             raise MissingDirError, \
-                  "Can't find version %s Intel compiler in %s"%(version,top)
+                  "Can't find version %s Intel compiler in %s (abi='%s')"%(version,top, abi)
     return top
 
 
@@ -217,26 +252,55 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         if vlist:
             version = vlist[0]
     else:
-        if not get_version_from_list(version, vlist):
+        # User may have specified '90' but we need to get actual dirname '9.0'.
+        # get_version_from_list does that mapping.
+        v = get_version_from_list(version, vlist)
+        if not v:
             raise SCons.Errors.UserError, \
                   "Invalid Intel compiler version %s: "%version + \
                   "installed versions are %s"%(', '.join(vlist))
+        version = v
 
-    # if abi is unspecified, use ia32 (ia64 is another possibility)
+    # if abi is unspecified, use ia32
+    # alternatives are ia64 for Itanium, or amd64 or em64t or x86_64 (all synonyms here)
+    abi = check_abi(abi)
     if abi is None:
-        abi = "ia32"                    # or ia64, I believe
+        if is_linux:
+            # Check if we are on 64-bit linux, default to 64 then.
+            uname_m = os.uname()[4]
+            if uname_m == 'x86_64':
+                abi = 'x86_64'
+            else:
+                abi = 'ia32'
+        else:
+            # XXX: how would we do the same test on Windows?
+            abi = "ia32"
 
-    if topdir is None and version:
+    if version and not topdir:
         try:
             topdir = get_intel_compiler_top(version, abi)
         except (SCons.Util.RegError, IntelCError):
             topdir = None
 
-    if topdir:
+    if not topdir:
+        # Normally this is an error, but it might not be if the compiler is
+        # on $PATH and the user is importing their env.
+        if is_linux and not env.Detect('icc') or \
+           is_win32 and not env.Detect('icl'):
+            class ICLTopDirWarning(SCons.Warnings.Warning):
+                    pass
+            SCons.Warnings.enableWarningClass(ICLTopDirWarning)
+            SCons.Warnings.warn(ICLTopDirWarning,
+                                "Can't find Intel compiler top dir for version='%s', abi='%s'"%
+                                (str(version), str(abi)))
 
+    if topdir:
         if verbose:
             print "Intel C compiler: using version '%s' (%g), abi %s, in '%s'"%\
                   (version, linux_ver_normalize(version),abi,topdir)
+            if is_linux:
+                # Show the actual compiler version by running the compiler.
+                os.system('%s/bin/icc --version'%topdir)
 
         env['INTEL_C_COMPILER_TOP'] = topdir
         if is_linux:
@@ -273,6 +337,9 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         env['CC']        = 'icc'
         env['CXX']       = 'icpc'
         env['LINK']      = '$CC'
+        env['AR']        = 'xiar'
+        env['LD']        = 'xild' # not used by default
+
     # This is not the exact (detailed) compiler version,
     # just the major version as determined above or specified
     # by the user.  It is a float like 80 or 90, in normalized form for Linux
