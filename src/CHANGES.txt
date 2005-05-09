@@ -59,6 +59,10 @@ RELEASE 0.97 - XXX
 
   - Add support for .lex and .yacc file suffixes for Lex and Yacc files.
 
+  From Bjorn Eriksson:
+
+  - Fix an incorrect Command() keyword argument in the man page.
+
   From Eric Frias:
 
   - Huge performance improvement:  wrap the tuples representing an
