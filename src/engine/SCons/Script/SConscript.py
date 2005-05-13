@@ -184,9 +184,8 @@ def _SConscript(fs, *files, **kw):
                     # during the actual build phase.
                     f.build()
                     f.builder_set(None)
-                    s = str(f)
-                    if os.path.exists(s):
-                        _file_ = open(s, "r")
+                    if f.exists():
+                        _file_ = open(str(f), "r")
                 if _file_:
                     # Chdir to the SConscript directory.  Use a path
                     # name relative to the SConstruct file so that if

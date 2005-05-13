@@ -56,7 +56,7 @@ if internal_zip:
         compression = env.get('ZIPCOMPRESSION', 0)
         zf = zipfile.ZipFile(str(target[0]), 'w', compression)
         for s in source:
-            if os.path.isdir(str(s)):
+            if s.isdir():
                 os.path.walk(str(s), visit, zf)
             else:
                 zf.write(str(s))

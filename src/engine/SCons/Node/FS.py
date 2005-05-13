@@ -175,9 +175,8 @@ Unlink = SCons.Action.Action(UnlinkFunc, None)
 
 def MkdirFunc(target, source, env):
     t = target[0]
-    p = t.abspath
-    if not t.fs.exists(p):
-        t.fs.mkdir(p)
+    if not t.exists():
+        t.fs.mkdir(t.abspath)
     return 0
 
 Mkdir = SCons.Action.Action(MkdirFunc, None, presub=None)
@@ -469,13 +468,38 @@ class Base(SCons.Node.Node):
 
     rstr = __str__
 
+    def stat(self):
+        "__cacheable__"
+        try: return self.fs.stat(self.abspath)
+        except os.error: return None
+
     def exists(self):
         "__cacheable__"
-        return self.fs.exists(self.abspath)
+        return not self.stat() is None
 
     def rexists(self):
         "__cacheable__"
         return self.rfile().exists()
+
+    def getmtime(self):
+        return self.stat()[stat.ST_MTIME]
+
+    def isdir(self):
+        st = self.stat()
+        return not st is None and stat.S_ISDIR(st[stat.ST_MODE])
+
+    def isfile(self):
+        st = self.stat()
+        return not st is None and stat.S_ISREG(st[stat.ST_MODE])
+
+    if hasattr(os, 'symlink'):
+        def islink(self):
+            try: st = self.fs.lstat(self.abspath)
+            except os.error: return 0
+            return stat.S_ISLNK(st[stat.ST_MODE])
+    else:
+        def islink(self):
+            return 0                    # no symlinks
 
     def is_under(self, dir):
         if self is dir:
@@ -563,7 +587,7 @@ class Entry(Base):
     class."""
 
     def disambiguate(self):
-        if self.fs.isdir(self.abspath):
+        if self.isdir():
             self.__class__ = Dir
             self._morph()
         else:
@@ -594,15 +618,15 @@ class Entry(Base):
         Since this should return the real contents from the file
         system, we check to see into what sort of subclass we should
         morph this Entry."""
-        if self.fs.isfile(self.abspath):
+        if self.isfile():
             self.__class__ = File
             self._morph()
             return self.get_contents()
-        if self.fs.isdir(self.abspath):
+        if self.isdir():
             self.__class__ = Dir
             self._morph()
             return self.get_contents()
-        if self.fs.islink(self.abspath):
+        if self.islink():
             return ''             # avoid errors for dangling symlinks
         raise AttributeError
 
@@ -667,6 +691,8 @@ class LocalFS:
         return os.path.isfile(path)
     def link(self, src, dst):
         return os.link(src, dst)
+    def lstat(self, path):
+        return os.lstat(path)
     def listdir(self, path):
         return os.listdir(path)
     def makedirs(self, path):
@@ -687,12 +713,9 @@ class LocalFS:
     if hasattr(os, 'symlink'):
         def islink(self, path):
             return os.path.islink(path)
-        def exists_or_islink(self, path):
-            return os.path.exists(path) or os.path.islink(path)
     else:
         def islink(self, path):
             return 0                    # no symlinks
-        exists_or_islink = exists
 
 if not SCons.Memoize.has_metaclass:
     _FSBase = LocalFS
@@ -1491,7 +1514,7 @@ class File(Base):
 
     def get_timestamp(self):
         if self.rexists():
-            return self.fs.getmtime(self.rfile().abspath)
+            return self.rfile().getmtime()
         else:
             return 0
 
@@ -1593,13 +1616,13 @@ class File(Base):
         # Push this file out to cache before the superclass Node.built()
         # method has a chance to clear the build signature, which it
         # will do if this file has a source scanner.
-        if self.fs.CachePath and self.fs.exists(self.path):
+        if self.fs.CachePath and self.exists():
             CachePush(self, [], None)
         self.fs.clear_cache()
         SCons.Node.Node.built(self)
 
     def visited(self):
-        if self.fs.CachePath and self.fs.cache_force and self.fs.exists(self.path):
+        if self.fs.CachePath and self.fs.cache_force and self.exists():
             CachePush(self, None, None)
 
     def has_src_builder(self):
@@ -1664,7 +1687,7 @@ class File(Base):
 
     def remove(self):
         """Remove this file."""
-        if self.fs.exists_or_islink(self.path):
+        if self.exists() or self.islink():
             self.fs.unlink(self.path)
             return 1
         return None
