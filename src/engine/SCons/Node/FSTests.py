@@ -605,6 +605,83 @@ class BuildDirTestCase(unittest.TestCase):
 
         self.failIf(errors)
 
+class BaseTestCase(_tempdirTestCase):
+    def test_stat(self):
+        """Test the Base.stat() method"""
+        test = self.test
+        test.write("e1", "e1\n")
+        fs = SCons.Node.FS.FS()
+
+        e1 = fs.Entry('e1')
+        s = e1.stat()
+        assert not s is None, s
+
+        e2 = fs.Entry('e2')
+        s = e2.stat()
+        assert s is None, s
+
+    def test_getmtime(self):
+        """Test the Base.getmtime() method"""
+        test = self.test
+        test.write("file", "file\n")
+        fs = SCons.Node.FS.FS()
+
+        file = fs.Entry('file')
+        assert file.getmtime()
+
+    def test_isdir(self):
+        """Test the Base.isdir() method"""
+        test = self.test
+        test.subdir('dir')
+        test.write("file", "file\n")
+        fs = SCons.Node.FS.FS()
+
+        dir = fs.Entry('dir')
+        assert dir.isdir()
+
+        file = fs.Entry('file')
+        assert not file.isdir()
+
+        nonexistent = fs.Entry('nonexistent')
+        assert not nonexistent.isdir()
+
+    def test_isfile(self):
+        """Test the Base.isfile() method"""
+        test = self.test
+        test.subdir('dir')
+        test.write("file", "file\n")
+        fs = SCons.Node.FS.FS()
+
+        dir = fs.Entry('dir')
+        assert not dir.isfile()
+
+        file = fs.Entry('file')
+        assert file.isfile()
+
+        nonexistent = fs.Entry('nonexistent')
+        assert not nonexistent.isfile()
+
+    if hasattr(os, 'symlink'):
+        def test_islink(self):
+            """Test the Base.islink() method"""
+            test = self.test
+            test.subdir('dir')
+            test.write("file", "file\n")
+            test.symlink("symlink", "symlink")
+            fs = SCons.Node.FS.FS()
+
+            dir = fs.Entry('dir')
+            assert not dir.islink()
+
+            file = fs.Entry('file')
+            assert not file.islink()
+
+            symlink = fs.Entry('symlink')
+            assert symlink.islink()
+
+            nonexistent = fs.Entry('nonexistent')
+            assert not nonexistent.islink()
+
 class FSTestCase(_tempdirTestCase):
     def test_runTest(self):
         """Test FS (file system) Node operations
@@ -2625,6 +2702,7 @@ if __name__ == "__main__":
     suite.addTest(SpecialAttrTestCase())
     suite.addTest(SaveStringsTestCase())
     tclasses = [
+        BaseTestCase,
         FSTestCase,
         DirTestCase,
         RepositoryTestCase,
