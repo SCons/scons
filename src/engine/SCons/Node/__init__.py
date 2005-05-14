@@ -179,12 +179,8 @@ class Node:
             try:
                 act = self.builder.action
             except AttributeError:
-                executor = SCons.Executor.Null()
+                executor = SCons.Executor.Null(targets=[self])
             else:
-                if self.pre_actions:
-                    act = self.pre_actions + act
-                if self.post_actions:
-                    act = act + self.post_actions
                 executor = SCons.Executor.Executor(act,
                                                    self.env or self.builder.env,
                                                    [self.builder.overrides],
@@ -832,20 +828,6 @@ class Node:
         """Always pass the string representation of a Node to
         the command interpreter literally."""
         return 1
-
-    def add_pre_action(self, act):
-        """Adds an Action performed on this Node only before
-        building it."""
-        self.pre_actions.append(act)
-        # executor must be recomputed to include new pre-actions
-        self.reset_executor()
-
-    def add_post_action(self, act):
-        """Adds and Action performed on this Node only after
-        building it."""
-        self.post_actions.append(act)
-        # executor must be recomputed to include new pre-actions
-        self.reset_executor()
 
     def render_include_tree(self):
         """

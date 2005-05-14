@@ -279,6 +279,9 @@ RELEASE 0.97 - XXX
     of Python function actions, so that changing the location of an
     otherwise unmodified Python function doesn't cause rebuilds.
 
+  - Fix AddPreAction() and AddPostAction() when an action has more than
+    one target file:  attach the actions to the Executor, not the Node.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

@@ -34,10 +34,11 @@ import sys
 import TestSCons
 
 _exe = TestSCons._exe
+python = TestSCons.python
 
 test = TestSCons.TestSCons()
 
-test.subdir('work1', 'work2', 'work3')
+test.subdir('work1', 'work2', 'work3', 'work4')
 
 
 
@@ -167,6 +168,38 @@ build(["%s"], [])
 """ % os.path.join('dir', 'file')))
 
 test.must_match(['work3', 'dir', 'file'], "build()\n")
+
+
+
+test.write(['work4', 'build.py'], """\
+import sys
+outfp = open(sys.argv[1], 'wb')
+for f in sys.argv[2:]:
+    outfp.write(open(f, 'rb').read())
+outfp.close()
+""")
+
+test.write(['work4', 'SConstruct'], """\
+def pre_action(target, source, env):
+    open(str(target[0]), 'ab').write('pre %%s\\n' %% source[0])
+def post_action(target, source, env):
+    open(str(target[0]), 'ab').write('post %%s\\n' %% source[0])
+env = Environment()
+o = env.Command(['pre-post', 'file.out'],
+                'file.in',
+                "%(python)s build.py ${TARGETS[1]} $SOURCE")
+env.AddPreAction(o, pre_action)
+env.AddPostAction(o, post_action)
+""" % locals())
+
+test.write(['work4', 'file.in'], "file.in\n")
+
+test.run(chdir='work4', arguments='.')
+
+test.must_match(['work4', 'file.out'], "file.in\n")
+test.must_match(['work4', 'pre-post'], "pre file.in\npost file.in\n")
+
+test.pass_test()
 
 
 

@@ -1125,15 +1125,21 @@ class Base(SubstitutionEnvironment):
     def AddPreAction(self, files, action):
         nodes = self.arg2nodes(files, self.fs.Entry)
         action = SCons.Action.Action(action)
-        for n in nodes:
-            n.add_pre_action(action)
+        uniq = {}
+        for executor in map(lambda n: n.get_executor(), nodes):
+            uniq[executor] = 1
+        for executor in uniq.keys():
+            executor.add_pre_action(action)
         return nodes
-    
+
     def AddPostAction(self, files, action):
         nodes = self.arg2nodes(files, self.fs.Entry)
         action = SCons.Action.Action(action)
-        for n in nodes:
-            n.add_post_action(action)
+        uniq = {}
+        for executor in map(lambda n: n.get_executor(), nodes):
+            uniq[executor] = 1
+        for executor in uniq.keys():
+            executor.add_post_action(action)
         return nodes
 
     def Alias(self, target, source=[], action=None, **kw):

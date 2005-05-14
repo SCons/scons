@@ -1058,10 +1058,15 @@ class Dir(Base):
         self.entries['.'] = self
         self.entries['..'] = self.dir
         self.cwd = self
-        self.builder = get_MkdirBuilder()
         self.searched = 0
         self._sconsign = None
         self.build_dirs = []
+
+        # Don't just reset the executor, replace its action list,
+        # because it might have some pre-or post-actions that need to
+        # be preserved.
+        self.builder = get_MkdirBuilder()
+        self.get_executor().set_action_list(self.builder.action)
 
     def disambiguate(self):
         return self
