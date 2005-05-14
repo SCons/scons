@@ -103,7 +103,7 @@ class ExecutorTestCase(unittest.TestCase):
         """Test creating an Executor"""
         source_list = ['s1', 's2']
         x = SCons.Executor.Executor('a', 'e', ['o'], 't', source_list)
-        assert x.action == 'a', x.builder
+        assert x.action_list == ['a'], x.action_list
         assert x.env == 'e', x.env
         assert x.overridelist == ['o'], x.overridelist
         assert x.targets == 't', x.targets
@@ -115,6 +115,26 @@ class ExecutorTestCase(unittest.TestCase):
             pass
         else:
             raise "Did not catch expected UserError"
+
+    def test__action_list(self):
+        """Test the {get,set}_action_list() methods"""
+        x = SCons.Executor.Executor('a', 'e', 'o', 't', ['s1', 's2'])
+
+        l = x.get_action_list()
+        assert l == ['a'], l
+
+        x.add_pre_action('pre')
+        x.add_post_action('post')
+        l = x.get_action_list()
+        assert l == ['pre', 'a', 'post'], l
+
+        x.set_action_list('b')
+        l = x.get_action_list()
+        assert l == ['pre', 'b', 'post'], l
+
+        x.set_action_list(['c'])
+        l = x.get_action_list()
+        assert l == ['pre', 'c', 'post'], l
 
     def test_get_build_env(self):
         """Test fetching and generating a build environment"""
@@ -196,11 +216,12 @@ class ExecutorTestCase(unittest.TestCase):
 
         env = MyEnvironment()
         a = MyAction([action1, action2])
-        b = MyBuilder(env, {})
-        b.action = a
-        n = MyNode('n', [pre], [post])
-        n.builder = b
-        n.build()
+        t = MyNode('t')
+
+        x = SCons.Executor.Executor(a, env, [], t, ['s1', 's2'])
+        x.add_pre_action(pre)
+        x.add_post_action(post)
+        x(t, lambda x: x)
         assert result == ['pre', 'action1', 'action2', 'post'], result
         del result[:]
 
@@ -210,9 +231,10 @@ class ExecutorTestCase(unittest.TestCase):
                 errfunc(1)
             return 1
 
-        n = MyNode('n', [pre_err], [post])
-        n.builder = b
-        n.build()
+        x = SCons.Executor.Executor(a, env, [], t, ['s1', 's2'])
+        x.add_pre_action(pre_err)
+        x.add_post_action(post)
+        x(t, lambda x: x)
         assert result == ['pre_err', 'action1', 'action2', 'post'], result
         del result[:]
 
@@ -220,7 +242,7 @@ class ExecutorTestCase(unittest.TestCase):
             raise "errfunc %s" % stat
 
         try:
-            n.build(errfunc)
+            x(t, errfunc)
         except:
             assert sys.exc_type == "errfunc 1", sys.exc_type
         else:
@@ -257,6 +279,22 @@ class ExecutorTestCase(unittest.TestCase):
         x.add_sources(['s3', 's1', 's4'])
         assert x.sources == ['s1', 's2', 's3', 's4'], x.sources
 
+    def test_add_pre_action(self):
+        """Test adding pre-actions to an Executor"""
+        x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
+        x.add_pre_action('a1')
+        assert x.pre_actions == ['a1']
+        x.add_pre_action('a2')
+        assert x.pre_actions == ['a1', 'a2']
+
+    def test_add_post_action(self):
+        """Test adding post-actions to an Executor"""
+        x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
+        x.add_post_action('a1')
+        assert x.post_actions == ['a1']
+        x.add_post_action('a2')
+        assert x.post_actions == ['a1', 'a2']
+
     def test___str__(self):
         """Test the __str__() method"""
         env = MyEnvironment(S='string')
@@ -264,6 +302,15 @@ class ExecutorTestCase(unittest.TestCase):
         x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
         c = str(x)
         assert c == 'GENSTRING action1 action2 t s', c
+
+        x = SCons.Executor.Executor(MyAction(), env, [], ['t'], ['s'])
+        x.add_pre_action(MyAction(['pre']))
+        x.add_post_action(MyAction(['post']))
+        c = str(x)
+        expect = 'GENSTRING pre t s\n' + \
+                 'GENSTRING action1 action2 t s\n' + \
+                 'GENSTRING post t s'
+        assert c == expect, c
 
     def test_nullify(self):
         """Test the nullify() method"""
@@ -301,8 +348,10 @@ class ExecutorTestCase(unittest.TestCase):
 
         x = SCons.Executor.Executor(MyAction(actions=['grow']), env, [],
                                     ['t'], ['s'])
+        x.add_pre_action(MyAction(['pre']))
+        x.add_post_action(MyAction(['post']))
         c = x.get_contents()
-        assert c == 'grow t s', c
+        assert c == 'pre t sgrow t spost t s', c
 
     def test_get_timestamp(self):
         """Test fetching the "timestamp" """

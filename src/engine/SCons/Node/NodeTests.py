@@ -106,24 +106,6 @@ class MyListAction(MyActionBase):
     def __call__(self, target, source, env, errfunc):
         for A in self.list:
             A(target, source, env, errfunc)
-        
-class MyNonGlobalAction(MyActionBase):
-    def __init__(self):
-        self.order = 0
-        self.built_it = None
-        self.built_target =  None
-        self.built_source =  None
-
-    def __call__(self, target, source, env, errfunc):
-        # Okay, so not ENTIRELY non-global...
-        global built_order
-        self.built_it = 1
-        self.built_target = target
-        self.built_source = source
-        self.built_args = env
-        built_order = built_order + 1
-        self.order = built_order
-        return 0
 
 class Environment:
     def __init__(self, **kw):
@@ -309,37 +291,6 @@ class NodeTestCase(unittest.TestCase):
         assert built_source == [], built_source
         assert built_args["on"] == 3, built_args
         assert built_args["off"] == 4, built_args
-
-        built_it = None
-        built_order = 0
-        node = MyNode("xxx")
-        node.builder_set(Builder())
-        node.env_set(Environment())
-        node.sources = ["yyy", "zzz"]
-        pre1 = MyNonGlobalAction()
-        pre2 = MyNonGlobalAction()
-        post1 = MyNonGlobalAction()
-        post2 = MyNonGlobalAction()
-        node.add_pre_action(pre1)
-        node.add_pre_action(pre2)
-        node.add_post_action(post1)
-        node.add_post_action(post2)
-        node.build()
-        assert built_it
-        assert pre1.built_it
-        assert pre2.built_it
-        assert post1.built_it
-        assert post2.built_it
-        assert pre1.order == 1, pre1.order
-        assert pre2.order == 2, pre1.order
-        # The action of the builder itself is order 3...
-        assert post1.order == 4, pre1.order
-        assert post2.order == 5, pre1.order
-
-        for act in [ pre1, pre2, post1, post2 ]:
-            assert type(act.built_target[0]) == type(MyNode("bar")), type(act.built_target[0])
-            assert str(act.built_target[0]) == "xxx", str(act.built_target[0])
-            assert act.built_source == ["yyy", "zzz"], act.built_source
 
     def test_get_build_scanner_path(self):
         """Test the get_build_scanner_path() method"""

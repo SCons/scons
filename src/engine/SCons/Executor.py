@@ -30,6 +30,7 @@ Nodes.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import string
 
 from SCons.Debug import logInstanceCreation
 import SCons.Util
@@ -48,14 +49,24 @@ class Executor:
     def __init__(self, action, env=None, overridelist=[{}],
                  targets=[], sources=[], builder_kw={}):
         if __debug__: logInstanceCreation(self, 'Executor.Executor')
-        if not action:
-            raise SCons.Errors.UserError, "Executor must have an action."
-        self.action = action
+        self.set_action_list(action)
+        self.pre_actions = []
+        self.post_actions = []
         self.env = env
         self.overridelist = overridelist
         self.targets = targets
         self.sources = sources[:]
         self.builder_kw = builder_kw
+
+    def set_action_list(self, action):
+        if not SCons.Util.is_List(action):
+            if not action:
+                raise SCons.Errors.UserError, "Executor must have an action."
+            action = [action]
+        self.action_list = action
+
+    def get_action_list(self):
+        return self.pre_actions + self.action_list + self.post_actions
 
     def get_build_env(self):
         """Fetch or create the appropriate build Environment
@@ -98,9 +109,12 @@ class Executor:
 
     def do_execute(self, target, exitstatfunc, kw):
         """Actually execute the action list."""
-        apply(self.action,
-              (self.targets, self.sources, self.get_build_env(), exitstatfunc),
-              self.get_kw(kw))
+        env = self.get_build_env()
+        kw = self.get_kw(kw)
+        for act in self.get_action_list():
+            apply(act,
+                  (self.targets, self.sources, env, exitstatfunc),
+                  kw)
 
     # use extra indirection because with new-style objects (Python 2.2
     # and above) we can't override special methods, and nullify() needs
@@ -120,12 +134,20 @@ class Executor:
         slist = filter(lambda x, s=self.sources: x not in s, sources)
         self.sources.extend(slist)
 
+    def add_pre_action(self, action):
+        self.pre_actions.append(action)
+
+    def add_post_action(self, action):
+        self.post_actions.append(action)
+
     # another extra indirection for new-style objects and nullify...
 
     def my_str(self):
-        return self.action.genstring(self.targets,
-                                     self.sources,
-                                     self.get_build_env())
+        env = self.get_build_env()
+        get = lambda action, t=self.targets, s=self.sources, e=env: \
+                     action.genstring(t, s, e)
+        return string.join(map(get, self.get_action_list()), "\n")
+
 
     def __str__(self):
         "__cacheable__"
@@ -143,9 +165,10 @@ class Executor:
         or source Nodes there are.
         __cacheable__
         """
-        return self.action.get_contents(self.targets,
-                                        self.sources,
-                                        self.get_build_env())
+        env = self.get_build_env()
+        get = lambda action, t=self.targets, s=self.sources, e=env: \
+                     action.get_contents(t, s, e)
+        return string.join(map(get, self.get_action_list()), "")
 
     def get_timestamp(self):
         """Fetch a time stamp for this Executor.  We don't have one, of
@@ -208,8 +231,9 @@ class Executor:
         return map(func, self.get_unignored_sources(ignore))
 
 
+_Executor = Executor
 
-class Null:
+class Null(_Executor):
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 
@@ -217,8 +241,10 @@ class Null:
     disassociate Builders from Nodes entirely, so we're not
     going to worry about unit tests for this--at least for now.
     """
-    def __init__(self):
+    def __init__(self, *args, **kw):
         if __debug__: logInstanceCreation(self, 'Executor.Null')
+        kw['action'] = []
+        apply(_Executor.__init__, (self,), kw)
     def get_build_env(self):
         class NullEnvironment:
             def get_scanner(self, key):
@@ -226,16 +252,8 @@ class Null:
         return NullEnvironment()
     def get_build_scanner_path(self):
         return None
-    def __call__(self, *args, **kw):
-        pass
     def cleanup(self):
         pass
-    def get_missing_sources(self):
-        return []
-    def get_unignored_sources(self, ignore=[]):
-        return []
-    def process_sources(self, func, ignore=[]):
-        return []
 
 
 

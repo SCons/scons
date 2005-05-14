@@ -307,6 +307,7 @@ class BuildDirTestCase(unittest.TestCase):
         try:
             dir_made = []
             d9.builder = Builder(fs.Dir, action=MkdirAction(dir_made))
+            d9.reset_executor()
             f9.exists()
             expect = os.path.join('build', 'var2', 'new_dir')
             assert dir_made[0].path == expect, dir_made[0].path
@@ -895,6 +896,7 @@ class FSTestCase(_tempdirTestCase):
         assert not built_it
         d1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
         d1.builder_set(Builder(fs.File))
+        d1.reset_executor()
         d1.env_set(Environment())
         d1.build()
         assert built_it
@@ -903,6 +905,7 @@ class FSTestCase(_tempdirTestCase):
         assert not built_it
         f1.add_source([SCons.Node.Node()])    # XXX FAKE SUBCLASS ATTRIBUTE
         f1.builder_set(Builder(fs.File))
+        f1.reset_executor()
         f1.env_set(Environment())
         f1.build()
         assert built_it
@@ -1342,6 +1345,18 @@ class FSTestCase(_tempdirTestCase):
         assert failed == 0, "%d rel_path() cases failed" % failed
 
 class DirTestCase(_tempdirTestCase):
+
+    def test__morph(self):
+        """Test handling of actions when morphing an Entry into a Dir"""
+        test = self.test
+        e = self.fs.Entry('eee')
+        x = e.get_executor()
+        x.add_pre_action('pre')
+        x.add_post_action('post')
+        e.must_be_a_Dir()
+        a = x.get_action_list()
+        assert a[0] == 'pre', a
+        assert a[2] == 'post', a
 
     def test_entry_exists_on_disk(self):
         """Test the Dir.entry_exists_on_disk() method
@@ -2179,6 +2194,7 @@ class prepareTestCase(unittest.TestCase):
         dir_made = []
         new_dir = fs.Dir("new_dir")
         new_dir.builder = Builder(fs.Dir, action=MkdirAction(dir_made))
+        new_dir.reset_executor()
         xyz = fs.File(os.path.join("new_dir", "xyz"))
 
         xyz.set_state(SCons.Node.up_to_date)
