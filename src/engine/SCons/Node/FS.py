@@ -973,8 +973,6 @@ class FS(LocalFS):
             src_dir = self.Dir(src_dir)
         if not isinstance(build_dir, SCons.Node.Node):
             build_dir = self.Dir(build_dir)
-        if not src_dir.is_under(self.Top):
-            raise SCons.Errors.UserError, "Source directory must be under top of build tree."
         if src_dir.is_under(build_dir):
             raise SCons.Errors.UserError, "Source directory cannot be under build directory."
         if build_dir.srcdir:

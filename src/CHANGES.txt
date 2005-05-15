@@ -282,6 +282,9 @@ RELEASE 0.97 - XXX
   - Fix AddPreAction() and AddPostAction() when an action has more than
     one target file:  attach the actions to the Executor, not the Node.
 
+  - Allow the source directory of a BuildDir / build_dir to be outside
+    of the top-level SConstruct directory tree.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

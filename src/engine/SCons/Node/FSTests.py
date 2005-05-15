@@ -380,13 +380,10 @@ class BuildDirTestCase(unittest.TestCase):
         assert (stat.S_IMODE(st[stat.ST_MODE]) & stat.S_IWRITE), \
                stat.S_IMODE(st[stat.ST_MODE])
 
-        exc_caught = 0
-        try:
-            fs = SCons.Node.FS.FS()
-            fs.BuildDir('build', '/test/foo')
-        except SCons.Errors.UserError:
-            exc_caught = 1
-        assert exc_caught, "Should have caught a UserError."
+        # This used to generate a UserError when we forbid the source
+        # directory from being outside the top-level SConstruct dir.
+        fs = SCons.Node.FS.FS()
+        fs.BuildDir('build', '/test/foo')
 
         exc_caught = 0
         try:
