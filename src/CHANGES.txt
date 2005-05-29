@@ -397,6 +397,11 @@ RELEASE 0.97 - XXX
 
   - Add $RPATH (-R) support to the Sun linker Tool (sunlink).
 
+  From Chris Prince:
+
+  - Look in the right directory, not always the local directory, for a
+    same-named file or directory conflict on disk.
+
   From Kevin Quick:
 
   - Fix the Builder name returned from ListBuilders and other instances

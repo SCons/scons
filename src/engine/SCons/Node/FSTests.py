@@ -1262,6 +1262,19 @@ class FSTestCase(_tempdirTestCase):
         t = z.target_from_source('pre-', '-suf', lambda x: x[:-1])
         assert str(t) == 'pre-z-suf', str(t)
 
+    def test_same_name(self):
+        """Test that a local same-named file isn't found for # Dir lookup"""
+        test = self.test
+        fs = self.fs
+
+        test.subdir('subdir')
+        test.write(['subdir', 'build'], "subdir/build\n")
+
+        subdir = fs.Dir('subdir')
+        fs.chdir(subdir, change_os_dir=1)
+        path, dir = fs._transformPath('#build/file', subdir)
+        self.fs._doLookup(SCons.Node.FS.File, path, dir)
+
     def test_above_root(self):
         """Testing looking up a path above the root directory"""
         test = self.test

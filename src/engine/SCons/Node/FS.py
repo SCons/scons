@@ -840,7 +840,7 @@ class FS(LocalFS):
 
                 # look at the actual filesystem and make sure there isn't
                 # a file already there
-                path = directory.entry_path(orig)
+                path = directory.entry_abspath(orig)
                 if self.isfile(path):
                     raise TypeError, \
                           "File %s found where directory expected." % path
@@ -866,7 +866,7 @@ class FS(LocalFS):
 
             # make sure we don't create File nodes when there is actually
             # a directory at that path on the disk, and vice versa
-            path = directory.entry_path(last_orig)
+            path = directory.entry_abspath(last_orig)
             if fsclass == File:
                 if self.isdir(path):
                     raise TypeError, \
