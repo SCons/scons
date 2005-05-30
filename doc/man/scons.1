@@ -4190,7 +4190,20 @@ env.SourceCode(['f1.c', 'f2.c'], env.SCCS())
 env.SourceCode('no_source.c', None)
 .EE
 '\"env.SourceCode('.', env.Subversion('file:///usr/local/Subversion'))
-'\"
+
+'\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.TP
+.RI env.subst( string )
+Performs construction variable interpolation
+on the specified string argument.
+
+.ES
+print env.subst("The C compiler is: $CC")
+
+def compile(target, source, env):
+    sourceDir = env.subst("${SOURCE.srcdir}")
+.EE
+
 '\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 '\".TP
 '\".RI Subversion( repository ", " module )
