@@ -397,6 +397,8 @@ RELEASE 0.97 - XXX
 
   - Add $RPATH (-R) support to the Sun linker Tool (sunlink).
 
+  - Add a description of env.subst() to the man page.
+
   From Chris Prince:
 
   - Look in the right directory, not always the local directory, for a
