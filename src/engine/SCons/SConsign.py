@@ -40,8 +40,6 @@ import SCons.Node
 import SCons.Sig
 import SCons.Warnings
 
-from SCons.Debug import Trace
-
 def corrupt_dblite_warning(filename):
     SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
                         "Ignoring corrupt .sconsign file: %s"%filename)
@@ -163,9 +161,12 @@ class DB(Base):
 
         db, mode = Get_DataBase(dir)
 
-        tpath = norm_entry(dir.tpath)
+        # Read using the path relative to the top of the Repository
+        # (self.dir.tpath) from which we're fetching the signature
+        # information.
+        path = norm_entry(dir.tpath)
         try:
-            rawentries = db[tpath]
+            rawentries = db[path]
         except KeyError:
             pass
         else:
@@ -191,17 +192,26 @@ class DB(Base):
         sig_files.append(self)
 
     def write(self, sync=1):
-        if self.dirty:
-            db, mode = Get_DataBase(self.dir)
-            db[norm_entry(self.dir.tpath)] = cPickle.dumps(self.entries, 1)
-            if sync:
-                try:
-                    syncmethod = db.sync
-                except AttributeError:
-                    # Not all anydbm modules have sync() methods.
-                    pass
-                else:
-                    syncmethod()
+        if not self.dirty:
+            return
+
+        db, mode = Get_DataBase(self.dir)
+
+        # Write using the path relative to the top of the SConstruct
+        # directory (self.dir.path), not relative to the top of
+        # the Repository; we only write to our own .sconsign file,
+        # not to .sconsign files in Repositories.
+        path = norm_entry(self.dir.path)
+        db[path] = cPickle.dumps(self.entries, 1)
+
+        if sync:
+            try:
+                syncmethod = db.sync
+            except AttributeError:
+                # Not all anydbm modules have sync() methods.
+                pass
+            else:
+                syncmethod()
 
 class Dir(Base):
     def __init__(self, fp=None, module=None):
