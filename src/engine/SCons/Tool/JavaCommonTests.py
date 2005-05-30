@@ -187,6 +187,21 @@ public class Test {
         assert pkg_dir == None, pkg_dir
         assert classes == ['Test'], classes
 
+    def test_backslash(self):
+        """Test backslash handling"""
+
+        pkg_dir, classes = SCons.Tool.JavaCommon.parse_java("""\
+public class MyTabs
+{
+	private class MyInternal
+	{
+	}
+	private final static String PATH = "images\\\\";
+}
+""")
+        assert pkg_dir == None, pkg_dir
+        assert classes == ['MyTabs$MyInternal', 'MyTabs'], classes
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     tclasses = [ parse_javaTestCase ]

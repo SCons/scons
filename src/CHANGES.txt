@@ -326,6 +326,10 @@ RELEASE 0.97 - XXX
 
   - Supply the help text when -h is used with the -u, -U or -D options.
 
+  From Leanid Nazdrynau:
+
+  - Fix the Java parser's handling of backslashes in strings.
+
   From Christian Neeb:
 
   - Fix the Java parser's handling of string definitions to avoid ignoring

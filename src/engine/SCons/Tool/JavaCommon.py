@@ -48,7 +48,7 @@ if java_parsing:
     # begin and end tokens /* and */; single or double quotes;
     # single or double quotes preceeded by a backslash; array
     # declarations "[]".
-    _reToken = re.compile(r'(\n|//|\\[\'"]|[\'"\{\}]|[A-Za-z_][\w\.]*|' +
+    _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}]|[A-Za-z_][\w\.]*|' +
                           r'/\*|\*/|\[\])')
 
     class OuterState:
