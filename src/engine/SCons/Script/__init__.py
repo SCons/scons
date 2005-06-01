@@ -44,22 +44,30 @@ import string
 import sys
 import UserList
 
-# Special chicken-and-egg handling of the "--debug=memoizer" flags:
+# Special chicken-and-egg handling of the "--debug=memoizer"
+# and "--debug=nomemoizer" flags:
+#
 # SCons.Memoize contains a metaclass implementation that affects how
 # the other classes are instantiated.  The Memoizer handles optional
 # counting of the hits and misses by using a different, parallel set of
 # functions, so we don't slow down normal operation any more than we
-# have to.  But if we wait to enable the counting until we've parsed
-# the command line options normally, it will be too late, because the
-# Memoizer will have already analyzed the classes that it's Memoizing
-# and bound the non-counting versions of the functions.  So we have to
-# use a special-case, up-front check for the "--debug=memoizer" flag
-# and turn on Memoizer counting, if desired, before we import any of
-# the other modules that use it.
-sconsflags = string.split(os.environ.get('SCONSFLAGS', ''))
-if "--debug=memoizer" in sys.argv + sconsflags:
+# have to.  We can also tell it disable memoization completely.
+#
+# If we wait to enable the counting or disable memoization completely
+# until we've parsed the command line options normally, it will be too
+# late, because the Memoizer will have already analyzed the classes
+# that it's Memoizing and bound the (non-counting) versions of the
+# functions.  So we have to use a special-case, up-front check for
+# the "--debug=memoizer" and "--debug=nomemoizer" flags and do what's
+# appropriate before we import any of the other modules that use it.
+_args = sys.argv + string.split(os.environ.get('SCONSFLAGS', ''))
+if "--debug=memoizer" in _args:
     import SCons.Memoize
     SCons.Memoize.EnableCounting()
+if "--debug=nomemoizer" in _args:
+    import SCons.Memoize
+    SCons.Memoize.DisableMemoization()
+del _args
 
 import SCons.Action
 import SCons.Builder
@@ -315,7 +323,7 @@ for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
 # "SConscript" in this namespace is no longer a module, it's a global
 # function call--or more precisely, an object that implements a global
 # function call through the default Environment.  Nevertheless, we can
-# aintain backwards compatibility for SConscripts that were reaching in
+# maintain backwards compatibility for SConscripts that were reaching in
 # this way by hanging some attributes off the "SConscript" object here.
 SConscript = _SConscript.DefaultEnvironmentCall('SConscript')
 

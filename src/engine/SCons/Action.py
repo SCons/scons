@@ -234,7 +234,8 @@ class ActionBase:
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
     
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __cmp__(self, other):
         return cmp(self.__dict__, other)
@@ -265,7 +266,7 @@ class ActionBase:
         return SCons.Executor.Executor(self, env, overrides,
                                        tlist, slist, executor_kw)
 
-if not SCons.Memoize.has_metaclass:
+if SCons.Memoize.use_old_memoization():
     _Base = ActionBase
     class ActionBase(SCons.Memoize.Memoizer, _Base):
         "Cache-backed version of ActionBase"
@@ -549,7 +550,8 @@ class CommandGeneratorAction(ActionBase):
 
 class LazyAction(CommandGeneratorAction, CommandAction):
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self, var, *args, **kw):
         if __debug__: logInstanceCreation(self, 'Action.LazyAction')

@@ -58,7 +58,7 @@ Some advantages:
       might affect results.
 
     * Caching can be globally disabled very easily (for testing, etc.)
-    
+
 """
 
 #
@@ -92,6 +92,9 @@ import copy
 import os
 import string
 import sys
+
+# A flag controlling whether or not we actually use memoization.
+use_memoizer = 1
 
 #
 # Generate a key for an object that is to be used as the caching key
@@ -247,7 +250,7 @@ def ALT9_MeMoIZeR_gen_key(argtuple, kwdict):
 #_MeMoIZeR_gen_key = ALT9_MeMoIZeR_gen_key    # 8.8, 0.20
 _MeMoIZeR_gen_key = ALT8_MeMoIZeR_gen_key    # 8.5, 0.18
 #_MeMoIZeR_gen_key = ALT7_MeMoIZeR_gen_key    # 8.7, 0.17
-#_MeMoIZeR_gen_key = ALT6_MeMoIZeR_gen_key    # 
+#_MeMoIZeR_gen_key = ALT6_MeMoIZeR_gen_key    #
 #_MeMoIZeR_gen_key = ALT5_MeMoIZeR_gen_key    # 9.7, 0.20
 #_MeMoIZeR_gen_key = ALT4_MeMoIZeR_gen_key    # 8.6, 0.19
 #_MeMoIZeR_gen_key = ALT3_MeMoIZeR_gen_key    # 8.5, 0.20
@@ -534,7 +537,7 @@ class _Memoizer_Comparable:
         # Same thing for the other, but we should try to convert it
         # here in case the _MeMoIZeR_cmp compares __dict__ objects
         # directly.
-        
+
         saved_other = None
         try:
             if other.__dict__.has_key('_MeMoIZeR_Key'):
@@ -547,7 +550,7 @@ class _Memoizer_Comparable:
 
         # Both self and other have been prepared: perform the test,
         # then restore the original dictionaries and exit
-        
+
         rval = self._MeMoIZeR_cmp(other)
 
         self.__dict__ = saved_d1
@@ -561,7 +564,7 @@ def Analyze_Class(klass):
     if klass.__dict__.has_key('_MeMoIZeR_converted'): return klass
 
     original_name = str(klass)
-    
+
     D,R,C = _analyze_classmethods(klass.__dict__, klass.__bases__)
 
     if C:
@@ -628,7 +631,6 @@ def memoize_classdict(klass, modelklass, new_klassdict, cacheable, resetting):
         new_klassdict[name] = newmethod
 
     return new_klassdict
-        
 
 def _analyze_classmethods(klassdict, klassbases):
     """Given a class, performs a scan of methods for that class and
@@ -640,7 +642,7 @@ def _analyze_classmethods(klassdict, klassbases):
     D = {}
     R = {}
     C = None
-    
+
     # Get cache/reset/cmp methods from subclasses
 
     for K in klassbases:
@@ -685,7 +687,7 @@ def _scan_classdict(klassdict):
 
     Each dict has the name of the method as a key and the corresponding
     value is the method body."""
-    
+
     cache_setters = {}
     cache_resetters = {}
     cmp_if_exists = None
@@ -711,7 +713,7 @@ def _scan_classdict(klassdict):
             continue
     if already_cache_modified: cmp_if_exists = 'already_cache_modified'
     return cache_setters, cache_resetters, cmp_if_exists
-        
+
 #
 # Primary Memoizer class.  This should be a base-class for any class
 # that wants method call results to be cached.  The sub-class should
@@ -725,9 +727,7 @@ class Memoizer:
     def __init__(self):
         self.__class__ = Analyze_Class(self.__class__)
         self._MeMoIZeR_Key =  Next_Memoize_Key()
-    
 
-has_metaclass = 1
 # Find out if we are pre-2.2
 
 try:
@@ -744,14 +744,18 @@ except AttributeError:
 need_version = (2, 2) # actual
 #need_version = (33, 0)  # always
 #need_version = (0, 0)  # never
-if vinfo[0] < need_version[0] or \
-   (vinfo[0] == need_version[0] and
-    vinfo[1] < need_version[1]):
-    has_metaclass = 0
+
+has_metaclass =  (vinfo[0] > need_version[0] or \
+                  (vinfo[0] == need_version[0] and
+                   vinfo[1] >= need_version[1]))
+
+if not has_metaclass:
+
     class Memoized_Metaclass:
         # Just a place-holder so pre-metaclass Python versions don't
         # have to have special code for the Memoized classes.
         pass
+
 else:
 
     # Initialization is a wee bit of a hassle.  We want to do some of
@@ -768,14 +772,14 @@ else:
     # to obtain the __init__ because we don't want to re-instrument
     # parent-class __init__ operations (and we want to avoid the
     # Object object's slot init if the class has no __init__).
-    
+
     def _MeMoIZeR_init(actual_init, self, args, kw):
         self.__dict__['_MeMoIZeR_Key'] =  Next_Memoize_Key()
         apply(actual_init, (self,)+args, kw)
 
     def _MeMoIZeR_superinit(self, cls, args, kw):
         apply(super(cls, self).__init__, args, kw)
-        
+
     class Memoized_Metaclass(type):
         def __init__(cls, name, bases, cls_dict):
             # Note that cls_dict apparently contains a *copy* of the
@@ -802,7 +806,7 @@ else:
                                  {'cls':cls,
                                   'MPI':_MeMoIZeR_superinit})
                 init = superinit
-                
+
             newinitcode = compile(
                 "\n"*(init.func_code.co_firstlineno-1) +
                 "lambda self, args, kw: _MeMoIZeR_init(real_init, self, args, kw)",
@@ -819,4 +823,10 @@ else:
             # definition itself, apply klassdict.
             for attr in klassdict.keys():
                 setattr(cls, attr, klassdict[attr])
-                
+
+def DisableMemoization():
+    global use_memoizer
+    use_memoizer = None
+
+def use_old_memoization():
+    return use_memoizer and not has_metaclass

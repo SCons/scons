@@ -592,7 +592,8 @@ class OptParser(OptionParser):
                              "build all Default() targets.")
 
         debug_options = ["count", "dtree", "explain", "findlibs",
-                         "includes", "memoizer", "memory", "objects",
+                         "includes", "memoizer", "memory",
+                         "nomemoizer", "objects",
                          "pdb", "presub", "stacktrace", "stree",
                          "time", "tree"]
 

@@ -44,7 +44,8 @@ class Executor:
     and sources for later processing as needed.
     """
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self, action, env=None, overridelist=[{}],
                  targets=[], sources=[], builder_kw={}):
@@ -257,7 +258,7 @@ class Null(_Executor):
 
 
 
-if not SCons.Memoize.has_metaclass:
+if SCons.Memoize.use_old_memoization():
     _Base = Executor
     class Executor(SCons.Memoize.Memoizer, _Base):
         def __init__(self, *args, **kw):

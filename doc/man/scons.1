@@ -552,6 +552,22 @@ before and after reading the SConscript files
 and before and after building targets.
 
 .TP
+--debug=nomemoizer
+Disables use of the Memoizer,
+the internal SCons subsystem for caching
+various values in memory instead of
+recomputing them each time they're needed.
+This provides more accurate counts of the
+underlying function calls in the 
+Python profiler output when using the
+.R --profile=
+option.
+(When the Memoizer is used,
+the profiler counts all
+memoized functions as being executed
+by the Memoizer's wrapper calls.)
+
+.TP
 --debug=objects
 Prints a list of the various objects
 of the various classes used internally by SCons.

@@ -356,7 +356,8 @@ class BuilderBase:
     nodes (files) from input nodes (files).
     """
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self,  action = None,
                         prefix = '',
@@ -656,7 +657,7 @@ class BuilderBase:
         """
         self.emitter[suffix] = emitter
 
-if not SCons.Memoize.has_metaclass:
+if SCons.Memoize.use_old_memoization():
     _Base = BuilderBase
     class BuilderBase(SCons.Memoize.Memoizer, _Base):
         "Cache-backed version of BuilderBase"
