@@ -659,7 +659,8 @@ _classEntry = Entry
 
 class LocalFS:
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
     
     # This class implements an abstraction layer for operations involving
     # a local file system.  Essentially, this wraps any function in
@@ -717,7 +718,7 @@ class LocalFS:
         def islink(self, path):
             return 0                    # no symlinks
 
-if not SCons.Memoize.has_metaclass:
+if SCons.Memoize.use_old_memoization():
     _FSBase = LocalFS
     class LocalFS(SCons.Memoize.Memoizer, _FSBase):
         def __init__(self, *args, **kw):

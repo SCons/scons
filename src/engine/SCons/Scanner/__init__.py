@@ -97,7 +97,8 @@ class Base:
     straightforward, single-pass scanning of a single file.
     """
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self,
                  function,
@@ -254,7 +255,7 @@ class Base:
 
     recurse_nodes = _recurse_no_nodes
 
-if not SCons.Memoize.has_metaclass:
+if SCons.Memoize.use_old_memoization():
     _Base = Base
     class Base(SCons.Memoize.Memoizer, _Base):
         "Cache-backed version of Scanner Base"

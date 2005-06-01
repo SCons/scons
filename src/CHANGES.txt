@@ -285,6 +285,10 @@ RELEASE 0.97 - XXX
   - Allow the source directory of a BuildDir / build_dir to be outside
     of the top-level SConstruct directory tree.
 
+  - Add a --debug=nomemoizer option that disables the Memoizer for clearer
+    looks at the counts and profiles of the underlying function calls,
+    not the Memoizer wrappers.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

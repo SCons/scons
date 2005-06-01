@@ -244,7 +244,8 @@ class SubstitutionEnvironment:
     class actually becomes useful.)
     """
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self, **kw):
         """Initialization of an underlying SubstitutionEnvironment class.
@@ -450,7 +451,8 @@ class Base(SubstitutionEnvironment):
     Environment.
     """
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     #######################################################################
     # This is THE class for interacting with the SCons build engine,
@@ -1466,7 +1468,8 @@ class OverrideEnvironment(Base):
     values from the overrides dictionary.
     """
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     def __init__(self, subject, overrides={}):
         if __debug__: logInstanceCreation(self, 'Environment.OverrideEnvironment')
@@ -1590,7 +1593,7 @@ def NoSubstitutionProxy(subject):
             return apply(SCons.Util.scons_subst, nargs, nkw)
     return _NoSubstitutionProxy(subject)
 
-if not SCons.Memoize.has_metaclass:
+if SCons.Memoize.use_old_memoization():
     _Base = Base
     class Base(SCons.Memoize.Memoizer, _Base):
         def __init__(self, *args, **kw):

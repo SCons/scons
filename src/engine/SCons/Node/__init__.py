@@ -104,7 +104,8 @@ class Node:
     build, or use to build other Nodes.
     """
 
-    __metaclass__ = SCons.Memoize.Memoized_Metaclass
+    if SCons.Memoize.use_memoizer:
+        __metaclass__ = SCons.Memoize.Memoized_Metaclass
 
     class Attrs:
         pass
@@ -995,7 +996,7 @@ else:
 del l
 del ul
 
-if not SCons.Memoize.has_metaclass:
+if SCons.Memoize.use_old_memoization():
     _Base = Node
     class Node(SCons.Memoize.Memoizer, _Base):
         def __init__(self, *args, **kw):
