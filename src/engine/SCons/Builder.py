@@ -383,7 +383,6 @@ class BuilderBase:
         self.prefix = prefix
         if SCons.Util.is_Dict(suffix):
             suffix = CallableSelector(suffix)
-        self.suffix = suffix
         self.env = env
         self.single_source = single_source
         if overrides.has_key('overrides'):
@@ -399,6 +398,7 @@ class BuilderBase:
             del overrides['scanner']
         self.overrides = overrides
 
+        self.set_suffix(suffix)
         self.set_src_suffix(src_suffix)
 
         self.target_factory = target_factory
@@ -614,24 +614,29 @@ class BuilderBase:
             prefix = prefix(env, sources)
         return env.subst(prefix)
 
+    def set_suffix(self, suffix):
+        if not callable(suffix):
+            suffix = self.adjust_suffix(suffix)
+        self.suffix = suffix
+
     def get_suffix(self, env, sources=[]):
         suffix = self.suffix
         if callable(suffix):
             suffix = suffix(env, sources)
-        else:
-            suffix = self.adjust_suffix(suffix)
         return env.subst(suffix)
 
     def src_suffixes(self, env):
-        return map(lambda x, s=self, e=env: e.subst(s.adjust_suffix(x)),
-                   self.src_suffix)
+        "__cacheable__"
+        return map(lambda x, s=self, e=env: e.subst(x), self.src_suffix)
 
     def set_src_suffix(self, src_suffix):
         if not src_suffix:
             src_suffix = []
         elif not SCons.Util.is_List(src_suffix):
             src_suffix = [ src_suffix ]
-        self.src_suffix = src_suffix
+        adjust = lambda suf, s=self: \
+                        callable(suf) and suf or s.adjust_suffix(suf)
+        self.src_suffix = map(adjust, src_suffix)
 
     def get_src_suffix(self, env):
         """Get the first src_suffix in the list of src_suffixes."""
@@ -745,19 +750,23 @@ class MultiStepBuilder(BuilderBase):
 
         src_suffixes = self.src_suffixes(env)
 
-        def match_src_suffix(node, src_suffixes=src_suffixes):
-            # This reaches directly into the Node.name attribute (instead
-            # of using an accessor function) for performance reasons.
-            return filter(lambda s, n=node.name:
-                                 n[-len(s):] == s,
-                          src_suffixes)
+        lengths_dict = {}
+        for l in map(len, src_suffixes):
+            lengths_dict[l] = None
+        lengths = lengths_dict.keys()
+
+        def match_src_suffix(node, src_suffixes=src_suffixes, lengths=lengths):
+            node_suffixes = map(lambda l, n=node: n.name[-l:], lengths)
+            for suf in src_suffixes:
+                if suf in node_suffixes:
+                    return suf
+            return None
 
         for snode in slist:
-            name = snode.name
-            match = match_src_suffix(snode)
-            if match:
+            match_suffix = match_src_suffix(snode)
+            if match_suffix:
                 try:
-                    bld = sdict[match[0]]
+                    bld = sdict[match_suffix]
                 except KeyError:
                     final_sources.append(snode)
                 else:

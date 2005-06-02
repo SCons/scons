@@ -289,6 +289,8 @@ RELEASE 0.97 - XXX
     looks at the counts and profiles of the underlying function calls,
     not the Memoizer wrappers.
 
+  - Print various --debug= stats even if we exit early (e.g. using -h).
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs
