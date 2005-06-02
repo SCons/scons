@@ -295,12 +295,13 @@ class CountStats(Stats):
         l = len(self.stats)
         fmt1 = string.join(pre + [' %7s']*l + post, '')
         fmt2 = string.join(pre + [' %7d']*l + post, '')
-        self.labels.append(("", "Class"))
-        self.outfp.write(fmt1 % tuple(map(lambda x: x[0], self.labels)))
-        self.outfp.write(fmt1 % tuple(map(lambda x: x[1], self.labels)))
+        labels = self.labels[:l]
+        labels.append(("", "Class"))
+        self.outfp.write(fmt1 % tuple(map(lambda x: x[0], labels)))
+        self.outfp.write(fmt1 % tuple(map(lambda x: x[1], labels)))
         for k in keys:
-            r = stats_table[k]
-            self.outfp.write(fmt2 % (r[0], r[1], r[2], r[3], k))
+            r = stats_table[k][:l] + [k]
+            self.outfp.write(fmt2 % tuple(r))
 
 count_stats = CountStats()
 
@@ -1174,25 +1175,7 @@ def _main(args, parser):
             SCons.SConsign.write()
 
     memory_stats.append('after building targets:')
-    memory_stats.print_stats()
-
     count_stats.append(('post-', 'build'))
-    count_stats.print_stats()
-
-    if print_objects:
-        SCons.Debug.listLoggedInstances('*')
-        #SCons.Debug.dumpLoggedInstances('*')
-
-    if print_memoizer:
-        print "Memoizer (memory cache) hits and misses:"
-        SCons.Memoize.Dump()
-
-    # Dump any development debug info that may have been enabled.
-    # These are purely for internal debugging during development, so
-    # there's no need to control them with --debug= options; they're
-    # controlled by changing the source code.
-    SCons.Debug.dump_caller_counts()
-    SCons.Taskmaster.dump_stats()
 
 def _exec_main():
     all_args = sys.argv[1:]
@@ -1233,6 +1216,24 @@ def main():
         # problem was and where it happened.
         SCons.Script._SConscript.SConscript_exception()
         sys.exit(2)
+
+    memory_stats.print_stats()
+    count_stats.print_stats()
+
+    if print_objects:
+        SCons.Debug.listLoggedInstances('*')
+        #SCons.Debug.dumpLoggedInstances('*')
+
+    if print_memoizer:
+        print "Memoizer (memory cache) hits and misses:"
+        SCons.Memoize.Dump()
+
+    # Dump any development debug info that may have been enabled.
+    # These are purely for internal debugging during development, so
+    # there's no need to control them with --debug= options; they're
+    # controlled by changing the source code.
+    SCons.Debug.dump_caller_counts()
+    SCons.Taskmaster.dump_stats()
 
     if print_time:
         total_time = time.time()-SCons.Script.start_time
