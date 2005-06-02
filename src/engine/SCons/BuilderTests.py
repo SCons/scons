@@ -536,6 +536,22 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
         assert tgt.path == 'emit-f6', tgt.path
 
+    def test_set_suffix(self):
+        """Test the set_suffix() method"""
+        b = SCons.Builder.Builder(action='')
+        env = Environment(XSUFFIX = '.x')
+
+        s = b.get_suffix(env)
+        assert s == '', s
+
+        b.set_suffix('.foo')
+        s = b.get_suffix(env)
+        assert s == '.foo', s
+
+        b.set_suffix('$XSUFFIX')
+        s = b.get_suffix(env)
+        assert s == '.x', s
+
     def test_src_suffix(self):
         """Test Builder creation with a specified source file suffix
         
@@ -1079,8 +1095,8 @@ class BuilderTestCase(unittest.TestCase):
         forms of component specifications."""
 
         builder = SCons.Builder.Builder()
-
         env = Environment(BUILDERS={'Bld':builder})
+
         r = builder.get_name(env)
         assert r == 'Bld', r
         r = builder.get_prefix(env)
@@ -1095,23 +1111,34 @@ class BuilderTestCase(unittest.TestCase):
         assert r == ['foo'], r
 
         # src_suffix can be a single string or a list of strings
+        # src_suffixes() caches its return value, so we use a new
+        # Builder each time we do any of these tests
 
-        builder.set_src_suffix('.foo')
-        r = builder.get_src_suffix(env)
+        bld = SCons.Builder.Builder()
+        env = Environment(BUILDERS={'Bld':bld})
+
+        bld.set_src_suffix('.foo')
+        r = bld.get_src_suffix(env)
         assert r == '.foo', r
-        r = builder.src_suffixes(env)
+        r = bld.src_suffixes(env)
         assert r == ['.foo'], r
 
-        builder.set_src_suffix(['.foo', '.bar'])
-        r = builder.get_src_suffix(env)
+        bld = SCons.Builder.Builder()
+        env = Environment(BUILDERS={'Bld':bld})
+
+        bld.set_src_suffix(['.foo', '.bar'])
+        r = bld.get_src_suffix(env)
         assert r == '.foo', r
-        r = builder.src_suffixes(env)
+        r = bld.src_suffixes(env)
         assert r == ['.foo', '.bar'], r
 
-        builder.set_src_suffix(['.bar', '.foo'])
-        r = builder.get_src_suffix(env)
+        bld = SCons.Builder.Builder()
+        env = Environment(BUILDERS={'Bld':bld})
+
+        bld.set_src_suffix(['.bar', '.foo'])
+        r = bld.get_src_suffix(env)
         assert r == '.bar', r
-        r = builder.src_suffixes(env)
+        r = bld.src_suffixes(env)
         assert r == ['.bar', '.foo'], r
 
         # adjust_suffix normalizes the suffix, adding a `.' if needed
@@ -1184,8 +1211,8 @@ class BuilderTestCase(unittest.TestCase):
         assert r == '.D', r
 
         builder = SCons.Builder.Builder(prefix='A_', suffix={}, action={})
-
         env = Environment(BUILDERS={'Bld':builder})
+
         r = builder.get_name(env)
         assert r == 'Bld', r
         r = builder.get_prefix(env)
@@ -1201,7 +1228,10 @@ class BuilderTestCase(unittest.TestCase):
         # whose keys are the source suffix.  The add_action()
         # specifies a new source suffix/action binding.
 
+        builder = SCons.Builder.Builder(prefix='A_', suffix={}, action={})
+        env = Environment(BUILDERS={'Bld':builder})
         builder.add_action('.src_sfx1', 'FOO')
+
         r = builder.get_name(env)
         assert r == 'Bld', r
         r = builder.get_prefix(env)
@@ -1215,6 +1245,9 @@ class BuilderTestCase(unittest.TestCase):
         r = builder.src_suffixes(env)
         assert r == ['.src_sfx1'], r
 
+        builder = SCons.Builder.Builder(prefix='A_', suffix={}, action={})
+        env = Environment(BUILDERS={'Bld':builder})
+        builder.add_action('.src_sfx1', 'FOO')
         builder.add_action('.src_sfx2', 'BAR')
 
         r = builder.get_name(env)
