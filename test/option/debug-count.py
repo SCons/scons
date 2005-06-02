@@ -56,11 +56,9 @@ test.write('file.in', "file.in\n")
 
 # Just check that object counts for some representative classes
 # show up in the output.
-test.run(arguments = "--debug=count")
-stdout = test.stdout()
 
 def find_object_count(s, stdout):
-    re_string = '\d+ +\d+ +\d+ +\d+   %s' % re.escape(s)
+    re_string = '\d+ +\d+   %s' % re.escape(s)
     return re.search(re_string, stdout)
 
 objects = [
@@ -73,14 +71,18 @@ objects = [
     'Node.Node',
 ]
 
-missing = filter(lambda o: find_object_count(o, stdout) is None, objects)
+for args in ['-h --debug=count', '--debug=count']:
+    test.run(arguments = args)
+    stdout = test.stdout()
 
-if missing:
-    print "Missing the following object lines:"
-    print "\t", string.join(missing)
-    print "STDOUT =========="
-    print stdout
-    test.fail_test(1)
+    missing = filter(lambda o: find_object_count(o, stdout) is None, objects)
+
+    if missing:
+        print "Missing the following object lines from '%s' output:" % args
+        print "\t", string.join(missing)
+        print "STDOUT =========="
+        print stdout
+        test.fail_test(1)
 
 
 test.pass_test()

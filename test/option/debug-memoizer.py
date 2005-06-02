@@ -51,20 +51,20 @@ test.write('file.in', "file.in\n")
 expect = [
     "Memoizer (memory cache) hits and misses",
     "Dir.exists()",
-    "Executor.get_contents()",
-    "File._save_str()",
-    "SConsEnvironment.get_calculator()",
+    "File.exists()",
+    "SConsEnvironment.Detect()",
 ]
 
-test.run(arguments = '--debug=memoizer')
-stdout = test.stdout()
-missing = filter(lambda e, s=stdout: string.find(s, e) == -1, expect)
-if missing:
-    print "Missing the following strings in the command line --debug=memoizer output:"
-    print "    " + string.join(missing, "\n    ")
-    print "STDOUT ============"
-    print stdout
-    test.fail_test(1)
+for args in ['-h --debug=memoizer', '--debug=memoizer']:
+    test.run(arguments = args)
+    stdout = test.stdout()
+    missing = filter(lambda e, s=stdout: string.find(s, e) == -1, expect)
+    if missing:
+        print "Missing the following strings in the command line '%s' output:" % args
+        print "    " + string.join(missing, "\n    ")
+        print "STDOUT ============"
+        print stdout
+        test.fail_test(1)
 
 test.must_match('file.out', "file.in\n")
 

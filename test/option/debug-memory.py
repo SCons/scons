@@ -54,7 +54,9 @@ env.Cat('file.out', 'file.in')
 
 test.write('file.in', "file.in\n")
 
-test.run(arguments = "--debug=memory")
+
+
+test.run(arguments = '--debug=memory')
 
 lines = string.split(test.stdout(), '\n')
 
@@ -62,6 +64,15 @@ test.fail_test(re.match(r'Memory before reading SConscript files: +\d+', lines[-
 test.fail_test(re.match(r'Memory after reading SConscript files: +\d+', lines[-4]) is None)
 test.fail_test(re.match(r'Memory before building targets: +\d+', lines[-3]) is None)
 test.fail_test(re.match(r'Memory after building targets: +\d+', lines[-2]) is None)
+
+
+
+test.run(arguments = '-h --debug=memory')
+
+lines = string.split(test.stdout(), '\n')
+
+test.fail_test(re.match(r'Memory before reading SConscript files: +\d+', lines[-3]) is None)
+test.fail_test(re.match(r'Memory after reading SConscript files: +\d+', lines[-2]) is None)
 
 
 
