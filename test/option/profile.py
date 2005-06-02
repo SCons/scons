@@ -33,12 +33,13 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.write('SConstruct', "\n")
+
 scons_prof = test.workpath('scons.prof')
 
-test.run(arguments = "--profile=%s -v " % scons_prof)
-test.fail_test(string.find(test.stdout(), 'SCons by ') == -1)
-test.fail_test(string.find(test.stdout(), 'Copyright') == -1 and
-               string.find(test.stdout(), '__COPYRIGHT__') == -1)
+test.run(arguments = "--profile=%s -h" % scons_prof)
+test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
+test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
 
 stats = pstats.Stats(scons_prof)
 stats.sort_stats('time')
@@ -54,17 +55,17 @@ finally:
     sys.stdout = save_stdout
 
 test.fail_test(string.find(s, 'Main.py') == -1)
-test.fail_test(string.find(s, 'print_version') == -1)
-test.fail_test(string.find(s, 'SCons.Script.Main.main()') == -1)
+test.fail_test(string.find(s, 'print_help') == -1)
+test.fail_test(string.find(s, '_main') == -1)
 test.fail_test(string.find(s, 'option_parser.py') == -1)
+
 
 
 scons_prof = test.workpath('scons2.prof')
 
-test.run(arguments = "--profile %s -v " % scons_prof)
-test.fail_test(string.find(test.stdout(), 'SCons by ') == -1)
-test.fail_test(string.find(test.stdout(), 'Copyright') == -1 and
-               string.find(test.stdout(), '__COPYRIGHT__') == -1)
+test.run(arguments = "--profile %s -h" % scons_prof)
+test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
+test.fail_test(string.find(test.stdout(), 'Options:') == -1)
 
 stats = pstats.Stats(scons_prof)
 stats.sort_stats('time')
@@ -76,9 +77,25 @@ stats.strip_dirs().print_stats()
 s = sys.stdout.getvalue()
 
 test.fail_test(string.find(s, 'Main.py') == -1)
-test.fail_test(string.find(s, 'print_version') == -1)
-test.fail_test(string.find(s, 'SCons.Script.Main.main()') == -1)
+test.fail_test(string.find(s, 'print_help') == -1)
+test.fail_test(string.find(s, '_main') == -1)
 test.fail_test(string.find(s, 'option_parser.py') == -1)
+
+
+
+scons_prof = test.workpath('scons3.prof')
+
+test.run(arguments = "--profile %s --debug=memory -h" % scons_prof)
+print test.stdout()
+test.fail_test(string.find(test.stdout(), 'usage: scons [OPTION]') == -1)
+test.fail_test(string.find(test.stdout(), 'Options:') == -1)
+
+expect = 'Memory before reading SConscript files'
+lines = string.split(test.stdout(), '\n')
+memory_lines = filter(lambda l, e=expect: string.find(l, e) != -1, lines)
+
+test.fail_test(len(memory_lines) != 1)
+
  
 
 test.pass_test()

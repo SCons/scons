@@ -255,7 +255,6 @@ ignore_errors = 0
 sconscript_time = 0
 command_time = 0
 exit_status = 0 # exit status, assume success by default
-profiling = 0
 repositories = []
 num_jobs = 1 # this is modifed by SConscript.SetJobs()
 
@@ -676,16 +675,8 @@ class OptParser(OptionParser):
                         '--recon', action="store_true", dest='noexec',
                         default=0, help="Don't build; just print commands.")
 
-        def opt_profile(option, opt, value, parser):
-            global profiling
-            if not profiling:
-                profiling = 1
-                import profile
-                profile.run('SCons.Script.Main.main()', value)
-                sys.exit(exit_status)
-        self.add_option('--profile', nargs=1, action="callback",
-                        callback=opt_profile, type="string", dest="profile",
-                        metavar="FILE",
+        self.add_option('--profile', action="store",
+                        dest="profile_file", metavar="FILE",
                         help="Profile SCons and put results in FILE.")
 
         self.add_option('-q', '--question', action="store_true", default=0,
@@ -1190,6 +1181,14 @@ def _exec_main():
     if type(options.debug) == type([]) and "pdb" in options.debug:
         import pdb
         pdb.Pdb().runcall(_main, args, parser)
+    elif options.profile_file:
+        import profile
+        prof = profile.Profile()
+        try:
+            prof.runcall(_main, args, parser)
+        except SystemExit:
+            pass
+        prof.dump_stats(options.profile_file)
     else:
         _main(args, parser)
 
