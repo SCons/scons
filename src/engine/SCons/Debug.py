@@ -122,6 +122,7 @@ def caller(back=0):
         entry[key] = entry[key] + 1
     except KeyError:
         entry[key] = 1
+    return '%s:%d(%s)' % func_shorten(key)
 
 def dump_caller_counts(file=sys.stdout):
     keys = caller_dicts.keys()

@@ -1465,12 +1465,52 @@ class RootDir(Dir):
         return _null
 
 class BuildInfo:
+    # bsig needs to stay here, if it's initialized in __init__() then
+    # the assignment overwrites any values read from .sconsign files.
     bsig = None
+    def __init__(self, node):
+        self.node = node
     def __cmp__(self, other):
         try:
             return cmp(self.bsig, other.bsig)
         except AttributeError:
             return 1
+    def convert_to_sconsign(self):
+        """Convert this BuildInfo object for writing to a .sconsign file
+
+        We hung onto the node that we refer to so that we can translate
+        the lists of bsources, bdepends and bimplicit Nodes into strings
+        relative to the node, but we don't want to write out that Node
+        itself to the .sconsign file, so we delete the attribute in
+        preparation.
+        """
+        rel_path = self.node.rel_path
+        delattr(self, 'node')
+        for attr in ['bsources', 'bdepends', 'bimplicit']:
+            try:
+                val = getattr(self, attr)
+            except AttributeError:
+                pass
+            else:
+                setattr(self, attr, map(rel_path, val))
+    def convert_from_sconsign(self, dir, name):
+        """Convert a newly-read BuildInfo object for in-SCons use
+
+        An on-disk BuildInfo comes without a reference to the node
+        for which it's intended, so we have to convert the arguments
+        and add back a self.node attribute.  The bsources, bdepends and
+        bimplicit lists all come from disk as paths relative to that node,
+        so convert them to actual Nodes for use by the rest of SCons.
+        """
+        self.node = dir.Entry(name)
+        Entry_func = self.node.dir.Entry
+        for attr in ['bsources', 'bdepends', 'bimplicit']:
+            try:
+                val = getattr(self, attr)
+            except AttributeError:
+                pass
+            else:
+                setattr(self, attr, map(Entry_func, val))
 
 class File(Base):
     """A class for files in a file system.
@@ -1537,7 +1577,7 @@ class File(Base):
         try:
             stored = self.dir.sconsign().get_entry(self.name)
         except (KeyError, OSError):
-            return BuildInfo()
+            return self.new_binfo()
         else:
             if isinstance(stored, BuildInfo):
                 return stored
@@ -1546,16 +1586,15 @@ class File(Base):
             # 0.95 or before.  The relevant attribute names are the same,
             # though, so just copy the attributes over to an object of
             # the correct type.
-            binfo = BuildInfo()
+            binfo = self.new_binfo()
             for key, val in stored.__dict__.items():
                 setattr(binfo, key, val)
             return binfo
 
     def get_stored_implicit(self):
         binfo = self.get_stored_info()
-        try: implicit = binfo.bimplicit
+        try: return binfo.bimplicit
         except AttributeError: return None
-        else: return map(self.dir.Entry, implicit)
 
     def rel_path(self, other):
         return self.dir.rel_path(other)
@@ -1727,7 +1766,7 @@ class File(Base):
         return Base.exists(self)
 
     def new_binfo(self):
-        return BuildInfo()
+        return BuildInfo(self)
 
     def del_cinfo(self):
         try:
@@ -1759,7 +1798,7 @@ class File(Base):
         if calc.max_drift >= 0:
             old = self.get_stored_info()
         else:
-            old = BuildInfo()
+            old = self.new_binfo()
 
         try:
             mtime = self.get_timestamp()
@@ -1810,7 +1849,7 @@ class File(Base):
             return None
         else:
             old = self.get_stored_info()
-            return (old == self.binfo)
+            return (self.binfo == old)
 
     def rfile(self):
         "__cacheable__"

@@ -574,7 +574,7 @@ class Node:
         def calc_signature(node, calc=calc):
             return node.calc_signature(calc)
 
-        bsources = executor.process_sources(self.rel_path, self.ignore)
+        sources = executor.process_sources(None, self.ignore)
         sourcesigs = executor.process_sources(calc_signature, self.ignore)
 
         depends = self.depends
@@ -594,9 +594,9 @@ class Node:
             binfo.bactsig = calc.module.signature(executor)
             sigs.append(binfo.bactsig)
 
-        binfo.bsources = bsources
-        binfo.bdepends = map(self.rel_path, depends)
-        binfo.bimplicit = map(self.rel_path, implicit)
+        binfo.bsources = sources
+        binfo.bdepends = depends
+        binfo.bimplicit = implicit
 
         binfo.bsourcesigs = sourcesigs
         binfo.bdependsigs = dependsigs
@@ -605,12 +605,6 @@ class Node:
         binfo.bsig = calc.module.collect(filter(None, sigs))
 
         return binfo
-
-    def rel_path(self, other):
-        # Using other.__str__() instead of str(other) lets the Memoizer
-        # get the right method for the underlying Node object, not the
-        # __str__() method for the Memoizer wrapper object.
-        return other.__str__()
 
     def del_cinfo(self):
         try:

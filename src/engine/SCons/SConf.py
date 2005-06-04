@@ -159,7 +159,8 @@ class SConfBuildInfo(SCons.Node.FS.BuildInfo):
     result = None # -> 0/None -> no error, != 0 error
     string = None # the stdout / stderr output when building the target
     
-    def __init__(self, result, string, sig):
+    def __init__(self, node, result, string, sig):
+        SCons.Node.FS.BuildInfo.__init__(self, node)
         self.result = result
         self.string = string
         self.bsig = sig
@@ -305,15 +306,15 @@ class SConfBuildTask(SCons.Taskmaster.Task):
                 for t in self.targets:
                     sig = t.calc_signature(sconf.calc)
                     string = s.getvalue()
-                    t.dir.sconsign().set_entry(t.name,
-                                               SConfBuildInfo(1,string,sig))
+                    binfo = SConfBuildInfo(t,1,string,sig)
+                    t.dir.sconsign().set_entry(t.name, binfo)
                 raise
             else:
                 for t in self.targets:
                     sig = t.calc_signature(sconf.calc)
                     string = s.getvalue()
-                    t.dir.sconsign().set_entry(t.name,
-                                               SConfBuildInfo(0,string,sig))
+                    binfo = SConfBuildInfo(t,0,string,sig)
+                    t.dir.sconsign().set_entry(t.name, binfo)
 
 class SConf:
     """This is simply a class to represent a configure context. After

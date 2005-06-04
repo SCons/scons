@@ -47,6 +47,10 @@ class SConsignEntry:
     bsig = None
     csig = None
     implicit = None
+    def convert_to_sconsign(self):
+        pass
+    def convert_from_sconsign(self, dir, name):
+        pass
 
 class Calculator:
     """
