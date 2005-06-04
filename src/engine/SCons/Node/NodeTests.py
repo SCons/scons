@@ -503,24 +503,19 @@ class NodeTestCase(unittest.TestCase):
         """Test generating a build information structure
         """
         node = SCons.Node.Node()
-        binfo = node.gen_binfo(Calculator(666))
+        d = SCons.Node.Node()
+        i = SCons.Node.Node()
+        node.depends = [d]
+        node.implicit = [i]
+        binfo = node.gen_binfo(Calculator(1998))
         assert isinstance(binfo, SCons.Node.BuildInfo), binfo
         assert hasattr(binfo, 'bsources')
         assert hasattr(binfo, 'bsourcesigs')
-        assert hasattr(binfo, 'bdepends')
+        assert binfo.bdepends == [d]
         assert hasattr(binfo, 'bdependsigs')
-        assert hasattr(binfo, 'bimplicit')
+        assert binfo.bimplicit == [i]
         assert hasattr(binfo, 'bimplicitsigs')
-        assert binfo.bsig == 666, binfo.bsig
-
-    def test_rel_path(self):
-        """Test the rel_path() method
-        """
-        node = SCons.Node.Node()
-        other = SCons.Node.Node()
-        other.__str__ = lambda: "xyzzy"
-        r = node.rel_path(other)
-        assert r == "xyzzy", r
+        assert binfo.bsig == 5994, binfo.bsig
 
     def test_explain(self):
         """Test explaining why a Node must be rebuilt

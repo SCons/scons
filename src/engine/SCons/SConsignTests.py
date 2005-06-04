@@ -35,6 +35,10 @@ import SCons.SConsign
 class BuildInfo:
     def __init__(self, name):
         self.name = name
+    def convert_to_sconsign(self):
+        self.c_to_s = 1
+    def convert_from_sconsign(self, dir, name):
+        self.c_from_s = 1
 
 class DummyModule:
     def to_string(self, sig):
@@ -159,21 +163,25 @@ class SConsignDBTestCase(SConsignTestCase):
 class SConsignDirFileTestCase(SConsignTestCase):
 
     def runTest(self):
-        foo = BuildInfo('foo')
-        bar = BuildInfo('bar')
+        bi_foo = BuildInfo('foo')
+        bi_bar = BuildInfo('bar')
 
         f = SCons.SConsign.DirFile(DummyNode(), DummyModule())
-        f.set_entry('foo', foo)
-        f.set_entry('bar', bar)
+        f.set_entry('foo', bi_foo)
+        f.set_entry('bar', bi_bar)
 
         e = f.get_entry('foo')
-        assert e == foo, e
+        assert e == bi_foo, e
         assert e.name == 'foo', e.name
 
+        assert bi_foo.c_from_s, bi_foo.c_from_s
+
         e = f.get_entry('bar')
-        assert e == bar, e
+        assert e == bi_bar, e
         assert e.name == 'bar', e.name
         assert not hasattr(e, 'arg'), e
+
+        assert bi_bar.c_from_s, bi_bar.c_from_s
 
         bbb = BuildInfo('bbb')
         bbb.arg = 'bbb arg'
@@ -257,10 +265,15 @@ class writeTestCase(SConsignTestCase):
 
         f = SCons.SConsign.DB(DummyNode(), DummyModule())
 
-        f.set_entry('foo', BuildInfo('foo'))
-        f.set_entry('bar', BuildInfo('bar'))
+        bi_foo = BuildInfo('foo')
+        bi_bar = BuildInfo('bar')
+        f.set_entry('foo', bi_foo)
+        f.set_entry('bar', bi_bar)
 
         SCons.SConsign.write()
+
+        assert bi_foo.c_to_s, bi_foo.c_to_s
+        assert bi_bar.c_to_s, bi_bar.c_to_s
 
         assert fake_dbm.sync_count == 1, fake_dbm.sync_count
 

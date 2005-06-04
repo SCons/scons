@@ -177,9 +177,11 @@ class DB(Base):
                     raise TypeError
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception, e:
                 SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                                    "Ignoring corrupt sconsign entry : %s"%self.dir.tpath)
+                                    "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.tpath, e))
+            for key, entry in self.entries.items():
+                entry.convert_from_sconsign(dir, key)
 
         if mode == "r":
             # This directory is actually under a repository, which means
@@ -202,6 +204,8 @@ class DB(Base):
         # the Repository; we only write to our own .sconsign file,
         # not to .sconsign files in Repositories.
         path = norm_entry(self.dir.path)
+        for key, entry in self.entries.items():
+            entry.convert_to_sconsign()
         db[path] = cPickle.dumps(self.entries, 1)
 
         if sync:
@@ -256,6 +260,15 @@ class DirFile(Dir):
         global sig_files
         sig_files.append(self)
 
+    def get_entry(self, filename):
+        """
+        Fetch the specified entry attribute, converting from .sconsign
+        format to in-memory format.
+        """
+        entry = Dir.get_entry(self, filename)
+        entry.convert_from_sconsign(self.dir, filename)
+        return entry
+
     def write(self, sync=1):
         """
         Write the .sconsign file to disk.
@@ -280,6 +293,8 @@ class DirFile(Dir):
                     fname = self.sconsign
                 except IOError:
                     return
+            for key, entry in self.entries.items():
+                entry.convert_to_sconsign()
             cPickle.dump(self.entries, file, 1)
             file.close()
             if fname != self.sconsign:
