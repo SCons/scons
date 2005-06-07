@@ -163,7 +163,7 @@ class SConfBuildInfo(SCons.Node.FS.BuildInfo):
         SCons.Node.FS.BuildInfo.__init__(self, node)
         self.result = result
         self.string = string
-        self.bsig = sig
+        self.ninfo.bsig = sig
 
 
 class Streamer:
@@ -253,9 +253,9 @@ class SConfBuildTask(SCons.Taskmaster.Task):
                 else:
                     new_bsig = t.calc_signature(sconf_global.calc)
                     if t.env.use_build_signature():
-                        old_bsig = bi.bsig
+                        old_bsig = bi.ninfo.bsig
                     else:
-                        old_bsig = bi.csig
+                        old_bsig = bi.ninfo.csig
                     is_up_to_date = (is_up_to_date and new_bsig == old_bsig)
                 cached_error = cached_error or bi.result
             else:

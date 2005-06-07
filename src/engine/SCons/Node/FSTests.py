@@ -627,6 +627,24 @@ class BaseTestCase(_tempdirTestCase):
         file = fs.Entry('file')
         assert file.getmtime()
 
+        file = fs.Entry('nonexistent')
+        mtime = file.getmtime()
+        assert mtime is None, mtime
+
+    def test_getsize(self):
+        """Test the Base.getsize() method"""
+        test = self.test
+        test.write("file", "file\n")
+        fs = SCons.Node.FS.FS()
+
+        file = fs.Entry('file')
+        size = file.getsize()
+        assert size == 5, size
+
+        file = fs.Entry('nonexistent')
+        size = file.getsize()
+        assert size is None, size
+
     def test_isdir(self):
         """Test the Base.isdir() method"""
         test = self.test
@@ -679,6 +697,52 @@ class BaseTestCase(_tempdirTestCase):
 
             nonexistent = fs.Entry('nonexistent')
             assert not nonexistent.islink()
+
+class NodeInfoTestCase(_tempdirTestCase):
+    def test___init__(self):
+        """Test NodeInfo initialization"""
+        ni = SCons.Node.FS.NodeInfo()
+        assert hasattr(ni, 'bsig')
+
+    def test___cmp__(self):
+        """Test comparing NodeInfo objects"""
+        ni1 = SCons.Node.FS.NodeInfo()
+        ni2 = SCons.Node.FS.NodeInfo()
+
+        assert cmp(ni1, ni2) == 0, "ni1 %s != ni2 %s" % (ni1, ni2)
+
+        ni1.bsig = 777
+        assert cmp(ni1, ni2) != 0, "ni1 %s == ni2 %s" % (ni1, ni2)
+
+        ni2.bsig = 777
+        assert cmp(ni1, ni2) == 0, "ni1 %s != ni2 %s" % (ni1, ni2)
+
+    def test_update(self):
+        """Test updating a NodeInfo with on-disk information"""
+        test = self.test
+        test.write('fff', "fff\n")
+        fff = self.fs.File('fff')
+
+        ni = SCons.Node.FS.NodeInfo()
+        assert not hasattr(ni, 'timestamp')
+        assert not hasattr(ni, 'size')
+
+        ni.update(fff)
+        assert ni.timestamp == os.path.getmtime('fff'), ni.timestamp
+        assert ni.size == os.path.getsize('fff'), ni.size
+
+class BuildInfoTestCase(_tempdirTestCase):
+    def test___init__(self):
+        """Test BuildInfo initialization"""
+        fff = self.fs.File('fff')
+        bi = SCons.Node.FS.BuildInfo(fff)
+        assert bi.node is fff, bi.node
+
+    def test_convert_to_sconsign(self):
+        """Test converting to .sconsign file format"""
+
+    def test_convert_from_sconsign(self):
+        """Test converting from .sconsign file format"""
 
 class FSTestCase(_tempdirTestCase):
     def test_runTest(self):
@@ -2084,7 +2148,7 @@ class StringDirTestCase(unittest.TestCase):
 
 class stored_infoTestCase(unittest.TestCase):
     def runTest(self):
-        """Test how storing build information"""
+        """Test how we store build information"""
         test = TestCmd(workdir = '')
         test.subdir('sub')
         fs = SCons.Node.FS.FS(test.workpath(''))
@@ -2092,7 +2156,8 @@ class stored_infoTestCase(unittest.TestCase):
         d = fs.Dir('sub')
         f = fs.File('file1', d)
         bi = f.get_stored_info()
-        assert bi.bsig == None, bi.bsig
+        assert bi.ninfo.timestamp == 0, bi.ninfo.timestamp
+        assert bi.ninfo.size == None, bi.ninfo.size
 
         class MySConsign:
             class Null:
@@ -2343,7 +2408,7 @@ class CacheDirTestCase(unittest.TestCase):
         try:
             f5 = fs.File("cd.f5")
             f5.binfo = f5.new_binfo()
-            f5.binfo.bsig = 'a_fake_bsig'
+            f5.binfo.ninfo.bsig = 'a_fake_bsig'
             cp = f5.cachepath()
             dirname = os.path.join('cache', 'A')
             filename = os.path.join(dirname, 'a_fake_bsig')
@@ -2378,7 +2443,7 @@ class CacheDirTestCase(unittest.TestCase):
             test.write(cd_f7, "cd.f7\n")
             f7 = fs.File(cd_f7)
             f7.binfo = f7.new_binfo()
-            f7.binfo.bsig = 'f7_bsig'
+            f7.binfo.ninfo.bsig = 'f7_bsig'
 
             warn_caught = 0
             try:
@@ -2729,6 +2794,8 @@ if __name__ == "__main__":
     suite.addTest(SaveStringsTestCase())
     tclasses = [
         BaseTestCase,
+        BuildInfoTestCase,
+        NodeInfoTestCase,
         FSTestCase,
         DirTestCase,
         RepositoryTestCase,

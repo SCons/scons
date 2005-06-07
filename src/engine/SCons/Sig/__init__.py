@@ -40,18 +40,6 @@ except ImportError:
 # since it's really something about files.
 default_max_drift = 2*24*60*60
 
-class SConsignEntry:
-    """The old SConsignEntry format.
-    We keep this around to handle conversions from old .sconsign files."""
-    timestamp = None
-    bsig = None
-    csig = None
-    implicit = None
-    def convert_to_sconsign(self):
-        pass
-    def convert_from_sconsign(self, dir, name):
-        pass
-
 class Calculator:
     """
     Encapsulates signature calculations and .sconsign file generating

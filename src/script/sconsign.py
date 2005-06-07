@@ -241,23 +241,30 @@ map_name = {
     'implicit'  : 'bkids',
 }
 
-def printfield(name, entry):
-    def field(name, verbose=Verbose, entry=entry):
-        if not Print_Flags[name]:
-            return None
-        fieldname = map_name.get(name, name)
-        mapper = map_field.get(fieldname, default_mapper)
-        val = mapper(entry, name)
-        if verbose:
-            val = name + ": " + val
-        return val
+def field(name, entry, verbose=Verbose):
+    if not Print_Flags[name]:
+        return None
+    fieldname = map_name.get(name, name)
+    mapper = map_field.get(fieldname, default_mapper)
+    val = mapper(entry, name)
+    if verbose:
+        val = name + ": " + val
+    return val
 
-    fieldlist = ["timestamp", "bsig", "csig"]
-    outlist = [name+":"] + filter(None, map(field, fieldlist))
-    sep = Verbose and "\n    " or " "
-    print string.join(outlist, sep)
+def nodeinfo_string(name, entry, prefix=""):
+    fieldlist = ["bsig", "csig", "timestamp", "size"]
+    f = lambda x, e=entry, v=Verbose: field(x, e, v)
+    outlist = [name+":"] + filter(None, map(f, fieldlist))
+    if Verbose:
+        sep = "\n    " + prefix
+    else:
+        sep = " "
+    return string.join(outlist, sep)
 
-    outlist = field("implicit", 0)
+def printfield(name, entry, prefix=""):
+    print nodeinfo_string(name, entry.ninfo, prefix)
+
+    outlist = field("implicit", entry, 0)
     if outlist:
         if Verbose:
             print "    implicit:"
@@ -273,8 +280,10 @@ def printentries(entries):
             else:
                 printfield(name, entry)
     else:
-        for name, e in entries.items():
-            printfield(name, e)
+        names = entries.keys()
+        names.sort()
+        for name in names:
+            printfield(name, entries[name])
 
 class Do_SConsignDB:
     def __init__(self, dbm_name, dbm):
@@ -362,14 +371,15 @@ Options:
   -h, --help                  Print this message and exit.
   -i, --implicit              Print implicit dependency information.
   -r, --readable              Print timestamps in human-readable form.
+  -s, --size                  Print file sizes human-readable form.
   -t, --timestamp             Print timestamp information.
   -v, --verbose               Verbose, describe each field.
 """
 
-opts, args = getopt.getopt(sys.argv[1:], "bcd:e:f:hirtv",
+opts, args = getopt.getopt(sys.argv[1:], "bcd:e:f:hirstv",
                             ['bsig', 'csig', 'dir=', 'entry=',
                              'format=', 'help', 'implicit',
-                             'readable', 'timestamp', 'verbose'])
+                             'readable', 'size', 'timestamp', 'verbose'])
 
 
 for o, a in opts:
@@ -402,6 +412,8 @@ for o, a in opts:
         Print_Flags['implicit'] = 1
     elif o in ('-r', '--readable'):
         Readable = 1
+    elif o in ('-s', '--size'):
+        Print_Flags['size'] = 1
     elif o in ('-t', '--timestamp'):
         Print_Flags['timestamp'] = 1
     elif o in ('-v', '--verbose'):

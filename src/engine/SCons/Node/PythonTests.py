@@ -45,19 +45,19 @@ class ValueTestCase(unittest.TestCase):
         assert not v1 is v2
         assert v1.value == v2.value
 
-    def test_calc_csig(self):
+    def test_get_csig(self):
         """Test calculating the content signature of a Value() object
         """
         v1 = SCons.Node.Python.Value('aaa')
-        csig = v1.calc_csig(None)
+        csig = v1.get_csig(None)
         assert csig == 'aaa', csig
 
         v2 = SCons.Node.Python.Value(7)
-        csig = v2.calc_csig(None)
+        csig = v2.get_csig(None)
         assert csig == '7', csig
 
         v3 = SCons.Node.Python.Value(None)
-        csig = v3.calc_csig(None)
+        csig = v3.get_csig(None)
         assert csig == 'None', csig
 
 

@@ -62,7 +62,7 @@ class Value(SCons.Node.Node):
             contents = contents + kid.get_contents()
         return contents
 
-    def calc_csig(self, calc=None):
+    def get_csig(self, calc=None):
         """Because we're a Python value node and don't have a real
         timestamp, we get to ignore the calculator and just use the
         value contents."""
@@ -71,8 +71,8 @@ class Value(SCons.Node.Node):
         except AttributeError:
             binfo = self.binfo = self.new_binfo()
         try:
-            return binfo.csig
+            return binfo.ninfo.csig
         except AttributeError:
-            binfo.csig = self.get_contents()
+            binfo.ninfo.csig = self.get_contents()
             self.store_info(binfo)
-            return binfo.csig
+            return binfo.ninfo.csig

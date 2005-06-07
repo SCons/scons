@@ -214,6 +214,104 @@ class Calculator:
 
 
 
+class NodeInfoTestCase(unittest.TestCase):
+
+    def test___cmp__(self):
+        """Test comparing NodeInfo objects"""
+        ni1 = SCons.Node.NodeInfo()
+        ni2 = SCons.Node.NodeInfo()
+
+        assert ni1 == ni2, "%s != %s" % (ni1.__dict__, ni2.__dict__)
+
+        ni1.foo = 777
+        assert ni1 != ni2, "%s == %s" % (ni1.__dict__, ni2.__dict__)
+
+        ni2.foo = 888
+        assert ni1 != ni2, "%s == %s" % (ni1.__dict__, ni2.__dict__)
+
+        ni1.foo = 888
+        assert ni1 == ni2, "%s != %s" % (ni1.__dict__, ni2.__dict__)
+
+    def test_merge(self):
+        """Test merging NodeInfo attributes"""
+        ni1 = SCons.Node.NodeInfo()
+        ni2 = SCons.Node.NodeInfo()
+
+        ni1.a1 = 1
+        ni1.a2 = 2
+
+        ni2.a2 = 222
+        ni2.a3 = 333
+
+        ni1.merge(ni2)
+        assert ni1.__dict__ == {'a1':1, 'a2':222, 'a3':333}, ni1.__dict__
+
+    def test_update(self):
+        """Test the update() method"""
+        ni = SCons.Node.NodeInfo()
+        ni.update(SCons.Node.Node())
+
+
+
+class BuildInfoTestCase(unittest.TestCase):
+
+    def test___init__(self):
+        """Test BuildInfo initialization"""
+        bi = SCons.Node.BuildInfo(SCons.Node.Node())
+        assert hasattr(bi, 'ninfo')
+
+        class MyNode(SCons.Node.Node):
+            def new_ninfo(self):
+                return 'ninfo initialization'
+        bi = SCons.Node.BuildInfo(MyNode())
+        assert bi.ninfo == 'ninfo initialization', bi.ninfo
+
+    def test___cmp__(self):
+        """Test comparing BuildInfo objects"""
+        bi1 = SCons.Node.BuildInfo(SCons.Node.Node())
+        bi2 = SCons.Node.BuildInfo(SCons.Node.Node())
+
+        assert bi1 == bi2, "%s != %s" % (bi1.__dict__, bi2.__dict__)
+
+        bi1.ninfo.foo = 777
+        assert bi1 != bi2, "%s == %s" % (bi1.__dict__, bi2.__dict__)
+
+        bi2.ninfo.foo = 888
+        assert bi1 != bi2, "%s == %s" % (bi1.__dict__, bi2.__dict__)
+
+        bi1.ninfo.foo = 888
+        assert bi1 == bi2, "%s != %s" % (bi1.__dict__, bi2.__dict__)
+
+        bi1.foo = 999
+        assert bi1 == bi2, "%s != %s" % (bi1.__dict__, bi2.__dict__)
+
+    def test_merge(self):
+        """Test merging BuildInfo attributes"""
+        bi1 = SCons.Node.BuildInfo(SCons.Node.Node())
+        bi2 = SCons.Node.BuildInfo(SCons.Node.Node())
+
+        bi1.a1 = 1
+        bi1.a2 = 2
+
+        bi2.a2 = 222
+        bi2.a3 = 333
+
+        bi1.ninfo.a4 = 4
+        bi1.ninfo.a5 = 5
+        bi2.ninfo.a5 = 555
+        bi2.ninfo.a6 = 666
+
+        bi1.merge(bi2)
+        assert bi1.a1 == 1, bi1.a1
+        assert bi1.a2 == 222, bi1.a2
+        assert bi1.a3 == 333, bi1.a3
+        assert bi1.ninfo.a4 == 4, bi1.ninfo.a4
+        assert bi1.ninfo.a5 == 555, bi1.ninfo.a5
+        assert bi1.ninfo.a6 == 666, bi1.ninfo.a6
+
+
+
+
 class NodeTestCase(unittest.TestCase):
 
     def test_build(self):
@@ -481,23 +579,35 @@ class NodeTestCase(unittest.TestCase):
         a = node.builder.get_actions()
         assert isinstance(a[0], MyAction), a[0]
 
-    def test_calc_bsig(self):
+    def test_get_bsig(self):
         """Test generic build signature calculation
         """
         node = SCons.Node.Node()
-        result = node.calc_bsig(Calculator(222))
+        result = node.get_bsig(Calculator(222))
         assert result == 222, result
-        result = node.calc_bsig(Calculator(333))
+        result = node.get_bsig(Calculator(333))
         assert result == 222, result
 
-    def test_calc_csig(self):
+    def test_get_csig(self):
         """Test generic content signature calculation
         """
         node = SCons.Node.Node()
-        result = node.calc_csig(Calculator(444))
+        result = node.get_csig(Calculator(444))
         assert result == 444, result
-        result = node.calc_csig(Calculator(555))
+        result = node.get_csig(Calculator(555))
         assert result == 444, result
+
+    def test_get_binfo(self):
+        """Test fetching/creating a build information structure
+        """
+        node = SCons.Node.Node()
+
+        binfo = node.get_binfo()
+        assert isinstance(binfo, SCons.Node.BuildInfo), binfo
+
+        node.binfo = 777
+        binfo = node.get_binfo()
+        assert binfo == 777, binfo
 
     def test_gen_binfo(self):
         """Test generating a build information structure
@@ -507,7 +617,8 @@ class NodeTestCase(unittest.TestCase):
         i = SCons.Node.Node()
         node.depends = [d]
         node.implicit = [i]
-        binfo = node.gen_binfo(Calculator(1998))
+        node.gen_binfo(Calculator(666))
+        binfo = node.binfo
         assert isinstance(binfo, SCons.Node.BuildInfo), binfo
         assert hasattr(binfo, 'bsources')
         assert hasattr(binfo, 'bsourcesigs')
@@ -515,7 +626,7 @@ class NodeTestCase(unittest.TestCase):
         assert hasattr(binfo, 'bdependsigs')
         assert binfo.bimplicit == [i]
         assert hasattr(binfo, 'bimplicitsigs')
-        assert binfo.bsig == 5994, binfo.bsig
+        assert binfo.ninfo.bsig == 1998, binfo.ninfo.bsig
 
     def test_explain(self):
         """Test explaining why a Node must be rebuilt
@@ -1206,7 +1317,9 @@ class NodeListTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    tclasses = [ NodeTestCase,
+    tclasses = [ BuildInfoTestCase,
+                 NodeInfoTestCase,
+                 NodeTestCase,
                  NodeListTestCase ]
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')

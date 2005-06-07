@@ -291,6 +291,11 @@ RELEASE 0.97 - XXX
 
   - Print various --debug= stats even if we exit early (e.g. using -h).
 
+  - Really only use the cached content signature value if the file
+    is older than --max-drift, not just if --max-drift is set.
+
+  - Remove support for conversion from old (pre 0.96) .sconsign formats.
+
   From Wayne Lee:
 
   - Avoid "maximum recursion limit" errors when removing $(-$) pairs

@@ -95,9 +95,55 @@ def do_nothing(node): pass
 
 Annotate = do_nothing
 
-class BuildInfo:
+# Classes for signature info for Nodes.
+
+class NodeInfo:
+    """
+    A generic class for signature information for a Node.
+
+    We actually expect that modules containing Node subclasses will also
+    subclass NodeInfo, to provide their own logic for dealing with their
+    own Node-specific signature information.
+    """
+    def __init__(self):
+        """A null initializer so that subclasses have a superclass
+        initialization method to call for future use.
+        """
+        pass
     def __cmp__(self, other):
         return cmp(self.__dict__, other.__dict__)
+    def update(self, node):
+        pass
+    def merge(self, other):
+        for key, val in other.__dict__.items():
+            self.__dict__[key] = val
+
+class BuildInfo:
+    """
+    The generic build information for a Node.
+
+    This is what gets stored in a .sconsign file for each target file.
+    It contains a NodeInfo instance for this node (signature information
+    that's specific to the type of Node) and direct attributes for the
+    generic build stuff we have to track:  sources, explicit dependencies,
+    implicit dependencies, and action information.
+    """
+    def __init__(self, node):
+        self.ninfo = node.new_ninfo()
+        self.bsourcesigs = []
+        self.bdependsigs = []
+        self.bimplicitsigs = []
+        self.bactsig = None
+    def __cmp__(self, other):
+        return cmp(self.ninfo, other.ninfo)
+    def merge(self, other):
+        for key, val in other.__dict__.items():
+            try:
+                merge = self.__dict__[key].merge
+            except (AttributeError, KeyError):
+                self.__dict__[key] = val
+            else:
+                merge(val)
 
 class Node:
     """The base Node class, for entities that we know how to
@@ -241,28 +287,27 @@ class Node:
             parent.del_binfo()
         
         try:
-            new_binfo = self.binfo
+            new = self.binfo
         except AttributeError:
             # Node arrived here without build info; apparently it
             # doesn't need it, so don't bother calculating or storing
             # it.
-            new_binfo = None
+            new = None
 
         # Reset this Node's cached state since it was just built and
         # various state has changed.
         self.clear()
-
-        # Had build info, so it should be stored in the signature
-        # cache.  However, if the build info included a content
-        # signature then it should be recalculated before being
-        # stored.
         
-        if new_binfo:
-            if hasattr(new_binfo, 'csig'):
-                new_binfo = self.gen_binfo()  # sets self.binfo
+        if new:
+            # It had build info, so it should be stored in the signature
+            # cache.  However, if the build info included a content
+            # signature then it must be recalculated before being stored.
+            if hasattr(new.ninfo, 'csig'):
+                self.get_csig()
             else:
-                self.binfo = new_binfo
-            self.store_info(new_binfo)
+                new.ninfo.update(self)
+                self.binfo = new
+            self.store_info(self.binfo)
 
     def add_to_waiting_parents(self, node):
         self.waiting_parents.append(node)
@@ -285,7 +330,6 @@ class Node:
         """
         self.executor_cleanup()
         self.del_binfo()
-        self.del_cinfo()
         try:
             delattr(self, '_calculated_sig')
         except AttributeError:
@@ -504,6 +548,10 @@ class Node:
             return
         self.env = env
 
+    #
+    # SIGNATURE SUBSYSTEM
+    #
+
     def calculator(self):
         import SCons.Defaults
         
@@ -524,27 +572,30 @@ class Node:
 
             env = self.env or SCons.Defaults.DefaultEnvironment()
             if env.use_build_signature():
-                return self.calc_bsig(calc)
+                return self.get_bsig(calc)
         elif not self.rexists():
             return None
-        return self.calc_csig(calc)
+        return self.get_csig(calc)
+
+    def new_ninfo(self):
+        return NodeInfo()
 
     def new_binfo(self):
-        return BuildInfo()
+        return BuildInfo(self)
+
+    def get_binfo(self):
+        try:
+            return self.binfo
+        except AttributeError:
+            self.binfo = self.new_binfo()
+            return self.binfo
 
     def del_binfo(self):
-        """Delete the bsig from this node."""
+        """Delete the build info from this node."""
         try:
             delattr(self, 'binfo')
         except AttributeError:
             pass
-
-    def calc_bsig(self, calc=None):
-        try:
-            return self.binfo.bsig
-        except AttributeError:
-            self.binfo = self.gen_binfo(calc)
-            return self.binfo.bsig
 
     def gen_binfo(self, calc=None, scan=1):
         """
@@ -565,7 +616,7 @@ class Node:
         if calc is None:
             calc = self.calculator()
 
-        binfo = self.new_binfo()
+        binfo = self.get_binfo()
 
         if scan:
             self.scan()
@@ -602,29 +653,27 @@ class Node:
         binfo.bdependsigs = dependsigs
         binfo.bimplicitsigs = implicitsigs
 
-        binfo.bsig = calc.module.collect(filter(None, sigs))
+        binfo.ninfo.bsig = calc.module.collect(filter(None, sigs))
 
         return binfo
 
-    def del_cinfo(self):
+    def get_bsig(self, calc=None):
+        binfo = self.get_binfo()
         try:
-            del self.binfo.csig
+            return binfo.ninfo.bsig
         except AttributeError:
-            pass
+            self.binfo = self.gen_binfo(calc)
+            return self.binfo.ninfo.bsig
 
-    def calc_csig(self, calc=None):
+    def get_csig(self, calc=None):
+        binfo = self.get_binfo()
         try:
-            binfo = self.binfo
-        except AttributeError:
-            binfo = self.binfo = self.new_binfo()
-        try:
-            return binfo.csig
+            return binfo.ninfo.csig
         except AttributeError:
             if calc is None:
                 calc = self.calculator()
-            binfo.csig = calc.module.signature(self)
-            self.store_info(binfo)
-            return binfo.csig
+            csig = binfo.ninfo.csig = calc.module.signature(self)
+            return csig
 
     def store_info(self, obj):
         """Make the build signature permanent (that is, store it in the
@@ -637,6 +686,10 @@ class Node:
     def get_stored_implicit(self):
         """Fetch the stored implicit dependencies"""
         return None
+
+    #
+    #
+    #
 
     def set_precious(self, precious = 1):
         """Set the Node's precious value."""
@@ -915,7 +968,7 @@ class Node:
         except AttributeError:
             return "Cannot explain why `%s' is being rebuilt: No previous build information found\n" % self
 
-        new = self.binfo
+        new = self.get_binfo()
 
         nsig = {}
         dictify(nsig, new.bsources, new.bsourcesigs)
