@@ -76,9 +76,11 @@ test.write(['w1', 'foo.in'], "foo.in 2")
 test.run(chdir='w1',
          arguments="--max-drift=0 -f SConstruct1 foo.mid",
          stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
-test.run(chdir='w1',
-         arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
+# Because we're using --max-drift=0, we use the cached csig value
+# and think that foo.mid hasn't changed even though it has on disk.
+test.up_to_date(chdir='w1',
+                options="--max-drift=0 -f SConstruct2",
+                arguments="foo.out")
 
 test.up_to_date(chdir='w1',
                 options="--max-drift=0 -f SConstruct1",
@@ -86,5 +88,15 @@ test.up_to_date(chdir='w1',
 test.up_to_date(chdir='w1',
                 options="--max-drift=0 -f SConstruct2",
                 arguments="foo.out")
+
+# Now try with --max-drift disabled.  The build of foo.mid should still
+# be considered up-to-date, but the build of foo.out now detects the
+# change and rebuilds, too.
+test.up_to_date(chdir='w1',
+                options="--max-drift=-1 -f SConstruct1",
+                arguments="foo.mid")
+test.run(chdir='w1',
+         arguments="--max-drift=-1 -f SConstruct2 foo.out",
+         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
 
 test.pass_test()

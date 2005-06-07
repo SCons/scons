@@ -130,6 +130,13 @@ RELEASE 0.97 - XXX
               Python function Actions (including various pre-supplied
               SCons Actions) be rebuilt.
 
+          --  REMOVED CONVERSION FROM PRE-0.96 .sconsign FORMATS
+
+              Because this release involves so many other signature
+              changes that cause rebuilds, the support for automatically
+              converting signature information from .sconsign files
+              written by SCons versions prior to 0.96 has been removed.
+
     --  CACHED Configure() RESULTS ARE STORED IN A DIFFERENT FILE
 
         The Configure() subsystem now stores its cached results in a

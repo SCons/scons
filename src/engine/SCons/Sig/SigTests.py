@@ -27,15 +27,6 @@ import unittest
 import SCons.Sig
 import sys
 
-class SConsignEntryTestCase(unittest.TestCase):
-
-    def runTest(self):
-        se = SCons.Sig.SConsignEntry()
-        assert hasattr(se, 'timestamp'), "no timestamp attribute"
-        assert hasattr(se, 'bsig'), "no bsig attribute"
-        assert hasattr(se, 'csig'), "no csig attribute"
-        assert hasattr(se, 'implicit'), "no implicit attribute"
-
 class CalculatorTestCase(unittest.TestCase):
 
     def runTest(self):
@@ -47,7 +38,6 @@ class CalculatorTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(SConsignEntryTestCase())
     suite.addTest(CalculatorTestCase())
     return suite
 

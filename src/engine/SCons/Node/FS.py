@@ -482,7 +482,18 @@ class Base(SCons.Node.Node):
         return self.rfile().exists()
 
     def getmtime(self):
-        return self.stat()[stat.ST_MTIME]
+        st = self.stat()
+        if st:
+            return self.stat()[stat.ST_MTIME]
+        else:
+            return None
+
+    def getsize(self):
+        st = self.stat()
+        if st:
+            return self.stat()[stat.ST_SIZE]
+        else:
+            return None
 
     def isdir(self):
         st = self.stat()
@@ -686,6 +697,8 @@ class LocalFS:
         return os.path.exists(path)
     def getmtime(self, path):
         return os.path.getmtime(path)
+    def getsize(self, path):
+        return os.path.getsize(path)
     def isdir(self, path):
         return os.path.isdir(path)
     def isfile(self, path):
@@ -1464,17 +1477,21 @@ class RootDir(Dir):
     def src_builder(self):
         return _null
 
-class BuildInfo:
-    # bsig needs to stay here, if it's initialized in __init__() then
-    # the assignment overwrites any values read from .sconsign files.
+class NodeInfo(SCons.Node.NodeInfo):
+    # The bsig attributes needs to stay here, if it's initialized in
+    # __init__() then the assignment seems to overwrite any values
+    # unpickled from .sconsign files.
     bsig = None
-    def __init__(self, node):
-        self.node = node
     def __cmp__(self, other):
-        try:
-            return cmp(self.bsig, other.bsig)
-        except AttributeError:
-            return 1
+        return cmp(self.bsig, other.bsig)
+    def update(self, node):
+        self.timestamp = node.get_timestamp()
+        self.size = node.getsize()
+
+class BuildInfo(SCons.Node.BuildInfo):
+    def __init__(self, node):
+        SCons.Node.BuildInfo.__init__(self, node)
+        self.node = node
     def convert_to_sconsign(self):
         """Convert this BuildInfo object for writing to a .sconsign file
 
@@ -1568,8 +1585,7 @@ class File(Base):
         # in one build (SConstruct file) is a source in a different build.
         # See test/chained-build.py for the use case.
         entry = self.get_stored_info()
-        for key, val in obj.__dict__.items():
-            entry.__dict__[key] = val
+        entry.merge(obj)
         self.dir.sconsign().set_entry(self.name, entry)
 
     def get_stored_info(self):
@@ -1579,17 +1595,17 @@ class File(Base):
         except (KeyError, OSError):
             return self.new_binfo()
         else:
-            if isinstance(stored, BuildInfo):
-                return stored
-            # The stored build information isn't a BuildInfo object.
-            # This probably means it's an old SConsignEntry from SCons
-            # 0.95 or before.  The relevant attribute names are the same,
-            # though, so just copy the attributes over to an object of
-            # the correct type.
-            binfo = self.new_binfo()
-            for key, val in stored.__dict__.items():
-                setattr(binfo, key, val)
-            return binfo
+            if not hasattr(stored, 'ninfo'):
+                # Transition:  The .sconsign file entry has no NodeInfo
+                # object, which means it's a slightly older BuildInfo.
+                # Copy over the relevant attributes.
+                ninfo = stored.ninfo = self.new_ninfo()
+                for attr in ninfo.__dict__.keys():
+                    try:
+                        setattr(ninfo, attr, getattr(stored, attr))
+                    except AttributeError:
+                        pass
+            return stored
 
     def get_stored_implicit(self):
         binfo = self.get_stored_info()
@@ -1765,20 +1781,19 @@ class File(Base):
                 self.do_duplicate(src)
         return Base.exists(self)
 
+    #
+    # SIGNATURE SUBSYSTEM
+    #
+
     def new_binfo(self):
         return BuildInfo(self)
 
-    def del_cinfo(self):
-        try:
-            del self.binfo.csig
-        except AttributeError:
-            pass
-        try:
-            del self.binfo.timestamp
-        except AttributeError:
-            pass
+    def new_ninfo(self):
+        ninfo = NodeInfo()
+        ninfo.update(self)
+        return ninfo
 
-    def calc_csig(self, calc=None):
+    def get_csig(self, calc=None):
         """
         Generate a node's content signature, the digested signature
         of its content.
@@ -1787,44 +1802,43 @@ class File(Base):
         cache - alternate node to use for the signature cache
         returns - the content signature
         """
+        try:
+            return self.binfo.ninfo.csig
+        except AttributeError:
+            pass
+
         if calc is None:
             calc = self.calculator()
 
-        try:
-            return self.binfo.csig
-        except AttributeError:
-            pass
-        
-        if calc.max_drift >= 0:
-            old = self.get_stored_info()
-        else:
-            old = self.new_binfo()
+        mtime = self.get_timestamp()
 
-        try:
-            mtime = self.get_timestamp()
-        except OSError:
-            mtime = 0
-            raise SCons.Errors.UserError, "no such %s" % self
+        use_stored = calc.max_drift >= 0 and \
+                    (time.time() - mtime) > calc.max_drift
 
-        try:
-            if (old.timestamp and old.csig and old.timestamp == mtime):
-                # use the signature stored in the .sconsign file
-                csig = old.csig
-            else:
-                csig = calc.module.signature(self)
-        except AttributeError:
+        csig = None
+        if use_stored:
+            old = self.get_stored_info().ninfo
+            try:
+                if old.timestamp and old.csig and old.timestamp == mtime:
+                    csig = old.csig
+            except AttributeError:
+                pass
+        if csig is None:
             csig = calc.module.signature(self)
 
-        if calc.max_drift >= 0 and (time.time() - mtime) > calc.max_drift:
-            try:
-                binfo = self.binfo
-            except AttributeError:
-                binfo = self.binfo = self.new_binfo()
-            binfo.csig = csig
-            binfo.timestamp = mtime
+        binfo = self.get_binfo()
+        ninfo = binfo.ninfo
+        ninfo.csig = csig
+        ninfo.update(self)
+
+        if use_stored:
             self.store_info(binfo)
 
         return csig
+
+    #
+    #
+    #
 
     def current(self, calc=None):
         self.binfo = self.gen_binfo(calc)
@@ -1839,17 +1853,19 @@ class File(Base):
             if r != self:
                 # ...but there is one in a Repository...
                 old = r.get_stored_info()
-                if old == self.binfo:
+                new = self.get_binfo()
+                if new == old:
                     # ...and it's even up-to-date...
                     if self._local:
                         # ...and they'd like a local copy.
                         LocalCopy(self, r, None)
-                        self.store_info(self.binfo)
+                        self.store_info(new)
                     return 1
             return None
         else:
             old = self.get_stored_info()
-            return (self.binfo == old)
+            new = self.get_binfo()
+            return (new == old)
 
     def rfile(self):
         "__cacheable__"
@@ -1870,12 +1886,15 @@ class File(Base):
     def cachepath(self):
         if not self.fs.CachePath:
             return None, None
-        if self.binfo.bsig is None:
+        ninfo = self.get_binfo().ninfo
+        if not hasattr(ninfo, 'bsig'):
+            raise SCons.Errors.InternalError, "cachepath(%s) found no bsig" % self.path
+        elif ninfo.bsig is None:
             raise SCons.Errors.InternalError, "cachepath(%s) found a bsig of None" % self.path
         # Add the path to the cache signature, because multiple
         # targets built by the same action will all have the same
         # build signature, and we have to differentiate them somehow.
-        cache_sig = SCons.Sig.MD5.collect([self.binfo.bsig, self.path])
+        cache_sig = SCons.Sig.MD5.collect([ninfo.bsig, self.path])
         subdir = string.upper(cache_sig[0])
         dir = os.path.join(self.fs.CachePath, subdir)
         return dir, os.path.join(dir, cache_sig)

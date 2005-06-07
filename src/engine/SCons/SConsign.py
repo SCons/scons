@@ -36,7 +36,6 @@ import string
 import time
 
 import SCons.dblite
-import SCons.Node
 import SCons.Sig
 import SCons.Warnings
 
