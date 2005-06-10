@@ -61,4 +61,6 @@ def scan(node, env, path=()):
     dont_scan = lambda k: not skip_entry.has_key(k)
     flist = filter(dont_scan, flist)
     flist.sort()
-    return map(node.Entry, flist)
+    # Add ./ to the beginning of the file name so that if it begins with a
+    # '#' we don't look it up relative to the top-level directory.
+    return map(lambda f, node=node: node.Entry('./'+f), flist)
