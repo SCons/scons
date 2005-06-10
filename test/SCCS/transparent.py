@@ -28,6 +28,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test transparent checkouts from SCCS files in an SCCS subdirectory.
 """
 
+import string
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -42,13 +44,14 @@ if not sccs:
 test.subdir('SCCS', 'sub', ['sub', 'SCCS'])
 
 for f in ['aaa.in', 'bbb.in', 'ccc.in']:
-    test.write(f, "%s\n" % f)
+    test.write(f, "%%F%% %s\n" % f)
     args = "create %s" % f
     test.run(program = sccs, arguments = args, stderr = None)
     test.unlink(f)
     test.unlink(','+f)
 
 test.write(['sub', 'SConscript'], """\
+# %%F%%
 Import("env")
 env.Cat('ddd.out', 'ddd.in')
 env.Cat('eee.out', 'eee.in')
@@ -61,13 +64,14 @@ test.unlink(['sub', 'SConscript'])
 test.unlink(['sub', ',SConscript'])
 
 for f in ['ddd.in', 'eee.in', 'fff.in']:
-    test.write(['sub', f], "sub/%s\n" % f)
+    test.write(['sub', f], "%%F%% sub/%s\n" % f)
     args = "create %s" % f
     test.run(chdir = 'sub', program = sccs, arguments = args, stderr = None)
     test.unlink(['sub', f])
     test.unlink(['sub', ','+f])
 
 test.write(['SConstruct'], """
+DefaultEnvironment()['SCCSCOM'] = 'cd ${TARGET.dir} && $SCCS get ${TARGET.file}'
 def cat(env, source, target):
     target = str(target[0])
     source = map(str, source)
@@ -75,7 +79,8 @@ def cat(env, source, target):
     for src in source:
         f.write(open(src, "rb").read())
     f.close()
-env = Environment(BUILDERS={'Cat':Builder(action=cat)})
+env = Environment(BUILDERS={'Cat':Builder(action=cat)},
+                  SCCSFLAGS='-k')
 env.Cat('aaa.out', 'aaa.in')
 env.Cat('bbb.out', 'bbb.in')
 env.Cat('ccc.out', 'ccc.in')
@@ -87,33 +92,38 @@ test.write(['bbb.in'], "checked-out bbb.in\n")
 
 test.write(['sub', 'eee.in'], "checked-out sub/eee.in\n")
 
-test.run(arguments = '.',
-         stdout = test.wrap_stdout(read_str = """\
-sccs get sub/SConscript
-""",
-                                   build_str = """\
+test.run(arguments = '.', stderr = None)
+
+lines = string.split("""
+sccs get SConscript
 sccs get aaa.in
 cat(["aaa.out"], ["aaa.in"])
 cat(["bbb.out"], ["bbb.in"])
 sccs get ccc.in
 cat(["ccc.out"], ["ccc.in"])
 cat(["all"], ["aaa.out", "bbb.out", "ccc.out"])
-sccs get sub/ddd.in
+sccs get ddd.in
 cat(["sub/ddd.out"], ["sub/ddd.in"])
 cat(["sub/eee.out"], ["sub/eee.in"])
-sccs get sub/fff.in
+sccs get fff.in
 cat(["sub/fff.out"], ["sub/fff.in"])
 cat(["sub/all"], ["sub/ddd.out", "sub/eee.out", "sub/fff.out"])
-"""),
-         stderr = """\
-sub/SConscript 1.1: 5 lines
-aaa.in 1.1: 1 lines
-ccc.in 1.1: 1 lines
-sub/ddd.in 1.1: 1 lines
-sub/fff.in 1.1: 1 lines
-""")
+""", '\n')
 
-test.must_match('all', "aaa.in\nchecked-out bbb.in\nccc.in\n")
+stdout = test.stdout()
+missing = filter(lambda l, s=stdout: string.find(s, l) == -1, lines)
+if missing:
+    print "Missing the following output lines:"
+    print string.join(missing, '\n')
+    print "Actual STDOUT =========="
+    print stdout
+    test.fail_test(1)
+
+test.must_match('all', """\
+s.aaa.in aaa.in
+checked-out bbb.in
+s.ccc.in ccc.in
+""")
 
 test.must_not_be_writable(test.workpath('sub', 'SConscript'))
 test.must_not_be_writable(test.workpath('aaa.in'))
