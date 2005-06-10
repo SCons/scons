@@ -28,6 +28,8 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test transparent SCCS checkouts of implicit dependencies.
 """
 
+import string
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -42,6 +44,7 @@ if not sccs:
 test.subdir('SCCS')
 
 test.write('foo.c', """\
+/* %%F%% */
 #include "foo.h"
 int
 main(int argc, char *argv[]) {
@@ -61,14 +64,26 @@ test.unlink('foo.h')
 test.unlink(',foo.h')
 
 test.write('SConstruct', """
+DefaultEnvironment()['SCCSCOM'] = 'cd ${TARGET.dir} && $SCCS get ${TARGET.file}'
 env = Environment()
 env.Program('foo.c')
 """)
 
-test.run(stderr = """\
-foo.c 1.1: 6 lines
-foo.h 1.1: 1 lines
-""")
+test.run(stderr = None)
+
+lines = string.split("""
+sccs get foo.c
+sccs get foo.h
+""", '\n')
+
+stdout = test.stdout()
+missing = filter(lambda l, s=stdout: string.find(s, l) == -1, lines)
+if missing:
+    print "Missing the following output lines:"
+    print string.join(missing, '\n')
+    print "Actual STDOUT =========="
+    print stdout
+    test.fail_test(1)
 
 
 
