@@ -578,7 +578,6 @@ This only works when run under Python 2.1 or later.
 Re-run SCons under the control of the
 .RI pdb
 Python debugger.
-.EE
 
 .TP
 --debug=presub
@@ -617,6 +616,47 @@ Print the dependency tree
 after each top-level target is built. This prints out the complete
 dependency tree including implicit dependencies and ignored
 dependencies.
+
+.TP
+.RI --diskcheck= types
+Enable specific checks for
+whether or not there is a file on disk
+where the SCons configuration expects a directory
+(or vice versa),
+and whether or not RCS or SCCS sources exist
+when searching for source and include files.
+The
+.I types
+argument can be set to:
+.BR all ,
+to enable all checks explicitly
+(the default behavior);
+.BR none ,
+to disable all such checks;
+.BR match ,
+to check that files and directories on disk
+match SCons' expected configuration;
+.BR rcs ,
+to check for the existence of an RCS source
+for any missing source or include files;
+.BR sccs ,
+to check for the existence of an SCCS source
+for any missing source or include files.
+Multiple checks can be specified separated by commas;
+for example,
+.B --diskcheck=sccs,rcs
+would still check for SCCS and RCS sources,
+but disable the check for on-disk matches of files and directories.
+Disabling some or all of these checks
+can provide a performance boost for large configurations,
+or when the configuration will check for files and/or directories
+across networked or shared file systems,
+at the slight increased risk of an incorrect build
+or of not handling errors gracefully
+(if include files really should be
+found in SCCS or RCS, for example,
+or if a file really does exist
+where the SCons configuration expects a directory).
 
 .\" .TP
 .\" -e, --environment-overrides
